@@ -85,35 +85,41 @@ const WarningSystemXRUI = function () {
   const { title, body, timeRemaining } = state.value
 
   return (
-    <div xr-layer="true" className={'z-1'} style={{ zIndex: '-1' }}>
-      <div
-        xr-layer="true"
-        className={'pl-6 pr-8 max-w-sm'}
-        style={{
-          paddingLeft: '24px',
-          paddingRight: '32px',
-          maxWidth: '400px',
-          background: 'var(--popupBackground)',
-          color: 'var(--textColor)',
-          borderRadius: '20px',
-          padding: '12px'
-        }}
-        onClick={executeAction}
-      >
+    <>
+      <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto"></link>
+      <div xr-layer="true" className={'z-1'} style={{ zIndex: '-1', fontFamily: 'Roboto' }}>
         <div
           xr-layer="true"
-          className={'flex justify-space-between align-center'}
+          className={'pl-6 pr-8 max-w-sm'}
           style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center'
+            paddingLeft: '24px',
+            paddingRight: '32px',
+            maxWidth: '400px',
+            background: 'var(--popupBackground)',
+            color: 'var(--textColor)',
+            borderRadius: '20px',
+            padding: '12px'
           }}
+          onClick={executeAction}
         >
-          <div />
-          <div xr-layer="true" className={'font-size 24px'} style={{ fontSize: '24px' }}>
-            {title}
-          </div>
-          {/* <IconButton
+          <div
+            xr-layer="true"
+            className={'flex justify-space-between align-center'}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}
+          >
+            <div />
+            <div
+              xr-layer="true"
+              className={'font-size 20px'}
+              style={{ fontSize: '24px', width: '100%', textAlign: 'center' }}
+            >
+              {title}
+            </div>
+            {/* <IconButton
             xr-layer="true"
             aria-label="close"
             className={'bg lightgrey'}
@@ -122,22 +128,23 @@ const WarningSystemXRUI = function () {
             size="large"
             icon={<Icon type="Close" />}
           /> */}
-        </div>
-        <div xr-layer="true" className={'font-size 16px center'} style={{ fontSize: '16px', textAlign: 'center' }}>
-          {body}
-          {timeRemaining > 0 && (
-            <>
-              <div xr-layer="true">
-                <span xr-layer="true">{timeRemaining}</span> {t('common:alert.seconds')}
-              </div>
-              <div className={'margin-top 20px font-size 12px'} style={{ marginTop: '20px', fontSize: '12px' }}>
-                {t('common:alert.cancelCountdown')}
-              </div>
-            </>
-          )}
+          </div>
+          <div xr-layer="true" className={'font-size 16px center'} style={{ fontSize: '16px', textAlign: 'center' }}>
+            {body}
+            {timeRemaining > 0 && (
+              <>
+                <div xr-layer="true">
+                  <span xr-layer="true">{timeRemaining}</span> {t('common:alert.seconds')}
+                </div>
+                <div className={'margin-top 20px font-size 12px'} style={{ marginTop: '20px', fontSize: '12px' }}>
+                  {t('common:alert.cancelCountdown')}
+                </div>
+              </>
+            )}
+          </div>
         </div>
       </div>
-    </div>
+    </>
   )
 }
 
