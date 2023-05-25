@@ -155,6 +155,7 @@ const client = {
     (process.env.VITE_LOCAL_BUILD
       ? 'http://' + process.env.APP_HOST + ':' + process.env.APP_PORT
       : 'https://' + process.env.APP_HOST + ':' + process.env.APP_PORT),
+  port: process.env.APP_PORT || '3000',
   releaseName: process.env.RELEASE_NAME || 'local'
 }
 

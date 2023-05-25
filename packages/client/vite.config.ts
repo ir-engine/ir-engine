@@ -1,5 +1,5 @@
 import { viteCommonjs } from '@originjs/vite-plugin-commonjs'
-import appRootPath from 'app-root-path'
+import packageRoot from 'app-root-path'
 import dotenv from 'dotenv'
 import fs from 'fs'
 import fsExtra from 'fs-extra'
@@ -122,7 +122,7 @@ copyProjectDependencies()
 
 export default defineConfig(async () => {
   dotenv.config({
-    path: appRootPath.path + '/.env.local'
+    path: packageRoot.path + '/.env.local'
   })
   const clientSetting = await getClientSetting()
 
@@ -151,8 +151,8 @@ export default defineConfig(async () => {
       ...(process.env.APP_ENV === 'development' || process.env.VITE_LOCAL_BUILD === 'true'
         ? {
             https: {
-              key: fs.readFileSync('../../certs/key.pem'),
-              cert: fs.readFileSync('../../certs/cert.pem')
+              key: fs.readFileSync(path.join(packageRoot.path, 'certs/key.pem')),
+              cert: fs.readFileSync(path.join(packageRoot.path, 'certs/cert.pem'))
             }
           }
         : {})

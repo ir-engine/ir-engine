@@ -20,14 +20,16 @@ app.use(serve(join(packageRoot, 'packages', 'client', 'dist'), {
 }));
 
 app.use(async (ctx) => {
-  await sendFile(ctx, join('dist', 'index.html'));
+  await sendFile(ctx, join('dist', 'index.html'), {
+    root: join(packageRoot, 'packages', 'client')
+  });
 });
 
 app.listen = function () {
   let server;
   if (HTTPS) {
-    const key = readFileSync('../../certs/key.pem');
-    const cert = readFileSync('../../certs/cert.pem');
+    const key = readFileSync(join(packageRoot, 'certs/key.pem'))
+    const cert = readFileSync(join(packageRoot, 'certs/cert.pem'))
     server = createServer({key: key, cert: cert }, this.callback());
   } else {
     server = _createServer(this.callback());
