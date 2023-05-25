@@ -29,10 +29,10 @@ export const AudioState = defineState({
     microphoneGain: 0.5,
     positionalMedia: false,
     usePositionalMedia: 'auto' as 'auto' | 'off' | 'on',
-    mediaStreamVolume: 0.5,
-    notificationVolume: 0.5,
-    soundEffectsVolume: 0.2,
-    backgroundMusicVolume: 0.2
+    mediaStreamVolume: 1,
+    notificationVolume: 1,
+    soundEffectsVolume: 1,
+    backgroundMusicVolume: 0.5
   }),
   onCreate: () => {
     syncStateWithLocalStorage(AudioState, [
