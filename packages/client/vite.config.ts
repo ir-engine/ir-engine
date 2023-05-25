@@ -72,16 +72,15 @@ function mediapipe_workaround() {
     name: 'mediapipe_workaround',
     load(id) {
       const MEDIAPIPE_EXPORT_NAMES = {
-        'pose.js': [
-          'POSE_LANDMARKS',
+        'holistic.js': [
+          'FACEMESH_TESSELATION',
+          'HAND_CONNECTIONS',
+          'Holistic',
           'POSE_CONNECTIONS',
-          'POSE_LANDMARKS_LEFT',
-          'POSE_LANDMARKS_RIGHT',
-          'POSE_LANDMARKS_NEUTRAL',
-          'Pose',
+          'POSE_LANDMARKS',
+          'Holistic',
           'VERSION'
         ],
-        'hands.js': ['VERSION', 'HAND_CONNECTIONS', 'Hands'],
         'camera_utils.js': ['Camera'],
         'drawing_utils.js': ['drawConnectors', 'drawLandmarks', 'lerp'],
         'control_utils.js': [
@@ -151,7 +150,8 @@ export default defineConfig(async () => {
     },
     base,
     optimizeDeps: {
-      exclude: ['@etherealengine/volumetric'],
+      entries: ['./src/main.tsx'],
+      exclude: ['@etherealengine/volumetric', '@mediapipe/holistic'],
       include: ['@reactflow/core', '@reactflow/minimap', '@reactflow/controls', '@reactflow/background'],
       esbuildOptions: {
         target: 'es2020'
