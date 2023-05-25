@@ -111,7 +111,7 @@ function mediapipe_workaround() {
 }
 
 const writeEmptySWFile = () => {
-  const swPath = path.resolve(appRootPath.path, 'packages/client/public/service-worker.js')
+  const swPath = path.resolve(packageRoot.path, 'packages/client/public/service-worker.js')
   if (!fs.existsSync(swPath)) {
     fs.writeFileSync(swPath, 'if(!self.define){}')
   }
