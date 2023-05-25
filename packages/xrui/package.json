@@ -33,9 +33,8 @@
   "main": "index.ts",
   "npmClient": "npm",
   "scripts": {
-    "build": "tsc && npm run build:worker && npm run build:encoder",
+    "build": "npm run build:worker",
     "build:worker": "esbuild core/textures/KTX2Worker.ts --bundle --format=esm --outfile=core/textures/KTX2Worker.bundle.txt --loader:.wasm=binary",
-    "build:encoder": "esbuild core/textures/KTX2Encoder.ts --bundle --format=esm --outfile=core/textures/KTX2Encoder.bundle.js",
     "test": "cross-env TEST=true mocha --config .mocharc.cjs"
   },
   "dependencies": {
