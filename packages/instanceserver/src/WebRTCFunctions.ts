@@ -674,17 +674,17 @@ export async function handleWebRtcTransportConnect(
 
 export async function handleWebRtcCloseProducer(network: SocketWebRTCServerNetwork, spark: Spark, data, messageId) {
   const { producerId } = data
-  const producer = network.producers.find((p) => p.id === producerId)!
+  const producer = network.producers.find((p) => p.id === producerId)
   try {
-    const hostClient = Array.from(network.peers.values()).find((peer) => {
-      return peer.media && peer.media![producer.appData.mediaTag]?.producerId === producerId
-    })!
-    if (hostClient) {
-      await closeProducerAndAllPipeProducers(network, producer)
-      spark!.write({ type: MessageTypes.WebRTCCloseProducer.toString(), data: producerId, id: messageId })
-      return
-    }
     if (producer) {
+      const hostClient = Array.from(network.peers.values()).find((peer) => {
+        return peer.media && peer.media![producer.appData.mediaTag]?.producerId === producerId
+      })!
+      if (hostClient) {
+        await closeProducerAndAllPipeProducers(network, producer)
+        spark!.write({ type: MessageTypes.WebRTCCloseProducer.toString(), data: producerId, id: messageId })
+        return
+      }
       await closeProducer(network, producer)
       spark!.write({ type: MessageTypes.WebRTCCloseProducer.toString(), data: producerId, id: messageId })
       return

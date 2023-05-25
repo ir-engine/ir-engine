@@ -1,4 +1,4 @@
-import { PlayIcon, StopIcon } from '@heroicons/react/24/solid'
+import { PlayIcon, PlusCircleIcon, StopIcon } from '@heroicons/react/24/solid'
 import React from 'react'
 
 const RecordingsList = ({ startPlayback, stopPlayback, recordingState }) => {
@@ -16,25 +16,7 @@ const RecordingsList = ({ startPlayback, stopPlayback, recordingState }) => {
           {recordingState.recordings.value.map((recording) => (
             <tr key={recording.id}>
               <td>
-                <div className="bg-grey">
-                  {/* a button to play back the recording */}
-                  {recordingState.playback.value === recording.id ? (
-                    <button
-                      style={{ pointerEvents: 'all' }}
-                      onClick={() => {
-                        stopPlayback({
-                          recordingID: recording.id
-                        })
-                      }}
-                    >
-                      {recording.id}
-                    </button>
-                  ) : (
-                    <button style={{ pointerEvents: 'all' }} onClick={() => startPlayback(recording.id)}>
-                      {recording.id}
-                    </button>
-                  )}
-                </div>
+                <div className="bg-grey">{recording.id}</div>
               </td>
               <td>
                 <div key={recording.id} className="">
@@ -51,9 +33,14 @@ const RecordingsList = ({ startPlayback, stopPlayback, recordingState }) => {
                       <StopIcon className="block min-w-6 min-h-6" />
                     </button>
                   ) : (
-                    <button className="btn btn-ghost" onClick={() => startPlayback(recording.id)}>
-                      <PlayIcon className="block min-w-6 min-h-6" />
-                    </button>
+                    <>
+                      <button className="btn btn-ghost" onClick={() => startPlayback(recording.id, false)}>
+                        <PlayIcon className="block min-w-6 min-h-6" />
+                      </button>
+                      <button style={{ pointerEvents: 'all' }} onClick={() => startPlayback(recording.id, true)}>
+                        <PlusCircleIcon className="block min-w-6 min-h-6" />
+                      </button>
+                    </>
                   )}
                 </div>
               </td>
