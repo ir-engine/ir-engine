@@ -258,7 +258,7 @@ export const rigAvatarModel = (entity: Entity) => (model: VRM) => {
 
   const rig = model.humanoid?.humanBones
 
-  model.humanoid.normalizedHumanBonesRoot.quaternion.copy(hipsRotationoffset)
+  model.humanoid.humanBones.hips.node.quaternion.copy(hipsRotationoffset)
 
   const skinnedMeshes = findSkinnedMeshes(model.scene)
 

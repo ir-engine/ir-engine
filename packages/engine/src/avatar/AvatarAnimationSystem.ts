@@ -117,8 +117,6 @@ const filterFrustumCulledEntities = (entity: Entity) =>
     FrustumCullCameraComponent.isCulled[entity]
   )
 
-const hipsRotationoffset = new Quaternion().setFromEuler(new Euler(0, Math.PI, 0))
-
 let avatarSortAccumulator = 0
 const _quat = new Quaternion()
 
@@ -385,8 +383,6 @@ const execute = () => {
       null,
       worldSpaceTargets.leftKneeHint
     )
-
-    rig.hips.node.quaternion.copy(hipsRotationoffset)
   }
 
   /**
