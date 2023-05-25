@@ -1,8 +1,7 @@
 import { WorkerPool } from '../WorkerPool'
-import KTX2WorkerBody from './KTX2Worker.bundle.txt?raw'
 
-const workerBlob = new Blob([KTX2WorkerBody], { type: 'text/javascript' })
-const workerURL = URL.createObjectURL(workerBlob)
+// @ts-ignore
+const workerURL = new URL('./KTX2Worker.bundle.txt', import.meta.url).href
 
 export enum UASTCFlags {
   /** Fastest is the lowest quality, although it's stil substantially higher quality vs. BC1/ETC1. It supports 5 modes.
