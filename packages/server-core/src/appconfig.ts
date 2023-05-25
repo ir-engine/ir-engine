@@ -162,7 +162,6 @@ const client = {
 // TODO: rename to 'instanceserver'
 const instanceserver = {
   clientHost: process.env.APP_HOST!,
-  hostname: process.env.INSTANCESERVER_HOST,
   rtc_start_port: parseInt(process.env.RTC_START_PORT!),
   rtc_end_port: parseInt(process.env.RTC_END_PORT!),
   rtc_port_block_size: parseInt(process.env.RTC_PORT_BLOCK_SIZE!),
