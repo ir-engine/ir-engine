@@ -313,10 +313,10 @@ export const onStartPlayback = async (action: ReturnType<typeof ECSRecordingActi
   const entityFiles = recording.resources.filter((key) => key.includes('entities-'))
 
   const rawFiles = recording.resources.filter(
-    (key) => !key.includes('entities-') && !new RegExp(mediaDataChannels.join('|')).test(key)
+    (key) => !key.includes('entities-') && key.substring(key.length - 3, key.length) === '.ee'
   )
 
-  const mediaFiles = recording.resources.filter((key) => new RegExp(mediaDataChannels.join('|')).test(key))
+  const mediaFiles = recording.resources.filter((key) => key.substring(key.length - 3, key.length) !== '.ee')
 
   const entityChunks = (await Promise.all(entityFiles.map((key) => storageProvider.getObject(key)))).map((data) =>
     decode(data.Body)

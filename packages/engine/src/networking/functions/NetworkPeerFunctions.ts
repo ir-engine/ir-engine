@@ -4,12 +4,12 @@ import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 import { dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 import { Action, ResolvedActionType } from '@etherealengine/hyperflux/functions/ActionFunctions'
-import { getState } from '@etherealengine/hyperflux/functions/StateFunctions'
+import { getState, none } from '@etherealengine/hyperflux/functions/StateFunctions'
 
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineActions } from '../../ecs/classes/EngineState'
 import { removeEntity } from '../../ecs/functions/EntityFunctions'
-import { Network } from '../classes/Network'
+import { Network, NetworkTopics } from '../classes/Network'
 import { WorldState } from '../interfaces/WorldState'
 import { NetworkState, updateNetwork } from '../NetworkState'
 import { WorldNetworkAction } from './WorldNetworkAction'
@@ -43,8 +43,11 @@ function createPeer(
   //TODO: remove this once all network state properties are reactively set
   updateNetwork(network)
 
-  const worldState = getMutableState(WorldState)
-  worldState.userNames[userID].set(name)
+  // TODO: we probably want an explicit config for detecting a non-user peer
+  if (peerID !== 'server') {
+    const worldState = getMutableState(WorldState)
+    worldState.userNames[userID].set(name)
+  }
 }
 
 function destroyPeer(network: Network, peerID: PeerID) {

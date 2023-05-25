@@ -45,6 +45,7 @@ import {
 } from './components/AvatarIKComponents'
 import { LoopAnimationComponent } from './components/LoopAnimationComponent'
 import { applyInputSourcePoseToIKTargets } from './functions/applyInputSourcePoseToIKTargets'
+import { AvatarMovementSettingsState } from './state/AvatarMovementSettingsState'
 
 export const AvatarAnimationState = defineState({
   name: 'AvatarAnimationState',
@@ -229,10 +230,13 @@ const execute = () => {
       avatarAnimationComponent.locomotion.x = 0
       avatarAnimationComponent.locomotion.y = rigidbodyComponent.linearVelocity.y
       // lerp animated forward animation to smoothly animate to a stop
-      avatarAnimationComponent.locomotion.z = MathUtils.lerp(
-        avatarAnimationComponent.locomotion.z || 0,
-        _vector3.copy(rigidbodyComponent.linearVelocity).setComponent(1, 0).length(),
-        10 * deltaTime
+      avatarAnimationComponent.locomotion.z = Math.min(
+        MathUtils.lerp(
+          avatarAnimationComponent.locomotion.z || 0,
+          _vector3.copy(rigidbodyComponent.linearVelocity).setComponent(1, 0).length(),
+          10 * deltaTime
+        ),
+        getState(AvatarMovementSettingsState).runSpeed
       )
     } else {
       avatarAnimationComponent.locomotion.setScalar(0)

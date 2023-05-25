@@ -75,6 +75,7 @@ const handleMocapData = (
 }
 
 const timeSeriesMocapData = new Map<PeerID, RingBuffer<NormalizedLandmark[]>>()
+const timeSeriesMocapLastSeen = new Map<PeerID, number>()
 
 const objs = [] as Mesh[]
 const debug = false
@@ -98,8 +99,9 @@ const execute = () => {
   const network = Engine.instance.worldNetwork
 
   for (const [peerID, mocapData] of timeSeriesMocapData) {
-    if (!network?.peers?.has(peerID) || mocapData.empty()) {
+    if (!network?.peers?.has(peerID) || timeSeriesMocapLastSeen.get(peerID)! < Date.now() - 1000) {
       timeSeriesMocapData.delete(peerID)
+      timeSeriesMocapLastSeen.delete(peerID)
     }
   }
 
@@ -127,6 +129,8 @@ const execute = () => {
     if (entity && entity === localClientEntity) {
       const data = mocapData.popLast()
       if (!data) continue
+
+      timeSeriesMocapLastSeen.set(peerID, Date.now())
 
       const leftHips = data[POSE_LANDMARKS.LEFT_HIP]
       const rightHips = data[POSE_LANDMARKS.RIGHT_HIP]

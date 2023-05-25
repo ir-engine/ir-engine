@@ -72,16 +72,15 @@ function mediapipe_workaround() {
     name: 'mediapipe_workaround',
     load(id) {
       const MEDIAPIPE_EXPORT_NAMES = {
-        'pose.js': [
-          'POSE_LANDMARKS',
+        'holistic.js': [
+          'FACEMESH_TESSELATION',
+          'HAND_CONNECTIONS',
+          'Holistic',
           'POSE_CONNECTIONS',
-          'POSE_LANDMARKS_LEFT',
-          'POSE_LANDMARKS_RIGHT',
-          'POSE_LANDMARKS_NEUTRAL',
-          'Pose',
+          'POSE_LANDMARKS',
+          'Holistic',
           'VERSION'
         ],
-        'hands.js': ['VERSION', 'HAND_CONNECTIONS', 'Hands'],
         'camera_utils.js': ['Camera'],
         'drawing_utils.js': ['drawConnectors', 'drawLandmarks', 'lerp'],
         'control_utils.js': [
@@ -111,6 +110,13 @@ function mediapipe_workaround() {
   }
 }
 
+const writeEmptySWFile = () => {
+  const swPath = path.resolve(appRootPath.path, 'packages/client/public/service-worker.js')
+  if (!fs.existsSync(swPath)) {
+    fs.writeFileSync(swPath, 'if(!self.define){}')
+  }
+}
+
 // this will copy all files in each installed project's "/static" folder to the "/public/projects" folder
 copyProjectDependencies()
 
@@ -119,6 +125,8 @@ export default defineConfig(async () => {
     path: appRootPath.path + '/.env.local'
   })
   const clientSetting = await getClientSetting()
+
+  writeEmptySWFile()
 
   let base = `https://${process.env['VITE_APP_HOST'] || process.env['APP_URL']}/`
 

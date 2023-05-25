@@ -28,12 +28,12 @@ export const sendActionsAsPeer = (network: Network) => {
   if (!network.ready) return
   const actions = [...Engine.instance.store.actions.outgoing[network.topic].queue]
   if (!actions.length) return
-  for (const peerID of network.transport.peers) {
-    network.transport.messageToPeer(network.hostPeerID, {
-      type: MessageTypes.ActionData.toString(),
-      /*encode(*/ data: actions
-    }) //)
-  }
+  // for (const peerID of network.transport.peers) {
+  network.transport.messageToPeer(network.hostPeerID, {
+    type: MessageTypes.ActionData.toString(),
+    /*encode(*/ data: actions
+  }) //)
+  // }
   clearOutgoingActions(network.topic)
 }
 
