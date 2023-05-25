@@ -36,6 +36,7 @@ export class S3Provider implements StorageProviderInterface {
     endpoint: config.aws.s3.endpoint,
     region: config.aws.s3.region,
     s3ForcePathStyle: true,
+    sslEnabled: config.aws.s3.s3DevMode === 'local' ? false : undefined,
     maxRetries: 5
   })
 
@@ -44,12 +45,16 @@ export class S3Provider implements StorageProviderInterface {
    */
   cacheDomain =
     config.server.storageProvider === 'aws'
-      ? config.aws.cloudfront.domain
+      ? config.aws.s3.endpoint
+        ? `${config.aws.s3.endpoint.replace('http://', '').replace('https://', '')}/${this.bucket}`
+        : config.aws.cloudfront.domain
       : `${config.aws.cloudfront.domain}/${this.bucket}`
 
   private bucketAssetURL =
     config.server.storageProvider === 'aws'
-      ? `https://${this.bucket}.s3.${config.aws.s3.region}.amazonaws.com`
+      ? config.aws.s3.endpoint
+        ? `${config.aws.s3.endpoint}/${this.bucket}`
+        : `https://${this.bucket}.s3.${config.aws.s3.region}.amazonaws.com`
       : `https://${config.aws.cloudfront.domain}/${this.bucket}`
 
   private blob: typeof S3BlobStore = new S3BlobStore({
@@ -222,7 +227,7 @@ export class S3Provider implements StorageProviderInterface {
    */
   async createInvalidation(invalidationItems: any[]) {
     // for non-standard s3 setups, we don't use cloudfront
-    if (config.server.storageProvider !== 'aws') return
+    if (config.server.storageProvider !== 'aws' || config.aws.s3.s3DevMode === 'local') return
     return this.cloudfront
       .createInvalidation({
         DistributionId: config.aws.cloudfront.distributionId,
