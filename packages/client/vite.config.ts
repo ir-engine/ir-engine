@@ -110,6 +110,13 @@ function mediapipe_workaround() {
   }
 }
 
+const writeEmptySWFile = () => {
+  const swPath = path.resolve(appRootPath.path, 'packages/client/public/service-worker.js')
+  if (!fs.existsSync(swPath)) {
+    fs.writeFileSync(swPath, 'if(!self.define){}')
+  }
+}
+
 // this will copy all files in each installed project's "/static" folder to the "/public/projects" folder
 copyProjectDependencies()
 
@@ -118,6 +125,8 @@ export default defineConfig(async () => {
     path: appRootPath.path + '/.env.local'
   })
   const clientSetting = await getClientSetting()
+
+  writeEmptySWFile()
 
   let base = `https://${process.env['VITE_APP_HOST'] || process.env['APP_URL']}/`
 
