@@ -115,6 +115,10 @@ const CaptureDashboard = () => {
   const videoActive = useHookstate(false)
 
   useEffect(() => {
+    RecordingFunctions.getRecordings()
+  }, [])
+
+  useEffect(() => {
     const factor = isVideoFlipped === true ? '-1' : '1'
     canvasRef.current!.style.transform = `scaleX(${factor})`
     videoRef.current!.style.transform = `scaleX(${factor})`
