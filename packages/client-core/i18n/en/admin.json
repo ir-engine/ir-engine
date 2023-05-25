@@ -266,7 +266,7 @@
       "route53": "Route53",
       "hostedZoneId": "Hosted Zone ID",
       "s3": "S3",
-      "baseUrl": "BaseUrl",
+      "endpoint": "Endpoint",
       "staticResourceBucket": "Static Resource Bucket",
       "region": "Region",
       "avatarDir": "AvatarDir",
