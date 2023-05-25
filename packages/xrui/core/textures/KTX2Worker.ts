@@ -6,6 +6,18 @@ import type { KTX2EncodeRequestData, KTX2EncodeResponseData } from './KTX2Encode
 ;(0, eval)(BasisEncoderModuleSRC)
 declare const BASIS: any
 
+/**
+ * Loads wasm encoder module
+ */
+async function loadBasisEncoder() {
+  // if you try to return BasisModule the browser crashes!
+  const { initializeBasis, BasisFile, KTX2File, BasisEncoder } = await BASIS({ wasmBinary: BasisEncoderWASMBinary })
+  initializeBasis()
+  return { BasisFile, KTX2File, BasisEncoder }
+}
+
+const BasisPromise = loadBasisEncoder()
+
 const worker: Worker = self as any
 
 worker.onmessage = async (msg: MessageEvent<KTX2EncodeRequestData>) => {
@@ -19,31 +31,6 @@ worker.onmessage = async (msg: MessageEvent<KTX2EncodeRequestData>) => {
 }
 
 /**
- * Loads wasm encoder module
- */
-async function loadBasisEncoder() {
-  // return new Promise( ( resolve ) => {
-
-  //   BasisModule = { wasmBinary, onRuntimeInitialized: resolve };
-  //   BASIS( BasisModule );
-
-  // } ).then( () => {
-
-  //   var { BasisFile, initializeBasis } = BasisModule;
-
-  //   _BasisFile = BasisFile;
-
-  //   initializeBasis();
-
-  // } );
-
-  // if you try to return BasisModule the browser crashes!
-  const { initializeBasis, BasisFile, KTX2File, BasisEncoder } = await BASIS({ wasmBinary: BasisEncoderWASMBinary })
-  initializeBasis()
-  return { BasisFile, KTX2File, BasisEncoder }
-}
-
-/**
  * Encodes image to Basis Universal Supercompressed GPU Texture.
  * @param image
  * @param options
@@ -51,9 +38,7 @@ async function loadBasisEncoder() {
 async function encodeKTX2BasisTexture(data: KTX2EncodeRequestData): Promise<ArrayBuffer> {
   let basisEncoder
   try {
-    const { BasisEncoder } = await loadBasisEncoder()
-
-    basisEncoder = new BasisEncoder()
+    basisEncoder = new (await BasisPromise).BasisEncoder()
     basisEncoder.setCreateKTX2File(true)
     basisEncoder.setDebug(false)
     basisEncoder.setComputeStats(false)

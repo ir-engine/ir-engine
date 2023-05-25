@@ -17,9 +17,7 @@ import { bufferToHex } from './hex-utils'
 import { serializeToString } from './serialization-utils'
 import { getParentsHTML } from './serialization-utils'
 import { getAllEmbeddedStyles } from './serialization/getAllEmbeddedStyles'
-import { KTX2Encoder as KTX2EncoderType, UASTCFlags } from './textures/KTX2Encoder'
-// @ts-ignore
-import { KTX2Encoder } from './textures/KTX2Encoder.bundle.js'
+import { KTX2Encoder, UASTCFlags } from './textures/KTX2Encoder'
 import { WebLayer } from './WebLayer'
 import { WebRenderer } from './WebRenderer'
 
@@ -134,7 +132,7 @@ export class WebLayerManagerBase {
   rasterizeQueue = [] as { hash: StateHash; svgUrl: string; resolve: (val: any) => void; promise: any }[]
   optimizeQueue = [] as { textureHash: TextureHash; resolve: (val: any) => void; promise: any }[]
 
-  ktx2Encoder = new KTX2Encoder() as any as KTX2EncoderType
+  ktx2Encoder = new KTX2Encoder()
 
   private _unsavedTextureData = new Map<TextureHash, TextureStoreData>()
   private _stateData = new Map<StateHash | HTMLMediaElement, StateData>()
