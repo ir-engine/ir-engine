@@ -18,20 +18,8 @@ import { XRUIComponent, XRUIInteractableComponent } from '@etherealengine/engine
 import { createTransitionState } from '@etherealengine/engine/src/xrui/functions/createTransitionState'
 import { createXRUI } from '@etherealengine/engine/src/xrui/functions/createXRUI'
 import { ObjectFitFunctions } from '@etherealengine/engine/src/xrui/functions/ObjectFitFunctions'
-import { defineState, getMutableState, getState, startReactor, useHookstate } from '@etherealengine/hyperflux'
+import { defineState, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 import type { WebLayer3D } from '@etherealengine/xrui'
-
-import { LocationInstanceConnectionService } from '../common/services/LocationInstanceConnectionService'
-import { MediaInstanceConnectionService } from '../common/services/MediaInstanceConnectionService'
-
-type ActionType = {
-  name: string
-  data?: {
-    channelId?: string
-    createPrivateRoom?: boolean
-    locationId?: string
-  }
-}
 
 export const WarningUIState = defineState({
   name: 'WarningUIState',
@@ -40,37 +28,24 @@ export const WarningUIState = defineState({
     title: '',
     body: '',
     timeRemaining: 0,
-    action: {
-      name: '',
-      data: {}
-    } as ActionType
+    action: null as null | (() => void)
   }
 })
 
 const executeAction = async () => {
   const action = getState(WarningUIState).action
-  switch (action.name) {
-    case 'provisionMediaServer':
-      if (action.data?.channelId)
-        await MediaInstanceConnectionService.provisionServer(action.data.channelId, action.data.createPrivateRoom)
-      break
-    case 'provisionWorldServer':
-      if (action.data?.locationId) await LocationInstanceConnectionService.provisionServer(action.data.locationId)
-      break
-    case 'reloadWindow':
-      window.location.reload()
-      break
-  }
+  if (action) action()
+  WarningUIService.closeWarning()
 }
 
 export const WarningUIService = {
-  openWarning: async (args: { title: string; body: string; timeout?: number; action?: ActionType }) => {
+  openWarning: async (args: { title: string; body: string; timeout?: number; action?: () => void }) => {
     const state = getMutableState(WarningUIState)
     state.open.set(true)
     state.title.set(args.title)
     state.body.set(args.body)
     state.timeRemaining.set(args.timeout ?? 0)
-    if (args.action) state.action.set(args.action)
+    state.action.set(args.action ?? null)
   },
   closeWarning: () => {
     const state = getMutableState(WarningUIState)
