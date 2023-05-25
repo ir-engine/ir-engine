@@ -84,7 +84,7 @@ export interface KTX2EncodeOptions {
    * Sets the UASTC encoding performance vs. quality tradeoff, and other lesser used UASTC encoder flags.
    * This is a combination of flags. See UASTCFlags
    */
-  uastcFlags: number
+  uastcFlags?: number
   /**
    * Tunes several codec parameters so compression works better on normal maps.
    * @default false
@@ -129,7 +129,8 @@ export class KTX2Encoder {
       [image.data.buffer]
     )
     if (responseMessage.data.error) throw new Error(responseMessage.data.error)
-    if (!responseMessage.data.texture) throw new Error('Encoding failed')
+    if (!responseMessage.data.texture || responseMessage.data.texture.byteLength === 0)
+      throw new Error('Encoding failed')
     return responseMessage.data.texture
   }
 }

@@ -336,10 +336,10 @@ export class WebLayerManagerBase {
     try {
       ktx2Texture = await this.ktx2Encoder.encode(image, {
         srgb: true,
-        // compressionLevel: 0,
-        // qualityLevel: 256,
-        uastc: true,
-        uastcFlags: UASTCFlags.UASTCLevelFastest
+        compressionLevel: 0,
+        qualityLevel: 256
+        // uastc: true,
+        // uastcFlags: UASTCFlags.UASTCLevelFastest
       })
     } catch (error: any) {
       console.error(`KTX2 encoding failed for image (${canvas.width}, ${canvas.height}) `, error)

@@ -1,6 +1,5 @@
-// @ts-ignore
-
 import BasisEncoderModuleSRC from './basis_encoder_low_memory/basis_encoder.js.txt'
+// @ts-ignore
 import BasisEncoderWASMBinary from './basis_encoder_low_memory/basis_encoder.wasm'
 import type { KTX2EncodeRequestData, KTX2EncodeResponseData } from './KTX2Encoder'
 
@@ -61,13 +60,16 @@ async function encodeKTX2BasisTexture(data: KTX2EncodeRequestData): Promise<Arra
     basisEncoder.setComputeStats(false)
 
     basisEncoder.setSliceSourceImage(0, data.image.data, data.image.width, data.image.height, false)
-    basisEncoder.setQualityLevel(data.options.qualityLevel ?? 128)
-    basisEncoder.setCompressionLevel(data.options.compressionLevel ?? 2)
-    basisEncoder.setMipGen(data.options.mipmaps ?? false)
 
     basisEncoder.setUASTC(data.options.uastc ?? false)
-    basisEncoder.setKTX2UASTCSupercompression(data.options.uastcZstandard)
-    basisEncoder.setPackUASTCFlags(data.options.uastcFlags)
+
+    if (data.options.uastc) {
+      basisEncoder.setKTX2UASTCSupercompression(data.options.uastcZstandard ?? false)
+      basisEncoder.setPackUASTCFlags(data.options.uastcFlags ?? 2)
+    } else {
+      basisEncoder.setQualityLevel(data.options.qualityLevel ?? 128)
+      basisEncoder.setCompressionLevel(data.options.compressionLevel ?? 2)
+    }
 
     if (data.options.srgb) {
       basisEncoder.setPerceptual(true)
@@ -79,6 +81,8 @@ async function encodeKTX2BasisTexture(data: KTX2EncodeRequestData): Promise<Arra
       basisEncoder.setNormalMap()
       basisEncoder.setMipRenormalize(true)
     }
+
+    basisEncoder.setMipGen(data.options.mipmaps ?? false)
 
     const numOutputBytes = basisEncoder.encode(basisFileData)
     const actualKTX2FileData = basisFileData.subarray(0, numOutputBytes).buffer
