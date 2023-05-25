@@ -88,7 +88,7 @@ export default class BasisuExporterExtension extends ExporterExtension implement
             ktx2Encoder
               .encode(imgData, {
                 qualityLevel: 256,
-                compressionLevel: 6,
+                compressionLevel: 5,
                 srgb: true, // TODO: set false if normal map
                 normalMap: false, // TODO: set true if normal map
                 mipmaps: true

@@ -161,7 +161,10 @@ export const convertCubemapToKTX2 = async (
   const imageData = new ImageData(new Uint8ClampedArray(pixels), width, height)
   renderer.setRenderTarget(null) // pass `null` to set canvas as render target
 
-  const ktx2texture = (await ktx2write.encode(imageData, false, -1, true, false)) as ArrayBuffer
+  const ktx2texture = (await ktx2write.encode(imageData, {
+    qualityLevel: 256,
+    compressionLevel: 5
+  })) as ArrayBuffer
 
   if (returnAsBlob) {
     return new Blob([ktx2texture])
