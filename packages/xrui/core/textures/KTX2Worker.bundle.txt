@@ -53,6 +53,12 @@ var basis_encoder_default = __toBinary("AGFzbQEAAAABrgQ6YAJ/fwBgAX8Bf2ADf39/AGAC
 
 // core/textures/KTX2Worker.ts
 (0, eval)(basis_encoder_js_default);
+async function loadBasisEncoder() {
+  const { initializeBasis, BasisFile, KTX2File, BasisEncoder } = await BASIS({ wasmBinary: basis_encoder_default });
+  initializeBasis();
+  return { BasisFile, KTX2File, BasisEncoder };
+}
+var BasisPromise = loadBasisEncoder();
 var worker = self;
 worker.onmessage = async (msg) => {
   try {
@@ -63,16 +69,10 @@ worker.onmessage = async (msg) => {
     worker.postMessage({ error: err.message });
   }
 };
-async function loadBasisEncoder() {
-  const { initializeBasis, BasisFile, KTX2File, BasisEncoder } = await BASIS({ wasmBinary: basis_encoder_default });
-  initializeBasis();
-  return { BasisFile, KTX2File, BasisEncoder };
-}
 async function encodeKTX2BasisTexture(data) {
   let basisEncoder;
   try {
-    const { BasisEncoder } = await loadBasisEncoder();
-    basisEncoder = new BasisEncoder();
+    basisEncoder = new (await BasisPromise).BasisEncoder();
     basisEncoder.setCreateKTX2File(true);
     basisEncoder.setDebug(false);
     basisEncoder.setComputeStats(false);
