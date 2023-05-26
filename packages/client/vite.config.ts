@@ -130,7 +130,7 @@ export default defineConfig(async () => {
 
   const isDevOrLocal = process.env.APP_ENV === 'development' || process.env.VITE_LOCAL_BUILD === 'true'
 
-  let base = `https://${process.env['APP_HOST']}/`
+  let base = `https://${process.env['APP_HOST'] ? process.env['APP_HOST'] : process.env['VITE_APP_HOST']}/`
 
   if (
     process.env.SERVE_CLIENT_FROM_STORAGE_PROVIDER === 'true' &&
