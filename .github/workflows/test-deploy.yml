@@ -3,7 +3,7 @@ name: test-deploy
 on:
   push:
     branches:
-      [improve-storage-pruning]
+      [improved-storage-pruning]
 jobs:
   secrets-gate-run:
     runs-on: ubuntu-latest
