@@ -128,7 +128,9 @@ export default defineConfig(async () => {
 
   writeEmptySWFile()
 
-  let base = `https://${process.env['VITE_APP_HOST'] || process.env['APP_URL']}/`
+  const isDevOrLocal = process.env.APP_ENV === 'development' || process.env.VITE_LOCAL_BUILD === 'true'
+
+  let base = `https://${process.env['APP_HOST']}/`
 
   if (
     process.env.SERVE_CLIENT_FROM_STORAGE_PROVIDER === 'true' &&
@@ -148,7 +150,7 @@ export default defineConfig(async () => {
       headers: {
         'Origin-Agent-Cluster': '?1'
       },
-      ...(process.env.APP_ENV === 'development' || process.env.VITE_LOCAL_BUILD === 'true'
+      ...(isDevOrLocal
         ? {
             https: {
               key: fs.readFileSync(path.join(packageRoot.path, 'certs/key.pem')),
@@ -170,7 +172,7 @@ export default defineConfig(async () => {
       OptimizationPersist(),
       mediapipe_workaround(),
       PkgConfig(),
-      PWA(clientSetting),
+      process.env.VITE_PWA_ENABLED === 'true' ? PWA(clientSetting) : undefined,
       createHtmlPlugin({
         inject: {
           data: {
@@ -199,7 +201,7 @@ export default defineConfig(async () => {
       viteCommonjs({
         include: ['use-sync-external-store']
       })
-    ],
+    ].filter(Boolean),
     resolve: {
       alias: {
         'react-json-tree': 'react-json-tree/umd/react-json-tree',
