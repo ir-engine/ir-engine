@@ -130,6 +130,7 @@ export interface BlobStore {
  * Storage provide interface to provide template for storage handling capabilities.
  */
 export interface StorageProviderInterface {
+  provider?: any
   /**
    * Domain address of cache.
    */

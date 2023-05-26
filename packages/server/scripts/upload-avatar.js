@@ -2,7 +2,7 @@
 const dotenv = require('dotenv');
 const fs = require('fs');
 const Sequelize = require('sequelize');
-import { S3Client } from "@aws-sdk/client-s3";
+const { S3Client } = require('@aws-sdk/client-s3');
 const { nanoid } = require('nanoid');
 
 // TODO: check for existing avatar on S3
