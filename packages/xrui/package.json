@@ -34,7 +34,7 @@
   "npmClient": "npm",
   "scripts": {
     "build": "npm run build:worker",
-    "build:worker": "esbuild core/textures/KTX2Worker.ts --bundle --format=esm --outfile=core/textures/KTX2Worker.bundle.txt --loader:.wasm=binary",
+    "build:worker": "esbuild core/textures/KTX2Worker.ts --bundle --format=esm --outfile=core/textures/KTX2Worker.bundle.js --loader:.wasm=binary",
     "test": "cross-env TEST=true mocha --config .mocharc.cjs"
   },
   "dependencies": {
