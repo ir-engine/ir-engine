@@ -194,10 +194,8 @@ export const AvatarRigComponent = defineComponent({
       if (!bindTracks) return
       for (let i = 0; i < bindTracks.length; i += 3) {
         const key = bindTracks[i].name.substring(0, bindTracks[i].name.indexOf('.'))
-
         const hipsRotationoffset = new Quaternion().setFromEuler(new Euler(0, Math.PI, 0))
-        rigComponent.vrm.humanoid.normalizedHumanBonesRoot.value.quaternion.copy(hipsRotationoffset)
-        rigComponent.vrm.humanoid.normalizedHumanBonesRoot.value.updateMatrix()
+
         //todo: find a better way to map joints to ik targets here
         const bonePos = new Matrix4()
         switch (key) {
@@ -230,11 +228,10 @@ export const AvatarRigComponent = defineComponent({
             bonePos.copy(rigComponent.bindRig.leftLowerLeg.value.node.matrixWorld)
             break
         }
-        //temporarily multiplying the vector by zero to avoid calculation errors
-        bonePos.multiplyScalar(1)
         const pos = new Vector3()
         bonePos.decompose(pos, new Quaternion(), new Vector3())
-        //pos.sub(new Vector3(bindTracks[i].values[0], bindTracks[i].values[1], bindTracks[i].values[2]).add(worldPos))
+        pos.applyQuaternion(hipsRotationoffset)
+        pos.sub(new Vector3(bindTracks[i].values[0], bindTracks[i].values[1], bindTracks[i].values[2]))
         rigComponent.ikOffsetsMap.value.set(key, pos)
       }
     }, [animComponent.animations])

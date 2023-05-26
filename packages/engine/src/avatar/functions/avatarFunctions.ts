@@ -1,4 +1,5 @@
 import { VRM, VRMHumanBone, VRMHumanBoneList, VRMHumanBoneName } from '@pixiv/three-vrm'
+import * as VRMUtils from '@pixiv/three-vrm'
 import { pipe } from 'bitecs'
 import { cloneDeep } from 'lodash'
 import { useEffect } from 'react'
@@ -74,15 +75,20 @@ export const loadAvatarModelAsset = async (avatarURL: string) => {
   if (!scene) return
 
   if (model.userData.vrm) {
-    return model.userData.vrm as VRM
-    // const vrm: VRM = model.userData.vrm;
+    const vrm: VRM = model.userData.vrm
+    VRMUtils.VRMUtils.removeUnnecessaryJoints(vrm.scene)
+    VRMUtils.VRMUtils.removeUnnecessaryVertices(vrm.scene)
+
+    vrm.humanoid.humanBones.hips.node.rotateY(Math.PI)
+
+    return vrm as VRM
     // vrm.scene.traverse((l) => {
     //   l.frustumCulled = false;
     // });
 
-    // VRMUtils.removeUnnecessaryJoints(vrm.scene);
-    // VRMUtils.removeUnnecessaryVertices(vrm.scene);
-    // VRMUtils.rotateVRM0(vrm);
+    //
+    //
+    //
 
     // scene = vrm.scene
     // scene.userData = model.userData
@@ -160,8 +166,11 @@ export const loadAvatarForUser = async (
 
   removeComponent(entity, AvatarPendingComponent)
 
+  console.log(parent.scene.rotation)
   if (!parent) return
   setupAvatarForUser(entity, parent)
+
+  console.log(parent.scene.rotation)
 
   if (isClient && loadingEffect) {
     const avatar = getComponent(entity, AvatarComponent)
@@ -182,14 +191,10 @@ export const setupAvatarForUser = (entity: Entity, model: VRM) => {
   // if (avatar.model) removeObjectFromGroup(entity, avatar.model)
 
   setupAvatarModel(entity)(model)
-
   addObjectToGroup(entity, model.scene)
-
   computeTransformMatrix(entity)
   updateGroupChildren(entity)
-
   setupAvatarHeight(entity, model.scene)
-
   createIKAnimator(entity)
 
   setObjectLayers(model.scene, ObjectLayers.Avatar)
@@ -228,11 +233,12 @@ export const createIKAnimator = async (entity: Entity) => {
   const idle = animations[2]
   const walkForward = animations[1]
 
-  //Using set component here allows us to react to animations being
+  //Using set component here allows us to react to animations
   setComponent(entity, AnimationComponent, {
     animations: [bindPose, idle, walkForward],
     mixer: new AnimationMixer(rigComponent.targets)
   })
+
   const idleAction = animationComponent.mixer.clipAction(idle)
   const walkAction = animationComponent.mixer.clipAction(walkForward)
 
@@ -257,8 +263,6 @@ export const rigAvatarModel = (entity: Entity) => (model: VRM) => {
   removeComponent(entity, AvatarRigComponent)
 
   const rig = model.humanoid?.humanBones
-
-  model.humanoid.humanBones.hips.node.quaternion.copy(hipsRotationoffset)
 
   const skinnedMeshes = findSkinnedMeshes(model.scene)
 

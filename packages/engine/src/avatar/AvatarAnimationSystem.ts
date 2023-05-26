@@ -117,6 +117,8 @@ const filterFrustumCulledEntities = (entity: Entity) =>
     FrustumCullCameraComponent.isCulled[entity]
   )
 
+const hipsRotationoffset = new Quaternion().setFromEuler(new Euler(0, Math.PI, 0))
+
 let avatarSortAccumulator = 0
 const _quat = new Quaternion()
 
@@ -303,7 +305,7 @@ const execute = () => {
     for (const [key, value] of Object.entries(rigComponent.ikTargetsMap)) {
       worldSpaceTargets[key]
         .copy(value.position)
-        .copy(rigComponent.ikOffsetsMap.get(key)!)
+        .sub(rigComponent.ikOffsetsMap.get(key)!)
         .applyMatrix4(root.matrixWorld)
 
       if (visualizeTargets) {
