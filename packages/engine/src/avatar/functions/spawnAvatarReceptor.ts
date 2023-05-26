@@ -4,7 +4,6 @@ import { AnimationClip, AnimationMixer, Object3D, Quaternion, Vector3 } from 'th
 import { getState } from '@etherealengine/hyperflux'
 
 import { setTargetCameraRotation } from '../../camera/systems/CameraInputSystem'
-import { isClient } from '../../common/functions/getEnvironment'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import {
@@ -106,7 +105,7 @@ export const spawnAvatarReceptor = (spawnAction: typeof WorldNetworkAction.spawn
     rotation: new Quaternion().copy(transform.rotation)
   })
 
-  if (ownerId === Engine.instance.userId && isClient) {
+  if (ownerId === Engine.instance.userId) {
     createAvatarController(entity)
     addComponent(entity, LocalAvatarTagComponent, true)
     addComponent(entity, LocalInputTagComponent, true)

@@ -25,7 +25,7 @@ import {
   TransformComponent
 } from '@etherealengine/engine/src/transform/components/TransformComponent'
 import { getState } from '@etherealengine/hyperflux'
-import { KTX2Encoder } from '@etherealengine/xrui/core/textures/KTX2Encoder.bundle'
+import { KTX2Encoder } from '@etherealengine/xrui/core/textures/KTX2Encoder'
 
 import { EditorState } from '../services/EditorServices'
 
@@ -111,7 +111,12 @@ export async function takeScreenshot(
   scenePreviewCamera.aspect = prevAspect
   scenePreviewCamera.updateProjectionMatrix()
 
-  const ktx2texture = (await ktx2Encoder.encode(imageData, false, 10, false, false)) as ArrayBuffer
+  const ktx2texture = (await ktx2Encoder.encode(imageData, {
+    srgb: true,
+    uastc: true,
+    uastcZstandard: true
+  })) as ArrayBuffer
+
   return new Blob([ktx2texture])
 }
 

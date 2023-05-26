@@ -1,5 +1,5 @@
 import { viteCommonjs } from '@originjs/vite-plugin-commonjs'
-import appRootPath from 'app-root-path'
+import packageRoot from 'app-root-path'
 import dotenv from 'dotenv'
 import fs from 'fs'
 import fsExtra from 'fs-extra'
@@ -111,7 +111,7 @@ function mediapipe_workaround() {
 }
 
 const writeEmptySWFile = () => {
-  const swPath = path.resolve(appRootPath.path, 'packages/client/public/service-worker.js')
+  const swPath = path.resolve(packageRoot.path, 'packages/client/public/service-worker.js')
   if (!fs.existsSync(swPath)) {
     fs.writeFileSync(swPath, 'if(!self.define){}')
   }
@@ -122,13 +122,15 @@ copyProjectDependencies()
 
 export default defineConfig(async () => {
   dotenv.config({
-    path: appRootPath.path + '/.env.local'
+    path: packageRoot.path + '/.env.local'
   })
   const clientSetting = await getClientSetting()
 
   writeEmptySWFile()
 
-  let base = `https://${process.env['VITE_APP_HOST'] || process.env['APP_URL']}/`
+  const isDevOrLocal = process.env.APP_ENV === 'development' || process.env.VITE_LOCAL_BUILD === 'true'
+
+  let base = `https://${process.env['APP_HOST'] ? process.env['APP_HOST'] : process.env['VITE_APP_HOST']}/`
 
   if (
     process.env.SERVE_CLIENT_FROM_STORAGE_PROVIDER === 'true' &&
@@ -148,11 +150,11 @@ export default defineConfig(async () => {
       headers: {
         'Origin-Agent-Cluster': '?1'
       },
-      ...(process.env.APP_ENV === 'development' || process.env.VITE_LOCAL_BUILD === 'true'
+      ...(isDevOrLocal
         ? {
             https: {
-              key: fs.readFileSync('../../certs/key.pem'),
-              cert: fs.readFileSync('../../certs/cert.pem')
+              key: fs.readFileSync(path.join(packageRoot.path, 'certs/key.pem')),
+              cert: fs.readFileSync(path.join(packageRoot.path, 'certs/cert.pem'))
             }
           }
         : {})
@@ -170,7 +172,7 @@ export default defineConfig(async () => {
       OptimizationPersist(),
       mediapipe_workaround(),
       PkgConfig(),
-      PWA(clientSetting),
+      process.env.VITE_PWA_ENABLED === 'true' ? PWA(clientSetting) : undefined,
       createHtmlPlugin({
         inject: {
           data: {
@@ -199,7 +201,7 @@ export default defineConfig(async () => {
       viteCommonjs({
         include: ['use-sync-external-store']
       })
-    ],
+    ].filter(Boolean),
     resolve: {
       alias: {
         'react-json-tree': 'react-json-tree/umd/react-json-tree',

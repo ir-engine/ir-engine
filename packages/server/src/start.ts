@@ -1,7 +1,11 @@
+import { koa } from '@feathersjs/koa'
+import packageRoot from 'app-root-path'
 import fs from 'fs'
 import https from 'https'
 import favicon from 'koa-favicon'
-import path from 'path'
+import sendFile from 'koa-send'
+import serve from 'koa-static'
+import { join } from 'path'
 import psList from 'ps-list'
 
 import config from '@etherealengine/server-core/src/appconfig'
@@ -21,7 +25,7 @@ process.on('unhandledRejection', (error, promise) => {
 export const start = async (): Promise<void> => {
   const app = createFeathersKoaApp(ServerMode.API)
 
-  app.use(favicon(path.join(config.server.publicDir, 'favicon.ico')))
+  app.use(favicon(join(config.server.publicDir, 'favicon.ico')))
   app.configure(channels)
 
   if (!config.kubernetes.enabled && !config.db.forceRefresh && !config.testEnabled) {
@@ -99,5 +103,38 @@ export const start = async (): Promise<void> => {
 
   if (!config.kubernetes.enabled) {
     StartCorsServer(useSSL, certOptions)
+  }
+
+  if (process.env.SERVE_CLIENT_FROM_API) {
+    const clientApp = koa()
+    clientApp.use(
+      serve(join(packageRoot.path, 'packages', 'client', 'dist'), {
+        brotli: true,
+        setHeaders: (ctx) => {
+          ctx.setHeader('Origin-Agent-Cluster', '?1')
+        }
+      })
+    )
+    clientApp.use(async (ctx) => {
+      await sendFile(ctx, join('dist', 'index.html'), {
+        root: join(packageRoot.path, 'packages', 'client')
+      })
+    })
+    clientApp.listen = function () {
+      let server
+      const HTTPS = process.env.VITE_LOCAL_BUILD ?? false
+      if (HTTPS) {
+        const key = fs.readFileSync(join(packageRoot.path, 'certs/key.pem'))
+        const cert = fs.readFileSync(join(packageRoot.path, 'certs/cert.pem'))
+        server = https.createServer({ key: key, cert: cert }, this.callback())
+      } else {
+        const http = require('http')
+        server = http.createServer(this.callback())
+      }
+      return server.listen.apply(server, arguments)
+    }
+
+    const PORT = parseInt(config.client.port) || 3000
+    clientApp.listen(PORT, () => console.log(`Client listening on port: ${PORT}`))
   }
 }
