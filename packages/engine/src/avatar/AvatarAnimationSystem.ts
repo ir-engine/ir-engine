@@ -66,6 +66,7 @@ export const AvatarAnimationState = defineState({
 
 const _vector3 = new Vector3()
 const _vec = new Vector3()
+const _fwd = new Vector3()
 
 // setComponent(entity, AvatarArmsTwistCorrectionComponent, {
 //   LeftHandBindRotationInv: new Quaternion(),
@@ -298,7 +299,7 @@ const execute = () => {
 
     const { rig, handRadius } = getComponent(ownerEntity, AvatarRigComponent)
 
-    const fwd = new Vector3(0, 0, 1).applyQuaternion(transformComponent.rotation)
+    _fwd.set(0, 0, 1).applyQuaternion(transformComponent.rotation)
 
     const ikComponent = getComponent(entity, AvatarIKTargetComponent)
     if (ikComponent.handedness === 'none') {
@@ -319,7 +320,7 @@ const execute = () => {
         rig.LeftArm,
         rig.LeftForeArm,
         rig.LeftHand,
-        _vector3.addVectors(transformComponent.position, fwd.multiplyScalar(handRadius)),
+        _vector3.addVectors(transformComponent.position, _fwd.multiplyScalar(handRadius)),
         _quat.multiplyQuaternions(transformComponent.rotation, leftHandRotation),
         leftHandRotationOffset
       )
@@ -331,7 +332,7 @@ const execute = () => {
         rig.RightArm,
         rig.RightForeArm,
         rig.RightHand,
-        _vector3.addVectors(transformComponent.position, fwd.multiplyScalar(handRadius)),
+        _vector3.addVectors(transformComponent.position, _fwd.multiplyScalar(handRadius)),
         _quat.multiplyQuaternions(transformComponent.rotation, rightHandRotation),
         rightHandRotationOffset
       )
