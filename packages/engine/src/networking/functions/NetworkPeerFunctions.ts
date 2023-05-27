@@ -87,10 +87,10 @@ function destroyPeer(network: Network, peerID: PeerID) {
     //   .filter((peer) => !!peer)
     // console.log({remainingPeersForDisconnectingUser})
     if (!network.users.has(userID)) {
-      Engine.instance.store.actions.cached = Engine.instance.store.actions.cached.filter((a) => a.$from !== userID)
+      // Engine.instance.store.actions.cached = Engine.instance.store.actions.cached.filter((a) => a.$from !== userID)
       for (const eid of Engine.instance.getOwnedNetworkObjects(userID)) removeEntity(eid)
-      clearCachedActionsForUser(userID)
-      clearActionsHistoryForUser(userID)
+      // clearCachedActionsForUser(userID)
+      // clearActionsHistoryForUser(userID)
     }
   }
 }
@@ -145,6 +145,7 @@ export const NetworkPeerFunctions = {
   destroyPeer,
   destroyAllPeers,
   clearCachedActionsForUser,
+  clearActionsHistoryForUser,
   clearCachedActionsOfTypeForUser,
   getCachedActionsForUser
 }

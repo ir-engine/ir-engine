@@ -28,6 +28,7 @@ import { PhysicsSystem } from '@etherealengine/engine/src/physics/systems/Physic
 import { HighlightSystem } from '@etherealengine/engine/src/renderer/HighlightSystem'
 import { WebGLRendererSystem } from '@etherealengine/engine/src/renderer/WebGLRendererSystem'
 import { SceneSystemLoadGroup, SceneSystemUpdateGroup } from '@etherealengine/engine/src/scene/SceneClientModule'
+import { PortalSystem } from '@etherealengine/engine/src/scene/systems/PortalSystem'
 import { ReferenceSpaceTransformSystem } from '@etherealengine/engine/src/transform/systems/ReferenceSpaceTransformSystem'
 import { TransformSystem } from '@etherealengine/engine/src/transform/systems/TransformSystem'
 import { XRAnchorSystem } from '@etherealengine/engine/src/xr/XRAnchorSystem'
@@ -77,7 +78,14 @@ export const startClientSystems = () => {
 
   /** Post Render */
   startSystems(
-    [ButtonCleanupSystem, ECSSerializerSystem, PositionalAudioSystem, SceneSystemLoadGroup, OutgoingNetworkSystem],
+    [
+      ButtonCleanupSystem,
+      PortalSystem,
+      ECSSerializerSystem,
+      PositionalAudioSystem,
+      SceneSystemLoadGroup,
+      OutgoingNetworkSystem
+    ],
     {
       after: PresentationSystemGroup
     }
