@@ -15,6 +15,7 @@ import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
 import { NetworkTopics } from '@etherealengine/engine/src/networking/classes/Network'
 import { MessageTypes } from '@etherealengine/engine/src/networking/enums/MessageTypes'
 import { NetworkPeerFunctions } from '@etherealengine/engine/src/networking/functions/NetworkPeerFunctions'
+import { WorldState } from '@etherealengine/engine/src/networking/interfaces/WorldState'
 import { addNetwork, NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
 import { updatePeers } from '@etherealengine/engine/src/networking/systems/OutgoingActionSystem'
 import { dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
@@ -286,7 +287,12 @@ const loadEngine = async (app: Application, sceneId: string) => {
         }, 100)
       })
     }
+    const userUpdatedListener = async (user) => {
+      const worldState = getMutableState(WorldState)
+      if (worldState.userNames[user.id]?.value) worldState.userNames[user.id].set(user.name)
+    }
     app.service('scene').on('updated', sceneUpdatedListener)
+    app.service('user').on('patched', userUpdatedListener)
     await sceneUpdatedListener()
 
     logger.info('Scene loaded!')
