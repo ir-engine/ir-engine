@@ -75,7 +75,7 @@ const WarningSystemXRUI = function () {
             borderRadius: '20px',
             padding: '12px'
           }}
-          onClick={executeAction}
+          onClick={() => WarningUIService.closeWarning()}
         >
           <div
             xr-layer="true"
