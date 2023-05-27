@@ -133,11 +133,13 @@ const worldSpaceTargets = {
   leftHandTarget: new Vector3(),
   rightFootTarget: new Vector3(),
   leftFootTarget: new Vector3(),
+  head: new Vector3(),
 
   rightElbowHint: new Vector3(),
   leftElbowHint: new Vector3(),
   rightKneeHint: new Vector3(),
-  leftKneeHint: new Vector3()
+  leftKneeHint: new Vector3(),
+  headHint: new Vector3()
 }
 
 //debug visualizers
@@ -384,6 +386,16 @@ const execute = () => {
       rot,
       null,
       worldSpaceTargets.leftKneeHint
+    )
+
+    solveTwoBoneIK(
+      rig.hips.node,
+      rig.spine.node,
+      rig.head.node,
+      worldSpaceTargets.head,
+      rot,
+      null,
+      worldSpaceTargets.headHint
     )
   }
 

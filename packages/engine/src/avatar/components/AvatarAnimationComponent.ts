@@ -114,11 +114,13 @@ export const AvatarRigComponent = defineComponent({
         leftHandTarget: new Object3D(),
         rightFootTarget: new Object3D(),
         leftFootTarget: new Object3D(),
+        headTarget: new Object3D(),
 
         rightElbowHint: new Object3D(),
         leftElbowHint: new Object3D(),
         rightKneeHint: new Object3D(),
-        leftKneeHint: new Object3D()
+        leftKneeHint: new Object3D(),
+        headHint: new Object3D()
       } as ikTargets,
 
       ikOffsetsMap: new Map<string, Vector3>()
