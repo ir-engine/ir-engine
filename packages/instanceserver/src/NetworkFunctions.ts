@@ -253,10 +253,14 @@ export function getUserIdFromPeerID(network: SocketWebRTCServerNetwork, sparkID:
   return client?.userId
 }
 
-export const handleConnectingPeer = async (network: SocketWebRTCServerNetwork, spark: Spark, user: UserInterface) => {
+export const handleConnectingPeer = async (
+  network: SocketWebRTCServerNetwork,
+  spark: Spark,
+  peerID: PeerID,
+  user: UserInterface
+) => {
   const userId = user.id
   const avatarDetail = user.avatar
-  const peerID = spark.id as PeerID
 
   // Create a new client object
   // and add to the dictionary
@@ -324,6 +328,7 @@ export const handleConnectingPeer = async (network: SocketWebRTCServerNetwork, s
 export async function handleJoinWorld(
   network: SocketWebRTCServerNetwork,
   spark: Spark,
+  peerID: PeerID,
   data: JoinWorldRequestData,
   messageId: string,
   userId: UserId,
@@ -332,13 +337,8 @@ export async function handleJoinWorld(
   logger.info('Connect to world from ' + userId)
 
   const cachedActions = NetworkPeerFunctions.getCachedActionsForUser(userId).map((action) => {
-    const _action = _.cloneDeep(action)
-    // todo, can we ensure the server actions always has a peerID?
-    if (!_action.$peer) _action.$peer = network.hostPeerID
-    return _action
+    return _.cloneDeep(action)
   })
-
-  const peerID = spark.id as PeerID
 
   updatePeers(network)
 
@@ -434,28 +434,26 @@ const getUserSpawnFromInvite = async (
   }
 }
 
-export function handleIncomingActions(network: SocketWebRTCServerNetwork, spark: Spark, message) {
+export function handleIncomingActions(network: SocketWebRTCServerNetwork, spark: Spark, peerID: PeerID, message) {
   if (!message) return
-  const networkPeer = network.peers.get(spark.id as PeerID)
+  const networkPeer = network.peers.get(peerID)
   if (!networkPeer) return logger.error('Received actions from a peer that does not exist: ' + JSON.stringify(message))
 
-  const actions = /*decode(new Uint8Array(*/ message /*))*/ as Required<Action>[]
+  const actions = /*decode(n
+    ew Uint8Array(*/ message /*))*/ as Required<Action>[]
   for (const a of actions) {
-    a.$peer = spark.id as PeerID
     a.$from = networkPeer.userId
     dispatchAction(a)
   }
   // logger.info('SERVER INCOMING ACTIONS: %s', JSON.stringify(actions))
 }
 
-export async function handleHeartbeat(network: SocketWebRTCServerNetwork, spark: Spark): Promise<any> {
-  const peerID = spark.id as PeerID
+export async function handleHeartbeat(network: SocketWebRTCServerNetwork, spark: Spark, peerID: PeerID): Promise<any> {
   // logger.info('Got heartbeat from user ' + userId + ' at ' + Date.now())
   if (network.peers.has(peerID)) network.peers.get(peerID)!.lastSeenTs = Date.now()
 }
 
-export async function handleDisconnect(network: SocketWebRTCServerNetwork, spark: Spark): Promise<any> {
-  const peerID = spark.id as PeerID
+export async function handleDisconnect(network: SocketWebRTCServerNetwork, spark: Spark, peerID: PeerID): Promise<any> {
   const userId = getUserIdFromPeerID(network, peerID) as UserId
   const disconnectedClient = network.peers.get(peerID)
   if (!disconnectedClient) return logger.warn(`Tried to handle disconnect for peer ${peerID} but was not foudn`)
@@ -499,10 +497,10 @@ export async function handleDisconnect(network: SocketWebRTCServerNetwork, spark
 export async function handleLeaveWorld(
   network: SocketWebRTCServerNetwork,
   spark: Spark,
+  peerID: PeerID,
   data,
   messageId: string
 ): Promise<any> {
-  const peerID = spark.id as PeerID
   for (const [, transport] of Object.entries(network.mediasoupTransports))
     if (transport.appData.peerID === peerID) await closeTransport(network, transport)
   if (network.peers.has(peerID)) {

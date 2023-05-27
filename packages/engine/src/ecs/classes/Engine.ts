@@ -17,6 +17,7 @@ import { BoxGeometry, Group, Mesh, MeshNormalMaterial, Object3D, Raycaster, Scen
 
 import type { ServiceTypes } from '@etherealengine/common/declarations'
 import { NetworkId } from '@etherealengine/common/src/interfaces/NetworkId'
+import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { ComponentJson } from '@etherealengine/common/src/interfaces/SceneInterface'
 
 import { GLTFLoader } from '../../assets/loaders/gltf/GLTFLoader'
@@ -98,6 +99,9 @@ export class Engine {
   /** The uuid of the logged-in user */
   userId: UserId
 
+  /** The peerID of the logged-in user */
+  peerID: PeerID
+
   store = createHyperStore({
     forwardIncomingActions: (action) => {
       const isHost =
@@ -107,6 +111,7 @@ export class Engine {
       return isHost || action.$from === this.userId
     },
     getDispatchId: () => Engine.instance.userId,
+    getPeerId: () => Engine.instance.peerID,
     getDispatchTime: () => Date.now(),
     defaultDispatchDelay: 1 / this.tickRate,
     getCurrentReactorRoot: () => Engine.instance.activeSystemReactors.get(Engine.instance.currentSystemUUID)

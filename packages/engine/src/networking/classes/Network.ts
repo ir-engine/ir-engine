@@ -90,12 +90,6 @@ export const createNetwork = <Ext>(hostId: UserId, topic: Topic, extension: Ext 
     hostId,
 
     /**
-     * The PeerID of the current user's instance
-     * @todo non null this
-     */
-    peerID: null! as PeerID,
-
-    /**
      * The network is ready for sending messages and data
      */
     ready: false,

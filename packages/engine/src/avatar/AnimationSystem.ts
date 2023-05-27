@@ -21,7 +21,7 @@ euler2YXZ.order = 'YXZ'
 
 export function animationActionReceptor(action: ReturnType<typeof WorldNetworkAction.avatarAnimation>) {
   // Only run on other peers
-  if (!Engine.instance.worldNetwork || !action.$peer || Engine.instance.worldNetwork.peerID === action.$peer) return
+  if (!Engine.instance.worldNetwork || Engine.instance.peerID === action.$peer) return
 
   const avatarEntity = Engine.instance.getUserAvatarEntity(action.$from)
 

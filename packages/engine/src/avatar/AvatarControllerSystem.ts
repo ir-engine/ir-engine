@@ -81,14 +81,14 @@ const execute = () => {
       if (
         !hasComponent(controlledEntity, NetworkObjectAuthorityTag) &&
         Engine.instance.worldNetwork &&
-        controller.gamepadWorldMovement.lengthSq() > 0.1
+        controller.gamepadWorldMovement.lengthSq() > 0.1 * Engine.instance.deltaSeconds
       ) {
         const networkObject = getComponent(controlledEntity, NetworkObjectComponent)
         dispatchAction(
           WorldNetworkAction.transferAuthorityOfObject({
             ownerId: networkObject.ownerId,
             networkId: networkObject.networkId,
-            newAuthority: Engine.instance.worldNetwork?.peerID
+            newAuthority: Engine.instance.peerID
           })
         )
         setComponent(controlledEntity, NetworkObjectAuthorityTag)

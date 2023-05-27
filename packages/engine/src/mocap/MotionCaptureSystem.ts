@@ -35,7 +35,7 @@ export interface NormalizedLandmark {
 export const sendResults = (landmarks: NormalizedLandmark[]) => {
   return encode({
     timestamp: Date.now(),
-    peerIndex: Engine.instance.worldNetwork.peerIDToPeerIndex.get(Engine.instance.worldNetwork.peerID)!,
+    peerIndex: Engine.instance.worldNetwork.peerIDToPeerIndex.get(Engine.instance.peerID)!,
     landmarks
   })
 }
