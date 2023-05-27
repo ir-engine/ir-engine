@@ -483,7 +483,7 @@ export async function handleWebRtcTransportCreate(
     newTransport.observer.on('dtlsstatechange', (dtlsState) => {
       if (dtlsState === 'closed') closeTransport(network, newTransport as unknown as WebRTCTransportExtension)
     })
-    newTransport.observer.on('newproducer', sendNewProducer(network, spark, channelType, channelId) as any)
+    newTransport.observer.on('newproducer', sendNewProducer(network, spark, peerID, channelType, channelId) as any)
     spark.write({
       type: MessageTypes.WebRTCTransportCreate.toString(),
       data: { transportOptions: clientTransportOptions },
@@ -1041,7 +1041,7 @@ export async function handleWebRtcRequestCurrentProducers(
   messageId: string
 ): Promise<any> {
   const { userIds, channelType, channelId } = data
-  await sendCurrentProducers(network, spark, userIds || [], channelType, channelId)
+  await sendCurrentProducers(network, spark, peerID, userIds || [], channelType, channelId)
   spark.write({ type: MessageTypes.WebRTCRequestCurrentProducers.toString(), data: { requested: true }, id: messageId })
 }
 

@@ -208,7 +208,7 @@ export const createDataReader = () => {
     const { userIndex, peerIndex } = readMetadata(view)
     const fromUserID = network.userIndexToUserID.get(userIndex)
     const fromPeerID = network.peerIndexToPeerID.get(peerIndex)
-    const isLoopback = fromPeerID && fromPeerID === network.peerID
+    const isLoopback = fromPeerID && fromPeerID === Engine.instance.peerID
     if (fromUserID && !isLoopback) readEntities(view, packet.byteLength, fromUserID)
   }
 }

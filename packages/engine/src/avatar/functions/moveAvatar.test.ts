@@ -1,6 +1,7 @@
 import assert, { strictEqual } from 'assert'
 import { PerspectiveCamera, Quaternion, Vector3 } from 'three'
 
+import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 import { getMutableState } from '@etherealengine/hyperflux'
 
@@ -22,6 +23,7 @@ describe('moveAvatar function tests', () => {
     await Physics.load()
     Engine.instance.physicsWorld = Physics.createWorld()
     Engine.instance.userId = 'userId' as UserId
+    Engine.instance.peerID = 'peerID' as PeerID
   })
 
   afterEach(() => {

@@ -35,13 +35,13 @@ const receiveSpawnObject = (action: typeof WorldNetworkAction.spawnObject.matche
   const entity = createEntity()
   setComponent(entity, UUIDComponent, action.uuid)
 
-  const isAuthoritativePeer = action.$peer === Engine.instance.peerID
-
   setComponent(entity, NetworkObjectComponent, {
     ownerId: action.$from,
-    authorityPeerID: isAuthoritativePeer ? action.$peer : Engine.instance.peerID,
+    authorityPeerID: action.$peer,
     networkId: action.networkId
   })
+
+  const isAuthoritativePeer = action.$peer === Engine.instance.peerID
 
   if (isAuthoritativePeer) {
     dispatchAction(

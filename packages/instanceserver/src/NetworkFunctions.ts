@@ -248,8 +248,8 @@ export const authorizeUserToJoinServer = async (app: Application, instance: Inst
   return true
 }
 
-export function getUserIdFromPeerID(network: SocketWebRTCServerNetwork, sparkID: PeerID) {
-  const client = Array.from(network.peers.values()).find((c) => c.peerID === sparkID)
+export function getUserIdFromPeerID(network: SocketWebRTCServerNetwork, peerID: PeerID) {
+  const client = Array.from(network.peers.values()).find((c) => c.peerID === peerID)
   return client?.userId
 }
 
@@ -346,7 +346,6 @@ export async function handleJoinWorld(
     type: MessageTypes.JoinWorld.toString(),
     data: {
       peerIndex: network.peerIDToPeerIndex.get(peerID)!,
-      peerID,
       routerRtpCapabilities: network.routers.instance[0].rtpCapabilities,
       highResTimeOrigin: performance.timeOrigin,
       worldStartTime: Engine.instance.startTime,

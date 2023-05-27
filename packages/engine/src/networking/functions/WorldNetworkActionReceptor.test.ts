@@ -12,11 +12,13 @@ import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { spawnAvatarReceptor } from '../../avatar/functions/spawnAvatarReceptor'
 import { destroyEngine, Engine } from '../../ecs/classes/Engine'
 import { defineQuery, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
+import { SystemDefinitions } from '../../ecs/functions/SystemFunctions'
 import { createEngine } from '../../initializeEngine'
 import { Physics } from '../../physics/classes/Physics'
 import { Network, NetworkTopics } from '../classes/Network'
 import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
 import { NetworkObjectOwnedTag } from '../components/NetworkObjectComponent'
+import { WorldNetworkActionSystem } from '../systems/WorldNetworkActionSystem'
 import { NetworkPeerFunctions } from './NetworkPeerFunctions'
 import { WorldNetworkAction } from './WorldNetworkAction'
 import { WorldNetworkActionReceptor } from './WorldNetworkActionReceptor'
@@ -43,7 +45,7 @@ describe('WorldNetworkActionReceptors', () => {
 
       Engine.instance.userId = userId
       const network = Engine.instance.worldNetwork as Network
-      network.peerID = peerID
+      Engine.instance.peerID = peerID
 
       NetworkPeerFunctions.createPeer(network, peerID, 0, hostUserId, 0, 'host')
       NetworkPeerFunctions.createPeer(network, peerID2, 1, userId, 1, 'user name')
@@ -57,8 +59,8 @@ describe('WorldNetworkActionReceptors', () => {
           prefab: objPrefab, // generic prefab
           networkId: objNetId,
           $topic: NetworkTopics.world,
-          $peer: network.peerID,
-          uuid: network.peerID as any as EntityUUID
+          $peer: Engine.instance.peerID,
+          uuid: Engine.instance.peerID as any as EntityUUID
         })
       )
 
@@ -85,7 +87,7 @@ describe('WorldNetworkActionReceptors', () => {
       Engine.instance.userId = userId
 
       const network = Engine.instance.worldNetwork as Network
-      network.peerID = peerID2
+      Engine.instance.peerID = peerID2
 
       NetworkPeerFunctions.createPeer(network, peerID, 0, hostId, 0, 'host')
       NetworkPeerFunctions.createPeer(network, peerID2, 1, userId, 1, 'user name')
@@ -99,8 +101,8 @@ describe('WorldNetworkActionReceptors', () => {
           $from: userId, // from  user
           prefab: objPrefab, // generic prefab
           networkId: objNetId,
-          $peer: network.peerID,
-          uuid: network.peerID as any as EntityUUID
+          $peer: Engine.instance.peerID,
+          uuid: Engine.instance.peerID as any as EntityUUID
         })
       )
 
@@ -128,16 +130,12 @@ describe('WorldNetworkActionReceptors', () => {
 
       Engine.instance.userId = userId
       const network = Engine.instance.worldNetwork as Network
-      network.peerID = peerID
+      Engine.instance.peerID = peerID
 
       NetworkPeerFunctions.createPeer(network, peerID, 0, hostUserId, 0, 'world')
       NetworkPeerFunctions.createPeer(network, peerID2, 1, userId, 1, 'user name')
       NetworkPeerFunctions.createPeer(network, peerID3, 2, userId2, 2, 'second user name')
 
-      const objParams = {
-        position: new Vector3(),
-        rotation: new Quaternion()
-      }
       const objNetId = 3 as NetworkId
       const objPrefab = 'avatar'
 
@@ -151,6 +149,8 @@ describe('WorldNetworkActionReceptors', () => {
           uuid: peerID3 as any as EntityUUID
         })
       )
+
+      SystemDefinitions.get(WorldNetworkActionSystem)!.execute()
 
       const networkObjectQuery = defineQuery([NetworkObjectComponent])
       const networkObjectOwnedQuery = defineQuery([NetworkObjectOwnedTag])
@@ -172,7 +172,7 @@ describe('WorldNetworkActionReceptors', () => {
 
       Engine.instance.userId = userId
       const network = Engine.instance.worldNetwork as Network
-      network.peerID = peerID
+      Engine.instance.peerID = peerID
 
       NetworkPeerFunctions.createPeer(network, peerID, 1, userId, 1, 'user name')
 
@@ -204,7 +204,7 @@ describe('WorldNetworkActionReceptors', () => {
 
       Engine.instance.userId = userId
       const network = Engine.instance.worldNetwork as Network
-      network.peerID = peerID
+      Engine.instance.peerID = peerID
 
       NetworkPeerFunctions.createPeer(network, hostPeerId, 0, hostUserId, 0, 'host')
       NetworkPeerFunctions.createPeer(network, peerID, 0, userId, 1, 'user name')
@@ -219,8 +219,8 @@ describe('WorldNetworkActionReceptors', () => {
           prefab: objPrefab,
           networkId: objNetId,
           $topic: NetworkTopics.world,
-          $peer: network.peerID,
-          uuid: network.peerID as any as EntityUUID
+          $peer: Engine.instance.peerID,
+          uuid: Engine.instance.peerID as any as EntityUUID
         })
       )
 
@@ -277,7 +277,7 @@ describe('WorldNetworkActionReceptors', () => {
 
     Engine.instance.userId = userId // user being the action dispatcher
     const network = Engine.instance.worldNetwork as Network
-    network.peerID = peerID
+    Engine.instance.peerID = peerID
 
     NetworkPeerFunctions.createPeer(network, hostPeerId, 0, hostUserId, 0, 'host')
     NetworkPeerFunctions.createPeer(network, peerID, 0, userId, 1, 'user name')
@@ -292,8 +292,8 @@ describe('WorldNetworkActionReceptors', () => {
         prefab: objPrefab, // generic prefab
         networkId: objNetId,
         $topic: NetworkTopics.world,
-        $peer: network.peerID,
-        uuid: network.peerID as any as EntityUUID
+        $peer: Engine.instance.peerID,
+        uuid: Engine.instance.peerID as any as EntityUUID
       })
     )
 

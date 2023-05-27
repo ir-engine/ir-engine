@@ -235,7 +235,6 @@ export const useOfflineScene = (props?: { spectate?: boolean }) => {
         worldStartTime: performance.now(),
         cachedActions: [],
         peerIndex,
-        peerID,
         routerRtpCapabilities: undefined
       })
     }
