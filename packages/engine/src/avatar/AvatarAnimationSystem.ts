@@ -1,5 +1,5 @@
 import { useEffect } from 'react'
-import { AxesHelper, Bone, Euler, MathUtils, Quaternion, Vector3 } from 'three'
+import { AxesHelper, Bone, Euler, MathUtils, Matrix4, Quaternion, Vector3 } from 'three'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { insertionSort } from '@etherealengine/common/src/utils/insertionSort'
@@ -100,10 +100,10 @@ const filterFrustumCulledEntities = (entity: Entity) =>
   )
 
 const leftHandRotation = new Quaternion().setFromEuler(new Euler(Math.PI / 2, 0, Math.PI))
-const leftHandRotationOffset = new Quaternion().setFromEuler(new Euler(Math.PI / 2, 0, 0))
+const leftHandRotationOffset = new Quaternion().setFromEuler(new Euler(Math.PI * 0.4, -Math.PI * 0.1, 0))
 
 const rightHandRotation = new Quaternion().setFromEuler(new Euler(-Math.PI / 2, 0, 0))
-const rightHandRotationOffset = new Quaternion().setFromEuler(new Euler(-Math.PI / 2, 0, 0))
+const rightHandRotationOffset = new Quaternion().setFromEuler(new Euler(-Math.PI * 0.4, Math.PI * 0.1, 0))
 
 let avatarSortAccumulator = 0
 const _quat = new Quaternion()
@@ -298,6 +298,8 @@ const execute = () => {
 
     const { rig, handRadius } = getComponent(ownerEntity, AvatarRigComponent)
 
+    const fwd = new Vector3(0, 0, 1).applyQuaternion(transformComponent.rotation)
+
     const ikComponent = getComponent(entity, AvatarIKTargetComponent)
     if (ikComponent.handedness === 'none') {
       _vec
@@ -317,11 +319,7 @@ const execute = () => {
         rig.LeftArm,
         rig.LeftForeArm,
         rig.LeftHand,
-        // this is a hack to align the middle of the hand with the controller
-        _vector3.addVectors(
-          transformComponent.position,
-          rig.LeftHand.getWorldDirection(_vec).multiplyScalar(handRadius)
-        ),
+        _vector3.addVectors(transformComponent.position, fwd.multiplyScalar(handRadius)),
         _quat.multiplyQuaternions(transformComponent.rotation, leftHandRotation),
         leftHandRotationOffset
       )
@@ -333,11 +331,7 @@ const execute = () => {
         rig.RightArm,
         rig.RightForeArm,
         rig.RightHand,
-        // this is a hack to align the middle of the hand with the controller
-        _vector3.subVectors(
-          transformComponent.position,
-          rig.RightHand.getWorldDirection(_vec).multiplyScalar(handRadius)
-        ),
+        _vector3.addVectors(transformComponent.position, fwd.multiplyScalar(handRadius)),
         _quat.multiplyQuaternions(transformComponent.rotation, rightHandRotation),
         rightHandRotationOffset
       )
