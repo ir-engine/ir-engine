@@ -39,6 +39,10 @@ export async function seed(knex: Knex): Promise<void> {
       {
         project: 'default-project',
         route: '/capture'
+      },
+      {
+        project: 'default-project',
+        route: '/chat'
       }
     ].map(async (item) => ({ ...item, id: v4(), createdAt: await getDateTimeSql(), updatedAt: await getDateTimeSql() }))
   )
