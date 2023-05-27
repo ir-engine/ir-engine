@@ -94,10 +94,7 @@ const receiveSpawnDebugPhysicsObject = (action: typeof WorldNetworkAction.spawnD
 
 const receiveDestroyObject = (action: ReturnType<typeof WorldNetworkAction.destroyObject>) => {
   const entity = Engine.instance.getNetworkObject(action.$from, action.networkId)
-  if (!entity)
-    return console.log(
-      `Warning - tried to destroy entity belonging to ${action.$from} with ID ${action.networkId}, but it doesn't exist`
-    )
+  if (!entity) return
   removeEntity(entity)
   const idx = Engine.instance.store.actions.cached.findIndex((a) => {
     WorldNetworkAction.spawnObject.matches.test(a) && a.networkId === action.networkId

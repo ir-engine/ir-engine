@@ -437,7 +437,7 @@ const getUserSpawnFromInvite = async (
 export function handleIncomingActions(network: SocketWebRTCServerNetwork, spark: Spark, message) {
   if (!message) return
   const networkPeer = network.peers.get(spark.id as PeerID)
-  if (!networkPeer) throw new Error('Received actions from a peer that does not exist: ' + JSON.stringify(message))
+  if (!networkPeer) return logger.error('Received actions from a peer that does not exist: ' + JSON.stringify(message))
 
   const actions = /*decode(new Uint8Array(*/ message /*))*/ as Required<Action>[]
   for (const a of actions) {
