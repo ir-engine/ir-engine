@@ -41,7 +41,7 @@ export const createNetwork = <Ext>(hostId: UserId, topic: Topic, extension: Ext 
     jitterBufferTaskList: [] as JitterBufferEntry[],
 
     /** The jitter buffer delay in milliseconds */
-    jitterBufferDelay: 1000,
+    jitterBufferDelay: 100,
 
     /** List of data producer nodes. */
     dataProducers: new Map<string, any>(),
