@@ -302,9 +302,9 @@ const execute = () => {
   for (const entity of transformQuery()) {
     const makeDirty =
       TransformComponent.dirtyTransforms[entity] ||
-      TransformComponent.dirtyTransforms[getOptionalComponent(entity, LocalTransformComponent)?.parentEntity ?? 0] ||
+      TransformComponent.dirtyTransforms[getOptionalComponent(entity, LocalTransformComponent)?.parentEntity ?? -1] ||
       TransformComponent.dirtyTransforms[
-        getOptionalComponent(entity, ComputedTransformComponent)?.referenceEntity ?? 0
+        getOptionalComponent(entity, ComputedTransformComponent)?.referenceEntity ?? -1
       ] ||
       hasComponent(entity, ComputedTransformComponent)
     TransformComponent.dirtyTransforms[entity] = makeDirty
