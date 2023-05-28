@@ -4,8 +4,7 @@ module.exports = {
   spec: ['**/*.test.ts'],
   require: [
     'tests/mocha.env', // init env here
-    'ts-node/register',
-    'jsdom-global/register'
+    'ts-node/register'
   ],
   extension: [
     'ts'

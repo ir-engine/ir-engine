@@ -5,7 +5,7 @@ import Emitter from 'primus-emitter'
 
 import { PrimusType } from '../../declarations'
 
-function configurePrimus(config?: any, configurer?: any) {
+export default function configurePrimus(config?: any, configurer?: any) {
   return function (app) {
     // Returns the connection object
     const getParams = (spark) => spark.request.feathers
@@ -86,5 +86,3 @@ function configurePrimus(config?: any, configurer?: any) {
     )
   }
 }
-
-export = configurePrimus

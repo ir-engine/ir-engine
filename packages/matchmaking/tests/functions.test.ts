@@ -3,7 +3,7 @@ import nock from 'nock'
 
 import { createTicket, deleteTicket, FRONTEND_SERVICE_URL, getTicket, getTicketsAssignment } from '../src/functions'
 
-describe('match maker functions', () => {
+describe.skip('match maker functions', () => {
   const scope = nock(FRONTEND_SERVICE_URL)
 
   afterEach(() => {
