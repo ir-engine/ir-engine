@@ -5,6 +5,7 @@ import { defineState, getMutableState } from '@etherealengine/hyperflux'
 
 import { createEngine } from '../../initializeEngine'
 import { destroyEngine, Engine } from '../classes/Engine'
+import { EngineState } from '../classes/EngineState'
 import { executeSystems, PresentationSystemGroup, SimulationSystemGroup } from './EngineFunctions'
 import { defineSystem, startSystem } from './SystemFunctions'
 
@@ -29,36 +30,34 @@ describe('FixedPipelineSystem', () => {
   afterEach(() => {
     return destroyEngine()
   })
-  it('can run multiple fixed ticks to catch up to elapsed time', async () => {
+
+  it('can run multiple simultion ticks to catch up to elapsed time', async () => {
     startSystem(MockSystem, { with: SimulationSystemGroup })
 
     const mockState = getMutableState(MockState)
-
-    assert.equal(Engine.instance.elapsedSeconds, 0)
-    assert.equal(Engine.instance.fixedTick, 0)
     assert.equal(mockState.count.value, 0)
 
     const ticks = 3
-    const deltaSeconds = ticks / 60
-    executeSystems(1000 * deltaSeconds)
-    assert.equal(Engine.instance.elapsedSeconds, deltaSeconds)
-    assert.equal(Engine.instance.fixedTick, ticks)
+    const simulationDelay = (ticks * 1001) / 60
+    const engineState = getMutableState(EngineState)
+    engineState.simulationTime.set(performance.timeOrigin - simulationDelay)
+    executeSystems(0)
     assert.equal(mockState.count.value, ticks)
   })
 
-  it('can skip fixed ticks to catch up to elapsed time', async () => {
+  it('can skip simulation ticks to catch up to elapsed time', async () => {
     startSystem(MockSystem, { with: SimulationSystemGroup })
 
     const mockState = getMutableState(MockState)
+    const engineState = getMutableState(EngineState)
 
-    assert.equal(Engine.instance.elapsedSeconds, 0)
-    assert.equal(Engine.instance.fixedTick, 0)
     assert.equal(mockState.count.value, 0)
 
-    const deltaSeconds = 1000
-    executeSystems(1000 * deltaSeconds)
-    assert.equal(Engine.instance.elapsedSeconds, deltaSeconds)
-    assert.equal(Engine.instance.fixedTick, 60000)
-    assert((mockState.count.value * 1) / 60 < 5)
+    const simulationDelay = 1000 * 60 // 1 minute should be too much to catch up to wihtout skipping
+    engineState.simulationTime.set(performance.timeOrigin - simulationDelay)
+    executeSystems(0)
+
+    assert(performance.timeOrigin - engineState.simulationTime.value < engineState.simulationTimestep.value)
+    assert.equal(mockState.count.value, 1)
   })
 })
