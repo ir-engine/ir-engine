@@ -8,13 +8,16 @@ import { Entity } from './Entity'
 export const EngineState = defineState({
   name: 'EngineState',
   initial: {
-    frameTime: 0,
+    simulationTimestep: 1000 / 60,
+
+    frameTime: Date.now(),
+    simulationTime: Date.now(),
+
     deltaSeconds: 0,
     elapsedSeconds: 0,
+
     physicsSubsteps: 1,
-    fixedDeltaSeconds: 1 / 60,
-    fixedElapsedSeconds: 0,
-    fixedTick: 0,
+
     isEngineInitialized: false,
     sceneLoading: false,
     sceneLoaded: false,

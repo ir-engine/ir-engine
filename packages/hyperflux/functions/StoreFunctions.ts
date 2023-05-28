@@ -42,7 +42,7 @@ export interface HyperStore {
   /**
    * The default dispatch delay (default is 0)
    */
-  defaultDispatchDelay: number
+  defaultDispatchDelay: () => number
   /**
    * State dictionary
    */
@@ -94,7 +94,7 @@ export function createHyperStore(options: {
   getPeerId: () => string
   getDispatchTime: () => number
   getCurrentReactorRoot?: () => ReactorRoot | undefined
-  defaultDispatchDelay?: number
+  defaultDispatchDelay?: () => number
 }) {
   const store = {
     defaultTopic: 'default' as Topic,
@@ -103,7 +103,7 @@ export function createHyperStore(options: {
     getPeerId: options.getPeerId,
     getDispatchTime: options.getDispatchTime,
     getCurrentReactorRoot: options.getCurrentReactorRoot ?? (() => null),
-    defaultDispatchDelay: options.defaultDispatchDelay ?? 0,
+    defaultDispatchDelay: options.defaultDispatchDelay ?? (() => 0),
 
     stateMap: {},
     valueMap: {},

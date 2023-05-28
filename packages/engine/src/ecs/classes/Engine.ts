@@ -94,8 +94,6 @@ export class Engine {
 
   api: FeathersApplication<ServiceTypes>
 
-  tickRate = 60
-
   /** The uuid of the logged-in user */
   userId: UserId
 
@@ -112,17 +110,10 @@ export class Engine {
     },
     getDispatchId: () => Engine.instance.userId,
     getPeerId: () => Engine.instance.peerID,
-    getDispatchTime: () => Date.now(),
-    defaultDispatchDelay: 1 / this.tickRate,
+    getDispatchTime: () => getState(EngineState).simulationTime,
+    defaultDispatchDelay: () => getState(EngineState).simulationTimestep,
     getCurrentReactorRoot: () => Engine.instance.activeSystemReactors.get(Engine.instance.currentSystemUUID)
   }) as HyperStore
-
-  /**
-   * Current frame timestamp, relative to performance.timeOrigin
-   */
-  get frameTime() {
-    return getState(EngineState).frameTime
-  }
 
   engineTimer = null! as ReturnType<typeof Timer>
 
@@ -158,40 +149,35 @@ export class Engine {
   widgets = new Map<string, Widget>()
 
   /**
-   * The time origin for this world, relative to performance.timeOrigin
-   */
-  startTime = nowMilliseconds()
-
-  /**
    * The seconds since the last world execution
+   * @deprecated use getState(EngineState).deltaSeconds
    */
   get deltaSeconds() {
     return getState(EngineState).deltaSeconds
   }
 
   /**
-   * The elapsed seconds since `startTime`
+   * The elapsed seconds since `performance.timeOrigin`
+   * @deprecated use `getState(EngineState).elapsedSeconds`
    */
   get elapsedSeconds() {
     return getState(EngineState).elapsedSeconds
   }
 
   /**
-   * The elapsed seconds since `startTime`, in fixed time steps.
+   * The current fixed tick (simulationTime / simulationTimeStep)
+   * @deprecated
    */
-  get fixedElapsedSeconds() {
-    return getState(EngineState).fixedElapsedSeconds
+  get fixedTick() {
+    const engineState = getState(EngineState)
+    return engineState.simulationTime / engineState.simulationTimestep
   }
 
   /**
-   * The current fixed tick (fixedElapsedSeconds / fixedDeltaSeconds)
+   * @deprecated use `getState(EngineState).simulationTimestep / 1000`
    */
-  get fixedTick() {
-    return getState(EngineState).fixedTick
-  }
-
   get fixedDeltaSeconds() {
-    return getState(EngineState).fixedDeltaSeconds
+    return getState(EngineState).simulationTimestep / 1000
   }
 
   physicsWorld: PhysicsWorld

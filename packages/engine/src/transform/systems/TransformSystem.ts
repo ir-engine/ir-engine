@@ -263,10 +263,10 @@ const execute = () => {
   /**
    * Sort transforms if needed
    */
-  const { transformsNeedSorting } = getState(EngineState)
+  const engineState = getState(EngineState)
   const xrFrame = Engine.instance.xrFrame
 
-  let needsSorting = transformsNeedSorting
+  let needsSorting = engineState.transformsNeedSorting
 
   for (const entity of transformQuery.enter()) {
     sortedTransformEntities.push(entity)
@@ -294,8 +294,8 @@ const execute = () => {
   const awakeRigidbodyEntities = allRigidbodyEntities.filter(filterAwakeRigidbodies)
 
   // lerp awake rigidbody entities (and make their transforms dirty)
-  const fixedRemainder = Engine.instance.elapsedSeconds - Engine.instance.fixedElapsedSeconds
-  const alpha = Math.min(fixedRemainder / getState(EngineState).fixedDeltaSeconds, 1)
+  const simulationRemainder = engineState.frameTime - engineState.simulationTime
+  const alpha = Math.min(simulationRemainder / engineState.simulationTimestep, 1)
   for (const entity of awakeRigidbodyEntities) lerpTransformFromRigidbody(entity, alpha)
 
   // entities with dirty parent or reference entities, or computed transforms, should also be dirty

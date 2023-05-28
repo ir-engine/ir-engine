@@ -147,16 +147,16 @@ const entityRemovedQuery = defineQuery([EntityRemovedComponent])
  */
 export const executeSystems = (frameTime: number) => {
   const engineState = getMutableState(EngineState)
-  engineState.frameTime.set(frameTime)
+  engineState.frameTime.set(performance.timeOrigin + frameTime)
 
   const start = nowMilliseconds()
   const incomingActions = [...Engine.instance.store.actions.incoming]
 
-  const worldElapsedSeconds = (frameTime - Engine.instance.startTime) / 1000
+  const elapsedSeconds = frameTime / 1000
   engineState.deltaSeconds.set(
-    Math.max(0.001, Math.min(TimerConfig.MAX_DELTA_SECONDS, worldElapsedSeconds - Engine.instance.elapsedSeconds))
+    Math.max(0.001, Math.min(TimerConfig.MAX_DELTA_SECONDS, elapsedSeconds - engineState.elapsedSeconds.value))
   )
-  engineState.elapsedSeconds.set(worldElapsedSeconds)
+  engineState.elapsedSeconds.set(elapsedSeconds)
 
   executeSystem(RootSystemGroup)
 

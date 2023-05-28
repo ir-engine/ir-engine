@@ -423,7 +423,7 @@ const _slerpBodyTowardsVelocity = (entity: Entity, alpha: number) => {
   }
 
   _velXZ.set(vector.x, 0, vector.z)
-  const isZero = _velXZ.distanceTo(V_000) < 0.1
+  const isZero = _velXZ.distanceTo(V_000) < 0.000001
   if (isZero) _velXZ.copy(prevVector)
   if (!isZero) prevVector.copy(_velXZ)
 

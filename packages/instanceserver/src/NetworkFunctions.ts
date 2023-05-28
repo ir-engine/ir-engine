@@ -347,8 +347,6 @@ export async function handleJoinWorld(
     data: {
       peerIndex: network.peerIDToPeerIndex.get(peerID)!,
       routerRtpCapabilities: network.routers.instance[0].rtpCapabilities,
-      highResTimeOrigin: performance.timeOrigin,
-      worldStartTime: Engine.instance.startTime,
       cachedActions
     },
     id: messageId
