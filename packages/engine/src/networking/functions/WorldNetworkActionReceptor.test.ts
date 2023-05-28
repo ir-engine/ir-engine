@@ -29,7 +29,7 @@ describe('WorldNetworkActionReceptors', () => {
     createMockNetwork()
     await Physics.load()
     Engine.instance.physicsWorld = Physics.createWorld()
-    Engine.instance.store.defaultDispatchDelay = 0
+    Engine.instance.store.defaultDispatchDelay = () => 0
   })
 
   afterEach(() => {
