@@ -35,6 +35,14 @@ export function registerState<S>(StateDefinition: StateDefinition<S>, store = Hy
       : JSON.parse(JSON.stringify(StateDefinition.initial))
   store.valueMap[StateDefinition.name] = initial
   store.stateMap[StateDefinition.name] = createState(initial)
+  store.stateMap[StateDefinition.name].attach(() => ({
+    id: Symbol('update root state value map'),
+    init: () => ({
+      onSet(arg) {
+        if (arg.path.length === 0 && typeof arg.value === 'object') store.valueMap[StateDefinition.name] = arg.value
+      }
+    })
+  }))
   if (StateDefinition.onCreate) StateDefinition.onCreate(store, getMutableState(StateDefinition, store))
 }
 

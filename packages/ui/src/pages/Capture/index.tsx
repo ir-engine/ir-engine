@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 import { useHookstate } from '@hookstate/core'
 import { drawConnectors, drawLandmarks } from '@mediapipe/drawing_utils'
 import {
@@ -40,8 +41,8 @@ const startDataProducer = async () => {
     appData: { data: {} },
     ordered: true,
     label: mocapDataChannelType,
-    maxPacketLifeTime: 0,
-    // maxRetransmits: 3,
+    // maxPacketLifeTime: 0,
+    maxRetransmits: 1,
     protocol: 'raw'
   })
   dataProducer.on('transportclose', () => {
@@ -114,6 +115,10 @@ const CaptureDashboard = () => {
   const videoActive = useHookstate(false)
 
   useEffect(() => {
+    RecordingFunctions.getRecordings()
+  }, [])
+
+  useEffect(() => {
     const factor = isVideoFlipped === true ? '-1' : '1'
     canvasRef.current!.style.transform = `scaleX(${factor})`
     videoRef.current!.style.transform = `scaleX(${factor})`
@@ -134,13 +139,15 @@ const CaptureDashboard = () => {
     if (!isDetecting?.value) return
 
     if (!detector.value) {
-      setDetectingStatus('loading')
-      const holistic = new Holistic({
-        locateFile: (file) => {
-          return `https://cdn.jsdelivr.net/npm/@mediapipe/holistic/${file}`
-        }
-      })
-      detector.set(holistic)
+      if (Holistic !== undefined) {
+        setDetectingStatus('loading')
+        const holistic = new Holistic({
+          locateFile: (file) => {
+            return `https://cdn.jsdelivr.net/npm/@mediapipe/holistic/${file}`
+          }
+        })
+        detector.set(holistic)
+      }
     }
 
     processingFrame.set(false)
@@ -155,6 +162,7 @@ const CaptureDashboard = () => {
          * Holistic model currently has no export for poseWorldLandmarks, instead as za (likely to change for new builds of the package)
          * See https://github.com/google/mediapipe/issues/3155
          */
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         //@ts-ignore
         sendResults(results.za)
 
@@ -241,6 +249,7 @@ const CaptureDashboard = () => {
     }
   }, [isDetecting])
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   useVideoFrameCallback(videoRef.current, (videoTime, metadata) => {
     canvasRef.current!.width = videoRef.current!.clientWidth
     canvasRef.current!.height = videoRef.current!.clientHeight
@@ -280,16 +289,6 @@ const CaptureDashboard = () => {
 
   return (
     <div className="w-full">
-      <ul className="">
-        <li>
-          {`videoStatus: ${videoStatus}`}
-          {` - mediaConnection: ${mediaConnection?.connected?.value}`}
-          {` - videoActive: ${videoActive?.value}`}
-          {` - camVideoProducer: ${mediaStreamState.camVideoProducer.value}`}
-          {` - videoPaused: ${mediaStreamState.videoPaused.value}`}
-          {` - isDetecting: ${isDetecting?.value}`}
-        </li>
-      </ul>
       <Drawer
         settings={
           <div className="w-100 bg-base-100">

@@ -4,11 +4,7 @@ import matches from 'ts-matches'
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 import { getMutableState } from '@etherealengine/hyperflux'
-import {
-  ActionRecipients,
-  addActionReceptor,
-  applyIncomingActions
-} from '@etherealengine/hyperflux/functions/ActionFunctions'
+import { ActionRecipients, addActionReceptor, applyIncomingActions, getState } from '@etherealengine/hyperflux'
 
 import { createMockNetwork } from '../../../tests/util/createMockNetwork'
 import { destroyEngine, Engine } from '../../ecs/classes/Engine'
@@ -22,7 +18,7 @@ describe('IncomingActionSystem Unit Tests', async () => {
     createEngine()
     // this is hacky but works and preserves the logic
     Engine.instance.store.getDispatchTime = () => {
-      return Engine.instance.fixedTick
+      return getState(EngineState).simulationTime
     }
     createMockNetwork()
   })
@@ -35,7 +31,7 @@ describe('IncomingActionSystem Unit Tests', async () => {
     it('should delay incoming action from the future', () => {
       // fixed tick in past
       const engineState = getMutableState(EngineState)
-      engineState.fixedTick.set(0)
+      engineState.simulationTime.set(0)
 
       /* mock */
       const action = WorldNetworkAction.spawnObject({
@@ -60,7 +56,7 @@ describe('IncomingActionSystem Unit Tests', async () => {
       strictEqual(recepted.length, 0)
 
       // fixed tick update
-      engineState.fixedTick.set(2)
+      engineState.simulationTime.set(2)
       applyIncomingActions()
 
       /* assert */

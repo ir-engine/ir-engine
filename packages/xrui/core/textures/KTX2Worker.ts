@@ -1,24 +1,29 @@
-import type { ImageDataType } from '@loaders.gl/images'
-
 import BasisEncoderModuleSRC from './basis_encoder_low_memory/basis_encoder.js.txt'
 // @ts-ignore
 import BasisEncoderWASMBinary from './basis_encoder_low_memory/basis_encoder.wasm'
-import type { EncodeRequest, EncodeResponse } from './KTX2Encoder'
+import type { KTX2EncodeRequestData, KTX2EncodeResponseData } from './KTX2Encoder'
 
 ;(0, eval)(BasisEncoderModuleSRC)
 declare const BASIS: any
 
+/**
+ * Loads wasm encoder module
+ */
+async function loadBasisEncoder() {
+  // if you try to return BasisModule the browser crashes!
+  const { initializeBasis, BasisFile, KTX2File, BasisEncoder } = await BASIS({ wasmBinary: BasisEncoderWASMBinary })
+  initializeBasis()
+  return { BasisFile, KTX2File, BasisEncoder }
+}
+
+const BasisPromise = loadBasisEncoder()
+
 const worker: Worker = self as any
 
-worker.onmessage = async (msg: MessageEvent<EncodeRequest>) => {
+worker.onmessage = async (msg: MessageEvent<KTX2EncodeRequestData>) => {
   try {
-    const texture = await encodeKTX2BasisTexture(msg.data.image, {
-      useSRGB: msg.data.useSRGB,
-      encodeUASTC: msg.data.encodeUASTC,
-      mipmaps: msg.data.mipmaps,
-      qualityLevel: msg.data.qualityLevel
-    })
-    const response: EncodeResponse = { texture }
+    const texture = await encodeKTX2BasisTexture(msg.data)
+    const response: KTX2EncodeResponseData = { texture }
     worker.postMessage(response, [texture])
   } catch (err: any) {
     worker.postMessage({ error: err.message })
@@ -26,49 +31,45 @@ worker.onmessage = async (msg: MessageEvent<EncodeRequest>) => {
 }
 
 /**
- * Loads wasm encoder module
- * @param options
- * @returns {BasisFile, KTX2File} promise
- */
-async function loadBasisEncoder(options: any) {
-  options.wasmBinary = BasisEncoderWASMBinary
-  // if you try to return BasisModule the browser crashes!
-  const { initializeBasis, BasisFile, KTX2File, BasisEncoder } = await BASIS(options)
-  initializeBasis()
-  return { BasisFile, KTX2File, BasisEncoder }
-}
-
-/**
  * Encodes image to Basis Universal Supercompressed GPU Texture.
  * @param image
  * @param options
  */
-async function encodeKTX2BasisTexture(
-  image: ImageDataType,
-  options: { useSRGB?: boolean; qualityLevel?: number; encodeUASTC?: boolean; mipmaps?: boolean } = {}
-): Promise<ArrayBuffer> {
-  const { useSRGB = false, qualityLevel = 10, encodeUASTC = false, mipmaps = false } = options
-
+async function encodeKTX2BasisTexture(data: KTX2EncodeRequestData): Promise<ArrayBuffer> {
   let basisEncoder
   try {
-    const { BasisEncoder } = await loadBasisEncoder(options)
-    basisEncoder = new BasisEncoder()
-    basisEncoder = new BasisEncoder()
-    const basisFileData = new Uint8Array(image.width * image.height)
+    basisEncoder = new (await BasisPromise).BasisEncoder()
     basisEncoder.setCreateKTX2File(true)
-    basisEncoder.setKTX2UASTCSupercompression(true)
-    basisEncoder.setKTX2SRGBTransferFunc(false)
-
-    basisEncoder.setSliceSourceImage(0, image.data, image.width, image.height, false)
     basisEncoder.setDebug(false)
     basisEncoder.setComputeStats(false)
-    basisEncoder.setPerceptual(false)
-    basisEncoder.setMipSRGB(useSRGB)
-    if (qualityLevel > 0) basisEncoder.setQualityLevel(qualityLevel)
-    basisEncoder.setUASTC(encodeUASTC)
-    basisEncoder.setMipGen(mipmaps)
-    const numOutputBytes = basisEncoder.encode(basisFileData)
 
+    basisEncoder.setSliceSourceImage(0, data.image.data, data.image.width, data.image.height, false)
+
+    basisEncoder.setUASTC(data.options.uastc ?? false)
+
+    if (data.options.uastc) {
+      basisEncoder.setKTX2UASTCSupercompression(data.options.uastcZstandard ?? false)
+      basisEncoder.setPackUASTCFlags(data.options.uastcFlags ?? 2)
+    } else {
+      basisEncoder.setQualityLevel(data.options.qualityLevel ?? 128)
+      basisEncoder.setCompressionLevel(data.options.compressionLevel ?? 2)
+    }
+
+    if (data.options.srgb) {
+      basisEncoder.setPerceptual(true)
+      basisEncoder.setMipSRGB(true)
+      basisEncoder.setKTX2SRGBTransferFunc(true)
+    }
+
+    if (data.options.normalMap) {
+      basisEncoder.setNormalMap()
+      basisEncoder.setMipRenormalize(true)
+    }
+
+    basisEncoder.setMipGen(data.options.mipmaps ?? false)
+
+    const basisFileData = new Uint8Array(data.image.width * data.image.height * 4)
+    const numOutputBytes = basisEncoder.encode(basisFileData)
     const actualKTX2FileData = basisFileData.subarray(0, numOutputBytes).buffer
     return actualKTX2FileData.slice(0, numOutputBytes)
   } catch (error) {

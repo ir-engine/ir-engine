@@ -28,6 +28,7 @@ import { PhysicsSystem } from '@etherealengine/engine/src/physics/systems/Physic
 import { HighlightSystem } from '@etherealengine/engine/src/renderer/HighlightSystem'
 import { WebGLRendererSystem } from '@etherealengine/engine/src/renderer/WebGLRendererSystem'
 import { SceneSystemLoadGroup, SceneSystemUpdateGroup } from '@etherealengine/engine/src/scene/SceneClientModule'
+import { PortalSystem } from '@etherealengine/engine/src/scene/systems/PortalSystem'
 import { ReferenceSpaceTransformSystem } from '@etherealengine/engine/src/transform/systems/ReferenceSpaceTransformSystem'
 import { TransformSystem } from '@etherealengine/engine/src/transform/systems/TransformSystem'
 import { XRAnchorSystem } from '@etherealengine/engine/src/xr/XRAnchorSystem'
@@ -36,13 +37,15 @@ import { XRUISystem } from '@etherealengine/engine/src/xrui/systems/XRUISystem'
 
 export const startClientSystems = () => {
   /** Input */
-  startSystems(
-    [IncomingNetworkSystem, XRSystem, MotionCaptureSystem, ClientInputSystem, AvatarInputGroup, CameraInputSystem],
-    { with: InputSystemGroup }
-  )
+  startSystems([XRSystem, MotionCaptureSystem, ClientInputSystem, AvatarInputGroup, CameraInputSystem], {
+    with: InputSystemGroup
+  })
 
   /** Fixed */
-  startSystems([WorldNetworkActionSystem, EquippableSystem, AvatarSimulationGroup], { with: SimulationSystemGroup })
+  startSystems(
+    [IncomingNetworkSystem, WorldNetworkActionSystem, EquippableSystem, AvatarSimulationGroup, OutgoingNetworkSystem],
+    { with: SimulationSystemGroup }
+  )
 
   /** Physics */
   startSystems([PhysicsSystem], { after: SimulationSystemGroup })
@@ -76,10 +79,7 @@ export const startClientSystems = () => {
   })
 
   /** Post Render */
-  startSystems(
-    [ButtonCleanupSystem, ECSSerializerSystem, PositionalAudioSystem, SceneSystemLoadGroup, OutgoingNetworkSystem],
-    {
-      after: PresentationSystemGroup
-    }
-  )
+  startSystems([ButtonCleanupSystem, PortalSystem, ECSSerializerSystem, PositionalAudioSystem, SceneSystemLoadGroup], {
+    after: PresentationSystemGroup
+  })
 }

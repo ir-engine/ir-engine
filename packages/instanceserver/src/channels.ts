@@ -3,6 +3,7 @@ import { Paginated } from '@feathersjs/feathers/lib'
 import '@feathersjs/transport-commons'
 
 import { decode } from 'jsonwebtoken'
+import { v4 as uuidv4 } from 'uuid'
 
 import { IdentityProviderInterface } from '@etherealengine/common/src/dbmodels/IdentityProvider'
 import { Instance } from '@etherealengine/common/src/interfaces/Instance'
@@ -15,6 +16,7 @@ import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
 import { NetworkTopics } from '@etherealengine/engine/src/networking/classes/Network'
 import { MessageTypes } from '@etherealengine/engine/src/networking/enums/MessageTypes'
 import { NetworkPeerFunctions } from '@etherealengine/engine/src/networking/functions/NetworkPeerFunctions'
+import { WorldState } from '@etherealengine/engine/src/networking/interfaces/WorldState'
 import { addNetwork, NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
 import { updatePeers } from '@etherealengine/engine/src/networking/systems/OutgoingActionSystem'
 import { dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
@@ -237,6 +239,7 @@ const loadEngine = async (app: Application, sceneId: string) => {
 
   const hostId = instanceServerState.instance.id as UserId
   Engine.instance.userId = hostId
+  Engine.instance.peerID = uuidv4() as PeerID
   const topic = instanceServerState.isMediaInstance ? NetworkTopics.media : NetworkTopics.world
 
   await setupSubdomain()
@@ -286,7 +289,12 @@ const loadEngine = async (app: Application, sceneId: string) => {
         }, 100)
       })
     }
+    const userUpdatedListener = async (user) => {
+      const worldState = getMutableState(WorldState)
+      if (worldState.userNames[user.id]?.value) worldState.userNames[user.id].set(user.name)
+    }
     app.service('scene').on('updated', sceneUpdatedListener)
+    app.service('user').on('patched', userUpdatedListener)
     await sceneUpdatedListener()
 
     logger.info('Scene loaded!')

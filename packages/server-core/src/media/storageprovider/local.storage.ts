@@ -182,8 +182,8 @@ export class LocalStorage implements StorageProviderInterface {
   /**
    * Get the signed url response of the storage object.
    * @param key Key of object.
-   * @param expiresAfter The number of seconds for which signed policy should be valid. Defaults to 3600 (one hour). Not used in local provider.
-   * @param conditions An array of conditions that must be met for certain providers. Not used in local provider.
+   * @param _expiresAfter The number of seconds for which signed policy should be valid. Defaults to 3600 (one hour). Not used in local provider.
+   * @param _conditions An array of conditions that must be met for certain providers. Not used in local provider.
    */
   getSignedUrl = (key: string, _expiresAfter: number, _conditions): any => {
     return {

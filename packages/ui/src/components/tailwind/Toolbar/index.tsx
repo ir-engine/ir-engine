@@ -129,11 +129,7 @@ c13 -19 14 -25 2 -43 -18 -26 -53 -31 -77 -9 -23 21 -24 37 -3 58 22 23 60 20
               </svg>
             )}
           </button>
-          <button
-            {...(detectingStatus !== 'active' ? { disabled: true } : {})}
-            className={twMerge('btn', isRecording && 'btn-active')}
-            onClick={onToggleRecording}
-          >
+          <button className={twMerge('btn', isRecording && 'btn-active')} onClick={onToggleRecording}>
             <div
               className={twMerge('badge badge-xs badge-warning', isRecording && 'animate-pulse badge-secondary')}
               style={{ marginRight: '5px' }}

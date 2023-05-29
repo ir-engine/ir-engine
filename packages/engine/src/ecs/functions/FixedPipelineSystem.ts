@@ -14,43 +14,40 @@ export const executeFixedPipeline = () => {
   const start = nowMilliseconds()
   let timeUsed = 0
 
-  let accumulator = Engine.instance.elapsedSeconds - Engine.instance.fixedElapsedSeconds
-
-  const { fixedDeltaSeconds: timestep, elapsedSeconds, fixedTick } = getState(EngineState)
   const engineState = getMutableState(EngineState)
+  const { frameTime, simulationTime, simulationTimestep } = getState(EngineState)
+
+  let simulationDelay = frameTime - simulationTime
 
   const maxMilliseconds = 8
 
-  // If the difference between fixedElapsedTime and elapsedTime becomes too large,
+  // If the difference between simulationTime and frameTime becomes too large,
   // we should simply skip ahead.
-  const maxFixedFrameDelay = Math.max(1, Engine.instance.deltaSeconds / timestep)
+  const maxSimulationDelay = 5000 // 5 seconds
 
-  if (accumulator < 0) {
-    engineState.fixedTick.set(Math.floor(elapsedSeconds / timestep))
-    engineState.fixedElapsedSeconds.set(fixedTick * timestep)
+  if (simulationDelay < simulationTimestep) {
+    engineState.simulationTime.set(Math.floor(frameTime / simulationTimestep) * simulationTimestep)
+    // simulation time is already up-to-date with frame time, so do nothing
+    return
   }
 
-  let accumulatorDepleted = accumulator < timestep
   let timeout = timeUsed > maxMilliseconds
   let updatesLimitReached = false
 
-  while (!accumulatorDepleted && !timeout && !updatesLimitReached) {
-    engineState.fixedTick.set(engineState.fixedTick.value + 1)
-    engineState.fixedElapsedSeconds.set(engineState.fixedTick.value * timestep)
+  while (simulationDelay > simulationTimestep && !timeout && !updatesLimitReached) {
+    engineState.simulationTime.set(
+      (t) => Math.floor((t + simulationTimestep) / simulationTimestep) * simulationTimestep
+    )
 
     executeSystem(SimulationSystemGroup)
 
-    accumulator -= timestep
-
-    const frameDelay = accumulator / timestep
-
+    simulationDelay -= simulationTimestep
     timeUsed = nowMilliseconds() - start
-    accumulatorDepleted = accumulator < timestep
     timeout = timeUsed > maxMilliseconds
 
-    if (frameDelay >= maxFixedFrameDelay) {
-      engineState.fixedTick.set(Math.floor(elapsedSeconds / timestep))
-      engineState.fixedElapsedSeconds.set(engineState.fixedTick.value * timestep)
+    if (simulationDelay >= maxSimulationDelay) {
+      // fast-forward if the simulation is too far behind
+      engineState.simulationTime.set((t) => Math.floor(frameTime / simulationTimestep) * simulationTimestep)
       break
     }
   }

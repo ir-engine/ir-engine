@@ -28,12 +28,12 @@ export const sendActionsAsPeer = (network: Network) => {
   if (!network.ready) return
   const actions = [...Engine.instance.store.actions.outgoing[network.topic].queue]
   if (!actions.length) return
-  for (const peerID of network.transport.peers) {
-    network.transport.messageToPeer(network.hostPeerID, {
-      type: MessageTypes.ActionData.toString(),
-      /*encode(*/ data: actions
-    }) //)
-  }
+  // for (const peerID of network.transport.peers) {
+  network.transport.messageToPeer(network.hostPeerID, {
+    type: MessageTypes.ActionData.toString(),
+    /*encode(*/ data: actions
+  }) //)
+  // }
   clearOutgoingActions(network.topic)
 }
 
@@ -56,7 +56,6 @@ export const sendActionsAsHost = (network: Network) => {
       if (!action.$to) continue
       const toUserId = network.peers.get(peerID)?.userId
       if (action.$to === 'all' || (action.$to === 'others' && toUserId !== action.$from) || action.$to === toUserId) {
-        if (!action.$peer) action.$peer = network.hostPeerID
         arr.push(action)
       }
     }
