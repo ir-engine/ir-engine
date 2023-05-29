@@ -15,7 +15,10 @@ export function registerMaterials(root: Object3D, type: SourceType = SourceType.
     const materials = Array.isArray(mesh.material) ? mesh.material : [mesh.material]
     materials
       .filter((material) => !materialLibrary.materials[material.uuid])
-      .map((material) => registerMaterial(material, { type, path }))
+      .map((material) => {
+        const materialComponent = registerMaterial(material, { type, path })
+        material.userData?.plugins && materialComponent.plugins.set(material.userData['plugins'])
+      })
   })
 }
 

@@ -1,5 +1,5 @@
 import { pipe } from 'bitecs'
-import { AnimationClip, AnimationMixer, Bone, Box3, Group, Object3D, Skeleton, SkinnedMesh, Vector3 } from 'three'
+import { AnimationClip, AnimationMixer, Bone, Box3, Group, Mesh, Object3D, Skeleton, SkinnedMesh, Vector3 } from 'three'
 
 import { dispatchAction, getState } from '@etherealengine/hyperflux'
 
@@ -26,6 +26,7 @@ import { addObjectToGroup, GroupComponent, removeObjectFromGroup } from '../../s
 import { UpdatableCallback, UpdatableComponent } from '../../scene/components/UpdatableComponent'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
 import { setObjectLayers } from '../../scene/functions/setObjectLayers'
+import iterateObject3D from '../../scene/util/iterateObject3D'
 import { computeTransformMatrix, updateGroupChildren } from '../../transform/systems/TransformSystem'
 import { XRState } from '../../xr/XRState'
 import { createAvatarAnimationGraph } from '../animation/AvatarAnimationGraph'
@@ -122,6 +123,9 @@ export const setupAvatarForUser = (entity: Entity, model: Object3D) => {
 
   setupAvatarModel(entity)(model)
   addObjectToGroup(entity, model)
+  iterateObject3D(model, (obj) => {
+    obj && (obj.frustumCulled = false)
+  })
 
   computeTransformMatrix(entity)
   updateGroupChildren(entity)
