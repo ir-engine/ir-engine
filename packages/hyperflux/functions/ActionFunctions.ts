@@ -263,10 +263,12 @@ function defineAction<Shape extends ActionShape<Action>>(actionShape: Shape) {
  */
 const dispatchAction = <A extends Action>(action: A, store = HyperFlux.store) => {
   const storeId = store.getDispatchId()
+  const agentId = store.getPeerId()
 
   action.$from = action.$from ?? (storeId as UserId)
+  action.$peer = action.$peer ?? (agentId as PeerID)
   action.$to = action.$to ?? 'all'
-  action.$time = action.$time ?? store.getDispatchTime() + store.defaultDispatchDelay
+  action.$time = action.$time ?? store.getDispatchTime() + store.defaultDispatchDelay()
   action.$cache = action.$cache ?? false
   action.$uuid = action.$uuid ?? MathUtils.generateUUID()
   const topic = (action.$topic = action.$topic ?? HyperFlux.store.defaultTopic)

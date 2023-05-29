@@ -154,7 +154,7 @@ const execute = () => {
 
   // step physics world
   const substeps = engineState.physicsSubsteps
-  const timestep = engineState.fixedDeltaSeconds / substeps
+  const timestep = engineState.simulationTimestep / 1000 / substeps
   Engine.instance.physicsWorld.timestep = timestep
   // const smoothnessMultiplier = 50
   // const smoothAlpha = smoothnessMultiplier * timestep

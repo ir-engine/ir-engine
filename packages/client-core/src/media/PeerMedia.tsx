@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react'
 
-import { PeerID, SelfPeerID } from '@etherealengine/common/src/interfaces/PeerID'
+import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { Network } from '@etherealengine/engine/src/networking/classes/Network'
 import { MessageTypes } from '@etherealengine/engine/src/networking/enums/MessageTypes'
@@ -44,10 +44,7 @@ export const getMediaChannels = (network: SocketWebRTCClientNetwork | Network, c
   const mediaChannels = [] as Array<{ peerID: PeerID; mediaTag?: MediaTagType }>
 
   /** always put own peer first */
-  const selfPeerID =
-    network?.peerID ||
-    (network.peers && Array.from(network.peers.values()).find((peer) => peer.userId === selfUserId)?.peerID) ||
-    SelfPeerID
+  const selfPeerID = Engine.instance.peerID
   if (mediaStreamState.screenVideoProducer.value != null && !mediaStreamState.screenShareVideoPaused.value)
     mediaChannels.push({ peerID: selfPeerID, mediaTag: screenshareVideoDataChannelType })
   if (mediaStreamState.screenAudioProducer.value != null && !mediaStreamState.screenShareAudioPaused.value)
@@ -96,7 +93,7 @@ const PeerMedia = (props: {
 
   const isScreen = type === 'screen'
   const network = Engine.instance.mediaNetwork as SocketWebRTCClientNetwork
-  const isSelf = props.peerID === network.peerID
+  const isSelf = props.peerID === Engine.instance.peerID
 
   const peerMediaChannelState = useHookstate(getMutableState(PeerMediaChannelState)[peerID][type])
 
@@ -324,7 +321,6 @@ export const PeerConsumers = () => {
       }
     }
   }, [
-    mediaNetwork?.peerID,
     mediaNetwork?.peers?.size,
     mediaNetwork?.consumers?.length,
     peerMediaChannelState.get({ noproxy: true }),
@@ -348,11 +344,7 @@ export const PeerConsumers = () => {
     )
 
   // own peer id
-  const peerID =
-    mediaNetwork?.peerID ||
-    (mediaNetwork?.peers &&
-      Array.from(mediaNetwork.peers.values()).find((peer) => peer.userId === selfUserId)?.peerID) ||
-    ('self' as PeerID)
+  const peerID = Engine.instance.peerID
   if (mediaStreamState.camVideoProducer.value)
     mediaChannels.push({
       peerID,

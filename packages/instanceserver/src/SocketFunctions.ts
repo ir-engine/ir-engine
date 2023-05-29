@@ -63,8 +63,10 @@ export const setupSocketFunctions = async (app: Application, spark: any) => {
   spark.on('data', async (message) => {
     if (message.type === MessageTypes.Authorization.toString()) {
       const data = message.data
+      const peerID = data.peerID
+
       if (authTask) {
-        logger.info('[MessageTypes.Authorization]: sending auth status to spark %s %o', spark.id, authTask)
+        logger.info('[MessageTypes.Authorization]: sending auth status to peer %s %o', peerID, authTask)
         spark.write({ type: MessageTypes.Authorization.toString(), data: authTask, id: message.id })
         return
       }
@@ -74,7 +76,7 @@ export const setupSocketFunctions = async (app: Application, spark: any) => {
       // until it is resolved
       authTask = { status: 'pending' }
       spark.write({ type: MessageTypes.Authorization.toString(), data: authTask, id: message.id })
-      logger.info('[MessageTypes.Authorization]: starting authorization for spark %s', spark.id)
+      logger.info('[MessageTypes.Authorization]: starting authorization for peer %s', peerID)
 
       /**
        * userId or access token were undefined, so something is wrong. Return failure
@@ -83,7 +85,7 @@ export const setupSocketFunctions = async (app: Application, spark: any) => {
       if (!accessToken) {
         authTask.status = 'fail'
         authTask.error = AuthError.MISSING_ACCESS_TOKEN
-        logger.error('[MessageTypes.Authorization]: spark is missing access token %s %o', spark.id, authTask)
+        logger.error('[MessageTypes.Authorization]: peer is missing access token %s %o', peerID, authTask)
         return
       }
 
@@ -101,7 +103,7 @@ export const setupSocketFunctions = async (app: Application, spark: any) => {
         if (!user) {
           authTask.status = 'fail'
           authTask.error = AuthError.USER_NOT_FOUND
-          logger.error('[MessageTypes.Authorization]: user %s not found over spark %s %o', userId, spark.id, authTask)
+          logger.error('[MessageTypes.Authorization]: user %s not found over peer %s %o', userId, peerID, authTask)
           return
         }
 
@@ -110,12 +112,7 @@ export const setupSocketFunctions = async (app: Application, spark: any) => {
         if (!(await authorizeUserToJoinServer(app, instance, userId))) {
           authTask.status = 'fail'
           authTask.error = AuthError.USER_NOT_AUTHORIZED
-          logger.error(
-            '[MessageTypes.Authorization]: user %s not authorized over spark %s %o',
-            userId,
-            spark.id,
-            authTask
-          )
+          logger.error('[MessageTypes.Authorization]: user %s not authorized over peer %s %o', userId, peerID, authTask)
           return
         }
 
@@ -125,87 +122,87 @@ export const setupSocketFunctions = async (app: Application, spark: any) => {
          * @todo Check if the user is banned
          */
 
-        await handleConnectingPeer(network, spark, user)
+        await handleConnectingPeer(network, spark, peerID, user)
       } catch (e) {
         console.error(e)
         authTask.status = 'fail'
         authTask.error = AuthError.INTERNAL_ERROR
-        logger.error('[MessageTypes.Authorization]: internal error while authorizing spark %s', spark.id, e.message)
+        logger.error('[MessageTypes.Authorization]: internal error while authorizing peer %s', peerID, e.message)
         return
       }
 
       spark.on('end', () => {
         console.log('got disconnection')
-        handleDisconnect(network, spark)
+        handleDisconnect(network, spark, peerID)
       })
 
       spark.on('data', async (message) => {
         const { type, data, id } = message
         switch (type) {
           case MessageTypes.JoinWorld.toString():
-            handleJoinWorld(network, spark, data, id, userId, user)
+            handleJoinWorld(network, spark, peerID, data, id, userId, user)
             break
           case MessageTypes.Heartbeat.toString():
-            handleHeartbeat(network, spark)
+            handleHeartbeat(network, spark, peerID)
             break
           case MessageTypes.ActionData.toString():
-            handleIncomingActions(network, spark, data)
+            handleIncomingActions(network, spark, peerID, data)
             break
           case MessageTypes.LeaveWorld.toString():
-            handleLeaveWorld(network, spark, data, id)
+            handleLeaveWorld(network, spark, peerID, data, id)
             break
           case MessageTypes.WebRTCTransportCreate.toString():
-            handleWebRtcTransportCreate(network, spark, data, id)
+            handleWebRtcTransportCreate(network, spark, peerID, data, id)
             break
           case MessageTypes.WebRTCProduceData.toString():
-            handleWebRtcProduceData(network, spark, data, id)
+            handleWebRtcProduceData(network, spark, peerID, data, id)
             break
           case MessageTypes.WebRTCConsumeData.toString():
-            handleWebRtcConsumeData(network, spark, data, id)
+            handleWebRtcConsumeData(network, spark, peerID, data, id)
             break
           case MessageTypes.WebRTCTransportConnect.toString():
-            handleWebRtcTransportConnect(network, spark, data, id)
+            handleWebRtcTransportConnect(network, spark, peerID, data, id)
             break
           case MessageTypes.WebRTCTransportClose.toString():
-            handleWebRtcTransportClose(network, spark, data, id)
+            handleWebRtcTransportClose(network, spark, peerID, data, id)
             break
           case MessageTypes.WebRTCCloseProducer.toString():
-            handleWebRtcCloseProducer(network, spark, data, id)
+            handleWebRtcCloseProducer(network, spark, peerID, data, id)
             break
           case MessageTypes.WebRTCSendTrack.toString():
-            handleWebRtcSendTrack(network, spark, data, id)
+            handleWebRtcSendTrack(network, spark, peerID, data, id)
             break
           case MessageTypes.WebRTCReceiveTrack.toString():
-            handleWebRtcReceiveTrack(network, spark, data, id)
+            handleWebRtcReceiveTrack(network, spark, peerID, data, id)
             break
           case MessageTypes.WebRTCPauseConsumer.toString():
-            handleWebRtcPauseConsumer(network, spark, data, id)
+            handleWebRtcPauseConsumer(network, spark, peerID, data, id)
             break
           case MessageTypes.WebRTCResumeConsumer.toString():
-            handleWebRtcResumeConsumer(network, spark, data, id)
+            handleWebRtcResumeConsumer(network, spark, peerID, data, id)
             break
           case MessageTypes.WebRTCCloseConsumer.toString():
-            handleWebRtcCloseConsumer(network, spark, data, id)
+            handleWebRtcCloseConsumer(network, spark, peerID, data, id)
             break
           case MessageTypes.WebRTCConsumerSetLayers.toString():
-            handleWebRtcConsumerSetLayers(network, spark, data, id)
+            handleWebRtcConsumerSetLayers(network, spark, peerID, data, id)
             break
           case MessageTypes.WebRTCResumeProducer.toString():
-            handleWebRtcResumeProducer(network, spark, data, id)
+            handleWebRtcResumeProducer(network, spark, peerID, data, id)
             break
           case MessageTypes.WebRTCPauseProducer.toString():
-            handleWebRtcPauseProducer(network, spark, data, id)
+            handleWebRtcPauseProducer(network, spark, peerID, data, id)
             break
           case MessageTypes.WebRTCRequestCurrentProducers.toString():
-            handleWebRtcRequestCurrentProducers(network, spark, data, id)
+            handleWebRtcRequestCurrentProducers(network, spark, peerID, data, id)
             break
           case MessageTypes.InitializeRouter.toString():
-            handleWebRtcInitializeRouter(network, spark, data, id)
+            handleWebRtcInitializeRouter(network, spark, peerID, data, id)
             break
         }
       })
 
-      logger.info('[MessageTypes.Authorization]: user %s successfully authorized over spark %s', userId, spark.id)
+      logger.info('[MessageTypes.Authorization]: user %s successfully authorized for peer %s', userId, peerID)
       authTask.status = 'success'
     }
   })

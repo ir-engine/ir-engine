@@ -231,11 +231,8 @@ export const useOfflineScene = (props?: { spectate?: boolean }) => {
       if (props?.spectate) return
 
       receiveJoinWorld({
-        highResTimeOrigin: performance.timeOrigin,
-        worldStartTime: performance.now(),
         cachedActions: [],
         peerIndex,
-        peerID,
         routerRtpCapabilities: undefined
       })
     }

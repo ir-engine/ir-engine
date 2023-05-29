@@ -24,8 +24,13 @@ export interface HyperStore {
   forwardIncomingActions: (action: Required<ResolvedActionType>) => boolean
   /**
    * A function which returns the dispatch id assigned to actions
+   * @deprecated can be derived from agentId via mapping
    * */
   getDispatchId: () => string
+  /**
+   * A function which returns the agent id assigned to actions
+   */
+  getPeerId: () => string
   /**
    * A function which returns the current dispatch time (units are arbitrary)
    */
@@ -37,7 +42,7 @@ export interface HyperStore {
   /**
    * The default dispatch delay (default is 0)
    */
-  defaultDispatchDelay: number
+  defaultDispatchDelay: () => number
   /**
    * State dictionary
    */
@@ -86,17 +91,19 @@ export class HyperFlux {
 export function createHyperStore(options: {
   forwardIncomingActions?: (action: Required<ResolvedActionType>) => boolean
   getDispatchId: () => string
+  getPeerId: () => string
   getDispatchTime: () => number
   getCurrentReactorRoot?: () => ReactorRoot | undefined
-  defaultDispatchDelay?: number
+  defaultDispatchDelay?: () => number
 }) {
   const store = {
     defaultTopic: 'default' as Topic,
     forwardIncomingActions: options.forwardIncomingActions ?? (() => false),
     getDispatchId: options.getDispatchId,
+    getPeerId: options.getPeerId,
     getDispatchTime: options.getDispatchTime,
     getCurrentReactorRoot: options.getCurrentReactorRoot ?? (() => null),
-    defaultDispatchDelay: options.defaultDispatchDelay ?? 0,
+    defaultDispatchDelay: options.defaultDispatchDelay ?? (() => 0),
 
     stateMap: {},
     valueMap: {},

@@ -33,7 +33,7 @@ describe('ViewCursor read/write', () => {
   beforeEach(() => {
     createEngine()
     const engineState = getMutableState(EngineState)
-    engineState.fixedTick.set(1)
+    engineState.simulationTime.set(1)
   })
 
   afterEach(() => {

@@ -1,7 +1,6 @@
 import { VitePWA } from 'vite-plugin-pwa'
 
 import manifest from './manifest.default.json'
-import packageJson from './package.json'
 
 /**
  * Creates a new instance of the VitePWA plugin for Vite.js.
@@ -25,7 +24,8 @@ const PWA = (clientSetting) =>
       short_name: clientSetting?.shortName || 'EE',
       theme_color: clientSetting?.themeColor || '#ffffff',
       background_color: clientSetting?.backgroundColor || '#000000',
-      start_url: process.env.APP_URL || '/',
+      start_url:
+        process.env.APP_ENV === 'development' || process.env.VITE_LOCAL_BUILD === 'true' ? '/' : process.env.APP_URL,
       scope: `./`,
       id: `ETHEREAL_ENGINE`
     },
@@ -63,12 +63,14 @@ const PWA = (clientSetting) =>
       navigateFallback: '/index.html',
       // Allowlist all paths for navigateFallback during production
       navigateFallbackAllowlist: [
+        // manifest route
+        // /^\/manifest\.json/,
+        // service worker route
+        /^\/service-worker\.js/,
         // allow access to loder_decoder directory
         /^\/loader_decoder\/.*/,
         // allow jsdelivr cdn
         /^https:\/\/cdn.jsdelivr.net\/.*/,
-        // allow all files for production build
-        /^\/.*/,
         // location route
         /^\/location?.*/,
         // editor route
@@ -84,7 +86,11 @@ const PWA = (clientSetting) =>
         // resources route
         /^\/resources-?.*/,
         // instanceserver route
-        /^\/instanceserver-?.*/
+        /^\/instanceserver-?.*/,
+        // assets route
+        /^\/assets\/.*/,
+        // allow all files for production build
+        /^\/.*/
       ],
       // Set the glob directory and patterns for the cache
       globDirectory: './public',
@@ -97,8 +103,6 @@ const PWA = (clientSetting) =>
         '**/*.{mp3,mp4,webm}',
         // code
         '**/*.{js, css, html}',
-        // webmanifest
-        '**/*.webmanifest',
         // docs
         '**/*.{txt,xml,json,pdf}',
         // 3d objects
@@ -120,51 +124,74 @@ const PWA = (clientSetting) =>
       // Set maximum cache size to 100 MB
       maximumFileSizeToCacheInBytes: 1000 * 1000 * 100,
       runtimeCaching: [
-        // cache all static images
+        // Cache all requests on the resources- subdomain for this domain
         {
-          urlPattern: /\.(?:png|jpg|jpeg|svg|gif|ico)$/i,
+          urlPattern: /^https?:\/\/resources-*\/.*/i,
           handler: 'CacheFirst',
           options: {
-            cacheName: 'images',
+            cacheName: 'resources',
             expiration: {
               maxEntries: 1000,
-              maxAgeSeconds: 60 * 60 * 24 * 30 // 30 Days
+              maxAgeSeconds: 60 * 60 * 24 * 30 // 30 days
+            },
+            cacheableResponse: {
+              statuses: [0, 200]
             }
           }
         },
-        // cache all static fonts
         {
-          urlPattern: /\.(?:woff2|woff|ttf|eot)$/i,
+          urlPattern: /^https?.*/i,
           handler: 'CacheFirst',
           options: {
-            cacheName: 'fonts',
+            cacheName: 'all-content-cache',
             expiration: {
               maxEntries: 1000,
-              maxAgeSeconds: 60 * 60 * 24 * 30 // 30 Days
+              maxAgeSeconds: 7 * 24 * 60 * 60 // <== 7 days
+            },
+            cacheableResponse: {
+              statuses: [0, 200]
             }
           }
         },
-        // cache all static media
         {
-          urlPattern: /\.(?:mp3|mp4|webm)$/i,
+          urlPattern: /^\/fonts?.*/i,
           handler: 'CacheFirst',
           options: {
-            cacheName: 'media',
+            cacheName: 'fonts-assets-cache',
             expiration: {
-              maxEntries: 1000,
-              maxAgeSeconds: 60 * 60 * 24 * 30 // 30 Days
+              maxEntries: 100,
+              maxAgeSeconds: 24 * 60 * 60 // <== 24 hours
+            },
+            cacheableResponse: {
+              statuses: [0, 200]
             }
           }
         },
-        // cache all static code
         {
-          urlPattern: /\.(?:js|css|html)$/i,
+          urlPattern: /^\/icons?.*/,
           handler: 'CacheFirst',
           options: {
-            cacheName: 'code',
+            cacheName: 'icons-assets-cache',
             expiration: {
-              maxEntries: 1000,
-              maxAgeSeconds: 60 * 60 * 24 * 30 // 30 Days
+              maxEntries: 100,
+              maxAgeSeconds: 24 * 60 * 60 // <== 24 hours
+            },
+            cacheableResponse: {
+              statuses: [0, 200]
+            }
+          }
+        },
+        {
+          urlPattern: /^\/static?.*/i,
+          handler: 'CacheFirst',
+          options: {
+            cacheName: 'static-assets-cache',
+            expiration: {
+              maxEntries: 100,
+              maxAgeSeconds: 24 * 60 * 60 // <== 24 hours
+            },
+            cacheableResponse: {
+              statuses: [0, 200]
             }
           }
         }

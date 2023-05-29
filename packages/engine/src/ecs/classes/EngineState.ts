@@ -7,14 +7,17 @@ import { Entity } from './Entity'
 // TODO: #6016 Refactor EngineState into multiple state objects: timer, scene, world, xr, etc.
 export const EngineState = defineState({
   name: 'EngineState',
-  initial: {
-    frameTime: 0,
+  initial: () => ({
+    simulationTimestep: 1000 / 60,
+
+    frameTime: Date.now(),
+    simulationTime: Date.now(),
+
     deltaSeconds: 0,
     elapsedSeconds: 0,
+
     physicsSubsteps: 1,
-    fixedDeltaSeconds: 1 / 60,
-    fixedElapsedSeconds: 0,
-    fixedTick: 0,
+
     isEngineInitialized: false,
     sceneLoading: false,
     sceneLoaded: false,
@@ -37,7 +40,7 @@ export const EngineState = defineState({
     isBot: false,
     isEditor: false,
     systemPerformanceProfilingEnabled: false
-  }
+  })
 })
 
 export function EngineEventReceptor(a) {
