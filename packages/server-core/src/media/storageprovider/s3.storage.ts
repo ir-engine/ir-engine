@@ -55,7 +55,7 @@ export class S3Provider implements StorageProviderInterface {
       : config.aws.s3.endpoint,
     region: config.aws.s3.region,
     forcePathStyle: true,
-    sslEnabled: config.aws.s3.s3DevMode === 'local' ? false : undefined,
+    tls: config.aws.s3.s3DevMode === 'local' ? false : undefined,
     maxAttempts: 5
   })
 
