@@ -8,6 +8,7 @@ import { PassThrough } from 'stream'
 import { FileContentType } from '@etherealengine/common/src/interfaces/FileContentType'
 
 import config from '../../appconfig'
+import { getCacheDomain } from './getCacheDomain'
 import { getCachedURL } from './getCachedURL'
 import {
   PutObjectParams,
@@ -33,7 +34,9 @@ export class S3Provider implements StorageProviderInterface {
   provider: AWS.S3 = new AWS.S3({
     accessKeyId: config.aws.keys.accessKeyId,
     secretAccessKey: config.aws.keys.secretAccessKey,
-    endpoint: config.aws.s3.endpoint,
+    endpoint: config.server.storageProviderExternalEndpoint
+      ? config.server.storageProviderExternalEndpoint
+      : config.aws.s3.endpoint,
     region: config.aws.s3.region,
     s3ForcePathStyle: true,
     sslEnabled: config.aws.s3.s3DevMode === 'local' ? false : undefined,
@@ -131,7 +134,8 @@ export class S3Provider implements StorageProviderInterface {
    * @param key Key of object.
    */
   async getCachedObject(key: string): Promise<StorageObjectInterface> {
-    const data = await fetch(getCachedURL(key, this.cacheDomain))
+    const cacheDomain = getCacheDomain(this, true)
+    const data = await fetch(getCachedURL(key, cacheDomain))
     return { Body: Buffer.from(await data.arrayBuffer()), ContentType: (await data.headers.get('content-type')) || '' }
   }
 

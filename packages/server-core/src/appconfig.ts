@@ -110,6 +110,7 @@ const server = {
   localStorageProviderPort: process.env.LOCAL_STORAGE_PROVIDER_PORT!,
   corsServerPort: process.env.CORS_SERVER_PORT!,
   storageProvider: process.env.STORAGE_PROVIDER!,
+  storageProviderExternalEndpoint: process.env.STORAGE_PROVIDER_EXTERNAL_ENDPOINT!,
   cloneProjectStaticResources:
     typeof process.env.CLONE_STATIC_RESOURCES === 'undefined' ? true : process.env.CLONE_STATIC_RESOURCES === 'true',
   gaTrackingId: process.env.GOOGLE_ANALYTICS_TRACKING_ID!,
@@ -144,6 +145,8 @@ const client = {
     if (process.env.SERVE_CLIENT_FROM_STORAGE_PROVIDER === 'true') {
       if (process.env.STORAGE_PROVIDER === 'aws' && process.env.STORAGE_CLOUDFRONT_DOMAIN) {
         return `https://${process.env.STORAGE_CLOUDFRONT_DOMAIN}/client/`
+      } else if (process.env.STORAGE_PROVIDER === 'aws' && process.env.STORAGE_S3_DEV_MODE === 'local') {
+        return `${process.env.STORAGE_S3_ENDPOINT}/${process.env.STORAGE_S3_STATIC_RESOURCE_BUCKET}/client/`
       } else if (process.env.STORAGE_PROVIDER === 'local') {
         return `https://${process.env.LOCAL_STORAGE_PROVIDER}/client/`
       }

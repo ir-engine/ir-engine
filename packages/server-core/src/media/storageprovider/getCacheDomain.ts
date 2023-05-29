@@ -8,9 +8,9 @@ import { StorageProviderInterface } from './storageprovider.interface'
  * @returns {string}
  */
 export const getCacheDomain = (storageProvider: StorageProviderInterface, internal = false) => {
-  if (config.server.storageProvider === 'local' && config.kubernetes.enabled && internal)
-    return config.server.localStorageProviderPort
-      ? `host.minikube.internal:${config.server.localStorageProviderPort}`
-      : 'host.minikube.internal'
+  if (config.server.storageProviderExternalEndpoint && config.kubernetes.enabled && internal)
+    return config.aws.s3.staticResourceBucket
+      ? `${config.server.storageProviderExternalEndpoint}/${config.aws.s3.staticResourceBucket}`
+      : config.server.storageProviderExternalEndpoint
   return storageProvider.cacheDomain
 }
