@@ -173,7 +173,7 @@ const decorators = [
     // const engineState = useHookstate(getMutableState(EngineState))
 
     return (
-      <div style={{ height: '100vh', pointerEvents: 'auto' }}>
+      <div className="w-full h-full container mx-auto pointer-events-auto">
         <Story />
         {projectComponents}
       </div>

@@ -5,7 +5,7 @@ import ThemeSwitcher from '@etherealengine/ui/src/components/tailwind/ThemeSwitc
 
 const Header = () => {
   return (
-    <nav className="navbar w-full fixed">
+    <nav className="w-full navbar">
       <div className="flex-1">
         <a className="btn btn-ghost normal-case text-xl">Ethereal Capture</a>
       </div>

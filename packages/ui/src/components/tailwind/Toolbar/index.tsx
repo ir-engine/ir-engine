@@ -129,7 +129,11 @@ c13 -19 14 -25 2 -43 -18 -26 -53 -31 -77 -9 -23 21 -24 37 -3 58 22 23 60 20
               </svg>
             )}
           </button>
-          <button className={twMerge('btn', isRecording && 'btn-active')} onClick={onToggleRecording}>
+          <button
+            className={twMerge('btn', isRecording && 'btn-active')}
+            {...(recordingStatus !== 'undefined' ? { disabled: true } : {})}
+            onClick={onToggleRecording}
+          >
             <div
               className={twMerge('badge badge-xs badge-warning', isRecording && 'animate-pulse badge-secondary')}
               style={{ marginRight: '5px' }}
@@ -138,7 +142,7 @@ c13 -19 14 -25 2 -43 -18 -26 -53 -31 -77 -9 -23 21 -24 37 -3 58 22 23 60 20
           </button>
         </div>
       </div>
-      <div className="navbar-end w-full">
+      <div className="navbar-end">
         <div className="btn-group">
           <button
             {...(videoStatus !== 'active' ? { disabled: true } : {})}
@@ -148,7 +152,11 @@ c13 -19 14 -25 2 -43 -18 -26 -53 -31 -77 -9 -23 21 -24 37 -3 58 22 23 60 20
             <ArrowsRightLeftIcon className="block min-w-6 min-h-6" />
           </button>
           <button className={twMerge('btn', videoStatus === 'active' && 'btn-active')} onClick={toggleWebcam}>
-            <CameraIcon className="block min-w-6 min-h-6" />
+            {videoStatus === 'loading' ? (
+              <LoadingCircle className="block w-6 h-6 top-0" />
+            ) : (
+              <CameraIcon className="block min-w-6 min-h-6" />
+            )}
           </button>
         </div>
         <div className="dropdown dropdown-top dropdown-end">
@@ -220,9 +228,9 @@ Toolbar.defaultProps = {
   toggleDetecting: () => {},
   toggleWebcam: () => {},
   videoStatus: 'loading',
-  detectingStatus: 'loading',
-  isRecording: true,
-  recordingStatus: 'loading',
+  detectingStatus: 'inactive',
+  isRecording: false,
+  recordingStatus: undefined,
   onToggleRecording: () => {},
   isVideoFlipped: true,
   flipVideo: () => {},

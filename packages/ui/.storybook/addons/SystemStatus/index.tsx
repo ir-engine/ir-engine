@@ -9,13 +9,13 @@ import React, { useCallback } from 'react'
 const SystemStatus = () => {
   const [globals, updateGlobals] = useGlobals()
 
-  const isActive = globals['my-param-key'] || false
+  const isActive = globals['SystemStatus'] || false
 
   // Function that will update the global value and trigger a UI refresh.
   const refreshAndUpdateGlobal = () => {
     // Updates Storybook global value
     updateGlobals({
-      ['my-param-key']: !isActive
+      ['SystemStatus']: !isActive
     }),
       // Invokes Storybook's addon API method (with the FORCE_RE_RENDER) event to trigger a UI refresh
       addons.getChannel().emit(FORCE_RE_RENDER)
@@ -23,7 +23,7 @@ const SystemStatus = () => {
 
   const toggleOutline = useCallback(() => refreshAndUpdateGlobal(), [isActive])
 
-  return <div>hello</div>
+  return <div key="hello">hello</div>
 }
 
 SystemStatus.defaultProps = {}
