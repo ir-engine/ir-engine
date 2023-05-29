@@ -97,6 +97,9 @@ export class XRAction {
     ...WorldNetworkAction.spawnObject.actionShape,
     prefab: 'ik-target',
     handedness: matches.literals('left', 'right', 'none'),
+    $cache: {
+      removePrevious: true
+    },
     $topic: NetworkTopics.world
   })
 }
