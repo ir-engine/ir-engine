@@ -189,6 +189,10 @@ export const MediaStreamService = {
     try {
       logger.info('Getting audio stream %o', localAudioConstraints)
       const audioStream = await navigator.mediaDevices.getUserMedia(localAudioConstraints)
+      if (!audioStream.active) {
+        state.audioStream.set(null)
+        return false
+      }
       state.audioStream.set(audioStream)
       if (state.camAudioProducer.value && !state.camAudioProducer.value.closed)
         await state.camAudioProducer.value.replaceTrack({

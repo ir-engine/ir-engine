@@ -64,6 +64,7 @@ export class WorldNetworkAction {
   static destroyObject = defineAction({
     type: 'xre.world.DESTROY_OBJECT',
     networkId: matchesNetworkId,
+    $cache: true,
     $topic: NetworkTopics.world
   })
 

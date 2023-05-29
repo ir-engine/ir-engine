@@ -16,12 +16,9 @@ export async function validateNetworkObjects(network: SocketWebRTCServerNetwork)
 }
 
 const execute = () => {
-  const VALIDATE_NETWORK_INTERVAL = Engine.instance.tickRate * 5
   const network = Engine.instance.worldNetwork as SocketWebRTCServerNetwork
   if (!network) return
-  if (Engine.instance.worldNetwork.isHosting && Engine.instance.fixedTick % VALIDATE_NETWORK_INTERVAL === 0) {
-    validateNetworkObjects(network)
-  }
+  if (Engine.instance.worldNetwork.isHosting) validateNetworkObjects(network)
 }
 
 export const ServerHostNetworkSystem = defineSystem({

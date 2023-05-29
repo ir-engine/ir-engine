@@ -1,6 +1,8 @@
+import packageRoot from 'app-root-path'
 import fs from 'fs'
 import https from 'https'
 import net from 'net'
+import { join } from 'path'
 import serveStatic from 'serve-static'
 
 import config from './appconfig'
@@ -9,8 +11,8 @@ const serve = serveStatic('../server/upload/')
 
 let server: https.Server = null!
 const options = {
-  key: fs.readFileSync('../../certs/key.pem'),
-  cert: fs.readFileSync('../../certs/cert.pem')
+  key: fs.readFileSync(join(packageRoot.path, 'certs/key.pem')),
+  cert: fs.readFileSync(join(packageRoot.path, 'certs/cert.pem'))
 }
 
 const createTestFileServer = (port: number, isServerRunning: boolean) => {

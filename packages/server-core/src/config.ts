@@ -80,7 +80,7 @@ export const config = {
     // to set these appropriately for your network for the demo to
     // run anywhere but on 127.0.0.1
     webRtcTransport: {
-      listenIps: [{ ip: configFile.instanceserver.hostname as string, announcedIp: null! as string }],
+      listenIps: [{ ip: configFile.instanceserver.domain, announcedIp: null! as string }],
       initialAvailableOutgoingBitrate: 1000 * 1000 * 1000, //1gbps
       maxIncomingBitrate: 30 * 1000 * 1000 // 30mbps - this should be set to something; leaving it uncapped causes stuttering
     }
@@ -157,17 +157,17 @@ export const localConfig = {
     // to set these appropriately for your network for the demo to
     // run anywhere but on 127.0.0.1
     webRtcTransport: {
-      listenIps: [{ ip: configFile.instanceserver.hostname!, announcedIp: null! as string }],
+      listenIps: [{ ip: configFile.instanceserver.domain, announcedIp: null! as string }],
       initialAvailableOutgoingBitrate: 1000 * 1000 * 1000, //1gbps
       maxIncomingBitrate: 30 * 1000 * 1000 // 30mbps - this should be set to something; leaving it uncapped causes stuttering
     },
 
     plainTransport: {
-      listenIp: { ip: configFile.instanceserver.hostname }
+      listenIp: { ip: configFile.instanceserver.domain }
     } as PlainTransportOptions,
 
     recording: {
-      ip: configFile.instanceserver.hostname,
+      ip: configFile.instanceserver.domain,
 
       // FFmpeg's sdpdemux only supports RTCP = RTP + 1
       audioPort: 5004,

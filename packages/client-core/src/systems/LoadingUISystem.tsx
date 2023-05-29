@@ -1,4 +1,3 @@
-import { t } from 'i18next'
 import { useEffect } from 'react'
 import React from 'react'
 import { DoubleSide, Mesh, MeshBasicMaterial, SphereGeometry } from 'three'
@@ -29,8 +28,6 @@ import { ObjectFitFunctions } from '@etherealengine/engine/src/xrui/functions/Ob
 import { defineActionQueue, defineState, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 import type { WebLayer3D } from '@etherealengine/xrui'
 
-import { NotificationService } from '../common/services/NotificationService'
-import { AuthState } from '../user/services/AuthService'
 import { LoadingSystemState } from './state/LoadingState'
 import { createLoaderDetailView } from './ui/LoadingDetailView'
 
@@ -84,8 +81,6 @@ function SceneDataReactor() {
 
 const avatarModelChangedQueue = defineActionQueue(EngineActions.avatarModelChanged.matches)
 const spectateUserQueue = defineActionQueue(EngineActions.spectateUser.matches)
-const peerCreatedQueue = defineActionQueue(EngineActions.peerCreated.matches)
-const peerDestroyedQueue = defineActionQueue(EngineActions.peerDestroyed.matches)
 
 function LoadingReactor() {
   const loadingState = useHookstate(getMutableState(AppLoadingState))
@@ -117,18 +112,6 @@ const execute = () => {
       engineState.sceneLoaded
     )
       transition.setState('OUT')
-  }
-
-  for (const action of peerCreatedQueue()) {
-    const selfUser = getState(AuthState).user
-    if (action.peer.peerID !== 'server' && action.peer.userId !== selfUser.id)
-      NotificationService.dispatchNotify(`${action.name} ${t('common:toast.joined')}`, { variant: 'default' })
-  }
-
-  for (const action of peerDestroyedQueue()) {
-    const selfUser = getState(AuthState).user
-    if (action.peer.peerID !== 'server' && action.peer.userId !== selfUser.id)
-      NotificationService.dispatchNotify(`${action.name} ${t('common:toast.left')}`, { variant: 'default' })
   }
 
   if (transition.state === 'OUT' && transition.alpha === 0) {

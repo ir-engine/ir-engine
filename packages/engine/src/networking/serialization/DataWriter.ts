@@ -5,6 +5,7 @@ import { getState } from '@etherealengine/hyperflux'
 
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { Engine } from '../../ecs/classes/Engine'
+import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import { hasComponent } from '../../ecs/functions/ComponentFunctions'
 // import { XRHandsInputComponent } from '../../xr/XRComponents'
@@ -30,8 +31,10 @@ import {
   spaceUint32,
   spaceUint64,
   ViewCursor,
+  writeFloat64,
   writePropIfChanged,
-  writeUint32
+  writeUint32,
+  writeUint64
 } from './ViewCursor'
 
 /**
@@ -268,7 +271,7 @@ export const writeEntities = (v: ViewCursor, entities: Entity[]) => {
 export const writeMetadata = (v: ViewCursor, network: Network, userId: UserId, peerID: PeerID) => {
   writeUint32(v, network.userIDToUserIndex.get(userId)!)
   writeUint32(v, network.peerIDToPeerIndex.get(peerID)!)
-  writeUint32(v, Engine.instance.fixedTick)
+  writeFloat64(v, getState(EngineState).simulationTime)
 }
 
 export const createDataWriter = (size: number = 100000) => {

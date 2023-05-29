@@ -228,7 +228,8 @@ const computeCameraFollow = (cameraEntity: Entity, referenceEntity: Entity) => {
 }
 
 export function cameraSpawnReceptor(spawnAction: ReturnType<typeof WorldNetworkAction.spawnCamera>) {
-  const entity = Engine.instance.getNetworkObject(spawnAction.$from, spawnAction.networkId)!
+  const entity = Engine.instance.getNetworkObject(spawnAction.$from, spawnAction.networkId)
+  if (!entity) return
 
   console.log('Camera Spawn Receptor Call', entity)
 

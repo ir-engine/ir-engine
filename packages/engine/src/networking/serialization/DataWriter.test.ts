@@ -57,7 +57,7 @@ describe('DataWriter', () => {
       write: TransformSerialization.writeTransform
     })
     const engineState = getMutableState(EngineState)
-    engineState.fixedTick.set(1)
+    engineState.simulationTime.set(1)
   })
 
   afterEach(() => {

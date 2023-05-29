@@ -1,3 +1,4 @@
+import { t } from 'i18next'
 import * as mediasoupClient from 'mediasoup-client'
 import {
   Consumer,
@@ -18,7 +19,7 @@ import { v4 as uuidv4 } from 'uuid'
 import config from '@etherealengine/common/src/config'
 import { AuthTask } from '@etherealengine/common/src/interfaces/AuthTask'
 import { Channel, ChannelType } from '@etherealengine/common/src/interfaces/Channel'
-import { PeerID, PeersUpdateType, SelfPeerID } from '@etherealengine/common/src/interfaces/PeerID'
+import { PeerID, PeersUpdateType } from '@etherealengine/common/src/interfaces/PeerID'
 import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 import multiLogger from '@etherealengine/common/src/logger'
 import { getSearchParamFromURL } from '@etherealengine/common/src/utils/getSearchParamFromURL'
@@ -43,6 +44,7 @@ import {
   JoinWorldRequestData,
   receiveJoinWorld
 } from '@etherealengine/engine/src/networking/functions/receiveJoinWorld'
+import { WorldState } from '@etherealengine/engine/src/networking/interfaces/WorldState'
 import {
   dataChannelRegistry,
   MediaStreamAppData,
@@ -69,6 +71,7 @@ import {
   MediaInstanceState
 } from '../common/services/MediaInstanceConnectionService'
 import { NetworkConnectionService } from '../common/services/NetworkConnectionService'
+import { NotificationService } from '../common/services/NotificationService'
 import {
   startFaceTracking,
   startLipsyncTracking,
@@ -398,7 +401,7 @@ export async function onConnectToInstance(network: SocketWebRTCClientNetwork) {
 
   const authState = getState(AuthState)
   const token = authState.authUser.accessToken
-  const payload = { accessToken: token }
+  const payload = { accessToken: token, peerID: Engine.instance.peerID }
 
   const { status } = await new Promise<AuthTask>((resolve) => {
     const interval = setInterval(async () => {
@@ -418,9 +421,10 @@ export async function onConnectToInstance(network: SocketWebRTCClientNetwork) {
     for (const peer of peers) {
       NetworkPeerFunctions.createPeer(network, peer.peerID, peer.peerIndex, peer.userID, peer.userIndex, peer.name)
     }
-    for (const [peerID] of network.peers)
-      if (!peers.find((p) => p.peerID === peerID)) NetworkPeerFunctions.destroyPeer(network, peerID)
-    if (network.topic === NetworkTopics.media) removePeerMediaChannels(SelfPeerID)
+    for (const [peerID, peer] of network.peers)
+      if (!peers.find((p) => p.peerID === peerID)) {
+        NetworkPeerFunctions.destroyPeer(network, peerID)
+      }
     logger.info('Updated peers %o', { topic: network.topic, peers })
   }
 
@@ -718,8 +722,8 @@ export async function createDataProducer(
     appData: { data: customInitInfo },
     ordered: false,
     label: dataChannelType,
-    maxPacketLifeTime: 0,
-    // maxRetransmits: 3,
+    // maxPacketLifeTime: 0,
+    maxRetransmits: 1,
     protocol: type // sub-protocol for type of data to be transmitted on the channel e.g. json, raw etc. maybe make type an enum rather than string
   })
   // dataProducer.on("open", () => {

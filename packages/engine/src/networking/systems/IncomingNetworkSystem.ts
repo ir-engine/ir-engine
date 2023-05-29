@@ -7,23 +7,9 @@ import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { DataChannelType, Network } from '../classes/Network'
+import { JitterBufferEntry } from '../classes/Network'
 import { addDataChannelHandler, removeDataChannelHandler } from '../NetworkState'
-import { createDataReader } from '../serialization/DataReader'
-
-export const applyUnreliableQueueFast = (deserialize: any) => () => {
-  const network = Engine.instance.worldNetwork
-  if (!network) return
-
-  const { incomingMessageQueueUnreliable, incomingMessageQueueUnreliableIDs } = network
-
-  while (incomingMessageQueueUnreliable.getBufferLength() > 0) {
-    // we may need producer IDs at some point, likely for p2p netcode, for now just consume it
-    incomingMessageQueueUnreliableIDs.pop()
-    const packet = incomingMessageQueueUnreliable.pop()
-
-    deserialize(network, packet)
-  }
-}
+import { readDataPacket } from '../serialization/DataReader'
 
 const toArrayBuffer = (buf) => {
   const ab = new ArrayBuffer(buf.length)
@@ -35,9 +21,6 @@ const toArrayBuffer = (buf) => {
 }
 
 export const ecsDataChannelType = 'ee.core.ecs.dataChannel' as DataChannelType
-
-const deserialize = createDataReader()
-const applyIncomingNetworkState = applyUnreliableQueueFast(deserialize)
 
 const handleNetworkdata = (
   network: Network,
@@ -57,11 +40,37 @@ const handleNetworkdata = (
   }
 }
 
+function oldestFirstComparator(a: JitterBufferEntry, b: JitterBufferEntry) {
+  return b.simulationTime - a.simulationTime
+}
+
 const execute = () => {
   const engineState = getState(EngineState)
   if (!engineState.isEngineInitialized) return
 
-  applyIncomingNetworkState()
+  const network = Engine.instance.worldNetwork
+  if (!network) return
+
+  const { incomingMessageQueueUnreliable, incomingMessageQueueUnreliableIDs } = network
+
+  while (incomingMessageQueueUnreliable.getBufferLength() > 0) {
+    // we may need producer IDs at some point, likely for p2p netcode, for now just consume it
+    incomingMessageQueueUnreliableIDs.pop()
+    const packet = incomingMessageQueueUnreliable.pop()
+
+    readDataPacket(network, packet)
+  }
+
+  network.jitterBufferTaskList.sort(oldestFirstComparator)
+
+  const targetFixedTime = engineState.simulationTime + network.jitterBufferDelay
+
+  for (const [index, { simulationTime, read }] of network.jitterBufferTaskList.slice().entries()) {
+    if (simulationTime <= targetFixedTime) {
+      read()
+      network.jitterBufferTaskList.splice(index, 1)
+    }
+  }
 }
 
 const reactor = () => {

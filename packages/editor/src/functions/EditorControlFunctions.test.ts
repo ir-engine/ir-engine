@@ -74,7 +74,7 @@ describe('EditorControlFunctions', () => {
       createEngine()
       registerEditorReceptors()
 
-      Engine.instance.store.defaultDispatchDelay = 0
+      Engine.instance.store.defaultDispatchDelay = () => 0
 
       const rootNode = getState(SceneState).sceneEntity
       nodes = [createEntity(), createEntity()]
@@ -108,7 +108,7 @@ describe('EditorControlFunctions', () => {
     beforeEach(() => {
       createEngine()
       registerEditorReceptors()
-      Engine.instance.store.defaultDispatchDelay = 0
+      Engine.instance.store.defaultDispatchDelay = () => 0
 
       rootNode = getState(SceneState).sceneEntity
     })
@@ -124,7 +124,7 @@ describe('EditorControlFunctions', () => {
     beforeEach(() => {
       createEngine()
       registerEditorReceptors()
-      Engine.instance.store.defaultDispatchDelay = 0
+      Engine.instance.store.defaultDispatchDelay = () => 0
 
       const world = getState(SceneState)
 
@@ -191,7 +191,7 @@ describe('EditorControlFunctions', () => {
     beforeEach(() => {
       createEngine()
       registerEditorReceptors()
-      Engine.instance.store.defaultDispatchDelay = 0
+      Engine.instance.store.defaultDispatchDelay = () => 0
 
       const rootNode = getState(SceneState).sceneEntity
       nodes = [createEntity(), createEntity()]
@@ -230,7 +230,7 @@ describe('EditorControlFunctions', () => {
     beforeEach(() => {
       createEngine()
       registerEditorReceptors()
-      Engine.instance.store.defaultDispatchDelay = 0
+      Engine.instance.store.defaultDispatchDelay = () => 0
 
       const world = getState(SceneState)
 
@@ -277,7 +277,7 @@ describe('EditorControlFunctions', () => {
     beforeEach(() => {
       createEngine()
       registerEditorReceptors()
-      Engine.instance.store.defaultDispatchDelay = 0
+      Engine.instance.store.defaultDispatchDelay = () => 0
 
       const rootNode = getState(SceneState).sceneEntity
       nodes = [createEntity(), createEntity()]

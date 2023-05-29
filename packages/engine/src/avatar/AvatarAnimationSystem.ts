@@ -16,7 +16,7 @@ import { defineSystem } from '../ecs/functions/SystemFunctions'
 import { createPriorityQueue } from '../ecs/PriorityQueue'
 import { NetworkObjectComponent } from '../networking/components/NetworkObjectComponent'
 import { RigidBodyComponent } from '../physics/components/RigidBodyComponent'
-import { addObjectToGroup } from '../scene/components/GroupComponent'
+import { addObjectToGroup, GroupComponent } from '../scene/components/GroupComponent'
 import { NameComponent } from '../scene/components/NameComponent'
 import { UUIDComponent } from '../scene/components/UUIDComponent'
 import { VisibleComponent } from '../scene/components/VisibleComponent'
@@ -45,6 +45,7 @@ import {
 } from './components/AvatarIKComponents'
 import { LoopAnimationComponent } from './components/LoopAnimationComponent'
 import { applyInputSourcePoseToIKTargets } from './functions/applyInputSourcePoseToIKTargets'
+import { AvatarMovementSettingsState } from './state/AvatarMovementSettingsState'
 
 export const AvatarAnimationState = defineState({
   name: 'AvatarAnimationState',
@@ -78,7 +79,8 @@ const loopAnimationQuery = defineQuery([
   LoopAnimationComponent,
   AnimationComponent,
   AvatarAnimationComponent,
-  AvatarRigComponent
+  AvatarRigComponent,
+  GroupComponent
 ])
 const avatarAnimationQuery = defineQuery([AnimationComponent, AvatarAnimationComponent, AvatarRigComponent])
 const ikTargetSpawnQueue = defineActionQueue(XRAction.spawnIKTarget.matches)
@@ -229,10 +231,13 @@ const execute = () => {
       avatarAnimationComponent.locomotion.x = 0
       avatarAnimationComponent.locomotion.y = rigidbodyComponent.linearVelocity.y
       // lerp animated forward animation to smoothly animate to a stop
-      avatarAnimationComponent.locomotion.z = MathUtils.lerp(
-        avatarAnimationComponent.locomotion.z || 0,
-        _vector3.copy(rigidbodyComponent.linearVelocity).setComponent(1, 0).length(),
-        10 * deltaTime
+      avatarAnimationComponent.locomotion.z = Math.min(
+        MathUtils.lerp(
+          avatarAnimationComponent.locomotion.z || 0,
+          _vector3.copy(rigidbodyComponent.linearVelocity).setComponent(1, 0).length(),
+          10 * deltaTime
+        ),
+        getState(AvatarMovementSettingsState).runSpeed
       )
     } else {
       avatarAnimationComponent.locomotion.setScalar(0)
@@ -291,7 +296,7 @@ const execute = () => {
     // If data is zeroed out, assume there is no input and do not run IK
     if (transformComponent.position.equals(V_000)) continue
 
-    const { rig } = getComponent(ownerEntity, AvatarRigComponent)
+    const { rig, handRadius } = getComponent(ownerEntity, AvatarRigComponent)
 
     const ikComponent = getComponent(entity, AvatarIKTargetComponent)
     if (ikComponent.handedness === 'none') {
@@ -312,7 +317,11 @@ const execute = () => {
         rig.LeftArm,
         rig.LeftForeArm,
         rig.LeftHand,
-        transformComponent.position,
+        // this is a hack to align the middle of the hand with the controller
+        _vector3.addVectors(
+          transformComponent.position,
+          rig.LeftHand.getWorldDirection(_vec).multiplyScalar(handRadius)
+        ),
         _quat.multiplyQuaternions(transformComponent.rotation, leftHandRotation),
         leftHandRotationOffset
       )
@@ -324,7 +333,11 @@ const execute = () => {
         rig.RightArm,
         rig.RightForeArm,
         rig.RightHand,
-        transformComponent.position,
+        // this is a hack to align the middle of the hand with the controller
+        _vector3.subVectors(
+          transformComponent.position,
+          rig.RightHand.getWorldDirection(_vec).multiplyScalar(handRadius)
+        ),
         _quat.multiplyQuaternions(transformComponent.rotation, rightHandRotation),
         rightHandRotationOffset
       )
