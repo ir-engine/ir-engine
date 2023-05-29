@@ -1,7 +1,6 @@
 import { Params } from '@feathersjs/feathers'
 import { bodyParser, koa } from '@feathersjs/koa'
 import Multer from '@koa/multer'
-import { Route53RecoveryControlConfig } from 'aws-sdk'
 import { createHash } from 'crypto'
 import { Op } from 'sequelize'
 import { MathUtils } from 'three'

@@ -42,10 +42,10 @@ import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
 import { NetworkState } from '../NetworkState'
 import {
   checkBitflag,
-  createDataReader,
   readComponent,
   readComponentProp,
   readCompressedVector3,
+  readDataPacket,
   readEntities,
   readEntity,
   readVector3,
@@ -740,7 +740,7 @@ describe('DataReader', () => {
     }
   })
 
-  it('should createDataReader', () => {
+  it('should createDataWriter', () => {
     const write = createDataWriter()
     const network = Engine.instance.worldNetwork as Network
 
@@ -831,9 +831,7 @@ describe('DataReader', () => {
       TransformComponent.rotation.w[entity] = 0
     }
 
-    const read = createDataReader()
-
-    read(network, packet)
+    readDataPacket(network, packet)
 
     for (let i = 0; i < entities.length; i++) {
       const entity = entities[i]
@@ -849,13 +847,13 @@ describe('DataReader', () => {
     }
   })
 
-  it('should createDataReader and return empty packet if no changes were made on a fixedTick not divisible by 60', () => {
+  it('should readDataPacket and return empty packet if no changes were made on a fixedTick not divisible by 60', () => {
     const write = createDataWriter()
 
     const peerID = 'peerID' as PeerID
     const network = Engine.instance.worldNetwork as Network
     const engineState = getMutableState(EngineState)
-    engineState.fixedTick.set(1)
+    engineState.simulationTime.set(1)
 
     const n = 10
     const entities: Entity[] = Array(n)
@@ -930,12 +928,12 @@ describe('DataReader', () => {
   //   strictEqual(packet.byteLength, 376)
   // })
 
-  it('should createDataReader and detect changes', () => {
+  it('should createDataWriter and detect changes', () => {
     const write = createDataWriter()
 
     const network = Engine.instance.worldNetwork as Network
     const engineState = getMutableState(EngineState)
-    engineState.fixedTick.set(1)
+    engineState.simulationTime.set(1)
     const peerID = 'peerID' as PeerID
 
     const n = 10

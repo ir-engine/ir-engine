@@ -27,7 +27,7 @@ const serializeAndSend = (serialize: ReturnType<typeof createDataWriter>) => {
   if (ents.length > 0) {
     const userID = Engine.instance.userId
     const network = Engine.instance.worldNetwork as Network
-    const peerID = network.peerID
+    const peerID = Engine.instance.peerID
     const data = serialize(network, userID, peerID, ents)
 
     // todo: insert historian logic here

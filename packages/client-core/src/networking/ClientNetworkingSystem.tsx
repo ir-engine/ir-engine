@@ -6,8 +6,14 @@ import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import { addActionReceptor, defineActionQueue, getState, removeActionReceptor } from '@etherealengine/hyperflux'
 
-import { LocationInstanceConnectionServiceReceptor } from '../common/services/LocationInstanceConnectionService'
-import { MediaInstanceConnectionServiceReceptor } from '../common/services/MediaInstanceConnectionService'
+import {
+  LocationInstanceConnectionService,
+  LocationInstanceConnectionServiceReceptor
+} from '../common/services/LocationInstanceConnectionService'
+import {
+  MediaInstanceConnectionService,
+  MediaInstanceConnectionServiceReceptor
+} from '../common/services/MediaInstanceConnectionService'
 import { NetworkConnectionService } from '../common/services/NetworkConnectionService'
 import { DataChannels } from '../components/World/ProducersAndConsumers'
 import { PeerConsumers } from '../media/PeerMedia'
@@ -46,12 +52,7 @@ const execute = () => {
     WarningUIService.openWarning({
       title: t('common:instanceServer.noAvailableServers'),
       body: t('common:instanceServer.noAvailableServersMessage'),
-      action: {
-        name: 'provisionWorldServer',
-        data: {
-          locationId: currentLocationID
-        }
-      }
+      action: () => LocationInstanceConnectionService.provisionServer(currentLocationID)
     })
   }
 
@@ -73,28 +74,19 @@ const execute = () => {
         title: t('common:instanceServer.noAvailableServers'),
         body: t('common:instanceServer.noAvailableServersMessage'),
         timeout: 15,
-        action: {
-          name: 'provisionMediaServer',
-          data: {
-            channelId,
-            createPrivateRoom: false
-          }
-        }
+        action: () => MediaInstanceConnectionService.provisionServer(channelId, false)
       })
     }
   }
 
   for (const action of worldInstanceDisconnectedQueue()) {
     const transport = Engine.instance.worldNetwork as SocketWebRTCClientNetwork
-    console.log(engineState.isTeleporting, transport.reconnecting)
     if (engineState.isTeleporting || transport.reconnecting) continue
 
     WarningUIService.openWarning({
       title: t('common:instanceServer.worldDisconnected'),
       body: t('common:instanceServer.worldDisconnectedMessage'),
-      action: {
-        name: 'reloadWindow'
-      },
+      // action: () => window.location.reload(),
       timeout: 30
     })
   }
@@ -120,13 +112,7 @@ const execute = () => {
       WarningUIService.openWarning({
         title: 'Media disconnected',
         body: "You've lost your connection with the media server. We'll try to reconnect when the following time runs out.",
-        action: {
-          name: 'provisionMediaServer',
-          data: {
-            channelId,
-            createPrivateRoom: false
-          }
-        },
+        action: () => MediaInstanceConnectionService.provisionServer(channelId, false),
         timeout: 15
       })
   }

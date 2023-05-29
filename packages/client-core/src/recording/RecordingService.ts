@@ -43,6 +43,7 @@ export const RecordingFunctions = {
       })) as RecordingResult
       return recording.id
     } catch (err) {
+      console.error(err)
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
   },

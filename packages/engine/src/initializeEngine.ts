@@ -4,7 +4,7 @@ import { addActionReceptor } from '@etherealengine/hyperflux'
 
 import { Timer } from './common/functions/Timer'
 import { Engine } from './ecs/classes/Engine'
-import { EngineEventReceptor } from './ecs/classes/EngineState'
+import { EngineEventReceptor, EngineState } from './ecs/classes/EngineState'
 import { executeSystems, startCoreSystems } from './ecs/functions/EngineFunctions'
 import { EngineRenderer } from './renderer/WebGLRendererSystem'
 
@@ -21,5 +21,5 @@ export const createEngine = () => {
   EngineRenderer.instance = new EngineRenderer()
   addActionReceptor(EngineEventReceptor)
   startCoreSystems()
-  Engine.instance.engineTimer = Timer(executeSystems, Engine.instance.tickRate)
+  Engine.instance.engineTimer = Timer(executeSystems)
 }

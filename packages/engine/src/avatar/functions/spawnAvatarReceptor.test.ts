@@ -1,6 +1,7 @@
 import assert, { strictEqual } from 'assert'
 import { Quaternion, Vector3 } from 'three'
 
+import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 
 import { destroyEngine, Engine } from '../../ecs/classes/Engine'
@@ -27,6 +28,8 @@ describe('spawnAvatarReceptor', () => {
     createEngine()
     await Physics.load()
     Engine.instance.physicsWorld = Physics.createWorld()
+    Engine.instance.userId = 'user' as UserId
+    Engine.instance.peerID = 'peerID' as PeerID
   })
 
   afterEach(() => {
@@ -34,8 +37,6 @@ describe('spawnAvatarReceptor', () => {
   })
 
   it('check the create avatar function', () => {
-    Engine.instance.userId = 'user' as UserId
-
     // mock entity to apply incoming unreliable updates to
     const action = WorldNetworkAction.spawnAvatar({
       $from: Engine.instance.userId,

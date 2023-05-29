@@ -21,19 +21,15 @@ export const readRigidBody = (v: ViewCursor, entity: Entity) => {
   const rigidBody = getComponent(entity, RigidBodyComponent)
   if (checkBitflag(changeMask, 1 << b++)) {
     readBodyPosition(v, entity)
-    if (rigidBody) rigidBody.body.setTranslation(rigidBody.position, false)
   }
   if (checkBitflag(changeMask, 1 << b++)) {
     readBodyRotation(v, entity)
-    if (rigidBody) rigidBody.body.setRotation(rigidBody.rotation, false)
   }
   if (checkBitflag(changeMask, 1 << b++)) {
     readBodyLinearVelocity(v, entity)
-    if (rigidBody) rigidBody.body.setLinvel(rigidBody.linearVelocity, false)
   }
   if (checkBitflag(changeMask, 1 << b++)) {
     readBodyAngularVelocity(v, entity)
-    if (rigidBody) rigidBody.body.setAngvel(rigidBody.angularVelocity, false)
   }
   if (rigidBody) {
     const rigidBody = getComponent(entity, RigidBodyComponent)

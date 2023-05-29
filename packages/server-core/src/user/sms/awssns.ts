@@ -1,7 +1,9 @@
-import AWS from 'aws-sdk'
+import { PublishCommand, SNSClient } from '@aws-sdk/client-sns'
 
 import config from '../../appconfig'
 import logger from '../../ServerLogger'
+
+const snsClient = new SNSClient(config.aws.sms)
 
 export async function sendSmsWithAWS(phone: string, text: string): Promise<void> {
   const params = {
@@ -10,18 +12,13 @@ export async function sendSmsWithAWS(phone: string, text: string): Promise<void>
   }
 
   // Create promise and SNS service object
-  const publishTextPromise = new AWS.SNS({
-    apiVersion: '2010-03-31',
-    ...config.aws.sms
-  })
-    .publish(params)
-    .promise()
-
-  return await publishTextPromise
-    .then((data: any) => {
+  const run = async () => {
+    try {
+      const data = await snsClient.send(new PublishCommand(params))
       logger.info(`MessageID is ${data.MessageId as string}`)
-    })
-    .catch((err: any) => {
+    } catch (err) {
       logger.error(err)
-    })
+    }
+  }
+  run()
 }

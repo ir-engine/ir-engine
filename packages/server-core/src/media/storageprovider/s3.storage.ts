@@ -1,8 +1,22 @@
-import AWS from 'aws-sdk'
-import { ObjectIdentifierList, PresignedPost } from 'aws-sdk/clients/s3'
+import { CloudFrontClient, CreateInvalidationCommand } from '@aws-sdk/client-cloudfront'
+import {
+  CopyObjectCommand,
+  DeleteObjectsCommand,
+  GetObjectCommand,
+  HeadObjectCommand,
+  ListObjectsV2Command,
+  ObjectIdentifier,
+  PutObjectCommand,
+  S3Client
+} from '@aws-sdk/client-s3'
+import { Options, Upload } from '@aws-sdk/lib-storage'
+import { createPresignedPost } from '@aws-sdk/s3-presigned-post'
+import { reject } from 'lodash'
 import fetch from 'node-fetch'
+import { buffer } from 'node:stream/consumers'
 import path from 'path/posix'
 import S3BlobStore from 's3-blob-store'
+import { Readable } from 'stream'
 import { PassThrough } from 'stream'
 
 import { FileContentType } from '@etherealengine/common/src/interfaces/FileContentType'
@@ -31,16 +45,18 @@ export class S3Provider implements StorageProviderInterface {
   /**
    * Instance of S3 service object. This object has one method for each API operation.
    */
-  provider: AWS.S3 = new AWS.S3({
-    accessKeyId: config.aws.keys.accessKeyId,
-    secretAccessKey: config.aws.keys.secretAccessKey,
+  provider: S3Client = new S3Client({
+    credentials: {
+      accessKeyId: config.aws.keys.accessKeyId,
+      secretAccessKey: config.aws.keys.secretAccessKey
+    },
     endpoint: config.server.storageProviderExternalEndpoint
       ? config.server.storageProviderExternalEndpoint
       : config.aws.s3.endpoint,
     region: config.aws.s3.region,
-    s3ForcePathStyle: true,
+    forcePathStyle: true,
     sslEnabled: config.aws.s3.s3DevMode === 'local' ? false : undefined,
-    maxRetries: 5
+    maxAttempts: 5
   })
 
   /**
@@ -66,10 +82,12 @@ export class S3Provider implements StorageProviderInterface {
     ACL: 'public-read'
   })
 
-  private cloudfront: AWS.CloudFront = new AWS.CloudFront({
+  private cloudfront: CloudFrontClient = new CloudFrontClient({
     region: config.aws.cloudfront.region,
-    accessKeyId: config.aws.keys.accessKeyId,
-    secretAccessKey: config.aws.keys.secretAccessKey
+    credentials: {
+      accessKeyId: config.aws.keys.accessKeyId,
+      secretAccessKey: config.aws.keys.secretAccessKey
+    }
   })
 
   /**
@@ -86,19 +104,18 @@ export class S3Provider implements StorageProviderInterface {
    */
   async doesExist(fileName: string, directoryPath: string): Promise<boolean> {
     // have to use listOBjectsV2 since other object related methods does not check existance of a folder on S3
-    const result = await this.provider
-      .listObjectsV2({
-        Bucket: this.bucket,
-        Prefix: path.join(directoryPath, fileName),
-        MaxKeys: 1
-      })
-      .promise()
-      .then((res) => (res.Contents && res.Contents.length > 0) || false)
-      .catch(() => false)
-
-    return result
+    const command = new ListObjectsV2Command({
+      Bucket: this.bucket,
+      Prefix: path.join(directoryPath, fileName),
+      MaxKeys: 1
+    })
+    try {
+      const response = await this.provider.send(command)
+      return (response.Contents && response.Contents.length > 0) || false
+    } catch {
+      return false
+    }
   }
-
   /**
    * Check if an object is directory or not.
    * @param fileName Name of file in the storage.
@@ -107,17 +124,17 @@ export class S3Provider implements StorageProviderInterface {
   async isDirectory(fileName: string, directoryPath: string): Promise<boolean> {
     // last character of the key of directory is '/'
     // https://docs.aws.amazon.com/AmazonS3/latest/userguide/using-folders.htmlhow to
-    const result = await this.provider
-      .listObjectsV2({
-        Bucket: this.bucket,
-        Prefix: path.join(directoryPath, fileName),
-        MaxKeys: 1
-      })
-      .promise()
-      .then((res) => res?.Contents?.[0]?.Key?.endsWith('/') || false)
-      .catch(() => false)
-
-    return result
+    const command = new ListObjectsV2Command({
+      Bucket: this.bucket,
+      Prefix: path.join(directoryPath, fileName),
+      MaxKeys: 1
+    })
+    try {
+      const response = await this.provider.send(command)
+      return response?.Contents?.[0]?.Key?.endsWith('/') || false
+    } catch {
+      return false
+    }
   }
 
   /**
@@ -125,8 +142,10 @@ export class S3Provider implements StorageProviderInterface {
    * @param key Key of object.
    */
   async getObject(key: string): Promise<StorageObjectInterface> {
-    const data = await this.provider.getObject({ Bucket: this.bucket, Key: key }).promise()
-    return { Body: data.Body as Buffer, ContentType: data.ContentType! }
+    const data = new GetObjectCommand({ Bucket: this.bucket, Key: key })
+    const response = await this.provider.send(data)
+    const body = await buffer(response.Body as Readable)
+    return { Body: body, ContentType: response.ContentType! }
   }
 
   /**
@@ -144,8 +163,9 @@ export class S3Provider implements StorageProviderInterface {
    * @param key Key of object.
    */
   async getObjectContentType(key: string): Promise<any> {
-    const data = await this.provider.headObject({ Bucket: this.bucket, Key: key }).promise()
-    return data.ContentType
+    const data = new HeadObjectCommand({ Bucket: this.bucket, Key: key })
+    const response = await this.provider.send(data)
+    return response.ContentType
   }
 
   /**
@@ -156,25 +176,23 @@ export class S3Provider implements StorageProviderInterface {
    * @returns {Promise<StorageListObjectInterface>}
    */
   async listObjects(prefix: string, recursive = true, continuationToken?: string): Promise<StorageListObjectInterface> {
-    const data = await this.provider
-      .listObjectsV2({
-        Bucket: this.bucket,
-        ContinuationToken: continuationToken,
-        Prefix: prefix,
-        Delimiter: recursive ? undefined : '/'
-      })
-      .promise()
+    const command = new ListObjectsV2Command({
+      Bucket: this.bucket,
+      ContinuationToken: continuationToken,
+      Prefix: prefix,
+      Delimiter: recursive ? undefined : '/'
+    })
+    const response = await this.provider.send(command)
+    if (!response.Contents) response.Contents = []
+    if (!response.CommonPrefixes) response.CommonPrefixes = []
 
-    if (!data.Contents) data.Contents = []
-    if (!data.CommonPrefixes) data.CommonPrefixes = []
-
-    if (data.IsTruncated) {
-      const _data = await this.listObjects(prefix, recursive, data.NextContinuationToken)
-      data.Contents = data.Contents.concat(_data.Contents)
-      if (_data.CommonPrefixes) data.CommonPrefixes = data.CommonPrefixes.concat(_data.CommonPrefixes)
+    if (response.IsTruncated) {
+      const _data = await this.listObjects(prefix, recursive, response.NextContinuationToken)
+      response.Contents = response.Contents.concat(_data.Contents)
+      if (_data.CommonPrefixes) response.CommonPrefixes = response.CommonPrefixes.concat(_data.CommonPrefixes)
     }
 
-    return data as StorageListObjectInterface
+    return response as StorageListObjectInterface
   }
 
   /**
@@ -184,7 +202,6 @@ export class S3Provider implements StorageProviderInterface {
    */
   async putObject(data: StorageObjectPutInterface, params: PutObjectParams = {}): Promise<any> {
     if (!data.Key) return
-
     // key should not contain '/' at the begining
     let key = data.Key[0] === '/' ? data.Key.substring(1) : data.Key
 
@@ -209,19 +226,20 @@ export class S3Provider implements StorageProviderInterface {
     if (data.Metadata) (args as StorageObjectInterface).Metadata = data.Metadata
 
     if (data.Body instanceof PassThrough) {
-      return new Promise<AWS.S3.ManagedUpload.SendData>((resolve, reject) => {
-        const upload = this.provider.upload(args)
+      try {
+        const upload = new Upload(args as unknown as Options)
         upload.on('httpUploadProgress', (progress) => {
           console.log(progress)
           // if (params.onProgress) params.onProgress(progress.loaded, progress.total)
         })
-        upload.send((err, data) => {
-          if (err) reject(err)
-          else resolve(data)
-        })
-      })
+        return upload.done()
+      } catch (err) {
+        reject(err)
+      }
     } else {
-      return this.provider.putObject(args).promise()
+      const command = new PutObjectCommand(args)
+      const response = await this.provider.send(command)
+      return response
     }
   }
 
@@ -232,18 +250,18 @@ export class S3Provider implements StorageProviderInterface {
   async createInvalidation(invalidationItems: any[]) {
     // for non-standard s3 setups, we don't use cloudfront
     if (config.server.storageProvider !== 'aws' || config.aws.s3.s3DevMode === 'local') return
-    return this.cloudfront
-      .createInvalidation({
-        DistributionId: config.aws.cloudfront.distributionId,
-        InvalidationBatch: {
-          CallerReference: Date.now().toString(),
-          Paths: {
-            Quantity: invalidationItems.length,
-            Items: invalidationItems.map((item) => (item[0] !== '/' ? `/${item}` : item))
-          }
+    const params = {
+      DistributionId: config.aws.cloudfront.distributionId,
+      InvalidationBatch: {
+        CallerReference: Date.now().toString(),
+        Paths: {
+          Quantity: invalidationItems.length,
+          Items: invalidationItems.map((item) => (item[0] !== '/' ? `/${item}` : item))
         }
-      })
-      .promise()
+      }
+    }
+    const command = new CreateInvalidationCommand(params)
+    return await this.cloudfront.send(command)
   }
 
   /**
@@ -260,21 +278,17 @@ export class S3Provider implements StorageProviderInterface {
    * @param conditions An array of conditions that must be met for the form upload to be accepted by S3..
    */
   async getSignedUrl(key: string, expiresAfter: number, conditions): Promise<SignedURLResponse> {
-    const result = await new Promise<PresignedPost>((resolve) => {
-      this.provider.createPresignedPost(
-        {
-          Bucket: this.bucket,
-          Fields: {
-            Key: key
-          },
-          Expires: expiresAfter,
-          Conditions: conditions
-        },
-        (err, data: PresignedPost) => {
-          resolve(data)
-        }
-      )
+    const Bucket = this.bucket
+    const Key = key
+    const Conditions = conditions
+    const client = this.provider
+    const result = await createPresignedPost(client, {
+      Bucket,
+      Conditions,
+      Key,
+      Expires: expiresAfter
     })
+
     await this.createInvalidation([key])
     return {
       fields: result.fields,
@@ -290,7 +304,7 @@ export class S3Provider implements StorageProviderInterface {
    */
   async deleteResources(keys: string[]) {
     // Create batches of 1000 since S3 supports deletion of 1000 object max per request
-    const batches = [] as ObjectIdentifierList[]
+    const batches = [] as ObjectIdentifier[][]
 
     let index = 0
     for (let i = 0; i < keys.length; i++) {
@@ -300,16 +314,16 @@ export class S3Provider implements StorageProviderInterface {
     }
 
     const data = await Promise.all(
-      batches.map((batch) =>
-        this.provider
-          .deleteObjects({
-            Bucket: this.bucket,
-            Delete: { Objects: batch }
-          })
-          .promise()
-      )
+      batches.map(async (batch) => {
+        const input = {
+          Bucket: this.bucket,
+          Delete: { Objects: batch }
+        }
+        const command = new DeleteObjectsCommand(input)
+        const response = await this.provider.send(command)
+        return response
+      })
     )
-
     return data
   }
 
@@ -376,16 +390,17 @@ export class S3Provider implements StorageProviderInterface {
     const listResponse = await this.listObjects(oldFilePath, true)
 
     const result = await Promise.all([
-      ...listResponse.Contents.map(async (file) =>
-        this.provider
-          .copyObject({
-            ACL: 'public-read',
-            Bucket: this.bucket,
-            CopySource: `/${this.bucket}/${file.Key}`,
-            Key: path.join(newFilePath, file.Key.replace(oldFilePath, ''))
-          })
-          .promise()
-      )
+      ...listResponse.Contents.map(async (file) => {
+        const input = {
+          ACL: 'public-read',
+          Bucket: this.bucket,
+          CopySource: `/${this.bucket}/${file.Key}`,
+          Key: path.join(newFilePath, file.Key.replace(oldFilePath, ''))
+        }
+        const command = new CopyObjectCommand(input)
+        const response = await this.provider.send(command)
+        return response
+      })
     ])
 
     if (!isCopy) await this.deleteResources(listResponse.Contents.map((file) => file.Key))
