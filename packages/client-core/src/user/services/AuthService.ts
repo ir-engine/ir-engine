@@ -1,6 +1,5 @@
 import { Paginated } from '@feathersjs/feathers'
 import i18n from 'i18next'
-import querystring from 'querystring'
 import { useEffect } from 'react'
 import { v1 } from 'uuid'
 
