@@ -18,9 +18,7 @@ import { XRUIComponent, XRUIInteractableComponent } from '@etherealengine/engine
 import { createTransitionState } from '@etherealengine/engine/src/xrui/functions/createTransitionState'
 import { createXRUI } from '@etherealengine/engine/src/xrui/functions/createXRUI'
 import { ObjectFitFunctions } from '@etherealengine/engine/src/xrui/functions/ObjectFitFunctions'
-import { defineState, getMutableState, getState, startReactor, useHookstate } from '@etherealengine/hyperflux'
-import Icon from '@etherealengine/ui/src/Icon'
-import IconButton from '@etherealengine/ui/src/IconButton'
+import { defineState, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 import type { WebLayer3D } from '@etherealengine/xrui'
 
 export const WarningUIState = defineState({
@@ -29,18 +27,25 @@ export const WarningUIState = defineState({
     open: false,
     title: '',
     body: '',
-    action: null as null | (() => void),
-    timeRemaining: 0
+    timeRemaining: 0,
+    action: null as null | (() => void)
   }
 })
 
+const executeAction = async () => {
+  const action = getState(WarningUIState).action
+  if (action) action()
+  WarningUIService.closeWarning()
+}
+
 export const WarningUIService = {
-  openWarning: (args: { title: string; body: string; timeout?: number; action?: () => void }) => {
+  openWarning: async (args: { title: string; body: string; timeout?: number; action?: () => void }) => {
     const state = getMutableState(WarningUIState)
     state.open.set(true)
     state.title.set(args.title)
     state.body.set(args.body)
     state.timeRemaining.set(args.timeout ?? 0)
+    state.action.set(args.action ?? null)
   },
   closeWarning: () => {
     const state = getMutableState(WarningUIState)
@@ -54,65 +59,67 @@ const WarningSystemXRUI = function () {
   const state = useHookstate(getMutableState(WarningUIState))
   const { title, body, timeRemaining } = state.value
 
-  const onClose = () => {
-    const action = getState(WarningUIState).action
-    if (action) action()
-  }
-
   return (
-    <div xr-layer="true" className={'z-1'} style={{ zIndex: '-1' }}>
-      <div
-        xr-layer="true"
-        className={'pl-6 pr-8 max-w-sm'}
-        style={{
-          paddingLeft: '24px',
-          paddingRight: '32px',
-          maxWidth: '400px',
-          background: 'var(--popupBackground)',
-          color: 'var(--textColor)',
-          borderRadius: '20px',
-          padding: '12px'
-        }}
-        onClick={onClose}
-      >
+    <>
+      <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto"></link>
+      <div xr-layer="true" className={'z-1'} style={{ zIndex: '-1', fontFamily: 'Roboto' }}>
         <div
           xr-layer="true"
-          className={'flex justify-space-between align-center'}
+          className={'pl-6 pr-8 max-w-sm'}
           style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center'
+            paddingLeft: '24px',
+            paddingRight: '32px',
+            maxWidth: '400px',
+            background: 'var(--popupBackground)',
+            color: 'var(--textColor)',
+            borderRadius: '20px',
+            padding: '12px'
           }}
+          onClick={() => WarningUIService.closeWarning()}
         >
-          <div />
-          <div xr-layer="true" className={'font-size 24px'} style={{ fontSize: '24px' }}>
-            {title}
-          </div>
-          {/* <IconButton
+          <div
+            xr-layer="true"
+            className={'flex justify-space-between align-center'}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}
+          >
+            <div />
+            <div
+              xr-layer="true"
+              className={'font-size 20px'}
+              style={{ fontSize: '24px', width: '100%', textAlign: 'center' }}
+            >
+              {title}
+            </div>
+            {/* <IconButton
             xr-layer="true"
             aria-label="close"
             className={'bg lightgrey'}
             style={{ backgroundColor: 'lightgrey' }}
-            onClick={onClose}
+            onClick={executeAction}
             size="large"
             icon={<Icon type="Close" />}
           /> */}
-        </div>
-        <div xr-layer="true" className={'font-size 16px center'} style={{ fontSize: '16px', textAlign: 'center' }}>
-          {body}
-          {timeRemaining > 0 && (
-            <>
-              <div xr-layer="true">
-                <span xr-layer="true">{timeRemaining}</span> {t('common:alert.seconds')}
-              </div>
-              <div className={'margin-top 20px font-size 12px'} style={{ marginTop: '20px', fontSize: '12px' }}>
-                {t('common:alert.cancelCountdown')}
-              </div>
-            </>
-          )}
+          </div>
+          <div xr-layer="true" className={'font-size 16px center'} style={{ fontSize: '16px', textAlign: 'center' }}>
+            {body}
+            {timeRemaining > 0 && (
+              <>
+                <div xr-layer="true">
+                  <span xr-layer="true">{timeRemaining}</span> {t('common:alert.seconds')}
+                </div>
+                <div className={'margin-top 20px font-size 12px'} style={{ marginTop: '20px', fontSize: '12px' }}>
+                  {t('common:alert.cancelCountdown')}
+                </div>
+              </>
+            )}
+          </div>
         </div>
       </div>
-    </div>
+    </>
   )
 }
 
@@ -160,8 +167,7 @@ const execute = () => {
       const timeRemaining = Math.max(0, state.timeRemaining - 1)
       getMutableState(WarningUIState).timeRemaining.set(timeRemaining)
       if (timeRemaining === 0) {
-        const action = state.action
-        if (action) action()
+        executeAction()
         WarningUIService.closeWarning()
       }
       accumulator = 0

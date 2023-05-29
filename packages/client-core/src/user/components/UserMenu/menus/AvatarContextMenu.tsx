@@ -1,4 +1,3 @@
-import { useHookstate } from '@hookstate/core'
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
@@ -8,34 +7,36 @@ import commonStyles from '@etherealengine/client-core/src/common/components/comm
 import Menu from '@etherealengine/client-core/src/common/components/Menu'
 import Text from '@etherealengine/client-core/src/common/components/Text'
 import { SendInvite } from '@etherealengine/common/src/interfaces/Invite'
-import { UserInterface } from '@etherealengine/common/src/interfaces/User'
+import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 import { WorldState } from '@etherealengine/engine/src/networking/interfaces/WorldState'
-import { getMutableState } from '@etherealengine/hyperflux'
-import Box from '@etherealengine/ui/src/Box'
-import Chip from '@etherealengine/ui/src/Chip'
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import Box from '@etherealengine/ui/src/primitives/mui/Box'
+import Chip from '@etherealengine/ui/src/primitives/mui/Chip'
 
 import { NotificationService } from '../../../../common/services/NotificationService'
 import { SocialMenus } from '../../../../networking/NetworkInstanceProvisioning'
-import { FriendService, useFriendState } from '../../../../social/services/FriendService'
+import { FriendService, FriendState } from '../../../../social/services/FriendService'
 import { InviteService } from '../../../../social/services/InviteService'
-import { usePartyState } from '../../../../social/services/PartyService'
-import { useAuthState } from '../../../services/AuthService'
+import { PartyState } from '../../../../social/services/PartyService'
+import { AvatarUIContextMenuState } from '../../../../systems/ui/UserMenuView'
+import { AuthState } from '../../../services/AuthService'
 import styles from '../index.module.scss'
 import { PopupMenuServices } from '../PopupMenuService'
 import { getAvatarURLForUser } from '../util'
 
 interface Props {
-  user: UserInterface
   onBack?: () => void
 }
 
-const AvatarContextMenu = ({ user, onBack }: Props): JSX.Element => {
+const AvatarContextMenu = ({ onBack }: Props): JSX.Element => {
   const { t } = useTranslation()
+  const partyState = useHookstate(getMutableState(PartyState))
+  const friendState = useHookstate(getMutableState(FriendState))
+  const worldState = useHookstate(getMutableState(WorldState))
+  const avatarUIContextMenuState = useHookstate(getMutableState(AvatarUIContextMenuState))
+  const userId = avatarUIContextMenuState.id.value as UserId
 
-  const partyState = usePartyState()
-  const friendState = useFriendState()
-
-  const authState = useAuthState()
+  const authState = useHookstate(getMutableState(AuthState))
   const selfId = authState.user.id?.value ?? ''
 
   const userAvatarDetails = useHookstate(getMutableState(WorldState).userAvatarDetails)
@@ -43,22 +44,33 @@ const AvatarContextMenu = ({ user, onBack }: Props): JSX.Element => {
     ? partyState.party.partyUsers.value.find((partyUser) => partyUser.isOwner)
     : null
 
-  const isFriend = friendState.relationships.friend.value.find((item) => item.id === user?.id)
-  const isRequested = friendState.relationships.requested.value.find((item) => item.id === user?.id)
-  const isPending = friendState.relationships.pending.value.find((item) => item.id === user?.id)
-  const isBlocked = friendState.relationships.blocked.value.find((item) => item.id === user?.id)
-  const isBlocking = friendState.relationships.blocking.value.find((item) => item.id === user?.id)
+  const isFriend = friendState.relationships.friend.get({ noproxy: true }).find((item) => item.id === userId)
+  const isRequested = friendState.relationships.requested.get({ noproxy: true }).find((item) => item.id === userId)
+  const isPending = friendState.relationships.pending.get({ noproxy: true }).find((item) => item.id === userId)
+  const isBlocked = friendState.relationships.blocked.get({ noproxy: true }).find((item) => item.id === userId)
+  const isBlocking = friendState.relationships.blocking.get({ noproxy: true }).find((item) => item.id === userId)
+
+  const userName = isFriend
+    ? isFriend.name
+    : isRequested
+    ? isRequested.name
+    : isPending
+    ? isPending.name
+    : isBlocked
+    ? isBlocked.name
+    : isBlocking
+    ? isBlocking.name
+    : worldState.userNames[userId].value ?? 'A user'
 
   useEffect(() => {
-    if (friendState.updateNeeded.value === true) {
+    if (friendState.updateNeeded.value) {
       FriendService.getUserRelationship(selfId)
     }
   }, [friendState.updateNeeded.value])
 
   const inviteToParty = () => {
-    if (authState.user?.partyId?.value && user?.id) {
+    if (authState.user?.partyId?.value && userId) {
       const partyId = authState.user?.partyId?.value ?? ''
-      const userId = user.id
       const sendData = {
         inviteType: 'party',
         inviteeId: userId,
@@ -79,22 +91,25 @@ const AvatarContextMenu = ({ user, onBack }: Props): JSX.Element => {
       open
       contentMargin={onBack ? '-50px 0 0' : undefined}
       maxWidth="xs"
-      showBackButton={onBack ? true : false}
+      showBackButton={!!onBack}
       onBack={onBack}
-      onClose={() => PopupMenuServices.showPopupMenu()}
+      onClose={() => {
+        avatarUIContextMenuState.id.set('')
+        PopupMenuServices.showPopupMenu()
+      }}
     >
-      {user && user.id && (
+      {userId && (
         <Box className={styles.menuContent} display={'flex'} flexDirection={'column'}>
-          <Avatar imageSrc={getAvatarURLForUser(userAvatarDetails, user.id)} size={150} sx={{ margin: '0 auto' }} />
+          <Avatar imageSrc={getAvatarURLForUser(userAvatarDetails, userId)} size={150} sx={{ margin: '0 auto' }} />
 
           <Text variant="h6" align="center" mt={2} mb={1}>
-            {user.name}
+            {userName}
           </Text>
 
           {partyState?.party?.id?.value != null &&
             partyOwner?.userId != null &&
             partyOwner.userId === authState.user.id?.value &&
-            user.partyId !== partyState.party?.id?.value && (
+            !partyState.party?.partyUsers.get({ noproxy: true })?.find((partyUser) => partyUser.userId === userId) && (
               <Button type="gradientRounded" width="70%" onClick={inviteToParty}>
                 {t('user:personMenu.inviteToParty')}
               </Button>
@@ -105,7 +120,7 @@ const AvatarContextMenu = ({ user, onBack }: Props): JSX.Element => {
               type="gradientRounded"
               width="70%"
               onClick={() => {
-                FriendService.requestFriend(selfId, user.id)
+                FriendService.requestFriend(selfId, userId)
                 PopupMenuServices.showPopupMenu(SocialMenus.Friends, { defaultSelectedTab: 'find' })
               }}
             >
@@ -118,7 +133,7 @@ const AvatarContextMenu = ({ user, onBack }: Props): JSX.Element => {
               type="gradientRounded"
               width="70%"
               onClick={() => {
-                FriendService.unfriend(selfId, user.id)
+                FriendService.unfriend(selfId, userId)
                 PopupMenuServices.showPopupMenu(SocialMenus.Friends, { defaultSelectedTab: 'find' })
               }}
             >
@@ -140,7 +155,7 @@ const AvatarContextMenu = ({ user, onBack }: Props): JSX.Element => {
                 type="gradientRounded"
                 width="70%"
                 onClick={() => {
-                  FriendService.acceptFriend(selfId, user.id)
+                  FriendService.acceptFriend(selfId, userId)
                   PopupMenuServices.showPopupMenu(SocialMenus.Friends)
                 }}
               >
@@ -151,7 +166,7 @@ const AvatarContextMenu = ({ user, onBack }: Props): JSX.Element => {
                 type="gradientRounded"
                 width="70%"
                 onClick={() => {
-                  FriendService.declineFriend(selfId, user.id)
+                  FriendService.declineFriend(selfId, userId)
                   PopupMenuServices.showPopupMenu(SocialMenus.Friends, { defaultSelectedTab: 'find' })
                 }}
               >
@@ -174,7 +189,7 @@ const AvatarContextMenu = ({ user, onBack }: Props): JSX.Element => {
                 type="gradientRounded"
                 width="70%"
                 onClick={() => {
-                  FriendService.unfriend(selfId, user.id)
+                  FriendService.unfriend(selfId, userId)
                   PopupMenuServices.showPopupMenu(SocialMenus.Friends, { defaultSelectedTab: 'find' })
                 }}
               >
@@ -192,7 +207,7 @@ const AvatarContextMenu = ({ user, onBack }: Props): JSX.Element => {
               type="gradientRounded"
               width="70%"
               onClick={() => {
-                FriendService.blockUser(selfId, user.id)
+                FriendService.blockUser(selfId, userId)
                 PopupMenuServices.showPopupMenu(SocialMenus.Friends, { defaultSelectedTab: 'blocked' })
               }}
             >
@@ -205,7 +220,7 @@ const AvatarContextMenu = ({ user, onBack }: Props): JSX.Element => {
               type="gradientRounded"
               width="70%"
               onClick={() => {
-                FriendService.unblockUser(selfId, user.id)
+                FriendService.unblockUser(selfId, userId)
                 PopupMenuServices.showPopupMenu(SocialMenus.Friends)
               }}
             >

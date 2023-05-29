@@ -23,7 +23,7 @@ import { RendererState } from '@etherealengine/engine/src/renderer/RendererState
 import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
 import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
-import Icon from '@etherealengine/ui/src/Icon'
+import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 
 import { StatsPanel } from './StatsPanel'
 import styles from './styles.module.scss'
@@ -256,7 +256,10 @@ export const Debug = ({ showingStateRef }) => {
       </div>
       <div className={styles.jsonPanel}>
         <h1>{t('common:debug.state')}</h1>
-        <JSONTree data={Engine.instance.store.stateMap} postprocessValue={(v) => v?.value ?? v} />
+        <JSONTree
+          data={Engine.instance.store.stateMap}
+          postprocessValue={(v) => (v?.value && v?.get({ noproxy: true })) ?? v}
+        />
       </div>
       <div className={styles.jsonPanel}>
         <h1>{t('common:debug.entityTree')}</h1>
@@ -271,10 +274,6 @@ export const Debug = ({ showingStateRef }) => {
       <div className={styles.jsonPanel}>
         <h1>{t('common:debug.entities')}</h1>
         <JSONTree data={namedEntities.get({ noproxy: true })} />
-      </div>
-      <div className={styles.jsonPanel}>
-        <h1>{t('common:debug.networks')}</h1>
-        <JSONTree data={networks} />
       </div>
     </div>
   )

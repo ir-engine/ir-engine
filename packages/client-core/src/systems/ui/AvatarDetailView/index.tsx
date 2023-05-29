@@ -1,17 +1,16 @@
-import { createState, useHookstate } from '@hookstate/core'
-import { useState } from '@hookstate/core'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { CircleGeometry, Mesh, MeshBasicMaterial } from 'three'
 
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { addComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { WorldState } from '@etherealengine/engine/src/networking/interfaces/WorldState'
 import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
 import { createXRUI } from '@etherealengine/engine/src/xrui/functions/createXRUI'
 import { useXRUIState } from '@etherealengine/engine/src/xrui/functions/useXRUIState'
-import { getMutableState } from '@etherealengine/hyperflux'
+import { createState, getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
-import { useNetworkUserState } from '../../../user/services/NetworkUserService'
 import styleString from './index.scss?inline'
 
 export function createAvatarDetailView(id: string) {
@@ -34,10 +33,13 @@ interface AvatarDetailState {
 const AvatarDetailView = () => {
   const { t } = useTranslation()
   const detailState = useXRUIState<AvatarDetailState>()
-  const userState = useNetworkUserState()
-  const user = userState.layerUsers.find((user) => user.id.value === detailState.id.value)
+  const user = Array.from(Engine.instance.worldNetworkState.peers?.get({ noproxy: true }).values()).find(
+    (peer) => peer.userId === detailState.id.value
+  )
+  const worldState = useHookstate(getMutableState(WorldState)).get({ noproxy: true })
   const engineState = useHookstate(getMutableState(EngineState))
-  const usersTyping = useState(engineState.usersTyping[detailState.id.value]).value
+  const usersTyping = engineState.usersTyping[detailState.id.value].value
+  const username = worldState?.userNames && user ? worldState.userNames[user.userId] : 'A user'
 
   return (
     <>
@@ -45,7 +47,7 @@ const AvatarDetailView = () => {
       <style>{styleString}</style>
       {user && (
         <div className="avatarName">
-          {user.name.value}
+          {username}
           {usersTyping && <h6 className="typingIndicator">{t('common:typing')}</h6>}
         </div>
       )}

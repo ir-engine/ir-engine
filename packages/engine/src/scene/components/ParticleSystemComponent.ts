@@ -8,7 +8,7 @@ import { NO_PROXY, none } from '@etherealengine/hyperflux'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { AssetClass } from '../../assets/enum/AssetClass'
 import { GLTF } from '../../assets/loaders/gltf/GLTFLoader'
-import { defineComponent, hasComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
+import { defineComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
 import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { getBatchRenderer } from '../systems/ParticleSystemSystem'
 import getFirstMesh from '../util/getFirstMesh'
@@ -734,8 +734,8 @@ export const ParticleSystemComponent = defineComponent({
     component.behaviors.set(none)
   },
   toJSON: (entity, component) => ({
-    systemParameters: component.systemParameters.value,
-    behaviorParameters: component.behaviorParameters.value
+    systemParameters: JSON.parse(JSON.stringify(component.systemParameters.value)),
+    behaviorParameters: JSON.parse(JSON.stringify(component.behaviorParameters.value))
   }),
   reactor: function () {
     const entity = useEntityContext()

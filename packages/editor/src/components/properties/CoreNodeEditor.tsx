@@ -13,13 +13,13 @@ import {
 import { EntityOrObjectUUID, getEntityNodeArrayFromEntities } from '@etherealengine/engine/src/ecs/functions/EntityTree'
 import { SceneTagComponent } from '@etherealengine/engine/src/scene/components/SceneTagComponent'
 import { VisibleComponent } from '@etherealengine/engine/src/scene/components/VisibleComponent'
-import { dispatchAction, getMutableState } from '@etherealengine/hyperflux'
+import { dispatchAction, getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
 import AddIcon from '@mui/icons-material/Add'
 
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
 import { EntityNodeEditor } from '../../functions/PrefabEditors'
-import { useEditorState } from '../../services/EditorServices'
+import { EditorState } from '../../services/EditorServices'
 import { SelectionAction, SelectionState } from '../../services/SelectionServices'
 import MainMenu from '../dropDownMenu'
 import BooleanInput from '../inputs/BooleanInput'
@@ -57,7 +57,7 @@ const VisibleInputGroup = styled(InputGroup)`
  */
 export const CoreNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
-  const editorState = useEditorState()
+  const editorState = useHookstate(getMutableState(EditorState))
 
   useOptionalComponent(props.entity, VisibleComponent)
 

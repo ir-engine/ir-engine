@@ -3,11 +3,11 @@ import { useTranslation } from 'react-i18next'
 
 import Button from '@etherealengine/client-core/src/common/components/Button'
 import LoadingView from '@etherealengine/client-core/src/common/components/LoadingView'
-import Dialog from '@etherealengine/ui/src/Dialog'
-import DialogActions from '@etherealengine/ui/src/DialogActions'
-import DialogContent from '@etherealengine/ui/src/DialogContent'
-import DialogContentText from '@etherealengine/ui/src/DialogContentText'
-import DialogTitle from '@etherealengine/ui/src/DialogTitle'
+import Dialog from '@etherealengine/ui/src/primitives/mui/Dialog'
+import DialogActions from '@etherealengine/ui/src/primitives/mui/DialogActions'
+import DialogContent from '@etherealengine/ui/src/primitives/mui/DialogContent'
+import DialogContentText from '@etherealengine/ui/src/primitives/mui/DialogContentText'
+import DialogTitle from '@etherealengine/ui/src/primitives/mui/DialogTitle'
 
 import styles from './index.module.scss'
 

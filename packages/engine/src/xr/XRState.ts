@@ -31,6 +31,7 @@ export const XRState = defineState({
       session: null as XRSession | null,
       sessionMode: 'none' as 'inline' | 'immersive-ar' | 'immersive-vr' | 'none',
       avatarCameraMode: 'auto' as 'auto' | 'attached' | 'detached',
+      localAvatarScale: 1,
       /** Stores the depth map data - will exist if depth map is supported */
       depthDataTexture: null as DepthDataTexture | null,
       is8thWallActive: false,
@@ -96,9 +97,6 @@ export class XRAction {
     ...WorldNetworkAction.spawnObject.actionShape,
     prefab: 'ik-target',
     handedness: matches.literals('left', 'right', 'none'),
-    $cache: {
-      removePrevious: true
-    },
     $topic: NetworkTopics.world
   })
 }

@@ -5,6 +5,7 @@ import { ProjectConfigInterface } from '@etherealengine/projects/ProjectConfigIn
 
 import { Application } from '../declarations'
 import AnalyticsServices from './analytics/services'
+import ApiServices from './api/services'
 import AssetServices from './assets/services'
 import BotService from './bot/services'
 import ClusterServices from './cluster/services'
@@ -43,6 +44,7 @@ const installedProjects = fs.existsSync(path.resolve(__dirname, '../../projects/
 export default (app: Application): void => {
   ;[
     ...AnalyticsServices,
+    ...ApiServices,
     ...UserServices,
     ...AssetServices,
     ...MediaServices,

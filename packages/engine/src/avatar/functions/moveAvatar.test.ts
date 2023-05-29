@@ -1,6 +1,7 @@
 import assert, { strictEqual } from 'assert'
 import { PerspectiveCamera, Quaternion, Vector3 } from 'three'
 
+import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 import { getMutableState } from '@etherealengine/hyperflux'
 
@@ -22,6 +23,7 @@ describe('moveAvatar function tests', () => {
     await Physics.load()
     Engine.instance.physicsWorld = Physics.createWorld()
     Engine.instance.userId = 'userId' as UserId
+    Engine.instance.peerID = 'peerID' as PeerID
   })
 
   afterEach(() => {
@@ -30,7 +32,7 @@ describe('moveAvatar function tests', () => {
 
   it('should apply world.fixedDelta @ 60 tick to avatar movement, consistent with physics simulation', () => {
     const engineState = getMutableState(EngineState)
-    engineState.fixedDeltaSeconds.set(1000 / 60)
+    engineState.simulationTimestep.set(1000 / 60)
 
     const spawnAvatar = WorldNetworkAction.spawnAvatar({
       $from: Engine.instance.userId,
@@ -63,7 +65,7 @@ describe('moveAvatar function tests', () => {
 
   it('should apply world.fixedDelta @ 120 tick to avatar movement, consistent with physics simulation', () => {
     const engineState = getMutableState(EngineState)
-    engineState.fixedDeltaSeconds.set(1000 / 60)
+    engineState.simulationTimestep.set(1000 / 60)
 
     const spawnAvatar = WorldNetworkAction.spawnAvatar({
       $from: Engine.instance.userId,
@@ -95,7 +97,7 @@ describe('moveAvatar function tests', () => {
     Engine.instance.userId = 'user' as UserId
 
     const engineState = getMutableState(EngineState)
-    engineState.fixedDeltaSeconds.set(1000 / 60)
+    engineState.simulationTimestep.set(1000 / 60)
 
     /* mock */
     Engine.instance.physicsWorld.timestep = 1 / 2
@@ -130,7 +132,7 @@ describe('moveAvatar function tests', () => {
     Engine.instance.userId = 'user' as UserId
 
     const engineState = getMutableState(EngineState)
-    engineState.fixedDeltaSeconds.set(1000 / 60)
+    engineState.simulationTimestep.set(1000 / 60)
 
     const spawnAvatar = WorldNetworkAction.spawnAvatar({
       $from: Engine.instance.userId,

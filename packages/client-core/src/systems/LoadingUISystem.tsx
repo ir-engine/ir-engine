@@ -113,6 +113,7 @@ const execute = () => {
     )
       transition.setState('OUT')
   }
+
   if (transition.state === 'OUT' && transition.alpha === 0) {
     removeComponent(ui.entity, ComputedTransformComponent)
     return

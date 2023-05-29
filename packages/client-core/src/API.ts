@@ -10,7 +10,7 @@ import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 
 import primusClient from './util/primus-client'
 
-type FeathersClient = FeathersApplication<ServiceTypes> &
+export type FeathersClient = FeathersApplication<ServiceTypes> &
   AuthenticationClient & {
     primus: Primus
     authentication: AuthenticationClient

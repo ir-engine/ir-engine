@@ -1,7 +1,6 @@
 import { none } from '@hookstate/core'
 import { Quaternion, Vector3 } from 'three'
 
-import { SelfPeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 
 import { Engine } from '../../ecs/classes/Engine'
@@ -38,14 +37,20 @@ const receiveSpawnObject = (action: typeof WorldNetworkAction.spawnObject.matche
 
   setComponent(entity, NetworkObjectComponent, {
     ownerId: action.$from,
-    authorityPeerID: action.$peer ?? Engine.instance.worldNetwork?.peerID ?? SelfPeerID,
+    authorityPeerID: action.$peer,
     networkId: action.networkId
   })
 
-  const isAuthoritativePeer = !action.$peer || action.$peer === Engine.instance.worldNetwork?.peerID
+  const isAuthoritativePeer = action.$peer === Engine.instance.peerID
 
   if (isAuthoritativePeer) {
-    setComponent(entity, NetworkObjectAuthorityTag)
+    dispatchAction(
+      WorldNetworkAction.transferAuthorityOfObject({
+        ownerId: action.$from,
+        networkId: action.networkId,
+        newAuthority: Engine.instance.peerID
+      })
+    )
   }
 
   const isOwnedByMe = action.$from === Engine.instance.userId
@@ -74,7 +79,7 @@ const receiveRegisterSceneObject = (action: typeof WorldNetworkAction.registerSc
 
   setComponent(entity, NetworkObjectComponent, {
     ownerId: action.$from,
-    authorityPeerID: action.$peer ?? Engine.instance.worldNetwork?.peerID ?? SelfPeerID,
+    authorityPeerID: action.$peer ?? Engine.instance.peerID,
     networkId: action.networkId
   })
 
@@ -94,11 +99,12 @@ const receiveSpawnDebugPhysicsObject = (action: typeof WorldNetworkAction.spawnD
 
 const receiveDestroyObject = (action: ReturnType<typeof WorldNetworkAction.destroyObject>) => {
   const entity = Engine.instance.getNetworkObject(action.$from, action.networkId)
-  if (!entity)
-    return console.log(
-      `Warning - tried to destroy entity belonging to ${action.$from} with ID ${action.networkId}, but it doesn't exist`
-    )
+  if (!entity) return
   removeEntity(entity)
+  // const idx = Engine.instance.store.actions.cached.findIndex((a) => {
+  //   WorldNetworkAction.spawnObject.matches.test(a) && a.networkId === action.networkId
+  // })
+  // if (idx !== -1) Engine.instance.store.actions.cached.splice(idx, 1)
 }
 
 const receiveRequestAuthorityOverObject = (
@@ -144,7 +150,7 @@ const receiveTransferAuthorityOfObject = (
 
   getMutableComponent(entity, NetworkObjectComponent).authorityPeerID.set(action.newAuthority)
 
-  if (Engine.instance.worldNetwork.peerID === action.newAuthority) {
+  if (Engine.instance.peerID === action.newAuthority) {
     if (hasComponent(entity, NetworkObjectAuthorityTag))
       return console.warn(`Warning - User ${Engine.instance.userId} already has authority over entity ${entity}.`)
 

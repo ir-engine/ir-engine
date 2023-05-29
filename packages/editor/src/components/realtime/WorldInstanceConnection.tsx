@@ -42,9 +42,7 @@ export const WorldInstanceConnection = () => {
 
   const onSelectInstance = (selectedInstance: string) => {
     if (selectedInstance === 'None' || (worldNetworkHostId && selectedInstance !== worldNetworkHostId)) {
-      if (worldNetworkHostId) {
-        leaveNetwork(Engine.instance.worldNetwork as SocketWebRTCClientNetwork)
-      }
+      if (worldNetworkHostId) leaveNetwork(Engine.instance.worldNetwork as SocketWebRTCClientNetwork)
       return
     }
     const instance = activeInstanceState.activeInstances.value.find(({ id }) => id === selectedInstance)

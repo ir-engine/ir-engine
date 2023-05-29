@@ -10,9 +10,9 @@ export const getTrackingSpaceOffset = (height: number) => {
   return height / avatarComponent.avatarHeight
 }
 
+/** @todo - this should also trigger a resize networked action for the avatar */
 export const setTrackingSpace = () => {
   const xrState = getMutableState(XRState)
   const offset = getTrackingSpaceOffset(xrState.viewerPose.value!.transform.position.y)
-  xrState.sceneScale.set(offset)
-  xrState.avatarCameraMode.set('attached')
+  xrState.localAvatarScale.set(offset)
 }

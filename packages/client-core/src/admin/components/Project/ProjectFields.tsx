@@ -16,12 +16,12 @@ import {
   ProjectUpdateType
 } from '@etherealengine/common/src/interfaces/ProjectInterface'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
-import Box from '@etherealengine/ui/src/Box'
-import Container from '@etherealengine/ui/src/Container'
-import DialogTitle from '@etherealengine/ui/src/DialogTitle'
-import Icon from '@etherealengine/ui/src/Icon'
-import IconButton from '@etherealengine/ui/src/IconButton'
-import Tooltip from '@etherealengine/ui/src/Tooltip'
+import Box from '@etherealengine/ui/src/primitives/mui/Box'
+import Container from '@etherealengine/ui/src/primitives/mui/Container'
+import DialogTitle from '@etherealengine/ui/src/primitives/mui/DialogTitle'
+import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
+import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
+import Tooltip from '@etherealengine/ui/src/primitives/mui/Tooltip'
 
 import { ProjectService } from '../../../common/services/ProjectService'
 import { AuthState } from '../../../user/services/AuthService'

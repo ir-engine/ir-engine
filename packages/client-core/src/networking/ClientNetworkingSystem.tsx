@@ -23,7 +23,6 @@ import { LocationState } from '../social/services/LocationService'
 import { WarningUIService } from '../systems/WarningUISystem'
 import { SocketWebRTCClientNetwork } from '../transports/SocketWebRTCClientFunctions'
 import { AuthState } from '../user/services/AuthService'
-import { NetworkUserServiceReceptor } from '../user/services/NetworkUserService'
 import { InstanceProvisioning } from './NetworkInstanceProvisioning'
 
 const noWorldServersAvailableQueue = defineActionQueue(NetworkConnectionService.actions.noWorldServersAvailable.matches)
@@ -53,7 +52,7 @@ const execute = () => {
     WarningUIService.openWarning({
       title: t('common:instanceServer.noAvailableServers'),
       body: t('common:instanceServer.noAvailableServersMessage'),
-      action: async () => LocationInstanceConnectionService.provisionServer(currentLocationID)
+      action: () => LocationInstanceConnectionService.provisionServer(currentLocationID)
     })
   }
 
@@ -74,20 +73,20 @@ const execute = () => {
       WarningUIService.openWarning({
         title: t('common:instanceServer.noAvailableServers'),
         body: t('common:instanceServer.noAvailableServersMessage'),
-        action: async () => MediaInstanceConnectionService.provisionServer(channelId, false)
+        timeout: 15,
+        action: () => MediaInstanceConnectionService.provisionServer(channelId, false)
       })
     }
   }
 
   for (const action of worldInstanceDisconnectedQueue()) {
     const transport = Engine.instance.worldNetwork as SocketWebRTCClientNetwork
-    console.log(engineState.isTeleporting, transport.reconnecting)
     if (engineState.isTeleporting || transport.reconnecting) continue
 
     WarningUIService.openWarning({
       title: t('common:instanceServer.worldDisconnected'),
       body: t('common:instanceServer.worldDisconnectedMessage'),
-      action: async () => window.location.reload(),
+      // action: () => window.location.reload(),
       timeout: 30
     })
   }
@@ -101,18 +100,21 @@ const execute = () => {
 
   for (const action of mediaInstanceDisconnectedQueue()) {
     const transport = Engine.instance.mediaNetwork as SocketWebRTCClientNetwork
-    if (transport.reconnecting) continue
+    if (transport?.reconnecting) continue
 
     const channels = chatState.channels.channels
-    const instanceChannel = Object.values(channels).find(
-      (channel) => channel.instanceId === Engine.instance.mediaNetwork?.hostId
+    const instanceChannel = Object.values(channels).find((channel) => channel.channelType === 'instance')
+    const partyChannel = Object.values(channels).find(
+      (channel) => channel.channelType === 'party' && channel.partyId === authState.user.partyId
     )
-    WarningUIService.openWarning({
-      title: 'Media disconnected',
-      body: "You've lost your connection with the media server. We'll try to reconnect when the following time runs out.",
-      action: async () => MediaInstanceConnectionService.provisionServer(instanceChannel?.id, true),
-      timeout: 15
-    })
+    const channelId = partyChannel ? partyChannel.id : instanceChannel ? instanceChannel.id : null
+    if (channelId)
+      WarningUIService.openWarning({
+        title: 'Media disconnected',
+        body: "You've lost your connection with the media server. We'll try to reconnect when the following time runs out.",
+        action: () => MediaInstanceConnectionService.provisionServer(channelId, false),
+        timeout: 15
+      })
   }
 
   for (const action of worldInstanceReconnectedQueue()) {
@@ -128,7 +130,6 @@ const reactor = () => {
   useEffect(() => {
     addActionReceptor(LocationInstanceConnectionServiceReceptor)
     addActionReceptor(MediaInstanceConnectionServiceReceptor)
-    addActionReceptor(NetworkUserServiceReceptor)
     addActionReceptor(FriendServiceReceptor)
     addActionReceptor(ChatServiceReceptor)
 
@@ -136,7 +137,6 @@ const reactor = () => {
       // todo replace with subsystems
       removeActionReceptor(LocationInstanceConnectionServiceReceptor)
       removeActionReceptor(MediaInstanceConnectionServiceReceptor)
-      removeActionReceptor(NetworkUserServiceReceptor)
       removeActionReceptor(FriendServiceReceptor)
       removeActionReceptor(ChatServiceReceptor)
     }

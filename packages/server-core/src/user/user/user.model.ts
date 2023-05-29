@@ -47,11 +47,7 @@ export default (app: Application) => {
   )
 
   ;(User as any).associate = (models: any): void => {
-    ;(User as any).belongsTo(models.instance, { as: 'instance', foreignKey: { name: 'instanceId', allowNull: true } }) // user can only be in one room at a time
-    ;(User as any).belongsTo(models.instance, {
-      as: 'channelInstance',
-      foreignKey: { name: 'channelInstanceId', allowNull: true }
-    })
+    ;(User as any).hasMany(models.instance_attendance, { as: 'instanceAttendance' })
     ;(User as any).hasOne(models.user_settings)
     ;(User as any).belongsTo(models.party, { through: 'party_user' }) // user can only be part of one party at a time
     ;(User as any).belongsToMany(models.user, {
@@ -73,6 +69,7 @@ export default (app: Application) => {
     ;(User as any).hasMany(models.bot, { foreignKey: 'userId' })
     ;(User as any).hasMany(models.scope, { foreignKey: 'userId', onDelete: 'cascade' })
     ;(User as any).belongsToMany(models.instance, { through: 'instance_authorized_user' })
+    ;(User as any).hasMany(models.instance_authorized_user, { foreignKey: { allowNull: false } })
     ;(User as any).hasOne(models.user_api_key)
     ;(User as any).belongsTo(models.avatar)
     ;(User as any).hasMany(models.user_kick, { onDelete: 'cascade' })

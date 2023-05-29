@@ -1,4 +1,5 @@
 import _ from 'lodash'
+import { Op } from 'sequelize'
 
 import { UserInterface } from '@etherealengine/common/src/interfaces/User'
 
@@ -61,14 +62,31 @@ export default (app: Application): void => {
       let targetIds = [data.id!]
       const updatePromises: any[] = []
 
-      if (data.instanceId != null || params.params?.instanceId != null) {
-        const layerUsers = await app.service('user').Model.findAll({
-          where: {
-            instanceId: data.instanceId || params.params?.instanceId
+      const instances = await app.service('instance-attendance').Model.findAll({
+        where: {
+          userId: data.id,
+          ended: 0
+        }
+      })
+      const layerUsers = await app.service('user').Model.findAll({
+        include: [
+          {
+            model: app.service('instance-attendance').Model,
+            as: 'instanceAttendance',
+            where: {
+              instanceId: {
+                [Op.in]: instances.map((instance) => instance.instanceId)
+              }
+            }
           }
-        })
-        targetIds = targetIds.concat(layerUsers.map((user) => user.id))
-      }
+        ],
+        where: {
+          id: {
+            [Op.ne]: data.id
+          }
+        }
+      })
+      targetIds = targetIds.concat(layerUsers.map((user) => user.id))
 
       groupUsers.forEach((groupUser) => {
         updatePromises.push(
@@ -97,9 +115,7 @@ export default (app: Application): void => {
       targetIds = _.uniq(targetIds)
       return Promise.all(
         targetIds.map((userId: string) => {
-          return app.channel(`userIds/${userId}`).send({
-            userRelationship: data
-          })
+          return app.channel(`userIds/${userId}`).send(data)
         })
       )
     } catch (err) {

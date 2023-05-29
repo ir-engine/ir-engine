@@ -1,9 +1,9 @@
 import * as React from 'react'
 
 import capitalizeFirstLetter from '@etherealengine/common/src/utils/capitalizeFirstLetter'
-import Icon from '@etherealengine/ui/src/Icon'
+import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 
-import { AutocompleteGetTagProps, useAutocomplete } from '@mui/base/AutocompleteUnstyled'
+import { AutocompleteGetTagProps, useAutocomplete } from '@mui/material'
 
 import styles from './index.module.scss'
 
@@ -43,7 +43,7 @@ const AutoComplete = ({ data, label, disabled, onChange, value = [] }: Props) =>
       options: data,
       disableCloseOnSelect: true,
       getOptionLabel: (option) => option.type,
-      onChange: (event: React.ChangeEvent<{}>, value: any) => {
+      onChange: (event: React.ChangeEvent, value: any) => {
         onChange && onChange(value)
       },
       getOptionDisabled: (option) => !!option.disabled,

@@ -24,7 +24,7 @@ import {
 } from 'three'
 import { WebGLRenderer } from 'three/src/renderers/WebGLRenderer'
 
-import { KTX2Encoder } from '@etherealengine/xrui/core/textures/KTX2Encoder.bundle'
+import { KTX2Encoder } from '@etherealengine/xrui/core/textures/KTX2Encoder'
 
 import BasisuExporterExtension from '../../assets/exporters/gltf/extensions/BasisuExporterExtension'
 import { GLTFWriter } from '../../assets/exporters/gltf/GLTFExporter'
@@ -161,7 +161,11 @@ export const convertCubemapToKTX2 = async (
   const imageData = new ImageData(new Uint8ClampedArray(pixels), width, height)
   renderer.setRenderTarget(null) // pass `null` to set canvas as render target
 
-  const ktx2texture = (await ktx2write.encode(imageData, false, -1, true, false)) as ArrayBuffer
+  const ktx2texture = (await ktx2write.encode(imageData, {
+    srgb: true,
+    qualityLevel: 256,
+    compressionLevel: 5
+  })) as ArrayBuffer
 
   if (returnAsBlob) {
     return new Blob([ktx2texture])

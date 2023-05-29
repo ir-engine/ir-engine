@@ -12,6 +12,7 @@ import Invites from './components/Invite'
 import Locations from './components/Location'
 import Party from './components/Party'
 import Projects from './components/Project'
+import Recordings from './components/Recordings'
 import Resources from './components/Resources'
 import RoutesComp from './components/Routes'
 import Server from './components/Server'
@@ -22,7 +23,7 @@ const availableRoutes = [
   { route: '/avatars', key: 'globalAvatars', component: Avatars, props: {} },
   { route: '/benchmarking', key: 'benchmarking', component: Benchmarking, props: {} },
   { route: '/groups', key: 'groups', component: Groups, props: {} },
-  { route: '/instance', key: 'instance', component: Instance, props: {} },
+  { route: '/instance', key: 'instance', component: Recordings, props: {} },
   { route: '/invites', key: 'invite', component: Invites, props: {} },
   { route: '/locations', key: 'location', component: Locations, props: {} },
   { route: '/routes', key: 'routes', component: RoutesComp, props: {} },
@@ -32,7 +33,8 @@ const availableRoutes = [
   { route: '/server', key: 'server', component: Server, props: {} },
   { route: '/settings', key: 'settings', component: Setting, props: {} },
   { route: '/resources', key: 'static_resource', component: Resources, props: {} },
-  { route: '/users', key: 'user', component: Users, props: {} }
+  { route: '/users', key: 'user', component: Users, props: {} },
+  { route: '/recordings', key: 'recording', component: Recordings, props: {} }
 ]
 
 const AllowedRoutes = ({ allowedRoutes }) => {

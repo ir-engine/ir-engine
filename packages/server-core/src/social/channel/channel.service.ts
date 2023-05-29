@@ -88,8 +88,13 @@ export default (app: Application) => {
           })
         }
         const instanceUsers = await app.service('user').Model.findAll({
-          where: {
-            instanceId: data.instanceId
+          sequelize: {
+            include: {
+              model: 'instance-attendance'
+            },
+            where: {
+              instanceId: data.instanceId
+            }
           }
         })
         if (data.instance?.dataValues) {
@@ -169,8 +174,13 @@ export default (app: Application) => {
           })
         }
         const instanceUsers = await app.service('user').Model.findAll({
-          where: {
-            instanceId: data.instanceId
+          sequelize: {
+            include: {
+              model: 'instance-attendance'
+            },
+            where: {
+              instanceId: data.instanceId
+            }
           }
         })
         if (data.instance?.dataValues) {
@@ -216,8 +226,13 @@ export default (app: Application) => {
       targetIds = partyUsers.map((partyUser) => partyUser.userId)
     } else if (data.channelType === 'instance') {
       const instanceUsers = await app.service('user').Model.findAll({
-        where: {
-          instanceId: data.instanceId
+        sequelize: {
+          include: {
+            model: 'instance-attendance'
+          },
+          where: {
+            instanceId: data.instanceId
+          }
         }
       })
       targetIds = instanceUsers.map((instanceUser) => instanceUser.id)

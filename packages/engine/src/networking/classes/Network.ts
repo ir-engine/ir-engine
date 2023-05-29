@@ -24,6 +24,10 @@ export interface TransportInterface {
 }
 
 export type DataChannelType = OpaqueType<'DataChannelType'> & string
+export interface JitterBufferEntry {
+  simulationTime: number
+  read: () => void
+}
 
 /** Interface for the Transport. */
 export const createNetwork = <Ext>(hostId: UserId, topic: Topic, extension: Ext = {} as Ext) => {
@@ -32,6 +36,12 @@ export const createNetwork = <Ext>(hostId: UserId, topic: Topic, extension: Ext 
     /** Consumers and producers have separate types on client and server */
     producers: [] as any[],
     consumers: [] as any[],
+
+    /** buffer of incoming packet read tasks */
+    jitterBufferTaskList: [] as JitterBufferEntry[],
+
+    /** The jitter buffer delay in milliseconds */
+    jitterBufferDelay: 100,
 
     /** List of data producer nodes. */
     dataProducers: new Map<string, any>(),
@@ -88,12 +98,6 @@ export const createNetwork = <Ext>(hostId: UserId, topic: Topic, extension: Ext 
      * @todo rename to hostUserID to differentiate better from hostPeerID
      */
     hostId,
-
-    /**
-     * The PeerID of the current user's instance
-     * @todo non null this
-     */
-    peerID: null! as PeerID,
 
     /**
      * The network is ready for sending messages and data

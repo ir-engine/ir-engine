@@ -55,6 +55,7 @@ export type ImageTransformParameters = ResourceParameters<{
 
 export type ExtractedImageTransformParameters = {
   flipY: boolean
+  linear: boolean
   maxTextureSize: number
   textureFormat: 'default' | 'jpg' | 'ktx2' | 'png' | 'webp'
   textureCompressionType: 'etc1' | 'uastc'
@@ -72,6 +73,9 @@ export type ResourceTransforms = {
 }
 
 export type ModelTransformParameters = ExtractedImageTransformParameters & {
+  dst: string
+  resourceUri: string
+
   dedup: boolean
   prune: boolean
   reorder: boolean
@@ -87,4 +91,42 @@ export type ModelTransformParameters = ExtractedImageTransformParameters & {
   modelFormat: 'glb' | 'gltf'
 
   resources: ResourceTransforms
+}
+
+export const DefaultModelTransformParameters: ModelTransformParameters = {
+  dst: '',
+  resourceUri: '',
+  modelFormat: 'gltf',
+  dedup: true,
+  prune: true,
+  reorder: true,
+  resample: true,
+  weld: {
+    enabled: true,
+    tolerance: 0.001
+  },
+  dracoCompression: {
+    enabled: true,
+    options: {
+      method: 'sequential',
+      encodeSpeed: 0,
+      decodeSpeed: 0,
+      quantizePosition: 14,
+      quantizeNormal: 8,
+      quantizeColor: 8,
+      quantizeTexcoord: 12,
+      quantizeGeneric: 16,
+      quantizationVolume: 'mesh'
+    }
+  },
+  textureFormat: 'ktx2',
+  textureCompressionType: 'etc1',
+  flipY: true,
+  linear: true,
+  textureCompressionQuality: 128,
+  maxTextureSize: 1024,
+  resources: {
+    geometries: [],
+    images: []
+  }
 }

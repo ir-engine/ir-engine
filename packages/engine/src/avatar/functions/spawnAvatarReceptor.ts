@@ -44,6 +44,9 @@ export const spawnAvatarReceptor = (spawnAction: typeof WorldNetworkAction.spawn
   const userId = spawnAction.uuid
   const primary = ownerId === userId
 
+  const entity = Engine.instance.getNetworkObject(ownerId, spawnAction.networkId)
+  if (!entity) return
+
   if (primary) {
     const existingAvatarEntity = Engine.instance.getUserAvatarEntity(userId)
 
@@ -63,7 +66,6 @@ export const spawnAvatarReceptor = (spawnAction: typeof WorldNetworkAction.spawn
     }
   }
 
-  const entity = Engine.instance.getNetworkObject(ownerId, spawnAction.networkId)!
   const transform = getComponent(entity, TransformComponent)
 
   addComponent(entity, AvatarComponent, {

@@ -50,24 +50,29 @@ export const setupXRSession = async (requestedMode) => {
   const xrState = getMutableState(XRState)
   const xrManager = EngineRenderer.instance.xrManager
 
+  // @todo - hack to detect nreal
+  const isNReal =
+    navigator.userAgent ===
+    'Mozilla/5.0 (Linux; Android 11) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.82 Mobile Safari/537.36'
+
   const sessionInit = {
     optionalFeatures: [
       'local-floor',
       'hand-tracking',
       'layers',
-      'dom-overlay',
+      isNReal ? undefined : 'dom-overlay', // dom overlay crashes nreal
       'hit-test',
       'light-estimation',
       'depth-sensing',
       'anchors',
       'plane-detection',
       'camera-access'
-    ],
+    ].filter(Boolean),
     depthSensing: {
       usagePreference: ['cpu-optimized', 'gpu-optimized'],
       dataFormatPreference: ['luminance-alpha', 'float32']
     },
-    domOverlay: { root: document.body }
+    domOverlay: isNReal ? undefined : { root: document.body }
   } as XRSessionInit
   const mode =
     requestedMode ||

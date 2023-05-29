@@ -8,8 +8,9 @@ import { defineState, getMutableState, getState, State, useHookstate } from '@et
 import { OBCType } from '../../common/constants/OBCTypes'
 import { addOBCPlugin, PluginType, removeOBCPlugin } from '../../common/functions/OnBeforeCompilePlugin'
 import { Engine } from '../../ecs/classes/Engine'
+import { EngineState } from '../../ecs/classes/EngineState'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
-import { createGroupQueryReactor, GroupReactorProps } from '../components/GroupComponent'
+import { GroupQueryReactor, GroupReactorProps } from '../components/GroupComponent'
 import { SceneTagComponent } from '../components/SceneTagComponent'
 import { VisibleComponent } from '../components/VisibleComponent'
 import { FogType } from '../constants/FogType'
@@ -81,8 +82,6 @@ function FogGroupReactor({ obj }: GroupReactorProps) {
   return null
 }
 
-const FogGroupQueryReactor = createGroupQueryReactor(FogGroupReactor, [Not(SceneTagComponent), VisibleComponent])
-
 const reactor = () => {
   const fog = useHookstate(getMutableState(FogSettingState))
   const scene = Engine.instance.scene
@@ -148,11 +147,13 @@ const reactor = () => {
     if (scene.fog && fogData.type === FogType.Brownian)
       for (const s of FogShaders) {
         s.uniforms.fogTimeScale.value = fogData.timeScale
-        s.uniforms.fogTime.value = Engine.instance.fixedElapsedSeconds
+        s.uniforms.fogTime.value = getState(EngineState).elapsedSeconds
       }
   }, [fog.height])
 
-  return <FogGroupQueryReactor />
+  return (
+    <GroupQueryReactor GroupChildReactor={FogGroupReactor} Components={[Not(SceneTagComponent), VisibleComponent]} />
+  )
 }
 
 export const FogSystem = defineSystem({

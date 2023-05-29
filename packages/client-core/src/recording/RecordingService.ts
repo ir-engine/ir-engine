@@ -43,13 +43,28 @@ export const RecordingFunctions = {
       })) as RecordingResult
       return recording.id
     } catch (err) {
+      console.error(err)
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
   },
   getRecordings: async () => {
-    const recordings = (await Engine.instance.api.service('recording').find()).data as RecordingResult[]
-    const recordingState = getMutableState(RecordingState)
-    recordingState.recordings.set(recordings)
+    // const recordings = await Engine.instance?.api?.service('recording')?.find().then(res => res?.data) as RecordingResult[]
+    //)?.data as RecordingResult[]
+
+    return await Engine.instance?.api
+      ?.service('recording')
+      ?.find()
+      .then(
+        (res) => {
+          const recordingState = getMutableState(RecordingState)
+          recordingState.recordings.set(res.data)
+          return true
+        },
+        function (err) {
+          console.log(err)
+          return false
+        }
+      ) // never supposed to reject
   }
 }
 

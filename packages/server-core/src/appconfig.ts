@@ -155,13 +155,13 @@ const client = {
     (process.env.VITE_LOCAL_BUILD
       ? 'http://' + process.env.APP_HOST + ':' + process.env.APP_PORT
       : 'https://' + process.env.APP_HOST + ':' + process.env.APP_PORT),
+  port: process.env.APP_PORT || '3000',
   releaseName: process.env.RELEASE_NAME || 'local'
 }
 
 // TODO: rename to 'instanceserver'
 const instanceserver = {
   clientHost: process.env.APP_HOST!,
-  hostname: process.env.INSTANCESERVER_HOST,
   rtc_start_port: parseInt(process.env.RTC_START_PORT!),
   rtc_end_port: parseInt(process.env.RTC_END_PORT!),
   rtc_port_block_size: parseInt(process.env.RTC_PORT_BLOCK_SIZE!),

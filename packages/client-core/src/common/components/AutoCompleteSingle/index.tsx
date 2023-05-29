@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from 'react'
 
 import capitalizeFirstLetter from '@etherealengine/common/src/utils/capitalizeFirstLetter'
-import FormControl from '@etherealengine/ui/src/FormControl'
-import FormHelperText from '@etherealengine/ui/src/FormHelperText'
-import Icon from '@etherealengine/ui/src/Icon'
-import IconButton from '@etherealengine/ui/src/IconButton'
+import FormControl from '@etherealengine/ui/src/primitives/mui/FormControl'
+import FormHelperText from '@etherealengine/ui/src/primitives/mui/FormHelperText'
+import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
+import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
 
-import { useAutocomplete } from '@mui/base/AutocompleteUnstyled'
+import { useAutocomplete } from '@mui/material'
 
 import { InputMenuItem } from '../InputSelect'
 import styles from './index.module.scss'
@@ -47,7 +47,7 @@ const AutoComplete = ({ data, label, disabled, error, onChange, value = '', free
       onInputChange: handleInputChange,
       getOptionLabel: (option) => option.label || '',
       blurOnSelect: true,
-      onChange: (event: React.ChangeEvent<{}>, value: any, reason: string) => {
+      onChange: (event: React.ChangeEvent, value: any, reason: string) => {
         if (value?.value != null) {
           setLocalValue(value.value)
           ;(getInputProps() as any).ref.current.value = value.value
