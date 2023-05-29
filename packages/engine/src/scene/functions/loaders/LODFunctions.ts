@@ -4,6 +4,7 @@ import { OpaqueType } from '@etherealengine/common/src/interfaces/OpaqueType'
 import { NO_PROXY } from '@etherealengine/hyperflux'
 
 import { addOBCPlugin } from '../../../common/functions/OnBeforeCompilePlugin'
+import { Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
 import { ComponentType, getComponent, getMutableComponent } from '../../../ecs/functions/ComponentFunctions'
 import { Object3DWithEntity } from '../../components/GroupComponent'
@@ -27,32 +28,33 @@ export function processLoadedLODLevel(entity: Entity, index: number, mesh: Mesh)
   const targetModel = getMutableComponent(lodComponent.target, ModelComponent)
   const level = lodComponentState.levels[index]
 
-  let loadedModel: Object3D | null = lodComponent.levels.find((level) => level.loaded)?.model ?? null
-
+  let loadedModel: Object3D | null = lodComponent.levels.find((level) => level.loaded && level.model)?.model ?? null
   function addPlugin(mesh: Mesh) {
     delete mesh.geometry.attributes['lodIndex']
     delete mesh.geometry.attributes['_lodIndex']
     mesh.geometry.setAttribute('lodIndex', lodComponentState.instanceLevels.get(NO_PROXY))
+    const minDistance = index === 0 ? 0 : lodComponent.levels[index - 1].distance
+    const maxDistance = lodComponent.levels[index].distance
     const materials: Material[] = Array.isArray(mesh.material) ? mesh.material : [mesh.material]
     materials.forEach((material) => {
       addOBCPlugin(material, {
         id: 'lod-culling',
         priority: 1,
         compile: (shader, renderer) => {
-          shader.vertexShader = shader.vertexShader.replace(
-            'void main() {',
-            `
-  attribute float lodIndex;
-  varying float vDoClip;
-  void main() {
-    vDoClip = float(lodIndex != ${index}.0);
-    if (vDoClip == 0.0) {
-`
-          )
-          shader.vertexShader = shader.vertexShader.replace(/\}[^}]*$/, `}}`)
           shader.fragmentShader = shader.fragmentShader.replace(
             'void main() {\n',
-            'varying float vDoClip;\nvoid main() {\nif (vDoClip > 0.0) discard;\n'
+            `
+  void main() {
+    float maxDistance = ${maxDistance.toFixed(1)};
+    float minDistance = ${minDistance.toFixed(1)};
+    // Calculate the camera distance from the geometry
+    float cameraDistance = length(vViewPosition);
+
+    // Discard fragments outside the minDistance and maxDistance range
+    if (cameraDistance <= minDistance || cameraDistance >= maxDistance) {
+      discard;
+    }
+`
           )
         }
       })
