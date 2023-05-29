@@ -438,11 +438,11 @@ export const AuthService = {
     dispatchAction(AuthAction.actionProcessing({ processing: true }))
     const token = getState(AuthState).authUser.accessToken
     const path = location?.state?.from || location.pathname
-    const queryString = querystring.parse(window.location.search.slice(1))
+    const instanceId = new URL(window.location.href).searchParams.get('instanceId')
     const redirectObject = {
       path: path
     } as any
-    if (queryString.instanceId && queryString.instanceId.length > 0) redirectObject.instanceId = queryString.instanceId
+    if (instanceId) redirectObject.instanceId = instanceId
     window.location.href = `${
       config.client.serverUrl
     }/oauth/${service}?feathers_token=${token}&redirect=${JSON.stringify(redirectObject)}`
