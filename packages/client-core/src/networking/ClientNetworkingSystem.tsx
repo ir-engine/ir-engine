@@ -86,7 +86,7 @@ const execute = () => {
     WarningUIService.openWarning({
       title: t('common:instanceServer.worldDisconnected'),
       body: t('common:instanceServer.worldDisconnectedMessage'),
-      action: () => window.location.reload(),
+      // action: () => window.location.reload(),
       timeout: 30
     })
   }

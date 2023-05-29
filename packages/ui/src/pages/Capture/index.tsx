@@ -41,8 +41,8 @@ const startDataProducer = async () => {
     appData: { data: {} },
     ordered: true,
     label: mocapDataChannelType,
-    maxPacketLifeTime: 0,
-    // maxRetransmits: 3,
+    // maxPacketLifeTime: 0,
+    maxRetransmits: 1,
     protocol: 'raw'
   })
   dataProducer.on('transportclose', () => {

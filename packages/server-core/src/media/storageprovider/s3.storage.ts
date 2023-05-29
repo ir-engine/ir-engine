@@ -13,8 +13,10 @@ import { Options, Upload } from '@aws-sdk/lib-storage'
 import { createPresignedPost } from '@aws-sdk/s3-presigned-post'
 import { reject } from 'lodash'
 import fetch from 'node-fetch'
+import { buffer } from 'node:stream/consumers'
 import path from 'path/posix'
 import S3BlobStore from 's3-blob-store'
+import { Readable } from 'stream'
 import { PassThrough } from 'stream'
 
 import { FileContentType } from '@etherealengine/common/src/interfaces/FileContentType'
@@ -134,7 +136,8 @@ export class S3Provider implements StorageProviderInterface {
   async getObject(key: string): Promise<StorageObjectInterface> {
     const data = new GetObjectCommand({ Bucket: this.bucket, Key: key })
     const response = await this.provider.send(data)
-    return { Body: response.Body as unknown as Buffer, ContentType: response.ContentType! }
+    const body = await buffer(response.Body as Readable)
+    return { Body: body, ContentType: response.ContentType! }
   }
 
   /**

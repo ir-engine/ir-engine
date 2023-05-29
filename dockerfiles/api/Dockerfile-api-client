@@ -14,6 +14,11 @@ RUN npm install --loglevel notice --legacy-peer-deps
 
 COPY . .
 
+RUN rm -r packages/client
+RUN rm -r packages/client-core
+RUN rm -r packages/editor
+RUN rm -r packages/ui
+
 # copy then compile the code
 
 ENV APP_ENV=production

@@ -106,6 +106,8 @@ else
     --build-arg VITE_LOGIN_WITH_WALLET=$VITE_LOGIN_WITH_WALLET .
 fi
 
+npm run prune-docker-cache -- --bucket "${CACHE_BUCKET_STEM}-${PACKAGE}-cache" --releaseName $STAGE
+
 BUILD_END_TIME=`date +"%d-%m-%yT%H-%M-%S"`
 echo "Ending ${PACKAGE} build at ${BUILD_END_TIME}, start time was ${BUILD_START_TIME}"
 # cache links to use once ECR supports cache manifests

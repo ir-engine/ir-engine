@@ -52,7 +52,7 @@ find packages/projects/projects/ -name package.json -exec bash -c 'mkdir -p ./pr
 bash ./scripts/build_and_publish_package.sh $RELEASE_NAME $DOCKER_LABEL root root $START_TIME $AWS_REGION $NODE_ENV $PRIVATE_ECR >root-build-logs.txt 2>root-build-error.txt
 npm run record-build-error -- --service=root --isDocker=true
 
-npm install -g cli aws-sdk
+npm install -g cli @aws-sdk/client-s3
 
 if [ "$SERVE_CLIENT_FROM_STORAGE_PROVIDER" = "true" ] && [ "$STORAGE_PROVIDER" = "aws" ] ; then npm run list-client-s3-files-to-delete ; fi
 

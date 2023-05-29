@@ -32,11 +32,19 @@ export const startMediaServerSystems = () => {
 
 export const startWorldServerSystems = () => {
   /** Input */
-  startSystems([IncomingNetworkSystem, MotionCaptureSystem], { with: InputSystemGroup })
+  startSystems([MotionCaptureSystem], { with: InputSystemGroup })
 
   /** Fixed */
   startSystems(
-    [WorldNetworkActionSystem, ServerHostNetworkSystem, EquippableSystem, AvatarSimulationGroup, PhysicsSystem],
+    [
+      IncomingNetworkSystem,
+      WorldNetworkActionSystem,
+      ServerHostNetworkSystem,
+      EquippableSystem,
+      AvatarSimulationGroup,
+      PhysicsSystem,
+      OutgoingNetworkSystem
+    ],
     {
       with: SimulationSystemGroup
     }
@@ -51,7 +59,7 @@ export const startWorldServerSystems = () => {
   })
 
   /** Post Render */
-  startSystems([ECSSerializerSystem, SceneSystemLoadGroup, ServerRecordingSystem, OutgoingNetworkSystem], {
+  startSystems([ECSSerializerSystem, SceneSystemLoadGroup, ServerRecordingSystem], {
     after: PresentationSystemGroup
   })
 }

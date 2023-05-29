@@ -8,8 +8,10 @@ import { getState, none } from '@etherealengine/hyperflux/functions/StateFunctio
 
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineActions } from '../../ecs/classes/EngineState'
+import { getComponent } from '../../ecs/functions/ComponentFunctions'
 import { removeEntity } from '../../ecs/functions/EntityFunctions'
 import { Network, NetworkTopics } from '../classes/Network'
+import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
 import { WorldState } from '../interfaces/WorldState'
 import { NetworkState, updateNetwork } from '../NetworkState'
 import { WorldNetworkAction } from './WorldNetworkAction'
@@ -86,11 +88,16 @@ function destroyPeer(network: Network, peerID: PeerID) {
     //   })
     //   .filter((peer) => !!peer)
     // console.log({remainingPeersForDisconnectingUser})
-    if (!network.users.has(userID)) {
-      Engine.instance.store.actions.cached = Engine.instance.store.actions.cached.filter((a) => a.$from !== userID)
-      for (const eid of Engine.instance.getOwnedNetworkObjects(userID)) removeEntity(eid)
-      clearCachedActionsForUser(userID)
-      clearActionsHistoryForUser(userID)
+    if (!network.users.has(userID) && network.isHosting) {
+      // Engine.instance.store.actions.cached = Engine.instance.store.actions.cached.filter((a) => a.$from !== userID)
+      for (const eid of Engine.instance.getOwnedNetworkObjects(userID)) {
+        const networkObject = getComponent(eid, NetworkObjectComponent)
+        if (networkObject) {
+          dispatchAction(WorldNetworkAction.destroyObject({ networkId: networkObject.networkId, $from: userID }))
+        }
+      }
+      // clearCachedActionsForUser(userID)
+      // clearActionsHistoryForUser(userID)
     }
   }
 }
@@ -145,6 +152,7 @@ export const NetworkPeerFunctions = {
   destroyPeer,
   destroyAllPeers,
   clearCachedActionsForUser,
+  clearActionsHistoryForUser,
   clearCachedActionsOfTypeForUser,
   getCachedActionsForUser
 }
