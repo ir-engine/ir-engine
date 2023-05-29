@@ -282,7 +282,7 @@ export function createAvatarAnimationGraph(
         rule: compositeTransitionRule(
           [
             booleanTransitionRule(jumpValue, 'isInAir'),
-            thresholdTransitionRule(locomotion, 'y', -0.1 / getState(EngineState).fixedDeltaSeconds, false)
+            thresholdTransitionRule(locomotion, 'y', -0.1 / getState(EngineState).simulationTimestep, false)
           ],
           'and'
         ),

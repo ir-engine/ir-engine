@@ -132,7 +132,7 @@ describe('NetworkPeerFunctions', () => {
       })
 
       // process remove actions and execute entity removal
-      Engine.instance.store.defaultDispatchDelay = 0
+      Engine.instance.store.defaultDispatchDelay = () => 0
       NetworkPeerFunctions.destroyPeer(network, peerID)
 
       applyIncomingActions()

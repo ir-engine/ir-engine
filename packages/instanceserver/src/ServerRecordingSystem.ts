@@ -8,6 +8,7 @@ import { StaticResourceInterface } from '@etherealengine/common/src/interfaces/S
 import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 import multiLogger from '@etherealengine/common/src/logger'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { ECSRecordingActions } from '@etherealengine/engine/src/ecs/ECSRecording'
 import { ECSDeserializer, ECSSerialization, ECSSerializer } from '@etherealengine/engine/src/ecs/ECSSerializerSystem'
 import { getComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
@@ -141,7 +142,7 @@ export const onStartRecording = async (action: ReturnType<typeof ECSRecordingAct
 
   const startTime = Date.now()
 
-  const chunkLength = Engine.instance.tickRate * 60 // 1 minute
+  const chunkLength = Math.floor((1000 / getState(EngineState).simulationTimestep) * 60) // 1 minute
 
   const dataChannelRecorder = (network: Network, dataChannel: DataChannelType, fromPeerID: PeerID, message: any) => {
     try {

@@ -113,7 +113,7 @@ describe('PrefabComponentFunctions', async () => {
       const emptyScene = await loadXRE('empty.xre.gltf')
       await loadPrefab(entity, setContent(emptyScene))
 
-      console.log('DEBUG EMPTY SCENE', entity, Engine.instance.fixedTick)
+      // console.log('DEBUG EMPTY SCENE', entity, Engine.instance.fixedTick)
 
       //wait one fixed frame for system to reparent
       await nextFixedStep

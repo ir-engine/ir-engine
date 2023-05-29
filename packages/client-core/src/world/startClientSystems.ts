@@ -37,13 +37,15 @@ import { XRUISystem } from '@etherealengine/engine/src/xrui/systems/XRUISystem'
 
 export const startClientSystems = () => {
   /** Input */
-  startSystems(
-    [IncomingNetworkSystem, XRSystem, MotionCaptureSystem, ClientInputSystem, AvatarInputGroup, CameraInputSystem],
-    { with: InputSystemGroup }
-  )
+  startSystems([XRSystem, MotionCaptureSystem, ClientInputSystem, AvatarInputGroup, CameraInputSystem], {
+    with: InputSystemGroup
+  })
 
   /** Fixed */
-  startSystems([WorldNetworkActionSystem, EquippableSystem, AvatarSimulationGroup], { with: SimulationSystemGroup })
+  startSystems(
+    [IncomingNetworkSystem, WorldNetworkActionSystem, EquippableSystem, AvatarSimulationGroup, OutgoingNetworkSystem],
+    { with: SimulationSystemGroup }
+  )
 
   /** Physics */
   startSystems([PhysicsSystem], { after: SimulationSystemGroup })
@@ -77,17 +79,7 @@ export const startClientSystems = () => {
   })
 
   /** Post Render */
-  startSystems(
-    [
-      ButtonCleanupSystem,
-      PortalSystem,
-      ECSSerializerSystem,
-      PositionalAudioSystem,
-      SceneSystemLoadGroup,
-      OutgoingNetworkSystem
-    ],
-    {
-      after: PresentationSystemGroup
-    }
-  )
+  startSystems([ButtonCleanupSystem, PortalSystem, ECSSerializerSystem, PositionalAudioSystem, SceneSystemLoadGroup], {
+    after: PresentationSystemGroup
+  })
 }
