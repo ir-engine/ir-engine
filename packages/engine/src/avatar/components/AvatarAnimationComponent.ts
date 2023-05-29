@@ -71,11 +71,13 @@ export interface ikTargets {
   leftHandTarget: Object3D
   rightFootTarget: Object3D
   leftFootTarget: Object3D
+  headTarget: Object3D
 
   rightElbowHint: Object3D
   leftElbowHint: Object3D
   rightKneeHint: Object3D
   leftKneeHint: Object3D
+  headHint: Object3D
 }
 
 export const AvatarRigComponent = defineComponent({

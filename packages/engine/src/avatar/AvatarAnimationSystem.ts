@@ -133,7 +133,7 @@ const worldSpaceTargets = {
   leftHandTarget: new Vector3(),
   rightFootTarget: new Vector3(),
   leftFootTarget: new Vector3(),
-  head: new Vector3(),
+  headTarget: new Vector3(),
 
   rightElbowHint: new Vector3(),
   leftElbowHint: new Vector3(),
@@ -145,7 +145,7 @@ const worldSpaceTargets = {
 //debug visualizers
 const visualizers = [] as TransformComponentType[]
 if (getState(AvatarAnimationState).visualizeTargets) {
-  for (let i = 0; i < 8; i++) {
+  for (let i = 0; i < 10; i++) {
     const e = createEntity()
     setComponent(e, VisibleComponent, true)
     addObjectToGroup(e, new Mesh(new SphereGeometry(0.05)))
@@ -294,7 +294,6 @@ const execute = () => {
 
     const rigComponent = getComponent(entity, AvatarRigComponent)
     const rig = rigComponent.rig
-    const transform = getComponent(entity, TransformComponent)
     const animationState = getState(AnimationManager)
 
     if (!animationState.targetsAnimation) return
@@ -307,7 +306,7 @@ const execute = () => {
     for (const [key, value] of Object.entries(rigComponent.ikTargetsMap)) {
       worldSpaceTargets[key]
         .copy(value.position)
-        .sub(rigComponent.ikOffsetsMap.get(key)!)
+        //.sub(rigComponent.ikOffsetsMap.get(key)!)
         .applyMatrix4(root.matrixWorld)
 
       if (visualizeTargets) {
@@ -342,6 +341,7 @@ const execute = () => {
       null,
       worldSpaceTargets.rightElbowHint
     )
+
     solveTwoBoneIK(
       rig.leftUpperArm.node,
       rig.leftLowerArm.node,
@@ -388,11 +388,12 @@ const execute = () => {
       worldSpaceTargets.leftKneeHint
     )
 
+    //Head
     solveTwoBoneIK(
       rig.hips.node,
       rig.spine.node,
       rig.head.node,
-      worldSpaceTargets.head,
+      worldSpaceTargets.headTarget,
       rot,
       null,
       worldSpaceTargets.headHint
