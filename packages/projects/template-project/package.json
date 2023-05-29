@@ -15,9 +15,7 @@
   },
   "peerDependencies": {},
   "dependencies": {},
-  "devDependencies": {
-    "trace-unhandled": "2.0.1"
-  },
+  "devDependencies": {},
   "license": "ISC",
   "pre-commit": [
     "format-staged"
