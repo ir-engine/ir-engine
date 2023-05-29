@@ -3,6 +3,8 @@ import { compress, decompress } from 'fflate'
 import { Packr, Unpackr } from 'msgpackr'
 import { Matrix4 } from 'three'
 
+import { KTX2Encoder, UASTCFlags } from '@etherealengine/engine/src/assets/loaders/ktx2/KTX2Encoder'
+
 import {
   Bounds,
   downloadBlob,
@@ -17,7 +19,6 @@ import { bufferToHex } from './hex-utils'
 import { serializeToString } from './serialization-utils'
 import { getParentsHTML } from './serialization-utils'
 import { getAllEmbeddedStyles } from './serialization/getAllEmbeddedStyles'
-import { KTX2Encoder, UASTCFlags } from './textures/KTX2Encoder'
 import { WebLayer } from './WebLayer'
 import { WebRenderer } from './WebRenderer'
 

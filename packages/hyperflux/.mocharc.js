@@ -1,10 +1,10 @@
 module.exports = {
   failZero: false,
-  parallel: true,
+  parallel: false,
   spec: ['**/*.test.ts', '**/*.test.tsx'],
   require: [
     'tests/mocha.env', // init env here
-    'ts-node/register'
+    'ts-node/esm'
   ],
   extension: [
     'ts',

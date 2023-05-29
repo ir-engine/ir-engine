@@ -31,7 +31,7 @@ import {
   sRGBEncoding,
   UnsignedByteType
 } from 'three'
-import { WorkerPool } from './WorkerPool'
+import { WorkerPool } from '../../classes/WorkerPool'
 
 const KTX2TransferSRGB = 2
 const KTX2_ALPHA_PREMULTIPLIED = 1

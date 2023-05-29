@@ -11,6 +11,7 @@ import {
   WebGLRenderTarget
 } from 'three'
 
+import { KTX2Encoder } from '@etherealengine/engine/src/assets/loaders/ktx2/KTX2Encoder'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
 import { addComponent, defineQuery, getComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
@@ -25,7 +26,6 @@ import {
   TransformComponent
 } from '@etherealengine/engine/src/transform/components/TransformComponent'
 import { getState } from '@etherealengine/hyperflux'
-import { KTX2Encoder } from '@etherealengine/xrui/core/textures/KTX2Encoder'
 
 import { EditorState } from '../services/EditorServices'
 

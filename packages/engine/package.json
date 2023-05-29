@@ -24,6 +24,7 @@
   "scripts": {
     "check-errors": "tsc --noemit",
     "test": "mocha --config .mocharc.js",
+    "build:worker": "esbuild src/assets/loaders/ktx2/KTX2Worker.ts --bundle --format=esm --outfile=src/assets/loaders/ktx2/KTX2Worker.bundle.js --loader:.wasm=binary",
     "validate": "npm run test",
     "generate-doc": "node_modules/.bin/typedoc"
   },
@@ -64,7 +65,7 @@
     "three-mesh-bvh": "^0.5.23",
     "three.quarks": "0.10.2",
     "ts-matches": "5.3.0",
-    "typescript": "5.0.2",
+    "typescript": "5.0.4",
     "vite": "4.2.1",
     "web-worker": "1.2.0"
   },

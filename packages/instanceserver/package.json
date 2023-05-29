@@ -60,7 +60,7 @@
     "serve-favicon": "2.5.0",
     "trace-unhandled": "2.0.1",
     "ts-node": "10.9.1",
-    "typescript": "5.0.2"
+    "typescript": "5.0.4"
   },
   "devDependencies": {
     "@types/node": "18.15.5",

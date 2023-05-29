@@ -28,7 +28,7 @@
     "local-minikube-stop": "minikube stop",
     "open-frontend-service-port": "kubectl port-forward --namespace open-match service/open-match-frontend 51504:51504",
     "ts-node": "10.9.1",
-    "typescript": "5.0.2"
+    "typescript": "5.0.4"
   },
   "dependencies": {
     "abort-controller": "^3.0.0",

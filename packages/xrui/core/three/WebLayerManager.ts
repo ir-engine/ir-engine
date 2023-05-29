@@ -9,7 +9,7 @@ import {
   VideoTexture
 } from 'three'
 
-import { KTX2Loader } from '@etherealengine/engine/src/assets/loaders/gltf/KTX2Loader'
+import { KTX2Loader } from '@etherealengine/engine/src/assets/loaders/ktx2/KTX2Loader'
 
 import { TextureData, TextureHash, WebLayerManagerBase } from '../WebLayerManagerBase'
 import { WebLayer3D } from './WebLayer3D'

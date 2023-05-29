@@ -1,6 +1,6 @@
 import { createWorkerFromCrossOriginURL } from '@etherealengine/common/src/utils/createWorkerFromCrossOriginURL'
 
-import { WorkerPool } from '../WorkerPool'
+import { WorkerPool } from '../../classes/WorkerPool'
 
 const workerPath = new URL('./KTX2Worker.bundle.js', import.meta.url).href
 

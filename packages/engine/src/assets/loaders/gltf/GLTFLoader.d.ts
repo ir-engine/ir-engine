@@ -18,7 +18,7 @@ import {
 import { Entity } from '../../../ecs/classes/Entity'
 
 import { DRACOLoader } from './DRACOLoader'
-import { KTX2Loader } from './KTX2Loader'
+import { KTX2Loader } from '../ktx2/KTX2Loader'
 
 export interface GLTF {
   animations: AnimationClip[]

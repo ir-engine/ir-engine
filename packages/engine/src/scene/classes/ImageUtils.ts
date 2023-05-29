@@ -24,10 +24,9 @@ import {
 } from 'three'
 import { WebGLRenderer } from 'three/src/renderers/WebGLRenderer'
 
-import { KTX2Encoder } from '@etherealengine/xrui/core/textures/KTX2Encoder'
-
 import BasisuExporterExtension from '../../assets/exporters/gltf/extensions/BasisuExporterExtension'
 import { GLTFWriter } from '../../assets/exporters/gltf/GLTFExporter'
+import { KTX2Encoder } from '../../assets/loaders/ktx2/KTX2Encoder'
 
 export const ImageProjection = {
   Flat: 'Flat',

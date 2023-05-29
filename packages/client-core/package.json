@@ -74,7 +74,7 @@
     "save-as": "^0.1.8",
     "styled-components": "5.3.9",
     "tick-tock": "^1.0.0",
-    "typescript": "5.0.2",
+    "typescript": "5.0.4",
     "util": "^0.12.5",
     "uuid": "9.0.0"
   },

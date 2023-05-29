@@ -16,9 +16,9 @@ import { HubsLightMapExtension } from '../loaders/gltf/extensions/LightMapExtens
 import RegisterMaterialsExtension from '../loaders/gltf/extensions/RegisterMaterialsExtension'
 import { RemoveMaterialsExtension } from '../loaders/gltf/extensions/RemoveMaterialsExtension'
 import { GLTFLoader } from '../loaders/gltf/GLTFLoader'
-import { KTX2Loader } from '../loaders/gltf/KTX2Loader'
 import { MeshoptDecoder } from '../loaders/gltf/meshopt_decoder.module'
 import { NodeDRACOLoader } from '../loaders/gltf/NodeDracoLoader'
+import { KTX2Loader } from '../loaders/ktx2/KTX2Loader'
 
 export const initializeKTX2Loader = (loader: GLTFLoader) => {
   const ktxLoader = new KTX2Loader()

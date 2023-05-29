@@ -1,10 +1,10 @@
 import { CompressedTexture, LinearEncoding, Texture } from 'three'
 
 import { dispatchAction } from '@etherealengine/hyperflux'
-import { KTX2Encoder } from '@etherealengine/xrui/core/textures/KTX2Encoder'
 
 import createReadableTexture from '../../../functions/createReadableTexture'
 import { LSHIndex } from '../../../functions/lshIndex'
+import { KTX2Encoder } from '../../../loaders/ktx2/KTX2Encoder'
 import { GLTFExporterPlugin, GLTFWriter } from '../GLTFExporter'
 import BufferHandlerExtension from './BufferHandlerExtension'
 import { ExporterExtension } from './ExporterExtension'
