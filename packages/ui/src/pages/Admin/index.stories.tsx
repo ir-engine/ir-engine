@@ -171,7 +171,7 @@ export default {
       const engineState = useHookstate(getMutableState(EngineState))
 
       if (!engineState.isEngineInitialized.value && !engineState.connectedWorld.value)
-        return <div>Waiing For Engine</div>
+        return <div>Waiting For Engine</div>
       if (!engineState.connectedWorld.value) return <div>Waiting for World</div>
 
       return (

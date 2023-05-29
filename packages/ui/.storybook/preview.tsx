@@ -103,34 +103,23 @@ export const decorators = [
 ]
 
 const preview: Preview = {
-  globals: {
-    eeStatus: {
-      mediaInstance: 'init'
-    }
-  },
-  globalTypes: {
-    eeStatus: {
-      description: 'Ethereal Engine Status',
-      defaultValue: {},
-      toolbar: {
-        // The label to show for this toolbar item
-        title: 'EE Status',
-        icon: 'info',
-        // Array of plain string values or MenuItem shape (see below)
-        items: [
-          { value: 'init', title: 'mediaInstance' }
-          //   { value: 'mediaConnection', title: `${mediaConnection}`},
-          //   // { value: 'videoActive', title: `${videoActive?.value}`},
-          //   // { value: 'camVideoProducer', title: `${mediaStreamState.camVideoProducer.value}`},
-          //   // { value: 'videoPaused', title: `${mediaStreamState.videoPaused.value}`},
-          //   // { value: 'isDetecting', title: `${isDetecting?.value}`},
-        ]
-        // Change title based on selected value
-        // dynamicTitle: true,
-      }
-    }
-  }
+  // globalTypes: {
+  //   eeStatus: {
+  //     description: 'Ethreal Engine Status',
+  //     defaultValue: null,
+  //     toolbar: {
+  //       title: 'EE Status',
+  //       icon: 'info',
+  //       items: [
+  //         { value: 'active', title: `MediaInstance: ${'active'}` },
+  //       ],
+  //       dynamicTitle: true,
+  //     },
+  //   },
+  // },
 }
+
+export default preview
 
 export const parameters = {
   controls: {
@@ -159,6 +148,5 @@ export const parameters = {
       </>
     )
   },
-  actions: { argTypesRegex: '^on[A-Z].*' },
-  preview
+  actions: { argTypesRegex: '^on[A-Z].*' }
 }

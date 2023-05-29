@@ -1,7 +1,7 @@
 import { loadConfigFromFile, mergeConfig } from 'vite'
 
 export default {
-  // managerEntries: [require('path').resolve(__dirname, './addons/RegisterAddons')],
+  managerEntries: [require('path').resolve(__dirname, './addons/RegisterAddons')],
   headers: {
     'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, PATCH, OPTIONS',
@@ -14,14 +14,10 @@ export default {
       path: '../../.env.local'
     }).parsed
   }),
-  stories: [
-    // './**/*.stories.@(js|jsx|ts|tsx)',
-    '../src/**/*.stories.mdx',
-    '../src/**/*.stories.@(js|jsx|ts|tsx)'
-  ],
+  stories: ['./**/*.stories.@(js|jsx|ts|tsx)', '../src/**/*.stories.mdx', '../src/**/*.stories.@(js|jsx|ts|tsx)'],
   addons: [
     // "@storybook/addon-links",
-    // '@storybook/addon-toolbars',
+    '@storybook/addon-toolbars',
     '@storybook/manager-api',
     '@storybook/addon-essentials',
     '@storybook/addon-interactions',

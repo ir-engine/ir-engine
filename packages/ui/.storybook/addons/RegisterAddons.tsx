@@ -6,14 +6,14 @@ import React from 'react'
 
 import SystemStatus from './SystemStatus'
 
-addons.register('SystemStatus', () => {
-  addons.add('SystemStatus', {
-    title: 'Ethereal Engine - System Status',
-    type: types.TOOL,
+addons.register('Ethereal Engine', () => {
+  addons.add('Ethereal Engine', {
+    title: 'Ethereal Engine',
+    type: types.PANEL, // TAB, PANEL, TOOL, TOOLEXTRA, PREVIEW, NOTES_ELEMENT
     match: ({ viewMode }) => !!(viewMode && viewMode.match(/^(story|docs)$/)),
     render: ({ active }: RenderOptions) => {
-      const [globals, updateGlobals] = useGlobals()
-      return <SystemStatus active={active} />
+      // const [globals, updateGlobals] = useGlobals()
+      return <SystemStatus />
     }
   })
 })

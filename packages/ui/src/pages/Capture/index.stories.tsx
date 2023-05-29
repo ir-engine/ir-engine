@@ -106,7 +106,9 @@ const decorators = [
           setFetchedProjectComponents(true)
           // @ts-ignore
           Engine.instance.api
+            // @ts-ignore
             .service('projects')
+            // @ts-ignore
             .find()
             .then((projects) => {
               loadEngineInjection(projects).then((result) => {
