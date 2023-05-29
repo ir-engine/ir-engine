@@ -1,9 +1,9 @@
 import appRootPath from 'app-root-path'
 
 /* eslint-disable @typescript-eslint/no-var-requires */
-const dotenv = require('dotenv-flow')
-const cli = require('cli')
-const Sequelize = require('sequelize')
+import dotenv from 'dotenv-flow'
+import cli from 'cli'
+import Sequelize from 'sequelize'
 
 dotenv.config({
   path: appRootPath.path,
@@ -16,7 +16,8 @@ const db = {
   database: process.env.MYSQL_DATABASE ?? 'etherealengine',
   host: process.env.MYSQL_HOST ?? '127.0.0.1',
   port: process.env.MYSQL_PORT ?? 3306,
-  dialect: 'mysql'
+  dialect: 'mysql',
+  url: ''
 }
 
 db.url = process.env.MYSQL_URL ?? `mysql://${db.username}:${db.password}@${db.host}:${db.port}/${db.database}`
