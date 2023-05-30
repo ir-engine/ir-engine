@@ -23,7 +23,7 @@ import {
 import { GroupComponent } from '@etherealengine/engine/src/scene/components/GroupComponent'
 import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
 import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
-import { dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
+import { dispatchAction, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
 import { Checkbox } from '@mui/material'
 import MenuItem from '@mui/material/MenuItem'
@@ -35,8 +35,8 @@ import { addMediaNode } from '../../functions/addMediaNode'
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
 import { isAncestor } from '../../functions/getDetachedObjectsRoots'
 import { cmdOrCtrlString } from '../../functions/utils'
-import { EditorAction, useEditorState } from '../../services/EditorServices'
-import { accessSelectionState, useSelectionState } from '../../services/SelectionServices'
+import { EditorAction, EditorState } from '../../services/EditorServices'
+import { SelectionState } from '../../services/SelectionServices'
 import useUpload from '../assets/useUpload'
 import { addPrefabElement } from '../element/ElementList'
 import { ContextMenu } from '../layout/ContextMenu'
@@ -88,7 +88,7 @@ function getModelNodesFromTreeWalker(
 ): HeirarchyTreeNodeType[] {
   const outputNodes = [] as HeirarchyTreeNodeType[]
   const selected = new Set(
-    accessSelectionState().value.selectedEntities.filter((ent) => typeof ent === 'string') as string[]
+    getState(SelectionState).selectedEntities.filter((ent) => typeof ent === 'string') as string[]
   )
   for (const node of inputNodes) {
     outputNodes.push(node)
@@ -137,15 +137,15 @@ export default function HierarchyPanel({
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null)
   const open = Boolean(anchorEl)
   const onUpload = useUpload(uploadOptions)
-  const selectionState = useSelectionState()
+  const selectionState = useHookstate(getMutableState(SelectionState))
   const [renamingNode, setRenamingNode] = useState<RenameNodeData | null>(null)
   const [collapsedNodes, setCollapsedNodes] = useState<HeirarchyTreeCollapsedNodeType>({})
   const [nodes, setNodes] = useState<HeirarchyTreeNodeType[]>([])
   const nodeSearch: HeirarchyTreeNodeType[] = []
   const [selectedNode, _setSelectedNode] = useState<HeirarchyTreeNodeType | null>(null)
-  const editorState = useEditorState()
+  const editorState = useHookstate(getMutableState(EditorState))
   const { searchHierarchy } = useContext(AppContext)
-  const showObject3DInHierarchy = useEditorState().showObject3DInHierarchy
+  const showObject3DInHierarchy = editorState.showObject3DInHierarchy
 
   const MemoTreeNode = memo(
     (props: HierarchyTreeNodeProps) => <HierarchyTreeNode {...props} onContextMenu={onContextMenu} />,
@@ -457,33 +457,30 @@ export default function HierarchyPanel({
     }
   })
 
-  const HierarchyList = //useCallback(
-    ({ height, width }) => (
-      <FixedSizeList
-        height={height}
-        width={width}
-        itemSize={32}
-        itemCount={nodeSearch?.length > 0 ? nodeSearch.length : nodes.length}
-        itemData={{
-          renamingNode,
-          nodes: nodeSearch?.length > 0 ? nodeSearch : nodes,
-          onKeyDown,
-          onChangeName,
-          onRenameSubmit,
-          onMouseDown,
-          onClick,
-          onToggle,
-          onUpload
-        }}
-        itemKey={getNodeKey}
-        outerRef={treeContainerDropTarget}
-        innerElementType="ul"
-      >
-        {MemoTreeNode}
-      </FixedSizeList>
-    ) //,
-  //[editorState.advancedMode, editorState.projectLoaded, collapsedNodes, showObject3DInHierarchy, selectedNode, updateNodeHierarchy]
-  //)
+  const HierarchyList = ({ height, width }) => (
+    <FixedSizeList
+      height={height}
+      width={width}
+      itemSize={32}
+      itemCount={nodeSearch?.length > 0 ? nodeSearch.length : nodes.length}
+      itemData={{
+        renamingNode,
+        nodes: nodeSearch?.length > 0 ? nodeSearch : nodes,
+        onKeyDown,
+        onChangeName,
+        onRenameSubmit,
+        onMouseDown,
+        onClick,
+        onToggle,
+        onUpload
+      }}
+      itemKey={getNodeKey}
+      outerRef={treeContainerDropTarget}
+      innerElementType="ul"
+    >
+      {MemoTreeNode}
+    </FixedSizeList>
+  )
 
   return (
     <>

@@ -55,11 +55,11 @@ export default (app: Application) => {
 
   ;(instance as any).associate = (models: any): void => {
     ;(instance as any).belongsTo(models.location, { foreignKey: { allowNull: true } })
-    ;(instance as any).hasMany(models.user, { foreignKey: { allowNull: true } })
     ;(instance as any).hasOne(models.instanceserver_subdomain_provision, { foreignKey: { allowNull: true } })
     ;(instance as any).hasMany(models.bot, { foreignKey: { allowNull: true } })
-    ;(instance as any).belongsToMany(models.user, { as: 'instanceAuthorizedUser', through: 'instance_authorized_user' })
+    ;(instance as any).belongsToMany(models.user, { through: 'instance_authorized_user' })
     ;(instance as any).hasMany(models.instance_authorized_user, { foreignKey: { allowNull: false } })
+    ;(instance as any).hasMany(models.user_kick, { onDelete: 'cascade' })
   }
   return instance
 }

@@ -1,3 +1,5 @@
+import { PassThrough } from 'stream'
+
 import { FileContentType } from '@etherealengine/common/src/interfaces/FileContentType'
 
 /**
@@ -30,6 +32,10 @@ export interface StorageObjectInterface {
   ContentEncoding?: string
 
   Metadata?: object
+}
+
+export interface StorageObjectPutInterface extends Omit<StorageObjectInterface, 'Body'> {
+  Body: Buffer | PassThrough
 }
 
 /**
@@ -124,6 +130,7 @@ export interface BlobStore {
  * Storage provide interface to provide template for storage handling capabilities.
  */
 export interface StorageProviderInterface {
+  provider?: any
   /**
    * Domain address of cache.
    */
@@ -223,5 +230,5 @@ export interface StorageProviderInterface {
    * @param object Storage object to be added.
    * @param params Parameters of the add request.
    */
-  putObject(object: StorageObjectInterface, params?: PutObjectParams): Promise<any>
+  putObject(object: StorageObjectPutInterface, params?: PutObjectParams): Promise<any>
 }

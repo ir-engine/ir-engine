@@ -18,7 +18,7 @@ import {
 import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
 import { AssetLoader } from '../../assets/classes/AssetLoader'
-import { isClient } from '../../common/functions/isClient'
+import { isClient } from '../../common/functions/getEnvironment'
 import { SceneState } from '../../ecs/classes/Scene'
 import {
   defineComponent,
@@ -27,6 +27,7 @@ import {
   useComponent,
   useOptionalComponent
 } from '../../ecs/functions/ComponentFunctions'
+import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { isMobileXRHeadset } from '../../xr/XRState'
 import { EnvMapSourceType, EnvMapTextureType } from '../constants/EnvMapEnum'
 import { getPmremGenerator, loadCubeMapTexture } from '../constants/Util'
@@ -39,10 +40,12 @@ const tempColor = new Color()
 
 export const EnvmapComponent = defineComponent({
   name: 'EnvmapComponent',
+  jsonID: 'envmap',
   onInit: (entity) => {
     return {
-      type: EnvMapSourceType.None as typeof EnvMapSourceType[keyof typeof EnvMapSourceType],
-      envMapTextureType: EnvMapTextureType.Equirectangular as typeof EnvMapTextureType[keyof typeof EnvMapTextureType],
+      type: EnvMapSourceType.None as (typeof EnvMapSourceType)[keyof typeof EnvMapSourceType],
+      envMapTextureType:
+        EnvMapTextureType.Equirectangular as (typeof EnvMapTextureType)[keyof typeof EnvMapTextureType],
       envMapSourceColor: new Color(0xfff) as Color,
       envMapSourceURL: '',
       envMapIntensity: 1
@@ -50,7 +53,6 @@ export const EnvmapComponent = defineComponent({
   },
 
   onSet: (entity, component, json) => {
-    if (entity === getState(SceneState).sceneEntity) removeComponent(entity, EnvmapComponent)
     if (typeof json?.type === 'string') component.type.set(json.type)
     if (typeof json?.envMapTextureType === 'string') component.envMapTextureType.set(json.envMapTextureType)
     if (typeof json?.envMapSourceColor === 'number') component.envMapSourceColor.set(new Color(json.envMapSourceColor))
@@ -62,14 +64,14 @@ export const EnvmapComponent = defineComponent({
     return {
       type: component.type.value,
       envMapTextureType: component.envMapTextureType.value,
-      envMapSourceColor: component.envMapSourceColor.value.getHex(),
+      envMapSourceColor: component.envMapSourceColor.value,
       envMapSourceURL: component.envMapSourceURL.value,
       envMapIntensity: component.envMapIntensity.value
     }
   },
 
-  reactor: function ({ root }) {
-    const entity = root.entity
+  reactor: function () {
+    const entity = useEntityContext()
     if (!isClient) return null
 
     const component = useComponent(entity, EnvmapComponent)
@@ -185,8 +187,6 @@ export const EnvmapComponent = defineComponent({
 
   errors: ['MISSING_FILE']
 })
-
-export const SCENE_COMPONENT_ENVMAP = 'envmap'
 
 function applyEnvMap(obj3ds: Object3D[], envmap: Texture | null) {
   if (!obj3ds?.length) return

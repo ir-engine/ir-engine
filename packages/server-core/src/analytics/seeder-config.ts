@@ -1,5 +1,5 @@
-import { ServicesSeedConfig } from '@etherealengine/common/src/interfaces/ServicesSeedConfig'
+import { KnexSeed } from '@etherealengine/common/src/interfaces/KnexSeed'
 
-import { analyticsSeedData } from './analytics/analytics.seed'
+import * as analyticsSeed from './analytics/analytics.seed'
 
-export const analyticsSeeds: Array<ServicesSeedConfig> = [analyticsSeedData]
+export const analyticsSeeds: Array<KnexSeed> = [analyticsSeed]

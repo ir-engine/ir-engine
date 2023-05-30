@@ -7,7 +7,7 @@ import { StaticResourceInterface } from '@etherealengine/common/src/interfaces/S
 import { destroyEngine } from '@etherealengine/engine/src/ecs/classes/Engine'
 
 import { Application } from '../../../declarations'
-import { createFeathersExpressApp } from '../../createApp'
+import { createFeathersKoaApp } from '../../createApp'
 import LocalStorage from '../storageprovider/local.storage'
 import { getStorageProvider } from '../storageprovider/storageprovider'
 import { projectsRootFolder } from './file-browser.class'
@@ -20,7 +20,7 @@ let STORAGE_ROOT = ''
 describe('file browser service', () => {
   let app: Application
   before(async () => {
-    app = createFeathersExpressApp()
+    app = createFeathersKoaApp()
     await app.setup()
 
     STORAGE_ROOT = (getStorageProvider() as LocalStorage).PATH_PREFIX

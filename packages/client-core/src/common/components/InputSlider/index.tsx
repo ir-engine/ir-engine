@@ -1,8 +1,8 @@
 import React from 'react'
 
 import Text from '@etherealengine/client-core/src/common/components/Text'
-import Box from '@etherealengine/ui/src/Box'
-import Slider from '@etherealengine/ui/src/Slider'
+import Box from '@etherealengine/ui/src/primitives/mui/Box'
+import Slider from '@etherealengine/ui/src/primitives/mui/Slider'
 
 import { SxProps, Theme } from '@mui/material/styles'
 

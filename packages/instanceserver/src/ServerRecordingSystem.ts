@@ -1,15 +1,18 @@
 import { decode, encode } from 'msgpackr'
+import { PassThrough } from 'stream'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { RecordingResult } from '@etherealengine/common/src/interfaces/Recording'
+import { StaticResourceInterface } from '@etherealengine/common/src/interfaces/StaticResourceInterface'
 import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 import multiLogger from '@etherealengine/common/src/logger'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { ECSRecordingActions } from '@etherealengine/engine/src/ecs/ECSRecording'
 import { ECSDeserializer, ECSSerialization, ECSSerializer } from '@etherealengine/engine/src/ecs/ECSSerializerSystem'
 import { getComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
-import { removeEntity } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
+import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import { DataChannelType, Network } from '@etherealengine/engine/src/networking/classes/Network'
 import { NetworkObjectComponent } from '@etherealengine/engine/src/networking/components/NetworkObjectComponent'
 import { WorldNetworkAction } from '@etherealengine/engine/src/networking/functions/WorldNetworkAction'
@@ -25,12 +28,14 @@ import {
 } from '@etherealengine/engine/src/networking/NetworkState'
 import { SerializationSchema } from '@etherealengine/engine/src/networking/serialization/Utils'
 import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
-import { createActionQueue, dispatchAction, getState, removeActionQueue } from '@etherealengine/hyperflux'
+import { defineActionQueue, dispatchAction, getState } from '@etherealengine/hyperflux'
 import { Application } from '@etherealengine/server-core/declarations'
 import { checkScope } from '@etherealengine/server-core/src/hooks/verify-scope'
 import { getStorageProvider } from '@etherealengine/server-core/src/media/storageprovider/storageprovider'
 import { StorageObjectInterface } from '@etherealengine/server-core/src/media/storageprovider/storageprovider.interface'
+import { createStaticResourceHash } from '@etherealengine/server-core/src/media/upload-asset/upload-asset.service'
 
+import { startMediaRecording } from './MediaRecordingFunctions'
 import { getServerNetwork, SocketWebRTCServerNetwork } from './SocketWebRTCServerFunctions'
 import { createOutgoingDataProducer } from './WebRTCFunctions'
 
@@ -40,7 +45,7 @@ interface ActiveRecording {
   userID: UserId
   serializer?: ECSSerializer
   dataChannelRecorder?: any // todo
-  mediaChannelRecorder?: any // todo
+  mediaChannelRecorder?: Awaited<ReturnType<typeof startMediaRecording>>
 }
 
 interface ActivePlayback {
@@ -59,8 +64,44 @@ export const activeRecordings = new Map<string, ActiveRecording>()
 export const activePlaybacks = new Map<string, ActivePlayback>()
 
 export const dispatchError = (error: string, targetUser: UserId) => {
-  const app = Engine.instance.api as Application as Application
+  const app = Engine.instance.api as Application
+  logger.error('Recording Error: ' + error)
   dispatchAction(ECSRecordingActions.error({ error, $to: targetUser, $topic: getServerNetwork(app).topic }))
+}
+
+export const uploadRecordingStaticResource = async (props: {
+  recordingID: string
+  key: string
+  body: Buffer | PassThrough
+  mimeType: string
+  staticResourceType: string
+  hash: string
+}) => {
+  const app = Engine.instance.api as Application
+  const storageProvider = getStorageProvider()
+
+  const upload = await storageProvider.putObject({
+    Key: props.key,
+    Body: props.body,
+    ContentType: props.mimeType
+  })
+
+  const staticResource = (await app.service('static-resource').create(
+    {
+      hash: props.hash,
+      key: props.key,
+      mimeType: props.mimeType,
+      staticResourceType: props.staticResourceType
+    },
+    { isInternal: true }
+  )) as StaticResourceInterface
+
+  await app.service('recording-resource').create({
+    staticResourceId: staticResource.id,
+    recordingId: props.recordingID
+  })
+
+  return upload
 }
 
 const mediaDataChannels = [
@@ -71,7 +112,9 @@ const mediaDataChannels = [
 ]
 
 export const onStartRecording = async (action: ReturnType<typeof ECSRecordingActions.startRecording>) => {
-  const app = Engine.instance.api as Application as Application
+  const app = Engine.instance.api as Application
+
+  console.log('onStartRecording', action)
 
   const recording = await app.service('recording').get(action.recordingID)
   if (!recording) return dispatchError('Recording not found', action.$from)
@@ -99,7 +142,7 @@ export const onStartRecording = async (action: ReturnType<typeof ECSRecordingAct
 
   const startTime = Date.now()
 
-  const chunkLength = Engine.instance.tickRate * 60 // 1 minute
+  const chunkLength = Math.floor((1000 / getState(EngineState).simulationTimestep) * 60) // 1 minute
 
   const dataChannelRecorder = (network: Network, dataChannel: DataChannelType, fromPeerID: PeerID, message: any) => {
     try {
@@ -132,38 +175,33 @@ export const onStartRecording = async (action: ReturnType<typeof ECSRecordingAct
       schema: serializationSchema,
       chunkLength,
       onCommitChunk(chunk, chunkIndex) {
-        storageProvider
-          .putObject(
-            {
-              Key: 'recordings/' + recording.id + '/entities-' + chunkIndex + '.ee',
-              Body: encode(chunk),
-              ContentType: 'application/octet-stream'
-            },
-            {
-              isDirectory: false
-            }
-          )
-          .then(() => {
-            logger.info('Uploaded entities chunk', chunkIndex)
-          })
+        const key = 'recordings/' + recording.id + '/entities-' + chunkIndex + '.ee'
+        const buffer = encode(chunk)
+        uploadRecordingStaticResource({
+          recordingID: recording.id,
+          key,
+          body: buffer,
+          mimeType: 'application/octet-stream',
+          staticResourceType: 'data',
+          hash: createStaticResourceHash(buffer, { assetURL: key })
+        }).then(() => {
+          logger.info('Uploaded entities chunk', chunkIndex)
+        })
 
         for (const [dataChannel, data] of dataChannelsRecording.entries()) {
           if (data.length) {
-            const count = chunkIndex
-            storageProvider
-              .putObject(
-                {
-                  Key: 'recordings/' + recording.id + '/' + dataChannel + '-' + chunkIndex + '.ee',
-                  Body: encode(data),
-                  ContentType: 'application/octet-stream'
-                },
-                {
-                  isDirectory: false
-                }
-              )
-              .then(() => {
-                logger.info('Uploaded raw chunk', count)
-              })
+            const key = 'recordings/' + recording.id + '/' + dataChannel + '-' + chunkIndex + '.ee'
+            const buffer = encode(data)
+            uploadRecordingStaticResource({
+              recordingID: recording.id,
+              key,
+              body: buffer,
+              mimeType: 'application/octet-stream',
+              staticResourceType: 'data',
+              hash: createStaticResourceHash(buffer, { assetURL: key })
+            }).then(() => {
+              logger.info('Uploaded raw chunk', chunkIndex)
+            })
           }
           dataChannelsRecording.set(dataChannel, [])
         }
@@ -184,11 +222,12 @@ export const onStartRecording = async (action: ReturnType<typeof ECSRecordingAct
   if (Engine.instance.mediaNetwork) {
     const dataChannelSchema = schema
       .filter((component: DataChannelType) => mediaDataChannels.includes(component))
-      .filter(Boolean)
+      .filter(Boolean) as DataChannelType[]
 
-    for (const dataChannel of dataChannelSchema) {
-      /** @todo */
-    }
+    const mediaRecorder = await startMediaRecording(recording.id, userID, dataChannelSchema)
+
+    activeRecording.mediaChannelRecorder = mediaRecorder
+    console.log('media recording started')
   }
 
   activeRecordings.set(recording.id, activeRecording)
@@ -226,6 +265,10 @@ export const onStopRecording = async (action: ReturnType<typeof ECSRecordingActi
       .filter((component: DataChannelType) => mediaDataChannels.includes(component))
       .filter(Boolean)
 
+    await Promise.all([
+      ...activeRecording.mediaChannelRecorder.recordings.map((recording) => recording.stopRecording()),
+      ...activeRecording.mediaChannelRecorder.activeUploads
+    ])
     // stop recording data channel
   }
 
@@ -244,7 +287,7 @@ export const onStopRecording = async (action: ReturnType<typeof ECSRecordingActi
 export const onStartPlayback = async (action: ReturnType<typeof ECSRecordingActions.startPlayback>) => {
   const app = Engine.instance.api as Application
 
-  const recording = (await app.service('recording').get(action.recordingID)) as RecordingResult
+  const recording = (await app.service('recording').get(action.recordingID, { internal: true })) as RecordingResult
 
   const isClone = !action.targetUser
 
@@ -258,6 +301,8 @@ export const onStartPlayback = async (action: ReturnType<typeof ECSRecordingActi
   const hasScopes = await checkScope(user, app, 'recording', 'read')
   if (!hasScopes) return dispatchError('User does not have record:read scope', recording.userId)
 
+  if (!recording.resources?.length) return dispatchError('Recording has no resources', recording.userId)
+
   const schema = JSON.parse(recording.schema) as string[]
 
   const activePlayback = {
@@ -266,13 +311,15 @@ export const onStartPlayback = async (action: ReturnType<typeof ECSRecordingActi
 
   const storageProvider = getStorageProvider()
 
-  const files = await storageProvider.listObjects('recordings/' + action.recordingID + '/', true)
+  const entityFiles = recording.resources.filter((key) => key.includes('entities-'))
 
-  const entityFiles = files.Contents.filter((file) => file.Key.includes('entities-'))
+  const rawFiles = recording.resources.filter(
+    (key) => !key.includes('entities-') && key.substring(key.length - 3, key.length) === '.ee'
+  )
 
-  const rawFiles = files.Contents.filter((file) => !file.Key.includes('entities-'))
+  const mediaFiles = recording.resources.filter((key) => key.substring(key.length - 3, key.length) !== '.ee')
 
-  const entityChunks = (await Promise.all(entityFiles.map((file) => storageProvider.getObject(file.Key)))).map((data) =>
+  const entityChunks = (await Promise.all(entityFiles.map((key) => storageProvider.getObject(key)))).map((data) =>
     decode(data.Body)
   )
 
@@ -280,9 +327,9 @@ export const onStartPlayback = async (action: ReturnType<typeof ECSRecordingActi
 
   await Promise.all(
     rawFiles.map(async (file) => {
-      const dataChannel = file.Key.split('/')[2].split('-')[0] as DataChannelType
+      const dataChannel = file.split('/')[2].split('-')[0] as DataChannelType
       if (!dataChannelChunks.has(dataChannel)) dataChannelChunks.set(dataChannel, [])
-      const data = await storageProvider.getObject(file.Key)
+      const data = await storageProvider.getObject(file)
       dataChannelChunks.get(dataChannel)!.push(decode(data.Body))
     })
   )
@@ -304,12 +351,12 @@ export const onStartPlayback = async (action: ReturnType<typeof ECSRecordingActi
             // override entity ID such that it is actually unique, by appendig the recording id
             const entityID = (uuid + '_' + recording.id) as UserId
             entityChunks[chunkIndex].entities[i] = entityID
-            if (!UUIDComponent.entitiesByUUID.value[entityID]) {
+            if (!UUIDComponent.entitiesByUUID[entityID]) {
               app
                 .service('user')
                 .get(uuid)
                 .then((user) => {
-                  if (user && !UUIDComponent.entitiesByUUID.value[entityID]) {
+                  if (user && !UUIDComponent.entitiesByUUID[entityID]) {
                     dispatchAction(
                       WorldNetworkAction.spawnAvatar({
                         uuid: entityID
@@ -395,7 +442,7 @@ const playbackStopped = (userId: UserId, recordingID: string) => {
   const activePlayback = activePlaybacks.get(recordingID)!
 
   for (const entityUUID of activePlayback.entitiesSpawned) {
-    const entity = UUIDComponent.entitiesByUUID.value[entityUUID]
+    const entity = UUIDComponent.entitiesByUUID[entityUUID]
     const networkObject = getComponent(entity, NetworkObjectComponent)
     dispatchAction(
       WorldNetworkAction.destroyObject({
@@ -448,47 +495,40 @@ export const removeDataChannelToReplay = (userId: UserId) => {
   dataChannelToReplay.delete(userId)
 }
 
-export default async function ServerRecordingSystem() {
-  const startRecordingActionQueue = createActionQueue(ECSRecordingActions.startRecording.matches)
-  const stopRecordingActionQueue = createActionQueue(ECSRecordingActions.stopRecording.matches)
-  const startPlaybackActionQueue = createActionQueue(ECSRecordingActions.startPlayback.matches)
-  const stopPlaybackActionQueue = createActionQueue(ECSRecordingActions.stopPlayback.matches)
+const startRecordingActionQueue = defineActionQueue(ECSRecordingActions.startRecording.matches)
+const stopRecordingActionQueue = defineActionQueue(ECSRecordingActions.stopRecording.matches)
+const startPlaybackActionQueue = defineActionQueue(ECSRecordingActions.startPlayback.matches)
+const stopPlaybackActionQueue = defineActionQueue(ECSRecordingActions.stopPlayback.matches)
+
+const execute = () => {
+  for (const action of startRecordingActionQueue()) onStartRecording(action)
+  for (const action of stopRecordingActionQueue()) onStopRecording(action)
+
+  for (const action of startPlaybackActionQueue()) onStartPlayback(action)
+  for (const action of stopPlaybackActionQueue()) onStopPlayback(action)
+
+  // todo - only set deserializer.active to true once avatar spawns, if clone mode
 
   const app = Engine.instance.api as Application
+  const network = getServerNetwork(app)
 
-  const execute = () => {
-    for (const action of startRecordingActionQueue()) onStartRecording(action)
-    for (const action of stopRecordingActionQueue()) onStopRecording(action)
-
-    for (const action of startPlaybackActionQueue()) onStartPlayback(action)
-    for (const action of stopPlaybackActionQueue()) onStopPlayback(action)
-
-    // todo - only set deserializer.active to true once avatar spawns, if clone mode
-
-    const network = getServerNetwork(app)
-
-    for (const [userId, userMap] of dataChannelToReplay) {
-      if (network.users.has(userId))
-        for (const [dataChannel, chunk] of userMap) {
-          for (const frame of chunk.frames) {
-            if (frame.timecode > Date.now() - chunk.startTime) {
-              network.transport.bufferToAll(dataChannel, encode(frame.data))
-              // for (const peerID of network.users.get(userId)!) {
-              //   network.transport.bufferToPeer(dataChannel, peerID, encode(frame.data))
-              // }
-              break
-            }
+  for (const [userId, userMap] of dataChannelToReplay) {
+    if (network.users.has(userId))
+      for (const [dataChannel, chunk] of userMap) {
+        for (const frame of chunk.frames) {
+          if (frame.timecode > Date.now() - chunk.startTime) {
+            network.transport.bufferToAll(dataChannel, encode(frame.data))
+            // for (const peerID of network.users.get(userId)!) {
+            //   network.transport.bufferToPeer(dataChannel, peerID, encode(frame.data))
+            // }
+            break
           }
         }
-    }
+      }
   }
-
-  const cleanup = async () => {
-    removeActionQueue(startRecordingActionQueue)
-    removeActionQueue(stopRecordingActionQueue)
-    removeActionQueue(startPlaybackActionQueue)
-    removeActionQueue(stopPlaybackActionQueue)
-  }
-
-  return { execute, cleanup }
 }
+
+export const ServerRecordingSystem = defineSystem({
+  uuid: 'ee.engine.ServerRecordingSystem',
+  execute
+})

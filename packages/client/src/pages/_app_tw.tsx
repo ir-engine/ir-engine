@@ -19,13 +19,9 @@ import {
   NotificationAction,
   NotificationActions
 } from '@etherealengine/client-core/src/common/services/NotificationService'
-import {
-  OEmbedService,
-  OEmbedServiceReceptor,
-  useOEmbedState
-} from '@etherealengine/client-core/src/common/services/OEmbedService'
-import { ProjectService, useProjectState } from '@etherealengine/client-core/src/common/services/ProjectService'
-import { useAuthState } from '@etherealengine/client-core/src/user/services/AuthService'
+import { ProjectService, ProjectState } from '@etherealengine/client-core/src/common/services/ProjectService'
+import Debug from '@etherealengine/client-core/src/components/Debug'
+import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
 import config from '@etherealengine/common/src/config'
 import { AudioEffectPlayer } from '@etherealengine/engine/src/audio/systems/MediaSystem'
 import { matches } from '@etherealengine/engine/src/common/functions/MatchesUtils'
@@ -39,7 +35,7 @@ import { ThemeContextProvider } from '../themes/themeContext'
 
 const AppPage = () => {
   const notistackRef = useRef<SnackbarProvider>()
-  const authState = useAuthState()
+  const authState = useHookstate(getMutableState(AuthState))
   const selfUser = authState.user
   const clientSettingState = useHookstate(getMutableState(AdminClientSettingsState))
   const coilSettingState = useHookstate(getMutableState(AdminCoilSettingsState))
@@ -51,10 +47,7 @@ const AppPage = () => {
   const [description, setDescription] = useState(clientSetting?.siteDescription)
   const [projectComponents, setProjectComponents] = useState<Array<any>>([])
   const [fetchedProjectComponents, setFetchedProjectComponents] = useState(false)
-  const projectState = useProjectState()
-  const oEmbedState = useOEmbedState()
-  const pathname = oEmbedState.pathname.value
-  const oEmbed = oEmbedState.oEmbed
+  const projectState = useHookstate(getMutableState(ProjectState))
 
   const initApp = useCallback(() => {
     initGA()
@@ -63,6 +56,7 @@ const AppPage = () => {
 
   useEffect(() => {
     const receptor = (action): any => {
+      // @ts-ignore
       matches(action).when(NotificationAction.notify.matches, (action) => {
         AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.alert, 0.5)
         notistackRef.current?.enqueueSnackbar(action.message, {
@@ -72,11 +66,9 @@ const AppPage = () => {
       })
     }
     addActionReceptor(receptor)
-    addActionReceptor(OEmbedServiceReceptor)
 
     return () => {
       removeActionReceptor(receptor)
-      removeActionReceptor(OEmbedServiceReceptor)
     }
   }, [])
 
@@ -124,61 +116,8 @@ const AppPage = () => {
     if (clientSettingState?.updateNeeded?.value) ClientSettingService.fetchClientSettings()
   }, [clientSettingState?.updateNeeded?.value])
 
-  const location = useLocation()
-  const oembedLink = `${config.client.serverUrl}/oembed?url=${encodeURIComponent(
-    `${config.client.clientUrl}${location.pathname}`
-  )}&format=json`
-
-  useEffect(() => {
-    if (pathname !== location.pathname) {
-      OEmbedService.fetchData(location.pathname, `${config.client.clientUrl}${location.pathname}`)
-    }
-  }, [location.pathname])
-
   return (
     <>
-      <MetaTags>
-        {oembedLink && <link href={oembedLink} type="application/json+oembed" rel="alternate" title="Cool Pants" />}
-        {oEmbed.value && pathname === location.pathname ? (
-          <>
-            <title>{oEmbed.value.title}</title>
-            <meta name="description" content={oEmbed.value.description} />
-
-            <meta property="og:type" content="website" />
-            <meta property="og:url" content={oEmbed.value.query_url} />
-            <meta property="og:title" content={oEmbed.value.title} />
-            <meta property="og:description" content={oEmbed.value.description} />
-            <meta
-              property="og:image"
-              content={oEmbed.value.url ? oEmbed.value.url : `${oEmbed.value.provider_url}/static/etherealengine.png`}
-            />
-
-            <meta name="twitter:card" content="summary_large_image" />
-            <meta name="twitter:domain" content={oEmbed.value.provider_url?.replace('https://', '')} />
-            <meta name="twitter:title" content={oEmbed.value.title} />
-            <meta name="twitter:description" content={oEmbed.value.description} />
-            <meta
-              property="twitter:image"
-              content={oEmbed.value.url ? oEmbed.value.url : `${oEmbed.value.provider_url}/static/etherealengine.png`}
-            />
-            <meta name="twitter:url" content={oEmbed.value.query_url} />
-            <link href="/dist/index.css" rel="stylesheet" />
-          </>
-        ) : (
-          <>
-            <title>{ctitle}</title>
-            {description && <meta name="description" content={description} data-rh="true" />}
-          </>
-        )}
-
-        {paymentPointer && <meta name="monetization" content={paymentPointer} />}
-        <meta
-          name="viewport"
-          content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=0, shrink-to-fit=no"
-        />
-        {favicon16 && <link rel="icon" type="image/png" sizes="16x16" href={favicon16} />}
-        {favicon32 && <link rel="icon" type="image/png" sizes="32x32" href={favicon32} />}
-      </MetaTags>
       <div className="w-full h-full container mx-auto overflow-y-scroll pointer-events-auto">
         <CaptureComp />
       </div>
@@ -194,6 +133,7 @@ const TailwindPage = () => {
     <EngineTW>
       <ThemeContextProvider>
         <AppPage />
+        <Debug />
       </ThemeContextProvider>
     </EngineTW>
   )

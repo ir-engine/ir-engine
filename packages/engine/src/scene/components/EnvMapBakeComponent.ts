@@ -18,6 +18,7 @@ import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { SceneState } from '../../ecs/classes/Scene'
 import { defineComponent, getComponent, hasComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
+import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { EntityTreeComponent, traverseEntityNode } from '../../ecs/functions/EntityTree'
 import { RendererState } from '../../renderer/RendererState'
 import { ObjectLayers } from '../constants/ObjectLayers'
@@ -28,6 +29,7 @@ import { addObjectToGroup, GroupComponent, removeObjectFromGroup } from './Group
 
 export const EnvMapBakeComponent = defineComponent({
   name: 'EnvMapBakeComponent',
+  jsonID: 'envmapbake',
 
   onInit: (entity) => {
     return {
@@ -74,14 +76,15 @@ export const EnvMapBakeComponent = defineComponent({
     if (component.helper.value) removeObjectFromGroup(entity, component.helper.value)
   },
 
-  reactor: function ({ root }) {
+  reactor: function () {
+    const entity = useEntityContext()
     const debugEnabled = useHookstate(getMutableState(RendererState).nodeHelperVisibility)
-    const bake = useComponent(root.entity, EnvMapBakeComponent)
+    const bake = useComponent(entity, EnvMapBakeComponent)
 
     useEffect(() => {
       if (debugEnabled.value && !bake.helper.value) {
         const helper = new Object3D()
-        helper.name = `envmap-bake-helper-${root.entity}`
+        helper.name = `envmap-bake-helper-${entity}`
 
         const centerBall = new Mesh(new SphereGeometry(0.75), new MeshPhysicalMaterial({ roughness: 0, metalness: 1 }))
         helper.add(centerBall)
@@ -90,7 +93,7 @@ export const EnvMapBakeComponent = defineComponent({
         helper.add(gizmo)
 
         setObjectLayers(helper, ObjectLayers.NodeHelper)
-        addObjectToGroup(root.entity, helper)
+        addObjectToGroup(entity, helper)
 
         bake.helper.set(helper)
         bake.helperBall.set(centerBall)
@@ -98,7 +101,7 @@ export const EnvMapBakeComponent = defineComponent({
       }
 
       if (!debugEnabled.value && bake.helper.value) {
-        removeObjectFromGroup(root.entity, bake.helper.value)
+        removeObjectFromGroup(entity, bake.helper.value)
         bake.helper.set(none)
       }
     }, [debugEnabled])
@@ -106,8 +109,6 @@ export const EnvMapBakeComponent = defineComponent({
     return null
   }
 })
-
-export const SCENE_COMPONENT_ENVMAP_BAKE = 'envmapbake'
 
 export const prepareSceneForBake = (): Scene => {
   const scene = Engine.instance.scene.clone(false)

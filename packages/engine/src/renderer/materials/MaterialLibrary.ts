@@ -1,14 +1,7 @@
 import { Material } from 'three'
 import matches, { Validator } from 'ts-matches'
 
-import {
-  defineAction,
-  defineState,
-  dispatchAction,
-  getMutableState,
-  StateDefinition,
-  useState
-} from '@etherealengine/hyperflux'
+import { defineAction, defineState, getMutableState, getState, StateDefinition } from '@etherealengine/hyperflux'
 
 import { MaterialComponentType } from './components/MaterialComponent'
 import { MaterialPrototypeComponentType } from './components/MaterialPrototypeComponent'
@@ -28,6 +21,7 @@ export type MaterialLibraryType = {
   prototypes: Record<string, MaterialPrototypeComponentType>
   materials: Record<string, MaterialComponentType>
   sources: Record<string, MaterialSourceComponentType>
+  initialized: boolean
 }
 
 export const MaterialLibraryState: StateDefinition<MaterialLibraryType> = defineState({
@@ -35,13 +29,10 @@ export const MaterialLibraryState: StateDefinition<MaterialLibraryType> = define
   initial: {
     prototypes: {},
     materials: {},
-    sources: {}
+    sources: {},
+    initialized: false
   } as MaterialLibraryType
 })
-/**@deprecated use getMutableState directly instead */
-export const getMaterialLibrary = () => getMutableState(MaterialLibraryState)
-/**@deprecated use useHookstate(getMutableState(...) directly instead */
-export const useMaterialLibrary = () => useState(getMaterialLibrary())
 
 export const MaterialLibraryActions = {
   RegisterMaterial: defineAction({
@@ -61,15 +52,19 @@ export const MaterialLibraryActions = {
 
 export function initializeMaterialLibrary() {
   //load default prototypes from source
-  ;[
-    MeshBasicMaterial,
-    MeshStandardMaterial,
-    MeshMatcapMaterial,
-    MeshPhysicalMaterial,
-    MeshLambertMaterial,
-    MeshPhongMaterial,
-    MeshToonMaterial,
-    ShaderMaterial,
-    ShadowMaterial
-  ].map(registerMaterialPrototype)
+  const materialLibrary = getState(MaterialLibraryState)
+  if (!materialLibrary.initialized) {
+    ;[
+      MeshBasicMaterial,
+      MeshStandardMaterial,
+      MeshMatcapMaterial,
+      MeshPhysicalMaterial,
+      MeshLambertMaterial,
+      MeshPhongMaterial,
+      MeshToonMaterial,
+      ShaderMaterial,
+      ShadowMaterial
+    ].map(registerMaterialPrototype)
+    getMutableState(MaterialLibraryState).initialized.set(true)
+  }
 }

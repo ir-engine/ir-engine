@@ -30,7 +30,6 @@ import {
   AdminCoilSettingsState
 } from '@etherealengine/client-core/src/admin/services/Setting/CoilSettingService'
 import { API } from '@etherealengine/client-core/src/API'
-import UIDialog from '@etherealengine/client-core/src/common/components/UIDialog'
 import {
   AppThemeServiceReceptor,
   AppThemeState,
@@ -42,11 +41,6 @@ import {
   NotificationAction,
   NotificationActions
 } from '@etherealengine/client-core/src/common/services/NotificationService'
-import {
-  OEmbedService,
-  OEmbedServiceReceptor,
-  OEmbedState
-} from '@etherealengine/client-core/src/common/services/OEmbedService'
 import Debug from '@etherealengine/client-core/src/components/Debug'
 import config from '@etherealengine/common/src/config'
 import { AudioEffectPlayer } from '@etherealengine/engine/src/audio/systems/MediaSystem'
@@ -79,9 +73,6 @@ const AdminPage = (): any => {
   const projectComponents = useHookstate<Array<any>>([])
   const fetchedProjectComponents = useHookstate(false)
   const projectState = useHookstate(getMutableState(ProjectState))
-  const oEmbedState = useHookstate(getMutableState(OEmbedState))
-  const pathname = oEmbedState.pathname.value
-  const oEmbed = oEmbedState.oEmbed
 
   const initApp = useCallback(() => {
     initGA()
@@ -100,12 +91,10 @@ const AdminPage = (): any => {
       })
     }
     addActionReceptor(receptor)
-    addActionReceptor(OEmbedServiceReceptor)
     addActionReceptor(AppThemeServiceReceptor)
 
     return () => {
       removeActionReceptor(receptor)
-      removeActionReceptor(OEmbedServiceReceptor)
       removeActionReceptor(AppThemeServiceReceptor)
     }
   }, [])
@@ -167,17 +156,6 @@ const AdminPage = (): any => {
     updateTheme()
   }, [clientThemeSettings.value, appTheme.value?.customTheme])
 
-  const location = useLocation()
-  const oembedLink = `${config.client.serverUrl}/oembed?url=${encodeURIComponent(
-    `${config.client.clientUrl}${location.pathname}`
-  )}&format=json`
-
-  useEffect(() => {
-    if (pathname !== location.pathname) {
-      OEmbedService.fetchData(location.pathname, `${config.client.clientUrl}${location.pathname}`)
-    }
-  }, [location.pathname])
-
   const updateTheme = () => {
     const currentThemeName = getAppThemeName()
     const theme = getAppTheme()
@@ -193,51 +171,6 @@ const AdminPage = (): any => {
 
   return (
     <>
-      <MetaTags>
-        {oembedLink && <link href={oembedLink} type="application/json+oembed" rel="alternate" title="Cool Pants" />}
-        {oEmbed.value && pathname === location.pathname ? (
-          <>
-            <title>{oEmbed.value.title}</title>
-            <meta name="description" content={oEmbed.value.description} />
-
-            <meta property="og:type" content="website" />
-            <meta property="og:url" content={oEmbed.value.query_url} />
-            <meta property="og:title" content={oEmbed.value.title} />
-            <meta property="og:description" content={oEmbed.value.description} />
-            <meta
-              property="og:image"
-              content={oEmbed.value.url ? oEmbed.value.url : `${oEmbed.value.provider_url}/static/etherealengine.png`}
-            />
-
-            <meta name="twitter:card" content="summary_large_image" />
-            <meta name="twitter:domain" content={oEmbed.value.provider_url?.replace('https://', '')} />
-            <meta name="twitter:title" content={oEmbed.value.title} />
-            <meta name="twitter:description" content={oEmbed.value.description} />
-            <meta
-              property="twitter:image"
-              content={oEmbed.value.url ? oEmbed.value.url : `${oEmbed.value.provider_url}/static/etherealengine.png`}
-            />
-            <meta name="twitter:url" content={oEmbed.value.query_url} />
-          </>
-        ) : (
-          <>
-            <title>{ctitle.value}</title>
-            {description.value && <meta name="description" content={description.value} data-rh="true" />}
-          </>
-        )}
-
-        {paymentPointer && <meta name="monetization" content={paymentPointer} />}
-        <meta
-          name="viewport"
-          content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=0, shrink-to-fit=no"
-        />
-        <meta
-          name="theme-color"
-          content={clientThemeSettings?.value?.[currentThemeName]?.mainBackground || '#FFFFFF'}
-        />
-        {favicon16.value && <link rel="icon" type="image/png" sizes="16x16" href={favicon16.value} />}
-        {favicon32.value && <link rel="icon" type="image/png" sizes="32x32" href={favicon32.value} />}
-      </MetaTags>
       <StyledEngineProvider injectFirst>
         <ThemeProvider theme={theme}>
           <SnackbarProvider
@@ -249,7 +182,6 @@ const AdminPage = (): any => {
             <GlobalStyle />
             <div style={{ pointerEvents: 'auto' }}>
               <InviteToast />
-              <UIDialog />
               <Debug />
             </div>
             <AdminRouterComp />

@@ -32,7 +32,7 @@ export const WidgetName = {
 export type Widget = {
   ui: ReturnType<typeof createXRUI>
   label: string
-  icon?: any
+  icon?: string
   onOpen?: () => void
   onClose?: () => void
   system?: () => void

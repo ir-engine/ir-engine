@@ -4,8 +4,8 @@ import matches, { Validator } from 'ts-matches'
 import { matchesEntity } from '../../common/functions/MatchesUtils'
 import { Entity } from '../../ecs/classes/Entity'
 import { defineComponent, getComponent, hasComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
-import { EntityReactorProps } from '../../ecs/functions/EntityFunctions'
-import { unloadPrefab } from '../functions/loaders/PrefabComponentFunctions'
+import { useEntityContext } from '../../ecs/functions/EntityFunctions'
+import { loadPrefab, unloadPrefab } from '../functions/loaders/PrefabComponentFunctions'
 
 export enum LoadState {
   UNLOADED = 'unloaded',
@@ -13,10 +13,9 @@ export enum LoadState {
   LOADED = 'loaded'
 }
 
-export const SCENE_COMPONENT_PREFAB = 'prefab'
-
 export const PrefabComponent = defineComponent({
   name: 'PrefabComponent',
+  jsonID: 'prefab',
 
   onInit: (entity) => ({
     src: '',
@@ -28,39 +27,33 @@ export const PrefabComponent = defineComponent({
   onSet: (entity, component, json) => {
     if (!json) return
     matches.boolean.test(json.dirty) && component.dirty.set(json.dirty)
-    ;(matches.string as Validator<unknown, LoadState>).test(json.loaded) && component.loaded.set(json.loaded)
     matches.arrayOf(matchesEntity).test(json.roots) && component.roots.set(json.roots)
     matches.string.test(json.src) && component.src.set(json.src)
   },
 
   toJSON: (entity, component) => {
     return {
-      src: component.src.value,
-      loaded: component.loaded.value
+      src: component.src.value
     }
   },
 
   onRemove: unloadPrefab,
 
-  reactor: function ({ root }: EntityReactorProps) {
-    const entity = root.entity
-    const assembly = getComponent(entity, PrefabComponent)
+  reactor: function () {
+    const entity = useEntityContext()
     const assemblyState = useComponent(entity, PrefabComponent)
 
     useEffect(() => {
-      switch (assembly.loaded) {
-        case LoadState.LOADED:
-        case LoadState.LOADING:
-          assemblyState.dirty.set(true)
-          break
-      }
+      assemblyState.dirty.set(true)
+      loadPrefab(entity),
+        () => {
+          unloadPrefab(entity)
+        }
     }, [assemblyState.src])
 
     useEffect(() => {
-      switch (assembly.loaded) {
-        case LoadState.LOADED:
-        case LoadState.UNLOADED:
-          assemblyState.dirty.set(false)
+      if (assemblyState.loaded.value === LoadState.LOADED) {
+        assemblyState.dirty.set(false)
       }
     }, [assemblyState.loaded])
     return null

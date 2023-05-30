@@ -1,13 +1,10 @@
-import { ComponentMeta, ComponentStory } from '@storybook/react'
-import * as React from 'react'
-
-import LoadingCircle from './index'
+import Component from './index'
 
 const argTypes = {}
 
 export default {
-  title: 'Tailwind/LoadingCircle',
-  component: LoadingCircle,
+  title: 'Primitives/Tailwind/LoadingCircle',
+  component: Component,
   parameters: {
     componentSubtitle: 'LoadingCircle',
     jest: 'LoadingCircle.test.tsx',
@@ -17,9 +14,6 @@ export default {
     }
   },
   argTypes
-} as ComponentMeta<typeof LoadingCircle>
+}
 
-const Template: ComponentStory<typeof LoadingCircle> = (args) => <LoadingCircle {...args} />
-
-export const Default = Template.bind({})
-Default.args = LoadingCircle.defaultProps
+export const Primary = { args: Component.defaultProps }

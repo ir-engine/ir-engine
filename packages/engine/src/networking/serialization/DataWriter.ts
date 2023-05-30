@@ -5,6 +5,7 @@ import { getState } from '@etherealengine/hyperflux'
 
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { Engine } from '../../ecs/classes/Engine'
+import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import { hasComponent } from '../../ecs/functions/ComponentFunctions'
 // import { XRHandsInputComponent } from '../../xr/XRComponents'
@@ -30,8 +31,10 @@ import {
   spaceUint32,
   spaceUint64,
   ViewCursor,
+  writeFloat64,
   writePropIfChanged,
-  writeUint32
+  writeUint32,
+  writeUint64
 } from './ViewCursor'
 
 /**
@@ -40,7 +43,7 @@ import {
  *
  * @param  {any} component
  */
-export const writeComponent = (component: any) => {
+export const writeComponent = (component: any, periodicUnchanged = false) => {
   // todo: test performance of using flatten in the return scope vs this scope
   const props = flatten(component)
 
@@ -53,7 +56,7 @@ export const writeComponent = (component: any) => {
     let changeMask = 0
 
     for (let i = 0; i < props.length; i++) {
-      changeMask |= writePropIfChanged(v, props[i], entity) ? 2 ** i : 0b0
+      changeMask |= writePropIfChanged(v, props[i], entity, periodicUnchanged) ? 2 ** i : 0b0
     }
 
     writeChangeMask(changeMask)
@@ -62,163 +65,171 @@ export const writeComponent = (component: any) => {
   }
 }
 
-export const writeVector3 = (vector3: Vector3SoA) => (v: ViewCursor, entity: Entity) => {
-  const rewind = rewindViewCursor(v)
-  const writeChangeMask = spaceUint8(v)
-  let changeMask = 0
-  let b = 0
+export const writeVector3 =
+  (vector3: Vector3SoA) =>
+  (v: ViewCursor, entity: Entity, ignoredChanged = false) => {
+    const rewind = rewindViewCursor(v)
+    const writeChangeMask = spaceUint8(v)
+    let changeMask = 0
+    let b = 0
 
-  changeMask |= writePropIfChanged(v, vector3.x, entity) ? 1 << b++ : b++ && 0
-  changeMask |= writePropIfChanged(v, vector3.y, entity) ? 1 << b++ : b++ && 0
-  changeMask |= writePropIfChanged(v, vector3.z, entity) ? 1 << b++ : b++ && 0
+    changeMask |= writePropIfChanged(v, vector3.x, entity, ignoredChanged) ? 1 << b++ : b++ && 0
+    changeMask |= writePropIfChanged(v, vector3.y, entity, ignoredChanged) ? 1 << b++ : b++ && 0
+    changeMask |= writePropIfChanged(v, vector3.z, entity, ignoredChanged) ? 1 << b++ : b++ && 0
 
-  return (changeMask > 0 && writeChangeMask(changeMask)) || rewind()
-}
-
-// Writes a compressed Vector3 value to the DataView.
-export const writeCompressedVector3 = (vector3: Vector3SoA) => (v: ViewCursor, entity: Entity) => {
-  const rewind = rewindViewCursor(v)
-  const writeChangeMask = spaceUint8(v)
-  const rewindUptoChageMask = rewindViewCursor(v)
-  let changeMask = 0
-  let b = 0
-
-  changeMask |= writePropIfChanged(v, vector3.x, entity) ? 1 << b++ : b++ && 0
-  changeMask |= writePropIfChanged(v, vector3.y, entity) ? 1 << b++ : b++ && 0
-  changeMask |= writePropIfChanged(v, vector3.z, entity) ? 1 << b++ : b++ && 0
-
-  if (changeMask > 0) {
-    rewindUptoChageMask()
-    let [x, y, z] = [vector3.x[entity], vector3.y[entity], vector3.z[entity]]
-
-    // Since avatar velocity values are too small and precison is lost when quantized
-    let offset_mult = 1
-    if (hasComponent(entity, AvatarComponent)) offset_mult = 100
-
-    x *= VEC3_MAX_RANGE * VEC3_PRECISION_MULT * offset_mult
-    y *= VEC3_MAX_RANGE * VEC3_PRECISION_MULT * offset_mult
-    z *= VEC3_MAX_RANGE * VEC3_PRECISION_MULT * offset_mult
-
-    x = compress(x, 10)
-    y = compress(y, 10)
-    z = compress(z, 10)
-
-    let binaryData = 0
-    binaryData = binaryData | x
-    binaryData = binaryData << 10
-    binaryData = binaryData | y
-    binaryData = binaryData << 10
-    binaryData = binaryData | z
-
-    writeUint32(v, binaryData)
+    return (changeMask > 0 && writeChangeMask(changeMask)) || rewind()
   }
 
-  return (changeMask > 0 && writeChangeMask(changeMask)) || rewind()
-}
+// Writes a compressed Vector3 value to the DataView.
+export const writeCompressedVector3 =
+  (vector3: Vector3SoA) =>
+  (v: ViewCursor, entity: Entity, ignoredChanged = false) => {
+    const rewind = rewindViewCursor(v)
+    const writeChangeMask = spaceUint8(v)
+    const rewindUptoChageMask = rewindViewCursor(v)
+    let changeMask = 0
+    let b = 0
 
-export const writeVector4 = (vector4: Vector4SoA) => (v: ViewCursor, entity: Entity) => {
-  const rewind = rewindViewCursor(v)
-  const writeChangeMask = spaceUint8(v)
-  let changeMask = 0
-  let b = 0
+    changeMask |= writePropIfChanged(v, vector3.x, entity, ignoredChanged) ? 1 << b++ : b++ && 0
+    changeMask |= writePropIfChanged(v, vector3.y, entity, ignoredChanged) ? 1 << b++ : b++ && 0
+    changeMask |= writePropIfChanged(v, vector3.z, entity, ignoredChanged) ? 1 << b++ : b++ && 0
 
-  changeMask |= writePropIfChanged(v, vector4.x, entity) ? 1 << b++ : b++ && 0
-  changeMask |= writePropIfChanged(v, vector4.y, entity) ? 1 << b++ : b++ && 0
-  changeMask |= writePropIfChanged(v, vector4.z, entity) ? 1 << b++ : b++ && 0
-  changeMask |= writePropIfChanged(v, vector4.w, entity) ? 1 << b++ : b++ && 0
+    if (changeMask > 0) {
+      rewindUptoChageMask()
+      let [x, y, z] = [vector3.x[entity], vector3.y[entity], vector3.z[entity]]
 
-  return (changeMask > 0 && writeChangeMask(changeMask)) || rewind()
-}
+      // Since avatar velocity values are too small and precison is lost when quantized
+      let offset_mult = 1
+      if (hasComponent(entity, AvatarComponent)) offset_mult = 100
+
+      x *= VEC3_MAX_RANGE * VEC3_PRECISION_MULT * offset_mult
+      y *= VEC3_MAX_RANGE * VEC3_PRECISION_MULT * offset_mult
+      z *= VEC3_MAX_RANGE * VEC3_PRECISION_MULT * offset_mult
+
+      x = compress(x, 10)
+      y = compress(y, 10)
+      z = compress(z, 10)
+
+      let binaryData = 0
+      binaryData = binaryData | x
+      binaryData = binaryData << 10
+      binaryData = binaryData | y
+      binaryData = binaryData << 10
+      binaryData = binaryData | z
+
+      writeUint32(v, binaryData)
+    }
+
+    return (changeMask > 0 && writeChangeMask(changeMask)) || rewind()
+  }
+
+export const writeVector4 =
+  (vector4: Vector4SoA) =>
+  (v: ViewCursor, entity: Entity, ignoredChanged = false) => {
+    const rewind = rewindViewCursor(v)
+    const writeChangeMask = spaceUint8(v)
+    let changeMask = 0
+    let b = 0
+
+    changeMask |= writePropIfChanged(v, vector4.x, entity, ignoredChanged) ? 1 << b++ : b++ && 0
+    changeMask |= writePropIfChanged(v, vector4.y, entity, ignoredChanged) ? 1 << b++ : b++ && 0
+    changeMask |= writePropIfChanged(v, vector4.z, entity, ignoredChanged) ? 1 << b++ : b++ && 0
+    changeMask |= writePropIfChanged(v, vector4.w, entity, ignoredChanged) ? 1 << b++ : b++ && 0
+
+    return (changeMask > 0 && writeChangeMask(changeMask)) || rewind()
+  }
 
 // Writes a compressed Quaternion value to the DataView. This function uses the "smallest three"
 // method, which is well summarized here: http://gafferongames.com/networked-physics/snapshot-compression/
-export const writeCompressedRotation = (vector4: Vector4SoA) => (v: ViewCursor, entity: Entity) => {
-  const rewind = rewindViewCursor(v)
-  const writeChangeMask = spaceUint8(v)
-  const rewindUptoChageMask = rewindViewCursor(v)
-  let changeMask = 0
-  let b = 0
-
-  // Todo: writeVector4 here? how to handle rewind than.
-  // Write to store
-  changeMask |= writePropIfChanged(v, vector4.x, entity) ? 1 << b++ : b++ && 0
-  changeMask |= writePropIfChanged(v, vector4.y, entity) ? 1 << b++ : b++ && 0
-  changeMask |= writePropIfChanged(v, vector4.z, entity) ? 1 << b++ : b++ && 0
-  changeMask |= writePropIfChanged(v, vector4.w, entity) ? 1 << b++ : b++ && 0
-
-  // Write to ViewCursor
-  if (changeMask > 0) {
-    rewindUptoChageMask()
-    let maxIndex = 0
-    let maxValue = Number.MIN_VALUE
-    let sign = 1
-
-    // Determine the index of the largest (absolute value) element in the Quaternion.
-    // We will transmit only the three smallest elements, and reconstruct the largest
-    // element during decoding.
-    for (let i = 0; i < 4; i++) {
-      let element = getVector4IndexBasedComponentValue(vector4, entity, i) as number
-      let abs = Math.abs(element)
-      if (abs > maxValue) {
-        // We don't need to explicitly transmit the sign bit of the omitted element because you
-        // can make the omitted element always positive by negating the entire quaternion if
-        // the omitted element is negative (in quaternion space (x,y,z,w) and (-x,-y,-z,-w)
-        // represent the same rotation.), but we need to keep track of the sign for use below.
-        sign = element < 0 ? -1 : 1
-
-        // Keep track of the index of the largest element
-        maxIndex = i
-        maxValue = abs
-      }
-    }
-
-    let a = 0
+export const writeCompressedRotation =
+  (vector4: Vector4SoA) =>
+  (v: ViewCursor, entity: Entity, ignoredChanged = false) => {
+    const rewind = rewindViewCursor(v)
+    const writeChangeMask = spaceUint8(v)
+    const rewindUptoChageMask = rewindViewCursor(v)
+    let changeMask = 0
     let b = 0
-    let c = 0
 
-    if (maxIndex === 0) {
-      a = vector4.y[entity]
-      b = vector4.z[entity]
-      c = vector4.w[entity]
-    } else if (maxIndex === 1) {
-      a = vector4.x[entity]
-      b = vector4.z[entity]
-      c = vector4.w[entity]
-    } else if (maxIndex === 2) {
-      a = vector4.x[entity]
-      b = vector4.y[entity]
-      c = vector4.w[entity]
-    } else {
-      a = vector4.x[entity]
-      b = vector4.y[entity]
-      c = vector4.z[entity]
+    // Todo: writeVector4 here? how to handle rewind than.
+    // Write to store
+    changeMask |= writePropIfChanged(v, vector4.x, entity, ignoredChanged) ? 1 << b++ : b++ && 0
+    changeMask |= writePropIfChanged(v, vector4.y, entity, ignoredChanged) ? 1 << b++ : b++ && 0
+    changeMask |= writePropIfChanged(v, vector4.z, entity, ignoredChanged) ? 1 << b++ : b++ && 0
+    changeMask |= writePropIfChanged(v, vector4.w, entity, ignoredChanged) ? 1 << b++ : b++ && 0
+
+    // Write to ViewCursor
+    if (changeMask > 0) {
+      rewindUptoChageMask()
+      let maxIndex = 0
+      let maxValue = Number.MIN_VALUE
+      let sign = 1
+
+      // Determine the index of the largest (absolute value) element in the Quaternion.
+      // We will transmit only the three smallest elements, and reconstruct the largest
+      // element during decoding.
+      for (let i = 0; i < 4; i++) {
+        let element = getVector4IndexBasedComponentValue(vector4, entity, i) as number
+        let abs = Math.abs(element)
+        if (abs > maxValue) {
+          // We don't need to explicitly transmit the sign bit of the omitted element because you
+          // can make the omitted element always positive by negating the entire quaternion if
+          // the omitted element is negative (in quaternion space (x,y,z,w) and (-x,-y,-z,-w)
+          // represent the same rotation.), but we need to keep track of the sign for use below.
+          sign = element < 0 ? -1 : 1
+
+          // Keep track of the index of the largest element
+          maxIndex = i
+          maxValue = abs
+        }
+      }
+
+      let a = 0
+      let b = 0
+      let c = 0
+
+      if (maxIndex === 0) {
+        a = vector4.y[entity]
+        b = vector4.z[entity]
+        c = vector4.w[entity]
+      } else if (maxIndex === 1) {
+        a = vector4.x[entity]
+        b = vector4.z[entity]
+        c = vector4.w[entity]
+      } else if (maxIndex === 2) {
+        a = vector4.x[entity]
+        b = vector4.y[entity]
+        c = vector4.w[entity]
+      } else {
+        a = vector4.x[entity]
+        b = vector4.y[entity]
+        c = vector4.z[entity]
+      }
+
+      // Multiply with QUAT_MAX_RANGE & FLOAT_PRECISION_MULT before compression so that values are
+      // capped to required range([-0.707107,+0.707107]) and precision(three decimal places)
+      a *= sign * QUAT_MAX_RANGE * QUAT_PRECISION_MULT
+      b *= sign * QUAT_MAX_RANGE * QUAT_PRECISION_MULT
+      c *= sign * QUAT_MAX_RANGE * QUAT_PRECISION_MULT
+
+      maxIndex = maxIndex | 0
+
+      a = compress(a, 10)
+      b = compress(b, 10)
+      c = compress(c, 10)
+
+      let binaryData = maxIndex
+      binaryData = binaryData << 10
+      binaryData = binaryData | a
+      binaryData = binaryData << 10
+      binaryData = binaryData | b
+      binaryData = binaryData << 10
+      binaryData = binaryData | c
+
+      writeUint32(v, binaryData)
     }
 
-    // Multiply with QUAT_MAX_RANGE & FLOAT_PRECISION_MULT before compression so that values are
-    // capped to required range([-0.707107,+0.707107]) and precision(three decimal places)
-    a *= sign * QUAT_MAX_RANGE * QUAT_PRECISION_MULT
-    b *= sign * QUAT_MAX_RANGE * QUAT_PRECISION_MULT
-    c *= sign * QUAT_MAX_RANGE * QUAT_PRECISION_MULT
-
-    maxIndex = maxIndex | 0
-
-    a = compress(a, 10)
-    b = compress(b, 10)
-    c = compress(c, 10)
-
-    let binaryData = maxIndex
-    binaryData = binaryData << 10
-    binaryData = binaryData | a
-    binaryData = binaryData << 10
-    binaryData = binaryData | b
-    binaryData = binaryData << 10
-    binaryData = binaryData | c
-
-    writeUint32(v, binaryData)
+    return (changeMask > 0 && writeChangeMask(changeMask)) || rewind()
   }
-
-  return (changeMask > 0 && writeChangeMask(changeMask)) || rewind()
-}
 
 export const writeEntity = (
   v: ViewCursor,
@@ -260,7 +271,7 @@ export const writeEntities = (v: ViewCursor, entities: Entity[]) => {
 export const writeMetadata = (v: ViewCursor, network: Network, userId: UserId, peerID: PeerID) => {
   writeUint32(v, network.userIDToUserIndex.get(userId)!)
   writeUint32(v, network.peerIDToPeerIndex.get(peerID)!)
-  writeUint32(v, Engine.instance.fixedTick)
+  writeFloat64(v, getState(EngineState).simulationTime)
 }
 
 export const createDataWriter = (size: number = 100000) => {

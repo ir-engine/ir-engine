@@ -1,5 +1,3 @@
-import { Paginated } from '@feathersjs/client'
-import JSZip from 'jszip'
 import _ from 'lodash'
 import React, { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -7,27 +5,18 @@ import { saveAs } from 'save-as'
 
 import ConfirmDialog from '@etherealengine/client-core/src/common/components/ConfirmDialog'
 import config from '@etherealengine/common/src/config'
-import { FileContentType } from '@etherealengine/common/src/interfaces/FileContentType'
 import { ProjectInterface } from '@etherealengine/common/src/interfaces/ProjectInterface'
 import multiLogger from '@etherealengine/common/src/logger'
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { EngineActions } from '@etherealengine/engine/src/ecs/classes/EngineState'
-import { createActionQueue, getState, startReactor } from '@etherealengine/hyperflux'
-import Box from '@etherealengine/ui/src/Box'
-import Icon from '@etherealengine/ui/src/Icon'
-import IconButton from '@etherealengine/ui/src/IconButton'
-import Tooltip from '@etherealengine/ui/src/Tooltip'
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import Box from '@etherealengine/ui/src/primitives/mui/Box'
+import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
+import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
+import Tooltip from '@etherealengine/ui/src/primitives/mui/Tooltip'
 
 import { API } from '../../../API'
-import {
-  FileBrowserAction,
-  FileBrowserService,
-  FileBrowserServiceReceptor,
-  FileBrowserState
-} from '../../../common/services/FileBrowserService'
 import { NotificationService } from '../../../common/services/NotificationService'
-import { PROJECT_PAGE_LIMIT, ProjectService, useProjectState } from '../../../common/services/ProjectService'
-import { useAuthState } from '../../../user/services/AuthService'
+import { PROJECT_PAGE_LIMIT, ProjectService, ProjectState } from '../../../common/services/ProjectService'
+import { AuthState } from '../../../user/services/AuthService'
 import TableComponent from '../../common/Table'
 import { projectsColumns } from '../../common/variables/projects'
 import styles from '../../styles/admin.module.scss'
@@ -67,10 +56,10 @@ const ProjectTable = ({ className }: Props) => {
   const [rowsPerPage, setRowsPerPage] = useState(PROJECT_PAGE_LIMIT)
   const [changeDestination, setChangeDestination] = useState(false)
 
-  const adminProjectState = useProjectState()
-  const adminProjects = adminProjectState.projects
+  const projectState = useHookstate(getMutableState(ProjectState))
+  const adminProjects = projectState.projects
   const adminProjectCount = adminProjects.value.length
-  const authState = useAuthState()
+  const authState = useHookstate(getMutableState(AuthState))
   const user = authState.user
 
   const projectRef = useRef(project)
@@ -231,7 +220,9 @@ const ProjectTable = ({ className }: Props) => {
       el,
       name: (
         <Box sx={{ display: 'flex', alignItems: 'center' }}>
-          <span className={`${el.needsRebuild ? styles.orangeColor : ''}`}>{name}</span>
+          <a href={`/studio/${name}`} className={`${el.needsRebuild ? styles.orangeColor : ''}`}>
+            {name}
+          </a>
           {el.needsRebuild && (
             <Tooltip title={t('admin:components.project.outdatedBuild')} arrow>
               <Icon type="ErrorOutline" sx={{ marginLeft: 1 }} className={styles.orangeColor} />

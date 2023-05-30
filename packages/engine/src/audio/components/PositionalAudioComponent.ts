@@ -10,6 +10,7 @@ import { createState, getMutableState, none, useHookstate } from '@etherealengin
 
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { PositionalAudioHelper } from '../../debug/PositionalAudioHelper'
+import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { RendererState } from '../../renderer/RendererState'
 import { addObjectToGroup, removeObjectFromGroup } from '../../scene/components/GroupComponent'
 import { AudioNodeGroups, MediaElementComponent } from '../../scene/components/MediaComponent'
@@ -28,6 +29,8 @@ export interface PositionalAudioInterface {
 
 export const PositionalAudioComponent = defineComponent({
   name: 'EE_positionalAudio',
+
+  jsonID: 'audio',
 
   onInit: (entity) => {
     return {
@@ -77,10 +80,11 @@ export const PositionalAudioComponent = defineComponent({
     if (component.helper.value) removeObjectFromGroup(entity, component.helper.value)
   },
 
-  reactor: function ({ root }) {
+  reactor: function () {
+    const entity = useEntityContext()
     const debugEnabled = useHookstate(getMutableState(RendererState).nodeHelperVisibility)
-    const audio = useComponent(root.entity, PositionalAudioComponent)
-    const mediaElement = useComponent(root.entity, MediaElementComponent)
+    const audio = useComponent(entity, PositionalAudioComponent)
+    const mediaElement = useComponent(entity, MediaElementComponent)
 
     useEffect(() => {
       if (
@@ -92,15 +96,15 @@ export const PositionalAudioComponent = defineComponent({
         const audioNodes = AudioNodeGroups.get(mediaElement.element.value)
         if (audioNodes) {
           const helper = new PositionalAudioHelper(audioNodes)
-          helper.name = `positional-audio-helper-${root.entity}`
+          helper.name = `positional-audio-helper-${entity}`
           setObjectLayers(helper, ObjectLayers.NodeHelper)
-          addObjectToGroup(root.entity, helper)
+          addObjectToGroup(entity, helper)
           audio.helper.set(helper)
         }
       }
 
       if (!debugEnabled.value && audio.helper.value) {
-        removeObjectFromGroup(root.entity, audio.helper.value)
+        removeObjectFromGroup(entity, audio.helper.value)
         audio.helper.set(none)
       }
     }, [debugEnabled])
@@ -108,5 +112,3 @@ export const PositionalAudioComponent = defineComponent({
     return null
   }
 })
-
-export const SCENE_COMPONENT_AUDIO = 'audio'

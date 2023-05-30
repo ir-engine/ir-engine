@@ -27,10 +27,11 @@ import {
 import { Network } from '../classes/Network'
 import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
 import { NetworkState } from '../NetworkState'
-import { readCompressedVector3 } from './DataReader'
+import { readCompressedRotation, readCompressedVector3 } from './DataReader'
 import {
   createDataWriter,
   writeComponent,
+  writeCompressedRotation,
   writeCompressedVector3,
   writeEntities,
   writeEntity,
@@ -56,7 +57,7 @@ describe('DataWriter', () => {
       write: TransformSerialization.writeTransform
     })
     const engineState = getMutableState(EngineState)
-    engineState.fixedTick.set(1)
+    engineState.simulationTime.set(1)
   })
 
   afterEach(() => {
@@ -172,10 +173,10 @@ describe('DataWriter', () => {
     TransformComponent.rotation.z[entity] = z
     TransformComponent.rotation.w[entity] = w
 
-    writeRotation(writeView, entity)
+    writeCompressedRotation(TransformComponent.rotation)(writeView, entity, true)
 
     const readView = createViewCursor(writeView.buffer)
-    readRotation(readView, entity)
+    readCompressedRotation(TransformComponent.rotation)(readView, entity)
 
     strictEqual(readView.cursor, Uint8Array.BYTES_PER_ELEMENT + Uint32Array.BYTES_PER_ELEMENT)
 
@@ -195,7 +196,7 @@ describe('DataWriter', () => {
     RigidBodyComponent.linearVelocity.y[entity] = y
     RigidBodyComponent.linearVelocity.z[entity] = z
 
-    writeCompressedVector3(RigidBodyComponent.linearVelocity)(writeView, entity)
+    writeCompressedVector3(RigidBodyComponent.linearVelocity)(writeView, entity, true)
 
     const readView = createViewCursor(writeView.buffer)
     readCompressedVector3(RigidBodyComponent.linearVelocity)(readView, entity)
@@ -232,7 +233,7 @@ describe('DataWriter', () => {
 
     strictEqual(
       writeView.cursor,
-      3 * Uint8Array.BYTES_PER_ELEMENT + 3 * Float64Array.BYTES_PER_ELEMENT + 1 * Uint32Array.BYTES_PER_ELEMENT
+      3 * Uint8Array.BYTES_PER_ELEMENT + 3 * Float64Array.BYTES_PER_ELEMENT + 4 * Float64Array.BYTES_PER_ELEMENT
     )
 
     strictEqual(readUint8(readView), 0b11)
@@ -385,7 +386,7 @@ describe('DataWriter', () => {
       1 * Uint32Array.BYTES_PER_ELEMENT +
         4 * Uint8Array.BYTES_PER_ELEMENT +
         3 * Float64Array.BYTES_PER_ELEMENT +
-        1 * Uint32Array.BYTES_PER_ELEMENT
+        4 * Float64Array.BYTES_PER_ELEMENT
     )
 
     // read networkId
@@ -459,7 +460,7 @@ describe('DataWriter', () => {
         (1 * Uint32Array.BYTES_PER_ELEMENT +
           4 * Uint8Array.BYTES_PER_ELEMENT +
           3 * Float64Array.BYTES_PER_ELEMENT +
-          1 * Uint32Array.BYTES_PER_ELEMENT)
+          4 * Float64Array.BYTES_PER_ELEMENT)
 
     strictEqual(writeView.cursor, 0)
     strictEqual(packet.byteLength, expectedBytes)
@@ -544,7 +545,7 @@ describe('DataWriter', () => {
         (1 * Uint32Array.BYTES_PER_ELEMENT +
           4 * Uint8Array.BYTES_PER_ELEMENT +
           3 * Float64Array.BYTES_PER_ELEMENT +
-          1 * Uint32Array.BYTES_PER_ELEMENT)
+          4 * Float64Array.BYTES_PER_ELEMENT)
 
     strictEqual(packet.byteLength, expectedBytes)
 

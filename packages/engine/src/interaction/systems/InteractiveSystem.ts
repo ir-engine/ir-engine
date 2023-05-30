@@ -1,7 +1,7 @@
 import { Not } from 'bitecs'
 import { Vector3 } from 'three'
 
-import { defineState, getMutableState } from '@etherealengine/hyperflux'
+import { defineState, getState } from '@etherealengine/hyperflux'
 import { WebLayer3D } from '@etherealengine/xrui'
 
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
@@ -14,15 +14,13 @@ import {
   getComponent,
   hasComponent,
   removeComponent,
-  removeQuery,
   setComponent
 } from '../../ecs/functions/ComponentFunctions'
+import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { HighlightComponent } from '../../renderer/components/HighlightComponent'
 import {
   DistanceFromCameraComponent,
-  DistanceFromLocalClientComponent,
-  setDistanceFromCameraComponent,
-  setDistanceFromLocalClientComponent
+  setDistanceFromCameraComponent
 } from '../../transform/components/DistanceComponents'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { createTransitionState } from '../../xrui/functions/createTransitionState'
@@ -31,6 +29,7 @@ import { ObjectFitFunctions } from '../../xrui/functions/ObjectFitFunctions'
 import { InteractableComponent } from '../components/InteractableComponent'
 import { gatherAvailableInteractables } from '../functions/gatherAvailableInteractables'
 import { createInteractUI } from '../functions/interactUI'
+import { EquippableSystem } from './EquippableSystem'
 
 export const InteractState = defineState({
   name: 'InteractState',
@@ -91,74 +90,69 @@ export const addInteractableUI = (
 
   if (!update) {
     update = onInteractableUpdate
-    const transition = createTransitionState(0.25)
-    transition.setState('OUT')
-    InteractableTransitions.set(entity, transition)
   }
+  const transition = createTransitionState(0.25)
+  transition.setState('OUT')
+  InteractableTransitions.set(entity, transition)
 
   InteractiveUI.set(entity, { xrui, update })
 }
 
-export default async function InteractiveSystem() {
-  const allInteractablesQuery = defineQuery([InteractableComponent])
+const allInteractablesQuery = defineQuery([InteractableComponent])
+const interactableQuery = defineQuery([InteractableComponent, Not(AvatarComponent), DistanceFromCameraComponent])
 
-  const interactableQuery = defineQuery([InteractableComponent, Not(AvatarComponent), DistanceFromCameraComponent])
+let gatherAvailableInteractablesTimer = 0
 
-  let gatherAvailableInteractablesTimer = 0
+const execute = () => {
+  gatherAvailableInteractablesTimer += Engine.instance.deltaSeconds
+  // update every 0.3 seconds
+  if (gatherAvailableInteractablesTimer > 0.3) gatherAvailableInteractablesTimer = 0
 
-  const execute = () => {
-    gatherAvailableInteractablesTimer += Engine.instance.deltaSeconds
-    // update every 0.3 seconds
-    if (gatherAvailableInteractablesTimer > 0.3) gatherAvailableInteractablesTimer = 0
+  // ensure distance component is set on all interactables
+  for (const entity of allInteractablesQuery.enter()) {
+    setDistanceFromCameraComponent(entity)
+  }
 
-    // ensure distance component is set on all interactables
-    for (const entity of allInteractablesQuery.enter()) {
-      setDistanceFromCameraComponent(entity)
-    }
+  // TODO: refactor InteractiveUI to be ui-centric rather than interactable-centeric
+  for (const entity of interactableQuery.exit()) {
+    if (InteractableTransitions.has(entity)) InteractableTransitions.delete(entity)
+    if (InteractiveUI.has(entity)) InteractiveUI.delete(entity)
+    if (hasComponent(entity, HighlightComponent)) removeComponent(entity, HighlightComponent)
+  }
 
-    // TODO: refactor InteractiveUI to be ui-centric rather than interactable-centeric
-    for (const entity of interactableQuery.exit()) {
-      if (InteractableTransitions.has(entity)) InteractableTransitions.delete(entity)
-      if (InteractiveUI.has(entity)) InteractiveUI.delete(entity)
-      if (hasComponent(entity, HighlightComponent)) removeComponent(entity, HighlightComponent)
-    }
+  if (Engine.instance.localClientEntity) {
+    const interactables = interactableQuery()
 
-    if (Engine.instance.localClientEntity) {
-      const interactables = interactableQuery()
-
-      for (const entity of interactables) {
-        // const interactable = getComponent(entity, InteractableComponent)
-        // interactable.distance = interactable.anchorPosition.distanceTo(
-        //   getComponent(Engine.instance.localClientEntity, TransformComponent).position
-        // )
-        if (InteractiveUI.has(entity)) {
-          const { update, xrui } = InteractiveUI.get(entity)!
-          update(entity, xrui)
-        }
+    for (const entity of interactables) {
+      // const interactable = getComponent(entity, InteractableComponent)
+      // interactable.distance = interactable.anchorPosition.distanceTo(
+      //   getComponent(Engine.instance.localClientEntity, TransformComponent).position
+      // )
+      if (InteractiveUI.has(entity)) {
+        const { update, xrui } = InteractiveUI.get(entity)!
+        update(entity, xrui)
       }
+    }
 
-      if (gatherAvailableInteractablesTimer === 0) {
-        gatherAvailableInteractables(interactables)
-        const closestInteractable = getMutableState(InteractState).available.value[0]
-        for (const interactiveEntity of interactables) {
-          if (interactiveEntity === closestInteractable) {
-            if (!hasComponent(interactiveEntity, HighlightComponent)) {
-              addComponent(interactiveEntity, HighlightComponent)
-            }
-          } else {
-            if (hasComponent(interactiveEntity, HighlightComponent)) {
-              removeComponent(interactiveEntity, HighlightComponent)
-            }
+    if (gatherAvailableInteractablesTimer === 0) {
+      gatherAvailableInteractables(interactables)
+      const closestInteractable = getState(InteractState).available[0]
+      for (const interactiveEntity of interactables) {
+        if (interactiveEntity === closestInteractable) {
+          if (!hasComponent(interactiveEntity, HighlightComponent)) {
+            addComponent(interactiveEntity, HighlightComponent)
+          }
+        } else {
+          if (hasComponent(interactiveEntity, HighlightComponent)) {
+            removeComponent(interactiveEntity, HighlightComponent)
           }
         }
       }
     }
   }
-
-  const cleanup = async () => {
-    removeQuery(allInteractablesQuery)
-    removeQuery(interactableQuery)
-  }
-
-  return { execute, cleanup }
 }
+
+export const InteractiveSystem = defineSystem({
+  uuid: 'ee.engine.InteractiveSystem',
+  execute
+})

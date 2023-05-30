@@ -1,5 +1,6 @@
+import { DescribeImagesCommand, ECRPUBLICClient } from '@aws-sdk/client-ecr-public'
+import * as k8s from '@kubernetes/client-node'
 import appRootPath from 'app-root-path'
-import AWS from 'aws-sdk'
 import axios from 'axios'
 import { compareVersions } from 'compare-versions'
 import _ from 'lodash'
@@ -19,7 +20,7 @@ import { getPodsData } from '../../cluster/server-info/server-info-helper'
 import { getStorageProvider } from '../../media/storageprovider/storageprovider'
 import logger from '../../ServerLogger'
 import { ServerState } from '../../ServerState'
-import { getOctokitForChecking, getUserOrgs, getUserRepos } from './github-helper'
+import { getOctokitForChecking, getUserRepos } from './github-helper'
 import { ProjectParams } from './project.class'
 
 export const dockerHubRegex = /^[\w\d\s\-_]+\/[\w\d\s\-_]+:([\w\d\s\-_.]+)$/
@@ -106,9 +107,10 @@ export const updateBuilder = async (
         undefined,
         undefined,
         undefined,
+        undefined,
         {
           headers: {
-            'Content-Type': 'application/strategic-merge-patch+json'
+            'Content-Type': k8s.PatchUtils.PATCH_FORMAT_STRATEGIC_MERGE_PATCH
           }
         }
       )
@@ -667,18 +669,20 @@ export const findBuilderTags = async (): Promise<Array<BuilderTag>> => {
   const publicECRExec = publicECRRepoRegex.exec(builderRepo)
   const privateECRExec = privateECRRepoRegex.exec(builderRepo)
   if (publicECRExec) {
-    const ecr = new AWS.ECRPUBLIC({
-      accessKeyId: process.env.AWS_ACCESS_KEY as string,
-      secretAccessKey: process.env.AWS_SECRET as string,
+    const ecr = new ECRPUBLICClient({
+      credentials: {
+        accessKeyId: config.aws.keys.accessKeyId,
+        secretAccessKey: config.aws.keys.secretAccessKey
+      },
       region: 'us-east-1'
     })
-    const result = await ecr
-      .describeImages({
-        repositoryName: publicECRExec[1]
-      })
-      .promise()
-    if (!result || !result.imageDetails) return []
-    return result.imageDetails
+    const command = {
+      repositoryName: publicECRExec[1]
+    }
+    const result = new DescribeImagesCommand(command)
+    const response = await ecr.send(result)
+    if (!response || !response.imageDetails) return []
+    return response.imageDetails
       .filter(
         (imageDetails) => imageDetails.imageTags && imageDetails.imageTags.length > 0 && imageDetails.imagePushedAt
       )
@@ -694,18 +698,20 @@ export const findBuilderTags = async (): Promise<Array<BuilderTag>> => {
         }
       })
   } else if (privateECRExec) {
-    const ecr = new AWS.ECR({
-      accessKeyId: process.env.AWS_ACCESS_KEY as string,
-      secretAccessKey: process.env.AWS_SECRET as string,
+    const ecr = new ECRPUBLICClient({
+      credentials: {
+        accessKeyId: config.aws.keys.accessKeyId,
+        secretAccessKey: config.aws.keys.secretAccessKey
+      },
       region: privateECRExec[1]
     })
-    const result = await ecr
-      .describeImages({
-        repositoryName: privateECRExec[2]
-      })
-      .promise()
-    if (!result || !result.imageDetails) return []
-    return result.imageDetails
+    const command = {
+      repositoryName: privateECRExec[2]
+    }
+    const result = new DescribeImagesCommand(command)
+    const response = await ecr.send(result)
+    if (!response || !response.imageDetails) return []
+    return response.imageDetails
       .filter(
         (imageDetails) => imageDetails.imageTags && imageDetails.imageTags.length > 0 && imageDetails.imagePushedAt
       )
@@ -872,9 +878,10 @@ export const createOrUpdateProjectUpdateJob = async (app: Application, projectNa
         undefined,
         undefined,
         undefined,
+        undefined,
         {
           headers: {
-            'content-type': 'application/merge-patch+json'
+            'content-type': k8s.PatchUtils.PATCH_FORMAT_JSON_MERGE_PATCH
           }
         }
       )

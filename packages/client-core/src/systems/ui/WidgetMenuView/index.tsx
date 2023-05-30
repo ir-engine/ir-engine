@@ -1,5 +1,4 @@
-import { createState, useHookstate } from '@hookstate/core'
-import React, { useState } from 'react'
+import React from 'react'
 
 // import { VrIcon } from '../../../common/components/Icons/VrIcon'
 import { Channel } from '@etherealengine/common/src/interfaces/Channel'
@@ -7,12 +6,14 @@ import { respawnAvatar } from '@etherealengine/engine/src/avatar/functions/respa
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { createXRUI } from '@etherealengine/engine/src/xrui/functions/createXRUI'
 import { WidgetAppActions, WidgetAppState } from '@etherealengine/engine/src/xrui/WidgetAppService'
+import { createState, useHookstate } from '@etherealengine/hyperflux'
 import { dispatchAction, getMutableState } from '@etherealengine/hyperflux'
-import Icon from '@etherealengine/ui/src/Icon'
+import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 
+import { setTrackingSpace } from '../../../../../engine/src/xr/XRScaleAdjustmentFunctions'
 import { useMediaInstance } from '../../../common/services/MediaInstanceConnectionService'
-import { useMediaStreamState } from '../../../media/services/MediaStreamService'
-import { useChatState } from '../../../social/services/ChatService'
+import { ChatState } from '../../../social/services/ChatService'
+import { MediaStreamState } from '../../../transports/MediaStreams'
 import { toggleMicrophonePaused } from '../../../transports/SocketWebRTCClientFunctions'
 import XRIconButton from '../../components/XRIconButton'
 import styleString from './index.scss?inline'
@@ -33,7 +34,7 @@ type WidgetButtonProps = {
 }
 
 const WidgetButton = ({ icon: name, toggle, label, disabled }: WidgetButtonProps) => {
-  const [mouseOver, setMouseOver] = useState(false)
+  const mouseOver = useHookstate(false)
   return (
     <XRIconButton
       disabled={disabled}
@@ -41,12 +42,12 @@ const WidgetButton = ({ icon: name, toggle, label, disabled }: WidgetButtonProps
       content={
         <>
           <Icon type={name} className="svgIcon" />
-          {mouseOver && <div>{label}</div>}
+          {mouseOver.value && <div>{label}</div>}
         </>
       }
       onClick={toggle}
-      onMouseEnter={() => setMouseOver(true)}
-      onMouseLeave={() => setMouseOver(false)}
+      onMouseEnter={() => mouseOver.set(true)}
+      onMouseLeave={() => mouseOver.set(false)}
       xr-layer="true"
     />
   )
@@ -54,7 +55,7 @@ const WidgetButton = ({ icon: name, toggle, label, disabled }: WidgetButtonProps
 
 const WidgetButtons = () => {
   let activeChannel: Channel | null = null
-  const chatState = useChatState()
+  const chatState = useHookstate(getMutableState(ChatState))
   const widgetMutableState = useHookstate(getMutableState(WidgetAppState))
   const channelState = chatState.channels
   const channels = channelState.channels.value as Channel[]
@@ -66,8 +67,9 @@ const WidgetButtons = () => {
 
   const channelEntries = Object.values(channels).filter((channel) => !!channel) as any
   const instanceChannel = channelEntries.find((entry) => entry.instanceId === Engine.instance.worldNetwork?.hostId)
-  const mediastream = useMediaStreamState()
-  const isCamAudioEnabled = mediastream.isCamAudioEnabled
+
+  const mediaStreamState = useHookstate(getMutableState(MediaStreamState))
+  const isCamAudioEnabled = mediaStreamState.camAudioProducer.value != null && !mediaStreamState.audioPaused.value
 
   // TODO: add a notification hint function to the widget wrapper and move unread messages there
   // useEffect(() => {
@@ -88,6 +90,10 @@ const WidgetButtons = () => {
 
   const handleRespawnAvatar = () => {
     respawnAvatar(Engine.instance.localClientEntity)
+  }
+
+  const handleHeightAdjustment = () => {
+    setTrackingSpace()
   }
 
   const widgets = Object.entries(widgetMutableState.widgets.value).map(([id, widgetMutableState]) => ({
@@ -121,11 +127,12 @@ const WidgetButtons = () => {
       <style>{styleString}</style>
       <div className="container" style={{ gridTemplateColumns }} xr-pixel-ratio="8" xr-layer="true">
         <WidgetButton icon="Refresh" toggle={handleRespawnAvatar} label={'Respawn'} />
+        <WidgetButton icon="Person" toggle={handleHeightAdjustment} label={'Reset Height'} />
         {mediaInstanceState?.value && (
           <WidgetButton
-            icon={isCamAudioEnabled.value ? 'Mic' : 'MicOff'}
+            icon={isCamAudioEnabled ? 'Mic' : 'MicOff'}
             toggle={toggleMicrophonePaused}
-            label={isCamAudioEnabled.value ? 'Audio on' : 'Audio Off'}
+            label={isCamAudioEnabled ? 'Audio on' : 'Audio Off'}
           />
         )}
         {/* <WidgetButton

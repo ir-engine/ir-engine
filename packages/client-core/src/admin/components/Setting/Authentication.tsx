@@ -5,11 +5,11 @@ import { useTranslation } from 'react-i18next'
 import InputSwitch from '@etherealengine/client-core/src/common/components/InputSwitch'
 import InputText from '@etherealengine/client-core/src/common/components/InputText'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
-import Box from '@etherealengine/ui/src/Box'
-import Button from '@etherealengine/ui/src/Button'
-import Grid from '@etherealengine/ui/src/Grid'
-import IconButton from '@etherealengine/ui/src/IconButton'
-import Typography from '@etherealengine/ui/src/Typography'
+import Box from '@etherealengine/ui/src/primitives/mui/Box'
+import Button from '@etherealengine/ui/src/primitives/mui/Button'
+import Grid from '@etherealengine/ui/src/primitives/mui/Grid'
+import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
+import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 
 import { initialAuthState } from '../../../common/initialAuthState'
 import { NotificationService } from '../../../common/services/NotificationService'
@@ -66,9 +66,6 @@ const Account = () => {
     },
     twitter: {
       key: false,
-      secret: false
-    },
-    password: {
       secret: false
     }
   })
@@ -461,33 +458,6 @@ const Account = () => {
         </Grid>
 
         <Grid item xs={12} sm={6} md={6}>
-          <Typography className={styles.settingsSubHeading}>{t('admin:components.setting.local')}</Typography>
-
-          <InputText
-            name="username"
-            label={t('admin:components.setting.userName')}
-            value={authSetting?.local.usernameField || ''}
-            disabled
-          />
-
-          <InputText
-            name="password"
-            label={t('admin:components.setting.password')}
-            value={authSetting?.local.passwordField || ''}
-            type={showPassword.value.password.secret ? 'text' : 'password'}
-            disabled
-            endAdornment={
-              <IconButton
-                onClick={() => handleShowPassword('password-secret')}
-                icon={
-                  <Icon
-                    icon={showPassword.value.password.secret ? 'ic:baseline-visibility' : 'ic:baseline-visibility-off'}
-                    color="orange"
-                  />
-                }
-              />
-            }
-          />
           {holdAuth?.google.value && (
             <>
               <Typography className={styles.settingsSubHeading}>{t('admin:components.setting.google')}</Typography>

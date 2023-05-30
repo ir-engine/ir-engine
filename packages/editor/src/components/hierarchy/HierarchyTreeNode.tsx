@@ -3,9 +3,8 @@ import { useDrag, useDrop } from 'react-dnd'
 import { getEmptyImage } from 'react-dnd-html5-backend'
 import { Object3D } from 'three'
 
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { useEngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
+import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
 import {
   getAllComponents,
   getComponent,
@@ -13,13 +12,14 @@ import {
   useComponent,
   useOptionalComponent
 } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { entityExists } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
 import {
-  EntityOrObjectUUID,
   EntityTreeComponent,
   getEntityNodeArrayFromEntities
 } from '@etherealengine/engine/src/ecs/functions/EntityTree'
-import { ErrorComponent, ErrorComponentType } from '@etherealengine/engine/src/scene/components/ErrorComponent'
+import { ErrorComponent } from '@etherealengine/engine/src/scene/components/ErrorComponent'
 import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown'
 import ArrowRightIcon from '@mui/icons-material/ArrowRight'
@@ -29,7 +29,7 @@ import { addMediaNode } from '../../functions/addMediaNode'
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
 import { isAncestor } from '../../functions/getDetachedObjectsRoots'
 import { EntityNodeEditor } from '../../functions/PrefabEditors'
-import { useSelectionState } from '../../services/SelectionServices'
+import { SelectionState } from '../../services/SelectionServices'
 import useUpload from '../assets/useUpload'
 import { addPrefabElement } from '../element/ElementList'
 import { HeirarchyTreeNodeType } from './HeirarchyTreeWalker'
@@ -73,8 +73,8 @@ export type HierarchyTreeNodeProps = {
 export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
   const node = props.data.nodes[props.index]
   const data = props.data
-  const engineState = useEngineState()
-  const selectionState = useSelectionState()
+  const selectionState = useHookstate(getMutableState(SelectionState))
+  useComponent(getMutableState(SceneState).sceneEntity.value, EntityTreeComponent)
 
   const nodeName = node.obj3d
     ? node.obj3d.name ?? node.obj3d.uuid
@@ -267,11 +267,12 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
   }, [preview])
 
   const collectNodeMenuProps = useCallback(() => node, [node])
-  const editors = node.entityNode
-    ? getAllComponents(node.entityNode as Entity)
-        .map((c) => EntityNodeEditor.get(c)!)
-        .filter((c) => !!c)
-    : []
+  const editors =
+    typeof node.entityNode === 'number' && entityExists(node.entityNode as Entity)
+      ? getAllComponents(node.entityNode as Entity)
+          .map((c) => EntityNodeEditor.get(c)!)
+          .filter((c) => !!c)
+      : []
   const IconComponent = editors.length && editors[editors.length - 1].iconComponent
   const renaming = data.renamingNode && data.renamingNode.entity === node.entityNode
   const marginLeft = node.depth > 0 ? node.depth * 8 + 20 : 0

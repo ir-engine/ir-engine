@@ -223,12 +223,23 @@ export function getPadding(element: Element, padding: Edges) {
   padding.bottom = parseFloat(style.paddingBottom) || 0
 }
 
+let viewportTester: HTMLDivElement
+
 /*
  * On some mobile browsers, the value reported by window.innerHeight
  * is not the true viewport height. This method returns
  * the actual viewport.
  */
 export function getViewportBounds(bounds: Bounds) {
+  if (!viewportTester) {
+    viewportTester = document.createElement('div')
+    viewportTester.id = 'VIEWPORT'
+    viewportTester.style.position = 'fixed'
+    viewportTester.style.width = '100vw'
+    viewportTester.style.height = '100vh'
+    viewportTester.style.visibility = 'hidden'
+    viewportTester.style.pointerEvents = 'none'
+  }
   if (!viewportTester.parentNode) document.documentElement.append(viewportTester)
   bounds.left = pageXOffset
   bounds.top = pageYOffset
@@ -236,13 +247,6 @@ export function getViewportBounds(bounds: Bounds) {
   bounds.height = viewportTester.offsetHeight
   return bounds
 }
-const viewportTester = document.createElement('div')
-viewportTester.id = 'VIEWPORT'
-viewportTester.style.position = 'fixed'
-viewportTester.style.width = '100vw'
-viewportTester.style.height = '100vh'
-viewportTester.style.visibility = 'hidden'
-viewportTester.style.pointerEvents = 'none'
 
 export function getDocumentBounds(document: Document, bounds: Bounds) {
   const documentElement = document.documentElement

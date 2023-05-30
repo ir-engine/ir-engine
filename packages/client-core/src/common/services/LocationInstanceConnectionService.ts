@@ -1,5 +1,5 @@
 import { Paginated } from '@feathersjs/feathers'
-import { none } from '@hookstate/core'
+import { none, State } from '@hookstate/core'
 import { useEffect } from 'react'
 
 import { Instance } from '@etherealengine/common/src/interfaces/Instance'
@@ -8,12 +8,7 @@ import logger from '@etherealengine/common/src/logger'
 import { matches, matchesUserId, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { NetworkTopics } from '@etherealengine/engine/src/networking/classes/Network'
-import {
-  addNetwork,
-  NetworkState,
-  removeNetwork,
-  updateNetworkID
-} from '@etherealengine/engine/src/networking/NetworkState'
+import { addNetwork, NetworkState, updateNetworkID } from '@etherealengine/engine/src/networking/NetworkState'
 import {
   defineAction,
   defineState,
@@ -52,6 +47,12 @@ export const LocationInstanceState = defineState({
     instances: {} as { [id: string]: InstanceState }
   })
 })
+
+export function useWorldNetwork() {
+  const worldNetworkState = useState(getMutableState(NetworkState).networks)
+  const worldHostId = useState(getMutableState(NetworkState).hostIds.world)
+  return worldHostId.value ? (worldNetworkState[worldHostId.value] as State<SocketWebRTCClientNetwork>) : null
+}
 
 export function useWorldInstance() {
   const worldInstanceState = useState(getMutableState(LocationInstanceState).instances)
@@ -102,10 +103,6 @@ export const LocationInstanceConnectionServiceReceptor = (action) => {
       s.instances[action.currentInstanceId].set(none)
     })
 }
-/**@deprecated use getMutableState directly instead */
-export const accessLocationInstanceConnectionState = () => getMutableState(LocationInstanceState)
-/**@deprecated use useHookstate(getMutableState(...) directly instead */
-export const useLocationInstanceConnectionState = () => useState(accessLocationInstanceConnectionState())
 
 //Service
 export const LocationInstanceConnectionService = {
@@ -244,7 +241,7 @@ export const LocationInstanceConnectionService = {
     const network = Engine.instance.worldNetwork as SocketWebRTCClientNetwork
     logger.info({ primus: !!network.primus, transport: network }, 'Connect To World Server')
     if (network.primus) {
-      leaveNetwork(network, false)
+      await leaveNetwork(network, false)
     }
     const { ipAddress, port, locationId, roomCode } = getState(LocationInstanceState).instances[instanceId]
     await connectToNetwork(network, { port, ipAddress, locationId, roomCode })

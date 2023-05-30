@@ -3,7 +3,7 @@ import cli from 'cli'
 import dotenv from 'dotenv-flow'
 
 import { getState } from '@etherealengine/hyperflux'
-import { createFeathersExpressApp } from '@etherealengine/server-core/src/createApp'
+import { createFeathersKoaApp } from '@etherealengine/server-core/src/createApp'
 import { getCronJobBody } from '@etherealengine/server-core/src/projects/project/project-helper'
 import { ServerMode, ServerState } from '@etherealengine/server-core/src/ServerState'
 
@@ -35,7 +35,7 @@ const options = cli.parse({
 
 cli.main(async () => {
   try {
-    const app = createFeathersExpressApp(ServerMode.API)
+    const app = createFeathersKoaApp(ServerMode.API)
     await app.setup()
     const autoUpdateProjects = await app.service('project').find({
       query: {
@@ -61,6 +61,7 @@ cli.main(async () => {
             undefined,
             undefined,
             undefined,
+            undefined,
             {
               headers: {
                 'content-type': 'application/merge-patch+json'
@@ -68,7 +69,7 @@ cli.main(async () => {
             }
           )
         } catch (err) {
-          console.log('Missing cronjob', `${process.env.RELEASE_NAME}-${project.name}-auto-update`)
+          console.error('cronjob update error on', `${process.env.RELEASE_NAME}-${project.name}-auto-update`, err)
         }
       }
     cli.exit(0)

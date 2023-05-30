@@ -1,15 +1,22 @@
-import { PerspectiveCamera } from 'three'
+import { blob } from 'stream/consumers'
+import {
+  _SRGBFormat,
+  Camera,
+  ClampToEdgeWrapping,
+  LinearFilter,
+  PerspectiveCamera,
+  RGBAFormat,
+  sRGBEncoding,
+  UnsignedByteType,
+  WebGLRenderTarget
+} from 'three'
 
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
 import { addComponent, defineQuery, getComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { createEntity } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
 import { addEntityNodeChild } from '@etherealengine/engine/src/ecs/functions/EntityTree'
-import { configureEffectComposer } from '@etherealengine/engine/src/renderer/functions/configureEffectComposer'
-import {
-  EngineRenderer,
-  getPostProcessingSceneMetadataState
-} from '@etherealengine/engine/src/renderer/WebGLRendererSystem'
+import { EngineRenderer } from '@etherealengine/engine/src/renderer/WebGLRendererSystem'
 import { addObjectToGroup } from '@etherealengine/engine/src/scene/components/GroupComponent'
 import { ScenePreviewCameraComponent } from '@etherealengine/engine/src/scene/components/ScenePreviewCamera'
 import { ObjectLayers } from '@etherealengine/engine/src/scene/constants/ObjectLayers'
@@ -18,9 +25,9 @@ import {
   TransformComponent
 } from '@etherealengine/engine/src/transform/components/TransformComponent'
 import { getState } from '@etherealengine/hyperflux'
+import { KTX2Encoder } from '@etherealengine/xrui/core/textures/KTX2Encoder'
 
 import { EditorState } from '../services/EditorServices'
-import { getCanvasBlob } from './thumbnails'
 
 function getResizedCanvas(canvas: HTMLCanvasElement, width: number, height: number) {
   const tmpCanvas = document.createElement('canvas')
@@ -30,6 +37,10 @@ function getResizedCanvas(canvas: HTMLCanvasElement, width: number, height: numb
   if (ctx) ctx.drawImage(canvas, 0, 0, canvas.width, canvas.height, 0, 0, width, height)
   return tmpCanvas
 }
+
+const query = defineQuery([ScenePreviewCameraComponent])
+
+const ktx2Encoder = new KTX2Encoder()
 
 /**
  * Function takeScreenshot used for taking screenshots.
@@ -46,15 +57,13 @@ export async function takeScreenshot(
 ): Promise<Blob | null> {
   // Getting Scene preview camera or creating one if not exists
   if (!scenePreviewCamera) {
-    const query = defineQuery([ScenePreviewCameraComponent])
-
     for (const entity of query()) {
       scenePreviewCamera = getComponent(entity, ScenePreviewCameraComponent).camera
     }
 
     if (!scenePreviewCamera) {
       const entity = createEntity()
-      addComponent(entity, ScenePreviewCameraComponent, null)
+      addComponent(entity, ScenePreviewCameraComponent)
       scenePreviewCamera = getComponent(entity, ScenePreviewCameraComponent).camera
       const { position, rotation } = getComponent(Engine.instance.cameraEntity, TransformComponent)
       setTransformComponent(entity, position, rotation)
@@ -75,47 +84,40 @@ export async function takeScreenshot(
   const originalWidth = EngineRenderer.instance.renderer.domElement.width
   const originalHeight = EngineRenderer.instance.renderer.domElement.height
 
-  // Rendering the scene to the new canvas with given size
-  await new Promise<void>((resolve, reject) => {
-    const interval = setInterval(() => {
-      const viewport = EngineRenderer.instance.renderContext.getParameter(
-        EngineRenderer.instance.renderContext.VIEWPORT
-      )
-      const pixelRatio = EngineRenderer.instance.renderer.getPixelRatio()
-      if (viewport[2] === width * pixelRatio && viewport[3] === height * pixelRatio) {
-        clearTimeout(timeout)
-        clearInterval(interval)
-        resolve()
-      }
-    }, 10)
-    const timeout = setTimeout(() => {
-      console.warn('Could not resize viewport in time')
-      clearTimeout(timeout)
-      clearInterval(interval)
-      reject()
-    }, 10000)
+  EngineRenderer.instance.effectComposer.render()
+  EngineRenderer.instance.effectComposer.setMainCamera(Engine.instance.camera)
 
-    // set up effect composer
-    configureEffectComposer(false, scenePreviewCamera)
-    EngineRenderer.instance.effectComposer.setSize(width, height, true)
+  const renderer = EngineRenderer.instance.renderer
+  renderer.outputEncoding = sRGBEncoding
+  const renderTarget = new WebGLRenderTarget(width, height, {
+    minFilter: LinearFilter,
+    magFilter: LinearFilter,
+    wrapS: ClampToEdgeWrapping,
+    wrapT: ClampToEdgeWrapping,
+    encoding: sRGBEncoding,
+    format: RGBAFormat,
+    type: UnsignedByteType
   })
 
-  EngineRenderer.instance.effectComposer.render()
-  configureEffectComposer(false, Engine.instance.camera)
-
-  const blob = await getCanvasBlob(
-    getResizedCanvas(EngineRenderer.instance.renderer.domElement, width, height),
-    compressed ? 'image/jpeg' : 'image/png',
-    compressed ? 0.9 : 1
-  )
-
+  renderer.setRenderTarget(renderTarget)
+  renderer.render(Engine.instance.scene, scenePreviewCamera)
+  const pixels = new Uint8Array(4 * width * height)
+  renderer.readRenderTargetPixels(renderTarget, 0, 0, width, height, pixels)
+  const imageData = new ImageData(new Uint8ClampedArray(pixels), width, height)
+  renderer.setRenderTarget(null) // pass `null` to set canvas as render target
   EngineRenderer.instance.effectComposer.setSize(originalWidth, originalHeight, true)
 
   // Restoring previous state
   scenePreviewCamera.aspect = prevAspect
   scenePreviewCamera.updateProjectionMatrix()
 
-  return blob
+  const ktx2texture = (await ktx2Encoder.encode(imageData, {
+    srgb: true,
+    uastc: true,
+    uastcZstandard: true
+  })) as ArrayBuffer
+
+  return new Blob([ktx2texture])
 }
 
 /** @todo make size configurable */
@@ -130,7 +132,7 @@ export const downloadScreenshot = () => {
     const editorState = getState(EditorState)
 
     link.href = blobUrl
-    link.download = editorState.projectName + '_' + editorState.sceneName + '_thumbnail.png'
+    link.download = editorState.projectName + '_' + editorState.sceneName + '_thumbnail.ktx2'
 
     document.body.appendChild(link)
 

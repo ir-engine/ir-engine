@@ -33,7 +33,7 @@ describe('ViewCursor read/write', () => {
   beforeEach(() => {
     createEngine()
     const engineState = getMutableState(EngineState)
-    engineState.fixedTick.set(1)
+    engineState.simulationTime.set(1)
   })
 
   afterEach(() => {
@@ -76,15 +76,15 @@ describe('ViewCursor read/write', () => {
 
       prop[entity] = val
 
-      writePropIfChanged(view, prop, UndefinedEntity)
+      writePropIfChanged(view, prop, UndefinedEntity, false)
       strictEqual(view.getFloat32(0), val)
 
-      writePropIfChanged(view, prop, UndefinedEntity)
+      writePropIfChanged(view, prop, UndefinedEntity, false)
       strictEqual(view.getFloat32(4), 0)
 
       prop[entity]++
 
-      writePropIfChanged(view, prop, UndefinedEntity)
+      writePropIfChanged(view, prop, UndefinedEntity, false)
       strictEqual(view.getFloat32(4), val + 1)
     })
 

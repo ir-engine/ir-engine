@@ -3,30 +3,32 @@ import { Mesh, Scene } from 'three'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { StaticResourceInterface } from '@etherealengine/common/src/interfaces/StaticResourceInterface'
+import { getState, none } from '@etherealengine/hyperflux'
 
 import { AssetLoader } from '../../assets/classes/AssetLoader'
-import { DependencyTree } from '../../assets/classes/DependencyTree'
+import { EngineState } from '../../ecs/classes/EngineState'
 import {
   defineComponent,
   getComponent,
   getMutableComponent,
-  hasComponent,
   removeComponent,
   setComponent,
   useComponent,
   useOptionalComponent
 } from '../../ecs/functions/ComponentFunctions'
-import { entityExists, EntityReactorProps } from '../../ecs/functions/EntityFunctions'
+import { entityExists, removeEntity, useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { EntityTreeComponent } from '../../ecs/functions/EntityTree'
 import { BoundingBoxComponent } from '../../interaction/components/BoundingBoxComponents'
 import { SourceType } from '../../renderer/materials/components/MaterialSource'
 import { removeMaterialSource } from '../../renderer/materials/functions/MaterialLibraryFunctions'
 import { ObjectLayers } from '../constants/ObjectLayers'
 import { generateMeshBVH } from '../functions/bvhWorkerPool'
-import { addError, clearErrors, removeError } from '../functions/ErrorFunctions'
+import { addError, removeError } from '../functions/ErrorFunctions'
 import { parseGLTFModel } from '../functions/loadGLTFModel'
 import { enableObjectLayer } from '../functions/setObjectLayers'
 import { addObjectToGroup, GroupComponent, removeObjectFromGroup } from './GroupComponent'
+import { LODComponent } from './LODComponent'
+import { LODComponentType } from './LODComponent'
 import { SceneAssetPendingTagComponent } from './SceneAssetPendingTagComponent'
 import { UUIDComponent } from './UUIDComponent'
 
@@ -41,14 +43,15 @@ export type ModelResource = {
 
 export const ModelComponent = defineComponent({
   name: 'EE_model',
+  jsonID: 'gltf-model',
 
   onInit: (entity) => {
     return {
       src: '',
-      resource: null as unknown as ModelResource,
+      resource: null as ModelResource | null,
       generateBVH: true,
       avoidCameraOcclusion: false,
-      scene: undefined as undefined | Scene
+      scene: null as Scene | null
     }
   },
 
@@ -70,13 +73,19 @@ export const ModelComponent = defineComponent({
     }
     if (typeof json.generateBVH === 'boolean' && json.generateBVH !== component.generateBVH.value)
       component.generateBVH.set(json.generateBVH)
+
+    /**
+     * Add SceneAssetPendingTagComponent to tell scene loading system we should wait for this asset to load
+     */
+    if (!getState(EngineState).sceneLoaded) setComponent(entity, SceneAssetPendingTagComponent, true)
   },
 
   onRemove: (entity, component) => {
     if (component.scene.value) {
       removeObjectFromGroup(entity, component.scene.value)
-      component.scene.set(undefined)
+      component.scene.set(null)
     }
+    LODComponent.lodsByEntity[entity].value && LODComponent.lodsByEntity[entity].set(none)
     removeMaterialSource({ type: SourceType.MODEL, path: component.src.value })
   },
 
@@ -85,8 +94,8 @@ export const ModelComponent = defineComponent({
   reactor: ModelReactor
 })
 
-function ModelReactor({ root }: EntityReactorProps) {
-  const entity = root.entity
+function ModelReactor() {
+  const entity = useEntityContext()
   const modelComponent = useComponent(entity, ModelComponent)
   const groupComponent = useOptionalComponent(entity, GroupComponent)
   const model = modelComponent.value
@@ -114,7 +123,6 @@ function ModelReactor({ root }: EntityReactorProps) {
       }
       if (!model.src) return
       const uuid = getComponent(entity, UUIDComponent)
-      DependencyTree.add(uuid)
       const fileExtension = model.src.split('.').pop()?.toLowerCase()
       switch (fileExtension) {
         case 'glb':
@@ -188,5 +196,3 @@ function ModelReactor({ root }: EntityReactorProps) {
 
   return null
 }
-
-export const SCENE_COMPONENT_MODEL = 'gltf-model'

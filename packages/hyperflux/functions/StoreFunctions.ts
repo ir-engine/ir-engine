@@ -2,7 +2,14 @@ import { Downgraded, State } from '@hookstate/core'
 import { merge } from 'lodash'
 import { Validator } from 'ts-matches'
 
-import { ActionReceptor, addOutgoingTopicIfNecessary, ResolvedActionType, Topic } from './ActionFunctions'
+import {
+  ActionQueueDefinition,
+  ActionReceptor,
+  addOutgoingTopicIfNecessary,
+  ResolvedActionType,
+  Topic
+} from './ActionFunctions'
+import { ReactorRoot } from './ReactorFunctions'
 
 export type StringLiteral<T> = T extends string ? (string extends T ? never : T) : never
 export interface HyperStore {
@@ -17,16 +24,25 @@ export interface HyperStore {
   forwardIncomingActions: (action: Required<ResolvedActionType>) => boolean
   /**
    * A function which returns the dispatch id assigned to actions
+   * @deprecated can be derived from agentId via mapping
    * */
   getDispatchId: () => string
+  /**
+   * A function which returns the agent id assigned to actions
+   */
+  getPeerId: () => string
   /**
    * A function which returns the current dispatch time (units are arbitrary)
    */
   getDispatchTime: () => number
   /**
+   * A function which returns the current reactor root context
+   **/
+  getCurrentReactorRoot: () => ReactorRoot | undefined
+  /**
    * The default dispatch delay (default is 0)
    */
-  defaultDispatchDelay: number
+  defaultDispatchDelay: () => number
   /**
    * State dictionary
    */
@@ -37,8 +53,9 @@ export interface HyperStore {
   valueMap: { [type: string]: any }
 
   actions: {
+    queueDefinitions: Map<Validator<any, any>, Array<ActionQueueDefinition>>
     /** */
-    queues: Map<Validator<any, any>, Array<Array<ResolvedActionType>>>
+    queues: Map<ActionQueueDefinition, Array<ResolvedActionType>>
     /** Cached actions */
     cached: Array<Required<ResolvedActionType>>
     /** Incoming actions */
@@ -62,6 +79,9 @@ export interface HyperStore {
   }
   /** functions that receive actions */
   receptors: ReadonlyArray<ActionReceptor>
+
+  /** active reactors */
+  activeReactors: Set<ReactorRoot>
 }
 
 export class HyperFlux {
@@ -71,18 +91,24 @@ export class HyperFlux {
 export function createHyperStore(options: {
   forwardIncomingActions?: (action: Required<ResolvedActionType>) => boolean
   getDispatchId: () => string
+  getPeerId: () => string
   getDispatchTime: () => number
-  defaultDispatchDelay?: number
+  getCurrentReactorRoot?: () => ReactorRoot | undefined
+  defaultDispatchDelay?: () => number
 }) {
   const store = {
     defaultTopic: 'default' as Topic,
     forwardIncomingActions: options.forwardIncomingActions ?? (() => false),
     getDispatchId: options.getDispatchId,
+    getPeerId: options.getPeerId,
     getDispatchTime: options.getDispatchTime,
-    defaultDispatchDelay: options.defaultDispatchDelay ?? 0,
+    getCurrentReactorRoot: options.getCurrentReactorRoot ?? (() => null),
+    defaultDispatchDelay: options.defaultDispatchDelay ?? (() => 0),
+
     stateMap: {},
     valueMap: {},
     actions: {
+      queueDefinitions: new Map(),
       queues: new Map(),
       cached: [],
       incoming: [],
@@ -91,7 +117,7 @@ export function createHyperStore(options: {
       outgoing: {}
     },
     receptors: [],
-    reactors: new WeakMap(),
+    activeReactors: new Set(),
     toJSON: () => {
       const state = Object.entries(store.stateMap).reduce((obj, [name, state]) => {
         return merge(obj, { [name]: state.attach(Downgraded).value })

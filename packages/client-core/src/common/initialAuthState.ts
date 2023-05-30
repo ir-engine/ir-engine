@@ -1,6 +1,5 @@
 export const initialAuthState = {
   jwt: true,
-  local: false,
   discord: false,
   facebook: false,
   github: false,

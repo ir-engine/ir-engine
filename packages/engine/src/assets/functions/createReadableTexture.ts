@@ -1,19 +1,18 @@
 import {
   Camera,
   CubeTexture,
+  LinearEncoding,
   Mesh,
   PerspectiveCamera,
   PlaneGeometry,
-  RepeatWrapping,
   Scene,
   ShaderMaterial,
+  sRGBEncoding,
   Texture,
   Uniform,
-  Vector2,
   Vector4,
   WebGLRenderer,
-  WebGLRenderTarget,
-  Wrapping
+  WebGLRenderTarget
 } from 'three'
 
 export type BlitTextureOptions = {
@@ -150,7 +149,6 @@ export default async function createReadableTexture(
   if (typeof map.source?.data?.src === 'string' && !/ktx2$/.test(map.source.data.src)) {
     return options?.url ? map.source.data.src : map
   }
-
   const temporaryRenderer = getTemporaryRenderer()
   blitTexture(map, options)
   const result = await new Promise<Blob | null>((resolve) =>
@@ -160,7 +158,7 @@ export default async function createReadableTexture(
   if (!result) throw new Error('Error creating blob')
   const image = new Image(map.image.width, map.image.height)
   image.src = URL.createObjectURL(result)
-  await new Promise<void>(async (resolve) => {
+  await new Promise<void>((resolve) => {
     image.onload = () => resolve()
   })
   let finalTexture: Texture

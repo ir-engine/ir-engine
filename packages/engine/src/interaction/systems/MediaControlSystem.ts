@@ -1,10 +1,11 @@
-import { getMutableState } from '@etherealengine/hyperflux'
+import { getState } from '@etherealengine/hyperflux'
 import { WebLayer3D } from '@etherealengine/xrui'
 
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
-import { defineQuery, getComponent, getOptionalComponent, removeQuery } from '../../ecs/functions/ComponentFunctions'
+import { defineQuery, getComponent, getOptionalComponent } from '../../ecs/functions/ComponentFunctions'
+import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { GroupComponent } from '../../scene/components/GroupComponent'
 import { MediaComponent } from '../../scene/components/MediaComponent'
 import { XRUIComponent } from '../../xrui/components/XRUIComponent'
@@ -14,7 +15,7 @@ import { addInteractableUI } from './InteractiveSystem'
 
 export const MediaFadeTransitions = new Map<Entity, ReturnType<typeof createTransitionState>>()
 
-const onUpdate = () => (entity: Entity, mediaControls: ReturnType<typeof createMediaControlsUI>) => {
+const onUpdate = (entity: Entity, mediaControls: ReturnType<typeof createMediaControlsUI>) => {
   const xrui = getComponent(mediaControls.entity, XRUIComponent)
   const transition = MediaFadeTransitions.get(entity)!
   const buttonLayer = xrui.rootLayer.querySelector('button')
@@ -35,31 +36,25 @@ const onUpdate = () => (entity: Entity, mediaControls: ReturnType<typeof createM
   })
 }
 
-export default async function MediaControlSystem() {
-  /** @todo, remove this when we have better system pipeline injection */
-  if (getMutableState(EngineState).isEditor.value) return { execute: () => {}, cleanup: async () => {} }
+const mediaQuery = defineQuery([MediaComponent])
 
-  const mediaQuery = defineQuery([MediaComponent])
+const execute = () => {
+  if (getState(EngineState).isEditor) return
 
-  const update = onUpdate()
-
-  const execute = () => {
-    for (const entity of mediaQuery.enter()) {
-      if (!getComponent(entity, MediaComponent).controls) continue
-      addInteractableUI(entity, createMediaControlsUI(entity), update)
-      const transition = createTransitionState(0.25)
-      transition.setState('OUT')
-      MediaFadeTransitions.set(entity, transition)
-    }
-
-    for (const entity of mediaQuery.exit()) {
-      if (MediaFadeTransitions.has(entity)) MediaFadeTransitions.delete(entity)
-    }
+  for (const entity of mediaQuery.enter()) {
+    if (!getComponent(entity, MediaComponent).controls) continue
+    addInteractableUI(entity, createMediaControlsUI(entity), onUpdate)
+    const transition = createTransitionState(0.25)
+    transition.setState('OUT')
+    MediaFadeTransitions.set(entity, transition)
   }
 
-  const cleanup = async () => {
-    removeQuery(mediaQuery)
+  for (const entity of mediaQuery.exit()) {
+    if (MediaFadeTransitions.has(entity)) MediaFadeTransitions.delete(entity)
   }
-
-  return { execute, cleanup }
 }
+
+export const MediaControlSystem = defineSystem({
+  uuid: 'ee.engine.MediaControlSystem',
+  execute
+})

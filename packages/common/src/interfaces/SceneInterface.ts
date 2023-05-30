@@ -2,7 +2,7 @@ import { EntityUUID } from './EntityUUID'
 
 export interface ComponentJson<T extends any = any> {
   name: string
-  props: T
+  props?: Partial<T> | T
 }
 
 export interface EntityJson {
@@ -14,7 +14,6 @@ export interface EntityJson {
 }
 
 export interface SceneJson {
-  metadata: { [uuid: string]: any }
   entities: { [uuid: EntityUUID]: EntityJson }
   root: EntityUUID
   version: number

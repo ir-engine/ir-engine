@@ -2,11 +2,11 @@ import { Paginated } from '@feathersjs/feathers'
 
 import { InstalledRoutesInterface } from '@etherealengine/common/src/interfaces/Route'
 import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
-import { defineAction, defineState, dispatchAction, getMutableState } from '@etherealengine/hyperflux'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { defineAction, defineState, dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
 
-import { API } from '../../API'
 import { NotificationService } from '../../common/services/NotificationService'
-import { accessAuthState } from '../../user/services/AuthService'
+import { AuthState } from '../../user/services/AuthService'
 
 //State
 export const ROUTE_PAGE_LIMIT = 10000
@@ -37,10 +37,10 @@ export const AdminRouteReceptors = {
 //Service
 export const RouteService = {
   fetchInstalledRoutes: async (incDec?: 'increment' | 'decrement') => {
-    const user = accessAuthState().user
+    const user = getState(AuthState).user
     try {
-      if (user.scopes?.value?.find((scope) => scope.type === 'admin:admin')) {
-        const routes = (await API.instance.client
+      if (user.scopes?.find((scope) => scope.type === 'admin:admin')) {
+        const routes = (await Engine.instance.api
           .service('routes-installed')
           .find()) as Paginated<InstalledRoutesInterface>
         dispatchAction(AdminRouteActions.installedRoutesRetrieved({ data: routes.data }))

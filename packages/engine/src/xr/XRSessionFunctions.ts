@@ -6,7 +6,7 @@ import { dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 import { AvatarHeadDecapComponent } from '../avatar/components/AvatarIKComponents'
 import { V_000 } from '../common/constants/MathConstants'
 import { SceneState } from '../ecs/classes/Scene'
-import { ButtonInputStateType, createInitialButtonState } from '../input/InputState'
+import { createInitialButtonState, OldButtonInputStateType } from '../input/InputState'
 import { RigidBodyComponent } from '../physics/components/RigidBodyComponent'
 import { SkyboxComponent } from '../scene/components/SkyboxComponent'
 import { setVisibleComponent } from '../scene/components/VisibleComponent'
@@ -50,24 +50,28 @@ export const setupXRSession = async (requestedMode) => {
   const xrState = getMutableState(XRState)
   const xrManager = EngineRenderer.instance.xrManager
 
+  // @todo - hack to detect nreal
+  const params = new URL(document.location.href).searchParams
+  const isXREAL = params.has('xreal')
+
   const sessionInit = {
     optionalFeatures: [
       'local-floor',
       'hand-tracking',
       'layers',
-      'dom-overlay',
+      isXREAL ? undefined : 'dom-overlay', // dom overlay crashes nreal
       'hit-test',
       'light-estimation',
       'depth-sensing',
       'anchors',
       'plane-detection',
       'camera-access'
-    ],
+    ].filter(Boolean),
     depthSensing: {
       usagePreference: ['cpu-optimized', 'gpu-optimized'],
       dataFormatPreference: ['luminance-alpha', 'float32']
     },
-    domOverlay: { root: document.body }
+    domOverlay: isXREAL ? undefined : { root: document.body }
   } as XRSessionInit
   const mode =
     requestedMode ||
@@ -95,7 +99,6 @@ export const setupXRSession = async (requestedMode) => {
 
   xrState.sessionActive.set(true)
 
-  xrManager.setFoveation(1)
   xrState.sessionMode.set(mode)
 
   await xrManager.setSession(xrSession, framebufferScaleFactor)
@@ -115,17 +118,14 @@ export const setupXRSession = async (requestedMode) => {
 
 export const getReferenceSpaces = (xrSession: XRSession) => {
   const worldOriginTransform = getComponent(Engine.instance.originEntity, TransformComponent)
-  const rigidBody = getComponent(Engine.instance.localClientEntity, RigidBodyComponent)
-  const xrState = getMutableState(XRState)
+  const localClientEntity = Engine.instance.localClientEntity
+  const rigidBody = localClientEntity
+    ? getComponent(localClientEntity, RigidBodyComponent)
+    : getComponent(Engine.instance.cameraEntity, TransformComponent)
 
   /** since the world origin is based on gamepad movement, we need to transform it by the pose of the avatar */
-  if (xrState.sessionMode.value === 'immersive-ar') {
-    worldOriginTransform.position.copy(rigidBody.position)
-    worldOriginTransform.rotation.copy(quat180y)
-  } else {
-    worldOriginTransform.position.copy(rigidBody.position)
-    worldOriginTransform.rotation.copy(rigidBody.rotation).multiply(quat180y)
-  }
+  worldOriginTransform.position.copy(rigidBody.position)
+  worldOriginTransform.rotation.copy(rigidBody.rotation).multiply(quat180y)
 
   /** the world origin is an offset to the local floor, so as soon as we have the local floor, define the origin reference space */
   xrSession.requestReferenceSpace('local-floor').then((space) => {
@@ -201,10 +201,10 @@ export const setupARSession = () => {
    * This gets piped into the input system as a TouchInput.Touch
    */
   session.addEventListener('selectstart', () => {
-    ;(Engine.instance.buttons as ButtonInputStateType).PrimaryClick = createInitialButtonState()
+    ;(Engine.instance.buttons as OldButtonInputStateType).PrimaryClick = createInitialButtonState()
   })
   session.addEventListener('selectend', (inputSource) => {
-    const buttons = Engine.instance.buttons as ButtonInputStateType
+    const buttons = Engine.instance.buttons as OldButtonInputStateType
     if (!buttons.PrimaryClick) return
     buttons.PrimaryClick!.up = true
   })

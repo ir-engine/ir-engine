@@ -1,39 +1,34 @@
 import React, { memo, useCallback, useEffect } from 'react'
-import { useTranslation } from 'react-i18next'
 import AutoSizer from 'react-virtualized-auto-sizer'
 import { areEqual, FixedSizeList } from 'react-window'
 import { MeshBasicMaterial } from 'three'
 
 import exportMaterialsGLTF from '@etherealengine/engine/src/assets/functions/exportMaterialsGLTF'
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { SourceType } from '@etherealengine/engine/src/renderer/materials/components/MaterialSource'
 import { LibraryEntryType } from '@etherealengine/engine/src/renderer/materials/constants/LibraryEntry'
 import {
   entryId,
-  hashMaterialSource,
   materialFromId,
   registerMaterial
 } from '@etherealengine/engine/src/renderer/materials/functions/MaterialLibraryFunctions'
-import { useMaterialLibrary } from '@etherealengine/engine/src/renderer/materials/MaterialLibrary'
-import { createActionQueue, getMutableState, getState, removeActionQueue, useState } from '@etherealengine/hyperflux'
+import { MaterialLibraryState } from '@etherealengine/engine/src/renderer/materials/MaterialLibrary'
+import { getMutableState, getState, useHookstate, useState } from '@etherealengine/hyperflux'
 
-import { Divider, Grid, Stack } from '@mui/material'
+import { Stack } from '@mui/material'
 
 import { uploadProjectFiles } from '../../functions/assetFunctions'
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
-import { useEditorState } from '../../services/EditorServices'
-import { useSelectionState } from '../../services/SelectionServices'
-import { HeirarchyTreeCollapsedNodeType } from '../hierarchy/HeirarchyTreeWalker'
+import { EditorState } from '../../services/EditorServices'
+import { SelectionState } from '../../services/SelectionServices'
 import styles from '../hierarchy/styles.module.scss'
 import { Button } from '../inputs/Button'
 import MaterialLibraryEntry, { MaterialLibraryEntryType } from './MaterialLibraryEntry'
 
 export default function MaterialLibraryPanel() {
-  const { t } = useTranslation()
-  const editorState = useEditorState()
-  const selectionState = useSelectionState()
-  const materialLibrary = useMaterialLibrary()
+  const editorState = useHookstate(getMutableState(EditorState))
+  const selectionState = useHookstate(getMutableState(SelectionState))
+  const materialLibrary = useHookstate(getMutableState(MaterialLibraryState))
   const MemoMatLibEntry = memo(MaterialLibraryEntry, areEqual)
   const nodeChanges = useState(0)
   const publicPath = getState(EngineState).publicPath

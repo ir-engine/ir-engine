@@ -10,6 +10,7 @@ import Login from './login/login.service'
 import MagicLink from './magic-link/magic-link.service'
 import SMS from './sms/sms.service'
 import UserApiKey from './user-api-key/user-api-key.service'
+import UserKick from './user-kick/user-kick.service'
 import UserRelationshipType from './user-relationship-type/user-relationship-type.service'
 import UserRelationship from './user-relationship/user-relationship.service'
 import UserSettings from './user-settings/user-settings.service'
@@ -19,6 +20,7 @@ export default [
   UserApiKey,
   User,
   UserSettings,
+  UserKick,
   IdentityProvider,
   UserRelationshipType,
   UserRelationship,

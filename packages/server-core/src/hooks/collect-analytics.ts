@@ -12,7 +12,7 @@ export default (): Hook => {
       // send a anonymous user's analytics
       const visitor = ua(config.server.gaTrackingId, { https: false })
       visitor.pageview(context.service).send()
-      visitor.event(context.method, 'Requeset').send()
+      visitor.event(context.method, 'Request').send()
     } else {
       // send the user's analytics
       const visitor = ua(config.server.gaTrackingId, context.params.user._id, { https: false })

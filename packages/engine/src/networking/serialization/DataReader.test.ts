@@ -42,10 +42,10 @@ import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
 import { NetworkState } from '../NetworkState'
 import {
   checkBitflag,
-  createDataReader,
   readComponent,
   readComponentProp,
   readCompressedVector3,
+  readDataPacket,
   readEntities,
   readEntity,
   readVector3,
@@ -285,7 +285,7 @@ describe('DataReader', () => {
     rotation.z[entity] = z
     rotation.w[entity] = w
 
-    writeRotation(view, entity)
+    writeRotation(view, entity, true)
 
     rotation.x[entity] = 0
     rotation.y[entity] = 0
@@ -296,7 +296,7 @@ describe('DataReader', () => {
 
     readRotation(view, entity)
 
-    strictEqual(view.cursor, Uint8Array.BYTES_PER_ELEMENT + Float32Array.BYTES_PER_ELEMENT)
+    strictEqual(view.cursor, Uint8Array.BYTES_PER_ELEMENT + Float64Array.BYTES_PER_ELEMENT * 4)
 
     // Round values to 3 decimal places and compare
     strictEqual(roundNumberToPlaces(TransformComponent.rotation.x[entity], 3), roundNumberToPlaces(x, 3))
@@ -308,14 +308,13 @@ describe('DataReader', () => {
   it('should readCompressedVector3', () => {
     const view = createViewCursor()
     const entity = 42 as Entity
-    const rotation = TransformComponent.rotation
 
     const [x, y, z] = [1.333, 2.333, 3.333]
     RigidBodyComponent.linearVelocity.x[entity] = x
     RigidBodyComponent.linearVelocity.y[entity] = y
     RigidBodyComponent.linearVelocity.z[entity] = z
 
-    writeCompressedVector3(RigidBodyComponent.linearVelocity)(view, entity)
+    writeCompressedVector3(RigidBodyComponent.linearVelocity)(view, entity, true)
 
     RigidBodyComponent.linearVelocity.x[entity] = 0
     RigidBodyComponent.linearVelocity.y[entity] = 0
@@ -325,7 +324,7 @@ describe('DataReader', () => {
 
     readCompressedVector3(RigidBodyComponent.linearVelocity)(view, entity)
 
-    strictEqual(view.cursor, Uint8Array.BYTES_PER_ELEMENT + Float32Array.BYTES_PER_ELEMENT)
+    strictEqual(view.cursor, Uint8Array.BYTES_PER_ELEMENT + Uint32Array.BYTES_PER_ELEMENT)
 
     // Round values to 3 decimal places and compare
     strictEqual(roundNumberToPlaces(RigidBodyComponent.linearVelocity.x[entity], 1), roundNumberToPlaces(x, 1))
@@ -588,7 +587,23 @@ describe('DataReader', () => {
     strictEqual(TransformComponent.rotation.w[entity], 0)
 
     // should update the view cursor accordingly
-    strictEqual(view.cursor, 36)
+    strictEqual(
+      view.cursor,
+      // network id
+      Uint32Array.BYTES_PER_ELEMENT +
+        // change mask for entity
+        Uint8Array.BYTES_PER_ELEMENT +
+        // change mask for transform
+        Uint8Array.BYTES_PER_ELEMENT +
+        // change mask for position
+        Uint8Array.BYTES_PER_ELEMENT +
+        // transform position
+        Float64Array.BYTES_PER_ELEMENT * 3 +
+        // change mask for rotation
+        Uint8Array.BYTES_PER_ELEMENT +
+        // transform rotation
+        Float64Array.BYTES_PER_ELEMENT * 4
+    )
   })
 
   it('should not readEntity if entity is undefined', () => {
@@ -634,7 +649,23 @@ describe('DataReader', () => {
     strictEqual(TransformComponent.rotation.w[entity], 0)
 
     // should update the view cursor accordingly
-    strictEqual(view.cursor, 36)
+    strictEqual(
+      view.cursor,
+      // network id
+      Uint32Array.BYTES_PER_ELEMENT +
+        // change mask for entity
+        Uint8Array.BYTES_PER_ELEMENT +
+        // change mask for transform
+        Uint8Array.BYTES_PER_ELEMENT +
+        // change mask for position
+        Uint8Array.BYTES_PER_ELEMENT +
+        // transform position
+        Float64Array.BYTES_PER_ELEMENT * 3 +
+        // change mask for rotation
+        Uint8Array.BYTES_PER_ELEMENT +
+        // transform rotation
+        Float64Array.BYTES_PER_ELEMENT * 4
+    )
   })
 
   it('should readEntities', () => {
@@ -709,7 +740,7 @@ describe('DataReader', () => {
     }
   })
 
-  it('should createDataReader', () => {
+  it('should createDataWriter', () => {
     const write = createDataWriter()
     const network = Engine.instance.worldNetwork as Network
 
@@ -778,8 +809,14 @@ describe('DataReader', () => {
       // read writeRotation changeMask
       strictEqual(readUint8(readView), 0b1111)
 
+      // read compressed rotation values
+      // readFloat32(readView)
+
       // read rotation values
-      readFloat32(readView)
+      strictEqual(readFloat64(readView), rotX)
+      strictEqual(readFloat64(readView), rotY)
+      strictEqual(readFloat64(readView), rotZ)
+      strictEqual(readFloat64(readView), rotW)
     }
 
     for (let i = 0; i < entities.length; i++) {
@@ -794,9 +831,7 @@ describe('DataReader', () => {
       TransformComponent.rotation.w[entity] = 0
     }
 
-    const read = createDataReader()
-
-    read(network, packet)
+    readDataPacket(network, packet)
 
     for (let i = 0; i < entities.length; i++) {
       const entity = entities[i]
@@ -812,13 +847,13 @@ describe('DataReader', () => {
     }
   })
 
-  it('should createDataReader and return empty packet if no changes were made on a fixedTick not divisible by 60', () => {
+  it('should readDataPacket and return empty packet if no changes were made on a fixedTick not divisible by 60', () => {
     const write = createDataWriter()
 
     const peerID = 'peerID' as PeerID
     const network = Engine.instance.worldNetwork as Network
     const engineState = getMutableState(EngineState)
-    engineState.fixedTick.set(1)
+    engineState.simulationTime.set(1)
 
     const n = 10
     const entities: Entity[] = Array(n)
@@ -855,49 +890,50 @@ describe('DataReader', () => {
     })
   })
 
-  it('should createDataReader and return populated packet if no changes were made but on a fixedTick divisible by 60', () => {
+  // todo - since we are now passing this down through the writers, we need to refactor this test
+  // it('should createDataReader and return populated packet if no changes were made but on a fixedTick divisible by 60', () => {
+  //   const write = createDataWriter()
+  //   const network = Engine.instance.worldNetwork as Network
+  //   const engineState = getMutableState(EngineState)
+  //   engineState.fixedTick.set(60)
+  //   const peerID = 'peerID' as PeerID
+
+  //   const n = 10
+  //   const entities: Entity[] = Array(n)
+  //     .fill(0)
+  //     .map(() => createEntity())
+
+  //   const [x, y, z, w] = [0, 0, 0, 0]
+
+  //   entities.forEach((entity) => {
+  //     const networkId = entity as unknown as NetworkId
+  //     const userId = entity as unknown as UserId & PeerID
+  //     const userIndex = entity
+
+  //     setTransformComponent(entity)
+  //     const transform = getComponent(entity, TransformComponent)
+  //     transform.position.set(x, y, z)
+  //     transform.rotation.set(x, y, z, w)
+  //     addComponent(entity, NetworkObjectComponent, {
+  //       networkId,
+  //       authorityPeerID: userId,
+  //       ownerId: userId
+  //     })
+  //     network.userIndexToUserID.set(userIndex, userId)
+  //     network.userIDToUserIndex.set(userId, userIndex)
+  //   })
+
+  //   const packet = write(network, Engine.instance.userId, peerID, entities)
+
+  //   strictEqual(packet.byteLength, 376)
+  // })
+
+  it('should createDataWriter and detect changes', () => {
     const write = createDataWriter()
+
     const network = Engine.instance.worldNetwork as Network
     const engineState = getMutableState(EngineState)
-    engineState.fixedTick.set(60)
-    const peerID = 'peerID' as PeerID
-
-    const n = 10
-    const entities: Entity[] = Array(n)
-      .fill(0)
-      .map(() => createEntity())
-
-    const [x, y, z, w] = [0, 0, 0, 0]
-
-    entities.forEach((entity) => {
-      const networkId = entity as unknown as NetworkId
-      const userId = entity as unknown as UserId & PeerID
-      const userIndex = entity
-
-      setTransformComponent(entity)
-      const transform = getComponent(entity, TransformComponent)
-      transform.position.set(x, y, z)
-      transform.rotation.set(x, y, z, w)
-      addComponent(entity, NetworkObjectComponent, {
-        networkId,
-        authorityPeerID: userId,
-        ownerId: userId
-      })
-      network.userIndexToUserID.set(userIndex, userId)
-      network.userIDToUserIndex.set(userId, userIndex)
-    })
-
-    const packet = write(network, Engine.instance.userId, peerID, entities)
-
-    strictEqual(packet.byteLength, 376)
-  })
-
-  it('should createDataReader and detect changes', () => {
-    const write = createDataWriter()
-
-    const network = Engine.instance.worldNetwork as Network
-    const engineState = getMutableState(EngineState)
-    engineState.fixedTick.set(1)
+    engineState.simulationTime.set(1)
     const peerID = 'peerID' as PeerID
 
     const n = 10

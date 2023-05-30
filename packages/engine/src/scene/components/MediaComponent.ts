@@ -11,15 +11,12 @@ import { getMutableState, getState, none, useHookstate } from '@etherealengine/h
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { AssetClass } from '../../assets/enum/AssetClass'
 import { AudioState } from '../../audio/AudioState'
-import { removePannerNode } from '../../audio/systems/PositionalAudioSystem'
-import { isClient } from '../../common/functions/isClient'
-import { Engine } from '../../ecs/classes/Engine'
-import { EngineState } from '../../ecs/classes/EngineState'
+import { removePannerNode } from '../../audio/PositionalAudioFunctions'
+import { isClient } from '../../common/functions/getEnvironment'
 import { Entity } from '../../ecs/classes/Entity'
 import {
   ComponentType,
   defineComponent,
-  getComponent,
   getMutableComponent,
   getOptionalComponent,
   hasComponent,
@@ -28,7 +25,7 @@ import {
   useComponent,
   useOptionalComponent
 } from '../../ecs/functions/ComponentFunctions'
-import { EntityReactorProps } from '../../ecs/functions/EntityFunctions'
+import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { RendererState } from '../../renderer/RendererState'
 import { ObjectLayers } from '../constants/ObjectLayers'
 import { PlayMode } from '../constants/PlayMode'
@@ -135,6 +132,7 @@ export const MediaElementComponent = defineComponent({
 
 export const MediaComponent = defineComponent({
   name: 'EE_media',
+  jsonID: 'media',
 
   onInit: (entity) => {
     return {
@@ -244,8 +242,8 @@ export const MediaComponent = defineComponent({
   errors: ['LOADING_ERROR', 'UNSUPPORTED_ASSET_CLASS', 'INVALID_URL']
 })
 
-export function MediaReactor({ root }: EntityReactorProps) {
-  const entity = root.entity
+export function MediaReactor() {
+  const entity = useEntityContext()
   const media = useComponent(entity, MediaComponent)
   const mediaElement = useOptionalComponent(entity, MediaElementComponent)
   const audioContext = getState(AudioState).audioContext
@@ -257,7 +255,12 @@ export function MediaReactor({ root }: EntityReactorProps) {
       if (media.paused.value) {
         mediaElement.element.value.pause()
       } else {
-        mediaElement.element.value.play()
+        const promise = mediaElement.element.value.play()
+        if (promise) {
+          promise.catch((error) => {
+            console.error(error)
+          })
+        }
       }
     },
     [media.paused, mediaElement]
@@ -422,25 +425,23 @@ export function MediaReactor({ root }: EntityReactorProps) {
   useEffect(() => {
     if (debugEnabled.value && !media.helper.value) {
       const helper = new Mesh(new PlaneGeometry(), new MeshBasicMaterial({ transparent: true, side: DoubleSide }))
-      helper.name = `audio-helper-${root.entity}`
+      helper.name = `audio-helper-${entity}`
       AssetLoader.loadAsync(AUDIO_TEXTURE_PATH).then((AUDIO_HELPER_TEXTURE) => {
         helper.material.map = AUDIO_HELPER_TEXTURE
       })
       setObjectLayers(helper, ObjectLayers.NodeHelper)
-      addObjectToGroup(root.entity, helper)
+      addObjectToGroup(entity, helper)
       media.helper.set(helper)
     }
 
     if (!debugEnabled.value && media.helper.value) {
-      removeObjectFromGroup(root.entity, media.helper.value)
+      removeObjectFromGroup(entity, media.helper.value)
       media.helper.set(none)
     }
   }, [debugEnabled])
 
   return null
 }
-
-export const SCENE_COMPONENT_MEDIA = 'media'
 
 export const setupHLS = (entity: Entity, url: string): Hls => {
   const hls = new Hls()

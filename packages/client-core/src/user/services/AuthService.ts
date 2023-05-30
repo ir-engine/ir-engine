@@ -1,7 +1,5 @@
 import { Paginated } from '@feathersjs/feathers'
-import { Downgraded } from '@hookstate/core'
 import i18n from 'i18next'
-import querystring from 'querystring'
 import { useEffect } from 'react'
 import { v1 } from 'uuid'
 
@@ -25,13 +23,14 @@ import {
   defineState,
   dispatchAction,
   getMutableState,
+  getState,
   syncStateWithLocalStorage,
   useState
 } from '@etherealengine/hyperflux'
 
 import { API } from '../../API'
 import { NotificationService } from '../../common/services/NotificationService'
-import { accessLocationState } from '../../social/services/LocationService'
+import { LocationState } from '../../social/services/LocationService'
 import { userPatched } from '../functions/userPatched'
 
 export const logger = multiLogger.child({ component: 'client-core:AuthService' })
@@ -51,10 +50,6 @@ export const AuthState = defineState({
     syncStateWithLocalStorage(AuthState, ['authUser'])
   }
 })
-/**@deprecated use getMutableState directly instead */
-export const accessAuthState = () => getMutableState(AuthState)
-/**@deprecated use useHookstate(getMutableState(...) directly instead */
-export const useAuthState = () => useState(accessAuthState())
 
 export interface EmailLoginForm {
   email: string
@@ -195,16 +190,6 @@ export class AuthAction {
 
   static didResendVerificationEmailAction = defineAction({
     type: 'ee.client.Auth.DID_RESEND_VERIFICATION_EMAIL' as const,
-    result: matches.boolean
-  })
-
-  static didForgotPasswordAction = defineAction({
-    type: 'ee.client.Auth.DID_FORGOT_PASSWORD' as const,
-    result: matches.boolean
-  })
-
-  static didResetPasswordAction = defineAction({
-    type: 'ee.client.Auth.DID_RESET_PASSWORD' as const,
     result: matches.boolean
   })
 
@@ -429,7 +414,7 @@ export const AuthService = {
       }
 
       // TODO: This is temp until we move completely to XR wallet #6453
-      const oldId = accessAuthState().user.id.value
+      const oldId = getState(AuthState).user.id
       walletUser.id = oldId
 
       // loadXRAvatarForUpdatedUser(walletUser)
@@ -450,13 +435,13 @@ export const AuthService = {
    */
   async loginUserByOAuth(service: string, location: any) {
     dispatchAction(AuthAction.actionProcessing({ processing: true }))
-    const token = accessAuthState().authUser.accessToken.value
+    const token = getState(AuthState).authUser.accessToken
     const path = location?.state?.from || location.pathname
-    const queryString = querystring.parse(window.location.search.slice(1))
+    const instanceId = new URL(window.location.href).searchParams.get('instanceId')
     const redirectObject = {
       path: path
     } as any
-    if (queryString.instanceId && queryString.instanceId.length > 0) redirectObject.instanceId = queryString.instanceId
+    if (instanceId) redirectObject.instanceId = instanceId
     window.location.href = `${
       config.client.serverUrl
     }/oauth/${service}?feathers_token=${token}&redirect=${JSON.stringify(redirectObject)}`
@@ -601,41 +586,6 @@ export const AuthService = {
     } catch (err) {
       logger.warn(err, 'Error resending verification email')
       dispatchAction(AuthAction.didResendVerificationEmailAction({ result: false }))
-    } finally {
-      dispatchAction(AuthAction.actionProcessing({ processing: false }))
-    }
-  },
-
-  async forgotPassword(email: string) {
-    dispatchAction(AuthAction.actionProcessing({ processing: true }))
-    logger.info('forgotPassword event for email "${email}".')
-
-    try {
-      await API.instance.client.service('authManagement').create({
-        action: 'sendResetPwd',
-        value: { token: email, type: 'password' }
-      })
-      dispatchAction(AuthAction.didForgotPasswordAction({ result: true }))
-    } catch (err) {
-      logger.warn(err, 'Error sending forgot password email')
-      dispatchAction(AuthAction.didForgotPasswordAction({ result: false }))
-    } finally {
-      dispatchAction(AuthAction.actionProcessing({ processing: false }))
-    }
-  },
-
-  async resetPassword(token: string, password: string) {
-    dispatchAction(AuthAction.actionProcessing({ processing: true }))
-    try {
-      await API.instance.client.service('authManagement').create({
-        action: 'resetPwdLong',
-        value: { token, password }
-      })
-      dispatchAction(AuthAction.didResetPasswordAction({ result: true }))
-      window.location.href = '/'
-    } catch (err) {
-      dispatchAction(AuthAction.didResetPasswordAction({ result: false }))
-      window.location.href = '/'
     } finally {
       dispatchAction(AuthAction.actionProcessing({ processing: false }))
     }
@@ -806,14 +756,14 @@ export const AuthService = {
     useEffect(() => {
       const userPatchedListener = (params) => dispatchAction(AuthAction.userPatchedAction({ params }))
       const locationBanCreatedListener = async (params) => {
-        const selfUser = accessAuthState().user
-        const currentLocation = accessLocationState().currentLocation.location
+        const selfUser = getState(AuthState).user
+        const currentLocation = getState(LocationState).currentLocation.location
         const locationBan = params.locationBan
-        if (selfUser.id.value === locationBan.userId && currentLocation.id.value === locationBan.locationId) {
+        if (selfUser.id === locationBan.userId && currentLocation.id === locationBan.locationId) {
           // TODO: Decouple and reenable me!
           // endVideoChat({ leftParty: true });
           // leave(true);
-          const userId = selfUser.id.value ?? ''
+          const userId = selfUser.id ?? ''
           const user = resolveUser(await API.instance.client.service('user').get(userId))
           dispatchAction(AuthAction.userUpdatedAction({ user }))
         }

@@ -69,7 +69,9 @@ export default function PaginatedList<T>({
           <Grid item xs={1}>
             <Button
               onClick={() =>
-                currentPage.set(Math.min(Math.floor(list.length / countPerPage), Math.max(0, currentPage.value + 1)))
+                currentPage.set(
+                  Math.min(Math.floor((list.length - 1) / countPerPage), Math.max(0, currentPage.value + 1))
+                )
               }
               style={{ width: 'auto' }}
             >
@@ -78,8 +80,8 @@ export default function PaginatedList<T>({
           </Grid>
         </Grid>
       </Well>
-      {(pageView.value[0] === pageView.value[1] ? list : list.slice(...pageView.value)).map((index) => {
-        return element(index)
+      {(pageView.value[0] === pageView.value[1] ? list : list.slice(...pageView.value)).map((index, _index) => {
+        return <div key={`${_index}`}>{element(index)}</div>
       })}
     </>
   )

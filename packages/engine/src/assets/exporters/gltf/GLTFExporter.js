@@ -3,6 +3,7 @@ import {
 	ClampToEdgeWrapping,
 	Color,
 	DoubleSide,
+	Group,
 	InterpolateDiscrete,
 	InterpolateLinear,
 	LinearEncoding,
@@ -21,9 +22,11 @@ import {
 	Scene,
 	Source,
 	sRGBEncoding,
-	Vector3
+	Vector3,
+	Texture
 } from 'three';
 
+import createReadableTexture from '@etherealengine/engine/src/assets/functions/createReadableTexture'
 
 /**
  * The KHR_mesh_quantization extension allows these extra attribute component types
@@ -451,7 +454,7 @@ function getToBlobPromise( canvas, mimeType ) {
 /**
  * Writer
  */
-class GLTFWriter {
+export class GLTFWriter {
 
 	constructor() {
 
@@ -537,8 +540,6 @@ class GLTFWriter {
 		const extensionsUsed = writer.extensionsUsed;
 		const extensionsRequired = writer.extensionsRequired;
 
-		// Merge buffers.
-		const blob = new Blob( buffers, { type: 'application/octet-stream' } );
 
 		// Declare extensions.
 		const extensionsUsedList = Object.keys( extensionsUsed );
@@ -548,10 +549,13 @@ class GLTFWriter {
 		if ( extensionsRequiredList.length > 0 ) json.extensionsRequired = extensionsRequiredList;
 
 		// Update bytelength of the single buffer.
-		if ( json.buffers && json.buffers.length > 0 ) json.buffers[ 0 ].byteLength = blob.size;
+		
 
 		if ( options.binary === true ) {
-
+			const blob = new Blob( buffers, { type: 'application/octet-stream' } );
+			if ( json.buffers && json.buffers.length > 0 ) json.buffers[ 0 ].byteLength = blob.size;
+			// Merge buffers.
+			
 			// https://github.com/KhronosGroup/glTF/blob/master/specification/2.0/README.md#glb-file-format-specification
 
 			const reader = new FileReader();
@@ -1218,8 +1222,8 @@ class GLTFWriter {
 					resolve({})
 				}))
 			} else {
-		const canvas = getCanvas();
-
+			const canvas = getCanvas();
+			
 			canvas.width = Math.min( image.width, options.maxTextureSize );
 			canvas.height = Math.min( image.height, options.maxTextureSize );
 
@@ -1234,7 +1238,7 @@ class GLTFWriter {
 
 		if ( image.data !== undefined ) { // THREE.DataTexture
 			if ( format !== RGBAFormat ) {
-
+//pass this since basisU extension may be present
 
 			}
 					else
@@ -1245,7 +1249,7 @@ class GLTFWriter {
 
 				}
 
-						data = new Uint8ClampedArray( image.height * image.width * 4 );
+						const data = new Uint8ClampedArray( image.height * image.width * 4 );
 
 				for ( let i = 0; i < data.length; i += 4 ) {
 
@@ -1262,23 +1266,24 @@ class GLTFWriter {
 				ctx.drawImage( image, 0, 0, canvas.width, canvas.height );
 
 			}
+			
+
 
 			if ( options.binary === true ) {
 
 				pending.push(
-
-					getToBlobPromise( canvas, mimeType )
+					//createReadableTexture(new Texture(image), {flipY: true, canvas: true}).then((texture) => 
+					getToBlobPromise( /*texture.image*/canvas, mimeType )
 						.then( blob => writer.processBufferViewImage( blob ) )
 						.then( bufferViewIndex => {
 
 							imageDef.bufferView = bufferViewIndex;
 
 						} )
-
-				);
-
+				)
+				//)
 			} else {
-
+/*
 				if ( canvas.toDataURL !== undefined ) {
 
 					imageDef.uri = canvas.toDataURL( mimeType );
@@ -1298,7 +1303,7 @@ class GLTFWriter {
 					);
 
 				}
-
+*/
 		}
 			}
 		} else {
@@ -2076,7 +2081,7 @@ class GLTFWriter {
 	 * @param {THREE.Object3D} object
 	 * @return {number|null}
 	 */
-	 processSkin( object ) {
+	processSkin( object ) {
 
 		const json = this.json;
 		const nodeMap = this.nodeMap;
@@ -2309,7 +2314,10 @@ class GLTFWriter {
 
 		for ( let i = 0; i < input.length; i ++ ) {
 
-			if ( input[ i ] instanceof Scene ) {
+			if ( 
+				input[ i ] instanceof Scene 
+				|| input[ i ] instanceof Group
+			) {
 
 				this.processScene( input[ i ] );
 
@@ -2320,7 +2328,7 @@ class GLTFWriter {
 			}
 
 		}
-
+		
 		if ( objectsWithoutScene.length > 0 ) this.processObjects( objectsWithoutScene );
 
 		for ( let i = 0; i < this.skins.length; ++ i ) {
@@ -2736,8 +2744,8 @@ class GLTFMaterialsSpecularExtension {
 	writeMaterial( material, materialDef ) {
 
 		if ( ! material.isMeshPhysicalMaterial || ( material.specularIntensity === 1.0 &&
-		       material.specularColor.equals( DEFAULT_SPECULAR_COLOR ) &&
-		     ! material.specularIntensityMap && ! material.specularColorTexture ) ) return;
+			material.specularColor.equals( DEFAULT_SPECULAR_COLOR ) &&
+			! material.specularIntensityMap && ! material.specularColorTexture ) ) return;
 
 		const writer = this.writer;
 		const extensionsUsed = writer.extensionsUsed;

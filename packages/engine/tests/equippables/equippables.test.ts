@@ -14,7 +14,6 @@ import { createEngine } from '../../src/initializeEngine'
 import { EquippedComponent } from '../../src/interaction/components/EquippedComponent'
 import { EquipperComponent } from '../../src/interaction/components/EquipperComponent'
 import { equipEntity, unequipEntity } from '../../src/interaction/functions/equippableFunctions'
-import { equipperQueryExit } from '../../src/interaction/systems/EquippableSystem'
 import { Network } from '../../src/networking/classes/Network'
 import { NetworkObjectComponent } from '../../src/networking/components/NetworkObjectComponent'
 import { Physics } from '../../src/physics/classes/Physics'
@@ -71,7 +70,7 @@ describe.skip('Equippables Integration Tests', () => {
     // initially the object is owned by server
     addComponent(equippableEntity, NetworkObjectComponent, {
       ownerId: Engine.instance.worldNetwork.hostId,
-      authorityPeerID: Engine.instance.worldNetwork.peerID,
+      authorityPeerID: Engine.instance.peerID,
       networkId: 0 as NetworkId
     })
 
@@ -101,8 +100,6 @@ describe.skip('Equippables Integration Tests', () => {
 
     clearOutgoingActions(Engine.instance.worldNetwork.topic)
     applyIncomingActions()
-
-    equipperQueryExit(equipperEntity)
 
     // validations for unequip
     assert(!hasComponent(equipperEntity, EquipperComponent))

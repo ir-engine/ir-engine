@@ -1,5 +1,5 @@
 import { useHookstate } from '@hookstate/core'
-import React, { useEffect } from 'react'
+import { useEffect } from 'react'
 
 import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
 import InfiniteGridHelper from '@etherealengine/engine/src/scene/classes/InfiniteGridHelper'
@@ -37,11 +37,6 @@ export const EditorHelperState = defineState({
   }),
   onCreate: () => {
     syncStateWithLocalStorage(EditorHelperState, [
-      'isFlyModeEnabled',
-      'transformMode',
-      'transformModeOnCancel',
-      'transformSpace',
-      'transformPivot',
       'snapMode',
       'translationSnap',
       'rotationSnap',
@@ -98,11 +93,6 @@ export const EditorHelperServiceReceptor = (action): any => {
       s.isGenerateThumbnailsEnabled.set(action.isGenerateThumbnailsEnabled)
     })
 }
-/**@deprecated use getMutableState directly instead */
-export const accessEditorHelperState = () => getMutableState(EditorHelperState)
-/**@deprecated use useHookstate(getMutableState(...) directly instead */
-export const useEditorHelperState = (() =>
-  useHookstate(getMutableState(EditorHelperState))) as typeof accessEditorHelperState
 
 //Action
 export class EditorHelperAction {

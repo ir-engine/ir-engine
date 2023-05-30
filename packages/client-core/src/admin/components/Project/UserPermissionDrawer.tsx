@@ -1,23 +1,25 @@
+import { useHookstate } from '@hookstate/core'
 import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import InputText from '@etherealengine/client-core/src/common/components/InputText'
 import { ProjectInterface } from '@etherealengine/common/src/interfaces/ProjectInterface'
 import { ProjectPermissionInterface } from '@etherealengine/common/src/interfaces/ProjectPermissionInterface'
-import Button from '@etherealengine/ui/src/Button'
-import Container from '@etherealengine/ui/src/Container'
-import DialogActions from '@etherealengine/ui/src/DialogActions'
-import DialogTitle from '@etherealengine/ui/src/DialogTitle'
-import Icon from '@etherealengine/ui/src/Icon'
-import IconButton from '@etherealengine/ui/src/IconButton'
-import List from '@etherealengine/ui/src/List'
-import ListItem from '@etherealengine/ui/src/ListItem'
-import ListItemText from '@etherealengine/ui/src/ListItemText'
-import Switch from '@etherealengine/ui/src/Switch'
+import { getMutableState } from '@etherealengine/hyperflux'
+import Button from '@etherealengine/ui/src/primitives/mui/Button'
+import Container from '@etherealengine/ui/src/primitives/mui/Container'
+import DialogActions from '@etherealengine/ui/src/primitives/mui/DialogActions'
+import DialogTitle from '@etherealengine/ui/src/primitives/mui/DialogTitle'
+import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
+import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
+import List from '@etherealengine/ui/src/primitives/mui/List'
+import ListItem from '@etherealengine/ui/src/primitives/mui/ListItem'
+import ListItemText from '@etherealengine/ui/src/primitives/mui/ListItemText'
+import Switch from '@etherealengine/ui/src/primitives/mui/Switch'
 
 import { NotificationService } from '../../../common/services/NotificationService'
 import { ProjectService } from '../../../common/services/ProjectService'
-import { useAuthState } from '../../../user/services/AuthService'
+import { AuthState } from '../../../user/services/AuthService'
 import DrawerView from '../../common/DrawerView'
 import styles from '../../styles/admin.module.scss'
 
@@ -31,8 +33,7 @@ const UserPermissionDrawer = ({ open, project, onClose }: Props) => {
   const { t } = useTranslation()
   const [userInviteCode, setUserInviteCode] = useState('')
   const [error, setError] = useState('')
-
-  const selfUser = useAuthState().user
+  const selfUser = useHookstate(getMutableState(AuthState)).user
   const selfUserPermission =
     project?.project_permissions?.find((permission) => permission.userId === selfUser.id.value)?.type === 'owner' ||
     selfUser.scopes?.value?.find((scope) => scope.type === 'admin:admin')

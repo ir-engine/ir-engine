@@ -15,9 +15,9 @@ import {
   hasComponent,
   removeComponent
 } from '../../src/ecs/functions/ComponentFunctions'
+import { AnimationSystemGroup, executeSystems } from '../../src/ecs/functions/EngineFunctions'
 import { createEntity, removeEntity } from '../../src/ecs/functions/EntityFunctions'
-import { executeSystems, initSystems } from '../../src/ecs/functions/SystemFunctions'
-import { SystemUpdateType } from '../../src/ecs/functions/SystemUpdateType'
+import { defineSystem, startSystem } from '../../src/ecs/functions/SystemFunctions'
 import { createEngine } from '../../src/initializeEngine'
 
 const mockDeltaMillis = 1000 / 60
@@ -39,46 +39,32 @@ const MockComponent = defineComponent({
   }
 })
 
-const MocksystemLoader = async () => {
-  return {
-    default: MockSystemInitialiser
-  }
-}
-
 const MockSystemState = new Map<Entity, Array<number>>()
 
-async function MockSystemInitialiser(args: {}) {
-  const mockQuery = defineQuery([MockComponent])
-  MockSystemState.set(getState(SceneState).sceneEntity, [])
+const mockQuery = defineQuery([MockComponent])
 
-  const execute = () => {
-    const mockState = MockSystemState.get(getState(SceneState).sceneEntity)!
+const execute = () => {
+  const mockState = MockSystemState.get(getState(SceneState).sceneEntity)!
 
-    for (const entity of mockQuery.enter()) {
-      mockState.push(entity)
-    }
-
-    for (const entity of mockQuery.exit()) {
-      mockState.splice(mockState.indexOf(entity))
-    }
+  for (const entity of mockQuery.enter()) {
+    mockState.push(entity)
   }
 
-  return {
-    execute,
-    cleanup: async () => {}
+  for (const entity of mockQuery.exit()) {
+    mockState.splice(mockState.indexOf(entity))
   }
 }
+
+const MockSystem = defineSystem({
+  uuid: 'MockSystem',
+  execute
+})
 
 describe('ECS', () => {
   beforeEach(async () => {
     createEngine()
-    await initSystems([
-      {
-        uuid: 'Mock',
-        type: SystemUpdateType.UPDATE,
-        systemLoader: () => MocksystemLoader()
-      }
-    ])
+    startSystem(MockSystem, { with: AnimationSystemGroup })
+    MockSystemState.set(getState(SceneState).sceneEntity, [])
   })
 
   afterEach(() => {
@@ -89,10 +75,6 @@ describe('ECS', () => {
     const entities = Engine.instance.entityQuery()
     assert(entities.includes(getState(SceneState).sceneEntity))
     assert(entities.includes(Engine.instance.cameraEntity))
-  })
-
-  it('should add systems', async () => {
-    assert.strictEqual(Engine.instance.pipelines[SystemUpdateType.UPDATE].length, 1)
   })
 
   it('should add entity', async () => {
@@ -167,14 +149,14 @@ describe('ECS', () => {
     const mockValue = Math.random()
     addComponent(entity, MockComponent, { mockValue })
     const component = getComponent(entity, MockComponent)
-    executeSystems(Engine.instance.startTime + mockDeltaMillis)
+    executeSystems(mockDeltaMillis)
     assert.strictEqual(entity, MockSystemState.get(getState(SceneState).sceneEntity)![0])
 
     const entity2 = createEntity()
     const mockValue2 = Math.random()
     addComponent(entity2, MockComponent, { mockValue: mockValue2 })
     const component2 = getComponent(entity2, MockComponent)
-    executeSystems(Engine.instance.startTime + mockDeltaMillis * 2)
+    executeSystems(mockDeltaMillis * 2)
     assert.strictEqual(entity2, MockSystemState.get(getState(SceneState).sceneEntity)![1])
   })
 
@@ -190,7 +172,7 @@ describe('ECS', () => {
     assert.deepStrictEqual(query.enter(), [])
     assert.deepStrictEqual(query.exit(), [])
 
-    executeSystems(Engine.instance.startTime + mockDeltaMillis)
+    executeSystems(mockDeltaMillis)
     assert.deepStrictEqual(MockSystemState.get(getState(SceneState).sceneEntity)!, [])
   })
 
@@ -202,7 +184,7 @@ describe('ECS', () => {
     addComponent(entity, MockComponent, { mockValue })
 
     removeComponent(entity, MockComponent)
-    executeSystems(Engine.instance.startTime + mockDeltaMillis)
+    executeSystems(mockDeltaMillis)
     assert.deepStrictEqual(state, [])
 
     const newMockValue = 1 + Math.random()
@@ -212,8 +194,8 @@ describe('ECS', () => {
     const component = getComponent(entity, MockComponent)
     assert(component)
     assert.strictEqual(component.mockValue, newMockValue)
-    executeSystems(Engine.instance.startTime + mockDeltaMillis * 2)
-    executeSystems(Engine.instance.startTime + mockDeltaMillis * 3)
+    executeSystems(mockDeltaMillis * 2)
+    executeSystems(mockDeltaMillis * 3)
     assert.strictEqual(entity, state[0])
   })
 
@@ -225,7 +207,7 @@ describe('ECS', () => {
     assert(entities.includes(entity))
     removeEntity(entity)
     assert.ok(!getOptionalComponent(entity, MockComponent))
-    executeSystems(Engine.instance.startTime + mockDeltaMillis)
+    executeSystems(mockDeltaMillis)
     assert.deepStrictEqual(MockSystemState.get(getState(SceneState).sceneEntity)!, [])
     assert.ok(!Engine.instance.entityQuery().includes(entity))
   })
@@ -240,7 +222,7 @@ describe('ECS', () => {
     removeEntity(entity)
     removeEntity(entity)
     removeEntity(entity)
-    executeSystems(Engine.instance.startTime + mockDeltaMillis)
+    executeSystems(mockDeltaMillis)
 
     const entities = Engine.instance.entityQuery()
     assert.equal(entities.length, lengthBefore - 1)

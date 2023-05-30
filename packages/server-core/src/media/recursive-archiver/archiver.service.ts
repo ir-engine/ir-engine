@@ -1,4 +1,4 @@
-import multer from 'multer'
+import multer from '@koa/multer'
 
 import { Application } from '../../../declarations'
 import { Archiver } from './archiver.class'

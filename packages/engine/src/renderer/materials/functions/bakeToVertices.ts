@@ -20,11 +20,11 @@ export default async function bakeToVertices<T extends Material>(
   material: T,
   colors: (keyof T)[],
   maps: { field: keyof T; attribName: string }[],
-  root: Object3D = Engine.instance.scene,
-  nuPrototype: string = 'MeshMatcapMaterial'
+  root: Object3D | null = Engine.instance.scene,
+  nuPrototype = 'MeshMatcapMaterial'
 ) {
   const pending = new Array<Promise<void>>()
-  root.traverse((mesh: Mesh) => {
+  root?.traverse((mesh: Mesh) => {
     //for each vertex in each mesh with material assigned:
     const materials = Array.isArray(mesh.material) ? mesh.material : [mesh.material]
     if (!materials.includes(material)) return //skip meshes without selected material
@@ -35,26 +35,28 @@ export default async function bakeToVertices<T extends Material>(
           const texture = material[map.field] as Texture
           const canvas = document.createElement('canvas')
           const uv = mesh.geometry.getAttribute(map.attribName) as BufferAttribute
-          return new Promise<Color[]>(async (resolve) => {
-            const image = (
-              (await createReadableTexture(texture, { keepTransform: true, flipX: false, flipY: true })) as Texture
-            ).image as HTMLImageElement
-            canvas.width = image.width
-            canvas.height = image.height
-            const ctx = canvas.getContext('2d')!
-            ctx.drawImage(image, 0, 0)
-            const result = new Array<Color>()
-            for (let i = 0; i < uv.count; i++) {
-              const sampleUv = [uv.getX(i), uv.getY(i)]
-              const x = sampleUv[0] * canvas.width
-              const y = (1 - sampleUv[1]) * canvas.height
-              const pixelData = Float32Array.from(ctx.getImageData(x, y, 1, 1).data).map((x) => x / 255)
-              const pixelColor = new Color(...pixelData)
-              result.push(pixelColor)
-            }
-            canvas.remove()
-            ;(material as any)[map.field] = null
-            resolve(result)
+          return new Promise<Color[]>((resolve) => {
+            createReadableTexture(texture, { keepTransform: true, flipX: false, flipY: true }).then(
+              (_texture: Texture) => {
+                const image = _texture.image
+                canvas.width = image.width
+                canvas.height = image.height
+                const ctx = canvas.getContext('2d')!
+                ctx.drawImage(image, 0, 0)
+                const result = new Array<Color>()
+                for (let i = 0; i < uv.count; i++) {
+                  const sampleUv = [uv.getX(i), uv.getY(i)]
+                  const x = sampleUv[0] * canvas.width
+                  const y = (1 - sampleUv[1]) * canvas.height
+                  const pixelData = Float32Array.from(ctx.getImageData(x, y, 1, 1).data).map((x) => x / 255)
+                  const pixelColor = new Color(...pixelData)
+                  result.push(pixelColor)
+                }
+                canvas.remove()
+                ;(material as any)[map.field] = null
+                resolve(result)
+              }
+            )
           })
         }),
       ...colors

@@ -1,5 +1,7 @@
 import { ResizeObserver as Polyfill } from '@juggle/resize-observer'
 
+import { isClient } from '@etherealengine/engine/src/common/functions/getEnvironment'
+
 import { EventCallback, WebLayer } from './WebLayer'
 import { WebLayerManagerBase } from './WebLayerManagerBase'
 
@@ -86,8 +88,8 @@ export class WebRenderer {
     return this.ATTRIBUTE_PREFIX + '-rendering-document'
   }
 
-  static serializer = new XMLSerializer()
-  static textEncoder = new TextEncoder()
+  static serializer = isClient ? new XMLSerializer() : null!
+  static textEncoder = isClient ? new TextEncoder() : null!
 
   // static containsHover(element: Element) {
   //   for (const t of this.virtualHoverElements) {
@@ -250,7 +252,7 @@ export class WebRenderer {
     }
 
     const setNeedsRefreshOnStyleLoad = (node: Node) => {
-      var nodeName = node.nodeName.toUpperCase()
+      const nodeName = node.nodeName.toUpperCase()
       if (STYLE_NODES.indexOf(nodeName) !== -1) node.addEventListener('load', setNeedsRefreshOnAllLayers)
     }
 
@@ -333,7 +335,7 @@ export class WebRenderer {
   }
 
   static getClosestLayer(element: Element, inclusive = true): WebLayer | undefined {
-    let targetElement = inclusive ? element : element.parentElement
+    const targetElement = inclusive ? element : element.parentElement
     const closestLayerElement = targetElement?.closest(`[${WebRenderer.LAYER_ATTRIBUTE}]`) as HTMLElement
     if (!closestLayerElement) {
       const host = (element?.getRootNode() as ShadowRoot).host
@@ -420,9 +422,9 @@ export class WebRenderer {
   }
 
   static arrayBufferToBase64(bytes: Uint8Array) {
-    var binary = ''
-    var len = bytes.byteLength
-    for (var i = 0; i < len; i++) {
+    let binary = ''
+    const len = bytes.byteLength
+    for (let i = 0; i < len; i++) {
       binary += String.fromCharCode(bytes[i])
     }
     return window.btoa(binary)
