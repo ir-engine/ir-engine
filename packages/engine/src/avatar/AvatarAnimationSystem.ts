@@ -306,7 +306,7 @@ const execute = () => {
     for (const [key, value] of Object.entries(rigComponent.ikTargetsMap)) {
       worldSpaceTargets[key]
         .copy(value.position)
-        //.sub(rigComponent.ikOffsetsMap.get(key)!)
+        .sub(rigComponent.ikOffsetsMap.get(key)!)
         .applyMatrix4(root.matrixWorld)
 
       if (visualizeTargets) {

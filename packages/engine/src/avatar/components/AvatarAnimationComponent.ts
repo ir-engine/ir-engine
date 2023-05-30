@@ -231,6 +231,9 @@ export const AvatarRigComponent = defineComponent({
           case 'leftKneeHint':
             bonePos.copy(rigComponent.bindRig.leftLowerLeg.value.node.matrixWorld)
             break
+          case 'headHint':
+          case 'headTarget':
+            bonePos.copy(rigComponent.bindRig.head.value.node.matrixWorld)
         }
         const pos = new Vector3()
         bonePos.decompose(pos, new Quaternion(), new Vector3())
