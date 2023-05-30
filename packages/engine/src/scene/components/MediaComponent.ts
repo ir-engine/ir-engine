@@ -233,8 +233,6 @@ export const MediaComponent = defineComponent({
       if (typeof json.autoplay === 'boolean') component.paused.set(!json.autoplay)
       if (typeof json.paused === 'boolean') component.paused.set(json.paused)
     })
-
-    return component
   },
 
   reactor: MediaReactor,
