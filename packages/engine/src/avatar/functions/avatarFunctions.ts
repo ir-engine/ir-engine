@@ -193,7 +193,7 @@ export const setupAvatarForUser = (entity: Entity, model: VRM) => {
   setupAvatarModel(entity)(model)
   addObjectToGroup(entity, model.scene)
   computeTransformMatrix(entity)
-  updateGroupChildren(entity)
+  //updateGroupChildren(entity)
   setupAvatarHeight(entity, model.scene)
   createIKAnimator(entity)
 
