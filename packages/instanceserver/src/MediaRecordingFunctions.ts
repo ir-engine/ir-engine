@@ -29,7 +29,7 @@ export const createTransport = async (router: Router, port: number, rtcpPort: nu
     // FFmpeg don't support RTP/RTCP multiplexing ("a=rtcp-mux" in SDP)
     rtcpMux: false,
 
-    ...localConfig.mediasoup.plainTransport
+    listenIp: localConfig.mediasoup.plainTransport.listenIp
   })
 
   await transport.connect({
