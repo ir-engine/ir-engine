@@ -143,9 +143,9 @@ const client = {
   title: process.env.APP_TITLE!,
   get dist() {
     if (process.env.SERVE_CLIENT_FROM_STORAGE_PROVIDER === 'true') {
-      if (process.env.STORAGE_PROVIDER === 'aws' && process.env.STORAGE_CLOUDFRONT_DOMAIN) {
+      if (process.env.STORAGE_PROVIDER === 's3' && process.env.STORAGE_CLOUDFRONT_DOMAIN) {
         return `https://${process.env.STORAGE_CLOUDFRONT_DOMAIN}/client/`
-      } else if (process.env.STORAGE_PROVIDER === 'aws' && process.env.STORAGE_S3_DEV_MODE === 'local') {
+      } else if (process.env.STORAGE_PROVIDER === 's3' && process.env.STORAGE_S3_DEV_MODE === 'local') {
         return `${process.env.STORAGE_S3_ENDPOINT}/${process.env.STORAGE_S3_STATIC_RESOURCE_BUCKET}/client/`
       } else if (process.env.STORAGE_PROVIDER === 'local') {
         return `https://${process.env.LOCAL_STORAGE_PROVIDER}/client/`

@@ -63,14 +63,14 @@ export class S3Provider implements StorageProviderInterface {
    * Domain address of S3 cache.
    */
   cacheDomain =
-    config.server.storageProvider === 'aws'
+    config.server.storageProvider === 's3'
       ? config.aws.s3.endpoint
         ? `${config.aws.s3.endpoint.replace('http://', '').replace('https://', '')}/${this.bucket}`
         : config.aws.cloudfront.domain
       : `${config.aws.cloudfront.domain}/${this.bucket}`
 
   private bucketAssetURL =
-    config.server.storageProvider === 'aws'
+    config.server.storageProvider === 's3'
       ? config.aws.s3.endpoint
         ? `${config.aws.s3.endpoint}/${this.bucket}`
         : `https://${this.bucket}.s3.${config.aws.s3.region}.amazonaws.com`
@@ -249,7 +249,7 @@ export class S3Provider implements StorageProviderInterface {
    */
   async createInvalidation(invalidationItems: any[]) {
     // for non-standard s3 setups, we don't use cloudfront
-    if (config.server.storageProvider !== 'aws' || config.aws.s3.s3DevMode === 'local') return
+    if (config.server.storageProvider !== 's3' || config.aws.s3.s3DevMode === 'local') return
     const params = {
       DistributionId: config.aws.cloudfront.distributionId,
       InvalidationBatch: {

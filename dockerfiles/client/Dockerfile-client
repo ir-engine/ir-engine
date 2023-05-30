@@ -67,7 +67,7 @@ ENV VITE_DISABLE_LOG=$VITE_DISABLE_LOG
 
 RUN npm run build-client
 
-RUN if [ "$SERVE_CLIENT_FROM_STORAGE_PROVIDER" = "true" ] && [ "$STORAGE_PROVIDER" = "aws" ] ; then npm run push-client-dist-to-s3 ; fi
+RUN if [ "$SERVE_CLIENT_FROM_STORAGE_PROVIDER" = "true" ] && [ "$STORAGE_PROVIDER" = "s3" ] ; then npm run push-client-dist-to-s3 ; fi
 
 RUN rm -r packages/client/public
 
