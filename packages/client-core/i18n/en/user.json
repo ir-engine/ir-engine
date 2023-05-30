@@ -265,27 +265,6 @@
     },
     "magikLink": {
       "wait": "Please wait a moment while processing..."
-    },
-    "dashboard": {
-      "header": "Dashboard",
-      "dashboard": "Dashboard",
-      "users": "Users",
-      "feeds": "Feeds",
-      "instance": "Instance",
-      "locations": "Locations",
-      "invites": "Invites",
-      "sessions": "Sessions",
-      "groups": "Groups",
-      "parties": "Parties",
-      "chats": "Chats",
-      "content": "Content Packs",
-      "projects": "Projects",
-      "scenes": "Scenes",
-      "avatars": "Avatars",
-      "benchmarking": "Benchmarking",
-      "bots": "Bots",
-      "server": "Server",
-      "recordings": "Recordings"
     }
   },
   "oauth": {
@@ -317,7 +296,8 @@
     "benchmarking": "Benchmarking",
     "bots": "Bots",
     "setting": "Settings",
-    "server": "Server"
+    "server": "Server",
+    "recordings": "Recordings"
   },
   "resource": {
     "createResource": "Create Resource"
