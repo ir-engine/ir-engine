@@ -32,7 +32,7 @@
     "@dimforge/rapier3d-compat": "0.11.1",
     "@etherealengine/common": "^1.2.1",
     "@etherealengine/hyperflux": "^1.2.1",
-    "@etherealengine/volumetric": "^1.1.1",
+    "@etherealengine/volumetric": "^1.1.2",
     "@etherealengine/xrui": "^1.2.1",
     "@gltf-transform/core": "3.1.1",
     "@gltf-transform/extensions": "3.1.1",
