@@ -176,10 +176,6 @@ export const initializeNetwork = (hostId: UserId, topic: Topic) => {
   )
 
   const transport = {
-    get peers() {
-      return network.primus ? [network.hostPeerID] : []
-    },
-
     messageToPeer: (peerId: PeerID, data: any) => {
       network.primus?.write(data)
     },
