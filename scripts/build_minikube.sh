@@ -53,7 +53,7 @@ fi
 
 if [ -z "$VITE_FILE_SERVER" ]
 then
-  VITE_FILE_SERVER=http://127.0.0.1:9000/etherealengine-static-resources
+  VITE_FILE_SERVER=http://127.0.0.1:9000/etherealengine-minikube-static-resources
 else
   VITE_FILE_SERVER=$VITE_FILE_SERVER
 fi
