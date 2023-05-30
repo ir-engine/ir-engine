@@ -77,21 +77,29 @@ export const setupSubdomain = async () => {
   }
 
   // Set up our instanceserver according to our current environment
-  const localIp = await getLocalServerIp(instanceServerState.isMediaInstance.value)
   const announcedIp = config.kubernetes.enabled
     ? instanceServerState.instanceServer.value.status.address
-    : localIp.ipAddress
+    : (await getLocalServerIp(instanceServerState.isMediaInstance.value)).ipAddress
 
+  // @todo put this in hyperflux state
   localConfig.mediasoup.webRtcTransport.listenIps = [
     {
       ip: '0.0.0.0',
       announcedIp
     }
   ]
+
   localConfig.mediasoup.webRtcServerOptions.listenInfos.forEach((listenInfo) => {
     listenInfo.announcedIp = announcedIp
     listenInfo.ip = '0.0.0.0'
   })
+
+  localConfig.mediasoup.plainTransport.listenIp = {
+    ip: '0.0.0.0',
+    announcedIp
+  }
+
+  localConfig.mediasoup.recording.ip = announcedIp
 }
 
 export async function getFreeSubdomain(isIdentifier: string, subdomainNumber: number): Promise<string> {
