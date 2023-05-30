@@ -38,17 +38,13 @@ export const initializeNetwork = async (app: Application, hostId: UserId, topic:
   logger.info('Server transport initialized.')
 
   const transport = {
-    get peers() {
-      return Object.keys(app.primus.connections) as PeerID[]
-    },
-
     messageToPeer: (peerId: PeerID, data: any) => {
-      const spark = app.primus.connections[peerId]
+      const spark = network.peers.get(peerId)?.spark
       if (spark) spark.write(data)
     },
 
     messageToAll: (data: any) => {
-      for (const spark of Object.values(app.primus.connections)) spark.write(data)
+      for (const peer of Array.from(network.peers.values())) peer.spark?.write(data)
     },
 
     bufferToPeer: (dataChannelType: DataChannelType, peerID: PeerID, data: any) => {
