@@ -166,11 +166,8 @@ export const loadAvatarForUser = async (
 
   removeComponent(entity, AvatarPendingComponent)
 
-  console.log(parent.scene.rotation)
   if (!parent) return
   setupAvatarForUser(entity, parent)
-
-  console.log(parent.scene.rotation)
 
   if (isClient && loadingEffect) {
     const avatar = getComponent(entity, AvatarComponent)

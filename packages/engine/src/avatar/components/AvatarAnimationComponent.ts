@@ -193,7 +193,7 @@ export const AvatarRigComponent = defineComponent({
 
     //Calculate ik target offsets for retargeting
     useEffect(() => {
-      if (!animComponent.animations[0].value || !rigComponent.targets.value) return
+      if (!animComponent.animations[0].value || !rigComponent.targets.children.length) return
       const bindTracks = animComponent.animations[0].tracks.value
       if (!bindTracks) return
       for (let i = 0; i < bindTracks.length; i += 3) {
