@@ -193,7 +193,7 @@ export const AvatarRigComponent = defineComponent({
 
     //Calculate ik target offsets for retargeting
     useEffect(() => {
-      if (!animComponent.animations[0].value) return
+      if (!animComponent.animations[0].value || !rigComponent.targets.value) return
       const bindTracks = animComponent.animations[0].tracks.value
       if (!bindTracks) return
       for (let i = 0; i < bindTracks.length; i += 3) {
@@ -238,7 +238,7 @@ export const AvatarRigComponent = defineComponent({
         pos.sub(new Vector3(bindTracks[i].values[0], bindTracks[i].values[1], bindTracks[i].values[2]))
         rigComponent.ikOffsetsMap.value.set(key, pos)
       }
-    }, [animComponent.animations])
+    }, [animComponent.animations, rigComponent.targets.value])
     return null
   }
 })
