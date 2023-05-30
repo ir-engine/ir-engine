@@ -1,6 +1,3 @@
-import { Material } from 'three'
-
-import { MaterialComponent } from '../components/MaterialComponent'
 import { MaterialSource } from '../components/MaterialSource'
 import { changeMaterialPrototype, materialsFromSource } from './MaterialLibraryFunctions'
 

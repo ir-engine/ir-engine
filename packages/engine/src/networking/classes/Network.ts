@@ -109,9 +109,6 @@ export const createNetwork = <Ext>(hostId: UserId, topic: Topic, extension: Ext 
      * @todo non null this
      */
     transport: {
-      get peers() {
-        return []
-      },
       messageToPeer: (peerId: PeerID, data: any) => {},
       messageToAll: (data: any) => {},
       bufferToPeer: (dataChannelType: DataChannelType, peerId: PeerID, data: any) => {},
