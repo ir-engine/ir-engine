@@ -54,14 +54,14 @@ const getNodeElId = (node: MaterialLibraryEntryType) => {
 const nodeDisplayName = (node: MaterialLibraryEntryType) => {
   switch (node.type) {
     case LibraryEntryType.MATERIAL:
-      const materialEntry = node.entry as MaterialComponentType
-      return materialEntry.material.name
+      return (node.entry as MaterialComponentType).material.name
     case LibraryEntryType.MATERIAL_SOURCE:
-      const srcEntry = node.entry as MaterialSourceComponentType
-      return pathResolver().exec(srcEntry.src.path)?.[3] ?? srcEntry.src.path
+      return (
+        pathResolver().exec((node.entry as MaterialSourceComponentType).src.path)?.[3] ??
+        (node.entry as MaterialSourceComponentType).src.path
+      )
     case LibraryEntryType.MATERIAL_PROTOTYPE:
-      const prototypeEntry = node.entry as MaterialPrototypeComponentType
-      return prototypeEntry.prototypeId
+      return (node.entry as MaterialPrototypeComponentType).prototypeId
   }
 }
 

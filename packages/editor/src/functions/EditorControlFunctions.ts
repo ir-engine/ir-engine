@@ -150,12 +150,12 @@ const modifyObject3d = (nodes: string[], properties: { [_: string]: any }[]) => 
 
 function _getMaterial(node: string, materialId: string) {
   let material: Material | undefined
-  if (!!getState(MaterialLibraryState).materials[materialId]) {
-    material = materialFromId(node).material
+  if (getState(MaterialLibraryState).materials[materialId]) {
+    material = materialFromId(materialId).material
   } else {
     const mesh = obj3dFromUuid(node) as Mesh
     const materials = Array.isArray(mesh.material) ? mesh.material : [mesh.material]
-    material = materials.find((material) => material.uuid === materialId)
+    material = materials.find((material) => materialId === material.uuid)
   }
   if (typeof material === 'undefined' || !material.isMaterial) throw new Error('Material is missing from host mesh')
   return material
