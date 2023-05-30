@@ -122,7 +122,7 @@ export function addMaterialSource(src: MaterialSource): boolean {
   } else return false
 }
 
-export function getSourceMaterials(src: MaterialSource): string[] | undefined {
+export function getSourceItems(src: MaterialSource): string[] | undefined {
   const materialLibrary = getState(MaterialLibraryState)
   return materialLibrary.sources[hashMaterialSource(src)]?.entries
 }
@@ -151,7 +151,7 @@ export function registerMaterial(material: Material, src: MaterialSource, params
   const materialLibrary = getMutableState(MaterialLibraryState)
   const prototype = prototypeFromId(material.userData.type ?? material.type)
   addMaterialSource(src)
-  const srcMats = getSourceMaterials(src)!
+  const srcMats = getSourceItems(src)!
   !srcMats.includes(material.uuid) &&
     materialLibrary.sources[hashMaterialSource(src)].entries.set([
       ...materialLibrary.sources[hashMaterialSource(src)].entries.value,
@@ -162,9 +162,11 @@ export function registerMaterial(material: Material, src: MaterialSource, params
   materialLibrary.materials[material.uuid].set({
     material,
     parameters,
+    plugins: [],
     prototype: prototype.prototypeId,
     src
   })
+  return materialLibrary.materials[material.uuid]
 }
 
 export function unregisterMaterial(material: Material) {
@@ -197,7 +199,7 @@ export function registerMaterialPrototype(prototype: MaterialPrototypeComponentT
 }
 
 export function materialsFromSource(src: MaterialSource) {
-  return getSourceMaterials(src)?.map(materialFromId)
+  return getSourceItems(src)?.map(materialFromId)
 }
 
 export function changeMaterialPrototype(material: Material, protoId: string) {
@@ -239,6 +241,7 @@ export function changeMaterialPrototype(material: Material, protoId: string) {
     ...nuMat.userData,
     ...Object.fromEntries(Object.entries(material.userData).filter(([k, v]) => k !== 'type'))
   }
+  materialEntry.plugins.map((pluginId: string) => {})
   registerMaterial(nuMat, materialEntry.src)
   return nuMat
 }

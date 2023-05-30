@@ -77,17 +77,29 @@ export const setupSubdomain = async () => {
   }
 
   // Set up our instanceserver according to our current environment
-  const localIp = await getLocalServerIp(instanceServerState.isMediaInstance.value)
   const announcedIp = config.kubernetes.enabled
     ? instanceServerState.instanceServer.value.status.address
-    : localIp.ipAddress
+    : (await getLocalServerIp(instanceServerState.isMediaInstance.value)).ipAddress
 
+  // @todo put this in hyperflux state
   localConfig.mediasoup.webRtcTransport.listenIps = [
     {
       ip: '0.0.0.0',
       announcedIp
     }
   ]
+
+  localConfig.mediasoup.webRtcServerOptions.listenInfos.forEach((listenInfo) => {
+    listenInfo.announcedIp = announcedIp
+    listenInfo.ip = '0.0.0.0'
+  })
+
+  localConfig.mediasoup.plainTransport.listenIp = {
+    ip: '0.0.0.0',
+    announcedIp
+  }
+
+  localConfig.mediasoup.recording.ip = announcedIp
 }
 
 export async function getFreeSubdomain(isIdentifier: string, subdomainNumber: number): Promise<string> {
@@ -453,7 +465,7 @@ export async function handleHeartbeat(network: SocketWebRTCServerNetwork, spark:
 export async function handleDisconnect(network: SocketWebRTCServerNetwork, spark: Spark, peerID: PeerID): Promise<any> {
   const userId = getUserIdFromPeerID(network, peerID) as UserId
   const disconnectedClient = network.peers.get(peerID)
-  if (!disconnectedClient) return logger.warn(`Tried to handle disconnect for peer ${peerID} but was not foudn`)
+  if (!disconnectedClient) return logger.warn(`Tried to handle disconnect for peer ${peerID} but was not found`)
   // On local, new connections can come in before the old sockets are disconnected.
   // The new connection will overwrite the socketID for the user's client.
   // This will only clear transports if the client's socketId matches the socket that's disconnecting.
