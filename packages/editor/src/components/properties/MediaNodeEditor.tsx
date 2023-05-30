@@ -66,12 +66,12 @@ export const MediaNodeEditor: EditorComponentType = (props) => {
           return existingMedia
         } catch (err) {
           addError(props.entity, MediaComponent, 'INVALID_URL', path)
-          return {}
+          return
         }
       })
     )
 
-    updateProperty(MediaComponent, 'resources')(resources)
+    updateProperty(MediaComponent, 'resources')(resources.filter(Boolean))
   }
 
   return (

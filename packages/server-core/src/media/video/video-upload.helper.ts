@@ -6,12 +6,19 @@ import fetch from 'node-fetch'
 import { Op } from 'sequelize'
 import { Readable } from 'stream'
 
+import { VideoInterface } from '@etherealengine/common/src/interfaces/VideoInterface'
+
 import { Application } from '../../../declarations'
 import config from '../../appconfig'
 import logger from '../../ServerLogger'
 import { uploadMediaStaticResource } from '../static-resource/static-resource-helper'
 
-export const videoUpload = async (app: Application, data, parentId?: string, parentType?: string) => {
+export const videoUpload = async (
+  app: Application,
+  data,
+  parentId?: string,
+  parentType?: string
+): Promise<VideoInterface> => {
   try {
     let fileHead, contentLength, extension
     if (data.url) {
@@ -86,8 +93,17 @@ export const videoUpload = async (app: Application, data, parentId?: string, par
         include
       })
     }
-    if (!config.server.cloneProjectStaticResources || (existingResource && existingVideo)) return existingVideo
+    if (!existingResource && existingVideo) return existingVideo
     else {
+      if (!config.server.cloneProjectStaticResources) {
+        const newVideo = await app.service('video').create({})
+        return app.service('video').Model.findOne({
+          where: {
+            id: newVideo.id
+          },
+          include
+        })
+      }
       let file, body
       if (data.url) {
         if (/http(s)?:\/\//.test(data.url)) {
