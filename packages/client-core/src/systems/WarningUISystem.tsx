@@ -45,7 +45,7 @@ export const WarningUIService = {
     state.title.set(args.title)
     state.body.set(args.body)
     state.timeRemaining.set(args.timeout ?? 0)
-    state.action.set(args.action ?? null)
+    state.merge({ action: args.action ?? null })
   },
   closeWarning: () => {
     const state = getMutableState(WarningUIState)
