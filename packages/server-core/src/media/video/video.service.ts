@@ -12,11 +12,10 @@ import createModel from './video.model'
 declare module '@etherealengine/common/declarations' {
   interface ServiceTypes {
     video: Video
-    'video-upload': any
+    'video-upload': { create: (data) => ReturnType<typeof videoUpload> }
   }
   interface Models {
     video: ReturnType<typeof createModel> & VideoInterface
-    'video-upload': any
   }
 }
 
@@ -43,7 +42,7 @@ export default (app: Application) => {
   service.hooks(hooks)
 
   app.use('video-upload', {
-    create: async (data) => {
+    create: (data) => {
       return videoUpload(app, data)
     }
   })
