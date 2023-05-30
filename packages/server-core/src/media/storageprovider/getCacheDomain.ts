@@ -10,7 +10,9 @@ import { StorageProviderInterface } from './storageprovider.interface'
 export const getCacheDomain = (storageProvider: StorageProviderInterface, internal = false) => {
   if (config.server.storageProviderExternalEndpoint && config.kubernetes.enabled && internal)
     return config.aws.s3.staticResourceBucket
-      ? `${config.server.storageProviderExternalEndpoint}/${config.aws.s3.staticResourceBucket}`
-      : config.server.storageProviderExternalEndpoint
+      ? `${config.server.storageProviderExternalEndpoint.replace('http://', '').replace('https://', '')}/${
+          config.aws.s3.staticResourceBucket
+        }`
+      : config.server.storageProviderExternalEndpoint.replace('http://', '').replace('https://', '')
   return storageProvider.cacheDomain
 }
