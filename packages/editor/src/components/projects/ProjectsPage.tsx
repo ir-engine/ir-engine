@@ -59,11 +59,19 @@ function sortAlphabetical(a, b) {
 
 const OfficialProjectData = [
   {
+    id: '1570ae14-889a-11ec-886e-b126f7590685',
+    name: 'Ethereal Village',
+    repositoryPath: 'https://github.com/etherealengine/ee-ethereal-village',
+    thumbnail: 'https://media.githubusercontent.com/media/EtherealEngine/ee-ethereal-village/dev/thumbnail.png',
+    description: 'A medieval world showcasing advanced open world multiplayer features',
+    needsRebuild: true
+  },
+  {
     id: '1570ae00-889a-11ec-886e-b126f7590685',
     name: 'Development Test Suite',
     repositoryPath: 'https://github.com/etherealengine/ee-development-test-suite',
     thumbnail: '/static/etherealengine.png',
-    description: 'Assets and tests for etherealengine core development',
+    description: 'Assets and tests for Ethereal Engine core development',
     needsRebuild: true
   },
   {
@@ -71,7 +79,7 @@ const OfficialProjectData = [
     name: 'Translations',
     repositoryPath: 'https://github.com/etherealengine/ee-i18n',
     thumbnail: '/static/etherealengine.png',
-    description: 'Complete language translations in over 100 languages.',
+    description: 'Complete language translations in over 100 languages',
     needsRebuild: true
   },
   {
@@ -97,14 +105,6 @@ const OfficialProjectData = [
     thumbnail: '/static/etherealengine.png',
     description:
       'Item inventory, trade & virtual currency. Allow your users to use a database, IPFS, DID or blockchain backed item storage for equippables, wearables and tradable items.',
-    needsRebuild: true
-  },
-  {
-    id: '1570ae14-889a-11ec-886e-b126f7590685',
-    name: 'Digital Beings',
-    repositoryPath: 'https://github.com/etherealengine/ee-digital-beings',
-    thumbnail: '/static/etherealengine.png',
-    description: 'Enhance your virtual worlds with GPT-3 backed AI agents!',
     needsRebuild: true
   }
 ]
