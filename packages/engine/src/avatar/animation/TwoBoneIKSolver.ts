@@ -1,5 +1,6 @@
 import { Bone, Euler, MathUtils, Matrix4, Object3D, Quaternion, Vector3 } from 'three'
 
+import { Axis } from '../../common/constants/Axis3D'
 import { Object3DUtils } from '../../common/functions/Object3DUtils'
 
 const sqrEpsilon = 1e-8
@@ -45,10 +46,26 @@ export function solveTwoBoneIK(
   targetRotation: Quaternion, // world space
   rotationOffset: Quaternion | null = null,
   hint: Vector3 | null = null,
+  rootAxisRestriction: Euler | null = null,
+  midAxisRestriction: Euler | null = null,
+  tipAxisRestriction: Euler | null = null,
   targetPosWeight: number = 0,
   targetRotWeight: number = 0,
   hintWeight: number = 1
 ) {
+  if (rootAxisRestriction) {
+    root.quaternion.setFromEuler(rootAxisRestriction)
+    root.updateWorldMatrix(false, true)
+  }
+  if (midAxisRestriction) {
+    mid.quaternion.setFromEuler(midAxisRestriction)
+    mid.updateWorldMatrix(false, true)
+  }
+  if (tipAxisRestriction) {
+    tip.quaternion.setFromEuler(tipAxisRestriction)
+    tip.updateWorldMatrix(false, true)
+  }
+
   targetPos.copy(targetPosition)
   targetRot.copy(targetRotation)
 
@@ -63,6 +80,8 @@ export function solveTwoBoneIK(
 
   const hasHint = hint && hintWeight > 0
   if (hasHint) ah.copy(hint).sub(aPosition)
+
+  // Apply twist restriction
 
   let abLength = ab.length()
   let bcLength = bc.length()

@@ -332,10 +332,10 @@ const execute = () => {
     rightHandRot.multiplyQuaternions(rot, rigComponent.ikTargetsMap.rightHandTarget.quaternion)
     leftHandRot.multiplyQuaternions(rot, rigComponent.ikTargetsMap.leftHandTarget.quaternion)
 
+    const midAxisRestriction = new Euler(-Math.PI / 4, undefined, undefined) // Restrict rotation around the X-axis to 45 degrees
+
     //Setting x axis of the mid bone in the solve is necessary to prevent incorrect twisting.
     //This is done for every solve.
-    rig.rightLowerArm.node.quaternion.setFromAxisAngle(Axis.X, Math.PI * -0.25)
-    rig.rightLowerArm.node.updateWorldMatrix(false, true)
 
     solveTwoBoneIK(
       rig.rightUpperArm.node,
@@ -344,11 +344,10 @@ const execute = () => {
       worldSpaceTargets.rightHandTarget,
       rightHandRot,
       null,
-      worldSpaceTargets.rightElbowHint
+      worldSpaceTargets.rightElbowHint,
+      null,
+      midAxisRestriction
     )
-
-    rig.leftLowerArm.node.quaternion.setFromAxisAngle(Axis.X, Math.PI * -0.25)
-    rig.leftLowerArm.node.updateWorldMatrix(false, true)
 
     solveTwoBoneIK(
       rig.leftUpperArm.node,
@@ -357,7 +356,9 @@ const execute = () => {
       worldSpaceTargets.leftHandTarget,
       leftHandRot,
       null,
-      worldSpaceTargets.leftElbowHint
+      worldSpaceTargets.leftElbowHint,
+      null,
+      midAxisRestriction
     )
 
     //raycasting here every frame is terrible, this should be done every quarter of a second at most, or else done with colliders
@@ -370,9 +371,6 @@ const execute = () => {
       groups: interactionGroups
     } as RaycastArgs
 
-    rig.rightLowerLeg.node.quaternion.setFromAxisAngle(Axis.X, Math.PI * -0.25)
-    rig.rightLowerLeg.node.updateWorldMatrix(false, true)
-
     const rightCastedRay = Physics.castRay(Engine.instance.physicsWorld, footRaycastArgs)
     if (rightCastedRay[0]) worldSpaceTargets.rightFootTarget.copy(rightCastedRay[0].position as Vector3)
     solveTwoBoneIK(
@@ -382,11 +380,13 @@ const execute = () => {
       worldSpaceTargets.rightFootTarget.setY(worldSpaceTargets.rightFootTarget.y + 0.1),
       rot,
       null,
-      worldSpaceTargets.rightKneeHint
+      worldSpaceTargets.rightKneeHint,
+      null,
+      midAxisRestriction
     )
 
-    rig.leftLowerLeg.node.quaternion.setFromAxisAngle(Axis.X, Math.PI * -0.25)
-    rig.leftLowerLeg.node.updateWorldMatrix(false, true)
+    //rig.leftLowerLeg.node.quaternion.setFromAxisAngle(Axis.X, Math.PI * -0.25)
+    //rig.leftLowerLeg.node.updateWorldMatrix(false, true)
 
     //reuse raycast args object, cast ray for left foot
     footRaycastArgs.origin.set(worldSpaceTargets.leftFootTarget.x, hipsWorldSpace.y, worldSpaceTargets.leftFootTarget.z)
@@ -399,7 +399,9 @@ const execute = () => {
       worldSpaceTargets.leftFootTarget.setY(worldSpaceTargets.leftFootTarget.y + 0.1),
       rot,
       null,
-      worldSpaceTargets.leftKneeHint
+      worldSpaceTargets.leftKneeHint,
+      null,
+      midAxisRestriction
     )
   }
 
