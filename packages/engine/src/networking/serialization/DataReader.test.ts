@@ -48,6 +48,7 @@ import {
   readDataPacket,
   readEntities,
   readEntity,
+  readMetadata,
   readVector3,
   readVector4
   // readXRHands
@@ -745,11 +746,15 @@ describe('DataReader', () => {
     const network = Engine.instance.worldNetwork as Network
 
     Engine.instance.userId = 'userId' as UserId
+    Engine.instance.peerID = 'peer' as PeerID
     const userId = Engine.instance.userId
     const peerID = 'peerID' as PeerID
     const userIndex = 0
+    const peerIndex = 0
     network.userIndexToUserID.set(userIndex, userId)
     network.userIDToUserIndex.set(userId, userIndex)
+    network.peerIDToPeerIndex.set(peerID, peerIndex)
+    network.peerIndexToPeerID.set(peerIndex, peerID)
 
     const n = 10
     const entities: Entity[] = Array(n)
@@ -783,7 +788,7 @@ describe('DataReader', () => {
 
     const _userIndex = readUint32(readView)
     const _peerIndex = readUint32(readView)
-    const _tick = readUint32(readView)
+    const _simulationTime = readFloat64(readView)
 
     const count = readUint32(readView)
     strictEqual(count, entities.length)
@@ -831,7 +836,10 @@ describe('DataReader', () => {
       TransformComponent.rotation.w[entity] = 0
     }
 
-    readDataPacket(network, packet)
+    const view = createViewCursor(packet)
+    const fromUserID = network.userIndexToUserID.get(userIndex)!
+    readMetadata(view)
+    readEntities(view, packet.byteLength, fromUserID)
 
     for (let i = 0; i < entities.length; i++) {
       const entity = entities[i]
@@ -978,13 +986,33 @@ describe('DataReader', () => {
 
     packet = write(network, Engine.instance.userId, peerID, entities)
 
-    strictEqual(packet.byteLength, 47)
+    strictEqual(
+      packet.byteLength,
+      // user id
+      Uint32Array.BYTES_PER_ELEMENT +
+        // peer id
+        Uint32Array.BYTES_PER_ELEMENT +
+        // simulation time
+        Float64Array.BYTES_PER_ELEMENT +
+        // entity count
+        Uint32Array.BYTES_PER_ELEMENT +
+        // network id
+        Uint32Array.BYTES_PER_ELEMENT +
+        // change mask for entity
+        Uint8Array.BYTES_PER_ELEMENT +
+        // change mask for transform
+        Uint8Array.BYTES_PER_ELEMENT +
+        // change mask for position
+        Uint8Array.BYTES_PER_ELEMENT +
+        // transform position
+        Float64Array.BYTES_PER_ELEMENT * 3
+    )
 
     readView = createViewCursor(packet)
 
     const _userIndex = readUint32(readView)
     const _peerIndex = readUint32(readView)
-    const _tick = readUint32(readView)
+    const _simulationTime = readFloat64(readView)
 
     const count = readUint32(readView)
     strictEqual(count, 1) // only one entity changed
