@@ -60,15 +60,23 @@ function sortAlphabetical(a, b) {
 const OfficialProjectData = [
   {
     id: '1570ae14-889a-11ec-886e-b126f7590685',
-    name: 'Ethereal Village',
+    name: 'ee-ethereal-village',
     repositoryPath: 'https://github.com/etherealengine/ee-ethereal-village',
     thumbnail: 'https://media.githubusercontent.com/media/EtherealEngine/ee-ethereal-village/dev/thumbnail.png',
     description: 'A medieval world showcasing advanced open world multiplayer features',
     needsRebuild: true
   },
   {
+    id: '1570ae12-889a-11ec-886e-b126f7590685',
+    name: 'ee-productivity',
+    repositoryPath: 'https://github.com/etherealengine/ee-productivity',
+    thumbnail: '/static/etherealengine.png',
+    description: 'Utility and productivity tools for Virtual and Augmented Reality',
+    needsRebuild: true
+  },
+  {
     id: '1570ae00-889a-11ec-886e-b126f7590685',
-    name: 'Development Test Suite',
+    name: 'ee-development-test-suite',
     repositoryPath: 'https://github.com/etherealengine/ee-development-test-suite',
     thumbnail: '/static/etherealengine.png',
     description: 'Assets and tests for Ethereal Engine core development',
@@ -76,7 +84,7 @@ const OfficialProjectData = [
   },
   {
     id: '1570ae01-889a-11ec-886e-b126f7590685',
-    name: 'Translations',
+    name: 'ee-i18n',
     repositoryPath: 'https://github.com/etherealengine/ee-i18n',
     thumbnail: '/static/etherealengine.png',
     description: 'Complete language translations in over 100 languages',
@@ -84,7 +92,7 @@ const OfficialProjectData = [
   },
   {
     id: '1570ae02-889a-11ec-886e-b126f7590685',
-    name: 'Test Bot',
+    name: 'ee-bot',
     repositoryPath: 'https://github.com/etherealengine/ee-bot',
     thumbnail: '/static/etherealengine.png',
     description: 'A test bot using puppeteer',
@@ -92,21 +100,21 @@ const OfficialProjectData = [
   },
   {
     id: '1570ae11-889a-11ec-886e-b126f7590685',
-    name: 'Maps',
+    name: 'ee-maps  ',
     repositoryPath: 'https://github.com/etherealengine/ee-maps',
     thumbnail: '/static/etherealengine.png',
     description: 'Procedurally generated map tiles using geojson data with mapbox and turf.js',
     needsRebuild: true
-  },
-  {
-    id: '1570ae12-889a-11ec-886e-b126f7590685',
-    name: 'Inventory',
-    repositoryPath: 'https://github.com/etherealengine/ee-inventory',
-    thumbnail: '/static/etherealengine.png',
-    description:
-      'Item inventory, trade & virtual currency. Allow your users to use a database, IPFS, DID or blockchain backed item storage for equippables, wearables and tradable items.',
-    needsRebuild: true
   }
+  // {
+  //   id: '1570ae12-889a-11ec-886e-b126f7590685',
+  //   name: 'Inventory',
+  //   repositoryPath: 'https://github.com/etherealengine/ee-inventory',
+  //   thumbnail: '/static/etherealengine.png',
+  //   description:
+  //     'Item inventory, trade & virtual currency. Allow your users to use a database, IPFS, DID or blockchain backed item storage for equippables, wearables and tradable items.',
+  //   needsRebuild: true
+  // },
 ]
 
 const ProjectUpdateSystemInjection = {
@@ -184,10 +192,13 @@ const ProjectsPage = () => {
   const fetchOfficialProjects = async (query?: string) => {
     loading.set(true)
     try {
-      const data = await (query
-        ? OfficialProjectData.filter((p) => p.name.includes(query) || p.description.includes(query))
-        : OfficialProjectData)
+      const data = (
+        query
+          ? OfficialProjectData.filter((p) => p.name.includes(query) || p.description.includes(query))
+          : OfficialProjectData
+      ).filter((p) => !installedProjects.value?.find((ip) => ip.name.includes(p.name)))
 
+      console.log(OfficialProjectData, installedProjects, data)
       officialProjects.set((data.sort(sortAlphabetical) as ProjectInterface[]) ?? [])
     } catch (error) {
       logger.error(error)
@@ -199,9 +210,11 @@ const ProjectsPage = () => {
   const fetchCommunityProjects = async (query?: string) => {
     loading.set(true)
     try {
-      const data = await (query
-        ? CommunityProjectData.filter((p) => p.name.includes(query) || p.description.includes(query))
-        : CommunityProjectData)
+      const data = (
+        query
+          ? CommunityProjectData.filter((p) => p.name.includes(query) || p.description.includes(query))
+          : CommunityProjectData
+      ).filter((p) => !installedProjects.value?.find((ip) => ip.name.includes(p.name)))
 
       communityProjects.set(data.sort(sortAlphabetical) ?? [])
     } catch (error) {
@@ -210,6 +223,11 @@ const ProjectsPage = () => {
     }
     loading.set(false)
   }
+
+  useEffect(() => {
+    fetchOfficialProjects()
+    fetchCommunityProjects()
+  }, [installedProjects])
 
   const refreshGithubRepoAccess = () => {
     ProjectService.refreshGithubRepoAccess()
