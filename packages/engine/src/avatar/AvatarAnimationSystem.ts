@@ -385,9 +385,6 @@ const execute = () => {
       midAxisRestriction
     )
 
-    //rig.leftLowerLeg.node.quaternion.setFromAxisAngle(Axis.X, Math.PI * -0.25)
-    //rig.leftLowerLeg.node.updateWorldMatrix(false, true)
-
     //reuse raycast args object, cast ray for left foot
     footRaycastArgs.origin.set(worldSpaceTargets.leftFootTarget.x, hipsWorldSpace.y, worldSpaceTargets.leftFootTarget.z)
     const leftCastedRay = Physics.castRay(Engine.instance.physicsWorld, footRaycastArgs)
