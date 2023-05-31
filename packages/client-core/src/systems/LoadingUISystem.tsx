@@ -68,7 +68,7 @@ function SceneDataReactor() {
     if (!sceneData.value) return
     const thumbnailUrl = sceneData.value.thumbnailUrl
       .replace('thumbnail.jpeg', 'envmap.png')
-      .replace('thumbnail.ktx2', 'envmap.png')
+      .replace('thumbnail.ktx2', 'envmap.ktx2')
     if (thumbnailUrl && mesh.userData.url !== thumbnailUrl) {
       mesh.userData.url = thumbnailUrl
       textureLoader.load(thumbnailUrl, (texture) => {
