@@ -4,6 +4,8 @@ import type { WebRtcTransportOptions } from 'mediasoup/node/lib/WebRtcTransport'
 import configFile from './appconfig'
 import { SctpParameters } from './types/SctpParameters'
 
+const NUM_RTC_PORTS = process.env.NUM_RTC_PORTS ? parseInt(process.env.NUM_RTC_PORTS) : 10000
+
 export const sctpParameters: SctpParameters = {
   OS: 1024,
   MIS: 65535,
@@ -14,6 +16,22 @@ export const sctpParameters: SctpParameters = {
 export const config = {
   httpPeerStale: 15000,
   mediasoup: {
+    webRtcServerOptions: {
+      listenInfos: [
+        {
+          protocol: 'udp',
+          ip: configFile.instanceserver.domain! || '0.0.0.0',
+          announcedIp: null! as string,
+          port: process.env.DEV_CHANNEL === 'true ' ? 30000 : 40000
+        },
+        {
+          protocol: 'tcp',
+          ip: configFile.instanceserver.domain! || '0.0.0.0',
+          announcedIp: null! as string,
+          port: process.env.DEV_CHANNEL === 'true' ? 30000 : 40000
+        }
+      ]
+    },
     worker: {
       rtcMinPort: 40000,
       rtcMaxPort: 49999,
@@ -73,9 +91,26 @@ export const config = {
 export const localConfig = {
   httpPeerStale: 15000,
   mediasoup: {
+    webRtcServerOptions: {
+      listenInfos: [
+        {
+          protocol: 'udp',
+          ip: configFile.instanceserver.domain! || '0.0.0.0',
+          announcedIp: null! as string,
+          port: process.env.DEV_CHANNEL === 'true' ? 30000 : configFile.instanceserver.rtc_start_port
+        },
+        {
+          protocol: 'tcp',
+          ip: configFile.instanceserver.domain! || '0.0.0.0',
+          announcedIp: null! as string,
+          port: process.env.DEV_CHANNEL === 'true' ? 30000 : configFile.instanceserver.rtc_start_port
+        }
+      ]
+    },
     worker: {
-      rtcMinPort: configFile.instanceserver.rtc_start_port,
-      rtcMaxPort: configFile.instanceserver.rtc_end_port,
+      rtcMinPort: process.env.DEV_CHANNEL === 'true' ? 30000 : configFile.instanceserver.rtc_start_port,
+      rtcMaxPort:
+        (process.env.DEV_CHANNEL === 'true' ? 30000 : configFile.instanceserver.rtc_start_port) + NUM_RTC_PORTS - 1,
       logLevel: 'info',
       logTags: ['info', 'ice', 'dtls', 'rtp', 'srtp', 'rtcp']
     },

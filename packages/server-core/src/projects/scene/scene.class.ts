@@ -28,7 +28,8 @@ export const getSceneData = async (
   storageProviderName?: string
 ) => {
   const storageProvider = getStorageProvider(storageProviderName)
-  const scenePath = `projects/${projectName}/${sceneName}.scene.json`
+  const sceneExists = await storageProvider.doesExist(`${sceneName}.scene.json`, `projects/${projectName}/`)
+  if (!sceneExists) throw new Error(`No scene named ${sceneName} exists in project ${projectName}`)
 
   let thumbnailPath = `projects/${projectName}/${sceneName}.thumbnail.ktx2`
 
@@ -40,20 +41,19 @@ export const getSceneData = async (
 
   const cacheDomain = getCacheDomain(storageProvider, internal)
   const thumbnailUrl =
-    thumbnailPath != `` ? getCachedURL(thumbnailPath, cacheDomain) : `/static/etherealengine_thumbnail.jpg`
+    thumbnailPath !== `` ? getCachedURL(thumbnailPath, cacheDomain) : `/static/etherealengine_thumbnail.jpg`
 
-  const sceneExists = await storageProvider.doesExist(`${sceneName}.scene.json`, `projects/${projectName}/`)
-  if (sceneExists) {
-    const sceneResult = await storageProvider.getCachedObject(scenePath)
-    const sceneData: SceneData = {
-      name: sceneName,
-      project: projectName,
-      thumbnailUrl: thumbnailUrl,
-      scene: metadataOnly ? undefined! : parseSceneDataCacheURLs(JSON.parse(sceneResult.Body.toString()), cacheDomain)
-    }
-    return sceneData
+  const scenePath = `projects/${projectName}/${sceneName}.scene.json`
+
+  const sceneResult = await storageProvider.getCachedObject(scenePath)
+  const sceneData: SceneData = {
+    name: sceneName,
+    project: projectName,
+    thumbnailUrl: thumbnailUrl,
+    scene: metadataOnly ? undefined! : parseSceneDataCacheURLs(JSON.parse(sceneResult.Body.toString()), cacheDomain)
   }
-  throw new Error(`No scene named ${sceneName} exists in project ${projectName}`)
+
+  return sceneData
 }
 
 interface UpdateParams {
