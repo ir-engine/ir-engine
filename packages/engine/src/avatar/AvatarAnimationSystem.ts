@@ -332,6 +332,11 @@ const execute = () => {
     rightHandRot.multiplyQuaternions(rot, rigComponent.ikTargetsMap.rightHandTarget.quaternion)
     leftHandRot.multiplyQuaternions(rot, rigComponent.ikTargetsMap.leftHandTarget.quaternion)
 
+    //Setting x axis of the mid bone in the solve is necessary to prevent incorrect twisting.
+    //This is done for every solve.
+    rig.rightLowerArm.node.quaternion.setFromAxisAngle(Axis.X, Math.PI * -0.25)
+    rig.rightLowerArm.node.updateWorldMatrix(false, true)
+
     solveTwoBoneIK(
       rig.rightUpperArm.node,
       rig.rightLowerArm.node,
@@ -341,6 +346,9 @@ const execute = () => {
       null,
       worldSpaceTargets.rightElbowHint
     )
+
+    rig.leftLowerArm.node.quaternion.setFromAxisAngle(Axis.X, Math.PI * -0.25)
+    rig.leftLowerArm.node.updateWorldMatrix(false, true)
 
     solveTwoBoneIK(
       rig.leftUpperArm.node,
@@ -352,7 +360,7 @@ const execute = () => {
       worldSpaceTargets.leftElbowHint
     )
 
-    //raycasting here every frame is terrible, this should be done every quarter of a second at most.
+    //raycasting here every frame is terrible, this should be done every quarter of a second at most, or else done with colliders
     //cast ray for right foot, starting at hips y position and foot x/z
     const footRaycastArgs = {
       type: SceneQueryType.Closest,
@@ -361,6 +369,9 @@ const execute = () => {
       maxDistance: legLength,
       groups: interactionGroups
     } as RaycastArgs
+
+    rig.rightLowerLeg.node.quaternion.setFromAxisAngle(Axis.X, Math.PI * -0.25)
+    rig.rightLowerLeg.node.updateWorldMatrix(false, true)
 
     const rightCastedRay = Physics.castRay(Engine.instance.physicsWorld, footRaycastArgs)
     if (rightCastedRay[0]) worldSpaceTargets.rightFootTarget.copy(rightCastedRay[0].position as Vector3)
@@ -374,6 +385,9 @@ const execute = () => {
       worldSpaceTargets.rightKneeHint
     )
 
+    rig.leftLowerLeg.node.quaternion.setFromAxisAngle(Axis.X, Math.PI * -0.25)
+    rig.leftLowerLeg.node.updateWorldMatrix(false, true)
+
     //reuse raycast args object, cast ray for left foot
     footRaycastArgs.origin.set(worldSpaceTargets.leftFootTarget.x, hipsWorldSpace.y, worldSpaceTargets.leftFootTarget.z)
     const leftCastedRay = Physics.castRay(Engine.instance.physicsWorld, footRaycastArgs)
@@ -386,17 +400,6 @@ const execute = () => {
       rot,
       null,
       worldSpaceTargets.leftKneeHint
-    )
-
-    //Head
-    solveTwoBoneIK(
-      rig.hips.node,
-      rig.spine.node,
-      rig.head.node,
-      worldSpaceTargets.headTarget,
-      rot,
-      null,
-      worldSpaceTargets.headHint
     )
   }
 

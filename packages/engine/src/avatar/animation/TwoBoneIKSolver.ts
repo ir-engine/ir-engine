@@ -112,7 +112,7 @@ export function solveTwoBoneIK(
         rot.x *= hintWeight
         rot.y *= hintWeight
         rot.z *= hintWeight
-        //Object3DUtils.premultiplyWorldQuaternion(root, rot)
+        Object3DUtils.premultiplyWorldQuaternion(root, rot)
       }
     }
   }
