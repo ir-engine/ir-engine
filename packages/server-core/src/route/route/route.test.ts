@@ -7,7 +7,7 @@ import { v4 as uuid } from 'uuid'
 import { destroyEngine } from '@etherealengine/engine/src/ecs/classes/Engine'
 
 import { Application } from '../../../declarations'
-import { createFeathersExpressApp } from '../../createApp'
+import { createFeathersKoaApp } from '../../createApp'
 import { deleteFolderRecursive } from '../../util/fsHelperFunctions'
 
 const params = { isInternal: true } as any
@@ -52,7 +52,7 @@ describe('route.test', () => {
   let testRoute: string
 
   before(async () => {
-    app = createFeathersExpressApp()
+    app = createFeathersKoaApp()
     await app.setup()
   })
 

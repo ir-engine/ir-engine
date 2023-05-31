@@ -20,13 +20,13 @@ export const config = {
       listenInfos: [
         {
           protocol: 'udp',
-          ip: configFile.instanceserver.hostname! || '0.0.0.0',
+          ip: configFile.instanceserver.domain! || '0.0.0.0',
           announcedIp: null! as string,
           port: process.env.DEV_CHANNEL === 'true ' ? 30000 : 40000
         },
         {
           protocol: 'tcp',
-          ip: configFile.instanceserver.hostname! || '0.0.0.0',
+          ip: configFile.instanceserver.domain! || '0.0.0.0',
           announcedIp: null! as string,
           port: process.env.DEV_CHANNEL === 'true' ? 30000 : 40000
         }
@@ -95,13 +95,13 @@ export const localConfig = {
       listenInfos: [
         {
           protocol: 'udp',
-          ip: configFile.instanceserver.hostname! || '0.0.0.0',
+          ip: configFile.instanceserver.domain! || '0.0.0.0',
           announcedIp: null! as string,
           port: process.env.DEV_CHANNEL === 'true' ? 30000 : configFile.instanceserver.rtc_start_port
         },
         {
           protocol: 'tcp',
-          ip: configFile.instanceserver.hostname! || '0.0.0.0',
+          ip: configFile.instanceserver.domain! || '0.0.0.0',
           announcedIp: null! as string,
           port: process.env.DEV_CHANNEL === 'true' ? 30000 : configFile.instanceserver.rtc_start_port
         }

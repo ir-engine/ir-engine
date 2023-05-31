@@ -150,7 +150,7 @@ export const boneMatchAvatarModel = (entity: Entity) => (model: Object3D) => {
     if (groupComponent) for (const obj of groupComponent) obj.userData.scale = 0.01
   } else if (assetType == AssetType.VRM) {
     if (model && (model as UpdateableObject3D).update) {
-      addComponent(entity, UpdatableComponent, true)
+      setComponent(entity, UpdatableComponent, true)
       setCallback(entity, UpdatableCallback, (delta: number) => {
         ;(model as UpdateableObject3D).update(delta)
       })
@@ -162,7 +162,7 @@ export const boneMatchAvatarModel = (entity: Entity) => (model: Object3D) => {
 
 export const rigAvatarModel = (entity: Entity) => (model: Object3D) => {
   const avatarAnimationComponent = getComponent(entity, AvatarAnimationComponent)
-  removeComponent(entity, AvatarRigComponent)
+
   const rig = avatarBoneMatching(model)
   const rootBone = rig.Root || rig.Hips
   rootBone.updateWorldMatrix(true, true)
