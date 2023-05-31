@@ -141,7 +141,7 @@ const PWA = (clientSetting) =>
         },
         {
           urlPattern: /^https?.*/i,
-          handler: 'CacheFirst',
+          handler: 'NetworkFirst',
           options: {
             cacheName: 'all-content-cache',
             expiration: {
