@@ -121,18 +121,18 @@ const PWA = (clientSetting) =>
       ],
       // Enable cleanup of outdated caches
       cleanupOutdatedCaches: true,
-      // Set maximum cache size to 100 MB
-      maximumFileSizeToCacheInBytes: 1000 * 1000 * 100,
+      // Set maximum cache size to 10 MB
+      maximumFileSizeToCacheInBytes: 1000 * 1000 * 10,
       runtimeCaching: [
         // Cache all requests on the resources- subdomain for this domain
         {
           urlPattern: /^https?:\/\/resources-*\/.*/i,
-          handler: 'CacheFirst',
+          handler: 'NetworkFirst',
           options: {
             cacheName: 'resources',
             expiration: {
               maxEntries: 1000,
-              maxAgeSeconds: 60 * 60 * 24 * 30 // 30 days
+              maxAgeSeconds: 24 * 60 * 60 // <== 24 hours
             },
             cacheableResponse: {
               statuses: [0, 200]
@@ -146,7 +146,7 @@ const PWA = (clientSetting) =>
             cacheName: 'all-content-cache',
             expiration: {
               maxEntries: 1000,
-              maxAgeSeconds: 7 * 24 * 60 * 60 // <== 7 days
+              maxAgeSeconds: 24 * 60 * 60 // <== 24 hours
             },
             cacheableResponse: {
               statuses: [0, 200]
@@ -160,7 +160,7 @@ const PWA = (clientSetting) =>
             cacheName: 'fonts-assets-cache',
             expiration: {
               maxEntries: 100,
-              maxAgeSeconds: 24 * 60 * 60 // <== 24 hours
+              maxAgeSeconds: 24 * 60 * 60 * 30 // <== 30 days
             },
             cacheableResponse: {
               statuses: [0, 200]
@@ -174,7 +174,7 @@ const PWA = (clientSetting) =>
             cacheName: 'icons-assets-cache',
             expiration: {
               maxEntries: 100,
-              maxAgeSeconds: 24 * 60 * 60 // <== 24 hours
+              maxAgeSeconds: 24 * 60 * 60 * 30 // <== 30 days
             },
             cacheableResponse: {
               statuses: [0, 200]
@@ -188,7 +188,7 @@ const PWA = (clientSetting) =>
             cacheName: 'static-assets-cache',
             expiration: {
               maxEntries: 100,
-              maxAgeSeconds: 24 * 60 * 60 // <== 24 hours
+              maxAgeSeconds: 24 * 60 * 60 * 30 // <== 30 days
             },
             cacheableResponse: {
               statuses: [0, 200]
