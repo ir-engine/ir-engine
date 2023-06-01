@@ -264,7 +264,8 @@ export async function closeDataProducer(network, dataProducer): Promise<void> {
   network.dataProducers.delete(dataProducer.id)
   logger.info("data producer's transport closed: " + dataProducer.id)
   dataProducer.close()
-  network.peers.get(dataProducer.appData.peerID)!.dataProducers!.delete(dataProducer.id)
+  const peer = network.peers.get(dataProducer.appData.peerID)
+  if (peer) peer.dataProducers!.delete(dataProducer.id)
 }
 
 export async function closeTransport(

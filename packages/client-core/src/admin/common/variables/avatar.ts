@@ -1,7 +1,7 @@
 import { AvatarInterface } from '@etherealengine/common/src/interfaces/AvatarInterface'
 
 export interface AvatarColumn {
-  id: 'select' | 'id' | 'name' | 'thumbnail' | 'action'
+  id: 'select' | 'id' | 'name' | 'owner' | 'thumbnail' | 'action'
   label: string | React.ReactElement
   minWidth?: number
   align?: 'right'
@@ -10,6 +10,7 @@ export interface AvatarColumn {
 export const avatarColumns: AvatarColumn[] = [
   { id: 'id', label: 'Id', minWidth: 65 },
   { id: 'name', label: 'Name', minWidth: 65 },
+  { id: 'owner', label: 'Owner', minWidth: 65 },
   {
     id: 'thumbnail',
     label: 'Thumbnail',
@@ -29,6 +30,7 @@ export interface AvatarData {
   select: JSX.Element
   id: string
   name: string | undefined
+  owner: string | undefined
   action: JSX.Element
   thumbnail: JSX.Element
 }

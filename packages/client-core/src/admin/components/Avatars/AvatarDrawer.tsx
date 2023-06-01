@@ -517,42 +517,46 @@ const AvatarDrawerContent = ({ open, mode, selectedAvatar, onClose }: Props) => 
             onChange={handleChange}
           />
 
-          <Button
-            className={styles.gradientButton}
-            startIcon={<Icon type="Portrait" />}
-            sx={{ marginLeft: 1, width: '250px' }}
-            title={t('admin:components.avatar.saveThumbnailTooltip')}
-            disabled={viewMode || !state.avatarUrl.value || avatarLoading.value}
-            onClick={handleGenerateUrlThumbnail}
-          >
-            {t('admin:components.avatar.saveThumbnail')}
-          </Button>
+          {editMode.value && (
+            <Button
+              className={styles.gradientButton}
+              startIcon={<Icon type="Portrait" />}
+              sx={{ marginLeft: 1, width: '250px' }}
+              title={t('admin:components.avatar.saveThumbnailTooltip')}
+              disabled={viewMode || !state.avatarUrl.value || avatarLoading.value}
+              onClick={handleGenerateUrlThumbnail}
+            >
+              {t('admin:components.avatar.saveThumbnail')}
+            </Button>
+          )}
         </Box>
       )}
 
-      <Box
-        className={styles.preview}
-        style={{ width: '100px', height: '100px', position: 'relative', marginBottom: 15 }}
-      >
-        <img src={thumbnailSrc} crossOrigin="anonymous" />
-        {((state.source.value === 'file' && !state.thumbnailFile.value) ||
-          (state.source.value === 'url' && !state.thumbnailUrl.value)) && (
-          <Typography
-            sx={{
-              position: 'absolute',
-              top: 0,
-              display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center',
-              textAlign: 'center',
-              height: '100%',
-              fontSize: 14
-            }}
-          >
-            {t('admin:components.avatar.thumbnailPreview')}
-          </Typography>
-        )}
-      </Box>
+      {editMode.value && (
+        <Box
+          className={styles.preview}
+          style={{ width: '100px', height: '100px', position: 'relative', marginBottom: 15 }}
+        >
+          <img src={thumbnailSrc} crossOrigin="anonymous" />
+          {((state.source.value === 'file' && !state.thumbnailFile.value) ||
+            (state.source.value === 'url' && !state.thumbnailUrl.value)) && (
+            <Typography
+              sx={{
+                position: 'absolute',
+                top: 0,
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                textAlign: 'center',
+                height: '100%',
+                fontSize: 14
+              }}
+            >
+              {t('admin:components.avatar.thumbnailPreview')}
+            </Typography>
+          )}
+        </Box>
+      )}
 
       <DialogActions>
         <Button className={styles.outlinedButton} onClick={handleCancel}>

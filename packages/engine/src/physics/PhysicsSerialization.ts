@@ -1,14 +1,10 @@
 import { AvatarComponent } from '../avatar/components/AvatarComponent'
 import { Entity } from '../ecs/classes/Entity'
 import { getComponent, hasComponent } from '../ecs/functions/ComponentFunctions'
-import { checkBitflag, readCompressedRotation, readVector3, readVector4 } from '../networking/serialization/DataReader'
-import { writeCompressedRotation, writeVector3, writeVector4 } from '../networking/serialization/DataWriter'
+import { checkBitflag, readVector3, readVector4 } from '../networking/serialization/DataReader'
+import { writeVector3, writeVector4 } from '../networking/serialization/DataWriter'
 import { readUint8, rewindViewCursor, spaceUint8, ViewCursor } from '../networking/serialization/ViewCursor'
-import {
-  RigidBodyComponent,
-  RigidBodyDynamicTagComponent,
-  RigidBodyFixedTagComponent
-} from './components/RigidBodyComponent'
+import { RigidBodyComponent, RigidBodyDynamicTagComponent } from './components/RigidBodyComponent'
 
 export const readBodyPosition = readVector3(RigidBodyComponent.position)
 export const readBodyRotation = readVector4(RigidBodyComponent.rotation)
@@ -19,20 +15,24 @@ export const readRigidBody = (v: ViewCursor, entity: Entity) => {
   const changeMask = readUint8(v)
   let b = 0
   const rigidBody = getComponent(entity, RigidBodyComponent)
+  const dynamic = hasComponent(entity, RigidBodyDynamicTagComponent)
   if (checkBitflag(changeMask, 1 << b++)) {
     readBodyPosition(v, entity)
+    if (dynamic && rigidBody) rigidBody.body.setTranslation(rigidBody.position, false)
   }
   if (checkBitflag(changeMask, 1 << b++)) {
     readBodyRotation(v, entity)
+    if (dynamic && rigidBody) rigidBody.body.setRotation(rigidBody.rotation, false)
   }
   if (checkBitflag(changeMask, 1 << b++)) {
     readBodyLinearVelocity(v, entity)
+    if (dynamic && rigidBody) rigidBody.body.setLinvel(rigidBody.linearVelocity, false)
   }
   if (checkBitflag(changeMask, 1 << b++)) {
     readBodyAngularVelocity(v, entity)
+    if (dynamic && rigidBody) rigidBody.body.setAngvel(rigidBody.angularVelocity, false)
   }
-  if (rigidBody) {
-    const rigidBody = getComponent(entity, RigidBodyComponent)
+  if (!dynamic && rigidBody) {
     const position = rigidBody.position
     const rotation = rigidBody.rotation
     RigidBodyComponent.targetKinematicPosition.x[entity] = position.x
