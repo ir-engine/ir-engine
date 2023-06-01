@@ -9,6 +9,7 @@ import {
   ChargebeeSettingType
 } from '@etherealengine/engine/src/schemas/setting/chargebee-setting.schema'
 
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface ChargebeeSettingParams extends KnexAdapterParams<ChargebeeSettingQuery> {}
 
 export class ChargebeeSettingService<
