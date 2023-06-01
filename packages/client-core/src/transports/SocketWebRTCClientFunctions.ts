@@ -119,11 +119,15 @@ export const promisedRequest = (network: SocketWebRTCClientNetwork, type: any, d
 }
 
 const handleFailedConnection = (locationConnectionFailed) => {
+  console.log('handleFailedConnection', locationConnectionFailed)
   if (locationConnectionFailed) {
     const currentLocation = getMutableState(LocationState).currentLocation.location
     const locationInstanceConnectionState = getMutableState(LocationInstanceState)
     const instanceId = getState(NetworkState).hostIds.world ?? ''
-    if (!locationInstanceConnectionState.instances[instanceId]?.connected?.value) {
+    if (
+      !locationInstanceConnectionState.instances[instanceId]?.connected?.value &&
+      !locationInstanceConnectionState.instances[instanceId]?.connecting?.value
+    ) {
       dispatchAction(LocationInstanceConnectionAction.disconnect({ instanceId }))
       LocationInstanceConnectionService.provisionServer(
         currentLocation.id.value,
@@ -176,10 +180,6 @@ export const initializeNetwork = (hostId: UserId, topic: Topic) => {
   )
 
   const transport = {
-    get peers() {
-      return network.primus ? [network.hostPeerID] : []
-    },
-
     messageToPeer: (peerId: PeerID, data: any) => {
       network.primus?.write(data)
     },

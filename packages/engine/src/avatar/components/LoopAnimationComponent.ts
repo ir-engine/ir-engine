@@ -9,6 +9,7 @@ import {
   getComponent,
   hasComponent,
   removeComponent,
+  setComponent,
   useComponent,
   useOptionalComponent
 } from '../../ecs/functions/ComponentFunctions'
@@ -51,6 +52,8 @@ export const LoopAnimationComponent = defineComponent({
     const entity = useEntityContext()
 
     const modelComponent = useOptionalComponent(entity, ModelComponent)
+
+    const animComponent = useOptionalComponent(entity, AnimationComponent)
 
     /**
      * Callback functions
@@ -99,7 +102,7 @@ export const LoopAnimationComponent = defineComponent({
 
       if (changedToAvatarAnimation) {
         if (!hasComponent(entity, AvatarAnimationComponent)) {
-          addComponent(entity, AvatarAnimationComponent, {
+          setComponent(entity, AvatarAnimationComponent, {
             animationGraph: {
               states: {},
               transitionRules: {},
@@ -123,7 +126,7 @@ export const LoopAnimationComponent = defineComponent({
       }
 
       if (!loopComponent.action?.paused) playAnimationClip(animationComponent, loopComponent)
-    }, [modelComponent?.scene])
+    }, [animComponent?.animations])
 
     return null
   }

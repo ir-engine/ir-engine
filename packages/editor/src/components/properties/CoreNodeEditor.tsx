@@ -91,13 +91,8 @@ export const CoreNodeEditor: EditorComponentType = (props) => {
             commands={Array.from(EntityNodeEditor).map(([component, editor]) => ({
               name: component.name,
               action: () => {
-                const comp = registeredComponents.find(([componentName, prefab]) => componentName === component.name)!
-                if (!comp) return console.warn('could not find component name', component.name)
-                const [sceneComponentID] = comp
-                if (!sceneComponentID) return console.warn('could not find component name', sceneComponentID)
-                if (!ComponentMap.get(sceneComponentID))
-                  return console.warn('could not find component', sceneComponentID)
-                setComponent(props.entity, ComponentMap.get(sceneComponentID)!)
+                if (!ComponentMap.get(component.name)) return console.warn('could not find component', component.name)
+                setComponent(props.entity, ComponentMap.get(component.name)!)
                 dispatchAction(SelectionAction.forceUpdate({}))
               }
             }))}

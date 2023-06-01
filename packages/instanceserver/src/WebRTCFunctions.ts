@@ -5,12 +5,12 @@ import {
   DataProducer,
   DataProducerOptions,
   MediaKind,
-  ProducerOptions,
   Router,
   RtpCodecCapability,
   RtpParameters,
   SctpStreamParameters,
   Transport,
+  WebRtcServer,
   WebRtcTransport,
   Worker
 } from 'mediasoup/node/lib/types'
@@ -18,18 +18,14 @@ import os from 'os'
 import { Spark } from 'primus'
 
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { DataChannelType } from '@etherealengine/engine/src/networking/classes/Network'
 import { MessageTypes } from '@etherealengine/engine/src/networking/enums/MessageTypes'
-import { NetworkPeer } from '@etherealengine/engine/src/networking/interfaces/NetworkPeer'
 import {
   dataChannelRegistry,
   MediaStreamAppData,
-  MediaTagType,
-  NetworkState
+  MediaTagType
 } from '@etherealengine/engine/src/networking/NetworkState'
 import { getState } from '@etherealengine/hyperflux'
-import { Application } from '@etherealengine/server-core/declarations'
 import config from '@etherealengine/server-core/src/appconfig'
 import { localConfig, sctpParameters } from '@etherealengine/server-core/src/config'
 import multiLogger from '@etherealengine/server-core/src/ServerLogger'
@@ -63,6 +59,10 @@ export async function startWebRTC() {
       logTags: ['sctp']
     })
 
+    const webRtcServerOptions = JSON.parse(JSON.stringify(localConfig.mediasoup.webRtcServerOptions))
+    for (const listenInfo of webRtcServerOptions.listenInfos) listenInfo.port += i
+    newWorker.appData.webRtcServer = await newWorker.createWebRtcServer(webRtcServerOptions)
+
     newWorker.on('died', (err) => {
       logger.fatal(err, 'mediasoup worker died (this should never happen)')
       process.exit(1)
@@ -71,7 +71,7 @@ export async function startWebRTC() {
     logger.info('Created Mediasoup worker.')
 
     const mediaCodecs = localConfig.mediasoup.router.mediaCodecs as RtpCodecCapability[]
-    const newRouter = await newWorker.createRouter({ mediaCodecs })
+    const newRouter = await newWorker.createRouter({ mediaCodecs, appData: { worker: newWorker } })
     routers.instance.push(newRouter)
     logger.info('Worker created router.')
     workers.push(newWorker)
@@ -260,6 +260,14 @@ export const handleWebRtcConsumeData = async (
   }
 }
 
+export async function closeDataProducer(network, dataProducer): Promise<void> {
+  network.dataProducers.delete(dataProducer.id)
+  logger.info("data producer's transport closed: " + dataProducer.id)
+  dataProducer.close()
+  const peer = network.peers.get(dataProducer.appData.peerID)
+  if (peer) peer.dataProducers!.delete(dataProducer.id)
+}
+
 export async function closeTransport(
   network: SocketWebRTCServerNetwork,
   transport: WebRTCTransportExtension
@@ -268,6 +276,10 @@ export async function closeTransport(
   // our producer and consumer event handlers will take care of
   // calling closeProducer() and closeConsumer() on all the producers
   // and consumers associated with this transport
+  const dataProducers = (transport as any).dataProducers
+  dataProducers?.forEach(async (dataProducer) => await closeDataProducer(network, dataProducer))
+  const producers = (transport as any).producers
+  producers?.forEach(async (producer) => await closeProducer(network, producer))
   if (transport && typeof transport.close === 'function') {
     await transport.close()
     delete network.mediasoupTransports[transport.id]
@@ -334,7 +346,7 @@ export async function createWebRtcTransport(
       network.routers[`${channelType}:${channelId}`] = [] as any
       await Promise.all(
         network.workers.map(async (worker) => {
-          const newRouter = await worker.createRouter({ mediaCodecs })
+          const newRouter = await worker.createRouter({ mediaCodecs, appData: { worker } })
           network.routers[`${channelType}:${channelId}`].push(newRouter)
           return Promise.resolve()
         })
@@ -356,7 +368,7 @@ export async function createWebRtcTransport(
   }
 
   return selectedrouter?.createWebRtcTransport({
-    listenIps: listenIps,
+    webRtcServer: (selectedrouter.appData.worker as Worker).appData!.webRtcServer as WebRtcServer,
     enableUdp: true,
     enableTcp: false,
     preferUdp: true,
@@ -556,22 +568,16 @@ export async function handleWebRtcProduceData(
 
           await Promise.all(
             network.routers.instance.map(async (router) => {
-              if (router.id !== transport.internal.routerId) {
+              if (router.id !== transport.internal.routerId)
                 return currentRouter.pipeToRouter({
                   dataProducerId: dataProducer.id,
                   router: router
                 })
-              }
             })
           )
 
           // if our associated transport closes, close ourself, too
-          dataProducer.on('transportclose', () => {
-            network.dataProducers.delete(dataProducer.id)
-            logger.info("data producer's transport closed: " + dataProducer.id)
-            dataProducer.close()
-            network.peers.get(peerID)!.dataProducers!.delete(dataProducer.id)
-          })
+          dataProducer.on('transportclose', () => closeDataProducer(network, dataProducer))
           const internalConsumer = await createInternalDataConsumer(network, dataProducer, peerID)
           if (internalConsumer) {
             if (!network.peers.has(peerID)) {
@@ -1060,7 +1066,7 @@ export async function handleWebRtcInitializeRouter(
       network.routers[`${channelType}:${channelId}`] = []
       await Promise.all(
         network.workers.map(async (worker) => {
-          const newRouter = await worker.createRouter({ mediaCodecs })
+          const newRouter = await worker.createRouter({ mediaCodecs, appData: { worker } })
           network.routers[`${channelType}:${channelId}`].push(newRouter)
         })
       )

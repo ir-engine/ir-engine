@@ -101,10 +101,10 @@ const receiveDestroyObject = (action: ReturnType<typeof WorldNetworkAction.destr
   const entity = Engine.instance.getNetworkObject(action.$from, action.networkId)
   if (!entity) return
   removeEntity(entity)
-  // const idx = Engine.instance.store.actions.cached.findIndex((a) => {
-  //   WorldNetworkAction.spawnObject.matches.test(a) && a.networkId === action.networkId
-  // })
-  // if (idx !== -1) Engine.instance.store.actions.cached.splice(idx, 1)
+  const idx = Engine.instance.store.actions.cached.findIndex((a) => {
+    WorldNetworkAction.spawnObject.matches.test(a) && a.networkId === action.networkId
+  })
+  if (idx !== -1) Engine.instance.store.actions.cached.splice(idx, 1)
 }
 
 const receiveRequestAuthorityOverObject = (

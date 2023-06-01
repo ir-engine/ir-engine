@@ -1,7 +1,10 @@
-import type { PlainTransportOptions } from 'mediasoup/node/lib/PlainTransport'
+import type { TransportListenIp } from 'mediasoup/node/lib/Transport'
+import type { WebRtcTransportOptions } from 'mediasoup/node/lib/WebRtcTransport'
 
 import configFile from './appconfig'
 import { SctpParameters } from './types/SctpParameters'
+
+const NUM_RTC_PORTS = process.env.NUM_RTC_PORTS ? parseInt(process.env.NUM_RTC_PORTS) : 10000
 
 export const sctpParameters: SctpParameters = {
   OS: 1024,
@@ -13,6 +16,22 @@ export const sctpParameters: SctpParameters = {
 export const config = {
   httpPeerStale: 15000,
   mediasoup: {
+    webRtcServerOptions: {
+      listenInfos: [
+        {
+          protocol: 'udp',
+          ip: configFile.instanceserver.domain! || '0.0.0.0',
+          announcedIp: null! as string,
+          port: process.env.DEV_CHANNEL === 'true ' ? 30000 : 40000
+        },
+        {
+          protocol: 'tcp',
+          ip: configFile.instanceserver.domain! || '0.0.0.0',
+          announcedIp: null! as string,
+          port: process.env.DEV_CHANNEL === 'true' ? 30000 : 40000
+        }
+      ]
+    },
     worker: {
       rtcMinPort: 40000,
       rtcMaxPort: 49999,
@@ -72,9 +91,26 @@ export const config = {
 export const localConfig = {
   httpPeerStale: 15000,
   mediasoup: {
+    webRtcServerOptions: {
+      listenInfos: [
+        {
+          protocol: 'udp',
+          ip: configFile.instanceserver.domain! || '0.0.0.0',
+          announcedIp: null! as string,
+          port: process.env.DEV_CHANNEL === 'true' ? 30000 : configFile.instanceserver.rtc_start_port
+        },
+        {
+          protocol: 'tcp',
+          ip: configFile.instanceserver.domain! || '0.0.0.0',
+          announcedIp: null! as string,
+          port: process.env.DEV_CHANNEL === 'true' ? 30000 : configFile.instanceserver.rtc_start_port
+        }
+      ]
+    },
     worker: {
-      rtcMinPort: configFile.instanceserver.rtc_start_port,
-      rtcMaxPort: configFile.instanceserver.rtc_end_port,
+      rtcMinPort: process.env.DEV_CHANNEL === 'true' ? 30000 : configFile.instanceserver.rtc_start_port,
+      rtcMaxPort:
+        (process.env.DEV_CHANNEL === 'true' ? 30000 : configFile.instanceserver.rtc_start_port) + NUM_RTC_PORTS - 1,
       logLevel: 'info',
       logTags: ['info', 'ice', 'dtls', 'rtp', 'srtp', 'rtcp']
     },
@@ -122,18 +158,18 @@ export const localConfig = {
     // to set these appropriately for your network for the demo to
     // run anywhere but on 127.0.0.1
     webRtcTransport: {
-      listenIps: [{ ip: configFile.instanceserver.domain, announcedIp: null! as string }],
+      listenIps: [{ ip: null! as string, announcedIp: null! as string }],
       initialAvailableOutgoingBitrate: 1000 * 1000 * 1000, //1gbps
       maxIncomingBitrate: 30 * 1000 * 1000 // 30mbps - this should be set to something; leaving it uncapped causes stuttering
     },
 
     plainTransport: {
-      listenIp: { ip: configFile.instanceserver.domain }
-    } as PlainTransportOptions,
+      listenIp: { ip: null! as string, announcedIp: null! as string }
+    },
 
     recording: {
-      ip: configFile.instanceserver.domain,
-
+      // the internal IP of the local machine, not the public one - overridden upon instance server startup
+      ip: null! as string,
       // FFmpeg's sdpdemux only supports RTCP = RTP + 1
       audioPort: 5004,
       audioPortRtcp: 5005,

@@ -13,6 +13,7 @@ import {
   ShaderChunk,
   ShaderMaterial,
   SrcAlphaFactor,
+  Texture,
   Vector2,
   Vector3,
   Vector4
@@ -149,7 +150,19 @@ const BaseFragmentShader = [
 //   '}'
 // ].join('\n')
 
-class TrailRenderer extends Mesh {
+type TrailRendererUniforms = {
+  trailLength: { value: number }
+  verticesPerNode: { value: number }
+  minID: { value: number }
+  maxID: { value: number }
+  headColor: { value: Vector4 }
+  tailColor: { value: Vector4 }
+  textureTileFactor: { value: Vector2 }
+  texture: { value: Texture }
+  dragTexture: { value: number }
+}
+
+class TrailRenderer extends Mesh<BufferGeometry, ShaderMaterial> {
   orientToMovement = false
   mesh: Mesh
   nodeCenters: Vector3[]
@@ -189,7 +202,7 @@ class TrailRenderer extends Mesh {
     fragmentShader = fragmentShader || BaseFragmentShader
 
     return new ShaderMaterial({
-      uniforms: customUniforms,
+      uniforms: customUniforms as TrailRendererUniforms,
       vertexShader: vertexShader,
       fragmentShader: fragmentShader,
 

@@ -414,7 +414,7 @@ const CaptureDashboard = () => {
                   style={{ objectFit: 'contain', top: '0px' }}
                 >
                   <div className="grid w-screen h-screen place-items-center">
-                    <h1>{mediaConnection?.connected?.value ? 'Enable Camera' : 'Loading...'}</h1>
+                    <h1>{mediaConnection?.connected?.value ? 'Enable Camera' : 'Connecting...'}</h1>
                   </div>
                 </button>
               ) : null}
