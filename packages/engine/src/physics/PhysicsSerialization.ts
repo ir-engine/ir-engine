@@ -18,21 +18,21 @@ export const readRigidBody = (v: ViewCursor, entity: Entity) => {
   const dynamic = hasComponent(entity, RigidBodyDynamicTagComponent)
   if (checkBitflag(changeMask, 1 << b++)) {
     readBodyPosition(v, entity)
-    if (dynamic) rigidBody.body.setTranslation(rigidBody.position, false)
+    if (dynamic && rigidBody) rigidBody.body.setTranslation(rigidBody.position, false)
   }
   if (checkBitflag(changeMask, 1 << b++)) {
     readBodyRotation(v, entity)
-    if (dynamic) rigidBody.body.setRotation(rigidBody.rotation, false)
+    if (dynamic && rigidBody) rigidBody.body.setRotation(rigidBody.rotation, false)
   }
   if (checkBitflag(changeMask, 1 << b++)) {
     readBodyLinearVelocity(v, entity)
-    if (dynamic) rigidBody.body.setLinvel(rigidBody.linearVelocity, false)
+    if (dynamic && rigidBody) rigidBody.body.setLinvel(rigidBody.linearVelocity, false)
   }
   if (checkBitflag(changeMask, 1 << b++)) {
     readBodyAngularVelocity(v, entity)
-    if (dynamic) rigidBody.body.setAngvel(rigidBody.angularVelocity, false)
+    if (dynamic && rigidBody) rigidBody.body.setAngvel(rigidBody.angularVelocity, false)
   }
-  if (!dynamic) {
+  if (!dynamic && rigidBody) {
     const position = rigidBody.position
     const rotation = rigidBody.rotation
     RigidBodyComponent.targetKinematicPosition.x[entity] = position.x

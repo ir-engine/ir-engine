@@ -67,10 +67,10 @@ function reactor(): ReactElement {
   return (
     <>
       {materialLibrary.materials.keys.map((materialId) => (
-        <MaterialReactor materialId={materialId} />
+        <MaterialReactor key={materialId} materialId={materialId} />
       ))}
       {plugins.keys.map((pluginId) => (
-        <PluginReactor pluginId={pluginId} />
+        <PluginReactor pluginId={pluginId} key={pluginId} />
       ))}
     </>
   )
