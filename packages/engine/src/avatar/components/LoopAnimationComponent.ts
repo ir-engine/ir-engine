@@ -80,17 +80,25 @@ export const LoopAnimationComponent = defineComponent({
      * A model is required for LoopAnimationComponent.
      */
     useEffect(() => {
-      if (!modelComponent?.scene?.value) return
+      const scene = modelComponent?.scene.value
 
-      const scene = modelComponent.scene.value
+      if (!scene) return
 
       if (!hasComponent(entity, AnimationComponent)) {
-        addComponent(entity, AnimationComponent, {
+        setComponent(entity, AnimationComponent, {
           mixer: new AnimationMixer(scene),
           animationSpeed: 1,
           animations: []
         })
       }
+    }, [modelComponent?.scene.value])
+
+    useEffect(() => {
+      console.log(modelComponent)
+
+      if (!modelComponent?.scene?.value) return
+
+      const scene = modelComponent.scene.value
 
       const loopComponent = getComponent(entity, LoopAnimationComponent)
       const animationComponent = getComponent(entity, AnimationComponent)
