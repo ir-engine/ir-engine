@@ -92,7 +92,7 @@ export const LoopAnimationComponent = defineComponent({
           animations: []
         })
       }
-    }, [modelComponent?.scene.value])
+    }, [modelComponent?.scene])
 
     useEffect(() => {
       if (!modelComponent?.scene?.value) return
@@ -133,7 +133,7 @@ export const LoopAnimationComponent = defineComponent({
       }
 
       if (!loopComponent.action?.paused) playAnimationClip(animationComponent, loopComponent)
-    }, [animComponent?.animations, loopAnimationComponent?.hasAvatarAnimations.value])
+    }, [animComponent?.animations, loopAnimationComponent?.hasAvatarAnimations])
 
     return null
   }
