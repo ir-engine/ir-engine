@@ -64,12 +64,7 @@ const receiveSpawnObject = (action: typeof WorldNetworkAction.spawnObject.matche
   if (action.position) position.copy(action.position)
   if (action.rotation) rotation.copy(action.rotation)
 
-  setTransformComponent(entity, position, rotation)
-  const transform = getComponent(entity, TransformComponent)
-
-  // set cached action refs to the new components so they stay up to date with future movements
-  action.position = transform.position
-  action.rotation = transform.rotation
+  setComponent(entity, TransformComponent, { position, rotation })
 }
 
 const receiveRegisterSceneObject = (action: typeof WorldNetworkAction.registerSceneObject.matches._TYPE) => {

@@ -15,7 +15,10 @@ import {
 } from '../../ecs/functions/ComponentFunctions'
 import { LocalAvatarTagComponent } from '../../input/components/LocalAvatarTagComponent'
 import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
-import { NetworkObjectAuthorityTag } from '../../networking/components/NetworkObjectComponent'
+import {
+  NetworkObjectAuthorityTag,
+  NetworkObjectSendPeriodicUpdatesTag
+} from '../../networking/components/NetworkObjectComponent'
 import { NetworkPeerFunctions } from '../../networking/functions/NetworkPeerFunctions'
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
 import { WorldState } from '../../networking/interfaces/WorldState'
@@ -115,6 +118,8 @@ export const spawnAvatarReceptor = (spawnAction: typeof WorldNetworkAction.spawn
     createAvatarRigidBody(entity)
     createAvatarCollider(entity)
   }
+
+  setComponent(entity, NetworkObjectSendPeriodicUpdatesTag)
 
   setComponent(entity, ShadowComponent)
 }
