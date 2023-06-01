@@ -51,3 +51,5 @@ export const NetworkObjectComponent = defineComponent({
 export const NetworkObjectAuthorityTag = defineComponent({ name: 'NetworkObjectAuthorityTag' })
 
 export const NetworkObjectOwnedTag = defineComponent({ name: 'NetworkObjectOwnedTag' })
+
+export const NetworkObjectSendPeriodicUpdatesTag = defineComponent({ name: 'NetworkObjectSendPeriodicUpdatesTag' })

@@ -12,7 +12,7 @@ import { proxifyQuaternion, proxifyVector3 } from '../../common/proxies/createTh
 import { destroyEngine, Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
-import { addComponent } from '../../ecs/functions/ComponentFunctions'
+import { addComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { createEngine } from '../../initializeEngine'
 import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
@@ -25,7 +25,7 @@ import {
   writeTransform
 } from '../../transform/TransformSerialization'
 import { Network } from '../classes/Network'
-import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
+import { NetworkObjectComponent, NetworkObjectSendPeriodicUpdatesTag } from '../components/NetworkObjectComponent'
 import { NetworkState } from '../NetworkState'
 import { readCompressedRotation, readCompressedVector3 } from './DataReader'
 import {
@@ -66,7 +66,7 @@ describe('DataWriter', () => {
 
   it('should writeComponent', () => {
     const writeView = createViewCursor()
-    const entity = 42 as Entity
+    const entity = createEntity()
 
     const [x, y, z] = [1.5, 2.5, 3.5]
     TransformComponent.position.x[entity] = x
@@ -104,7 +104,7 @@ describe('DataWriter', () => {
 
   it('should writeVector3', () => {
     const writeView = createViewCursor()
-    const entity = 42 as Entity
+    const entity = createEntity()
 
     const [x, y, z] = [1.5, 2.5, 3.5]
     TransformComponent.position.x[entity] = x
@@ -140,7 +140,7 @@ describe('DataWriter', () => {
 
   it('should writePosition', () => {
     const writeView = createViewCursor()
-    const entity = 42 as Entity
+    const entity = createEntity()
 
     const [x, y, z] = [1.5, 2.5, 3.5]
     TransformComponent.position.x[entity] = x
@@ -161,7 +161,8 @@ describe('DataWriter', () => {
 
   it('should writeCompressedRotation', () => {
     const writeView = createViewCursor()
-    const entity = 42 as Entity
+    const entity = createEntity()
+    setComponent(entity, NetworkObjectSendPeriodicUpdatesTag)
 
     // construct values for a valid quaternion
     const [a, b, c] = [0.167, 0.167, 0.167]
@@ -173,7 +174,7 @@ describe('DataWriter', () => {
     TransformComponent.rotation.z[entity] = z
     TransformComponent.rotation.w[entity] = w
 
-    writeCompressedRotation(TransformComponent.rotation)(writeView, entity, true)
+    writeCompressedRotation(TransformComponent.rotation)(writeView, entity)
 
     const readView = createViewCursor(writeView.buffer)
     readCompressedRotation(TransformComponent.rotation)(readView, entity)
@@ -189,14 +190,15 @@ describe('DataWriter', () => {
 
   it('should writeCompressedVector3', () => {
     const writeView = createViewCursor()
-    const entity = 42 as Entity
+    const entity = createEntity()
+    setComponent(entity, NetworkObjectSendPeriodicUpdatesTag)
 
     const [x, y, z] = [1.333, 2.333, 3.333]
     RigidBodyComponent.linearVelocity.x[entity] = x
     RigidBodyComponent.linearVelocity.y[entity] = y
     RigidBodyComponent.linearVelocity.z[entity] = z
 
-    writeCompressedVector3(RigidBodyComponent.linearVelocity)(writeView, entity, true)
+    writeCompressedVector3(RigidBodyComponent.linearVelocity)(writeView, entity)
 
     const readView = createViewCursor(writeView.buffer)
     readCompressedVector3(RigidBodyComponent.linearVelocity)(readView, entity)
