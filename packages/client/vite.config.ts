@@ -7,7 +7,7 @@ import { isArray, mergeWith } from 'lodash'
 import path from 'path'
 import { defineConfig, UserConfig } from 'vite'
 import viteCompression from 'vite-plugin-compression'
-import { createHtmlPlugin } from 'vite-plugin-html'
+import { createEjsPlugin } from 'vite-plugin-ejs'
 import OptimizationPersist from 'vite-plugin-optimize-persist'
 import PkgConfig from 'vite-plugin-package-config'
 
@@ -90,11 +90,9 @@ function mediapipe_workaround() {
           'StaticText',
           'Toggle',
           'SourcePicker',
-
           // 'InputImage', not working with this export. Is defined in index.d.ts
           // but is not defined in control_utils.js
           'InputImage',
-
           'Slider'
         ]
       }
@@ -173,7 +171,7 @@ export default defineConfig(async () => {
       mediapipe_workaround(),
       PkgConfig(),
       process.env.VITE_PWA_ENABLED === 'true' ? PWA(clientSetting) : undefined,
-      createHtmlPlugin({
+      createEjsPlugin({
         inject: {
           data: {
             ...manifest,
