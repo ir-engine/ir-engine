@@ -80,12 +80,26 @@ export const UserMediaWindowsWidget = () => {
     })
 
   const cams = consumers
-    .filter(([peerID, { cam, screen }]) => cam)
+    .filter(
+      ([peerID, { cam, screen }]) =>
+        cam &&
+        ((cam.videoStream && !cam.videoProducerPaused && !cam.videoStreamPaused) ||
+          (cam.audioStream && !cam.audioProducerPaused && !cam.audioStreamPaused))
+    )
     .map(([peerID]) => {
       return { peerID, type: 'cam' as 'cam' }
     })
 
   windows.push(...screens, ...cams)
+
+  const selfPeerID = Engine.instance.peerID
+  const selfUserID = Engine.instance.userId
+  const mediaNetwork = Engine.instance.mediaNetwork
+
+  // if window doesnt exist for self, add it
+  if (!mediaNetwork || !windows.find(({ peerID }) => mediaNetwork.peers.get(peerID)?.userId === selfUserID)) {
+    windows.unshift({ peerID: selfPeerID, type: 'cam' })
+  }
 
   return (
     <div className={`${styles.userMediaWindowsContainer}`}>
