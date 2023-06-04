@@ -400,6 +400,21 @@ const execute = () => {
       null,
       midAxisRestriction
     )
+
+    //Head
+    /*
+    solveTwoBoneIK(
+      rig.hips.node,
+      rig.spine.node,
+      rig.head.node,
+      worldSpaceTargets.headTarget,
+      rot,
+      null,
+      null,
+      null,
+      midAxisRestriction
+    )
+    */
   }
 
   /**

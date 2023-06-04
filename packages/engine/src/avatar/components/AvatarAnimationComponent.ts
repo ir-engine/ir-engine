@@ -152,6 +152,7 @@ export const AvatarRigComponent = defineComponent({
     const debugEnabled = useHookstate(getMutableState(RendererState).debugEnable)
     const anim = useComponent(entity, AvatarRigComponent)
     const pending = useOptionalComponent(entity, AvatarPendingComponent)
+    const rigComponent = getMutableComponent(entity, AvatarRigComponent)
 
     useEffect(() => {
       if (debugEnabled.value && !anim.helper.value && !pending?.value) {
@@ -183,17 +184,11 @@ export const AvatarRigComponent = defineComponent({
       }
     }, [anim.rig])
 
-    const rigComponent = getMutableComponent(entity, AvatarRigComponent)
-    for (const [key, value] of Object.entries(rigComponent.ikTargetsMap.value)) {
-      value.name = key
-      rigComponent.targets.value.add(value)
-    }
-
     const animComponent = useComponent(entity, AnimationComponent)
 
     //Calculate ik target offsets for retargeting
     useEffect(() => {
-      if (!animComponent.animations[0].value || !rigComponent.targets.children.length) return
+      if (!animComponent.animations.value.length || !rigComponent.targets.children.length) return
       const bindTracks = animComponent.animations[0].tracks.value
       if (!bindTracks) return
       for (let i = 0; i < bindTracks.length; i += 3) {
@@ -241,7 +236,7 @@ export const AvatarRigComponent = defineComponent({
         pos.sub(new Vector3(bindTracks[i].values[0], bindTracks[i].values[1], bindTracks[i].values[2]))
         rigComponent.ikOffsetsMap.value.set(key, pos)
       }
-    }, [animComponent.animations, rigComponent.targets.value])
+    }, [animComponent.animations, rigComponent.targets])
     return null
   }
 })

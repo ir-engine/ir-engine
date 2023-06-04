@@ -270,6 +270,12 @@ export const rigAvatarModel = (entity: Entity) => (model: VRM) => {
     vrm: model
   })
 
+  const rigComponent = getComponent(entity, AvatarRigComponent)
+  for (const [key, value] of Object.entries(rigComponent.ikTargetsMap)) {
+    value.name = key
+    rigComponent.targets.add(value)
+  }
+
   avatarAnimationComponent.rootYRatio = 1
 
   return model
