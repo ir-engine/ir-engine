@@ -177,7 +177,7 @@ export const generatePhysicsObject = (
           prefab: 'physics_debug',
           position: transform.position,
           rotation: transform.rotation,
-          uuid: getUUID() as EntityUUID
+          entityUUID: getUUID() as EntityUUID
         })
       )
     }

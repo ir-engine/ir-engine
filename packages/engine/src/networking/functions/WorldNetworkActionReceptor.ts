@@ -30,10 +30,10 @@ const receiveSpawnObject = (action: typeof WorldNetworkAction.spawnObject.matche
   //   action.uuid === action.$from
   // if (existingAvatar) return
 
-  if (UUIDComponent.entitiesByUUID[action.uuid]) return
+  if (UUIDComponent.entitiesByUUID[action.entityUUID]) return
 
   const entity = createEntity()
-  setComponent(entity, UUIDComponent, action.uuid)
+  setComponent(entity, UUIDComponent, action.entityUUID)
 
   setComponent(entity, NetworkObjectComponent, {
     ownerId: action.$from,

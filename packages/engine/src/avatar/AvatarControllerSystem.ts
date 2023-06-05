@@ -53,7 +53,7 @@ const execute = () => {
     // todo: this should be called when the avatar is spawned
     dispatchAction(
       WorldNetworkAction.spawnCamera({
-        uuid: ('camera_' + getComponent(avatarEntity, UUIDComponent)) as EntityUUID
+        entityUUID: ('camera_' + getComponent(avatarEntity, UUIDComponent)) as EntityUUID
       })
     )
   }

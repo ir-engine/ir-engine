@@ -462,15 +462,18 @@ const clearOutgoingActions = (topic: string, store = HyperFlux.store) => {
   queue.length = 0
 }
 
-function defineActionQueue<V extends Validator<unknown, ResolvedActionType>>(shape: V): () => V['_TYPE'][] {
-  const actionQueueDefinition = (store = HyperFlux.store) => {
-    if (!store.actions.queueDefinitions.has(shape)) store.actions.queueDefinitions.set(shape, [])
+function defineActionQueue<V extends Validator<unknown, ResolvedActionType>>(shape: V[] | V) {
+  const shapes = Array.isArray(shape) ? shape : [shape]
+  const shapeHash = shapes.map((s) => s.description).join('|')
 
-    if (!store.actions.queueDefinitions.get(shape)!.includes(actionQueueDefinition))
-      store.actions.queueDefinitions.get(shape)!.push(actionQueueDefinition)
+  const actionQueueDefinition = (store = HyperFlux.store): V['_TYPE'][] => {
+    if (!store.actions.queueDefinitions.has(shapeHash)) store.actions.queueDefinitions.set(shapeHash, [])
+
+    if (!store.actions.queueDefinitions.get(shapeHash)!.includes(actionQueueDefinition))
+      store.actions.queueDefinitions.get(shapeHash)!.push(actionQueueDefinition)
 
     if (!store.actions.queues.has(actionQueueDefinition)) {
-      store.actions.queues.set(actionQueueDefinition, store.actions.history.filter(shape.test))
+      store.actions.queues.set(actionQueueDefinition, store.actions.history.filter(actionQueueDefinition.test))
       store.getCurrentReactorRoot()?.cleanupFunctions.add(() => {
         removeActionQueue(actionQueueDefinition, store)
       })
@@ -481,7 +484,11 @@ function defineActionQueue<V extends Validator<unknown, ResolvedActionType>>(sha
     queue.length = 0
     return result
   }
-  actionQueueDefinition._shape = shape
+
+  actionQueueDefinition.test = (a: Action) => {
+    return shapes.some((s) => s.test(a))
+  }
+
   return actionQueueDefinition
 }
 
@@ -492,7 +499,7 @@ const createActionQueue = defineActionQueue
 
 export type ActionQueueDefinition = ReturnType<typeof defineActionQueue>
 
-const removeActionQueue = (queueFunction, store = HyperFlux.store) => {
+const removeActionQueue = (queueFunction: ActionQueueDefinition, store = HyperFlux.store) => {
   const queue = queueFunction._queue
   const shape = queueFunction._shape
   const shapeQueues = store.actions.queues.get(shape)

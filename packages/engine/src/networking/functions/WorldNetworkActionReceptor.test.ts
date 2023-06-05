@@ -60,7 +60,7 @@ describe('WorldNetworkActionReceptors', () => {
           networkId: objNetId,
           $topic: NetworkTopics.world,
           $peer: Engine.instance.peerID,
-          uuid: Engine.instance.peerID as any as EntityUUID
+          entityUUID: Engine.instance.peerID as any as EntityUUID
         })
       )
 
@@ -102,7 +102,7 @@ describe('WorldNetworkActionReceptors', () => {
           prefab: objPrefab, // generic prefab
           networkId: objNetId,
           $peer: Engine.instance.peerID,
-          uuid: Engine.instance.peerID as any as EntityUUID
+          entityUUID: Engine.instance.peerID as any as EntityUUID
         })
       )
 
@@ -146,7 +146,7 @@ describe('WorldNetworkActionReceptors', () => {
           networkId: objNetId,
           $peer: peerID3,
           $topic: NetworkTopics.world,
-          uuid: peerID3 as any as EntityUUID
+          entityUUID: peerID3 as any as EntityUUID
         })
       )
 
@@ -220,7 +220,7 @@ describe('WorldNetworkActionReceptors', () => {
           networkId: objNetId,
           $topic: NetworkTopics.world,
           $peer: Engine.instance.peerID,
-          uuid: Engine.instance.peerID as any as EntityUUID
+          entityUUID: Engine.instance.peerID as any as EntityUUID
         })
       )
 
@@ -293,7 +293,7 @@ describe('WorldNetworkActionReceptors', () => {
         networkId: objNetId,
         $topic: NetworkTopics.world,
         $peer: Engine.instance.peerID,
-        uuid: Engine.instance.peerID as any as EntityUUID
+        entityUUID: Engine.instance.peerID as any as EntityUUID
       })
     )
 

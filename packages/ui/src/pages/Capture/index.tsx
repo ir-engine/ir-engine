@@ -271,7 +271,7 @@ const CaptureDashboard = () => {
         recordingID: recordingState.recordingID.value
       })
       RecordingFunctions.getRecordings()
-    } else if (!recordingState.started.value) {
+    } else if (!recordingState.de.value) {
       RecordingFunctions.startRecording().then((recordingID) => {
         if (recordingID) ECSRecordingFunctions.startRecording({ recordingID })
       })
@@ -428,7 +428,7 @@ const CaptureDashboard = () => {
                   onToggleRecording={onToggleRecording}
                   toggleWebcam={toggleWebcamPaused}
                   toggleDetecting={() => isDetecting.set((v) => !v)}
-                  isRecording={recordingState.started.value}
+                  isRecording={recordingState.de.value}
                   recordingStatus={recordingState.recordingID.value}
                   isVideoFlipped={isVideoFlipped}
                   flipVideo={(v) => {

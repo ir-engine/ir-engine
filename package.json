@@ -168,6 +168,7 @@
     "three": "0.150.1",
     "three.quarks": "^0.10.2",
     "ts-node": "10.9.1",
+    "ts-toolbelt": "^9.6.0",
     "typescript": "5.0.2",
     "vite-plugin-node": "^3.0.2",
     "ws": "8.13.0"

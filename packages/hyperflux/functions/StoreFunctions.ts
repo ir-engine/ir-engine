@@ -53,7 +53,7 @@ export interface HyperStore {
   valueMap: { [type: string]: any }
 
   actions: {
-    queueDefinitions: Map<Validator<any, any>, Array<ActionQueueDefinition>>
+    queueDefinitions: Map<string, Array<ActionQueueDefinition>>
     /** */
     queues: Map<ActionQueueDefinition, Array<ResolvedActionType>>
     /** Cached actions */

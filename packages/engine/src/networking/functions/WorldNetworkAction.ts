@@ -1,6 +1,6 @@
 import { defineAction } from '@etherealengine/hyperflux'
 
-import { matchesWeightsParameters } from '../../avatar/animation/Util'
+import { matchesAvatarState, matchesWeightsParameters } from '../../avatar/animation/Util'
 import {
   matches,
   matchesEntityUUID,
@@ -17,12 +17,6 @@ import { NetworkTopics } from '../classes/Network'
 import { matchesAvatarProps } from '../interfaces/WorldState'
 
 export class WorldNetworkAction {
-  static xrHandsConnected = defineAction({
-    type: 'xre.world.XR_HANDS_CONNECTED',
-    $cache: true,
-    $topic: NetworkTopics.world
-  })
-
   static spawnDebugPhysicsObject = defineAction({
     type: 'xre.world.SPAWN_DEBUG_PHYSICS_OBJECT',
     config: matches.any.optional(),
@@ -40,10 +34,10 @@ export class WorldNetworkAction {
   static spawnObject = defineAction({
     type: 'xre.world.SPAWN_OBJECT',
     prefab: matches.string,
+    entityUUID: matchesEntityUUID,
     networkId: matchesWithDefault(matchesNetworkId, () => Engine.instance.createNetworkId()),
     position: matchesVector3.optional(),
     rotation: matchesQuaternion.optional(),
-    uuid: matchesEntityUUID,
     $cache: true,
     $topic: NetworkTopics.world
   })
@@ -83,16 +77,6 @@ export class WorldNetworkAction {
     equip: matches.boolean,
     attachmentPoint: matches.literals('left', 'right', 'none').optional(),
     $cache: true,
-    $topic: NetworkTopics.world
-  })
-
-  static avatarAnimation = defineAction({
-    type: 'xre.world.AVATAR_ANIMATION',
-    newStateName: matches.string,
-    params: matchesWeightsParameters,
-    $cache: {
-      removePrevious: true
-    },
     $topic: NetworkTopics.world
   })
 
