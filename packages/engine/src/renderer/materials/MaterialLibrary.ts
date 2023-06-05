@@ -40,22 +40,6 @@ export const MaterialLibraryState: StateDefinition<MaterialLibraryType> = define
   } as MaterialLibraryType
 })
 
-export const MaterialLibraryActions = {
-  RegisterMaterial: defineAction({
-    type: 'xre.assets.MaterialLibrary.REGISTER_MATERIAL',
-    material: matches.object as Validator<unknown, Material>,
-    src: matches.object as Validator<unknown, MaterialSource>
-  }),
-  RegisterPrototype: defineAction({
-    type: 'xre.assets.MaterialLibrary.REGISTER_PROTOTYPE',
-    $prototype: matches.object as Validator<unknown, MaterialPrototypeComponentType>
-  }),
-  RemoveSource: defineAction({
-    type: 'xre.assets.MaterialLibrary.REMOVE_SOURCE',
-    src: matches.object as Validator<unknown, MaterialSource>
-  })
-}
-
 export function initializeMaterialLibrary() {
   const materialLibrary = getState(MaterialLibraryState)
   //load default prototypes from source
