@@ -59,7 +59,6 @@ export const sendActionsAsHost = (network: Network) => {
         arr.push(action)
       }
     }
-    console.log('SENDING ACTIONS TO PEER', arr, peerID)
     if (arr.length)
       network.transport.messageToPeer(peerID, { type: MessageTypes.ActionData.toString(), /*encode(*/ data: arr }) //)
   }

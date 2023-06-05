@@ -9,6 +9,7 @@ import { Axis } from '../common/constants/Axis3D'
 import { V_000 } from '../common/constants/MathConstants'
 import { proxifyQuaternion } from '../common/proxies/createThreejsProxy'
 import { Engine } from '../ecs/classes/Engine'
+import { EngineState } from '../ecs/classes/EngineState'
 import { Entity } from '../ecs/classes/Entity'
 import { defineQuery, getComponent, getOptionalComponent, setComponent } from '../ecs/functions/ComponentFunctions'
 import { removeEntity } from '../ecs/functions/EntityFunctions'
@@ -112,7 +113,8 @@ const _quat = new Quaternion()
 const execute = () => {
   const xrState = getState(XRState)
   const { priorityQueue, sortedTransformEntities } = getState(AvatarAnimationState)
-  const { elapsedSeconds, deltaSeconds, localClientEntity, inputSources } = Engine.instance
+  const { localClientEntity, inputSources } = Engine.instance
+  const { elapsedSeconds, deltaSeconds } = getState(EngineState)
 
   for (const action of sessionChangedQueue()) {
     if (!localClientEntity) continue

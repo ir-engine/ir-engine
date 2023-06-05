@@ -9,6 +9,7 @@ import { V_000, V_010 } from '../../common/constants/MathConstants'
 import checkPositionIsValid from '../../common/functions/checkPositionIsValid'
 import { lerp } from '../../common/functions/MathLerpFunctions'
 import { Engine } from '../../ecs/classes/Engine'
+import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import { ComponentType, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { Physics } from '../../physics/classes/Physics'
@@ -149,7 +150,7 @@ const walkPoint = new Vector3()
 
 const currentDirection = new Vector3()
 export const applyAutopilotInput = (entity: Entity) => {
-  const deltaSeconds = Engine.instance.fixedDeltaSeconds
+  const deltaSeconds = getState(EngineState).simulationTimestep / 1000
 
   const markerState = getState(AutopilotMarker)
 
@@ -195,7 +196,7 @@ export const applyGamepadInput = (entity: Entity) => {
   if (!entity) return
 
   const camera = Engine.instance.camera
-  const deltaSeconds = Engine.instance.fixedDeltaSeconds
+  const deltaSeconds = getState(EngineState).simulationTimestep / 1000
   const controller = getComponent(entity, AvatarControllerComponent)
 
   const avatarMovementSettings = getState(AvatarMovementSettingsState)

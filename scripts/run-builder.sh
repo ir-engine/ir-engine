@@ -54,7 +54,7 @@ npm run record-build-error -- --service=root --isDocker=true
 
 npm install -g cli @aws-sdk/client-s3
 
-if [ "$SERVE_CLIENT_FROM_STORAGE_PROVIDER" = "true" ] && [ "$STORAGE_PROVIDER" = "aws" ] ; then npm run list-client-s3-files-to-delete ; fi
+if [ "$SERVE_CLIENT_FROM_STORAGE_PROVIDER" = "true" ] && [ "$STORAGE_PROVIDER" = "s3" ] ; then npm run list-client-s3-files-to-delete ; fi
 
 if [ "$SERVE_CLIENT_FROM_API" = "true" ]
 then
@@ -98,7 +98,7 @@ bash ./scripts/cleanup_builder.sh $DOCKER_LABEL
 END_TIME=`date +"%d-%m-%yT%H-%M-%S"`
 echo "Started build at $START_TIME, deployed image to K8s at $DEPLOY_TIME, ended at $END_TIME"
 sleep 5m
-if [ "$SERVE_CLIENT_FROM_STORAGE_PROVIDER" = "true" ] && [ "$STORAGE_PROVIDER" = "aws" ] ; then
+if [ "$SERVE_CLIENT_FROM_STORAGE_PROVIDER" = "true" ] && [ "$STORAGE_PROVIDER" = "s3" ] ; then
   npm run delete-old-s3-files;
   echo "Deleted old client files from S3"
 fi

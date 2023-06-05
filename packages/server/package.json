@@ -31,7 +31,7 @@
   },
   "scripts": {
     "check-errors": "tsc --noemit",
-    "dev": "cross-env APP_ENV=development concurrently -n server,instanceserver,mediaserver,files \"ts-node --swc src/index.ts\" \"cd ../instanceserver && npm run dev\" \"cd ../instanceserver && npm run dev-channel\" \"npm run serve-local-files\"",
+    "dev": "cross-env APP_ENV=development concurrently -n server,instanceserver,mediaserver,files \"ts-node --swc src/index.ts\" \"cd ../instanceserver && npm run dev\" \"cd ../instanceserver && npm run dev-channel\"",
     "start": "cross-env APP_ENV=production ts-node --swc src/index.ts",
     "dev-api-server": "ts-node --swc src/index.ts",
     "dev-api-server-nossl": "cross-env NOSSL=true ts-node --swc src/index.ts",

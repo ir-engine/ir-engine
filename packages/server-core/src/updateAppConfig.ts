@@ -14,6 +14,10 @@ import {
 } from '@etherealengine/engine/src/schemas/setting/email-setting.schema'
 import { redisSettingPath, RedisSettingType } from '@etherealengine/engine/src/schemas/setting/redis-setting.schema'
 import {
+  ServerSettingDatabaseType,
+  serverSettingPath
+} from '@etherealengine/engine/src/schemas/setting/server-setting.schema'
+import {
   taskServerSettingPath,
   TaskServerSettingType
 } from '@etherealengine/engine/src/schemas/setting/task-server-setting.schema'
@@ -22,6 +26,7 @@ import appConfig from './appconfig'
 import logger from './ServerLogger'
 import { awsDbToSchema } from './setting/aws-setting/aws-setting.resolvers'
 import { emailDbToSchema } from './setting/email-setting/email-setting.resolvers'
+import { serverDbToSchema } from './setting/server-setting/server-setting.resolvers'
 
 dotenv.config()
 const db = {
@@ -385,120 +390,22 @@ export const updateAppConfig = async (): Promise<void> => {
     })
   promises.push(redisSettingPromise)
 
-  const serverSetting = sequelizeClient.define('serverSetting', {
-    hostname: {
-      type: DataTypes.STRING,
-      allowNull: true
-    },
-    mode: {
-      type: DataTypes.STRING,
-      allowNull: true
-    },
-    port: {
-      type: DataTypes.STRING,
-      allowNull: true
-    },
-    clientHost: {
-      type: DataTypes.STRING,
-      allowNull: true
-    },
-    rootDir: {
-      type: DataTypes.STRING,
-      allowNull: true
-    },
-    publicDir: {
-      type: DataTypes.STRING,
-      allowNull: true
-    },
-    nodeModulesDir: {
-      type: DataTypes.STRING,
-      allowNull: true
-    },
-    localStorageProvider: {
-      type: DataTypes.STRING,
-      allowNull: true
-    },
-    performDryRun: {
-      type: DataTypes.BOOLEAN,
-      allowNull: true
-    },
-    storageProvider: {
-      type: DataTypes.STRING,
-      allowNull: true
-    },
-    gaTrackingId: {
-      type: DataTypes.STRING,
-      allowNull: true
-    },
-    hub: {
-      type: DataTypes.JSON,
-      allowNull: true
-    },
-    url: {
-      type: DataTypes.STRING,
-      allowNull: true
-    },
-    certPath: {
-      type: DataTypes.STRING,
-      allowNull: true
-    },
-    keyPath: {
-      type: DataTypes.STRING,
-      allowNull: true
-    },
-    gitPem: {
-      type: DataTypes.STRING(2048),
-      allowNull: true
-    },
-    local: {
-      type: DataTypes.BOOLEAN,
-      allowNull: true
-    },
-    releaseName: {
-      type: DataTypes.STRING,
-      allowNull: true
-    },
-    instanceserverUnreachableTimeoutSeconds: {
-      type: DataTypes.INTEGER,
-      defaultValue: 2
-    }
-  })
-  const serverSettingPromise = serverSetting
-    .findAll()
+  const serverSettingPromise = knexClient
+    .select()
+    .from<ServerSettingDatabaseType>(serverSettingPath)
     .then(([dbServer]) => {
-      let hub = JSON.parse(dbServer.hub)
-
-      if (typeof hub === 'string') hub = JSON.parse(hub)
-
-      const dbServerConfig = dbServer && {
-        hostname: dbServer.hostname,
-        mode: dbServer.mode,
-        port: dbServer.port,
-        clientHost: dbServer.clientHost,
-        rootDir: dbServer.rootDir,
-        publicDir: dbServer.publicDir,
-        nodeModulesDir: dbServer.nodeModulesDir,
-        localStorageProvider: dbServer.localStorageProvider,
-        performDryRun: dbServer.performDryRun,
-        storageProvider: dbServer.storageProvider,
-        gaTrackingId: dbServer.gaTrackingId,
-        url: dbServer.url,
-        certPath: dbServer.certPath,
-        keyPath: dbServer.keyPath,
-        gitPem: dbServer.gitPem,
-        local: dbServer.local,
-        releaseName: dbServer.releaseName,
-        instanceserverUnreachableTimeoutSeconds: dbServer.instanceserverUnreachableTimeoutSeconds,
-        hub: hub
-      }
-      appConfig.server = {
-        ...appConfig.server,
-        ...dbServerConfig
+      const dbServerConfig = serverDbToSchema(dbServer)
+      if (dbServerConfig) {
+        appConfig.server = {
+          ...appConfig.server,
+          ...dbServerConfig
+        }
       }
     })
     .catch((e) => {
       logger.error(e, `[updateAppConfig]: Failed to read serverSetting: ${e.message}`)
     })
   promises.push(serverSettingPromise)
+
   await Promise.all(promises)
 }
