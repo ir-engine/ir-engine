@@ -14,6 +14,7 @@ import {
   MediaInstanceConnectionService,
   MediaInstanceConnectionServiceReceptor
 } from '../common/services/MediaInstanceConnectionService'
+import { MediaInstanceState } from '../common/services/MediaInstanceConnectionService'
 import { NetworkConnectionService } from '../common/services/NetworkConnectionService'
 import { DataChannels } from '../components/World/ProducersAndConsumers'
 import { PeerConsumers } from '../media/PeerMedia'
@@ -100,6 +101,7 @@ const execute = () => {
 
   for (const action of mediaInstanceDisconnectedQueue()) {
     const transport = Engine.instance.mediaNetwork as SocketWebRTCClientNetwork
+    const mediaInstanceState = getState(MediaInstanceState)
     if (transport?.reconnecting) continue
 
     const channels = chatState.channels.channels
@@ -108,7 +110,7 @@ const execute = () => {
       (channel) => channel.channelType === 'party' && channel.partyId === authState.user.partyId
     )
     const channelId = partyChannel ? partyChannel.id : instanceChannel ? instanceChannel.id : null
-    if (channelId)
+    if (channelId && !mediaInstanceState.joiningNewMediaChannel)
       WarningUIService.openWarning({
         title: 'Media disconnected',
         body: "You've lost your connection with the media server. We'll try to reconnect when the following time runs out.",

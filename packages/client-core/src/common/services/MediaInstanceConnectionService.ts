@@ -49,7 +49,8 @@ export const MediaInstanceState = defineState({
   name: 'MediaInstanceState',
   initial: () => ({
     instances: {} as { [id: string]: InstanceState },
-    joiningNonInstanceMediaChannel: false
+    joiningNonInstanceMediaChannel: false,
+    joiningNewMediaChannel: false
   })
 })
 
@@ -93,6 +94,7 @@ export const MediaInstanceConnectionServiceReceptor = (action) => {
     })
     .when(MediaInstanceConnectionAction.serverConnected.matches, (action) => {
       s.joiningNonInstanceMediaChannel.set(false)
+      s.joiningNewMediaChannel.set(false)
       return s.instances[action.instanceId].merge({
         connected: true,
         connecting: false,
@@ -107,7 +109,8 @@ export const MediaInstanceConnectionServiceReceptor = (action) => {
     .when(MediaInstanceConnectionAction.disconnect.matches, (action) => {
       return s.instances[action.instanceId].set(none)
     })
-    .when(MediaInstanceConnectionAction.joiningNonInstanceMediaChannel.matches, (action) => {
+    .when(MediaInstanceConnectionAction.joiningNonInstanceMediaChannel.matches, () => {
+      s.joiningNewMediaChannel.set(true)
       return s.joiningNonInstanceMediaChannel.set(true)
     })
     .when(MediaInstanceConnectionAction.changeActiveConnectionHostId.matches, (action) => {
@@ -118,6 +121,9 @@ export const MediaInstanceConnectionServiceReceptor = (action) => {
       networkState.hostIds.media.set(action.newInstanceId as UserId)
       s.instances.merge({ [action.newInstanceId]: currentNetwork })
       s.instances[action.currentInstanceId].set(none)
+    })
+    .when(MediaInstanceConnectionAction.joiningNewMediaChannel.matches, () => {
+      return s.joiningNewMediaChannel.set(true)
     })
 }
 
@@ -203,6 +209,9 @@ export const MediaInstanceConnectionService = {
         Engine.instance.api.service('instance-provision').off('created', listener)
       }
     }, [])
+  },
+  setJoining: (joining: boolean) => {
+    dispatchAction(MediaInstanceConnectionAction.joiningNewMediaChannel({}))
   }
 }
 
@@ -241,6 +250,10 @@ export class MediaInstanceConnectionAction {
 
   static joiningNonInstanceMediaChannel = defineAction({
     type: 'ee.client.MediaInstanceConnection.JOINING_NON_INSTANCE_MEDIA_CHANNEL' as const
+  })
+
+  static joiningNewMediaChannel = defineAction({
+    type: 'ee.client.MediaInstanceConnection.JOINING_NEW_MEDIA_CHANNEL' as const
   })
 
   static changeActiveConnectionHostId = defineAction({

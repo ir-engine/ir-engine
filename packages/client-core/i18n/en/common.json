@@ -29,6 +29,7 @@
     "loadingAllowed": "Loading allowed routes...",
     "loadingXRSystems": "Loading immersive session...",
     "connectingToWorld": "Connecting to world...",
+    "connectingToMedia": "Connecting to media...",
     "entering": "Entering world...",
     "loading": "Loading...",
     "objectRemaining": "{{count}} object remaining",

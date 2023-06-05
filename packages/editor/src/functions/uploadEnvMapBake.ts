@@ -70,7 +70,7 @@ export const uploadBPCEMBakeToServer = async (entity: Entity) => {
 
   // inject bpcem logic into material
   Engine.instance.scene.traverse((child: Mesh<any, MeshBasicMaterial>) => {
-    if (!child.material?.userData) return
+    if (!child.material || child.type == 'VFXBatch') return
     child.material.userData.BPCEMPlugin = beforeMaterialCompile(
       bakeComponent.bakeScale,
       bakeComponent.bakePositionOffset

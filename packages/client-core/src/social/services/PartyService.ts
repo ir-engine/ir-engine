@@ -141,12 +141,10 @@ export const PartyService = {
   },
   createParty: async () => {
     try {
+      MediaInstanceConnectionService.setJoining(true)
       const network = Engine.instance.mediaNetwork as SocketWebRTCClientNetwork
-      console.log('ending video chat')
       await endVideoChat(network, {})
-      console.log('ended video chat, now leaving network')
       await leaveNetwork(network)
-      console.log('left network, making party')
       await Engine.instance.api.service('party').create()
       PartyService.getParty()
     } catch (err) {
@@ -205,6 +203,7 @@ export const PartyService = {
       const instanceChannel = Object.values(channels).find(
         (channel) => channel.instanceId === Engine.instance.worldNetwork?.hostId
       )
+      MediaInstanceConnectionService.setJoining(true)
       if (instanceChannel) await MediaInstanceConnectionService.provisionServer(instanceChannel?.id!, true)
     }
   },

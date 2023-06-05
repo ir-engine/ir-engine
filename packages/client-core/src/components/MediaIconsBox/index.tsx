@@ -1,3 +1,4 @@
+import { t } from 'i18next'
 import React, { useEffect } from 'react'
 import { useLocation } from 'react-router-dom'
 
@@ -15,6 +16,7 @@ import { EngineActions, EngineState } from '@etherealengine/engine/src/ecs/class
 import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
 import { XRAction, XRState } from '@etherealengine/engine/src/xr/XRState'
 import { dispatchAction, getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import CircularProgress from '@etherealengine/ui/src/primitives/mui/CircularProgress'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 
 import { VrIcon } from '../../common/components/Icons/VrIcon'
@@ -69,6 +71,22 @@ export const MediaIconsBox = () => {
 
   return (
     <section className={`${styles.drawerBox} ${topShelfStyle}`}>
+      {(currentChannelInstanceConnection == null || !currentChannelInstanceConnection?.connected.value) && (
+        <div className={styles.loader}>
+          <CircularProgress />
+          <div
+            style={{
+              // default values will be overridden by theme
+              fontFamily: 'Lato',
+              fontSize: '12px',
+              color: '#585858',
+              padding: '16px'
+            }}
+          >
+            {t('common:loader.connectingToMedia') as string}
+          </div>
+        </div>
+      )}
       {audioEnabled &&
       hasAudioDevice.value &&
       mediaNetworkReady &&
