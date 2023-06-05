@@ -1,3 +1,4 @@
+import { ECRClient } from '@aws-sdk/client-ecr'
 import { DescribeImagesCommand, ECRPUBLICClient } from '@aws-sdk/client-ecr-public'
 import * as k8s from '@kubernetes/client-node'
 import appRootPath from 'app-root-path'
@@ -671,8 +672,8 @@ export const findBuilderTags = async (): Promise<Array<BuilderTag>> => {
   if (publicECRExec) {
     const ecr = new ECRPUBLICClient({
       credentials: {
-        accessKeyId: config.aws.keys.accessKeyId,
-        secretAccessKey: config.aws.keys.secretAccessKey
+        accessKeyId: process.env.AWS_ACCESS_KEY as string, //FIXME Replace these with proper EKS user credentials from config once it stores those credentials somewhere
+        secretAccessKey: process.env.AWS_SECRET as string
       },
       region: 'us-east-1'
     })
@@ -698,10 +699,10 @@ export const findBuilderTags = async (): Promise<Array<BuilderTag>> => {
         }
       })
   } else if (privateECRExec) {
-    const ecr = new ECRPUBLICClient({
+    const ecr = new ECRClient({
       credentials: {
-        accessKeyId: config.aws.keys.accessKeyId,
-        secretAccessKey: config.aws.keys.secretAccessKey
+        accessKeyId: process.env.AWS_ACCESS_KEY as string, //FIXME Replace these with proper EKS user credentials from config once it stores those credentials somewhere
+        secretAccessKey: process.env.AWS_SECRET as string
       },
       region: privateECRExec[1]
     })

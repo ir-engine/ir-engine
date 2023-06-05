@@ -37,7 +37,7 @@ import {
 } from '../../transform/TransformSerialization'
 import { Network } from '../classes/Network'
 // import { XRHandBones } from '../../xr/XRHandBones'
-import { NetworkObjectAuthorityTag } from '../components/NetworkObjectComponent'
+import { NetworkObjectAuthorityTag, NetworkObjectSendPeriodicUpdatesTag } from '../components/NetworkObjectComponent'
 import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
 import { NetworkState } from '../NetworkState'
 import {
@@ -99,7 +99,7 @@ describe('DataReader', () => {
 
   it('should readComponent', () => {
     const view = createViewCursor()
-    const entity = 42 as Entity
+    const entity = createEntity()
 
     const [x, y, z] = [1.5, 2.5, 3.5]
     TransformComponent.position.x[entity] = x
@@ -142,7 +142,7 @@ describe('DataReader', () => {
 
   it('should readComponentProp', () => {
     const view = createViewCursor()
-    const entity = 42 as Entity
+    const entity = createEntity()
 
     const prop = TransformComponent.position.x as unknown as TypedArray
 
@@ -161,7 +161,7 @@ describe('DataReader', () => {
 
   it('should readVector3', () => {
     const view = createViewCursor()
-    const entity = 42 as Entity
+    const entity = createEntity()
     const position = TransformComponent.position as unknown as Vector3SoA
     const [x, y, z] = [1.5, 2.5, 3.5]
     position.x[entity] = x
@@ -197,7 +197,7 @@ describe('DataReader', () => {
 
   it('should readVector4', () => {
     const view = createViewCursor()
-    const entity = 42 as Entity
+    const entity = createEntity()
     const rotation = TransformComponent.rotation
     const [x, y, z, w] = [1.5, 2.5, 3.5, 4.5]
     rotation.x[entity] = x
@@ -239,7 +239,7 @@ describe('DataReader', () => {
 
   it('should readPosition', () => {
     const view = createViewCursor()
-    const entity = 42 as Entity
+    const entity = createEntity()
     const position = TransformComponent.position
     const [x, y, z] = [1.5, 2.5, 3.5]
     position.x[entity] = x
@@ -273,8 +273,9 @@ describe('DataReader', () => {
 
   it('should readCompressedRotation', () => {
     const view = createViewCursor()
-    const entity = 42 as Entity
+    const entity = createEntity()
     const rotation = TransformComponent.rotation
+    setComponent(entity, NetworkObjectSendPeriodicUpdatesTag)
 
     // construct values for a valid quaternion
     const [a, b, c] = [0.167, 0.167, 0.167]
@@ -286,7 +287,7 @@ describe('DataReader', () => {
     rotation.z[entity] = z
     rotation.w[entity] = w
 
-    writeRotation(view, entity, true)
+    writeRotation(view, entity)
 
     rotation.x[entity] = 0
     rotation.y[entity] = 0
@@ -308,14 +309,15 @@ describe('DataReader', () => {
 
   it('should readCompressedVector3', () => {
     const view = createViewCursor()
-    const entity = 42 as Entity
+    const entity = createEntity()
+    setComponent(entity, NetworkObjectSendPeriodicUpdatesTag)
 
     const [x, y, z] = [1.333, 2.333, 3.333]
     RigidBodyComponent.linearVelocity.x[entity] = x
     RigidBodyComponent.linearVelocity.y[entity] = y
     RigidBodyComponent.linearVelocity.z[entity] = z
 
-    writeCompressedVector3(RigidBodyComponent.linearVelocity)(view, entity, true)
+    writeCompressedVector3(RigidBodyComponent.linearVelocity)(view, entity)
 
     RigidBodyComponent.linearVelocity.x[entity] = 0
     RigidBodyComponent.linearVelocity.y[entity] = 0

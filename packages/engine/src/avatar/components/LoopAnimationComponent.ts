@@ -55,6 +55,7 @@ export const LoopAnimationComponent = defineComponent({
 
     const animComponent = useOptionalComponent(entity, AnimationComponent)
 
+    const loopAnimationComponent = useOptionalComponent(entity, LoopAnimationComponent)
     /**
      * Callback functions
      */
@@ -85,12 +86,18 @@ export const LoopAnimationComponent = defineComponent({
       const scene = modelComponent.scene.value
 
       if (!hasComponent(entity, AnimationComponent)) {
-        addComponent(entity, AnimationComponent, {
+        setComponent(entity, AnimationComponent, {
           mixer: new AnimationMixer(scene),
           animationSpeed: 1,
           animations: []
         })
       }
+    }, [modelComponent?.scene])
+
+    useEffect(() => {
+      if (!modelComponent?.scene?.value) return
+
+      const scene = modelComponent.scene.value
 
       const loopComponent = getComponent(entity, LoopAnimationComponent)
       const animationComponent = getComponent(entity, AnimationComponent)
@@ -126,7 +133,7 @@ export const LoopAnimationComponent = defineComponent({
       }
 
       if (!loopComponent.action?.paused) playAnimationClip(animationComponent, loopComponent)
-    }, [animComponent?.animations])
+    }, [animComponent?.animations, loopAnimationComponent?.hasAvatarAnimations])
 
     return null
   }

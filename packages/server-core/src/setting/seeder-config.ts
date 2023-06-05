@@ -9,16 +9,19 @@ import * as coilSeed from './coil-setting/coil-setting.seed'
 import * as emailSeed from './email-setting/email-setting.seed'
 import { instanceServerSeed } from './instance-server-setting/instance-server-setting.seed'
 import * as redisSeed from './redis-setting/redis-setting.seed'
-import { serverSeed } from './server-setting/server-setting.seed'
+import * as serverSeed from './server-setting/server-setting.seed'
 import * as taskServerSeed from './task-server-setting/task-server-setting.seed'
 
-export const settingSequelizeSeeds: Array<ServicesSeedConfig> = [
-  serverSeed,
-  clientSeed,
-  instanceServerSeed,
-  authenticationSeed
-]
+export const settingSequelizeSeeds: Array<ServicesSeedConfig> = [clientSeed, instanceServerSeed, authenticationSeed]
 
 export default settingSequelizeSeeds
 
-export const settingSeeds: Array<KnexSeed> = [chargebeeSeed, taskServerSeed, coilSeed, emailSeed, redisSeed, awsSeed]
+export const settingSeeds: Array<KnexSeed> = [
+  serverSeed,
+  chargebeeSeed,
+  taskServerSeed,
+  coilSeed,
+  emailSeed,
+  redisSeed,
+  awsSeed
+]

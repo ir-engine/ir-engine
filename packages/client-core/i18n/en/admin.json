@@ -336,8 +336,6 @@
       "project": "Project",
       "patchInstanceserver": "Patch Instanceserver",
       "hub": "Hub",
-      "paginateDefault": "Paginate Default",
-      "paginateMax": "Paginate Max",
       "placeholderText": "This is the input placeholder",
       "addSocialLink": "Add Social Link",
       "themePlayground": "Theme Playground",
