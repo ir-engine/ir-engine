@@ -34,7 +34,7 @@ export const createIPFSStorageProvider = async () => {
 
 export const createDefaultStorageProvider = () => {
   const StorageProvider =
-    config.server.storageProvider !== 'aws' && config.server.storageProvider !== 'ipfs' ? LocalStorage : S3Storage
+    config.server.storageProvider !== 's3' && config.server.storageProvider !== 'ipfs' ? LocalStorage : S3Storage
   const provider = createStorageProvider(StorageProvider)
   providers['default'] = provider
   return provider

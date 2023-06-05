@@ -105,9 +105,9 @@ const Aws = () => {
           <Typography className={styles.settingsSubHeading}>{t('admin:components.setting.s3')}</Typography>
 
           <InputText
-            name="baseUrl"
-            label={t('admin:components.setting.baseUrl')}
-            value={awsSetting?.s3?.baseUrl || ''}
+            name="endpoint"
+            label={t('admin:components.setting.endpoint')}
+            value={awsSetting?.s3?.endpoint || ''}
             disabled
           />
 

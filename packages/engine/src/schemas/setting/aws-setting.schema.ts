@@ -26,7 +26,7 @@ export type AwsRoute53Type = Static<typeof awsRoute53Schema>
 
 export const awsS3Schema = Type.Object(
   {
-    baseUrl: Type.String(),
+    endpoint: Type.String(),
     staticResourceBucket: Type.String(),
     region: Type.String(),
     avatarDir: Type.String(),
