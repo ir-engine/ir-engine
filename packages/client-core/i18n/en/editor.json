@@ -238,10 +238,14 @@
       "lbl-url": "URL"
     },
     "lod": {
+      "device": "Device",
+      "device-mobile": "Mobile",
+      "device-desktop": "Desktop",
       "heuristic": "Heuristic",
       "heuristic-distance": "Distance",
       "heuristic-sceneScale": "Scene Scale",
       "heuristic-manual": "Manual",
+      "heuristic-device": "Device",
       "distance": "Distance",
       "src": "Source"
     },

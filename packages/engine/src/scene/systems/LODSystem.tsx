@@ -12,9 +12,10 @@ import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { SourceType } from '../../renderer/materials/components/MaterialSource'
 import { removeMaterialSource, unregisterMaterial } from '../../renderer/materials/functions/MaterialLibraryFunctions'
 import { TransformComponent } from '../../transform/components/TransformComponent'
+import { isMobileXRHeadset } from '../../xr/XRState'
 import { LODComponent, LODComponentType, LODLevel } from '../components/LODComponent'
 import { ModelComponent } from '../components/ModelComponent'
-import { objectFromLodPath, processLoadedLODLevel } from '../functions/loaders/LODFunctions'
+import { objectFromLodPath, processLoadedLODLevel, unloadLODLevel } from '../functions/loaders/LODFunctions'
 import getFirstMesh from '../util/getFirstMesh'
 import iterateObject3D from '../util/iterateObject3D'
 
@@ -65,80 +66,75 @@ function execute() {
   const position = new Vector3()
   for (const entity of lodQuery()) {
     const lodComponent = getMutableComponent(entity, LODComponent)
-    const modelComponent = getComponent(lodComponent.target.value, ModelComponent)
-    if (!modelComponent.scene) continue
-    const lodDistances = lodComponent.levels.map((level) => level.distance.value)
-    const transform = getComponent(lodComponent.target.value, TransformComponent)
-    let levelsChanged = false
-    if (lodComponent.instanced.value) {
-      /*const instancePositions = lodComponent.instanceMatrix.value
-      const instanceLevels = lodComponent.instanceLevels.value.array
-      for (let i = 0; i < instancePositions.count; i++) {
-        position.fromArray(instancePositions.array, i * 16 + 12)
+    if (lodComponent.lodHeuristic.value === 'DISTANCE') {
+      const modelComponent = getComponent(lodComponent.target.value, ModelComponent)
+      if (!modelComponent.scene) continue
+      const lodDistances = lodComponent.levels.map((level) => level.distance.value)
+      const transform = getComponent(lodComponent.target.value, TransformComponent)
+      let levelsChanged = false
+      if (lodComponent.instanced.value) {
+        /*const instancePositions = lodComponent.instanceMatrix.value
+        const instanceLevels = lodComponent.instanceLevels.value.array
+        for (let i = 0; i < instancePositions.count; i++) {
+          position.fromArray(instancePositions.array, i * 16 + 12)
+          position.applyMatrix4(transform.matrix)
+          const currentLevel = instanceLevels[i]
+          const newLevel = updateLOD(i, currentLevel, lodComponent, lodDistances, position)
+          newLevel !== undefined && referencedLods.add(newLevel)
+          newLevel !== currentLevel && (levelsChanged = true)
+        }*/
+        lodComponent.levels.forEach((level, i) => {
+          referencedLods.add(i)
+        })
+      } else {
+        const currentLevel = lodComponent.instanceLevels.value.array[0]
+        position.fromArray(lodComponent.instanceMatrix.value.array, 12)
         position.applyMatrix4(transform.matrix)
-        const currentLevel = instanceLevels[i]
-        const newLevel = updateLOD(i, currentLevel, lodComponent, lodDistances, position)
+        const newLevel = updateLOD(0, currentLevel, lodComponent, lodDistances, position)
         newLevel !== undefined && referencedLods.add(newLevel)
         newLevel !== currentLevel && (levelsChanged = true)
-      }*/
-      lodComponent.levels.forEach((level, i) => {
-        referencedLods.add(i)
-      })
-    } else {
-      const currentLevel = lodComponent.instanceLevels.value.array[0]
-      position.fromArray(lodComponent.instanceMatrix.value.array, 12)
-      position.applyMatrix4(transform.matrix)
-      const newLevel = updateLOD(0, currentLevel, lodComponent, lodDistances, position)
-      newLevel !== undefined && referencedLods.add(newLevel)
-      newLevel !== currentLevel && (levelsChanged = true)
-    }
-    levelsChanged && (lodComponent.instanceLevels.get(NO_PROXY).needsUpdate = true)
-    const levelsToUnload: State<LODLevel>[] = []
-    const levelsToLoad: [number, State<LODLevel>][] = []
-    for (let i = 0; i < lodComponent.levels.length; i++) {
-      const level = lodComponent.levels[i]
-      if (referencedLods.has(i)) {
-        levelsToLoad.push([i, level])
-      } else {
-        if (/*!lodComponent.instanced.value && */ level.loaded.value) {
-          levelsToUnload.push(level)
-        }
       }
-    }
-    const loadPromises: Promise<void>[] = []
-    while (levelsToLoad.length > 0) {
-      const [i, level] = levelsToLoad.pop()!
-      if (!level.loaded.value) {
-        if (level.src.value) {
-          loadPromises.push(
-            new Promise((resolve) => {
-              AssetLoader.load(level.src.value, {}, (loadedScene: GLTF) => {
-                const mesh = getFirstMesh(loadedScene.scene)
-                mesh && processLoadedLODLevel(entity, i, mesh)
-                resolve()
-              })
-            })
-          )
+      levelsChanged && (lodComponent.instanceLevels.get(NO_PROXY).needsUpdate = true)
+      const levelsToUnload: State<LODLevel>[] = []
+      const levelsToLoad: [number, State<LODLevel>][] = []
+      for (let i = 0; i < lodComponent.levels.length; i++) {
+        const level = lodComponent.levels[i]
+        if (referencedLods.has(i)) {
+          levelsToLoad.push([i, level])
         } else {
-          processLoadedLODLevel(entity, i, objectFromLodPath(modelComponent, lodComponent.lodPath.value) as Mesh)
+          if (/*!lodComponent.instanced.value && */ level.loaded.value) {
+            levelsToUnload.push(level)
+          }
         }
-        level.loaded.set(true)
       }
+      const loadPromises: Promise<void>[] = []
+      while (levelsToLoad.length > 0) {
+        const [i, level] = levelsToLoad.pop()!
+        if (!level.loaded.value) {
+          if (level.src.value) {
+            loadPromises.push(
+              new Promise((resolve) => {
+                AssetLoader.load(level.src.value, {}, (loadedScene: GLTF) => {
+                  const mesh = getFirstMesh(loadedScene.scene)
+                  mesh && processLoadedLODLevel(entity, i, mesh)
+                  resolve()
+                })
+              })
+            )
+          } else {
+            processLoadedLODLevel(entity, i, objectFromLodPath(modelComponent, lodComponent.lodPath.value) as Mesh)
+          }
+          level.loaded.set(true)
+        }
+      }
+      Promise.all(loadPromises).then(() => {
+        while (levelsToUnload.length > 0) {
+          const levelToUnload = levelsToUnload.pop()
+          levelToUnload && unloadLODLevel(levelToUnload)
+        }
+      })
+      referencedLods.clear()
     }
-    Promise.all(loadPromises).then(() => {
-      while (levelsToUnload.length > 0) {
-        const levelToUnload = levelsToUnload.pop()
-        levelToUnload?.loaded.set(false)
-        levelToUnload &&
-          removeMaterialSource({
-            type: SourceType.MODEL,
-            path: levelToUnload.src.value
-          })
-        levelToUnload?.model.value?.removeFromParent()
-        levelToUnload?.model.set(null)
-      }
-    })
-    referencedLods.clear()
   }
 }
 

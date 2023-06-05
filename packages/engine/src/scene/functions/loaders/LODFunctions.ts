@@ -1,14 +1,16 @@
 import { DynamicDrawUsage, InstancedBufferAttribute, InstancedMesh, Material, Matrix4, Mesh, Object3D } from 'three'
 
 import { OpaqueType } from '@etherealengine/common/src/interfaces/OpaqueType'
-import { NO_PROXY } from '@etherealengine/hyperflux'
+import { NO_PROXY, State } from '@etherealengine/hyperflux'
 
 import { addOBCPlugin } from '../../../common/functions/OnBeforeCompilePlugin'
 import { Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
 import { ComponentType, getComponent, getMutableComponent } from '../../../ecs/functions/ComponentFunctions'
+import { SourceType } from '../../../renderer/materials/components/MaterialSource'
+import { removeMaterialSource } from '../../../renderer/materials/functions/MaterialLibraryFunctions'
 import { Object3DWithEntity } from '../../components/GroupComponent'
-import { LODComponent } from '../../components/LODComponent'
+import { LODComponent, LODLevel } from '../../components/LODComponent'
 import { ModelComponent } from '../../components/ModelComponent'
 
 /**
@@ -28,7 +30,7 @@ export function processLoadedLODLevel(entity: Entity, index: number, mesh: Mesh)
   const targetModel = getMutableComponent(lodComponent.target, ModelComponent)
   const level = lodComponentState.levels[index]
 
-  let loadedModel: Object3D | null = lodComponent.levels.find((level) => level.loaded && level.model)?.model ?? null
+  let previousModel: Object3D | null = lodComponent.levels.find((level) => level.loaded && level.model)?.model ?? null
   function addPlugin(mesh: Mesh) {
     delete mesh.geometry.attributes['lodIndex']
     delete mesh.geometry.attributes['_lodIndex']
@@ -89,10 +91,10 @@ export function processLoadedLODLevel(entity: Entity, index: number, mesh: Mesh)
   }
 
   let removeLoaded = () => {}
-  if (!loadedModel) {
-    loadedModel = objectFromLodPath(targetModel.value, lodComponent.lodPath)
+  if (!previousModel) {
+    previousModel = objectFromLodPath(targetModel.value, lodComponent.lodPath)
     removeLoaded = () => {
-      loadedModel?.removeFromParent()
+      previousModel?.removeFromParent()
     }
   }
 
@@ -105,12 +107,12 @@ export function processLoadedLODLevel(entity: Entity, index: number, mesh: Mesh)
     )
     lodComponentState.instanceLevels.set(new InstancedBufferAttribute(new Uint8Array([index]), 1))
   }
-  if (loadedMesh !== loadedModel) {
-    loadedModel.parent?.add(loadedMesh)
-    loadedMesh.name = loadedModel.name
-    loadedMesh.position.copy(loadedModel.position)
-    loadedMesh.quaternion.copy(loadedModel.quaternion)
-    loadedMesh.scale.copy(loadedModel.scale)
+  if (loadedMesh !== previousModel) {
+    previousModel.parent?.add(loadedMesh)
+    loadedMesh.name = previousModel.name
+    loadedMesh.position.copy(previousModel.position)
+    loadedMesh.quaternion.copy(previousModel.quaternion)
+    loadedMesh.scale.copy(previousModel.scale)
     loadedMesh.updateMatrixWorld(true)
 
     removeLoaded()
@@ -149,4 +151,16 @@ export function objectFromLodPath(model: ComponentType<typeof ModelComponent>, p
     throw new Error(`Could not find object from path ${path} in model ${model.scene}`)
   }
   return walker
+}
+
+export function unloadLODLevel(levelToUnload: State<LODLevel> | null) {
+  if (!levelToUnload?.loaded.value) return
+  levelToUnload &&
+    removeMaterialSource({
+      type: SourceType.MODEL,
+      path: levelToUnload.src.value
+    })
+  levelToUnload?.model.value?.removeFromParent()
+  levelToUnload?.model.set(null)
+  levelToUnload?.loaded.set(false)
 }
