@@ -1,6 +1,13 @@
 import appRootPath from 'app-root-path'
+import { Knex } from 'knex'
 import path from 'path'
 import url from 'url'
+import { v4 } from 'uuid'
+
+import { serverSettingPath } from '@etherealengine/engine/src/schemas/setting/server-setting.schema'
+import appConfig from '@etherealengine/server-core/src/appconfig'
+
+import { getDateTimeSql } from '../../util/get-datetime-sql'
 
 const kubernetesEnabled = process.env.KUBERNETES === 'true'
 
@@ -36,7 +43,50 @@ server.url =
   process.env.SERVER_URL ||
   url.format(kubernetesEnabled ? { protocol: 'https', hostname: server.hostname } : { protocol: 'https', ...server })
 
-export const serverSeed = {
-  path: 'server-setting',
-  templates: [server]
+export async function seed(knex: Knex): Promise<void> {
+  const { testEnabled } = appConfig
+  const { forceRefresh } = appConfig.db
+
+  const seedData = await Promise.all(
+    [server].map(async (item) => ({
+      ...item,
+      id: v4(),
+      createdAt: await getDateTimeSql(),
+      updatedAt: await getDateTimeSql()
+    }))
+  )
+
+  if (forceRefresh || testEnabled) {
+    // Deletes ALL existing entries
+    await knex(serverSettingPath).del()
+
+    // Inserts seed entries
+    await knex(serverSettingPath).insert(seedData)
+  } else {
+    for (const item of seedData) {
+      const existingData = await knex(serverSettingPath)
+        .where('mode', item.mode)
+        .andWhere('hostname', item.hostname)
+        .andWhere('port', item.port)
+        .andWhere('clientHost', item.clientHost)
+        .andWhere('rootDir', item.rootDir)
+        .andWhere('publicDir', item.publicDir)
+        .andWhere('nodeModulesDir', item.nodeModulesDir)
+        .andWhere('localStorageProvider', item.localStorageProvider)
+        .andWhere('performDryRun', item.performDryRun)
+        .andWhere('storageProvider', item.storageProvider)
+        .andWhere('gaTrackingId', item.gaTrackingId)
+        .andWhere('url', item.url)
+        .andWhere('certPath', item.certPath)
+        .andWhere('keyPath', item.keyPath)
+        .andWhere('gitPem', item.gitPem)
+        .andWhere('local', item.local)
+        .andWhere('releaseName', item.releaseName)
+        .andWhere('instanceserverUnreachableTimeoutSeconds', item.instanceserverUnreachableTimeoutSeconds)
+
+      if (existingData.length === 0) {
+        await knex(serverSettingPath).insert(item)
+      }
+    }
+  }
 }

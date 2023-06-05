@@ -152,15 +152,6 @@ const Server = () => {
             disabled
           />
 
-          <InputText name="paginateDefault" label={t('admin:components.setting.paginateDefault')} value="10" disabled />
-
-          <InputText
-            name="paginateMax"
-            label={t('admin:components.setting.paginateMax')}
-            value={serverSetting?.paginate || ''}
-            disabled
-          />
-
           <InputText name="url" label={t('admin:components.setting.url')} value={serverSetting?.url || ''} disabled />
 
           <InputText
