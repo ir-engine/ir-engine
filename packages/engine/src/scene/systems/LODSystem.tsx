@@ -51,15 +51,8 @@ function updateLOD(
   }
 }
 
-let engineState: typeof EngineState._TYPE | null
-function reactor() {
-  useEffect(() => {
-    engineState = getState(EngineState)
-  }, [])
-  return null
-}
-
 function execute() {
+  const engineState = getState(EngineState)
   if (!engineState || engineState.elapsedSeconds - lastUpdate < updateFrequency) return
   lastUpdate = Engine.instance.elapsedSeconds
   const referencedLods = new Set<number>()
@@ -140,6 +133,5 @@ function execute() {
 
 export const LODSystem = defineSystem({
   uuid: 'ee.engine.scene.LODSystem',
-  execute,
-  reactor
+  execute
 })
