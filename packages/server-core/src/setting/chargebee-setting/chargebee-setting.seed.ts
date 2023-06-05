@@ -26,9 +26,10 @@ export async function seed(knex: Knex): Promise<void> {
     // Inserts seed entries
     await knex(chargebeeSettingPath).insert(seedData)
   } else {
-    for (const item of seedData) {
-      const existingData = await knex(chargebeeSettingPath).where('url', item.url).andWhere('apiKey', item.apiKey)
-      if (existingData.length === 0) {
+    const existingData = await knex(chargebeeSettingPath).count({ count: '*' })
+
+    if (existingData.length === 0 || existingData[0].count === 0) {
+      for (const item of seedData) {
         await knex(chargebeeSettingPath).insert(item)
       }
     }

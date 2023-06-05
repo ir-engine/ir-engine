@@ -63,28 +63,10 @@ export async function seed(knex: Knex): Promise<void> {
     // Inserts seed entries
     await knex(serverSettingPath).insert(seedData)
   } else {
-    for (const item of seedData) {
-      const existingData = await knex(serverSettingPath)
-        .where('mode', item.mode)
-        .andWhere('hostname', item.hostname)
-        .andWhere('port', item.port)
-        .andWhere('clientHost', item.clientHost)
-        .andWhere('rootDir', item.rootDir)
-        .andWhere('publicDir', item.publicDir)
-        .andWhere('nodeModulesDir', item.nodeModulesDir)
-        .andWhere('localStorageProvider', item.localStorageProvider)
-        .andWhere('performDryRun', item.performDryRun)
-        .andWhere('storageProvider', item.storageProvider)
-        .andWhere('gaTrackingId', item.gaTrackingId)
-        .andWhere('url', item.url)
-        .andWhere('certPath', item.certPath)
-        .andWhere('keyPath', item.keyPath)
-        .andWhere('gitPem', item.gitPem)
-        .andWhere('local', item.local)
-        .andWhere('releaseName', item.releaseName)
-        .andWhere('instanceserverUnreachableTimeoutSeconds', item.instanceserverUnreachableTimeoutSeconds)
+    const existingData = await knex(serverSettingPath).count({ count: '*' })
 
-      if (existingData.length === 0) {
+    if (existingData.length === 0 || existingData[0].count === 0) {
+      for (const item of seedData) {
         await knex(serverSettingPath).insert(item)
       }
     }

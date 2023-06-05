@@ -54,14 +54,10 @@ export async function seed(knex: Knex): Promise<void> {
     // Inserts seed entries
     await knex(awsSettingPath).insert(seedData)
   } else {
-    for (const item of seedData) {
-      const existingData = await knex(awsSettingPath)
-        .where('keys', item.keys)
-        .andWhere('route53', item.route53)
-        .andWhere('s3', item.s3)
-        .andWhere('cloudfront', item.cloudfront)
-        .andWhere('sms', item.sms)
-      if (existingData.length === 0) {
+    const existingData = await knex(awsSettingPath).count({ count: '*' })
+
+    if (existingData.length === 0 || existingData[0].count === 0) {
+      for (const item of seedData) {
         await knex(awsSettingPath).insert(item)
       }
     }
