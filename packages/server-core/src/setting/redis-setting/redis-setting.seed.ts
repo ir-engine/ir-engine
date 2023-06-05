@@ -29,13 +29,10 @@ export async function seed(knex: Knex): Promise<void> {
     // Inserts seed entries
     await knex(redisSettingPath).insert(seedData)
   } else {
-    for (const item of seedData) {
-      const existingData = await knex(redisSettingPath)
-        .where('enabled', item.enabled)
-        .andWhere('address', item.address)
-        .andWhere('port', item.port)
-        .andWhere('password', item.password)
-      if (existingData.length === 0) {
+    const existingData = await knex(redisSettingPath).count({ count: '*' })
+
+    if (existingData.length === 0 || existingData[0].count === 0) {
+      for (const item of seedData) {
         await knex(redisSettingPath).insert(item)
       }
     }
