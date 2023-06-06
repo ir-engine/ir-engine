@@ -200,7 +200,7 @@ export default function GLTFTransformProperties({
                         {image.parameters.textureFormat.enabled.value && (
                           <SelectInput
                             value={image.parameters.textureFormat.parameters.value}
-                            onChange={onChangeTransformParm(image.parameters.textureFormat)}
+                            onChange={onChangeTransformParm(image.parameters.textureFormat.parameters)}
                             options={[
                               { label: 'Default', value: 'default' },
                               { label: 'JPG', value: 'jpg' },
@@ -219,7 +219,7 @@ export default function GLTFTransformProperties({
                         {image.parameters.maxTextureSize.enabled.value && (
                           <NumericInput
                             value={image.parameters.maxTextureSize.parameters.value}
-                            onChange={onChangeTransformParm(image.parameters.maxTextureSize)}
+                            onChange={onChangeTransformParm(image.parameters.maxTextureSize.parameters)}
                             max={4096}
                             min={64}
                           />
@@ -236,7 +236,7 @@ export default function GLTFTransformProperties({
                         {image.parameters.textureCompressionType.enabled.value && (
                           <SelectInput
                             value={image.parameters.textureCompressionType.parameters.value}
-                            onChange={onChangeTransformParm(image.parameters.textureCompressionType)}
+                            onChange={onChangeTransformParm(image.parameters.textureCompressionType.parameters)}
                             options={[
                               { label: 'UASTC', value: 'uastc' },
                               { label: 'ETC1', value: 'etc1' }
@@ -252,7 +252,7 @@ export default function GLTFTransformProperties({
                         {image.parameters.textureCompressionQuality.enabled.value && (
                           <NumericInput
                             value={image.parameters.textureCompressionQuality.parameters.value}
-                            onChange={onChangeTransformParm(image.parameters.textureCompressionQuality)}
+                            onChange={onChangeTransformParm(image.parameters.textureCompressionQuality.parameters)}
                             max={255}
                             min={1}
                             smallStep={1}
@@ -269,7 +269,7 @@ export default function GLTFTransformProperties({
                         {image.parameters.flipY.enabled.value && (
                           <BooleanInput
                             value={image.parameters.flipY.parameters.value}
-                            onChange={onChangeTransformParm(image.parameters.flipY)}
+                            onChange={onChangeTransformParm(image.parameters.flipY.parameters)}
                           />
                         )}
                       </InputGroup>
