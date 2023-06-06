@@ -1,5 +1,3 @@
-import { diff } from 'deep-object-diff'
-
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { SceneData, SceneJson } from '@etherealengine/common/src/interfaces/SceneInterface'
 import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
