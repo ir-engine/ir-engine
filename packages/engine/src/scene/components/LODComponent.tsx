@@ -5,10 +5,14 @@ import matches from 'ts-matches'
 
 import { createState } from '@etherealengine/hyperflux'
 
+import { AssetLoader } from '../../assets/classes/AssetLoader'
+import { GLTF } from '../../assets/loaders/gltf/GLTFLoader'
 import { Entity } from '../../ecs/classes/Entity'
 import { defineComponent, getComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
 import { useEntityContext } from '../../ecs/functions/EntityFunctions'
-import { LODPath } from '../functions/loaders/LODFunctions'
+import { isMobileXRHeadset } from '../../xr/XRState'
+import { LODPath, processLoadedLODLevel, unloadLODLevel } from '../functions/loaders/LODFunctions'
+import getFirstMesh from '../util/getFirstMesh'
 import { UUIDComponent } from './UUIDComponent'
 
 export type LODLevel = {
@@ -16,6 +20,7 @@ export type LODLevel = {
   loaded: boolean
   src: string
   model: Mesh | InstancedMesh | null
+  metadata: Record<string, any>
 }
 
 export type LODComponentType = {
@@ -23,7 +28,7 @@ export type LODComponentType = {
   lodPath: LODPath
   instanced: boolean
   levels: LODLevel[]
-  lodHeuristic: 'DISTANCE' | 'SCENE_SCALE' | 'MANUAL'
+  lodHeuristic: 'DISTANCE' | 'SCENE_SCALE' | 'MANUAL' | 'DEVICE'
   instanceMatrix: InstancedBufferAttribute
   instanceLevels: InstancedBufferAttribute
 }
@@ -114,6 +119,7 @@ export const LODComponent = defineComponent({
         distance: level.distance,
         model: null,
         src: level.src,
+        metadata: level.metadata,
         loaded: false
       }
     }),
@@ -129,6 +135,30 @@ export const LODComponent = defineComponent({
 function LODReactor(): ReactElement {
   const entity = useEntityContext()
   const lodComponent = useComponent(entity, LODComponent)
+
+  useEffect(() => {
+    if (lodComponent.lodHeuristic.value === 'DEVICE') {
+      const mobileLodIdx = lodComponent.levels.findIndex((level) => level.metadata.value['device'] === 'MOBILE')
+      const mobileLod = lodComponent.levels[mobileLodIdx]
+      const desktopLodIdx = lodComponent.levels.findIndex((level) => level.metadata.value['device'] === 'DESKTOP')
+      const desktopLod = lodComponent.levels[desktopLodIdx]
+      const toLoad = isMobileXRHeadset ? mobileLod : desktopLod
+      const toLoadIdx = isMobileXRHeadset ? mobileLodIdx : desktopLodIdx
+      const toUnload = isMobileXRHeadset ? desktopLod : mobileLod
+      new Promise<void>((resolve) => {
+        toLoad.loaded.value && resolve()
+        AssetLoader.load(toLoad.src.value, {}, (loadedScene: GLTF) => {
+          const mesh = getFirstMesh(loadedScene.scene)
+          mesh && processLoadedLODLevel(entity, toLoadIdx, mesh)
+          toLoad.loaded.set(true)
+          resolve()
+        })
+      }).then(() => {
+        toUnload && unloadLODLevel(toUnload)
+      })
+    }
+  }, [lodComponent.lodHeuristic])
+
   return (
     <>
       {lodComponent.levels.map((level, index) => (
@@ -138,10 +168,10 @@ function LODReactor(): ReactElement {
   )
 }
 
-function LodLevelReactor({ entity, level }: { level: number; entity: Entity }) {
+const LodLevelReactor = React.memo(({ entity, level }: { level: number; entity: Entity }) => {
   const lodComponent = useComponent(entity, LODComponent)
   useEffect(() => {
     const levelModel = lodComponent.levels[level].model.value
   }, [lodComponent.levels[level].model])
   return null
-}
+})
