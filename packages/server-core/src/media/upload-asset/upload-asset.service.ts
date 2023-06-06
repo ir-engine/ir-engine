@@ -142,7 +142,7 @@ export const addGenericAssetToS3AndStaticResources = async (
   args: AdminAssetUploadArgumentsType,
   storageProviderName?: string
 ): Promise<StaticResourceInterface> => {
-  console.log('addGenericAssetToS3AndStaticResources', extension, args)
+  console.log('addGenericAssetToS3AndStaticResources', files, extension, args)
   const provider = getStorageProvider(storageProviderName)
   // make userId optional and safe for feathers create
   const key = processFileName(args.key)

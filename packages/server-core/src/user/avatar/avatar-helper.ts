@@ -92,10 +92,23 @@ export const installAvatarsFromProject = async (app: Application, avatarsFolder:
         return Promise.all(
           dependencies.map((dependency) => {
             const key = `static-resources/avatar/public${dependency.replace(avatarsFolder, '')}`
-            return addGenericAssetToS3AndStaticResources(app, fs.readFileSync(dependency), getContentType(dependency), {
-              key,
-              project: projectName || null
-            })
+            const file = fs.readFileSync(dependency)
+            return addGenericAssetToS3AndStaticResources(
+              app,
+              [
+                {
+                  buffer: file,
+                  originalname: dependency.split('/').pop()!,
+                  mimetype: getContentType(dependency),
+                  size: file.byteLength
+                }
+              ],
+              getContentType(dependency),
+              {
+                key,
+                project: projectName || null
+              }
+            )
           })
         ).then(() => {
           return {
@@ -158,19 +171,43 @@ export const uploadAvatarStaticResource = async (
   // const thumbnail = await generateAvatarThumbnail(data.avatar as Buffer)
   // if (!thumbnail) throw new Error('Thumbnail generation failed - check the model')
 
-  const modelPromise = addGenericAssetToS3AndStaticResources(app, data.avatar, CommonKnownContentTypes.glb, {
-    userId: params?.user!.id,
-    key: `${key}.${data.avatarFileType ?? 'glb'}`,
-    staticResourceType: 'avatar',
-    project: data.project
-  })
+  const modelPromise = addGenericAssetToS3AndStaticResources(
+    app,
+    [
+      {
+        buffer: data.avatar,
+        originalname: `${name}.${data.avatarFileType ?? 'glb'}`,
+        mimetype: CommonKnownContentTypes[data.avatarFileType ?? 'glb'],
+        size: data.avatar.byteLength
+      }
+    ],
+    CommonKnownContentTypes.glb,
+    {
+      userId: params?.user!.id,
+      key: `${key}.${data.avatarFileType ?? 'glb'}`,
+      staticResourceType: 'avatar',
+      project: data.project
+    }
+  )
 
-  const thumbnailPromise = addGenericAssetToS3AndStaticResources(app, data.thumbnail, CommonKnownContentTypes.png, {
-    userId: params?.user!.id,
-    key: `${key}.${data.avatarFileType ?? 'glb'}.png`,
-    staticResourceType: 'user-thumbnail',
-    project: data.project
-  })
+  const thumbnailPromise = addGenericAssetToS3AndStaticResources(
+    app,
+    [
+      {
+        buffer: data.thumbnail,
+        originalname: 'thumbnail.png',
+        mimetype: CommonKnownContentTypes.png,
+        size: data.thumbnail.byteLength
+      }
+    ],
+    CommonKnownContentTypes.png,
+    {
+      userId: params?.user!.id,
+      key: `${key}.${data.avatarFileType ?? 'glb'}.png`,
+      staticResourceType: 'user-thumbnail',
+      project: data.project
+    }
+  )
 
   const [modelResource, thumbnailResource] = await Promise.all([modelPromise, thumbnailPromise])
 

@@ -24,6 +24,7 @@ export const uploadMediaStaticResource = async (
   mediaType: string,
   params?: UserParams
 ) => {
+  console.log('uploadMediaStaticResource', data, mediaType)
   const key = `static-resources/${data.parentType || mediaType}/${data.parentId || data.mediaId}`
 
   // const thumbnail = await generateAvatarThumbnail(data.avatar as Buffer)
@@ -31,7 +32,14 @@ export const uploadMediaStaticResource = async (
 
   const mediaPromise = addGenericAssetToS3AndStaticResources(
     app,
-    data.media,
+    [
+      {
+        buffer: data.media,
+        originalname: data.fileName,
+        mimetype: CommonKnownContentTypes[data.mediaFileType],
+        size: data.media.byteLength
+      }
+    ],
     CommonKnownContentTypes[data.mediaFileType],
     {
       hash: data.hash,
@@ -43,12 +51,24 @@ export const uploadMediaStaticResource = async (
   )
 
   const thumbnailPromise = data.thumbnail
-    ? addGenericAssetToS3AndStaticResources(app, data.thumbnail, CommonKnownContentTypes.png, {
-        hash: data.hash,
-        userId: params?.user!.id,
-        key: `${key}/thumbnail.png`,
-        staticResourceType: 'image'
-      })
+    ? addGenericAssetToS3AndStaticResources(
+        app,
+        [
+          {
+            buffer: data.thumbnail,
+            originalname: 'thumbnail.png',
+            mimetype: CommonKnownContentTypes.png,
+            size: data.thumbnail.byteLength
+          }
+        ],
+        CommonKnownContentTypes.png,
+        {
+          hash: data.hash,
+          userId: params?.user!.id,
+          key: `${key}/thumbnail.png`,
+          staticResourceType: 'image'
+        }
+      )
     : Promise.resolve()
 
   const [mediaResource, thumbnailResource] = await Promise.all([mediaPromise, thumbnailPromise])
