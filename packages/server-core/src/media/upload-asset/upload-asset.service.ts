@@ -97,8 +97,8 @@ const uploadAssets = (app: Application) => async (data: AssetUploadType, params:
     return await uploadAvatarStaticResource(
       app,
       {
-        avatar: files[0].buffer,
-        thumbnail: files[1].buffer,
+        avatar: files[0].buffer as Buffer,
+        thumbnail: files[1].buffer as Buffer,
         ...(data.args as AvatarUploadArgsType)
       },
       params
@@ -128,9 +128,9 @@ const uploadAssets = (app: Application) => async (data: AssetUploadType, params:
   }
 }
 
-export const createStaticResourceHash = (file: Buffer, props: { name?: string; assetURL?: string }) => {
+export const createStaticResourceHash = (file: Buffer | string, props: { name?: string; assetURL?: string }) => {
   return createHash('sha3-256')
-    .update(file.length.toString())
+    .update(typeof file === 'string' ? file : file.length.toString())
     .update(props.name || props.assetURL!.split('/').pop()!.split('.')[0])
     .digest('hex')
 }
@@ -179,7 +179,9 @@ export const addGenericAssetToS3AndStaticResources = async (
     if (i === 0) {
       body.url = variants[0].url
     }
-    promises.push(uploadVariant(files[i].buffer, mimeType, useKey, storageProviderName))
+    if (typeof file.buffer !== 'string') {
+      promises.push(uploadVariant(file.buffer, mimeType, useKey, storageProviderName))
+    }
   }
   await Promise.all(promises)
 

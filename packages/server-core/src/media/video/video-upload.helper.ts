@@ -91,43 +91,41 @@ export const videoUpload = async (app: Application, data: UploadAssetArgs, paren
         include
       })
     }
-    if (!config.server.cloneProjectStaticResources || (existingResource && existingVideo)) return existingVideo
-    else {
-      const files = await getResourceFiles(data)
-      const stats = (await getVideoStats(files[0].buffer)) as any
-      stats.size = contentLength
-      const newVideo = await app.service('video').create({
-        duration: stats.duration
-      })
-      if (!existingResource) {
-        const key = `static-resources/${parentType ?? 'video'}/${parentId ?? newVideo.id}`
-        // ;[existingResource, thumbnail] = await uploadMediaStaticResource(app, uploadData, 'video')
-        existingResource = await addGenericAssetToS3AndStaticResources(app, files, extension, {
-          hash: hash,
-          key: key,
-          staticResourceType: 'video',
-          stats
-        })
-      }
-      const update = {} as any
-      if (existingResource?.id) {
-        const staticResourceColumn = `${extension}StaticResourceId`
-        update[staticResourceColumn] = existingResource.id
-      }
-      try {
-        await app.service('video').patch(newVideo.id, update)
-      } catch (err) {
-        logger.error('error updating video with resources')
-        logger.error(err)
-        throw err
-      }
-      return app.service('video').Model.findOne({
-        where: {
-          id: newVideo.id
-        },
-        include
+    if (existingResource && existingVideo) return existingVideo
+
+    const files = await getResourceFiles(data)
+    const stats = (await getVideoStats(files[0].buffer)) as any
+    stats.size = contentLength
+    const newVideo = await app.service('video').create({
+      duration: stats.duration
+    })
+    if (!existingResource) {
+      const key = `static-resources/${parentType ?? 'video'}/${parentId ?? newVideo.id}`
+      existingResource = await addGenericAssetToS3AndStaticResources(app, files, extension, {
+        hash: hash,
+        key: key,
+        staticResourceType: 'video',
+        stats
       })
     }
+    const update = {} as any
+    if (existingResource?.id) {
+      const staticResourceColumn = `${extension}StaticResourceId`
+      update[staticResourceColumn] = existingResource.id
+    }
+    try {
+      await app.service('video').patch(newVideo.id, update)
+    } catch (err) {
+      logger.error('error updating video with resources')
+      logger.error(err)
+      throw err
+    }
+    return app.service('video').Model.findOne({
+      where: {
+        id: newVideo.id
+      },
+      include
+    })
   } catch (err) {
     logger.error('video upload error')
     logger.error(err)
@@ -135,16 +133,21 @@ export const videoUpload = async (app: Application, data: UploadAssetArgs, paren
   }
 }
 
-export const getVideoStats = async (body) => {
-  const stream = new Readable()
-  stream.push(body)
-  stream.push(null)
-  const out = (
-    await execa(ffprobe.path, ['-v', 'error', '-show_format', '-show_streams', '-i', 'pipe:0'], {
-      reject: false,
-      input: stream
-    })
-  ).stdout
+export const getVideoStats = async (input: Buffer | string) => {
+  let out = ''
+  if (typeof input === 'string') {
+    out = (await execa(ffprobe.path, ['-v', 'error', '-show_format', '-show_streams', input])).stdout
+  } else {
+    const stream = new Readable()
+    stream.push(input)
+    stream.push(null)
+    out = (
+      await execa(ffprobe.path, ['-v', 'error', '-show_format', '-show_streams', '-i', 'pipe:0'], {
+        reject: false,
+        input: stream
+      })
+    ).stdout
+  }
   const width = /width=(\d+)/.exec(out)
   const height = /height=(\d+)/.exec(out)
   const duration = /duration=(\d+)/.exec(out)

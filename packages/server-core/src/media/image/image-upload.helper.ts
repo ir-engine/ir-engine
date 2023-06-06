@@ -84,46 +84,45 @@ export const imageUpload = async (app: Application, data: UploadAssetArgs) => {
           ]
         }
       })
-    if (!config.server.cloneProjectStaticResources || (existingResource && existingImage))
-      return app.service('image').get(existingImage.id)
-    else {
-      const files = await getResourceFiles(data)
-      const stream = new Readable()
-      stream.push(files[0].buffer)
-      stream.push(null)
-      const imageDimensions = await probe(stream)
-      const newImage = await app.service('image').create({
-        width: imageDimensions.width,
-        height: imageDimensions.height
+
+    if (existingResource && existingImage) return app.service('image').get(existingImage.id)
+
+    const files = await getResourceFiles(data, true)
+    const stream = new Readable()
+    stream.push(files[0].buffer)
+    stream.push(null)
+    const imageDimensions = await probe(stream)
+    const newImage = await app.service('image').create({
+      width: imageDimensions.width,
+      height: imageDimensions.height
+    })
+    if (!existingResource) {
+      const key = `static-resources/image/${newImage.id}`
+      existingResource = await addGenericAssetToS3AndStaticResources(app, files, extension, {
+        hash: hash,
+        key: key,
+        staticResourceType: 'image',
+        stats: {
+          ...imageDimensions,
+          size: contentLength
+        }
       })
-      if (!existingResource) {
-        const key = `static-resources/image/${newImage.id}`
-        existingResource = await addGenericAssetToS3AndStaticResources(app, files, extension, {
-          hash: hash,
-          key: key,
-          staticResourceType: 'image',
-          stats: {
-            ...imageDimensions,
-            size: contentLength
-          }
-        })
-      }
-      const update = {} as any
-      if (newImage?.id) {
-        if (extension === 'jpg') extension = 'jpeg'
-        const staticResourceColumn = `${extension}StaticResourceId`
-        update[staticResourceColumn] = existingResource.id
-      }
-      if (thumbnail?.id) update.thumbnail = thumbnail.id
-      try {
-        await app.service('image').patch(newImage.id, update)
-      } catch (err) {
-        logger.error('error updating image with resources')
-        logger.error(err)
-        throw err
-      }
-      return app.service('image').get(newImage.id)
     }
+    const update = {} as any
+    if (newImage?.id) {
+      if (extension === 'jpg') extension = 'jpeg'
+      const staticResourceColumn = `${extension}StaticResourceId`
+      update[staticResourceColumn] = existingResource.id
+    }
+    if (thumbnail?.id) update.thumbnail = thumbnail.id
+    try {
+      await app.service('image').patch(newImage.id, update)
+    } catch (err) {
+      logger.error('error updating image with resources')
+      logger.error(err)
+      throw err
+    }
+    return app.service('image').get(newImage.id)
   } catch (err) {
     logger.error('image upload error')
     logger.error(err)

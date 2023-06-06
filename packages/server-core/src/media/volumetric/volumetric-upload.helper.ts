@@ -47,11 +47,13 @@ const handleManifest = async (app: Application, url: string, name = 'untitled', 
       ]
     })
   }
-  if (!config.server.cloneProjectStaticResources || (existingResource && existingData)) return existingData
-  else {
-    if (!existingResource) {
-      let files: UploadFile[]
-      if (/http(s)?:\/\//.test(url)) {
+
+  if (existingResource && existingData) return existingData
+
+  if (!existingResource) {
+    let files: UploadFile[]
+    if (/http(s)?:\/\//.test(url)) {
+      if (config.server.cloneProjectStaticResources) {
         const file = await fetch(url)
         files = [
           {
@@ -62,27 +64,39 @@ const handleManifest = async (app: Application, url: string, name = 'untitled', 
           }
         ]
       } else {
-        const file = fs.readFileSync(url)
-        return [
+        // otherwise we just return the url and let the client download it as needed
+        const file = await fetch(url, { method: 'HEAD' })
+        files = [
           {
-            buffer: file,
+            buffer: url,
             originalname: name,
-            mimetype: uvolMimetype,
-            size: file.length
+            mimetype:
+              file.headers.get('content-type') || file.headers.get('Content-Type') || 'application/octet-stream',
+            size: parseInt(file.headers.get('content-length') || file.headers.get('Content-Length') || '0')
           }
         ]
       }
-      const key = `static-resources/volumetric/${volumetricId}/${name}`
-      existingResource = await addGenericAssetToS3AndStaticResources(app, files, uvolMimetype, {
-        hash: hash,
-        key: `${key}.manifest`,
-        staticResourceType: 'data'
-      })
+    } else {
+      const file = fs.readFileSync(url)
+      return [
+        {
+          buffer: file,
+          originalname: name,
+          mimetype: uvolMimetype,
+          size: file.length
+        }
+      ]
     }
-    return app.service('data').create({
-      staticResourceId: existingResource.id
+    const key = `static-resources/volumetric/${volumetricId}/${name}`
+    existingResource = await addGenericAssetToS3AndStaticResources(app, files, uvolMimetype, {
+      hash: hash,
+      key: `${key}.manifest`,
+      staticResourceType: 'data'
     })
   }
+  return app.service('data').create({
+    staticResourceId: existingResource.id
+  })
 }
 
 export const volumetricUpload = async (app: Application, data) => {

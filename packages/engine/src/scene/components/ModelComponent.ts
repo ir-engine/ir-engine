@@ -28,7 +28,6 @@ import { parseGLTFModel } from '../functions/loadGLTFModel'
 import { enableObjectLayer } from '../functions/setObjectLayers'
 import { addObjectToGroup, GroupComponent, removeObjectFromGroup } from './GroupComponent'
 import { LODComponent } from './LODComponent'
-import { LODComponentType } from './LODComponent'
 import { SceneAssetPendingTagComponent } from './SceneAssetPendingTagComponent'
 import { UUIDComponent } from './UUIDComponent'
 

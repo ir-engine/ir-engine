@@ -106,41 +106,41 @@ export const audioUpload = async (app: Application, data: UploadAssetArgs) => {
       })
     }
 
-    if (!config.server.cloneProjectStaticResources || (existingResource && existingAudio)) return existingAudio
-    else {
-      const files = await getResourceFiles(data)
-      const stats = (await getAudioStats(files[0].buffer)) as any
-      stats.size = contentLength
-      const newAudio = (await app.service('audio').create({
-        duration: stats.duration * 1000
-      })) as AudioInterface
-      const key = `static-resources/audio/${newAudio.id}`
-      if (!existingResource)
-        existingResource = await addGenericAssetToS3AndStaticResources(app, files, extension, {
-          hash: hash,
-          key: key,
-          staticResourceType: 'audio',
-          stats
-        })
-      const update = {} as any
-      if (existingResource?.id) {
-        const staticResourceColumn = `${extension}StaticResourceId`
-        update[staticResourceColumn] = existingResource.id
-      }
-      try {
-        await app.service('audio').patch(newAudio.id, update)
-      } catch (err) {
-        logger.error('error updating audio with resources')
-        logger.error(err)
-        throw err
-      }
-      return app.service('audio').Model.findOne({
-        where: {
-          id: newAudio.id
-        },
-        include
+    if (existingResource && existingAudio) return existingAudio
+
+    const files = await getResourceFiles(data)
+    const stats = (await getAudioStats(files[0].buffer)) as any
+    stats.size = contentLength
+    const newAudio = (await app.service('audio').create({
+      duration: stats.duration * 1000
+    })) as AudioInterface
+    const key = `static-resources/audio/${newAudio.id}`
+    if (!existingResource)
+      existingResource = await addGenericAssetToS3AndStaticResources(app, files, extension, {
+        hash: hash,
+        key: key,
+        staticResourceType: 'audio',
+        stats
       })
+    const update = {} as any
+    if (existingResource?.id) {
+      const staticResourceColumn = `${extension}StaticResourceId`
+      update[staticResourceColumn] = existingResource.id
     }
+    try {
+      await app.service('audio').patch(newAudio.id, update)
+    } catch (err) {
+      logger.error('error updating audio with resources')
+      logger.error(err)
+      throw err
+    }
+
+    return app.service('audio').Model.findOne({
+      where: {
+        id: newAudio.id
+      },
+      include
+    })
   } catch (err) {
     logger.error('audio upload error')
     logger.error(err)
@@ -148,23 +148,28 @@ export const audioUpload = async (app: Application, data: UploadAssetArgs) => {
   }
 }
 
-export const getAudioStats = async (body) => {
-  const stream = new Readable()
-  stream.push(body)
-  stream.push(null)
-  let mp3Duration
-  const out = (
-    await execa(ffprobe.path, ['-v', 'error', '-show_format', '-show_streams', '-i', 'pipe:0'], {
-      reject: false,
-      input: stream
-    })
-  ).stdout
+export const getAudioStats = async (input: Buffer | string) => {
+  let out = ''
+  if (typeof input === 'string') {
+    out = (await execa(ffprobe.path, ['-v', 'error', '-show_format', '-show_streams', input])).stdout
+  } else {
+    const stream = new Readable()
+    stream.push(input)
+    stream.push(null)
+    out = (
+      await execa(ffprobe.path, ['-v', 'error', '-show_format', '-show_streams', '-i', 'pipe:0'], {
+        reject: false,
+        input: stream
+      })
+    ).stdout
+  }
+  let mp3Duration: number | null = null
   const duration = /duration=(\d+)/.exec(out)
   const channels = /channels=(\d+)/.exec(out)
   const bitrate = /bit_rate=(\d+)/.exec(out)
   const samplerate = /sample_rate=(\d+)/.exec(out)
   const codecname = /codec_name=(\w+)/.exec(out)
-  if (codecname && codecname[1] === 'mp3') mp3Duration = await getMP3Duration(body)
+  if (codecname && codecname[1] === 'mp3') mp3Duration = await getMP3Duration(input)
   return {
     duration: mp3Duration ? mp3Duration : duration ? parseInt(duration[1]) : null,
     channels: channels ? parseInt(channels[1]) : null,
