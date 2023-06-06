@@ -45,6 +45,13 @@ process.on('unhandledRejection', (reason, p) => {
   process.exit(1)
 })
 
+if (!kubernetesEnabled) {
+  dotenv.config({
+    path: appRootPath.path,
+    silent: true
+  })
+}
+
 if (process.env.APP_ENV === 'development' || process.env.LOCAL === 'true') {
   // Avoids DEPTH_ZERO_SELF_SIGNED_CERT error for self-signed certs - needed for local storage provider
   process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'
@@ -55,13 +62,6 @@ if (process.env.APP_ENV === 'development' || process.env.LOCAL === 'true') {
     var toEnvPath = appRootPath.path + '/.env.local'
     fs.copyFileSync(fromEnvPath, toEnvPath, fs.constants.COPYFILE_EXCL)
   }
-}
-
-if (!kubernetesEnabled) {
-  dotenv.config({
-    path: appRootPath.path,
-    silent: true
-  })
 }
 
 /**
