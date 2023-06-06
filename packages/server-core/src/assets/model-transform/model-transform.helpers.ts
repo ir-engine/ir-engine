@@ -111,6 +111,7 @@ const split = async (document: Document) => {
           console.log('found cached prim')
         }
         const nuNode = document.createNode(node.getName() + '-' + primIdx).setMesh(primMeshes.get(prim))
+        node.getSkin() && nuNode.setSkin(node.getSkin())
         node.getParent()?.addChild(nuNode)
         nuNode.setMatrix(node.getMatrix())
       }
