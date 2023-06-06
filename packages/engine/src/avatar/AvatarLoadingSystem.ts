@@ -1,4 +1,5 @@
 import { Easing, Tween } from '@tweenjs/tween.js'
+import { P } from 'pino'
 import { useEffect } from 'react'
 import {
   AdditiveBlending,
@@ -136,6 +137,7 @@ const execute = () => {
     pt.name = 'plate_obj'
     pt.material = (pt.material as any).clone()
     pt.rotation.x = -0.5 * Math.PI
+    pt.position.y = 0.01
     group.add(pt)
 
     setComponent(

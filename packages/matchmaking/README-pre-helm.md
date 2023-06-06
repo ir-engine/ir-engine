@@ -27,7 +27,7 @@ eval $(minikube docker-env)
 
 ./build-all-pods.sh
 
-REGISTRY=lagunalabs
+REGISTRY=etherealengine
 sed "s|REGISTRY_PLACEHOLDER|$REGISTRY|g" open-match-custom-pods/matchfunction/matchfunction.yaml | sed "s|Always|Never|g" | kubectl apply -f -
 sed "s|REGISTRY_PLACEHOLDER|$REGISTRY|g" open-match-custom-pods/director/director.yaml | sed "s|Always|Never|g" | kubectl apply -f -
 ```
