@@ -1,7 +1,7 @@
 import { getEntityComponents } from 'bitecs'
 import React, { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import JSONTree from 'react-json-tree'
+import { JSONTree } from 'react-json-tree'
 
 import { AvatarControllerComponent } from '@etherealengine/engine/src/avatar/components/AvatarControllerComponent'
 import { respawnAvatar } from '@etherealengine/engine/src/avatar/functions/respawnAvatar'
@@ -239,7 +239,7 @@ export const Debug = ({ showingStateRef }) => {
               <>
                 <input
                   type="checkbox"
-                  checked={value}
+                  checked={value ? true : false}
                   onChange={() => {
                     if (Engine.instance.activeSystems.has(system.uuid)) {
                       Engine.instance.activeSystems.delete(system.uuid)
