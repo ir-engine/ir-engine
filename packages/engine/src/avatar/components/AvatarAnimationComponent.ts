@@ -198,6 +198,7 @@ export const AvatarRigComponent = defineComponent({
         const hipsRotationoffset = new Quaternion().setFromEuler(new Euler(0, Math.PI, 0))
 
         //todo: find a better way to map joints to ik targets here
+        //currently hints are offset by joint forward to estimate where they should be for every rig
         const bonePos = new Matrix4()
         switch (key) {
           case 'rightHandTarget':
@@ -213,16 +214,40 @@ export const AvatarRigComponent = defineComponent({
             bonePos.copy(rigComponent.bindRig.leftFoot.value.node.matrixWorld)
             break
           case 'rightElbowHint':
-            bonePos.copy(rigComponent.bindRig.rightLowerArm.value.node.matrixWorld)
+            bonePos.copy(
+              rigComponent.bindRig.rightLowerArm.value.node.matrixWorld.multiply(
+                new Matrix4().setPosition(
+                  rigComponent.bindRig.rightLowerLeg.node.value.getWorldDirection(new Vector3())
+                )
+              )
+            )
             break
           case 'leftElbowHint':
-            bonePos.copy(rigComponent.bindRig.leftLowerArm.value.node.matrixWorld)
+            bonePos.copy(
+              rigComponent.bindRig.leftLowerArm.value.node.matrixWorld.multiply(
+                new Matrix4().setPosition(
+                  rigComponent.bindRig.rightLowerLeg.node.value.getWorldDirection(new Vector3())
+                )
+              )
+            )
             break
           case 'rightKneeHint':
-            bonePos.copy(rigComponent.bindRig.rightLowerLeg.value.node.matrixWorld)
+            bonePos.copy(
+              rigComponent.bindRig.rightLowerLeg.value.node.matrixWorld.multiply(
+                new Matrix4().setPosition(
+                  rigComponent.bindRig.rightLowerLeg.node.value.getWorldDirection(new Vector3()).multiplyScalar(-1)
+                )
+              )
+            )
             break
           case 'leftKneeHint':
-            bonePos.copy(rigComponent.bindRig.leftLowerLeg.value.node.matrixWorld)
+            bonePos.copy(
+              rigComponent.bindRig.leftLowerLeg.value.node.matrixWorld.multiply(
+                new Matrix4().setPosition(
+                  rigComponent.bindRig.rightLowerLeg.node.value.getWorldDirection(new Vector3()).multiplyScalar(-1)
+                )
+              )
+            )
             break
           case 'headHint':
           case 'headTarget':
