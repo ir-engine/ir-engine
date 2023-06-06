@@ -251,22 +251,22 @@ export const Debug = ({ showingStateRef }) => {
               </>
             )
           }}
-          shouldExpandNode={() => true}
+          shouldExpandNodeInitially={() => true}
         />
       </div>
       <div className={styles.jsonPanel}>
         <h1>{t('common:debug.state')}</h1>
         <JSONTree
           data={Engine.instance.store.stateMap}
-          postprocessValue={(v) => (v?.value && v?.get({ noproxy: true })) ?? v}
+          postprocessValue={(v: any) => (v?.value && v?.get({ noproxy: true })) ?? v}
         />
       </div>
       <div className={styles.jsonPanel}>
         <h1>{t('common:debug.entityTree')}</h1>
         <JSONTree
           data={entityTree.value}
-          postprocessValue={(v) => v?.value ?? v}
-          shouldExpandNode={(keyPath, data, level) =>
+          postprocessValue={(v: any) => v?.value ?? v}
+          shouldExpandNodeInitially={(keyPath, data: any, level) =>
             !!data.components && !!data.children && typeof data.entity === 'number'
           }
         />
