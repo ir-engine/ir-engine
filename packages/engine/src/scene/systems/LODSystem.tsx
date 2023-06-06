@@ -1,4 +1,3 @@
-import { useEffect } from 'react'
 import { Mesh, Vector3 } from 'three'
 
 import { getState, NO_PROXY, State } from '@etherealengine/hyperflux'
@@ -7,26 +6,22 @@ import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { GLTF } from '../../assets/loaders/gltf/GLTFLoader'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
-import { defineQuery, getComponent, getMutableComponent } from '../../ecs/functions/ComponentFunctions'
+import { ComponentType, defineQuery, getComponent, getMutableComponent } from '../../ecs/functions/ComponentFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
-import { SourceType } from '../../renderer/materials/components/MaterialSource'
-import { removeMaterialSource, unregisterMaterial } from '../../renderer/materials/functions/MaterialLibraryFunctions'
 import { TransformComponent } from '../../transform/components/TransformComponent'
-import { isMobileXRHeadset } from '../../xr/XRState'
-import { LODComponent, LODComponentType, LODLevel } from '../components/LODComponent'
+import { LODComponent, LODLevel } from '../components/LODComponent'
 import { ModelComponent } from '../components/ModelComponent'
 import { objectFromLodPath, processLoadedLODLevel, unloadLODLevel } from '../functions/loaders/LODFunctions'
 import getFirstMesh from '../util/getFirstMesh'
-import iterateObject3D from '../util/iterateObject3D'
 
 const lodQuery = defineQuery([LODComponent])
-const updateFrequency = 0.5
+const updateFrequency = 0.1
 let lastUpdate = 0
 
 function updateLOD(
   index: number,
   currentLevel: number,
-  lodComponent: State<LODComponentType>,
+  lodComponent: State<ComponentType<typeof LODComponent>>,
   lodDistances: number[],
   position: Vector3
 ) {
@@ -53,10 +48,12 @@ function updateLOD(
 
 function execute() {
   const engineState = getState(EngineState)
-  if (!engineState || engineState.elapsedSeconds - lastUpdate < updateFrequency) return
-  lastUpdate = Engine.instance.elapsedSeconds
+  if (engineState.elapsedSeconds - lastUpdate < updateFrequency) return
+  lastUpdate = engineState.elapsedSeconds
+
   const referencedLods = new Set<number>()
   const position = new Vector3()
+
   for (const entity of lodQuery()) {
     const lodComponent = getMutableComponent(entity, LODComponent)
     if (lodComponent.lodHeuristic.value === 'DISTANCE') {
@@ -101,6 +98,7 @@ function execute() {
         }
       }
       const loadPromises: Promise<void>[] = []
+
       while (levelsToLoad.length > 0) {
         const [i, level] = levelsToLoad.pop()!
         if (!level.loaded.value) {
@@ -120,6 +118,7 @@ function execute() {
           level.loaded.set(true)
         }
       }
+
       Promise.all(loadPromises).then(() => {
         while (levelsToUnload.length > 0) {
           const levelToUnload = levelsToUnload.pop()

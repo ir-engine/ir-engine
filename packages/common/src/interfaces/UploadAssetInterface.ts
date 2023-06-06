@@ -47,9 +47,9 @@ export type AudioUploadArgumentsType = {
 export type AssetUploadType = AvatarUploadType | AdminAssetUploadType | AudioUploadType
 
 export interface UploadFile {
-  fieldname: string
+  fieldname?: string
   originalname: string
-  encoding: string
+  encoding?: string
   mimetype: string
   buffer: Buffer
   size: number

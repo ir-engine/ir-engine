@@ -4,6 +4,7 @@ import fetch from 'node-fetch'
 import { Op } from 'sequelize'
 
 import { UploadFile } from '@etherealengine/common/src/interfaces/UploadAssetInterface'
+import { CommonKnownContentTypes } from '@etherealengine/common/src/utils/CommonKnownContentTypes'
 
 import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
@@ -11,14 +12,14 @@ import { addGenericAssetToS3AndStaticResources, UploadAssetArgs } from '../uploa
 
 export const modelUpload = async (app: Application, data: UploadAssetArgs) => {
   try {
-    let fileHead, contentLength, extension
+    let contentLength, extension
     if (data.url) {
       if (/http(s)?:\/\//.test(data.url)) {
-        fileHead = await fetch(data.url, { method: 'HEAD' })
+        const fileHead = await fetch(data.url, { method: 'HEAD' })
         if (!/^[23]/.test(fileHead.status.toString())) throw new Error('Invalid URL')
         contentLength = fileHead.headers['content-length'] || fileHead.headers?.get('content-length')
       } else {
-        fileHead = await fs.statSync(data.url)
+        const fileHead = await fs.statSync(data.url)
         contentLength = fileHead.size.toString()
       }
       if (!data.name) data.name = data.url.split('/').pop()!.split('.')[0]
@@ -89,8 +90,27 @@ export const modelUpload = async (app: Application, data: UploadAssetArgs) => {
       if (data.url) {
         if (/http(s)?:\/\//.test(data.url)) {
           const file = await fetch(data.url)
-          files = [Buffer.from(await file.arrayBuffer())]
-        } else files = [fs.readFileSync(data.url)]
+          files = [
+            {
+              buffer: Buffer.from(await file.arrayBuffer()),
+              originalname: data.name,
+              mimetype:
+                file.headers.get('content-type') || file.headers.get('Content-Type') || 'application/octet-stream',
+              size: parseInt(file.headers.get('content-length') || file.headers.get('Content-Length') || '0')
+            }
+          ]
+        } else {
+          const file = fs.readFileSync(data.url)
+          const mimetype = CommonKnownContentTypes[data.url.split('.').pop()!]
+          files = [
+            {
+              buffer: file,
+              originalname: data.name,
+              mimetype: mimetype,
+              size: file.length
+            }
+          ]
+        }
       } else {
         files = data.files!
       }
