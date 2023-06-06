@@ -10,8 +10,9 @@ import { Application } from '../../../declarations'
 import config from '../../appconfig'
 import logger from '../../ServerLogger'
 import { uploadMediaStaticResource } from '../static-resource/static-resource-helper'
+import { UploadAssetArgs } from '../upload-asset/upload-asset.service'
 
-export const videoUpload = async (app: Application, data, parentId?: string, parentType?: string) => {
+export const videoUpload = async (app: Application, data: UploadAssetArgs, parentId?: string, parentType?: string) => {
   try {
     let fileHead, contentLength, extension
     if (data.url) {

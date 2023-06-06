@@ -9,8 +9,9 @@ import { Application } from '../../../declarations'
 import config from '../../appconfig'
 import logger from '../../ServerLogger'
 import { uploadMediaStaticResource } from '../static-resource/static-resource-helper'
+import { UploadAssetArgs } from '../upload-asset/upload-asset.service'
 
-export const imageUpload = async (app: Application, data) => {
+export const imageUpload = async (app: Application, data: UploadAssetArgs) => {
   try {
     let fileHead, contentLength, extension
     if (data.url) {
@@ -22,10 +23,12 @@ export const imageUpload = async (app: Application, data) => {
         fileHead = await fs.statSync(data.url)
         contentLength = fileHead.size.toString()
       }
-      if (!data.name) data.name = data.url.split('/').pop().split('.')[0]
+      if (!data.name) data.name = data.url.split('/').pop()!.split('.')[0]
       extension = data.url.split('.').pop()
-    } else if (data.file) {
-      switch (data.file.mimetype) {
+    } else if (data.files) {
+      const mainFile = data.files[0]!
+      console.log(mainFile)
+      switch (mainFile.mimetype) {
         case 'image/png':
           extension = 'png'
           break
@@ -40,7 +43,7 @@ export const imageUpload = async (app: Application, data) => {
           extension = 'jpg'
           break
       }
-      contentLength = data.file.size.toString()
+      contentLength = mainFile.size.toString()
     }
     if (/.LOD0/.test(data.name)) data.name = data.name.replace('.LOD0', '')
     const hash = createHash('sha3-256').update(contentLength).update(data.name).digest('hex')

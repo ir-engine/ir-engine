@@ -13,6 +13,7 @@ import { Application } from '../../../declarations'
 import config from '../../appconfig'
 import logger from '../../ServerLogger'
 import { uploadMediaStaticResource } from '../static-resource/static-resource-helper'
+import { UploadAssetArgs } from '../upload-asset/upload-asset.service'
 
 export const getMP3Duration = async (body): Promise<number> => {
   return new Promise((resolve, reject) =>
@@ -23,7 +24,7 @@ export const getMP3Duration = async (body): Promise<number> => {
   )
 }
 
-export const audioUpload = async (app: Application, data) => {
+export const audioUpload = async (app: Application, data: UploadAssetArgs) => {
   try {
     let fileHead, contentLength, extension
     if (data.url) {

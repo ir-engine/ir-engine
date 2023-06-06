@@ -13,6 +13,7 @@ import {
   AvatarUploadArgsType,
   UploadFile
 } from '@etherealengine/common/src/interfaces/UploadAssetInterface'
+import { CommonKnownContentTypes } from '@etherealengine/common/src/utils/CommonKnownContentTypes'
 import { processFileName } from '@etherealengine/common/src/utils/processFileName'
 
 import { Application } from '../../../declarations'
@@ -49,7 +50,7 @@ export interface ResourcePatchCreateInterface {
   userId?: string
 }
 
-const uploadLOD = async (file: Buffer, mimeType: string, key: string, storageProviderName?: string) => {
+const uploadVariant = async (file: Buffer, mimeType: string, key: string, storageProviderName?: string) => {
   const provider = getStorageProvider(storageProviderName)
   try {
     await provider.createInvalidation([key])
@@ -69,9 +70,29 @@ const uploadLOD = async (file: Buffer, mimeType: string, key: string, storagePro
   )
 }
 
-const uploadAsset = (app: Application) => async (data: AssetUploadType, params: UploadParams) => {
+export type UploadAssetArgs = {
+  name?: string
+  files?: Array<UploadFile>
+  url?: string
+}
+
+const uploadAsset = (app: Application, type: string, args: UploadAssetArgs) => {
+  switch (type) {
+    case 'image':
+      return imageUpload(app, args)
+    case 'video':
+      return videoUpload(app, args)
+    case 'audio':
+      return audioUpload(app, args)
+    case 'model3d':
+      return modelUpload(app, args)
+  }
+}
+
+const uploadAssets = (app: Application) => async (data: AssetUploadType, params: UploadParams) => {
   if (typeof data.args === 'string') data.args = JSON.parse(data.args)
   const files = params.files
+  console.log(files, data.args)
   if (data.type === 'user-avatar-upload') {
     return await uploadAvatarStaticResource(
       app,
@@ -85,57 +106,25 @@ const uploadAsset = (app: Application) => async (data: AssetUploadType, params: 
   } else if (data.type === 'admin-file-upload') {
     if (!(await verifyScope('admin', 'admin')({ app, params } as any))) return
 
-    if (files && files.length > 0) {
-      return Promise.all(
-        files.map((file, i) => {
-          let promise
-          const callBody = {
-            name: data.args.key.split('.')[0],
-            file
-          }
-          switch (data.args.staticResourceType) {
-            case 'image':
-              promise = imageUpload(app, callBody)
-              break
-            case 'video':
-              promise = videoUpload(app, callBody)
-              break
-            case 'audio':
-              promise = audioUpload(app, callBody)
-              break
-            case 'model3d':
-              promise = modelUpload(app, callBody)
-              break
-          }
-          return promise
-        })
-      )
-    } else {
-      return Promise.all(
-        data?.files.map((file, i) => {
-          let promise
-          const callBody = {
-            name: data.args.key.split('.')[0],
-            file: file as Buffer
-          }
-          switch (data.args.staticResourceType) {
-            case 'image':
-              promise = imageUpload(app, callBody)
-              break
-            case 'video':
-              promise = videoUpload(app, callBody)
-              break
-            case 'audio':
-              promise = audioUpload(app, callBody)
-              break
-            case 'model3d':
-              promise = modelUpload(app, callBody)
-              break
-          }
-          return promise
-        })
-      )
+    if (!data.args.staticResourceType) return
+
+    if (!files || files.length === 0) throw new Error('No files to upload')
+
+    if (data.variants) {
+      return uploadAsset(app, data.args.staticResourceType!, {
+        name: data.args.key,
+        files: files
+      })
     }
+
+    return Promise.all(
+      files.map((file, i) =>
+        uploadAsset(app, data.args.staticResourceType!, {
+          name: data.args.key.split('.')[0],
+          files: [file]
+        })
+      )
+    )
   }
 }
 
@@ -148,12 +137,12 @@ export const createStaticResourceHash = (file: Buffer, props: { name?: string; a
 
 export const addGenericAssetToS3AndStaticResources = async (
   app: Application,
-  file: Buffer,
-  mimeType: string,
+  files: UploadFile[],
+  extension: string,
   args: AdminAssetUploadArgumentsType,
   storageProviderName?: string
 ): Promise<StaticResourceInterface> => {
-  console.log('addGenericAssetToS3AndStaticResources', args)
+  console.log('addGenericAssetToS3AndStaticResources', extension, args)
   const provider = getStorageProvider(storageProviderName)
   // make userId optional and safe for feathers create
   const key = processFileName(args.key)
@@ -166,10 +155,10 @@ export const addGenericAssetToS3AndStaticResources = async (
   })) as StaticResourceInterface
   console.log({ existingAsset })
 
-  let promises: Promise<any>[] = []
+  const mimeType = CommonKnownContentTypes[extension] as string
+
   const assetURL = getCachedURL(key, provider.cacheDomain)
-  const hash = args.hash || createStaticResourceHash(file, { name: args.name, assetURL })
-  if (!args.numLODs) args.numLODs = 1
+  const hash = args.hash || createStaticResourceHash(files[0].buffer, { name: args.name, assetURL })
   const body = {
     hash,
     key,
@@ -177,34 +166,27 @@ export const addGenericAssetToS3AndStaticResources = async (
     staticResourceType: args.staticResourceType,
     project: args.project
   } as ResourcePatchCreateInterface
-  const variants = [] as { url: string; metadata: Record<string, string> }[]
+  const variants = [] as { url: string; metadata: Record<string, string | number> }[]
+  const promises = [] as Promise<void>[]
   // upload asset to storage provider
-  for (let i = 0; i < args.numLODs; i++) {
-    /** @todo - do we want to embed variant info in the file name? */
-    // let keySplit = key.split('/')
-    // let fileName = keySplit[keySplit.length - 1]
-    // if (!/LOD/.test(fileName)) {
-    //   let fileNameSplit = fileName.split('.')
-    //   fileNameSplit.splice(1, 0, `LOD`)
-    //   fileName = fileNameSplit.join('.')
-    // }
-    // keySplit[keySplit.length - 1] = fileName
-    // const useKey = keySplit.join('/')
-    const useKey = key
+  for (let i = 0; i < files.length; i++) {
+    const file = files[i]
+    const useKey = key + '/' + file.originalname
     variants.push({
       url: getCachedURL(useKey, provider.cacheDomain),
-      metadata: args.stats
+      metadata: { size: file.size }
     })
     if (i === 0) {
       body.url = variants[0].url
     }
-    promises.push(uploadLOD(file, mimeType, useKey, storageProviderName))
+    promises.push(uploadVariant(files[i].buffer, mimeType, useKey, storageProviderName))
   }
   await Promise.all(promises)
+
   if (existingAsset) {
     await app.service('static-resource').patch(existingAsset.id, body, { isInternal: true })
 
-    const variantEntries = (await Promise.all(
+    await Promise.all(
       variants.map((variant, i) =>
         app.service('static-resource-variant').create(
           {
@@ -214,16 +196,16 @@ export const addGenericAssetToS3AndStaticResources = async (
           { isInternal: true }
         )
       )
-    )) as StaticResourceVariantInterface[]
-    existingAsset.variants.push(...variantEntries)
-    return existingAsset
+    )
+
+    return app.service('static-resource').get(existingAsset.id)
   } else {
     if (args.userId) body.userId = args.userId
     const staticResource = (await app
       .service('static-resource')
       .create(body, { isInternal: true })) as StaticResourceInterface
 
-    const variantEntries = (await Promise.all(
+    await Promise.all(
       variants.map((variant, i) =>
         app.service('static-resource-variant').create(
           {
@@ -233,10 +215,9 @@ export const addGenericAssetToS3AndStaticResources = async (
           { isInternal: true }
         )
       )
-    )) as StaticResourceVariantInterface[]
+    )
 
-    staticResource.variants = variantEntries
-    return staticResource
+    return app.service('static-resource').get(staticResource.id)
   }
 }
 
@@ -244,7 +225,7 @@ export default (app: Application): void => {
   app.use(
     'upload-asset',
     {
-      create: uploadAsset(app)
+      create: uploadAssets(app)
     },
     {
       koa: {
