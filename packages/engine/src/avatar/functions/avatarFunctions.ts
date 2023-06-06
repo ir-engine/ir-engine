@@ -226,9 +226,9 @@ export const createIKAnimator = async (entity: Entity) => {
   const rigComponent = getComponent(entity, AvatarRigComponent)
   const animations = await getAnimations()
 
-  const bindPose = animations[0]
-  const idle = animations[2]
-  const walkForward = animations[1]
+  const bindPose = animations[1]
+  const idle = animations[0]
+  const walkForward = animations[2]
 
   //Using set component here allows us to react to animations
   setComponent(entity, AnimationComponent, {
@@ -246,7 +246,7 @@ export const createIKAnimator = async (entity: Entity) => {
 export const getAnimations = async () => {
   const manager = getMutableState(AnimationManager)
   if (!manager.targetsAnimation.value) {
-    const asset = await AssetLoader.loadAsync('/default_assets/test_ik_targets.glb')
+    const asset = await AssetLoader.loadAsync('/default_assets/vrm_mocap_targets.glb')
     const glb = asset as GLTF
     manager.targetsAnimation.set(glb.animations)
   }

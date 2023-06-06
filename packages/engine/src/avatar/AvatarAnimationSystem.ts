@@ -14,6 +14,7 @@ import {
   SphereGeometry,
   Vector3
 } from 'three'
+import { lerp } from 'three/src/math/MathUtils'
 import { object } from 'ts-matches'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
@@ -21,7 +22,7 @@ import { insertionSort } from '@etherealengine/common/src/utils/insertionSort'
 import { defineActionQueue, defineState, dispatchAction, getState, startReactor } from '@etherealengine/hyperflux'
 
 import { Axis } from '../common/constants/Axis3D'
-import { V_000 } from '../common/constants/MathConstants'
+import { V_000, V_010 } from '../common/constants/MathConstants'
 import { Object3DUtils } from '../common/functions/Object3DUtils'
 import { proxifyQuaternion } from '../common/proxies/createThreejsProxy'
 import { Engine } from '../ecs/classes/Engine'
@@ -124,9 +125,14 @@ const _quat = new Quaternion()
 
 const _vector3 = new Vector3()
 const _position = new Vector3()
+const _hipVector = new Vector3()
+const leftLegVector = new Vector3()
+const rightLegVector = new Vector3()
 
 const rightHandRot = new Quaternion()
 const leftHandRot = new Quaternion()
+
+const midAxisRestriction = new Euler(-Math.PI / 4, undefined, undefined) // Restrict rotation around the X-axis to 45 degrees
 
 const worldSpaceTargets = {
   rightHandTarget: new Vector3(),
@@ -134,6 +140,7 @@ const worldSpaceTargets = {
   rightFootTarget: new Vector3(),
   leftFootTarget: new Vector3(),
   headTarget: new Vector3(),
+  hipsTarget: new Vector3(),
 
   rightElbowHint: new Vector3(),
   leftElbowHint: new Vector3(),
@@ -145,7 +152,7 @@ const worldSpaceTargets = {
 //debug visualizers
 const visualizers = [] as TransformComponentType[]
 if (getState(AvatarAnimationState).visualizeTargets) {
-  for (let i = 0; i < 10; i++) {
+  for (let i = 0; i < 11; i++) {
     const e = createEntity()
     setComponent(e, VisibleComponent, true)
     addObjectToGroup(e, new Mesh(new SphereGeometry(0.05)))
@@ -306,7 +313,7 @@ const execute = () => {
     for (const [key, value] of Object.entries(rigComponent.ikTargetsMap)) {
       worldSpaceTargets[key]
         .copy(value.position)
-        .sub(rigComponent.ikOffsetsMap.get(key)!)
+        .add(rigComponent.ikOffsetsMap.get(key)!)
         .applyMatrix4(root.matrixWorld)
 
       if (visualizeTargets) {
@@ -315,15 +322,16 @@ const execute = () => {
 
       i++
     }
+    //replace references to this with hips calculation below
     const hipsWorldSpace = new Vector3()
     rig.hips.node.getWorldPosition(hipsWorldSpace)
 
-    //to do: get leg length of avatar in world space
-    const legLength = rigComponent.upperLegLength + rigComponent.lowerLegLength * 2
-    //to do: get arm length of avatar in world space
-    const armLength = 0.75
-    //to do: get height of avatar in world space
-    const height = rigComponent.torsoLength
+    const leftLegLength =
+      leftLegVector.subVectors(worldSpaceTargets.hipsTarget, worldSpaceTargets.leftFootTarget).length() +
+      rigComponent.footHeight
+    const rightLegLength =
+      rightLegVector.subVectors(worldSpaceTargets.hipsTarget, worldSpaceTargets.rightFootTarget).length() +
+      rigComponent.footHeight
 
     //get rotations from ik targets and convert to world space relative to hips
     const rot = new Quaternion()
@@ -332,7 +340,15 @@ const execute = () => {
     rightHandRot.multiplyQuaternions(rot, rigComponent.ikTargetsMap.rightHandTarget.quaternion)
     leftHandRot.multiplyQuaternions(rot, rigComponent.ikTargetsMap.leftHandTarget.quaternion)
 
-    const midAxisRestriction = new Euler(-Math.PI / 4, undefined, undefined) // Restrict rotation around the X-axis to 45 degrees
+    //calculate hips to head
+    rig.hips.node.position.copy(rigComponent.ikTargetsMap.hipsTarget.position)
+    _hipVector.subVectors(rigComponent.ikTargetsMap.headTarget.position, rigComponent.ikTargetsMap.hipsTarget.position)
+    rig.hips.node.quaternion
+      .setFromUnitVectors(V_010, _hipVector)
+      .multiply(new Quaternion().setFromEuler(new Euler(0, Math.PI)))
+
+    //rig.hips.node.position.setY(rigComponent.ikTargetsMap.headTarget.position.y-rigComponent.torsoLength)
+    //const vectorToHips = new Vector3().copy()
 
     //Setting x axis of the mid bone in the solve is necessary to prevent incorrect twisting.
     //This is done for every solve.
@@ -367,17 +383,18 @@ const execute = () => {
       type: SceneQueryType.Closest,
       origin: new Vector3(worldSpaceTargets.rightFootTarget.x, hipsWorldSpace.y, worldSpaceTargets.rightFootTarget.z),
       direction: new Vector3(0, -1, 0),
-      maxDistance: legLength,
+      maxDistance: rightLegLength,
       groups: interactionGroups
     } as RaycastArgs
 
     const rightCastedRay = Physics.castRay(Engine.instance.physicsWorld, footRaycastArgs)
-    if (rightCastedRay[0]) worldSpaceTargets.rightFootTarget.copy(rightCastedRay[0].position as Vector3)
+    //if (rightCastedRay[0]) worldSpaceTargets.rightFootTarget.copy(rightCastedRay[0].position as Vector3)
+
     solveTwoBoneIK(
       rig.rightUpperLeg.node,
       rig.rightLowerLeg.node,
       rig.rightFoot.node,
-      worldSpaceTargets.rightFootTarget.setY(worldSpaceTargets.rightFootTarget.y + 0.1),
+      worldSpaceTargets.rightFootTarget.setY(worldSpaceTargets.rightFootTarget.y + rigComponent.footHeight),
       rot,
       null,
       worldSpaceTargets.rightKneeHint,
@@ -387,34 +404,20 @@ const execute = () => {
 
     //reuse raycast args object, cast ray for left foot
     footRaycastArgs.origin.set(worldSpaceTargets.leftFootTarget.x, hipsWorldSpace.y, worldSpaceTargets.leftFootTarget.z)
+    footRaycastArgs.maxDistance = leftLegLength
     const leftCastedRay = Physics.castRay(Engine.instance.physicsWorld, footRaycastArgs)
-    if (leftCastedRay[0]) worldSpaceTargets.leftFootTarget.copy(leftCastedRay[0].position as Vector3)
+    //if (leftCastedRay[0]) worldSpaceTargets.leftFootTarget.copy(leftCastedRay[0].position as Vector3)
     solveTwoBoneIK(
       rig.leftUpperLeg.node,
       rig.leftLowerLeg.node,
       rig.leftFoot.node,
-      worldSpaceTargets.leftFootTarget.setY(worldSpaceTargets.leftFootTarget.y + 0.1),
+      worldSpaceTargets.leftFootTarget.setY(worldSpaceTargets.leftFootTarget.y + rigComponent.footHeight),
       rot,
       null,
       worldSpaceTargets.leftKneeHint,
       null,
       midAxisRestriction
     )
-
-    //Head
-    /*
-    solveTwoBoneIK(
-      rig.hips.node,
-      rig.spine.node,
-      rig.head.node,
-      worldSpaceTargets.headTarget,
-      rot,
-      null,
-      null,
-      null,
-      midAxisRestriction
-    )
-    */
   }
 
   /**

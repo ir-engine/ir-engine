@@ -49,8 +49,8 @@ export function solveTwoBoneIK(
   rootAxisRestriction: Euler | null = null,
   midAxisRestriction: Euler | null = null,
   tipAxisRestriction: Euler | null = null,
-  targetPosWeight: number = 0,
-  targetRotWeight: number = 0,
+  targetPosWeight: number = 1,
+  targetRotWeight: number = 1,
   hintWeight: number = 1
 ) {
   if (rootAxisRestriction) {
@@ -72,6 +72,8 @@ export function solveTwoBoneIK(
   aPosition.setFromMatrixPosition(root.matrixWorld)
   bPosition.setFromMatrixPosition(mid.matrixWorld)
   cPosition.setFromMatrixPosition(tip.matrixWorld)
+
+  targetPos.lerp(cPosition, 1 - targetPosWeight)
 
   ab.subVectors(bPosition, aPosition)
   bc.subVectors(cPosition, bPosition)

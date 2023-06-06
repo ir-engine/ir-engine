@@ -72,6 +72,7 @@ export interface ikTargets {
   rightFootTarget: Object3D
   leftFootTarget: Object3D
   headTarget: Object3D
+  hipsTarget: Object3D
 
   rightElbowHint: Object3D
   leftElbowHint: Object3D
@@ -117,6 +118,7 @@ export const AvatarRigComponent = defineComponent({
         rightFootTarget: new Object3D(),
         leftFootTarget: new Object3D(),
         headTarget: new Object3D(),
+        hipsTarget: new Object3D(),
 
         rightElbowHint: new Object3D(),
         leftElbowHint: new Object3D(),
@@ -199,19 +201,15 @@ export const AvatarRigComponent = defineComponent({
         const bonePos = new Matrix4()
         switch (key) {
           case 'rightHandTarget':
-            rigComponent.bindRig.rightHand.value.node.updateMatrixWorld()
             bonePos.copy(rigComponent.bindRig.rightHand.value.node.matrixWorld)
             break
           case 'leftHandTarget':
-            rigComponent.bindRig.leftHand.value.node.updateMatrixWorld()
             bonePos.copy(rigComponent.bindRig.leftHand.value.node.matrixWorld)
             break
           case 'rightFootTarget':
-            rigComponent.bindRig.rightFoot.value.node.updateMatrixWorld()
             bonePos.copy(rigComponent.bindRig.rightFoot.value.node.matrixWorld)
             break
           case 'leftFootTarget':
-            rigComponent.bindRig.leftFoot.value.node.updateMatrixWorld()
             bonePos.copy(rigComponent.bindRig.leftFoot.value.node.matrixWorld)
             break
           case 'rightElbowHint':
@@ -229,6 +227,8 @@ export const AvatarRigComponent = defineComponent({
           case 'headHint':
           case 'headTarget':
             bonePos.copy(rigComponent.bindRig.head.value.node.matrixWorld)
+          case 'hipsTarget':
+            bonePos.copy(rigComponent.bindRig.hips.value.node.matrixWorld)
         }
         const pos = new Vector3()
         bonePos.decompose(pos, new Quaternion(), new Vector3())
