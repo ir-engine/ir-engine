@@ -7,6 +7,7 @@ module.exports = {
     'ts-node/register'
   ],
   extension: [
-    'ts'
+    'ts',
+    'tsx'
   ]
 };

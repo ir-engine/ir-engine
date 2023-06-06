@@ -6,7 +6,7 @@ import { createEngine } from '@etherealengine/engine/src/initializeEngine'
 // import { getMutableState } from '@etherealengine/hyperflux
 import { Downgraded } from '@etherealengine/hyperflux/functions/StateFunctions'
 
-import { AuthAction, AuthState, avatarFetchedReceptor } from '../../src/user/services/AuthService'
+// import { AuthAction, AuthState, avatarFetchedReceptor } from '../../src/user/services/AuthService'
 
 // ;(globalThis as any).document = {}
 // ;(globalThis as any).navigator = {}

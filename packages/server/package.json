@@ -1,5 +1,6 @@
 {
   "name": "@etherealengine/server",
+  "type": "module",
   "description": "API Server for Ethereal Engine",
   "version": "1.3.0",
   "private": true,
