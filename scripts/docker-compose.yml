@@ -45,6 +45,7 @@ services:
       - "9090:9090"
     volumes:
       - minio_storage:/data
+      - ../certs/minio:/root/.minio
     environment:
       MINIO_ROOT_USER: server
       MINIO_ROOT_PASSWORD: password
