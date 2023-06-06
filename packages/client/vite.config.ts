@@ -306,7 +306,8 @@ export default defineConfig(async () => {
         external: ['dotenv-flow'],
         output: {
           dir: 'dist',
-          format: 'commonjs',
+          exporimentalDynamicImport: true,
+          format: 'module', // 'commonjs' | 'esm' | 'module' | 'systemjs'
           // ignore files under 1mb
           experimentalMinChunkSize: 1000000,
           manualChunks: (id) => {
