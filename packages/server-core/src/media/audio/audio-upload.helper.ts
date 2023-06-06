@@ -8,12 +8,14 @@ import { Op } from 'sequelize'
 import { Readable } from 'stream'
 
 import { AudioInterface } from '@etherealengine/common/src/dbmodels/Audio'
+import { UploadFile } from '@etherealengine/common/src/interfaces/UploadAssetInterface'
+import { CommonKnownContentTypes } from '@etherealengine/common/src/utils/CommonKnownContentTypes'
 
 import { Application } from '../../../declarations'
 import config from '../../appconfig'
 import logger from '../../ServerLogger'
-import { uploadMediaStaticResource } from '../static-resource/static-resource-helper'
-import { UploadAssetArgs } from '../upload-asset/upload-asset.service'
+import { getResourceFiles, uploadMediaStaticResource } from '../static-resource/static-resource-helper'
+import { addGenericAssetToS3AndStaticResources, UploadAssetArgs } from '../upload-asset/upload-asset.service'
 
 export const getMP3Duration = async (body): Promise<number> => {
   return new Promise((resolve, reject) =>
@@ -36,10 +38,14 @@ export const audioUpload = async (app: Application, data: UploadAssetArgs) => {
         fileHead = await fs.statSync(data.url)
         contentLength = fileHead.size.toString()
       }
-      if (!data.name) data.name = data.url.split('/').pop().split('.')[0]
+      if (!data.name) data.name = data.url.split('/').pop()!.split('.')[0]
       extension = data.url.split('.').pop()
-    } else if (data.file) {
-      switch (data.file.mimetype) {
+    } else if (data.files) {
+      const mainFile = data.files[0]!
+      switch (mainFile.mimetype) {
+        case 'application/octet-stream':
+          extension = mainFile.originalname.split('.').pop()
+          break
         case 'audio/mp3':
         case 'audio/mpeg':
           extension = 'mp3'
@@ -48,10 +54,12 @@ export const audioUpload = async (app: Application, data: UploadAssetArgs) => {
           extension = 'ogg'
           break
       }
-      contentLength = data.file.size.toString()
+      contentLength = mainFile.size.toString()
+      if (!data.name) data.name = mainFile.originalname
     }
-    const hash = createHash('sha3-256').update(contentLength).update(data.name).digest('hex')
-    let existingAudio, thumbnail
+
+    const hash = createHash('sha3-256').update(contentLength).update(data.name!).digest('hex')
+    let existingAudio
     let existingResource = await app.service('static-resource').Model.findOne({
       where: {
         hash
@@ -100,39 +108,25 @@ export const audioUpload = async (app: Application, data: UploadAssetArgs) => {
 
     if (!config.server.cloneProjectStaticResources || (existingResource && existingAudio)) return existingAudio
     else {
-      let file, body
-      if (data.url) {
-        if (/http(s)?:\/\//.test(data.url)) {
-          file = await fetch(data.url)
-          body = Buffer.from(await file.arrayBuffer())
-        } else body = fs.readFileSync(data.url)
-      } else if (data.file) {
-        body = data.file.buffer
-      }
-      const stats = (await getAudioStats(body)) as any
+      const files = await getResourceFiles(data)
+      const stats = (await getAudioStats(files[0].buffer)) as any
       stats.size = contentLength
       const newAudio = (await app.service('audio').create({
         duration: stats.duration * 1000
       })) as AudioInterface
+      const key = `static-resources/audio/${newAudio.id}`
       if (!existingResource)
-        [existingResource, thumbnail] = await uploadMediaStaticResource(
-          app,
-          {
-            media: body,
-            hash,
-            fileName: data.name,
-            mediaId: newAudio.id,
-            mediaFileType: extension,
-            stats
-          },
-          'audio'
-        )
+        existingResource = await addGenericAssetToS3AndStaticResources(app, files, extension, {
+          hash: hash,
+          key: key,
+          staticResourceType: 'audio',
+          stats
+        })
       const update = {} as any
       if (existingResource?.id) {
         const staticResourceColumn = `${extension}StaticResourceId`
         update[staticResourceColumn] = existingResource.id
       }
-      if (thumbnail?.id) update.thumbnail = thumbnail.id
       try {
         await app.service('audio').patch(newAudio.id, update)
       } catch (err) {

@@ -3,11 +3,16 @@ import fs from 'fs'
 import fetch from 'node-fetch'
 import { Op } from 'sequelize'
 
+import { UploadFile } from '@etherealengine/common/src/interfaces/UploadAssetInterface'
+import { CommonKnownContentTypes } from '@etherealengine/common/src/utils/CommonKnownContentTypes'
+
 import { Application } from '../../../declarations'
 import config from '../../appconfig'
 import logger from '../../ServerLogger'
 import { addGenericAssetToS3AndStaticResources } from '../upload-asset/upload-asset.service'
 import { videoUpload } from '../video/video-upload.helper'
+
+const uvolMimetype = 'application/octet-stream'
 
 const handleManifest = async (app: Application, url: string, name = 'untitled', volumetricId: string) => {
   const drcsFileHead = await fetch(url, { method: 'HEAD' })
@@ -45,13 +50,30 @@ const handleManifest = async (app: Application, url: string, name = 'untitled', 
   if (!config.server.cloneProjectStaticResources || (existingResource && existingData)) return existingData
   else {
     if (!existingResource) {
-      let file, body
+      let files: UploadFile[]
       if (/http(s)?:\/\//.test(url)) {
-        file = await fetch(url)
-        body = Buffer.from(await file.arrayBuffer())
-      } else body = fs.readFileSync(url)
+        const file = await fetch(url)
+        files = [
+          {
+            buffer: Buffer.from(await file.arrayBuffer()),
+            originalname: name,
+            mimetype: uvolMimetype,
+            size: parseInt(file.headers.get('content-length') || file.headers.get('Content-Length') || '0')
+          }
+        ]
+      } else {
+        const file = fs.readFileSync(url)
+        return [
+          {
+            buffer: file,
+            originalname: name,
+            mimetype: uvolMimetype,
+            size: file.length
+          }
+        ]
+      }
       const key = `static-resources/volumetric/${volumetricId}/${name}`
-      existingResource = await addGenericAssetToS3AndStaticResources(app, body, 'application/octet-stream', {
+      existingResource = await addGenericAssetToS3AndStaticResources(app, files, uvolMimetype, {
         hash: hash,
         key: `${key}.manifest`,
         staticResourceType: 'data'

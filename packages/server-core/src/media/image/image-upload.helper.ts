@@ -5,11 +5,14 @@ import probe from 'probe-image-size'
 import { Op } from 'sequelize'
 import { Readable } from 'stream'
 
+import { UploadFile } from '@etherealengine/common/src/interfaces/UploadAssetInterface'
+import { CommonKnownContentTypes } from '@etherealengine/common/src/utils/CommonKnownContentTypes'
+
 import { Application } from '../../../declarations'
 import config from '../../appconfig'
 import logger from '../../ServerLogger'
-import { uploadMediaStaticResource } from '../static-resource/static-resource-helper'
-import { UploadAssetArgs } from '../upload-asset/upload-asset.service'
+import { getResourceFiles, uploadMediaStaticResource } from '../static-resource/static-resource-helper'
+import { addGenericAssetToS3AndStaticResources, UploadAssetArgs } from '../upload-asset/upload-asset.service'
 
 export const imageUpload = async (app: Application, data: UploadAssetArgs) => {
   try {
@@ -27,7 +30,6 @@ export const imageUpload = async (app: Application, data: UploadAssetArgs) => {
       extension = data.url.split('.').pop()
     } else if (data.files) {
       const mainFile = data.files[0]!
-      console.log(mainFile)
       switch (mainFile.mimetype) {
         case 'image/png':
           extension = 'png'
@@ -44,9 +46,10 @@ export const imageUpload = async (app: Application, data: UploadAssetArgs) => {
           break
       }
       contentLength = mainFile.size.toString()
+      if (!data.name) data.name = mainFile.originalname
     }
-    if (/.LOD0/.test(data.name)) data.name = data.name.replace('.LOD0', '')
-    const hash = createHash('sha3-256').update(contentLength).update(data.name).digest('hex')
+
+    const hash = createHash('sha3-256').update(contentLength).update(data.name!).digest('hex')
     let existingImage, thumbnail
     let existingResource = await app.service('static-resource').Model.findOne({
       where: {
@@ -84,39 +87,27 @@ export const imageUpload = async (app: Application, data: UploadAssetArgs) => {
     if (!config.server.cloneProjectStaticResources || (existingResource && existingImage))
       return app.service('image').get(existingImage.id)
     else {
-      let file, body
-      if (data.url) {
-        if (/http(s)?:\/\//.test(data.url)) {
-          file = await fetch(data.url)
-          body = Buffer.from(await file.arrayBuffer())
-        } else body = fs.readFileSync(data.url)
-      } else if (data.file) {
-        body = data.file.buffer
-      }
+      const files = await getResourceFiles(data)
       const stream = new Readable()
-      stream.push(body)
+      stream.push(files[0].buffer)
       stream.push(null)
       const imageDimensions = await probe(stream)
       const newImage = await app.service('image').create({
         width: imageDimensions.width,
         height: imageDimensions.height
       })
-      if (!existingResource)
-        [existingResource, thumbnail] = await uploadMediaStaticResource(
-          app,
-          {
-            media: body,
-            hash,
-            fileName: data.name,
-            mediaId: newImage.id,
-            mediaFileType: extension,
-            stats: {
-              ...imageDimensions,
-              size: contentLength
-            }
-          },
-          'image'
-        )
+      if (!existingResource) {
+        const key = `static-resources/image/${newImage.id}`
+        existingResource = await addGenericAssetToS3AndStaticResources(app, files, extension, {
+          hash: hash,
+          key: key,
+          staticResourceType: 'image',
+          stats: {
+            ...imageDimensions,
+            size: contentLength
+          }
+        })
+      }
       const update = {} as any
       if (newImage?.id) {
         if (extension === 'jpg') extension = 'jpeg'

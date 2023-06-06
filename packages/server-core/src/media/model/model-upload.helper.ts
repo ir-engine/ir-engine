@@ -8,6 +8,7 @@ import { CommonKnownContentTypes } from '@etherealengine/common/src/utils/Common
 
 import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
+import { getResourceFiles } from '../static-resource/static-resource-helper'
 import { addGenericAssetToS3AndStaticResources, UploadAssetArgs } from '../upload-asset/upload-asset.service'
 
 export const modelUpload = async (app: Application, data: UploadAssetArgs) => {
@@ -26,7 +27,6 @@ export const modelUpload = async (app: Application, data: UploadAssetArgs) => {
       extension = data.url.split('.').pop()
     } else if (data.files) {
       const mainFile = data.files[0]!
-      console.log(mainFile)
       switch (mainFile.mimetype) {
         case 'application/octet-stream':
           extension = mainFile.originalname.split('.').pop()
@@ -44,12 +44,11 @@ export const modelUpload = async (app: Application, data: UploadAssetArgs) => {
           extension = 'fbx'
           break
       }
-      console.log(extension)
       contentLength = mainFile.size.toString()
+      if (!data.name) data.name = mainFile.originalname
     }
-    // if (/.LOD0/.test(data.name)) data.name = data.name.replace('.LOD0', '')
-    if (!data.name) data.name = data.files![0].originalname
-    const hash = createHash('sha3-256').update(contentLength).update(data.name).digest('hex')
+
+    const hash = createHash('sha3-256').update(contentLength).update(data.name!).digest('hex')
     let existingModel
     let existingResource = await app.service('static-resource').Model.findOne({
       where: {
@@ -86,34 +85,7 @@ export const modelUpload = async (app: Application, data: UploadAssetArgs) => {
       })
     if (existingResource && existingModel) return app.service('model').get(existingModel.id)
     else {
-      let files: UploadFile[]
-      if (data.url) {
-        if (/http(s)?:\/\//.test(data.url)) {
-          const file = await fetch(data.url)
-          files = [
-            {
-              buffer: Buffer.from(await file.arrayBuffer()),
-              originalname: data.name,
-              mimetype:
-                file.headers.get('content-type') || file.headers.get('Content-Type') || 'application/octet-stream',
-              size: parseInt(file.headers.get('content-length') || file.headers.get('Content-Length') || '0')
-            }
-          ]
-        } else {
-          const file = fs.readFileSync(data.url)
-          const mimetype = CommonKnownContentTypes[data.url.split('.').pop()!]
-          files = [
-            {
-              buffer: file,
-              originalname: data.name,
-              mimetype: mimetype,
-              size: file.length
-            }
-          ]
-        }
-      } else {
-        files = data.files!
-      }
+      const files = await getResourceFiles(data)
       const newModel = await app.service('model').create({})
       if (!existingResource) {
         const key = `static-resources/model/${newModel.id}`

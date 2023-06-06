@@ -1,9 +1,11 @@
+import fs from 'fs'
+
 import { CommonKnownContentTypes } from '@etherealengine/common/src/utils/CommonKnownContentTypes'
 
 import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
 import { UserParams } from '../../user/user/user.class'
-import { addGenericAssetToS3AndStaticResources } from '../upload-asset/upload-asset.service'
+import { addGenericAssetToS3AndStaticResources, UploadAssetArgs } from '../upload-asset/upload-asset.service'
 
 export type MediaUploadArguments = {
   media: Buffer
@@ -74,4 +76,33 @@ export const uploadMediaStaticResource = async (
   const [mediaResource, thumbnailResource] = await Promise.all([mediaPromise, thumbnailPromise])
 
   return [mediaResource, thumbnailResource]
+}
+
+export const getResourceFiles = async (data: UploadAssetArgs) => {
+  if (data.url) {
+    if (/http(s)?:\/\//.test(data.url)) {
+      const file = await fetch(data.url)
+      return [
+        {
+          buffer: Buffer.from(await file.arrayBuffer()),
+          originalname: data.name!,
+          mimetype: file.headers.get('content-type') || file.headers.get('Content-Type') || 'application/octet-stream',
+          size: parseInt(file.headers.get('content-length') || file.headers.get('Content-Length') || '0')
+        }
+      ]
+    } else {
+      const file = fs.readFileSync(data.url)
+      const mimetype = CommonKnownContentTypes[data.url.split('.').pop()!]
+      return [
+        {
+          buffer: file,
+          originalname: data.name!,
+          mimetype: mimetype,
+          size: file.length
+        }
+      ]
+    }
+  } else {
+    return data.files!
+  }
 }
