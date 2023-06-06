@@ -5,6 +5,7 @@ import { createHash } from 'crypto'
 import { Op } from 'sequelize'
 import { MathUtils } from 'three'
 
+import { StaticResourceVariantInterface } from '@etherealengine/common/src/dbmodels/StaticResourceVariant'
 import { StaticResourceInterface } from '@etherealengine/common/src/interfaces/StaticResourceInterface'
 import {
   AdminAssetUploadArgumentsType,
@@ -43,6 +44,7 @@ export interface ResourcePatchCreateInterface {
   key: string
   mimeType: string
   staticResourceType: string
+  url?: string
   project?: string
   userId?: string
 }
@@ -151,6 +153,7 @@ export const addGenericAssetToS3AndStaticResources = async (
   args: AdminAssetUploadArgumentsType,
   storageProviderName?: string
 ): Promise<StaticResourceInterface> => {
+  console.log('addGenericAssetToS3AndStaticResources', args)
   const provider = getStorageProvider(storageProviderName)
   // make userId optional and safe for feathers create
   const key = processFileName(args.key)
@@ -158,9 +161,10 @@ export const addGenericAssetToS3AndStaticResources = async (
     [Op.or]: [{ key: key }, { id: args.id ?? '' }]
   } as any
   if (args.project) whereArgs.project = args.project
-  const existingAsset = await app.service('static-resource').Model.findOne({
+  const existingAsset = (await app.service('static-resource').Model.findOne({
     where: whereArgs
-  })
+  })) as StaticResourceInterface
+  console.log({ existingAsset })
 
   let promises: Promise<any>[] = []
   const assetURL = getCachedURL(key, provider.cacheDomain)
@@ -173,32 +177,66 @@ export const addGenericAssetToS3AndStaticResources = async (
     staticResourceType: args.staticResourceType,
     project: args.project
   } as ResourcePatchCreateInterface
+  const variants = [] as { url: string; metadata: Record<string, string> }[]
   // upload asset to storage provider
   for (let i = 0; i < args.numLODs; i++) {
+    /** @todo - do we want to embed variant info in the file name? */
+    // let keySplit = key.split('/')
+    // let fileName = keySplit[keySplit.length - 1]
+    // if (!/LOD/.test(fileName)) {
+    //   let fileNameSplit = fileName.split('.')
+    //   fileNameSplit.splice(1, 0, `LOD`)
+    //   fileName = fileNameSplit.join('.')
+    // }
+    // keySplit[keySplit.length - 1] = fileName
+    // const useKey = keySplit.join('/')
+    const useKey = key
+    variants.push({
+      url: getCachedURL(useKey, provider.cacheDomain),
+      metadata: args.stats
+    })
     if (i === 0) {
-      let keySplit = key.split('/')
-      let fileName = keySplit[keySplit.length - 1]
-      if (!/LOD0/.test(fileName)) {
-        let fileNameSplit = fileName.split('.')
-        fileNameSplit.splice(1, 0, 'LOD0')
-        fileName = fileNameSplit.join('.')
-      }
-      keySplit[keySplit.length - 1] = fileName
-      const useKey = keySplit.join('/')
-      body[`LOD${i}_url`] = getCachedURL(useKey, provider.cacheDomain)
-      body[`LOD${i}_metadata`] = args.stats
-      promises.push(uploadLOD(file, mimeType, useKey, storageProviderName))
+      body.url = variants[0].url
     }
-    // TODO: Add logic for scaling root file to additional LODs
+    promises.push(uploadLOD(file, mimeType, useKey, storageProviderName))
   }
   await Promise.all(promises)
-  if (existingAsset)
-    return app
-      .service('static-resource')
-      .patch(existingAsset.id, body, { isInternal: true }) as unknown as StaticResourceInterface
-  else {
+  if (existingAsset) {
+    await app.service('static-resource').patch(existingAsset.id, body, { isInternal: true })
+
+    const variantEntries = (await Promise.all(
+      variants.map((variant, i) =>
+        app.service('static-resource-variant').create(
+          {
+            ...variant,
+            staticResourceId: existingAsset.id
+          },
+          { isInternal: true }
+        )
+      )
+    )) as StaticResourceVariantInterface[]
+    existingAsset.variants.push(...variantEntries)
+    return existingAsset
+  } else {
     if (args.userId) body.userId = args.userId
-    return app.service('static-resource').create(body, { isInternal: true }) as unknown as StaticResourceInterface
+    const staticResource = (await app
+      .service('static-resource')
+      .create(body, { isInternal: true })) as StaticResourceInterface
+
+    const variantEntries = (await Promise.all(
+      variants.map((variant, i) =>
+        app.service('static-resource-variant').create(
+          {
+            ...variant,
+            staticResourceId: staticResource.id
+          },
+          { isInternal: true }
+        )
+      )
+    )) as StaticResourceVariantInterface[]
+
+    staticResource.variants = variantEntries
+    return staticResource
   }
 }
 

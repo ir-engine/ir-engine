@@ -91,7 +91,7 @@ const ResourceDrawerContent = ({ mode, selectedResource, onClose }: Props) => {
         mimeType: selectedResource.mimeType || '',
         staticResourceType: selectedResource.staticResourceType || '',
         source: 'url',
-        resourceUrl: selectedResource.LOD0_url || '',
+        resourceUrl: selectedResource.url || '',
         resourceFile: undefined
       })
     }
@@ -236,7 +236,7 @@ const ResourceDrawerContent = ({ mode, selectedResource, onClose }: Props) => {
       const resourceData = await fetch(state.resourceUrl.value)
       resourceBlob = await resourceData.blob()
 
-      if (selectedResource && selectedResource.LOD0_url === state.resourceUrl.value) {
+      if (selectedResource && selectedResource.url === state.resourceUrl.value) {
         resourceBlob = new Blob([resourceBlob], { type: selectedResource.mimeType })
       }
     }

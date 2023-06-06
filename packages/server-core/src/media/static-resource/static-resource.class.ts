@@ -54,6 +54,12 @@ export class StaticResource extends Service<StaticResourceInterface> {
           [Op.or]: resourceTypes
         }
       },
+      include: [
+        {
+          model: this.app.service('static-resource-variant').Model,
+          as: 'variants'
+        }
+      ],
       raw: true,
       nest: true
     })

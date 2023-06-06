@@ -157,10 +157,10 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
       <InputGroup name="Model Url" label={t('editor:properties.model.lbl-modelurl')}>
         <ModelInput
           value={
-            modelComponent.resource?.value?.glbStaticResource?.LOD0_url ||
-            modelComponent.resource?.value?.gltfStaticResource?.LOD0_url ||
-            modelComponent.resource?.value?.fbxStaticResource?.LOD0_url ||
-            modelComponent.resource?.value?.usdzStaticResource?.LOD0_url ||
+            modelComponent.resource?.value?.glbStaticResource?.url ||
+            modelComponent.resource?.value?.gltfStaticResource?.url ||
+            modelComponent.resource?.value?.fbxStaticResource?.url ||
+            modelComponent.resource?.value?.usdzStaticResource?.url ||
             modelComponent.src?.value
           }
           onChange={updateResources}

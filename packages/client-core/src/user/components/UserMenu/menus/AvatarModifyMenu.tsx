@@ -73,8 +73,8 @@ const AvatarModifyMenu = ({ selectedAvatar }: Props) => {
       selectedAvatar.name !== state.name ||
       state.avatarFile ||
       state.thumbnailFile ||
-      selectedAvatar.modelResource?.LOD0_url !== state.avatarUrl ||
-      selectedAvatar.thumbnailResource?.LOD0_url !== state.thumbnailUrl
+      selectedAvatar.modelResource?.url !== state.avatarUrl ||
+      selectedAvatar.thumbnailResource?.url !== state.thumbnailUrl
     )
   }
 
@@ -93,8 +93,8 @@ const AvatarModifyMenu = ({ selectedAvatar }: Props) => {
       setState({
         ...defaultState,
         name: selectedAvatar.name || '',
-        avatarUrl: selectedAvatar.modelResource?.LOD0_url || selectedAvatar.modelResource?.url || '',
-        thumbnailUrl: selectedAvatar.thumbnailResource?.LOD0_url || selectedAvatar.thumbnailResource?.url || '',
+        avatarUrl: selectedAvatar.modelResource?.url || '',
+        thumbnailUrl: selectedAvatar.thumbnailResource?.url || '',
         avatarFile: undefined,
         thumbnailFile: undefined
       })
@@ -260,8 +260,8 @@ const AvatarModifyMenu = ({ selectedAvatar }: Props) => {
         await AvatarService.patchAvatar(
           selectedAvatar,
           state.name,
-          selectedAvatar.modelResource?.LOD0_url !== state.avatarUrl ||
-            selectedAvatar.thumbnailResource?.LOD0_url !== state.thumbnailUrl,
+          selectedAvatar.modelResource?.url !== state.avatarUrl ||
+            selectedAvatar.thumbnailResource?.url !== state.thumbnailUrl,
           avatarBlob,
           thumbnailBlob
         )

@@ -1,7 +1,6 @@
 import { disallow, iff, isProvider } from 'feathers-hooks-common'
 
 import collectAnalytics from '@etherealengine/server-core/src/hooks/collect-analytics'
-import replaceThumbnailLink from '@etherealengine/server-core/src/hooks/replace-thumbnail-link'
 import attachOwnerIdInQuery from '@etherealengine/server-core/src/hooks/set-loggedin-user-in-query'
 
 import addAssociations from '../../hooks/add-associations'
@@ -15,7 +14,7 @@ export default {
     get: [disallow('external')],
     create: [authenticate(), verifyScope('admin', 'admin')],
     update: [authenticate(), verifyScope('admin', 'admin')],
-    patch: [authenticate(), verifyScope('admin', 'admin'), replaceThumbnailLink()],
+    patch: [authenticate(), verifyScope('admin', 'admin')],
     remove: [
       authenticate(),
       // iff(isProvider('external'), verifyScope('admin', 'admin') as any),

@@ -65,8 +65,8 @@ export const AvatarService = {
       await AvatarService.updateUserAvatarId(
         userId,
         newAvatar.id,
-        uploadResponse[0]?.LOD0_url || '',
-        uploadResponse[1]?.LOD0_url || ''
+        uploadResponse[0]?.url || '',
+        uploadResponse[1]?.url || ''
       )
     }
   },
@@ -132,8 +132,8 @@ export const AvatarService = {
       await AvatarService.updateUserAvatarId(
         userId,
         avatar.id,
-        avatar.modelResource?.LOD0_url || '',
-        avatar.thumbnailResource?.LOD0_url || ''
+        avatar.modelResource?.url || '',
+        avatar.thumbnailResource?.url || ''
       )
     }
   },
