@@ -248,7 +248,7 @@ export default defineConfig(async () => {
       exclude: ['@etherealengine/volumetric'],
       // include: ['@reactflow/core', '@reactflow/minimap', '@reactflow/controls', '@reactflow/background'],
       esbuildOptions: {
-        target: 'es2022'
+        target: 'esnext'
       }
     },
     plugins: [
@@ -296,7 +296,7 @@ export default defineConfig(async () => {
       }
     },
     build: {
-      target: 'es2022',
+      target: 'esnext',
       sourcemap: 'inline',
       minify: 'esbuild',
       dynamicImportVarsOptions: {
