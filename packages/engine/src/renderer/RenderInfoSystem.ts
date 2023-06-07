@@ -43,6 +43,8 @@ const execute = () => {
 
     info.reset()
   }
+
+  EngineRenderer.instance.renderer.info.autoReset = !state.visible
 }
 
 export const RenderInfoSystem = defineSystem({

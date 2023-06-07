@@ -359,5 +359,5 @@ export const WebGLRendererSystem = defineSystem({
   uuid: 'ee.engine.WebGLRendererSystem',
   execute,
   reactor,
-  subSystems: [RenderInfoSystem]
+  postSystems: [RenderInfoSystem]
 })
