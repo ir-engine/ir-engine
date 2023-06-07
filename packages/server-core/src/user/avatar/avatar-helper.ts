@@ -4,6 +4,7 @@ import path from 'path'
 import { CommonKnownContentTypes } from '@etherealengine/common/src/utils/CommonKnownContentTypes'
 
 import { Application } from '../../../declarations'
+import { getStorageProvider } from '../../media/storageprovider/storageprovider'
 import { addGenericAssetToS3AndStaticResources } from '../../media/upload-asset/upload-asset.service'
 import { getProjectPackageJson } from '../../projects/project/project-helper'
 import logger from '../../ServerLogger'
@@ -40,21 +41,11 @@ export type AvatarUploadArguments = {
 const supportedAvatars = ['glb', 'gltf', 'vrm', 'fbx']
 const PROJECT_NAME_REGEX = /projects\/([a-zA-Z0-9-_.]+)\/public\/avatars$/
 
-const getFilesRecursive = (dir: string): string[] => {
-  const frontier = [dir]
-  const files: string[] = []
-  while (frontier.length > 0) {
-    const current = frontier.pop()!
-    const dirents = fs.readdirSync(current, { withFileTypes: true })
-    for (const dirent of dirents) {
-      const res = path.resolve(current, dirent.name)
-      if (dirent.isDirectory()) frontier.push(res)
-      else files.push(res)
-    }
-  }
-  return files
-}
-
+/**
+ * @todo - reference dependency files in static resources?
+ * @param app
+ * @param avatarsFolder
+ */
 export const installAvatarsFromProject = async (app: Application, avatarsFolder: string) => {
   const promises: Promise<any>[] = []
   const projectNameExec = PROJECT_NAME_REGEX.exec(avatarsFolder)
@@ -62,101 +53,96 @@ export const installAvatarsFromProject = async (app: Application, avatarsFolder:
   if (projectNameExec) projectJSON = getProjectPackageJson(projectNameExec[1])
   let projectName
   if (projectJSON) projectName = projectJSON.name
-  const avatarsToInstall = await Promise.all(
-    fs
-      .readdirSync(avatarsFolder, { withFileTypes: true })
-      .flatMap((dirent) =>
-        dirent.isDirectory()
-          ? fs.readdirSync(path.join(avatarsFolder, dirent.name), { withFileTypes: true }).map((file) => ({
-              dir: path.join(avatarsFolder, dirent.name),
-              file
-            }))
-          : [
-              {
-                dir: avatarsFolder,
-                file: dirent
-              }
-            ]
-      )
-      .filter(({ file: dirent }) => supportedAvatars.includes(dirent.name.split('.').pop()!))
-      .map(({ dir, file: dirent }) => {
-        const avatarName = dirent.name
-          .substring(0, dirent.name.lastIndexOf('.')) // remove extension
-          .replace(/-transformed$/, '') // remove -transformed suffix
-        const avatarFileType = dirent.name.substring(dirent.name.lastIndexOf('.') + 1, dirent.name.length) // just extension
-        const pngPath = path.join(avatarsFolder, avatarName + '.png')
-        const thumbnail = fs.existsSync(pngPath) ? fs.readFileSync(pngPath) : Buffer.from([])
-        const dependencies = dirent.name.endsWith('gltf')
-          ? getFilesRecursive(dir).filter((file) => !supportedAvatars.includes(file.split('.').pop()!))
-          : []
-        return Promise.all(
-          dependencies.map((dependency) => {
-            const key = `static-resources/avatar/public${dependency.replace(avatarsFolder, '')}`
-            const file = fs.readFileSync(dependency)
-            return addGenericAssetToS3AndStaticResources(
-              app,
-              [
-                {
-                  buffer: file,
-                  originalname: dependency.split('/').pop()!,
-                  mimetype: getContentType(dependency),
-                  size: file.byteLength
-                }
-              ],
-              getContentType(dependency),
-              {
-                key,
-                project: projectName || null
-              }
-            )
-          })
-        ).then(() => {
-          return {
-            avatar: fs.readFileSync(path.join(dir, dirent.name)),
-            thumbnail,
-            avatarName,
-            avatarFileType,
-            isPublic: true
-          } as AvatarUploadArguments
-        })
-      })
-  )
-  for (const avatar of avatarsToInstall) {
-    promises.push(
-      new Promise(async (resolve, reject) => {
-        try {
-          const existingAvatar = await app.service('avatar').Model.findOne({
-            where: {
-              name: avatar.avatarName,
-              isPublic: avatar.isPublic,
-              project: projectName || null
-            }
-          })
-          let selectedAvatar
-          if (!existingAvatar) {
-            selectedAvatar = await app.service('avatar').create({
-              name: avatar.avatarName,
-              isPublic: avatar.isPublic,
-              project: projectName || null
-            })
-          } else selectedAvatar = existingAvatar
-          avatar.avatarName = selectedAvatar.identifierName
-          avatar.project = projectName || null
-          const [modelResource, thumbnailResource] = await uploadAvatarStaticResource(app, avatar)
 
-          await app.service('avatar').patch(selectedAvatar.id, {
-            modelResourceId: modelResource.id,
-            thumbnailResourceId: thumbnailResource.id
+  // get all avatars files in the folder
+  const avatarsToInstall = fs
+    .readdirSync(avatarsFolder, { withFileTypes: true })
+    .filter((dirent) => supportedAvatars.includes(dirent.name.split('.').pop()!))
+    .map((dirent) => {
+      const avatarName = dirent.name.substring(0, dirent.name.lastIndexOf('.')) // remove extension
+      const avatarFileType = dirent.name.substring(dirent.name.lastIndexOf('.') + 1, dirent.name.length) // just extension
+      const pngPath = path.join(avatarsFolder, avatarName + '.png')
+      const thumbnail = fs.existsSync(pngPath) ? fs.readFileSync(pngPath) : Buffer.from([])
+      const pathExists = fs.existsSync(path.join(avatarsFolder, avatarName))
+      const dependencies = pathExists
+        ? fs.readdirSync(path.join(avatarsFolder, avatarName), { withFileTypes: true }).map((dependencyDirent) => {
+            return path.join(avatarsFolder, avatarName, dependencyDirent.name)
           })
-          resolve(null)
-        } catch (err) {
-          logger.error(err)
-          reject(err)
-        }
+        : []
+      return {
+        avatar: fs.readFileSync(path.join(avatarsFolder, dirent.name)),
+        thumbnail,
+        avatarName,
+        avatarFileType,
+        dependencies
+      }
+    })
+
+  const provider = getStorageProvider()
+
+  const uploadDependencies = (filePaths: string[]) =>
+    Promise.all([
+      provider.createInvalidation(filePaths),
+      ...filePaths.map((filePath) => {
+        const key = `static-resources/avatar/public${filePath.replace(avatarsFolder, '')}`
+        const file = fs.readFileSync(filePath)
+        const mimeType = getContentType(filePath)
+        return provider.putObject(
+          {
+            Key: key,
+            Body: file,
+            ContentType: mimeType
+          },
+          {
+            isDirectory: false
+          }
+        )
       })
-    )
-  }
-  await Promise.all(promises)
+    ])
+
+  await Promise.all(
+    avatarsToInstall.map(async (avatar) => {
+      try {
+        const existingAvatar = await app.service('avatar').Model.findOne({
+          where: {
+            name: avatar.avatarName,
+            isPublic: true,
+            project: projectName || null
+          }
+        })
+        let selectedAvatar
+        if (!existingAvatar) {
+          selectedAvatar = await app.service('avatar').create({
+            name: avatar.avatarName,
+            isPublic: true,
+            project: projectName || null
+          })
+        } else {
+          // todo - clean up old avatar files
+          selectedAvatar = existingAvatar
+        }
+
+        await uploadDependencies(avatar.dependencies)
+
+        const [modelResource, thumbnailResource] = await uploadAvatarStaticResource(app, {
+          avatar: avatar.avatar,
+          thumbnail: avatar.thumbnail,
+          avatarName: avatar.avatarName,
+          isPublic: true,
+          avatarFileType: avatar.avatarFileType,
+          avatarId: selectedAvatar.id,
+          project: projectName
+        })
+
+        await app.service('avatar').patch(selectedAvatar.id, {
+          modelResourceId: modelResource.id,
+          thumbnailResourceId: thumbnailResource.id
+        })
+      } catch (err) {
+        logger.error(err)
+      }
+    })
+  )
 }
 
 export const uploadAvatarStaticResource = async (
@@ -166,7 +152,7 @@ export const uploadAvatarStaticResource = async (
 ) => {
   const name = data.avatarName ? data.avatarName : 'Avatar-' + Math.round(Math.random() * 100000)
 
-  const key = `static-resources/avatar/${data.isPublic ? 'public' : params?.user!.id}/${name}`
+  const key = `static-resources/avatar/${data.isPublic ? 'public' : params?.user!.id}/`
 
   // const thumbnail = await generateAvatarThumbnail(data.avatar as Buffer)
   // if (!thumbnail) throw new Error('Thumbnail generation failed - check the model')
@@ -184,7 +170,7 @@ export const uploadAvatarStaticResource = async (
     CommonKnownContentTypes.glb,
     {
       userId: params?.user!.id,
-      key: `${key}.${data.avatarFileType ?? 'glb'}`,
+      key,
       staticResourceType: 'avatar',
       project: data.project
     }
@@ -195,7 +181,7 @@ export const uploadAvatarStaticResource = async (
     [
       {
         buffer: data.thumbnail,
-        originalname: 'thumbnail.png',
+        originalname: `${name}.png`,
         mimetype: CommonKnownContentTypes.png,
         size: data.thumbnail.byteLength
       }
@@ -203,7 +189,7 @@ export const uploadAvatarStaticResource = async (
     CommonKnownContentTypes.png,
     {
       userId: params?.user!.id,
-      key: `${key}.${data.avatarFileType ?? 'glb'}.png`,
+      key,
       staticResourceType: 'user-thumbnail',
       project: data.project
     }
