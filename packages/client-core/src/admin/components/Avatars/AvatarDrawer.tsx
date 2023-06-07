@@ -112,7 +112,7 @@ const AvatarDrawerContent = ({ open, mode, selectedAvatar, onClose }: Props) => 
 
   useEffect(() => {
     updateAvatar()
-  }, [state.source.value, state.avatarFile.value, state.avatarUrl.value])
+  }, [state.source, state.avatarFile, state.avatarUrl])
 
   const loadSelectedAvatar = () => {
     if (selectedAvatar) {
@@ -247,8 +247,8 @@ const AvatarDrawerContent = ({ open, mode, selectedAvatar, onClose }: Props) => 
   }
 
   const handleSubmit = async () => {
-    let avatarBlob: Blob | undefined = undefined
-    let thumbnailBlob: Blob | undefined = undefined
+    let avatarFile: File | undefined = undefined
+    let thumbnailFile: File | undefined = undefined
 
     let tempErrors = {
       name: state.name.value ? '' : t('admin:components.avatar.nameCantEmpty'),
@@ -278,20 +278,20 @@ const AvatarDrawerContent = ({ open, mode, selectedAvatar, onClose }: Props) => 
       NotificationService.dispatchNotify(t('admin:components.common.fillRequiredFields'), { variant: 'error' })
       return
     } else if (state.source.value === 'file' && state.avatarFile.value && state.thumbnailFile.value) {
-      avatarBlob = state.avatarFile.value
-      thumbnailBlob = state.thumbnailFile.value
+      avatarFile = state.avatarFile.value
+      thumbnailFile = state.thumbnailFile.value
     } else if (state.source.value === 'url' && state.avatarUrl.value && state.thumbnailUrl.value) {
       const avatarData = await fetch(state.avatarUrl.value)
-      avatarBlob = await avatarData.blob()
+      avatarFile = new File([await avatarData.blob()], state.name.value)
 
       const thumbnailData = await fetch(state.thumbnailUrl.value)
-      thumbnailBlob = await thumbnailData.blob()
+      thumbnailFile = new File([await thumbnailData.blob()], state.name.value)
     }
 
-    if (avatarBlob && thumbnailBlob) {
+    if (avatarFile && thumbnailFile) {
       if (selectedAvatar?.id) {
-        await AvatarService.patchAvatar(selectedAvatar, state.name.value, true, avatarBlob, thumbnailBlob)
-      } else await AvatarService.createAvatar(avatarBlob, thumbnailBlob, state.name.value, true)
+        await AvatarService.patchAvatar(selectedAvatar, state.name.value, true, avatarFile, thumbnailFile)
+      } else await AvatarService.createAvatar(avatarFile, thumbnailFile, state.name.value, true)
       dispatchAction(AdminAvatarActions.avatarUpdated({}))
 
       onClose()

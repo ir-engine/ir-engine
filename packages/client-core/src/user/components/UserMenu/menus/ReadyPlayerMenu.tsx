@@ -29,7 +29,7 @@ enum LoadingState {
 
 const ReadyPlayerMenu = () => {
   const { t } = useTranslation()
-  const [selectedFile, setSelectedFile] = useState<Blob>()
+  const [selectedBlob, setSelectedBlob] = useState<Blob>()
   const [avatarName, setAvatarName] = useState('')
   const [avatarUrl, setAvatarUrl] = useState('')
   const [loading, setLoading] = useState(LoadingState.LoadingRPM)
@@ -60,7 +60,7 @@ const ReadyPlayerMenu = () => {
 
           setLoading(LoadingState.LoadingPreview)
           setAvatarUrl(url)
-          setSelectedFile(data)
+          setSelectedBlob(data)
         }
       } catch (error) {
         console.error(error)
@@ -78,7 +78,7 @@ const ReadyPlayerMenu = () => {
   }
 
   const uploadAvatar = async () => {
-    if (error || selectedFile === undefined) {
+    if (error || selectedBlob === undefined) {
       return
     }
     setLoading(LoadingState.Uploading)
@@ -93,16 +93,22 @@ const ReadyPlayerMenu = () => {
     newContext?.drawImage(avatarCanvas, 0, 0)
 
     const thumbnailName = avatarUrl.substring(0, avatarUrl.lastIndexOf('.')) + '.png'
+    const modelName = avatarUrl.substring(0, avatarUrl.lastIndexOf('.')) + '.glb'
 
     const blob = await getCanvasBlob(canvas)
 
-    await AvatarService.createAvatar(selectedFile, new File([blob!], thumbnailName), avatarName, false)
+    await AvatarService.createAvatar(
+      new File([selectedBlob!], modelName),
+      new File([blob!], thumbnailName),
+      avatarName,
+      false
+    )
 
     setLoading(LoadingState.None)
     PopupMenuServices.showPopupMenu()
   }
 
-  const avatarPreviewLoaded = loading === LoadingState.None && selectedFile
+  const avatarPreviewLoaded = loading === LoadingState.None && selectedBlob
 
   return (
     <Menu

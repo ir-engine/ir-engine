@@ -100,7 +100,7 @@ export const AdminResourceReceptors = {
 }
 
 export const ResourceService = {
-  createOrUpdateResource: async (resource: any, resourceBlob: Blob) => {
+  createOrUpdateResource: async (resource: any, resourceBlob: File) => {
     try {
       await uploadToFeathersService('upload-asset', [resourceBlob], {
         type: 'admin-file-upload',
