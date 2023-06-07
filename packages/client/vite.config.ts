@@ -7,7 +7,7 @@ import { isArray, mergeWith } from 'lodash'
 import path from 'path'
 import { defineConfig, UserConfig } from 'vite'
 import viteCompression from 'vite-plugin-compression'
-import { createEjsPlugin } from 'vite-plugin-ejs'
+import { ViteEjsPlugin } from 'vite-plugin-ejs'
 import OptimizationPersist from 'vite-plugin-optimize-persist'
 import PkgConfig from 'vite-plugin-package-config'
 
@@ -171,7 +171,7 @@ export default defineConfig(async () => {
       mediapipe_workaround(),
       PkgConfig(),
       process.env.VITE_PWA_ENABLED === 'true' ? PWA(clientSetting) : undefined,
-      createEjsPlugin({
+      ViteEjsPlugin({
         inject: {
           data: {
             ...manifest,
