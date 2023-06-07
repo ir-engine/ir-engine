@@ -81,7 +81,6 @@ export const scaleFluctuate = (sinOffset = 4, scaleMultiplier = 0.2, pulseSpeed 
 }
 
 export async function placeMarker(rayNormal: Vector3) {
-  console.log('placeMarker')
   const markerState = getState(AutopilotMarker)
 
   if (!markerState.walkTarget) return
