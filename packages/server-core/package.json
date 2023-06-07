@@ -1,5 +1,6 @@
 {
   "name": "@etherealengine/server-core",
+  "type": "module",
   "description": "Shared components for Ethereal Engine server",
   "version": "1.3.0",
   "repository": {
