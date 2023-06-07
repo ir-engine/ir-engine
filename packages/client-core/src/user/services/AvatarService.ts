@@ -94,7 +94,6 @@ export const AvatarService = {
     avatarFile?: File,
     thumbnailFile?: File
   ) {
-    console.log('patchAvatar', originalAvatar, avatarName, updateModels, avatarFile, thumbnailFile)
     let payload = {
       modelResourceId: originalAvatar.modelResourceId,
       thumbnailResourceId: originalAvatar.thumbnailResourceId,
@@ -181,7 +180,6 @@ export const AvatarService = {
   },
 
   async uploadAvatarModel(avatar: File, thumbnail: File, avatarName: string, isPublic: boolean, avatarId?: string) {
-    console.log('uploadAvatarModel', avatar, thumbnail, avatarName, isPublic, avatarId)
     return uploadToFeathersService('upload-asset', [avatar, thumbnail], {
       type: 'user-avatar-upload',
       args: {

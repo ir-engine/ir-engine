@@ -21,7 +21,6 @@ export class StaticResource extends Service<StaticResourceInterface> {
 
   // gets the static resource from the database, including the variants
   async get(id: string, params?: Params): Promise<StaticResourceInterface> {
-    console.log('get static resource', id)
     return super.Model.findOne({
       where: { id },
       include: [

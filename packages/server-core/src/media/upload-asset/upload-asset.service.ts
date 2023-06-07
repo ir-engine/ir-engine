@@ -92,7 +92,6 @@ const uploadAsset = (app: Application, type: string, args: UploadAssetArgs) => {
 const uploadAssets = (app: Application) => async (data: AssetUploadType, params: UploadParams) => {
   if (typeof data.args === 'string') data.args = JSON.parse(data.args)
   const files = params.files
-  console.log(files, data.args)
   if (data.type === 'user-avatar-upload') {
     return await uploadAvatarStaticResource(
       app,
@@ -142,7 +141,6 @@ export const addGenericAssetToS3AndStaticResources = async (
   args: AdminAssetUploadArgumentsType,
   storageProviderName?: string
 ): Promise<StaticResourceInterface> => {
-  console.log('addGenericAssetToS3AndStaticResources', files, extension, args)
   const provider = getStorageProvider(storageProviderName)
   // make userId optional and safe for feathers create
   const key = processFileName(args.key)
@@ -153,7 +151,6 @@ export const addGenericAssetToS3AndStaticResources = async (
   const existingAsset = (await app.service('static-resource').Model.findOne({
     where: whereArgs
   })) as StaticResourceInterface
-  console.log({ existingAsset })
 
   const mimeType = CommonKnownContentTypes[extension] as string
 
@@ -234,7 +231,6 @@ export default (app: Application): void => {
         before: [
           multipartMiddleware.any(),
           async (ctx, next) => {
-            console.log('trying to upload asset')
             const files = ctx.request.files
             if (ctx?.feathers && ctx.method !== 'GET') {
               ;(ctx as any).feathers.files = (ctx as any).request.files.media
@@ -243,7 +239,6 @@ export default (app: Application): void => {
             }
 
             await next()
-            console.log('uploaded asset')
             return ctx.body
           }
         ]

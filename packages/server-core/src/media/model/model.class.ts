@@ -78,7 +78,6 @@ export class Model extends Service<ModelInterface> {
 
   // gets the static resources from the database, including the variants
   async get(id: string, params?: Params): Promise<ModelInterface> {
-    console.log('get model', id)
     return super.Model.findOne({
       where: { id },
       include: addModelAssociations(this.app)

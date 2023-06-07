@@ -3,9 +3,6 @@ import fs from 'fs'
 import fetch from 'node-fetch'
 import { Op } from 'sequelize'
 
-import { UploadFile } from '@etherealengine/common/src/interfaces/UploadAssetInterface'
-import { CommonKnownContentTypes } from '@etherealengine/common/src/utils/CommonKnownContentTypes'
-
 import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
 import { getResourceFiles } from '../static-resource/static-resource-helper'
@@ -98,13 +95,11 @@ export const modelUpload = async (app: Application, data: UploadAssetArgs) => {
           }
         })
       }
-      console.log(existingResource)
       const update = {} as any
       if (newModel?.id) {
         const staticResourceColumn = `${extension}StaticResourceId`
         update[staticResourceColumn] = existingResource.id
       }
-      console.log(update)
       try {
         await app.service('model').patch(newModel.id, update)
       } catch (err) {

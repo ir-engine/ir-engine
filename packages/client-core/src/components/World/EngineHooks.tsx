@@ -60,7 +60,6 @@ export const useLoadEngine = () => {
 
 const fetchMissingAvatar = async (user, avatarSpawnPose) => {
   const avatar = await AvatarService.getAvatar(user.avatar.id.value)
-  console.log(avatar)
   if (avatar && avatar.modelResource?.url)
     spawnLocalAvatarInWorld({
       avatarSpawnPose,

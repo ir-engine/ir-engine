@@ -27,7 +27,6 @@ export const uploadMediaStaticResource = async (
   mediaType: string,
   params?: UserParams
 ) => {
-  console.log('uploadMediaStaticResource', data, mediaType)
   const key = `static-resources/${data.parentType || mediaType}/${data.parentId || data.mediaId}`
 
   // const thumbnail = await generateAvatarThumbnail(data.avatar as Buffer)
