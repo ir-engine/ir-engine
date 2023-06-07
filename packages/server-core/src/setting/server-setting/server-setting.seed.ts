@@ -1,6 +1,13 @@
 import appRootPath from 'app-root-path'
+import { Knex } from 'knex'
 import path from 'path'
 import url from 'url'
+import { v4 } from 'uuid'
+
+import { serverSettingPath } from '@etherealengine/engine/src/schemas/setting/server-setting.schema'
+import appConfig from '@etherealengine/server-core/src/appconfig'
+
+import { getDateTimeSql } from '../../util/get-datetime-sql'
 
 const kubernetesEnabled = process.env.KUBERNETES === 'true'
 
@@ -36,7 +43,32 @@ server.url =
   process.env.SERVER_URL ||
   url.format(kubernetesEnabled ? { protocol: 'https', hostname: server.hostname } : { protocol: 'https', ...server })
 
-export const serverSeed = {
-  path: 'server-setting',
-  templates: [server]
+export async function seed(knex: Knex): Promise<void> {
+  const { testEnabled } = appConfig
+  const { forceRefresh } = appConfig.db
+
+  const seedData = await Promise.all(
+    [server].map(async (item) => ({
+      ...item,
+      id: v4(),
+      createdAt: await getDateTimeSql(),
+      updatedAt: await getDateTimeSql()
+    }))
+  )
+
+  if (forceRefresh || testEnabled) {
+    // Deletes ALL existing entries
+    await knex(serverSettingPath).del()
+
+    // Inserts seed entries
+    await knex(serverSettingPath).insert(seedData)
+  } else {
+    const existingData = await knex(serverSettingPath).count({ count: '*' })
+
+    if (existingData.length === 0 || existingData[0].count === 0) {
+      for (const item of seedData) {
+        await knex(serverSettingPath).insert(item)
+      }
+    }
+  }
 }

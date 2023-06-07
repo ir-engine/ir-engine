@@ -557,7 +557,7 @@ export async function onConnectToMediaInstance(network: SocketWebRTCClientNetwor
     // not guaranteed to be returned, will be refactored when converted to hyperflux actions
     if (!consumerId) return
     const consumer = network.consumers.find((c) => c.id === consumerId) as ConsumerExtension
-    if (!consumer) throw new Error('Consumer not found: ' + consumerId)
+    if (!consumer) return
     const peerID = consumer?.appData?.peerID
     const mediaTag = consumer.appData.mediaTag
     consumer.close()

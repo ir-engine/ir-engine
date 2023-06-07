@@ -22,6 +22,7 @@ import { PassThrough } from 'stream'
 import { FileContentType } from '@etherealengine/common/src/interfaces/FileContentType'
 
 import config from '../../appconfig'
+import { getCacheDomain } from './getCacheDomain'
 import { getCachedURL } from './getCachedURL'
 import {
   PutObjectParams,
@@ -49,9 +50,12 @@ export class S3Provider implements StorageProviderInterface {
       accessKeyId: config.aws.keys.accessKeyId,
       secretAccessKey: config.aws.keys.secretAccessKey
     },
-    endpoint: config.aws.s3.endpoint,
+    endpoint: config.server.storageProviderExternalEndpoint
+      ? config.server.storageProviderExternalEndpoint
+      : config.aws.s3.endpoint,
     region: config.aws.s3.region,
     forcePathStyle: true,
+    tls: config.aws.s3.s3DevMode === 'local' ? false : undefined,
     maxAttempts: 5
   })
 
@@ -59,13 +63,17 @@ export class S3Provider implements StorageProviderInterface {
    * Domain address of S3 cache.
    */
   cacheDomain =
-    config.server.storageProvider === 'aws'
-      ? config.aws.cloudfront.domain
+    config.server.storageProvider === 's3'
+      ? config.aws.s3.endpoint
+        ? `${config.aws.s3.endpoint.replace('http://', '').replace('https://', '')}/${this.bucket}`
+        : config.aws.cloudfront.domain
       : `${config.aws.cloudfront.domain}/${this.bucket}`
 
   private bucketAssetURL =
-    config.server.storageProvider === 'aws'
-      ? `https://${this.bucket}.s3.${config.aws.s3.region}.amazonaws.com`
+    config.server.storageProvider === 's3'
+      ? config.aws.s3.endpoint
+        ? `${config.aws.s3.endpoint}/${this.bucket}`
+        : `https://${this.bucket}.s3.${config.aws.s3.region}.amazonaws.com`
       : `https://${config.aws.cloudfront.domain}/${this.bucket}`
 
   private blob: typeof S3BlobStore = new S3BlobStore({
@@ -145,7 +153,8 @@ export class S3Provider implements StorageProviderInterface {
    * @param key Key of object.
    */
   async getCachedObject(key: string): Promise<StorageObjectInterface> {
-    const data = await fetch(getCachedURL(key, this.cacheDomain))
+    const cacheDomain = getCacheDomain(this, true)
+    const data = await fetch(getCachedURL(key, cacheDomain))
     return { Body: Buffer.from(await data.arrayBuffer()), ContentType: (await data.headers.get('content-type')) || '' }
   }
 
@@ -240,7 +249,7 @@ export class S3Provider implements StorageProviderInterface {
    */
   async createInvalidation(invalidationItems: any[]) {
     // for non-standard s3 setups, we don't use cloudfront
-    if (config.server.storageProvider !== 'aws') return
+    if (config.server.storageProvider !== 's3' || config.aws.s3.s3DevMode === 'local') return
     const params = {
       DistributionId: config.aws.cloudfront.distributionId,
       InvalidationBatch: {

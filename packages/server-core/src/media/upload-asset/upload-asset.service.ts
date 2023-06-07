@@ -178,11 +178,11 @@ export const addGenericAssetToS3AndStaticResources = async (
     if (i === 0) {
       let keySplit = key.split('/')
       let fileName = keySplit[keySplit.length - 1]
-      if (!/LOD0/.test(fileName)) {
+      /*if (!/LOD0/.test(fileName)) {
         let fileNameSplit = fileName.split('.')
         fileNameSplit.splice(1, 0, 'LOD0')
         fileName = fileNameSplit.join('.')
-      }
+      }*/
       keySplit[keySplit.length - 1] = fileName
       const useKey = keySplit.join('/')
       body[`LOD${i}_url`] = getCachedURL(useKey, provider.cacheDomain)

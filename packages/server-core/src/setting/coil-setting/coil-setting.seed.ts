@@ -27,12 +27,10 @@ export async function seed(knex: Knex): Promise<void> {
     // Inserts seed entries
     await knex(coilSettingPath).insert(seedData)
   } else {
-    for (const item of seedData) {
-      const existingData = await knex(coilSettingPath)
-        .where('paymentPointer', item.paymentPointer)
-        .andWhere('clientId', item.clientId)
-        .andWhere('clientSecret', item.clientSecret)
-      if (existingData.length === 0) {
+    const existingData = await knex(coilSettingPath).count({ count: '*' })
+
+    if (existingData.length === 0 || existingData[0].count === 0) {
+      for (const item of seedData) {
         await knex(coilSettingPath).insert(item)
       }
     }

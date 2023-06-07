@@ -3,7 +3,7 @@
     "compounds": [
         {
             "name": "Dev Mode",
-            "configurations": ["dev-agones", "dev-api-server", "dev-instanceserver", "dev-instanceserver-dev-channel", "dev-serve-local-files", "dev-client", "dev-taskserver", "Chrome",]
+            "configurations": ["dev-agones", "dev-api-server", "dev-instanceserver", "dev-instanceserver-dev-channel", "dev-client", "dev-taskserver", "Chrome",]
             // npm:dev-agones-silent npm:dev-server npm:dev-client npm:dev-taskserver
         },
         {

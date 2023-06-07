@@ -1,13 +1,11 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 import appRootPath from 'app-root-path'
-import axios from 'axios'
 import cli from 'cli'
 import dotenv from 'dotenv-flow'
 import fetch from 'node-fetch'
 import Sequelize, { DataTypes, Op } from 'sequelize'
 
 import { createFeathersKoaApp } from '@etherealengine/server-core/src/createApp'
-import { getCachedURL } from '@etherealengine/server-core/src/media/storageprovider/getCachedURL'
 import { addGenericAssetToS3AndStaticResources } from '@etherealengine/server-core/src/media/upload-asset/upload-asset.service'
 import { ServerMode } from '@etherealengine/server-core/src/ServerState'
 
