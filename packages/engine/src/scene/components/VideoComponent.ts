@@ -1,14 +1,20 @@
 import { useEffect } from 'react'
-import { DoubleSide, Group, Mesh, MeshBasicMaterial, Side, Vector2 } from 'three'
-import { VideoTexture } from 'three'
+import { DoubleSide, Group, LinearFilter, Mesh, MeshBasicMaterial, Side, Texture, Vector2 } from 'three'
 
+import { defineState } from '@etherealengine/hyperflux'
+
+import { isMobile } from '../../common/functions/isMobile'
+import { Entity } from '../../ecs/classes/Entity'
 import {
   defineComponent,
+  getComponent,
   hasComponent,
   useComponent,
   useOptionalComponent
 } from '../../ecs/functions/ComponentFunctions'
 import { useEntityContext } from '../../ecs/functions/EntityFunctions'
+import { createPriorityQueue } from '../../ecs/PriorityQueue'
+import { isMobileXRHeadset } from '../../xr/XRState'
 import { ContentFitType } from '../../xrui/functions/ObjectFitFunctions'
 import { addError, clearErrors } from '../functions/ErrorFunctions'
 import { ObjectFitFunctions } from './../../xrui/functions/ObjectFitFunctions'
@@ -17,6 +23,29 @@ import { resizeImageMesh } from './../components/ImageComponent'
 import { MediaElementComponent } from './../components/MediaComponent'
 import { UUIDComponent } from './../components/UUIDComponent'
 import { PLANE_GEO } from './ImageComponent'
+
+export const VideoTexturePriorityQueueState = defineState({
+  name: 'VideoTexturePriorityQueueState',
+  initial: () => {
+    const accumulationBudget = isMobileXRHeadset || isMobile ? 1 : 3
+    return {
+      queue: createPriorityQueue({
+        accumulationBudget
+      })
+    }
+  }
+})
+
+class VideoTexturePriorityQueue extends Texture {
+  isVideoTexture = true
+  constructor(video) {
+    super(video)
+    this.minFilter = LinearFilter
+    this.magFilter = LinearFilter
+    this.generateMipmaps = false
+  }
+  update() {}
+}
 
 export const VideoComponent = defineComponent({
   name: 'EE_video',
@@ -61,9 +90,14 @@ export const VideoComponent = defineComponent({
   onRemove: (entity, component) => {
     component.videoGroup.value.removeFromParent()
     component.videoMesh.value.material.map?.dispose()
+    if (VideoComponent.uniqueVideoEntities.includes(entity)) {
+      VideoComponent.uniqueVideoEntities.splice(VideoComponent.uniqueVideoEntities.indexOf(entity), 1)
+    }
   },
 
   errors: ['INVALID_MEDIA_UUID', 'MISSING_MEDIA_ELEMENT'],
+
+  uniqueVideoEntities: [] as Entity[],
 
   reactor: VideoReactor
 })
@@ -104,14 +138,31 @@ function VideoReactor() {
     if (!mediaEntity) return addError(entity, VideoComponent, 'INVALID_MEDIA_UUID')
     if (!mediaElement) return addError(entity, VideoComponent, 'MISSING_MEDIA_ELEMENT')
     const material = video.videoMesh.material.value
+    const sourceVideoComponent = getComponent(mediaEntity, VideoComponent)
+    const sourceMaterial = sourceVideoComponent.videoMesh.material
     if (material.map) {
       material.map.image = mediaElement.element.value as HTMLVideoElement
     } else {
-      material.map = new VideoTexture(mediaElement.element.value as HTMLVideoElement)
+      if (sourceMaterial.map) {
+        material.map = sourceMaterial.map
+      } else {
+        material.map = new VideoTexturePriorityQueue(mediaElement.element.value as HTMLVideoElement)
+        VideoComponent.uniqueVideoEntities.push(mediaEntity)
+      }
     }
     material.needsUpdate = true
     clearErrors(entity, VideoComponent)
   }, [video, mediaEntity, mediaElement])
+
+  useEffect(() => {
+    const map = video.videoMesh.material.map
+    if (!map) return
+    return () => {
+      if (VideoComponent.uniqueVideoEntities.includes(entity)) {
+        VideoComponent.uniqueVideoEntities.splice(VideoComponent.uniqueVideoEntities.indexOf(entity), 1)
+      }
+    }
+  }, [video.videoMesh.material.map])
 
   return null
 }
