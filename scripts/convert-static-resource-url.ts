@@ -2,6 +2,7 @@
 import appRootPath from 'app-root-path'
 import cli from 'cli'
 import dotenv from 'dotenv-flow'
+import Sequelize, { DataTypes, Op } from 'sequelize'
 
 import { createFeathersKoaApp } from '@etherealengine/server-core/src/createApp'
 import { ServerMode } from '@etherealengine/server-core/src/ServerState'
@@ -29,20 +30,66 @@ cli.main(async () => {
     const app = createFeathersKoaApp(ServerMode.API)
     await app.setup()
 
-    const staticResources = await app.service('static-resource').Model.findAll({
+    // @ts-ignore
+    const sequelizeClient = new Sequelize({
+      ...db,
+      logging: console.log,
+      define: {
+        freezeTableName: true
+      }
+    })
+
+    await sequelizeClient.sync()
+
+    const StaticResource = sequelizeClient.define('static_resource', {
+      id: {
+        type: DataTypes.UUID,
+        defaultValue: DataTypes.UUIDV1,
+        allowNull: false,
+        primaryKey: true
+      },
+      sid: {
+        type: DataTypes.STRING,
+        allowNull: false
+      },
+      url: {
+        type: DataTypes.STRING,
+        allowNull: true,
+        unique: true
+      },
+      name: DataTypes.STRING,
+      key: DataTypes.STRING,
+      mimeType: {
+        type: DataTypes.STRING,
+        allowNull: true
+      },
+      staticResourceType: {
+        type: DataTypes.STRING
+      },
+      metadata: {
+        type: DataTypes.JSON,
+        allowNull: true
+      },
+      LOD0_url: {
+        type: DataTypes.STRING,
+        allowNull: true
+      }
+    })
+
+    const staticResources = await StaticResource.findAll({
       paginate: false,
       where: {
-        LOD0_url: null
+        url: null
       }
     })
 
     console.log('static resources', staticResources)
 
     for (const resource of staticResources) {
-      if (resource.url && resource.LOD0_url == null)
+      if (resource.LOD0_url && resource.url == null)
         await app.service('static-resource').Model.update(
           {
-            LOD0_url: resource.url
+            url: resource.LOD0_url
           },
           {
             where: {
