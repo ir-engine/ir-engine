@@ -127,7 +127,6 @@ const execute = () => {
     const videoTexture = videoComponent.videoMesh.material.map as VideoTexture
     if (!videoTexture?.isVideoTexture) continue
     videoTexture.needsUpdate = true
-    console.log(entity, videoTexture)
   }
 }
 
