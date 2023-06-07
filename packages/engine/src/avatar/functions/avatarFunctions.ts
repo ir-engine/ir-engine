@@ -225,19 +225,22 @@ export const createIKAnimator = async (entity: Entity) => {
   const animationComponent = getComponent(entity, AnimationComponent)
   const rigComponent = getComponent(entity, AvatarRigComponent)
   const animations = await getAnimations()
-
+  console.log('animations', animations)
   const bindPose = animations[1]
   const idle = animations[0]
-  const walkForward = animations[2]
+  const walkForward = animations[3]
+  const jump = animations[2]
+  console.log(animations)
 
   //Using set component here allows us to react to animations
   setComponent(entity, AnimationComponent, {
-    animations: [bindPose, idle, walkForward],
+    animations: [bindPose, idle, walkForward, jump],
     mixer: new AnimationMixer(rigComponent.targets)
   })
 
   const idleAction = animationComponent.mixer.clipAction(idle)
   const walkAction = animationComponent.mixer.clipAction(walkForward)
+  const jumpAction = animationComponent.mixer.clipAction(jump)
 
   idleAction.play()
   walkAction.play()
