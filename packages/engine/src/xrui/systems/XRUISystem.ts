@@ -19,6 +19,7 @@ import {
 import { getMutableState, getState } from '@etherealengine/hyperflux'
 import { WebContainer3D, WebLayerManager } from '@etherealengine/xrui'
 
+import { clearWalkPoint } from '../../avatar/functions/autopilotFunctions'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { defineQuery, getComponent, hasComponent, removeQuery } from '../../ecs/functions/ComponentFunctions'
@@ -81,6 +82,11 @@ const redirectDOMEvent = (evt) => {
     if (hit && hit.intersection.object.visible) {
       hit.target.dispatchEvent(new evt.constructor(evt.type, evt))
       hit.target.focus()
+      // quick hack to fix autopilot triggering on click until spatialized input is implemented
+
+      setTimeout(() => {
+        clearWalkPoint()
+      }, 2)
       return
     }
   }
@@ -130,6 +136,11 @@ const updateClickEventsForController = (controller: PointerObject) => {
     if (hit && hit.intersection.object.visible) {
       hit.target.dispatchEvent(new PointerEvent('click', { bubbles: true }))
       hit.target.focus()
+      // quick hack to fix autopilot triggering on click until spatialized input is implemented
+
+      setTimeout(() => {
+        clearWalkPoint()
+      }, 2)
     }
   }
 }

@@ -71,6 +71,7 @@ export async function createLODsFromModel(
             model: mesh,
             distance: 0,
             loaded: true,
+            metadata: {},
             src: ''
           }
         ],
@@ -92,6 +93,7 @@ export async function createLODsFromModel(
             model: null,
             distance: lodDistance * (i + 1),
             loaded: false,
+            metadata: {},
             src: levelURL
           })
         }

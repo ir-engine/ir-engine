@@ -7,20 +7,8 @@ import { defineSystem } from '../../../ecs/functions/SystemFunctions'
 import { NoiseOffsetSystem } from '../constants/plugins/NoiseOffsetPlugin'
 import { registerMaterial, registerMaterialPrototype } from '../functions/MaterialLibraryFunctions'
 import { applyMaterialPlugin, removeMaterialPlugin } from '../functions/MaterialPluginFunctions'
-import { initializeMaterialLibrary, MaterialLibraryActions, MaterialLibraryState } from '../MaterialLibrary'
+import { initializeMaterialLibrary, MaterialLibraryState } from '../MaterialLibrary'
 import { VegetationPluginSystem } from './VegetationSystem'
-
-const registerMaterialQueue = defineActionQueue(MaterialLibraryActions.RegisterMaterial.matches)
-const registerPrototypeQueue = defineActionQueue(MaterialLibraryActions.RegisterPrototype.matches)
-
-const execute = () => {
-  for (const action of registerPrototypeQueue()) {
-    registerMaterialPrototype(action.$prototype)
-  }
-  for (const action of registerMaterialQueue()) {
-    registerMaterial(action.material, action.src)
-  }
-}
 
 function MaterialReactor({ materialId }: { materialId: string }) {
   const materialLibrary = useState(getMutableState(MaterialLibraryState))
@@ -57,8 +45,6 @@ function reactor(): ReactElement {
       materialLibraryState.prototypes.set({})
       materialLibraryState.sources.set({})
       materialLibraryState.plugins.set({})
-      removeActionQueue(registerMaterialQueue)
-      removeActionQueue(registerPrototypeQueue)
     }
   }, [])
 
@@ -78,7 +64,6 @@ function reactor(): ReactElement {
 
 export const MaterialLibrarySystem = defineSystem({
   uuid: 'ee.engine.scene.MaterialLibrarySystem',
-  execute,
   reactor,
   subSystems: [VegetationPluginSystem, NoiseOffsetSystem]
 })

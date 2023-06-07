@@ -41,7 +41,6 @@
     "@mediapipe/holistic": "^0.5.1675471629",
     "@pixiv/three-vrm": "^1.0.9",
     "@tweenjs/tween.js": "^18.6.4",
-    "@vladmandic/face-api": "^1.7.9",
     "alea": "1.0.1",
     "behave-graph": "^0.9.10",
     "bitecs": "git://github.com/NateTheGreatt/bitECS.git#056c637e05327aab8e355ebf25e9ff202b67e495",
@@ -66,7 +65,6 @@
     "three.quarks": "0.10.2",
     "ts-matches": "5.3.0",
     "typescript": "5.0.2",
-    "vite": "4.2.1",
     "web-worker": "1.2.0"
   },
   "devDependencies": {

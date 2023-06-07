@@ -15,6 +15,7 @@ import {
 } from '../../ecs/functions/ComponentFunctions'
 import { LocalAvatarTagComponent } from '../../input/components/LocalAvatarTagComponent'
 import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
+import { BoundingBoxComponent } from '../../interaction/components/BoundingBoxComponents'
 import {
   NetworkObjectAuthorityTag,
   NetworkObjectSendPeriodicUpdatesTag
@@ -122,6 +123,7 @@ export const spawnAvatarReceptor = (spawnAction: typeof WorldNetworkAction.spawn
   setComponent(entity, NetworkObjectSendPeriodicUpdatesTag)
 
   setComponent(entity, ShadowComponent)
+  setComponent(entity, BoundingBoxComponent)
 }
 
 export const createAvatarCollider = (entity: Entity): Collider => {

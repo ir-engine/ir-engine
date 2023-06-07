@@ -2,9 +2,9 @@ import { ECRClient } from '@aws-sdk/client-ecr'
 import { DescribeImagesCommand, ECRPUBLICClient } from '@aws-sdk/client-ecr-public'
 import * as k8s from '@kubernetes/client-node'
 import appRootPath from 'app-root-path'
-import axios from 'axios'
 import { compareVersions } from 'compare-versions'
 import _ from 'lodash'
+import fetch from 'node-fetch'
 import path from 'path'
 import semver from 'semver'
 import Sequelize, { Op } from 'sequelize'
@@ -729,14 +729,15 @@ export const findBuilderTags = async (): Promise<Array<BuilderTag>> => {
       })
   } else {
     const repoSplit = builderRepo.split('/')
-    const registry = repoSplit.length === 1 ? 'lagunalabs' : repoSplit[0]
+    const registry = repoSplit.length === 1 ? 'etherealengine' : repoSplit[0]
     const repo =
       repoSplit.length === 1 ? (repoSplit[0].length === 0 ? 'etherealengine-builder' : repoSplit[0]) : repoSplit[1]
     try {
-      const result = await axios.get(
+      const result = await fetch(
         `https://registry.hub.docker.com/v2/repositories/${registry}/${repo}/tags?page_size=100`
       )
-      return result.data.results.map((imageDetails) => {
+      const body = JSON.parse(Buffer.from(await result.arrayBuffer()).toString())
+      return body.results.map((imageDetails) => {
         const tag = imageDetails.name
         const tagSplit = tag.split('_')
         return {
@@ -836,7 +837,15 @@ export const getCronJobBody = (project: ProjectInterface, image: string): object
                   name: `${process.env.RELEASE_NAME}-${project.name}-auto-update`,
                   image,
                   imagePullPolicy: 'IfNotPresent',
-                  command: ['npm', 'run', 'updateProject', '--', '--projectName', `${project.name}`],
+                  command: [
+                    'npx',
+                    'cross-env',
+                    'ts-node',
+                    '--swc',
+                    'scripts/update-project.ts',
+                    '--projectName',
+                    `${project.name}`
+                  ],
                   env: Object.entries(process.env).map(([key, value]) => {
                     return { name: key, value: value }
                   })

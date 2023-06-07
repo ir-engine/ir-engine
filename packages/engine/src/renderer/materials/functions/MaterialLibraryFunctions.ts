@@ -1,6 +1,6 @@
 import { Color, Material, Mesh, Texture } from 'three'
 
-import { dispatchAction, getMutableState, getState, none } from '@etherealengine/hyperflux'
+import { getMutableState, getState, none } from '@etherealengine/hyperflux'
 
 import { stringHash } from '../../../common/functions/MathFunctions'
 import { Engine } from '../../../ecs/classes/Engine'
@@ -8,7 +8,7 @@ import { MaterialComponentType } from '../components/MaterialComponent'
 import { MaterialPrototypeComponentType } from '../components/MaterialPrototypeComponent'
 import { MaterialSource, MaterialSourceComponentType } from '../components/MaterialSource'
 import { LibraryEntryType } from '../constants/LibraryEntry'
-import { MaterialLibraryActions, MaterialLibraryState } from '../MaterialLibrary'
+import { MaterialLibraryState } from '../MaterialLibrary'
 
 export function MaterialNotFoundError(message) {
   this.name = 'MaterialNotFound'
@@ -140,7 +140,6 @@ export function removeMaterialSource(src: MaterialSource): boolean {
       toDelete.material.dispose()
       materialLibrary.materials[matId].set(none)
     })
-    dispatchAction(MaterialLibraryActions.RemoveSource({ src: srcComp.src }))
     materialLibrary.sources[srcId].set(none)
 
     return true
