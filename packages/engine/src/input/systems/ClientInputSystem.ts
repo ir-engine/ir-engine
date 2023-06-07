@@ -1,10 +1,11 @@
 import { useEffect } from 'react'
 import { Vector3 } from 'three'
 
-import { getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
+import { dispatchAction, getMutableState, getState, none, useHookstate } from '@etherealengine/hyperflux'
 
 import { isClient } from '../../common/functions/getEnvironment'
 import { Engine } from '../../ecs/classes/Engine'
+import { EngineActions } from '../../ecs/classes/EngineState'
 import { Entity, UndefinedEntity } from '../../ecs/classes/Entity'
 import {
   defineQuery,
@@ -17,6 +18,7 @@ import {
 import { createEntity, removeEntity } from '../../ecs/functions/EntityFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { BoundingBoxComponent } from '../../interaction/components/BoundingBoxComponents'
+import { InteractState } from '../../interaction/systems/InteractiveSystem'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { setTransformComponent, TransformComponent } from '../../transform/components/TransformComponent'
 import { XRSpaceComponent } from '../../xr/XRComponents'
@@ -122,6 +124,16 @@ export const addClientInputListeners = () => {
     axes[1] = value.y
   }
   addListener(document, 'touchstickmove', handleTouchDirectionalPad)
+
+  const handleTouchGampadButton = () => {
+    dispatchAction(
+      EngineActions.interactedWithObject({
+        targetEntity: getState(InteractState).available[0],
+        handedness: 'none'
+      })
+    )
+  }
+  addListener(document, 'touchgamepadbuttondown', handleTouchGampadButton)
 
   const pointerButtons = ['PrimaryClick', 'AuxiliaryClick', 'SecondaryClick']
   const clearKeyState = () => {
