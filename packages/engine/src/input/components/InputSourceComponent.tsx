@@ -81,8 +81,9 @@ const InputSourceAssignmentReactor = (props: { assignedEntity: State<Entity> }) 
 
   useLayoutEffect(() => {
     inputSink.inputSources.merge([assignedInputEntity.value])
+    const assignedInputEntityValue = assignedInputEntity.value
     return () => {
-      const idx = inputSink.inputSources.keys.indexOf(assignedInputEntity.value)
+      const idx = inputSink.inputSources.keys.indexOf(assignedInputEntityValue)
       idx > -1 && inputSink.inputSources[idx].set(none)
     }
   }, [assignedInputEntity])
