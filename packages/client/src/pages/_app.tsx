@@ -1,7 +1,6 @@
 // import * as chapiWalletPolyfill from 'credential-handler-polyfill'
 import { SnackbarProvider } from 'notistack'
 import React, { useCallback, useEffect, useRef, useState } from 'react'
-import { useLocation } from 'react-router-dom'
 
 import {
   AdminClientSettingsState,
@@ -12,7 +11,6 @@ import MetaTags from '@etherealengine/client-core/src/common/components/MetaTags
 import { defaultAction } from '@etherealengine/client-core/src/common/components/NotificationActions'
 import { ProjectService, ProjectState } from '@etherealengine/client-core/src/common/services/ProjectService'
 import InviteToast from '@etherealengine/client-core/src/components/InviteToast'
-import { InviteService, InviteState } from '@etherealengine/client-core/src/social/services/InviteService'
 import { theme } from '@etherealengine/client-core/src/theme'
 import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
 import GlobalStyle from '@etherealengine/client-core/src/util/GlobalStyle'
@@ -26,10 +24,7 @@ import RouterComp from '../route/public'
 
 import './styles.scss'
 
-import {
-  AdminCoilSettingService,
-  AdminCoilSettingsState
-} from '@etherealengine/client-core/src/admin/services/Setting/CoilSettingService'
+import { AdminCoilSettingService } from '@etherealengine/client-core/src/admin/services/Setting/CoilSettingService'
 import {
   AppThemeServiceReceptor,
   AppThemeState,
@@ -42,7 +37,6 @@ import {
   NotificationActions
 } from '@etherealengine/client-core/src/common/services/NotificationService'
 import Debug from '@etherealengine/client-core/src/components/Debug'
-import config from '@etherealengine/common/src/config'
 import { AudioEffectPlayer } from '@etherealengine/engine/src/audio/systems/MediaSystem'
 import { addActionReceptor, getMutableState, removeActionReceptor, useHookstate } from '@etherealengine/hyperflux'
 
@@ -59,17 +53,10 @@ declare module '@mui/styles/defaultTheme' {
 const AppPage = (): any => {
   const notistackRef = useRef<SnackbarProvider>()
   const authState = useHookstate(getMutableState(AuthState))
-  const inviteState = useHookstate(getMutableState(InviteState))
   const selfUser = authState.user
   const clientSettingState = useHookstate(getMutableState(AdminClientSettingsState))
-  const coilSettingState = useHookstate(getMutableState(AdminCoilSettingsState))
   const appTheme = useHookstate(getMutableState(AppThemeState))
-  const paymentPointer = coilSettingState.coil[0]?.paymentPointer?.value
   const [clientSetting] = clientSettingState?.client?.value || []
-  const ctitle = useHookstate<string>(clientSetting?.title || '')
-  const favicon16 = useHookstate(clientSetting?.favicon16px)
-  const [favicon32, setFavicon32] = useState(clientSetting?.favicon32px)
-  const [description, setDescription] = useState(clientSetting?.siteDescription)
   const [clientThemeSettings, setClientThemeSettings] = useState(clientSetting?.themeSettings)
   const [projectComponents, setProjectComponents] = useState<Array<any>>([])
   const [fetchedProjectComponents, setFetchedProjectComponents] = useState(false)
@@ -144,10 +131,6 @@ const AppPage = (): any => {
 
   useEffect(() => {
     if (clientSetting) {
-      ctitle.set(clientSetting?.title)
-      favicon16.set(clientSetting?.favicon16px)
-      setFavicon32(clientSetting?.favicon32px)
-      setDescription(clientSetting?.siteDescription)
       setClientThemeSettings(clientSetting?.themeSettings)
     }
     if (clientSettingState?.updateNeeded?.value) ClientSettingService.fetchClientSettings()
