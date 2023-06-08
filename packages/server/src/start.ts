@@ -1,6 +1,7 @@
 import { koa } from '@feathersjs/koa'
 import packageRoot from 'app-root-path'
 import fs from 'fs'
+import http from 'http'
 import https from 'https'
 import favicon from 'koa-favicon'
 import sendFile from 'koa-send'
@@ -22,7 +23,7 @@ process.on('unhandledRejection', (error, promise) => {
   logger.error(error, 'UNHANDLED REJECTION - Promise: %o', promise)
 })
 
-export const start = async (): Promise<void> => {
+const start = async (): Promise<void> => {
   const app = createFeathersKoaApp(ServerMode.API)
 
   app.use(favicon(join(config.server.publicDir, 'favicon.ico')))
@@ -128,13 +129,14 @@ export const start = async (): Promise<void> => {
         const cert = fs.readFileSync(join(packageRoot.path, 'certs/cert.pem'))
         server = https.createServer({ key: key, cert: cert }, this.callback())
       } else {
-        const http = require('http')
         server = http.createServer(this.callback())
       }
-      return server.listen.apply(server, arguments)
+      return server.listen()
     }
 
     const PORT = parseInt(config.client.port) || 3000
     clientApp.listen(PORT, () => console.log(`Client listening on port: ${PORT}`))
   }
 }
+
+export default start

@@ -38,11 +38,11 @@ process.on('unhandledRejection', (error, promise) => {
  * @param primus
  */
 
-export const instanceServerPipe = pipe(configureOpenAPI(), configurePrimus(true), configureRedis(), configureK8s()) as (
+const instanceServerPipe = pipe(configureOpenAPI(), configurePrimus(true), configureRedis(), configureK8s()) as (
   app: Application
 ) => Application
 
-export const start = async (): Promise<Application> => {
+const start = async (): Promise<Application> => {
   const app = createFeathersKoaApp(ServerMode.Instance, instanceServerPipe)
   const serverState = getMutableState(ServerState)
 
@@ -168,3 +168,5 @@ export const start = async (): Promise<Application> => {
   app.primus.on('connection', async (spark) => setupSocketFunctions(app, spark))
   return app
 }
+
+export { start, instanceServerPipe }

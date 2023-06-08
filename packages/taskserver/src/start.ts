@@ -15,7 +15,7 @@ process.on('unhandledRejection', (error, promise) => {
 
 const taskServerPipe = pipe(configurePrimus(), configureRedis())
 
-export const start = async (): Promise<Application> => {
+const start = async (): Promise<Application> => {
   const app = createFeathersKoaApp(ServerMode.Task, taskServerPipe)
 
   app.set('host', config.server.local ? config.server.hostname + ':' + config.server.port : config.server.hostname)
@@ -36,3 +36,5 @@ export const start = async (): Promise<Application> => {
 
   return app
 }
+
+export default start

@@ -1,8 +1,10 @@
 import { updateAppConfig } from '@etherealengine/server-core/src/updateAppConfig'
 
+import { start } from './start'
+
 const init = async () => {
   await updateAppConfig()
-  const { start } = await import('./start')
-  start()
+
+  await start()
 }
 init()
