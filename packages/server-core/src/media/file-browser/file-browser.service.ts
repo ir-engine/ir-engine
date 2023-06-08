@@ -19,14 +19,12 @@ export const uploadFile = (app: Application) => async (data: any, params: Upload
 
   const result = (await Promise.all(
     params.files.map((file) =>
-      app
-        .service('file-browser')
-        .patch(null, {
-          fileName: data.fileName,
-          path: data.path,
-          body: file.buffer as Buffer,
-          contentType: file.mimetype
-        })
+      app.service('file-browser').patch(null, {
+        fileName: data.fileName,
+        path: data.path,
+        body: file.buffer as Buffer,
+        contentType: file.mimetype
+      })
     )
   )) as string[]
 
