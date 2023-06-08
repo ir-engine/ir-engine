@@ -160,7 +160,7 @@ const AdminPage = (): any => {
     const currentThemeName = getAppThemeName()
     const theme = getAppTheme()
     if (theme)
-      for (let variable of Object.keys(theme)) {
+      for (const variable of Object.keys(theme)) {
         ;(document.querySelector(`[data-theme=${currentThemeName}]`) as any)?.style.setProperty(
           '--' + variable,
           theme[variable]

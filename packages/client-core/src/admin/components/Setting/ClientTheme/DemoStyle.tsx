@@ -1,9 +1,9 @@
 import React from 'react'
 
-import { ThemeOptions } from '@etherealengine/common/src/interfaces/ClientSetting'
+import { ClientThemeOptionsType } from '@etherealengine/engine/src/schemas/setting/client-setting.schema'
 
 interface DemoStyleProps {
-  theme: ThemeOptions
+  theme: ClientThemeOptionsType
 }
 
 const DemoStyle = ({ theme }: DemoStyleProps) => {
