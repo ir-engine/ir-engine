@@ -60,7 +60,7 @@ import {
 	Vector2,
 	Vector3,
 	VectorKeyframeTrack,
-	sRGBEncoding
+	SRGBColorSpace
 } from 'three';
 
 class GLTFLoader extends Loader {
@@ -662,7 +662,7 @@ class GLTFMaterialsUnlitExtension {
 
 			if ( metallicRoughness.baseColorTexture !== undefined ) {
 
-				pending.push( parser.assignTexture( materialParams, 'map', metallicRoughness.baseColorTexture, sRGBEncoding ) );
+				pending.push( parser.assignTexture( materialParams, 'map', metallicRoughness.baseColorTexture, SRGBColorSpace ) );
 
 			}
 
@@ -943,7 +943,7 @@ class GLTFMaterialsSheenExtension {
 
 		if ( extension.sheenColorTexture !== undefined ) {
 
-			pending.push( parser.assignTexture( materialParams, 'sheenColorMap', extension.sheenColorTexture, sRGBEncoding ) );
+			pending.push( parser.assignTexture( materialParams, 'sheenColorMap', extension.sheenColorTexture, SRGBColorSpace ) );
 
 		}
 
@@ -1176,7 +1176,7 @@ class GLTFMaterialsSpecularExtension {
 
 		if ( extension.specularColorTexture !== undefined ) {
 
-			pending.push( parser.assignTexture( materialParams, 'specularColorMap', extension.specularColorTexture, sRGBEncoding ) );
+			pending.push( parser.assignTexture( materialParams, 'specularColorMap', extension.specularColorTexture, SRGBColorSpace ) );
 
 		}
 
@@ -3112,7 +3112,7 @@ class GLTFParser {
 	 * @param {Object} mapDef
 	 * @return {Promise<Texture>}
 	 */
-	assignTexture( materialParams, mapName, mapDef, encoding ) {
+	assignTexture( materialParams, mapName, mapDef, colorSpace ) {
 
 		const parser = this;
 
@@ -3142,9 +3142,9 @@ class GLTFParser {
 
 			}
 
-			if ( encoding !== undefined ) {
+			if ( colorSpace !== undefined ) {
 
-				texture.encoding = encoding;
+				texture.colorSpace = colorSpace;
 
 			}
 
@@ -3312,7 +3312,7 @@ class GLTFParser {
 
 			if ( metallicRoughness.baseColorTexture !== undefined ) {
 
-				pending.push( parser.assignTexture( materialParams, 'map', metallicRoughness.baseColorTexture, sRGBEncoding ) );
+				pending.push( parser.assignTexture( materialParams, 'map', metallicRoughness.baseColorTexture, SRGBColorSpace ) );
 
 			}
 
@@ -3403,7 +3403,7 @@ class GLTFParser {
 
 		if ( materialDef.emissiveTexture !== undefined && materialType !== MeshBasicMaterial ) {
 
-			pending.push( parser.assignTexture( materialParams, 'emissiveMap', materialDef.emissiveTexture, sRGBEncoding ) );
+			pending.push( parser.assignTexture( materialParams, 'emissiveMap', materialDef.emissiveTexture, SRGBColorSpace ) );
 
 		}
 

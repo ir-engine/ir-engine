@@ -10,7 +10,7 @@ import {
   Object3D,
   RGBAFormat,
   Scene,
-  sRGBEncoding,
+  SRGBColorSpace,
   Texture,
   Vector3
 } from 'three'
@@ -119,7 +119,7 @@ export const EnvmapComponent = defineComponent({
 
       const texture = new DataTexture(data, resolution, resolution, RGBAFormat)
       texture.needsUpdate = true
-      texture.encoding = sRGBEncoding
+      texture.colorSpace = SRGBColorSpace
 
       applyEnvMap(group.value, getPmremGenerator().fromEquirectangular(texture).texture)
     }, [component.type, group?.length])
@@ -135,7 +135,7 @@ export const EnvmapComponent = defineComponent({
             (texture: CubeTexture | undefined) => {
               if (texture) {
                 const EnvMap = getPmremGenerator().fromCubemap(texture).texture
-                EnvMap.encoding = sRGBEncoding
+                EnvMap.colorSpace = SRGBColorSpace
                 if (group?.value) applyEnvMap(group.value, EnvMap)
                 removeError(entity, EnvmapComponent, 'MISSING_FILE')
               }
@@ -149,7 +149,7 @@ export const EnvmapComponent = defineComponent({
           AssetLoader.loadAsync(component.envMapSourceURL.value, {}).then((texture) => {
             if (texture) {
               const EnvMap = getPmremGenerator().fromEquirectangular(texture).texture
-              EnvMap.encoding = sRGBEncoding
+              EnvMap.colorSpace = SRGBColorSpace
               applyEnvMap(group.value, EnvMap)
               removeError(entity, EnvmapComponent, 'MISSING_FILE')
               texture.dispose()

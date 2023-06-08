@@ -1,5 +1,5 @@
 import { useEffect } from 'react'
-import { DirectionalLight, HemisphereLight, PerspectiveCamera, Scene, sRGBEncoding, WebGLRenderer } from 'three'
+import { DirectionalLight, HemisphereLight, PerspectiveCamera, Scene, SRGBColorSpace, WebGLRenderer } from 'three'
 
 import { useHookstateFromFactory } from '@etherealengine/common/src/utils/useHookstateFromFactory'
 import { setComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
@@ -39,7 +39,7 @@ const initialize3D = () => {
   })
   const renderer = new WebGLRenderer({ antialias: true, preserveDrawingBuffer: true, alpha: true })
   renderer.setPixelRatio(window.devicePixelRatio)
-  renderer.outputEncoding = sRGBEncoding
+  renderer.outputColorSpace = SRGBColorSpace
 
   const controls = getOrbitControls(camera, renderer.domElement)
 

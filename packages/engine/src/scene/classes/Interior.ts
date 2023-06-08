@@ -1,4 +1,4 @@
-import { Mesh, PlaneGeometry, ShaderMaterial, sRGBEncoding, Vector2 } from 'three'
+import { Mesh, PlaneGeometry, ShaderMaterial, SRGBColorSpace, Texture, Vector2 } from 'three'
 
 import { Entity } from '../../ecs/classes/Entity'
 import { InteriorComponent } from '../components/InteriorComponent'
@@ -88,8 +88,8 @@ export class Interior extends Mesh<PlaneGeometry, ShaderMaterial> {
 
   set cubeMap(path: string) {
     this._cubePath = path
-    const onLoad = (texture) => {
-      texture.encoding = sRGBEncoding
+    const onLoad = (texture: Texture) => {
+      texture.colorSpace = SRGBColorSpace
       this._material.uniforms.cubemap.value = texture
       removeError(this.entity, InteriorComponent, 'LOADING_ERROR')
     }

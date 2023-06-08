@@ -1,13 +1,13 @@
 import {
   Camera,
   CubeTexture,
-  LinearEncoding,
+  LinearSRGBColorSpace,
   Mesh,
   PerspectiveCamera,
   PlaneGeometry,
   Scene,
   ShaderMaterial,
-  sRGBEncoding,
+  SRGBColorSpace,
   Texture,
   Uniform,
   Vector4,
@@ -98,7 +98,7 @@ function blitTexture(map: Texture, options?: BlitTextureOptions | undefined) {
   if ((map as CubeTexture).isCubeTexture) {
     blit = new Texture(map.source.data[0])
   }
-  map.encoding = LinearEncoding
+  map.colorSpace = LinearSRGBColorSpace
   const temporaryRenderer = getTemporaryRenderer()
   const temporaryScene = getTemporaryScene()
   if (options?.keepTransform) {

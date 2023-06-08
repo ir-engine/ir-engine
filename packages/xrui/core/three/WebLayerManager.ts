@@ -4,7 +4,7 @@ import {
   CompressedTexture,
   LinearFilter,
   LinearMipmapLinearFilter,
-  sRGBEncoding,
+  SRGBColorSpace,
   Texture,
   VideoTexture
 } from 'three'
@@ -37,7 +37,7 @@ export class WebLayerManager extends WebLayerManagerBase {
   }
 
   renderer!: THREE.WebGLRenderer
-  textureEncoding = sRGBEncoding
+  textureEncoding = SRGBColorSpace
   ktx2Loader = new KTX2Loader()
 
   texturesByHash = new Map<string, ThreeTextureData>()
@@ -68,7 +68,7 @@ export class WebLayerManager extends WebLayerManagerBase {
             t.wrapS = ClampToEdgeWrapping
             t.wrapT = ClampToEdgeWrapping
             t.minFilter = LinearMipmapLinearFilter
-            t.encoding = this.textureEncoding
+            t.colorSpace = this.textureEncoding
             this.texturesByHash.get(textureData.hash)!.compressedTexture = t
             resolve(undefined)
           },
@@ -95,7 +95,7 @@ export class WebLayerManager extends WebLayerManagerBase {
       t.wrapS = ClampToEdgeWrapping
       t.wrapT = ClampToEdgeWrapping
       t.minFilter = LinearMipmapLinearFilter
-      t.encoding = this.textureEncoding
+      t.colorSpace = this.textureEncoding
       t.flipY = false
       threeTextureData.canvasTexture = t
     }

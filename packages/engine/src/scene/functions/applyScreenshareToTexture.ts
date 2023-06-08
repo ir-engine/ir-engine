@@ -1,4 +1,4 @@
-import { BufferGeometry, DoubleSide, Mesh, MeshStandardMaterial, sRGBEncoding, Vector4, VideoTexture } from 'three'
+import { BufferGeometry, DoubleSide, Mesh, MeshStandardMaterial, SRGBColorSpace, Vector4, VideoTexture } from 'three'
 
 import { OBCType } from '../../common/constants/OBCTypes'
 import { addOBCPlugin } from '../../common/functions/OnBeforeCompilePlugin'
@@ -28,7 +28,7 @@ export const applyVideoToTexture = (
 
   if (!obj.material.map || overwrite) obj.material.map = new VideoTexture(video)
 
-  obj.material.map.encoding = sRGBEncoding
+  obj.material.map.colorSpace = SRGBColorSpace
 
   const imageAspect = video.videoWidth / video.videoHeight
   const screenAspect = getAspectRatioFromBufferGeometry(obj)

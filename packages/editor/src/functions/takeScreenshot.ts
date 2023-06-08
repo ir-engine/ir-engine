@@ -1,11 +1,10 @@
 import {
-  _SRGBFormat,
   Camera,
   ClampToEdgeWrapping,
   LinearFilter,
   PerspectiveCamera,
   RGBAFormat,
-  sRGBEncoding,
+  SRGBColorSpace,
   UnsignedByteType,
   WebGLRenderTarget
 } from 'three'
@@ -117,13 +116,13 @@ export async function takeScreenshot(
     // todo - support post processing
     // EngineRenderer.instance.effectComposer.setMainCamera(scenePreviewCamera as Camera)
     // const renderer = EngineRenderer.instance.effectComposer.getRenderer()
-    renderer.outputEncoding = sRGBEncoding
+    renderer.outputColorSpace = SRGBColorSpace
     const renderTarget = new WebGLRenderTarget(width, height, {
       minFilter: LinearFilter,
       magFilter: LinearFilter,
       wrapS: ClampToEdgeWrapping,
       wrapT: ClampToEdgeWrapping,
-      encoding: sRGBEncoding,
+      colorSpace: SRGBColorSpace,
       format: RGBAFormat,
       type: UnsignedByteType
     })

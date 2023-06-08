@@ -1,4 +1,4 @@
-import { Color, Mesh, PlaneGeometry, ShaderMaterial, sRGBEncoding, WebGLRenderTarget } from 'three'
+import { Color, Mesh, PlaneGeometry, ShaderMaterial, SRGBColorSpace, WebGLRenderTarget } from 'three'
 import { Vector3 } from 'three'
 
 import { loadCubeMapTexture } from '../constants/Util'
@@ -101,7 +101,7 @@ export class Water extends Mesh {
     loadCubeMapTexture(
       path,
       (texture) => {
-        texture.encoding = sRGBEncoding
+        texture.colorSpace = SRGBColorSpace
         this._material.uniforms.skybox.value = texture
       },
       undefined,

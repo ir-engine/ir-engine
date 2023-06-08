@@ -1,6 +1,6 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { CompressedTexture, LinearEncoding, LuminanceFormat, RGBAFormat, sRGBEncoding, Texture } from 'three'
+import { CompressedTexture } from 'three'
 
 import { useRouter } from '@etherealengine/client-core/src/common/services/RouterService'
 import { SceneData } from '@etherealengine/common/src/interfaces/SceneInterface'

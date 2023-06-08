@@ -86,6 +86,7 @@ export function processLoadedLODLevel(entity: Entity, index: number, mesh: Mesh)
     }
   } else if (lodComponent.instanced) {
     const instancedModel = new InstancedMesh(mesh.geometry, mesh.material, lodComponent.instanceMatrix.count)
+    instancedModel.frustumCulled = false
     instancedModel.instanceMatrix = lodComponent.instanceMatrix
     loadedMesh = instancedModel
   }

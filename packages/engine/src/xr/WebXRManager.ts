@@ -5,6 +5,7 @@ import {
   DepthTexture,
   PerspectiveCamera,
   RGBAFormat,
+  TextureDataType,
   UnsignedByteType,
   UnsignedInt248Type,
   UnsignedIntType,
@@ -139,12 +140,12 @@ export function createWebXRManager() {
         newRenderTarget = new WebGLRenderTarget(glBaseLayer.framebufferWidth, glBaseLayer.framebufferHeight, {
           format: RGBAFormat,
           type: UnsignedByteType,
-          encoding: renderer.outputEncoding,
+          colorSpace: renderer.outputColorSpace,
           stencilBuffer: attributes.stencil
         })
       } else {
         let depthFormat: number | undefined
-        let depthType: number | undefined
+        let depthType: TextureDataType | undefined
         let glDepthFormat: number | undefined
 
         if (attributes.depth) {
@@ -189,7 +190,7 @@ export function createWebXRManager() {
             depthFormat
           ),
           stencilBuffer: attributes.stencil,
-          encoding: renderer.outputEncoding,
+          colorSpace: renderer.outputColorSpace,
           samples: attributes.antialias ? 4 : 0
         }
 

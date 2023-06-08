@@ -9,7 +9,7 @@ import {
   MeshBasicMaterial,
   Object3D,
   PlaneGeometry,
-  sRGBEncoding,
+  SRGBColorSpace,
   Vector3
 } from 'three'
 
@@ -280,13 +280,13 @@ const execute = () => {
 const reactor = () => {
   useEffect(() => {
     AssetLoader.loadAsync('/itemLight.png').then((texture) => {
-      texture.encoding = sRGBEncoding
+      texture.colorSpace = SRGBColorSpace
       texture.needsUpdate = true
       light.material.map = texture
     })
 
     AssetLoader.loadAsync('/itemPlate.png').then((texture) => {
-      texture.encoding = sRGBEncoding
+      texture.colorSpace = SRGBColorSpace
       texture.needsUpdate = true
       plate.material.map = texture
     })
