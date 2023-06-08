@@ -305,8 +305,8 @@ export const handleConnectingPeer = async (
   const worldState = getMutableState(WorldState)
   worldState.userNames[userId].set(user.name)
   worldState.userAvatarDetails[userId].set({
-    avatarURL: avatarDetail.modelResource?.LOD0_url || '',
-    thumbnailURL: avatarDetail.thumbnailResource?.LOD0_url || ''
+    avatarURL: avatarDetail.modelResource?.url || '',
+    thumbnailURL: avatarDetail.thumbnailResource?.url || ''
   })
 
   network.userIDToUserIndex.set(userId, userIndex)

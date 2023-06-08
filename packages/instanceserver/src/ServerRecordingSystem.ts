@@ -366,9 +366,8 @@ export const onStartPlayback = async (action: ReturnType<typeof ECSRecordingActi
                       WorldNetworkAction.avatarDetails({
                         // $from: entityID,
                         avatarDetail: {
-                          avatarURL: user.avatar.modelResource?.LOD0_url || (user.avatar.modelResource as any)?.src,
-                          thumbnailURL:
-                            user.avatar.thumbnailResource?.LOD0_url || (user.avatar.thumbnailResource as any)?.src
+                          avatarURL: user.avatar.modelResource?.url || '',
+                          thumbnailURL: user.avatar.thumbnailResource?.url || ''
                         },
                         uuid: entityID
                       })

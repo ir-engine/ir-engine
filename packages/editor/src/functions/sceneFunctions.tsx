@@ -70,14 +70,14 @@ export const renameScene = async (projectName: string, newSceneName: string, old
  *
  * @param {string} projectName
  * @param  {any}  sceneName
- * @param {Blob | null} thumbnailBlob
+ * @param {File | null} thumbnailFile
  * @param  {any}  signal
  * @return {Promise}
  */
 export const saveScene = async (
   projectName: string,
   sceneName: string,
-  thumbnailBlob: Blob | null,
+  thumbnailFile: File | null,
   signal: AbortSignal
 ) => {
   if (signal.aborted) throw new Error(i18n.t('editor:errors.saveProjectAborted'))
@@ -85,7 +85,7 @@ export const saveScene = async (
   const sceneData = serializeWorld()
 
   try {
-    return await uploadToFeathersService('scene/upload', thumbnailBlob ? [thumbnailBlob] : [], {
+    return await uploadToFeathersService('scene/upload', thumbnailFile ? [thumbnailFile] : [], {
       projectName,
       sceneName,
       sceneData

@@ -51,11 +51,7 @@ const AvatarMenu = () => {
 
   const handleConfirmAvatar = () => {
     if (selectedAvatarId && selectedAvatar && userAvatarId !== selectedAvatarId) {
-      setAvatar(
-        selectedAvatarId,
-        selectedAvatar.modelResource?.LOD0_url || selectedAvatar.modelResource?.url || '',
-        selectedAvatar.thumbnailResource?.LOD0_url || selectedAvatar.thumbnailResource?.url || ''
-      )
+      setAvatar(selectedAvatarId, selectedAvatar.modelResource?.url || '', selectedAvatar.thumbnailResource?.url || '')
       PopupMenuServices.showPopupMenu()
     }
     setSelectedAvatarId(undefined)
@@ -114,7 +110,7 @@ const AvatarMenu = () => {
       <Box className={styles.menuContent}>
         <Grid container spacing={2}>
           <Grid item md={6} sx={{ width: '100%', mt: 1 }}>
-            <AvatarPreview fill avatarUrl={selectedAvatar?.modelResource?.LOD0_url} />
+            <AvatarPreview fill avatarUrl={selectedAvatar?.modelResource?.url} />
           </Grid>
 
           <Grid item md={6} sx={{ width: '100%' }}>
@@ -135,7 +131,7 @@ const AvatarMenu = () => {
               {avatarList.map((avatar) => (
                 <Grid item key={avatar.id} md={12} sx={{ pt: 0, width: '100%' }}>
                   <Avatar
-                    imageSrc={avatar.thumbnailResource?.LOD0_url || ''}
+                    imageSrc={avatar.thumbnailResource?.url || ''}
                     isSelected={selectedAvatar && avatar.id === selectedAvatar.id}
                     name={avatar.name}
                     showChangeButton={userId && avatar.userId === userId}

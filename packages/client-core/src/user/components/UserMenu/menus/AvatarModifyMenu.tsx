@@ -73,8 +73,8 @@ const AvatarModifyMenu = ({ selectedAvatar }: Props) => {
       selectedAvatar.name !== state.name ||
       state.avatarFile ||
       state.thumbnailFile ||
-      selectedAvatar.modelResource?.LOD0_url !== state.avatarUrl ||
-      selectedAvatar.thumbnailResource?.LOD0_url !== state.thumbnailUrl
+      selectedAvatar.modelResource?.url !== state.avatarUrl ||
+      selectedAvatar.thumbnailResource?.url !== state.thumbnailUrl
     )
   }
 
@@ -93,8 +93,8 @@ const AvatarModifyMenu = ({ selectedAvatar }: Props) => {
       setState({
         ...defaultState,
         name: selectedAvatar.name || '',
-        avatarUrl: selectedAvatar.modelResource?.LOD0_url || selectedAvatar.modelResource?.url || '',
-        thumbnailUrl: selectedAvatar.thumbnailResource?.LOD0_url || selectedAvatar.thumbnailResource?.url || '',
+        avatarUrl: selectedAvatar.modelResource?.url || '',
+        thumbnailUrl: selectedAvatar.thumbnailResource?.url || '',
         avatarFile: undefined,
         thumbnailFile: undefined
       })
@@ -239,35 +239,35 @@ const AvatarModifyMenu = ({ selectedAvatar }: Props) => {
     setIsSaving(true)
 
     try {
-      let avatarBlob: Blob | undefined = undefined
-      let thumbnailBlob: Blob | undefined = undefined
+      let avatarFile: File | undefined = undefined
+      let thumbnailFile: File | undefined = undefined
 
       if (state.avatarFile) {
-        avatarBlob = state.avatarFile
+        avatarFile = state.avatarFile
       } else if (state.avatarUrl) {
         const avatarData = await fetch(state.avatarUrl)
-        avatarBlob = await avatarData.blob()
+        avatarFile = new File([await avatarData.blob()], state.avatarUrl)
       }
 
       if (state.thumbnailFile) {
-        thumbnailBlob = state.thumbnailFile
+        thumbnailFile = state.thumbnailFile
       } else if (state.thumbnailUrl) {
         const thumbnailData = await fetch(state.thumbnailUrl)
-        thumbnailBlob = await thumbnailData.blob()
+        thumbnailFile = new File([await thumbnailData.blob()], state.thumbnailUrl)
       }
 
       if (selectedAvatar) {
         await AvatarService.patchAvatar(
           selectedAvatar,
           state.name,
-          selectedAvatar.modelResource?.LOD0_url !== state.avatarUrl ||
-            selectedAvatar.thumbnailResource?.LOD0_url !== state.thumbnailUrl,
-          avatarBlob,
-          thumbnailBlob
+          selectedAvatar.modelResource?.url !== state.avatarUrl ||
+            selectedAvatar.thumbnailResource?.url !== state.thumbnailUrl,
+          avatarFile,
+          thumbnailFile
         )
         PopupMenuServices.showPopupMenu(UserMenus.AvatarSelect)
-      } else if (avatarBlob && thumbnailBlob) {
-        await AvatarService.createAvatar(avatarBlob, thumbnailBlob, state.name, false)
+      } else if (avatarFile && thumbnailFile) {
+        await AvatarService.createAvatar(avatarFile, thumbnailFile, state.name, false)
 
         PopupMenuServices.showPopupMenu()
       }

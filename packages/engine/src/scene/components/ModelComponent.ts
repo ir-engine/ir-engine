@@ -28,7 +28,6 @@ import { parseGLTFModel } from '../functions/loadGLTFModel'
 import { enableObjectLayer } from '../functions/setObjectLayers'
 import { addObjectToGroup, GroupComponent, removeObjectFromGroup } from './GroupComponent'
 import { LODComponent } from './LODComponent'
-import { LODComponentType } from './LODComponent'
 import { SceneAssetPendingTagComponent } from './SceneAssetPendingTagComponent'
 import { UUIDComponent } from './UUIDComponent'
 
@@ -100,10 +99,10 @@ function ModelReactor() {
   const groupComponent = useOptionalComponent(entity, GroupComponent)
   const model = modelComponent.value
   const source =
-    model.resource?.gltfStaticResource?.LOD0_url ||
-    model.resource?.glbStaticResource?.LOD0_url ||
-    model.resource?.fbxStaticResource?.LOD0_url ||
-    model.resource?.usdzStaticResource?.LOD0_url ||
+    model.resource?.gltfStaticResource?.url ||
+    model.resource?.glbStaticResource?.url ||
+    model.resource?.fbxStaticResource?.url ||
+    model.resource?.usdzStaticResource?.url ||
     model.src
   // update src
   useEffect(() => {
