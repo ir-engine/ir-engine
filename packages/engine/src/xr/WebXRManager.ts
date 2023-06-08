@@ -226,6 +226,12 @@ export function createWebXRManager() {
     }
   }
 
+  scope.getEnvironmentBlendMode = function () {
+    if (xrState.session !== null) {
+      return xrState.session.environmentBlendMode
+    }
+  }
+
   scope.updateCamera = function () {}
 
   scope.getCamera = function () {
