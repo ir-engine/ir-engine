@@ -357,6 +357,8 @@ const execute = () => {
 
   for (const eid of xrSpaces()) {
     const space = getComponent(eid, XRSpaceComponent)
+    // our custom input source is not a valid pose, so ignore it - might want a better way than this
+    if ('dispatchEvent'! in space) continue
     const pose = origin && xrFrame?.getPose(space, origin)
     if (pose) {
       TransformComponent.position.x[eid] = pose.transform.position.x
