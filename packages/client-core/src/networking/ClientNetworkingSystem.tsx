@@ -53,7 +53,7 @@ const execute = () => {
     WarningUIService.openWarning({
       title: t('common:instanceServer.noAvailableServers'),
       body: t('common:instanceServer.noAvailableServersMessage'),
-      action: () => LocationInstanceConnectionService.provisionServer(currentLocationID)
+      action: (timeout) => timeout && LocationInstanceConnectionService.provisionServer(currentLocationID)
     })
   }
 
@@ -75,7 +75,7 @@ const execute = () => {
         title: t('common:instanceServer.noAvailableServers'),
         body: t('common:instanceServer.noAvailableServersMessage'),
         timeout: 15,
-        action: () => MediaInstanceConnectionService.provisionServer(channelId, false)
+        action: (timeout) => timeout && MediaInstanceConnectionService.provisionServer(channelId, false)
       })
     }
   }
@@ -114,7 +114,7 @@ const execute = () => {
       WarningUIService.openWarning({
         title: 'Media disconnected',
         body: "You've lost your connection with the media server. We'll try to reconnect when the following time runs out.",
-        action: () => MediaInstanceConnectionService.provisionServer(channelId, false),
+        action: (timeout) => timeout && MediaInstanceConnectionService.provisionServer(channelId, false),
         timeout: 15
       })
   }

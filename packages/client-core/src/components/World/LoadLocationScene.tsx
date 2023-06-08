@@ -8,14 +8,17 @@ import {
   LocationState
 } from '@etherealengine/client-core/src/social/services/LocationService'
 import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
+import { AppLoadingAction } from '@etherealengine/engine/src/common/AppLoadingService'
 import { dispatchAction, getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
+import { useRouter } from '../../common/services/RouterService'
 import { WarningUIService } from '../../systems/WarningUISystem'
 import { SceneService } from '../../world/services/SceneService'
 import { loadSceneJsonOffline } from '../../world/utils'
 
 export const useLoadLocation = (props: { locationName: string }) => {
   const locationState = useHookstate(getMutableState(LocationState))
+  const router = useRouter()
 
   useEffect(() => {
     dispatchAction(LocationAction.setLocationName({ locationName: props.locationName }))
@@ -23,11 +26,13 @@ export const useLoadLocation = (props: { locationName: string }) => {
 
   useEffect(() => {
     if (locationState.invalidLocation.value) {
+      dispatchAction(AppLoadingAction.setLoadingState({ state: 'FAIL' }))
       WarningUIService.openWarning({
         title: t('common:instanceServer.invalidLocation'),
         body: `${t('common:instanceServer.cantFindLocation')} '${locationState.locationName.value}'. ${t(
           'common:instanceServer.misspelledOrNotExist'
-        )}`
+        )}`,
+        action: () => router('/')
       })
     }
   }, [locationState.invalidLocation])
