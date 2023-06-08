@@ -21,9 +21,11 @@ import { WebContainer3D, WebLayerManager } from '@etherealengine/xrui'
 
 import { clearWalkPoint } from '../../avatar/functions/autopilotFunctions'
 import { Engine } from '../../ecs/classes/Engine'
-import { Entity } from '../../ecs/classes/Entity'
+import { Entity, UndefinedEntity } from '../../ecs/classes/Entity'
 import { defineQuery, getComponent, hasComponent, removeQuery } from '../../ecs/functions/ComponentFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
+import { InputComponent } from '../../input/components/InputComponent'
+import { InputSourceComponent } from '../../input/components/InputSourceComponent'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { VisibleComponent } from '../../scene/components/VisibleComponent'
 import { DistanceFromCameraComponent } from '../../transform/components/DistanceComponents'
@@ -64,7 +66,7 @@ export type PointerObject = (Line<BufferGeometry, LineBasicMaterial> | Mesh<Ring
 
 const hitColor = new Color(0x00e6e6)
 const normalColor = new Color(0xffffff)
-const visibleXruiQuery = defineQuery([XRUIComponent, VisibleComponent])
+const visibleXruiQuery = defineQuery([XRUIComponent, VisibleComponent, InputComponent])
 const visibleInteractableXRUIQuery = defineQuery([XRUIInteractableComponent, XRUIComponent, VisibleComponent])
 const xruiQuery = defineQuery([XRUIComponent])
 
@@ -77,16 +79,13 @@ const maxXruiPointerDistanceSqr = 3 * 3
 const redirectDOMEvent = (evt) => {
   for (const entity of visibleXruiQuery()) {
     const layer = getComponent(entity, XRUIComponent)
+    const assigned = InputSourceComponent.isAssigned(entity)
+    if (!assigned) continue
     layer.updateWorldMatrix(true, true)
     const hit = layer.hitTest(Engine.instance.pointerScreenRaycaster.ray)
     if (hit && hit.intersection.object.visible) {
       hit.target.dispatchEvent(new evt.constructor(evt.type, evt))
       hit.target.focus()
-      // quick hack to fix autopilot triggering on click until spatialized input is implemented
-
-      setTimeout(() => {
-        clearWalkPoint()
-      }, 2)
       return
     }
   }
@@ -97,6 +96,9 @@ const updateControllerRayInteraction = (controller: PointerObject, xruiEntities:
   let hit = null! as ReturnType<typeof WebContainer3D.prototype.hitTest>
 
   for (const entity of xruiEntities) {
+    const assigned = InputSourceComponent.isAssigned(entity)
+    if (!assigned) continue
+
     const layer = getComponent(entity, XRUIComponent)
 
     /**
@@ -136,20 +138,15 @@ const updateClickEventsForController = (controller: PointerObject) => {
     if (hit && hit.intersection.object.visible) {
       hit.target.dispatchEvent(new PointerEvent('click', { bubbles: true }))
       hit.target.focus()
-      // quick hack to fix autopilot triggering on click until spatialized input is implemented
-
-      setTimeout(() => {
-        clearWalkPoint()
-      }, 2)
     }
   }
 }
 
-const pointers = new Map<XRInputSource, PointerObject>()
+export const pointers = new Map<XRInputSource, PointerObject>()
 
 const execute = () => {
   const xruiState = getState(XRUIState)
-  const keys = Engine.instance.buttons
+  const buttons = Engine.instance.buttons
 
   const xrFrame = Engine.instance.xrFrame
 
@@ -206,8 +203,8 @@ const execute = () => {
     pointer.material.visible = isCloseToVisibleXRUI
 
     if (
-      (inputSource.handedness === 'left' && keys.LeftTrigger?.down) ||
-      (inputSource.handedness === 'right' && keys.RightTrigger?.down)
+      (inputSource.handedness === 'left' && buttons.LeftTrigger?.down) ||
+      (inputSource.handedness === 'right' && buttons.RightTrigger?.down)
     )
       updateClickEventsForController(pointer)
 

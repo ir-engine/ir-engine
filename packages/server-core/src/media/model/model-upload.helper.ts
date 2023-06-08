@@ -3,30 +3,33 @@ import fs from 'fs'
 import fetch from 'node-fetch'
 import { Op } from 'sequelize'
 
-import { CommonKnownContentTypes } from '@etherealengine/common/src/utils/CommonKnownContentTypes'
-
 import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
-import { addGenericAssetToS3AndStaticResources } from '../upload-asset/upload-asset.service'
+import { getResourceFiles } from '../static-resource/static-resource-helper'
+import { addGenericAssetToS3AndStaticResources, UploadAssetArgs } from '../upload-asset/upload-asset.service'
 
-export const modelUpload = async (app: Application, data) => {
+export const modelUpload = async (app: Application, data: UploadAssetArgs) => {
   try {
-    let fileHead, contentLength, extension
+    let contentLength, extension
     if (data.url) {
       if (/http(s)?:\/\//.test(data.url)) {
-        fileHead = await fetch(data.url, { method: 'HEAD' })
+        const fileHead = await fetch(data.url, { method: 'HEAD' })
         if (!/^[23]/.test(fileHead.status.toString())) throw new Error('Invalid URL')
         contentLength = fileHead.headers['content-length'] || fileHead.headers?.get('content-length')
       } else {
-        fileHead = await fs.statSync(data.url)
+        const fileHead = await fs.statSync(data.url)
         contentLength = fileHead.size.toString()
       }
-      if (!data.name) data.name = data.url.split('/').pop().split('.')[0]
+      if (!data.name) data.name = data.url.split('/').pop()!.split('.')[0]
       extension = data.url.split('.').pop()
-    } else if (data.file) {
-      switch (data.file.mimetype) {
+    } else if (data.files) {
+      const mainFile = data.files[0]!
+      switch (mainFile.mimetype) {
+        case 'application/octet-stream':
+          extension = mainFile.originalname.split('.').pop()
+          break
         case 'model/gltf':
-          extension = 'png'
+          extension = 'gltf'
           break
         case 'model/glb':
           extension = 'glb'
@@ -38,10 +41,11 @@ export const modelUpload = async (app: Application, data) => {
           extension = 'fbx'
           break
       }
-      contentLength = data.file.size.toString()
+      contentLength = mainFile.size.toString()
+      if (!data.name) data.name = mainFile.originalname
     }
-    if (/.LOD0/.test(data.name)) data.name = data.name.replace('.LOD0', '')
-    const hash = createHash('sha3-256').update(contentLength).update(data.name).digest('hex')
+
+    const hash = createHash('sha3-256').update(contentLength).update(data.name!).digest('hex')
     let existingModel
     let existingResource = await app.service('static-resource').Model.findOne({
       where: {
@@ -78,21 +82,13 @@ export const modelUpload = async (app: Application, data) => {
       })
     if (existingResource && existingModel) return app.service('model').get(existingModel.id)
     else {
-      let file, body
-      if (data.url) {
-        if (/http(s)?:\/\//.test(data.url)) {
-          file = await fetch(data.url)
-          body = Buffer.from(await file.arrayBuffer())
-        } else body = fs.readFileSync(data.url)
-      } else if (data.file) {
-        body = data.file.buffer
-      }
+      const files = await getResourceFiles(data)
       const newModel = await app.service('model').create({})
       if (!existingResource) {
         const key = `static-resources/model/${newModel.id}`
-        existingResource = await addGenericAssetToS3AndStaticResources(app, body, CommonKnownContentTypes[extension], {
+        existingResource = await addGenericAssetToS3AndStaticResources(app, files, extension, {
           hash: hash,
-          key: `${key}/${data.name}.${extension}`,
+          key: key,
           staticResourceType: 'model3d',
           stats: {
             size: contentLength

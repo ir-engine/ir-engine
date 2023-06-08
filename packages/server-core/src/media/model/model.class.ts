@@ -3,6 +3,7 @@ import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
 import { Op } from 'sequelize'
 
 import { ModelInterface } from '@etherealengine/common/src/interfaces/ModelInterface'
+import { StaticResourceInterface } from '@etherealengine/common/src/interfaces/StaticResourceInterface'
 
 import { Application } from '../../../declarations'
 import { UserParams } from '../../user/user/user.class'
@@ -15,6 +16,57 @@ export type CreateModelType = {
   src?: string
 }
 
+const addModelAssociations = (app: Application) => {
+  const staticResource = app.service('static-resource').Model
+  const staticResourceVariant = app.service('static-resource-variant').Model
+  return [
+    {
+      model: staticResource,
+      as: 'glbStaticResource',
+      include: [
+        {
+          model: staticResourceVariant,
+          as: 'variants'
+        }
+      ]
+    },
+    {
+      model: staticResource,
+      as: 'gltfStaticResource',
+      include: [
+        {
+          model: staticResourceVariant,
+          as: 'variants'
+        }
+      ]
+    },
+    {
+      model: staticResource,
+      as: 'fbxStaticResource',
+      include: [
+        {
+          model: staticResourceVariant,
+          as: 'variants'
+        }
+      ]
+    },
+    {
+      model: staticResource,
+      as: 'usdzStaticResource',
+      include: [
+        {
+          model: staticResourceVariant,
+          as: 'variants'
+        }
+      ]
+    },
+    {
+      model: app.service('image').Model,
+      as: 'thumbnail'
+    }
+  ]
+}
+
 export class Model extends Service<ModelInterface> {
   app: Application
   public docs: any
@@ -22,6 +74,14 @@ export class Model extends Service<ModelInterface> {
   constructor(options: Partial<SequelizeServiceOptions>, app: Application) {
     super(options)
     this.app = app
+  }
+
+  // gets the static resources from the database, including the variants
+  async get(id: string, params?: Params): Promise<ModelInterface> {
+    return super.Model.findOne({
+      where: { id },
+      include: addModelAssociations(this.app)
+    })
   }
 
   // @ts-ignore
@@ -59,28 +119,7 @@ export class Model extends Service<ModelInterface> {
     const limit = params?.query?.$limit ?? 10
     const skip = params?.query?.$skip ?? 0
     const result = await super.Model.findAndCountAll({
-      include: [
-        {
-          model: this.app.service('static-resource').Model,
-          as: 'glbStaticResource'
-        },
-        {
-          model: this.app.service('static-resource').Model,
-          as: 'gltfStaticResource'
-        },
-        {
-          model: this.app.service('static-resource').Model,
-          as: 'fbxStaticResource'
-        },
-        {
-          model: this.app.service('static-resource').Model,
-          as: 'usdzStaticResource'
-        },
-        {
-          model: this.app.service('image').Model,
-          as: 'thumbnail'
-        }
-      ],
+      include: addModelAssociations(this.app),
       limit: limit,
       offset: skip,
       select: params?.query?.$select,

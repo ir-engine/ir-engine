@@ -3,11 +3,16 @@ import fs from 'fs'
 import fetch from 'node-fetch'
 import { Op } from 'sequelize'
 
+import { UploadFile } from '@etherealengine/common/src/interfaces/UploadAssetInterface'
+import { CommonKnownContentTypes } from '@etherealengine/common/src/utils/CommonKnownContentTypes'
+
 import { Application } from '../../../declarations'
 import config from '../../appconfig'
 import logger from '../../ServerLogger'
 import { addGenericAssetToS3AndStaticResources } from '../upload-asset/upload-asset.service'
 import { videoUpload } from '../video/video-upload.helper'
+
+const uvolMimetype = 'application/octet-stream'
 
 const handleManifest = async (app: Application, url: string, name = 'untitled', volumetricId: string) => {
   const drcsFileHead = await fetch(url, { method: 'HEAD' })
@@ -42,25 +47,56 @@ const handleManifest = async (app: Application, url: string, name = 'untitled', 
       ]
     })
   }
-  if (!config.server.cloneProjectStaticResources || (existingResource && existingData)) return existingData
-  else {
-    if (!existingResource) {
-      let file, body
-      if (/http(s)?:\/\//.test(url)) {
-        file = await fetch(url)
-        body = Buffer.from(await file.arrayBuffer())
-      } else body = fs.readFileSync(url)
-      const key = `static-resources/volumetric/${volumetricId}/${name}`
-      existingResource = await addGenericAssetToS3AndStaticResources(app, body, 'application/octet-stream', {
-        hash: hash,
-        key: `${key}.manifest`,
-        staticResourceType: 'data'
-      })
+
+  if (existingResource && existingData) return existingData
+
+  if (!existingResource) {
+    let files: UploadFile[]
+    if (/http(s)?:\/\//.test(url)) {
+      if (config.server.cloneProjectStaticResources) {
+        const file = await fetch(url)
+        files = [
+          {
+            buffer: Buffer.from(await file.arrayBuffer()),
+            originalname: name,
+            mimetype: uvolMimetype,
+            size: parseInt(file.headers.get('content-length') || file.headers.get('Content-Length') || '0')
+          }
+        ]
+      } else {
+        // otherwise we just return the url and let the client download it as needed
+        const file = await fetch(url, { method: 'HEAD' })
+        files = [
+          {
+            buffer: url,
+            originalname: name,
+            mimetype:
+              file.headers.get('content-type') || file.headers.get('Content-Type') || 'application/octet-stream',
+            size: parseInt(file.headers.get('content-length') || file.headers.get('Content-Length') || '0')
+          }
+        ]
+      }
+    } else {
+      const file = fs.readFileSync(url)
+      return [
+        {
+          buffer: file,
+          originalname: name,
+          mimetype: uvolMimetype,
+          size: file.length
+        }
+      ]
     }
-    return app.service('data').create({
-      staticResourceId: existingResource.id
+    const key = `static-resources/volumetric/${volumetricId}/${name}`
+    existingResource = await addGenericAssetToS3AndStaticResources(app, files, uvolMimetype, {
+      hash: hash,
+      key: `${key}.manifest`,
+      staticResourceType: 'data'
     })
   }
+  return app.service('data').create({
+    staticResourceId: existingResource.id
+  })
 }
 
 export const volumetricUpload = async (app: Application, data) => {
