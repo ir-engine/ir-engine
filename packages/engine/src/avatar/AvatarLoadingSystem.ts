@@ -1,5 +1,4 @@
 import { Easing, Tween } from '@tweenjs/tween.js'
-import { P } from 'pino'
 import { useEffect } from 'react'
 import {
   AdditiveBlending,

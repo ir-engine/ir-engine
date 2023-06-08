@@ -119,5 +119,6 @@ export const assessWalkability = (
 export const clearWalkPoint = () => {
   const markerState = getMutableState(AutopilotMarker)
   markerState.walkTarget.set(undefined)
-  markerState.markerObject.value!.visible = false
+  if (!markerState.markerObject.value) return
+  markerState.markerObject.value.visible = false
 }

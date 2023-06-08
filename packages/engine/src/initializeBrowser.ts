@@ -10,7 +10,6 @@ import { Engine } from './ecs/classes/Engine'
 import { EngineActions, EngineState } from './ecs/classes/EngineState'
 import { EngineRenderer } from './renderer/WebGLRendererSystem'
 import { ObjectLayers } from './scene/constants/ObjectLayers'
-import { FontManager } from './xrui/classes/FontManager'
 
 /**
  * initializeBrowser
@@ -35,9 +34,6 @@ export const initializeBrowser = () => {
   Engine.instance.camera.layers.enable(ObjectLayers.TransformGizmo)
 
   getMutableState(EngineState).isBot.set(navigator.userAgent === BotUserAgent)
-
-  // maybe needs to be awaited?
-  FontManager.instance.getDefaultFont()
 
   EngineRenderer.instance.initialize()
   const renderer = EngineRenderer.instance.renderer
