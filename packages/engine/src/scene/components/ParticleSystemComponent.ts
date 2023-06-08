@@ -1,5 +1,14 @@
 import { useEffect } from 'react'
-import { AdditiveBlending, BufferGeometry, Material, MeshBasicMaterial, Texture, Vector2, Vector3 } from 'three'
+import {
+  AdditiveBlending,
+  Blending,
+  BufferGeometry,
+  Material,
+  MeshBasicMaterial,
+  Texture,
+  Vector2,
+  Vector3
+} from 'three'
 import { Behavior, BehaviorFromJSON, ParticleSystem, ParticleSystemJSONParameters, RenderMode } from 'three.quarks'
 import matches from 'ts-matches'
 
@@ -784,7 +793,7 @@ export const ParticleSystemComponent = defineComponent({
       const dudMaterial = new MeshBasicMaterial({
         color: 0xffffff,
         transparent: component.systemParameters.transparent ?? true,
-        blending: component.systemParameters.blending
+        blending: component.systemParameters.blending as Blending
       })
       metadata.materials['dud'] = dudMaterial
 

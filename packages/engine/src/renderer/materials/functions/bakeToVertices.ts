@@ -1,16 +1,4 @@
-import { sample } from 'lodash'
-import {
-  BufferAttribute,
-  BuiltinShaderAttributeName,
-  Color,
-  Material,
-  Mesh,
-  MeshBasicMaterial,
-  MeshStandardMaterial,
-  Object3D,
-  Texture,
-  Vector2
-} from 'three'
+import { BufferAttribute, Color, Material, Mesh, Object3D, Texture } from 'three'
 
 import createReadableTexture from '../../../assets/functions/createReadableTexture'
 import { Engine } from '../../../ecs/classes/Engine'
