@@ -91,6 +91,9 @@ function LoadingReactor() {
     if (loadingState.state.value === AppLoadingStates.SCENE_LOADING) {
       getState(LoadingUISystemState).transition.setState('IN')
     }
+    if (loadingState.state.value === AppLoadingStates.FAIL) {
+      getState(LoadingUISystemState).transition.setState('OUT')
+    }
   }, [loadingState.state])
 
   return null
