@@ -1,7 +1,7 @@
 import { Knex } from 'knex'
 import { v4 } from 'uuid'
 
-import { coilSettingPath, CoilSettingType } from '@etherealengine/engine/src/schemas/setting/coil-setting.schema'
+import { coilSettingPath } from '@etherealengine/engine/src/schemas/setting/coil-setting.schema'
 import appConfig from '@etherealengine/server-core/src/appconfig'
 
 import { getDateTimeSql } from '../../util/get-datetime-sql'
@@ -10,12 +10,12 @@ export async function seed(knex: Knex): Promise<void> {
   const { testEnabled } = appConfig
   const { forceRefresh } = appConfig.db
 
-  const seedData: CoilSettingType[] = await Promise.all(
+  const seedData = await Promise.all(
     [
       {
-        paymentPointer: process.env.COIL_PAYMENT_POINTER || '',
-        clientId: process.env.COIL_API_CLIENT_ID || '',
-        clientSecret: process.env.COIL_API_CLIENT_SECRET || ''
+        paymentPointer: process.env.COIL_PAYMENT_POINTER || null,
+        clientId: process.env.COIL_API_CLIENT_ID || null,
+        clientSecret: process.env.COIL_API_CLIENT_SECRET || null
       }
     ].map(async (item) => ({ ...item, id: v4(), createdAt: await getDateTimeSql(), updatedAt: await getDateTimeSql() }))
   )

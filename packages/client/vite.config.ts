@@ -14,7 +14,6 @@ import PkgConfig from 'vite-plugin-package-config'
 import manifest from './manifest.default.json'
 import PWA from './pwa.config'
 import { getClientSetting } from './scripts/getClientSettings'
-import { getCoilSetting } from './scripts/getCoilSettings'
 
 const merge = (src, dest) =>
   mergeWith({}, src, dest, function (a, b) {
@@ -126,7 +125,6 @@ export default defineConfig(async () => {
     path: packageRoot.path + '/.env.local'
   })
   const clientSetting = await getClientSetting()
-  const coilSetting = await getCoilSetting()
 
   writeEmptySWFile()
 
@@ -179,9 +177,9 @@ export default defineConfig(async () => {
         ...manifest,
         title: clientSetting.title || 'Ethereal Engine',
         description: clientSetting?.siteDescription || 'Connected Worlds for Everyone',
-        // short_name: clientSetting?.shortName || 'EE',
-        // theme_color: clientSetting?.themeColor || '#ffffff',
-        // background_color: clientSetting?.backgroundColor || '#000000',
+        short_name: clientSetting?.shortName || 'EE',
+        theme_color: clientSetting?.themeColor || '#ffffff',
+        background_color: clientSetting?.backgroundColor || '#000000',
         appleTouchIcon: clientSetting.appleTouchIcon || '/apple-touch-icon.png',
         favicon32px: clientSetting.favicon32px || '/favicon-32x32.png',
         favicon16px: clientSetting.favicon16px || '/favicon-16x16.png',
@@ -189,7 +187,7 @@ export default defineConfig(async () => {
         icon512px: clientSetting.icon512px || '/android-chrome-512x512.png',
         webmanifestLink: clientSetting.webmanifestLink || '/manifest.webmanifest',
         swScriptLink: clientSetting.swScriptLink || 'service-worker.js',
-        paymentPointer: coilSetting.paymentPointer || ''
+        paymentPointer: clientSetting.paymentPointer || ''
       }),
       viteCompression({
         filter: /\.(js|mjs|json|css)$/i,

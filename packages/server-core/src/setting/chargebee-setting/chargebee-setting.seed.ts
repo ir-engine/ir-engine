@@ -1,10 +1,7 @@
 import { Knex } from 'knex'
 import { v4 } from 'uuid'
 
-import {
-  chargebeeSettingPath,
-  ChargebeeSettingType
-} from '@etherealengine/engine/src/schemas/setting/chargebee-setting.schema'
+import { chargebeeSettingPath } from '@etherealengine/engine/src/schemas/setting/chargebee-setting.schema'
 import appConfig from '@etherealengine/server-core/src/appconfig'
 
 import { getDateTimeSql } from '../../util/get-datetime-sql'
@@ -13,11 +10,11 @@ export async function seed(knex: Knex): Promise<void> {
   const { testEnabled } = appConfig
   const { forceRefresh } = appConfig.db
 
-  const seedData: ChargebeeSettingType[] = await Promise.all(
+  const seedData = await Promise.all(
     [
       {
         url: process.env.CHARGEBEE_SITE + '.chargebee.com' || 'dummy.not-chargebee.com',
-        apiKey: process.env.CHARGEBEE_API_KEY || ''
+        apiKey: process.env.CHARGEBEE_API_KEY || null
       }
     ].map(async (item) => ({ ...item, id: v4(), createdAt: await getDateTimeSql(), updatedAt: await getDateTimeSql() }))
   )

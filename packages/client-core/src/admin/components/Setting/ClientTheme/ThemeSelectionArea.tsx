@@ -2,6 +2,7 @@ import React from 'react'
 import { useTranslation } from 'react-i18next'
 
 import InputSelect, { InputMenuItem } from '@etherealengine/client-core/src/common/components/InputSelect'
+import { ThemeMode } from '@etherealengine/common/src/interfaces/ClientSetting'
 import capitalizeFirstLetter from '@etherealengine/common/src/utils/capitalizeFirstLetter'
 import Grid from '@etherealengine/ui/src/primitives/mui/Grid'
 import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
@@ -9,7 +10,7 @@ import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 import styles from '../../../styles/settings.module.scss'
 
 interface ThemeSelectionAreaProps {
-  themeModes: Record<string, string>
+  themeModes: ThemeMode
   colorModes: string[]
   onChangeThemeMode: Function
 }

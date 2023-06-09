@@ -6,7 +6,7 @@ import {
   defaultThemeSettings,
   getCurrentTheme
 } from '@etherealengine/common/src/constants/DefaultThemeSettings'
-import { ClientThemeOptionsType } from '@etherealengine/engine/src/schemas/setting/client-setting.schema'
+import { ThemeMode, ThemeSetting } from '@etherealengine/common/src/interfaces/ClientSetting'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import Button from '@etherealengine/ui/src/primitives/mui/Button'
 
@@ -26,11 +26,11 @@ const ClientTheme = () => {
   const [clientSetting] = clientSettingState?.client?.get({ noproxy: true }) || []
   const id = clientSetting?.id
 
-  const themeSettings = useHookstate<Record<string, ClientThemeOptionsType>>({
+  const themeSettings = useHookstate<ThemeSetting>({
     ...defaultThemeSettings,
     ...clientSetting.themeSettings
   })
-  const themeModes = useHookstate<Record<string, string>>({
+  const themeModes = useHookstate<ThemeMode>({
     ...defaultThemeModes,
     ...clientSetting.themeModes
   })
@@ -67,10 +67,7 @@ const ClientTheme = () => {
     await updateTheme(themeSettings.value, themeModes.value)
   }
 
-  const updateTheme = async (
-    newThemeSettings: Record<string, ClientThemeOptionsType>,
-    newThemeModes: Record<string, string>
-  ) => {
+  const updateTheme = async (newThemeSettings: ThemeSetting, newThemeModes: ThemeMode) => {
     await ClientSettingService.patchClientSetting(
       {
         logo: clientSetting?.logo,
@@ -88,9 +85,9 @@ const ClientTheme = () => {
         appSubtitle: clientSetting?.appSubtitle,
         appDescription: clientSetting?.appDescription,
         appBackground: clientSetting?.appBackground,
-        appSocialLinks: clientSetting?.appSocialLinks,
-        themeSettings: newThemeSettings,
-        themeModes: newThemeModes,
+        appSocialLinks: JSON.stringify(clientSetting?.appSocialLinks),
+        themeSettings: JSON.stringify(newThemeSettings),
+        themeModes: JSON.stringify(newThemeModes),
         key8thWall: clientSetting?.key8thWall,
         homepageLinkButtonEnabled: clientSetting?.homepageLinkButtonEnabled,
         homepageLinkButtonRedirect: clientSetting?.homepageLinkButtonRedirect,
@@ -102,7 +99,7 @@ const ClientTheme = () => {
     const currentTheme = getCurrentTheme(selfUser?.user_setting?.value?.themeModes)
 
     if (newThemeSettings[currentTheme]) {
-      for (const variable of Object.keys(newThemeSettings[currentTheme])) {
+      for (let variable of Object.keys(newThemeSettings[currentTheme])) {
         ;(document.querySelector(`[data-theme=${currentTheme}]`) as any)?.style.setProperty(
           '--' + variable,
           newThemeSettings[currentTheme][variable]

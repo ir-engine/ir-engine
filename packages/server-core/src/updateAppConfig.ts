@@ -7,10 +7,6 @@ import {
   chargebeeSettingPath,
   ChargebeeSettingType
 } from '@etherealengine/engine/src/schemas/setting/chargebee-setting.schema'
-import {
-  ClientSettingDatabaseType,
-  clientSettingPath
-} from '@etherealengine/engine/src/schemas/setting/client-setting.schema'
 import { coilSettingPath, CoilSettingType } from '@etherealengine/engine/src/schemas/setting/coil-setting.schema'
 import {
   EmailSettingDatabaseType,
@@ -29,7 +25,6 @@ import {
 import appConfig from './appconfig'
 import logger from './ServerLogger'
 import { awsDbToSchema } from './setting/aws-setting/aws-setting.resolvers'
-import { clientDbToSchema } from './setting/client-setting/client-setting.resolvers'
 import { emailDbToSchema } from './setting/email-setting/email-setting.resolvers'
 import { serverDbToSchema } from './setting/server-setting/server-setting.resolvers'
 
@@ -224,11 +219,58 @@ export const updateAppConfig = async (): Promise<void> => {
     })
   promises.push(coilSettingPromise)
 
-  const clientSettingPromise = knexClient
-    .select()
-    .from<ClientSettingDatabaseType>(clientSettingPath)
+  const clientSetting = sequelizeClient.define('clientSetting', {
+    logo: {
+      type: DataTypes.STRING,
+      allowNull: true
+    },
+    title: {
+      type: DataTypes.STRING,
+      allowNull: true
+    },
+    url: {
+      type: DataTypes.STRING,
+      allowNull: true
+    },
+    releaseName: {
+      type: DataTypes.STRING,
+      allowNull: true
+    },
+    siteDescription: {
+      type: DataTypes.STRING,
+      allowNull: true
+    },
+    favicon32px: {
+      type: DataTypes.STRING,
+      allowNull: true
+    },
+    favicon16px: {
+      type: DataTypes.STRING,
+      allowNull: true
+    },
+    icon192px: {
+      type: DataTypes.STRING,
+      allowNull: true
+    },
+    icon512px: {
+      type: DataTypes.STRING,
+      allowNull: true
+    }
+  })
+  const clientSettingPromise = clientSetting
+    .findAll()
     .then(([dbClient]) => {
-      const dbClientConfig = clientDbToSchema(dbClient)
+      const dbClientConfig = dbClient && {
+        logo: dbClient.logo,
+        title: dbClient.title,
+        url: dbClient.url,
+        releaseName: dbClient.releaseName,
+        siteDescription: dbClient.siteDescription,
+        favicon32px: dbClient.favicon32px,
+        favicon16px: dbClient.favicon16px,
+        icon192px: dbClient.icon192px,
+        icon512px: dbClient.icon512px
+      }
       if (dbClientConfig) {
         appConfig.client = {
           ...appConfig.client,

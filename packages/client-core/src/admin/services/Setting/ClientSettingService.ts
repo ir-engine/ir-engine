@@ -1,13 +1,9 @@
 import { Paginated } from '@feathersjs/feathers'
 
 import config from '@etherealengine/common/src/config'
+import { ClientSetting, PatchClientSetting } from '@etherealengine/common/src/interfaces/ClientSetting'
 import multiLogger from '@etherealengine/common/src/logger'
 import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
-import {
-  ClientSettingPatch,
-  clientSettingPath,
-  ClientSettingType
-} from '@etherealengine/engine/src/schemas/setting/client-setting.schema'
 import { defineAction, defineState, dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 
 import { API } from '../../../API'
@@ -19,7 +15,7 @@ const logger = multiLogger.child({ component: 'client-core:ClientSettingService'
 export const AdminClientSettingsState = defineState({
   name: 'AdminClientSettingsState',
   initial: () => ({
-    client: [] as Array<ClientSettingType>,
+    client: [] as Array<ClientSetting>,
     updateNeeded: true
   })
 })
@@ -61,9 +57,7 @@ export const ClientSettingService = {
       logger.info('waitingForClientAuthenticated')
       await waitForClientAuthenticated()
       logger.info('CLIENT AUTHENTICATED!')
-      const clientSettings = (await API.instance.client
-        .service(clientSettingPath)
-        .find()) as Paginated<ClientSettingType>
+      const clientSettings = (await API.instance.client.service('client-setting').find()) as Paginated<ClientSetting>
       logger.info('Dispatching fetchedClient')
       dispatchAction(ClientSettingActions.fetchedClient({ clientSettings }))
     } catch (err) {
@@ -71,9 +65,9 @@ export const ClientSettingService = {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
   },
-  patchClientSetting: async (data: ClientSettingPatch, id: string) => {
+  patchClientSetting: async (data: PatchClientSetting, id: string) => {
     try {
-      await API.instance.client.service(clientSettingPath).patch(id, data)
+      await API.instance.client.service('client-setting').patch(id, data)
       dispatchAction(ClientSettingActions.clientSettingPatched({}))
     } catch (err) {
       logger.error(err)
@@ -85,7 +79,7 @@ export const ClientSettingService = {
 export class ClientSettingActions {
   static fetchedClient = defineAction({
     type: 'ee.client.AdminClientSetting.CLIENT_SETTING_DISPLAY' as const,
-    clientSettings: matches.object as Validator<unknown, Paginated<ClientSettingType>>
+    clientSettings: matches.object as Validator<unknown, Paginated<ClientSetting>>
   })
   static clientSettingPatched = defineAction({
     type: 'ee.client.AdminClientSetting.CLIENT_SETTING_PATCHED' as const

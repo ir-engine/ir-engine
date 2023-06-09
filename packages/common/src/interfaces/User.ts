@@ -1,5 +1,6 @@
 import { AdminScopeType } from './AdminScopeType'
 import { AvatarInterface } from './AvatarInterface'
+import { ThemeMode } from './ClientSetting'
 import { IdentityProvider } from './IdentityProvider'
 import { Instance } from './Instance'
 import { InstanceAttendanceInterface } from './InstanceAttendance'
@@ -13,7 +14,7 @@ import { RelationshipType } from './UserRelationship'
 
 export interface UserSetting {
   id: string
-  themeModes: Record<string, string>
+  themeModes: ThemeMode
 }
 
 export interface UserScope {

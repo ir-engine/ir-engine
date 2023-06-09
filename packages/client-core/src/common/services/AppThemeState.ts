@@ -1,6 +1,6 @@
 import { getCurrentTheme } from '@etherealengine/common/src/constants/DefaultThemeSettings'
+import { ThemeOptions } from '@etherealengine/common/src/interfaces/ClientSetting'
 import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
-import { ClientThemeOptionsType } from '@etherealengine/engine/src/schemas/setting/client-setting.schema'
 import { defineAction, defineState, getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
 import { AdminClientSettingsState } from '../../admin/services/Setting/ClientSettingService'
@@ -10,7 +10,7 @@ export const AppThemeState = defineState({
   name: 'AppThemeState',
   initial: () => ({
     mode: 'auto' as 'auto' | 'profile' | 'custom',
-    customTheme: null as ClientThemeOptionsType | null,
+    customTheme: null as ThemeOptions | null,
     customThemeName: null as string | null
   })
 })
@@ -29,7 +29,7 @@ export const AppThemeServiceReceptor = (action) => {
 export class AppThemeActions {
   static setCustomTheme = defineAction({
     type: 'ee.client.AppTheme.setCustomTheme' as const,
-    theme: matches.object.optional() as Validator<unknown, ClientThemeOptionsType>,
+    theme: matches.object.optional() as Validator<unknown, ThemeOptions>,
     themeName: matches.string.optional()
   })
 }
