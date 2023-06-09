@@ -1,6 +1,22 @@
+import { Type } from '@feathersjs/typebox'
+import type { Static } from '@feathersjs/typebox'
 import knex from 'knex'
 
-import { coilSettingPath, CoilSettingType } from '@etherealengine/engine/src/schemas/setting/coil-setting.schema'
+export const coilSettingPath = 'coil-setting'
+export const coilSettingSchema = Type.Object(
+  {
+    id: Type.String({
+      format: 'uuid'
+    }),
+    paymentPointer: Type.String(),
+    clientId: Type.String(),
+    clientSecret: Type.String(),
+    createdAt: Type.String({ format: 'date-time' }),
+    updatedAt: Type.String({ format: 'date-time' })
+  },
+  { $id: 'CoilSetting', additionalProperties: false }
+)
+export type CoilSettingType = Static<typeof coilSettingSchema>
 
 export const getCoilSetting = async () => {
   const knexClient = knex({
@@ -24,7 +40,7 @@ export const getCoilSetting = async () => {
       }
     })
     .catch((e) => {
-      console.warn('[vite.config.js]: Failed to read coilSetting')
+      console.warn('[vite.config]: Failed to read coilSetting')
       console.warn(e)
     })
 
