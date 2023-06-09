@@ -4,7 +4,10 @@ import path from 'path'
 import url from 'url'
 import { v4 } from 'uuid'
 
-import { serverSettingPath } from '@etherealengine/engine/src/schemas/setting/server-setting.schema'
+import {
+  ServerSettingDatabaseType,
+  serverSettingPath
+} from '@etherealengine/engine/src/schemas/setting/server-setting.schema'
 import appConfig from '@etherealengine/server-core/src/appconfig'
 
 import { getDateTimeSql } from '../../util/get-datetime-sql'
@@ -23,7 +26,7 @@ const server = {
       ? path.resolve(appRootPath.path, 'public')
       : path.resolve(appRootPath.path, 'packages', 'server', 'public')),
   nodeModulesDir: path.resolve(__dirname, '../..', 'node_modules'),
-  localStorageProvider: process.env.LOCAL_STORAGE_PROVIDER ?? null,
+  localStorageProvider: process.env.LOCAL_STORAGE_PROVIDER ?? 's3',
   performDryRun: process.env.PERFORM_DRY_RUN === 'true',
   storageProvider: process.env.STORAGE_PROVIDER!,
   gaTrackingId: process.env.GOOGLE_ANALYTICS_TRACKING_ID || null!,
@@ -33,10 +36,11 @@ const server = {
   url: '' || (null! as string),
   certPath: appRootPath.path.toString() + '/' + process.env.CERT,
   keyPath: appRootPath.path.toString() + '/' + process.env.KEY,
-  gitPem: null,
+  gitPem: '',
   local: process.env.LOCAL === 'true',
   releaseName: process.env.RELEASE_NAME || 'local',
-  instanceserverUnreachableTimeoutSeconds: process.env.INSTANCESERVER_UNREACHABLE_TIMEOUT_SECONDS || 2
+  instanceserverUnreachableTimeoutSeconds: parseInt(process.env.INSTANCESERVER_UNREACHABLE_TIMEOUT_SECONDS || '2'),
+  githubWebhookSecret: ''
 }
 
 server.url =
@@ -47,7 +51,7 @@ export async function seed(knex: Knex): Promise<void> {
   const { testEnabled } = appConfig
   const { forceRefresh } = appConfig.db
 
-  const seedData = await Promise.all(
+  const seedData: ServerSettingDatabaseType[] = await Promise.all(
     [server].map(async (item) => ({
       ...item,
       id: v4(),

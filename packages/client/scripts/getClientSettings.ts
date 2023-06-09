@@ -1,79 +1,29 @@
-import { DataTypes, Sequelize } from 'sequelize'
+import knex from 'knex'
+
+import {
+  ClientSettingDatabaseType,
+  clientSettingPath
+} from '@etherealengine/engine/src/schemas/setting/client-setting.schema'
+import { clientDbToSchema } from '@etherealengine/server-core/src/setting/client-setting/client-setting.resolvers'
 
 export const getClientSetting = async () => {
-  const db = {
-    username: process.env.MYSQL_USER ?? 'server',
-    password: process.env.MYSQL_PASSWORD ?? 'password',
-    database: process.env.MYSQL_DATABASE ?? 'etherealengine',
-    host: process.env.MYSQL_HOST ?? '127.0.0.1',
-    port: process.env.MYSQL_PORT ?? 3306,
-    dialect: 'mysql',
-    url: ''
-  }
-
-  db.url = process.env.MYSQL_URL ?? `mysql://${db.username}:${db.password}@${db.host}:${db.port}/${db.database}`
-  const sequelizeClient = new Sequelize({
-    ...db,
-    define: {
-      freezeTableName: true
-    },
-    logging: false
-  } as any) as any
-  await sequelizeClient.sync()
-  const clientSettingSchema = sequelizeClient.define('clientSetting', {
-    logo: {
-      type: DataTypes.STRING,
-      allowNull: true
-    },
-    title: {
-      type: DataTypes.STRING,
-      allowNull: true
-    },
-    url: {
-      type: DataTypes.STRING,
-      allowNull: true
-    },
-    releaseName: {
-      type: DataTypes.STRING,
-      allowNull: true
-    },
-    siteDescription: {
-      type: DataTypes.STRING,
-      allowNull: true
-    },
-    favicon32px: {
-      type: DataTypes.STRING,
-      allowNull: true
-    },
-    favicon16px: {
-      type: DataTypes.STRING,
-      allowNull: true
-    },
-    icon192px: {
-      type: DataTypes.STRING,
-      allowNull: true
-    },
-    icon512px: {
-      type: DataTypes.STRING,
-      allowNull: true
+  const knexClient = knex({
+    client: 'mysql',
+    connection: {
+      user: process.env.MYSQL_USER ?? 'server',
+      password: process.env.MYSQL_PASSWORD ?? 'password',
+      host: process.env.MYSQL_HOST ?? '127.0.0.1',
+      port: parseInt(process.env.MYSQL_PORT || '3306'),
+      database: process.env.MYSQL_DATABASE ?? 'etherealengine',
+      charset: 'utf8mb4'
     }
   })
 
-  const clientSetting = await clientSettingSchema
-    .findAll()
+  const clientSetting = await knexClient
+    .select()
+    .from<ClientSettingDatabaseType>(clientSettingPath)
     .then(([dbClient]) => {
-      const dbClientConfig = (dbClient && {
-        paymentPointer: process.env.COIL_PAYMENT_POINTER || '',
-        logo: dbClient.logo,
-        title: dbClient.title,
-        url: dbClient.url,
-        releaseName: dbClient.releaseName,
-        siteDescription: dbClient.siteDescription,
-        favicon32px: dbClient.favicon32px,
-        favicon16px: dbClient.favicon16px,
-        icon192px: dbClient.icon192px,
-        icon512px: dbClient.icon512px
-      }) || {
+      const dbClientConfig = clientDbToSchema(dbClient) || {
         logo: './logo.svg',
         title: 'Ethereal Engine',
         url: 'https://local.etherealengine.org',

@@ -1,7 +1,7 @@
 import { Knex } from 'knex'
 import { v4 } from 'uuid'
 
-import { routePath } from '@etherealengine/engine/src/schemas/route/route.schema'
+import { routePath, RouteType } from '@etherealengine/engine/src/schemas/route/route.schema'
 import appConfig from '@etherealengine/server-core/src/appconfig'
 
 import { getDateTimeSql } from '../../util/get-datetime-sql'
@@ -10,7 +10,7 @@ export async function seed(knex: Knex): Promise<void> {
   const { testEnabled } = appConfig
   const { forceRefresh } = appConfig.db
 
-  const seedData = await Promise.all(
+  const seedData: RouteType[] = await Promise.all(
     [
       {
         project: 'default-project',

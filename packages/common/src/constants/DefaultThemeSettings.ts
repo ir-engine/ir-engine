@@ -1,5 +1,3 @@
-import { ThemeMode } from '../interfaces/ClientSetting'
-
 export const defaultThemeSettings = {
   light: {
     textColor: '#585858',
@@ -127,14 +125,14 @@ export const defaultThemeModes = {
   client: 'light',
   studio: 'dark',
   admin: 'vaporwave'
-} as ThemeMode
+} as Record<string, string>
 
 /**
  * Defaults to light theme
  * @param themeModes
  * @returns
  */
-export const getCurrentTheme = (themeModes: ThemeMode | undefined): string => {
+export const getCurrentTheme = (themeModes: Record<string, string> | undefined): string => {
   const currentThemeModes = themeModes || defaultThemeModes
   const { pathname } = window.location
 
