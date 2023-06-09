@@ -1,7 +1,7 @@
 import { VRM, VRMHumanBone, VRMHumanBoneList, VRMHumanBoneName } from '@pixiv/three-vrm'
 import * as VRMUtils from '@pixiv/three-vrm'
 import { pipe } from 'bitecs'
-import { cloneDeep } from 'lodash'
+import { clone, cloneDeep } from 'lodash'
 import { useEffect } from 'react'
 import {
   AnimationClip,
@@ -222,28 +222,14 @@ export const setupAvatarModel = (entity: Entity) => pipe(rigAvatarModel(entity),
 // }
 
 export const createIKAnimator = async (entity: Entity) => {
-  const animationComponent = getComponent(entity, AnimationComponent)
   const rigComponent = getComponent(entity, AvatarRigComponent)
   const animations = await getAnimations()
-  console.log('animations', animations)
-  const bindPose = animations[1]
-  const idle = animations[0]
-  const walkForward = animations[3]
-  const jump = animations[2]
-  console.log(animations)
 
   //Using set component here allows us to react to animations
   setComponent(entity, AnimationComponent, {
-    animations: [bindPose, idle, walkForward, jump],
+    animations: clone(animations),
     mixer: new AnimationMixer(rigComponent.targets)
   })
-
-  const idleAction = animationComponent.mixer.clipAction(idle)
-  const walkAction = animationComponent.mixer.clipAction(walkForward)
-  const jumpAction = animationComponent.mixer.clipAction(jump)
-
-  idleAction.play()
-  walkAction.play()
 }
 
 export const getAnimations = async () => {
@@ -255,8 +241,6 @@ export const getAnimations = async () => {
   }
   return manager.targetsAnimation.value!
 }
-
-const hipsRotationoffset = new Quaternion().setFromEuler(new Euler(0, Math.PI, 0))
 
 export const rigAvatarModel = (entity: Entity) => (model: VRM) => {
   const avatarAnimationComponent = getComponent(entity, AvatarAnimationComponent)

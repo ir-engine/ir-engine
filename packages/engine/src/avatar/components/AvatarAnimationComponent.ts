@@ -1,6 +1,7 @@
 import { VRM, VRMHumanBoneList, VRMHumanBones } from '@pixiv/three-vrm'
 import { useEffect } from 'react'
 import {
+  AnimationClip,
   AxesHelper,
   Euler,
   Matrix4,
@@ -13,7 +14,7 @@ import {
   Vector3
 } from 'three'
 
-import { getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
+import { getMutableState, getState, none, useHookstate } from '@etherealengine/hyperflux'
 
 import { matches } from '../../common/functions/MatchesUtils'
 import { proxifyQuaternion, proxifyVector3 } from '../../common/proxies/createThreejsProxy'
@@ -32,6 +33,8 @@ import { ObjectLayers } from '../../scene/constants/ObjectLayers'
 import { setObjectLayers } from '../../scene/functions/setObjectLayers'
 import { PoseSchema } from '../../transform/components/TransformComponent'
 import { AnimationGraph } from '../animation/AnimationGraph'
+import { getAnimationAction } from '../animation/AvatarAnimationGraph'
+import { AnimationManager } from '../AnimationManager'
 import { AnimationComponent } from './AnimationComponent'
 import { AvatarComponent } from './AvatarComponent'
 import { AvatarPendingComponent } from './AvatarPendingComponent'
@@ -191,7 +194,7 @@ export const AvatarRigComponent = defineComponent({
     //Calculate ik target offsets for retargeting
     useEffect(() => {
       if (!animComponent.animations.value.length || !rigComponent.targets.children.length) return
-      const bindTracks = animComponent.animations[0].tracks.value
+      const bindTracks = AnimationClip.findByName(getState(AnimationManager).targetsAnimation!, 'BindPose').tracks
       if (!bindTracks) return
       for (let i = 0; i < bindTracks.length; i += 3) {
         const key = bindTracks[i].name.substring(0, bindTracks[i].name.indexOf('.'))
