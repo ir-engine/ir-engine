@@ -38,13 +38,16 @@ export default {
   },
 
   before: {
-    all: [schemaHooks.validateQuery(clientSettingQueryValidator), schemaHooks.resolveQuery(clientSettingQueryResolver)],
+    all: [
+      () => schemaHooks.validateQuery(clientSettingQueryValidator),
+      schemaHooks.resolveQuery(clientSettingQueryResolver)
+    ],
     find: [],
     get: [],
     create: [
       authenticate(),
-      iff(isProvider('external'), verifyScope('admin', 'admin'), verifyScope('settings', 'write') as any),
-      schemaHooks.validateData(clientSettingDataValidator),
+      iff(isProvider('external'), verifyScope('admin', 'admin'), verifyScope('settings', 'write')),
+      () => schemaHooks.validateData(clientSettingDataValidator),
       schemaHooks.resolveData(clientSettingDataResolver)
     ],
     update: [
@@ -54,7 +57,7 @@ export default {
     patch: [
       authenticate(),
       iff(isProvider('external'), verifyScope('admin', 'admin'), verifyScope('settings', 'write')),
-      schemaHooks.validateData(clientSettingPatchValidator),
+      () => schemaHooks.validateData(clientSettingPatchValidator),
       schemaHooks.resolveData(clientSettingPatchResolver)
     ],
     remove: [

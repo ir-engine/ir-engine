@@ -34,20 +34,20 @@ export default {
   before: {
     all: [
       authenticate(),
-      schemaHooks.validateQuery(coilSettingQueryValidator),
+      () => schemaHooks.validateQuery(coilSettingQueryValidator),
       schemaHooks.resolveQuery(coilSettingQueryResolver)
     ],
     find: [],
     get: [],
     create: [
       iff(isProvider('external'), verifyScope('admin', 'admin'), verifyScope('settings', 'write')),
-      schemaHooks.validateData(coilSettingDataValidator),
+      () => schemaHooks.validateData(coilSettingDataValidator),
       schemaHooks.resolveData(coilSettingDataResolver)
     ],
     update: [iff(isProvider('external'), verifyScope('admin', 'admin'), verifyScope('settings', 'write'))],
     patch: [
       iff(isProvider('external'), verifyScope('admin', 'admin'), verifyScope('settings', 'write')),
-      schemaHooks.validateData(coilSettingPatchValidator),
+      () => schemaHooks.validateData(coilSettingPatchValidator),
       schemaHooks.resolveData(coilSettingPatchResolver)
     ],
     remove: [iff(isProvider('external'), verifyScope('admin', 'admin'), verifyScope('settings', 'write'))]

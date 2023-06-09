@@ -32,20 +32,20 @@ export default {
   },
 
   before: {
-    all: [schemaHooks.validateQuery(routeQueryValidator), schemaHooks.resolveQuery(routeQueryResolver)],
+    all: [() => schemaHooks.validateQuery(routeQueryValidator), schemaHooks.resolveQuery(routeQueryResolver)],
     find: [],
     get: [],
     create: [
       authenticate(),
       iff(isProvider('external'), verifyScope('admin', 'admin')),
-      schemaHooks.validateData(routeDataValidator),
+      () => schemaHooks.validateData(routeDataValidator),
       schemaHooks.resolveData(routeDataResolver)
     ],
     update: [authenticate(), iff(isProvider('external'), verifyScope('admin', 'admin'))],
     patch: [
       authenticate(),
       iff(isProvider('external'), verifyScope('admin', 'admin')),
-      schemaHooks.validateData(routePatchValidator),
+      () => schemaHooks.validateData(routePatchValidator),
       schemaHooks.resolveData(routePatchResolver)
     ],
     remove: [authenticate(), iff(isProvider('external'), verifyScope('admin', 'admin'))]
