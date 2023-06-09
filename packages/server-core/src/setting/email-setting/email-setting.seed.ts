@@ -1,7 +1,10 @@
 import { Knex } from 'knex'
 import { v4 } from 'uuid'
 
-import { emailSettingPath } from '@etherealengine/engine/src/schemas/setting/email-setting.schema'
+import {
+  EmailSettingDatabaseType,
+  emailSettingPath
+} from '@etherealengine/engine/src/schemas/setting/email-setting.schema'
 import appConfig from '@etherealengine/server-core/src/appconfig'
 
 import { getDateTimeSql } from '../../util/get-datetime-sql'
@@ -10,7 +13,7 @@ export async function seed(knex: Knex): Promise<void> {
   const { testEnabled } = appConfig
   const { forceRefresh } = appConfig.db
 
-  const seedData = await Promise.all(
+  const seedData: EmailSettingDatabaseType[] = await Promise.all(
     [
       {
         smtp: JSON.stringify({
