@@ -42,7 +42,7 @@ export async function seed(knex: Knex): Promise<void> {
           { icon: 'static/github.svg', link: 'https://github.com/etherealengine' }
         ]),
         themeSettings: JSON.stringify(defaultThemeSettings),
-        themeModes: defaultThemeModes,
+        themeModes: JSON.stringify(defaultThemeModes),
         key8thWall: process.env.VITE_8TH_WALL || '',
         homepageLinkButtonEnabled: false,
         homepageLinkButtonRedirect: '',

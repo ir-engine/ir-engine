@@ -73,6 +73,7 @@ export const clientSettingSchema = Type.Object(
     url: Type.String(),
     releaseName: Type.String(),
     siteDescription: Type.String(),
+    appleTouchIcon: Type.String(),
     favicon32px: Type.String(),
     favicon16px: Type.String(),
     icon192px: Type.String(),
@@ -97,9 +98,10 @@ export const clientSettingSchema = Type.Object(
 )
 export type ClientSettingType = Static<typeof clientSettingSchema>
 
-export type ClientSettingDatabaseType = Omit<ClientSettingType, 'appSocialLinks' | 'themeSettings'> & {
+export type ClientSettingDatabaseType = Omit<ClientSettingType, 'appSocialLinks' | 'themeSettings' | 'themeModes'> & {
   appSocialLinks: string
   themeSettings: string
+  themeModes: string
 }
 
 // Schema for creating new entries
@@ -165,7 +167,7 @@ export const clientSettingQueryProperties = Type.Pick(clientSettingSchema, [
   'appDescription',
   // 'appSocialLinks', Commented out because: https://discord.com/channels/509848480760725514/1093914405546229840/1095101536121667694
   // 'themeSettings',
-  'themeModes',
+  // 'themeModes',
   'key8thWall',
   'homepageLinkButtonEnabled',
   'homepageLinkButtonRedirect',

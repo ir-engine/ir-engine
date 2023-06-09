@@ -32,10 +32,19 @@ export const clientDbToSchema = async (rawData: ClientSettingDatabaseType): Prom
     themeSettings = JSON.parse(themeSettings)
   }
 
+  let themeModes = JSON.parse(rawData.themeModes) as Record<string, string>
+
+  // Usually above JSON.parse should be enough. But since our pre-feathers 5 data
+  // was serialized multiple times, therefore we need to parse it twice.
+  if (typeof themeModes === 'string') {
+    themeModes = JSON.parse(themeModes)
+  }
+
   return {
     ...rawData,
     appSocialLinks,
-    themeSettings
+    themeSettings,
+    themeModes
   }
 }
 
@@ -63,7 +72,8 @@ export const clientSettingDataResolver = resolve<ClientSettingDatabaseType, Hook
       return {
         ...rawData,
         appSocialLinks: JSON.stringify(rawData.appSocialLinks),
-        themeSettings: JSON.stringify(rawData.themeSettings)
+        themeSettings: JSON.stringify(rawData.themeSettings),
+        themeModes: JSON.stringify(rawData.themeModes)
       }
     }
   }
@@ -79,7 +89,8 @@ export const clientSettingPatchResolver = resolve<ClientSettingType, HookContext
       return {
         ...rawData,
         appSocialLinks: JSON.stringify(rawData.appSocialLinks),
-        themeSettings: JSON.stringify(rawData.themeSettings)
+        themeSettings: JSON.stringify(rawData.themeSettings),
+        themeModes: JSON.stringify(rawData.themeModes)
       }
     }
   }
