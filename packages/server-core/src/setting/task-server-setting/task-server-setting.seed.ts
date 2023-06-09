@@ -1,7 +1,10 @@
 import { Knex } from 'knex'
 import { v4 } from 'uuid'
 
-import { taskServerSettingPath } from '@etherealengine/engine/src/schemas/setting/task-server-setting.schema'
+import {
+  taskServerSettingPath,
+  TaskServerSettingType
+} from '@etherealengine/engine/src/schemas/setting/task-server-setting.schema'
 import appConfig from '@etherealengine/server-core/src/appconfig'
 
 import { getDateTimeSql } from '../../util/get-datetime-sql'
@@ -10,11 +13,11 @@ export async function seed(knex: Knex): Promise<void> {
   const { testEnabled } = appConfig
   const { forceRefresh } = appConfig.db
 
-  const seedData = await Promise.all(
+  const seedData: TaskServerSettingType[] = await Promise.all(
     [
       {
-        port: process.env.TASKSERVER_PORT || 3030,
-        processInterval: process.env.TASKSERVER_PROCESS_INTERVAL_SECONDS || 30
+        port: process.env.TASKSERVER_PORT || '3030',
+        processInterval: process.env.TASKSERVER_PROCESS_INTERVAL_SECONDS || '30'
       }
     ].map(async (item) => ({ ...item, id: v4(), createdAt: await getDateTimeSql(), updatedAt: await getDateTimeSql() }))
   )
