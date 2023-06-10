@@ -74,16 +74,18 @@ const LoadingUISystemState = defineState({
   }
 })
 
-function setDefaultPalette(colors) {
-  colors.main.set('black')
-  colors.background.set('white')
-  colors.alternate.set('black')
-}
-
 function SceneDataReactor() {
   const sceneData = useHookstate(getMutableState(SceneState).sceneData)
   const state = useHookstate(getMutableState(LoadingUISystemState))
   const mesh = state.mesh.value
+
+  function setDefaultPalette() {
+    const uiState = getState(LoadingUISystemState).ui.state
+    const colors = uiState.colors
+    colors.main.set('black')
+    colors.background.set('white')
+    colors.alternate.set('black')
+  }
 
   const setColors = (texture: Texture) => {
     const image = texture.image as HTMLImageElement
@@ -94,8 +96,6 @@ function SceneDataReactor() {
       colors.main.set(palette.color)
       colors.background.set(palette.backgroundColor)
       colors.alternate.set(palette.alternativeColor)
-    } else {
-      setDefaultPalette(colors)
     }
   }
 
@@ -106,6 +106,7 @@ function SceneDataReactor() {
       .replace('thumbnail.ktx2', 'envmap.ktx2')
     if (thumbnailUrl && mesh.userData.url !== thumbnailUrl) {
       mesh.userData.url = thumbnailUrl
+      setDefaultPalette()
       AssetLoader.load(thumbnailUrl, {}, (texture: Texture | CompressedTexture) => {
         const compressedTexture = texture as CompressedTexture
         if (compressedTexture.isCompressedTexture) {
@@ -115,6 +116,7 @@ function SceneDataReactor() {
           if (texture) mesh.material.map = texture
           mesh.visible = true
         } else {
+          setColors(texture)
           if (texture) mesh.material.map = texture
           mesh.visible = true
         }
