@@ -14,7 +14,7 @@ export async function up(knex: Knex): Promise<void> {
     await knex.schema.renameTable(oldTableName, clientSettingPath)
 
     const appleTouchIconColumnExists = await knex.schema.hasColumn(clientSettingPath, 'appleTouchIcon')
-    if (appleTouchIconColumnExists) {
+    if (!appleTouchIconColumnExists) {
       await knex.schema.alterTable(clientSettingPath, async (table) => {
         table.string('appleTouchIcon', 255).nullable()
       })
