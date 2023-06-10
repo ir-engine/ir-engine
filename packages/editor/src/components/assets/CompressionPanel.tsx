@@ -15,28 +15,6 @@ import SelectInput from '../inputs/SelectInput'
 import { FileType } from './FileBrowserContentPanel'
 import styles from './styles.module.scss'
 
-const yFlipImageData = (imageData: ImageData) => {
-  const { width, height, data } = imageData
-  const halfHeight = (height / 2) | 0 // the | 0 keeps the result an int
-  const bytesPerRow = width * 4
-
-  // make a temp buffer to hold one row
-  const temp = new Uint8ClampedArray(width * 4)
-  for (let y = 0; y < halfHeight; ++y) {
-    const topOffset = y * bytesPerRow
-    const bottomOffset = (height - y - 1) * bytesPerRow
-
-    // make copy of a row on the top half
-    temp.set(data.subarray(topOffset, topOffset + bytesPerRow))
-
-    // copy a row from the bottom half to the top
-    data.copyWithin(topOffset, bottomOffset, bottomOffset + bytesPerRow)
-
-    // copy the copy of the top half row to the bottom half
-    data.set(temp, bottomOffset)
-  }
-}
-
 export default function CompressionPanel({
   openCompress,
   fileProperties,
@@ -68,15 +46,13 @@ export default function CompressionPanel({
 
     const imageData = ctx.getImageData(0, 0, img.width, img.height)
 
-    yFlipImageData(imageData)
-
     const data = await ktx2Encoder.encode(imageData, {
       srgb: false,
       uastc: compressProperties.mode.value === 'UASTC',
       qualityLevel: compressProperties.quality.value,
       mipmaps: compressProperties.mipmaps.value,
-      compressionLevel: 2
-      // yFlip: true
+      compressionLevel: 2,
+      yFlip: true
     })
 
     const newFileName = props.key.replace(/.*\/(.*)\..*/, '$1') + '.ktx2'
