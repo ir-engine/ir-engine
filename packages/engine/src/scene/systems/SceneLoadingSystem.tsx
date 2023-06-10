@@ -305,9 +305,6 @@ export const updateSceneFromJSON = async () => {
   if (!sceneAssetPendingTagQuery().length) {
     if (getState(EngineState).sceneLoading) dispatchAction(EngineActions.sceneLoaded({}))
   }
-
-  if (getState(AppLoadingState).state !== AppLoadingStates.SUCCESS)
-    dispatchAction(AppLoadingAction.setLoadingState({ state: AppLoadingStates.SUCCESS }))
 }
 
 /**
