@@ -1,15 +1,41 @@
 import React from 'react'
 
 import { API } from '@etherealengine/client-core/src/API'
+import { uploadToFeathersService } from '@etherealengine/client-core/src/util/upload'
 import { KTX2EncodeArguments } from '@etherealengine/engine/src/assets/constants/CompressionParms'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { State } from '@etherealengine/hyperflux'
+import { KTX2Encoder } from '@etherealengine/xrui/core/textures/KTX2Encoder'
 
 import { Button, Dialog, DialogTitle, Grid, Typography } from '@mui/material'
 
 import BooleanInput from '../inputs/BooleanInput'
 import Scrubber from '../inputs/Scrubber'
 import SelectInput from '../inputs/SelectInput'
+import { FileType } from './FileBrowserContentPanel'
 import styles from './styles.module.scss'
+
+const yFlipImageData = (imageData: ImageData) => {
+  const { width, height, data } = imageData
+  const halfHeight = (height / 2) | 0 // the | 0 keeps the result an int
+  const bytesPerRow = width * 4
+
+  // make a temp buffer to hold one row
+  const temp = new Uint8ClampedArray(width * 4)
+  for (let y = 0; y < halfHeight; ++y) {
+    const topOffset = y * bytesPerRow
+    const bottomOffset = (height - y - 1) * bytesPerRow
+
+    // make copy of a row on the top half
+    temp.set(data.subarray(topOffset, topOffset + bytesPerRow))
+
+    // copy a row from the bottom half to the top
+    data.copyWithin(topOffset, bottomOffset, bottomOffset + bytesPerRow)
+
+    // copy the copy of the top half row to the bottom half
+    data.set(temp, bottomOffset)
+  }
+}
 
 export default function CompressionPanel({
   openCompress,
@@ -18,10 +44,56 @@ export default function CompressionPanel({
   onRefreshDirectory
 }: {
   openCompress: State<boolean>
-  fileProperties: State<any>
+  fileProperties: State<FileType>
   compressProperties: State<KTX2EncodeArguments>
   onRefreshDirectory: () => Promise<void>
 }) {
+  const compressContentInBrowser = async () => {
+    const props = fileProperties.value
+    compressProperties.src.set(props.type === 'folder' ? `${props.url}/${props.key}` : props.url)
+    const ktx2Encoder = new KTX2Encoder()
+
+    const img = await new Promise<HTMLImageElement>((resolve) => {
+      const img = new Image()
+      img.crossOrigin = 'anonymous'
+      img.onload = function () {
+        resolve(img)
+      }
+      img.src = compressProperties.src.value
+    })
+
+    const canvas = new OffscreenCanvas(img.width, img.height)
+    const ctx = canvas.getContext('2d')!
+    ctx.drawImage(img, 0, 0)
+
+    const imageData = ctx.getImageData(0, 0, img.width, img.height)
+
+    yFlipImageData(imageData)
+
+    const data = await ktx2Encoder.encode(imageData, {
+      srgb: false,
+      uastc: compressProperties.mode.value === 'UASTC',
+      qualityLevel: compressProperties.quality.value,
+      mipmaps: compressProperties.mipmaps.value,
+      compressionLevel: 2
+      // yFlip: true
+    })
+
+    const newFileName = props.key.replace(/.*\/(.*)\..*/, '$1') + '.ktx2'
+    const path = props.key.replace(/(.*\/).*/, '$1')
+
+    const file = new File([data], newFileName, { type: 'image/ktx2' })
+
+    await uploadToFeathersService('file-browser/upload', [file], {
+      fileName: newFileName,
+      path,
+      contentType: file.type
+    }).promise
+    await onRefreshDirectory()
+    openCompress.set(false)
+  }
+
+  /** @todo */
   const compressContent = async () => {
     const props = fileProperties.value
     compressProperties.src.set(props.type === 'folder' ? `${props.url}/${props.key}` : props.url)
@@ -29,6 +101,7 @@ export default function CompressionPanel({
     await onRefreshDirectory()
     openCompress.set(false)
   }
+
   return (
     <Dialog
       open={openCompress.value}
@@ -89,7 +162,7 @@ export default function CompressionPanel({
         </Grid>
 
         <Grid item xs={12}>
-          <Button onClick={compressContent}> Compress </Button>
+          <Button onClick={compressContentInBrowser}> Compress </Button>
         </Grid>
       </Grid>
     </Dialog>
