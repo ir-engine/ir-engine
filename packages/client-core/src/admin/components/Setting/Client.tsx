@@ -33,6 +33,7 @@ const Client = () => {
   const appDescription = useHookstate(clientSetting?.appDescription)
   const appBackground = useHookstate(clientSetting?.appBackground)
   const appSocialLinks = useHookstate(JSON.parse(JSON.stringify(clientSetting?.appSocialLinks)) || [])
+  const appleTouchIcon = useHookstate(clientSetting?.appleTouchIcon)
   const icon192px = useHookstate(clientSetting?.icon192px)
   const icon512px = useHookstate(clientSetting?.icon512px)
   const favicon16px = useHookstate(clientSetting?.favicon16px)
@@ -62,6 +63,7 @@ const Client = () => {
       appDescription.set(clientSetting?.appDescription)
       appBackground.set(clientSetting?.appBackground)
       appSocialLinks.set(JSON.parse(JSON.stringify(clientSetting?.appSocialLinks)) || [])
+      appleTouchIcon.set(clientSetting?.appleTouchIcon)
       icon192px.set(clientSetting?.icon192px)
       icon512px.set(clientSetting?.icon512px)
       webmanifestLink.set(clientSetting?.webmanifestLink)
@@ -109,6 +111,7 @@ const Client = () => {
         title: title.value,
         shortTitle: shortTitle.value,
         startPath: startPath.value,
+        appleTouchIcon: appleTouchIcon.value,
         icon192px: icon192px.value,
         icon512px: icon512px.value,
         favicon16px: favicon16px.value,
@@ -140,6 +143,7 @@ const Client = () => {
     appDescription.set(clientSetting?.appDescription)
     appBackground.set(clientSetting?.appBackground)
     appSocialLinks.set(clientSetting?.appSocialLinks)
+    appleTouchIcon.set(clientSetting?.appleTouchIcon)
     icon192px.set(clientSetting?.icon192px)
     icon512px.set(clientSetting?.icon512px)
     favicon16px.set(clientSetting?.favicon16px)
@@ -290,6 +294,13 @@ const Client = () => {
             label={t('admin:components.setting.logo')}
             value={logo.value || ''}
             onChange={(e) => logo.set(e.target.value)}
+          />
+
+          <InputText
+            name="appleTouchIcon"
+            label={t('admin:components.setting.appleTouchIcon')}
+            value={appleTouchIcon.value || ''}
+            onChange={(e) => appleTouchIcon.set(e.target.value)}
           />
 
           <InputText
