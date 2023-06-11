@@ -11,6 +11,7 @@ import {
   defineComponent,
   getComponent,
   getMutableComponent,
+  hasComponent,
   removeComponent,
   setComponent,
   useComponent,
@@ -29,6 +30,7 @@ import { enableObjectLayer } from '../functions/setObjectLayers'
 import { addObjectToGroup, GroupComponent, removeObjectFromGroup } from './GroupComponent'
 import { LODComponent } from './LODComponent'
 import { SceneAssetPendingTagComponent } from './SceneAssetPendingTagComponent'
+import { SceneObjectComponent } from './SceneObjectComponent'
 import { UUIDComponent } from './UUIDComponent'
 
 export type ModelResource = {
@@ -76,7 +78,8 @@ export const ModelComponent = defineComponent({
     /**
      * Add SceneAssetPendingTagComponent to tell scene loading system we should wait for this asset to load
      */
-    if (!getState(EngineState).sceneLoaded) setComponent(entity, SceneAssetPendingTagComponent, true)
+    if (!getState(EngineState).sceneLoaded && hasComponent(entity, SceneObjectComponent))
+      setComponent(entity, SceneAssetPendingTagComponent, true)
   },
 
   onRemove: (entity, component) => {
