@@ -49,10 +49,11 @@ export class WebLayer3D extends Object3D {
     if ((should as any) === 'always' || should === true) return true
     if ((should as any) === 'never' || should === false) return false
     if (should === 'auto' && layer.parentWebLayer && layer.parent === layer.parentWebLayer) return true
-    if (should === 'once') {
-      layer.shouldApplyDOMLayout = false
-      return true
-    }
+    return false
+    // if (should === 'once') {
+    //   layer.shouldApplyDOMLayout = false
+    //   return true
+    // }
   }
 
   private _camera?: THREE.PerspectiveCamera
@@ -63,9 +64,9 @@ export class WebLayer3D extends Object3D {
     this._webLayer = WebRenderer.getClosestLayer(element)!
     ;(element as any).layer = this
 
-    this.scalable = this.element.hasAttribute('xr-scalable')
-    const applyDomElement = this.element.getAttribute('xr-apply-dom-layout')
-    if (applyDomElement) this.shouldApplyDOMLayout = applyDomElement
+    // this.scalable = this.element.hasAttribute('xr-scalable')
+    // const applyDomElement = this.element.getAttribute('xr-apply-dom-layout')
+    // if (applyDomElement) this.shouldApplyDOMLayout = applyDomElement
 
     // compressed textures need flipped geometry]
     const geometry = this._webLayer.isMediaElement ? WebLayer3D.GEOMETRY : WebLayer3D.FLIPPED_GEOMETRY
@@ -76,7 +77,7 @@ export class WebLayer3D extends Object3D {
         side: DoubleSide,
         depthWrite: false,
         transparent: true,
-        alphaTest: this.scalable ? 0.5 : 0.001,
+        alphaTest: 0.001,
         opacity: 1,
         toneMapped: false
       })
@@ -106,7 +107,7 @@ export class WebLayer3D extends Object3D {
     this.container.options.manager.layersByElement.set(this.element, this)
     this.container.options.manager.layersByMesh.set(this.contentMesh, this)
 
-    this.childContentMeshTemplate = this.contentMesh.clone()
+    // this.childContentMeshTemplate = this.contentMesh.clone()
   }
 
   protected _webLayer: WebLayer
@@ -124,7 +125,7 @@ export class WebLayer3D extends Object3D {
 
   private _textureMap = new Map<string, ThreeTextureData>()
 
-  scalable = false
+  // scalable = false
 
   get allStateHashes() {
     return this._webLayer.allStateHashes
@@ -134,7 +135,7 @@ export class WebLayer3D extends Object3D {
     return this._webLayer.currentDOMState
   }
 
-  characterMap: Map<string, ThreeTextureData> = new Map()
+  // characterMap: Map<string, ThreeTextureData> = new Map()
 
   get texture() {
     const manager = this.container.manager
@@ -181,35 +182,35 @@ export class WebLayer3D extends Object3D {
     return undefined
   }
 
-  private getCharacterTexture(char: string) {
-    const manager = this.container.manager
-    const _layer = this._webLayer
-    if (_layer.prerasterizedRange.length) {
-      const hash = this._webLayer.prerasterizedImages.get(char)
-      const textureData = manager.getTexture(hash!)
-      console.log(textureData, char)
-      if (textureData) {
-        if (!this.characterMap.has(char)) this.characterMap.set(char, textureData)
-        const clonedTexture = this.characterMap.get(char)!
-        if (textureData.compressedTexture && !clonedTexture?.compressedTexture) {
-          clonedTexture?.canvasTexture?.dispose()
-          clonedTexture.canvasTexture = undefined
-          clonedTexture.compressedTexture = textureData.compressedTexture.clone()
-          clonedTexture.compressedTexture.needsUpdate = true
-        }
-        if (textureData.canvasTexture && !clonedTexture.canvasTexture) {
-          clonedTexture.canvasTexture = textureData.canvasTexture.clone()
-          clonedTexture.canvasTexture.needsUpdate = true
-        }
+  // private getCharacterTexture(char: string) {
+  //   const manager = this.container.manager
+  //   const _layer = this._webLayer
+  //   if (_layer.prerasterizedRange.length) {
+  //     const hash = this._webLayer.prerasterizedImages.get(char)
+  //     const textureData = manager.getTexture(hash!)
+  //     console.log(textureData, char)
+  //     if (textureData) {
+  //       if (!this.characterMap.has(char)) this.characterMap.set(char, textureData)
+  //       const clonedTexture = this.characterMap.get(char)!
+  //       if (textureData.compressedTexture && !clonedTexture?.compressedTexture) {
+  //         clonedTexture?.canvasTexture?.dispose()
+  //         clonedTexture.canvasTexture = undefined
+  //         clonedTexture.compressedTexture = textureData.compressedTexture.clone()
+  //         clonedTexture.compressedTexture.needsUpdate = true
+  //       }
+  //       if (textureData.canvasTexture && !clonedTexture.canvasTexture) {
+  //         clonedTexture.canvasTexture = textureData.canvasTexture.clone()
+  //         clonedTexture.canvasTexture.needsUpdate = true
+  //       }
 
-        return clonedTexture.compressedTexture ?? clonedTexture.canvasTexture
-      }
-      return undefined
-    }
-  }
+  //       return clonedTexture.compressedTexture ?? clonedTexture.canvasTexture
+  //     }
+  //     return undefined
+  //   }
+  // }
 
   contentMesh: Mesh
-  childContentMeshTemplate: Mesh
+  // childContentMeshTemplate: Mesh
 
   /**
    * This non-visible mesh ensures that an adapted layer retains
@@ -294,41 +295,41 @@ export class WebLayer3D extends Object3D {
    *
    * Defaults to `auto`
    */
-  shouldApplyDOMLayout: true | false | string = 'auto'
+  // shouldApplyDOMLayout: true | false | string = 'auto'
 
   /**
    * Refresh from DOM (potentially slow, call only when needed)
    */
   public async refresh(recurse = false): Promise<void> {
-    if (
-      this.getCharacterTexture(this._webLayer.prerasterizedRange.slice(-1).toString()) != undefined &&
-      this._webLayer.prerasterizedRange.length
-    ) {
-      const mesh = this.contentMesh
-      const characters = this.element.textContent
-      for (let i = 0; i < characters!.length; i++) {
-        if (!characters) continue
-        const currentChar = characters.charAt(i)
-        if (this.characters[i] != currentChar) {
-          const texture = this.getCharacterTexture(currentChar)
-          if (texture) {
-            mesh.visible = true
-            const characterMesh = mesh.clone(true)
-            characterMesh.visible = true
-            characterMesh.position.setX(-0.25 + 0.0125 * mesh.parent!.children.length)
+    // if (
+    //   this.getCharacterTexture(this._webLayer.prerasterizedRange.slice(-1).toString()) != undefined &&
+    //   this._webLayer.prerasterizedRange.length
+    // ) {
+    //   const mesh = this.contentMesh
+    //   const characters = this.element.textContent
+    //   for (let i = 0; i < characters!.length; i++) {
+    //     if (!characters) continue
+    //     const currentChar = characters.charAt(i)
+    //     if (this.characters[i] != currentChar) {
+    //       const texture = this.getCharacterTexture(currentChar)
+    //       if (texture) {
+    //         mesh.visible = true
+    //         const characterMesh = mesh.clone(true)
+    //         characterMesh.visible = true
+    //         characterMesh.position.setX(-0.25 + 0.0125 * mesh.parent!.children.length)
 
-            const material = (this.contentMesh.material as MeshBasicMaterial).clone()
-            material.map = texture
-            material.needsUpdate = true
-            characterMesh.material = material
+    //         const material = (this.contentMesh.material as MeshBasicMaterial).clone()
+    //         material.map = texture
+    //         material.needsUpdate = true
+    //         characterMesh.material = material
 
-            mesh.parent!.add(characterMesh)
-            this.characterMeshes[i] = characterMesh
-            this.characters[i] = currentChar
-          }
-        }
-      }
-    }
+    //         mesh.parent!.add(characterMesh)
+    //         this.characterMeshes[i] = characterMesh
+    //         this.characters[i] = currentChar
+    //       }
+    //     }
+    //   }
+    // }
 
     const refreshing = [] as Promise<any>[]
     refreshing.push(this._webLayer.refresh())
@@ -370,29 +371,26 @@ export class WebLayer3D extends Object3D {
     }
   }
 
-  private characterMeshes = [] as Mesh[]
-  private characters = [] as string[]
+  // private characterMeshes = [] as Mesh[]
+  // private characters = [] as string[]
 
   private updateContent() {
     if (this.parentWebLayer && !this.parentWebLayer.domLayout) return
 
     const mesh = this.contentMesh
 
-    if (this._webLayer.prerasterizedRange.length) {
-    } else {
-      const texture = this.texture
-      const material = mesh.material as THREE.MeshBasicMaterial
-      if (texture && material.map !== texture) {
-        const contentScale = this.contentMesh.scale
-        const aspect = Math.abs(((contentScale.x * this.scale.x) / contentScale.y) * this.scale.y)
-        const targetAspect = this.domSize.x / this.domSize.y
-        // swap texture when the aspect ratio matches
-        if (Math.abs(targetAspect - aspect) < 1e3) {
-          material.map = texture
-          this.depthMaterial['map'] = texture
-          material.needsUpdate = true
-          this.depthMaterial.needsUpdate = true
-        }
+    const texture = this.texture
+    const material = mesh.material as THREE.MeshBasicMaterial
+    if (texture && material.map !== texture) {
+      const contentScale = this.contentMesh.scale
+      const aspect = Math.abs(((contentScale.x * this.scale.x) / contentScale.y) * this.scale.y)
+      const targetAspect = this.domSize.x / this.domSize.y
+      // swap texture when the aspect ratio matches
+      if (Math.abs(targetAspect - aspect) < 1e3) {
+        material.map = texture
+        this.depthMaterial['map'] = texture
+        material.needsUpdate = true
+        this.depthMaterial.needsUpdate = true
       }
     }
 
@@ -411,7 +409,7 @@ export class WebLayer3D extends Object3D {
   /** INTERNAL */
   private [ON_BEFORE_UPDATE]() {}
 
-  private positioned = false
+  // private positioned = false
 
   protected _doUpdate() {
     this[ON_BEFORE_UPDATE]()
