@@ -1,19 +1,21 @@
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import ConfirmDialog from '@etherealengine/client-core/src/common/components/ConfirmDialog'
-import { AvatarClientModule } from '@etherealengine/engine/src/avatar/AvatarClientModule'
-import { AvatarCommonModule } from '@etherealengine/engine/src/avatar/AvatarCommonModule'
-import { initSystems, unloadSystems } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
-import { RendererModule } from '@etherealengine/engine/src/renderer/RendererModule'
-import { SceneClientModule } from '@etherealengine/engine/src/scene/SceneClientModule'
-import { SceneCommonModule } from '@etherealengine/engine/src/scene/SceneCommonModule'
-import { TransformModule } from '@etherealengine/engine/src/transform/TransformModule'
-import Box from '@etherealengine/ui/src/Box'
-import Button from '@etherealengine/ui/src/Button'
-import Grid from '@etherealengine/ui/src/Grid'
-import Icon from '@etherealengine/ui/src/Icon'
-import IconButton from '@etherealengine/ui/src/IconButton'
+import { AnimationSystem } from '@etherealengine/engine/src/avatar/AnimationSystem'
+import { AvatarAnimationSystem } from '@etherealengine/engine/src/avatar/AvatarAnimationSystem'
+import { AvatarSpawnSystem } from '@etherealengine/engine/src/avatar/AvatarSpawnSystem'
+import { DebugRendererSystem } from '@etherealengine/engine/src/debug/systems/DebugRendererSystem'
+import { AnimationSystemGroup, PresentationSystemGroup } from '@etherealengine/engine/src/ecs/functions/EngineFunctions'
+import { useSystem, useSystems } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
+import { WebGLRendererSystem } from '@etherealengine/engine/src/renderer/WebGLRendererSystem'
+import { SceneSystemLoadGroup, SceneSystemUpdateGroup } from '@etherealengine/engine/src/scene/SceneClientModule'
+import { SceneObjectSystem } from '@etherealengine/engine/src/scene/systems/SceneObjectSystem'
+import Box from '@etherealengine/ui/src/primitives/mui/Box'
+import Button from '@etherealengine/ui/src/primitives/mui/Button'
+import Grid from '@etherealengine/ui/src/primitives/mui/Grid'
+import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
+import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
 
 import Search from '../../common/Search'
 import { AdminAvatarService } from '../../services/AvatarService'
@@ -28,20 +30,24 @@ const Avatar = () => {
   const [openDeleteAvatarModal, setOpenDeleteAvatarModal] = React.useState(false)
   const [selectedAvatarIds, setSelectedAvatarIds] = useState(() => new Set<string>())
 
-  useEffect(() => {
-    const systems = [
-      ...TransformModule(),
-      ...RendererModule(),
-      ...SceneCommonModule(),
-      ...SceneClientModule(),
-      ...AvatarCommonModule(),
-      ...AvatarClientModule()
-    ]
-    initSystems(systems)
-    return () => {
-      unloadSystems(systems.map((s) => s.uuid))
-    }
-  }, [])
+  /** Avatar / Animation */
+  useSystems([AnimationSystem, AvatarSpawnSystem, AvatarAnimationSystem], {
+    with: AnimationSystemGroup
+  })
+
+  /** Post Transform / Pre Render */
+  useSystems([SceneObjectSystem, DebugRendererSystem, SceneSystemUpdateGroup], {
+    before: PresentationSystemGroup
+  })
+
+  /** Render */
+  useSystem(WebGLRendererSystem, {
+    with: PresentationSystemGroup
+  })
+
+  useSystem(SceneSystemLoadGroup, {
+    after: PresentationSystemGroup
+  })
 
   const handleChange = (e: any) => {
     setSearch(e.target.value)

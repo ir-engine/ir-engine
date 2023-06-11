@@ -1,3 +1,5 @@
+import { PassThrough } from 'stream'
+
 import { FileContentType } from '@etherealengine/common/src/interfaces/FileContentType'
 
 /**
@@ -30,6 +32,10 @@ export interface StorageObjectInterface {
   ContentEncoding?: string
 
   Metadata?: object
+}
+
+export interface StorageObjectPutInterface extends Omit<StorageObjectInterface, 'Body'> {
+  Body: Buffer | PassThrough
 }
 
 /**
@@ -124,27 +130,28 @@ export interface BlobStore {
  * Storage provide interface to provide template for storage handling capabilities.
  */
 export interface StorageProviderInterface {
+  provider?: any
   /**
    * Domain address of cache.
    */
   cacheDomain: string
 
   /**
-   * Invalidate items in the storage.
+   * Invalidate items in the storage provider.
    * @param invalidationItems List of keys.
    */
   createInvalidation(invalidationItems: string[]): Promise<any>
 
   /**
-   * Delete resources in the storage.
+   * Delete resources in the storage provider.
    * @param keys List of keys.
    */
   deleteResources(keys: string[]): Promise<any>
 
   /**
-   * Check if an object exists in the storage.
-   * @param fileName Name of file in the storage.
-   * @param directoryPath Directory of file in the storage.
+   * Check if an object exists in the storage provider.
+   * @param fileName Name of file in the storage provider.
+   * @param directoryPath Directory of file in the storage provider.
    * @returns {Promise<boolean>}
    */
   doesExist(fileName: string, directoryPath: string): Promise<boolean>
@@ -223,5 +230,5 @@ export interface StorageProviderInterface {
    * @param object Storage object to be added.
    * @param params Parameters of the add request.
    */
-  putObject(object: StorageObjectInterface, params?: PutObjectParams): Promise<any>
+  putObject(object: StorageObjectPutInterface, params?: PutObjectParams): Promise<any>
 }

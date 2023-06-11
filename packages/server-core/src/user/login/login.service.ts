@@ -13,16 +13,18 @@ declare module '@etherealengine/common/declarations' {
   }
 }
 
-function redirect(req, res, next): any {
+async function redirect(ctx, next) {
   try {
-    if (res.data.error) {
-      return res.redirect(`${config.client.url}/?error=${res.data.error as string}`)
+    const data = ctx.body
+    if (data.error) {
+      return ctx.redirect(`${config.client.url}/?error=${data.error as string}`)
     }
-    return res.redirect(`${config.client.url}/auth/magiclink?type=login&token=${res.data.token as string}`)
+    return ctx.redirect(`${config.client.url}/auth/magiclink?type=login&token=${data.token as string}`)
   } catch (err) {
     logger.error(err)
     throw err
   }
+  return next()
 }
 
 export default (app: Application) => {
@@ -35,8 +37,7 @@ export default (app: Application) => {
    */
   const event = new Login(options, app)
   event.docs = loginDocs
-  app.use('login', event, redirect)
-
+  app.use('login', event, { koa: { after: [redirect] } })
   /**
    * Get our initialized service so that we can register hooks
    */

@@ -11,20 +11,18 @@ import {
   ReinhardToneMapping,
   ShadowMapType,
   ToneMapping,
-  Vector3,
   VSMShadowMap
 } from 'three'
 
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { getRendererSceneMetadataState } from '@etherealengine/engine/src/renderer/WebGLRendererSystem'
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { useComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { RenderSettingsComponent } from '@etherealengine/engine/src/scene/components/RenderSettingsComponent'
 
 import BooleanInput from '../inputs/BooleanInput'
 import CompoundNumericInput from '../inputs/CompoundNumericInput'
 import InputGroup from '../inputs/InputGroup'
 import SelectInput from '../inputs/SelectInput'
-import Vector3Input from '../inputs/Vector3Input'
 import PropertyGroup from './PropertyGroup'
+import { EditorComponentType } from './Util'
 
 /**
  * ToneMappingOptions array containing tone mapping type options.
@@ -82,36 +80,21 @@ const ShadowTypeOptions = [
   }
 ]
 
-export const RenderSettingsEditor = () => {
+export const RenderSettingsEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
-  const rendererState = useHookstate(getRendererSceneMetadataState(Engine.instance.currentScene))
-  const renderer = rendererState.get({ noproxy: true })
+  const rendererState = useComponent(props.entity, RenderSettingsComponent)
 
   return (
     <PropertyGroup
       name={t('editor:properties.renderSettings.name')}
       description={t('editor:properties.renderSettings.description')}
     >
-      {/* <InputGroup
-        name="LODs"
-        label={t('editor:properties.renderSettings.lbl-lods')}
-        info={t('editor:properties.renderSettings.info-lods')}
-      >
-        <Vector3Input
-          hideLabels
-          value={new Vector3(renderer.LODs['0'], renderer.LODs['1'], renderer.LODs['2'])}
-          smallStep={0.01}
-          mediumStep={0.1}
-          largeStep={1}
-          onChange={(val) => rendererState.LODs.set({ '0': val.x, '1': val.y, '2': val.z })}
-        />
-      </InputGroup> */}
       <InputGroup
         name="Use Cascading Shadow Maps"
         label={t('editor:properties.renderSettings.lbl-csm')}
         info={t('editor:properties.renderSettings.info-csm')}
       >
-        <BooleanInput value={renderer.csm} onChange={(val) => rendererState.csm.set(val)} />
+        <BooleanInput value={rendererState.csm.value} onChange={(val) => rendererState.csm.set(val)} />
       </InputGroup>
       <InputGroup
         name="Tone Mapping"
@@ -120,7 +103,7 @@ export const RenderSettingsEditor = () => {
       >
         <SelectInput
           options={ToneMappingOptions}
-          value={renderer.toneMapping}
+          value={rendererState.toneMapping.value}
           onChange={(val: ToneMapping) => rendererState.toneMapping.set(val)}
         />
       </InputGroup>
@@ -133,7 +116,7 @@ export const RenderSettingsEditor = () => {
           min={0}
           max={10}
           step={0.1}
-          value={renderer.toneMappingExposure}
+          value={rendererState.toneMappingExposure.value}
           onChange={(val) => rendererState.toneMappingExposure.set(val)}
         />
       </InputGroup>
@@ -144,7 +127,7 @@ export const RenderSettingsEditor = () => {
       >
         <SelectInput
           options={ShadowTypeOptions}
-          value={renderer.shadowMapType ?? -1}
+          value={rendererState.shadowMapType.value ?? -1}
           onChange={(val: ShadowMapType) => rendererState.shadowMapType.set(val)}
         />
       </InputGroup>

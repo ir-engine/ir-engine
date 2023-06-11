@@ -10,43 +10,46 @@
       }
     </style>
     <meta charset="UTF-8" />
-    <meta
-      name="viewport"
-      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0, shrink-to-fit=no"
-    />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0, shrink-to-fit=no" />
 
-    <!-- PWA primary color -->
-    <meta name="description" content="Connected Worlds for Everyone" />
-    <meta name="monetization" content="<%- paymentPointer %>" />
+    <meta name="description" content="<%- description %>" />
     <title><%- title %></title>
+    
+    <meta name="monetization" content="<%- paymentPointer %>" />
 
-    <link
-      rel="stylesheet"
-      href="https://fonts.googleapis.com/css?family=Lato:300,400,700|PT+Sans:400,400italic,700,700italic|Quicksand:400,300|Raleway:400|Roboto:300,400,700|Source+Sans+Pro:300,400,700"
-    />
+    <link rel="dns-prefetch" href="https://fonts.googleapis.com">
+    <link rel="dns-prefetch" href="https://fonts.gstatic.com">
+    <link rel="preconnect" crossorigin="anonymous" href="https://fonts.googleapis.com">
+    <link rel="preconnect" crossorigin="anonymous" href="https://fonts.gstatic.com">
+    <link rel="stylesheet" crossorigin="anonymous" href="https://fonts.googleapis.com/css?family=Lato:300,400,700|PT+Sans:400,400italic,700,700italic|Quicksand:400,300|Raleway:400|Roboto:300,400,700|Source+Sans+Pro:300,400,700|Khula:300,400,700&display=swap" />
     <link rel="apple-touch-icon" sizes="180x180" href="<%- appleTouchIcon %>" />
     <link rel="icon" type="image/png" sizes="32x32" href="<%- favicon32px %>" />
     <link rel="icon" type="image/png" sizes="16x16" href="<%- favicon16px %>" />
-    <link rel="manifest" href="<%- webmanifestLink %>" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Khula:wght@700&display=swap" rel="stylesheet" />
-    <link href="https://fonts.googleapis.com/css2?family=Khula&display=swap" rel="stylesheet" />
-    <!-- <link href="http//://fonts.cdnfonts.com/css/arial-rounded-mt-bold" rel="stylesheet"> -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Khula&display=swap" rel="stylesheet" />
 
-    <script>
+    <!-- <link rel="manifest" href="/manifest.webmanifest" /> -->
+    <script type="text/javascript">
       var global = globalThis
       var exports = { __esModule: true }
+      
+      if('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            console.log(`[PWA] Registering sw at <%- swScriptLink %>`)
+            // Register the service worker
+            navigator.serviceWorker
+              .register(`${window.location.href.split('/')[0]}/<%- swScriptLink %>`, {
+                scope: `./`,
+                
+              })
+              .then(function (reg) {
+                console.log("[PWA] SW registered at " + reg.scope);
+              });
+        })
+      }
     </script>
-  </head>
-
+</head>
   <body>
-    <div id="root"></div>
+    <div id="root"  style='z-index: 0; width: 100%; height: 100%; position: absolute; pointer-events: none;'></div>
     <script type="module" src="/src/main.tsx"></script>
-    <script type="module" src="/pwabuilder-sw-register.js"></script>
     <canvas id='engine-renderer-canvas' style='z-index: -1; width: 100%; height: 100%; position: fixed; -webkit-user-select: none; pointer-events: auto; user-select: none'></canvas>
   </body>
 </html>

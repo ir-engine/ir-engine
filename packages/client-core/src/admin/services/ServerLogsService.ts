@@ -1,11 +1,13 @@
+import type { BadRequest } from '@feathersjs/errors/lib'
+
 import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
-import { defineAction, defineState, dispatchAction, getMutableState, useState } from '@etherealengine/hyperflux'
+import { defineAction, defineState, dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 
 import { API } from '../../API'
 import { NotificationService } from '../../common/services/NotificationService'
 
 //State
-const AdminServerLogsState = defineState({
+export const AdminServerLogsState = defineState({
   name: 'AdminServerLogsState',
   initial: () => ({
     logs: '',
@@ -59,20 +61,21 @@ export const AdminServerLogsReceptors = {
   fetchServerLogsRetrievedReceptor
 }
 
-export const accessServerLogsState = () => getMutableState(AdminServerLogsState)
-
-export const useServerLogsState = () => useState(accessServerLogsState())
-
 //Service
 export const ServerLogsService = {
   fetchServerLogs: async (podName: string, containerName: string) => {
     dispatchAction(AdminServerLogsActions.fetchServerLogsRequested({ podName, containerName }))
 
-    const serverLogs: string = await API.instance.client
+    const serverLogs = (await API.instance.client
       .service('server-logs')
-      .find({ query: { podName, containerName } })
+      .find({ query: { podName, containerName } })) as string | BadRequest
 
-    dispatchAction(AdminServerLogsActions.fetchServerLogsRetrieved({ logs: serverLogs }))
+    if (typeof serverLogs === 'string') {
+      dispatchAction(AdminServerLogsActions.fetchServerLogsRetrieved({ logs: serverLogs }))
+    } else {
+      console.error(serverLogs)
+      dispatchAction(AdminServerLogsActions.fetchServerLogsRequested({ podName: '', containerName: '' }))
+    }
   },
   resetServerLogs: () => {
     dispatchAction(AdminServerLogsActions.fetchServerLogsRequested({ podName: '', containerName: '' }))
@@ -82,12 +85,12 @@ export const ServerLogsService = {
 //Action
 export class AdminServerLogsActions {
   static fetchServerLogsRequested = defineAction({
-    type: 'xre.client.AdminServerLogs.FETCH_SERVER_LOGS_REQUESTED' as const,
+    type: 'ee.client.AdminServerLogs.FETCH_SERVER_LOGS_REQUESTED' as const,
     podName: matches.string,
     containerName: matches.string
   })
   static fetchServerLogsRetrieved = defineAction({
-    type: 'xre.client.AdminServerLogs.FETCH_SERVER_LOGS_RETRIEVED' as const,
+    type: 'ee.client.AdminServerLogs.FETCH_SERVER_LOGS_RETRIEVED' as const,
     logs: matches.string
   })
 }

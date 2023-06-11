@@ -1,14 +1,14 @@
 import { Paginated } from '@feathersjs/feathers'
-import { useState } from '@hookstate/core'
 import { useEffect } from 'react'
 
 import { Instance } from '@etherealengine/common/src/interfaces/Instance'
+import { UserInterface } from '@etherealengine/common/src/interfaces/User'
 import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
 import { defineAction, defineState, dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 
 import { API } from '../../API'
 import { NotificationService } from '../../common/services/NotificationService'
-import { accessAuthState } from '../../user/services/AuthService'
+import { AuthState } from '../../user/services/AuthService'
 
 export const INSTANCE_PAGE_LIMIT = 100
 
@@ -50,14 +50,10 @@ export const AdminInstanceReceptors = {
   instanceRemovedReceptor
 }
 
-export const accessAdminInstanceState = () => getMutableState(AdminInstanceState)
-
-export const useAdminInstanceState = () => useState(accessAdminInstanceState())
-
 //Service
 export const AdminInstanceService = {
   fetchAdminInstances: async (value: string | null = null, skip = 0, sortField = 'createdAt', orderBy = 'asc') => {
-    const user = accessAuthState().user
+    const user = getMutableState(AuthState).user
     try {
       if (user.scopes?.value?.find((scope) => scope.type === 'admin:admin')) {
         let sortData = {}
@@ -100,12 +96,94 @@ export const AdminInstanceService = {
 
 export class AdminInstanceActions {
   static instancesRetrieved = defineAction({
-    type: 'xre.client.AdminInstance.INSTANCES_RETRIEVED',
+    type: 'ee.client.AdminInstance.INSTANCES_RETRIEVED',
     instanceResult: matches.object as Validator<unknown, Paginated<Instance>>
   })
 
   static instanceRemoved = defineAction({
-    type: 'xre.client.AdminInstance.INSTANCE_REMOVED_ROW',
+    type: 'ee.client.AdminInstance.INSTANCE_REMOVED_ROW',
     instance: matches.object as Validator<unknown, Instance>
+  })
+}
+
+export const INSTANCE_USERS_PAGE_LIMIT = 10
+
+export const AdminInstanceUserState = defineState({
+  name: 'AdminInstanceUserState',
+  initial: () => ({
+    users: [] as Array<UserInterface>,
+    skip: 0,
+    limit: INSTANCE_USERS_PAGE_LIMIT,
+    total: 0,
+    retrieving: false,
+    fetched: false,
+    updateNeeded: true,
+    created: false,
+    lastFetched: Date.now()
+  })
+})
+
+const userInstancesReceivedReceptor = (
+  action: typeof AdminInstanceUserActions.instanceUsersRetrieved.matches._TYPE
+) => {
+  const state = getMutableState(AdminInstanceUserState)
+  return state.merge({
+    users: action.users.data,
+    skip: action.users.skip,
+    limit: action.users.limit,
+    total: action.users.total,
+    fetched: true,
+    lastFetched: Date.now()
+  })
+}
+
+export const AdminInstanceUserReceptors = {
+  userInstancesReceivedReceptor
+}
+
+export const AdminInstanceUserService = {
+  fetchUsersInInstance: async (instanceId: string) => {
+    const instanceAttendances = await API.instance.client.service('instance-attendance').find({
+      query: {
+        instanceId
+      }
+    })
+
+    if (!('data' in instanceAttendances) || instanceAttendances.data.length === 0) return
+
+    const userIds = instanceAttendances.data.map((d: any) => d.userId)
+
+    const users = await API.instance.client.service('user').find({
+      query: {
+        id: {
+          $in: userIds
+        }
+      }
+    })
+
+    if (!('data' in users)) return
+
+    dispatchAction(AdminInstanceUserActions.instanceUsersRetrieved({ users }))
+  },
+  kickUser: async (kickData: { userId: UserInterface['id']; instanceId: Instance['id']; duration: string }) => {
+    const duration = new Date()
+    if (kickData.duration === 'INFINITY') {
+      duration.setFullYear(duration.getFullYear() + 10) // ban for 10 years
+    } else {
+      duration.setHours(duration.getHours() + parseInt(kickData.duration, 10))
+    }
+
+    const userKick = await API.instance.client.service('user-kick').create({ ...kickData, duration })
+
+    console.log('user kicked ->', userKick)
+
+    NotificationService.dispatchNotify(`user was kicked`, { variant: 'default' })
+  }
+}
+
+export class AdminInstanceUserActions {
+  static instanceUsersRetrieved = defineAction({
+    type: 'ee.client.AdminInstanceUser.USER_INSTANCES_RETRIEVED',
+    users: matches.object as Validator<unknown, Paginated<UserInterface>>
   })
 }

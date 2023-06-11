@@ -40,7 +40,6 @@ export class Message<T = MessageDataType> extends Service<T> {
     const targetObjectId = data.targetObjectId
     const targetObjectType = data.targetObjectType
     const channelModel = this.app.service('channel').Model
-    logger.info(data)
 
     if (targetObjectType === 'user') {
       const targetUser = await this.app.service('user').get(targetObjectId)
@@ -133,9 +132,18 @@ export class Message<T = MessageDataType> extends Service<T> {
       channelId = channel.id
       const instanceUsers = await this.app.service('user').find({
         query: {
-          $limit: 1000,
-          instanceId: targetObjectId,
-          action: 'layer-users'
+          $limit: 1000
+        },
+        sequelize: {
+          include: [
+            {
+              model: this.app.service('instance-attendance').Model,
+              as: 'instanceAttendance',
+              where: {
+                instanceId: targetObjectId
+              }
+            }
+          ]
         }
       })
       userIdList = (instanceUsers as any).data.map((instanceUser) => {

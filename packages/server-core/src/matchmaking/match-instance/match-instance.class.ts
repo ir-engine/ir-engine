@@ -1,20 +1,18 @@
-import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
+import type { Params } from '@feathersjs/feathers'
+import { KnexService } from '@feathersjs/knex'
+import type { KnexAdapterParams } from '@feathersjs/knex'
 
-import { MatchInstanceInterface } from '@etherealengine/common/src/dbmodels/MatchInstance'
+import {
+  MatchInstanceData,
+  MatchInstancePatch,
+  MatchInstanceQuery,
+  MatchInstanceType
+} from '@etherealengine/engine/src/schemas/matchmaking/match-instance.schema'
 
-import { Application } from '../../../declarations'
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+export interface MatchInstanceParams extends KnexAdapterParams<MatchInstanceQuery> {}
 
-export type MatchInstanceDataType = MatchInstanceInterface
-
-/**
- * A class for OpenMatch Tickets service
- */
-export class MatchInstance<T = MatchInstanceDataType> extends Service<T> {
-  app: Application
-  docs: any
-
-  constructor(options: Partial<SequelizeServiceOptions>, app: Application) {
-    super(options)
-    this.app = app
-  }
-}
+export class MatchInstanceService<
+  T = MatchInstanceType,
+  ServiceParams extends Params = MatchInstanceParams
+> extends KnexService<MatchInstanceType, MatchInstanceData, MatchInstanceParams, MatchInstancePatch> {}

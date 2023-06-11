@@ -1,26 +1,34 @@
 import { Params } from '@feathersjs/feathers'
-import express from 'express'
-import multer from 'multer'
+import { bodyParser, koa } from '@feathersjs/koa'
+import Multer from '@koa/multer'
+import { createHash } from 'crypto'
 import { Op } from 'sequelize'
 import { MathUtils } from 'three'
 
+import { StaticResourceVariantInterface } from '@etherealengine/common/src/dbmodels/StaticResourceVariant'
 import { StaticResourceInterface } from '@etherealengine/common/src/interfaces/StaticResourceInterface'
 import {
   AdminAssetUploadArgumentsType,
   AssetUploadType,
+  AvatarUploadArgsType,
   UploadFile
 } from '@etherealengine/common/src/interfaces/UploadAssetInterface'
+import { CommonKnownContentTypes } from '@etherealengine/common/src/utils/CommonKnownContentTypes'
 import { processFileName } from '@etherealengine/common/src/utils/processFileName'
 
 import { Application } from '../../../declarations'
 import verifyScope from '../../hooks/verify-scope'
 import logger from '../../ServerLogger'
 import { uploadAvatarStaticResource } from '../../user/avatar/avatar-helper'
+import { audioUpload } from '../audio/audio-upload.helper'
+import { imageUpload } from '../image/image-upload.helper'
+import { modelUpload } from '../model/model-upload.helper'
 import { getCachedURL } from '../storageprovider/getCachedURL'
 import { getStorageProvider } from '../storageprovider/storageprovider'
+import { videoUpload } from '../video/video-upload.helper'
 import hooks from './upload-asset.hooks'
 
-const multipartMiddleware = multer({ limits: { fieldSize: Infinity } })
+const multipartMiddleware = Multer({ limits: { fieldSize: Infinity } })
 
 declare module '@etherealengine/common/declarations' {
   interface ServiceTypes {
@@ -32,158 +40,212 @@ export interface UploadParams extends Params {
   files: UploadFile[]
 }
 
+export interface ResourcePatchCreateInterface {
+  hash: string
+  key: string
+  mimeType: string
+  staticResourceType: string
+  url?: string
+  project?: string
+  userId?: string
+}
+
+const uploadVariant = async (file: Buffer, mimeType: string, key: string, storageProviderName?: string) => {
+  const provider = getStorageProvider(storageProviderName)
+  try {
+    await provider.createInvalidation([key])
+  } catch (e) {
+    logger.info(`[ERROR lod-upload while invalidating ${key}]:`, e)
+  }
+
+  await provider.putObject(
+    {
+      Key: key,
+      Body: file,
+      ContentType: mimeType
+    },
+    {
+      isDirectory: false
+    }
+  )
+}
+
+export type UploadAssetArgs = {
+  name?: string
+  files?: Array<UploadFile>
+  url?: string
+}
+
+const uploadAsset = (app: Application, type: string, args: UploadAssetArgs) => {
+  switch (type) {
+    case 'image':
+      return imageUpload(app, args)
+    case 'video':
+      return videoUpload(app, args)
+    case 'audio':
+      return audioUpload(app, args)
+    case 'model3d':
+      return modelUpload(app, args)
+  }
+}
+
+const uploadAssets = (app: Application) => async (data: AssetUploadType, params: UploadParams) => {
+  if (typeof data.args === 'string') data.args = JSON.parse(data.args)
+  const files = params.files
+  if (data.type === 'user-avatar-upload') {
+    return await uploadAvatarStaticResource(
+      app,
+      {
+        avatar: files[0].buffer as Buffer,
+        thumbnail: files[1].buffer as Buffer,
+        ...(data.args as AvatarUploadArgsType)
+      },
+      params
+    )
+  } else if (data.type === 'admin-file-upload') {
+    if (!(await verifyScope('admin', 'admin')({ app, params } as any))) return
+
+    if (!data.args.staticResourceType) return
+
+    if (!files || files.length === 0) throw new Error('No files to upload')
+
+    if (data.variants) {
+      return uploadAsset(app, data.args.staticResourceType!, {
+        name: data.args.key,
+        files: files
+      })
+    }
+
+    return Promise.all(
+      files.map((file, i) =>
+        uploadAsset(app, data.args.staticResourceType!, {
+          name: data.args.key.split('.')[0],
+          files: [file]
+        })
+      )
+    )
+  }
+}
+
+export const createStaticResourceHash = (file: Buffer | string, props: { name?: string; assetURL?: string }) => {
+  return createHash('sha3-256')
+    .update(typeof file === 'string' ? file : file.length.toString())
+    .update(props.name || props.assetURL!.split('/').pop()!.split('.')[0])
+    .digest('hex')
+}
+
 export const addGenericAssetToS3AndStaticResources = async (
   app: Application,
-  file: Buffer,
-  mimeType: string,
+  files: UploadFile[],
+  extension: string,
   args: AdminAssetUploadArgumentsType,
   storageProviderName?: string
-) => {
+): Promise<StaticResourceInterface> => {
   const provider = getStorageProvider(storageProviderName)
   // make userId optional and safe for feathers create
-  const userIdQuery = args.userId ? { userId: args.userId } : {}
   const key = processFileName(args.key)
   const whereArgs = {
-    [Op.or]: [{ key: key }, { id: args.id ?? '' }]
+    [Op.or]: [{ key: key + '/' + files[0].originalname }, { id: args.id ?? '' }]
   } as any
   if (args.project) whereArgs.project = args.project
-  const existingAsset = await app.service('static-resource').Model.findAndCountAll({
+  const existingAsset = (await app.service('static-resource').Model.findOne({
     where: whereArgs
-  })
+  })) as StaticResourceInterface
 
-  let returned: Promise<StaticResourceInterface>
-  const promises: Promise<any>[] = []
+  const mimeType = CommonKnownContentTypes[extension] as string
 
+  const assetURL = getCachedURL(key + '/' + files[0].originalname, provider.cacheDomain)
+  const hash = args.hash || createStaticResourceHash(files[0].buffer, { name: args.name, assetURL })
+  const body = {
+    hash,
+    key,
+    mimeType,
+    staticResourceType: args.staticResourceType,
+    project: args.project
+  } as ResourcePatchCreateInterface
+  const variants = [] as { url: string; metadata: Record<string, string | number> }[]
+  const promises = [] as Promise<void>[]
   // upload asset to storage provider
-  promises.push(
-    new Promise<void>(async (resolve) => {
-      try {
-        await provider.createInvalidation([key])
-      } catch (e) {
-        logger.info(`[ERROR addGenericAssetToS3AndStaticResources while invalidating ${key}]:`, e)
-      }
-
-      await provider.putObject(
-        {
-          Key: key,
-          Body: file,
-          ContentType: mimeType
-        },
-        {
-          isDirectory: false
-        }
-      )
-      resolve()
+  for (let i = 0; i < files.length; i++) {
+    const file = files[i]
+    const useKey = key + '/' + file.originalname
+    variants.push({
+      url: getCachedURL(useKey, provider.cacheDomain),
+      metadata: { size: file.size }
     })
-  )
+    if (i === 0) {
+      body.url = variants[0].url
+    }
+    if (typeof file.buffer !== 'string') {
+      promises.push(uploadVariant(file.buffer, mimeType, useKey, storageProviderName))
+    }
+  }
+  await Promise.all(promises)
 
-  // add asset to static resources
-  const assetURL = getCachedURL(key, provider.cacheDomain)
-  try {
-    if (existingAsset.rows.length) {
-      promises.push(provider.deleteResources([existingAsset.rows[0].id]))
-      promises.push(
-        app.service('static-resource').patch(
-          existingAsset.rows[0].id,
+  if (existingAsset) {
+    await app.service('static-resource').patch(existingAsset.id, body, { isInternal: true })
+
+    await Promise.all(
+      variants.map((variant, i) =>
+        app.service('static-resource-variant').create(
           {
-            url: assetURL,
-            key: key,
-            mimeType: mimeType,
-            staticResourceType: args.staticResourceType,
-            project: args.project
+            ...variant,
+            staticResourceId: existingAsset.id
           },
           { isInternal: true }
         )
       )
-    } else {
-      promises.push(
-        new Promise(async (resolve, reject) => {
-          try {
-            const newResource = await app.service('static-resource').create(
-              {
-                url: assetURL,
-                key: key,
-                mimeType: mimeType,
-                staticResourceType: args.staticResourceType,
-                project: args.project,
-                ...userIdQuery
-              },
-              { isInternal: true }
-            )
-            resolve(newResource)
-          } catch (err) {
-            logger.error(err)
-            reject(err)
-          }
-        })
+    )
+
+    return app.service('static-resource').get(existingAsset.id)
+  } else {
+    if (args.userId) body.userId = args.userId
+    const staticResource = (await app
+      .service('static-resource')
+      .create(body, { isInternal: true })) as StaticResourceInterface
+
+    await Promise.all(
+      variants.map((variant, i) =>
+        app.service('static-resource-variant').create(
+          {
+            ...variant,
+            staticResourceId: staticResource.id
+          },
+          { isInternal: true }
+        )
       )
-    }
-    await Promise.all(promises)
-    returned = promises[promises.length - 1]
-  } catch (e) {
-    logger.info('[ERROR addGenericAssetToS3AndStaticResources while adding to static resources]: %o', e)
-    return null!
+    )
+
+    return app.service('static-resource').get(staticResource.id)
   }
-  return returned
 }
 
 export default (app: Application): void => {
   app.use(
     'upload-asset',
-    multipartMiddleware.any(),
-    (req: express.Request, res: express.Response, next: express.NextFunction) => {
-      if (req?.feathers && req.method !== 'GET') {
-        ;(req as any).feathers.files = (req as any).files.media ? (req as any).files.media : (req as any).files
-      }
-      next()
+    {
+      create: uploadAssets(app)
     },
     {
-      create: async (data: AssetUploadType, params: UploadParams) => {
-        if (typeof data.args === 'string') data.args = JSON.parse(data.args)
-        const files = params.files
-        if (data.type === 'user-avatar-upload') {
-          return await uploadAvatarStaticResource(
-            app,
-            {
-              avatar: files[0].buffer,
-              thumbnail: files[1].buffer,
-              ...data.args
-            },
-            params
-          )
-        } else if (data.type === 'admin-file-upload') {
-          if (!(await verifyScope('admin', 'admin')({ app, params } as any))) return
-          const argsData = typeof data.args === 'string' ? JSON.parse(data.args) : data.args
-
-          if (argsData.key && argsData.key.startsWith('static-resources/') === false) {
-            const splits = argsData.key.split('.')
-            let ext = ''
-            let name = argsData.key
-            if (splits.length > 1) {
-              ext = `.${splits.pop()}`
-              name = splits.join('.')
+      koa: {
+        before: [
+          multipartMiddleware.any(),
+          async (ctx, next) => {
+            const files = ctx.request.files
+            if (ctx?.feathers && ctx.method !== 'GET') {
+              ;(ctx as any).feathers.files = (ctx as any).request.files.media
+                ? (ctx as any).request.files.media
+                : ctx.request.files
             }
 
-            argsData.key = `static-resources/${name}_${MathUtils.generateUUID()}${ext}`
+            await next()
+            return ctx.body
           }
-
-          if (files && files.length > 0) {
-            return Promise.all(
-              files.map((file, i) =>
-                addGenericAssetToS3AndStaticResources(app, file.buffer, file.mimetype, { ...argsData })
-              )
-            )
-          } else {
-            return Promise.all(
-              data?.files.map((file, i) =>
-                addGenericAssetToS3AndStaticResources(app, file as Buffer, (data.args as any).mimeType, { ...argsData })
-              )
-            )
-          }
-        }
+        ]
       }
     }
   )
   const service = app.service('upload-asset')
-  ;(service as any).hooks(hooks)
+
+  service.hooks(hooks)
 }

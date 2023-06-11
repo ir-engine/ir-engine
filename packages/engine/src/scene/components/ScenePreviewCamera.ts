@@ -5,6 +5,7 @@ import { getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
 
 import { Engine } from '../../ecs/classes/Engine'
 import { defineComponent, getComponent, hasComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
+import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { RendererState } from '../../renderer/RendererState'
 import { LocalTransformComponent, TransformComponent } from '../../transform/components/TransformComponent'
 import { ObjectLayers } from '../constants/ObjectLayers'
@@ -12,7 +13,8 @@ import { setObjectLayers } from '../functions/setObjectLayers'
 import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
 
 export const ScenePreviewCameraComponent = defineComponent({
-  name: 'XRE_scenePreviewCamera',
+  name: 'EE_scenePreviewCamera',
+  jsonID: 'scene-preview-camera',
 
   onInit: (entity) => {
     const camera = new PerspectiveCamera(80, 16 / 9, 0.2, 8000)
@@ -36,23 +38,22 @@ export const ScenePreviewCameraComponent = defineComponent({
     return {} as any
   },
 
-  reactor: function ({ root }) {
-    if (!hasComponent(root.entity, ScenePreviewCameraComponent)) throw root.stop()
-
+  reactor: function () {
+    const entity = useEntityContext()
     const debugEnabled = useHookstate(getMutableState(RendererState).nodeHelperVisibility)
-    const camera = useComponent(root.entity, ScenePreviewCameraComponent)
+    const camera = useComponent(entity, ScenePreviewCameraComponent)
 
     useEffect(() => {
       if (debugEnabled.value && !camera.helper.value) {
         const helper = new CameraHelper(camera.camera.value)
-        helper.name = `scene-preview-helper-${root.entity}`
+        helper.name = `scene-preview-helper-${entity}`
         setObjectLayers(helper, ObjectLayers.NodeHelper)
-        addObjectToGroup(root.entity, helper)
+        addObjectToGroup(entity, helper)
         camera.helper.set(helper)
       }
 
       if (!debugEnabled.value && camera.helper.value) {
-        removeObjectFromGroup(root.entity, camera.helper.value)
+        removeObjectFromGroup(entity, camera.helper.value)
         camera.helper.set(none)
       }
     }, [debugEnabled])
@@ -60,5 +61,3 @@ export const ScenePreviewCameraComponent = defineComponent({
     return null
   }
 })
-
-export const SCENE_COMPONENT_SCENE_PREVIEW_CAMERA = 'scene-preview-camera'

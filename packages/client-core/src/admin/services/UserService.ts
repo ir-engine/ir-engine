@@ -2,15 +2,15 @@ import { Paginated } from '@feathersjs/feathers'
 
 import { CreateEditUser, UserInterface, UserSeed } from '@etherealengine/common/src/interfaces/User'
 import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
-import { defineAction, defineState, dispatchAction, getMutableState, useState } from '@etherealengine/hyperflux'
+import { defineAction, defineState, dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 
 import { API } from '../../API'
 import { NotificationService } from '../../common/services/NotificationService'
-import { accessAuthState, AuthService } from '../../user/services/AuthService'
+import { AuthService, AuthState } from '../../user/services/AuthService'
 
 //State
 export const USER_PAGE_LIMIT = 10
-const AdminUserState = defineState({
+export const AdminUserState = defineState({
   name: 'AdminUserState',
   initial: () => ({
     users: [] as Array<UserInterface>,
@@ -101,10 +101,6 @@ export const AdminUserReceptors = {
   resetFilterReceptor
 }
 
-export const accessUserState = () => getMutableState(AdminUserState)
-
-export const useUserState = () => useState(accessUserState())
-
 //Service
 export const AdminUserService = {
   fetchSingleUserAdmin: async (id: string) => {
@@ -116,8 +112,8 @@ export const AdminUserService = {
     }
   },
   fetchUsersAsAdmin: async (value: string | null = null, skip = 0, sortField = 'name', orderBy = 'asc') => {
-    const userState = accessUserState()
-    const user = accessAuthState().user
+    const userState = getMutableState(AdminUserState)
+    const user = getMutableState(AuthState).user
     const skipGuests = userState.skipGuests.value
     try {
       if (user.scopes?.value?.find((scope) => scope.type === 'admin:admin')) {
@@ -160,7 +156,7 @@ export const AdminUserService = {
     try {
       const result = (await API.instance.client.service('user').patch(id, user)) as UserInterface
       dispatchAction(AdminUserActions.userPatched({ user: result }))
-      if (id === accessAuthState().user.id.value) await AuthService.loadUserData(id)
+      if (id === getMutableState(AuthState).user.id.value) await AuthService.loadUserData(id)
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
@@ -180,41 +176,41 @@ export const AdminUserService = {
 //Action
 export class AdminUserActions {
   static fetchedSingleUser = defineAction({
-    type: 'xre.client.AdminUser.SINGLE_USER_ADMIN_LOADED' as const,
+    type: 'ee.client.AdminUser.SINGLE_USER_ADMIN_LOADED' as const,
     data: matches.object as Validator<unknown, UserInterface>
   })
 
   static loadedUsers = defineAction({
-    type: 'xre.client.AdminUser.ADMIN_LOADED_USERS' as const,
+    type: 'ee.client.AdminUser.ADMIN_LOADED_USERS' as const,
     userResult: matches.object as Validator<unknown, Paginated<UserInterface>>
   })
 
   static userCreated = defineAction({
-    type: 'xre.client.AdminUser.USER_ADMIN_CREATED' as const,
+    type: 'ee.client.AdminUser.USER_ADMIN_CREATED' as const,
     user: matches.object as Validator<unknown, UserInterface>
   })
 
   static userPatched = defineAction({
-    type: 'xre.client.AdminUser.USER_ADMIN_PATCHED' as const,
+    type: 'ee.client.AdminUser.USER_ADMIN_PATCHED' as const,
     user: matches.object as Validator<unknown, UserInterface>
   })
 
   static userAdminRemoved = defineAction({
-    type: 'xre.client.AdminUser.USER_ADMIN_REMOVED' as const,
+    type: 'ee.client.AdminUser.USER_ADMIN_REMOVED' as const,
     data: matches.object as Validator<unknown, UserInterface>
   })
 
   static searchedUser = defineAction({
-    type: 'xre.client.AdminUser.USER_SEARCH_ADMIN' as const,
+    type: 'ee.client.AdminUser.USER_SEARCH_ADMIN' as const,
     userResult: matches.object as Validator<unknown, Paginated<UserInterface>>
   })
 
   static setSkipGuests = defineAction({
-    type: 'xre.client.AdminUser.SET_SKIP_GUESTS' as const,
+    type: 'ee.client.AdminUser.SET_SKIP_GUESTS' as const,
     skipGuests: matches.boolean
   })
 
   static resetFilter = defineAction({
-    type: 'xre.client.AdminUser.RESET_USER_FILTER' as const
+    type: 'ee.client.AdminUser.RESET_USER_FILTER' as const
   })
 }

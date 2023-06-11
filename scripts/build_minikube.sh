@@ -53,7 +53,7 @@ fi
 
 if [ -z "$VITE_FILE_SERVER" ]
 then
-  VITE_FILE_SERVER=https://localhost:8642
+  VITE_FILE_SERVER=http://127.0.0.1:9000/etherealengine-minikube-static-resources
 else
   VITE_FILE_SERVER=$VITE_FILE_SERVER
 fi
@@ -100,7 +100,7 @@ mkdir -p ./project-package-jsons/projects/default-project
 cp packages/projects/default-project/package.json ./project-package-jsons/projects/default-project
 find packages/projects/projects/ -name package.json -exec bash -c 'mkdir -p ./project-package-jsons/$(dirname $1) && cp $1 ./project-package-jsons/$(dirname $1)' - '{}' \;
 
-DOCKER_BUILDKIT=1 docker build -t root-builder -f dockerfiles/package-root/Dockerfile-root .
+# DOCKER_BUILDKIT=1 docker build -t root-builder -f dockerfiles/package-root/Dockerfile-root .
 
 DOCKER_BUILDKIT=1 docker build -t etherealengine \
   --build-arg NODE_ENV=$NODE_ENV \

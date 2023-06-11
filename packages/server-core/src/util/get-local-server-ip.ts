@@ -7,11 +7,10 @@ export interface ServerAddress {
   port: string
 }
 
-export default async (isChannelInstance: boolean): Promise<ServerAddress> => {
-  const ip =
-    configFile.instanceserver.hostname === 'localhost' ? await internalIp.v4() : configFile.instanceserver.hostname
+export default async (isMediaInstance: boolean): Promise<ServerAddress> => {
+  const ip = configFile.instanceserver.domain === 'localhost' ? await internalIp.v4() : configFile.instanceserver.domain
   return {
     ipAddress: ip!,
-    port: isChannelInstance ? '3032' : '3031'
+    port: isMediaInstance ? '3032' : '3031'
   }
 }

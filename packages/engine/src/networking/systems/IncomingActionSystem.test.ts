@@ -1,16 +1,13 @@
 import assert, { strictEqual } from 'assert'
 import matches from 'ts-matches'
 
+import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 import { getMutableState } from '@etherealengine/hyperflux'
-import {
-  ActionRecipients,
-  addActionReceptor,
-  applyIncomingActions
-} from '@etherealengine/hyperflux/functions/ActionFunctions'
+import { ActionRecipients, addActionReceptor, applyIncomingActions, getState } from '@etherealengine/hyperflux'
 
 import { createMockNetwork } from '../../../tests/util/createMockNetwork'
-import { Engine } from '../../ecs/classes/Engine'
+import { destroyEngine, Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
 import { createEngine } from '../../initializeEngine'
 import { NetworkTopics } from '../classes/Network'
@@ -21,16 +18,20 @@ describe('IncomingActionSystem Unit Tests', async () => {
     createEngine()
     // this is hacky but works and preserves the logic
     Engine.instance.store.getDispatchTime = () => {
-      return Engine.instance.fixedTick
+      return getState(EngineState).simulationTime
     }
     createMockNetwork()
+  })
+
+  afterEach(() => {
+    return destroyEngine()
   })
 
   describe('applyIncomingActions', () => {
     it('should delay incoming action from the future', () => {
       // fixed tick in past
       const engineState = getMutableState(EngineState)
-      engineState.fixedTick.set(0)
+      engineState.simulationTime.set(0)
 
       /* mock */
       const action = WorldNetworkAction.spawnObject({
@@ -38,13 +39,14 @@ describe('IncomingActionSystem Unit Tests', async () => {
         prefab: '',
         // incoming action from future
         $time: 2,
-        $to: '0' as ActionRecipients
+        $to: '0' as ActionRecipients,
+        uuid: '0' as EntityUUID
       })
       action.$topic = NetworkTopics.world
 
       Engine.instance.store.actions.incoming.push(action)
 
-      const recepted: typeof action[] = []
+      const recepted: (typeof action)[] = []
       addActionReceptor((a) => matches(a).when(WorldNetworkAction.spawnObject.matches, (a) => recepted.push(a)))
 
       /* run */
@@ -54,7 +56,7 @@ describe('IncomingActionSystem Unit Tests', async () => {
       strictEqual(recepted.length, 0)
 
       // fixed tick update
-      engineState.fixedTick.set(2)
+      engineState.simulationTime.set(2)
       applyIncomingActions()
 
       /* assert */
@@ -68,13 +70,14 @@ describe('IncomingActionSystem Unit Tests', async () => {
         prefab: '',
         // incoming action from past
         $time: -1,
-        $to: '0' as ActionRecipients
+        $to: '0' as ActionRecipients,
+        uuid: '0' as EntityUUID
       })
       action.$topic = NetworkTopics.world
 
       Engine.instance.store.actions.incoming.push(action)
 
-      const recepted: typeof action[] = []
+      const recepted: (typeof action)[] = []
       addActionReceptor((a) => matches(a).when(WorldNetworkAction.spawnObject.matches, (a) => recepted.push(a)))
 
       /* run */
@@ -94,13 +97,14 @@ describe('IncomingActionSystem Unit Tests', async () => {
         // incoming action from past
         $time: 0,
         $to: '0' as ActionRecipients,
-        $cache: true
+        $cache: true,
+        uuid: '0' as EntityUUID
       })
       action.$topic = NetworkTopics.world
 
       Engine.instance.store.actions.incoming.push(action)
 
-      const recepted: typeof action[] = []
+      const recepted: (typeof action)[] = []
       addActionReceptor((a) => matches(a).when(WorldNetworkAction.spawnObject.matches, (a) => recepted.push(a)))
 
       /* run */

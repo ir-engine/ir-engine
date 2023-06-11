@@ -7,7 +7,7 @@ import {
   addComponent,
   ComponentType,
   getComponent,
-  getComponentState,
+  getMutableComponent,
   getOrAddComponent,
   hasComponent,
   useComponent
@@ -15,8 +15,6 @@ import {
 import { iterateEntityNode } from '@etherealengine/engine/src/ecs/functions/EntityTree'
 import {
   InstancingComponent,
-  InstancingStagingComponent,
-  InstancingUnstagingComponent,
   SampleMode,
   ScatterMode,
   ScatterProperties,
@@ -93,7 +91,7 @@ export const InstancingNodeEditor: EditorComponentType = (props) => {
       (eNode) => {
         if (eNode === entity) return false
         if (hasComponent(eNode, ModelComponent)) {
-          const obj3d = getComponentState(eNode, ModelComponent).scene.value as Scene | undefined
+          const obj3d = getMutableComponent(eNode, ModelComponent).scene.value as Scene | undefined
           if (!obj3d) return false
           const mesh = getFirstMesh(obj3d)
           return !!mesh && mesh.geometry.hasAttribute('uv') && mesh.geometry.hasAttribute('normal')
@@ -106,26 +104,13 @@ export const InstancingNodeEditor: EditorComponentType = (props) => {
 
   const surfaces = useState(initialSurfaces())
 
-  const onUnstage = () => {
-    if (!hasComponent(entity, InstancingUnstagingComponent)) {
-      addComponent(entity, InstancingUnstagingComponent, {})
-    }
-  }
-
-  const onStage = async () => {
-    if (!hasComponent(entity, InstancingStagingComponent)) {
-      addComponent(entity, InstancingStagingComponent, {})
-    }
-  }
-
-  const onReload = async () => {
-    await onUnstage()
-    await onStage()
+  const onRestage = () => {
+    scatterState.state.set(ScatterState.UNSTAGING)
   }
 
   const onChangeMode = (mode) => {
     if (scatter.mode === mode) return
-    const scene = getComponentState(entity, ModelComponent).scene! as any
+    const scene = getMutableComponent(entity, ModelComponent).scene! as any
     if (!scene.value) return
     const uData = JSON.parse(JSON.stringify(scene.userData.value))
     uData[scatter.mode] = scatter.sourceProperties
@@ -143,8 +128,8 @@ export const InstancingNodeEditor: EditorComponentType = (props) => {
       }
     }
     scene.userData.set(uData)
-    updateProperty(InstancingComponent, 'sourceProperties')(srcProperties)
-    updateProperty(InstancingComponent, 'mode')(mode)
+    scatterState.sourceProperties.set(srcProperties)
+    scatterState.mode.set(mode)
   }
 
   return (
@@ -246,16 +231,10 @@ export const InstancingNodeEditor: EditorComponentType = (props) => {
           />
         )}
       </span>
-      {scatter.state === ScatterState.UNSTAGED && (
-        <PropertiesPanelButton onClick={onStage}>{t('editor:properties:instancing.lbl-load')}</PropertiesPanelButton>
-      )}
       {scatter.state === ScatterState.STAGING && <p>{t('Loading...')}</p>}
       {scatter.state === ScatterState.STAGED && (
         <InputGroup name={t('editor:properties:instancing.lbl-options')}>
-          <PropertiesPanelButton onClick={onUnstage}>
-            {t('editor:properties:instancing.lbl-unload')}
-          </PropertiesPanelButton>
-          <PropertiesPanelButton onClick={onReload}>
+          <PropertiesPanelButton onClick={onRestage}>
             {t('editor:properties:instancing.lbl-reload')}
           </PropertiesPanelButton>
         </InputGroup>

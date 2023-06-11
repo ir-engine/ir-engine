@@ -1,10 +1,11 @@
 import assert, { strictEqual } from 'assert'
 import { PerspectiveCamera, Quaternion, Vector3 } from 'three'
 
+import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 import { getMutableState } from '@etherealengine/hyperflux'
 
-import { Engine } from '../../ecs/classes/Engine'
+import { destroyEngine, Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
 import { getComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEngine } from '../../initializeEngine'
@@ -22,20 +23,25 @@ describe('moveAvatar function tests', () => {
     await Physics.load()
     Engine.instance.physicsWorld = Physics.createWorld()
     Engine.instance.userId = 'userId' as UserId
+    Engine.instance.peerID = 'peerID' as PeerID
+  })
+
+  afterEach(() => {
+    return destroyEngine()
   })
 
   it('should apply world.fixedDelta @ 60 tick to avatar movement, consistent with physics simulation', () => {
-    const world = Engine.instance.currentScene
     const engineState = getMutableState(EngineState)
-    engineState.fixedDeltaSeconds.set(1000 / 60)
+    engineState.simulationTimestep.set(1000 / 60)
 
     const spawnAvatar = WorldNetworkAction.spawnAvatar({
       $from: Engine.instance.userId,
       position: new Vector3(),
-      rotation: new Quaternion()
+      rotation: new Quaternion(),
+      uuid: Engine.instance.userId
     })
 
-    WorldNetworkActionReceptor.receiveSpawnObject(spawnAvatar)
+    WorldNetworkActionReceptor.receiveSpawnObject(spawnAvatar as any)
 
     spawnAvatarReceptor(spawnAvatar)
     const entity = Engine.instance.getUserAvatarEntity(Engine.instance.userId)
@@ -58,17 +64,17 @@ describe('moveAvatar function tests', () => {
   })
 
   it('should apply world.fixedDelta @ 120 tick to avatar movement, consistent with physics simulation', () => {
-    const world = Engine.instance.currentScene
     const engineState = getMutableState(EngineState)
-    engineState.fixedDeltaSeconds.set(1000 / 60)
+    engineState.simulationTimestep.set(1000 / 60)
 
     const spawnAvatar = WorldNetworkAction.spawnAvatar({
       $from: Engine.instance.userId,
       position: new Vector3(),
-      rotation: new Quaternion()
+      rotation: new Quaternion(),
+      uuid: Engine.instance.userId
     })
 
-    WorldNetworkActionReceptor.receiveSpawnObject(spawnAvatar)
+    WorldNetworkActionReceptor.receiveSpawnObject(spawnAvatar as any)
 
     spawnAvatarReceptor(spawnAvatar)
     const entity = Engine.instance.getUserAvatarEntity(Engine.instance.userId)
@@ -90,9 +96,8 @@ describe('moveAvatar function tests', () => {
   it('should take world.physics.timeScale into account when moving avatars, consistent with physics simulation', () => {
     Engine.instance.userId = 'user' as UserId
 
-    const world = Engine.instance.currentScene
     const engineState = getMutableState(EngineState)
-    engineState.fixedDeltaSeconds.set(1000 / 60)
+    engineState.simulationTimestep.set(1000 / 60)
 
     /* mock */
     Engine.instance.physicsWorld.timestep = 1 / 2
@@ -100,10 +105,11 @@ describe('moveAvatar function tests', () => {
     const spawnAvatar = WorldNetworkAction.spawnAvatar({
       $from: Engine.instance.userId,
       position: new Vector3(),
-      rotation: new Quaternion()
+      rotation: new Quaternion(),
+      uuid: Engine.instance.userId
     })
 
-    WorldNetworkActionReceptor.receiveSpawnObject(spawnAvatar)
+    WorldNetworkActionReceptor.receiveSpawnObject(spawnAvatar as any)
 
     spawnAvatarReceptor(spawnAvatar)
     const entity = Engine.instance.getUserAvatarEntity(Engine.instance.userId)
@@ -125,17 +131,17 @@ describe('moveAvatar function tests', () => {
   it('should not allow velocity to breach a full unit through multiple frames', () => {
     Engine.instance.userId = 'user' as UserId
 
-    const world = Engine.instance.currentScene
     const engineState = getMutableState(EngineState)
-    engineState.fixedDeltaSeconds.set(1000 / 60)
+    engineState.simulationTimestep.set(1000 / 60)
 
     const spawnAvatar = WorldNetworkAction.spawnAvatar({
       $from: Engine.instance.userId,
       position: new Vector3(),
-      rotation: new Quaternion()
+      rotation: new Quaternion(),
+      uuid: Engine.instance.userId
     })
 
-    WorldNetworkActionReceptor.receiveSpawnObject(spawnAvatar)
+    WorldNetworkActionReceptor.receiveSpawnObject(spawnAvatar as any)
 
     spawnAvatarReceptor(spawnAvatar)
     const entity = Engine.instance.getUserAvatarEntity(Engine.instance.userId)

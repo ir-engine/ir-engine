@@ -1,13 +1,15 @@
-import { getMutableState } from '@etherealengine/hyperflux'
+import { getState } from '@etherealengine/hyperflux'
 
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
-import { defineQuery, removeQuery } from '../../ecs/functions/ComponentFunctions'
+import { defineQuery } from '../../ecs/functions/ComponentFunctions'
+import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { Network } from '../classes/Network'
 import { NetworkObjectAuthorityTag } from '../components/NetworkObjectComponent'
 import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
 import { createDataWriter } from '../serialization/DataWriter'
+import { ecsDataChannelType } from './IncomingNetworkSystem'
 
 /***********
  * QUERIES *
@@ -21,35 +23,30 @@ const authoritativeNetworkTransformsQuery = defineQuery([
 ])
 
 const serializeAndSend = (serialize: ReturnType<typeof createDataWriter>) => {
-  const ents = getMutableState(EngineState).isEditor.value
-    ? networkTransformsQuery()
-    : authoritativeNetworkTransformsQuery()
+  const ents = getState(EngineState).isEditor ? networkTransformsQuery() : authoritativeNetworkTransformsQuery()
   if (ents.length > 0) {
     const userID = Engine.instance.userId
-    const peerID = Engine.instance.worldNetwork.peerID
-    const data = serialize(Engine.instance.worldNetwork as Network, userID, peerID, ents)
+    const network = Engine.instance.worldNetwork as Network
+    const peerID = Engine.instance.peerID
+    const data = serialize(network, userID, peerID, ents)
 
     // todo: insert historian logic here
 
     if (data.byteLength > 0) {
       // side effect - network IO
       // delay until end of frame
-      Promise.resolve().then(() => Engine.instance.worldNetwork.sendData(data))
+      Promise.resolve().then(() => network.transport.bufferToPeer(ecsDataChannelType, network.hostPeerID, data))
     }
   }
 }
 
-export default async function OutgoingNetworkSystem() {
-  const serialize = createDataWriter()
+const serialize = createDataWriter()
 
-  const execute = () => {
-    Engine.instance.worldNetwork && serializeAndSend(serialize)
-  }
-
-  const cleanup = async () => {
-    removeQuery(networkTransformsQuery)
-    removeQuery(authoritativeNetworkTransformsQuery)
-  }
-
-  return { execute, cleanup }
+const execute = () => {
+  Engine.instance.worldNetwork && serializeAndSend(serialize)
 }
+
+export const OutgoingNetworkSystem = defineSystem({
+  uuid: 'ee.engine.OutgoingNetworkSystem',
+  execute
+})

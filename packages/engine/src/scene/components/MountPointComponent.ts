@@ -5,6 +5,7 @@ import { getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
 
 import { matches } from '../../common/functions/MatchesUtils'
 import { defineComponent, hasComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
+import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { RendererState } from '../../renderer/RendererState'
 import { ObjectLayers } from '../constants/ObjectLayers'
 import { setObjectLayers } from '../functions/setObjectLayers'
@@ -14,10 +15,11 @@ export const MountPoint = {
   seat: 'seat' as const
 }
 
-export type MountPointTypes = typeof MountPoint[keyof typeof MountPoint]
+export type MountPointTypes = (typeof MountPoint)[keyof typeof MountPoint]
 
 export const MountPointComponent = defineComponent({
   name: 'MountPointComponent',
+  jsonID: 'mount-point',
 
   onInit: (entity) => {
     return {
@@ -41,25 +43,24 @@ export const MountPointComponent = defineComponent({
     if (component.helper.value) removeObjectFromGroup(entity, component.helper.value)
   },
 
-  reactor: function ({ root }) {
-    if (!hasComponent(root.entity, MountPointComponent)) throw root.stop()
-
+  reactor: function () {
+    const entity = useEntityContext()
     const debugEnabled = useHookstate(getMutableState(RendererState).nodeHelperVisibility)
-    const mountPoint = useComponent(root.entity, MountPointComponent)
+    const mountPoint = useComponent(entity, MountPointComponent)
 
     useEffect(() => {
       if (debugEnabled.value && !mountPoint.helper.value) {
         const helper = new ArrowHelper(new Vector3(0, 0, 1), new Vector3(0, 0, 0), 0.5, 0xffffff)
-        helper.name = `mount-point-helper-${root.entity}`
+        helper.name = `mount-point-helper-${entity}`
 
         setObjectLayers(helper, ObjectLayers.NodeHelper)
-        addObjectToGroup(root.entity, helper)
+        addObjectToGroup(entity, helper)
 
         mountPoint.helper.set(helper)
       }
 
       if (!debugEnabled.value && mountPoint.helper.value) {
-        removeObjectFromGroup(root.entity, mountPoint.helper.value)
+        removeObjectFromGroup(entity, mountPoint.helper.value)
         mountPoint.helper.set(none)
       }
     }, [debugEnabled])
@@ -67,5 +68,3 @@ export const MountPointComponent = defineComponent({
     return null
   }
 })
-
-export const SCENE_COMPONENT_MOUNT_POINT = 'mount-point'

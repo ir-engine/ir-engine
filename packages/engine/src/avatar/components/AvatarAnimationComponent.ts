@@ -6,12 +6,12 @@ import { getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
 import { matches } from '../../common/functions/MatchesUtils'
 import { proxifyQuaternion, proxifyVector3 } from '../../common/proxies/createThreejsProxy'
 import {
-  createMappedComponent,
   defineComponent,
   hasComponent,
   useComponent,
   useOptionalComponent
 } from '../../ecs/functions/ComponentFunctions'
+import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { RendererState } from '../../renderer/RendererState'
 import { addObjectToGroup, removeObjectFromGroup } from '../../scene/components/GroupComponent'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
@@ -22,21 +22,35 @@ import { BoneStructure } from '../AvatarBoneMatching'
 import { AvatarComponent } from './AvatarComponent'
 import { AvatarPendingComponent } from './AvatarPendingComponent'
 
-export type AvatarAnimationComponentType = {
-  /** Animaiton graph of this entity */
-  animationGraph: AnimationGraph
+export const AvatarAnimationComponent = defineComponent({
+  name: 'AvatarAnimationComponent',
 
-  /** ratio between original and target skeleton's root.position.y */
-  rootYRatio: number
+  onInit: (entity) => {
+    return {
+      /** Animaiton graph of this entity */
+      animationGraph: {
+        states: {},
+        transitionRules: {},
+        currentState: null!,
+        stateChanged: null!
+      } as AnimationGraph,
+      /** ratio between original and target skeleton's root.position.y */
+      rootYRatio: 1,
+      /** The input vector for 2D locomotion blending space */
+      locomotion: new Vector3(),
+      /** Time since the last update */
+      deltaAccumulator: 0
+    }
+  },
 
-  /** The input vector for 2D locomotion blending space */
-  locomotion: Vector3
-
-  /** Time since the last update */
-  deltaAccumulator: number
-}
-
-export const AvatarAnimationComponent = createMappedComponent<AvatarAnimationComponentType>('AvatarAnimationComponent')
+  onSet: (entity, component, json) => {
+    if (!json) return
+    if (matches.object.test(json.animationGraph)) component.animationGraph.set(json.animationGraph as AnimationGraph)
+    if (matches.number.test(json.rootYRatio)) component.rootYRatio.set(json.rootYRatio)
+    if (matches.object.test(json.locomotion)) component.locomotion.value.copy(json.locomotion)
+    if (matches.number.test(json.deltaAccumulator)) component.deltaAccumulator.set(json.deltaAccumulator)
+  }
+})
 
 const RigSchema = {
   Root: PoseSchema,
@@ -126,6 +140,7 @@ export const AvatarRigComponent = defineComponent({
       /** Read-only bones in bind pose */
       bindRig: null! as BoneStructure,
       helper: null as SkeletonHelper | null,
+      handRadius: 0,
       /** The length of the torso in a t-pose, from the hip join to the head joint */
       torsoLength: 0,
       /** The length of the upper leg in a t-pose, from the hip joint to the knee joint */
@@ -156,14 +171,11 @@ export const AvatarRigComponent = defineComponent({
     }
   },
 
-  reactor: function ({ root }) {
-    const entity = root.entity
-
-    if (!hasComponent(entity, AvatarRigComponent)) throw root.stop()
-
+  reactor: function () {
+    const entity = useEntityContext()
     const debugEnabled = useHookstate(getMutableState(RendererState).debugEnable)
-    const anim = useComponent(root.entity, AvatarRigComponent)
-    const pending = useOptionalComponent(root.entity, AvatarPendingComponent)
+    const anim = useComponent(entity, AvatarRigComponent)
+    const pending = useOptionalComponent(entity, AvatarPendingComponent)
 
     useEffect(() => {
       if (debugEnabled.value && !anim.helper.value && !pending?.value) {

@@ -3,8 +3,8 @@ import { Paginated } from '@feathersjs/feathers/lib'
 import crypto from 'crypto'
 import { iff, isProvider } from 'feathers-hooks-common'
 
-import { ServerSettingInterface } from '@etherealengine/common/src/dbmodels/ServerSetting'
 import logger from '@etherealengine/common/src/logger'
+import { serverSettingPath, ServerSettingType } from '@etherealengine/engine/src/schemas/setting/server-setting.schema'
 
 import { Application } from '../../../declarations'
 import authenticate from '../../hooks/authenticate'
@@ -49,7 +49,7 @@ export default (app: Application): void => {
   app.use('github-repo-access-webhook', {
     create: async (data, params): Promise<string> => {
       try {
-        const secret = ((await app.service('server-setting').find()) as Paginated<ServerSettingInterface>).data[0]
+        const secret = ((await app.service(serverSettingPath).find()) as Paginated<ServerSettingType>).data[0]
           .githubWebhookSecret
         const sig = Buffer.from(params.headers[SIG_HEADER_NAME] || '', 'utf8')
         const hmac = crypto.createHmac(SIG_HASH_ALGORITHM, secret)

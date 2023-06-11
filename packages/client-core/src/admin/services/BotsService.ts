@@ -3,17 +3,17 @@ import { Paginated } from '@feathersjs/feathers'
 import { AdminBot, CreateBotAsAdmin } from '@etherealengine/common/src/interfaces/AdminBot'
 import multiLogger from '@etherealengine/common/src/logger'
 import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
-import { defineAction, defineState, dispatchAction, getMutableState, useState } from '@etherealengine/hyperflux'
+import { defineAction, defineState, dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 
 import { API } from '../../API'
-import { accessAuthState } from '../../user/services/AuthService'
+import { AuthState } from '../../user/services/AuthService'
 
 const logger = multiLogger.child({ component: 'client-core:BotsService' })
 
 //State
 export const BOTS_PAGE_LIMIT = 100
 
-const AdminBotState = defineState({
+export const AdminBotState = defineState({
   name: 'AdminBotState',
   initial: () => ({
     bots: [] as Array<AdminBot>,
@@ -60,10 +60,6 @@ export const AdminBotServiceReceptors = {
   botRemovedReceptor
 }
 
-export const accessAdminBotState = () => getMutableState(AdminBotState)
-
-export const useAdminBotState = () => useState(accessAdminBotState())
-
 //Service
 export const AdminBotService = {
   createBotAsAdmin: async (data: CreateBotAsAdmin) => {
@@ -76,9 +72,9 @@ export const AdminBotService = {
   },
   fetchBotAsAdmin: async (incDec?: 'increment' | 'decrement') => {
     try {
-      const user = accessAuthState().user
-      const skip = accessAdminBotState().skip.value
-      const limit = accessAdminBotState().limit.value
+      const user = getMutableState(AuthState).user
+      const skip = getMutableState(AdminBotState).skip.value
+      const limit = getMutableState(AdminBotState).limit.value
       if (user.scopes?.value?.find((scope) => scope.type === 'admin:admin')) {
         const bots = (await API.instance.client.service('bot').find({
           query: {
@@ -116,19 +112,19 @@ export const AdminBotService = {
 //Action
 export class AdminBotsActions {
   static fetchedBot = defineAction({
-    type: 'xre.client.AdminBots.BOT_ADMIN_DISPLAY' as const,
+    type: 'ee.client.AdminBots.BOT_ADMIN_DISPLAY' as const,
     bots: matches.object as Validator<unknown, Paginated<AdminBot>>
   })
   static botCreated = defineAction({
-    type: 'xre.client.AdminBots.BOT_ADMIN_CREATE' as const,
+    type: 'ee.client.AdminBots.BOT_ADMIN_CREATE' as const,
     bot: matches.object as Validator<unknown, AdminBot>
   })
   static botRemoved = defineAction({
-    type: 'xre.client.AdminBots.BOT_ADMIN_REMOVE' as const,
+    type: 'ee.client.AdminBots.BOT_ADMIN_REMOVE' as const,
     bot: matches.object as Validator<unknown, AdminBot>
   })
   static botPatched = defineAction({
-    type: 'xre.client.AdminBots.BOT_ADMIN_UPDATE' as const,
+    type: 'ee.client.AdminBots.BOT_ADMIN_UPDATE' as const,
     bot: matches.object as Validator<unknown, AdminBot>
   })
 }

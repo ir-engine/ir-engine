@@ -3,7 +3,6 @@ import React, { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import JSONTree from 'react-json-tree'
 
-import { mapToObject } from '@etherealengine/common/src/utils/mapToObject'
 import { AvatarControllerComponent } from '@etherealengine/engine/src/avatar/components/AvatarControllerComponent'
 import { respawnAvatar } from '@etherealengine/engine/src/avatar/functions/respawnAvatar'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
@@ -15,19 +14,62 @@ import {
   getOptionalComponent,
   hasComponent
 } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { RootSystemGroup, SimulationSystemGroup } from '@etherealengine/engine/src/ecs/functions/EngineFunctions'
 import { entityExists } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
-import { EntityOrObjectUUID, EntityTreeComponent } from '@etherealengine/engine/src/ecs/functions/EntityTree'
-import { SystemInstance } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
+import { EntityTreeComponent } from '@etherealengine/engine/src/ecs/functions/EntityTree'
+import { System, SystemDefinitions, SystemUUID } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
 import { RendererState } from '@etherealengine/engine/src/renderer/RendererState'
 import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
 import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
-import { ObjectLayers } from '@etherealengine/engine/src/scene/constants/ObjectLayers'
-import { dispatchAction, getMutableState, useHookstate } from '@etherealengine/hyperflux'
-import Icon from '@etherealengine/ui/src/Icon'
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 
 import { StatsPanel } from './StatsPanel'
 import styles from './styles.module.scss'
+
+type DesiredType =
+  | {
+      enabled?: boolean
+      preSystems?: Record<SystemUUID, DesiredType>
+      simulation?: DesiredType
+      subSystems?: Record<SystemUUID, DesiredType>
+      postSystems?: Record<SystemUUID, DesiredType>
+    }
+  | boolean // enabled
+
+const convertSystemTypeToDesiredType = (system: System): DesiredType => {
+  const { preSystems, subSystems, postSystems } = system
+  if (preSystems.length === 0 && subSystems.length === 0 && postSystems.length === 0) {
+    return Engine.instance.activeSystems.has(system.uuid)
+  }
+  const desired: DesiredType = {
+    enabled: Engine.instance.activeSystems.has(system.uuid)
+  }
+  if (preSystems.length > 0) {
+    desired.preSystems = preSystems.reduce((acc, uuid) => {
+      acc[uuid] = convertSystemTypeToDesiredType(SystemDefinitions.get(uuid)!)
+      return acc
+    }, {} as Record<SystemUUID, DesiredType>)
+  }
+  if (system.uuid === RootSystemGroup) {
+    desired.simulation = convertSystemTypeToDesiredType(SystemDefinitions.get(SimulationSystemGroup)!)
+  }
+  if (subSystems.length > 0) {
+    desired.subSystems = subSystems.reduce((acc, uuid) => {
+      acc[uuid] = convertSystemTypeToDesiredType(SystemDefinitions.get(uuid)!)
+      return acc
+    }, {} as Record<SystemUUID, DesiredType>)
+  }
+  if (postSystems.length > 0) {
+    desired.postSystems = postSystems.reduce((acc, uuid) => {
+      acc[uuid] = convertSystemTypeToDesiredType(SystemDefinitions.get(uuid)!)
+      return acc
+    }, {} as Record<SystemUUID, DesiredType>)
+  }
+  if (system.uuid === RootSystemGroup) delete desired.enabled
+  return desired
+}
 
 export const Debug = ({ showingStateRef }) => {
   useHookstate(getMutableState(EngineState).frameTime).value
@@ -35,12 +77,14 @@ export const Debug = ({ showingStateRef }) => {
   const engineState = useHookstate(getMutableState(EngineState))
   const { t } = useTranslation()
   const hasActiveControlledAvatar =
-    engineState.joinedWorld.value && hasComponent(Engine.instance.localClientEntity, AvatarControllerComponent)
+    Engine.instance.localClientEntity &&
+    engineState.joinedWorld.value &&
+    hasComponent(Engine.instance.localClientEntity, AvatarControllerComponent)
 
   const networks = getMutableState(NetworkState).networks
 
   const onClickRespawn = (): void => {
-    respawnAvatar(Engine.instance.localClientEntity)
+    Engine.instance.localClientEntity && respawnAvatar(Engine.instance.localClientEntity)
   }
 
   const toggleDebug = () => {
@@ -125,7 +169,8 @@ export const Debug = ({ showingStateRef }) => {
 
   const namedEntities = useHookstate({})
   const entityTree = useHookstate({} as any)
-  const pipelines = Engine.instance.pipelines
+
+  const dag = convertSystemTypeToDesiredType(SystemDefinitions.get(RootSystemGroup)!)
 
   namedEntities.set(renderAllEntities())
   entityTree.set(renderEntityTreeRoots())
@@ -179,46 +224,42 @@ export const Debug = ({ showingStateRef }) => {
       <div className={styles.jsonPanel}>
         <h1>{t('common:debug.systems')}</h1>
         <JSONTree
-          data={pipelines}
-          postprocessValue={(v: SystemInstance) => {
-            if (!v?.name) return v
-            const s = new String(v.sceneSystem ? v.name : v.uuid) as any
-            if (v.subsystems?.length) {
-              s.parentSystem = v
-              return {
-                [s]: s,
-                subsystems: v.subsystems
-              }
-            }
-            s.instance = v
-            return s
-          }} // yes, all this is a hack. We probably shouldn't use JSONTree for this
-          valueRenderer={(raw, value: { instance: SystemInstance; parentSystem: SystemInstance }) => {
-            return value.parentSystem ? (
+          data={dag}
+          labelRenderer={(raw, ...keyPath) => {
+            const label = raw[0]
+            if (label === 'preSystems') return <span style={{ color: 'red' }}>{t('common:debug.preSystems')}</span>
+            if (label === 'simulation') return <span style={{ color: 'green' }}>{t('common:debug.simulation')}</span>
+            if (label === 'subSystems') return <span style={{ color: 'red' }}>{t('common:debug.subSystems')}</span>
+            if (label === 'postSystems') return <span style={{ color: 'red' }}>{t('common:debug.postSystems')}</span>
+            return <span style={{ color: 'black' }}>{label}</span>
+          }}
+          valueRenderer={(raw, value, ...keyPath) => {
+            const system = SystemDefinitions.get((keyPath[0] === 'enabled' ? keyPath[1] : keyPath[0]) as SystemUUID)!
+            return (
               <>
                 <input
                   type="checkbox"
-                  checked={value?.parentSystem?.enabled}
-                  onChange={() => (value.parentSystem.enabled = !value.parentSystem.enabled)}
+                  checked={value}
+                  onChange={() => {
+                    if (Engine.instance.activeSystems.has(system.uuid)) {
+                      Engine.instance.activeSystems.delete(system.uuid)
+                    } else {
+                      Engine.instance.activeSystems.add(system.uuid)
+                    }
+                  }}
                 ></input>
-              </>
-            ) : (
-              <>
-                <input
-                  type="checkbox"
-                  checked={value?.instance?.enabled}
-                  onChange={() => (value.instance.enabled = !value.instance.enabled)}
-                ></input>{' '}
-                — {value}
               </>
             )
           }}
-          shouldExpandNode={(keyPath, data, level) => level > 0}
+          shouldExpandNode={() => true}
         />
       </div>
       <div className={styles.jsonPanel}>
         <h1>{t('common:debug.state')}</h1>
-        <JSONTree data={Engine.instance.store.stateMap} postprocessValue={(v) => v?.value ?? v} />
+        <JSONTree
+          data={Engine.instance.store.stateMap}
+          postprocessValue={(v) => (v?.value && v?.get({ noproxy: true })) ?? v}
+        />
       </div>
       <div className={styles.jsonPanel}>
         <h1>{t('common:debug.entityTree')}</h1>
@@ -232,11 +273,7 @@ export const Debug = ({ showingStateRef }) => {
       </div>
       <div className={styles.jsonPanel}>
         <h1>{t('common:debug.entities')}</h1>
-        <JSONTree data={namedEntities.value} postprocessValue={(v) => v?.value ?? v} />
-      </div>
-      <div className={styles.jsonPanel}>
-        <h1>{t('common:debug.networks')}</h1>
-        <JSONTree data={networks} />
+        <JSONTree data={namedEntities.get({ noproxy: true })} />
       </div>
     </div>
   )
@@ -251,6 +288,7 @@ export const DebugToggle = () => {
       if (keyCode === 192) {
         showingStateRef.current = !showingStateRef.current
         setShowing(showingStateRef.current)
+        getMutableState(EngineState).systemPerformanceProfilingEnabled.set(showingStateRef.current)
       }
     }
     window.addEventListener('keydown', downHandler)

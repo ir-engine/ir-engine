@@ -3,9 +3,14 @@ import { DirectionalLight, HemisphereLight, PerspectiveCamera, Scene, sRGBEncodi
 
 import { useHookstateFromFactory } from '@etherealengine/common/src/utils/useHookstateFromFactory'
 import { setComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { PresentationSystemGroup } from '@etherealengine/engine/src/ecs/functions/EngineFunctions'
 import { createEntity, removeEntity } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
-import { initSystems, unloadSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
-import { SystemUpdateType } from '@etherealengine/engine/src/ecs/functions/SystemUpdateType'
+import {
+  defineSystem,
+  disableSystem,
+  startSystem,
+  SystemDefinitions
+} from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import { getOrbitControls } from '@etherealengine/engine/src/input/functions/loadOrbitControl'
 import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
 import { ObjectLayers } from '@etherealengine/engine/src/scene/constants/ObjectLayers'
@@ -72,31 +77,22 @@ export function useRender3DPanelSystem(panel: React.MutableRefObject<HTMLDivElem
     window.addEventListener('resize', resize)
     resize()
 
-    async function AvatarSelectRenderSystem() {
-      return {
-        execute: () => {
-          // only render if this menu is open
-          if (!!panel.current && state.renderer.value) {
-            state.controls.value.update()
-            state.renderer.value.render(state.scene.value, state.camera.value)
-          }
-        },
-        cleanup: async () => {}
+    const AvatarSelectRenderSystem = defineSystem({
+      uuid: 'ee.client.AvatarSelectRenderSystem-' + i++,
+      execute: () => {
+        // only render if this menu is open
+        if (!!panel.current && state.renderer.value) {
+          state.controls.value.update()
+          state.renderer.value.render(state.scene.value, state.camera.value)
+        }
       }
-    }
+    })
 
-    const systemUUID = 'xre.client.AvatarSelectRenderSystem-' + i++
-
-    initSystems([
-      {
-        uuid: systemUUID,
-        type: SystemUpdateType.POST_RENDER,
-        systemLoader: () => Promise.resolve({ default: AvatarSelectRenderSystem })
-      }
-    ])
+    startSystem(AvatarSelectRenderSystem, { after: PresentationSystemGroup })
 
     return () => {
-      unloadSystem(systemUUID)
+      disableSystem(AvatarSelectRenderSystem)
+      // todo - do we need to remove the system defintion?
       removeEntity(state.entity.value)
       window.removeEventListener('resize', resize)
     }

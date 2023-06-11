@@ -1,5 +1,4 @@
-import express from 'express'
-import multer from 'multer'
+import Multer from '@koa/multer'
 
 import { Application } from '../../../declarations'
 import { UploadParams } from '../upload-asset/upload-asset.service'
@@ -20,9 +19,12 @@ export const uploadFile = (app: Application) => async (data: any, params: Upload
 
   const result = (await Promise.all(
     params.files.map((file) =>
-      app
-        .service('file-browser')
-        .patch(null, { fileName: data.fileName, path: data.path, body: file.buffer, contentType: file.mimetype })
+      app.service('file-browser').patch(null, {
+        fileName: data.fileName,
+        path: data.path,
+        body: file.buffer as Buffer,
+        contentType: file.mimetype
+      })
     )
   )) as string[]
 
@@ -32,7 +34,7 @@ export const uploadFile = (app: Application) => async (data: any, params: Upload
   return result
 }
 
-const multipartMiddleware = multer({ limits: { fieldSize: Infinity, files: 1 } })
+const multipartMiddleware = Multer({ limits: { fieldSize: Infinity, files: 1 } })
 
 export default (app: Application): any => {
   const fileBrowser = new FileBrowserService(app)
@@ -40,16 +42,24 @@ export default (app: Application): any => {
 
   app.use(
     'file-browser/upload',
-    multipartMiddleware.any(),
-    (req: express.Request, res: express.Response, next: express.NextFunction) => {
-      if (req?.feathers && req.method !== 'GET') {
-        ;(req as any).feathers.files = (req as any).files.media ? (req as any).files.media : (req as any).files
-      }
-
-      next()
-    },
     {
       create: uploadFile(app)
+    },
+    {
+      koa: {
+        before: [
+          multipartMiddleware.any(),
+          async (ctx, next) => {
+            if (ctx?.feathers && ctx.method !== 'GET') {
+              ;(ctx as any).feathers.files = (ctx as any).request.files.media
+                ? (ctx as any).request.files.media
+                : ctx.request.files
+            }
+            await next()
+            return ctx.body
+          }
+        ]
+      }
     }
   )
 

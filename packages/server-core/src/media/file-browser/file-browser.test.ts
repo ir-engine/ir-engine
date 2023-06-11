@@ -4,9 +4,10 @@ import fs from 'fs'
 import path from 'path/posix'
 
 import { StaticResourceInterface } from '@etherealengine/common/src/interfaces/StaticResourceInterface'
+import { destroyEngine } from '@etherealengine/engine/src/ecs/classes/Engine'
 
 import { Application } from '../../../declarations'
-import { createFeathersExpressApp } from '../../createApp'
+import { createFeathersKoaApp } from '../../createApp'
 import LocalStorage from '../storageprovider/local.storage'
 import { getStorageProvider } from '../storageprovider/storageprovider'
 import { projectsRootFolder } from './file-browser.class'
@@ -19,7 +20,7 @@ let STORAGE_ROOT = ''
 describe('file browser service', () => {
   let app: Application
   before(async () => {
-    app = createFeathersExpressApp()
+    app = createFeathersKoaApp()
     await app.setup()
 
     STORAGE_ROOT = (getStorageProvider() as LocalStorage).PATH_PREFIX
@@ -30,6 +31,9 @@ describe('file browser service', () => {
 
     fs.mkdirSync(PROJECT_PATH)
     fs.mkdirSync(STORAGE_PATH)
+  })
+  after(() => {
+    return destroyEngine()
   })
 
   it('should register the service', async () => {
@@ -306,9 +310,8 @@ describe('file browser service', () => {
 
       await app.service('static-resource').create(
         {
-          name: 'Hello world',
           mimeType: 'txt',
-          url: fileStoragePath,
+          hash: 'abcd',
           key: filePath
         },
         {

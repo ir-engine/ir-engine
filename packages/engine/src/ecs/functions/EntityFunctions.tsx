@@ -1,9 +1,8 @@
 import * as bitECS from 'bitecs'
-
-import { ReactorRoot } from '@etherealengine/hyperflux'
+import React from 'react'
 
 import { Engine } from '../classes/Engine'
-import { Entity } from '../classes/Entity'
+import { Entity, UndefinedEntity } from '../classes/Entity'
 import { EntityRemovedComponent, removeAllComponents, setComponent } from './ComponentFunctions'
 
 export const createEntity = (): Entity => {
@@ -13,24 +12,24 @@ export const createEntity = (): Entity => {
 }
 
 export const removeEntity = (entity: Entity, immediately = false) => {
-  if (!entityExists(entity)) throw new Error(`[removeEntity]: Entity ${entity} does not exist in the world`)
+  if (!entity || !entityExists(entity)) throw new Error(`[removeEntity]: Entity ${entity} does not exist in the world`)
 
-  removeAllComponents(entity)
+  const promise = removeAllComponents(entity)
   setComponent(entity, EntityRemovedComponent, true)
 
   if (immediately) {
     bitECS.removeEntity(Engine.instance, entity)
   }
+
+  return promise
 }
 
 export const entityExists = (entity: Entity) => {
   return bitECS.entityExists(Engine.instance, entity)
 }
 
-export interface EntityReactorRoot extends ReactorRoot {
-  entity: Entity
-}
+export const EntityContext = React.createContext(UndefinedEntity)
 
-export interface EntityReactorProps {
-  root: EntityReactorRoot
+export const useEntityContext = () => {
+  return React.useContext(EntityContext)
 }

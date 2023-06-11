@@ -11,16 +11,15 @@ import {
   TransformSpace
 } from '@etherealengine/engine/src/scene/constants/transformConstants'
 import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
-import { dispatchAction } from '@etherealengine/hyperflux'
+import { dispatchAction, getState } from '@etherealengine/hyperflux'
 
-import { accessEditorHelperState, EditorHelperAction } from '../services/EditorHelperState'
-import { accessSelectionState } from '../services/SelectionServices'
-import { SceneState } from './sceneRenderFunctions'
+import { EditorHelperAction, EditorHelperState } from '../services/EditorHelperState'
+import { SelectionState } from '../services/SelectionServices'
 
 export const setTransformMode = (mode: TransformModeType): void => {
   if (mode === TransformMode.Placement || mode === TransformMode.Grab) {
     let stop = false
-    const selectedEntities = accessSelectionState().selectedEntities.value
+    const selectedEntities = getState(SelectionState).selectedEntities
 
     // Dont allow grabbing / placing objects with transform disabled.
     for (const entity of selectedEntities) {
@@ -49,7 +48,7 @@ export const setTransformMode = (mode: TransformModeType): void => {
 export const toggleSnapMode = (): void => {
   dispatchAction(
     EditorHelperAction.changedSnapMode({
-      snapMode: accessEditorHelperState().snapMode.value === SnapMode.Disabled ? SnapMode.Grid : SnapMode.Disabled
+      snapMode: getState(EditorHelperState).snapMode === SnapMode.Disabled ? SnapMode.Grid : SnapMode.Disabled
     })
   )
 }
@@ -60,7 +59,7 @@ export const setTransformPivot = (transformPivot: TransformPivotType) => {
 
 export const toggleTransformPivot = () => {
   const pivots = Object.keys(TransformPivot)
-  const nextIndex = (pivots.indexOf(accessEditorHelperState().transformPivot.value) + 1) % pivots.length
+  const nextIndex = (pivots.indexOf(getState(EditorHelperState).transformPivot) + 1) % pivots.length
 
   dispatchAction(EditorHelperAction.changedTransformPivotMode({ transformPivot: TransformPivot[pivots[nextIndex]] }))
 }
@@ -73,8 +72,8 @@ export const toggleTransformSpace = () => {
   dispatchAction(
     EditorHelperAction.changedTransformSpaceMode({
       transformSpace:
-        accessEditorHelperState().transformSpace.value === TransformSpace.World
-          ? TransformSpace.LocalSelection
+        getState(EditorHelperState).transformSpace === TransformSpace.World
+          ? TransformSpace.Local
           : TransformSpace.World
     })
   )

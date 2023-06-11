@@ -1,8 +1,40 @@
-import { isClient } from '../../common/functions/isClient'
+import { get } from 'lodash'
+import { useEffect } from 'react'
+import { Quaternion, Vector3 } from 'three'
+
+import { dispatchAction, getMutableState, getState, none, useHookstate } from '@etherealengine/hyperflux'
+
+import { V_001 } from '../../common/constants/MathConstants'
+import { isClient } from '../../common/functions/getEnvironment'
 import { Engine } from '../../ecs/classes/Engine'
+import { EngineActions } from '../../ecs/classes/EngineState'
+import { Entity, UndefinedEntity } from '../../ecs/classes/Entity'
+import {
+  defineQuery,
+  getComponent,
+  getMutableComponent,
+  getOptionalComponent,
+  hasComponent,
+  removeQuery,
+  setComponent,
+  useQuery
+} from '../../ecs/functions/ComponentFunctions'
+import { createEntity, removeEntity } from '../../ecs/functions/EntityFunctions'
+import { defineSystem } from '../../ecs/functions/SystemFunctions'
+import { BoundingBoxComponent } from '../../interaction/components/BoundingBoxComponents'
+import { InteractState } from '../../interaction/systems/InteractiveSystem'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
+import { NameComponent } from '../../scene/components/NameComponent'
+import { VisibleComponent } from '../../scene/components/VisibleComponent'
+import { setTransformComponent, TransformComponent } from '../../transform/components/TransformComponent'
+import { XRSpaceComponent } from '../../xr/XRComponents'
+import { ReferenceSpace, XRState } from '../../xr/XRState'
+import { XRUIComponent } from '../../xrui/components/XRUIComponent'
+import { pointers } from '../../xrui/systems/XRUISystem'
+import { InputComponent } from '../components/InputComponent'
+import { InputSourceComponent } from '../components/InputSourceComponent'
 import normalizeWheel from '../functions/normalizeWheel'
-import { ButtonInputStateType, ButtonTypes, createInitialButtonState } from '../InputState'
+import { createInitialButtonState, OldButtonInputStateType, OldButtonTypes } from '../InputState'
 
 function preventDefault(e) {
   e.preventDefault()
@@ -52,11 +84,11 @@ export const addClientInputListeners = () => {
   const handleMouseClick = (event: MouseEvent) => {
     const down = event.type === 'mousedown' || event.type === 'touchstart'
 
-    let button: ButtonTypes = 'PrimaryClick'
+    let button: OldButtonTypes = 'PrimaryClick'
     if (event.button === 1) button = 'AuxiliaryClick'
     else if (event.button === 2) button = 'SecondaryClick'
 
-    const state = Engine.instance.buttons as ButtonInputStateType
+    const state = Engine.instance.buttons as OldButtonInputStateType
 
     if (down) state[button] = createInitialButtonState()
     else if (state[button]) state[button]!.up = true
@@ -101,9 +133,19 @@ export const addClientInputListeners = () => {
   }
   addListener(document, 'touchstickmove', handleTouchDirectionalPad)
 
+  const handleTouchGampadButton = () => {
+    dispatchAction(
+      EngineActions.interactedWithObject({
+        targetEntity: getState(InteractState).available[0],
+        handedness: 'none'
+      })
+    )
+  }
+  addListener(document, 'touchgamepadbuttondown', handleTouchGampadButton)
+
   const pointerButtons = ['PrimaryClick', 'AuxiliaryClick', 'SecondaryClick']
   const clearKeyState = () => {
-    const state = Engine.instance.buttons as ButtonInputStateType
+    const state = Engine.instance.buttons as OldButtonInputStateType
     for (const button of pointerButtons) {
       const val = state[button]
       if (!val?.up && val?.pressed) state[button].up = true
@@ -156,7 +198,7 @@ export const removeClientInputListeners = () => {
   boundListeners.splice(0, boundListeners.length - 1)
 }
 
-export const GamepadMapping = {
+export const OldGamepadMapping = {
   //https://w3c.github.io/gamepad/#remapping
   standard: {
     0: 'ButtonA',
@@ -204,10 +246,10 @@ export const GamepadMapping = {
     }
   }
 }
-export function updateGamepadInput(source: XRInputSource) {
+export function updateOldGamepadInput(source: XRInputSource) {
   if (!source.gamepad) return
-  if (source.gamepad.mapping in GamepadMapping) {
-    const ButtonAlias = GamepadMapping[source.gamepad!.mapping]
+  if (source.gamepad.mapping in OldGamepadMapping) {
+    const ButtonAlias = OldGamepadMapping[source.gamepad!.mapping]
     const mapping = ButtonAlias[source.handedness]
     const buttons = source.gamepad?.buttons
     if (buttons) {
@@ -231,27 +273,217 @@ export function updateGamepadInput(source: XRInputSource) {
   }
 }
 
-export default async function ClientInputSystem() {
-  addClientInputListeners()
-  Engine.instance.pointerScreenRaycaster.layers.enableAll()
-
-  const execute = () => {
-    for (const source of Engine.instance.inputSources) updateGamepadInput(source)
-
-    Engine.instance.pointerScreenRaycaster.setFromCamera(Engine.instance.pointerState.position, Engine.instance.camera)
-
-    Engine.instance.pointerState.movement.subVectors(
-      Engine.instance.pointerState.position,
-      Engine.instance.pointerState.lastPosition
-    )
-    Engine.instance.pointerState.lastPosition.copy(Engine.instance.pointerState.position)
-
-    Engine.instance.pointerState.lastScroll.copy(Engine.instance.pointerState.scroll)
+export const GamepadMapping = {
+  //https://w3c.github.io/gamepad/#remapping
+  standard: {
+    0: 'ButtonA',
+    1: 'ButtonB',
+    2: 'ButtonX',
+    3: 'ButtonY',
+    4: 'LeftBumper',
+    5: 'RightBumper',
+    6: 'LeftTrigger',
+    7: 'RightTrigger',
+    8: 'ButtonBack',
+    9: 'ButtonStart',
+    10: 'LeftStick',
+    11: 'RightStick',
+    12: 'DPad1',
+    13: 'DPad2',
+    14: 'DPad3',
+    15: 'DPad4'
+  },
+  //https://www.w3.org/TR/webxr-gamepads-module-1/
+  'xr-standard': {
+    0: 'Trigger',
+    1: 'Squeeze',
+    2: 'Pad',
+    3: 'Stick',
+    4: 'ButtonA',
+    5: 'ButtonB'
   }
-
-  const cleanup = async () => {
-    removeClientInputListeners()
-  }
-
-  return { execute, cleanup }
 }
+
+export function updateGamepadInput(eid: Entity) {
+  const inputSource = getComponent(eid, InputSourceComponent)
+  const source = inputSource.source
+  const buttons = inputSource.buttons
+  if (!source.gamepad) return
+  if (source.gamepad.mapping in GamepadMapping) {
+    const ButtonAlias = GamepadMapping[source.gamepad!.mapping]
+    const gamepadButtons = source.gamepad?.buttons
+    if (gamepadButtons) {
+      for (let i = 0; i < gamepadButtons.length; i++) {
+        const buttonMapping = ButtonAlias[i]
+        const button = gamepadButtons[i]
+        if (!buttons[buttonMapping] && (button.pressed || button.touched)) {
+          buttons[buttonMapping] = createInitialButtonState(button)
+        }
+        if (buttons[buttonMapping] && (button.pressed || button.touched)) {
+          if (!buttons[buttonMapping].pressed && button.pressed) buttons[buttonMapping].down = true
+          buttons[buttonMapping].pressed = button.pressed
+          buttons[buttonMapping].touched = button.touched
+          buttons[buttonMapping].value = button.value
+        } else if (buttons[buttonMapping]) {
+          buttons[buttonMapping].up = true
+        }
+      }
+    }
+  }
+}
+
+const xrSpaces = defineQuery([XRSpaceComponent, TransformComponent])
+const inputSources = defineQuery([InputSourceComponent])
+const inputSinks = defineQuery([InputComponent])
+
+const boxCenter = new Vector3()
+const rayRotation = new Quaternion()
+
+const execute = () => {
+  for (const source of Engine.instance.inputSources) updateOldGamepadInput(source)
+
+  Engine.instance.pointerScreenRaycaster.setFromCamera(Engine.instance.pointerState.position, Engine.instance.camera)
+
+  Engine.instance.pointerState.movement.subVectors(
+    Engine.instance.pointerState.position,
+    Engine.instance.pointerState.lastPosition
+  )
+  Engine.instance.pointerState.lastPosition.copy(Engine.instance.pointerState.position)
+
+  Engine.instance.pointerState.lastScroll.copy(Engine.instance.pointerState.scroll)
+
+  const xrFrame = Engine.instance.xrFrame
+  const origin = ReferenceSpace.origin
+
+  for (const eid of xrSpaces()) {
+    const space = getComponent(eid, XRSpaceComponent)
+    // our custom input source is not a valid pose, so ignore it - might want a better way than this
+    if (!(space instanceof XRSpace)) continue
+    const pose = origin && xrFrame?.getPose(space, origin)
+    if (pose) {
+      TransformComponent.position.x[eid] = pose.transform.position.x
+      TransformComponent.position.y[eid] = pose.transform.position.y
+      TransformComponent.position.z[eid] = pose.transform.position.z
+      TransformComponent.rotation.x[eid] = pose.transform.orientation.x
+      TransformComponent.rotation.y[eid] = pose.transform.orientation.y
+      TransformComponent.rotation.z[eid] = pose.transform.orientation.z
+      TransformComponent.rotation.w[eid] = pose.transform.orientation.w
+      TransformComponent.dirtyTransforms[eid] = true
+    }
+  }
+
+  for (const sourceEid of inputSources()) {
+    const sourceTransform = getComponent(sourceEid, TransformComponent)
+    const source = getMutableComponent(sourceEid, InputSourceComponent)
+
+    if (!xrFrame && source.source.targetRayMode.value === 'screen') {
+      const ray = Engine.instance.pointerScreenRaycaster.ray
+
+      TransformComponent.position.x[sourceEid] = ray.origin.x
+      TransformComponent.position.y[sourceEid] = ray.origin.y
+      TransformComponent.position.z[sourceEid] = ray.origin.z
+
+      // set rayDirection to be the direction of the ray
+      rayRotation.setFromUnitVectors(V_001, ray.direction)
+
+      TransformComponent.rotation.x[sourceEid] = rayRotation.x
+      TransformComponent.rotation.y[sourceEid] = rayRotation.y
+      TransformComponent.rotation.z[sourceEid] = rayRotation.z
+      TransformComponent.rotation.w[sourceEid] = rayRotation.w
+      TransformComponent.dirtyTransforms[sourceEid] = true
+    }
+
+    if (!source.captured.value) {
+      let assignedInputEntity = UndefinedEntity as Entity
+      let assignedDistance = Infinity
+
+      for (const inputEid of inputSinks()) {
+        const bounds = getOptionalComponent(inputEid, BoundingBoxComponent)
+        const xrui = getOptionalComponent(inputEid, VisibleComponent) && getOptionalComponent(inputEid, XRUIComponent)
+        const pointer = pointers.get(source.source.value) ?? Engine.instance.pointerScreenRaycaster.ray
+        if (xrui) {
+          const layerHit = xrui.hitTest(pointer)
+          if (!layerHit || !layerHit.intersection.object.visible) continue
+          const dist = layerHit.intersection.distance
+          if (dist <= assignedDistance) {
+            assignedInputEntity = inputEid
+            assignedDistance = dist
+          }
+        } else if (bounds) {
+          if (!bounds.box.containsPoint(sourceTransform.position)) continue
+          const center = bounds.box.getCenter(boxCenter) // todo: copmute bounding box center in a centralized place
+          const dist = sourceTransform.position.distanceTo(center) // todo: compute boudning box distance in centralized place
+          if (dist <= assignedDistance) {
+            assignedInputEntity = inputEid
+            assignedDistance = dist
+          }
+        }
+      }
+
+      source.assignedEntity.set(assignedInputEntity)
+    }
+
+    if (!xrFrame && source.source.targetRayMode.value === 'screen') {
+      source.buttons.set(Engine.instance.buttons)
+    } else {
+      updateGamepadInput(sourceEid)
+    }
+  }
+
+  for (const eid of inputSinks()) {
+    const inputSink = getComponent(eid, InputComponent)
+    inputSink.inputSources = inputSources().filter((sourceEid) => {
+      const source = getComponent(sourceEid, InputSourceComponent)
+      return source.assignedEntity === eid
+    })
+  }
+}
+
+const reactor = () => {
+  const xrState = useHookstate(getMutableState(XRState))
+
+  useEffect(() => {
+    addClientInputListeners()
+    Engine.instance.pointerScreenRaycaster.layers.enableAll()
+
+    return () => {
+      removeClientInputListeners()
+    }
+  }, [])
+
+  useEffect(() => {
+    const addInputSource = (source: XRInputSource) => {
+      const entity = createEntity()
+      setComponent(entity, InputSourceComponent, { source })
+      setComponent(entity, NameComponent, 'InputSource-' + source.handedness + '-' + source.targetRayMode)
+    }
+    const removeInputSource = (source: XRInputSource) =>
+      removeEntity(InputSourceComponent.entitiesByInputSource.get(source))
+
+    Engine.instance.inputSources.map(addInputSource)
+
+    const session = xrState.session.value
+
+    const onInputSourcesChanged = (event: XRInputSourceChangeEvent) => {
+      event.added.map(addInputSource)
+      event.removed.map(removeInputSource)
+    }
+
+    session?.addEventListener('inputsourceschange', onInputSourcesChanged)
+
+    return () => {
+      const inputSourceEntities = defineQuery([InputSourceComponent])
+      inputSourceEntities().map((eid) => removeEntity(eid))
+      removeQuery(inputSourceEntities)
+      session?.removeEventListener('inputsourceschange', onInputSourcesChanged)
+    }
+  }, [xrState.session])
+
+  return null
+}
+
+export const ClientInputSystem = defineSystem({
+  uuid: 'ee.engine.input.ClientInputSystem',
+  execute,
+  reactor
+})

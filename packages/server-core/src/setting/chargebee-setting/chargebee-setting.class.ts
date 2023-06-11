@@ -1,14 +1,18 @@
-import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
+import type { Params } from '@feathersjs/feathers'
+import { KnexService } from '@feathersjs/knex'
+import type { KnexAdapterParams } from '@feathersjs/knex'
 
-import { ChargebeeSetting as ChargebeeSettingDataType } from '@etherealengine/common/src/interfaces/ChargebeeSetting'
+import {
+  ChargebeeSettingData,
+  ChargebeeSettingPatch,
+  ChargebeeSettingQuery,
+  ChargebeeSettingType
+} from '@etherealengine/engine/src/schemas/setting/chargebee-setting.schema'
 
-import { Application } from '../../../declarations'
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+export interface ChargebeeSettingParams extends KnexAdapterParams<ChargebeeSettingQuery> {}
 
-export class ChargebeeSetting<T = ChargebeeSettingDataType> extends Service<T> {
-  app: Application
-
-  constructor(options: Partial<SequelizeServiceOptions>, app: Application) {
-    super(options)
-    this.app = app
-  }
-}
+export class ChargebeeSettingService<
+  T = ChargebeeSettingType,
+  ServiceParams extends Params = ChargebeeSettingParams
+> extends KnexService<ChargebeeSettingType, ChargebeeSettingData, ChargebeeSettingParams, ChargebeeSettingPatch> {}

@@ -5,18 +5,20 @@ import { getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
 
 import { matches } from '../../common/functions/MatchesUtils'
 import { defineComponent, hasComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
+import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { RendererState } from '../../renderer/RendererState'
-import { isHeadset } from '../../xr/XRState'
+import { isMobileXRHeadset } from '../../xr/XRState'
 import { ObjectLayers } from '../constants/ObjectLayers'
 import { setObjectLayers } from '../functions/setObjectLayers'
 import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
 
 export const PointLightComponent = defineComponent({
   name: 'PointLightComponent',
+  jsonID: 'point-light',
 
   onInit: (entity) => {
     const light = new PointLight()
-    if (!isHeadset()) addObjectToGroup(entity, light)
+    if (!isMobileXRHeadset) addObjectToGroup(entity, light)
     return {
       color: new Color(),
       intensity: 1,
@@ -49,7 +51,7 @@ export const PointLightComponent = defineComponent({
 
   toJSON: (entity, component) => {
     return {
-      color: component.color.value.getHex(),
+      color: component.color.value,
       intensity: component.intensity.value,
       range: component.range.value,
       decay: component.decay.value,
@@ -65,11 +67,10 @@ export const PointLightComponent = defineComponent({
     if (component.helper.value) removeObjectFromGroup(entity, component.helper.value)
   },
 
-  reactor: function ({ root }) {
-    if (!hasComponent(root.entity, PointLightComponent)) throw root.stop()
-
+  reactor: function () {
+    const entity = useEntityContext()
     const debugEnabled = useHookstate(getMutableState(RendererState).nodeHelperVisibility)
-    const light = useComponent(root.entity, PointLightComponent)
+    const light = useComponent(entity, PointLightComponent)
 
     useEffect(() => {
       light.light.value.color.set(light.color.value)
@@ -112,7 +113,7 @@ export const PointLightComponent = defineComponent({
     useEffect(() => {
       if (debugEnabled.value && !light.helper.value) {
         const helper = new Object3D()
-        helper.name = `pointlight-helper-${root.entity}`
+        helper.name = `pointlight-helper-${entity}`
 
         const ball = new Mesh(new IcosahedronGeometry(0.15), new MeshBasicMaterial({ fog: false }))
         const rangeBall = new Mesh(
@@ -123,12 +124,12 @@ export const PointLightComponent = defineComponent({
 
         setObjectLayers(helper, ObjectLayers.NodeHelper)
 
-        addObjectToGroup(root.entity, helper)
+        addObjectToGroup(entity, helper)
         light.helper.set(helper)
       }
 
       if (!debugEnabled.value && light.helper.value) {
-        removeObjectFromGroup(root.entity, light.helper.value)
+        removeObjectFromGroup(entity, light.helper.value)
         light.helper.set(none)
       }
     }, [debugEnabled])
@@ -136,5 +137,3 @@ export const PointLightComponent = defineComponent({
     return null
   }
 })
-
-export const SCENE_COMPONENT_POINT_LIGHT = 'point-light'

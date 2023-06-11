@@ -1,8 +1,9 @@
 import { pipe } from '@etherealengine/common/src/utils/pipe'
-import { Application, ServerMode } from '@etherealengine/server-core/declarations'
+import { Application } from '@etherealengine/server-core/declarations'
 import config from '@etherealengine/server-core/src/appconfig'
-import { configurePrimus, configureRedis, createFeathersExpressApp } from '@etherealengine/server-core/src/createApp'
+import { configurePrimus, configureRedis, createFeathersKoaApp } from '@etherealengine/server-core/src/createApp'
 import multiLogger from '@etherealengine/server-core/src/ServerLogger'
+import { ServerMode } from '@etherealengine/server-core/src/ServerState'
 
 import collectAnalytics from './collect-analytics'
 
@@ -15,7 +16,7 @@ process.on('unhandledRejection', (error, promise) => {
 const taskServerPipe = pipe(configurePrimus(), configureRedis())
 
 export const start = async (): Promise<Application> => {
-  const app = createFeathersExpressApp(ServerMode.Task, taskServerPipe)
+  const app = createFeathersKoaApp(ServerMode.Task, taskServerPipe)
 
   app.set('host', config.server.local ? config.server.hostname + ':' + config.server.port : config.server.hostname)
   app.set('port', config.server.port)
@@ -23,7 +24,7 @@ export const start = async (): Promise<Application> => {
   collectAnalytics(app)
   logger.info('Task server running.')
 
-  const port = config.taskserver.port || 5050
+  const port = Number(config.taskserver.port) || 5050
 
   await app.listen(port)
 

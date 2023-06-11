@@ -1,99 +1,75 @@
 import React, { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 
-import { API } from '@etherealengine/client-core/src/API'
-import { useProjectState } from '@etherealengine/client-core/src/common/services/ProjectService'
-import { LoadingCircle } from '@etherealengine/client-core/src/components/LoadingCircle'
-import PortalLoadSystem from '@etherealengine/client-core/src/systems/PortalLoadSystem'
-import { useAuthState } from '@etherealengine/client-core/src/user/services/AuthService'
-import { ClientModules } from '@etherealengine/client-core/src/world/ClientModules'
+import { ProjectState } from '@etherealengine/client-core/src/common/services/ProjectService'
+import { ClientNetworkingSystem } from '@etherealengine/client-core/src/networking/ClientNetworkingSystem'
+import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
+import { startClientSystems } from '@etherealengine/client-core/src/world/startClientSystems'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { EngineActions, EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
-import { initSystems } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
-import { SystemUpdateType } from '@etherealengine/engine/src/ecs/functions/SystemUpdateType'
-import { dispatchAction, getMutableState } from '@etherealengine/hyperflux'
+import {
+  PresentationSystemGroup,
+  SimulationSystemGroup
+} from '@etherealengine/engine/src/ecs/functions/EngineFunctions'
+import { startSystems } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
+import { RenderInfoSystem } from '@etherealengine/engine/src/renderer/RenderInfoSystem'
+import { dispatchAction, getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import { loadEngineInjection } from '@etherealengine/projects/loadEngineInjection'
 
 import EditorContainer from '../components/EditorContainer'
-import { EditorAction, useEditorState } from '../services/EditorServices'
-import { registerEditorReceptors } from '../services/EditorServicesReceptor'
-import EditorCameraSystem from '../systems/EditorCameraSystem'
-import EditorControlSystem, { createTransformGizmo } from '../systems/EditorControlSystem'
-import EditorFlyControlSystem from '../systems/EditorFlyControlSystem'
-import GizmoSystem from '../systems/GizmoSystem'
-import ModelHandlingSystem from '../systems/ModelHandlingSystem'
-import RenderSystem from '../systems/RenderSystem'
+import { EditorInstanceNetworkingSystem } from '../components/realtime/EditorInstanceNetworkingSystem'
+import { EditorAction, EditorState } from '../services/EditorServices'
+import { registerEditorReceptors, unregisterEditorReceptors } from '../services/EditorServicesReceptor'
+import { EditorCameraSystem } from '../systems/EditorCameraSystem'
+import { EditorControlSystem } from '../systems/EditorControlSystem'
+import { EditorFlyControlSystem } from '../systems/EditorFlyControlSystem'
+import { GizmoSystem } from '../systems/GizmoSystem'
+import { ModelHandlingSystem } from '../systems/ModelHandlingSystem'
+
+const editorSystems = () => {
+  startSystems([EditorFlyControlSystem, EditorControlSystem, EditorCameraSystem, GizmoSystem], {
+    before: PresentationSystemGroup
+  })
+  startSystems([ModelHandlingSystem], { with: SimulationSystemGroup })
+
+  startSystems([EditorInstanceNetworkingSystem, ClientNetworkingSystem, RenderInfoSystem], {
+    after: PresentationSystemGroup
+  })
+}
 
 export const EditorPage = () => {
   const params = useParams()
-  const editorState = useEditorState()
-  const projectState = useProjectState()
-  const authState = useAuthState()
+  const projectState = useHookstate(getMutableState(ProjectState))
+  const editorState = useHookstate(getMutableState(EditorState))
+  const isEditor = useHookstate(getMutableState(EngineState).isEditor)
+  const authState = useHookstate(getMutableState(AuthState))
   const authUser = authState.authUser
   const user = authState.user
-  const [clientInitialized, setClientInitialized] = useState(false)
   const [isAuthenticated, setAuthenticated] = useState(false)
-
+  const [clientInitialized, setClientInitialized] = useState(false)
   const [engineReady, setEngineReady] = useState(true)
 
-  const systems = [
-    {
-      uuid: 'core.editor.RenderSystem',
-      systemLoader: () => Promise.resolve({ default: RenderSystem }),
-      type: SystemUpdateType.POST_RENDER,
-      args: { enabled: true }
-    },
-    {
-      uuid: 'core.editor.EditorFlyControlSystem',
-      systemLoader: () => Promise.resolve({ default: EditorFlyControlSystem }),
-      type: SystemUpdateType.PRE_RENDER,
-      args: { enabled: true }
-    },
-    {
-      uuid: 'core.editor.EditorControlSystem',
-      systemLoader: () => Promise.resolve({ default: EditorControlSystem }),
-      type: SystemUpdateType.PRE_RENDER,
-      args: { enabled: true }
-    },
-    {
-      uuid: 'core.editor.EditorCameraSystem',
-      systemLoader: () => Promise.resolve({ default: EditorCameraSystem }),
-      type: SystemUpdateType.PRE_RENDER,
-      args: { enabled: true }
-    },
-    {
-      uuid: 'core.editor.GizmoSystem',
-      systemLoader: () => Promise.resolve({ default: GizmoSystem }),
-      type: SystemUpdateType.PRE_RENDER,
-      args: { enabled: true }
-    },
-    {
-      uuid: 'core.editor.PortalLoadSystem',
-      systemLoader: () => Promise.resolve({ default: PortalLoadSystem }),
-      type: SystemUpdateType.FIXED,
-      args: { enabled: true }
-    },
-    {
-      uuid: 'core.editor.ModelHandlingSystem',
-      systemLoader: () => Promise.resolve({ default: ModelHandlingSystem }),
-      type: SystemUpdateType.FIXED,
-      args: { enabled: true }
-    }
-  ]
-
   useEffect(() => {
-    getMutableState(EngineState).isEditor.set(true)
-    const projects = API.instance.client.service('projects').find()
-    ClientModules().then(async () => {
-      await initSystems(systems)
-      await loadEngineInjection(await projects)
-      setEngineReady(true)
-      dispatchAction(EngineActions.initializeEngine({ initialised: true }))
+    // TODO: This is a hack to prevent the editor from loading the engine twice
+    if (isEditor.value) return
+    isEditor.set(true)
+    const projects = Engine.instance.api.service('projects').find()
+    startClientSystems()
+
+    editorSystems()
+    projects.then((proj) => {
+      loadEngineInjection(proj).then(() => {
+        setEngineReady(true)
+        dispatchAction(EngineActions.initializeEngine({ initialised: true }))
+      })
     })
   }, [])
 
   useEffect(() => {
     registerEditorReceptors()
+    return () => {
+      unregisterEditorReceptors()
+    }
   }, [])
 
   useEffect(() => {
@@ -114,5 +90,7 @@ export const EditorPage = () => {
     setClientInitialized(true)
   }, [projectState.projects.value])
 
-  return <>{editorState.projectName.value && isAuthenticated && engineReady && <EditorContainer />}</>
+  return (
+    <>{clientInitialized && editorState.projectName.value && isAuthenticated && engineReady && <EditorContainer />}</>
+  )
 }

@@ -3,10 +3,12 @@ import { t } from 'i18next'
 import React from 'react'
 import ReactApexChart from 'react-apexcharts'
 
-import { useAdminAnalyticsState } from '../../services/AnalyticsService'
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+
+import { AdminAnalyticsState } from '../../services/AnalyticsService'
 
 const UserGraph = ({ startDate, endDate }) => {
-  const analyticsState = useAdminAnalyticsState()
+  const analyticsState = useHookstate(getMutableState(AdminAnalyticsState))
 
   let maxY = 0
   let minX = new Date(startDate).getTime()

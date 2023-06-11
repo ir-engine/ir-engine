@@ -1,14 +1,11 @@
-import { Producer } from 'mediasoup-client/lib/Producer'
-
 import multiLogger from '@etherealengine/common/src/logger'
-import { matches } from '@etherealengine/engine/src/common/functions/MatchesUtils'
 import {
   localAudioConstraints,
   localVideoConstraints
 } from '@etherealengine/engine/src/networking/constants/VideoConstants'
-import { defineAction, defineState, getMutableState } from '@etherealengine/hyperflux'
+import { defineState, getMutableState } from '@etherealengine/hyperflux'
 
-import { ProducerExtension } from './SocketWebRTCClientNetwork'
+import { ProducerExtension } from './SocketWebRTCClientFunctions'
 
 const logger = multiLogger.child({ component: 'client-core:MediaStreams' })
 
@@ -44,16 +41,6 @@ export const MediaStreamState = defineState({
   }
 })
 
-export class MediaStreamActions {
-  static triggerUpdateConsumers = defineAction({
-    type: 'xre.client.MediaStreams.NETWORK_TRANSPORT_EVENT_UPDATE_CONSUMERS' as const
-  })
-  static closeConsumer = defineAction({
-    type: 'xre.client.MediaStreams.NETWORK_TRANSPORT_EVENT_CLOSE_CONSUMER' as const,
-    consumer: matches.any
-  })
-}
-
 export const MediaStreamService = {
   /**
    * Start the camera.
@@ -74,7 +61,7 @@ export const MediaStreamService = {
    * Switch to sending video from the "next" camera device in device list (if there are multiple cameras).
    * @returns Whether camera cycled or not.
    */
-  async cycleCamera(): Promise<boolean> {
+  async cycleCamera() {
     const state = getMutableState(MediaStreamState)
     if (!state.camVideoProducer.value?.track) {
       logger.info('Cannot cycle camera - no current camera track')
@@ -90,26 +77,41 @@ export const MediaStreamService = {
       logger.info('Cannot cycle camera - only one camera')
       return false
     }
+
+    let tries = 0
     let index = vidDevices.findIndex((d) => d.deviceId === deviceId)
-    if (index === vidDevices.length - 1) index = 0
-    else index += 1
 
-    // get a new video stream. might as well get a new audio stream too,
-    // just in case browsers want to group audio/video streams together
-    // from the same device when possible (though they don't seem to,
-    // currently)
-    logger.info(`Getting a video stream from new device "${vidDevices[index].label}".`)
-    state.videoStream.set(
-      await navigator.mediaDevices.getUserMedia({
-        video: { deviceId: { exact: vidDevices[index].deviceId } }
-      })
-    )
+    const cycle = async () => {
+      if (index === vidDevices.length - 1) index = 0
+      else index += 1
 
-    // replace the tracks we are sending
-    await state.camVideoProducer.value.replaceTrack({
-      track: state.videoStream.value!.getVideoTracks()[0]
-    })
-    return true
+      // get a new video stream. might as well get a new audio stream too,
+      // just in case browsers want to group audio/video streams together
+      // from the same device when possible (though they don't seem to,
+      // currently)
+      logger.info(`Getting a video stream from new device "${vidDevices[index].label}".`)
+
+      try {
+        const newVideoStream = await navigator.mediaDevices.getUserMedia({
+          video: { deviceId: { exact: vidDevices[index].deviceId } }
+        })
+        state.videoStream.set(newVideoStream)
+
+        if (!state.camVideoProducer.value) return
+
+        // replace the tracks we are sending
+        await state.camVideoProducer.value!.replaceTrack({
+          track: newVideoStream.getVideoTracks()[0]
+        })
+      } catch (e) {
+        console.error(e)
+        tries++
+        if (tries >= vidDevices.length - 1) throw new Error('Could not get video stream')
+        cycle()
+      }
+    }
+
+    cycle()
   },
 
   /**
@@ -187,6 +189,10 @@ export const MediaStreamService = {
     try {
       logger.info('Getting audio stream %o', localAudioConstraints)
       const audioStream = await navigator.mediaDevices.getUserMedia(localAudioConstraints)
+      if (!audioStream.active) {
+        state.audioStream.set(null)
+        return false
+      }
       state.audioStream.set(audioStream)
       if (state.camAudioProducer.value && !state.camAudioProducer.value.closed)
         await state.camAudioProducer.value.replaceTrack({

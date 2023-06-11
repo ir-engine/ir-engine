@@ -1,16 +1,18 @@
-import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
+import type { Params } from '@feathersjs/feathers'
+import { KnexService } from '@feathersjs/knex'
+import type { KnexAdapterParams } from '@feathersjs/knex'
 
-import { AdminRedisSetting as RedisSettingInterface } from '@etherealengine/common/src/interfaces/AdminRedisSetting'
+import {
+  RedisSettingData,
+  RedisSettingPatch,
+  RedisSettingQuery,
+  RedisSettingType
+} from '@etherealengine/engine/src/schemas/setting/redis-setting.schema'
 
-import { Application } from '../../../declarations'
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+export interface RedisSettingParams extends KnexAdapterParams<RedisSettingQuery> {}
 
-export type RedisSettingDataType = RedisSettingInterface
-
-export class RedisSetting<T = RedisSettingDataType> extends Service<T> {
-  app: Application
-
-  constructor(options: Partial<SequelizeServiceOptions>, app: Application) {
-    super(options)
-    this.app = app
-  }
-}
+export class RedisSettingService<
+  T = RedisSettingType,
+  ServiceParams extends Params = RedisSettingParams
+> extends KnexService<RedisSettingType, RedisSettingData, RedisSettingParams, RedisSettingPatch> {}

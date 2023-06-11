@@ -5,9 +5,10 @@ import path from 'path'
 
 import { ProjectPermissionInterface } from '@etherealengine/common/src/interfaces/ProjectPermissionInterface'
 import { UserInterface } from '@etherealengine/common/src/interfaces/User'
+import { destroyEngine } from '@etherealengine/engine/src/ecs/classes/Engine'
 
 import { Application } from '../../../declarations'
-import { createFeathersExpressApp } from '../../createApp'
+import { createFeathersKoaApp } from '../../createApp'
 import { deleteFolderRecursive } from '../../util/fsHelperFunctions'
 
 const newProjectName1 = 'ProjectTest_test_project_name_1'
@@ -22,7 +23,7 @@ const cleanup = async (app: Application) => {
 
 /**
  * @todo
- * - refactor storage provider to be create as part of createFeathersExpressApp() to eliminate global scope
+ * - refactor storage provider to be create as part of createFeathersKoaApp() to eliminate global scope
  * - use this to force a local storage provider and test specific files in the upload folder
  * - add tests for all combinations of state for projects
  *
@@ -37,7 +38,7 @@ describe('project-permission.test', () => {
   let user4: UserInterface
   let project1, project1Permission1, project1Permission2, project1Permission4
   before(async () => {
-    app = createFeathersExpressApp()
+    app = createFeathersKoaApp()
     await app.setup()
     await cleanup(app)
     const avatarName = 'CyberbotGreen'
@@ -106,6 +107,9 @@ describe('project-permission.test', () => {
       type: 'admin:admin',
       userId: user4.id
     })
+  })
+  after(() => {
+    return destroyEngine()
   })
 
   describe("'project-permission' service'", () => {

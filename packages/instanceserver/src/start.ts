@@ -4,22 +4,18 @@ import https from 'https'
 import psList from 'ps-list'
 
 import { pipe } from '@etherealengine/common/src/utils/pipe'
-
-import '@etherealengine/engine/src/patchEngineNode'
-
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { EngineActions, getEngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
-import { matchActionOnce } from '@etherealengine/engine/src/networking/functions/matchActionOnce'
-import { Application, ServerMode } from '@etherealengine/server-core/declarations'
+import { getMutableState } from '@etherealengine/hyperflux'
+import { Application } from '@etherealengine/server-core/declarations'
 import config from '@etherealengine/server-core/src/appconfig'
 import {
   configureK8s,
   configureOpenAPI,
   configurePrimus,
   configureRedis,
-  createFeathersExpressApp
+  createFeathersKoaApp
 } from '@etherealengine/server-core/src/createApp'
 import multiLogger from '@etherealengine/server-core/src/ServerLogger'
+import { ServerMode, ServerState } from '@etherealengine/server-core/src/ServerState'
 
 import channels from './channels'
 import { setupSocketFunctions } from './SocketFunctions'
@@ -47,7 +43,8 @@ export const instanceServerPipe = pipe(configureOpenAPI(), configurePrimus(true)
 ) => Application
 
 export const start = async (): Promise<Application> => {
-  const app = createFeathersExpressApp(ServerMode.Instance, instanceServerPipe)
+  const app = createFeathersKoaApp(ServerMode.Instance, instanceServerPipe)
+  const serverState = getMutableState(ServerState)
 
   const agonesSDK = new AgonesSDK()
 
@@ -58,24 +55,18 @@ export const start = async (): Promise<Application> => {
       '\x1b[33mError: Agones is not running!. If you are in local development, please run etherealengine/scripts/sh start-agones.sh and restart server\x1b[0m'
     )
   })
-  app.agonesSDK = agonesSDK
-  setInterval(() => agonesSDK.health(), 1000)
+  serverState.agonesSDK.set(agonesSDK)
+
+  setInterval(
+    () =>
+      agonesSDK.health((err) => {
+        logger.error('Agones health check error:')
+        logger.error(err)
+      }),
+    1000
+  )
 
   app.configure(channels)
-
-  /**
-   * When using local dev, to properly test multiple worlds for portals we
-   * need to programatically shut down and restart the instanceserver process.
-   */
-  if (!config.kubernetes.enabled) {
-    app.restart = () => {
-      require('child_process').spawn('npm', ['run', 'dev'], {
-        cwd: process.cwd(),
-        stdio: 'inherit'
-      })
-      process.exit(0)
-    }
-  }
 
   const key = process.platform === 'win32' ? 'name' : 'cmd'
   if (!config.kubernetes.enabled) {
@@ -111,7 +102,7 @@ export const start = async (): Promise<Application> => {
     key: useSSL ? fs.readFileSync(certKeyPath) : null,
     cert: useSSL ? fs.readFileSync(certPath) : null
   } as any
-  const port = config.instanceserver.port
+  const port = Number(config.instanceserver.port)
   if (useSSL) {
     logger.info(`Starting instanceserver with HTTPS on port ${port}.`)
   } else {
@@ -122,13 +113,13 @@ export const start = async (): Promise<Application> => {
 
   // http redirects for development
   if (useSSL) {
-    app.use((req, res, next) => {
-      if (req.secure) {
+    app.use(async (ctx, next) => {
+      if (ctx.secure) {
         // request was via https, so do no special handling
-        next()
+        await next()
       } else {
         // request was via http, so redirect to https
-        res.redirect('https://' + req.headers.host + req.url)
+        ctx.redirect('https://' + ctx.headers.host + ctx.url)
       }
     })
   }
@@ -137,7 +128,7 @@ export const start = async (): Promise<Application> => {
   //   ? https.createServer(certOptions, app as any).listen(port)
   //   : app.listen(port);
 
-  const server = useSSL ? https.createServer(certOptions, app as any).listen(port) : await app.listen(port)
+  const server = useSSL ? https.createServer(certOptions, app.callback()).listen(port) : await app.listen(port)
 
   if (useSSL) {
     app.setup(server)

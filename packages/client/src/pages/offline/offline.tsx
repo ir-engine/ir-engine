@@ -1,20 +1,16 @@
 import { t } from 'i18next'
-import React, { lazy, Suspense, useEffect } from 'react'
-import { Navigate, Route, Routes } from 'react-router-dom'
+import React, { Suspense } from 'react'
+import { Route, Routes } from 'react-router-dom'
 
 import { LoadingCircle } from '@etherealengine/client-core/src/components/LoadingCircle'
-
-const LocationPage = lazy(() => import('./[locationName]'))
+import LocationPage from '@etherealengine/client-core/src/world/Location'
 
 const LocationRoutes = () => {
-  useEffect(() => {
-    console.log('offline route loaded')
-  }, [])
   return (
     <Suspense fallback={<LoadingCircle message={t('common:loader.offline')} />}>
       <Routes>
-        <Route path=":projectName/:sceneName" element={<LocationPage />} />
-        <Route path=":locationName" element={<LocationPage />} />
+        <Route path=":projectName/:sceneName" element={<LocationPage offline />} />
+        <Route path=":locationName" element={<LocationPage offline />} />
       </Routes>
     </Suspense>
   )

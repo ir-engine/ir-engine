@@ -62,6 +62,8 @@
       "reset": "Reset",
       "delete": "Delete",
       "view": "View",
+      "kick": "Kick",
+      "ban": "Ban",
       "yes": "Yes",
       "no": "No",
       "refresh": "Refresh",
@@ -203,7 +205,9 @@
     "instance": {
       "confirmInstanceDelete": "Do you want to delete instance",
       "location": "Location",
-      "count": "Count"
+      "count": "Count",
+      "kickDuration": "Kick Duration",
+      "confirmUserBan": "Are you sure you want to ban this user?"
     },
     "resources": {
       "resources": "resources",
@@ -231,10 +235,10 @@
       "secret": "Secret",
       "entity": "Entity",
       "authStrategies": "Authentication Strategies",
-      "local": "Local",
       "userName": "User Name",
-      "password": "Password",
+      "local": "Local",
       "oauth": "OAuth",
+      "password": "Password",
       "defaults": "Defaults",
       "host": "Host",
       "protocol": "Protocol",
@@ -262,7 +266,7 @@
       "route53": "Route53",
       "hostedZoneId": "Hosted Zone ID",
       "s3": "S3",
-      "baseUrl": "BaseUrl",
+      "endpoint": "Endpoint",
       "staticResourceBucket": "Static Resource Bucket",
       "region": "Region",
       "avatarDir": "AvatarDir",
@@ -288,6 +292,8 @@
       "icon512px": "Icon 512px",
       "favIcon16px": "FavIcon 16px",
       "favIcon32px": "FavIcon 32px",
+      "webmanifestLink": "Webmanifest",
+      "swScriptLink": "service-worker.js",
       "releaseName": "Release Name",
       "email": "Email",
       "smtp": "SMTP",
@@ -330,14 +336,13 @@
       "project": "Project",
       "patchInstanceserver": "Patch Instanceserver",
       "hub": "Hub",
-      "paginateDefault": "Paginate Default",
-      "paginateMax": "Paginate Max",
       "placeholderText": "This is the input placeholder",
       "addSocialLink": "Add Social Link",
       "themePlayground": "Theme Playground",
       "defaultThemes": "Default Themes",
       "theme": "Theme",
       "editor": "Editor",
+      "studio": "Studio",
       "admin": "Admin",
       "key8thWall": "8th Wall Key",
       "shortTitle": "PWA Short Title",
@@ -385,11 +390,6 @@
       "confirmMultiDelete": "Do you want to delete all of the selected avatars?",
       "deleteSelected": "Delete selected avatars",
       "confirmThumbnailReplace": "Do you want to replace previously selected avatar thumbnail with current avatar preview?"
-    },
-    "dialog": {
-      "noAccess": "No access",
-      "askAccessResourceMessage": "To access this resource, please enter your username here to ask for access or login to continue.",
-      "login": "Login"
     },
     "user": {
       "nameCantEmpty": "Name can't be empty",
@@ -442,6 +442,11 @@
       "minutes": "minutes",
       "download": "Download",
       "confirmPodDelete": "Do you want to delete pod"
+    },
+    "recording": {
+      "recording": "Recording",
+      "confirmRecordingDelete": "Do you want to delete recording",
+      "recordingFiles": "Recordings Files for:"
     }
   }
 }

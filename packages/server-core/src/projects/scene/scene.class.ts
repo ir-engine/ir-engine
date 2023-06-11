@@ -13,11 +13,12 @@ import { getCachedURL } from '../../media/storageprovider/getCachedURL'
 import { getStorageProvider } from '../../media/storageprovider/storageprovider'
 import logger from '../../ServerLogger'
 import { cleanString } from '../../util/cleanString'
+import { convertStaticResource } from './scene-helper'
 import { cleanSceneDataCacheURLs, parseSceneDataCacheURLs } from './scene-parser'
 
 const NEW_SCENE_NAME = 'New-Scene'
 
-const sceneAssetFiles = ['.scene.json', '.thumbnail.jpeg', '.envmap.png']
+const sceneAssetFiles = ['.scene.json', '.thumbnail.ktx2', '.envmap.ktx2']
 
 export const getSceneData = async (
   projectName: string,
@@ -27,29 +28,37 @@ export const getSceneData = async (
   storageProviderName?: string
 ) => {
   const storageProvider = getStorageProvider(storageProviderName)
-  const scenePath = `projects/${projectName}/${sceneName}.scene.json`
-  const thumbnailPath = `projects/${projectName}/${sceneName}.thumbnail.jpeg`
+  const sceneExists = await storageProvider.doesExist(`${sceneName}.scene.json`, `projects/${projectName}/`)
+  if (!sceneExists) throw new Error(`No scene named ${sceneName} exists in project ${projectName}`)
+
+  let thumbnailPath = `projects/${projectName}/${sceneName}.thumbnail.ktx2`
+
+  //if no ktx2 is found, fallback on legacy jpg thumbnail format, if still not found, fallback on ethereal logo
+  if (!(await storageProvider.doesExist(`${sceneName}.thumbnail.ktx2`, `projects/${projectName}`))) {
+    thumbnailPath = `projects/${projectName}/${sceneName}.thumbnail.jpeg`
+    if (!(await storageProvider.doesExist(`${sceneName}.thumbnail.jpeg`, `projects/${projectName}`))) thumbnailPath = ``
+  }
 
   const cacheDomain = getCacheDomain(storageProvider, internal)
-  const thumbnailUrl = getCachedURL(thumbnailPath, cacheDomain)
+  const thumbnailUrl =
+    thumbnailPath !== `` ? getCachedURL(thumbnailPath, cacheDomain) : `/static/etherealengine_thumbnail.jpg`
 
-  const sceneExists = await storageProvider.doesExist(`${sceneName}.scene.json`, `projects/${projectName}/`)
-  if (sceneExists) {
-    const sceneResult = await storageProvider.getCachedObject(scenePath)
-    const sceneData: SceneData = {
-      name: sceneName,
-      project: projectName,
-      thumbnailUrl: thumbnailUrl,
-      scene: metadataOnly ? undefined! : parseSceneDataCacheURLs(JSON.parse(sceneResult.Body.toString()), cacheDomain)
-    }
-    return sceneData
+  const scenePath = `projects/${projectName}/${sceneName}.scene.json`
+
+  const sceneResult = await storageProvider.getCachedObject(scenePath)
+  const sceneData: SceneData = {
+    name: sceneName,
+    project: projectName,
+    thumbnailUrl: thumbnailUrl,
+    scene: metadataOnly ? undefined! : parseSceneDataCacheURLs(JSON.parse(sceneResult.Body.toString()), cacheDomain)
   }
-  throw new Error(`No scene named ${sceneName} exists in project ${projectName}`)
+
+  return sceneData
 }
 
 interface UpdateParams {
   sceneName: string
-  sceneData?: SceneJson
+  sceneData: SceneJson
   thumbnailBuffer?: ArrayBuffer | Buffer // ArrayBuffer on client, Buffer on server
   storageProviderName?: string
 }
@@ -207,69 +216,82 @@ export class Scene implements ServiceMethods<any> {
   }
 
   async update(projectName: string, data: UpdateParams, params?: Params): Promise<any> {
-    const { sceneName, sceneData, thumbnailBuffer, storageProviderName } = data
-    logger.info('[scene.update]: ', projectName, data)
-
-    const storageProvider = getStorageProvider(storageProviderName)
-
-    const project = await this.app.service('project').get(projectName, params)
-    if (!project.data) throw new Error(`No project named ${projectName} exists`)
-
-    const newSceneJsonPath = `projects/${projectName}/${sceneName}.scene.json`
-    await storageProvider.putObject({
-      Key: newSceneJsonPath,
-      Body: Buffer.from(
-        JSON.stringify(
-          cleanSceneDataCacheURLs(sceneData ?? (defaultSceneSeed as unknown as SceneJson), storageProvider.cacheDomain)
-        )
-      ),
-      ContentType: 'application/json'
-    })
-
-    if (thumbnailBuffer) {
-      const sceneThumbnailPath = `projects/${projectName}/${sceneName}.thumbnail.jpeg`
-      await storageProvider.putObject({
-        Key: sceneThumbnailPath,
-        Body: thumbnailBuffer as Buffer,
-        ContentType: 'image/jpeg'
-      })
-    }
-
     try {
-      await storageProvider.createInvalidation(
-        sceneAssetFiles.map((asset) => `projects/${projectName}/${sceneName}${asset}`)
-      )
-    } catch (e) {
-      logger.error(e)
-      logger.info(sceneAssetFiles)
-    }
+      const { sceneName, sceneData, thumbnailBuffer, storageProviderName } = data
+      logger.info('[scene.update]: ', projectName, data)
 
-    if (isDev) {
-      const newSceneJsonPathLocal = path.resolve(
-        appRootPath.path,
-        `packages/projects/projects/${projectName}/${sceneName}.scene.json`
-      )
+      const storageProvider = getStorageProvider(storageProviderName)
 
-      fs.writeFileSync(
-        path.resolve(newSceneJsonPathLocal),
-        JSON.stringify(
-          cleanSceneDataCacheURLs(sceneData ?? (defaultSceneSeed as unknown as SceneJson), storageProvider.cacheDomain),
-          null,
-          2
-        )
-      )
+      const project = await this.app.service('project').get(projectName, params)
+      if (!project.data) throw new Error(`No project named ${projectName} exists`)
 
-      if (thumbnailBuffer) {
-        const sceneThumbnailPath = path.resolve(
-          appRootPath.path,
-          `packages/projects/projects/${projectName}/${sceneName}.thumbnail.jpeg`
-        )
-        fs.writeFileSync(path.resolve(sceneThumbnailPath), thumbnailBuffer as Buffer)
+      await convertStaticResource(this.app, sceneData)
+
+      const newSceneJsonPath = `projects/${projectName}/${sceneName}.scene.json`
+      await storageProvider.putObject({
+        Key: newSceneJsonPath,
+        Body: Buffer.from(
+          JSON.stringify(
+            cleanSceneDataCacheURLs(
+              sceneData ?? (defaultSceneSeed as unknown as SceneJson),
+              storageProvider.cacheDomain
+            )
+          )
+        ),
+        ContentType: 'application/json'
+      })
+
+      if (thumbnailBuffer && Buffer.isBuffer(thumbnailBuffer)) {
+        const sceneThumbnailPath = `projects/${projectName}/${sceneName}.thumbnail.ktx2`
+        await storageProvider.putObject({
+          Key: sceneThumbnailPath,
+          Body: thumbnailBuffer as Buffer,
+          ContentType: 'image/ktx2'
+        })
       }
-    }
 
-    // return scene id for update hooks
-    return { sceneId: `${projectName}/${sceneName}` }
+      try {
+        await storageProvider.createInvalidation(
+          sceneAssetFiles.map((asset) => `projects/${projectName}/${sceneName}${asset}`)
+        )
+      } catch (e) {
+        logger.error(e)
+        logger.info(sceneAssetFiles)
+      }
+
+      if (isDev) {
+        const newSceneJsonPathLocal = path.resolve(
+          appRootPath.path,
+          `packages/projects/projects/${projectName}/${sceneName}.scene.json`
+        )
+
+        fs.writeFileSync(
+          path.resolve(newSceneJsonPathLocal),
+          JSON.stringify(
+            cleanSceneDataCacheURLs(
+              sceneData ?? (defaultSceneSeed as unknown as SceneJson),
+              storageProvider.cacheDomain
+            ),
+            null,
+            2
+          )
+        )
+
+        if (thumbnailBuffer && Buffer.isBuffer(thumbnailBuffer)) {
+          const sceneThumbnailPath = path.resolve(
+            appRootPath.path,
+            `packages/projects/projects/${projectName}/${sceneName}.thumbnail.ktx2`
+          )
+          fs.writeFileSync(path.resolve(sceneThumbnailPath), thumbnailBuffer as Buffer)
+        }
+      }
+
+      // return scene id for update hooks
+      return { sceneId: `${projectName}/${sceneName}` }
+    } catch (err) {
+      logger.error(err)
+      throw err
+    }
   }
 
   // async patch(sceneId: NullableId, data: PatchData, params: Params): Promise<SceneDetailInterface> {}

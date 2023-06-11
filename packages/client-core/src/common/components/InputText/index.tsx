@@ -1,13 +1,14 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React, { RefObject, useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import capitalizeFirstLetter from '@etherealengine/common/src/utils/capitalizeFirstLetter'
-import Box from '@etherealengine/ui/src/Box'
-import FormControl from '@etherealengine/ui/src/FormControl'
-import FormHelperText from '@etherealengine/ui/src/FormHelperText'
-import IconButton from '@etherealengine/ui/src/IconButton'
-import InputLabel from '@etherealengine/ui/src/InputLabel'
-import OutlinedInput from '@etherealengine/ui/src/OutlinedInput'
+import { useHookstate } from '@etherealengine/hyperflux'
+import Box from '@etherealengine/ui/src/primitives/mui/Box'
+import FormControl from '@etherealengine/ui/src/primitives/mui/FormControl'
+import FormHelperText from '@etherealengine/ui/src/primitives/mui/FormHelperText'
+import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
+import InputLabel from '@etherealengine/ui/src/primitives/mui/InputLabel'
+import OutlinedInput from '@etherealengine/ui/src/primitives/mui/OutlinedInput'
 
 import { SxProps, Theme } from '@mui/material/styles'
 
@@ -49,7 +50,7 @@ const InputText = ({
   endIconTitle,
   error,
   id,
-  inputRef,
+  inputRef = useRef(),
   label,
   name,
   placeholder,
@@ -70,23 +71,15 @@ const InputText = ({
   placeholder = placeholder ? placeholder : `${t('common:components.enter')} ${label}`
   placeholder = disabled ? undefined : placeholder
 
-  const [cursor, setCursor] = useState(null)
-  const ref = useRef(null)
+  const cursor = useHookstate(null)
 
   useEffect(() => {
-    if (type === 'number' && ref.current) {
-      let input
-      for (const child of (ref.current as any)?.children) {
-        if (child.tagName === 'INPUT') {
-          input = child
-        }
-      }
-      if (input && cursor) input.setSelectionRange(cursor, cursor)
-    }
-  }, [ref, cursor, value])
+    if (type !== 'number' && (inputRef as RefObject<any>)?.current && cursor.value)
+      (inputRef as RefObject<any>).current.setSelectionRange(cursor.value, cursor.value)
+  }, [inputRef, cursor.value, value])
 
   const handleChange = (e) => {
-    setCursor(e.target.selectionStart)
+    cursor.set(e.target.selectionStart)
     onChange && onChange(e)
   }
 

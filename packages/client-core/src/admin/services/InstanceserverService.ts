@@ -1,14 +1,14 @@
 import { InstanceServerPatch } from '@etherealengine/common/src/interfaces/Instance'
 import multiLogger from '@etherealengine/common/src/logger'
 import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
-import { defineAction, defineState, dispatchAction, getMutableState, useState } from '@etherealengine/hyperflux'
+import { defineAction, defineState, dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 
 import { API } from '../../API'
 
 const logger = multiLogger.child({ component: 'client-core:InstanceserverService' })
 
 //State
-const AdminInstanceServerState = defineState({
+export const AdminInstanceServerState = defineState({
   name: 'AdminInstanceServerState',
   initial: () => ({
     patch: undefined as undefined | InstanceServerPatch,
@@ -41,10 +41,6 @@ export const InstanceServerSettingReceptors = {
   patchedInstanceserverReceptor
 }
 
-export const accessInstanceserverState = () => getMutableState(AdminInstanceServerState)
-
-export const useInstanceserverState = () => useState(accessInstanceserverState())
-
 //Service
 export const InstanceserverService = {
   patchInstanceserver: async (locationId: string, count: number) => {
@@ -61,10 +57,10 @@ export const InstanceserverService = {
 //Action
 export class AdminInstanceserverActions {
   static patchInstanceserver = defineAction({
-    type: 'xre.client.AdminInstanceserver.INSTANCESERVER_PATCH' as const
+    type: 'ee.client.AdminInstanceserver.INSTANCESERVER_PATCH' as const
   })
   static patchedInstanceserver = defineAction({
-    type: 'xre.client.AdminInstanceserver.INSTANCESERVER_PATCHED' as const,
+    type: 'ee.client.AdminInstanceserver.INSTANCESERVER_PATCHED' as const,
     patch: matches.object as Validator<unknown, InstanceServerPatch>
   })
 }

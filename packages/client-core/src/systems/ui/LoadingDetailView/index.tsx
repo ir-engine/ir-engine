@@ -1,72 +1,45 @@
-import { createState, State, useHookstate } from '@hookstate/core'
-import getImagePalette from 'image-palette-core'
-import React, { useEffect } from 'react'
+import { createState, useHookstate } from '@hookstate/core'
+import React from 'react'
 import { useTranslation } from 'react-i18next'
-import { Color } from 'three'
 
-import { useEngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
-import { createTransitionState } from '@etherealengine/engine/src/xrui/functions/createTransitionState'
-import { createXRUI, XRUI } from '@etherealengine/engine/src/xrui/functions/createXRUI'
+import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
+import { createXRUI } from '@etherealengine/engine/src/xrui/functions/createXRUI'
 import { useXRUIState } from '@etherealengine/engine/src/xrui/functions/useXRUIState'
+import { getMutableState } from '@etherealengine/hyperflux'
 
-import { useSceneState } from '../../../world/services/SceneService'
 import ProgressBar from './SimpleProgressBar'
 import LoadingDetailViewStyle from './style'
 
 interface LoadingUIState {
   imageWidth: number
   imageHeight: number
+  colors: {
+    main: string
+    background: string
+    alternate: string
+  }
 }
 
-export function createLoaderDetailView(transition: ReturnType<typeof createTransitionState>) {
-  const xrui = createXRUI(function Loading() {
-    return <LoadingDetailView transition={transition} />
-  }, createState({ imageWidth: 1, imageHeight: 1 }))
+export function createLoaderDetailView() {
+  const xrui = createXRUI(
+    function Loading() {
+      return <LoadingDetailView />
+    },
+    createState({
+      colors: {
+        main: '',
+        background: '',
+        alternate: ''
+      }
+    })
+  )
   return xrui
 }
 
-const col = new Color()
-
-function setDefaultPalette(colors) {
-  colors.main.set('black')
-  colors.background.set('white')
-  colors.alternate.set('black')
-}
-export const themeColors = {
-  main: '',
-  background: '',
-  alternate: ''
-}
-const LoadingDetailView = (props: { transition: ReturnType<typeof createTransitionState> }) => {
+const LoadingDetailView = () => {
   const uiState = useXRUIState<LoadingUIState>()
-  const sceneState = useSceneState()
-  const engineState = useEngineState()
-
+  const engineState = useHookstate(getMutableState(EngineState))
   const { t } = useTranslation()
-
-  useEffect(() => {
-    const thumbnailUrl = sceneState.currentScene.ornull?.thumbnailUrl.value
-    const img = new Image()
-
-    if (thumbnailUrl) {
-      img.crossOrigin = 'anonymous'
-      img.onload = function () {
-        uiState.imageWidth.set(img.naturalWidth)
-        uiState.imageHeight.set(img.naturalHeight)
-        const palette = getImagePalette(img)
-        if (palette) {
-          themeColors.main = palette.color
-          themeColors.background = palette.backgroundColor
-          themeColors.alternate = palette.alternativeColor
-        }
-      }
-      img.src = thumbnailUrl
-    }
-
-    return () => {
-      img.onload = null
-    }
-  }, [sceneState.currentScene.ornull?.thumbnailUrl])
 
   const sceneLoaded = engineState.sceneLoaded.value
   const joinedWorld = engineState.joinedWorld.value

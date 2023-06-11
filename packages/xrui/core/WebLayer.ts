@@ -92,7 +92,7 @@ export class WebLayer {
   }
 
   get computedPixelRatio(): number {
-    return this.pixelRatio ?? this.parentLayer?.computedPixelRatio ?? 1
+    return this.pixelRatio ?? this.parentLayer?.computedPixelRatio ?? 1.5
   }
 
   allStateHashes = new Set<string>()

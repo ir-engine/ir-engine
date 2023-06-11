@@ -25,11 +25,7 @@ cli.enable('status')
 
 const options = cli.parse({
   service: [false, 'Name of failing service', 'string'],
-  isDocker: [
-    false,
-    "Type of service, e.g. 'docker', or something else. Currently just based on whether or not it is 'docker'.",
-    'boolean'
-  ]
+  isDocker: [false, 'Whether or not this is checking logs files for a Docker process.', 'boolean']
 })
 
 cli.main(async () => {
@@ -71,8 +67,8 @@ cli.main(async () => {
     const buildErrors = fs.readFileSync(`${options.service}-build-error.txt`).toString()
     const builderRun = fs.readFileSync('builder-run.txt').toString()
     if (options.isDocker) {
-      const hasError = /ERROR:/.test(buildErrors)
-      if (hasError) {
+      const cacheMissRegex = new RegExp(`${options.service}:latest_${process.env.RELEASE_NAME}: not found`)
+      if (/ERROR:/.test(buildErrors) && !cacheMissRegex) {
         const combinedLogs = `Docker task that errored: ${options.service}\n\nTask logs:\n\n${buildErrors}`
         await BuildStatus.update(
           {
@@ -89,8 +85,7 @@ cli.main(async () => {
         cli.exit(1)
       } else cli.exit(0)
     } else {
-      const hasError = /error/i.test(buildErrors) || /fail/i.test(buildErrors)
-      if (hasError) {
+      if (/error/i.test(buildErrors) || /fail/i.test(buildErrors)) {
         const combinedLogs = `Task that errored: ${options.service}\n\nError logs:\n\n${buildErrors}\n\nTask logs:\n\n${buildLogs}`
         await BuildStatus.update(
           {

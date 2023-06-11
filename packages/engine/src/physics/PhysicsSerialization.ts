@@ -1,24 +1,37 @@
 import { Entity } from '../ecs/classes/Entity'
 import { getComponent, hasComponent } from '../ecs/functions/ComponentFunctions'
-import { checkBitflag, readCompressedRotation, readVector3 } from '../networking/serialization/DataReader'
-import { writeCompressedRotation, writeVector3 } from '../networking/serialization/DataWriter'
+import { checkBitflag, readVector3, readVector4 } from '../networking/serialization/DataReader'
+import { writeVector3, writeVector4 } from '../networking/serialization/DataWriter'
 import { readUint8, rewindViewCursor, spaceUint8, ViewCursor } from '../networking/serialization/ViewCursor'
-import { RigidBodyComponent } from './components/RigidBodyComponent'
+import { RigidBodyComponent, RigidBodyDynamicTagComponent } from './components/RigidBodyComponent'
 
 export const readBodyPosition = readVector3(RigidBodyComponent.position)
-export const readBodyRotation = readCompressedRotation(RigidBodyComponent.rotation)
+export const readBodyRotation = readVector4(RigidBodyComponent.rotation)
 export const readBodyLinearVelocity = readVector3(RigidBodyComponent.linearVelocity)
 export const readBodyAngularVelocity = readVector3(RigidBodyComponent.angularVelocity)
 
 export const readRigidBody = (v: ViewCursor, entity: Entity) => {
   const changeMask = readUint8(v)
   let b = 0
-  if (checkBitflag(changeMask, 1 << b++)) readBodyPosition(v, entity)
-  if (checkBitflag(changeMask, 1 << b++)) readBodyRotation(v, entity)
-  if (checkBitflag(changeMask, 1 << b++)) readBodyLinearVelocity(v, entity)
-  if (checkBitflag(changeMask, 1 << b++)) readBodyAngularVelocity(v, entity)
-  if (hasComponent(entity, RigidBodyComponent)) {
-    const rigidBody = getComponent(entity, RigidBodyComponent)
+  const rigidBody = getComponent(entity, RigidBodyComponent)
+  const dynamic = hasComponent(entity, RigidBodyDynamicTagComponent)
+  if (checkBitflag(changeMask, 1 << b++)) {
+    readBodyPosition(v, entity)
+    if (dynamic && rigidBody) rigidBody.body.setTranslation(rigidBody.position, false)
+  }
+  if (checkBitflag(changeMask, 1 << b++)) {
+    readBodyRotation(v, entity)
+    if (dynamic && rigidBody) rigidBody.body.setRotation(rigidBody.rotation, false)
+  }
+  if (checkBitflag(changeMask, 1 << b++)) {
+    readBodyLinearVelocity(v, entity)
+    if (dynamic && rigidBody) rigidBody.body.setLinvel(rigidBody.linearVelocity, false)
+  }
+  if (checkBitflag(changeMask, 1 << b++)) {
+    readBodyAngularVelocity(v, entity)
+    if (dynamic && rigidBody) rigidBody.body.setAngvel(rigidBody.angularVelocity, false)
+  }
+  if (!dynamic && rigidBody) {
     const position = rigidBody.position
     const rotation = rigidBody.rotation
     RigidBodyComponent.targetKinematicPosition.x[entity] = position.x
@@ -32,7 +45,7 @@ export const readRigidBody = (v: ViewCursor, entity: Entity) => {
 }
 
 export const writeBodyPosition = writeVector3(RigidBodyComponent.position)
-export const writeBodyRotation = writeCompressedRotation(RigidBodyComponent.rotation)
+export const writeBodyRotation = writeVector4(RigidBodyComponent.rotation)
 export const writeBodyLinearVelocity = writeVector3(RigidBodyComponent.linearVelocity)
 export const writeBodyAngularVelocity = writeVector3(RigidBodyComponent.angularVelocity)
 
@@ -53,6 +66,7 @@ export const writeRigidBody = (v: ViewCursor, entity: Entity) => {
 }
 
 export const PhysicsSerialization = {
+  ID: 'ee.core.physics' as const,
   readRigidBody,
   writeRigidBody
 }

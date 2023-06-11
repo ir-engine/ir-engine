@@ -20,7 +20,7 @@ import { getOptionalComponent } from '@etherealengine/engine/src/ecs/functions/C
 import { createXRUI } from '@etherealengine/engine/src/xrui/functions/createXRUI'
 import { WidgetAppService } from '@etherealengine/engine/src/xrui/WidgetAppService'
 import { WidgetName } from '@etherealengine/engine/src/xrui/Widgets'
-import Icon from '@etherealengine/ui/src/Icon'
+import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 
 import { loadAvatarForPreview, validate } from '../../../user/components/Panel3D/helperFunctions'
 import { useRender3DPanelSystem } from '../../../user/components/Panel3D/useRender3DPanelSystem'
@@ -41,14 +41,13 @@ function createUploadAvatarMenuState() {
   return createState({})
 }
 
-let camera: PerspectiveCamera
-let scene: Scene
-let renderer: WebGLRenderer = null!
-let entity: Entity = null!
+type FileEvent = React.ChangeEvent<HTMLInputElement> & {
+  target: EventTarget & { files: FileList }
+}
 
 export const UploadAvatarMenu = () => {
-  const [selectedFile, setSelectedFile] = useState<any>(null)
-  const [selectedThumbnail, setSelectedThumbnail] = useState<any>(null)
+  const [selectedFile, setSelectedFile] = useState<Blob | null>(null)
+  const [selectedThumbnail, setSelectedThumbnail] = useState<File | null>(null)
   const [avatarName, setAvatarName] = useState('')
   const [error, setError] = useState('')
   const [avatarModel, setAvatarModel] = useState<any>(null)
@@ -56,8 +55,8 @@ export const UploadAvatarMenu = () => {
   const [avatarUrl, setAvatarUrl] = useState('')
   const [thumbnailUrl, setThumbnailUrl] = useState('')
   const [validAvatarUrl, setValidAvatarUrl] = useState(false)
-  const [selectedThumbnailUrl, setSelectedThumbNailUrl] = useState<any>(null)
-  const [selectedAvatarlUrl, setSelectedAvatarUrl] = useState<any>(null)
+  const [selectedThumbnailUrl, setSelectedThumbNailUrl] = useState<Blob | null>(null)
+  const [selectedAvatarlUrl, setSelectedAvatarUrl] = useState<Blob | null>(null)
   const panelRef = useRef() as React.MutableRefObject<HTMLDivElement>
   const renderPanel = useRender3DPanelSystem(panelRef)
   const { entity, camera, scene, renderer } = renderPanel.state
@@ -163,10 +162,11 @@ export const UploadAvatarMenu = () => {
 
   const uploadAvatar = async () => {
     if (avatarModel == null) return
-    const thumbnailBlob = activeSourceType ? selectedThumbnail : selectedThumbnailUrl
+    const thumbnailFile = activeSourceType ? selectedThumbnail : new File([selectedThumbnailUrl!], `${avatarName}.png`)
     const avatarBlob = activeSourceType ? selectedFile : selectedAvatarlUrl
+    const avatarFile = new File([avatarBlob!], `${avatarName}.glb`) // todo - use correct extension
 
-    if (thumbnailBlob == null) {
+    if (thumbnailFile == null) {
       await new Promise((resolve) => {
         const canvas = document.createElement('canvas')
         canvas.width = THUMBNAIL_WIDTH
@@ -174,20 +174,23 @@ export const UploadAvatarMenu = () => {
         const newContext = canvas.getContext('2d')
         newContext?.drawImage(renderer.value.domElement, 0, 0)
         canvas.toBlob(async (blob) => {
-          const uploadResponse = await AvatarService.uploadAvatarModel(avatarBlob, blob!, avatarName, false).then(
-            resolve
-          )
+          const uploadResponse = await AvatarService.uploadAvatarModel(
+            avatarFile,
+            new File([blob!], `${avatarName}.png`),
+            avatarName,
+            false
+          ).then(resolve)
           await AvatarService.createAvatar(uploadResponse[0], uploadResponse[1], avatarName, false)
         })
       })
     } else {
-      await AvatarService.createAvatar(avatarBlob, thumbnailBlob, avatarName, false)
+      await AvatarService.createAvatar(avatarFile, thumbnailFile, avatarName, false)
     }
 
     WidgetAppService.setWidgetVisibility(WidgetName.PROFILE, true)
   }
 
-  const handleThumbnailChange = (e) => {
+  const handleThumbnailChange = (e: FileEvent) => {
     if (e.target.files[0].size < MIN_AVATAR_FILE_SIZE || e.target.files[0].size > MAX_AVATAR_FILE_SIZE) {
       setError(
         t('user:avatar.fileOversized', {

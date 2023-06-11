@@ -6,8 +6,8 @@ import path from "path";
 import fs from "fs";
 import appRootPath from 'app-root-path'
 import logger from '@etherealengine/server-core/src/ServerLogger'
-import { createFeathersExpressApp } from '@etherealengine/server-core/src/createApp'
-import { ServerMode } from '@etherealengine/server-core/declarations'
+import { createFeathersKoaApp } from '@etherealengine/server-core/src/createApp'
+import { ServerMode } from '@etherealengine/server-core/src/ServerState'
 import { getProjectConfig, onProjectEvent } from '@etherealengine/server-core/src/projects/project/project-helper'
 
 dotenv.config();
@@ -26,38 +26,18 @@ db.url = process.env.MYSQL_URL ??
 
 async function installAllProjects() {
   try {
-    const app = createFeathersExpressApp(ServerMode.API)
+    const app = createFeathersKoaApp(ServerMode.API)
+    await app.setup()
     createDefaultStorageProvider()
     const localProjectDirectory = path.join(appRootPath.path, 'packages/projects/projects')
     if (!fs.existsSync(localProjectDirectory)) fs.mkdirSync(localProjectDirectory, { recursive: true })
     logger.info('running installAllProjects')
-    const sequelizeClient = new Sequelize({
-      ...db,
-      define: {
-          freezeTableName: true
-      }
-    });
-    await sequelizeClient.sync();
-    logger.info('inited sequelize client')
 
-    const Projects = sequelizeClient.define('project', {
-      id: {
-          type: Sequelize.DataTypes.UUID,
-          defaultValue: Sequelize.DataTypes.UUIDV1,
-          allowNull: false,
-          primaryKey: true
-      },
-      name: {
-          type: Sequelize.DataTypes.STRING
-      }
-    });
-
-
-    const projects = await Projects.findAll()
-    logger.info('found projects', projects)
+    const projects = await app.service('project').Model.findAll()
+    logger.info('found projects %o', projects)
     await Promise.all(projects.map((project) => download(project.name)))
     await app.service('project').update({ sourceURL: 'default-project' })
-    const projectConfig = (await getProjectConfig('default-project')) ?? {}
+    const projectConfig = getProjectConfig('default-project') ?? {}
     if (projectConfig.onEvent) await onProjectEvent(app, 'default-project', projectConfig.onEvent, 'onUpdate')
     process.exit(0)
   } catch (e) {

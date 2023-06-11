@@ -21,11 +21,17 @@ export default (app: Application) => {
         defaultValue: (): string => generateShortId(8),
         allowNull: false
       },
+      hash: {
+        type: DataTypes.STRING,
+        allowNull: false
+      },
       url: {
         type: DataTypes.STRING,
         allowNull: true
       },
-      key: DataTypes.STRING,
+      key: {
+        type: DataTypes.STRING
+      },
       mimeType: {
         type: DataTypes.STRING,
         allowNull: true
@@ -37,6 +43,18 @@ export default (app: Application) => {
       project: {
         type: DataTypes.STRING,
         allowNull: true
+      },
+      driver: {
+        type: DataTypes.STRING
+      },
+      licensing: {
+        type: DataTypes.STRING
+      },
+      attribution: {
+        type: DataTypes.STRING
+      },
+      tags: {
+        type: DataTypes.JSON
       }
     },
     {
@@ -58,6 +76,10 @@ export default (app: Application) => {
       as: 'parent',
       foreignKey: 'parentResourceId',
       allowNull: true
+    })
+    ;(staticResource as any).hasMany(models.static_resource_variant, {
+      as: 'variants',
+      allowNull: false
     })
   }
 

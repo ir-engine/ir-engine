@@ -1,16 +1,19 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import ConfirmDialog from '@etherealengine/client-core/src/common/components/ConfirmDialog'
 import { Instance } from '@etherealengine/common/src/interfaces/Instance'
 import { Location } from '@etherealengine/common/src/interfaces/Location'
-import Box from '@etherealengine/ui/src/Box'
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import Box from '@etherealengine/ui/src/primitives/mui/Box'
+import Button from '@etherealengine/ui/src/primitives/mui/Button'
 
-import { useAuthState } from '../../../user/services/AuthService'
+import { AuthState } from '../../../user/services/AuthService'
 import TableComponent from '../../common/Table'
 import { instanceColumns, InstanceData } from '../../common/variables/instance'
-import { AdminInstanceService, INSTANCE_PAGE_LIMIT, useAdminInstanceState } from '../../services/InstanceService'
+import { AdminInstanceService, AdminInstanceState, INSTANCE_PAGE_LIMIT } from '../../services/InstanceService'
 import styles from '../../styles/admin.module.scss'
+import InstanceDrawer from './InstanceDrawer'
 
 interface Props {
   className?: string
@@ -24,49 +27,64 @@ interface Props {
  * @returns DOM Element
  */
 const InstanceTable = ({ className, search }: Props) => {
-  const [page, setPage] = useState(0)
-  const [rowsPerPage, setRowsPerPage] = useState(INSTANCE_PAGE_LIMIT)
-  const [refetch, setRefetch] = useState(false)
-  const [openConfirm, setOpenConfirm] = useState(false)
-  const [instanceId, setInstanceId] = useState('')
-  const [instanceName, setInstanceName] = useState('')
-  const [fieldOrder, setFieldOrder] = useState('asc')
-  const [sortField, setSortField] = useState('createdAt')
+  const page = useHookstate(0)
+  const rowsPerPage = useHookstate(INSTANCE_PAGE_LIMIT)
+  const refetch = useHookstate(false)
+  const openConfirm = useHookstate(false)
+  const instanceId = useHookstate('')
+  const instanceName = useHookstate('')
+  const fieldOrder = useHookstate('asc')
+  const sortField = useHookstate('createdAt')
+  const instanceAdmin = useHookstate<Instance | undefined>(undefined)
+  const openInstanceDrawer = useHookstate(false)
   const { t } = useTranslation()
 
-  const user = useAuthState().user
-  const adminInstanceState = useAdminInstanceState()
+  const user = useHookstate(getMutableState(AuthState).user)
+  const adminInstanceState = useHookstate(getMutableState(AdminInstanceState))
   const adminInstances = adminInstanceState
 
   const handlePageChange = (event: unknown, newPage: number) => {
-    AdminInstanceService.fetchAdminInstances(search, newPage, sortField, fieldOrder)
-    setPage(newPage)
+    AdminInstanceService.fetchAdminInstances(search, newPage, sortField.value, fieldOrder.value)
+    page.set(newPage)
   }
 
   useEffect(() => {
     if (adminInstanceState.fetched.value) {
-      AdminInstanceService.fetchAdminInstances(search, page, sortField, fieldOrder)
+      AdminInstanceService.fetchAdminInstances(search, page.value, sortField.value, fieldOrder.value)
     }
-  }, [fieldOrder])
+  }, [fieldOrder.value])
 
   const submitRemoveInstance = async () => {
-    await AdminInstanceService.removeInstance(instanceId)
-    setOpenConfirm(false)
+    await AdminInstanceService.removeInstance(instanceId.value)
+    openConfirm.set(false)
   }
 
   const handleRowsPerPageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setRowsPerPage(+event.target.value)
-    setPage(0)
+    rowsPerPage.set(+event.target.value)
+    page.set(0)
   }
   const isMounted = useRef(false)
 
   const fetchTick = () => {
     setTimeout(() => {
       if (!isMounted.current) return
-      setRefetch(true)
+      refetch.set(true)
       fetchTick()
     }, 5000)
   }
+
+  const handleOpenInstanceDrawer =
+    (open: boolean, instance: Instance) => (event: React.KeyboardEvent | React.MouseEvent) => {
+      event.preventDefault()
+      if (
+        event.type === 'keydown' &&
+        ((event as React.KeyboardEvent).key === 'Tab' || (event as React.KeyboardEvent).key === 'Shift')
+      ) {
+        return
+      }
+      instanceAdmin.set(instance)
+      openInstanceDrawer.set(open)
+    }
 
   useEffect(() => {
     isMounted.current = true
@@ -76,15 +94,16 @@ const InstanceTable = ({ className, search }: Props) => {
     }
   }, [])
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (!isMounted.current) return
-    if ((user.id.value && adminInstances.updateNeeded.value) || refetch) {
-      AdminInstanceService.fetchAdminInstances(search, page, sortField, fieldOrder)
+    if ((user.id.value && adminInstances.updateNeeded.value) || refetch.value) {
+      AdminInstanceService.fetchAdminInstances(search, page.value, sortField.value, fieldOrder.value)
     }
-    setRefetch(false)
-  }, [user, adminInstanceState.updateNeeded.value, refetch])
+    refetch.set(false)
+  }, [user, adminInstanceState.updateNeeded.value, refetch.value])
 
   const createData = (
+    el: Instance,
     id: string,
     ipAddress: string,
     currentUsers: Number,
@@ -93,6 +112,7 @@ const InstanceTable = ({ className, search }: Props) => {
     locationId?: Location
   ): InstanceData => {
     return {
+      el,
       id,
       ipAddress,
       currentUsers,
@@ -100,45 +120,54 @@ const InstanceTable = ({ className, search }: Props) => {
       channelId,
       podName,
       action: (
-        <a
-          href="#"
-          className={styles.actionStyle}
-          onClick={() => {
-            setInstanceId(id)
-            setInstanceName(ipAddress)
-            setOpenConfirm(true)
-          }}
-        >
-          <span className={styles.spanDange}>{t('admin:components.common.delete')}</span>
-        </a>
+        <>
+          <Button className={styles.actionStyle} onClick={handleOpenInstanceDrawer(true, el)}>
+            <span className={styles.spanWhite}>{t('admin:components.common.view')}</span>
+          </Button>
+          <Button
+            className={styles.actionStyle}
+            onClick={() => {
+              instanceId.set(id)
+              instanceName.set(ipAddress)
+              openConfirm.set(true)
+            }}
+          >
+            <span className={styles.spanDange}>{t('admin:components.common.delete')}</span>
+          </Button>
+        </>
       )
     }
   }
 
   const rows = adminInstances.instances.value.map((el: Instance) =>
-    createData(el.id, el.ipAddress, el.currentUsers, el.channelId || '', el.podName || '', el.location)
+    createData({ ...el }, el.id, el.ipAddress, el.currentUsers, el.channelId || '', el.podName || '', el.location)
   )
 
   return (
     <Box className={className}>
       <TableComponent
         allowSort={false}
-        fieldOrder={fieldOrder}
-        setSortField={setSortField}
-        setFieldOrder={setFieldOrder}
+        fieldOrder={fieldOrder.value}
+        setSortField={sortField.set}
+        setFieldOrder={fieldOrder.set}
         rows={rows}
         column={instanceColumns}
-        page={page}
-        rowsPerPage={rowsPerPage}
+        page={page.value}
+        rowsPerPage={rowsPerPage.value}
         count={adminInstances.total.value}
         handlePageChange={handlePageChange}
         handleRowsPerPageChange={handleRowsPerPageChange}
       />
       <ConfirmDialog
-        open={openConfirm}
-        description={`${t('admin:components.instance.confirmInstanceDelete')} '${instanceName}'?`}
-        onClose={() => setOpenConfirm(false)}
+        open={openConfirm.value}
+        description={`${t('admin:components.instance.confirmInstanceDelete')} '${instanceName.value}'?`}
+        onClose={() => openConfirm.set(false)}
         onSubmit={submitRemoveInstance}
+      />
+      <InstanceDrawer
+        open={openInstanceDrawer.value}
+        selectedInstance={instanceAdmin.value}
+        onClose={() => openInstanceDrawer.set(false)}
       />
     </Box>
   )

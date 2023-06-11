@@ -3,11 +3,12 @@ import React from 'react'
 import { createRoot } from 'react-dom/client'
 import { Group } from 'three'
 
-import type { WebContainer3D } from '@etherealengine/xrui'
+import { WebContainer3D } from '@etherealengine/xrui/core/three/WebContainer3D'
+import { WebLayerManager } from '@etherealengine/xrui/core/three/WebLayerManager'
 
-import { isNode } from '../../common/functions/getEnvironment'
+import { isClient } from '../../common/functions/getEnvironment'
 import { Entity } from '../../ecs/classes/Entity'
-import { addComponent, getComponent, getComponentState, setComponent } from '../../ecs/functions/ComponentFunctions'
+import { addComponent, getComponent, getMutableComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { addObjectToGroup } from '../../scene/components/GroupComponent'
 import { VisibleComponent } from '../../scene/components/VisibleComponent'
@@ -18,14 +19,8 @@ import { setTransformComponent } from '../../transform/components/TransformCompo
 import { XRUIComponent } from '../components/XRUIComponent'
 import { XRUIStateContext } from '../XRUIStateContext'
 
-let Ethereal: typeof import('@etherealengine/xrui')
-
-export async function loadXRUIDeps() {
-  Ethereal = await import('@etherealengine/xrui')
-}
-
 export function createXRUI<S extends State<any> | null>(UIFunc: React.FC, state = null as S): XRUI<S> {
-  if (isNode) throw new Error('XRUI is not supported in nodejs')
+  if (!isClient) throw new Error('XRUI is not supported in nodejs')
 
   const entity = createEntity()
 
@@ -41,7 +36,7 @@ export function createXRUI<S extends State<any> | null>(UIFunc: React.FC, state 
     </XRUIStateContext.Provider>
   )
 
-  const container = new Ethereal.WebContainer3D(containerElement, { manager: Ethereal.WebLayerManager.instance })
+  const container = new WebContainer3D(containerElement, { manager: WebLayerManager.instance })
 
   container.raycaster.layers.enableAll()
 

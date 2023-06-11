@@ -1,8 +1,10 @@
+import { ECRClient } from '@aws-sdk/client-ecr'
+import { DescribeImagesCommand, ECRPUBLICClient } from '@aws-sdk/client-ecr-public'
+import * as k8s from '@kubernetes/client-node'
 import appRootPath from 'app-root-path'
-import AWS from 'aws-sdk'
-import axios from 'axios'
 import { compareVersions } from 'compare-versions'
 import _ from 'lodash'
+import fetch from 'node-fetch'
 import path from 'path'
 import semver from 'semver'
 import Sequelize, { Op } from 'sequelize'
@@ -10,6 +12,7 @@ import Sequelize, { Op } from 'sequelize'
 import { BuilderTag } from '@etherealengine/common/src/interfaces/BuilderTags'
 import { ProjectCommitInterface } from '@etherealengine/common/src/interfaces/ProjectCommitInterface'
 import { ProjectInterface, ProjectPackageJsonType } from '@etherealengine/common/src/interfaces/ProjectInterface'
+import { getState } from '@etherealengine/hyperflux'
 import { ProjectConfigInterface, ProjectEventHooks } from '@etherealengine/projects/ProjectConfigInterface'
 
 import { Application } from '../../../declarations'
@@ -17,7 +20,8 @@ import config from '../../appconfig'
 import { getPodsData } from '../../cluster/server-info/server-info-helper'
 import { getStorageProvider } from '../../media/storageprovider/storageprovider'
 import logger from '../../ServerLogger'
-import { getOctokitForChecking, getUserOrgs, getUserRepos } from './github-helper'
+import { ServerState } from '../../ServerState'
+import { getOctokitForChecking, getUserRepos } from './github-helper'
 import { ProjectParams } from './project.class'
 
 export const dockerHubRegex = /^[\w\d\s\-_]+\/[\w\d\s\-_]+:([\w\d\s\-_.]+)$/
@@ -71,12 +75,14 @@ export const updateBuilder = async (
     await Promise.all(data.projectsToUpdate.map((project) => app.service('project').update(project, null, params)))
   }
 
+  const k8AppsClient = getState(ServerState).k8AppsClient
+
   // trigger k8s to re-run the builder service
-  if (app.k8AppsClient) {
+  if (k8AppsClient) {
     try {
       logger.info('Attempting to update builder tag')
       const builderRepo = process.env.BUILDER_REPOSITORY
-      const updateBuilderTagResponse = await app.k8AppsClient.patchNamespacedDeployment(
+      const updateBuilderTagResponse = await k8AppsClient.patchNamespacedDeployment(
         `${config.server.releaseName}-builder-etherealengine-builder`,
         'default',
         {
@@ -102,9 +108,10 @@ export const updateBuilder = async (
         undefined,
         undefined,
         undefined,
+        undefined,
         {
           headers: {
-            'Content-Type': 'application/strategic-merge-patch+json'
+            'Content-Type': k8s.PatchUtils.PATCH_FORMAT_STRATEGIC_MERGE_PATCH
           }
         }
       )
@@ -119,16 +126,17 @@ export const updateBuilder = async (
 
 export const checkBuilderService = async (app: Application): Promise<boolean> => {
   let isRebuilding = true
+  const k8DefaultClient = getState(ServerState).k8DefaultClient
 
   // check k8s to find the status of builder service
-  if (app.k8DefaultClient && config.server.releaseName !== 'local') {
+  if (k8DefaultClient && config.server.releaseName !== 'local') {
     try {
       logger.info('Attempting to check k8s rebuild status')
 
       const builderLabelSelector = `app.kubernetes.io/instance=${config.server.releaseName}-builder`
       const containerName = 'etherealengine-builder'
 
-      const builderPods = await app.k8DefaultClient.listNamespacedPod(
+      const builderPods = await k8DefaultClient.listNamespacedPod(
         'default',
         undefined,
         false,
@@ -141,7 +149,7 @@ export const checkBuilderService = async (app: Application): Promise<boolean> =>
       if (runningBuilderPods.length > 0) {
         const podName = runningBuilderPods[0].metadata?.name
 
-        const builderLogs = await app.k8DefaultClient.readNamespacedPodLog(
+        const builderLogs = await k8DefaultClient.readNamespacedPodLog(
           podName!,
           'default',
           containerName,
@@ -191,9 +199,9 @@ export const onProjectEvent = async (
   }
 }
 
-export const getProjectConfig = async (projectName: string): Promise<ProjectConfigInterface> => {
+export const getProjectConfig = (projectName: string): ProjectConfigInterface => {
   try {
-    return (await import(`@etherealengine/projects/projects/${projectName}/xrengine.config.ts`)).default
+    return require(path.resolve(projectsRootFolder, projectName, 'xrengine.config.ts')).default
   } catch (e) {
     logger.error(
       e,
@@ -662,18 +670,20 @@ export const findBuilderTags = async (): Promise<Array<BuilderTag>> => {
   const publicECRExec = publicECRRepoRegex.exec(builderRepo)
   const privateECRExec = privateECRRepoRegex.exec(builderRepo)
   if (publicECRExec) {
-    const ecr = new AWS.ECRPUBLIC({
-      accessKeyId: process.env.AWS_ACCESS_KEY as string,
-      secretAccessKey: process.env.AWS_SECRET as string,
+    const ecr = new ECRPUBLICClient({
+      credentials: {
+        accessKeyId: process.env.AWS_ACCESS_KEY as string, //FIXME Replace these with proper EKS user credentials from config once it stores those credentials somewhere
+        secretAccessKey: process.env.AWS_SECRET as string
+      },
       region: 'us-east-1'
     })
-    const result = await ecr
-      .describeImages({
-        repositoryName: publicECRExec[1]
-      })
-      .promise()
-    if (!result || !result.imageDetails) return []
-    return result.imageDetails
+    const command = {
+      repositoryName: publicECRExec[1]
+    }
+    const result = new DescribeImagesCommand(command)
+    const response = await ecr.send(result)
+    if (!response || !response.imageDetails) return []
+    return response.imageDetails
       .filter(
         (imageDetails) => imageDetails.imageTags && imageDetails.imageTags.length > 0 && imageDetails.imagePushedAt
       )
@@ -689,18 +699,20 @@ export const findBuilderTags = async (): Promise<Array<BuilderTag>> => {
         }
       })
   } else if (privateECRExec) {
-    const ecr = new AWS.ECR({
-      accessKeyId: process.env.AWS_ACCESS_KEY as string,
-      secretAccessKey: process.env.AWS_SECRET as string,
+    const ecr = new ECRClient({
+      credentials: {
+        accessKeyId: process.env.AWS_ACCESS_KEY as string, //FIXME Replace these with proper EKS user credentials from config once it stores those credentials somewhere
+        secretAccessKey: process.env.AWS_SECRET as string
+      },
       region: privateECRExec[1]
     })
-    const result = await ecr
-      .describeImages({
-        repositoryName: privateECRExec[2]
-      })
-      .promise()
-    if (!result || !result.imageDetails) return []
-    return result.imageDetails
+    const command = {
+      repositoryName: privateECRExec[2]
+    }
+    const result = new DescribeImagesCommand(command)
+    const response = await ecr.send(result)
+    if (!response || !response.imageDetails) return []
+    return response.imageDetails
       .filter(
         (imageDetails) => imageDetails.imageTags && imageDetails.imageTags.length > 0 && imageDetails.imagePushedAt
       )
@@ -717,14 +729,15 @@ export const findBuilderTags = async (): Promise<Array<BuilderTag>> => {
       })
   } else {
     const repoSplit = builderRepo.split('/')
-    const registry = repoSplit.length === 1 ? 'lagunalabs' : repoSplit[0]
+    const registry = repoSplit.length === 1 ? 'etherealengine' : repoSplit[0]
     const repo =
       repoSplit.length === 1 ? (repoSplit[0].length === 0 ? 'etherealengine-builder' : repoSplit[0]) : repoSplit[1]
     try {
-      const result = await axios.get(
+      const result = await fetch(
         `https://registry.hub.docker.com/v2/repositories/${registry}/${repo}/tags?page_size=100`
       )
-      return result.data.results.map((imageDetails) => {
+      const body = JSON.parse(Buffer.from(await result.arrayBuffer()).toString())
+      return body.results.map((imageDetails) => {
         const tag = imageDetails.name
         const tagSplit = tag.split('_')
         return {
@@ -824,7 +837,15 @@ export const getCronJobBody = (project: ProjectInterface, image: string): object
                   name: `${process.env.RELEASE_NAME}-${project.name}-auto-update`,
                   image,
                   imagePullPolicy: 'IfNotPresent',
-                  command: ['npm', 'run', 'updateProject', '--', '--projectName', `${project.name}`],
+                  command: [
+                    'npx',
+                    'cross-env',
+                    'ts-node',
+                    '--swc',
+                    'scripts/update-project.ts',
+                    '--projectName',
+                    `${project.name}`
+                  ],
                   env: Object.entries(process.env).map(([key, value]) => {
                     return { name: key, value: value }
                   })
@@ -855,9 +876,11 @@ export const createOrUpdateProjectUpdateJob = async (app: Application, projectNa
 
   const image = apiPods.pods[0].containers.find((container) => container.name === 'etherealengine')!.image
 
-  if (app.k8BatchClient) {
+  const k8BatchClient = getState(ServerState).k8BatchClient
+
+  if (k8BatchClient) {
     try {
-      await app.k8BatchClient.patchNamespacedCronJob(
+      await k8BatchClient.patchNamespacedCronJob(
         `${process.env.RELEASE_NAME}-${projectName}-auto-update`,
         'default',
         getCronJobBody(project, image),
@@ -865,26 +888,25 @@ export const createOrUpdateProjectUpdateJob = async (app: Application, projectNa
         undefined,
         undefined,
         undefined,
+        undefined,
         {
           headers: {
-            'content-type': 'application/merge-patch+json'
+            'content-type': k8s.PatchUtils.PATCH_FORMAT_JSON_MERGE_PATCH
           }
         }
       )
     } catch (err) {
       logger.error('Could not find cronjob %o', err)
-      await app.k8BatchClient.createNamespacedCronJob('default', getCronJobBody(project, image))
+      await k8BatchClient.createNamespacedCronJob('default', getCronJobBody(project, image))
     }
   }
 }
 
 export const removeProjectUpdateJob = async (app: Application, projectName: string): Promise<void> => {
   try {
-    if (app.k8BatchClient)
-      await app.k8BatchClient.deleteNamespacedCronJob(
-        `${process.env.RELEASE_NAME}-${projectName}-auto-update`,
-        'default'
-      )
+    const k8BatchClient = getState(ServerState).k8BatchClient
+    if (k8BatchClient)
+      await k8BatchClient.deleteNamespacedCronJob(`${process.env.RELEASE_NAME}-${projectName}-auto-update`, 'default')
   } catch (err) {
     logger.error('Failed to remove project update cronjob %o', err)
   }

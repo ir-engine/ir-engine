@@ -1,3 +1,4 @@
+import { compress } from 'fflate'
 import {
   BackSide,
   ClampToEdgeWrapping,
@@ -8,6 +9,7 @@ import {
   LinearFilter,
   Mesh,
   MeshBasicMaterial,
+  Object3D,
   OrthographicCamera,
   PlaneGeometry,
   PMREMGenerator,
@@ -21,6 +23,11 @@ import {
   WebGLRenderTarget
 } from 'three'
 import { WebGLRenderer } from 'three/src/renderers/WebGLRenderer'
+
+import { KTX2Encoder } from '@etherealengine/xrui/core/textures/KTX2Encoder'
+
+import BasisuExporterExtension from '../../assets/exporters/gltf/extensions/BasisuExporterExtension'
+import { GLTFWriter } from '../../assets/exporters/gltf/GLTFExporter'
 
 export const ImageProjection = {
   Flat: 'Flat',
@@ -108,6 +115,65 @@ export const downloadImage = (imageData: ImageData, imageName = 'Image', width: 
   }, 'image/png')
 }
 
+const ktx2write = new KTX2Encoder()
+
+export const convertCubemapToKTX2 = async (
+  renderer: WebGLRenderer,
+  source: CubeTexture,
+  width: number,
+  height: number,
+  returnAsBlob: boolean
+) => {
+  const scene = new Scene()
+  const material = new RawShaderMaterial({
+    uniforms: {
+      map: new Uniform(new CubeTexture())
+    },
+    vertexShader: vertexShader,
+    fragmentShader: fragmentShader,
+    side: DoubleSide,
+    transparent: true
+  })
+  const quad = new Mesh(new PlaneGeometry(1, 1), material)
+  scene.add(quad)
+  const camera = new OrthographicCamera(1 / -2, 1 / 2, 1 / 2, 1 / -2, -10000, 10000)
+
+  quad.scale.set(width, height, 1)
+  camera.left = width / 2
+  camera.right = width / -2
+  camera.top = height / -2
+  camera.bottom = height / 2
+  camera.updateProjectionMatrix()
+  const renderTarget = new WebGLRenderTarget(width, height, {
+    minFilter: LinearFilter,
+    magFilter: LinearFilter,
+    wrapS: ClampToEdgeWrapping,
+    wrapT: ClampToEdgeWrapping,
+    format: RGBAFormat,
+    type: UnsignedByteType
+  })
+
+  renderer.setRenderTarget(renderTarget)
+  quad.material.uniforms.map.value = source
+  renderer.render(scene, camera)
+  const pixels = new Uint8Array(4 * width * height)
+  renderer.readRenderTargetPixels(renderTarget, 0, 0, width, height, pixels)
+  const imageData = new ImageData(new Uint8ClampedArray(pixels), width, height)
+  renderer.setRenderTarget(null) // pass `null` to set canvas as render target
+
+  const ktx2texture = (await ktx2write.encode(imageData, {
+    srgb: false,
+    qualityLevel: 256,
+    compressionLevel: 2
+  })) as ArrayBuffer
+
+  if (returnAsBlob) {
+    return new Blob([ktx2texture])
+  }
+
+  return ktx2texture
+}
+
 //convert Cubemap To Equirectangular map
 export const convertCubemapToEquiImageData = (
   renderer: WebGLRenderer,
@@ -161,6 +227,14 @@ export const convertCubemapToEquiImageData = (
     ctx.putImageData(imageData, 0, 0)
     return new Promise<Blob | null>((resolve) => canvas.toBlob(resolve))
   }
+
+  /* const writer = new GLTFWriter()
+  writer.processSampler(source)
+
+  const g = new GLTF
+  writer.write(new Object3D())
+*/
+
   return imageData
 }
 

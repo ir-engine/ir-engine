@@ -2,7 +2,7 @@ import { createState, SetInitialStateAction, State } from '@hookstate/core'
 
 import { DeepReadonly } from '@etherealengine/common/src/DeepReadonly'
 import multiLogger from '@etherealengine/common/src/logger'
-import { isNode } from '@etherealengine/engine/src/common/functions/getEnvironment'
+import { isClient } from '@etherealengine/engine/src/common/functions/getEnvironment'
 
 import { HyperFlux, HyperStore } from './StoreFunctions'
 
@@ -18,23 +18,31 @@ export type StateDefinition<S> = {
   onCreate?: (store: HyperStore, state: State<S>) => void
 }
 
+const StateDefinitions = new Set<string>()
+
 export function defineState<S>(definition: StateDefinition<S>) {
-  return definition
+  if (StateDefinitions.has(definition.name)) throw new Error(`State ${definition.name} already defined`)
+  StateDefinitions.add(definition.name)
+  return definition as StateDefinition<S> & { _TYPE: S }
 }
 
 export function registerState<S>(StateDefinition: StateDefinition<S>, store = HyperFlux.store) {
   logger.info(`registerState ${StateDefinition.name}`)
-  if (StateDefinition.name in store.stateMap) {
-    const err = new Error(`State ${StateDefinition.name} has already been registered in Store`)
-    logger.error(err)
-    throw err
-  }
+
   const initial =
     typeof StateDefinition.initial === 'function'
       ? (StateDefinition.initial as Function)()
       : JSON.parse(JSON.stringify(StateDefinition.initial))
   store.valueMap[StateDefinition.name] = initial
   store.stateMap[StateDefinition.name] = createState(initial)
+  store.stateMap[StateDefinition.name].attach(() => ({
+    id: Symbol('update root state value map'),
+    init: () => ({
+      onSet(arg) {
+        if (arg.path.length === 0 && typeof arg.value === 'object') store.valueMap[StateDefinition.name] = arg.value
+      }
+    })
+  }))
   if (StateDefinition.onCreate) StateDefinition.onCreate(store, getMutableState(StateDefinition, store))
 }
 
@@ -62,7 +70,7 @@ const stateNamespaceKey = 'ee.hyperflux'
  * we need to pass in a schema or validator function to this function (we should use ts-pattern for this).
  */
 export const syncStateWithLocalStorage = (stateDefinition: ReturnType<typeof defineState<any>>, keys: string[]) => {
-  if (isNode) return
+  if (!isClient) return
   const state = getMutableState(stateDefinition)
 
   for (const key of keys) {

@@ -1,61 +1,44 @@
 import { max, min } from 'lodash'
 import {
+  BufferAttribute,
   BufferGeometry,
   Color,
-  ColorRepresentation,
   DoubleSide,
   InstancedBufferAttribute,
   InstancedBufferGeometry,
   InstancedMesh,
+  InterleavedBufferAttribute,
   Material,
   Matrix4,
   Mesh,
   MeshStandardMaterial,
-  Object3D,
   PlaneGeometry,
   Quaternion,
   RawShaderMaterial,
   ShaderChunk,
-  ShaderMaterial,
   Texture,
   Vector2,
   Vector3
 } from 'three'
-import matches from 'ts-matches'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
-import { defineAction, dispatchAction, State } from '@etherealengine/hyperflux'
+import { State } from '@etherealengine/hyperflux'
 
 import { AssetLoader } from '../../../assets/classes/AssetLoader'
-import { DependencyTree } from '../../../assets/classes/DependencyTree'
-import { AssetClass } from '../../../assets/enum/AssetClass'
-import {
-  ComponentDeserializeFunction,
-  ComponentSerializeFunction,
-  ComponentUpdateFunction
-} from '../../../common/constants/PrefabFunctionType'
 import { Engine } from '../../../ecs/classes/Engine'
-import { EngineActions, getEngineState } from '../../../ecs/classes/EngineState'
 import { Entity } from '../../../ecs/classes/Entity'
 import {
-  addComponent,
   getComponent,
-  getComponentState,
-  getOptionalComponent,
+  getMutableComponent,
   hasComponent,
-  removeComponent,
-  useComponent
+  setComponent
 } from '../../../ecs/functions/ComponentFunctions'
-import { iterateEntityNode } from '../../../ecs/functions/EntityTree'
-import { matchActionOnce } from '../../../networking/functions/matchActionOnce'
 import { formatMaterialArgs } from '../../../renderer/materials/functions/MaterialLibraryFunctions'
 import { setCallback } from '../../components/CallbackComponent'
-import { addObjectToGroup, GroupComponent } from '../../components/GroupComponent'
+import { addObjectToGroup, removeObjectFromGroup } from '../../components/GroupComponent'
 import {
   GrassProperties,
   InstancingComponent,
-  InstancingComponentType,
-  InstancingStagingComponent,
   MeshProperties,
   SampleMode,
   SampleProperties,
@@ -67,7 +50,6 @@ import {
   VertexProperties
 } from '../../components/InstancingComponent'
 import { UpdatableCallback, UpdatableComponent } from '../../components/UpdatableComponent'
-import { UUIDComponent } from '../../components/UUIDComponent'
 import getFirstMesh from '../../util/getFirstMesh'
 import obj3dFromUuid from '../../util/obj3dFromUuid'
 import LogarithmicDepthBufferMaterialChunk from '../LogarithmicDepthBufferMaterialChunk'
@@ -124,8 +106,6 @@ export const VERTEX_PROPERTIES_DEFAULT_VALUES: VertexProperties = {
   },
   heightMapStrength: 0.5
 }
-
-export const SCENE_COMPONENT_INSTANCING = 'instancing'
 
 const grassVertexSource = `
 precision mediump float;
@@ -311,49 +291,12 @@ gl_FragColor = vec4(col, 1.0);
 //${ShaderChunk.logdepthbuf_fragment}
 //}`
 
-export class InstancingActions {
-  static instancingStaged = defineAction({
-    type: 'xre.scene.Instancing.INSTANCING_STAGED' as const,
-    uuid: matches.string
-  })
-}
-
-export const updateInstancing: ComponentUpdateFunction = (entity: Entity) => {
-  if (!getOptionalComponent(entity, GroupComponent)?.[0]) {
-    addObjectToGroup(entity, new Object3D())
-  }
-  const scatterProps = getComponent(entity, InstancingComponent)
-  if (scatterProps.surface) {
-    const eNode = entity
-    DependencyTree.add(
-      scatterProps.surface,
-      new Promise<void>((resolve) => {
-        matchActionOnce(
-          InstancingActions.instancingStaged.matches.validate(
-            (action) => action.uuid === getComponent(eNode, UUIDComponent),
-            ''
-          ),
-          () => resolve()
-        )
-      })
-    )
-  }
-
-  if (scatterProps.state === ScatterState.STAGED) {
-    const executeStaging = () => {
-      addComponent(entity, InstancingStagingComponent, {})
-    }
-    if (!getEngineState().sceneLoaded.value) matchActionOnce(EngineActions.sceneLoaded.matches, executeStaging)
-    else executeStaging()
-  }
-}
-
 const loadTex = async (props: State<TextureRef>) => {
   const texture = (await AssetLoader.loadAsync(props.src.value)) as Texture
   props.texture.set(texture)
 }
 
-async function loadSampleTextures(props: State<ScatterProperties & VertexProperties>) {
+async function loadSampleTextures(props: State<ScatterProperties | VertexProperties>) {
   await Promise.all([props.densityMap, props.heightMap].map(loadTex))
 }
 
@@ -363,16 +306,16 @@ async function loadGrassTextures(props: State<GrassProperties>) {
 
 export async function stageInstancing(entity: Entity) {
   const scatter = getComponent(entity, InstancingComponent)
-  const scatterState = getComponentState(entity, InstancingComponent)
+  const scatterState = getMutableComponent(entity, InstancingComponent)
   if (scatter.state === ScatterState.STAGING) {
     console.error('scatter component is already staging')
     return
   }
   scatterState.state.set(ScatterState.STAGING)
   const targetGeo = getFirstMesh(obj3dFromUuid(scatter.surface))!.geometry
-  const normals = targetGeo.getAttribute('normal')
-  const positions = targetGeo.getAttribute('position')
-  const uvs = targetGeo.getAttribute('uv')
+  const normals = targetGeo.getAttribute('normal') as BufferAttribute | InterleavedBufferAttribute
+  const positions = targetGeo.getAttribute('position') as BufferAttribute | InterleavedBufferAttribute
+  const uvs = targetGeo.getAttribute('uv') as BufferAttribute | InterleavedBufferAttribute
   const uvBounds: any = { minU: null, maxU: null, minV: null, maxV: null }
   for (let i = 0; i < uvs.count; i += 1) {
     const u = uvs.getX(i)
@@ -389,14 +332,11 @@ export async function stageInstancing(entity: Entity) {
   }
 
   function pointInTriangle(point: Vector2, v1: Vector2, v2: Vector2, v3: Vector2) {
-    let d1: number, d2: number, d3: number
-    let hasNeg: boolean, hasPos: boolean
-
-    d1 = sign(point, v1, v2)
-    d2 = sign(point, v2, v3)
-    d3 = sign(point, v3, v1)
-    hasNeg = d1 < 0 || d2 < 0 || d3 < 0
-    hasPos = d1 > 0 || d2 > 0 || d3 > 0
+    const d1 = sign(point, v1, v2)
+    const d2 = sign(point, v2, v3)
+    const d3 = sign(point, v3, v1)
+    const hasNeg = d1 < 0 || d2 < 0 || d3 < 0
+    const hasPos = d1 > 0 || d2 > 0 || d3 > 0
 
     return !(hasNeg && hasPos)
   }
@@ -420,10 +360,10 @@ export async function stageInstancing(entity: Entity) {
   function positionAt(uv: Vector2) {
     let triIndex = 0
     while (triIndex < nTriangles) {
-      let [i1, i2, i3] = [triIndex * 3, triIndex * 3 + 1, triIndex * 3 + 2].map(
+      const [i1, i2, i3] = [triIndex * 3, triIndex * 3 + 1, triIndex * 3 + 2].map(
         (idx) => targetGeo.index?.getX(idx) ?? idx
       )
-      let [v1, v2, v3] = [i1, i2, i3].map(getUV)
+      const [v1, v2, v3] = [i1, i2, i3].map(getUV)
       if (pointInTriangle(uv, v1, v2, v3)) {
         //barycentric blending of positions
         const triArea =
@@ -478,7 +418,7 @@ export async function stageInstancing(entity: Entity) {
   const transforms: number[] = []
   const surfaceUVs: number[] = []
   if ([SampleMode.SCATTER, SampleMode.VERTICES].includes(scatter.sampling)) {
-    await loadSampleTextures(scatterState.sampleProperties as State<SampleProperties>)
+    await loadSampleTextures(scatterState.sampleProperties as unknown as State<SampleProperties>)
   }
 
   let props = scatter.sourceProperties
@@ -492,15 +432,15 @@ export async function stageInstancing(entity: Entity) {
 
     grassGeometry.translate(0, grassProps.bladeHeight.mu / 2, 0)
 
-    let vertex = new Vector3()
-    let quaternion0 = new Quaternion()
-    let quaternion1 = new Quaternion()
-    let x, y, z, w, angle, sinAngle, rotationAxis
+    const vertex = new Vector3()
+    const quaternion0 = new Quaternion()
+    const quaternion1 = new Quaternion()
+    let x, y, z, w, angle, sinAngle
 
     //Rotate around Y
     angle = 0.15
     sinAngle = Math.sin(angle / 2.0)
-    rotationAxis = new Vector3(0, 1, 0)
+    const rotationAxis = new Vector3(0, 1, 0)
     x = rotationAxis.x * sinAngle
     y = rotationAxis.y * sinAngle
     z = rotationAxis.z * sinAngle
@@ -533,18 +473,20 @@ export async function stageInstancing(entity: Entity) {
     //Combine rotations to a single quaternion
     quaternion0.multiply(quaternion1)
 
-    let quaternion2 = new Quaternion()
+    const quaternion2 = new Quaternion()
+
+    const positionAttr = grassGeometry.attributes.position as BufferAttribute | InterleavedBufferAttribute
 
     //Bend grass base geometry for more organic look
-    for (let v = 0; v < grassGeometry.attributes.position.array.length / 3; v += 1) {
+    for (let v = 0; v < positionAttr.array.length / 3; v += 1) {
       quaternion2.setFromAxisAngle(new Vector3(0, 1, 0), Math.PI / 2)
-      vertex.x = grassGeometry.attributes.position.array[v * 3]
-      vertex.y = grassGeometry.attributes.position.array[v * 3 + 1]
-      vertex.z = grassGeometry.attributes.position.array[v * 3 + 2]
-      let frac = vertex.y / (grassProps.bladeHeight.mu + grassProps.bladeHeight.sigma)
+      vertex.x = positionAttr.array[v * 3]
+      vertex.y = positionAttr.array[v * 3 + 1]
+      vertex.z = positionAttr.array[v * 3 + 2]
+      const frac = vertex.y / (grassProps.bladeHeight.mu + grassProps.bladeHeight.sigma)
       quaternion2.slerp(quaternion0, frac)
       vertex.applyQuaternion(quaternion2)
-      grassGeometry.attributes.position.setXYZ(v, vertex.x, vertex.y, vertex.z)
+      positionAttr.setXYZ(v, vertex.x, vertex.y, vertex.z)
     }
 
     grassGeometry.computeVertexNormals()
@@ -611,7 +553,7 @@ export async function stageInstancing(entity: Entity) {
           ;[position, normal] = positionAt(sample)
         } while (position === null)
         surfaceUVs.push(sample.x, sample.y)
-        let orient = new Quaternion()
+        const orient = new Quaternion()
         orient.setFromUnitVectors(new Vector3(0, 1, 0), normal!)
         const scale = new Vector3(1, 1, 1)
         if ((props as GrassProperties).isGrassProperties) {
@@ -659,9 +601,14 @@ export async function stageInstancing(entity: Entity) {
   let result: Mesh
   let resultMat: Material
   const sampleProps = formatMaterialArgs(scatter.sampleProperties) as SampleProperties
+  const grassProps = props as GrassProperties
+  let shaderMat: RawShaderMaterial
+
+  const meshProps = props as MeshProperties
+  let iMesh: Mesh
+  let iMat: any
   switch (scatter.mode) {
     case ScatterMode.GRASS:
-      const grassProps = props as GrassProperties
       resultMat = new RawShaderMaterial({
         uniforms: {
           time: { value: 0 },
@@ -686,7 +633,7 @@ export async function stageInstancing(entity: Entity) {
       resultMat.onBeforeCompile = (shader, renderer) => {
         console.log('onBeforeCompile', shader, renderer)
       }
-      const shaderMat = resultMat as RawShaderMaterial
+      shaderMat = resultMat as RawShaderMaterial
       if (sampleProps.densityMap) {
         shaderMat.defines.DENSITY_MAPPED = ''
         shaderMat.uniforms = {
@@ -707,9 +654,8 @@ export async function stageInstancing(entity: Entity) {
       result.name = 'Grass'
       break
     case ScatterMode.MESH:
-      const meshProps = props as MeshProperties
-      const iMesh = getFirstMesh(obj3dFromUuid(meshProps.instancedMesh))!
-      const iMat = iMesh.material as any
+      iMesh = getFirstMesh(obj3dFromUuid(meshProps.instancedMesh))!
+      iMat = iMesh.material as any
       resultMat = new MeshStandardMaterial({
         color: iMat.color,
         map: iMat.map,
@@ -730,35 +676,29 @@ export async function stageInstancing(entity: Entity) {
       result = new Mesh()
       break
   }
-  if (!getComponent(entity, GroupComponent)?.[0]) addObjectToGroup(entity, new Object3D())
-  const obj3d = getComponent(entity, GroupComponent)[0]
-  obj3d.name = `${result.name} Base`
+  addObjectToGroup(entity, result)
   const updates: ((dt: number) => void)[] = []
   switch (scatter.mode) {
     case ScatterMode.GRASS:
-      function move(dT: number) {
+      updates.push((dT) => {
         ;(resultMat as RawShaderMaterial).uniforms.time.value += dT
-      }
-      updates.push(move)
+      })
       break
   }
   if (updates.length > 0) {
     if (!hasComponent(entity, UpdatableComponent)) {
-      addComponent(entity, UpdatableComponent, true)
+      setComponent(entity, UpdatableComponent, true)
     }
     setCallback(entity, UpdatableCallback, (dt) => updates.forEach((update) => update(dt)))
   }
   result.frustumCulled = false
-  obj3d.add(result)
+  scatterState.mesh.set(result)
   scatterState.state.set(ScatterState.STAGED)
-  dispatchAction(InstancingActions.instancingStaged({ uuid: getComponent(entity, UUIDComponent) }))
 }
 
 export function unstageInstancing(entity: Entity) {
-  const comp = getComponent(entity, InstancingComponent) as InstancingComponentType
-  const group = getComponent(entity, GroupComponent)
-  const obj3d = group.pop()
-  obj3d?.removeFromParent()
-  if (group.length === 0) removeComponent(entity, GroupComponent)
-  comp.state = ScatterState.UNSTAGED
+  const comp = getMutableComponent(entity, InstancingComponent)
+  if (!comp.mesh.value) return
+  removeObjectFromGroup(entity, comp.mesh.value)
+  comp.state.set(ScatterState.UNSTAGED)
 }

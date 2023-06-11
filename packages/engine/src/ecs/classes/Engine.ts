@@ -1,43 +1,35 @@
 import * as bitecs from 'bitecs'
 
 import type { UserId } from '@etherealengine/common/src/interfaces/UserId'
-import { createHyperStore, getMutableState, getState, hookstate, State } from '@etherealengine/hyperflux'
+import { createHyperStore, getMutableState, getState, hookstate, ReactorRoot, State } from '@etherealengine/hyperflux'
 import * as Hyperflux from '@etherealengine/hyperflux'
 import { HyperStore } from '@etherealengine/hyperflux/functions/StoreFunctions'
 
-import { Network, NetworkTopics } from '../../networking/classes/Network'
-import { createScene, destroyScene, Scene } from '../classes/Scene'
+import { NetworkTopics } from '../../networking/classes/Network'
 
 import '../utils/threejsPatches'
+import '../../patchEngineNode'
 
 import { EventQueue } from '@dimforge/rapier3d-compat'
+import type { FeathersApplication } from '@feathersjs/feathers'
 import { Not } from 'bitecs'
-import {
-  BoxGeometry,
-  Group,
-  Mesh,
-  MeshNormalMaterial,
-  Object3D,
-  Raycaster,
-  Shader,
-  Scene as THREEScene,
-  Vector2
-} from 'three'
+import { BoxGeometry, Group, Mesh, MeshNormalMaterial, Object3D, Raycaster, Scene, Vector2 } from 'three'
 
+import type { ServiceTypes } from '@etherealengine/common/declarations'
 import { NetworkId } from '@etherealengine/common/src/interfaces/NetworkId'
+import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { ComponentJson } from '@etherealengine/common/src/interfaces/SceneInterface'
-import multiLogger from '@etherealengine/common/src/logger'
 
 import { GLTFLoader } from '../../assets/loaders/gltf/GLTFLoader'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { CameraComponent } from '../../camera/components/CameraComponent'
 import { SceneLoaderType } from '../../common/constants/PrefabFunctionType'
 import { nowMilliseconds } from '../../common/functions/nowMilliseconds'
+import { Timer } from '../../common/functions/Timer'
 import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
-import { ButtonInputStateType } from '../../input/InputState'
+import { OldButtonInputStateType } from '../../input/InputState'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
 import { NetworkState } from '../../networking/NetworkState'
-import { SerializationSchema } from '../../networking/serialization/Utils'
 import { PhysicsWorld } from '../../physics/classes/Physics'
 import { addObjectToGroup } from '../../scene/components/GroupComponent'
 import { NameComponent } from '../../scene/components/NameComponent'
@@ -45,7 +37,7 @@ import { PortalComponent } from '../../scene/components/PortalComponent'
 import { VisibleComponent } from '../../scene/components/VisibleComponent'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
 import { setObjectLayers } from '../../scene/functions/setObjectLayers'
-import { setTransformComponent } from '../../transform/components/TransformComponent'
+import { setTransformComponent, TransformComponent } from '../../transform/components/TransformComponent'
 import { Widget } from '../../xrui/Widgets'
 import {
   Component,
@@ -56,12 +48,12 @@ import {
   hasComponent,
   Query,
   QueryComponents,
+  removeQuery,
   setComponent
 } from '../functions/ComponentFunctions'
 import { createEntity, removeEntity } from '../functions/EntityFunctions'
-import { EntityTreeComponent } from '../functions/EntityTree'
-import { SystemInstance, unloadAllSystems } from '../functions/SystemFunctions'
-import { SystemUpdateType } from '../functions/SystemUpdateType'
+import { EntityTreeComponent, initializeSceneEntity } from '../functions/EntityTree'
+import { disableAllSystems, SystemUUID } from '../functions/SystemFunctions'
 import { EngineState } from './EngineState'
 import { Entity, UndefinedEntity } from './Entity'
 
@@ -92,17 +84,21 @@ export class Engine {
     setComponent(this.cameraEntity, NameComponent, 'camera')
     setComponent(this.cameraEntity, CameraComponent)
     setComponent(this.cameraEntity, VisibleComponent, true)
+    getComponent(this.cameraEntity, TransformComponent).position.set(0, 5, 2)
 
     this.camera.matrixAutoUpdate = false
     this.camera.matrixWorldAutoUpdate = false
 
-    this.currentScene = createScene()
+    initializeSceneEntity()
   }
 
-  tickRate = 60
+  api: FeathersApplication<ServiceTypes>
 
   /** The uuid of the logged-in user */
   userId: UserId
+
+  /** The peerID of the logged-in user */
+  peerID: PeerID
 
   store = createHyperStore({
     forwardIncomingActions: (action) => {
@@ -113,23 +109,13 @@ export class Engine {
       return isHost || action.$from === this.userId
     },
     getDispatchId: () => Engine.instance.userId,
-    getDispatchTime: () => Date.now(),
-    defaultDispatchDelay: 1 / this.tickRate
+    getPeerId: () => Engine.instance.peerID,
+    getDispatchTime: () => getState(EngineState).simulationTime,
+    defaultDispatchDelay: () => getState(EngineState).simulationTimestep,
+    getCurrentReactorRoot: () => Engine.instance.activeSystemReactors.get(Engine.instance.currentSystemUUID)
   }) as HyperStore
 
-  /**
-   * Current frame timestamp, relative to performance.timeOrigin
-   */
-  get frameTime() {
-    return getMutableState(EngineState).frameTime.value
-  }
-
-  engineTimer: { start: Function; stop: Function; clear: Function } = null!
-
-  /**
-   * The current world
-   */
-  currentScene: Scene = null!
+  engineTimer = null! as ReturnType<typeof Timer>
 
   /**
    * get the default world network
@@ -163,40 +149,35 @@ export class Engine {
   widgets = new Map<string, Widget>()
 
   /**
-   * The time origin for this world, relative to performance.timeOrigin
-   */
-  startTime = nowMilliseconds()
-
-  /**
    * The seconds since the last world execution
+   * @deprecated use getState(EngineState).deltaSeconds
    */
   get deltaSeconds() {
-    return getMutableState(EngineState).deltaSeconds.value
+    return getState(EngineState).deltaSeconds
   }
 
   /**
-   * The elapsed seconds since `startTime`
+   * The elapsed seconds since `performance.timeOrigin`
+   * @deprecated use `getState(EngineState).elapsedSeconds`
    */
   get elapsedSeconds() {
-    return getMutableState(EngineState).elapsedSeconds.value
+    return getState(EngineState).elapsedSeconds
   }
 
   /**
-   * The elapsed seconds since `startTime`, in fixed time steps.
-   */
-  get fixedElapsedSeconds() {
-    return getMutableState(EngineState).fixedElapsedSeconds.value
-  }
-
-  /**
-   * The current fixed tick (fixedElapsedSeconds / fixedDeltaSeconds)
+   * The current fixed tick (simulationTime / simulationTimeStep)
+   * @deprecated
    */
   get fixedTick() {
-    return getMutableState(EngineState).fixedTick.value
+    const engineState = getState(EngineState)
+    return engineState.simulationTime / engineState.simulationTimestep
   }
 
+  /**
+   * @deprecated use `getState(EngineState).simulationTimestep / 1000`
+   */
   get fixedDeltaSeconds() {
-    return getMutableState(EngineState).fixedDeltaSeconds.value
+    return getState(EngineState).simulationTimestep / 1000
   }
 
   physicsWorld: PhysicsWorld
@@ -205,7 +186,7 @@ export class Engine {
   /**
    * Reference to the three.js scene object.
    */
-  scene = new THREEScene()
+  scene = new Scene()
 
   /**
    * Map of object lists by layer
@@ -243,13 +224,9 @@ export class Engine {
   /**
    * The local client entity
    */
-  get localClientEntity() {
-    return this.getOwnedNetworkObjectWithComponent(Engine.instance.userId, LocalInputTagComponent) || UndefinedEntity
-  }
+  localClientEntity = UndefinedEntity
 
-  readonly dirtyTransforms = {} as Record<Entity, boolean>
-
-  inputSources: Readonly<XRInputSourceArray> = []
+  inputSources: ReadonlyArray<XRInputSource> = []
 
   pointerState = {
     position: new Vector2(),
@@ -259,7 +236,7 @@ export class Engine {
     lastScroll: new Vector2()
   }
 
-  buttons = {} as Readonly<ButtonInputStateType>
+  buttons = {} as Readonly<OldButtonInputStateType>
 
   reactiveQueryStates = new Set<{ query: Query; result: State<Entity[]>; components: QueryComponents }>()
 
@@ -269,35 +246,20 @@ export class Engine {
   // @todo move to EngineState
   activePortal = null as ComponentType<typeof PortalComponent> | null
 
-  /**
-   * Custom systems injected into this world
-   */
-  pipelines = {
-    [SystemUpdateType.UPDATE_EARLY]: [],
-    [SystemUpdateType.UPDATE]: [],
-    [SystemUpdateType.FIXED_EARLY]: [],
-    [SystemUpdateType.FIXED]: [],
-    [SystemUpdateType.FIXED_LATE]: [],
-    [SystemUpdateType.UPDATE_LATE]: [],
-    [SystemUpdateType.PRE_RENDER]: [],
-    [SystemUpdateType.RENDER]: [],
-    [SystemUpdateType.POST_RENDER]: []
-  } as { [pipeline: string]: SystemInstance[] }
+  systemGroups = {} as {
+    input: SystemUUID
+    simulation: SystemUUID
+    presentation: SystemUUID
+  }
 
-  systemsByUUID = {} as Record<string, SystemInstance>
+  activeSystems = new Set<SystemUUID>()
+  currentSystemUUID = '__null__' as SystemUUID
+  activeSystemReactors = new Map<SystemUUID, ReactorRoot>()
 
   /**
    * Network object query
    */
   networkObjectQuery = defineQuery([NetworkObjectComponent])
-
-  /** @todo: merge sceneComponentRegistry and sceneLoadingRegistry when scene loader IDs use EE_ extension names*/
-
-  /** Registry map of scene loader components  */
-  sceneLoadingRegistry = new Map<string, SceneLoaderType>()
-
-  /** Scene component of scene loader components  */
-  sceneComponentRegistry = new Map<string, string>()
 
   /** Registry map of prefabs  */
   scenePrefabRegistry = new Map<string, ComponentJson[]>()
@@ -332,7 +294,9 @@ export class Engine {
    * @returns
    */
   getUserAvatarEntity(userId: UserId) {
-    return this.getOwnedNetworkObjectWithComponent(userId, AvatarComponent)
+    return this.getOwnedNetworkObjectsWithComponent(userId, AvatarComponent).find((eid) => {
+      return getComponent(eid, AvatarComponent).primary
+    })!
   }
 
   /**
@@ -349,6 +313,18 @@ export class Engine {
     )
   }
 
+  /**
+   * Get the user entity that has a specific component
+   * @param userId
+   * @param component
+   * @returns
+   */
+  getOwnedNetworkObjectsWithComponent<T, S extends bitecs.ISchema>(userId: UserId, component: Component<T, S>) {
+    return this.getOwnedNetworkObjects(userId).filter((eid) => {
+      return hasComponent(eid, component)
+    })
+  }
+
   /** ID of last network created. */
   #availableNetworkId = 0 as NetworkId
 
@@ -361,11 +337,33 @@ export class Engine {
 globalThis.Engine = Engine
 globalThis.Hyperflux = Hyperflux
 
-export function destroyEngine() {
-  if (Engine.instance?.currentScene) {
-    destroyScene(Engine.instance.currentScene)
+export async function destroyEngine() {
+  Engine.instance.engineTimer.clear()
+
+  /** Remove all entities */
+  const entities = Engine.instance.entityQuery()
+
+  const entityPromises = [] as Promise<void>[]
+
+  for (const entity of entities) if (entity) entityPromises.push(...removeEntity(entity, true))
+
+  await Promise.all(entityPromises)
+
+  for (const query of Engine.instance.reactiveQueryStates) {
+    removeQuery(query.query)
   }
-  unloadAllSystems()
+
+  /** Unload and clean up all systems */
+  await disableAllSystems()
+
+  const activeReactors = [] as Promise<void>[]
+
+  for (const reactor of Engine.instance.store.activeReactors) {
+    activeReactors.push(reactor.stop())
+  }
+  await Promise.all(activeReactors)
+
   /** @todo include in next bitecs update */
   // bitecs.deleteWorld(Engine.instance)
+  Engine.instance = null!
 }

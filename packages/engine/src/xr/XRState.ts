@@ -1,28 +1,13 @@
-import { AxesHelper, Quaternion, Vector3 } from 'three'
-import matches, { Validator } from 'ts-matches'
+import { Quaternion, Vector3 } from 'three'
+import matches from 'ts-matches'
 
-import {
-  defineAction,
-  defineState,
-  getMutableState,
-  syncStateWithLocalStorage,
-  useHookstate
-} from '@etherealengine/hyperflux'
+import { defineAction, defineState, getState, syncStateWithLocalStorage } from '@etherealengine/hyperflux'
 
 import { AvatarInputSettingsState } from '../avatar/state/AvatarInputSettingsState'
-import { isMobile } from '../common/functions/isMobile'
-import { Engine } from '../ecs/classes/Engine'
 import { Entity } from '../ecs/classes/Entity'
-import { hasComponent, setComponent } from '../ecs/functions/ComponentFunctions'
-import { createEntity } from '../ecs/functions/EntityFunctions'
-import { addObjectToGroup } from '../scene/components/GroupComponent'
-import { NameComponent } from '../scene/components/NameComponent'
-import { VisibleComponent } from '../scene/components/VisibleComponent'
-import { ObjectLayers } from '../scene/constants/ObjectLayers'
-import { setObjectLayers } from '../scene/functions/setObjectLayers'
-import { setLocalTransformComponent } from '../transform/components/TransformComponent'
+import { NetworkTopics } from '../networking/classes/Network'
+import { WorldNetworkAction } from '../networking/functions/WorldNetworkAction'
 import { DepthDataTexture } from './DepthDataTexture'
-import { XRHitTestComponent } from './XRComponents'
 import { XREstimatedLight } from './XREstimatedLight'
 
 // TODO: divide this up into the systems that manage these states
@@ -30,7 +15,7 @@ export const XRState = defineState({
   name: 'XRState',
   initial: () => {
     return {
-      sessionActive: false,
+      sessionActive: false, // TODO: remove this; it's redundant, just need to check if session exists
       requestingSession: false,
       scenePosition: new Vector3(),
       sceneRotation: new Quaternion(),
@@ -42,9 +27,11 @@ export const XRState = defineState({
         'immersive-ar': false,
         'immersive-vr': false
       },
+      unassingedInputSources: [] as XRInputSource[],
       session: null as XRSession | null,
       sessionMode: 'none' as 'inline' | 'immersive-ar' | 'immersive-vr' | 'none',
       avatarCameraMode: 'auto' as 'auto' | 'attached' | 'detached',
+      localAvatarScale: 1,
       /** Stores the depth map data - will exist if depth map is supported */
       depthDataTexture: null as DepthDataTexture | null,
       is8thWallActive: false,
@@ -52,7 +39,9 @@ export const XRState = defineState({
       lightEstimator: null! as XREstimatedLight,
       viewerInputSourceEntity: 0 as Entity,
       viewerPose: null as XRViewerPose | null | undefined,
-      userEyeLevel: 1.8
+      userEyeLevel: 1.8,
+      //to be moved to user_settings
+      userHeight: 0
     }
   },
 
@@ -103,10 +92,20 @@ export class XRAction {
     value: matches.number,
     duration: matches.number
   })
+
+  static spawnIKTarget = defineAction({
+    ...WorldNetworkAction.spawnObject.actionShape,
+    prefab: 'ik-target',
+    handedness: matches.literals('left', 'right', 'none'),
+    $cache: {
+      removePrevious: true
+    },
+    $topic: NetworkTopics.world
+  })
 }
 
 export const getCameraMode = () => {
-  const { avatarCameraMode, sceneScale, scenePlacementMode, session } = getMutableState(XRState).value
+  const { avatarCameraMode, sceneScale, scenePlacementMode, session } = getState(XRState)
   if (!session || scenePlacementMode === 'placing') return 'detached'
   if (avatarCameraMode === 'auto') {
     if (session.interactionMode === 'screen-space') return 'detached'
@@ -123,7 +122,7 @@ export const getCameraMode = () => {
  * @returns {boolean} true if the user has movement controls
  */
 export const hasMovementControls = () => {
-  const { sessionActive, sceneScale, sessionMode, session } = getMutableState(XRState).value
+  const { sessionActive, sceneScale, sessionMode, session } = getState(XRState)
   if (!sessionActive) return true
   if (session && session.interactionMode === 'screen-space') return true
   return sessionMode === 'immersive-ar' ? sceneScale !== 1 : true
@@ -134,37 +133,25 @@ export const hasMovementControls = () => {
  * @param {boolean} offhand specifies to return the non-preferred hand instead
  * @returns {Entity}
  */
-export const getPreferredInputSource = (inputSources: XRInputSourceArray, offhand = false) => {
-  const xrState = getMutableState(XRState)
-  if (!xrState.sessionActive.value) return
-  const avatarInputSettings = getMutableState(AvatarInputSettingsState)
+export const getPreferredInputSource = (inputSources: readonly XRInputSource[], offhand = false) => {
+  const xrState = getState(XRState)
+  if (!xrState.sessionActive) return
+  const avatarInputSettings = getState(AvatarInputSettingsState)
   for (const inputSource of inputSources) {
     if (inputSource.handedness === 'none') continue
-    if (!offhand && avatarInputSettings.preferredHand.value == inputSource.handedness) return inputSource
-    if (offhand && avatarInputSettings.preferredHand.value !== inputSource.handedness) return inputSource
+    if (!offhand && avatarInputSettings.preferredHand == inputSource.handedness) return inputSource
+    if (offhand && avatarInputSettings.preferredHand !== inputSource.handedness) return inputSource
   }
 }
 
 /**
- * @deprecated prefer using a more fine-grained feature or cabability detection, e.g.,
- * xrState.session.interactionMode === 'world-space'
- * or
- * renderState.qualityLevel > 2
- * */
-export const isHeadset = () => {
-  const supportedSessionModes = getMutableState(XRState).supportedSessionModes
-  if (isMobile || typeof globalThis.CustomWebXRPolyfill !== 'undefined') return false
-  return supportedSessionModes['immersive-vr'].value || supportedSessionModes['immersive-ar'].value
-}
-
-/**
- * @deprecated prefer using a more fine-grained feature or cabability detection, e.g.,
- * xrState.session.interactionMode === 'world-space'
- * or
- * renderState.qualityLevel > 2
- * */
-export const useIsHeadset = () => {
-  const supportedSessionModes = useHookstate(getMutableState(XRState).supportedSessionModes)
-  if (isMobile || typeof globalThis.CustomWebXRPolyfill !== 'undefined') return false
-  return supportedSessionModes['immersive-vr'].value || supportedSessionModes['immersive-ar'].value
-}
+ * Wheter or not this is a mobile XR headset
+ **/
+export const isMobileXRHeadset =
+  'navigator' in globalThis === false
+    ? false
+    : navigator.userAgent.includes('Oculus') ||
+      navigator.userAgent.includes('VR') ||
+      navigator.userAgent.includes('AR') ||
+      navigator.userAgent.includes('Reality') ||
+      navigator.userAgent.includes('Wolvic')

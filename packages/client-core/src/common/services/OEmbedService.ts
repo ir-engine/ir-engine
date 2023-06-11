@@ -8,7 +8,7 @@ import { NotificationService } from './NotificationService'
 
 const logger = multiLogger.child({ component: 'client-core:OEmbedService' })
 
-const OEmbedState = defineState({
+export const OEmbedState = defineState({
   name: 'OEmbedState',
   initial: () => ({
     oEmbed: undefined as OEmbed | undefined,
@@ -29,10 +29,6 @@ export const OEmbedServiceReceptor = (action) => {
     })
 }
 
-export const accessOEmbedState = () => getMutableState(OEmbedState)
-
-export const useOEmbedState = () => useState(accessOEmbedState())
-
 export const OEmbedService = {
   fetchData: async (pathname: string, queryUrl: string) => {
     try {
@@ -48,11 +44,11 @@ export const OEmbedService = {
 
 export class OEmbedActions {
   static fetchData = defineAction({
-    type: 'xre.client.OEmbed.FETCH_DATA' as const,
+    type: 'ee.client.OEmbed.FETCH_DATA' as const,
     pathname: matches.string
   })
   static fetchedData = defineAction({
-    type: 'xre.client.OEmbed.FETCHED_DATA' as const,
+    type: 'ee.client.OEmbed.FETCHED_DATA' as const,
     oEmbed: matches.object as Validator<unknown, OEmbed>,
     pathname: matches.string
   })

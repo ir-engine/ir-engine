@@ -1,35 +1,188 @@
-import { Application } from '@feathersjs/express/lib'
+import { Application } from '@feathersjs/koa/lib'
 import {
+  Accessor,
   BufferUtils,
   Document,
   Format,
   Buffer as glBuffer,
   Material,
+  Mesh,
+  Node,
   Primitive,
-  Property,
   Texture
 } from '@gltf-transform/core'
-import { MeshQuantization, TextureBasisu } from '@gltf-transform/extensions'
-import { EncoderMethod } from '@gltf-transform/extensions/dist/ext-meshopt-compression/constants'
-import { dedup, draco, partition, prune, quantize, reorder, weld } from '@gltf-transform/functions'
+import { EXTMeshGPUInstancing, KHRTextureBasisu } from '@gltf-transform/extensions'
+import { dedup, draco, partition, prune, reorder, weld } from '@gltf-transform/functions'
 import appRootPath from 'app-root-path'
-import { exec } from 'child_process'
+import { execFileSync } from 'child_process'
+import { createHash } from 'crypto'
 import fs from 'fs'
 import { MeshoptEncoder } from 'meshoptimizer'
 import path from 'path'
 import sharp from 'sharp'
 import { MathUtils } from 'three'
-import util from 'util'
 
-import { ModelTransformParameters } from '@etherealengine/engine/src/assets/classes/ModelTransform'
+import {
+  ExtractedImageTransformParameters,
+  extractParameters,
+  ModelTransformParameters
+} from '@etherealengine/engine/src/assets/classes/ModelTransform'
 
 import { getContentType } from '../../util/fileUtils'
 import { EEMaterial } from '../extensions/EE_MaterialTransformer'
+import { EEResourceID } from '../extensions/EE_ResourceIDTransformer'
 import ModelTransformLoader from '../ModelTransformLoader'
+
+/**
+ *
+ * @param doc
+ * @param batchExtension
+ * @param mesh
+ * @param count
+ * @returns
+ */
+const createBatch = (doc: Document, batchExtension: EXTMeshGPUInstancing, mesh: Mesh, count) => {
+  return mesh.listPrimitives().map((prim) => {
+    const buffer = prim.getAttribute('POSITION')?.getBuffer() ?? doc.createBuffer()
+
+    const batchTranslation = doc
+      .createAccessor()
+      .setType('VEC3')
+      .setArray(new Float32Array(3 * count))
+      .setBuffer(buffer)
+    const batchRotation = doc
+      .createAccessor()
+      .setType('VEC4')
+      .setArray(new Float32Array(4 * count))
+      .setBuffer(buffer)
+    const batchScale = doc
+      .createAccessor()
+      .setType('VEC3')
+      .setArray(new Float32Array(3 * count))
+      .setBuffer(buffer)
+
+    return batchExtension
+      .createInstancedMesh()
+      .setAttribute('TRANSLATION', batchTranslation)
+      .setAttribute('ROTATION', batchRotation)
+      .setAttribute('SCALE', batchScale)
+  })
+}
+
+function pruneUnusedNodes(nodes: Node[], logger) {
+  let node: Node | undefined
+  let unusedNodes = 0
+  while ((node = nodes.pop())) {
+    if (
+      node.listChildren().length ||
+      node.getCamera() ||
+      node.getMesh() ||
+      node.getSkin() ||
+      node.listExtensions().length
+    ) {
+      continue
+    }
+    const nodeParent = node.getParentNode() as Node
+    if (nodeParent instanceof Node) {
+      nodes.push(nodeParent)
+    }
+    node.dispose()
+    unusedNodes++
+    console.log(`Pruned ${unusedNodes} nodes.`)
+  }
+}
+
+const split = async (document: Document) => {
+  const root = document.getRoot()
+  const scene = root.listScenes()[0]
+  const toSplit = root.listNodes().filter((node) => {
+    const mesh = node.getMesh()
+    const prims = mesh?.listPrimitives()
+    return mesh && prims && prims.length > 1
+  })
+  const primMeshes = new Map()
+  toSplit.map((node) => {
+    const mesh = node.getMesh()!
+    mesh.listPrimitives().map((prim, primIdx) => {
+      if (primIdx > 0) {
+        if (!primMeshes.has(prim)) {
+          primMeshes.set(prim, document.createMesh(mesh.getName() + '-' + primIdx).addPrimitive(prim))
+        } else {
+          console.log('found cached prim')
+        }
+        const nuNode = document.createNode(node.getName() + '-' + primIdx).setMesh(primMeshes.get(prim))
+        node.getSkin() && nuNode.setSkin(node.getSkin())
+        node.getParent()?.addChild(nuNode)
+        nuNode.setMatrix(node.getMatrix())
+      }
+    })
+  })
+  toSplit.map((node) => {
+    const mesh = node.getMesh()!
+    mesh.listPrimitives().map((prim, primIdx) => {
+      if (primIdx > 0) {
+        mesh.removePrimitive(prim)
+      }
+    })
+  })
+}
+
+const myInstance = async (document: Document) => {
+  const root = document.getRoot()
+  const scene = root.listScenes()[0]
+  const batchExtension = document.createExtension(EXTMeshGPUInstancing)
+  const meshes = root.listMeshes()
+  console.log('meshes:', meshes)
+  const nodes = root.listNodes().filter((node) => node.getMesh())
+  const table = nodes.reduce((_table, node) => {
+    const mesh = node.getMesh()
+    const idx = meshes.findIndex((mesh2) => mesh?.equals(mesh2))
+    _table[idx] = _table[idx] ?? []
+    _table[idx].push(node)
+    return _table
+  }, {} as Record<number, any[]>)
+  console.log('table:', table)
+  const modifiedNodes = new Set<Node>()
+  Object.entries(table)
+    .filter(([_, _nodes]) => _nodes.length > 1)
+    .map(([meshIdx, _nodes]) => {
+      const mesh = meshes[meshIdx]
+      console.log('mesh:', mesh, 'nodes:', nodes)
+      const batches = createBatch(document, batchExtension, mesh, _nodes.length)
+      batches.map((batch) => {
+        const batchTranslate = batch.getAttribute('TRANSLATION')!
+        const batchRotate = batch.getAttribute('ROTATION')!
+        const batchScale = batch.getAttribute('SCALE')!
+        const batchNode = document.createNode().setMesh(mesh).setExtension('EXT_mesh_gpu_instancing', batch)
+        scene.addChild(batchNode)
+        _nodes.map((node, i) => {
+          batchTranslate.setElement(i, node.getWorldTranslation())
+          batchRotate.setElement(i, node.getWorldRotation())
+          batchScale.setElement(i, node.getWorldScale())
+          node.setMesh(null)
+          modifiedNodes.add(node)
+        })
+      })
+      console.log('modified nodes: ', modifiedNodes)
+      pruneUnusedNodes([...modifiedNodes], document.getLogger())
+    })
+}
+
+function unInstanceSingletons(document: Document) {
+  const root = document.getRoot()
+  root
+    .listNodes()
+    .filter((node) => (node.getExtension('EXT_mesh_gpu_instancing') as any)?.listAttributes()?.[0].getCount() === 1)
+    .map((node) => {
+      console.log('removed instanced singleton', node.getName())
+      node.setExtension('EXT_mesh_gpu_instancing', null) //delete instancing
+    })
+}
 
 export type ModelTransformArguments = {
   src: string
   dst: string
+  resourceUri: string
   parms: ModelTransformParameters
 }
 
@@ -100,9 +253,14 @@ export async function combineMeshes(document: Document) {
   })
 }
 
+function hashBuffer(buffer: Uint8Array): string {
+  const hash = createHash('sha256')
+  hash.update(buffer)
+  return hash.digest('hex')
+}
+
 export async function transformModel(app: Application, args: ModelTransformArguments) {
   const parms = args.parms
-  const promiseExec = util.promisify(exec)
   const serverDir = path.join(appRootPath.path, 'packages/server')
   const tmpDir = path.join(serverDir, 'tmp')
   const BASIS_U = path.join(appRootPath.path, 'packages/server/public/loader_decoders/basisu')
@@ -144,39 +302,34 @@ export async function transformModel(app: Application, args: ModelTransformArgum
   }
 
   const resourceName = /*'model-resources'*/ path.basename(args.src).slice(0, path.basename(args.src).lastIndexOf('.'))
-  const resourcePath = path.join(path.dirname(args.src), resourceName)
+  const resourcePath = args.resourceUri
+    ? path.join(path.dirname(args.src), args.resourceUri)
+    : path.join(path.dirname(args.src), resourceName)
   const projectRoot = path.join(appRootPath.path, 'packages/projects')
 
   const toValidFilename = (name: string) => {
-    let result = name.replace(/[\s]/, '-')
+    const result = name.replace(/[\s]/g, '-')
     return result
   }
-
+  let pathIndex = 0
   const toPath = (element: Texture | glBuffer, index?: number) => {
     if (element instanceof Texture) {
       if (element.getURI()) {
         return path.basename(element.getURI())
-      } else
-        return `${toValidFilename(element.getName())}-${index}-${Date.now()}.${mimeToFileType(element.getMimeType())}`
-    } else if (element instanceof glBuffer) return `buffer-${index}-${Date.now()}.bin`
-    else throw new Error('invalid element to find path')
+      } else {
+        pathIndex++
+        return `${toValidFilename(element.getName())}-${pathIndex}-.${mimeToFileType(element.getMimeType())}`
+      }
+    } else if (element instanceof glBuffer) {
+      return `buffer-${index}-${Date.now()}.bin`
+    } else throw new Error('invalid element to find path')
   }
 
   const fileUploadPath = (fUploadPath: string) => {
-    const pathCheck = /.*\/packages\/projects\/(.*)\/([\w\d\s\-_\.]*)$/
+    const pathCheck = /.*\/packages\/projects\/(.*)\/([\w\d\s\-_.]*)$/
     const [_, savePath, fileName] =
       pathCheck.exec(fUploadPath) ?? pathCheck.exec(path.join(path.dirname(args.src), fUploadPath))!
     return [savePath, fileName]
-  }
-
-  const initializeResourceDir = async () => {
-    if (fs.existsSync(resourcePath)) {
-      //fs.rmSync(resourcePath, { recursive: true, force: true })
-      await app.service('file-browser').remove(resourcePath.replace(projectRoot, ''))
-    }
-    //fs.mkdirSync(resourcePath)
-    if (!fs.existsSync(resourcePath))
-      await app.service('file-browser').create(resourcePath.replace(projectRoot, '') as any)
   }
 
   const { io } = await ModelTransformLoader()
@@ -188,7 +341,10 @@ export async function transformModel(app: Application, args: ModelTransformArgum
   const root = document.getRoot()
 
   /* ID unnamed resources */
+  unInstanceSingletons(document)
+  await split(document)
   await combineMaterials(document)
+  await myInstance(document)
 
   if (args.parms.dedup) {
     await document.transform(dedup())
@@ -198,6 +354,16 @@ export async function transformModel(app: Application, args: ModelTransformArgum
     await document.transform(prune())
   }
 
+  /* Separate Instanced Geometry */
+  const instancedNodes = root
+    .listNodes()
+    .filter((node) => !!node.getMesh()?.getExtension('EXT_mesh_gpu_instancing'))
+    .map((node) => [node, node.getParent()])
+  instancedNodes.map(([node, parent]) => {
+    node instanceof Node && parent?.removeChild(node)
+  })
+
+  /* PROCESS MESHES */
   if (args.parms.weld.enabled) {
     await document.transform(weld({ tolerance: args.parms.weld.tolerance }))
   }
@@ -211,141 +377,170 @@ export async function transformModel(app: Application, args: ModelTransformArgum
     )
   }
 
-  /* PROCESS MESHES */
-  if (args.parms.meshQuantization.enabled) {
-    document.createExtension(MeshQuantization).setRequired(true)
-    await document.transform(quantize(args.parms.meshQuantization.options))
-  }
-
   if (args.parms.dracoCompression.enabled) {
     await document.transform(draco(args.parms.dracoCompression.options))
   }
+
   /* /PROCESS MESHES */
 
+  /* Return Instanced Geometry to Scene Graph */
+  instancedNodes.map(([node, parent]) => {
+    node instanceof Node && parent?.addChild(node)
+  })
+
   /* PROCESS TEXTURES */
-  //resize textures
-  const handleImage = async (inPath, outPath, dstImgFormat) => {
-    try {
-      if (path.extname(inPath) === '.ktx2') {
-        console.warn('cannot resize ktx2 compressed image at ' + inPath)
-        return
-      }
-      const img = await sharp(inPath)
-      const metadata = await img.metadata()
-      await img
-        .resize(Math.min(parms.maxTextureSize, metadata.width), Math.min(parms.maxTextureSize, metadata.height), {
-          fit: 'contain'
-        })
-        .toFormat(dstImgFormat)
-        .toFile(outPath.replace(/\.[\w\d]+$/, `.${dstImgFormat}`))
-      console.log('handled image file ' + inPath)
-    } catch (e) {
-      console.error('error while handling image ' + inPath)
-      console.error(e)
-    }
-  }
-  const textures = root
-    .listTextures()
-    .filter(
-      (texture) =>
-        (mimeToFileType(texture.getMimeType()) !== parms.textureFormat && !!texture.getSize()) ||
-        texture.getSize()?.reduce((x, y) => Math.max(x, y))! > parms.maxTextureSize
-    )
-  for (const texture of textures) {
-    const oldImg = texture.getImage()
-    const fileName = toPath(texture)
-    const oldPath = toTmp(fileName)
-    const resizeExtension = parms.textureFormat === 'ktx2' ? 'png' : parms.textureFormat
-    const resizedPath = oldPath.replace(
-      new RegExp(`\\.${mimeToFileType(texture.getMimeType())}$`),
-      `-resized.${resizeExtension}`
-    )
-    if (!fs.existsSync(tmpDir)) {
-      fs.mkdirSync(tmpDir)
-    }
-    fs.writeFileSync(oldPath, oldImg!)
-    const xResizedName = fileName.replace(
-      new RegExp(`\\.${mimeToFileType(texture.getMimeType())}$`),
-      `-resized.${parms.textureFormat}`
-    )
-    const nuFileName = fileName.replace(
-      new RegExp(`\\.${mimeToFileType(texture.getMimeType())}$`),
-      `-transformed.${parms.textureFormat}`
-    )
-    const nuPath = `${tmpDir}/${nuFileName}`
-    await handleImage(oldPath, resizedPath, resizeExtension)
-    if (parms.textureFormat === 'ktx2') {
-      //KTX2 Basisu Compression
-      document.createExtension(TextureBasisu).setRequired(true)
-      await promiseExec(
-        `${BASIS_U} -ktx2 ${resizedPath} -q ${parms.textureCompressionQuality} ${
-          parms.textureCompressionType === 'uastc' ? '-uastc' : ''
-        } -linear -y_flip`
+  if (parms.textureFormat !== 'default') {
+    const textures = root
+      .listTextures()
+      .filter(
+        (texture) =>
+          (mimeToFileType(texture.getMimeType()) !== parms.textureFormat && !!texture.getSize()) ||
+          texture.getSize()?.reduce((x, y) => Math.max(x, y))! > parms.maxTextureSize
       )
-      await promiseExec(`mv ${serverDir}/${xResizedName} ${nuPath}`)
+    for (const texture of textures) {
+      const oldImg = texture.getImage()
+      const resourceId = texture.getExtension<EEResourceID>('EEResourceID')?.resourceId
+      const resourceParms = parms.resources.images.find(
+        (resource) => resource.enabled && resource.resourceId === resourceId
+      )
+      const mergedParms = {
+        ...parms,
+        ...(resourceParms ? extractParameters(resourceParms) : {})
+      } as ExtractedImageTransformParameters
+      const fileName = toPath(texture)
+      const oldPath = toTmp(fileName)
+      const resizeExtension = mergedParms.textureFormat === 'ktx2' ? 'png' : mergedParms.textureFormat
+      const resizedPath = oldPath.replace(
+        new RegExp(`\\.${mimeToFileType(texture.getMimeType())}$`),
+        `-resized.${resizeExtension}`
+      )
+      if (!fs.existsSync(tmpDir)) {
+        fs.mkdirSync(tmpDir)
+      }
+      fs.writeFileSync(oldPath, oldImg!)
+      const xResizedName = fileName.replace(
+        new RegExp(`\\.${mimeToFileType(texture.getMimeType())}$`),
+        `-resized.${mergedParms.textureFormat}`
+      )
+      const nuFileName = fileName.replace(
+        new RegExp(`\\.${mimeToFileType(texture.getMimeType())}$`),
+        `-transformed.${mergedParms.textureFormat}`
+      )
+      const nuPath = `${tmpDir}/${nuFileName}`
 
-      console.log('loaded ktx2 image ' + nuPath)
-    } else {
-      await promiseExec(`mv ${resizedPath} ${nuPath}`)
+      try {
+        if (path.extname(oldPath) === '.ktx2') {
+          console.warn('cannot resize ktx2 compressed image at ' + oldPath)
+          continue
+        }
+        const img = await sharp(oldPath)
+        const metadata = await img.metadata()
+        let resizedDimension = 2
+        while (resizedDimension * 2 < Math.min(mergedParms.maxTextureSize, Math.min(metadata.width, metadata.height))) {
+          resizedDimension *= 2
+        }
+        //resize the image to be no larger than the max texture size
+        await img
+          .resize(resizedDimension, resizedDimension, {
+            fit: 'fill'
+          })
+          .toFormat(resizeExtension)
+          .toFile(resizedPath.replace(/\.[\w\d]+$/, `.${resizeExtension}`))
+        console.log('handled image file ' + oldPath)
+      } catch (e) {
+        console.error('error while handling image ' + oldPath)
+        console.error(e)
+      }
+
+      if (mergedParms.textureFormat === 'ktx2') {
+        //KTX2 Basisu Compression
+        document.createExtension(KHRTextureBasisu).setRequired(true)
+        const basisArgs = `-ktx2 ${resizedPath} -q ${mergedParms.textureCompressionQuality} ${
+          mergedParms.textureCompressionType === 'uastc' ? '-uastc' : ''
+        } ${mergedParms.linear ? '-linear' : ''} ${mergedParms.flipY ? '-y_flip' : ''}`
+          .split(/\s+/)
+          .filter((x) => !!x)
+        execFileSync(BASIS_U, basisArgs)
+        execFileSync('mv', [`${serverDir}/${xResizedName}`, nuPath])
+        console.log('loaded ktx2 image ' + nuPath)
+      } else {
+        execFileSync('mv', [resizedPath, nuPath])
+      }
+      texture.setImage(fs.readFileSync(nuPath))
+      texture.setMimeType(fileTypeToMime(mergedParms.textureFormat) ?? texture.getMimeType())
     }
-    texture.setImage(fs.readFileSync(nuPath))
-    texture.setMimeType(fileTypeToMime(parms.textureFormat)!)
   }
-
   let result
-  switch (parms.modelFormat) {
-    case 'glb':
-      const data = await io.writeBinary(document)
-      const [savePath, fileName] = fileUploadPath(args.dst)
-      result = await app.service('file-browser').patch(null, {
+  if (parms.modelFormat === 'glb') {
+    const data = await io.writeBinary(document)
+    const [savePath, fileName] = fileUploadPath(args.dst)
+    result = await app.service('file-browser').patch(null, {
+      path: savePath,
+      fileName,
+      body: data,
+      contentType: getContentType(args.dst)
+    })
+    console.log('Handled glb file')
+  } else if (parms.modelFormat === 'gltf') {
+    ;[root.listBuffers(), root.listMeshes(), root.listTextures()].forEach((elements) =>
+      elements.map((element: Texture | Mesh | glBuffer) => {
+        let elementName = ''
+        if (element instanceof Texture) {
+          elementName = hashBuffer(element.getImage()!)
+        } else if (element instanceof Mesh) {
+          elementName = hashBuffer(Uint8Array.from(element.listPrimitives()[0].getAttribute('POSITION')!.getArray()!))
+        } else if (element instanceof glBuffer) {
+          const bufferPath = path.join(path.dirname(args.src), element.getURI())
+          const bufferData = fs.readFileSync(bufferPath)
+          elementName = hashBuffer(bufferData)
+        }
+        element.setName(elementName)
+      })
+    )
+    document.transform(
+      partition({
+        animations: true,
+        meshes: root.listMeshes().map((mesh) => mesh.getName())
+      })
+    )
+    const { json, resources } = await io.writeJSON(document, { format: Format.GLTF, basename: resourceName })
+    if (!fs.existsSync(resourcePath)) {
+      await app.service('file-browser').create(resourcePath.replace(projectRoot, '') as any)
+    }
+    json.images?.map((image) => {
+      const nuURI = path.join(
+        args.resourceUri ? args.resourceUri : resourceName,
+        `${image.name}.${mimeToFileType(image.mimeType)}`
+      )
+      resources[nuURI] = resources[image.uri!]
+      delete resources[image.uri!]
+      image.uri = nuURI
+    })
+    const defaultBufURI = MathUtils.generateUUID() + '.bin'
+    json.buffers?.map((buffer) => {
+      buffer.uri = path.join(
+        args.resourceUri ? args.resourceUri : resourceName,
+        path.basename(buffer.uri ?? defaultBufURI)
+      )
+    })
+    Object.keys(resources).map((uri) => {
+      const localPath = path.join(resourcePath, path.basename(uri))
+      resources[localPath] = resources[uri]
+      delete resources[uri]
+    })
+    const doUpload = (uri, data) => {
+      const [savePath, fileName] = fileUploadPath(uri)
+      return app.service('file-browser').patch(null, {
         path: savePath,
         fileName,
         body: data,
-        contentType: getContentType(args.dst)
+        contentType: getContentType(uri)
       })
-
-      console.log('Handled glb file')
-      break
-    case 'gltf':
-      const idResources = (elements) =>
-        elements.filter((mesh) => !mesh.getName()).map((mesh) => mesh.setName(MathUtils.generateUUID()))
-      idResources(root.listBuffers())
-      idResources(root.listMeshes())
-      idResources(root.listTextures())
-      document.transform(
-        partition({
-          animations: true,
-          meshes: root.listMeshes().map((mesh) => mesh.getName())
-        })
-      )
-
-      const { json, resources } = await io.writeJSON(document, { format: Format.GLTF, basename: resourceName })
-      await initializeResourceDir()
-      json.images?.map((image) => {
-        image.uri = path.join(resourceName, path.basename(image.uri!))
-      })
-      const defaultBufURI = MathUtils.generateUUID() + '.bin'
-      json.buffers?.map((buffer) => {
-        buffer.uri = path.join(resourceName, path.basename(buffer.uri ?? defaultBufURI))
-      })
-      Object.keys(resources).map((uri) => {
-        resources[path.join(resourceName, path.basename(uri))] = resources[uri]
-        delete resources[uri]
-      })
-      const doUpload = (uri, data) => {
-        const [savePath, fileName] = fileUploadPath(uri)
-        return app.service('file-browser').patch(null, {
-          path: savePath,
-          fileName,
-          body: data,
-          contentType: getContentType(uri)
-        })
-      }
-      await Promise.all(Object.entries(resources).map(([uri, data]) => doUpload(uri, data)))
-      result = await doUpload(args.dst.replace(/\.glb$/, '.gltf'), Buffer.from(JSON.stringify(json)))
-      console.log('Handled gltf file')
-      break
+    }
+    await Promise.all(Object.entries(resources).map(([uri, data]) => doUpload(uri, data)))
+    result = await doUpload(args.dst.replace(/\.glb$/, '.gltf'), Buffer.from(JSON.stringify(json)))
+    console.log('Handled gltf file')
   }
-  if (fs.existsSync(tmpDir)) await promiseExec(`rm -R ${tmpDir}`)
+  if (fs.existsSync(tmpDir)) await execFileSync('rm', ['-R', tmpDir])
   return result
 }

@@ -1,11 +1,11 @@
 import classNames from 'classnames'
-import React, { useEffect, useState } from 'react'
+import React from 'react'
 
 import { BuildStatus } from '@etherealengine/common/src/interfaces/BuildStatus'
-import Fade from '@etherealengine/ui/src/Fade'
-import Icon from '@etherealengine/ui/src/Icon'
-import IconButton from '@etherealengine/ui/src/IconButton'
-import Modal from '@etherealengine/ui/src/Modal'
+import Fade from '@etherealengine/ui/src/primitives/mui/Fade'
+import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
+import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
+import Modal from '@etherealengine/ui/src/primitives/mui/Modal'
 
 import styles from '../../styles/admin.module.scss'
 

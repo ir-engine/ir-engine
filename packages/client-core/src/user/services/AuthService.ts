@@ -1,7 +1,5 @@
 import { Paginated } from '@feathersjs/feathers'
-import { Downgraded } from '@hookstate/core'
 import i18n from 'i18next'
-import querystring from 'querystring'
 import { useEffect } from 'react'
 import { v1 } from 'uuid'
 
@@ -25,13 +23,14 @@ import {
   defineState,
   dispatchAction,
   getMutableState,
+  getState,
   syncStateWithLocalStorage,
   useState
 } from '@etherealengine/hyperflux'
 
 import { API } from '../../API'
 import { NotificationService } from '../../common/services/NotificationService'
-import { accessLocationState } from '../../social/services/LocationService'
+import { LocationState } from '../../social/services/LocationService'
 import { userPatched } from '../functions/userPatched'
 
 export const logger = multiLogger.child({ component: 'client-core:AuthService' })
@@ -51,9 +50,6 @@ export const AuthState = defineState({
     syncStateWithLocalStorage(AuthState, ['authUser'])
   }
 })
-
-export const accessAuthState = () => getMutableState(AuthState)
-export const useAuthState = () => useState(accessAuthState())
 
 export interface EmailLoginForm {
   email: string
@@ -137,118 +133,108 @@ export const AuthServiceReceptor = (action) => {
 
 export class AuthAction {
   static actionProcessing = defineAction({
-    type: 'xre.client.Auth.ACTION_PROCESSING' as const,
+    type: 'ee.client.Auth.ACTION_PROCESSING' as const,
     processing: matches.boolean
   })
 
   static loginUserSuccessAction = defineAction({
-    type: 'xre.client.Auth.LOGIN_USER_SUCCESS' as const,
+    type: 'ee.client.Auth.LOGIN_USER_SUCCESS' as const,
     authUser: matches.object as Validator<unknown, AuthUser>,
     message: matches.string
   })
 
   static loginUserErrorAction = defineAction({
-    type: 'xre.client.Auth.LOGIN_USER_ERROR' as const,
+    type: 'ee.client.Auth.LOGIN_USER_ERROR' as const,
     message: matches.string
   })
 
   static loginUserByGithubSuccessAction = defineAction({
-    type: 'xre.client.Auth.LOGIN_USER_BY_GITHUB_SUCCESS' as const,
+    type: 'ee.client.Auth.LOGIN_USER_BY_GITHUB_SUCCESS' as const,
     message: matches.string
   })
 
   static loginUserByGithubErrorAction = defineAction({
-    type: 'xre.client.Auth.LOGIN_USER_BY_GITHUB_ERROR' as const,
+    type: 'ee.client.Auth.LOGIN_USER_BY_GITHUB_ERROR' as const,
     message: matches.string
   })
 
   static loginUserByLinkedinSuccessAction = defineAction({
-    type: 'xre.client.Auth.LOGIN_USER_BY_LINKEDIN_SUCCESS' as const,
+    type: 'ee.client.Auth.LOGIN_USER_BY_LINKEDIN_SUCCESS' as const,
     message: matches.string
   })
 
   static loginUserByLinkedinErrorAction = defineAction({
-    type: 'xre.client.Auth.LOGIN_USER_BY_LINKEDIN_ERROR' as const,
+    type: 'ee.client.Auth.LOGIN_USER_BY_LINKEDIN_ERROR' as const,
     message: matches.string
   })
 
   static didLogoutAction = defineAction({
-    type: 'xre.client.Auth.LOGOUT_USER' as const
+    type: 'ee.client.Auth.LOGOUT_USER' as const
   })
 
   static registerUserByEmailSuccessAction = defineAction({
-    type: 'xre.client.Auth.REGISTER_USER_BY_EMAIL_SUCCESS' as const,
+    type: 'ee.client.Auth.REGISTER_USER_BY_EMAIL_SUCCESS' as const,
     identityProvider: matches.object as Validator<unknown, IdentityProvider>,
     message: matches.string
   })
 
   static registerUserByEmailErrorAction = defineAction({
-    type: 'xre.client.Auth.REGISTER_USER_BY_EMAIL_ERROR' as const,
+    type: 'ee.client.Auth.REGISTER_USER_BY_EMAIL_ERROR' as const,
     message: matches.string
   })
 
   static didVerifyEmailAction = defineAction({
-    type: 'xre.client.Auth.DID_VERIFY_EMAIL' as const,
+    type: 'ee.client.Auth.DID_VERIFY_EMAIL' as const,
     result: matches.boolean
   })
 
   static didResendVerificationEmailAction = defineAction({
-    type: 'xre.client.Auth.DID_RESEND_VERIFICATION_EMAIL' as const,
-    result: matches.boolean
-  })
-
-  static didForgotPasswordAction = defineAction({
-    type: 'xre.client.Auth.DID_FORGOT_PASSWORD' as const,
-    result: matches.boolean
-  })
-
-  static didResetPasswordAction = defineAction({
-    type: 'xre.client.Auth.DID_RESET_PASSWORD' as const,
+    type: 'ee.client.Auth.DID_RESEND_VERIFICATION_EMAIL' as const,
     result: matches.boolean
   })
 
   static didCreateMagicLinkAction = defineAction({
-    type: 'xre.client.Auth.DID_CREATE_MAGICLINK' as const,
+    type: 'ee.client.Auth.DID_CREATE_MAGICLINK' as const,
     result: matches.boolean
   })
 
   static loadedUserDataAction = defineAction({
-    type: 'xre.client.Auth.LOADED_USER_DATA' as const,
+    type: 'ee.client.Auth.LOADED_USER_DATA' as const,
     user: matches.object as Validator<unknown, UserInterface>
   })
 
   static updatedUserSettingsAction = defineAction({
-    type: 'xre.client.Auth.UPDATE_USER_SETTINGS' as const,
+    type: 'ee.client.Auth.UPDATE_USER_SETTINGS' as const,
     data: matches.object as Validator<unknown, UserSetting>
   })
 
   static avatarUpdatedAction = defineAction({
-    type: 'xre.client.Auth.AVATAR_UPDATED' as const,
+    type: 'ee.client.Auth.AVATAR_UPDATED' as const,
     url: matches.any
   })
 
   static usernameUpdatedAction = defineAction({
-    type: 'xre.client.Auth.USERNAME_UPDATED' as const,
+    type: 'ee.client.Auth.USERNAME_UPDATED' as const,
     name: matches.string
   })
 
   static userAvatarIdUpdatedAction = defineAction({
-    type: 'xre.client.Auth.USERAVATARID_UPDATED' as const,
+    type: 'ee.client.Auth.USERAVATARID_UPDATED' as const,
     avatarId: matches.string
   })
 
   static userPatchedAction = defineAction({
-    type: 'xre.client.Auth.USER_PATCHED' as const,
+    type: 'ee.client.Auth.USER_PATCHED' as const,
     params: matches.any
   })
 
   static userUpdatedAction = defineAction({
-    type: 'xre.client.Auth.USER_UPDATED' as const,
+    type: 'ee.client.Auth.USER_UPDATED' as const,
     user: matches.object as Validator<unknown, UserInterface>
   })
 
   static apiKeyUpdatedAction = defineAction({
-    type: 'xre.client.Auth.USER_API_KEY_UPDATED' as const,
+    type: 'ee.client.Auth.USER_API_KEY_UPDATED' as const,
     apiKey: matches.object as Validator<unknown, UserApiKey>
   })
 }
@@ -428,7 +414,7 @@ export const AuthService = {
       }
 
       // TODO: This is temp until we move completely to XR wallet #6453
-      const oldId = accessAuthState().user.id.value
+      const oldId = getState(AuthState).user.id
       walletUser.id = oldId
 
       // loadXRAvatarForUpdatedUser(walletUser)
@@ -449,13 +435,13 @@ export const AuthService = {
    */
   async loginUserByOAuth(service: string, location: any) {
     dispatchAction(AuthAction.actionProcessing({ processing: true }))
-    const token = accessAuthState().authUser.accessToken.value
+    const token = getState(AuthState).authUser.accessToken
     const path = location?.state?.from || location.pathname
-    const queryString = querystring.parse(window.location.search.slice(1))
+    const instanceId = new URL(window.location.href).searchParams.get('instanceId')
     const redirectObject = {
       path: path
     } as any
-    if (queryString.instanceId && queryString.instanceId.length > 0) redirectObject.instanceId = queryString.instanceId
+    if (instanceId) redirectObject.instanceId = instanceId
     window.location.href = `${
       config.client.serverUrl
     }/oauth/${service}?feathers_token=${token}&redirect=${JSON.stringify(redirectObject)}`
@@ -600,41 +586,6 @@ export const AuthService = {
     } catch (err) {
       logger.warn(err, 'Error resending verification email')
       dispatchAction(AuthAction.didResendVerificationEmailAction({ result: false }))
-    } finally {
-      dispatchAction(AuthAction.actionProcessing({ processing: false }))
-    }
-  },
-
-  async forgotPassword(email: string) {
-    dispatchAction(AuthAction.actionProcessing({ processing: true }))
-    logger.info('forgotPassword event for email "${email}".')
-
-    try {
-      await API.instance.client.service('authManagement').create({
-        action: 'sendResetPwd',
-        value: { token: email, type: 'password' }
-      })
-      dispatchAction(AuthAction.didForgotPasswordAction({ result: true }))
-    } catch (err) {
-      logger.warn(err, 'Error sending forgot password email')
-      dispatchAction(AuthAction.didForgotPasswordAction({ result: false }))
-    } finally {
-      dispatchAction(AuthAction.actionProcessing({ processing: false }))
-    }
-  },
-
-  async resetPassword(token: string, password: string) {
-    dispatchAction(AuthAction.actionProcessing({ processing: true }))
-    try {
-      await API.instance.client.service('authManagement').create({
-        action: 'resetPwdLong',
-        value: { token, password }
-      })
-      dispatchAction(AuthAction.didResetPasswordAction({ result: true }))
-      window.location.href = '/'
-    } catch (err) {
-      dispatchAction(AuthAction.didResetPasswordAction({ result: false }))
-      window.location.href = '/'
     } finally {
       dispatchAction(AuthAction.actionProcessing({ processing: false }))
     }
@@ -805,14 +756,14 @@ export const AuthService = {
     useEffect(() => {
       const userPatchedListener = (params) => dispatchAction(AuthAction.userPatchedAction({ params }))
       const locationBanCreatedListener = async (params) => {
-        const selfUser = accessAuthState().user
-        const currentLocation = accessLocationState().currentLocation.location
+        const selfUser = getState(AuthState).user
+        const currentLocation = getState(LocationState).currentLocation.location
         const locationBan = params.locationBan
-        if (selfUser.id.value === locationBan.userId && currentLocation.id.value === locationBan.locationId) {
+        if (selfUser.id === locationBan.userId && currentLocation.id === locationBan.locationId) {
           // TODO: Decouple and reenable me!
           // endVideoChat({ leftParty: true });
           // leave(true);
-          const userId = selfUser.id.value ?? ''
+          const userId = selfUser.id ?? ''
           const user = resolveUser(await API.instance.client.service('user').get(userId))
           dispatchAction(AuthAction.userUpdatedAction({ user }))
         }

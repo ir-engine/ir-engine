@@ -1,7 +1,9 @@
 import { Party as PartyDataType } from '@etherealengine/common/src/interfaces/Party'
+import { getState } from '@etherealengine/hyperflux'
 
-import { Application, ServerMode } from '../../../declarations'
+import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
+import { ServerMode, ServerState } from '../../ServerState'
 import { Party } from './party.class'
 import partyDocs from './party.docs'
 import hooks from './party.hooks'
@@ -29,7 +31,7 @@ export default (app: Application): void => {
 
   service.hooks(hooks)
 
-  if (app.serverMode !== ServerMode.API) return
+  if (getState(ServerState).serverMode !== ServerMode.API) return
 
   service.publish('created', async (data: PartyDataType): Promise<any> => {
     try {

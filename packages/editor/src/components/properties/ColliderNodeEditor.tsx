@@ -1,5 +1,5 @@
 import { RigidBodyType, ShapeType } from '@dimforge/rapier3d-compat'
-import React, { useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { camelCaseToSpacedString } from '@etherealengine/common/src/utils/camelCaseToSpacedString'
@@ -78,17 +78,20 @@ export const ColliderNodeEditor: EditorComponentType = (props) => {
     setOptions(options)
   }, [])
 
-  const updateIsTrigger = (val) => {
-    const props = { isTrigger: val } as Partial<ComponentType<typeof ColliderComponent>>
-    if (val) {
-      props.target = colliderComponent.target ?? 'Self'
-      props.onEnter = colliderComponent.onEnter ?? ''
-      props.onExit = colliderComponent.onExit ?? ''
-    }
-    updateProperties(ColliderComponent, props)
-  }
+  const updateIsTrigger = useCallback(
+    (val) => {
+      const props = { isTrigger: val } as Partial<ComponentType<typeof ColliderComponent>>
+      if (val) {
+        props.target = colliderComponent.target ?? 'Self'
+        props.onEnter = colliderComponent.onEnter ?? ''
+        props.onExit = colliderComponent.onExit ?? ''
+      }
+      updateProperties(ColliderComponent, props)
+    },
+    [props.entity]
+  )
 
-  const triggerProps = () => {
+  const triggerProps = useCallback(() => {
     //function to handle the changes in target
     const onChangeTarget = (target) => {
       updateProperties(ColliderComponent, {
@@ -149,7 +152,7 @@ export const ColliderNodeEditor: EditorComponentType = (props) => {
         </InputGroup>
       </>
     )
-  }
+  }, [props.entity])
 
   return (
     <NodeEditor {...props} description={t('editor:properties.collider.description')}>

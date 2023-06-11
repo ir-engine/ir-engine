@@ -1,7 +1,9 @@
-import { InstanceInterface } from '../dbmodels/Instance'
+import { AdminScopeType } from './AdminScopeType'
 import { AvatarInterface } from './AvatarInterface'
 import { ThemeMode } from './ClientSetting'
 import { IdentityProvider } from './IdentityProvider'
+import { Instance } from './Instance'
+import { InstanceAttendanceInterface } from './InstanceAttendance'
 import { LocationAdmin } from './LocationAdmin'
 import { LocationBan } from './LocationBan'
 import { Party } from './Party'
@@ -17,8 +19,17 @@ export interface UserSetting {
 
 export interface UserScope {
   type: string
-  id: string
+  id?: string
 }
+
+export interface UserKick {
+  id: string
+  duration: Date
+  userId: UserId
+  instanceId: string
+}
+
+export interface CreateUserKick extends Omit<UserKick, 'id'> {}
 
 export interface UserInterface {
   id: UserId
@@ -32,17 +43,7 @@ export interface UserInterface {
   relationType?: RelationshipType
   inverseRelationType?: RelationshipType
   avatarUrl?: string
-  /** @deprecated */
-  instanceId?: string
-  /** @deprecated */
-  instance?: InstanceInterface
-  /** @deprecated */
-  channelInstanceId?: string
-  /** @deprecated */
-  channelInstance?: InstanceInterface
-  /** @deprecated */
   partyId?: string
-  /** @deprecated */
   party?: Party
   locationBans?: LocationBan[]
   user_setting?: UserSetting
@@ -50,6 +51,7 @@ export interface UserInterface {
   scopes?: UserScope[]
   apiKey: UserApiKey
   static_resources?: StaticResourceInterface
+  instanceAttendance?: InstanceAttendanceInterface[]
 }
 
 export const UserSeed: UserInterface = {
@@ -80,7 +82,7 @@ export interface CreateEditUser {
   avatarId?: string
   inviteCode?: string
   isGuest?: boolean
-  scopes?: UserScope[]
+  scopes?: UserScope[] | AdminScopeType[]
 }
 
 export function resolveUser(user: any): UserInterface {
@@ -118,7 +120,6 @@ export function resolveUser(user: any): UserInterface {
 export function resolveWalletUser(credentials: any): UserInterface {
   return {
     id: '' as UserId,
-    instanceId: credentials.user.id,
     name: credentials.user.displayName,
     isGuest: true,
     avatarId: credentials.user.id,

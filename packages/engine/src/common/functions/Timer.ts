@@ -1,6 +1,6 @@
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
-import { isClient } from './isClient'
+import { isClient } from './getEnvironment'
 import { nowMilliseconds } from './nowMilliseconds'
 import { ServerLoop } from './ServerLoop'
 
@@ -12,7 +12,7 @@ type TimerUpdateCallback = (elapsedTime: number) => any
 const TPS_REPORTS_ENABLED = false
 const TPS_REPORT_INTERVAL_MS = 10000
 
-export function Timer(update: TimerUpdateCallback, tickRate: number) {
+export function Timer(update: TimerUpdateCallback, serverTickRate = 90) {
   let debugTick = 0
 
   const newEngineTicks = {
@@ -34,7 +34,7 @@ export function Timer(update: TimerUpdateCallback, tickRate: number) {
   let nextTpsReportTime = 0
   let timerRuns = 0
   let prevTimerRuns = 0
-  let serverLoop = null! as ServerLoop
+  let serverLoop = null as ServerLoop | null
 
   function onFrame(time, xrFrame) {
     timerRuns += 1
@@ -135,7 +135,7 @@ export function Timer(update: TimerUpdateCallback, tickRate: number) {
       const _update = () => {
         onFrame(nowMilliseconds(), null)
       }
-      serverLoop = new ServerLoop(_update, tickRate).start()
+      serverLoop = new ServerLoop(_update, serverTickRate).start()
     }
     tpsReset()
   }
@@ -144,7 +144,7 @@ export function Timer(update: TimerUpdateCallback, tickRate: number) {
     if (isClient) {
       EngineRenderer.instance.renderer.setAnimationLoop(null)
     } else {
-      serverLoop.stop()
+      serverLoop?.stop()
     }
   }
 

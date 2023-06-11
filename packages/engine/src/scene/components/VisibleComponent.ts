@@ -1,14 +1,11 @@
 import { Entity } from '../../ecs/classes/Entity'
-import {
-  createMappedComponent,
-  hasComponent,
-  removeComponent,
-  setComponent
-} from '../../ecs/functions/ComponentFunctions'
+import { defineComponent, hasComponent, removeComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
 
-export const VisibleComponent = createMappedComponent<true>('VisibleComponent')
-
-export const SCENE_COMPONENT_VISIBLE = 'visible'
+export const VisibleComponent = defineComponent({
+  name: 'VisibleComponent',
+  jsonID: 'visible',
+  toJSON: () => true
+})
 
 export const setVisibleComponent = (entity: Entity, visible: boolean) => {
   if (visible) {

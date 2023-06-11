@@ -1,8 +1,6 @@
 import React from 'react'
 
-interface LoadingDetailViewStyleProps {}
-
-const LoadingDetailViewStyle = (props: LoadingDetailViewStyleProps) => {
+const LoadingDetailViewStyle = () => {
   return (
     <style>{`
       #loading-container {

@@ -9,6 +9,7 @@ import { Object3D } from 'three'
 import { AllFileTypes } from '@etherealengine/engine/src/assets/constants/fileTypes'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
+import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
 import {
   getComponent,
   getOptionalComponent,
@@ -22,20 +23,20 @@ import {
 import { GroupComponent } from '@etherealengine/engine/src/scene/components/GroupComponent'
 import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
 import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
-import { dispatchAction } from '@etherealengine/hyperflux'
+import { dispatchAction, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
 import { Checkbox } from '@mui/material'
 import MenuItem from '@mui/material/MenuItem'
 import { PopoverPosition } from '@mui/material/Popover'
 
-import { EditorCameraComponent } from '../../classes/EditorCameraComponent'
+import { EditorCameraState } from '../../classes/EditorCameraState'
 import { ItemTypes, SupportedFileTypes } from '../../constants/AssetTypes'
 import { addMediaNode } from '../../functions/addMediaNode'
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
 import { isAncestor } from '../../functions/getDetachedObjectsRoots'
 import { cmdOrCtrlString } from '../../functions/utils'
-import { EditorAction, useEditorState } from '../../services/EditorServices'
-import { accessSelectionState, useSelectionState } from '../../services/SelectionServices'
+import { EditorAction, EditorState } from '../../services/EditorServices'
+import { SelectionState } from '../../services/SelectionServices'
 import useUpload from '../assets/useUpload'
 import { addPrefabElement } from '../element/ElementList'
 import { ContextMenu } from '../layout/ContextMenu'
@@ -87,7 +88,7 @@ function getModelNodesFromTreeWalker(
 ): HeirarchyTreeNodeType[] {
   const outputNodes = [] as HeirarchyTreeNodeType[]
   const selected = new Set(
-    accessSelectionState().value.selectedEntities.filter((ent) => typeof ent === 'string') as string[]
+    getState(SelectionState).selectedEntities.filter((ent) => typeof ent === 'string') as string[]
   )
   for (const node of inputNodes) {
     outputNodes.push(node)
@@ -136,15 +137,15 @@ export default function HierarchyPanel({
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null)
   const open = Boolean(anchorEl)
   const onUpload = useUpload(uploadOptions)
-  const selectionState = useSelectionState()
+  const selectionState = useHookstate(getMutableState(SelectionState))
   const [renamingNode, setRenamingNode] = useState<RenameNodeData | null>(null)
   const [collapsedNodes, setCollapsedNodes] = useState<HeirarchyTreeCollapsedNodeType>({})
   const [nodes, setNodes] = useState<HeirarchyTreeNodeType[]>([])
   const nodeSearch: HeirarchyTreeNodeType[] = []
   const [selectedNode, _setSelectedNode] = useState<HeirarchyTreeNodeType | null>(null)
-  const editorState = useEditorState()
+  const editorState = useHookstate(getMutableState(EditorState))
   const { searchHierarchy } = useContext(AppContext)
-  const showObject3DInHierarchy = useEditorState().showObject3DInHierarchy
+  const showObject3DInHierarchy = editorState.showObject3DInHierarchy
 
   const MemoTreeNode = memo(
     (props: HierarchyTreeNodeProps) => <HierarchyTreeNode {...props} onContextMenu={onContextMenu} />,
@@ -163,18 +164,17 @@ export default function HierarchyPanel({
     })
   }
 
-  const updateNodeHierarchy = useCallback(
-    (world = Engine.instance.currentScene) => {
-      setNodes(
-        getModelNodesFromTreeWalker(
-          Array.from(heirarchyTreeWalker(world.sceneEntity, selectionState.selectedEntities.value, collapsedNodes)),
-          collapsedNodes,
-          showObject3DInHierarchy.value
-        )
+  const updateNodeHierarchy = useCallback(() => {
+    setNodes(
+      getModelNodesFromTreeWalker(
+        Array.from(
+          heirarchyTreeWalker(getState(SceneState).sceneEntity, selectionState.selectedEntities.value, collapsedNodes)
+        ),
+        collapsedNodes,
+        showObject3DInHierarchy.value
       )
-    },
-    [collapsedNodes]
-  )
+    )
+  }, [collapsedNodes])
 
   useEffect(updateNodeHierarchy, [collapsedNodes])
   useEffect(updateNodeHierarchy, [
@@ -270,9 +270,9 @@ export default function HierarchyPanel({
   const onClick = useCallback((e: MouseEvent, node: HeirarchyTreeNodeType) => {
     if (node.obj3d) return // todo
     if (e.detail === 2) {
-      const cameraComponent = getComponent(Engine.instance.cameraEntity, EditorCameraComponent)
-      cameraComponent.focusedObjects = [node.entityNode]
-      cameraComponent.refocus = true
+      const editorCameraState = getMutableState(EditorCameraState)
+      editorCameraState.focusedObjects.set([node.entityNode])
+      editorCameraState.refocus.set(true)
     }
   }, [])
 
@@ -447,43 +447,40 @@ export default function HierarchyPanel({
 
       // check if item is of node type
       if (item.type === ItemTypes.Node) {
-        const world = Engine.instance.currentScene
+        const sceneEntity = getState(SceneState).sceneEntity
         return !(item.multiple
-          ? item.value.some((otherObject) => isAncestor(otherObject, world.sceneEntity))
-          : isAncestor(item.value, world.sceneEntity))
+          ? item.value.some((otherObject) => isAncestor(otherObject, sceneEntity))
+          : isAncestor(item.value, sceneEntity))
       }
 
       return true
     }
   })
 
-  const HierarchyList = //useCallback(
-    ({ height, width }) => (
-      <FixedSizeList
-        height={height}
-        width={width}
-        itemSize={32}
-        itemCount={nodeSearch?.length > 0 ? nodeSearch.length : nodes.length}
-        itemData={{
-          renamingNode,
-          nodes: nodeSearch?.length > 0 ? nodeSearch : nodes,
-          onKeyDown,
-          onChangeName,
-          onRenameSubmit,
-          onMouseDown,
-          onClick,
-          onToggle,
-          onUpload
-        }}
-        itemKey={getNodeKey}
-        outerRef={treeContainerDropTarget}
-        innerElementType="ul"
-      >
-        {MemoTreeNode}
-      </FixedSizeList>
-    ) //,
-  //[editorState.advancedMode, editorState.projectLoaded, collapsedNodes, showObject3DInHierarchy, selectedNode, updateNodeHierarchy]
-  //)
+  const HierarchyList = ({ height, width }) => (
+    <FixedSizeList
+      height={height}
+      width={width}
+      itemSize={32}
+      itemCount={nodeSearch?.length > 0 ? nodeSearch.length : nodes.length}
+      itemData={{
+        renamingNode,
+        nodes: nodeSearch?.length > 0 ? nodeSearch : nodes,
+        onKeyDown,
+        onChangeName,
+        onRenameSubmit,
+        onMouseDown,
+        onClick,
+        onToggle,
+        onUpload
+      }}
+      itemKey={getNodeKey}
+      outerRef={treeContainerDropTarget}
+      innerElementType="ul"
+    >
+      {MemoTreeNode}
+    </FixedSizeList>
+  )
 
   return (
     <>

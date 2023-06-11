@@ -13,21 +13,25 @@ cp -v /var/lib/docker/certs/client/* ~/.docker
 touch ./builder-started.txt
 bash ./scripts/setup_helm.sh
 bash ./scripts/setup_aws.sh $AWS_ACCESS_KEY $AWS_SECRET $AWS_REGION $CLUSTER_NAME
-npm run check-db-exists
+npx cross-env ts-node --swc scripts/check-db-exists.ts
 npm run prepare-database
 npm run create-build-status
 BUILDER_RUN=$(tail -1 builder-run.txt)
-npm run install-projects >project-install-build-logs.txt 2>project-install-build-error.txt || npm run record-build-error -- --service=project-install
+npx ts-node --swc scripts/install-projects.js >project-install-build-logs.txt 2>project-install-build-error.txt || npm run record-build-error -- --service=project-install
 test -s project-install-build-error.txt && npm run record-build-error -- --service=project-install
+npx cross-env ts-node --swc scripts/create-root-package-json.ts
+mv package.json package.jsonmoved
+mv package-root-build.json package.json
+npm install
+rm package.json
+mv package.jsonmoved package.json
 npm run prepare-database >prepare-database-build-logs.txt 2>prepare-database-build-error.txt || npm run record-build-error -- --service=prepare-database
 test -s prepare-database-build-error.txt && npm run record-build-error -- --service=prepare-database
-npm run update-site-manifest >update-site-manifest-build-logs.txt 2>update-site-manifest-build-error.txt || npm run record-build-error -- --service=update-site-manifest
-test -s update-site-manifest-build-error.txt && npm run record-build-error -- --service=update-site-manifest
-cd packages/client && npm run buildenv >buildenv-build-logs.txt 2>buildenv-build-error.txt || npm run record-build-error -- --service=buildenv
+cd packages/client && npx cross-env ts-node --swc scripts/create-env-production.ts >buildenv-build-logs.txt 2>buildenv-build-error.txt || npm run record-build-error -- --service=buildenv
 test -s buildenv-build-error.txt && npm run record-build-error -- --service=buildenv
 if [ -n "$TWA_LINK" ]
 then
-  npm run populate-assetlinks >populate-assetlinks-build-logs.txt >populate-assetlinks-build-logs.txt 2>populate-assetlinks-build-error.txt || npm run record-build-error -- --service=populate-assetlinks
+  npx cross-env ts-node --swc scripts/populate-assetlinks.ts >populate-assetlinks-build-logs.txt >populate-assetlinks-build-logs.txt 2>populate-assetlinks-build-error.txt || npm run record-build-error -- --service=populate-assetlinks
 test -s populate-assetlinks-build-error.txt && npm run record-build-error -- --service=populate-assetlinks
 fi
 cd ../..
@@ -45,53 +49,57 @@ mkdir -p ./project-package-jsons/projects/default-project
 cp packages/projects/default-project/package.json ./project-package-jsons/projects/default-project
 find packages/projects/projects/ -name package.json -exec bash -c 'mkdir -p ./project-package-jsons/$(dirname $1) && cp $1 ./project-package-jsons/$(dirname $1)' - '{}' \;
 
-DOCKER_BUILDKIT=1 docker build -t root-builder -f dockerfiles/package-root/Dockerfile-root . >root-builder-build-logs.txt 2>root-builder-build-error.txt
-npm run record-build-error -- --service=root-builder --isDocker=true
+bash ./scripts/build_and_publish_package.sh $RELEASE_NAME $DOCKER_LABEL root root $START_TIME $AWS_REGION $NODE_ENV $PRIVATE_ECR >root-build-logs.txt 2>root-build-error.txt
+npm run record-build-error -- --service=root --isDocker=true
 
-npm install -g cli aws-sdk
+npm install -g cli @aws-sdk/client-s3
 
-if [ "$SERVE_CLIENT_FROM_STORAGE_PROVIDER" = "true" ] && [ "$STORAGE_PROVIDER" = "aws" ] ; then npm run list-client-s3-files-to-delete ; fi
+if [ "$SERVE_CLIENT_FROM_STORAGE_PROVIDER" = "true" ] && [ "$STORAGE_PROVIDER" = "s3" ] ; then npx cross-env ts-node --swc scripts/get-deletable-client-files.ts ; fi
 
-bash ./scripts/build_and_publish_package.sh $RELEASE_NAME $DOCKER_LABEL api $START_TIME $PRIVATE_ECR $AWS_REGION $NODE_ENV >api-build-logs.txt 2>api-build-error.txt &
-bash ./scripts/build_and_publish_package.sh $RELEASE_NAME $DOCKER_LABEL client $START_TIME $PRIVATE_ECR $AWS_REGION $NODE_ENV >client-build-logs.txt 2>client-build-error.txt &
-bash ./scripts/build_and_publish_package.sh $RELEASE_NAME $DOCKER_LABEL instanceserver $START_TIME $PRIVATE_ECR $AWS_REGION $NODE_ENV >instanceserver-build-logs.txt 2>instanceserver-build-error.txt &
-bash ./scripts/build_and_publish_package.sh $RELEASE_NAME $DOCKER_LABEL taskserver $START_TIME $PRIVATE_ECR $AWS_REGION $NODE_ENV >taskserver-build-logs.txt 2>taskserver-build-error.txt &
-#bash ./scripts/build_and_publish_package.sh $RELEASE_NAME $DOCKER_LABEL testbot $START_TIME $PRIVATE_ECR $AWS_REGION $NODE_ENV >testbot-build-logs.txt 2>testbot-build-error.txt && &
+if [ "$SERVE_CLIENT_FROM_API" = "true" ]
+then
+  bash ./scripts/build_and_publish_package.sh $RELEASE_NAME $DOCKER_LABEL api api-client $START_TIME $AWS_REGION $NODE_ENV $PRIVATE_ECR >api-build-logs.txt 2>api-build-error.txt &
+  bash ./scripts/build_and_publish_package.sh $RELEASE_NAME $DOCKER_LABEL instanceserver instanceserver $START_TIME $AWS_REGION $NODE_ENV $PRIVATE_ECR >instanceserver-build-logs.txt 2>instanceserver-build-error.txt &
+  bash ./scripts/build_and_publish_package.sh $RELEASE_NAME $DOCKER_LABEL taskserver taskserver $START_TIME $AWS_REGION $NODE_ENV $PRIVATE_ECR >taskserver-build-logs.txt 2>taskserver-build-error.txt &
+  #bash ./scripts/build_and_publish_package.sh $RELEASE_NAME $DOCKER_LABEL testbot testbot $START_TIME $AWS_REGION $NODE_ENV $PRIVATE_ECR >testbot-build-logs.txt 2>testbot-build-error.txt && &
 
-wait < <(jobs -p)
+  wait < <(jobs -p)
 
-npm run record-build-error -- --service=api --isDocker=true
-npm run record-build-error -- --service=client --isDocker=true
-npm run record-build-error -- --service=instanceserver --isDocker=true
-npm run record-build-error -- --service=taskserver --isDocker=true
-#npm run record-build-error -- --service=testbot --isDocker=true
+  npm run record-build-error -- --service=api --isDocker=true
+  npm run record-build-error -- --service=instanceserver --isDocker=true
+  npm run record-build-error -- --service=taskserver --isDocker=true
+  #npm run record-build-error -- --service=testbot --isDocker=true
+else
+  bash ./scripts/build_and_publish_package.sh $RELEASE_NAME $DOCKER_LABEL api api $START_TIME $AWS_REGION $NODE_ENV $PRIVATE_ECR >api-build-logs.txt 2>api-build-error.txt &
+  bash ./scripts/build_and_publish_package.sh $RELEASE_NAME $DOCKER_LABEL client client $START_TIME $AWS_REGION $NODE_ENV $PRIVATE_ECR >client-build-logs.txt 2>client-build-error.txt &
+  bash ./scripts/build_and_publish_package.sh $RELEASE_NAME $DOCKER_LABEL instanceserver instanceserver $START_TIME $AWS_REGION $NODE_ENV $PRIVATE_ECR >instanceserver-build-logs.txt 2>instanceserver-build-error.txt &
+  bash ./scripts/build_and_publish_package.sh $RELEASE_NAME $DOCKER_LABEL taskserver taskserver $START_TIME $AWS_REGION $NODE_ENV $PRIVATE_ECR >taskserver-build-logs.txt 2>taskserver-build-error.txt &
+  #bash ./scripts/build_and_publish_package.sh $RELEASE_NAME $DOCKER_LABEL testbot testbot $START_TIME $AWS_REGION $NODE_ENV $PRIVATE_ECR >testbot-build-logs.txt 2>testbot-build-error.txt && &
+
+  wait < <(jobs -p)
+
+  npm run record-build-error -- --service=api --isDocker=true
+  npm run record-build-error -- --service=client --isDocker=true
+  npm run record-build-error -- --service=instanceserver --isDocker=true
+  npm run record-build-error -- --service=taskserver --isDocker=true
+  #npm run record-build-error -- --service=testbot --isDocker=true
+fi
 
 bash ./scripts/deploy.sh $RELEASE_NAME ${TAG}__${START_TIME}
 
-npm run updateCronjobImage -- --repoName=${REPO_NAME} --tag=${TAG} --ecrUrl=${ECR_URL} --startTime=${START_TIME}
+npx cross-env ts-node --swc scripts/update-cronjob-image.ts --repoName=${REPO_NAME} --tag=${TAG} --ecrUrl=${ECR_URL} --startTime=${START_TIME}
 
-npm run clear-projects-rebuild
+npx cross-env ts-node --swc scripts/clear-projects-rebuild.ts
 npm run record-build-success
 DEPLOY_TIME=`date +"%d-%m-%yT%H-%M-%S"`
-
-if [ $PUBLISH_DOCKERHUB == 'true' ]
-then
-  echo "$DOCKER_HUB_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
-  bash ./scripts/publish_dockerhub.sh ${TAG}__${START_TIME} $DOCKER_LABEL api &
-  bash ./scripts/publish_dockerhub.sh ${TAG}__${START_TIME} $DOCKER_LABEL client &
-  bash ./scripts/publish_dockerhub.sh ${TAG}__${START_TIME} $DOCKER_LABEL instanceserver &
-  bash ./scripts/publish_dockerhub.sh ${TAG}__${START_TIME} $DOCKER_LABEL taskserver &
-  bash ./scripts/publish_dockerhub.sh ${TAG}__${START_TIME} $DOCKER_LABEL testbot &
-  wait
-fi
 
 bash ./scripts/cleanup_builder.sh $DOCKER_LABEL
 
 END_TIME=`date +"%d-%m-%yT%H-%M-%S"`
 echo "Started build at $START_TIME, deployed image to K8s at $DEPLOY_TIME, ended at $END_TIME"
 sleep 5m
-if [ "$SERVE_CLIENT_FROM_STORAGE_PROVIDER" = "true" ] && [ "$STORAGE_PROVIDER" = "aws" ] ; then
-  npm run delete-old-s3-files;
+if [ "$SERVE_CLIENT_FROM_STORAGE_PROVIDER" = "true" ] && [ "$STORAGE_PROVIDER" = "s3" ] ; then
+  npx cross-env ts-node --swc scripts/delete-old-s3-files.ts;
   echo "Deleted old client files from S3"
 fi
 

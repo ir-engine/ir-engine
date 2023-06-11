@@ -10,27 +10,25 @@ import Text from '@etherealengine/client-core/src/common/components/Text'
 import { AvatarEffectComponent } from '@etherealengine/engine/src/avatar/components/AvatarEffectComponent'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { hasComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
-import Box from '@etherealengine/ui/src/Box'
-import Grid from '@etherealengine/ui/src/Grid'
-import Icon from '@etherealengine/ui/src/Icon'
-import IconButton from '@etherealengine/ui/src/IconButton'
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import Box from '@etherealengine/ui/src/primitives/mui/Box'
+import Grid from '@etherealengine/ui/src/primitives/mui/Grid'
+import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
+import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
 
-import { useAuthState } from '../../../services/AuthService'
-import { AvatarService, useAvatarService } from '../../../services/AvatarService'
+import { AuthState } from '../../../services/AuthService'
+import { AvatarService, AvatarState } from '../../../services/AvatarService'
+import { UserMenus } from '../../../UserUISystem'
 import styles from '../index.module.scss'
-import { Views } from '../util'
+import { PopupMenuServices } from '../PopupMenuService'
 
-interface Props {
-  changeActiveMenu: Function
-}
-
-const AvatarMenu = ({ changeActiveMenu }: Props) => {
+const AvatarMenu = () => {
   const { t } = useTranslation()
-  const authState = useAuthState()
+  const authState = useHookstate(getMutableState(AuthState))
   const userId = authState.user?.id?.value
   const userAvatarId = authState.user?.avatarId?.value
 
-  const avatarState = useAvatarService()
+  const avatarState = useHookstate(getMutableState(AvatarState))
   const { avatarList, search } = avatarState.value
 
   const [page, setPage] = useState(0)
@@ -54,7 +52,7 @@ const AvatarMenu = ({ changeActiveMenu }: Props) => {
   const handleConfirmAvatar = () => {
     if (selectedAvatarId && selectedAvatar && userAvatarId !== selectedAvatarId) {
       setAvatar(selectedAvatarId, selectedAvatar.modelResource?.url || '', selectedAvatar.thumbnailResource?.url || '')
-      changeActiveMenu(Views.Closed)
+      PopupMenuServices.showPopupMenu()
     }
     setSelectedAvatarId(undefined)
   }
@@ -106,8 +104,8 @@ const AvatarMenu = ({ changeActiveMenu }: Props) => {
         </Box>
       }
       title={t('user:avatar.titleSelectAvatar')}
-      onBack={() => changeActiveMenu(Views.Profile)}
-      onClose={() => changeActiveMenu(Views.Closed)}
+      onBack={() => PopupMenuServices.showPopupMenu(UserMenus.Profile)}
+      onClose={() => PopupMenuServices.showPopupMenu()}
     >
       <Box className={styles.menuContent}>
         <Grid container spacing={2}>
@@ -139,7 +137,7 @@ const AvatarMenu = ({ changeActiveMenu }: Props) => {
                     showChangeButton={userId && avatar.userId === userId}
                     type="rectangle"
                     onClick={() => setSelectedAvatarId(avatar.id)}
-                    onChange={() => changeActiveMenu(Views.AvatarModify, { selectedAvatar: avatar })}
+                    onChange={() => PopupMenuServices.showPopupMenu(UserMenus.AvatarModify, { selectedAvatar: avatar })}
                   />
                 </Grid>
               ))}
@@ -164,7 +162,7 @@ const AvatarMenu = ({ changeActiveMenu }: Props) => {
               title={t('user:avatar.createAvatar')}
               type="gradientRounded"
               sx={{ mb: 0 }}
-              onClick={() => changeActiveMenu(Views.AvatarModify)}
+              onClick={() => PopupMenuServices.showPopupMenu(UserMenus.AvatarModify)}
             >
               {t('user:avatar.createAvatar')}
             </Button>

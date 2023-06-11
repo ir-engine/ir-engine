@@ -1,16 +1,19 @@
 import { Paginated } from '@feathersjs/feathers'
 
-import { TaskServerSetting } from '@etherealengine/common/src/interfaces/TaskServerSetting'
 import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
-import { defineAction, defineState, dispatchAction, getMutableState, useState } from '@etherealengine/hyperflux'
+import {
+  taskServerSettingPath,
+  TaskServerSettingType
+} from '@etherealengine/engine/src/schemas/setting/task-server-setting.schema'
+import { defineAction, defineState, dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 
 import { API } from '../../../API'
 import { NotificationService } from '../../../common/services/NotificationService'
 
-const AdminTaskServerSettingsState = defineState({
+export const AdminTaskServerSettingsState = defineState({
   name: 'AdminTaskServerSettingsState',
   initial: () => ({
-    taskservers: [] as Array<TaskServerSetting>,
+    taskservers: [] as Array<TaskServerSettingType>,
     updateNeeded: true
   })
 })
@@ -24,15 +27,12 @@ export const TaskServerSettingReceptors = {
   fetchedTaskServersReceptor
 }
 
-export const accessSettingTaskServerState = () => getMutableState(AdminTaskServerSettingsState)
-export const useSettingTaskServerState = () => useState(accessSettingTaskServerState())
-
 export const AdminSettingTaskServerService = {
   fetchSettingsTaskServer: async (inDec?: 'increment' | 'decrement') => {
     try {
       const taskServerSettings = (await API.instance.client
-        .service('task-server-setting')
-        .find()) as Paginated<TaskServerSetting>
+        .service(taskServerSettingPath)
+        .find()) as Paginated<TaskServerSettingType>
       dispatchAction(AdminTaskServerSettingActions.fetchedTaskServers({ taskServerSettings }))
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
@@ -42,7 +42,7 @@ export const AdminSettingTaskServerService = {
 
 export class AdminTaskServerSettingActions {
   static fetchedTaskServers = defineAction({
-    type: 'xre.client.AdminTaskServerSetting.SETTING_ANALYIS_DISPLAY' as const,
-    taskServerSettings: matches.object as Validator<unknown, Paginated<TaskServerSetting>>
+    type: 'ee.client.AdminTaskServerSetting.SETTING_ANALYIS_DISPLAY' as const,
+    taskServerSettings: matches.object as Validator<unknown, Paginated<TaskServerSettingType>>
   })
 }

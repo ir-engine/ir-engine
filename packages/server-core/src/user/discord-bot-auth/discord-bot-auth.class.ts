@@ -1,7 +1,7 @@
 import { errors } from '@feathersjs/errors'
 import { Paginated, Params, ServiceMethods } from '@feathersjs/feathers'
-import axios from 'axios'
 import { SequelizeServiceOptions } from 'feathers-sequelize/types'
+import fetch from 'node-fetch'
 
 import { IdentityProviderInterface } from '@etherealengine/common/src/dbmodels/IdentityProvider'
 
@@ -21,12 +21,12 @@ export class DicscordBotAuth<T = any> implements Partial<ServiceMethods<T>> {
   async find(params?: Params): Promise<any> {
     const url = `https://discord.com/api/users/@me`
     try {
-      const authResponse = await axios.get(url, {
+      const authResponse = await fetch(url, {
         headers: {
           Authorization: `Bot ${params!.query!.bot_token}`
         }
       })
-      const resData = authResponse.data
+      const resData = JSON.parse(Buffer.from(await authResponse.arrayBuffer()).toString())
       if (!resData?.bot) throw new Error('The authenticated Discord user is not a bot')
       const token = `discord:::${resData.id}`
       const ipResult = (await this.app.service('identity-provider').find({

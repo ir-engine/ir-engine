@@ -1,3 +1,4 @@
+import { analyticsPath } from '@etherealengine/engine/src/schemas/analytics/analytics.schema'
 import config from '@etherealengine/server-core/src/appconfig'
 import multiLogger from '@etherealengine/server-core/src/ServerLogger'
 
@@ -20,20 +21,34 @@ export default (app): void => {
     })
     const instanceUsers = await app.service('user').find({
       query: {
-        $limit: 0,
-        instanceId: {
-          $ne: null
-        }
+        $limit: 0
       },
+      include: [
+        {
+          model: app.service('instance-attendance').Model,
+          as: 'instanceAttendance',
+          where: {
+            ended: false,
+            isChannel: false
+          }
+        }
+      ],
       isInternal: true
     })
     const channelUsers = await app.service('user').find({
       query: {
-        $limit: 0,
-        channelInstanceId: {
-          $ne: null
-        }
+        $limit: 0
       },
+      include: [
+        {
+          model: app.service('instance-attendance').Model,
+          as: 'instanceAttendance',
+          where: {
+            ended: false,
+            isChannel: true
+          }
+        }
+      ],
       isInternal: true
     })
     const activeInstances = await app.service('instance').find({
@@ -58,27 +73,27 @@ export default (app): void => {
       }
     })
     await Promise.all([
-      app.service('analytics').create({
+      app.service(analyticsPath).create({
         type: 'activeParties',
         count: activeParties.total
       }),
-      app.service('analytics').create({
+      app.service(analyticsPath).create({
         type: 'instanceUsers',
         count: instanceUsers.total
       }),
-      app.service('analytics').create({
+      app.service(analyticsPath).create({
         type: 'channelUsers',
         count: channelUsers.total
       }),
-      app.service('analytics').create({
+      app.service(analyticsPath).create({
         type: 'activeLocations',
         count: activeLocations.length
       }),
-      app.service('analytics').create({
+      app.service(analyticsPath).create({
         type: 'activeScenes',
         count: activeScenes.length
       }),
-      app.service('analytics').create({
+      app.service(analyticsPath).create({
         type: 'activeInstances',
         count: activeInstances.total
       })

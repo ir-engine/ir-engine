@@ -6,11 +6,13 @@ import { Vector2 } from 'three'
 
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
+import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
 import { getComponent, setComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { createEntity } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
 import { EntityOrObjectUUID, EntityTreeComponent } from '@etherealengine/engine/src/ecs/functions/EntityTree'
 import { LocalTransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
 import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
+import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
 import { IconButton, MenuItem, PopoverPosition, Tooltip } from '@mui/material'
 
@@ -18,7 +20,7 @@ import { ItemTypes } from '../../constants/AssetTypes'
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
 import { prefabIcons } from '../../functions/PrefabEditors'
 import { getCursorSpawnPosition, getSpawnPositionAtCenter } from '../../functions/screenSpaceFunctions'
-import { useSelectionState } from '../../services/SelectionServices'
+import { SelectionState } from '../../services/SelectionServices'
 import { ContextMenu } from '../layout/ContextMenu'
 import styles from './styles.module.scss'
 
@@ -45,11 +47,7 @@ const getPrefabList = () => {
   return arr
 }
 
-export const addPrefabElement = (
-  item: PrefabItemType,
-  parent = Engine.instance.currentScene.sceneEntity,
-  before?: Entity
-) => {
+export const addPrefabElement = (item: PrefabItemType, parent = getState(SceneState).sceneEntity, before?: Entity) => {
   const newEntity = EditorControlFunctions.createObjectFromPrefab(item.prefabType, parent, before, true)
 
   return newEntity
@@ -105,7 +103,7 @@ const MemoAssetGridItem = memo(PrefabListItem)
  */
 export function ElementList() {
   const { t } = useTranslation()
-  const selectionState = useSelectionState()
+  const selectionState = useHookstate(getMutableState(SelectionState))
   const [prefabs, setPrefabs] = useState(getPrefabList())
   const [selectedItem, setSelectedItem] = React.useState<undefined | PrefabItemType>(undefined)
   const [anchorPosition, setAnchorPosition] = React.useState<undefined | PopoverPosition>(undefined)

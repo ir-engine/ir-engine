@@ -10,8 +10,9 @@ import {
 import { EntityOrObjectUUID } from '@etherealengine/engine/src/ecs/functions/EntityTree'
 import { GroupComponent } from '@etherealengine/engine/src/scene/components/GroupComponent'
 import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
-import { useSelectionState } from '../../services/SelectionServices'
+import { SelectionState } from '../../services/SelectionServices'
 import InputGroup from '../inputs/InputGroup'
 import StringInput from '../inputs/StringInput'
 import { EditorComponentType } from './Util'
@@ -33,7 +34,7 @@ const StyledNameInputGroup = (styled as any)(InputGroup)`
  * @type {class component}
  */
 export const NameInputGroup: EditorComponentType = (props) => {
-  const selectionState = useSelectionState()
+  const selectionState = useHookstate(getMutableState(SelectionState))
   const nodeName = useComponent(props.entity, NameComponent)
 
   const [name, setName] = useState(nodeName.value)

@@ -1,16 +1,18 @@
-import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
+import type { Params } from '@feathersjs/feathers'
+import { KnexService } from '@feathersjs/knex'
+import type { KnexAdapterParams } from '@feathersjs/knex'
 
-import { TaskServerSetting as TaskServerSettingInterface } from '@etherealengine/common/src/interfaces/TaskServerSetting'
+import {
+  TaskServerSettingData,
+  TaskServerSettingPatch,
+  TaskServerSettingQuery,
+  TaskServerSettingType
+} from '@etherealengine/engine/src/schemas/setting/task-server-setting.schema'
 
-import { Application } from '../../../declarations'
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+export interface TaskServerSettingParams extends KnexAdapterParams<TaskServerSettingQuery> {}
 
-export type TaskServerSettingDataType = TaskServerSettingInterface
-
-export class TaskServerSetting<T = TaskServerSettingDataType> extends Service<T> {
-  app: Application
-
-  constructor(options: Partial<SequelizeServiceOptions>, app: Application) {
-    super(options)
-    this.app = app
-  }
-}
+export class TaskServerSettingService<
+  T = TaskServerSettingType,
+  ServiceParams extends Params = TaskServerSettingParams
+> extends KnexService<TaskServerSettingType, TaskServerSettingData, TaskServerSettingParams, TaskServerSettingPatch> {}

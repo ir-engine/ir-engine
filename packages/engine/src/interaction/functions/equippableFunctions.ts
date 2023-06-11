@@ -4,7 +4,6 @@ import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { getComponent, hasComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
-import { NetworkObjectOwnedTag } from '../../networking/components/NetworkObjectComponent'
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
 import { EquippedComponent } from '../components/EquippedComponent'
 import { EquipperComponent } from '../components/EquipperComponent'
@@ -12,7 +11,7 @@ import { EquipperComponent } from '../components/EquipperComponent'
 export const equipEntity = (equipperEntity: Entity, equippedEntity: Entity, attachmentPoint: XRHandedness): void => {
   if (!hasComponent(equipperEntity, EquipperComponent) && !hasComponent(equippedEntity, EquippedComponent)) {
     const networkComponent = getComponent(equippedEntity, NetworkObjectComponent)
-    if (networkComponent.authorityPeerID === Engine.instance.worldNetwork.peerID) {
+    if (networkComponent.authorityPeerID === Engine.instance.peerID) {
       dispatchAction(
         WorldNetworkAction.setEquippedObject({
           object: {
@@ -28,7 +27,7 @@ export const equipEntity = (equipperEntity: Entity, equippedEntity: Entity, atta
         WorldNetworkAction.requestAuthorityOverObject({
           networkId: networkComponent.networkId,
           ownerId: networkComponent.ownerId,
-          newAuthority: Engine.instance.worldNetwork.peerID,
+          newAuthority: Engine.instance.peerID,
           $to: Engine.instance.worldNetwork.peers.get(networkComponent.authorityPeerID)?.userId
         })
       )
@@ -41,16 +40,14 @@ export const unequipEntity = (equipperEntity: Entity): void => {
   if (!equipperComponent) return
   removeComponent(equipperEntity, EquipperComponent)
   const networkComponent = getComponent(equipperComponent.equippedEntity, NetworkObjectComponent)
-  const networkOwnerComponent = getComponent(equipperComponent.equippedEntity, NetworkObjectOwnedTag)
-  if (networkComponent.authorityPeerID === Engine.instance.worldNetwork.peerID) {
+  if (networkComponent.authorityPeerID === Engine.instance.peerID) {
     dispatchAction(
       WorldNetworkAction.setEquippedObject({
         object: {
           networkId: networkComponent.networkId,
           ownerId: networkComponent.ownerId
         },
-        equip: false,
-        attachmentPoint: null!
+        equip: false
       })
     )
   } else {

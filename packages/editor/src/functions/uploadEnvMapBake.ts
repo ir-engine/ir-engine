@@ -3,6 +3,7 @@ import { Mesh, MeshBasicMaterial, Scene, Vector3 } from 'three'
 import { addOBCPlugin, removeOBCPlugin } from '@etherealengine/engine/src/common/functions/OnBeforeCompilePlugin'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
+import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
 import {
   addComponent,
   defineQuery,
@@ -13,13 +14,17 @@ import {
 import { EngineRenderer } from '@etherealengine/engine/src/renderer/WebGLRendererSystem'
 import { beforeMaterialCompile } from '@etherealengine/engine/src/scene/classes/BPCEMShader'
 import CubemapCapturer from '@etherealengine/engine/src/scene/classes/CubemapCapturer'
-import { convertCubemapToEquiImageData } from '@etherealengine/engine/src/scene/classes/ImageUtils'
+import {
+  convertCubemapToEquiImageData,
+  convertCubemapToKTX2
+} from '@etherealengine/engine/src/scene/classes/ImageUtils'
 import { EnvMapBakeComponent } from '@etherealengine/engine/src/scene/components/EnvMapBakeComponent'
 import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
 import { ScenePreviewCameraComponent } from '@etherealengine/engine/src/scene/components/ScenePreviewCamera'
 import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
+import { getState } from '@etherealengine/hyperflux'
 
-import { accessEditorState } from '../services/EditorServices'
+import { EditorState } from '../services/EditorServices'
 import { uploadProjectFiles } from './assetFunctions'
 
 const query = defineQuery([ScenePreviewCameraComponent, TransformComponent])
@@ -52,8 +57,7 @@ const getScenePositionForBake = (entity: Entity | null) => {
  */
 
 export const uploadBPCEMBakeToServer = async (entity: Entity) => {
-  const world = Engine.instance.currentScene
-  const isSceneEntity = entity === world.sceneEntity
+  const isSceneEntity = entity === getState(SceneState).sceneEntity
 
   if (isSceneEntity) {
     if (!hasComponent(entity, EnvMapBakeComponent)) {
@@ -66,7 +70,7 @@ export const uploadBPCEMBakeToServer = async (entity: Entity) => {
 
   // inject bpcem logic into material
   Engine.instance.scene.traverse((child: Mesh<any, MeshBasicMaterial>) => {
-    if (!child.material?.userData) return
+    if (!child.material || child.type == 'VFXBatch') return
     child.material.userData.BPCEMPlugin = beforeMaterialCompile(
       bakeComponent.bakeScale,
       bakeComponent.bakePositionOffset
@@ -91,20 +95,21 @@ export const uploadBPCEMBakeToServer = async (entity: Entity) => {
 
   if (isSceneEntity) Engine.instance.scene.environment = renderTarget.texture
 
-  const blob = (await convertCubemapToEquiImageData(
+  const blob = await convertCubemapToKTX2(
     EngineRenderer.instance.renderer,
     renderTarget.texture,
     bakeComponent.resolution,
     bakeComponent.resolution,
     true
-  )) as Blob
+  )
 
   if (!blob) return null!
 
   const nameComponent = getComponent(entity, NameComponent)
-  const sceneName = accessEditorState().sceneName.value!
-  const projectName = accessEditorState().projectName.value!
-  const filename = isSceneEntity ? `${sceneName}.envmap.png` : `${sceneName}-${nameComponent.replace(' ', '-')}.png`
+  const editorState = getState(EditorState)
+  const sceneName = editorState.sceneName!
+  const projectName = editorState.projectName!
+  const filename = isSceneEntity ? `${sceneName}.envmap.ktx2` : `${sceneName}-${nameComponent.replace(' ', '-')}.ktx2`
 
   const url = (await uploadProjectFiles(projectName, [new File([blob], filename)]).promises[0])[0]
 
@@ -126,7 +131,7 @@ export const uploadCubemapBakeToServer = async (name: string, position: Vector3)
   const cubemapCapturer = new CubemapCapturer(EngineRenderer.instance.renderer, Engine.instance.scene, resolution)
   const renderTarget = cubemapCapturer.update(position)
 
-  const blob = (await convertCubemapToEquiImageData(
+  const blob = (await convertCubemapToKTX2(
     EngineRenderer.instance.renderer,
     renderTarget.texture,
     resolution,
@@ -136,9 +141,10 @@ export const uploadCubemapBakeToServer = async (name: string, position: Vector3)
 
   if (!blob) return null!
 
-  const sceneName = accessEditorState().sceneName.value!
-  const projectName = accessEditorState().projectName.value!
-  const filename = `${sceneName}-${name.replace(' ', '-')}.png`
+  const editorState = getState(EditorState)
+  const sceneName = editorState.sceneName!
+  const projectName = editorState.projectName!
+  const filename = `${sceneName}-${name.replace(' ', '-')}.ktx2`
 
   const url = (await uploadProjectFiles(projectName, [new File([blob], filename)])[0])[0]
 

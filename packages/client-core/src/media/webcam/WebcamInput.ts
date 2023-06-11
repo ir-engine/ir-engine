@@ -1,5 +1,6 @@
 import type { FaceDetection, FaceExpressions } from '@vladmandic/face-api'
 import * as Comlink from 'comlink'
+import { useEffect } from 'react'
 
 import { isDev } from '@etherealengine/common/src/config'
 import { createWorkerFromCrossOriginURL } from '@etherealengine/common/src/utils/createWorkerFromCrossOriginURL'
@@ -10,12 +11,15 @@ import {
   defineQuery,
   getComponent,
   hasComponent,
+  removeQuery,
   setComponent
 } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import { WebcamInputComponent } from '@etherealengine/engine/src/input/components/WebcamInputComponent'
 import { WorldNetworkAction } from '@etherealengine/engine/src/networking/functions/WorldNetworkAction'
 import { GroupComponent } from '@etherealengine/engine/src/scene/components/GroupComponent'
-import { createActionQueue, getMutableState } from '@etherealengine/hyperflux'
+import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
+import { defineActionQueue, getMutableState, removeActionQueue } from '@etherealengine/hyperflux'
 
 import { MediaStreamState } from '../../transports/MediaStreams'
 
@@ -251,21 +255,18 @@ const setAvatarExpression = (entity: Entity): void => {
     }
   }
 }
+const webcamQuery = defineQuery([GroupComponent, AvatarRigComponent, WebcamInputComponent])
+const avatarSpawnQueue = defineActionQueue(WorldNetworkAction.spawnAvatar.matches)
 
-export default async function WebcamInputSystem() {
-  const webcamQuery = defineQuery([GroupComponent, AvatarRigComponent, WebcamInputComponent])
-
-  const avatarSpawnQueue = createActionQueue(WorldNetworkAction.spawnAvatar.matches)
-
-  const execute = () => {
-    for (const action of avatarSpawnQueue()) {
-      const entity = Engine.instance.getUserAvatarEntity(action.$from)
-      setComponent(entity, WebcamInputComponent)
-    }
-    for (const entity of webcamQuery()) setAvatarExpression(entity)
+const execute = () => {
+  for (const action of avatarSpawnQueue()) {
+    const entity = UUIDComponent.entitiesByUUID[action.uuid]
+    setComponent(entity, WebcamInputComponent)
   }
-
-  const cleanup = async () => {}
-
-  return { execute, cleanup }
+  for (const entity of webcamQuery()) setAvatarExpression(entity)
 }
+
+export const WebcamInputSystem = defineSystem({
+  uuid: 'ee.client.WebcamInputSystem',
+  execute
+})

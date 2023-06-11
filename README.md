@@ -4,18 +4,24 @@
 
 ## Table of Contents
 
+- [Table of Contents](#table-of-contents)
 - [Background](#background)
-  - [Demos](#demos)
-- [Install](#advanced-development-install)
+- [Demos](#demos)
+- [Project API](#project-api)
+  - [Library of EE Projects](#library-of-ee-projects)
+  - [Create your own projects](#create-your-own-projects)
+- [Launch Ethereal Engine with Control Center Install - ***RECOMMENDED***](#launch-ethereal-engine-with-control-center-install---recommended)
+  - [Use Metaverse Control Plane Managment GUI](#use-metaverse-control-plane-managment-gui)
+- [Advanced Development Install](#advanced-development-install)
   - [Pre-Requisites](#pre-requisites)
   - [Getting Started](#getting-started)
-- [XRE XRModule](#xre-xrmodule)
 - [Usage](#usage)
+  - [Documentation](#documentation)
 - [Contributing](#contributing)
   - [Let's build it together](#lets-build-it-together)
+  - [Join our Discord  ](#join-our-discord--)
+  - [Sponsorship ](#sponsorship-)
 - [License](#license)
-- [Releases](https://github.com/etherealengine/etherealengine/releases)
-- [Roadmap](/ROADMAP.md)
 
 ## Background
 
@@ -53,21 +59,15 @@ Guest Demos
 Host Demos 
 
 - [Admin Console - Demo Cluster - Request Demo Access on our Discord](https://demo.etherealengine.com/admin)
-- [XRModule Asset Editor - Demo Cluster - Request Demo Access on our Discord](https://demo.etherealengine.com/editor)
+- [Ethereal Studio - Demo Cluster - Request Demo Access on our Discord](https://demo.etherealengine.com/studio)
 
-## XRModule
+## Project API
 
-### [Library of XRModules](https://github.com/etherealengine?q=project)
+### [Library of EE Projects](https://github.com/EtherealEngine/project-manifest)
 
-Create composable plug-ins for Ethereal Engine scenes with XRModule Projects
+Create composable plug-ins for Ethereal Engine experiences with the Projects API
 
-### [Create XRModule Projects](https://etherealengine.github.io/etherealengine-docs/docs/concepts/projects_api)
-
-XRModules are folders that contain all your custom code, assets and scenes. They are version controlled using git & github, and can be installed to any deployment with a single click. (more on that in the next chapter)
-
-Pictured below is an example of 4 projects installed. By default, only the default-project is installed, which in a production environment is read only. You can find the default project under /packages/projects/default-project/
-
-In a production environment, the builder process will install all projects according to the project database table and will download files from the storage provider. In a local development environment, the local file system is always the source of truth. Any project folders added or removed from the file system will be automatically added or removed from the database. This is to ensure there is no accidental loss of data, as these project folders are all git repositories.
+### [Create your own projects](https://etherealengine.github.io/etherealengine-docs/docs/concepts/projects_api)
 
 ## Launch Ethereal Engine with Control Center Install - ***RECOMMENDED***
 

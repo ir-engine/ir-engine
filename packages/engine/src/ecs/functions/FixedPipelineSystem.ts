@@ -1,66 +1,54 @@
-import { getMutableState } from '@etherealengine/hyperflux'
+import { getMutableState, getState } from '@etherealengine/hyperflux'
 
 import { nowMilliseconds } from '../../common/functions/nowMilliseconds'
 import { Engine } from '../classes/Engine'
 import { EngineState } from '../classes/EngineState'
-import { SystemUpdateType } from './SystemUpdateType'
+import { SimulationSystemGroup } from './EngineFunctions'
+import { executeSystem } from './SystemFunctions'
 
 // const logger = multiLogger.child({ component: 'engine:ecs:FixedPipelineSystem' })
 /**
  * System for running simulation logic with fixed time intervals
  */
-export default function FixedPipelineSystem() {
-  // const maxIterations = 1
+export const executeFixedPipeline = () => {
+  const start = nowMilliseconds()
+  let timeUsed = 0
 
-  const execute = () => {
-    const start = nowMilliseconds()
-    let timeUsed = 0
+  const engineState = getMutableState(EngineState)
+  const { frameTime, simulationTime, simulationTimestep } = getState(EngineState)
 
-    let accumulator = Engine.instance.elapsedSeconds - Engine.instance.fixedElapsedSeconds
+  let simulationDelay = frameTime - simulationTime
 
-    const engineState = getMutableState(EngineState)
+  const maxMilliseconds = 8
 
-    const timestep = engineState.fixedDeltaSeconds.value
-    const maxMilliseconds = 8
+  // If the difference between simulationTime and frameTime becomes too large,
+  // we should simply skip ahead.
+  const maxSimulationDelay = 5000 // 5 seconds
 
-    // If the difference between fixedElapsedTime and elapsedTime becomes too large,
-    // we should simply skip ahead.
-    const maxFixedFrameDelay = Math.max(1, Engine.instance.deltaSeconds / timestep)
-
-    if (accumulator < 0) {
-      engineState.fixedTick.set(Math.floor(engineState.elapsedSeconds.value / timestep))
-      engineState.fixedElapsedSeconds.set(engineState.fixedTick.value * timestep)
-    }
-
-    let accumulatorDepleted = accumulator < timestep
-    let timeout = timeUsed > maxMilliseconds
-    let updatesLimitReached = false
-
-    while (!accumulatorDepleted && !timeout && !updatesLimitReached) {
-      engineState.fixedTick.set(engineState.fixedTick.value + 1)
-      engineState.fixedElapsedSeconds.set(engineState.fixedTick.value * timestep)
-
-      for (const s of Engine.instance.pipelines[SystemUpdateType.FIXED_EARLY]) s.enabled && s.execute()
-      for (const s of Engine.instance.pipelines[SystemUpdateType.FIXED]) s.enabled && s.execute()
-      for (const s of Engine.instance.pipelines[SystemUpdateType.FIXED_LATE]) s.enabled && s.execute()
-
-      accumulator -= timestep
-
-      const frameDelay = accumulator / timestep
-
-      timeUsed = nowMilliseconds() - start
-      accumulatorDepleted = accumulator < timestep
-      timeout = timeUsed > maxMilliseconds
-
-      if (frameDelay >= maxFixedFrameDelay) {
-        engineState.fixedTick.set(Math.floor(engineState.elapsedSeconds.value / timestep))
-        engineState.fixedElapsedSeconds.set(engineState.fixedTick.value * timestep)
-        break
-      }
-    }
+  if (simulationDelay < simulationTimestep) {
+    engineState.simulationTime.set(Math.floor(frameTime / simulationTimestep) * simulationTimestep)
+    // simulation time is already up-to-date with frame time, so do nothing
+    return
   }
 
-  const cleanup = async () => {}
+  let timeout = timeUsed > maxMilliseconds
+  let updatesLimitReached = false
 
-  return { execute, cleanup }
+  while (simulationDelay > simulationTimestep && !timeout && !updatesLimitReached) {
+    engineState.simulationTime.set(
+      (t) => Math.floor((t + simulationTimestep) / simulationTimestep) * simulationTimestep
+    )
+
+    executeSystem(SimulationSystemGroup)
+
+    simulationDelay -= simulationTimestep
+    timeUsed = nowMilliseconds() - start
+    timeout = timeUsed > maxMilliseconds
+
+    if (simulationDelay >= maxSimulationDelay) {
+      // fast-forward if the simulation is too far behind
+      engineState.simulationTime.set((t) => Math.floor(frameTime / simulationTimestep) * simulationTimestep)
+      break
+    }
+  }
 }

@@ -1,25 +1,26 @@
-import { AnimationMixer, BufferGeometry, Mesh, Object3D } from 'three'
+import { AnimationMixer, Mesh, Object3D } from 'three'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 
 import { AnimationComponent } from '../../avatar/components/AnimationComponent'
-import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import {
-  addComponent,
+  ComponentJSONIDMap,
   ComponentMap,
   getComponent,
+  hasComponent,
   removeComponent,
   setComponent
 } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
-import { addEntityNodeChild, EntityTreeComponent } from '../../ecs/functions/EntityTree'
+import { addEntityNodeChild } from '../../ecs/functions/EntityTree'
 import { setLocalTransformComponent, TransformComponent } from '../../transform/components/TransformComponent'
 import { computeLocalTransformMatrix, computeTransformMatrix } from '../../transform/systems/TransformSystem'
 import { GLTFLoadedComponent } from '../components/GLTFLoadedComponent'
 import { addObjectToGroup, GroupComponent } from '../components/GroupComponent'
 import { ModelComponent } from '../components/ModelComponent'
 import { NameComponent } from '../components/NameComponent'
+import { SceneObjectComponent } from '../components/SceneObjectComponent'
 import { ObjectLayers } from '../constants/ObjectLayers'
 import { deserializeComponent } from '../systems/SceneLoadingSystem'
 import { setObjectLayers } from './setObjectLayers'
@@ -52,20 +53,13 @@ export const parseECSData = (entity: Entity, data: [string, any][]): void => {
     if (typeof component === 'undefined') {
       console.warn(`Could not load component '${key}'`)
     } else {
-      const componentId = Engine.instance.sceneComponentRegistry.get(key)
-      if (typeof componentId === 'string') {
-        const deserialize = Engine.instance.sceneLoadingRegistry.get(componentId)?.deserialize
-        if (typeof deserialize === 'function') deserialize(entity, value)
-        else addComponent(entity, component, value)
-      } else {
-        addComponent(entity, component, value)
-      }
+      setComponent(entity, component, value)
       getComponent(entity, GLTFLoadedComponent).push(component)
     }
   }
 
   for (const [key, value] of Object.entries(prefabs)) {
-    const component = Array.from(Engine.instance.sceneComponentRegistry).find(([_, prefab]) => prefab === key)?.[0]
+    const component = Array.from(ComponentJSONIDMap.keys()).find((jsonID) => jsonID === key)
     if (typeof component === 'undefined') {
       console.warn(`Could not load component '${component}'`)
     } else {
@@ -95,7 +89,7 @@ export const parseObjectComponentsFromGLTF = (entity: Entity, object3d?: Object3
   })
 
   if (meshesToProcess.length === 0) {
-    setComponent(entity, GLTFLoadedComponent, [])
+    setComponent(entity, GLTFLoadedComponent)
     scene.traverse((obj) => createObjectEntityFromGLTF(entity, obj))
     return
   }
@@ -105,7 +99,9 @@ export const parseObjectComponentsFromGLTF = (entity: Entity, object3d?: Object3
 
     addEntityNodeChild(e, entity, mesh.uuid as EntityUUID)
 
-    addComponent(e, NameComponent, mesh.userData['xrengine.entity'] ?? mesh.uuid)
+    if (hasComponent(entity, SceneObjectComponent)) setComponent(e, SceneObjectComponent)
+
+    setComponent(e, NameComponent, mesh.userData['xrengine.entity'] ?? mesh.uuid)
 
     delete mesh.userData['xrengine.entity']
     delete mesh.userData.name
@@ -116,7 +112,7 @@ export const parseObjectComponentsFromGLTF = (entity: Entity, object3d?: Object3
     computeTransformMatrix(entity)
 
     addObjectToGroup(e, mesh)
-    addComponent(e, GLTFLoadedComponent, ['entity', GroupComponent.name, TransformComponent.name])
+    setComponent(e, GLTFLoadedComponent, ['entity', GroupComponent.name, TransformComponent.name])
     createObjectEntityFromGLTF(e, mesh)
 
     mesh.visible = false
@@ -138,7 +134,7 @@ export const parseGLTFModel = (entity: Entity) => {
   if (scene.animations?.length) {
     // We only have to update the mixer time for this animations on each frame
     if (getComponent(entity, AnimationComponent)) removeComponent(entity, AnimationComponent)
-    addComponent(entity, AnimationComponent, {
+    setComponent(entity, AnimationComponent, {
       mixer: new AnimationMixer(scene),
       animationSpeed: 1,
       animations: scene.animations

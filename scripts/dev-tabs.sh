@@ -6,9 +6,6 @@ npx ttab -t 'agones-local' './start-all-docker.sh; ./start-agones.sh'
 
 sleep 1
 
-# Start serve-local-files
-npx ttab -t 'serve-local-files' -d ../packages/server npm run serve-local-files
-
 ## Start client
 npx ttab -t 'etherealengine-client' -d ../packages/client npm run dev
 

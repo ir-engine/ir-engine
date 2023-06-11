@@ -1,6 +1,5 @@
 import { TypedArray } from 'bitecs'
 
-import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
 
@@ -44,13 +43,20 @@ export const writeProp = (v: ViewCursor, prop: TypedArray, entity: Entity) => {
   return v
 }
 
-export const writePropIfChanged = (v: ViewCursor, prop: TypedArray, entity: Entity) => {
+/**
+ * Writes property to view cursor if it has changed
+ * @param v - view cursor
+ * @param prop - property to write
+ * @param entity - entity to write property for
+ * @param ignoredChanged - if true, will write prop even if it hasn't changed
+ * @returns true if property was written, false otherwise
+ */
+export const writePropIfChanged = (v: ViewCursor, prop: TypedArray, entity: Entity, ignoredChanged: boolean) => {
   const { shadowMap } = v
 
   const shadow = shadowMap.get(prop)! || (shadowMap.set(prop, prop.slice().fill(0)) && shadowMap.get(prop))!
 
-  // TODO: we should be handling the fixedDelta check more explicitly, passing down through all the functions
-  const changed = shadow[entity] !== prop[entity] || Engine.instance.fixedTick % 60 === 0
+  const changed = shadow[entity] !== prop[entity] || ignoredChanged
 
   shadow[entity] = prop[entity]
 

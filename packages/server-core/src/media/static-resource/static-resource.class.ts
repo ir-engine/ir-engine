@@ -10,16 +10,6 @@ import { UserParams } from '../../user/user/user.class'
 import { NotFoundException, UnauthenticatedException } from '../../util/exceptions/exception'
 import { getStorageProvider } from '../storageprovider/storageprovider'
 
-export type CreateStaticResourceType = {
-  name?: string
-  mimeType: string
-  url: string
-  key: string
-  staticResourceType?: string
-  userId?: string
-  project?: string
-}
-
 export class StaticResource extends Service<StaticResourceInterface> {
   app: Application
   public docs: any
@@ -29,25 +19,17 @@ export class StaticResource extends Service<StaticResourceInterface> {
     this.app = app
   }
 
-  // @ts-ignore
-  async create(data: CreateStaticResourceType, params?: UserParams): Promise<StaticResourceInterface> {
-    const self = this
-    const query = {
-      $select: ['id'],
-      url: data.url
-    } as any
-    if (data.project) query.project = data.project
-    const oldResource = await this.find({
-      query
+  // gets the static resource from the database, including the variants
+  async get(id: string, params?: Params): Promise<StaticResourceInterface> {
+    return super.Model.findOne({
+      where: { id },
+      include: [
+        {
+          model: this.app.service('static-resource-variant').Model,
+          as: 'variants'
+        }
+      ]
     })
-
-    if ((oldResource as any).total > 0) {
-      return this.Model.update(data, {
-        where: { url: data.url }
-      }).then(() => self.Model.findOne({ where: { url: data.url } }))
-    } else {
-      return this.Model.create(data)
-    }
   }
 
   async find(params?: Params): Promise<StaticResourceInterface[] | Paginated<StaticResourceInterface>> {
@@ -85,6 +67,12 @@ export class StaticResource extends Service<StaticResourceInterface> {
           [Op.or]: resourceTypes
         }
       },
+      include: [
+        {
+          model: this.app.service('static-resource-variant').Model,
+          as: 'variants'
+        }
+      ],
       raw: true,
       nest: true
     })

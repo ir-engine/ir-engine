@@ -1,17 +1,40 @@
 import { t } from 'i18next'
-import React, { lazy, Suspense } from 'react'
+import React, { lazy, Suspense, useEffect } from 'react'
 import { createRoot } from 'react-dom/client'
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
 
 import ErrorBoundary from '@etherealengine/client-core/src/common/components/ErrorBoundary'
 import { LoadingCircle } from '@etherealengine/client-core/src/components/LoadingCircle'
+
 // @ts-ignore
 
 ;(globalThis as any).process = { env: { ...(import.meta as any).env, APP_ENV: (import.meta as any).env.MODE } }
 
 const Engine = lazy(() => import('./engine'))
+
 const AppPage = lazy(() => import('./pages/_app'))
 const AdminPage = lazy(() => import('./pages/admin'))
+const TailwindPage = lazy(() => import('./pages/_app_tw'))
+
+const options = {
+  immediate: true,
+  onNeedRefresh: () => {
+    console.log('onNeedRefresh')
+  },
+  onOfflineReady: () => {
+    console.log('onOfflineReady')
+  },
+  onRegistered: () => {
+    console.log('onRegistered')
+  },
+  onRegisteredSW: (swUrl, registration) => {
+    // eslint-disable-next-line no-console
+    console.log(`Service Worker at: ${swUrl}`)
+  },
+  onRegisterError: (e) => {
+    console.log('onRegisterError', e)
+  }
+}
 
 const App = () => {
   return (
@@ -37,6 +60,15 @@ const App = () => {
                 <Engine>
                   <AdminPage />
                 </Engine>
+              </Suspense>
+            }
+          />
+          <Route
+            key={'capture'}
+            path={'/capture/*'}
+            element={
+              <Suspense fallback={<LoadingCircle message={t('common:loader.starting')} />}>
+                <TailwindPage />
               </Suspense>
             }
           />

@@ -3,7 +3,7 @@ import _ from 'lodash'
 import { CylinderGeometry, Mesh, MeshBasicMaterial, Object3D, Quaternion, Scene } from 'three'
 import { Vector3 } from 'three'
 
-import { defineState, getMutableState } from '@etherealengine/hyperflux'
+import { defineState, getMutableState, getState } from '@etherealengine/hyperflux'
 
 import { V_000, V_010 } from '../../common/constants/MathConstants'
 import { Engine } from '../../ecs/classes/Engine'
@@ -74,26 +74,25 @@ const setupMarker = () => {
 }
 
 export const scaleFluctuate = (sinOffset = 4, scaleMultiplier = 0.2, pulseSpeed = 10) => {
-  const marker = getMutableState(AutopilotMarker).markerObject.value!
+  const marker = getState(AutopilotMarker).markerObject!
   const scalePulse = scaleMultiplier * (sinOffset + Math.sin(pulseSpeed * Engine.instance.elapsedSeconds))
   marker.scale.set(scalePulse, 1, scalePulse)
   marker.updateMatrixWorld()
 }
 
 export async function placeMarker(rayNormal: Vector3) {
-  const markerState = getMutableState(AutopilotMarker)
+  const markerState = getState(AutopilotMarker)
 
-  if (!markerState.walkTarget.value) return
+  if (!markerState.walkTarget) return
 
-  if (!markerState.markerObject.value) setupMarker()
+  if (!markerState.markerObject) setupMarker()
 
-  const state = getMutableState(AutopilotMarker)
-  const marker = state.markerObject.value!
+  const marker = markerState.markerObject!
   marker.visible = true
 
   const newRotation = new Quaternion().setFromUnitVectors(V_010, rayNormal)
 
-  marker.position.copy(markerState.walkTarget.value)
+  marker.position.copy(markerState.walkTarget)
   marker.quaternion.copy(newRotation)
   marker.updateMatrixWorld()
 }
@@ -120,5 +119,6 @@ export const assessWalkability = (
 export const clearWalkPoint = () => {
   const markerState = getMutableState(AutopilotMarker)
   markerState.walkTarget.set(undefined)
-  markerState.markerObject.value!.visible = false
+  if (!markerState.markerObject.value) return
+  markerState.markerObject.value.visible = false
 }

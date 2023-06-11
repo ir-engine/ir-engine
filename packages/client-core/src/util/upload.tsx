@@ -1,14 +1,14 @@
 import i18n from 'i18next'
 
 import config from '@etherealengine/common/src/config'
-import { dispatchAction } from '@etherealengine/hyperflux'
+import { dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 
 import { FileBrowserAction } from '../common/services/FileBrowserService'
-import { accessAuthState } from '../user/services/AuthService'
+import { AuthState } from '../user/services/AuthService'
 import { RethrownError } from './errors'
 
-export type CancelableUploadPromiseReturnType<T = any> = { cancel: () => void; promise: Promise<T[]> }
-export type CancelableUploadPromiseArrayReturnType<T = any> = { cancel: () => void; promises: Array<Promise<T[]>> }
+export type CancelableUploadPromiseReturnType<T = any> = { cancel: () => void; promise: Promise<T | T[]> }
+export type CancelableUploadPromiseArrayReturnType<T = any> = { cancel: () => void; promises: Array<Promise<T | T[]>> }
 
 /**
  * upload used to upload image as blob data.
@@ -22,11 +22,11 @@ export type CancelableUploadPromiseArrayReturnType<T = any> = { cancel: () => vo
 
 export const uploadToFeathersService = (
   service = 'upload-asset',
-  files: Array<Blob>,
+  files: Array<File>,
   params: any = {},
   onUploadProgress?: (progress: number) => any
 ): CancelableUploadPromiseReturnType => {
-  const token = accessAuthState().authUser.accessToken.value
+  const token = getMutableState(AuthState).authUser.accessToken.value
   const request = new XMLHttpRequest()
   request.timeout = 10 * 60 * 1000 // 10 minutes - need to support big files on slow connections
   let aborted = false

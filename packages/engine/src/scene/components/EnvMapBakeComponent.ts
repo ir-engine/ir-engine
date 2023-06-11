@@ -1,24 +1,35 @@
 import { useEffect } from 'react'
-import { BoxGeometry, BoxHelper, Mesh, MeshPhysicalMaterial, Object3D, SphereGeometry, Vector3 } from 'three'
+import {
+  BoxGeometry,
+  BoxHelper,
+  Mesh,
+  MeshPhysicalMaterial,
+  MeshStandardMaterial,
+  Object3D,
+  Scene,
+  SphereGeometry,
+  Vector3
+} from 'three'
 
-import { getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
+import { getMutableState, getState, none, useHookstate } from '@etherealengine/hyperflux'
 
 import { matches } from '../../common/functions/MatchesUtils'
-import {
-  createMappedComponent,
-  defineComponent,
-  hasComponent,
-  useComponent
-} from '../../ecs/functions/ComponentFunctions'
+import { Engine } from '../../ecs/classes/Engine'
+import { Entity } from '../../ecs/classes/Entity'
+import { SceneState } from '../../ecs/classes/Scene'
+import { defineComponent, getComponent, hasComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
+import { useEntityContext } from '../../ecs/functions/EntityFunctions'
+import { EntityTreeComponent, traverseEntityNode } from '../../ecs/functions/EntityTree'
 import { RendererState } from '../../renderer/RendererState'
 import { ObjectLayers } from '../constants/ObjectLayers'
 import { setObjectLayers } from '../functions/setObjectLayers'
 import { EnvMapBakeRefreshTypes } from '../types/EnvMapBakeRefreshTypes'
 import { EnvMapBakeTypes } from '../types/EnvMapBakeTypes'
-import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
+import { addObjectToGroup, GroupComponent, removeObjectFromGroup } from './GroupComponent'
 
 export const EnvMapBakeComponent = defineComponent({
   name: 'EnvMapBakeComponent',
+  jsonID: 'envmapbake',
 
   onInit: (entity) => {
     return {
@@ -65,16 +76,15 @@ export const EnvMapBakeComponent = defineComponent({
     if (component.helper.value) removeObjectFromGroup(entity, component.helper.value)
   },
 
-  reactor: function ({ root }) {
-    if (!hasComponent(root.entity, EnvMapBakeComponent)) throw root.stop()
-
+  reactor: function () {
+    const entity = useEntityContext()
     const debugEnabled = useHookstate(getMutableState(RendererState).nodeHelperVisibility)
-    const bake = useComponent(root.entity, EnvMapBakeComponent)
+    const bake = useComponent(entity, EnvMapBakeComponent)
 
     useEffect(() => {
       if (debugEnabled.value && !bake.helper.value) {
         const helper = new Object3D()
-        helper.name = `envmap-bake-helper-${root.entity}`
+        helper.name = `envmap-bake-helper-${entity}`
 
         const centerBall = new Mesh(new SphereGeometry(0.75), new MeshPhysicalMaterial({ roughness: 0, metalness: 1 }))
         helper.add(centerBall)
@@ -83,7 +93,7 @@ export const EnvMapBakeComponent = defineComponent({
         helper.add(gizmo)
 
         setObjectLayers(helper, ObjectLayers.NodeHelper)
-        addObjectToGroup(root.entity, helper)
+        addObjectToGroup(entity, helper)
 
         bake.helper.set(helper)
         bake.helperBall.set(centerBall)
@@ -91,7 +101,7 @@ export const EnvMapBakeComponent = defineComponent({
       }
 
       if (!debugEnabled.value && bake.helper.value) {
-        removeObjectFromGroup(root.entity, bake.helper.value)
+        removeObjectFromGroup(entity, bake.helper.value)
         bake.helper.set(none)
       }
     }, [debugEnabled])
@@ -100,4 +110,32 @@ export const EnvMapBakeComponent = defineComponent({
   }
 })
 
-export const SCENE_COMPONENT_ENVMAP_BAKE = 'envmapbake'
+export const prepareSceneForBake = (): Scene => {
+  const scene = Engine.instance.scene.clone(false)
+  const sceneEntity = getState(SceneState).sceneEntity
+  const parents = {
+    [sceneEntity]: scene
+  } as { [key: Entity]: Object3D }
+
+  traverseEntityNode(sceneEntity, (entity) => {
+    if (entity === sceneEntity) return
+
+    const group = getComponent(entity, GroupComponent) as unknown as Mesh<any, MeshStandardMaterial>[]
+    const node = getComponent(entity, EntityTreeComponent)
+
+    if (group) {
+      for (const obj of group) {
+        const newObj = obj.clone(true)
+        if (node.parentEntity) parents[node.parentEntity].add(newObj)
+        newObj.traverse((o: any) => {
+          if (o.material) {
+            o.material = obj.material.clone()
+            o.material.roughness = 1
+          }
+        })
+      }
+    }
+  })
+
+  return scene
+}

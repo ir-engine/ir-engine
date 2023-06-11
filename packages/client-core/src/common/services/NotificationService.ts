@@ -9,7 +9,7 @@ import { defaultAction } from '../components/NotificationActions'
 const logger = multiLogger.child({ component: 'client-core:Notification' })
 
 export type NotificationOptions = {
-  variant: VariantType
+  variant: VariantType // 'default' | 'error' | 'success' | 'warning' | 'info'
   actionType?: keyof typeof NotificationActions
 }
 
@@ -28,7 +28,7 @@ export const NotificationService = {
 
 export class NotificationAction {
   static notify = defineAction({
-    type: 'xre.client.Notification.ENQUEUE_NOTIFICATION' as const,
+    type: 'ee.client.Notification.ENQUEUE_NOTIFICATION' as const,
     message: matches.string,
     options: matches.object as Validator<unknown, NotificationOptions>
   })

@@ -1,13 +1,13 @@
 import { pipe } from 'bitecs'
-import { AnimationClip, AnimationMixer, Bone, Box3, Group, Object3D, Skeleton, SkinnedMesh, Vector3 } from 'three'
+import { AnimationClip, AnimationMixer, Bone, Box3, Group, Mesh, Object3D, Skeleton, SkinnedMesh, Vector3 } from 'three'
 
-import { dispatchAction, getMutableState } from '@etherealengine/hyperflux'
+import { dispatchAction, getState } from '@etherealengine/hyperflux'
 
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { AssetType } from '../../assets/enum/AssetType'
 import { AnimationManager } from '../../avatar/AnimationManager'
 import { LoopAnimationComponent } from '../../avatar/components/LoopAnimationComponent'
-import { isClient } from '../../common/functions/isClient'
+import { isClient } from '../../common/functions/getEnvironment'
 import { iOS } from '../../common/functions/isMobile'
 import { EngineActions, EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
@@ -26,6 +26,7 @@ import { addObjectToGroup, GroupComponent, removeObjectFromGroup } from '../../s
 import { UpdatableCallback, UpdatableComponent } from '../../scene/components/UpdatableComponent'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
 import { setObjectLayers } from '../../scene/functions/setObjectLayers'
+import iterateObject3D from '../../scene/util/iterateObject3D'
 import { computeTransformMatrix, updateGroupChildren } from '../../transform/systems/TransformSystem'
 import { XRState } from '../../xr/XRState'
 import { createAvatarAnimationGraph } from '../animation/AvatarAnimationGraph'
@@ -79,9 +80,7 @@ export const loadAvatarModelAsset = async (avatarURL: string) => {
 export const loadAvatarForUser = async (
   entity: Entity,
   avatarURL: string,
-  loadingEffect = getMutableState(EngineState).avatarLoadingEffect.value &&
-    !getMutableState(XRState).sessionActive.value &&
-    !iOS
+  loadingEffect = getState(EngineState).avatarLoadingEffect && !getState(XRState).sessionActive && !iOS
 ) => {
   if (hasComponent(entity, AvatarPendingComponent) && getComponent(entity, AvatarPendingComponent).url === avatarURL)
     return
@@ -124,6 +123,9 @@ export const setupAvatarForUser = (entity: Entity, model: Object3D) => {
 
   setupAvatarModel(entity)(model)
   addObjectToGroup(entity, model)
+  iterateObject3D(model, (obj) => {
+    obj && (obj.frustumCulled = false)
+  })
 
   computeTransformMatrix(entity)
   updateGroupChildren(entity)
@@ -148,7 +150,7 @@ export const boneMatchAvatarModel = (entity: Entity) => (model: Object3D) => {
     if (groupComponent) for (const obj of groupComponent) obj.userData.scale = 0.01
   } else if (assetType == AssetType.VRM) {
     if (model && (model as UpdateableObject3D).update) {
-      addComponent(entity, UpdatableComponent, true)
+      setComponent(entity, UpdatableComponent, true)
       setCallback(entity, UpdatableCallback, (delta: number) => {
         ;(model as UpdateableObject3D).update(delta)
       })
@@ -160,16 +162,15 @@ export const boneMatchAvatarModel = (entity: Entity) => (model: Object3D) => {
 
 export const rigAvatarModel = (entity: Entity) => (model: Object3D) => {
   const avatarAnimationComponent = getComponent(entity, AvatarAnimationComponent)
-  removeComponent(entity, AvatarRigComponent)
+
   const rig = avatarBoneMatching(model)
   const rootBone = rig.Root || rig.Hips
   rootBone.updateWorldMatrix(true, true)
 
   const skinnedMeshes = findSkinnedMeshes(model)
 
-  /**@todo replace check for loop aniamtion component with ensuring tpose is only handled once */
   // Try converting to T pose
-  if (!hasComponent(entity, LoopAnimationComponent)) {
+  if (!hasComponent(entity, LoopAnimationComponent) && !isSkeletonInTPose(rig)) {
     makeTPose(rig)
     skinnedMeshes.forEach(applySkeletonPose)
   }

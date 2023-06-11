@@ -4,9 +4,10 @@ import path from 'path'
 
 import { Party } from '@etherealengine/common/src/interfaces/Party'
 import { UserInterface } from '@etherealengine/common/src/interfaces/User'
+import { destroyEngine } from '@etherealengine/engine/src/ecs/classes/Engine'
 
 import { Application } from '../../../declarations'
-import { createFeathersExpressApp } from '../../createApp'
+import { createFeathersKoaApp } from '../../createApp'
 import { deleteFolderRecursive } from '../../util/fsHelperFunctions'
 
 const newProjectName1 = 'ProjectTest_test_project_name_1'
@@ -21,7 +22,7 @@ const cleanup = async (app: Application) => {
 
 /**
  * @todo
- * - refactor storage provider to be create as part of createFeathersExpressApp() to eliminate global scope
+ * - refactor storage provider to be create as part of createFeathersKoaApp() to eliminate global scope
  * - use this to force a local storage provider and test specific files in the upload folder
  * - add tests for all combinations of state for projects
  *
@@ -36,7 +37,7 @@ describe('party.test', () => {
   let user4: UserInterface
   let party1, party2, partyUser1, partyUser2, partyUser3
   before(async () => {
-    app = createFeathersExpressApp()
+    app = createFeathersKoaApp()
     await app.setup()
     const avatarName = 'CyberbotGreen'
 
@@ -90,6 +91,10 @@ describe('party.test', () => {
     })
   })
 
+  after(() => {
+    return destroyEngine()
+  })
+
   describe('party', () => {
     describe('create', () => {
       it('should create a party owned by creating user, and set their partyId to the party ID', async function () {
@@ -114,7 +119,7 @@ describe('party.test', () => {
         assert.strictEqual(partyUser1.partyId, party2.id)
         assert.strictEqual(partyUser1.userId, user1.id)
         assert.strictEqual(partyUser1.isOwner, true)
-        assert.strictEqual(user.partyId, party2.id)
+        assert.strictEqual(user.party!.id, party2.id)
       })
 
       it("should delete the user's old party-user if they create a new party, and make a new party", async function () {
@@ -147,7 +152,7 @@ describe('party.test', () => {
         assert.strictEqual(partyUser1.partyId, party1.id)
         assert.strictEqual(partyUser1.userId, user1.id)
         assert.strictEqual(partyUser1.isOwner, true)
-        assert.strictEqual(user.partyId, party1.id)
+        assert.strictEqual(user.party!.id, party1.id)
       })
     })
 
@@ -353,7 +358,7 @@ describe('party.test', () => {
         const user2Result = await app.service('user').get(user2.id)
 
         assert.strictEqual(partyUsers.total, 2)
-        assert.strictEqual(user2Result.partyId, null)
+        assert.strictEqual(user2Result.party, null)
       })
 
       it('should allow the owner to remove another member', async function () {
@@ -375,7 +380,7 @@ describe('party.test', () => {
         const user3Result = await app.service('user').get(user3.id)
 
         assert.strictEqual(partyUsers.total, 1)
-        assert.strictEqual(user3Result.partyId, null)
+        assert.strictEqual(user3Result.party, null)
       })
 
       it('should allow the owner to remove themself, and automatically pass ownership to another party member', async function () {
@@ -406,7 +411,7 @@ describe('party.test', () => {
         const returnedPartyUser = partyUsers.data[0]
         assert.strictEqual(returnedPartyUser.id, partyUser2.id)
         assert.strictEqual(returnedPartyUser.isOwner, true)
-        assert.strictEqual(user1Result.partyId, null)
+        assert.strictEqual(user1Result.party, null)
       })
 
       it('should automatically delete the party if the last party member leaves', async function () {

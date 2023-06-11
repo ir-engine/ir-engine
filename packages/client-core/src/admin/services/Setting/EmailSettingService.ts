@@ -1,16 +1,20 @@
 import { Paginated } from '@feathersjs/feathers'
 
-import { EmailSetting, PatchEmailSetting } from '@etherealengine/common/src/interfaces/EmailSetting'
 import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
-import { defineAction, defineState, dispatchAction, getMutableState, useState } from '@etherealengine/hyperflux'
+import {
+  EmailSettingPatch,
+  emailSettingPath,
+  EmailSettingType
+} from '@etherealengine/engine/src/schemas/setting/email-setting.schema'
+import { defineAction, defineState, dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 
 import { API } from '../../../API'
 import { NotificationService } from '../../../common/services/NotificationService'
 
-const AdminEmailSettingsState = defineState({
+export const AdminEmailSettingsState = defineState({
   name: 'AdminEmailSettingsState',
   initial: () => ({
-    email: [] as Array<EmailSetting>,
+    email: [] as Array<EmailSettingType>,
     updateNeeded: true
   })
 })
@@ -30,23 +34,19 @@ export const EmailSettingReceptors = {
   emailSettingPatchedReceptor
 }
 
-export const accessEmailSettingState = () => getMutableState(AdminEmailSettingsState)
-
-export const useEmailSettingState = () => useState(accessEmailSettingState())
-
 export const EmailSettingService = {
   fetchedEmailSettings: async (inDec?: 'increment' | 'dcrement') => {
     try {
-      const emailSettings = (await API.instance.client.service('email-setting').find()) as Paginated<EmailSetting>
+      const emailSettings = (await API.instance.client.service(emailSettingPath).find()) as Paginated<EmailSettingType>
       dispatchAction(EmailSettingActions.fetchedEmail({ emailSettings }))
     } catch (err) {
       console.log(err.message)
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
   },
-  patchEmailSetting: async (data: PatchEmailSetting, id: string) => {
+  patchEmailSetting: async (data: EmailSettingPatch, id: string) => {
     try {
-      await API.instance.client.service('email-setting').patch(id, data)
+      await API.instance.client.service(emailSettingPath).patch(id, data)
       dispatchAction(EmailSettingActions.emailSettingPatched({}))
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
@@ -56,10 +56,10 @@ export const EmailSettingService = {
 
 export class EmailSettingActions {
   static fetchedEmail = defineAction({
-    type: 'xre.client.EmailSetting.EMAIL_SETTING_DISPLAY' as const,
-    emailSettings: matches.object as Validator<unknown, Paginated<EmailSetting>>
+    type: 'ee.client.EmailSetting.EMAIL_SETTING_DISPLAY' as const,
+    emailSettings: matches.object as Validator<unknown, Paginated<EmailSettingType>>
   })
   static emailSettingPatched = defineAction({
-    type: 'xre.client.EmailSetting.EMAIL_SETTING_PATCHED' as const
+    type: 'ee.client.EmailSetting.EMAIL_SETTING_PATCHED' as const
   })
 }

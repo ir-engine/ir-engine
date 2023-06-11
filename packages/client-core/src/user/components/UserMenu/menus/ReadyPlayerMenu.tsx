@@ -9,18 +9,15 @@ import { getCanvasBlob } from '@etherealengine/client-core/src/common/utils'
 import config from '@etherealengine/common/src/config'
 import { THUMBNAIL_HEIGHT, THUMBNAIL_WIDTH } from '@etherealengine/common/src/constants/AvatarConstants'
 import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoader'
-import Box from '@etherealengine/ui/src/Box'
-import Icon from '@etherealengine/ui/src/Icon'
-import IconButton from '@etherealengine/ui/src/IconButton'
+import Box from '@etherealengine/ui/src/primitives/mui/Box'
+import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
+import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
 
 import { AVATAR_ID_REGEX, generateAvatarId } from '../../../../util/avatarIdFunctions'
 import { AvatarService } from '../../../services/AvatarService'
+import { UserMenus } from '../../../UserUISystem'
 import styles from '../index.module.scss'
-import { Views } from '../util'
-
-interface Props {
-  changeActiveMenu: Function
-}
+import { PopupMenuServices } from '../PopupMenuService'
 
 enum LoadingState {
   None,
@@ -30,9 +27,9 @@ enum LoadingState {
   Uploading
 }
 
-const ReadyPlayerMenu = ({ changeActiveMenu }: Props) => {
+const ReadyPlayerMenu = () => {
   const { t } = useTranslation()
-  const [selectedFile, setSelectedFile] = useState<Blob>()
+  const [selectedBlob, setSelectedBlob] = useState<Blob>()
   const [avatarName, setAvatarName] = useState('')
   const [avatarUrl, setAvatarUrl] = useState('')
   const [loading, setLoading] = useState(LoadingState.LoadingRPM)
@@ -63,7 +60,7 @@ const ReadyPlayerMenu = ({ changeActiveMenu }: Props) => {
 
           setLoading(LoadingState.LoadingPreview)
           setAvatarUrl(url)
-          setSelectedFile(data)
+          setSelectedBlob(data)
         }
       } catch (error) {
         console.error(error)
@@ -81,7 +78,7 @@ const ReadyPlayerMenu = ({ changeActiveMenu }: Props) => {
   }
 
   const uploadAvatar = async () => {
-    if (error || selectedFile === undefined) {
+    if (error || selectedBlob === undefined) {
       return
     }
     setLoading(LoadingState.Uploading)
@@ -96,16 +93,22 @@ const ReadyPlayerMenu = ({ changeActiveMenu }: Props) => {
     newContext?.drawImage(avatarCanvas, 0, 0)
 
     const thumbnailName = avatarUrl.substring(0, avatarUrl.lastIndexOf('.')) + '.png'
+    const modelName = avatarUrl.substring(0, avatarUrl.lastIndexOf('.')) + '.glb'
 
     const blob = await getCanvasBlob(canvas)
 
-    await AvatarService.createAvatar(selectedFile, new File([blob!], thumbnailName), avatarName, false)
+    await AvatarService.createAvatar(
+      new File([selectedBlob!], modelName),
+      new File([blob!], thumbnailName),
+      avatarName,
+      false
+    )
 
     setLoading(LoadingState.None)
-    changeActiveMenu(Views.Closed)
+    PopupMenuServices.showPopupMenu()
   }
 
-  const avatarPreviewLoaded = loading === LoadingState.None && selectedFile
+  const avatarPreviewLoaded = loading === LoadingState.None && selectedBlob
 
   return (
     <Menu
@@ -113,8 +116,8 @@ const ReadyPlayerMenu = ({ changeActiveMenu }: Props) => {
       maxWidth={loading === LoadingState.LoadingRPM ? 'sm' : 'xs'}
       showBackButton={avatarPreviewLoaded ? true : false}
       title={avatarPreviewLoaded ? t('user:avatar.titleSelectThumbnail') : undefined}
-      onBack={() => changeActiveMenu(Views.Profile)}
-      onClose={() => changeActiveMenu(Views.Closed)}
+      onBack={() => PopupMenuServices.showPopupMenu(UserMenus.Profile)}
+      onClose={() => PopupMenuServices.showPopupMenu()}
     >
       <Box
         className={styles.menuContent}

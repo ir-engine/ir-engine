@@ -16,24 +16,25 @@ export const userColumns: UserColumn[] = [
     minWidth: 65,
     align: 'right'
   },
-  {
-    id: 'location',
-    label: 'Location',
-    minWidth: 65,
-    align: 'right'
-  },
+  /** @todo replace this with a list of locations */
+  // {
+  //   id: 'location',
+  //   label: 'Location',
+  //   minWidth: 65,
+  //   align: 'right'
+  // },
   {
     id: 'inviteCode',
     label: 'Invite code',
     minWidth: 65,
     align: 'right'
   },
-  {
-    id: 'instanceId',
-    label: 'Instance',
-    minWidth: 65,
-    align: 'right'
-  },
+  // {
+  //   id: 'instanceId',
+  //   label: 'Instance',
+  //   minWidth: 65,
+  //   align: 'right'
+  // },
   {
     id: 'action',
     label: 'Action',
@@ -49,9 +50,7 @@ export interface UserData {
   avatarId: string | JSX.Element
   accountIdentifier: string | JSX.Element
   isGuest: string
-  location: string | JSX.Element
   inviteCode: string | JSX.Element
-  instanceId: string | JSX.Element
   action: any
 }
 export interface UserProps {

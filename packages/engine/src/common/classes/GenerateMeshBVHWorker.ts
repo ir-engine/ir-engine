@@ -3,7 +3,7 @@ import { Box3, BufferAttribute, BufferGeometry, InterleavedBufferAttribute } fro
 import { MeshBVH } from 'three-mesh-bvh'
 import Worker from 'web-worker'
 
-import { isClient } from '../functions/isClient'
+import { isClient } from '../functions/getEnvironment'
 
 export class GenerateMeshBVHWorker {
   running: boolean
@@ -63,7 +63,9 @@ export class GenerateMeshBVHWorker {
       }
 
       const index = geometry.index ? Uint32Array.from(geometry.index.array) : null
-      const position = Float32Array.from(geometry.attributes.position.array)
+      const position = Float32Array.from(
+        (geometry.attributes.position as BufferAttribute | InterleavedBufferAttribute).array
+      )
 
       const transferrables = [position as ArrayLike<number>]
       if (index) {

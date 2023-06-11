@@ -5,6 +5,7 @@ import { ProjectConfigInterface } from '@etherealengine/projects/ProjectConfigIn
 
 import { Application } from '../declarations'
 import AnalyticsServices from './analytics/services'
+import ApiServices from './api/services'
 import AssetServices from './assets/services'
 import BotService from './bot/services'
 import ClusterServices from './cluster/services'
@@ -12,6 +13,7 @@ import MatchMakingServices from './matchmaking/services'
 import MediaServices from './media/services'
 import NetworkingServices from './networking/services'
 import EntityServices from './projects/services'
+import RecordingServices from './recording/services'
 import RouteService from './route/service'
 import ScopeService from './scope/service'
 import SettingService from './setting/service'
@@ -42,6 +44,7 @@ const installedProjects = fs.existsSync(path.resolve(__dirname, '../../projects/
 export default (app: Application): void => {
   ;[
     ...AnalyticsServices,
+    ...ApiServices,
     ...UserServices,
     ...AssetServices,
     ...MediaServices,
@@ -52,6 +55,7 @@ export default (app: Application): void => {
     ...ScopeService,
     ...SettingService,
     ...RouteService,
+    ...RecordingServices,
     ...installedProjects,
     ...MatchMakingServices,
     ...ClusterServices

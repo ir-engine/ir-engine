@@ -1,8 +1,10 @@
 import {
+  BufferAttribute,
   CanvasTexture,
   ClampToEdgeWrapping,
   CompressedTexture,
   DoubleSide,
+  InterleavedBufferAttribute,
   LinearFilter,
   LinearMipMapLinearFilter,
   Mesh,
@@ -29,7 +31,7 @@ const scratchVector = new Vector3()
 
 /** Correct UVs to be compatible with `flipY=false` textures. */
 function flipY(geometry: PlaneGeometry) {
-  const uv = geometry.attributes.uv
+  const uv = geometry.attributes.uv as BufferAttribute | InterleavedBufferAttribute
 
   for (let i = 0; i < uv.count; i++) {
     uv.setY(i, 1 - uv.getY(i))

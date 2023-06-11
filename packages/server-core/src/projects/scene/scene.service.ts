@@ -1,15 +1,16 @@
 import { Params } from '@feathersjs/feathers'
-import express from 'express'
-import multer from 'multer'
+import Multer from '@koa/multer'
 
 import { SceneData } from '@etherealengine/common/src/interfaces/SceneInterface'
+import { getState } from '@etherealengine/hyperflux'
 
-import { Application, ServerMode } from '../../../declarations'
+import { Application } from '../../../declarations'
 import { getStorageProvider } from '../../media/storageprovider/storageprovider'
 import { UploadParams } from '../../media/upload-asset/upload-asset.service'
 import { getActiveInstancesForScene } from '../../networking/instance/instance.service'
 import logger from '../../ServerLogger'
-import { getAllPortals, getEnvMapBake, getPortal } from './scene-helper'
+import { ServerMode, ServerState } from '../../ServerState'
+import { getAllPortals, getPortal } from './scene-helper'
 import { getSceneData, Scene } from './scene.class'
 import projectDocs from './scene.docs'
 import hooks from './scene.hooks'
@@ -39,7 +40,7 @@ export const uploadScene = (app: Application) => async (data: any, params: Uploa
   if (typeof data === 'string') data = JSON.parse(data)
   if (typeof data.sceneData === 'string') data.sceneData = JSON.parse(data.sceneData)
 
-  const thumbnailBuffer = params.files.length > 0 ? params.files[0].buffer : undefined
+  const thumbnailBuffer = params.files.length > 0 ? (params.files[0].buffer as Buffer) : undefined
 
   const { projectName, sceneName, sceneData, storageProviderName } = data
 
@@ -119,7 +120,7 @@ export const getAllScenes = (app: Application) => {
   }
 }
 
-const multipartMiddleware = multer({ limits: { fieldSize: Infinity, files: 1 } })
+const multipartMiddleware = Multer({ limits: { fieldSize: Infinity, files: 1 } })
 
 export default (app: Application) => {
   /**
@@ -127,21 +128,35 @@ export default (app: Application) => {
    */
   const event = new Scene(app)
   event.docs = projectDocs
-
   app.use('scene', event)
-
   app.use(
     'scene/upload',
-    multipartMiddleware.any(),
-    (req: express.Request, res: express.Response, next: express.NextFunction) => {
-      if (req?.feathers && req.method !== 'GET') {
-        ;(req as any).feathers.files = (req as any).files.media ? (req as any).files.media : (req as any).files
-      }
-
-      next()
-    },
     {
       create: uploadScene(app)
+    },
+    {
+      koa: {
+        before: [
+          multipartMiddleware.any(),
+          async (ctx, next) => {
+            console.log('trying to upload scene')
+            const files = ctx.request.files
+            if (ctx?.feathers && ctx.method !== 'GET') {
+              ;(ctx as any).feathers.files = (ctx as any).request.files.media
+                ? (ctx as any).request.files.media
+                : ctx.request.files
+            }
+            if (Object.keys(files as any).length > 1) {
+              ctx.status = 400
+              ctx.body = 'Only one scene is allowed'
+              return
+            }
+            await next()
+            console.log('uploaded scene')
+            return ctx.body
+          }
+        ]
+      }
     }
   )
 
@@ -154,16 +169,16 @@ export default (app: Application) => {
     get: getPortal(app),
     find: getAllPortals(app)
   })
-  app.use('/cubemap/:entityId', getEnvMapBake(app))
 
   /**
    * Get our initialized service so that we can register hooks
    */
+
   const service = app.service('scene')
 
   service.hooks(hooks)
 
-  if (app.serverMode === ServerMode.API)
+  if (getState(ServerState).serverMode === ServerMode.API)
     service.publish('updated', async (data, context) => {
       const instances = await getActiveInstancesForScene(app)({ query: { sceneId: data.sceneId } })
       const users = (

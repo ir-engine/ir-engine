@@ -4,12 +4,11 @@ import { useEffect } from 'react'
 import { CreateGroup, Group } from '@etherealengine/common/src/interfaces/Group'
 import { GroupUser } from '@etherealengine/common/src/interfaces/GroupUser'
 import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
-import { defineAction, defineState, dispatchAction, getMutableState, useState } from '@etherealengine/hyperflux'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { defineAction, defineState, dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
 
-import { API } from '../../API'
 import { NotificationService } from '../../common/services/NotificationService'
-import { accessAuthState } from '../../user/services/AuthService'
-import { NetworkUserAction } from '../../user/services/NetworkUserService'
+import { AuthState } from '../../user/services/AuthService'
 import { ChatService } from './ChatService'
 
 //State
@@ -41,7 +40,7 @@ export const GroupServiceReceptor = (action) => {
   const s = getMutableState(GroupState)
   matches(action)
     .when(GroupAction.loadedGroups.matches, (action) => {
-      if (s.updateNeeded.value === true) {
+      if (s.updateNeeded.value) {
         s.groups.groups.set(action.groups)
       } else {
         s.groups.groups.set([...s.groups.groups.value, ...action.groups])
@@ -51,7 +50,7 @@ export const GroupServiceReceptor = (action) => {
       return s.getGroupsInProgress.set(false)
     })
     .when(GroupAction.loadedInvitableGroups.matches, (action) => {
-      if (s.updateNeeded.value === true) {
+      if (s.updateNeeded.value) {
         s.invitableGroups.groups.set(action.groups)
       } else {
         s.invitableGroups.groups.set([...s.invitableGroups.groups.value, ...action.groups])
@@ -65,7 +64,7 @@ export const GroupServiceReceptor = (action) => {
       return s.merge({ updateNeeded: true, invitableUpdateNeeded: true })
     })
     .when(GroupAction.patchedGroup.matches, (action) => {
-      const groupIndex = s.groups.groups.value.findIndex((groupItem) => {
+      const groupIndex = s.groups.groups.get({ noproxy: true }).findIndex((groupItem) => {
         return groupItem != null && groupItem.id === action.group.id
       })
       if (groupIndex !== -1) {
@@ -90,7 +89,7 @@ export const GroupServiceReceptor = (action) => {
       return s.getInvitableGroupsInProgress.set(true)
     })
     .when(GroupAction.createdGroupUser.matches, (action) => {
-      const groupIndex = s.groups.groups.value.findIndex((groupItem) => {
+      const groupIndex = s.groups.groups.get({ noproxy: true }).findIndex((groupItem) => {
         return groupItem != null && groupItem.id === action.groupUser.groupId
       })
       if (groupIndex !== -1) {
@@ -108,7 +107,7 @@ export const GroupServiceReceptor = (action) => {
       return s.merge({ updateNeeded: true })
     })
     .when(GroupAction.patchedGroupUser.matches, (action) => {
-      const groupIndex = s.groups.groups.value.findIndex((groupItem) => {
+      const groupIndex = s.groups.groups.get({ noproxy: true }).findIndex((groupItem) => {
         return groupItem != null && groupItem.id === action.groupUser.groupId
       })
       if (groupIndex !== -1) {
@@ -125,7 +124,7 @@ export const GroupServiceReceptor = (action) => {
       return s
     })
     .when(GroupAction.removedGroupUser.matches, (action) => {
-      const groupIndex = s.groups.groups.value.findIndex((groupItem) => {
+      const groupIndex = s.groups.groups.get({ noproxy: true }).findIndex((groupItem) => {
         return groupItem != null && groupItem.id === action.groupUser.groupId
       })
       if (groupIndex !== -1) {
@@ -148,17 +147,13 @@ export const GroupServiceReceptor = (action) => {
     })
 }
 
-export const accessGroupState = () => getMutableState(GroupState)
-
-export const useGroupState = () => useState(accessGroupState())
-
 //Service
 export const GroupService = {
   getGroups: async (skip?: number, limit?: number) => {
     dispatchAction(GroupAction.fetchingGroups({}))
-    const groupActionState = accessGroupState().value
+    const groupActionState = getState(GroupState)
     try {
-      const groupResults = await API.instance.client.service('group').find({
+      const groupResults = await Engine.instance.api.service('group').find({
         query: {
           $limit: limit != null ? limit : groupActionState.groups.limit,
           $skip: skip != null ? skip : groupActionState.groups.skip
@@ -178,7 +173,7 @@ export const GroupService = {
   },
   createGroup: async (values: CreateGroup) => {
     try {
-      const result = (await API.instance.client.service('group').create({
+      const result = (await Engine.instance.api.service('group').create({
         name: values.name,
         description: values.description
       })) as Group
@@ -196,7 +191,7 @@ export const GroupService = {
       ;(patch as any).description = values.description
     }
     try {
-      const data = (await API.instance.client.service('group').patch(values.id ?? '', patch)) as Group
+      const data = (await Engine.instance.api.service('group').patch(values.id ?? '', patch)) as Group
       // ;(patch as any).id = values.id
       dispatchAction(GroupAction.patchedGroup({ group: data }))
     } catch (err) {
@@ -205,23 +200,23 @@ export const GroupService = {
   },
   removeGroup: async (groupId: string) => {
     try {
-      const channelResult = (await API.instance.client.service('channel').find({
+      const channelResult = (await Engine.instance.api.service('channel').find({
         query: {
           channelType: 'group',
           groupId: groupId
         }
       })) as any
       if (channelResult.total > 0) {
-        await API.instance.client.service('channel').remove(channelResult.data[0].id)
+        await Engine.instance.api.service('channel').remove(channelResult.data[0].id)
       }
-      await API.instance.client.service('group').remove(groupId)
+      await Engine.instance.api.service('group').remove(groupId)
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
   },
   removeGroupUser: async (groupUserId: string) => {
     try {
-      await API.instance.client.service('group-user').remove(groupUserId)
+      await Engine.instance.api.service('group-user').remove(groupUserId)
       dispatchAction(GroupAction.leftGroup({}))
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
@@ -229,9 +224,9 @@ export const GroupService = {
   },
   getInvitableGroups: async (skip?: number, limit?: number) => {
     dispatchAction(GroupAction.fetchingInvitableGroups({}))
-    const groupActionState = accessGroupState().value
+    const groupActionState = getState(GroupState)
     try {
-      const groupResults = await API.instance.client.service('group').find({
+      const groupResults = await Engine.instance.api.service('group').find({
         query: {
           invitable: true,
           $limit: limit != null ? limit : groupActionState.groups.limit,
@@ -255,40 +250,19 @@ export const GroupService = {
     useEffect(() => {
       const groupUserCreatedListener = (params) => {
         const newGroupUser = params.groupUser
-        const selfUser = accessAuthState().user
         dispatchAction(GroupAction.createdGroupUser({ groupUser: newGroupUser }))
-        if (
-          newGroupUser.user.channelInstanceId != null &&
-          newGroupUser.user.channelInstanceId === selfUser.channelInstanceId.value
-        )
-          dispatchAction(NetworkUserAction.addedChannelLayerUserAction({ user: newGroupUser.user }))
-        if (newGroupUser.user.channelInstanceId !== selfUser.channelInstanceId.value)
-          dispatchAction(NetworkUserAction.removedChannelLayerUserAction({ user: newGroupUser.user }))
       }
 
       const groupUserPatchedListener = (params) => {
         const updatedGroupUser = params.groupUser
-        const selfUser = accessAuthState().user
         dispatchAction(GroupAction.patchedGroupUser({ groupUser: updatedGroupUser }))
-        if (
-          updatedGroupUser.user.channelInstanceId != null &&
-          updatedGroupUser.user.channelInstanceId === selfUser.channelInstanceId.value
-        )
-          dispatchAction(NetworkUserAction.addedChannelLayerUserAction({ user: updatedGroupUser.user }))
-        if (updatedGroupUser.user.channelInstanceId !== selfUser.channelInstanceId.value)
-          dispatchAction(
-            NetworkUserAction.removedChannelLayerUserAction({
-              user: updatedGroupUser.user
-            })
-          )
       }
 
       const groupUserRemovedListener = (params) => {
         const deletedGroupUser = params.groupUser
-        const selfUser = accessAuthState().user
+        const selfUser = getState(AuthState).user
         dispatchAction(GroupAction.removedGroupUser({ groupUser: deletedGroupUser, self: params.self }))
-        dispatchAction(NetworkUserAction.removedChannelLayerUserAction({ user: deletedGroupUser.user }))
-        if (deletedGroupUser.userId === selfUser.id.value)
+        if (deletedGroupUser.userId === selfUser.id)
           ChatService.clearChatTargetIfCurrent('group', { id: params.groupUser.groupId })
       }
 
@@ -309,22 +283,22 @@ export const GroupService = {
         dispatchAction(GroupAction.createdGroup({ group: params.group }))
       }
 
-      API.instance.client.service('group-user').on('created', groupUserCreatedListener)
-      API.instance.client.service('group-user').on('patched', groupUserPatchedListener)
-      API.instance.client.service('group-user').on('removed', groupUserRemovedListener)
-      API.instance.client.service('group').on('created', groupCreatedListener)
-      API.instance.client.service('group').on('patched', groupPatchedListener)
-      API.instance.client.service('group').on('removed', groupRemovedListener)
-      API.instance.client.service('group').on('refresh', groupRefreshListener)
+      Engine.instance.api.service('group-user').on('created', groupUserCreatedListener)
+      Engine.instance.api.service('group-user').on('patched', groupUserPatchedListener)
+      Engine.instance.api.service('group-user').on('removed', groupUserRemovedListener)
+      Engine.instance.api.service('group').on('created', groupCreatedListener)
+      Engine.instance.api.service('group').on('patched', groupPatchedListener)
+      Engine.instance.api.service('group').on('removed', groupRemovedListener)
+      Engine.instance.api.service('group').on('refresh', groupRefreshListener)
 
       return () => {
-        API.instance.client.service('group-user').off('created', groupUserCreatedListener)
-        API.instance.client.service('group-user').off('patched', groupUserPatchedListener)
-        API.instance.client.service('group-user').off('removed', groupUserRemovedListener)
-        API.instance.client.service('group').off('created', groupCreatedListener)
-        API.instance.client.service('group').off('patched', groupPatchedListener)
-        API.instance.client.service('group').off('removed', groupRemovedListener)
-        API.instance.client.service('group').off('refresh', groupRefreshListener)
+        Engine.instance.api.service('group-user').off('created', groupUserCreatedListener)
+        Engine.instance.api.service('group-user').off('patched', groupUserPatchedListener)
+        Engine.instance.api.service('group-user').off('removed', groupUserRemovedListener)
+        Engine.instance.api.service('group').off('created', groupCreatedListener)
+        Engine.instance.api.service('group').off('patched', groupPatchedListener)
+        Engine.instance.api.service('group').off('removed', groupRemovedListener)
+        Engine.instance.api.service('group').off('refresh', groupRefreshListener)
       }
     }, [])
   }
@@ -333,7 +307,7 @@ export const GroupService = {
 //Action
 export class GroupAction {
   static loadedGroups = defineAction({
-    type: 'xre.client.Group.LOADED_GROUPS' as const,
+    type: 'ee.client.Group.LOADED_GROUPS' as const,
     groups: matches.array as Validator<unknown, Group[]>,
     total: matches.number,
     limit: matches.number,
@@ -341,50 +315,50 @@ export class GroupAction {
   })
 
   static createdGroup = defineAction({
-    type: 'xre.client.Group.CREATED_GROUP' as const,
+    type: 'ee.client.Group.CREATED_GROUP' as const,
     group: matches.object as Validator<unknown, Group>
   })
 
   static patchedGroup = defineAction({
-    type: 'xre.client.Group.PATCHED_GROUP' as const,
+    type: 'ee.client.Group.PATCHED_GROUP' as const,
     group: matches.object as Validator<unknown, Group>
   })
 
   static removedGroup = defineAction({
-    type: 'xre.client.Group.REMOVED_GROUP' as const,
+    type: 'ee.client.Group.REMOVED_GROUP' as const,
     group: matches.object as Validator<unknown, Group>
   })
 
   static createdGroupUser = defineAction({
-    type: 'xre.client.Group.CREATED_GROUP_USER' as const,
+    type: 'ee.client.Group.CREATED_GROUP_USER' as const,
     groupUser: matches.object as Validator<unknown, GroupUser>
   })
 
   static patchedGroupUser = defineAction({
-    type: 'xre.client.Group.PATCHED_GROUP_USER' as const,
+    type: 'ee.client.Group.PATCHED_GROUP_USER' as const,
     groupUser: matches.object as Validator<unknown, GroupUser>
   })
 
   static removedGroupUser = defineAction({
-    type: 'xre.client.Group.REMOVED_GROUP_USER' as const,
+    type: 'ee.client.Group.REMOVED_GROUP_USER' as const,
     groupUser: matches.object as Validator<unknown, GroupUser>,
     self: matches.boolean
   })
 
   static invitedGroupUser = defineAction({
-    type: 'xre.client.Group.INVITED_GROUP_USER' as const
+    type: 'ee.client.Group.INVITED_GROUP_USER' as const
   })
 
   static leftGroup = defineAction({
-    type: 'xre.client.Group.LEFT_GROUP' as const
+    type: 'ee.client.Group.LEFT_GROUP' as const
   })
 
   static fetchingGroups = defineAction({
-    type: 'xre.client.Group.FETCHING_GROUPS' as const
+    type: 'ee.client.Group.FETCHING_GROUPS' as const
   })
 
   static loadedInvitableGroups = defineAction({
-    type: 'xre.client.Group.LOADED_INVITABLE_GROUPS' as const,
+    type: 'ee.client.Group.LOADED_INVITABLE_GROUPS' as const,
     groups: matches.array as Validator<unknown, Group[]>,
     total: matches.number,
     limit: matches.number,
@@ -392,10 +366,10 @@ export class GroupAction {
   })
 
   static fetchingInvitableGroups = defineAction({
-    type: 'xre.client.Group.FETCHING_INVITABLE_GROUPS' as const
+    type: 'ee.client.Group.FETCHING_INVITABLE_GROUPS' as const
   })
 
   static removeCloseGroupDetail = defineAction({
-    type: 'xre.client.Group.REMOVE_CLOSE_GROUP_DETAIL' as const
+    type: 'ee.client.Group.REMOVE_CLOSE_GROUP_DETAIL' as const
   })
 }

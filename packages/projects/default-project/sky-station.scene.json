@@ -1,6 +1,5 @@
 {
   "version": 0,
-  "metadata": {},
   "entities": {
     "1b731841-172a-4141-89cb-d1cceeec748f": {
       "components": [
@@ -32,11 +31,6 @@
         {
           "name": "envmapbake",
           "props": {
-            "bakeType": "Baked",
-            "resolution": 2048,
-            "refreshMode": "OnAwake",
-            "envMapOrigin": "__$project$__/default-project/sky-station.envmap.png",
-            "boxProjection": true,
             "bakePosition": {
               "x": 0,
               "y": 0,
@@ -51,7 +45,12 @@
               "x": 1,
               "y": 1,
               "z": 1
-            }
+            },
+            "bakeType": "Baked",
+            "resolution": 2048,
+            "refreshMode": "OnAwake",
+            "envMapOrigin": "__$project$__/default-project/sky-station.envmap.ktx2",
+            "boxProjection": true
           }
         }
       ],
@@ -63,25 +62,25 @@
           "name": "transform",
           "props": {
             "position": {
-              "x": 0,
-              "y": 0,
-              "z": 0
+              "x": 37,
+              "y": 4,
+              "z": 22.5
             },
             "rotation": {
               "x": 0,
-              "y": 0,
+              "y": 0.21643961393810288,
               "z": 0,
-              "w": 1
+              "w": 0.9762960071199334
             },
             "scale": {
-              "x": 1,
+              "x": 0.9999999999999993,
               "y": 1,
-              "z": 1
+              "z": 0.9999999999999993
             }
           }
         },
         {
-          "name": "visible",
+          "name": "scene-preview-camera",
           "props": {}
         }
       ],
@@ -120,9 +119,9 @@
           "name": "skybox",
           "props": {
             "backgroundColor": 0,
-            "equirectangularPath": "",
+            "equirectangularPath": "__$project$__/default-project/assets/sky_skybox.jpg",
             "cubemapPath": "/hdr/cubemap/MilkyWay/",
-            "backgroundType": 1,
+            "backgroundType": 2,
             "skyboxProps": {
               "turbidity": 10,
               "rayleigh": 1,
@@ -211,24 +210,20 @@
           "name": "gltf-model",
           "props": {
             "src": "__$project$__/default-project/assets/Skybase.glb",
+            "resource": {
+              "src": "__$project$__/default-project/assets/Skybase.glb"
+            },
             "generateBVH": true,
-            "matrixAutoUpdate": true
-          }
-        },
-        {
-          "name": "loop-animation",
-          "props": {
-            "activeClipIndex": -1,
-            "hasAvatarAnimations": false
+            "avoidCameraOcclusion": false
           }
         },
         {
           "name": "envmap",
           "props": {
-            "type": "Default",
-            "envMapTextureType": "Cubemap",
+            "type": "Texture",
+            "envMapTextureType": "Equirectangular",
             "envMapSourceColor": 1193046,
-            "envMapSourceURL": "/hdr/cubemap/skyboxsun25deg/",
+            "envMapSourceURL": "__$project$__/default-project/assets/sky_skybox.jpg",
             "envMapIntensity": 20
           }
         }
@@ -267,7 +262,7 @@
         {
           "name": "ambient-light",
           "props": {
-            "color": 13686783,
+            "color": 16777215,
             "intensity": 1.6
           }
         }
@@ -314,10 +309,16 @@
           "name": "media",
           "props": {
             "controls": true,
-            "autoplay": true,
-            "paths": [
-              "__$project$__/default-project/assets/SampleVideo.mp4"
+            "paused": false,
+            "paths": [],
+            "resources": [
+              {
+                "path": "__$project$__/default-project/assets/SampleVideo.mp4",
+                "mediaType": "video"
+              }
             ],
+            "volume": 1,
+            "synchronize": true,
             "playMode": "loop",
             "isMusic": false
           }
@@ -372,40 +373,6 @@
             "cast": true,
             "receive": true
           }
-        },
-        {
-          "name": "particle-emitter",
-          "props": {
-            "mode": "LIBRARY",
-            "src": "/static/editor/dot.png",
-            "startColor": 11860735,
-            "middleColor": 7785939,
-            "endColor": 45055,
-            "startOpacity": 1,
-            "middleOpacity": 1,
-            "endOpacity": 0,
-            "colorCurve": "linear",
-            "sizeCurve": "linear",
-            "startSize": 0.25,
-            "endSize": 0,
-            "sizeRandomness": 0,
-            "ageRandomness": 10,
-            "lifetime": 5,
-            "lifetimeRandomness": 5,
-            "particleCount": 1000,
-            "startVelocity": {
-              "x": 0,
-              "y": 0,
-              "z": 1
-            },
-            "endVelocity": {
-              "x": 0,
-              "y": 0,
-              "z": 5
-            },
-            "velocityCurve": "linear",
-            "angularVelocity": 0
-          }
         }
       ],
       "parent": "1b731841-172a-4141-89cb-d1cceeec748f",
@@ -450,15 +417,11 @@
           "name": "gltf-model",
           "props": {
             "src": "__$project$__/default-project/assets/test-equippable.glb",
+            "resource": {
+              "src": "__$project$__/default-project/assets/test-equippable.glb"
+            },
             "generateBVH": true,
-            "matrixAutoUpdate": true
-          }
-        },
-        {
-          "name": "loop-animation",
-          "props": {
-            "activeClipIndex": -1,
-            "hasAvatarAnimations": false
+            "avoidCameraOcclusion": false
           }
         },
         {
@@ -470,6 +433,22 @@
             "envMapSourceURL": "/hdr/cubemap/skyboxsun25deg/",
             "envMapIntensity": 1
           }
+        },
+        {
+          "name": "collider",
+          "props": {
+            "bodyType": 1,
+            "shapeType": 1,
+            "isTrigger": false,
+            "removeMesh": false,
+            "collisionLayer": 1,
+            "collisionMask": 7,
+            "restitution": 0.5
+          }
+        },
+        {
+          "name": "equippable",
+          "props": {}
         }
       ],
       "parent": "1b731841-172a-4141-89cb-d1cceeec748f",
@@ -511,6 +490,21 @@
           }
         },
         {
+          "name": "collider",
+          "props": {
+            "bodyType": 1,
+            "shapeType": 1,
+            "isTrigger": true,
+            "removeMesh": true,
+            "collisionLayer": 8,
+            "collisionMask": 2,
+            "restitution": 1,
+            "onEnter": "teleport",
+            "onExit": null,
+            "target": ""
+          }
+        },
+        {
           "name": "portal",
           "props": {
             "location": "apartment",
@@ -528,21 +522,8 @@
               "x": 0,
               "y": 0,
               "z": 0,
-              "order": "XYZ"
+              "w": 1
             }
-          }
-        },
-        {
-          "name": "collider",
-          "props": {
-            "bodyType": 1,
-            "shapeType": 1,
-            "isTrigger": true,
-            "removeMesh": true,
-            "collisionLayer": 8,
-            "collisionMask": 2,
-            "onEnter": "teleport",
-            "target": ""
           }
         }
       ],
@@ -581,10 +562,16 @@
           "name": "media",
           "props": {
             "controls": true,
-            "autoplay": false,
-            "paths": [
-              "__$project$__/default-project/assets/SampleAudio.mp3"
+            "paused": true,
+            "paths": [],
+            "resources": [
+              {
+                "path": "__$project$__/default-project/assets/SampleAudio.mp3",
+                "mediaType": "audio"
+              }
             ],
+            "volume": 1,
+            "synchronize": true,
             "playMode": "loop",
             "isMusic": true
           }
@@ -641,6 +628,21 @@
           }
         },
         {
+          "name": "collider",
+          "props": {
+            "bodyType": 1,
+            "shapeType": 1,
+            "isTrigger": true,
+            "removeMesh": true,
+            "collisionLayer": 8,
+            "collisionMask": 2,
+            "restitution": 1,
+            "onEnter": "teleport",
+            "onExit": null,
+            "target": ""
+          }
+        },
+        {
           "name": "portal",
           "props": {
             "location": "",
@@ -658,21 +660,8 @@
               "x": 0,
               "y": 0,
               "z": 0,
-              "order": "XYZ"
+              "w": 1
             }
-          }
-        },
-        {
-          "name": "collider",
-          "props": {
-            "bodyType": 1,
-            "shapeType": 1,
-            "isTrigger": true,
-            "removeMesh": true,
-            "collisionLayer": 8,
-            "collisionMask": 2,
-            "onEnter": "teleport",
-            "target": ""
           }
         }
       ],
@@ -715,6 +704,21 @@
           }
         },
         {
+          "name": "collider",
+          "props": {
+            "bodyType": 1,
+            "shapeType": 1,
+            "isTrigger": true,
+            "removeMesh": true,
+            "collisionLayer": 8,
+            "collisionMask": 2,
+            "restitution": 1,
+            "onEnter": "teleport",
+            "onExit": null,
+            "target": ""
+          }
+        },
+        {
           "name": "portal",
           "props": {
             "location": "",
@@ -732,21 +736,8 @@
               "x": 0,
               "y": 0,
               "z": 0,
-              "order": "XYZ"
+              "w": 1
             }
-          }
-        },
-        {
-          "name": "collider",
-          "props": {
-            "bodyType": 1,
-            "shapeType": 1,
-            "isTrigger": true,
-            "removeMesh": true,
-            "collisionLayer": 8,
-            "collisionMask": 2,
-            "onEnter": "teleport",
-            "target": ""
           }
         }
       ],
@@ -785,10 +776,16 @@
           "name": "media",
           "props": {
             "controls": false,
-            "autoplay": true,
-            "paths": [
-              "__$project$__/default-project/assets/sky-station-ambience-loop.mp3"
+            "paused": false,
+            "paths": [],
+            "resources": [
+              {
+                "path": "__$project$__/default-project/assets/sky-station-ambience-loop.mp3",
+                "mediaType": "audio"
+              }
             ],
+            "volume": 1,
+            "synchronize": true,
             "playMode": "loop",
             "isMusic": false
           }

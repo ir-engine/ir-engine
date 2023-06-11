@@ -1,13 +1,7 @@
-import {
-  Collider,
-  ColliderDesc,
-  KinematicCharacterController,
-  RigidBody,
-  RigidBodyDesc
-} from '@dimforge/rapier3d-compat'
-import { AnimationClip, AnimationMixer, Group, Object3D, Quaternion, Vector3 } from 'three'
+import { Collider, ColliderDesc, RigidBody, RigidBodyDesc } from '@dimforge/rapier3d-compat'
+import { AnimationClip, AnimationMixer, Object3D, Quaternion, Vector3 } from 'three'
 
-import { getMutableState } from '@etherealengine/hyperflux'
+import { getState } from '@etherealengine/hyperflux'
 
 import { setTargetCameraRotation } from '../../camera/systems/CameraInputSystem'
 import { Engine } from '../../ecs/classes/Engine'
@@ -21,12 +15,15 @@ import {
 } from '../../ecs/functions/ComponentFunctions'
 import { LocalAvatarTagComponent } from '../../input/components/LocalAvatarTagComponent'
 import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
-import { NetworkObjectAuthorityTag } from '../../networking/components/NetworkObjectComponent'
+import { BoundingBoxComponent } from '../../interaction/components/BoundingBoxComponents'
+import {
+  NetworkObjectAuthorityTag,
+  NetworkObjectSendPeriodicUpdatesTag
+} from '../../networking/components/NetworkObjectComponent'
 import { NetworkPeerFunctions } from '../../networking/functions/NetworkPeerFunctions'
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
 import { WorldState } from '../../networking/interfaces/WorldState'
 import { Physics } from '../../physics/classes/Physics'
-import { VectorSpringSimulator } from '../../physics/classes/springs/VectorSpringSimulator'
 import { CollisionComponent } from '../../physics/components/CollisionComponent'
 import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
 import { AvatarCollisionMask, CollisionGroups } from '../../physics/enums/CollisionGroups'
@@ -40,7 +37,6 @@ import { AnimationComponent } from '../components/AnimationComponent'
 import { AvatarAnimationComponent } from '../components/AvatarAnimationComponent'
 import { AvatarComponent } from '../components/AvatarComponent'
 import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
-import { AvatarIKTargetsComponent } from '../components/AvatarIKComponents'
 import { SpawnPoseComponent } from '../components/SpawnPoseComponent'
 
 export const avatarRadius = 0.25
@@ -48,36 +44,44 @@ export const defaultAvatarHeight = 1.8
 export const defaultAvatarHalfHeight = defaultAvatarHeight / 2
 
 export const spawnAvatarReceptor = (spawnAction: typeof WorldNetworkAction.spawnAvatar.matches._TYPE) => {
-  const userId = spawnAction.$from
-  const existingAvatarEntity = Engine.instance.getUserAvatarEntity(spawnAction.$from)
+  const ownerId = spawnAction.$from
+  const userId = spawnAction.uuid
+  const primary = ownerId === userId
 
-  // already spawned into the world on another device or tab
-  if (existingAvatarEntity) {
-    const didSpawnEarlierThanThisClient = NetworkPeerFunctions.getCachedActionsForUser(userId).find(
-      (action) =>
-        WorldNetworkAction.spawnAvatar.matches.test(action) &&
-        action !== spawnAction &&
-        action.$time > spawnAction.$time
-    )
-    if (didSpawnEarlierThanThisClient) {
-      hasComponent(existingAvatarEntity, NetworkObjectAuthorityTag) &&
-        removeComponent(existingAvatarEntity, NetworkObjectAuthorityTag)
+  const entity = Engine.instance.getNetworkObject(ownerId, spawnAction.networkId)
+  if (!entity) return
+
+  if (primary) {
+    const existingAvatarEntity = Engine.instance.getUserAvatarEntity(userId)
+
+    // already spawned into the world on another device or tab
+    if (existingAvatarEntity) {
+      const didSpawnEarlierThanThisClient = NetworkPeerFunctions.getCachedActionsForUser(ownerId).find(
+        (action) =>
+          WorldNetworkAction.spawnAvatar.matches.test(action) &&
+          action !== spawnAction &&
+          action.$time > spawnAction.$time
+      )
+      if (didSpawnEarlierThanThisClient) {
+        hasComponent(existingAvatarEntity, NetworkObjectAuthorityTag) &&
+          removeComponent(existingAvatarEntity, NetworkObjectAuthorityTag)
+      }
+      return
     }
-    return
   }
 
-  const entity = Engine.instance.getNetworkObject(spawnAction.$from, spawnAction.networkId)!
   const transform = getComponent(entity, TransformComponent)
 
   addComponent(entity, AvatarComponent, {
+    primary,
     avatarHalfHeight: defaultAvatarHalfHeight,
     avatarHeight: defaultAvatarHeight,
     model: null
   })
 
-  const userNames = getMutableState(WorldState).userNames
-  const userName = userNames[userId].value
-  const shortId = userId.substring(0, 7)
+  const userNames = getState(WorldState).userNames
+  const userName = userNames[userId]
+  const shortId = ownerId.substring(0, 7)
   addComponent(entity, NameComponent, 'avatar-' + (userName ? shortId + ' (' + userName + ')' : shortId))
 
   addComponent(entity, VisibleComponent, true)
@@ -101,18 +105,13 @@ export const spawnAvatarReceptor = (spawnAction: typeof WorldNetworkAction.spawn
     rootYRatio: 1,
     locomotion: new Vector3()
   })
-  setComponent(entity, AvatarIKTargetsComponent, {
-    head: false,
-    leftHand: false,
-    rightHand: false
-  })
 
   addComponent(entity, SpawnPoseComponent, {
     position: new Vector3().copy(transform.position),
     rotation: new Quaternion().copy(transform.rotation)
   })
 
-  if (userId === Engine.instance.userId) {
+  if (ownerId === Engine.instance.userId) {
     createAvatarController(entity)
     addComponent(entity, LocalAvatarTagComponent, true)
     addComponent(entity, LocalInputTagComponent, true)
@@ -121,7 +120,10 @@ export const spawnAvatarReceptor = (spawnAction: typeof WorldNetworkAction.spawn
     createAvatarCollider(entity)
   }
 
+  setComponent(entity, NetworkObjectSendPeriodicUpdatesTag)
+
   setComponent(entity, ShadowComponent)
+  setComponent(entity, BoundingBoxComponent)
 }
 
 export const createAvatarCollider = (entity: Entity): Collider => {
@@ -159,20 +161,6 @@ export const createAvatarController = (entity: Entity) => {
   rigidbody.targetKinematicPosition.copy(transform.position)
   rigidbody.targetKinematicRotation.copy(transform.rotation)
 
-  addComponent(entity, AvatarControllerComponent, {
-    cameraEntity: Engine.instance.cameraEntity,
-    bodyCollider: undefined!,
-    movementEnabled: true,
-    isJumping: false,
-    isWalking: false,
-    isInAir: false,
-    gamepadLocalInput: new Vector3(),
-    gamepadWorldMovement: new Vector3(),
-    verticalVelocity: 0,
-    speedVelocity: { value: 0 },
-    translationApplied: new Vector3()
-  })
-
   const CameraTransform = getComponent(Engine.instance.cameraEntity, TransformComponent)
   const avatarForward = new Vector3(0, 0, -1).applyQuaternion(transform.rotation)
   const cameraForward = new Vector3(0, 0, 1).applyQuaternion(CameraTransform.rotation)
@@ -181,9 +169,10 @@ export const createAvatarController = (entity: Entity) => {
   if (orientation > 0) targetTheta = 2 * Math.PI - targetTheta
   setTargetCameraRotation(Engine.instance.cameraEntity, 0, targetTheta)
 
-  const avatarControllerComponent = getComponent(entity, AvatarControllerComponent)
-  avatarControllerComponent.bodyCollider = createAvatarCollider(entity)
-  avatarControllerComponent.controller = Physics.createCharacterController(Engine.instance.physicsWorld, {})
+  setComponent(entity, AvatarControllerComponent, {
+    bodyCollider: createAvatarCollider(entity),
+    controller: Physics.createCharacterController(Engine.instance.physicsWorld, {})
+  })
 
-  addComponent(entity, CollisionComponent, new Map())
+  addComponent(entity, CollisionComponent)
 }

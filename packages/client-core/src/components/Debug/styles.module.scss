@@ -38,23 +38,24 @@
   overflow: hidden;
   gap: 5px;
 
-  .flagBtn {
-    background: var(--buttonFilled);
+}
+
+.flagBtn {
+  background: var(--buttonFilled);
+  color: var(--text);
+  border: none;
+  flex-shrink: 0;
+  height: 30px;
+  border-radius: 3px;
+
+  &:hover,
+  &:focus-visible {
+    opacity: 0.8;
     color: var(--text);
-    border: none;
-    flex-shrink: 0;
-    height: 30px;
-    border-radius: 3px;
+  }
 
-    &:hover,
-    &:focus-visible {
-      opacity: 0.8;
-      color: var(--text);
-    }
-
-    &.active {
-      background: var(--blue);
-    }
+  &.active {
+    background: var(--blue);
   }
 }
 
@@ -80,7 +81,7 @@
 
 .refreshBlock {
   display: flex;
-  justify-content: end;
+  justify-content: flex-end;
   gap: 10px;
 
   .refreshBtn {

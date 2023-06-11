@@ -9,10 +9,10 @@ import { getMutableState, getState } from '@etherealengine/hyperflux'
 import { createMockNetwork } from '../../../tests/util/createMockNetwork'
 import { roundNumberToPlaces } from '../../../tests/util/MathTestUtils'
 import { proxifyQuaternion, proxifyVector3 } from '../../common/proxies/createThreejsProxy'
-import { Engine } from '../../ecs/classes/Engine'
+import { destroyEngine, Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
-import { addComponent } from '../../ecs/functions/ComponentFunctions'
+import { addComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { createEngine } from '../../initializeEngine'
 import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
@@ -25,12 +25,13 @@ import {
   writeTransform
 } from '../../transform/TransformSerialization'
 import { Network } from '../classes/Network'
-import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
+import { NetworkObjectComponent, NetworkObjectSendPeriodicUpdatesTag } from '../components/NetworkObjectComponent'
 import { NetworkState } from '../NetworkState'
-import { readCompressedVector3 } from './DataReader'
+import { readCompressedRotation, readCompressedVector3 } from './DataReader'
 import {
   createDataWriter,
   writeComponent,
+  writeCompressedRotation,
   writeCompressedVector3,
   writeEntities,
   writeEntity,
@@ -48,20 +49,24 @@ import {
 } from './ViewCursor'
 
 describe('DataWriter', () => {
-  before(() => {
+  beforeEach(() => {
     createEngine()
     createMockNetwork()
-    getMutableState(NetworkState).networkSchema['ee.core.transform'].set({
+    getMutableState(NetworkState).networkSchema[TransformSerialization.ID].set({
       read: TransformSerialization.readTransform,
       write: TransformSerialization.writeTransform
     })
+    const engineState = getMutableState(EngineState)
+    engineState.simulationTime.set(1)
+  })
+
+  afterEach(() => {
+    return destroyEngine()
   })
 
   it('should writeComponent', () => {
     const writeView = createViewCursor()
-    const entity = 42 as Entity
-    const engineState = getMutableState(EngineState)
-    engineState.fixedTick.set(1)
+    const entity = createEntity()
 
     const [x, y, z] = [1.5, 2.5, 3.5]
     TransformComponent.position.x[entity] = x
@@ -99,7 +104,7 @@ describe('DataWriter', () => {
 
   it('should writeVector3', () => {
     const writeView = createViewCursor()
-    const entity = 42 as Entity
+    const entity = createEntity()
 
     const [x, y, z] = [1.5, 2.5, 3.5]
     TransformComponent.position.x[entity] = x
@@ -135,7 +140,7 @@ describe('DataWriter', () => {
 
   it('should writePosition', () => {
     const writeView = createViewCursor()
-    const entity = 42 as Entity
+    const entity = createEntity()
 
     const [x, y, z] = [1.5, 2.5, 3.5]
     TransformComponent.position.x[entity] = x
@@ -156,7 +161,8 @@ describe('DataWriter', () => {
 
   it('should writeCompressedRotation', () => {
     const writeView = createViewCursor()
-    const entity = 42 as Entity
+    const entity = createEntity()
+    setComponent(entity, NetworkObjectSendPeriodicUpdatesTag)
 
     // construct values for a valid quaternion
     const [a, b, c] = [0.167, 0.167, 0.167]
@@ -168,10 +174,10 @@ describe('DataWriter', () => {
     TransformComponent.rotation.z[entity] = z
     TransformComponent.rotation.w[entity] = w
 
-    writeRotation(writeView, entity)
+    writeCompressedRotation(TransformComponent.rotation)(writeView, entity)
 
     const readView = createViewCursor(writeView.buffer)
-    readRotation(readView, entity)
+    readCompressedRotation(TransformComponent.rotation)(readView, entity)
 
     strictEqual(readView.cursor, Uint8Array.BYTES_PER_ELEMENT + Uint32Array.BYTES_PER_ELEMENT)
 
@@ -184,7 +190,8 @@ describe('DataWriter', () => {
 
   it('should writeCompressedVector3', () => {
     const writeView = createViewCursor()
-    const entity = 42 as Entity
+    const entity = createEntity()
+    setComponent(entity, NetworkObjectSendPeriodicUpdatesTag)
 
     const [x, y, z] = [1.333, 2.333, 3.333]
     RigidBodyComponent.linearVelocity.x[entity] = x
@@ -217,8 +224,8 @@ describe('DataWriter', () => {
 
     setTransformComponent(
       entity,
-      proxifyVector3(TransformComponent.position, entity).set(posX, posY, posZ),
-      proxifyQuaternion(TransformComponent.rotation, entity).set(rotX, rotY, rotZ, rotW),
+      new Vector3().set(posX, posY, posZ),
+      new Quaternion().set(rotX, rotY, rotZ, rotW),
       new Vector3(1, 1, 1)
     )
 
@@ -228,7 +235,7 @@ describe('DataWriter', () => {
 
     strictEqual(
       writeView.cursor,
-      3 * Uint8Array.BYTES_PER_ELEMENT + 3 * Float64Array.BYTES_PER_ELEMENT + 1 * Uint32Array.BYTES_PER_ELEMENT
+      3 * Uint8Array.BYTES_PER_ELEMENT + 3 * Float64Array.BYTES_PER_ELEMENT + 4 * Float64Array.BYTES_PER_ELEMENT
     )
 
     strictEqual(readUint8(readView), 0b11)
@@ -359,8 +366,8 @@ describe('DataWriter', () => {
 
     setTransformComponent(
       entity,
-      proxifyVector3(TransformComponent.position, entity).set(posX, posY, posZ),
-      proxifyQuaternion(TransformComponent.rotation, entity).set(rotX, rotY, rotZ, rotW),
+      new Vector3().set(posX, posY, posZ),
+      new Quaternion().set(rotX, rotY, rotZ, rotW),
       new Vector3(1, 1, 1)
     )
 
@@ -381,7 +388,7 @@ describe('DataWriter', () => {
       1 * Uint32Array.BYTES_PER_ELEMENT +
         4 * Uint8Array.BYTES_PER_ELEMENT +
         3 * Float64Array.BYTES_PER_ELEMENT +
-        1 * Uint32Array.BYTES_PER_ELEMENT
+        4 * Float64Array.BYTES_PER_ELEMENT
     )
 
     // read networkId
@@ -434,8 +441,8 @@ describe('DataWriter', () => {
 
       setTransformComponent(
         entity,
-        proxifyVector3(TransformComponent.position, entity).set(posX, posY, posZ),
-        proxifyQuaternion(TransformComponent.rotation, entity).set(rotX, rotY, rotZ, rotW),
+        new Vector3().set(posX, posY, posZ),
+        new Quaternion().set(rotX, rotY, rotZ, rotW),
         new Vector3(1, 1, 1)
       )
 
@@ -455,7 +462,7 @@ describe('DataWriter', () => {
         (1 * Uint32Array.BYTES_PER_ELEMENT +
           4 * Uint8Array.BYTES_PER_ELEMENT +
           3 * Float64Array.BYTES_PER_ELEMENT +
-          1 * Uint32Array.BYTES_PER_ELEMENT)
+          4 * Float64Array.BYTES_PER_ELEMENT)
 
     strictEqual(writeView.cursor, 0)
     strictEqual(packet.byteLength, expectedBytes)
@@ -519,8 +526,8 @@ describe('DataWriter', () => {
 
       setTransformComponent(
         entity,
-        proxifyVector3(TransformComponent.position, entity).set(posX, posY, posZ),
-        proxifyQuaternion(TransformComponent.rotation, entity).set(rotX, rotY, rotZ, rotW),
+        new Vector3().set(posX, posY, posZ),
+        new Quaternion().set(rotX, rotY, rotZ, rotW),
         new Vector3(1, 1, 1)
       )
 
@@ -535,12 +542,13 @@ describe('DataWriter', () => {
     const packet = write(network, Engine.instance.userId, peerID, entities)
 
     const expectedBytes =
-      4 * Uint32Array.BYTES_PER_ELEMENT +
+      3 * Uint32Array.BYTES_PER_ELEMENT +
+      1 * Float64Array.BYTES_PER_ELEMENT +
       n *
         (1 * Uint32Array.BYTES_PER_ELEMENT +
           4 * Uint8Array.BYTES_PER_ELEMENT +
           3 * Float64Array.BYTES_PER_ELEMENT +
-          1 * Uint32Array.BYTES_PER_ELEMENT)
+          4 * Float64Array.BYTES_PER_ELEMENT)
 
     strictEqual(packet.byteLength, expectedBytes)
 
@@ -548,7 +556,7 @@ describe('DataWriter', () => {
 
     const userIndex = readUint32(readView)
     const peerIndex = readUint32(readView)
-    const tick = readUint32(readView)
+    const tick = readFloat64(readView)
 
     const count = readUint32(readView)
     strictEqual(count, entities.length)

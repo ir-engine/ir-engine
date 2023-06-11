@@ -3,21 +3,20 @@ import React from 'react'
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { getComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
-import { dispatchAction } from '@etherealengine/hyperflux'
+import { dispatchAction, getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
 import LockIcon from '@mui/icons-material/Lock'
 import UnlockIcon from '@mui/icons-material/LockOpen'
 import TuneIcon from '@mui/icons-material/Tune'
 
-import { EditorAction, useEditorState } from '../../services/EditorServices'
-import { useSelectionState } from '../../services/SelectionServices'
+import { EditorAction, EditorState } from '../../services/EditorServices'
+import { SelectionState } from '../../services/SelectionServices'
 import { PanelDragContainer, PanelIcon, PanelTitle } from '../layout/Panel'
 import styles from '../styles.module.scss'
 
 export const PropertiesPanelTitle = () => {
-  const selectionState = useSelectionState()
-  const editorState = useEditorState()
-
+  const selectionState = useHookstate(getMutableState(SelectionState))
+  const editorState = useHookstate(getMutableState(EditorState))
   return (
     <div className={styles.dockableTab}>
       <PanelDragContainer>

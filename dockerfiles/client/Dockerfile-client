@@ -1,6 +1,7 @@
-# syntax = docker/dockerfile:1.2
-# not slim because we need github depedencies
-FROM root-builder as builder
+ARG ECR_URL
+ARG REPO_NAME
+ARG STAGE
+FROM ${ECR_URL}/${REPO_NAME}-root:latest_${STAGE} as builder
 
 # Create app directory
 WORKDIR /app
@@ -14,7 +15,7 @@ COPY packages/ui/package.json ./packages/ui/
 COPY patches/ ./patches/
 
 ARG NODE_ENV
-RUN npm install --loglevel notice --legacy-peer-deps
+RUN npm install --loglevel notice --legacy-peer-deps --production
 
 # copy then compile the code
 COPY . .
@@ -66,7 +67,7 @@ ENV VITE_DISABLE_LOG=$VITE_DISABLE_LOG
 
 RUN npm run build-client
 
-RUN if [ "$SERVE_CLIENT_FROM_STORAGE_PROVIDER" = "true" ] && [ "$STORAGE_PROVIDER" = "aws" ] ; then npm run push-client-dist-to-s3 ; fi
+RUN if [ "$SERVE_CLIENT_FROM_STORAGE_PROVIDER" = "true" ] && [ "$STORAGE_PROVIDER" = "s3" ] ; then npx cross-env ts-node --swc scripts/push-client-to-s3.ts ; fi
 
 RUN rm -r packages/client/public
 
@@ -78,6 +79,5 @@ WORKDIR /app
 COPY --from=builder /app/packages/client ./packages/client
 COPY --from=builder /app/scripts ./scripts
 
-RUN npm install express app-root-path express-static-gzip
-
+RUN npm install app-root-path koa koa-body koa-qs koa-static
 CMD ["scripts/start-server.sh"]

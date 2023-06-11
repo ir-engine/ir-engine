@@ -1,9 +1,10 @@
 import assert, { strictEqual } from 'assert'
 import { Quaternion, Vector3 } from 'three'
 
+import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 
-import { Engine } from '../../ecs/classes/Engine'
+import { destroyEngine, Engine } from '../../ecs/classes/Engine'
 import { hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEngine } from '../../initializeEngine'
 import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
@@ -27,18 +28,23 @@ describe('spawnAvatarReceptor', () => {
     createEngine()
     await Physics.load()
     Engine.instance.physicsWorld = Physics.createWorld()
+    Engine.instance.userId = 'user' as UserId
+    Engine.instance.peerID = 'peerID' as PeerID
+  })
+
+  afterEach(() => {
+    return destroyEngine()
   })
 
   it('check the create avatar function', () => {
-    Engine.instance.userId = 'user' as UserId
-
     // mock entity to apply incoming unreliable updates to
     const action = WorldNetworkAction.spawnAvatar({
       $from: Engine.instance.userId,
       position: new Vector3(),
-      rotation: new Quaternion()
+      rotation: new Quaternion(),
+      uuid: Engine.instance.userId
     })
-    WorldNetworkActionReceptor.receiveSpawnObject(action)
+    WorldNetworkActionReceptor.receiveSpawnObject(action as any)
     spawnAvatarReceptor(action)
 
     const entity = Engine.instance.getUserAvatarEntity(Engine.instance.userId)

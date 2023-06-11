@@ -1,18 +1,19 @@
 import { Icon as Iconify } from '@iconify/react'
-import React, { Fragment, useEffect, useRef, useState } from 'react'
+import React, { Fragment, useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import Avatar from '@etherealengine/ui/src/Avatar'
-import Button from '@etherealengine/ui/src/Button'
-import Divider from '@etherealengine/ui/src/Divider'
-import Grid from '@etherealengine/ui/src/Grid'
-import Icon from '@etherealengine/ui/src/Icon'
-import IconButton from '@etherealengine/ui/src/IconButton'
-import List from '@etherealengine/ui/src/List'
-import ListItem from '@etherealengine/ui/src/ListItem'
-import ListItemAvatar from '@etherealengine/ui/src/ListItemAvatar'
-import ListItemText from '@etherealengine/ui/src/ListItemText'
-import Typography from '@etherealengine/ui/src/Typography'
+import { useHookstate } from '@etherealengine/hyperflux'
+import Avatar from '@etherealengine/ui/src/primitives/mui/Avatar'
+import Button from '@etherealengine/ui/src/primitives/mui/Button'
+import Divider from '@etherealengine/ui/src/primitives/mui/Divider'
+import Grid from '@etherealengine/ui/src/primitives/mui/Grid'
+import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
+import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
+import List from '@etherealengine/ui/src/primitives/mui/List'
+import ListItem from '@etherealengine/ui/src/primitives/mui/ListItem'
+import ListItemAvatar from '@etherealengine/ui/src/primitives/mui/ListItemAvatar'
+import ListItemText from '@etherealengine/ui/src/primitives/mui/ListItemText'
+import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 
 import styles from '../../styles/settings.module.scss'
 import Authentication from './Authentication'
@@ -132,20 +133,20 @@ const Sidebar = ({ selected, onChange }: SidebarProps) => {
 
 const Setting = () => {
   const rootRef = useRef<any>()
-  const [selectedItem, setSelectedItem] = useState('project')
-  const [menuVisible, setMenuVisible] = useState(false)
+  const selectedItem = useHookstate('project')
+  const menuVisible = useHookstate(false)
   const { t } = useTranslation()
 
-  const settingItem = settingItems.find((item) => item.name === selectedItem)
+  const settingItem = settingItems.find((item) => item.name === selectedItem.value)
 
   useEffect(() => {
     rootRef?.current?.scrollIntoView()
-  }, [menuVisible])
+  }, [menuVisible.value])
 
   return (
     <div ref={rootRef}>
       <div className={styles.invisible}>
-        <Button size="small" onClick={() => setMenuVisible(!menuVisible)} className={styles.menuBtn}>
+        <Button size="small" onClick={() => menuVisible.set(!menuVisible.value)} className={styles.menuBtn}>
           <Icon type="Menu" />
         </Button>
         {menuVisible && (
@@ -155,7 +156,7 @@ const Setting = () => {
                 {t('admin:components.setting.settings')}
               </Typography>
               <IconButton
-                onClick={() => setMenuVisible(!menuVisible)}
+                onClick={() => menuVisible.set(!menuVisible.value)}
                 style={{
                   color: 'orange',
                   fontSize: '3rem',
@@ -167,9 +168,9 @@ const Setting = () => {
               />
             </Grid>
             <Sidebar
-              selected={selectedItem}
+              selected={selectedItem.value}
               onChange={(name) => {
-                setSelectedItem(name)
+                selectedItem.set(name)
               }}
             />
           </div>
@@ -181,9 +182,9 @@ const Setting = () => {
             {t('admin:components.setting.settings')}
           </Typography>
           <Sidebar
-            selected={selectedItem}
+            selected={selectedItem.value}
             onChange={(name) => {
-              setSelectedItem(name)
+              selectedItem.set(name)
             }}
           />
         </Grid>

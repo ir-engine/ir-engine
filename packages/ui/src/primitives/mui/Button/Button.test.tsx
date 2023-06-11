@@ -1,0 +1,13 @@
+import { describe, expect, it } from '@jest/globals'
+import { shallow } from 'enzyme'
+import React from 'react'
+
+import Button from './index'
+import { Primary as story } from './index.stories'
+
+describe('Button', () => {
+  it('- should render', () => {
+    const wrapper = shallow(<Button {...story?.args} />)
+    expect(wrapper).toMatchSnapshot()
+  })
+})

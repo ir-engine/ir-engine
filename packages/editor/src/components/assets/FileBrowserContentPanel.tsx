@@ -1,15 +1,14 @@
-import { Downgraded, useState } from '@hookstate/core'
+import { Downgraded } from '@hookstate/core'
 import React, { useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { API } from '@etherealengine/client-core/src/API'
 import ConfirmDialog from '@etherealengine/client-core/src/common/components/ConfirmDialog'
 import LoadingView from '@etherealengine/client-core/src/common/components/LoadingView'
 import {
   FileBrowserService,
   FileBrowserServiceReceptor,
-  FILES_PAGE_LIMIT,
-  useFileBrowserState
+  FileBrowserState,
+  FILES_PAGE_LIMIT
 } from '@etherealengine/client-core/src/common/services/FileBrowserService'
 import { uploadToFeathersService } from '@etherealengine/client-core/src/util/upload'
 import { processFileName } from '@etherealengine/common/src/utils/processFileName'
@@ -21,7 +20,7 @@ import {
 } from '@etherealengine/engine/src/assets/constants/ImageConvertParms'
 import { MediaPrefabs } from '@etherealengine/engine/src/audio/systems/MediaSystem'
 import { ScenePrefabs } from '@etherealengine/engine/src/scene/systems/SceneObjectUpdateSystem'
-import { useState as useHFState } from '@etherealengine/hyperflux'
+import { getMutableState, useHookstate, useState } from '@etherealengine/hyperflux'
 import { addActionReceptor, removeActionReceptor } from '@etherealengine/hyperflux'
 
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
@@ -38,10 +37,6 @@ import Typography from '@mui/material/Typography'
 
 import { prefabIcons } from '../../functions/PrefabEditors'
 import { unique } from '../../functions/utils'
-import BooleanInput from '../inputs/BooleanInput'
-import { Button } from '../inputs/Button'
-import Scrubber from '../inputs/Scrubber'
-import SelectInput from '../inputs/SelectInput'
 import { ContextMenu } from '../layout/ContextMenu'
 import { ToolButton } from '../toolbar/ToolButton'
 import CompressionPanel from './CompressionPanel'
@@ -82,6 +77,7 @@ type FileBrowserContentPanelProps = {
   onSelectionChanged: (AssetSelectionChangePropsType) => void
   disableDnD?: boolean
   selectedFile?: string
+  folderName?: string
 }
 
 type DnDFileType = {
@@ -100,12 +96,14 @@ export function isFileDataType(value: any): value is FileDataType {
  */
 const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) => {
   const { t } = useTranslation()
-  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null)
-  const [anchorPosition, setAnchorPosition] = React.useState<undefined | PopoverPosition>(undefined)
-  const open = Boolean(anchorEl)
+  const anchorEl = useHookstate<null | HTMLElement>(null)
+  const anchorPosition = useHookstate<undefined | PopoverPosition>(undefined)
+  const open = Boolean(anchorEl.value)
   const isLoading = useState(true)
-  const selectedDirectory = useState(`/projects/${props.selectedFile ? props.selectedFile + '/' : ''}`)
-  const fileState = useFileBrowserState()
+  const selectedDirectory = useState(
+    `/${props.folderName || 'projects'}/${props.selectedFile ? props.selectedFile + '/' : ''}`
+  )
+  const fileState = useHookstate(getMutableState(FileBrowserState))
   const filesValue = fileState.files.attach(Downgraded).value
   const { skip, total, retrieving } = fileState.value
   const fileProperties = useState<any>(null)
@@ -174,7 +172,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
 
   useEffect(() => {
     FileBrowserService.fetchFiles(selectedDirectory.value)
-  }, [selectedDirectory])
+  }, [selectedDirectory.value])
 
   const onSelect = (params: FileDataType) => {
     if (params.type !== 'folder') {
@@ -193,16 +191,16 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
     event.preventDefault()
     event.stopPropagation()
 
-    setAnchorEl(event.currentTarget)
-    setAnchorPosition({
+    anchorEl.set(event.currentTarget)
+    anchorPosition.set({
       left: event.clientX + 2,
       top: event.clientY - 6
     })
   }
 
   const handleClose = () => {
-    setAnchorEl(null)
-    setAnchorPosition(undefined)
+    anchorEl.set(null)
+    anchorPosition.set(undefined)
   }
 
   const handlePageChange = async (_event, newPage: number) => {
@@ -252,7 +250,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
   }
 
   const onBackDirectory = () => {
-    const pattern = /([^\/]+)/g
+    const pattern = /([^/]+)/g
     const result = selectedDirectory.value.match(pattern)
     if (!result) return
     let newPath = '/'
@@ -313,7 +311,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
     await onRefreshDirectory()
   }
 
-  let currentContent = null! as { item: FileDataType; isCopy: boolean }
+  const currentContent = null! as { item: FileDataType; isCopy: boolean }
   const currentContentRef = useRef(currentContent)
 
   const headGrid = {
@@ -324,7 +322,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
   }
 
   function handleClick(targetFolder: string) {
-    const pattern = /([^\/]+)/g
+    const pattern = /([^/]+)/g
     const result = selectedDirectory.value.match(pattern)
     if (!result) return
     let newPath = '/'
@@ -406,7 +404,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
         </div>
       </div>
 
-      <ContextMenu open={open} anchorEl={anchorEl} anchorPosition={anchorPosition} onClose={handleClose}>
+      <ContextMenu open={open} anchorEl={anchorEl.value} anchorPosition={anchorPosition.value} onClose={handleClose}>
         <MenuItem onClick={createNewFolder}>{t('editor:layout.filebrowser.addNewFolder')}</MenuItem>
         <MenuItem onClick={pasteContent}>{t('editor:layout.filebrowser.pasteAsset')}</MenuItem>
       </ContextMenu>

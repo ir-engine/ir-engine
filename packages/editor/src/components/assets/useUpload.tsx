@@ -3,9 +3,10 @@ import { useTranslation } from 'react-i18next'
 
 import multiLogger from '@etherealengine/common/src/logger'
 import { AllFileTypes } from '@etherealengine/engine/src/assets/constants/fileTypes'
+import { getState } from '@etherealengine/hyperflux'
 
 import { getEntries, uploadProjectAssetsFromUpload } from '../../functions/assetFunctions'
-import { accessEditorState } from '../../services/EditorServices'
+import { EditorState } from '../../services/EditorServices'
 import ErrorDialog from '../dialogs/ErrorDialog'
 import { ProgressDialog } from '../dialogs/ProgressDialog'
 import { useDialog } from '../hooks/useDialog'
@@ -74,7 +75,7 @@ export default function useUpload(options: Props = {}) {
             }}
           />
         )
-        const { projectName } = accessEditorState().value
+        const { projectName } = getState(EditorState)
         const assets = await uploadProjectAssetsFromUpload(projectName!, entries, (item, total, progress) => {
           setDialogComponent(
             <ProgressDialog

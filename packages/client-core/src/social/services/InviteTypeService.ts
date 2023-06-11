@@ -37,10 +37,6 @@ export const InviteTypeServiceReceptor = (action) => {
   })
 }
 
-export const accessInviteTypeState = () => getMutableState(InviteTypeState)
-
-export const useInviteTypeState = () => useState(accessInviteTypeState())
-
 //Service
 export const InviteTypeService = {
   retrieveInvites: async () => {
@@ -64,7 +60,7 @@ export const InviteTypeService = {
 //Action
 export class InviteTypeAction {
   static retrievedInvitesTypes = defineAction({
-    type: 'xre.client.InviteType.LOAD_INVITE_TYPE' as const,
+    type: 'ee.client.InviteType.LOAD_INVITE_TYPE' as const,
     total: matches.number,
     limit: matches.number,
     invitesType: matches.any as Validator<unknown, Paginated<InviteType>>,
@@ -72,6 +68,6 @@ export class InviteTypeAction {
   })
 
   static fetchingInvitesTypes = defineAction({
-    type: 'xre.client.InviteType.FETCHING_RECEIVED_INVITES_TYPES' as const
+    type: 'ee.client.InviteType.FETCHING_RECEIVED_INVITES_TYPES' as const
   })
 }

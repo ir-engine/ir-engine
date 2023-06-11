@@ -2,14 +2,15 @@ import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import ProjectDrawer from '@etherealengine/client-core/src/admin/components/Project/ProjectDrawer'
-import { ProjectService, useProjectState } from '@etherealengine/client-core/src/common/services/ProjectService'
+import { ProjectService, ProjectState } from '@etherealengine/client-core/src/common/services/ProjectService'
 import { useRouter } from '@etherealengine/client-core/src/common/services/RouterService'
-import { useAuthState } from '@etherealengine/client-core/src/user/services/AuthService'
+import { ProjectUpdateSystem } from '@etherealengine/client-core/src/systems/ProjectUpdateSystem'
+import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
 import { ProjectInterface } from '@etherealengine/common/src/interfaces/ProjectInterface'
 import multiLogger from '@etherealengine/common/src/logger'
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { initSystems } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
-import { dispatchAction, useHookstate } from '@etherealengine/hyperflux'
+import { PresentationSystemGroup } from '@etherealengine/engine/src/ecs/functions/EngineFunctions'
+import { useSystems } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
+import { dispatchAction, getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
 import {
   ArrowRightRounded,
@@ -58,24 +59,40 @@ function sortAlphabetical(a, b) {
 
 const OfficialProjectData = [
   {
+    id: '1570ae14-889a-11ec-886e-b126f7590685',
+    name: 'ee-ethereal-village',
+    repositoryPath: 'https://github.com/etherealengine/ee-ethereal-village',
+    thumbnail: 'https://media.githubusercontent.com/media/EtherealEngine/ee-ethereal-village/dev/thumbnail.png',
+    description: 'A medieval world showcasing advanced open world multiplayer features',
+    needsRebuild: true
+  },
+  {
+    id: '1570ae12-889a-11ec-886e-b126f7590685',
+    name: 'ee-productivity',
+    repositoryPath: 'https://github.com/etherealengine/ee-productivity',
+    thumbnail: '/static/etherealengine.png',
+    description: 'Utility and productivity tools for Virtual and Augmented Reality',
+    needsRebuild: true
+  },
+  {
     id: '1570ae00-889a-11ec-886e-b126f7590685',
-    name: 'Development Test Suite',
+    name: 'ee-development-test-suite',
     repositoryPath: 'https://github.com/etherealengine/ee-development-test-suite',
     thumbnail: '/static/etherealengine.png',
-    description: 'Assets and tests for etherealengine core development',
+    description: 'Assets and tests for Ethereal Engine core development',
     needsRebuild: true
   },
   {
     id: '1570ae01-889a-11ec-886e-b126f7590685',
-    name: 'Translations',
+    name: 'ee-i18n',
     repositoryPath: 'https://github.com/etherealengine/ee-i18n',
     thumbnail: '/static/etherealengine.png',
-    description: 'Complete language translations in over 100 languages.',
+    description: 'Complete language translations in over 100 languages',
     needsRebuild: true
   },
   {
     id: '1570ae02-889a-11ec-886e-b126f7590685',
-    name: 'Test Bot',
+    name: 'ee-bot',
     repositoryPath: 'https://github.com/etherealengine/ee-bot',
     thumbnail: '/static/etherealengine.png',
     description: 'A test bot using puppeteer',
@@ -83,35 +100,27 @@ const OfficialProjectData = [
   },
   {
     id: '1570ae11-889a-11ec-886e-b126f7590685',
-    name: 'Maps',
+    name: 'ee-maps  ',
     repositoryPath: 'https://github.com/etherealengine/ee-maps',
     thumbnail: '/static/etherealengine.png',
     description: 'Procedurally generated map tiles using geojson data with mapbox and turf.js',
     needsRebuild: true
-  },
-  {
-    id: '1570ae12-889a-11ec-886e-b126f7590685',
-    name: 'Inventory',
-    repositoryPath: 'https://github.com/etherealengine/ee-inventory',
-    thumbnail: '/static/etherealengine.png',
-    description:
-      'Item inventory, trade & virtual currency. Allow your users to use a database, IPFS, DID or blockchain backed item storage for equippables, wearables and tradable items.',
-    needsRebuild: true
-  },
-  {
-    id: '1570ae14-889a-11ec-886e-b126f7590685',
-    name: 'Digital Beings',
-    repositoryPath: 'https://github.com/etherealengine/ee-digital-beings',
-    thumbnail: '/static/etherealengine.png',
-    description: 'Enhance your virtual worlds with GPT-3 backed AI agents!',
-    needsRebuild: true
   }
+  // {
+  //   id: '1570ae12-889a-11ec-886e-b126f7590685',
+  //   name: 'Inventory',
+  //   repositoryPath: 'https://github.com/etherealengine/ee-inventory',
+  //   thumbnail: '/static/etherealengine.png',
+  //   description:
+  //     'Item inventory, trade & virtual currency. Allow your users to use a database, IPFS, DID or blockchain backed item storage for equippables, wearables and tradable items.',
+  //   needsRebuild: true
+  // },
 ]
 
 const ProjectUpdateSystemInjection = {
   uuid: 'core.admin.ProjectUpdateSystem',
   type: 'PRE_RENDER',
-  systemLoader: () => import('@etherealengine/client-core/src/systems/ProjectUpdateSystem')
+  systemLoader: () => Promise.resolve({ default: ProjectUpdateSystem })
 } as const
 
 const CommunityProjectData = [] as any
@@ -156,8 +165,8 @@ const ProjectsPage = () => {
   const projectDrawerOpen = useHookstate(false)
   const changeDestination = useHookstate(false)
 
-  const authState = useAuthState()
-  const projectState = useProjectState()
+  const authState = useHookstate(getMutableState(AuthState))
+  const projectState = useHookstate(getMutableState(ProjectState))
   const authUser = authState.authUser
   const user = authState.user
 
@@ -183,10 +192,13 @@ const ProjectsPage = () => {
   const fetchOfficialProjects = async (query?: string) => {
     loading.set(true)
     try {
-      const data = await (query
-        ? OfficialProjectData.filter((p) => p.name.includes(query) || p.description.includes(query))
-        : OfficialProjectData)
+      const data = (
+        query
+          ? OfficialProjectData.filter((p) => p.name.includes(query) || p.description.includes(query))
+          : OfficialProjectData
+      ).filter((p) => !installedProjects.value?.find((ip) => ip.name.includes(p.name)))
 
+      console.log(OfficialProjectData, installedProjects, data)
       officialProjects.set((data.sort(sortAlphabetical) as ProjectInterface[]) ?? [])
     } catch (error) {
       logger.error(error)
@@ -198,9 +210,11 @@ const ProjectsPage = () => {
   const fetchCommunityProjects = async (query?: string) => {
     loading.set(true)
     try {
-      const data = await (query
-        ? CommunityProjectData.filter((p) => p.name.includes(query) || p.description.includes(query))
-        : CommunityProjectData)
+      const data = (
+        query
+          ? CommunityProjectData.filter((p) => p.name.includes(query) || p.description.includes(query))
+          : CommunityProjectData
+      ).filter((p) => !installedProjects.value?.find((ip) => ip.name.includes(p.name)))
 
       communityProjects.set(data.sort(sortAlphabetical) ?? [])
     } catch (error) {
@@ -210,14 +224,17 @@ const ProjectsPage = () => {
     loading.set(false)
   }
 
+  useEffect(() => {
+    fetchOfficialProjects()
+    fetchCommunityProjects()
+  }, [installedProjects])
+
   const refreshGithubRepoAccess = () => {
     ProjectService.refreshGithubRepoAccess()
     fetchInstalledProjects()
   }
 
-  useEffect(() => {
-    initSystems([ProjectUpdateSystemInjection])
-  }, [])
+  useSystems([ProjectUpdateSystem], { before: PresentationSystemGroup })
 
   useEffect(() => {
     if (!authUser || !user) return
@@ -275,7 +292,7 @@ const ProjectsPage = () => {
     updatingProject.set(true)
     if (activeProject.value) {
       try {
-        const proj = installedProjects.value.find((proj) => proj.id === activeProject.value?.id)!
+        const proj = installedProjects.get({ noproxy: true }).find((proj) => proj.id === activeProject.value?.id)!
         await ProjectService.removeProject(proj.id)
         await fetchInstalledProjects()
       } catch (err) {
@@ -352,7 +369,7 @@ const ProjectsPage = () => {
             >
               <div
                 className={styles.thumbnailContainer}
-                style={{ backgroundImage: `url(${project.thumbnail})` }}
+                style={{ backgroundImage: `url(${project.thumbnail ?? '/static/etherealengine_thumbnail.jpg'})` }}
                 id={'open-' + project.name}
               />
             </a>

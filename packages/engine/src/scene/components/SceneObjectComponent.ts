@@ -1,3 +1,4 @@
-import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
+import { defineComponent } from '../../ecs/functions/ComponentFunctions'
 
-export const SceneObjectComponent = createMappedComponent<true>('SceneObjectComponent')
+/** Used to identity an entity that has been loaded as part of a scene */
+export const SceneObjectComponent = defineComponent({ name: 'SceneObjectComponent' })

@@ -5,12 +5,13 @@ import { getState } from '@etherealengine/hyperflux'
 
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { Engine } from '../../ecs/classes/Engine'
+import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import { hasComponent } from '../../ecs/functions/ComponentFunctions'
 // import { XRHandsInputComponent } from '../../xr/XRComponents'
 // import { XRHandBones } from '../../xr/XRHandBones'
 import { Network } from '../classes/Network'
-import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
+import { NetworkObjectComponent, NetworkObjectSendPeriodicUpdatesTag } from '../components/NetworkObjectComponent'
 import { NetworkState } from '../NetworkState'
 import {
   compress,
@@ -30,8 +31,10 @@ import {
   spaceUint32,
   spaceUint64,
   ViewCursor,
+  writeFloat64,
   writePropIfChanged,
-  writeUint32
+  writeUint32,
+  writeUint64
 } from './ViewCursor'
 
 /**
@@ -52,8 +55,10 @@ export const writeComponent = (component: any) => {
     const writeChangeMask = changeMaskSpacer(v)
     let changeMask = 0
 
+    const ignoreHasChanged = hasComponent(entity, NetworkObjectSendPeriodicUpdatesTag)
+
     for (let i = 0; i < props.length; i++) {
-      changeMask |= writePropIfChanged(v, props[i], entity) ? 2 ** i : 0b0
+      changeMask |= writePropIfChanged(v, props[i], entity, ignoreHasChanged) ? 2 ** i : 0b0
     }
 
     writeChangeMask(changeMask)
@@ -68,9 +73,11 @@ export const writeVector3 = (vector3: Vector3SoA) => (v: ViewCursor, entity: Ent
   let changeMask = 0
   let b = 0
 
-  changeMask |= writePropIfChanged(v, vector3.x, entity) ? 1 << b++ : b++ && 0
-  changeMask |= writePropIfChanged(v, vector3.y, entity) ? 1 << b++ : b++ && 0
-  changeMask |= writePropIfChanged(v, vector3.z, entity) ? 1 << b++ : b++ && 0
+  const ignoreHasChanged = hasComponent(entity, NetworkObjectSendPeriodicUpdatesTag)
+
+  changeMask |= writePropIfChanged(v, vector3.x, entity, ignoreHasChanged) ? 1 << b++ : b++ && 0
+  changeMask |= writePropIfChanged(v, vector3.y, entity, ignoreHasChanged) ? 1 << b++ : b++ && 0
+  changeMask |= writePropIfChanged(v, vector3.z, entity, ignoreHasChanged) ? 1 << b++ : b++ && 0
 
   return (changeMask > 0 && writeChangeMask(changeMask)) || rewind()
 }
@@ -83,9 +90,11 @@ export const writeCompressedVector3 = (vector3: Vector3SoA) => (v: ViewCursor, e
   let changeMask = 0
   let b = 0
 
-  changeMask |= writePropIfChanged(v, vector3.x, entity) ? 1 << b++ : b++ && 0
-  changeMask |= writePropIfChanged(v, vector3.y, entity) ? 1 << b++ : b++ && 0
-  changeMask |= writePropIfChanged(v, vector3.z, entity) ? 1 << b++ : b++ && 0
+  const ignoreHasChanged = hasComponent(entity, NetworkObjectSendPeriodicUpdatesTag)
+
+  changeMask |= writePropIfChanged(v, vector3.x, entity, ignoreHasChanged) ? 1 << b++ : b++ && 0
+  changeMask |= writePropIfChanged(v, vector3.y, entity, ignoreHasChanged) ? 1 << b++ : b++ && 0
+  changeMask |= writePropIfChanged(v, vector3.z, entity, ignoreHasChanged) ? 1 << b++ : b++ && 0
 
   if (changeMask > 0) {
     rewindUptoChageMask()
@@ -122,10 +131,12 @@ export const writeVector4 = (vector4: Vector4SoA) => (v: ViewCursor, entity: Ent
   let changeMask = 0
   let b = 0
 
-  changeMask |= writePropIfChanged(v, vector4.x, entity) ? 1 << b++ : b++ && 0
-  changeMask |= writePropIfChanged(v, vector4.y, entity) ? 1 << b++ : b++ && 0
-  changeMask |= writePropIfChanged(v, vector4.z, entity) ? 1 << b++ : b++ && 0
-  changeMask |= writePropIfChanged(v, vector4.w, entity) ? 1 << b++ : b++ && 0
+  const ignoreHasChanged = hasComponent(entity, NetworkObjectSendPeriodicUpdatesTag)
+
+  changeMask |= writePropIfChanged(v, vector4.x, entity, ignoreHasChanged) ? 1 << b++ : b++ && 0
+  changeMask |= writePropIfChanged(v, vector4.y, entity, ignoreHasChanged) ? 1 << b++ : b++ && 0
+  changeMask |= writePropIfChanged(v, vector4.z, entity, ignoreHasChanged) ? 1 << b++ : b++ && 0
+  changeMask |= writePropIfChanged(v, vector4.w, entity, ignoreHasChanged) ? 1 << b++ : b++ && 0
 
   return (changeMask > 0 && writeChangeMask(changeMask)) || rewind()
 }
@@ -139,12 +150,14 @@ export const writeCompressedRotation = (vector4: Vector4SoA) => (v: ViewCursor, 
   let changeMask = 0
   let b = 0
 
+  const ignoreHasChanged = hasComponent(entity, NetworkObjectSendPeriodicUpdatesTag)
+
   // Todo: writeVector4 here? how to handle rewind than.
   // Write to store
-  changeMask |= writePropIfChanged(v, vector4.x, entity) ? 1 << b++ : b++ && 0
-  changeMask |= writePropIfChanged(v, vector4.y, entity) ? 1 << b++ : b++ && 0
-  changeMask |= writePropIfChanged(v, vector4.z, entity) ? 1 << b++ : b++ && 0
-  changeMask |= writePropIfChanged(v, vector4.w, entity) ? 1 << b++ : b++ && 0
+  changeMask |= writePropIfChanged(v, vector4.x, entity, ignoreHasChanged) ? 1 << b++ : b++ && 0
+  changeMask |= writePropIfChanged(v, vector4.y, entity, ignoreHasChanged) ? 1 << b++ : b++ && 0
+  changeMask |= writePropIfChanged(v, vector4.z, entity, ignoreHasChanged) ? 1 << b++ : b++ && 0
+  changeMask |= writePropIfChanged(v, vector4.w, entity, ignoreHasChanged) ? 1 << b++ : b++ && 0
 
   // Write to ViewCursor
   if (changeMask > 0) {
@@ -260,7 +273,7 @@ export const writeEntities = (v: ViewCursor, entities: Entity[]) => {
 export const writeMetadata = (v: ViewCursor, network: Network, userId: UserId, peerID: PeerID) => {
   writeUint32(v, network.userIDToUserIndex.get(userId)!)
   writeUint32(v, network.peerIDToPeerIndex.get(peerID)!)
-  writeUint32(v, Engine.instance.fixedTick)
+  writeFloat64(v, getState(EngineState).simulationTime)
 }
 
 export const createDataWriter = (size: number = 100000) => {

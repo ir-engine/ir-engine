@@ -3,10 +3,12 @@ import { Color, HemisphereLight } from 'three'
 
 import { matches } from '../../common/functions/MatchesUtils'
 import { defineComponent, hasComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
+import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
 
 export const HemisphereLightComponent = defineComponent({
   name: 'HemisphereLightComponent',
+  jsonID: 'hemisphere-light',
 
   onInit: (entity) => {
     const light = new HemisphereLight()
@@ -22,16 +24,18 @@ export const HemisphereLightComponent = defineComponent({
   onSet: (entity, component, json) => {
     if (!json) return
     if (matches.object.test(json.skyColor) && json.skyColor.isColor) component.skyColor.set(json.skyColor)
-    if (matches.string.test(json.skyColor)) component.skyColor.value.set(json.skyColor)
+    if (matches.string.test(json.skyColor) || matches.number.test(json.skyColor))
+      component.skyColor.value.set(json.skyColor)
     if (matches.object.test(json.groundColor) && json.groundColor.isColor) component.groundColor.set(json.groundColor)
-    if (matches.string.test(json.groundColor)) component.groundColor.value.set(json.groundColor)
+    if (matches.string.test(json.groundColor) || matches.number.test(json.groundColor))
+      component.groundColor.value.set(json.groundColor)
     if (matches.number.test(json.intensity)) component.intensity.set(json.intensity)
   },
 
   toJSON: (entity, component) => {
     return {
-      skyColor: component.skyColor.value.getHex(),
-      groundColor: component.groundColor.value.getHex(),
+      skyColor: component.skyColor.value,
+      groundColor: component.groundColor.value,
       intensity: component.intensity.value
     }
   },
@@ -40,10 +44,9 @@ export const HemisphereLightComponent = defineComponent({
     removeObjectFromGroup(entity, component.light.value)
   },
 
-  reactor: function ({ root }) {
-    if (!hasComponent(root.entity, HemisphereLightComponent)) throw root.stop()
-
-    const light = useComponent(root.entity, HemisphereLightComponent)
+  reactor: function () {
+    const entity = useEntityContext()
+    const light = useComponent(entity, HemisphereLightComponent)
 
     useEffect(() => {
       light.light.value.groundColor.set(light.groundColor.value)
@@ -60,5 +63,3 @@ export const HemisphereLightComponent = defineComponent({
     return null
   }
 })
-
-export const SCENE_COMPONENT_HEMISPHERE_LIGHT = 'hemisphere-light'

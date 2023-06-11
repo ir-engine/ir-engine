@@ -8,9 +8,9 @@ import {
   ProjectUpdateType
 } from '@etherealengine/common/src/interfaces/ProjectInterface'
 import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
-import { defineAction, defineState, dispatchAction, getMutableState, useState } from '@etherealengine/hyperflux'
+import { defineAction, defineState, dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 
-const ProjectUpdateState = defineState({
+export const ProjectUpdateState = defineState({
   name: 'ProjectUpdateState',
   initial: () => ({})
 })
@@ -81,10 +81,6 @@ export const ProjectUpdateReceptors = {
   setProjectUpdateFieldReceptor,
   mergeProjectUpdateFieldReceptor
 }
-
-export const accessProjectUpdateState = () => getMutableState(ProjectUpdateState)
-
-export const useProjectUpdateState = () => useState(accessProjectUpdateState())
 
 export const ProjectUpdateService = {
   initializeProjectUpdate: (project: ProjectInterface) => {
@@ -273,24 +269,24 @@ export const ProjectUpdateService = {
 
 export class ProjectUpdateActions {
   static clearProjectUpdates = defineAction({
-    type: 'xre.client.ProjectUpdate.CLEAR_PROJECT_UPDATE' as const,
+    type: 'ee.client.ProjectUpdate.CLEAR_PROJECT_UPDATE' as const,
     project: matches.object as Validator<unknown, ProjectInterface>
   })
 
   static initializeProjectUpdate = defineAction({
-    type: 'xre.client.ProjectUpdate.INITIALIZE_PROJECT_UPDATE' as const,
+    type: 'ee.client.ProjectUpdate.INITIALIZE_PROJECT_UPDATE' as const,
     project: matches.object as Validator<unknown, ProjectInterface>
   })
 
   static setProjectUpdateField = defineAction({
-    type: 'xre.client.ProjectUpdate.SET_PROJECT_UPDATE_FIELD' as const,
+    type: 'ee.client.ProjectUpdate.SET_PROJECT_UPDATE_FIELD' as const,
     project: matches.object as Validator<unknown, ProjectInterface>,
     fieldName: matches.string,
     value: matches.any
   })
 
   static mergeProjectUpdateField = defineAction({
-    type: 'xre.client.ProjectUpdate.MERGE_PROJECT_UPDATE_FIELD' as const,
+    type: 'ee.client.ProjectUpdate.MERGE_PROJECT_UPDATE_FIELD' as const,
     project: matches.object as Validator<unknown, ProjectInterface>,
     fieldName: matches.string,
     uniquenessField: matches.string,

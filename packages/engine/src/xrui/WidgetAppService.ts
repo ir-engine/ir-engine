@@ -1,8 +1,19 @@
-import { defineAction, defineState, dispatchAction, getMutableState, useState } from '@etherealengine/hyperflux'
+import { useEffect } from 'react'
+
+import {
+  defineAction,
+  defineActionQueue,
+  defineState,
+  dispatchAction,
+  getMutableState,
+  removeActionQueue,
+  useState
+} from '@etherealengine/hyperflux'
 import { none } from '@etherealengine/hyperflux/functions/StateFunctions'
 
 import { matches, Validator } from '../common/functions/MatchesUtils'
 import { Engine } from '../ecs/classes/Engine'
+import { defineSystem } from '../ecs/functions/SystemFunctions'
 
 type WidgetMutableState = Record<string, { enabled: boolean; visible: boolean }>
 
@@ -14,43 +25,6 @@ export const WidgetAppState = defineState({
     handedness: 'left' as 'left' | 'right'
   })
 })
-
-export const WidgetAppServiceReceptor = (action) => {
-  const s = getMutableState(WidgetAppState)
-  matches(action)
-    .when(WidgetAppActions.showWidgetMenu.matches, (action) => {
-      s.widgetsMenuOpen.set(action.shown)
-      if (action.handedness) s.handedness.set(action.handedness)
-    })
-    .when(WidgetAppActions.registerWidget.matches, (action) => {
-      s.widgets.merge({
-        [action.id]: {
-          enabled: true,
-          visible: false
-        }
-      })
-    })
-    .when(WidgetAppActions.unregisterWidget.matches, (action) => {
-      if (s.widgets[action.id].visible) {
-        s.widgetsMenuOpen.set(true)
-      }
-      s.widgets[action.id].set(none)
-    })
-    .when(WidgetAppActions.enableWidget.matches, (action) => {
-      s.widgets[action.id].merge({
-        enabled: action.enabled
-      })
-    })
-    .when(WidgetAppActions.showWidget.matches, (action) => {
-      // if opening or closing a widget, close or open the main menu
-      if (action.handedness) s.handedness.set(action.handedness)
-      if (action.shown) s.widgetsMenuOpen.set(false)
-      if (action.openWidgetMenu && !action.shown) s.widgetsMenuOpen.set(true)
-      s.widgets[action.id].merge({
-        visible: action.shown
-      })
-    })
-}
 
 export const WidgetAppService = {
   setWidgetVisibility: (widgetName: string, visibility: boolean) => {
@@ -105,3 +79,55 @@ export class WidgetAppActions {
     handedness: matches.string.optional() as Validator<unknown, 'left' | 'right' | undefined>
   })
 }
+
+const showWidgetMenuActionQueue = defineActionQueue(WidgetAppActions.showWidgetMenu.matches)
+const registerWidgetActionQueue = defineActionQueue(WidgetAppActions.registerWidget.matches)
+const unregisterWidgetActionQueue = defineActionQueue(WidgetAppActions.unregisterWidget.matches)
+const enableWidgetActionQueue = defineActionQueue(WidgetAppActions.enableWidget.matches)
+const showWidgetActionQueue = defineActionQueue(WidgetAppActions.showWidget.matches)
+
+export const execute = () => {
+  const s = getMutableState(WidgetAppState)
+
+  for (const action of showWidgetMenuActionQueue()) {
+    s.widgetsMenuOpen.set(action.shown)
+    if (action.handedness) s.handedness.set(action.handedness)
+  }
+
+  for (const action of registerWidgetActionQueue()) {
+    s.widgets.merge({
+      [action.id]: {
+        enabled: true,
+        visible: false
+      }
+    })
+  }
+
+  for (const action of unregisterWidgetActionQueue()) {
+    if (s.widgets[action.id].visible) {
+      s.widgetsMenuOpen.set(true)
+    }
+    s.widgets[action.id].set(none)
+  }
+
+  for (const action of enableWidgetActionQueue()) {
+    s.widgets[action.id].merge({
+      enabled: action.enabled
+    })
+  }
+
+  for (const action of showWidgetActionQueue()) {
+    // if opening or closing a widget, close or open the main menu
+    if (action.handedness) s.handedness.set(action.handedness)
+    if (action.shown) s.widgetsMenuOpen.set(false)
+    if (action.openWidgetMenu && !action.shown) s.widgetsMenuOpen.set(true)
+    s.widgets[action.id].merge({
+      visible: action.shown
+    })
+  }
+}
+
+export const WidgetAppServiceReceptorSystem = defineSystem({
+  uuid: 'ee.engine.widgets.WidgetAppServiceReceptorSystem',
+  execute
+})

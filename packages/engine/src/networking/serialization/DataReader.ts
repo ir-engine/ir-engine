@@ -1,20 +1,13 @@
 import { TypedArray } from 'bitecs'
-import { Quaternion, Vector3 } from 'three'
 
 import { NetworkId } from '@etherealengine/common/src/interfaces/NetworkId'
-import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { UserId } from '@etherealengine/common/src/interfaces/UserId'
-import { getState } from '@etherealengine/hyperflux'
+import { defineState, getMutableState, getState } from '@etherealengine/hyperflux'
 
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
-import { AvatarLeftArmIKComponent, AvatarRightArmIKComponent } from '../../avatar/components/AvatarIKComponents'
-import { AvatarHeadIKComponent } from '../../avatar/components/AvatarIKComponents'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity, UndefinedEntity } from '../../ecs/classes/Entity'
-import { addComponent, getComponent, hasComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
-import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
-import { NameComponent } from '../../scene/components/NameComponent'
-import { TransformComponent } from '../../transform/components/TransformComponent'
+import { hasComponent } from '../../ecs/functions/ComponentFunctions'
 // import { XRHandsInputComponent } from '../../xr/XRComponents'
 // import { XRHandBones } from '../../xr/XRHandBones'
 import { Network } from '../classes/Network'
@@ -31,13 +24,12 @@ import {
 import { flatten, Vector3SoA, Vector4SoA } from './Utils'
 import {
   createViewCursor,
-  readInt16,
+  readFloat64,
   readProp,
   readUint8,
   readUint16,
   readUint32,
   readUint64,
-  scrollViewCursor,
   ViewCursor
 } from './ViewCursor'
 
@@ -100,6 +92,7 @@ export const readCompressedVector3 = (vector3: Vector3SoA) => (v: ViewCursor, en
   compressedBinaryData = compressedBinaryData >>> 10
 
   let offset_mult = 1
+  /** @todo this should be passed */
   if (entity && hasComponent(entity, AvatarComponent)) offset_mult = 100
 
   x /= VEC3_MAX_RANGE * VEC3_PRECISION_MULT * offset_mult
@@ -213,18 +206,22 @@ export const readEntities = (v: ViewCursor, byteLength: number, fromUserID: User
 export const readMetadata = (v: ViewCursor) => {
   const userIndex = readUint32(v)
   const peerIndex = readUint32(v)
-  const fixedTick = readUint32(v)
+  const simulationTime = readFloat64(v)
   // if (userIndex === world.peerIDToUserIndex.get(Engine.instance.worldNetwork.hostId)! && !Engine.instance.worldNetwork.isHosting) Engine.instance.fixedTick = fixedTick
-  return { userIndex, peerIndex }
+  return { userIndex, peerIndex, simulationTime }
 }
 
-export const createDataReader = () => {
-  return (network: Network, packet: ArrayBuffer) => {
-    const view = createViewCursor(packet)
-    const { userIndex, peerIndex } = readMetadata(view)
-    const fromUserID = network.userIndexToUserID.get(userIndex)
-    const fromPeerID = network.peerIndexToPeerID.get(peerIndex)
-    const isLoopback = fromPeerID && fromPeerID === network.peerID
-    if (fromUserID && !isLoopback) readEntities(view, packet.byteLength, fromUserID)
-  }
+export const readDataPacket = (network: Network, packet: ArrayBuffer) => {
+  const view = createViewCursor(packet)
+  const { userIndex, peerIndex, simulationTime } = readMetadata(view)
+  const fromUserID = network.userIndexToUserID.get(userIndex)
+  const fromPeerID = network.peerIndexToPeerID.get(peerIndex)
+  const isLoopback = fromPeerID && fromPeerID === Engine.instance.peerID
+  if (!fromUserID || isLoopback) return
+  network.jitterBufferTaskList.push({
+    simulationTime,
+    read: () => {
+      readEntities(view, packet.byteLength, fromUserID)
+    }
+  })
 }

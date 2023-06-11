@@ -18,10 +18,7 @@ export type JoinWorldRequestData = {
 
 export type JoinWorldProps = {
   peerIndex: number
-  peerID: PeerID
-  highResTimeOrigin: number
   routerRtpCapabilities: any
-  worldStartTime: number
   cachedActions: Required<Action>[]
 }
 
@@ -37,14 +34,14 @@ export const spawnLocalAvatarInWorld = (props: SpawnInWorldProps) => {
   const worldState = getMutableState(WorldState)
   worldState.userNames[Engine.instance.userId].set(name)
   worldState.userAvatarDetails[Engine.instance.userId].set(avatarDetail)
-  dispatchAction(WorldNetworkAction.spawnAvatar(avatarSpawnPose))
-  dispatchAction(WorldNetworkAction.avatarDetails({ avatarDetail }))
+  dispatchAction(WorldNetworkAction.spawnAvatar({ ...avatarSpawnPose, uuid: Engine.instance.userId }))
+  dispatchAction(WorldNetworkAction.avatarDetails({ avatarDetail, uuid: Engine.instance.userId }))
 }
 
 export const receiveJoinWorld = (props: JoinWorldProps) => {
   if (!props) return
-  const { highResTimeOrigin, worldStartTime, cachedActions, peerID } = props
-  console.log('RECEIVED JOIN WORLD RESPONSE', highResTimeOrigin, worldStartTime, cachedActions)
+  const { cachedActions } = props
+  console.log('RECEIVED JOIN WORLD RESPONSE', cachedActions)
 
   for (const action of cachedActions) Engine.instance.store.actions.incoming.push({ ...action, $fromCache: true })
 
@@ -54,8 +51,6 @@ export const receiveJoinWorld = (props: JoinWorldProps) => {
   }
 
   dispatchAction(EngineActions.joinedWorld({}))
-
-  Engine.instance.worldNetworkState.peerID.set(peerID)
 
   Engine.instance.store.actions.outgoing[NetworkTopics.world].queue.push(
     ...Engine.instance.store.actions.outgoing[NetworkTopics.world].history

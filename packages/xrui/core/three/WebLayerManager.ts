@@ -8,7 +8,8 @@ import {
   Texture,
   VideoTexture
 } from 'three'
-import { KTX2Loader } from 'three/examples/jsm/loaders/KTX2Loader'
+
+import { KTX2Loader } from '@etherealengine/engine/src/assets/loaders/gltf/KTX2Loader'
 
 import { TextureData, TextureHash, WebLayerManagerBase } from '../WebLayerManagerBase'
 import { WebLayer3D } from './WebLayer3D'
@@ -62,18 +63,19 @@ export class WebLayerManager extends WebLayerManagerBase {
     if (!this._compressedTexturePromise.has(textureData.hash)) {
       new Promise((resolve) => {
         this._compressedTexturePromise.set(textureData.hash, resolve)
-        this.ktx2Loader
-          .loadAsync(ktx2Url)
-          .then((t) => {
+        this.ktx2Loader.load(
+          ktx2Url,
+          (t) => {
             t.wrapS = ClampToEdgeWrapping
             t.wrapT = ClampToEdgeWrapping
             t.minFilter = LinearMipmapLinearFilter
             t.encoding = this.textureEncoding
             this.texturesByHash.get(textureData.hash)!.compressedTexture = t
-          })
-          .finally(() => {
             resolve(undefined)
-          })
+          },
+          () => {},
+          resolve
+        )
       })
     }
   }

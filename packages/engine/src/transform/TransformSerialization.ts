@@ -1,25 +1,24 @@
-import { Engine } from '../ecs/classes/Engine'
 import { Entity } from '../ecs/classes/Entity'
 import { hasComponent } from '../ecs/functions/ComponentFunctions'
-import { checkBitflag, readCompressedRotation, readVector3 } from '../networking/serialization/DataReader'
-import { writeCompressedRotation, writeVector3 } from '../networking/serialization/DataWriter'
+import { checkBitflag, readCompressedRotation, readVector3, readVector4 } from '../networking/serialization/DataReader'
+import { writeCompressedRotation, writeVector3, writeVector4 } from '../networking/serialization/DataWriter'
 import { readUint8, rewindViewCursor, spaceUint8, ViewCursor } from '../networking/serialization/ViewCursor'
 import { RigidBodyComponent } from '../physics/components/RigidBodyComponent'
 import { TransformComponent } from './components/TransformComponent'
 
 export const readPosition = readVector3(TransformComponent.position)
-export const readRotation = readCompressedRotation(TransformComponent.rotation) //readVector4(TransformComponent.rotation)
+export const readRotation = readVector4(TransformComponent.rotation) //readCompressedRotation(TransformComponent.rotation) //readVector4(TransformComponent.rotation)
 
 export const readTransform = (v: ViewCursor, entity: Entity) => {
   const changeMask = readUint8(v)
   let b = 0
   if (checkBitflag(changeMask, 1 << b++)) readPosition(v, entity)
   if (checkBitflag(changeMask, 1 << b++)) readRotation(v, entity)
-  Engine.instance.dirtyTransforms[entity] = true
+  TransformComponent.dirtyTransforms[entity] = true
 }
 
 export const writePosition = writeVector3(TransformComponent.position)
-export const writeRotation = writeCompressedRotation(TransformComponent.rotation)
+export const writeRotation = writeVector4(TransformComponent.rotation)
 
 export const writeTransform = (v: ViewCursor, entity: Entity) => {
   if (!hasComponent(entity, TransformComponent) || hasComponent(entity, RigidBodyComponent)) return
@@ -36,6 +35,7 @@ export const writeTransform = (v: ViewCursor, entity: Entity) => {
 }
 
 export const TransformSerialization = {
+  ID: 'ee.core.transform' as const,
   readTransform,
   writeTransform
 }

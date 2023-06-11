@@ -1,6 +1,6 @@
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
-import { Scene } from '@etherealengine/engine/src/ecs/classes/Scene'
+import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
 import {
   Component,
   ComponentType,
@@ -9,7 +9,7 @@ import {
 import { EntityOrObjectUUID, getEntityNodeArrayFromEntities } from '@etherealengine/engine/src/ecs/functions/EntityTree'
 import { iterateEntityNode } from '@etherealengine/engine/src/ecs/functions/EntityTree'
 import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
-import { dispatchAction, getMutableState } from '@etherealengine/hyperflux'
+import { dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
 
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
 import { EditorHistoryAction } from '../../services/EditorHistory'
@@ -47,21 +47,20 @@ export const updateProperties = <C extends Component>(
   const affectedNodes = nodes
     ? nodes
     : editorState.lockPropertiesPanel.value
-    ? [UUIDComponent.entitiesByUUID[editorState.lockPropertiesPanel.value]?.value]
+    ? [UUIDComponent.entitiesByUUID[editorState.lockPropertiesPanel.value]]
     : (getEntityNodeArrayFromEntities(selectionState.selectedEntities.value) as EntityOrObjectUUID[])
 
   EditorControlFunctions.modifyProperty(affectedNodes, component, properties)
 
-  dispatchAction(EditorHistoryAction.createSnapshot({ modify: true }))
+  dispatchAction(EditorHistoryAction.createSnapshot({}))
 }
 
 export function traverseScene<T>(
   callback: (node: Entity) => T,
   predicate: (node: Entity) => boolean = () => true,
-  snubChildren: boolean = false,
-  scene: Scene = Engine.instance.currentScene
+  snubChildren: boolean = false
 ): T[] {
   const result: T[] = []
-  iterateEntityNode(scene.sceneEntity, (node) => result.push(callback(node)), predicate, snubChildren)
+  iterateEntityNode(getState(SceneState).sceneEntity, (node) => result.push(callback(node)), predicate, snubChildren)
   return result
 }

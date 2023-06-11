@@ -4,6 +4,7 @@ import { Paginated } from '@feathersjs/feathers/lib'
 import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
 import { Op } from 'sequelize'
 
+import { AdminScopeType } from '@etherealengine/common/src/interfaces/AdminScopeType'
 import { CreateEditUser, UserInterface, UserScope } from '@etherealengine/common/src/interfaces/User'
 
 import { Application } from '../../../declarations'
@@ -17,7 +18,7 @@ export interface UserParams extends Params {
   sequelize?: any
 }
 
-export const afterCreate = async (app: Application, result: UserInterface, scopes?: UserScope[]) => {
+export const afterCreate = async (app: Application, result: UserInterface, scopes?: UserScope[] | AdminScopeType[]) => {
   await app.service('user-settings').create({
     userId: result.id
   })
@@ -88,16 +89,7 @@ export class User extends Service<UserInterface> {
 
     const loggedInUser = params!.user as any
 
-    if (action === 'layer-users') {
-      delete params.query.action
-      params.query.instanceId = params.query.instanceId || loggedInUser.instanceId || 'intentionalBadId'
-      return super.find(params)
-    } else if (action === 'channel-users') {
-      delete params.query.action
-      params.query.channelInstanceId =
-        params.query.channelInstanceId || loggedInUser.channelInstanceId || 'intentionalBadId'
-      return super.find(params)
-    } else if (action === 'admin') {
+    if (action === 'admin') {
       delete params.query.action
       delete params.query.search
       if (!params.isInternal && !loggedInUser.scopes.find((scope) => scope.type === 'admin:admin'))

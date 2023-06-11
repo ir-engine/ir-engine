@@ -1,6 +1,6 @@
-import { Color, Material, Texture } from 'three'
+import { Color, Material, Mesh, Texture } from 'three'
 
-import { getMutableState } from '@etherealengine/hyperflux'
+import { getState } from '@etherealengine/hyperflux'
 
 import {
   materialIdToDefaultArgs,
@@ -8,9 +8,11 @@ import {
   protoIdToFactory,
   prototypeFromId
 } from '../../../../renderer/materials/functions/MaterialLibraryFunctions'
-import { getMaterialLibrary, MaterialLibraryState } from '../../../../renderer/materials/MaterialLibrary'
+import { applyMaterialPlugin } from '../../../../renderer/materials/functions/MaterialPluginFunctions'
+import { MaterialLibraryState } from '../../../../renderer/materials/MaterialLibrary'
+import iterateObject3D from '../../../../scene/util/iterateObject3D'
 import { EEMaterialExtensionType } from '../../../exporters/gltf/extensions/EEMaterialExporterExtension'
-import { GLTFLoaderPlugin, GLTFParser } from '../GLTFLoader'
+import { GLTF, GLTFLoaderPlugin, GLTFParser } from '../GLTFLoader'
 import { ImporterExtension } from './ImporterExtension'
 
 export class EEMaterialImporterExtension extends ImporterExtension implements GLTFLoaderPlugin {
@@ -36,7 +38,8 @@ export class EEMaterialImporterExtension extends ImporterExtension implements GL
     const materialDef = parser.json.materials[materialIndex]
     if (!materialDef.extensions?.[this.name]) return Promise.resolve()
     const extension: EEMaterialExtensionType = materialDef.extensions[this.name]
-    const defaultArgs = getMaterialLibrary().materials[extension.uuid].value
+    extension.plugins && (materialDef.extras['plugins'] = extension.plugins)
+    const defaultArgs = getState(MaterialLibraryState).materials[extension.uuid]
       ? materialIdToDefaultArgs(extension.uuid)!
       : prototypeFromId(extension.prototype).arguments
     return Promise.all(
@@ -45,15 +48,17 @@ export class EEMaterialImporterExtension extends ImporterExtension implements GL
           case undefined:
             break
           case 'texture':
-            if (!!v) {
+            if (v) {
               await parser.assignTexture(materialParams, k, v)
             }
             break
           case 'color':
             if (v && !(v as Color).isColor) {
               materialParams[k] = new Color(v)
-              break
+            } else {
+              materialParams[k] = v
             }
+            break
           default:
             materialParams[k] = v
             break

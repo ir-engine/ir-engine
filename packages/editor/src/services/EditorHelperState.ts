@@ -1,15 +1,8 @@
 import { useHookstate } from '@hookstate/core'
-import React, { useEffect } from 'react'
+import { useEffect } from 'react'
 
 import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
-import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
-import {
-  hasComponent,
-  useComponent,
-  useOptionalComponent
-} from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import InfiniteGridHelper from '@etherealengine/engine/src/scene/classes/InfiniteGridHelper'
-import { TransformGizmoComponent } from '@etherealengine/engine/src/scene/components/TransformGizmo'
 import {
   SnapMode,
   SnapModeType,
@@ -26,8 +19,6 @@ import {
   startReactor,
   syncStateWithLocalStorage
 } from '@etherealengine/hyperflux'
-
-import { createTransformGizmo } from '../systems/EditorControlSystem'
 
 export const EditorHelperState = defineState({
   name: 'EditorHelperState',
@@ -46,11 +37,6 @@ export const EditorHelperState = defineState({
   }),
   onCreate: () => {
     syncStateWithLocalStorage(EditorHelperState, [
-      'isFlyModeEnabled',
-      'transformMode',
-      'transformModeOnCancel',
-      'transformSpace',
-      'transformPivot',
       'snapMode',
       'translationSnap',
       'rotationSnap',
@@ -108,65 +94,60 @@ export const EditorHelperServiceReceptor = (action): any => {
     })
 }
 
-export const accessEditorHelperState = () => getMutableState(EditorHelperState)
-
-export const useEditorHelperState = (() =>
-  useHookstate(getMutableState(EditorHelperState))) as typeof accessEditorHelperState
-
 //Action
 export class EditorHelperAction {
   static changedPlayMode = defineAction({
-    type: 'xre.editor.EditorHelper.PLAY_MODE_CHANGED' as const,
+    type: 'ee.editor.EditorHelper.PLAY_MODE_CHANGED' as const,
     isPlayModeEnabled: matches.boolean
   })
 
   static changedFlyMode = defineAction({
-    type: 'xre.editor.EditorHelper.FLY_MODE_CHANGED' as const,
+    type: 'ee.editor.EditorHelper.FLY_MODE_CHANGED' as const,
     isFlyModeEnabled: matches.boolean
   })
 
   static changedTransformMode = defineAction({
-    type: 'xre.editor.EditorHelper.TRANSFORM_MODE_CHANGED' as const,
+    type: 'ee.editor.EditorHelper.TRANSFORM_MODE_CHANGED' as const,
     mode: matches.any as Validator<unknown, TransformModeType>
   })
 
   static changeTransformModeOnCancel = defineAction({
-    type: 'xre.editor.EditorHelper.TRANSFORM_MODE_ON_CANCEL_CHANGED' as const,
+    type: 'ee.editor.EditorHelper.TRANSFORM_MODE_ON_CANCEL_CHANGED' as const,
     mode: matches.any as Validator<unknown, TransformModeType>
   })
 
   static changedTransformSpaceMode = defineAction({
-    type: 'xre.editor.EditorHelper.TRANSFORM_SPACE_CHANGED' as const,
+    type: 'ee.editor.EditorHelper.TRANSFORM_SPACE_CHANGED' as const,
     transformSpace: matches.any as Validator<unknown, TransformSpace>
   })
 
   static changedTransformPivotMode = defineAction({
-    type: 'xre.editor.EditorHelper.TRANSFORM_PIVOT_CHANGED' as const,
+    type: 'ee.editor.EditorHelper.TRANSFORM_PIVOT_CHANGED' as const,
     transformPivot: matches.any as Validator<unknown, TransformPivotType>
   })
 
   static changedSnapMode = defineAction({
-    type: 'xre.editor.EditorHelper.SNAP_MODE_CHANGED' as const,
+    type: 'ee.editor.EditorHelper.SNAP_MODE_CHANGED' as const,
     snapMode: matches.any as Validator<unknown, SnapModeType>
   })
 
   static changeTranslationSnap = defineAction({
-    type: 'xre.editor.EditorHelper.TRANSLATION_SNAP_CHANGED' as const,
+    type: 'ee.editor.EditorHelper.TRANSLATION_SNAP_CHANGED' as const,
     translationSnap: matches.number
   })
 
   static changeRotationSnap = defineAction({
-    type: 'xre.editor.EditorHelper.ROTATION_SNAP_CHANGED' as const,
+    type: 'ee.editor.EditorHelper.ROTATION_SNAP_CHANGED' as const,
     rotationSnap: matches.number
   })
 
   static changeScaleSnap = defineAction({
-    type: 'xre.editor.EditorHelper.SCALE_SNAP_CHANGED' as const,
+    type: 'ee.editor.EditorHelper.SCALE_SNAP_CHANGED' as const,
     scaleSnap: matches.number
   })
 
   static changedGenerateThumbnails = defineAction({
-    type: 'xre.editor.EditorHelper.GENERATE_THUMBNAILS_CHANGED' as const,
+    type: 'ee.editor.EditorHelper.GENERATE_THUMBNAILS_CHANGED' as const,
     isGenerateThumbnailsEnabled: matches.boolean
   })
 }

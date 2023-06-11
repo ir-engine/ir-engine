@@ -8,7 +8,7 @@ import { Application } from '@etherealengine/server-core/declarations'
 import { transformModel } from './model-transform.helpers'
 
 interface CreateParams {
-  path: string
+  src: string
   transformParameters: ModelTransformParameters
 }
 
@@ -30,12 +30,11 @@ export class ModelTransform implements ServiceMethods<any> {
     return Promise.resolve({})
   }
 
-  processPath(inPath: string): string {
-    const pathData = /.*projects\/([\w\d\s\-_]+)\/assets\/([\w\d\s\-_\\\/]+).glb$/.exec(inPath)
+  processPath(inPath: string): [string, string] {
+    const pathData = /.*projects\/(.*)\.(glb|gltf)$/.exec(inPath)
     if (!pathData) throw Error('could not extract path data')
-    const [_, projectName, fileName] = pathData
-    const commonPath = path.join(this.rootPath, `${projectName}/assets/${fileName}`)
-    return commonPath
+    const [_, filePath, extension] = pathData
+    return [path.join(this.rootPath, filePath), extension]
   }
 
   async find(params?: Params): Promise<any> {
@@ -59,10 +58,13 @@ export class ModelTransform implements ServiceMethods<any> {
   async create(createParams: CreateParams, params?: Params): Promise<any> {
     try {
       const transformParms = createParams.transformParameters
-      const commonPath = this.processPath(createParams.path)
-      const inPath = `${commonPath}.glb`
-      const outPath = `${commonPath}-transformed.glb`
-      return await transformModel(this.app, { src: inPath, dst: outPath, parms: transformParms })
+      const [commonPath, extension] = this.processPath(createParams.src)
+      const inPath = `${commonPath}.${extension}`
+      const outPath = transformParms.dst
+        ? `${commonPath.replace(/[^/]+$/, transformParms.dst)}.${extension}`
+        : `${commonPath}-transformed.${extension}`
+      const resourceUri = transformParms.resourceUri ?? ''
+      return await transformModel(this.app, { src: inPath, dst: outPath, resourceUri, parms: transformParms })
     } catch (e) {
       console.error('error transforming model')
       console.error(e)

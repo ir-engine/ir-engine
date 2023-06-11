@@ -1,48 +1,29 @@
-import { SystemUpdateType } from '../ecs/functions/SystemUpdateType'
-import MaterialLibrarySystem from '../renderer/materials/systems/MaterialLibrarySystem'
-import HyperspacePortalSystem from './systems/HyperspacePortalSystem'
-import InstancingSystem from './systems/InstancingSystem'
-import LightSystem from './systems/LightSystem'
-import ParticleSystem from './systems/ParticleSystemSystem'
-import PortalSystem from './systems/PortalSystem'
-import SceneObjectDynamicLoadSystem from './systems/SceneObjectDynamicLoadSystem'
+import { BehaveGraphSystem } from '../behave-graph/systems/BehaveGraphSystem'
+import { defineSystem } from '../ecs/functions/SystemFunctions'
+import { MountPointSystem } from '../interaction/systems/MountPointSystem'
+import { MaterialLibrarySystem } from '../renderer/materials/systems/MaterialLibrarySystem'
+import { LightSystem } from './systems/LightSystem'
+import { LODSystem } from './systems/LODSystem'
+import { ParticleSystem } from './systems/ParticleSystemSystem'
+import { PortalLoadSystem } from './systems/PortalLoadSystem'
+import { SceneLoadingSystem } from './systems/SceneLoadingSystem'
+import { SceneObjectDynamicLoadSystem } from './systems/SceneObjectDynamicLoadSystem'
+import { SceneObjectSystem } from './systems/SceneObjectSystem'
+import { SceneObjectUpdateSystem } from './systems/SceneObjectUpdateSystem'
 
-export function SceneClientModule() {
-  return [
-    {
-      uuid: 'xre.engine.PortalSystem',
-      type: SystemUpdateType.UPDATE,
-      systemLoader: () => Promise.resolve({ default: PortalSystem })
-    },
-    {
-      uuid: 'xre.engine.HyperspacePortalSystem',
-      type: SystemUpdateType.UPDATE,
-      systemLoader: () => Promise.resolve({ default: HyperspacePortalSystem })
-    },
-    {
-      uuid: 'xre.engine.ParticleSystem',
-      type: SystemUpdateType.UPDATE_LATE,
-      systemLoader: () => Promise.resolve({ default: ParticleSystem })
-    },
-    {
-      uuid: 'xre.engine.LightSystem',
-      type: SystemUpdateType.UPDATE_LATE,
-      systemLoader: () => Promise.resolve({ default: LightSystem })
-    },
-    {
-      uuid: 'xre.engine.InstancingSystem',
-      type: SystemUpdateType.POST_RENDER,
-      systemLoader: () => Promise.resolve({ default: InstancingSystem })
-    },
-    {
-      uuid: 'xre.engine.SceneObjectDynamicLoadSystem',
-      type: SystemUpdateType.POST_RENDER,
-      systemLoader: () => Promise.resolve({ default: SceneObjectDynamicLoadSystem })
-    },
-    {
-      uuid: 'xre.engine.MaterialLibrarySystem',
-      type: SystemUpdateType.POST_RENDER,
-      systemLoader: () => Promise.resolve({ default: MaterialLibrarySystem })
-    }
+export const SceneSystemUpdateGroup = defineSystem({
+  uuid: 'ee.engine.scene.SceneSystemUpdateGroup',
+  subSystems: [BehaveGraphSystem, ParticleSystem, LightSystem, SceneObjectSystem, MountPointSystem]
+})
+
+export const SceneSystemLoadGroup = defineSystem({
+  uuid: 'ee.engine.scene.SceneSystemLoadGroup',
+  subSystems: [
+    SceneLoadingSystem,
+    LODSystem,
+    PortalLoadSystem,
+    SceneObjectDynamicLoadSystem,
+    MaterialLibrarySystem,
+    SceneObjectUpdateSystem
   ]
-}
+})

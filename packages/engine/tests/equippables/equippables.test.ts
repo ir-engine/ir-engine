@@ -7,14 +7,13 @@ import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 import { applyIncomingActions, clearOutgoingActions } from '@etherealengine/hyperflux'
 
-import { Engine } from '../../src/ecs/classes/Engine'
+import { destroyEngine, Engine } from '../../src/ecs/classes/Engine'
 import { addComponent, getComponent, hasComponent } from '../../src/ecs/functions/ComponentFunctions'
 import { createEntity } from '../../src/ecs/functions/EntityFunctions'
 import { createEngine } from '../../src/initializeEngine'
 import { EquippedComponent } from '../../src/interaction/components/EquippedComponent'
 import { EquipperComponent } from '../../src/interaction/components/EquipperComponent'
 import { equipEntity, unequipEntity } from '../../src/interaction/functions/equippableFunctions'
-import { equipperQueryExit } from '../../src/interaction/systems/EquippableSystem'
 import { Network } from '../../src/networking/classes/Network'
 import { NetworkObjectComponent } from '../../src/networking/components/NetworkObjectComponent'
 import { Physics } from '../../src/physics/classes/Physics'
@@ -28,6 +27,9 @@ describe.skip('Equippables Integration Tests', () => {
     createMockNetwork()
     await Physics.load()
     Engine.instance.physicsWorld = Physics.createWorld()
+  })
+  afterEach(() => {
+    return destroyEngine()
   })
 
   it('Can equip and unequip', async () => {
@@ -68,7 +70,7 @@ describe.skip('Equippables Integration Tests', () => {
     // initially the object is owned by server
     addComponent(equippableEntity, NetworkObjectComponent, {
       ownerId: Engine.instance.worldNetwork.hostId,
-      authorityPeerID: Engine.instance.worldNetwork.peerID,
+      authorityPeerID: Engine.instance.peerID,
       networkId: 0 as NetworkId
     })
 
@@ -98,8 +100,6 @@ describe.skip('Equippables Integration Tests', () => {
 
     clearOutgoingActions(Engine.instance.worldNetwork.topic)
     applyIncomingActions()
-
-    equipperQueryExit(equipperEntity)
 
     // validations for unequip
     assert(!hasComponent(equipperEntity, EquipperComponent))
