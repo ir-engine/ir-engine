@@ -295,7 +295,7 @@ export class WebLayer3D extends Object3D {
    *
    * Defaults to `auto`
    */
-  // shouldApplyDOMLayout: true | false | string = 'auto'
+  shouldApplyDOMLayout: true | false | string = 'auto'
 
   /**
    * Refresh from DOM (potentially slow, call only when needed)

@@ -1,22 +1,18 @@
-import matches from 'ts-matches'
+import { createState } from '@etherealengine/hyperflux'
 
+import { Entity } from '../../ecs/classes/Entity'
 import { defineComponent } from '../../ecs/functions/ComponentFunctions'
 
 export const SceneAssetPendingTagComponent = defineComponent({
   name: 'SceneAssetPendingTagComponent',
 
-  onInit: (entity) => {
-    return {
-      loadedAmount: 0,
-      finishedLoading: false,
-      totalAmount: 0
-    }
-  },
-
-  onSet: (entity, component, json) => {
-    if (!json) return
-    if (matches.number.test(json.loadedAmount)) component.loadedAmount.set(json.loadedAmount)
-    if (matches.boolean.test(json.finishedLoading)) component.finishedLoading.set(json.finishedLoading)
-    if (matches.number.test(json.totalAmount)) component.totalAmount.set(json.totalAmount)
-  }
+  loadingProgress: createState(
+    {} as Record<
+      Entity,
+      {
+        loadedAmount: number
+        totalAmount: number
+      }
+    >
+  )
 })

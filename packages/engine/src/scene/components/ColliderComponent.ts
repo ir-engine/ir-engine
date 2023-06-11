@@ -11,6 +11,7 @@ import {
   getComponent,
   getOptionalComponent,
   hasComponent,
+  removeComponent,
   setComponent,
   useComponent,
   useOptionalComponent
@@ -222,8 +223,7 @@ export const ColliderComponent = defineComponent({
         rigidbody.scale.copy(transformComponent.scale.value)
       }
 
-      if (hasComponent(entity, SceneAssetPendingTagComponent))
-        setComponent(entity, SceneAssetPendingTagComponent, { finishedLoading: true })
+      if (hasComponent(entity, SceneAssetPendingTagComponent)) removeComponent(entity, SceneAssetPendingTagComponent)
     }, [isLoadedFromGLTF, transformComponent, colliderComponent, groupComponent?.length])
 
     return null

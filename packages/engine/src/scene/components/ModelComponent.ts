@@ -126,11 +126,6 @@ function ModelReactor() {
       }
       if (!model.src) return
 
-      fetch(model.src, { method: 'HEAD' }).then((response) => {
-        const fileSize = parseInt(response.headers.get('content-length')!)
-        setComponent(entity, SceneAssetPendingTagComponent, { totalAmount: fileSize })
-      })
-
       const uuid = getComponent(entity, UUIDComponent)
       const fileExtension = model.src.split('.').pop()?.toLowerCase()
       switch (fileExtension) {
@@ -152,11 +147,17 @@ function ModelReactor() {
               loadedAsset.scene.userData.type === 'glb' && delete loadedAsset.scene.userData.type
               model.scene && removeObjectFromGroup(entity, model.scene)
               modelComponent.scene.set(loadedAsset.scene)
-              setComponent(entity, SceneAssetPendingTagComponent, { finishedLoading: true })
+              if (!hasComponent(entity, SceneAssetPendingTagComponent)) return
+              removeComponent(entity, SceneAssetPendingTagComponent)
             },
             (onprogress) => {
               if (!hasComponent(entity, SceneAssetPendingTagComponent)) return
-              setComponent(entity, SceneAssetPendingTagComponent, { loadedAmount: onprogress.loaded })
+              SceneAssetPendingTagComponent.loadingProgress.merge({
+                [entity]: {
+                  loadedAmount: onprogress.loaded,
+                  totalAmount: onprogress.total
+                }
+              })
             }
           )
           break

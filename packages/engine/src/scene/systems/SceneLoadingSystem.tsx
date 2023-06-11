@@ -386,26 +386,24 @@ const reactor = () => {
   const sceneData = useHookstate(getMutableState(SceneState).sceneData)
   const isEngineInitialized = useHookstate(getMutableState(EngineState).isEngineInitialized)
   const sceneAssetPendingTagQuery = useQuery([SceneAssetPendingTagComponent])
+  const assetLoadingState = useHookstate(SceneAssetPendingTagComponent.loadingProgress)
 
   useEffect(() => {
-    const assets = sceneAssetPendingTagQuery.map((entity) => getComponent(entity, SceneAssetPendingTagComponent))
-    const totalAssetSize = assets.reduce((acc, asset) => acc + asset.totalAmount, 0)
-    const currentLoaded = assets.reduce((acc, asset) => acc + asset.loadedAmount, 0)
-    const allLoaded = !assets.find((asset) => !asset.finishedLoading)
+    if (!getState(EngineState).sceneLoading) return
 
-    console.log(Math.round((100 * currentLoaded) / totalAssetSize))
+    const values = Object.values(assetLoadingState.value)
+    const total = values.reduce((acc, curr) => acc + curr.totalAmount, 0)
+    const loaded = values.reduce((acc, curr) => acc + curr.loadedAmount, 0)
+    const progress = sceneAssetPendingTagQuery.length || total === 0 ? 100 : Math.round((100 * loaded) / total)
 
-    dispatchAction(
-      EngineActions.sceneLoadingProgress({
-        progress: assets.length <= 0 ? 100 : Math.round((100 * currentLoaded) / totalAssetSize)
-      })
-    )
+    dispatchAction(EngineActions.sceneLoadingProgress({ progress }))
 
-    if (allLoaded) {
+    if (!sceneAssetPendingTagQuery.length && !getState(EngineState).sceneLoaded) {
       for (const entity of sceneAssetPendingTagQuery) removeComponent(entity, SceneAssetPendingTagComponent)
       dispatchAction(EngineActions.sceneLoaded({}))
+      SceneAssetPendingTagComponent.loadingProgress.set({})
     }
-  }, [sceneAssetPendingTagQuery])
+  }, [sceneAssetPendingTagQuery, assetLoadingState])
 
   useEffect(() => {
     if (sceneData.value && isEngineInitialized.value) updateSceneFromJSON()
