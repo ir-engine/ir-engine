@@ -1,8 +1,7 @@
 import appRootPath from 'app-root-path'
-
+import cli from 'cli'
 /* eslint-disable @typescript-eslint/no-var-requires */
 import dotenv from 'dotenv-flow'
-import cli from 'cli'
 import Sequelize from 'sequelize'
 
 dotenv.config({
