@@ -61,7 +61,7 @@ const LoadingDetailView = () => {
             {t('common:loader.loading')}
           </div>
           <div id="progress-text" xr-layer="true" xr-pixel-ratio="2" xr-prerasterized="0-9">
-            {engineState.loadingProgress.value}
+            {`${engineState.loadingProgress.value}%`}
           </div>
           <div id="progress-container" xr-layer="true" xr-scalable="true" xr-apply-dom-layout="once">
             <ProgressBar

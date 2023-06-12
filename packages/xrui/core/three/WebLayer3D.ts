@@ -49,11 +49,11 @@ export class WebLayer3D extends Object3D {
     if ((should as any) === 'always' || should === true) return true
     if ((should as any) === 'never' || should === false) return false
     if (should === 'auto' && layer.parentWebLayer && layer.parent === layer.parentWebLayer) return true
-    return false
-    // if (should === 'once') {
-    //   layer.shouldApplyDOMLayout = false
-    //   return true
-    // }
+    // return false
+    if (should === 'once') {
+      layer.shouldApplyDOMLayout = false
+      return true
+    }
   }
 
   private _camera?: THREE.PerspectiveCamera
@@ -65,8 +65,8 @@ export class WebLayer3D extends Object3D {
     ;(element as any).layer = this
 
     // this.scalable = this.element.hasAttribute('xr-scalable')
-    // const applyDomElement = this.element.getAttribute('xr-apply-dom-layout')
-    // if (applyDomElement) this.shouldApplyDOMLayout = applyDomElement
+    const applyDomElement = this.element.getAttribute('xr-apply-dom-layout')
+    if (applyDomElement) this.shouldApplyDOMLayout = applyDomElement
 
     // compressed textures need flipped geometry]
     const geometry = this._webLayer.isMediaElement ? WebLayer3D.GEOMETRY : WebLayer3D.FLIPPED_GEOMETRY

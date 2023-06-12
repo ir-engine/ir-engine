@@ -6,7 +6,10 @@ import { MathUtils } from 'three'
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { ComponentJson, EntityJson, SceneData, SceneJson } from '@etherealengine/common/src/interfaces/SceneInterface'
 import logger from '@etherealengine/common/src/logger'
-import { setLocalTransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
+import {
+  LocalTransformComponent,
+  setLocalTransformComponent
+} from '@etherealengine/engine/src/transform/components/TransformComponent'
 import {
   addActionReceptor,
   dispatchAction,
@@ -29,6 +32,7 @@ import { Entity } from '../../ecs/classes/Entity'
 import { SceneState } from '../../ecs/classes/Scene'
 import {
   ComponentJSONIDMap,
+  ComponentType,
   defineQuery,
   getAllComponents,
   getComponent,
@@ -196,26 +200,15 @@ export const updateSceneEntitiesFromJSON = (parent: string) => {
     ([uuid, entity]) => entity.parent === parent
   ) as [EntityUUID, EntityJson][]
   for (const [uuid, entityJson] of entitiesToLoad) {
-    updateSceneEntity(uuid, entityJson)
+    /** Dynamic loading handled by SceneObejctDynamicLoadSystem */
     const JSONEntityIsDynamic = !!entityJson.components.find(
       (comp) => comp.name === SceneDynamicLoadTagComponent.jsonID
     )
-
-    if (JSONEntityIsDynamic && !getMutableState(EngineState).isEditor.value) {
-      const existingEntity = UUIDComponent.entitiesByUUID[uuid]
-      if (existingEntity) {
-        const previouslyNotDynamic = !getOptionalComponent(existingEntity, SceneDynamicLoadTagComponent)?.loaded
-        if (previouslyNotDynamic) {
-          // remove children from world (get from entity tree)
-          // these are children who have potentially been previously loaded and are now to be dynamically loaded
-          const nodes = getComponent(existingEntity, EntityTreeComponent).children
-          for (const node of nodes) removeEntityNode(node, false)
-        }
-      }
-    } else {
-      // iterate children
-      updateSceneEntitiesFromJSON(uuid)
-    }
+    if (JSONEntityIsDynamic && !getMutableState(EngineState).isEditor.value) continue
+    /** Deserialize */
+    updateSceneEntity(uuid, entityJson)
+    /** Iterate Children */
+    updateSceneEntitiesFromJSON(uuid)
   }
 }
 
@@ -394,9 +387,9 @@ const reactor = () => {
     const values = Object.values(assetLoadingState.value)
     const total = values.reduce((acc, curr) => acc + curr.totalAmount, 0)
     const loaded = values.reduce((acc, curr) => acc + curr.loadedAmount, 0)
-    const progress = sceneAssetPendingTagQuery.length || total === 0 ? 100 : Math.round((100 * loaded) / total)
+    const progress = !sceneAssetPendingTagQuery.length || total === 0 ? 100 : Math.round((100 * loaded) / total)
 
-    dispatchAction(EngineActions.sceneLoadingProgress({ progress }))
+    getMutableState(EngineState).loadingProgress.set(progress)
 
     if (!sceneAssetPendingTagQuery.length && !getState(EngineState).sceneLoaded) {
       for (const entity of sceneAssetPendingTagQuery) removeComponent(entity, SceneAssetPendingTagComponent)

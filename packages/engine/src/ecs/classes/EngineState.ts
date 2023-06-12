@@ -57,7 +57,6 @@ export function EngineEventReceptor(a) {
     .when(EngineActions.sceneLoaded.matches, (action) => s.merge({ sceneLoading: false, sceneLoaded: true }))
     .when(EngineActions.joinedWorld.matches, (action) => s.merge({ joinedWorld: true }))
     .when(EngineActions.leaveWorld.matches, (action) => s.merge({ joinedWorld: false }))
-    .when(EngineActions.sceneLoadingProgress.matches, (action) => s.merge({ loadingProgress: action.progress }))
     .when(EngineActions.connectToWorld.matches, (action) => s.connectedWorld.set(action.connectedWorld))
     .when(EngineActions.setTeleporting.matches, (action) => s.merge({ isTeleporting: action.isTeleporting }))
     .when(EngineActions.spectateUser.matches, (action) => s.spectating.set(!!action.user))
@@ -98,11 +97,6 @@ export class EngineActions {
 
   static sceneUnloaded = defineAction({
     type: 'xre.engine.Engine.SCENE_UNLOADED' as const
-  })
-
-  static sceneLoadingProgress = defineAction({
-    type: 'xre.engine.Engine.SCENE_LOADING_PROGRESS' as const,
-    progress: matches.number
   })
 
   static browserNotSupported = defineAction({
