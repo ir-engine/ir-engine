@@ -7,7 +7,7 @@ import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
 import { SceneState } from '../../ecs/classes/Scene'
 import { getComponent, getOptionalComponent } from '../../ecs/functions/ComponentFunctions'
-import { removeEntityNode } from '../../ecs/functions/EntityTree'
+import { removeEntityNodeRecursively } from '../../ecs/functions/EntityTree'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { SceneDynamicLoadTagComponent } from '../components/SceneDynamicLoadTagComponent'
@@ -24,51 +24,53 @@ const execute = () => {
 
   accumulator += engineState.deltaSeconds
 
-  if (accumulator > 1) {
-    accumulator = 0
+  if (accumulator < 0.1) {
+    return
+  }
 
-    const avatarPosition = getOptionalComponent(Engine.instance.localClientEntity, TransformComponent)?.position
-    if (!avatarPosition) return
+  accumulator = 0
 
-    const sceneData = getState(SceneState).sceneData as SceneData
-    const dynamicEntities = Object.entries(sceneData.scene.entities).filter(([uuid, entityJson]) =>
-      entityJson.components.find((comp) => comp.name === SceneDynamicLoadTagComponent.jsonID)
-    )
+  const avatarPosition = getOptionalComponent(Engine.instance.localClientEntity, TransformComponent)?.position
+  if (!avatarPosition) return
 
-    const loadedDynamicEntities = dynamicEntities.filter(([uuid, entityJson]) => UUIDComponent.entitiesByUUID[uuid])
-    const unloadedDynamicEntities = dynamicEntities.filter(([uuid, entityJson]) => !UUIDComponent.entitiesByUUID[uuid])
+  const sceneData = getState(SceneState).sceneData as SceneData
+  const dynamicEntities = Object.entries(sceneData.scene.entities).filter(([uuid, entityJson]) =>
+    entityJson.components.find((comp) => comp.name === SceneDynamicLoadTagComponent.jsonID)
+  )
 
-    for (const [uuid, entityJson] of unloadedDynamicEntities as [EntityUUID, EntityJson][]) {
-      // todo - figure out how to include parent transforms in this calculation
-      const transformComponent = entityJson.components.find((comp) => comp.name === TransformComponent.jsonID)!.props
+  const loadedDynamicEntities = dynamicEntities.filter(([uuid, entityJson]) => UUIDComponent.entitiesByUUID[uuid])
+  const unloadedDynamicEntities = dynamicEntities.filter(([uuid, entityJson]) => !UUIDComponent.entitiesByUUID[uuid])
 
-      const dynamicComponent = entityJson.components.find(
-        (comp) => comp.name === SceneDynamicLoadTagComponent.jsonID
-      )?.props
+  for (const [uuid, entityJson] of unloadedDynamicEntities as [EntityUUID, EntityJson][]) {
+    // todo - figure out how to include parent transforms in this calculation
+    const transformComponent = entityJson.components.find((comp) => comp.name === TransformComponent.jsonID)!.props
 
-      const distanceToAvatar = avatarPosition.distanceToSquared(transformComponent.position)
-      const loadDistance = dynamicComponent.distance * dynamicComponent.distance * distanceMultiplier
+    const dynamicComponent = entityJson.components.find(
+      (comp) => comp.name === SceneDynamicLoadTagComponent.jsonID
+    )?.props
 
-      /** Load unloaded entities */
-      if (distanceToAvatar < loadDistance) {
-        updateSceneEntity(uuid, entityJson)
-        updateSceneEntitiesFromJSON(uuid)
-      }
+    const distanceToAvatar = avatarPosition.distanceToSquared(transformComponent.position)
+    const loadDistance = dynamicComponent.distance * dynamicComponent.distance * distanceMultiplier
+
+    /** Load unloaded entities */
+    if (distanceToAvatar < loadDistance) {
+      updateSceneEntity(uuid, entityJson)
+      updateSceneEntitiesFromJSON(uuid)
     }
+  }
 
-    for (const [uuid, entityJson] of loadedDynamicEntities) {
-      const entity = UUIDComponent.entitiesByUUID[uuid]
+  for (const [uuid, entityJson] of loadedDynamicEntities) {
+    const entity = UUIDComponent.entitiesByUUID[uuid]
 
-      const transformComponent = getComponent(entity, TransformComponent)
+    const transformComponent = getComponent(entity, TransformComponent)
 
-      const dynamicComponent = getComponent(entity, SceneDynamicLoadTagComponent)
-      const distanceToAvatar = avatarPosition.distanceToSquared(transformComponent.position)
-      const loadDistance = dynamicComponent.distance * dynamicComponent.distance * distanceMultiplier
+    const dynamicComponent = getComponent(entity, SceneDynamicLoadTagComponent)
+    const distanceToAvatar = avatarPosition.distanceToSquared(transformComponent.position)
+    const loadDistance = dynamicComponent.distance * dynamicComponent.distance * distanceMultiplier
 
-      /** Unload loaded entities */
-      if (distanceToAvatar > loadDistance) {
-        removeEntityNode(entity, false)
-      }
+    /** Unload loaded entities */
+    if (distanceToAvatar > loadDistance) {
+      removeEntityNodeRecursively(entity)
     }
   }
 }
