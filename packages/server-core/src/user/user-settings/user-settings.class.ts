@@ -54,16 +54,6 @@ export class UserSettings<T = UserSettingsDataType> extends Service<T> {
   }
 
   async patch(id: NullableId, data: Partial<T>): Promise<T | T[]> {
-    const themeModes = data['themeModes']
-    if (themeModes) {
-      data['themeModes'] = JSON.stringify(themeModes)
-    }
-
-    const result = await super.patch(id, data)
-
-    if (themeModes) {
-      result['themeModes'] = themeModes
-    }
-    return result
+    return await super.patch(id, data)
   }
 }
