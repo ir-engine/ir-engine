@@ -91,7 +91,7 @@ export const uploadBPCEMBakeToServer = async (entity: Entity) => {
     bakeComponent.resolution
   )
   const renderTarget = cubemapCapturer.update(position)
-  applyBoxProjection(entity)
+
   if (isSceneEntity) Engine.instance.scene.environment = renderTarget.texture
 
   const blob = await convertCubemapToKTX2(
