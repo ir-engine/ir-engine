@@ -91,7 +91,7 @@ const ResourceDrawerContent = ({ mode, selectedResource, onClose }: Props) => {
         mimeType: selectedResource.mimeType || '',
         staticResourceType: selectedResource.staticResourceType || '',
         source: 'url',
-        resourceUrl: selectedResource.LOD0_url || '',
+        resourceUrl: selectedResource.url || '',
         resourceFile: undefined
       })
     }
@@ -201,7 +201,7 @@ const ResourceDrawerContent = ({ mode, selectedResource, onClose }: Props) => {
   }
 
   const handleSubmit = async () => {
-    let resourceBlob: Blob | undefined = undefined
+    let resourceFile: File | undefined = undefined
 
     state.formErrors.merge({
       name:
@@ -231,14 +231,12 @@ const ResourceDrawerContent = ({ mode, selectedResource, onClose }: Props) => {
       NotificationService.dispatchNotify(t('admin:components.common.fillRequiredFields'), { variant: 'error' })
       return
     } else if (state.source.value === 'file' && state.resourceFile.value) {
-      resourceBlob = state.resourceFile.value
+      resourceFile = state.resourceFile.value
     } else if (state.source.value === 'url' && state.resourceUrl.value) {
       const resourceData = await fetch(state.resourceUrl.value)
-      resourceBlob = await resourceData.blob()
-
-      if (selectedResource && selectedResource.LOD0_url === state.resourceUrl.value) {
-        resourceBlob = new Blob([resourceBlob], { type: selectedResource.mimeType })
-      }
+      resourceFile = new File([await resourceData.blob()], state.resourceUrl.value.split('/').pop()!, {
+        type: selectedResource ? selectedResource.mimeType : resourceData.headers.get('content-type') || ''
+      })
     }
 
     const data = {
@@ -247,8 +245,8 @@ const ResourceDrawerContent = ({ mode, selectedResource, onClose }: Props) => {
       staticResourceType: state.staticResourceType.value
     }
 
-    if (resourceBlob) {
-      ResourceService.createOrUpdateResource(data, resourceBlob)
+    if (resourceFile) {
+      ResourceService.createOrUpdateResource(data, resourceFile)
 
       if (mode === ResourceDrawerMode.ViewEdit) {
         editMode.set(false)

@@ -77,10 +77,9 @@
     "sequelize": "6.29.3",
     "tailwindcss": "^3.3.2",
     "ts-node": "10.9.1",
-    "vite": "^4.3.9",
-    "vite-plugin-compression": "^0.5.1",
-    "vite-plugin-html": "^3.2.0",
-    "vite-plugin-node-polyfills": "^0.8.2",
+    "vite": "4.3.9",
+    "vite-plugin-compression": "0.5.1",
+    "vite-plugin-ejs": "^1.6.4",
     "vite-plugin-optimize-persist": "^0.1.2",
     "vite-plugin-package-config": "^0.1.1",
     "vite-plugin-pwa": "^0.16.1"

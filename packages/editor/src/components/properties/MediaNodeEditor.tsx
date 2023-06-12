@@ -119,13 +119,13 @@ export const MediaNodeEditor: EditorComponentType = (props) => {
         prefix="Content"
         values={media.resources.value.map(
           (resource) =>
-            resource?.mp3StaticResource?.LOD0_url ||
-            resource?.mpegStaticResource?.LOD0_url ||
-            resource?.oggStaticResource?.LOD0_url ||
-            resource?.mp4StaticResource?.LOD0_url ||
-            resource?.manifest?.staticResource?.LOD0_url ||
-            resource?.uvolStaticResource?.LOD0_url ||
-            resource?.drcsStaticResource?.LOD0_url ||
+            resource?.mp3StaticResource?.url ||
+            resource?.mpegStaticResource?.url ||
+            resource?.oggStaticResource?.url ||
+            resource?.mp4StaticResource?.url ||
+            resource?.manifest?.staticResource?.url ||
+            resource?.uvolStaticResource?.url ||
+            resource?.drcsStaticResource?.url ||
             resource?.path ||
             ''
         )}

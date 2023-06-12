@@ -56,6 +56,7 @@ import { PostProcessingComponent } from '../components/PostProcessingComponent'
 import { RenderSettingsComponent } from '../components/RenderSettingsComponent'
 import { SceneAssetPendingTagComponent } from '../components/SceneAssetPendingTagComponent'
 import { SceneDynamicLoadTagComponent } from '../components/SceneDynamicLoadTagComponent'
+import { SceneObjectComponent } from '../components/SceneObjectComponent'
 import { UUIDComponent } from '../components/UUIDComponent'
 import { VisibleComponent } from '../components/VisibleComponent'
 import { getUniqueName } from '../functions/getUniqueName'
@@ -245,7 +246,10 @@ export const updateSceneFromJSON = async () => {
 
   const sceneData = getState(SceneState).sceneData as SceneData
 
-  getMutableState(EngineState).sceneLoading.set(true)
+  getMutableState(EngineState).merge({
+    sceneLoading: true,
+    sceneLoaded: false
+  })
 
   const systemsToLoad = [] as SystemImportType[]
 
@@ -305,9 +309,6 @@ export const updateSceneFromJSON = async () => {
   if (!sceneAssetPendingTagQuery().length) {
     if (getState(EngineState).sceneLoading) dispatchAction(EngineActions.sceneLoaded({}))
   }
-
-  if (getState(AppLoadingState).state !== AppLoadingStates.SUCCESS)
-    dispatchAction(AppLoadingAction.setLoadingState({ state: AppLoadingStates.SUCCESS }))
 }
 
 /**
@@ -320,6 +321,7 @@ export const updateSceneEntity = (uuid: EntityUUID, entityJson: EntityJson) => {
   try {
     const existingEntity = UUIDComponent.entitiesByUUID[uuid]
     if (existingEntity) {
+      setComponent(existingEntity, SceneObjectComponent)
       deserializeSceneEntity(existingEntity, entityJson)
       /** @todo handle reparenting due to changes in scene json */
       // const parent = existingEntity.parentEntity
@@ -328,6 +330,7 @@ export const updateSceneEntity = (uuid: EntityUUID, entityJson: EntityJson) => {
     } else {
       const entity = createEntity()
       const parentEntity = UUIDComponent.entitiesByUUID[entityJson.parent!]
+      setComponent(entity, SceneObjectComponent)
       setComponent(entity, EntityTreeComponent, { parentEntity, uuid, childIndex: entityJson.index })
       setLocalTransformComponent(entity, parentEntity)
       addEntityNodeChild(entity, parentEntity)

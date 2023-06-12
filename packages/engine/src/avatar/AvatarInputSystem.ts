@@ -8,14 +8,18 @@ import { Engine } from '../ecs/classes/Engine'
 import { EngineActions } from '../ecs/classes/EngineState'
 import {
   ComponentType,
+  defineQuery,
   getComponent,
   getMutableComponent,
   removeComponent,
   setComponent
 } from '../ecs/functions/ComponentFunctions'
 import { defineSystem } from '../ecs/functions/SystemFunctions'
+import { InputComponent } from '../input/components/InputComponent'
+import { InputSourceComponent } from '../input/components/InputSourceComponent'
 import { InteractState } from '../interaction/systems/InteractiveSystem'
 import { WorldNetworkAction } from '../networking/functions/WorldNetworkAction'
+import { RigidBodyFixedTagComponent } from '../physics/components/RigidBodyComponent'
 import { boxDynamicConfig } from '../physics/functions/physicsObjectDebugFunctions'
 import { RendererState } from '../renderer/RendererState'
 import { hasMovementControls } from '../xr/XRState'
@@ -123,6 +127,8 @@ const onKeyP = () => {
   getMutableState(RendererState).debugEnable.set(!getMutableState(RendererState).debugEnable.value)
 }
 
+const walkableQuery = defineQuery([RigidBodyFixedTagComponent, InputComponent])
+
 let mouseMovedDuringPrimaryClick = false
 const execute = () => {
   const { inputSources, localClientEntity } = Engine.instance
@@ -133,13 +139,26 @@ const execute = () => {
   const controller = getComponent(localClientEntity, AvatarControllerComponent)
   const buttons = Engine.instance.buttons
 
-  if (buttons.PrimaryClick?.touched) {
-    let mouseMoved = Engine.instance.pointerState.movement.lengthSq() > 0
-    if (mouseMoved) mouseMovedDuringPrimaryClick = true
+  const firstWalkableEntityWithInput = walkableQuery().find(
+    (entity) => getComponent(entity, InputComponent)?.inputSources.length
+  )
 
-    if (buttons.PrimaryClick.up) {
-      if (!mouseMovedDuringPrimaryClick) autopilotSetPosition(Engine.instance.localClientEntity)
-      else mouseMovedDuringPrimaryClick = false
+  if (firstWalkableEntityWithInput) {
+    const inputComponent = getComponent(firstWalkableEntityWithInput, InputComponent)
+    const inputSourceEntity = inputComponent?.inputSources[0]
+
+    if (inputSourceEntity) {
+      const inputSourceComponent = getComponent(inputSourceEntity, InputSourceComponent)
+      if (inputSourceComponent.buttons.PrimaryClick?.touched) {
+        let mouseMoved = Engine.instance.pointerState.movement.lengthSq() > 0
+        if (mouseMoved) mouseMovedDuringPrimaryClick = true
+
+        if (inputSourceComponent.buttons.PrimaryClick.up) {
+          if (!mouseMovedDuringPrimaryClick) {
+            autopilotSetPosition(Engine.instance.localClientEntity)
+          } else mouseMovedDuringPrimaryClick = false
+        }
+      }
     }
   }
 

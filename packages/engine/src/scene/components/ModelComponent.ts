@@ -11,6 +11,7 @@ import {
   defineComponent,
   getComponent,
   getMutableComponent,
+  hasComponent,
   removeComponent,
   setComponent,
   useComponent,
@@ -28,8 +29,8 @@ import { parseGLTFModel } from '../functions/loadGLTFModel'
 import { enableObjectLayer } from '../functions/setObjectLayers'
 import { addObjectToGroup, GroupComponent, removeObjectFromGroup } from './GroupComponent'
 import { LODComponent } from './LODComponent'
-import { LODComponentType } from './LODComponent'
 import { SceneAssetPendingTagComponent } from './SceneAssetPendingTagComponent'
+import { SceneObjectComponent } from './SceneObjectComponent'
 import { UUIDComponent } from './UUIDComponent'
 
 export type ModelResource = {
@@ -77,7 +78,8 @@ export const ModelComponent = defineComponent({
     /**
      * Add SceneAssetPendingTagComponent to tell scene loading system we should wait for this asset to load
      */
-    if (!getState(EngineState).sceneLoaded) setComponent(entity, SceneAssetPendingTagComponent, true)
+    if (!getState(EngineState).sceneLoaded && hasComponent(entity, SceneObjectComponent))
+      setComponent(entity, SceneAssetPendingTagComponent, true)
   },
 
   onRemove: (entity, component) => {
@@ -100,10 +102,10 @@ function ModelReactor() {
   const groupComponent = useOptionalComponent(entity, GroupComponent)
   const model = modelComponent.value
   const source =
-    model.resource?.gltfStaticResource?.LOD0_url ||
-    model.resource?.glbStaticResource?.LOD0_url ||
-    model.resource?.fbxStaticResource?.LOD0_url ||
-    model.resource?.usdzStaticResource?.LOD0_url ||
+    model.resource?.gltfStaticResource?.url ||
+    model.resource?.glbStaticResource?.url ||
+    model.resource?.fbxStaticResource?.url ||
+    model.resource?.usdzStaticResource?.url ||
     model.src
   // update src
   useEffect(() => {

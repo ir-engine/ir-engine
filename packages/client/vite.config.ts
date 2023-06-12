@@ -7,8 +7,7 @@ import { isArray, mergeWith } from 'lodash'
 import path from 'path'
 import { defineConfig, UserConfig } from 'vite'
 import viteCompression from 'vite-plugin-compression'
-import { createHtmlPlugin } from 'vite-plugin-html'
-import { nodePolyfills } from 'vite-plugin-node-polyfills'
+import { ViteEjsPlugin } from 'vite-plugin-ejs'
 import OptimizationPersist from 'vite-plugin-optimize-persist'
 import PkgConfig from 'vite-plugin-package-config'
 
@@ -252,33 +251,25 @@ export default defineConfig(async () => {
       }
     },
     plugins: [
-      nodePolyfills({
-        // Whether to polyfill `node:` protocol imports.
-        protocolImports: true
-      }),
       PkgConfig(), // must be in front of optimizationPersist
       OptimizationPersist(),
       mediapipe_workaround(),
       process.env.VITE_PWA_ENABLED === 'true' ? PWA(clientSetting) : undefined,
-      createHtmlPlugin({
-        inject: {
-          data: {
-            ...manifest,
-            title: clientSetting.title || 'Ethereal Engine',
-            description: clientSetting?.siteDescription || 'Connected Worlds for Everyone',
-            short_name: clientSetting?.shortName || 'EE',
-            theme_color: clientSetting?.themeColor || '#ffffff',
-            background_color: clientSetting?.backgroundColor || '#000000',
-            appleTouchIcon: clientSetting.appleTouchIcon || '/apple-touch-icon.png',
-            favicon32px: clientSetting.favicon32px || '/favicon-32x32.png',
-            favicon16px: clientSetting.favicon16px || '/favicon-16x16.png',
-            icon192px: clientSetting.icon192px || '/android-chrome-192x192.png',
-            icon512px: clientSetting.icon512px || '/android-chrome-512x512.png',
-            webmanifestLink: clientSetting.webmanifestLink || '/manifest.webmanifest',
-            swScriptLink: isDevOrLocal ? 'dev-sw.js?dev-sw' : 'service-worker.js',
-            paymentPointer: clientSetting.paymentPointer || ''
-          }
-        }
+      ViteEjsPlugin({
+        ...manifest,
+        title: clientSetting.title || 'Ethereal Engine',
+        description: clientSetting?.siteDescription || 'Connected Worlds for Everyone',
+        short_name: clientSetting?.shortName || 'EE',
+        theme_color: clientSetting?.themeColor || '#ffffff',
+        background_color: clientSetting?.backgroundColor || '#000000',
+        appleTouchIcon: clientSetting.appleTouchIcon || '/apple-touch-icon.png',
+        favicon32px: clientSetting.favicon32px || '/favicon-32x32.png',
+        favicon16px: clientSetting.favicon16px || '/favicon-16x16.png',
+        icon192px: clientSetting.icon192px || '/android-chrome-192x192.png',
+        icon512px: clientSetting.icon512px || '/android-chrome-512x512.png',
+        webmanifestLink: clientSetting.webmanifestLink || '/manifest.webmanifest',
+        swScriptLink: clientSetting.swScriptLink || 'service-worker.js',
+        paymentPointer: clientSetting.paymentPointer || ''
       }),
       viteCompression({
         filter: /\.(js|mjs|json|css)$/i,

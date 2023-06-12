@@ -36,7 +36,7 @@ function createReadyPlayerMenuState() {
 
 const ReadyPlayerMenu = () => {
   const { t } = useTranslation()
-  const [selectedFile, setSelectedFile] = useState<Blob>()
+  const [selectedBlob, setSelectedBlob] = useState<Blob>()
   const [avatarName, setAvatarName] = useState('')
   const [avatarUrl, setAvatarUrl] = useState('')
   const [hover, setHover] = useState(false)
@@ -81,7 +81,7 @@ const ReadyPlayerMenu = () => {
           })
           fetch(url)
             .then((res) => res.blob())
-            .then((data) => setSelectedFile(data))
+            .then((data) => setSelectedBlob(data))
             .catch((err) => {
               setError(err.message)
               logger.error(err)
@@ -107,7 +107,7 @@ const ReadyPlayerMenu = () => {
   }
 
   const uploadAvatar = () => {
-    if (error || selectedFile === undefined) {
+    if (error || selectedBlob === undefined) {
       return
     }
 
@@ -118,9 +118,15 @@ const ReadyPlayerMenu = () => {
     newContext?.drawImage(renderer.value.domElement, 0, 0)
 
     const thumbnailName = avatarUrl.substring(0, avatarUrl.lastIndexOf('.')) + '.png'
+    const modelName = avatarUrl.substring(0, avatarUrl.lastIndexOf('.')) + '.glb'
 
     canvas.toBlob(async (blob) => {
-      await AvatarService.createAvatar(selectedFile, new File([blob!], thumbnailName), avatarName, false)
+      await AvatarService.createAvatar(
+        new File([selectedBlob!], modelName),
+        new File([blob!], thumbnailName),
+        avatarName,
+        false
+      )
       WidgetAppService.setWidgetVisibility(WidgetName.PROFILE, true)
     })
   }
@@ -130,9 +136,9 @@ const ReadyPlayerMenu = () => {
       <style>{styleString}</style>
       <div
         className="ReadyPlayerPanel"
-        style={{ width: selectedFile ? '400px' : '600px', padding: selectedFile ? '15px' : '0' }}
+        style={{ width: selectedBlob ? '400px' : '600px', padding: selectedBlob ? '15px' : '0' }}
       >
-        {selectedFile && (
+        {selectedBlob && (
           <section className="controlContainer">
             <div className="actionBlock">
               <button
@@ -166,7 +172,7 @@ const ReadyPlayerMenu = () => {
             borderRadius: '8px'
           }}
         ></div>
-        {selectedFile && (
+        {selectedBlob && (
           <button
             onMouseEnter={() => setHover(true)}
             onMouseLeave={() => setHover(false)}

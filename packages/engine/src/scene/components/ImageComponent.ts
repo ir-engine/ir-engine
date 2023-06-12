@@ -137,10 +137,10 @@ export function ImageReactor() {
   const texture = useHookstate(null as Texture | null)
   const imageValue = image.value
   const source =
-    imageValue.resource?.jpegStaticResource?.LOD0_url ||
-    imageValue.resource?.gifStaticResource?.LOD0_url ||
-    imageValue.resource?.pngStaticResource?.LOD0_url ||
-    imageValue.resource?.ktx2StaticResource?.LOD0_url ||
+    imageValue.resource?.jpegStaticResource?.url ||
+    imageValue.resource?.gifStaticResource?.url ||
+    imageValue.resource?.pngStaticResource?.url ||
+    imageValue.resource?.ktx2StaticResource?.url ||
     imageValue.resource?.source ||
     imageValue.source
 

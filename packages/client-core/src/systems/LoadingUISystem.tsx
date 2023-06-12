@@ -1,7 +1,19 @@
+import getImagePalette from 'image-palette-core'
 import { useEffect } from 'react'
 import React from 'react'
-import { DoubleSide, Mesh, MeshBasicMaterial, SphereGeometry } from 'three'
+import {
+  CompressedTexture,
+  DoubleSide,
+  Mesh,
+  MeshBasicMaterial,
+  SphereGeometry,
+  Texture,
+  Vector2,
+  Vector3
+} from 'three'
 
+import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoader'
+import createReadableTexture from '@etherealengine/engine/src/assets/functions/createReadableTexture'
 import { AppLoadingState, AppLoadingStates } from '@etherealengine/engine/src/common/AppLoadingService'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { EngineActions, EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
@@ -13,10 +25,10 @@ import {
 } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { removeEntity } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
 import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
+import { EngineRenderer } from '@etherealengine/engine/src/renderer/WebGLRendererSystem'
 import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
 import { setVisibleComponent } from '@etherealengine/engine/src/scene/components/VisibleComponent'
 import { ObjectLayers } from '@etherealengine/engine/src/scene/constants/ObjectLayers'
-import { textureLoader } from '@etherealengine/engine/src/scene/constants/Util'
 import { setObjectLayers } from '@etherealengine/engine/src/scene/functions/setObjectLayers'
 import {
   ComputedTransformComponent,
@@ -31,13 +43,15 @@ import type { WebLayer3D } from '@etherealengine/xrui'
 import { LoadingSystemState } from './state/LoadingState'
 import { createLoaderDetailView } from './ui/LoadingDetailView'
 
+const SCREEN_SIZE = new Vector2()
+
 const transitionPeriodSeconds = 1
 
 const LoadingUISystemState = defineState({
   name: 'LoadingUISystemState',
   initial: () => {
     const transition = createTransitionState(transitionPeriodSeconds, 'IN')
-    const ui = createLoaderDetailView(transition)
+    const ui = createLoaderDetailView()
     addComponent(ui.entity, NameComponent, 'Loading XRUI')
 
     const mesh = new Mesh(
@@ -62,7 +76,28 @@ const LoadingUISystemState = defineState({
 
 function SceneDataReactor() {
   const sceneData = useHookstate(getMutableState(SceneState).sceneData)
-  const mesh = useHookstate(getMutableState(LoadingUISystemState).mesh).value
+  const state = useHookstate(getMutableState(LoadingUISystemState))
+  const mesh = state.mesh.value
+
+  function setDefaultPalette() {
+    const uiState = getState(LoadingUISystemState).ui.state
+    const colors = uiState.colors
+    colors.main.set('black')
+    colors.background.set('white')
+    colors.alternate.set('black')
+  }
+
+  const setColors = (texture: Texture) => {
+    const image = texture.image as HTMLImageElement
+    const uiState = getState(LoadingUISystemState).ui.state
+    const colors = uiState.colors
+    const palette = getImagePalette(image)
+    if (palette) {
+      colors.main.set(palette.color)
+      colors.background.set(palette.backgroundColor)
+      colors.alternate.set(palette.alternativeColor)
+    }
+  }
 
   useEffect(() => {
     if (!sceneData.value) return
@@ -71,9 +106,20 @@ function SceneDataReactor() {
       .replace('thumbnail.ktx2', 'envmap.ktx2')
     if (thumbnailUrl && mesh.userData.url !== thumbnailUrl) {
       mesh.userData.url = thumbnailUrl
-      textureLoader.load(thumbnailUrl, (texture) => {
-        if (texture) mesh.material.map = texture!
-        mesh.visible = true
+      setDefaultPalette()
+      AssetLoader.load(thumbnailUrl, {}, (texture: Texture | CompressedTexture) => {
+        const compressedTexture = texture as CompressedTexture
+        if (compressedTexture.isCompressedTexture) {
+          createReadableTexture(compressedTexture).then((texture: Texture) => {
+            setColors(texture)
+          })
+          if (texture) mesh.material.map = texture
+          mesh.visible = true
+        } else {
+          setColors(texture)
+          if (texture) mesh.material.map = texture
+          mesh.visible = true
+        }
       })
     }
   }, [sceneData])
@@ -90,6 +136,9 @@ function LoadingReactor() {
   useEffect(() => {
     if (loadingState.state.value === AppLoadingStates.SCENE_LOADING) {
       getState(LoadingUISystemState).transition.setState('IN')
+    }
+    if (loadingState.state.value === AppLoadingStates.FAIL) {
+      getState(LoadingUISystemState).transition.setState('OUT')
     }
   }, [loadingState.state])
 
@@ -126,10 +175,16 @@ const execute = () => {
   if (transition.state === 'IN' && transition.alpha === 1) {
     setComputedTransformComponent(ui.entity, Engine.instance.cameraEntity, () => {
       const distance = 0.1
-      const ppu = xrui.options.manager.pixelsPerMeter
-      const contentWidth = ui.state.imageWidth.value / ppu
-      const contentHeight = ui.state.imageHeight.value / ppu
-      const scale = ObjectFitFunctions.computeContentFitScaleForCamera(distance, contentWidth, contentHeight, 'cover')
+      const uiContainer = ui.container.rootLayer.querySelector('#loading-ui')
+      if (!uiContainer) return
+      const uiSize = uiContainer.domSize
+      const screenSize = EngineRenderer.instance.renderer.getSize(SCREEN_SIZE)
+      const aspectRatio = screenSize.x / screenSize.y
+      const scaleMultiplier = aspectRatio < 1 ? 1 / aspectRatio : 1
+      const scale =
+        ObjectFitFunctions.computeContentFitScaleForCamera(distance, uiSize.x, uiSize.y, 'contain') *
+        0.25 *
+        scaleMultiplier
       ObjectFitFunctions.attachObjectInFrontOfCamera(ui.entity, scale, distance)
     })
   }
@@ -148,7 +203,7 @@ const execute = () => {
   transition.update(Engine.instance.deltaSeconds, (opacity) => {
     if (opacity !== loadingState) getMutableState(LoadingSystemState).loadingScreenOpacity.set(opacity)
     mesh.material.opacity = opacity
-    mesh.visible = opacity > 0
+    mesh.visible = opacity > 0 && !!mesh.material.map
     xrui.rootLayer.traverseLayersPreOrder((layer: WebLayer3D) => {
       const mat = layer.contentMesh.material as MeshBasicMaterial
       mat.opacity = opacity

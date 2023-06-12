@@ -19,14 +19,14 @@ export type AdminAssetUploadArgumentsType = {
   name?: string
   project?: string
   hash?: string
-  numLODs?: number
   stats?: any
 }
 
 export type AdminAssetUploadType = {
   type: 'admin-file-upload'
-  files: (Blob | Buffer)[]
+  files: Blob[]
   args: AdminAssetUploadArgumentsType
+  variants: boolean
   userId?: string
 }
 
@@ -47,6 +47,10 @@ export type AudioUploadArgumentsType = {
 export type AssetUploadType = AvatarUploadType | AdminAssetUploadType | AudioUploadType
 
 export interface UploadFile {
-  buffer: Buffer
+  fieldname?: string
+  originalname: string
+  encoding?: string
   mimetype: string
+  buffer: Buffer | string
+  size: number
 }

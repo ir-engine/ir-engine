@@ -1,5 +1,6 @@
 import _ from 'lodash'
 import { useEffect } from 'react'
+import { VideoTexture } from 'three'
 
 import logger from '@etherealengine/common/src/logger'
 import { addActionReceptor, getMutableState, getState } from '@etherealengine/hyperflux'
@@ -8,12 +9,12 @@ import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { isClient } from '../../common/functions/getEnvironment'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
-import { defineQuery, getComponent, getMutableComponent } from '../../ecs/functions/ComponentFunctions'
+import { defineQuery, getComponent, getMutableComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { setCallback, StandardCallbacks } from '../../scene/components/CallbackComponent'
 import { MediaComponent, MediaElementComponent } from '../../scene/components/MediaComponent'
-import { VideoComponent } from '../../scene/components/VideoComponent'
+import { VideoComponent, VideoTexturePriorityQueueState } from '../../scene/components/VideoComponent'
 import { VisibleComponent } from '../../scene/components/VisibleComponent'
 import { VolumetricComponent } from '../../scene/components/VolumetricComponent'
 import { enterVolumetric, updateVolumetric } from '../../scene/functions/loaders/VolumetricFunctions'
@@ -104,6 +105,29 @@ const execute = () => {
   }
   for (const entity of volumetricQuery()) updateVolumetric(entity)
   for (const entity of audioQuery()) getComponent(entity, PositionalAudioComponent).helper?.update()
+
+  const videoPriorityQueue = getState(VideoTexturePriorityQueueState).queue
+
+  /** Use a priority queue with videos to ensure only a few are updated each frame */
+  for (const entity of VideoComponent.uniqueVideoEntities) {
+    const videoTexture = getComponent(entity, VideoComponent).videoMesh.material.map as VideoTexture
+    if (videoTexture?.isVideoTexture) {
+      const video = videoTexture.image
+      const hasVideoFrameCallback = 'requestVideoFrameCallback' in video
+      if (hasVideoFrameCallback === false || video.readyState < video.HAVE_CURRENT_DATA) continue
+      videoPriorityQueue.addPriority(entity, 1)
+    }
+  }
+
+  videoPriorityQueue.update()
+
+  for (const entity of videoPriorityQueue.priorityEntities) {
+    if (!hasComponent(entity, VideoComponent)) continue
+    const videoComponent = getComponent(entity, VideoComponent)
+    const videoTexture = videoComponent.videoMesh.material.map as VideoTexture
+    if (!videoTexture?.isVideoTexture) continue
+    videoTexture.needsUpdate = true
+  }
 }
 
 const reactor = () => {

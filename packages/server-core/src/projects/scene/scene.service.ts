@@ -40,7 +40,7 @@ export const uploadScene = (app: Application) => async (data: any, params: Uploa
   if (typeof data === 'string') data = JSON.parse(data)
   if (typeof data.sceneData === 'string') data.sceneData = JSON.parse(data.sceneData)
 
-  const thumbnailBuffer = params.files.length > 0 ? params.files[0].buffer : undefined
+  const thumbnailBuffer = params.files.length > 0 ? (params.files[0].buffer as Buffer) : undefined
 
   const { projectName, sceneName, sceneData, storageProviderName } = data
 

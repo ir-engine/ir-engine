@@ -99,7 +99,7 @@ export const uploadProjectAssetsFromUpload = async (projectName: string, entries
  * https://developer.mozilla.org/en-US/docs/Web/API/DataTransferItem/webkitGetAsEntry
  * @param item
  */
-const processEntry = async (
+export const processEntry = async (
   item,
   projectName: string,
   directory: string,
@@ -130,7 +130,7 @@ const processEntry = async (
  * @param fileEntry
  * @returns
  */
-const getFile = async (fileEntry: FileSystemFileEntry): Promise<File> => {
+export const getFile = async (fileEntry: FileSystemFileEntry): Promise<File> => {
   try {
     return await new Promise((resolve, reject) => fileEntry.file(resolve, reject))
   } catch (err) {

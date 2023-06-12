@@ -60,12 +60,12 @@ export const useLoadEngine = () => {
 
 const fetchMissingAvatar = async (user, avatarSpawnPose) => {
   const avatar = await AvatarService.getAvatar(user.avatar.id.value)
-  if (avatar && (avatar.modelResource?.LOD0_url || (avatar.modelResource as any)?.src))
+  if (avatar && avatar.modelResource?.url)
     spawnLocalAvatarInWorld({
       avatarSpawnPose,
       avatarDetail: {
-        avatarURL: avatar.modelResource?.LOD0_url || (avatar.modelResource as any)?.src,
-        thumbnailURL: avatar.thumbnailResource?.LOD0_url || (avatar.thumbnailResource as any)?.src
+        avatarURL: avatar.modelResource?.url || '',
+        thumbnailURL: avatar.thumbnailResource?.url || ''
       },
       name: user.name.value
     })
@@ -108,12 +108,12 @@ export const useLocationSpawnAvatar = (spectate = false) => {
       ? getSpawnPoint(spawnPoint, Engine.instance.userId)
       : getRandomSpawnPoint(Engine.instance.userId)
 
-    if (avatarDetails.modelResource?.LOD0_url || (avatarDetails.modelResource as any)?.src)
+    if (avatarDetails.modelResource?.url)
       spawnLocalAvatarInWorld({
         avatarSpawnPose,
         avatarDetail: {
-          avatarURL: avatarDetails.modelResource?.LOD0_url || (avatarDetails.modelResource as any)?.src,
-          thumbnailURL: avatarDetails.thumbnailResource?.LOD0_url || (avatarDetails.thumbnailResource as any)?.src
+          avatarURL: avatarDetails.modelResource?.url || '',
+          thumbnailURL: avatarDetails.thumbnailResource?.url || ''
         },
         name: user.name.value
       })
@@ -125,7 +125,6 @@ export const usePortalTeleport = () => {
   const route = useRouter()
   const engineState = useHookstate(getMutableState(EngineState))
   const locationState = useHookstate(getMutableState(LocationState))
-  const authState = useHookstate(getMutableState(AuthState))
 
   useEffect(() => {
     if (engineState.isTeleporting.value) {
