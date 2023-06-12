@@ -7,6 +7,7 @@ export const InputComponent = defineComponent({
 
   onInit: () => {
     return {
+      /** populated automatically by ClientInputSystem */
       inputSources: [] as Entity[]
       // priority: 0
     }

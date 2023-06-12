@@ -1,7 +1,6 @@
 // import * as chapiWalletPolyfill from 'credential-handler-polyfill'
 import { SnackbarProvider } from 'notistack'
 import React, { useCallback, useEffect, useRef } from 'react'
-import { useLocation } from 'react-router-dom'
 
 import {
   AdminClientSettingsState,
@@ -25,10 +24,7 @@ import AdminRouterComp from '../route/admin'
 
 import './styles.scss'
 
-import {
-  AdminCoilSettingService,
-  AdminCoilSettingsState
-} from '@etherealengine/client-core/src/admin/services/Setting/CoilSettingService'
+import { AdminCoilSettingService } from '@etherealengine/client-core/src/admin/services/Setting/CoilSettingService'
 import { API } from '@etherealengine/client-core/src/API'
 import {
   AppThemeServiceReceptor,
@@ -42,7 +38,6 @@ import {
   NotificationActions
 } from '@etherealengine/client-core/src/common/services/NotificationService'
 import Debug from '@etherealengine/client-core/src/components/Debug'
-import config from '@etherealengine/common/src/config'
 import { AudioEffectPlayer } from '@etherealengine/engine/src/audio/systems/MediaSystem'
 import { addActionReceptor, getMutableState, removeActionReceptor, useHookstate } from '@etherealengine/hyperflux'
 
@@ -61,14 +56,8 @@ const AdminPage = (): any => {
   const authState = useHookstate(getMutableState(AuthState))
   const selfUser = authState.user
   const clientSettingState = useHookstate(getMutableState(AdminClientSettingsState))
-  const coilSettingState = useHookstate(getMutableState(AdminCoilSettingsState))
   const appTheme = useHookstate(getMutableState(AppThemeState))
-  const paymentPointer = coilSettingState.coil[0]?.paymentPointer?.value
   const [clientSetting] = clientSettingState?.client?.get({ noproxy: true }) || []
-  const ctitle = useHookstate<string>(clientSetting?.title || '')
-  const favicon16 = useHookstate(clientSetting?.favicon16px)
-  const favicon32 = useHookstate(clientSetting?.favicon32px)
-  const description = useHookstate(clientSetting?.siteDescription)
   const clientThemeSettings = useHookstate(clientSetting?.themeSettings)
   const projectComponents = useHookstate<Array<any>>([])
   const fetchedProjectComponents = useHookstate(false)
@@ -143,10 +132,6 @@ const AdminPage = (): any => {
 
   useEffect(() => {
     if (clientSetting) {
-      ctitle.set(clientSetting?.title)
-      favicon16.set(clientSetting?.favicon16px)
-      favicon32.set(clientSetting?.favicon32px)
-      description.set(clientSetting?.siteDescription)
       clientThemeSettings.set(clientSetting?.themeSettings)
     }
     if (clientSettingState?.updateNeeded?.value) ClientSettingService.fetchClientSettings()
@@ -160,7 +145,7 @@ const AdminPage = (): any => {
     const currentThemeName = getAppThemeName()
     const theme = getAppTheme()
     if (theme)
-      for (let variable of Object.keys(theme)) {
+      for (const variable of Object.keys(theme)) {
         ;(document.querySelector(`[data-theme=${currentThemeName}]`) as any)?.style.setProperty(
           '--' + variable,
           theme[variable]

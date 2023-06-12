@@ -72,8 +72,8 @@ const SelectAvatarMenu = () => {
     if (selectedAvatar && avatarId != selectedAvatar?.avatar?.name) {
       setAvatar(
         selectedAvatar?.id || '',
-        selectedAvatar?.modelResource?.LOD0_url || '',
-        selectedAvatar?.thumbnailResource?.LOD0_url || ''
+        selectedAvatar?.modelResource?.url || '',
+        selectedAvatar?.thumbnailResource?.url || ''
       )
       WidgetAppService.setWidgetVisibility(WidgetName.PROFILE, false)
     }
@@ -115,12 +115,7 @@ const SelectAvatarMenu = () => {
             backgroundColor: 'var(--mainBackground)'
           }}
         >
-          <img
-            className="avatar"
-            crossOrigin="anonymous"
-            src={avatar.thumbnailResource?.LOD0_url || ''}
-            alt={avatar.name}
-          />
+          <img className="avatar" crossOrigin="anonymous" src={avatar.thumbnailResource?.url || ''} alt={avatar.name} />
         </div>
       )
     }

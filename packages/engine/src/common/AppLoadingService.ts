@@ -4,7 +4,8 @@ import { defineAction, defineState, getMutableState, useState } from '@ethereale
 export const AppLoadingStates = {
   START_STATE: 'START_STATE' as const,
   SCENE_LOADING: 'SCENE_LOADING' as const,
-  SUCCESS: 'SUCCESS' as const
+  SUCCESS: 'SUCCESS' as const,
+  FAIL: 'FAIL' as const
 }
 
 type AppLoadingStatesType = (typeof AppLoadingStates)[keyof typeof AppLoadingStates]

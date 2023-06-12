@@ -1,12 +1,11 @@
 import React from 'react'
 
 interface LoadingDetailViewStyleProps {
-  col: any
   colors: any
 }
 
 const LoadingDetailViewStyle = (props: LoadingDetailViewStyleProps) => {
-  let { col, colors } = props
+  const { colors } = props
 
   return (
     <style>{`

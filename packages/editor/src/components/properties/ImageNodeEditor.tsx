@@ -44,10 +44,10 @@ export const ImageNodeEditor: EditorComponentType = (props) => {
       <InputGroup name="Image Url" label={t('editor:properties.image.lbl-imgURL')}>
         <ImageInput
           value={
-            imageComponent.resource?.value?.jpegStaticResource?.LOD0_url ||
-            imageComponent.resource?.value?.ktx2StaticResource?.LOD0_url ||
-            imageComponent.resource?.value?.pngStaticResource?.LOD0_url ||
-            imageComponent.resource?.value?.gifStaticResource?.LOD0_url ||
+            imageComponent.resource?.value?.jpegStaticResource?.url ||
+            imageComponent.resource?.value?.ktx2StaticResource?.url ||
+            imageComponent.resource?.value?.pngStaticResource?.url ||
+            imageComponent.resource?.value?.gifStaticResource?.url ||
             imageComponent.source?.value ||
             ''
           }

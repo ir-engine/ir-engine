@@ -31,6 +31,7 @@ cli.main(async () => {
   try {
     const app = createFeathersKoaApp(ServerMode.API)
     await app.setup()
+    // @ts-ignore
     const sequelizeClient = new Sequelize({
       ...db,
       logging: console.log,
@@ -102,11 +103,11 @@ cli.main(async () => {
 
     for (const avatar of Object.keys(currentAvatars)) {
       const current = currentAvatars[avatar]
-      let existingAvatar = await app.service('avatar').find({
+      let existingAvatar = (await app.service('avatar').find({
         query: {
           name: avatar
         }
-      })
+      })) as any
       if (existingAvatar.total === 0) {
         existingAvatar = await app.service('avatar').create({
           name: avatar
@@ -121,22 +122,39 @@ cli.main(async () => {
 
       const model = await fetch(current.avatar.url)
       const thumbnail = await fetch(current['user-thumbnail'].url)
+      const thumbSize = thumbnail.headers.get('content-length')
+      const modelSize = model.headers.get('content-length')
+      const thumbName = `${existingAvatar.identifierName}.glb.${
+        /.png/.test(thumbnail.headers.get('content-type') || '') ? 'png' : 'jpg'
+      }`
 
       const thumbnailReturned = await addGenericAssetToS3AndStaticResources(
         app,
-        Buffer.from(await thumbnail.arrayBuffer()),
+        [
+          {
+            buffer: Buffer.from(await thumbnail.arrayBuffer()),
+            originalname: thumbName,
+            mimetype: thumbnail.headers.get('content-type') || 'image/png',
+            size: thumbSize ? parseInt(thumbSize) : 0
+          }
+        ],
         thumbnail.headers.get('content-type') || '',
         {
-          key: `avatars/public/${existingAvatar.identifierName}.glb.${
-            /.png/.test(thumbnail.headers.get('content-type') || '') ? 'png' : 'jpg'
-          }`,
+          key: `avatars/public/${thumbName}`,
           staticResourceType: 'user-thumbnail'
         }
       )
 
       const modelReturned = await addGenericAssetToS3AndStaticResources(
         app,
-        Buffer.from(await model.arrayBuffer()),
+        [
+          {
+            buffer: Buffer.from(await model.arrayBuffer()),
+            originalname: `${existingAvatar.identifierName}.glb`,
+            mimetype: model.headers.get('content-type') || 'model/gltf-binary',
+            size: modelSize ? parseInt(modelSize) : 0
+          }
+        ],
         (await model.headers.get('content-type')) || '',
         {
           key: `avatars/public/${existingAvatar.identifierName}.glb`,

@@ -14,10 +14,12 @@ import {
   hasComponent,
   QueryComponents,
   removeComponent,
+  setComponent,
   useComponent
 } from '../../ecs/functions/ComponentFunctions'
 import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { QueryReactor } from '../../ecs/functions/SystemFunctions'
+import { InputComponent } from '../../input/components/InputComponent'
 import { setTransformComponent, TransformComponent } from '../../transform/components/TransformComponent'
 
 export type Object3DWithEntity = Object3D & { entity: Entity }
@@ -55,6 +57,7 @@ export function addObjectToGroup(entity: Entity, object: Object3D) {
   if (!hasComponent(entity, TransformComponent)) setTransformComponent(entity)
 
   getMutableComponent(entity, GroupComponent).merge([obj])
+  setComponent(entity, InputComponent)
 
   const transform = getComponent(entity, TransformComponent)
   obj.position.copy(transform.position)

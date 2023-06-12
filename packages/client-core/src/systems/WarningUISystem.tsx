@@ -28,23 +28,23 @@ export const WarningUIState = defineState({
     title: '',
     body: '',
     timeRemaining: 0,
-    action: null as null | (() => void)
+    action: null as null | ((clicked: boolean) => void)
   }
 })
 
-const executeAction = async () => {
+const executeAction = async (timeout: boolean) => {
   const action = getState(WarningUIState).action
-  if (action) action()
+  if (action) action(timeout)
   WarningUIService.closeWarning()
 }
 
 export const WarningUIService = {
-  openWarning: async (args: { title: string; body: string; timeout?: number; action?: () => void }) => {
+  openWarning: async (args: { title: string; body: string; timeout?: number; action?: (timeout: boolean) => void }) => {
     const state = getMutableState(WarningUIState)
     state.open.set(true)
     state.title.set(args.title)
     state.body.set(args.body)
-    state.timeRemaining.set(args.timeout ?? 0)
+    state.timeRemaining.set(args.timeout ?? -1)
     state.merge({ action: args.action ?? null })
   },
   closeWarning: () => {
@@ -75,7 +75,7 @@ const WarningSystemXRUI = function () {
             borderRadius: '20px',
             padding: '12px'
           }}
-          onClick={() => WarningUIService.closeWarning()}
+          onClick={() => executeAction(false)}
         >
           <div
             xr-layer="true"
@@ -167,7 +167,7 @@ const execute = () => {
       const timeRemaining = Math.max(0, state.timeRemaining - 1)
       getMutableState(WarningUIState).timeRemaining.set(timeRemaining)
       if (timeRemaining === 0) {
-        executeAction()
+        executeAction(true)
         WarningUIService.closeWarning()
       }
       accumulator = 0

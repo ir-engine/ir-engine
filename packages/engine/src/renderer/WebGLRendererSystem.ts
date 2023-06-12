@@ -45,6 +45,7 @@ import { changeRenderMode } from './functions/changeRenderMode'
 import { configureEffectComposer } from './functions/configureEffectComposer'
 import { updateShadowMap } from './functions/RenderSettingsFunction'
 import { RendererState } from './RendererState'
+import { RenderInfoSystem } from './RenderInfoSystem'
 import WebGL from './THREE.WebGL'
 
 export interface EffectComposerWithSchema extends EffectComposer {
@@ -357,5 +358,6 @@ const reactor = () => {
 export const WebGLRendererSystem = defineSystem({
   uuid: 'ee.engine.WebGLRendererSystem',
   execute,
-  reactor
+  reactor,
+  postSystems: [RenderInfoSystem]
 })

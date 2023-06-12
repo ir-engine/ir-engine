@@ -91,14 +91,14 @@ export const convertStaticResource = async (app: Application, sceneData: SceneJs
                   typeof resource.mp3StaticResource === 'string'
                     ? resource.mp3StaticResource
                     : typeof resource.mp3StaticResource === 'object'
-                    ? resource.mp3StaticResource.LOD0_url
+                    ? resource.mp3StaticResource.url
                     : typeof resource.oggStaticResource === 'string'
                     ? resource.oggStaticResource
                     : typeof resource.oggStaticResource === 'object'
-                    ? resource.oggStaticResource.LOD0_url
+                    ? resource.oggStaticResource.url
                     : typeof resource.mpegStaticResource === 'string'
                     ? resource.mpegStaticResource
-                    : resource.mpegStaticResource.LOD0_url
+                    : resource.mpegStaticResource.url
                 )
               } else if (resource.mp4StaticResource || resource.m3u8StaticResource) {
                 mediaType = AssetClass.Video
@@ -106,23 +106,23 @@ export const convertStaticResource = async (app: Application, sceneData: SceneJs
                   typeof resource.mp4StaticResource === 'string'
                     ? resource.mp4StaticResource
                     : typeof resource.mp4StaticResource === 'object'
-                    ? resource.mp4StaticResource.LOD0_url
+                    ? resource.mp4StaticResource.url
                     : typeof resource.m3u8StaticResource === 'string'
                     ? resource.m3u8StaticResource
-                    : resource.m3u8StaticResource.LOD0_url
+                    : resource.m3u8StaticResource.url
                 )
               } else if (resource.drcsStaticResource || resource.uvolStaticResource || resource.manifest) {
                 mediaType = AssetClass.Volumetric
                 urls.push(
                   typeof resource.manifest === 'object'
-                    ? resource.manifest.staticResource.LOD0_url
+                    ? resource.manifest.staticResource.url
                     : typeof resource.drcsStaticResource === 'string'
                     ? resource.drcsStaticResource
                     : typeof resource.drcsStaticResource === 'object'
-                    ? resource.drcsStaticResource.LOD0_url
+                    ? resource.drcsStaticResource.url
                     : typeof resource.uvolStaticResource === 'string'
                     ? resource.uvolStaticResource
-                    : resource.uvolStaticResource.LOD0_url
+                    : resource.uvolStaticResource.url
                 )
               }
             }

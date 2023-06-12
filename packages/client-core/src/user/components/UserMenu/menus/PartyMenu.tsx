@@ -116,7 +116,7 @@ const PartyMenu = (): JSX.Element => {
     return partyState.party.partyUsers.get({ noproxy: true })?.map((user, i) => {
       return (
         <Box key={i} display="flex" alignItems="center" mb={2} gap={1}>
-          <Avatar imageSrc={user.user?.avatar?.thumbnailResource?.LOD0_url} size={50} />
+          <Avatar imageSrc={user.user?.avatar?.thumbnailResource?.url} size={50} />
 
           <Text>{user.user?.name}</Text>
 

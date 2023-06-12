@@ -45,7 +45,7 @@ export const AvatarServiceReceptor = (action) => {
 }
 
 export const AvatarService = {
-  async createAvatar(model: Blob, thumbnail: Blob, avatarName: string, isPublic: boolean) {
+  async createAvatar(model: File, thumbnail: File, avatarName: string, isPublic: boolean) {
     const newAvatar = await Engine.instance.api.service('avatar').create({
       name: avatarName,
       isPublic
@@ -65,8 +65,8 @@ export const AvatarService = {
       await AvatarService.updateUserAvatarId(
         userId,
         newAvatar.id,
-        uploadResponse[0]?.LOD0_url || '',
-        uploadResponse[1]?.LOD0_url || ''
+        uploadResponse[0]?.url || '',
+        uploadResponse[1]?.url || ''
       )
     }
   },
@@ -91,8 +91,8 @@ export const AvatarService = {
     originalAvatar: AvatarInterface,
     avatarName: string,
     updateModels: boolean,
-    avatarBlob?: Blob,
-    thumbnailBlob?: Blob
+    avatarFile?: File,
+    thumbnailFile?: File
   ) {
     let payload = {
       modelResourceId: originalAvatar.modelResourceId,
@@ -100,10 +100,10 @@ export const AvatarService = {
       name: avatarName
     }
 
-    if (updateModels && avatarBlob && thumbnailBlob) {
+    if (updateModels && avatarFile && thumbnailFile) {
       const uploadResponse = await AvatarService.uploadAvatarModel(
-        avatarBlob,
-        thumbnailBlob,
+        avatarFile,
+        thumbnailFile,
         avatarName + '_' + originalAvatar.id,
         originalAvatar.isPublic,
         originalAvatar.id
@@ -132,8 +132,8 @@ export const AvatarService = {
       await AvatarService.updateUserAvatarId(
         userId,
         avatar.id,
-        avatar.modelResource?.LOD0_url || '',
-        avatar.thumbnailResource?.LOD0_url || ''
+        avatar.modelResource?.url || '',
+        avatar.thumbnailResource?.url || ''
       )
     }
   },
@@ -179,7 +179,7 @@ export const AvatarService = {
     dispatchAction(AuthAction.avatarUpdatedAction({ url: result.url }))
   },
 
-  async uploadAvatarModel(avatar: Blob, thumbnail: Blob, avatarName: string, isPublic: boolean, avatarId?: string) {
+  async uploadAvatarModel(avatar: File, thumbnail: File, avatarName: string, isPublic: boolean, avatarId?: string) {
     return uploadToFeathersService('upload-asset', [avatar, thumbnail], {
       type: 'user-avatar-upload',
       args: {

@@ -6,12 +6,16 @@ import fetch from 'node-fetch'
 import { Op } from 'sequelize'
 import { Readable } from 'stream'
 
+import { UploadFile } from '@etherealengine/common/src/interfaces/UploadAssetInterface'
+import { CommonKnownContentTypes } from '@etherealengine/common/src/utils/CommonKnownContentTypes'
+
 import { Application } from '../../../declarations'
 import config from '../../appconfig'
 import logger from '../../ServerLogger'
-import { uploadMediaStaticResource } from '../static-resource/static-resource-helper'
+import { getResourceFiles, uploadMediaStaticResource } from '../static-resource/static-resource-helper'
+import { addGenericAssetToS3AndStaticResources, UploadAssetArgs } from '../upload-asset/upload-asset.service'
 
-export const videoUpload = async (app: Application, data, parentId?: string, parentType?: string) => {
+export const videoUpload = async (app: Application, data: UploadAssetArgs, parentId?: string, parentType?: string) => {
   try {
     let fileHead, contentLength, extension
     if (data.url) {
@@ -34,10 +38,11 @@ export const videoUpload = async (app: Application, data, parentId?: string, par
           contentLength = fileHead.size.toString()
         }
       }
-      if (!data.name) data.name = data.url.split('/').pop().split('.')[0]
+      if (!data.name) data.name = data.url.split('/').pop()!.split('.')[0]
       extension = data.url.split('.').pop()
-    } else if (data.file) {
-      switch (data.file.mimetype) {
+    } else if (data.files) {
+      const mainFile = data.files[0]!
+      switch (mainFile.mimetype) {
         case 'video/mp4':
           extension = 'mp4'
           break
@@ -45,10 +50,10 @@ export const videoUpload = async (app: Application, data, parentId?: string, par
           extension = 'm3u8'
           break
       }
-      contentLength = data.file.size.toString()
+      contentLength = mainFile.size.toString()
+      if (!data.name) data.name = mainFile.originalname
     }
-    if (/.LOD0/.test(data.name)) data.name = data.name.replace('.LOD0', '')
-    const hash = createHash('sha3-256').update(contentLength).update(data.name).digest('hex')
+    const hash = createHash('sha3-256').update(contentLength).update(data.name!).digest('hex')
     let existingVideo, thumbnail
     let existingResource = await app.service('static-resource').Model.findOne({
       where: {
@@ -86,55 +91,41 @@ export const videoUpload = async (app: Application, data, parentId?: string, par
         include
       })
     }
-    if (!config.server.cloneProjectStaticResources || (existingResource && existingVideo)) return existingVideo
-    else {
-      let file, body
-      if (data.url) {
-        if (/http(s)?:\/\//.test(data.url)) {
-          file = await fetch(data.url)
-          body = Buffer.from(await file.arrayBuffer())
-        } else body = fs.readFileSync(data.url)
-      } else if (data.file) {
-        body = data.file.buffer
-      }
-      const stats = (await getVideoStats(body)) as any
-      stats.size = contentLength
-      const newVideo = await app.service('video').create({
-        duration: stats.duration
-      })
-      if (!existingResource) {
-        const uploadData = {
-          media: body,
-          hash,
-          fileName: data.name,
-          mediaId: newVideo.id,
-          mediaFileType: extension,
-          stats
-        } as any
-        if (parentId) uploadData.parentId = parentId
-        if (parentType) uploadData.parentType = parentType
-        ;[existingResource, thumbnail] = await uploadMediaStaticResource(app, uploadData, 'video')
-      }
-      const update = {} as any
-      if (existingResource?.id) {
-        const staticResourceColumn = `${extension}StaticResourceId`
-        update[staticResourceColumn] = existingResource.id
-      }
-      if (thumbnail?.id) update.thumbnail = thumbnail.id
-      try {
-        await app.service('video').patch(newVideo.id, update)
-      } catch (err) {
-        logger.error('error updating video with resources')
-        logger.error(err)
-        throw err
-      }
-      return app.service('video').Model.findOne({
-        where: {
-          id: newVideo.id
-        },
-        include
+    if (existingResource && existingVideo) return existingVideo
+
+    const files = await getResourceFiles(data)
+    const stats = (await getVideoStats(files[0].buffer)) as any
+    stats.size = contentLength
+    const newVideo = await app.service('video').create({
+      duration: stats.duration
+    })
+    if (!existingResource) {
+      const key = `static-resources/${parentType ?? 'video'}/${parentId ?? newVideo.id}`
+      existingResource = await addGenericAssetToS3AndStaticResources(app, files, extension, {
+        hash: hash,
+        key: key,
+        staticResourceType: 'video',
+        stats
       })
     }
+    const update = {} as any
+    if (existingResource?.id) {
+      const staticResourceColumn = `${extension}StaticResourceId`
+      update[staticResourceColumn] = existingResource.id
+    }
+    try {
+      await app.service('video').patch(newVideo.id, update)
+    } catch (err) {
+      logger.error('error updating video with resources')
+      logger.error(err)
+      throw err
+    }
+    return app.service('video').Model.findOne({
+      where: {
+        id: newVideo.id
+      },
+      include
+    })
   } catch (err) {
     logger.error('video upload error')
     logger.error(err)
@@ -142,16 +133,21 @@ export const videoUpload = async (app: Application, data, parentId?: string, par
   }
 }
 
-export const getVideoStats = async (body) => {
-  const stream = new Readable()
-  stream.push(body)
-  stream.push(null)
-  const out = (
-    await execa(ffprobe.path, ['-v', 'error', '-show_format', '-show_streams', '-i', 'pipe:0'], {
-      reject: false,
-      input: stream
-    })
-  ).stdout
+export const getVideoStats = async (input: Buffer | string) => {
+  let out = ''
+  if (typeof input === 'string') {
+    out = (await execa(ffprobe.path, ['-v', 'error', '-show_format', '-show_streams', input])).stdout
+  } else {
+    const stream = new Readable()
+    stream.push(input)
+    stream.push(null)
+    out = (
+      await execa(ffprobe.path, ['-v', 'error', '-show_format', '-show_streams', '-i', 'pipe:0'], {
+        reject: false,
+        input: stream
+      })
+    ).stdout
+  }
   const width = /width=(\d+)/.exec(out)
   const height = /height=(\d+)/.exec(out)
   const duration = /duration=(\d+)/.exec(out)
