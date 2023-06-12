@@ -52,13 +52,13 @@ const transitionPeriodSeconds = 1
 const LoadingUISystemState = defineState({
   name: 'LoadingUISystemState',
   initial: () => {
-    const transition = createTransitionState(transitionPeriodSeconds, 'OUT')
+    const transition = createTransitionState(transitionPeriodSeconds, 'IN')
     const ui = createLoaderDetailView()
     addComponent(ui.entity, NameComponent, 'Loading XRUI')
 
     const mesh = new Mesh(
       new SphereGeometry(10),
-      new MeshBasicMaterial({ side: DoubleSide, transparent: true, depthWrite: true, depthTest: false, color: 'green' })
+      new MeshBasicMaterial({ side: DoubleSide, transparent: true, depthWrite: true, depthTest: false, color: 'white' })
     )
 
     // flip inside out
@@ -140,30 +140,26 @@ function LoadingReactor() {
         envmapURL,
         {},
         (texture: Texture | CompressedTexture) => {
+          mesh.material.map = texture
+
           const compressedTexture = texture as CompressedTexture
           if (compressedTexture.isCompressedTexture) {
             try {
               createReadableTexture(compressedTexture).then((texture: Texture) => {
                 setColors(texture)
-                mesh.material.map = texture
-                metadataLoaded.set(true)
               })
             } catch (e) {
               console.error(e)
               setDefaultPalette()
-              metadataLoaded.set(true)
             }
           } else {
             setColors(texture)
-            mesh.material.map = texture
-            metadataLoaded.set(true)
           }
         },
         undefined,
         (error: ErrorEvent) => {
           console.error(error)
           setDefaultPalette()
-          metadataLoaded.set(true)
         }
       )
     }
@@ -249,9 +245,7 @@ const execute = () => {
   })
 
   const opacity = getState(LoadingSystemState).loadingScreenOpacity
-  const ready = metadataLoaded && opacity > 0
-  console.log({ ready, metadataLoaded, opacity })
-  console.log(mesh)
+  const ready = opacity > 0
 
   mesh.material.opacity = opacity
   mesh.visible = ready
@@ -263,7 +257,7 @@ const execute = () => {
     layer.visible = ready
     mat.color.lerpColors(defaultColor, mainThemeColor, engineState.loadingProgress * 0.01)
   })
-  // setVisibleComponent(ui.entity, ready)
+  setVisibleComponent(ui.entity, ready)
 }
 
 const reactor = () => {
