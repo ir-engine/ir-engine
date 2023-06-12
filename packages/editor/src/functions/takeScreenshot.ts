@@ -91,7 +91,8 @@ export async function takeScreenshot(
         EngineRenderer.instance.renderContext.VIEWPORT
       )
       const pixelRatio = EngineRenderer.instance.renderer.getPixelRatio()
-      if (viewport[2] === width * pixelRatio && viewport[3] === height * pixelRatio) {
+      // todo - scrolling in and out sometimes causes weird pixel ratios that can cause this to fail
+      if (viewport[2] === Math.round(width * pixelRatio) && viewport[3] === Math.round(height * pixelRatio)) {
         console.log('Resized viewport')
         clearTimeout(timeout)
         clearInterval(interval)
@@ -139,11 +140,11 @@ export async function takeScreenshot(
     renderer.setRenderTarget(null) // pass `null` to set canvas as render target
 
     const ktx2texture = (await ktx2Encoder.encode(imageData, {
-      srgb: true,
+      srgb: false,
       uastc: true,
       uastcZstandard: true,
       qualityLevel: 256,
-      compressionLevel: 5
+      compressionLevel: 3
     })) as ArrayBuffer
 
     blob = new Blob([ktx2texture])

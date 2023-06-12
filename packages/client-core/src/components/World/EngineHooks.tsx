@@ -125,7 +125,6 @@ export const usePortalTeleport = () => {
   const route = useRouter()
   const engineState = useHookstate(getMutableState(EngineState))
   const locationState = useHookstate(getMutableState(LocationState))
-  const authState = useHookstate(getMutableState(AuthState))
 
   useEffect(() => {
     if (engineState.isTeleporting.value) {

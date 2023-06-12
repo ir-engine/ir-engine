@@ -171,7 +171,7 @@ export const onEquippableInteractUpdate = (entity: Entity, xrui: ReturnType<type
 /**
  * @todo refactor this into i18n and configurable
  */
-export const equippableInteractMessage = 'Equip'
+export const equippableInteractMessage = 'Grab'
 
 const interactedActionQueue = defineActionQueue(EngineActions.interactedWithObject.matches)
 const transferAuthorityOfObjectQueue = defineActionQueue(WorldNetworkAction.transferAuthorityOfObject.matches)

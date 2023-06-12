@@ -32,7 +32,7 @@ const getFogPlugin = (): PluginType => {
 }
 
 export const DefaultFogState = {
-  type: FogType.Linear as FogType,
+  type: FogType.Disabled as FogType,
   color: '#FFFFFF',
   density: 0.005,
   near: 1,
