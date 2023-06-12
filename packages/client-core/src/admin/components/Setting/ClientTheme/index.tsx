@@ -77,6 +77,7 @@ const ClientTheme = () => {
         title: clientSetting?.title,
         shortTitle: clientSetting?.shortTitle,
         startPath: clientSetting?.startPath,
+        appleTouchIcon: clientSetting?.appleTouchIcon,
         icon192px: clientSetting?.icon192px,
         icon512px: clientSetting?.icon512px,
         favicon16px: clientSetting?.favicon16px,
