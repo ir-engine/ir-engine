@@ -6,6 +6,7 @@ import {
   EquirectangularRefractionMapping,
   Mesh,
   MeshMatcapMaterial,
+  MeshPhysicalMaterial,
   MeshStandardMaterial,
   Object3D,
   RGBAFormat,
@@ -19,9 +20,12 @@ import { getMutableState, getState, useHookstate } from '@etherealengine/hyperfl
 
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { isClient } from '../../common/functions/getEnvironment'
+import { Entity } from '../../ecs/classes/Entity'
 import { SceneState } from '../../ecs/classes/Scene'
 import {
   defineComponent,
+  defineQuery,
+  getComponent,
   getOptionalComponent,
   removeComponent,
   useComponent,
@@ -29,6 +33,7 @@ import {
 } from '../../ecs/functions/ComponentFunctions'
 import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { isMobileXRHeadset } from '../../xr/XRState'
+import { envmapPhysicalParsReplace, worldposReplace } from '../classes/BPCEMShader'
 import { EnvMapSourceType, EnvMapTextureType } from '../constants/EnvMapEnum'
 import { getPmremGenerator, loadCubeMapTexture } from '../constants/Util'
 import { addError, removeError } from '../functions/ErrorFunctions'
@@ -151,6 +156,7 @@ export const EnvmapComponent = defineComponent({
               const EnvMap = getPmremGenerator().fromEquirectangular(texture).texture
               EnvMap.encoding = sRGBEncoding
               applyEnvMap(group.value, EnvMap)
+
               removeError(entity, EnvmapComponent, 'MISSING_FILE')
               texture.dispose()
             } else {
@@ -165,20 +171,21 @@ export const EnvmapComponent = defineComponent({
       if (component.type.value !== EnvMapSourceType.Default) return
 
       const options = getOptionalComponent(entity, EnvMapBakeComponent)
-      if (options)
-        switch (options.bakeType) {
-          case EnvMapBakeTypes.Baked:
-            AssetLoader.loadAsync(options.envMapOrigin, {}).then((texture: Texture) => {
-              texture.mapping = EquirectangularRefractionMapping
-              applyEnvMap(group.value, texture)
-            })
-            break
-          case EnvMapBakeTypes.Realtime:
-            // const map = new CubemapCapturer(EngineRenderer.instance.renderer, Engine.scene, options.resolution)
-            // const EnvMap = (await map.update(options.bakePosition)).cubeRenderTarget.texture
-            // applyEnvMap(obj3d, EnvMap)
-            break
-        }
+      if (!options) return
+
+      switch (options.bakeType) {
+        case EnvMapBakeTypes.Baked:
+          AssetLoader.loadAsync(options.envMapOrigin, {}).then((texture: Texture) => {
+            texture.mapping = EquirectangularRefractionMapping
+            applyEnvMap(group.value, texture)
+          })
+          break
+        case EnvMapBakeTypes.Realtime:
+          // const map = new CubemapCapturer(EngineRenderer.instance.renderer, Engine.scene, options.resolution)
+          // const EnvMap = (await map.update(options.bakePosition)).cubeRenderTarget.texture
+          // applyEnvMap(obj3d, EnvMap)
+          break
+      }
       applyEnvMap(group.value, null)
     }, [component.type, group?.length])
 
@@ -187,6 +194,29 @@ export const EnvmapComponent = defineComponent({
 
   errors: ['MISSING_FILE']
 })
+
+const applyBoxProjection = (obj: Object3D, bakeEntity: Entity) => {
+  const bakeComponent = getComponent(bakeEntity, EnvMapBakeComponent)
+  obj.traverse((child: Mesh<any, MeshPhysicalMaterial>) => {
+    if (!child.material || child.type == 'VFXBatch' || child.material.type != 'MeshPhysicalMaterial') return
+
+    console.log(child.material)
+    child.material.onBeforeCompile = (shader, renderer) => {
+      shader.uniforms.cubeMapSize = { value: bakeComponent.bakeScale }
+      shader.uniforms.cubeMapPos = { value: bakeComponent.bakePositionOffset }
+
+      //replace shader chunks with box projection chunks
+      shader.vertexShader = 'varying vec3 vWorldPosition;\n' + shader.vertexShader
+
+      shader.vertexShader = shader.vertexShader.replace('#include <worldpos_vertex>', worldposReplace)
+
+      shader.fragmentShader = shader.fragmentShader.replace(
+        '#include <envmap_physical_pars_fragment>',
+        envmapPhysicalParsReplace
+      )
+    }
+  })
+}
 
 function applyEnvMap(obj3ds: Object3D[], envmap: Texture | null) {
   if (!obj3ds?.length) return

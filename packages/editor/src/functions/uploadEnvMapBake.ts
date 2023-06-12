@@ -1,4 +1,13 @@
-import { Mesh, MeshBasicMaterial, Scene, Vector3 } from 'three'
+import {
+  Material,
+  Mesh,
+  MeshBasicMaterial,
+  MeshPhongMaterial,
+  MeshPhysicalMaterial,
+  MeshStandardMaterial,
+  Scene,
+  Vector3
+} from 'three'
 
 import { addOBCPlugin, removeOBCPlugin } from '@etherealengine/engine/src/common/functions/OnBeforeCompilePlugin'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
@@ -12,13 +21,21 @@ import {
   setComponent
 } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { EngineRenderer } from '@etherealengine/engine/src/renderer/WebGLRendererSystem'
-import { beforeMaterialCompile } from '@etherealengine/engine/src/scene/classes/BPCEMShader'
+import {
+  beforeMaterialCompile,
+  envmapParsReplace,
+  envmapPhysicalParsReplace,
+  worldposReplace
+} from '@etherealengine/engine/src/scene/classes/BPCEMShader'
 import CubemapCapturer from '@etherealengine/engine/src/scene/classes/CubemapCapturer'
 import {
   convertCubemapToEquiImageData,
   convertCubemapToKTX2
 } from '@etherealengine/engine/src/scene/classes/ImageUtils'
-import { EnvMapBakeComponent } from '@etherealengine/engine/src/scene/components/EnvMapBakeComponent'
+import {
+  applyBoxProjection,
+  EnvMapBakeComponent
+} from '@etherealengine/engine/src/scene/components/EnvMapBakeComponent'
 import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
 import { ScenePreviewCameraComponent } from '@etherealengine/engine/src/scene/components/ScenePreviewCamera'
 import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
@@ -68,31 +85,13 @@ export const uploadBPCEMBakeToServer = async (entity: Entity) => {
   const bakeComponent = getComponent(entity, EnvMapBakeComponent)
   const position = getScenePositionForBake(isSceneEntity ? null : entity)
 
-  // inject bpcem logic into material
-  Engine.instance.scene.traverse((child: Mesh<any, MeshBasicMaterial>) => {
-    if (!child.material || child.type == 'VFXBatch') return
-    child.material.userData.BPCEMPlugin = beforeMaterialCompile(
-      bakeComponent.bakeScale,
-      bakeComponent.bakePositionOffset
-    )
-    addOBCPlugin(child.material, child.material.userData.BPCEMPlugin)
-  })
-
   const cubemapCapturer = new CubemapCapturer(
     EngineRenderer.instance.renderer,
     Engine.instance.scene,
     bakeComponent.resolution
   )
   const renderTarget = cubemapCapturer.update(position)
-
-  // remove injected bpcem logic from material
-  Engine.instance.scene.traverse((child: Mesh<any, MeshBasicMaterial>) => {
-    if (typeof child.material?.userData?.BPCEMPlugin === 'function') {
-      removeOBCPlugin(child.material, child.material.userData.BPCEMPlugin)
-      delete child.material.userData.BPCEMPlugin
-    }
-  })
-
+  applyBoxProjection(entity)
   if (isSceneEntity) Engine.instance.scene.environment = renderTarget.texture
 
   const blob = await convertCubemapToKTX2(

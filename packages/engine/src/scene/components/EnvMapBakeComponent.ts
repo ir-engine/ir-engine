@@ -21,6 +21,7 @@ import { defineComponent, getComponent, hasComponent, useComponent } from '../..
 import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { EntityTreeComponent, traverseEntityNode } from '../../ecs/functions/EntityTree'
 import { RendererState } from '../../renderer/RendererState'
+import { envmapPhysicalParsReplace, worldposReplace } from '../classes/BPCEMShader'
 import { ObjectLayers } from '../constants/ObjectLayers'
 import { setObjectLayers } from '../functions/setObjectLayers'
 import { EnvMapBakeRefreshTypes } from '../types/EnvMapBakeRefreshTypes'
@@ -106,6 +107,12 @@ export const EnvMapBakeComponent = defineComponent({
       }
     }, [debugEnabled])
 
+    const root = useComponent(getState(SceneState).sceneEntity, EntityTreeComponent)
+    console.log(Engine.instance.originEntity)
+    useEffect(() => {
+      applyBoxProjection(entity)
+    }, [root.children])
+
     return null
   }
 })
@@ -138,4 +145,29 @@ export const prepareSceneForBake = (): Scene => {
   })
 
   return scene
+}
+
+export const applyBoxProjection = (entity: Entity) => {
+  const bakeComponent = getComponent(entity, EnvMapBakeComponent)
+  Engine.instance.scene.traverse((child: Mesh<any, MeshPhysicalMaterial>) => {
+    if (!child.material || child.type == 'VFXBatch' || child.material.type != 'MeshPhysicalMaterial') return
+
+    console.log(child.material)
+    child.material.onBeforeCompile = (shader, renderer) => {
+      shader.uniforms.cubeMapSize = { value: bakeComponent.bakeScale }
+      shader.uniforms.cubeMapPos = { value: bakeComponent.bakePositionOffset }
+
+      //replace shader chunks with box projection chunks
+      if (!shader.vertexShader.startsWith('varying vec3 vWorldPosition'))
+        shader.vertexShader = 'varying vec3 vWorldPosition;\n' + shader.vertexShader
+
+      shader.vertexShader = shader.vertexShader.replace('#include <worldpos_vertex>', worldposReplace)
+
+      shader.fragmentShader = shader.fragmentShader.replace(
+        '#include <envmap_physical_pars_fragment>',
+        envmapPhysicalParsReplace
+      )
+    }
+    child.material.needsUpdate = true
+  })
 }
