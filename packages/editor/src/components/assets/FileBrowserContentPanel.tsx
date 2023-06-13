@@ -86,6 +86,18 @@ type DnDFileType = {
   items: DataTransferItemList
 }
 
+export type FileType = {
+  fullName: string
+  isFolder: boolean
+  key: string
+  name: string
+  path: string
+  prefabType: string
+  size: string
+  type: string
+  url: string
+}
+
 export function isFileDataType(value: any): value is FileDataType {
   return value && value.key
 }
@@ -421,7 +433,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
       {openCompress.value && fileProperties.value && (
         <CompressionPanel
           openCompress={openCompress}
-          fileProperties={fileProperties}
+          fileProperties={fileProperties as any}
           compressProperties={compressProperties}
           onRefreshDirectory={onRefreshDirectory}
         />
