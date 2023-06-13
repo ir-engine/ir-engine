@@ -247,7 +247,8 @@ export class S3Provider implements StorageProviderInterface {
    * Invalidate items in the S3 storage.
    * @param invalidationItems List of keys.
    */
-  async createInvalidation(invalidationItems: any[]) {
+  async createInvalidation(invalidationItems: string[]) {
+    if (!invalidationItems || invalidationItems.length === 0) return
     // for non-standard s3 setups, we don't use cloudfront
     if (config.server.storageProvider !== 's3' || config.aws.s3.s3DevMode === 'local') return
     const params = {
