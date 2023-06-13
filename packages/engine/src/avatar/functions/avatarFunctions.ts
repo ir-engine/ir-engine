@@ -171,7 +171,7 @@ export const loadAvatarForUser = async (
 
   if (isClient && loadingEffect) {
     const avatar = getComponent(entity, AvatarComponent)
-    const avatarMaterials = setupAvatarMaterials(entity, avatar.model)
+    const avatarMaterials = setupAvatarMaterials(entity, avatar?.model)
     const effectEntity = createEntity()
     addComponent(effectEntity, AvatarEffectComponent, {
       sourceEntity: entity,

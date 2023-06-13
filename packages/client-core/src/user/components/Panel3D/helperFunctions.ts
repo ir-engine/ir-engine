@@ -68,11 +68,15 @@ export const loadAvatarForPreview = async (entity: Entity, avatarURL: string) =>
 
   //setupAvatarModel(entity)(loaded)
   removeGroupComponent(entity)
+
   if (scene) addObjectToGroup(entity, scene)
   scene.traverse((obj: Object3D) => {
     obj.layers.set(ObjectLayers.Panel)
   })
   scene.removeFromParent()
-  // animateModel(entity)
+
+  // face the camera
+  scene.rotateY(Math.PI)
+
   return scene
 }
