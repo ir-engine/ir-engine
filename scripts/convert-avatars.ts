@@ -140,7 +140,7 @@ cli.main(async () => {
         ],
         thumbnail.headers.get('content-type') || '',
         {
-          key: `avatars/public/${thumbName}`,
+          key: `avatars/public/`,
           staticResourceType: 'user-thumbnail'
         }
       )
@@ -157,7 +157,7 @@ cli.main(async () => {
         ],
         (await model.headers.get('content-type')) || '',
         {
-          key: `avatars/public/${existingAvatar.identifierName}.glb`,
+          key: `avatars/public/`,
           staticResourceType: 'avatar'
         }
       )
