@@ -32,7 +32,7 @@ import { cleanupAllMeshData } from '../../assets/classes/AssetLoader'
 import { V_000 } from '../../common/constants/MathConstants'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
-import { Entity } from '../../ecs/classes/Entity'
+import { Entity, UndefinedEntity } from '../../ecs/classes/Entity'
 import {
   addComponent,
   getComponent,
@@ -484,7 +484,8 @@ function castShape(world: World, shapecastQuery: ShapecastArgs) {
       position: hitWithNormal.witness1,
       normal: hitWithNormal.normal1,
       collider: hitWithNormal.collider,
-      body: hitWithNormal.collider.parent() as RigidBody
+      body: hitWithNormal.collider.parent() as RigidBody,
+      entity: (hitWithNormal.collider.parent()?.userData as any)['entity'] ?? UndefinedEntity
     })
   }
 }
