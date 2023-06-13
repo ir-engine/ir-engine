@@ -112,7 +112,7 @@ export const uploadBPCEMBakeToServer = async (entity: Entity) => {
 
   const url = (await uploadProjectFiles(projectName, [new File([blob], filename)]).promises[0])[0]
 
-  bakeComponent.envMapOrigin = url
+  setComponent(entity, EnvMapBakeComponent, { envMapOrigin: url })
 
   return url
 }
