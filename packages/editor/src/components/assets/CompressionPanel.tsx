@@ -47,12 +47,12 @@ export default function CompressionPanel({
     const imageData = ctx.getImageData(0, 0, img.width, img.height)
 
     const data = await ktx2Encoder.encode(imageData, {
-      srgb: false,
       uastc: compressProperties.mode.value === 'UASTC',
       qualityLevel: compressProperties.quality.value,
       mipmaps: compressProperties.mipmaps.value,
       compressionLevel: 2,
-      yFlip: true
+      yFlip: compressProperties.flipY.value,
+      srgb: !compressProperties.linear.value
     })
 
     const newFileName = props.key.replace(/.*\/(.*)\..*/, '$1') + '.ktx2'
@@ -106,6 +106,20 @@ export default function CompressionPanel({
             value={compressProperties.mode.value}
             onChange={(val: 'ETC1S' | 'UASTC') => compressProperties.mode.set(val)}
           />
+        </Grid>
+
+        <Grid item xs={4}>
+          <Typography className={styles.secondaryText}>Flip Y:</Typography>
+        </Grid>
+        <Grid item xs={8}>
+          <BooleanInput value={compressProperties.flipY.value} onChange={compressProperties.flipY.set} />
+        </Grid>
+
+        <Grid item xs={4}>
+          <Typography className={styles.secondaryText}>Linear Color Space:</Typography>
+        </Grid>
+        <Grid item xs={8}>
+          <BooleanInput value={compressProperties.linear.value} onChange={compressProperties.linear.set} />
         </Grid>
 
         <Grid item xs={4}>
