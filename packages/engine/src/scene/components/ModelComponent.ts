@@ -185,7 +185,7 @@ function ModelReactor() {
 
     if (groupComponent?.value?.find((group: any) => group === scene)) return
     parseGLTFModel(entity)
-    setComponent(entity, BoundingBoxComponent)
+    // setComponent(entity, BoundingBoxComponent)
 
     let active = true
 

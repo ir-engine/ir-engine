@@ -217,7 +217,7 @@ function createColliderDesc(
       if (!mesh.geometry)
         return console.warn('[Physics]: Tried to load convex mesh but did not find a geometry', mesh) as any
       try {
-        const _buff = mesh.geometry.clone().scale(Math.abs(scale.x), Math.abs(scale.y), Math.abs(scale.z))
+        const _buff = mesh.geometry.clone().scale(scale.x, scale.y, scale.z)
         const vertices = new Float32Array((_buff.attributes.position as BufferAttribute).array)
         const indices = new Uint32Array(_buff.index!.array)
         colliderDesc = ColliderDesc.convexMesh(vertices, indices) as ColliderDesc
@@ -254,10 +254,16 @@ function createColliderDesc(
 
   const positionRelativeToRoot = new Vector3()
   const quaternionRelativeToRoot = new Quaternion()
+  const scaleRelativeToRoot = new Vector3()
 
-  matrixRelativeToRoot.decompose(positionRelativeToRoot, quaternionRelativeToRoot, new Vector3())
+  matrixRelativeToRoot.decompose(positionRelativeToRoot, quaternionRelativeToRoot, scaleRelativeToRoot)
 
-  applyDescToCollider(colliderDesc, colliderDescOptions, positionRelativeToRoot, quaternionRelativeToRoot)
+  applyDescToCollider(
+    colliderDesc,
+    colliderDescOptions,
+    positionRelativeToRoot.multiply(rootObject.scale),
+    quaternionRelativeToRoot
+  )
 
   return colliderDesc
 }

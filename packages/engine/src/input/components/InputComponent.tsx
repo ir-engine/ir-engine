@@ -17,10 +17,6 @@ export const InputComponent = defineComponent({
     }
   },
 
-  onSet: (entity, component, json) => {
-    setComponent(entity, BoundingBoxComponent)
-  },
-
   reactor: () => {
     const entity = useEntityContext()
     const input = useComponent(entity, InputComponent)
