@@ -1,9 +1,11 @@
 import { useEffect } from 'react'
-import { AmbientLight, Color } from 'three'
+import { AmbientLight, Color, Quaternion, Vector3 } from 'three'
 
 import { defineState, getMutableState, getState } from '@etherealengine/hyperflux'
 
 import { AssetLoader } from '../../assets/classes/AssetLoader'
+import { teleportAvatar } from '../../avatar/functions/moveAvatar'
+import { ObjectDirection } from '../../common/constants/Axis3D'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
 import { SceneState } from '../../ecs/classes/Scene'
@@ -59,6 +61,7 @@ const execute = () => {
   const sceneLoaded = !sceneAssetPendingTagQuery().length
 
   if (!playerTransform) return
+  const cameraTransform = getComponent(Engine.instance.cameraEntity, TransformComponent)
 
   // to trigger the hyperspace effect, add the hyperspace tag to the world entity
   for (const entity of hyperspaceTagComponent.enter()) {
@@ -70,6 +73,11 @@ const execute = () => {
 
     Engine.instance.scene.add(light)
     Engine.instance.scene.add(hyperspaceEffect)
+
+    hyperspaceEffect.quaternion.setFromUnitVectors(
+      ObjectDirection.Forward,
+      new Vector3(0, 0, 1).applyQuaternion(cameraTransform.rotation).setY(0).normalize()
+    )
   }
 
   for (const entity of hyperspaceTagComponent()) {
@@ -86,6 +94,7 @@ const execute = () => {
         /**
          * hide scene, render just the hyperspace effect and avatar
          */
+        teleportAvatar(Engine.instance.localClientEntity, Engine.instance.activePortal!.remoteSpawnPosition, true)
         Engine.instance.camera.layers.disable(ObjectLayers.Scene)
         sceneVisible = false
       }
@@ -99,8 +108,7 @@ const execute = () => {
       }
     })
 
-    hyperspaceEffect.position.copy(playerTransform.position)
-    hyperspaceEffect.quaternion.copy(playerTransform.rotation)
+    hyperspaceEffect.position.copy(cameraTransform.position)
     hyperspaceEffect.updateMatrixWorld(true)
 
     if (Engine.instance.camera.zoom > 0.75) {
