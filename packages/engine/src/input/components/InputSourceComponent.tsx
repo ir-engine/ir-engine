@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { useLayoutEffect } from 'react'
 
 import { none, State, useHookstate } from '@etherealengine/hyperflux'
@@ -10,10 +10,13 @@ import {
   getMutableComponent,
   getOptionalComponent,
   hasComponent,
+  removeComponent,
   setComponent,
-  useComponent
+  useComponent,
+  useOptionalComponent
 } from '../../ecs/functions/ComponentFunctions'
 import { useEntityContext } from '../../ecs/functions/EntityFunctions'
+import { HighlightComponent } from '../../renderer/components/HighlightComponent'
 import { XRSpaceComponent } from '../../xr/XRComponents'
 import { ButtonInputStateType } from '../InputState'
 import { InputComponent } from './InputComponent'
@@ -63,30 +66,30 @@ export const InputSourceComponent = defineComponent({
   },
 
   reactor: () => {
-    const entity = useEntityContext()
-    const inputSource = useComponent(entity, InputSourceComponent)
-    const assignedEntity = inputSource.assignedEntity
-    return <InputSourceAssignmentReactor key={assignedEntity.value} assignedEntity={assignedEntity} />
+    const sourceEntity = useEntityContext()
+    const inputSource = useComponent(sourceEntity, InputSourceComponent)
+    return (
+      <InputSourceAssignmentReactor
+        key={inputSource.assignedEntity.value}
+        assignedEntity={inputSource.assignedEntity}
+      />
+    )
   }
 })
 
-/**
- *
- * @param props
- * @returns
- */
-const InputSourceAssignmentReactor = (props: { assignedEntity: State<Entity> }) => {
-  const assignedInputEntity = useHookstate(props.assignedEntity)
-  const inputSink = useComponent(assignedInputEntity.value, InputComponent)
+const InputSourceAssignmentReactor = React.memo((props: { assignedEntity: State<Entity> }) => {
+  const sourceEntity = useEntityContext()
+  const input = useOptionalComponent(props.assignedEntity.value, InputComponent)
 
   useLayoutEffect(() => {
-    inputSink.inputSources.merge([assignedInputEntity.value])
-    const assignedInputEntityValue = assignedInputEntity.value
+    if (!input) return
+    const idx = input.inputSources.value.indexOf(sourceEntity)
+    idx === -1 && input.inputSources.merge([sourceEntity])
     return () => {
-      const idx = inputSink.inputSources.keys.indexOf(assignedInputEntityValue)
-      idx > -1 && inputSink.inputSources[idx].set(none)
+      const idx = input.inputSources.value.indexOf(sourceEntity)
+      idx > -1 && input.inputSources[idx].set(none)
     }
-  }, [assignedInputEntity])
+  }, [props.assignedEntity.value])
 
   return null
-}
+})

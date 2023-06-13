@@ -1,10 +1,10 @@
 import { get } from 'lodash'
 import { useEffect } from 'react'
-import { Quaternion, Vector3 } from 'three'
+import { Intersection, Mesh, MeshBasicMaterial, Object3D, Quaternion, Ray, Raycaster, Vector3 } from 'three'
 
 import { dispatchAction, getMutableState, getState, none, useHookstate } from '@etherealengine/hyperflux'
 
-import { V_001 } from '../../common/constants/MathConstants'
+import { V_00, V_001 } from '../../common/constants/MathConstants'
 import { isClient } from '../../common/functions/getEnvironment'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineActions } from '../../ecs/classes/EngineState'
@@ -23,9 +23,16 @@ import { createEntity, removeEntity } from '../../ecs/functions/EntityFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { BoundingBoxComponent } from '../../interaction/components/BoundingBoxComponents'
 import { InteractState } from '../../interaction/systems/InteractiveSystem'
+import { Physics, RaycastArgs } from '../../physics/classes/Physics'
+import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
+import { AllCollisionMask, CollisionGroups } from '../../physics/enums/CollisionGroups'
+import { getInteractionGroups } from '../../physics/functions/getInteractionGroups'
+import { SceneQueryType } from '../../physics/types/PhysicsTypes'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
+import { GroupComponent } from '../../scene/components/GroupComponent'
 import { NameComponent } from '../../scene/components/NameComponent'
 import { VisibleComponent } from '../../scene/components/VisibleComponent'
+import { ObjectLayers } from '../../scene/constants/ObjectLayers'
 import { setTransformComponent, TransformComponent } from '../../transform/components/TransformComponent'
 import { XRSpaceComponent } from '../../xr/XRComponents'
 import { ReferenceSpace, XRState } from '../../xr/XRState'
@@ -334,10 +341,56 @@ export function updateGamepadInput(eid: Entity) {
 
 const xrSpaces = defineQuery([XRSpaceComponent, TransformComponent])
 const inputSources = defineQuery([InputSourceComponent])
-const inputSinks = defineQuery([InputComponent])
+
+const inputXRUIs = defineQuery([InputComponent, XRUIComponent])
+const inputRigidbodies = defineQuery([InputComponent, RigidBodyComponent])
 
 const boxCenter = new Vector3()
 const rayRotation = new Quaternion()
+
+const inputRaycast = {
+  type: SceneQueryType.Closest,
+  origin: new Vector3(),
+  direction: new Vector3(),
+  maxDistance: 1000,
+  groups: getInteractionGroups(AllCollisionMask, AllCollisionMask),
+  excludeRigidBody: null
+} as RaycastArgs
+
+const inputRay = new Ray()
+
+// const raycaster = new Raycaster()
+// raycaster.layers.enable(ObjectLayers.Scene)
+// raycaster.layers.enable(ObjectLayers.Avatar)
+// raycaster.layers.enable(ObjectLayers.UI)
+// const intersects = [] as Intersection<Object3D>[]
+
+// check for intersections, returning as soon as one is found
+// function _findFirstIntersection(objects: Object3D[]) {
+//   for (const object of objects) {
+//     traverseObjectEarlyOut(object, _checkIntersection)
+//     if (intersects.length > 0) return intersects[0]
+//   }
+//   return null
+// }
+
+// function _checkIntersection(obj:Mesh) {
+//   intersects.length = 0
+//   if (obj.visible === false || (obj.material as MeshBasicMaterial)?.opacity < 0.001) return false
+//   if (obj.layers.test(raycaster.layers)) {
+//     obj.raycast(raycaster, intersects)
+//     if (intersects.length > 0) return true
+//   }
+//   return false
+// }
+
+// function traverseObjectEarlyOut(object: Object3D, callback: (obj: Object3D) => boolean) {
+//   if (callback(object)) return true
+//   for (const child of object.children) {
+//     if (traverseObjectEarlyOut(child, callback)) return true
+//   }
+//   return false
+// }
 
 const execute = () => {
   for (const source of Engine.instance.inputSources) updateOldGamepadInput(source)
@@ -395,29 +448,28 @@ const execute = () => {
 
     if (!source.captured.value) {
       let assignedInputEntity = UndefinedEntity as Entity
-      let assignedDistance = Infinity
 
-      for (const inputEid of inputSinks()) {
-        const bounds = getOptionalComponent(inputEid, BoundingBoxComponent)
-        const xrui = getOptionalComponent(inputEid, VisibleComponent) && getOptionalComponent(inputEid, XRUIComponent)
-        const pointer = pointers.get(source.source.value) ?? Engine.instance.pointerScreenRaycaster.ray
-        if (xrui) {
-          const layerHit = xrui.hitTest(pointer)
-          if (!layerHit || !layerHit.intersection.object.visible) continue
-          const dist = layerHit.intersection.distance
-          if (dist <= assignedDistance) {
-            assignedInputEntity = inputEid
-            assignedDistance = dist
-          }
-        } else if (bounds) {
-          if (!bounds.box.containsPoint(sourceTransform.position)) continue
-          const center = bounds.box.getCenter(boxCenter) // todo: copmute bounding box center in a centralized place
-          const dist = sourceTransform.position.distanceTo(center) // todo: compute boudning box distance in centralized place
-          if (dist <= assignedDistance) {
-            assignedInputEntity = inputEid
-            assignedDistance = dist
-          }
-        }
+      inputRaycast.direction.set(0, 0, 1).applyQuaternion(sourceTransform.rotation)
+      inputRaycast.origin.copy(sourceTransform.position).addScaledVector(inputRaycast.direction, -0.01)
+      inputRaycast.excludeRigidBody = getOptionalComponent(Engine.instance.localClientEntity, RigidBodyComponent)?.body
+      inputRay.set(inputRaycast.origin, inputRaycast.direction)
+
+      for (const eid of inputXRUIs()) {
+        const xrui = getComponent(eid, XRUIComponent)
+        const layerHit = xrui.hitTest(inputRay)
+        if (
+          !layerHit ||
+          !layerHit.intersection.object.visible ||
+          (layerHit.intersection.object as Mesh<any, MeshBasicMaterial>).material?.opacity < 0.01
+        )
+          continue
+        assignedInputEntity = eid
+        break
+      }
+
+      if (Engine.instance.physicsWorld && !assignedInputEntity) {
+        const hit = Physics.castRay(Engine.instance.physicsWorld, inputRaycast)[0]
+        if (hit) assignedInputEntity = hit.entity
       }
 
       source.assignedEntity.set(assignedInputEntity)
@@ -428,14 +480,6 @@ const execute = () => {
     } else {
       updateGamepadInput(sourceEid)
     }
-  }
-
-  for (const eid of inputSinks()) {
-    const inputSink = getComponent(eid, InputComponent)
-    inputSink.inputSources = inputSources().filter((sourceEid) => {
-      const source = getComponent(sourceEid, InputSourceComponent)
-      return source.assignedEntity === eid
-    })
   }
 }
 
@@ -455,7 +499,7 @@ const reactor = () => {
     const addInputSource = (source: XRInputSource) => {
       const entity = createEntity()
       setComponent(entity, InputSourceComponent, { source })
-      setComponent(entity, NameComponent, 'InputSource-' + source.handedness + '-' + source.targetRayMode)
+      setComponent(entity, NameComponent, 'InputSource-handed:' + source.handedness + '-mode:' + source.targetRayMode)
     }
     const removeInputSource = (source: XRInputSource) =>
       removeEntity(InputSourceComponent.entitiesByInputSource.get(source))

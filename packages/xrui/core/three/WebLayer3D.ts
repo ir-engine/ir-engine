@@ -85,7 +85,8 @@ export class WebLayer3D extends Object3D {
     this._boundsMesh = new Mesh(
       geometry,
       new MeshBasicMaterial({
-        visible: false
+        visible: false,
+        opacity: 0
       })
     )
 

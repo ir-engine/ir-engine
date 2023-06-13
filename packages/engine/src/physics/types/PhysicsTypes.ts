@@ -7,6 +7,8 @@ import RAPIER, {
 } from '@dimforge/rapier3d-compat'
 import { Vector3 } from 'three'
 
+import { Entity } from '../../ecs/classes/Entity'
+
 export interface Vec3 {
   x: number
   y: number
@@ -33,6 +35,7 @@ export interface RaycastHit {
   normal: Vector
   body: RAPIER.RigidBody
   collider: RAPIER.Collider
+  entity: Entity
 }
 
 export enum CollisionEvents {

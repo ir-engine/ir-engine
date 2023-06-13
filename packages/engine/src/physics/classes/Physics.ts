@@ -413,12 +413,14 @@ function castRay(world: World, raycastQuery: RaycastArgs, filterPredicate?: (col
     filterPredicate
   )
   if (hitWithNormal != null) {
+    const body = hitWithNormal.collider.parent() as RigidBody
     hits.push({
       collider: hitWithNormal.collider,
       distance: hitWithNormal.toi,
       position: ray.pointAt(hitWithNormal.toi),
       normal: hitWithNormal.normal,
-      body: hitWithNormal.collider.parent() as RigidBody
+      body,
+      entity: (body.userData as any)['entity']
     })
   }
 
