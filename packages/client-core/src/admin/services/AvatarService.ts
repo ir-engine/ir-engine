@@ -76,6 +76,7 @@ export const AdminAvatarService = {
     const limit = adminAvatarState.limit.value
     const avatars = (await API.instance.client.service('avatar').find({
       query: {
+        admin: true,
         $sort: {
           ...sortData
         },

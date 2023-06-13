@@ -87,9 +87,7 @@ cli.main(async () => {
 
     const avatarStaticResources = await StaticResource.findAll({
       where: {
-        staticResourceType: {
-          [Op.ne]: null
-        }
+        staticResourceType: 'avatar'
       }
     })
 
