@@ -14,7 +14,17 @@ import RAPIER, {
   TempContactForceEvent,
   World
 } from '@dimforge/rapier3d-compat'
-import { BufferAttribute, Line, Mesh, OrthographicCamera, PerspectiveCamera, Quaternion, Vector2, Vector3 } from 'three'
+import {
+  BufferAttribute,
+  Line,
+  Matrix4,
+  Mesh,
+  OrthographicCamera,
+  PerspectiveCamera,
+  Quaternion,
+  Vector2,
+  Vector3
+} from 'three'
 
 import { getMutableState, getState } from '@etherealengine/hyperflux'
 
@@ -138,7 +148,7 @@ function applyDescToCollider(
 function createColliderDesc(
   mesh: Mesh,
   colliderDescOptions: ColliderDescOptions,
-  isRoot = false,
+  rootObject = mesh,
   overrideShapeType = false
 ): ColliderDesc | undefined {
   // @todo - check this works in all scenes
@@ -238,12 +248,16 @@ function createColliderDesc(
       return
   }
 
-  applyDescToCollider(
-    colliderDesc,
-    colliderDescOptions,
-    isRoot ? undefined : mesh.position,
-    isRoot ? undefined : mesh.quaternion
-  )
+  // get matrix relative to root
+  const matrixRelativeToRoot = new Matrix4().copy(mesh.matrixWorld)
+  matrixRelativeToRoot.premultiply(rootObject.matrixWorld.clone().invert())
+
+  const positionRelativeToRoot = new Vector3()
+  const quaternionRelativeToRoot = new Quaternion()
+
+  matrixRelativeToRoot.decompose(positionRelativeToRoot, quaternionRelativeToRoot, new Vector3())
+
+  applyDescToCollider(colliderDesc, colliderDescOptions, positionRelativeToRoot, quaternionRelativeToRoot)
 
   return colliderDesc
 }
@@ -275,7 +289,7 @@ function createRigidBodyForGroup(
 
       // todo: our mesh collider userdata should probably be namespaced, e.g., mesh['EE_collider'] or something
       const args = { ...colliderDescOptions, ...mesh.userData } as ColliderDescOptions
-      const colliderDesc = createColliderDesc(mesh, args, obj === mesh, overrideShapeType)
+      const colliderDesc = createColliderDesc(mesh, args, obj, overrideShapeType)
 
       if (colliderDesc) {
         ;(typeof args.removeMesh === 'undefined' || args.removeMesh === true) && meshesToRemove.push(mesh)
