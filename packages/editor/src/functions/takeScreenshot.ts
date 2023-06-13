@@ -1,4 +1,3 @@
-import { blob } from 'stream/consumers'
 import {
   _SRGBFormat,
   Camera,
@@ -28,6 +27,7 @@ import { getState } from '@etherealengine/hyperflux'
 import { KTX2Encoder } from '@etherealengine/xrui/core/textures/KTX2Encoder'
 
 import { EditorState } from '../services/EditorServices'
+import { getCanvasBlob } from './thumbnails'
 
 function getResizedCanvas(canvas: HTMLCanvasElement, width: number, height: number) {
   const tmpCanvas = document.createElement('canvas')
@@ -52,7 +52,7 @@ const ktx2Encoder = new KTX2Encoder()
 export async function takeScreenshot(
   width: number,
   height: number,
-  compressed = true,
+  format = 'ktx2' as 'png' | 'ktx2' | 'jpeg',
   scenePreviewCamera?: PerspectiveCamera
 ): Promise<Blob | null> {
   // Getting Scene preview camera or creating one if not exists
@@ -84,45 +84,93 @@ export async function takeScreenshot(
   const originalWidth = EngineRenderer.instance.renderer.domElement.width
   const originalHeight = EngineRenderer.instance.renderer.domElement.height
 
-  EngineRenderer.instance.effectComposer.render()
-  EngineRenderer.instance.effectComposer.setMainCamera(Engine.instance.camera)
+  // Rendering the scene to the new canvas with given size
+  await new Promise<void>((resolve, reject) => {
+    const interval = setInterval(() => {
+      const viewport = EngineRenderer.instance.renderContext.getParameter(
+        EngineRenderer.instance.renderContext.VIEWPORT
+      )
+      const pixelRatio = EngineRenderer.instance.renderer.getPixelRatio()
+      // todo - scrolling in and out sometimes causes weird pixel ratios that can cause this to fail
+      if (viewport[2] === Math.round(width * pixelRatio) && viewport[3] === Math.round(height * pixelRatio)) {
+        console.log('Resized viewport')
+        clearTimeout(timeout)
+        clearInterval(interval)
+        resolve()
+      }
+    }, 10)
+    const timeout = setTimeout(() => {
+      console.warn('Could not resize viewport in time')
+      clearTimeout(timeout)
+      clearInterval(interval)
+      reject()
+    }, 10000)
 
-  const renderer = EngineRenderer.instance.renderer
-  renderer.outputEncoding = sRGBEncoding
-  const renderTarget = new WebGLRenderTarget(width, height, {
-    minFilter: LinearFilter,
-    magFilter: LinearFilter,
-    wrapS: ClampToEdgeWrapping,
-    wrapT: ClampToEdgeWrapping,
-    encoding: sRGBEncoding,
-    format: RGBAFormat,
-    type: UnsignedByteType
+    // set up effect composer
+    EngineRenderer.instance.effectComposer.setMainCamera(scenePreviewCamera as Camera)
+    EngineRenderer.instance.effectComposer.setSize(width, height, true)
   })
 
-  renderer.setRenderTarget(renderTarget)
-  renderer.render(Engine.instance.scene, scenePreviewCamera)
-  const pixels = new Uint8Array(4 * width * height)
-  renderer.readRenderTargetPixels(renderTarget, 0, 0, width, height, pixels)
-  const imageData = new ImageData(new Uint8ClampedArray(pixels), width, height)
-  renderer.setRenderTarget(null) // pass `null` to set canvas as render target
+  let blob: Blob | null = null
+
+  if (format === 'ktx2') {
+    const renderer = EngineRenderer.instance.renderer
+    // todo - support post processing
+    // EngineRenderer.instance.effectComposer.setMainCamera(scenePreviewCamera as Camera)
+    // const renderer = EngineRenderer.instance.effectComposer.getRenderer()
+    renderer.outputEncoding = sRGBEncoding
+    const renderTarget = new WebGLRenderTarget(width, height, {
+      minFilter: LinearFilter,
+      magFilter: LinearFilter,
+      wrapS: ClampToEdgeWrapping,
+      wrapT: ClampToEdgeWrapping,
+      encoding: sRGBEncoding,
+      format: RGBAFormat,
+      type: UnsignedByteType
+    })
+
+    renderer.setRenderTarget(renderTarget)
+
+    // EngineRenderer.instance.effectComposer.render()
+    renderer.render(Engine.instance.scene, scenePreviewCamera)
+
+    const pixels = new Uint8Array(4 * width * height)
+    renderer.readRenderTargetPixels(renderTarget, 0, 0, width, height, pixels)
+    const imageData = new ImageData(new Uint8ClampedArray(pixels), width, height)
+    renderer.setRenderTarget(null) // pass `null` to set canvas as render target
+
+    const ktx2texture = (await ktx2Encoder.encode(imageData, {
+      srgb: false,
+      uastc: true,
+      uastcZstandard: true,
+      qualityLevel: 256,
+      compressionLevel: 3
+    })) as ArrayBuffer
+
+    blob = new Blob([ktx2texture])
+  } else {
+    EngineRenderer.instance.effectComposer.render()
+
+    blob = await getCanvasBlob(
+      getResizedCanvas(EngineRenderer.instance.renderer.domElement, width, height),
+      format === 'jpeg' ? 'image/jpeg' : 'image/png',
+      format === 'jpeg' ? 0.9 : 1
+    )
+  }
+
+  EngineRenderer.instance.effectComposer.setMainCamera(Engine.instance.camera)
   EngineRenderer.instance.effectComposer.setSize(originalWidth, originalHeight, true)
 
   // Restoring previous state
   scenePreviewCamera.aspect = prevAspect
   scenePreviewCamera.updateProjectionMatrix()
 
-  const ktx2texture = (await ktx2Encoder.encode(imageData, {
-    srgb: true,
-    uastc: true,
-    uastcZstandard: true
-  })) as ArrayBuffer
-
-  return new Blob([ktx2texture])
+  return blob
 }
 
-/** @todo make size configurable */
+/** @todo make size, compression & format configurable */
 export const downloadScreenshot = () => {
-  takeScreenshot(1920 * 4, 1080 * 4, false, Engine.instance.camera).then((blob) => {
+  takeScreenshot(1920 * 4, 1080 * 4, 'png', Engine.instance.camera).then((blob) => {
     if (!blob) return
 
     const blobUrl = URL.createObjectURL(blob)
@@ -132,7 +180,7 @@ export const downloadScreenshot = () => {
     const editorState = getState(EditorState)
 
     link.href = blobUrl
-    link.download = editorState.projectName + '_' + editorState.sceneName + '_thumbnail.ktx2'
+    link.download = editorState.projectName + '_' + editorState.sceneName + '_thumbnail.png'
 
     document.body.appendChild(link)
 

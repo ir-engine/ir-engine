@@ -1,4 +1,4 @@
-import { PeersUpdateType } from '@etherealengine/common/src/interfaces/PeerID'
+import { PeerID, PeersUpdateType } from '@etherealengine/common/src/interfaces/PeerID'
 import { Action, clearOutgoingActions, getState } from '@etherealengine/hyperflux'
 
 import { Engine } from '../../ecs/classes/Engine'
@@ -20,15 +20,15 @@ export const updatePeers = (network: Network) => {
       name: userNames[peer.userId]
     }
   }) as Array<PeersUpdateType>
-  for (const peerID of network.transport.peers)
-    network.transport.messageToPeer(peerID, { type: MessageTypes.UpdatePeers.toString(), data: peers })
+  for (const peer of peers)
+    network.transport.messageToPeer(peer.peerID, { type: MessageTypes.UpdatePeers.toString(), data: peers })
 }
 
 export const sendActionsAsPeer = (network: Network) => {
   if (!network.ready) return
   const actions = [...Engine.instance.store.actions.outgoing[network.topic].queue]
   if (!actions.length) return
-  // for (const peerID of network.transport.peers) {
+  // for (const peerID of network.peers) {
   network.transport.messageToPeer(network.hostPeerID, {
     type: MessageTypes.ActionData.toString(),
     /*encode(*/ data: actions
@@ -45,12 +45,12 @@ export const sendActionsAsHost = (network: Network) => {
 
   const outgoing = Engine.instance.store.actions.outgoing
 
-  for (const peerID of network.transport.peers) {
+  for (const peerID of Array.from(network.peers.keys()) as PeerID[]) {
     const arr: Action[] = []
     for (const a of [...actions]) {
       const action = { ...a }
       if (outgoing[network.topic].historyUUIDs.has(action.$uuid)) {
-        const idx = outgoing[network.topic].queue.indexOf(action)
+        const idx = outgoing[network.topic].queue.findIndex((a) => a.$uuid === action.$uuid)
         outgoing[network.topic].queue.splice(idx, 1)
       }
       if (!action.$to) continue

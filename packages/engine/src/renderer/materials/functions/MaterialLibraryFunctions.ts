@@ -1,6 +1,6 @@
 import { Color, Material, Mesh, Texture } from 'three'
 
-import { dispatchAction, getMutableState, getState, none } from '@etherealengine/hyperflux'
+import { getMutableState, getState, none } from '@etherealengine/hyperflux'
 
 import { stringHash } from '../../../common/functions/MathFunctions'
 import { Engine } from '../../../ecs/classes/Engine'
@@ -8,7 +8,7 @@ import { MaterialComponentType } from '../components/MaterialComponent'
 import { MaterialPrototypeComponentType } from '../components/MaterialPrototypeComponent'
 import { MaterialSource, MaterialSourceComponentType } from '../components/MaterialSource'
 import { LibraryEntryType } from '../constants/LibraryEntry'
-import { MaterialLibraryActions, MaterialLibraryState } from '../MaterialLibrary'
+import { MaterialLibraryState } from '../MaterialLibrary'
 
 export function MaterialNotFoundError(message) {
   this.name = 'MaterialNotFound'
@@ -122,7 +122,7 @@ export function addMaterialSource(src: MaterialSource): boolean {
   } else return false
 }
 
-export function getSourceMaterials(src: MaterialSource): string[] | undefined {
+export function getSourceItems(src: MaterialSource): string[] | undefined {
   const materialLibrary = getState(MaterialLibraryState)
   return materialLibrary.sources[hashMaterialSource(src)]?.entries
 }
@@ -140,7 +140,6 @@ export function removeMaterialSource(src: MaterialSource): boolean {
       toDelete.material.dispose()
       materialLibrary.materials[matId].set(none)
     })
-    dispatchAction(MaterialLibraryActions.RemoveSource({ src: srcComp.src }))
     materialLibrary.sources[srcId].set(none)
 
     return true
@@ -151,7 +150,7 @@ export function registerMaterial(material: Material, src: MaterialSource, params
   const materialLibrary = getMutableState(MaterialLibraryState)
   const prototype = prototypeFromId(material.userData.type ?? material.type)
   addMaterialSource(src)
-  const srcMats = getSourceMaterials(src)!
+  const srcMats = getSourceItems(src)!
   !srcMats.includes(material.uuid) &&
     materialLibrary.sources[hashMaterialSource(src)].entries.set([
       ...materialLibrary.sources[hashMaterialSource(src)].entries.value,
@@ -162,9 +161,11 @@ export function registerMaterial(material: Material, src: MaterialSource, params
   materialLibrary.materials[material.uuid].set({
     material,
     parameters,
+    plugins: [],
     prototype: prototype.prototypeId,
     src
   })
+  return materialLibrary.materials[material.uuid]
 }
 
 export function unregisterMaterial(material: Material) {
@@ -197,7 +198,7 @@ export function registerMaterialPrototype(prototype: MaterialPrototypeComponentT
 }
 
 export function materialsFromSource(src: MaterialSource) {
-  return getSourceMaterials(src)?.map(materialFromId)
+  return getSourceItems(src)?.map(materialFromId)
 }
 
 export function changeMaterialPrototype(material: Material, protoId: string) {
@@ -239,6 +240,7 @@ export function changeMaterialPrototype(material: Material, protoId: string) {
     ...nuMat.userData,
     ...Object.fromEntries(Object.entries(material.userData).filter(([k, v]) => k !== 'type'))
   }
+  materialEntry.plugins.map((pluginId: string) => {})
   registerMaterial(nuMat, materialEntry.src)
   return nuMat
 }

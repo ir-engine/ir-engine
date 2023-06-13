@@ -1,5 +1,5 @@
 import React, { Fragment } from 'react'
-import { Texture, Vector2 } from 'three'
+import { LinearEncoding, sRGBEncoding, Texture, TextureEncoding, Vector2 } from 'three'
 
 import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoader'
 import { ImageFileTypes, VideoFileTypes } from '@etherealengine/engine/src/assets/constants/fileTypes'
@@ -13,6 +13,7 @@ import { ItemTypes } from '../../constants/AssetTypes'
 import FileBrowserInput from './FileBrowserInput'
 import { ImageContainer } from './ImagePreviewInput'
 import InputGroup from './InputGroup'
+import SelectInput from './SelectInput'
 import { StringInputProps } from './StringInput'
 import Vector2Input from './Vector2Input'
 
@@ -96,6 +97,23 @@ export default function TexturePreviewInput({
               }}
               uniformScaling={false}
             />
+          </>
+        )}
+        {texture?.isTexture && (
+          <>
+            <InputGroup name="Encoding" label="Encoding">
+              <SelectInput
+                value={texture.encoding}
+                options={[
+                  { label: 'Linear', value: LinearEncoding },
+                  { label: 'sRGB', value: sRGBEncoding }
+                ]}
+                onChange={(value: TextureEncoding) => {
+                  texture.encoding = value
+                  texture.needsUpdate = true
+                }}
+              />
+            </InputGroup>
           </>
         )}
         {value && (

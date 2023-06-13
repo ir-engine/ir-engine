@@ -46,12 +46,10 @@ export async function seed(knex: Knex): Promise<void> {
     // Inserts seed entries
     await knex(emailSettingPath).insert(seedData)
   } else {
-    for (const item of seedData) {
-      const existingData = await knex(emailSettingPath)
-        .where('smtp', item.smtp)
-        .andWhere('from', item.from)
-        .andWhere('subject', item.subject)
-      if (existingData.length === 0) {
+    const existingData = await knex(emailSettingPath).count({ count: '*' })
+
+    if (existingData.length === 0 || existingData[0].count === 0) {
+      for (const item of seedData) {
         await knex(emailSettingPath).insert(item)
       }
     }

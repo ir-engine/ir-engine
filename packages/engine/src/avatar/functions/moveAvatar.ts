@@ -9,6 +9,7 @@ import { V_000, V_010 } from '../../common/constants/MathConstants'
 import checkPositionIsValid from '../../common/functions/checkPositionIsValid'
 import { lerp } from '../../common/functions/MathLerpFunctions'
 import { Engine } from '../../ecs/classes/Engine'
+import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import { ComponentType, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { Physics } from '../../physics/classes/Physics'
@@ -149,7 +150,7 @@ const walkPoint = new Vector3()
 
 const currentDirection = new Vector3()
 export const applyAutopilotInput = (entity: Entity) => {
-  const deltaSeconds = Engine.instance.fixedDeltaSeconds
+  const deltaSeconds = getState(EngineState).simulationTimestep / 1000
 
   const markerState = getState(AutopilotMarker)
 
@@ -195,7 +196,7 @@ export const applyGamepadInput = (entity: Entity) => {
   if (!entity) return
 
   const camera = Engine.instance.camera
-  const deltaSeconds = Engine.instance.fixedDeltaSeconds
+  const deltaSeconds = getState(EngineState).simulationTimestep / 1000
   const controller = getComponent(entity, AvatarControllerComponent)
 
   const avatarMovementSettings = getState(AvatarMovementSettingsState)
@@ -366,7 +367,7 @@ export const updateLocalAvatarRotation = () => {
  * @param entity
  * @param newPosition
  */
-export const teleportAvatar = (entity: Entity, targetPosition: Vector3): void => {
+export const teleportAvatar = (entity: Entity, targetPosition: Vector3, force = false): void => {
   if (!hasComponent(entity, AvatarComponent)) {
     console.warn('Teleport avatar called on non-avatar entity')
     return
@@ -376,17 +377,14 @@ export const teleportAvatar = (entity: Entity, targetPosition: Vector3): void =>
   raycastOrigin.y += 0.1
   const { raycastHit } = checkPositionIsValid(raycastOrigin, false)
 
-  if (raycastHit) {
+  if (raycastHit || force) {
     const transform = getComponent(entity, TransformComponent)
     const rigidbody = getComponent(entity, RigidBodyComponent)
-    const newPosition = raycastHit.position as Vector3
+    const newPosition = raycastHit ? (raycastHit.position as Vector3) : targetPosition
     rigidbody.targetKinematicPosition.copy(newPosition)
     rigidbody.position.copy(newPosition)
     const attached = getCameraMode() === 'attached'
-    if (attached)
-      updateReferenceSpaceFromAvatarMovement(
-        new Vector3().subVectors(raycastHit.position as Vector3, transform.position)
-      )
+    if (attached) updateReferenceSpaceFromAvatarMovement(new Vector3().subVectors(newPosition, transform.position))
   } else {
     console.log('invalid position', targetPosition, raycastHit)
   }

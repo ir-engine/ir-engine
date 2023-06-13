@@ -300,7 +300,10 @@ export async function checkForDuplicatedAssignments({
   if (!responsivenessCheck) {
     await app.service('instance').remove(assignResult.id)
     const k8DefaultClient = getState(ServerState).k8DefaultClient
-    if (config.kubernetes.enabled) k8DefaultClient.deleteNamespacedPod(assignResult.podName, 'default')
+    if (config.kubernetes.enabled)
+      try {
+        k8DefaultClient.deleteNamespacedPod(assignResult.podName, 'default')
+      } catch (err) {}
     else await new Promise((resolve) => setTimeout(() => resolve(null), 500))
     return getFreeInstanceserver({
       app,

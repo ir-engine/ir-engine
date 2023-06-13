@@ -30,11 +30,6 @@ export const startFFMPEG = async (useAudio: boolean, useVideo: boolean, onExit: 
   // require on demand as not to unnecessary slow down instance server
   if (!ffmpeg) throw new Error('FFmpeg not found')
 
-  let cmdInputPath = `${__dirname}/recording/input-vp8.sdp`
-  let cmdOutputPath = `${__dirname}/recording/output-ffmpeg-vp8.webm`
-  let cmdCodec = ''
-  let cmdFormat = '-f webm -flags +global_header'
-
   // Ensure correct FFmpeg version is installed
   const ffmpegOut = Process.execSync(ffmpeg + ' -version', {
     encoding: 'utf8'
@@ -58,6 +53,13 @@ export const startFFMPEG = async (useAudio: boolean, useVideo: boolean, onExit: 
     throw new Error('FFmpeg >= 4.0.0 not found in $PATH; please install it')
   }
 
+  /** Init codec & args */
+
+  let cmdInputPath = `${__dirname}/recording/input-vp8.sdp`
+  let cmdOutputPath = `${__dirname}/recording/output-ffmpeg-vp8.webm`
+  let cmdCodec = ''
+  let cmdFormat = '-f webm -flags +global_header'
+
   if (useAudio) {
     cmdCodec += ' -map 0:a:0 -c:a copy'
   }
@@ -78,7 +80,8 @@ export const startFFMPEG = async (useAudio: boolean, useVideo: boolean, onExit: 
   const cmdArgStr = [
     '-nostdin',
     '-protocol_whitelist file,rtp,udp',
-    '-analyzeduration 3000000',
+    '-analyzeduration 10M',
+    '-probesize 10M',
     '-fflags +genpts',
     `-i ${cmdInputPath}`,
     cmdCodec,

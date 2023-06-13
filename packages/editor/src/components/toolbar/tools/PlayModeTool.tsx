@@ -38,12 +38,12 @@ const PlayModeTool = () => {
 
       const avatarSpawnPose = getRandomSpawnPoint(Engine.instance.userId)
 
-      if (avatarDetails.modelResource?.LOD0_url)
+      if (avatarDetails.modelResource?.url)
         spawnLocalAvatarInWorld({
           avatarSpawnPose,
           avatarDetail: {
-            avatarURL: avatarDetails.modelResource?.LOD0_url!,
-            thumbnailURL: avatarDetails.thumbnailResource?.LOD0_url!
+            avatarURL: avatarDetails.modelResource?.url!,
+            thumbnailURL: avatarDetails.thumbnailResource?.url!
           },
           name: authState.user.name.value
         })

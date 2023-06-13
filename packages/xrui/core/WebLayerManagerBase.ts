@@ -128,8 +128,20 @@ export class WebLayerManagerBase {
 
   store: LayerStore
 
-  serializeQueue = [] as { layer: WebLayer; resolve: (val: any) => void; promise: any }[]
-  rasterizeQueue = [] as { hash: StateHash; svgUrl: string; resolve: (val: any) => void; promise: any }[]
+  serializeQueue = [] as {
+    layer: WebLayer
+    // element?: HTMLElement;
+    resolve: (val: any) => void
+    promise: any
+  }[]
+  rasterizeQueue = [] as {
+    hash: StateHash
+    svgUrl: string
+    // layer?: WebLayer
+    // char?: string
+    resolve: (val: any) => void
+    promise: any
+  }[]
   optimizeQueue = [] as { textureHash: TextureHash; resolve: (val: any) => void; promise: any }[]
 
   ktx2Encoder = new KTX2Encoder()
@@ -422,6 +434,7 @@ export class WebLayerManagerBase {
   async serialize(layer: WebLayer) {
     this.updateDOMMetrics(layer)
     const layerElement = layer.element as HTMLElement
+    // if (element) layerElement.textContent = element.textContent
     const metrics = layer.domMetrics
 
     const { top, left, width, height } = metrics.bounds
@@ -575,11 +588,12 @@ export class WebLayerManagerBase {
       return
     }
 
+    // if (layer && char) {
+    //   layer.prerasterizedImages.set(char, stateData.texture.hash)
+    // }
+
     // in case the svg image wasn't finished loading, we should try again a few times
-    setTimeout(
-      () => this.addToRasterizeQueue(stateHash, svgUrl),
-      ((500 + Math.random() * 1000) * 2) ^ stateData.renderAttempts
-    )
+    setTimeout(() => this.addToRasterizeQueue(stateHash, svgUrl), ((500 + 0.1 * 1000) * 2) ^ stateData.renderAttempts)
 
     if (stateData.texture.canvas) return
 
@@ -597,6 +611,8 @@ export class WebLayerManagerBase {
       this._imagePool.push(svgImage)
     }
   }
+
+  prerasterized = false
 
   async rasterizeToCanvas(
     svgImage: HTMLImageElement,

@@ -119,11 +119,15 @@ export const promisedRequest = (network: SocketWebRTCClientNetwork, type: any, d
 }
 
 const handleFailedConnection = (locationConnectionFailed) => {
+  console.log('handleFailedConnection', locationConnectionFailed)
   if (locationConnectionFailed) {
     const currentLocation = getMutableState(LocationState).currentLocation.location
     const locationInstanceConnectionState = getMutableState(LocationInstanceState)
     const instanceId = getState(NetworkState).hostIds.world ?? ''
-    if (!locationInstanceConnectionState.instances[instanceId]?.connected?.value) {
+    if (
+      !locationInstanceConnectionState.instances[instanceId]?.connected?.value &&
+      !locationInstanceConnectionState.instances[instanceId]?.connecting?.value
+    ) {
       dispatchAction(LocationInstanceConnectionAction.disconnect({ instanceId }))
       LocationInstanceConnectionService.provisionServer(
         currentLocation.id.value,
@@ -176,10 +180,6 @@ export const initializeNetwork = (hostId: UserId, topic: Topic) => {
   )
 
   const transport = {
-    get peers() {
-      return network.primus ? [network.hostPeerID] : []
-    },
-
     messageToPeer: (peerId: PeerID, data: any) => {
       network.primus?.write(data)
     },
@@ -405,6 +405,12 @@ export async function onConnectToInstance(network: SocketWebRTCClientNetwork) {
 
   const { status } = await new Promise<AuthTask>((resolve) => {
     const interval = setInterval(async () => {
+      // ensure we're still connected
+      if (!network.primus) {
+        clearInterval(interval)
+        resolve({ status: 'fail' })
+        return
+      }
       const response = (await promisedRequest(network, MessageTypes.Authorization.toString(), payload)) as AuthTask
       if (response.status !== 'pending') {
         clearInterval(interval)
@@ -557,7 +563,7 @@ export async function onConnectToMediaInstance(network: SocketWebRTCClientNetwor
     // not guaranteed to be returned, will be refactored when converted to hyperflux actions
     if (!consumerId) return
     const consumer = network.consumers.find((c) => c.id === consumerId) as ConsumerExtension
-    if (!consumer) throw new Error('Consumer not found: ' + consumerId)
+    if (!consumer) return
     const peerID = consumer?.appData?.peerID
     const mediaTag = consumer.appData.mediaTag
     consumer.close()

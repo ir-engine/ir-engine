@@ -31,10 +31,10 @@ export class ModelTransform implements ServiceMethods<any> {
   }
 
   processPath(inPath: string): [string, string] {
-    const pathData = /.*projects\/([\w\d\s\-_]+)\/assets\/(.*)\.(glb|gltf)$/.exec(inPath)
+    const pathData = /.*projects\/(.*)\.(glb|gltf)$/.exec(inPath)
     if (!pathData) throw Error('could not extract path data')
-    const [_, projectName, fileName, extension] = pathData
-    return [path.join(this.rootPath, `${projectName}/assets/${fileName}`), extension]
+    const [_, filePath, extension] = pathData
+    return [path.join(this.rootPath, filePath), extension]
   }
 
   async find(params?: Params): Promise<any> {

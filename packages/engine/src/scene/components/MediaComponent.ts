@@ -79,13 +79,13 @@ export const createAudioNodeGroup = (
 
 export const getResourceURL = (resource: MediaResource) => {
   return (
-    resource.mp3StaticResource?.LOD0_url ||
-    resource.mpegStaticResource?.LOD0_url ||
-    resource.oggStaticResource?.LOD0_url ||
-    resource.mp4StaticResource?.LOD0_url ||
-    resource.m3u8StaticResource?.LOD0_url ||
-    resource.video?.mp4StaticResource?.LOD0_url ||
-    resource.video?.m3u8StaticResource?.LOD0_url ||
+    resource.mp3StaticResource?.url ||
+    resource.mpegStaticResource?.url ||
+    resource.oggStaticResource?.url ||
+    resource.mp4StaticResource?.url ||
+    resource.m3u8StaticResource?.url ||
+    resource.video?.mp4StaticResource?.url ||
+    resource.video?.m3u8StaticResource?.url ||
     resource.path ||
     ''
   )
@@ -233,8 +233,6 @@ export const MediaComponent = defineComponent({
       if (typeof json.autoplay === 'boolean') component.paused.set(!json.autoplay)
       if (typeof json.paused === 'boolean') component.paused.set(json.paused)
     })
-
-    return component
   },
 
   reactor: MediaReactor,

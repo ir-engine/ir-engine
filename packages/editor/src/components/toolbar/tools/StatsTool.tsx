@@ -1,60 +1,13 @@
-import React, { useState } from 'react'
+import React from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
-import { EngineRenderer } from '@etherealengine/engine/src/renderer/WebGLRendererSystem'
-import { defineState, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
+import { RenderInfoState } from '@etherealengine/engine/src/renderer/RenderInfoSystem'
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
 import SsidChartIcon from '@mui/icons-material/SsidChart'
 
 import { InfoTooltip } from '../../layout/Tooltip'
 import styles from '../styles.module.scss'
-
-export const RenderInfoState = defineState({
-  name: 'RenderInfoState',
-  initial: {
-    visible: false,
-    info: {
-      geometries: 0,
-      textures: 0,
-      fps: 0,
-      frameTime: 0,
-      calls: 0,
-      triangles: 0,
-      points: 0,
-      lines: 0
-    }
-  }
-})
-
-const execute = () => {
-  const state = getState(RenderInfoState)
-  if (state.visible) {
-    const info = EngineRenderer.instance.renderer.info
-
-    const fps = 1 / Engine.instance.deltaSeconds
-    const frameTime = Engine.instance.deltaSeconds * 1000
-
-    getMutableState(RenderInfoState).info.set({
-      geometries: info.memory.geometries,
-      textures: info.memory.textures,
-      fps,
-      frameTime,
-      calls: info.render.calls,
-      triangles: info.render.triangles,
-      points: info.render.points,
-      lines: info.render.lines
-    })
-
-    info.reset()
-  }
-}
-
-export const RenderInfoSystem = defineSystem({
-  uuid: 'ee.editor.RenderInfoSystem',
-  execute
-})
 
 /**
  * Stats used to show stats of  memory and  render.

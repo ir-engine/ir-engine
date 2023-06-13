@@ -8,6 +8,7 @@ export const processFileName = (fileName: string): string => {
   try {
     // Change file extension to lowercase
     const nameSplit = name.split('.')
+    if (nameSplit.length === 1) return name
     const extension = nameSplit.pop()
     if (extension) {
       nameSplit.push(extension.toLowerCase())

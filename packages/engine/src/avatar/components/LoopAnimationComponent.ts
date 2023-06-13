@@ -9,6 +9,7 @@ import {
   getComponent,
   hasComponent,
   removeComponent,
+  setComponent,
   useComponent,
   useOptionalComponent
 } from '../../ecs/functions/ComponentFunctions'
@@ -52,6 +53,9 @@ export const LoopAnimationComponent = defineComponent({
 
     const modelComponent = useOptionalComponent(entity, ModelComponent)
 
+    const animComponent = useOptionalComponent(entity, AnimationComponent)
+
+    const loopAnimationComponent = useOptionalComponent(entity, LoopAnimationComponent)
     /**
      * Callback functions
      */
@@ -82,12 +86,18 @@ export const LoopAnimationComponent = defineComponent({
       const scene = modelComponent.scene.value
 
       if (!hasComponent(entity, AnimationComponent)) {
-        addComponent(entity, AnimationComponent, {
+        setComponent(entity, AnimationComponent, {
           mixer: new AnimationMixer(scene),
           animationSpeed: 1,
           animations: []
         })
       }
+    }, [modelComponent?.scene])
+
+    useEffect(() => {
+      if (!modelComponent?.scene?.value) return
+
+      const scene = modelComponent.scene.value
 
       const loopComponent = getComponent(entity, LoopAnimationComponent)
       const animationComponent = getComponent(entity, AnimationComponent)
@@ -99,7 +109,7 @@ export const LoopAnimationComponent = defineComponent({
 
       if (changedToAvatarAnimation) {
         if (!hasComponent(entity, AvatarAnimationComponent)) {
-          addComponent(entity, AvatarAnimationComponent, {
+          setComponent(entity, AvatarAnimationComponent, {
             animationGraph: {
               states: {},
               transitionRules: {},
@@ -123,7 +133,7 @@ export const LoopAnimationComponent = defineComponent({
       }
 
       if (!loopComponent.action?.paused) playAnimationClip(animationComponent, loopComponent)
-    }, [modelComponent?.scene])
+    }, [animComponent?.animations, loopAnimationComponent?.hasAvatarAnimations])
 
     return null
   }

@@ -89,20 +89,6 @@ export const RenderSettingsEditor: EditorComponentType = (props) => {
       name={t('editor:properties.renderSettings.name')}
       description={t('editor:properties.renderSettings.description')}
     >
-      {/* <InputGroup
-        name="LODs"
-        label={t('editor:properties.renderSettings.lbl-lods')}
-        info={t('editor:properties.renderSettings.info-lods')}
-      >
-        <Vector3Input
-          hideLabels
-          value={new Vector3(renderer.LODs['0'], renderer.LODs['1'], renderer.LODs['2'])}
-          smallStep={0.01}
-          mediumStep={0.1}
-          largeStep={1}
-          onChange={(val) => rendererState.LODs.set({ '0': val.x, '1': val.y, '2': val.z })}
-        />
-      </InputGroup> */}
       <InputGroup
         name="Use Cascading Shadow Maps"
         label={t('editor:properties.renderSettings.lbl-csm')}

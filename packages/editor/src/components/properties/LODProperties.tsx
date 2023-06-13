@@ -31,7 +31,7 @@ export const LODProperties: EditorComponentType = ({ entity }: { entity: Entity 
   const nameComponent = getComponent(entity, NameComponent)
 
   const onChangeLevelProperty = useCallback(
-    (level: State<LODLevel>, property: keyof LODLevel) => {
+    (level: State<any>, property: string) => {
       return (value) => {
         level[property].set(value)
       }
@@ -50,7 +50,8 @@ export const LODProperties: EditorComponentType = ({ entity }: { entity: Entity 
             options={[
               { value: 'DISTANCE', label: t('editor:properties.lod.heuristic-distance') },
               { value: 'SCENE_SCALE', label: t('editor:properties.lod.heuristic-sceneScale') },
-              { value: 'MANUAL', label: t('editor:properties.lod.heuristic-manual') }
+              { value: 'MANUAL', label: t('editor:properties.lod.heuristic-manual') },
+              { value: 'DEVICE', label: t('editor:properties.lod.heuristic-device') }
             ]}
           />
         </InputGroup>
@@ -60,6 +61,7 @@ export const LODProperties: EditorComponentType = ({ entity }: { entity: Entity 
               distance: 0,
               src: '',
               loaded: false,
+              metadata: {},
               model: null
             })
           }
@@ -79,6 +81,20 @@ export const LODProperties: EditorComponentType = ({ entity }: { entity: Entity 
                   <InputGroup name="src" label={t('editor:properties.lod.src')}>
                     <ModelInput value={level.src.value} onChange={onChangeLevelProperty(level, 'src')} />
                   </InputGroup>
+                  {lodComponent.lodHeuristic.value === 'DEVICE' && (
+                    <>
+                      <InputGroup name="device" label={t('editor:properties.lod.device')}>
+                        <SelectInput
+                          value={level.metadata['device'].value}
+                          onChange={onChangeLevelProperty(level.metadata, 'device')}
+                          options={[
+                            { value: 'MOBILE', label: t('editor:properties.lod.device-mobile') },
+                            { value: 'DESKTOP', label: t('editor:properties.lod.device-desktop') }
+                          ]}
+                        />
+                      </InputGroup>
+                    </>
+                  )}
                 </div>
                 <div className="flex justify-end">
                   <Button

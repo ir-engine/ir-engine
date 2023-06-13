@@ -12,7 +12,6 @@ import {
   NormalMapArgs,
   RoughhnessMapArgs
 } from '../BasicArgs'
-import { ColorArg, FloatArg, NormalizedFloatArg, TextureArg } from '../DefaultArgs'
 
 export const DefaultArgs = {
   ...BasicArgs,

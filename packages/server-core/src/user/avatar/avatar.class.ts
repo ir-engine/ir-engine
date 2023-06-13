@@ -37,9 +37,12 @@ export class Avatar extends Service<AvatarInterface> {
     return avatar
   }
 
-  async find(params?: UserParams): Promise<AvatarInterface[] | Paginated<AvatarInterface>> {
+  async find(
+    params?: UserParams & { query?: { admin?: boolean } }
+  ): Promise<AvatarInterface[] | Paginated<AvatarInterface>> {
     let isAdmin = false
-    if (params && params.user && params.user.id) {
+    if (params && params.user && params.user.id && params.query?.admin) {
+      // todo do we want to use globalAvatars:read/write intead here?
       isAdmin = await checkScope(params?.user, this.app, 'admin', 'admin')
     }
 

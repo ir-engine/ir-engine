@@ -115,6 +115,12 @@ function RouterComp() {
             path={'/*'}
             element={<$custom customRoutes={customRoutes.filter((c) => c.route !== '/admin')} />}
           />
+          {/**hack to work around overriding default route */}
+          {customRoutes
+            .filter((c) => c.route === '/')
+            .map(({ component: Element, props }) => (
+              <Route key={'custom-index'} path={'/'} element={<Element {...props} />} />
+            ))}
           <Route key={'offline'} path={'/offline/*'} element={<$offline />} />
           {/* default to allowing admin access regardless */}
           <Route key={'default-studio'} path={'/studio/*'} element={<$studio />} />

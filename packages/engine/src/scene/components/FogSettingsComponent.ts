@@ -17,7 +17,7 @@ export const FogSettingsComponent = defineComponent({
   onSet: (entity, component, json) => {
     if (!json) return
 
-    if (typeof json.type === 'number') component.type.set(json.type)
+    if (typeof json.type === 'string') component.type.set(json.type)
     if (typeof json.color === 'string') component.color.set(json.color)
     if (typeof json.density === 'number') component.density.set(json.density)
     if (typeof json.near === 'number') component.near.set(json.near)

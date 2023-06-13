@@ -50,9 +50,10 @@ export async function seed(knex: Knex): Promise<void> {
     // Inserts seed entries
     await knex(routePath).insert(seedData)
   } else {
-    for (const item of seedData) {
-      const existingData = await knex(routePath).where('project', item.project).andWhere('route', item.route)
-      if (existingData.length === 0) {
+    const existingData = await knex(routePath).count({ count: '*' })
+
+    if (existingData.length === 0 || existingData[0].count === 0) {
+      for (const item of seedData) {
         await knex(routePath).insert(item)
       }
     }

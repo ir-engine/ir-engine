@@ -8,7 +8,8 @@ import {
   defineComponent,
   getComponent,
   getMutableComponent,
-  getOptionalComponentState,
+  getOptionalComponent,
+  hasComponent,
   setComponent,
   useComponent
 } from '../../ecs/functions/ComponentFunctions'
@@ -24,7 +25,8 @@ export const InputSourceComponent = defineComponent({
     return {
       source: null! as XRInputSource,
       buttons: {} as Readonly<ButtonInputStateType>,
-      assignedEntity: UndefinedEntity as Entity
+      assignedEntity: UndefinedEntity as Entity,
+      captured: false
     }
   },
 
@@ -36,27 +38,55 @@ export const InputSourceComponent = defineComponent({
     setComponent(entity, XRSpaceComponent, source.targetRaySpace)
   },
 
-  entitiesByInputSource: new WeakMap<XRInputSource>()
+  entitiesByInputSource: new WeakMap<XRInputSource>(),
 
-  // reactor: () => {
-  //   const entity = useEntityContext()
-  //   const inputSource = useComponent(entity, InputSourceComponent)
-  //   const assignedEntity = inputSource.assignedEntity
-  //   return <InputSourceAssignmentReactor key={assignedEntity.value} assignedEntity={assignedEntity} />
-  // }
+  capture: (sourceEntity: Entity, targetEntity?: Entity) => {
+    if (!hasComponent(sourceEntity, InputSourceComponent))
+      throw new Error('InputSourceComponent not found for entity ' + sourceEntity)
+
+    const inputSourceComponent = getMutableComponent(sourceEntity, InputSourceComponent)
+    if (targetEntity) inputSourceComponent.assignedEntity.set(targetEntity)
+    inputSourceComponent.captured.set(true)
+  },
+
+  release: (sourceEntity: Entity) => {
+    const inputSourceComponent = getMutableComponent(sourceEntity, InputSourceComponent)
+    inputSourceComponent.captured.set(false)
+  },
+
+  isAssigned: (targetEntity: Entity) => {
+    const sourceEntities = getOptionalComponent(targetEntity, InputComponent)?.inputSources
+    return !!sourceEntities?.find((sourceEntity) => {
+      const inputSourceComponent = getComponent(sourceEntity, InputSourceComponent)
+      return inputSourceComponent.assignedEntity === targetEntity
+    })
+  },
+
+  reactor: () => {
+    const entity = useEntityContext()
+    const inputSource = useComponent(entity, InputSourceComponent)
+    const assignedEntity = inputSource.assignedEntity
+    return <InputSourceAssignmentReactor key={assignedEntity.value} assignedEntity={assignedEntity} />
+  }
 })
 
-// const InputSourceAssignmentReactor = (props: { assignedEntity: State<Entity> }) => {
-//   const assignedInputEntity = useHookstate(props.assignedEntity)
-//   const inputSink = useComponent(assignedInputEntity.value, InputComponent)
+/**
+ *
+ * @param props
+ * @returns
+ */
+const InputSourceAssignmentReactor = (props: { assignedEntity: State<Entity> }) => {
+  const assignedInputEntity = useHookstate(props.assignedEntity)
+  const inputSink = useComponent(assignedInputEntity.value, InputComponent)
 
-//   useLayoutEffect(() => {
-//     inputSink.inputSources.merge([assignedInputEntity.value])
-//     return () => {
-//       const idx = inputSink.inputSources.keys.indexOf(assignedInputEntity.value)
-//       idx > -1 && inputSink.inputSources[idx].set(none)
-//     }
-//   }, [inputSink, assignedInputEntity])
+  useLayoutEffect(() => {
+    inputSink.inputSources.merge([assignedInputEntity.value])
+    const assignedInputEntityValue = assignedInputEntity.value
+    return () => {
+      const idx = inputSink.inputSources.keys.indexOf(assignedInputEntityValue)
+      idx > -1 && inputSink.inputSources[idx].set(none)
+    }
+  }, [assignedInputEntity])
 
-//   return null
-// }
+  return null
+}

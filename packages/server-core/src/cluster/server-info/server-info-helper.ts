@@ -95,9 +95,7 @@ export const removePod = async (app: Application, podName: string): Promise<Serv
     const k8DefaultClient = getState(ServerState).k8DefaultClient
     if (k8DefaultClient) {
       const podsResponse = await k8DefaultClient.deleteNamespacedPod(podName, 'default')
-      const pod = getServerPodInfo(podsResponse.body)
-
-      return pod
+      return getServerPodInfo(podsResponse.body)
     }
   } catch (e) {
     logger.error(e)

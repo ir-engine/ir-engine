@@ -12,12 +12,14 @@ import Rig from './rig/rig.service'
 import Script from './script/script.service'
 import SerializedEntity from './serialized-entity/serialized-entity.service'
 import StaticResourceType from './static-resource-type/static-resource-type.service'
+import StaticResourceVariant from './static-resource-variant/static-resource-variant.service'
 import StaticResource from './static-resource/static-resource.service'
 import Upload from './upload-asset/upload-asset.service'
 import Video from './video/video.service'
 import Volumetric from './volumetric/volumetric.service'
 
 export default [
+  StaticResourceVariant,
   StaticResourceType,
   StaticResource,
   Animation,

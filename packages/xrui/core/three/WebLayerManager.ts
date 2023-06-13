@@ -41,6 +41,7 @@ export class WebLayerManager extends WebLayerManagerBase {
   ktx2Loader = new KTX2Loader()
 
   texturesByHash = new Map<string, ThreeTextureData>()
+  // texturesByCharacter = new Map<number, ThreeTextureData>()
   layersByElement = new WeakMap<Element, WebLayer3D>()
   layersByMesh = new WeakMap<THREE.Mesh, WebLayer3D>()
 

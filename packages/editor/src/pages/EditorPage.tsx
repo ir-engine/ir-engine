@@ -12,12 +12,12 @@ import {
   SimulationSystemGroup
 } from '@etherealengine/engine/src/ecs/functions/EngineFunctions'
 import { startSystems } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
+import { RenderInfoSystem } from '@etherealengine/engine/src/renderer/RenderInfoSystem'
 import { dispatchAction, getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import { loadEngineInjection } from '@etherealengine/projects/loadEngineInjection'
 
 import EditorContainer from '../components/EditorContainer'
 import { EditorInstanceNetworkingSystem } from '../components/realtime/EditorInstanceNetworkingSystem'
-import { RenderInfoSystem } from '../components/toolbar/tools/StatsTool'
 import { EditorAction, EditorState } from '../services/EditorServices'
 import { registerEditorReceptors, unregisterEditorReceptors } from '../services/EditorServicesReceptor'
 import { EditorCameraSystem } from '../systems/EditorCameraSystem'

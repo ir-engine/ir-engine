@@ -1,38 +1,18 @@
-import { NullableId, Paginated, Params } from '@feathersjs/feathers'
-import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
+import type { Params } from '@feathersjs/feathers'
+import { KnexService } from '@feathersjs/knex'
+import type { KnexAdapterParams } from '@feathersjs/knex'
 
-import { ServerSetting as ServerSettingInterface } from '@etherealengine/common/src/interfaces/ServerSetting'
+import {
+  ServerSettingData,
+  ServerSettingPatch,
+  ServerSettingQuery,
+  ServerSettingType
+} from '@etherealengine/engine/src/schemas/setting/server-setting.schema'
 
-import { Application } from '../../../declarations'
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+export interface ServerSettingParams extends KnexAdapterParams<ServerSettingQuery> {}
 
-export type ServerSettingDataType = ServerSettingInterface
-
-export class ServerSetting<T = ServerSettingDataType> extends Service<T> {
-  app: Application
-
-  constructor(options: Partial<SequelizeServiceOptions>, app: Application) {
-    super(options)
-    this.app = app
-  }
-
-  async find(): Promise<T[] | Paginated<T>> {
-    const serverSetting = (await super.find()) as any
-    const data = serverSetting.data.map((el) => {
-      let hub = JSON.parse(el.hub)
-
-      if (typeof hub === 'string') hub = JSON.parse(hub)
-
-      return {
-        ...el,
-        hub: hub
-      }
-    })
-
-    return {
-      total: serverSetting.total,
-      limit: serverSetting.limit,
-      skip: serverSetting.skip,
-      data
-    }
-  }
-}
+export class ServerSettingService<
+  T = ServerSettingType,
+  ServiceParams extends Params = ServerSettingParams
+> extends KnexService<ServerSettingType, ServerSettingData, ServerSettingParams, ServerSettingPatch> {}

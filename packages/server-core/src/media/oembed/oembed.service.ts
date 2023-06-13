@@ -4,8 +4,8 @@ import { Paginated } from '@feathersjs/feathers/lib'
 
 import { ClientSetting } from '@etherealengine/common/src/interfaces/ClientSetting'
 import { OEmbed } from '@etherealengine/common/src/interfaces/OEmbed'
-import { ServerSetting } from '@etherealengine/common/src/interfaces/ServerSetting'
 import { routePath } from '@etherealengine/engine/src/schemas/route/route.schema'
+import { serverSettingPath, ServerSettingType } from '@etherealengine/engine/src/schemas/setting/server-setting.schema'
 
 import { Application } from '../../../declarations'
 import { getProjectConfig, onProjectEvent } from '../../projects/project/project-helper'
@@ -24,7 +24,7 @@ export default (app: Application): void => {
       if (!queryURL) return new BadRequest('Must provide a valid URL for OEmbed')
 
       const url = new URL(queryURL)
-      const serverSettingsResult = (await app.service('server-setting').find()) as Paginated<ServerSetting>
+      const serverSettingsResult = (await app.service(serverSettingPath).find()) as Paginated<ServerSettingType>
       const clientSettingsResult = (await app.service('client-setting').find()) as Paginated<ClientSetting>
 
       if (serverSettingsResult.total > 0 && clientSettingsResult.total > 0) {

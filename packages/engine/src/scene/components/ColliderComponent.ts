@@ -2,12 +2,17 @@ import { ColliderDesc, RigidBodyDesc, RigidBodyType, ShapeType } from '@dimforge
 import { useEffect } from 'react'
 import { Quaternion, Vector3 } from 'three'
 
+import { getState } from '@etherealengine/hyperflux'
+
 import { Engine } from '../../ecs/classes/Engine'
+import { EngineState } from '../../ecs/classes/EngineState'
 import {
   defineComponent,
   getComponent,
   getOptionalComponent,
   hasComponent,
+  removeComponent,
+  setComponent,
   useComponent,
   useOptionalComponent
 } from '../../ecs/functions/ComponentFunctions'
@@ -19,6 +24,8 @@ import { TransformComponent } from '../../transform/components/TransformComponen
 import { computeTransformMatrix, updateGroupChildren } from '../../transform/systems/TransformSystem'
 import { GLTFLoadedComponent } from './GLTFLoadedComponent'
 import { GroupComponent } from './GroupComponent'
+import { SceneAssetPendingTagComponent } from './SceneAssetPendingTagComponent'
+import { SceneObjectComponent } from './SceneObjectComponent'
 
 export const ColliderComponent = defineComponent({
   name: 'ColliderComponent',
@@ -71,6 +78,12 @@ export const ColliderComponent = defineComponent({
     if (typeof json.onEnter === 'string') component.onEnter.set(json.onEnter)
     if (typeof json.onExit === 'string') component.onExit.set(json.onExit)
     if (typeof json.target === 'string') component.target.set(json.target)
+
+    /**
+     * Add SceneAssetPendingTagComponent to tell scene loading system we should wait for this asset to load
+     */
+    if (!getState(EngineState).sceneLoaded && hasComponent(entity, SceneObjectComponent))
+      setComponent(entity, SceneAssetPendingTagComponent)
   },
 
   onRemove(entity, component) {},
@@ -112,8 +125,9 @@ export const ColliderComponent = defineComponent({
     const isLoadedFromGLTF = useOptionalComponent(entity, GLTFLoadedComponent)
     const groupComponent = useOptionalComponent(entity, GroupComponent)
 
-    const isMeshCollider = [ShapeType.TriMesh, ShapeType.ConvexPolyhedron].includes(colliderComponent.shapeType.value)
     useEffect(() => {
+      const isMeshCollider = [ShapeType.TriMesh, ShapeType.ConvexPolyhedron].includes(colliderComponent.shapeType.value)
+
       if (isLoadedFromGLTF?.value || isMeshCollider) {
         const colliderComponent = getComponent(entity, ColliderComponent)
 
@@ -208,6 +222,8 @@ export const ColliderComponent = defineComponent({
         rigidbody.body.setRotation(transformComponent.rotation.value, true)
         rigidbody.scale.copy(transformComponent.scale.value)
       }
+
+      if (hasComponent(entity, SceneAssetPendingTagComponent)) removeComponent(entity, SceneAssetPendingTagComponent)
     }, [isLoadedFromGLTF, transformComponent, colliderComponent, groupComponent?.length])
 
     return null

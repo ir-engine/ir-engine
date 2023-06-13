@@ -83,6 +83,7 @@ export const EnvMapArgs = {
     ]
   },
   envMap: TextureArg,
+  envMapIntensity: { ...FloatArg, default: 1.0 },
   reflectivity: FloatArg,
   refractionRatio: { ...FloatArg, default: 0.98 }
 }

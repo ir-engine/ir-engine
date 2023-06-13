@@ -4,6 +4,7 @@ import matches, { Validator } from 'ts-matches'
 import { defineAction, defineState, getMutableState, getState, StateDefinition } from '@etherealengine/hyperflux'
 
 import { MaterialComponentType } from './components/MaterialComponent'
+import { MaterialPluginType } from './components/MaterialPluginComponent'
 import { MaterialPrototypeComponentType } from './components/MaterialPrototypeComponent'
 import { MaterialSource, MaterialSourceComponentType } from './components/MaterialSource'
 import MeshBasicMaterial from './constants/material-prototypes/MeshBasicMaterial.mat'
@@ -15,11 +16,15 @@ import MeshStandardMaterial from './constants/material-prototypes/MeshStandardMa
 import MeshToonMaterial from './constants/material-prototypes/MeshToonMaterial.mat'
 import { ShaderMaterial } from './constants/material-prototypes/ShaderMaterial.mat'
 import { ShadowMaterial } from './constants/material-prototypes/ShadowMaterial.mat'
+import { NoiseOffsetPlugin } from './constants/plugins/NoiseOffsetPlugin'
+import { VegetationPlugin } from './constants/plugins/VegetationPlugin'
 import { registerMaterialPrototype } from './functions/MaterialLibraryFunctions'
+import { registerMaterialPlugin } from './functions/MaterialPluginFunctions'
 
 export type MaterialLibraryType = {
   prototypes: Record<string, MaterialPrototypeComponentType>
   materials: Record<string, MaterialComponentType>
+  plugins: Record<string, MaterialPluginType>
   sources: Record<string, MaterialSourceComponentType>
   initialized: boolean
 }
@@ -29,30 +34,15 @@ export const MaterialLibraryState: StateDefinition<MaterialLibraryType> = define
   initial: {
     prototypes: {},
     materials: {},
+    plugins: {},
     sources: {},
     initialized: false
   } as MaterialLibraryType
 })
 
-export const MaterialLibraryActions = {
-  RegisterMaterial: defineAction({
-    type: 'xre.assets.MaterialLibrary.REGISTER_MATERIAL',
-    material: matches.object as Validator<unknown, Material>,
-    src: matches.object as Validator<unknown, MaterialSource>
-  }),
-  RegisterPrototype: defineAction({
-    type: 'xre.assets.MaterialLibrary.REGISTER_PROTOTYPE',
-    $prototype: matches.object as Validator<unknown, MaterialPrototypeComponentType>
-  }),
-  RemoveSource: defineAction({
-    type: 'xre.assets.MaterialLibrary.REMOVE_SOURCE',
-    src: matches.object as Validator<unknown, MaterialSource>
-  })
-}
-
 export function initializeMaterialLibrary() {
-  //load default prototypes from source
   const materialLibrary = getState(MaterialLibraryState)
+  //load default prototypes from source
   if (!materialLibrary.initialized) {
     ;[
       MeshBasicMaterial,
@@ -65,6 +55,9 @@ export function initializeMaterialLibrary() {
       ShaderMaterial,
       ShadowMaterial
     ].map(registerMaterialPrototype)
+
+    //load default plugins from source
+    ;[NoiseOffsetPlugin, VegetationPlugin].map(registerMaterialPlugin)
     getMutableState(MaterialLibraryState).initialized.set(true)
   }
 }

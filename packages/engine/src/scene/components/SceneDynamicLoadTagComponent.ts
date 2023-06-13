@@ -6,9 +6,7 @@ export const SceneDynamicLoadTagComponent = defineComponent({
 
   onInit(entity) {
     return {
-      distance: 20,
-      // runtime property
-      loaded: false
+      distance: 20
     }
   },
 
@@ -16,7 +14,6 @@ export const SceneDynamicLoadTagComponent = defineComponent({
     if (!json) return
 
     if (json.distance) component.distance.set(json.distance)
-    if (json.loaded) component.loaded.set(json.loaded)
   },
 
   toJSON: (entity, component) => {

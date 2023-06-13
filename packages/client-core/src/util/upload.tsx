@@ -7,8 +7,8 @@ import { FileBrowserAction } from '../common/services/FileBrowserService'
 import { AuthState } from '../user/services/AuthService'
 import { RethrownError } from './errors'
 
-export type CancelableUploadPromiseReturnType<T = any> = { cancel: () => void; promise: Promise<T[]> }
-export type CancelableUploadPromiseArrayReturnType<T = any> = { cancel: () => void; promises: Array<Promise<T[]>> }
+export type CancelableUploadPromiseReturnType<T = any> = { cancel: () => void; promise: Promise<T | T[]> }
+export type CancelableUploadPromiseArrayReturnType<T = any> = { cancel: () => void; promises: Array<Promise<T | T[]>> }
 
 /**
  * upload used to upload image as blob data.
@@ -22,7 +22,7 @@ export type CancelableUploadPromiseArrayReturnType<T = any> = { cancel: () => vo
 
 export const uploadToFeathersService = (
   service = 'upload-asset',
-  files: Array<Blob>,
+  files: Array<File>,
   params: any = {},
   onUploadProgress?: (progress: number) => any
 ): CancelableUploadPromiseReturnType => {

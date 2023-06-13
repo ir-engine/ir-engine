@@ -10,7 +10,7 @@ WORKDIR /app
 COPY packages/server/package.json ./packages/server/
 
 ARG NODE_ENV
-RUN npm install --loglevel notice --legacy-peer-deps
+RUN npm install --loglevel notice --legacy-peer-deps --production
 
 COPY . .
 
@@ -37,7 +37,7 @@ COPY packages/ui/package.json ./packages/ui/
 COPY patches/ ./patches/
 
 ARG NODE_ENV
-RUN npm install --loglevel notice --legacy-peer-deps
+RUN npm install --loglevel notice --legacy-peer-deps --production
 
 # copy then compile the code
 COPY . .
@@ -89,7 +89,7 @@ ENV VITE_DISABLE_LOG=$VITE_DISABLE_LOG
 
 RUN npm run build-client
 
-RUN if [ "$SERVE_CLIENT_FROM_STORAGE_PROVIDER" = "true" ] && [ "$STORAGE_PROVIDER" = "aws" ] ; then npm run push-client-dist-to-s3 ; fi
+RUN if [ "$SERVE_CLIENT_FROM_STORAGE_PROVIDER" = "true" ] && [ "$STORAGE_PROVIDER" = "s3" ] ; then npx cross-env ts-node --swc scripts/push-client-to-s3.ts ; fi
 
 RUN rm -r packages/client/public
 

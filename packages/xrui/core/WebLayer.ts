@@ -1,3 +1,6 @@
+import _ from 'lodash'
+import { string } from 'ts-matches'
+
 import { Bounds, Edges, traverseChildElements } from './dom-utils'
 import { WebLayerManagerBase } from './WebLayerManagerBase'
 import { WebRenderer } from './WebRenderer'
@@ -16,6 +19,12 @@ export class WebLayer {
     this.isVideoElement = element.nodeName === 'VIDEO'
     this.isMediaElement = this.isVideoElement || element.nodeName === 'IMG' || element.nodeName === 'CANVAS'
     this.eventCallback('layercreated', { target: element })
+    // const prerasterizedElement = element.getAttribute('xr-prerasterized')
+    // if (prerasterizedElement) {
+    //   const split = prerasterizedElement.split('-')
+    //   this.prerasterizedRange = _.range(parseInt(split[0]), parseInt(split[1]) + 1)
+    //   this.prerasterizeRange()
+    // }
   }
 
   desiredPseudoState = {
@@ -24,6 +33,37 @@ export class WebLayer {
     focus: false,
     target: false
   }
+
+  //Only supports digits right now
+  //TO DO: Add alphabetical range support, specific characters
+  // prerasterizedRange = [] as number[]
+  // prerasterizedImages: Map<string, string> = new Map()
+
+  // async prerasterizeRange() {
+  //   this.manager.prerasterized = true
+
+  //   const startTime = Date.now()
+
+  //   for (let i = 0; i < this.prerasterizedRange.length; i++) {
+  //     const e = this.element.cloneNode(true) as HTMLElement
+  //     e.textContent = this.prerasterizedRange[i].toString()
+  //     console.log(this.prerasterizedRange[i].toString())
+  //     const result = await this.manager.addToSerializeQueue(this, e)
+  //     if (typeof result.stateKey === 'string' && result.svgUrl) {
+  //       this.manager.addToRasterizeQueue(result.stateKey, result.svgUrl, this, this.prerasterizedRange[i].toString())
+  //       console.log(Date.now() - startTime)
+  //       //serialize a new element with text value set to a value from the range
+  //       //pass serialized in to rasterization queue
+  //       //then await it to be rasterized
+  //       //when it is finished add the url to the images map
+  //     }
+  //   }
+
+  //   this.manager.prerasterized = false
+
+  //   console.log('image pushed, time spent:', Date.now() - startTime)
+  //   console.log(this.prerasterizedImages)
+  // }
 
   needsRefresh = true
 
@@ -143,8 +183,10 @@ export class WebLayer {
   async refresh() {
     this.needsRefresh = false
     this._updateParentAndChildLayers()
+    // if (this.element.hasAttribute('xr-prerasterized')) return
 
     const result = await this.manager.addToSerializeQueue(this)
+
     if (result.needsRasterize && typeof result.stateKey === 'string' && result.svgUrl)
       await this.manager.addToRasterizeQueue(result.stateKey, result.svgUrl)
   }

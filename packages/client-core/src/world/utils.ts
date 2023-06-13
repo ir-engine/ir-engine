@@ -28,10 +28,11 @@ const parseSceneDataCacheURLsLocal = (projectName: string, sceneData: any) => {
 export const loadSceneJsonOffline = async (projectName, sceneName) => {
   const locationName = `${projectName}/${sceneName}`
   const sceneData = (await (await fetch(`${fileServer}/projects/${locationName}.scene.json`)).json()) as SceneJson
+  const hasKTX2 = await fetch(`${fileServer}/projects/${locationName}.thumbnail.ktx2`).then((res) => res.ok)
   getMutableState(SceneState).sceneData.set({
     scene: parseSceneDataCacheURLsLocal(projectName, sceneData),
     name: sceneName,
-    thumbnailUrl: `${fileServer}/projects/${locationName}.thumbnail.ktx2`,
+    thumbnailUrl: `${fileServer}/projects/${locationName}.thumbnail.${hasKTX2 ? 'ktx2' : 'jpeg'}`,
     project: projectName
   })
 }

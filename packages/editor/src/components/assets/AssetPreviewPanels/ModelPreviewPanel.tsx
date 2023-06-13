@@ -45,7 +45,7 @@ export const ModelPreviewPanel = (props) => {
     return () => {
       const sceneVal = scene.value
       const avatar = sceneVal.children.find((child) => child.name === 'avatar')
-      if (avatar) {
+      if (avatar?.userData['src']) {
         removeMaterialSource({ type: SourceType.MODEL, path: avatar.userData['src'] })
       }
     }

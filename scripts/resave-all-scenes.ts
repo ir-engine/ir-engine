@@ -33,7 +33,7 @@ import { getMutableState, getState } from '@etherealengine/hyperflux'
 require('fix-esm').register()
 
 /**
- * USAGE: `npm run resave-all-scenes -- --write`
+ * USAGE: `npx ts-node --swc scripts/resave-all-scenes.ts --write`
  */
 
 createDOM()
