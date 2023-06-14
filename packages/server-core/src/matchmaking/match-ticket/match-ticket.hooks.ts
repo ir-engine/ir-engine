@@ -35,14 +35,17 @@ export default {
   },
 
   before: {
-    all: [schemaHooks.validateQuery(matchTicketQueryValidator), schemaHooks.resolveQuery(matchTicketQueryResolver)],
+    all: [
+      () => schemaHooks.validateQuery(matchTicketQueryValidator),
+      schemaHooks.resolveQuery(matchTicketQueryResolver)
+    ],
     find: [],
     get: [iff(isProvider('external'), authenticate() as any, setLoggedInUser('userId') as any)],
     create: [
       iff(isProvider('external'), authenticate() as any, setLoggedInUser('userId') as any),
       matchmakingRestrictMultipleQueueing(),
       // addUUID(),
-      schemaHooks.validateData(matchTicketDataValidator),
+      () => schemaHooks.validateData(matchTicketDataValidator),
       schemaHooks.resolveData(matchTicketDataResolver)
     ],
     update: [disallow()],

@@ -2,6 +2,7 @@ import { Forbidden } from '@feathersjs/errors'
 import { HookContext } from '@feathersjs/feathers'
 import { disallow, iff, isProvider } from 'feathers-hooks-common'
 
+import { clientSettingPath } from '@etherealengine/engine/src/schemas/setting/client-setting.schema'
 import attachOwnerId from '@etherealengine/server-core/src/hooks/set-loggedin-user-in-body'
 import attachOwnerIdInQuery from '@etherealengine/server-core/src/hooks/set-loggedin-user-in-query'
 
@@ -20,7 +21,7 @@ const ensureUserSettingsOwner = () => {
 const ensureUserThemeModes = () => {
   return async (context: HookContext): Promise<HookContext> => {
     const { app, result } = context
-    const clientSetting = await app.service('client-setting').find()
+    const clientSetting = await app.service(clientSettingPath).find()
     if (clientSetting && clientSetting.data.length > 0) {
       result.themeModes = clientSetting.data[0].themeModes
       await app.service('user-settings').patch(result.id, result)

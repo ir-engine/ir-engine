@@ -35,18 +35,18 @@ export default {
   before: {
     all: [
       authenticate(),
-      schemaHooks.validateQuery(matchUserQueryValidator),
+      () => schemaHooks.validateQuery(matchUserQueryValidator),
       schemaHooks.resolveQuery(matchUserQueryResolver)
     ],
     find: [iff(isProvider('external'), authenticate() as any, setLoggedInUserInQuery('userId') as any)],
     get: [],
     create: [
       iff(isProvider('external'), authenticate() as any, setLoggedInUser('userId') as any),
-      schemaHooks.validateData(matchUserDataValidator),
+      () => schemaHooks.validateData(matchUserDataValidator),
       schemaHooks.resolveData(matchUserDataResolver)
     ],
     update: [],
-    patch: [schemaHooks.validateData(matchUserPatchValidator), schemaHooks.resolveData(matchUserPatchResolver)],
+    patch: [() => schemaHooks.validateData(matchUserPatchValidator), schemaHooks.resolveData(matchUserPatchResolver)],
     remove: []
   },
 

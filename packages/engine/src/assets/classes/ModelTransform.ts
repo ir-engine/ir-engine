@@ -75,7 +75,7 @@ export type ResourceTransforms = {
 export type ModelTransformParameters = ExtractedImageTransformParameters & {
   dst: string
   resourceUri: string
-
+  instance: boolean
   dedup: boolean
   prune: boolean
   reorder: boolean
@@ -97,6 +97,7 @@ export const DefaultModelTransformParameters: ModelTransformParameters = {
   dst: '',
   resourceUri: '',
   modelFormat: 'gltf',
+  instance: true,
   dedup: true,
   prune: true,
   reorder: true,

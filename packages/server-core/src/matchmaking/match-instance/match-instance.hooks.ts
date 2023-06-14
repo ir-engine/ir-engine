@@ -33,18 +33,21 @@ export default {
   },
 
   before: {
-    all: [schemaHooks.validateQuery(matchInstanceQueryValidator), schemaHooks.resolveQuery(matchInstanceQueryResolver)],
+    all: [
+      () => schemaHooks.validateQuery(matchInstanceQueryValidator),
+      schemaHooks.resolveQuery(matchInstanceQueryResolver)
+    ],
     find: [],
     get: [iff(isProvider('external'), authenticate() as any, setLoggedInUser('userId'))],
     create: [
       iff(isProvider('external'), disallow()),
-      schemaHooks.validateData(matchInstanceDataValidator),
+      () => schemaHooks.validateData(matchInstanceDataValidator),
       schemaHooks.resolveData(matchInstanceDataResolver)
     ],
     update: [disallow()],
     patch: [
       iff(isProvider('external'), disallow()),
-      schemaHooks.validateData(matchInstancePatchValidator),
+      () => schemaHooks.validateData(matchInstancePatchValidator),
       schemaHooks.resolveData(matchInstancePatchResolver)
     ],
     remove: [iff(isProvider('external'), disallow())]

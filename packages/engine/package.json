@@ -13,7 +13,7 @@
   },
   "description": "A declarative way to build 3D/VR/AR/XR apps that scale. Built with tooling web developers will love, using conventions that game developers and creative coders will find straightforward familiar.",
   "homepage": "https://github.com/etherealengine/etherealengine#readme",
-  "license": "MIT",
+  "license": "CPAL",
   "main": "lib/engine.umd.js",
   "module": "lib/engine.es.js",
   "types": "lib/index.d.ts",
