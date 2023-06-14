@@ -24,7 +24,7 @@ import {
  * Storage provide class to communicate with Local http file server.
  */
 export class LocalStorage implements StorageProviderInterface {
-  private _storageDir = 'server/upload'
+  private _storageDir = config.testEnabled ? 'server/upload_test' : 'server/upload'
   private _store: typeof fsStore
 
   /**

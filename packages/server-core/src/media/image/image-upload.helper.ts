@@ -11,7 +11,7 @@ import { KTX2Loader } from '@etherealengine/engine/src/assets/loaders/gltf/KTX2L
 import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
 import { getResourceFiles } from '../static-resource/static-resource-helper'
-import { addGenericAssetToS3AndStaticResources, UploadAssetArgs } from '../upload-asset/upload-asset.service'
+import { addAssetAsStaticResource, UploadAssetArgs } from '../upload-asset/upload-asset.service'
 
 export const imageUpload = async (app: Application, data: UploadAssetArgs) => {
   try {
@@ -94,9 +94,9 @@ export const imageUpload = async (app: Application, data: UploadAssetArgs) => {
     })
     if (!existingResource) {
       const key = `static-resources/image/${newImage.id}`
-      existingResource = await addGenericAssetToS3AndStaticResources(app, files, extension, {
+      existingResource = await addAssetAsStaticResource(app, files, {
         hash: hash,
-        key: key,
+        path: key,
         staticResourceType: 'image',
         stats: {
           ...imageDimensions,

@@ -13,7 +13,7 @@ export type AvatarUploadType = {
 
 export type AdminAssetUploadArgumentsType = {
   id?: string
-  key: string
+  path: string
   staticResourceType?: string
   userId?: string
   name?: string
@@ -24,27 +24,14 @@ export type AdminAssetUploadArgumentsType = {
 
 export type AdminAssetUploadType = {
   type: 'admin-file-upload'
+  project: string
   files: Blob[]
   args: AdminAssetUploadArgumentsType
   variants: boolean
   userId?: string
 }
 
-export type AudioUploadType = {
-  type: 'audio-upload'
-  files: (Blob | Buffer)[]
-  args: AudioUploadArgumentsType
-}
-
-export type AudioUploadArgumentsType = {
-  id?: string
-  key: string
-  staticResourceType?: string
-  userId?: string
-  name?: string
-}
-
-export type AssetUploadType = AvatarUploadType | AdminAssetUploadType | AudioUploadType
+export type AssetUploadType = AvatarUploadType | AdminAssetUploadType
 
 export interface UploadFile {
   fieldname?: string

@@ -6,7 +6,7 @@ import { Op } from 'sequelize'
 import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
 import { getResourceFiles } from '../static-resource/static-resource-helper'
-import { addGenericAssetToS3AndStaticResources, UploadAssetArgs } from '../upload-asset/upload-asset.service'
+import { addAssetAsStaticResource, UploadAssetArgs } from '../upload-asset/upload-asset.service'
 
 export const modelUpload = async (app: Application, data: UploadAssetArgs) => {
   try {
@@ -86,9 +86,9 @@ export const modelUpload = async (app: Application, data: UploadAssetArgs) => {
       const newModel = await app.service('model').create({})
       if (!existingResource) {
         const key = `static-resources/model/${newModel.id}`
-        existingResource = await addGenericAssetToS3AndStaticResources(app, files, extension, {
+        existingResource = await addAssetAsStaticResource(app, files, {
           hash: hash,
-          key: key,
+          path: key,
           staticResourceType: 'model3d',
           stats: {
             size: contentLength

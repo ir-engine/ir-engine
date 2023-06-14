@@ -51,8 +51,9 @@ export interface ResourcePatchCreateInterface {
   userId?: string
 }
 
-const uploadVariant = async (file: Buffer, mimeType: string, key: string, storageProviderName?: string) => {
-  const provider = getStorageProvider(storageProviderName)
+const uploadVariant = async (file: Buffer, mimeType: string, key: string) => {
+  console.log('uploadVariant', file, mimeType, key)
+  const provider = getStorageProvider()
   try {
     await provider.createInvalidation([key])
   } catch (e) {
@@ -72,6 +73,7 @@ const uploadVariant = async (file: Buffer, mimeType: string, key: string, storag
 }
 
 export type UploadAssetArgs = {
+  project: string
   name?: string
   files?: Array<UploadFile>
   url?: string
@@ -106,22 +108,24 @@ const uploadAssets = (app: Application) => async (data: AssetUploadType, params:
   } else if (data.type === 'admin-file-upload') {
     if (!(await verifyScope('admin', 'admin')({ app, params } as any))) return
 
-    if (!data.args.staticResourceType) return
+    if (!data.args.staticResourceType || !data.args.project) return
 
     if (!files || files.length === 0) throw new Error('No files to upload')
 
     if (data.variants) {
       return uploadAsset(app, data.args.staticResourceType!, {
-        name: data.args.key,
-        files: files
+        name: data.args.path,
+        files: files,
+        project: data.args.project
       })
     }
 
     return Promise.all(
       files.map((file, i) =>
         uploadAsset(app, data.args.staticResourceType!, {
-          name: data.args.key.split('.')[0],
-          files: [file]
+          name: data.args.path.split('.')[0],
+          files: [file],
+          project: data.args.project!
         })
       )
     )
@@ -135,32 +139,36 @@ export const createStaticResourceHash = (file: Buffer | string, props: { name?: 
     .digest('hex')
 }
 
-export const addGenericAssetToS3AndStaticResources = async (
+/**
+ * Uploads a file to the storage provider and adds a "static-resource" entry
+ * - if a main file is a buffer, upload it and all variants to storage provider and create a new static resource entry
+ * - if the asset is coming from an external URL, create a new static resource entry
+ * - if the asset is already in the static resource table, update the entry with the new file
+ */
+
+export const addAssetAsStaticResource = async (
   app: Application,
   files: UploadFile[],
-  extension: string,
-  args: AdminAssetUploadArgumentsType,
-  storageProviderName?: string
+  args: AdminAssetUploadArgumentsType
 ): Promise<StaticResourceInterface> => {
-  const provider = getStorageProvider(storageProviderName)
+  console.log('addAssetAsStaticResource', files, args)
+  const provider = getStorageProvider()
   // make userId optional and safe for feathers create
-  const key = processFileName(args.key)
+  const primaryKey = processFileName(path.join(args.path, files[0].originalname))
   const whereArgs = {
-    [Op.or]: [{ key: path.join(key, files[0].originalname) }, { id: args.id ?? '' }]
+    [Op.or]: [{ key: primaryKey }, { id: args.id ?? '' }]
   } as any
   if (args.project) whereArgs.project = args.project
   const existingAsset = (await app.service('static-resource').Model.findOne({
     where: whereArgs
   })) as StaticResourceInterface
 
-  const mimeType = CommonKnownContentTypes[extension] as string
-
-  const assetURL = getCachedURL(path.join(key, files[0].originalname), provider.cacheDomain)
+  const assetURL = getCachedURL(primaryKey, provider.cacheDomain)
   const hash = args.hash || createStaticResourceHash(files[0].buffer, { name: args.name, assetURL })
   const body = {
     hash,
-    key,
-    mimeType,
+    key: primaryKey,
+    mimeType: files[0].mimetype,
     staticResourceType: args.staticResourceType,
     project: args.project
   } as ResourcePatchCreateInterface
@@ -169,7 +177,7 @@ export const addGenericAssetToS3AndStaticResources = async (
   // upload asset to storage provider
   for (let i = 0; i < files.length; i++) {
     const file = files[i]
-    const useKey = path.join(key, file.originalname)
+    const useKey = path.join(args.path, file.originalname)
     variants.push({
       url: getCachedURL(useKey, provider.cacheDomain),
       metadata: { size: file.size }
@@ -178,7 +186,7 @@ export const addGenericAssetToS3AndStaticResources = async (
       body.url = variants[0].url
     }
     if (typeof file.buffer !== 'string') {
-      promises.push(uploadVariant(file.buffer, mimeType, useKey, storageProviderName))
+      promises.push(uploadVariant(file.buffer, file.mimetype, useKey))
     }
   }
   await Promise.all(promises)

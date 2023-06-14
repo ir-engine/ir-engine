@@ -18,7 +18,7 @@ export default (app: Application): void => {
 
     const sequelize = new Sequelize({
       ...(appConfig.db as any),
-      logging: forceRefresh ? logger.info.bind(logger) : false,
+      logging: false, //forceRefresh ? logger.info.bind(logger) : false,
       define: {
         freezeTableName: true,
         collate: 'utf8mb4_general_ci'

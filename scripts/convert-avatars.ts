@@ -6,7 +6,7 @@ import fetch from 'node-fetch'
 import Sequelize, { DataTypes, Op } from 'sequelize'
 
 import { createFeathersKoaApp } from '@etherealengine/server-core/src/createApp'
-import { addGenericAssetToS3AndStaticResources } from '@etherealengine/server-core/src/media/upload-asset/upload-asset.service'
+import { addAssetAsStaticResource } from '@etherealengine/server-core/src/media/upload-asset/upload-asset.service'
 import { ServerMode } from '@etherealengine/server-core/src/ServerState'
 
 dotenv.config({
@@ -126,7 +126,7 @@ cli.main(async () => {
         /.png/.test(thumbnail.headers.get('content-type') || '') ? 'png' : 'jpg'
       }`
 
-      const thumbnailReturned = await addGenericAssetToS3AndStaticResources(
+      const thumbnailReturned = await addAssetAsStaticResource(
         app,
         [
           {
@@ -136,14 +136,13 @@ cli.main(async () => {
             size: thumbSize ? parseInt(thumbSize) : 0
           }
         ],
-        thumbnail.headers.get('content-type') || '',
         {
-          key: `avatars/public/`,
+          path: `avatars/public/`,
           staticResourceType: 'user-thumbnail'
         }
       )
 
-      const modelReturned = await addGenericAssetToS3AndStaticResources(
+      const modelReturned = await addAssetAsStaticResource(
         app,
         [
           {
@@ -153,9 +152,8 @@ cli.main(async () => {
             size: modelSize ? parseInt(modelSize) : 0
           }
         ],
-        (await model.headers.get('content-type')) || '',
         {
-          key: `avatars/public/`,
+          path: `avatars/public/`,
           staticResourceType: 'avatar'
         }
       )

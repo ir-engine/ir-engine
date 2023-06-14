@@ -1,6 +1,6 @@
 import { Application } from '../../../declarations'
 import { StaticResourceVariant } from './static-resource-variant.class'
-import staticResourceTypeDocs from './static-resource-variant.docs'
+import staticResourceVariantDocs from './static-resource-variant.docs'
 import hooks from './static-resource-variant.hooks'
 import createModel from './static-resource-variant.model'
 
@@ -21,7 +21,7 @@ export default (app: Application) => {
    * Initialize our service with any options it requires and docs
    */
   const event = new StaticResourceVariant(options, app)
-  event.docs = staticResourceTypeDocs
+  event.docs = staticResourceVariantDocs
   app.use('static-resource-variant', event)
 
   /**

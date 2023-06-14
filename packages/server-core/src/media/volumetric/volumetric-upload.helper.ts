@@ -9,12 +9,18 @@ import { CommonKnownContentTypes } from '@etherealengine/common/src/utils/Common
 import { Application } from '../../../declarations'
 import config from '../../appconfig'
 import logger from '../../ServerLogger'
-import { addGenericAssetToS3AndStaticResources } from '../upload-asset/upload-asset.service'
+import { addAssetAsStaticResource, UploadAssetArgs } from '../upload-asset/upload-asset.service'
 import { videoUpload } from '../video/video-upload.helper'
 
 const uvolMimetype = 'application/octet-stream'
 
-const handleManifest = async (app: Application, url: string, name = 'untitled', volumetricId: string) => {
+const handleManifest = async (
+  app: Application,
+  project: string,
+  url: string,
+  name = 'untitled',
+  volumetricId: string
+) => {
   const drcsFileHead = await fetch(url, { method: 'HEAD' })
   if (!/^[23]/.test(drcsFileHead.status.toString())) throw new Error('Invalid URL')
   const contentLength = drcsFileHead.headers['content-length'] || drcsFileHead.headers.get('content-length')
@@ -37,7 +43,8 @@ const handleManifest = async (app: Application, url: string, name = 'untitled', 
               [Op.eq]: existingResource.id
             }
           }
-        ]
+        ],
+        project
       },
       include: [
         {
@@ -88,10 +95,11 @@ const handleManifest = async (app: Application, url: string, name = 'untitled', 
       ]
     }
     const key = `static-resources/volumetric/${volumetricId}/${name}`
-    existingResource = await addGenericAssetToS3AndStaticResources(app, files, uvolMimetype, {
+    existingResource = await addAssetAsStaticResource(app, files, {
       hash: hash,
-      key: `${key}.manifest`,
-      staticResourceType: 'data'
+      path: `${key}.manifest`,
+      staticResourceType: 'data',
+      project
     })
   }
   return app.service('data').create({
@@ -99,10 +107,11 @@ const handleManifest = async (app: Application, url: string, name = 'untitled', 
   })
 }
 
-export const volumetricUpload = async (app: Application, data) => {
+export const volumetricUpload = async (app: Application, data: UploadAssetArgs) => {
   try {
-    const root = data.url
-      .replace(/.drcs$/, '')
+    const project = data.project
+    const root = data
+      .url!.replace(/.drcs$/, '')
       .replace(/.mp4$/, '')
       .replace(/.manifest$/, '')
     const name = root.split('/').pop()
@@ -121,7 +130,7 @@ export const volumetricUpload = async (app: Application, data) => {
       drcsFileHead = await fs.statSync(drcsUrl)
       contentLength = drcsFileHead.size.toString()
     }
-    if (!data.name) data.name = data.url.split('/').pop().split('.')[0]
+    if (!data.name) data.name = data.url!.split('/').pop()!.split('.')[0]
     const hash = createHash('sha3-256').update(contentLength).update(data.name).digest('hex')
     const extension = drcsUrl.split('.').pop()
 
@@ -138,10 +147,11 @@ export const volumetricUpload = async (app: Application, data) => {
       } else body = fs.readFileSync(drcsUrl)
       volumetricEntry = await app.service('volumetric').create({})
       const key = `static-resources/volumetric/${volumetricEntry.id}/${name}`
-      drcs = await addGenericAssetToS3AndStaticResources(app, body, 'application/octet-stream', {
+      drcs = await addAssetAsStaticResource(app, body, {
         hash: hash,
-        key: `${key}.${extension}`,
+        path: `${key}.${extension}`,
         staticResourceType: 'volumetric',
+        project,
         stats: {
           size: contentLength
         }
@@ -155,7 +165,8 @@ export const volumetricUpload = async (app: Application, data) => {
                 [Op.eq]: drcs.id
               }
             }
-          ]
+          ],
+          project
         }
       })
       if (!volumetricEntry)
@@ -165,8 +176,8 @@ export const volumetricUpload = async (app: Application, data) => {
     }
 
     ;[video, manifest] = await Promise.all([
-      videoUpload(app, { url: videoUrl, name }, volumetricEntry.id, 'volumetric'),
-      handleManifest(app, manifestUrl, name, volumetricEntry.id)
+      videoUpload(app, { url: videoUrl, name, project }, volumetricEntry.id, 'volumetric'),
+      handleManifest(app, project, manifestUrl, name, volumetricEntry.id)
     ])
 
     await app.service('volumetric').patch(volumetricEntry.id, {
@@ -177,7 +188,8 @@ export const volumetricUpload = async (app: Application, data) => {
 
     const vol = await app.service('volumetric').Model.findOne({
       where: {
-        id: volumetricEntry.id
+        id: volumetricEntry.id,
+        project
       }
     })
     // Initially, the population of child tables was just done with includes, but this led to more than the max 61
@@ -190,7 +202,8 @@ export const volumetricUpload = async (app: Application, data) => {
           try {
             vol.dataValues.drcsStaticResource = await app.service('static-resource').Model.findOne({
               where: {
-                id: vol.drcsStaticResourceId
+                id: vol.drcsStaticResourceId,
+                project
               }
             })
             resolve()
@@ -205,7 +218,8 @@ export const volumetricUpload = async (app: Application, data) => {
           try {
             vol.dataValues.uvolStaticResource = await app.service('static-resource').Model.findOne({
               where: {
-                id: vol.uvolStaticResourceId
+                id: vol.uvolStaticResourceId,
+                project
               }
             })
             resolve()
@@ -220,7 +234,8 @@ export const volumetricUpload = async (app: Application, data) => {
           try {
             vol.dataValues.manifest = await app.service('data').Model.findOne({
               where: {
-                id: vol.manifestId
+                id: vol.manifestId,
+                project
               },
               include: [
                 {
@@ -241,7 +256,8 @@ export const volumetricUpload = async (app: Application, data) => {
           try {
             vol.dataValues.thumbnail = await app.service('image').Model.findOne({
               where: {
-                id: vol.thumbnailId
+                id: vol.thumbnailId,
+                project
               },
               include: [
                 {
@@ -274,7 +290,8 @@ export const volumetricUpload = async (app: Application, data) => {
           try {
             vol.dataValues.video = await app.service('video').Model.findOne({
               where: {
-                id: vol.videoId
+                id: vol.videoId,
+                project
               },
               include: [
                 {
@@ -302,5 +319,3 @@ export const volumetricUpload = async (app: Application, data) => {
     throw err
   }
 }
-
-//https://resources-dev.etherealengine.com/volumetric/biglatto_bigenergy.drcs

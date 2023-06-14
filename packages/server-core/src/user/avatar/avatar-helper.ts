@@ -5,7 +5,7 @@ import { CommonKnownContentTypes } from '@etherealengine/common/src/utils/Common
 
 import { Application } from '../../../declarations'
 import { getStorageProvider } from '../../media/storageprovider/storageprovider'
-import { addGenericAssetToS3AndStaticResources } from '../../media/upload-asset/upload-asset.service'
+import { addAssetAsStaticResource } from '../../media/upload-asset/upload-asset.service'
 import { getProjectPackageJson } from '../../projects/project/project-helper'
 import logger from '../../ServerLogger'
 import { getContentType } from '../../util/fileUtils'
@@ -157,7 +157,7 @@ export const uploadAvatarStaticResource = async (
   // const thumbnail = await generateAvatarThumbnail(data.avatar as Buffer)
   // if (!thumbnail) throw new Error('Thumbnail generation failed - check the model')
 
-  const modelPromise = addGenericAssetToS3AndStaticResources(
+  const modelPromise = addAssetAsStaticResource(
     app,
     [
       {
@@ -167,16 +167,15 @@ export const uploadAvatarStaticResource = async (
         size: data.avatar.byteLength
       }
     ],
-    CommonKnownContentTypes.glb,
     {
       userId: params?.user!.id,
-      key,
+      path: key,
       staticResourceType: 'avatar',
       project: data.project
     }
   )
 
-  const thumbnailPromise = addGenericAssetToS3AndStaticResources(
+  const thumbnailPromise = addAssetAsStaticResource(
     app,
     [
       {
@@ -186,10 +185,9 @@ export const uploadAvatarStaticResource = async (
         size: data.thumbnail.byteLength
       }
     ],
-    CommonKnownContentTypes.png,
     {
       userId: params?.user!.id,
-      key,
+      path: key,
       staticResourceType: 'user-thumbnail',
       project: data.project
     }

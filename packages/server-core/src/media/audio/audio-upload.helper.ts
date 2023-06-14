@@ -7,12 +7,14 @@ import fetch from 'node-fetch'
 import { Op } from 'sequelize'
 import { Readable } from 'stream'
 
-import { AudioInterface } from '@etherealengine/common/src/dbmodels/Audio'
+import { AudioInterface } from '@etherealengine/common/src/interfaces/AudioInterface'
+import { StaticResourceInterface } from '@etherealengine/common/src/interfaces/StaticResourceInterface'
 
 import { Application } from '../../../declarations'
+import config from '../../appconfig'
 import logger from '../../ServerLogger'
 import { getResourceFiles } from '../static-resource/static-resource-helper'
-import { addGenericAssetToS3AndStaticResources, UploadAssetArgs } from '../upload-asset/upload-asset.service'
+import { addAssetAsStaticResource, UploadAssetArgs } from '../upload-asset/upload-asset.service'
 
 export const getMP3Duration = async (body): Promise<number> => {
   return new Promise((resolve, reject) =>
@@ -23,8 +25,14 @@ export const getMP3Duration = async (body): Promise<number> => {
   )
 }
 
-export const audioUpload = async (app: Application, data: UploadAssetArgs) => {
+export const audioUpload = async (
+  app: Application,
+  data: UploadAssetArgs,
+  forceDownload = config.server.cloneProjectStaticResources
+) => {
+  console.trace('audioUpload', data)
   try {
+    const project = data.project
     let fileHead, contentLength, extension
     if (data.url) {
       if (/http(s)?:\/\//.test(data.url)) {
@@ -35,7 +43,7 @@ export const audioUpload = async (app: Application, data: UploadAssetArgs) => {
         fileHead = await fs.statSync(data.url)
         contentLength = fileHead.size.toString()
       }
-      if (!data.name) data.name = data.url.split('/').pop()!.split('.')[0]
+      if (!data.name) data.name = data.url.split('/').pop()
       extension = data.url.split('.').pop()
     } else if (data.files) {
       const mainFile = data.files[0]!
@@ -56,76 +64,54 @@ export const audioUpload = async (app: Application, data: UploadAssetArgs) => {
     }
 
     const hash = createHash('sha3-256').update(contentLength).update(data.name!).digest('hex')
-    let existingAudio
-    let existingResource = await app.service('static-resource').Model.findOne({
+    let existingAudio: AudioInterface | null = null
+    let existingResource = (await app.service('static-resource').Model.findOne({
       where: {
         hash
       }
-    })
-
-    const include = [
-      {
-        model: app.service('static-resource').Model,
-        as: 'oggStaticResource'
-      },
-      {
-        model: app.service('static-resource').Model,
-        as: 'mp3StaticResource'
-      },
-      {
-        model: app.service('static-resource').Model,
-        as: 'mpegStaticResource'
-      }
-    ]
+    })) as StaticResourceInterface | null
 
     if (existingResource) {
       existingAudio = await app.service('audio').Model.findOne({
-        where: {
-          [Op.or]: [
-            {
-              mp3StaticResourceId: {
-                [Op.eq]: existingResource.id
-              }
-            },
-            {
-              mpegStaticResourceId: {
-                [Op.eq]: existingResource.id
-              }
-            },
-            {
-              oggStaticResourceId: {
-                [Op.eq]: existingResource.id
-              }
-            }
-          ]
-        },
-        include
+        include: {
+          model: app.service('static-resource').Model,
+          as: 'staticResource',
+          where: {
+            id: existingResource.id
+          }
+        }
       })
     }
 
     if (existingResource && existingAudio) return existingAudio
 
-    const files = await getResourceFiles(data)
+    const files = await getResourceFiles(data, forceDownload)
+    // const mimeType = files[0].mimetype
     const stats = (await getAudioStats(files[0].buffer)) as any
     stats.size = contentLength
+
     const newAudio = (await app.service('audio').create({
-      duration: stats.duration * 1000
+      duration: stats.duration * 1000,
+      name: data.name
     })) as AudioInterface
-    const key = `static-resources/audio/${newAudio.id}`
+
+    const key = `static-resources/${project}/`
     if (!existingResource)
-      existingResource = await addGenericAssetToS3AndStaticResources(app, files, extension, {
+      existingResource = await addAssetAsStaticResource(app, files, {
         hash: hash,
-        key: key,
+        path: key,
         staticResourceType: 'audio',
-        stats
+        stats,
+        project
       })
-    const update = {} as any
-    if (existingResource?.id) {
-      const staticResourceColumn = `${extension}StaticResourceId`
-      update[staticResourceColumn] = existingResource.id
-    }
+
     try {
-      await app.service('audio').patch(newAudio.id, update)
+      if (existingResource?.id) {
+        const update = {
+          staticResourceId: existingResource.id
+        }
+        await app.service('audio').patch(newAudio.id, update)
+      }
     } catch (err) {
       logger.error('error updating audio with resources')
       logger.error(err)
@@ -136,8 +122,11 @@ export const audioUpload = async (app: Application, data: UploadAssetArgs) => {
       where: {
         id: newAudio.id
       },
-      include
-    })
+      include: {
+        model: app.service('static-resource').Model,
+        as: 'staticResource'
+      }
+    }) as AudioInterface
   } catch (err) {
     logger.error('audio upload error')
     logger.error(err)

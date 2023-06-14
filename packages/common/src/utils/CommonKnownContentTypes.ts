@@ -16,5 +16,6 @@ export const CommonKnownContentTypes = {
   mp3: 'audio/mpeg',
   tsx: 'application/octet-stream',
   ts: 'application/octet-stream',
-  js: 'application/octet-stream'
+  js: 'application/octet-stream',
+  json: 'application/json'
 }

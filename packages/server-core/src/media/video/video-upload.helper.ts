@@ -1,21 +1,30 @@
 import * as ffprobe from '@ffprobe-installer/ffprobe'
+import appRootPath from 'app-root-path'
 import { createHash } from 'crypto'
 import execa from 'execa'
 import fs from 'fs'
 import fetch from 'node-fetch'
+import path from 'path'
 import { Op } from 'sequelize'
 import { Readable } from 'stream'
 
 import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
 import { getResourceFiles } from '../static-resource/static-resource-helper'
-import { addGenericAssetToS3AndStaticResources, UploadAssetArgs } from '../upload-asset/upload-asset.service'
+import { addAssetAsStaticResource, UploadAssetArgs } from '../upload-asset/upload-asset.service'
+
+const relativePath = path.join(appRootPath.path, '/packages/')
 
 export const videoUpload = async (app: Application, data: UploadAssetArgs, parentId?: string, parentType?: string) => {
+  console.trace('videoUpload', data, parentId, parentType)
   try {
+    const project = data.project
+    let relativeContainingFolderPath = `/projects/${project}/assets`
     let fileHead, contentLength, extension
     if (data.url) {
-      if (/http(s)?:\/\//.test(data.url)) {
+      const isHTTP = /http(s)?:\/\//.test(data.url)
+      console.log({ isHTTP })
+      if (isHTTP) {
         fileHead = await fetch(data.url, { method: 'HEAD' })
         if (!/^[23]/.test(fileHead.status.toString())) throw new Error('Invalid URL')
         contentLength = fileHead.headers['content-length'] || fileHead.headers?.get('content-length')
@@ -36,6 +45,9 @@ export const videoUpload = async (app: Application, data: UploadAssetArgs, paren
       }
       if (!data.name) data.name = data.url.split('/').pop()!.split('.')[0]
       extension = data.url.split('.').pop()
+      if (!isHTTP) {
+        relativeContainingFolderPath = data.url.replace(relativePath, '').split('/').slice(0, -1).join('/')
+      }
     } else if (data.files) {
       const mainFile = data.files[0]!
       switch (mainFile.mimetype) {
@@ -53,7 +65,8 @@ export const videoUpload = async (app: Application, data: UploadAssetArgs, paren
     let existingVideo, thumbnail
     let existingResource = await app.service('static-resource').Model.findOne({
       where: {
-        hash
+        hash,
+        project
       }
     })
 
@@ -82,24 +95,34 @@ export const videoUpload = async (app: Application, data: UploadAssetArgs, paren
                 [Op.eq]: existingResource.id
               }
             }
-          ]
+          ],
+          project
         },
         include
       })
     }
     if (existingResource && existingVideo) return existingVideo
 
+    console.log({ relativeContainingFolderPath })
     const files = await getResourceFiles(data)
+    console.log(files)
     const stats = (await getVideoStats(files[0].buffer)) as any
     stats.size = contentLength
     const newVideo = await app.service('video').create({
       duration: stats.duration
     })
     if (!existingResource) {
-      const key = `static-resources/${parentType ?? 'video'}/${parentId ?? newVideo.id}`
-      existingResource = await addGenericAssetToS3AndStaticResources(app, files, extension, {
+      console.log('adding generic asset to s3 and static resources')
+
+      console.log({
+        hash,
+        relativeContainingFolderPath,
+        stats
+      })
+      existingResource = await addAssetAsStaticResource(app, files, {
         hash: hash,
-        key: key,
+        path: relativeContainingFolderPath,
+        project,
         staticResourceType: 'video',
         stats
       })

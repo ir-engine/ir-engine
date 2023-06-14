@@ -67,7 +67,7 @@ export const getEnvMapBakeById = async (app, entityId: string) => {
   // })
 }
 
-export const convertStaticResource = async (app: Application, sceneData: SceneJson) => {
+export const convertStaticResource = async (app: Application, project: string, sceneData: SceneJson) => {
   const cacheRe = new RegExp(`${config.client.fileServer}\/projects`)
   const symbolRe = /__\$project\$__/
   const pathSymbol = '__$project$__'
@@ -130,18 +130,19 @@ export const convertStaticResource = async (app: Application, sceneData: SceneJs
           for (let index in urls)
             if (symbolRe.test(urls[index]))
               urls[index] = urls[index].replace(pathSymbol, path.join(appRootPath.path, '/packages/projects/projects'))
+          console.log('urls', urls)
           // console.log('urls', urls)
           if (mediaType === AssetClass.Audio)
             component.props.resources = JSON.parse(
-              JSON.stringify(await Promise.all(urls.map((url) => audioUpload(app, { url: url }))))
+              JSON.stringify(await Promise.all(urls.map((url) => audioUpload(app, { url, project }))))
             )
           else if (mediaType === AssetClass.Video)
             component.props.resources = JSON.parse(
-              JSON.stringify(await Promise.all(urls.map((url) => videoUpload(app, { url: url }))))
+              JSON.stringify(await Promise.all(urls.map((url) => videoUpload(app, { url, project }))))
             )
           else if (mediaType === AssetClass.Volumetric)
             component.props.resources = JSON.parse(
-              JSON.stringify(await Promise.all(urls.map((url) => volumetricUpload(app, { url: url }))))
+              JSON.stringify(await Promise.all(urls.map((url) => volumetricUpload(app, { url, project }))))
             )
           break
         // case 'model':
@@ -165,7 +166,7 @@ export const convertStaticResource = async (app: Application, sceneData: SceneJs
             delete component.props.paths
           } else
             component.props.resources = JSON.parse(
-              JSON.stringify(await Promise.all(urls.map((url) => imageUpload(app, { url: url }))))
+              JSON.stringify(await Promise.all(urls.map((url) => imageUpload(app, { url, project }))))
             )
           break
       }

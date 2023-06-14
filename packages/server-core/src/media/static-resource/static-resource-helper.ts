@@ -1,5 +1,6 @@
 import fs from 'fs'
 
+import { UploadFile } from '@etherealengine/common/src/interfaces/UploadAssetInterface'
 import { CommonKnownContentTypes } from '@etherealengine/common/src/utils/CommonKnownContentTypes'
 
 import config from '../../appconfig'
@@ -18,11 +19,20 @@ export type MediaUploadArguments = {
   stats?: any
 }
 
-export const getResourceFiles = async (data: UploadAssetArgs, forceDownload = false) => {
+/**
+ * Get the files to upload for a given resource
+ * @param data
+ * @param download - if true, will download the file and return it as a buffer, otherwise will return the url
+ * @returns
+ */
+export const getResourceFiles = async (
+  data: UploadAssetArgs,
+  download = config.server.cloneProjectStaticResources
+): Promise<UploadFile[]> => {
   if (data.url) {
     if (/http(s)?:\/\//.test(data.url)) {
       // if configured to clone project static resources, we need to fetch the file and upload it
-      if (config.server.cloneProjectStaticResources || forceDownload) {
+      if (download) {
         const file = await fetch(data.url)
         return [
           {
@@ -47,16 +57,27 @@ export const getResourceFiles = async (data: UploadAssetArgs, forceDownload = fa
         ]
       }
     } else {
-      const file = fs.readFileSync(data.url)
-      const mimetype = CommonKnownContentTypes[data.url.split('.').pop()!]
-      return [
-        {
-          buffer: file,
-          originalname: data.name!,
-          mimetype: mimetype,
-          size: file.length
-        }
-      ]
+      if (download) {
+        const file = fs.readFileSync(data.url)
+        return [
+          {
+            buffer: file,
+            originalname: data.name!,
+            mimetype: CommonKnownContentTypes[data.url.split('.').pop()!],
+            size: file.length
+          }
+        ]
+      } else {
+        const file = fs.readFileSync(data.url)
+        return [
+          {
+            buffer: data.url,
+            originalname: data.name!,
+            mimetype: CommonKnownContentTypes[data.url.split('.').pop()!],
+            size: file.length
+          }
+        ]
+      }
     }
   } else {
     return data.files!
