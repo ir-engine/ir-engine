@@ -697,7 +697,9 @@
       "viewAssetProperties": "View Properties",
       "refresh": "Refresh",
       "back": "Back",
-      "loadingFiles": "Loading files"
+      "loadingFiles": "Loading files",
+      "compress": "Compress",
+      "convert": "Convert"
     }
   },
   "hierarchy": {

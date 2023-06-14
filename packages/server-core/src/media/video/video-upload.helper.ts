@@ -6,13 +6,9 @@ import fetch from 'node-fetch'
 import { Op } from 'sequelize'
 import { Readable } from 'stream'
 
-import { UploadFile } from '@etherealengine/common/src/interfaces/UploadAssetInterface'
-import { CommonKnownContentTypes } from '@etherealengine/common/src/utils/CommonKnownContentTypes'
-
 import { Application } from '../../../declarations'
-import config from '../../appconfig'
 import logger from '../../ServerLogger'
-import { getResourceFiles, uploadMediaStaticResource } from '../static-resource/static-resource-helper'
+import { getResourceFiles } from '../static-resource/static-resource-helper'
 import { addGenericAssetToS3AndStaticResources, UploadAssetArgs } from '../upload-asset/upload-asset.service'
 
 export const videoUpload = async (app: Application, data: UploadAssetArgs, parentId?: string, parentType?: string) => {

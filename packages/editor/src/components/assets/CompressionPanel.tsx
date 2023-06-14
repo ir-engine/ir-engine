@@ -1,14 +1,18 @@
 import React from 'react'
 
 import { API } from '@etherealengine/client-core/src/API'
+import { uploadToFeathersService } from '@etherealengine/client-core/src/util/upload'
 import { KTX2EncodeArguments } from '@etherealengine/engine/src/assets/constants/CompressionParms'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { State } from '@etherealengine/hyperflux'
+import { KTX2Encoder } from '@etherealengine/xrui/core/textures/KTX2Encoder'
 
 import { Button, Dialog, DialogTitle, Grid, Typography } from '@mui/material'
 
 import BooleanInput from '../inputs/BooleanInput'
 import Scrubber from '../inputs/Scrubber'
 import SelectInput from '../inputs/SelectInput'
+import { FileType } from './FileBrowserContentPanel'
 import styles from './styles.module.scss'
 
 export default function CompressionPanel({
@@ -18,10 +22,54 @@ export default function CompressionPanel({
   onRefreshDirectory
 }: {
   openCompress: State<boolean>
-  fileProperties: State<any>
+  fileProperties: State<FileType>
   compressProperties: State<KTX2EncodeArguments>
   onRefreshDirectory: () => Promise<void>
 }) {
+  const compressContentInBrowser = async () => {
+    const props = fileProperties.value
+    compressProperties.src.set(props.type === 'folder' ? `${props.url}/${props.key}` : props.url)
+    const ktx2Encoder = new KTX2Encoder()
+
+    const img = await new Promise<HTMLImageElement>((resolve) => {
+      const img = new Image()
+      img.crossOrigin = 'anonymous'
+      img.onload = function () {
+        resolve(img)
+      }
+      img.src = compressProperties.src.value
+    })
+
+    const canvas = new OffscreenCanvas(img.width, img.height)
+    const ctx = canvas.getContext('2d')!
+    ctx.drawImage(img, 0, 0)
+
+    const imageData = ctx.getImageData(0, 0, img.width, img.height)
+
+    const data = await ktx2Encoder.encode(imageData, {
+      uastc: compressProperties.mode.value === 'UASTC',
+      qualityLevel: compressProperties.quality.value,
+      mipmaps: compressProperties.mipmaps.value,
+      compressionLevel: 2,
+      yFlip: compressProperties.flipY.value,
+      srgb: !compressProperties.linear.value
+    })
+
+    const newFileName = props.key.replace(/.*\/(.*)\..*/, '$1') + '.ktx2'
+    const path = props.key.replace(/(.*\/).*/, '$1')
+
+    const file = new File([data], newFileName, { type: 'image/ktx2' })
+
+    await uploadToFeathersService('file-browser/upload', [file], {
+      fileName: newFileName,
+      path,
+      contentType: file.type
+    }).promise
+    await onRefreshDirectory()
+    openCompress.set(false)
+  }
+
+  /** @todo */
   const compressContent = async () => {
     const props = fileProperties.value
     compressProperties.src.set(props.type === 'folder' ? `${props.url}/${props.key}` : props.url)
@@ -29,6 +77,7 @@ export default function CompressionPanel({
     await onRefreshDirectory()
     openCompress.set(false)
   }
+
   return (
     <Dialog
       open={openCompress.value}
@@ -57,6 +106,20 @@ export default function CompressionPanel({
             value={compressProperties.mode.value}
             onChange={(val: 'ETC1S' | 'UASTC') => compressProperties.mode.set(val)}
           />
+        </Grid>
+
+        <Grid item xs={4}>
+          <Typography className={styles.secondaryText}>Flip Y:</Typography>
+        </Grid>
+        <Grid item xs={8}>
+          <BooleanInput value={compressProperties.flipY.value} onChange={compressProperties.flipY.set} />
+        </Grid>
+
+        <Grid item xs={4}>
+          <Typography className={styles.secondaryText}>Linear Color Space:</Typography>
+        </Grid>
+        <Grid item xs={8}>
+          <BooleanInput value={compressProperties.linear.value} onChange={compressProperties.linear.set} />
         </Grid>
 
         <Grid item xs={4}>
@@ -89,7 +152,7 @@ export default function CompressionPanel({
         </Grid>
 
         <Grid item xs={12}>
-          <Button onClick={compressContent}> Compress </Button>
+          <Button onClick={compressContentInBrowser}> Compress </Button>
         </Grid>
       </Grid>
     </Dialog>

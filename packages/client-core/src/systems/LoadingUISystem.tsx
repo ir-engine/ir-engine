@@ -2,6 +2,7 @@ import getImagePalette from 'image-palette-core'
 import { useEffect } from 'react'
 import React from 'react'
 import {
+  Color,
   CompressedTexture,
   DoubleSide,
   Mesh,
@@ -40,6 +41,7 @@ import { ObjectFitFunctions } from '@etherealengine/engine/src/xrui/functions/Ob
 import { defineActionQueue, defineState, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 import type { WebLayer3D } from '@etherealengine/xrui'
 
+import { getAppTheme } from '../common/services/AppThemeState'
 import { LoadingSystemState } from './state/LoadingState'
 import { createLoaderDetailView } from './ui/LoadingDetailView'
 
@@ -56,9 +58,8 @@ const LoadingUISystemState = defineState({
 
     const mesh = new Mesh(
       new SphereGeometry(10),
-      new MeshBasicMaterial({ side: DoubleSide, transparent: true, depthWrite: true, depthTest: false })
+      new MeshBasicMaterial({ side: DoubleSide, transparent: true, depthWrite: true, depthTest: false, color: 'white' })
     )
-    mesh.visible = false
 
     // flip inside out
     mesh.scale.set(-1, 1, 1)
@@ -67,6 +68,7 @@ const LoadingUISystemState = defineState({
     setObjectLayers(mesh, ObjectLayers.UI)
 
     return {
+      metadataLoaded: false,
       ui,
       mesh,
       transition
@@ -74,11 +76,34 @@ const LoadingUISystemState = defineState({
   }
 })
 
-function SceneDataReactor() {
-  const sceneData = useHookstate(getMutableState(SceneState).sceneData)
-  const state = useHookstate(getMutableState(LoadingUISystemState))
-  const mesh = state.mesh.value
+const avatarModelChangedQueue = defineActionQueue(EngineActions.avatarModelChanged.matches)
+const spectateUserQueue = defineActionQueue(EngineActions.spectateUser.matches)
 
+function LoadingReactor() {
+  const loadingState = useHookstate(getMutableState(AppLoadingState))
+  const engineState = useHookstate(getMutableState(EngineState))
+  const state = useHookstate(getMutableState(LoadingUISystemState))
+  const sceneData = useHookstate(getMutableState(SceneState).sceneData)
+  const mesh = state.mesh.value
+  const metadataLoaded = state.metadataLoaded
+
+  /** Handle loading state changes */
+  useEffect(() => {
+    const transition = getState(LoadingUISystemState).transition
+    console.log('metadataLoaded', metadataLoaded.value)
+    if (
+      loadingState.state.value === AppLoadingStates.SCENE_LOADING &&
+      transition.state === 'OUT' &&
+      metadataLoaded.value
+    ) {
+      transition.setState('IN')
+    }
+    if (loadingState.state.value === AppLoadingStates.FAIL && transition.state === 'IN') {
+      transition.setState('OUT')
+    }
+  }, [loadingState.state, metadataLoaded])
+
+  /** Scene Colors */
   function setDefaultPalette() {
     const uiState = getState(LoadingUISystemState).ui.state
     const colors = uiState.colors
@@ -96,57 +121,71 @@ function SceneDataReactor() {
       colors.main.set(palette.color)
       colors.background.set(palette.backgroundColor)
       colors.alternate.set(palette.alternativeColor)
+      console.log('palette', palette)
     }
   }
 
+  /** Scene data changes */
   useEffect(() => {
     if (!sceneData.value) return
-    const thumbnailUrl = sceneData.value.thumbnailUrl
+    const envmapURL = sceneData.value.thumbnailUrl
       .replace('thumbnail.jpeg', 'envmap.png')
       .replace('thumbnail.ktx2', 'envmap.ktx2')
-    if (thumbnailUrl && mesh.userData.url !== thumbnailUrl) {
-      mesh.userData.url = thumbnailUrl
+    if (envmapURL && mesh.userData.url !== envmapURL) {
+      mesh.userData.url = envmapURL
       setDefaultPalette()
-      AssetLoader.load(thumbnailUrl, {}, (texture: Texture | CompressedTexture) => {
-        const compressedTexture = texture as CompressedTexture
-        if (compressedTexture.isCompressedTexture) {
-          createReadableTexture(compressedTexture).then((texture: Texture) => {
+
+      /** Load envmap and parse colours */
+      AssetLoader.load(
+        envmapURL,
+        {},
+        (texture: Texture | CompressedTexture) => {
+          mesh.material.map = texture
+
+          const compressedTexture = texture as CompressedTexture
+          if (compressedTexture.isCompressedTexture) {
+            try {
+              createReadableTexture(compressedTexture).then((texture: Texture) => {
+                setColors(texture)
+              })
+            } catch (e) {
+              console.error(e)
+              setDefaultPalette()
+            }
+          } else {
             setColors(texture)
-          })
-          if (texture) mesh.material.map = texture
-          mesh.visible = true
-        } else {
-          setColors(texture)
-          if (texture) mesh.material.map = texture
-          mesh.visible = true
+          }
+        },
+        undefined,
+        (error: ErrorEvent) => {
+          console.error(error)
+          setDefaultPalette()
         }
-      })
+      )
     }
   }, [sceneData])
 
-  return null
-}
-
-const avatarModelChangedQueue = defineActionQueue(EngineActions.avatarModelChanged.matches)
-const spectateUserQueue = defineActionQueue(EngineActions.spectateUser.matches)
-
-function LoadingReactor() {
-  const loadingState = useHookstate(getMutableState(AppLoadingState))
-
   useEffect(() => {
-    if (loadingState.state.value === AppLoadingStates.SCENE_LOADING) {
-      getState(LoadingUISystemState).transition.setState('IN')
-    }
-    if (loadingState.state.value === AppLoadingStates.FAIL) {
-      getState(LoadingUISystemState).transition.setState('OUT')
-    }
-  }, [loadingState.state])
+    const xrui = getComponent(state.ui.entity.value, XRUIComponent)
+    const progressBar = xrui.getObjectByName('progress-container') as WebLayer3D | undefined
+    if (!progressBar) return
+
+    if (progressBar.position.lengthSq() <= 0) progressBar.shouldApplyDOMLayout = 'once'
+    const percentage = engineState.loadingProgress.value
+    const scaleMultiplier = 0.01
+    const centerOffset = 0.05
+    progressBar.scale.setX(percentage * scaleMultiplier)
+    progressBar.position.setX(percentage * scaleMultiplier * centerOffset - centerOffset)
+  }, [engineState.loadingProgress])
 
   return null
 }
+
+const mainThemeColor = new Color()
+const defaultColor = new Color()
 
 const execute = () => {
-  const { transition, ui, mesh } = getState(LoadingUISystemState)
+  const { transition, ui, mesh, metadataLoaded } = getState(LoadingUISystemState)
   if (!transition) return
 
   const appLoadingState = getState(AppLoadingState)
@@ -198,41 +237,46 @@ const execute = () => {
   //   // todo: figure out how to make this work properly for VR #7256
   // }
 
-  const loadingState = getState(LoadingSystemState).loadingScreenOpacity
+  defaultColor.set(getAppTheme()!.textColor)
+  mainThemeColor.set(ui.state.colors.alternate.value)
 
-  transition.update(Engine.instance.deltaSeconds, (opacity) => {
-    if (opacity !== loadingState) getMutableState(LoadingSystemState).loadingScreenOpacity.set(opacity)
-    mesh.material.opacity = opacity
-    mesh.visible = opacity > 0 && !!mesh.material.map
-    xrui.rootLayer.traverseLayersPreOrder((layer: WebLayer3D) => {
-      const mat = layer.contentMesh.material as MeshBasicMaterial
-      mat.opacity = opacity
-      mat.visible = opacity > 0
-      layer.visible = opacity > 0
-    })
-    if (opacity < 0.001) setVisibleComponent(ui.entity, false)
+  transition.update(engineState.deltaSeconds, (opacity) => {
+    getMutableState(LoadingSystemState).loadingScreenOpacity.set(opacity)
   })
+
+  const opacity = getState(LoadingSystemState).loadingScreenOpacity
+  const ready = opacity > 0
+
+  mesh.material.opacity = opacity
+  mesh.visible = ready
+
+  xrui.rootLayer.traverseLayersPreOrder((layer: WebLayer3D) => {
+    const mat = layer.contentMesh.material as MeshBasicMaterial
+    mat.opacity = opacity
+    mat.visible = ready
+    layer.visible = ready
+    mat.color.lerpColors(defaultColor, mainThemeColor, engineState.loadingProgress * 0.01)
+  })
+  setVisibleComponent(ui.entity, ready)
 }
 
 const reactor = () => {
   useEffect(() => {
-    return () => {
-      const { ui, mesh } = getState(LoadingUISystemState)
-
-      removeEntity(ui.entity)
-      mesh.removeFromParent()
-
-      getMutableState(LoadingUISystemState).set({
-        ui: null!,
-        mesh: null!,
-        transition: null!
-      })
-    }
+    // return () => {
+    //   const { ui, mesh } = getState(LoadingUISystemState)
+    //   removeEntity(ui.entity)
+    //   mesh.removeFromParent()
+    //   getMutableState(LoadingUISystemState).set({
+    //     metadataLoaded: false,
+    //     ui: null!,
+    //     mesh: null!,
+    //     transition: null!
+    //   })
+    // }
   }, [])
 
   return (
     <>
-      <SceneDataReactor />
       <LoadingReactor />
     </>
   )

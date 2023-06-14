@@ -1,17 +1,20 @@
 import { cloneDeep } from 'lodash'
 import { useEffect } from 'react'
+import React from 'react'
 import { MathUtils } from 'three'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { ComponentJson, EntityJson, SceneData, SceneJson } from '@etherealengine/common/src/interfaces/SceneInterface'
 import logger from '@etherealengine/common/src/logger'
-import { setLocalTransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
+import {
+  LocalTransformComponent,
+  setLocalTransformComponent
+} from '@etherealengine/engine/src/transform/components/TransformComponent'
 import {
   addActionReceptor,
   dispatchAction,
   getMutableState,
   getState,
-  NO_PROXY,
   removeActionReceptor,
   useHookstate
 } from '@etherealengine/hyperflux'
@@ -29,13 +32,15 @@ import { Entity } from '../../ecs/classes/Entity'
 import { SceneState } from '../../ecs/classes/Scene'
 import {
   ComponentJSONIDMap,
+  ComponentType,
   defineQuery,
   getAllComponents,
   getComponent,
   getOptionalComponent,
   hasComponent,
   removeComponent,
-  setComponent
+  setComponent,
+  useQuery
 } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
 import {
@@ -195,26 +200,15 @@ export const updateSceneEntitiesFromJSON = (parent: string) => {
     ([uuid, entity]) => entity.parent === parent
   ) as [EntityUUID, EntityJson][]
   for (const [uuid, entityJson] of entitiesToLoad) {
-    updateSceneEntity(uuid, entityJson)
+    /** Dynamic loading handled by SceneObejctDynamicLoadSystem */
     const JSONEntityIsDynamic = !!entityJson.components.find(
       (comp) => comp.name === SceneDynamicLoadTagComponent.jsonID
     )
-
-    if (JSONEntityIsDynamic && !getMutableState(EngineState).isEditor.value) {
-      const existingEntity = UUIDComponent.entitiesByUUID[uuid]
-      if (existingEntity) {
-        const previouslyNotDynamic = !getOptionalComponent(existingEntity, SceneDynamicLoadTagComponent)?.loaded
-        if (previouslyNotDynamic) {
-          // remove children from world (get from entity tree)
-          // these are children who have potentially been previously loaded and are now to be dynamically loaded
-          const nodes = getComponent(existingEntity, EntityTreeComponent).children
-          for (const node of nodes) removeEntityNode(node, false)
-        }
-      }
-    } else {
-      // iterate children
-      updateSceneEntitiesFromJSON(uuid)
-    }
+    if (JSONEntityIsDynamic && !getMutableState(EngineState).isEditor.value) continue
+    /** Deserialize */
+    updateSceneEntity(uuid, entityJson)
+    /** Iterate Children */
+    updateSceneEntitiesFromJSON(uuid)
   }
 }
 
@@ -381,39 +375,28 @@ export const deserializeComponent = (entity: Entity, component: ComponentJson): 
 
 const sceneAssetPendingTagQuery = defineQuery([SceneAssetPendingTagComponent])
 
-let totalPendingAssets = 0
-
-const onComplete = (pendingAssets: number) => {
-  const promisesCompleted = totalPendingAssets - pendingAssets
-  dispatchAction(
-    EngineActions.sceneLoadingProgress({
-      progress:
-        promisesCompleted >= totalPendingAssets ? 100 : Math.round((100 * promisesCompleted) / totalPendingAssets)
-    })
-  )
-}
-
-const execute = () => {
-  if (!getState(EngineState).sceneLoading) return
-
-  const pendingAssets = sceneAssetPendingTagQuery().length
-
-  for (const entity of sceneAssetPendingTagQuery.enter()) {
-    totalPendingAssets++
-  }
-
-  if (sceneAssetPendingTagQuery.exit().length) {
-    onComplete(pendingAssets)
-    if (pendingAssets === 0) {
-      totalPendingAssets = 0
-      dispatchAction(EngineActions.sceneLoaded({}))
-    }
-  }
-}
-
 const reactor = () => {
   const sceneData = useHookstate(getMutableState(SceneState).sceneData)
   const isEngineInitialized = useHookstate(getMutableState(EngineState).isEngineInitialized)
+  const sceneAssetPendingTagQuery = useQuery([SceneAssetPendingTagComponent])
+  const assetLoadingState = useHookstate(SceneAssetPendingTagComponent.loadingProgress)
+
+  useEffect(() => {
+    if (!getState(EngineState).sceneLoading) return
+
+    const values = Object.values(assetLoadingState.value)
+    const total = values.reduce((acc, curr) => acc + curr.totalAmount, 0)
+    const loaded = values.reduce((acc, curr) => acc + curr.loadedAmount, 0)
+    const progress = !sceneAssetPendingTagQuery.length || total === 0 ? 100 : Math.round((100 * loaded) / total)
+
+    getMutableState(EngineState).loadingProgress.set(progress)
+
+    if (!sceneAssetPendingTagQuery.length && !getState(EngineState).sceneLoaded) {
+      for (const entity of sceneAssetPendingTagQuery) removeComponent(entity, SceneAssetPendingTagComponent)
+      dispatchAction(EngineActions.sceneLoaded({}))
+      SceneAssetPendingTagComponent.loadingProgress.set({})
+    }
+  }, [sceneAssetPendingTagQuery, assetLoadingState])
 
   useEffect(() => {
     if (sceneData.value && isEngineInitialized.value) updateSceneFromJSON()
@@ -425,11 +408,12 @@ const reactor = () => {
       removeActionReceptor(AppLoadingServiceReceptor)
     }
   }, [])
+
   return null
 }
 
 export const SceneLoadingSystem = defineSystem({
   uuid: 'ee.engine.scene.SceneLoadingSystem',
-  execute,
+  execute: () => {},
   reactor
 })

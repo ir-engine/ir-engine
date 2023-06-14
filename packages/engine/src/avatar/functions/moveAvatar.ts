@@ -367,7 +367,7 @@ export const updateLocalAvatarRotation = () => {
  * @param entity
  * @param newPosition
  */
-export const teleportAvatar = (entity: Entity, targetPosition: Vector3): void => {
+export const teleportAvatar = (entity: Entity, targetPosition: Vector3, force = false): void => {
   if (!hasComponent(entity, AvatarComponent)) {
     console.warn('Teleport avatar called on non-avatar entity')
     return
@@ -377,17 +377,14 @@ export const teleportAvatar = (entity: Entity, targetPosition: Vector3): void =>
   raycastOrigin.y += 0.1
   const { raycastHit } = checkPositionIsValid(raycastOrigin, false)
 
-  if (raycastHit) {
+  if (raycastHit || force) {
     const transform = getComponent(entity, TransformComponent)
     const rigidbody = getComponent(entity, RigidBodyComponent)
-    const newPosition = raycastHit.position as Vector3
+    const newPosition = raycastHit ? (raycastHit.position as Vector3) : targetPosition
     rigidbody.targetKinematicPosition.copy(newPosition)
     rigidbody.position.copy(newPosition)
     const attached = getCameraMode() === 'attached'
-    if (attached)
-      updateReferenceSpaceFromAvatarMovement(
-        new Vector3().subVectors(raycastHit.position as Vector3, transform.position)
-      )
+    if (attached) updateReferenceSpaceFromAvatarMovement(new Vector3().subVectors(newPosition, transform.position))
   } else {
     console.log('invalid position', targetPosition, raycastHit)
   }
