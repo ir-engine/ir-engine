@@ -76,6 +76,12 @@ export default function GLTFTransformProperties({
             ]}
           />
         </InputGroup>
+        <InputGroup name="Instance" label={t('editor:properties.model.transform.instance')}>
+          <BooleanInput
+            value={transformParms.instance.value}
+            onChange={onChangeTransformParm(transformParms.instance)}
+          />
+        </InputGroup>
         <InputGroup name="Remove Duplicates" label={t('editor:properties.model.transform.removeDuplicates')}>
           <BooleanInput value={transformParms.dedup.value} onChange={onChangeTransformParm(transformParms.dedup)} />
         </InputGroup>

@@ -344,15 +344,9 @@ export async function transformModel(app: Application, args: ModelTransformArgum
   unInstanceSingletons(document)
   await split(document)
   await combineMaterials(document)
-  await myInstance(document)
-
-  if (args.parms.dedup) {
-    await document.transform(dedup())
-  }
-
-  if (args.parms.prune) {
-    await document.transform(prune())
-  }
+  args.parms.instance && (await myInstance(document))
+  args.parms.dedup && (await document.transform(dedup()))
+  args.parms.prune && (await document.transform(prune()))
 
   /* Separate Instanced Geometry */
   const instancedNodes = root
