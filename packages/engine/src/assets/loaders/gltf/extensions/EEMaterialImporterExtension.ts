@@ -27,7 +27,7 @@ export class EEMaterialImporterExtension extends ImporterExtension implements GL
     return factory
       ? (function (args) {
           const material = factory(args)
-          material.uuid = eeMaterial.uuid
+          typeof eeMaterial.uuid === 'string' && (material.uuid = eeMaterial.uuid)
           return material
         } as unknown as typeof Material)
       : null
