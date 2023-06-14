@@ -57,7 +57,7 @@ export default class EEMaterialExporterExtension extends ExporterExtension {
     const materialEntry = getState(MaterialLibraryState).materials[material.uuid]
     materialDef.extensions = materialDef.extensions ?? {}
     materialDef.extensions[this.name] = {
-      id: material.uuid,
+      uuid: material.uuid,
       name: material.name,
       prototype: materialEntry?.prototype ?? material.userData.type ?? material.type,
       plugins: materialEntry?.plugins ?? material.userData.plugins ?? [],

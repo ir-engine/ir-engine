@@ -18,7 +18,7 @@ import styles from '../../styles/settings.module.scss'
 const InstanceServer = () => {
   const { t } = useTranslation()
   const instanceServerSettingState = useHookstate(getMutableState(AdminInstanceServerSettingsState))
-  const instanceServerSettings = instanceServerSettingState?.instanceserver?.get({ noproxy: true }) || []
+  const instanceServerSettings = instanceServerSettingState?.instanceServer?.get({ noproxy: true }) || []
 
   const user = useHookstate(getMutableState(AuthState).user)
 
@@ -46,23 +46,23 @@ const InstanceServer = () => {
             />
 
             <InputText
-              name="rtc_start_port"
+              name="rtcStartPort"
               label={t('admin:components.setting.rtcStartPort')}
-              value={el?.rtc_start_port || ''}
+              value={el?.rtcStartPort || ''}
               disabled
             />
 
             <InputText
-              name="rtc_end_port"
+              name="rtcEndPort"
               label={t('admin:components.setting.rtcEndPort')}
-              value={el?.rtc_end_port || ''}
+              value={el?.rtcEndPort || ''}
               disabled
             />
 
             <InputText
-              name="rtc_port_block_size"
+              name="rtcPortBlockSize"
               label={t('admin:components.setting.rtcPortBlockSize')}
-              value={el?.rtc_port_block_size || ''}
+              value={el?.rtcPortBlockSize || ''}
               disabled
             />
 

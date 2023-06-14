@@ -141,7 +141,10 @@ you find who you need to talk to.
 ### [Sponsorship](https://opencollective.com/etherealengine) [![Open Collective](https://opencollective.com/etherealengine/tiers/badge.svg)](https://opencollective.com/etherealengine)
 
 ## License
-[MIT](LICENSE) - Copyright (c) 2020-2022 Ethereal Engine team, formerly known as XREngine by XR Foundation
+[CPAL](LICENSE) - Copyright (c) 2021-2023 Ethereal Engine, formerly known as XREngine by XR Foundation
 
+If you wish to use Ethereal Engine under the open-source CPAL license, attribution is required. 
+Please see attribution guidelines in the [LICENSE](LICENSE) file.
+Other licensing options are available, please contact us for more information.
 
 [Release History and Author Archive](/HISTORY.md)
