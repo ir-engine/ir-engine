@@ -12,6 +12,10 @@ import {
   EmailSettingDatabaseType,
   emailSettingPath
 } from '@etherealengine/engine/src/schemas/setting/email-setting.schema'
+import {
+  instanceServerSettingPath,
+  InstanceServerSettingType
+} from '@etherealengine/engine/src/schemas/setting/instance-server-setting.schema'
 import { redisSettingPath, RedisSettingType } from '@etherealengine/engine/src/schemas/setting/redis-setting.schema'
 import {
   ServerSettingDatabaseType,
@@ -300,66 +304,14 @@ export const updateAppConfig = async (): Promise<void> => {
     })
   promises.push(emailSettingPromise)
 
-  const instanceServerSetting = sequelizeClient.define('instanceServerSetting', {
-    clientHost: {
-      type: DataTypes.STRING,
-      allowNull: true
-    },
-    rtc_start_port: {
-      type: DataTypes.INTEGER,
-      allowNull: true
-    },
-    rtc_end_port: {
-      type: DataTypes.INTEGER,
-      allowNull: true
-    },
-    rtc_port_block_size: {
-      type: DataTypes.INTEGER,
-      allowNull: true
-    },
-    identifierDigits: {
-      type: DataTypes.INTEGER,
-      allowNull: true
-    },
-    domain: {
-      type: DataTypes.STRING,
-      allowNull: true
-    },
-    releaseName: {
-      type: DataTypes.STRING,
-      allowNull: true
-    },
-    port: {
-      type: DataTypes.STRING,
-      allowNull: true
-    },
-    mode: {
-      type: DataTypes.STRING,
-      allowNull: true
-    },
-    locationName: {
-      type: DataTypes.STRING
-    }
-  })
-  const instanceServerSettingPromise = instanceServerSetting
-    .findAll()
+  const instanceServerSettingPromise = knexClient
+    .select()
+    .from<InstanceServerSettingType>(instanceServerSettingPath)
     .then(([dbInstanceServer]) => {
-      const dbInstanceServerConfig = dbInstanceServer && {
-        clientHost: dbInstanceServer.clientHost,
-        rtc_start_port: dbInstanceServer.rtc_start_port,
-        rtc_end_port: dbInstanceServer.rtc_end_port,
-        rtc_port_block_size: dbInstanceServer.rtc_port_block_size,
-        identifierDigits: dbInstanceServer.identifierDigits,
-        domain: dbInstanceServer.domain,
-        releaseName: dbInstanceServer.releaseName,
-        port: dbInstanceServer.port,
-        mode: dbInstanceServer.mode,
-        locationName: dbInstanceServer.locationName
-      }
-      if (dbInstanceServerConfig) {
+      if (dbInstanceServer) {
         appConfig.instanceserver = {
           ...appConfig.instanceserver,
-          ...dbInstanceServerConfig
+          ...dbInstanceServer
         }
       }
     })
