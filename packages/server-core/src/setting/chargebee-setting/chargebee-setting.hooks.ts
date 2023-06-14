@@ -38,20 +38,20 @@ export default {
     all: [
       authenticate(),
       iff(isProvider('external'), verifyScope('admin', 'admin')),
-      schemaHooks.validateQuery(chargebeeSettingQueryValidator),
+      () => schemaHooks.validateQuery(chargebeeSettingQueryValidator),
       schemaHooks.resolveQuery(chargebeeSettingQueryResolver)
     ],
     find: [iff(isProvider('external'), verifyScope('settings', 'read'))],
     get: [iff(isProvider('external'), verifyScope('settings', 'read'))],
     create: [
       iff(isProvider('external'), verifyScope('settings', 'write')),
-      schemaHooks.validateData(chargebeeSettingDataValidator),
+      () => schemaHooks.validateData(chargebeeSettingDataValidator),
       schemaHooks.resolveData(chargebeeSettingDataResolver)
     ],
     update: [iff(isProvider('external'), verifyScope('settings', 'write'))],
     patch: [
       iff(isProvider('external'), verifyScope('settings', 'write')),
-      schemaHooks.validateData(chargebeeSettingPatchValidator),
+      () => schemaHooks.validateData(chargebeeSettingPatchValidator),
       schemaHooks.resolveData(chargebeeSettingPatchResolver)
     ],
     remove: [iff(isProvider('external'), verifyScope('settings', 'write'))]
@@ -76,4 +76,4 @@ export default {
     patch: [],
     remove: []
   }
-}
+} as any

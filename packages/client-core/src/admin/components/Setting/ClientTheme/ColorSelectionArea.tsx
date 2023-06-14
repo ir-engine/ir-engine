@@ -3,8 +3,8 @@ import { useTranslation } from 'react-i18next'
 
 import InputRadio from '@etherealengine/client-core/src/common/components/InputRadio'
 import { InputMenuItem } from '@etherealengine/client-core/src/common/components/InputSelect'
-import { ThemeOptions } from '@etherealengine/common/src/interfaces/ClientSetting'
 import capitalizeFirstLetter from '@etherealengine/common/src/utils/capitalizeFirstLetter'
+import { ClientThemeOptionsType } from '@etherealengine/engine/src/schemas/setting/client-setting.schema'
 import Divider from '@etherealengine/ui/src/primitives/mui/Divider'
 import Grid from '@etherealengine/ui/src/primitives/mui/Grid'
 
@@ -14,7 +14,7 @@ import styles from '../../../styles/settings.module.scss'
 interface ColorSelectionAreaProps {
   mode: string
   colorModes: string[]
-  theme: ThemeOptions
+  theme: ClientThemeOptionsType
   onChangeMode: Function
   onChangeColor: Function
 }

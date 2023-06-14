@@ -2,9 +2,9 @@ import { BadRequest } from '@feathersjs/errors'
 import { Params } from '@feathersjs/feathers'
 import { Paginated } from '@feathersjs/feathers/lib'
 
-import { ClientSetting } from '@etherealengine/common/src/interfaces/ClientSetting'
 import { OEmbed } from '@etherealengine/common/src/interfaces/OEmbed'
 import { routePath } from '@etherealengine/engine/src/schemas/route/route.schema'
+import { clientSettingPath, ClientSettingType } from '@etherealengine/engine/src/schemas/setting/client-setting.schema'
 import { serverSettingPath, ServerSettingType } from '@etherealengine/engine/src/schemas/setting/server-setting.schema'
 
 import { Application } from '../../../declarations'
@@ -25,7 +25,7 @@ export default (app: Application): void => {
 
       const url = new URL(queryURL)
       const serverSettingsResult = (await app.service(serverSettingPath).find()) as Paginated<ServerSettingType>
-      const clientSettingsResult = (await app.service('client-setting').find()) as Paginated<ClientSetting>
+      const clientSettingsResult = (await app.service(clientSettingPath).find()) as Paginated<ClientSettingType>
 
       if (serverSettingsResult.total > 0 && clientSettingsResult.total > 0) {
         const serverSettings = serverSettingsResult.data[0]

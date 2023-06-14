@@ -1,8 +1,10 @@
-import { Type } from '@feathersjs/typebox'
+// // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
+import { querySyntax, Type } from '@feathersjs/typebox'
 import type { Static } from '@feathersjs/typebox'
-import knex from 'knex'
 
 export const clientSettingPath = 'client-setting'
+
+export const clientSettingMethods = ['find', 'get', 'patch'] as const
 
 export const clientSocialLinkSchema = Type.Object(
   {
@@ -102,75 +104,81 @@ export type ClientSettingDatabaseType = Omit<ClientSettingType, 'appSocialLinks'
   themeModes: string
 }
 
-export const clientDbToSchema = async (rawData: ClientSettingDatabaseType): Promise<ClientSettingType> => {
-  let appSocialLinks = JSON.parse(rawData.appSocialLinks) as ClientSocialLinkType[]
-
-  // Usually above JSON.parse should be enough. But since our pre-feathers 5 data
-  // was serialized multiple times, therefore we need to parse it twice.
-  if (typeof appSocialLinks === 'string') {
-    appSocialLinks = JSON.parse(appSocialLinks)
+// Schema for creating new entries
+export const clientSettingDataSchema = Type.Pick(
+  clientSettingSchema,
+  [
+    'logo',
+    'title',
+    'shortTitle',
+    'startPath',
+    'url',
+    'releaseName',
+    'siteDescription',
+    'favicon32px',
+    'favicon16px',
+    'icon192px',
+    'icon512px',
+    'webmanifestLink',
+    'swScriptLink',
+    'appBackground',
+    'appTitle',
+    'appSubtitle',
+    'appDescription',
+    'appSocialLinks',
+    'themeSettings',
+    'themeModes',
+    'key8thWall',
+    'homepageLinkButtonEnabled',
+    'homepageLinkButtonRedirect',
+    'homepageLinkButtonText'
+  ],
+  {
+    $id: 'ClientSettingData'
   }
+)
+export type ClientSettingData = Static<typeof clientSettingDataSchema>
 
-  let themeSettings = JSON.parse(rawData.themeSettings) as Record<string, ClientThemeOptionsType>
+// Schema for updating existing entries
+export const clientSettingPatchSchema = Type.Partial(clientSettingSchema, {
+  $id: 'ClientSettingPatch'
+})
+export type ClientSettingPatch = Static<typeof clientSettingPatchSchema>
 
-  // Usually above JSON.parse should be enough. But since our pre-feathers 5 data
-  // was serialized multiple times, therefore we need to parse it twice.
-  if (typeof themeSettings === 'string') {
-    themeSettings = JSON.parse(themeSettings)
-  }
-
-  let themeModes = JSON.parse(rawData.themeModes) as Record<string, string>
-
-  // Usually above JSON.parse should be enough. But since our pre-feathers 5 data
-  // was serialized multiple times, therefore we need to parse it twice.
-  if (typeof themeModes === 'string') {
-    themeModes = JSON.parse(themeModes)
-  }
-
-  return {
-    ...rawData,
-    appSocialLinks,
-    themeSettings,
-    themeModes
-  }
-}
-
-export const getClientSetting = async () => {
-  const knexClient = knex({
-    client: 'mysql',
-    connection: {
-      user: process.env.MYSQL_USER ?? 'server',
-      password: process.env.MYSQL_PASSWORD ?? 'password',
-      host: process.env.MYSQL_HOST ?? '127.0.0.1',
-      port: parseInt(process.env.MYSQL_PORT || '3306'),
-      database: process.env.MYSQL_DATABASE ?? 'etherealengine',
-      charset: 'utf8mb4'
-    }
-  })
-
-  const clientSetting = await knexClient
-    .select()
-    .from<ClientSettingDatabaseType>(clientSettingPath)
-    .then(([dbClient]) => {
-      const dbClientConfig = clientDbToSchema(dbClient) || {
-        logo: './logo.svg',
-        title: 'Ethereal Engine',
-        url: 'https://local.etherealengine.org',
-        releaseName: 'local',
-        siteDescription: 'Connected Worlds for Everyone',
-        favicon32px: '/favicon-32x32.png',
-        favicon16px: '/favicon-16x16.png',
-        icon192px: '/android-chrome-192x192.png',
-        icon512px: '/android-chrome-512x512.png'
-      }
-      if (dbClientConfig) {
-        return dbClientConfig
-      }
-    })
-    .catch((e) => {
-      console.warn('[vite.config]: Failed to read clientSetting')
-      console.warn(e)
-    })
-
-  return clientSetting!
-}
+// Schema for allowed query properties
+export const clientSettingQueryProperties = Type.Pick(clientSettingSchema, [
+  'id',
+  'logo',
+  'title',
+  'shortTitle',
+  'startPath',
+  'url',
+  'releaseName',
+  'siteDescription',
+  'favicon32px',
+  'favicon16px',
+  'icon192px',
+  'icon512px',
+  'webmanifestLink',
+  'swScriptLink',
+  'appBackground',
+  'appTitle',
+  'appSubtitle',
+  'appDescription',
+  // 'appSocialLinks', Commented out because: https://discord.com/channels/509848480760725514/1093914405546229840/1095101536121667694
+  // 'themeSettings',
+  // 'themeModes',
+  'key8thWall',
+  'homepageLinkButtonEnabled',
+  'homepageLinkButtonRedirect',
+  'homepageLinkButtonText'
+])
+export const clientSettingQuerySchema = Type.Intersect(
+  [
+    querySyntax(clientSettingQueryProperties),
+    // Add additional query properties here
+    Type.Object({}, { additionalProperties: false })
+  ],
+  { additionalProperties: false }
+)
+export type ClientSettingQuery = Static<typeof clientSettingQuerySchema>
