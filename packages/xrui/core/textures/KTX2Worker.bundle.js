@@ -94,6 +94,9 @@ async function encodeKTX2BasisTexture(data) {
       basisEncoder.setNormalMap();
       basisEncoder.setMipRenormalize(true);
     }
+    if (data.options.yFlip) {
+      basisEncoder.setYFlip(true);
+    }
     basisEncoder.setMipGen(data.options.mipmaps ?? false);
     const basisFileData = new Uint8Array(data.image.width * data.image.height * 4);
     const numOutputBytes = basisEncoder.encode(basisFileData);

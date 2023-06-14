@@ -29,9 +29,9 @@ async function createKtx2(data: KTX2EncodeArguments): Promise<string | string[]>
     const outPath = inPath.replace(/\.[^\.]+$/, '.ktx2')
     const outURIDir = path.dirname(inURI)
     const fileName = /[^\\/]*$/.exec(outPath)![0]
-    const args = `-ktx2${data.mode === 'UASTC' ? ' -uastc' : ''}${data.mipmaps ? ' -mipmap' : ''} -y_flip -linear -q ${
-      data.quality
-    } ${inPath}`
+    const args = `-ktx2${data.mode === 'UASTC' ? ' -uastc' : ''}${data.mipmaps ? ' -mipmap' : ''}${
+      data.flipY ? ' -y_flip' : ''
+    }${data.linear ? ' -linear' : ''} -q ${data.quality} ${inPath}`
     console.log(args)
     console.log(execFileSync(BASIS_U, args.split(/\s+/)))
     console.log(execFileSync('mv', [fileName, outPath]))

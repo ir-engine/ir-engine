@@ -222,6 +222,27 @@ export const Debug = ({ showingStateRef }) => {
       </div>
       <StatsPanel show={showingStateRef.current} />
       <div className={styles.jsonPanel}>
+        <h1>{t('common:debug.entities')}</h1>
+        <JSONTree data={namedEntities.get({ noproxy: true })} />
+      </div>
+      <div className={styles.jsonPanel}>
+        <h1>{t('common:debug.entityTree')}</h1>
+        <JSONTree
+          data={entityTree.value}
+          postprocessValue={(v) => v?.value ?? v}
+          shouldExpandNode={(keyPath, data, level) =>
+            !!data.components && !!data.children && typeof data.entity === 'number'
+          }
+        />
+      </div>
+      <div className={styles.jsonPanel}>
+        <h1>{t('common:debug.state')}</h1>
+        <JSONTree
+          data={Engine.instance.store.stateMap}
+          postprocessValue={(v) => (v?.value && v?.get({ noproxy: true })) ?? v}
+        />
+      </div>
+      <div className={styles.jsonPanel}>
         <h1>{t('common:debug.systems')}</h1>
         <JSONTree
           data={dag}
@@ -253,27 +274,6 @@ export const Debug = ({ showingStateRef }) => {
           }}
           shouldExpandNode={() => true}
         />
-      </div>
-      <div className={styles.jsonPanel}>
-        <h1>{t('common:debug.state')}</h1>
-        <JSONTree
-          data={Engine.instance.store.stateMap}
-          postprocessValue={(v) => (v?.value && v?.get({ noproxy: true })) ?? v}
-        />
-      </div>
-      <div className={styles.jsonPanel}>
-        <h1>{t('common:debug.entityTree')}</h1>
-        <JSONTree
-          data={entityTree.value}
-          postprocessValue={(v) => v?.value ?? v}
-          shouldExpandNode={(keyPath, data, level) =>
-            !!data.components && !!data.children && typeof data.entity === 'number'
-          }
-        />
-      </div>
-      <div className={styles.jsonPanel}>
-        <h1>{t('common:debug.entities')}</h1>
-        <JSONTree data={namedEntities.get({ noproxy: true })} />
       </div>
     </div>
   )

@@ -2,6 +2,7 @@ import { Params } from '@feathersjs/feathers'
 import { bodyParser, koa } from '@feathersjs/koa'
 import Multer from '@koa/multer'
 import { createHash } from 'crypto'
+import path from 'path'
 import { Op } from 'sequelize'
 import { MathUtils } from 'three'
 
@@ -145,7 +146,7 @@ export const addGenericAssetToS3AndStaticResources = async (
   // make userId optional and safe for feathers create
   const key = processFileName(args.key)
   const whereArgs = {
-    [Op.or]: [{ key: key + '/' + files[0].originalname }, { id: args.id ?? '' }]
+    [Op.or]: [{ key: path.join(key, files[0].originalname) }, { id: args.id ?? '' }]
   } as any
   if (args.project) whereArgs.project = args.project
   const existingAsset = (await app.service('static-resource').Model.findOne({
@@ -154,7 +155,7 @@ export const addGenericAssetToS3AndStaticResources = async (
 
   const mimeType = CommonKnownContentTypes[extension] as string
 
-  const assetURL = getCachedURL(key + '/' + files[0].originalname, provider.cacheDomain)
+  const assetURL = getCachedURL(path.join(key, files[0].originalname), provider.cacheDomain)
   const hash = args.hash || createStaticResourceHash(files[0].buffer, { name: args.name, assetURL })
   const body = {
     hash,
@@ -168,7 +169,7 @@ export const addGenericAssetToS3AndStaticResources = async (
   // upload asset to storage provider
   for (let i = 0; i < files.length; i++) {
     const file = files[i]
-    const useKey = key + '/' + file.originalname
+    const useKey = path.join(key, file.originalname)
     variants.push({
       url: getCachedURL(useKey, provider.cacheDomain),
       metadata: { size: file.size }

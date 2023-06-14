@@ -405,6 +405,12 @@ export async function onConnectToInstance(network: SocketWebRTCClientNetwork) {
 
   const { status } = await new Promise<AuthTask>((resolve) => {
     const interval = setInterval(async () => {
+      // ensure we're still connected
+      if (!network.primus) {
+        clearInterval(interval)
+        resolve({ status: 'fail' })
+        return
+      }
       const response = (await promisedRequest(network, MessageTypes.Authorization.toString(), payload)) as AuthTask
       if (response.status !== 'pending') {
         clearInterval(interval)

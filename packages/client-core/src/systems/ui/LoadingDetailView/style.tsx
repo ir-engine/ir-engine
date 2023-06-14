@@ -1,12 +1,6 @@
 import React from 'react'
 
-interface LoadingDetailViewStyleProps {
-  colors: any
-}
-
-const LoadingDetailViewStyle = (props: LoadingDetailViewStyleProps) => {
-  const { colors } = props
-
+const LoadingDetailViewStyle = () => {
   return (
     <style>{`
       #loading-container {
@@ -24,7 +18,7 @@ const LoadingDetailViewStyle = (props: LoadingDetailViewStyleProps) => {
         left: 50%;
         transform: translate(-50%, -50%);
         filter: blur(5px);
-        ${colors.background.value ? 'backgroundColor: ' + colors.background.value : ''};
+        color: #FFFFFF;
       }
 
       #loading-ui {
@@ -35,7 +29,7 @@ const LoadingDetailViewStyle = (props: LoadingDetailViewStyleProps) => {
         z-index: 2;
         padding: 2px;
         text-align: center;
-        text-shadow: 1px 1px 1px ${colors.background.value};
+        text-shadow: 1px 1px 1px ${'#000'};
         -webkit-font-smoothing: antialiased;
       }
 
@@ -44,7 +38,7 @@ const LoadingDetailViewStyle = (props: LoadingDetailViewStyleProps) => {
         margin: auto;
         text-align: center;
         padding: 2px;
-        color: ${colors.alternate.value};
+        color: #FFFFFF;
       }
       
       #progress-text {
@@ -52,7 +46,7 @@ const LoadingDetailViewStyle = (props: LoadingDetailViewStyleProps) => {
         margin: auto;
         text-align: center;
         padding: 2px;
-        color: ${colors.main.value};
+        color: #FFFFFF;
       }
 
       #progress-container {
@@ -67,7 +61,7 @@ const LoadingDetailViewStyle = (props: LoadingDetailViewStyleProps) => {
         margin: auto;
         text-align: center;
         padding: 2px;
-        color: ${colors.main.value};
+        color: #FFFFFF;
       }
       
     `}</style>

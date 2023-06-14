@@ -66,6 +66,10 @@ async function encodeKTX2BasisTexture(data: KTX2EncodeRequestData): Promise<Arra
       basisEncoder.setMipRenormalize(true)
     }
 
+    if (data.options.yFlip) {
+      basisEncoder.setYFlip(true)
+    }
+
     basisEncoder.setMipGen(data.options.mipmaps ?? false)
 
     const basisFileData = new Uint8Array(data.image.width * data.image.height * 4)

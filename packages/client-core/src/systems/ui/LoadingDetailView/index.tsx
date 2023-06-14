@@ -40,7 +40,6 @@ const LoadingDetailView = () => {
   const uiState = useXRUIState<LoadingUIState>()
   const engineState = useHookstate(getMutableState(EngineState))
   const { t } = useTranslation()
-  const colors = uiState.colors
 
   const sceneLoaded = engineState.sceneLoaded.value
   const joinedWorld = engineState.joinedWorld.value
@@ -52,7 +51,7 @@ const LoadingDetailView = () => {
 
   return (
     <>
-      <LoadingDetailViewStyle colors={colors} />
+      <LoadingDetailViewStyle />
       <div id="loading-container" xr-layer="true">
         {/* <div id="thumbnail">
           <img xr-layer="true" xr-pixel-ratio="1" src={thumbnailUrl} crossOrigin="anonymous" />
@@ -61,14 +60,14 @@ const LoadingDetailView = () => {
           <div id="loading-text" xr-layer="true" xr-pixel-ratio="3">
             {t('common:loader.loading')}
           </div>
-          <div id="progress-text" xr-layer="true" xr-pixel-ratio="3">
-            {engineState.loadingProgress.value}%
+          <div id="progress-text" xr-layer="true" xr-pixel-ratio="2" xr-prerasterized="0-9">
+            {`${engineState.loadingProgress.value}%`}
           </div>
-          <div id="progress-container" xr-layer="true">
+          <div id="progress-container" xr-layer="true" xr-scalable="true" xr-apply-dom-layout="once">
             <ProgressBar
-              bgColor={colors.alternate.value}
-              completed={engineState.loadingProgress.value}
-              height="1px"
+              bgColor={'#ffffff'}
+              completed={100}
+              height="2px"
               baseBgColor="#000000"
               isLabelVisible={false}
             />
