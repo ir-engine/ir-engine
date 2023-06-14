@@ -2,11 +2,8 @@ import fs from 'fs'
 
 import { CommonKnownContentTypes } from '@etherealengine/common/src/utils/CommonKnownContentTypes'
 
-import { Application } from '../../../declarations'
 import config from '../../appconfig'
-import logger from '../../ServerLogger'
-import { UserParams } from '../../user/user/user.class'
-import { addGenericAssetToS3AndStaticResources, UploadAssetArgs } from '../upload-asset/upload-asset.service'
+import { UploadAssetArgs } from '../upload-asset/upload-asset.service'
 
 export type MediaUploadArguments = {
   media: Buffer

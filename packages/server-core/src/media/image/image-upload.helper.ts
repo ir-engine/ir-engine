@@ -5,6 +5,9 @@ import probe from 'probe-image-size'
 import { Op } from 'sequelize'
 import { Readable } from 'stream'
 
+import { UploadFile } from '@etherealengine/common/src/interfaces/UploadAssetInterface'
+import { KTX2Loader } from '@etherealengine/engine/src/assets/loaders/gltf/KTX2Loader'
+
 import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
 import { getResourceFiles } from '../static-resource/static-resource-helper'
@@ -84,10 +87,7 @@ export const imageUpload = async (app: Application, data: UploadAssetArgs) => {
     if (existingResource && existingImage) return app.service('image').get(existingImage.id)
 
     const files = await getResourceFiles(data, true)
-    const stream = new Readable()
-    stream.push(files[0].buffer)
-    stream.push(null)
-    const imageDimensions = await probe(stream)
+    const imageDimensions = await getImageStats(files[0], extension)
     const newImage = await app.service('image').create({
       width: imageDimensions.width,
       height: imageDimensions.height
@@ -123,5 +123,37 @@ export const imageUpload = async (app: Application, data: UploadAssetArgs) => {
     logger.error('image upload error')
     logger.error(err)
     throw err
+  }
+}
+
+export const getImageStats = async (file: UploadFile, extension: string) => {
+  if (extension === 'ktx2') {
+    const loader = new KTX2Loader()
+    return new Promise<{ width: number; height: number }>((resolve, reject) => {
+      loader.parse(
+        file.buffer as Buffer,
+        (texture) => {
+          const { width, height } = texture.source.data
+          resolve({
+            width,
+            height
+          })
+        },
+        (err) => {
+          logger.error('error parsing ktx2')
+          logger.error(err)
+          reject(err)
+        }
+      )
+    })
+  } else {
+    const stream = new Readable()
+    stream.push(file.buffer)
+    stream.push(null)
+    const imageDimensions = await probe(stream)
+    return {
+      width: imageDimensions.width as number,
+      height: imageDimensions.height as number
+    }
   }
 }
