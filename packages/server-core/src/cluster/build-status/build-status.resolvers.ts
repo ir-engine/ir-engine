@@ -23,26 +23,29 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Application } from '../../../declarations'
-import { BuildStatus } from './build-status.class'
-import hooks from './build-status.hooks'
-import createModel from './build-status.model'
+// // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
+import { resolve } from '@feathersjs/schema'
+import { v4 } from 'uuid'
 
-declare module '@etherealengine/common/declarations' {
-  interface ServiceTypes {
-    'build-status': BuildStatus
-  }
-}
+import { BuildStatusQuery, BuildStatusType } from '@etherealengine/engine/src/schemas/cluster/build-status.schema'
+import type { HookContext } from '@etherealengine/server-core/declarations'
 
-export default (app: Application): void => {
-  const options = {
-    Model: createModel(app),
-    paginate: app.get('paginate'),
-    multi: true
-  }
+import { getDateTimeSql } from '../../util/get-datetime-sql'
 
-  const event = new BuildStatus(options, app)
-  app.use('build-status', event)
-  const service = app.service('build-status')
-  service.hooks(hooks)
-}
+export const buildStatusResolver = resolve<BuildStatusType, HookContext>({})
+
+export const buildStatusExternalResolver = resolve<BuildStatusType, HookContext>({})
+
+export const buildStatusDataResolver = resolve<BuildStatusType, HookContext>({
+  id: async () => {
+    return v4()
+  },
+  createdAt: getDateTimeSql,
+  updatedAt: getDateTimeSql
+})
+
+export const buildStatusPatchResolver = resolve<BuildStatusType, HookContext>({
+  updatedAt: getDateTimeSql
+})
+
+export const buildStatusQueryResolver = resolve<BuildStatusQuery, HookContext>({})

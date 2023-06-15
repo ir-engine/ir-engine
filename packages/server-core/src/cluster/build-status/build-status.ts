@@ -23,8 +23,36 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import BuildStatus from './build-status/build-status'
-import ServerInfo from './server-info/server-info.service'
-import ServerLogs from './server-logs/server-logs.service'
+import { buildStatusMethods, buildStatusPath } from '@etherealengine/engine/src/schemas/cluster/build-status.schema'
 
-export default [BuildStatus, ServerInfo, ServerLogs]
+import { Application } from '../../../declarations'
+import { updateAppConfig } from '../../updateAppConfig'
+import { BuildStatusService } from './build-status.class'
+import buildStatusDocs from './build-status.docs'
+import hooks from './build-status.hooks'
+
+declare module '@etherealengine/common/declarations' {
+  interface ServiceTypes {
+    [buildStatusPath]: BuildStatusService
+  }
+}
+
+export default (app: Application): void => {
+  const options = {
+    name: buildStatusPath,
+    paginate: app.get('paginate'),
+    Model: app.get('knexClient'),
+    multi: true
+  }
+
+  app.use(buildStatusPath, new BuildStatusService(options), {
+    // A list of all methods this service exposes externally
+    methods: buildStatusMethods,
+    // You can add additional custom events to be sent to clients here
+    events: [],
+    docs: buildStatusDocs
+  })
+
+  const service = app.service(buildStatusPath)
+  service.hooks(hooks)
+}
