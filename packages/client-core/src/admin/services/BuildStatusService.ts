@@ -25,9 +25,8 @@ Ethereal Engine. All Rights Reserved.
 
 import { Paginated } from '@feathersjs/feathers'
 
-import { BuildStatus } from '@etherealengine/common/src/interfaces/BuildStatus'
-import { BuildStatusResult } from '@etherealengine/common/src/interfaces/BuildStatusResult'
 import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
+import { buildStatusPath, BuildStatusType } from '@etherealengine/engine/src/schemas/cluster/build-status.schema'
 import { defineAction, defineState, dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 
 import { API } from '../../API'
@@ -37,7 +36,7 @@ import { NotificationService } from '../../common/services/NotificationService'
 export const AdminBuildStatusState = defineState({
   name: 'AdminBuildStatusState',
   initial: () => ({
-    buildStatuses: [] as Array<BuildStatus>,
+    buildStatuses: [] as Array<BuildStatusType>,
     skip: 0,
     limit: 10,
     total: 0,
@@ -69,15 +68,15 @@ export const AdminBuildStatusReceptors = {
 //Service
 export const BuildStatusService = {
   fetchBuildStatus: async (skip = 0) => {
-    let buildStatusResult = (await API.instance.client.service('build-status').find({
+    let buildStatusResult = await API.instance.client.service(buildStatusPath).find({
       query: {
         $limit: 10,
         $skip: skip,
         $sort: {
-          id: 'desc'
+          id: -1
         }
       }
-    })) as BuildStatusResult
+    })
 
     dispatchAction(
       AdminBuildStatusActions.fetchBuildStatusRetrieved({
@@ -94,7 +93,7 @@ export const BuildStatusService = {
 export class AdminBuildStatusActions {
   static fetchBuildStatusRetrieved = defineAction({
     type: 'ee.client.AdminBuildStatus.FETCH_BUILD_STATUS_RETRIEVED' as const,
-    data: matches.array as Validator<unknown, BuildStatus[]>,
+    data: matches.array as Validator<unknown, BuildStatusType[]>,
     total: matches.number,
     limit: matches.number,
     skip: matches.number
