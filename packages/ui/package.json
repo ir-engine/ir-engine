@@ -33,7 +33,7 @@
     "build:storybook": "storybook build -c .storybook -o build/",
     "predeploy": "npm run build:storybook",
     "deploy": "gh-pages -d build/",
-    "storybook": "storybook dev -p 6006 -h travis.shetland-turtle.ts.net --disable-telemetry --https --ssl-key ../../certs/key.pem --ssl-cert ../../certs/cert.pem"
+    "storybook": "storybook dev -p 6006 -h tcb-mbp.shetland-turtle.ts.net --disable-telemetry --https --ssl-key ../../certs/key.pem --ssl-cert ../../certs/cert.pem"
   },
   "dependencies": {
     "@heroicons/react": "^2.0.16",

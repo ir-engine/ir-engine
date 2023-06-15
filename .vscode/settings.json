@@ -16,5 +16,7 @@
     "packages/client/i18n"
   ],
   "i18n-ally.keystyle": "nested",
-  "i18n-ally.namespace": true
+  "i18n-ally.namespace": true,
+  "storyExplorer.server.external.url": "https://tcb-mbp.shetland-turtle.ts.net:6006",
+  "storyExplorer.server.internal.enabled": false
 }
