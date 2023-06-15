@@ -39,23 +39,8 @@ export default (app: Application) => {
 
   ;(image as any).associate = (models: any): void => {
     ;(image as any).belongsTo(models.static_resource, {
-      foreignKey: 'pngStaticResourceId',
-      as: 'pngStaticResource',
-      required: false
-    })
-    ;(image as any).belongsTo(models.static_resource, {
-      foreignKey: 'jpegStaticResourceId',
-      as: 'jpegStaticResource',
-      required: false
-    })
-    ;(image as any).belongsTo(models.static_resource, {
-      foreignKey: 'gifStaticResourceId',
-      as: 'gifStaticResource',
-      required: false
-    })
-    ;(image as any).belongsTo(models.static_resource, {
-      foreignKey: 'ktx2StaticResourceId',
-      as: 'ktx2StaticResource',
+      foreignKey: 'staticResourceId',
+      as: 'staticResource',
       required: false
     })
     ;(image as any).belongsTo(models.image, {

@@ -5,10 +5,8 @@ import { Op } from 'sequelize'
 import { AudioInterface } from '@etherealengine/common/src/interfaces/AudioInterface'
 
 import { Application } from '../../../declarations'
-import verifyScope from '../../hooks/verify-scope'
 import { UserParams } from '../../user/user/user.class'
-import { NotFoundException, UnauthenticatedException } from '../../util/exceptions/exception'
-import { getStorageProvider } from '../storageprovider/storageprovider'
+import { NotFoundException } from '../../util/exceptions/exception'
 
 export type CreateAudioType = {
   name?: string
@@ -39,19 +37,18 @@ export class Audio extends Service<AudioInterface> {
     }
     const limit = params?.query?.$limit ?? 10
     const skip = params?.query?.$skip ?? 0
+    const staticResourceVariant = this.app.service('static-resource-variant').Model
     const result = await super.Model.findAndCountAll({
       include: [
         {
           model: this.app.service('static-resource').Model,
-          as: 'mp3StaticResource'
-        },
-        {
-          model: this.app.service('static-resource').Model,
-          as: 'mpegStaticResource'
-        },
-        {
-          model: this.app.service('static-resource').Model,
-          as: 'oggStaticResource'
+          as: 'staticResource',
+          include: [
+            {
+              model: staticResourceVariant,
+              as: 'variants'
+            }
+          ]
         }
       ],
       limit: limit,

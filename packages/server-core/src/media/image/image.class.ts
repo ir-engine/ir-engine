@@ -14,10 +14,7 @@ export type CreateImageType = {
   duration?: number
   width: number
   height: number
-  pngStaticResourceId?: string
-  jpegStaticResourceId?: string
-  gifStaticResourceId?: string
-  ktx2StaticResourceId?: string
+  staticResourceId?: string
 }
 
 export class Image extends Service<ImageInterface> {
@@ -34,10 +31,7 @@ export class Image extends Service<ImageInterface> {
     const query = {
       $select: ['id']
     } as any
-    if (data.jpegStaticResourceId) query.jpegStaticResourceId = data.jpegStaticResourceId
-    if (data.pngStaticResourceId) query.pngStaticResourceId = data.pngStaticResourceId
-    if (data.gifStaticResourceId) query.gifStaticResourceId = data.gifStaticResourceId
-    if (data.ktx2StaticResourceId) query.ktx2StaticResourceId = data.ktx2StaticResourceId
+    if (data.staticResourceId) query.staticResourceId = data.staticResourceId
     const oldResource = await this.find({
       query
     })
@@ -69,19 +63,7 @@ export class Image extends Service<ImageInterface> {
       include: [
         {
           model: this.app.service('static-resource').Model,
-          as: 'pngStaticResource'
-        },
-        {
-          model: this.app.service('static-resource').Model,
-          as: 'jpegStaticResource'
-        },
-        {
-          model: this.app.service('static-resource').Model,
-          as: 'gifStaticResource'
-        },
-        {
-          model: this.app.service('static-resource').Model,
-          as: 'ktx2StaticResource'
+          as: 'staticResource'
         },
         {
           model: this.app.service('image').Model,

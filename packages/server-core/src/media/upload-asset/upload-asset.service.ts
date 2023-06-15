@@ -2,6 +2,7 @@ import { Params } from '@feathersjs/feathers'
 import { bodyParser, koa } from '@feathersjs/koa'
 import Multer from '@koa/multer'
 import { createHash } from 'crypto'
+import fs from 'fs'
 import path from 'path'
 import { Op } from 'sequelize'
 import { MathUtils } from 'three'
@@ -14,19 +15,19 @@ import {
   AvatarUploadArgsType,
   UploadFile
 } from '@etherealengine/common/src/interfaces/UploadAssetInterface'
-import { CommonKnownContentTypes } from '@etherealengine/common/src/utils/CommonKnownContentTypes'
+import { CommonKnownContentTypes, MimeTypeToExtension } from '@etherealengine/common/src/utils/CommonKnownContentTypes'
 import { processFileName } from '@etherealengine/common/src/utils/processFileName'
 
 import { Application } from '../../../declarations'
 import verifyScope from '../../hooks/verify-scope'
 import logger from '../../ServerLogger'
 import { uploadAvatarStaticResource } from '../../user/avatar/avatar-helper'
-import { audioUpload } from '../audio/audio-upload.helper'
-import { imageUpload } from '../image/image-upload.helper'
-import { modelUpload } from '../model/model-upload.helper'
+import { audioUploadFile } from '../audio/audio-upload.helper'
+import { imageUploadFile } from '../image/image-upload.helper'
+import { modelUploadFile } from '../model/model-upload.helper'
 import { getCachedURL } from '../storageprovider/getCachedURL'
 import { getStorageProvider } from '../storageprovider/storageprovider'
-import { videoUpload } from '../video/video-upload.helper'
+import { videoUploadFile } from '../video/video-upload.helper'
 import hooks from './upload-asset.hooks'
 
 const multipartMiddleware = Multer({ limits: { fieldSize: Infinity } })
@@ -49,6 +50,40 @@ export interface ResourcePatchCreateInterface {
   url?: string
   project?: string
   userId?: string
+}
+
+export const getFileMetadata = async (data: { name?: string; file: UploadFile | string }) => {
+  const { name, file } = data
+
+  let contentLength = 0
+  let extension = ''
+  let assetName = name!
+
+  if (typeof file === 'string') {
+    const url = file
+    if (/http(s)?:\/\//.test(url)) {
+      const fileHead = await fetch(url, { method: 'HEAD' })
+      if (!/^[23]/.test(fileHead.status.toString())) throw new Error('Invalid URL')
+      contentLength = fileHead.headers['content-length'] || fileHead.headers?.get('content-length')
+    } else {
+      const fileHead = await fs.statSync(url)
+      contentLength = fileHead.size
+    }
+    if (!name) assetName = url.split('/').pop()!
+    extension = url.split('.').pop()!
+  } else {
+    extension = MimeTypeToExtension[file.mimetype] ?? file.originalname.split('.').pop()
+    contentLength = file.size
+    assetName = name ?? file.originalname
+  }
+
+  const hash = createHash('sha3-256').update(contentLength.toString()).update(assetName).digest('hex')
+
+  return {
+    assetName,
+    extension,
+    hash
+  }
 }
 
 const uploadVariant = async (file: Buffer, mimeType: string, key: string) => {
@@ -75,20 +110,19 @@ const uploadVariant = async (file: Buffer, mimeType: string, key: string) => {
 export type UploadAssetArgs = {
   project: string
   name?: string
-  files?: Array<UploadFile>
-  url?: string
+  files: Array<UploadFile> // uploaded file or strings
 }
 
 const uploadAsset = (app: Application, type: string, args: UploadAssetArgs) => {
   switch (type) {
     case 'image':
-      return imageUpload(app, args)
+      return imageUploadFile(app, args)
     case 'video':
-      return videoUpload(app, args)
+      return videoUploadFile(app, args)
     case 'audio':
-      return audioUpload(app, args)
+      return audioUploadFile(app, args)
     case 'model3d':
-      return modelUpload(app, args)
+      return modelUploadFile(app, args)
   }
 }
 

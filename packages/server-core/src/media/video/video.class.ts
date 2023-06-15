@@ -12,8 +12,7 @@ export type CreateVideoType = {
   name?: string
   tags?: string[]
   duration?: number
-  mp4ResourceId?: string
-  m3u8ResourceId?: string
+  staticResourceId?: string
 }
 
 export class Video extends Service<VideoInterface> {
@@ -31,8 +30,7 @@ export class Video extends Service<VideoInterface> {
     const query = {
       $select: ['id']
     } as any
-    if (data.mp4ResourceId) query.mp4ResourceId = data.mp4ResourceId
-    if (data.m3u8ResourceId) query.m3u8ResourceId = data.m3u8ResourceId
+    if (data.staticResourceId) query.staticResourceId = data.staticResourceId
     const oldResource = await this.find({
       query
     })
@@ -64,11 +62,7 @@ export class Video extends Service<VideoInterface> {
       include: [
         {
           model: this.app.service('static-resource').Model,
-          as: 'mp4StaticResource'
-        },
-        {
-          model: this.app.service('static-resource').Model,
-          as: 'm3u8StaticResource'
+          as: 'staticResource'
         }
       ],
       limit: limit,

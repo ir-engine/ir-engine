@@ -118,16 +118,7 @@ export const MediaNodeEditor: EditorComponentType = (props) => {
         name="Source Paths"
         prefix="Content"
         values={media.resources.value.map(
-          (resource) =>
-            resource?.mp3StaticResource?.url ||
-            resource?.mpegStaticResource?.url ||
-            resource?.oggStaticResource?.url ||
-            resource?.mp4StaticResource?.url ||
-            resource?.manifest?.staticResource?.url ||
-            resource?.uvolStaticResource?.url ||
-            resource?.drcsStaticResource?.url ||
-            resource?.path ||
-            ''
+          (resource) => resource?.staticResource?.url || resource?.manifest?.staticResource?.url || resource?.path || ''
         )}
         onChange={updateResources}
         label={t('editor:properties.media.paths')}

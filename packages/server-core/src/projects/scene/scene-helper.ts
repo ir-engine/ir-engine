@@ -9,10 +9,10 @@ import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoad
 import { AssetClass } from '@etherealengine/engine/src/assets/enum/AssetClass'
 
 import { Application } from '../../../declarations'
-import { audioUpload } from '../../media/audio/audio-upload.helper'
-import { imageUpload } from '../../media/image/image-upload.helper'
-import { videoUpload } from '../../media/video/video-upload.helper'
-import { volumetricUpload } from '../../media/volumetric/volumetric-upload.helper'
+import { addAudioAssetFromProject } from '../../media/audio/audio-upload.helper'
+import { addImageAssetFromProject } from '../../media/image/image-upload.helper'
+import { addVideoAssetFromProject } from '../../media/video/video-upload.helper'
+import { addVolumetricAssetFromProject } from '../../media/volumetric/volumetric-upload.helper'
 import { parseScenePortals } from './scene-parser'
 import { SceneParams } from './scene.service'
 
@@ -75,7 +75,6 @@ export const convertStaticResource = async (app: Application, project: string, s
     for (const component of entity.components) {
       let urls = [] as string[]
       const paths = component.props.paths
-      const resources = component.props.resources
       switch (component.name) {
         case 'media':
           let mediaType
@@ -83,49 +82,6 @@ export const convertStaticResource = async (app: Application, project: string, s
             urls = paths
             delete component.props.paths
             mediaType = AssetLoader.getAssetClass(urls[0])
-          } else {
-            for (const resource of resources ?? []) {
-              if (resource.mp3StaticResource || resource.oggStaticResource || resource.mpegStaticResource) {
-                mediaType = AssetClass.Audio
-                urls.push(
-                  typeof resource.mp3StaticResource === 'string'
-                    ? resource.mp3StaticResource
-                    : typeof resource.mp3StaticResource === 'object'
-                    ? resource.mp3StaticResource.url
-                    : typeof resource.oggStaticResource === 'string'
-                    ? resource.oggStaticResource
-                    : typeof resource.oggStaticResource === 'object'
-                    ? resource.oggStaticResource.url
-                    : typeof resource.mpegStaticResource === 'string'
-                    ? resource.mpegStaticResource
-                    : resource.mpegStaticResource.url
-                )
-              } else if (resource.mp4StaticResource || resource.m3u8StaticResource) {
-                mediaType = AssetClass.Video
-                urls.push(
-                  typeof resource.mp4StaticResource === 'string'
-                    ? resource.mp4StaticResource
-                    : typeof resource.mp4StaticResource === 'object'
-                    ? resource.mp4StaticResource.url
-                    : typeof resource.m3u8StaticResource === 'string'
-                    ? resource.m3u8StaticResource
-                    : resource.m3u8StaticResource.url
-                )
-              } else if (resource.drcsStaticResource || resource.uvolStaticResource || resource.manifest) {
-                mediaType = AssetClass.Volumetric
-                urls.push(
-                  typeof resource.manifest === 'object'
-                    ? resource.manifest.staticResource.url
-                    : typeof resource.drcsStaticResource === 'string'
-                    ? resource.drcsStaticResource
-                    : typeof resource.drcsStaticResource === 'object'
-                    ? resource.drcsStaticResource.url
-                    : typeof resource.uvolStaticResource === 'string'
-                    ? resource.uvolStaticResource
-                    : resource.uvolStaticResource.url
-                )
-              }
-            }
           }
           for (let index in urls)
             if (symbolRe.test(urls[index]))
@@ -134,15 +90,15 @@ export const convertStaticResource = async (app: Application, project: string, s
           // console.log('urls', urls)
           if (mediaType === AssetClass.Audio)
             component.props.resources = JSON.parse(
-              JSON.stringify(await Promise.all(urls.map((url) => audioUpload(app, { url, project }))))
+              JSON.stringify(await Promise.all(urls.map((url) => addAudioAssetFromProject(app, [url], project))))
             )
           else if (mediaType === AssetClass.Video)
             component.props.resources = JSON.parse(
-              JSON.stringify(await Promise.all(urls.map((url) => videoUpload(app, { url, project }))))
+              JSON.stringify(await Promise.all(urls.map((url) => addVideoAssetFromProject(app, [url], project))))
             )
           else if (mediaType === AssetClass.Volumetric)
             component.props.resources = JSON.parse(
-              JSON.stringify(await Promise.all(urls.map((url) => volumetricUpload(app, { url, project }))))
+              JSON.stringify(await Promise.all(urls.map((url) => addVolumetricAssetFromProject(app, [url], project))))
             )
           break
         // case 'model':
@@ -166,7 +122,7 @@ export const convertStaticResource = async (app: Application, project: string, s
             delete component.props.paths
           } else
             component.props.resources = JSON.parse(
-              JSON.stringify(await Promise.all(urls.map((url) => imageUpload(app, { url, project }))))
+              JSON.stringify(await Promise.all(urls.map((url) => addImageAssetFromProject(app, [url], project))))
             )
           break
       }

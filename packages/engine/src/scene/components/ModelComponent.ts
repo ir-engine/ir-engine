@@ -35,10 +35,7 @@ import { UUIDComponent } from './UUIDComponent'
 
 export type ModelResource = {
   src?: string
-  gltfStaticResource?: StaticResourceInterface
-  glbStaticResource?: StaticResourceInterface
-  fbxStaticResource?: StaticResourceInterface
-  usdzStaticResource?: StaticResourceInterface
+  staticResource?: StaticResourceInterface
   id?: EntityUUID
 }
 
@@ -101,12 +98,7 @@ function ModelReactor() {
   const modelComponent = useComponent(entity, ModelComponent)
   const groupComponent = useOptionalComponent(entity, GroupComponent)
   const model = modelComponent.value
-  const source =
-    model.resource?.gltfStaticResource?.url ||
-    model.resource?.glbStaticResource?.url ||
-    model.resource?.fbxStaticResource?.url ||
-    model.resource?.usdzStaticResource?.url ||
-    model.src
+  const source = model.resource?.staticResource?.url || model.src
 
   // update src
   useEffect(() => {

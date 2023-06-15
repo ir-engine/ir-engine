@@ -3,7 +3,7 @@ import { ModelInterface } from '@etherealengine/common/src/dbmodels/Model'
 import { Application } from '../../../declarations'
 import authenticate from '../../hooks/authenticate'
 import verifyScope from '../../hooks/verify-scope'
-import { modelUpload } from './model-upload.helper'
+import { modelUploadFile } from './model-upload.helper'
 import { Model } from './model.class'
 import modelDocs from './model.docs'
 import hooks from './model.hooks'
@@ -43,7 +43,7 @@ export default (app: Application) => {
 
   app.use('model-upload', {
     create: async (data) => {
-      return modelUpload(app, data)
+      return modelUploadFile(app, data)
     }
   })
 

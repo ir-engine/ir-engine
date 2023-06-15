@@ -1,117 +1,73 @@
-import { createHash } from 'crypto'
-import fs from 'fs'
-import fetch from 'node-fetch'
-import { Op } from 'sequelize'
+import path from 'path'
+
+import { ModelInterface } from '@etherealengine/common/src/interfaces/ModelInterface'
 
 import { Application } from '../../../declarations'
-import logger from '../../ServerLogger'
-import { getResourceFiles } from '../static-resource/static-resource-helper'
-import { addAssetAsStaticResource, UploadAssetArgs } from '../upload-asset/upload-asset.service'
+import config from '../../appconfig'
+import { downloadResourceAndMetadata, getExistingResource } from '../static-resource/static-resource-helper'
+import { getStorageProvider } from '../storageprovider/storageprovider'
+import { addAssetAsStaticResource, getFileMetadata, UploadAssetArgs } from '../upload-asset/upload-asset.service'
 
-export const modelUpload = async (app: Application, data: UploadAssetArgs) => {
-  try {
-    let contentLength, extension
-    if (data.url) {
-      if (/http(s)?:\/\//.test(data.url)) {
-        const fileHead = await fetch(data.url, { method: 'HEAD' })
-        if (!/^[23]/.test(fileHead.status.toString())) throw new Error('Invalid URL')
-        contentLength = fileHead.headers['content-length'] || fileHead.headers?.get('content-length')
-      } else {
-        const fileHead = await fs.statSync(data.url)
-        contentLength = fileHead.size.toString()
-      }
-      if (!data.name) data.name = data.url.split('/').pop()!.split('.')[0]
-      extension = data.url.split('.').pop()
-    } else if (data.files) {
-      const mainFile = data.files[0]!
-      switch (mainFile.mimetype) {
-        case 'application/octet-stream':
-          extension = mainFile.originalname.split('.').pop()
-          break
-        case 'model/gltf':
-          extension = 'gltf'
-          break
-        case 'model/glb':
-          extension = 'glb'
-          break
-        case 'model/usdz':
-          extension = 'usdz'
-          break
-        case 'model/fbx':
-          extension = 'fbx'
-          break
-      }
-      contentLength = mainFile.size.toString()
-      if (!data.name) data.name = mainFile.originalname
-    }
+export const addModelAssetFromProject = async (
+  app: Application,
+  urls: string[],
+  project: string,
+  download = config.server.cloneProjectStaticResources
+) => {
+  console.log('addModelAssetFromProject', urls, project, download)
+  const storageProvider = getStorageProvider()
+  const mainURL = urls[0]
+  const isExternalToProject =
+    !project || project !== mainURL.split(path.join(storageProvider.cacheDomain, 'projects/'))?.[1]?.split('/')?.[0]
 
-    const hash = createHash('sha3-256').update(contentLength).update(data.name!).digest('hex')
-    let existingModel
-    let existingResource = await app.service('static-resource').Model.findOne({
-      where: {
-        hash
-      }
-    })
+  const { assetName, hash } = await getFileMetadata({ file: mainURL })
+  const existingModel = await getExistingResource<ModelInterface>(app, 'model', hash)
+  if (existingModel) return existingModel
 
-    if (existingResource)
-      existingModel = await app.service('model').Model.findOne({
-        where: {
-          [Op.or]: [
-            {
-              glbStaticResourceId: {
-                [Op.eq]: existingResource.id
-              }
-            },
-            {
-              gltfStaticResourceId: {
-                [Op.eq]: existingResource.id
-              }
-            },
-            {
-              fbxStaticResourceId: {
-                [Op.eq]: existingResource.id
-              }
-            },
-            {
-              usdzStaticResourceId: {
-                [Op.eq]: existingResource.id
-              }
-            }
-          ]
-        }
-      })
-    if (existingResource && existingModel) return app.service('model').get(existingModel.id)
-    else {
-      const files = await getResourceFiles(data)
-      const newModel = await app.service('model').create({})
-      if (!existingResource) {
-        const key = `static-resources/model/${newModel.id}`
-        existingResource = await addAssetAsStaticResource(app, files, {
-          hash: hash,
-          path: key,
-          staticResourceType: 'model3d',
-          stats: {
-            size: contentLength
-          }
-        })
-      }
-      const update = {} as any
-      if (newModel?.id) {
-        const staticResourceColumn = `${extension}StaticResourceId`
-        update[staticResourceColumn] = existingResource.id
-      }
-      try {
-        await app.service('model').patch(newModel.id, update)
-      } catch (err) {
-        logger.error('error updating model with resources')
-        logger.error(err)
-        throw err
-      }
-      return app.service('model').get(newModel.id)
-    }
-  } catch (err) {
-    logger.error('model upload error')
-    logger.error(err)
-    throw err
-  }
+  const files = await Promise.all(
+    urls.map((url) => downloadResourceAndMetadata(url, isExternalToProject ? false : download))
+  )
+
+  const key = isExternalToProject ? `static-resources/${project}/` : `projects/${project}/assets/`
+
+  const resource = await addAssetAsStaticResource(app, files, {
+    hash: hash,
+    path: key,
+    staticResourceType: 'model3d',
+    project
+  })
+
+  return (await app.service('model').create({
+    name: assetName,
+    staticResourceId: resource.id!
+  })) as ModelInterface
+}
+
+/**
+ * hash exists?
+ * no - upload to /temp & return new static resource
+ * yes - return static resource
+ */
+export const modelUploadFile = async (app: Application, data: UploadAssetArgs) => {
+  console.log('modelUpload', data)
+  const { assetName, hash } = await getFileMetadata({
+    file: data.files[0],
+    name: data.files[0].originalname
+  })
+
+  const existingAudio = await getExistingResource<ModelInterface>(app, 'model', hash)
+  if (existingAudio) return existingAudio
+
+  const key = `/temp/${hash}`
+  const resource = await addAssetAsStaticResource(app, data.files, {
+    hash: hash,
+    path: key,
+    staticResourceType: 'model3d',
+    project: data.project
+  })
+
+  return (await app.service('model').create({
+    name: assetName,
+    staticResourceId: resource.id
+  })) as ModelInterface
 }

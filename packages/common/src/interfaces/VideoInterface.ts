@@ -7,10 +7,8 @@ export interface VideoInterface {
   height: number
   width: number
   duration: number
-  mp4StaticResourceId?: string
-  m3u8StaticResourceId?: string
-  mp4StaticResource?: StaticResourceInterface
-  m3u8StaticResource?: StaticResourceInterface
+  staticResourceId?: string
+  staticResource?: StaticResourceInterface
   thumbnail?: string
   thumbnailId?: string
 }

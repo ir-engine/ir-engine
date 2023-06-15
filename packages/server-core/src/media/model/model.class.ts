@@ -3,17 +3,17 @@ import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
 import { Op } from 'sequelize'
 
 import { ModelInterface } from '@etherealengine/common/src/interfaces/ModelInterface'
-import { StaticResourceInterface } from '@etherealengine/common/src/interfaces/StaticResourceInterface'
 
 import { Application } from '../../../declarations'
 import { UserParams } from '../../user/user/user.class'
-import { NotFoundException, UnauthenticatedException } from '../../util/exceptions/exception'
+import { NotFoundException } from '../../util/exceptions/exception'
 
 export type CreateModelType = {
   name?: string
   tags?: string[]
   duration?: number
   src?: string
+  staticResourceId?: string
 }
 
 const addModelAssociations = (app: Application) => {
@@ -22,37 +22,7 @@ const addModelAssociations = (app: Application) => {
   return [
     {
       model: staticResource,
-      as: 'glbStaticResource',
-      include: [
-        {
-          model: staticResourceVariant,
-          as: 'variants'
-        }
-      ]
-    },
-    {
-      model: staticResource,
-      as: 'gltfStaticResource',
-      include: [
-        {
-          model: staticResourceVariant,
-          as: 'variants'
-        }
-      ]
-    },
-    {
-      model: staticResource,
-      as: 'fbxStaticResource',
-      include: [
-        {
-          model: staticResourceVariant,
-          as: 'variants'
-        }
-      ]
-    },
-    {
-      model: staticResource,
-      as: 'usdzStaticResource',
+      as: 'staticResource',
       include: [
         {
           model: staticResourceVariant,

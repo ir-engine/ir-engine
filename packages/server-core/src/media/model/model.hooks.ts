@@ -16,19 +16,7 @@ export default {
         models: [
           {
             model: 'static-resource',
-            as: 'glbStaticResource'
-          },
-          {
-            model: 'static-resource',
-            as: 'gltfStaticResource'
-          },
-          {
-            model: 'static-resource',
-            as: 'fbxStaticResource'
-          },
-          {
-            model: 'static-resource',
-            as: 'usdzStaticResource'
+            as: 'staticResource'
           },
           {
             model: 'image',

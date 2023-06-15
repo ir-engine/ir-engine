@@ -6,8 +6,6 @@ export interface ModelInterface {
   tags?: string[]
   thumbnail?: string
   src: string
-  glbStaticResource: StaticResourceInterface
-  gltfStaticResource: StaticResourceInterface
-  fbxStaticResource: StaticResourceInterface
-  usdzStaticResource: StaticResourceInterface
+  staticResourceId?: string
+  staticResource?: StaticResourceInterface
 }

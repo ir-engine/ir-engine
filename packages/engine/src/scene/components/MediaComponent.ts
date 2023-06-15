@@ -40,15 +40,7 @@ export const AudioNodeGroups = new WeakMap<HTMLMediaElement | MediaStream, Audio
 
 export type MediaResource = {
   path?: string
-  mp3StaticResource?: StaticResourceInterface
-  mpegStaticResource?: StaticResourceInterface
-  oggStaticResource?: StaticResourceInterface
-  mp4StaticResource?: StaticResourceInterface
-  m3u8StaticResource?: StaticResourceInterface
-  drcsStaticResource?: StaticResourceInterface
-  uvolStaticResource?: StaticResourceInterface
-  videoStaticResource?: StaticResourceInterface
-  dataStaticResource?: StaticResourceInterface
+  staticResource?: StaticResourceInterface
   manifest?: DataInterface
   video?: VideoInterface
   mediaType: 'audio' | 'video' | 'volumetric'
@@ -78,17 +70,7 @@ export const createAudioNodeGroup = (
 }
 
 export const getResourceURL = (resource: MediaResource) => {
-  return (
-    resource.mp3StaticResource?.url ||
-    resource.mpegStaticResource?.url ||
-    resource.oggStaticResource?.url ||
-    resource.mp4StaticResource?.url ||
-    resource.m3u8StaticResource?.url ||
-    resource.video?.mp4StaticResource?.url ||
-    resource.video?.m3u8StaticResource?.url ||
-    resource.path ||
-    ''
-  )
+  return resource.staticResource?.url || resource.video?.staticResource?.url || resource.path || ''
 }
 
 export const MediaElementComponent = defineComponent({

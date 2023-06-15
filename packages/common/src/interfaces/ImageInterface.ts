@@ -7,12 +7,6 @@ export interface ImageInterface {
   height: number
   width: number
   src: string
-  jpegStaticResourceId?: string
-  jpegStaticResource?: StaticResourceInterface
-  ktx2StaticResourceId?: string
-  ktx2StaticResource?: StaticResourceInterface
-  gifStaticResourceId?: string
-  gifStaticResource?: StaticResourceInterface
-  pngStaticResourceId?: string
-  pngStaticResource?: StaticResourceInterface
+  staticResourceId?: string
+  staticResource?: StaticResourceInterface
 }

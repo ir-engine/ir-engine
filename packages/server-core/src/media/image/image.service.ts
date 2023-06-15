@@ -3,7 +3,7 @@ import { ImageInterface } from '@etherealengine/common/src/dbmodels/Image'
 import { Application } from '../../../declarations'
 import authenticate from '../../hooks/authenticate'
 import verifyScope from '../../hooks/verify-scope'
-import { imageUpload } from './image-upload.helper'
+import { imageUploadFile } from './image-upload.helper'
 import { Image } from './image.class'
 import imageDocs from './image.docs'
 import hooks from './image.hooks'
@@ -43,7 +43,7 @@ export default (app: Application) => {
 
   app.use('image-upload', {
     create: async (data) => {
-      return imageUpload(app, data)
+      return imageUploadFile(app, data)
     }
   })
 

@@ -26,16 +26,16 @@ const localStorageBeforeTest = (
   return new Promise<void>((resolve) => {
     StartTestFileServer()
 
-    const dir = path.join(appRootPath.path, `packages/server/upload`, testFolderName)
+    const dir = path.join(appRootPath.path, `packages/server/upload_test`, testFolderName)
     if (fs.existsSync(dir)) fs.rmSync(dir, { recursive: true })
-    fs.mkdirSync(path.join(appRootPath.path, `packages/server/upload`, folderKeyTemp), { recursive: true })
-    fs.mkdirSync(path.join(appRootPath.path, `packages/server/upload`, folderKeyTemp2), { recursive: true })
+    fs.mkdirSync(path.join(appRootPath.path, `packages/server/upload_test`, folderKeyTemp), { recursive: true })
+    fs.mkdirSync(path.join(appRootPath.path, `packages/server/upload_test`, folderKeyTemp2), { recursive: true })
     resolve()
   })
 }
 const localStorageAfterTest = (provider, testFolderName): Promise<any> => {
   return new Promise<void>((resolve) => {
-    const dir = path.join(appRootPath.path, `packages/server/upload`, testFolderName)
+    const dir = path.join(appRootPath.path, `packages/server/upload_test`, testFolderName)
     fs.rmSync(dir, { recursive: true })
     resolve()
   })

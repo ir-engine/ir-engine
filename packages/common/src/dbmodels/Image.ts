@@ -4,5 +4,5 @@ export interface ImageInterface {
   tags?: string[]
   height: number
   width: number
-  jpegStaticResourceId?: string
+  staticResourceId?: string
 }

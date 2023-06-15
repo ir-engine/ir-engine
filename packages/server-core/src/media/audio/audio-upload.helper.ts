@@ -4,6 +4,7 @@ import execa from 'execa'
 import fs from 'fs'
 import mp3Duration from 'mp3-duration'
 import fetch from 'node-fetch'
+import path from 'path'
 import { Op } from 'sequelize'
 import { Readable } from 'stream'
 
@@ -13,8 +14,9 @@ import { StaticResourceInterface } from '@etherealengine/common/src/interfaces/S
 import { Application } from '../../../declarations'
 import config from '../../appconfig'
 import logger from '../../ServerLogger'
-import { getResourceFiles } from '../static-resource/static-resource-helper'
-import { addAssetAsStaticResource, UploadAssetArgs } from '../upload-asset/upload-asset.service'
+import { downloadResourceAndMetadata, getExistingResource } from '../static-resource/static-resource-helper'
+import { getStorageProvider } from '../storageprovider/storageprovider'
+import { addAssetAsStaticResource, getFileMetadata, UploadAssetArgs } from '../upload-asset/upload-asset.service'
 
 export const getMP3Duration = async (body): Promise<number> => {
   return new Promise((resolve, reject) =>
@@ -25,131 +27,107 @@ export const getMP3Duration = async (body): Promise<number> => {
   )
 }
 
-export const audioUpload = async (
+/**
+ * install project
+ * if external url and clone static resources, clone to /static-resources/project
+ * if external url and not clone static resources, link new static resource
+ * if internal url, link new static resource
+ */
+export const addAudioAssetFromProject = async (
   app: Application,
-  data: UploadAssetArgs,
-  forceDownload = config.server.cloneProjectStaticResources
+  urls: string[],
+  project: string,
+  download = config.server.cloneProjectStaticResources
 ) => {
-  console.trace('audioUpload', data)
-  try {
-    const project = data.project
-    let fileHead, contentLength, extension
-    if (data.url) {
-      if (/http(s)?:\/\//.test(data.url)) {
-        fileHead = await fetch(data.url, { method: 'HEAD' })
-        if (!/^[23]/.test(fileHead.status.toString())) throw new Error('Invalid URL')
-        contentLength = fileHead.headers['content-length'] || fileHead.headers?.get('content-length')
-      } else {
-        fileHead = await fs.statSync(data.url)
-        contentLength = fileHead.size.toString()
-      }
-      if (!data.name) data.name = data.url.split('/').pop()
-      extension = data.url.split('.').pop()
-    } else if (data.files) {
-      const mainFile = data.files[0]!
-      switch (mainFile.mimetype) {
-        case 'application/octet-stream':
-          extension = mainFile.originalname.split('.').pop()
-          break
-        case 'audio/mp3':
-        case 'audio/mpeg':
-          extension = 'mp3'
-          break
-        case 'audio/ogg':
-          extension = 'ogg'
-          break
-      }
-      contentLength = mainFile.size.toString()
-      if (!data.name) data.name = mainFile.originalname
-    }
+  console.log('addAudioAssetFromProject', urls, project, download)
+  const storageProvider = getStorageProvider()
+  const mainURL = urls[0]
+  const fromStorageProvider = mainURL.split(path.join(storageProvider.cacheDomain, 'projects/'))
+  const isExternalToProject =
+    !project || fromStorageProvider.length === 1 || project !== fromStorageProvider?.[1]?.split('/')?.[0]
+  console.log({ isExternalToProject })
 
-    const hash = createHash('sha3-256').update(contentLength).update(data.name!).digest('hex')
-    let existingAudio: AudioInterface | null = null
-    let existingResource = (await app.service('static-resource').Model.findOne({
-      where: {
-        hash
-      }
-    })) as StaticResourceInterface | null
+  const { assetName, hash } = await getFileMetadata({ file: mainURL })
+  const existingAudio = await getExistingResource<AudioInterface>(app, 'audio', hash)
+  if (existingAudio) return existingAudio
 
-    if (existingResource) {
-      existingAudio = await app.service('audio').Model.findOne({
-        include: {
-          model: app.service('static-resource').Model,
-          as: 'staticResource',
-          where: {
-            id: existingResource.id
-          }
-        }
-      })
-    }
+  const files = await Promise.all(
+    urls.map((url) => downloadResourceAndMetadata(url, isExternalToProject ? download : false))
+  )
+  const stats = await getAudioStats(files[0].buffer)
 
-    if (existingResource && existingAudio) return existingAudio
+  const key = isExternalToProject ? `static-resources/${project}/` : `projects/${project}/assets/`
 
-    const files = await getResourceFiles(data, forceDownload)
-    // const mimeType = files[0].mimetype
-    const stats = (await getAudioStats(files[0].buffer)) as any
-    stats.size = contentLength
+  const resource = await addAssetAsStaticResource(app, files, {
+    hash: hash,
+    path: key,
+    staticResourceType: 'audio',
+    stats,
+    project
+  })
 
-    const newAudio = (await app.service('audio').create({
-      duration: stats.duration * 1000,
-      name: data.name
-    })) as AudioInterface
+  return (await app.service('audio').create({
+    name: assetName,
+    duration: stats.duration,
+    staticResourceId: resource.id
+  })) as AudioInterface
+}
 
-    const key = `static-resources/${project}/`
-    if (!existingResource)
-      existingResource = await addAssetAsStaticResource(app, files, {
-        hash: hash,
-        path: key,
-        staticResourceType: 'audio',
-        stats,
-        project
-      })
+/**
+ * hash exists?
+ * no - upload to /temp & return new static resource
+ * yes - return static resource
+ */
+export const audioUploadFile = async (app: Application, data: UploadAssetArgs) => {
+  console.log('audioUpload', data)
+  const { assetName, hash } = await getFileMetadata({
+    file: data.files[0],
+    name: data.files[0].originalname
+  })
 
-    try {
-      if (existingResource?.id) {
-        const update = {
-          staticResourceId: existingResource.id
-        }
-        await app.service('audio').patch(newAudio.id, update)
-      }
-    } catch (err) {
-      logger.error('error updating audio with resources')
-      logger.error(err)
-      throw err
-    }
+  const existingAudio = await getExistingResource<AudioInterface>(app, 'audio', hash)
+  if (existingAudio) return existingAudio
 
-    return app.service('audio').Model.findOne({
-      where: {
-        id: newAudio.id
-      },
-      include: {
-        model: app.service('static-resource').Model,
-        as: 'staticResource'
-      }
-    }) as AudioInterface
-  } catch (err) {
-    logger.error('audio upload error')
-    logger.error(err)
-    throw err
-  }
+  const stats = await getAudioStats(data.files[0].buffer)
+
+  const key = `/temp/${hash}`
+  const resource = await addAssetAsStaticResource(app, data.files, {
+    hash: hash,
+    path: key,
+    staticResourceType: 'audio',
+    stats,
+    project: data.project
+  })
+
+  return (await app.service('audio').create({
+    duration: stats.duration * 1000,
+    name: assetName,
+    staticResourceId: resource.id
+  })) as AudioInterface
 }
 
 export const getAudioStats = async (input: Buffer | string) => {
   let out = ''
-  if (typeof input === 'string') {
-    out = (await execa(ffprobe.path, ['-v', 'error', '-show_format', '-show_streams', input])).stdout
-  } else {
-    const stream = new Readable()
-    stream.push(input)
-    stream.push(null)
-    out = (
-      await execa(ffprobe.path, ['-v', 'error', '-show_format', '-show_streams', '-i', 'pipe:0'], {
-        reject: false,
-        input: stream
-      })
-    ).stdout
+  try {
+    if (typeof input === 'string') {
+      const isHttp = input.startsWith('http')
+      // todo - when not downloaded but still need stats, ignore of now
+      if (!isHttp) out = (await execa(ffprobe.path, ['-v', 'error', '-show_format', '-show_streams', input])).stdout
+    } else {
+      const stream = new Readable()
+      stream.push(input)
+      stream.push(null)
+      out = (
+        await execa(ffprobe.path, ['-v', 'error', '-show_format', '-show_streams', '-i', 'pipe:0'], {
+          reject: false,
+          input: stream
+        })
+      ).stdout
+    }
+  } catch (e) {
+    // no-op
   }
-  let mp3Duration: number | null = null
+  let mp3Duration: number = 0
   const duration = /duration=(\d+)/.exec(out)
   const channels = /channels=(\d+)/.exec(out)
   const bitrate = /bit_rate=(\d+)/.exec(out)
@@ -157,9 +135,9 @@ export const getAudioStats = async (input: Buffer | string) => {
   const codecname = /codec_name=(\w+)/.exec(out)
   if (codecname && codecname[1] === 'mp3') mp3Duration = await getMP3Duration(input)
   return {
-    duration: mp3Duration ? mp3Duration : duration ? parseInt(duration[1]) : null,
-    channels: channels ? parseInt(channels[1]) : null,
-    bitrate: bitrate ? parseInt(bitrate[1]) : null,
-    samplerate: samplerate ? parseInt(samplerate[1]) : null
+    duration: mp3Duration ? mp3Duration : duration ? parseInt(duration[1]) : 0,
+    channels: channels ? parseInt(channels[1]) : 0,
+    bitrate: bitrate ? parseInt(bitrate[1]) : 0,
+    samplerate: samplerate ? parseInt(samplerate[1]) : 0
   }
 }

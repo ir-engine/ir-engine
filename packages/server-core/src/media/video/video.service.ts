@@ -3,7 +3,7 @@ import { VideoInterface } from '@etherealengine/common/src/dbmodels/Video'
 import { Application } from '../../../declarations'
 import authenticate from '../../hooks/authenticate'
 import verifyScope from '../../hooks/verify-scope'
-import { videoUpload } from './video-upload.helper'
+import { videoUploadFile } from './video-upload.helper'
 import { Video } from './video.class'
 import videoDocs from './video.docs'
 import hooks from './video.hooks'
@@ -44,7 +44,7 @@ export default (app: Application) => {
 
   app.use('video-upload', {
     create: async (data) => {
-      return videoUpload(app, data)
+      return videoUploadFile(app, data)
     }
   })
 

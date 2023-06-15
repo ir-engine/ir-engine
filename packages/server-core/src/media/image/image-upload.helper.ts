@@ -1,154 +1,142 @@
-import { createHash } from 'crypto'
-import fs from 'fs'
 import fetch from 'node-fetch'
+import path from 'path'
 import probe from 'probe-image-size'
-import { Op } from 'sequelize'
 import { Readable } from 'stream'
 
-import { UploadFile } from '@etherealengine/common/src/interfaces/UploadAssetInterface'
+import { ImageInterface } from '@etherealengine/common/src/interfaces/ImageInterface'
 import { KTX2Loader } from '@etherealengine/engine/src/assets/loaders/gltf/KTX2Loader'
 
 import { Application } from '../../../declarations'
+import config from '../../appconfig'
 import logger from '../../ServerLogger'
-import { getResourceFiles } from '../static-resource/static-resource-helper'
-import { addAssetAsStaticResource, UploadAssetArgs } from '../upload-asset/upload-asset.service'
+import { downloadResourceAndMetadata, getExistingResource } from '../static-resource/static-resource-helper'
+import { getStorageProvider } from '../storageprovider/storageprovider'
+import { addAssetAsStaticResource, getFileMetadata, UploadAssetArgs } from '../upload-asset/upload-asset.service'
 
-export const imageUpload = async (app: Application, data: UploadAssetArgs) => {
-  try {
-    let fileHead, contentLength, extension
-    if (data.url) {
-      if (/http(s)?:\/\//.test(data.url)) {
-        fileHead = await fetch(data.url, { method: 'HEAD' })
-        if (!/^[23]/.test(fileHead.status.toString())) throw new Error('Invalid URL')
-        contentLength = fileHead.headers['content-length'] || fileHead.headers?.get('content-length')
-      } else {
-        fileHead = await fs.statSync(data.url)
-        contentLength = fileHead.size.toString()
-      }
-      if (!data.name) data.name = data.url.split('/').pop()!.split('.')[0]
-      extension = data.url.split('.').pop()
-    } else if (data.files) {
-      const mainFile = data.files[0]!
-      switch (mainFile.mimetype) {
-        case 'image/png':
-          extension = 'png'
-          break
-        case 'image/gif':
-          extension = 'gif'
-          break
-        case 'image/ktx2':
-          extension = 'ktx2'
-          break
-        case 'jpeg':
-        case 'jpg':
-          extension = 'jpg'
-          break
-      }
-      contentLength = mainFile.size.toString()
-      if (!data.name) data.name = mainFile.originalname
-    }
+/**
+ * install project
+ * if external url and clone static resources, clone to /static-resources/project
+ * if external url and not clone static resources, link new static resource
+ * if internal url, link new static resource
+ */
+export const addImageAssetFromProject = async (
+  app: Application,
+  urls: string[],
+  project: string,
+  download = config.server.cloneProjectStaticResources
+) => {
+  console.log('addImageAssetFromProject', urls, project, download)
+  const storageProvider = getStorageProvider()
+  const mainURL = urls[0]
+  const isExternalToProject =
+    !project || project !== mainURL.split(path.join(storageProvider.cacheDomain, 'projects/'))?.[1]?.split('/')?.[0]
 
-    const hash = createHash('sha3-256').update(contentLength).update(data.name!).digest('hex')
-    let existingImage, thumbnail
-    let existingResource = await app.service('static-resource').Model.findOne({
-      where: {
-        hash
-      }
-    })
+  const { assetName, hash, extension } = await getFileMetadata({ file: mainURL })
+  const existingImage = await getExistingResource<ImageInterface>(app, 'image', hash)
+  if (existingImage) return existingImage
 
-    if (existingResource)
-      existingImage = await app.service('image').Model.findOne({
-        where: {
-          [Op.or]: [
-            {
-              pngStaticResourceId: {
-                [Op.eq]: existingResource.id
-              }
-            },
-            {
-              jpegStaticResourceId: {
-                [Op.eq]: existingResource.id
-              }
-            },
-            {
-              gifStaticResourceId: {
-                [Op.eq]: existingResource.id
-              }
-            },
-            {
-              ktx2StaticResourceId: {
-                [Op.eq]: existingResource.id
-              }
-            }
-          ]
-        }
-      })
+  const files = await Promise.all(
+    urls.map((url) => downloadResourceAndMetadata(url, isExternalToProject ? false : download))
+  )
+  const stats = await getImageStats(files[0].buffer, extension)
 
-    if (existingResource && existingImage) return app.service('image').get(existingImage.id)
+  const key = isExternalToProject ? `static-resources/${project}/` : `projects/${project}/assets/`
 
-    const files = await getResourceFiles(data, true)
-    const imageDimensions = await getImageStats(files[0], extension)
-    const newImage = await app.service('image').create({
-      width: imageDimensions.width,
-      height: imageDimensions.height
-    })
-    if (!existingResource) {
-      const key = `static-resources/image/${newImage.id}`
-      existingResource = await addAssetAsStaticResource(app, files, {
-        hash: hash,
-        path: key,
-        staticResourceType: 'image',
-        stats: {
-          ...imageDimensions,
-          size: contentLength
-        }
-      })
-    }
-    const update = {} as any
-    if (newImage?.id) {
-      if (extension === 'jpg') extension = 'jpeg'
-      const staticResourceColumn = `${extension}StaticResourceId`
-      update[staticResourceColumn] = existingResource.id
-    }
-    if (thumbnail?.id) update.thumbnail = thumbnail.id
-    try {
-      await app.service('image').patch(newImage.id, update)
-    } catch (err) {
-      logger.error('error updating image with resources')
-      logger.error(err)
-      throw err
-    }
-    return app.service('image').get(newImage.id)
-  } catch (err) {
-    logger.error('image upload error')
-    logger.error(err)
-    throw err
-  }
+  const resource = await addAssetAsStaticResource(app, files, {
+    hash: hash,
+    path: key,
+    staticResourceType: 'image',
+    stats,
+    project
+  })
+
+  return await app.service('image').create({
+    name: assetName,
+    width: stats.width,
+    height: stats.height,
+    staticResourceId: resource.id
+  })
 }
 
-export const getImageStats = async (file: UploadFile, extension: string) => {
+/**
+ * hash exists?
+ * no - upload to /temp & return new static resource
+ * yes - return static resource
+ */
+export const imageUploadFile = async (app: Application, data: UploadAssetArgs) => {
+  console.log('imageUploadFile', data)
+  const { assetName, hash, extension } = await getFileMetadata({
+    file: data.files[0],
+    name: data.files[0].originalname
+  })
+
+  const existingImage = await getExistingResource<ImageInterface>(app, 'image', hash)
+  if (existingImage) return existingImage
+
+  const stats = await getImageStats(data.files[0].buffer, extension)
+
+  const key = `/temp/${hash}`
+  const resource = await addAssetAsStaticResource(app, data.files, {
+    hash: hash,
+    path: key,
+    staticResourceType: 'image',
+    stats,
+    project: data.project
+  })
+
+  return await app.service('image').create({
+    name: assetName,
+    width: stats.width,
+    height: stats.height,
+    staticResourceId: resource.id
+  })
+}
+
+export const getImageStats = async (file: Buffer | string, extension: string) => {
   if (extension === 'ktx2') {
     const loader = new KTX2Loader()
     return new Promise<{ width: number; height: number }>((resolve, reject) => {
-      loader.parse(
-        file.buffer as Buffer,
-        (texture) => {
-          const { width, height } = texture.source.data
-          resolve({
-            width,
-            height
-          })
-        },
-        (err) => {
-          logger.error('error parsing ktx2')
-          logger.error(err)
-          reject(err)
-        }
-      )
+      if (typeof file === 'string') {
+        loader.load(
+          file,
+          (texture) => {
+            const { width, height } = texture.source.data
+            resolve({
+              width,
+              height
+            })
+          },
+          () => {},
+          (err) => {
+            logger.error('error parsing ktx2')
+            logger.error(err)
+            reject(err)
+          }
+        )
+      } else {
+        loader.parse(
+          file,
+          (texture) => {
+            const { width, height } = texture.source.data
+            resolve({
+              width,
+              height
+            })
+          },
+          (err) => {
+            logger.error('error parsing ktx2')
+            logger.error(err)
+            reject(err)
+          }
+        )
+      }
     })
   } else {
+    if (typeof file === 'string') {
+      file = await (await fetch(file)).buffer()
+    }
     const stream = new Readable()
-    stream.push(file.buffer)
+    stream.push(file)
     stream.push(null)
     const imageDimensions = await probe(stream)
     return {

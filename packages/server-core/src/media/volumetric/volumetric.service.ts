@@ -3,7 +3,7 @@ import { VolumetricInterface } from '@etherealengine/common/src/dbmodels/Volumet
 import { Application } from '../../../declarations'
 import authenticate from '../../hooks/authenticate'
 import verifyScope from '../../hooks/verify-scope'
-import { volumetricUpload } from './volumetric-upload.helper'
+import { volumetricUploadFile } from './volumetric-upload.helper'
 import { Volumetric } from './volumetric.class'
 import volumetricDocs from './volumetric.docs'
 import hooks from './volumetric.hooks'
@@ -43,7 +43,7 @@ export default (app: Application) => {
 
   app.use('volumetric-upload', {
     create: async (data, params) => {
-      return volumetricUpload(app, data)
+      return volumetricUploadFile(app, data)
     }
   })
 

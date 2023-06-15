@@ -3,7 +3,7 @@ import { AudioInterface } from '@etherealengine/common/src/dbmodels/Audio'
 import { Application } from '../../../declarations'
 import authenticate from '../../hooks/authenticate'
 import verifyScope from '../../hooks/verify-scope'
-import { audioUpload } from './audio-upload.helper'
+import { audioUploadFile } from './audio-upload.helper'
 import { Audio } from './audio.class'
 import audioDocs from './audio.docs'
 import hooks from './audio.hooks'
@@ -43,7 +43,7 @@ export default (app: Application) => {
 
   app.use('audio-upload', {
     create: async (data) => {
-      return audioUpload(app, data)
+      return audioUploadFile(app, data)
     }
   })
 
