@@ -508,6 +508,7 @@ export class Project extends Service {
       let repoPath = await getAuthenticatedRepo(githubIdentityProvider.oauthToken, data.destinationURL)
       if (!repoPath) repoPath = data.destinationURL //public repo
       await git.addRemote('destination', repoPath)
+      await git.raw(['lfs', 'fetch', '--all'])
       await git.push('destination', branchName, ['-f', '--tags'])
       const { commitSHA, commitDate } = await this._getCommitSHADate(projectName)
       await super.patch(returned.id, {
