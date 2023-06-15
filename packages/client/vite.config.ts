@@ -151,7 +151,7 @@ export default defineConfig(async () => {
     path: packageRoot.path + '/.env.local'
   })
   const clientSetting = await getClientSetting()
-  const coilSetting = await getCoilSetting()
+  // const coilSetting = await getCoilSetting()
 
   writeEmptySWFile()
 
@@ -214,7 +214,7 @@ export default defineConfig(async () => {
         icon512px: clientSetting.icon512px || '/android-chrome-512x512.png',
         webmanifestLink: clientSetting.webmanifestLink || '/manifest.webmanifest',
         swScriptLink: clientSetting.swScriptLink || 'service-worker.js',
-        paymentPointer: coilSetting.paymentPointer || ''
+        paymentPointer: ''
       }),
       viteCompression({
         filter: /\.(js|mjs|json|css)$/i,

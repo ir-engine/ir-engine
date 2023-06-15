@@ -23,49 +23,66 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Type } from '@feathersjs/typebox'
-import type { Static } from '@feathersjs/typebox'
-import knex from 'knex'
-
-export const coilSettingPath = 'coil-setting'
-export const coilSettingSchema = Type.Object(
-  {
-    id: Type.String({
-      format: 'uuid'
-    }),
-    paymentPointer: Type.String(),
-    clientId: Type.String(),
-    clientSecret: Type.String(),
-    createdAt: Type.String({ format: 'date-time' }),
-    updatedAt: Type.String({ format: 'date-time' })
-  },
-  { $id: 'CoilSetting', additionalProperties: false }
-)
-export type CoilSettingType = Static<typeof coilSettingSchema>
+import { DataTypes, Sequelize } from 'sequelize'
 
 export const getCoilSetting = async () => {
-  const knexClient = knex({
-    client: 'mysql',
-    connection: {
-      user: process.env.MYSQL_USER ?? 'server',
-      password: process.env.MYSQL_PASSWORD ?? 'password',
-      host: process.env.MYSQL_HOST ?? '127.0.0.1',
-      port: parseInt(process.env.MYSQL_PORT || '3306'),
-      database: process.env.MYSQL_DATABASE ?? 'etherealengine',
-      charset: 'utf8mb4'
+  const db = {
+    username: process.env.MYSQL_USER ?? 'server',
+    password: process.env.MYSQL_PASSWORD ?? 'password',
+    database: process.env.MYSQL_DATABASE ?? 'etherealengine',
+    host: process.env.MYSQL_HOST ?? '127.0.0.1',
+    port: process.env.MYSQL_PORT ?? 3306,
+    dialect: 'mysql',
+    url: ''
+  }
+
+  db.url = process.env.MYSQL_URL ?? `mysql://${db.username}:${db.password}@${db.host}:${db.port}/${db.database}`
+  const sequelizeClient = new Sequelize({
+    ...db,
+    define: {
+      freezeTableName: true
+    },
+    logging: false
+  } as any) as any
+  await sequelizeClient.sync()
+  const CoilSetting = sequelizeClient.define('coil-setting', {
+    id: {
+      type: DataTypes.UUID,
+      defaultValue: DataTypes.UUIDV1,
+      allowNull: false,
+      primaryKey: true
+    },
+    paymentPointer: {
+      type: DataTypes.STRING,
+      allowNull: true
+    },
+    clientId: {
+      type: DataTypes.STRING,
+      allowNull: true
+    },
+    clientSecret: {
+      type: DataTypes.STRING,
+      allowNull: true
     }
   })
 
-  const coilSetting = await knexClient
-    .select()
-    .from<CoilSettingType>(coilSettingPath)
+  const coilSetting = await CoilSetting.findAll()
     .then(([dbCoil]) => {
-      if (dbCoil) {
-        return dbCoil
+      const dbCoilConfig = (dbCoil && {
+        paymentPointer: dbCoil.paymentPointer,
+        clientId: dbCoil.clientId,
+        clientSecret: dbCoil.clientSecret
+      }) || {
+        paymentPointer: process.env.COIL_PAYMENT_POINTER || '',
+        clientId: '',
+        clientSecret: ''
+      }
+      if (dbCoilConfig) {
+        return dbCoilConfig
       }
     })
     .catch((e) => {
-      console.warn('[vite.config]: Failed to read coilSetting')
+      console.warn('[vite.config.js]: Failed to read coil-setting')
       console.warn(e)
     })
 
