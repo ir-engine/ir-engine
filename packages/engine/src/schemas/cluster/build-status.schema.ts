@@ -27,83 +27,59 @@ Ethereal Engine. All Rights Reserved.
 import { querySyntax, Type } from '@feathersjs/typebox'
 import type { Static } from '@feathersjs/typebox'
 
-export const instanceServerSettingPath = 'instance-server-setting'
+export const buildStatusPath = 'build-status'
 
-export const instanceServerSettingMethods = ['find', 'get', 'create', 'patch', 'remove'] as const
+export const buildStatusMethods = ['find', 'get', 'create', 'patch', 'remove'] as const
 
 // Main data model schema
-export const instanceServerSettingSchema = Type.Object(
+export const buildStatusSchema = Type.Object(
   {
     id: Type.String({
       format: 'uuid'
     }),
-    clientHost: Type.String(),
-    rtcStartPort: Type.Integer(),
-    rtcEndPort: Type.Integer(),
-    rtcPortBlockSize: Type.Integer(),
-    identifierDigits: Type.Integer(),
-    local: Type.Boolean(),
-    domain: Type.String(),
-    releaseName: Type.String(),
-    port: Type.String(),
-    mode: Type.String(),
-    locationName: Type.String(),
+    status: Type.String(),
+    dateStarted: Type.String(),
+    dateEnded: Type.String(),
+    logs: Type.String(),
+    commitSHA: Type.String(),
     createdAt: Type.String({ format: 'date-time' }),
     updatedAt: Type.String({ format: 'date-time' })
   },
-  { $id: 'InstanceServerSetting', additionalProperties: false }
+  { $id: 'BuildStatus', additionalProperties: false }
 )
-export type InstanceServerSettingType = Static<typeof instanceServerSettingSchema>
+export type BuildStatusType = Static<typeof buildStatusSchema>
 
 // Schema for creating new entries
-export const instanceServerSettingDataSchema = Type.Pick(
-  instanceServerSettingSchema,
-  [
-    'clientHost',
-    'rtcStartPort',
-    'rtcEndPort',
-    'rtcPortBlockSize',
-    'identifierDigits',
-    'local',
-    'domain',
-    'releaseName',
-    'port',
-    'mode',
-    'locationName'
-  ],
+export const buildStatusDataSchema = Type.Pick(
+  buildStatusSchema,
+  ['status', 'dateStarted', 'dateEnded', 'logs', 'commitSHA'],
   {
-    $id: 'InstanceServerSettingData'
+    $id: 'BuildStatusData'
   }
 )
-export type InstanceServerSettingData = Static<typeof instanceServerSettingDataSchema>
+export type BuildStatusData = Static<typeof buildStatusDataSchema>
 
 // Schema for updating existing entries
-export const instanceServerSettingPatchSchema = Type.Partial(instanceServerSettingSchema, {
-  $id: 'InstanceServerSettingPatch'
+export const buildStatusPatchSchema = Type.Partial(buildStatusSchema, {
+  $id: 'BuildStatusPatch'
 })
-export type InstanceServerSettingPatch = Static<typeof instanceServerSettingPatchSchema>
+export type BuildStatusPatch = Static<typeof buildStatusPatchSchema>
 
 // Schema for allowed query properties
-export const instanceServerSettingQueryProperties = Type.Pick(instanceServerSettingSchema, [
+export const buildStatusQueryProperties = Type.Pick(buildStatusSchema, [
   'id',
-  'clientHost',
-  'rtcStartPort',
-  'rtcEndPort',
-  'rtcPortBlockSize',
-  'identifierDigits',
-  'local',
-  'domain',
-  'releaseName',
-  'port',
-  'mode',
-  'locationName'
+  'status',
+  'dateStarted',
+  'dateEnded',
+  'logs',
+  'commitSHA'
 ])
-export const instanceServerSettingQuerySchema = Type.Intersect(
+export const buildStatusQuerySchema = Type.Intersect(
   [
-    querySyntax(instanceServerSettingQueryProperties),
+    querySyntax(buildStatusQueryProperties),
     // Add additional query properties here
     Type.Object({}, { additionalProperties: false })
   ],
   { additionalProperties: false }
 )
-export type InstanceServerSettingQuery = Static<typeof instanceServerSettingQuerySchema>
+export type BuildStatusQuery = Static<typeof buildStatusQuerySchema>
