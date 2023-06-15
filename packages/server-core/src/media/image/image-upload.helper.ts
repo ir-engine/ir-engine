@@ -32,7 +32,7 @@ export const addImageAssetFromProject = async (
     !project || project !== mainURL.split(path.join(storageProvider.cacheDomain, 'projects/'))?.[1]?.split('/')?.[0]
 
   const { assetName, hash, extension } = await getFileMetadata({ file: mainURL })
-  const existingImage = await getExistingResource<ImageInterface>(app, 'image', hash)
+  const existingImage = await getExistingResource<ImageInterface>(app, 'image', hash, project)
   if (existingImage) return existingImage
 
   const files = await Promise.all(

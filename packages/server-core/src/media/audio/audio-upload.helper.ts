@@ -48,7 +48,7 @@ export const addAudioAssetFromProject = async (
   console.log({ isExternalToProject })
 
   const { assetName, hash } = await getFileMetadata({ file: mainURL })
-  const existingAudio = await getExistingResource<AudioInterface>(app, 'audio', hash)
+  const existingAudio = await getExistingResource<AudioInterface>(app, 'audio', hash, project)
   if (existingAudio) return existingAudio
 
   const files = await Promise.all(

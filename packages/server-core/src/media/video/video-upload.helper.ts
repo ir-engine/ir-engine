@@ -31,7 +31,7 @@ export const addVideoAssetFromProject = async (
     !project || project !== mainURL.split(path.join(storageProvider.cacheDomain, 'projects/'))?.[1]?.split('/')?.[0]
 
   const { assetName, hash } = await getFileMetadata({ file: mainURL })
-  const existingVideo = await getExistingResource<VideoInterface>(app, 'video', hash)
+  const existingVideo = await getExistingResource<VideoInterface>(app, 'video', hash, project)
   if (existingVideo) return existingVideo
 
   const files = await Promise.all(

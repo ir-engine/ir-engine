@@ -73,12 +73,15 @@ export const downloadResourceAndMetadata = async (
 export const getExistingResource = async <T>(
   app: Application,
   model: keyof ServiceTypes,
-  hash: string
+  hash: string,
+  project?: string
 ): Promise<T | undefined> => {
+  const whereQuery = {
+    hash
+  } as any
+  if (project) whereQuery.project = project
   const existingResource = (await app.service('static-resource').Model.findOne({
-    where: {
-      hash
-    }
+    where: whereQuery
   })) as StaticResourceInterface | null
 
   if (existingResource) {

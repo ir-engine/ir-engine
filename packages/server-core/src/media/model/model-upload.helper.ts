@@ -21,7 +21,7 @@ export const addModelAssetFromProject = async (
     !project || project !== mainURL.split(path.join(storageProvider.cacheDomain, 'projects/'))?.[1]?.split('/')?.[0]
 
   const { assetName, hash } = await getFileMetadata({ file: mainURL })
-  const existingModel = await getExistingResource<ModelInterface>(app, 'model', hash)
+  const existingModel = await getExistingResource<ModelInterface>(app, 'model', hash, project)
   if (existingModel) return existingModel
 
   const files = await Promise.all(

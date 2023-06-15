@@ -96,6 +96,26 @@ describe('audio-upload', () => {
       const fileExists = await storageProvider.doesExist('SampleAudio.mp3', 'static-resources/test-project/')
       assert(!fileExists)
     })
+
+    it('should return existing audio asset with the same hash and project', async () => {
+      const storageProvider = getStorageProvider()
+      const url = getCachedURL('/projects/default-project/assets/SampleAudio.mp3', storageProvider.cacheDomain)
+
+      const response = await addAudioAssetFromProject(app, [url], 'default-project', false)
+      const response2 = await addAudioAssetFromProject(app, [url], 'default-project', false)
+
+      assert.equal(response.staticResourceId, response2.staticResourceId)
+    })
+
+    it('should return new audio asset with the same hash exists in another project', async () => {
+      const storageProvider = getStorageProvider()
+      const url = getCachedURL('/projects/default-project/assets/SampleAudio.mp3', storageProvider.cacheDomain)
+
+      const response = await addAudioAssetFromProject(app, [url], 'default-project', false)
+      const response2 = await addAudioAssetFromProject(app, [url], 'test-project', false)
+
+      assert.notEqual(response.staticResourceId, response2.staticResourceId)
+    })
   })
 
   describe('audioUploadFile', () => {
