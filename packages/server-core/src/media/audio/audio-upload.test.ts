@@ -32,7 +32,10 @@ describe('audio-upload', () => {
 
   describe('addAudioAssetFromProject', () => {
     beforeEach(async () => {
-      mockFetch('audio/mpeg')
+      mockFetch(
+        'audio/mpeg',
+        fs.readFileSync(path.join(appRootPath.path, '/packages/projects/default-project/assets/SampleAudio.mp3'))
+      )
     })
 
     afterEach(() => {
@@ -152,6 +155,29 @@ describe('audio-upload', () => {
 
       const fileExists = await storageProvider.doesExist('SampleAudio.mp3', `temp/${hash}/`)
       assert(fileExists)
+    })
+
+    it('should return existing audio asset with the same hash and project', async () => {
+      const buffer = fs.readFileSync(
+        path.join(appRootPath.path, '/packages/projects/default-project/assets/SampleAudio.mp3')
+      )
+      const file = {
+        buffer,
+        originalname: 'SampleAudio.mp3',
+        mimetype: 'audio/mpeg',
+        size: buffer.byteLength
+      } as UploadFile
+
+      const response = await audioUploadFile(app, {
+        project: testProject,
+        files: [file]
+      })
+      const response2 = await audioUploadFile(app, {
+        project: testProject,
+        files: [file]
+      })
+
+      assert.equal(response.staticResourceId, response2.staticResourceId)
     })
   })
 })

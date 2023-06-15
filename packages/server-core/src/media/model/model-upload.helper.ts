@@ -1,12 +1,15 @@
 import path from 'path'
 
 import { ModelInterface } from '@etherealengine/common/src/interfaces/ModelInterface'
+import multiLogger from '@etherealengine/common/src/logger'
 
 import { Application } from '../../../declarations'
 import config from '../../appconfig'
 import { downloadResourceAndMetadata, getExistingResource } from '../static-resource/static-resource-helper'
 import { getStorageProvider } from '../storageprovider/storageprovider'
 import { addAssetAsStaticResource, getFileMetadata, UploadAssetArgs } from '../upload-asset/upload-asset.service'
+
+const logger = multiLogger.child('model-upload')
 
 export const addModelAssetFromProject = async (
   app: Application,
@@ -17,15 +20,16 @@ export const addModelAssetFromProject = async (
   console.log('addModelAssetFromProject', urls, project, download)
   const storageProvider = getStorageProvider()
   const mainURL = urls[0]
+  const fromStorageProvider = mainURL.split(path.join(storageProvider.cacheDomain, 'projects/'))
   const isExternalToProject =
-    !project || project !== mainURL.split(path.join(storageProvider.cacheDomain, 'projects/'))?.[1]?.split('/')?.[0]
+    !project || fromStorageProvider.length === 1 || project !== fromStorageProvider?.[1]?.split('/')?.[0]
 
   const { assetName, hash } = await getFileMetadata({ file: mainURL })
   const existingModel = await getExistingResource<ModelInterface>(app, 'model', hash, project)
   if (existingModel) return existingModel
 
   const files = await Promise.all(
-    urls.map((url) => downloadResourceAndMetadata(url, isExternalToProject ? false : download))
+    urls.map((url) => downloadResourceAndMetadata(url, isExternalToProject ? download : false))
   )
 
   const key = isExternalToProject ? `static-resources/${project}/` : `projects/${project}/assets/`
@@ -49,13 +53,13 @@ export const addModelAssetFromProject = async (
  * yes - return static resource
  */
 export const modelUploadFile = async (app: Application, data: UploadAssetArgs) => {
-  console.log('modelUpload', data)
+  logger.info('modelUploadFile: %o', data)
   const { assetName, hash } = await getFileMetadata({
     file: data.files[0],
     name: data.files[0].originalname
   })
 
-  const existingAudio = await getExistingResource<ModelInterface>(app, 'model', hash)
+  const existingAudio = await getExistingResource<ModelInterface>(app, 'model', hash, data.project)
   if (existingAudio) return existingAudio
 
   const key = `/temp/${hash}`

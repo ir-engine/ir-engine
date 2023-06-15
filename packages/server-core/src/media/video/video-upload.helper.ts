@@ -1,23 +1,18 @@
 import * as ffprobe from '@ffprobe-installer/ffprobe'
-import appRootPath from 'app-root-path'
-import { createHash } from 'crypto'
 import execa from 'execa'
-import fs from 'fs'
-import fetch from 'node-fetch'
 import path from 'path'
-import { Op } from 'sequelize'
 import { Readable } from 'stream'
 
 import { VideoInterface } from '@etherealengine/common/src/interfaces/VideoInterface'
+import multiLogger from '@etherealengine/common/src/logger'
 
 import { Application } from '../../../declarations'
 import config from '../../appconfig'
-import logger from '../../ServerLogger'
 import { downloadResourceAndMetadata, getExistingResource } from '../static-resource/static-resource-helper'
 import { getStorageProvider } from '../storageprovider/storageprovider'
 import { addAssetAsStaticResource, getFileMetadata, UploadAssetArgs } from '../upload-asset/upload-asset.service'
 
-const relativePath = path.join(appRootPath.path, '/packages/')
+const logger = multiLogger.child('video-upload')
 
 export const addVideoAssetFromProject = async (
   app: Application,
@@ -27,15 +22,16 @@ export const addVideoAssetFromProject = async (
 ) => {
   const storageProvider = getStorageProvider()
   const mainURL = urls[0]
+  const fromStorageProvider = mainURL.split(path.join(storageProvider.cacheDomain, 'projects/'))
   const isExternalToProject =
-    !project || project !== mainURL.split(path.join(storageProvider.cacheDomain, 'projects/'))?.[1]?.split('/')?.[0]
+    !project || fromStorageProvider.length === 1 || project !== fromStorageProvider?.[1]?.split('/')?.[0]
 
   const { assetName, hash } = await getFileMetadata({ file: mainURL })
   const existingVideo = await getExistingResource<VideoInterface>(app, 'video', hash, project)
   if (existingVideo) return existingVideo
 
   const files = await Promise.all(
-    urls.map((url) => downloadResourceAndMetadata(url, isExternalToProject ? false : download))
+    urls.map((url) => downloadResourceAndMetadata(url, isExternalToProject ? download : false))
   )
   const stats = await getVideoStats(files[0].buffer)
 
@@ -57,13 +53,13 @@ export const addVideoAssetFromProject = async (
 }
 
 export const videoUploadFile = async (app: Application, data: UploadAssetArgs) => {
-  console.log('videoUpload', data)
+  logger.info('videoUploadFile', data)
   const { assetName, hash } = await getFileMetadata({
     file: data.files[0],
     name: data.files[0].originalname
   })
 
-  const existingVideo = await getExistingResource<VideoInterface>(app, 'video', hash)
+  const existingVideo = await getExistingResource<VideoInterface>(app, 'video', hash, data.project)
   if (existingVideo) return existingVideo
 
   const stats = await getVideoStats(data.files[0].buffer)
@@ -87,7 +83,9 @@ export const videoUploadFile = async (app: Application, data: UploadAssetArgs) =
 export const getVideoStats = async (input: Buffer | string) => {
   let out = ''
   if (typeof input === 'string') {
-    out = (await execa(ffprobe.path, ['-v', 'error', '-show_format', '-show_streams', input])).stdout
+    const isHttp = input.startsWith('http')
+    // todo - when not downloaded but still need stats, ignore of now
+    if (!isHttp) out = (await execa(ffprobe.path, ['-v', 'error', '-show_format', '-show_streams', input])).stdout
   } else {
     const stream = new Readable()
     stream.push(input)

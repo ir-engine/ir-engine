@@ -1,18 +1,18 @@
 const originalFetch = (global as any).fetch
 
-export const mockFetch = (responseType = 'application/octet-stream') => {
+export const mockFetch = (responseType = 'application/octet-stream', response = Buffer.from('test')) => {
   // override fetch
   ;(global as any).fetch = async (url: string, options?: any) => {
     if (options?.method === 'HEAD') {
       return {
         status: 200,
-        headers: new Map().set('content-length', '4').set('content-type', responseType)
+        headers: new Map().set('content-length', response.byteLength).set('content-type', responseType)
       }
     } else {
       return {
-        arrayBuffer: async () => Buffer.from('test'),
+        arrayBuffer: async () => response,
         status: 200,
-        headers: new Map().set('content-length', '6').set('content-type', responseType)
+        headers: new Map().set('content-length', response.byteLength).set('content-type', responseType)
       }
     }
   }

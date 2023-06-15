@@ -340,75 +340,6 @@
       "index": 5,
       "name": "Video"
     },
-    "5867cc3f-4c7d-47e6-9a7b-db77cdcf4e7a": {
-      "components": [
-        {
-          "name": "transform",
-          "props": {
-            "position": {
-              "x": 0,
-              "y": 4,
-              "z": 12.5
-            },
-            "rotation": {
-              "x": -6.123233995736766e-17,
-              "y": -1,
-              "z": -6.123233995736766e-17,
-              "w": -6.123234262925839e-17
-            },
-            "scale": {
-              "x": 1.6,
-              "y": 1,
-              "z": 1
-            }
-          }
-        },
-        {
-          "name": "visible",
-          "props": {}
-        },
-        {
-          "name": "shadow",
-          "props": {
-            "cast": true,
-            "receive": true
-          }
-        },
-        {
-          "name": "media",
-          "props": {
-            "controls": true,
-            "paused": false,
-            "paths": ["https://resources-dev.etherealengine.com/projects/eepro-shopping-district/assets/videos/basscoasts%20TV.mp4"],
-            "resources": [
-              {
-                "path": "https://resources-dev.etherealengine.com/projects/eepro-shopping-district/assets/videos/basscoasts%20TV.mp4",
-                "mediaType": "video"
-              }
-            ],
-            "volume": 1,
-            "synchronize": true,
-            "playMode": "loop",
-            "isMusic": false
-          }
-        },
-        {
-          "name": "video",
-          "props": {
-            "mediaUUID": "",
-            "side": 2,
-            "size": {
-              "x": 1,
-              "y": 1
-            },
-            "fit": "contain"
-          }
-        }
-      ],
-      "parent": "1b731841-172a-4141-89cb-d1cceeec748f",
-      "index": 5,
-      "name": "Video"
-    },
     "03162202-1925-44e8-9d64-d8f5aba3a476": {
       "components": [
         {
@@ -632,10 +563,10 @@
           "props": {
             "controls": true,
             "paused": true,
-            "paths": ["https://resources-dev.etherealengine.com/projects/default-project/assets/SampleAudio.mp3"],
+            "paths": [],
             "resources": [
               {
-                "path": "https://resources-dev.etherealengine.com/projects/default-project/assets/SampleAudio.mp3",
+                "path": "__$project$__/default-project/assets/SampleAudio.mp3",
                 "mediaType": "audio"
               }
             ],

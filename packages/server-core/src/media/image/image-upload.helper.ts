@@ -1,17 +1,18 @@
-import fetch from 'node-fetch'
 import path from 'path'
 import probe from 'probe-image-size'
 import { Readable } from 'stream'
 
 import { ImageInterface } from '@etherealengine/common/src/interfaces/ImageInterface'
+import multiLogger from '@etherealengine/common/src/logger'
 import { KTX2Loader } from '@etherealengine/engine/src/assets/loaders/gltf/KTX2Loader'
 
 import { Application } from '../../../declarations'
 import config from '../../appconfig'
-import logger from '../../ServerLogger'
 import { downloadResourceAndMetadata, getExistingResource } from '../static-resource/static-resource-helper'
 import { getStorageProvider } from '../storageprovider/storageprovider'
 import { addAssetAsStaticResource, getFileMetadata, UploadAssetArgs } from '../upload-asset/upload-asset.service'
+
+const logger = multiLogger.child('image-upload')
 
 /**
  * install project
@@ -28,15 +29,16 @@ export const addImageAssetFromProject = async (
   console.log('addImageAssetFromProject', urls, project, download)
   const storageProvider = getStorageProvider()
   const mainURL = urls[0]
+  const fromStorageProvider = mainURL.split(path.join(storageProvider.cacheDomain, 'projects/'))
   const isExternalToProject =
-    !project || project !== mainURL.split(path.join(storageProvider.cacheDomain, 'projects/'))?.[1]?.split('/')?.[0]
+    !project || fromStorageProvider.length === 1 || project !== fromStorageProvider?.[1]?.split('/')?.[0]
 
   const { assetName, hash, extension } = await getFileMetadata({ file: mainURL })
   const existingImage = await getExistingResource<ImageInterface>(app, 'image', hash, project)
   if (existingImage) return existingImage
 
   const files = await Promise.all(
-    urls.map((url) => downloadResourceAndMetadata(url, isExternalToProject ? false : download))
+    urls.map((url) => downloadResourceAndMetadata(url, isExternalToProject ? download : false))
   )
   const stats = await getImageStats(files[0].buffer, extension)
 
@@ -64,13 +66,13 @@ export const addImageAssetFromProject = async (
  * yes - return static resource
  */
 export const imageUploadFile = async (app: Application, data: UploadAssetArgs) => {
-  console.log('imageUploadFile', data)
+  logger.info('imageUploadFile %o', data)
   const { assetName, hash, extension } = await getFileMetadata({
     file: data.files[0],
     name: data.files[0].originalname
   })
 
-  const existingImage = await getExistingResource<ImageInterface>(app, 'image', hash)
+  const existingImage = await getExistingResource<ImageInterface>(app, 'image', hash, data.project)
   if (existingImage) return existingImage
 
   const stats = await getImageStats(data.files[0].buffer, extension)
@@ -133,7 +135,7 @@ export const getImageStats = async (file: Buffer | string, extension: string) =>
     })
   } else {
     if (typeof file === 'string') {
-      file = await (await fetch(file)).buffer()
+      file = (await (await fetch(file)).arrayBuffer()) as Buffer
     }
     const stream = new Readable()
     stream.push(file)
