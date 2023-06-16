@@ -28,7 +28,7 @@ export default function ValueGenerator({
   const onChangeType = useCallback(() => {
     const thisOnChange = onChange(scope.type)
     return (type: typeof value.type) => {
-      scope.set(ValueGeneratorJSONDefaults[type])
+      scope.set(JSON.parse(JSON.stringify(ValueGeneratorJSONDefaults[type])))
       thisOnChange(type)
     }
   }, [])

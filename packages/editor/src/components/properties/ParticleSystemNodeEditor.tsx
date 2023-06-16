@@ -89,46 +89,26 @@ const ParticleSystemNodeEditor: EditorComponentType = (props) => {
 
   const onSetState = useCallback((state: State<any>) => {
     return (value: any) => {
-      state.set(value)
+      state.set(JSON.parse(JSON.stringify(value)))
       particleSystemState._refresh.set((particleSystem._refresh + 1) % 1000)
     }
   }, [])
 
-  const onSetStateParm = useCallback((state: State<any>) => {
-    return (field: keyof typeof state.value) => {
-      if (field === 'value') {
-        return (value: any) => {
-          const nuVals = JSON.parse(JSON.stringify(state.value))
-          nuVals.value = value
-          state.set(nuVals)
-          particleSystemState._refresh.set((particleSystem._refresh + 1) % 1000)
-        }
-      } else
-        return (value: any) => {
-          state[field].set(value)
-          particleSystemState._refresh.set((particleSystem._refresh + 1) % 1000)
-        }
-    }
-  }, [])
-
-  const onAddBehavior = useCallback(
-    () => () => {
-      const nuBehavior: ApplyForceBehaviorJSON = {
-        type: 'ApplyForce',
-        direction: [0, 1, 0],
-        magnitude: {
-          type: 'ConstantValue',
-          value: 1
-        }
+  const onAddBehavior = useCallback(() => {
+    const nuBehavior: ApplyForceBehaviorJSON = {
+      type: 'ApplyForce',
+      direction: [0, 1, 0],
+      magnitude: {
+        type: 'ConstantValue',
+        value: 1
       }
-      particleSystemState.behaviorParameters.set([
-        ...JSON.parse(JSON.stringify(particleSystem.behaviorParameters)),
-        nuBehavior
-      ])
-      particleSystemState._refresh.set((particleSystem._refresh + 1) % 1000)
-    },
-    []
-  )
+    }
+    particleSystemState.behaviorParameters.set([
+      ...JSON.parse(JSON.stringify(particleSystem.behaviorParameters)),
+      nuBehavior
+    ])
+    particleSystemState._refresh.set((particleSystem._refresh + 1) % 1000)
+  }, [])
 
   const onRemoveBehavior = useCallback(
     (behavior: BehaviorJSON) => () => {
@@ -177,6 +157,10 @@ const ParticleSystemNodeEditor: EditorComponentType = (props) => {
 
       <InputGroup name="Duration" label={t('editor:properties.particle-system.duration')}>
         <NumericInput value={particleSystem.systemParameters.duration} onChange={onSetSystemParm('duration')} />
+      </InputGroup>
+
+      <InputGroup name="Prewarm" label={t('editor:properties.particle-system.prewarm')}>
+        <BooleanInput value={particleSystem.systemParameters.prewarm} onChange={onSetSystemParm('prewarm')} />
       </InputGroup>
 
       <InputGroup name="Emitter Shape" label={t('editor:properties.particle-system.emitter-shape')}>
@@ -402,7 +386,7 @@ const ParticleSystemNodeEditor: EditorComponentType = (props) => {
         <BooleanInput value={particleSystem.systemParameters.worldSpace} onChange={onSetSystemParm('worldSpace')} />
       </InputGroup>
       <h4>Behaviors</h4>
-      <Button onClick={onAddBehavior()}>Add Behavior</Button>
+      <Button onClick={onAddBehavior}>Add Behavior</Button>
       <PaginatedList
         list={particleSystemState.behaviorParameters}
         element={(behaviorState: State<BehaviorJSON>) => {

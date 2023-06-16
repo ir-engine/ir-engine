@@ -52,7 +52,7 @@ export default function BehaviorInput({
   const onChangeBehaviorType = useCallback(() => {
     const onChangeType = onChange(scope.type)
     return (type: typeof value.type) => {
-      const nuVals = BehaviorJSONDefaults[type]
+      const nuVals = JSON.parse(JSON.stringify(BehaviorJSONDefaults[type]))
       scope.set(nuVals)
       onChangeType(type)
     }
@@ -444,8 +444,7 @@ export default function BehaviorInput({
     Rotation3DOverLife: rotation3DOverLifeInput,
     WidthOverLength: widthOverLength,
     ChangeEmitDirection: changeEmitDirectionInput,
-    EmitSubParticleSystem: emitSubParticleSystemInput,
-    ApplySequences: applySequencesInput
+    EmitSubParticleSystem: emitSubParticleSystemInput
   }
 
   return (
@@ -454,7 +453,6 @@ export default function BehaviorInput({
         <SelectInput
           value={value.type}
           options={[
-            { label: 'Apply Sequences', value: 'ApplySequences' },
             { label: 'Apply Force', value: 'ApplyForce' },
             { label: 'Noise', value: 'Noise' },
             { label: 'Turbulence Field', value: 'TurbulenceField' },

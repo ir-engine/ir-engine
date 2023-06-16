@@ -367,6 +367,9 @@
     "particle-system": {
       "name": "Particle System",
       "description": "Particle emitter to create particles.",
+      "looping": "Looping",
+      "duration": "Duration",
+      "prewarm": "Prewarm",
       "emitter-shape": "Emitter Shape",
       "emission-bursts": "Emission Bursts",
       "shape-mesh": "Emitter Shape Mesh",
@@ -383,6 +386,7 @@
       "start-tile-index": "Starting Tile Index",
       "mesh": "Particle Mesh",
       "blending": "Blending",
+      "transparent": "Transparent",
       "world-space": "Use World Space"
     },
     "clouds": {
