@@ -43,7 +43,7 @@ import {
 import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { HighlightComponent } from '../../renderer/components/HighlightComponent'
 import { XRSpaceComponent } from '../../xr/XRComponents'
-import { ButtonInputStateType } from '../InputState'
+import { ButtonStateMap } from '../ButtonState'
 import { InputComponent } from './InputComponent'
 
 export const InputSourceComponent = defineComponent({
@@ -52,7 +52,7 @@ export const InputSourceComponent = defineComponent({
   onInit: () => {
     return {
       source: null! as XRInputSource,
-      buttons: {} as Readonly<ButtonInputStateType>,
+      buttons: {} as Readonly<ButtonStateMap>,
       assignedEntity: UndefinedEntity as Entity,
       captured: false
     }

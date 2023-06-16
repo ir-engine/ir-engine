@@ -26,8 +26,8 @@ Ethereal Engine. All Rights Reserved.
 import { Engine } from '../../ecs/classes/Engine'
 import { defineQuery, getComponent } from '../../ecs/functions/ComponentFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
+import { OldButtonInputStateType } from '../ButtonState'
 import { InputSourceComponent } from '../components/InputSourceComponent'
-import { OldButtonInputStateType } from '../InputState'
 
 const inputSources = defineQuery([InputSourceComponent])
 

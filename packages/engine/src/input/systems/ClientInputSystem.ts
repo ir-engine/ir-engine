@@ -63,10 +63,10 @@ import { XRSpaceComponent } from '../../xr/XRComponents'
 import { ReferenceSpace, XRState } from '../../xr/XRState'
 import { XRUIComponent } from '../../xrui/components/XRUIComponent'
 import { pointers } from '../../xrui/systems/XRUISystem'
+import { createInitialButtonState, OldButtonInputStateType, OldButtonTypes } from '../ButtonState'
 import { InputComponent } from '../components/InputComponent'
 import { InputSourceComponent } from '../components/InputSourceComponent'
 import normalizeWheel from '../functions/normalizeWheel'
-import { createInitialButtonState, OldButtonInputStateType, OldButtonTypes } from '../InputState'
 
 function preventDefault(e) {
   e.preventDefault()
@@ -379,7 +379,7 @@ const inputRaycast = {
   direction: new Vector3(),
   maxDistance: 1000,
   groups: getInteractionGroups(AllCollisionMask, AllCollisionMask),
-  excludeRigidBody: null
+  excludeRigidBody: undefined //
 } as RaycastArgs
 
 const inputRay = new Ray()
