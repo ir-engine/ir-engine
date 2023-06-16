@@ -28,7 +28,6 @@ import ViewInArIcon from '@mui/icons-material/ViewInAr'
 import exportGLTF from '../../functions/exportGLTF'
 import { convertToScaffold, createLODsFromModel } from '../../functions/lodsFromModel'
 import { LODsFromModelParameters } from '../../functions/lodsFromModel'
-import { StaticResourceService } from '../../services/StaticResourceService'
 import BooleanInput from '../inputs/BooleanInput'
 import { Button, PropertiesPanelButton } from '../inputs/Button'
 import InputGroup from '../inputs/InputGroup'
@@ -122,17 +121,7 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
   }, [])
 
   const updateResources = useCallback((path: string) => {
-    clearErrors(entity, ModelComponent)
-    try {
-      StaticResourceService.uploadModel(path).then((model) => {
-        updateProperty(ModelComponent, 'resource')(model)
-        updateProperty(ModelComponent, 'src')(path)
-      })
-    } catch (err) {
-      console.log('Error getting path', path)
-      addError(entity, ModelComponent, 'INVALID_URL', path)
-      return {}
-    }
+    updateProperty(ModelComponent, 'src')(path)
   }, [])
 
   const onChangePlayingAnimation = (index) => {

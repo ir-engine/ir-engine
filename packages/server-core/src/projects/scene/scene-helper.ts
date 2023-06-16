@@ -9,10 +9,8 @@ import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoad
 import { AssetClass } from '@etherealengine/engine/src/assets/enum/AssetClass'
 
 import { Application } from '../../../declarations'
-import { addAudioAssetFromProject } from '../../media/audio/audio-upload.helper'
-import { addImageAssetFromProject } from '../../media/image/image-upload.helper'
-import { addVideoAssetFromProject } from '../../media/video/video-upload.helper'
-import { addVolumetricAssetFromProject } from '../../media/volumetric/volumetric-upload.helper'
+import { addAssetFromProject } from '../../media/static-resource/static-resource-helper'
+// import { addVolumetricAssetFromProject } from '../../media/volumetric/volumetric-upload.helper'
 import { parseScenePortals } from './scene-parser'
 import { SceneParams } from './scene.service'
 
@@ -90,15 +88,15 @@ export const convertStaticResource = async (app: Application, project: string, s
           // console.log('urls', urls)
           if (mediaType === AssetClass.Audio)
             component.props.resources = JSON.parse(
-              JSON.stringify(await Promise.all(urls.map((url) => addAudioAssetFromProject(app, [url], project))))
+              JSON.stringify(await Promise.all(urls.map((url) => addAssetFromProject(app, [url], project))))
             )
           else if (mediaType === AssetClass.Video)
             component.props.resources = JSON.parse(
-              JSON.stringify(await Promise.all(urls.map((url) => addVideoAssetFromProject(app, [url], project))))
+              JSON.stringify(await Promise.all(urls.map((url) => addAssetFromProject(app, [url], project))))
             )
           else if (mediaType === AssetClass.Volumetric)
             component.props.resources = JSON.parse(
-              JSON.stringify(await Promise.all(urls.map((url) => addVolumetricAssetFromProject(app, [url], project))))
+              JSON.stringify(await Promise.all(urls.map((url) => addAssetFromProject(app, [url], project))))
             )
           break
         // case 'model':
@@ -122,7 +120,7 @@ export const convertStaticResource = async (app: Application, project: string, s
             delete component.props.paths
           } else
             component.props.resources = JSON.parse(
-              JSON.stringify(await Promise.all(urls.map((url) => addImageAssetFromProject(app, [url], project))))
+              JSON.stringify(await Promise.all(urls.map((url) => addAssetFromProject(app, [url], project))))
             )
           break
       }

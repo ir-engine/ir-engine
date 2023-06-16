@@ -14,7 +14,6 @@ import { PlayMode } from '@etherealengine/engine/src/scene/constants/PlayMode'
 import { addError } from '@etherealengine/engine/src/scene/functions/ErrorFunctions'
 
 import { SupportedFileTypes } from '../../constants/AssetTypes'
-import { StaticResourceService } from '../../services/StaticResourceService'
 import ArrayInputGroup from '../inputs/ArrayInputGroup'
 import BooleanInput from '../inputs/BooleanInput'
 import { Button } from '../inputs/Button'
@@ -51,27 +50,6 @@ export const MediaNodeEditor: EditorComponentType = (props) => {
 
   const toggle = () => {
     media.paused.set(!media.paused.value)
-  }
-
-  const updateResources = async (e) => {
-    const resources = await Promise.all(
-      e.map(async (path, index) => {
-        const extension = `.${path.split('.').pop()}`
-        let existingMedia
-        try {
-          if (AudioFileTypes.indexOf(extension) > -1) existingMedia = await StaticResourceService.uploadAudio(path)
-          else if (VideoFileTypes.indexOf(extension) > -1) existingMedia = await StaticResourceService.uploadVideo(path)
-          else if (VolumetricFileTypes.indexOf(extension) > -1)
-            existingMedia = await StaticResourceService.uploadVolumetric(path)
-          return existingMedia
-        } catch (err) {
-          addError(props.entity, MediaComponent, 'INVALID_URL', path)
-          return {}
-        }
-      })
-    )
-
-    updateProperty(MediaComponent, 'resources')(resources)
   }
 
   return (
@@ -120,7 +98,7 @@ export const MediaNodeEditor: EditorComponentType = (props) => {
         values={media.resources.value.map(
           (resource) => resource?.staticResource?.url || resource?.manifest?.staticResource?.url || resource?.path || ''
         )}
-        onChange={updateResources}
+        onChange={updateProperty(MediaComponent, 'resources')}
         label={t('editor:properties.media.paths')}
         acceptFileTypes={AllFileTypes}
         itemType={SupportedFileTypes}

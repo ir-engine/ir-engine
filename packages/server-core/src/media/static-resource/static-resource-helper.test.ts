@@ -1,9 +1,17 @@
 import appRootPath from 'app-root-path'
 import assert from 'assert'
+import fs from 'fs'
 import path from 'path'
 
+import { UploadFile } from '@etherealengine/common/src/interfaces/UploadAssetInterface'
+import { destroyEngine } from '@etherealengine/engine/src/ecs/classes/Engine'
+
+import { Application } from '../../../declarations'
 import { mockFetch, restoreFetch } from '../../../tests/util/mockFetch'
-import { downloadResourceAndMetadata } from './static-resource-helper'
+import { createFeathersKoaApp } from '../../createApp'
+import { getCachedURL } from '../storageprovider/getCachedURL'
+import { getStorageProvider } from '../storageprovider/storageprovider'
+import { addAssetFromProject, downloadResourceAndMetadata } from './static-resource-helper'
 
 describe('static-resource-helper', () => {
   beforeEach(() => {
@@ -42,7 +50,7 @@ describe('static-resource-helper', () => {
         buffer: Buffer.from('test'),
         originalname: name,
         mimetype: 'application/octet-stream',
-        size: 6
+        size: 4
       })
     })
 
@@ -54,6 +62,116 @@ describe('static-resource-helper', () => {
       assert.equal(res.originalname, name)
       assert.equal(res.mimetype, 'application/json')
       assert(res.size)
+    })
+  })
+})
+
+const testProject = 'test-project'
+
+describe('audio-upload', () => {
+  let app: Application
+  beforeEach(async () => {
+    app = createFeathersKoaApp()
+    await app.setup()
+    const storageProvider = getStorageProvider()
+    if (await storageProvider.doesExist('SampleAudio.mp3', 'static-resources/test-project/'))
+      await storageProvider.deleteResources(['static-resources/test-project/SampleAudio.mp3'])
+  })
+
+  afterEach(() => {
+    return destroyEngine()
+  })
+
+  describe('addAssetFromProject', () => {
+    beforeEach(async () => {
+      const url = 'https://test.com/projects/default-project/assets/SampleAudio.mp3'
+      const url2 = getCachedURL('/projects/default-project/assets/SampleAudio.mp3', getStorageProvider().cacheDomain)
+      mockFetch({
+        [url]: {
+          contentType: 'audio/mpeg',
+          response: fs.readFileSync(
+            path.join(appRootPath.path, '/packages/projects/default-project/assets/SampleAudio.mp3')
+          )
+        },
+        [url2]: {
+          contentType: 'audio/mpeg',
+          response: fs.readFileSync(
+            path.join(appRootPath.path, '/packages/projects/default-project/assets/SampleAudio.mp3')
+          )
+        }
+      })
+    })
+
+    afterEach(() => {
+      restoreFetch()
+    })
+
+    it('should link audio asset as a new static resource from external url', async () => {
+      const storageProvider = getStorageProvider()
+      const url = 'https://test.com/projects/default-project/assets/SampleAudio.mp3'
+
+      const staticResource = await addAssetFromProject(app, [url], testProject, true)
+
+      assert(staticResource.id)
+      assert.equal(staticResource.url, getCachedURL(staticResource.key, storageProvider.cacheDomain))
+      assert.equal(staticResource.key, 'static-resources/test-project/SampleAudio.mp3')
+      assert.equal(staticResource.mimeType, 'audio/mpeg')
+      assert.equal(staticResource.staticResourceType, 'audio')
+      assert.equal(staticResource.project, testProject)
+
+      const file = await storageProvider.getObject(staticResource.key)
+      assert.equal(file.ContentType, 'audio/mpeg')
+    })
+
+    it('should link audio asset as a new static resource from another project', async () => {
+      const storageProvider = getStorageProvider()
+      const url = getCachedURL('/projects/default-project/assets/SampleAudio.mp3', storageProvider.cacheDomain)
+
+      const staticResource = await addAssetFromProject(app, [url], testProject, true)
+
+      assert.equal(staticResource.key, 'static-resources/test-project/SampleAudio.mp3')
+      assert.equal(staticResource.mimeType, 'audio/mpeg')
+      assert.equal(staticResource.staticResourceType, 'audio')
+      assert.equal(staticResource.project, testProject)
+
+      const file = await storageProvider.getObject(staticResource.key)
+      assert.equal(file.ContentType, 'audio/mpeg')
+    })
+
+    it('should link audio asset as a new static resource from url if from the same project', async () => {
+      const storageProvider = getStorageProvider()
+      const url = getCachedURL('/projects/default-project/assets/SampleAudio.mp3', storageProvider.cacheDomain)
+
+      const staticResource = await addAssetFromProject(app, [url], 'default-project', false)
+
+      assert.equal(staticResource.key, 'projects/default-project/assets/SampleAudio.mp3')
+      assert.equal(staticResource.mimeType, 'audio/mpeg')
+      assert.equal(staticResource.staticResourceType, 'audio')
+      assert.equal(staticResource.project, 'default-project')
+
+      // should not exist under static resources
+      const fileExists = await storageProvider.doesExist('SampleAudio.mp3', 'static-resources/test-project/')
+      assert(!fileExists)
+    })
+
+    it('should return existing audio asset with the same hash and project', async () => {
+      const storageProvider = getStorageProvider()
+      const url = getCachedURL('/projects/default-project/assets/SampleAudio.mp3', storageProvider.cacheDomain)
+
+      const response = await addAssetFromProject(app, [url], 'default-project', false)
+      const response2 = await addAssetFromProject(app, [url], 'default-project', false)
+
+      assert.equal(response.id, response2.id)
+    })
+
+    it('should return new audio asset with the same hash exists in another project', async () => {
+      const storageProvider = getStorageProvider()
+      const url = getCachedURL('/projects/default-project/assets/SampleAudio.mp3', storageProvider.cacheDomain)
+
+      const response = await addAssetFromProject(app, [url], 'default-project', false)
+      const response2 = await addAssetFromProject(app, [url], 'test-project', false)
+
+      assert.notEqual(response.id, response2.id)
     })
   })
 })

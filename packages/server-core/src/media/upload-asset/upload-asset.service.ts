@@ -1,13 +1,10 @@
 import { Params } from '@feathersjs/feathers'
-import { bodyParser, koa } from '@feathersjs/koa'
 import Multer from '@koa/multer'
 import { createHash } from 'crypto'
 import fs from 'fs'
 import path from 'path'
 import { Op } from 'sequelize'
-import { MathUtils } from 'three'
 
-import { StaticResourceVariantInterface } from '@etherealengine/common/src/dbmodels/StaticResourceVariant'
 import { StaticResourceInterface } from '@etherealengine/common/src/interfaces/StaticResourceInterface'
 import {
   AdminAssetUploadArgumentsType,
@@ -22,12 +19,8 @@ import { Application } from '../../../declarations'
 import verifyScope from '../../hooks/verify-scope'
 import logger from '../../ServerLogger'
 import { uploadAvatarStaticResource } from '../../user/avatar/avatar-helper'
-import { audioUploadFile } from '../audio/audio-upload.helper'
-import { imageUploadFile } from '../image/image-upload.helper'
-import { modelUploadFile } from '../model/model-upload.helper'
 import { getCachedURL } from '../storageprovider/getCachedURL'
 import { getStorageProvider } from '../storageprovider/storageprovider'
-import { videoUploadFile } from '../video/video-upload.helper'
 import hooks from './upload-asset.hooks'
 
 const multipartMiddleware = Multer({ limits: { fieldSize: Infinity } })
@@ -59,6 +52,7 @@ export const getFileMetadata = async (data: { name?: string; file: UploadFile | 
   let contentLength = 0
   let extension = ''
   let assetName = name!
+  let mimeType = ''
 
   if (typeof file === 'string') {
     const url = file
@@ -66,9 +60,11 @@ export const getFileMetadata = async (data: { name?: string; file: UploadFile | 
       const fileHead = await fetch(url, { method: 'HEAD' })
       if (!/^[23]/.test(fileHead.status.toString())) throw new Error('Invalid URL')
       contentLength = fileHead.headers['content-length'] || fileHead.headers?.get('content-length')
+      mimeType = fileHead.headers['content-type'] || fileHead.headers?.get('content-type')
     } else {
       const fileHead = await fs.statSync(url)
       contentLength = fileHead.size
+      mimeType = CommonKnownContentTypes[url.split('.').pop()!]
     }
     if (!name) assetName = url.split('/').pop()!
     extension = url.split('.').pop()!
@@ -76,6 +72,7 @@ export const getFileMetadata = async (data: { name?: string; file: UploadFile | 
     extension = MimeTypeToExtension[file.mimetype] ?? file.originalname.split('.').pop()
     contentLength = file.size
     assetName = name ?? file.originalname
+    mimeType = file.mimetype
   }
 
   const hash = createHash('sha3-256').update(contentLength.toString()).update(assetName).digest('hex')
@@ -83,7 +80,8 @@ export const getFileMetadata = async (data: { name?: string; file: UploadFile | 
   return {
     assetName,
     extension,
-    hash
+    hash,
+    mimeType
   }
 }
 
@@ -114,17 +112,29 @@ export type UploadAssetArgs = {
   files: Array<UploadFile> // uploaded file or strings
 }
 
-const uploadAsset = (app: Application, type: string, args: UploadAssetArgs) => {
-  switch (type) {
-    case 'image':
-      return imageUploadFile(app, args)
-    case 'video':
-      return videoUploadFile(app, args)
-    case 'audio':
-      return audioUploadFile(app, args)
-    case 'model3d':
-      return modelUploadFile(app, args)
-  }
+export const uploadAsset = async (app: Application, args: UploadAssetArgs) => {
+  const { assetName, hash, mimeType } = await getFileMetadata({
+    file: args.files[0],
+    name: args.files[0].originalname
+  })
+
+  const whereQuery = {
+    hash
+  } as any
+  if (args.project) whereQuery.project = args.project
+
+  const existingResource = (await app.service('static-resource').Model.findOne({
+    where: whereQuery
+  })) as StaticResourceInterface | null
+
+  if (existingResource) return existingResource
+
+  const key = `/temp/${hash}`
+  return await addAssetAsStaticResource(app, args.files, {
+    hash: hash,
+    path: key,
+    project: args.project
+  })
 }
 
 const uploadAssets = (app: Application) => async (data: AssetUploadType, params: UploadParams) => {
@@ -148,7 +158,7 @@ const uploadAssets = (app: Application) => async (data: AssetUploadType, params:
     if (!files || files.length === 0) throw new Error('No files to upload')
 
     if (data.variants) {
-      return uploadAsset(app, data.args.staticResourceType!, {
+      return uploadAsset(app, {
         name: data.args.path,
         files: files,
         project: data.args.project
@@ -157,7 +167,7 @@ const uploadAssets = (app: Application) => async (data: AssetUploadType, params:
 
     return Promise.all(
       files.map((file, i) =>
-        uploadAsset(app, data.args.staticResourceType!, {
+        uploadAsset(app, {
           name: data.args.path.split('.')[0],
           files: [file],
           project: data.args.project!

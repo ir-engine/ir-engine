@@ -8,7 +8,6 @@ import { addError, clearErrors } from '@etherealengine/engine/src/scene/function
 
 import PhotoSizeSelectActualIcon from '@mui/icons-material/PhotoSizeSelectActual'
 
-import { StaticResourceService } from '../../services/StaticResourceService'
 import ImageInput from '../inputs/ImageInput'
 import InputGroup from '../inputs/InputGroup'
 import ImageSourceProperties from './ImageSourceProperties'
@@ -21,19 +20,6 @@ export const ImageNodeEditor: EditorComponentType = (props) => {
   const entity = props.entity
   const imageComponent = useComponent(entity, ImageComponent)
   const errors = getEntityErrors(props.entity, ImageComponent)
-
-  const updateResources = async (path: string) => {
-    let media
-    clearErrors(entity, ImageComponent)
-    try {
-      media = await StaticResourceService.uploadImage(path)
-    } catch (err) {
-      console.log('Error getting path', path)
-      addError(entity, ImageComponent, 'INVALID_URL', path)
-      return {}
-    }
-    updateProperty(ImageComponent, 'resource')(media)
-  }
 
   return (
     <NodeEditor
@@ -51,7 +37,7 @@ export const ImageNodeEditor: EditorComponentType = (props) => {
             imageComponent.source?.value ||
             ''
           }
-          onChange={updateResources}
+          onChange={updateProperty(ImageComponent, 'source')}
         />
       </InputGroup>
       {errors ? (
