@@ -23,16 +23,31 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-export const ObjectLayers = {
-  Scene: 0 as const, // DEFAULT
-  Camera: 1 as const,
-  Portal: 2 as const,
-  Avatar: 3 as const,
-  Vehicles: 4 as const,
-  Gizmos: 5 as const,
-  UI: 6 as const,
-  PhysicsHelper: 7 as const,
-  NodeHelper: 8 as const,
-  Panel: 9 as const,
-  TransformGizmo: 10 as const
+import { Material } from 'three'
+
+import { Entity } from '../../ecs/classes/Entity'
+import { defineComponent } from '../../ecs/functions/ComponentFunctions'
+
+export type MaterialMap = {
+  id: string
+  material: Material
 }
+
+export const VehicleEffectComponent = defineComponent({
+  name: 'VehicleEffectComponent',
+  onInit: (entity) => {
+    return {
+      sourceEntity: null! as Entity,
+      opacityMultiplier: 1,
+      originMaterials: [] as Array<MaterialMap>
+    }
+  },
+
+  onSet: (entity, component, json) => {
+    if (!json) return
+
+    if (json.sourceEntity) component.sourceEntity.set(json.sourceEntity)
+    if (json.opacityMultiplier) component.opacityMultiplier.set(json.opacityMultiplier)
+    if (json.originMaterials) component.originMaterials.set(json.originMaterials as Array<MaterialMap>)
+  }
+})

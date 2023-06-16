@@ -23,16 +23,24 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-export const ObjectLayers = {
-  Scene: 0 as const, // DEFAULT
-  Camera: 1 as const,
-  Portal: 2 as const,
-  Avatar: 3 as const,
-  Vehicles: 4 as const,
-  Gizmos: 5 as const,
-  UI: 6 as const,
-  PhysicsHelper: 7 as const,
-  NodeHelper: 8 as const,
-  Panel: 9 as const,
-  TransformGizmo: 10 as const
-}
+import { Quaternion, Vector3 } from 'three'
+
+import { defineComponent } from '../../ecs/functions/ComponentFunctions'
+
+export const SpawnPoseComponent = defineComponent({
+  name: 'SpawnPoseComponent',
+
+  onInit: (entity) => {
+    return {
+      position: new Vector3(),
+      rotation: new Quaternion()
+    }
+  },
+
+  onSet: (entity, component, json) => {
+    if (!json) return
+
+    if (json.position) component.position.set(json.position)
+    if (json.rotation) component.rotation.set(json.rotation)
+  }
+})
