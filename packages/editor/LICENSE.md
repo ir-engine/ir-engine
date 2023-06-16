@@ -1,12 +1,3 @@
-====================================================================
-====================================================================
-
-Some portions of the Ethereal Engine codebase are derived from other projects.
-All original work by the Ethereal Engine team is subject to CPAL-1.0 license.
-
-============================================================================
-============================================================================
-
 CPAL-1.0 License
 
 The contents of this file are subject to the Common Public Attribution License
