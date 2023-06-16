@@ -14,7 +14,7 @@ export const Message = () => {
         </div>
       </div>
       <div className="box-border w-[765px] border-t-[1px] border-solid border-[#D1D3D7]" />
-      <div className="w-[720px] bg-[#FFFFFF] ml-6 mb-[100px] mt-4 justify-center content-center">
+      <div className="w-[720px] bg-[#FFFFFF] ml-6 mb-[100px] mt-4 justify-center content-center overflow-scroll hide-scroll">
         <div className="flex flex-wrap">
           <img className="rounded-[38px]  w-9 h-9 object-cover" alt="" src="/icon-user1.png" />
           <div className="h-[20px] ml-5">
@@ -43,7 +43,7 @@ export const Message = () => {
         </div>
 
         <div className="flex flex-wrap mt-6">
-          <div className="h-[20px] mx-[397px] mr-5">
+          <div className="h-[20px] mx-[310px] mr-5">
             <p className="rounded-3xl border-[#E1E1E1] border-2 text-black bg-[#E1E1E1] p-[3px]">
               Good to know, let prepare tasks, and get back!
             </p>

@@ -9,13 +9,13 @@ export const Media = () => {
         <img className="rounded-8xs w-[120px] h-[84.94px] object-cover" alt="" src="/download-image2.png" />
         <img className="rounded-8xs w-[120px] h-[84.94px] object-cover" alt="" src="download-image3.png" />
         <button className="cursor-pointer bg-[transparent] w-[120px] h-[84.94px]">
-          <div className="w-[120px] h-[84.94px] rounded bg-[#5B598B] flex flex-col [shadow-[0px_0px_4px_rgba(0,_0,_0,_0.1)]">
+          <div className="w-[120px] h-[84.94px] rounded bg-[#5B598B] flex flex-col shadow-[0px_0px_4px_rgba(0,_0,_0,_0.1)]">
             <p className="text-[18px] font-semibold font-segoe-ui mt-3 my-[-10px] text-[#EEEEEE] text-center">120</p>
             <p className="text-[18px] font-semibold font-segoe-ui text-[#EEEEEE] text-center">Photos</p>
           </div>
         </button>
       </div>
-      <p className=" text-2xl font-bold my-5 mt-8 ml-8">Shared Files</p>
+      <p className="text-2xl font-bold my-5 mt-8 ml-8">Shared Files</p>
       <div className="w-[300px] h-[20vh] mt-0 flex flex-wrap">
         <div className="w-[330px] h-[2vh] justify-center gap-[48px] ml-6 flex flex-wrap">
           <div className="w-[190px] h-[2vh]">
@@ -28,7 +28,7 @@ export const Media = () => {
               </div>
             </div>
           </div>
-          <button className="">
+          <button>
             <img className="w-6 h-6 mt-[6px] overflow-hidden" alt="" src="/download-icon.svg" />
           </button>
         </div>
@@ -43,7 +43,7 @@ export const Media = () => {
               </div>
             </div>
           </div>
-          <button className="">
+          <button>
             <img className="w-6 h-6 mt-[6px] overflow-hidden" alt="" src="/download-icon.svg" />
           </button>
         </div>
@@ -58,14 +58,14 @@ export const Media = () => {
               </div>
             </div>
           </div>
-          <button className="">
+          <button>
             <img className="w-6 h-6 mt-[6px] overflow-hidden" alt="" src="/download-icon.svg" />
           </button>
         </div>
       </div>
       <div className="w-[330px] flex justify-center items-center mt-4">
         <button className="cursor-pointer rounded-[20px] p-0 bg-[#3F3960] w-[120px] h-8">
-          <div className="[text-align-last:center] rounded-2xl text-[16px] text-sm font-segoe-ui text-white text-left">
+          <div className="text-align-last:center rounded-2xl text-[16px] text-sm font-segoe-ui text-white text-left">
             View more
           </div>
         </button>

@@ -1,15 +1,17 @@
+import React from 'react'
+
+import { ChatSection } from './components/ChatSection'
 import { Media } from './components/Media'
 import { Message } from './components/Message'
-import { User } from './components/User'
+import { Sidebar } from './components/Sidebar'
 
 import './index.css'
-
-import React from 'react'
 
 export default function App() {
   return (
     <div className="w-full h-[100%] flex bg-slate-600">
-      <User />
+      <Sidebar />
+      <ChatSection />
       <Message />
       <Media />
     </div>
