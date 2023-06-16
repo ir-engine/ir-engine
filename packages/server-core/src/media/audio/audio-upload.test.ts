@@ -32,10 +32,15 @@ describe('audio-upload', () => {
 
   describe('addAudioAssetFromProject', () => {
     beforeEach(async () => {
-      mockFetch(
-        'audio/mpeg',
-        fs.readFileSync(path.join(appRootPath.path, '/packages/projects/default-project/assets/SampleAudio.mp3'))
-      )
+      const url = 'https://test.com/projects/default-project/assets/SampleAudio.mp3'
+      mockFetch({
+        [url]: {
+          contentType: 'audio/mpeg',
+          response: fs.readFileSync(
+            path.join(appRootPath.path, '/packages/projects/default-project/assets/SampleAudio.mp3')
+          )
+        }
+      })
     })
 
     afterEach(() => {

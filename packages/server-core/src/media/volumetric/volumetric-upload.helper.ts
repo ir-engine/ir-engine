@@ -1,6 +1,7 @@
 import { createHash } from 'crypto'
 import fs from 'fs'
 import fetch from 'node-fetch'
+import path from 'path'
 import { Op } from 'sequelize'
 
 import { UploadFile } from '@etherealengine/common/src/interfaces/UploadAssetInterface'
@@ -10,7 +11,8 @@ import { CommonKnownContentTypes } from '@etherealengine/common/src/utils/Common
 import { Application } from '../../../declarations'
 import config from '../../appconfig'
 import logger from '../../ServerLogger'
-import { getExistingResource } from '../static-resource/static-resource-helper'
+import { downloadResourceAndMetadata, getExistingResource } from '../static-resource/static-resource-helper'
+import { getStorageProvider } from '../storageprovider/storageprovider'
 import { addAssetAsStaticResource, getFileMetadata, UploadAssetArgs } from '../upload-asset/upload-asset.service'
 import { videoUploadFile } from '../video/video-upload.helper'
 
@@ -114,7 +116,71 @@ export const addVolumetricAssetFromProject = async (
   urls: string[],
   project: string,
   download = config.server.cloneProjectStaticResources
-) => {}
+) => {
+  const storageProvider = getStorageProvider()
+  const mainURL = urls[0]
+  const root = mainURL
+    .replace(/.drcs$/, '')
+    .replace(/.mp4$/, '')
+    .replace(/.manifest$/, '')
+  const name = root.split('/').pop()
+  const drcsUrl = `${root}.drcs`
+  const videoUrl = `${root}.mp4`
+  const manifestUrl = `${root}.manifest`
+
+  const fromStorageProvider = drcsUrl.split(path.join(storageProvider.cacheDomain, 'projects/'))
+  const isExternalToProject =
+    !project || fromStorageProvider.length === 1 || project !== fromStorageProvider?.[1]?.split('/')?.[0]
+
+  const drcsMetadata = await getFileMetadata({ file: drcsUrl })
+  const existingVolumetric = await getExistingResource<VolumetricInterface>(
+    app,
+    'volumetric',
+    drcsMetadata.hash,
+    project
+  )
+  if (existingVolumetric) return existingVolumetric
+
+  const videoMetadata = await getFileMetadata({ file: videoUrl })
+  const manifestMetadata = await getFileMetadata({ file: manifestUrl })
+
+  const files = await Promise.all(
+    urls.map((url) => downloadResourceAndMetadata(url, isExternalToProject ? download : false))
+  )
+
+  const key = isExternalToProject ? `static-resources/${project}/` : `projects/${project}/assets/`
+
+  const drcsResource = await addAssetAsStaticResource(app, files, {
+    hash: drcsMetadata.hash,
+    path: key,
+    staticResourceType: 'volumetric',
+    project
+  })
+  const videoResource = await addAssetAsStaticResource(app, files, {
+    hash: videoMetadata.hash,
+    path: key,
+    staticResourceType: 'video',
+    project
+  })
+  const manifestResource = await addAssetAsStaticResource(app, files, {
+    hash: manifestMetadata.hash,
+    path: key,
+    staticResourceType: 'data',
+    project
+  })
+
+  console.log({
+    name: drcsMetadata.assetName,
+    staticResourceId: drcsResource.id
+  })
+
+  return (await app.service('volumetric').create({
+    name: drcsMetadata.assetName,
+    // video is what goes in scene json, as that is what the player expects
+    staticResourceId: videoResource.id
+    // other assets can be retrieved as 'dependencies' via static resource query
+  })) as VolumetricInterface
+}
 
 export const volumetricUploadFile = async (app: Application, data: UploadAssetArgs) => {
   logger.info('audioUploadFile: %o', data)

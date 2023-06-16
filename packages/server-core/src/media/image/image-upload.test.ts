@@ -32,10 +32,15 @@ describe('image-upload', () => {
 
   describe('addImageAssetFromProject', () => {
     beforeEach(async () => {
-      mockFetch(
-        'image/jpeg',
-        fs.readFileSync(path.join(appRootPath.path, '/packages/projects/default-project/assets/sky_skybox.jpg'))
-      )
+      const url = 'https://test.com/projects/default-project/assets/sky_skybox.jpg'
+      mockFetch({
+        [url]: {
+          contentType: 'image/jpeg',
+          response: fs.readFileSync(
+            path.join(appRootPath.path, '/packages/projects/default-project/assets/sky_skybox.jpg')
+          )
+        }
+      })
     })
 
     afterEach(() => {

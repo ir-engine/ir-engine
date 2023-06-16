@@ -14,7 +14,7 @@ export type CreateVolumetricType = {
   duration?: number
   videoId?: string
   manifestId?: string
-  drcsStaticResourceId?: string
+  staticResourceId?: string
 }
 
 export class Volumetric extends Service<VolumetricInterface> {
@@ -34,7 +34,7 @@ export class Volumetric extends Service<VolumetricInterface> {
     } as any
     if (data.videoId) query.videoId = data.videoId
     if (data.manifestId) query.manifestId = data.manifestId
-    if (data.drcsStaticResourceId) query.drcsStaticResourceId = data.drcsStaticResourceId
+    if (data.staticResourceId) query.staticResourceId = data.staticResourceId
     const oldResource = await this.find({
       query
     })

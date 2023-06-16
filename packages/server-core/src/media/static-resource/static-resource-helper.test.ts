@@ -7,7 +7,13 @@ import { downloadResourceAndMetadata } from './static-resource-helper'
 
 describe('static-resource-helper', () => {
   beforeEach(() => {
-    mockFetch()
+    const url = 'http://test.com/test'
+    mockFetch({
+      [url]: {
+        contentType: 'application/octet-stream',
+        response: Buffer.from('test')
+      }
+    })
   })
 
   afterEach(() => {

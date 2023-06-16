@@ -32,10 +32,15 @@ describe('video-upload', () => {
 
   describe('addVideoAssetFromProject', () => {
     beforeEach(() => {
-      mockFetch(
-        'video/mp4',
-        fs.readFileSync(path.join(appRootPath.path, '/packages/projects/default-project/assets/SampleVideo.mp4'))
-      )
+      const url = 'https://test.com/projects/default-project/assets/SampleVideo.mp4'
+      mockFetch({
+        [url]: {
+          contentType: 'video/mp4',
+          response: fs.readFileSync(
+            path.join(appRootPath.path, '/packages/projects/default-project/assets/SampleVideo.mp4')
+          )
+        }
+      })
     })
 
     afterEach(() => {

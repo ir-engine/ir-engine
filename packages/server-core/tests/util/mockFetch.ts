@@ -1,18 +1,26 @@
 const originalFetch = (global as any).fetch
 
-export const mockFetch = (responseType = 'application/octet-stream', response = Buffer.from('test')) => {
+export const mockFetch = (urls: { [url: string]: { contentType: string; response: Buffer } }) => {
   // override fetch
   ;(global as any).fetch = async (url: string, options?: any) => {
+    if (!urls[url])
+      return {
+        status: 404
+      }
     if (options?.method === 'HEAD') {
       return {
         status: 200,
-        headers: new Map().set('content-length', response.byteLength).set('content-type', responseType)
+        headers: new Map()
+          .set('content-length', urls[url].response.byteLength)
+          .set('content-type', urls[url].contentType)
       }
     } else {
       return {
-        arrayBuffer: async () => response,
+        arrayBuffer: async () => urls[url].response,
         status: 200,
-        headers: new Map().set('content-length', response.byteLength).set('content-type', responseType)
+        headers: new Map()
+          .set('content-length', urls[url].response.byteLength)
+          .set('content-type', urls[url].contentType)
       }
     }
   }

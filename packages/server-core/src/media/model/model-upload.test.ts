@@ -32,10 +32,15 @@ describe('model-upload', () => {
 
   describe('addModelAssetFromProject', () => {
     beforeEach(async () => {
-      mockFetch(
-        'model/gltf-binary',
-        fs.readFileSync(path.join(appRootPath.path, '/packages/projects/default-project/assets/Skybase.glb'))
-      )
+      const url = 'https://test.com/projects/default-project/assets/Skybase.glb'
+      mockFetch({
+        [url]: {
+          contentType: 'model/gltf-binary',
+          response: fs.readFileSync(
+            path.join(appRootPath.path, '/packages/projects/default-project/assets/Skybase.glb')
+          )
+        }
+      })
     })
 
     afterEach(() => {

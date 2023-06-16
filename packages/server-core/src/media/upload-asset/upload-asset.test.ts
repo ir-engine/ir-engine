@@ -1,5 +1,6 @@
 import appRootPath from 'app-root-path'
 import assert from 'assert'
+import fs from 'fs'
 import path from 'path'
 
 import { AdminAssetUploadArgumentsType, UploadFile } from '@etherealengine/common/src/interfaces/UploadAssetInterface'
@@ -19,7 +20,16 @@ describe('upload-asset', () => {
   let app: Application
 
   beforeEach(async () => {
-    mockFetch('application/json')
+    const storageProvider = getStorageProvider()
+    const url = getCachedURL('/projects/default-project/assets/default.scene.json', storageProvider.cacheDomain)
+    mockFetch({
+      [url]: {
+        contentType: 'application/json',
+        response: fs.readFileSync(
+          path.join(appRootPath.path, '/packages/projects/default-project/assets/default.scene.json')
+        )
+      }
+    })
     app = createFeathersKoaApp()
     await app.setup()
   })

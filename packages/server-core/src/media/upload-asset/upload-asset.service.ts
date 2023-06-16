@@ -46,6 +46,7 @@ export interface ResourcePatchCreateInterface {
   hash: string
   key: string
   mimeType: string
+  parentStaticResourceId?: string
   staticResourceType: string
   url?: string
   project?: string
@@ -179,7 +180,6 @@ export const createStaticResourceHash = (file: Buffer | string, props: { name?: 
  * - if the asset is coming from an external URL, create a new static resource entry
  * - if the asset is already in the static resource table, update the entry with the new file
  */
-
 export const addAssetAsStaticResource = async (
   app: Application,
   files: UploadFile[],
@@ -206,6 +206,8 @@ export const addAssetAsStaticResource = async (
     staticResourceType: args.staticResourceType,
     project: args.project
   } as ResourcePatchCreateInterface
+  if (args.parentStaticResourceId) body.parentStaticResourceId = args.parentStaticResourceId
+
   const variants = [] as { url: string; metadata: Record<string, string | number> }[]
   const promises = [] as Promise<void>[]
   // upload asset to storage provider
