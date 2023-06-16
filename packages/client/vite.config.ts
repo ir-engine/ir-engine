@@ -309,7 +309,7 @@ export default defineConfig(async () => {
     ].filter(Boolean),
     resolve: {
       alias: {
-        'react-json-tree': 'react-json-tree/lib/umd/react-json-tree.min.js',
+        'react-json-tree': 'react-json-tree/umd /react-json-tree.min.js',
         '@mui/styled-engine': '@mui/styled-engine-sc/'
       }
     },
