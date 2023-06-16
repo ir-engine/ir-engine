@@ -46,5 +46,5 @@ jobs:
         timeout-minutes: 20
       - run: npm run dev-docker
       - run: npm run dev-reinit
-      - run: npm run test
       - run: npm run build-client
+      - run: npm run test

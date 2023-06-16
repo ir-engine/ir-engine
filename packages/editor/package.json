@@ -16,8 +16,7 @@
   },
   "npmClient": "npm",
   "scripts": {
-    "check-errors": "tsc --noemit",
-    "test": "mocha --config .mocharc.js"
+    "check-errors": "tsc --noemit"
   },
   "resolutions": {
     "@types/react": "18.0.28",

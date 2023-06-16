@@ -273,14 +273,15 @@ function createColliderDesc(
       return
   }
 
-  // get matrix relative to root
-  const matrixRelativeToRoot = new Matrix4().copy(mesh.matrixWorld)
-  matrixRelativeToRoot.premultiply(rootObject.matrixWorld.clone().invert())
-
   const positionRelativeToRoot = new Vector3()
   const quaternionRelativeToRoot = new Quaternion()
 
-  matrixRelativeToRoot.decompose(positionRelativeToRoot, quaternionRelativeToRoot, new Vector3())
+  // get matrix relative to root
+  if (rootObject !== mesh) {
+    const matrixRelativeToRoot = new Matrix4().copy(mesh.matrixWorld)
+    matrixRelativeToRoot.premultiply(rootObject.matrixWorld.clone().invert())
+    matrixRelativeToRoot.decompose(positionRelativeToRoot, quaternionRelativeToRoot, new Vector3())
+  }
 
   applyDescToCollider(colliderDesc, colliderDescOptions, positionRelativeToRoot, quaternionRelativeToRoot)
 
