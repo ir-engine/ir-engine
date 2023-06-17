@@ -82,6 +82,8 @@ export async function seeder(app: Application, forceRefresh: boolean, prepareDb:
       if (fs.existsSync(uploadPath)) fs.rmSync(uploadPath, { recursive: true })
     }
     copyDefaultProject()
+    await app.service('project')._seedProject('default-project')
+    await uploadLocalProjectToProvider(app, 'default-project')
     if (!config.kubernetes.enabled && !config.testEnabled) await app.service('project')._fetchDevLocalProjects()
   }
 }
