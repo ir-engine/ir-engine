@@ -14,7 +14,7 @@
   },
   "repository": "http://github.com/etherealengine/etherealengine",
   "author": "Ethereal Engine",
-  "license": "MIT",
+  "license": "CPAL",
   "dependencies": {
     "cross-fetch": "^3.1.5",
     "lru-cache": "8.0.4"

@@ -81,10 +81,12 @@
     "version-increment-no-tag": "lerna version --conventional-commits --yes --no-git-tag-version",
     "create-build-status": "cross-env ts-node --swc scripts/create-build-status.ts",
     "record-build-error": "cross-env ts-node --swc scripts/record-build-error.ts",
-    "record-build-success": "cross-env ts-node --swc scripts/record-build-success"
+    "record-build-success": "cross-env ts-node --swc scripts/record-build-success",
+    "add-license-headers": "cross-env ts-node --swc scripts/add-license-headers.ts"
   },
   "types": "lib/",
   "pre-commit": [
+    "add-license-headers",
     "format-staged"
   ],
   "lint-staged": {

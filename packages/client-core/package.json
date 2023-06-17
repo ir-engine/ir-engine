@@ -96,6 +96,6 @@
     "sass": "1.59.3",
     "trace-unhandled": "2.0.1"
   },
-  "license": "MIT",
+  "license": "CPAL",
   "gitHead": "2313453697ca7c6b8d36b3b166b5a6445fe1c851"
 }

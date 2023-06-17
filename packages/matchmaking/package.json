@@ -10,7 +10,7 @@
   },
   "description": "",
   "homepage": "",
-  "license": "MIT",
+  "license": "CPAL",
   "main": "lib/engine.umd.js",
   "module": "lib/engine.es.js",
   "npmClient": "npm",

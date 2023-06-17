@@ -48,5 +48,5 @@
     "cross-env": "^7.0.3",
     "esbuild": "0.17.12"
   },
-  "license": "MIT"
+  "license": "CPAL"
 }
