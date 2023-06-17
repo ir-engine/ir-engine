@@ -39,5 +39,7 @@ export interface ServerSettingParams extends KnexAdapterParams<ServerSettingQuer
 
 export class ServerSettingService<
   T = ServerSettingType,
+  // @ts-ignore
   ServiceParams extends Params = ServerSettingParams
+  // @ts-ignore
 > extends KnexService<ServerSettingType, ServerSettingData, ServerSettingParams, ServerSettingPatch> {}

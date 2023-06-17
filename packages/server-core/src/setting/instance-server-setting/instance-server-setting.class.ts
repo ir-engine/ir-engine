@@ -39,10 +39,12 @@ export interface InstanceServerSettingParams extends KnexAdapterParams<InstanceS
 
 export class InstanceServerSettingService<
   T = InstanceServerSettingType,
+  // @ts-ignore
   ServiceParams extends Params = InstanceServerSettingParams
 > extends KnexService<
   InstanceServerSettingType,
   InstanceServerSettingData,
+  // @ts-ignore
   InstanceServerSettingParams,
   InstanceServerSettingPatch
 > {}

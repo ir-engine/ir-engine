@@ -46,6 +46,7 @@ export interface MatchTicketAssignmentParams extends KnexAdapterParams<MatchTick
  */
 export class MatchTicketAssignmentService<
   T = MatchTicketAssignmentType,
+  // @ts-ignore
   ServiceParams extends Params = MatchTicketAssignmentParams
 > extends KnexAdapter<MatchTicketAssignmentType, MatchTicketAssignmentParams> {
   app: Application

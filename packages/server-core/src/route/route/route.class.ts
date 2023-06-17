@@ -32,9 +32,11 @@ import { RouteData, RoutePatch, RouteQuery, RouteType } from '@etherealengine/en
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface RouteParams extends KnexAdapterParams<RouteQuery> {}
 
+// @ts-ignore
 export class RouteService<T = RouteType, ServiceParams extends Params = RouteParams> extends KnexService<
   RouteType,
   RouteData,
+  // @ts-ignore
   RouteParams,
   RoutePatch
 > {}

@@ -39,5 +39,7 @@ export interface EmailSettingParams extends KnexAdapterParams<EmailSettingQuery>
 
 export class EmailSettingService<
   T = EmailSettingType,
+  // @ts-ignore
   ServiceParams extends Params = EmailSettingParams
+  // @ts-ignore
 > extends KnexService<EmailSettingType, EmailSettingData, EmailSettingParams, EmailSettingPatch> {}

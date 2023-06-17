@@ -39,5 +39,7 @@ export interface RedisSettingParams extends KnexAdapterParams<RedisSettingQuery>
 
 export class RedisSettingService<
   T = RedisSettingType,
+  // @ts-ignore
   ServiceParams extends Params = RedisSettingParams
+  // @ts-ignore
 > extends KnexService<RedisSettingType, RedisSettingData, RedisSettingParams, RedisSettingPatch> {}

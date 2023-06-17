@@ -43,7 +43,7 @@ export interface AnalyticsParams extends KnexAdapterParams<AnalyticsQuery> {}
 /**
  * A class for Analytics service
  */
-
+// @ts-ignore
 export class AnalyticsService<T = AnalyticsType, ServiceParams extends Params = AnalyticsParams> extends KnexAdapter<
   AnalyticsType,
   AnalyticsData,

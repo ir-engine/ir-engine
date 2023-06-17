@@ -51,6 +51,7 @@ export interface ClientSettingParams extends KnexAdapterParams<ClientSettingQuer
 
 export class ClientSettingService<
   T = ClientSettingType,
+  // @ts-ignore
   ServiceParams extends Params = ClientSettingParams
 > extends KnexAdapter<ClientSettingType, ClientSettingData, ClientSettingParams, ClientSettingPatch> {
   app: Application

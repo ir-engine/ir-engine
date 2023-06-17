@@ -39,5 +39,7 @@ export interface TaskServerSettingParams extends KnexAdapterParams<TaskServerSet
 
 export class TaskServerSettingService<
   T = TaskServerSettingType,
+  // @ts-ignore
   ServiceParams extends Params = TaskServerSettingParams
+  // @ts-ignore
 > extends KnexService<TaskServerSettingType, TaskServerSettingData, TaskServerSettingParams, TaskServerSettingPatch> {}

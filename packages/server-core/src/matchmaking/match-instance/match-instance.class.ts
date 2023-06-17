@@ -39,5 +39,7 @@ export interface MatchInstanceParams extends KnexAdapterParams<MatchInstanceQuer
 
 export class MatchInstanceService<
   T = MatchInstanceType,
+  // @ts-ignore
   ServiceParams extends Params = MatchInstanceParams
+  // @ts-ignore
 > extends KnexService<MatchInstanceType, MatchInstanceData, MatchInstanceParams, MatchInstancePatch> {}

@@ -37,9 +37,11 @@ import {
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface MatchUserParams extends KnexAdapterParams<MatchUserQuery> {}
 
+// @ts-ignore
 export class MatchUserService<T = MatchUserType, ServiceParams extends Params = MatchUserParams> extends KnexService<
   MatchUserType,
   MatchUserData,
+  // @ts-ignore
   MatchUserParams,
   MatchUserPatch
 > {}

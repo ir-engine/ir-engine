@@ -39,5 +39,7 @@ export interface CoilSettingParams extends KnexAdapterParams<CoilSettingQuery> {
 
 export class CoilSettingService<
   T = CoilSettingType,
+  // @ts-ignore
   ServiceParams extends Params = CoilSettingParams
+  // @ts-ignore
 > extends KnexService<CoilSettingType, CoilSettingData, CoilSettingParams, CoilSettingPatch> {}

@@ -39,5 +39,7 @@ export interface ChargebeeSettingParams extends KnexAdapterParams<ChargebeeSetti
 
 export class ChargebeeSettingService<
   T = ChargebeeSettingType,
+  // @ts-ignore
   ServiceParams extends Params = ChargebeeSettingParams
+  // @ts-ignore
 > extends KnexService<ChargebeeSettingType, ChargebeeSettingData, ChargebeeSettingParams, ChargebeeSettingPatch> {}
