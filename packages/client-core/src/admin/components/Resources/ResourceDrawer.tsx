@@ -69,13 +69,11 @@ const defaultState = {
   key: '',
   name: '',
   mimeType: '',
-  staticResourceType: '',
   source: 'file',
   resourceUrl: '',
   resourceFile: undefined as File | undefined,
   formErrors: {
     name: '',
-    staticResourceType: '',
     resourceUrl: '',
     resourceFile: ''
   }
@@ -93,14 +91,6 @@ const ResourceDrawerContent = ({ mode, selectedResource, onClose }: Props) => {
   const hasWriteAccess = user.scopes && user.scopes.find((item) => item.type === 'static_resource:write')
   const viewMode = mode === ResourceDrawerMode.ViewEdit && !editMode.value
 
-  const resourceTypesMenu: InputMenuItem[] =
-    adminResourceState.value.filters?.allStaticResourceTypes.map((el) => {
-      return {
-        value: el,
-        label: el
-      }
-    }) || []
-
   useEffect(() => {
     loadSelectedResource()
   }, [selectedResource])
@@ -114,7 +104,6 @@ const ResourceDrawerContent = ({ mode, selectedResource, onClose }: Props) => {
       state.merge({
         key: selectedResource.key || '',
         mimeType: selectedResource.mimeType || '',
-        staticResourceType: selectedResource.staticResourceType || '',
         source: 'url',
         resourceUrl: selectedResource.url || '',
         resourceFile: undefined
@@ -207,11 +196,6 @@ const ResourceDrawerContent = ({ mode, selectedResource, onClose }: Props) => {
       case 'name':
         state.formErrors.merge({ name: value.length < 2 ? t('admin:components.resources.nameRequired') : '' })
         break
-      case 'staticResourceType':
-        state.formErrors.merge({
-          staticResourceType: value.length < 2 ? t('admin:components.resources.resourceTypeRequired') : ''
-        })
-        break
       case 'resourceUrl': {
         state.formErrors.merge({
           resourceUrl: !isValidHttpUrl(value) ? t('admin:components.resources.resourceUrlInvalid') : ''
@@ -235,7 +219,6 @@ const ResourceDrawerContent = ({ mode, selectedResource, onClose }: Props) => {
             ? ''
             : t('admin:components.resources.nameCantEmpty')
           : '',
-      staticResourceType: state.staticResourceType.value ? '' : t('admin:components.resources.resourceTypeCantEmpty'),
       resourceUrl:
         state.source.value === 'url' && state.resourceUrl.value
           ? ''
@@ -252,9 +235,6 @@ const ResourceDrawerContent = ({ mode, selectedResource, onClose }: Props) => {
     ) {
       NotificationService.dispatchNotify(t('admin:components.common.fixErrorFields'), { variant: 'error' })
       return
-    } else if (state.formErrors.name.value || state.formErrors.staticResourceType.value) {
-      NotificationService.dispatchNotify(t('admin:components.common.fillRequiredFields'), { variant: 'error' })
-      return
     } else if (state.source.value === 'file' && state.resourceFile.value) {
       resourceFile = state.resourceFile.value
     } else if (state.source.value === 'url' && state.resourceUrl.value) {
@@ -266,8 +246,7 @@ const ResourceDrawerContent = ({ mode, selectedResource, onClose }: Props) => {
 
     const data = {
       id: selectedResource ? selectedResource.id : '',
-      key: mode === ResourceDrawerMode.Create ? state.value : state.key.value,
-      staticResourceType: state.staticResourceType.value
+      key: mode === ResourceDrawerMode.Create ? state.value : state.key.value
     }
 
     if (resourceFile) {
@@ -310,16 +289,6 @@ const ResourceDrawerContent = ({ mode, selectedResource, onClose }: Props) => {
         label={t('admin:components.resources.mimeType')}
         value={state.mimeType.value}
         disabled
-      />
-
-      <InputSelect
-        name="staticResourceType"
-        label={t('admin:components.resources.resourceType')}
-        value={state.staticResourceType.value}
-        error={state.formErrors.staticResourceType.value}
-        menu={resourceTypesMenu}
-        disabled={viewMode}
-        onChange={handleChange}
       />
 
       {!viewMode && (

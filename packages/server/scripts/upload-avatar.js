@@ -86,7 +86,6 @@ const staticResource = sequelizeClient.define('static_resource', {
         unique: true,
     },
     key: Sequelize.DataTypes.STRING,
-    staticResourceType: Sequelize.DataTypes.STRING,
     userId: Sequelize.DataTypes.CHAR,
     createdAt: Sequelize.DataTypes.DATE,
     updatedAt: Sequelize.DataTypes.DATE,
@@ -141,19 +140,18 @@ const uploadFile = (Key, Body) => {
     });
 };
 
-const saveToDB = async (name, extension, staticResourceType) => {
+const saveToDB = async (name, extension) => {
     return staticResource.create({
         sid: nanoid(8),
         name,
         url: 'https://s3.amazonaws.com/' + BUCKET + '/' + AVATAR_FOLDER + '/' + name + extension,
         key: AVATAR_FOLDER + '/' + name + extension,
         createdAt: Date.now(),
-        updatedAt: Date.now(),
-        staticResourceType,
+        updatedAt: Date.now()
     });
 };
 
-const processFile = async (fileName, extension, dirPath, staticResourceType) => {
+const processFile = async (fileName, extension, dirPath) => {
     if (!onlyDBUpdate) {
         const location = dirPath + fileName + extension;
         console.log('File Location => ', location);
@@ -163,7 +161,7 @@ const processFile = async (fileName, extension, dirPath, staticResourceType) => 
     }
 
     console.log('Saving to DB');
-    await saveToDB(fileName, extension, staticResourceType);
+    await saveToDB(fileName, extension);
     console.log('Saved To DB');
 };
 
@@ -172,10 +170,7 @@ new Promise(async (resolve, reject) => {
         console.log('Removing old DB entries.');
         await staticResource.destroy({
             where: {
-                userId: null,
-                staticResourceType: {
-                    [Sequelize.Op.in] : [AVATAR_RESOURCE_TYPE, THUMBNAIL_RESOURCE_TYPE],
-                },
+                userId: null
             }
         });
 

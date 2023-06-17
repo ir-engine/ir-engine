@@ -92,10 +92,6 @@ export default (app: Application) => {
   )
 
   ;(staticResource as any).associate = (models: any): void => {
-    ;(staticResource as any).belongsTo(models.static_resource_type, {
-      foreignKey: 'staticResourceType',
-      required: true
-    })
     ;(staticResource as any).belongsTo(models.user)
     ;(staticResource as any).hasMany(models.static_resource, {
       as: 'parent',

@@ -87,9 +87,6 @@ export class StaticResource extends Service<StaticResourceInterface> {
         },
         mimeType: {
           [Op.or]: mimeTypes
-        },
-        staticResourceType: {
-          [Op.or]: resourceTypes
         }
       },
       include: [

@@ -94,7 +94,6 @@ describe('upload-asset', () => {
       const args = {
         hash,
         path: 'static-resources/test',
-        staticResourceType: 'json',
         project: testProject
       } as AdminAssetUploadArgumentsType
 
@@ -102,14 +101,12 @@ describe('upload-asset', () => {
       assert.equal(response.key, 'static-resources/test/test.json')
       assert.equal(response.hash, hash)
       assert.equal(response.mimeType, 'application/json')
-      assert.equal(response.staticResourceType, 'json')
       assert.equal(response.project, testProject)
 
       const staticResource = await app.service('static-resource').get(response.id)
       assert.equal(staticResource.key, 'static-resources/test/test.json')
       assert.equal(staticResource.hash, hash)
       assert.equal(staticResource.mimeType, 'application/json')
-      assert.equal(staticResource.staticResourceType, 'json')
       assert.equal(staticResource.project, testProject)
 
       const storageProvider = getStorageProvider()
@@ -130,7 +127,6 @@ describe('upload-asset', () => {
       const args = {
         hash,
         path: 'static-resources/test',
-        staticResourceType: 'json',
         project: testProject
       } as AdminAssetUploadArgumentsType
 
@@ -138,14 +134,12 @@ describe('upload-asset', () => {
       assert.equal(response.key, 'static-resources/test/default.scene.json')
       assert.equal(response.hash, hash)
       assert.equal(response.mimeType, 'application/json')
-      assert.equal(response.staticResourceType, 'json')
       assert.equal(response.project, testProject)
 
       const staticResource = await app.service('static-resource').get(response.id)
       assert.equal(staticResource.key, 'static-resources/test/default.scene.json')
       assert.equal(staticResource.hash, hash)
       assert.equal(staticResource.mimeType, 'application/json')
-      assert.equal(staticResource.staticResourceType, 'json')
       assert.equal(staticResource.project, testProject)
 
       const storageProvider = getStorageProvider()
@@ -163,7 +157,6 @@ describe('upload-asset', () => {
       const args = {
         hash,
         path: 'static-resources/test',
-        staticResourceType: 'json',
         project: testProject
       } as AdminAssetUploadArgumentsType
 
@@ -171,14 +164,12 @@ describe('upload-asset', () => {
       assert.equal(response.key, 'static-resources/test/default.scene.json')
       assert.equal(response.hash, hash)
       assert.equal(response.mimeType, 'application/json')
-      assert.equal(response.staticResourceType, 'json')
       assert.equal(response.project, testProject)
 
       const staticResource = await app.service('static-resource').get(response.id)
       assert.equal(staticResource.key, 'static-resources/test/default.scene.json')
       assert.equal(staticResource.hash, hash)
       assert.equal(staticResource.mimeType, 'application/json')
-      assert.equal(staticResource.staticResourceType, 'json')
       assert.equal(staticResource.project, testProject)
 
       const file = await storageProvider.getObject(staticResource.key)

@@ -141,7 +141,6 @@ describe('audio-upload', () => {
       assert.equal(staticResource.url, getCachedURL(staticResource.key, storageProvider.cacheDomain))
       assert.equal(staticResource.key, 'static-resources/test-project/SampleAudio.mp3')
       assert.equal(staticResource.mimeType, 'audio/mpeg')
-      assert.equal(staticResource.staticResourceType, 'audio')
       assert.equal(staticResource.project, testProject)
 
       const file = await storageProvider.getObject(staticResource.key)
@@ -156,7 +155,6 @@ describe('audio-upload', () => {
 
       assert.equal(staticResource.key, 'static-resources/test-project/SampleAudio.mp3')
       assert.equal(staticResource.mimeType, 'audio/mpeg')
-      assert.equal(staticResource.staticResourceType, 'audio')
       assert.equal(staticResource.project, testProject)
 
       const file = await storageProvider.getObject(staticResource.key)
@@ -171,7 +169,6 @@ describe('audio-upload', () => {
 
       assert.equal(staticResource.key, 'projects/default-project/assets/SampleAudio.mp3')
       assert.equal(staticResource.mimeType, 'audio/mpeg')
-      assert.equal(staticResource.staticResourceType, 'audio')
       assert.equal(staticResource.project, 'default-project')
 
       // should not exist under static resources

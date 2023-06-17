@@ -65,7 +65,6 @@ export interface ResourcePatchCreateInterface {
   key: string
   mimeType: string
   parentStaticResourceId?: string
-  staticResourceType: string
   url?: string
   project?: string
   userId?: string
@@ -178,7 +177,7 @@ const uploadAssets = (app: Application) => async (data: AssetUploadType, params:
   } else if (data.type === 'admin-file-upload') {
     if (!(await verifyScope('admin', 'admin')({ app, params } as any))) return
 
-    if (!data.args.staticResourceType || !data.args.project) return
+    if (!data.args.project) return
 
     if (!files || files.length === 0) throw new Error('No files to upload')
 
@@ -238,7 +237,6 @@ export const addAssetAsStaticResource = async (
     hash,
     key: primaryKey,
     mimeType: files[0].mimetype,
-    staticResourceType: args.staticResourceType,
     project: args.project
   } as ResourcePatchCreateInterface
   if (args.parentStaticResourceId) body.parentStaticResourceId = args.parentStaticResourceId

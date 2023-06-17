@@ -121,7 +121,6 @@ const handleManifest = async (
     existingResource = await addAssetAsStaticResource(app, files, {
       hash: hash,
       path: `${key}.manifest`,
-      staticResourceType: 'data',
       project
     })
   }
@@ -171,7 +170,6 @@ export const volumetricUploadFile = async (app: Application, data: UploadAssetAr
       drcs = await addAssetAsStaticResource(app, body, {
         hash: hash,
         path: `${key}.${extension}`,
-        staticResourceType: 'volumetric',
         project,
         stats: {
           size: contentLength

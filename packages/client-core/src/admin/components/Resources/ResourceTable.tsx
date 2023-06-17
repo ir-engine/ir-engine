@@ -86,7 +86,6 @@ const ResourceTable = ({ className, search }: Props) => {
       id: el.id,
       key: el.key,
       mimeType: el.mimeType,
-      staticResourceType: el.staticResourceType,
       action: (
         <>
           <a

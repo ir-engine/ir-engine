@@ -55,8 +55,7 @@ export const AdminResourceState = defineState({
     updateNeeded: true,
     lastFetched: Date.now(),
     filters: undefined as StaticResourceFilterResult | undefined,
-    selectedMimeTypes: [] as string[],
-    selectedResourceTypes: [] as string[]
+    selectedMimeTypes: [] as string[]
   })
 })
 
@@ -83,8 +82,7 @@ const resourceFiltersFetchedReceptor = (action: typeof AdminResourceActions.reso
   const state = getMutableState(AdminResourceState)
   return state.merge({
     filters: action.filters,
-    selectedMimeTypes: action.filters.mimeTypes,
-    selectedResourceTypes: action.filters.staticResourceTypes
+    selectedMimeTypes: action.filters.mimeTypes
   })
 }
 
@@ -96,22 +94,11 @@ const setSelectedMimeTypesReceptor = (action: typeof AdminResourceActions.setSel
   })
 }
 
-const setSelectedResourceTypesReceptor = (
-  action: typeof AdminResourceActions.setSelectedResourceTypes.matches._TYPE
-) => {
-  const state = getMutableState(AdminResourceState)
-  return state.merge({
-    updateNeeded: true,
-    selectedResourceTypes: action.types
-  })
-}
-
 const resourcesResetFilterReceptor = (action: typeof AdminResourceActions.resourcesResetFilter.matches._TYPE) => {
   const state = getMutableState(AdminResourceState)
   return state.merge({
     updateNeeded: true,
-    selectedMimeTypes: state.filters.value?.mimeTypes,
-    selectedResourceTypes: state.filters.value?.staticResourceTypes
+    selectedMimeTypes: state.filters.value?.mimeTypes
   })
 }
 
@@ -119,7 +106,6 @@ export const AdminResourceReceptors = {
   resourcesFetchedReceptor,
   resourceFiltersFetchedReceptor,
   setSelectedMimeTypesReceptor,
-  setSelectedResourceTypesReceptor,
   resourceNeedsUpdateReceptor,
   resourcesResetFilterReceptor
 }
@@ -156,7 +142,6 @@ export const ResourceService = {
     const adminResourceState = getMutableState(AdminResourceState)
     const limit = adminResourceState.limit.value
     const selectedMimeTypes = adminResourceState.selectedMimeTypes.value
-    const selectedResourceTypes = adminResourceState.selectedResourceTypes.value
 
     const resources = (await API.instance.client.service('static-resource').find({
       query: {
@@ -166,8 +151,7 @@ export const ResourceService = {
         $limit: limit,
         $skip: skip * RESOURCE_PAGE_LIMIT,
         search: search,
-        mimeTypes: selectedMimeTypes,
-        resourceTypes: selectedResourceTypes
+        mimeTypes: selectedMimeTypes
       }
     })) as Paginated<StaticResourceInterface>
     dispatchAction(AdminResourceActions.resourcesFetched({ resources }))
@@ -178,9 +162,6 @@ export const ResourceService = {
   },
   setSelectedMimeTypes: async (types: string[]) => {
     dispatchAction(AdminResourceActions.setSelectedMimeTypes({ types }))
-  },
-  setSelectedResourceTypes: async (types: string[]) => {
-    dispatchAction(AdminResourceActions.setSelectedResourceTypes({ types }))
   },
   resetFilter: () => {
     dispatchAction(AdminResourceActions.resourcesResetFilter({}))
@@ -205,11 +186,6 @@ export class AdminResourceActions {
 
   static setSelectedMimeTypes = defineAction({
     type: 'ee.client.AdminResource.RESOURCE_SET_MIME' as const,
-    types: matches.object as Validator<unknown, string[]>
-  })
-
-  static setSelectedResourceTypes = defineAction({
-    type: 'ee.client.AdminResource.RESOURCE_SET_TYPE' as const,
     types: matches.object as Validator<unknown, string[]>
   })
 

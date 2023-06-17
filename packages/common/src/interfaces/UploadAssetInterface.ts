@@ -40,7 +40,6 @@ export type AdminAssetUploadArgumentsType = {
   id?: string
   path: string
   parentStaticResourceId?: string
-  staticResourceType?: string
   userId?: string
   name?: string
   project?: string

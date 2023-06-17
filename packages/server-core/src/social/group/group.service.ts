@@ -70,7 +70,6 @@ export default (app: Application) => {
     // await Promise.all(groupUsers.data.map(async (groupUser) => {
     //   const avatarResult = await app.service('static-resource').find({
     //     query: {
-    //       staticResourceType: 'user-thumbnail',
     //       userId: groupUser.userId
     //     }
     //   }) as any;
@@ -113,7 +112,6 @@ export default (app: Application) => {
     // await Promise.all(groupUsers.data.map(async (groupUser) => {
     //   const avatarResult = await app.service('static-resource').find({
     //     query: {
-    //       staticResourceType: 'user-thumbnail',
     //       userId: groupUser.userId
     //     }
     //   }) as any;

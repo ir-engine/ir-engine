@@ -149,7 +149,6 @@ export const addAssetFromProject = async (
   return addAssetAsStaticResource(app, files, {
     hash: hash,
     path: key,
-    staticResourceType: 'audio',
     stats,
     project
   })

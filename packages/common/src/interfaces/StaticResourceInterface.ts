@@ -31,7 +31,6 @@ export interface StaticResourceInterface {
   key: string
   metadata: object
   mimeType: string
-  staticResourceType: string
   userId: string
   hash?: string
   project?: string

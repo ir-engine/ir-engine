@@ -195,7 +195,6 @@ export const uploadAvatarStaticResource = async (
     {
       userId: params?.user!.id,
       path: key,
-      staticResourceType: 'avatar',
       project: data.project
     }
   )
@@ -213,7 +212,6 @@ export const uploadAvatarStaticResource = async (
     {
       userId: params?.user!.id,
       path: key,
-      staticResourceType: 'user-thumbnail',
       project: data.project
     }
   )
