@@ -51,7 +51,7 @@ export const GroupUser = () => {
 
   return (
     <div className="w-[320px] h-[70vh]">
-      <div className="w-[320px] mb-[100px] flex flex-wrap mt-8 gap-1">
+      <div className="w-[320px] mb-[100px] flex flex-wrap mt-6 gap-1">
         <div className="w-[330px] flex justify-center items-center">
           <button className="cursor-pointer rounded-[20px] p-0 bg-[#3F3960] w-[120px] h-8" onClick={toggleDrawer}>
             <div className="[text-align-last:center] rounded-2xl text-[16px] text-sm font-segoe-ui text-white text-left">
@@ -65,7 +65,7 @@ export const GroupUser = () => {
             </div>
           )}
         </div>
-        <div className="w-[320px] mb-[100px] flex flex-wrap gap-2 mt-5">
+        <div className="w-[320px] mb-[100px] flex flex-wrap gap-2">
           <div
             className={`w-[320px] flex flex-wrap gap-2 mx-3 mt-5 justify-center h-[68px] rounded-[5px] ${
               activeButton === 1 ? 'bg-[#D4D7DC]' : ''

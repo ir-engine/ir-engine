@@ -24,8 +24,8 @@ export const Message = () => {
           </div>
         </div>
 
-        <div className="flex flex-wrap mt-6 ml-[59px]">
-          <div className="h-[20px] w-[590px] mr-5">
+        <div className="flex flex-wrap mt-6 ">
+          <div className="h-[20px] mx-[147px] mr-5">
             <p className="rounded-xl border-[#E1E1E1] border-2 text-black bg-[#E1E1E1] p-[3px]">
               Hello Dwark Matthiews G. glad you reach out to me. Which timezon you In, just In case we want.
             </p>
@@ -43,7 +43,7 @@ export const Message = () => {
         </div>
 
         <div className="flex flex-wrap mt-6">
-          <div className="h-[20px] mx-[310px] mr-5">
+          <div className="h-[20px] mx-[405px] mr-5">
             <p className="rounded-3xl border-[#E1E1E1] border-2 text-black bg-[#E1E1E1] p-[3px]">
               Good to know, let prepare tasks, and get back!
             </p>

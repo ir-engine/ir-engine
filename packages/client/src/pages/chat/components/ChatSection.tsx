@@ -5,13 +5,15 @@ import { Create } from './Create'
 import { GroupUser } from './GroupUser'
 
 export const ChatSection = () => {
-  const [activeComponent, setActiveComponent] = useState<string>('Chat')
+  const ChatTypes: string[] = ['Party', 'Friends', 'Group', 'Layer', 'Instance']
 
-  const handleButtonClickComp = (component: string) => {
+  const [activeComponent, setActiveComponent] = useState<number>(1)
+
+  const handleButtonClickComp = (component: number) => {
     setActiveComponent(component)
   }
 
-  const [activeButton, setActiveButton] = useState<number>(2)
+  const [activeButton, setActiveButton] = useState<number>(1)
 
   const handleButtonClick = (buttonId: number) => {
     setActiveButton(buttonId)
@@ -86,57 +88,26 @@ export const ChatSection = () => {
       </div>
       <div className="box-border w-[320px] border-t-[1px] border-solid border-[#D1D3D7]" />
       <div className="w-full flex flex-wrap justify-start ml-8 mt-4 my-4 gap-[9px]">
-        <button
-          className={`cursor-pointer rounded-[20px] border-dashed box-border border-[1px] p-0 border-[#A0A0B2] w-[76px] h-6 ${
-            activeButton === 1 ? 'bg-[#3F3960] text-white' : 'text-[#A0A0B2]'
-          }`}
-          onClick={() => handleButtonClick(1)}
-        >
-          <div className={`[text-align-last:center] rounded-xl text-sm font-segoe-ui text-left`}>Party</div>
-        </button>
-        <button
-          className={`cursor-pointer rounded-[20px] border-dashed box-border border-[1px] p-0 border-[#A0A0B2] w-[76px] h-6 ${
-            activeButton === 2 ? 'bg-[#3F3960] text-white' : 'text-[#A0A0B2]'
-          }`}
-          onClick={() => {
-            handleButtonClick(2)
-            handleButtonClickComp('Chat')
-          }}
-        >
-          <div className={`[text-align-last:center] rounded-xl text-sm font-segoe-ui text-left`}>Friends</div>
-        </button>
-        <button
-          className={`cursor-pointer rounded-[20px] border-dashed box-border border-[1px] p-0 border-[#A0A0B2] w-[76px] h-6 ${
-            activeButton === 3 ? 'bg-[#3F3960] text-white' : 'text-[#A0A0B2]'
-          }`}
-          onClick={() => {
-            handleButtonClick(3)
-            handleButtonClickComp('Group')
-          }}
-        >
-          <div className={`[text-align-last:center] rounded-xl text-sm font-segoe-ui} text-left`}>Group</div>
-        </button>
-        <button
-          className={`cursor-pointer rounded-[20px] border-dashed box-border border-[1px] p-0 border-[#A0A0B2] w-[76px] h-6 ${
-            activeButton === 4 ? 'bg-[#3F3960] text-white' : 'text-[#A0A0B2]'
-          }`}
-          onClick={() => handleButtonClick(4)}
-        >
-          <div className={`[text-align-last:center] rounded-xl text-sm font-segoe-ui  text-left`}>Layer</div>
-        </button>
-        <button
-          className={`cursor-pointer rounded-[20px] border-dashed box-border border-[1px] p-0 border-[#A0A0B2] w-[76px] h-6 ${
-            activeButton === 5 ? 'bg-[#3F3960] text-white' : 'text-[#A0A0B2]'
-          }`}
-          onClick={() => handleButtonClick(5)}
-        >
-          <div className={`[text-align-last:center] rounded-xl text-sm font-segoe-ui text-left`}>Instance</div>
-        </button>
+        {ChatTypes.map((item, index) => {
+          return (
+            <button
+              className={`cursor-pointer rounded-[20px] border-dashed box-border border-[1px] p-0 border-[#A0A0B2] w-[76px] h-6 ${
+                activeButton === index ? 'bg-[#3F3960] text-white' : 'text-[#A0A0B2]'
+              }`}
+              onClick={() => {
+                handleButtonClick(index)
+                handleButtonClickComp(index)
+              }}
+            >
+              <div className={`[text-align-last:center] rounded-xl text-sm font-segoe-ui text-left`}>{item}</div>
+            </button>
+          )
+        })}
       </div>
       <div className="box-border w-[320px] border-t-[1px] border-solid border-[#D1D3D7]" />
 
-      {activeComponent === 'Chat' && <ChatUser />}
-      {activeComponent === 'Group' && <GroupUser />}
+      {activeComponent === 1 && <ChatUser />}
+      {activeComponent === 2 && <GroupUser />}
       <div className="absolute bottom-0 w-[320px] h-[70px] gap-4 flex flex-wrap justify-center bg-[#ECECEC]">
         <img className="rounded-[38px] mt-3 w-11 h-11 object-cover" alt="" src="/icon-user1.png" />
         <div className="mt-3">
@@ -156,7 +127,7 @@ export const ChatSection = () => {
               onClick={switchToggle}
             />
             <div
-              className={`toggle__line w-10 h-5 bg-gray-400 rounded-full shadow-inner ${checked ? 'bg-[#231e3c]' : ''}`}
+              className={`toggle__line w-10 h-5  rounded-full shadow-inner ${checked ? 'bg-[#3F3960]' : 'bg-gray-400'}`}
             ></div>
             <div
               className={`toggle__dot absolute w-4 h-4 bg-white rounded-full shadow inset-y-[2px] inset-x-[2px] ${

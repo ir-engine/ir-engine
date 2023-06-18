@@ -65,7 +65,7 @@ export const Media = () => {
       </div>
       <div className="w-[330px] flex justify-center items-center mt-4">
         <button className="cursor-pointer rounded-[20px] p-0 bg-[#3F3960] w-[120px] h-8">
-          <div className="text-align-last:center rounded-2xl text-[16px] text-sm font-segoe-ui text-white text-left">
+          <div className="text-align-last:center rounded-2xl text-[16px] text-sm font-segoe-ui text-white">
             View more
           </div>
         </button>

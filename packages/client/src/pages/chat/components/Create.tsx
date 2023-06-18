@@ -48,7 +48,7 @@ export const Create = () => {
             }`}
             onClick={() => handleSideButtonClick(2)}
           >
-            <PartyIcon color={activeSideButton === 1 ? '#935CFF' : '#ffffff'} />
+            <PartyIcon color={activeSideButton === 2 ? '#935CFF' : '#ffffff'} />
             <p className="text-[16px] font-bold mt-2.5">PARTY</p>
           </div>
           <div
@@ -57,7 +57,7 @@ export const Create = () => {
             }`}
             onClick={() => handleSideButtonClick(3)}
           >
-            <GroupIcon color={activeSideButton === 1 ? '#935CFF' : '#ffffff'} />
+            <GroupIcon color={activeSideButton === 3 ? '#935CFF' : '#ffffff'} />
             <p className="text-[16px] font-bold mt-2.5">GROUP</p>
           </div>
         </div>
@@ -100,7 +100,7 @@ export const Create = () => {
               <div className="w-[40px] mt-8">
                 <p className="font-sans text-white">Email:</p>
                 <div className="mt-3 rounded-[5px] bg-[#d7d7d7] w-[306px] h-[45px] flex flex-wrap">
-                  <div className="w-[305px] h-[40px] mt-[0.5px] ml-[0.5px] mr-[0.5px]">
+                  <div className="w-[305px] h-[40px] mt-[2px] ml-[0.5px] mr-[0.5px]">
                     <input
                       type="text"
                       className="rounded-[5px] focus:outline-none focus:border-[#15171B] border-[#15171B] border-2 text-[#ffff] bg-[#15171B] p-[9.5px] w-full font-normal "

@@ -9,7 +9,7 @@ import './index.css'
 
 export default function App() {
   return (
-    <div className="w-full h-[100%] flex bg-slate-600">
+    <div className="w-full h-[100%] flex bg-slate-600 pointer">
       <Sidebar />
       <ChatSection />
       <Message />

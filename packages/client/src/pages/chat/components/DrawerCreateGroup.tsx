@@ -10,8 +10,8 @@ export const DrawerCreateGroup = () => {
       </div>
       <div className="w-[300px] ml-9 mt-[50px]">
         <p className="font-sans">Name:</p>
-        <div className="mt-3 rounded-[5px] bg-[#d7d7d7] w-[300px] h-[45px] flex flex-wrap">
-          <div className="w-[300px] h-[40px] mt-[0.5px] ml-[0.5px] mr-[0.5px]">
+        <div className="mt-3 rounded-[5px] bg-[#d7d7d7] w-[300px] h-[42px] flex flex-wrap">
+          <div className="w-[300px] h-[40px] mt-[1px] ml-[0.5px] mr-[0.5px]">
             <input
               type="text"
               className="rounded-[5px] focus:outline-none focus:border-[#15171B] border-[#15171B] border-2 text-[#ffff] bg-[#15171B] p-[9.5px] w-full "
@@ -22,8 +22,8 @@ export const DrawerCreateGroup = () => {
       </div>
       <div className="w-[300px] ml-9 mt-8">
         <p className="font-sans">Description:</p>
-        <div className="mt-3 rounded-[5px] bg-[#d7d7d7] w-[300px] h-[45px] flex flex-wrap">
-          <div className="w-[300px] h-[40px] mt-[0.5px] ml-[0.5px] mr-[0.5px]">
+        <div className="mt-3 rounded-[5px] bg-[#d7d7d7] w-[300px] h-[42px] flex flex-wrap">
+          <div className="w-[300px] h-[35px] mt-[1px] ml-[0.5px] mr-[0.5px]">
             <input
               type="text"
               className="rounded-[5px] focus:outline-none focus:border-[#15171B] border-[#15171B] border-2 text-[#ffff] bg-[#15171B] p-[9.5px] w-full "
