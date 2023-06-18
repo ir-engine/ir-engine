@@ -51,18 +51,14 @@ import { WorldState } from '../../networking/interfaces/WorldState'
 import { Physics } from '../../physics/classes/Physics'
 import { CollisionComponent } from '../../physics/components/CollisionComponent'
 import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
-//import { VehicleCollisionMask, CollisionGroups } from '../../physics/enums/CollisionGroups'
+import { CollisionGroups, VehicleCollisionMask } from '../../physics/enums/CollisionGroups'
 import { getInteractionGroups } from '../../physics/functions/getInteractionGroups'
 import { NameComponent } from '../../scene/components/NameComponent'
 import { ShadowComponent } from '../../scene/components/ShadowComponent'
 import { VisibleComponent } from '../../scene/components/VisibleComponent'
 import { DistanceFromCameraComponent, FrustumCullCameraComponent } from '../../transform/components/DistanceComponents'
 import { TransformComponent } from '../../transform/components/TransformComponent'
-import { AnimationComponent } from '../components/AnimationComponent'
-import { SpawnPoseComponent } from '../components/SpawnPoseComponent'
-import { VehicleAnimationComponent } from '../components/VehicleAnimationComponent'
 import { VehicleComponent } from '../components/VehicleComponent'
-import { VehicleControllerComponent } from '../components/VehicleControllerComponent'
 
 export const vehicleRadius = 0.25
 export const defaultVehicleHeight = 1.8
@@ -76,7 +72,7 @@ export const spawnVehicleReceptor = (spawnAction: typeof WorldNetworkAction.spaw
   const entity = Engine.instance.getNetworkObject(ownerId, spawnAction.networkId)
   if (!entity) return
 
-  if (primary) {
+  /*if (primary) {
     const existingVehicleEntity = Engine.instance.getUserVehicleEntity(userId)
 
     // already spawned into the world on another device or tab
@@ -93,7 +89,8 @@ export const spawnVehicleReceptor = (spawnAction: typeof WorldNetworkAction.spaw
       }
       return
     }
-  }
+  }*/
+  // will get this back if we can let user own cars!!
 
   const transform = getComponent(entity, TransformComponent)
 
@@ -114,11 +111,12 @@ export const spawnVehicleReceptor = (spawnAction: typeof WorldNetworkAction.spaw
   setComponent(entity, DistanceFromCameraComponent)
   setComponent(entity, FrustumCullCameraComponent)
 
-  addComponent(entity, AnimationComponent, {
+  /*addComponent(entity, AnimationComponent, {
     mixer: new AnimationMixer(new Object3D()),
     animations: [] as AnimationClip[],
     animationSpeed: 1
   })
+  // will have to bring back eventually
 
   addComponent(entity, VehicleAnimationComponent, {
     animationGraph: {
@@ -135,7 +133,9 @@ export const spawnVehicleReceptor = (spawnAction: typeof WorldNetworkAction.spaw
     position: new Vector3().copy(transform.position),
     rotation: new Quaternion().copy(transform.rotation)
   })
-
+  */
+  //will have to bring it back if vehicles are riggable
+  /*
   if (ownerId === Engine.instance.userId) {
     createVehicleController(entity)
     addComponent(entity, LocalVehicleTagComponent, true)
@@ -143,7 +143,11 @@ export const spawnVehicleReceptor = (spawnAction: typeof WorldNetworkAction.spaw
   } else {
     createVehicleRigidBody(entity)
     createVehicleCollider(entity)
-  }
+  }*/
+  // we need to build controller eventually
+
+  createVehicleRigidBody(entity)
+  createVehicleCollider(entity)
 
   setComponent(entity, NetworkObjectSendPeriodicUpdatesTag)
 
@@ -152,7 +156,7 @@ export const spawnVehicleReceptor = (spawnAction: typeof WorldNetworkAction.spaw
 }
 
 export const createVehicleCollider = (entity: Entity): Collider => {
-  const interactionGroups = getInteractionGroups(CollisionGroups.Vehicles, VehicleCollisionMask)
+  const interactionGroups = getInteractionGroups(CollisionGroups.Vehicle, VehicleCollisionMask)
   const vehicleComponent = getComponent(entity, VehicleComponent)
   const rigidBody = getComponent(entity, RigidBodyComponent)
   const transform = getComponent(entity, TransformComponent)
@@ -176,7 +180,7 @@ const createVehicleRigidBody = (entity: Entity): RigidBody => {
 
   return rigidBody
 }
-
+/*
 export const createVehicleController = (entity: Entity) => {
   createVehicleRigidBody(entity)
   const rigidbody = getComponent(entity, RigidBodyComponent)
@@ -200,4 +204,4 @@ export const createVehicleController = (entity: Entity) => {
   })
 
   addComponent(entity, CollisionComponent)
-}
+}*/

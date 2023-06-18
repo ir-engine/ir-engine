@@ -54,8 +54,8 @@ import { setObjectLayers } from '../../scene/functions/setObjectLayers'
 import iterateObject3D from '../../scene/util/iterateObject3D'
 import { computeTransformMatrix, updateGroupChildren } from '../../transform/systems/TransformSystem'
 import { XRState } from '../../xr/XRState'
-import { AnimationComponent } from '../components/AnimationComponent'
-import { VehicleAnimationComponent, VehicleRigComponent } from '../components/VehicleAnimationComponent'
+//import { AnimationComponent } from '../components/AnimationComponent'
+//import { VehicleAnimationComponent, VehicleRigComponent } from '../components/VehicleAnimationComponent'
 import { VehicleComponent } from '../components/VehicleComponent'
 import { VehicleControllerComponent } from '../components/VehicleControllerComponent'
 import { MaterialMap, VehicleEffectComponent } from '../components/VehicleEffectComponent'
@@ -134,7 +134,7 @@ export const setupVehicleForUser = (entity: Entity, model: Object3D) => {
   const vehicle = getComponent(entity, VehicleComponent)
   if (vehicle.model) removeObjectFromGroup(entity, vehicle.model)
 
-  setupVehicleModel(entity)(model)
+  //setupVehicleModel(entity)(model)
   addObjectToGroup(entity, model)
   iterateObject3D(model, (obj) => {
     obj && (obj.frustumCulled = false)
@@ -149,8 +149,10 @@ export const setupVehicleForUser = (entity: Entity, model: Object3D) => {
   vehicle.model = model
 }
 
+/*
 export const setupVehicleModel = (entity: Entity) =>
   pipe(boneMatchVehicleModel(entity), rigVehicleModel(entity), animateVehicleModel(entity))
+
 
 export const boneMatchVehicleModel = (entity: Entity) => (model: Object3D) => {
   const assetType = model.userData.type
@@ -202,7 +204,6 @@ export const rigVehicleModel = (entity: Entity) => (model: Object3D) => {
 
   const sourceHips = sourceSkeleton.bones[0]
   vehicleAnimationComponent.rootYRatio = rig.Hips.position.y / sourceHips.position.y
-  */
   return model
 }
 
@@ -211,7 +212,7 @@ export const animateVehicleModel = (entity: Entity) => (model: Object3D) => {
   const vehicleAnimationComponent = getComponent(entity, VehicleAnimationComponent)
   const controllerComponent = getOptionalComponent(entity, VehicleControllerComponent)
 
-  animationComponent.mixer?.stopAllAction()
+  //animationComponent.mixer?.stopAllAction()
   // Mixer has some issues when binding with the target skeleton
   // We have to bind the mixer with original skeleton and copy resulting bone transforms after update
   /*const sourceSkeleton = (makeDefaultSkinnedMesh().children[0] as SkinnedMesh).skeleton
@@ -224,15 +225,15 @@ export const animateVehicleModel = (entity: Entity) => (model: Object3D) => {
       animationComponent.mixer,
       vehicleAnimationComponent.locomotion,
       controllerComponent ?? {}
-    )*/
+    )
 
   // advance animation for a frame to eliminate potential t-pose
-  animationComponent.mixer.update(1 / 60)
+  //animationComponent.mixer.update(1 / 60)
 }
 
 export const animateModel = (entity: Entity) => {
   const animationComponent = getComponent(entity, AnimationComponent)
-  animationComponent.mixer.clipAction(AnimationClip.findByName(animationComponent.animations, 'wave')).play()
+  //animationComponent.mixer.clipAction(AnimationClip.findByName(animationComponent.animations, 'wave')).play()
 }
 
 export const setupVehicleMaterials = (entity, root) => {
@@ -252,7 +253,7 @@ export const setupVehicleMaterials = (entity, root) => {
 
   return materialList
 }
-
+*/
 export const setupVehicleHeight = (entity: Entity, model: Object3D) => {
   const box = new Box3()
   box.expandByObject(model).getSize(tempVec3ForHeight)
@@ -264,14 +265,16 @@ export const setupVehicleHeight = (entity: Entity, model: Object3D) => {
  * The skeleton created is compatible with default animation tracks
  * @returns SkinnedMesh
  */
+/*
 export function makeDefaultSkinnedMesh() {
-  //return makeSkinnedMeshFromBoneData(defaultBonesData)
+  return makeSkinnedMeshFromBoneData(defaultBonesData)
 }
-
+*/
 /**
  * Creates an empty skinned mesh using list of bones to build skeleton structure
  * @returns SkinnedMesh
  */
+/*
 export function makeSkinnedMeshFromBoneData(bonesData) {
   const bones: Bone[] = []
   bonesData.forEach((data) => {
@@ -303,7 +306,7 @@ export function makeSkinnedMeshFromBoneData(bonesData) {
 
   return group
 }
-
+*/
 /*
 export const getVehicleBoneWorldPosition = (entity: Entity, boneName: BoneNames, position: Vector3): boolean => {
   const vehicleRigComponent = getOptionalComponent(entity, VehicleRigComponent)

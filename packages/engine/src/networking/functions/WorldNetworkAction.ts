@@ -73,6 +73,13 @@ export class WorldNetworkAction {
     $topic: NetworkTopics.world
   })
 
+  static spawnVehicle = defineAction({
+    ...WorldNetworkAction.spawnObject.actionShape,
+    prefab: 'vehicle',
+    uuid: matchesUserId,
+    $topic: NetworkTopics.world
+  })
+
   static spawnAvatar = defineAction({
     ...WorldNetworkAction.spawnObject.actionShape,
     prefab: 'avatar',
@@ -124,6 +131,16 @@ export class WorldNetworkAction {
   static avatarDetails = defineAction({
     type: 'xre.world.AVATAR_DETAILS',
     avatarDetail: matchesAvatarProps,
+    uuid: matchesUserId,
+    $cache: {
+      removePrevious: true
+    },
+    $topic: NetworkTopics.world
+  })
+
+  static vehicleDetails = defineAction({
+    type: 'xre.world.VEHICLE_DETAILS',
+    vehicleDetail: matchesAvatarProps,
     uuid: matchesUserId,
     $cache: {
       removePrevious: true

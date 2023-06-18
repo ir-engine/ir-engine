@@ -96,11 +96,11 @@ export function vehicleDetailsReceptor(action: ReturnType<typeof WorldNetworkAct
 const spawnPointQuery = defineQuery([SpawnPointComponent, TransformComponent])
 
 const vehicleSpawnQueue = defineActionQueue(WorldNetworkAction.spawnVehicle.matches)
-const vehicleDetailsQueue = defineActionQueue(WorldNetworkAction.vehicleDetails.matches)
+//const vehicleDetailsQueue = defineActionQueue(WorldNetworkAction.vehicleDetails.matches)
 
 const execute = () => {
   for (const action of vehicleSpawnQueue()) spawnVehicleReceptor(action)
-  for (const action of vehicleDetailsQueue()) vehicleDetailsReceptor(action)
+  //for (const action of vehicleDetailsQueue()) vehicleDetailsReceptor(action)
 
   // Keep a list of spawn points so we can send our user to one
   for (const entity of spawnPointQuery.enter()) {
