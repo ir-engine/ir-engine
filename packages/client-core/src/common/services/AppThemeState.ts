@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { getCurrentTheme } from '@etherealengine/common/src/constants/DefaultThemeSettings'
 import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
 import { ClientThemeOptionsType } from '@etherealengine/engine/src/schemas/setting/client-setting.schema'
-import { defineAction, defineState, getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { defineAction, defineState, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
 import { AdminClientSettingsState } from '../../admin/services/Setting/ClientSettingService'
 import { AuthState } from '../../user/services/AuthService'
@@ -78,12 +78,12 @@ export const getAppThemeName = (): string => {
 }
 
 export const getAppTheme = () => {
-  const themeState = getMutableState(AppThemeState)
-  if (themeState.mode.value === 'custom' && themeState.customTheme.value) return themeState.customTheme.value
+  const themeState = getState(AppThemeState)
+  if (themeState.mode === 'custom' && themeState.customTheme) return themeState.customTheme
 
-  const authState = getMutableState(AuthState)
-  const theme = getCurrentTheme(authState.user?.user_setting?.value?.themeModes)
-  const clientSettingState = getMutableState(AdminClientSettingsState)
-  const themeSettings = clientSettingState?.client?.value?.[0]?.themeSettings
+  const authState = getState(AuthState)
+  const theme = getCurrentTheme(authState.user?.user_setting?.themeModes)
+  const clientSettingState = getState(AdminClientSettingsState)
+  const themeSettings = clientSettingState?.client?.[0]?.themeSettings
   if (themeSettings) return themeSettings[theme]
 }

@@ -106,7 +106,6 @@ export const downloadResourceAndMetadata = async (
   }
 }
 
-const symbolRe = /__\$project\$__/
 const pathSymbol = '__$project$__'
 
 /**
@@ -122,26 +121,23 @@ export const addAssetsFromProject = async (
   download = config.server.cloneProjectStaticResources
 ) => {
   console.log('addAssetsFromProject', urls, project, download)
-  const absoluteUrls = urls.map((url) =>
-    url.replace(pathSymbol, path.join(appRootPath.path, '/packages/projects/projects'))
-  )
+
+  const absolutePath = path.join(appRootPath.path, '/packages/projects/projects')
+  const absoluteUrls = urls.map((url) => url.replace(pathSymbol, absolutePath))
 
   const storageProvider = getStorageProvider()
+  const storageProviderPath = path.join(storageProvider.cacheDomain, 'projects/', project)
   const mainURL = absoluteUrls[0]
-  const fromStorageProvider = mainURL.split(path.join(storageProvider.cacheDomain, 'projects/'))
-  const isExternalToProject = fromStorageProvider.length === 1 || project !== fromStorageProvider[1]?.split('/')?.[0]
-  console.log(
-    { fromStorageProvider, isExternalToProject },
+  const isFromProject = mainURL.includes(storageProviderPath) || mainURL.includes(path.join(absolutePath, project))
+  console.log({
+    isFromProject,
     mainURL,
-    path.join(storageProvider.cacheDomain, 'projects/'),
-    storageProvider.cacheDomain,
-    mainURL
-  )
-
-  console.log(fromStorageProvider.length, project, fromStorageProvider[1]?.split('/')?.[0])
+    storageProviderPath,
+    absolutePath
+  })
 
   const { hash, mimeType } = await getFileMetadata({ file: mainURL })
-  const key = isExternalToProject ? `static-resources/${project}/` : `projects/${project}/assets/`
+  const key = isFromProject ? `projects/${project}/assets/` : `static-resources/${project}/`
 
   const existingResource = (await app.service('static-resource').Model.findOne({
     where: {
@@ -157,7 +153,7 @@ export const addAssetsFromProject = async (
   if (existingResource) return [existingResource]
 
   const files = await Promise.all(
-    absoluteUrls.map((url) => downloadResourceAndMetadata(url, isExternalToProject ? download : false))
+    absoluteUrls.map((url) => downloadResourceAndMetadata(url, isFromProject ? false : download))
   )
 
   return addAssetsAsStaticResource(app, files, {
