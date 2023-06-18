@@ -94,12 +94,7 @@ export const spawnVehicleReceptor = (spawnAction: typeof WorldNetworkAction.spaw
 
   const transform = getComponent(entity, TransformComponent)
 
-  addComponent(entity, VehicleComponent, {
-    primary,
-    vehicleHalfHeight: defaultVehicleHalfHeight,
-    vehicleHeight: defaultVehicleHeight,
-    model: null
-  })
+  addComponent(entity, VehicleComponent, {})
 
   const userNames = getState(WorldState).userNames
   const userName = userNames[userId]
