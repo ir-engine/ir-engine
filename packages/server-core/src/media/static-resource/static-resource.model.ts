@@ -1,3 +1,28 @@
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
 import { DataTypes, Model, Sequelize } from 'sequelize'
 
 import { StaticResourceInterface } from '@etherealengine/common/src/dbmodels/StaticResource'
@@ -55,114 +80,6 @@ export default (app: Application) => {
       },
       tags: {
         type: DataTypes.JSON
-      },
-      LOD0_url: {
-        type: DataTypes.STRING
-      },
-      LOD0_metadata: {
-        type: DataTypes.JSON
-      },
-      LOD1_url: {
-        type: DataTypes.STRING
-      },
-      LOD1_metadata: {
-        type: DataTypes.JSON
-      },
-      LOD2_url: {
-        type: DataTypes.STRING
-      },
-      LOD2_metadata: {
-        type: DataTypes.JSON
-      },
-      LOD3_url: {
-        type: DataTypes.STRING
-      },
-      LOD3_metadata: {
-        type: DataTypes.JSON
-      },
-      LOD4_url: {
-        type: DataTypes.STRING
-      },
-      LOD4_metadata: {
-        type: DataTypes.JSON
-      },
-      LOD5_url: {
-        type: DataTypes.STRING
-      },
-      LOD5_metadata: {
-        type: DataTypes.JSON
-      },
-      LOD6_url: {
-        type: DataTypes.STRING
-      },
-      LOD6_metadata: {
-        type: DataTypes.JSON
-      },
-      LOD7_url: {
-        type: DataTypes.STRING
-      },
-      LOD7_metadata: {
-        type: DataTypes.JSON
-      },
-      LOD8_url: {
-        type: DataTypes.STRING
-      },
-      LOD8_metadata: {
-        type: DataTypes.JSON
-      },
-      LOD9_url: {
-        type: DataTypes.STRING
-      },
-      LOD9_metadata: {
-        type: DataTypes.JSON
-      },
-      LOD10_url: {
-        type: DataTypes.STRING
-      },
-      LOD10_metadata: {
-        type: DataTypes.JSON
-      },
-      LOD11_url: {
-        type: DataTypes.STRING
-      },
-      LOD11_metadata: {
-        type: DataTypes.JSON
-      },
-      LOD12_url: {
-        type: DataTypes.STRING
-      },
-      LOD12_metadata: {
-        type: DataTypes.JSON
-      },
-      LOD13_url: {
-        type: DataTypes.STRING
-      },
-      LOD13_metadata: {
-        type: DataTypes.JSON
-      },
-      LOD14_url: {
-        type: DataTypes.STRING
-      },
-      LOD14_metadata: {
-        type: DataTypes.JSON
-      },
-      LOD15_url: {
-        type: DataTypes.STRING
-      },
-      LOD15_metadata: {
-        type: DataTypes.JSON
-      },
-      LOD16_url: {
-        type: DataTypes.STRING
-      },
-      LOD16_metadata: {
-        type: DataTypes.JSON
-      },
-      LOD17_url: {
-        type: DataTypes.STRING
-      },
-      LOD17_metadata: {
-        type: DataTypes.JSON
       }
     },
     {
@@ -184,6 +101,10 @@ export default (app: Application) => {
       as: 'parent',
       foreignKey: 'parentResourceId',
       allowNull: true
+    })
+    ;(staticResource as any).hasMany(models.static_resource_variant, {
+      as: 'variants',
+      allowNull: false
     })
   }
 

@@ -1,3 +1,28 @@
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
 import { CloudFrontClient, CreateInvalidationCommand } from '@aws-sdk/client-cloudfront'
 import {
   CopyObjectCommand,
@@ -13,13 +38,16 @@ import { Options, Upload } from '@aws-sdk/lib-storage'
 import { createPresignedPost } from '@aws-sdk/s3-presigned-post'
 import { reject } from 'lodash'
 import fetch from 'node-fetch'
+import { buffer } from 'node:stream/consumers'
 import path from 'path/posix'
 import S3BlobStore from 's3-blob-store'
+import { Readable } from 'stream'
 import { PassThrough } from 'stream'
 
 import { FileContentType } from '@etherealengine/common/src/interfaces/FileContentType'
 
 import config from '../../appconfig'
+import { getCacheDomain } from './getCacheDomain'
 import { getCachedURL } from './getCachedURL'
 import {
   PutObjectParams,
@@ -47,9 +75,12 @@ export class S3Provider implements StorageProviderInterface {
       accessKeyId: config.aws.keys.accessKeyId,
       secretAccessKey: config.aws.keys.secretAccessKey
     },
-    endpoint: config.aws.s3.endpoint,
+    endpoint: config.server.storageProviderExternalEndpoint
+      ? config.server.storageProviderExternalEndpoint
+      : config.aws.s3.endpoint,
     region: config.aws.s3.region,
     forcePathStyle: true,
+    tls: config.aws.s3.s3DevMode === 'local' ? false : undefined,
     maxAttempts: 5
   })
 
@@ -57,13 +88,17 @@ export class S3Provider implements StorageProviderInterface {
    * Domain address of S3 cache.
    */
   cacheDomain =
-    config.server.storageProvider === 'aws'
-      ? config.aws.cloudfront.domain
+    config.server.storageProvider === 's3'
+      ? config.aws.s3.endpoint
+        ? `${config.aws.s3.endpoint.replace('http://', '').replace('https://', '')}/${this.bucket}`
+        : config.aws.cloudfront.domain
       : `${config.aws.cloudfront.domain}/${this.bucket}`
 
   private bucketAssetURL =
-    config.server.storageProvider === 'aws'
-      ? `https://${this.bucket}.s3.${config.aws.s3.region}.amazonaws.com`
+    config.server.storageProvider === 's3'
+      ? config.aws.s3.endpoint
+        ? `${config.aws.s3.endpoint}/${this.bucket}`
+        : `https://${this.bucket}.s3.${config.aws.s3.region}.amazonaws.com`
       : `https://${config.aws.cloudfront.domain}/${this.bucket}`
 
   private blob: typeof S3BlobStore = new S3BlobStore({
@@ -134,7 +169,8 @@ export class S3Provider implements StorageProviderInterface {
   async getObject(key: string): Promise<StorageObjectInterface> {
     const data = new GetObjectCommand({ Bucket: this.bucket, Key: key })
     const response = await this.provider.send(data)
-    return { Body: response.Body as unknown as Buffer, ContentType: response.ContentType! }
+    const body = await buffer(response.Body as Readable)
+    return { Body: body, ContentType: response.ContentType! }
   }
 
   /**
@@ -142,7 +178,8 @@ export class S3Provider implements StorageProviderInterface {
    * @param key Key of object.
    */
   async getCachedObject(key: string): Promise<StorageObjectInterface> {
-    const data = await fetch(getCachedURL(key, this.cacheDomain))
+    const cacheDomain = getCacheDomain(this, true)
+    const data = await fetch(getCachedURL(key, cacheDomain))
     return { Body: Buffer.from(await data.arrayBuffer()), ContentType: (await data.headers.get('content-type')) || '' }
   }
 
@@ -235,9 +272,10 @@ export class S3Provider implements StorageProviderInterface {
    * Invalidate items in the S3 storage.
    * @param invalidationItems List of keys.
    */
-  async createInvalidation(invalidationItems: any[]) {
+  async createInvalidation(invalidationItems: string[]) {
+    if (!invalidationItems || invalidationItems.length === 0) return
     // for non-standard s3 setups, we don't use cloudfront
-    if (config.server.storageProvider !== 'aws') return
+    if (config.server.storageProvider !== 's3' || config.aws.s3.s3DevMode === 'local') return
     const params = {
       DistributionId: config.aws.cloudfront.distributionId,
       InvalidationBatch: {

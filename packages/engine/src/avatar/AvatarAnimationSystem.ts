@@ -1,5 +1,30 @@
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
 import { useEffect } from 'react'
-import { AxesHelper, Bone, Euler, MathUtils, Quaternion, Vector3 } from 'three'
+import { AxesHelper, Bone, Euler, MathUtils, Matrix4, Quaternion, Vector3 } from 'three'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { insertionSort } from '@etherealengine/common/src/utils/insertionSort'
@@ -9,6 +34,7 @@ import { Axis } from '../common/constants/Axis3D'
 import { V_000 } from '../common/constants/MathConstants'
 import { proxifyQuaternion } from '../common/proxies/createThreejsProxy'
 import { Engine } from '../ecs/classes/Engine'
+import { EngineState } from '../ecs/classes/EngineState'
 import { Entity } from '../ecs/classes/Entity'
 import { defineQuery, getComponent, getOptionalComponent, setComponent } from '../ecs/functions/ComponentFunctions'
 import { removeEntity } from '../ecs/functions/EntityFunctions'
@@ -66,6 +92,7 @@ export const AvatarAnimationState = defineState({
 
 const _vector3 = new Vector3()
 const _vec = new Vector3()
+const _fwd = new Vector3()
 
 // setComponent(entity, AvatarArmsTwistCorrectionComponent, {
 //   LeftHandBindRotationInv: new Quaternion(),
@@ -100,10 +127,10 @@ const filterFrustumCulledEntities = (entity: Entity) =>
   )
 
 const leftHandRotation = new Quaternion().setFromEuler(new Euler(Math.PI / 2, 0, Math.PI))
-const leftHandRotationOffset = new Quaternion().setFromEuler(new Euler(Math.PI / 2, 0, 0))
+const leftHandRotationOffset = new Quaternion().setFromEuler(new Euler(Math.PI * 0.4, -Math.PI * 0.1, 0))
 
 const rightHandRotation = new Quaternion().setFromEuler(new Euler(-Math.PI / 2, 0, 0))
-const rightHandRotationOffset = new Quaternion().setFromEuler(new Euler(-Math.PI / 2, 0, 0))
+const rightHandRotationOffset = new Quaternion().setFromEuler(new Euler(-Math.PI * 0.4, Math.PI * 0.1, 0))
 
 let avatarSortAccumulator = 0
 const _quat = new Quaternion()
@@ -111,7 +138,8 @@ const _quat = new Quaternion()
 const execute = () => {
   const xrState = getState(XRState)
   const { priorityQueue, sortedTransformEntities } = getState(AvatarAnimationState)
-  const { elapsedSeconds, deltaSeconds, localClientEntity, inputSources } = Engine.instance
+  const { localClientEntity, inputSources } = Engine.instance
+  const { elapsedSeconds, deltaSeconds } = getState(EngineState)
 
   for (const action of sessionChangedQueue()) {
     if (!localClientEntity) continue
@@ -298,6 +326,8 @@ const execute = () => {
 
     const { rig, handRadius } = getComponent(ownerEntity, AvatarRigComponent)
 
+    _fwd.set(0, 0, 1).applyQuaternion(transformComponent.rotation)
+
     const ikComponent = getComponent(entity, AvatarIKTargetComponent)
     if (ikComponent.handedness === 'none') {
       _vec
@@ -317,11 +347,7 @@ const execute = () => {
         rig.LeftArm,
         rig.LeftForeArm,
         rig.LeftHand,
-        // this is a hack to align the middle of the hand with the controller
-        _vector3.addVectors(
-          transformComponent.position,
-          rig.LeftHand.getWorldDirection(_vec).multiplyScalar(handRadius)
-        ),
+        _vector3.addVectors(transformComponent.position, _fwd.multiplyScalar(handRadius)),
         _quat.multiplyQuaternions(transformComponent.rotation, leftHandRotation),
         leftHandRotationOffset
       )
@@ -333,11 +359,7 @@ const execute = () => {
         rig.RightArm,
         rig.RightForeArm,
         rig.RightHand,
-        // this is a hack to align the middle of the hand with the controller
-        _vector3.subVectors(
-          transformComponent.position,
-          rig.RightHand.getWorldDirection(_vec).multiplyScalar(handRadius)
-        ),
+        _vector3.addVectors(transformComponent.position, _fwd.multiplyScalar(handRadius)),
         _quat.multiplyQuaternions(transformComponent.rotation, rightHandRotation),
         rightHandRotationOffset
       )

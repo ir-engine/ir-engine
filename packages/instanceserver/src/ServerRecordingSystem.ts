@@ -1,3 +1,28 @@
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
 import { decode, encode } from 'msgpackr'
 import { PassThrough } from 'stream'
 
@@ -8,6 +33,7 @@ import { StaticResourceInterface } from '@etherealengine/common/src/interfaces/S
 import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 import multiLogger from '@etherealengine/common/src/logger'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { ECSRecordingActions } from '@etherealengine/engine/src/ecs/ECSRecording'
 import { ECSDeserializer, ECSSerialization, ECSSerializer } from '@etherealengine/engine/src/ecs/ECSSerializerSystem'
 import { getComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
@@ -141,7 +167,7 @@ export const onStartRecording = async (action: ReturnType<typeof ECSRecordingAct
 
   const startTime = Date.now()
 
-  const chunkLength = Engine.instance.tickRate * 60 // 1 minute
+  const chunkLength = Math.floor((1000 / getState(EngineState).simulationTimestep) * 60) // 1 minute
 
   const dataChannelRecorder = (network: Network, dataChannel: DataChannelType, fromPeerID: PeerID, message: any) => {
     try {
@@ -365,9 +391,8 @@ export const onStartPlayback = async (action: ReturnType<typeof ECSRecordingActi
                       WorldNetworkAction.avatarDetails({
                         // $from: entityID,
                         avatarDetail: {
-                          avatarURL: user.avatar.modelResource?.LOD0_url || (user.avatar.modelResource as any)?.src,
-                          thumbnailURL:
-                            user.avatar.thumbnailResource?.LOD0_url || (user.avatar.thumbnailResource as any)?.src
+                          avatarURL: user.avatar.modelResource?.url || '',
+                          thumbnailURL: user.avatar.thumbnailResource?.url || ''
                         },
                         uuid: entityID
                       })

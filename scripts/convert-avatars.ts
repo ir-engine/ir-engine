@@ -1,13 +1,36 @@
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
 /* eslint-disable @typescript-eslint/no-var-requires */
 import appRootPath from 'app-root-path'
-import axios from 'axios'
 import cli from 'cli'
 import dotenv from 'dotenv-flow'
 import fetch from 'node-fetch'
 import Sequelize, { DataTypes, Op } from 'sequelize'
 
 import { createFeathersKoaApp } from '@etherealengine/server-core/src/createApp'
-import { getCachedURL } from '@etherealengine/server-core/src/media/storageprovider/getCachedURL'
 import { addGenericAssetToS3AndStaticResources } from '@etherealengine/server-core/src/media/upload-asset/upload-asset.service'
 import { ServerMode } from '@etherealengine/server-core/src/ServerState'
 
@@ -33,6 +56,7 @@ cli.main(async () => {
   try {
     const app = createFeathersKoaApp(ServerMode.API)
     await app.setup()
+    // @ts-ignore
     const sequelizeClient = new Sequelize({
       ...db,
       logging: console.log,
@@ -88,9 +112,7 @@ cli.main(async () => {
 
     const avatarStaticResources = await StaticResource.findAll({
       where: {
-        staticResourceType: {
-          [Op.ne]: null
-        }
+        staticResourceType: 'avatar'
       }
     })
 
@@ -104,11 +126,11 @@ cli.main(async () => {
 
     for (const avatar of Object.keys(currentAvatars)) {
       const current = currentAvatars[avatar]
-      let existingAvatar = await app.service('avatar').find({
+      let existingAvatar = (await app.service('avatar').find({
         query: {
           name: avatar
         }
-      })
+      })) as any
       if (existingAvatar.total === 0) {
         existingAvatar = await app.service('avatar').create({
           name: avatar
@@ -123,25 +145,42 @@ cli.main(async () => {
 
       const model = await fetch(current.avatar.url)
       const thumbnail = await fetch(current['user-thumbnail'].url)
+      const thumbSize = thumbnail.headers.get('content-length')
+      const modelSize = model.headers.get('content-length')
+      const thumbName = `${existingAvatar.identifierName}.glb.${
+        /.png/.test(thumbnail.headers.get('content-type') || '') ? 'png' : 'jpg'
+      }`
 
       const thumbnailReturned = await addGenericAssetToS3AndStaticResources(
         app,
-        Buffer.from(await thumbnail.arrayBuffer()),
+        [
+          {
+            buffer: Buffer.from(await thumbnail.arrayBuffer()),
+            originalname: thumbName,
+            mimetype: thumbnail.headers.get('content-type') || 'image/png',
+            size: thumbSize ? parseInt(thumbSize) : 0
+          }
+        ],
         thumbnail.headers.get('content-type') || '',
         {
-          key: `avatars/public/${existingAvatar.identifierName}.glb.${
-            /.png/.test(thumbnail.headers.get('content-type') || '') ? 'png' : 'jpg'
-          }`,
+          key: `avatars/public/`,
           staticResourceType: 'user-thumbnail'
         }
       )
 
       const modelReturned = await addGenericAssetToS3AndStaticResources(
         app,
-        Buffer.from(await model.arrayBuffer()),
+        [
+          {
+            buffer: Buffer.from(await model.arrayBuffer()),
+            originalname: `${existingAvatar.identifierName}.glb`,
+            mimetype: model.headers.get('content-type') || 'model/gltf-binary',
+            size: modelSize ? parseInt(modelSize) : 0
+          }
+        ],
         (await model.headers.get('content-type')) || '',
         {
-          key: `avatars/public/${existingAvatar.identifierName}.glb`,
+          key: `avatars/public/`,
           staticResourceType: 'avatar'
         }
       )

@@ -1,3 +1,28 @@
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
 import { VitePWA } from 'vite-plugin-pwa'
 
 import manifest from './manifest.default.json'
@@ -121,18 +146,18 @@ const PWA = (clientSetting) =>
       ],
       // Enable cleanup of outdated caches
       cleanupOutdatedCaches: true,
-      // Set maximum cache size to 100 MB
-      maximumFileSizeToCacheInBytes: 1000 * 1000 * 100,
+      // Set maximum cache size to 10 MB
+      maximumFileSizeToCacheInBytes: 1000 * 1000 * 10,
       runtimeCaching: [
         // Cache all requests on the resources- subdomain for this domain
         {
           urlPattern: /^https?:\/\/resources-*\/.*/i,
-          handler: 'CacheFirst',
+          handler: 'NetworkFirst',
           options: {
             cacheName: 'resources',
             expiration: {
               maxEntries: 1000,
-              maxAgeSeconds: 60 * 60 * 24 * 30 // 30 days
+              maxAgeSeconds: 24 * 60 * 60 // <== 24 hours
             },
             cacheableResponse: {
               statuses: [0, 200]
@@ -141,12 +166,12 @@ const PWA = (clientSetting) =>
         },
         {
           urlPattern: /^https?.*/i,
-          handler: 'CacheFirst',
+          handler: 'NetworkFirst',
           options: {
             cacheName: 'all-content-cache',
             expiration: {
               maxEntries: 1000,
-              maxAgeSeconds: 7 * 24 * 60 * 60 // <== 7 days
+              maxAgeSeconds: 24 * 60 * 60 // <== 24 hours
             },
             cacheableResponse: {
               statuses: [0, 200]
@@ -160,7 +185,7 @@ const PWA = (clientSetting) =>
             cacheName: 'fonts-assets-cache',
             expiration: {
               maxEntries: 100,
-              maxAgeSeconds: 24 * 60 * 60 // <== 24 hours
+              maxAgeSeconds: 24 * 60 * 60 * 30 // <== 30 days
             },
             cacheableResponse: {
               statuses: [0, 200]
@@ -174,7 +199,7 @@ const PWA = (clientSetting) =>
             cacheName: 'icons-assets-cache',
             expiration: {
               maxEntries: 100,
-              maxAgeSeconds: 24 * 60 * 60 // <== 24 hours
+              maxAgeSeconds: 24 * 60 * 60 * 30 // <== 30 days
             },
             cacheableResponse: {
               statuses: [0, 200]
@@ -188,7 +213,7 @@ const PWA = (clientSetting) =>
             cacheName: 'static-assets-cache',
             expiration: {
               maxEntries: 100,
-              maxAgeSeconds: 24 * 60 * 60 // <== 24 hours
+              maxAgeSeconds: 24 * 60 * 60 * 30 // <== 30 days
             },
             cacheableResponse: {
               statuses: [0, 200]

@@ -1,3 +1,28 @@
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
 import { viteCommonjs } from '@originjs/vite-plugin-commonjs'
 import packageRoot from 'app-root-path'
 import dotenv from 'dotenv'
@@ -7,13 +32,14 @@ import { isArray, mergeWith } from 'lodash'
 import path from 'path'
 import { defineConfig, UserConfig } from 'vite'
 import viteCompression from 'vite-plugin-compression'
-import { createHtmlPlugin } from 'vite-plugin-html'
+import { ViteEjsPlugin } from 'vite-plugin-ejs'
 import OptimizationPersist from 'vite-plugin-optimize-persist'
 import PkgConfig from 'vite-plugin-package-config'
 
 import manifest from './manifest.default.json'
 import PWA from './pwa.config'
 import { getClientSetting } from './scripts/getClientSettings'
+import { getCoilSetting } from './scripts/getCoilSettings'
 
 const merge = (src, dest) =>
   mergeWith({}, src, dest, function (a, b) {
@@ -125,6 +151,7 @@ export default defineConfig(async () => {
     path: packageRoot.path + '/.env.local'
   })
   const clientSetting = await getClientSetting()
+  const coilSetting = await getCoilSetting()
 
   writeEmptySWFile()
 
@@ -134,7 +161,7 @@ export default defineConfig(async () => {
 
   if (
     process.env.SERVE_CLIENT_FROM_STORAGE_PROVIDER === 'true' &&
-    process.env.STORAGE_PROVIDER === 'aws' &&
+    process.env.STORAGE_PROVIDER === 's3' &&
     process.env.STORAGE_CLOUDFRONT_DOMAIN
   )
     base = `https://${process.env.STORAGE_CLOUDFRONT_DOMAIN}/client/`
@@ -173,25 +200,21 @@ export default defineConfig(async () => {
       mediapipe_workaround(),
       PkgConfig(),
       process.env.VITE_PWA_ENABLED === 'true' ? PWA(clientSetting) : undefined,
-      createHtmlPlugin({
-        inject: {
-          data: {
-            ...manifest,
-            title: clientSetting.title || 'Ethereal Engine',
-            description: clientSetting?.siteDescription || 'Connected Worlds for Everyone',
-            short_name: clientSetting?.shortName || 'EE',
-            theme_color: clientSetting?.themeColor || '#ffffff',
-            background_color: clientSetting?.backgroundColor || '#000000',
-            appleTouchIcon: clientSetting.appleTouchIcon || '/apple-touch-icon.png',
-            favicon32px: clientSetting.favicon32px || '/favicon-32x32.png',
-            favicon16px: clientSetting.favicon16px || '/favicon-16x16.png',
-            icon192px: clientSetting.icon192px || '/android-chrome-192x192.png',
-            icon512px: clientSetting.icon512px || '/android-chrome-512x512.png',
-            webmanifestLink: clientSetting.webmanifestLink || '/manifest.webmanifest',
-            swScriptLink: clientSetting.swScriptLink || 'service-worker.js',
-            paymentPointer: clientSetting.paymentPointer || ''
-          }
-        }
+      ViteEjsPlugin({
+        ...manifest,
+        title: clientSetting.title || 'Ethereal Engine',
+        description: clientSetting?.siteDescription || 'Connected Worlds for Everyone',
+        // short_name: clientSetting?.shortName || 'EE',
+        // theme_color: clientSetting?.themeColor || '#ffffff',
+        // background_color: clientSetting?.backgroundColor || '#000000',
+        appleTouchIcon: clientSetting.appleTouchIcon || '/apple-touch-icon.png',
+        favicon32px: clientSetting.favicon32px || '/favicon-32x32.png',
+        favicon16px: clientSetting.favicon16px || '/favicon-16x16.png',
+        icon192px: clientSetting.icon192px || '/android-chrome-192x192.png',
+        icon512px: clientSetting.icon512px || '/android-chrome-512x512.png',
+        webmanifestLink: clientSetting.webmanifestLink || '/manifest.webmanifest',
+        swScriptLink: clientSetting.swScriptLink || 'service-worker.js',
+        paymentPointer: coilSetting.paymentPointer || ''
       }),
       viteCompression({
         filter: /\.(js|mjs|json|css)$/i,

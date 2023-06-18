@@ -1,3 +1,28 @@
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
 import koa from '@feathersjs/koa'
 import appRootPath from 'app-root-path'
 import path from 'path'
@@ -91,14 +116,14 @@ export const convertStaticResource = async (app: Application, sceneData: SceneJs
                   typeof resource.mp3StaticResource === 'string'
                     ? resource.mp3StaticResource
                     : typeof resource.mp3StaticResource === 'object'
-                    ? resource.mp3StaticResource.LOD0_url
+                    ? resource.mp3StaticResource.url
                     : typeof resource.oggStaticResource === 'string'
                     ? resource.oggStaticResource
                     : typeof resource.oggStaticResource === 'object'
-                    ? resource.oggStaticResource.LOD0_url
+                    ? resource.oggStaticResource.url
                     : typeof resource.mpegStaticResource === 'string'
                     ? resource.mpegStaticResource
-                    : resource.mpegStaticResource.LOD0_url
+                    : resource.mpegStaticResource.url
                 )
               } else if (resource.mp4StaticResource || resource.m3u8StaticResource) {
                 mediaType = AssetClass.Video
@@ -106,23 +131,23 @@ export const convertStaticResource = async (app: Application, sceneData: SceneJs
                   typeof resource.mp4StaticResource === 'string'
                     ? resource.mp4StaticResource
                     : typeof resource.mp4StaticResource === 'object'
-                    ? resource.mp4StaticResource.LOD0_url
+                    ? resource.mp4StaticResource.url
                     : typeof resource.m3u8StaticResource === 'string'
                     ? resource.m3u8StaticResource
-                    : resource.m3u8StaticResource.LOD0_url
+                    : resource.m3u8StaticResource.url
                 )
               } else if (resource.drcsStaticResource || resource.uvolStaticResource || resource.manifest) {
                 mediaType = AssetClass.Volumetric
                 urls.push(
                   typeof resource.manifest === 'object'
-                    ? resource.manifest.staticResource.LOD0_url
+                    ? resource.manifest.staticResource.url
                     : typeof resource.drcsStaticResource === 'string'
                     ? resource.drcsStaticResource
                     : typeof resource.drcsStaticResource === 'object'
-                    ? resource.drcsStaticResource.LOD0_url
+                    ? resource.drcsStaticResource.url
                     : typeof resource.uvolStaticResource === 'string'
                     ? resource.uvolStaticResource
-                    : resource.uvolStaticResource.LOD0_url
+                    : resource.uvolStaticResource.url
                 )
               }
             }

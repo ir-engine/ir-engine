@@ -1,3 +1,28 @@
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
 import { useHookstate } from '@hookstate/core'
 import { useEffect } from 'react'
 import { useParams } from 'react-router-dom'
@@ -60,12 +85,12 @@ export const useLoadEngine = () => {
 
 const fetchMissingAvatar = async (user, avatarSpawnPose) => {
   const avatar = await AvatarService.getAvatar(user.avatar.id.value)
-  if (avatar && (avatar.modelResource?.LOD0_url || (avatar.modelResource as any)?.src))
+  if (avatar && avatar.modelResource?.url)
     spawnLocalAvatarInWorld({
       avatarSpawnPose,
       avatarDetail: {
-        avatarURL: avatar.modelResource?.LOD0_url || (avatar.modelResource as any)?.src,
-        thumbnailURL: avatar.thumbnailResource?.LOD0_url || (avatar.thumbnailResource as any)?.src
+        avatarURL: avatar.modelResource?.url || '',
+        thumbnailURL: avatar.thumbnailResource?.url || ''
       },
       name: user.name.value
     })
@@ -108,12 +133,12 @@ export const useLocationSpawnAvatar = (spectate = false) => {
       ? getSpawnPoint(spawnPoint, Engine.instance.userId)
       : getRandomSpawnPoint(Engine.instance.userId)
 
-    if (avatarDetails.modelResource?.LOD0_url || (avatarDetails.modelResource as any)?.src)
+    if (avatarDetails.modelResource?.url)
       spawnLocalAvatarInWorld({
         avatarSpawnPose,
         avatarDetail: {
-          avatarURL: avatarDetails.modelResource?.LOD0_url || (avatarDetails.modelResource as any)?.src,
-          thumbnailURL: avatarDetails.thumbnailResource?.LOD0_url || (avatarDetails.thumbnailResource as any)?.src
+          avatarURL: avatarDetails.modelResource?.url || '',
+          thumbnailURL: avatarDetails.thumbnailResource?.url || ''
         },
         name: user.name.value
       })
@@ -125,7 +150,6 @@ export const usePortalTeleport = () => {
   const route = useRouter()
   const engineState = useHookstate(getMutableState(EngineState))
   const locationState = useHookstate(getMutableState(LocationState))
-  const authState = useHookstate(getMutableState(AuthState))
 
   useEffect(() => {
     if (engineState.isTeleporting.value) {
@@ -231,11 +255,8 @@ export const useOfflineScene = (props?: { spectate?: boolean }) => {
       if (props?.spectate) return
 
       receiveJoinWorld({
-        highResTimeOrigin: performance.timeOrigin,
-        worldStartTime: performance.now(),
         cachedActions: [],
         peerIndex,
-        peerID,
         routerRtpCapabilities: undefined
       })
     }

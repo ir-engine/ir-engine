@@ -1,3 +1,28 @@
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
 import { OpaqueType } from '@etherealengine/common/src/interfaces/OpaqueType'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { UserId } from '@etherealengine/common/src/interfaces/UserId'
@@ -24,6 +49,10 @@ export interface TransportInterface {
 }
 
 export type DataChannelType = OpaqueType<'DataChannelType'> & string
+export interface JitterBufferEntry {
+  simulationTime: number
+  read: () => void
+}
 
 /** Interface for the Transport. */
 export const createNetwork = <Ext>(hostId: UserId, topic: Topic, extension: Ext = {} as Ext) => {
@@ -32,6 +61,12 @@ export const createNetwork = <Ext>(hostId: UserId, topic: Topic, extension: Ext 
     /** Consumers and producers have separate types on client and server */
     producers: [] as any[],
     consumers: [] as any[],
+
+    /** buffer of incoming packet read tasks */
+    jitterBufferTaskList: [] as JitterBufferEntry[],
+
+    /** The jitter buffer delay in milliseconds */
+    jitterBufferDelay: 100,
 
     /** List of data producer nodes. */
     dataProducers: new Map<string, any>(),
@@ -90,12 +125,6 @@ export const createNetwork = <Ext>(hostId: UserId, topic: Topic, extension: Ext 
     hostId,
 
     /**
-     * The PeerID of the current user's instance
-     * @todo non null this
-     */
-    peerID: null! as PeerID,
-
-    /**
      * The network is ready for sending messages and data
      */
     ready: false,
@@ -105,9 +134,6 @@ export const createNetwork = <Ext>(hostId: UserId, topic: Topic, extension: Ext 
      * @todo non null this
      */
     transport: {
-      get peers() {
-        return []
-      },
       messageToPeer: (peerId: PeerID, data: any) => {},
       messageToAll: (data: any) => {},
       bufferToPeer: (dataChannelType: DataChannelType, peerId: PeerID, data: any) => {},

@@ -1,3 +1,28 @@
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { MeshBasicMaterial } from 'three'
@@ -28,24 +53,24 @@ export const WarningUIState = defineState({
     title: '',
     body: '',
     timeRemaining: 0,
-    action: null as null | (() => void)
+    action: null as null | ((clicked: boolean) => void)
   }
 })
 
-const executeAction = async () => {
+const executeAction = async (timeout: boolean) => {
   const action = getState(WarningUIState).action
-  if (action) action()
+  if (action) action(timeout)
   WarningUIService.closeWarning()
 }
 
 export const WarningUIService = {
-  openWarning: async (args: { title: string; body: string; timeout?: number; action?: () => void }) => {
+  openWarning: async (args: { title: string; body: string; timeout?: number; action?: (timeout: boolean) => void }) => {
     const state = getMutableState(WarningUIState)
     state.open.set(true)
     state.title.set(args.title)
     state.body.set(args.body)
-    state.timeRemaining.set(args.timeout ?? 0)
-    state.action.set(args.action ?? null)
+    state.timeRemaining.set(args.timeout ?? -1)
+    state.merge({ action: args.action ?? null })
   },
   closeWarning: () => {
     const state = getMutableState(WarningUIState)
@@ -75,7 +100,7 @@ const WarningSystemXRUI = function () {
             borderRadius: '20px',
             padding: '12px'
           }}
-          onClick={executeAction}
+          onClick={() => executeAction(false)}
         >
           <div
             xr-layer="true"
@@ -167,7 +192,7 @@ const execute = () => {
       const timeRemaining = Math.max(0, state.timeRemaining - 1)
       getMutableState(WarningUIState).timeRemaining.set(timeRemaining)
       if (timeRemaining === 0) {
-        executeAction()
+        executeAction(true)
         WarningUIService.closeWarning()
       }
       accumulator = 0

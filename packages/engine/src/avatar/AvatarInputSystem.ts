@@ -1,3 +1,28 @@
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
 import { Quaternion } from 'three'
 
 import { isDev } from '@etherealengine/common/src/config'
@@ -8,14 +33,18 @@ import { Engine } from '../ecs/classes/Engine'
 import { EngineActions } from '../ecs/classes/EngineState'
 import {
   ComponentType,
+  defineQuery,
   getComponent,
   getMutableComponent,
   removeComponent,
   setComponent
 } from '../ecs/functions/ComponentFunctions'
 import { defineSystem } from '../ecs/functions/SystemFunctions'
+import { InputComponent } from '../input/components/InputComponent'
+import { InputSourceComponent } from '../input/components/InputSourceComponent'
 import { InteractState } from '../interaction/systems/InteractiveSystem'
 import { WorldNetworkAction } from '../networking/functions/WorldNetworkAction'
+import { RigidBodyFixedTagComponent } from '../physics/components/RigidBodyComponent'
 import { boxDynamicConfig } from '../physics/functions/physicsObjectDebugFunctions'
 import { RendererState } from '../renderer/RendererState'
 import { hasMovementControls } from '../xr/XRState'
@@ -123,6 +152,8 @@ const onKeyP = () => {
   getMutableState(RendererState).debugEnable.set(!getMutableState(RendererState).debugEnable.value)
 }
 
+const walkableQuery = defineQuery([RigidBodyFixedTagComponent, InputComponent])
+
 let mouseMovedDuringPrimaryClick = false
 const execute = () => {
   const { inputSources, localClientEntity } = Engine.instance
@@ -133,13 +164,26 @@ const execute = () => {
   const controller = getComponent(localClientEntity, AvatarControllerComponent)
   const buttons = Engine.instance.buttons
 
-  if (buttons.PrimaryClick?.touched) {
-    let mouseMoved = Engine.instance.pointerState.movement.lengthSq() > 0
-    if (mouseMoved) mouseMovedDuringPrimaryClick = true
+  const firstWalkableEntityWithInput = walkableQuery().find(
+    (entity) => getComponent(entity, InputComponent)?.inputSources.length
+  )
 
-    if (buttons.PrimaryClick.up) {
-      if (!mouseMovedDuringPrimaryClick) autopilotSetPosition(Engine.instance.localClientEntity)
-      else mouseMovedDuringPrimaryClick = false
+  if (firstWalkableEntityWithInput) {
+    const inputComponent = getComponent(firstWalkableEntityWithInput, InputComponent)
+    const inputSourceEntity = inputComponent?.inputSources[0]
+
+    if (inputSourceEntity) {
+      const inputSourceComponent = getComponent(inputSourceEntity, InputSourceComponent)
+      if (inputSourceComponent.buttons.PrimaryClick?.touched) {
+        let mouseMoved = Engine.instance.pointerState.movement.lengthSq() > 0
+        if (mouseMoved) mouseMovedDuringPrimaryClick = true
+
+        if (inputSourceComponent.buttons.PrimaryClick.up) {
+          if (!mouseMovedDuringPrimaryClick) {
+            autopilotSetPosition(Engine.instance.localClientEntity)
+          } else mouseMovedDuringPrimaryClick = false
+        }
+      }
     }
   }
 

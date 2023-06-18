@@ -1,13 +1,43 @@
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
 import { createHash } from 'crypto'
 import fs from 'fs'
 import fetch from 'node-fetch'
 import { Op } from 'sequelize'
+
+import { UploadFile } from '@etherealengine/common/src/interfaces/UploadAssetInterface'
+import { CommonKnownContentTypes } from '@etherealengine/common/src/utils/CommonKnownContentTypes'
 
 import { Application } from '../../../declarations'
 import config from '../../appconfig'
 import logger from '../../ServerLogger'
 import { addGenericAssetToS3AndStaticResources } from '../upload-asset/upload-asset.service'
 import { videoUpload } from '../video/video-upload.helper'
+
+const uvolMimetype = 'application/octet-stream'
 
 const handleManifest = async (app: Application, url: string, name = 'untitled', volumetricId: string) => {
   const drcsFileHead = await fetch(url, { method: 'HEAD' })
@@ -42,25 +72,56 @@ const handleManifest = async (app: Application, url: string, name = 'untitled', 
       ]
     })
   }
-  if (!config.server.cloneProjectStaticResources || (existingResource && existingData)) return existingData
-  else {
-    if (!existingResource) {
-      let file, body
-      if (/http(s)?:\/\//.test(url)) {
-        file = await fetch(url)
-        body = Buffer.from(await file.arrayBuffer())
-      } else body = fs.readFileSync(url)
-      const key = `static-resources/volumetric/${volumetricId}/${name}`
-      existingResource = await addGenericAssetToS3AndStaticResources(app, body, 'application/octet-stream', {
-        hash: hash,
-        key: `${key}.manifest`,
-        staticResourceType: 'data'
-      })
+
+  if (existingResource && existingData) return existingData
+
+  if (!existingResource) {
+    let files: UploadFile[]
+    if (/http(s)?:\/\//.test(url)) {
+      if (config.server.cloneProjectStaticResources) {
+        const file = await fetch(url)
+        files = [
+          {
+            buffer: Buffer.from(await file.arrayBuffer()),
+            originalname: name,
+            mimetype: uvolMimetype,
+            size: parseInt(file.headers.get('content-length') || file.headers.get('Content-Length') || '0')
+          }
+        ]
+      } else {
+        // otherwise we just return the url and let the client download it as needed
+        const file = await fetch(url, { method: 'HEAD' })
+        files = [
+          {
+            buffer: url,
+            originalname: name,
+            mimetype:
+              file.headers.get('content-type') || file.headers.get('Content-Type') || 'application/octet-stream',
+            size: parseInt(file.headers.get('content-length') || file.headers.get('Content-Length') || '0')
+          }
+        ]
+      }
+    } else {
+      const file = fs.readFileSync(url)
+      return [
+        {
+          buffer: file,
+          originalname: name,
+          mimetype: uvolMimetype,
+          size: file.length
+        }
+      ]
     }
-    return app.service('data').create({
-      staticResourceId: existingResource.id
+    const key = `static-resources/volumetric/${volumetricId}/${name}`
+    existingResource = await addGenericAssetToS3AndStaticResources(app, files, uvolMimetype, {
+      hash: hash,
+      key: `${key}.manifest`,
+      staticResourceType: 'data'
     })
   }
+  return app.service('data').create({
+    staticResourceId: existingResource.id
+  })
 }
 
 export const volumetricUpload = async (app: Application, data) => {

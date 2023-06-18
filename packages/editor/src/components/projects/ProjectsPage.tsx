@@ -1,3 +1,28 @@
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
@@ -59,24 +84,40 @@ function sortAlphabetical(a, b) {
 
 const OfficialProjectData = [
   {
+    id: '1570ae14-889a-11ec-886e-b126f7590685',
+    name: 'ee-ethereal-village',
+    repositoryPath: 'https://github.com/etherealengine/ee-ethereal-village',
+    thumbnail: 'https://media.githubusercontent.com/media/EtherealEngine/ee-ethereal-village/dev/thumbnail.png',
+    description: 'A medieval world showcasing advanced open world multiplayer features',
+    needsRebuild: true
+  },
+  {
+    id: '1570ae12-889a-11ec-886e-b126f7590685',
+    name: 'ee-productivity',
+    repositoryPath: 'https://github.com/etherealengine/ee-productivity',
+    thumbnail: '/static/etherealengine.png',
+    description: 'Utility and productivity tools for Virtual and Augmented Reality',
+    needsRebuild: true
+  },
+  {
     id: '1570ae00-889a-11ec-886e-b126f7590685',
-    name: 'Development Test Suite',
+    name: 'ee-development-test-suite',
     repositoryPath: 'https://github.com/etherealengine/ee-development-test-suite',
     thumbnail: '/static/etherealengine.png',
-    description: 'Assets and tests for etherealengine core development',
+    description: 'Assets and tests for Ethereal Engine core development',
     needsRebuild: true
   },
   {
     id: '1570ae01-889a-11ec-886e-b126f7590685',
-    name: 'Translations',
+    name: 'ee-i18n',
     repositoryPath: 'https://github.com/etherealengine/ee-i18n',
     thumbnail: '/static/etherealengine.png',
-    description: 'Complete language translations in over 100 languages.',
+    description: 'Complete language translations in over 100 languages',
     needsRebuild: true
   },
   {
     id: '1570ae02-889a-11ec-886e-b126f7590685',
-    name: 'Test Bot',
+    name: 'ee-bot',
     repositoryPath: 'https://github.com/etherealengine/ee-bot',
     thumbnail: '/static/etherealengine.png',
     description: 'A test bot using puppeteer',
@@ -84,29 +125,21 @@ const OfficialProjectData = [
   },
   {
     id: '1570ae11-889a-11ec-886e-b126f7590685',
-    name: 'Maps',
+    name: 'ee-maps  ',
     repositoryPath: 'https://github.com/etherealengine/ee-maps',
     thumbnail: '/static/etherealengine.png',
     description: 'Procedurally generated map tiles using geojson data with mapbox and turf.js',
     needsRebuild: true
-  },
-  {
-    id: '1570ae12-889a-11ec-886e-b126f7590685',
-    name: 'Inventory',
-    repositoryPath: 'https://github.com/etherealengine/ee-inventory',
-    thumbnail: '/static/etherealengine.png',
-    description:
-      'Item inventory, trade & virtual currency. Allow your users to use a database, IPFS, DID or blockchain backed item storage for equippables, wearables and tradable items.',
-    needsRebuild: true
-  },
-  {
-    id: '1570ae14-889a-11ec-886e-b126f7590685',
-    name: 'Digital Beings',
-    repositoryPath: 'https://github.com/etherealengine/ee-digital-beings',
-    thumbnail: '/static/etherealengine.png',
-    description: 'Enhance your virtual worlds with GPT-3 backed AI agents!',
-    needsRebuild: true
   }
+  // {
+  //   id: '1570ae12-889a-11ec-886e-b126f7590685',
+  //   name: 'Inventory',
+  //   repositoryPath: 'https://github.com/etherealengine/ee-inventory',
+  //   thumbnail: '/static/etherealengine.png',
+  //   description:
+  //     'Item inventory, trade & virtual currency. Allow your users to use a database, IPFS, DID or blockchain backed item storage for equippables, wearables and tradable items.',
+  //   needsRebuild: true
+  // },
 ]
 
 const ProjectUpdateSystemInjection = {
@@ -184,10 +217,13 @@ const ProjectsPage = () => {
   const fetchOfficialProjects = async (query?: string) => {
     loading.set(true)
     try {
-      const data = await (query
-        ? OfficialProjectData.filter((p) => p.name.includes(query) || p.description.includes(query))
-        : OfficialProjectData)
+      const data = (
+        query
+          ? OfficialProjectData.filter((p) => p.name.includes(query) || p.description.includes(query))
+          : OfficialProjectData
+      ).filter((p) => !installedProjects.value?.find((ip) => ip.name.includes(p.name)))
 
+      console.log(OfficialProjectData, installedProjects, data)
       officialProjects.set((data.sort(sortAlphabetical) as ProjectInterface[]) ?? [])
     } catch (error) {
       logger.error(error)
@@ -199,9 +235,11 @@ const ProjectsPage = () => {
   const fetchCommunityProjects = async (query?: string) => {
     loading.set(true)
     try {
-      const data = await (query
-        ? CommunityProjectData.filter((p) => p.name.includes(query) || p.description.includes(query))
-        : CommunityProjectData)
+      const data = (
+        query
+          ? CommunityProjectData.filter((p) => p.name.includes(query) || p.description.includes(query))
+          : CommunityProjectData
+      ).filter((p) => !installedProjects.value?.find((ip) => ip.name.includes(p.name)))
 
       communityProjects.set(data.sort(sortAlphabetical) ?? [])
     } catch (error) {
@@ -210,6 +248,11 @@ const ProjectsPage = () => {
     }
     loading.set(false)
   }
+
+  useEffect(() => {
+    fetchOfficialProjects()
+    fetchCommunityProjects()
+  }, [installedProjects])
 
   const refreshGithubRepoAccess = () => {
     ProjectService.refreshGithubRepoAccess()

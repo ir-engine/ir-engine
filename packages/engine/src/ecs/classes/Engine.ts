@@ -1,3 +1,28 @@
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
 import * as bitecs from 'bitecs'
 
 import type { UserId } from '@etherealengine/common/src/interfaces/UserId'
@@ -17,6 +42,7 @@ import { BoxGeometry, Group, Mesh, MeshNormalMaterial, Object3D, Raycaster, Scen
 
 import type { ServiceTypes } from '@etherealengine/common/declarations'
 import { NetworkId } from '@etherealengine/common/src/interfaces/NetworkId'
+import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { ComponentJson } from '@etherealengine/common/src/interfaces/SceneInterface'
 
 import { GLTFLoader } from '../../assets/loaders/gltf/GLTFLoader'
@@ -93,10 +119,11 @@ export class Engine {
 
   api: FeathersApplication<ServiceTypes>
 
-  tickRate = 60
-
   /** The uuid of the logged-in user */
   userId: UserId
+
+  /** The peerID of the logged-in user */
+  peerID: PeerID
 
   store = createHyperStore({
     forwardIncomingActions: (action) => {
@@ -107,17 +134,11 @@ export class Engine {
       return isHost || action.$from === this.userId
     },
     getDispatchId: () => Engine.instance.userId,
-    getDispatchTime: () => Date.now(),
-    defaultDispatchDelay: 1 / this.tickRate,
+    getPeerId: () => Engine.instance.peerID,
+    getDispatchTime: () => getState(EngineState).simulationTime,
+    defaultDispatchDelay: () => getState(EngineState).simulationTimestep,
     getCurrentReactorRoot: () => Engine.instance.activeSystemReactors.get(Engine.instance.currentSystemUUID)
   }) as HyperStore
-
-  /**
-   * Current frame timestamp, relative to performance.timeOrigin
-   */
-  get frameTime() {
-    return getState(EngineState).frameTime
-  }
 
   engineTimer = null! as ReturnType<typeof Timer>
 
@@ -153,40 +174,35 @@ export class Engine {
   widgets = new Map<string, Widget>()
 
   /**
-   * The time origin for this world, relative to performance.timeOrigin
-   */
-  startTime = nowMilliseconds()
-
-  /**
    * The seconds since the last world execution
+   * @deprecated use getState(EngineState).deltaSeconds
    */
   get deltaSeconds() {
     return getState(EngineState).deltaSeconds
   }
 
   /**
-   * The elapsed seconds since `startTime`
+   * The elapsed seconds since `performance.timeOrigin`
+   * @deprecated use `getState(EngineState).elapsedSeconds`
    */
   get elapsedSeconds() {
     return getState(EngineState).elapsedSeconds
   }
 
   /**
-   * The elapsed seconds since `startTime`, in fixed time steps.
+   * The current fixed tick (simulationTime / simulationTimeStep)
+   * @deprecated
    */
-  get fixedElapsedSeconds() {
-    return getState(EngineState).fixedElapsedSeconds
+  get fixedTick() {
+    const engineState = getState(EngineState)
+    return engineState.simulationTime / engineState.simulationTimestep
   }
 
   /**
-   * The current fixed tick (fixedElapsedSeconds / fixedDeltaSeconds)
+   * @deprecated use `getState(EngineState).simulationTimestep / 1000`
    */
-  get fixedTick() {
-    return getState(EngineState).fixedTick
-  }
-
   get fixedDeltaSeconds() {
-    return getState(EngineState).fixedDeltaSeconds
+    return getState(EngineState).simulationTimestep / 1000
   }
 
   physicsWorld: PhysicsWorld

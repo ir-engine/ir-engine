@@ -1,3 +1,28 @@
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
 import assert from 'assert'
 import * as bitecs from 'bitecs'
 
@@ -149,14 +174,14 @@ describe('ECS', () => {
     const mockValue = Math.random()
     addComponent(entity, MockComponent, { mockValue })
     const component = getComponent(entity, MockComponent)
-    executeSystems(Engine.instance.startTime + mockDeltaMillis)
+    executeSystems(mockDeltaMillis)
     assert.strictEqual(entity, MockSystemState.get(getState(SceneState).sceneEntity)![0])
 
     const entity2 = createEntity()
     const mockValue2 = Math.random()
     addComponent(entity2, MockComponent, { mockValue: mockValue2 })
     const component2 = getComponent(entity2, MockComponent)
-    executeSystems(Engine.instance.startTime + mockDeltaMillis * 2)
+    executeSystems(mockDeltaMillis * 2)
     assert.strictEqual(entity2, MockSystemState.get(getState(SceneState).sceneEntity)![1])
   })
 
@@ -172,7 +197,7 @@ describe('ECS', () => {
     assert.deepStrictEqual(query.enter(), [])
     assert.deepStrictEqual(query.exit(), [])
 
-    executeSystems(Engine.instance.startTime + mockDeltaMillis)
+    executeSystems(mockDeltaMillis)
     assert.deepStrictEqual(MockSystemState.get(getState(SceneState).sceneEntity)!, [])
   })
 
@@ -184,7 +209,7 @@ describe('ECS', () => {
     addComponent(entity, MockComponent, { mockValue })
 
     removeComponent(entity, MockComponent)
-    executeSystems(Engine.instance.startTime + mockDeltaMillis)
+    executeSystems(mockDeltaMillis)
     assert.deepStrictEqual(state, [])
 
     const newMockValue = 1 + Math.random()
@@ -194,8 +219,8 @@ describe('ECS', () => {
     const component = getComponent(entity, MockComponent)
     assert(component)
     assert.strictEqual(component.mockValue, newMockValue)
-    executeSystems(Engine.instance.startTime + mockDeltaMillis * 2)
-    executeSystems(Engine.instance.startTime + mockDeltaMillis * 3)
+    executeSystems(mockDeltaMillis * 2)
+    executeSystems(mockDeltaMillis * 3)
     assert.strictEqual(entity, state[0])
   })
 
@@ -207,7 +232,7 @@ describe('ECS', () => {
     assert(entities.includes(entity))
     removeEntity(entity)
     assert.ok(!getOptionalComponent(entity, MockComponent))
-    executeSystems(Engine.instance.startTime + mockDeltaMillis)
+    executeSystems(mockDeltaMillis)
     assert.deepStrictEqual(MockSystemState.get(getState(SceneState).sceneEntity)!, [])
     assert.ok(!Engine.instance.entityQuery().includes(entity))
   })
@@ -222,7 +247,7 @@ describe('ECS', () => {
     removeEntity(entity)
     removeEntity(entity)
     removeEntity(entity)
-    executeSystems(Engine.instance.startTime + mockDeltaMillis)
+    executeSystems(mockDeltaMillis)
 
     const entities = Engine.instance.entityQuery()
     assert.equal(entities.length, lengthBefore - 1)

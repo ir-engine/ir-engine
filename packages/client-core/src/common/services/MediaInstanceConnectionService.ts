@@ -1,3 +1,28 @@
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
 import { none } from '@hookstate/core'
 import { useEffect } from 'react'
 
@@ -49,7 +74,8 @@ export const MediaInstanceState = defineState({
   name: 'MediaInstanceState',
   initial: () => ({
     instances: {} as { [id: string]: InstanceState },
-    joiningNonInstanceMediaChannel: false
+    joiningNonInstanceMediaChannel: false,
+    joiningNewMediaChannel: false
   })
 })
 
@@ -93,6 +119,7 @@ export const MediaInstanceConnectionServiceReceptor = (action) => {
     })
     .when(MediaInstanceConnectionAction.serverConnected.matches, (action) => {
       s.joiningNonInstanceMediaChannel.set(false)
+      s.joiningNewMediaChannel.set(false)
       return s.instances[action.instanceId].merge({
         connected: true,
         connecting: false,
@@ -107,7 +134,8 @@ export const MediaInstanceConnectionServiceReceptor = (action) => {
     .when(MediaInstanceConnectionAction.disconnect.matches, (action) => {
       return s.instances[action.instanceId].set(none)
     })
-    .when(MediaInstanceConnectionAction.joiningNonInstanceMediaChannel.matches, (action) => {
+    .when(MediaInstanceConnectionAction.joiningNonInstanceMediaChannel.matches, () => {
+      s.joiningNewMediaChannel.set(true)
       return s.joiningNonInstanceMediaChannel.set(true)
     })
     .when(MediaInstanceConnectionAction.changeActiveConnectionHostId.matches, (action) => {
@@ -118,6 +146,9 @@ export const MediaInstanceConnectionServiceReceptor = (action) => {
       networkState.hostIds.media.set(action.newInstanceId as UserId)
       s.instances.merge({ [action.newInstanceId]: currentNetwork })
       s.instances[action.currentInstanceId].set(none)
+    })
+    .when(MediaInstanceConnectionAction.joiningNewMediaChannel.matches, () => {
+      return s.joiningNewMediaChannel.set(true)
     })
 }
 
@@ -203,6 +234,9 @@ export const MediaInstanceConnectionService = {
         Engine.instance.api.service('instance-provision').off('created', listener)
       }
     }, [])
+  },
+  setJoining: (joining: boolean) => {
+    dispatchAction(MediaInstanceConnectionAction.joiningNewMediaChannel({}))
   }
 }
 
@@ -241,6 +275,10 @@ export class MediaInstanceConnectionAction {
 
   static joiningNonInstanceMediaChannel = defineAction({
     type: 'ee.client.MediaInstanceConnection.JOINING_NON_INSTANCE_MEDIA_CHANNEL' as const
+  })
+
+  static joiningNewMediaChannel = defineAction({
+    type: 'ee.client.MediaInstanceConnection.JOINING_NEW_MEDIA_CHANNEL' as const
   })
 
   static changeActiveConnectionHostId = defineAction({

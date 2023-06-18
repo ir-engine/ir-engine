@@ -1,16 +1,48 @@
-import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
+/*
+CPAL-1.0 License
 
-import { InstanceServerSetting as InstanceServerSettingInterface } from '@etherealengine/common/src/interfaces/InstanceServerSetting'
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
 
-import { Application } from '../../../declarations'
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
 
-export type InstanceServerSettingDataType = InstanceServerSettingInterface
+The Original Code is Ethereal Engine.
 
-export class InstanceServerSetting<T = InstanceServerSettingDataType> extends Service<T> {
-  app: Application
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
 
-  constructor(options: Partial<SequelizeServiceOptions>, app: Application) {
-    super(options)
-    this.app = app
-  }
-}
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
+import type { Params } from '@feathersjs/feathers'
+import { KnexService } from '@feathersjs/knex'
+import type { KnexAdapterParams } from '@feathersjs/knex'
+
+import {
+  InstanceServerSettingData,
+  InstanceServerSettingPatch,
+  InstanceServerSettingQuery,
+  InstanceServerSettingType
+} from '@etherealengine/engine/src/schemas/setting/instance-server-setting.schema'
+
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+export interface InstanceServerSettingParams extends KnexAdapterParams<InstanceServerSettingQuery> {}
+
+export class InstanceServerSettingService<
+  T = InstanceServerSettingType,
+  ServiceParams extends Params = InstanceServerSettingParams
+> extends KnexService<
+  InstanceServerSettingType,
+  InstanceServerSettingData,
+  InstanceServerSettingParams,
+  InstanceServerSettingPatch
+> {}

@@ -1,3 +1,28 @@
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
 import appRootPath from 'app-root-path'
 import * as chargebeeInst from 'chargebee'
 import dotenv from 'dotenv-flow'
@@ -110,6 +135,7 @@ const server = {
   localStorageProviderPort: process.env.LOCAL_STORAGE_PROVIDER_PORT!,
   corsServerPort: process.env.CORS_SERVER_PORT!,
   storageProvider: process.env.STORAGE_PROVIDER!,
+  storageProviderExternalEndpoint: process.env.STORAGE_PROVIDER_EXTERNAL_ENDPOINT!,
   cloneProjectStaticResources:
     typeof process.env.CLONE_STATIC_RESOURCES === 'undefined' ? true : process.env.CLONE_STATIC_RESOURCES === 'true',
   gaTrackingId: process.env.GOOGLE_ANALYTICS_TRACKING_ID!,
@@ -142,8 +168,10 @@ const client = {
   title: process.env.APP_TITLE!,
   get dist() {
     if (process.env.SERVE_CLIENT_FROM_STORAGE_PROVIDER === 'true') {
-      if (process.env.STORAGE_PROVIDER === 'aws' && process.env.STORAGE_CLOUDFRONT_DOMAIN) {
+      if (process.env.STORAGE_PROVIDER === 's3' && process.env.STORAGE_CLOUDFRONT_DOMAIN) {
         return `https://${process.env.STORAGE_CLOUDFRONT_DOMAIN}/client/`
+      } else if (process.env.STORAGE_PROVIDER === 's3' && process.env.STORAGE_S3_DEV_MODE === 'local') {
+        return `${process.env.STORAGE_S3_ENDPOINT}/${process.env.STORAGE_S3_STATIC_RESOURCE_BUCKET}/client/`
       } else if (process.env.STORAGE_PROVIDER === 'local') {
         return `https://${process.env.LOCAL_STORAGE_PROVIDER}/client/`
       }
@@ -162,9 +190,9 @@ const client = {
 // TODO: rename to 'instanceserver'
 const instanceserver = {
   clientHost: process.env.APP_HOST!,
-  rtc_start_port: parseInt(process.env.RTC_START_PORT!),
-  rtc_end_port: parseInt(process.env.RTC_END_PORT!),
-  rtc_port_block_size: parseInt(process.env.RTC_PORT_BLOCK_SIZE!),
+  rtcStartPrt: parseInt(process.env.RTC_START_PORT!),
+  rtcEndPort: parseInt(process.env.RTC_END_PORT!),
+  rtcPortBlockSize: parseInt(process.env.RTC_PORT_BLOCK_SIZE!),
   identifierDigits: 5,
   local: process.env.LOCAL === 'true',
   domain: process.env.INSTANCESERVER_DOMAIN || 'instanceserver.etherealengine.com',
@@ -292,7 +320,6 @@ const aws = {
     }
   },
   s3: {
-    baseUrl: 'https://s3.amazonaws.com',
     endpoint: process.env.STORAGE_S3_ENDPOINT!,
     staticResourceBucket: process.env.STORAGE_S3_STATIC_RESOURCE_BUCKET!,
     region: process.env.STORAGE_S3_REGION!,

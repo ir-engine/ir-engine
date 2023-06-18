@@ -1,3 +1,28 @@
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
 import { createHash } from 'crypto'
 import fs from 'fs'
 import fetch from 'node-fetch'
@@ -5,12 +30,15 @@ import probe from 'probe-image-size'
 import { Op } from 'sequelize'
 import { Readable } from 'stream'
 
-import { Application } from '../../../declarations'
-import config from '../../appconfig'
-import logger from '../../ServerLogger'
-import { uploadMediaStaticResource } from '../static-resource/static-resource-helper'
+import { UploadFile } from '@etherealengine/common/src/interfaces/UploadAssetInterface'
+import { KTX2Loader } from '@etherealengine/engine/src/assets/loaders/gltf/KTX2Loader'
 
-export const imageUpload = async (app: Application, data) => {
+import { Application } from '../../../declarations'
+import logger from '../../ServerLogger'
+import { getResourceFiles } from '../static-resource/static-resource-helper'
+import { addGenericAssetToS3AndStaticResources, UploadAssetArgs } from '../upload-asset/upload-asset.service'
+
+export const imageUpload = async (app: Application, data: UploadAssetArgs) => {
   try {
     let fileHead, contentLength, extension
     if (data.url) {
@@ -22,10 +50,11 @@ export const imageUpload = async (app: Application, data) => {
         fileHead = await fs.statSync(data.url)
         contentLength = fileHead.size.toString()
       }
-      if (!data.name) data.name = data.url.split('/').pop().split('.')[0]
+      if (!data.name) data.name = data.url.split('/').pop()!.split('.')[0]
       extension = data.url.split('.').pop()
-    } else if (data.file) {
-      switch (data.file.mimetype) {
+    } else if (data.files) {
+      const mainFile = data.files[0]!
+      switch (mainFile.mimetype) {
         case 'image/png':
           extension = 'png'
           break
@@ -40,10 +69,11 @@ export const imageUpload = async (app: Application, data) => {
           extension = 'jpg'
           break
       }
-      contentLength = data.file.size.toString()
+      contentLength = mainFile.size.toString()
+      if (!data.name) data.name = mainFile.originalname
     }
-    if (/.LOD0/.test(data.name)) data.name = data.name.replace('.LOD0', '')
-    const hash = createHash('sha3-256').update(contentLength).update(data.name).digest('hex')
+
+    const hash = createHash('sha3-256').update(contentLength).update(data.name!).digest('hex')
     let existingImage, thumbnail
     let existingResource = await app.service('static-resource').Model.findOne({
       where: {
@@ -78,61 +108,77 @@ export const imageUpload = async (app: Application, data) => {
           ]
         }
       })
-    if (!config.server.cloneProjectStaticResources || (existingResource && existingImage))
-      return app.service('image').get(existingImage.id)
-    else {
-      let file, body
-      if (data.url) {
-        if (/http(s)?:\/\//.test(data.url)) {
-          file = await fetch(data.url)
-          body = Buffer.from(await file.arrayBuffer())
-        } else body = fs.readFileSync(data.url)
-      } else if (data.file) {
-        body = data.file.buffer
-      }
-      const stream = new Readable()
-      stream.push(body)
-      stream.push(null)
-      const imageDimensions = await probe(stream)
-      const newImage = await app.service('image').create({
-        width: imageDimensions.width,
-        height: imageDimensions.height
+
+    if (existingResource && existingImage) return app.service('image').get(existingImage.id)
+
+    const files = await getResourceFiles(data, true)
+    const imageDimensions = await getImageStats(files[0], extension)
+    const newImage = await app.service('image').create({
+      width: imageDimensions.width,
+      height: imageDimensions.height
+    })
+    if (!existingResource) {
+      const key = `static-resources/image/${newImage.id}`
+      existingResource = await addGenericAssetToS3AndStaticResources(app, files, extension, {
+        hash: hash,
+        key: key,
+        staticResourceType: 'image',
+        stats: {
+          ...imageDimensions,
+          size: contentLength
+        }
       })
-      if (!existingResource)
-        [existingResource, thumbnail] = await uploadMediaStaticResource(
-          app,
-          {
-            media: body,
-            hash,
-            fileName: data.name,
-            mediaId: newImage.id,
-            mediaFileType: extension,
-            stats: {
-              ...imageDimensions,
-              size: contentLength
-            }
-          },
-          'image'
-        )
-      const update = {} as any
-      if (newImage?.id) {
-        if (extension === 'jpg') extension = 'jpeg'
-        const staticResourceColumn = `${extension}StaticResourceId`
-        update[staticResourceColumn] = existingResource.id
-      }
-      if (thumbnail?.id) update.thumbnail = thumbnail.id
-      try {
-        await app.service('image').patch(newImage.id, update)
-      } catch (err) {
-        logger.error('error updating image with resources')
-        logger.error(err)
-        throw err
-      }
-      return app.service('image').get(newImage.id)
     }
+    const update = {} as any
+    if (newImage?.id) {
+      if (extension === 'jpg') extension = 'jpeg'
+      const staticResourceColumn = `${extension}StaticResourceId`
+      update[staticResourceColumn] = existingResource.id
+    }
+    if (thumbnail?.id) update.thumbnail = thumbnail.id
+    try {
+      await app.service('image').patch(newImage.id, update)
+    } catch (err) {
+      logger.error('error updating image with resources')
+      logger.error(err)
+      throw err
+    }
+    return app.service('image').get(newImage.id)
   } catch (err) {
     logger.error('image upload error')
     logger.error(err)
     throw err
+  }
+}
+
+export const getImageStats = async (file: UploadFile, extension: string) => {
+  if (extension === 'ktx2') {
+    const loader = new KTX2Loader()
+    return new Promise<{ width: number; height: number }>((resolve, reject) => {
+      loader.parse(
+        file.buffer as Buffer,
+        (texture) => {
+          const { width, height } = texture.source.data
+          resolve({
+            width,
+            height
+          })
+        },
+        (err) => {
+          logger.error('error parsing ktx2')
+          logger.error(err)
+          reject(err)
+        }
+      )
+    })
+  } else {
+    const stream = new Readable()
+    stream.push(file.buffer)
+    stream.push(null)
+    const imageDimensions = await probe(stream)
+    return {
+      width: imageDimensions.width as number,
+      height: imageDimensions.height as number
+    }
   }
 }

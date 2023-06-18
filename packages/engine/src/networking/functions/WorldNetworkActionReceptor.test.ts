@@ -1,3 +1,28 @@
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
 import assert from 'assert'
 import { Quaternion, Vector3 } from 'three'
 
@@ -12,11 +37,13 @@ import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { spawnAvatarReceptor } from '../../avatar/functions/spawnAvatarReceptor'
 import { destroyEngine, Engine } from '../../ecs/classes/Engine'
 import { defineQuery, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
+import { SystemDefinitions } from '../../ecs/functions/SystemFunctions'
 import { createEngine } from '../../initializeEngine'
 import { Physics } from '../../physics/classes/Physics'
 import { Network, NetworkTopics } from '../classes/Network'
 import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
 import { NetworkObjectOwnedTag } from '../components/NetworkObjectComponent'
+import { WorldNetworkActionSystem } from '../systems/WorldNetworkActionSystem'
 import { NetworkPeerFunctions } from './NetworkPeerFunctions'
 import { WorldNetworkAction } from './WorldNetworkAction'
 import { WorldNetworkActionReceptor } from './WorldNetworkActionReceptor'
@@ -27,7 +54,7 @@ describe('WorldNetworkActionReceptors', () => {
     createMockNetwork()
     await Physics.load()
     Engine.instance.physicsWorld = Physics.createWorld()
-    Engine.instance.store.defaultDispatchDelay = 0
+    Engine.instance.store.defaultDispatchDelay = () => 0
   })
 
   afterEach(() => {
@@ -43,7 +70,7 @@ describe('WorldNetworkActionReceptors', () => {
 
       Engine.instance.userId = userId
       const network = Engine.instance.worldNetwork as Network
-      network.peerID = peerID
+      Engine.instance.peerID = peerID
 
       NetworkPeerFunctions.createPeer(network, peerID, 0, hostUserId, 0, 'host')
       NetworkPeerFunctions.createPeer(network, peerID2, 1, userId, 1, 'user name')
@@ -57,8 +84,8 @@ describe('WorldNetworkActionReceptors', () => {
           prefab: objPrefab, // generic prefab
           networkId: objNetId,
           $topic: NetworkTopics.world,
-          $peer: network.peerID,
-          uuid: network.peerID as any as EntityUUID
+          $peer: Engine.instance.peerID,
+          uuid: Engine.instance.peerID as any as EntityUUID
         })
       )
 
@@ -85,7 +112,7 @@ describe('WorldNetworkActionReceptors', () => {
       Engine.instance.userId = userId
 
       const network = Engine.instance.worldNetwork as Network
-      network.peerID = peerID2
+      Engine.instance.peerID = peerID2
 
       NetworkPeerFunctions.createPeer(network, peerID, 0, hostId, 0, 'host')
       NetworkPeerFunctions.createPeer(network, peerID2, 1, userId, 1, 'user name')
@@ -99,8 +126,8 @@ describe('WorldNetworkActionReceptors', () => {
           $from: userId, // from  user
           prefab: objPrefab, // generic prefab
           networkId: objNetId,
-          $peer: network.peerID,
-          uuid: network.peerID as any as EntityUUID
+          $peer: Engine.instance.peerID,
+          uuid: Engine.instance.peerID as any as EntityUUID
         })
       )
 
@@ -128,16 +155,12 @@ describe('WorldNetworkActionReceptors', () => {
 
       Engine.instance.userId = userId
       const network = Engine.instance.worldNetwork as Network
-      network.peerID = peerID
+      Engine.instance.peerID = peerID
 
       NetworkPeerFunctions.createPeer(network, peerID, 0, hostUserId, 0, 'world')
       NetworkPeerFunctions.createPeer(network, peerID2, 1, userId, 1, 'user name')
       NetworkPeerFunctions.createPeer(network, peerID3, 2, userId2, 2, 'second user name')
 
-      const objParams = {
-        position: new Vector3(),
-        rotation: new Quaternion()
-      }
       const objNetId = 3 as NetworkId
       const objPrefab = 'avatar'
 
@@ -151,6 +174,8 @@ describe('WorldNetworkActionReceptors', () => {
           uuid: peerID3 as any as EntityUUID
         })
       )
+
+      SystemDefinitions.get(WorldNetworkActionSystem)!.execute()
 
       const networkObjectQuery = defineQuery([NetworkObjectComponent])
       const networkObjectOwnedQuery = defineQuery([NetworkObjectOwnedTag])
@@ -172,7 +197,7 @@ describe('WorldNetworkActionReceptors', () => {
 
       Engine.instance.userId = userId
       const network = Engine.instance.worldNetwork as Network
-      network.peerID = peerID
+      Engine.instance.peerID = peerID
 
       NetworkPeerFunctions.createPeer(network, peerID, 1, userId, 1, 'user name')
 
@@ -204,7 +229,7 @@ describe('WorldNetworkActionReceptors', () => {
 
       Engine.instance.userId = userId
       const network = Engine.instance.worldNetwork as Network
-      network.peerID = peerID
+      Engine.instance.peerID = peerID
 
       NetworkPeerFunctions.createPeer(network, hostPeerId, 0, hostUserId, 0, 'host')
       NetworkPeerFunctions.createPeer(network, peerID, 0, userId, 1, 'user name')
@@ -219,8 +244,8 @@ describe('WorldNetworkActionReceptors', () => {
           prefab: objPrefab,
           networkId: objNetId,
           $topic: NetworkTopics.world,
-          $peer: network.peerID,
-          uuid: network.peerID as any as EntityUUID
+          $peer: Engine.instance.peerID,
+          uuid: Engine.instance.peerID as any as EntityUUID
         })
       )
 
@@ -277,7 +302,7 @@ describe('WorldNetworkActionReceptors', () => {
 
     Engine.instance.userId = userId // user being the action dispatcher
     const network = Engine.instance.worldNetwork as Network
-    network.peerID = peerID
+    Engine.instance.peerID = peerID
 
     NetworkPeerFunctions.createPeer(network, hostPeerId, 0, hostUserId, 0, 'host')
     NetworkPeerFunctions.createPeer(network, peerID, 0, userId, 1, 'user name')
@@ -292,8 +317,8 @@ describe('WorldNetworkActionReceptors', () => {
         prefab: objPrefab, // generic prefab
         networkId: objNetId,
         $topic: NetworkTopics.world,
-        $peer: network.peerID,
-        uuid: network.peerID as any as EntityUUID
+        $peer: Engine.instance.peerID,
+        uuid: Engine.instance.peerID as any as EntityUUID
       })
     )
 

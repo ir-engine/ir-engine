@@ -1,8 +1,34 @@
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
 import { Paginated, Params } from '@feathersjs/feathers'
 import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
 import { Op } from 'sequelize'
 
 import { ModelInterface } from '@etherealengine/common/src/interfaces/ModelInterface'
+import { StaticResourceInterface } from '@etherealengine/common/src/interfaces/StaticResourceInterface'
 
 import { Application } from '../../../declarations'
 import { UserParams } from '../../user/user/user.class'
@@ -15,6 +41,57 @@ export type CreateModelType = {
   src?: string
 }
 
+const addModelAssociations = (app: Application) => {
+  const staticResource = app.service('static-resource').Model
+  const staticResourceVariant = app.service('static-resource-variant').Model
+  return [
+    {
+      model: staticResource,
+      as: 'glbStaticResource',
+      include: [
+        {
+          model: staticResourceVariant,
+          as: 'variants'
+        }
+      ]
+    },
+    {
+      model: staticResource,
+      as: 'gltfStaticResource',
+      include: [
+        {
+          model: staticResourceVariant,
+          as: 'variants'
+        }
+      ]
+    },
+    {
+      model: staticResource,
+      as: 'fbxStaticResource',
+      include: [
+        {
+          model: staticResourceVariant,
+          as: 'variants'
+        }
+      ]
+    },
+    {
+      model: staticResource,
+      as: 'usdzStaticResource',
+      include: [
+        {
+          model: staticResourceVariant,
+          as: 'variants'
+        }
+      ]
+    },
+    {
+      model: app.service('image').Model,
+      as: 'thumbnail'
+    }
+  ]
+}
+
 export class Model extends Service<ModelInterface> {
   app: Application
   public docs: any
@@ -22,6 +99,14 @@ export class Model extends Service<ModelInterface> {
   constructor(options: Partial<SequelizeServiceOptions>, app: Application) {
     super(options)
     this.app = app
+  }
+
+  // gets the static resources from the database, including the variants
+  async get(id: string, params?: Params): Promise<ModelInterface> {
+    return super.Model.findOne({
+      where: { id },
+      include: addModelAssociations(this.app)
+    })
   }
 
   // @ts-ignore
@@ -59,28 +144,7 @@ export class Model extends Service<ModelInterface> {
     const limit = params?.query?.$limit ?? 10
     const skip = params?.query?.$skip ?? 0
     const result = await super.Model.findAndCountAll({
-      include: [
-        {
-          model: this.app.service('static-resource').Model,
-          as: 'glbStaticResource'
-        },
-        {
-          model: this.app.service('static-resource').Model,
-          as: 'gltfStaticResource'
-        },
-        {
-          model: this.app.service('static-resource').Model,
-          as: 'fbxStaticResource'
-        },
-        {
-          model: this.app.service('static-resource').Model,
-          as: 'usdzStaticResource'
-        },
-        {
-          model: this.app.service('image').Model,
-          as: 'thumbnail'
-        }
-      ],
+      include: addModelAssociations(this.app),
       limit: limit,
       offset: skip,
       select: params?.query?.$select,

@@ -1,3 +1,28 @@
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
 import { ReactElement, useEffect } from 'react'
 import React from 'react'
 import { InstancedBufferAttribute, InstancedMesh, Mesh } from 'three'
@@ -5,10 +30,14 @@ import matches from 'ts-matches'
 
 import { createState } from '@etherealengine/hyperflux'
 
-import { Entity } from '../../ecs/classes/Entity'
+import { AssetLoader } from '../../assets/classes/AssetLoader'
+import { GLTF } from '../../assets/loaders/gltf/GLTFLoader'
+import { Entity, UndefinedEntity } from '../../ecs/classes/Entity'
 import { defineComponent, getComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
 import { useEntityContext } from '../../ecs/functions/EntityFunctions'
-import { LODPath } from '../functions/loaders/LODFunctions'
+import { isMobileXRHeadset } from '../../xr/XRState'
+import { LODPath, processLoadedLODLevel, unloadLODLevel } from '../functions/loaders/LODFunctions'
+import getFirstMesh from '../util/getFirstMesh'
 import { UUIDComponent } from './UUIDComponent'
 
 export type LODLevel = {
@@ -16,31 +45,24 @@ export type LODLevel = {
   loaded: boolean
   src: string
   model: Mesh | InstancedMesh | null
-}
-
-export type LODComponentType = {
-  target: Entity
-  lodPath: LODPath
-  instanced: boolean
-  levels: LODLevel[]
-  lodHeuristic: 'DISTANCE' | 'SCENE_SCALE' | 'MANUAL'
-  instanceMatrix: InstancedBufferAttribute
-  instanceLevels: InstancedBufferAttribute
+  metadata: Record<string, any>
 }
 
 export const LODComponent = defineComponent({
   name: 'EE_LOD',
+
   jsonID: 'lod',
-  onInit: (entity) =>
-    ({
-      target: 0,
-      lodPath: '',
-      instanced: false,
-      levels: [] as LODLevel[],
-      lodHeuristic: 'MANUAL',
-      instanceMatrix: new InstancedBufferAttribute(new Float32Array(), 16),
-      instanceLevels: new InstancedBufferAttribute(new Uint8Array(), 1)
-    } as LODComponentType),
+
+  onInit: (entity) => ({
+    target: entity,
+    lodPath: '' as LODPath,
+    instanced: false,
+    levels: [] as LODLevel[],
+    lodHeuristic: 'MANUAL' as 'DISTANCE' | 'SCENE_SCALE' | 'MANUAL' | 'DEVICE',
+    instanceMatrix: new InstancedBufferAttribute(new Float32Array(), 16),
+    instanceLevels: new InstancedBufferAttribute(new Uint8Array(), 1)
+  }),
+
   onSet: (entity, component, json) => {
     if (!json) return
     if (['number', 'string'].includes(typeof json.target)) {
@@ -58,9 +80,7 @@ export const LODComponent = defineComponent({
     }
 
     if (typeof json.lodHeuristic === 'string') component.lodHeuristic.set(json.lodHeuristic)
-
     if (typeof json.lodPath === 'string') component.lodPath.set(json.lodPath)
-
     if (typeof json.instanced === 'boolean') component.instanced.set(json.instanced)
 
     if (
@@ -96,6 +116,7 @@ export const LODComponent = defineComponent({
       }
     }
   },
+
   onRemove: (entity, component) => {
     const targetEntity = component.target.value
     if (targetEntity) {
@@ -106,6 +127,7 @@ export const LODComponent = defineComponent({
       )
     }
   },
+
   toJSON: (entity, component) => ({
     instanced: component.instanced.value,
     target: getComponent(component.target.value, UUIDComponent),
@@ -114,6 +136,7 @@ export const LODComponent = defineComponent({
         distance: level.distance,
         model: null,
         src: level.src,
+        metadata: level.metadata,
         loaded: false
       }
     }),
@@ -122,13 +145,39 @@ export const LODComponent = defineComponent({
     instanceMatrix: Array.from(component.instanceMatrix.value.array),
     instanceLevels: Array.from(component.instanceLevels.value.array)
   }),
+
   reactor: LODReactor,
+
   lodsByEntity: createState({} as Record<Entity, Entity[]>)
 })
 
 function LODReactor(): ReactElement {
   const entity = useEntityContext()
   const lodComponent = useComponent(entity, LODComponent)
+
+  useEffect(() => {
+    if (lodComponent.lodHeuristic.value === 'DEVICE') {
+      const mobileLodIdx = lodComponent.levels.findIndex((level) => level.metadata.value['device'] === 'MOBILE')
+      const mobileLod = lodComponent.levels[mobileLodIdx]
+      const desktopLodIdx = lodComponent.levels.findIndex((level) => level.metadata.value['device'] === 'DESKTOP')
+      const desktopLod = lodComponent.levels[desktopLodIdx]
+      const toLoad = isMobileXRHeadset ? mobileLod : desktopLod
+      const toLoadIdx = isMobileXRHeadset ? mobileLodIdx : desktopLodIdx
+      const toUnload = isMobileXRHeadset ? desktopLod : mobileLod
+      new Promise<void>((resolve) => {
+        toLoad.loaded.value && resolve()
+        AssetLoader.load(toLoad.src.value, {}, (loadedScene: GLTF) => {
+          const mesh = getFirstMesh(loadedScene.scene)
+          mesh && processLoadedLODLevel(entity, toLoadIdx, mesh)
+          toLoad.loaded.set(true)
+          resolve()
+        })
+      }).then(() => {
+        toUnload && unloadLODLevel(toUnload)
+      })
+    }
+  }, [lodComponent.lodHeuristic])
+
   return (
     <>
       {lodComponent.levels.map((level, index) => (
@@ -138,10 +187,12 @@ function LODReactor(): ReactElement {
   )
 }
 
-function LodLevelReactor({ entity, level }: { level: number; entity: Entity }) {
+const LodLevelReactor = React.memo(({ entity, level }: { level: number; entity: Entity }) => {
   const lodComponent = useComponent(entity, LODComponent)
+
   useEffect(() => {
     const levelModel = lodComponent.levels[level].model.value
   }, [lodComponent.levels[level].model])
+
   return null
-}
+})

@@ -1,3 +1,28 @@
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
 import { Collider, ColliderDesc, RigidBody, RigidBodyDesc } from '@dimforge/rapier3d-compat'
 import { AnimationClip, AnimationMixer, Object3D, Quaternion, Vector3 } from 'three'
 
@@ -15,7 +40,11 @@ import {
 } from '../../ecs/functions/ComponentFunctions'
 import { LocalAvatarTagComponent } from '../../input/components/LocalAvatarTagComponent'
 import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
-import { NetworkObjectAuthorityTag } from '../../networking/components/NetworkObjectComponent'
+import { BoundingBoxComponent } from '../../interaction/components/BoundingBoxComponents'
+import {
+  NetworkObjectAuthorityTag,
+  NetworkObjectSendPeriodicUpdatesTag
+} from '../../networking/components/NetworkObjectComponent'
 import { NetworkPeerFunctions } from '../../networking/functions/NetworkPeerFunctions'
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
 import { WorldState } from '../../networking/interfaces/WorldState'
@@ -44,6 +73,9 @@ export const spawnAvatarReceptor = (spawnAction: typeof WorldNetworkAction.spawn
   const userId = spawnAction.uuid
   const primary = ownerId === userId
 
+  const entity = Engine.instance.getNetworkObject(ownerId, spawnAction.networkId)
+  if (!entity) return
+
   if (primary) {
     const existingAvatarEntity = Engine.instance.getUserAvatarEntity(userId)
 
@@ -63,7 +95,6 @@ export const spawnAvatarReceptor = (spawnAction: typeof WorldNetworkAction.spawn
     }
   }
 
-  const entity = Engine.instance.getNetworkObject(ownerId, spawnAction.networkId)!
   const transform = getComponent(entity, TransformComponent)
 
   addComponent(entity, AvatarComponent, {
@@ -114,7 +145,10 @@ export const spawnAvatarReceptor = (spawnAction: typeof WorldNetworkAction.spawn
     createAvatarCollider(entity)
   }
 
+  setComponent(entity, NetworkObjectSendPeriodicUpdatesTag)
+
   setComponent(entity, ShadowComponent)
+  setComponent(entity, BoundingBoxComponent)
 }
 
 export const createAvatarCollider = (entity: Entity): Collider => {

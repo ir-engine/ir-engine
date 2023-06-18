@@ -238,10 +238,14 @@
       "lbl-url": "URL"
     },
     "lod": {
+      "device": "Device",
+      "device-mobile": "Mobile",
+      "device-desktop": "Desktop",
       "heuristic": "Heuristic",
       "heuristic-distance": "Distance",
       "heuristic-sceneScale": "Scene Scale",
       "heuristic-manual": "Manual",
+      "heuristic-device": "Device",
       "distance": "Distance",
       "src": "Source"
     },
@@ -693,7 +697,9 @@
       "viewAssetProperties": "View Properties",
       "refresh": "Refresh",
       "back": "Back",
-      "loadingFiles": "Loading files"
+      "loadingFiles": "Loading files",
+      "compress": "Compress",
+      "convert": "Convert"
     }
   },
   "hierarchy": {

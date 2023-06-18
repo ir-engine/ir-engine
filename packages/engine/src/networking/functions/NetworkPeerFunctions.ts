@@ -1,3 +1,28 @@
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
 import { Validator } from 'ts-matches'
 
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
@@ -8,8 +33,10 @@ import { getState, none } from '@etherealengine/hyperflux/functions/StateFunctio
 
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineActions } from '../../ecs/classes/EngineState'
+import { getComponent } from '../../ecs/functions/ComponentFunctions'
 import { removeEntity } from '../../ecs/functions/EntityFunctions'
 import { Network, NetworkTopics } from '../classes/Network'
+import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
 import { WorldState } from '../interfaces/WorldState'
 import { NetworkState, updateNetwork } from '../NetworkState'
 import { WorldNetworkAction } from './WorldNetworkAction'
@@ -86,11 +113,16 @@ function destroyPeer(network: Network, peerID: PeerID) {
     //   })
     //   .filter((peer) => !!peer)
     // console.log({remainingPeersForDisconnectingUser})
-    if (!network.users.has(userID)) {
-      Engine.instance.store.actions.cached = Engine.instance.store.actions.cached.filter((a) => a.$from !== userID)
-      for (const eid of Engine.instance.getOwnedNetworkObjects(userID)) removeEntity(eid)
-      clearCachedActionsForUser(userID)
-      clearActionsHistoryForUser(userID)
+    if (!network.users.has(userID) && network.isHosting) {
+      // Engine.instance.store.actions.cached = Engine.instance.store.actions.cached.filter((a) => a.$from !== userID)
+      for (const eid of Engine.instance.getOwnedNetworkObjects(userID)) {
+        const networkObject = getComponent(eid, NetworkObjectComponent)
+        if (networkObject) {
+          dispatchAction(WorldNetworkAction.destroyObject({ networkId: networkObject.networkId, $from: userID }))
+        }
+      }
+      // clearCachedActionsForUser(userID)
+      // clearActionsHistoryForUser(userID)
     }
   }
 }
@@ -145,6 +177,7 @@ export const NetworkPeerFunctions = {
   destroyPeer,
   destroyAllPeers,
   clearCachedActionsForUser,
+  clearActionsHistoryForUser,
   clearCachedActionsOfTypeForUser,
   getCachedActionsForUser
 }
