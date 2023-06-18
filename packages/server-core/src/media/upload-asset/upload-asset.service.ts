@@ -44,6 +44,7 @@ import { Application } from '../../../declarations'
 import verifyScope from '../../hooks/verify-scope'
 import logger from '../../ServerLogger'
 import { uploadAvatarStaticResource } from '../../user/avatar/avatar-helper'
+import { getStats } from '../static-resource/static-resource-helper'
 import { getCachedURL } from '../storageprovider/getCachedURL'
 import { getStorageProvider } from '../storageprovider/storageprovider'
 import hooks from './upload-asset.hooks'
@@ -64,7 +65,6 @@ export interface ResourcePatchCreateInterface {
   hash: string
   key: string
   mimeType: string
-  parentStaticResourceId?: string
   url?: string
   project?: string
   userId?: string
@@ -99,7 +99,7 @@ export const getFileMetadata = async (data: { name?: string; file: UploadFile | 
     mimeType = file.mimetype
   }
 
-  const hash = createHash('sha3-256').update(contentLength.toString()).update(assetName).digest('hex')
+  const hash = createHash('sha3-256').update(contentLength.toString()).update(assetName).update(mimeType).digest('hex')
 
   return {
     assetName,
@@ -109,8 +109,8 @@ export const getFileMetadata = async (data: { name?: string; file: UploadFile | 
   }
 }
 
-const uploadVariant = async (file: Buffer, mimeType: string, key: string) => {
-  console.log('uploadVariant', file, mimeType, key)
+const addFileToStorageProvider = async (file: Buffer, mimeType: string, key: string) => {
+  console.log('addFileToStorageProvider', file, mimeType, key)
   const provider = getStorageProvider()
   try {
     await provider.createInvalidation([key])
@@ -151,10 +151,10 @@ export const uploadAsset = async (app: Application, args: UploadAssetArgs) => {
     where: whereQuery
   })) as StaticResourceInterface | null
 
-  if (existingResource) return existingResource
+  if (existingResource) return [existingResource]
 
   const key = `/temp/${hash}`
-  return await addAssetAsStaticResource(app, args.files, {
+  return await addAssetsAsStaticResource(app, args.files, {
     hash: hash,
     path: key,
     project: args.project
@@ -214,88 +214,61 @@ export const createStaticResourceHash = (file: Buffer | string, props: { name?: 
  * - if the asset is coming from an external URL, create a new static resource entry
  * - if the asset is already in the static resource table, update the entry with the new file
  */
-export const addAssetAsStaticResource = async (
+export const addAssetsAsStaticResource = async (
   app: Application,
   files: UploadFile[],
   args: AdminAssetUploadArgumentsType
-): Promise<StaticResourceInterface> => {
-  console.log('addAssetAsStaticResource', files, args)
+): Promise<StaticResourceInterface[]> => {
+  console.log('addAssetsAsStaticResource', files, args)
   const provider = getStorageProvider()
-  // make userId optional and safe for feathers create
-  const primaryKey = processFileName(path.join(args.path, files[0].originalname))
-  const whereArgs = {
-    [Op.or]: [{ key: primaryKey }, { id: args.id ?? '' }]
-  } as any
-  if (args.project) whereArgs.project = args.project
-  const existingAsset = (await app.service('static-resource').Model.findOne({
-    where: whereArgs
-  })) as StaticResourceInterface
 
-  const assetURL = getCachedURL(primaryKey, provider.cacheDomain)
-  const hash = args.hash || createStaticResourceHash(files[0].buffer, { name: args.name, assetURL })
-  const body = {
-    hash,
-    key: primaryKey,
-    mimeType: files[0].mimetype,
-    project: args.project
-  } as ResourcePatchCreateInterface
-  if (args.parentStaticResourceId) body.parentStaticResourceId = args.parentStaticResourceId
+  const resources = await Promise.all(
+    files.map(async (file) => {
+      // make userId optional and safe for feathers create
+      const primaryKey = processFileName(path.join(args.path, file.originalname))
+      const whereArgs = {
+        [Op.or]: [{ key: primaryKey }, { id: args.id ?? '' }]
+      } as any
+      if (args.project) whereArgs.project = args.project
+      const existingAsset = (await app.service('static-resource').Model.findOne({
+        where: whereArgs
+      })) as StaticResourceInterface
 
-  const variants = [] as { url: string; metadata: Record<string, string | number> }[]
-  const promises = [] as Promise<void>[]
-  // upload asset to storage provider
-  for (let i = 0; i < files.length; i++) {
-    const file = files[i]
-    const useKey = path.join(args.path, file.originalname)
-    variants.push({
-      url: getCachedURL(useKey, provider.cacheDomain),
-      metadata: { size: file.size }
+      const stats = await getStats(file.buffer, file.mimetype)
+
+      const assetURL = getCachedURL(primaryKey, provider.cacheDomain)
+      const hash = args.hash || createStaticResourceHash(file.buffer, { name: args.name, assetURL })
+      const body: Partial<StaticResourceInterface> = {
+        hash,
+        url: assetURL,
+        key: primaryKey,
+        mimeType: file.mimetype,
+        project: args.project
+      }
+      if (stats) body.stats = stats
+      // if (args.userId) body.userId = args.userId
+
+      if (typeof file.buffer !== 'string') {
+        await addFileToStorageProvider(file.buffer, file.mimetype, primaryKey)
+      }
+
+      let resourceId = ''
+
+      if (existingAsset) {
+        await app.service('static-resource').patch(existingAsset.id, body, { isInternal: true })
+        resourceId = existingAsset.id
+      } else {
+        const resource = (await app
+          .service('static-resource')
+          .create(body, { isInternal: true })) as StaticResourceInterface
+        resourceId = resource.id
+      }
+
+      return app.service('static-resource').get(resourceId)
     })
-    if (i === 0) {
-      body.url = variants[0].url
-    }
-    if (typeof file.buffer !== 'string') {
-      promises.push(uploadVariant(file.buffer, file.mimetype, useKey))
-    }
-  }
-  await Promise.all(promises)
+  )
 
-  if (existingAsset) {
-    await app.service('static-resource').patch(existingAsset.id, body, { isInternal: true })
-
-    await Promise.all(
-      variants.map((variant, i) =>
-        app.service('static-resource-variant').create(
-          {
-            ...variant,
-            staticResourceId: existingAsset.id
-          },
-          { isInternal: true }
-        )
-      )
-    )
-
-    return app.service('static-resource').get(existingAsset.id)
-  } else {
-    if (args.userId) body.userId = args.userId
-    const staticResource = (await app
-      .service('static-resource')
-      .create(body, { isInternal: true })) as StaticResourceInterface
-
-    await Promise.all(
-      variants.map((variant, i) =>
-        app.service('static-resource-variant').create(
-          {
-            ...variant,
-            staticResourceId: staticResource.id
-          },
-          { isInternal: true }
-        )
-      )
-    )
-
-    return app.service('static-resource').get(staticResource.id)
-  }
+  return resources
 }
 
 export default (app: Application): void => {

@@ -38,7 +38,7 @@ import { downloadResourceAndMetadata } from '../static-resource/static-resource-
 import { getCachedURL } from '../storageprovider/getCachedURL'
 import { getStorageProvider } from '../storageprovider/storageprovider'
 import {
-  addAssetAsStaticResource,
+  addAssetsAsStaticResource,
   createStaticResourceHash,
   getFileMetadata,
   uploadAsset
@@ -97,7 +97,7 @@ describe('upload-asset', () => {
         project: testProject
       } as AdminAssetUploadArgumentsType
 
-      const response = await addAssetAsStaticResource(app, files, args)
+      const [response] = await addAssetsAsStaticResource(app, files, args)
       assert.equal(response.key, 'static-resources/test/test.json')
       assert.equal(response.hash, hash)
       assert.equal(response.mimeType, 'application/json')
@@ -130,7 +130,7 @@ describe('upload-asset', () => {
         project: testProject
       } as AdminAssetUploadArgumentsType
 
-      const response = await addAssetAsStaticResource(app, [files], args)
+      const [response] = await addAssetsAsStaticResource(app, [files], args)
       assert.equal(response.key, 'static-resources/test/default.scene.json')
       assert.equal(response.hash, hash)
       assert.equal(response.mimeType, 'application/json')
@@ -160,7 +160,7 @@ describe('upload-asset', () => {
         project: testProject
       } as AdminAssetUploadArgumentsType
 
-      const response = await addAssetAsStaticResource(app, [files], args)
+      const [response] = await addAssetsAsStaticResource(app, [files], args)
       assert.equal(response.key, 'static-resources/test/default.scene.json')
       assert.equal(response.hash, hash)
       assert.equal(response.mimeType, 'application/json')
@@ -196,7 +196,7 @@ describe('upload-asset', () => {
           name: file.originalname
         })
 
-        const response = await uploadAsset(app, {
+        const [response] = await uploadAsset(app, {
           project: testProject,
           files: [file]
         })
@@ -222,11 +222,11 @@ describe('upload-asset', () => {
           size: buffer.byteLength
         } as UploadFile
 
-        const response = await uploadAsset(app, {
+        const [response] = await uploadAsset(app, {
           project: testProject,
           files: [file]
         })
-        const response2 = await uploadAsset(app, {
+        const [response2] = await uploadAsset(app, {
           project: testProject,
           files: [file]
         })

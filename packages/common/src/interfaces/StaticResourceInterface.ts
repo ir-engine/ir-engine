@@ -39,7 +39,7 @@ export interface StaticResourceInterface {
   licensing?: string
   tags?: string[]
   url: string
-  variants: StaticResourceVariantInterface[]
+  stats?: Record<string, any>
 }
 
 export interface StaticResourceCreateInterface {}

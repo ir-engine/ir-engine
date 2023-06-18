@@ -173,10 +173,12 @@ export const uploadLocalProjectToProvider = async (
       .map((file: string) => {
         return new Promise(async (resolve) => {
           try {
-            const fileResult = fs.readFileSync(file)
+            let fileResult = fs.readFileSync(file)
             if (/.scene.json$/.test(file)) {
               const sceneParsed = JSON.parse(fileResult.toString())
-              const converted = convertStaticResource(app, projectName, sceneParsed)
+              fileResult = Buffer.from(
+                JSON.stringify(await convertStaticResource(app, projectName, sceneParsed), null, 2)
+              )
             }
             const filePathRelative = processFileName(file.slice(projectPath.length))
             await storageProvider.putObject(

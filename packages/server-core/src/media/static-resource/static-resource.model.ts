@@ -80,6 +80,9 @@ export default (app: Application) => {
       },
       tags: {
         type: DataTypes.JSON
+      },
+      stats: {
+        type: DataTypes.JSON
       }
     },
     {
@@ -93,15 +96,6 @@ export default (app: Application) => {
 
   ;(staticResource as any).associate = (models: any): void => {
     ;(staticResource as any).belongsTo(models.user)
-    ;(staticResource as any).hasMany(models.static_resource, {
-      as: 'parent',
-      foreignKey: 'parentResourceId',
-      allowNull: true
-    })
-    ;(staticResource as any).hasMany(models.static_resource_variant, {
-      as: 'variants',
-      allowNull: false
-    })
   }
 
   return staticResource

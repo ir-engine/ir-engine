@@ -47,13 +47,7 @@ export class StaticResource extends Service<StaticResourceInterface> {
   // gets the static resource from the database, including the variants
   async get(id: string, params?: Params): Promise<StaticResourceInterface> {
     return super.Model.findOne({
-      where: { id },
-      include: [
-        {
-          model: this.app.service('static-resource-variant').Model,
-          as: 'variants'
-        }
-      ]
+      where: { id }
     })
   }
 
@@ -89,12 +83,6 @@ export class StaticResource extends Service<StaticResourceInterface> {
           [Op.or]: mimeTypes
         }
       },
-      include: [
-        {
-          model: this.app.service('static-resource-variant').Model,
-          as: 'variants'
-        }
-      ],
       raw: true,
       nest: true
     })

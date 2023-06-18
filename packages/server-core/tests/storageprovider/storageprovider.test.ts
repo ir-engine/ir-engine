@@ -141,7 +141,7 @@ describe('storageprovider', () => {
     })
 
     it(`should put and get same data for glbs in ${provider.constructor.name}`, async function () {
-      const glbTestPath = 'packages/client/public/default_assets/collisioncube.glb'
+      const glbTestPath = 'packages/projects/projects/default_project/assets/collisioncube.glb'
       const filePath = path.join(approot.path, glbTestPath)
       const fileData = fs.readFileSync(filePath)
       const contentType = getContentType(filePath)

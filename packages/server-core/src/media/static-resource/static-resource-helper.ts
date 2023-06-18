@@ -24,6 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import * as ffprobe from '@ffprobe-installer/ffprobe'
+import appRootPath from 'app-root-path'
 import execa from 'execa'
 import fs from 'fs'
 import mp3Duration from 'mp3-duration'
@@ -31,6 +32,7 @@ import path from 'path'
 import probe from 'probe-image-size'
 import { Readable } from 'stream'
 
+import { StaticResourceInterface } from '@etherealengine/common/src/interfaces/StaticResourceInterface'
 import { UploadFile } from '@etherealengine/common/src/interfaces/UploadAssetInterface'
 import multiLogger from '@etherealengine/common/src/logger'
 import { CommonKnownContentTypes } from '@etherealengine/common/src/utils/CommonKnownContentTypes'
@@ -39,7 +41,7 @@ import { KTX2Loader } from '@etherealengine/engine/src/assets/loaders/gltf/KTX2L
 import { Application } from '../../../declarations'
 import config from '../../appconfig'
 import { getStorageProvider } from '../storageprovider/storageprovider'
-import { addAssetAsStaticResource, getFileMetadata } from '../upload-asset/upload-asset.service'
+import { addAssetsAsStaticResource, getFileMetadata } from '../upload-asset/upload-asset.service'
 
 const logger = multiLogger.child('static-resource-helper')
 
@@ -104,57 +106,68 @@ export const downloadResourceAndMetadata = async (
   }
 }
 
+const symbolRe = /__\$project\$__/
+const pathSymbol = '__$project$__'
+
 /**
  * install project
  * if external url and clone static resources, clone to /static-resources/project
  * if external url and not clone static resources, link new static resource
  * if internal url, link new static resource
  */
-export const addAssetFromProject = async (
+export const addAssetsFromProject = async (
   app: Application,
   urls: string[],
   project: string,
   download = config.server.cloneProjectStaticResources
 ) => {
+  console.log('addAssetsFromProject', urls, project, download)
+  const absoluteUrls = urls.map((url) =>
+    url.replace(pathSymbol, path.join(appRootPath.path, '/packages/projects/projects'))
+  )
+
   const storageProvider = getStorageProvider()
-  const mainURL = urls[0]
+  const mainURL = absoluteUrls[0]
   const fromStorageProvider = mainURL.split(path.join(storageProvider.cacheDomain, 'projects/'))
-  const isExternalToProject =
-    !project || fromStorageProvider.length === 1 || project !== fromStorageProvider?.[1]?.split('/')?.[0]
+  const isExternalToProject = fromStorageProvider.length === 1 || project !== fromStorageProvider[1]?.split('/')?.[0]
+  console.log(
+    { fromStorageProvider, isExternalToProject },
+    mainURL,
+    path.join(storageProvider.cacheDomain, 'projects/'),
+    storageProvider.cacheDomain,
+    mainURL
+  )
+
+  console.log(fromStorageProvider.length, project, fromStorageProvider[1]?.split('/')?.[0])
 
   const { hash, mimeType } = await getFileMetadata({ file: mainURL })
+  const key = isExternalToProject ? `static-resources/${project}/` : `projects/${project}/assets/`
 
-  const whereQuery = {
-    hash
-  } as any
-  if (project) whereQuery.project = project
-
-  const existingResource = await app.service('static-resource').Model.findOne({
+  const existingResource = (await app.service('static-resource').Model.findOne({
     where: {
       hash,
       project,
       mimeType
+      // key
     }
-  })
+  })) as StaticResourceInterface
 
-  if (existingResource) return existingResource
+  console.log('existingResource', existingResource, hash, mimeType)
+
+  if (existingResource) return [existingResource]
 
   const files = await Promise.all(
-    urls.map((url) => downloadResourceAndMetadata(url, isExternalToProject ? download : false))
+    absoluteUrls.map((url) => downloadResourceAndMetadata(url, isExternalToProject ? download : false))
   )
-  const stats = await getStats(files[0].buffer, mimeType)
 
-  const key = isExternalToProject ? `static-resources/${project}/` : `projects/${project}/assets/`
-
-  return addAssetAsStaticResource(app, files, {
+  return addAssetsAsStaticResource(app, files, {
     hash: hash,
     path: key,
-    stats,
     project
   })
 }
 
-export const getStats = async (buffer: Buffer | string, mimeType: string) => {
+export const getStats = async (buffer: Buffer | string, mimeType: string): Promise<Record<string, any> | undefined> => {
   switch (mimeType) {
     case 'audio/mpeg':
     case 'audio/mp3':
@@ -178,7 +191,7 @@ export const getStats = async (buffer: Buffer | string, mimeType: string) => {
     case 'model/vox':
       return StatFunctions.volumetric(buffer, mimeType)
     default:
-      return {}
+      return
   }
 }
 

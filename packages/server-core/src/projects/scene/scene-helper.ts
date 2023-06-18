@@ -34,7 +34,7 @@ import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoad
 import { AssetClass } from '@etherealengine/engine/src/assets/enum/AssetClass'
 
 import { Application } from '../../../declarations'
-import { addAssetFromProject } from '../../media/static-resource/static-resource-helper'
+import { addAssetsFromProject } from '../../media/static-resource/static-resource-helper'
 // import { addVolumetricAssetFromProject } from '../../media/volumetric/volumetric-upload.helper'
 import { parseScenePortals } from './scene-parser'
 import { SceneParams } from './scene.service'
@@ -91,65 +91,66 @@ export const getEnvMapBakeById = async (app, entityId: string) => {
 }
 
 export const convertStaticResource = async (app: Application, project: string, sceneData: SceneJson) => {
-  const cacheRe = new RegExp(`${config.client.fileServer}\/projects`)
-  const symbolRe = /__\$project\$__/
-  const pathSymbol = '__$project$__'
-  for (const [, entity] of Object.entries(sceneData!.entities)) {
-    for (const component of entity.components) {
-      let urls = [] as string[]
-      const paths = component.props.paths
-      switch (component.name) {
-        case 'media':
-          let mediaType
-          if (paths && paths.length > 0) {
-            urls = paths
-            delete component.props.paths
-            mediaType = AssetLoader.getAssetClass(urls[0])
+  await Promise.all(
+    Object.values(sceneData!.entities).map(async (entity) => {
+      try {
+        for (const component of entity.components) {
+          let urls = [] as string[]
+          const paths = component.props.paths
+          const resources = component.props.resources
+          switch (component.name) {
+            case 'media':
+              if (paths && paths.length > 0) {
+                urls = paths
+                delete component.props.paths
+              } else if (resources && resources.length > 0 && typeof resources[0]?.path) {
+                urls = resources.map((resource) => resource.path)
+                delete component.props.resources
+              }
+
+              if (entity.components.find((component) => component.name === 'volumetric')) {
+                const extensions = ['drcs', 'mp4', 'manifest']
+                const newUrls = [] as string[]
+                for (const url of urls) {
+                  const split = url.split('.')
+                  const fileName = split.slice(0, split.length - 1).join('.')
+                  for (const extension of extensions) {
+                    newUrls.push(`${fileName}.${extension}`)
+                  }
+                }
+                urls = newUrls
+              }
+              const response = await Promise.all(urls.map(async (url) => addAssetsFromProject(app, [url], project)))
+              const newUrls = response
+                .flat()
+                .map((asset) => asset.url)
+                .filter((url) => url.endsWith('.mp4'))
+              component.props.resources = newUrls
+              console.log(component.props.resources)
+              break
+            case 'gltf-model':
+              const src = (await addAssetsFromProject(app, [component.props.src], project))[0].url
+              component.props.src = src
+              break
+            case 'image':
+              if (paths && paths.length > 0) {
+                urls = paths
+                delete component.props.paths
+              } else if (resources && resources.length > 0 && typeof resources[0]?.path) {
+                urls = resources.map((resource) => resource.path)
+                delete component.props.resources
+              }
+              component.props.resources = JSON.parse(
+                JSON.stringify(await Promise.all(urls.map((url) => addAssetsFromProject(app, [url], project))))
+              )
+              break
           }
-          for (let index in urls)
-            if (symbolRe.test(urls[index]))
-              urls[index] = urls[index].replace(pathSymbol, path.join(appRootPath.path, '/packages/projects/projects'))
-          console.log('urls', urls)
-          // console.log('urls', urls)
-          if (mediaType === AssetClass.Audio)
-            component.props.resources = JSON.parse(
-              JSON.stringify(await Promise.all(urls.map((url) => addAssetFromProject(app, [url], project))))
-            )
-          else if (mediaType === AssetClass.Video)
-            component.props.resources = JSON.parse(
-              JSON.stringify(await Promise.all(urls.map((url) => addAssetFromProject(app, [url], project))))
-            )
-          else if (mediaType === AssetClass.Volumetric)
-            component.props.resources = JSON.parse(
-              JSON.stringify(await Promise.all(urls.map((url) => addAssetFromProject(app, [url], project))))
-            )
-          break
-        // case 'model':
-        //   await uploadModel(this.app, component, projectName)
-        //   break
-        // case 'animation':
-        //   await uploadAnimation(this.app, component, projectName)
-        //   break
-        // case 'material':
-        //   await uploadMaterial(this.app, component, projectName)
-        //   break
-        // case 'script':
-        //   await uploadScript(this.app, component, projectName)
-        //   break
-        // case 'cubemap':
-        //   await uploadCubemap(this.app, component, projectName)
-        //   break
-        case 'image':
-          if (paths && paths.length > 0) {
-            urls = paths
-            delete component.props.paths
-          } else
-            component.props.resources = JSON.parse(
-              JSON.stringify(await Promise.all(urls.map((url) => addAssetFromProject(app, [url], project))))
-            )
-          break
+        }
+      } catch (error) {
+        console.log(error)
       }
-    }
-  }
+    })
+  )
+  // console.log(sceneData)
   return sceneData
 }

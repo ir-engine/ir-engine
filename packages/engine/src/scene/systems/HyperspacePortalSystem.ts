@@ -26,6 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { useEffect } from 'react'
 import { AmbientLight, Color, Quaternion, Vector3 } from 'three'
 
+import config from '@etherealengine/common/src/config'
 import { defineState, getMutableState, getState } from '@etherealengine/hyperflux'
 
 import { AssetLoader } from '../../assets/classes/AssetLoader'
@@ -153,9 +154,11 @@ const reactor = () => {
       transition
     })
 
-    AssetLoader.loadAsync('/hdr/galaxyTexture.jpg').then((texture) => {
-      hyperspaceEffect.texture = texture
-    })
+    AssetLoader.loadAsync(`${config.client.fileServer}/projects/default-project/assets/galaxyTexture.jpg`).then(
+      (texture) => {
+        hyperspaceEffect.texture = texture
+      }
+    )
 
     return () => {
       PortalEffects.delete(HyperspacePortalEffect)
