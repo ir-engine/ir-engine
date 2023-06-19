@@ -12,6 +12,7 @@ import {
   FileBrowserState,
   FILES_PAGE_LIMIT
 } from '@etherealengine/client-core/src/common/services/FileBrowserService'
+import { NotificationService } from '@etherealengine/client-core/src/common/services/NotificationService'
 import { uploadToFeathersService } from '@etherealengine/client-core/src/util/upload'
 import config from '@etherealengine/common/src/config'
 import { processFileName } from '@etherealengine/common/src/utils/processFileName'
@@ -343,7 +344,14 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
 
   const handleDownloadProject = async () => {
     const url = selectedDirectory.value
-    const data = await API.instance.client.service('archiver').get(url)
+    const data = await API.instance.client
+      .service('archiver')
+      .get(url)
+      .catch((err: Error) => {
+        NotificationService.dispatchNotify(err.message, { variant: 'warning' })
+        return null
+      })
+    if (!data) return
     const blob = await (await fetch(`${config.client.fileServer}/${data}`)).blob()
     saveAs(blob, props.selectedFile + '.zip')
   }
