@@ -390,7 +390,15 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
       })
     if (!data) return
     const blob = await (await fetch(`${config.client.fileServer}/${data}`)).blob()
-    saveAs(blob, props.selectedFile + '.zip')
+
+    let fileName = 'download' // default name
+    if (selectedDirectory.value[selectedDirectory.value.length - 1] === '/') {
+      fileName = selectedDirectory.value.split('/').at(-2) as string
+    } else {
+      fileName = selectedDirectory.value.split('/').at(-1) as string
+    }
+
+    saveAs(blob, fileName + '.zip')
   }
 
   return (
