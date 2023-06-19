@@ -39,7 +39,7 @@ import {
 } from '../../common/functions/MatchesUtils'
 import { Engine } from '../../ecs/classes/Engine'
 import { NetworkTopics } from '../classes/Network'
-import { matchesAvatarProps } from '../interfaces/WorldState'
+import { matchesAvatarProps, matchesVehicleProps } from '../interfaces/WorldState'
 
 export class WorldNetworkAction {
   static xrHandsConnected = defineAction({
@@ -140,7 +140,7 @@ export class WorldNetworkAction {
 
   static vehicleDetails = defineAction({
     type: 'xre.world.VEHICLE_DETAILS',
-    vehicleDetail: matchesAvatarProps,
+    vehicleDetail: matchesVehicleProps,
     uuid: matchesUserId,
     $cache: {
       removePrevious: true

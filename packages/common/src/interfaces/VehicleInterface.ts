@@ -23,28 +23,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import matches from 'ts-matches'
+import { StaticResourceInterface } from './StaticResourceInterface'
 
-import { UserId } from '@etherealengine/common/src/interfaces/UserId'
-import { defineState } from '@etherealengine/hyperflux'
-
-export const matchesAvatarProps = matches.shape({
-  avatarURL: matches.string,
-  thumbnailURL: matches.string
-})
-export type AvatarProps = typeof matchesAvatarProps._TYPE
-
-export const matchesVehicleProps = matches.shape({
-  vehicleURL: matches.string,
-  thumbnailURL: matches.string
-})
-export type VehicleProps = typeof matchesVehicleProps._TYPE
-
-export const WorldState = defineState({
-  name: 'WorldState',
-  initial: () => ({
-    /** a history of user names - does not get cleaned up upon a user leaving the world */
-    userNames: {} as Record<UserId, string>,
-    userAvatarDetails: {} as Record<UserId, AvatarProps>
-  })
-})
+export type VehicleInterface = {}

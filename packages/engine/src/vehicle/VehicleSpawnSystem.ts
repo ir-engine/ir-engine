@@ -28,16 +28,13 @@ import { Quaternion, Vector3 } from 'three'
 import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 import { defineActionQueue, getMutableState } from '@etherealengine/hyperflux'
 
-import { isClient } from '../common/functions/getEnvironment'
 import { defineQuery, getComponent, hasComponent } from '../ecs/functions/ComponentFunctions'
 import { defineSystem } from '../ecs/functions/SystemFunctions'
 import { WorldNetworkAction } from '../networking/functions/WorldNetworkAction'
-import { WorldState } from '../networking/interfaces/WorldState'
 import { SpawnPointComponent } from '../scene/components/SpawnPointComponent'
 import { UUIDComponent } from '../scene/components/UUIDComponent'
 import { TransformComponent } from '../transform/components/TransformComponent'
 import { spawnVehicleReceptor } from './functions/spawnVehicleReceptor'
-import { loadVehicleForUser } from './functions/VehicleFunctions'
 
 const randomPositionCentered = (area: Vector3) => {
   return new Vector3((Math.random() - 0.5) * area.x, (Math.random() - 0.5) * area.y, (Math.random() - 0.5) * area.z)
@@ -84,24 +81,12 @@ export function getSpawnPoint(spawnPointNodeId: string, userId: UserId): { posit
   return getRandomSpawnPoint(userId)
 }
 
-export function vehicleDetailsReceptor(action: ReturnType<typeof WorldNetworkAction.vehicleDetails>) {
-  const userVehicleDetails = getMutableState(WorldState).userVehicleDetails
-  userVehicleDetails[action.uuid].set(action.vehicleDetail)
-  if (isClient && action.vehicleDetail.vehicleURL) {
-    const entity = UUIDComponent.entitiesByUUID[action.uuid]
-    loadVehicleForUser(entity, action.vehicleDetail.vehicleURL)
-  }
-}
-
 const spawnPointQuery = defineQuery([SpawnPointComponent, TransformComponent])
 
 const vehicleSpawnQueue = defineActionQueue(WorldNetworkAction.spawnVehicle.matches)
-//const vehicleDetailsQueue = defineActionQueue(WorldNetworkAction.vehicleDetails.matches)
 
 const execute = () => {
   for (const action of vehicleSpawnQueue()) spawnVehicleReceptor(action)
-  //for (const action of vehicleDetailsQueue()) vehicleDetailsReceptor(action)
-
   // Keep a list of spawn points so we can send our user to one
   for (const entity of spawnPointQuery.enter()) {
     if (!hasComponent(entity, TransformComponent)) {
