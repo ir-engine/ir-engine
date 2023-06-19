@@ -39,5 +39,7 @@ export interface BuildStatusParams extends KnexAdapterParams<BuildStatusQuery> {
 
 export class BuildStatusService<
   T = BuildStatusType,
+  //@ts-ignore
   ServiceParams extends Params = BuildStatusParams
+  //@ts-ignore
 > extends KnexService<BuildStatusType, BuildStatusData, BuildStatusParams, BuildStatusPatch> {}
