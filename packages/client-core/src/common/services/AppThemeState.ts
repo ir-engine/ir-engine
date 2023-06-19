@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { getCurrentTheme } from '@etherealengine/common/src/constants/DefaultThemeSettings'
+import { defaultThemeSettings, getCurrentTheme } from '@etherealengine/common/src/constants/DefaultThemeSettings'
 import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
 import { ClientThemeOptionsType } from '@etherealengine/engine/src/schemas/setting/client-setting.schema'
 import { defineAction, defineState, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
@@ -86,4 +86,6 @@ export const getAppTheme = () => {
   const clientSettingState = getState(AdminClientSettingsState)
   const themeSettings = clientSettingState?.client?.[0]?.themeSettings
   if (themeSettings) return themeSettings[theme]
+
+  return defaultThemeSettings[theme]
 }
