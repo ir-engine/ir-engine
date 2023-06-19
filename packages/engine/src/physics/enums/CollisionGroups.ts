@@ -28,15 +28,9 @@ export enum CollisionGroups {
   Default = 1 << 0,
   Avatars = 1 << 1,
   Ground = 1 << 2,
-  Trigger = 1 << 3,
-  Vehicle = 1 << 4
+  Trigger = 1 << 3
 }
 
-export const DefaultCollisionMask =
-  CollisionGroups.Default | CollisionGroups.Avatars | CollisionGroups.Ground | CollisionGroups.Vehicle
+export const DefaultCollisionMask = CollisionGroups.Default | CollisionGroups.Avatars | CollisionGroups.Ground
 
-export const AvatarCollisionMask =
-  CollisionGroups.Default | CollisionGroups.Ground | CollisionGroups.Trigger | CollisionGroups.Vehicle
-
-export const VehicleCollisionMask =
-  CollisionGroups.Default | CollisionGroups.Ground | CollisionGroups.Avatars | CollisionGroups.Vehicle
+export const AvatarCollisionMask = CollisionGroups.Default | CollisionGroups.Ground | CollisionGroups.Trigger

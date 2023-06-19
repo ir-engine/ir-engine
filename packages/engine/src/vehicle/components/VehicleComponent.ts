@@ -32,10 +32,15 @@ export const VehicleComponent = defineComponent({
   name: 'VehicleComponent',
 
   onInit: (entity) => {
-    return {}
+    return {
+      vehicleHeight: 0,
+      vehicleHalfHeight: 0
+    }
   },
 
   onSet: (entity, component, json) => {
     if (!json) return
+    if (matches.number.test(json.vehicleHeight)) component.vehicleHeight.set(json.vehicleHeight)
+    if (matches.number.test(json.vehicleHalfHeight)) component.vehicleHalfHeight.set(json.vehicleHalfHeight)
   }
 })

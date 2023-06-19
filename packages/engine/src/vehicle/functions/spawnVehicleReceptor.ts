@@ -51,7 +51,7 @@ import { WorldState } from '../../networking/interfaces/WorldState'
 import { Physics } from '../../physics/classes/Physics'
 import { CollisionComponent } from '../../physics/components/CollisionComponent'
 import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
-import { CollisionGroups, VehicleCollisionMask } from '../../physics/enums/CollisionGroups'
+import { CollisionGroups, DefaultCollisionMask } from '../../physics/enums/CollisionGroups'
 import { getInteractionGroups } from '../../physics/functions/getInteractionGroups'
 import { NameComponent } from '../../scene/components/NameComponent'
 import { ShadowComponent } from '../../scene/components/ShadowComponent'
@@ -151,7 +151,7 @@ export const spawnVehicleReceptor = (spawnAction: typeof WorldNetworkAction.spaw
 }
 
 export const createVehicleCollider = (entity: Entity): Collider => {
-  const interactionGroups = getInteractionGroups(CollisionGroups.Vehicle, VehicleCollisionMask)
+  const interactionGroups = getInteractionGroups(CollisionGroups.Default, DefaultCollisionMask)
   const vehicleComponent = getComponent(entity, VehicleComponent)
   const rigidBody = getComponent(entity, RigidBodyComponent)
   const transform = getComponent(entity, TransformComponent)
