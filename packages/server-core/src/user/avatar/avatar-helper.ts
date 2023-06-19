@@ -97,6 +97,7 @@ export const installAvatarsFromProject = async (app: Application, avatarsFolder:
             return path.join(avatarsFolder, avatarName, dependencyDirent.name)
           })
         : []
+      console.log(avatarsFolder, path.join(appRootPath.path, 'packages/projects'))
       return {
         avatar: fs.readFileSync(path.join(avatarsFolder, dirent.name)),
         thumbnail,
@@ -167,7 +168,7 @@ export const installAvatarsFromProject = async (app: Application, avatarsFolder:
           avatarFileType: avatar.avatarFileType,
           avatarId: selectedAvatar.id,
           project: projectName,
-          path: avatarsFolder
+          path: avatar.avatarsFolder
         })
       } catch (err) {
         logger.error(err)
