@@ -34,12 +34,6 @@ export const matchesAvatarProps = matches.shape({
 })
 export type AvatarProps = typeof matchesAvatarProps._TYPE
 
-export const matchesVehicleProps = matches.shape({
-  vehicleURL: matches.string,
-  thumbnailURL: matches.string
-})
-export type VehicleProps = typeof matchesVehicleProps._TYPE
-
 export const WorldState = defineState({
   name: 'WorldState',
   initial: () => ({

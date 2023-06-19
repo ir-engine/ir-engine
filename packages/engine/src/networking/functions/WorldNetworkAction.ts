@@ -138,16 +138,6 @@ export class WorldNetworkAction {
     $topic: NetworkTopics.world
   })
 
-  static vehicleDetails = defineAction({
-    type: 'xre.world.VEHICLE_DETAILS',
-    vehicleDetail: matchesVehicleProps,
-    uuid: matchesUserId,
-    $cache: {
-      removePrevious: true
-    },
-    $topic: NetworkTopics.world
-  })
-
   static teleportObject = defineAction({
     type: 'xre.world.TELEPORT_OBJECT',
     object: matches.shape({
