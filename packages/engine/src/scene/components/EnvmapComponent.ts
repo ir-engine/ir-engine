@@ -1,10 +1,15 @@
-import { useEffect } from 'react'
+import { cloneDeep } from 'lodash'
+import { useEffect, useState } from 'react'
 import {
   Color,
+  CubeReflectionMapping,
   CubeTexture,
   DataTexture,
+  EquirectangularReflectionMapping,
   EquirectangularRefractionMapping,
+  LinearFilter,
   Mesh,
+  MeshLambertMaterial,
   MeshMatcapMaterial,
   MeshPhysicalMaterial,
   MeshStandardMaterial,
@@ -13,7 +18,9 @@ import {
   Scene,
   sRGBEncoding,
   Texture,
-  Vector3
+  Vector3,
+  WebGLCubeRenderTarget,
+  WebGLRenderTarget
 } from 'three'
 
 import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
@@ -27,15 +34,20 @@ import {
   defineComponent,
   defineQuery,
   getComponent,
+  getMutableComponent,
   getOptionalComponent,
   removeComponent,
+  setComponent,
   useComponent,
   useOptionalComponent
 } from '../../ecs/functions/ComponentFunctions'
 import { useEntityContext } from '../../ecs/functions/EntityFunctions'
+import { RendererState } from '../../renderer/RendererState'
+import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { isMobileXRHeadset } from '../../xr/XRState'
 import { envmapPhysicalParsReplace, worldposReplace } from '../classes/BPCEMShader'
+import { convertEquiToCubemap } from '../classes/ImageUtils'
 import { EnvMapSourceType, EnvMapTextureType } from '../constants/EnvMapEnum'
 import { getPmremGenerator, loadCubeMapTexture } from '../constants/Util'
 import { addError, removeError } from '../functions/ErrorFunctions'
@@ -168,29 +180,24 @@ export const EnvmapComponent = defineComponent({
           })
       }
     }, [component.type, group?.length, component.envMapSourceURL])
-
     const engineState = useHookstate(getMutableState(EngineState))
     const relativePos = new Vector3()
     useEffect(() => {
-      if (!group?.value?.length) return
+      if (!group?.value?.length || !engineState.sceneLoaded.value) return
       if (component.type.value !== EnvMapSourceType.Default) return
-
       const bakeComponentQuery = defineQuery([EnvMapBakeComponent])
       for (const bakeEntity of bakeComponentQuery()) {
         const bakeComponent = getComponent(bakeEntity, EnvMapBakeComponent)
-
         const transformComponent = getComponent(entity, TransformComponent)
         relativePos.subVectors(transformComponent.position, getComponent(bakeEntity, TransformComponent).position)
-
         if (!isInsideBox(bakeComponent.bakeScale, relativePos) || !bakeComponent.boxProjection) continue
+        setComponent(entity, EnvmapComponent, { envMapSourceURL: bakeComponent.envMapOrigin })
 
-        applyBoxProjection(bakeEntity, group.value)
-        component.envMapSourceURL.set(bakeComponent.envMapOrigin)
         AssetLoader.loadAsync(component.envMapSourceURL.value, {}).then((texture) => {
           if (texture) {
-            const EnvMap = getPmremGenerator().fromEquirectangular(texture).texture
-            EnvMap.encoding = sRGBEncoding
-            applyEnvMap(group.value, EnvMap)
+            texture.mapping = EquirectangularReflectionMapping
+            applyEnvMap(group.value, texture)
+            applyBoxProjection(bakeEntity, group.value)
             removeError(entity, EnvmapComponent, 'MISSING_FILE')
             texture.dispose()
           } else {
@@ -198,7 +205,7 @@ export const EnvmapComponent = defineComponent({
           }
         })
       }
-    }, [component.type, group?.length, engineState.sceneLoaded])
+    }, [group?.length, component.type, engineState.sceneLoaded])
 
     return null
   },
@@ -213,15 +220,14 @@ function applyEnvMap(obj3ds: Object3D[], envmap: Texture | null) {
     if (obj instanceof Scene) {
       obj.environment = envmap
     } else {
-      if (isMobileXRHeadset) return
       obj.traverse((child: Mesh<any, MeshStandardMaterial>) => {
         if (child.material instanceof MeshMatcapMaterial) return
-        if (child.material) child.material.envMap = envmap
+        if (child.material) child.material.envMap = envmap!
       })
 
       if ((obj as Mesh<any, MeshStandardMaterial>).material) {
         if ((obj as Mesh).material instanceof MeshMatcapMaterial) return
-        ;(obj as Mesh<any, MeshStandardMaterial>).material.envMap = envmap
+        ;(obj as Mesh<any, MeshStandardMaterial>).material.envMap = envmap!
       }
     }
   }

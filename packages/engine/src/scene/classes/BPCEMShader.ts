@@ -195,25 +195,112 @@ export const envmapPhysicalParsReplace = `
 #endif
 `
 
-export const beforeMaterialCompile = (bakeScale, bakePositionOffset): PluginType => {
-  return {
-    id: OBCType.BPCEM,
-    priority: 1,
-    compile: function BPCEMonBeforeCompile(shader) {
-      shader.uniforms.cubeMapSize = { value: bakeScale }
-      shader.uniforms.cubeMapPos = { value: bakePositionOffset }
+export const envmapParsReplaceLambert = /* glsl */ `
 
-      //replace shader chunks with box projection chunks
-      shader.vertexShader = 'varying vec3 vWorldPosition;\n' + shader.vertexShader
+	#ifdef USE_ENVMAP
 
-      shader.vertexShader = shader.vertexShader.replace('#include <worldpos_vertex>', worldposReplace)
+	uniform float reflectivity;
 
-      shader.fragmentShader = shader.fragmentShader.replace('#include <envmap_pars_fragment>', envmapParsReplace)
+	#if defined( USE_BUMPMAP ) || defined( USE_NORMALMAP ) || defined( PHONG )
 
-      shader.fragmentShader = shader.fragmentShader.replace(
-        '#include <envmap_physical_pars_fragment>',
-        envmapPhysicalParsReplace
-      )
-    }
-  }
-}
+		#define ENV_WORLDPOS
+
+	#endif
+
+	#ifdef ENV_WORLDPOS
+
+		varying vec3 vWorldPosition;
+		uniform float refractionRatio;
+	#else
+		varying vec3 vReflect;
+	#endif
+  
+  #define BOX_PROJECTED_ENV_MAP
+
+  #ifdef BOX_PROJECTED_ENV_MAP
+
+    uniform vec3 cubeMapSize;
+    uniform vec3 cubeMapPos;
+
+		vec3 parallaxCorrectNormal( vec3 v, vec3 cubeSize, vec3 cubePos ) {
+
+			vec3 nDir = normalize( v );
+			vec3 rbmax = ( .5 * cubeSize + cubePos - vWorldPosition ) / nDir;
+			vec3 rbmin = ( -.5 * cubeSize + cubePos - vWorldPosition ) / nDir;
+
+			vec3 rbminmax;
+			rbminmax.x = ( nDir.x > 0. ) ? rbmax.x : rbmin.x;
+			rbminmax.y = ( nDir.y > 0. ) ? rbmax.y : rbmin.y;
+			rbminmax.z = ( nDir.z > 0. ) ? rbmax.z : rbmin.z;
+
+			float correction = min( min( rbminmax.x, rbminmax.y ), rbminmax.z );
+			vec3 boxIntersection = vWorldPosition + nDir * correction;
+
+			return boxIntersection - cubePos;
+		}
+  #endif
+
+#endif
+`
+
+export const envmapReplaceLambert = /* glsl */ `
+
+#ifdef USE_ENVMAP
+
+	#ifdef ENV_WORLDPOS
+
+		vec3 cameraToFrag;
+
+		if ( isOrthographic ) {
+
+			cameraToFrag = normalize( vec3( - viewMatrix[ 0 ][ 2 ], - viewMatrix[ 1 ][ 2 ], - viewMatrix[ 2 ][ 2 ] ) );
+
+		} else {
+
+			cameraToFrag = normalize( vWorldPosition - cameraPosition );
+
+		}
+
+		// Transforming Normal Vectors with the Inverse Transformation
+		vec3 worldNormal = inverseTransformDirection( normal, viewMatrix );
+
+		#ifdef ENVMAP_MODE_REFLECTION
+
+			vec3 reflectVec = reflect( cameraToFrag, worldNormal );
+
+		#else
+
+			vec3 reflectVec = refract( cameraToFrag, worldNormal, refractionRatio );
+
+		#endif
+
+	#else
+
+		vec3 reflectVec = vReflect;
+
+	#endif
+  
+  #ifdef BOX_PROJECTED_ENV_MAP
+  	reflectVec = parallaxCorrectNormal( reflectVec, cubeMapSize, cubeMapPos );
+  #endif
+
+	#ifdef ENVMAP_TYPE_CUBE
+
+		reflectVec.x *= -1.;
+		vec4 envColor = textureCube( envMap, vec3( flipEnvMap * reflectVec.x, reflectVec.yz ) );
+
+	#elif defined( ENVMAP_TYPE_CUBE_UV )
+
+		vec4 envColor = textureCubeUV( envMap, reflectVec, 1.0 );
+
+	#else
+
+		vec4 envColor = vec4( 0.0 );
+
+	#endif
+
+	outgoingLight += envColor.xyz * specularStrength * reflectivity;
+
+
+#endif
+`

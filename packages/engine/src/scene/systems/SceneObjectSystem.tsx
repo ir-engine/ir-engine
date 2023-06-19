@@ -1,7 +1,8 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import React from 'react'
 import {
   Color,
+  DataTexture,
   DoubleSide,
   Material,
   Mesh,
@@ -9,7 +10,8 @@ import {
   MeshLambertMaterial,
   MeshPhongMaterial,
   MeshPhysicalMaterial,
-  MeshStandardMaterial
+  MeshStandardMaterial,
+  Texture
 } from 'three'
 
 import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
@@ -33,8 +35,11 @@ import { registerMaterial, unregisterMaterial } from '../../renderer/materials/f
 import { RendererState } from '../../renderer/RendererState'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { DistanceFromCameraComponent, FrustumCullCameraComponent } from '../../transform/components/DistanceComponents'
+import { TransformComponent } from '../../transform/components/TransformComponent'
 import { isMobileXRHeadset } from '../../xr/XRState'
 import { CallbackComponent } from '../components/CallbackComponent'
+import { applyBoxProjection, EnvMapBakeComponent } from '../components/EnvMapBakeComponent'
+import { EnvmapComponent } from '../components/EnvmapComponent'
 import { GroupComponent, GroupQueryReactor, Object3DWithEntity } from '../components/GroupComponent'
 import { ShadowComponent } from '../components/ShadowComponent'
 import { UpdatableCallback, UpdatableComponent } from '../components/UpdatableComponent'
@@ -45,23 +50,13 @@ import { ShadowSystem } from './ShadowSystem'
 
 export const ExpensiveMaterials = new Set([MeshPhongMaterial, MeshStandardMaterial, MeshPhysicalMaterial])
 
-/** @todo reimplement BPCEM */
-const applyBPCEM = (material) => {
-  // SceneOptions needs to be replaced with a proper state
-  // if (!material.userData.hasBoxProjectionApplied && SceneOptions.instance.boxProjection) {
-  //   addOBCPlugin(
-  //     material,
-  //     beforeMaterialCompile(
-  //       SceneOptions.instance.bpcemOptions.bakeScale,
-  //       SceneOptions.instance.bpcemOptions.bakePositionOffset
-  //     )
-  //   )
-  //   material.userData.hasBoxProjectionApplied = true
-  // }
-}
-
 export function setupObject(obj: Object3DWithEntity, force = false) {
+  console.log('Setting up')
   const mesh = obj as any as Mesh<any, any>
+  //Lambert shader needs an empty normal map to prevent shader errors
+  const emptyNormal = new Uint8Array(4)
+  emptyNormal[0], (emptyNormal[1] = 128)
+  emptyNormal[2], (emptyNormal[3] = 255)
   mesh.traverse((child: Mesh<any, any>) => {
     if (child.material) {
       if (!child.userData) child.userData = {}
@@ -73,13 +68,15 @@ export function setupObject(obj: Object3DWithEntity, force = false) {
         const prevMaterial = child.material
         const onlyEmmisive = prevMaterial.emissiveMap && !prevMaterial.map
         const prevMatEntry = unregisterMaterial(prevMaterial)
-        const nuMaterial = new MeshLambertMaterial().copy(prevMaterial)
+        const nuMaterial = Object.assign(new MeshLambertMaterial(), prevMaterial) as MeshLambertMaterial
+        //To do, fine tune roughness compensation
+        if (!nuMaterial.normalMap) nuMaterial.normalMap = new DataTexture(emptyNormal, 1, 1)
+        if (prevMaterial.roughnessMap) nuMaterial.specularMap = prevMaterial.specularMap
+        if (onlyEmmisive) nuMaterial.emissiveMap = prevMaterial.emissiveMap
+        else nuMaterial.map = prevMaterial.map
+        nuMaterial.envMap = prevMaterial.envMap
         child.material = nuMaterial
-        child.material.color = onlyEmmisive ? new Color('white') : prevMaterial.color
-        child.material.map = prevMaterial.map ?? prevMaterial.emissiveMap
 
-        // todo: find out why leaving the envMap makes basic & lambert materials transparent here
-        child.material.envMap = null
         child.userData.lastMaterial = prevMaterial
         prevMatEntry && registerMaterial(nuMaterial, prevMatEntry.src)
       }
@@ -90,6 +87,7 @@ export function setupObject(obj: Object3DWithEntity, force = false) {
 
 const groupQuery = defineQuery([GroupComponent])
 const updatableQuery = defineQuery([GroupComponent, UpdatableComponent, CallbackComponent])
+const envmapBakeQuery = defineQuery([EnvMapBakeComponent])
 
 function SceneObjectReactor(props: { entity: Entity; obj: Object3DWithEntity }) {
   const { entity, obj } = props
