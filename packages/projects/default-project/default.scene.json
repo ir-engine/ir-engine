@@ -12,7 +12,7 @@
           "props": {
             "position": {
               "x": 0,
-              "y": 0,
+              "y": 1.6,
               "z": 0
             },
             "rotation": {
@@ -52,9 +52,21 @@
             "envMapOrigin": "__$project$__/default-project/default.envmap.ktx2",
             "boxProjection": true
           }
+        },
+        {
+          "name": "fog",
+          "props": {
+            "type": "linear",
+            "color": "#FFFFFF",
+            "density": 0.005,
+            "near": 1,
+            "far": 1000,
+            "timeScale": 1,
+            "height": 0.05
+          }
         }
       ],
-      "name": "empty_scene"
+      "name": "default"
     },
     "bb362197-f14d-4da7-9c3c-1ed834386423": {
       "components": [

@@ -1,26 +1,51 @@
-import { AnimationMixer, BufferGeometry, Mesh, Object3D } from 'three'
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
+import { AnimationMixer, Mesh, Object3D } from 'three'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 
 import { AnimationComponent } from '../../avatar/components/AnimationComponent'
-import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import {
-  addComponent,
   ComponentJSONIDMap,
   ComponentMap,
   getComponent,
+  hasComponent,
   removeComponent,
   setComponent
 } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
-import { addEntityNodeChild, EntityTreeComponent } from '../../ecs/functions/EntityTree'
+import { addEntityNodeChild } from '../../ecs/functions/EntityTree'
 import { setLocalTransformComponent, TransformComponent } from '../../transform/components/TransformComponent'
 import { computeLocalTransformMatrix, computeTransformMatrix } from '../../transform/systems/TransformSystem'
 import { GLTFLoadedComponent } from '../components/GLTFLoadedComponent'
 import { addObjectToGroup, GroupComponent } from '../components/GroupComponent'
 import { ModelComponent } from '../components/ModelComponent'
 import { NameComponent } from '../components/NameComponent'
+import { SceneObjectComponent } from '../components/SceneObjectComponent'
 import { ObjectLayers } from '../constants/ObjectLayers'
 import { deserializeComponent } from '../systems/SceneLoadingSystem'
 import { setObjectLayers } from './setObjectLayers'
@@ -53,7 +78,7 @@ export const parseECSData = (entity: Entity, data: [string, any][]): void => {
     if (typeof component === 'undefined') {
       console.warn(`Could not load component '${key}'`)
     } else {
-      addComponent(entity, component, value)
+      setComponent(entity, component, value)
       getComponent(entity, GLTFLoadedComponent).push(component)
     }
   }
@@ -99,7 +124,9 @@ export const parseObjectComponentsFromGLTF = (entity: Entity, object3d?: Object3
 
     addEntityNodeChild(e, entity, mesh.uuid as EntityUUID)
 
-    addComponent(e, NameComponent, mesh.userData['xrengine.entity'] ?? mesh.uuid)
+    if (hasComponent(entity, SceneObjectComponent)) setComponent(e, SceneObjectComponent)
+
+    setComponent(e, NameComponent, mesh.userData['xrengine.entity'] ?? mesh.uuid)
 
     delete mesh.userData['xrengine.entity']
     delete mesh.userData.name
@@ -110,7 +137,7 @@ export const parseObjectComponentsFromGLTF = (entity: Entity, object3d?: Object3
     computeTransformMatrix(entity)
 
     addObjectToGroup(e, mesh)
-    addComponent(e, GLTFLoadedComponent, ['entity', GroupComponent.name, TransformComponent.name])
+    setComponent(e, GLTFLoadedComponent, ['entity', GroupComponent.name, TransformComponent.name])
     createObjectEntityFromGLTF(e, mesh)
 
     mesh.visible = false
@@ -132,7 +159,7 @@ export const parseGLTFModel = (entity: Entity) => {
   if (scene.animations?.length) {
     // We only have to update the mixer time for this animations on each frame
     if (getComponent(entity, AnimationComponent)) removeComponent(entity, AnimationComponent)
-    addComponent(entity, AnimationComponent, {
+    setComponent(entity, AnimationComponent, {
       mixer: new AnimationMixer(scene),
       animationSpeed: 1,
       animations: scene.animations

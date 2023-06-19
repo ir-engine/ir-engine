@@ -119,7 +119,7 @@
           "name": "skybox",
           "props": {
             "backgroundColor": 0,
-            "equirectangularPath": "/hdr/city.jpg",
+            "equirectangularPath": "__$project$__/default-project/assets/apartment_skybox.jpg",
             "cubemapPath": "/cubemap/",
             "backgroundType": 2,
             "skyboxProps": {
@@ -343,7 +343,7 @@
             "type": "Texture",
             "envMapTextureType": "Equirectangular",
             "envMapSourceColor": 1193046,
-            "envMapSourceURL": "__$project$__/default-project/apartment.envmap.ktx2",
+            "envMapSourceURL": "__$project$__/default-project/assets/apartment_skybox.jpg",
             "envMapIntensity": 1
           }
         }
