@@ -86,6 +86,7 @@
   },
   "types": "lib/",
   "pre-commit": [
+    "add-license-headers",
     "format-staged"
   ],
   "lint-staged": {
@@ -131,6 +132,7 @@
     "@aws-sdk/client-s3": "^3.319.0",
     "@feathersjs/errors": "5.0.5",
     "@feathersjs/feathers": "5.0.5",
+    "@feathersjs/schema": "5.0.5",
     "@feathersjs/typebox": "5.0.5",
     "app-root-path": "3.1.0",
     "cli": "1.0.1",
