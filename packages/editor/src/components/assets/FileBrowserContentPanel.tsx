@@ -1,7 +1,9 @@
 import { Downgraded } from '@hookstate/core'
 import React, { useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
+import { saveAs } from 'save-as'
 
+import { API } from '@etherealengine/client-core/src/API'
 import ConfirmDialog from '@etherealengine/client-core/src/common/components/ConfirmDialog'
 import LoadingView from '@etherealengine/client-core/src/common/components/LoadingView'
 import {
@@ -11,6 +13,7 @@ import {
   FILES_PAGE_LIMIT
 } from '@etherealengine/client-core/src/common/services/FileBrowserService'
 import { uploadToFeathersService } from '@etherealengine/client-core/src/util/upload'
+import config from '@etherealengine/common/src/config'
 import { processFileName } from '@etherealengine/common/src/utils/processFileName'
 import { KTX2EncodeArguments } from '@etherealengine/engine/src/assets/constants/CompressionParms'
 import { KTX2EncodeDefaultArguments } from '@etherealengine/engine/src/assets/constants/CompressionParms'
@@ -25,6 +28,7 @@ import { addActionReceptor, removeActionReceptor } from '@etherealengine/hyperfl
 
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import AutorenewIcon from '@mui/icons-material/Autorenew'
+import DownloadIcon from '@mui/icons-material/Download'
 import Breadcrumbs from '@mui/material/Breadcrumbs'
 import Dialog from '@mui/material/Dialog'
 import DialogTitle from '@mui/material/DialogTitle'
@@ -337,6 +341,13 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
     selectedDirectory.set(newPath)
   }
 
+  const handleDownloadProject = async () => {
+    const url = selectedDirectory.value
+    const data = await API.instance.client.service('archiver').get(url)
+    const blob = await (await fetch(`${config.client.fileServer}/${data}`)).blob()
+    saveAs(blob, props.selectedFile + '.zip')
+  }
+
   return (
     <div className={styles.fileBrowserRoot}>
       <div style={headGrid}>
@@ -354,12 +365,20 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
         >
           {breadcrumbs}
         </Breadcrumbs>
-        <ToolButton
-          tooltip={t('editor:layout.filebrowser.refresh')}
-          icon={AutorenewIcon}
-          onClick={onRefreshDirectory}
-          id="refreshDir"
-        />
+        <span>
+          <ToolButton
+            tooltip={t('editor:layout.filebrowser.refresh')}
+            icon={AutorenewIcon}
+            onClick={onRefreshDirectory}
+            id="refreshDir"
+          />
+          <ToolButton
+            tooltip={t('admin:components.project.downloadProject')}
+            onClick={handleDownloadProject}
+            icon={DownloadIcon}
+            id="downloadProject"
+          />
+        </span>
       </div>
 
       {retrieving && (
