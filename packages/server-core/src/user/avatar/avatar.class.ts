@@ -69,6 +69,7 @@ export class Avatar extends Service<AvatarInterface> {
     if (params && params.user && params.user.id && params.query?.admin) {
       // todo do we want to use globalAvatars:read/write intead here?
       isAdmin = await checkScope(params?.user, this.app, 'admin', 'admin')
+      delete params.query.admin
     }
 
     if (params?.query?.search != null) {
