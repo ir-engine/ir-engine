@@ -23,6 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import appRootPath from 'app-root-path'
 import fs from 'fs'
 import path from 'path'
 
@@ -102,7 +103,7 @@ export const installAvatarsFromProject = async (app: Application, avatarsFolder:
         avatarName,
         avatarFileType,
         dependencies,
-        avatarsFolder
+        avatarsFolder: avatarsFolder.replace(path.join(appRootPath.path, 'packages/projects'), '')
       }
     })
 
