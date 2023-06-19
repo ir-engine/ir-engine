@@ -29,6 +29,7 @@ import path from 'path'
 import { CommonKnownContentTypes } from '@etherealengine/common/src/utils/CommonKnownContentTypes'
 
 import { Application } from '../../../declarations'
+import { isAssetFromProject } from '../../media/static-resource/static-resource-helper'
 import { getStorageProvider } from '../../media/storageprovider/storageprovider'
 import { addAssetsAsStaticResource } from '../../media/upload-asset/upload-asset.service'
 import { getProjectPackageJson } from '../../projects/project/project-helper'
@@ -60,6 +61,7 @@ export type AvatarUploadArguments = {
   avatarFileType?: string
   avatarId?: string
   project?: string
+  path?: string
 }
 
 // todo: move this somewhere else
@@ -99,7 +101,8 @@ export const installAvatarsFromProject = async (app: Application, avatarsFolder:
         thumbnail,
         avatarName,
         avatarFileType,
-        dependencies
+        dependencies,
+        avatarsFolder
       }
     })
 
@@ -125,6 +128,11 @@ export const installAvatarsFromProject = async (app: Application, avatarsFolder:
       })
     ])
 
+  /**
+   * @todo
+   * - check if avatar already exists by getting avatar with same key & hash in static resources
+   * -
+   */
   await Promise.all(
     avatarsToInstall.map(async (avatar) => {
       try {
@@ -135,6 +143,7 @@ export const installAvatarsFromProject = async (app: Application, avatarsFolder:
             project: projectName || null
           }
         })
+        console.log({ existingAvatar })
         let selectedAvatar
         if (!existingAvatar) {
           selectedAvatar = await app.service('avatar').create({
@@ -149,19 +158,15 @@ export const installAvatarsFromProject = async (app: Application, avatarsFolder:
 
         await uploadDependencies(avatar.dependencies)
 
-        const [modelResource, thumbnailResource] = await uploadAvatarStaticResource(app, {
+        await uploadAvatarStaticResource(app, {
           avatar: avatar.avatar,
           thumbnail: avatar.thumbnail,
           avatarName: avatar.avatarName,
           isPublic: true,
           avatarFileType: avatar.avatarFileType,
           avatarId: selectedAvatar.id,
-          project: projectName
-        })
-
-        await app.service('avatar').patch(selectedAvatar.id, {
-          modelResourceId: modelResource.id,
-          thumbnailResourceId: thumbnailResource.id
+          project: projectName,
+          path: avatarsFolder
         })
       } catch (err) {
         logger.error(err)
@@ -175,9 +180,12 @@ export const uploadAvatarStaticResource = async (
   data: AvatarUploadArguments,
   params?: UserParams
 ) => {
+  console.log('uploadAvatarStaticResource', data)
   const name = data.avatarName ? data.avatarName : 'Avatar-' + Math.round(Math.random() * 100000)
 
-  const key = `static-resources/avatar/${data.isPublic ? 'public' : params?.user!.id}/`
+  const staticResourceKey = `static-resources/avatar/${data.isPublic ? 'public' : params?.user!.id}/`
+  const isFromProject = !!data.project && !!data.path && isAssetFromProject(data.path, data.project)
+  const path = isFromProject ? data.path! : staticResourceKey
 
   // const thumbnail = await generateAvatarThumbnail(data.avatar as Buffer)
   // if (!thumbnail) throw new Error('Thumbnail generation failed - check the model')
@@ -200,7 +208,7 @@ export const uploadAvatarStaticResource = async (
     ],
     {
       userId: params?.user!.id,
-      path: key,
+      path,
       project: data.project
     }
   )

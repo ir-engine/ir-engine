@@ -107,6 +107,21 @@ export const downloadResourceAndMetadata = async (
 }
 
 const pathSymbol = '__$project$__'
+const absoluteProjectPath = path.join(appRootPath.path, '/packages/projects/projects')
+
+export const isAssetFromProject = (url: string, project: string) => {
+  const storageProvider = getStorageProvider()
+  const storageProviderPath = path.join(storageProvider.cacheDomain, 'projects/', project)
+  const isFromProject = url.includes(storageProviderPath) || url.includes(path.join(absoluteProjectPath, project))
+  console.log({
+    isFromProject,
+    mainURL: url,
+    storageProviderPath,
+    absoluteProjectPath
+  })
+
+  return isFromProject
+}
 
 /**
  * install project
@@ -116,25 +131,16 @@ const pathSymbol = '__$project$__'
  */
 export const addAssetsFromProject = async (
   app: Application,
-  urls: string[],
+  urls: string[], // expects all urls to be from the same location, and to be variants of the same asset
   project: string,
   download = config.server.cloneProjectStaticResources
 ) => {
   console.log('addAssetsFromProject', urls, project, download)
 
-  const absolutePath = path.join(appRootPath.path, '/packages/projects/projects')
-  const absoluteUrls = urls.map((url) => url.replace(pathSymbol, absolutePath))
-
-  const storageProvider = getStorageProvider()
-  const storageProviderPath = path.join(storageProvider.cacheDomain, 'projects/', project)
+  const absoluteUrls = urls.map((url) => url.replace(pathSymbol, absoluteProjectPath))
   const mainURL = absoluteUrls[0]
-  const isFromProject = mainURL.includes(storageProviderPath) || mainURL.includes(path.join(absolutePath, project))
-  console.log({
-    isFromProject,
-    mainURL,
-    storageProviderPath,
-    absolutePath
-  })
+
+  const isFromProject = isAssetFromProject(mainURL, project)
 
   const { hash, mimeType } = await getFileMetadata({ file: mainURL })
   const key = isFromProject ? `projects/${project}/assets/` : `static-resources/${project}/`
@@ -144,7 +150,6 @@ export const addAssetsFromProject = async (
       hash,
       project,
       mimeType
-      // key
     }
   })) as StaticResourceInterface
 
