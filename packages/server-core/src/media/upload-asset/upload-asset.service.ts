@@ -110,7 +110,8 @@ export const getFileMetadata = async (data: { name?: string; file: UploadFile | 
 }
 
 const addFileToStorageProvider = async (file: Buffer, mimeType: string, key: string) => {
-  console.log('addFileToStorageProvider', file, mimeType, key)
+  logger.info(`Uploading ${key} to storage provider`)
+  console.log(file, mimeType, key)
   const provider = getStorageProvider()
   try {
     await provider.createInvalidation([key])
@@ -251,6 +252,7 @@ export const addAssetsAsStaticResource = async (
       if (typeof file.buffer !== 'string') {
         await addFileToStorageProvider(file.buffer, file.mimetype, primaryKey)
       }
+      console.log('upload complete', file, body)
 
       let resourceId = ''
 

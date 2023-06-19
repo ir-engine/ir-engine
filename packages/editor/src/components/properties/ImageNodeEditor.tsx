@@ -29,7 +29,6 @@ import { useTranslation } from 'react-i18next'
 import { useComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { getEntityErrors } from '@etherealengine/engine/src/scene/components/ErrorComponent'
 import { ImageComponent } from '@etherealengine/engine/src/scene/components/ImageComponent'
-import { addError, clearErrors } from '@etherealengine/engine/src/scene/functions/ErrorFunctions'
 
 import PhotoSizeSelectActualIcon from '@mui/icons-material/PhotoSizeSelectActual'
 
@@ -53,17 +52,7 @@ export const ImageNodeEditor: EditorComponentType = (props) => {
       description={t('editor:properties.image.description')}
     >
       <InputGroup name="Image Url" label={t('editor:properties.image.lbl-imgURL')}>
-        <ImageInput
-          value={
-            imageComponent.resource?.value?.jpegStaticResource?.url ||
-            imageComponent.resource?.value?.ktx2StaticResource?.url ||
-            imageComponent.resource?.value?.pngStaticResource?.url ||
-            imageComponent.resource?.value?.gifStaticResource?.url ||
-            imageComponent.source?.value ||
-            ''
-          }
-          onChange={updateProperty(ImageComponent, 'source')}
-        />
+        <ImageInput value={imageComponent.source?.value ?? ''} onChange={updateProperty(ImageComponent, 'source')} />
       </InputGroup>
       {errors ? (
         Object.entries(errors).map(([err, message]) => {

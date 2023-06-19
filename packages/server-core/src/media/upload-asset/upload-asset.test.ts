@@ -49,7 +49,9 @@ const testProject = 'test-project'
 describe('upload-asset', () => {
   let app: Application
 
-  beforeEach(async () => {
+  before(async () => {
+    app = createFeathersKoaApp()
+    await app.setup()
     const storageProvider = getStorageProvider()
     const url = getCachedURL('/projects/default-project/default.scene.json', storageProvider.cacheDomain)
     const url2 = getCachedURL('/projects/default-project/assets/SampleAudio.mp3', storageProvider.cacheDomain)
@@ -65,11 +67,9 @@ describe('upload-asset', () => {
         )
       }
     })
-    app = createFeathersKoaApp()
-    await app.setup()
   })
 
-  afterEach(() => {
+  after(() => {
     restoreFetch()
     return destroyEngine()
   })

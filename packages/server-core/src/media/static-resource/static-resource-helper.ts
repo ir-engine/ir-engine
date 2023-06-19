@@ -68,7 +68,7 @@ export const downloadResourceAndMetadata = async (
   url: string,
   download = config.server.cloneProjectStaticResources
 ): Promise<UploadFile> => {
-  console.log('getResourceFiles', url, download)
+  // console.log('getResourceFiles', url, download)
   if (/http(s)?:\/\//.test(url)) {
     // if configured to clone project static resources, we need to fetch the file and upload it
     if (download) {
@@ -113,13 +113,6 @@ export const isAssetFromProject = (url: string, project: string) => {
   const storageProvider = getStorageProvider()
   const storageProviderPath = path.join(storageProvider.cacheDomain, 'projects/', project)
   const isFromProject = url.includes(storageProviderPath) || url.includes(path.join(absoluteProjectPath, project))
-  console.log({
-    isFromProject,
-    mainURL: url,
-    storageProviderPath,
-    absoluteProjectPath
-  })
-
   return isFromProject
 }
 
@@ -135,8 +128,7 @@ export const addAssetsFromProject = async (
   project: string,
   download = config.server.cloneProjectStaticResources
 ) => {
-  console.log('addAssetsFromProject', urls, project, download)
-
+  // console.log('addAssetsFromProject', urls, project, download)
   const absoluteUrls = urls.map((url) => url.replace(pathSymbol, absoluteProjectPath))
   const mainURL = absoluteUrls[0]
 
@@ -152,8 +144,6 @@ export const addAssetsFromProject = async (
       mimeType
     }
   })) as StaticResourceInterface
-
-  console.log('existingResource', existingResource, hash, mimeType)
 
   if (existingResource) return [existingResource]
 

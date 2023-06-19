@@ -95,17 +95,18 @@ export const convertStaticResource = async (app: Application, project: string, s
     Object.values(sceneData!.entities).map(async (entity) => {
       try {
         for (const component of entity.components) {
-          let urls = [] as string[]
-          const paths = component.props.paths
-          const resources = component.props.resources
           switch (component.name) {
-            case 'media':
-              if (paths && paths.length > 0) {
+            case 'media': {
+              let urls = [] as string[]
+              const paths = component.props.paths
+              if (paths) {
                 urls = paths
                 delete component.props.paths
-              } else if (resources && resources.length > 0 && typeof resources[0]?.path) {
-                urls = resources.map((resource) => resource.path)
-                delete component.props.resources
+              }
+              const resources = component.props.resources
+              if (resources && resources.length > 0) {
+                if (typeof resources[0] === 'string') urls = resources
+                else urls = resources.map((resource) => resource.path)
               }
 
               if (entity.components.find((component) => component.name === 'volumetric')) {
@@ -121,18 +122,21 @@ export const convertStaticResource = async (app: Application, project: string, s
                 urls = newUrls
               }
               const response = await Promise.all(urls.map(async (url) => addAssetsFromProject(app, [url], project)))
-              const newUrls = response
-                .flat()
-                .map((asset) => asset.url)
-                .filter((url) => url.endsWith('.mp4'))
+              const newUrls = response.flat().map((asset) => asset.url)
               component.props.resources = newUrls
-              console.log(component.props.resources)
               break
-            case 'gltf-model':
-              const src = (await addAssetsFromProject(app, [component.props.src], project))[0].url
-              component.props.src = src
+            }
+            case 'gltf-model': {
+              if (component.props.src) {
+                const src = (await addAssetsFromProject(app, [component.props.src], project))[0].url
+                component.props.src = src
+              }
               break
-            case 'image':
+            }
+            case 'image': {
+              let urls = [] as string[]
+              const paths = component.props.paths
+              const resources = component.props.resources
               if (paths && paths.length > 0) {
                 urls = paths
                 delete component.props.paths
@@ -140,10 +144,11 @@ export const convertStaticResource = async (app: Application, project: string, s
                 urls = resources.map((resource) => resource.path)
                 delete component.props.resources
               }
-              component.props.resources = JSON.parse(
-                JSON.stringify(await Promise.all(urls.map((url) => addAssetsFromProject(app, [url], project))))
+              component.props.resources = await Promise.all(
+                urls.map((url) => addAssetsFromProject(app, [url], project))
               )
               break
+            }
           }
         }
       } catch (error) {
@@ -151,6 +156,5 @@ export const convertStaticResource = async (app: Application, project: string, s
       }
     })
   )
-  // console.log(sceneData)
   return sceneData
 }

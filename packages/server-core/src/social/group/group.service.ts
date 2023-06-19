@@ -114,7 +114,7 @@ export default (app: Application) => {
     //     query: {
     //       userId: groupUser.userId
     //     }
-    //   }) as any;
+    //   })
     //
     //   if (avatarResult.total > 0) {
     //     groupUser.dataValues.user.dataValues.avatarUrl = avatarResult.data[0].url;

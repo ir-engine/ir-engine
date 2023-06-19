@@ -32,6 +32,7 @@ import {
 } from '@etherealengine/common/src/interfaces/StaticResourceResult'
 import multiLogger from '@etherealengine/common/src/logger'
 import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { defineAction, defineState, dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 
 import { API } from '../../API'
@@ -126,7 +127,7 @@ export const ResourceService = {
   },
   removeResource: async (id: string) => {
     try {
-      await API.instance.client.service('static-resource').remove(id)
+      await Engine.instance.api.service('static-resource').remove(id)
 
       await ResourceService.getResourceFilters()
       dispatchAction(AdminResourceActions.resourceNeedsUpdated({}))
@@ -143,7 +144,7 @@ export const ResourceService = {
     const limit = adminResourceState.limit.value
     const selectedMimeTypes = adminResourceState.selectedMimeTypes.value
 
-    const resources = (await API.instance.client.service('static-resource').find({
+    const resources = await Engine.instance.api.service('static-resource').find({
       query: {
         $sort: {
           ...sortData
@@ -153,11 +154,11 @@ export const ResourceService = {
         search: search,
         mimeTypes: selectedMimeTypes
       }
-    })) as Paginated<StaticResourceInterface>
+    })
     dispatchAction(AdminResourceActions.resourcesFetched({ resources }))
   },
   getResourceFilters: async () => {
-    const filters = (await API.instance.client.service('static-resource-filters').get()) as StaticResourceFilterResult
+    const filters = (await Engine.instance.api.service('static-resource-filters').get()) as StaticResourceFilterResult
     dispatchAction(AdminResourceActions.resourceFiltersFetched({ filters }))
   },
   setSelectedMimeTypes: async (types: string[]) => {

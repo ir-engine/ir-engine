@@ -58,6 +58,7 @@ import { copyFolderRecursiveSync, deleteFolderRecursive, getFilesRecursive } fro
 import { getGitConfigData, getGitHeadData, getGitOrigHeadData } from '../../util/getGitData'
 import { useGit } from '../../util/gitHelperFunctions'
 import { convertStaticResource } from '../scene/scene-helper'
+import { cleanSceneDataCacheURLs } from '../scene/scene-parser'
 import {
   checkAppOrgStatus,
   checkUserOrgWriteStatus,
@@ -175,10 +176,11 @@ export const uploadLocalProjectToProvider = async (
           try {
             let fileResult = fs.readFileSync(file)
             if (/.scene.json$/.test(file)) {
-              const sceneParsed = JSON.parse(fileResult.toString())
-              fileResult = Buffer.from(
-                JSON.stringify(await convertStaticResource(app, projectName, sceneParsed), null, 2)
-              )
+              const sceneData = JSON.parse(fileResult.toString())
+              const convertedSceneData = await convertStaticResource(app, projectName, sceneData)
+              cleanSceneDataCacheURLs(convertedSceneData, cacheDomain)
+              fileResult = Buffer.from(JSON.stringify(convertedSceneData, null, 2))
+              fs.writeFileSync(file, fileResult)
             }
             const filePathRelative = processFileName(file.slice(projectPath.length))
             await storageProvider.putObject(
