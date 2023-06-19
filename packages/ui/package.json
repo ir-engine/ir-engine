@@ -95,6 +95,6 @@
     "stream-browserify": "^3.0.0",
     "ts-jest": "^29.0.5"
   },
-  "license": "MIT",
+  "license": "CPAL",
   "gitHead": "2313453697ca7c6b8d36b3b166b5a6445fe1c851"
 }
