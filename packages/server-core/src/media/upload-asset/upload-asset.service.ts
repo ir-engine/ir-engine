@@ -220,7 +220,7 @@ export const addAssetsAsStaticResource = async (
   files: UploadFile[],
   args: AdminAssetUploadArgumentsType
 ): Promise<StaticResourceInterface[]> => {
-  console.log('addAssetsAsStaticResource', files, args)
+  // console.log('addAssetsAsStaticResource', files, args)
   const provider = getStorageProvider()
 
   const resources = await Promise.all(
@@ -252,7 +252,6 @@ export const addAssetsAsStaticResource = async (
       if (typeof file.buffer !== 'string') {
         await addFileToStorageProvider(file.buffer, file.mimetype, primaryKey)
       }
-      console.log('upload complete', file, body)
 
       let resourceId = ''
 
