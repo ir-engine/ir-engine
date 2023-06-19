@@ -86,6 +86,7 @@
   },
   "types": "lib/",
   "pre-commit": [
+    "add-license-headers",
     "format-staged"
   ],
   "lint-staged": {
