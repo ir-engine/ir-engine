@@ -164,23 +164,23 @@ export const enum KeyboardButton {
  * https://www.w3.org/TR/gamepad/#dfn-standard-gamepad
  */
 export const enum StandardGamepadButton {
-  'RightClusterBottom' = 0,
-  'RightClusterRight' = 1,
-  'RightClusterLeft' = 2,
-  'RightClusterTop' = 3,
-  'TopShoulderLeft' = 4,
-  'TopShoulderRight' = 5,
-  'BottomShoulderLeft' = 6,
-  'BottomShoulderRight' = 7,
-  'CenterClusterLeft' = 8,
-  'CenterClusterRight' = 9,
+  'ButtonA' = 0,
+  'ButtonB' = 1,
+  'ButtonX' = 2,
+  'ButtonY' = 3,
+  'Left1' = 4,
+  'Right1' = 5,
+  'Left2' = 6,
+  'Right2' = 7,
+  'ButtonBack' = 8,
+  'ButtonStart' = 9,
   'LeftStick' = 10,
   'RightStick' = 11,
-  'LeftClusterTop' = 12,
-  'LeftClusterBottom' = 13,
-  'LeftClusterLeft' = 14,
-  'LeftClusterRight' = 15,
-  'CenterClusterCenter' = 16
+  'DPadUp' = 12,
+  'DPadDown' = 13,
+  'DPadLeft' = 14,
+  'DPadRight' = 15,
+  'ButtonHome' = 16
 }
 
 /**
