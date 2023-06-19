@@ -39,7 +39,7 @@ import {
 } from '../../common/functions/MatchesUtils'
 import { Engine } from '../../ecs/classes/Engine'
 import { NetworkTopics } from '../classes/Network'
-import { matchesAvatarProps, matchesVehicleProps } from '../interfaces/WorldState'
+import { matchesAvatarProps } from '../interfaces/WorldState'
 
 export class WorldNetworkAction {
   static xrHandsConnected = defineAction({
