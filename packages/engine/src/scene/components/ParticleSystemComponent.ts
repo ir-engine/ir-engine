@@ -24,7 +24,16 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { useEffect } from 'react'
-import { AdditiveBlending, BufferGeometry, Material, MeshBasicMaterial, Texture, Vector2, Vector3 } from 'three'
+import {
+  AdditiveBlending,
+  BufferGeometry,
+  Material,
+  MeshBasicMaterial,
+  Object3D,
+  Texture,
+  Vector2,
+  Vector3
+} from 'three'
 import { Behavior, BehaviorFromJSON, ParticleSystem, ParticleSystemJSONParameters, RenderMode } from 'three.quarks'
 import matches from 'ts-matches'
 
@@ -752,7 +761,7 @@ export const ParticleSystemComponent = defineComponent({
   },
   onRemove: (entity, component) => {
     if (component.system.value) {
-      removeObjectFromGroup(entity, component.system.value.emitter)
+      removeObjectFromGroup(entity, component.system.value.emitter as unknown as Object3D)
       component.system.get(NO_PROXY)?.dispose()
       component.system.set(none)
     }
@@ -767,13 +776,16 @@ export const ParticleSystemComponent = defineComponent({
     const componentState = useComponent(entity, ParticleSystemComponent)
     const component = componentState.value
     const batchRenderer = getBatchRenderer()!
+
     useEffect(() => {
-      if (component.system && component.system!.emitter.userData['_refresh'] === component._refresh) return
       if (component.system) {
-        removeObjectFromGroup(entity, component.system.emitter)
+        const emitterAsObj3D = component.system.emitter as unknown as Object3D
+        if (emitterAsObj3D.userData['_refresh'] === component._refresh) return
+        removeObjectFromGroup(entity, emitterAsObj3D)
         component.system.dispose()
         componentState.system.set(none)
       }
+
       function initParticleSystem(systemParameters: ParticleSystemJSONParameters, metadata: ParticleSystemMetadata) {
         const nuSystem = ParticleSystem.fromJSON(systemParameters, metadata, {})
         batchRenderer.addSystem(nuSystem)
@@ -784,8 +796,10 @@ export const ParticleSystemComponent = defineComponent({
             return behavior
           })
         )
-        nuSystem.emitter.userData['_refresh'] = component._refresh
-        addObjectToGroup(entity, nuSystem.emitter)
+
+        const emitterAsObj3D = nuSystem.emitter as unknown as Object3D
+        emitterAsObj3D.userData['_refresh'] = component._refresh
+        addObjectToGroup(entity, emitterAsObj3D)
         componentState.system.set(nuSystem)
       }
 
