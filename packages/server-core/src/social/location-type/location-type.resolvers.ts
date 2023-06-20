@@ -23,6 +23,18 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-export interface LocationTypeInterface {
-  type: string
-}
+// For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
+import { resolve } from '@feathersjs/schema'
+
+import { LocationTypeQuery, LocationTypeType } from '@etherealengine/engine/src/schemas/social/location-type.schema'
+import type { HookContext } from '@etherealengine/server-core/declarations'
+
+export const locationTypeResolver = resolve<LocationTypeType, HookContext>({})
+
+export const locationTypeExternalResolver = resolve<LocationTypeType, HookContext>({})
+
+export const locationTypeDataResolver = resolve<LocationTypeType, HookContext>({})
+
+export const locationTypePatchResolver = resolve<LocationTypeType, HookContext>({})
+
+export const locationTypeQueryResolver = resolve<LocationTypeQuery, HookContext>({})

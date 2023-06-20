@@ -30,3 +30,7 @@ export interface LocationSettingsInterface {
   screenSharingEnabled: boolean
   faceStreamingEnabled: boolean
 }
+
+export interface LocationTypeInterface {
+  type: string
+}

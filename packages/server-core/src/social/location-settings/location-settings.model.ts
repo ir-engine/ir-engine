@@ -28,7 +28,7 @@ Ethereal Engine. All Rights Reserved.
 import { DataTypes, Model, Sequelize } from 'sequelize'
 import { HookReturn } from 'sequelize/types/hooks'
 
-import { LocationSettingsInterface } from '@etherealengine/common/src/dbmodels/LocationSettings'
+import { LocationSettingsInterface, LocationTypeInterface } from '@etherealengine/common/src/dbmodels/LocationSettings'
 
 import { Application } from '../../../declarations'
 
@@ -71,8 +71,43 @@ export default (app: Application) => {
 
   ;(LocationSettings as any).associate = function (models: any): void {
     ;(LocationSettings as any).belongsTo(models.location, { required: true, allowNull: false })
-    ;(LocationSettings as any).belongsTo(models.location_type, { foreignKey: 'locationType', defaultValue: 'private' })
+    ;(LocationSettings as any).belongsTo(createLocationTypeModel(app), {
+      foreignKey: 'locationType',
+      defaultValue: 'private'
+    })
   }
 
   return LocationSettings
+}
+const createLocationTypeModel = (app: Application) => {
+  const sequelizeClient: Sequelize = app.get('sequelizeClient')
+  const locationType = sequelizeClient.define<Model<LocationTypeInterface>>(
+    'location-type',
+    {
+      type: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        primaryKey: true,
+        unique: true
+      }
+    },
+    {
+      hooks: {
+        beforeCount(options: any): HookReturn {
+          options.raw = true
+        },
+        beforeUpdate(instance: any, options: any): void {
+          throw new Error("Can't update a type!")
+        }
+      },
+      timestamps: false
+    }
+  )
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  ;(locationType as any).associate = (models: any): void => {
+    ;(locationType as any).hasMany(models.location_settings, { foreignKey: 'locationType' })
+  }
+
+  return locationType
 }

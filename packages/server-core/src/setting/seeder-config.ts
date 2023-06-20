@@ -39,8 +39,6 @@ import * as taskServerSeed from './task-server-setting/task-server-setting.seed'
 
 export const settingSequelizeSeeds: Array<ServicesSeedConfig> = [authenticationSeed]
 
-export default settingSequelizeSeeds
-
 export const settingSeeds: Array<KnexSeed> = [
   clientSeed,
   serverSeed,

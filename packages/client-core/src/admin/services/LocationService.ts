@@ -26,9 +26,9 @@ Ethereal Engine. All Rights Reserved.
 import { Paginated } from '@feathersjs/feathers'
 
 import { Location } from '@etherealengine/common/src/interfaces/Location'
-import { LocationType } from '@etherealengine/common/src/interfaces/LocationType'
 import multiLogger from '@etherealengine/common/src/logger'
 import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
+import { locationTypePath, LocationTypeType } from '@etherealengine/engine/src/schemas/social/location-type.schema'
 import { defineAction, defineState, dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 
 import { API } from '../../API'
@@ -51,7 +51,7 @@ export const AdminLocationState = defineState({
     updateNeeded: true,
     created: false,
     lastFetched: Date.now(),
-    locationTypes: [] as Array<LocationType>
+    locationTypes: [] as Array<LocationTypeType>
   })
 })
 
@@ -102,7 +102,7 @@ export const AdminLocationReceptors = {
 //Service
 export const AdminLocationService = {
   fetchLocationTypes: async () => {
-    const locationTypes = (await API.instance.client.service('location-type').find()) as Paginated<LocationType>
+    const locationTypes = await API.instance.client.service(locationTypePath).find()
     dispatchAction(AdminLocationActions.locationTypesRetrieved({ locationTypes }))
   },
   patchLocation: async (id: string, location: any) => {
@@ -132,7 +132,7 @@ export const AdminLocationService = {
     orderBy = 'asc'
   ) => {
     try {
-      let sortData = {}
+      const sortData = {}
       if (sortField.length > 0) {
         if (sortField === 'tags') {
           sortData['isFeatured'] = orderBy === 'desc' ? 0 : 1
@@ -225,6 +225,6 @@ export class AdminLocationActions {
 
   static locationTypesRetrieved = defineAction({
     type: 'ee.client.AdminLocation.ADMIN_LOCATION_TYPES_RETRIEVED' as const,
-    locationTypes: matches.object as Validator<unknown, Paginated<LocationType>>
+    locationTypes: matches.object as Validator<unknown, Paginated<LocationTypeType>>
   })
 }
