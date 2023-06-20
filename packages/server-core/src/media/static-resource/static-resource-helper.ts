@@ -161,15 +161,17 @@ export const addAssetsFromProject = async (
 
   if (existingResource) return [existingResource]
 
-  const files = await Promise.all(
-    absoluteUrls.map((url) => downloadResourceAndMetadata(url, isFromProject ? false : download))
-  )
+  const forceDownload = isFromProject ? false : download
 
-  return addAssetsAsStaticResource(app, files, {
+  const files = await Promise.all(absoluteUrls.map((url) => downloadResourceAndMetadata(url, forceDownload)))
+
+  const staticResources = await addAssetsAsStaticResource(app, files, {
     hash: hash,
     path: key,
     project
   })
+
+  return forceDownload ? staticResources : urls.map((url) => ({ url }))
 }
 
 export const getStats = async (buffer: Buffer | string, mimeType: string): Promise<Record<string, any>> => {
