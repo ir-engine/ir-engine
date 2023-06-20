@@ -23,18 +23,15 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Static, Type } from '@feathersjs/typebox'
-import appRootPath from 'app-root-path'
-import cli from 'cli'
-import dotenv from 'dotenv-flow'
-import fs from 'fs'
-import knex from 'knex'
+// // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
+import { querySyntax, Type } from '@feathersjs/typebox'
+import type { Static } from '@feathersjs/typebox'
 
-dotenv.config({
-  path: appRootPath.path,
-  silent: true
-})
+export const buildStatusPath = 'build-status'
 
+export const buildStatusMethods = ['find', 'get', 'create', 'patch', 'remove'] as const
+
+// Main data model schema
 export const buildStatusSchema = Type.Object(
   {
     id: Type.String({
@@ -50,41 +47,39 @@ export const buildStatusSchema = Type.Object(
   },
   { $id: 'BuildStatus', additionalProperties: false }
 )
-
 export type BuildStatusType = Static<typeof buildStatusSchema>
-export const buildStatusPath = 'build-status'
 
-cli.enable('status')
-
-cli.main(async () => {
-  try {
-    const knexClient = knex({
-      client: 'mysql',
-      connection: {
-        user: process.env.MYSQL_USER ?? 'server',
-        password: process.env.MYSQL_PASSWORD ?? 'password',
-        host: process.env.MYSQL_HOST ?? '127.0.0.1',
-        port: parseInt(process.env.MYSQL_PORT || '3306'),
-        database: process.env.MYSQL_DATABASE ?? 'etherealengine',
-        charset: 'utf8mb4'
-      }
-    })
-
-    const dateNow = new Date().toISOString().slice(0, 19).replace('T', ' ')
-
-    const builderRun = fs.readFileSync('builder-run.txt').toString()
-    await knexClient
-      .from<BuildStatusType>(buildStatusPath)
-      .where({
-        id: builderRun
-      })
-      .update({
-        status: 'success',
-        dateEnded: dateNow
-      })
-    cli.exit(0)
-  } catch (err) {
-    console.log(err)
-    cli.fatal(err)
+// Schema for creating new entries
+export const buildStatusDataSchema = Type.Pick(
+  buildStatusSchema,
+  ['status', 'dateStarted', 'dateEnded', 'logs', 'commitSHA'],
+  {
+    $id: 'BuildStatusData'
   }
+)
+export type BuildStatusData = Static<typeof buildStatusDataSchema>
+
+// Schema for updating existing entries
+export const buildStatusPatchSchema = Type.Partial(buildStatusSchema, {
+  $id: 'BuildStatusPatch'
 })
+export type BuildStatusPatch = Static<typeof buildStatusPatchSchema>
+
+// Schema for allowed query properties
+export const buildStatusQueryProperties = Type.Pick(buildStatusSchema, [
+  'id',
+  'status',
+  'dateStarted',
+  'dateEnded',
+  'logs',
+  'commitSHA'
+])
+export const buildStatusQuerySchema = Type.Intersect(
+  [
+    querySyntax(buildStatusQueryProperties),
+    // Add additional query properties here
+    Type.Object({}, { additionalProperties: false })
+  ],
+  { additionalProperties: false }
+)
+export type BuildStatusQuery = Static<typeof buildStatusQuerySchema>

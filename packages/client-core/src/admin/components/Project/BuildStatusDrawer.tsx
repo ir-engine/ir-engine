@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { BuildStatus } from '@etherealengine/common/src/interfaces/BuildStatus'
+import { BuildStatusType } from '@etherealengine/engine/src/schemas/cluster/build-status.schema'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import Box from '@etherealengine/ui/src/primitives/mui/Box'
 import Container from '@etherealengine/ui/src/primitives/mui/Container'
@@ -46,20 +46,22 @@ interface Props {
   onClose: () => void
 }
 
-const defaultBuildStatus = {
-  id: 0,
+const defaultBuildStatus: BuildStatusType = {
+  id: '',
   commitSHA: '',
   status: '',
   dateStarted: '',
   dateEnded: '',
-  logs: ''
+  logs: '',
+  createdAt: '',
+  updatedAt: ''
 }
 
 const BuildStatusDrawer = ({ open, onClose }: Props) => {
   const { t } = useTranslation()
   const page = useHookstate(0)
   const rowsPerPage = useHookstate(10)
-  const selectedStatusId = useHookstate(0)
+  const selectedStatusId = useHookstate('')
   const logsModalOpen = useHookstate(false)
 
   const fieldOrder = useHookstate('desc')
@@ -68,7 +70,7 @@ const BuildStatusDrawer = ({ open, onClose }: Props) => {
   const buildStatusState = useHookstate(getMutableState(AdminBuildStatusState))
   const buildStatuses = buildStatusState.buildStatuses.value
 
-  const handleOpenLogsModal = (buildStatus: BuildStatus) => {
+  const handleOpenLogsModal = (buildStatus: BuildStatusType) => {
     selectedStatusId.set(buildStatus.id)
     logsModalOpen.set(true)
   }
@@ -79,9 +81,9 @@ const BuildStatusDrawer = ({ open, onClose }: Props) => {
 
   const handleCloseLogsModal = () => {
     logsModalOpen.set(false)
-    selectedStatusId.set(0)
+    selectedStatusId.set('')
   }
-  const createData = (el: BuildStatus) => {
+  const createData = (el: BuildStatusType) => {
     return {
       el,
       id: (
