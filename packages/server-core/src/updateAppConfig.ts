@@ -1,3 +1,28 @@
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
 import dotenv from 'dotenv'
 import knex from 'knex'
 import { DataTypes, Sequelize } from 'sequelize'
@@ -7,11 +32,19 @@ import {
   chargebeeSettingPath,
   ChargebeeSettingType
 } from '@etherealengine/engine/src/schemas/setting/chargebee-setting.schema'
+import {
+  ClientSettingDatabaseType,
+  clientSettingPath
+} from '@etherealengine/engine/src/schemas/setting/client-setting.schema'
 import { coilSettingPath, CoilSettingType } from '@etherealengine/engine/src/schemas/setting/coil-setting.schema'
 import {
   EmailSettingDatabaseType,
   emailSettingPath
 } from '@etherealengine/engine/src/schemas/setting/email-setting.schema'
+import {
+  instanceServerSettingPath,
+  InstanceServerSettingType
+} from '@etherealengine/engine/src/schemas/setting/instance-server-setting.schema'
 import { redisSettingPath, RedisSettingType } from '@etherealengine/engine/src/schemas/setting/redis-setting.schema'
 import {
   ServerSettingDatabaseType,
@@ -25,6 +58,7 @@ import {
 import appConfig from './appconfig'
 import logger from './ServerLogger'
 import { awsDbToSchema } from './setting/aws-setting/aws-setting.resolvers'
+import { clientDbToSchema } from './setting/client-setting/client-setting.resolvers'
 import { emailDbToSchema } from './setting/email-setting/email-setting.resolvers'
 import { serverDbToSchema } from './setting/server-setting/server-setting.resolvers'
 
@@ -219,58 +253,11 @@ export const updateAppConfig = async (): Promise<void> => {
     })
   promises.push(coilSettingPromise)
 
-  const clientSetting = sequelizeClient.define('clientSetting', {
-    logo: {
-      type: DataTypes.STRING,
-      allowNull: true
-    },
-    title: {
-      type: DataTypes.STRING,
-      allowNull: true
-    },
-    url: {
-      type: DataTypes.STRING,
-      allowNull: true
-    },
-    releaseName: {
-      type: DataTypes.STRING,
-      allowNull: true
-    },
-    siteDescription: {
-      type: DataTypes.STRING,
-      allowNull: true
-    },
-    favicon32px: {
-      type: DataTypes.STRING,
-      allowNull: true
-    },
-    favicon16px: {
-      type: DataTypes.STRING,
-      allowNull: true
-    },
-    icon192px: {
-      type: DataTypes.STRING,
-      allowNull: true
-    },
-    icon512px: {
-      type: DataTypes.STRING,
-      allowNull: true
-    }
-  })
-  const clientSettingPromise = clientSetting
-    .findAll()
+  const clientSettingPromise = knexClient
+    .select()
+    .from<ClientSettingDatabaseType>(clientSettingPath)
     .then(([dbClient]) => {
-      const dbClientConfig = dbClient && {
-        logo: dbClient.logo,
-        title: dbClient.title,
-        url: dbClient.url,
-        releaseName: dbClient.releaseName,
-        siteDescription: dbClient.siteDescription,
-        favicon32px: dbClient.favicon32px,
-        favicon16px: dbClient.favicon16px,
-        icon192px: dbClient.icon192px,
-        icon512px: dbClient.icon512px
-      }
+      const dbClientConfig = clientDbToSchema(dbClient)
       if (dbClientConfig) {
         appConfig.client = {
           ...appConfig.client,
@@ -300,66 +287,14 @@ export const updateAppConfig = async (): Promise<void> => {
     })
   promises.push(emailSettingPromise)
 
-  const instanceServerSetting = sequelizeClient.define('instanceServerSetting', {
-    clientHost: {
-      type: DataTypes.STRING,
-      allowNull: true
-    },
-    rtc_start_port: {
-      type: DataTypes.INTEGER,
-      allowNull: true
-    },
-    rtc_end_port: {
-      type: DataTypes.INTEGER,
-      allowNull: true
-    },
-    rtc_port_block_size: {
-      type: DataTypes.INTEGER,
-      allowNull: true
-    },
-    identifierDigits: {
-      type: DataTypes.INTEGER,
-      allowNull: true
-    },
-    domain: {
-      type: DataTypes.STRING,
-      allowNull: true
-    },
-    releaseName: {
-      type: DataTypes.STRING,
-      allowNull: true
-    },
-    port: {
-      type: DataTypes.STRING,
-      allowNull: true
-    },
-    mode: {
-      type: DataTypes.STRING,
-      allowNull: true
-    },
-    locationName: {
-      type: DataTypes.STRING
-    }
-  })
-  const instanceServerSettingPromise = instanceServerSetting
-    .findAll()
+  const instanceServerSettingPromise = knexClient
+    .select()
+    .from<InstanceServerSettingType>(instanceServerSettingPath)
     .then(([dbInstanceServer]) => {
-      const dbInstanceServerConfig = dbInstanceServer && {
-        clientHost: dbInstanceServer.clientHost,
-        rtc_start_port: dbInstanceServer.rtc_start_port,
-        rtc_end_port: dbInstanceServer.rtc_end_port,
-        rtc_port_block_size: dbInstanceServer.rtc_port_block_size,
-        identifierDigits: dbInstanceServer.identifierDigits,
-        domain: dbInstanceServer.domain,
-        releaseName: dbInstanceServer.releaseName,
-        port: dbInstanceServer.port,
-        mode: dbInstanceServer.mode,
-        locationName: dbInstanceServer.locationName
-      }
-      if (dbInstanceServerConfig) {
+      if (dbInstanceServer) {
         appConfig.instanceserver = {
           ...appConfig.instanceserver,
-          ...dbInstanceServerConfig
+          ...dbInstanceServer
         }
       }
     })

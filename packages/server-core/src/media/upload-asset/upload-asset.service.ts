@@ -1,7 +1,33 @@
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
 import { Params } from '@feathersjs/feathers'
 import { bodyParser, koa } from '@feathersjs/koa'
 import Multer from '@koa/multer'
 import { createHash } from 'crypto'
+import path from 'path'
 import { Op } from 'sequelize'
 import { MathUtils } from 'three'
 
@@ -145,7 +171,7 @@ export const addGenericAssetToS3AndStaticResources = async (
   // make userId optional and safe for feathers create
   const key = processFileName(args.key)
   const whereArgs = {
-    [Op.or]: [{ key: key + '/' + files[0].originalname }, { id: args.id ?? '' }]
+    [Op.or]: [{ key: path.join(key, files[0].originalname) }, { id: args.id ?? '' }]
   } as any
   if (args.project) whereArgs.project = args.project
   const existingAsset = (await app.service('static-resource').Model.findOne({
@@ -154,7 +180,7 @@ export const addGenericAssetToS3AndStaticResources = async (
 
   const mimeType = CommonKnownContentTypes[extension] as string
 
-  const assetURL = getCachedURL(key + '/' + files[0].originalname, provider.cacheDomain)
+  const assetURL = getCachedURL(path.join(key, files[0].originalname), provider.cacheDomain)
   const hash = args.hash || createStaticResourceHash(files[0].buffer, { name: args.name, assetURL })
   const body = {
     hash,
@@ -168,7 +194,7 @@ export const addGenericAssetToS3AndStaticResources = async (
   // upload asset to storage provider
   for (let i = 0; i < files.length; i++) {
     const file = files[i]
-    const useKey = key + '/' + file.originalname
+    const useKey = path.join(key, file.originalname)
     variants.push({
       url: getCachedURL(useKey, provider.cacheDomain),
       metadata: { size: file.size }
