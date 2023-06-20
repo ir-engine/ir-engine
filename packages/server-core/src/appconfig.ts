@@ -1,3 +1,28 @@
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
 import appRootPath from 'app-root-path'
 import * as chargebeeInst from 'chargebee'
 import dotenv from 'dotenv-flow'
@@ -165,9 +190,9 @@ const client = {
 // TODO: rename to 'instanceserver'
 const instanceserver = {
   clientHost: process.env.APP_HOST!,
-  rtc_start_port: parseInt(process.env.RTC_START_PORT!),
-  rtc_end_port: parseInt(process.env.RTC_END_PORT!),
-  rtc_port_block_size: parseInt(process.env.RTC_PORT_BLOCK_SIZE!),
+  rtcStartPrt: parseInt(process.env.RTC_START_PORT!),
+  rtcEndPort: parseInt(process.env.RTC_END_PORT!),
+  rtcPortBlockSize: parseInt(process.env.RTC_PORT_BLOCK_SIZE!),
   identifierDigits: 5,
   local: process.env.LOCAL === 'true',
   domain: process.env.INSTANCESERVER_DOMAIN || 'instanceserver.etherealengine.com',
@@ -283,10 +308,6 @@ const authentication = {
  * AWS
  */
 const aws = {
-  keys: {
-    accessKeyId: process.env.STORAGE_AWS_ACCESS_KEY_ID!,
-    secretAccessKey: process.env.STORAGE_AWS_ACCESS_KEY_SECRET!
-  },
   route53: {
     hostedZoneId: process.env.ROUTE53_HOSTED_ZONE_ID!,
     keys: {
@@ -295,6 +316,8 @@ const aws = {
     }
   },
   s3: {
+    accessKeyId: process.env.STORAGE_AWS_ACCESS_KEY_ID!,
+    secretAccessKey: process.env.STORAGE_AWS_ACCESS_KEY_SECRET!,
     endpoint: process.env.STORAGE_S3_ENDPOINT!,
     staticResourceBucket: process.env.STORAGE_S3_STATIC_RESOURCE_BUCKET!,
     region: process.env.STORAGE_S3_REGION!,
@@ -305,6 +328,10 @@ const aws = {
     domain: process.env.STORAGE_CLOUDFRONT_DOMAIN!,
     distributionId: process.env.STORAGE_CLOUDFRONT_DISTRIBUTION_ID!,
     region: process.env.STORAGE_CLOUDFRONT_REGION || process.env.STORAGE_S3_REGION
+  },
+  eks: {
+    accessKeyId: process.env.EKS_AWS_ACCESS_KEY!,
+    secretAccessKey: process.env.EKS_AWS_SECRET!
   },
   sms: {
     accessKeyId: process.env.AWS_SMS_ACCESS_KEY_ID!,
