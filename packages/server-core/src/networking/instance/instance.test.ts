@@ -30,6 +30,7 @@ import { v1 } from 'uuid'
 import { Instance } from '@etherealengine/common/src/interfaces/Instance'
 import { Location } from '@etherealengine/common/src/interfaces/Location'
 import { destroyEngine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { locationSettingPath } from '@etherealengine/engine/src/schemas/social/location-setting.schema'
 
 import { Application } from '../../../declarations'
 import { createFeathersKoaApp } from '../../createApp'
@@ -55,16 +56,27 @@ describe('instance.test', () => {
     const name = `Test Location ${v1()}`
     const sceneId = `test-scene-${v1()}`
 
-    const location_settings = await app.service('location-settings').create({})
+    const locationSetting = await app.service(locationSettingPath).create({
+      locationType: 'public',
+      audioEnabled: true,
+      videoEnabled: true,
+      faceStreamingEnabled: false,
+      screenSharingEnabled: false,
+      locationId: ''
+    })
 
     testLocation = await app.service('location').create(
       {
         name,
         sceneId,
-        location_settings
+        locationSetting
       },
       params
     )
+
+    await app.service(locationSettingPath).patch(locationSetting.id, {
+      locationId: testLocation.id
+    })
   })
 
   it('should create an instance', async () => {

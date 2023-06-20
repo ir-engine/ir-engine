@@ -32,3 +32,15 @@ export interface LocationInterface {
   isFeatured: boolean
   maxUsersPerInstance: number
 }
+
+export interface LocationSettingInterface {
+  id: string
+  videoEnabled: boolean
+  audioEnabled: boolean
+  screenSharingEnabled: boolean
+  faceStreamingEnabled: boolean
+}
+
+export interface LocationTypeInterface {
+  type: string
+}

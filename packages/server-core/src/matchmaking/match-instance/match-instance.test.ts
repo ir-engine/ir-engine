@@ -54,7 +54,7 @@ describe.skip('matchmaking match-instance service', () => {
   const gameMode = 'test-private-test'
   const tier = 'bronze'
 
-  const commonLocationSettings = {
+  const commonlocationSetting = {
     locationType: 'public',
     videoEnabled: false,
     audioEnabled: false
@@ -99,7 +99,7 @@ describe.skip('matchmaking match-instance service', () => {
         slugifiedName: `game-${gameMode}`,
         maxUsersPerInstance: 30,
         sceneId: `test/game-${gameMode}`,
-        location_settings: commonLocationSettings as any,
+        locationSetting: commonlocationSetting,
         isLobby: false,
         isFeatured: false
       } as any,

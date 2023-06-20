@@ -23,25 +23,21 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-/**
- * An object for swagger documentation configuration
- */
-export default {
-  definitions: {
-    'location-settings': {
-      type: 'object',
-      properties: {
-        videoEnabled: {
-          type: 'boolean'
-        },
-        audioEnabled: {
-          type: 'boolean'
-        }
-      }
-    },
-    'location-settings_list': {
-      type: 'array',
-      items: { $ref: '#/definitions/location-settings' }
-    }
-  }
-}
+import type { Params } from '@feathersjs/feathers'
+import { KnexService } from '@feathersjs/knex'
+import type { KnexAdapterParams } from '@feathersjs/knex'
+
+import {
+  LocationSettingData,
+  LocationSettingPatch,
+  LocationSettingQuery,
+  LocationSettingType
+} from '@etherealengine/engine/src/schemas/social/location-setting.schema'
+
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+export interface LocationSettingParams extends KnexAdapterParams<LocationSettingQuery> {}
+
+export class LocationSettingService<
+  T = LocationSettingType,
+  ServiceParams extends Params = LocationSettingParams
+> extends KnexService<LocationSettingType, LocationSettingData, LocationSettingParams, LocationSettingPatch> {}

@@ -82,8 +82,7 @@ export const LocationServiceReceptor = (action) => {
       return s.merge({
         currentLocation: {
           location: {
-            ...action.location,
-            locationSetting: (action.location as any).location_setting
+            ...action.location
           },
           bannedUsers,
           selfUserBanned: false,
@@ -141,7 +140,7 @@ export const LocationService = {
 
     if (locationResult && locationResult.total > 0) {
       if (
-        locationResult.data[0].location_setting?.locationType === 'private' &&
+        locationResult.data[0].locationSetting?.locationType === 'private' &&
         !locationResult.data[0].location_authorized_users?.find(
           (authUser) => authUser.userId === Engine.instance.userId
         )

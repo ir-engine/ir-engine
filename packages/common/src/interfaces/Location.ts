@@ -24,7 +24,6 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { LocationAuthorizedUser } from './LocationAuthorizedUser'
-import { LocationSettings } from './LocationSettings'
 
 export interface Location {
   id: string
@@ -32,12 +31,10 @@ export interface Location {
   slugifiedName: string
   maxUsersPerInstance: number
   sceneId: string
-  locationSettingsId: string
-  locationSetting: LocationSettings
+  locationSettingId: string
   isLobby: boolean
   isFeatured: boolean
-  location_settings?: LocationSettings
-  location_setting?: LocationSettings
+  locationSetting?: any
   location_authorized_users?: LocationAuthorizedUser[]
 }
 
@@ -47,11 +44,10 @@ export interface LocationFetched {
   slugifiedName: string
   maxUsersPerInstance: number
   sceneId: string
-  locationSettingsId: string
-  locationSetting: LocationSettings
+  locationSettingId: string
   isLobby: boolean
   isFeatured: boolean
-  location_setting?: any
+  locationSetting?: any
   location_authorized_users?: LocationAuthorizedUser[]
 }
 
@@ -61,7 +57,7 @@ export const LocationSeed: Location = {
   slugifiedName: '',
   maxUsersPerInstance: 10,
   sceneId: '',
-  locationSettingsId: '',
+  locationSettingId: '',
   isLobby: false,
   isFeatured: false,
   locationSetting: {

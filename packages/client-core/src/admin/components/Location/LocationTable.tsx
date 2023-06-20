@@ -156,7 +156,7 @@ const LocationTable = ({ className, search }: Props) => {
       el.maxUsersPerInstance.toString(),
       el.slugifiedName,
       //@ts-ignore
-      el.location_setting?.locationType,
+      el.locationSetting?.locationType,
       <div>
         {el.isFeatured && (
           <Chip
@@ -176,7 +176,7 @@ const LocationTable = ({ className, search }: Props) => {
       </div>,
       <div>
         {/**@ts-ignore*/}
-        {el.location_setting?.videoEnabled ? t('admin:components.common.yes') : t('admin:components.common.no')}
+        {el.locationSetting?.videoEnabled ? t('admin:components.common.yes') : t('admin:components.common.no')}
       </div>
     )
   })

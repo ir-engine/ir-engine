@@ -34,7 +34,7 @@ import Invite from './invite/invite.service'
 import LocationAdmin from './location-admin/location-admin.service'
 import LocationAuthorizedUser from './location-authorized-user/location-authorized-user.service'
 import LocationBan from './location-ban/location-ban.service'
-import LocationSettings from './location-settings/location-settings.service'
+import LocationSetting from './location-setting/location-setting'
 import LocationType from './location-type/location-type'
 import MessageStatus from './message-status/message-status.service'
 import Message from './message/message.service'
@@ -55,7 +55,7 @@ export default [
   Message,
   MessageStatus,
   LocationType,
-  LocationSettings,
+  LocationSetting,
   LocationBan,
   LocationAdmin,
   LocationAuthorizedUser

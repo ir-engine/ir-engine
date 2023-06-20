@@ -23,19 +23,38 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
-
-import { LocationSettings as LocationSettingsInterface } from '@etherealengine/common/src/interfaces/LocationSettings'
+import {
+  locationSettingMethods,
+  locationSettingPath
+} from '@etherealengine/engine/src/schemas/social/location-setting.schema'
 
 import { Application } from '../../../declarations'
+import { LocationSettingService } from './location-setting.class'
+import locationSettingDocs from './location-setting.docs'
+import hooks from './location-setting.hooks'
 
-export type LocationSettingsDataType = LocationSettingsInterface
-/**
- * A class for Location Setting service
- */
-export class LocationSettings<T = LocationSettingsDataType> extends Service<T> {
-  public docs: any
-  constructor(options: Partial<SequelizeServiceOptions>, app: Application) {
-    super(options)
+declare module '@etherealengine/common/declarations' {
+  interface ServiceTypes {
+    [locationSettingPath]: LocationSettingService
   }
+}
+
+export default (app: Application): void => {
+  const options = {
+    name: locationSettingPath,
+    paginate: app.get('paginate'),
+    Model: app.get('knexClient'),
+    multi: true
+  }
+
+  app.use(locationSettingPath, new LocationSettingService(options), {
+    // A list of all methods this service exposes externally
+    methods: locationSettingMethods,
+    // You can add additional custom events to be sent to clients here
+    events: [],
+    docs: locationSettingDocs
+  })
+
+  const service = app.service(locationSettingPath)
+  service.hooks(hooks)
 }

@@ -118,11 +118,11 @@ const LocationDrawer = ({ open, mode, selectedLocation, onClose }: Props) => {
         name: selectedLocation.name,
         maxUsers: selectedLocation.maxUsersPerInstance,
         scene: selectedLocation.sceneId,
-        type: selectedLocation.location_setting?.locationType,
-        videoEnabled: selectedLocation.location_setting?.videoEnabled,
-        audioEnabled: selectedLocation.location_setting?.audioEnabled,
-        screenSharingEnabled: selectedLocation.location_setting?.screenSharingEnabled,
-        faceStreamingEnabled: selectedLocation.location_setting?.faceStreamingEnabled,
+        type: selectedLocation.locationSetting?.locationType,
+        videoEnabled: selectedLocation.locationSetting?.videoEnabled,
+        audioEnabled: selectedLocation.locationSetting?.audioEnabled,
+        screenSharingEnabled: selectedLocation.locationSetting?.screenSharingEnabled,
+        faceStreamingEnabled: selectedLocation.locationSetting?.faceStreamingEnabled,
         isLobby: selectedLocation.isLobby,
         isFeatured: selectedLocation.isFeatured
       })
@@ -169,7 +169,7 @@ const LocationDrawer = ({ open, mode, selectedLocation, onClose }: Props) => {
       name: state.name.value,
       sceneId: state.scene.value,
       maxUsersPerInstance: state.maxUsers.value,
-      location_settings: {
+      locationSetting: {
         locationType: state.type.value,
         audioEnabled: state.audioEnabled.value,
         screenSharingEnabled: state.screenSharingEnabled.value,

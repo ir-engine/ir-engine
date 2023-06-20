@@ -154,9 +154,6 @@ export const AdminLocationService = {
         }
       })) as Paginated<Location>
 
-      locations.data.forEach((locationData) => {
-        if (locationData.location_setting) locationData.locationSetting = locationData.location_setting
-      })
       dispatchAction(AdminLocationActions.locationsRetrieved({ locations }))
     } catch (error) {
       logger.error(error)
@@ -175,9 +172,6 @@ export const AdminLocationService = {
           adminnedLocations: true
         }
       })) as Paginated<Location>
-      locations.data.forEach((locationData) => {
-        if (locationData.location_setting) locationData.locationSetting = locationData.location_setting
-      })
     } catch (error) {
       logger.error(error)
     }

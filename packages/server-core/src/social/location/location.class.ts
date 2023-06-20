@@ -25,15 +25,21 @@ Ethereal Engine. All Rights Reserved.
 
 import { Paginated, Params } from '@feathersjs/feathers'
 import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
+import { Knex } from 'knex'
 import Sequelize, { Op } from 'sequelize'
 import slugify from 'slugify'
 
 import { Location as LocationType } from '@etherealengine/common/src/interfaces/Location'
 import { UserInterface } from '@etherealengine/common/src/interfaces/User'
+import {
+  locationSettingPath,
+  LocationSettingType
+} from '@etherealengine/engine/src/schemas/social/location-setting.schema'
 
 import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
 import { UserParams } from '../../user/user/user.class'
+import { createLocationSettingModel } from './location.model'
 
 export type LocationDataType = LocationType
 
@@ -157,11 +163,11 @@ export class Location<T = LocationDataType> extends Service<T> {
     if ($sort != null)
       Object.keys($sort).forEach((name, val) => {
         if (name === 'type') {
-          order.push(['location_setting', 'locationType', $sort[name] === 0 ? 'DESC' : 'ASC'])
+          order.push(['locationSetting', 'locationType', $sort[name] === 0 ? 'DESC' : 'ASC'])
         } else if (name === 'audioEnabled') {
-          order.push(['location_setting', 'audioEnabled', $sort[name] === 0 ? 'DESC' : 'ASC'])
+          order.push(['locationSetting', 'audioEnabled', $sort[name] === 0 ? 'DESC' : 'ASC'])
         } else if (name === 'videoEnabled') {
-          order.push(['location_setting', 'videoEnabled', $sort[name] === 0 ? 'DESC' : 'ASC'])
+          order.push(['locationSetting', 'videoEnabled', $sort[name] === 0 ? 'DESC' : 'ASC'])
         } else {
           order.push([name, $sort[name] === 0 ? 'DESC' : 'ASC'])
         }
@@ -185,7 +191,7 @@ export class Location<T = LocationDataType> extends Service<T> {
             }
           },
           {
-            model: this.app.service('location-settings').Model,
+            model: createLocationSettingModel(this.app),
             required: false
           },
           {
@@ -208,7 +214,7 @@ export class Location<T = LocationDataType> extends Service<T> {
       const loggedInUser = params!.user as UserInterface
       const include = [
         {
-          model: this.app.service('location-settings').Model,
+          model: createLocationSettingModel(this.app),
           required: false
         },
         {
@@ -271,28 +277,25 @@ export class Location<T = LocationDataType> extends Service<T> {
    */
   async create(data: any, params?: UserParams): Promise<T> {
     const t = await this.app.get('sequelizeClient').transaction()
+    const trx = await (this.app.get('knexClient') as Knex).transaction()
 
     try {
       // @ts-ignore
-      let { location_settings, ...locationData } = data
+      let { locationSetting, ...locationData } = data
       const loggedInUser = params!.user as UserInterface
       locationData.slugifiedName = slugify(locationData.name, { lower: true })
 
       if (locationData.isLobby) await this.makeLobby(t, params)
 
       const location = await this.Model.create(locationData, { transaction: t })
-      await this.app.service('location-settings').Model.create(
-        {
-          videoEnabled: !!location_settings.videoEnabled,
-          audioEnabled: !!location_settings.audioEnabled,
-          faceStreamingEnabled: !!location_settings.faceStreamingEnabled,
-          screenSharingEnabled: !!location_settings.screenSharingEnabled,
-          maxUsersPerInstance: locationData.maxUsersPerInstance || 10,
-          locationType: location_settings.locationType || 'private',
-          locationId: location.id
-        },
-        { transaction: t }
-      )
+      await trx.from<LocationSettingType>(locationSettingPath).insert({
+        videoEnabled: !!locationSetting.videoEnabled,
+        audioEnabled: !!locationSetting.audioEnabled,
+        faceStreamingEnabled: !!locationSetting.faceStreamingEnabled,
+        screenSharingEnabled: !!locationSetting.screenSharingEnabled,
+        locationType: locationSetting.locationType || 'private',
+        locationId: location.id
+      })
 
       if (loggedInUser) {
         await Promise.all([
@@ -314,11 +317,13 @@ export class Location<T = LocationDataType> extends Service<T> {
       }
 
       await t.commit()
+      await trx.commit()
 
       return location as T
     } catch (err) {
       logger.error(err)
       await t.rollback()
+      await trx.rollback()
       if (err.errors && err.errors[0].message === 'slugifiedName must be unique') {
         throw new Error('Name is in use.')
       }
@@ -335,45 +340,47 @@ export class Location<T = LocationDataType> extends Service<T> {
    */
   async patch(id: string, data: any, params?: Params): Promise<T> {
     const t = await this.app.get('sequelizeClient').transaction()
+    const trx = await (this.app.get('knexClient') as Knex).transaction()
 
     try {
       // @ts-ignore
-      let { location_settings, ...locationData } = data
-      location_settings ??= data['location_setting']
+      let { locationSetting, ...locationData } = data
+      locationSetting ??= data['locationSetting']
 
       const old = await this.Model.findOne({
         where: { id },
-        include: [this.app.service('location-settings').Model]
+        include: [createLocationSettingModel(this.app)]
       })
-      const oldSettings = old.location_setting ?? old.location_settings
 
       if (locationData.name) locationData.slugifiedName = slugify(locationData.name, { lower: true })
       if (!old.isLobby && locationData.isLobby) await this.makeLobby(t, params)
 
       await this.Model.update(locationData, { where: { id }, transaction: t }) // super.patch(id, locationData, params);
 
-      await this.app.service('location-settings').Model.update(
-        {
-          videoEnabled: !!location_settings.videoEnabled,
-          audioEnabled: !!location_settings.audioEnabled,
-          faceStreamingEnabled: !!location_settings.faceStreamingEnabled,
-          screenSharingEnabled: !!location_settings.screenSharingEnabled,
-          maxUsersPerInstance: locationData.maxUsersPerInstance || 10,
-          locationType: location_settings.locationType || 'private'
-        },
-        { where: { id: oldSettings.id }, transaction: t }
-      )
+      await trx
+        .from<LocationSettingType>(locationSettingPath)
+        .update({
+          videoEnabled: !!locationSetting.videoEnabled,
+          audioEnabled: !!locationSetting.audioEnabled,
+          faceStreamingEnabled: !!locationSetting.faceStreamingEnabled,
+          screenSharingEnabled: !!locationSetting.screenSharingEnabled,
+          locationType: locationSetting.locationType || 'private'
+        })
+        .where({ id: old.locationSetting.id })
 
       await t.commit()
+      await trx.commit()
+
       const location = await this.Model.findOne({
         where: { id },
-        include: [this.app.service('location-settings').Model]
+        include: [createLocationSettingModel(this.app)]
       })
 
       return location as T
     } catch (err) {
       logger.error(err)
       await t.rollback()
+      await trx.rollback()
       if (err.errors && err.errors[0].message === 'slugifiedName must be unique') {
         throw new Error('That name is already in use')
       }
@@ -404,8 +411,8 @@ export class Location<T = LocationDataType> extends Service<T> {
     if (id != null) {
       const selfUser = params!.user as UserInterface
       const location = await this.app.service('location').get(id)
-      if (location.locationSettingsId != null)
-        await this.app.service('location-settings').remove(location.locationSettingsId)
+      if (location.locationSettingId != null)
+        await this.app.service(locationSettingPath).remove(location.locationSettingId)
       try {
         const locationAdminItems = await (this.app.service('location-admin') as any).Model.findAll({
           where: {

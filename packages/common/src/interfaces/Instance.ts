@@ -24,7 +24,6 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { Location } from './Location'
-import { LocationSettings } from './LocationSettings'
 
 export interface Instance {
   id: string
@@ -52,7 +51,7 @@ export const InstanceSeed: Instance = {
     slugifiedName: '',
     maxUsersPerInstance: 10,
     sceneId: '',
-    locationSettingsId: '',
+    locationSettingId: '',
     locationSetting: {
       id: '',
       locationId: '',

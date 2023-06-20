@@ -29,6 +29,7 @@ import { ServicesSeedConfig } from '@etherealengine/common/src/interfaces/Servic
 import { channelTypeSeed } from './channel-type/channel-type.seed'
 import { groupUserRankSeed } from './group-user-rank/group-user-rank.seed'
 import { inviteTypeSeed } from './invite-type/invite-type.seed'
+import * as locationSettingSeed from './location-setting/location-setting.seed'
 import * as locationTypeSeed from './location-type/location-type.seed'
 import { locationSeed } from './location/location.seed'
 
@@ -39,4 +40,4 @@ export const socialSequelizeSeeds: Array<ServicesSeedConfig> = [
   locationSeed
 ]
 
-export const socialSeeds: Array<KnexSeed> = [locationTypeSeed]
+export const socialSeeds: Array<KnexSeed> = [locationTypeSeed, locationSettingSeed]

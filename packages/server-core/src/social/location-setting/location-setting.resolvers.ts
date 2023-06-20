@@ -23,38 +23,32 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-// Initializes the `location-settings` service on path `/location-settings`
-import { Application } from '../../../declarations'
-import locationSettingsDocs from './location-settings-docs'
-import { LocationSettings } from './location-settings.class'
-import hooks from './location-settings.hooks'
-import createModel from './location-settings.model'
+// For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
+import { resolve } from '@feathersjs/schema'
+import { v4 } from 'uuid'
 
-// Add this service to the service type index
-declare module '@etherealengine/common/declarations' {
-  interface ServiceTypes {
-    'location-settings': LocationSettings
-  }
-}
+import {
+  LocationSettingQuery,
+  LocationSettingType
+} from '@etherealengine/engine/src/schemas/social/location-setting.schema'
+import type { HookContext } from '@etherealengine/server-core/declarations'
 
-export default function (app: Application): void {
-  const options = {
-    Model: createModel(app),
-    paginate: app.get('paginate'),
-    multi: true
-  }
+import { getDateTimeSql } from '../../util/get-datetime-sql'
 
-  /**
-   * Initialize our service with any options it requires and docs
-   */
-  const event = new LocationSettings(options, app)
-  event.docs = locationSettingsDocs
-  app.use('location-settings', event)
+export const locationSettingResolver = resolve<LocationSettingType, HookContext>({})
 
-  /**
-   * Get our initialized service so that we can register hooks
-   */
-  const service = app.service('location-settings')
+export const locationSettingExternalResolver = resolve<LocationSettingType, HookContext>({})
 
-  service.hooks(hooks)
-}
+export const locationSettingDataResolver = resolve<LocationSettingType, HookContext>({
+  id: async () => {
+    return v4()
+  },
+  createdAt: getDateTimeSql,
+  updatedAt: getDateTimeSql
+})
+
+export const locationSettingPatchResolver = resolve<LocationSettingType, HookContext>({
+  updatedAt: getDateTimeSql
+})
+
+export const locationSettingQueryResolver = resolve<LocationSettingQuery, HookContext>({})

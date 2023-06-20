@@ -356,7 +356,7 @@ export class AcceptInvite implements ServiceMethods<Data> {
         returned.locationName = location.slugifiedName
         if (instance) returned.instanceId = instance.id
 
-        if (location.location_setting?.locationType === 'private') {
+        if (location.locationSetting?.locationType === 'private') {
           const userId = inviteeIdentityProvider.userId
           if (!location.location_authorized_users?.find((authUser) => authUser.userId === userId))
             await this.app.service('location-authorized-user').create({

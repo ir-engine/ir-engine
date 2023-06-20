@@ -40,7 +40,8 @@ export default {
             model: 'location-ban'
           },
           {
-            model: 'location-settings'
+            model: 'location-setting',
+            as: 'locationSetting'
           },
           {
             model: 'location-authorized-user'
@@ -55,7 +56,8 @@ export default {
             model: 'location-ban'
           },
           {
-            model: 'location-settings'
+            model: 'location-setting',
+            as: 'locationSetting'
           },
           {
             model: 'location-authorized-user'

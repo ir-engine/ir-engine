@@ -25,12 +25,18 @@ Ethereal Engine. All Rights Reserved.
 
 // A place in physical or virtual space, with many copies (instances)
 import { DataTypes, Model, Sequelize } from 'sequelize'
+import { HookReturn } from 'sequelize/types/hooks'
 
-import { LocationInterface } from '@etherealengine/common/src/dbmodels/Location'
+import {
+  LocationInterface,
+  LocationSettingInterface,
+  LocationTypeInterface
+} from '@etherealengine/common/src/dbmodels/Location'
 
 import { Application } from '../../../declarations'
 
 export default (app: Application) => {
+  const locationSettingModel = createLocationSettingModel(app)
   const sequelizeClient: Sequelize = app.get('sequelizeClient')
   const location = sequelizeClient.define<Model<LocationInterface>>(
     'location',
@@ -84,11 +90,91 @@ export default (app: Application) => {
     ;(location as any).hasMany(models.location_admin)
     // (location as any).belongsTo(models.scene, { foreignKey: 'sceneId' }); // scene
     ;(location as any).belongsToMany(models.user, { through: 'location_admin' })
-    ;(location as any).hasOne(models.location_settings, { onDelete: 'cascade' })
+    ;(location as any).hasOne(locationSettingModel, { onDelete: 'cascade' })
     ;(location as any).hasMany(models.location_ban)
     ;(location as any).hasMany(models.bot, { foreignKey: 'locationId' })
     ;(location as any).hasMany(models.location_authorized_user, { onDelete: 'cascade' })
   }
 
   return location
+}
+
+export const createLocationSettingModel = (app: Application) => {
+  const sequelizeClient: Sequelize = app.get('sequelizeClient')
+  const locationSetting = sequelizeClient.define<Model<LocationSettingInterface>>(
+    'location-setting',
+    {
+      id: {
+        type: DataTypes.UUID,
+        defaultValue: DataTypes.UUIDV1,
+        allowNull: false,
+        primaryKey: true
+      },
+      videoEnabled: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false
+      },
+      audioEnabled: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false
+      },
+      screenSharingEnabled: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false
+      },
+      faceStreamingEnabled: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false
+      }
+    },
+    {
+      hooks: {
+        beforeCount(options: any): HookReturn {
+          options.raw = true
+        }
+      }
+    }
+  )
+
+  ;(locationSetting as any).associate = function (models: any): void {
+    ;(locationSetting as any).belongsTo(models.location, { required: true, allowNull: false })
+    ;(locationSetting as any).belongsTo(createLocationTypeModel(app, locationSetting), {
+      foreignKey: 'locationType',
+      defaultValue: 'private'
+    })
+  }
+
+  return locationSetting
+}
+const createLocationTypeModel = (app: Application, locationSettingModel: any) => {
+  const sequelizeClient: Sequelize = app.get('sequelizeClient')
+  const locationType = sequelizeClient.define<Model<LocationTypeInterface>>(
+    'location-type',
+    {
+      type: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        primaryKey: true,
+        unique: true
+      }
+    },
+    {
+      hooks: {
+        beforeCount(options: any): HookReturn {
+          options.raw = true
+        },
+        beforeUpdate(instance: any, options: any): void {
+          throw new Error("Can't update a type!")
+        }
+      },
+      timestamps: false
+    }
+  )
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  ;(locationType as any).associate = (models: any): void => {
+    ;(locationType as any).hasMany(locationSettingModel, { foreignKey: 'locationType' })
+  }
+
+  return locationType
 }

@@ -49,7 +49,7 @@ export const createLocations = async (app: Application, projectName: string) => 
         const settingsId = generateUUID()
         const sceneName = sceneJson.replace('.scene.json', '')
         const locationName = toCapitalCase(sceneName.replace('-', ' '))
-        const locationSettings = {
+        const locationSetting = {
           id: settingsId,
           locationId,
           locationType: 'public',
@@ -63,7 +63,7 @@ export const createLocations = async (app: Application, projectName: string) => 
           slugifiedName: sceneName,
           maxUsersPerInstance: 30,
           sceneId: `${projectName}/${sceneName}`,
-          location_settings: locationSettings,
+          locationSetting,
           isLobby: false
         } as Location
 

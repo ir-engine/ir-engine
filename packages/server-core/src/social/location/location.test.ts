@@ -27,6 +27,7 @@ import assert from 'assert'
 import { v1 } from 'uuid'
 
 import { destroyEngine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { locationSettingPath } from '@etherealengine/engine/src/schemas/social/location-setting.schema'
 
 import { Application } from '../../../declarations'
 import { createFeathersKoaApp } from '../../createApp'
@@ -49,12 +50,19 @@ describe('location.test', () => {
   it('should create a new location', async () => {
     const name = `Test Location ${v1()}`
 
-    const location_settings = await app.service('location-settings').create({})
+    const locationSetting = await app.service(locationSettingPath).create({
+      locationType: 'public',
+      audioEnabled: true,
+      videoEnabled: true,
+      faceStreamingEnabled: false,
+      screenSharingEnabled: false,
+      locationId: ''
+    })
 
     const item = await app.service('location').create(
       {
         name,
-        location_settings
+        locationSetting
       },
       params
     )
@@ -75,10 +83,17 @@ describe('location.test', () => {
 
   it('should be able to update the location', async () => {
     const newName = `Update Test Location ${v1()}`
-    const location_settings = await app.service('location-settings').create({})
+    const locationSetting = await app.service(locationSettingPath).create({
+      locationType: 'public',
+      audioEnabled: true,
+      videoEnabled: true,
+      faceStreamingEnabled: false,
+      screenSharingEnabled: false,
+      locationId: ''
+    })
     const item = await app
       .service('location')
-      .patch(locations[0].id, { ...locations[0], name: newName, location_settings })
+      .patch(locations[0].id, { ...locations[0], name: newName, locationSetting })
 
     assert.ok(item)
     assert.equal(item.name, newName)
