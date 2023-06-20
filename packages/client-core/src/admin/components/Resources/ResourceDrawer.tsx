@@ -32,6 +32,7 @@ import InputSelect, { InputMenuItem } from '@etherealengine/client-core/src/comm
 import InputText from '@etherealengine/client-core/src/common/components/InputText'
 import { MAX_AVATAR_FILE_SIZE, MIN_AVATAR_FILE_SIZE } from '@etherealengine/common/src/constants/AvatarConstants'
 import { StaticResourceInterface } from '@etherealengine/common/src/interfaces/StaticResourceInterface'
+import { AdminAssetUploadArgumentsType } from '@etherealengine/common/src/interfaces/UploadAssetInterface'
 import {
   AssetSelectionChangePropsType,
   AssetsPreviewPanel
@@ -69,11 +70,13 @@ const defaultState = {
   key: '',
   name: '',
   mimeType: '',
+  project: '',
   source: 'file',
   resourceUrl: '',
   resourceFile: undefined as File | undefined,
   formErrors: {
     name: '',
+    project: '',
     resourceUrl: '',
     resourceFile: ''
   }
@@ -104,6 +107,7 @@ const ResourceDrawerContent = ({ mode, selectedResource, onClose }: Props) => {
       state.merge({
         key: selectedResource.key || '',
         mimeType: selectedResource.mimeType || '',
+        project: selectedResource.project || '',
         source: 'url',
         resourceUrl: selectedResource.url || '',
         resourceFile: undefined
@@ -210,6 +214,8 @@ const ResourceDrawerContent = ({ mode, selectedResource, onClose }: Props) => {
   }
 
   const handleSubmit = async () => {
+    if (!selectedResource) return
+
     let resourceFile: File | undefined = undefined
 
     state.formErrors.merge({
@@ -245,9 +251,10 @@ const ResourceDrawerContent = ({ mode, selectedResource, onClose }: Props) => {
     }
 
     const data = {
-      id: selectedResource ? selectedResource.id : '',
-      key: mode === ResourceDrawerMode.Create ? state.value : state.key.value
-    }
+      id: selectedResource.id,
+      path: mode === ResourceDrawerMode.Create ? state.value : state.key.value,
+      project: state.project.value
+    } as AdminAssetUploadArgumentsType
 
     if (resourceFile) {
       ResourceService.createOrUpdateResource(data, resourceFile)
@@ -289,6 +296,14 @@ const ResourceDrawerContent = ({ mode, selectedResource, onClose }: Props) => {
         label={t('admin:components.resources.mimeType')}
         value={state.mimeType.value}
         disabled
+      />
+
+      <InputText
+        name="project"
+        label={t('admin:components.resources.project')}
+        value={state.project.value}
+        disabled={viewMode}
+        onChange={handleChange}
       />
 
       {!viewMode && (

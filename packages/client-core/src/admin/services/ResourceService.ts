@@ -30,6 +30,7 @@ import {
   StaticResourceFilterResult,
   StaticResourceResult
 } from '@etherealengine/common/src/interfaces/StaticResourceResult'
+import { AdminAssetUploadArgumentsType } from '@etherealengine/common/src/interfaces/UploadAssetInterface'
 import multiLogger from '@etherealengine/common/src/logger'
 import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
@@ -112,7 +113,7 @@ export const AdminResourceReceptors = {
 }
 
 export const ResourceService = {
-  createOrUpdateResource: async (resource: any, resourceBlob: File) => {
+  createOrUpdateResource: async (resource: AdminAssetUploadArgumentsType, resourceBlob: File) => {
     try {
       await uploadToFeathersService('upload-asset', [resourceBlob], {
         type: 'admin-file-upload',

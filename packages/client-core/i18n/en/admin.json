@@ -215,6 +215,7 @@
       "key": "Key",
       "name": "Name",
       "mimeType": "Mime Type",
+      "project": "Project",
       "resourceType": "Resource Type",
       "preview": "Preview",
       "confirmResourceDelete": "Do you want to delete resource",

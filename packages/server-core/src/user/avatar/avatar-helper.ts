@@ -67,7 +67,7 @@ export type AvatarUploadArguments = {
 
 // todo: move this somewhere else
 const supportedAvatars = ['glb', 'gltf', 'vrm', 'fbx']
-const PROJECT_NAME_REGEX = /projects\/([a-zA-Z0-9-_.]+)\/public\/avatars$/
+const projectsPath = path.join(appRootPath.path, '/packages/projects/projects/')
 
 /**
  * @todo - reference dependency files in static resources?
@@ -75,12 +75,7 @@ const PROJECT_NAME_REGEX = /projects\/([a-zA-Z0-9-_.]+)\/public\/avatars$/
  * @param avatarsFolder
  */
 export const installAvatarsFromProject = async (app: Application, avatarsFolder: string) => {
-  const promises: Promise<any>[] = []
-  const projectNameExec = PROJECT_NAME_REGEX.exec(avatarsFolder)
-  let projectJSON
-  if (projectNameExec) projectJSON = getProjectPackageJson(projectNameExec[1])
-  let projectName
-  if (projectJSON) projectName = projectJSON.name
+  const projectName = avatarsFolder.replace(projectsPath, '').split('/')[0]!
 
   // get all avatars files in the folder
   const avatarsToInstall = fs
@@ -97,7 +92,6 @@ export const installAvatarsFromProject = async (app: Application, avatarsFolder:
             return path.join(avatarsFolder, avatarName, dependencyDirent.name)
           })
         : []
-      console.log(avatarsFolder, path.join(appRootPath.path, 'packages/projects'))
       return {
         avatar: fs.readFileSync(path.join(avatarsFolder, dirent.name)),
         thumbnail,
@@ -151,7 +145,7 @@ export const installAvatarsFromProject = async (app: Application, avatarsFolder:
           selectedAvatar = await app.service('avatar').create({
             name: avatar.avatarName,
             isPublic: true,
-            project: projectName || null
+            project: projectName || null!
           })
         } else {
           // todo - clean up old avatar files

@@ -28,7 +28,7 @@ import i18n from 'i18next'
 import { StaticResourceInterface } from '@etherealengine/common/src/interfaces/StaticResourceInterface'
 
 export interface ResourceColumn {
-  id: 'id' | 'key' | 'mimeType' | 'thumbnail' | 'action'
+  id: 'id' | 'key' | 'mimeType' | 'project' | 'thumbnail' | 'action'
   label: string
   minWidth?: number
   align?: 'right'
@@ -38,6 +38,7 @@ export const resourceColumns: ResourceColumn[] = [
   { id: 'id', label: i18n.t('admin:components.resources.id'), minWidth: 65 },
   { id: 'key', label: i18n.t('admin:components.resources.key'), minWidth: 65 },
   { id: 'mimeType', label: i18n.t('admin:components.resources.mimeType'), minWidth: 65 },
+  { id: 'project', label: i18n.t('admin:components.resources.project'), minWidth: 65 },
   {
     id: 'action',
     label: 'Action',
@@ -51,5 +52,6 @@ export interface ResourceData {
   id: string
   key: string
   mimeType: string
+  project: string | undefined
   action: JSX.Element
 }
