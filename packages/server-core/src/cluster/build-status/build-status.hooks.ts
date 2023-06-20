@@ -23,19 +23,57 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { hooks as schemaHooks } from '@feathersjs/schema'
+import { getValidator } from '@feathersjs/typebox'
 import { iff, isProvider } from 'feathers-hooks-common'
+
+import {
+  buildStatusDataSchema,
+  buildStatusPatchSchema,
+  buildStatusQuerySchema,
+  buildStatusSchema
+} from '@etherealengine/engine/src/schemas/cluster/build-status.schema'
+import { dataValidator, queryValidator } from '@etherealengine/server-core/validators'
 
 import authenticate from '../../hooks/authenticate'
 import verifyScope from '../../hooks/verify-scope'
+import {
+  buildStatusDataResolver,
+  buildStatusExternalResolver,
+  buildStatusPatchResolver,
+  buildStatusQueryResolver,
+  buildStatusResolver
+} from './build-status.resolvers'
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const buildStatusValidator = getValidator(buildStatusSchema, dataValidator)
+const buildStatusDataValidator = getValidator(buildStatusDataSchema, dataValidator)
+const buildStatusPatchValidator = getValidator(buildStatusPatchSchema, dataValidator)
+const buildStatusQueryValidator = getValidator(buildStatusQuerySchema, queryValidator)
 
 export default {
+  around: {
+    all: [schemaHooks.resolveExternal(buildStatusExternalResolver), schemaHooks.resolveResult(buildStatusResolver)]
+  },
+
   before: {
-    all: [authenticate(), iff(isProvider('external'), verifyScope('admin', 'admin') as any)],
+    all: [
+      authenticate(),
+      iff(isProvider('external'), verifyScope('admin', 'admin')),
+      () => schemaHooks.validateQuery(buildStatusQueryValidator),
+      schemaHooks.resolveQuery(buildStatusQueryResolver)
+    ],
     find: [],
     get: [],
-    create: [],
+    create: [
+      () => schemaHooks.validateData(buildStatusDataValidator),
+      schemaHooks.resolveData(buildStatusDataResolver)
+    ],
     update: [],
-    patch: [],
+    patch: [
+      () => schemaHooks.validateData(buildStatusPatchValidator),
+      schemaHooks.resolveData(buildStatusPatchResolver)
+    ],
     remove: []
   },
 

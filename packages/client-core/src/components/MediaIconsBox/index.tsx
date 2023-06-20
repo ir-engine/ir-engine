@@ -96,7 +96,7 @@ export const MediaIconsBox = () => {
 
   return (
     <section className={`${styles.drawerBox} ${topShelfStyle}`}>
-      {(currentChannelInstanceConnection == null || !currentChannelInstanceConnection?.connected.value) && (
+      {networkState.config.media.value && !currentChannelInstanceConnection?.connected.value && (
         <div className={styles.loader}>
           <CircularProgress />
           <div
