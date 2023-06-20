@@ -71,7 +71,7 @@ const BuildStatusDrawer = ({ open, onClose }: Props) => {
   const buildStatuses = buildStatusState.buildStatuses.value
 
   const handleOpenLogsModal = (buildStatus: BuildStatusType) => {
-    selectedStatusId.set(buildStatus.id)
+    selectedStatusId.set(buildStatus.id.toString())
     logsModalOpen.set(true)
   }
 
@@ -147,7 +147,7 @@ const BuildStatusDrawer = ({ open, onClose }: Props) => {
     return createData(el)
   })
 
-  const selectedStatus = buildStatuses.find((el) => el.id === selectedStatusId.value) || defaultBuildStatus
+  const selectedStatus = buildStatuses.find((el) => el.id.toString() === selectedStatusId.value) || defaultBuildStatus
 
   const handlePageChange = (event: unknown, newPage: number) => {
     BuildStatusService.fetchBuildStatus(newPage * 10)
