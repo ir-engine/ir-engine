@@ -56,6 +56,7 @@ import { SceneSystemLoadGroup, SceneSystemUpdateGroup } from '@etherealengine/en
 import { PortalSystem } from '@etherealengine/engine/src/scene/systems/PortalSystem'
 import { ReferenceSpaceTransformSystem } from '@etherealengine/engine/src/transform/systems/ReferenceSpaceTransformSystem'
 import { TransformSystem } from '@etherealengine/engine/src/transform/systems/TransformSystem'
+import { VehicleSpawnSystem } from '@etherealengine/engine/src/vehicle/VehicleSpawnSystem'
 import { XRAnchorSystem } from '@etherealengine/engine/src/xr/XRAnchorSystem'
 import { XRSystem } from '@etherealengine/engine/src/xr/XRSystem'
 import { XRUISystem } from '@etherealengine/engine/src/xrui/systems/XRUISystem'
@@ -83,7 +84,8 @@ export const startClientSystems = () => {
       AnimationSystem,
       CameraSystem,
       AvatarSpawnSystem,
-      AvatarAnimationSystem
+      AvatarAnimationSystem,
+      VehicleSpawnSystem
     ],
     {
       with: AnimationSystemGroup

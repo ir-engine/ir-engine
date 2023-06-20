@@ -24,39 +24,19 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { Collider, ColliderDesc, RigidBody, RigidBodyDesc } from '@dimforge/rapier3d-compat'
-import { AnimationClip, AnimationMixer, Object3D, Quaternion, Vector3 } from 'three'
 
-import { getState } from '@etherealengine/hyperflux'
-
-import { setTargetCameraRotation } from '../../camera/systems/CameraInputSystem'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
-import {
-  addComponent,
-  getComponent,
-  hasComponent,
-  removeComponent,
-  setComponent
-} from '../../ecs/functions/ComponentFunctions'
+import { addComponent, getComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
 //import { LocalVehicleTagComponent } from '../../input/components/LocalVehicleTagComponent'
-import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
 import { BoundingBoxComponent } from '../../interaction/components/BoundingBoxComponents'
-import {
-  NetworkObjectAuthorityTag,
-  NetworkObjectSendPeriodicUpdatesTag
-} from '../../networking/components/NetworkObjectComponent'
-import { NetworkPeerFunctions } from '../../networking/functions/NetworkPeerFunctions'
+import { NetworkObjectSendPeriodicUpdatesTag } from '../../networking/components/NetworkObjectComponent'
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
-import { WorldState } from '../../networking/interfaces/WorldState'
 import { Physics } from '../../physics/classes/Physics'
-import { CollisionComponent } from '../../physics/components/CollisionComponent'
 import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
 import { CollisionGroups, DefaultCollisionMask } from '../../physics/enums/CollisionGroups'
 import { getInteractionGroups } from '../../physics/functions/getInteractionGroups'
-import { NameComponent } from '../../scene/components/NameComponent'
 import { ShadowComponent } from '../../scene/components/ShadowComponent'
-import { VisibleComponent } from '../../scene/components/VisibleComponent'
-import { DistanceFromCameraComponent, FrustumCullCameraComponent } from '../../transform/components/DistanceComponents'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { VehicleComponent } from '../components/VehicleComponent'
 
@@ -66,80 +46,11 @@ export const defaultVehicleHalfHeight = defaultVehicleHeight / 2
 
 export const spawnVehicleReceptor = (spawnAction: typeof WorldNetworkAction.spawnVehicle.matches._TYPE) => {
   const ownerId = spawnAction.$from
-  const userId = spawnAction.uuid
-  const primary = ownerId === userId
 
   const entity = Engine.instance.getNetworkObject(ownerId, spawnAction.networkId)
   if (!entity) return
 
-  /*if (primary) {
-    const existingVehicleEntity = Engine.instance.getUserVehicleEntity(userId)
-
-    // already spawned into the world on another device or tab
-    if (existingVehicleEntity) {
-      const didSpawnEarlierThanThisClient = NetworkPeerFunctions.getCachedActionsForUser(ownerId).find(
-        (action) =>
-          WorldNetworkAction.spawnVehicle.matches.test(action) &&
-          action !== spawnAction &&
-          action.$time > spawnAction.$time
-      )
-      if (didSpawnEarlierThanThisClient) {
-        hasComponent(existingVehicleEntity, NetworkObjectAuthorityTag) &&
-          removeComponent(existingVehicleEntity, NetworkObjectAuthorityTag)
-      }
-      return
-    }
-  }*/
-  // will get this back if we can let user own cars!!
-
-  const transform = getComponent(entity, TransformComponent)
-
   addComponent(entity, VehicleComponent, {})
-
-  const userNames = getState(WorldState).userNames
-  const userName = userNames[userId]
-  const shortId = ownerId.substring(0, 7)
-  addComponent(entity, NameComponent, 'vehicle-' + (userName ? shortId + ' (' + userName + ')' : shortId))
-
-  addComponent(entity, VisibleComponent, true)
-
-  setComponent(entity, DistanceFromCameraComponent)
-  setComponent(entity, FrustumCullCameraComponent)
-
-  /*addComponent(entity, AnimationComponent, {
-    mixer: new AnimationMixer(new Object3D()),
-    animations: [] as AnimationClip[],
-    animationSpeed: 1
-  })
-  // will have to bring back eventually
-
-  addComponent(entity, VehicleAnimationComponent, {
-    animationGraph: {
-      states: {},
-      transitionRules: {},
-      currentState: null!,
-      stateChanged: null!
-    },
-    rootYRatio: 1,
-    locomotion: new Vector3()
-  })
-
-  addComponent(entity, SpawnPoseComponent, {
-    position: new Vector3().copy(transform.position),
-    rotation: new Quaternion().copy(transform.rotation)
-  })
-  */
-  //will have to bring it back if vehicles are riggable
-  /*
-  if (ownerId === Engine.instance.userId) {
-    createVehicleController(entity)
-    addComponent(entity, LocalVehicleTagComponent, true)
-    addComponent(entity, LocalInputTagComponent, true)
-  } else {
-    createVehicleRigidBody(entity)
-    createVehicleCollider(entity)
-  }*/
-  // we need to build controller eventually
 
   createVehicleRigidBody(entity)
   createVehicleCollider(entity)
@@ -152,29 +63,26 @@ export const spawnVehicleReceptor = (spawnAction: typeof WorldNetworkAction.spaw
 
 export const createVehicleCollider = (entity: Entity): Collider => {
   const interactionGroups = getInteractionGroups(CollisionGroups.Default, DefaultCollisionMask)
-  const vehicleComponent = getComponent(entity, VehicleComponent)
   const rigidBody = getComponent(entity, RigidBodyComponent)
   const transform = getComponent(entity, TransformComponent)
   rigidBody.position.copy(transform.position)
   rigidBody.rotation.copy(transform.rotation)
 
   const bodyColliderDesc = ColliderDesc.capsule(
-    vehicleComponent.vehicleHalfHeight - vehicleRadius,
+    defaultVehicleHalfHeight - vehicleRadius,
     vehicleRadius
   ).setCollisionGroups(interactionGroups)
-  bodyColliderDesc.setTranslation(0, vehicleComponent.vehicleHalfHeight, 0)
+  bodyColliderDesc.setTranslation(0, defaultVehicleHalfHeight, 0)
 
   return Physics.createColliderAndAttachToRigidBody(Engine.instance.physicsWorld, bodyColliderDesc, rigidBody.body)
 }
 
 const createVehicleRigidBody = (entity: Entity): RigidBody => {
-  const rigidBodyDesc = RigidBodyDesc.kinematicPositionBased()
+  const rigidBodyDesc = RigidBodyDesc.dynamic()
   const rigidBody = Physics.createRigidBody(entity, Engine.instance.physicsWorld, rigidBodyDesc, [])
-  rigidBody.lockRotations(true, false)
-  rigidBody.setEnabledRotations(false, true, false, false)
-
   return rigidBody
 }
+
 /*
 export const createVehicleController = (entity: Entity) => {
   createVehicleRigidBody(entity)
