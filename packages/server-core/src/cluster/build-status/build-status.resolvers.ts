@@ -23,11 +23,26 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { BuildStatus } from './BuildStatus'
+// // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
+import { resolve } from '@feathersjs/schema'
+import { v4 } from 'uuid'
 
-export interface BuildStatusResult {
-  data: BuildStatus[]
-  total: number
-  limit: number
-  skip: number
-}
+import { BuildStatusQuery, BuildStatusType } from '@etherealengine/engine/src/schemas/cluster/build-status.schema'
+import type { HookContext } from '@etherealengine/server-core/declarations'
+
+import { getDateTimeSql } from '../../util/get-datetime-sql'
+
+export const buildStatusResolver = resolve<BuildStatusType, HookContext>({})
+
+export const buildStatusExternalResolver = resolve<BuildStatusType, HookContext>({})
+
+export const buildStatusDataResolver = resolve<BuildStatusType, HookContext>({
+  createdAt: getDateTimeSql,
+  updatedAt: getDateTimeSql
+})
+
+export const buildStatusPatchResolver = resolve<BuildStatusType, HookContext>({
+  updatedAt: getDateTimeSql
+})
+
+export const buildStatusQueryResolver = resolve<BuildStatusQuery, HookContext>({})

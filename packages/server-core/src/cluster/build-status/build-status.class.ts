@@ -23,17 +23,21 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Paginated, Params } from '@feathersjs/feathers'
-import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
+import type { Params } from '@feathersjs/feathers'
+import { KnexService } from '@feathersjs/knex'
+import type { KnexAdapterParams } from '@feathersjs/knex'
 
-import { BuildStatus as BuildStatusInterface } from '@etherealengine/common/src/interfaces/BuildStatus'
+import {
+  BuildStatusData,
+  BuildStatusPatch,
+  BuildStatusQuery,
+  BuildStatusType
+} from '@etherealengine/engine/src/schemas/cluster/build-status.schema'
 
-import { Application } from '../../../declarations'
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+export interface BuildStatusParams extends KnexAdapterParams<BuildStatusQuery> {}
 
-export class BuildStatus<T = BuildStatusInterface> extends Service<T> {
-  app: Application
-
-  constructor(options: Partial<SequelizeServiceOptions>, app: Application) {
-    super(options)
-  }
-}
+export class BuildStatusService<
+  T = BuildStatusType,
+  ServiceParams extends Params = BuildStatusParams
+> extends KnexService<BuildStatusType, BuildStatusData, BuildStatusParams, BuildStatusPatch> {}

@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { DracoOptions, QuantizeOptions } from '@gltf-transform/functions'
+import { DracoOptions, JoinOptions, PaletteOptions, QuantizeOptions } from '@gltf-transform/functions'
 import { BufferGeometry, Material, Texture } from 'three'
 
 import { OpaqueType } from '@etherealengine/common/src/interfaces/OpaqueType'
@@ -102,6 +102,16 @@ export type ModelTransformParameters = ExtractedImageTransformParameters & {
   resourceUri: string
   instance: boolean
   dedup: boolean
+  flatten: boolean
+  join: {
+    enabled: boolean
+    options: JoinOptions
+  }
+
+  palette: {
+    enabled: boolean
+    options: PaletteOptions
+  }
   prune: boolean
   reorder: boolean
   resample: boolean
@@ -124,6 +134,21 @@ export const DefaultModelTransformParameters: ModelTransformParameters = {
   modelFormat: 'gltf',
   instance: true,
   dedup: true,
+  flatten: true,
+  join: {
+    enabled: true,
+    options: {
+      keepMeshes: false,
+      keepNamed: false
+    }
+  },
+  palette: {
+    enabled: false,
+    options: {
+      blockSize: 4,
+      min: 2
+    }
+  },
   prune: true,
   reorder: true,
   resample: true,
@@ -147,7 +172,7 @@ export const DefaultModelTransformParameters: ModelTransformParameters = {
   },
   textureFormat: 'ktx2',
   textureCompressionType: 'etc1',
-  flipY: true,
+  flipY: false,
   linear: true,
   textureCompressionQuality: 128,
   maxTextureSize: 1024,
