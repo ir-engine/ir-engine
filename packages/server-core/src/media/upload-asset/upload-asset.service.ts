@@ -134,6 +134,7 @@ const addFileToStorageProvider = async (file: Buffer, mimeType: string, key: str
 export type UploadAssetArgs = {
   project: string
   name?: string
+  path?: string
   files: Array<UploadFile> // uploaded file or strings
 }
 
@@ -154,7 +155,7 @@ export const uploadAsset = async (app: Application, args: UploadAssetArgs) => {
 
   if (existingResource) return [existingResource]
 
-  const key = `/temp/${hash}`
+  const key = args.path ?? `/temp/${hash}`
   return await addAssetsAsStaticResource(app, args.files, {
     hash: hash,
     path: key,
@@ -184,7 +185,8 @@ const uploadAssets = (app: Application) => async (data: AssetUploadType, params:
 
     if (data.variants) {
       return uploadAsset(app, {
-        name: data.args.path,
+        path: data.args.path,
+        name: data.args.name,
         files: files,
         project: data.args.project
       })
@@ -193,7 +195,8 @@ const uploadAssets = (app: Application) => async (data: AssetUploadType, params:
     return Promise.all(
       files.map((file, i) =>
         uploadAsset(app, {
-          name: data.args.path.split('.')[0],
+          path: data.args.path,
+          name: data.args.name,
           files: [file],
           project: data.args.project!
         })
