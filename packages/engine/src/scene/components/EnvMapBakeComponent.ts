@@ -194,7 +194,6 @@ export const applyBoxProjection = (entity: Entity, targets: Object3D[]) => {
             shader.fragmentShader = shader.fragmentShader.replace('#include <envmap_fragment>', envmapReplaceLambert)
             shader.uniforms.envMap.value = child.material.envMap
           }
-          child.material.needsUpdate = true
         }
       }
     })

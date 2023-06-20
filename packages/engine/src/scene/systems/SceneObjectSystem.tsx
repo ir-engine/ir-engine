@@ -84,7 +84,6 @@ export function setupObject(obj: Object3DWithEntity, force = false) {
         prevMatEntry && registerMaterial(nuMaterial, prevMatEntry.src)
       }
       normalTexture.dispose()
-      child.material.needsUpdate = true
     }
   })
 }
