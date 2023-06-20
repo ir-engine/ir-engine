@@ -49,7 +49,7 @@ import { isMobileXRHeadset } from '../../xr/XRState'
 import { envmapPhysicalParsReplace, worldposReplace } from '../classes/BPCEMShader'
 import { convertEquiToCubemap } from '../classes/ImageUtils'
 import { EnvMapSourceType, EnvMapTextureType } from '../constants/EnvMapEnum'
-import { getPmremGenerator, loadCubeMapTexture } from '../constants/Util'
+import { getPmremGenerator, getRGBArray, loadCubeMapTexture } from '../constants/Util'
 import { addError, removeError } from '../functions/ErrorFunctions'
 import { EnvMapBakeTypes } from '../types/EnvMapBakeTypes'
 import { applyBoxProjection, EnvMapBakeComponent, isInsideBox } from './EnvMapBakeComponent'
@@ -126,18 +126,7 @@ export const EnvmapComponent = defineComponent({
 
       const col = component.envMapSourceColor.value ?? tempColor
       const resolution = 64 // Min value required
-      const size = resolution * resolution
-      const data = new Uint8Array(4 * size)
-
-      for (let i = 0; i < size; i++) {
-        const stride = i * 4
-        data[stride] = Math.floor(col.r * 255)
-        data[stride + 1] = Math.floor(col.g * 255)
-        data[stride + 2] = Math.floor(col.b * 255)
-        data[stride + 3] = 255
-      }
-
-      const texture = new DataTexture(data, resolution, resolution, RGBAFormat)
+      const texture = new DataTexture(getRGBArray(col), resolution, resolution, RGBAFormat)
       texture.needsUpdate = true
       texture.encoding = sRGBEncoding
 
@@ -156,7 +145,7 @@ export const EnvmapComponent = defineComponent({
               if (texture) {
                 const EnvMap = getPmremGenerator().fromCubemap(texture).texture
                 EnvMap.encoding = sRGBEncoding
-                if (group?.value) applyEnvMap(group.value, EnvMap)
+                if (group?.value) applyEnvMap(group.value, texture)
                 removeError(entity, EnvmapComponent, 'MISSING_FILE')
               }
             },
@@ -168,10 +157,8 @@ export const EnvmapComponent = defineComponent({
         case EnvMapTextureType.Equirectangular:
           AssetLoader.loadAsync(component.envMapSourceURL.value, {}).then((texture) => {
             if (texture) {
-              const EnvMap = getPmremGenerator().fromEquirectangular(texture).texture
-              EnvMap.encoding = sRGBEncoding
-              applyEnvMap(group.value, EnvMap)
-
+              texture.mapping = EquirectangularReflectionMapping
+              applyEnvMap(group.value, texture)
               removeError(entity, EnvmapComponent, 'MISSING_FILE')
               texture.dispose()
             } else {

@@ -160,6 +160,7 @@ export const applyBoxProjection = (entity: Entity, targets: Object3D[]) => {
   for (const target of targets) {
     target.traverse((child: Mesh<any, MeshStandardMaterial>) => {
       if (!child.material || child.type == 'VFXBatch') return
+      console.log(child.material)
       const forceBasicMaterials = getState(RendererState).forceBasicMaterials
       if (!forceBasicMaterials) {
         child.material = Object.assign(new MeshPhysicalMaterial(), child.material)

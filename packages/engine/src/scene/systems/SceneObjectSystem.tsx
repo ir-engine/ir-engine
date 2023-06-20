@@ -4,6 +4,7 @@ import {
   Color,
   DataTexture,
   DoubleSide,
+  IntType,
   Material,
   Mesh,
   MeshBasicMaterial,
@@ -11,6 +12,7 @@ import {
   MeshPhongMaterial,
   MeshPhysicalMaterial,
   MeshStandardMaterial,
+  RGBAFormat,
   Texture
 } from 'three'
 
@@ -44,6 +46,7 @@ import { GroupComponent, GroupQueryReactor, Object3DWithEntity } from '../compon
 import { ShadowComponent } from '../components/ShadowComponent'
 import { UpdatableCallback, UpdatableComponent } from '../components/UpdatableComponent'
 import { VisibleComponent } from '../components/VisibleComponent'
+import { getRGBArray } from '../constants/Util'
 import { EnvironmentSystem } from './EnvironmentSystem'
 import { FogSystem } from './FogSystem'
 import { ShadowSystem } from './ShadowSystem'
@@ -54,9 +57,9 @@ export function setupObject(obj: Object3DWithEntity, force = false) {
   console.log('Setting up')
   const mesh = obj as any as Mesh<any, any>
   //Lambert shader needs an empty normal map to prevent shader errors
-  const emptyNormal = new Uint8Array(4)
-  emptyNormal[0], (emptyNormal[1] = 128)
-  emptyNormal[2], (emptyNormal[3] = 255)
+  const res = 16
+  const normalTexture = new DataTexture(getRGBArray(new Color(0.5, 0.5, 1)), res, res, RGBAFormat)
+  normalTexture.needsUpdate = true
   mesh.traverse((child: Mesh<any, any>) => {
     if (child.material) {
       if (!child.userData) child.userData = {}
@@ -69,14 +72,15 @@ export function setupObject(obj: Object3DWithEntity, force = false) {
         const onlyEmmisive = prevMaterial.emissiveMap && !prevMaterial.map
         const prevMatEntry = unregisterMaterial(prevMaterial)
         const nuMaterial = Object.assign(new MeshLambertMaterial(), prevMaterial) as MeshLambertMaterial
+        console.log(nuMaterial)
         //To do, fine tune roughness compensation
-        if (!nuMaterial.normalMap) nuMaterial.normalMap = new DataTexture(emptyNormal, 1, 1)
+        if (!nuMaterial.normalMap) nuMaterial.normalMap = normalTexture
         if (prevMaterial.roughnessMap) nuMaterial.specularMap = prevMaterial.specularMap
         if (onlyEmmisive) nuMaterial.emissiveMap = prevMaterial.emissiveMap
         else nuMaterial.map = prevMaterial.map
         nuMaterial.envMap = prevMaterial.envMap
+        nuMaterial.reflectivity = prevMaterial.reflectivity ?? prevMaterial.metalness
         child.material = nuMaterial
-
         child.userData.lastMaterial = prevMaterial
         prevMatEntry && registerMaterial(nuMaterial, prevMatEntry.src)
       }
