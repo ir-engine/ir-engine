@@ -57,7 +57,7 @@ export function setupObject(obj: Object3DWithEntity, force = false) {
   console.log('Setting up')
   const mesh = obj as any as Mesh<any, any>
   //Lambert shader needs an empty normal map to prevent shader errors
-  const res = 16
+  const res = 8
   const normalTexture = new DataTexture(getRGBArray(new Color(0.5, 0.5, 1)), res, res, RGBAFormat)
   normalTexture.needsUpdate = true
   mesh.traverse((child: Mesh<any, any>) => {
@@ -71,8 +71,7 @@ export function setupObject(obj: Object3DWithEntity, force = false) {
         const prevMaterial = child.material
         const onlyEmmisive = prevMaterial.emissiveMap && !prevMaterial.map
         const prevMatEntry = unregisterMaterial(prevMaterial)
-        const nuMaterial = Object.assign(new MeshLambertMaterial(), prevMaterial) as MeshLambertMaterial
-        console.log(nuMaterial)
+        const nuMaterial = new MeshLambertMaterial().copy(prevMaterial)
         //To do, fine tune roughness compensation
         if (!nuMaterial.normalMap) nuMaterial.normalMap = normalTexture
         if (prevMaterial.roughnessMap) nuMaterial.specularMap = prevMaterial.specularMap
@@ -84,14 +83,14 @@ export function setupObject(obj: Object3DWithEntity, force = false) {
         child.userData.lastMaterial = prevMaterial
         prevMatEntry && registerMaterial(nuMaterial, prevMatEntry.src)
       }
-      child.material.dithering = true
+      normalTexture.dispose()
+      child.material.needsUpdate = true
     }
   })
 }
 
 const groupQuery = defineQuery([GroupComponent])
 const updatableQuery = defineQuery([GroupComponent, UpdatableComponent, CallbackComponent])
-const envmapBakeQuery = defineQuery([EnvMapBakeComponent])
 
 function SceneObjectReactor(props: { entity: Entity; obj: Object3DWithEntity }) {
   const { entity, obj } = props

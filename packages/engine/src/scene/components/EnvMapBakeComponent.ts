@@ -181,7 +181,6 @@ export const applyBoxProjection = (entity: Entity, targets: Object3D[]) => {
         }
       } else {
         if (child.material) {
-          ;(child.material as any) = new MeshLambertMaterial().copy(child.material)
           child.material.onBeforeCompile = function (shader) {
             //these parameters are for the cubeCamera texture
             shader.uniforms.cubeMapSize = { value: bakeComponent.bakeScale }
