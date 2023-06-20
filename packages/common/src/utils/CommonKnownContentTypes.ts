@@ -38,6 +38,7 @@ export const CommonKnownContentTypes = {
   pdf: 'application/pdf',
   m3u8: 'application/vnd.apple.mpegurl',
   mp4: 'video/mp4',
+  mkv: 'video/x-matroska',
   mp3: 'audio/mpeg',
   tsx: 'application/octet-stream',
   ts: 'application/octet-stream',
@@ -59,6 +60,7 @@ export const MimeTypeToExtension = {
   'application/pdf': 'pdf',
   'application/vnd.apple.mpegurl': 'm3u8',
   'video/mp4': 'mp4',
+  'video/x-matroska': 'mkv',
   'audio/mpeg': 'mp3',
   'audio/mp3': 'mp3',
   'audio/ogg': 'ogg'

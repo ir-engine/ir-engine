@@ -88,7 +88,7 @@ export const getFileMetadata = async (data: { name?: string; file: UploadFile | 
     } else {
       const fileHead = await fs.statSync(url)
       contentLength = fileHead.size
-      mimeType = CommonKnownContentTypes[url.split('.').pop()!]
+      mimeType = CommonKnownContentTypes[url.split('.').pop()!] ?? 'application/octet-stream'
     }
     if (!name) assetName = url.split('/').pop()!
     extension = url.split('.').pop()!

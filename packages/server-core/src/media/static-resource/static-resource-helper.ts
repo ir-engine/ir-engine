@@ -116,6 +116,19 @@ export const isAssetFromProject = (url: string, project: string) => {
   return isFromProject
 }
 
+export const getKeyForAsset = (url: string, project: string, isFromProject: boolean) => {
+  const storageProvider = getStorageProvider()
+  const storageProviderPath = path.join(storageProvider.cacheDomain, 'projects/', project)
+  const projectPath = url
+    .replace(storageProviderPath, '')
+    .replace(path.join(absoluteProjectPath, project), '')
+    .split('/')
+    .slice(0, -1)
+    .join('/')
+  const key = isFromProject ? `projects/${project}${projectPath}` : `static-resources/${project}/`
+  return key
+}
+
 /**
  * install project
  * if external url and clone static resources, clone to /static-resources/project
@@ -129,13 +142,14 @@ export const addAssetsFromProject = async (
   download = config.server.cloneProjectStaticResources
 ) => {
   // console.log('addAssetsFromProject', urls, project, download)
-  const absoluteUrls = urls.map((url) => url.replace(pathSymbol, absoluteProjectPath))
+  const absoluteUrls = urls.map((url) => decodeURI(url.replace(pathSymbol, absoluteProjectPath)))
   const mainURL = absoluteUrls[0]
 
   const isFromProject = isAssetFromProject(mainURL, project)
 
   const { hash, mimeType } = await getFileMetadata({ file: mainURL })
-  const key = isFromProject ? `projects/${project}/assets/` : `static-resources/${project}/`
+
+  const key = getKeyForAsset(mainURL, project, isFromProject)
 
   const existingResource = (await app.service('static-resource').Model.findOne({
     where: {
@@ -158,31 +172,35 @@ export const addAssetsFromProject = async (
   })
 }
 
-export const getStats = async (buffer: Buffer | string, mimeType: string): Promise<Record<string, any> | undefined> => {
-  switch (mimeType) {
-    case 'audio/mpeg':
-    case 'audio/mp3':
-    case 'audio/ogg':
-    case 'audio/wav':
-      return StatFunctions.audio(buffer, mimeType)
-    case 'video/mp4':
-    case 'video/webm':
-      return StatFunctions.video(buffer, mimeType)
-    case 'image/jpeg':
-    case 'image/jpg':
-    case 'image/png':
-    case 'image/gif':
-    case 'image/ktx2':
-      return StatFunctions.image(buffer, mimeType)
-    case 'model/gltf-binary':
-    case 'model/gltf+json':
-    case 'model/gltf':
-    case 'model/glb':
-      return StatFunctions.model(buffer, mimeType)
-    case 'model/vox':
-      return StatFunctions.volumetric(buffer, mimeType)
-    default:
-      return
+export const getStats = async (buffer: Buffer | string, mimeType: string): Promise<Record<string, any>> => {
+  try {
+    switch (mimeType) {
+      case 'audio/mpeg':
+      case 'audio/mp3':
+      case 'audio/ogg':
+      case 'audio/wav':
+        return StatFunctions.audio(buffer, mimeType)
+      case 'video/mp4':
+      case 'video/webm':
+        return StatFunctions.video(buffer, mimeType)
+      case 'image/jpeg':
+      case 'image/jpg':
+      case 'image/png':
+      case 'image/gif':
+      case 'image/ktx2':
+        return StatFunctions.image(buffer, mimeType)
+      case 'model/gltf-binary':
+      case 'model/gltf+json':
+      case 'model/gltf':
+      case 'model/glb':
+        return StatFunctions.model(buffer, mimeType)
+      case 'model/vox':
+        return StatFunctions.volumetric(buffer, mimeType)
+      default:
+        return {}
+    }
+  } catch (e) {
+    return {}
   }
 }
 
@@ -258,7 +276,10 @@ export const getVideoStats = async (input: Buffer | string, mimeType: string) =>
   }
 }
 
-export const getImageStats = async (file: Buffer | string, mimeType: string) => {
+export const getImageStats = async (
+  file: Buffer | string,
+  mimeType: string
+): Promise<{ width: number; height: number }> => {
   if (mimeType === 'image/ktx2') {
     const loader = new KTX2Loader()
     return new Promise<{ width: number; height: number }>((resolve, reject) => {
@@ -304,12 +325,19 @@ export const getImageStats = async (file: Buffer | string, mimeType: string) => 
     const stream = new Readable()
     stream.push(file)
     stream.push(null)
-    const imageDimensions = await probe(stream)
-    return {
-      width: imageDimensions.width as number,
-      height: imageDimensions.height as number
+    try {
+      const imageDimensions = await probe(stream)
+      return {
+        width: imageDimensions.width as number,
+        height: imageDimensions.height as number
+      }
+    } catch (e) {
+      console.error('error getting image stats')
+      console.error(e)
+      console.log(file, mimeType)
     }
   }
+  return {} as any
 }
 
 export const getModelStats = async (file: Buffer | string, mimeType: string) => {

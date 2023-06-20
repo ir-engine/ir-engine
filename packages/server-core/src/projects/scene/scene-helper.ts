@@ -24,19 +24,18 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import koa from '@feathersjs/koa'
-import appRootPath from 'app-root-path'
-import path from 'path'
+import fs from 'fs'
 
-import config from '@etherealengine/common/src/config'
 import { PortalDetail } from '@etherealengine/common/src/interfaces/PortalInterface'
 import { SceneJson } from '@etherealengine/common/src/interfaces/SceneInterface'
-import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoader'
-import { AssetClass } from '@etherealengine/engine/src/assets/enum/AssetClass'
 
 import { Application } from '../../../declarations'
+import config from '../../appconfig'
 import { addAssetsFromProject } from '../../media/static-resource/static-resource-helper'
+import { getCacheDomain } from '../../media/storageprovider/getCacheDomain'
+import { getStorageProvider } from '../../media/storageprovider/storageprovider'
 // import { addVolumetricAssetFromProject } from '../../media/volumetric/volumetric-upload.helper'
-import { parseScenePortals } from './scene-parser'
+import { cleanSceneDataCacheURLs, parseScenePortals } from './scene-parser'
 import { SceneParams } from './scene.service'
 
 const FILE_NAME_REGEX = /(\w+\.\w+)$/
@@ -90,6 +89,32 @@ export const getEnvMapBakeById = async (app, entityId: string) => {
   // })
 }
 
+export const uploadSceneToStaticResources = async (
+  app: Application,
+  projectName: string,
+  file: string,
+  storageProviderName?: string
+) => {
+  const fileResult = fs.readFileSync(file)
+
+  // todo - how do we handle updating projects on local dev?
+  if (!config.kubernetes.enabled) return fileResult
+
+  const storageProvider = getStorageProvider(storageProviderName)
+  const cacheDomain = getCacheDomain(storageProvider, true)
+
+  if (/.scene.json$/.test(file)) {
+    const sceneData = JSON.parse(fileResult.toString())
+    const convertedSceneData = await convertStaticResource(app, projectName, sceneData)
+    cleanSceneDataCacheURLs(convertedSceneData, cacheDomain)
+    const newFile = Buffer.from(JSON.stringify(convertedSceneData, null, 2))
+    fs.writeFileSync(file, newFile)
+    return newFile
+  }
+
+  return fileResult
+}
+
 export const convertStaticResource = async (app: Application, project: string, sceneData: SceneJson) => {
   await Promise.all(
     Object.values(sceneData!.entities).map(async (entity) => {
@@ -109,7 +134,8 @@ export const convertStaticResource = async (app: Application, project: string, s
                 else urls = resources.map((resource) => resource.path)
               }
 
-              if (entity.components.find((component) => component.name === 'volumetric')) {
+              const isVolumetric = entity.components.find((component) => component.name === 'volumetric')
+              if (isVolumetric) {
                 const extensions = ['drcs', 'mp4', 'manifest']
                 const newUrls = [] as string[]
                 for (const url of urls) {
@@ -123,7 +149,11 @@ export const convertStaticResource = async (app: Application, project: string, s
               }
               const response = await Promise.all(urls.map(async (url) => addAssetsFromProject(app, [url], project)))
               const newUrls = response.flat().map((asset) => asset.url)
-              component.props.resources = newUrls
+              if (isVolumetric) {
+                component.props.resources = newUrls.filter((url) => url.endsWith('.mp4'))
+              } else {
+                component.props.resources = newUrls
+              }
               break
             }
             case 'gltf-model': {
@@ -134,19 +164,11 @@ export const convertStaticResource = async (app: Application, project: string, s
               break
             }
             case 'image': {
-              let urls = [] as string[]
-              const paths = component.props.paths
-              const resources = component.props.resources
-              if (paths && paths.length > 0) {
-                urls = paths
-                delete component.props.paths
-              } else if (resources && resources.length > 0 && typeof resources[0]?.path) {
-                urls = resources.map((resource) => resource.path)
-                delete component.props.resources
-              }
-              component.props.resources = await Promise.all(
-                urls.map((url) => addAssetsFromProject(app, [url], project))
-              )
+              const source = component.props.source
+              const urls = [source]
+              const response = await Promise.all(urls.map(async (url) => addAssetsFromProject(app, [url], project)))
+              const newUrls = response.flat().map((asset) => asset.url)
+              component.props.source = newUrls[0]
               break
             }
           }

@@ -62,7 +62,6 @@ let sceneVisible = true
 
 const hyperspaceEffect = new PortalEffect()
 hyperspaceEffect.scale.set(10, 10, 10)
-setObjectLayers(hyperspaceEffect, ObjectLayers.Portal)
 
 const light = new AmbientLight('#aaa')
 light.layers.enable(ObjectLayers.Portal)
@@ -149,6 +148,7 @@ const reactor = () => {
     PortalEffects.set(HyperspacePortalEffect, HyperspaceTagComponent)
 
     const transition = createTransitionState(0.5, 'OUT')
+    setObjectLayers(hyperspaceEffect, ObjectLayers.Portal)
 
     getMutableState(HyperspacePortalSystemState).set({
       transition
