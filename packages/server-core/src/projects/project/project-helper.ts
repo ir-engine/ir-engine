@@ -697,8 +697,8 @@ export const findBuilderTags = async (): Promise<Array<BuilderTag>> => {
   if (publicECRExec) {
     const ecr = new ECRPUBLICClient({
       credentials: {
-        accessKeyId: process.env.AWS_ACCESS_KEY as string, //FIXME Replace these with proper EKS user credentials from config once it stores those credentials somewhere
-        secretAccessKey: process.env.AWS_SECRET as string
+        accessKeyId: config.aws.eks.accessKeyId,
+        secretAccessKey: config.aws.eks.secretAccessKey
       },
       region: 'us-east-1'
     })
@@ -726,8 +726,8 @@ export const findBuilderTags = async (): Promise<Array<BuilderTag>> => {
   } else if (privateECRExec) {
     const ecr = new ECRClient({
       credentials: {
-        accessKeyId: process.env.AWS_ACCESS_KEY as string, //FIXME Replace these with proper EKS user credentials from config once it stores those credentials somewhere
-        secretAccessKey: process.env.AWS_SECRET as string
+        accessKeyId: config.aws.eks.accessKeyId,
+        secretAccessKey: config.aws.eks.secretAccessKey
       },
       region: privateECRExec[1]
     })

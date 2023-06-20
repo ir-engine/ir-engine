@@ -71,7 +71,7 @@
     "react-file-drop": "3.1.6",
     "react-full-screen": "1.1.1",
     "react-i18next": "11.16.6",
-    "react-json-tree": "0.15.2",
+    "react-json-tree": "^0.18.0",
     "react-router-dom": "6.9.0",
     "sass": "1.59.3",
     "tailwindcss": "^3.3.2",

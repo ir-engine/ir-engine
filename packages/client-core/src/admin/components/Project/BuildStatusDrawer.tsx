@@ -61,7 +61,7 @@ const BuildStatusDrawer = ({ open, onClose }: Props) => {
   const { t } = useTranslation()
   const page = useHookstate(0)
   const rowsPerPage = useHookstate(10)
-  const selectedStatusId = useHookstate('')
+  const selectedStatusId = useHookstate(0)
   const logsModalOpen = useHookstate(false)
 
   const fieldOrder = useHookstate('desc')
@@ -81,7 +81,7 @@ const BuildStatusDrawer = ({ open, onClose }: Props) => {
 
   const handleCloseLogsModal = () => {
     logsModalOpen.set(false)
-    selectedStatusId.set('')
+    selectedStatusId.set(0)
   }
   const createData = (el: BuildStatusType) => {
     return {
