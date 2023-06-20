@@ -136,10 +136,39 @@ function mediapipe_workaround() {
   }
 }
 
-const writeEmptySWFile = () => {
-  const swPath = path.resolve(packageRoot.path, 'packages/client/public/service-worker.js')
-  if (!fs.existsSync(swPath)) {
-    fs.writeFileSync(swPath, 'if(!self.define){}')
+// https://stackoverflow.com/a/44078347
+const deleteDirFilesUsingPattern = (pattern, dirPath) => {
+  // get all file names in directory
+  fs.readdir(dirPath, (err, fileNames) => {
+    if (err) throw err
+    // iterate through the found file names
+    for (const name of fileNames) {
+      // if file name matches the pattern
+      if (pattern.test(name)) {
+        // try to remove the file and log the result
+        fs.unlink(path.resolve(dirPath, name), (err) => {
+          if (err) throw err
+          console.log(`Deleted ${name}`)
+        })
+      }
+    }
+  })
+}
+
+const resetSWFiles = () => {
+  // Delete old manifest files
+  deleteDirFilesUsingPattern(/webmanifest/, './public/')
+  // Delete old service worker files
+  deleteDirFilesUsingPattern(/service-/, './public/')
+  // Delete old workbox files
+  deleteDirFilesUsingPattern(/workbox-/, './public/')
+
+  if (process.env.APP_ENV !== 'development') {
+    // Write empty service worker file
+    const swPath = path.resolve(packageRoot.path, 'packages/client/public/service-worker.js')
+    if (!fs.existsSync(swPath)) {
+      fs.writeFileSync(swPath, 'if(!self.define){}')
+    }
   }
 }
 
@@ -153,7 +182,7 @@ export default defineConfig(async () => {
   const clientSetting = await getClientSetting()
   const coilSetting = await getCoilSetting()
 
-  writeEmptySWFile()
+  resetSWFiles()
 
   const isDevOrLocal = process.env.APP_ENV === 'development' || process.env.VITE_LOCAL_BUILD === 'true'
 
@@ -213,7 +242,10 @@ export default defineConfig(async () => {
         icon192px: clientSetting.icon192px || '/android-chrome-192x192.png',
         icon512px: clientSetting.icon512px || '/android-chrome-512x512.png',
         webmanifestLink: clientSetting.webmanifestLink || '/manifest.webmanifest',
-        swScriptLink: clientSetting.swScriptLink || 'service-worker.js',
+        swScriptLink:
+          process.env.APP_ENV === 'development'
+            ? 'dev-sw.js?dev-sw'
+            : clientSetting.swScriptLink || 'service-worker.js',
         paymentPointer: coilSetting.paymentPointer || ''
       }),
       viteCompression({

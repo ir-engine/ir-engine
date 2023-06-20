@@ -1,6 +1,7 @@
 node_modules/
 www/
 
+public/manifest.webmanifest
 public/service-*
 public/workbox-*
-public/service-worker.js
+dev-dist/
