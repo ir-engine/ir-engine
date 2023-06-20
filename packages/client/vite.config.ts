@@ -58,10 +58,7 @@ const parseModuleName = (moduleName: string) => {
   if (moduleName.includes('@feathersjs')) {
     return `vendor_feathersjs_${moduleName.toString().split('@feathersjs/')[1].split('/')[0].toString()}`
   }
-  // chunk ajv
-  if (moduleName.includes('ajv/dist')) {
-    return `vendor_ajv_${moduleName.toString().split('dist/')[1].split('/')[0].toString()}`
-  }
+
   // chunk @reactflow
   if (moduleName.includes('@reactflow')) {
     return `vendor_reactflow_${moduleName.toString().split('@reactflow/')[1].split('/')[0].toString()}`
@@ -109,11 +106,9 @@ const parseModuleName = (moduleName: string) => {
   if (moduleName.includes('@dimforge')) {
     return `vendor_@dimforge_${moduleName.toString().split('rapier3d-compat/')[1].split('/')[0].toString()}`
   }
-  // ignore source files
-  if (!moduleName.includes('src')) {
-    // but chunk all other node_modules
-    return `vendor_${moduleName.toString().split('node_modules/')[1].split('/')[0].toString()}`
-  }
+
+  // Chunk all other node_modules
+  return `vendor_${moduleName.toString().split('node_modules/')[1].split('/')[0].toString()}`
 }
 
 const merge = (src, dest) =>
@@ -324,8 +319,7 @@ export default defineConfig(async () => {
         external: ['dotenv-flow'],
         output: {
           dir: 'dist',
-          exporimentalDynamicImport: true,
-          format: 'module', // 'commonjs' | 'esm' | 'module' | 'systemjs'
+          format: 'es', // 'commonjs' | 'esm' | 'module' | 'systemjs'
           // ignore files under 1mb
           experimentalMinChunkSize: 1000000,
           manualChunks: (id) => {
