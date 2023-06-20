@@ -40,9 +40,7 @@ dotenv.config({
 
 export const buildStatusSchema = Type.Object(
   {
-    id: Type.String({
-      format: 'uuid'
-    }),
+    id: Type.Integer(),
     status: Type.String(),
     dateStarted: Type.String(),
     dateEnded: Type.String(),
@@ -84,9 +82,7 @@ cli.main(async () => {
         dateEnded: dateNow
       })
 
-    const idBuildStatus = v4()
-    await knexClient.from<BuildStatusType>(buildStatusPath).insert({
-      id: idBuildStatus,
+    const newBuildStatus = await knexClient.from<BuildStatusType>(buildStatusPath).insert({
       dateStarted: dateNow,
       commitSHA: process.env.TAG ? process.env.TAG.split('_')[1] : '',
       createdAt: new Date().toISOString().slice(0, 19).replace('T', ' '),
@@ -94,7 +90,7 @@ cli.main(async () => {
     })
 
     const path = appRootPath.path + `/builder-run.txt`
-    fs.writeFileSync(path, idBuildStatus)
+    fs.writeFileSync(path, newBuildStatus.toString())
 
     cli.exit(0)
   } catch (err) {

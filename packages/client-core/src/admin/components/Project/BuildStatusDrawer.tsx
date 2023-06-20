@@ -47,7 +47,7 @@ interface Props {
 }
 
 const defaultBuildStatus: BuildStatusType = {
-  id: '',
+  id: 0,
   commitSHA: '',
   status: '',
   dateStarted: '',

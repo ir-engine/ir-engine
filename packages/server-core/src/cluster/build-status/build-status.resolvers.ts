@@ -37,9 +37,6 @@ export const buildStatusResolver = resolve<BuildStatusType, HookContext>({})
 export const buildStatusExternalResolver = resolve<BuildStatusType, HookContext>({})
 
 export const buildStatusDataResolver = resolve<BuildStatusType, HookContext>({
-  id: async () => {
-    return v4()
-  },
   createdAt: getDateTimeSql,
   updatedAt: getDateTimeSql
 })

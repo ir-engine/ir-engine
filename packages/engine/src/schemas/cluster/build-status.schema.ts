@@ -34,9 +34,7 @@ export const buildStatusMethods = ['find', 'get', 'create', 'patch', 'remove'] a
 // Main data model schema
 export const buildStatusSchema = Type.Object(
   {
-    id: Type.String({
-      format: 'uuid'
-    }),
+    id: Type.Integer(),
     status: Type.String(),
     dateStarted: Type.String(),
     dateEnded: Type.String(),

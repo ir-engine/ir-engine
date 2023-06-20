@@ -37,9 +37,7 @@ dotenv.config({
 
 export const buildStatusSchema = Type.Object(
   {
-    id: Type.String({
-      format: 'uuid'
-    }),
+    id: Type.Integer(),
     status: Type.String(),
     dateStarted: Type.String(),
     dateEnded: Type.String(),
@@ -87,7 +85,7 @@ cli.main(async () => {
         await knexClient
           .from<BuildStatusType>(buildStatusPath)
           .where({
-            id: builderRun
+            id: parseInt(builderRun)
           })
           .update({
             status: 'failed',
@@ -102,7 +100,7 @@ cli.main(async () => {
         await knexClient
           .from<BuildStatusType>(buildStatusPath)
           .where({
-            id: builderRun
+            id: parseInt(builderRun)
           })
           .update({
             status: 'failed',
