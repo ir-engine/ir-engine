@@ -72,8 +72,8 @@ export class S3Provider implements StorageProviderInterface {
    */
   provider: S3Client = new S3Client({
     credentials: {
-      accessKeyId: config.aws.keys.accessKeyId,
-      secretAccessKey: config.aws.keys.secretAccessKey
+      accessKeyId: config.aws.s3.accessKeyId,
+      secretAccessKey: config.aws.s3.secretAccessKey
     },
     endpoint: config.server.storageProviderExternalEndpoint
       ? config.server.storageProviderExternalEndpoint
@@ -110,8 +110,8 @@ export class S3Provider implements StorageProviderInterface {
   private cloudfront: CloudFrontClient = new CloudFrontClient({
     region: config.aws.cloudfront.region,
     credentials: {
-      accessKeyId: config.aws.keys.accessKeyId,
-      secretAccessKey: config.aws.keys.secretAccessKey
+      accessKeyId: config.aws.s3.accessKeyId,
+      secretAccessKey: config.aws.s3.secretAccessKey
     }
   })
 
