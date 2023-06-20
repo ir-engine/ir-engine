@@ -69,6 +69,7 @@ export const createGeometryFromPolygon = (plane: XRPlane) => {
   geometry.setAttribute('position', new BufferAttribute(new Float32Array(vertices), 3))
   geometry.setAttribute('uv', new BufferAttribute(new Float32Array(uvs), 2))
   geometry.setIndex(indices)
+  geometry.computeVertexNormals()
   return geometry
 }
 

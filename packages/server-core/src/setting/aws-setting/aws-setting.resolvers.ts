@@ -23,12 +23,13 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-// // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
+// For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
 import { resolve } from '@feathersjs/schema'
 import { v4 } from 'uuid'
 
 import {
   AwsCloudFrontType,
+  AwsEksType,
   AwsKeysType,
   AwsRoute53Type,
   AwsS3Type,
@@ -43,13 +44,13 @@ import { getDateTimeSql } from '../../util/get-datetime-sql'
 
 export const awsSettingResolver = resolve<AwsSettingType, HookContext>({})
 
-export const awsDbToSchema = async (rawData: AwsSettingDatabaseType): Promise<AwsSettingType> => {
-  let keys = JSON.parse(rawData.keys) as AwsKeysType
+export const awsDbToSchema = (rawData: AwsSettingDatabaseType): AwsSettingType => {
+  let eks = JSON.parse(rawData.eks || '{}') as AwsEksType
 
   // Usually above JSON.parse should be enough. But since our pre-feathers 5 data
   // was serialized multiple times, therefore we need to parse it twice.
-  if (typeof keys === 'string') {
-    keys = JSON.parse(keys)
+  if (typeof eks === 'string') {
+    eks = JSON.parse(eks)
   }
 
   let route53 = JSON.parse(rawData.route53) as AwsRoute53Type
@@ -91,7 +92,7 @@ export const awsDbToSchema = async (rawData: AwsSettingDatabaseType): Promise<Aw
 
   return {
     ...rawData,
-    keys,
+    eks,
     route53,
     s3,
     cloudfront,

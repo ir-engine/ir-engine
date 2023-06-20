@@ -263,6 +263,7 @@
       "keys": "Keys",
       "accessKeyId": "Access Key ID",
       "secretAccessKey": "Secret Access Key",
+      "eks": "EKS",
       "route53": "Route53",
       "hostedZoneId": "Hosted Zone ID",
       "s3": "S3",
