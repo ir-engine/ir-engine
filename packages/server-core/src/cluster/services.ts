@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import BuildStatus from './build-status/build-status.service'
+import BuildStatus from './build-status/build-status'
 import ServerInfo from './server-info/server-info.service'
 import ServerLogs from './server-logs/server-logs.service'
 

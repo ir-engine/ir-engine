@@ -27,51 +27,57 @@ Ethereal Engine. All Rights Reserved.
 import { querySyntax, Type } from '@feathersjs/typebox'
 import type { Static } from '@feathersjs/typebox'
 
-export const coilSettingPath = 'coil-setting'
+export const buildStatusPath = 'build-status'
 
-export const coilSettingMethods = ['find', 'get', 'create', 'patch', 'remove'] as const
+export const buildStatusMethods = ['find', 'get', 'create', 'patch', 'remove'] as const
 
 // Main data model schema
-export const coilSettingSchema = Type.Object(
+export const buildStatusSchema = Type.Object(
   {
-    id: Type.String({
-      format: 'uuid'
-    }),
-    paymentPointer: Type.String(),
-    clientId: Type.String(),
-    clientSecret: Type.String(),
+    id: Type.Integer(),
+    status: Type.String(),
+    dateStarted: Type.String(),
+    dateEnded: Type.String(),
+    logs: Type.String(),
+    commitSHA: Type.String(),
     createdAt: Type.String({ format: 'date-time' }),
     updatedAt: Type.String({ format: 'date-time' })
   },
-  { $id: 'CoilSetting', additionalProperties: false }
+  { $id: 'BuildStatus', additionalProperties: false }
 )
-export type CoilSettingType = Static<typeof coilSettingSchema>
+export type BuildStatusType = Static<typeof buildStatusSchema>
 
 // Schema for creating new entries
-export const coilSettingDataSchema = Type.Pick(coilSettingSchema, ['paymentPointer', 'clientId', 'clientSecret'], {
-  $id: 'CoilSettingData'
-})
-export type CoilSettingData = Static<typeof coilSettingDataSchema>
+export const buildStatusDataSchema = Type.Pick(
+  buildStatusSchema,
+  ['status', 'dateStarted', 'dateEnded', 'logs', 'commitSHA'],
+  {
+    $id: 'BuildStatusData'
+  }
+)
+export type BuildStatusData = Static<typeof buildStatusDataSchema>
 
 // Schema for updating existing entries
-export const coilSettingPatchSchema = Type.Partial(coilSettingSchema, {
-  $id: 'CoilSettingPatch'
+export const buildStatusPatchSchema = Type.Partial(buildStatusSchema, {
+  $id: 'BuildStatusPatch'
 })
-export type CoilSettingPatch = Static<typeof coilSettingPatchSchema>
+export type BuildStatusPatch = Static<typeof buildStatusPatchSchema>
 
 // Schema for allowed query properties
-export const coilSettingQueryProperties = Type.Pick(coilSettingSchema, [
+export const buildStatusQueryProperties = Type.Pick(buildStatusSchema, [
   'id',
-  'paymentPointer',
-  'clientId',
-  'clientSecret'
+  'status',
+  'dateStarted',
+  'dateEnded',
+  'logs',
+  'commitSHA'
 ])
-export const coilSettingQuerySchema = Type.Intersect(
+export const buildStatusQuerySchema = Type.Intersect(
   [
-    querySyntax(coilSettingQueryProperties),
+    querySyntax(buildStatusQueryProperties),
     // Add additional query properties here
     Type.Object({}, { additionalProperties: false })
   ],
   { additionalProperties: false }
 )
-export type CoilSettingQuery = Static<typeof coilSettingQuerySchema>
+export type BuildStatusQuery = Static<typeof buildStatusQuerySchema>

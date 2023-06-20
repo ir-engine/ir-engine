@@ -27,9 +27,19 @@ import { ColliderDesc, RigidBodyDesc } from '@dimforge/rapier3d-compat'
 import { useEffect } from 'react'
 import { Color, Mesh, MeshLambertMaterial, PlaneGeometry, ShadowMaterial } from 'three'
 
+import { getState } from '@etherealengine/hyperflux'
+
 import { matches } from '../../common/functions/MatchesUtils'
 import { Engine } from '../../ecs/classes/Engine'
-import { defineComponent, getMutableComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
+import { EngineState } from '../../ecs/classes/EngineState'
+import {
+  defineComponent,
+  getMutableComponent,
+  hasComponent,
+  removeComponent,
+  setComponent,
+  useComponent
+} from '../../ecs/functions/ComponentFunctions'
 import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { Physics } from '../../physics/classes/Physics'
 import { CollisionGroups } from '../../physics/enums/CollisionGroups'
@@ -37,6 +47,8 @@ import { getInteractionGroups } from '../../physics/functions/getInteractionGrou
 import { ObjectLayers } from '../constants/ObjectLayers'
 import { enableObjectLayer } from '../functions/setObjectLayers'
 import { addObjectToGroup, GroupComponent, removeObjectFromGroup } from './GroupComponent'
+import { SceneAssetPendingTagComponent } from './SceneAssetPendingTagComponent'
+import { SceneObjectComponent } from './SceneObjectComponent'
 
 export const GroundPlaneComponent = defineComponent({
   name: 'GroundPlaneComponent',
@@ -57,6 +69,12 @@ export const GroundPlaneComponent = defineComponent({
       component.color.value.set(json.color)
     if (matches.boolean.test(json.visible)) component.visible.set(json.visible)
     if (matches.object.test(json.mesh)) component.mesh.set(json.mesh as any)
+
+    /**
+     * Add SceneAssetPendingTagComponent to tell scene loading system we should wait for this asset to load
+     */
+    if (!getState(EngineState).sceneLoaded && hasComponent(entity, SceneObjectComponent))
+      setComponent(entity, SceneAssetPendingTagComponent)
   },
 
   toJSON(entity, component) {
@@ -94,6 +112,8 @@ export const GroundPlaneComponent = defineComponent({
       )
 
       Physics.createRigidBody(entity, Engine.instance.physicsWorld, rigidBodyDesc, [colliderDesc])
+
+      if (hasComponent(entity, SceneAssetPendingTagComponent)) removeComponent(entity, SceneAssetPendingTagComponent)
 
       return () => {
         Physics.removeRigidBody(entity, Engine.instance.physicsWorld)
