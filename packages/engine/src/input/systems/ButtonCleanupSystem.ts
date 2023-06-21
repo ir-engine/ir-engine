@@ -26,12 +26,12 @@ Ethereal Engine. All Rights Reserved.
 import { Engine } from '../../ecs/classes/Engine'
 import { defineQuery, getComponent } from '../../ecs/functions/ComponentFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
-import { OldButtonInputStateType } from '../ButtonState'
 import { InputSourceComponent } from '../components/InputSourceComponent'
+import { ButtonStateMap } from '../state/ButtonState'
 
 const inputSources = defineQuery([InputSourceComponent])
 
-function cleanupButton(key: string, buttons: OldButtonInputStateType, hasFocus: boolean) {
+function cleanupButton(key: string, buttons: ButtonStateMap, hasFocus: boolean) {
   const button = buttons[key]
   if (button?.down) button.down = false
   if (button?.up || !hasFocus) delete buttons[key]
@@ -47,7 +47,7 @@ const execute = () => {
   for (const eid of inputSources()) {
     const source = getComponent(eid, InputSourceComponent)
     for (const key in source.buttons) {
-      cleanupButton(key, Engine.instance.buttons, hasFocus)
+      cleanupButton(key, source.buttons, hasFocus)
     }
   }
 }

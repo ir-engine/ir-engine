@@ -1,7 +1,9 @@
 import { defineState } from '@etherealengine/hyperflux'
 
-defineState({
+export const InputState = defineState({
   name: 'EE.InputState',
 
-  initial: {}
+  initial: {
+    inputSources: XRInputSourceArray
+  }
 })

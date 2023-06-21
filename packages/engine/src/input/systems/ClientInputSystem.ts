@@ -67,6 +67,7 @@ import { createInitialButtonState, OldButtonInputStateType, OldButtonTypes } fro
 import { InputComponent } from '../components/InputComponent'
 import { InputSourceComponent } from '../components/InputSourceComponent'
 import normalizeWheel from '../functions/normalizeWheel'
+import { InputState } from '../state/InputState'
 
 function preventDefault(e) {
   e.preventDefault()
@@ -78,10 +79,11 @@ interface ListenerBindingData {
   callback: (event) => void
 }
 
-const boundListeners: ListenerBindingData[] = []
-
 export const addClientInputListeners = () => {
   if (!isClient) return
+
+  const boundListeners: ListenerBindingData[] = []
+
   const canvas = EngineRenderer.instance.canvas
 
   window.addEventListener('DOMMouseScroll', preventDefault, false)
@@ -216,68 +218,16 @@ export const addClientInputListeners = () => {
     Engine.instance.pointerState.scroll.y += y
   }
   addListener(canvas, 'wheel', onWheelEvent, { passive: true, capture: true })
-}
 
-export const removeClientInputListeners = () => {
-  // if not client, no listeners will exist
-  if (!boundListeners.length) return
-
-  window.removeEventListener('DOMMouseScroll', preventDefault, false)
-
-  boundListeners.forEach(({ domElement, eventName, callback }) => {
-    domElement.removeEventListener(eventName, callback)
-  })
-  boundListeners.splice(0, boundListeners.length - 1)
-}
-
-export const OldGamepadMapping = {
-  //https://w3c.github.io/gamepad/#remapping
-  standard: {
-    0: 'ButtonA',
-    1: 'ButtonB',
-    2: 'ButtonX',
-    3: 'ButtonY',
-    4: 'LeftBumper',
-    5: 'RightBumper',
-    6: 'LeftTrigger',
-    7: 'RightTrigger',
-    8: 'ButtonBack',
-    9: 'ButtonStart',
-    10: 'LeftStick',
-    11: 'RightStick',
-    12: 'DPad1',
-    13: 'DPad2',
-    14: 'DPad3',
-    15: 'DPad4'
-  },
-  //https://www.w3.org/TR/webxr-gamepads-module-1/
-  'xr-standard': {
-    left: {
-      0: 'LeftTrigger',
-      1: 'LeftBumper',
-      2: 'LeftPad',
-      3: 'LeftStick',
-      4: 'ButtonX',
-      5: 'ButtonY'
-    },
-    right: {
-      0: 'RightTrigger',
-      1: 'RightBumper',
-      2: 'RightPad',
-      3: 'RightStick',
-      4: 'ButtonA',
-      5: 'ButtonB'
-    },
-    none: {
-      0: 'RightTrigger',
-      1: 'RightBumper',
-      2: 'RightPad',
-      3: 'RightStick',
-      4: 'ButtonA',
-      5: 'ButtonB'
-    }
+  return () => {
+    window.removeEventListener('DOMMouseScroll', preventDefault, false)
+    boundListeners.forEach(({ domElement, eventName, callback }) => {
+      domElement.removeEventListener(eventName, callback)
+    })
+    boundListeners.splice(0, boundListeners.length - 1)
   }
 }
+
 export function updateOldGamepadInput(source: XRInputSource) {
   if (!source.gamepad) return
   if (source.gamepad.mapping in OldGamepadMapping) {
@@ -302,37 +252,6 @@ export function updateOldGamepadInput(source: XRInputSource) {
         }
       }
     }
-  }
-}
-
-export const GamepadMapping = {
-  //https://w3c.github.io/gamepad/#remapping
-  standard: {
-    0: 'ButtonA',
-    1: 'ButtonB',
-    2: 'ButtonX',
-    3: 'ButtonY',
-    4: 'LeftBumper',
-    5: 'RightBumper',
-    6: 'LeftTrigger',
-    7: 'RightTrigger',
-    8: 'ButtonBack',
-    9: 'ButtonStart',
-    10: 'LeftStick',
-    11: 'RightStick',
-    12: 'DPad1',
-    13: 'DPad2',
-    14: 'DPad3',
-    15: 'DPad4'
-  },
-  //https://www.w3.org/TR/webxr-gamepads-module-1/
-  'xr-standard': {
-    0: 'Trigger',
-    1: 'Squeeze',
-    2: 'Pad',
-    3: 'Stick',
-    4: 'ButtonA',
-    5: 'ButtonB'
   }
 }
 
@@ -383,39 +302,6 @@ const inputRaycast = {
 } as RaycastArgs
 
 const inputRay = new Ray()
-
-// const raycaster = new Raycaster()
-// raycaster.layers.enable(ObjectLayers.Scene)
-// raycaster.layers.enable(ObjectLayers.Avatar)
-// raycaster.layers.enable(ObjectLayers.UI)
-// const intersects = [] as Intersection<Object3D>[]
-
-// check for intersections, returning as soon as one is found
-// function _findFirstIntersection(objects: Object3D[]) {
-//   for (const object of objects) {
-//     traverseObjectEarlyOut(object, _checkIntersection)
-//     if (intersects.length > 0) return intersects[0]
-//   }
-//   return null
-// }
-
-// function _checkIntersection(obj:Mesh) {
-//   intersects.length = 0
-//   if (obj.visible === false || (obj.material as MeshBasicMaterial)?.opacity < 0.001) return false
-//   if (obj.layers.test(raycaster.layers)) {
-//     obj.raycast(raycaster, intersects)
-//     if (intersects.length > 0) return true
-//   }
-//   return false
-// }
-
-// function traverseObjectEarlyOut(object: Object3D, callback: (obj: Object3D) => boolean) {
-//   if (callback(object)) return true
-//   for (const child of object.children) {
-//     if (traverseObjectEarlyOut(child, callback)) return true
-//   }
-//   return false
-// }
 
 const execute = () => {
   for (const source of Engine.instance.inputSources) updateOldGamepadInput(source)
@@ -502,34 +388,32 @@ const execute = () => {
 
     if (!xrFrame && source.source.targetRayMode.value === 'screen') {
       source.buttons.set(Engine.instance.buttons)
-    } else {
-      updateGamepadInput(sourceEid)
     }
+
+    updateGamepadInput(sourceEid)
   }
 }
 
 const reactor = () => {
   const xrState = useHookstate(getMutableState(XRState))
 
-  useEffect(() => {
-    addClientInputListeners()
-    Engine.instance.pointerScreenRaycaster.layers.enableAll()
-
-    return () => {
-      removeClientInputListeners()
-    }
-  }, [])
+  useEffect(() => addClientInputListeners(), [])
 
   useEffect(() => {
+    const inputState = getMutableState(InputState)
+
     const addInputSource = (source: XRInputSource) => {
+      if (source.targetRayMode === 'screen' || source.targetRayMode === 'gaze') {
+      }
       const entity = createEntity()
       setComponent(entity, InputSourceComponent, { source })
       setComponent(entity, NameComponent, 'InputSource-handed:' + source.handedness + '-mode:' + source.targetRayMode)
     }
+
     const removeInputSource = (source: XRInputSource) =>
       removeEntity(InputSourceComponent.entitiesByInputSource.get(source))
 
-    Engine.instance.inputSources.map(addInputSource)
+    // Engine.instance.inputSources.map(addInputSource)
 
     const session = xrState.session.value
 
@@ -539,6 +423,27 @@ const reactor = () => {
     }
 
     session?.addEventListener('inputsourceschange', onInputSourcesChanged)
+
+    const emulatedTargetRaySpace = {} as any as XRSpace
+
+    // create fake screen-space input source for mouse/keyboard/touch
+    const fakeInputSource = {
+      handedness: 'none',
+      targetRayMode: session?.interactionMode === 'screen-space' ? 'screen' : 'gaze',
+      targetRaySpace: emulatedTargetRaySpace,
+      gripSpace: undefined,
+      gamepad: undefined,
+      profiles: [],
+      hand: undefined
+    } satisfies XRInputSource
+
+    const fakeInputSourceEntity = createEntity()
+    setComponent(fakeInputSourceEntity, InputSourceComponent, { source: fakeInputSource })
+    setComponent(
+      fakeInputSourceEntity,
+      NameComponent,
+      'InputSource-emulated ' + '-mode:' + fakeInputSource.targetRayMode
+    )
 
     return () => {
       const inputSourceEntities = defineQuery([InputSourceComponent])

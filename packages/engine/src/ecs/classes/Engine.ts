@@ -53,6 +53,7 @@ import { nowMilliseconds } from '../../common/functions/nowMilliseconds'
 import { Timer } from '../../common/functions/Timer'
 import { ButtonStateMap } from '../../input/ButtonState'
 import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
+import { InputState } from '../../input/state/InputState'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
 import { NetworkState } from '../../networking/NetworkState'
 import { PhysicsWorld } from '../../physics/classes/Physics'
@@ -251,7 +252,12 @@ export class Engine {
    */
   localClientEntity = UndefinedEntity
 
-  inputSources: ReadonlyArray<XRInputSource> = []
+  /**
+   * @deprecated use getComponent(eid, InputComponent).inputSources
+   */
+  get inputSources() {
+    return getState(InputState).inputSources
+  }
 
   pointerState = {
     position: new Vector2(),
