@@ -79,7 +79,6 @@ import { ShadowSystem } from './ShadowSystem'
 export const ExpensiveMaterials = new Set([MeshPhongMaterial, MeshStandardMaterial, MeshPhysicalMaterial])
 
 export function setupObject(obj: Object3DWithEntity, force = false) {
-  console.log('Setting up')
   const mesh = obj as any as Mesh<any, any>
   //Lambert shader needs an empty normal map to prevent shader errors
   const res = 8
@@ -102,8 +101,8 @@ export function setupObject(obj: Object3DWithEntity, force = false) {
         if (prevMaterial.roughnessMap) nuMaterial.specularMap = prevMaterial.specularMap
         if (onlyEmmisive) nuMaterial.emissiveMap = prevMaterial.emissiveMap
         else nuMaterial.map = prevMaterial.map
-        nuMaterial.envMap = prevMaterial.envMap
         nuMaterial.reflectivity = prevMaterial.reflectivity ?? prevMaterial.metalness
+        nuMaterial.envMap = prevMaterial.envMap
         child.material = nuMaterial
         child.userData.lastMaterial = prevMaterial
         prevMatEntry && registerMaterial(nuMaterial, prevMatEntry.src)

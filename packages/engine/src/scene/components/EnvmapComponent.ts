@@ -56,6 +56,7 @@ import {
   useOptionalComponent
 } from '../../ecs/functions/ComponentFunctions'
 import { useEntityContext } from '../../ecs/functions/EntityFunctions'
+import { RendererState } from '../../renderer/RendererState'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { EnvMapSourceType, EnvMapTextureType } from '../constants/EnvMapEnum'
 import { getPmremGenerator, getRGBArray, loadCubeMapTexture } from '../constants/Util'
@@ -175,6 +176,7 @@ export const EnvmapComponent = defineComponent({
       }
     }, [component.type, group?.length, component.envMapSourceURL])
     const engineState = useHookstate(getMutableState(EngineState))
+    const renderState = useHookstate(getMutableState(RendererState))
     const relativePos = new Vector3()
     useEffect(() => {
       if (!group?.value?.length || !engineState.sceneLoaded.value) return
@@ -199,7 +201,7 @@ export const EnvmapComponent = defineComponent({
           }
         })
       }
-    }, [group?.length, component.type, engineState.sceneLoaded])
+    }, [group?.length, component.type, engineState.sceneLoaded, renderState.forceBasicMaterials])
 
     return null
   },

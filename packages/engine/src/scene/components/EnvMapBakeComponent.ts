@@ -185,9 +185,8 @@ export const applyBoxProjection = (entity: Entity, targets: Object3D[]) => {
   for (const target of targets) {
     target.traverse((child: Mesh<any, MeshStandardMaterial>) => {
       if (!child.material || child.type == 'VFXBatch') return
-      console.log(child.material)
-      const forceBasicMaterials = getState(RendererState).forceBasicMaterials
-      if (!forceBasicMaterials) {
+
+      if (!(child.material instanceof MeshLambertMaterial)) {
         child.material = Object.assign(new MeshPhysicalMaterial(), child.material)
         child.material.onBeforeCompile = (shader, renderer) => {
           shader.uniforms.cubeMapSize = { value: bakeComponent.bakeScale }
@@ -205,20 +204,19 @@ export const applyBoxProjection = (entity: Entity, targets: Object3D[]) => {
           )
         }
       } else {
-        if (child.material) {
-          child.material.onBeforeCompile = function (shader) {
-            //these parameters are for the cubeCamera texture
-            shader.uniforms.cubeMapSize = { value: bakeComponent.bakeScale }
-            shader.uniforms.cubeMapPos = { value: bakeComponent.bakePositionOffset }
-            //replace shader chunks with box projection chunks
+        child.material.onBeforeCompile = function (shader) {
+          //these parameters are for the cubeCamera texture
+          shader.uniforms.cubeMapSize = { value: bakeComponent.bakeScale }
+          shader.uniforms.cubeMapPos = { value: bakeComponent.bakePositionOffset }
+          //replace shader chunks with box projection chunks
 
-            shader.fragmentShader = shader.fragmentShader.replace(
-              '#include <envmap_pars_fragment>',
-              envmapParsReplaceLambert
-            )
-            shader.fragmentShader = shader.fragmentShader.replace('#include <envmap_fragment>', envmapReplaceLambert)
-            shader.uniforms.envMap.value = child.material.envMap
-          }
+          shader.fragmentShader = shader.fragmentShader.replace(
+            '#include <envmap_pars_fragment>',
+            envmapParsReplaceLambert
+          )
+          shader.fragmentShader = shader.fragmentShader.replace('#include <envmap_fragment>', envmapReplaceLambert)
+
+          shader.uniforms.envMap = { value: child.material.envMap }
         }
       }
     })
