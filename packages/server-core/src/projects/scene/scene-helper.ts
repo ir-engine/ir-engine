@@ -148,7 +148,7 @@ export const convertStaticResource = async (app: Application, project: string, s
                 urls = newUrls
               }
               const response = await Promise.all(urls.map(async (url) => addAssetsFromProject(app, [url], project)))
-              const newUrls = response.flat().map((asset) => asset.url)
+              const newUrls = response.flat().map((asset) => asset.url!)
               if (isVolumetric) {
                 component.props.resources = newUrls.filter((url) => url.endsWith('.mp4'))
               } else {

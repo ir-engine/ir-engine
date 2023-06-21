@@ -44,7 +44,7 @@ import { AvatarComponent } from '../components/AvatarComponent'
 import { SkeletonUtils } from '../SkeletonUtils'
 import { animateAvatarModel, boneMatchAvatarModel, makeDefaultSkinnedMesh, rigAvatarModel } from './avatarFunctions'
 
-const animGLB = '/packages/client/public/default_assets/Animations.glb'
+const animGLB = '/packages/projects/default-project/assets/Animations.glb'
 
 overrideFileLoaderLoad()
 

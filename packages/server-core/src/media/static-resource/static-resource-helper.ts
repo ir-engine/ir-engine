@@ -118,7 +118,7 @@ export const isAssetFromProject = (url: string, project: string) => {
 
 export const getKeyForAsset = (url: string, project: string, isFromProject: boolean) => {
   const storageProvider = getStorageProvider()
-  const storageProviderPath = path.join(storageProvider.cacheDomain, 'projects/', project)
+  const storageProviderPath = 'https://' + path.join(storageProvider.cacheDomain, 'projects/', project)
   const projectPath = url
     .replace(storageProviderPath, '')
     .replace(path.join(absoluteProjectPath, project), '')
@@ -171,7 +171,7 @@ export const addAssetsFromProject = async (
     project
   })
 
-  return forceDownload ? staticResources : urls.map((url) => ({ url }))
+  return forceDownload ? staticResources : (urls.map((url) => ({ url })) as Partial<StaticResourceInterface>[])
 }
 
 export const getStats = async (buffer: Buffer | string, mimeType: string): Promise<Record<string, any>> => {
