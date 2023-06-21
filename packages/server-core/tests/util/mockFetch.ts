@@ -23,20 +23,34 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
+const originalFetch = (global as any).fetch
 
-import { StaticResourceTypeInterface } from '@etherealengine/common/src/dbmodels/StaticResourceType'
-
-import { Application } from '../../../declarations'
-
-export type StaticResourceTypeDataType = StaticResourceTypeInterface
-
-/**
- * A class for Static Resource Type service
- */
-export class StaticResourceType<T = StaticResourceTypeDataType> extends Service<T> {
-  public docs: any
-  constructor(options: Partial<SequelizeServiceOptions>, app: Application) {
-    super(options)
+export const mockFetch = (urls: { [url: string]: { contentType: string; response: Buffer } }) => {
+  // override fetch
+  ;(global as any).fetch = async (url: string, options?: any) => {
+    if (!urls[url])
+      return {
+        status: 404
+      }
+    if (options?.method === 'HEAD') {
+      return {
+        status: 200,
+        headers: new Map()
+          .set('content-length', urls[url].response.byteLength)
+          .set('content-type', urls[url].contentType)
+      }
+    } else {
+      return {
+        arrayBuffer: async () => urls[url].response,
+        status: 200,
+        headers: new Map()
+          .set('content-length', urls[url].response.byteLength)
+          .set('content-type', urls[url].contentType)
+      }
+    }
   }
+}
+
+export const restoreFetch = () => {
+  ;(global as any).fetch = originalFetch
 }

@@ -25,6 +25,8 @@ Ethereal Engine. All Rights Reserved.
 
 import { Color, Vector2, Vector3 } from 'three'
 
+import { config } from '@etherealengine/common/src/config'
+
 import { defineComponent } from '../../ecs/functions/ComponentFunctions'
 import { Clouds } from '../classes/Clouds'
 
@@ -45,7 +47,7 @@ export const CloudComponent = defineComponent({
   jsonID: 'cloud',
   onInit: () => {
     return {
-      texture: '/clouds/cloud.png',
+      texture: `${config.client.fileServer}/projects/default-project/assets/cloud.png`,
       worldScale: new Vector3(1000, 150, 1000),
       dimensions: new Vector3(8, 4, 8),
       noiseZoom: new Vector3(7, 11, 7),
