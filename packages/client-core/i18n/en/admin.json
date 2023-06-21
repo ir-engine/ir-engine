@@ -133,6 +133,7 @@
     "project": {
       "addProject": "Add Project",
       "updateProject": "Update Project",
+      "downloadProject": "Download Project",
       "rebuild": "Rebuild",
       "rebuilding": "Rebuilding",
       "updateEngine": "Update Engine",
