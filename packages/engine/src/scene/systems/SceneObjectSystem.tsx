@@ -96,13 +96,16 @@ export function setupObject(obj: Object3DWithEntity, force = false) {
         const onlyEmmisive = prevMaterial.emissiveMap && !prevMaterial.map
         const prevMatEntry = unregisterMaterial(prevMaterial)
         const nuMaterial = new MeshLambertMaterial().copy(prevMaterial)
-        //To do, fine tune roughness compensation
-        if (!nuMaterial.normalMap) nuMaterial.normalMap = normalTexture
-        if (prevMaterial.roughnessMap) nuMaterial.specularMap = prevMaterial.specularMap
+
+        nuMaterial.normalMap = nuMaterial.normalMap ?? normalTexture
+        nuMaterial.specularMap = prevMaterial.roughnessMap ?? prevMaterial.specularIntensityMap
+
         if (onlyEmmisive) nuMaterial.emissiveMap = prevMaterial.emissiveMap
         else nuMaterial.map = prevMaterial.map
+
         nuMaterial.reflectivity = prevMaterial.reflectivity ?? prevMaterial.metalness
         nuMaterial.envMap = prevMaterial.envMap
+
         child.material = nuMaterial
         child.userData.lastMaterial = prevMaterial
         prevMatEntry && registerMaterial(nuMaterial, prevMatEntry.src)
