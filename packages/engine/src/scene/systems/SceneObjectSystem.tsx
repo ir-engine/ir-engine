@@ -103,7 +103,7 @@ export function setupObject(obj: Object3DWithEntity, force = false) {
         if (onlyEmmisive) nuMaterial.emissiveMap = prevMaterial.emissiveMap
         else nuMaterial.map = prevMaterial.map
 
-        nuMaterial.reflectivity = prevMaterial.reflectivity ?? prevMaterial.metalness
+        nuMaterial.reflectivity = prevMaterial.metalness
         nuMaterial.envMap = prevMaterial.envMap
 
         child.material = nuMaterial

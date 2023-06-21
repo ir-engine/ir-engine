@@ -178,15 +178,15 @@ export const prepareSceneForBake = (): Scene => {
   return scene
 }
 
-//very hacky tentative solution, injects shader code into threejs' shaders for box box projected envmaps
-//if basic materials are forced, use a pbr implementation, otherwise use lambert
+//Hacky tentative solution, injects shader code into threejs' shaders for box box projected envmaps
+//Depends on shader type to add pbr or non pbr shader logic
 export const applyBoxProjection = (entity: Entity, targets: Object3D[]) => {
   const bakeComponent = getComponent(entity, EnvMapBakeComponent)
   for (const target of targets) {
     target.traverse((child: Mesh<any, MeshStandardMaterial>) => {
       if (!child.material || child.type == 'VFXBatch') return
 
-      if (!(child.material instanceof MeshLambertMaterial)) {
+      if (child.material instanceof MeshPhysicalMaterial || child.material instanceof MeshStandardMaterial) {
         child.material = Object.assign(new MeshPhysicalMaterial(), child.material)
         child.material.onBeforeCompile = (shader, renderer) => {
           shader.uniforms.cubeMapSize = { value: bakeComponent.bakeScale }
@@ -203,7 +203,8 @@ export const applyBoxProjection = (entity: Entity, targets: Object3D[]) => {
             envmapPhysicalParsReplace
           )
         }
-      } else {
+      }
+      if ((child.material as any) instanceof MeshLambertMaterial) {
         child.material.onBeforeCompile = function (shader) {
           //these parameters are for the cubeCamera texture
           shader.uniforms.cubeMapSize = { value: bakeComponent.bakeScale }
