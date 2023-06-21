@@ -154,6 +154,7 @@ export const envmapPhysicalParsReplace = `
 
       #endif
 
+			worldNormal.x *= -1.;
 			vec4 envMapColor = textureCubeUV( envMap, worldNormal, 1.0 );
 
 			return PI * envMapColor.rgb * envMapIntensity;
