@@ -25,7 +25,6 @@ Ethereal Engine. All Rights Reserved.
 
 import React, { useCallback } from 'react'
 import { Color } from 'three'
-import { FunctionJSON } from 'three.quarks'
 
 import {
   ColorGeneratorJSON,
