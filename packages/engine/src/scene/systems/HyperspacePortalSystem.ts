@@ -26,6 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { useEffect } from 'react'
 import { AmbientLight, Color, Quaternion, Vector3 } from 'three'
 
+import config from '@etherealengine/common/src/config'
 import { defineState, getMutableState, getState } from '@etherealengine/hyperflux'
 
 import { AssetLoader } from '../../assets/classes/AssetLoader'
@@ -61,7 +62,6 @@ let sceneVisible = true
 
 const hyperspaceEffect = new PortalEffect()
 hyperspaceEffect.scale.set(10, 10, 10)
-setObjectLayers(hyperspaceEffect, ObjectLayers.Portal)
 
 const light = new AmbientLight('#aaa')
 light.layers.enable(ObjectLayers.Portal)
@@ -148,14 +148,17 @@ const reactor = () => {
     PortalEffects.set(HyperspacePortalEffect, HyperspaceTagComponent)
 
     const transition = createTransitionState(0.5, 'OUT')
+    setObjectLayers(hyperspaceEffect, ObjectLayers.Portal)
 
     getMutableState(HyperspacePortalSystemState).set({
       transition
     })
 
-    AssetLoader.loadAsync('/hdr/galaxyTexture.jpg').then((texture) => {
-      hyperspaceEffect.texture = texture
-    })
+    AssetLoader.loadAsync(`${config.client.fileServer}/projects/default-project/assets/galaxyTexture.jpg`).then(
+      (texture) => {
+        hyperspaceEffect.texture = texture
+      }
+    )
 
     return () => {
       PortalEffects.delete(HyperspacePortalEffect)

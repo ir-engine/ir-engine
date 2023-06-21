@@ -49,13 +49,24 @@ export const awsRoute53Schema = Type.Object(
 )
 export type AwsRoute53Type = Static<typeof awsRoute53Schema>
 
+export const awsEksSchema = Type.Object(
+  {
+    accessKeyId: Type.String(),
+    secretAccessKey: Type.String()
+  },
+  { $id: 'AwsEks', additionalProperties: false }
+)
+export type AwsEksType = Static<typeof awsEksSchema>
+
 export const awsS3Schema = Type.Object(
   {
+    accessKeyId: Type.String(),
     endpoint: Type.String(),
     staticResourceBucket: Type.String(),
     region: Type.String(),
     avatarDir: Type.String(),
-    s3DevMode: Type.String()
+    s3DevMode: Type.String(),
+    secretAccessKey: Type.String()
   },
   { $id: 'AwsS3', additionalProperties: false }
 )
@@ -89,7 +100,7 @@ export const awsSettingSchema = Type.Object(
     id: Type.String({
       format: 'uuid'
     }),
-    keys: Type.Ref(awsKeysSchema),
+    eks: Type.Ref(awsEksSchema),
     route53: Type.Ref(awsRoute53Schema),
     s3: Type.Ref(awsS3Schema),
     cloudfront: Type.Ref(awsCloudFrontSchema),
@@ -101,8 +112,8 @@ export const awsSettingSchema = Type.Object(
 )
 export type AwsSettingType = Static<typeof awsSettingSchema>
 
-export type AwsSettingDatabaseType = Omit<AwsSettingType, 'keys' | 'route53' | 's3' | 'cloudfront' | 'sms'> & {
-  keys: string
+export type AwsSettingDatabaseType = Omit<AwsSettingType, 'eks' | 'route53' | 's3' | 'cloudfront' | 'sms'> & {
+  eks: string
   route53: string
   s3: string
   cloudfront: string
@@ -110,7 +121,7 @@ export type AwsSettingDatabaseType = Omit<AwsSettingType, 'keys' | 'route53' | '
 }
 
 // Schema for creating new entries
-export const awsSettingDataSchema = Type.Pick(awsSettingSchema, ['keys', 'route53', 's3', 'cloudfront', 'sms'], {
+export const awsSettingDataSchema = Type.Pick(awsSettingSchema, ['eks', 'route53', 's3', 'cloudfront', 'sms'], {
   $id: 'AwsSettingData'
 })
 export type AwsSettingData = Static<typeof awsSettingDataSchema>

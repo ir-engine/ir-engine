@@ -41,6 +41,7 @@ import {
 } from 'mediasoup/node/lib/types'
 import os from 'os'
 import { Spark } from 'primus'
+import { check } from 'tcp-port-used'
 
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { DataChannelType } from '@etherealengine/engine/src/networking/classes/Network'
@@ -68,12 +69,22 @@ import {
 
 const logger = multiLogger.child({ component: 'instanceserver:webrtc' })
 
+const portsInUse: number[] = []
+
+const getNewOffset = async (ipAddress, startPort, i, offset) => {
+  const inUse = await check(startPort + i + offset, ipAddress)
+  if (inUse || portsInUse.indexOf(startPort + i + offset) >= 0) return getNewOffset(ipAddress, startPort, i, offset + 1)
+  else return offset
+}
+
 export async function startWebRTC() {
   logger.info('Starting WebRTC Server.')
   // Initialize roomstate
   const cores = os.cpus()
   const routers = { instance: [] } as { instance: Router[]; [channelTypeAndChannelID: string]: Router[] }
   const workers = [] as Worker[]
+  //This is used in case ports in the range to use are in use by something else
+  let offset = 0
   for (let i = 0; i < cores.length; i++) {
     const newWorker = await createWorker({
       logLevel: 'debug',
@@ -85,7 +96,14 @@ export async function startWebRTC() {
     })
 
     const webRtcServerOptions = JSON.parse(JSON.stringify(localConfig.mediasoup.webRtcServerOptions))
-    for (const listenInfo of webRtcServerOptions.listenInfos) listenInfo.port += i
+    offset = await getNewOffset(
+      webRtcServerOptions.listenInfos[0].ipAddress,
+      webRtcServerOptions.listenInfos[0].port,
+      i,
+      offset
+    )
+    for (const listenInfo of webRtcServerOptions.listenInfos) listenInfo.port += i + offset
+    portsInUse.push(webRtcServerOptions.listenInfos[0].port)
     newWorker.appData.webRtcServer = await newWorker.createWebRtcServer(webRtcServerOptions)
 
     newWorker.on('died', (err) => {

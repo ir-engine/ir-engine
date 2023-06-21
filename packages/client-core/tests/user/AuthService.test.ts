@@ -48,7 +48,6 @@ describe('Auth Service', () => {
   //       key: 'avatars/public/CyberbotGreen.glb',
   //       name: 'CyberbotGreen',
   //       url: 'https://host.name/avatars/public/CyberbotGreen.glb',
-  //       staticResourceType: 'avatar',
   //       userId: null
   //     } as any
   //     const mockAction = AuthAction.updateAvatarListAction({ avatarList: [mockData] })

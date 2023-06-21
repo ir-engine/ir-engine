@@ -57,7 +57,7 @@ export type EmailAuthType = Static<typeof emailAuthSchema>
 export const emailSmtpSchema = Type.Object(
   {
     host: Type.String(),
-    port: Type.String(),
+    port: Type.Number(),
     secure: Type.Boolean(),
     auth: Type.Ref(emailAuthSchema)
   },

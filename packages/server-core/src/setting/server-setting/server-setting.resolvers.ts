@@ -39,7 +39,7 @@ import { getDateTimeSql } from '../../util/get-datetime-sql'
 
 export const serverSettingResolver = resolve<ServerSettingType, HookContext>({})
 
-export const serverDbToSchema = async (rawData: ServerSettingDatabaseType): Promise<ServerSettingType> => {
+export const serverDbToSchema = (rawData: ServerSettingDatabaseType): ServerSettingType => {
   let hub = JSON.parse(rawData.hub) as ServerHubType
 
   // Usually above JSON.parse should be enough. But since our pre-feathers 5 data
