@@ -141,7 +141,13 @@ describe('audio-upload', () => {
       const storageProvider = getStorageProvider()
       const url = 'https://test.com/projects/default-project/assets/test.mp3'
 
-      const [staticResource] = await addAssetsFromProject(app, [url], testProject, true)
+      const [staticResourceUrl] = await addAssetsFromProject(app, [url], testProject, true)
+      const staticResources = await app.service('static-resource').find({
+        query: {
+          url: staticResourceUrl
+        }
+      })
+      const staticResource = staticResources.data[0] as StaticResourceInterface
 
       assert(staticResource.id)
       assert.equal(staticResource.url, getCachedURL(staticResource.key, storageProvider.cacheDomain))
@@ -159,7 +165,13 @@ describe('audio-upload', () => {
       const storageProvider = getStorageProvider()
       const url = getCachedURL('/projects/default-project/assets/test.mp3', storageProvider.cacheDomain)
 
-      const [staticResource] = await addAssetsFromProject(app, [url], testProject, true)
+      const [staticResourceUrl] = await addAssetsFromProject(app, [url], testProject, true)
+      const staticResources = await app.service('static-resource').find({
+        query: {
+          url: staticResourceUrl
+        }
+      })
+      const staticResource = staticResources.data[0] as StaticResourceInterface
 
       assert.equal(staticResource.key, 'static-resources/test-project/test.mp3')
       assert.equal(staticResource.mimeType, 'audio/mpeg')
@@ -177,7 +189,13 @@ describe('audio-upload', () => {
       const storageProvider = getStorageProvider()
       const url = getCachedURL('/projects/default-project/assets/test.mp3', storageProvider.cacheDomain)
 
-      const [staticResource] = await addAssetsFromProject(app, [url], 'default-project', false)
+      const [staticResourceUrl] = await addAssetsFromProject(app, [url], 'default-project', false)
+      const staticResources = await app.service('static-resource').find({
+        query: {
+          url: staticResourceUrl
+        }
+      })
+      const staticResource = staticResources.data[0] as StaticResourceInterface
 
       assert.equal(staticResource.key, 'projects/default-project/assets/test.mp3')
       assert.equal(staticResource.mimeType, 'audio/mpeg')
@@ -195,7 +213,14 @@ describe('audio-upload', () => {
       const [response] = await addAssetsFromProject(app, [url], 'default-project', false)
       const [response2] = await addAssetsFromProject(app, [url], 'default-project', false)
 
-      assert.equal(response.id, response2.id)
+      assert.equal(response, response2)
+
+      const staticResources = await app.service('static-resource').find({
+        query: {
+          url: response
+        }
+      })
+      assert.equal(staticResources.total, 1)
     })
 
     it('should return new audio asset with the same hash exists in another project', async () => {
@@ -205,7 +230,14 @@ describe('audio-upload', () => {
       const [response] = await addAssetsFromProject(app, [url], 'default-project', false)
       const [response2] = await addAssetsFromProject(app, [url], 'test-project', false)
 
-      assert.notEqual(response.id, response2.id)
+      assert.equal(response, response2)
+
+      const staticResources = await app.service('static-resource').find({
+        query: {
+          url: response
+        }
+      })
+      assert.equal(staticResources.total, 1)
     })
   })
 })
