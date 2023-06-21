@@ -190,7 +190,7 @@ function ModelReactor() {
   useEffect(() => {
     const scene = modelComponent.scene.value
     if (!scene) return
-    enableObjectLayer(scene, ObjectLayers.Camera, model.avoidCameraOcclusion)
+    enableObjectLayer(scene, ObjectLayers.Camera, !model.avoidCameraOcclusion)
   }, [modelComponent.avoidCameraOcclusion, modelComponent.scene])
 
   // update scene
