@@ -401,6 +401,10 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
     saveAs(blob, fileName + '.zip')
   }
 
+  const showDownloadButton =
+    selectedDirectory.value.slice(1).startsWith('projects/') &&
+    !['projects', 'projects/'].includes(selectedDirectory.value.slice(1))
+
   return (
     <div className={styles.fileBrowserRoot}>
       <div style={headGrid}>
@@ -425,12 +429,14 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
             onClick={onRefreshDirectory}
             id="refreshDir"
           />
-          <ToolButton
-            tooltip={t('admin:components.project.downloadProject')}
-            onClick={handleDownloadProject}
-            icon={DownloadIcon}
-            id="downloadProject"
-          />
+          {showDownloadButton && (
+            <ToolButton
+              tooltip={t('admin:components.project.downloadProject')}
+              onClick={handleDownloadProject}
+              icon={DownloadIcon}
+              id="downloadProject"
+            />
+          )}
         </span>
       </div>
 
