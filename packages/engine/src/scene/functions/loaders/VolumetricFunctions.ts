@@ -29,17 +29,14 @@ import { createWorkerFromCrossOriginURL } from '@etherealengine/common/src/utils
 import { AvatarDissolveComponent } from '@etherealengine/engine/src/avatar/components/AvatarDissolveComponent'
 import { AvatarEffectComponent, MaterialMap } from '@etherealengine/engine/src/avatar/components/AvatarEffectComponent'
 import { DissolveEffect } from '@etherealengine/engine/src/avatar/DissolveEffect'
-import { getMutableState } from '@etherealengine/hyperflux'
 import type VolumetricPlayer from '@etherealengine/volumetric/player'
 
 import { isClient } from '../../../common/functions/getEnvironment'
 import { iOS } from '../../../common/functions/isMobile'
-import { EngineState } from '../../../ecs/classes/EngineState'
 import { Entity } from '../../../ecs/classes/Entity'
 import {
   addComponent,
   getComponent,
-  getMutableComponent,
   getOptionalComponent,
   hasComponent,
   removeComponent
@@ -48,7 +45,7 @@ import { createEntity, entityExists } from '../../../ecs/functions/EntityFunctio
 import { EngineRenderer } from '../../../renderer/WebGLRendererSystem'
 import { TransformComponent } from '../../../transform/components/TransformComponent'
 import { addObjectToGroup } from '../../components/GroupComponent'
-import { MediaComponent, MediaElementComponent } from '../../components/MediaComponent'
+import { MediaElementComponent } from '../../components/MediaComponent'
 import { VolumetricComponent } from '../../components/VolumetricComponent'
 import { PlayMode } from '../../constants/PlayMode'
 

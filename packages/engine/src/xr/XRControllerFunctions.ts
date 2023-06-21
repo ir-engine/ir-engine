@@ -25,6 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { AnimationMixer, Group, LoopOnce } from 'three'
 
+import { config } from '@etherealengine/common/src/config'
 import { getMutableState } from '@etherealengine/hyperflux'
 
 import { AvatarControllerType, AvatarInputSettingsState } from '../avatar/state/AvatarInputSettingsState'
@@ -39,7 +40,9 @@ export const initializeControllerModel = async (entity: Entity, handedness: stri
   const avatarInputControllerType = avatarInputState.controlType.value
   if (avatarInputControllerType !== AvatarControllerType.OculusQuest) return
 
-  const gltf = await AssetLoader.loadAsync(`/default_assets/controllers/hands/${handedness}_controller.glb`)
+  const gltf = await AssetLoader.loadAsync(
+    `${config.client.fileServer}/projects/default-project/assets/controllers/${handedness}_controller.glb`
+  )
   let handMesh = gltf?.scene?.children[0]
 
   if (!handMesh) {
@@ -74,7 +77,9 @@ export const initializeHandModel = async (entity: Entity, handedness: string) =>
   // if is hands and 'none' type enabled (instead we use IK to move hands in avatar model)
   if (avatarInputControllerType === AvatarControllerType.None) return
 
-  const gltf = await AssetLoader.loadAsync(`/default_assets/controllers/hands/${handedness}.glb`)
+  const gltf = await AssetLoader.loadAsync(
+    `${config.client.fileServer}/projects/default-project/assets/controllers/${handedness}.glb`
+  )
   let handMesh = gltf?.scene?.children[0]
 
   const controller = new Group()
