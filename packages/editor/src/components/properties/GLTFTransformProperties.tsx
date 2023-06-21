@@ -107,12 +107,47 @@ export default function GLTFTransformProperties({
             onChange={onChangeTransformParm(transformParms.instance)}
           />
         </InputGroup>
+
         <InputGroup name="Remove Duplicates" label={t('editor:properties.model.transform.removeDuplicates')}>
           <BooleanInput value={transformParms.dedup.value} onChange={onChangeTransformParm(transformParms.dedup)} />
         </InputGroup>
+        <InputGroup name="Flatten Scene Graph" label={t('editor:properties.model.transform.flatten')}>
+          <BooleanInput value={transformParms.flatten.value} onChange={onChangeTransformParm(transformParms.flatten)} />
+        </InputGroup>
+        <InputGroup name="Join Meshes" label={t('editor:properties.model.transform.join')}>
+          <BooleanInput
+            value={transformParms.join.enabled.value}
+            onChange={onChangeTransformParm(transformParms.join.enabled)}
+          />
+        </InputGroup>
+        {transformParms.join.enabled.value && (
+          <>
+            <ParameterInput
+              entity={`${transformParms}-join`}
+              values={transformParms.join.options.value}
+              onChange={onChangeParameter.bind({}, transformParms.join.options)}
+            />
+          </>
+        )}
+        <InputGroup name="Palette" label={t('editor:properties.model.transform.palette')}>
+          <BooleanInput
+            value={transformParms.palette.enabled.value}
+            onChange={onChangeTransformParm(transformParms.palette.enabled)}
+          />
+        </InputGroup>
+        {transformParms.palette.enabled.value && (
+          <>
+            <ParameterInput
+              entity={`${transformParms}-palette`}
+              values={transformParms.palette.options.value}
+              onChange={onChangeParameter.bind({}, transformParms.palette.options)}
+            />
+          </>
+        )}
         <InputGroup name="Prune Unused" label={t('editor:properties.model.transform.pruneUnused')}>
           <BooleanInput value={transformParms.prune.value} onChange={onChangeTransformParm(transformParms.prune)} />
         </InputGroup>
+
         <InputGroup name="Reorder" label={t('editor:properties.model.transform.reorder')}>
           <BooleanInput value={transformParms.reorder.value} onChange={onChangeTransformParm(transformParms.reorder)} />
         </InputGroup>
