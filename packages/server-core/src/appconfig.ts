@@ -308,10 +308,6 @@ const authentication = {
  * AWS
  */
 const aws = {
-  keys: {
-    accessKeyId: process.env.STORAGE_AWS_ACCESS_KEY_ID!,
-    secretAccessKey: process.env.STORAGE_AWS_ACCESS_KEY_SECRET!
-  },
   route53: {
     hostedZoneId: process.env.ROUTE53_HOSTED_ZONE_ID!,
     keys: {
@@ -320,6 +316,8 @@ const aws = {
     }
   },
   s3: {
+    accessKeyId: process.env.STORAGE_AWS_ACCESS_KEY_ID!,
+    secretAccessKey: process.env.STORAGE_AWS_ACCESS_KEY_SECRET!,
     endpoint: process.env.STORAGE_S3_ENDPOINT!,
     staticResourceBucket: process.env.STORAGE_S3_STATIC_RESOURCE_BUCKET!,
     region: process.env.STORAGE_S3_REGION!,
@@ -330,6 +328,10 @@ const aws = {
     domain: process.env.STORAGE_CLOUDFRONT_DOMAIN!,
     distributionId: process.env.STORAGE_CLOUDFRONT_DISTRIBUTION_ID!,
     region: process.env.STORAGE_CLOUDFRONT_REGION || process.env.STORAGE_S3_REGION
+  },
+  eks: {
+    accessKeyId: process.env.EKS_AWS_ACCESS_KEY!,
+    secretAccessKey: process.env.EKS_AWS_SECRET!
   },
   sms: {
     accessKeyId: process.env.AWS_SMS_ACCESS_KEY_ID!,

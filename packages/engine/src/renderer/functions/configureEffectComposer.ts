@@ -32,6 +32,7 @@ import { getState } from '@etherealengine/hyperflux'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
 import { EffectMap, EffectPropsSchema, Effects } from '../../scene/constants/PostProcessing'
+import { RendererState } from '../RendererState'
 import { EngineRenderer, PostProcessingSettingsState } from '../WebGLRendererSystem'
 import { changeRenderMode } from './changeRenderMode'
 
@@ -54,6 +55,9 @@ export const configureEffectComposer = (remove?: boolean, camera: PerspectiveCam
   if (remove) {
     return
   }
+
+  const postProcessingEnabled = getState(RendererState).usePostProcessing
+  if (!postProcessingEnabled) return
 
   const postprocessing = getState(PostProcessingSettingsState)
   if (!postprocessing.enabled) return

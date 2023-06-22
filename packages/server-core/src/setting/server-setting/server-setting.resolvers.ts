@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-// // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
+// For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
 import { resolve } from '@feathersjs/schema'
 import { v4 } from 'uuid'
 
@@ -39,7 +39,7 @@ import { getDateTimeSql } from '../../util/get-datetime-sql'
 
 export const serverSettingResolver = resolve<ServerSettingType, HookContext>({})
 
-export const serverDbToSchema = async (rawData: ServerSettingDatabaseType): Promise<ServerSettingType> => {
+export const serverDbToSchema = (rawData: ServerSettingDatabaseType): ServerSettingType => {
   let hub = JSON.parse(rawData.hub) as ServerHubType
 
   // Usually above JSON.parse should be enough. But since our pre-feathers 5 data

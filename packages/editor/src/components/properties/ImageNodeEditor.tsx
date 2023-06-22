@@ -29,11 +29,9 @@ import { useTranslation } from 'react-i18next'
 import { useComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { getEntityErrors } from '@etherealengine/engine/src/scene/components/ErrorComponent'
 import { ImageComponent } from '@etherealengine/engine/src/scene/components/ImageComponent'
-import { addError, clearErrors } from '@etherealengine/engine/src/scene/functions/ErrorFunctions'
 
 import PhotoSizeSelectActualIcon from '@mui/icons-material/PhotoSizeSelectActual'
 
-import { StaticResourceService } from '../../services/StaticResourceService'
 import ImageInput from '../inputs/ImageInput'
 import InputGroup from '../inputs/InputGroup'
 import ImageSourceProperties from './ImageSourceProperties'
@@ -47,19 +45,6 @@ export const ImageNodeEditor: EditorComponentType = (props) => {
   const imageComponent = useComponent(entity, ImageComponent)
   const errors = getEntityErrors(props.entity, ImageComponent)
 
-  const updateResources = async (path: string) => {
-    let media
-    clearErrors(entity, ImageComponent)
-    try {
-      media = await StaticResourceService.uploadImage(path)
-    } catch (err) {
-      console.log('Error getting path', path)
-      addError(entity, ImageComponent, 'INVALID_URL', path)
-      return {}
-    }
-    updateProperty(ImageComponent, 'resource')(media)
-  }
-
   return (
     <NodeEditor
       {...props}
@@ -67,17 +52,7 @@ export const ImageNodeEditor: EditorComponentType = (props) => {
       description={t('editor:properties.image.description')}
     >
       <InputGroup name="Image Url" label={t('editor:properties.image.lbl-imgURL')}>
-        <ImageInput
-          value={
-            imageComponent.resource?.value?.jpegStaticResource?.url ||
-            imageComponent.resource?.value?.ktx2StaticResource?.url ||
-            imageComponent.resource?.value?.pngStaticResource?.url ||
-            imageComponent.resource?.value?.gifStaticResource?.url ||
-            imageComponent.source?.value ||
-            ''
-          }
-          onChange={updateResources}
-        />
+        <ImageInput value={imageComponent.source?.value ?? ''} onChange={updateProperty(ImageComponent, 'source')} />
       </InputGroup>
       {errors ? (
         Object.entries(errors).map(([err, message]) => {

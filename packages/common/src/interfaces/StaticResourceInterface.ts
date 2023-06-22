@@ -31,7 +31,6 @@ export interface StaticResourceInterface {
   key: string
   metadata: object
   mimeType: string
-  staticResourceType: string
   userId: string
   hash?: string
   project?: string
@@ -40,7 +39,7 @@ export interface StaticResourceInterface {
   licensing?: string
   tags?: string[]
   url: string
-  variants: StaticResourceVariantInterface[]
+  stats?: Record<string, any>
 }
 
 export interface StaticResourceCreateInterface {}

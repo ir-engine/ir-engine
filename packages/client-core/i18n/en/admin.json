@@ -133,6 +133,7 @@
     "project": {
       "addProject": "Add Project",
       "updateProject": "Update Project",
+      "downloadProject": "Download Project",
       "rebuild": "Rebuild",
       "rebuilding": "Rebuilding",
       "updateEngine": "Update Engine",
@@ -215,6 +216,7 @@
       "key": "Key",
       "name": "Name",
       "mimeType": "Mime Type",
+      "project": "Project",
       "resourceType": "Resource Type",
       "preview": "Preview",
       "confirmResourceDelete": "Do you want to delete resource",
@@ -263,6 +265,7 @@
       "keys": "Keys",
       "accessKeyId": "Access Key ID",
       "secretAccessKey": "Secret Access Key",
+      "eks": "EKS",
       "route53": "Route53",
       "hostedZoneId": "Hosted Zone ID",
       "s3": "S3",

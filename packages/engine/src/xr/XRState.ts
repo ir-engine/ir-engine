@@ -33,7 +33,6 @@ import { Entity } from '../ecs/classes/Entity'
 import { NetworkTopics } from '../networking/classes/Network'
 import { WorldNetworkAction } from '../networking/functions/WorldNetworkAction'
 import { DepthDataTexture } from './DepthDataTexture'
-import { XREstimatedLight } from './XREstimatedLight'
 
 // TODO: divide this up into the systems that manage these states
 export const XRState = defineState({
@@ -60,8 +59,6 @@ export const XRState = defineState({
       /** Stores the depth map data - will exist if depth map is supported */
       depthDataTexture: null as DepthDataTexture | null,
       is8thWallActive: false,
-      isEstimatingLight: false,
-      lightEstimator: null! as XREstimatedLight,
       viewerInputSourceEntity: 0 as Entity,
       viewerPose: null as XRViewerPose | null | undefined,
       userEyeLevel: 1.8,
