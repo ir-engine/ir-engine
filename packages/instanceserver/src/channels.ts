@@ -430,6 +430,9 @@ const shutdownServer = async (app: Application, instanceId: string) => {
   const instanceServer = getState(InstanceServerState)
   const serverState = getState(ServerState)
 
+  // already shut down
+  if (!instanceServer.instance) return
+
   logger.info('Deleting instance ' + instanceId)
   try {
     await app.service('instance').patch(instanceId, {
@@ -448,6 +451,9 @@ const shutdownServer = async (app: Application, instanceId: string) => {
       allocated: false
     })
   }
+
+  // already shut down
+  if (!instanceServer.instance) return
   ;(instanceServer.instance as Instance).ended = true
   if (config.kubernetes.enabled) {
     const instanceServerState = getMutableState(InstanceServerState)
