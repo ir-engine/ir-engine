@@ -51,7 +51,6 @@ import { CameraComponent } from '../../camera/components/CameraComponent'
 import { SceneLoaderType } from '../../common/constants/PrefabFunctionType'
 import { nowMilliseconds } from '../../common/functions/nowMilliseconds'
 import { Timer } from '../../common/functions/Timer'
-import { ButtonStateMap } from '../../input/ButtonState'
 import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
 import { InputState } from '../../input/state/InputState'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
@@ -267,7 +266,8 @@ export class Engine {
     lastScroll: new Vector2()
   }
 
-  buttons = {} as Readonly<ButtonStateMap>
+  /** @deprecated */
+  buttons = {} as Readonly<Record<any, any>>
 
   reactiveQueryStates = new Set<{ query: Query; result: State<Entity[]>; components: QueryComponents }>()
 

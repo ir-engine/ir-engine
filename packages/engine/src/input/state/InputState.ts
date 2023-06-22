@@ -26,9 +26,8 @@ Ethereal Engine. All Rights Reserved.
 import { defineState } from '@etherealengine/hyperflux'
 
 export const InputState = defineState({
-  name: 'EE.InputState',
-
+  name: 'InputState',
   initial: {
-    inputSources: XRInputSourceArray
+    inputSources: [] as XRInputSourceArray
   }
 })

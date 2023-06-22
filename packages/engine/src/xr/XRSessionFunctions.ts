@@ -31,7 +31,6 @@ import { dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 import { AvatarHeadDecapComponent } from '../avatar/components/AvatarIKComponents'
 import { V_000 } from '../common/constants/MathConstants'
 import { SceneState } from '../ecs/classes/Scene'
-import { createInitialButtonState, OldButtonInputStateType } from '../input/ButtonState'
 import { RigidBodyComponent } from '../physics/components/RigidBodyComponent'
 import { SkyboxComponent } from '../scene/components/SkyboxComponent'
 import { setVisibleComponent } from '../scene/components/VisibleComponent'
@@ -220,19 +219,6 @@ export const setupVRSession = () => {}
 
 export const setupARSession = () => {
   const session = getMutableState(XRState).session.value!
-
-  /**
-   * AR uses the `select` event as taps on the screen for mobile AR sessions
-   * This gets piped into the input system as a TouchInput.Touch
-   */
-  session.addEventListener('selectstart', () => {
-    ;(Engine.instance.buttons as OldButtonInputStateType).PrimaryClick = createInitialButtonState()
-  })
-  session.addEventListener('selectend', (inputSource) => {
-    const buttons = Engine.instance.buttons as OldButtonInputStateType
-    if (!buttons.PrimaryClick) return
-    buttons.PrimaryClick!.up = true
-  })
 
   getMutableState(SceneState).background.set(null)
 }
