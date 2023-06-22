@@ -32,11 +32,15 @@ import {
   defineComponent,
   getComponent,
   getMutableComponent,
+  hasComponent,
+  removeComponent,
+  setComponent,
   useComponent,
   useOptionalComponent,
   useQuery
 } from '../../ecs/functions/ComponentFunctions'
 import { useEntityContext } from '../../ecs/functions/EntityFunctions'
+import { DistanceFromCameraComponent } from '../../transform/components/DistanceComponents'
 import { isMobileXRHeadset } from '../../xr/XRState'
 import { setModelVariant } from '../functions/loaders/VariantFunctions'
 import { ModelComponent } from './ModelComponent'
@@ -106,6 +110,18 @@ const VariantLevelReactor = React.memo(({ entity, level }: { level: number; enti
   const variantLevel = variantComponent.levels[level]
 
   const modelComponent = useOptionalComponent(entity, ModelComponent)
+
+  useEffect(() => {
+    //if the variant heuristic is set to Distance, add the DistanceFromCameraComponent
+    if (variantComponent.heuristic.value === 'DISTANCE') {
+      setComponent(entity, DistanceFromCameraComponent)
+      variantLevel.metadata['minDistance'].value === undefined && variantLevel.metadata['minDistance'].set(0)
+      variantLevel.metadata['maxDistance'].value === undefined && variantLevel.metadata['maxDistance'].set(0)
+    } else {
+      //otherwise, remove the DistanceFromCameraComponent
+      hasComponent(entity, DistanceFromCameraComponent) && removeComponent(entity, DistanceFromCameraComponent)
+    }
+  }, [variantComponent.heuristic])
 
   useEffect(() => {
     modelComponent && setModelVariant(entity)

@@ -1,5 +1,10 @@
+import { DistanceFromCameraComponent } from '@etherealengine/engine/src/transform/components/DistanceComponents'
+import { getState } from '@etherealengine/hyperflux'
+
+import { EngineState } from '../../../ecs/classes/EngineState'
 import { Entity } from '../../../ecs/classes/Entity'
 import { getComponent, getMutableComponent } from '../../../ecs/functions/ComponentFunctions'
+import { TransformComponent } from '../../../transform/components/TransformComponent'
 import { isMobileXRHeadset } from '../../../xr/XRState'
 import { ModelComponent } from '../../components/ModelComponent'
 import { VariantComponent } from '../../components/VariantComponent'
@@ -42,5 +47,16 @@ export function setModelVariant(entity: Entity) {
     //set model src to mobile variant src
     const deviceVariant = variantComponent.levels.find((level) => level.metadata['device'] === targetDevice)
     deviceVariant && modelComponent.src.value !== deviceVariant.src && modelComponent.src.set(deviceVariant.src)
+  } else if (variantComponent.heuristic === 'DISTANCE') {
+    const distance = DistanceFromCameraComponent.squaredDistance[entity]
+    for (let i = 0; i < variantComponent.levels.length; i++) {
+      const level = variantComponent.levels[i]
+      if ([level.metadata['minDistance'], level.metadata['maxDistance']].includes(undefined)) continue
+      const minDistance = Math.pow(level.metadata['minDistance'], 2)
+      const maxDistance = Math.pow(level.metadata['maxDistance'], 2)
+      const useLevel = minDistance <= distance && distance <= maxDistance
+      useLevel && modelComponent.src.value !== level.src && modelComponent.src.set(level.src)
+      if (useLevel) break
+    }
   }
 }

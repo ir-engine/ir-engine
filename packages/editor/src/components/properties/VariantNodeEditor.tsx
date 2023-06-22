@@ -37,13 +37,15 @@ import DeblurIcon from '@mui/icons-material/Deblur'
 import { Button } from '../inputs/Button'
 import InputGroup from '../inputs/InputGroup'
 import ModelInput from '../inputs/ModelInput'
+import NumericInput from '../inputs/NumericInput'
 import SelectInput from '../inputs/SelectInput'
 import PaginatedList from '../layout/PaginatedList'
+import NodeEditor from './NodeEditor'
 import { EditorComponentType } from './Util'
 
-export const VariantNodeEditor: EditorComponentType = ({ entity }: { entity: Entity }) => {
+export const VariantNodeEditor: EditorComponentType = (props: { entity: Entity }) => {
   const { t } = useTranslation()
-
+  const entity = props.entity
   const variantComponent = useComponent(entity, VariantComponent)
   const nameComponent = getComponent(entity, NameComponent)
 
@@ -56,19 +58,21 @@ export const VariantNodeEditor: EditorComponentType = ({ entity }: { entity: Ent
     [entity]
   )
   return (
-    <div>
-      <h2 className="text-white text-2xl font-bold m-4">LODs</h2>
+    <NodeEditor
+      name={t('editor:properties.variant.name')}
+      description={t('editor:properties.variant.description')}
+      {...props}
+    >
       <div className="bg-gray-800 rounded-lg p-4 m-4">
-        <h2 className="text-white text-xl font-bold mb-4">{nameComponent}</h2>
-        <InputGroup name="lodHeuristic" label={t('editor:properties.lod.heuristic')}>
+        <InputGroup name="lodHeuristic" label={t('editor:properties.variant.heuristic')}>
           <SelectInput
             value={variantComponent.heuristic.value}
             onChange={(val: typeof variantComponent.heuristic.value) => variantComponent.heuristic.set(val)}
             options={[
-              { value: 'DISTANCE', label: t('editor:properties.lod.heuristic-distance') },
-              { value: 'SCENE_SCALE', label: t('editor:properties.lod.heuristic-sceneScale') },
-              { value: 'MANUAL', label: t('editor:properties.lod.heuristic-manual') },
-              { value: 'DEVICE', label: t('editor:properties.lod.heuristic-device') }
+              { value: 'DISTANCE', label: t('editor:properties.variant.heuristic-distance') },
+              { value: 'SCENE_SCALE', label: t('editor:properties.variant.heuristic-sceneScale') },
+              { value: 'MANUAL', label: t('editor:properties.variant.heuristic-manual') },
+              { value: 'DEVICE', label: t('editor:properties.variant.heuristic-device') }
             ]}
           />
         </InputGroup>
@@ -89,19 +93,35 @@ export const VariantNodeEditor: EditorComponentType = ({ entity }: { entity: Ent
             return (
               <div className="bg-gray-900 m-2">
                 <div style={{ margin: '2em' }}>
-                  <InputGroup name="src" label={t('editor:properties.lod.src')}>
+                  <InputGroup name="src" label={t('editor:properties.variant.src')}>
                     <ModelInput value={level.src.value} onChange={onChangeLevelProperty(level, 'src')} />
                   </InputGroup>
                   {variantComponent.heuristic.value === 'DEVICE' && (
                     <>
-                      <InputGroup name="device" label={t('editor:properties.lod.device')}>
+                      <InputGroup name="device" label={t('editor:properties.variant.device')}>
                         <SelectInput
                           value={level.metadata['device'].value}
                           onChange={onChangeLevelProperty(level.metadata, 'device')}
                           options={[
-                            { value: 'MOBILE', label: t('editor:properties.lod.device-mobile') },
-                            { value: 'DESKTOP', label: t('editor:properties.lod.device-desktop') }
+                            { value: 'MOBILE', label: t('editor:properties.variant.device-mobile') },
+                            { value: 'DESKTOP', label: t('editor:properties.variant.device-desktop') }
                           ]}
+                        />
+                      </InputGroup>
+                    </>
+                  )}
+                  {variantComponent.heuristic.value === 'DISTANCE' && (
+                    <>
+                      <InputGroup name="minDistance" label={t('editor:properties.variant.minDistance')}>
+                        <NumericInput
+                          value={level.metadata['minDistance'].value}
+                          onChange={onChangeLevelProperty(level.metadata, 'minDistance')}
+                        />
+                      </InputGroup>
+                      <InputGroup name="maxDistance" label={t('editor:properties.variant.maxDistance')}>
+                        <NumericInput
+                          value={level.metadata['maxDistance'].value}
+                          onChange={onChangeLevelProperty(level.metadata, 'maxDistance')}
                         />
                       </InputGroup>
                     </>
@@ -122,7 +142,7 @@ export const VariantNodeEditor: EditorComponentType = ({ entity }: { entity: Ent
           }}
         />
       </div>
-    </div>
+    </NodeEditor>
   )
 }
 

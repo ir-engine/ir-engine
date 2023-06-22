@@ -31,6 +31,7 @@ import { getState } from '@etherealengine/hyperflux'
 import { EngineState } from '../../ecs/classes/EngineState'
 import { defineQuery, getMutableComponent, useQuery } from '../../ecs/functions/ComponentFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
+import { TransformComponent } from '../../transform/components/TransformComponent'
 import { ModelComponent } from '../components/ModelComponent'
 import { VariantComponent } from '../components/VariantComponent'
 import { setModelVariant } from '../functions/loaders/VariantFunctions'
@@ -38,21 +39,17 @@ import { setModelVariant } from '../functions/loaders/VariantFunctions'
 const updateFrequency = 0.1
 let lastUpdate = 0
 
+const modelVariantQuery = defineQuery([VariantComponent, ModelComponent, TransformComponent])
+
 function execute() {
   const engineState = getState(EngineState)
   if (engineState.elapsedSeconds - lastUpdate < updateFrequency) return
   lastUpdate = engineState.elapsedSeconds
+
+  modelVariantQuery().forEach(setModelVariant)
 }
 
 function reactor() {
-  const modelVariantQuery = useQuery([VariantComponent, ModelComponent])
-
-  /*useEffect(() => {
-    for (const entity of modelVariantQuery) {
-      setModelVariant(entity)
-    }
-  }, [modelVariantQuery])
-  */
   return null
 }
 
