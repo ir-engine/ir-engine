@@ -64,15 +64,9 @@ const updateSessionSupport = () => {
   updateSessionSupportForMode('immersive-vr')
 }
 
-const xrRequestSessionQueue = defineActionQueue(XRAction.requestSession.matches)
-const xrEndSessionQueue = defineActionQueue(XRAction.endSession.matches)
 const xrSessionChangedQueue = defineActionQueue(XRAction.sessionChanged.matches)
 
 const execute = () => {
-  const xrRequestSessionAction = xrRequestSessionQueue().pop()
-  const xrEndSessionAction = xrEndSessionQueue().pop()
-  if (xrRequestSessionAction) requestXRSession(xrRequestSessionAction)
-  if (xrEndSessionAction) endXRSession()
   for (const action of xrSessionChangedQueue()) xrSessionChanged(action)
 }
 

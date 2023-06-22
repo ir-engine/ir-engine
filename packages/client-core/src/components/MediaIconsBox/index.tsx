@@ -39,6 +39,7 @@ import { AudioEffectPlayer } from '@etherealengine/engine/src/audio/systems/Medi
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { EngineActions, EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
+import { endXRSession, requestXRSession } from '@etherealengine/engine/src/xr/XRSessionFunctions'
 import { XRAction, XRState } from '@etherealengine/engine/src/xr/XRState'
 import { dispatchAction, getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import CircularProgress from '@etherealengine/ui/src/primitives/mui/CircularProgress'
@@ -181,11 +182,9 @@ export const MediaIconsBox = () => {
           type="button"
           id="UserVR"
           className={styles.iconContainer + ' ' + (xrMode === 'immersive-vr' ? styles.on : '')}
-          onClick={() =>
-            dispatchAction(
-              xrSessionActive ? XRAction.endSession({}) : XRAction.requestSession({ mode: 'immersive-vr' })
-            )
-          }
+          onClick={() => {
+            xrSessionActive ? endXRSession() : requestXRSession({ mode: 'immersive-vr' })
+          }}
           onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
           onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
         >
@@ -197,11 +196,9 @@ export const MediaIconsBox = () => {
           type="button"
           id="UserAR"
           className={styles.iconContainer + ' ' + (xrMode === 'immersive-ar' ? styles.on : '')}
-          onClick={() =>
-            dispatchAction(
-              xrSessionActive ? XRAction.endSession({}) : XRAction.requestSession({ mode: 'immersive-ar' })
-            )
-          }
+          onClick={() => {
+            xrSessionActive ? endXRSession() : requestXRSession({ mode: 'immersive-ar' })
+          }}
           onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
           onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
         >

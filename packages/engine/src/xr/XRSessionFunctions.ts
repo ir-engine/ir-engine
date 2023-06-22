@@ -70,7 +70,7 @@ export const onSessionEnd = () => {
   xrState.session.set(null)
 }
 
-export const setupXRSession = async (requestedMode) => {
+export const setupXRSession = async (requestedMode?: 'inline' | 'immersive-ar' | 'immersive-vr') => {
   const xrState = getMutableState(XRState)
   const xrManager = EngineRenderer.instance.xrManager
 
@@ -170,7 +170,7 @@ export const getReferenceSpaces = (xrSession: XRSession) => {
  * @returns
  */
 export const requestXRSession = createHookableFunction(
-  async (action: typeof XRAction.requestSession.matches._TYPE): Promise<void> => {
+  async (action: { mode?: 'inline' | 'immersive-ar' | 'immersive-vr' } = {}): Promise<void> => {
     const xrState = getMutableState(XRState)
     if (xrState.requestingSession.value || xrState.sessionActive.value) return
 
