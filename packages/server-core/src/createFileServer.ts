@@ -32,7 +32,7 @@ import serveStatic from 'serve-static'
 
 import config from './appconfig'
 
-const serve = serveStatic('../server/upload/')
+const serve = process.env.TEST === 'true' ? serveStatic('../server/upload_test/') : serveStatic('../server/upload/')
 
 let server: https.Server = null!
 const options = {
@@ -44,7 +44,7 @@ const createTestFileServer = (port: number, isServerRunning: boolean) => {
   if (isServerRunning) return
 
   server = https.createServer(options, (req, res) => {
-    serve(req, res, null!)
+    serve(req, res, () => {})
   })
   server.listen(port)
 }

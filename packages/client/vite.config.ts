@@ -53,6 +53,7 @@ require('ts-node').register({
   project: './tsconfig.json'
 })
 
+/** @deprecated */
 const copyProjectDependencies = () => {
   if (!fs.existsSync(path.resolve(__dirname, '../projects/projects/'))) {
     // create directory

@@ -33,6 +33,7 @@ import InputText from '@etherealengine/client-core/src/common/components/InputTe
 import Menu from '@etherealengine/client-core/src/common/components/Menu'
 import { InstanceService } from '@etherealengine/client-core/src/common/services/InstanceService'
 import { useRouter } from '@etherealengine/client-core/src/common/services/RouterService'
+import { requestXRSession } from '@etherealengine/engine/src/xr/XRSessionFunctions'
 import { XRAction } from '@etherealengine/engine/src/xr/XRState'
 import { dispatchAction } from '@etherealengine/hyperflux'
 import Box from '@etherealengine/ui/src/primitives/mui/Box'
@@ -95,7 +96,7 @@ const RoomMenu = ({ location }: Props): JSX.Element => {
       return
     }
     route(`/location/${location ? location : locationName}?roomCode=${rooms.roomCode}`)
-    dispatchAction(XRAction.requestSession({}))
+    requestXRSession()
   }
 
   const handleCreate = async () => {
@@ -105,7 +106,7 @@ const RoomMenu = ({ location }: Props): JSX.Element => {
     }
 
     route(`/location/${location ? location : locationName}`)
-    dispatchAction(XRAction.requestSession({}))
+    requestXRSession()
   }
 
   return (

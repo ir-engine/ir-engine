@@ -138,6 +138,7 @@ bin/
 .history
 .history/*
 packages/server/upload/
+packages/server/upload_test/
 
 .dccache
 .DS_Store
