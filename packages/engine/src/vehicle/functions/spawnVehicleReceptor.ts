@@ -51,6 +51,9 @@ export const spawnVehicleReceptor = (spawnAction: typeof WorldNetworkAction.spaw
   if (!entity) return
 
   addComponent(entity, VehicleComponent, {})
+  // create vehicle body
+  // create vehicle axle
+  // create vehicle whee
 
   createVehicleRigidBody(entity)
   createVehicleCollider(entity)
@@ -61,7 +64,7 @@ export const spawnVehicleReceptor = (spawnAction: typeof WorldNetworkAction.spaw
   setComponent(entity, BoundingBoxComponent)
 }
 
-export const createVehicleCollider = (entity: Entity): Collider => {
+const createVehicleCollider = (entity: Entity): Collider => {
   const interactionGroups = getInteractionGroups(CollisionGroups.Default, DefaultCollisionMask)
   const rigidBody = getComponent(entity, RigidBodyComponent)
   const transform = getComponent(entity, TransformComponent)
@@ -83,6 +86,21 @@ const createVehicleRigidBody = (entity: Entity): RigidBody => {
   return rigidBody
 }
 
+const createVehicleBody = (entity: Entity): any => {
+  // body with its collider
+}
+
+const createVehicleAxle = (entity: Entity): any => {
+  // front
+  // back
+}
+
+const createVehicleWheel = (entity: Entity): any => {
+  // if 2
+  // if 3
+  // if 4
+  // handle suspension
+}
 /*
 export const createVehicleController = (entity: Entity) => {
   createVehicleRigidBody(entity)
