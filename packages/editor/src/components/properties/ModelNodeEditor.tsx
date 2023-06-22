@@ -1,3 +1,28 @@
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
 import React, { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 
@@ -27,7 +52,6 @@ import ViewInArIcon from '@mui/icons-material/ViewInAr'
 import exportGLTF from '../../functions/exportGLTF'
 import { convertToScaffold, createLODsFromModel } from '../../functions/lodsFromModel'
 import { LODsFromModelParameters } from '../../functions/lodsFromModel'
-import { StaticResourceService } from '../../services/StaticResourceService'
 import BooleanInput from '../inputs/BooleanInput'
 import { Button, PropertiesPanelButton } from '../inputs/Button'
 import InputGroup from '../inputs/InputGroup'
@@ -119,17 +143,7 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
   }, [])
 
   const updateResources = useCallback((path: string) => {
-    clearErrors(entity, ModelComponent)
-    try {
-      StaticResourceService.uploadModel(path).then((model) => {
-        updateProperty(ModelComponent, 'resource')(model)
-        updateProperty(ModelComponent, 'src')(path)
-      })
-    } catch (err) {
-      console.log('Error getting path', path)
-      addError(entity, ModelComponent, 'INVALID_URL', path)
-      return {}
-    }
+    updateProperty(ModelComponent, 'src')(path)
   }, [])
 
   const onChangePlayingAnimation = (index) => {
@@ -153,13 +167,7 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
     >
       <InputGroup name="Model Url" label={t('editor:properties.model.lbl-modelurl')}>
         <ModelInput
-          value={
-            modelComponent.resource?.value?.glbStaticResource?.LOD0_url ||
-            modelComponent.resource?.value?.gltfStaticResource?.LOD0_url ||
-            modelComponent.resource?.value?.fbxStaticResource?.LOD0_url ||
-            modelComponent.resource?.value?.usdzStaticResource?.LOD0_url ||
-            modelComponent.src?.value
-          }
+          value={modelComponent.resource?.value?.staticResource?.url || modelComponent.src?.value}
           onChange={updateResources}
         />
         {errors?.LOADING_ERROR && (

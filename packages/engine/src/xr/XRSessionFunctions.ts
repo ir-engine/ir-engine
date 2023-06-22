@@ -1,3 +1,28 @@
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
 import { Quaternion, Vector3 } from 'three'
 
 import { createHookableFunction } from '@etherealengine/common/src/utils/createHookableFunction'
@@ -46,21 +71,20 @@ export const onSessionEnd = () => {
   xrState.session.set(null)
 }
 
-export const setupXRSession = async (requestedMode) => {
+export const setupXRSession = async (requestedMode?: 'inline' | 'immersive-ar' | 'immersive-vr') => {
   const xrState = getMutableState(XRState)
   const xrManager = EngineRenderer.instance.xrManager
 
   // @todo - hack to detect nreal
-  const isNReal =
-    navigator.userAgent ===
-    'Mozilla/5.0 (Linux; Android 11) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.82 Mobile Safari/537.36'
+  const params = new URL(document.location.href).searchParams
+  const isXREAL = params.has('xreal')
 
   const sessionInit = {
     optionalFeatures: [
       'local-floor',
       'hand-tracking',
       'layers',
-      isNReal ? undefined : 'dom-overlay', // dom overlay crashes nreal
+      isXREAL ? undefined : 'dom-overlay', // dom overlay crashes nreal
       'hit-test',
       'light-estimation',
       'depth-sensing',
@@ -72,7 +96,7 @@ export const setupXRSession = async (requestedMode) => {
       usagePreference: ['cpu-optimized', 'gpu-optimized'],
       dataFormatPreference: ['luminance-alpha', 'float32']
     },
-    domOverlay: isNReal ? undefined : { root: document.body }
+    domOverlay: isXREAL ? undefined : { root: document.body }
   } as XRSessionInit
   const mode =
     requestedMode ||
@@ -147,7 +171,7 @@ export const getReferenceSpaces = (xrSession: XRSession) => {
  * @returns
  */
 export const requestXRSession = createHookableFunction(
-  async (action: typeof XRAction.requestSession.matches._TYPE): Promise<void> => {
+  async (action: { mode?: 'inline' | 'immersive-ar' | 'immersive-vr' } = {}): Promise<void> => {
     const xrState = getMutableState(XRState)
     if (xrState.requestingSession.value || xrState.sessionActive.value) return
 

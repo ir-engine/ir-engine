@@ -1,2 +1,2 @@
 #!/bin/bash
-npm run test-e2e
+npx ts-node --swc scripts/run_e2e_tests.ts

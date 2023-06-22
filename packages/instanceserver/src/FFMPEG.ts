@@ -1,3 +1,28 @@
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
 import Process from 'child_process'
 import ffmpeg from 'ffmpeg-static'
 import Stream from 'stream'
@@ -30,11 +55,6 @@ export const startFFMPEG = async (useAudio: boolean, useVideo: boolean, onExit: 
   // require on demand as not to unnecessary slow down instance server
   if (!ffmpeg) throw new Error('FFmpeg not found')
 
-  let cmdInputPath = `${__dirname}/recording/input-vp8.sdp`
-  let cmdOutputPath = `${__dirname}/recording/output-ffmpeg-vp8.webm`
-  let cmdCodec = ''
-  let cmdFormat = '-f webm -flags +global_header'
-
   // Ensure correct FFmpeg version is installed
   const ffmpegOut = Process.execSync(ffmpeg + ' -version', {
     encoding: 'utf8'
@@ -58,6 +78,13 @@ export const startFFMPEG = async (useAudio: boolean, useVideo: boolean, onExit: 
     throw new Error('FFmpeg >= 4.0.0 not found in $PATH; please install it')
   }
 
+  /** Init codec & args */
+
+  let cmdInputPath = `${__dirname}/recording/input-vp8.sdp`
+  let cmdOutputPath = `${__dirname}/recording/output-ffmpeg-vp8.webm`
+  let cmdCodec = ''
+  let cmdFormat = '-f webm -flags +global_header'
+
   if (useAudio) {
     cmdCodec += ' -map 0:a:0 -c:a copy'
   }
@@ -78,7 +105,8 @@ export const startFFMPEG = async (useAudio: boolean, useVideo: boolean, onExit: 
   const cmdArgStr = [
     '-nostdin',
     '-protocol_whitelist file,rtp,udp',
-    '-analyzeduration 3000000',
+    '-analyzeduration 10M',
+    '-probesize 10M',
     '-fflags +genpts',
     `-i ${cmdInputPath}`,
     cmdCodec,

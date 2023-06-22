@@ -1,24 +1,37 @@
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
 import { VRM, VRMHumanBone, VRMHumanBoneList, VRMHumanBoneName } from '@pixiv/three-vrm'
 import * as VRMUtils from '@pixiv/three-vrm'
 import { pipe } from 'bitecs'
 import { clone, cloneDeep } from 'lodash'
 import { useEffect } from 'react'
-import {
-  AnimationClip,
-  AnimationMixer,
-  Bone,
-  Box3,
-  Euler,
-  Group,
-  Object3D,
-  Quaternion,
-  Skeleton,
-  SkinnedMesh,
-  Vector3
-} from 'three'
+import { AnimationClip, AnimationMixer, Bone, Box3, Group, Mesh, Object3D, Skeleton, SkinnedMesh, Vector3 } from 'three'
 import { GLTF } from 'three/examples/jsm/loaders/GLTFLoader'
 
-import { dispatchAction, getMutableState, getState, startReactor } from '@etherealengine/hyperflux'
+import { dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
 
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { AssetType } from '../../assets/enum/AssetType'
@@ -42,6 +55,7 @@ import { addObjectToGroup, GroupComponent, removeObjectFromGroup } from '../../s
 import { UpdatableCallback, UpdatableComponent } from '../../scene/components/UpdatableComponent'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
 import { setObjectLayers } from '../../scene/functions/setObjectLayers'
+import iterateObject3D from '../../scene/util/iterateObject3D'
 import { computeTransformMatrix, updateGroupChildren } from '../../transform/systems/TransformSystem'
 import { XRState } from '../../xr/XRState'
 import { applySkeletonPose, isSkeletonInTPose, makeTPose } from '../animation/avatarPose'
@@ -189,6 +203,10 @@ export const setupAvatarForUser = (entity: Entity, model: VRM) => {
 
   setupAvatarModel(entity)(model)
   addObjectToGroup(entity, model.scene)
+  iterateObject3D(model.scene, (obj) => {
+    obj && (obj.frustumCulled = false)
+  })
+
   computeTransformMatrix(entity)
   //updateGroupChildren(entity)
   setupAvatarHeight(entity, model.scene)
@@ -235,7 +253,7 @@ export const createIKAnimator = async (entity: Entity) => {
 export const getAnimations = async () => {
   const manager = getMutableState(AnimationManager)
   if (!manager.targetsAnimation.value) {
-    const asset = await AssetLoader.loadAsync('/default_assets/vrm_mocap_targets.glb')
+    const asset = await AssetLoader.loadAsync('/vrm_mocap_targets.glb')
     const glb = asset as GLTF
     manager.targetsAnimation.set(glb.animations)
   }
