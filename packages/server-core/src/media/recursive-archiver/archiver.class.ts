@@ -49,6 +49,11 @@ export class Archiver implements Partial<ServiceMethods<any>> {
   async setup(app: Application, path: string) {}
 
   async get(directory: string, params?: UserParams): Promise<string> {
+    if (directory[0] === '/') directory = directory.slice(1)
+    if (!directory.startsWith('projects/') || ['projects', 'projects/'].includes(directory)) {
+      return Promise.reject(new Error('Cannot archive non-project directories'))
+    }
+
     if (!params) params = {}
     if (!params.query) params.query = {}
     const { storageProviderName } = params.query
@@ -56,7 +61,6 @@ export class Archiver implements Partial<ServiceMethods<any>> {
     delete params.query.storageProviderName
 
     const storageProvider = getStorageProvider(storageProviderName)
-    if (directory[0] === '/') directory = directory.slice(1)
 
     let result = await storageProvider.listFolderContent(directory)
 

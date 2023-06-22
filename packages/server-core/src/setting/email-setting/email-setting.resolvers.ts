@@ -41,7 +41,7 @@ import { getDateTimeSql } from '../../util/get-datetime-sql'
 
 export const emailSettingResolver = resolve<EmailSettingType, HookContext>({})
 
-export const emailDbToSchema = async (rawData: EmailSettingDatabaseType): Promise<EmailSettingType> => {
+export const emailDbToSchema = (rawData: EmailSettingDatabaseType): EmailSettingType => {
   let smtp = JSON.parse(rawData.smtp) as EmailSmtpType
 
   // Usually above JSON.parse should be enough. But since our pre-feathers 5 data

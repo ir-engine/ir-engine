@@ -107,9 +107,9 @@ const WidgetButtons = () => {
 
   // const toggleVRSession = () => {
   //   if (engineState.xrSessionStarted.value) {
-  //     dispatchAction(XRAction.endSession({}))
+  //     endXRSession()
   //   } else {
-  //     dispatchAction(XRAction.requestSession({}))
+  //     requestXRSession()
   //   }
   // }
 

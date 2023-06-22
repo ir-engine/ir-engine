@@ -59,7 +59,6 @@
     "react-window": "1.8.8",
     "reactflow": "^11.6.1",
     "styled-components": "5.3.9",
-    "three.quarks": "0.10.2",
     "typescript": "5.0.2",
     "use-http": "1.0.27",
     "uuid": "9.0.0"

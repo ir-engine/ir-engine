@@ -40,7 +40,7 @@ import { getDateTimeSql } from '../../util/get-datetime-sql'
 
 export const clientSettingResolver = resolve<ClientSettingType, HookContext>({})
 
-export const clientDbToSchema = async (rawData: ClientSettingDatabaseType): Promise<ClientSettingType> => {
+export const clientDbToSchema = (rawData: ClientSettingDatabaseType): ClientSettingType => {
   let appSocialLinks = JSON.parse(rawData.appSocialLinks) as ClientSocialLinkType[]
 
   // Usually above JSON.parse should be enough. But since our pre-feathers 5 data
