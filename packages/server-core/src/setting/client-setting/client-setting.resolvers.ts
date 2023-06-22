@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-// // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
+// For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
 import { resolve } from '@feathersjs/schema'
 import { v4 } from 'uuid'
 
@@ -40,7 +40,7 @@ import { getDateTimeSql } from '../../util/get-datetime-sql'
 
 export const clientSettingResolver = resolve<ClientSettingType, HookContext>({})
 
-export const clientDbToSchema = async (rawData: ClientSettingDatabaseType): Promise<ClientSettingType> => {
+export const clientDbToSchema = (rawData: ClientSettingDatabaseType): ClientSettingType => {
   let appSocialLinks = JSON.parse(rawData.appSocialLinks) as ClientSocialLinkType[]
 
   // Usually above JSON.parse should be enough. But since our pre-feathers 5 data

@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import classNames from 'classnames'
 import React from 'react'
 
-import { BuildStatus } from '@etherealengine/common/src/interfaces/BuildStatus'
+import { BuildStatusType } from '@etherealengine/engine/src/schemas/cluster/build-status.schema'
 import Fade from '@etherealengine/ui/src/primitives/mui/Fade'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
@@ -37,7 +37,7 @@ import styles from '../../styles/admin.module.scss'
 interface Props {
   open: boolean
   onClose: () => void
-  buildStatus: BuildStatus
+  buildStatus: BuildStatusType
 }
 
 const BuildStatusLogsModal = ({ open, onClose, buildStatus }: Props) => {

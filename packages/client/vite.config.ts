@@ -53,6 +53,7 @@ require('ts-node').register({
   project: './tsconfig.json'
 })
 
+/** @deprecated */
 const copyProjectDependencies = () => {
   if (!fs.existsSync(path.resolve(__dirname, '../projects/projects/'))) {
     // create directory
@@ -227,7 +228,7 @@ export default defineConfig(async () => {
     ].filter(Boolean),
     resolve: {
       alias: {
-        'react-json-tree': 'react-json-tree/umd/react-json-tree',
+        'react-json-tree': 'react-json-tree/lib/umd/react-json-tree',
         '@mui/styled-engine': '@mui/styled-engine-sc/'
       }
     },

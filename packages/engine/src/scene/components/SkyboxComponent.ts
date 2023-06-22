@@ -26,6 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { useEffect } from 'react'
 import { Color, CubeTexture, sRGBEncoding } from 'three'
 
+import { config } from '@etherealengine/common/src/config'
 import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
 import { AssetLoader } from '../../assets/classes/AssetLoader'
@@ -47,7 +48,7 @@ export const SkyboxComponent = defineComponent({
     return {
       backgroundColor: new Color(0x000000),
       equirectangularPath: '',
-      cubemapPath: '/hdr/cubemap/skyboxsun25deg/',
+      cubemapPath: `${config.client.fileServer}/projects/default-project/assets/skyboxsun25deg/`,
       backgroundType: 1,
       sky: null! as Sky | null,
       skyboxProps: {

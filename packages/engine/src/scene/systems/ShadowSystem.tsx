@@ -70,6 +70,7 @@ import { getShadowsEnabled, useShadowsEnabled } from '../../renderer/functions/R
 import { RendererState } from '../../renderer/RendererState'
 import { EngineRenderer, RenderSettingsState } from '../../renderer/WebGLRendererSystem'
 import { TransformComponent } from '../../transform/components/TransformComponent'
+import { XRLightProbeState } from '../../xr/XRLightProbeSystem'
 import { XRState } from '../../xr/XRState'
 import { DirectionalLightComponent } from '../components/DirectionalLightComponent'
 import { DropShadowComponent } from '../components/DropShadowComponent'
@@ -148,7 +149,7 @@ const UpdateCSMFromActiveDirectionalLight = (props: { activeLightEntity: Entity;
 }
 
 function CSMReactor() {
-  const xrState = getMutableState(XRState)
+  const xrState = getMutableState(XRLightProbeState)
   const isEstimatingLight = useHookstate(xrState.isEstimatingLight)
   const directionalLights = useQuery([DirectionalLightComponent])
 
@@ -156,7 +157,7 @@ function CSMReactor() {
 
   // TODO: convert light estimator to an entity to simplify all this logic
   let activeLightEntity = UndefinedEntity
-  if (isEstimatingLight.value) activeLight = xrState.lightEstimator.value?.directionalLight
+  if (isEstimatingLight.value) activeLight = xrState.directionalLight.value
   else
     for (const entity of directionalLights) {
       const component = getComponent(entity, DirectionalLightComponent)

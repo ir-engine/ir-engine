@@ -25,6 +25,8 @@ Ethereal Engine. All Rights Reserved.
 
 import { AnimationClip, Bone, SkinnedMesh } from 'three'
 
+import { config } from '@etherealengine/common/src/config'
+
 import { AssetLoader } from '../assets/classes/AssetLoader'
 import { GLTF } from '../assets/loaders/gltf/GLTFLoader'
 import { applySkeletonPose, makeTPose } from './animation/avatarPose'
@@ -45,7 +47,9 @@ export class AnimationManager {
     return animation ? animation.duration : 0
   }
 
-  async loadDefaultAnimations(path: string = '/default_assets/Animations.glb') {
+  async loadDefaultAnimations(
+    path: string = `${config.client.fileServer}/projects/default-project/assets/Animations.glb`
+  ) {
     if (this._animations) {
       return this._animations
     }
