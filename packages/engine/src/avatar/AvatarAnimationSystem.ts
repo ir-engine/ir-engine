@@ -40,6 +40,7 @@ import { defineQuery, getComponent, getOptionalComponent, setComponent } from '.
 import { removeEntity } from '../ecs/functions/EntityFunctions'
 import { defineSystem } from '../ecs/functions/SystemFunctions'
 import { createPriorityQueue } from '../ecs/PriorityQueue'
+import { InputSourceComponent } from '../input/components/InputSourceComponent'
 import { NetworkObjectComponent } from '../networking/components/NetworkObjectComponent'
 import { RigidBodyComponent } from '../physics/components/RigidBodyComponent'
 import { addObjectToGroup, GroupComponent } from '../scene/components/GroupComponent'
@@ -115,6 +116,8 @@ const sessionChangedQueue = defineActionQueue(XRAction.sessionChanged.matches)
 
 const ikTargetQuery = defineQuery([AvatarIKTargetComponent])
 
+const inputSourceQuery = defineQuery([InputSourceComponent])
+
 const minimumFrustumCullDistanceSqr = 5 * 5 // 5 units
 
 const filterPriorityEntities = (entity: Entity) =>
@@ -138,7 +141,7 @@ const _quat = new Quaternion()
 const execute = () => {
   const xrState = getState(XRState)
   const { priorityQueue, sortedTransformEntities } = getState(AvatarAnimationState)
-  const { localClientEntity, inputSources } = Engine.instance
+  const { localClientEntity } = Engine.instance
   const { elapsedSeconds, deltaSeconds } = getState(EngineState)
 
   for (const action of sessionChangedQueue()) {
@@ -173,7 +176,8 @@ const execute = () => {
 
   // todo - remove ik targets when session ends
   if (xrState.sessionActive && localClientEntity) {
-    const sources = Array.from(inputSources.values())
+    const sources = inputSourceQuery().map((eid) => getComponent(eid, InputSourceComponent).source)
+
     const head = getCameraMode() === 'attached'
     const leftHand = !!sources.find((s) => s.handedness === 'left')
     const rightHand = !!sources.find((s) => s.handedness === 'right')

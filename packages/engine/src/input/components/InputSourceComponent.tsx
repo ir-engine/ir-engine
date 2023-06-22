@@ -31,6 +31,7 @@ import { none, State, useHookstate } from '@etherealengine/hyperflux'
 import { Entity, UndefinedEntity } from '../../ecs/classes/Entity'
 import {
   defineComponent,
+  defineQuery,
   getComponent,
   getMutableComponent,
   getOptionalComponent,
@@ -118,3 +119,10 @@ const InputSourceAssignmentReactor = React.memo((props: { assignedEntity: State<
 
   return null
 })
+
+const inputSourceQuery = defineQuery([InputSourceComponent])
+const filterUncapturedInputSources = (eid: Entity) => !getComponent(eid, InputSourceComponent)?.captured
+
+export const getFirstNonCapturedInputSource = () => {
+  return inputSourceQuery().find(filterUncapturedInputSources)
+}

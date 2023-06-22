@@ -23,13 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { get } from 'lodash'
 import { useEffect } from 'react'
-import { Intersection, Mesh, MeshBasicMaterial, Object3D, Quaternion, Ray, Raycaster, Vector3 } from 'three'
+import { Mesh, MeshBasicMaterial, Quaternion, Ray, Vector3 } from 'three'
 
-import { dispatchAction, getMutableState, getState, none, useHookstate } from '@etherealengine/hyperflux'
+import { dispatchAction, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
-import { V_00, V_001 } from '../../common/constants/MathConstants'
+import { V_001 } from '../../common/constants/MathConstants'
 import { isClient } from '../../common/functions/getEnvironment'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineActions } from '../../ecs/classes/EngineState'
@@ -39,35 +38,27 @@ import {
   getComponent,
   getMutableComponent,
   getOptionalComponent,
-  hasComponent,
   removeComponent,
-  removeQuery,
-  setComponent,
-  useQuery
+  setComponent
 } from '../../ecs/functions/ComponentFunctions'
 import { createEntity, removeEntity } from '../../ecs/functions/EntityFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
-import { BoundingBoxComponent } from '../../interaction/components/BoundingBoxComponents'
 import { InteractState } from '../../interaction/systems/InteractiveSystem'
 import { Physics, RaycastArgs } from '../../physics/classes/Physics'
 import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
-import { AllCollisionMask, CollisionGroups } from '../../physics/enums/CollisionGroups'
+import { AllCollisionMask } from '../../physics/enums/CollisionGroups'
 import { getInteractionGroups } from '../../physics/functions/getInteractionGroups'
 import { SceneQueryType } from '../../physics/types/PhysicsTypes'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
-import { GroupComponent } from '../../scene/components/GroupComponent'
 import { NameComponent } from '../../scene/components/NameComponent'
-import { VisibleComponent } from '../../scene/components/VisibleComponent'
-import { ObjectLayers } from '../../scene/constants/ObjectLayers'
-import { setTransformComponent, TransformComponent } from '../../transform/components/TransformComponent'
+import { TransformComponent } from '../../transform/components/TransformComponent'
 import { XRSpaceComponent } from '../../xr/XRComponents'
 import { ReferenceSpace, XRState } from '../../xr/XRState'
 import { XRUIComponent } from '../../xrui/components/XRUIComponent'
-import { pointers } from '../../xrui/systems/XRUISystem'
 import { InputComponent } from '../components/InputComponent'
 import { InputSourceComponent } from '../components/InputSourceComponent'
 import normalizeWheel from '../functions/normalizeWheel'
-import { AnyButton, ButtonStateMap, createInitialButtonState, MouseButton } from '../state/ButtonState'
+import { ButtonStateMap, createInitialButtonState, MouseButton } from '../state/ButtonState'
 import { InputState } from '../state/InputState'
 
 function preventDefault(e) {
@@ -116,68 +107,6 @@ export const addClientInputListeners = () => {
   addListener(document, 'gesturestart', preventDefault)
   addListener(canvas, 'contextmenu', preventDefault)
 
-  // const handleMouseClick = (event: MouseEvent) => {
-  //   const down = event.type === 'mousedown' || event.type === 'touchstart'
-
-  //   let button = MouseButton.PrimaryClick
-  //   if (event.button === 1) button = MouseButton.AuxiliaryClick
-  //   else if (event.button === 2) button = MouseButton.SecondaryClick
-
-  //   const state = Engine.instance.buttons as OldButtonInputStateType
-
-  //   if (down) state[button] = createInitialButtonState()
-  //   else if (state[button]) state[button]!.up = true
-  // }
-
-  // const handleMouseMove = (event: MouseEvent) => {
-  //   Engine.instance.pointerState.position.set(
-  //     (event.clientX / window.innerWidth) * 2 - 1,
-  //     (event.clientY / window.innerHeight) * -2 + 1
-  //   )
-  // }
-
-  // const handleTouchMove = (event: TouchEvent) => {
-  //   const touch = event.touches[0]
-  //   Engine.instance.pointerState.position.set(
-  //     (touch.clientX / window.innerWidth) * 2 - 1,
-  //     (touch.clientY / window.innerHeight) * -2 + 1
-  //   )
-  // }
-
-  // addListener(window, 'touchmove', handleTouchMove, { passive: true, capture: true })
-  // addListener(window, 'mousemove', handleMouseMove, { passive: true, capture: true })
-  // addListener(canvas, 'mouseup', handleMouseClick)
-  // addListener(canvas, 'mousedown', handleMouseClick)
-  // addListener(canvas, 'touchstart', handleMouseClick)
-  // addListener(canvas, 'touchend', handleMouseClick)
-
-  // const handleTouchDirectionalPad = (event: CustomEvent): void => {
-  //   const { stick, value }: { stick: 'StickLeft' | 'StickRight'; value: { x: number; y: number } } = event.detail
-  //   if (!stick) {
-  //     return
-  //   }
-
-  //   // TODO: This is a hack to support gamepad input in WebXR AR sessions
-  //   const index = 0 //Engine.instance.inputSources.length === 1 || stick === 'StickLeft' ? 0 : 1
-  //   const inputSource = Engine.instance.inputSources[index]
-
-  //   const axes = inputSource.gamepad!.axes as number[]
-
-  //   axes[0] = value.x
-  //   axes[1] = value.y
-  // }
-  // addListener(document, 'touchstickmove', handleTouchDirectionalPad)
-
-  // const handleTouchGampadButton = () => {
-  //   dispatchAction(
-  //     EngineActions.interactedWithObject({
-  //       targetEntity: getState(InteractState).available[0],
-  //       handedness: 'none'
-  //     })
-  //   )
-  // }
-  // addListener(document, 'touchgamepadbuttondown', handleTouchGampadButton)
-
   return () => {
     window.removeEventListener('DOMMouseScroll', preventDefault, false)
     boundListeners.forEach(({ domElement, eventName, callback }) => {
@@ -190,7 +119,7 @@ export const addClientInputListeners = () => {
 export function updateGamepadInput(eid: Entity) {
   const inputSource = getComponent(eid, InputSourceComponent)
   const source = inputSource.source
-  const buttons = inputSource.buttons
+  const buttons = inputSource.buttons as ButtonStateMap
   if (!source.gamepad) return
 
   const gamepadButtons = source.gamepad?.buttons
@@ -315,10 +244,6 @@ const execute = () => {
       source.assignedEntity.set(assignedInputEntity)
     }
 
-    if (!xrFrame && source.source.targetRayMode.value === 'screen') {
-      source.buttons.set(Engine.instance.buttons)
-    }
-
     updateGamepadInput(sourceEid)
   }
 }
@@ -329,7 +254,6 @@ const reactor = () => {
   useEffect(() => addClientInputListeners(), [])
 
   useEffect(() => {
-    const inputState = getMutableState(InputState)
     const canvas = EngineRenderer.instance.renderer.domElement
 
     const addInputSource = (source: XRInputSource) => {
@@ -379,7 +303,7 @@ const reactor = () => {
       const down = event.type === 'keydown'
 
       const inputSourceComponent = getComponent(emulatedInputSourceEntity, InputSourceComponent)
-      const buttonState = inputSourceComponent.buttons[code]
+      const buttonState = inputSourceComponent.buttons as ButtonStateMap
 
       if (down) buttonState[code] = createInitialButtonState()
       else if (buttonState[code]) buttonState[code].up = true
@@ -508,7 +432,7 @@ const reactor = () => {
     // create an emulated input source for mouse/keyboard/touch input
     const emulatedInputSource = {
       handedness: 'none',
-      targetRayMode: session?.interactionMode === 'screen-space' ? 'screen' : 'gaze',
+      targetRayMode: session ? (session.interactionMode === 'screen-space' ? 'screen' : 'gaze') : 'screen',
       targetRaySpace: emulatedTargetRaySpace,
       gripSpace: undefined,
       gamepad: {

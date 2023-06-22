@@ -251,13 +251,6 @@ export class Engine {
    */
   localClientEntity = UndefinedEntity
 
-  /**
-   * @deprecated use getComponent(eid, InputComponent).inputSources
-   */
-  get inputSources() {
-    return getState(InputState).inputSources
-  }
-
   pointerState = {
     position: new Vector2(),
     lastPosition: new Vector2(),
@@ -265,9 +258,6 @@ export class Engine {
     scroll: new Vector2(),
     lastScroll: new Vector2()
   }
-
-  /** @deprecated */
-  buttons = {} as Readonly<Record<any, any>>
 
   reactiveQueryStates = new Set<{ query: Query; result: State<Entity[]>; components: QueryComponents }>()
 

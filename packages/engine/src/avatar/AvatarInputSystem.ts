@@ -31,6 +31,7 @@ import { dispatchAction, getMutableState, getState } from '@etherealengine/hyper
 import { V_000, V_010 } from '../common/constants/MathConstants'
 import { Engine } from '../ecs/classes/Engine'
 import { EngineActions } from '../ecs/classes/EngineState'
+import { Entity } from '../ecs/classes/Entity'
 import {
   ComponentType,
   defineQuery,
@@ -42,6 +43,7 @@ import {
 import { defineSystem } from '../ecs/functions/SystemFunctions'
 import { InputComponent } from '../input/components/InputComponent'
 import { InputSourceComponent } from '../input/components/InputSourceComponent'
+import { XRStandardGamepadButton } from '../input/state/ButtonState'
 import { InteractState } from '../interaction/systems/InteractiveSystem'
 import { WorldNetworkAction } from '../networking/functions/WorldNetworkAction'
 import { RigidBodyFixedTagComponent } from '../physics/components/RigidBodyComponent'
@@ -122,20 +124,11 @@ const onKeyE = () => {
   )
 }
 
-const onLeftTrigger = () => {
+const onTrigger = (handedness: XRHandedness) => {
   dispatchAction(
     EngineActions.interactedWithObject({
       targetEntity: getState(InteractState).available[0],
-      handedness: 'left'
-    })
-  )
-}
-
-const onRightTrigger = () => {
-  dispatchAction(
-    EngineActions.interactedWithObject({
-      targetEntity: getState(InteractState).available[0],
-      handedness: 'right'
+      handedness
     })
   )
 }
@@ -153,16 +146,19 @@ const onKeyP = () => {
 }
 
 const walkableQuery = defineQuery([RigidBodyFixedTagComponent, InputComponent])
+const inputSourceQuery = defineQuery([InputSourceComponent])
+
+const filterUncapturedInputSources = (eid: Entity) => !getComponent(eid, InputSourceComponent)?.captured
 
 let mouseMovedDuringPrimaryClick = false
 const execute = () => {
-  const { inputSources, localClientEntity } = Engine.instance
+  const { localClientEntity } = Engine.instance
   if (!localClientEntity) return
 
   const avatarInputSettings = getState(AvatarInputSettingsState)
 
   const controller = getComponent(localClientEntity, AvatarControllerComponent)
-  const buttons = Engine.instance.buttons
+  const nonCapturedInputSourceEntities = inputSourceQuery().filter(filterUncapturedInputSources)
 
   const firstWalkableEntityWithInput = walkableQuery().find(
     (entity) => getComponent(entity, InputComponent)?.inputSources.length
@@ -187,38 +183,41 @@ const execute = () => {
     }
   }
 
-  if (buttons.ShiftLeft?.down) onShiftLeft()
-  if (buttons.KeyE?.down) onKeyE()
-  if (buttons.LeftTrigger?.down) onLeftTrigger()
-  if (buttons.RightTrigger?.down) onRightTrigger()
+  for (const inputSourceEntity of nonCapturedInputSourceEntities) {
+    const inputSource = getComponent(inputSourceEntity, InputSourceComponent)
 
-  if (isDev) {
-    if (buttons.KeyO?.down) onKeyO()
-    if (buttons.KeyP?.down) onKeyP()
-  }
+    const buttons = inputSource.buttons
 
-  if (!hasMovementControls()) return
+    if (buttons.ShiftLeft?.down) onShiftLeft()
+    if (buttons.KeyE?.down) onKeyE()
+    if (buttons[XRStandardGamepadButton.Trigger]?.down) onTrigger(inputSource.source.handedness)
 
-  /** keyboard input */
-  const keyDeltaX = (buttons.KeyA?.pressed ? -1 : 0) + (buttons.KeyD?.pressed ? 1 : 0)
-  const keyDeltaZ =
-    (buttons.KeyW?.pressed ? -1 : 0) +
-    (buttons.KeyS?.pressed ? 1 : 0) +
-    (buttons.ArrowUp?.pressed ? -1 : 0) +
-    (buttons.ArrowDown?.pressed ? 1 : 0)
+    if (isDev) {
+      if (buttons.KeyO?.down) onKeyO()
+      if (buttons.KeyP?.down) onKeyP()
+    }
 
-  controller.gamepadLocalInput.set(keyDeltaX, 0, keyDeltaZ)
+    if (!hasMovementControls()) return
 
-  controller.gamepadJumpActive = !!buttons.Space?.pressed
+    /** keyboard input */
+    const keyDeltaX = (buttons.KeyA?.pressed ? -1 : 0) + (buttons.KeyD?.pressed ? 1 : 0)
+    const keyDeltaZ =
+      (buttons.KeyW?.pressed ? -1 : 0) +
+      (buttons.KeyS?.pressed ? 1 : 0) +
+      (buttons.ArrowUp?.pressed ? -1 : 0) +
+      (buttons.ArrowDown?.pressed ? 1 : 0)
 
-  for (const inputSource of inputSources) {
+    controller.gamepadLocalInput.set(keyDeltaX, 0, keyDeltaZ)
+
+    controller.gamepadJumpActive = !!buttons.Space?.pressed
+
     const controlScheme =
-      inputSource.handedness === 'none'
+      inputSource.source.handedness === 'none'
         ? AvatarAxesControlScheme.Move
-        : inputSource.handedness === avatarInputSettings.preferredHand
+        : inputSource.source.handedness === avatarInputSettings.preferredHand
         ? avatarInputSettings.rightAxesControlScheme
         : avatarInputSettings.leftAxesControlScheme
-    AvatarAxesControlSchemeBehavior[controlScheme](inputSource, controller)
+    AvatarAxesControlSchemeBehavior[controlScheme](inputSource.source, controller)
   }
 }
 

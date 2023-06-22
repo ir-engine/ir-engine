@@ -28,12 +28,16 @@ import React from 'react'
 import { Joystick } from 'react-joystick-component'
 
 import { isTouchAvailable } from '@etherealengine/engine/src/common/functions/DetectFeatures'
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { getComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import {
+  getFirstNonCapturedInputSource,
+  InputSourceComponent
+} from '@etherealengine/engine/src/input/components/InputSourceComponent'
 import {
   AnyButton,
   createInitialButtonState,
   XRStandardGamepadButton
-} from '@etherealengine/engine/src/input/ButtonState'
+} from '@etherealengine/engine/src/input/state/ButtonState'
 import { InteractState } from '@etherealengine/engine/src/interaction/systems/InteractiveSystem'
 import { isMobileXRHeadset } from '@etherealengine/engine/src/xr/XRState'
 import { getMutableState } from '@etherealengine/hyperflux'
@@ -43,7 +47,12 @@ import { AppState } from '../../services/AppService'
 import styles from './index.module.scss'
 
 const triggerButton = (button: AnyButton, pressed: boolean): void => {
-  let buttonState = Engine.instance.buttons['10']
+  const nonCapturedInputSource = getFirstNonCapturedInputSource()
+  if (!nonCapturedInputSource) return
+
+  const inputSource = getComponent(nonCapturedInputSource, InputSourceComponent)
+
+  let buttonState = inputSource.buttons[button]
   if (buttonState || pressed) {
     buttonState = buttonState || createInitialButtonState()
     buttonState.pressed = pressed
