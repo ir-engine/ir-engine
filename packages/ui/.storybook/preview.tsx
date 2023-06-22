@@ -47,7 +47,7 @@ export const decorators = [
 const preview: Preview = {
   globalTypes: {
     eeEnabled: {
-      description: 'Ethreal Engine',
+      description: 'Ethereal Engine',
       defaultValue: false
     }
   }
