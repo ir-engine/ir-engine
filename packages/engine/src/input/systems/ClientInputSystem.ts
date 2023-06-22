@@ -40,6 +40,7 @@ import {
   getMutableComponent,
   getOptionalComponent,
   hasComponent,
+  removeComponent,
   removeQuery,
   setComponent,
   useQuery
@@ -63,10 +64,10 @@ import { XRSpaceComponent } from '../../xr/XRComponents'
 import { ReferenceSpace, XRState } from '../../xr/XRState'
 import { XRUIComponent } from '../../xrui/components/XRUIComponent'
 import { pointers } from '../../xrui/systems/XRUISystem'
-import { createInitialButtonState, OldButtonInputStateType, OldButtonTypes } from '../ButtonState'
 import { InputComponent } from '../components/InputComponent'
 import { InputSourceComponent } from '../components/InputSourceComponent'
 import normalizeWheel from '../functions/normalizeWheel'
+import { AnyButton, createInitialButtonState, MouseButton } from '../state/ButtonState'
 import { InputState } from '../state/InputState'
 
 function preventDefault(e) {
@@ -118,9 +119,9 @@ export const addClientInputListeners = () => {
   const handleMouseClick = (event: MouseEvent) => {
     const down = event.type === 'mousedown' || event.type === 'touchstart'
 
-    let button: OldButtonTypes = 'PrimaryClick'
-    if (event.button === 1) button = 'AuxiliaryClick'
-    else if (event.button === 2) button = 'SecondaryClick'
+    let button = MouseButton.PrimaryClick
+    if (event.button === 1) button = MouseButton.AuxiliaryClick
+    else if (event.button === 2) button = MouseButton.SecondaryClick
 
     const state = Engine.instance.buttons as OldButtonInputStateType
 
@@ -404,6 +405,7 @@ const reactor = () => {
 
     const addInputSource = (source: XRInputSource) => {
       if (source.targetRayMode === 'screen' || source.targetRayMode === 'gaze') {
+        removeComponent(fakeInputSourceEntity, InputSourceComponent)
       }
       const entity = createEntity()
       setComponent(entity, InputSourceComponent, { source })
@@ -426,7 +428,7 @@ const reactor = () => {
 
     const emulatedTargetRaySpace = {} as any as XRSpace
 
-    // create fake screen-space input source for mouse/keyboard/touch
+    // create an emulated input source for mouse/keyboard/touch input
     const fakeInputSource = {
       handedness: 'none',
       targetRayMode: session?.interactionMode === 'screen-space' ? 'screen' : 'gaze',
