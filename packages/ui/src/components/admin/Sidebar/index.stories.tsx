@@ -23,27 +23,22 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React from 'react'
+import Component from './index'
 
-import Icon from '.'
-import { Primary } from './index.stories'
+const argTypes = {}
 
-const IconsPage = ({ argTypes }) => {
-  return (
-    <div>
-      {Object.keys(argTypes).map((key) => {
-        return (
-          <div key={`${key}-options`}>
-            {argTypes[key]?.options?.map((o) => (
-              <div key={`${key}-options-${o}`} style={{ margin: '10px', display: 'inline-block' }}>
-                <Icon {...Primary.args} {...{ [key]: o }} />
-              </div>
-            ))}
-          </div>
-        )
-      })}
-    </div>
-  )
+export default {
+  title: 'Admin/Sidebar',
+  component: Component,
+  parameters: {
+    componentSubtitle: 'Sidebar',
+    jest: 'Sidebar.test.tsx',
+    design: {
+      type: 'figma',
+      url: ''
+    }
+  },
+  argTypes
 }
 
-export default IconsPage
+export const Default = { args: Component.defaultProps }

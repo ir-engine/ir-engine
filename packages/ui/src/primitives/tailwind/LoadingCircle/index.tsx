@@ -28,7 +28,7 @@ import { twMerge } from 'tailwind-merge'
 
 const LoadingCircle = ({ message, className }: { message: string; className?: string }) => (
   <div className={twMerge('', className)}>
-    <div role="status" className="top-1/2 my-0 mx-auto block relative w-20 h-20">
+    <div role="status" className="my-0 mx-auto block relative w-full h-full">
       <svg
         aria-hidden="true"
         className="w-auto h-full text-gray-200 animate-spin dark:text-gray-600 fill-blue-600"

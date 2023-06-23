@@ -23,27 +23,35 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React from 'react'
+// your-addon-register-file.js
 
-import Icon from '.'
-import { Primary } from './index.stories'
+import { IconButton, Icons } from '@storybook/components'
+import { FORCE_RE_RENDER } from '@storybook/core-events'
+import { useGlobals } from '@storybook/manager-api'
+import { addons } from '@storybook/preview-api'
+import React, { useCallback } from 'react'
 
-const IconsPage = ({ argTypes }) => {
-  return (
-    <div>
-      {Object.keys(argTypes).map((key) => {
-        return (
-          <div key={`${key}-options`}>
-            {argTypes[key]?.options?.map((o) => (
-              <div key={`${key}-options-${o}`} style={{ margin: '10px', display: 'inline-block' }}>
-                <Icon {...Primary.args} {...{ [key]: o }} />
-              </div>
-            ))}
-          </div>
-        )
-      })}
-    </div>
-  )
+const SystemStatus = () => {
+  const [globals, updateGlobals] = useGlobals()
+
+  const isActive = globals['SystemStatus'] || false
+
+  // Function that will update the global value and trigger a UI refresh.
+  const refreshAndUpdateGlobal = () => {
+    // Updates Storybook global value
+    updateGlobals({
+      ['SystemStatus']: !isActive
+    }),
+      // Invokes Storybook's addon API method (with the FORCE_RE_RENDER) event to trigger a UI refresh
+      addons.getChannel().emit(FORCE_RE_RENDER)
+  }
+
+  const toggleOutline = useCallback(() => refreshAndUpdateGlobal(), [isActive])
+
+  return <div key="hello">hello</div>
 }
 
-export default IconsPage
+SystemStatus.defaultProps = {}
+SystemStatus.displayName = 'SystemStatus'
+
+export default SystemStatus

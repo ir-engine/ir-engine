@@ -25,25 +25,33 @@ Ethereal Engine. All Rights Reserved.
 
 import React from 'react'
 
-import Icon from '.'
-import { Primary } from './index.stories'
+import Component from './index'
 
-const IconsPage = ({ argTypes }) => {
-  return (
-    <div>
-      {Object.keys(argTypes).map((key) => {
-        return (
-          <div key={`${key}-options`}>
-            {argTypes[key]?.options?.map((o) => (
-              <div key={`${key}-options-${o}`} style={{ margin: '10px', display: 'inline-block' }}>
-                <Icon {...Primary.args} {...{ [key]: o }} />
-              </div>
-            ))}
-          </div>
-        )
-      })}
-    </div>
-  )
+const argTypes = {}
+
+const decorators = [
+  (Story) => {
+    return (
+      <div style={{ height: '100vh', pointerEvents: 'auto' }}>
+        <Story />
+      </div>
+    )
+  }
+]
+
+export default {
+  title: 'Addons/SystemStatus',
+  component: Component,
+  parameters: {
+    componentSubtitle: 'SystemStatus',
+    jest: 'SystemStatus.test.tsx',
+    design: {
+      type: 'figma',
+      url: ''
+    }
+  },
+  decorators,
+  argTypes
 }
 
-export default IconsPage
+export const Default = { args: Component.defaultProps }

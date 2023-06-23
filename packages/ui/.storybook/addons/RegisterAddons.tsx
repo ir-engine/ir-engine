@@ -23,27 +23,22 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { addons, types } from '@storybook/addons'
+import { RenderOptions } from '@storybook/addons'
+// import { FORCE_RE_RENDER } from '@storybook/core-events';
+import { useGlobals } from '@storybook/manager-api'
 import React from 'react'
 
-import Icon from '.'
-import { Primary } from './index.stories'
+import SystemStatus from './SystemStatus'
 
-const IconsPage = ({ argTypes }) => {
-  return (
-    <div>
-      {Object.keys(argTypes).map((key) => {
-        return (
-          <div key={`${key}-options`}>
-            {argTypes[key]?.options?.map((o) => (
-              <div key={`${key}-options-${o}`} style={{ margin: '10px', display: 'inline-block' }}>
-                <Icon {...Primary.args} {...{ [key]: o }} />
-              </div>
-            ))}
-          </div>
-        )
-      })}
-    </div>
-  )
-}
-
-export default IconsPage
+addons.register('Ethereal Engine', () => {
+  addons.add('Ethereal Engine', {
+    title: 'Ethereal Engine',
+    type: types.PANEL, // TAB, PANEL, TOOL, TOOLEXTRA, PREVIEW, NOTES_ELEMENT
+    match: ({ viewMode }) => !!(viewMode && viewMode.match(/^(story|docs)$/)),
+    render: ({ active }: RenderOptions) => {
+      // const [globals, updateGlobals] = useGlobals()
+      return <SystemStatus />
+    }
+  })
+})
