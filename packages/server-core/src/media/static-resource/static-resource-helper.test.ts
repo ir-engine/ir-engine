@@ -43,7 +43,7 @@ describe('static-resource-helper', () => {
   before(() => {
     const url = 'http://test.com/test'
     mockFetch({
-      url: {
+      [url]: {
         contentType: 'application/octet-stream',
         response: Buffer.from('test')
       }
