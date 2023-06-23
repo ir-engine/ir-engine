@@ -191,8 +191,8 @@ let _8thwallScripts = null as XR8Assets | null
 
 let cameraCanvas: HTMLCanvasElement | null = null
 
-let originalRequestXRSessionImplementation = requestXRSession.implementation
-let originalEndXRSessionImplementation = endXRSession.implementation
+const originalRequestXRSessionImplementation = requestXRSession.implementation
+const originalEndXRSessionImplementation = endXRSession.implementation
 
 const inputSources = [] as XRInputSource[]
 const viewerInputSource = {

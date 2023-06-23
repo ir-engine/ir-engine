@@ -52,7 +52,7 @@ import { SceneLoaderType } from '../../common/constants/PrefabFunctionType'
 import { nowMilliseconds } from '../../common/functions/nowMilliseconds'
 import { Timer } from '../../common/functions/Timer'
 import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
-import { OldButtonInputStateType } from '../../input/InputState'
+import { InputState } from '../../input/state/InputState'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
 import { NetworkState } from '../../networking/NetworkState'
 import { PhysicsWorld } from '../../physics/classes/Physics'
@@ -251,8 +251,6 @@ export class Engine {
    */
   localClientEntity = UndefinedEntity
 
-  inputSources: ReadonlyArray<XRInputSource> = []
-
   pointerState = {
     position: new Vector2(),
     lastPosition: new Vector2(),
@@ -260,8 +258,6 @@ export class Engine {
     scroll: new Vector2(),
     lastScroll: new Vector2()
   }
-
-  buttons = {} as Readonly<OldButtonInputStateType>
 
   reactiveQueryStates = new Set<{ query: Query; result: State<Entity[]>; components: QueryComponents }>()
 

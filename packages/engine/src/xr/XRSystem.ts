@@ -34,7 +34,6 @@ import { XRCameraSystem } from './XRCameraSystem'
 import { XRCameraViewSystem } from './XRCameraViewSystem'
 import { XRDetectedPlanesSystem } from './XRDetectedPlanesSystem'
 import { XRHapticsSystem } from './XRHapticsSystem'
-import { XRInputSourceSystem } from './XRInputSourceSystem'
 import { XRLightProbeSystem } from './XRLightProbeSystem'
 import { XRPersistentAnchorSystem } from './XRPersistentAnchorSystem'
 import { XRScenePlacementShaderSystem } from './XRScenePlacementShaderSystem'
@@ -93,7 +92,6 @@ export const XRSystem = defineSystem({
     XRCameraViewSystem,
     XRDetectedPlanesSystem,
     XRHapticsSystem,
-    XRInputSourceSystem,
     XRLightProbeSystem,
     XRPersistentAnchorSystem,
     XRScenePlacementShaderSystem

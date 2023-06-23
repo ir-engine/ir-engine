@@ -51,6 +51,7 @@ import { defineQuery, getComponent, hasComponent, removeQuery } from '../../ecs/
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { InputComponent } from '../../input/components/InputComponent'
 import { InputSourceComponent } from '../../input/components/InputSourceComponent'
+import { XRStandardGamepadButton } from '../../input/state/ButtonState'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { VisibleComponent } from '../../scene/components/VisibleComponent'
 import { DistanceFromCameraComponent } from '../../transform/components/DistanceComponents'
@@ -167,11 +168,13 @@ const updateClickEventsForController = (controller: PointerObject) => {
   }
 }
 
+const inputSourceQuery = defineQuery([InputSourceComponent])
+
 export const pointers = new Map<XRInputSource, PointerObject>()
 
 const execute = () => {
   const xruiState = getState(XRUIState)
-  const buttons = Engine.instance.buttons
+  const inputSourceEntities = inputSourceQuery()
 
   const xrFrame = Engine.instance.xrFrame
 
@@ -201,7 +204,11 @@ const execute = () => {
     getMutableState(XRUIState).pointerActive.set(isCloseToVisibleXRUI)
 
   /** do intersection tests */
-  for (const inputSource of Engine.instance.inputSources) {
+  for (const inputSourceEntity of inputSourceEntities) {
+    const inputSourceComponent = getComponent(inputSourceEntity, InputSourceComponent)
+    const inputSource = inputSourceComponent.source
+    const buttons = inputSourceComponent.buttons
+
     if (inputSource.targetRayMode !== 'tracked-pointer') continue
     if (!pointers.has(inputSource)) {
       const pointer = createPointer(inputSource)
@@ -228,8 +235,8 @@ const execute = () => {
     pointer.material.visible = isCloseToVisibleXRUI
 
     if (
-      (inputSource.handedness === 'left' && buttons.LeftTrigger?.down) ||
-      (inputSource.handedness === 'right' && buttons.RightTrigger?.down)
+      buttons[XRStandardGamepadButton.Trigger]?.down &&
+      (inputSource.handedness === 'left' || inputSource.handedness === 'right')
     )
       updateClickEventsForController(pointer)
 
@@ -237,9 +244,8 @@ const execute = () => {
       updateControllerRayInteraction(pointer, interactableXRUIEntities)
   }
 
-  const inputSources = Array.from(Engine.instance.inputSources.values())
   for (const [pointerSource, pointer] of pointers) {
-    if (!inputSources.includes(pointerSource)) {
+    if (!inputSourceEntities.find((entity) => getComponent(entity, InputSourceComponent).source === pointerSource)) {
       Engine.instance.scene.remove(pointer)
       pointers.delete(pointerSource)
     }

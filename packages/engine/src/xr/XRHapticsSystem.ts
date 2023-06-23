@@ -26,7 +26,9 @@ Ethereal Engine. All Rights Reserved.
 import { defineActionQueue } from '@etherealengine/hyperflux'
 
 import { Engine } from '../ecs/classes/Engine'
+import { defineQuery, getComponent } from '../ecs/functions/ComponentFunctions'
 import { defineSystem } from '../ecs/functions/SystemFunctions'
+import { InputSourceComponent } from '../input/components/InputSourceComponent'
 import { XRAction } from './XRState'
 
 /** haptic typings are currently incomplete */
@@ -39,13 +41,19 @@ type Haptic = {
   pulse: (value: number, duration: number) => void
 }
 
+const inputSourceQuery = defineQuery([InputSourceComponent])
+
 const vibrateControllerQueue = defineActionQueue(XRAction.vibrateController.matches)
 
 const execute = () => {
   for (const action of vibrateControllerQueue()) {
-    for (const inputSource of Engine.instance.inputSources) {
-      if (inputSource.handedness === action.handedness && inputSource.gamepad?.hapticActuators?.length) {
-        ;(inputSource.gamepad.hapticActuators[0] as Haptic).pulse(action.value, action.duration)
+    for (const inputSourceEntity of inputSourceQuery()) {
+      const inputSourceComponent = getComponent(inputSourceEntity, InputSourceComponent)
+      if (
+        inputSourceComponent.source.handedness === action.handedness &&
+        inputSourceComponent.source.gamepad?.hapticActuators?.length
+      ) {
+        ;(inputSourceComponent.source.gamepad.hapticActuators[0] as Haptic).pulse(action.value, action.duration)
       }
     }
   }

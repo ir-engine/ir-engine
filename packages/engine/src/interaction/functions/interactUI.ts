@@ -37,7 +37,7 @@ import { createInteractiveModalView } from '../ui/InteractiveModalView'
 export function createInteractUI(entity: Entity, interactMessage: string) {
   const ui = createInteractiveModalView(entity, interactMessage)
   const nameComponent = getComponent(entity, NameComponent)
-  addComponent(ui.entity, NameComponent, 'interact-ui-' + nameComponent)
+  addComponent(ui.entity, NameComponent, 'interact-ui-' + interactMessage + '-' + nameComponent)
 
   const xrui = getComponent(ui.entity, XRUIComponent)
   xrui.rootLayer.traverseLayersPreOrder((layer: WebLayer3D) => {
