@@ -29,6 +29,7 @@ import { useTranslation } from 'react-i18next'
 
 import InputSelect, { InputMenuItem } from '@etherealengine/client-core/src/common/components/InputSelect'
 import InputText from '@etherealengine/client-core/src/common/components/InputText'
+import { EMAIL_REGEX, PHONE_REGEX } from '@etherealengine/common/src/constants/IdConstants'
 import { SendInvite } from '@etherealengine/common/src/interfaces/Invite'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import Button from '@etherealengine/ui/src/primitives/mui/Button'
@@ -48,7 +49,7 @@ import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker'
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
 
 import { NotificationService } from '../../../common/services/NotificationService'
-import { emailRegex, InviteService, phoneRegex } from '../../../social/services/InviteService'
+import { InviteService } from '../../../social/services/InviteService'
 import DrawerView from '../../common/DrawerView'
 import { AdminInstanceService, AdminInstanceState } from '../../services/InstanceService'
 import { AdminInviteService } from '../../services/InviteService'
@@ -188,8 +189,8 @@ const CreateInviteModal = ({ open, onClose }: Props) => {
     targets.map(async (target) => {
       try {
         const inviteType = INVITE_TYPE_TAB_MAP[inviteTypeTab.value]
-        const isPhone = phoneRegex.test(target)
-        const isEmail = emailRegex.test(target)
+        const isPhone = PHONE_REGEX.test(target)
+        const isEmail = EMAIL_REGEX.test(target)
         const sendData = {
           inviteType: inviteType,
           token: target.length === 8 ? null : target,
