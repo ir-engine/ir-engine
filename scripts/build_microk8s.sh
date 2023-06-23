@@ -63,7 +63,7 @@ fi
 
 if [ -z "$VITE_FILE_SERVER" ]
 then
-  VITE_FILE_SERVER=http://127.0.0.1:9000/etherealengine-microk8s-static-resources
+  VITE_FILE_SERVER=https://localhost:8642
 else
   VITE_FILE_SERVER=$VITE_FILE_SERVER
 fi
