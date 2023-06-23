@@ -29,6 +29,7 @@ import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { addActionReceptor, defineActionQueue, dispatchAction, removeActionReceptor } from '@etherealengine/hyperflux'
 
 import { FollowCameraComponent } from '../camera/components/FollowCameraComponent'
+import { TargetCameraRotationComponent } from '../camera/components/TargetCameraRotationComponent'
 import { Engine } from '../ecs/classes/Engine'
 import {
   defineQuery,
@@ -65,7 +66,12 @@ const execute = () => {
     } else {
       for (const avatarEntity of localControllerQuery()) {
         const controller = getComponent(avatarEntity, AvatarControllerComponent)
-        setComponent(controller.cameraEntity, FollowCameraComponent, { targetEntity: avatarEntity })
+        const targetCameraRotation = getComponent(controller.cameraEntity, TargetCameraRotationComponent)
+        setComponent(controller.cameraEntity, FollowCameraComponent, {
+          targetEntity: avatarEntity,
+          phi: targetCameraRotation.phi,
+          theta: targetCameraRotation.theta
+        })
       }
     }
   }
@@ -73,7 +79,12 @@ const execute = () => {
   for (const avatarEntity of localControllerQuery.enter()) {
     const controller = getComponent(avatarEntity, AvatarControllerComponent)
 
-    setComponent(controller.cameraEntity, FollowCameraComponent, { targetEntity: avatarEntity })
+    const targetCameraRotation = getComponent(controller.cameraEntity, TargetCameraRotationComponent)
+    setComponent(controller.cameraEntity, FollowCameraComponent, {
+      targetEntity: avatarEntity,
+      phi: targetCameraRotation.phi,
+      theta: targetCameraRotation.theta
+    })
 
     // todo: this should be called when the avatar is spawned
     dispatchAction(

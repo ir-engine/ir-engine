@@ -41,7 +41,6 @@ export const CameraSettingsState = defineState({
     cameraMode: CameraMode.Dynamic,
     cameraModeDefault: CameraMode.ThirdPerson,
     minPhi: -70,
-    maxPhi: 85,
-    startPhi: 10
+    maxPhi: 85
   }
 })

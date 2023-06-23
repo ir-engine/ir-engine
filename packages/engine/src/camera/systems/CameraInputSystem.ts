@@ -34,11 +34,11 @@ import { throttle } from '../../common/functions/FunctionHelpers'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import {
-  addComponent,
   ComponentType,
   defineQuery,
   getComponent,
-  getOptionalComponent
+  getOptionalComponent,
+  setComponent
 } from '../../ecs/functions/ComponentFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { getFirstNonCapturedInputSource, InputSourceComponent } from '../../input/components/InputSourceComponent'
@@ -53,7 +53,7 @@ export const setTargetCameraRotation = (entity: Entity, phi: number, theta: numb
     | ComponentType<typeof TargetCameraRotationComponent>
     | undefined
   if (!cameraRotationTransition) {
-    addComponent(entity, TargetCameraRotationComponent, {
+    setComponent(entity, TargetCameraRotationComponent, {
       phi: phi,
       phiVelocity: { value: 0 },
       theta: theta,
