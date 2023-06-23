@@ -299,6 +299,7 @@ export const applyInputSourcePoseToIKTargets = () => {
     for (const inputSourceEntity of nonCapturedInputSources) {
       const inputSourceComponent = getComponent(inputSourceEntity, InputSourceComponent)
       const handedness = inputSourceComponent.source.handedness
+      if (handedness === 'none') continue
 
       const entity = handedness === 'right' ? ikTargetRightHand : ikTargetLeftHand
       const XRHandComponent = handedness === 'right' ? XRRightHandComponent : XRLeftHandComponent
