@@ -41,7 +41,6 @@ import { HemisphereLightComponent } from '@etherealengine/engine/src/scene/compo
 import { ImageComponent } from '@etherealengine/engine/src/scene/components/ImageComponent'
 import { InstancingComponent } from '@etherealengine/engine/src/scene/components/InstancingComponent'
 import { InteriorComponent } from '@etherealengine/engine/src/scene/components/InteriorComponent'
-import { LODComponent } from '@etherealengine/engine/src/scene/components/LODComponent'
 import { MediaComponent } from '@etherealengine/engine/src/scene/components/MediaComponent'
 import { MediaSettingsComponent } from '@etherealengine/engine/src/scene/components/MediaSettingsComponent'
 import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
@@ -60,6 +59,7 @@ import { SpawnPointComponent } from '@etherealengine/engine/src/scene/components
 import { SplineComponent } from '@etherealengine/engine/src/scene/components/SplineComponent'
 import { SpotLightComponent } from '@etherealengine/engine/src/scene/components/SpotLightComponent'
 import { SystemComponent } from '@etherealengine/engine/src/scene/components/SystemComponent'
+import { VariantComponent } from '@etherealengine/engine/src/scene/components/VariantComponent'
 import { VideoComponent } from '@etherealengine/engine/src/scene/components/VideoComponent'
 import { VolumetricComponent } from '@etherealengine/engine/src/scene/components/VolumetricComponent'
 import { WaterComponent } from '@etherealengine/engine/src/scene/components/WaterComponent'
@@ -84,7 +84,6 @@ import HemisphereLightNodeEditor from '../components/properties/HemisphereLightN
 import ImageNodeEditor from '../components/properties/ImageNodeEditor'
 import InstancingNodeEditor from '../components/properties/InstancingNodeEditor'
 import InteriorNodeEditor from '../components/properties/InteriorNodeEditor'
-import { LODProperties } from '../components/properties/LODProperties'
 import MediaNodeEditor from '../components/properties/MediaNodeEditor'
 import { MediaSettingsEditor } from '../components/properties/MediaSettingsEditor'
 import ModelNodeEditor from '../components/properties/ModelNodeEditor'
@@ -107,6 +106,7 @@ import SpotLightNodeEditor from '../components/properties/SpotLightNodeEditor'
 import SystemNodeEditor from '../components/properties/SystemNodeEditor'
 import TransformPropertyGroup from '../components/properties/TransformPropertyGroup'
 import { EditorComponentType } from '../components/properties/Util'
+import { VariantNodeEditor } from '../components/properties/VariantNodeEditor'
 import VideoNodeEditor from '../components/properties/VideoNodeEditor'
 import VolumetricNodeEditor from '../components/properties/VolumetricNodeEditor'
 import WaterNodeEditor from '../components/properties/WaterNodeEditor'
@@ -150,7 +150,7 @@ EntityNodeEditor.set(EnvmapComponent, EnvMapEditor)
 EntityNodeEditor.set(EnvMapBakeComponent, EnvMapBakeNodeEditor)
 EntityNodeEditor.set(InstancingComponent, InstancingNodeEditor)
 EntityNodeEditor.set(PersistentAnchorComponent, PersistentAnchorNodeEditor)
-EntityNodeEditor.set(LODComponent, LODProperties)
+EntityNodeEditor.set(VariantComponent, VariantNodeEditor)
 
 export const prefabIcons = {
   [LightPrefabs.ambientLight]: AmbientLightNodeEditor.iconComponent,

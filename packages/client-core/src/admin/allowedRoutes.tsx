@@ -24,31 +24,32 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { t } from 'i18next'
-import React, { Suspense } from 'react'
+import React, { lazy, Suspense } from 'react'
 import { Route, Routes, useLocation } from 'react-router-dom'
 
 import { LoadingCircle } from '../components/LoadingCircle'
-import Avatars from './components/Avatars'
-import Benchmarking from './components/Benchmarking'
-import BotSetting from './components/Bots'
-import Groups from './components/Group'
-import Instance from './components/Instance'
-import Invites from './components/Invite'
-import Locations from './components/Location'
-import Party from './components/Party'
-import Projects from './components/Project'
-import Recordings from './components/Recordings'
-import Resources from './components/Resources'
-import RoutesComp from './components/Routes'
-import Server from './components/Server'
-import Setting from './components/Setting'
-import Users from './components/Users'
+
+const Avatars = lazy(() => import('./components/Avatars'))
+const Benchmarking = lazy(() => import('./components/Benchmarking'))
+const BotSetting = lazy(() => import('./components/Bots'))
+const Groups = lazy(() => import('./components/Group'))
+const Instance = lazy(() => import('./components/Instance'))
+const Invites = lazy(() => import('./components/Invite'))
+const Locations = lazy(() => import('./components/Location'))
+const Party = lazy(() => import('./components/Party'))
+const Projects = lazy(() => import('./components/Project'))
+const Recordings = lazy(() => import('./components/Recordings'))
+const Resources = lazy(() => import('./components/Resources'))
+const RoutesComp = lazy(() => import('./components/Routes'))
+const Server = lazy(() => import('./components/Server'))
+const Setting = lazy(() => import('./components/Setting'))
+const Users = lazy(() => import('./components/Users'))
 
 const availableRoutes = [
   { route: '/avatars', key: 'globalAvatars', component: Avatars, props: {} },
   { route: '/benchmarking', key: 'benchmarking', component: Benchmarking, props: {} },
   { route: '/groups', key: 'groups', component: Groups, props: {} },
-  { route: '/instance', key: 'instance', component: Recordings, props: {} },
+  { route: '/instance', key: 'instance', component: Instance, props: {} },
   { route: '/invites', key: 'invite', component: Invites, props: {} },
   { route: '/locations', key: 'location', component: Locations, props: {} },
   { route: '/routes', key: 'routes', component: RoutesComp, props: {} },
@@ -76,6 +77,7 @@ const AllowedRoutes = ({ allowedRoutes }) => {
       <Routes>
         {matchedRoutes.map((route, i) => {
           const { route: r, component, props: p } = route
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           const Element = component as any
           return (
             <Route
