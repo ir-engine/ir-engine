@@ -99,7 +99,6 @@ export const uploadRecordingStaticResource = async (props: {
   key: string
   body: Buffer | PassThrough
   mimeType: string
-  staticResourceType: string
   hash: string
 }) => {
   const app = Engine.instance.api as Application
@@ -115,8 +114,7 @@ export const uploadRecordingStaticResource = async (props: {
     {
       hash: props.hash,
       key: props.key,
-      mimeType: props.mimeType,
-      staticResourceType: props.staticResourceType
+      mimeType: props.mimeType
     },
     { isInternal: true }
   )) as StaticResourceInterface
@@ -207,7 +205,6 @@ export const onStartRecording = async (action: ReturnType<typeof ECSRecordingAct
           key,
           body: buffer,
           mimeType: 'application/octet-stream',
-          staticResourceType: 'data',
           hash: createStaticResourceHash(buffer, { assetURL: key })
         }).then(() => {
           logger.info('Uploaded entities chunk', chunkIndex)
@@ -222,7 +219,6 @@ export const onStartRecording = async (action: ReturnType<typeof ECSRecordingAct
               key,
               body: buffer,
               mimeType: 'application/octet-stream',
-              staticResourceType: 'data',
               hash: createStaticResourceHash(buffer, { assetURL: key })
             }).then(() => {
               logger.info('Uploaded raw chunk', chunkIndex)

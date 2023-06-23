@@ -48,7 +48,7 @@ import { NameComponent } from '../components/NameComponent'
 import { SceneObjectComponent } from '../components/SceneObjectComponent'
 import { ObjectLayers } from '../constants/ObjectLayers'
 import { deserializeComponent } from '../systems/SceneLoadingSystem'
-import { setObjectLayers } from './setObjectLayers'
+import { enableObjectLayer } from './setObjectLayers'
 
 export const parseECSData = (entity: Entity, data: [string, any][]): void => {
   const components: { [key: string]: any } = {}
@@ -153,7 +153,7 @@ export const parseGLTFModel = (entity: Entity) => {
   // always parse components first
   parseObjectComponentsFromGLTF(entity, scene)
 
-  setObjectLayers(scene, ObjectLayers.Scene)
+  enableObjectLayer(scene, ObjectLayers.Scene, true)
 
   // if the model has animations, we may have custom logic to initiate it. editor animations are loaded from `loop-animation` below
   if (scene.animations?.length) {

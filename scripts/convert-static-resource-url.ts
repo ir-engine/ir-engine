@@ -88,9 +88,6 @@ cli.main(async () => {
         type: DataTypes.STRING,
         allowNull: true
       },
-      staticResourceType: {
-        type: DataTypes.STRING
-      },
       metadata: {
         type: DataTypes.JSON,
         allowNull: true

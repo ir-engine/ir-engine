@@ -237,7 +237,9 @@
       "description": "Link to a room or a website.",
       "lbl-url": "URL"
     },
-    "lod": {
+    "variant": {
+      "name": "Variant",
+      "description": "Load different assets based on heuristics",
       "device": "Device",
       "device-mobile": "Mobile",
       "device-desktop": "Desktop",
@@ -246,7 +248,8 @@
       "heuristic-sceneScale": "Scene Scale",
       "heuristic-manual": "Manual",
       "heuristic-device": "Device",
-      "distance": "Distance",
+      "minDistance": "Minimum Distance",
+      "maxDistance": "Maximum Distance",
       "src": "Source"
     },
     "map": {

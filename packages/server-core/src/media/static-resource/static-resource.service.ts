@@ -36,7 +36,7 @@ import createModel from './static-resource.model'
 declare module '@etherealengine/common/declarations' {
   interface ServiceTypes {
     'static-resource': StaticResource
-    'static-resource-filters': any
+    'static-resource-filters': { get: (data?: any, params?: any) => ReturnType<typeof getFilters> }
   }
   interface Models {
     static_resource: ReturnType<typeof createModel> & StaticResourceInterface
@@ -63,6 +63,8 @@ export default (app: Application) => {
    */
   const service = app.service('static-resource')
 
+  service.hooks(hooks)
+
   app.use('static-resource-filters', {
     get: async (data, params) => {
       return await getFilters(app)
@@ -74,8 +76,6 @@ export default (app: Application) => {
       get: [authenticate(), verifyScope('admin', 'admin')]
     }
   })
-
-  service.hooks(hooks)
 }
 
 const getFilters = async (app: Application) => {
@@ -84,16 +84,7 @@ const getFilters = async (app: Application) => {
     group: ['mimeType']
   })
 
-  const staticResourceTypes = await app.service('static-resource').Model.findAll({
-    attributes: ['staticResourceType'],
-    group: ['staticResourceType']
-  })
-
-  const allStaticResourceTypes = await app.service('static-resource-type').Model.findAll()
-
   return {
-    mimeTypes: mimeTypes.map((el) => el.mimeType),
-    staticResourceTypes: staticResourceTypes.map((el) => el.staticResourceType),
-    allStaticResourceTypes: allStaticResourceTypes.map((el) => el.type)
+    mimeTypes: mimeTypes.map((el) => el.mimeType)
   }
 }

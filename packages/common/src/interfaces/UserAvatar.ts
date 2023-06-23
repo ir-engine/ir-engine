@@ -34,7 +34,6 @@ interface AvatarItem {
   key?: string
   name?: string
   url?: string
-  staticResourceType?: string
   userId?: string
 }
 
@@ -43,6 +42,5 @@ interface UserThumbnail {
   key?: string
   name?: string
   url?: string
-  staticResourceType?: string
   userId?: string
 }
