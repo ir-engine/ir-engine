@@ -40,9 +40,6 @@
   },
   "dependencies": {
     "@juggle/resize-observer": "^3.4.0",
-    "@loaders.gl/core": "^3.3.1",
-    "@loaders.gl/images": "^3.3.1",
-    "@zip.js/zip.js": "^2.6.79",
     "dexie": "^3.2.3",
     "fflate": "^0.7.4",
     "msgpackr": "^1.8.5"
@@ -51,5 +48,5 @@
     "cross-env": "^7.0.3",
     "esbuild": "0.17.12"
   },
-  "license": "MIT"
+  "license": "CPAL"
 }

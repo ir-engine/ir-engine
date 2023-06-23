@@ -42,29 +42,33 @@
   },
   "types": "lib/",
   "dependencies": {
+    "@etherealengine/common": "^1.3.0",
     "@etherealengine/engine": "^1.3.0",
+    "@etherealengine/hyperflux": "^1.3.0",
     "@etherealengine/projects": "^1.3.0",
     "@etherealengine/server-core": "^1.3.0",
-    "@feathersjs/feathers": "5.0.1",
-    "@feathersjs/koa": "5.0.1",
+    "@feathersjs/feathers": "5.0.5",
+    "@feathersjs/koa": "5.0.5",
     "@feathersjs/primus-client": "4.5.15",
-    "@feathersjs/transport-commons": "5.0.1",
+    "@feathersjs/transport-commons": "5.0.5",
     "@google-cloud/agones-sdk": "1.30.0",
-    "@kubernetes/client-node": "0.18.1",
     "@swc/core": "^1.3.41",
     "cross-env": "7.0.3",
-    "feathers-sync": "3.0.2",
     "ffmpeg-static": "^5.1.0",
+    "jsonwebtoken": "^9.0.0",
+    "lodash": "^4.17.21",
     "mediasoup": "3.11.14",
+    "msgpackr": "^1.9.2",
+    "primus": "^8.0.7",
     "ps-list": "7.2.0",
-    "serve-favicon": "2.5.0",
+    "tcp-port-used": "^1.0.2",
     "trace-unhandled": "2.0.1",
     "ts-node": "10.9.1",
-    "typescript": "5.0.2"
+    "typescript": "5.0.2",
+    "uuid": "^9.0.0"
   },
   "devDependencies": {
-    "@types/node": "18.15.5",
-    "@types/serve-favicon": "2.5.3"
+    "@types/node": "18.15.5"
   },
   "gitHead": "66449f6ffba4d32c424b16b4f0667fe0ad36562c"
 }

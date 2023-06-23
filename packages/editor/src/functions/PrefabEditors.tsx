@@ -1,3 +1,28 @@
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
 import { PositionalAudioComponent } from '@etherealengine/engine/src/audio/components/PositionalAudioComponent'
 import { MediaPrefabs } from '@etherealengine/engine/src/audio/systems/MediaSystem'
 import { Component } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
@@ -16,7 +41,6 @@ import { HemisphereLightComponent } from '@etherealengine/engine/src/scene/compo
 import { ImageComponent } from '@etherealengine/engine/src/scene/components/ImageComponent'
 import { InstancingComponent } from '@etherealengine/engine/src/scene/components/InstancingComponent'
 import { InteriorComponent } from '@etherealengine/engine/src/scene/components/InteriorComponent'
-import { LODComponent } from '@etherealengine/engine/src/scene/components/LODComponent'
 import { MediaComponent } from '@etherealengine/engine/src/scene/components/MediaComponent'
 import { MediaSettingsComponent } from '@etherealengine/engine/src/scene/components/MediaSettingsComponent'
 import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
@@ -35,6 +59,7 @@ import { SpawnPointComponent } from '@etherealengine/engine/src/scene/components
 import { SplineComponent } from '@etherealengine/engine/src/scene/components/SplineComponent'
 import { SpotLightComponent } from '@etherealengine/engine/src/scene/components/SpotLightComponent'
 import { SystemComponent } from '@etherealengine/engine/src/scene/components/SystemComponent'
+import { VariantComponent } from '@etherealengine/engine/src/scene/components/VariantComponent'
 import { VideoComponent } from '@etherealengine/engine/src/scene/components/VideoComponent'
 import { VolumetricComponent } from '@etherealengine/engine/src/scene/components/VolumetricComponent'
 import { WaterComponent } from '@etherealengine/engine/src/scene/components/WaterComponent'
@@ -59,7 +84,6 @@ import HemisphereLightNodeEditor from '../components/properties/HemisphereLightN
 import ImageNodeEditor from '../components/properties/ImageNodeEditor'
 import InstancingNodeEditor from '../components/properties/InstancingNodeEditor'
 import InteriorNodeEditor from '../components/properties/InteriorNodeEditor'
-import { LODProperties } from '../components/properties/LODProperties'
 import MediaNodeEditor from '../components/properties/MediaNodeEditor'
 import { MediaSettingsEditor } from '../components/properties/MediaSettingsEditor'
 import ModelNodeEditor from '../components/properties/ModelNodeEditor'
@@ -82,6 +106,7 @@ import SpotLightNodeEditor from '../components/properties/SpotLightNodeEditor'
 import SystemNodeEditor from '../components/properties/SystemNodeEditor'
 import TransformPropertyGroup from '../components/properties/TransformPropertyGroup'
 import { EditorComponentType } from '../components/properties/Util'
+import { VariantNodeEditor } from '../components/properties/VariantNodeEditor'
 import VideoNodeEditor from '../components/properties/VideoNodeEditor'
 import VolumetricNodeEditor from '../components/properties/VolumetricNodeEditor'
 import WaterNodeEditor from '../components/properties/WaterNodeEditor'
@@ -125,7 +150,7 @@ EntityNodeEditor.set(EnvmapComponent, EnvMapEditor)
 EntityNodeEditor.set(EnvMapBakeComponent, EnvMapBakeNodeEditor)
 EntityNodeEditor.set(InstancingComponent, InstancingNodeEditor)
 EntityNodeEditor.set(PersistentAnchorComponent, PersistentAnchorNodeEditor)
-EntityNodeEditor.set(LODComponent, LODProperties)
+EntityNodeEditor.set(VariantComponent, VariantNodeEditor)
 
 export const prefabIcons = {
   [LightPrefabs.ambientLight]: AmbientLightNodeEditor.iconComponent,

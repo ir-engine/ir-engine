@@ -1,3 +1,28 @@
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
 import React, { useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 
@@ -108,11 +133,11 @@ const AvatarDrawerContent = ({ open, mode, selectedAvatar, onClose }: Props) => 
     }
 
     initSelected()
-  }, [selectedAvatar, thumbnail?.LOD0_url])
+  }, [selectedAvatar, thumbnail?.url])
 
   useEffect(() => {
     updateAvatar()
-  }, [state.source.value, state.avatarFile.value, state.avatarUrl.value])
+  }, [state.source, state.avatarFile, state.avatarUrl])
 
   const loadSelectedAvatar = () => {
     if (selectedAvatar) {
@@ -120,8 +145,8 @@ const AvatarDrawerContent = ({ open, mode, selectedAvatar, onClose }: Props) => 
         ...defaultState,
         name: selectedAvatar.name || '',
         source: 'url',
-        avatarUrl: selectedAvatar.modelResource?.LOD0_url || selectedAvatar.modelResource?.url || '',
-        thumbnailUrl: selectedAvatar.thumbnailResource?.LOD0_url || selectedAvatar.thumbnailResource?.url || '',
+        avatarUrl: selectedAvatar.modelResource?.url || '',
+        thumbnailUrl: selectedAvatar.thumbnailResource?.url || '',
         avatarFile: undefined,
         thumbnailFile: undefined
       })
@@ -247,8 +272,8 @@ const AvatarDrawerContent = ({ open, mode, selectedAvatar, onClose }: Props) => 
   }
 
   const handleSubmit = async () => {
-    let avatarBlob: Blob | undefined = undefined
-    let thumbnailBlob: Blob | undefined = undefined
+    let avatarFile: File | undefined = undefined
+    let thumbnailFile: File | undefined = undefined
 
     let tempErrors = {
       name: state.name.value ? '' : t('admin:components.avatar.nameCantEmpty'),
@@ -278,20 +303,20 @@ const AvatarDrawerContent = ({ open, mode, selectedAvatar, onClose }: Props) => 
       NotificationService.dispatchNotify(t('admin:components.common.fillRequiredFields'), { variant: 'error' })
       return
     } else if (state.source.value === 'file' && state.avatarFile.value && state.thumbnailFile.value) {
-      avatarBlob = state.avatarFile.value
-      thumbnailBlob = state.thumbnailFile.value
+      avatarFile = state.avatarFile.value
+      thumbnailFile = state.thumbnailFile.value
     } else if (state.source.value === 'url' && state.avatarUrl.value && state.thumbnailUrl.value) {
       const avatarData = await fetch(state.avatarUrl.value)
-      avatarBlob = await avatarData.blob()
+      avatarFile = new File([await avatarData.blob()], state.name.value)
 
       const thumbnailData = await fetch(state.thumbnailUrl.value)
-      thumbnailBlob = await thumbnailData.blob()
+      thumbnailFile = new File([await thumbnailData.blob()], state.name.value)
     }
 
-    if (avatarBlob && thumbnailBlob) {
+    if (avatarFile && thumbnailFile) {
       if (selectedAvatar?.id) {
-        await AvatarService.patchAvatar(selectedAvatar, state.name.value, true, avatarBlob, thumbnailBlob)
-      } else await AvatarService.createAvatar(avatarBlob, thumbnailBlob, state.name.value, true)
+        await AvatarService.patchAvatar(selectedAvatar, state.name.value, true, avatarFile, thumbnailFile)
+      } else await AvatarService.createAvatar(avatarFile, thumbnailFile, state.name.value, true)
       dispatchAction(AdminAvatarActions.avatarUpdated({}))
 
       onClose()

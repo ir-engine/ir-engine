@@ -1,3 +1,28 @@
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
 import React, { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import {
@@ -9,7 +34,7 @@ import {
   NormalBlending,
   SubtractiveBlending
 } from 'three'
-import { BurstParameters, RenderMode } from 'three.quarks/dist/three.quarks'
+import { BurstParameters, RenderMode } from 'three.quarks'
 
 import { useComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import {
@@ -89,46 +114,26 @@ const ParticleSystemNodeEditor: EditorComponentType = (props) => {
 
   const onSetState = useCallback((state: State<any>) => {
     return (value: any) => {
-      state.set(value)
+      state.set(JSON.parse(JSON.stringify(value)))
       particleSystemState._refresh.set((particleSystem._refresh + 1) % 1000)
     }
   }, [])
 
-  const onSetStateParm = useCallback((state: State<any>) => {
-    return (field: keyof typeof state.value) => {
-      if (field === 'value') {
-        return (value: any) => {
-          const nuVals = JSON.parse(JSON.stringify(state.value))
-          nuVals.value = value
-          state.set(nuVals)
-          particleSystemState._refresh.set((particleSystem._refresh + 1) % 1000)
-        }
-      } else
-        return (value: any) => {
-          state[field].set(value)
-          particleSystemState._refresh.set((particleSystem._refresh + 1) % 1000)
-        }
-    }
-  }, [])
-
-  const onAddBehavior = useCallback(
-    () => () => {
-      const nuBehavior: ApplyForceBehaviorJSON = {
-        type: 'ApplyForce',
-        direction: [0, 1, 0],
-        magnitude: {
-          type: 'ConstantValue',
-          value: 1
-        }
+  const onAddBehavior = useCallback(() => {
+    const nuBehavior: ApplyForceBehaviorJSON = {
+      type: 'ApplyForce',
+      direction: [0, 1, 0],
+      magnitude: {
+        type: 'ConstantValue',
+        value: 1
       }
-      particleSystemState.behaviorParameters.set([
-        ...JSON.parse(JSON.stringify(particleSystem.behaviorParameters)),
-        nuBehavior
-      ])
-      particleSystemState._refresh.set((particleSystem._refresh + 1) % 1000)
-    },
-    []
-  )
+    }
+    particleSystemState.behaviorParameters.set([
+      ...JSON.parse(JSON.stringify(particleSystem.behaviorParameters)),
+      nuBehavior
+    ])
+    particleSystemState._refresh.set((particleSystem._refresh + 1) % 1000)
+  }, [])
 
   const onRemoveBehavior = useCallback(
     (behavior: BehaviorJSON) => () => {
@@ -177,6 +182,10 @@ const ParticleSystemNodeEditor: EditorComponentType = (props) => {
 
       <InputGroup name="Duration" label={t('editor:properties.particle-system.duration')}>
         <NumericInput value={particleSystem.systemParameters.duration} onChange={onSetSystemParm('duration')} />
+      </InputGroup>
+
+      <InputGroup name="Prewarm" label={t('editor:properties.particle-system.prewarm')}>
+        <BooleanInput value={particleSystem.systemParameters.prewarm} onChange={onSetSystemParm('prewarm')} />
       </InputGroup>
 
       <InputGroup name="Emitter Shape" label={t('editor:properties.particle-system.emitter-shape')}>
@@ -402,7 +411,7 @@ const ParticleSystemNodeEditor: EditorComponentType = (props) => {
         <BooleanInput value={particleSystem.systemParameters.worldSpace} onChange={onSetSystemParm('worldSpace')} />
       </InputGroup>
       <h4>Behaviors</h4>
-      <Button onClick={onAddBehavior()}>Add Behavior</Button>
+      <Button onClick={onAddBehavior}>Add Behavior</Button>
       <PaginatedList
         list={particleSystemState.behaviorParameters}
         element={(behaviorState: State<BehaviorJSON>) => {

@@ -9,6 +9,7 @@
         pointer-events: none;
       }
     </style>
+    <base href="/" />
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0, shrink-to-fit=no" />
 
@@ -22,24 +23,27 @@
     <link rel="preconnect" crossorigin="anonymous" href="https://fonts.googleapis.com">
     <link rel="preconnect" crossorigin="anonymous" href="https://fonts.gstatic.com">
     <link rel="stylesheet" crossorigin="anonymous" href="https://fonts.googleapis.com/css?family=Lato:300,400,700|PT+Sans:400,400italic,700,700italic|Quicksand:400,300|Raleway:400|Roboto:300,400,700|Source+Sans+Pro:300,400,700|Khula:300,400,700&display=swap" />
+    <link rel="apple-touch-icon" sizes="180x180" href="<%- appleTouchIcon %>" />
+    <link rel="icon" type="image/png" sizes="32x32" href="<%- favicon32px %>" />
+    <link rel="icon" type="image/png" sizes="16x16" href="<%- favicon16px %>" />
 
-    <!-- <link rel="manifest" href="/manifest.webmanifest" /> -->
     <script type="text/javascript">
       var global = globalThis
       var exports = { __esModule: true }
       
       if('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
-            console.log(`[PWA] Registering sw at <%- swScriptLink %>`)
-            // Register the service worker
-            navigator.serviceWorker
-              .register(`${window.location.href.split('/')[0]}/<%- swScriptLink %>`, {
-                scope: `./`,
-                
-              })
-              .then(function (reg) {
-                console.log("[PWA] SW registered at " + reg.scope);
-              });
+          console.log(`[PWA] Registering sw at ${window.location.origin}/<%- swScriptLink %>`)
+          
+          // Register the service worker
+          navigator.serviceWorker
+            .register(`${window.location.origin}/<%- swScriptLink %>`, {
+              scope: `./`,
+              
+            })
+            .then(function (reg) {
+              console.log("[PWA] SW registered at " + reg.scope);
+            })
         })
       }
     </script>

@@ -75,7 +75,7 @@ ENV VITE_READY_PLAYER_ME_URL=$VITE_READY_PLAYER_ME_URL
 ENV VITE_DISABLE_LOG=$VITE_DISABLE_LOG
 
 ARG CACHE_DATE
-RUN npm run check-db-exists
+RUN npx cross-env ts-node --swc scripts/check-db-exists.ts
 RUN npm run build-client
 
 RUN rm -r packages/client/public

@@ -1,3 +1,28 @@
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
 import { strictEqual } from 'assert'
 import { Group, Matrix4, Quaternion, Vector3 } from 'three'
 
@@ -12,7 +37,7 @@ import { proxifyQuaternion, proxifyVector3 } from '../../common/proxies/createTh
 import { destroyEngine, Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
-import { addComponent } from '../../ecs/functions/ComponentFunctions'
+import { addComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { createEngine } from '../../initializeEngine'
 import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
@@ -25,7 +50,7 @@ import {
   writeTransform
 } from '../../transform/TransformSerialization'
 import { Network } from '../classes/Network'
-import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
+import { NetworkObjectComponent, NetworkObjectSendPeriodicUpdatesTag } from '../components/NetworkObjectComponent'
 import { NetworkState } from '../NetworkState'
 import { readCompressedRotation, readCompressedVector3 } from './DataReader'
 import {
@@ -66,7 +91,7 @@ describe('DataWriter', () => {
 
   it('should writeComponent', () => {
     const writeView = createViewCursor()
-    const entity = 42 as Entity
+    const entity = createEntity()
 
     const [x, y, z] = [1.5, 2.5, 3.5]
     TransformComponent.position.x[entity] = x
@@ -104,7 +129,7 @@ describe('DataWriter', () => {
 
   it('should writeVector3', () => {
     const writeView = createViewCursor()
-    const entity = 42 as Entity
+    const entity = createEntity()
 
     const [x, y, z] = [1.5, 2.5, 3.5]
     TransformComponent.position.x[entity] = x
@@ -140,7 +165,7 @@ describe('DataWriter', () => {
 
   it('should writePosition', () => {
     const writeView = createViewCursor()
-    const entity = 42 as Entity
+    const entity = createEntity()
 
     const [x, y, z] = [1.5, 2.5, 3.5]
     TransformComponent.position.x[entity] = x
@@ -161,7 +186,8 @@ describe('DataWriter', () => {
 
   it('should writeCompressedRotation', () => {
     const writeView = createViewCursor()
-    const entity = 42 as Entity
+    const entity = createEntity()
+    setComponent(entity, NetworkObjectSendPeriodicUpdatesTag)
 
     // construct values for a valid quaternion
     const [a, b, c] = [0.167, 0.167, 0.167]
@@ -173,7 +199,7 @@ describe('DataWriter', () => {
     TransformComponent.rotation.z[entity] = z
     TransformComponent.rotation.w[entity] = w
 
-    writeCompressedRotation(TransformComponent.rotation)(writeView, entity, true)
+    writeCompressedRotation(TransformComponent.rotation)(writeView, entity)
 
     const readView = createViewCursor(writeView.buffer)
     readCompressedRotation(TransformComponent.rotation)(readView, entity)
@@ -189,14 +215,15 @@ describe('DataWriter', () => {
 
   it('should writeCompressedVector3', () => {
     const writeView = createViewCursor()
-    const entity = 42 as Entity
+    const entity = createEntity()
+    setComponent(entity, NetworkObjectSendPeriodicUpdatesTag)
 
     const [x, y, z] = [1.333, 2.333, 3.333]
     RigidBodyComponent.linearVelocity.x[entity] = x
     RigidBodyComponent.linearVelocity.y[entity] = y
     RigidBodyComponent.linearVelocity.z[entity] = z
 
-    writeCompressedVector3(RigidBodyComponent.linearVelocity)(writeView, entity, true)
+    writeCompressedVector3(RigidBodyComponent.linearVelocity)(writeView, entity)
 
     const readView = createViewCursor(writeView.buffer)
     readCompressedVector3(RigidBodyComponent.linearVelocity)(readView, entity)

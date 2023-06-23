@@ -1,11 +1,33 @@
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
 import Hls from 'hls.js'
 import { startTransition, useEffect } from 'react'
 import { DoubleSide, Mesh, MeshBasicMaterial, PlaneGeometry } from 'three'
 
-import { DataInterface } from '@etherealengine/common/src/interfaces/DataInterface'
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
-import { StaticResourceInterface } from '@etherealengine/common/src/interfaces/StaticResourceInterface'
-import { VideoInterface } from '@etherealengine/common/src/interfaces/VideoInterface'
 import { getMutableState, getState, none, useHookstate } from '@etherealengine/hyperflux'
 
 import { AssetLoader } from '../../assets/classes/AssetLoader'
@@ -38,23 +60,6 @@ const AUDIO_TEXTURE_PATH = '/static/editor/audio-icon.png'
 
 export const AudioNodeGroups = new WeakMap<HTMLMediaElement | MediaStream, AudioNodeGroup>()
 
-export type MediaResource = {
-  path?: string
-  mp3StaticResource?: StaticResourceInterface
-  mpegStaticResource?: StaticResourceInterface
-  oggStaticResource?: StaticResourceInterface
-  mp4StaticResource?: StaticResourceInterface
-  m3u8StaticResource?: StaticResourceInterface
-  drcsStaticResource?: StaticResourceInterface
-  uvolStaticResource?: StaticResourceInterface
-  videoStaticResource?: StaticResourceInterface
-  dataStaticResource?: StaticResourceInterface
-  manifest?: DataInterface
-  video?: VideoInterface
-  mediaType: 'audio' | 'video' | 'volumetric'
-  id?: EntityUUID
-}
-
 export type AudioNodeGroup = {
   source: MediaElementAudioSourceNode | MediaStreamAudioSourceNode
   gain: GainNode
@@ -75,20 +80,6 @@ export const createAudioNodeGroup = (
   const group = { source, gain, mixbus, panner } as AudioNodeGroup
   AudioNodeGroups.set(el, group)
   return group
-}
-
-export const getResourceURL = (resource: MediaResource) => {
-  return (
-    resource.mp3StaticResource?.LOD0_url ||
-    resource.mpegStaticResource?.LOD0_url ||
-    resource.oggStaticResource?.LOD0_url ||
-    resource.mp4StaticResource?.LOD0_url ||
-    resource.m3u8StaticResource?.LOD0_url ||
-    resource.video?.mp4StaticResource?.LOD0_url ||
-    resource.video?.m3u8StaticResource?.LOD0_url ||
-    resource.path ||
-    ''
-  )
 }
 
 export const MediaElementComponent = defineComponent({
@@ -141,7 +132,7 @@ export const MediaComponent = defineComponent({
       paths: [] as string[],
       paused: true,
       volume: 1,
-      resources: [] as MediaResource[],
+      resources: [] as string[],
       playMode: PlayMode.loop as PlayMode,
       isMusic: false,
       // runtime props
@@ -183,19 +174,14 @@ export const MediaComponent = defineComponent({
       if (typeof json.paths === 'object') {
         // backwards-compat: update uvol paths to point to the video files
         const paths = json.paths.map((path) => path.replace('.drcs', '.mp4').replace('.uvol', '.mp4'))
-        component.resources.set(
-          paths.map((path) => {
-            const mediaType = AssetLoader.getAssetClass(path)
-            return {
-              path,
-              mediaType:
-                mediaType === AssetClass.Volumetric ? 'volumetric' : mediaType === AssetClass.Audio ? 'audio' : 'video'
-            }
-          })
-        )
+        component.resources.set(paths)
       }
-      if (typeof json.resources === 'object' && json.resources !== component.resources.value) {
-        component.resources.set(json.resources as MediaResource[])
+      if (typeof json.resources === 'object') {
+        if (typeof json.resources[0] === 'string') {
+          component.resources.set(json.resources)
+        } else {
+          component.resources.set(json.resources.map((resource: any) => resource.path))
+        }
       }
 
       if (typeof json.controls === 'boolean' && json.controls !== component.controls.value)
@@ -268,7 +254,7 @@ export function MediaReactor() {
     function updateTrackMetadata() {
       clearErrors(entity, MediaComponent)
 
-      const paths = media.resources.value.map((resource) => getResourceURL(resource))
+      const paths = media.resources.value
 
       for (const path of paths) {
         const assetClass = AssetLoader.getAssetClass(path).toLowerCase()
@@ -306,8 +292,7 @@ export function MediaReactor() {
       if (!isClient) return
 
       const track = media.track.value
-      const resource = media.resources[track].value
-      const path = getResourceURL(resource)
+      const path = media.resources[track].value
       if (!path) {
         if (hasComponent(entity, MediaElementComponent)) removeComponent(entity, MediaElementComponent)
         return

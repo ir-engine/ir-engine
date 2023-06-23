@@ -119,9 +119,9 @@
           "name": "skybox",
           "props": {
             "backgroundColor": 0,
-            "equirectangularPath": "",
-            "cubemapPath": "/hdr/cubemap/MilkyWay/",
-            "backgroundType": 1,
+            "equirectangularPath": "__$project$__/default-project/assets/sky_skybox.jpg",
+            "cubemapPath": "",
+            "backgroundType": 2,
             "skyboxProps": {
               "turbidity": 10,
               "rayleigh": 1,
@@ -220,10 +220,10 @@
         {
           "name": "envmap",
           "props": {
-            "type": "Default",
-            "envMapTextureType": "Cubemap",
+            "type": "Texture",
+            "envMapTextureType": "Equirectangular",
             "envMapSourceColor": 1193046,
-            "envMapSourceURL": "/hdr/cubemap/skyboxsun25deg/",
+            "envMapSourceURL": "__$project$__/default-project/assets/sky_skybox.jpg",
             "envMapIntensity": 20
           }
         }
@@ -430,7 +430,7 @@
             "type": "None",
             "envMapTextureType": "Cubemap",
             "envMapSourceColor": 1193046,
-            "envMapSourceURL": "/hdr/cubemap/skyboxsun25deg/",
+            "envMapSourceURL": "__$project$__/default-project/assets/skyboxsun25deg/",
             "envMapIntensity": 1
           }
         },

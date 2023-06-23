@@ -1,3 +1,28 @@
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
 import { createWorker } from 'mediasoup'
 import {
   DataConsumer,
@@ -16,6 +41,7 @@ import {
 } from 'mediasoup/node/lib/types'
 import os from 'os'
 import { Spark } from 'primus'
+import { check } from 'tcp-port-used'
 
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { DataChannelType } from '@etherealengine/engine/src/networking/classes/Network'
@@ -43,12 +69,22 @@ import {
 
 const logger = multiLogger.child({ component: 'instanceserver:webrtc' })
 
+const portsInUse: number[] = []
+
+const getNewOffset = async (ipAddress, startPort, i, offset) => {
+  const inUse = await check(startPort + i + offset, ipAddress)
+  if (inUse || portsInUse.indexOf(startPort + i + offset) >= 0) return getNewOffset(ipAddress, startPort, i, offset + 1)
+  else return offset
+}
+
 export async function startWebRTC() {
   logger.info('Starting WebRTC Server.')
   // Initialize roomstate
   const cores = os.cpus()
   const routers = { instance: [] } as { instance: Router[]; [channelTypeAndChannelID: string]: Router[] }
   const workers = [] as Worker[]
+  //This is used in case ports in the range to use are in use by something else
+  let offset = 0
   for (let i = 0; i < cores.length; i++) {
     const newWorker = await createWorker({
       logLevel: 'debug',
@@ -60,7 +96,14 @@ export async function startWebRTC() {
     })
 
     const webRtcServerOptions = JSON.parse(JSON.stringify(localConfig.mediasoup.webRtcServerOptions))
-    for (const listenInfo of webRtcServerOptions.listenInfos) listenInfo.port += i
+    offset = await getNewOffset(
+      webRtcServerOptions.listenInfos[0].ipAddress,
+      webRtcServerOptions.listenInfos[0].port,
+      i,
+      offset
+    )
+    for (const listenInfo of webRtcServerOptions.listenInfos) listenInfo.port += i + offset
+    portsInUse.push(webRtcServerOptions.listenInfos[0].port)
     newWorker.appData.webRtcServer = await newWorker.createWebRtcServer(webRtcServerOptions)
 
     newWorker.on('died', (err) => {
@@ -111,69 +154,45 @@ export const createOutgoingDataProducer = async (network: SocketWebRTCServerNetw
   network.outgoingDataProducers[dataChannel] = outgoingDataProducer
 }
 
-export const sendNewProducer =
-  (network: SocketWebRTCServerNetwork, spark: Spark, peerID: PeerID, channelType: string, channelId?: string) =>
-  async (producer: ProducerExtension): Promise<void> => {
-    const userId = getUserIdFromPeerID(network, peerID)!
-    const selfClient = network.peers.get(peerID)!
-    if (selfClient?.peerID != null) {
-      for (const [, client] of network.peers) {
-        logger.info(`Sending media for "${userId}".`)
-        client?.media &&
-          Object.entries(client.media!).map(([subName, subValue]) => {
-            if (
-              channelType === 'instance'
-                ? 'instance' === subValue.channelType
-                : subValue.channelType === channelType && subValue.channelId === channelId
-            )
-              selfClient.spark!.write({
-                type: MessageTypes.WebRTCCreateProducer.toString(),
-                data: {
-                  peerID,
-                  mediaTag: subName,
-                  producerId: producer.id,
-                  channelType,
-                  channelId
-                }
-              })
-          })
-      }
-    }
-  }
-// Create consumer for each client!
+/**
+ * Sends all current producers to a new peer
+ * @param network
+ * @param spark
+ * @param selfPeerID
+ * @param userIds
+ * @param channelType
+ * @param channelId
+ */
 export const sendCurrentProducers = async (
   network: SocketWebRTCServerNetwork,
   spark: Spark,
-  peerID: PeerID,
+  selfPeerID: PeerID,
   userIds: string[],
   channelType: string,
   channelId?: string
 ): Promise<void> => {
-  const selfUserId = getUserIdFromPeerID(network, peerID)!
-  const selfClient = network.peers.get(peerID)!
-  if (selfClient?.peerID) {
-    for (const [peerID, client] of network.peers) {
-      if (
-        !(
-          client.userId === selfUserId ||
-          (userIds.length > 0 && !userIds.includes(client.userId)) ||
-          !client.media ||
-          !client.peerID
-        )
-      )
-        Object.entries(client.media).map(([subName, subValue]) => {
-          if (subValue.channelType === channelType && subValue.channelId === channelId && !subValue.paused)
-            selfClient.spark!.write({
-              type: MessageTypes.WebRTCCreateProducer.toString(),
-              data: {
-                peerID,
-                mediaTag: subName,
-                producerId: subValue.producerId,
-                channelType,
-                channelId
-              }
-            })
-        })
+  for (const [peerID, client] of network.peers) {
+    if (
+      peerID === selfPeerID ||
+      (userIds.length > 0 && !userIds.includes(client.userId)) ||
+      !client.media ||
+      !client.peerID
+    )
+      continue
+
+    for (const [dataChannel, peerMedia] of Object.entries(client.media)) {
+      if (peerMedia.channelType !== channelType || peerMedia.channelId !== channelId || peerMedia.paused) continue
+      // logger.info(`Sending producer ${peerMedia.producerId} to peer "${peerID}".`)
+      spark.write({
+        type: MessageTypes.WebRTCCreateProducer.toString(),
+        data: {
+          peerID,
+          mediaTag: dataChannel,
+          producerId: peerMedia.producerId,
+          channelType,
+          channelId
+        }
+      })
     }
   }
 }
@@ -495,7 +514,7 @@ export async function handleWebRtcTransportCreate(
     newTransport.observer.on('dtlsstatechange', (dtlsState) => {
       if (dtlsState === 'closed') closeTransport(network, newTransport as unknown as WebRTCTransportExtension)
     })
-    newTransport.observer.on('newproducer', sendNewProducer(network, spark, peerID, channelType, channelId) as any)
+    // newTransport.observer.on('newproducer', sendNewProducer(network, spark, peerID, channelType, channelId) as any)
     spark.write({
       type: MessageTypes.WebRTCTransportCreate.toString(),
       data: { transportOptions: clientTransportOptions },
@@ -767,6 +786,7 @@ export async function handleWebRtcSendTrack(
       logger.warn('Media stream producers is undefined.')
     }
     network.producers?.push(producer)
+    logger.info(`New Producer: peerID "${peerID}", Media stream "${appData.mediaTag}"`)
 
     if (userId && network.peers.has(peerID)) {
       network.peers.get(peerID)!.media![appData.mediaTag] = {
@@ -778,10 +798,9 @@ export async function handleWebRtcSendTrack(
         channelId: appData.channelId
       }
     }
-
     for (const [clientPeerID, client] of network.peers) {
       if (clientPeerID !== peerID && client.spark) {
-        client.spark!.write({
+        client.spark.write({
           type: MessageTypes.WebRTCCreateProducer.toString(),
           data: {
             peerID,

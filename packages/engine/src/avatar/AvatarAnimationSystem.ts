@@ -1,3 +1,28 @@
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
 import { useEffect } from 'react'
 import { AxesHelper, Bone, Euler, MathUtils, Matrix4, Quaternion, Vector3 } from 'three'
 
@@ -15,6 +40,7 @@ import { defineQuery, getComponent, getOptionalComponent, setComponent } from '.
 import { removeEntity } from '../ecs/functions/EntityFunctions'
 import { defineSystem } from '../ecs/functions/SystemFunctions'
 import { createPriorityQueue } from '../ecs/PriorityQueue'
+import { InputSourceComponent } from '../input/components/InputSourceComponent'
 import { NetworkObjectComponent } from '../networking/components/NetworkObjectComponent'
 import { RigidBodyComponent } from '../physics/components/RigidBodyComponent'
 import { addObjectToGroup, GroupComponent } from '../scene/components/GroupComponent'
@@ -90,6 +116,8 @@ const sessionChangedQueue = defineActionQueue(XRAction.sessionChanged.matches)
 
 const ikTargetQuery = defineQuery([AvatarIKTargetComponent])
 
+const inputSourceQuery = defineQuery([InputSourceComponent])
+
 const minimumFrustumCullDistanceSqr = 5 * 5 // 5 units
 
 const filterPriorityEntities = (entity: Entity) =>
@@ -113,7 +141,7 @@ const _quat = new Quaternion()
 const execute = () => {
   const xrState = getState(XRState)
   const { priorityQueue, sortedTransformEntities } = getState(AvatarAnimationState)
-  const { localClientEntity, inputSources } = Engine.instance
+  const { localClientEntity } = Engine.instance
   const { elapsedSeconds, deltaSeconds } = getState(EngineState)
 
   for (const action of sessionChangedQueue()) {
@@ -148,7 +176,8 @@ const execute = () => {
 
   // todo - remove ik targets when session ends
   if (xrState.sessionActive && localClientEntity) {
-    const sources = Array.from(inputSources.values())
+    const sources = inputSourceQuery().map((eid) => getComponent(eid, InputSourceComponent).source)
+
     const head = getCameraMode() === 'attached'
     const leftHand = !!sources.find((s) => s.handedness === 'left')
     const rightHand = !!sources.find((s) => s.handedness === 'right')

@@ -1,3 +1,28 @@
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
 import { t } from 'i18next'
 import React, { useCallback } from 'react'
 
@@ -76,12 +101,53 @@ export default function GLTFTransformProperties({
             ]}
           />
         </InputGroup>
+        <InputGroup name="Instance" label={t('editor:properties.model.transform.instance')}>
+          <BooleanInput
+            value={transformParms.instance.value}
+            onChange={onChangeTransformParm(transformParms.instance)}
+          />
+        </InputGroup>
+
         <InputGroup name="Remove Duplicates" label={t('editor:properties.model.transform.removeDuplicates')}>
           <BooleanInput value={transformParms.dedup.value} onChange={onChangeTransformParm(transformParms.dedup)} />
         </InputGroup>
+        <InputGroup name="Flatten Scene Graph" label={t('editor:properties.model.transform.flatten')}>
+          <BooleanInput value={transformParms.flatten.value} onChange={onChangeTransformParm(transformParms.flatten)} />
+        </InputGroup>
+        <InputGroup name="Join Meshes" label={t('editor:properties.model.transform.join')}>
+          <BooleanInput
+            value={transformParms.join.enabled.value}
+            onChange={onChangeTransformParm(transformParms.join.enabled)}
+          />
+        </InputGroup>
+        {transformParms.join.enabled.value && (
+          <>
+            <ParameterInput
+              entity={`${transformParms}-join`}
+              values={transformParms.join.options.value}
+              onChange={onChangeParameter.bind({}, transformParms.join.options)}
+            />
+          </>
+        )}
+        <InputGroup name="Palette" label={t('editor:properties.model.transform.palette')}>
+          <BooleanInput
+            value={transformParms.palette.enabled.value}
+            onChange={onChangeTransformParm(transformParms.palette.enabled)}
+          />
+        </InputGroup>
+        {transformParms.palette.enabled.value && (
+          <>
+            <ParameterInput
+              entity={`${transformParms}-palette`}
+              values={transformParms.palette.options.value}
+              onChange={onChangeParameter.bind({}, transformParms.palette.options)}
+            />
+          </>
+        )}
         <InputGroup name="Prune Unused" label={t('editor:properties.model.transform.pruneUnused')}>
           <BooleanInput value={transformParms.prune.value} onChange={onChangeTransformParm(transformParms.prune)} />
         </InputGroup>
+
         <InputGroup name="Reorder" label={t('editor:properties.model.transform.reorder')}>
           <BooleanInput value={transformParms.reorder.value} onChange={onChangeTransformParm(transformParms.reorder)} />
         </InputGroup>
@@ -200,7 +266,7 @@ export default function GLTFTransformProperties({
                         {image.parameters.textureFormat.enabled.value && (
                           <SelectInput
                             value={image.parameters.textureFormat.parameters.value}
-                            onChange={onChangeTransformParm(image.parameters.textureFormat)}
+                            onChange={onChangeTransformParm(image.parameters.textureFormat.parameters)}
                             options={[
                               { label: 'Default', value: 'default' },
                               { label: 'JPG', value: 'jpg' },
@@ -219,7 +285,7 @@ export default function GLTFTransformProperties({
                         {image.parameters.maxTextureSize.enabled.value && (
                           <NumericInput
                             value={image.parameters.maxTextureSize.parameters.value}
-                            onChange={onChangeTransformParm(image.parameters.maxTextureSize)}
+                            onChange={onChangeTransformParm(image.parameters.maxTextureSize.parameters)}
                             max={4096}
                             min={64}
                           />
@@ -236,7 +302,7 @@ export default function GLTFTransformProperties({
                         {image.parameters.textureCompressionType.enabled.value && (
                           <SelectInput
                             value={image.parameters.textureCompressionType.parameters.value}
-                            onChange={onChangeTransformParm(image.parameters.textureCompressionType)}
+                            onChange={onChangeTransformParm(image.parameters.textureCompressionType.parameters)}
                             options={[
                               { label: 'UASTC', value: 'uastc' },
                               { label: 'ETC1', value: 'etc1' }
@@ -252,7 +318,7 @@ export default function GLTFTransformProperties({
                         {image.parameters.textureCompressionQuality.enabled.value && (
                           <NumericInput
                             value={image.parameters.textureCompressionQuality.parameters.value}
-                            onChange={onChangeTransformParm(image.parameters.textureCompressionQuality)}
+                            onChange={onChangeTransformParm(image.parameters.textureCompressionQuality.parameters)}
                             max={255}
                             min={1}
                             smallStep={1}
@@ -269,7 +335,7 @@ export default function GLTFTransformProperties({
                         {image.parameters.flipY.enabled.value && (
                           <BooleanInput
                             value={image.parameters.flipY.parameters.value}
-                            onChange={onChangeTransformParm(image.parameters.flipY)}
+                            onChange={onChangeTransformParm(image.parameters.flipY.parameters)}
                           />
                         )}
                       </InputGroup>

@@ -1,7 +1,34 @@
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
 import { Downgraded } from '@hookstate/core'
 import React, { useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
+import { saveAs } from 'save-as'
 
+import { API } from '@etherealengine/client-core/src/API'
 import ConfirmDialog from '@etherealengine/client-core/src/common/components/ConfirmDialog'
 import LoadingView from '@etherealengine/client-core/src/common/components/LoadingView'
 import {
@@ -10,7 +37,9 @@ import {
   FileBrowserState,
   FILES_PAGE_LIMIT
 } from '@etherealengine/client-core/src/common/services/FileBrowserService'
+import { NotificationService } from '@etherealengine/client-core/src/common/services/NotificationService'
 import { uploadToFeathersService } from '@etherealengine/client-core/src/util/upload'
+import config from '@etherealengine/common/src/config'
 import { processFileName } from '@etherealengine/common/src/utils/processFileName'
 import { KTX2EncodeArguments } from '@etherealengine/engine/src/assets/constants/CompressionParms'
 import { KTX2EncodeDefaultArguments } from '@etherealengine/engine/src/assets/constants/CompressionParms'
@@ -25,6 +54,7 @@ import { addActionReceptor, removeActionReceptor } from '@etherealengine/hyperfl
 
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import AutorenewIcon from '@mui/icons-material/Autorenew'
+import DownloadIcon from '@mui/icons-material/Download'
 import Breadcrumbs from '@mui/material/Breadcrumbs'
 import Dialog from '@mui/material/Dialog'
 import DialogTitle from '@mui/material/DialogTitle'
@@ -84,6 +114,18 @@ type DnDFileType = {
   dataTransfer: DataTransfer
   files: File[]
   items: DataTransferItemList
+}
+
+export type FileType = {
+  fullName: string
+  isFolder: boolean
+  key: string
+  name: string
+  path: string
+  prefabType: string
+  size: string
+  type: string
+  url: string
 }
 
 export function isFileDataType(value: any): value is FileDataType {
@@ -337,6 +379,32 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
     selectedDirectory.set(newPath)
   }
 
+  const handleDownloadProject = async () => {
+    const url = selectedDirectory.value
+    const data = await API.instance.client
+      .service('archiver')
+      .get(url)
+      .catch((err: Error) => {
+        NotificationService.dispatchNotify(err.message, { variant: 'warning' })
+        return null
+      })
+    if (!data) return
+    const blob = await (await fetch(`${config.client.fileServer}/${data}`)).blob()
+
+    let fileName = 'download' // default name
+    if (selectedDirectory.value[selectedDirectory.value.length - 1] === '/') {
+      fileName = selectedDirectory.value.split('/').at(-2) as string
+    } else {
+      fileName = selectedDirectory.value.split('/').at(-1) as string
+    }
+
+    saveAs(blob, fileName + '.zip')
+  }
+
+  const showDownloadButton =
+    selectedDirectory.value.slice(1).startsWith('projects/') &&
+    !['projects', 'projects/'].includes(selectedDirectory.value.slice(1))
+
   return (
     <div className={styles.fileBrowserRoot}>
       <div style={headGrid}>
@@ -354,12 +422,22 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
         >
           {breadcrumbs}
         </Breadcrumbs>
-        <ToolButton
-          tooltip={t('editor:layout.filebrowser.refresh')}
-          icon={AutorenewIcon}
-          onClick={onRefreshDirectory}
-          id="refreshDir"
-        />
+        <span>
+          <ToolButton
+            tooltip={t('editor:layout.filebrowser.refresh')}
+            icon={AutorenewIcon}
+            onClick={onRefreshDirectory}
+            id="refreshDir"
+          />
+          {showDownloadButton && (
+            <ToolButton
+              tooltip={t('admin:components.project.downloadProject')}
+              onClick={handleDownloadProject}
+              icon={DownloadIcon}
+              id="downloadProject"
+            />
+          )}
+        </span>
       </div>
 
       {retrieving && (
@@ -421,7 +499,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
       {openCompress.value && fileProperties.value && (
         <CompressionPanel
           openCompress={openCompress}
-          fileProperties={fileProperties}
+          fileProperties={fileProperties as any}
           compressProperties={compressProperties}
           onRefreshDirectory={onRefreshDirectory}
         />
