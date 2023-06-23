@@ -37,13 +37,13 @@ import { mockFetch, restoreFetch } from '../../../tests/util/mockFetch'
 import { createFeathersKoaApp } from '../../createApp'
 import { getCachedURL } from '../storageprovider/getCachedURL'
 import { getStorageProvider } from '../storageprovider/storageprovider'
-import { addAssetsFromProject, downloadResourceAndMetadata } from './static-resource-helper'
+import { addAssetFromProject, downloadResourceAndMetadata } from './static-resource-helper'
 
 describe('static-resource-helper', () => {
   before(() => {
     const url = 'http://test.com/test'
     mockFetch({
-      [url]: {
+      url: {
         contentType: 'application/octet-stream',
         response: Buffer.from('test')
       }
@@ -103,7 +103,7 @@ describe('audio-upload', () => {
     const url = 'https://test.com/projects/default-project/assets/test.mp3'
     const url2 = getCachedURL('/projects/default-project/assets/test.mp3', getStorageProvider().cacheDomain)
     mockFetch({
-      [url]: {
+      url: {
         contentType: 'audio/mpeg',
         response: fs.readFileSync(
           path.join(appRootPath.path, '/packages/projects/default-project/assets/SampleAudio.mp3')
@@ -141,7 +141,7 @@ describe('audio-upload', () => {
       const storageProvider = getStorageProvider()
       const url = 'https://test.com/projects/default-project/assets/test.mp3'
 
-      const [staticResource] = await addAssetsFromProject(app, [url], testProject, true)
+      const staticResource = await addAssetFromProject(app, url, testProject, true)
 
       assert(staticResource.id)
       assert.equal(staticResource.url, getCachedURL(staticResource.key!, storageProvider.cacheDomain))
@@ -159,7 +159,7 @@ describe('audio-upload', () => {
       const storageProvider = getStorageProvider()
       const url = getCachedURL('/projects/default-project/assets/test.mp3', storageProvider.cacheDomain)
 
-      const [staticResource] = await addAssetsFromProject(app, [url], testProject, true)
+      const staticResource = await addAssetFromProject(app, url, testProject, true)
 
       assert.equal(staticResource.key, 'static-resources/test-project/test.mp3')
       assert.equal(staticResource.mimeType, 'audio/mpeg')
@@ -175,7 +175,7 @@ describe('audio-upload', () => {
       const storageProvider = getStorageProvider()
       const url = getCachedURL('/projects/default-project/assets/test.mp3', storageProvider.cacheDomain)
 
-      const [{ url: resourceURL }] = await addAssetsFromProject(app, [url], 'default-project', false)
+      const { url: resourceURL } = await addAssetFromProject(app, url, 'default-project', false)
       const staticResources = await app.service('static-resource').Model.findAll({
         where: {
           url: resourceURL
@@ -195,8 +195,8 @@ describe('audio-upload', () => {
       const storageProvider = getStorageProvider()
       const url = getCachedURL('/projects/default-project/assets/test.mp3', storageProvider.cacheDomain)
 
-      const [response] = await addAssetsFromProject(app, [url], 'default-project', false)
-      const [response2] = await addAssetsFromProject(app, [url], 'default-project', false)
+      const response = await addAssetFromProject(app, url, 'default-project', false)
+      const response2 = await addAssetFromProject(app, url, 'default-project', false)
 
       const staticResources = await app.service('static-resource').Model.findAll({
         where: {
@@ -210,8 +210,8 @@ describe('audio-upload', () => {
       const storageProvider = getStorageProvider()
       const url = getCachedURL('/projects/default-project/assets/test.mp3', storageProvider.cacheDomain)
 
-      const [response] = await addAssetsFromProject(app, [url], 'default-project', false)
-      const [response2] = await addAssetsFromProject(app, [url], 'test-project', false)
+      const response = await addAssetFromProject(app, url, 'default-project', false)
+      const response2 = await addAssetFromProject(app, url, 'test-project', false)
 
       const staticResources = await app.service('static-resource').Model.findAll({
         where: {
