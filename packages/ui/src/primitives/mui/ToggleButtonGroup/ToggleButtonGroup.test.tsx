@@ -28,7 +28,7 @@ import { shallow } from 'enzyme'
 import React from 'react'
 
 import ToggleButtonGroup from './index'
-import { Primary as story } from './index.stories'
+import { Default as story } from './index.stories'
 
 describe('ToggleButtonGroup', () => {
   it('- should render', () => {
