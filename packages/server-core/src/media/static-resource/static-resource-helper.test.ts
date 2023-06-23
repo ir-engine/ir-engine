@@ -103,7 +103,7 @@ describe('audio-upload', () => {
     const url = 'https://test.com/projects/default-project/assets/test.mp3'
     const url2 = getCachedURL('/projects/default-project/assets/test.mp3', getStorageProvider().cacheDomain)
     mockFetch({
-      url: {
+      [url]: {
         contentType: 'audio/mpeg',
         response: fs.readFileSync(
           path.join(appRootPath.path, '/packages/projects/default-project/assets/SampleAudio.mp3')
