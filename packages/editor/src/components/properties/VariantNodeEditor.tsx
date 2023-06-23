@@ -27,32 +27,26 @@ import React, { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
-import {
-  getComponent,
-  getMutableComponent,
-  useComponent
-} from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
-import { LODComponent, LODLevel } from '@etherealengine/engine/src/scene/components/LODComponent'
-import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
+import { getComponent, useComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
+import { VariantComponent, VariantLevel } from '@etherealengine/engine/src/scene/components/VariantComponent'
 import { State } from '@etherealengine/hyperflux'
 
 import DeblurIcon from '@mui/icons-material/Deblur'
 
-import { serializeLOD } from '../../functions/lodsFromModel'
 import { Button } from '../inputs/Button'
-import InputGroup, { InputGroupContainer } from '../inputs/InputGroup'
+import InputGroup from '../inputs/InputGroup'
 import ModelInput from '../inputs/ModelInput'
 import NumericInput from '../inputs/NumericInput'
-import NumericInputGroup from '../inputs/NumericInputGroup'
 import SelectInput from '../inputs/SelectInput'
 import PaginatedList from '../layout/PaginatedList'
+import NodeEditor from './NodeEditor'
 import { EditorComponentType } from './Util'
 
-export const LODProperties: EditorComponentType = ({ entity }: { entity: Entity }) => {
+export const VariantNodeEditor: EditorComponentType = (props: { entity: Entity }) => {
   const { t } = useTranslation()
-
-  const lodComponent = useComponent(entity, LODComponent)
+  const entity = props.entity
+  const variantComponent = useComponent(entity, VariantComponent)
   const nameComponent = getComponent(entity, NameComponent)
 
   const onChangeLevelProperty = useCallback(
@@ -64,58 +58,70 @@ export const LODProperties: EditorComponentType = ({ entity }: { entity: Entity 
     [entity]
   )
   return (
-    <div>
-      <h2 className="text-white text-2xl font-bold m-4">LODs</h2>
+    <NodeEditor
+      name={t('editor:properties.variant.name')}
+      description={t('editor:properties.variant.description')}
+      {...props}
+    >
       <div className="bg-gray-800 rounded-lg p-4 m-4">
-        <h2 className="text-white text-xl font-bold mb-4">{nameComponent}</h2>
-        <InputGroup name="lodHeuristic" label={t('editor:properties.lod.heuristic')}>
+        <InputGroup name="lodHeuristic" label={t('editor:properties.variant.heuristic')}>
           <SelectInput
-            value={lodComponent.lodHeuristic.value}
-            onChange={(val: typeof lodComponent.lodHeuristic.value) => lodComponent.lodHeuristic.set(val)}
+            value={variantComponent.heuristic.value}
+            onChange={(val: typeof variantComponent.heuristic.value) => variantComponent.heuristic.set(val)}
             options={[
-              { value: 'DISTANCE', label: t('editor:properties.lod.heuristic-distance') },
-              { value: 'SCENE_SCALE', label: t('editor:properties.lod.heuristic-sceneScale') },
-              { value: 'MANUAL', label: t('editor:properties.lod.heuristic-manual') },
-              { value: 'DEVICE', label: t('editor:properties.lod.heuristic-device') }
+              { value: 'DISTANCE', label: t('editor:properties.variant.heuristic-distance') },
+              { value: 'SCENE_SCALE', label: t('editor:properties.variant.heuristic-sceneScale') },
+              { value: 'MANUAL', label: t('editor:properties.variant.heuristic-manual') },
+              { value: 'DEVICE', label: t('editor:properties.variant.heuristic-device') }
             ]}
           />
         </InputGroup>
         <Button
           onClick={() =>
-            lodComponent.levels[lodComponent.levels.length].set({
-              distance: 0,
+            variantComponent.levels[variantComponent.levels.length].set({
               src: '',
-              loaded: false,
-              metadata: {},
-              model: null
+              metadata: {}
             })
           }
         >
-          Add LOD
+          Add Variant
         </Button>
         <PaginatedList
-          options={{ countPerPage: 1 }}
-          list={lodComponent.levels}
-          element={(level: State<LODLevel>) => {
+          options={{ countPerPage: 6 }}
+          list={variantComponent.levels}
+          element={(level: State<VariantLevel>) => {
             return (
               <div className="bg-gray-900 m-2">
                 <div style={{ margin: '2em' }}>
-                  <InputGroup name="distance" label={t('editor:properties.lod.distance')}>
-                    <NumericInput value={level.distance.value} onChange={onChangeLevelProperty(level, 'distance')} />
-                  </InputGroup>
-                  <InputGroup name="src" label={t('editor:properties.lod.src')}>
+                  <InputGroup name="src" label={t('editor:properties.variant.src')}>
                     <ModelInput value={level.src.value} onChange={onChangeLevelProperty(level, 'src')} />
                   </InputGroup>
-                  {lodComponent.lodHeuristic.value === 'DEVICE' && (
+                  {variantComponent.heuristic.value === 'DEVICE' && (
                     <>
-                      <InputGroup name="device" label={t('editor:properties.lod.device')}>
+                      <InputGroup name="device" label={t('editor:properties.variant.device')}>
                         <SelectInput
                           value={level.metadata['device'].value}
                           onChange={onChangeLevelProperty(level.metadata, 'device')}
                           options={[
-                            { value: 'MOBILE', label: t('editor:properties.lod.device-mobile') },
-                            { value: 'DESKTOP', label: t('editor:properties.lod.device-desktop') }
+                            { value: 'MOBILE', label: t('editor:properties.variant.device-mobile') },
+                            { value: 'DESKTOP', label: t('editor:properties.variant.device-desktop') }
                           ]}
+                        />
+                      </InputGroup>
+                    </>
+                  )}
+                  {variantComponent.heuristic.value === 'DISTANCE' && (
+                    <>
+                      <InputGroup name="minDistance" label={t('editor:properties.variant.minDistance')}>
+                        <NumericInput
+                          value={level.metadata['minDistance'].value}
+                          onChange={onChangeLevelProperty(level.metadata, 'minDistance')}
+                        />
+                      </InputGroup>
+                      <InputGroup name="maxDistance" label={t('editor:properties.variant.maxDistance')}>
+                        <NumericInput
+                          value={level.metadata['maxDistance'].value}
+                          onChange={onChangeLevelProperty(level.metadata, 'maxDistance')}
                         />
                       </InputGroup>
                     </>
@@ -124,21 +130,11 @@ export const LODProperties: EditorComponentType = ({ entity }: { entity: Entity 
                 <div className="flex justify-end">
                   <Button
                     onClick={() => {
-                      const index = lodComponent.levels.indexOf(level)
-                      lodComponent.levels.set(lodComponent.levels.value.filter((_, i) => i !== index))
+                      const index = variantComponent.levels.indexOf(level)
+                      variantComponent.levels.set(variantComponent.levels.value.filter((_, i) => i !== index))
                     }}
                   >
                     Remove
-                  </Button>
-                </div>
-                <div className="flex justify-end">
-                  <Button
-                    onClick={() => {
-                      const model = getComponent(lodComponent.target.value, ModelComponent)
-                      serializeLOD(model.src, entity, level)
-                    }}
-                  >
-                    Serialize
                   </Button>
                 </div>
               </div>
@@ -146,8 +142,8 @@ export const LODProperties: EditorComponentType = ({ entity }: { entity: Entity 
           }}
         />
       </div>
-    </div>
+    </NodeEditor>
   )
 }
 
-LODProperties.iconComponent = DeblurIcon
+VariantNodeEditor.iconComponent = DeblurIcon

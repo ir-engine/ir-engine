@@ -53,7 +53,6 @@ import { addError, removeError } from '../functions/ErrorFunctions'
 import { parseGLTFModel } from '../functions/loadGLTFModel'
 import { enableObjectLayer } from '../functions/setObjectLayers'
 import { addObjectToGroup, GroupComponent, removeObjectFromGroup } from './GroupComponent'
-import { LODComponent } from './LODComponent'
 import { SceneAssetPendingTagComponent } from './SceneAssetPendingTagComponent'
 import { SceneObjectComponent } from './SceneObjectComponent'
 import { UUIDComponent } from './UUIDComponent'
@@ -109,8 +108,6 @@ export const ModelComponent = defineComponent({
       removeObjectFromGroup(entity, component.scene.value)
       component.scene.set(null)
     }
-    LODComponent.lodsByEntity[entity].value && LODComponent.lodsByEntity[entity].set(none)
-    removeMaterialSource({ type: SourceType.MODEL, path: component.src.value })
   },
 
   errors: ['LOADING_ERROR', 'INVALID_URL'],
