@@ -298,12 +298,16 @@ const EditorContainer = () => {
         const blob = await takeScreenshot(512, 320)
         const file = new File([blob!], editorState.sceneName + '.thumbnail.png')
         const result: { name: string } = (await new Promise((resolve) => {
+          const closeDialog = (val: unknown) => {
+            resolve(val)
+            setDialogComponent(null)
+          }
           setDialogComponent(
             <SaveNewSceneDialog
               thumbnailUrl={URL.createObjectURL(blob!)}
               initialName={Engine.instance.scene.name}
-              onConfirm={resolve}
-              onCancel={resolve}
+              onConfirm={closeDialog}
+              onCancel={closeDialog}
             />
           )
         })) as any
