@@ -121,8 +121,7 @@ export function updateGamepadInput(eid: Entity) {
   const source = inputSource.source
   const buttons = inputSource.buttons as ButtonStateMap
   if (!source.gamepad) return
-
-  const gamepadButtons = source.gamepad?.buttons
+  const gamepadButtons = source.gamepad.buttons
   if (gamepadButtons) {
     for (let i = 0; i < gamepadButtons.length; i++) {
       const button = gamepadButtons[i]
@@ -281,14 +280,16 @@ const reactor = () => {
 
     const addGamepad = (e: GamepadEvent) => {
       const gamepad = navigator.getGamepads()[e.gamepad.index]
+      if (!gamepad) return console.warn('[ClientInputSystem] gamepad not found', e.gamepad)
       console.log('[ClientInputSystem] found gamepad', gamepad, e.gamepad)
-      if (e.gamepad) (emulatedInputSource as any).gamepad = gamepad
+      gamepadRef = gamepad
     }
 
     const removeGamepad = (e: GamepadEvent) => {
       const gamepad = navigator.getGamepads()[e.gamepad.index]
+      if (!gamepad) return console.warn('[ClientInputSystem] gamepad not found', e.gamepad)
       console.log('[ClientInputSystem] lost gamepad', gamepad, e.gamepad)
-      ;(emulatedInputSource as any).gamepad = emulatedGamepad
+      gamepadRef = emulatedGamepad
     }
 
     /** @todo - currently only one gamepad supported */
@@ -443,13 +444,18 @@ const reactor = () => {
       vibrationActuator: null
     } as Gamepad
 
+    let gamepadRef = emulatedGamepad
+
     // create an emulated input source for mouse/keyboard/touch input
     const emulatedInputSource = {
       handedness: 'none',
       targetRayMode: session ? (session.interactionMode === 'screen-space' ? 'screen' : 'gaze') : 'screen',
       targetRaySpace: emulatedTargetRaySpace,
       gripSpace: undefined,
-      gamepad: emulatedGamepad,
+      get gamepad() {
+        // workaround since the gamepad doesn't always store a reference internally, so return a new reference
+        return gamepadRef === emulatedGamepad ? gamepadRef : navigator.getGamepads()[gamepadRef!.index]
+      },
       profiles: [],
       hand: undefined
     } as XRInputSource

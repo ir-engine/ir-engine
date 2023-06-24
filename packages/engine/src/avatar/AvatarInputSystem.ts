@@ -196,7 +196,8 @@ const execute = () => {
 
     const buttons = inputSource.buttons
 
-    const standardGamepad = inputSource.source.gamepad?.mapping === 'standard'
+    const standardGamepad =
+      inputSource.source.gamepad?.mapping === 'standard' || inputSource.source.gamepad?.mapping === ''
     const xrStandardGamepad = inputSource.source.gamepad?.mapping === 'xr-standard'
 
     if (buttons.ShiftLeft?.down) onShiftLeft()

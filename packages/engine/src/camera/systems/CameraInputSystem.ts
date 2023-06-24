@@ -213,7 +213,10 @@ const execute = () => {
     if (!lastMouseMoved && mouseMoved)
       lastLookDelta.set(Engine.instance.pointerState.position.x, Engine.instance.pointerState.position.y)
 
-    if (inputSource.source.gamepad?.mapping === 'standard' && inputSource.source.handedness === 'none') {
+    if (
+      (inputSource.source.gamepad?.mapping === 'standard' || inputSource.source.gamepad?.mapping === '') &&
+      inputSource.source.handedness === 'none'
+    ) {
       const [x, z] = getThumbstickOrThumbpadAxes(inputSource.source, avatarInputSettings.preferredHand)
       target.theta -= x * 2
       target.phi += z * 2

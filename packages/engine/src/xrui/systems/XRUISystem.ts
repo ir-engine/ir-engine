@@ -240,8 +240,7 @@ const execute = () => {
     )
       updateClickEventsForController(pointer)
 
-    if (inputSource.targetRayMode === 'tracked-pointer')
-      updateControllerRayInteraction(pointer, interactableXRUIEntities)
+    updateControllerRayInteraction(pointer, interactableXRUIEntities)
   }
 
   for (const [pointerSource, pointer] of pointers) {
