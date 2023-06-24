@@ -282,7 +282,7 @@ const reactor = () => {
     const addGamepad = (e: GamepadEvent) => {
       const gamepad = navigator.getGamepads()[e.gamepad.index]
       console.log('[ClientInputSystem] found gamepad', gamepad, e.gamepad)
-      if (e.gamepad) (emulatedInputSource as any).gamepad = e.gamepad
+      if (e.gamepad) (emulatedInputSource as any).gamepad = gamepad
     }
 
     const removeGamepad = (e: GamepadEvent) => {
@@ -439,8 +439,9 @@ const reactor = () => {
       id: 'ee.emulated-gamepad',
       index: 0,
       mapping: 'standard',
-      timestamp: performance.now()
-    }
+      timestamp: performance.now(),
+      vibrationActuator: null
+    } as Gamepad
 
     // create an emulated input source for mouse/keyboard/touch input
     const emulatedInputSource = {

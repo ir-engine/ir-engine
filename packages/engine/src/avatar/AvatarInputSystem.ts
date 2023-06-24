@@ -43,7 +43,7 @@ import {
 import { defineSystem } from '../ecs/functions/SystemFunctions'
 import { InputComponent } from '../input/components/InputComponent'
 import { InputSourceComponent } from '../input/components/InputSourceComponent'
-import { XRStandardGamepadButton } from '../input/state/ButtonState'
+import { StandardGamepadButton, XRStandardGamepadButton } from '../input/state/ButtonState'
 import { InteractState } from '../interaction/systems/InteractiveSystem'
 import { WorldNetworkAction } from '../networking/functions/WorldNetworkAction'
 import { RigidBodyFixedTagComponent } from '../physics/components/RigidBodyComponent'
@@ -60,11 +60,16 @@ const _quat = new Quaternion()
 
 /**
  * On 'xr-standard' mapping, get thumbstick input [2,3], fallback to thumbpad input [0,1]
+ * On 'standard' mapping, get thumbstick input [0,1]
  */
-export function getThumbstickOrThumbpadAxes(inputSource: XRInputSource, deadZone: number = 0.05) {
-  const gamepad = navigator.getGamepads()[inputSource.gamepad!.index]
+export function getThumbstickOrThumbpadAxes(
+  inputSource: XRInputSource,
+  thumstick: XRHandedness,
+  deadZone: number = 0.05
+) {
+  const gamepad = navigator.getGamepads()[inputSource.gamepad!.index] ?? inputSource.gamepad
   const axes = gamepad!.axes
-  const axesIndex = inputSource.gamepad?.mapping === 'xr-standard' ? 2 : 0
+  const axesIndex = inputSource.gamepad?.mapping === 'xr-standard' || thumstick === 'right' ? 2 : 0
   const xAxis = Math.abs(axes[axesIndex]) > deadZone ? axes[axesIndex] : 0
   const zAxis = Math.abs(axes[axesIndex + 1]) > deadZone ? axes[axesIndex + 1] : 0
   return [xAxis, zAxis] as [number, number]
@@ -75,16 +80,21 @@ export const InputSourceAxesDidReset = new WeakMap<XRInputSource, boolean>()
 export const AvatarAxesControlSchemeBehavior = {
   [AvatarAxesControlScheme.Move]: (
     inputSource: XRInputSource,
-    controller: ComponentType<typeof AvatarControllerComponent>
+    controller: ComponentType<typeof AvatarControllerComponent>,
+    handdedness: XRHandedness
   ) => {
-    const [x, z] = getThumbstickOrThumbpadAxes(inputSource, 0.05)
+    const [x, z] = getThumbstickOrThumbpadAxes(inputSource, handdedness)
     controller.gamepadLocalInput.x += x
     controller.gamepadLocalInput.z += z
   },
 
-  [AvatarAxesControlScheme.Teleport]: (inputSource: XRInputSource) => {
+  [AvatarAxesControlScheme.Teleport]: (
+    inputSource: XRInputSource,
+    controller: ComponentType<typeof AvatarControllerComponent>,
+    handdedness: XRHandedness
+  ) => {
     const localClientEntity = Engine.instance.localClientEntity
-    const [x, z] = getThumbstickOrThumbpadAxes(inputSource, 0.05)
+    const [x, z] = getThumbstickOrThumbpadAxes(inputSource, handdedness)
 
     if (x === 0 && z === 0) {
       InputSourceAxesDidReset.set(inputSource, true)
@@ -186,9 +196,19 @@ const execute = () => {
 
     const buttons = inputSource.buttons
 
+    const standardGamepad = inputSource.source.gamepad?.mapping === 'standard'
+    const xrStandardGamepad = inputSource.source.gamepad?.mapping === 'xr-standard'
+
     if (buttons.ShiftLeft?.down) onShiftLeft()
     if (buttons.KeyE?.down) onKeyE()
-    if (buttons[XRStandardGamepadButton.Trigger]?.down) onTrigger(inputSource.source.handedness)
+    if (xrStandardGamepad) {
+      if (buttons[XRStandardGamepadButton.Trigger]?.down) onTrigger(inputSource.source.handedness)
+    }
+
+    const gamepadJump = standardGamepad && buttons[StandardGamepadButton.ButtonA]?.pressed
+    if (standardGamepad && buttons[StandardGamepadButton.ButtonY]?.pressed) {
+      onKeyE()
+    }
 
     if (isDev) {
       if (buttons.KeyO?.down) onKeyO()
@@ -205,9 +225,9 @@ const execute = () => {
       (buttons.ArrowUp?.pressed ? -1 : 0) +
       (buttons.ArrowDown?.pressed ? 1 : 0)
 
-    controller.gamepadLocalInput.set(keyDeltaX, 0, keyDeltaZ)
+    controller.gamepadLocalInput.set(keyDeltaX, 0, keyDeltaZ).normalize()
 
-    controller.gamepadJumpActive = !!buttons.Space?.pressed
+    controller.gamepadJumpActive = !!buttons.Space?.pressed || gamepadJump
 
     const controlScheme =
       inputSource.source.handedness === 'none'
@@ -215,7 +235,11 @@ const execute = () => {
         : inputSource.source.handedness === avatarInputSettings.preferredHand
         ? avatarInputSettings.rightAxesControlScheme
         : avatarInputSettings.leftAxesControlScheme
-    AvatarAxesControlSchemeBehavior[controlScheme](inputSource.source, controller)
+    AvatarAxesControlSchemeBehavior[controlScheme](
+      inputSource.source,
+      controller,
+      avatarInputSettings.preferredHand === 'left' ? 'right' : 'left'
+    )
   }
 }
 
