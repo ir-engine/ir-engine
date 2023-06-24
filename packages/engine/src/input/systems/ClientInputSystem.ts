@@ -281,12 +281,14 @@ const reactor = () => {
 
     const addGamepad = (e: GamepadEvent) => {
       const gamepad = navigator.getGamepads()[e.gamepad.index]
-      if (gamepad) Object.assign(emulatedInputSource, { gamepad })
+      console.log('[ClientInputSystem] found gamepad', gamepad, e.gamepad)
+      if (e.gamepad) (emulatedInputSource as any).gamepad = e.gamepad
     }
 
     const removeGamepad = (e: GamepadEvent) => {
       const gamepad = navigator.getGamepads()[e.gamepad.index]
-      if (gamepad) Object.assign(emulatedInputSource, { gamepad: undefined })
+      console.log('[ClientInputSystem] lost gamepad', gamepad, e.gamepad)
+      ;(emulatedInputSource as any).gamepad = emulatedGamepad
     }
 
     /** @todo - currently only one gamepad supported */
@@ -429,22 +431,24 @@ const reactor = () => {
 
     const emulatedTargetRaySpace = {} as any as XRSpace
 
+    const emulatedGamepad = {
+      axes: [0, 0, 0, 0],
+      buttons: [],
+      connected: true,
+      hapticActuators: [],
+      id: 'ee.emulated-gamepad',
+      index: 0,
+      mapping: 'standard',
+      timestamp: performance.now()
+    }
+
     // create an emulated input source for mouse/keyboard/touch input
     const emulatedInputSource = {
       handedness: 'none',
       targetRayMode: session ? (session.interactionMode === 'screen-space' ? 'screen' : 'gaze') : 'screen',
       targetRaySpace: emulatedTargetRaySpace,
       gripSpace: undefined,
-      gamepad: {
-        axes: [0, 0, 0, 0],
-        buttons: [],
-        connected: true,
-        hapticActuators: [],
-        id: 'ee.emulated-gamepad',
-        index: 0,
-        mapping: 'standard',
-        timestamp: performance.now()
-      },
+      gamepad: emulatedGamepad,
       profiles: [],
       hand: undefined
     } as XRInputSource
