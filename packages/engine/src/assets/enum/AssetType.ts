@@ -37,6 +37,7 @@ export enum AssetType {
   MP4 = 'mp4',
   TS = 'ts',
   MKV = 'mkv',
+  AVI = 'avi',
   MP3 = 'mp3',
   OGG = 'ogg',
   M4A = 'm4a',
