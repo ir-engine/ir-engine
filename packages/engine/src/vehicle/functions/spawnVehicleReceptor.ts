@@ -23,12 +23,24 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Collider, ColliderDesc, RigidBody, RigidBodyDesc } from '@dimforge/rapier3d-compat'
-import { MotorModel, RevoluteImpulseJoint } from '@dimforge/rapier3d-compat'
+import {
+  Collider,
+  ColliderDesc,
+  JointData,
+  MotorModel,
+  RevoluteImpulseJoint,
+  RigidBody,
+  RigidBodyDesc,
+  Vector3
+} from '@dimforge/rapier3d-compat'
+import { RawRotation } from '@dimforge/rapier3d-compat/rapier_wasm3d'
+
+import { createEntity } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
 
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { addComponent, getComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
+import { addEntityNodeChild } from '../../ecs/functions/EntityTree'
 //import { LocalVehicleTagComponent } from '../../input/components/LocalVehicleTagComponent'
 import { BoundingBoxComponent } from '../../interaction/components/BoundingBoxComponents'
 import { NetworkObjectSendPeriodicUpdatesTag } from '../../networking/components/NetworkObjectComponent'
@@ -41,10 +53,10 @@ import { ShadowComponent } from '../../scene/components/ShadowComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { VehicleComponent } from '../components/VehicleComponent'
 
-export const vehiclewheelRadius = 0.25
-export const defaultVehicleDimensions = { width: 1.8, length: 3, height: 1.8 }
-export const defaultAxleDimensions = { width: 0.03, length: 0.03, height: 0.03 }
-export const defaultVehicleHalfHeight = defaultVehicleDimensions.height / 2
+export const defaultWheelDimensions = { hy: 0.5, r: 0.2 }
+export const defaultVehicleDimensions = { x: 1.8, z: 3, y: 1.8 }
+export const defaultAxleDimensions = { x: 0.03, z: 0.03, y: 0.03 }
+export const defaultVehicleHalfy = defaultVehicleDimensions.y / 2
 
 export const spawnVehicleReceptor = (spawnAction: typeof WorldNetworkAction.spawnVehicle.matches._TYPE) => {
   const ownerId = spawnAction.$from
@@ -67,14 +79,14 @@ export const spawnVehicleReceptor = (spawnAction: typeof WorldNetworkAction.spaw
 const createVehicleBody = (entity: Entity): any => {
   // body with its collider
   const interactionGroups = getInteractionGroups(CollisionGroups.Default, DefaultCollisionMask)
-  const vehicleBodyRigidBody = RigidBodyDesc.kinematicPositionBased()
-  Physics.createRigidBody(entity, Engine.instance.physicsWorld, vehicleBodyRigidBody, [])
+  const vehicleBodyRigidBody = RigidBodyDesc.dynamic()
 
-  const VehicleBodyCollider = ColliderDesc.cuboid(
-    defaultVehicleDimensions.length,
-    defaultVehicleDimensions.width,
-    defaultVehicleDimensions.height
+  const vehicleBodyCollider = ColliderDesc.cuboid(
+    defaultVehicleDimensions.z,
+    defaultVehicleDimensions.x,
+    defaultVehicleDimensions.y
   ).setCollisionGroups(interactionGroups)
+  Physics.createRigidBody(entity, Engine.instance.physicsWorld, vehicleBodyRigidBody, [vehicleBodyCollider])
 
   const rigidBodyComponent = getComponent(entity, RigidBodyComponent)
   const transformComponent = getComponent(entity, TransformComponent)
@@ -82,33 +94,57 @@ const createVehicleBody = (entity: Entity): any => {
   rigidBodyComponent.position.copy(transformComponent.position)
   rigidBodyComponent.rotation.copy(transformComponent.rotation)
 
-  //VehicleBodyCollider.setTranslation(0, defaultVehicleHalfHeight, 0)
-  Physics.createColliderAndAttachToRigidBody(Engine.instance.physicsWorld, VehicleBodyCollider, rigidBodyComponent.body)
-
+  //VehicleBodyCollider.setTranslation(0, defaultVehicleHalfy, 0)
   //createVehicleAxle(entity)
 }
 
-const createVehicleAxle = (entity: Entity): any => {
+const createVehicleAxle = (chassis: Entity): any => {
   // front
-  console.log('create axle')
-  const interactionGroups = getInteractionGroups(CollisionGroups.Default, DefaultCollisionMask)
-  const VechicleAxleRigidBody = RigidBodyDesc.kinematicPositionBased()
-  Physics.createRigidBody(entity, Engine.instance.physicsWorld, VechicleAxleRigidBody, [])
-  const VehicleAxleCollider = ColliderDesc.cuboid(
-    defaultAxleDimensions.length,
-    defaultAxleDimensions.width,
-    defaultAxleDimensions.height
-  ).setCollisionGroups(interactionGroups)
-  createVehicleWheel(entity)
+  const axlePositions = [
+    new Vector3(-defaultVehicleDimensions.x / 2, -defaultVehicleDimensions.z / 2, 0),
+    new Vector3(defaultVehicleDimensions.x / 2, -defaultVehicleDimensions.z / 2, 0),
+    new Vector3(-defaultVehicleDimensions.x / 2, defaultVehicleDimensions.z / 2, 0),
+    new Vector3(defaultVehicleDimensions.x / 2, defaultVehicleDimensions.z / 2, 0)
+  ]
+
+  for (const axlePosition of axlePositions) {
+    const axle = createEntity()
+    const interactionGroups = getInteractionGroups(CollisionGroups.Default, DefaultCollisionMask)
+    const vechicleAxleRigidBody = RigidBodyDesc.dynamic()
+    const vehicleAxleCollider = ColliderDesc.cuboid(
+      defaultAxleDimensions.z,
+      defaultAxleDimensions.x,
+      defaultAxleDimensions.y
+    ).setCollisionGroups(interactionGroups)
+    Physics.createRigidBody(axle, Engine.instance.physicsWorld, vechicleAxleRigidBody, [vehicleAxleCollider])
+    const rigidBodyComponent = getComponent(axle, RigidBodyComponent)
+    const transformComponent = getComponent(axle, TransformComponent)
+    rigidBodyComponent.position.copy(transformComponent.position)
+    rigidBodyComponent.rotation.copy(transformComponent.rotation)
+    // still figuring out how to add joints
+    createVehicleWheel(axle)
+    addEntityNodeChild(axle, chassis)
+  }
 
   // back
 }
 
-const createVehicleWheel = (entity: Entity): any => {
+const createVehicleWheel = (axle: Entity): any => {
   console.log('create wheels')
-  // if 2
-  // if 3
-  // if 4
+  const wheel = createEntity()
+  const interactionGroups = getInteractionGroups(CollisionGroups.Default, DefaultCollisionMask)
+  const vechicleWheelRigidBody = RigidBodyDesc.dynamic()
+  const vehicleWheelCollider = ColliderDesc.cylinder(
+    defaultWheelDimensions.hy,
+    defaultWheelDimensions.r
+  ).setCollisionGroups(interactionGroups)
+  Physics.createRigidBody(wheel, Engine.instance.physicsWorld, vechicleWheelRigidBody, [vehicleWheelCollider])
+  const rigidBodyComponent = getComponent(wheel, RigidBodyComponent)
+  const transformComponent = getComponent(wheel, TransformComponent)
+  rigidBodyComponent.position.copy(transformComponent.position)
+  rigidBodyComponent.rotation.copy(transformComponent.rotation)
+  addEntityNodeChild(axle, wheel)
+
   // handle suspension
 }
 /*
