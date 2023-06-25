@@ -116,12 +116,17 @@ const createVehicleAxle = (chassis: Entity): any => {
       defaultAxleDimensions.x,
       defaultAxleDimensions.y
     ).setCollisionGroups(interactionGroups)
-    Physics.createRigidBody(axle, Engine.instance.physicsWorld, vechicleAxleRigidBody, [vehicleAxleCollider])
+    const axleRigidbody = Physics.createRigidBody(axle, Engine.instance.physicsWorld, vechicleAxleRigidBody, [
+      vehicleAxleCollider
+    ])
     const rigidBodyComponent = getComponent(axle, RigidBodyComponent)
     const transformComponent = getComponent(axle, TransformComponent)
     rigidBodyComponent.position.copy(transformComponent.position)
     rigidBodyComponent.rotation.copy(transformComponent.rotation)
+    const chassisRigidBody = getComponent(chassis, RigidBodyComponent).body
     // still figuring out how to add joints
+    const axleJointData = JointData.revolute(new Vector3(0, 0, 0), new Vector3(0, 0, 0), new Vector3(0, 1, 0))
+    Engine.instance.physicsWorld.createImpulseJoint(axleJointData, chassisRigidBody, axleRigidbody, false)
     createVehicleWheel(axle)
     addEntityNodeChild(axle, chassis)
   }
@@ -136,13 +141,17 @@ const createVehicleWheel = (axle: Entity): any => {
     defaultWheelDimensions.hy,
     defaultWheelDimensions.r
   ).setCollisionGroups(interactionGroups)
-  Physics.createRigidBody(wheel, Engine.instance.physicsWorld, vechicleWheelRigidBody, [vehicleWheelCollider])
+  const wheelRigidbody = Physics.createRigidBody(wheel, Engine.instance.physicsWorld, vechicleWheelRigidBody, [
+    vehicleWheelCollider
+  ])
   const rigidBodyComponent = getComponent(wheel, RigidBodyComponent)
   const transformComponent = getComponent(wheel, TransformComponent)
   rigidBodyComponent.position.copy(transformComponent.position)
   rigidBodyComponent.rotation.copy(transformComponent.rotation)
+  const axleRigidBody = getComponent(axle, RigidBodyComponent).body
+  const wheelJointData = JointData.revolute(new Vector3(0, 0, 0), new Vector3(0, 0, 0), new Vector3(1, 0, 0))
+  Engine.instance.physicsWorld.createImpulseJoint(wheelJointData, axleRigidBody, wheelRigidbody, false)
   addEntityNodeChild(axle, wheel)
-
   // handle suspension
 }
 /*
