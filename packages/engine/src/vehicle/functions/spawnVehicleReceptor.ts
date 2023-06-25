@@ -92,7 +92,6 @@ const createVehicleBody = (entity: Entity): any => {
   rigidBodyComponent.position.copy(transformComponent.position)
   rigidBodyComponent.rotation.copy(transformComponent.rotation)
 
-  //VehicleBodyCollider.setTranslation(0, defaultVehicleHalfy, 0)
   createVehicleAxle(entity)
 }
 
@@ -116,10 +115,7 @@ const createVehicleAxle = (entity: Entity): any => {
     const axleRigidbody = Physics.createRigidBody(entity, Engine.instance.physicsWorld, vechicleAxleRigidBody, [
       vehicleAxleCollider
     ])
-    const rigidBodyComponent = getComponent(entity, RigidBodyComponent)
-    const transformComponent = getComponent(entity, TransformComponent)
-    rigidBodyComponent.position.copy(transformComponent.position)
-    rigidBodyComponent.rotation.copy(transformComponent.rotation)
+    axleRigidbody.setTranslation(axlePosition, false)
     const chassisRigidBody = getComponent(entity, RigidBodyComponent).body
     // still figuring out how to add joints
     const axleJointData = JointData.revolute(new Vector3(0, 0, 0), new Vector3(0, 0, 0), new Vector3(0, 1, 0))
@@ -139,13 +135,12 @@ const createVehicleWheel = (entity: Entity): any => {
   const wheelRigidbody = Physics.createRigidBody(entity, Engine.instance.physicsWorld, vechicleWheelRigidBody, [
     vehicleWheelCollider
   ])
-  const rigidBodyComponent = getComponent(entity, RigidBodyComponent)
-  const transformComponent = getComponent(entity, TransformComponent)
-  rigidBodyComponent.position.copy(transformComponent.position)
-  rigidBodyComponent.rotation.copy(transformComponent.rotation)
-  const axleRigidBody = getComponent(entity, RigidBodyComponent).body
+
+  const axleRigidBody = getComponent(entity, RigidBodyComponent)
+  wheelRigidbody.setTranslation(axleRigidBody.position, false)
+
   const wheelJointData = JointData.revolute(new Vector3(0, 0, 0), new Vector3(0, 0, 0), new Vector3(1, 0, 0))
-  Engine.instance.physicsWorld.createImpulseJoint(wheelJointData, axleRigidBody, wheelRigidbody, false)
+  Engine.instance.physicsWorld.createImpulseJoint(wheelJointData, axleRigidBody.body, wheelRigidbody, false)
   // handle suspension
 }
 /*
