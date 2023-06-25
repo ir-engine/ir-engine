@@ -286,14 +286,14 @@ function defineAction<Shape extends ActionShape<Action>>(actionShape: Shape) {
  * @param topics @todo potentially in the future, support dispatching to multiple topics
  * @param store
  */
-const dispatchAction = <A extends Action>(action: A, store = HyperFlux.store) => {
-  const storeId = store.getDispatchId()
-  const agentId = store.getPeerId()
+const dispatchAction = <A extends Action>(action: A) => {
+  const storeId = HyperFlux.store.getDispatchId()
+  const agentId = HyperFlux.store.getPeerId()
 
   action.$from = action.$from ?? (storeId as UserId)
   action.$peer = action.$peer ?? (agentId as PeerID)
   action.$to = action.$to ?? 'all'
-  action.$time = action.$time ?? store.getDispatchTime() + store.defaultDispatchDelay()
+  action.$time = action.$time ?? HyperFlux.store.getDispatchTime() + HyperFlux.store.defaultDispatchDelay()
   action.$cache = action.$cache ?? false
   action.$uuid = action.$uuid ?? MathUtils.generateUUID()
   const topic = (action.$topic = action.$topic ?? HyperFlux.store.defaultTopic)
@@ -306,17 +306,17 @@ const dispatchAction = <A extends Action>(action: A, store = HyperFlux.store) =>
     action.$stack = stack
   }
 
-  store.actions.incoming.push(action as Required<ResolvedActionType>)
-  if (!store.forwardIncomingActions(action as Required<ResolvedActionType>)) {
+  HyperFlux.store.actions.incoming.push(action as Required<ResolvedActionType>)
+  if (!HyperFlux.store.forwardIncomingActions(action as Required<ResolvedActionType>)) {
     addOutgoingTopicIfNecessary(topic)
-    store.actions.outgoing[topic].queue.push(action as Required<ResolvedActionType>)
+    HyperFlux.store.actions.outgoing[topic].queue.push(action as Required<ResolvedActionType>)
   }
 }
 
-function addOutgoingTopicIfNecessary(topic: string, store = HyperFlux.store) {
-  if (!store.actions.outgoing[topic]) {
+function addOutgoingTopicIfNecessary(topic: string) {
+  if (!HyperFlux.store.actions.outgoing[topic]) {
     logger.info(`Added topic ${topic}`)
-    store.actions.outgoing[topic] = {
+    HyperFlux.store.actions.outgoing[topic] = {
       queue: [],
       history: [],
       historyUUIDs: new Set()
@@ -324,25 +324,24 @@ function addOutgoingTopicIfNecessary(topic: string, store = HyperFlux.store) {
   }
 }
 
-function removeActionsForTopic(topic: string, store = HyperFlux.store) {
+function removeActionsForTopic(topic: string) {
   logger.info(`Removing actions with topic ${topic}`)
-  for (const action of store.actions.history) {
+  for (const action of HyperFlux.store.actions.history) {
     if (action.$topic.includes(topic)) {
-      store.actions.knownUUIDs.delete(action.$uuid)
+      HyperFlux.store.actions.knownUUIDs.delete(action.$uuid)
     }
   }
-  delete store.actions.outgoing[topic]
+  delete HyperFlux.store.actions.outgoing[topic]
 }
 
 /**
  * Adds an action receptor to the store
- * @param store
  * @param receptor
  * @deprecated use defineActionQueue instead
  */
-function addActionReceptor(receptor: ActionReceptor, store = HyperFlux.store) {
+function addActionReceptor(receptor: ActionReceptor) {
   logger.info(`Added Receptor ${receptor.name}`)
-  ;(store.receptors as Array<ActionReceptor>).push(receptor)
+  ;(HyperFlux.store.receptors as Array<ActionReceptor>).push(receptor)
 }
 
 /**
@@ -351,17 +350,17 @@ function addActionReceptor(receptor: ActionReceptor, store = HyperFlux.store) {
  * @param receptor
  * @deprecated use defineActionQueue instead
  */
-function removeActionReceptor(receptor: ActionReceptor, store = HyperFlux.store) {
-  const idx = store.receptors.indexOf(receptor)
+function removeActionReceptor(receptor: ActionReceptor) {
+  const idx = HyperFlux.store.receptors.indexOf(receptor)
   if (idx >= 0) {
     logger.info(`Removed Receptor ${receptor.name}`)
-    ;(store.receptors as Array<ActionReceptor>).splice(idx, 1)
+    ;(HyperFlux.store.receptors as Array<ActionReceptor>).splice(idx, 1)
   }
 }
 
-const _updateCachedActions = (incomingAction: Required<ResolvedActionType>, store = HyperFlux.store) => {
+const _updateCachedActions = (incomingAction: Required<ResolvedActionType>) => {
   if (incomingAction.$cache) {
-    const cachedActions = store.actions.cached
+    const cachedActions = HyperFlux.store.actions.cached
     // see if we must remove any previous actions
     if (typeof incomingAction.$cache === 'boolean') {
       if (incomingAction.$cache) cachedActions.push(incomingAction)
@@ -396,20 +395,20 @@ const _updateCachedActions = (incomingAction: Required<ResolvedActionType>, stor
   }
 }
 
-const applyIncomingActionsToAllQueues = (action: Required<ResolvedActionType>, store = HyperFlux.store) => {
-  for (const [shape, queueDefintions] of store.actions.queueDefinitions) {
+const applyIncomingActionsToAllQueues = (action: Required<ResolvedActionType>) => {
+  for (const [shape, queueDefintions] of HyperFlux.store.actions.queueDefinitions) {
     if (shape.test(action)) {
       for (const queues of queueDefintions) {
-        if (!store.actions.queues.has(queues)) continue
-        store.actions.queues.get(queues)!.push(action)
+        if (!HyperFlux.store.actions.queues.has(queues)) continue
+        HyperFlux.store.actions.queues.get(queues)!.push(action)
       }
     }
   }
 }
 
-const _applyIncomingAction = (action: Required<ResolvedActionType>, store = HyperFlux.store) => {
+const _applyIncomingAction = (action: Required<ResolvedActionType>) => {
   // ensure actions are idempotent
-  if (store.actions.knownUUIDs.has(action.$uuid)) {
+  if (HyperFlux.store.actions.knownUUIDs.has(action.$uuid)) {
     //Certain actions were causing logger.info to throw errors since it JSON.stringifies inputs, and those
     //actions had circular references. Just try/catching the logger.info call was not catching them properly,
     //So the solution was to attempt to JSON.stringify them manually first to see if that would error.
@@ -419,14 +418,14 @@ const _applyIncomingAction = (action: Required<ResolvedActionType>, store = Hype
     } catch (err) {
       console.log('error in logging action', action)
     }
-    const idx = store.actions.incoming.indexOf(action)
-    store.actions.incoming.splice(idx, 1)
+    const idx = HyperFlux.store.actions.incoming.indexOf(action)
+    HyperFlux.store.actions.incoming.splice(idx, 1)
     return
   }
 
-  _updateCachedActions(action, store)
+  _updateCachedActions(action)
 
-  applyIncomingActionsToAllQueues(action, store)
+  applyIncomingActionsToAllQueues(action)
 
   try {
     //Certain actions were causing logger.info to throw errors since it JSON.stringifies inputs, and those
@@ -438,10 +437,10 @@ const _applyIncomingAction = (action: Required<ResolvedActionType>, store = Hype
     } catch (err) {
       console.log('error in logging action', action)
     }
-    for (const receptor of [...store.receptors]) receptor(action)
-    if (store.forwardIncomingActions(action)) {
-      addOutgoingTopicIfNecessary(action.$topic, store)
-      store.actions.outgoing[action.$topic].queue.push(action)
+    for (const receptor of [...HyperFlux.store.receptors]) receptor(action)
+    if (HyperFlux.store.forwardIncomingActions(action)) {
+      addOutgoingTopicIfNecessary(action.$topic)
+      HyperFlux.store.actions.outgoing[action.$topic].queue.push(action)
     }
   } catch (e) {
     const message = (e as Error).message
@@ -450,26 +449,24 @@ const _applyIncomingAction = (action: Required<ResolvedActionType>, store = Hype
     action.$ERROR = { message, stack }
     logger.error(e)
   } finally {
-    store.actions.history.push(action)
-    store.actions.knownUUIDs.add(action.$uuid)
-    const idx = store.actions.incoming.indexOf(action)
-    store.actions.incoming.splice(idx, 1)
+    HyperFlux.store.actions.history.push(action)
+    HyperFlux.store.actions.knownUUIDs.add(action.$uuid)
+    const idx = HyperFlux.store.actions.incoming.indexOf(action)
+    HyperFlux.store.actions.incoming.splice(idx, 1)
   }
 }
 
 /**
  * Process incoming actions
- *
- * @param store
  */
-const applyIncomingActions = (store = HyperFlux.store) => {
-  const { incoming } = store.actions
-  const now = store.getDispatchTime()
+const applyIncomingActions = () => {
+  const { incoming } = HyperFlux.store.actions
+  const now = HyperFlux.store.getDispatchTime()
   for (const action of [...incoming]) {
     if (action.$time > now) {
       continue
     }
-    _applyIncomingAction(action, store)
+    _applyIncomingAction(action)
   }
 }
 
@@ -477,9 +474,9 @@ const applyIncomingActions = (store = HyperFlux.store) => {
  * Clear the outgoing action queue
  * @param store
  */
-const clearOutgoingActions = (topic: string, store = HyperFlux.store) => {
-  if (!store.actions.outgoing[topic]) return
-  const { queue, history, historyUUIDs } = store.actions.outgoing[topic]
+const clearOutgoingActions = (topic: string) => {
+  if (!HyperFlux.store.actions.outgoing[topic]) return
+  const { queue, history, historyUUIDs } = HyperFlux.store.actions.outgoing[topic]
   for (const action of queue) {
     history.push(action)
     historyUUIDs.add(action.$uuid)
@@ -488,20 +485,20 @@ const clearOutgoingActions = (topic: string, store = HyperFlux.store) => {
 }
 
 function defineActionQueue<V extends Validator<unknown, ResolvedActionType>>(shape: V): () => V['_TYPE'][] {
-  const actionQueueDefinition = (store = HyperFlux.store) => {
-    if (!store.actions.queueDefinitions.has(shape)) store.actions.queueDefinitions.set(shape, [])
+  const actionQueueDefinition = () => {
+    if (!HyperFlux.store.actions.queueDefinitions.has(shape)) HyperFlux.store.actions.queueDefinitions.set(shape, [])
 
-    if (!store.actions.queueDefinitions.get(shape)!.includes(actionQueueDefinition))
-      store.actions.queueDefinitions.get(shape)!.push(actionQueueDefinition)
+    if (!HyperFlux.store.actions.queueDefinitions.get(shape)!.includes(actionQueueDefinition))
+      HyperFlux.store.actions.queueDefinitions.get(shape)!.push(actionQueueDefinition)
 
-    if (!store.actions.queues.has(actionQueueDefinition)) {
-      store.actions.queues.set(actionQueueDefinition, store.actions.history.filter(shape.test))
-      store.getCurrentReactorRoot()?.cleanupFunctions.add(() => {
-        removeActionQueue(actionQueueDefinition, store)
+    if (!HyperFlux.store.actions.queues.has(actionQueueDefinition)) {
+      HyperFlux.store.actions.queues.set(actionQueueDefinition, HyperFlux.store.actions.history.filter(shape.test))
+      HyperFlux.store.getCurrentReactorRoot()?.cleanupFunctions.add(() => {
+        removeActionQueue(actionQueueDefinition)
       })
     }
 
-    const queue = store.actions.queues.get(actionQueueDefinition)!
+    const queue = HyperFlux.store.actions.queues.get(actionQueueDefinition)!
     const result = [...queue]
     queue.length = 0
     return result
@@ -517,14 +514,14 @@ const createActionQueue = defineActionQueue
 
 export type ActionQueueDefinition = ReturnType<typeof defineActionQueue>
 
-const removeActionQueue = (queueFunction, store = HyperFlux.store) => {
+const removeActionQueue = (queueFunction) => {
   const queue = queueFunction._queue
   const shape = queueFunction._shape
-  const shapeQueues = store.actions.queues.get(shape)
+  const shapeQueues = HyperFlux.store.actions.queues.get(shape)
   if (!shapeQueues) return
   const index = shapeQueues.indexOf(queue)
   if (index > -1) shapeQueues!.splice(index, 1)
-  if (!shapeQueues.length) store.actions.queues.delete(shape)
+  if (!shapeQueues.length) HyperFlux.store.actions.queues.delete(shape)
 }
 
 export {
