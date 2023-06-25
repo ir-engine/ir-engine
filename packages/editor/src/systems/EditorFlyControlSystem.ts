@@ -28,11 +28,16 @@ import { MathUtils, Matrix3, Vector3 } from 'three'
 import { FlyControlComponent } from '@etherealengine/engine/src/avatar/components/FlyControlComponent'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import {
+  getComponent,
   hasComponent,
   removeComponent,
   setComponent
 } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
+import {
+  getFirstNonCapturedInputSource,
+  InputSourceComponent
+} from '@etherealengine/engine/src/input/components/InputSourceComponent'
 import { dispatchAction } from '@etherealengine/hyperflux'
 
 import { editorCameraCenter } from '../classes/EditorCameraState'
@@ -67,9 +72,13 @@ const onSecondaryReleased = () => {
 }
 
 const execute = () => {
-  const keys = Engine.instance.buttons
-  if (keys.SecondaryClick?.down) onSecondaryClick()
-  if (keys.SecondaryClick?.up) onSecondaryReleased()
+  const nonCapturedInputSource = getFirstNonCapturedInputSource()
+  if (!nonCapturedInputSource) return
+
+  const inputSource = getComponent(nonCapturedInputSource, InputSourceComponent)
+
+  if (inputSource.buttons.SecondaryClick?.down) onSecondaryClick()
+  if (inputSource.buttons.SecondaryClick?.up) onSecondaryReleased()
 }
 
 export const EditorFlyControlSystem = defineSystem({

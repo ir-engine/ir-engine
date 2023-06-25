@@ -41,7 +41,7 @@ import { KTX2Loader } from '@etherealengine/engine/src/assets/loaders/gltf/KTX2L
 import { Application } from '../../../declarations'
 import config from '../../appconfig'
 import { getStorageProvider } from '../storageprovider/storageprovider'
-import { addAssetsAsStaticResource, getFileMetadata } from '../upload-asset/upload-asset.service'
+import { addAssetAsStaticResource, getFileMetadata } from '../upload-asset/upload-asset.service'
 
 const logger = multiLogger.child('static-resource-helper')
 
@@ -135,15 +135,14 @@ export const getKeyForAsset = (url: string, project: string, isFromProject: bool
  * if external url and not clone static resources, link new static resource
  * if internal url, link new static resource
  */
-export const addAssetsFromProject = async (
+export const addAssetFromProject = async (
   app: Application,
-  urls: string[], // expects all urls to be from the same location, and to be variants of the same asset
+  url: string, // expects all urls to be from the same location, and to be variants of the same asset
   project: string,
   download = config.server.cloneProjectStaticResources
 ) => {
-  // console.log('addAssetsFromProject', urls, project, download)
-  const absoluteUrls = urls.map((url) => decodeURI(url.replace(pathSymbol, absoluteProjectPath)))
-  const mainURL = absoluteUrls[0]
+  // console.log('addAssetsFromProject', url, project, download)
+  const mainURL = decodeURI(url.replace(pathSymbol, absoluteProjectPath))
 
   const isFromProject = isAssetFromProject(mainURL, project)
 
@@ -159,19 +158,20 @@ export const addAssetsFromProject = async (
     }
   })) as StaticResourceInterface
 
-  if (existingResource) return [existingResource]
+  if (existingResource) return existingResource
 
   const forceDownload = isFromProject ? false : download
 
-  const files = await Promise.all(absoluteUrls.map((url) => downloadResourceAndMetadata(url, forceDownload)))
+  const file = await downloadResourceAndMetadata(mainURL, forceDownload)
 
-  const staticResources = await addAssetsAsStaticResource(app, files, {
+  const staticResource = await addAssetAsStaticResource(app, file, {
     hash: hash,
-    path: key,
+    // use key for when downloading the asset, otherwise pass the url directly to be inserted into the database
+    path: isFromProject || download ? key : mainURL,
     project
   })
 
-  return forceDownload ? staticResources : (urls.map((url) => ({ url })) as Partial<StaticResourceInterface>[])
+  return staticResource
 }
 
 export const getStats = async (buffer: Buffer | string, mimeType: string): Promise<Record<string, any>> => {

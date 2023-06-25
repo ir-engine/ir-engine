@@ -29,7 +29,14 @@ import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
-import { getComponent, hasComponent, removeComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
+import {
+  defineQuery,
+  getComponent,
+  hasComponent,
+  removeComponent,
+  setComponent
+} from '../../ecs/functions/ComponentFunctions'
+import { InputSourceComponent } from '../../input/components/InputSourceComponent'
 import { UUIDComponent } from '../../scene/components/UUIDComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { XRHand, XRJointBones, XRLeftHandComponent, XRRightHandComponent } from '../../xr/XRComponents'
@@ -256,6 +263,10 @@ const leftHandOffset = new Quaternion().setFromEuler(new Euler(0, 0, -handOffset
 const leftControllerOffset = new Quaternion().setFromEuler(new Euler(-Math.PI, Math.PI, 0))
 const rightControllerOffset = new Quaternion().setFromEuler(new Euler(-Math.PI, 0, 0))
 
+const inputSourceQuery = defineQuery([InputSourceComponent])
+
+const filterUncapturedInputSources = (eid: Entity) => !getComponent(eid, InputSourceComponent)?.captured
+
 export const applyInputSourcePoseToIKTargets = () => {
   const { localClientEntity } = Engine.instance
 
@@ -283,15 +294,19 @@ export const applyInputSourcePoseToIKTargets = () => {
       ikTransform.rotation.copy(cameraTransform.rotation)
     }
 
-    for (const inputSource of Engine.instance.inputSources) {
-      const handedness = inputSource.handedness
+    const nonCapturedInputSources = inputSourceQuery().filter(filterUncapturedInputSources)
+
+    for (const inputSourceEntity of nonCapturedInputSources) {
+      const inputSourceComponent = getComponent(inputSourceEntity, InputSourceComponent)
+      const handedness = inputSourceComponent.source.handedness
+      if (handedness === 'none') continue
 
       const entity = handedness === 'right' ? ikTargetRightHand : ikTargetLeftHand
       const XRHandComponent = handedness === 'right' ? XRRightHandComponent : XRLeftHandComponent
 
       if (entity) {
         const ikTransform = getComponent(entity, TransformComponent)
-        const hand = inputSource.hand as XRHand | undefined
+        const hand = inputSourceComponent.source.hand as XRHand | undefined
         /** detect hand joint pose support */
         if (hand && xrFrame.fillPoses && xrFrame.getJointPose) {
           if (!hasComponent(localClientEntity, XRHandComponent)) {
@@ -306,17 +321,17 @@ export const applyInputSourcePoseToIKTargets = () => {
               ikTransform.rotation.multiply(handedness === 'right' ? rightHandOffset : leftHandOffset)
             }
           }
-          applyHandPose(inputSource, localClientEntity)
+          applyHandPose(inputSourceComponent.source, localClientEntity)
         } else {
           if (hasComponent(localClientEntity, XRHandComponent)) removeComponent(localClientEntity, XRHandComponent)
-          if (inputSource.gripSpace) {
-            const pose = Engine.instance.xrFrame!.getPose(inputSource.gripSpace, referenceSpace)
+          if (inputSourceComponent.source.gripSpace) {
+            const pose = Engine.instance.xrFrame!.getPose(inputSourceComponent.source.gripSpace, referenceSpace)
             if (pose) {
               ikTransform.position.copy(pose.transform.position as any as Vector3)
               ikTransform.rotation.copy(pose.transform.orientation as any as Quaternion)
             }
           } else {
-            const pose = Engine.instance.xrFrame!.getPose(inputSource.targetRaySpace, referenceSpace)
+            const pose = Engine.instance.xrFrame!.getPose(inputSourceComponent.source.targetRaySpace, referenceSpace)
             if (pose) {
               ikTransform.position.copy(pose.transform.position as any as Vector3)
               ikTransform.rotation

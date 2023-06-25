@@ -40,4 +40,4 @@ export default {
   },
   argTypes
 }
-export const Primary = { args: Component.defaultProps }
+export const Default = { args: Component.defaultProps }

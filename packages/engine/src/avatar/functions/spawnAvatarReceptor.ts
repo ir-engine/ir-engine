@@ -38,7 +38,6 @@ import {
   removeComponent,
   setComponent
 } from '../../ecs/functions/ComponentFunctions'
-import { LocalAvatarTagComponent } from '../../input/components/LocalAvatarTagComponent'
 import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
 import { BoundingBoxComponent } from '../../interaction/components/BoundingBoxComponents'
 import {
@@ -138,7 +137,6 @@ export const spawnAvatarReceptor = (spawnAction: typeof WorldNetworkAction.spawn
 
   if (ownerId === Engine.instance.userId) {
     createAvatarController(entity)
-    addComponent(entity, LocalAvatarTagComponent, true)
     addComponent(entity, LocalInputTagComponent, true)
   } else {
     createAvatarRigidBody(entity)
@@ -186,13 +184,12 @@ export const createAvatarController = (entity: Entity) => {
   rigidbody.targetKinematicPosition.copy(transform.position)
   rigidbody.targetKinematicRotation.copy(transform.rotation)
 
-  const CameraTransform = getComponent(Engine.instance.cameraEntity, TransformComponent)
-  const avatarForward = new Vector3(0, 0, -1).applyQuaternion(transform.rotation)
-  const cameraForward = new Vector3(0, 0, 1).applyQuaternion(CameraTransform.rotation)
+  const avatarForward = new Vector3(0, 0, 1).applyQuaternion(transform.rotation)
+  const cameraForward = new Vector3(0, 0, -1)
   let targetTheta = (cameraForward.angleTo(avatarForward) * 180) / Math.PI
   const orientation = cameraForward.x * avatarForward.z - cameraForward.z * avatarForward.x
   if (orientation > 0) targetTheta = 2 * Math.PI - targetTheta
-  setTargetCameraRotation(Engine.instance.cameraEntity, 0, targetTheta)
+  setTargetCameraRotation(Engine.instance.cameraEntity, 0, targetTheta, 0.01)
 
   setComponent(entity, AvatarControllerComponent, {
     bodyCollider: createAvatarCollider(entity),

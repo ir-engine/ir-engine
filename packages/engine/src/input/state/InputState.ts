@@ -23,20 +23,11 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { defineComponent } from '../../ecs/functions/ComponentFunctions'
+import { defineState } from '@etherealengine/hyperflux'
 
-export const DelegatedInputReceiverComponent = defineComponent({
-  name: 'DelegatedInputReceiverComponent',
-
-  onInit: (entity) => {
-    return {
-      networkId: 0
-    }
-  },
-
-  onSet: (entity, component, json) => {
-    if (!json) return
-
-    if (json.networkId) component.networkId.set(json.networkId)
+export const InputState = defineState({
+  name: 'InputState',
+  initial: {
+    inputSources: [] as XRInputSourceArray
   }
 })

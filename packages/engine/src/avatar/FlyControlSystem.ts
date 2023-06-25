@@ -30,7 +30,9 @@ import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { defineQuery, getComponent, removeQuery } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 
 import { V_010 } from '../common/constants/MathConstants'
+import { Entity } from '../ecs/classes/Entity'
 import { defineSystem } from '../ecs/functions/SystemFunctions'
+import { getFirstNonCapturedInputSource, InputSourceComponent } from '../input/components/InputSourceComponent'
 import { TransformComponent } from '../transform/components/TransformComponent'
 import { FlyControlComponent } from './components/FlyControlComponent'
 
@@ -48,12 +50,18 @@ const worldScale = new Vector3(1, 1, 1)
 const candidateWorldQuat = new Quaternion()
 
 const execute = () => {
-  if (!Engine.instance.buttons.SecondaryClick?.pressed && !Engine.instance.buttons.PrimaryClick?.pressed) return
+  const nonCapturedInputSource = getFirstNonCapturedInputSource()
+  if (!nonCapturedInputSource) return
+
+  const inputSource = getComponent(nonCapturedInputSource, InputSourceComponent)
+
+  if (!inputSource.buttons.SecondaryClick?.pressed && !inputSource.buttons.PrimaryClick?.pressed) return
+
   for (const entity of flyControlQuery()) {
     const flyControlComponent = getComponent(entity, FlyControlComponent)
     const camera = Engine.instance.camera
 
-    const inputState = Engine.instance.buttons
+    const inputState = inputSource.buttons
 
     const mouseMovement = Engine.instance.pointerState.movement
 

@@ -43,8 +43,7 @@ export async function up(knex: Knex): Promise<void> {
 
   if (tableExists === false) {
     await knex.schema.createTable(buildStatusPath, (table) => {
-      //@ts-ignore
-      table.uuid('id').collate('utf8mb4_bin').primary()
+      table.increments('id').primary()
       table.string('status', 255).defaultTo('pending')
       table.text('logs', 'mediumtext')
       table.dateTime('dateStarted')

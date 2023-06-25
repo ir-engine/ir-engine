@@ -39,6 +39,7 @@ export const CommonKnownContentTypes = {
   m3u8: 'application/vnd.apple.mpegurl',
   mp4: 'video/mp4',
   mkv: 'video/x-matroska',
+  avi: 'video/x-msvideo',
   mp3: 'audio/mpeg',
   tsx: 'application/octet-stream',
   ts: 'application/octet-stream',
@@ -61,6 +62,7 @@ export const MimeTypeToExtension = {
   'application/vnd.apple.mpegurl': 'm3u8',
   'video/mp4': 'mp4',
   'video/x-matroska': 'mkv',
+  'video/x-msvideo': 'avi',
   'audio/mpeg': 'mp3',
   'audio/mp3': 'mp3',
   'audio/ogg': 'ogg'

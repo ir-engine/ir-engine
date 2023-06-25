@@ -28,7 +28,7 @@ import { shallow } from 'enzyme'
 import React from 'react'
 
 import Switch from './index'
-import { Primary as story } from './index.stories'
+import { Default as story } from './index.stories'
 
 describe('Switch', () => {
   it('- should render', () => {

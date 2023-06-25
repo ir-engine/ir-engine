@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { CompressedTexture, CubeTexture, CubeTextureLoader, PMREMGenerator, Texture, TextureLoader } from 'three'
+import { Color, CompressedTexture, CubeTexture, CubeTextureLoader, PMREMGenerator, TextureLoader } from 'three'
 
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { DDSLoader } from '../../assets/loaders/dds/DDSLoader'
@@ -36,6 +36,22 @@ let pmremGenerator: PMREMGenerator
 export const getPmremGenerator = (): PMREMGenerator => {
   if (!pmremGenerator) pmremGenerator = new PMREMGenerator(EngineRenderer.instance.renderer)
   return pmremGenerator
+}
+
+export const getRGBArray = (color: Color): Uint8Array => {
+  const resolution = 64 // Min value required
+  const size = resolution * resolution
+  const data = new Uint8Array(4 * size)
+
+  for (let i = 0; i < size; i++) {
+    const stride = i * 4
+    data[stride] = Math.floor(color.r * 255)
+    data[stride + 1] = Math.floor(color.g * 255)
+    data[stride + 2] = Math.floor(color.b * 255)
+    data[stride + 3] = 255
+  }
+
+  return data
 }
 
 export const loadCubeMapTexture = (

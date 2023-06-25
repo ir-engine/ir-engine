@@ -38,7 +38,7 @@ import { downloadResourceAndMetadata } from '../static-resource/static-resource-
 import { getCachedURL } from '../storageprovider/getCachedURL'
 import { getStorageProvider } from '../storageprovider/storageprovider'
 import {
-  addAssetsAsStaticResource,
+  addAssetAsStaticResource,
   createStaticResourceHash,
   getFileMetadata,
   uploadAsset
@@ -81,14 +81,12 @@ describe('upload-asset', () => {
       }
 
       const buffer = Buffer.from(JSON.stringify(testJson))
-      const files = [
-        {
-          buffer,
-          originalname: 'test.json',
-          mimetype: 'application/json',
-          size: buffer.byteLength
-        }
-      ] as UploadFile[]
+      const file = {
+        buffer,
+        originalname: 'test.json',
+        mimetype: 'application/json',
+        size: buffer.byteLength
+      } as UploadFile
       const hash = createStaticResourceHash(buffer, { name: 'test.json' })
 
       const args = {
@@ -97,7 +95,7 @@ describe('upload-asset', () => {
         project: testProject
       } as AdminAssetUploadArgumentsType
 
-      const [response] = await addAssetsAsStaticResource(app, files, args)
+      const response = await addAssetAsStaticResource(app, file, args)
       assert.equal(response.key, 'static-resources/test/test.json')
       assert.equal(response.hash, hash)
       assert.equal(response.mimeType, 'application/json')
@@ -110,10 +108,10 @@ describe('upload-asset', () => {
       assert.equal(staticResource.project, testProject)
 
       const storageProvider = getStorageProvider()
-      const file = await storageProvider.getObject(staticResource.key)
-      assert.equal(file.ContentType, 'application/json')
+      const fileResponse = await storageProvider.getObject(staticResource.key)
+      assert.equal(fileResponse.ContentType, 'application/json')
 
-      const json = JSON.parse(file.Body.toString())
+      const json = JSON.parse(fileResponse.Body.toString())
       assert.deepEqual(json, testJson)
     })
 
@@ -123,14 +121,14 @@ describe('upload-asset', () => {
       const name = 'default.scene.json'
       const hash = createStaticResourceHash(assetPath, { name })
 
-      const files = await downloadResourceAndMetadata(assetPath, true)
+      const file = await downloadResourceAndMetadata(assetPath, true)
       const args = {
         hash,
         path: 'static-resources/test',
         project: testProject
       } as AdminAssetUploadArgumentsType
 
-      const [response] = await addAssetsAsStaticResource(app, [files], args)
+      const response = await addAssetAsStaticResource(app, file, args)
       assert.equal(response.key, 'static-resources/test/default.scene.json')
       assert.equal(response.hash, hash)
       assert.equal(response.mimeType, 'application/json')
@@ -143,8 +141,8 @@ describe('upload-asset', () => {
       assert.equal(staticResource.project, testProject)
 
       const storageProvider = getStorageProvider()
-      const file = await storageProvider.getObject(staticResource.key)
-      assert.equal(file.ContentType, 'application/json')
+      const fileResponse = await storageProvider.getObject(staticResource.key)
+      assert.equal(fileResponse.ContentType, 'application/json')
     })
 
     it('should add asset as a new static resource from url', async () => {
@@ -153,14 +151,14 @@ describe('upload-asset', () => {
       const name = 'default.scene.json'
       const hash = createStaticResourceHash(url, { name })
 
-      const files = await downloadResourceAndMetadata(url, true)
+      const file = await downloadResourceAndMetadata(url, true)
       const args = {
         hash,
         path: 'static-resources/test',
         project: testProject
       } as AdminAssetUploadArgumentsType
 
-      const [response] = await addAssetsAsStaticResource(app, [files], args)
+      const response = await addAssetAsStaticResource(app, file, args)
       assert.equal(response.key, 'static-resources/test/default.scene.json')
       assert.equal(response.hash, hash)
       assert.equal(response.mimeType, 'application/json')
@@ -172,8 +170,8 @@ describe('upload-asset', () => {
       assert.equal(staticResource.mimeType, 'application/json')
       assert.equal(staticResource.project, testProject)
 
-      const file = await storageProvider.getObject(staticResource.key)
-      assert.equal(file.ContentType, 'application/json')
+      const fileResponse = await storageProvider.getObject(staticResource.key)
+      assert.equal(fileResponse.ContentType, 'application/json')
     })
   })
 
@@ -196,9 +194,9 @@ describe('upload-asset', () => {
           name: file.originalname
         })
 
-        const [response] = await uploadAsset(app, {
+        const response = await uploadAsset(app, {
           project: testProject,
-          files: [file]
+          file
         })
 
         assert(response.id)
@@ -222,13 +220,13 @@ describe('upload-asset', () => {
           size: buffer.byteLength
         } as UploadFile
 
-        const [response] = await uploadAsset(app, {
+        const response = await uploadAsset(app, {
           project: testProject,
-          files: [file]
+          file
         })
-        const [response2] = await uploadAsset(app, {
+        const response2 = await uploadAsset(app, {
           project: testProject,
-          files: [file]
+          file
         })
 
         assert.equal(response.id, response2.id)

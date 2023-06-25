@@ -38,6 +38,10 @@ import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
 import { defineQuery, getComponent, hasComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { removeEntity } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
 import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
+import {
+  getFirstNonCapturedInputSource,
+  InputSourceComponent
+} from '@etherealengine/engine/src/input/components/InputSourceComponent'
 import { NetworkObjectComponent } from '@etherealengine/engine/src/networking/components/NetworkObjectComponent'
 import { NetworkObjectOwnedTag } from '@etherealengine/engine/src/networking/components/NetworkObjectComponent'
 import { MediaSettingsState } from '@etherealengine/engine/src/networking/MediaSettingsState'
@@ -147,12 +151,17 @@ const execute = () => {
   const engineState = getState(EngineState)
   if (!engineState.isEngineInitialized) return
 
-  const keys = Engine.instance.buttons
+  const nonCapturedInputSource = getFirstNonCapturedInputSource()
+  if (!nonCapturedInputSource) return
+
+  const inputSource = getComponent(nonCapturedInputSource, InputSourceComponent)
+
+  const keys = inputSource.buttons
 
   if (keys.PrimaryClick?.down) onPrimaryClick()
   if (keys.SecondaryClick?.down) onSecondaryClick()
 
-  videoPreviewTimer += Engine.instance.deltaSeconds
+  videoPreviewTimer += engineState.deltaSeconds
   if (videoPreviewTimer > 1) videoPreviewTimer = 0
 
   for (const userEntity of userQuery.enter()) {

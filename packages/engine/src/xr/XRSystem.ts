@@ -34,7 +34,6 @@ import { XRCameraSystem } from './XRCameraSystem'
 import { XRCameraViewSystem } from './XRCameraViewSystem'
 import { XRDetectedPlanesSystem } from './XRDetectedPlanesSystem'
 import { XRHapticsSystem } from './XRHapticsSystem'
-import { XRInputSourceSystem } from './XRInputSourceSystem'
 import { XRLightProbeSystem } from './XRLightProbeSystem'
 import { XRPersistentAnchorSystem } from './XRPersistentAnchorSystem'
 import { XRScenePlacementShaderSystem } from './XRScenePlacementShaderSystem'
@@ -64,15 +63,9 @@ const updateSessionSupport = () => {
   updateSessionSupportForMode('immersive-vr')
 }
 
-const xrRequestSessionQueue = defineActionQueue(XRAction.requestSession.matches)
-const xrEndSessionQueue = defineActionQueue(XRAction.endSession.matches)
 const xrSessionChangedQueue = defineActionQueue(XRAction.sessionChanged.matches)
 
 const execute = () => {
-  const xrRequestSessionAction = xrRequestSessionQueue().pop()
-  const xrEndSessionAction = xrEndSessionQueue().pop()
-  if (xrRequestSessionAction) requestXRSession(xrRequestSessionAction)
-  if (xrEndSessionAction) endXRSession()
   for (const action of xrSessionChangedQueue()) xrSessionChanged(action)
 }
 
@@ -99,7 +92,6 @@ export const XRSystem = defineSystem({
     XRCameraViewSystem,
     XRDetectedPlanesSystem,
     XRHapticsSystem,
-    XRInputSourceSystem,
     XRLightProbeSystem,
     XRPersistentAnchorSystem,
     XRScenePlacementShaderSystem

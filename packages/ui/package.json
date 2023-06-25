@@ -33,9 +33,13 @@
     "build:storybook": "storybook build -c .storybook -o build/",
     "predeploy": "npm run build:storybook",
     "deploy": "gh-pages -d build/",
-    "storybook": "storybook dev -p 6006 -h travis.shetland-turtle.ts.net --disable-telemetry --https --ssl-key ../../certs/key.pem --ssl-cert ../../certs/cert.pem"
+    "storybook": "./scripts/start-storybook.sh"
   },
   "dependencies": {
+    "@etherealengine/common": "^1.3.0",
+    "@etherealengine/engine": "^1.3.0",
+    "@etherealengine/hyperflux": "^1.3.0",
+    "@etherealengine/projects": "^1.3.0",
     "@heroicons/react": "^2.0.16",
     "@mediapipe/drawing_utils": "^0.3.1675466124",
     "@mediapipe/holistic": "^0.5.1675471629",
@@ -63,6 +67,8 @@
     "@storybook/addon-interactions": "^7.1.0-alpha.19",
     "@storybook/addon-jest": "^7.1.0-alpha.19",
     "@storybook/addon-links": "^7.1.0-alpha.19",
+    "@storybook/addon-styling": "^1.0.8",
+    "@storybook/addon-toolbars": "^7.1.0-alpha.23",
     "@storybook/builder-vite": "^7.1.0-alpha.19",
     "@storybook/react": "^7.1.0-alpha.19",
     "@storybook/react-vite": "^7.1.0-alpha.19",
@@ -90,7 +96,7 @@
     "react": "^18.2.0",
     "react-dom": "18.2.0",
     "sass": "1.59.3",
-    "storybook": "^7.1.0-alpha.19",
+    "storybook": "^7.1.0-alpha.37",
     "storybook-addon-react-router-v6": "^1.0.0",
     "stream-browserify": "^3.0.0",
     "ts-jest": "^29.0.5"
