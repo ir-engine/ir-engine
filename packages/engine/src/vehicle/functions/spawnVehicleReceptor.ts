@@ -65,10 +65,8 @@ export const spawnVehicleReceptor = (spawnAction: typeof WorldNetworkAction.spaw
   if (!entity) return
 
   addComponent(entity, VehicleComponent, {})
-  // create vehicle body
+
   createVehicleBody(entity)
-  // create vehicle axle
-  // create vehicle wheel
 
   setComponent(entity, NetworkObjectSendPeriodicUpdatesTag)
 
@@ -98,7 +96,7 @@ const createVehicleBody = (entity: Entity): any => {
   createVehicleAxle(entity)
 }
 
-const createVehicleAxle = (chassis: Entity): any => {
+const createVehicleAxle = (entity: Entity): any => {
   // front
   const axlePositions = [
     new Vector3(-defaultVehicleDimensions.x / 2, -defaultVehicleDimensions.z / 2, 0),
@@ -108,7 +106,6 @@ const createVehicleAxle = (chassis: Entity): any => {
   ]
   // get 4 axle postions and create
   for (const axlePosition of axlePositions) {
-    const axle = createEntity() // creating new entities atm might change later
     const interactionGroups = getInteractionGroups(CollisionGroups.Default, DefaultCollisionMask)
     const vechicleAxleRigidBody = RigidBodyDesc.dynamic()
     const vehicleAxleCollider = ColliderDesc.cuboid(
@@ -116,42 +113,39 @@ const createVehicleAxle = (chassis: Entity): any => {
       defaultAxleDimensions.x,
       defaultAxleDimensions.y
     ).setCollisionGroups(interactionGroups)
-    const axleRigidbody = Physics.createRigidBody(axle, Engine.instance.physicsWorld, vechicleAxleRigidBody, [
+    const axleRigidbody = Physics.createRigidBody(entity, Engine.instance.physicsWorld, vechicleAxleRigidBody, [
       vehicleAxleCollider
     ])
-    const rigidBodyComponent = getComponent(axle, RigidBodyComponent)
-    const transformComponent = getComponent(axle, TransformComponent)
+    const rigidBodyComponent = getComponent(entity, RigidBodyComponent)
+    const transformComponent = getComponent(entity, TransformComponent)
     rigidBodyComponent.position.copy(transformComponent.position)
     rigidBodyComponent.rotation.copy(transformComponent.rotation)
-    const chassisRigidBody = getComponent(chassis, RigidBodyComponent).body
+    const chassisRigidBody = getComponent(entity, RigidBodyComponent).body
     // still figuring out how to add joints
     const axleJointData = JointData.revolute(new Vector3(0, 0, 0), new Vector3(0, 0, 0), new Vector3(0, 1, 0))
     Engine.instance.physicsWorld.createImpulseJoint(axleJointData, chassisRigidBody, axleRigidbody, false)
-    createVehicleWheel(axle)
-    addEntityNodeChild(axle, chassis)
+    createVehicleWheel(entity)
   }
 }
 
-const createVehicleWheel = (axle: Entity): any => {
+const createVehicleWheel = (entity: Entity): any => {
   console.log('create wheels')
-  const wheel = createEntity() // creating new entities atm might change later
   const interactionGroups = getInteractionGroups(CollisionGroups.Default, DefaultCollisionMask)
   const vechicleWheelRigidBody = RigidBodyDesc.dynamic()
   const vehicleWheelCollider = ColliderDesc.cylinder(
     defaultWheelDimensions.hy,
     defaultWheelDimensions.r
   ).setCollisionGroups(interactionGroups)
-  const wheelRigidbody = Physics.createRigidBody(wheel, Engine.instance.physicsWorld, vechicleWheelRigidBody, [
+  const wheelRigidbody = Physics.createRigidBody(entity, Engine.instance.physicsWorld, vechicleWheelRigidBody, [
     vehicleWheelCollider
   ])
-  const rigidBodyComponent = getComponent(wheel, RigidBodyComponent)
-  const transformComponent = getComponent(wheel, TransformComponent)
+  const rigidBodyComponent = getComponent(entity, RigidBodyComponent)
+  const transformComponent = getComponent(entity, TransformComponent)
   rigidBodyComponent.position.copy(transformComponent.position)
   rigidBodyComponent.rotation.copy(transformComponent.rotation)
-  const axleRigidBody = getComponent(axle, RigidBodyComponent).body
+  const axleRigidBody = getComponent(entity, RigidBodyComponent).body
   const wheelJointData = JointData.revolute(new Vector3(0, 0, 0), new Vector3(0, 0, 0), new Vector3(1, 0, 0))
   Engine.instance.physicsWorld.createImpulseJoint(wheelJointData, axleRigidBody, wheelRigidbody, false)
-  addEntityNodeChild(axle, wheel)
   // handle suspension
 }
 /*
