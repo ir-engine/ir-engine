@@ -95,7 +95,7 @@ const createVehicleBody = (entity: Entity): any => {
   rigidBodyComponent.rotation.copy(transformComponent.rotation)
 
   //VehicleBodyCollider.setTranslation(0, defaultVehicleHalfy, 0)
-  //createVehicleAxle(entity)
+  createVehicleAxle(entity)
 }
 
 const createVehicleAxle = (chassis: Entity): any => {
@@ -106,9 +106,9 @@ const createVehicleAxle = (chassis: Entity): any => {
     new Vector3(-defaultVehicleDimensions.x / 2, defaultVehicleDimensions.z / 2, 0),
     new Vector3(defaultVehicleDimensions.x / 2, defaultVehicleDimensions.z / 2, 0)
   ]
-
+  // get 4 axle postions and create
   for (const axlePosition of axlePositions) {
-    const axle = createEntity()
+    const axle = createEntity() // creating new entities atm might change later
     const interactionGroups = getInteractionGroups(CollisionGroups.Default, DefaultCollisionMask)
     const vechicleAxleRigidBody = RigidBodyDesc.dynamic()
     const vehicleAxleCollider = ColliderDesc.cuboid(
@@ -125,13 +125,11 @@ const createVehicleAxle = (chassis: Entity): any => {
     createVehicleWheel(axle)
     addEntityNodeChild(axle, chassis)
   }
-
-  // back
 }
 
 const createVehicleWheel = (axle: Entity): any => {
   console.log('create wheels')
-  const wheel = createEntity()
+  const wheel = createEntity() // creating new entities atm might change later
   const interactionGroups = getInteractionGroups(CollisionGroups.Default, DefaultCollisionMask)
   const vechicleWheelRigidBody = RigidBodyDesc.dynamic()
   const vehicleWheelCollider = ColliderDesc.cylinder(
