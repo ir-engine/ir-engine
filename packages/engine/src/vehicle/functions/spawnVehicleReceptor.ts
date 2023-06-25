@@ -24,6 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { Collider, ColliderDesc, RigidBody, RigidBodyDesc } from '@dimforge/rapier3d-compat'
+import { MotorModel, RevoluteImpulseJoint } from '@dimforge/rapier3d-compat'
 
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
@@ -40,9 +41,10 @@ import { ShadowComponent } from '../../scene/components/ShadowComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { VehicleComponent } from '../components/VehicleComponent'
 
-export const vehicleRadius = 0.25
-export const defaultVehicleHeight = 1.8
-export const defaultVehicleHalfHeight = defaultVehicleHeight / 2
+export const vehiclewheelRadius = 0.25
+export const defaultVehicleDimensions = { width: 1.8, length: 3, height: 1.8 }
+export const defaultAxleDimensions = { width: 0.03, length: 0.03, height: 0.03 }
+export const defaultVehicleHalfHeight = defaultVehicleDimensions.height / 2
 
 export const spawnVehicleReceptor = (spawnAction: typeof WorldNetworkAction.spawnVehicle.matches._TYPE) => {
   const ownerId = spawnAction.$from
@@ -52,11 +54,9 @@ export const spawnVehicleReceptor = (spawnAction: typeof WorldNetworkAction.spaw
 
   addComponent(entity, VehicleComponent, {})
   // create vehicle body
+  createVehicleBody(entity)
   // create vehicle axle
-  // create vehicle whee
-
-  createVehicleRigidBody(entity)
-  createVehicleCollider(entity)
+  // create vehicle wheel
 
   setComponent(entity, NetworkObjectSendPeriodicUpdatesTag)
 
@@ -64,38 +64,48 @@ export const spawnVehicleReceptor = (spawnAction: typeof WorldNetworkAction.spaw
   setComponent(entity, BoundingBoxComponent)
 }
 
-const createVehicleCollider = (entity: Entity): Collider => {
-  const interactionGroups = getInteractionGroups(CollisionGroups.Default, DefaultCollisionMask)
-  const rigidBody = getComponent(entity, RigidBodyComponent)
-  const transform = getComponent(entity, TransformComponent)
-  rigidBody.position.copy(transform.position)
-  rigidBody.rotation.copy(transform.rotation)
-
-  const bodyColliderDesc = ColliderDesc.capsule(
-    defaultVehicleHalfHeight - vehicleRadius,
-    vehicleRadius
-  ).setCollisionGroups(interactionGroups)
-  bodyColliderDesc.setTranslation(0, defaultVehicleHalfHeight, 0)
-
-  return Physics.createColliderAndAttachToRigidBody(Engine.instance.physicsWorld, bodyColliderDesc, rigidBody.body)
-}
-
-const createVehicleRigidBody = (entity: Entity): RigidBody => {
-  const rigidBodyDesc = RigidBodyDesc.dynamic()
-  const rigidBody = Physics.createRigidBody(entity, Engine.instance.physicsWorld, rigidBodyDesc, [])
-  return rigidBody
-}
-
 const createVehicleBody = (entity: Entity): any => {
   // body with its collider
+  const interactionGroups = getInteractionGroups(CollisionGroups.Default, DefaultCollisionMask)
+  const vehicleBodyRigidBody = RigidBodyDesc.kinematicPositionBased()
+  Physics.createRigidBody(entity, Engine.instance.physicsWorld, vehicleBodyRigidBody, [])
+
+  const VehicleBodyCollider = ColliderDesc.cuboid(
+    defaultVehicleDimensions.length,
+    defaultVehicleDimensions.width,
+    defaultVehicleDimensions.height
+  ).setCollisionGroups(interactionGroups)
+
+  const rigidBodyComponent = getComponent(entity, RigidBodyComponent)
+  const transformComponent = getComponent(entity, TransformComponent)
+
+  rigidBodyComponent.position.copy(transformComponent.position)
+  rigidBodyComponent.rotation.copy(transformComponent.rotation)
+
+  //VehicleBodyCollider.setTranslation(0, defaultVehicleHalfHeight, 0)
+  Physics.createColliderAndAttachToRigidBody(Engine.instance.physicsWorld, VehicleBodyCollider, rigidBodyComponent.body)
+
+  //createVehicleAxle(entity)
 }
 
 const createVehicleAxle = (entity: Entity): any => {
   // front
+  console.log('create axle')
+  const interactionGroups = getInteractionGroups(CollisionGroups.Default, DefaultCollisionMask)
+  const VechicleAxleRigidBody = RigidBodyDesc.kinematicPositionBased()
+  Physics.createRigidBody(entity, Engine.instance.physicsWorld, VechicleAxleRigidBody, [])
+  const VehicleAxleCollider = ColliderDesc.cuboid(
+    defaultAxleDimensions.length,
+    defaultAxleDimensions.width,
+    defaultAxleDimensions.height
+  ).setCollisionGroups(interactionGroups)
+  createVehicleWheel(entity)
+
   // back
 }
 
 const createVehicleWheel = (entity: Entity): any => {
+  console.log('create wheels')
   // if 2
   // if 3
   // if 4
