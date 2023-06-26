@@ -59,10 +59,10 @@ export const defaultVehicleDimensions = { x: 0.36, y: 0.26, z: 0.6 }
 export const defaultAxleDimensions = { x: 0.03, y: 0.03, z: 0.03 }
 export const defaultVehicleHalfy = defaultVehicleDimensions.y / 2
 export const axleDisplacements: Vector3[] = [
-  new Vector3(-defaultVehicleDimensions.x * 2, -defaultVehicleDimensions.y, (-defaultVehicleDimensions.z * 2) / 3),
-  new Vector3(-defaultVehicleDimensions.x * 2, -defaultVehicleDimensions.y, (defaultVehicleDimensions.z * 2) / 3),
-  new Vector3(defaultVehicleDimensions.x * 2, -defaultVehicleDimensions.y, (-defaultVehicleDimensions.z * 2) / 3),
-  new Vector3(defaultVehicleDimensions.x * 2, -defaultVehicleDimensions.y, (defaultVehicleDimensions.z * 2) / 3)
+  new Vector3(-defaultVehicleDimensions.x * 1.1, -defaultVehicleDimensions.y, (-defaultVehicleDimensions.z * 2) / 3),
+  new Vector3(-defaultVehicleDimensions.x * 1.1, -defaultVehicleDimensions.y, (defaultVehicleDimensions.z * 2) / 3),
+  new Vector3(defaultVehicleDimensions.x * 1.1, -defaultVehicleDimensions.y, (-defaultVehicleDimensions.z * 2) / 3),
+  new Vector3(defaultVehicleDimensions.x * 1.1, -defaultVehicleDimensions.y, (defaultVehicleDimensions.z * 2) / 3)
 ]
 export const wheelDisplacement = defaultWheelDimensions.hy
 
