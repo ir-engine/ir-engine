@@ -132,7 +132,9 @@ const PWA = (clientSetting) =>
       runtimeCaching: [
         // Cache local assets
         {
-          urlPattern: /\/assets?.*/i,
+          urlPattern: ({ url }) => {
+            return /\/assets?.*/i.test(url.href)
+          },
           handler: 'CacheFirst',
           options: {
             cacheName: 'build-assets-cache',
@@ -147,7 +149,9 @@ const PWA = (clientSetting) =>
         },
         // Cache local fonts
         {
-          urlPattern: /\/fonts?.*/i,
+          urlPattern: ({ url }) => {
+            return /\/fonts?.*/i.test(url.href)
+          },
           handler: 'CacheFirst',
           options: {
             cacheName: 'fonts-assets-cache',
@@ -162,7 +166,9 @@ const PWA = (clientSetting) =>
         },
         // Cache local icons
         {
-          urlPattern: /\/icons?.*/,
+          urlPattern: ({ url }) => {
+            return /\/icons?.*/.test(url.href)
+          },
           handler: 'CacheFirst',
           options: {
             cacheName: 'icons-assets-cache',
@@ -177,7 +183,9 @@ const PWA = (clientSetting) =>
         },
         // Cache local static assets
         {
-          urlPattern: /\/static?.*/i,
+          urlPattern: ({ url }) => {
+            return /\/static?.*/i.test(url.href)
+          },
           handler: 'CacheFirst',
           options: {
             cacheName: 'static-assets-cache',
