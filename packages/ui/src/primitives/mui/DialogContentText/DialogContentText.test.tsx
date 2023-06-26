@@ -28,7 +28,7 @@ import { shallow } from 'enzyme'
 import React from 'react'
 
 import DialogContentText from './index'
-import { Default as story } from './index.stories'
+import { Primary as story } from './index.stories'
 
 describe('DialogContentText', () => {
   it('- should render', () => {

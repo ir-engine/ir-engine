@@ -28,7 +28,7 @@ import { shallow } from 'enzyme'
 import React from 'react'
 
 import Divider from './index'
-import { Default as story } from './index.stories'
+import { Primary as story } from './index.stories'
 
 describe('Divider', () => {
   it('- should render', () => {

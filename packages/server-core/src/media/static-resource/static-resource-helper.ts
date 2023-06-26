@@ -166,12 +166,11 @@ export const addAssetFromProject = async (
 
   const staticResource = await addAssetAsStaticResource(app, file, {
     hash: hash,
-    // use key for when downloading the asset, otherwise pass the url directly to be inserted into the database
-    path: isFromProject || download ? key : mainURL,
+    path: key,
     project
   })
 
-  return staticResource
+  return forceDownload ? staticResource : ({ url } as Partial<StaticResourceInterface>)
 }
 
 export const getStats = async (buffer: Buffer | string, mimeType: string): Promise<Record<string, any>> => {

@@ -12,7 +12,7 @@
   "npmClient": "npm",
   "scripts": {
     "check-errors": "tsc --noemit",
-    "dev": "cross-env APP_ENV=development NODE_OPTIONS=--max_old_space_size=20480 vite",
+    "dev": "cross-env APP_ENV=development NODE_OPTIONS=--max_old_space_size=20480 vite -d",
     "build": "cross-env NODE_OPTIONS=--max_old_space_size=10240 vite build",
     "preview": "cross-env NODE_OPTIONS=--max_old_space_size=6144 vite preview",
     "start": "node server.js",

@@ -49,8 +49,10 @@ import {
 } from 'three'
 import { WebGLRenderer } from 'three/src/renderers/WebGLRenderer'
 
-import { defineState, getState } from '@etherealengine/hyperflux'
-import { KTX2EncodeOptions, KTX2Encoder, UASTCFlags } from '@etherealengine/xrui/core/textures/KTX2Encoder'
+import { KTX2Encoder } from '@etherealengine/xrui/core/textures/KTX2Encoder'
+
+import BasisuExporterExtension from '../../assets/exporters/gltf/extensions/BasisuExporterExtension'
+import { GLTFWriter } from '../../assets/exporters/gltf/GLTFExporter'
 
 export const ImageProjection = {
   Flat: 'Flat',
@@ -138,20 +140,6 @@ export const downloadImage = (imageData: ImageData, imageName = 'Image', width: 
   }, 'image/png')
 }
 
-/** Used in editor */
-export const ScreenshotSettings = defineState({
-  name: 'ScreenshotSettings',
-  initial: {
-    ktx2: {
-      srgb: false,
-      uastc: true,
-      uastcZstandard: true,
-      qualityLevel: 256,
-      compressionLevel: 3
-    } as KTX2EncodeOptions
-  }
-})
-
 const ktx2write = new KTX2Encoder()
 
 export const convertCubemapToKTX2 = async (
@@ -198,7 +186,11 @@ export const convertCubemapToKTX2 = async (
   const imageData = new ImageData(new Uint8ClampedArray(pixels), width, height)
   renderer.setRenderTarget(null) // pass `null` to set canvas as render target
 
-  const ktx2texture = (await ktx2write.encode(imageData, getState(ScreenshotSettings).ktx2)) as ArrayBuffer
+  const ktx2texture = (await ktx2write.encode(imageData, {
+    srgb: false,
+    qualityLevel: 256,
+    compressionLevel: 2
+  })) as ArrayBuffer
 
   if (returnAsBlob) {
     return new Blob([ktx2texture])

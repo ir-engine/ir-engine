@@ -218,17 +218,13 @@ export const addAssetAsStaticResource = async (
   file: UploadFile,
   args: AdminAssetUploadArgumentsType
 ): Promise<StaticResourceInterface> => {
-  console.log('addAssetAsStaticResource', file, args)
+  // console.log('addAssetsAsStaticResource', files, args)
   const provider = getStorageProvider()
 
-  const isExternalURL = args.path.startsWith('http')
-
   // make userId optional and safe for feathers create
-  const primaryKey = isExternalURL ? args.path : processFileName(path.join(args.path, file.originalname))
-  const url = isExternalURL ? args.path : getCachedURL(primaryKey, provider.cacheDomain)
-
+  const primaryKey = processFileName(path.join(args.path, file.originalname))
   const whereArgs = {
-    [Op.or]: [{ url }, { id: args.id ?? '' }]
+    [Op.or]: [{ key: primaryKey }, { id: args.id ?? '' }]
   } as any
   if (args.project) whereArgs.project = args.project
   const existingAsset = (await app.service('static-resource').Model.findOne({
@@ -237,10 +233,11 @@ export const addAssetAsStaticResource = async (
 
   const stats = await getStats(file.buffer, file.mimetype)
 
-  const hash = args.hash || createStaticResourceHash(file.buffer, { name: args.name, assetURL: url })
+  const assetURL = getCachedURL(primaryKey, provider.cacheDomain)
+  const hash = args.hash || createStaticResourceHash(file.buffer, { name: args.name, assetURL })
   const body: Partial<StaticResourceInterface> = {
     hash,
-    url,
+    url: assetURL,
     key: primaryKey,
     mimeType: file.mimetype,
     project: args.project

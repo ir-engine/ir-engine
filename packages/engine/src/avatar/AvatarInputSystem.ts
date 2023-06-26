@@ -63,7 +63,7 @@ const _quat = new Quaternion()
  */
 export function getThumbstickOrThumbpadAxes(inputSource: XRInputSource, deadZone: number = 0.05) {
   const axes = inputSource.gamepad!.axes
-  const axesIndex = inputSource.gamepad?.mapping === 'xr-standard' ? 2 : 0
+  const axesIndex = axes.length >= 4 ? 2 : 0
   const xAxis = Math.abs(axes[axesIndex]) > deadZone ? axes[axesIndex] : 0
   const zAxis = Math.abs(axes[axesIndex + 1]) > deadZone ? axes[axesIndex + 1] : 0
   return [xAxis, zAxis] as [number, number]
@@ -76,12 +76,15 @@ export const AvatarAxesControlSchemeBehavior = {
     inputSource: XRInputSource,
     controller: ComponentType<typeof AvatarControllerComponent>
   ) => {
+    if (inputSource.gamepad?.mapping !== 'xr-standard') return
     const [x, z] = getThumbstickOrThumbpadAxes(inputSource, 0.05)
     controller.gamepadLocalInput.x += x
     controller.gamepadLocalInput.z += z
   },
 
   [AvatarAxesControlScheme.Teleport]: (inputSource: XRInputSource) => {
+    if (inputSource.gamepad?.mapping !== 'xr-standard') return
+
     const localClientEntity = Engine.instance.localClientEntity
     const [x, z] = getThumbstickOrThumbpadAxes(inputSource, 0.05)
 

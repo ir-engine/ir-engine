@@ -28,7 +28,7 @@ import { shallow } from 'enzyme'
 import React from 'react'
 
 import ListItemIcon from './index'
-import { Default as story } from './index.stories'
+import { Primary as story } from './index.stories'
 
 describe('ListItemIcon', () => {
   it('- should render', () => {

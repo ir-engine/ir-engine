@@ -28,7 +28,7 @@ import { shallow } from 'enzyme'
 import React from 'react'
 
 import FormGroup from './index'
-import { Default as story } from './index.stories'
+import { Primary as story } from './index.stories'
 
 describe('FormGroup', () => {
   it('- should render', () => {

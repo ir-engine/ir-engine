@@ -272,14 +272,13 @@ export default defineConfig(async () => {
   const returned = {
     server: {
       cors: isDevOrLocal ? false : true,
-      hmr:
-        process.env.VITE_HMR === 'true'
-          ? {
-              port: process.env['VITE_APP_PORT'],
-              host: process.env['VITE_APP_HOST'],
-              overlay: false
-            }
-          : false,
+      hmr: process.env.VITE_HMR
+        ? {
+            port: process.env['VITE_APP_PORT'],
+            host: process.env['VITE_APP_HOST'],
+            overlay: false
+          }
+        : undefined,
       host: process.env['VITE_APP_HOST'],
       port: process.env['VITE_APP_PORT'],
       headers: {

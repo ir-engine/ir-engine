@@ -41,28 +41,4 @@ export default {
   argTypes
 }
 
-export const Default = { args: Component.defaultProps }
-
-export const LabelLeft = {
-  args: {
-    ...Component.defaultProps,
-    title: 'left',
-    labelPosition: 'left'
-  }
-}
-
-export const LabelAbove = {
-  args: {
-    ...Component.defaultProps,
-    title: 'above',
-    labelPosition: 'above'
-  }
-}
-
-export const LabelBelow = {
-  args: {
-    ...Component.defaultProps,
-    title: 'below',
-    labelPosition: 'below'
-  }
-}
+export const Primary = { args: Component.defaultProps }

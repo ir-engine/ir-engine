@@ -379,14 +379,14 @@ const reactor = () => {
     canvas.addEventListener('touchend', handleMouseClick)
 
     const handleTouchDirectionalPad = (event: CustomEvent): void => {
-      const { stick, value }: { stick: 'LeftStick' | 'RightStick'; value: { x: number; y: number } } = event.detail
+      const { stick, value }: { stick: 'StickLeft' | 'StickRight'; value: { x: number; y: number } } = event.detail
       if (!stick) {
         return
       }
 
       const inputSourceComponent = getComponent(emulatedInputSourceEntity, InputSourceComponent)
 
-      const index = stick === 'LeftStick' ? 0 : 2
+      const index = stick === 'StickLeft' ? 0 : 2
 
       if (!inputSourceComponent.source.gamepad) return
 
