@@ -29,7 +29,6 @@ import { Mesh, MeshBasicMaterial, Quaternion, Ray, Vector3 } from 'three'
 import { dispatchAction, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
 import { V_001 } from '../../common/constants/MathConstants'
-import { isClient } from '../../common/functions/getEnvironment'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineActions } from '../../ecs/classes/EngineState'
 import { Entity, UndefinedEntity } from '../../ecs/classes/Entity'
@@ -64,60 +63,279 @@ import {
 } from '../components/InputSourceComponent'
 import normalizeWheel from '../functions/normalizeWheel'
 import { ButtonStateMap, createInitialButtonState, MouseButton } from '../state/ButtonState'
-import { InputState } from '../state/InputState'
 
 function preventDefault(e) {
   e.preventDefault()
 }
 
-interface ListenerBindingData {
-  domElement: any
-  eventName: string
-  callback: (event) => void
-}
-
 export const addClientInputListeners = () => {
-  if (!isClient) return
+  const xrState = getState(XRState)
 
-  const boundListeners: ListenerBindingData[] = []
-
-  const canvas = EngineRenderer.instance.canvas
+  const canvas = EngineRenderer.instance.renderer.domElement
 
   window.addEventListener('DOMMouseScroll', preventDefault, false)
-  window.addEventListener(
-    'keydown',
-    (evt) => {
-      if (document.activeElement?.tagName === 'INPUT' || document.activeElement?.tagName === 'TEXTAREA') return
-      if (evt.code === 'Tab') evt.preventDefault()
-      // prevent DOM tab selection and spacebar/enter button toggling (since it interferes with avatar controls)
-      if (evt.code === 'Space' || evt.code === 'Enter') evt.preventDefault()
-    },
-    false
-  )
 
-  const addListener = (
-    domElement: HTMLElement | Document | Window,
-    eventName,
-    callback: (event: Event) => void,
-    options?: boolean | AddEventListenerOptions
-  ) => {
-    domElement.addEventListener(eventName, callback, options)
-    boundListeners.push({
-      domElement,
-      eventName,
-      callback
-    })
+  const preventDefaultKeyDown = (evt) => {
+    if (document.activeElement?.tagName === 'INPUT' || document.activeElement?.tagName === 'TEXTAREA') return
+    if (evt.code === 'Tab') evt.preventDefault()
+    // prevent DOM tab selection and spacebar/enter button toggling (since it interferes with avatar controls)
+    if (evt.code === 'Space' || evt.code === 'Enter') evt.preventDefault()
   }
 
-  addListener(document, 'gesturestart', preventDefault)
-  addListener(canvas, 'contextmenu', preventDefault)
+  window.addEventListener('keydown', preventDefaultKeyDown, false)
+
+  document.addEventListener('gesturestart', preventDefault)
+  canvas.addEventListener('contextmenu', preventDefault)
+
+  const addInputSource = (source: XRInputSource) => {
+    if (source.targetRayMode === 'screen' || source.targetRayMode === 'gaze') {
+      removeComponent(emulatedInputSourceEntity, InputSourceComponent)
+    }
+    const entity = createEntity()
+    setComponent(entity, InputSourceComponent, { source })
+    setComponent(entity, NameComponent, 'InputSource-handed:' + source.handedness + '-mode:' + source.targetRayMode)
+  }
+
+  const removeInputSource = (source: XRInputSource) =>
+    removeEntity(InputSourceComponent.entitiesByInputSource.get(source))
+
+  // Engine.instance.inputSources.map(addInputSource)
+
+  const session = xrState.session
+
+  const onInputSourcesChanged = (event: XRInputSourceChangeEvent) => {
+    event.added.map(addInputSource)
+    event.removed.map(removeInputSource)
+  }
+
+  session?.addEventListener('inputsourceschange', onInputSourcesChanged)
+
+  const addGamepad = (e: GamepadEvent) => {
+    const gamepad = navigator.getGamepads()[e.gamepad.index]
+    if (!gamepad) return console.warn('[ClientInputSystem] gamepad not found', e.gamepad)
+    console.log('[ClientInputSystem] found gamepad', gamepad, e.gamepad)
+    gamepadRef = gamepad
+  }
+
+  const removeGamepad = (e: GamepadEvent) => {
+    const gamepad = navigator.getGamepads()[e.gamepad.index]
+    if (!gamepad) return console.warn('[ClientInputSystem] gamepad not found', e.gamepad)
+    console.log('[ClientInputSystem] lost gamepad', gamepad, e.gamepad)
+    gamepadRef = emulatedGamepad
+  }
+
+  /** @todo - currently only one gamepad supported */
+  window.addEventListener('gamepadconnected', addGamepad)
+  window.addEventListener('gamepaddisconnected', removeGamepad)
+
+  /** Keyboard events */
+  const onKeyEvent = (event: KeyboardEvent) => {
+    const element = event.target as HTMLElement
+    // Сheck which excludes the possibility of controlling the avatar when typing in a text field
+    if (element?.tagName === 'INPUT' || element?.tagName === 'SELECT' || element?.tagName === 'TEXTAREA') return
+
+    const code = event.code
+    const down = event.type === 'keydown'
+
+    const inputSourceComponent = getComponent(emulatedInputSourceEntity, InputSourceComponent)
+    const buttonState = inputSourceComponent.buttons as ButtonStateMap
+
+    if (down) buttonState[code] = createInitialButtonState()
+    else if (buttonState[code]) buttonState[code].up = true
+  }
+
+  document.addEventListener('keyup', onKeyEvent)
+  document.addEventListener('keydown', onKeyEvent)
+
+  /** Clear mouse events */
+  const pointerButtons = ['PrimaryClick', 'AuxiliaryClick', 'SecondaryClick']
+  const clearKeyState = () => {
+    const inputSourceComponent = getComponent(emulatedInputSourceEntity, InputSourceComponent)
+    const state = inputSourceComponent.buttons as ButtonStateMap
+    for (const button of pointerButtons) {
+      const val = state[button]
+      if (!val?.up && val?.pressed) state[button].up = true
+    }
+  }
+  window.addEventListener('focus', clearKeyState)
+  window.addEventListener('blur', clearKeyState)
+  canvas.addEventListener('mouseleave', clearKeyState)
+
+  const handleVisibilityChange = (event: Event) => {
+    if (document.visibilityState === 'hidden') clearKeyState()
+  }
+
+  document.addEventListener('visibilitychange', handleVisibilityChange)
+
+  /** Mouse events */
+  const onWheelEvent = (event: WheelEvent) => {
+    const normalizedValues = normalizeWheel(event)
+    const x = Math.sign(normalizedValues.spinX + Math.random() * 0.000001)
+    const y = Math.sign(normalizedValues.spinY + Math.random() * 0.000001)
+    Engine.instance.pointerState.scroll.x += x
+    Engine.instance.pointerState.scroll.y += y
+  }
+  canvas.addEventListener('wheel', onWheelEvent, { passive: true, capture: true })
+
+  const handleMouseClick = (event: MouseEvent) => {
+    const down = event.type === 'mousedown' || event.type === 'touchstart'
+
+    let button = MouseButton.PrimaryClick
+    if (event.button === 1) button = MouseButton.AuxiliaryClick
+    else if (event.button === 2) button = MouseButton.SecondaryClick
+
+    const inputSourceComponent = getComponent(emulatedInputSourceEntity, InputSourceComponent)
+    const state = inputSourceComponent.buttons as ButtonStateMap
+
+    if (down) state[button] = createInitialButtonState()
+    else if (state[button]) state[button]!.up = true
+  }
+
+  const handleMouseMove = (event: MouseEvent) => {
+    Engine.instance.pointerState.position.set(
+      (event.clientX / window.innerWidth) * 2 - 1,
+      (event.clientY / window.innerHeight) * -2 + 1
+    )
+  }
+
+  const handleTouchMove = (event: TouchEvent) => {
+    const touch = event.touches[0]
+    Engine.instance.pointerState.position.set(
+      (touch.clientX / window.innerWidth) * 2 - 1,
+      (touch.clientY / window.innerHeight) * -2 + 1
+    )
+  }
+
+  window.addEventListener('touchmove', handleTouchMove, { passive: true, capture: true })
+  window.addEventListener('mousemove', handleMouseMove, { passive: true, capture: true })
+  canvas.addEventListener('mouseup', handleMouseClick)
+  canvas.addEventListener('mousedown', handleMouseClick)
+  canvas.addEventListener('touchstart', handleMouseClick)
+  canvas.addEventListener('touchend', handleMouseClick)
+
+  const handleTouchDirectionalPad = (event: CustomEvent): void => {
+    const { stick, value }: { stick: 'LeftStick' | 'RightStick'; value: { x: number; y: number } } = event.detail
+    if (!stick) {
+      return
+    }
+
+    const inputSourceComponent = getComponent(emulatedInputSourceEntity, InputSourceComponent)
+
+    const index = stick === 'LeftStick' ? 0 : 2
+
+    if (!inputSourceComponent.source.gamepad) return
+
+    const axes = inputSourceComponent.source.gamepad.axes as number[]
+
+    axes[index] = value.x
+    axes[index + 1] = value.y
+  }
+  document.addEventListener('touchstickmove', handleTouchDirectionalPad)
+
+  /** @deprecated */
+  const handleTouchGampadButton = () => {
+    dispatchAction(
+      EngineActions.interactedWithObject({
+        targetEntity: getState(InteractState).available[0],
+        handedness: 'none'
+      })
+    )
+  }
+  document.addEventListener('touchgamepadbuttondown', handleTouchGampadButton)
+
+  /**
+   * AR uses the `select` event as taps on the screen for mobile AR sessions
+   * This gets piped into the input system as a TouchInput.Touch
+   */
+
+  const onXRSelectStart = (event: any) => {
+    const inputSourceComponent = getComponent(emulatedInputSourceEntity, InputSourceComponent)
+    const state = inputSourceComponent.buttons as ButtonStateMap
+    state.PrimaryClick = createInitialButtonState()
+  }
+  const onXRSelectEnd = (event: any) => {
+    const inputSourceComponent = getComponent(emulatedInputSourceEntity, InputSourceComponent)
+    const state = inputSourceComponent.buttons as ButtonStateMap
+    if (!state.PrimaryClick) return
+    state.PrimaryClick.up = true
+  }
+  session?.addEventListener('selectstart', onXRSelectStart)
+  session?.addEventListener('selectend', onXRSelectEnd)
+
+  const emulatedTargetRaySpace = {} as any as XRSpace
+
+  const emulatedGamepad = {
+    axes: [0, 0, 0, 0],
+    buttons: [],
+    connected: true,
+    hapticActuators: [],
+    id: 'ee.emulated-gamepad',
+    index: 0,
+    mapping: 'standard',
+    timestamp: performance.now(),
+    vibrationActuator: null
+  } as Gamepad
+
+  let gamepadRef = emulatedGamepad
+
+  // create an emulated input source for mouse/keyboard/touch input
+  const emulatedInputSource = {
+    handedness: 'none',
+    targetRayMode: session ? (session.interactionMode === 'screen-space' ? 'screen' : 'gaze') : 'screen',
+    targetRaySpace: emulatedTargetRaySpace,
+    gripSpace: undefined,
+    get gamepad() {
+      // workaround since the gamepad doesn't always store a reference internally, so return a new reference
+      return gamepadRef === emulatedGamepad ? gamepadRef : navigator.getGamepads()[gamepadRef!.index]
+    },
+    profiles: [],
+    hand: undefined
+  } as XRInputSource
+
+  const emulatedInputSourceEntity = createEntity()
+  setComponent(emulatedInputSourceEntity, InputSourceComponent, { source: emulatedInputSource })
+  setComponent(
+    emulatedInputSourceEntity,
+    NameComponent,
+    'InputSource-emulated ' + '-mode:' + emulatedInputSource.targetRayMode
+  )
 
   return () => {
+    inputSources().map((eid) => removeEntity(eid))
+
     window.removeEventListener('DOMMouseScroll', preventDefault, false)
-    boundListeners.forEach(({ domElement, eventName, callback }) => {
-      domElement.removeEventListener(eventName, callback)
-    })
-    boundListeners.splice(0, boundListeners.length - 1)
+    window.removeEventListener('keydown', preventDefaultKeyDown, false)
+    document.removeEventListener('gesturestart', preventDefault)
+    canvas.removeEventListener('contextmenu', preventDefault)
+
+    session?.removeEventListener('inputsourceschange', onInputSourcesChanged)
+
+    window.removeEventListener('gamepadconnected', addGamepad)
+    window.removeEventListener('gamepaddisconnected', removeGamepad)
+
+    document.removeEventListener('keyup', onKeyEvent)
+    document.removeEventListener('keydown', onKeyEvent)
+
+    window.removeEventListener('focus', clearKeyState)
+    window.removeEventListener('blur', clearKeyState)
+    canvas.removeEventListener('mouseleave', clearKeyState)
+
+    document.removeEventListener('visibilitychange', handleVisibilityChange)
+
+    canvas.removeEventListener('wheel', onWheelEvent)
+
+    window.removeEventListener('touchmove', handleTouchMove)
+    window.removeEventListener('mousemove', handleMouseMove)
+    canvas.removeEventListener('mouseup', handleMouseClick)
+    canvas.removeEventListener('mousedown', handleMouseClick)
+    canvas.removeEventListener('touchstart', handleMouseClick)
+    canvas.removeEventListener('touchend', handleMouseClick)
+
+    document.removeEventListener('touchstickmove', handleTouchDirectionalPad)
+    document.removeEventListener('touchgamepadbuttondown', handleTouchGampadButton)
+
+    session?.removeEventListener('selectstart', onXRSelectStart)
+    session?.removeEventListener('selectend', onXRSelectEnd)
   }
 }
 
@@ -149,9 +367,7 @@ const xrSpaces = defineQuery([XRSpaceComponent, TransformComponent])
 const inputSources = defineQuery([InputSourceComponent])
 
 const inputXRUIs = defineQuery([InputComponent, XRUIComponent])
-const inputRigidbodies = defineQuery([InputComponent, RigidBodyComponent])
 
-const boxCenter = new Vector3()
 const rayRotation = new Quaternion()
 
 const inputRaycast = {
@@ -259,257 +475,7 @@ const execute = () => {
 const reactor = () => {
   const xrState = useHookstate(getMutableState(XRState))
 
-  useEffect(() => addClientInputListeners(), [])
-
-  useEffect(() => {
-    const canvas = EngineRenderer.instance.renderer.domElement
-
-    const addInputSource = (source: XRInputSource) => {
-      if (source.targetRayMode === 'screen' || source.targetRayMode === 'gaze') {
-        removeComponent(emulatedInputSourceEntity, InputSourceComponent)
-      }
-      const entity = createEntity()
-      setComponent(entity, InputSourceComponent, { source })
-      setComponent(entity, NameComponent, 'InputSource-handed:' + source.handedness + '-mode:' + source.targetRayMode)
-    }
-
-    const removeInputSource = (source: XRInputSource) =>
-      removeEntity(InputSourceComponent.entitiesByInputSource.get(source))
-
-    // Engine.instance.inputSources.map(addInputSource)
-
-    const session = xrState.session.value
-
-    const onInputSourcesChanged = (event: XRInputSourceChangeEvent) => {
-      event.added.map(addInputSource)
-      event.removed.map(removeInputSource)
-    }
-
-    session?.addEventListener('inputsourceschange', onInputSourcesChanged)
-
-    const addGamepad = (e: GamepadEvent) => {
-      const gamepad = navigator.getGamepads()[e.gamepad.index]
-      if (!gamepad) return console.warn('[ClientInputSystem] gamepad not found', e.gamepad)
-      console.log('[ClientInputSystem] found gamepad', gamepad, e.gamepad)
-      gamepadRef = gamepad
-    }
-
-    const removeGamepad = (e: GamepadEvent) => {
-      const gamepad = navigator.getGamepads()[e.gamepad.index]
-      if (!gamepad) return console.warn('[ClientInputSystem] gamepad not found', e.gamepad)
-      console.log('[ClientInputSystem] lost gamepad', gamepad, e.gamepad)
-      gamepadRef = emulatedGamepad
-    }
-
-    /** @todo - currently only one gamepad supported */
-    window.addEventListener('gamepadconnected', addGamepad)
-    window.addEventListener('gamepaddisconnected', removeGamepad)
-
-    /** Keyboard events */
-    const onKeyEvent = (event: KeyboardEvent) => {
-      const element = event.target as HTMLElement
-      // Сheck which excludes the possibility of controlling the avatar when typing in a text field
-      if (element?.tagName === 'INPUT' || element?.tagName === 'SELECT' || element?.tagName === 'TEXTAREA') return
-
-      const code = event.code
-      const down = event.type === 'keydown'
-
-      const inputSourceComponent = getComponent(emulatedInputSourceEntity, InputSourceComponent)
-      const buttonState = inputSourceComponent.buttons as ButtonStateMap
-
-      if (down) buttonState[code] = createInitialButtonState()
-      else if (buttonState[code]) buttonState[code].up = true
-    }
-
-    document.addEventListener('keyup', onKeyEvent)
-    document.addEventListener('keydown', onKeyEvent)
-
-    /** Clear mouse events */
-    const pointerButtons = ['PrimaryClick', 'AuxiliaryClick', 'SecondaryClick']
-    const clearKeyState = () => {
-      const inputSourceComponent = getComponent(emulatedInputSourceEntity, InputSourceComponent)
-      const state = inputSourceComponent.buttons as ButtonStateMap
-      for (const button of pointerButtons) {
-        const val = state[button]
-        if (!val?.up && val?.pressed) state[button].up = true
-      }
-    }
-    window.addEventListener('focus', clearKeyState)
-    window.addEventListener('blur', clearKeyState)
-    canvas.addEventListener('mouseleave', clearKeyState)
-
-    const handleVisibilityChange = (event: Event) => {
-      if (document.visibilityState === 'hidden') clearKeyState()
-    }
-
-    document.addEventListener('visibilitychange', handleVisibilityChange)
-
-    /** Mouse events */
-    const onWheelEvent = (event: WheelEvent) => {
-      const normalizedValues = normalizeWheel(event)
-      const x = Math.sign(normalizedValues.spinX + Math.random() * 0.000001)
-      const y = Math.sign(normalizedValues.spinY + Math.random() * 0.000001)
-      Engine.instance.pointerState.scroll.x += x
-      Engine.instance.pointerState.scroll.y += y
-    }
-    canvas.addEventListener('wheel', onWheelEvent, { passive: true, capture: true })
-
-    const handleMouseClick = (event: MouseEvent) => {
-      const down = event.type === 'mousedown' || event.type === 'touchstart'
-
-      let button = MouseButton.PrimaryClick
-      if (event.button === 1) button = MouseButton.AuxiliaryClick
-      else if (event.button === 2) button = MouseButton.SecondaryClick
-
-      const inputSourceComponent = getComponent(emulatedInputSourceEntity, InputSourceComponent)
-      const state = inputSourceComponent.buttons as ButtonStateMap
-
-      if (down) state[button] = createInitialButtonState()
-      else if (state[button]) state[button]!.up = true
-    }
-
-    const handleMouseMove = (event: MouseEvent) => {
-      Engine.instance.pointerState.position.set(
-        (event.clientX / window.innerWidth) * 2 - 1,
-        (event.clientY / window.innerHeight) * -2 + 1
-      )
-    }
-
-    const handleTouchMove = (event: TouchEvent) => {
-      const touch = event.touches[0]
-      Engine.instance.pointerState.position.set(
-        (touch.clientX / window.innerWidth) * 2 - 1,
-        (touch.clientY / window.innerHeight) * -2 + 1
-      )
-    }
-
-    window.addEventListener('touchmove', handleTouchMove, { passive: true, capture: true })
-    window.addEventListener('mousemove', handleMouseMove, { passive: true, capture: true })
-    canvas.addEventListener('mouseup', handleMouseClick)
-    canvas.addEventListener('mousedown', handleMouseClick)
-    canvas.addEventListener('touchstart', handleMouseClick)
-    canvas.addEventListener('touchend', handleMouseClick)
-
-    const handleTouchDirectionalPad = (event: CustomEvent): void => {
-      const { stick, value }: { stick: 'LeftStick' | 'RightStick'; value: { x: number; y: number } } = event.detail
-      if (!stick) {
-        return
-      }
-
-      const inputSourceComponent = getComponent(emulatedInputSourceEntity, InputSourceComponent)
-
-      const index = stick === 'LeftStick' ? 0 : 2
-
-      if (!inputSourceComponent.source.gamepad) return
-
-      const axes = inputSourceComponent.source.gamepad.axes as number[]
-
-      axes[index] = value.x
-      axes[index + 1] = value.y
-    }
-    document.addEventListener('touchstickmove', handleTouchDirectionalPad)
-
-    /** @deprecated */
-    const handleTouchGampadButton = () => {
-      dispatchAction(
-        EngineActions.interactedWithObject({
-          targetEntity: getState(InteractState).available[0],
-          handedness: 'none'
-        })
-      )
-    }
-    document.addEventListener('touchgamepadbuttondown', handleTouchGampadButton)
-
-    /**
-     * AR uses the `select` event as taps on the screen for mobile AR sessions
-     * This gets piped into the input system as a TouchInput.Touch
-     */
-
-    const onXRSelectStart = (event: any) => {
-      const inputSourceComponent = getComponent(emulatedInputSourceEntity, InputSourceComponent)
-      const state = inputSourceComponent.buttons as ButtonStateMap
-      state.PrimaryClick = createInitialButtonState()
-    }
-    const onXRSelectEnd = (event: any) => {
-      const inputSourceComponent = getComponent(emulatedInputSourceEntity, InputSourceComponent)
-      const state = inputSourceComponent.buttons as ButtonStateMap
-      if (!state.PrimaryClick) return
-      state.PrimaryClick.up = true
-    }
-    session?.addEventListener('selectstart', onXRSelectStart)
-    session?.addEventListener('selectend', onXRSelectEnd)
-
-    const emulatedTargetRaySpace = {} as any as XRSpace
-
-    const emulatedGamepad = {
-      axes: [0, 0, 0, 0],
-      buttons: [],
-      connected: true,
-      hapticActuators: [],
-      id: 'ee.emulated-gamepad',
-      index: 0,
-      mapping: 'standard',
-      timestamp: performance.now(),
-      vibrationActuator: null
-    } as Gamepad
-
-    let gamepadRef = emulatedGamepad
-
-    // create an emulated input source for mouse/keyboard/touch input
-    const emulatedInputSource = {
-      handedness: 'none',
-      targetRayMode: session ? (session.interactionMode === 'screen-space' ? 'screen' : 'gaze') : 'screen',
-      targetRaySpace: emulatedTargetRaySpace,
-      gripSpace: undefined,
-      get gamepad() {
-        // workaround since the gamepad doesn't always store a reference internally, so return a new reference
-        return gamepadRef === emulatedGamepad ? gamepadRef : navigator.getGamepads()[gamepadRef!.index]
-      },
-      profiles: [],
-      hand: undefined
-    } as XRInputSource
-
-    const emulatedInputSourceEntity = createEntity()
-    setComponent(emulatedInputSourceEntity, InputSourceComponent, { source: emulatedInputSource })
-    setComponent(
-      emulatedInputSourceEntity,
-      NameComponent,
-      'InputSource-emulated ' + '-mode:' + emulatedInputSource.targetRayMode
-    )
-
-    return () => {
-      inputSources().map((eid) => removeEntity(eid))
-
-      session?.removeEventListener('inputsourceschange', onInputSourcesChanged)
-
-      window.removeEventListener('gamepadconnected', addGamepad)
-      window.removeEventListener('gamepaddisconnected', removeGamepad)
-
-      document.removeEventListener('keyup', onKeyEvent)
-      document.removeEventListener('keydown', onKeyEvent)
-
-      window.removeEventListener('focus', clearKeyState)
-      window.removeEventListener('blur', clearKeyState)
-      canvas.removeEventListener('mouseleave', clearKeyState)
-
-      document.removeEventListener('visibilitychange', handleVisibilityChange)
-
-      canvas.removeEventListener('wheel', onWheelEvent)
-
-      window.removeEventListener('touchmove', handleTouchMove)
-      window.removeEventListener('mousemove', handleMouseMove)
-      canvas.removeEventListener('mouseup', handleMouseClick)
-      canvas.removeEventListener('mousedown', handleMouseClick)
-      canvas.removeEventListener('touchstart', handleMouseClick)
-      canvas.removeEventListener('touchend', handleMouseClick)
-
-      document.removeEventListener('touchstickmove', handleTouchDirectionalPad)
-      document.removeEventListener('touchgamepadbuttondown', handleTouchGampadButton)
-
-      session?.removeEventListener('selectstart', onXRSelectStart)
-      session?.removeEventListener('selectend', onXRSelectEnd)
-    }
-  }, [xrState.session])
+  useEffect(addClientInputListeners, [xrState.session])
 
   return null
 }
