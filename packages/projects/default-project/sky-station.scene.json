@@ -62,15 +62,15 @@
           "name": "transform",
           "props": {
             "position": {
-              "x": 37,
-              "y": 4,
-              "z": 22.5
+              "x": 47.8216932307629,
+              "y": 3.6788167495280506,
+              "z": 0.04700584337115231
             },
             "rotation": {
               "x": 0,
-              "y": 0.21643961393810288,
+              "y": 0.7071067811865476,
               "z": 0,
-              "w": 0.9762960071199334
+              "w": 0.7071067811865475
             },
             "scale": {
               "x": 0.9999999999999993,
@@ -150,9 +150,9 @@
             },
             "rotation": {
               "x": 0,
-              "y": 0,
+              "y": -0.7071067811865475,
               "z": 0,
-              "w": 1
+              "w": 0.7071067811865476
             },
             "scale": {
               "x": 1,
@@ -310,12 +310,8 @@
           "props": {
             "controls": true,
             "paused": false,
-            "paths": [],
             "resources": [
-              {
-                "path": "__$project$__/default-project/assets/SampleVideo.mp4",
-                "mediaType": "video"
-              }
+              "__$project$__/default-project/assets/SampleVideo.mp4"
             ],
             "volume": 1,
             "synchronize": true,
@@ -417,9 +413,6 @@
           "name": "gltf-model",
           "props": {
             "src": "__$project$__/default-project/assets/test-equippable.glb",
-            "resource": {
-              "src": "__$project$__/default-project/assets/test-equippable.glb"
-            },
             "generateBVH": true,
             "avoidCameraOcclusion": false
           }
@@ -563,12 +556,8 @@
           "props": {
             "controls": true,
             "paused": true,
-            "paths": [],
             "resources": [
-              {
-                "path": "__$project$__/default-project/assets/SampleAudio.mp3",
-                "mediaType": "audio"
-              }
+              "__$project$__/default-project/assets/SampleAudio.mp3"
             ],
             "volume": 1,
             "synchronize": true,
@@ -777,12 +766,8 @@
           "props": {
             "controls": false,
             "paused": false,
-            "paths": [],
             "resources": [
-              {
-                "path": "__$project$__/default-project/assets/sky-station-ambience-loop.mp3",
-                "mediaType": "audio"
-              }
+              "__$project$__/default-project/assets/sky-station-ambience-loop.mp3"
             ],
             "volume": 1,
             "synchronize": true,
