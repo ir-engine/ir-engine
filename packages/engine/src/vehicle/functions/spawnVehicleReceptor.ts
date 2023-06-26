@@ -57,12 +57,11 @@ import { VehicleComponent } from '../components/VehicleComponent'
 export const defaultWheelDimensions = { hy: 0.1, r: 0.3 }
 export const defaultVehicleDimensions = { x: 0.36, y: 0.26, z: 0.6 }
 export const defaultAxleDimensions = { x: 0.03, y: 0.03, z: 0.03 }
-export const defaultVehicleHalfy = defaultVehicleDimensions.y / 2
 export const axleDisplacements: Vector3[] = [
-  new Vector3(-defaultVehicleDimensions.x * 1.1, -defaultVehicleDimensions.y, (-defaultVehicleDimensions.z * 2) / 3),
-  new Vector3(-defaultVehicleDimensions.x * 1.1, -defaultVehicleDimensions.y, (defaultVehicleDimensions.z * 2) / 3),
-  new Vector3(defaultVehicleDimensions.x * 1.1, -defaultVehicleDimensions.y, (-defaultVehicleDimensions.z * 2) / 3),
-  new Vector3(defaultVehicleDimensions.x * 1.1, -defaultVehicleDimensions.y, (defaultVehicleDimensions.z * 2) / 3)
+  new Vector3(-defaultVehicleDimensions.x * 0.9, -defaultVehicleDimensions.y, (-defaultVehicleDimensions.z * 2) / 3),
+  new Vector3(-defaultVehicleDimensions.x * 0.9, -defaultVehicleDimensions.y, (defaultVehicleDimensions.z * 2) / 3),
+  new Vector3(defaultVehicleDimensions.x * 0.9, -defaultVehicleDimensions.y, (-defaultVehicleDimensions.z * 2) / 3),
+  new Vector3(defaultVehicleDimensions.x * 0.9, -defaultVehicleDimensions.y, (defaultVehicleDimensions.z * 2) / 3)
 ]
 export const wheelDisplacement = defaultWheelDimensions.hy
 
@@ -84,7 +83,7 @@ export const spawnVehicleReceptor = (spawnAction: typeof WorldNetworkAction.spaw
 const createVehicle = (entity: Entity): any => {
   const axles = [] as Entity[]
   const wheels = [] as Entity[]
-  createVehicleBody(entity)
+  createVehicleChassis(entity)
   const chassisTransform = getComponent(entity, TransformComponent)
 
   for (let i = 0; i < axleDisplacements.length; i++) {
@@ -131,15 +130,16 @@ const createVehicle = (entity: Entity): any => {
   }
 }
 
-const createVehicleBody = (entity: Entity): Entity => {
+const createVehicleChassis = (entity: Entity): Entity => {
   // body with its collider
   // definition
   const interactionGroups = getInteractionGroups(CollisionGroups.Default, DefaultCollisionMask)
-  const vehicleBodyRigidBody = RigidBodyDesc.dynamic().lockRotations()
-  const vehicleBodyCollider = ColliderDesc.cuboid(
+  const vehicleBodyRigidBody = RigidBodyDesc.kinematicPositionBased().lockRotations()
+  const vehicleBodyCollider = ColliderDesc.roundCuboid(
     defaultVehicleDimensions.x,
     defaultVehicleDimensions.y,
-    defaultVehicleDimensions.z
+    defaultVehicleDimensions.z,
+    0.02
   ).setCollisionGroups(interactionGroups)
   // creation
   Physics.createRigidBody(entity, Engine.instance.physicsWorld, vehicleBodyRigidBody, [vehicleBodyCollider])
@@ -148,11 +148,10 @@ const createVehicleBody = (entity: Entity): Entity => {
 }
 
 const createVehicleAxle = (entity: Entity, axlePosiiton: Vector3, axleRotation?: Quaternion): Entity => {
-  // front
-  console.log('DEBUG: create axle')
-  // get 4 axle postions and create
   const interactionGroups = getInteractionGroups(CollisionGroups.Default, DefaultCollisionMask)
-  const vechicleAxleRigidBody = RigidBodyDesc.dynamic().lockTranslations().enabledRotations(false, true, false)
+  const vechicleAxleRigidBody = RigidBodyDesc.dynamic()
+    .enabledRotations(false, true, false)
+    .enabledTranslations(false, true, true)
   const vehicleAxleCollider = ColliderDesc.cuboid(
     defaultAxleDimensions.x,
     defaultAxleDimensions.y,
@@ -160,7 +159,7 @@ const createVehicleAxle = (entity: Entity, axlePosiiton: Vector3, axleRotation?:
   ).setCollisionGroups(interactionGroups)
 
   const axle = createEntity()
-  setTransformComponent(axle, axlePosiiton)
+  setTransformComponent(axle, axlePosiiton, axleRotation)
   setComponent(axle, ShadowComponent)
   setComponent(axle, BoundingBoxComponent)
   setComponent(axle, NetworkObjectSendPeriodicUpdatesTag)
@@ -173,8 +172,6 @@ const createVehicleAxle = (entity: Entity, axlePosiiton: Vector3, axleRotation?:
 }
 
 const createVehicleWheel = (entity: Entity, wheelPosition: Vector3, wheelRotation?: Quaternion): Entity => {
-  console.log('DEBUG: create wheels')
-
   const interactionGroups = getInteractionGroups(CollisionGroups.Default, DefaultCollisionMask)
   const vechicleWheelRigidBody = RigidBodyDesc.dynamic()
   const vehicleWheelCollider = ColliderDesc.roundCylinder(defaultWheelDimensions.hy, defaultWheelDimensions.r, 0.03)
@@ -190,6 +187,7 @@ const createVehicleWheel = (entity: Entity, wheelPosition: Vector3, wheelRotatio
   Physics.createRigidBody(wheel, Engine.instance.physicsWorld, vechicleWheelRigidBody, [vehicleWheelCollider])
   return wheel
 }
+
 /*
 export const createVehicleController = (entity: Entity) => {
   createVehicleRigidBody(entity)
