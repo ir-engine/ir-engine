@@ -82,7 +82,6 @@ export function addObjectToGroup(entity: Entity, object: Object3D) {
   if (!hasComponent(entity, TransformComponent)) setTransformComponent(entity)
 
   getMutableComponent(entity, GroupComponent).merge([obj])
-  setComponent(entity, InputComponent)
 
   const transform = getComponent(entity, TransformComponent)
   obj.position.copy(transform.position)

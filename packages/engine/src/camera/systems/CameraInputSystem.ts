@@ -43,7 +43,7 @@ import {
   setComponent
 } from '../../ecs/functions/ComponentFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
-import { getFirstNonCapturedInputSource, InputSourceComponent } from '../../input/components/InputSourceComponent'
+import { InputSourceComponent } from '../../input/components/InputSourceComponent'
 import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
 import { CameraSettings } from '../CameraState'
 import { FollowCameraComponent } from '../components/FollowCameraComponent'
@@ -187,7 +187,7 @@ const execute = () => {
 
   const avatarControllerEntities = avatarControllerQuery()
 
-  const nonCapturedInputSource = getFirstNonCapturedInputSource()
+  const nonCapturedInputSource = InputSourceComponent.nonCapturedInputSourceQuery()[0]
   if (!nonCapturedInputSource) return
 
   const avatarInputSettings = getState(AvatarInputSettingsState)

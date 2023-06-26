@@ -154,9 +154,6 @@ const onKeyP = () => {
 }
 
 const walkableQuery = defineQuery([RigidBodyFixedTagComponent, InputComponent])
-const inputSourceQuery = defineQuery([InputSourceComponent])
-
-const filterUncapturedInputSources = (eid: Entity) => !getComponent(eid, InputSourceComponent)?.captured
 
 let mouseMovedDuringPrimaryClick = false
 const execute = () => {
@@ -166,7 +163,7 @@ const execute = () => {
   const avatarInputSettings = getState(AvatarInputSettingsState)
 
   const controller = getComponent(localClientEntity, AvatarControllerComponent)
-  const nonCapturedInputSourceEntities = inputSourceQuery().filter(filterUncapturedInputSources)
+  const nonCapturedInputSourceEntities = InputSourceComponent.nonCapturedInputSourceQuery()
 
   const firstWalkableEntityWithInput = walkableQuery().find(
     (entity) => getComponent(entity, InputComponent)?.inputSources.length

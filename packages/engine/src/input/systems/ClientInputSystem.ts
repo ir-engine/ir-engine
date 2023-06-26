@@ -38,6 +38,7 @@ import {
   getComponent,
   getMutableComponent,
   getOptionalComponent,
+  hasComponent,
   removeComponent,
   setComponent
 } from '../../ecs/functions/ComponentFunctions'
@@ -56,7 +57,11 @@ import { XRSpaceComponent } from '../../xr/XRComponents'
 import { ReferenceSpace, XRState } from '../../xr/XRState'
 import { XRUIComponent } from '../../xrui/components/XRUIComponent'
 import { InputComponent } from '../components/InputComponent'
-import { InputSourceComponent } from '../components/InputSourceComponent'
+import {
+  InputSourceAxesCapturedComponent,
+  InputSourceButtonsCapturedComponent,
+  InputSourceComponent
+} from '../components/InputSourceComponent'
 import normalizeWheel from '../functions/normalizeWheel'
 import { ButtonStateMap, createInitialButtonState, MouseButton } from '../state/ButtonState'
 import { InputState } from '../state/InputState'
@@ -212,7 +217,11 @@ const execute = () => {
       TransformComponent.dirtyTransforms[sourceEid] = true
     }
 
-    if (!source.captured.value) {
+    const captured =
+      hasComponent(sourceEid, InputSourceButtonsCapturedComponent) ||
+      hasComponent(sourceEid, InputSourceAxesCapturedComponent)
+
+    if (!captured) {
       let assignedInputEntity = UndefinedEntity as Entity
 
       inputRaycast.direction.set(0, 0, 1).applyQuaternion(sourceTransform.rotation)

@@ -29,10 +29,7 @@ import { Joystick } from 'react-joystick-component'
 
 import { isTouchAvailable } from '@etherealengine/engine/src/common/functions/DetectFeatures'
 import { getComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
-import {
-  getFirstNonCapturedInputSource,
-  InputSourceComponent
-} from '@etherealengine/engine/src/input/components/InputSourceComponent'
+import { InputSourceComponent } from '@etherealengine/engine/src/input/components/InputSourceComponent'
 import {
   AnyButton,
   createInitialButtonState,
@@ -47,7 +44,7 @@ import { AppState } from '../../services/AppService'
 import styles from './index.module.scss'
 
 const triggerButton = (button: AnyButton, pressed: boolean): void => {
-  const nonCapturedInputSource = getFirstNonCapturedInputSource()
+  const nonCapturedInputSource = InputSourceComponent.nonCapturedInputSourceQuery()[0]
   if (!nonCapturedInputSource) return
 
   const inputSource = getComponent(nonCapturedInputSource, InputSourceComponent)

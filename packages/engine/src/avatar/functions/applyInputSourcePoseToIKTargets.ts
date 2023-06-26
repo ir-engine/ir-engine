@@ -263,10 +263,6 @@ const leftHandOffset = new Quaternion().setFromEuler(new Euler(0, 0, -handOffset
 const leftControllerOffset = new Quaternion().setFromEuler(new Euler(-Math.PI, Math.PI, 0))
 const rightControllerOffset = new Quaternion().setFromEuler(new Euler(-Math.PI, 0, 0))
 
-const inputSourceQuery = defineQuery([InputSourceComponent])
-
-const filterUncapturedInputSources = (eid: Entity) => !getComponent(eid, InputSourceComponent)?.captured
-
 export const applyInputSourcePoseToIKTargets = () => {
   const { localClientEntity } = Engine.instance
 
@@ -294,9 +290,9 @@ export const applyInputSourcePoseToIKTargets = () => {
       ikTransform.rotation.copy(cameraTransform.rotation)
     }
 
-    const nonCapturedInputSources = inputSourceQuery().filter(filterUncapturedInputSources)
+    const nonCapturedInputSourceEntities = InputSourceComponent.nonCapturedInputSourceQuery()
 
-    for (const inputSourceEntity of nonCapturedInputSources) {
+    for (const inputSourceEntity of nonCapturedInputSourceEntities) {
       const inputSourceComponent = getComponent(inputSourceEntity, InputSourceComponent)
       const handedness = inputSourceComponent.source.handedness
       if (handedness === 'none') continue
