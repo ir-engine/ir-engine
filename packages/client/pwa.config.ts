@@ -132,7 +132,7 @@ const PWA = (clientSetting) =>
       runtimeCaching: [
         // Cache local assets
         {
-          urlPattern: /^\/assets?.*/i,
+          urlPattern: /\/assets?.*/i,
           handler: 'CacheFirst',
           options: {
             cacheName: 'build-assets-cache',
@@ -147,7 +147,7 @@ const PWA = (clientSetting) =>
         },
         // Cache local fonts
         {
-          urlPattern: /^\/fonts?.*/i,
+          urlPattern: /\/fonts?.*/i,
           handler: 'CacheFirst',
           options: {
             cacheName: 'fonts-assets-cache',
@@ -162,7 +162,7 @@ const PWA = (clientSetting) =>
         },
         // Cache local icons
         {
-          urlPattern: /^\/icons?.*/,
+          urlPattern: /\/icons?.*/,
           handler: 'CacheFirst',
           options: {
             cacheName: 'icons-assets-cache',
@@ -175,24 +175,9 @@ const PWA = (clientSetting) =>
             }
           }
         },
-        // Cache everything else
-        {
-          urlPattern: /^\/*/,
-          handler: 'CacheFirst',
-          options: {
-            cacheName: 'all-local-cache',
-            expiration: {
-              maxEntries: 100,
-              maxAgeSeconds: 24 * 60 * 60 * 30 // <== 30 days
-            },
-            cacheableResponse: {
-              statuses: [0, 200]
-            }
-          }
-        },
         // Cache local static assets
         {
-          urlPattern: /^\/static?.*/i,
+          urlPattern: /\/static?.*/i,
           handler: 'CacheFirst',
           options: {
             cacheName: 'static-assets-cache',
@@ -203,22 +188,6 @@ const PWA = (clientSetting) =>
             cacheableResponse: {
               statuses: [0, 200]
             }
-          }
-        },
-        // Cache all requests
-        {
-          urlPattern: /^https?:\/\/.*\..*/i,
-          handler: 'NetworkFirst',
-          options: {
-            cacheName: 'all-content-cache',
-            expiration: {
-              maxEntries: 1000,
-              maxAgeSeconds: 24 * 60 * 60 // <== 24 hours
-            },
-            cacheableResponse: {
-              statuses: [0, 200]
-            },
-            networkTimeoutSeconds: 10
           }
         },
         // Cache google font requests
@@ -244,6 +213,37 @@ const PWA = (clientSetting) =>
             expiration: {
               maxEntries: 10,
               maxAgeSeconds: 60 * 60 * 24 * 365 // <== 365 days
+            },
+            cacheableResponse: {
+              statuses: [0, 200]
+            }
+          }
+        },
+        // Cache all requests
+        {
+          urlPattern: /^https?:\/\/.*\..*/i,
+          handler: 'NetworkFirst',
+          options: {
+            cacheName: 'all-content-cache',
+            expiration: {
+              maxEntries: 1000,
+              maxAgeSeconds: 24 * 60 * 60 // <== 24 hours
+            },
+            cacheableResponse: {
+              statuses: [0, 200]
+            },
+            networkTimeoutSeconds: 10
+          }
+        },
+        // Cache everything else
+        {
+          urlPattern: /^\/*/,
+          handler: 'CacheFirst',
+          options: {
+            cacheName: 'all-local-cache',
+            expiration: {
+              maxEntries: 100,
+              maxAgeSeconds: 24 * 60 * 60 * 30 // <== 30 days
             },
             cacheableResponse: {
               statuses: [0, 200]
