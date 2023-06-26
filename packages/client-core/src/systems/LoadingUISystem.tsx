@@ -97,8 +97,8 @@ const LoadingUISystemState = defineState({
     )
 
     // flip inside out
-    mesh.scale.set(-1, 1, 1)
-    mesh.rotateY(Math.PI)
+    mesh.scale.set(-1, 1, -1)
+
     mesh.renderOrder = 1
     Engine.instance.scene.add(mesh)
     setObjectLayers(mesh, ObjectLayers.UI)

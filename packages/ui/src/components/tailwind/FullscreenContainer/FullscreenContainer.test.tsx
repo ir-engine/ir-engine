@@ -28,7 +28,7 @@ import { shallow } from 'enzyme'
 import React, { createRef } from 'react'
 
 import FullscreenContainer from './index'
-import { Primary as story } from './index.stories'
+import { Default as story } from './index.stories'
 
 describe('FullscreenContainer', () => {
   it('- should render', () => {
