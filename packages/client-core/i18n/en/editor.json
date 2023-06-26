@@ -636,7 +636,7 @@
     "portal": {
       "lbl-portal": "Linked Portal",
       "lbl-redirect": "Use Page Redirect",
-      "description": "A Portat to teleport players to specified location",
+      "description": "A Portal to teleport players to specified location",
       "lbl-locationName": "Location",
       "lbl-modelUrl": "Model URL",
       "lbl-displayText": "Display Text",

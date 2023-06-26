@@ -119,7 +119,10 @@ export const PortalNodeEditor: EditorComponentType = (props) => {
   return (
     <NodeEditor description={t('editor:properties.portal.description')} {...props}>
       <InputGroup name="Location" label={t('editor:properties.portal.lbl-locationName')}>
-        <StringInput value={portalComponent.location} onChange={updateProperty(PortalComponent, 'location')} />
+        <ControlledStringInput
+          value={portalComponent.location}
+          onChange={updateProperty(PortalComponent, 'location')}
+        />
       </InputGroup>
       <InputGroup name="Portal" label={t('editor:properties.portal.lbl-portal')}>
         <SelectInput
