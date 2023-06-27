@@ -322,9 +322,11 @@ export default defineConfig(async () => {
         icon512px: clientSetting.icon512px || '/android-chrome-512x512.png',
         webmanifestLink: clientSetting.webmanifestLink || '/manifest.webmanifest',
         swScriptLink:
-          process.env.APP_ENV === 'development'
-            ? 'dev-sw.js?dev-sw'
-            : clientSetting.swScriptLink || 'service-worker.js',
+          clientSetting.swScriptLink || process.env.VITE_PWA_ENABLED === 'true'
+            ? process.env.APP_ENV === 'development'
+              ? 'dev-sw.js?dev-sw'
+              : 'service-worker.js'
+            : '',
         paymentPointer: coilSetting.paymentPointer || ''
       }),
       viteCompression({
