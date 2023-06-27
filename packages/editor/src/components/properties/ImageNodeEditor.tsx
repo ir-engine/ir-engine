@@ -45,14 +45,7 @@ export const ImageNodeEditor: EditorComponentType = (props) => {
   const imageComponent = useComponent(entity, ImageComponent)
   const errors = getEntityErrors(props.entity, ImageComponent)
 
-  const imageSource =
-    imageComponent.resource.value?.jpegStaticResource?.url ||
-    imageComponent.resource.value?.gifStaticResource?.url ||
-    imageComponent.resource.value?.pngStaticResource?.url ||
-    imageComponent.resource.value?.ktx2StaticResource?.url ||
-    imageComponent.resource.value?.source ||
-    imageComponent.source.value ||
-    ''
+  const imageSource = imageComponent.resource.value?.source || imageComponent.source.value || ''
 
   return (
     <NodeEditor
