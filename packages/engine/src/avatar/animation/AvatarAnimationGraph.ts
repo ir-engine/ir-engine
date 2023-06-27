@@ -60,7 +60,6 @@ let fallWeight = 0,
 export const setAvatarLocomotionAnimation = (entity: Entity) => {
   const animationComponent = getComponent(entity, AnimationComponent)
   const avatarAnimationComponent = getComponent(entity, AvatarAnimationComponent)
-  const avatarControllerComponent = getComponent(entity, AvatarControllerComponent)
 
   const idle = getAnimationAction('Idle', animationComponent.mixer)
   const run = getAnimationAction('Run', animationComponent.mixer)
@@ -69,7 +68,11 @@ export const setAvatarLocomotionAnimation = (entity: Entity) => {
   fall.play()
   run.play()
 
-  fallWeight = lerp(fallWeight, avatarControllerComponent.isInAir ? 1 : 0, getState(EngineState).deltaSeconds * 10)
+  fallWeight = lerp(
+    fallWeight,
+    clamp(Math.abs(avatarAnimationComponent.locomotion.y), 0, 1),
+    getState(EngineState).deltaSeconds * 10
+  )
   runWeight = clamp(moveLength.copy(avatarAnimationComponent.locomotion).setY(0).lengthSq() * 0.1, 0, 1) - fallWeight
   idleWeight = clamp(1 - runWeight, 0, 1) - fallWeight
   run.setEffectiveWeight(runWeight)

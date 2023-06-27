@@ -320,6 +320,10 @@ const execute = () => {
 
     let i = 0
     for (const [key, value] of Object.entries(rigComponent.ikTargetsMap)) {
+      //if xr is active, set select targets to xr tracking data
+      if (xrState.sessionActive) {
+        console.log(ikEntities)
+      }
       worldSpaceTargets[key]
         .copy(value.position)
         .add(rigComponent.ikOffsetsMap.get(key)!)
