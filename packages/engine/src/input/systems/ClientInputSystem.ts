@@ -51,6 +51,7 @@ import { getInteractionGroups } from '../../physics/functions/getInteractionGrou
 import { SceneQueryType } from '../../physics/types/PhysicsTypes'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { NameComponent } from '../../scene/components/NameComponent'
+import { VisibleComponent } from '../../scene/components/VisibleComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { XRSpaceComponent } from '../../xr/XRComponents'
 import { ReferenceSpace, XRState } from '../../xr/XRState'
@@ -366,7 +367,7 @@ export function updateGamepadInput(eid: Entity) {
 const xrSpaces = defineQuery([XRSpaceComponent, TransformComponent])
 const inputSources = defineQuery([InputSourceComponent])
 
-const inputXRUIs = defineQuery([InputComponent, XRUIComponent])
+const inputXRUIs = defineQuery([InputComponent, VisibleComponent, XRUIComponent])
 
 const rayRotation = new Quaternion()
 
@@ -433,11 +434,10 @@ const execute = () => {
       TransformComponent.dirtyTransforms[sourceEid] = true
     }
 
-    const captured =
-      hasComponent(sourceEid, InputSourceButtonsCapturedComponent) ||
-      hasComponent(sourceEid, InputSourceAxesCapturedComponent)
+    const capturedButtons = hasComponent(sourceEid, InputSourceButtonsCapturedComponent)
+    const capturedAxes = hasComponent(sourceEid, InputSourceAxesCapturedComponent)
 
-    if (!captured) {
+    if (!capturedButtons || !capturedAxes) {
       let assignedInputEntity = UndefinedEntity as Entity
 
       inputRaycast.direction.set(0, 0, 1).applyQuaternion(sourceTransform.rotation)
@@ -465,7 +465,8 @@ const execute = () => {
         if (hit) assignedInputEntity = hit.entity
       }
 
-      source.assignedEntity.set(assignedInputEntity)
+      if (!capturedButtons) source.capturedButtonEntity.set(assignedInputEntity)
+      if (!capturedAxes) source.capturedAxesEntity.set(assignedInputEntity)
     }
 
     updateGamepadInput(sourceEid)

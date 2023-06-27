@@ -104,7 +104,7 @@ const maxXruiPointerDistanceSqr = 3 * 3
 const redirectDOMEvent = (evt) => {
   for (const entity of visibleInteractableXRUIQuery()) {
     const layer = getComponent(entity, XRUIComponent)
-    const assigned = InputSourceComponent.isAssigned(entity)
+    const assigned = InputSourceComponent.isAssignedButtons(entity)
     if (!assigned) continue
     layer.updateWorldMatrix(true, true)
     const hit = layer.hitTest(Engine.instance.pointerScreenRaycaster.ray)
@@ -121,7 +121,7 @@ const updateControllerRayInteraction = (controller: PointerObject, xruiEntities:
   let hit = null! as ReturnType<typeof WebContainer3D.prototype.hitTest>
 
   for (const entity of xruiEntities) {
-    const assigned = InputSourceComponent.isAssigned(entity)
+    const assigned = InputSourceComponent.isAssignedButtons(entity)
     if (!assigned) continue
 
     const layer = getComponent(entity, XRUIComponent)
