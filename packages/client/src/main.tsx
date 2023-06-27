@@ -39,8 +39,8 @@ const Engine = lazy(() => import('./engine'))
 
 const AppPage = lazy(() => import('./pages/_app'))
 const AdminPage = lazy(() => import('./pages/admin'))
-const TailwindPage = lazy(() => import('./pages/_app_tw'))
-const ChatPage = lazy(() => import('./pages/chat/chat'))
+const CapturePage = lazy(() => import('./pages/_app_tw'))
+const ChatPage = lazy(() => import('./pages/_app_chat'))
 
 const options = {
   immediate: true,
@@ -94,7 +94,7 @@ const App = () => {
             path={'/capture/*'}
             element={
               <Suspense fallback={<LoadingCircle message={t('common:loader.starting')} />}>
-                <TailwindPage />
+                <CapturePage />
               </Suspense>
             }
           />
