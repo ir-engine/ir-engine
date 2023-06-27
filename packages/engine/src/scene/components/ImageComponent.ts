@@ -192,7 +192,7 @@ export function ImageReactor() {
         // TODO: abort load request, pending https://github.com/mrdoob/three.js/pull/23070
       }
     },
-    [image.resource]
+    [entity, source]
   )
 
   useEffect(
