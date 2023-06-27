@@ -40,6 +40,7 @@ const Engine = lazy(() => import('./engine'))
 const AppPage = lazy(() => import('./pages/_app'))
 const AdminPage = lazy(() => import('./pages/admin'))
 const TailwindPage = lazy(() => import('./pages/_app_tw'))
+const ChatPage = lazy(() => import('./pages/chat/chat'))
 
 const options = {
   immediate: true,
@@ -94,6 +95,15 @@ const App = () => {
             element={
               <Suspense fallback={<LoadingCircle message={t('common:loader.starting')} />}>
                 <TailwindPage />
+              </Suspense>
+            }
+          />
+          <Route
+            key={'chat'}
+            path={'/chat/*'}
+            element={
+              <Suspense fallback={<LoadingCircle message={t('common:loader.starting')} />}>
+                <ChatPage />
               </Suspense>
             }
           />

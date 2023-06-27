@@ -1,5 +1,7 @@
 import React from 'react'
 
+import UserIcon from './assets/user.svg'
+
 export const InvitationSent = () => {
   const InviteSent: { name: string; date: string }[] = [
     { name: 'John Laouireen', date: '12 Aug 2021' },
@@ -14,7 +16,7 @@ export const InvitationSent = () => {
           return (
             <div className="rounded-[10px] bg-[#15171B] w-[450px] h-[45px] flex flex-wrap mt-1 ml-4">
               <div className="rounded-full ml-4 my-2 bg-[#26282B] w-[30px] h-[30px] justify-between">
-                <img className="w-[13.64px] mx-2 h-[28.64px] overflow-hidden" alt="" src="/user.svg" />
+                <img className="w-[13.64px] mx-2 h-[28.64px] overflow-hidden" alt="" src={UserIcon} />
               </div>
               <div className="justify-items-start ml-1">
                 <p className="text-[12px] w-[120px] font-bold text-white mt-[9px] justify-items-start">{item.name}</p>

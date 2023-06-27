@@ -1,5 +1,10 @@
 import React, { useEffect, useRef, useState } from 'react'
 
+import NotificationIcon from './assets/attach-file2.svg'
+import BoxSearch from './assets/bxbxsearchalt2.svg'
+import AddSquare from './assets/fluentaddsquare24filled.svg'
+import UserIcon from './assets/icon-user.png'
+import SettingIcon from './assets/setting.svg'
 import { ChatUser } from './ChatUser'
 import { Create } from './Create'
 import { GroupUser } from './GroupUser'
@@ -67,13 +72,13 @@ export const ChatSection = () => {
         </div>
         <div className="flex justify-center gap-2">
           <button className="">
-            <img className="w-6 h-6 overflow-hidden" alt="" src="/icbaselinenotifications.svg" />
+            <img className="w-6 h-6 overflow-hidden" alt="" src={NotificationIcon} />
           </button>
           <button className="">
-            <img className="w-6 h-6 overflow-hidden" alt="" src="/bxbxsearchalt2.svg" />
+            <img className="w-6 h-6 overflow-hidden" alt="" src={BoxSearch} />
           </button>
           <button onClick={() => openModal(1)}>
-            <img className="w-6 h-6 overflow-hidden" alt="" src="/fluentaddsquare24filled.svg" />
+            <img className="w-6 h-6 overflow-hidden" alt="" src={AddSquare} />
             {isModalOpen === 1 && (
               <div
                 ref={modalRef}
@@ -109,7 +114,7 @@ export const ChatSection = () => {
       {activeComponent === 1 && <ChatUser />}
       {activeComponent === 2 && <GroupUser />}
       <div className="absolute bottom-0 w-[320px] h-[70px] gap-4 flex flex-wrap justify-center bg-[#ECECEC]">
-        <img className="rounded-[38px] mt-3 w-11 h-11 object-cover" alt="" src="/icon-user1.png" />
+        <img className="rounded-[38px] mt-3 w-11 h-11 object-cover" alt="" src={UserIcon} />
         <div className="mt-3">
           <p className="font-bold text-[#3F3960]">Laura Palmeri</p>
           <div className="flex flex-wrap gap-1">
@@ -137,7 +142,7 @@ export const ChatSection = () => {
           </div>
         </label>
         <button className="">
-          <img className="w-6 h-6 overflow-hidden" alt="" src="/setting.svg" />
+          <img className="w-6 h-6 overflow-hidden" alt="" src={SettingIcon} />
         </button>
       </div>
     </div>

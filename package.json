@@ -139,13 +139,6 @@
     "dotenv": "16.0.3",
     "fix-esm": "^1.0.1",
     "patch-package": "^6.5.1",
-    "pino": "^8.11.0",
-    "pino-pretty": "^10.0.0",
-    "postcss": "^8.4.21",
-    "qrcode.react": "^3.1.0",
-    "react-icons": "^4.9.0",
-    "react-json-view": "^1.21.3",
-    "tailwindcss": "^3.2.7",
     "three": "0.150.1",
     "ts-node": "10.9.1",
     "typescript": "5.0.2"

@@ -1,5 +1,7 @@
 import React, { useState } from 'react'
 
+import UserIcon from './assets/icon-user.png'
+
 export const ChatUser = () => {
   const [activeButton, setActiveButton] = useState<number>(2)
 
@@ -36,7 +38,7 @@ export const ChatUser = () => {
                 onClick={() => handleButtonClick(index)}
               >
                 <div className="w-[230px] flex flex-wrap gap-5 justify-start">
-                  <img className="mt-3 rounded-8xs w-11 h-11 object-cover" alt="" src="/icon-user.png" />
+                  <img className="mt-3 rounded-8xs w-11 h-11 object-cover" alt="" src={UserIcon} />
                   <div className="mt-3 justify-start">
                     <p className="font-bold text-[#3F3960]">{item.name}</p>
                     <p className="h-4 text-xs text-[#787589]">{item.subtitle}</p>

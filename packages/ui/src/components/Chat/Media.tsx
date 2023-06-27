@@ -1,13 +1,18 @@
 import React from 'react'
 
+import DownloadIcon from './assets/download-icon.svg'
+import DownloadImage1 from './assets/download-image1.png'
+import DownloadImage2 from './assets/download-image2.png'
+import DownloadImage3 from './assets/download-image3.png'
+
 export const Media = () => {
   return (
     <div className="w-[350px] h-[100vh] bg-[#E3E5E8] left-[720px]">
       <p className="my-[32px] ml-8 text-3xl font-bold">Media</p>
       <div className="w-[290px] ml-8 h-[189.94px] flex flex-wrap gap-5 text-3xl font-bold">
-        <img className="rounded-8xs w-[120px] h-[84.94px] object-cover" alt="" src="/download-image1.png" />
-        <img className="rounded-8xs w-[120px] h-[84.94px] object-cover" alt="" src="/download-image2.png" />
-        <img className="rounded-8xs w-[120px] h-[84.94px] object-cover" alt="" src="download-image3.png" />
+        <img className="rounded-8xs w-[120px] h-[84.94px] object-cover" alt="" src={DownloadImage1} />
+        <img className="rounded-8xs w-[120px] h-[84.94px] object-cover" alt="" src={DownloadImage2} />
+        <img className="rounded-8xs w-[120px] h-[84.94px] object-cover" alt="" src={DownloadImage3} />
         <button className="cursor-pointer bg-[transparent] w-[120px] h-[84.94px]">
           <div className="w-[120px] h-[84.94px] rounded bg-[#5B598B] flex flex-col shadow-[0px_0px_4px_rgba(0,_0,_0,_0.1)]">
             <p className="text-[18px] font-semibold font-segoe-ui mt-3 my-[-10px] text-[#EEEEEE] text-center">120</p>
@@ -29,7 +34,7 @@ export const Media = () => {
             </div>
           </div>
           <button>
-            <img className="w-6 h-6 mt-[6px] overflow-hidden" alt="" src="/download-icon.svg" />
+            <img className="w-6 h-6 mt-[6px] overflow-hidden" alt="" src={DownloadIcon} />
           </button>
         </div>
         <div className="w-[330px] h-[2vh] justify-center gap-[48px] ml-6 flex flex-wrap">
@@ -44,7 +49,7 @@ export const Media = () => {
             </div>
           </div>
           <button>
-            <img className="w-6 h-6 mt-[6px] overflow-hidden" alt="" src="/download-icon.svg" />
+            <img className="w-6 h-6 mt-[6px] overflow-hidden" alt="" src={DownloadIcon} />
           </button>
         </div>
         <div className="w-[330px] h-[2vh] justify-center gap-[48px] ml-6 flex flex-wrap">
@@ -59,7 +64,7 @@ export const Media = () => {
             </div>
           </div>
           <button>
-            <img className="w-6 h-6 mt-[6px] overflow-hidden" alt="" src="/download-icon.svg" />
+            <img className="w-6 h-6 mt-[6px] overflow-hidden" alt="" src={DownloadIcon} />
           </button>
         </div>
       </div>
