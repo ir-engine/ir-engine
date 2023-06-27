@@ -366,7 +366,7 @@
     },
     "screenshare": {
       "name": "Screenshare Target",
-      "description": "Allows this object to be a target for screeshare projection."
+      "description": "Allows this object to be a target for screen-share projection."
     },
     "name": {
       "lbl-name": "Name"
