@@ -61,6 +61,7 @@ const getPrefabList = () => {
   const arr = [] as PrefabItemType[]
 
   Engine.instance.scenePrefabRegistry.forEach((_, prefabType: string) => {
+    if (!prefabIcons[prefabType]) return
     arr.push({
       prefabType,
       type: ItemTypes.Prefab,

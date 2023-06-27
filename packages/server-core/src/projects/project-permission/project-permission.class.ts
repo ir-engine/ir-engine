@@ -27,6 +27,7 @@ import { BadRequest, Forbidden } from '@feathersjs/errors'
 import { Paginated, Params } from '@feathersjs/feathers'
 import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
 
+import { INVITE_CODE_REGEX, USER_ID_REGEX } from '@etherealengine/common/src/constants/IdConstants'
 import { ProjectPermissionInterface } from '@etherealengine/common/src/interfaces/ProjectPermissionInterface'
 
 import { Application } from '../../../declarations'
@@ -93,6 +94,14 @@ export class ProjectPermission<T = ProjectPermissionsDataType> extends Service {
 
   async create(data: any, params?: UserParams): Promise<T> {
     const selfUser = params!.user!
+    if (USER_ID_REGEX.test(data.inviteCode)) {
+      data.userId = data.inviteCode
+      delete data.inviteCode
+    }
+    if (INVITE_CODE_REGEX.test(data.userId)) {
+      data.inviteCode = data.userId
+      delete data.inviteCode
+    }
     try {
       const searchParam = data.inviteCode
         ? {

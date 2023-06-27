@@ -54,12 +54,15 @@ import {
   updateSceneEntity
 } from '@etherealengine/engine/src/scene/systems/SceneLoadingSystem'
 import { getMutableState, getState } from '@etherealengine/hyperflux'
+import { loadEngineInjection } from '@etherealengine/projects/loadEngineInjection'
 
 require('fix-esm').register()
 
 /**
  * USAGE: `npx ts-node --swc scripts/resave-all-scenes.ts --write`
  */
+
+// @TODO - this does not support most of our projects, so should not be used for production
 
 createDOM()
 // import client systems so we know we have all components registered
@@ -105,6 +108,8 @@ const resaveAllProjects = async () => {
 
     createEngine()
     Engine.instance.physicsWorld = Physics.createWorld()
+    await loadEngineInjection(projects)
+
     getMutableState(EngineState).isEditor.set(true)
 
     // read scene file
@@ -145,10 +150,10 @@ const resaveAllProjects = async () => {
     // log each component diff
     const changes = JSON.parse(JSON.stringify(diff(sceneJson, newScene))) as SceneJson
     console.log('changes to', scene)
-
-    for (const entity of Object.values(changes.entities)) {
-      console.log(entity.components)
-    }
+    if (changes.entities)
+      for (const entity of Object.values(changes.entities)) {
+        console.log(...Object.values(entity.components).map((val) => JSON.stringify(val, null, 2)))
+      }
 
     // save file
     if (options.write) fs.writeFileSync(scene, JSON.stringify(newScene, null, 2))

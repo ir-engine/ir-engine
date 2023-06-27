@@ -195,17 +195,6 @@ export const CameraPropertiesNodeEditor: EditorComponentType = (props) => {
         default={5}
         value={cameraSettings.maxPhi.value}
       />
-      <NumericInputGroup
-        name="startPhi"
-        label={'Start Phi'}
-        onChange={(val) => cameraSettings.startPhi.set(val)}
-        min={0.001}
-        smallStep={0.001}
-        mediumStep={0.01}
-        largeStep={0.1}
-        default={5}
-        value={cameraSettings.startPhi.value}
-      />
     </PropertyGroup>
   )
 }

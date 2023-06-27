@@ -23,11 +23,10 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { get } from 'lodash'
 import { useEffect } from 'react'
-import { Quaternion, Vector3 } from 'three'
+import { Mesh, MeshBasicMaterial, Quaternion, Ray, Vector3 } from 'three'
 
-import { dispatchAction, getMutableState, getState, none, useHookstate } from '@etherealengine/hyperflux'
+import { dispatchAction, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
 import { V_001 } from '../../common/constants/MathConstants'
 import { isClient } from '../../common/functions/getEnvironment'
@@ -39,27 +38,28 @@ import {
   getComponent,
   getMutableComponent,
   getOptionalComponent,
-  hasComponent,
-  removeQuery,
-  setComponent,
-  useQuery
+  removeComponent,
+  setComponent
 } from '../../ecs/functions/ComponentFunctions'
 import { createEntity, removeEntity } from '../../ecs/functions/EntityFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
-import { BoundingBoxComponent } from '../../interaction/components/BoundingBoxComponents'
 import { InteractState } from '../../interaction/systems/InteractiveSystem'
+import { Physics, RaycastArgs } from '../../physics/classes/Physics'
+import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
+import { AllCollisionMask } from '../../physics/enums/CollisionGroups'
+import { getInteractionGroups } from '../../physics/functions/getInteractionGroups'
+import { SceneQueryType } from '../../physics/types/PhysicsTypes'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { NameComponent } from '../../scene/components/NameComponent'
-import { VisibleComponent } from '../../scene/components/VisibleComponent'
-import { setTransformComponent, TransformComponent } from '../../transform/components/TransformComponent'
+import { TransformComponent } from '../../transform/components/TransformComponent'
 import { XRSpaceComponent } from '../../xr/XRComponents'
 import { ReferenceSpace, XRState } from '../../xr/XRState'
 import { XRUIComponent } from '../../xrui/components/XRUIComponent'
-import { pointers } from '../../xrui/systems/XRUISystem'
 import { InputComponent } from '../components/InputComponent'
 import { InputSourceComponent } from '../components/InputSourceComponent'
 import normalizeWheel from '../functions/normalizeWheel'
-import { createInitialButtonState, OldButtonInputStateType, OldButtonTypes } from '../InputState'
+import { ButtonStateMap, createInitialButtonState, MouseButton } from '../state/ButtonState'
+import { InputState } from '../state/InputState'
 
 function preventDefault(e) {
   e.preventDefault()
@@ -71,10 +71,11 @@ interface ListenerBindingData {
   callback: (event) => void
 }
 
-const boundListeners: ListenerBindingData[] = []
-
 export const addClientInputListeners = () => {
   if (!isClient) return
+
+  const boundListeners: ListenerBindingData[] = []
+
   const canvas = EngineRenderer.instance.canvas
 
   window.addEventListener('DOMMouseScroll', preventDefault, false)
@@ -106,252 +107,35 @@ export const addClientInputListeners = () => {
   addListener(document, 'gesturestart', preventDefault)
   addListener(canvas, 'contextmenu', preventDefault)
 
-  const handleMouseClick = (event: MouseEvent) => {
-    const down = event.type === 'mousedown' || event.type === 'touchstart'
-
-    let button: OldButtonTypes = 'PrimaryClick'
-    if (event.button === 1) button = 'AuxiliaryClick'
-    else if (event.button === 2) button = 'SecondaryClick'
-
-    const state = Engine.instance.buttons as OldButtonInputStateType
-
-    if (down) state[button] = createInitialButtonState()
-    else if (state[button]) state[button]!.up = true
-  }
-
-  const handleMouseMove = (event: MouseEvent) => {
-    Engine.instance.pointerState.position.set(
-      (event.clientX / window.innerWidth) * 2 - 1,
-      (event.clientY / window.innerHeight) * -2 + 1
-    )
-  }
-
-  const handleTouchMove = (event: TouchEvent) => {
-    const touch = event.touches[0]
-    Engine.instance.pointerState.position.set(
-      (touch.clientX / window.innerWidth) * 2 - 1,
-      (touch.clientY / window.innerHeight) * -2 + 1
-    )
-  }
-
-  addListener(window, 'touchmove', handleTouchMove, { passive: true, capture: true })
-  addListener(window, 'mousemove', handleMouseMove, { passive: true, capture: true })
-  addListener(canvas, 'mouseup', handleMouseClick)
-  addListener(canvas, 'mousedown', handleMouseClick)
-  addListener(canvas, 'touchstart', handleMouseClick)
-  addListener(canvas, 'touchend', handleMouseClick)
-
-  const handleTouchDirectionalPad = (event: CustomEvent): void => {
-    const { stick, value }: { stick: 'StickLeft' | 'StickRight'; value: { x: number; y: number } } = event.detail
-    if (!stick) {
-      return
-    }
-
-    // TODO: This is a hack to support gamepad input in WebXR AR sessions
-    const index = 0 //Engine.instance.inputSources.length === 1 || stick === 'StickLeft' ? 0 : 1
-    const inputSource = Engine.instance.inputSources[index]
-
-    const axes = inputSource.gamepad!.axes as number[]
-
-    axes[0] = value.x
-    axes[1] = value.y
-  }
-  addListener(document, 'touchstickmove', handleTouchDirectionalPad)
-
-  const handleTouchGampadButton = () => {
-    dispatchAction(
-      EngineActions.interactedWithObject({
-        targetEntity: getState(InteractState).available[0],
-        handedness: 'none'
-      })
-    )
-  }
-  addListener(document, 'touchgamepadbuttondown', handleTouchGampadButton)
-
-  const pointerButtons = ['PrimaryClick', 'AuxiliaryClick', 'SecondaryClick']
-  const clearKeyState = () => {
-    const state = Engine.instance.buttons as OldButtonInputStateType
-    for (const button of pointerButtons) {
-      const val = state[button]
-      if (!val?.up && val?.pressed) state[button].up = true
-    }
-  }
-  addListener(window, 'focus', clearKeyState)
-  addListener(window, 'blur', clearKeyState)
-  addListener(canvas, 'mouseleave', clearKeyState)
-
-  const handleVisibilityChange = (event: Event) => {
-    if (document.visibilityState === 'hidden') clearKeyState()
-  }
-
-  addListener(document, 'visibilitychange', handleVisibilityChange)
-
-  /** new */
-  const onKeyEvent = (event: KeyboardEvent) => {
-    const element = event.target as HTMLElement
-    // Сheck which excludes the possibility of controlling the avatar when typing in a text field
-    if (element?.tagName === 'INPUT' || element?.tagName === 'SELECT' || element?.tagName === 'TEXTAREA') return
-
-    const code = event.code
-    const down = event.type === 'keydown'
-
-    if (down) Engine.instance.buttons[code] = createInitialButtonState()
-    else if (Engine.instance.buttons[code]) Engine.instance.buttons[code].up = true
-  }
-  addListener(document, 'keyup', onKeyEvent)
-  addListener(document, 'keydown', onKeyEvent)
-
-  const onWheelEvent = (event: WheelEvent) => {
-    const normalizedValues = normalizeWheel(event)
-    const x = Math.sign(normalizedValues.spinX + Math.random() * 0.000001)
-    const y = Math.sign(normalizedValues.spinY + Math.random() * 0.000001)
-    Engine.instance.pointerState.scroll.x += x
-    Engine.instance.pointerState.scroll.y += y
-  }
-  addListener(canvas, 'wheel', onWheelEvent, { passive: true, capture: true })
-}
-
-export const removeClientInputListeners = () => {
-  // if not client, no listeners will exist
-  if (!boundListeners.length) return
-
-  window.removeEventListener('DOMMouseScroll', preventDefault, false)
-
-  boundListeners.forEach(({ domElement, eventName, callback }) => {
-    domElement.removeEventListener(eventName, callback)
-  })
-  boundListeners.splice(0, boundListeners.length - 1)
-}
-
-export const OldGamepadMapping = {
-  //https://w3c.github.io/gamepad/#remapping
-  standard: {
-    0: 'ButtonA',
-    1: 'ButtonB',
-    2: 'ButtonX',
-    3: 'ButtonY',
-    4: 'LeftBumper',
-    5: 'RightBumper',
-    6: 'LeftTrigger',
-    7: 'RightTrigger',
-    8: 'ButtonBack',
-    9: 'ButtonStart',
-    10: 'LeftStick',
-    11: 'RightStick',
-    12: 'DPad1',
-    13: 'DPad2',
-    14: 'DPad3',
-    15: 'DPad4'
-  },
-  //https://www.w3.org/TR/webxr-gamepads-module-1/
-  'xr-standard': {
-    left: {
-      0: 'LeftTrigger',
-      1: 'LeftBumper',
-      2: 'LeftPad',
-      3: 'LeftStick',
-      4: 'ButtonX',
-      5: 'ButtonY'
-    },
-    right: {
-      0: 'RightTrigger',
-      1: 'RightBumper',
-      2: 'RightPad',
-      3: 'RightStick',
-      4: 'ButtonA',
-      5: 'ButtonB'
-    },
-    none: {
-      0: 'RightTrigger',
-      1: 'RightBumper',
-      2: 'RightPad',
-      3: 'RightStick',
-      4: 'ButtonA',
-      5: 'ButtonB'
-    }
-  }
-}
-export function updateOldGamepadInput(source: XRInputSource) {
-  if (!source.gamepad) return
-  if (source.gamepad.mapping in OldGamepadMapping) {
-    const ButtonAlias = OldGamepadMapping[source.gamepad!.mapping]
-    const mapping = ButtonAlias[source.handedness]
-    const buttons = source.gamepad?.buttons
-    if (buttons) {
-      for (let i = 0; i < buttons.length; i++) {
-        const buttonMapping = mapping[i]
-        const button = buttons[i]
-        if (!Engine.instance.buttons[buttonMapping] && (button.pressed || button.touched)) {
-          Engine.instance.buttons[buttonMapping] = createInitialButtonState(button)
-        }
-        if (Engine.instance.buttons[buttonMapping] && (button.pressed || button.touched)) {
-          if (!Engine.instance.buttons[buttonMapping].pressed && button.pressed)
-            Engine.instance.buttons[buttonMapping].down = true
-          Engine.instance.buttons[buttonMapping].pressed = button.pressed
-          Engine.instance.buttons[buttonMapping].touched = button.touched
-          Engine.instance.buttons[buttonMapping].value = button.value
-        } else if (Engine.instance.buttons[buttonMapping]) {
-          Engine.instance.buttons[buttonMapping].up = true
-        }
-      }
-    }
-  }
-}
-
-export const GamepadMapping = {
-  //https://w3c.github.io/gamepad/#remapping
-  standard: {
-    0: 'ButtonA',
-    1: 'ButtonB',
-    2: 'ButtonX',
-    3: 'ButtonY',
-    4: 'LeftBumper',
-    5: 'RightBumper',
-    6: 'LeftTrigger',
-    7: 'RightTrigger',
-    8: 'ButtonBack',
-    9: 'ButtonStart',
-    10: 'LeftStick',
-    11: 'RightStick',
-    12: 'DPad1',
-    13: 'DPad2',
-    14: 'DPad3',
-    15: 'DPad4'
-  },
-  //https://www.w3.org/TR/webxr-gamepads-module-1/
-  'xr-standard': {
-    0: 'Trigger',
-    1: 'Squeeze',
-    2: 'Pad',
-    3: 'Stick',
-    4: 'ButtonA',
-    5: 'ButtonB'
+  return () => {
+    window.removeEventListener('DOMMouseScroll', preventDefault, false)
+    boundListeners.forEach(({ domElement, eventName, callback }) => {
+      domElement.removeEventListener(eventName, callback)
+    })
+    boundListeners.splice(0, boundListeners.length - 1)
   }
 }
 
 export function updateGamepadInput(eid: Entity) {
   const inputSource = getComponent(eid, InputSourceComponent)
   const source = inputSource.source
-  const buttons = inputSource.buttons
+  const buttons = inputSource.buttons as ButtonStateMap
   if (!source.gamepad) return
-  if (source.gamepad.mapping in GamepadMapping) {
-    const ButtonAlias = GamepadMapping[source.gamepad!.mapping]
-    const gamepadButtons = source.gamepad?.buttons
-    if (gamepadButtons) {
-      for (let i = 0; i < gamepadButtons.length; i++) {
-        const buttonMapping = ButtonAlias[i]
-        const button = gamepadButtons[i]
-        if (!buttons[buttonMapping] && (button.pressed || button.touched)) {
-          buttons[buttonMapping] = createInitialButtonState(button)
-        }
-        if (buttons[buttonMapping] && (button.pressed || button.touched)) {
-          if (!buttons[buttonMapping].pressed && button.pressed) buttons[buttonMapping].down = true
-          buttons[buttonMapping].pressed = button.pressed
-          buttons[buttonMapping].touched = button.touched
-          buttons[buttonMapping].value = button.value
-        } else if (buttons[buttonMapping]) {
-          buttons[buttonMapping].up = true
-        }
+
+  const gamepadButtons = source.gamepad?.buttons
+  if (gamepadButtons) {
+    for (let i = 0; i < gamepadButtons.length; i++) {
+      const button = gamepadButtons[i]
+      if (!buttons[i] && (button.pressed || button.touched)) {
+        buttons[i] = createInitialButtonState(button)
+      }
+      if (buttons[i] && (button.pressed || button.touched)) {
+        if (!buttons[i].pressed && button.pressed) buttons[i].down = true
+        buttons[i].pressed = button.pressed
+        buttons[i].touched = button.touched
+        buttons[i].value = button.value
+      } else if (buttons[i]) {
+        buttons[i].up = true
       }
     }
   }
@@ -359,14 +143,25 @@ export function updateGamepadInput(eid: Entity) {
 
 const xrSpaces = defineQuery([XRSpaceComponent, TransformComponent])
 const inputSources = defineQuery([InputSourceComponent])
-const inputSinks = defineQuery([InputComponent])
+
+const inputXRUIs = defineQuery([InputComponent, XRUIComponent])
+const inputRigidbodies = defineQuery([InputComponent, RigidBodyComponent])
 
 const boxCenter = new Vector3()
 const rayRotation = new Quaternion()
 
-const execute = () => {
-  for (const source of Engine.instance.inputSources) updateOldGamepadInput(source)
+const inputRaycast = {
+  type: SceneQueryType.Closest,
+  origin: new Vector3(),
+  direction: new Vector3(),
+  maxDistance: 1000,
+  groups: getInteractionGroups(AllCollisionMask, AllCollisionMask),
+  excludeRigidBody: undefined //
+} as RaycastArgs
 
+const inputRay = new Ray()
+
+const execute = () => {
   Engine.instance.pointerScreenRaycaster.setFromCamera(Engine.instance.pointerState.position, Engine.instance.camera)
 
   Engine.instance.pointerState.movement.subVectors(
@@ -420,72 +215,60 @@ const execute = () => {
 
     if (!source.captured.value) {
       let assignedInputEntity = UndefinedEntity as Entity
-      let assignedDistance = Infinity
 
-      for (const inputEid of inputSinks()) {
-        const bounds = getOptionalComponent(inputEid, BoundingBoxComponent)
-        const xrui = getOptionalComponent(inputEid, VisibleComponent) && getOptionalComponent(inputEid, XRUIComponent)
-        const pointer = pointers.get(source.source.value) ?? Engine.instance.pointerScreenRaycaster.ray
-        if (xrui) {
-          const layerHit = xrui.hitTest(pointer)
-          if (!layerHit || !layerHit.intersection.object.visible) continue
-          const dist = layerHit.intersection.distance
-          if (dist <= assignedDistance) {
-            assignedInputEntity = inputEid
-            assignedDistance = dist
-          }
-        } else if (bounds) {
-          if (!bounds.box.containsPoint(sourceTransform.position)) continue
-          const center = bounds.box.getCenter(boxCenter) // todo: copmute bounding box center in a centralized place
-          const dist = sourceTransform.position.distanceTo(center) // todo: compute boudning box distance in centralized place
-          if (dist <= assignedDistance) {
-            assignedInputEntity = inputEid
-            assignedDistance = dist
-          }
-        }
+      inputRaycast.direction.set(0, 0, 1).applyQuaternion(sourceTransform.rotation)
+      inputRaycast.origin.copy(sourceTransform.position).addScaledVector(inputRaycast.direction, -0.01)
+      inputRaycast.excludeRigidBody = getOptionalComponent(Engine.instance.localClientEntity, RigidBodyComponent)?.body
+      inputRay.set(inputRaycast.origin, inputRaycast.direction)
+
+      // 1st heuristic is XRUI
+      for (const eid of inputXRUIs()) {
+        const xrui = getComponent(eid, XRUIComponent)
+        const layerHit = xrui.hitTest(inputRay)
+        if (
+          !layerHit ||
+          !layerHit.intersection.object.visible ||
+          (layerHit.intersection.object as Mesh<any, MeshBasicMaterial>).material?.opacity < 0.01
+        )
+          continue
+        assignedInputEntity = eid
+        break
+      }
+
+      // 2nd heuristic is physics colliders
+      if (Engine.instance.physicsWorld && !assignedInputEntity) {
+        const hit = Physics.castRay(Engine.instance.physicsWorld, inputRaycast)[0]
+        if (hit) assignedInputEntity = hit.entity
       }
 
       source.assignedEntity.set(assignedInputEntity)
     }
 
-    if (!xrFrame && source.source.targetRayMode.value === 'screen') {
-      source.buttons.set(Engine.instance.buttons)
-    } else {
-      updateGamepadInput(sourceEid)
-    }
-  }
-
-  for (const eid of inputSinks()) {
-    const inputSink = getComponent(eid, InputComponent)
-    inputSink.inputSources = inputSources().filter((sourceEid) => {
-      const source = getComponent(sourceEid, InputSourceComponent)
-      return source.assignedEntity === eid
-    })
+    updateGamepadInput(sourceEid)
   }
 }
 
 const reactor = () => {
   const xrState = useHookstate(getMutableState(XRState))
 
-  useEffect(() => {
-    addClientInputListeners()
-    Engine.instance.pointerScreenRaycaster.layers.enableAll()
-
-    return () => {
-      removeClientInputListeners()
-    }
-  }, [])
+  useEffect(() => addClientInputListeners(), [])
 
   useEffect(() => {
+    const canvas = EngineRenderer.instance.renderer.domElement
+
     const addInputSource = (source: XRInputSource) => {
+      if (source.targetRayMode === 'screen' || source.targetRayMode === 'gaze') {
+        removeComponent(emulatedInputSourceEntity, InputSourceComponent)
+      }
       const entity = createEntity()
       setComponent(entity, InputSourceComponent, { source })
-      setComponent(entity, NameComponent, 'InputSource-' + source.handedness + '-' + source.targetRayMode)
+      setComponent(entity, NameComponent, 'InputSource-handed:' + source.handedness + '-mode:' + source.targetRayMode)
     }
+
     const removeInputSource = (source: XRInputSource) =>
       removeEntity(InputSourceComponent.entitiesByInputSource.get(source))
 
-    Engine.instance.inputSources.map(addInputSource)
+    // Engine.instance.inputSources.map(addInputSource)
 
     const session = xrState.session.value
 
@@ -496,11 +279,215 @@ const reactor = () => {
 
     session?.addEventListener('inputsourceschange', onInputSourcesChanged)
 
+    const addGamepad = (e: GamepadEvent) => {
+      const gamepad = navigator.getGamepads()[e.gamepad.index]
+      if (gamepad) Object.assign(emulatedInputSource, { gamepad })
+    }
+
+    const removeGamepad = (e: GamepadEvent) => {
+      const gamepad = navigator.getGamepads()[e.gamepad.index]
+      if (gamepad) Object.assign(emulatedInputSource, { gamepad: undefined })
+    }
+
+    /** @todo - currently only one gamepad supported */
+    window.addEventListener('gamepadconnected', addGamepad)
+    window.addEventListener('gamepaddisconnected', removeGamepad)
+
+    /** Keyboard events */
+    const onKeyEvent = (event: KeyboardEvent) => {
+      const element = event.target as HTMLElement
+      // Сheck which excludes the possibility of controlling the avatar when typing in a text field
+      if (element?.tagName === 'INPUT' || element?.tagName === 'SELECT' || element?.tagName === 'TEXTAREA') return
+
+      const code = event.code
+      const down = event.type === 'keydown'
+
+      const inputSourceComponent = getComponent(emulatedInputSourceEntity, InputSourceComponent)
+      const buttonState = inputSourceComponent.buttons as ButtonStateMap
+
+      if (down) buttonState[code] = createInitialButtonState()
+      else if (buttonState[code]) buttonState[code].up = true
+    }
+
+    document.addEventListener('keyup', onKeyEvent)
+    document.addEventListener('keydown', onKeyEvent)
+
+    /** Clear mouse events */
+    const pointerButtons = ['PrimaryClick', 'AuxiliaryClick', 'SecondaryClick']
+    const clearKeyState = () => {
+      const inputSourceComponent = getComponent(emulatedInputSourceEntity, InputSourceComponent)
+      const state = inputSourceComponent.buttons as ButtonStateMap
+      for (const button of pointerButtons) {
+        const val = state[button]
+        if (!val?.up && val?.pressed) state[button].up = true
+      }
+    }
+    window.addEventListener('focus', clearKeyState)
+    window.addEventListener('blur', clearKeyState)
+    canvas.addEventListener('mouseleave', clearKeyState)
+
+    const handleVisibilityChange = (event: Event) => {
+      if (document.visibilityState === 'hidden') clearKeyState()
+    }
+
+    document.addEventListener('visibilitychange', handleVisibilityChange)
+
+    /** Mouse events */
+    const onWheelEvent = (event: WheelEvent) => {
+      const normalizedValues = normalizeWheel(event)
+      const x = Math.sign(normalizedValues.spinX + Math.random() * 0.000001)
+      const y = Math.sign(normalizedValues.spinY + Math.random() * 0.000001)
+      Engine.instance.pointerState.scroll.x += x
+      Engine.instance.pointerState.scroll.y += y
+    }
+    canvas.addEventListener('wheel', onWheelEvent, { passive: true, capture: true })
+
+    const handleMouseClick = (event: MouseEvent) => {
+      const down = event.type === 'mousedown' || event.type === 'touchstart'
+
+      let button = MouseButton.PrimaryClick
+      if (event.button === 1) button = MouseButton.AuxiliaryClick
+      else if (event.button === 2) button = MouseButton.SecondaryClick
+
+      const inputSourceComponent = getComponent(emulatedInputSourceEntity, InputSourceComponent)
+      const state = inputSourceComponent.buttons as ButtonStateMap
+
+      if (down) state[button] = createInitialButtonState()
+      else if (state[button]) state[button]!.up = true
+    }
+
+    const handleMouseMove = (event: MouseEvent) => {
+      Engine.instance.pointerState.position.set(
+        (event.clientX / window.innerWidth) * 2 - 1,
+        (event.clientY / window.innerHeight) * -2 + 1
+      )
+    }
+
+    const handleTouchMove = (event: TouchEvent) => {
+      const touch = event.touches[0]
+      Engine.instance.pointerState.position.set(
+        (touch.clientX / window.innerWidth) * 2 - 1,
+        (touch.clientY / window.innerHeight) * -2 + 1
+      )
+    }
+
+    window.addEventListener('touchmove', handleTouchMove, { passive: true, capture: true })
+    window.addEventListener('mousemove', handleMouseMove, { passive: true, capture: true })
+    canvas.addEventListener('mouseup', handleMouseClick)
+    canvas.addEventListener('mousedown', handleMouseClick)
+    canvas.addEventListener('touchstart', handleMouseClick)
+    canvas.addEventListener('touchend', handleMouseClick)
+
+    const handleTouchDirectionalPad = (event: CustomEvent): void => {
+      const { stick, value }: { stick: 'LeftStick' | 'RightStick'; value: { x: number; y: number } } = event.detail
+      if (!stick) {
+        return
+      }
+
+      const inputSourceComponent = getComponent(emulatedInputSourceEntity, InputSourceComponent)
+
+      const index = stick === 'LeftStick' ? 0 : 2
+
+      if (!inputSourceComponent.source.gamepad) return
+
+      const axes = inputSourceComponent.source.gamepad.axes as number[]
+
+      axes[index] = value.x
+      axes[index + 1] = value.y
+    }
+    document.addEventListener('touchstickmove', handleTouchDirectionalPad)
+
+    /** @deprecated */
+    const handleTouchGampadButton = () => {
+      dispatchAction(
+        EngineActions.interactedWithObject({
+          targetEntity: getState(InteractState).available[0],
+          handedness: 'none'
+        })
+      )
+    }
+    document.addEventListener('touchgamepadbuttondown', handleTouchGampadButton)
+
+    /**
+     * AR uses the `select` event as taps on the screen for mobile AR sessions
+     * This gets piped into the input system as a TouchInput.Touch
+     */
+
+    const onXRSelectStart = (event: any) => {
+      const inputSourceComponent = getComponent(emulatedInputSourceEntity, InputSourceComponent)
+      const state = inputSourceComponent.buttons as ButtonStateMap
+      state.PrimaryClick = createInitialButtonState()
+    }
+    const onXRSelectEnd = (event: any) => {
+      const inputSourceComponent = getComponent(emulatedInputSourceEntity, InputSourceComponent)
+      const state = inputSourceComponent.buttons as ButtonStateMap
+      if (!state.PrimaryClick) return
+      state.PrimaryClick.up = true
+    }
+    session?.addEventListener('selectstart', onXRSelectStart)
+    session?.addEventListener('selectend', onXRSelectEnd)
+
+    const emulatedTargetRaySpace = {} as any as XRSpace
+
+    // create an emulated input source for mouse/keyboard/touch input
+    const emulatedInputSource = {
+      handedness: 'none',
+      targetRayMode: session ? (session.interactionMode === 'screen-space' ? 'screen' : 'gaze') : 'screen',
+      targetRaySpace: emulatedTargetRaySpace,
+      gripSpace: undefined,
+      gamepad: {
+        axes: [0, 0, 0, 0],
+        buttons: [],
+        connected: true,
+        hapticActuators: [],
+        id: 'ee.emulated-gamepad',
+        index: 0,
+        mapping: 'standard',
+        timestamp: performance.now()
+      },
+      profiles: [],
+      hand: undefined
+    } as XRInputSource
+
+    const emulatedInputSourceEntity = createEntity()
+    setComponent(emulatedInputSourceEntity, InputSourceComponent, { source: emulatedInputSource })
+    setComponent(
+      emulatedInputSourceEntity,
+      NameComponent,
+      'InputSource-emulated ' + '-mode:' + emulatedInputSource.targetRayMode
+    )
+
     return () => {
-      const inputSourceEntities = defineQuery([InputSourceComponent])
-      inputSourceEntities().map((eid) => removeEntity(eid))
-      removeQuery(inputSourceEntities)
+      inputSources().map((eid) => removeEntity(eid))
+
       session?.removeEventListener('inputsourceschange', onInputSourcesChanged)
+
+      window.removeEventListener('gamepadconnected', addGamepad)
+      window.removeEventListener('gamepaddisconnected', removeGamepad)
+
+      document.removeEventListener('keyup', onKeyEvent)
+      document.removeEventListener('keydown', onKeyEvent)
+
+      window.removeEventListener('focus', clearKeyState)
+      window.removeEventListener('blur', clearKeyState)
+      canvas.removeEventListener('mouseleave', clearKeyState)
+
+      document.removeEventListener('visibilitychange', handleVisibilityChange)
+
+      canvas.removeEventListener('wheel', onWheelEvent)
+
+      window.removeEventListener('touchmove', handleTouchMove)
+      window.removeEventListener('mousemove', handleMouseMove)
+      canvas.removeEventListener('mouseup', handleMouseClick)
+      canvas.removeEventListener('mousedown', handleMouseClick)
+      canvas.removeEventListener('touchstart', handleMouseClick)
+      canvas.removeEventListener('touchend', handleMouseClick)
+
+      document.removeEventListener('touchstickmove', handleTouchDirectionalPad)
+      document.removeEventListener('touchgamepadbuttondown', handleTouchGampadButton)
+
+      session?.removeEventListener('selectstart', onXRSelectStart)
+      session?.removeEventListener('selectend', onXRSelectEnd)
     }
   }, [xrState.session])
 

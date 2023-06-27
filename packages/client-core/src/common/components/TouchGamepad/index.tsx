@@ -28,7 +28,16 @@ import React from 'react'
 import { Joystick } from 'react-joystick-component'
 
 import { isTouchAvailable } from '@etherealengine/engine/src/common/functions/DetectFeatures'
-import { OldButtonTypes } from '@etherealengine/engine/src/input/InputState'
+import { getComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import {
+  getFirstNonCapturedInputSource,
+  InputSourceComponent
+} from '@etherealengine/engine/src/input/components/InputSourceComponent'
+import {
+  AnyButton,
+  createInitialButtonState,
+  XRStandardGamepadButton
+} from '@etherealengine/engine/src/input/state/ButtonState'
 import { InteractState } from '@etherealengine/engine/src/interaction/systems/InteractiveSystem'
 import { isMobileXRHeadset } from '@etherealengine/engine/src/xr/XRState'
 import { getMutableState } from '@etherealengine/hyperflux'
@@ -37,7 +46,17 @@ import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 import { AppState } from '../../services/AppService'
 import styles from './index.module.scss'
 
-const triggerButton = (button: OldButtonTypes, pressed: boolean): void => {
+const triggerButton = (button: AnyButton, pressed: boolean): void => {
+  const nonCapturedInputSource = getFirstNonCapturedInputSource()
+  if (!nonCapturedInputSource) return
+
+  const inputSource = getComponent(nonCapturedInputSource, InputSourceComponent)
+
+  let buttonState = inputSource.buttons[button]
+  if (buttonState || pressed) {
+    buttonState = buttonState || createInitialButtonState()
+    buttonState.pressed = pressed
+  }
   const eventType = pressed ? 'touchgamepadbuttondown' : 'touchgamepadbuttonup'
   const event = new CustomEvent(eventType, { detail: { button } })
   document.dispatchEvent(event)
@@ -72,10 +91,10 @@ const handleStop = () => {
   document.dispatchEvent(event)
 }
 
-const buttonsConfig: Array<{ button: OldButtonTypes; label: string }> = [
+const buttonsConfig: Array<{ button: AnyButton; label: React.ReactElement }> = [
   {
-    button: 'ButtonA',
-    label: 'A'
+    button: XRStandardGamepadButton.Trigger,
+    label: <Icon type="TouchApp" />
   }
 ]
 
@@ -94,7 +113,7 @@ export const TouchGamepad = () => {
         onPointerDown={(): void => triggerButton(value.button, true)}
         onPointerUp={(): void => triggerButton(value.button, false)}
       >
-        <Icon type="TouchApp" />
+        {value.label}
       </div>
     )
   })

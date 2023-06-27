@@ -35,8 +35,7 @@ import { Engine } from '../../ecs/classes/Engine'
 import { ComponentType, defineQuery, getComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
 import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { createQueryReactor, defineSystem } from '../../ecs/functions/SystemFunctions'
-import { LocalAvatarTagComponent } from '../../input/components/LocalAvatarTagComponent'
-import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
+import { NetworkObjectComponent, NetworkObjectOwnedTag } from '../../networking/components/NetworkObjectComponent'
 import { MediaSettingsState } from '../../networking/MediaSettingsState'
 import { webcamAudioDataChannelType } from '../../networking/NetworkState'
 import { AudioNodeGroups, createAudioNodeGroup, MediaElementComponent } from '../../scene/components/MediaComponent'
@@ -56,7 +55,7 @@ const positionalAudioQuery = defineQuery([PositionalAudioComponent, MediaElement
 /**
  * Avatars
  */
-const networkedAvatarAudioQuery = defineQuery([AvatarComponent, NetworkObjectComponent, Not(LocalAvatarTagComponent)])
+const networkedAvatarAudioQuery = defineQuery([AvatarComponent, NetworkObjectComponent, Not(NetworkObjectOwnedTag)])
 
 const setMediaStreamVolumeActionQueue = defineActionQueue(AudioSettingAction.setMediaStreamVolume.matches)
 

@@ -39,7 +39,6 @@ import { PlayMode } from '@etherealengine/engine/src/scene/constants/PlayMode'
 import { addError } from '@etherealengine/engine/src/scene/functions/ErrorFunctions'
 
 import { SupportedFileTypes } from '../../constants/AssetTypes'
-import { StaticResourceService } from '../../services/StaticResourceService'
 import ArrayInputGroup from '../inputs/ArrayInputGroup'
 import BooleanInput from '../inputs/BooleanInput'
 import { Button } from '../inputs/Button'
@@ -78,27 +77,6 @@ export const MediaNodeEditor: EditorComponentType = (props) => {
     media.paused.set(!media.paused.value)
   }
 
-  const updateResources = async (e) => {
-    const resources = await Promise.all(
-      e.map(async (path, index) => {
-        const extension = `.${path.split('.').pop()}`
-        let existingMedia
-        try {
-          if (AudioFileTypes.indexOf(extension) > -1) existingMedia = await StaticResourceService.uploadAudio(path)
-          else if (VideoFileTypes.indexOf(extension) > -1) existingMedia = await StaticResourceService.uploadVideo(path)
-          else if (VolumetricFileTypes.indexOf(extension) > -1)
-            existingMedia = await StaticResourceService.uploadVolumetric(path)
-          return existingMedia
-        } catch (err) {
-          addError(props.entity, MediaComponent, 'INVALID_URL', path)
-          return {}
-        }
-      })
-    )
-
-    updateProperty(MediaComponent, 'resources')(resources)
-  }
-
   return (
     <NodeEditor
       {...props}
@@ -113,7 +91,13 @@ export const MediaNodeEditor: EditorComponentType = (props) => {
         <></>
       )}
       <InputGroup name="Volume" label={t('editor:properties.media.lbl-volume')}>
-        <CompoundNumericInput value={media.volume.value} onChange={updateProperty(MediaComponent, 'volume')} />
+        <CompoundNumericInput
+          min={0}
+          max={1}
+          step={0.01}
+          value={media.volume.value}
+          onChange={updateProperty(MediaComponent, 'volume')}
+        />
       </InputGroup>
       <InputGroup name="Is Music" label={t('editor:properties.media.lbl-isMusic')}>
         <BooleanInput value={media.isMusic.value} onChange={updateProperty(MediaComponent, 'isMusic')} />
@@ -142,19 +126,8 @@ export const MediaNodeEditor: EditorComponentType = (props) => {
       <ArrayInputGroup
         name="Source Paths"
         prefix="Content"
-        values={media.resources.value.map(
-          (resource) =>
-            resource?.mp3StaticResource?.url ||
-            resource?.mpegStaticResource?.url ||
-            resource?.oggStaticResource?.url ||
-            resource?.mp4StaticResource?.url ||
-            resource?.manifest?.staticResource?.url ||
-            resource?.uvolStaticResource?.url ||
-            resource?.drcsStaticResource?.url ||
-            resource?.path ||
-            ''
-        )}
-        onChange={updateResources}
+        values={media.resources.value}
+        onChange={updateProperty(MediaComponent, 'resources')}
         label={t('editor:properties.media.paths')}
         acceptFileTypes={AllFileTypes}
         itemType={SupportedFileTypes}

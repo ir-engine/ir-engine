@@ -26,7 +26,6 @@ Ethereal Engine. All Rights Reserved.
 export interface StaticResourceInterface {
   id: string
   sid: string
-  // primary variant URL
   url: string
   key: string
   hash?: string
@@ -37,4 +36,5 @@ export interface StaticResourceInterface {
   attribution?: string
   licensing?: string
   tags?: string[]
+  stats?: Record<string, any>
 }

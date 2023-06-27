@@ -1,4 +1,3 @@
-
 /*
 CPAL-1.0 License
 
@@ -108,10 +107,9 @@ async function encodeKTX2BasisTexture(data) {
     if (data.options.uastc) {
       basisEncoder.setKTX2UASTCSupercompression(data.options.uastcZstandard ?? false);
       basisEncoder.setPackUASTCFlags(data.options.uastcFlags ?? 2);
-    } else {
-      basisEncoder.setQualityLevel(data.options.qualityLevel ?? 128);
-      basisEncoder.setCompressionLevel(data.options.compressionLevel ?? 2);
     }
+    basisEncoder.setQualityLevel(data.options.qualityLevel ?? 128);
+    basisEncoder.setCompressionLevel(data.options.compressionLevel ?? 2);
     if (data.options.srgb) {
       basisEncoder.setPerceptual(true);
       basisEncoder.setMipSRGB(true);

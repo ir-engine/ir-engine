@@ -51,34 +51,35 @@ export function defineState<S>(definition: StateDefinition<S>) {
   return definition as StateDefinition<S> & { _TYPE: S }
 }
 
-export function registerState<S>(StateDefinition: StateDefinition<S>, store = HyperFlux.store) {
+export function registerState<S>(StateDefinition: StateDefinition<S>) {
   logger.info(`registerState ${StateDefinition.name}`)
 
   const initial =
     typeof StateDefinition.initial === 'function'
       ? (StateDefinition.initial as Function)()
       : JSON.parse(JSON.stringify(StateDefinition.initial))
-  store.valueMap[StateDefinition.name] = initial
-  store.stateMap[StateDefinition.name] = createState(initial)
-  store.stateMap[StateDefinition.name].attach(() => ({
+  HyperFlux.store.valueMap[StateDefinition.name] = initial
+  HyperFlux.store.stateMap[StateDefinition.name] = createState(initial)
+  HyperFlux.store.stateMap[StateDefinition.name].attach(() => ({
     id: Symbol('update root state value map'),
     init: () => ({
       onSet(arg) {
-        if (arg.path.length === 0 && typeof arg.value === 'object') store.valueMap[StateDefinition.name] = arg.value
+        if (arg.path.length === 0 && typeof arg.value === 'object')
+          HyperFlux.store.valueMap[StateDefinition.name] = arg.value
       }
     })
   }))
-  if (StateDefinition.onCreate) StateDefinition.onCreate(store, getMutableState(StateDefinition, store))
+  if (StateDefinition.onCreate) StateDefinition.onCreate(HyperFlux.store, getMutableState(StateDefinition))
 }
 
-export function getMutableState<S>(StateDefinition: StateDefinition<S>, store = HyperFlux.store) {
-  if (!store.stateMap[StateDefinition.name]) registerState(StateDefinition, store)
-  return store.stateMap[StateDefinition.name] as State<S>
+export function getMutableState<S>(StateDefinition: StateDefinition<S>) {
+  if (!HyperFlux.store.stateMap[StateDefinition.name]) registerState(StateDefinition)
+  return HyperFlux.store.stateMap[StateDefinition.name] as State<S>
 }
 
-export function getState<S>(StateDefinition: StateDefinition<S>, store = HyperFlux.store) {
-  if (!store.stateMap[StateDefinition.name]) registerState(StateDefinition, store)
-  return store.valueMap[StateDefinition.name] as DeepReadonly<S>
+export function getState<S>(StateDefinition: StateDefinition<S>) {
+  if (!HyperFlux.store.stateMap[StateDefinition.name]) registerState(StateDefinition)
+  return HyperFlux.store.valueMap[StateDefinition.name] as DeepReadonly<S>
 }
 
 const stateNamespaceKey = 'ee.hyperflux'

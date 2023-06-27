@@ -9,6 +9,7 @@
         pointer-events: none;
       }
     </style>
+    <base href="/" />
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0, shrink-to-fit=no" />
 
@@ -26,23 +27,23 @@
     <link rel="icon" type="image/png" sizes="32x32" href="<%- favicon32px %>" />
     <link rel="icon" type="image/png" sizes="16x16" href="<%- favicon16px %>" />
 
-    <!-- <link rel="manifest" href="/manifest.webmanifest" /> -->
     <script type="text/javascript">
       var global = globalThis
       var exports = { __esModule: true }
       
       if('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
-            console.log(`[PWA] Registering sw at <%- swScriptLink %>`)
-            // Register the service worker
-            navigator.serviceWorker
-              .register(`${window.location.href.split('/')[0]}/<%- swScriptLink %>`, {
-                scope: `./`,
-                
-              })
-              .then(function (reg) {
-                console.log("[PWA] SW registered at " + reg.scope);
-              });
+          console.log(`[PWA] Registering sw at ${window.location.origin}/<%- swScriptLink %>`)
+
+          // Register the service worker
+          navigator.serviceWorker
+            .register(`${window.location.origin}/<%- swScriptLink %>`, {
+              scope: `./`,
+              
+            })
+            .then(function (reg) {
+              console.log("[PWA] SW registered at " + reg.scope);
+            })
         })
       }
     </script>

@@ -243,7 +243,6 @@ export const startMediaRecording = async (recordingID: string, userID: UserId, m
       key,
       body: stream,
       mimeType: format,
-      staticResourceType: recording.format === 'mp3' ? 'audio' : 'video',
       hash: createHash('sha3-256').update(key.split('/').pop()!.split('.')[0]).digest('hex')
     }).then(() => {
       logger.info('Uploaded media file' + key)

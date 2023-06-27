@@ -23,11 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { config } from '@etherealengine/common/src/config'
 import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 import { AvatarProps } from '@etherealengine/engine/src/networking/interfaces/WorldState'
 import { State } from '@etherealengine/hyperflux/functions/StateFunctions'
 
-export const DEFAULT_PROFILE_IMG_PLACEHOLDER = '/placeholders/default-silhouette.svg'
+export const DEFAULT_PROFILE_IMG_PLACEHOLDER = `${config.client.fileServer}/projects/default-project/assets/default-silhouette.svg`
 
 export function getAvatarURLForUser(userAvatarDetails: State<Record<UserId, AvatarProps>>, userId?: UserId) {
   return (userId && userAvatarDetails[userId].thumbnailURL?.value) || DEFAULT_PROFILE_IMG_PLACEHOLDER

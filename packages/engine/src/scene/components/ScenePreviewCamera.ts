@@ -44,14 +44,17 @@ export const ScenePreviewCameraComponent = defineComponent({
   onInit: (entity) => {
     const camera = new PerspectiveCamera(80, 16 / 9, 0.2, 8000)
     addObjectToGroup(entity, camera)
-    const transform = getComponent(entity, TransformComponent)
-    const cameraTransform = getComponent(Engine.instance.cameraEntity, TransformComponent)
-    cameraTransform.position.copy(transform.position)
-    cameraTransform.rotation.copy(transform.rotation)
     return {
       camera,
       helper: null as CameraHelper | null
     }
+  },
+
+  onSet: (entity, component) => {
+    const transform = getComponent(entity, TransformComponent)
+    const cameraTransform = getComponent(Engine.instance.cameraEntity, TransformComponent)
+    cameraTransform.position.copy(transform.position)
+    cameraTransform.rotation.copy(transform.rotation)
   },
 
   onRemove: (entity, component) => {

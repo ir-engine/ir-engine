@@ -37,7 +37,7 @@ import {
   Texture
 } from '@gltf-transform/core'
 import { EXTMeshGPUInstancing, KHRTextureBasisu } from '@gltf-transform/extensions'
-import { dedup, draco, partition, prune, reorder, weld } from '@gltf-transform/functions'
+import { dedup, draco, flatten, join, palette, partition, prune, reorder, weld } from '@gltf-transform/functions'
 import appRootPath from 'app-root-path'
 import { execFileSync } from 'child_process'
 import { createHash } from 'crypto'
@@ -117,6 +117,31 @@ function pruneUnusedNodes(nodes: Node[], logger) {
   }
 }
 
+function removeUVsOnUntexturedMeshes(document: Document) {
+  document
+    .getRoot()
+    .listMeshes()
+    .map((mesh) => {
+      const prims = mesh.listPrimitives()
+      if (prims.length === 1) {
+        const prim = prims[0]
+        const material = prim.getMaterial()
+        if (
+          material &&
+          (material.getBaseColorTexture() ||
+            material.getNormalTexture() ||
+            material.getEmissiveTexture() ||
+            material.getOcclusionTexture() ||
+            material.getMetallicRoughnessTexture())
+        ) {
+          return
+        }
+        prim.setAttribute('TEXCOORD_0', null)
+        prim.setAttribute('TEXCOORD_1', null)
+      }
+    })
+}
+
 const split = async (document: Document) => {
   const root = document.getRoot()
   const scene = root.listScenes()[0]
@@ -128,6 +153,7 @@ const split = async (document: Document) => {
   const primMeshes = new Map()
   toSplit.map((node) => {
     const mesh = node.getMesh()!
+    const nuNodes: Node[] = []
     mesh.listPrimitives().map((prim, primIdx) => {
       if (primIdx > 0) {
         if (!primMeshes.has(prim)) {
@@ -137,10 +163,15 @@ const split = async (document: Document) => {
         }
         const nuNode = document.createNode(node.getName() + '-' + primIdx).setMesh(primMeshes.get(prim))
         node.getSkin() && nuNode.setSkin(node.getSkin())
-        node.getParent()?.addChild(nuNode)
+        ;(node.getParentNode() ?? scene).addChild(nuNode)
         nuNode.setMatrix(node.getMatrix())
+        nuNodes.push(nuNode)
       }
     })
+    node.listChildren().map((child) => {
+      nuNodes[0]?.addChild(child)
+    })
+    node.detach()
   })
   toSplit.map((node) => {
     const mesh = node.getMesh()!
@@ -149,6 +180,7 @@ const split = async (document: Document) => {
         mesh.removePrimitive(prim)
       }
     })
+    node.setMesh(null)
   })
 }
 
@@ -259,14 +291,15 @@ export async function combineMeshes(document: Document) {
       matPrims?.push(prim)
     }
   }
-  ;[...matMap.entries()].map(([material, prims]) => {
+  const nuPrims = [...matMap.entries()].map(([material, prims]) => {
     const nuPrim = document.createPrimitive()
     nuPrim.setMaterial(material)
     prims.map((prim) => {
-      prim.listAttributes().map((accessor) => {
-        let nuAttrib = nuPrim.getAttribute(accessor.getName())
+      prim.listSemantics().map((key) => {
+        const accessor = prim.getAttribute(key)!
+        let nuAttrib = nuPrim.getAttribute(key)
         if (!nuAttrib) {
-          nuPrim.setAttribute(accessor.getName(), accessor)
+          nuPrim.setAttribute(key, accessor)
           nuAttrib = accessor
         } else {
           nuAttrib.setArray(
@@ -275,6 +308,15 @@ export async function combineMeshes(document: Document) {
         }
       })
     })
+    return nuPrim
+  })
+  root.listNodes().map((node) => {
+    if (node.getMesh()) {
+      node.setMesh(null)
+    }
+  })
+  nuPrims.map((nuPrim) => {
+    root.listScenes()[0].addChild(document.createNode().setMesh(document.createMesh().addPrimitive(nuPrim)))
   })
 }
 
@@ -371,6 +413,12 @@ export async function transformModel(app: Application, args: ModelTransformArgum
   await combineMaterials(document)
   args.parms.instance && (await myInstance(document))
   args.parms.dedup && (await document.transform(dedup()))
+  args.parms.flatten && (await document.transform(flatten()))
+  args.parms.join && (await document.transform(join(args.parms.join.options)))
+  if (args.parms.palette.enabled) {
+    removeUVsOnUntexturedMeshes(document)
+    await document.transform(palette(args.parms.palette.options))
+  }
   args.parms.prune && (await document.transform(prune()))
 
   /* Separate Instanced Geometry */
@@ -560,6 +608,6 @@ export async function transformModel(app: Application, args: ModelTransformArgum
     result = await doUpload(args.dst.replace(/\.glb$/, '.gltf'), Buffer.from(JSON.stringify(json)))
     console.log('Handled gltf file')
   }
-  if (fs.existsSync(tmpDir)) await execFileSync('rm', ['-R', tmpDir])
+  fs.existsSync(tmpDir) && (await execFileSync('rm', ['-R', tmpDir]))
   return result
 }

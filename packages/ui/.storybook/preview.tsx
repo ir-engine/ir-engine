@@ -24,25 +24,15 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { ArgsTable, Description, Primary, PRIMARY_STORY, Stories, Subtitle, Title } from '@storybook/addon-docs'
+import { Preview } from '@storybook/react'
 import React from 'react'
-import { Suspense } from 'react'
 import { withRouter } from 'storybook-addon-react-router-v6'
 
 import Engine_tw from '@etherealengine/client/src/engine_tw'
-// import { withTests } from '@storybook/addon-jest'
-// import results from '../tests/jest-test-results.json'
 import { ThemeContextProvider } from '@etherealengine/client/src/themes/themeContext'
-import LoadingCircle from '@etherealengine/ui/src/primitives/tailwind/LoadingCircle'
-
-// import { withThemes } from '@react-theming/storybook-addon'
-
-// import sStyle from '@etherealengine/client-core/src/util/GlobalStyle'
-
-// import { theme as defaultTheme, useTheme } from '@etherealengine/client-core/src/theme'
 
 export const decorators = [
   withRouter,
-  // withTests({ results }),
   (Story) => {
     return (
       <ThemeContextProvider>
@@ -52,8 +42,18 @@ export const decorators = [
       </ThemeContextProvider>
     )
   }
-  // withThemes(null, [defaultTheme], { providerFn })
 ]
+
+const preview: Preview = {
+  globalTypes: {
+    eeEnabled: {
+      description: 'Ethereal Engine',
+      defaultValue: false
+    }
+  }
+}
+
+export default preview
 
 export const parameters = {
   controls: {
@@ -64,7 +64,7 @@ export const parameters = {
   },
   options: {
     storySort: {
-      order: ['Expermiental']
+      order: ['Pages', 'Admin', 'Components', 'Primitives', 'Addons', 'Expermiental']
     }
   },
   docs: {

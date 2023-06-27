@@ -27,25 +27,38 @@ import { useEffect } from 'react'
 import {
   BoxGeometry,
   BoxHelper,
+  Material,
   Mesh,
+  MeshLambertMaterial,
+  MeshPhongMaterial,
   MeshPhysicalMaterial,
   MeshStandardMaterial,
   Object3D,
   Scene,
   SphereGeometry,
-  Vector3
+  Vector3,
+  WebGLCubeRenderTarget
 } from 'three'
 
 import { getMutableState, getState, none, useHookstate } from '@etherealengine/hyperflux'
 
-import { matches } from '../../common/functions/MatchesUtils'
+import { matches, object } from '../../common/functions/MatchesUtils'
 import { Engine } from '../../ecs/classes/Engine'
+import { EngineActions, EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import { SceneState } from '../../ecs/classes/Scene'
 import { defineComponent, getComponent, hasComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
 import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { EntityTreeComponent, traverseEntityNode } from '../../ecs/functions/EntityTree'
 import { RendererState } from '../../renderer/RendererState'
+import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
+import { TransformComponent } from '../../transform/components/TransformComponent'
+import {
+  envmapParsReplaceLambert,
+  envmapPhysicalParsReplace,
+  envmapReplaceLambert,
+  worldposReplace
+} from '../classes/BPCEMShader'
 import { ObjectLayers } from '../constants/ObjectLayers'
 import { setObjectLayers } from '../functions/setObjectLayers'
 import { EnvMapBakeRefreshTypes } from '../types/EnvMapBakeRefreshTypes'
@@ -163,4 +176,62 @@ export const prepareSceneForBake = (): Scene => {
   })
 
   return scene
+}
+
+//Hacky tentative solution, injects shader code into threejs' shaders for box box projected envmaps
+//Depends on shader type to add pbr or non pbr shader logic
+export const applyBoxProjection = (entity: Entity, targets: Object3D[]) => {
+  const bakeComponent = getComponent(entity, EnvMapBakeComponent)
+  for (const target of targets) {
+    target.traverse((child: Mesh<any, MeshStandardMaterial>) => {
+      if (!child.material || child.type == 'VFXBatch') return
+
+      if (child.material instanceof MeshPhysicalMaterial || child.material instanceof MeshStandardMaterial) {
+        child.material = Object.assign(new MeshPhysicalMaterial(), child.material)
+        child.material.onBeforeCompile = (shader, renderer) => {
+          shader.uniforms.cubeMapSize = { value: bakeComponent.bakeScale }
+          shader.uniforms.cubeMapPos = { value: bakeComponent.bakePositionOffset }
+
+          //replace shader chunks with box projection chunks
+          if (!shader.vertexShader.startsWith('varying vec3 vWorldPosition'))
+            shader.vertexShader = 'varying vec3 vWorldPosition;\n' + shader.vertexShader
+
+          shader.vertexShader = shader.vertexShader.replace('#include <worldpos_vertex>', worldposReplace)
+
+          shader.fragmentShader = shader.fragmentShader.replace(
+            '#include <envmap_physical_pars_fragment>',
+            envmapPhysicalParsReplace
+          )
+        }
+      }
+      if ((child.material as any) instanceof MeshLambertMaterial) {
+        child.material.onBeforeCompile = function (shader) {
+          //these parameters are for the cubeCamera texture
+          shader.uniforms.cubeMapSize = { value: bakeComponent.bakeScale }
+          shader.uniforms.cubeMapPos = { value: bakeComponent.bakePositionOffset }
+          //replace shader chunks with box projection chunks
+
+          shader.fragmentShader = shader.fragmentShader.replace(
+            '#include <envmap_pars_fragment>',
+            envmapParsReplaceLambert
+          )
+          shader.fragmentShader = shader.fragmentShader.replace('#include <envmap_fragment>', envmapReplaceLambert)
+
+          shader.uniforms.envMap = { value: child.material.envMap }
+        }
+      }
+    })
+  }
+}
+
+export const isInsideBox = (extents: Vector3, point: Vector3) => {
+  const bounds = { x: extents.x * 0.5, y: extents.y * 0.5, z: extents.z * 0.5 }
+  return (
+    point.x <= bounds.x &&
+    point.x >= -bounds.x &&
+    point.y <= bounds.y &&
+    point.y >= -bounds.y &&
+    point.z <= bounds.z &&
+    point.z >= -bounds.z
+  )
 }

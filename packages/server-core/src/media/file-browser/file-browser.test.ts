@@ -348,12 +348,12 @@ describe('file browser service', () => {
 
       result.forEach((r) => assert(r === true))
 
-      const staticResource = (await app.service('static-resource').find({
+      const staticResource = await app.service('static-resource').find({
         query: {
           key: filePath,
           $limit: 1
         }
-      })) as Paginated<StaticResourceInterface>
+      })
 
       assert(!fs.existsSync(filePath))
       assert(!fs.existsSync(fileStoragePath))

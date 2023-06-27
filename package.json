@@ -132,6 +132,7 @@
     "@aws-sdk/client-s3": "^3.319.0",
     "@feathersjs/errors": "5.0.5",
     "@feathersjs/feathers": "5.0.5",
+    "@feathersjs/schema": "5.0.5",
     "@feathersjs/typebox": "5.0.5",
     "app-root-path": "3.1.0",
     "cli": "1.0.1",
@@ -146,7 +147,6 @@
     "react-json-view": "^1.21.3",
     "tailwindcss": "^3.2.7",
     "three": "0.150.1",
-    "three.quarks": "^0.10.2",
     "ts-node": "10.9.1",
     "typescript": "5.0.2"
   }
