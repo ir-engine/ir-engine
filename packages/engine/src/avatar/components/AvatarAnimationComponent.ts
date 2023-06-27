@@ -155,7 +155,8 @@ export const AvatarRigComponent = defineComponent({
         headHint: new Object3D()
       } as ikTargets,
 
-      ikOffsetsMap: new Map<string, Vector3>()
+      ikOffsetsMap: new Map<string, Vector3>(),
+      rootOffset: new Vector3()
     }
   },
 
@@ -279,9 +280,13 @@ export const AvatarRigComponent = defineComponent({
             break
           case 'headHint':
           case 'headTarget':
-            bonePos.copy(rigComponent.bindRig.head.value.node.matrixWorld)
+            bonePos.copy(
+              rigComponent.bindRig.head.value.node.matrixWorld.multiply(new Matrix4().setPosition(0, -0.05, 0))
+            )
           case 'hipsTarget':
-            bonePos.copy(rigComponent.bindRig.hips.value.node.matrixWorld)
+            bonePos.copy(
+              rigComponent.bindRig.hips.value.node.matrixWorld.multiply(new Matrix4().setPosition(0, -0.05, 0))
+            )
         }
         const pos = new Vector3()
         bonePos.decompose(pos, new Quaternion(), new Vector3())

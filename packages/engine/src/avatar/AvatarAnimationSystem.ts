@@ -350,7 +350,9 @@ const execute = () => {
     leftHandRot.multiplyQuaternions(rot, rigComponent.ikTargetsMap.leftHandTarget.quaternion)
 
     //calculate hips to head
-    rig.hips.node.position.copy(rigComponent.ikTargetsMap.hipsTarget.position)
+    rig.hips.node.position.copy(
+      rigComponent.vrm.humanoid.normalizedHumanBonesRoot.worldToLocal(worldSpaceTargets.hipsTarget)
+    )
     _hipVector.subVectors(rigComponent.ikTargetsMap.headTarget.position, rigComponent.ikTargetsMap.hipsTarget.position)
     rig.hips.node.quaternion
       .setFromUnitVectors(V_010, _hipVector)

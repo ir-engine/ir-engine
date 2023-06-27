@@ -28,7 +28,19 @@ import * as VRMUtils from '@pixiv/three-vrm'
 import { pipe } from 'bitecs'
 import { clone, cloneDeep } from 'lodash'
 import { useEffect } from 'react'
-import { AnimationClip, AnimationMixer, Bone, Box3, Group, Mesh, Object3D, Skeleton, SkinnedMesh, Vector3 } from 'three'
+import {
+  AnimationClip,
+  AnimationMixer,
+  Bone,
+  Box3,
+  Group,
+  Matrix4,
+  Mesh,
+  Object3D,
+  Skeleton,
+  SkinnedMesh,
+  Vector3
+} from 'three'
 import { GLTF } from 'three/examples/jsm/loaders/GLTFLoader'
 
 import { dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
@@ -92,8 +104,6 @@ export const loadAvatarModelAsset = async (avatarURL: string) => {
     const vrm: VRM = model.userData.vrm
     VRMUtils.VRMUtils.removeUnnecessaryJoints(vrm.scene)
     VRMUtils.VRMUtils.removeUnnecessaryVertices(vrm.scene)
-
-    vrm.humanoid.humanBones.hips.node.rotateY(Math.PI)
 
     return vrm as VRM
     // vrm.scene.traverse((l) => {
@@ -208,7 +218,6 @@ export const setupAvatarForUser = (entity: Entity, model: VRM) => {
   })
 
   computeTransformMatrix(entity)
-  //updateGroupChildren(entity)
   setupAvatarHeight(entity, model.scene)
   createIKAnimator(entity)
 
@@ -275,6 +284,8 @@ export const rigAvatarModel = (entity: Entity) => (model: VRM) => {
     vrm: model
   })
 
+  centerAvatar(entity)
+
   const rigComponent = getComponent(entity, AvatarRigComponent)
   for (const [key, value] of Object.entries(rigComponent.ikTargetsMap)) {
     value.name = key
@@ -284,6 +295,17 @@ export const rigAvatarModel = (entity: Entity) => (model: VRM) => {
   avatarAnimationComponent.rootYRatio = 1
 
   return model
+}
+
+const offset = new Vector3()
+const foot = new Vector3()
+export const centerAvatar = (entity: Entity) => {
+  //use right foot and left food rig nodes to calculate the center of the avatar
+  const rigComponent = getComponent(entity, AvatarRigComponent)
+  rigComponent.vrm.humanoid.humanBones.hips.node.getWorldPosition(offset).multiplyScalar(2)
+  console.log(-rigComponent.vrm.humanoid.humanBones.rightFoot.node.getWorldPosition(foot).y)
+  offset.y = -rigComponent.vrm.humanoid.humanBones.rightFoot.node.getWorldPosition(foot).y
+  rigComponent.vrm.humanoid.normalizedHumanBonesRoot.position.add(offset)
 }
 
 export const animateAvatarModel = (entity: Entity) => (model: VRM) => {
@@ -311,11 +333,6 @@ export const animateAvatarModel = (entity: Entity) => (model: VRM) => {
 */
   // advance animation for a frame to eliminate potential t-pose
   animationComponent.mixer.update(1 / 60)
-}
-
-export const animateModel = (entity: Entity) => {
-  const animationComponent = getComponent(entity, AnimationComponent)
-  animationComponent.mixer.clipAction(AnimationClip.findByName(animationComponent.animations, 'wave')).play()
 }
 
 export const setupAvatarMaterials = (entity, root) => {

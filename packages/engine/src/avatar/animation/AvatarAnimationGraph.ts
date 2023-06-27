@@ -23,10 +23,14 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { AnimationClip, AnimationMixer, Vector2, Vector3 } from 'three'
+import { clamp } from 'lodash'
+import { AnimationClip, AnimationMixer, LoopOnce, LoopRepeat, Vector2, Vector3 } from 'three'
+import { lerp } from 'three/src/math/MathUtils'
 
 import { getState } from '@etherealengine/hyperflux'
 
+import { Engine } from '../../ecs/classes/Engine'
+import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import { getComponent } from '../../ecs/functions/ComponentFunctions'
 import { AnimationManager } from '../AnimationManager'
@@ -47,15 +51,35 @@ export const getAnimationAction = (name: string, mixer: AnimationMixer, animatio
 }
 
 const moveLength = new Vector3()
+let fallWeight = 0,
+  runWeight = 0,
+  idleWeight = 1
 
-//will need 2d blending between axes of movement
+//This is a stateless blend tree, it is not a graph
+//To do: make a stateful blend tree
 export const setAvatarLocomotionAnimation = (entity: Entity) => {
   const animationComponent = getComponent(entity, AnimationComponent)
   const avatarAnimationComponent = getComponent(entity, AvatarAnimationComponent)
+  const avatarControllerComponent = getComponent(entity, AvatarControllerComponent)
 
   const idle = getAnimationAction('Idle', animationComponent.mixer)
   const run = getAnimationAction('Run', animationComponent.mixer)
-  run.play()
+  const fall = getAnimationAction('Fall', animationComponent.mixer)
   idle.play()
-  run.setEffectiveWeight(moveLength.copy(avatarAnimationComponent.locomotion).setY(0).lengthSq())
+  fall.play()
+  run.play()
+
+  fallWeight = lerp(fallWeight, avatarControllerComponent.isInAir ? 1 : 0, getState(EngineState).deltaSeconds * 10)
+  runWeight = clamp(moveLength.copy(avatarAnimationComponent.locomotion).setY(0).lengthSq() * 0.1, 0, 1) - fallWeight
+  idleWeight = clamp(1 - runWeight, 0, 1) - fallWeight
+  run.setEffectiveWeight(runWeight)
+  fall.setEffectiveWeight(fallWeight)
+  idle.setEffectiveWeight(idleWeight)
+}
+
+export const startAnimation = (avatar: Entity, animationName: string, loop: boolean = false, speed: number = 1) => {
+  const animationComponent = getComponent(avatar, AnimationComponent)
+  const animationAction = getAnimationAction(animationName, animationComponent.mixer)
+  animationAction.setLoop(loop ? LoopRepeat : LoopOnce, Infinity)
+  //blend from animation component mixer's current animation to passed animation
 }
