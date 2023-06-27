@@ -125,7 +125,7 @@ const AppPage = () => {
 
   return (
     <>
-      <div className="w-full h-full container mx-auto overflow-y-scroll pointer-events-auto">
+      <div className="w-full h-full container mx-auto pointer-events-auto">
         <CaptureComp />
       </div>
       {projectComponents.map((Component, i) => (
@@ -137,12 +137,12 @@ const AppPage = () => {
 
 const TailwindPage = () => {
   return (
-    <EngineTW>
-      <ThemeContextProvider>
+    <ThemeContextProvider>
+      <EngineTW>
         <AppPage />
         <Debug />
-      </ThemeContextProvider>
-    </EngineTW>
+      </EngineTW>
+    </ThemeContextProvider>
   )
 }
 
