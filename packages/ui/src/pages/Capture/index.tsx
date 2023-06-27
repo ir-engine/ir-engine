@@ -139,22 +139,6 @@ const CaptureDashboard = () => {
 
   const videoActive = useHookstate(false)
 
-  const resizeCanvas = () => {
-    canvasRef.current!.width = videoRef.current!.clientWidth
-    canvasRef.current!.height = videoRef.current!.clientHeight
-  }
-
-  useEffect(() => {
-    window.addEventListener('resize', () => {
-      resizeCanvas()
-    })
-    return () => {
-      window.removeEventListener('resize', () => {
-        resizeCanvas()
-      })
-    }
-  }, [])
-
   useEffect(() => {
     RecordingFunctions.getRecordings()
   }, [])
@@ -170,7 +154,6 @@ const CaptureDashboard = () => {
     videoRef.current!.srcObject = videoStream.value
     videoRef.current!.onplay = () => videoActive.set(true)
     videoRef.current!.onpause = () => videoActive.set(false)
-    resizeCanvas()
   }, [videoStream, poseOptions.selfieMode])
 
   useEffect(() => {
@@ -293,7 +276,8 @@ const CaptureDashboard = () => {
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   useVideoFrameCallback(videoRef.current, (videoTime, metadata) => {
-    resizeCanvas()
+    canvasRef.current!.width = videoRef.current!.clientWidth
+    canvasRef.current!.height = videoRef.current!.clientHeight
 
     if (processingFrame.value) return
 
@@ -320,22 +304,16 @@ const CaptureDashboard = () => {
   }
 
   const isCamVideoEnabled =
-    mediaStreamState?.camVideoProducer?.value !== null && mediaStreamState?.videoPaused?.value === false
+    mediaStreamState?.camVideoProducer?.value !== null && mediaStreamState.videoPaused.value !== null
   const videoStatus =
-    !mediaConnection?.connected?.value && !videoActive?.value
+    mediaConnection?.connected?.value === false && videoActive?.value === false
       ? 'loading'
       : isCamVideoEnabled !== true
       ? 'ready'
       : 'active'
-  const recordingStatus =
-    !recordingState?.recordingID?.value && isDetecting?.value !== true
-      ? 'inactive'
-      : recordingState?.started?.value
-      ? 'active'
-      : 'ready'
 
   return (
-    <div className="w-full container mx-auto">
+    <div className="w-full">
       <Drawer
         settings={
           <div className="w-100 bg-base-100">
@@ -443,16 +421,13 @@ const CaptureDashboard = () => {
         }
       >
         <Header />
-        <div className="w-full container mx-auto">
-          <div className="w-full h-auto px-2">
-            <div className="w-full h-auto relative aspect-w-16 aspect-h-9 overflow-hidden">
-              <div className="absolute w-full h-auto top-0 left-0" style={{ backgroundColor: '#000000' }}>
-                <Video ref={videoRef} className="w-full h-auto" />
+        <div className="grid justify-items-center grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="card p-4 pb-6 overflow-hidden">
+            <div className="w-full relative ">
+              <div className="relative w-full h-auto max-w-full" style={{ backgroundColor: '#000000' }}>
+                <Video ref={videoRef} className="w-full h-auto max-w-full" />
               </div>
-              <div
-                className="object-contain absolute top-0 left-0 z-20 min-w-full h-auto"
-                style={{ objectFit: 'contain', top: '0px' }}
-              >
+              <div className="object-contain absolute top-0 z-20" style={{ objectFit: 'contain', top: '0px' }}>
                 <Canvas ref={canvasRef} />
               </div>
               {videoStatus !== 'active' ? (
@@ -460,43 +435,50 @@ const CaptureDashboard = () => {
                   onClick={() => {
                     if (mediaConnection?.connected?.value) toggleWebcamPaused()
                   }}
-                  className="absolute btn btn-ghost bg-none h-full w-full container mx-auto m-0 p-0 top-0 left-0"
+                  className="absolute btn btn-ghost w-full h-full bg-none"
+                  style={{ objectFit: 'contain', top: '0px' }}
                 >
-                  <h1>{mediaConnection?.connected?.value ? 'Enable Camera' : 'Loading...'}</h1>
+                  <div className="grid w-screen h-screen place-items-center">
+                    <h1>{mediaConnection?.connected?.value ? 'Enable Camera' : 'Connecting...'}</h1>
+                  </div>
                 </button>
               ) : null}
             </div>
+            <div className="w-full relative ">
+              {mediaConnection?.connected?.value ? (
+                <Toolbar
+                  className="w-full z-30 fixed bottom-0"
+                  videoStatus={videoStatus}
+                  detectingStatus={detectingStatus}
+                  onToggleRecording={onToggleRecording}
+                  toggleWebcam={toggleWebcamPaused}
+                  toggleDetecting={() => isDetecting.set((v) => !v)}
+                  isRecording={recordingState.started.value}
+                  recordingStatus={recordingState.recordingID.value}
+                  isVideoFlipped={isVideoFlipped}
+                  flipVideo={(v) => {
+                    setIsVideoFlipped(v)
+                  }}
+                  cycleCamera={MediaStreamService.cycleCamera}
+                  isDrawingBody={isDrawingBody}
+                  drawBody={(v) => {
+                    setIsDrawingBody(v)
+                  }}
+                  isDrawingHands={isDrawingHands}
+                  drawHands={(v) => {
+                    setIsDrawingHands(v)
+                  }}
+                  isDrawingFace={isDrawingFace}
+                  drawFace={(v) => {
+                    setIsDrawingFace(v)
+                  }}
+                />
+              ) : (
+                <div className="navbar border-none w-full z-30 fixed bottom-0"></div>
+              )}
+            </div>
           </div>
-          <div className="w-full container mx-auto">
-            <Toolbar
-              className="w-full"
-              videoStatus={videoStatus}
-              detectingStatus={detectingStatus}
-              onToggleRecording={onToggleRecording}
-              toggleWebcam={toggleWebcamPaused}
-              toggleDetecting={() => isDetecting.set((v) => !v)}
-              isRecording={recordingState?.started?.value}
-              recordingStatus={recordingStatus}
-              isVideoFlipped={isVideoFlipped}
-              flipVideo={(v) => {
-                setIsVideoFlipped(v)
-              }}
-              cycleCamera={MediaStreamService.cycleCamera}
-              isDrawingBody={isDrawingBody}
-              drawBody={(v) => {
-                setIsDrawingBody(v)
-              }}
-              isDrawingHands={isDrawingHands}
-              drawHands={(v) => {
-                setIsDrawingHands(v)
-              }}
-              isDrawingFace={isDrawingFace}
-              drawFace={(v) => {
-                setIsDrawingFace(v)
-              }}
-            />
-          </div>
-          <div className="w-full container mx-auto">
+          <div className="card p-4">
             <div className="w-full relative">
               <RecordingsList
                 {...{

@@ -30,7 +30,7 @@ import { EngineActions } from '@etherealengine/engine/src/ecs/classes/EngineStat
 import { PresentationSystemGroup } from '@etherealengine/engine/src/ecs/functions/EngineFunctions'
 import { startSystems } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import { dispatchAction, getMutableState, useHookstate } from '@etherealengine/hyperflux'
-import Dashboard from '@etherealengine/ui/src/components/admin/Dashboard'
+import Dashboard from '@etherealengine/ui/src/primitives/mui/Dashboard'
 
 import { LoadingCircle } from '../components/LoadingCircle'
 import { AdminSystem } from '../systems/AdminSystem'
