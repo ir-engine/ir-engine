@@ -1,3 +1,28 @@
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
 import { Not } from 'bitecs'
 import { useEffect } from 'react'
 import { Camera, Frustum, Matrix4, Mesh, Skeleton, SkinnedMesh, Vector3 } from 'three'
@@ -17,7 +42,6 @@ import {
   removeQuery
 } from '../../ecs/functions/ComponentFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
-import { LocalAvatarTagComponent } from '../../input/components/LocalAvatarTagComponent'
 import { BoundingBoxComponent, BoundingBoxDynamicTag } from '../../interaction/components/BoundingBoxComponents'
 import { NetworkState } from '../../networking/NetworkState'
 import {
@@ -263,10 +287,10 @@ const execute = () => {
   /**
    * Sort transforms if needed
    */
-  const { transformsNeedSorting } = getState(EngineState)
+  const engineState = getState(EngineState)
   const xrFrame = Engine.instance.xrFrame
 
-  let needsSorting = transformsNeedSorting
+  let needsSorting = engineState.transformsNeedSorting
 
   for (const entity of transformQuery.enter()) {
     sortedTransformEntities.push(entity)
@@ -294,17 +318,17 @@ const execute = () => {
   const awakeRigidbodyEntities = allRigidbodyEntities.filter(filterAwakeRigidbodies)
 
   // lerp awake rigidbody entities (and make their transforms dirty)
-  const fixedRemainder = Engine.instance.elapsedSeconds - Engine.instance.fixedElapsedSeconds
-  const alpha = Math.min(fixedRemainder / getState(EngineState).fixedDeltaSeconds, 1)
+  const simulationRemainder = engineState.frameTime - engineState.simulationTime
+  const alpha = Math.min(simulationRemainder / engineState.simulationTimestep, 1)
   for (const entity of awakeRigidbodyEntities) lerpTransformFromRigidbody(entity, alpha)
 
   // entities with dirty parent or reference entities, or computed transforms, should also be dirty
   for (const entity of transformQuery()) {
     const makeDirty =
       TransformComponent.dirtyTransforms[entity] ||
-      TransformComponent.dirtyTransforms[getOptionalComponent(entity, LocalTransformComponent)?.parentEntity ?? 0] ||
+      TransformComponent.dirtyTransforms[getOptionalComponent(entity, LocalTransformComponent)?.parentEntity ?? -1] ||
       TransformComponent.dirtyTransforms[
-        getOptionalComponent(entity, ComputedTransformComponent)?.referenceEntity ?? 0
+        getOptionalComponent(entity, ComputedTransformComponent)?.referenceEntity ?? -1
       ] ||
       hasComponent(entity, ComputedTransformComponent)
     TransformComponent.dirtyTransforms[entity] = makeDirty

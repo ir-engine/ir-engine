@@ -1,3 +1,28 @@
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
 import { useEffect } from 'react'
 import {
   AdditiveBlending,
@@ -25,6 +50,7 @@ import { Entity } from '../ecs/classes/Entity'
 import { defineQuery, getComponent, removeQuery, setComponent } from '../ecs/functions/ComponentFunctions'
 import { createEntity, removeEntity } from '../ecs/functions/EntityFunctions'
 import { defineSystem } from '../ecs/functions/SystemFunctions'
+import { InputSourceComponent } from '../input/components/InputSourceComponent'
 import { EngineRenderer } from '../renderer/WebGLRendererSystem'
 import { addObjectToGroup } from '../scene/components/GroupComponent'
 import { NameComponent } from '../scene/components/NameComponent'
@@ -152,6 +178,10 @@ let fadeBackInAccumulator = -1
 
 let visibleSegments = 2
 
+const inputSourceQuery = defineQuery([InputSourceComponent])
+
+const filterUncapturedInputSources = (eid: Entity) => !getComponent(eid, InputSourceComponent)?.captured
+
 const execute = () => {
   if (getCameraMode() !== 'attached') return
 
@@ -182,13 +212,17 @@ const execute = () => {
     transition.setState('IN')
   }
   const guidelineTransform = getComponent(guidelineEntity, TransformComponent)
+
+  const nonCapturedInputSources = inputSourceQuery().filter(filterUncapturedInputSources)
+
   for (const entity of avatarTeleportQuery()) {
     const side = getComponent(Engine.instance.localClientEntity, AvatarTeleportComponent).side
     const referenceSpace = ReferenceSpace.origin!
 
-    for (const inputSource of Engine.instance.inputSources) {
-      if (inputSource.handedness === side) {
-        const pose = Engine.instance.xrFrame!.getPose(inputSource.targetRaySpace, referenceSpace)!
+    for (const inputSourceEntity of nonCapturedInputSources) {
+      const inputSourceComponent = getComponent(inputSourceEntity, InputSourceComponent)
+      if (inputSourceComponent.source.handedness === side) {
+        const pose = Engine.instance.xrFrame!.getPose(inputSourceComponent.source.targetRaySpace, referenceSpace)!
         guidelineTransform.position.copy(pose.transform.position as any as Vector3)
         guidelineTransform.rotation.copy(pose.transform.orientation as any as Quaternion)
         guidelineTransform.matrixInverse.fromArray(pose.transform.inverse.matrix)

@@ -1,3 +1,28 @@
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
 import { Downgraded, State } from '@hookstate/core'
 import { merge } from 'lodash'
 import { Validator } from 'ts-matches'
@@ -24,8 +49,13 @@ export interface HyperStore {
   forwardIncomingActions: (action: Required<ResolvedActionType>) => boolean
   /**
    * A function which returns the dispatch id assigned to actions
+   * @deprecated can be derived from agentId via mapping
    * */
   getDispatchId: () => string
+  /**
+   * A function which returns the agent id assigned to actions
+   */
+  getPeerId: () => string
   /**
    * A function which returns the current dispatch time (units are arbitrary)
    */
@@ -37,7 +67,7 @@ export interface HyperStore {
   /**
    * The default dispatch delay (default is 0)
    */
-  defaultDispatchDelay: number
+  defaultDispatchDelay: () => number
   /**
    * State dictionary
    */
@@ -86,17 +116,19 @@ export class HyperFlux {
 export function createHyperStore(options: {
   forwardIncomingActions?: (action: Required<ResolvedActionType>) => boolean
   getDispatchId: () => string
+  getPeerId: () => string
   getDispatchTime: () => number
   getCurrentReactorRoot?: () => ReactorRoot | undefined
-  defaultDispatchDelay?: number
+  defaultDispatchDelay?: () => number
 }) {
   const store = {
     defaultTopic: 'default' as Topic,
     forwardIncomingActions: options.forwardIncomingActions ?? (() => false),
     getDispatchId: options.getDispatchId,
+    getPeerId: options.getPeerId,
     getDispatchTime: options.getDispatchTime,
     getCurrentReactorRoot: options.getCurrentReactorRoot ?? (() => null),
-    defaultDispatchDelay: options.defaultDispatchDelay ?? 0,
+    defaultDispatchDelay: options.defaultDispatchDelay ?? (() => 0),
 
     stateMap: {},
     valueMap: {},

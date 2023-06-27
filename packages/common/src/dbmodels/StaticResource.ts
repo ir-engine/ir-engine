@@ -1,3 +1,28 @@
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
 export interface StaticResourceInterface {
   id: string
   sid: string
@@ -11,41 +36,5 @@ export interface StaticResourceInterface {
   attribution?: string
   licensing?: string
   tags?: string[]
-  originalURL?: string[]
-  LOD0_url: string
-  LOD0_metadata: object
-  LOD1_url?: string
-  LOD1_metadata?: object
-  LOD2_url?: string
-  LOD2_metadata?: object
-  LOD3_url?: string
-  LOD3_metadata?: object
-  LOD4_url?: string
-  LOD4_metadata?: object
-  LOD5_url?: string
-  LOD5_metadata?: object
-  LOD6_url?: string
-  LOD6_metadata?: object
-  LOD7_url?: string
-  LOD7_metadata?: object
-  LOD8_url?: string
-  LOD8_metadata?: object
-  LOD9_url?: string
-  LOD9_metadata?: object
-  LOD10_url?: string
-  LOD10_metadata?: object
-  LOD11_url?: string
-  LOD11_metadata?: object
-  LOD12_url?: string
-  LOD12_metadata?: object
-  LOD13_url?: string
-  LOD13_metadata?: object
-  LOD14_url?: string
-  LOD14_metadata?: object
-  LOD15_url?: string
-  LOD15_metadata?: object
-  LOD16_url?: string
-  LOD16_metadata?: object
-  LOD17_url?: string
-  LOD17_metadata?: object
+  stats?: Record<string, any>
 }

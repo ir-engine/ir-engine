@@ -1,3 +1,28 @@
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
 import { VitePWA } from 'vite-plugin-pwa'
 
 import manifest from './manifest.default.json'
@@ -27,73 +52,52 @@ const PWA = (clientSetting) =>
       start_url:
         process.env.APP_ENV === 'development' || process.env.VITE_LOCAL_BUILD === 'true' ? '/' : process.env.APP_URL,
       scope: `./`,
-      id: `ETHEREAL_ENGINE`
+      id: `ETHEREAL_ENGINE`,
+      protocol_handlers: [
+        {
+          protocol: 'web+etherealengine',
+          url: '/?deeplink=%s'
+        }
+      ]
     },
+    useCredentials: true,
     // Use generateSW when building
-    strategies: process.env.GEN_SW === 'true' ? 'generateSW' : 'injectManifest',
+    strategies: 'generateSW',
     // Set mode to development or production depending on environment variable
     mode: process.env.APP_ENV === 'development' ? 'development' : 'production',
     injectRegister: null,
     includeManifestIcons: true,
     devOptions: {
-      disableRuntimeConfig: false,
       // Enable dev options only during development
-      enabled: process.env.APP_ENV === 'development',
+      enabled: process.env.APP_ENV === 'development' ? true : false,
       // Navigate to index.html for all 404 errors during development
-      navigateFallback: '/index.html',
+      navigateFallback: '/index',
       // Allowlist all paths for navigateFallback during development
       navigateFallbackAllowlist: [
-        // allow all files for local vite dev server
-        /^\/.*/,
-        // allow node_modules/.vite cache
-        /^\/node_modules\/\.vite\/.*/,
-        // @vite/client
-        /^\/@vite\/client\/.*/,
-        // src/main.tsx
-        /^\/src\/main\.tsx/,
-        // @vite-plugin-pwa
-        /^\/@vite-plugin-pwa\/.*/
+        // allow everything
+        new RegExp('^/.*$'),
+        // allow @fs
+        new RegExp('^/@fs/.*$')
       ]
     },
     workbox: {
+      // don't wait for service worker to become active
+      skipWaiting: true,
+      // claim clients immediately
+      clientsClaim: true,
+      // show source maps
       sourcemap: true,
       // Set the path for the service worker file
-      swDest: process.env.GEN_SW === 'true' ? 'public/service-worker.js' : 'src/service-worker.js',
+      swDest: process.env.APP_ENV === 'development' ? 'public/service-worker.js' : 'dist/service-worker.js',
       // Navigate to index.html for all 404 errors during production
-      navigateFallback: '/index.html',
+      navigateFallback: '/index',
       // Allowlist all paths for navigateFallback during production
       navigateFallbackAllowlist: [
-        // manifest route
-        // /^\/manifest\.json/,
-        // service worker route
-        /^\/service-worker\.js/,
-        // allow access to loder_decoder directory
-        /^\/loader_decoder\/.*/,
-        // allow jsdelivr cdn
-        /^https:\/\/cdn.jsdelivr.net\/.*/,
-        // location route
-        /^\/location?.*/,
-        // editor route
-        /^\/editor?.*/,
-        // sutdio route
-        /^\/studio?.*/,
-        // admin route
-        /^\/admin?.*/,
-        // auth route
-        /^\/auth?.*/,
-        // api route
-        /^\/api-?.*/,
-        // resources route
-        /^\/resources-?.*/,
-        // instanceserver route
-        /^\/instanceserver-?.*/,
-        // assets route
-        /^\/assets\/.*/,
-        // allow all files for production build
-        /^\/.*/
+        // allow everything
+        new RegExp('^/.*$')
       ],
       // Set the glob directory and patterns for the cache
-      globDirectory: './public',
+      globDirectory: process.env.APP_ENV === 'development' ? './public' : './dist',
       globPatterns: [
         // fonts
         '**/*.{woff2,woff,ttf,eot}',
@@ -116,65 +120,85 @@ const PWA = (clientSetting) =>
       ],
       // Set additional manifest entries for the cache
       additionalManifestEntries: [
-        { url: '/index.html', revision: null },
-        { url: '/service-worker.js', revision: null }
+        { url: '/index', revision: null },
+        { url: '/service-worker', revision: null },
+        { url: '/dev-sw', revision: null },
+        { url: '/src/main', revision: null }
       ],
       // Enable cleanup of outdated caches
       cleanupOutdatedCaches: true,
-      // Set maximum cache size to 100 MB
-      maximumFileSizeToCacheInBytes: 1000 * 1000 * 100,
+      // Set maximum cache size to 10 MB
+      maximumFileSizeToCacheInBytes: 1000 * 1000 * 10,
       runtimeCaching: [
-        // Cache all requests on the resources- subdomain for this domain
+        // Cache local assets
         {
-          urlPattern: /^https?:\/\/resources-*\/.*/i,
+          urlPattern: /\/assets?.*/i,
           handler: 'CacheFirst',
           options: {
-            cacheName: 'resources',
+            cacheName: 'build-assets-cache',
             expiration: {
-              maxEntries: 1000,
-              maxAgeSeconds: 60 * 60 * 24 * 30 // 30 days
+              maxEntries: 100,
+              maxAgeSeconds: 24 * 60 * 60 * 30 // <== 30 days
             },
             cacheableResponse: {
               statuses: [0, 200]
             }
           }
         },
+        // Cache local fonts
         {
-          urlPattern: /^https?.*/i,
-          handler: 'CacheFirst',
-          options: {
-            cacheName: 'all-content-cache',
-            expiration: {
-              maxEntries: 1000,
-              maxAgeSeconds: 7 * 24 * 60 * 60 // <== 7 days
-            },
-            cacheableResponse: {
-              statuses: [0, 200]
-            }
-          }
-        },
-        {
-          urlPattern: /^\/fonts?.*/i,
+          urlPattern: /\/fonts?.*/i,
           handler: 'CacheFirst',
           options: {
             cacheName: 'fonts-assets-cache',
             expiration: {
               maxEntries: 100,
-              maxAgeSeconds: 24 * 60 * 60 // <== 24 hours
+              maxAgeSeconds: 24 * 60 * 60 * 30 // <== 30 days
             },
             cacheableResponse: {
               statuses: [0, 200]
             }
           }
         },
+        // Cache local icons
         {
-          urlPattern: /^\/icons?.*/,
+          urlPattern: /\/icons?.*/,
           handler: 'CacheFirst',
           options: {
             cacheName: 'icons-assets-cache',
             expiration: {
               maxEntries: 100,
-              maxAgeSeconds: 24 * 60 * 60 // <== 24 hours
+              maxAgeSeconds: 24 * 60 * 60 * 30 // <== 30 days
+            },
+            cacheableResponse: {
+              statuses: [0, 200]
+            }
+          }
+        },
+        // Cache local static assets
+        {
+          urlPattern: /\/static?.*/i,
+          handler: 'CacheFirst',
+          options: {
+            cacheName: 'static-assets-cache',
+            expiration: {
+              maxEntries: 100,
+              maxAgeSeconds: 24 * 60 * 60 * 30 // <== 30 days
+            },
+            cacheableResponse: {
+              statuses: [0, 200]
+            }
+          }
+        },
+        // Cache google font requests
+        {
+          urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
+          handler: 'CacheFirst',
+          options: {
+            cacheName: 'google-fonts-cache',
+            expiration: {
+              maxEntries: 10,
+              maxAgeSeconds: 60 * 60 * 24 * 365 // <== 365 days
             },
             cacheableResponse: {
               statuses: [0, 200]
@@ -182,13 +206,44 @@ const PWA = (clientSetting) =>
           }
         },
         {
-          urlPattern: /^\/static?.*/i,
+          urlPattern: /^https:\/\/fonts\.gstatic\.com\/.*/i,
           handler: 'CacheFirst',
           options: {
-            cacheName: 'static-assets-cache',
+            cacheName: 'gstatic-fonts-cache',
+            expiration: {
+              maxEntries: 10,
+              maxAgeSeconds: 60 * 60 * 24 * 365 // <== 365 days
+            },
+            cacheableResponse: {
+              statuses: [0, 200]
+            }
+          }
+        },
+        // Cache all requests
+        {
+          urlPattern: /^https?:\/\/.*\..*/i,
+          handler: 'NetworkFirst',
+          options: {
+            cacheName: 'all-content-cache',
+            expiration: {
+              maxEntries: 1000,
+              maxAgeSeconds: 24 * 60 * 60 // <== 24 hours
+            },
+            cacheableResponse: {
+              statuses: [0, 200]
+            },
+            networkTimeoutSeconds: 10
+          }
+        },
+        // Cache everything else
+        {
+          urlPattern: /^\/*/,
+          handler: 'CacheFirst',
+          options: {
+            cacheName: 'all-local-cache',
             expiration: {
               maxEntries: 100,
-              maxAgeSeconds: 24 * 60 * 60 // <== 24 hours
+              maxAgeSeconds: 24 * 60 * 60 * 30 // <== 30 days
             },
             cacheableResponse: {
               statuses: [0, 200]

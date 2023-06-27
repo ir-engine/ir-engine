@@ -62,15 +62,15 @@
           "name": "transform",
           "props": {
             "position": {
-              "x": 17.956847776903302,
-              "y": 2.5,
-              "z": -31.999999999999996
+              "x": 47.8216932307629,
+              "y": 3.6788167495280506,
+              "z": 0.04700584337115231
             },
             "rotation": {
               "x": 0,
-              "y": 0.3826834323650898,
+              "y": 0.7071067811865476,
               "z": 0,
-              "w": 0.9238795325112867
+              "w": 0.7071067811865475
             },
             "scale": {
               "x": 0.9999999999999993,
@@ -80,7 +80,7 @@
           }
         },
         {
-          "name": "visible",
+          "name": "scene-preview-camera",
           "props": {}
         }
       ],
@@ -119,9 +119,9 @@
           "name": "skybox",
           "props": {
             "backgroundColor": 0,
-            "equirectangularPath": "",
-            "cubemapPath": "/hdr/cubemap/MilkyWay/",
-            "backgroundType": 1,
+            "equirectangularPath": "__$project$__/default-project/assets/sky_skybox.jpg",
+            "cubemapPath": "",
+            "backgroundType": 2,
             "skyboxProps": {
               "turbidity": 10,
               "rayleigh": 1,
@@ -150,9 +150,9 @@
             },
             "rotation": {
               "x": 0,
-              "y": 0,
+              "y": -0.7071067811865475,
               "z": 0,
-              "w": 1
+              "w": 0.7071067811865476
             },
             "scale": {
               "x": 1,
@@ -220,10 +220,10 @@
         {
           "name": "envmap",
           "props": {
-            "type": "Default",
-            "envMapTextureType": "Cubemap",
+            "type": "Texture",
+            "envMapTextureType": "Equirectangular",
             "envMapSourceColor": 1193046,
-            "envMapSourceURL": "/hdr/cubemap/skyboxsun25deg/",
+            "envMapSourceURL": "__$project$__/default-project/assets/sky_skybox.jpg",
             "envMapIntensity": 20
           }
         }
@@ -310,12 +310,8 @@
           "props": {
             "controls": true,
             "paused": false,
-            "paths": [],
             "resources": [
-              {
-                "path": "__$project$__/default-project/assets/SampleVideo.mp4",
-                "mediaType": "video"
-              }
+              "__$project$__/default-project/assets/SampleVideo.mp4"
             ],
             "volume": 1,
             "synchronize": true,
@@ -417,9 +413,6 @@
           "name": "gltf-model",
           "props": {
             "src": "__$project$__/default-project/assets/test-equippable.glb",
-            "resource": {
-              "src": "__$project$__/default-project/assets/test-equippable.glb"
-            },
             "generateBVH": true,
             "avoidCameraOcclusion": false
           }
@@ -430,7 +423,7 @@
             "type": "None",
             "envMapTextureType": "Cubemap",
             "envMapSourceColor": 1193046,
-            "envMapSourceURL": "/hdr/cubemap/skyboxsun25deg/",
+            "envMapSourceURL": "__$project$__/default-project/assets/skyboxsun25deg/",
             "envMapIntensity": 1
           }
         },
@@ -563,12 +556,8 @@
           "props": {
             "controls": true,
             "paused": true,
-            "paths": [],
             "resources": [
-              {
-                "path": "__$project$__/default-project/assets/SampleAudio.mp3",
-                "mediaType": "audio"
-              }
+              "__$project$__/default-project/assets/SampleAudio.mp3"
             ],
             "volume": 1,
             "synchronize": true,
@@ -777,12 +766,8 @@
           "props": {
             "controls": false,
             "paused": false,
-            "paths": [],
             "resources": [
-              {
-                "path": "__$project$__/default-project/assets/sky-station-ambience-loop.mp3",
-                "mediaType": "audio"
-              }
+              "__$project$__/default-project/assets/sky-station-ambience-loop.mp3"
             ],
             "volume": 1,
             "synchronize": true,
@@ -806,38 +791,6 @@
       "parent": "1b731841-172a-4141-89cb-d1cceeec748f",
       "index": 12,
       "name": "Audio - Ambience"
-    },
-    "6fbb28ad-d3a9-48aa-a077-44d7598a0a51": {
-      "components": [
-        {
-          "name": "transform",
-          "props": {
-            "position": {
-              "x": 37,
-              "y": 4,
-              "z": 22.5
-            },
-            "rotation": {
-              "x": 0,
-              "y": 0.21643961393810288,
-              "z": 0,
-              "w": 0.9762960071199334
-            },
-            "scale": {
-              "x": 0.999999999999999,
-              "y": 1,
-              "z": 0.999999999999999
-            }
-          }
-        },
-        {
-          "name": "scene-preview-camera",
-          "props": {}
-        }
-      ],
-      "parent": "1b731841-172a-4141-89cb-d1cceeec748f",
-      "index": 13,
-      "name": "entity-13"
     }
   },
   "root": "1b731841-172a-4141-89cb-d1cceeec748f"

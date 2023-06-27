@@ -1,3 +1,28 @@
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
 import { useEffect } from 'react'
 import {
   Box3,
@@ -34,6 +59,10 @@ import {
   getEntityNodeArrayFromEntities
 } from '@etherealengine/engine/src/ecs/functions/EntityTree'
 import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
+import {
+  getFirstNonCapturedInputSource,
+  InputSourceComponent
+} from '@etherealengine/engine/src/input/components/InputSourceComponent'
 import InfiniteGridHelper from '@etherealengine/engine/src/scene/classes/InfiniteGridHelper'
 import { addObjectToGroup, GroupComponent } from '@etherealengine/engine/src/scene/components/GroupComponent'
 import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
@@ -200,9 +229,9 @@ const onKeyX = () => {
   toggleTransformPivot()
 }
 
-const onKeyZ = () => {
-  if (Engine.instance.buttons.ControlLeft?.pressed) {
-    if (Engine.instance.buttons.ShiftLeft?.pressed) {
+const onKeyZ = (control: boolean, shift: boolean) => {
+  if (control) {
+    if (shift) {
       dispatchAction(EditorHistoryAction.redo({ count: 1 }))
     } else {
       dispatchAction(EditorHistoryAction.undo({ count: 1 }))
@@ -349,8 +378,6 @@ const execute = () => {
   transformSpaceChanged = transformSpace !== editorHelperState.transformSpace
   transformSpace = editorHelperState.transformSpace
 
-  const inputState = Engine.instance.buttons
-
   if (selectedParentEntities.length === 0 || transformMode === TransformMode.Disabled) {
     if (hasComponent(gizmoEntity, VisibleComponent)) removeComponent(gizmoEntity, VisibleComponent)
   } else {
@@ -413,10 +440,16 @@ const execute = () => {
   }
   const cursorPosition = Engine.instance.pointerState.position
 
+  const nonCapturedInputSource = getFirstNonCapturedInputSource()
+  if (!nonCapturedInputSource) return
+
+  const inputSource = getComponent(nonCapturedInputSource, InputSourceComponent)
+  const buttons = inputSource.buttons
+
   const isGrabbing = transformMode === TransformMode.Grab || transformMode === TransformMode.Placement
 
-  const isPrimaryClickDown = inputState.PrimaryClick?.down
-  const isPrimaryClickUp = inputState.PrimaryClick?.up
+  const isPrimaryClickDown = buttons.PrimaryClick?.down
+  const isPrimaryClickUp = buttons.PrimaryClick?.up
 
   const selectStartAndNoGrabbing = isPrimaryClickDown && !isGrabbing
 
@@ -438,7 +471,7 @@ const execute = () => {
     gizmoObj.highlightHoveredAxis(cursorPosition)
   }
 
-  const modifier = isMacOS ? inputState.MetaLeft?.pressed : inputState.ControlLeft?.pressed
+  const modifier = isMacOS ? buttons.MetaLeft?.pressed : buttons.ControlLeft?.pressed
   const shouldSnap = (editorHelperState.snapMode === SnapMode.Grid) === !modifier
 
   if (dragging || isGrabbing) {
@@ -605,7 +638,7 @@ const execute = () => {
   }
 
   selectionCounter = selectionState.selectionCounter
-  const shift = inputState.ShiftLeft?.pressed
+  const shift = buttons.ShiftLeft?.pressed
 
   if (isPrimaryClickUp) {
     if (transformMode === TransformMode.Grab) {
@@ -639,24 +672,24 @@ const execute = () => {
 
   if (editorHelperState.isFlyModeEnabled) return
 
-  if (inputState.KeyQ?.down) onKeyQ()
-  if (inputState.KeyE?.down) onKeyE()
-  if (inputState.KeyG?.down) onKeyG()
-  if (inputState.Escape?.down) onEscape()
-  if (inputState.KeyF?.down) onKeyF()
-  if (inputState.KeyT?.down) onKeyT()
-  if (inputState.KeyR?.down) onKeyR()
-  if (inputState.KeyY?.down) onKeyY()
-  if (inputState.KeyC?.down) onKeyC()
-  if (inputState.KeyX?.down) onKeyX()
-  if (inputState.KeyZ?.down) onKeyZ()
-  if (inputState.Equal?.down) onEqual()
-  if (inputState.Minus?.down) onMinus()
-  if (inputState.Delete?.down) onDelete()
+  if (buttons.KeyQ?.down) onKeyQ()
+  if (buttons.KeyE?.down) onKeyE()
+  if (buttons.KeyG?.down) onKeyG()
+  if (buttons.Escape?.down) onEscape()
+  if (buttons.KeyF?.down) onKeyF()
+  if (buttons.KeyT?.down) onKeyT()
+  if (buttons.KeyR?.down) onKeyR()
+  if (buttons.KeyY?.down) onKeyY()
+  if (buttons.KeyC?.down) onKeyC()
+  if (buttons.KeyX?.down) onKeyX()
+  if (buttons.KeyZ?.down) onKeyZ(!!buttons.ControlLeft?.pressed, !!buttons.ShiftLeft?.pressed)
+  if (buttons.Equal?.down) onEqual()
+  if (buttons.Minus?.down) onMinus()
+  if (buttons.Delete?.down) onDelete()
 
-  const selecting = inputState.PrimaryClick?.pressed && !dragging
+  const selecting = buttons.PrimaryClick?.pressed && !dragging
   const zoom = Engine.instance.pointerState.scroll.y
-  const panning = inputState.AuxiliaryClick?.pressed
+  const panning = buttons.AuxiliaryClick?.pressed
 
   if (selecting) {
     const editorCameraState = getMutableState(EditorCameraState)

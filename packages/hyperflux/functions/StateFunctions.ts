@@ -1,3 +1,28 @@
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
 import { createState, SetInitialStateAction, State } from '@hookstate/core'
 
 import { DeepReadonly } from '@etherealengine/common/src/DeepReadonly'
@@ -26,34 +51,35 @@ export function defineState<S>(definition: StateDefinition<S>) {
   return definition as StateDefinition<S> & { _TYPE: S }
 }
 
-export function registerState<S>(StateDefinition: StateDefinition<S>, store = HyperFlux.store) {
+export function registerState<S>(StateDefinition: StateDefinition<S>) {
   logger.info(`registerState ${StateDefinition.name}`)
 
   const initial =
     typeof StateDefinition.initial === 'function'
       ? (StateDefinition.initial as Function)()
       : JSON.parse(JSON.stringify(StateDefinition.initial))
-  store.valueMap[StateDefinition.name] = initial
-  store.stateMap[StateDefinition.name] = createState(initial)
-  store.stateMap[StateDefinition.name].attach(() => ({
+  HyperFlux.store.valueMap[StateDefinition.name] = initial
+  HyperFlux.store.stateMap[StateDefinition.name] = createState(initial)
+  HyperFlux.store.stateMap[StateDefinition.name].attach(() => ({
     id: Symbol('update root state value map'),
     init: () => ({
       onSet(arg) {
-        if (arg.path.length === 0 && typeof arg.value === 'object') store.valueMap[StateDefinition.name] = arg.value
+        if (arg.path.length === 0 && typeof arg.value === 'object')
+          HyperFlux.store.valueMap[StateDefinition.name] = arg.value
       }
     })
   }))
-  if (StateDefinition.onCreate) StateDefinition.onCreate(store, getMutableState(StateDefinition, store))
+  if (StateDefinition.onCreate) StateDefinition.onCreate(HyperFlux.store, getMutableState(StateDefinition))
 }
 
-export function getMutableState<S>(StateDefinition: StateDefinition<S>, store = HyperFlux.store) {
-  if (!store.stateMap[StateDefinition.name]) registerState(StateDefinition, store)
-  return store.stateMap[StateDefinition.name] as State<S>
+export function getMutableState<S>(StateDefinition: StateDefinition<S>) {
+  if (!HyperFlux.store.stateMap[StateDefinition.name]) registerState(StateDefinition)
+  return HyperFlux.store.stateMap[StateDefinition.name] as State<S>
 }
 
-export function getState<S>(StateDefinition: StateDefinition<S>, store = HyperFlux.store) {
-  if (!store.stateMap[StateDefinition.name]) registerState(StateDefinition, store)
-  return store.valueMap[StateDefinition.name] as DeepReadonly<S>
+export function getState<S>(StateDefinition: StateDefinition<S>) {
+  if (!HyperFlux.store.stateMap[StateDefinition.name]) registerState(StateDefinition)
+  return HyperFlux.store.valueMap[StateDefinition.name] as DeepReadonly<S>
 }
 
 const stateNamespaceKey = 'ee.hyperflux'

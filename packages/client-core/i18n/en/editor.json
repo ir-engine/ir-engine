@@ -237,12 +237,19 @@
       "description": "Link to a room or a website.",
       "lbl-url": "URL"
     },
-    "lod": {
+    "variant": {
+      "name": "Variant",
+      "description": "Load different assets based on heuristics",
+      "device": "Device",
+      "device-mobile": "Mobile",
+      "device-desktop": "Desktop",
       "heuristic": "Heuristic",
       "heuristic-distance": "Distance",
       "heuristic-sceneScale": "Scene Scale",
       "heuristic-manual": "Manual",
-      "distance": "Distance",
+      "heuristic-device": "Device",
+      "minDistance": "Minimum Distance",
+      "maxDistance": "Maximum Distance",
       "src": "Source"
     },
     "map": {
@@ -285,7 +292,11 @@
         "dst": "File Name",
         "resampleAnimations": "Resample Animations",
         "maxTextureSize": "Max Texture Size",
+        "flatten": "Flatten Scene Graph",
+        "join": "Join Meshes",
+        "palette": "Generate Palette Textures",
         "flipY": "Flip Y",
+        "instance": "Instance Identical Meshes",
         "linear": "Linear Color Space",
         "textureCompressionType": "Texture Compression Type",
         "ktx2Quality": "Compression Quality",
@@ -363,6 +374,9 @@
     "particle-system": {
       "name": "Particle System",
       "description": "Particle emitter to create particles.",
+      "looping": "Looping",
+      "duration": "Duration",
+      "prewarm": "Prewarm",
       "emitter-shape": "Emitter Shape",
       "emission-bursts": "Emission Bursts",
       "shape-mesh": "Emitter Shape Mesh",
@@ -379,6 +393,7 @@
       "start-tile-index": "Starting Tile Index",
       "mesh": "Particle Mesh",
       "blending": "Blending",
+      "transparent": "Transparent",
       "world-space": "Use World Space"
     },
     "clouds": {
@@ -693,7 +708,9 @@
       "viewAssetProperties": "View Properties",
       "refresh": "Refresh",
       "back": "Back",
-      "loadingFiles": "Loading files"
+      "loadingFiles": "Loading files",
+      "compress": "Compress",
+      "convert": "Convert"
     }
   },
   "hierarchy": {

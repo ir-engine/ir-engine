@@ -1,6 +1,32 @@
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
 import { loadConfigFromFile, mergeConfig } from 'vite'
 
 export default {
+  // managerEntries: [require('path').resolve(__dirname, './addons/RegisterAddons')],
   headers: {
     'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, PATCH, OPTIONS',
@@ -13,26 +39,15 @@ export default {
       path: '../../.env.local'
     }).parsed
   }),
-  stories: ['../src/**/*.stories.mdx', '../src/**/*.stories.@(js|jsx|ts|tsx)'],
+  stories: ['./**/*.stories.@(js|jsx|ts|tsx)', '../src/**/*.stories.mdx', '../src/**/*.stories.@(js|jsx|ts|tsx)'],
   addons: [
-    // "@storybook/addon-links",
+    '@storybook/addon-toolbars',
+    '@storybook/manager-api',
     '@storybook/addon-essentials',
     '@storybook/addon-interactions',
     '@storybook/addon-a11y',
     '@storybook/addon-jest',
     'storybook-addon-react-router-v6'
-    // 'storybook-addon-designs',
-    // {
-    //   name: '@storybook/addon-postcss',
-    //   options: {
-    //     cssLoaderOptions: {
-    //       importLoaders: 1
-    //     },
-    //     postcssLoaderOptions: {
-    //       implementation: require('postcss')
-    //     }
-    //   }
-    // }
   ],
   core: {
     builder: '@storybook/builder-vite'
@@ -45,9 +60,6 @@ export default {
     storyStoreV7: true
   },
   async viteFinal(config) {
-    // const c = await loadConfigFromFile(
-    //   require('path').resolve(__dirname, '../../client/vite.config.ts')
-    // );
     const userConfig = config
     return mergeConfig(config, {
       ...userConfig,
@@ -85,6 +97,13 @@ export default {
             ws: true
           },
           '/sfx': {
+            target: 'https://travis.shetland-turtle.ts.net:3000',
+            changeOrigin: true,
+            secure: false,
+            // replace port 6006 with 3000
+            pathRewrite: { '^6006': '3000' }
+          },
+          '/fonts': {
             target: 'https://travis.shetland-turtle.ts.net:3000',
             changeOrigin: true,
             secure: false,
