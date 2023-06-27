@@ -76,7 +76,14 @@
     "tick-tock": "^1.0.0",
     "typescript": "5.0.2",
     "util": "^0.12.5",
-    "uuid": "9.0.0"
+    "uuid": "9.0.0",
+    "pino": "^8.11.0",
+    "pino-pretty": "^10.0.0",
+    "postcss": "^8.4.21",
+    "qrcode.react": "^3.1.0",
+    "react-icons": "^4.9.0",
+    "react-json-view": "^1.21.3",
+    "tailwindcss": "^3.2.7"
   },
   "devDependencies": {
     "@emotion/react": "11.10.6",

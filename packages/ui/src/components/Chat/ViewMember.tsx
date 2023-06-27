@@ -1,6 +1,8 @@
 import React from 'react'
 import { MdDelete } from 'react-icons/md'
 
+import UserIcon from './assets/user.svg'
+
 export const ViewMember = () => {
   const Members: { name: string }[] = [
     { name: 'John Laouireen' },
@@ -22,7 +24,7 @@ export const ViewMember = () => {
           return (
             <div className="rounded-[10px] bg-[#15171B] w-[350px] h-[45px] flex flex-wrap">
               <div className="rounded-full ml-4 my-2 bg-[#26282B] w-[30px] h-[30px] justify-between">
-                <img className="w-[13.64px] mx-2 h-[28.64px] overflow-hidden" alt="" src="/user.svg" />
+                <img className="w-[13.64px] mx-2 h-[28.64px] overflow-hidden" alt="" src={UserIcon} />
               </div>
               <p className="text-[12px] w-[220px] ml-3 font-bold text-white mt-3.5">{item.name}</p>
               <div className="rounded-full  my-2 bg-[#26282B] w-[30px] h-[30px] justify-between">

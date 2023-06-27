@@ -4,9 +4,9 @@ import { IoMdAddCircle } from 'react-icons/io'
 import { MdEmail } from 'react-icons/md'
 import { MdPhoneIphone } from 'react-icons/md'
 
-import FriendIcon from '../assets/Friend'
-import GroupIcon from '../assets/Group'
-import PartyIcon from '../assets/Party'
+import FriendIcon from './assets/Friend'
+import GroupIcon from './assets/Group'
+import PartyIcon from './assets/Party'
 
 export const Create = () => {
   const [activeButton, setActiveButton] = useState<number>(1)
