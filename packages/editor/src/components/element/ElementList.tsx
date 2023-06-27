@@ -45,6 +45,7 @@ import { TransformComponent } from '@etherealengine/engine/src/transform/compone
 import { NO_PROXY, useState } from '@etherealengine/hyperflux'
 import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
+import { GroupAddOutlined as PlaceholderIcon } from '@mui/icons-material'
 import { IconButton, MenuItem, PopoverPosition, Tooltip, Typography } from '@mui/material'
 
 import { ItemTypes } from '../../constants/AssetTypes'
@@ -68,8 +69,8 @@ const categories = {
   'Scene Composition': [ScenePrefabs.groundPlane, ScenePrefabs.group, ScenePrefabs.prefab, PhysicsPrefabs.collider],
   Interaction: [ScenePrefabs.spawnPoint, ScenePrefabs.portal],
   Lighting: [...Object.values(LightPrefabs)],
-  FX: [ScenePrefabs.ocean, ScenePrefabs.particleEmitter, ScenePrefabs.spline, ScenePrefabs.cloud, ScenePrefabs.water],
-  Scripting: [ScenePrefabs.system, ScenePrefabs.behaveGraph]
+  FX: [ScenePrefabs.particleEmitter],
+  Scripting: [ScenePrefabs.system]
 }
 
 const getPrefabList = () => {
@@ -78,19 +79,20 @@ const getPrefabList = () => {
     result[category] = categories[category].map((prefab) => ({
       type: ItemTypes.Prefab,
       prefabType: prefab,
-      Icon: prefabIcons[prefab] || null,
+      Icon: prefabIcons[prefab] || PlaceholderIcon,
       label: prefab
     }))
   }
   Engine.instance.scenePrefabRegistry.forEach((_, prefabType: string) => {
     if (Object.entries(categories).every(([_, prefabs]) => !(prefabs as string[]).includes(prefabType))) {
       !result['Misc'] && (result['Misc'] = [])
-      result['Misc'].push({
-        type: ItemTypes.Prefab,
-        prefabType,
-        Icon: prefabIcons[prefabType] || null,
-        label: prefabType
-      })
+      prefabIcons[prefabType] &&
+        result['Misc'].push({
+          type: ItemTypes.Prefab,
+          prefabType,
+          Icon: prefabIcons[prefabType],
+          label: prefabType
+        })
     }
   })
 
