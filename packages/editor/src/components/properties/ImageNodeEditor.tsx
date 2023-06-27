@@ -45,6 +45,15 @@ export const ImageNodeEditor: EditorComponentType = (props) => {
   const imageComponent = useComponent(entity, ImageComponent)
   const errors = getEntityErrors(props.entity, ImageComponent)
 
+  const imageSource =
+    imageComponent.resource.value?.jpegStaticResource?.url ||
+    imageComponent.resource.value?.gifStaticResource?.url ||
+    imageComponent.resource.value?.pngStaticResource?.url ||
+    imageComponent.resource.value?.ktx2StaticResource?.url ||
+    imageComponent.resource.value?.source ||
+    imageComponent.source.value ||
+    ''
+
   return (
     <NodeEditor
       {...props}
@@ -52,12 +61,14 @@ export const ImageNodeEditor: EditorComponentType = (props) => {
       description={t('editor:properties.image.description')}
     >
       <InputGroup name="Image Url" label={t('editor:properties.image.lbl-imgURL')}>
-        <ImageInput value={imageComponent.source?.value ?? ''} onChange={updateProperty(ImageComponent, 'source')} />
+        <ImageInput value={imageSource} onChange={updateProperty(ImageComponent, 'source')} />
       </InputGroup>
       {errors ? (
-        Object.entries(errors).map(([err, message]) => {
-          return <div style={{ marginTop: 2, color: '#FF8C00' }}>{'Error: ' + err + '--' + message}</div>
-        })
+        Object.entries(errors).map(([err, message]) => (
+          <div key={err} style={{ marginTop: 2, color: '#FF8C00' }}>
+            {'Error: ' + err + '--' + message}
+          </div>
+        ))
       ) : (
         <></>
       )}
