@@ -23,24 +23,36 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { createSwaggerServiceOptions } from 'feathers-swagger'
+import { partyMethods, partyPath } from '@etherealengine/engine/src/schemas/social/party/party.schema'
 
-import {
-  partyDataSchema,
-  partyPatchSchema,
-  partyQuerySchema,
-  partySchema
-} from '@etherealengine/engine/src/schemas/social/party/party.schema'
+import { Application } from '../../../declarations'
+import { updateAppConfig } from '../../updateAppConfig'
+import { PartyService } from './party.class'
+import partyDocs from './party.docs'
+import hooks from './party.hooks'
 
-export default createSwaggerServiceOptions({
-  schemas: {
-    partyDataSchema,
-    partyPatchSchema,
-    partyQuerySchema,
-    partySchema
-  },
-  docs: {
-    description: 'Party service description',
-    securities: ['all']
+declare module '@etherealengine/common/declarations' {
+  interface ServiceTypes {
+    [partyPath]: PartyService
   }
-})
+}
+
+export default (app: Application): void => {
+  const options = {
+    name: partyPath,
+    paginate: app.get('paginate'),
+    Model: app.get('knexClient'),
+    multi: true
+  }
+
+  app.use(partyPath, new PartyService(options), {
+    // A list of all methods this service exposes externally
+    methods: partyMethods,
+    // You can add additional custom events to be sent to clients here
+    events: [],
+    docs: partyDocs
+  })
+
+  const service = app.service(partyPath)
+  service.hooks(hooks)
+}

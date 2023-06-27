@@ -23,24 +23,25 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { createSwaggerServiceOptions } from 'feathers-swagger'
+// For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
+import { resolve } from '@feathersjs/schema'
 
-import {
-  partyDataSchema,
-  partyPatchSchema,
-  partyQuerySchema,
-  partySchema
-} from '@etherealengine/engine/src/schemas/social/party/party.schema'
+import { PartyQuery, PartyType } from '@etherealengine/engine/src/schemas/social/party/party.schema'
+import type { HookContext } from '@etherealengine/server-core/declarations'
 
-export default createSwaggerServiceOptions({
-  schemas: {
-    partyDataSchema,
-    partyPatchSchema,
-    partyQuerySchema,
-    partySchema
-  },
-  docs: {
-    description: 'Party service description',
-    securities: ['all']
-  }
+import { getDateTimeSql } from '../../util/get-datetime-sql'
+
+export const partyResolver = resolve<PartyType, HookContext>({})
+
+export const partyExternalResolver = resolve<PartyType, HookContext>({})
+
+export const partyDataResolver = resolve<PartyType, HookContext>({
+  createdAt: getDateTimeSql,
+  updatedAt: getDateTimeSql
 })
+
+export const partyPatchResolver = resolve<PartyType, HookContext>({
+  updatedAt: getDateTimeSql
+})
+
+export const partyQueryResolver = resolve<PartyQuery, HookContext>({})
