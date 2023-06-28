@@ -92,7 +92,7 @@ export const XRSystem = defineSystem({
     XRCameraViewSystem,
     XRDetectedPlanesSystem,
     XRHapticsSystem,
-    // XRLightProbeSystem,
+    XRLightProbeSystem,
     XRPersistentAnchorSystem,
     XRScenePlacementShaderSystem
   ]
