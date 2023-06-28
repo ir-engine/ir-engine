@@ -123,16 +123,7 @@ const onShiftLeft = () => {
   controller.isWalking.set(!controller.isWalking.value)
 }
 
-const onKeyE = () => {
-  dispatchAction(
-    EngineActions.interactedWithObject({
-      targetEntity: getState(InteractState).available[0],
-      handedness: 'none'
-    })
-  )
-}
-
-const onTrigger = (handedness: XRHandedness) => {
+const onInteract = (handedness: XRHandedness = 'none') => {
   dispatchAction(
     EngineActions.interactedWithObject({
       targetEntity: getState(InteractState).available[0],
@@ -152,6 +143,8 @@ const onKeyO = () => {
 const onKeyP = () => {
   getMutableState(RendererState).debugEnable.set(!getMutableState(RendererState).debugEnable.value)
 }
+
+const inputSourceQuery = defineQuery([InputSourceComponent])
 
 const walkableQuery = defineQuery([RigidBodyFixedTagComponent, InputComponent])
 
@@ -188,6 +181,20 @@ const execute = () => {
     }
   }
 
+  /** @todo until we have something more sophisticated, allow interaction input even when interactables are captured */
+  for (const inputSourceEntity of inputSourceQuery()) {
+    const inputSource = getComponent(inputSourceEntity, InputSourceComponent)
+
+    const buttons = inputSource.buttons
+
+    const standardGamepad =
+      inputSource.source.gamepad?.mapping === 'standard' || inputSource.source.gamepad?.mapping === ''
+
+    if (standardGamepad && buttons[StandardGamepadButton.ButtonY]?.down) {
+      onInteract()
+    }
+  }
+
   for (const inputSourceEntity of nonCapturedInputSourceEntities) {
     const inputSource = getComponent(inputSourceEntity, InputSourceComponent)
 
@@ -198,15 +205,12 @@ const execute = () => {
     const xrStandardGamepad = inputSource.source.gamepad?.mapping === 'xr-standard'
 
     if (buttons.ShiftLeft?.down) onShiftLeft()
-    if (buttons.KeyE?.down) onKeyE()
+    if (buttons.KeyE?.down) onInteract()
     if (xrStandardGamepad) {
-      if (buttons[XRStandardGamepadButton.Trigger]?.down) onTrigger(inputSource.source.handedness)
+      if (buttons[XRStandardGamepadButton.Trigger]?.down) onInteract(inputSource.source.handedness)
     }
 
-    const gamepadJump = standardGamepad && buttons[StandardGamepadButton.ButtonA]?.pressed
-    if (standardGamepad && buttons[StandardGamepadButton.ButtonY]?.pressed) {
-      onKeyE()
-    }
+    const gamepadJump = standardGamepad && buttons[StandardGamepadButton.ButtonA]?.down
 
     if (isDev) {
       if (buttons.KeyO?.down) onKeyO()

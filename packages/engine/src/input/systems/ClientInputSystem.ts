@@ -119,9 +119,7 @@ export const addClientInputListeners = () => {
   }
 
   const removeGamepad = (e: GamepadEvent) => {
-    const gamepad = navigator.getGamepads()[e.gamepad.index]
-    if (!gamepad) return console.warn('[ClientInputSystem] gamepad not found', e.gamepad)
-    console.log('[ClientInputSystem] lost gamepad', gamepad, e.gamepad)
+    console.log('[ClientInputSystem] lost gamepad', e.gamepad)
     gamepadRef = emulatedGamepad
   }
 
