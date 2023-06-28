@@ -465,8 +465,8 @@ const execute = () => {
         if (hit) assignedInputEntity = hit.entity
       }
 
-      if (!capturedButtons) source.capturedButtonEntity.set(assignedInputEntity)
-      if (!capturedAxes) source.capturedAxesEntity.set(assignedInputEntity)
+      if (!capturedButtons) source.assignedButtonEntity.set(assignedInputEntity)
+      if (!capturedAxes) source.assignedAxesEntity.set(assignedInputEntity)
     }
 
     updateGamepadInput(sourceEid)

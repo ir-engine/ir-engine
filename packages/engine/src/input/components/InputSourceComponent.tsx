@@ -70,8 +70,8 @@ export const InputSourceComponent = defineComponent({
     return {
       source: null! as XRInputSource,
       buttons: {} as Readonly<ButtonStateMap>,
-      capturedButtonEntity: UndefinedEntity as Entity,
-      capturedAxesEntity: UndefinedEntity as Entity
+      assignedButtonEntity: UndefinedEntity as Entity,
+      assignedAxesEntity: UndefinedEntity as Entity
     }
   },
 
@@ -82,8 +82,8 @@ export const InputSourceComponent = defineComponent({
   ) => {
     const { source, capturedButtonEntity, capturedAxesEntity } = args
     component.source.set(source)
-    component.capturedButtonEntity.set(capturedButtonEntity ?? UndefinedEntity)
-    component.capturedAxesEntity.set(capturedAxesEntity ?? UndefinedEntity)
+    component.assignedButtonEntity.set(capturedButtonEntity ?? UndefinedEntity)
+    component.assignedAxesEntity.set(capturedAxesEntity ?? UndefinedEntity)
     InputSourceComponent.entitiesByInputSource.set(args.source, entity)
     setComponent(entity, XRSpaceComponent, source.targetRaySpace)
   },
@@ -114,7 +114,7 @@ export const InputSourceComponent = defineComponent({
     const sourceEntities = getOptionalComponent(targetEntity, InputComponent)?.inputSources
     return !!sourceEntities?.find((sourceEntity) => {
       const inputSourceComponent = getComponent(sourceEntity, InputSourceComponent)
-      return inputSourceComponent.capturedButtonEntity === targetEntity
+      return inputSourceComponent.assignedButtonEntity === targetEntity
     })
   },
 
@@ -122,7 +122,7 @@ export const InputSourceComponent = defineComponent({
     const sourceEntities = getOptionalComponent(targetEntity, InputComponent)?.inputSources
     return !!sourceEntities?.find((sourceEntity) => {
       const inputSourceComponent = getComponent(sourceEntity, InputSourceComponent)
-      return inputSourceComponent.capturedAxesEntity === targetEntity
+      return inputSourceComponent.assignedAxesEntity === targetEntity
     })
   },
 
@@ -156,17 +156,15 @@ export const InputSourceComponent = defineComponent({
       }
     }, [capturedAxes, inputSource.source])
 
-    console.log(inputSource.capturedButtonEntity.value, inputSource.capturedAxesEntity.value)
-
     return (
       <>
         <InputSourceAssignmentReactor
-          key={`button-${inputSource.capturedButtonEntity.value}`}
-          assignedEntity={inputSource.capturedButtonEntity}
+          key={`button-${inputSource.assignedButtonEntity.value}`}
+          assignedEntity={inputSource.assignedButtonEntity}
         />
         <InputSourceAssignmentReactor
-          key={`axes-${inputSource.capturedAxesEntity.value}`}
-          assignedEntity={inputSource.capturedAxesEntity}
+          key={`axes-${inputSource.assignedAxesEntity.value}`}
+          assignedEntity={inputSource.assignedAxesEntity}
         />
       </>
     )
