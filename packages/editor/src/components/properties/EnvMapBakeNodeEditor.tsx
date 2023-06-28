@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import React from 'react'
 import styled from 'styled-components'
 
-import { getComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { useComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { EnvMapBakeComponent } from '@etherealengine/engine/src/scene/components/EnvMapBakeComponent'
 import { EnvMapBakeTypes } from '@etherealengine/engine/src/scene/types/EnvMapBakeTypes'
 import { dispatchAction } from '@etherealengine/hyperflux'
@@ -117,10 +117,10 @@ const DefaultEnvMapBakeSettings = [
 const bakeResolutionTypes = [256, 512, 1024, 2048]
 
 export const EnvMapBakeNodeEditor: EditorComponentType = (props) => {
-  const bakeComponent = getComponent(props.entity, EnvMapBakeComponent)
+  const bakeComponent = useComponent(props.entity, EnvMapBakeComponent)
   const renderEnvMapBakeProperties = () => {
     const renderedProperty = DefaultEnvMapBakeSettings.map((element, id) => {
-      if (element.label == 'Realtime Settings' && bakeComponent.bakeType == EnvMapBakeTypes.Realtime) {
+      if (element.label == 'Realtime Settings' && bakeComponent.bakeType.value == EnvMapBakeTypes.Realtime) {
         return <div key={id + 'Realtime'} />
       }
 
@@ -131,7 +131,7 @@ export const EnvMapBakeNodeEditor: EditorComponentType = (props) => {
           <EnvMapBakeProperties
             key={id + '' + propertyid}
             element={property}
-            bakeComponent={bakeComponent}
+            bakeComponent={bakeComponent.value}
             entity={props.entity}
           />
         )
@@ -145,20 +145,20 @@ export const EnvMapBakeNodeEditor: EditorComponentType = (props) => {
   }
 
   const onChangePosition = (value) => {
-    bakeComponent.bakePositionOffset.copy(value)
+    bakeComponent.bakePositionOffset.value.copy(value)
   }
   const onChangeScale = (value) => {
-    bakeComponent.bakeScale.copy(value)
+    bakeComponent.bakeScale.value.copy(value)
   }
 
   return (
     <NodeEditor {...props} name="EnvMap Bake" description="For Adding EnvMap bake in your scene">
       <PropertiesPanelButton onClick={() => uploadBPCEMBakeToServer(props.entity)}>Bake</PropertiesPanelButton>
       <InputGroup name="Position" label="Position Offset">
-        <Vector3Input value={bakeComponent.bakePositionOffset} onChange={onChangePosition} />
+        <Vector3Input value={bakeComponent.bakePositionOffset.value} onChange={onChangePosition} />
       </InputGroup>
       <InputGroup name="Scale" label="Scale">
-        <Vector3Input value={bakeComponent.bakeScale} onChange={onChangeScale} />
+        <Vector3Input value={bakeComponent.bakeScale.value} onChange={onChangeScale} />
       </InputGroup>
       <InputGroup name="Type" label="Bake Type">
         <SelectInput
@@ -167,7 +167,7 @@ export const EnvMapBakeNodeEditor: EditorComponentType = (props) => {
             { label: 'Realtime', value: 'Realtime' }
           ]}
           key={props.entity}
-          value={bakeComponent.bakeType}
+          value={bakeComponent.bakeType.value}
           onChange={updateProperty(EnvMapBakeComponent, 'bakeType')}
         />
       </InputGroup>
@@ -175,13 +175,13 @@ export const EnvMapBakeNodeEditor: EditorComponentType = (props) => {
         <SelectInput
           options={bakeResolutionTypes.map((resolution) => ({ label: resolution.toString(), value: resolution }))}
           key={props.entity}
-          value={bakeComponent.resolution}
+          value={bakeComponent.resolution.value}
           onChange={updateProperty(EnvMapBakeComponent, 'bakeType')}
         />
       </InputGroup>
       <InputGroup name="Box Projection" label="Box Projection">
         <BooleanInput
-          value={bakeComponent.boxProjection}
+          value={bakeComponent.boxProjection.value}
           onChange={updateProperty(EnvMapBakeComponent, 'boxProjection')}
         />
       </InputGroup>

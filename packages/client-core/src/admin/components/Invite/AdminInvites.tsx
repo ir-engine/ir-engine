@@ -125,7 +125,6 @@ const AdminInvites = ({ search, selectedInviteIds, setSelectedInviteIds }: Props
       action: (
         <>
           <a
-            href="#"
             className={styles.actionStyle}
             onClick={() => {
               selectedInvite.set(invite)
@@ -135,7 +134,6 @@ const AdminInvites = ({ search, selectedInviteIds, setSelectedInviteIds }: Props
             <span className={styles.spanDange}>{t('admin:components.common.update')}</span>
           </a>
           <a
-            href="#"
             className={styles.actionStyle}
             onClick={() => {
               inviteId.set(invite.id)

@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { t } from 'i18next'
-import React, { lazy, Suspense, useEffect } from 'react'
+import React, { lazy, Suspense } from 'react'
 import { createRoot } from 'react-dom/client'
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
 
@@ -41,26 +41,6 @@ const AppPage = lazy(() => import('./pages/_app'))
 const AdminPage = lazy(() => import('./pages/admin'))
 const CapturePage = lazy(() => import('./pages/_app_tw'))
 const ChatPage = lazy(() => import('./pages/_app_chat'))
-
-const options = {
-  immediate: true,
-  onNeedRefresh: () => {
-    console.log('onNeedRefresh')
-  },
-  onOfflineReady: () => {
-    console.log('onOfflineReady')
-  },
-  onRegistered: () => {
-    console.log('onRegistered')
-  },
-  onRegisteredSW: (swUrl, registration) => {
-    // eslint-disable-next-line no-console
-    console.log(`Service Worker at: ${swUrl}`)
-  },
-  onRegisterError: (e) => {
-    console.log('onRegisterError', e)
-  }
-}
 
 const App = () => {
   return (

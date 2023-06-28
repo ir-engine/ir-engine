@@ -57,7 +57,7 @@ export const configureEffectComposer = (remove?: boolean, camera: PerspectiveCam
   }
 
   const postProcessingEnabled = getState(RendererState).usePostProcessing
-  if (!postProcessingEnabled) return
+  if (!postProcessingEnabled && !getState(EngineState).isEditor) return
 
   const postprocessing = getState(PostProcessingSettingsState)
   if (!postprocessing.enabled) return

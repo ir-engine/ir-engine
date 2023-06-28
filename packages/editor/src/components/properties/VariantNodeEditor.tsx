@@ -47,7 +47,6 @@ export const VariantNodeEditor: EditorComponentType = (props: { entity: Entity }
   const { t } = useTranslation()
   const entity = props.entity
   const variantComponent = useComponent(entity, VariantComponent)
-  const nameComponent = getComponent(entity, NameComponent)
 
   const onChangeLevelProperty = useCallback(
     (level: State<any>, property: string) => {

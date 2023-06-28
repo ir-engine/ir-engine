@@ -56,7 +56,6 @@ import {
   TransformComponent
 } from '@etherealengine/engine/src/transform/components/TransformComponent'
 import { isMobileXRHeadset, ReferenceSpace } from '@etherealengine/engine/src/xr/XRState'
-import { XRUIInteractableComponent } from '@etherealengine/engine/src/xrui/components/XRUIComponent'
 import { ObjectFitFunctions } from '@etherealengine/engine/src/xrui/functions/ObjectFitFunctions'
 import {
   WidgetAppActions,
@@ -98,7 +97,6 @@ const WidgetUISystemState = defineState({
   name: 'WidgetUISystemState',
   initial: () => {
     const widgetMenuUI = createWidgetButtonsView()
-    setComponent(widgetMenuUI.entity, XRUIInteractableComponent)
     removeComponent(widgetMenuUI.entity, VisibleComponent)
 
     addComponent(widgetMenuUI.entity, NameComponent, 'widget_menu')

@@ -35,6 +35,7 @@ import { isClient } from '../../common/functions/getEnvironment'
 import { Entity } from '../../ecs/classes/Entity'
 import { addComponent, getComponent, getMutableComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
+import { InputComponent } from '../../input/components/InputComponent'
 import { addObjectToGroup } from '../../scene/components/GroupComponent'
 import { VisibleComponent } from '../../scene/components/VisibleComponent'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
@@ -74,6 +75,7 @@ export function createXRUI<S extends State<any> | null>(UIFunc: React.FC, state 
   setComponent(entity, DistanceFromCameraComponent)
   addComponent(entity, XRUIComponent, container)
   addComponent(entity, VisibleComponent, true)
+  setComponent(entity, InputComponent)
 
   return { entity, state, container }
 }

@@ -152,7 +152,7 @@ export const AuthServiceReceptor = (action) => {
       return userPatched(action.params)
     })
     .when(AuthAction.updatedUserSettingsAction.matches, (action) => {
-      return s.user.merge({ user_setting: action.data })
+      return s.user.user_setting.merge(action.data)
     })
 }
 
