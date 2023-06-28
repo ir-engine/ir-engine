@@ -50,7 +50,6 @@ export default function InstancingMeshProperties({
 }) {
   const value = state.value
   const props = value as MeshProperties
-
   const { t } = useTranslation()
 
   const initialMeshes = traverseScene(
