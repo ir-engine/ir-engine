@@ -263,21 +263,31 @@ const populateInstanceServerType = async (app: Application, items: ServerPodInfo
 
   for (const item of items) {
     const instanceExists = instances.find((instance) => instance.podName === item.name)
-
     item.instanceId = instanceExists ? instanceExists.id : ''
     item.currentUsers = instanceExists ? instanceExists.currentUsers : 0
-
-    if (instanceExists && instanceExists.locationId) {
+    if (!instanceExists) {
+      item.type = 'Unassigned'
+      continue
+    }
+    if (!instanceExists.locationId && !instanceExists.channelId) {
+      item.type = 'Unassigned'
+      continue
+    }
+    if (instanceExists.locationId) {
       item.type = `World (${instanceExists.location.name})`
       item.locationSlug = instanceExists.location.slugifiedName
-    } else if (instanceExists && instanceExists.channelId) {
+    } else if (instanceExists.channelId) {
       item.type = 'Media'
       const channelExists = channels.find((channel) => channel.instanceId === instanceExists.id)
-      if (channelExists && channelExists.channelType) {
+      if (!channelExists) {
+        continue
+      }
+      if (channelExists.channelType) {
         item.type = `Media (${channelExists.channelType})`
       }
-    } else {
-      item.type = 'Unassigned'
+      if (instanceExists.locationId) {
+        item.type = `Media (${instanceExists.location.name} - ${instanceExists.id})`
+      }
     }
   }
 }

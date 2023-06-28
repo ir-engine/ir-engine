@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { RigidBodyType, ShapeType } from '@dimforge/rapier3d-compat'
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useCallback, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { camelCaseToSpacedString } from '@etherealengine/common/src/utils/camelCaseToSpacedString'
@@ -43,6 +43,7 @@ import {
 } from '@etherealengine/engine/src/scene/components/ColliderComponent'
 import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
 import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
+import { useState } from '@etherealengine/hyperflux'
 
 import PanToolIcon from '@mui/icons-material/PanTool'
 
@@ -78,7 +79,7 @@ const callbackQuery = defineQuery([CallbackComponent])
 
 export const ColliderNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
-  const [options, setOptions] = useState<OptionsType>([{ label: 'Self', value: 'Self', callbacks: [] }])
+  const targets = useState<OptionsType>([{ label: 'Self', value: 'Self', callbacks: [] }])
 
   const colliderComponent = getComponent(props.entity, ColliderComponent)
 
@@ -100,7 +101,7 @@ export const ColliderNodeEditor: EditorComponentType = (props) => {
         })
       })
     }
-    setOptions(options)
+    targets.set(options)
   }, [])
 
   const updateIsTrigger = useCallback(
@@ -126,7 +127,7 @@ export const ColliderNodeEditor: EditorComponentType = (props) => {
       })
     }
 
-    const targetOption = options.find((o) => o.value === colliderComponent.target)
+    const targetOption = targets.value.find((o) => o.value === colliderComponent.target)
     const target = targetOption ? targetOption.value : 'Self'
 
     return (
@@ -136,7 +137,7 @@ export const ColliderNodeEditor: EditorComponentType = (props) => {
             key={props.entity}
             value={colliderComponent.target ?? 'Self'}
             onChange={onChangeTarget}
-            options={options}
+            options={targets.value}
             disabled={props.multiEdit}
           />
         </InputGroup>

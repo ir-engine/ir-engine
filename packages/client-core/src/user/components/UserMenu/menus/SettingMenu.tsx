@@ -91,29 +91,20 @@ const SettingMenu = ({ isPopover }: Props): JSX.Element => {
     selfUser?.id?.value?.length > 0 && selfUser?.scopes?.value?.find((scope) => scope.type === 'admin:admin')
   const hasEditorAccess = userHasAccess('editor:write')
   const themeSettings = { ...defaultThemeSettings, ...clientSetting.themeSettings }
-  const themeModes = { ...defaultThemeModes, ...userSettings?.themeModes }
-
-  // This is done as a fix because previously studio was called editor
-  if (themeModes['editor']) {
-    if (!themeModes['studio']) {
-      themeModes['studio'] = themeModes['editor']
-    }
-
-    delete themeModes['editor']
+  const themeModes = {
+    client: userSettings?.themeModes?.client ?? defaultThemeModes.client,
+    studio: userSettings?.themeModes?.studio ?? defaultThemeModes.studio,
+    admin: userSettings?.themeModes?.admin ?? defaultThemeModes.admin
   }
 
   const showWorldSettings = Engine.instance.localClientEntity || engineState.value
 
-  /**
-   * Note: If you're editing this function, be sure to make the same changes to
-   * the XRUI version over at packages/client-core/src/systems/ui/ProfileDetailView/index.tsx
-   * @param event
-   */
   const handleChangeUserThemeMode = (event) => {
+    if (!userSettings) return
     const { name, value } = event.target
 
-    const settings = { ...userSettings, themeModes: { ...themeModes, [name]: value } }
-    userSettings && AuthService.updateUserSettings(userSettings.id as string, settings)
+    const settings = { themeModes: { ...themeModes, [name]: value } }
+    AuthService.updateUserSettings(userSettings.id as string, settings)
   }
 
   const handleChangeInvertRotationAndMoveSticks = () => {
