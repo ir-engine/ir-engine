@@ -69,6 +69,7 @@
     "react-color": "^2.19.3",
     "react-ga4": "2.1.0",
     "react-i18next": "11.16.6",
+    "react-icons": "^4.9.0",
     "react-joystick-component": "6.0.0",
     "react-reflex": "^4.0.12",
     "react-router-dom": "6.9.0",
@@ -78,14 +79,7 @@
     "tick-tock": "^1.0.0",
     "typescript": "5.0.2",
     "util": "^0.12.5",
-    "uuid": "9.0.0",
-    "pino": "^8.11.0",
-    "pino-pretty": "^10.0.0",
-    "postcss": "^8.4.21",
-    "qrcode.react": "^3.1.0",
-    "react-icons": "^4.9.0",
-    "react-json-view": "^1.21.3",
-    "tailwindcss": "^3.2.7"
+    "uuid": "9.0.0"
   },
   "devDependencies": {
     "@emotion/react": "11.10.6",
