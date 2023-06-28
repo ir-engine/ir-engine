@@ -177,7 +177,7 @@ export function ImageReactor() {
         // TODO: abort load request, pending https://github.com/mrdoob/three.js/pull/23070
       }
     },
-    [image.source.value]
+    [image.source]
   )
 
   useEffect(
