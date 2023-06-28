@@ -188,9 +188,7 @@ const createVehicleWheel = (entity: Entity, wheelPosition: Vector3, wheelRotatio
   return wheel
 }
 
-/*
 export const createVehicleController = (entity: Entity) => {
-  createVehicleRigidBody(entity)
   const rigidbody = getComponent(entity, RigidBodyComponent)
   const transform = getComponent(entity, TransformComponent)
   rigidbody.position.copy(transform.position)
@@ -212,4 +210,4 @@ export const createVehicleController = (entity: Entity) => {
   })
 
   addComponent(entity, CollisionComponent)
-}*/
+}
