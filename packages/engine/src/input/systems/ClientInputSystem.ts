@@ -261,7 +261,9 @@ export const addClientInputListeners = () => {
   session?.addEventListener('selectstart', onXRSelectStart)
   session?.addEventListener('selectend', onXRSelectEnd)
 
-  const emulatedTargetRaySpace = {} as any as XRSpace
+  const emulatedTargetRaySpace = {
+    emulated: true
+  } as any as XRSpace
 
   const emulatedGamepad = {
     axes: [0, 0, 0, 0],
@@ -279,7 +281,6 @@ export const addClientInputListeners = () => {
 
   // create an emulated input source for mouse/keyboard/touch input
   const emulatedInputSource = {
-    emulated: true,
     handedness: 'none',
     targetRayMode: session ? (session.interactionMode === 'screen-space' ? 'screen' : 'gaze') : 'screen',
     targetRaySpace: emulatedTargetRaySpace,
