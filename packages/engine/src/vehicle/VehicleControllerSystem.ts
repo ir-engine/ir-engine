@@ -49,33 +49,13 @@ import { UUIDComponent } from '../scene/components/UUIDComponent'
 import { XRAction } from '../xr/XRState'
 import { VehicleControllerComponent } from './components/VehicleControllerComponent'
 
-//import { respawnAvatar } from './functions/respawnAvatar'
-//import { AvatarInputSettingsReceptor } from './state/AvatarInputSettingsState'
+//import { respawnVehicle } from './functions/respawnVehicle'
+//import { VehicleInputSettingsReceptor } from './state/VehicleInputSettingsState'
 
 const localControllerQuery = defineQuery([VehicleControllerComponent, LocalInputTagComponent])
 const controllerQuery = defineQuery([VehicleControllerComponent])
-const sessionChangedActions = defineActionQueue(XRAction.sessionChanged.matches)
 
 const execute = () => {
-  for (const action of sessionChangedActions()) {
-    if (action.active) {
-      for (const vehicleEntity of localControllerQuery()) {
-        const controller = getComponent(vehicleEntity, VehicleControllerComponent)
-        removeComponent(controller.cameraEntity, FollowCameraComponent)
-      }
-    } else {
-      for (const vehicleEntity of localControllerQuery()) {
-        const controller = getComponent(vehicleEntity, VehicleControllerComponent)
-        const targetCameraRotation = getComponent(controller.cameraEntity, TargetCameraRotationComponent)
-        setComponent(controller.cameraEntity, FollowCameraComponent, {
-          targetEntity: vehicleEntity,
-          phi: targetCameraRotation.phi,
-          theta: targetCameraRotation.theta
-        })
-      }
-    }
-  }
-
   for (const vehicleEntity of localControllerQuery.enter()) {
     const controller = getComponent(vehicleEntity, VehicleControllerComponent)
 
@@ -100,10 +80,6 @@ const execute = () => {
     const controller = getComponent(controlledEntity, VehicleControllerComponent)
 
     if (controller.movementEnabled) {
-      /** Support multiple peers controlling the same avatar by detecting movement and overriding network authority.
-       *    @todo we may want to make this an networked action, rather than lazily removing the NetworkObjectAuthorityTag
-       *    if detecting input on the other user #7263
-       */
       if (
         !hasComponent(controlledEntity, NetworkObjectAuthorityTag) &&
         Engine.instance.worldNetwork &&
@@ -126,7 +102,7 @@ const execute = () => {
   }
 }
 
-export const AvatarControllerSystem = defineSystem({
-  uuid: 'ee.engine.AvatarControllerSystem',
+export const VehicleControllerSystem = defineSystem({
+  uuid: 'ee.engine.VehicleControllerSystem',
   execute
 })

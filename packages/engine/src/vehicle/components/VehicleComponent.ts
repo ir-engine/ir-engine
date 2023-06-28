@@ -26,16 +26,30 @@ Ethereal Engine. All Rights Reserved.
 import { Object3D } from 'three'
 
 import { matches } from '../../common/functions/MatchesUtils'
+import { Entity } from '../../ecs/classes/Entity'
 import { defineComponent } from '../../ecs/functions/ComponentFunctions'
 
 export const VehicleComponent = defineComponent({
   name: 'VehicleComponent',
 
   onInit: (entity) => {
-    return {}
+    return {
+      vehicleHeight: null! as number,
+      vehicleWidth: null! as number,
+      vehicleLength: null! as number,
+      chassis: null! as Entity,
+      axles: null! as Entity[],
+      wheels: null! as Entity[]
+    }
   },
 
   onSet: (entity, component, json) => {
     if (!json) return
+    if (matches.number.test(json.vehicleHeight)) component.vehicleHeight.set(json.vehicleHeight as number)
+    if (matches.number.test(json.vehicleWidth)) component.vehicleWidth.set(json.vehicleWidth as number)
+    if (matches.number.test(json.vehicleLength)) component.vehicleLength.set(json.vehicleLength as number)
+    if (matches.object.test(json.chassis)) component.chassis.set(json.chassis as Entity)
+    if (matches.object.test(json.axles)) component.axles.set(json.axles as Entity[])
+    if (matches.object.test(json.wheels)) component.axles.set(json.wheels as Entity[])
   }
 })

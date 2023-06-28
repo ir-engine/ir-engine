@@ -38,6 +38,7 @@ import { DEG2RAD } from 'three/src/math/MathUtils'
 
 import { createEntity } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
 
+import { setTargetCameraRotation } from '../../camera/systems/CameraInputSystem'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { addComponent, getComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
@@ -53,33 +54,57 @@ import { getInteractionGroups } from '../../physics/functions/getInteractionGrou
 import { ShadowComponent } from '../../scene/components/ShadowComponent'
 import { setTransformComponent, TransformComponent } from '../../transform/components/TransformComponent'
 import { VehicleComponent } from '../components/VehicleComponent'
+import { VehicleControllerComponent } from '../components/VehicleControllerComponent'
 
+export const defaultChassisDimensions = { x: 0.36, y: 0.26, z: 0.6 }
 export const defaultWheelDimensions = { hy: 0.1, r: 0.3 }
-export const defaultVehicleDimensions = { x: 0.36, y: 0.26, z: 0.6 }
 export const defaultAxleDimensions = { x: 0.03, y: 0.03, z: 0.03 }
 export const axleDisplacements: Vector3[] = [
-  new Vector3(-defaultVehicleDimensions.x * 0.9, -defaultVehicleDimensions.y, (-defaultVehicleDimensions.z * 2) / 3),
-  new Vector3(-defaultVehicleDimensions.x * 0.9, -defaultVehicleDimensions.y, (defaultVehicleDimensions.z * 2) / 3),
-  new Vector3(defaultVehicleDimensions.x * 0.9, -defaultVehicleDimensions.y, (-defaultVehicleDimensions.z * 2) / 3),
-  new Vector3(defaultVehicleDimensions.x * 0.9, -defaultVehicleDimensions.y, (defaultVehicleDimensions.z * 2) / 3)
+  new Vector3(-defaultChassisDimensions.x * 0.9, -defaultChassisDimensions.y, (-defaultChassisDimensions.z * 2) / 3),
+  new Vector3(-defaultChassisDimensions.x * 0.9, -defaultChassisDimensions.y, (defaultChassisDimensions.z * 2) / 3),
+  new Vector3(defaultChassisDimensions.x * 0.9, -defaultChassisDimensions.y, (-defaultChassisDimensions.z * 2) / 3),
+  new Vector3(defaultChassisDimensions.x * 0.9, -defaultChassisDimensions.y, (defaultChassisDimensions.z * 2) / 3)
 ]
-export const wheelDisplacement = defaultWheelDimensions.hy
+export const wheelDisplacement = defaultWheelDimensions.hy * 1.3
 
 export const spawnVehicleReceptor = (spawnAction: typeof WorldNetworkAction.spawnVehicle.matches._TYPE) => {
   const ownerId = spawnAction.$from
 
   const entity = Engine.instance.getNetworkObject(ownerId, spawnAction.networkId)
   if (!entity) return
+  // over simplified for this static config, need to write a dynamic algo for this
+  // considers case where chassis + wheels and where you have monster wheels
+  const vehicleHeight = Math.max(
+    defaultWheelDimensions.r + defaultChassisDimensions.y + Math.abs(axleDisplacements[0].y),
+    defaultWheelDimensions.r * 2
+  )
+  // considers case where chassis is big and a normal vehicle with wheels extending out
+  const vehicleWidth = Math.max(
+    (Math.abs(axleDisplacements[0].x) + wheelDisplacement + defaultWheelDimensions.hy) * 2,
+    defaultChassisDimensions.x * 2
+  )
+  // case where we have very long car and one where wheels are very big
+  const vehicleLength = Math.max(
+    Math.abs(axleDisplacements[0].z) * 2 + defaultWheelDimensions.r,
+    defaultChassisDimensions.z * 2
+  )
+  const { chassis, axles, wheels } = createVehicle(entity)
 
-  addComponent(entity, VehicleComponent, {})
+  setComponent(entity, VehicleComponent, {
+    vehicleHeight: vehicleHeight,
+    vehicleWidth: vehicleWidth,
+    vehicleLength: vehicleLength,
+    chassis: chassis,
+    axles: axles,
+    wheels: wheels
+  })
 
-  createVehicle(entity)
-  setComponent(entity, EntityTreeComponent)
   setComponent(entity, NetworkObjectSendPeriodicUpdatesTag)
 
   setComponent(entity, ShadowComponent)
   setComponent(entity, BoundingBoxComponent)
 }
+
 const createVehicle = (entity: Entity): any => {
   const axles = [] as Entity[]
   const wheels = [] as Entity[]
@@ -88,30 +113,23 @@ const createVehicle = (entity: Entity): any => {
 
   for (let i = 0; i < axleDisplacements.length; i++) {
     const wheelSide = Math.sign(axleDisplacements[i].x) // right is + ve , left is - ve
-    const wheelType = Math.sign(axleDisplacements[i].z) // + ve is front , -ve is back
-    let axleJointData = JointData.fixed(
+    const wheelIsSteered = Boolean(Math.min(0, Math.sign(axleDisplacements[i].z)))
+    const axleJointData = JointData.revolute(
       new Vector3(axleDisplacements[i].x, axleDisplacements[i].y, axleDisplacements[i].z),
-      new RapierQuat(0, 0, 0, 0),
       new Vector3(0, 0, 0),
-      new RapierQuat(0, 0, 0, 0)
+      new Vector3(0, 1, 0)
     )
-    if (wheelType > 0) {
-      axleJointData = JointData.revolute(
-        new Vector3(axleDisplacements[i].x, axleDisplacements[i].y, axleDisplacements[i].z),
-        new Vector3(0, 0, 0),
-        new Vector3(0, 1, 0)
-      )
-    }
+
     const wheelJointData = JointData.revolute(
       new Vector3(wheelDisplacement * 1.2 * wheelSide, 0, 0),
       new Vector3(defaultAxleDimensions.x * wheelSide * -1, 0, 0),
       new Vector3(1 * wheelSide, 0, 0)
     )
-    //const wheelJointData = JointData.revolute(new Vector3(defaultWheelDimensions.r * 2 * wheelSide, 0, 0), new Vector3(0, 0, 0), new Vector3(1,0,0))
 
     const axleDisplacement = axleDisplacements[i]
     const axlePosition = axleDisplacement.add(chassisTransform.position)
     axles.push(createVehicleAxle(entity, axlePosition))
+
     const wheelPosition = axleDisplacement.add(new Vector3(wheelSide * wheelDisplacement, 0, 0))
     wheels.push(
       createVehicleWheel(
@@ -128,6 +146,8 @@ const createVehicle = (entity: Entity): any => {
     Engine.instance.physicsWorld.createImpulseJoint(wheelJointData, axleRigidBody.body, wheelRigidBody.body, true)
     Engine.instance.physicsWorld.createImpulseJoint(axleJointData, chassisRigidBody.body, axleRigidBody.body, true)
   }
+
+  return { entity, axles, wheels }
 }
 
 const createVehicleChassis = (entity: Entity): Entity => {
@@ -136,9 +156,9 @@ const createVehicleChassis = (entity: Entity): Entity => {
   const interactionGroups = getInteractionGroups(CollisionGroups.Default, DefaultCollisionMask)
   const vehicleBodyRigidBody = RigidBodyDesc.kinematicPositionBased().lockRotations()
   const vehicleBodyCollider = ColliderDesc.roundCuboid(
-    defaultVehicleDimensions.x,
-    defaultVehicleDimensions.y,
-    defaultVehicleDimensions.z,
+    defaultChassisDimensions.x,
+    defaultChassisDimensions.y,
+    defaultChassisDimensions.z,
     0.02
   ).setCollisionGroups(interactionGroups)
   // creation
@@ -203,11 +223,7 @@ export const createVehicleController = (entity: Entity) => {
   const orientation = cameraForward.x * vehicleForward.z - cameraForward.z * vehicleForward.x
   if (orientation > 0) targetTheta = 2 * Math.PI - targetTheta
   setTargetCameraRotation(Engine.instance.cameraEntity, 0, targetTheta)
-
   setComponent(entity, VehicleControllerComponent, {
-    bodyCollider: createVehicleCollider(entity),
     controller: Physics.createCharacterController(Engine.instance.physicsWorld, {})
   })
-
-  addComponent(entity, CollisionComponent)
 }

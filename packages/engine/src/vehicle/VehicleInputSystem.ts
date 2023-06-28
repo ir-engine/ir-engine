@@ -71,6 +71,18 @@ const onKeyE = () => {
   // exit vehicle
 }
 
+const onKeyO = () => {
+  dispatchAction(
+    WorldNetworkAction.spawnDebugPhysicsObject({
+      config: boxDynamicConfig
+    })
+  )
+}
+
+const onKeyP = () => {
+  getMutableState(RendererState).debugEnable.set(!getMutableState(RendererState).debugEnable.value)
+}
+
 const inputSourceQuery = defineQuery([InputSourceComponent])
 const filterUncapturedInputSources = (eid: Entity) => !getComponent(eid, InputSourceComponent)?.captured
 
@@ -87,6 +99,11 @@ const execute = () => {
     const buttons = inputSource.buttons
 
     if (buttons.KeyE?.down) onKeyE()
+
+    if (isDev) {
+      if (buttons.KeyO?.down) onKeyO()
+      if (buttons.KeyP?.down) onKeyP()
+    }
 
     if (!hasMovementControls()) return
     /** keyboard input */
