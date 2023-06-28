@@ -145,10 +145,10 @@ export const EnvMapBakeNodeEditor: EditorComponentType = (props) => {
   }
 
   const onChangePosition = (value) => {
-    bakeComponent.bakePositionOffset.set(value)
+    bakeComponent.bakePositionOffset.value.copy(value)
   }
   const onChangeScale = (value) => {
-    bakeComponent.bakeScale.set(value)
+    bakeComponent.bakeScale.value.copy(value)
   }
 
   return (
