@@ -145,13 +145,9 @@ const CaptureDashboard = () => {
   }
 
   useEffect(() => {
-    window.addEventListener('resize', () => {
-      resizeCanvas()
-    })
+    window.addEventListener('resize', resizeCanvas)
     return () => {
-      window.removeEventListener('resize', () => {
-        resizeCanvas()
-      })
+      window.removeEventListener('resize', resizeCanvas)
     }
   }, [])
 
