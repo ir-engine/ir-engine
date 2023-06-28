@@ -48,8 +48,8 @@ import { InputComponent } from './InputComponent'
 export const InputSourceCaptureState = defineState({
   name: 'InputSourceCaptureState',
   initial: {
-    buttons: {} as Record<XRHandedness, boolean>,
-    axes: {} as Record<XRHandedness, boolean>
+    buttons: {} as Record<XRHandedness, Entity>,
+    axes: {} as Record<XRHandedness, Entity>
   }
 })
 
@@ -70,44 +70,39 @@ export const InputSourceComponent = defineComponent({
     return {
       source: null! as XRInputSource,
       buttons: {} as Readonly<ButtonStateMap>,
+      // internals
       assignedButtonEntity: UndefinedEntity as Entity,
       assignedAxesEntity: UndefinedEntity as Entity
     }
   },
 
-  onSet: (
-    entity,
-    component,
-    args: { source: XRInputSource; capturedButtonEntity?: Entity; capturedAxesEntity?: Entity }
-  ) => {
-    const { source, capturedButtonEntity, capturedAxesEntity } = args
+  onSet: (entity, component, args: { source: XRInputSource }) => {
+    const { source } = args
     component.source.set(source)
-    component.assignedButtonEntity.set(capturedButtonEntity ?? UndefinedEntity)
-    component.assignedAxesEntity.set(capturedAxesEntity ?? UndefinedEntity)
     InputSourceComponent.entitiesByInputSource.set(args.source, entity)
     setComponent(entity, XRSpaceComponent, source.targetRaySpace)
   },
 
   entitiesByInputSource: new WeakMap<XRInputSource>(),
 
-  captureButtons: (handedness = handednesses) => {
+  captureButtons: (entity: Entity, handedness = handednesses) => {
     const state = getMutableState(InputSourceCaptureState)
-    for (const hand of handedness) state.buttons[hand].set(true)
+    for (const hand of handedness) state.buttons[hand].set(entity)
   },
 
   releaseButtons: (handedness = handednesses) => {
     const state = getMutableState(InputSourceCaptureState)
-    for (const hand of handedness) state.buttons[hand].set(false)
+    for (const hand of handedness) state.buttons[hand].set(UndefinedEntity)
   },
 
-  captureAxes: (handedness = handednesses) => {
+  captureAxes: (entity: Entity, handedness = handednesses) => {
     const state = getMutableState(InputSourceCaptureState)
-    for (const hand of handedness) state.axes[hand].set(true)
+    for (const hand of handedness) state.axes[hand].set(entity)
   },
 
   releaseAxes: (handedness = handednesses) => {
     const state = getMutableState(InputSourceCaptureState)
-    for (const hand of handedness) state.axes[hand].set(false)
+    for (const hand of handedness) state.axes[hand].set(UndefinedEntity)
   },
 
   isAssignedButtons: (targetEntity: Entity) => {
@@ -141,6 +136,7 @@ export const InputSourceComponent = defineComponent({
       const captured = capturedButtons[inputSource.source.value.handedness].value
       if (captured) {
         setComponent(sourceEntity, InputSourceButtonsCapturedComponent)
+        inputSource.assignedButtonEntity.set(captured)
       } else {
         removeComponent(sourceEntity, InputSourceButtonsCapturedComponent)
       }
@@ -151,6 +147,7 @@ export const InputSourceComponent = defineComponent({
       const captured = capturedAxes[inputSource.source.value.handedness].value
       if (captured) {
         setComponent(sourceEntity, InputSourceAxesCapturedComponent)
+        inputSource.assignedAxesEntity.set(captured)
       } else {
         removeComponent(sourceEntity, InputSourceAxesCapturedComponent)
       }
@@ -160,20 +157,20 @@ export const InputSourceComponent = defineComponent({
       <>
         <InputSourceAssignmentReactor
           key={`button-${inputSource.assignedButtonEntity.value}`}
-          assignedEntity={inputSource.assignedButtonEntity}
+          assignedEntity={inputSource.assignedButtonEntity.value}
         />
         <InputSourceAssignmentReactor
           key={`axes-${inputSource.assignedAxesEntity.value}`}
-          assignedEntity={inputSource.assignedAxesEntity}
+          assignedEntity={inputSource.assignedAxesEntity.value}
         />
       </>
     )
   }
 })
 
-const InputSourceAssignmentReactor = React.memo((props: { assignedEntity: State<Entity> }) => {
+const InputSourceAssignmentReactor = React.memo((props: { assignedEntity: Entity }) => {
   const sourceEntity = useEntityContext()
-  const input = useOptionalComponent(props.assignedEntity.value, InputComponent)
+  const input = useOptionalComponent(props.assignedEntity, InputComponent)
 
   useLayoutEffect(() => {
     if (!input) return
@@ -183,7 +180,7 @@ const InputSourceAssignmentReactor = React.memo((props: { assignedEntity: State<
       const idx = input.inputSources.value.indexOf(sourceEntity)
       idx > -1 && input.inputSources[idx].set(none)
     }
-  }, [props.assignedEntity.value])
+  }, [props.assignedEntity])
 
   return null
 })
