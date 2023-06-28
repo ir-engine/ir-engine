@@ -190,6 +190,8 @@ const execute = () => {
     const standardGamepad =
       inputSource.source.gamepad?.mapping === 'standard' || inputSource.source.gamepad?.mapping === ''
 
+    if (buttons.KeyE?.down) onInteract()
+
     if (standardGamepad && buttons[StandardGamepadButton.ButtonY]?.down) {
       onInteract()
     }
@@ -205,7 +207,6 @@ const execute = () => {
     const xrStandardGamepad = inputSource.source.gamepad?.mapping === 'xr-standard'
 
     if (buttons.ShiftLeft?.down) onShiftLeft()
-    if (buttons.KeyE?.down) onInteract()
     if (xrStandardGamepad) {
       if (buttons[XRStandardGamepadButton.Trigger]?.down) onInteract(inputSource.source.handedness)
     }
