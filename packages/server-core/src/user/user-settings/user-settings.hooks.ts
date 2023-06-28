@@ -53,6 +53,10 @@ const ensureUserThemeModes = () => {
 
       // Setting themeModes value again to override the value updated in above patch() call.
       result.themeModes = clientSetting.data[0].themeModes
+
+      // backwards compat
+      if (typeof result.themeModes === 'string') result.themeModes = JSON.parse(result.themeModes)
+      if (typeof result.themeModes === 'string') result.themeModes = JSON.parse(result.themeModes)
     }
     return context
   }

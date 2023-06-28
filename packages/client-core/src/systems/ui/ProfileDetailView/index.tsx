@@ -57,6 +57,7 @@ import XRSelectDropdown from '../../components/XRSelectDropdown'
 import XRTextButton from '../../components/XRTextButton'
 import styleString from './index.scss?inline'
 
+/** @deprecated */
 export function createProfileDetailView() {
   return createXRUI(ProfileDetailView, createProfileDetailState())
 }
@@ -65,6 +66,7 @@ function createProfileDetailState() {
   return createState({})
 }
 
+/** @deprecated */
 const ProfileDetailView = () => {
   const { t } = useTranslation()
 

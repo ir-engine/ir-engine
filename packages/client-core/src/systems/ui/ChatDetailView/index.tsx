@@ -38,6 +38,7 @@ import { getAvatarURLForUser } from '../../../user/components/UserMenu/util'
 import XRInput from '../../components/XRInput'
 import styleString from './index.scss?inline'
 
+/** @deprecated */
 export function createChatDetailView() {
   return createXRUI(ChatDetailView, createChatDetailState())
 }
@@ -45,7 +46,7 @@ export function createChatDetailView() {
 function createChatDetailState() {
   return createState({})
 }
-
+/** @deprecated */
 const ChatDetailView = () => {
   const [unreadMessages, setUnreadMessages] = useState(false)
 

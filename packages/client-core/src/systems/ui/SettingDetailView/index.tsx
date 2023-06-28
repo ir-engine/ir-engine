@@ -50,6 +50,7 @@ import XRSlider from '../../components/XRSlider'
 import XRToggleButton from '../../components/XRToggleButton'
 import styleString from './index.scss?inline'
 
+/** @deprecated */
 export function createSettingDetailView() {
   return createXRUI(SettingDetailView, createSettingDetailState())
 }
@@ -57,7 +58,7 @@ export function createSettingDetailView() {
 function createSettingDetailState() {
   return createState({})
 }
-
+/** @deprecated */
 // TODO: update this to newest settings implementation
 const SettingDetailView = () => {
   const { t } = useTranslation()
