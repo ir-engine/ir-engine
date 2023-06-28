@@ -38,6 +38,7 @@ import { createState, getMutableState, useHookstate } from '@etherealengine/hype
 
 import styleString from './index.scss?inline'
 
+/** @deprecated */
 export function createAvatarDetailView(id: string) {
   const videoPreviewMesh = new Mesh(new CircleGeometry(0.25, 32), new MeshBasicMaterial())
   const ui = createXRUI(
@@ -54,7 +55,7 @@ export function createAvatarDetailView(id: string) {
 interface AvatarDetailState {
   id: string
 }
-
+/** @deprecated */
 const AvatarDetailView = () => {
   const { t } = useTranslation()
   const detailState = useXRUIState<AvatarDetailState>()

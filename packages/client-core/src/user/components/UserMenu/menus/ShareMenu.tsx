@@ -34,6 +34,7 @@ import InputCheck from '@etherealengine/client-core/src/common/components/InputC
 import InputText from '@etherealengine/client-core/src/common/components/InputText'
 import Menu from '@etherealengine/client-core/src/common/components/Menu'
 import { NotificationService } from '@etherealengine/client-core/src/common/services/NotificationService'
+import { EMAIL_REGEX, PHONE_REGEX } from '@etherealengine/common/src/constants/IdConstants'
 import { SendInvite } from '@etherealengine/common/src/interfaces/Invite'
 import multiLogger from '@etherealengine/common/src/logger'
 import { isShareAvailable } from '@etherealengine/engine/src/common/functions/DetectFeatures'
@@ -43,7 +44,7 @@ import Box from '@etherealengine/ui/src/primitives/mui/Box'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
 
-import { emailRegex, InviteService, phoneRegex } from '../../../../social/services/InviteService'
+import { InviteService } from '../../../../social/services/InviteService'
 import { AuthState } from '../../../services/AuthService'
 import styles from '../index.module.scss'
 import { PopupMenuServices } from '../PopupMenuService'
@@ -80,8 +81,8 @@ export const useShareMenuHooks = ({ refLink }) => {
   }
 
   const packageInvite = async (): Promise<void> => {
-    const isEmail = emailRegex.test(token)
-    const isPhone = phoneRegex.test(token)
+    const isEmail = EMAIL_REGEX.test(token)
+    const isPhone = PHONE_REGEX.test(token)
     const location = new URL(window.location as any)
     let params = new URLSearchParams(location.search)
     const sendData = {

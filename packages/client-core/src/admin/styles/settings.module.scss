@@ -31,9 +31,11 @@
   color: var(--iconButtonColor);
   font-size: 3rem;
   background: var(--iconButtonBackground);
-  position: fixed;
   width: auto;
   min-width: auto;
+  position: absolute;
+  top: -3rem;
+  left: -1rem;
 }
 
 .gradientButton {
