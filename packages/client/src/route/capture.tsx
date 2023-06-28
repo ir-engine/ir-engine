@@ -122,8 +122,8 @@ function CaptureComp() {
 
   if (!routesReady) {
     return (
-      <div className="absolute w-full h-full">
-        <LoadingCircle message={t('common:loader.loadingRoutes')} />
+      <div className="absolute w-screen h-screen flex justify-center items-center">
+        <LoadingCircle className={`block w-12 h-12`} message={t('common:loader.loadingRoutes')} />
       </div>
     )
   }

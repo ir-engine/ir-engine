@@ -37,7 +37,7 @@
     "./node_modules/**",
   ],
   "include": [
-    // alloe everything in this package
+    // allow everything in this package
     "./**/**/*",
     "./src/**/*.ts",
     "./src/**/*.tsx"
