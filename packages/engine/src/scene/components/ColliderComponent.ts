@@ -42,6 +42,7 @@ import {
   useOptionalComponent
 } from '../../ecs/functions/ComponentFunctions'
 import { useEntityContext } from '../../ecs/functions/EntityFunctions'
+import { InputComponent } from '../../input/components/InputComponent'
 import { Physics } from '../../physics/classes/Physics'
 import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
 import { CollisionGroups, DefaultCollisionMask } from '../../physics/enums/CollisionGroups'
@@ -109,6 +110,8 @@ export const ColliderComponent = defineComponent({
      */
     if (!getState(EngineState).sceneLoaded && hasComponent(entity, SceneObjectComponent))
       setComponent(entity, SceneAssetPendingTagComponent)
+
+    setComponent(entity, InputComponent)
   },
 
   onRemove(entity, component) {},

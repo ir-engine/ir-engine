@@ -59,10 +59,7 @@ import {
   getEntityNodeArrayFromEntities
 } from '@etherealengine/engine/src/ecs/functions/EntityTree'
 import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
-import {
-  getFirstNonCapturedInputSource,
-  InputSourceComponent
-} from '@etherealengine/engine/src/input/components/InputSourceComponent'
+import { InputSourceComponent } from '@etherealengine/engine/src/input/components/InputSourceComponent'
 import InfiniteGridHelper from '@etherealengine/engine/src/scene/classes/InfiniteGridHelper'
 import { addObjectToGroup, GroupComponent } from '@etherealengine/engine/src/scene/components/GroupComponent'
 import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
@@ -440,7 +437,7 @@ const execute = () => {
   }
   const cursorPosition = Engine.instance.pointerState.position
 
-  const nonCapturedInputSource = getFirstNonCapturedInputSource()
+  const nonCapturedInputSource = InputSourceComponent.nonCapturedInputSourceQuery()[0]
   if (!nonCapturedInputSource) return
 
   const inputSource = getComponent(nonCapturedInputSource, InputSourceComponent)

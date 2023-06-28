@@ -178,10 +178,6 @@ let fadeBackInAccumulator = -1
 
 let visibleSegments = 2
 
-const inputSourceQuery = defineQuery([InputSourceComponent])
-
-const filterUncapturedInputSources = (eid: Entity) => !getComponent(eid, InputSourceComponent)?.captured
-
 const execute = () => {
   if (getCameraMode() !== 'attached') return
 
@@ -213,7 +209,7 @@ const execute = () => {
   }
   const guidelineTransform = getComponent(guidelineEntity, TransformComponent)
 
-  const nonCapturedInputSources = inputSourceQuery().filter(filterUncapturedInputSources)
+  const nonCapturedInputSources = InputSourceComponent.nonCapturedInputSourceQuery()
 
   for (const entity of avatarTeleportQuery()) {
     const side = getComponent(Engine.instance.localClientEntity, AvatarTeleportComponent).side

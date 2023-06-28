@@ -231,7 +231,6 @@ export const applyGamepadInput = (entity: Entity) => {
 
   targetWorldMovement
     .copy(controller.gamepadLocalInput)
-    .normalize()
     .multiplyScalar(legSpeed * deltaSeconds)
     .applyQuaternion(forwardOrientation)
 

@@ -23,29 +23,45 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { Not } from 'bitecs'
 import React, { useEffect } from 'react'
 import { useLayoutEffect } from 'react'
 
-import { none, State, useHookstate } from '@etherealengine/hyperflux'
+import { defineState, getMutableState, none, State, useHookstate } from '@etherealengine/hyperflux'
 
 import { Entity, UndefinedEntity } from '../../ecs/classes/Entity'
 import {
   defineComponent,
   defineQuery,
   getComponent,
-  getMutableComponent,
   getOptionalComponent,
-  hasComponent,
   removeComponent,
   setComponent,
   useComponent,
   useOptionalComponent
 } from '../../ecs/functions/ComponentFunctions'
 import { useEntityContext } from '../../ecs/functions/EntityFunctions'
-import { HighlightComponent } from '../../renderer/components/HighlightComponent'
 import { XRSpaceComponent } from '../../xr/XRComponents'
 import { ButtonStateMap } from '../state/ButtonState'
 import { InputComponent } from './InputComponent'
+
+export const InputSourceCaptureState = defineState({
+  name: 'InputSourceCaptureState',
+  initial: {
+    buttons: {} as Record<XRHandedness, Entity>,
+    axes: {} as Record<XRHandedness, Entity>
+  }
+})
+
+const handednesses = ['left', 'right', 'none'] as XRHandedness[]
+
+export const InputSourceButtonsCapturedComponent = defineComponent({
+  name: 'InputSourceButtonsCapturedComponent'
+})
+
+export const InputSourceAxesCapturedComponent = defineComponent({
+  name: 'InputSourceAxesCapturedComponent'
+})
 
 export const InputSourceComponent = defineComponent({
   name: 'InputSourceComponent',
@@ -54,58 +70,107 @@ export const InputSourceComponent = defineComponent({
     return {
       source: null! as XRInputSource,
       buttons: {} as Readonly<ButtonStateMap>,
-      assignedEntity: UndefinedEntity as Entity,
-      captured: false
+      // internals
+      assignedButtonEntity: UndefinedEntity as Entity,
+      assignedAxesEntity: UndefinedEntity as Entity
     }
   },
 
-  onSet: (entity, component, args: { source: XRInputSource; assignedEntity?: Entity }) => {
-    const { source, assignedEntity } = args
+  onSet: (entity, component, args: { source: XRInputSource }) => {
+    const { source } = args
     component.source.set(source)
-    component.assignedEntity.set(assignedEntity ?? UndefinedEntity)
     InputSourceComponent.entitiesByInputSource.set(args.source, entity)
     setComponent(entity, XRSpaceComponent, source.targetRaySpace)
   },
 
   entitiesByInputSource: new WeakMap<XRInputSource>(),
 
-  capture: (sourceEntity: Entity, targetEntity?: Entity) => {
-    if (!hasComponent(sourceEntity, InputSourceComponent))
-      throw new Error('InputSourceComponent not found for entity ' + sourceEntity)
-
-    const inputSourceComponent = getMutableComponent(sourceEntity, InputSourceComponent)
-    if (targetEntity) inputSourceComponent.assignedEntity.set(targetEntity)
-    inputSourceComponent.captured.set(true)
+  captureButtons: (entity: Entity, handedness = handednesses) => {
+    const state = getMutableState(InputSourceCaptureState)
+    for (const hand of handedness) state.buttons[hand].set(entity)
   },
 
-  release: (sourceEntity: Entity) => {
-    const inputSourceComponent = getMutableComponent(sourceEntity, InputSourceComponent)
-    inputSourceComponent.captured.set(false)
+  releaseButtons: (handedness = handednesses) => {
+    const state = getMutableState(InputSourceCaptureState)
+    for (const hand of handedness) state.buttons[hand].set(UndefinedEntity)
   },
 
-  isAssigned: (targetEntity: Entity) => {
+  captureAxes: (entity: Entity, handedness = handednesses) => {
+    const state = getMutableState(InputSourceCaptureState)
+    for (const hand of handedness) state.axes[hand].set(entity)
+  },
+
+  releaseAxes: (handedness = handednesses) => {
+    const state = getMutableState(InputSourceCaptureState)
+    for (const hand of handedness) state.axes[hand].set(UndefinedEntity)
+  },
+
+  isAssignedButtons: (targetEntity: Entity) => {
     const sourceEntities = getOptionalComponent(targetEntity, InputComponent)?.inputSources
     return !!sourceEntities?.find((sourceEntity) => {
       const inputSourceComponent = getComponent(sourceEntity, InputSourceComponent)
-      return inputSourceComponent.assignedEntity === targetEntity
+      return inputSourceComponent.assignedButtonEntity === targetEntity
     })
+  },
+
+  isAssignedAxes: (targetEntity: Entity) => {
+    const sourceEntities = getOptionalComponent(targetEntity, InputComponent)?.inputSources
+    return !!sourceEntities?.find((sourceEntity) => {
+      const inputSourceComponent = getComponent(sourceEntity, InputSourceComponent)
+      return inputSourceComponent.assignedAxesEntity === targetEntity
+    })
+  },
+
+  nonCapturedInputSourceQuery: () => {
+    return nonCapturedInputSourceQuery()
   },
 
   reactor: () => {
     const sourceEntity = useEntityContext()
     const inputSource = useComponent(sourceEntity, InputSourceComponent)
+    const capturedButtons = useHookstate(getMutableState(InputSourceCaptureState).buttons)
+    const capturedAxes = useHookstate(getMutableState(InputSourceCaptureState).axes)
+
+    useEffect(() => {
+      if (!inputSource.source.value) return
+      const captured = capturedButtons[inputSource.source.value.handedness].value
+      if (captured) {
+        setComponent(sourceEntity, InputSourceButtonsCapturedComponent)
+        inputSource.assignedButtonEntity.set(captured)
+      } else {
+        removeComponent(sourceEntity, InputSourceButtonsCapturedComponent)
+      }
+    }, [capturedButtons, inputSource.source])
+
+    useEffect(() => {
+      if (!inputSource.source.value) return
+      const captured = capturedAxes[inputSource.source.value.handedness].value
+      if (captured) {
+        setComponent(sourceEntity, InputSourceAxesCapturedComponent)
+        inputSource.assignedAxesEntity.set(captured)
+      } else {
+        removeComponent(sourceEntity, InputSourceAxesCapturedComponent)
+      }
+    }, [capturedAxes, inputSource.source])
+
     return (
-      <InputSourceAssignmentReactor
-        key={inputSource.assignedEntity.value}
-        assignedEntity={inputSource.assignedEntity}
-      />
+      <>
+        <InputSourceAssignmentReactor
+          key={`button-${inputSource.assignedButtonEntity.value}`}
+          assignedEntity={inputSource.assignedButtonEntity.value}
+        />
+        <InputSourceAssignmentReactor
+          key={`axes-${inputSource.assignedAxesEntity.value}`}
+          assignedEntity={inputSource.assignedAxesEntity.value}
+        />
+      </>
     )
   }
 })
 
-const InputSourceAssignmentReactor = React.memo((props: { assignedEntity: State<Entity> }) => {
+const InputSourceAssignmentReactor = React.memo((props: { assignedEntity: Entity }) => {
   const sourceEntity = useEntityContext()
-  const input = useOptionalComponent(props.assignedEntity.value, InputComponent)
+  const input = useOptionalComponent(props.assignedEntity, InputComponent)
 
   useLayoutEffect(() => {
     if (!input) return
@@ -115,14 +180,13 @@ const InputSourceAssignmentReactor = React.memo((props: { assignedEntity: State<
       const idx = input.inputSources.value.indexOf(sourceEntity)
       idx > -1 && input.inputSources[idx].set(none)
     }
-  }, [props.assignedEntity.value])
+  }, [props.assignedEntity])
 
   return null
 })
 
-const inputSourceQuery = defineQuery([InputSourceComponent])
-const filterUncapturedInputSources = (eid: Entity) => !getComponent(eid, InputSourceComponent)?.captured
-
-export const getFirstNonCapturedInputSource = () => {
-  return inputSourceQuery().find(filterUncapturedInputSources)
-}
+const nonCapturedInputSourceQuery = defineQuery([
+  InputSourceComponent,
+  Not(InputSourceButtonsCapturedComponent),
+  Not(InputSourceAxesCapturedComponent)
+])

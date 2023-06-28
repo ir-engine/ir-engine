@@ -47,10 +47,3 @@ export const XRUIComponent = defineComponent({
     component.value.destroy()
   }
 })
-
-/**
- * XRUIInteractableComponent
- *
- * a tag component that enables a visible XRUI to have the pointer/cursor interact with it
- */
-export const XRUIInteractableComponent = defineComponent({ name: 'XRUIComponent' })
