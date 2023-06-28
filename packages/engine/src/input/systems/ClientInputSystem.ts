@@ -24,11 +24,11 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { useEffect } from 'react'
-import { Mesh, MeshBasicMaterial, Quaternion, Ray, Vector3 } from 'three'
+import { LineBasicMaterial, Mesh, MeshBasicMaterial, Quaternion, Ray, Vector3 } from 'three'
 
 import { dispatchAction, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
-import { V_001 } from '../../common/constants/MathConstants'
+import { ObjectDirection } from '../../common/constants/Axis3D'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineActions } from '../../ecs/classes/EngineState'
 import { Entity, UndefinedEntity } from '../../ecs/classes/Entity'
@@ -425,7 +425,7 @@ const execute = () => {
       TransformComponent.position.z[sourceEid] = ray.origin.z
 
       // set rayDirection to be the direction of the ray
-      rayRotation.setFromUnitVectors(V_001, ray.direction)
+      rayRotation.setFromUnitVectors(ObjectDirection.Forward, ray.direction)
 
       TransformComponent.rotation.x[sourceEid] = rayRotation.x
       TransformComponent.rotation.y[sourceEid] = rayRotation.y
@@ -440,7 +440,7 @@ const execute = () => {
     if (!capturedButtons || !capturedAxes) {
       let assignedInputEntity = UndefinedEntity as Entity
 
-      inputRaycast.direction.set(0, 0, 1).applyQuaternion(sourceTransform.rotation)
+      inputRaycast.direction.copy(ObjectDirection.Forward).applyQuaternion(sourceTransform.rotation)
       inputRaycast.origin.copy(sourceTransform.position).addScaledVector(inputRaycast.direction, -0.01)
       inputRaycast.excludeRigidBody = getOptionalComponent(Engine.instance.localClientEntity, RigidBodyComponent)?.body
       inputRay.set(inputRaycast.origin, inputRaycast.direction)

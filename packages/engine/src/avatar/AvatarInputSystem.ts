@@ -67,7 +67,7 @@ export function getThumbstickOrThumbpadAxes(
   thumstick: XRHandedness,
   deadZone: number = 0.05
 ) {
-  const gamepad = navigator.getGamepads()[inputSource.gamepad!.index] ?? inputSource.gamepad
+  const gamepad = inputSource.gamepad
   const axes = gamepad!.axes
   const axesIndex = inputSource.gamepad?.mapping === 'xr-standard' || thumstick === 'right' ? 2 : 0
   const xAxis = Math.abs(axes[axesIndex]) > deadZone ? axes[axesIndex] : 0
