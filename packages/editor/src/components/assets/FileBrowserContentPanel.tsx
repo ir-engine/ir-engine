@@ -177,7 +177,6 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
             key={file}
             color="#5d646c"
             style={{ fontSize: '0.9rem' }}
-            href="#"
             onClick={() => handleClick(file)}
           >
             {file}

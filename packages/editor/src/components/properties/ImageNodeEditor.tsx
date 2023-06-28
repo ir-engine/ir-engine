@@ -52,12 +52,14 @@ export const ImageNodeEditor: EditorComponentType = (props) => {
       description={t('editor:properties.image.description')}
     >
       <InputGroup name="Image Url" label={t('editor:properties.image.lbl-imgURL')}>
-        <ImageInput value={imageComponent.source?.value ?? ''} onChange={updateProperty(ImageComponent, 'source')} />
+        <ImageInput value={imageComponent.source.value ?? ''} onChange={updateProperty(ImageComponent, 'source')} />
       </InputGroup>
       {errors ? (
-        Object.entries(errors).map(([err, message]) => {
-          return <div style={{ marginTop: 2, color: '#FF8C00' }}>{'Error: ' + err + '--' + message}</div>
-        })
+        Object.entries(errors).map(([err, message]) => (
+          <div key={err} style={{ marginTop: 2, color: '#FF8C00' }}>
+            {'Error: ' + err + '--' + message}
+          </div>
+        ))
       ) : (
         <></>
       )}
