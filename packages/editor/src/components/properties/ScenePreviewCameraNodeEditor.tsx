@@ -27,7 +27,7 @@ import React from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { getComponent, setComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { useComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import {
   LocalTransformComponent,
   TransformComponent
@@ -48,10 +48,10 @@ export const ScenePreviewCameraNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
 
   const onSetFromViewport = () => {
-    const { position, rotation } = getComponent(Engine.instance.cameraEntity, TransformComponent)
-    const transform = getComponent(props.entity, LocalTransformComponent)
-    transform.position.copy(position)
-    transform.rotation.copy(rotation)
+    const transformComponent = useComponent(Engine.instance.cameraEntity, TransformComponent)
+    const transform = useComponent(props.entity, LocalTransformComponent)
+    transform.position.set(transformComponent.position.value)
+    transform.rotation.set(transformComponent.rotation.value)
     LocalTransformComponent.stateMap[props.entity]!.set(LocalTransformComponent.valueMap[props.entity])
   }
 

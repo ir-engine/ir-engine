@@ -27,7 +27,7 @@ import React, { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Mesh } from 'three'
 
-import { getComponent, hasComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { getComponent, hasComponent, useComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { GroupComponent } from '@etherealengine/engine/src/scene/components/GroupComponent'
 import { MeshProperties } from '@etherealengine/engine/src/scene/components/InstancingComponent'
 import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
@@ -50,16 +50,15 @@ export default function InstancingMeshProperties({
 }) {
   const value = state.value
   const props = value as MeshProperties
-
   const { t } = useTranslation()
 
   const initialMeshes = traverseScene(
     (node) => {
-      const group = getComponent(node, GroupComponent)
+      const group = useComponent(node, GroupComponent)
       const meshes = group
         .map((obj3d) =>
           iterateObject3D(
-            obj3d,
+            obj3d.value,
             (child: Mesh) => child,
             (child: Mesh) => child.isMesh
           )
