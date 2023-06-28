@@ -164,10 +164,10 @@ export const enum KeyboardButton {
  * https://www.w3.org/TR/gamepad/#dfn-standard-gamepad
  */
 export const enum StandardGamepadButton {
-  'ButtonA' = 0,
-  'ButtonB' = 1,
-  'ButtonX' = 2,
-  'ButtonY' = 3,
+  'ButtonA' = 0, // X
+  'ButtonB' = 1, // Circle
+  'ButtonX' = 2, // Square
+  'ButtonY' = 3, // Triangle
   'Left1' = 4,
   'Right1' = 5,
   'Left2' = 6,

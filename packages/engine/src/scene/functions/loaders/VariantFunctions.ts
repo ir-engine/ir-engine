@@ -1,6 +1,7 @@
 import { DistanceFromCameraComponent } from '@etherealengine/engine/src/transform/components/DistanceComponents'
 import { getState } from '@etherealengine/hyperflux'
 
+import { isMobile } from '../../../common/functions/isMobile'
 import { EngineState } from '../../../ecs/classes/EngineState'
 import { Entity } from '../../../ecs/classes/Entity'
 import { getComponent, getMutableComponent } from '../../../ecs/functions/ComponentFunctions'
@@ -43,7 +44,7 @@ export function setModelVariant(entity: Entity) {
   const modelComponent = getMutableComponent(entity, ModelComponent)
 
   if (variantComponent.heuristic === 'DEVICE') {
-    const targetDevice = isMobileXRHeadset ? 'MOBILE' : 'DESKTOP'
+    const targetDevice = isMobile || isMobileXRHeadset ? 'MOBILE' : 'DESKTOP'
     //set model src to mobile variant src
     const deviceVariant = variantComponent.levels.find((level) => level.metadata['device'] === targetDevice)
     deviceVariant && modelComponent.src.value !== deviceVariant.src && modelComponent.src.set(deviceVariant.src)
