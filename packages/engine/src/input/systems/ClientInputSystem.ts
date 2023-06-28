@@ -281,6 +281,7 @@ export const addClientInputListeners = () => {
 
   // create an emulated input source for mouse/keyboard/touch input
   const emulatedInputSource = {
+    emulated: true,
     handedness: 'none',
     targetRayMode: session ? (session.interactionMode === 'screen-space' ? 'screen' : 'gaze') : 'screen',
     targetRaySpace: emulatedTargetRaySpace,
@@ -399,7 +400,7 @@ const execute = () => {
   for (const eid of xrSpaces()) {
     const space = getComponent(eid, XRSpaceComponent)
     // our custom input source is not a valid pose, so ignore it - might want a better way than this
-    if (!(space instanceof XRSpace)) continue
+    if ('emulated' in space) continue
     const pose = origin && xrFrame?.getPose(space, origin)
     if (pose) {
       TransformComponent.position.x[eid] = pose.transform.position.x
