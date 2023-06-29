@@ -32,7 +32,6 @@ import {
   ClientSettingService
 } from '@etherealengine/client-core/src/admin/services/Setting/ClientSettingService'
 import { initGA, logPageView } from '@etherealengine/client-core/src/common/analytics'
-import MetaTags from '@etherealengine/client-core/src/common/components/MetaTags'
 import { defaultAction } from '@etherealengine/client-core/src/common/components/NotificationActions'
 import { ProjectService, ProjectState } from '@etherealengine/client-core/src/common/services/ProjectService'
 import InviteToast from '@etherealengine/client-core/src/components/InviteToast'
@@ -52,7 +51,6 @@ import './styles.scss'
 import { AdminCoilSettingService } from '@etherealengine/client-core/src/admin/services/Setting/CoilSettingService'
 import { API } from '@etherealengine/client-core/src/API'
 import {
-  AppThemeServiceReceptor,
   AppThemeState,
   getAppTheme,
   getAppThemeName,
@@ -105,11 +103,9 @@ const AdminPage = (): any => {
       })
     }
     addActionReceptor(receptor)
-    addActionReceptor(AppThemeServiceReceptor)
 
     return () => {
       removeActionReceptor(receptor)
-      removeActionReceptor(AppThemeServiceReceptor)
     }
   }, [])
 

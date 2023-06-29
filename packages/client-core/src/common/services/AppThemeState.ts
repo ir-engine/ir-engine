@@ -23,12 +23,23 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { useEffect } from 'react'
+
 import { defaultThemeSettings, getCurrentTheme } from '@etherealengine/common/src/constants/DefaultThemeSettings'
 import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
 import { ClientThemeOptionsType } from '@etherealengine/engine/src/schemas/setting/client-setting.schema'
-import { defineAction, defineState, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
+import {
+  addActionReceptor,
+  defineAction,
+  defineState,
+  getMutableState,
+  getState,
+  NO_PROXY,
+  removeActionReceptor,
+  useHookstate
+} from '@etherealengine/hyperflux'
 
-import { AdminClientSettingsState } from '../../admin/services/Setting/ClientSettingService'
+import { AdminClientSettingsState, ClientSettingService } from '../../admin/services/Setting/ClientSettingService'
 import { AuthState } from '../../user/services/AuthService'
 
 export const AppThemeState = defineState({
@@ -57,6 +68,57 @@ export class AppThemeActions {
     theme: matches.object.optional() as Validator<unknown, ClientThemeOptionsType>,
     themeName: matches.string.optional()
   })
+}
+
+export const useCustomThemes = () => {
+  const authState = useHookstate(getMutableState(AuthState))
+  const selfUser = authState.user
+
+  const clientSettingState = useHookstate(getMutableState(AdminClientSettingsState))
+
+  const appTheme = useHookstate(getMutableState(AppThemeState))
+  const [clientSetting] = clientSettingState?.client?.get(NO_PROXY) || []
+  const clientThemeSettings = useHookstate({} as Record<string, ClientThemeOptionsType>)
+
+  useEffect(() => {
+    addActionReceptor(AppThemeServiceReceptor)
+    return () => {
+      removeActionReceptor(AppThemeServiceReceptor)
+    }
+  }, [])
+
+  useEffect(() => {
+    const html = document.querySelector('html')
+    if (html) {
+      html.dataset.theme = getAppThemeName()
+      updateTheme()
+    }
+  }, [selfUser?.user_setting?.value])
+
+  useEffect(() => {
+    console.log(clientSetting?.themeSettings)
+    if (clientSetting) {
+      clientThemeSettings.set(clientSetting?.themeSettings)
+    }
+    if (clientSettingState?.updateNeeded?.value) ClientSettingService.fetchClientSettings()
+  }, [clientSettingState?.updateNeeded?.value])
+
+  useEffect(() => {
+    updateTheme()
+  }, [clientThemeSettings, appTheme.customTheme, appTheme.customThemeName])
+
+  const updateTheme = () => {
+    const currentThemeName = getAppThemeName()
+    const theme = getAppTheme()
+    console.log('theme', theme, currentThemeName)
+    if (theme)
+      for (const variable of Object.keys(theme)) {
+        ;(document.querySelector(`[data-theme=${currentThemeName}]`) as any)?.style.setProperty(
+          '--' + variable,
+          theme[variable]
+        )
+      }
+  }
 }
 
 export const useAppThemeName = (): string => {

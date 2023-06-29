@@ -34,8 +34,7 @@ import {
 import { AdminCoilSettingService } from '@etherealengine/client-core/src/admin/services/Setting/CoilSettingService'
 import { API } from '@etherealengine/client-core/src/API'
 import { initGA, logPageView } from '@etherealengine/client-core/src/common/analytics'
-import MetaTags from '@etherealengine/client-core/src/common/components/MetaTags'
-// import { defaultAction } from '@etherealengine/client-core/src/common/components/NotificationActions'
+import { useCustomThemes } from '@etherealengine/client-core/src/common/services/AppThemeState'
 import {
   NotificationAction,
   NotificationActions
@@ -50,7 +49,7 @@ import { addActionReceptor, getMutableState, removeActionReceptor, useHookstate 
 import { loadWebappInjection } from '@etherealengine/projects/loadWebappInjection'
 
 import EngineTW from '../engine_tw'
-import CaptureComp from '../route/capture'
+import PublicRouter from '../route/public_tw'
 import { ThemeContextProvider } from '../themes/themeContext'
 
 const AppPage = () => {
@@ -84,6 +83,8 @@ const AppPage = () => {
       removeActionReceptor(receptor)
     }
   }, [])
+
+  useCustomThemes()
 
   useEffect(initApp, [])
 
@@ -126,7 +127,7 @@ const AppPage = () => {
   return (
     <>
       <div className="w-full h-full container mx-auto pointer-events-auto">
-        <CaptureComp />
+        <PublicRouter />
       </div>
       {projectComponents.map((Component, i) => (
         <Component key={i} />
