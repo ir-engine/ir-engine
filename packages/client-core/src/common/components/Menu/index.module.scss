@@ -2,6 +2,7 @@
   background: var(--popupBackground);
   border-radius: 20px;
   color: var(--textColor);
+  pointer-events: all;
 
   :global {
     .MuiDialogContentText-root {

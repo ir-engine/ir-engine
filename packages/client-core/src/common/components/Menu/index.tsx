@@ -130,7 +130,14 @@ const Menu = ({
   }
 
   return (
-    <MUIDialog open={open} maxWidth={maxWidth} fullWidth PaperProps={{ className: styles.menu }} onClose={onClose}>
+    <MUIDialog
+      sx={sx}
+      open={open}
+      maxWidth={maxWidth}
+      fullWidth
+      PaperProps={{ className: styles.menu }}
+      onClose={onClose}
+    >
       {dialogContent}
     </MUIDialog>
   )
