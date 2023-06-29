@@ -60,7 +60,7 @@ const App = () => {
           />
           <Route
             key={'index'}
-            path={'/index/*'}
+            path={'/'}
             element={
               <Suspense fallback={<LoadingCircle message={t('common:loader.starting')} />}>
                 <Engine>
