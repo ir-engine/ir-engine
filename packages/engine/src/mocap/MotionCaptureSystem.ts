@@ -195,7 +195,7 @@ const execute = () => {
       const avatarTransform = getComponent(entity, TransformComponent)
       if (!avatarRig) continue
 
-      const avatarHips = avatarRig.rig.Hips
+      const avatarHips = avatarRig?.rig?.hips?.node
       avatarHips.getWorldPosition(hipsPos)
 
       if (debug)

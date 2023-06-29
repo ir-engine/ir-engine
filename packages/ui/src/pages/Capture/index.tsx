@@ -2,7 +2,7 @@
 CPAL-1.0 License
 
 The contents of this file are subject to the Common Public Attribution License
-Version 1.0. (the "License"); you may not use this file except in compliance
+Version 1.0. (the "License") you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
 https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
@@ -25,15 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 import { useHookstate } from '@hookstate/core'
-import { drawConnectors, drawLandmarks } from '@mediapipe/drawing_utils'
-import {
-  FACEMESH_TESSELATION,
-  HAND_CONNECTIONS,
-  Holistic,
-  NormalizedLandmarkList,
-  Options,
-  POSE_CONNECTIONS
-} from '@mediapipe/holistic'
+import { DrawingUtils, FaceLandmarker, FilesetResolver, HandLandmarker, PoseLandmarker } from '@mediapipe/tasks-vision'
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react'
 
 import { useMediaInstance } from '@etherealengine/client-core/src/common/services/MediaInstanceConnectionService'
@@ -91,19 +83,19 @@ const startPlayback = async (recordingID: string, twin = true) => {
   })
 }
 
-const sendResults = (results: NormalizedLandmarkList) => {
-  const network = Engine.instance.worldNetwork as SocketWebRTCClientNetwork
-  if (!network?.sendTransport) return
-  const dataProducer = network.dataProducers.get(mocapDataChannelType)
-  if (!dataProducer) {
-    startDataProducer()
-    return
-  }
-  if (!dataProducer.closed && dataProducer.readyState === 'open') {
-    const data = MotionCaptureFunctions.sendResults(results)
-    dataProducer.send(data)
-  }
-}
+// const sendResults = (results: NormalizedLandmarkList) => {
+//   const network = Engine.instance.worldNetwork as SocketWebRTCClientNetwork
+//   if (!network?.sendTransport) return
+//   const dataProducer = network.dataProducers.get(mocapDataChannelType)
+//   if (!dataProducer) {
+//     startDataProducer()
+//     return
+//   }
+//   if (!dataProducer.closed && dataProducer.readyState === 'open') {
+//     const data = MotionCaptureFunctions.sendResults(results)
+//     dataProducer.send(data)
+//   }
+// }
 
 const CaptureDashboard = () => {
   const [isVideoFlipped, setIsVideoFlipped] = useState(true)
@@ -114,22 +106,25 @@ const CaptureDashboard = () => {
   const isDetecting = useHookstate(false)
   const [detectingStatus, setDetectingStatus] = useState('inactive')
 
-  const detector = useHookstate(null as null | Holistic)
-  const poseOptions = useHookstate({
-    enableFaceGeometry: isDrawingFace,
-    selfieMode: false,
-    modelComplexity: 1,
-    smoothLandmarks: true,
-    enableSegmentation: false,
-    smoothSegmentation: false,
-    minDetectionConfidence: 0.5,
-    minTrackingConfidence: 0.5
-  } as Options)
+  const poseDetector = useHookstate(null as null | PoseLandmarker)
+  const handDetector = useHookstate(null as null | HandLandmarker)
+  const faceDetector = useHookstate(null as null | FaceLandmarker)
+  // const poseOptions = useHookstate({
+  //   enableFaceGeometry: isDrawingFace,
+  //   selfieMode: false,
+  //   modelComplexity: 1,
+  //   smoothLandmarks: true,
+  //   enableSegmentation: false,
+  //   smoothSegmentation: false,
+  //   minDetectionConfidence: 0.5,
+  //   minTrackingConfidence: 0.5
+  // } as Options)
   const processingFrame = useHookstate(false)
 
   const videoRef = useRef<HTMLVideoElement>()
   const canvasRef = useRef<HTMLCanvasElement>()
   const canvasCtxRef = useRef<CanvasRenderingContext2D>()
+  const drawUtilsRef = useRef<DrawingUtils>()
 
   const videoStream = useHookstate(getMutableState(MediaStreamState).videoStream)
 
@@ -170,124 +165,85 @@ const CaptureDashboard = () => {
     videoRef.current!.srcObject = videoStream.value
     videoRef.current!.onplay = () => videoActive.set(true)
     videoRef.current!.onpause = () => videoActive.set(false)
+    drawUtilsRef.current = new DrawingUtils(canvasRef.current!.getContext('2d')!)
     resizeCanvas()
-  }, [videoStream, poseOptions.selfieMode])
+  }, [videoStream])
 
-  useEffect(() => {
-    detector.value?.setOptions(poseOptions.value)
-  }, [detector, poseOptions])
+  // useEffect(() => {
+  //   detector.value?.setOptions(poseOptions.value)
+  // }, [detector, poseOptions])
 
   useEffect(() => {
     if (!isDetecting?.value) return
 
-    if (!detector.value) {
-      if (Holistic !== undefined) {
-        setDetectingStatus('loading')
-        const holistic = new Holistic({
-          locateFile: (file) => {
-            return `https://cdn.jsdelivr.net/npm/@mediapipe/holistic/${file}`
-          }
-        })
-        detector.set(holistic)
+    if (!poseDetector.value) {
+      const loadWASM = async () => {
+        const vision = await FilesetResolver.forVisionTasks('https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision/wasm')
+        createDetectors(vision)
       }
+      const createDetectors = async (vision) => {
+        setDetectingStatus('loading')
+
+        const poseLandmarker = await PoseLandmarker.createFromOptions(vision, {
+          baseOptions: {
+            modelAssetPath:
+              'https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_lite/float16/1/pose_landmarker_lite.task',
+            delegate: 'GPU'
+          },
+          runningMode: 'VIDEO'
+          // numPoses: 1,
+          // minPoseDetectionConfidence: 0.5,
+          // minPosePresenceConfidence: 0.5,
+          // minTrackingConfidence: 0.5,
+          // outputSegmentationMasks: false,
+        })
+        poseDetector.set(poseLandmarker)
+        const handLandmarker = await HandLandmarker.createFromOptions(vision, {
+          baseOptions: {
+            modelAssetPath:
+              'https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task'
+          },
+          runningMode: 'VIDEO',
+          numHands: 2
+          // minHandDetectionConfidence: 0.5,
+          // minHandPresenceConfidence: 0.5,
+          // minTrackingConfidence: 0.5,
+        })
+        handDetector.set(handLandmarker)
+        const faceLandmarker = await FaceLandmarker.createFromOptions(vision, {
+          baseOptions: {
+            modelAssetPath:
+              'https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task'
+          },
+          runningMode: 'VIDEO',
+          // numFaces: 1,
+          // minFaceDetectionConfidence: 0.5,
+          // minFacePresenceConfidence: 0.5,
+          // minTrackingConfidence: 0.5,
+          outputFaceBlendshapes: true,
+          outputFacialTransformationMatrixes: true
+        })
+        faceDetector.set(faceLandmarker)
+      }
+      loadWASM()
     }
 
     processingFrame.set(false)
 
-    if (detector.value) {
-      detector.value.onResults((results) => {
-        if (detectingStatus !== 'active') setDetectingStatus('active')
-
-        const { poseLandmarks, faceLandmarks, leftHandLandmarks, rightHandLandmarks } = results
-
-        /**
-         * Holistic model currently has no export for poseWorldLandmarks, instead as za (likely to change for new builds of the package)
-         * See https://github.com/google/mediapipe/issues/3155
-         */
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        //@ts-ignore
-        sendResults(results.za)
-
-        processingFrame.set(false)
-
-        if (!canvasCtxRef.current || !canvasRef.current || !poseLandmarks) return
-
-        //draw!!!
-        canvasCtxRef.current.save()
-        canvasCtxRef.current.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height)
-        canvasCtxRef.current.globalCompositeOperation = 'source-over'
-
-        if (isDrawingBody) {
-          // Pose Connections
-          drawConnectors(canvasCtxRef.current, poseLandmarks, POSE_CONNECTIONS, {
-            color: '#fff',
-            lineWidth: 4
-          })
-          // Pose Landmarks
-          drawLandmarks(canvasCtxRef.current, poseLandmarks, {
-            color: '#fff',
-            lineWidth: 2
-          })
-        }
-
-        if (isDrawingHands) {
-          // Left Hand Connections
-          drawConnectors(
-            canvasCtxRef.current,
-            leftHandLandmarks !== undefined ? leftHandLandmarks : [],
-            HAND_CONNECTIONS,
-            {
-              color: '#fff',
-              lineWidth: 4
-            }
-          )
-
-          // Left Hand Landmarks
-          drawLandmarks(canvasCtxRef.current, leftHandLandmarks !== undefined ? leftHandLandmarks : [], {
-            color: '#fff',
-            lineWidth: 2
-          })
-
-          // Right Hand Connections
-          drawConnectors(
-            canvasCtxRef.current,
-            rightHandLandmarks !== undefined ? rightHandLandmarks : [],
-            HAND_CONNECTIONS,
-            {
-              color: '#fff',
-              lineWidth: 4
-            }
-          )
-
-          // Right Hand Landmarks
-          drawLandmarks(canvasCtxRef.current, rightHandLandmarks !== undefined ? rightHandLandmarks : [], {
-            color: '#fff',
-            lineWidth: 2
-          })
-        }
-
-        if (isDrawingFace) {
-          // Face Connections
-          drawConnectors(canvasCtxRef.current, faceLandmarks, FACEMESH_TESSELATION, {
-            color: '#fff',
-            lineWidth: 2
-          })
-          // Face Landmarks
-          // drawLandmarks(canvasCtxRef.current, faceLandmarks, {
-          //   color: '#fff',
-          //   lineWidth: 1
-          // })
-        }
-        canvasCtxRef.current.restore()
-      })
-    }
-
     return () => {
       setDetectingStatus('inactive')
-      if (detector.value) {
-        detector.value.close()
+      if (poseDetector.value) {
+        poseDetector.value.close()
       }
-      detector.set(null)
+      poseDetector.set(null)
+      if (handDetector.value) {
+        handDetector.value.close()
+      }
+      handDetector.set(null)
+      if (faceDetector.value) {
+        faceDetector.value.close()
+      }
+      faceDetector.set(null)
     }
   }, [isDetecting])
 
@@ -295,14 +251,41 @@ const CaptureDashboard = () => {
   useVideoFrameCallback(videoRef.current, (videoTime, metadata) => {
     resizeCanvas()
 
-    if (processingFrame.value) return
+    if (processingFrame.value || !poseDetector.value || !handDetector.value || !faceDetector.value) return
 
-    if (detector.value) {
-      processingFrame.set(true)
-      detector.value?.send({ image: videoRef.current! }).finally(() => {
-        processingFrame.set(false)
-      })
-    }
+    poseDetector?.value?.detectForVideo(videoRef.current!, videoTime * 1000, (poseResults) => {
+      canvasCtxRef?.current?.save()
+      canvasCtxRef?.current?.clearRect(0, 0, canvasRef.current!.width, canvasRef.current!.height)
+
+      const handResults = handDetector?.value?.detectForVideo(videoRef.current!, videoTime * 1000)
+      const faceResults = faceDetector?.value?.detectForVideo(videoRef.current!, videoTime * 1000)
+
+      for (const landmark of faceResults!.faceLandmarks) {
+        drawUtilsRef.current?.drawConnectors(landmark, FaceLandmarker.FACE_LANDMARKS_TESSELATION)
+      }
+
+      for (const landmark of handResults!.landmarks) {
+        drawUtilsRef.current?.drawConnectors(landmark, HandLandmarker.HAND_CONNECTIONS)
+      }
+
+      for (const landmark of poseResults.landmarks) {
+        // drawUtilsRef.current?.drawLandmarks(landmark, {
+        //   // color: 'none',
+        //   radius: (data) => DrawingUtils.lerp(data.from!.z, -0.15, 0.1, 5, 1)
+        // })
+        drawUtilsRef.current?.drawConnectors(landmark, PoseLandmarker.POSE_CONNECTIONS)
+      }
+
+      for (const landmark of poseResults.landmarks) {
+        drawUtilsRef.current?.drawLandmarks(landmark, {
+          // color: 'none',
+          radius: (data) => DrawingUtils.lerp(data.from!.z, -0.15, 0.1, 5, 1)
+        })
+        drawUtilsRef.current?.drawConnectors(landmark, PoseLandmarker.POSE_CONNECTIONS)
+      }
+
+      canvasCtxRef.current?.restore()
+    })
   })
 
   // todo include a mechanism to confirm that the recording has started/stopped
@@ -338,108 +321,109 @@ const CaptureDashboard = () => {
     <div className="w-full container mx-auto">
       <Drawer
         settings={
-          <div className="w-100 bg-base-100">
-            <div tabIndex={0} className="collapse collapse-open">
-              <div className="collapse-title w-full h-[50px]">
-                <h1>Pose Options</h1>
-              </div>
-              <div className="collapse-content w-full h-auto">
-                <ul className="text-base-content w-full h-auto">
-                  <li>
-                    <label className="label">
-                      <span className="label-text">Model Complexity: {poseOptions.modelComplexity.value}</span>
-                    </label>
-                    <input
-                      type="range"
-                      min="0"
-                      max="2"
-                      step="1"
-                      value={poseOptions.modelComplexity.value}
-                      className="range w-full"
-                      onChange={(e) => {
-                        poseOptions.modelComplexity.set(parseInt(e.currentTarget.value) as 0 | 1 | 2)
-                      }}
-                    />
-                  </li>
-                  <li>
-                    <label className="cursor-pointer label">
-                      <span className="label-text">
-                        Min Detection Confidence: {poseOptions.minDetectionConfidence.value}
-                      </span>
-                    </label>
-                    <input
-                      type="range"
-                      min="0.0"
-                      max="1.0"
-                      step="0.1"
-                      value={poseOptions.minDetectionConfidence.value}
-                      className="w-full range"
-                      onChange={(e) => {
-                        poseOptions.minDetectionConfidence.set(parseFloat(e.currentTarget.value))
-                      }}
-                    />
-                  </li>
-                  <li>
-                    <label className="cursor-pointer label">
-                      <span className="label-text">
-                        Min Tracking Confidence: {poseOptions.minTrackingConfidence.value}
-                      </span>
-                    </label>
-                    <input
-                      type="range"
-                      min="0.0"
-                      max="1.0"
-                      step="0.1"
-                      value={poseOptions.minTrackingConfidence.value}
-                      className="w-full range"
-                      onChange={(e) => {
-                        poseOptions.minTrackingConfidence.set(parseFloat(e.currentTarget.value))
-                      }}
-                    />
-                  </li>
-                  <li>
-                    <label className="label">
-                      <span className="label-text">Smooth Landmarks</span>
-                      <input
-                        type="checkbox"
-                        className="toggle toggle-primary"
-                        defaultChecked={poseOptions.smoothLandmarks?.value}
-                        onChange={(e) => {
-                          poseOptions.smoothLandmarks.set(e.currentTarget.checked)
-                        }}
-                      />
-                    </label>
-                  </li>
-                  <li>
-                    <label className="cursor-pointer label">
-                      <span className="label-text">Enable Segmentation</span>
-                      <input
-                        type="checkbox"
-                        className="toggle toggle-primary"
-                        defaultChecked={poseOptions.enableSegmentation?.value}
-                        onChange={(e) => {
-                          poseOptions.enableSegmentation.set(e.currentTarget.checked)
-                        }}
-                      />
-                    </label>
-                  </li>
-                  <li>
-                    <label className="cursor-pointer label">
-                      <span className="label-text">Smooth Segmentation</span>
-                      <input
-                        type="checkbox"
-                        className="toggle toggle-primary"
-                        defaultChecked={poseOptions.smoothSegmentation?.value}
-                        onChange={(e) => {
-                          poseOptions.smoothSegmentation.set(e.currentTarget.checked)
-                        }}
-                      />
-                    </label>
-                  </li>
-                </ul>
-              </div>
-            </div>
-          </div>
+          <div></div>
+          // <div className="w-100 bg-base-100">
+          //   <div tabIndex={0} className="collapse collapse-open">
+          //     <div className="collapse-title w-full h-[50px]">
+          //       <h1>Pose Options</h1>
+          //     </div>
+          //     <div className="collapse-content w-full h-auto">
+          //       <ul className="text-base-content w-full h-auto">
+          //         <li>
+          //           <label className="label">
+          //             <span className="label-text">Model Complexity: {poseOptions.modelComplexity.value}</span>
+          //           </label>
+          //           <input
+          //             type="range"
+          //             min="0"
+          //             max="2"
+          //             step="1"
+          //             value={poseOptions.modelComplexity.value}
+          //             className="range w-full"
+          //             onChange={(e) => {
+          //               poseOptions.modelComplexity.set(parseInt(e.currentTarget.value) as 0 | 1 | 2)
+          //             }}
+          //           />
+          //         </li>
+          //         <li>
+          //           <label className="cursor-pointer label">
+          //             <span className="label-text">
+          //               Min Detection Confidence: {poseOptions.minDetectionConfidence.value}
+          //             </span>
+          //           </label>
+          //           <input
+          //             type="range"
+          //             min="0.0"
+          //             max="1.0"
+          //             step="0.1"
+          //             value={poseOptions.minDetectionConfidence.value}
+          //             className="w-full range"
+          //             onChange={(e) => {
+          //               poseOptions.minDetectionConfidence.set(parseFloat(e.currentTarget.value))
+          //             }}
+          //           />
+          //         </li>
+          //         <li>
+          //           <label className="cursor-pointer label">
+          //             <span className="label-text">
+          //               Min Tracking Confidence: {poseOptions.minTrackingConfidence.value}
+          //             </span>
+          //           </label>
+          //           <input
+          //             type="range"
+          //             min="0.0"
+          //             max="1.0"
+          //             step="0.1"
+          //             value={poseOptions.minTrackingConfidence.value}
+          //             className="w-full range"
+          //             onChange={(e) => {
+          //               poseOptions.minTrackingConfidence.set(parseFloat(e.currentTarget.value))
+          //             }}
+          //           />
+          //         </li>
+          //         <li>
+          //           <label className="label">
+          //             <span className="label-text">Smooth Landmarks</span>
+          //             <input
+          //               type="checkbox"
+          //               className="toggle toggle-primary"
+          //               defaultChecked={poseOptions.smoothLandmarks?.value}
+          //               onChange={(e) => {
+          //                 poseOptions.smoothLandmarks.set(e.currentTarget.checked)
+          //               }}
+          //             />
+          //           </label>
+          //         </li>
+          //         <li>
+          //           <label className="cursor-pointer label">
+          //             <span className="label-text">Enable Segmentation</span>
+          //             <input
+          //               type="checkbox"
+          //               className="toggle toggle-primary"
+          //               defaultChecked={poseOptions.enableSegmentation?.value}
+          //               onChange={(e) => {
+          //                 poseOptions.enableSegmentation.set(e.currentTarget.checked)
+          //               }}
+          //             />
+          //           </label>
+          //         </li>
+          //         <li>
+          //           <label className="cursor-pointer label">
+          //             <span className="label-text">Smooth Segmentation</span>
+          //             <input
+          //               type="checkbox"
+          //               className="toggle toggle-primary"
+          //               defaultChecked={poseOptions.smoothSegmentation?.value}
+          //               onChange={(e) => {
+          //                 poseOptions.smoothSegmentation.set(e.currentTarget.checked)
+          //               }}
+          //             />
+          //           </label>
+          //         </li>
+          //       </ul>
+          //     </div>
+          //   </div>
+          // </div>
         }
       >
         <Header />
