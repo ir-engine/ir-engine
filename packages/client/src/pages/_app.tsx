@@ -45,7 +45,6 @@ import RouterComp from '../route/public'
 import './styles.scss'
 
 import { AdminCoilSettingService } from '@etherealengine/client-core/src/admin/services/Setting/CoilSettingService'
-import { useCustomThemes } from '@etherealengine/client-core/src/common/services/AppThemeState'
 import {
   NotificationAction,
   NotificationActions
@@ -54,10 +53,7 @@ import Debug from '@etherealengine/client-core/src/components/Debug'
 import { AudioEffectPlayer } from '@etherealengine/engine/src/audio/systems/MediaSystem'
 import { addActionReceptor, getMutableState, removeActionReceptor, useHookstate } from '@etherealengine/hyperflux'
 
-declare module '@mui/styles/defaultTheme' {
-  // eslint-disable-next-line @typescript-eslint/no-empty-interface
-  interface DefaultTheme extends Theme {}
-}
+import { ThemeContextProvider } from '../themes/themeContext'
 
 declare module '@mui/styles/defaultTheme' {
   // eslint-disable-next-line @typescript-eslint/no-empty-interface
@@ -98,8 +94,6 @@ const AppPage = ({ route }: { route: string }) => {
 
   useEffect(initApp, [])
 
-  useCustomThemes()
-
   // useEffect(() => {
   //   chapiWalletPolyfill
   //     .loadOnce()
@@ -134,26 +128,28 @@ const AppPage = ({ route }: { route: string }) => {
 
   return (
     <>
-      <StyledEngineProvider injectFirst>
-        <ThemeProvider theme={theme}>
-          <SnackbarProvider
-            ref={notistackRef as any}
-            maxSnack={7}
-            anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
-            action={defaultAction}
-          >
-            <GlobalStyle />
-            <div style={{ pointerEvents: 'auto' }}>
-              <InviteToast />
-              <Debug />
-            </div>
-            <RouterComp route={route} />
-            {projectComponents.map((Component, i) => (
-              <Component key={i} />
-            ))}
-          </SnackbarProvider>
-        </ThemeProvider>
-      </StyledEngineProvider>
+      <ThemeContextProvider>
+        <StyledEngineProvider injectFirst>
+          <ThemeProvider theme={theme}>
+            <SnackbarProvider
+              ref={notistackRef as any}
+              maxSnack={7}
+              anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+              action={defaultAction}
+            >
+              <GlobalStyle />
+              <div style={{ pointerEvents: 'auto' }}>
+                <InviteToast />
+                <Debug />
+              </div>
+              <RouterComp route={route} />
+              {projectComponents.map((Component, i) => (
+                <Component key={i} />
+              ))}
+            </SnackbarProvider>
+          </ThemeProvider>
+        </StyledEngineProvider>
+      </ThemeContextProvider>
     </>
   )
 }

@@ -102,11 +102,12 @@ const App = () => {
               </Suspense>
             }
           />
+          {/* This will become redundant and we can embed the TailwindPage directly */}
           <Route
             key={'default'}
             path={'/*'}
             element={
-              <Suspense fallback={<LoadingCircle message={t('common:loader.starting')} />}>
+              <Suspense>
                 <TailwindPage />
               </Suspense>
             }

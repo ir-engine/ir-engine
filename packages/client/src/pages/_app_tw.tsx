@@ -34,7 +34,6 @@ import {
 import { AdminCoilSettingService } from '@etherealengine/client-core/src/admin/services/Setting/CoilSettingService'
 import { API } from '@etherealengine/client-core/src/API'
 import { initGA, logPageView } from '@etherealengine/client-core/src/common/analytics'
-import { useCustomThemes } from '@etherealengine/client-core/src/common/services/AppThemeState'
 import {
   NotificationAction,
   NotificationActions
@@ -84,8 +83,6 @@ const AppPage = () => {
     }
   }, [])
 
-  useCustomThemes()
-
   useEffect(initApp, [])
 
   // useEffect(() => {
@@ -126,7 +123,7 @@ const AppPage = () => {
 
   return (
     <>
-      <div className="w-full h-full container mx-auto pointer-events-auto">
+      <div className="w-full h-full container mx-auto">
         <PublicRouter />
       </div>
       {projectComponents.map((Component, i) => (

@@ -56,35 +56,33 @@ export const UserMenu = () => {
   const { bottomShelfStyle } = useShelfStyles()
 
   return (
-    <ClickAwayListener onClickAway={() => PopupMenuServices.showPopupMenu()} mouseEvent="onMouseDown">
-      <>
-        <section
-          className={`${styles.hotbarContainer} ${bottomShelfStyle} ${
-            popupMenuState.openMenu.value ? styles.fadeOutBottom : ''
-          }`}
-        >
-          <div className={styles.buttonsContainer}>
-            {Object.keys(hotbarItems).map((id, index) => {
-              const IconNode = hotbarItems[id]
-              if (!IconNode) return null
-              return (
-                <IconButton
-                  key={index}
-                  type="solid"
-                  icon={<IconNode />}
-                  sizePx={50}
-                  onClick={() => PopupMenuServices.showPopupMenu(id)}
-                />
-              )
-            })}
-          </div>
-        </section>
-        {Panel && (
-          <div style={{ pointerEvents: 'auto' }}>
-            <Panel {...popupMenu.params} />
-          </div>
-        )}
-      </>
-    </ClickAwayListener>
+    <div style={{ pointerEvents: 'auto' }}>
+      <ClickAwayListener onClickAway={() => PopupMenuServices.showPopupMenu()} mouseEvent="onMouseDown">
+        <>
+          <section
+            className={`${styles.hotbarContainer} ${bottomShelfStyle} ${
+              popupMenuState.openMenu.value ? styles.fadeOutBottom : ''
+            }`}
+          >
+            <div className={styles.buttonsContainer}>
+              {Object.keys(hotbarItems).map((id, index) => {
+                const IconNode = hotbarItems[id]
+                if (!IconNode) return null
+                return (
+                  <IconButton
+                    key={index}
+                    type="solid"
+                    icon={<IconNode />}
+                    sizePx={50}
+                    onClick={() => PopupMenuServices.showPopupMenu(id)}
+                  />
+                )
+              })}
+            </div>
+          </section>
+          {Panel && <Panel {...popupMenu.params} />}
+        </>
+      </ClickAwayListener>
+    </div>
   )
 }

@@ -70,54 +70,12 @@ export class AppThemeActions {
   })
 }
 
-export const useCustomThemes = () => {
-  const authState = useHookstate(getMutableState(AuthState))
-  const selfUser = authState.user
-
-  const clientSettingState = useHookstate(getMutableState(AdminClientSettingsState))
-
-  const appTheme = useHookstate(getMutableState(AppThemeState))
-  const [clientSetting] = clientSettingState?.client?.get(NO_PROXY) || []
-  const clientThemeSettings = useHookstate({} as Record<string, ClientThemeOptionsType>)
-
-  useEffect(() => {
-    addActionReceptor(AppThemeServiceReceptor)
-    return () => {
-      removeActionReceptor(AppThemeServiceReceptor)
-    }
-  }, [])
-
-  useEffect(() => {
-    const html = document.querySelector('html')
-    if (html) {
-      html.dataset.theme = getAppThemeName()
-      updateTheme()
-    }
-  }, [selfUser?.user_setting?.value])
-
-  useEffect(() => {
-    console.log(clientSetting?.themeSettings)
-    if (clientSetting) {
-      clientThemeSettings.set(clientSetting?.themeSettings)
-    }
-    if (clientSettingState?.updateNeeded?.value) ClientSettingService.fetchClientSettings()
-  }, [clientSettingState?.updateNeeded?.value])
-
-  useEffect(() => {
-    updateTheme()
-  }, [clientThemeSettings, appTheme.customTheme, appTheme.customThemeName])
-
-  const updateTheme = () => {
-    const currentThemeName = getAppThemeName()
-    const theme = getAppTheme()
-    console.log('theme', theme, currentThemeName)
-    if (theme)
-      for (const variable of Object.keys(theme)) {
-        ;(document.querySelector(`[data-theme=${currentThemeName}]`) as any)?.style.setProperty(
-          '--' + variable,
-          theme[variable]
-        )
-      }
+export const AppThemeFunctions = {
+  setTheme: (theme?: ClientThemeOptionsType, themeName?: string) => {
+    const themeState = getMutableState(AppThemeState)
+    themeState.customTheme.set(theme ?? null)
+    themeState.customThemeName.set(themeName ?? null)
+    themeState.mode.set(themeName ? 'custom' : 'auto')
   }
 }
 

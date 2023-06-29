@@ -331,7 +331,7 @@ const CaptureDashboard = () => {
       : 'ready'
 
   return (
-    <div className="w-full container mx-auto">
+    <div className="w-full container mx-auto pointer-events-auto">
       <Drawer
         settings={
           <div className="w-100 bg-base-100">
