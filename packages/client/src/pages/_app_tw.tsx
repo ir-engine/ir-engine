@@ -51,6 +51,12 @@ import EngineTW from '../engine_tw'
 import PublicRouter from '../route/public_tw'
 import { ThemeContextProvider } from '../themes/themeContext'
 
+import 'tailwindcss/tailwind.css'
+import '../themes/base.css'
+import '../themes/components.css'
+import '../themes/utilities.css'
+import 'daisyui/dist/full.css'
+
 const AppPage = () => {
   const notistackRef = useRef<SnackbarProvider>()
   const authState = useHookstate(getMutableState(AuthState))

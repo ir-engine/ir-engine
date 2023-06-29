@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { useHookstate } from '@hookstate/core'
-import React, { createContext, useEffect, useLayoutEffect, useMemo, useState } from 'react'
+import React, { createContext, useEffect, useMemo } from 'react'
 
 import {
   AdminClientSettingsState,
@@ -34,18 +34,11 @@ import {
   AppThemeServiceReceptor,
   AppThemeState,
   getAppTheme,
-  getAppThemeName,
   useAppThemeName
 } from '@etherealengine/client-core/src/common/services/AppThemeState'
 import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
 import { ClientThemeOptionsType } from '@etherealengine/engine/src/schemas/setting/client-setting.schema'
 import { addActionReceptor, getMutableState, NO_PROXY, removeActionReceptor } from '@etherealengine/hyperflux'
-
-import 'tailwindcss/tailwind.css'
-import './base.css'
-import './components.css'
-import './utilities.css'
-import 'daisyui/dist/full.css'
 
 export interface ThemeContextProps {
   theme: string
@@ -85,7 +78,6 @@ export const ThemeContextProvider = ({ children }: { children: React.ReactNode }
   }, [selfUser?.user_setting?.value])
 
   useEffect(() => {
-    console.log(clientSetting?.themeSettings)
     if (clientSetting) {
       clientThemeSettings.set(clientSetting?.themeSettings)
     }
