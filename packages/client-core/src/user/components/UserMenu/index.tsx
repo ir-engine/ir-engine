@@ -75,6 +75,10 @@ export const UserMenu = () => {
                     icon={<IconNode />}
                     sizePx={50}
                     onClick={() => PopupMenuServices.showPopupMenu(id)}
+                    sx={{
+                      cursor: 'pointer',
+                      background: 'var(--iconButtonBackground)'
+                    }}
                   />
                 )
               })}

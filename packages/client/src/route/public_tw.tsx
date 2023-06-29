@@ -23,6 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { t } from 'i18next'
 import React, { lazy, Suspense, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Route, Routes, useLocation } from 'react-router-dom'
@@ -49,13 +50,20 @@ import $503 from '../pages/503'
 
 const $custom = lazy(() => import('@etherealengine/client/src/route/customRoutes'))
 
+const CenteredLoadingCircle = () => {
+  return (
+    <div className="absolute w-screen h-screen flex justify-center items-center">
+      <LoadingCircle className={`block w-12 h-12`} message={t('common:loader.loadingRoutes')} />
+    </div>
+  )
+}
+
 function PublicRouter() {
   const customRoutes = useCustomRoutes()
   const clientSettingsState = useHookstate(getMutableState(AdminClientSettingsState))
   const authSettingsState = useHookstate(getMutableState(AuthSettingsState))
   const location = useLocation()
   const [routesReady, setRoutesReady] = useState(false)
-  const { t } = useTranslation()
 
   useEffect(() => {
     addActionReceptor(ClientSettingsServiceReceptor)
@@ -90,16 +98,12 @@ function PublicRouter() {
   }, [clientSettingsState.client.length, authSettingsState.authSettings.length, customRoutes])
 
   if (!routesReady) {
-    return (
-      <div className="absolute w-screen h-screen flex justify-center items-center">
-        <LoadingCircle className={`block w-12 h-12`} message={t('common:loader.loadingRoutes')} />
-      </div>
-    )
+    return <CenteredLoadingCircle />
   }
 
   return (
     <ErrorBoundary>
-      <Suspense fallback={<LoadingCircle message={'Loading Engine...'} />}>
+      <Suspense fallback={<CenteredLoadingCircle />}>
         <Routes>
           <Route
             key={'custom'}
