@@ -31,6 +31,7 @@ import { V_001, V_010, V_111 } from '@etherealengine/engine/src/common/constants
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import {
   addComponent,
+  defineQuery,
   getComponent,
   hasComponent,
   removeComponent,
@@ -38,6 +39,8 @@ import {
 } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { removeEntity } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
 import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
+import { InputSourceComponent } from '@etherealengine/engine/src/input/components/InputSourceComponent'
+import { StandardGamepadButton, XRStandardGamepadButton } from '@etherealengine/engine/src/input/state/ButtonState'
 import { addObjectToGroup } from '@etherealengine/engine/src/scene/components/GroupComponent'
 import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
 import { setVisibleComponent, VisibleComponent } from '@etherealengine/engine/src/scene/components/VisibleComponent'
@@ -154,6 +157,8 @@ const toggleWidgetsMenu = (handedness?: 'left' | 'right') => {
   }
 }
 
+const inputSourceQuery = defineQuery([InputSourceComponent])
+
 const showWidgetQueue = defineActionQueue(WidgetAppActions.showWidget.matches)
 const registerWidgetQueue = defineActionQueue(WidgetAppActions.registerWidget.matches)
 const unregisterWidgetQueue = defineActionQueue(WidgetAppActions.unregisterWidget.matches)
@@ -161,12 +166,18 @@ const unregisterWidgetQueue = defineActionQueue(WidgetAppActions.unregisterWidge
 const execute = () => {
   const widgetState = getState(WidgetAppState)
   const { widgetMenuUI } = getState(WidgetUISystemState)
+  const inputSources = inputSourceQuery()
 
-  const keys = Engine.instance.buttons
-  if (keys.ButtonX?.down) toggleWidgetsMenu('left')
-  if (keys.ButtonA?.down) toggleWidgetsMenu('right')
-  /** @todo allow non HMDs to access the widget menu too */
-  if ((isDev || isMobileXRHeadset) && keys.Escape?.down) toggleWidgetsMenu()
+  for (const inputSourceEntity of inputSources) {
+    const inputSource = getComponent(inputSourceEntity, InputSourceComponent)
+    const keys = inputSource.buttons
+    if (inputSource.source.gamepad?.mapping === 'xr-standard') {
+      if (keys[XRStandardGamepadButton.ButtonA]?.down)
+        toggleWidgetsMenu(inputSource.source.handedness === 'left' ? 'right' : 'left')
+    }
+    /** @todo allow non HMDs to access the widget menu too */
+    if ((isDev || isMobileXRHeadset) && keys.Escape?.down) toggleWidgetsMenu()
+  }
 
   for (const action of showWidgetQueue()) {
     const widget = Engine.instance.widgets.get(action.id)!
@@ -186,11 +197,12 @@ const execute = () => {
   }
 
   const transform = getComponent(widgetMenuUI.entity, TransformComponent)
-  const activeInputSource = Array.from(Engine.instance.inputSources).find(
-    (inputSource) => inputSource.handedness === widgetState.handedness
+  const activeInputSourceEntity = inputSources.find(
+    (entity) => getComponent(entity, InputSourceComponent).source.handedness === widgetState.handedness
   )
 
-  if (activeInputSource) {
+  if (activeInputSourceEntity) {
+    const activeInputSource = getComponent(activeInputSourceEntity, InputSourceComponent)?.source
     const referenceSpace = ReferenceSpace.origin!
     const pose = Engine.instance.xrFrame!.getPose(
       activeInputSource.gripSpace ?? activeInputSource.targetRaySpace,

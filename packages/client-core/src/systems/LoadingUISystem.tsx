@@ -97,9 +97,10 @@ const LoadingUISystemState = defineState({
     )
 
     // flip inside out
-    mesh.scale.set(-1, 1, 1)
+    mesh.scale.set(-1, 1, -1)
+
     mesh.renderOrder = 1
-    Engine.instance.camera.add(mesh)
+    Engine.instance.scene.add(mesh)
     setObjectLayers(mesh, ObjectLayers.UI)
 
     return {
@@ -263,7 +264,8 @@ const execute = () => {
     })
   }
 
-  mesh.quaternion.copy(Engine.instance.camera.quaternion).invert()
+  mesh.position.copy(Engine.instance.camera.position)
+  mesh.updateMatrixWorld(true)
 
   // add a slow rotation to animate on desktop, otherwise just keep it static for VR
   // if (!getState(EngineState).joinedWorld) {

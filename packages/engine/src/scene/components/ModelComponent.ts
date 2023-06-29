@@ -53,7 +53,6 @@ import { addError, removeError } from '../functions/ErrorFunctions'
 import { parseGLTFModel } from '../functions/loadGLTFModel'
 import { enableObjectLayer } from '../functions/setObjectLayers'
 import { addObjectToGroup, GroupComponent, removeObjectFromGroup } from './GroupComponent'
-import { LODComponent } from './LODComponent'
 import { SceneAssetPendingTagComponent } from './SceneAssetPendingTagComponent'
 import { SceneObjectComponent } from './SceneObjectComponent'
 import { UUIDComponent } from './UUIDComponent'
@@ -109,8 +108,6 @@ export const ModelComponent = defineComponent({
       removeObjectFromGroup(entity, component.scene.value)
       component.scene.set(null)
     }
-    LODComponent.lodsByEntity[entity].value && LODComponent.lodsByEntity[entity].set(none)
-    removeMaterialSource({ type: SourceType.MODEL, path: component.src.value })
   },
 
   errors: ['LOADING_ERROR', 'INVALID_URL'],
@@ -190,7 +187,7 @@ function ModelReactor() {
   useEffect(() => {
     const scene = modelComponent.scene.value
     if (!scene) return
-    enableObjectLayer(scene, ObjectLayers.Camera, !model.avoidCameraOcclusion)
+    enableObjectLayer(scene, ObjectLayers.Camera, !model.avoidCameraOcclusion && model.generateBVH)
   }, [modelComponent.avoidCameraOcclusion, modelComponent.scene])
 
   // update scene
@@ -202,7 +199,7 @@ function ModelReactor() {
 
     if (groupComponent?.value?.find((group: any) => group === scene)) return
     parseGLTFModel(entity)
-    setComponent(entity, BoundingBoxComponent)
+    // setComponent(entity, BoundingBoxComponent)
 
     let active = true
 

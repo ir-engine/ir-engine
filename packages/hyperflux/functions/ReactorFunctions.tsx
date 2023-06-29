@@ -89,7 +89,7 @@ export function useReactorRootContext(): ReactorRoot {
   return React.useContext(ReactorRootContext)
 }
 
-export function startReactor(Reactor: React.FC, store = HyperFlux.store): ReactorRoot {
+export function startReactor(Reactor: React.FC): ReactorRoot {
   const isStrictMode = false
   const concurrentUpdatesByDefaultOverride = true
   const identifierPrefix = ''
@@ -117,7 +117,7 @@ export function startReactor(Reactor: React.FC, store = HyperFlux.store): Reacto
       if (reactorRoot.isRunning) return Promise.resolve()
       reactorRoot.isRunning = true
       return new Promise<void>((resolve) => {
-        store.activeReactors.add(reactorRoot)
+        HyperFlux.store.activeReactors.add(reactorRoot)
         ReactorReconciler.updateContainer(
           <ReactorRootContext.Provider value={reactorRoot}>
             <Reactor />
@@ -133,7 +133,7 @@ export function startReactor(Reactor: React.FC, store = HyperFlux.store): Reacto
       return new Promise<void>((resolve) => {
         ReactorReconciler.updateContainer(null, fiberRoot, null, () => {
           reactorRoot.isRunning = false
-          store.activeReactors.delete(reactorRoot)
+          HyperFlux.store.activeReactors.delete(reactorRoot)
           reactorRoot.cleanupFunctions.forEach((fn) => fn())
           reactorRoot.cleanupFunctions.clear()
           resolve()

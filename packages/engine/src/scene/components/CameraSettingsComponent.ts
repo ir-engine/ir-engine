@@ -53,7 +53,6 @@ export const CameraSettingsComponent = defineComponent({
     if (typeof json.cameraModeDefault === 'number') component.cameraModeDefault.set(json.cameraModeDefault)
     if (typeof json.minPhi === 'number') component.minPhi.set(json.minPhi)
     if (typeof json.maxPhi === 'number') component.maxPhi.set(json.maxPhi)
-    if (typeof json.startPhi === 'number') component.startPhi.set(json.startPhi)
   },
 
   toJSON: (entity, component) => {
@@ -68,8 +67,7 @@ export const CameraSettingsComponent = defineComponent({
       cameraMode: component.cameraMode.value,
       cameraModeDefault: component.cameraModeDefault.value,
       minPhi: component.minPhi.value,
-      maxPhi: component.maxPhi.value,
-      startPhi: component.startPhi.value
+      maxPhi: component.maxPhi.value
     }
   },
 

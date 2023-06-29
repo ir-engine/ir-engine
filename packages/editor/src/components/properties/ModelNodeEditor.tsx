@@ -33,34 +33,26 @@ import {
 import { LoopAnimationComponent } from '@etherealengine/engine/src/avatar/components/LoopAnimationComponent'
 import {
   addComponent,
-  getComponent,
   getOptionalComponent,
   hasComponent,
   removeComponent,
-  setComponent,
   useComponent
 } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { EquippableComponent } from '@etherealengine/engine/src/interaction/components/EquippableComponent'
-import { CallbackComponent, getCallback } from '@etherealengine/engine/src/scene/components/CallbackComponent'
+import { getCallback } from '@etherealengine/engine/src/scene/components/CallbackComponent'
 import { getEntityErrors } from '@etherealengine/engine/src/scene/components/ErrorComponent'
 import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
-import { addError, clearErrors } from '@etherealengine/engine/src/scene/functions/ErrorFunctions'
-import { State, useState } from '@etherealengine/hyperflux'
+import { useState } from '@etherealengine/hyperflux'
 
 import ViewInArIcon from '@mui/icons-material/ViewInAr'
 
 import exportGLTF from '../../functions/exportGLTF'
-import { convertToScaffold, createLODsFromModel } from '../../functions/lodsFromModel'
-import { LODsFromModelParameters } from '../../functions/lodsFromModel'
 import BooleanInput from '../inputs/BooleanInput'
-import { Button, PropertiesPanelButton } from '../inputs/Button'
+import { PropertiesPanelButton } from '../inputs/Button'
 import InputGroup from '../inputs/InputGroup'
 import ModelInput from '../inputs/ModelInput'
 import SelectInput from '../inputs/SelectInput'
-import CollapsibleBlock from '../layout/CollapsibleBlock'
-import PaginatedList from '../layout/PaginatedList'
 import Well from '../layout/Well'
-import GLTFTransformProperties from './GLTFTransformProperties'
 import ModelTransformProperties from './ModelTransformProperties'
 import NodeEditor from './NodeEditor'
 import ScreenshareTargetNodeEditor from './ScreenshareTargetNodeEditor'
@@ -87,11 +79,6 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
   const errors = getEntityErrors(props.entity, ModelComponent)
 
   const loopAnimationComponent = getOptionalComponent(entity, LoopAnimationComponent)
-
-  const lodParms = useState<LODsFromModelParameters>(() => ({
-    serialize: false,
-    levels: []
-  }))
 
   const onChangeEquippable = useCallback(() => {
     if (isEquippable.value) {
@@ -153,12 +140,6 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
     getCallback(props.entity, 'xre.play')!()
   }
 
-  const onAddLODLevel = useCallback(() => {
-    lodParms.levels[lodParms.levels.length].set({
-      ...DefaultModelTransformParameters
-    })
-  }, [])
-
   return (
     <NodeEditor
       name={t('editor:properties.model.title')}
@@ -205,33 +186,6 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
       </InputGroup>
       <ScreenshareTargetNodeEditor entity={props.entity} multiEdit={props.multiEdit} />
       <ShadowProperties entity={props.entity} />
-      <CollapsibleBlock label={t('editor:properties.model.lods.label')}>
-        <div className="bg-gradient-to-b from-blue-gray-400 to-cool-gray-800 rounded-lg shadow-lg">
-          <div className="px-4 py-2 border-b border-gray-300">
-            <h2 className="text-lg font-semibold text-gray-100">LODs</h2>
-          </div>
-          <InputGroup name="Serialize" label={t('editor:properties.model.lods.serialize')}>
-            <BooleanInput value={lodParms.value.serialize} onChange={lodParms.serialize.set} />
-          </InputGroup>
-          <InputGroup name="LOD Level Parameters" label={t('editor:properties.model.lods.lodLevelParameters')}>
-            <Button onClick={onAddLODLevel}>Add LOD Level</Button>
-          </InputGroup>
-          <PaginatedList
-            list={lodParms.levels}
-            element={(lodLevel: State<ModelTransformParameters>) => {
-              return <GLTFTransformProperties transformParms={lodLevel} onChange={lodLevel.set} />
-            }}
-          />
-          <div className="p-4">
-            <Button onClick={convertToScaffold.bind({}, entity)}>Convert to Scaffold</Button>
-          </div>
-          <div className="p-4">
-            <Button onClick={createLODsFromModel.bind({}, entity, lodParms.value)}>
-              {t('editor:properties.model.lods.generate')}
-            </Button>
-          </div>
-        </div>
-      </CollapsibleBlock>
       <ModelTransformProperties modelState={modelComponent} onChangeModel={(val) => modelComponent.src.set(val)} />
       {!exporting.value && modelComponent.src.value && (
         <Well>

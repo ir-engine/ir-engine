@@ -31,10 +31,10 @@
       var global = globalThis
       var exports = { __esModule: true }
       
-      if('serviceWorker' in navigator) {
+      if('serviceWorker' in navigator && `<%- swScriptLink %>` !== '') {
         window.addEventListener('load', () => {
           console.log(`[PWA] Registering sw at ${window.location.origin}/<%- swScriptLink %>`)
-          
+
           // Register the service worker
           navigator.serviceWorker
             .register(`${window.location.origin}/<%- swScriptLink %>`, {

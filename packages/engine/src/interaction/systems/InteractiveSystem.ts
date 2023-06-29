@@ -142,7 +142,7 @@ const execute = () => {
   for (const entity of interactableQuery.exit()) {
     if (InteractableTransitions.has(entity)) InteractableTransitions.delete(entity)
     if (InteractiveUI.has(entity)) InteractiveUI.delete(entity)
-    if (hasComponent(entity, HighlightComponent)) removeComponent(entity, HighlightComponent)
+    // if (hasComponent(entity, HighlightComponent)) removeComponent(entity, HighlightComponent)
   }
 
   if (Engine.instance.localClientEntity) {
@@ -161,18 +161,18 @@ const execute = () => {
 
     if (gatherAvailableInteractablesTimer === 0) {
       gatherAvailableInteractables(interactables)
-      const closestInteractable = getState(InteractState).available[0]
-      for (const interactiveEntity of interactables) {
-        if (interactiveEntity === closestInteractable) {
-          if (!hasComponent(interactiveEntity, HighlightComponent)) {
-            addComponent(interactiveEntity, HighlightComponent)
-          }
-        } else {
-          if (hasComponent(interactiveEntity, HighlightComponent)) {
-            removeComponent(interactiveEntity, HighlightComponent)
-          }
-        }
-      }
+      // const closestInteractable = getState(InteractState).available[0]
+      // for (const interactiveEntity of interactables) {
+      //   if (interactiveEntity === closestInteractable) {
+      //     if (!hasComponent(interactiveEntity, HighlightComponent)) {
+      //       addComponent(interactiveEntity, HighlightComponent)
+      //     }
+      //   } else {
+      //     if (hasComponent(interactiveEntity, HighlightComponent)) {
+      //       removeComponent(interactiveEntity, HighlightComponent)
+      //     }
+      //   }
+      // }
     }
   }
 }

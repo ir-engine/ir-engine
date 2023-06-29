@@ -42,6 +42,7 @@ import {
 import XRTextButton from '../../components/XRTextButton'
 import styleString from './index.scss?inline'
 
+/** @deprecated */
 export function createMediaSessionMenuView() {
   return createXRUI(MediaSessionMenuView, createMediaSessionMenuState())
 }
@@ -49,7 +50,7 @@ export function createMediaSessionMenuView() {
 function createMediaSessionMenuState() {
   return createState({})
 }
-
+/** @deprecated */
 const MediaSessionMenuView = () => {
   const { t } = useTranslation()
 

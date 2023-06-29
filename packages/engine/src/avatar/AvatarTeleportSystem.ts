@@ -50,6 +50,7 @@ import { Entity } from '../ecs/classes/Entity'
 import { defineQuery, getComponent, removeQuery, setComponent } from '../ecs/functions/ComponentFunctions'
 import { createEntity, removeEntity } from '../ecs/functions/EntityFunctions'
 import { defineSystem } from '../ecs/functions/SystemFunctions'
+import { InputSourceComponent } from '../input/components/InputSourceComponent'
 import { EngineRenderer } from '../renderer/WebGLRendererSystem'
 import { addObjectToGroup } from '../scene/components/GroupComponent'
 import { NameComponent } from '../scene/components/NameComponent'
@@ -177,6 +178,10 @@ let fadeBackInAccumulator = -1
 
 let visibleSegments = 2
 
+const inputSourceQuery = defineQuery([InputSourceComponent])
+
+const filterUncapturedInputSources = (eid: Entity) => !getComponent(eid, InputSourceComponent)?.captured
+
 const execute = () => {
   if (getCameraMode() !== 'attached') return
 
@@ -207,13 +212,17 @@ const execute = () => {
     transition.setState('IN')
   }
   const guidelineTransform = getComponent(guidelineEntity, TransformComponent)
+
+  const nonCapturedInputSources = inputSourceQuery().filter(filterUncapturedInputSources)
+
   for (const entity of avatarTeleportQuery()) {
     const side = getComponent(Engine.instance.localClientEntity, AvatarTeleportComponent).side
     const referenceSpace = ReferenceSpace.origin!
 
-    for (const inputSource of Engine.instance.inputSources) {
-      if (inputSource.handedness === side) {
-        const pose = Engine.instance.xrFrame!.getPose(inputSource.targetRaySpace, referenceSpace)!
+    for (const inputSourceEntity of nonCapturedInputSources) {
+      const inputSourceComponent = getComponent(inputSourceEntity, InputSourceComponent)
+      if (inputSourceComponent.source.handedness === side) {
+        const pose = Engine.instance.xrFrame!.getPose(inputSourceComponent.source.targetRaySpace, referenceSpace)!
         guidelineTransform.position.copy(pose.transform.position as any as Vector3)
         guidelineTransform.rotation.copy(pose.transform.orientation as any as Quaternion)
         guidelineTransform.matrixInverse.fromArray(pose.transform.inverse.matrix)
