@@ -35,11 +35,11 @@ export const decorators = [
   withRouter,
   (Story) => {
     return (
-      <ThemeContextProvider>
-        <Engine_tw>
+      <Engine_tw>
+        <ThemeContextProvider>
           <Story />
-        </Engine_tw>
-      </ThemeContextProvider>
+        </ThemeContextProvider>
+      </Engine_tw>
     )
   }
 ]
