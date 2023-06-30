@@ -457,9 +457,16 @@ body {
   }
 }
 
-[class*="MuiModal-root"],
+[class*="MuiModal-root"] {
+  pointer-events: all;
+}
+
+[class*="MuiMenu-root"] {
+  pointer-events: all;
+}
+
 [class*="MuiPopper-root"] {
-  pointer-events: auto;
+  pointer-events: all;
 }
 
 vite-error-overlay {

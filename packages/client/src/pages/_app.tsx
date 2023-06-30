@@ -27,12 +27,7 @@ Ethereal Engine. All Rights Reserved.
 import { SnackbarProvider } from 'notistack'
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 
-import {
-  AdminClientSettingsState,
-  ClientSettingService
-} from '@etherealengine/client-core/src/admin/services/Setting/ClientSettingService'
 import { initGA, logPageView } from '@etherealengine/client-core/src/common/analytics'
-import MetaTags from '@etherealengine/client-core/src/common/components/MetaTags'
 import { defaultAction } from '@etherealengine/client-core/src/common/components/NotificationActions'
 import { ProjectService, ProjectState } from '@etherealengine/client-core/src/common/services/ProjectService'
 import InviteToast from '@etherealengine/client-core/src/components/InviteToast'
@@ -51,13 +46,6 @@ import './styles.scss'
 
 import { AdminCoilSettingService } from '@etherealengine/client-core/src/admin/services/Setting/CoilSettingService'
 import {
-  AppThemeServiceReceptor,
-  AppThemeState,
-  getAppTheme,
-  getAppThemeName,
-  useAppThemeName
-} from '@etherealengine/client-core/src/common/services/AppThemeState'
-import {
   NotificationAction,
   NotificationActions
 } from '@etherealengine/client-core/src/common/services/NotificationService'
@@ -65,24 +53,18 @@ import Debug from '@etherealengine/client-core/src/components/Debug'
 import { AudioEffectPlayer } from '@etherealengine/engine/src/audio/systems/MediaSystem'
 import { addActionReceptor, getMutableState, removeActionReceptor, useHookstate } from '@etherealengine/hyperflux'
 
-declare module '@mui/styles/defaultTheme' {
-  // eslint-disable-next-line @typescript-eslint/no-empty-interface
-  interface DefaultTheme extends Theme {}
-}
+import { ThemeContextProvider } from '../themes/themeContext'
 
 declare module '@mui/styles/defaultTheme' {
   // eslint-disable-next-line @typescript-eslint/no-empty-interface
   interface DefaultTheme extends Theme {}
 }
 
-const AppPage = (): any => {
+/** @deprecated see https://github.com/EtherealEngine/etherealengine/issues/6485 */
+const AppPage = ({ route }: { route: string }) => {
   const notistackRef = useRef<SnackbarProvider>()
   const authState = useHookstate(getMutableState(AuthState))
   const selfUser = authState.user
-  const clientSettingState = useHookstate(getMutableState(AdminClientSettingsState))
-  const appTheme = useHookstate(getMutableState(AppThemeState))
-  const [clientSetting] = clientSettingState?.client?.value || []
-  const [clientThemeSettings, setClientThemeSettings] = useState(clientSetting?.themeSettings)
   const [projectComponents, setProjectComponents] = useState<Array<any>>([])
   const [fetchedProjectComponents, setFetchedProjectComponents] = useState(false)
   const projectState = useHookstate(getMutableState(ProjectState))
@@ -104,21 +86,11 @@ const AppPage = (): any => {
       })
     }
     addActionReceptor(receptor)
-    addActionReceptor(AppThemeServiceReceptor)
 
     return () => {
       removeActionReceptor(receptor)
-      removeActionReceptor(AppThemeServiceReceptor)
     }
   }, [])
-
-  useEffect(() => {
-    const html = document.querySelector('html')
-    if (html) {
-      html.dataset.theme = getAppThemeName()
-      updateTheme()
-    }
-  }, [selfUser?.user_setting?.value])
 
   useEffect(initApp, [])
 
@@ -154,52 +126,30 @@ const AppPage = (): any => {
     authState.isLoggedIn.value && AdminCoilSettingService.fetchCoil()
   }, [authState.isLoggedIn])
 
-  useEffect(() => {
-    if (clientSetting) {
-      setClientThemeSettings(clientSetting?.themeSettings)
-    }
-    if (clientSettingState?.updateNeeded?.value) ClientSettingService.fetchClientSettings()
-  }, [clientSettingState?.updateNeeded?.value])
-
-  useEffect(() => {
-    updateTheme()
-  }, [clientThemeSettings, appTheme.customTheme])
-
-  const updateTheme = () => {
-    const currentThemeName = getAppThemeName()
-    const theme = getAppTheme()
-    if (theme)
-      for (const variable of Object.keys(theme)) {
-        ;(document.querySelector(`[data-theme=${currentThemeName}]`) as any)?.style.setProperty(
-          '--' + variable,
-          theme[variable]
-        )
-      }
-  }
-  const currentThemeName = useAppThemeName()
-
   return (
     <>
-      <StyledEngineProvider injectFirst>
-        <ThemeProvider theme={theme}>
-          <SnackbarProvider
-            ref={notistackRef as any}
-            maxSnack={7}
-            anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
-            action={defaultAction}
-          >
-            <GlobalStyle />
-            <div style={{ pointerEvents: 'auto' }}>
-              <InviteToast />
-              <Debug />
-            </div>
-            <RouterComp />
-            {projectComponents.map((Component, i) => (
-              <Component key={i} />
-            ))}
-          </SnackbarProvider>
-        </ThemeProvider>
-      </StyledEngineProvider>
+      <ThemeContextProvider>
+        <StyledEngineProvider injectFirst>
+          <ThemeProvider theme={theme}>
+            <SnackbarProvider
+              ref={notistackRef as any}
+              maxSnack={7}
+              anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+              action={defaultAction}
+            >
+              <GlobalStyle />
+              <div style={{ pointerEvents: 'auto' }}>
+                <InviteToast />
+                <Debug />
+              </div>
+              <RouterComp route={route} />
+              {projectComponents.map((Component, i) => (
+                <Component key={i} />
+              ))}
+            </SnackbarProvider>
+          </ThemeProvider>
+        </StyledEngineProvider>
+      </ThemeContextProvider>
     </>
   )
 }
