@@ -321,7 +321,6 @@ const execute = () => {
     let i = 0
     for (const [key, value] of Object.entries(rigComponent.ikTargetsMap)) {
       //if xr is active, set select targets to xr tracking data
-
       worldSpaceTargets[key]
         .copy(value.position)
         .add(rigComponent.ikOffsetsMap.get(key)!)
@@ -335,32 +334,33 @@ const execute = () => {
 
     applyInputSourcePoseToIKTargets()
 
-    if (xrState.sessionActive) {
-      const xrFrame = Engine.instance.xrFrame!
-      for (const ikEntity of ikEntities) {
-        const networkObject = getComponent(entity, NetworkObjectComponent)
-        const ownerEntity = Engine.instance.getUserAvatarEntity(networkObject.ownerId)
-        if (!Engine.instance.priorityAvatarEntities.has(ownerEntity)) continue
-        const ikTargetComponent = getComponent(ikEntity, AvatarIKTargetComponent)
-        const ikTransform = getComponent(ikEntity, TransformComponent)
-        //todo - use a map for this
-        switch (ikTargetComponent.handedness) {
-          case 'left':
-            worldSpaceTargets.leftHandTarget.copy(ikTransform.position)
-            break
-          case 'right':
-            worldSpaceTargets.rightHandTarget.copy(ikTransform.position)
-            break
-          case 'none':
-            worldSpaceTargets.hipsTarget.copy(
-              _vector3.copy(ikTransform.position).setY(ikTransform.position.y - rigComponent.torsoLength - 0.01)
-            )
-            //offset target forward to account for hips being behind the head
-            const hipsForward = new Vector3(0, 0, 1)
-            hipsForward.applyQuaternion(rigidbodyComponent!.rotation)
-            hipsForward.multiplyScalar(0.125)
-            worldSpaceTargets.hipsTarget.sub(hipsForward)
-        }
+    for (const ikEntity of ikEntities) {
+      const networkObject = getComponent(ikEntity, NetworkObjectComponent)
+      const ownerEntity = Engine.instance.getUserAvatarEntity(networkObject.ownerId)
+      if (ownerEntity != entity) continue
+
+      const rigidbodyComponent = getComponent(ownerEntity, RigidBodyComponent)
+      const rigComponent = getComponent(ownerEntity, AvatarRigComponent)
+
+      const ikTargetComponent = getComponent(ikEntity, AvatarIKTargetComponent)
+      const ikTransform = getComponent(ikEntity, TransformComponent)
+      //todo - use a map for this
+      switch (ikTargetComponent.handedness) {
+        case 'left':
+          worldSpaceTargets.leftHandTarget.copy(ikTransform.position)
+          break
+        case 'right':
+          worldSpaceTargets.rightHandTarget.copy(ikTransform.position)
+          break
+        case 'none':
+          worldSpaceTargets.hipsTarget.copy(
+            _vector3.copy(ikTransform.position).setY(ikTransform.position.y - rigComponent.torsoLength)
+          )
+          //offset target forward to account for hips being behind the head
+          const hipsForward = new Vector3(0, 0, 1)
+          hipsForward.applyQuaternion(rigidbodyComponent!.rotation)
+          hipsForward.multiplyScalar(0.125)
+          worldSpaceTargets.hipsTarget.sub(hipsForward)
       }
     }
 
