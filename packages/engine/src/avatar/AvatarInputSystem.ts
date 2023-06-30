@@ -24,11 +24,14 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { Quaternion } from 'three'
+import { Group, Matrix4, Vector3 } from 'three'
 
 import { isDev } from '@etherealengine/common/src/config'
+import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
 
 import { V_000, V_010 } from '../common/constants/MathConstants'
+import { isTouchAvailable } from '../common/functions/DetectFeatures'
 import { Engine } from '../ecs/classes/Engine'
 import { EngineActions } from '../ecs/classes/EngineState'
 import { Entity } from '../ecs/classes/Entity'
@@ -46,8 +49,12 @@ import { InputSourceComponent } from '../input/components/InputSourceComponent'
 import { StandardGamepadButton, XRStandardGamepadButton } from '../input/state/ButtonState'
 import { InteractState } from '../interaction/systems/InteractiveSystem'
 import { WorldNetworkAction } from '../networking/functions/WorldNetworkAction'
+import { Physics, RaycastArgs } from '../physics/classes/Physics'
 import { RigidBodyFixedTagComponent } from '../physics/components/RigidBodyComponent'
+import { CollisionGroups } from '../physics/enums/CollisionGroups'
+import { getInteractionGroups } from '../physics/functions/getInteractionGroups'
 import { boxDynamicConfig } from '../physics/functions/physicsObjectDebugFunctions'
+import { SceneQueryType } from '../physics/types/PhysicsTypes'
 import { RendererState } from '../renderer/RendererState'
 import { hasMovementControls } from '../xr/XRState'
 import { AvatarControllerComponent } from './components/AvatarControllerComponent'
@@ -117,6 +124,15 @@ export const AvatarAxesControlSchemeBehavior = {
     }
   }
 }
+const interactionGroups = getInteractionGroups(CollisionGroups.Default, CollisionGroups.Avatars)
+
+const raycastComponentData = {
+  type: SceneQueryType.Closest,
+  origin: new Vector3(),
+  direction: new Vector3(),
+  maxDistance: 100,
+  groups: interactionGroups
+} as RaycastArgs
 
 const onShiftLeft = () => {
   const controller = getMutableComponent(Engine.instance.localClientEntity, AvatarControllerComponent)
@@ -144,6 +160,25 @@ const onKeyP = () => {
   getMutableState(RendererState).debugEnable.set(!getMutableState(RendererState).debugEnable.value)
 }
 
+const isAvatarClicked = () => {
+  const hits = Physics.castRayFromCamera(
+    Engine.instance.camera,
+    Engine.instance.pointerState.position,
+    Engine.instance.physicsWorld,
+    raycastComponentData
+  )
+  if (hits.length) {
+    const hit = hits[0]
+    const hitEntity = (hit.body?.userData as any)?.entity as Entity
+    console.log(hitEntity, Engine.instance.localClientEntity)
+    if (typeof hitEntity !== 'undefined' && hitEntity == Engine.instance.localClientEntity) {
+      console.log('DEBUG: Hit avatar')
+      return true
+    }
+  }
+  console.log('DEBUG: did not hit avatar')
+  return false
+}
 const inputSourceQuery = defineQuery([InputSourceComponent])
 
 const walkableQuery = defineQuery([RigidBodyFixedTagComponent, InputComponent])
@@ -219,7 +254,11 @@ const execute = () => {
     }
 
     if (!hasMovementControls()) return
-
+    //** touch input (only for avatar jump)*/
+    let avatarClicked = false
+    if (isTouchAvailable && buttons.PrimaryClick?.pressed) {
+      avatarClicked = isAvatarClicked()
+    }
     /** keyboard input */
     const keyDeltaX = (buttons.KeyA?.pressed ? -1 : 0) + (buttons.KeyD?.pressed ? 1 : 0)
     const keyDeltaZ =
@@ -230,7 +269,7 @@ const execute = () => {
 
     controller.gamepadLocalInput.set(keyDeltaX, 0, keyDeltaZ).normalize()
 
-    controller.gamepadJumpActive = !!buttons.Space?.pressed || gamepadJump
+    controller.gamepadJumpActive = !!buttons.Space?.pressed || gamepadJump || avatarClicked
 
     const controlScheme =
       inputSource.source.handedness === 'none'
