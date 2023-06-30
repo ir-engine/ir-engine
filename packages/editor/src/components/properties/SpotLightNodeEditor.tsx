@@ -75,7 +75,7 @@ export const SpotLightNodeEditor: EditorComponentType = (props) => {
         onChange={updateProperty(SpotLightComponent, 'penumbra')}
       />
       <RadianNumericInputGroup
-        name="Outer Cone Angle"
+        name="Angle"
         label={t('editor:properties.spotLight.lbl-angle')}
         min={0}
         max={90}
@@ -101,7 +101,7 @@ export const SpotLightNodeEditor: EditorComponentType = (props) => {
         name="Decay"
         label={t('editor:properties.spotLight.lbl-decay')}
         min={0}
-        max={1}
+        max={10}
         smallStep={0.1}
         mediumStep={1}
         value={lightComponent.decay}

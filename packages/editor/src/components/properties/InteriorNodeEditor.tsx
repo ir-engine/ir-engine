@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { getComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { useComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { getEntityErrors } from '@etherealengine/engine/src/scene/components/ErrorComponent'
 import { InteriorComponent } from '@etherealengine/engine/src/scene/components/InteriorComponent'
 
@@ -47,7 +47,7 @@ import { EditorComponentType, updateProperty } from './Util'
 export const InteriorNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
   const entity = props.entity
-  const interiorComponent = getComponent(entity, InteriorComponent)
+  const interiorComponent = useComponent(entity, InteriorComponent)
   const errors = getEntityErrors(props.entity, InteriorComponent)
 
   return (
@@ -57,11 +57,11 @@ export const InteriorNodeEditor: EditorComponentType = (props) => {
       description={t('editor:properties.interior.description')}
     >
       <InputGroup name="Cube Map" label={t('editor:properties.interior.lbl-cubeMap')}>
-        <ImageInput value={interiorComponent.cubeMap} onChange={updateProperty(InteriorComponent, 'cubeMap')} />
+        <ImageInput value={interiorComponent.cubeMap.value} onChange={updateProperty(InteriorComponent, 'cubeMap')} />
         {errors && <div style={{ marginTop: 2, color: '#FF8C00' }}>{t('editor:properties.interior.error-url')}</div>}
       </InputGroup>
       <InputGroup name="Size" label={t('editor:properties.interior.lbl-size')}>
-        <Vector2Input value={interiorComponent.size} onChange={updateProperty(InteriorComponent, 'size')} />
+        <Vector2Input value={interiorComponent.size.value} onChange={updateProperty(InteriorComponent, 'size')} />
       </InputGroup>
       <NumericInputGroup
         name="Tiling"
@@ -70,7 +70,7 @@ export const InteriorNodeEditor: EditorComponentType = (props) => {
         smallStep={1.0}
         mediumStep={1.0}
         largeStep={2.0}
-        value={interiorComponent.tiling}
+        value={interiorComponent.tiling.value}
         onChange={updateProperty(InteriorComponent, 'tiling')}
       />
     </NodeEditor>

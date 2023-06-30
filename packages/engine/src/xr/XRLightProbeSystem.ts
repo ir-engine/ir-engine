@@ -147,19 +147,21 @@ const reactor = () => {
     const session = xrState.session.value
     if (!session) return
 
+    const lightingSupported = 'requestLightProbe' in session
+    if (!lightingSupported) return
+
     const environmentEstimation = true
-    if ('requestLightProbe' in session) {
-      session
-        .requestLightProbe({
-          reflectionFormat: session.preferredReflectionFormat
-        })
-        .then((probe: XRLightProbe) => {
-          xrLightProbeState.probe.set(probe)
-        })
-        .catch((err) => {
-          console.warn('Tried to initialize light probe but failed with error', err)
-        })
-    }
+
+    session
+      .requestLightProbe({
+        reflectionFormat: session.preferredReflectionFormat
+      })
+      .then((probe: XRLightProbe) => {
+        xrLightProbeState.probe.set(probe)
+      })
+      .catch((err) => {
+        console.warn('Tried to initialize light probe but failed with error', err)
+      })
 
     // If the XRWebGLBinding class is available then we can also query an
     // estimated reflection cube map.

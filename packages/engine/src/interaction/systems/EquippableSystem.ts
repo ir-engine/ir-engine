@@ -45,7 +45,7 @@ import {
 } from '../../ecs/functions/ComponentFunctions'
 import { entityExists } from '../../ecs/functions/EntityFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
-import { getFirstNonCapturedInputSource, InputSourceComponent } from '../../input/components/InputSourceComponent'
+import { InputSourceComponent } from '../../input/components/InputSourceComponent'
 import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
 import { Physics } from '../../physics/classes/Physics'
@@ -218,7 +218,7 @@ const onKeyU = () => {
 const execute = () => {
   if (getState(EngineState).isEditor) return
 
-  const nonCapturedInputSource = getFirstNonCapturedInputSource()
+  const nonCapturedInputSource = InputSourceComponent.nonCapturedInputSourceQuery()[0]
   if (nonCapturedInputSource) {
     const inputSource = getComponent(nonCapturedInputSource, InputSourceComponent)
     if (inputSource.buttons.KeyU?.down) onKeyU()

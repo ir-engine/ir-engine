@@ -80,10 +80,11 @@ export const ExpensiveMaterials = new Set([MeshPhongMaterial, MeshStandardMateri
 
 export function setupObject(obj: Object3DWithEntity, force = false) {
   const mesh = obj as any as Mesh<any, any>
+  /** @todo do we still need this? */
   //Lambert shader needs an empty normal map to prevent shader errors
-  const res = 8
-  const normalTexture = new DataTexture(getRGBArray(new Color(0.5, 0.5, 1)), res, res, RGBAFormat)
-  normalTexture.needsUpdate = true
+  // const res = 8
+  // const normalTexture = new DataTexture(getRGBArray(new Color(0.5, 0.5, 1)), res, res, RGBAFormat)
+  // normalTexture.needsUpdate = true
   mesh.traverse((child: Mesh<any, any>) => {
     if (child.material) {
       if (!child.userData) child.userData = {}
@@ -97,7 +98,7 @@ export function setupObject(obj: Object3DWithEntity, force = false) {
         const prevMatEntry = unregisterMaterial(prevMaterial)
         const nuMaterial = new MeshLambertMaterial().copy(prevMaterial)
 
-        nuMaterial.normalMap = nuMaterial.normalMap ?? normalTexture
+        nuMaterial.normalMap = nuMaterial.normalMap //?? normalTexture
         nuMaterial.specularMap = prevMaterial.roughnessMap ?? prevMaterial.specularIntensityMap
 
         if (onlyEmmisive) nuMaterial.emissiveMap = prevMaterial.emissiveMap
@@ -105,12 +106,13 @@ export function setupObject(obj: Object3DWithEntity, force = false) {
 
         nuMaterial.reflectivity = prevMaterial.metalness
         nuMaterial.envMap = prevMaterial.envMap
+        nuMaterial.vertexColors = prevMaterial.vertexColors
 
         child.material = nuMaterial
         child.userData.lastMaterial = prevMaterial
         prevMatEntry && registerMaterial(nuMaterial, prevMatEntry.src)
       }
-      normalTexture.dispose()
+      // normalTexture.dispose()
     }
   })
 }

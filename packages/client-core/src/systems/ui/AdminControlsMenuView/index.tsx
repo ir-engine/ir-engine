@@ -33,6 +33,7 @@ import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 import XRTextButton from '../../components/XRTextButton'
 import styleString from './index.scss?inline'
 
+/** @deprecated */
 export function createAdminControlsMenuView() {
   return createXRUI(AdminControlsMenuView, createAdminControlsMenuState())
 }
@@ -40,7 +41,7 @@ export function createAdminControlsMenuView() {
 function createAdminControlsMenuState() {
   return createState({})
 }
-
+/** @deprecated */
 const AdminControlsMenuView = () => {
   const { t } = useTranslation()
 
