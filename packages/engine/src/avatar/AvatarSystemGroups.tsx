@@ -37,9 +37,15 @@ import { WorldNetworkAction } from '../networking/functions/WorldNetworkAction'
 import { WorldState } from '../networking/interfaces/WorldState'
 import { UUIDComponent } from '../scene/components/UUIDComponent'
 import { AvatarStates, matchesAvatarState, matchesWeightsParameters } from './animation/Util'
-import { AvatarAutopilotSystem } from './AvatarAutopilotSystem'
-import { AvatarMovementSystem } from './AvatarMovementSystem'
 import { loadAvatarForUser } from './functions/avatarFunctions'
+import { AvatarAnimationSystem } from './systems/AvatarAnimationSystem'
+import { AvatarAutopilotSystem } from './systems/AvatarAutopilotSystem'
+import { AvatarControllerSystem } from './systems/AvatarControllerSystem'
+import { AvatarInputSystem } from './systems/AvatarInputSystem'
+import { AvatarLoadingSystem } from './systems/AvatarLoadingSystem'
+import { AvatarMovementSystem } from './systems/AvatarMovementSystem'
+import { AvatarTeleportSystem } from './systems/AvatarTeleportSystem'
+import { FlyControlSystem } from './systems/FlyControlSystem'
 
 export class AvatarNetworkAction {
   static spawn = defineAction({
@@ -123,6 +129,11 @@ const AvatarReactor = React.memo(({ entityUUID }: { entityUUID: EntityUUID }) =>
   return null
 })
 
+export const AvatarInputSystemGroup = defineSystem({
+  uuid: 'ee.engine.avatar-input-group',
+  subSystems: [AvatarInputSystem, AvatarControllerSystem, AvatarTeleportSystem, FlyControlSystem, AvatarLoadingSystem]
+})
+
 export const AvatarSimulationSystemGroup = defineSystem({
   uuid: 'EE.Avatar.SimulationSystemGroup',
 
@@ -132,10 +143,19 @@ export const AvatarSimulationSystemGroup = defineSystem({
     receiveActions(AvatarState)
   },
 
-  reactor: () => {
+  reactor: (props) => {
     const avatarState = useState(AvatarState)
-    return avatarState.keys.map((entityUUID) => {
-      return <AvatarReactor key={entityUUID} entityUUID={entityUUID} />
-    })
+    return (
+      <>
+        {avatarState.keys.map((entityUUID: EntityUUID) => {
+          return <AvatarReactor key={entityUUID} entityUUID={entityUUID} />
+        })}
+      </>
+    )
   }
+})
+
+export const AvatarAnimationSystemGroup = defineSystem({
+  uuid: 'EE.Avatar.AnimationSystemGroup',
+  subSystems: [AvatarAnimationSystem]
 })
