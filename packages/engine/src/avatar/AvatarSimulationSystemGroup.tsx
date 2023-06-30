@@ -41,7 +41,7 @@ import { AvatarAutopilotSystem } from './AvatarAutopilotSystem'
 import { AvatarMovementSystem } from './AvatarMovementSystem'
 import { loadAvatarForUser } from './functions/avatarFunctions'
 
-export class NetworkAvatarAction {
+export class AvatarNetworkAction {
   static spawn = defineAction({
     ...WorldNetworkAction.spawnObject.actionShape,
     prefab: 'avatar'
@@ -81,22 +81,22 @@ const AvatarState = defineState({
 
   receptors: [
     [
-      NetworkAvatarAction.spawn,
-      (state, action: typeof NetworkAvatarAction.spawn.matches._TYPE) => {
+      AvatarNetworkAction.spawn,
+      (state, action: typeof AvatarNetworkAction.spawn.matches._TYPE) => {
         state[action.entityUUID].merge({ animationState: AvatarStates.LOCOMOTION })
       }
     ],
 
     [
-      NetworkAvatarAction.setAnimationState,
-      (state, action: typeof NetworkAvatarAction.setAnimationState.matches._TYPE) => {
+      AvatarNetworkAction.setAnimationState,
+      (state, action: typeof AvatarNetworkAction.setAnimationState.matches._TYPE) => {
         state[action.entityUUID].merge({ animationState: action.animationState })
       }
     ],
 
     [
-      NetworkAvatarAction.setResource,
-      (state, action: typeof NetworkAvatarAction.setResource.matches._TYPE) => {
+      AvatarNetworkAction.setResource,
+      (state, action: typeof AvatarNetworkAction.setResource.matches._TYPE) => {
         state[action.entityUUID].merge({ resourceUUID: action.resourceUUID })
       }
     ],

@@ -54,10 +54,10 @@ import { ServerState } from '@etherealengine/server-core/src/ServerState'
 import getLocalServerIp from '@etherealengine/server-core/src/util/get-local-server-ip'
 
 import { InstanceServerState } from './InstanceServerState'
-import { startMediaServerSystems, startWorldServerSystems } from './InstanceServerSystems'
 import { authorizeUserToJoinServer, setupSubdomain } from './NetworkFunctions'
 import { restartInstanceServer } from './restartInstanceServer'
 import { getServerNetwork, initializeNetwork } from './SocketWebRTCServerFunctions'
+import { startMediaServerSystems, startWorldServerSystems } from './startServerSystems'
 
 const logger = multiLogger.child({ component: 'instanceserver:channels' })
 

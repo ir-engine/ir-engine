@@ -262,7 +262,7 @@ function defineAction<Shape extends ActionShape<Action>>(actionShape: Shape) {
         partialAction[k] ?? ('defaultValue' in v ? v.defaultValue() : v.parser['defaultValue'])
       ]) as [string, any]
     )
-    let action = {
+    const action = {
       $from: HyperFlux.store?.getDispatchId(),
       ...allValuesNull,
       ...Object.fromEntries([...optionEntries, ...literalEntries]),
@@ -498,7 +498,7 @@ function defineActionQueue<V extends Validator<unknown, ResolvedActionType>>(sha
     if (!HyperFlux.store.actions.queues.has(actionQueueDefinition)) {
       HyperFlux.store.actions.queues.set(
         actionQueueDefinition,
-        !HyperFlux.store.actions.history.filter(actionQueueDefinition.test) as any
+        HyperFlux.store.actions.history.filter(actionQueueDefinition.test)
       )
       HyperFlux.store.getCurrentReactorRoot()?.cleanupFunctions.add(() => {
         removeActionQueue(actionQueueDefinition)

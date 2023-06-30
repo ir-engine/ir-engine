@@ -60,18 +60,14 @@ export const startWorldServerSystems = () => {
   startSystems([MotionCaptureSystem], { with: InputSystemGroup })
 
   /** Fixed */
+  startSystems([IncomingNetworkSystem, WorldNetworkActionSystem], {
+    before: SimulationSystemGroup
+  })
+
   startSystems(
-    [
-      IncomingNetworkSystem,
-      WorldNetworkActionSystem,
-      ServerHostNetworkSystem,
-      EquippableSystem,
-      AvatarSimulationGroup,
-      PhysicsSystem,
-      OutgoingNetworkSystem
-    ],
+    [ServerHostNetworkSystem, EquippableSystem, AvatarSimulationGroup, PhysicsSystem, OutgoingNetworkSystem],
     {
-      with: SimulationSystemGroup
+      after: SimulationSystemGroup
     }
   )
 
