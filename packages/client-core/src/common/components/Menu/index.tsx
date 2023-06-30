@@ -123,14 +123,21 @@ const Menu = ({
 
   if (isPopover) {
     return (
-      <Box className={styles.menu} sx={{ width: '100%', ...sx }}>
+      <Box className={styles.menu} sx={{ pointerEvents: 'all', width: '100%', ...sx }}>
         {dialogContent}
       </Box>
     )
   }
 
   return (
-    <MUIDialog open={open} maxWidth={maxWidth} fullWidth PaperProps={{ className: styles.menu }} onClose={onClose}>
+    <MUIDialog
+      sx={{ pointerEvents: 'all', ...sx }}
+      open={open}
+      maxWidth={maxWidth}
+      fullWidth
+      PaperProps={{ className: styles.menu }}
+      onClose={onClose}
+    >
       {dialogContent}
     </MUIDialog>
   )
