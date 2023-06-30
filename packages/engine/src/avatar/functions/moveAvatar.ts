@@ -369,8 +369,7 @@ const _updateLocalAvatarRotationAttachedMode = () => {
   // previous and current rotation to the target rotation
   rigidbody.targetKinematicRotation.copy(avatarRotation)
   rigidbody.previousRotation.copy(avatarRotation)
-  rigidbody.rotation.copy(avatarRotation)
-  transform.rotation.copy(avatarRotation)
+  rigidbody.rotation.copy(avatarRotation), transform.rotation.copy(avatarRotation)
 }
 
 export const updateLocalAvatarRotation = () => {
