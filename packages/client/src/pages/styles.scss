@@ -461,6 +461,10 @@ body {
   pointer-events: all;
 }
 
+[class*="MuiMenu-root"] {
+  pointer-events: all;
+}
+
 [class*="MuiPopper-root"] {
   pointer-events: all;
 }
