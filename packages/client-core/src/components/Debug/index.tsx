@@ -200,7 +200,7 @@ export const Debug = ({ showingStateRef }) => {
   namedEntities.set(renderAllEntities())
   entityTree.set(renderEntityTreeRoots())
   return (
-    <div className={styles.debugContainer}>
+    <div className={styles.debugContainer} style={{ pointerEvents: 'all' }}>
       <div className={styles.debugOptionContainer}>
         <h1>{t('common:debug.debugOptions')}</h1>
         <div className={styles.optionBlock}>

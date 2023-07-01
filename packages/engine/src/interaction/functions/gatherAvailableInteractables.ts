@@ -25,14 +25,19 @@ Ethereal Engine. All Rights Reserved.
 
 import { Frustum, Matrix4, PerspectiveCamera, Vector3 } from 'three'
 
-import { dispatchAction, getMutableState } from '@etherealengine/hyperflux'
+import { dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
 
 import { AvatarControllerComponent } from '../../avatar/components/AvatarControllerComponent'
 import { CameraComponent } from '../../camera/components/CameraComponent'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { getComponent } from '../../ecs/functions/ComponentFunctions'
-import { compareDistance, DistanceFromCameraComponent } from '../../transform/components/DistanceComponents'
+import {
+  compareDistanceToCamera,
+  compareDistanceToLocalClient,
+  DistanceFromCameraComponent,
+  DistanceFromLocalClientComponent
+} from '../../transform/components/DistanceComponents'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { InteractState } from '../systems/InteractiveSystem'
 
@@ -45,7 +50,7 @@ const mat4 = new Matrix4()
 //   0.1, // near
 //   2 // far
 // )
-const frustum = new Frustum()
+// const frustum = new Frustum()
 
 /**
  * Checks if entity can interact with any of entities listed in 'interactive' array, checking distance, guards and raycast
@@ -60,11 +65,13 @@ export const gatherAvailableInteractables = (interactables: Entity[]) => {
 
   if (!controller || !transform) return
 
+  const maxDistance = getState(InteractState).maxDistance
+  const maxDistanceSquare = maxDistance * maxDistance
   const availableInteractable = getMutableState(InteractState).available
-  const camera = getComponent(controller.cameraEntity, CameraComponent)
+  // const camera = getComponent(controller.cameraEntity, CameraComponent)
 
-  mat4.multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse)
-  frustum.setFromProjectionMatrix(mat4)
+  // mat4.multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse)
+  // frustum.setFromProjectionMatrix(mat4)
 
   // const available = [] as Entity[]
   // for (const entityIn of interactables) {
@@ -72,5 +79,9 @@ export const gatherAvailableInteractables = (interactables: Entity[]) => {
   //   available.push(entityIn)
   // }
 
-  availableInteractable.set([...interactables].sort(compareDistance))
+  availableInteractable.set(
+    [...interactables]
+      .filter((entity) => DistanceFromLocalClientComponent.squaredDistance[entity] < maxDistanceSquare)
+      .sort(compareDistanceToLocalClient)
+  )
 }

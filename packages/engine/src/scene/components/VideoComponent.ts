@@ -169,7 +169,7 @@ function VideoReactor() {
       material.map.image = mediaElement.element.value as HTMLVideoElement
     } else {
       if (sourceMaterial.map) {
-        material.map = sourceMaterial.map
+        video.videoMesh.value.material = sourceMaterial
       } else {
         material.map = new VideoTexturePriorityQueue(mediaElement.element.value as HTMLVideoElement)
         VideoComponent.uniqueVideoEntities.push(mediaEntity)

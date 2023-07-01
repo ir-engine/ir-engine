@@ -53,10 +53,7 @@ import { MediaSystem } from '@etherealengine/engine/src/audio/systems/MediaSyste
 import { AudioEffectPlayer } from '@etherealengine/engine/src/audio/systems/MediaSystem'
 import { matches } from '@etherealengine/engine/src/common/functions/MatchesUtils'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import {
-  EngineActions
-  // EngineState
-} from '@etherealengine/engine/src/ecs/classes/EngineState'
+import { EngineActions } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { InputSystemGroup, PresentationSystemGroup } from '@etherealengine/engine/src/ecs/functions/EngineFunctions'
 import { startSystem, startSystems } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import { MotionCaptureSystem } from '@etherealengine/engine/src/mocap/MotionCaptureSystem'
@@ -71,6 +68,12 @@ import {
 import { loadEngineInjection } from '@etherealengine/projects/loadEngineInjection'
 
 import Component from './index'
+
+import 'tailwindcss/tailwind.css'
+import '@etherealengine/client/src/themes/base.css'
+import '@etherealengine/client/src/themes/components.css'
+import '@etherealengine/client/src/themes/utilities.css'
+import 'daisyui/dist/full.css'
 
 // import { useLocation } from 'react-router-dom'
 
@@ -197,7 +200,7 @@ const decorators = [
     // const engineState = useHookstate(getMutableState(EngineState))
 
     return (
-      <div className="w-full h-full container mx-auto pointer-events-auto">
+      <div className="w-full h-full container mx-auto">
         <Story />
         {projectComponents}
       </div>
