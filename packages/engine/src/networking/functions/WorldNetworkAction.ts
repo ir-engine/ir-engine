@@ -33,8 +33,7 @@ import {
   matchesQuaternion,
   matchesUserId,
   matchesVector3,
-  matchesWithDefault,
-  string
+  matchesWithDefault
 } from '../../common/functions/MatchesUtils'
 import { Engine } from '../../ecs/classes/Engine'
 import { NetworkTopics } from '../classes/Network'
@@ -93,17 +92,6 @@ export class WorldNetworkAction {
     equip: matches.boolean,
     attachmentPoint: matches.literals('left', 'right', 'none').optional(),
     $cache: true,
-    $topic: NetworkTopics.world
-  })
-
-  static teleportObject = defineAction({
-    type: 'xre.world.TELEPORT_OBJECT',
-    object: matches.shape({
-      ownerId: matchesUserId,
-      networkId: matchesNetworkId
-    }),
-    position: matchesVector3,
-    rotation: matchesQuaternion,
     $topic: NetworkTopics.world
   })
 
