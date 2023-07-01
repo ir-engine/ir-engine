@@ -26,6 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import assert, { strictEqual } from 'assert'
 import { Quaternion, Vector3 } from 'three'
 
+import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 
@@ -42,6 +43,7 @@ import {
 } from '../../physics/components/RigidBodyComponent'
 import { NameComponent } from '../../scene/components/NameComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
+import { AvatarNetworkAction } from '../AvatarSystemGroups'
 import { AvatarAnimationComponent } from '../components/AvatarAnimationComponent'
 import { AvatarComponent } from '../components/AvatarComponent'
 import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
@@ -63,14 +65,14 @@ describe('spawnAvatarReceptor', () => {
 
   it('check the create avatar function', () => {
     // mock entity to apply incoming unreliable updates to
-    const action = WorldNetworkAction.spawnAvatar({
+    const action = AvatarNetworkAction.spawn({
       $from: Engine.instance.userId,
       position: new Vector3(),
       rotation: new Quaternion(),
-      uuid: Engine.instance.userId
+      entityUUID: Engine.instance.userId as string as EntityUUID
     })
     WorldNetworkActionReceptor.receiveSpawnObject(action as any)
-    spawnAvatarReceptor(action)
+    spawnAvatarReceptor(Engine.instance.userId as string as EntityUUID)
 
     const entity = Engine.instance.getUserAvatarEntity(Engine.instance.userId)
 

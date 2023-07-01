@@ -88,10 +88,7 @@ const fetchMissingAvatar = async (user, avatarSpawnPose) => {
   if (avatar && avatar.modelResource?.url)
     spawnLocalAvatarInWorld({
       avatarSpawnPose,
-      avatarDetail: {
-        avatarURL: avatar.modelResource?.url || '',
-        thumbnailURL: avatar.thumbnailResource?.url || ''
-      },
+      avatarID: avatar.id,
       name: user.name.value
     })
   else
@@ -136,10 +133,7 @@ export const useLocationSpawnAvatar = (spectate = false) => {
     if (avatarDetails.modelResource?.url)
       spawnLocalAvatarInWorld({
         avatarSpawnPose,
-        avatarDetail: {
-          avatarURL: avatarDetails.modelResource?.url || '',
-          thumbnailURL: avatarDetails.thumbnailResource?.url || ''
-        },
+        avatarID: user.avatar.id.value,
         name: user.name.value
       })
     else fetchMissingAvatar(user, avatarSpawnPose)

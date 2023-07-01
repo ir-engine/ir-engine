@@ -22,7 +22,6 @@ Original Code is the Ethereal Engine team.
 All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
 Ethereal Engine. All Rights Reserved.
 */
-import { useEffect } from 'react'
 
 import { RecordingResult } from '@etherealengine/common/src/interfaces/Recording'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
@@ -31,7 +30,7 @@ import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFun
 import { mocapDataChannelType } from '@etherealengine/engine/src/mocap/MotionCaptureSystem'
 import { webcamVideoDataChannelType } from '@etherealengine/engine/src/networking/NetworkState'
 import { PhysicsSerialization } from '@etherealengine/engine/src/physics/PhysicsSerialization'
-import { defineActionQueue, defineState, getMutableState, getState, useMutableState } from '@etherealengine/hyperflux'
+import { defineState, getMutableState, getState, receiveActions } from '@etherealengine/hyperflux'
 
 import { NotificationService } from '../common/services/NotificationService'
 
@@ -50,20 +49,31 @@ export const RecordingState = defineState({
     playback: null as string | null
   },
 
-  //@ts-ignore
   receptors: [
     [
-      ECSRecordingActions.startRecording.matches,
+      ECSRecordingActions.startRecording,
+      (state, action) => {
+        state.started.set(true)
+      }
+    ],
+    [
+      ECSRecordingActions.recordingStarted,
       (state, action) => {
         state.started.set(true)
         state.recordingID.set(action.recordingID)
       }
     ],
     [
-      ECSRecordingActions.recordingStarted.matches,
+      ECSRecordingActions.stopRecording,
       (state, action) => {
         state.started.set(false)
         state.recordingID.set(null)
+      }
+    ],
+    [
+      ECSRecordingActions.playbackChanged,
+      (state, action) => {
+        state.playback.set(action.playing ? action.recordingID : null)
       }
     ]
   ]
@@ -113,49 +123,9 @@ export const RecordingFunctions = {
   }
 }
 
-const recordingActions = defineActionQueue(ECSRecordingActions)
-const recordingStartedQueue = defineActionQueue(ECSRecordingActions.recordingStarted.matches)
-const stopRecordingQueue = defineActionQueue(ECSRecordingActions.stopRecording.matches)
-const playbackChangedQueue = defineActionQueue(ECSRecordingActions.playbackChanged.matches)
-
-const execute = () => {
-  const recordingState = getMutableState(RecordingState)
-
-  for (const action of recordingStartedQueue()) {
-    recordingState.started.set(true)
-    recordingState.recordingID.set(action.recordingID)
-  }
-
-  for (const action of startRecordingQueue()) {
-    recordingState.started.set(true)
-  }
-
-  for (const action of stopRecordingQueue()) {
-    recordingState.started.set(false)
-    recordingState.recordingID.set(null)
-  }
-
-  for (const action of playbackChangedQueue()) {
-    recordingState.playback.set(action.playing ? action.recordingID : null)
-  }
-}
-
 export const RecordingServiceSystem = defineSystem({
   uuid: 'ee.client.RecordingServiceSystem',
-  execute,
-  reactor: () => {
-    const recordingState = useMutableState(RecordingState, 'started')
-    const recordingActions = useActionQueue([
-      ECSRecordingActions.startRecording.matches,
-      ECSRecordingActions.stopRecording.matches
-    ])
-
-    useEffect(() => {
-      for (const action of recordingActions) {
-        recordingState.set(action.type === ECSRecordingActions.startRecording.type ? true : false)
-      }
-    }, [recordingActions])
-
-    return null
+  execute: () => {
+    receiveActions(RecordingState)
   }
 })

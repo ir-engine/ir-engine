@@ -23,8 +23,10 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { AvatarSimulationGroup } from '@etherealengine/engine/src/avatar/AvatarClientSystems'
-import { AvatarSpawnSystem } from '@etherealengine/engine/src/avatar/AvatarSpawnSystem'
+import {
+  AvatarAnimationSystemGroup,
+  AvatarSimulationSystemGroup
+} from '@etherealengine/engine/src/avatar/AvatarSystemGroups'
 import { ECSSerializerSystem } from '@etherealengine/engine/src/ecs/ECSSerializerSystem'
 import {
   AnimationSystemGroup,
@@ -60,19 +62,25 @@ export const startWorldServerSystems = () => {
   startSystems([MotionCaptureSystem], { with: InputSystemGroup })
 
   /** Fixed */
-  startSystems([IncomingNetworkSystem, WorldNetworkActionSystem], {
-    before: SimulationSystemGroup
-  })
-
   startSystems(
-    [ServerHostNetworkSystem, EquippableSystem, AvatarSimulationGroup, PhysicsSystem, OutgoingNetworkSystem],
+    [
+      IncomingNetworkSystem,
+      WorldNetworkActionSystem,
+      ServerHostNetworkSystem,
+      EquippableSystem,
+      AvatarSimulationSystemGroup
+    ],
     {
-      after: SimulationSystemGroup
+      with: SimulationSystemGroup
     }
   )
 
+  startSystems([PhysicsSystem, OutgoingNetworkSystem], {
+    after: SimulationSystemGroup
+  })
+
   /** Avatar / Pre Transform */
-  startSystems([AvatarSpawnSystem], { with: AnimationSystemGroup })
+  startSystems([AvatarAnimationSystemGroup], { with: AnimationSystemGroup })
 
   /** Post Transform / Pre Render */
   startSystems([InteractiveSystem, SceneSystemUpdateGroup], {

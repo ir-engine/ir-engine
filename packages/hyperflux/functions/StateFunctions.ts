@@ -131,7 +131,7 @@ export function useMutableState<S, P extends string>(
   StateDefinition: StateDefinition<S>,
   path?: Function.AutoPath<State<S>, P>
 ): Object.Path<State<S>, String.Split<P, '.'>> {
-  const rootState = getMutableState(StateDefinition, HyperFlux.store)
+  const rootState = getMutableState(StateDefinition)
   const resolvedState = path ? resolveObject(rootState, path as any) : rootState
   return useHookstate(resolvedState) as any
 }

@@ -33,6 +33,7 @@ import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 import * as ActionFunctions from '@etherealengine/hyperflux/functions/ActionFunctions'
 
 import { createMockNetwork } from '../../../tests/util/createMockNetwork'
+import { AvatarNetworkAction } from '../../avatar/AvatarSystemGroups'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { spawnAvatarReceptor } from '../../avatar/functions/spawnAvatarReceptor'
 import { destroyEngine, Engine } from '../../ecs/classes/Engine'
@@ -201,13 +202,13 @@ describe('WorldNetworkActionReceptors', () => {
 
       NetworkPeerFunctions.createPeer(network, peerID, 1, userId, 1, 'user name')
 
-      const action = WorldNetworkAction.spawnAvatar({
+      const action = AvatarNetworkAction.spawn({
         networkId: 42 as NetworkId,
         $peer: peerID,
-        uuid: userId
+        entityUUID: Engine.instance.userId as string as EntityUUID
       })
       WorldNetworkActionReceptor.receiveSpawnObject(action as any)
-      spawnAvatarReceptor(action)
+      spawnAvatarReceptor(Engine.instance.userId as string as EntityUUID)
 
       const entity = Engine.instance.getOwnedNetworkObjectWithComponent(userId, AvatarComponent)
 

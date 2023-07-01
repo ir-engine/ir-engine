@@ -25,7 +25,6 @@ Ethereal Engine. All Rights Reserved.
 
 import { defineAction } from '@etherealengine/hyperflux'
 
-import { matchesAvatarState, matchesWeightsParameters } from '../../avatar/animation/Util'
 import {
   matches,
   matchesEntityUUID,
@@ -39,7 +38,6 @@ import {
 } from '../../common/functions/MatchesUtils'
 import { Engine } from '../../ecs/classes/Engine'
 import { NetworkTopics } from '../classes/Network'
-import { matchesAvatarProps } from '../interfaces/WorldState'
 
 export class WorldNetworkAction {
   static spawnDebugPhysicsObject = defineAction({
@@ -67,13 +65,6 @@ export class WorldNetworkAction {
     $topic: NetworkTopics.world
   })
 
-  static spawnAvatar = defineAction({
-    ...WorldNetworkAction.spawnObject.actionShape,
-    prefab: 'avatar',
-    uuid: matchesUserId,
-    $topic: NetworkTopics.world
-  })
-
   static spawnCamera = defineAction({
     ...WorldNetworkAction.spawnObject.actionShape,
     prefab: 'camera',
@@ -82,7 +73,7 @@ export class WorldNetworkAction {
 
   static destroyObject = defineAction({
     type: 'xre.world.DESTROY_OBJECT',
-    networkId: matchesNetworkId,
+    entityUUID: matchesEntityUUID,
     $topic: NetworkTopics.world
   })
 
@@ -102,16 +93,6 @@ export class WorldNetworkAction {
     equip: matches.boolean,
     attachmentPoint: matches.literals('left', 'right', 'none').optional(),
     $cache: true,
-    $topic: NetworkTopics.world
-  })
-
-  static avatarDetails = defineAction({
-    type: 'xre.world.AVATAR_DETAILS',
-    avatarDetail: matchesAvatarProps,
-    uuid: matchesUserId,
-    $cache: {
-      removePrevious: true
-    },
     $topic: NetworkTopics.world
   })
 

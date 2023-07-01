@@ -47,7 +47,7 @@ import { Close as CloseIcon, Message as MessageIcon } from '@mui/icons-material'
 import Fab from '@mui/material/Fab'
 
 import { AppAction } from '../../common/services/AppService'
-import { getAvatarURLForUser } from '../../user/components/UserMenu/util'
+import { getUserAvatarThumbnail } from '../../user/functions/useUserAvatarThumbnail'
 import { useShelfStyles } from '../Shelves/useShelfStyles'
 import defaultStyles from './index.module.scss'
 import styles from './index.module.scss'
@@ -347,24 +347,15 @@ export const InstanceChat = ({
                             <p className={styles.text}>{message.text}</p>
                           </div>
                           {index !== 0 && messages[index - 1] && messages[index - 1].isNotification ? (
-                            <Avatar
-                              src={getAvatarURLForUser(userAvatarDetails, message.senderId)}
-                              className={styles.avatar}
-                            />
+                            <Avatar src={getUserAvatarThumbnail(message.senderId)} className={styles.avatar} />
                           ) : (
                             messages[index - 1] &&
                             message.senderId !== messages[index - 1].senderId && (
-                              <Avatar
-                                src={getAvatarURLForUser(userAvatarDetails, message.senderId)}
-                                className={styles.avatar}
-                              />
+                              <Avatar src={getUserAvatarThumbnail(message.senderId)} className={styles.avatar} />
                             )
                           )}
                           {index === 0 && (
-                            <Avatar
-                              src={getAvatarURLForUser(userAvatarDetails, message.senderId)}
-                              className={styles.avatar}
-                            />
+                            <Avatar src={getUserAvatarThumbnail(message.senderId)} className={styles.avatar} />
                           )}
                         </div>
                       </div>

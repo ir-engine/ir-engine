@@ -39,7 +39,6 @@ import {
   toggleScreenshareVideoPaused,
   toggleWebcamPaused
 } from '@etherealengine/client-core/src/transports/SocketWebRTCClientFunctions'
-import { getAvatarURLForUser } from '@etherealengine/client-core/src/user/components/UserMenu/util'
 import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { UserId } from '@etherealengine/common/src/interfaces/UserId'
@@ -58,6 +57,8 @@ import Tooltip from '@etherealengine/ui/src/primitives/mui/Tooltip'
 import { MediaStreamState } from '../../transports/MediaStreams'
 import { PeerMediaChannelState, PeerMediaStreamInterface } from '../../transports/PeerMediaChannelState'
 import { ConsumerExtension, SocketWebRTCClientNetwork } from '../../transports/SocketWebRTCClientFunctions'
+import { useUserAvatarThumbnail } from '../../user/functions/useUserAvatarThumbnail'
+import { AvatarState } from '../../user/services/AvatarService'
 import Draggable from './Draggable'
 import styles from './index.module.scss'
 
@@ -115,10 +116,7 @@ export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
     peerID === 'self'
   const volume = isSelf ? audioState.microphoneGain.value : _volume.value
   const isScreen = type === 'screen'
-  const userId =
-    mediaNetwork && mediaNetwork.peers && mediaNetwork.peers.get(peerID)
-      ? mediaNetwork.peers.get(peerID!)?.userId
-      : undefined
+  const userId = isSelf ? selfUser?.id : mediaNetwork?.peers?.get(peerID!)?.userId
 
   const mediaStreamState = useHookstate(getMutableState(MediaStreamState))
   const mediaSettingState = useHookstate(getMutableState(MediaSettingsState))
@@ -323,7 +321,7 @@ export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
 
   const username = getUsername()
 
-  const userAvatarDetails = useHookstate(getMutableState(WorldState).userAvatarDetails)
+  const avatarThumbnail = useUserAvatarThumbnail(userId)
 
   const handleVisibilityChange = () => {
     if (document.hidden) {
@@ -365,7 +363,6 @@ export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
   }, [])
 
   return {
-    userId,
     isPiP: isPiP.value,
     volume,
     isScreen,
@@ -375,7 +372,7 @@ export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
     videoStream,
     audioStream,
     enableGlobalMute,
-    userAvatarDetails,
+    avatarThumbnail,
     videoStreamPaused,
     audioStreamPaused,
     videoProducerPaused,
@@ -395,7 +392,6 @@ export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
 
 export const UserMediaWindow = ({ peerID, type }: Props): JSX.Element => {
   const {
-    userId,
     isPiP,
     volume,
     isScreen,
@@ -405,7 +401,7 @@ export const UserMediaWindow = ({ peerID, type }: Props): JSX.Element => {
     videoStream,
     audioStream,
     enableGlobalMute,
-    userAvatarDetails,
+    avatarThumbnail,
     videoStreamPaused,
     audioStreamPaused,
     videoProducerPaused,
@@ -468,14 +464,7 @@ export const UserMediaWindow = ({ peerID, type }: Props): JSX.Element => {
             videoStreamPaused ||
             videoProducerPaused ||
             videoProducerGlobalMute ||
-            !videoDisplayReady) && (
-            <img
-              src={getAvatarURLForUser(userAvatarDetails, isSelf ? selfUser?.id : userId)}
-              alt=""
-              crossOrigin="anonymous"
-              draggable={false}
-            />
-          )}
+            !videoDisplayReady) && <img src={avatarThumbnail} alt="" crossOrigin="anonymous" draggable={false} />}
           <span key={peerID + '-' + type + '-video-container'} id={peerID + '-' + type + '-video-container'} />
         </div>
         <span key={peerID + '-' + type + '-audio-container'} id={peerID + '-' + type + '-audio-container'} />
@@ -585,7 +574,6 @@ export const UserMediaWindow = ({ peerID, type }: Props): JSX.Element => {
 
 export const UserMediaWindowWidget = ({ peerID, type }: Props): JSX.Element => {
   const {
-    userId,
     volume,
     isScreen,
     username,
@@ -594,7 +582,7 @@ export const UserMediaWindowWidget = ({ peerID, type }: Props): JSX.Element => {
     videoStream,
     audioStream,
     enableGlobalMute,
-    userAvatarDetails,
+    avatarThumbnail,
     videoStreamPaused,
     audioStreamPaused,
     videoProducerPaused,
@@ -644,13 +632,7 @@ export const UserMediaWindowWidget = ({ peerID, type }: Props): JSX.Element => {
       xr-layer="true"
     >
       {videoStream == null || videoStreamPaused || videoProducerPaused || videoProducerGlobalMute ? (
-        <img
-          src={getAvatarURLForUser(userAvatarDetails, isSelf ? selfUser?.id : userId)}
-          alt=""
-          crossOrigin="anonymous"
-          draggable={false}
-          xr-layer="true"
-        />
+        <img src={avatarThumbnail} alt="" crossOrigin="anonymous" draggable={false} xr-layer="true" />
       ) : (
         <video
           xr-layer="true"

@@ -21,6 +21,7 @@
     "ts-toolbelt": "^9.6.0"
   },
   "devDependencies": {
+    "@types/node": "18.15.5",
     "@types/mocha": "10.0.1",
     "rimraf": "4.4.0"
   },
