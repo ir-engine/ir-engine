@@ -50,6 +50,8 @@ import { WorldNetworkAction } from './WorldNetworkAction'
 const receiveSpawnObject = (action: typeof WorldNetworkAction.spawnObject.matches._TYPE) => {
   if (UUIDComponent.entitiesByUUID[action.entityUUID]) return
 
+  console.log('Received spawn object', action)
+
   const entity = createEntity()
   setComponent(entity, UUIDComponent, action.entityUUID)
 

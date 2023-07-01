@@ -31,7 +31,7 @@ import { dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 import { Action, ResolvedActionType } from '@etherealengine/hyperflux/functions/ActionFunctions'
 import { getState, none } from '@etherealengine/hyperflux/functions/StateFunctions'
 
-import { AvatarNetworkAction } from '../../avatar/AvatarSystemGroups'
+import { AvatarNetworkAction } from '../../avatar/state/AvatarNetworkState'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineActions } from '../../ecs/classes/EngineState'
 import { getComponent } from '../../ecs/functions/ComponentFunctions'

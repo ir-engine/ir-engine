@@ -32,7 +32,7 @@ import { getSearchParamFromURL } from '@etherealengine/common/src/utils/getSearc
 import { dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 import { Action } from '@etherealengine/hyperflux/functions/ActionFunctions'
 
-import { AvatarNetworkAction } from '../../avatar/AvatarSystemGroups'
+import { AvatarNetworkAction } from '../../avatar/state/AvatarNetworkState'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineActions } from '../../ecs/classes/EngineState'
 import { NetworkTopics } from '../classes/Network'

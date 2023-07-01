@@ -29,8 +29,8 @@ import { useEffect } from 'react'
 
 import { isDev } from '@etherealengine/common/src/config'
 import { createWorkerFromCrossOriginURL } from '@etherealengine/common/src/utils/createWorkerFromCrossOriginURL'
-import { AvatarNetworkAction } from '@etherealengine/engine/src/avatar/AvatarSystemGroups'
 import { AvatarRigComponent } from '@etherealengine/engine/src/avatar/components/AvatarAnimationComponent'
+import { AvatarNetworkAction } from '@etherealengine/engine/src/avatar/state/AvatarNetworkState'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
 import {

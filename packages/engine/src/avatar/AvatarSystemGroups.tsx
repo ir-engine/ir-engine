@@ -23,26 +23,13 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React, { useEffect } from 'react'
+import React from 'react'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
-import { UserId } from '@etherealengine/common/src/interfaces/UserId'
-import { getMutableState, none, receiveActions, useHookstate, useState } from '@etherealengine/hyperflux'
-import { defineAction, defineState } from '@etherealengine/hyperflux'
+import { getMutableState, receiveActions, useState } from '@etherealengine/hyperflux'
 
-import { matches, matchesEntityUUID } from '../common/functions/MatchesUtils'
-import { Engine } from '../ecs/classes/Engine'
-import { getComponent } from '../ecs/functions/ComponentFunctions'
 import { defineSystem } from '../ecs/functions/SystemFunctions'
-import { NetworkTopics } from '../networking/classes/Network'
-import { NetworkObjectComponent } from '../networking/components/NetworkObjectComponent'
-import { WorldNetworkAction } from '../networking/functions/WorldNetworkAction'
-import { WorldState } from '../networking/interfaces/WorldState'
-import { UUIDComponent } from '../scene/components/UUIDComponent'
-import { changeAvatarAnimationState } from './animation/AvatarAnimationGraph'
-import { AvatarStates, matchesAvatarState } from './animation/Util'
-import { loadAvatarForUser } from './functions/avatarFunctions'
-import { spawnAvatarReceptor } from './functions/spawnAvatarReceptor'
+import { AvatarState, AvatarStateReactor } from './state/AvatarNetworkState'
 import { AvatarAnimationSystem } from './systems/AvatarAnimationSystem'
 import { AvatarAutopilotSystem } from './systems/AvatarAutopilotSystem'
 import { AvatarControllerSystem } from './systems/AvatarControllerSystem'
@@ -52,122 +39,13 @@ import { AvatarMovementSystem } from './systems/AvatarMovementSystem'
 import { AvatarTeleportSystem } from './systems/AvatarTeleportSystem'
 import { FlyControlSystem } from './systems/FlyControlSystem'
 
-export class AvatarNetworkAction {
-  static spawn = defineAction({
-    ...WorldNetworkAction.spawnObject.actionShape,
-    prefab: 'avatar'
-  })
-
-  static setAnimationState = defineAction({
-    type: 'EE.Avatar.SET_ANIMATION_STATE',
-    entityUUID: matchesEntityUUID,
-    animationState: matchesAvatarState,
-    $cache: {
-      removePrevious: true
-    },
-    $topic: NetworkTopics.world
-  })
-
-  static setAvatarID = defineAction({
-    type: 'EE.Avatar.SET_RESOURCE',
-    entityUUID: matchesEntityUUID,
-    avatarID: matches.string,
-    $cache: {
-      removePrevious: true
-    },
-    $topic: NetworkTopics.world
-  })
-}
-
-export const AvatarState = defineState({
-  name: 'EE.AvatarState',
-
-  initial: {} as Record<
-    EntityUUID,
-    {
-      animationState: keyof typeof AvatarStates
-      avatarID?: string
-    }
-  >,
-
-  receptors: [
-    [
-      AvatarNetworkAction.spawn,
-      (state, action: typeof AvatarNetworkAction.spawn.matches._TYPE) => {
-        state[action.entityUUID].merge({ animationState: AvatarStates.LOCOMOTION })
-      }
-    ],
-
-    [
-      AvatarNetworkAction.setAnimationState,
-      (state, action: typeof AvatarNetworkAction.setAnimationState.matches._TYPE) => {
-        state[action.entityUUID].merge({ animationState: action.animationState })
-      }
-    ],
-
-    [
-      AvatarNetworkAction.setAvatarID,
-      (state, action: typeof AvatarNetworkAction.setAvatarID.matches._TYPE) => {
-        state[action.entityUUID].merge({ avatarID: action.avatarID })
-      }
-    ],
-
-    [
-      WorldNetworkAction.destroyObject,
-      (state, action: typeof WorldNetworkAction.destroyObject.matches._TYPE) => {
-        state[action.entityUUID].set(none)
-      }
-    ]
-  ]
-})
-
-const AvatarReactor = React.memo(({ entityUUID }: { entityUUID: EntityUUID }) => {
-  const state = useHookstate(getMutableState(AvatarState)[entityUUID])
-
-  useEffect(() => {
-    spawnAvatarReceptor(entityUUID)
-  }, [])
-
-  useEffect(() => {
-    const avatarEntity = UUIDComponent.entitiesByUUID[entityUUID]
-
-    const networkObject = getComponent(avatarEntity, NetworkObjectComponent)
-    if (!networkObject) {
-      return console.warn(`Avatar Entity for user id ${entityUUID} does not exist! You should probably reconnect...`)
-    }
-
-    changeAvatarAnimationState(avatarEntity, state.animationState.value)
-  }, [state.animationState, entityUUID])
-
-  useEffect(() => {
-    if (!state.avatarID.value) return
-
-    Engine.instance.api
-      .service('avatar')
-      .get(state.avatarID.value)
-      .then((avatarDetails) => {
-        if (!avatarDetails.modelResource?.url) return
-
-        if (avatarDetails.id !== state.avatarID.value) return
-
-        // backwards compat
-        getMutableState(WorldState).userAvatarDetails[entityUUID] = avatarDetails
-
-        const entity = UUIDComponent.entitiesByUUID[entityUUID]
-        loadAvatarForUser(entity, avatarDetails.modelResource?.url)
-      })
-  }, [state.avatarID, entityUUID])
-
-  return null
-})
-
 export const AvatarInputSystemGroup = defineSystem({
-  uuid: 'ee.engine.avatar-input-group',
+  uuid: 'ee.engine.avatar.AvatarInputSystemGroup',
   subSystems: [AvatarInputSystem, AvatarControllerSystem, AvatarTeleportSystem, FlyControlSystem, AvatarLoadingSystem]
 })
 
 export const AvatarSimulationSystemGroup = defineSystem({
-  uuid: 'EE.Avatar.SimulationSystemGroup',
+  uuid: 'ee.engine.avatar.AvatarSimulationSystemGroup',
 
   subSystems: [AvatarMovementSystem, AvatarAutopilotSystem],
 
@@ -175,19 +53,12 @@ export const AvatarSimulationSystemGroup = defineSystem({
     receiveActions(AvatarState)
   },
 
-  reactor: (props) => {
-    const avatarState = useState(AvatarState)
-    return (
-      <>
-        {avatarState.keys.map((entityUUID: EntityUUID) => {
-          return <AvatarReactor key={entityUUID} entityUUID={entityUUID} />
-        })}
-      </>
-    )
+  reactor: () => {
+    return <AvatarStateReactor />
   }
 })
 
 export const AvatarAnimationSystemGroup = defineSystem({
-  uuid: 'EE.Avatar.AnimationSystemGroup',
+  uuid: 'ee.engine.avatar.AvatarAnimationSystemGroup',
   subSystems: [AvatarAnimationSystem]
 })

@@ -32,7 +32,7 @@ import { RecordingResult } from '@etherealengine/common/src/interfaces/Recording
 import { StaticResourceInterface } from '@etherealengine/common/src/interfaces/StaticResourceInterface'
 import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 import multiLogger from '@etherealengine/common/src/logger'
-import { AvatarNetworkAction } from '@etherealengine/engine/src/avatar/AvatarSystemGroups'
+import { AvatarNetworkAction } from '@etherealengine/engine/src/avatar/state/AvatarNetworkState'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { ECSRecordingActions } from '@etherealengine/engine/src/ecs/ECSRecording'

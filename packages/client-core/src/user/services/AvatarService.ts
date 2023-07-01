@@ -32,7 +32,7 @@ import { AvatarInterface } from '@etherealengine/common/src/interfaces/AvatarInt
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { StaticResourceInterface } from '@etherealengine/common/src/interfaces/StaticResourceInterface'
 import { UserId } from '@etherealengine/common/src/interfaces/UserId'
-import { AvatarNetworkAction } from '@etherealengine/engine/src/avatar/AvatarSystemGroups'
+import { AvatarNetworkAction } from '@etherealengine/engine/src/avatar/state/AvatarNetworkState'
 import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { WorldNetworkAction } from '@etherealengine/engine/src/networking/functions/WorldNetworkAction'

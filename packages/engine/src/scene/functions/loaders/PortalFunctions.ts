@@ -26,11 +26,11 @@ Ethereal Engine. All Rights Reserved.
 import { dispatchAction, getState } from '@etherealengine/hyperflux'
 
 import { AvatarStates } from '../../../avatar/animation/Util'
-import { AvatarNetworkAction } from '../../../avatar/AvatarSystemGroups'
 import { AvatarControllerComponent } from '../../../avatar/components/AvatarControllerComponent'
 import { SpawnPoseComponent } from '../../../avatar/components/SpawnPoseComponent'
 import { teleportAvatar } from '../../../avatar/functions/moveAvatar'
 import { switchCameraMode } from '../../../avatar/functions/switchCameraMode'
+import { AvatarNetworkAction } from '../../../avatar/state/AvatarNetworkState'
 import { CameraMode } from '../../../camera/types/CameraMode'
 import { Engine } from '../../../ecs/classes/Engine'
 import { EngineActions, EngineState } from '../../../ecs/classes/EngineState'

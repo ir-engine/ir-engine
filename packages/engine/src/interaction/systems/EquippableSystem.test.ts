@@ -30,9 +30,9 @@ import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { NetworkId } from '@etherealengine/common/src/interfaces/NetworkId'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 
-import { AvatarNetworkAction } from '../../avatar/AvatarSystemGroups'
 import { getHandTarget } from '../../avatar/components/AvatarIKComponents'
 import { spawnAvatarReceptor } from '../../avatar/functions/spawnAvatarReceptor'
+import { AvatarNetworkAction } from '../../avatar/state/AvatarNetworkState'
 import { destroyEngine, Engine } from '../../ecs/classes/Engine'
 import {
   addComponent,

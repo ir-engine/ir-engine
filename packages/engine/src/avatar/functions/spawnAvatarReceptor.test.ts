@@ -43,11 +43,11 @@ import {
 } from '../../physics/components/RigidBodyComponent'
 import { NameComponent } from '../../scene/components/NameComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
-import { AvatarNetworkAction } from '../AvatarSystemGroups'
 import { AvatarAnimationComponent } from '../components/AvatarAnimationComponent'
 import { AvatarComponent } from '../components/AvatarComponent'
 import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
 import { SpawnPoseComponent } from '../components/SpawnPoseComponent'
+import { AvatarNetworkAction } from '../state/AvatarNetworkState'
 import { spawnAvatarReceptor } from './spawnAvatarReceptor'
 
 describe('spawnAvatarReceptor', () => {

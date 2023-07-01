@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { MathUtils } from 'three'
-import { matches, Validator } from 'ts-matches'
+import { matches, Parser, Validator } from 'ts-matches'
 
 import { OpaqueType } from '@etherealengine/common/src/interfaces/OpaqueType'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
@@ -486,7 +486,7 @@ const clearOutgoingActions = (topic: string) => {
 
 function defineActionQueue<V extends Validator<unknown, ResolvedActionType>>(shape: V[] | V) {
   const shapes = Array.isArray(shape) ? shape : [shape]
-  const shapeHash = shapes.map((s) => s.description).join('|')
+  const shapeHash = shapes.map(Parser.parserAsString).join('|')
 
   const actionQueueDefinition = (): V['_TYPE'][] => {
     if (!HyperFlux.store.actions.queueDefinitions.has(shapeHash))

@@ -39,8 +39,8 @@ import { WorldNetworkAction } from '../../networking/functions/WorldNetworkActio
 import { WorldNetworkActionReceptor } from '../../networking/functions/WorldNetworkActionReceptor'
 import { Physics } from '../../physics/classes/Physics'
 import { RigidBodyComponent, RigidBodyFixedTagComponent } from '../../physics/components/RigidBodyComponent'
-import { AvatarNetworkAction } from '../AvatarSystemGroups'
 import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
+import { AvatarNetworkAction } from '../state/AvatarNetworkState'
 import { applyGamepadInput } from './moveAvatar'
 import { spawnAvatarReceptor } from './spawnAvatarReceptor'
 
