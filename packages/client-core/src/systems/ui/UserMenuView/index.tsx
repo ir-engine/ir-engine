@@ -32,7 +32,6 @@ import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { removeComponent, setComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { WorldState } from '@etherealengine/engine/src/networking/interfaces/WorldState'
 import { VisibleComponent } from '@etherealengine/engine/src/scene/components/VisibleComponent'
-import { XRUIInteractableComponent } from '@etherealengine/engine/src/xrui/components/XRUIComponent'
 import { createXRUI, XRUI } from '@etherealengine/engine/src/xrui/functions/createXRUI'
 import { useXRUIState } from '@etherealengine/engine/src/xrui/functions/useXRUIState'
 import { defineState, dispatchAction, getMutableState, useHookstate } from '@etherealengine/hyperflux'
@@ -52,7 +51,6 @@ export const AvatarUIContextMenuState = defineState({
   initial: () => {
     const ui = createXRUI(AvatarContextMenu) as XRUI<null>
     removeComponent(ui.entity, VisibleComponent)
-    setComponent(ui.entity, XRUIInteractableComponent)
     return {
       ui,
       id: null! as string | UserId

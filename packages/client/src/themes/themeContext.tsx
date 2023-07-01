@@ -23,13 +23,22 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React, { createContext, useEffect, useLayoutEffect, useMemo, useState } from 'react'
+import { useHookstate } from '@hookstate/core'
+import React, { createContext, useEffect, useMemo } from 'react'
 
-import 'tailwindcss/tailwind.css'
-import './base.css'
-import './components.css'
-import './utilities.css'
-import 'daisyui/dist/full.css'
+import {
+  AdminClientSettingsState,
+  ClientSettingService
+} from '@etherealengine/client-core/src/admin/services/Setting/ClientSettingService'
+import {
+  AppThemeServiceReceptor,
+  AppThemeState,
+  getAppTheme,
+  useAppThemeName
+} from '@etherealengine/client-core/src/common/services/AppThemeState'
+import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
+import { ClientThemeOptionsType } from '@etherealengine/engine/src/schemas/setting/client-setting.schema'
+import { addActionReceptor, getMutableState, NO_PROXY, removeActionReceptor } from '@etherealengine/hyperflux'
 
 export interface ThemeContextProps {
   theme: string
@@ -41,45 +50,63 @@ export const ThemeContext = createContext<ThemeContextProps>({
   setTheme: () => {}
 })
 
-/**
- * Theme Context Provider.
- *
- * @param value string
- * @param children ReactNode
- * @returns ReactNode
- */
-export const ThemeContextProvider = ({ value = 'dark', children }: { value?: string; children: React.ReactNode }) => {
-  const [theme, setTheme] = useState(value)
-  const useCustomEffect = typeof window !== 'undefined' ? useLayoutEffect : useEffect
-  useCustomEffect(() => {
-    const storeTheme = localStorage.getItem('theme')
-    applyTheme(storeTheme || 'dark')
+export const ThemeContextProvider = ({ children }: { children: React.ReactNode }) => {
+  const authState = useHookstate(getMutableState(AuthState))
+  const selfUser = authState.user
+
+  const clientSettingState = useHookstate(getMutableState(AdminClientSettingsState))
+
+  const appTheme = useHookstate(getMutableState(AppThemeState))
+  const [clientSetting] = clientSettingState?.client?.get(NO_PROXY) || []
+  const clientThemeSettings = useHookstate({} as Record<string, ClientThemeOptionsType>)
+
+  const currentThemeName = useAppThemeName()
+
+  useEffect(() => {
+    addActionReceptor(AppThemeServiceReceptor)
+    return () => {
+      removeActionReceptor(AppThemeServiceReceptor)
+    }
   }, [])
 
-  /**
-   * Apply theme to 'html' tag on DOM.
-   */
-  const applyTheme = (theme = 'default') => {
-    const newTheme = theme
-    const html = document.getElementsByTagName('html')[0]
-    localStorage.setItem('theme', theme)
-    ;(html as HTMLHtmlElement).setAttribute('data-theme', newTheme)
+  useEffect(() => {
+    const html = document.querySelector('html')
+    if (html) {
+      html.dataset.theme = currentThemeName
+      updateTheme()
+    }
+  }, [selfUser?.user_setting?.value])
+
+  useEffect(() => {
+    if (clientSetting) {
+      clientThemeSettings.set(clientSetting?.themeSettings)
+    }
+    if (clientSettingState?.updateNeeded?.value) ClientSettingService.fetchClientSettings()
+  }, [clientSettingState?.updateNeeded?.value])
+
+  useEffect(() => {
+    updateTheme()
+  }, [clientThemeSettings, appTheme.customTheme, appTheme.customThemeName])
+
+  const updateTheme = () => {
+    const theme = getAppTheme()
+    if (theme)
+      for (const variable of Object.keys(theme)) {
+        ;(document.querySelector(`[data-theme=${currentThemeName}]`) as any)?.style.setProperty(
+          '--' + variable,
+          theme[variable]
+        )
+      }
   }
 
-  const handleThemeChange = (theme: string) => {
-    setTheme(theme)
-    applyTheme(theme)
-  }
-
-  /**
-   * Current context value for theme.
-   */
   const val = useMemo(
     () => ({
-      theme,
-      setTheme: handleThemeChange
+      theme: currentThemeName,
+      setTheme: (theme: string) => {
+        // todo - set theme
+      }
     }),
-    [theme]
+    [currentThemeName]
   )
 
   return <ThemeContext.Provider value={val}>{children}</ThemeContext.Provider>

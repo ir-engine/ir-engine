@@ -1,4 +1,3 @@
-
 /*
 CPAL-1.0 License
 
@@ -24,33 +23,23 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { t } from 'i18next'
+import React, { lazy, Suspense } from 'react'
+import { Navigate, Route, Routes } from 'react-router-dom'
 
-/** @type {import('tailwindcss').Config} */
+import LoadingCircle from '@etherealengine/ui/src/primitives/tailwind/LoadingCircle'
 
-module.exports = {
-  mode: 'jit',
-  content: [
-    './src/**/*.{js,jsx,ts,tsx}',
-    '../ui/src/**/*.{js,jsx,ts,tsx}',
-    './public/index.html'
-  ],
-  darkMode: "class",
-  important: true, // important in prod is must be
-  theme: ["dark"],
-  daisyui: {
-    themes: ['default', 'dark', 'luxury', 'cupcake'],
-    // daisyUI config (optional)
-    styled: true,
-    base: true,
-    utils: true,
-    logs: false,
-    rtl: false,
-    prefix: "",
-    darkTheme: "dark",
-  },
-  plugins: [
-    require("@tailwindcss/typography"),
-    require("daisyui"),
-    require('@tailwindcss/aspect-ratio'),
-  ],
+import Capture from './capture'
+
+const LocationRoutes = () => {
+  return (
+    <Suspense fallback={<LoadingCircle message={t('common:loader.loadingLocation')} />}>
+      <Routes>
+        <Route path=":locationName" element={<Capture />} />
+        <Route path="/" element={<Navigate to="/capture/default" />} />
+      </Routes>
+    </Suspense>
+  )
 }
+
+export default LocationRoutes
