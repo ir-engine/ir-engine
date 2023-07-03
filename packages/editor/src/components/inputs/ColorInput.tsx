@@ -123,7 +123,7 @@ export function ColorInput({ value, onChange, onSelect, disabled, ...rest }: Col
     if (color !== value) {
       setColor(value)
       if (onSelect) {
-        onSelect(new Color(value))
+        onSelect(value)
       }
     }
   }, [value])
