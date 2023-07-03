@@ -127,10 +127,10 @@ export function ColorInput({ value, onChange, onSelect, disabled, ...rest }: Col
   }, [value])
 
   const handleChange = ({ hex }) => {
-    const rgbaColor = new Color(hex)
-    setColor(rgbaColor)
-    onChange(rgbaColor)
-    return rgbaColor
+    const color = new Color(hex)
+    setColor(color)
+    onChange(color)
+    return color
   }
 
   const open = Boolean(anchorEl)
