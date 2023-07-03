@@ -28,8 +28,10 @@ import { Vector2 } from 'three'
 
 import { getState } from '@etherealengine/hyperflux'
 
+import { getThumbstickOrThumbpadAxes } from '../../avatar/AvatarInputSystem'
 import { AvatarControllerComponent } from '../../avatar/components/AvatarControllerComponent'
 import { switchCameraMode } from '../../avatar/functions/switchCameraMode'
+import { AvatarInputSettingsState } from '../../avatar/state/AvatarInputSettingsState'
 import { throttle } from '../../common/functions/FunctionHelpers'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
@@ -41,7 +43,7 @@ import {
   setComponent
 } from '../../ecs/functions/ComponentFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
-import { getFirstNonCapturedInputSource, InputSourceComponent } from '../../input/components/InputSourceComponent'
+import { InputSourceComponent } from '../../input/components/InputSourceComponent'
 import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
 import { CameraSettings } from '../CameraState'
 import { FollowCameraComponent } from '../components/FollowCameraComponent'
@@ -185,8 +187,10 @@ const execute = () => {
 
   const avatarControllerEntities = avatarControllerQuery()
 
-  const nonCapturedInputSource = getFirstNonCapturedInputSource()
+  const nonCapturedInputSource = InputSourceComponent.nonCapturedInputSourceQuery()[0]
   if (!nonCapturedInputSource) return
+
+  const avatarInputSettings = getState(AvatarInputSettingsState)
 
   const inputSource = getComponent(nonCapturedInputSource, InputSourceComponent)
 
@@ -208,6 +212,15 @@ const execute = () => {
 
     if (!lastMouseMoved && mouseMoved)
       lastLookDelta.set(Engine.instance.pointerState.position.x, Engine.instance.pointerState.position.y)
+
+    if (
+      (inputSource.source.gamepad?.mapping === 'standard' || inputSource.source.gamepad?.mapping === '') &&
+      inputSource.source.handedness === 'none'
+    ) {
+      const [x, z] = getThumbstickOrThumbpadAxes(inputSource.source, avatarInputSettings.preferredHand)
+      target.theta -= x * 2
+      target.phi += z * 2
+    }
 
     const keyDelta = (keys.ArrowLeft ? 1 : 0) + (keys.ArrowRight ? -1 : 0)
     target.theta += 100 * deltaSeconds * keyDelta

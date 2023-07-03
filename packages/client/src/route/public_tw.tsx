@@ -23,9 +23,10 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React, { Suspense, useEffect, useState } from 'react'
+import { t } from 'i18next'
+import React, { lazy, Suspense, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom'
+import { Route, Routes, useLocation } from 'react-router-dom'
 
 import {
   AuthSettingsService,
@@ -38,33 +39,33 @@ import {
 } from '@etherealengine/client-core/src/admin/services/Setting/ClientSettingService'
 import ErrorBoundary from '@etherealengine/client-core/src/common/components/ErrorBoundary'
 import { ProjectServiceReceptor } from '@etherealengine/client-core/src/common/services/ProjectService'
-import {
-  RouterServiceReceptor,
-  RouterState,
-  useRouter
-} from '@etherealengine/client-core/src/common/services/RouterService'
+import { useCustomRoutes } from '@etherealengine/client-core/src/common/services/RouterService'
 import { LocationServiceReceptor } from '@etherealengine/client-core/src/social/services/LocationService'
 import { AuthService, AuthServiceReceptor } from '@etherealengine/client-core/src/user/services/AuthService'
-import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
 import { addActionReceptor, getMutableState, removeActionReceptor, useHookstate } from '@etherealengine/hyperflux'
 import LoadingCircle from '@etherealengine/ui/src/primitives/tailwind/LoadingCircle'
 
-import Capture from '../pages/capture/capture'
-import { CustomRoute, getCustomRoutes } from './getCustomRoutes'
+import $404 from '../pages/404'
+import $503 from '../pages/503'
 
-function CaptureComp() {
-  const [customRoutes, setCustomRoutes] = useState(null as any as CustomRoute[])
+const $custom = lazy(() => import('@etherealengine/client/src/route/customRoutes'))
+
+const CenteredLoadingCircle = () => {
+  return (
+    <div className="absolute w-screen h-screen flex justify-center items-center">
+      <LoadingCircle className={`block w-12 h-12`} message={t('common:loader.loadingRoutes')} />
+    </div>
+  )
+}
+
+function PublicRouter() {
+  const customRoutes = useCustomRoutes()
   const clientSettingsState = useHookstate(getMutableState(AdminClientSettingsState))
   const authSettingsState = useHookstate(getMutableState(AuthSettingsState))
   const location = useLocation()
-  const navigate = useNavigate()
   const [routesReady, setRoutesReady] = useState(false)
-  const routerState = useHookstate(getMutableState(RouterState))
-  const route = useRouter()
-  const { t } = useTranslation()
 
   useEffect(() => {
-    addActionReceptor(RouterServiceReceptor)
     addActionReceptor(ClientSettingsServiceReceptor)
     addActionReceptor(AuthSettingsServiceReceptor)
     addActionReceptor(AuthServiceReceptor)
@@ -79,20 +80,8 @@ function CaptureComp() {
       AuthService.doLoginAuto()
       AuthSettingsService.fetchAuthSetting()
     }
-    getCustomRoutes().then((routes) => {
-      setCustomRoutes(routes)
-    })
-
-    getMutableState(NetworkState).config.set({
-      world: true,
-      media: true,
-      friends: false,
-      instanceID: true,
-      roomID: false
-    })
 
     return () => {
-      removeActionReceptor(RouterServiceReceptor)
       removeActionReceptor(ClientSettingsServiceReceptor)
       removeActionReceptor(AuthSettingsServiceReceptor)
       removeActionReceptor(AuthServiceReceptor)
@@ -102,18 +91,6 @@ function CaptureComp() {
   }, [])
 
   useEffect(() => {
-    if (location.pathname !== routerState.pathname.value) {
-      route(location.pathname)
-    }
-  }, [location.pathname])
-
-  useEffect(() => {
-    if (location.pathname !== routerState.pathname.value) {
-      navigate(routerState.pathname.value)
-    }
-  }, [routerState.pathname])
-
-  useEffect(() => {
     // For the same reason as above, we will not need to load the client and auth settings for these routes
     if (/auth\/oauth/.test(location.pathname) && customRoutes) return setRoutesReady(true)
     if (clientSettingsState.client.value.length && authSettingsState.authSettings.value.length && customRoutes)
@@ -121,23 +98,30 @@ function CaptureComp() {
   }, [clientSettingsState.client.length, authSettingsState.authSettings.length, customRoutes])
 
   if (!routesReady) {
-    return (
-      <div className="absolute w-full h-full">
-        <LoadingCircle message={t('common:loader.loadingRoutes')} />
-      </div>
-    )
+    return <CenteredLoadingCircle />
   }
 
   return (
     <ErrorBoundary>
-      <Suspense fallback={<LoadingCircle message={'Loading Capture...'} />}>
+      <Suspense fallback={<CenteredLoadingCircle />}>
         <Routes>
-          <Route path=":locationName" element={<Capture />} />
-          <Route path="/" element={<Navigate to="/capture/default" />} />
+          <Route
+            key={'custom'}
+            path={'/*'}
+            element={<$custom customRoutes={customRoutes.filter((c) => c.route !== '/admin')} />}
+          />
+          {customRoutes
+            .filter((c) => c.route === '/')
+            .map(({ component: Element, props }) => (
+              <Route key={'custom-index'} path={'/'} element={<Element {...props} />} />
+            ))}
+          {/* if no index page has been provided, indicate this as obviously as possible */}
+          <Route key={'/503'} path={'/'} element={<$503 />} />
+          <Route key={'404'} path="*" element={<$404 />} />
         </Routes>
       </Suspense>
     </ErrorBoundary>
   )
 }
 
-export default CaptureComp
+export default PublicRouter

@@ -130,6 +130,19 @@ const Avatar = ({
           icon={<Icon type="Create" sx={{ fontSize: '20px' }} />}
           type="glow"
           onClick={onChange}
+          sx={{
+            position: 'absolute',
+            width: '30px',
+            height: '30px',
+            bottom: '-10px',
+            right: '-10px',
+            margin: '0',
+            minWidth: '30px',
+            borderRadius: '50%',
+            background: 'var(--iconButtonBackground)',
+            boxShadow: '2px 2px 10px gray',
+            transition: 'all .15s cubic-bezier(.18,.89,.32,1.28)'
+          }}
         />
       )}
     </Box>

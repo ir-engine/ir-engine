@@ -29,7 +29,7 @@ import { Euler, Quaternion } from 'three'
 
 import { API } from '@etherealengine/client-core/src/API'
 import { PortalDetail } from '@etherealengine/common/src/interfaces/PortalInterface'
-import { getComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { getComponent, useComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
 import {
   PortalComponent,
@@ -73,8 +73,7 @@ const rotation = new Quaternion()
 export const PortalNodeEditor: EditorComponentType = (props) => {
   const [portals, setPortals] = useState<Array<{ value: string; label: string }>>([])
   const { t } = useTranslation()
-  const portalName = getComponent(props.entity, NameComponent)
-  const transformComponent = getComponent(props.entity, TransformComponent)
+  const transformComponent = useComponent(props.entity, TransformComponent)
 
   useEffect(() => {
     loadPortals()
@@ -98,7 +97,10 @@ export const PortalNodeEditor: EditorComponentType = (props) => {
   }
 
   const bakeCubemap = async () => {
-    const url = await uploadCubemapBakeToServer(portalName, transformComponent.position)
+    const url = await uploadCubemapBakeToServer(
+      getComponent(props.entity, NameComponent),
+      transformComponent.position.value
+    )
     loadPortals()
     updateProperties(PortalComponent, { previewImageURL: url }, [props.entity])
   }
@@ -114,23 +116,26 @@ export const PortalNodeEditor: EditorComponentType = (props) => {
     loadPortals()
   }
 
-  const portalComponent = getComponent(props.entity, PortalComponent)
+  const portalComponent = useComponent(props.entity, PortalComponent)
 
   return (
     <NodeEditor description={t('editor:properties.portal.description')} {...props}>
       <InputGroup name="Location" label={t('editor:properties.portal.lbl-locationName')}>
-        <StringInput value={portalComponent.location} onChange={updateProperty(PortalComponent, 'location')} />
+        <ControlledStringInput
+          value={portalComponent.location.value}
+          onChange={updateProperty(PortalComponent, 'location')}
+        />
       </InputGroup>
       <InputGroup name="Portal" label={t('editor:properties.portal.lbl-portal')}>
         <SelectInput
           key={props.entity}
           options={portals}
-          value={portalComponent.linkedPortalId}
+          value={portalComponent.linkedPortalId.value}
           onChange={updateProperty(PortalComponent, 'linkedPortalId')}
         />
       </InputGroup>
       <InputGroup name="Portal" label={t('editor:properties.portal.lbl-redirect')}>
-        <BooleanInput onChange={updateProperty(PortalComponent, 'redirect')} value={portalComponent.redirect} />
+        <BooleanInput onChange={updateProperty(PortalComponent, 'redirect')} value={portalComponent.redirect.value} />
       </InputGroup>
       <InputGroup name="Effect Type" label={t('editor:properties.portal.lbl-effectType')}>
         <SelectInput
@@ -138,7 +143,7 @@ export const PortalNodeEditor: EditorComponentType = (props) => {
           options={Array.from(PortalEffects.keys()).map((val) => {
             return { value: val, label: val }
           })}
-          value={portalComponent.effectType}
+          value={portalComponent.effectType.value}
           onChange={updateProperty(PortalComponent, 'effectType')}
         />
       </InputGroup>
@@ -148,13 +153,13 @@ export const PortalNodeEditor: EditorComponentType = (props) => {
           options={Array.from(PortalPreviewTypes.values()).map((val) => {
             return { value: val, label: val }
           })}
-          value={portalComponent.previewType}
+          value={portalComponent.previewType.value}
           onChange={changePreviewType}
         />
       </InputGroup>
       <InputGroup name="Preview Image URL" label={t('editor:properties.portal.lbl-previewImageURL')}>
         <ControlledStringInput
-          value={portalComponent.previewImageURL}
+          value={portalComponent.previewImageURL.value}
           onChange={updateProperty(PortalComponent, 'previewImageURL')}
         />
       </InputGroup>
@@ -165,12 +170,12 @@ export const PortalNodeEditor: EditorComponentType = (props) => {
       </InputGroup>
       <InputGroup name="Spawn Position" label={t('editor:properties.portal.lbl-spawnPosition')}>
         <Vector3Input
-          value={portalComponent.spawnPosition}
+          value={portalComponent.spawnPosition.value}
           onChange={updateProperty(PortalComponent, 'spawnPosition')}
         />
       </InputGroup>
       <InputGroup name="Spawn Rotation" label={t('editor:properties.portal.lbl-spawnRotation')}>
-        <EulerInput quaternion={portalComponent.spawnRotation ?? rotation} onChange={changeSpawnRotation} />
+        <EulerInput quaternion={portalComponent.spawnRotation.value ?? rotation} onChange={changeSpawnRotation} />
       </InputGroup>
     </NodeEditor>
   )

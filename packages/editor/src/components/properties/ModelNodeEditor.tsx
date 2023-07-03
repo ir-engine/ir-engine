@@ -35,7 +35,6 @@ import {
   removeComponent,
   useComponent
 } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
-import { EquippableComponent } from '@etherealengine/engine/src/interaction/components/EquippableComponent'
 import { getCallback } from '@etherealengine/engine/src/scene/components/CallbackComponent'
 import { getEntityErrors } from '@etherealengine/engine/src/scene/components/ErrorComponent'
 import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
@@ -63,8 +62,6 @@ import { EditorComponentType, updateProperties, updateProperty } from './Util'
  */
 export const ModelNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
-  const isEquippable = useState(hasComponent(props.entity, EquippableComponent))
-
   const entity = props.entity
   const modelComponent = useComponent(entity, ModelComponent)
   const exporting = useState(false)
@@ -76,16 +73,6 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
   const errors = getEntityErrors(props.entity, ModelComponent)
 
   const loopAnimationComponent = getOptionalComponent(entity, LoopAnimationComponent)
-
-  const onChangeEquippable = useCallback(() => {
-    if (isEquippable.value) {
-      removeComponent(props.entity, EquippableComponent)
-      isEquippable.set(false)
-    } else {
-      addComponent(props.entity, EquippableComponent, true)
-      isEquippable.set(true)
-    }
-  }, [entity])
 
   const animationOptions = useState(() => {
     const obj3d = modelComponent.value.scene
@@ -165,9 +152,6 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
           value={modelComponent.avoidCameraOcclusion.value}
           onChange={updateProperty(ModelComponent, 'avoidCameraOcclusion')}
         />
-      </InputGroup>
-      <InputGroup name="Is Equippable" label={t('editor:properties.model.lbl-isEquippable')}>
-        <BooleanInput value={isEquippable.value} onChange={onChangeEquippable} />
       </InputGroup>
       <InputGroup name="Loop Animation" label={t('editor:properties.model.lbl-loopAnimation')}>
         <SelectInput

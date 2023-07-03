@@ -35,6 +35,7 @@ import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 import XRTextButton from '../../components/XRTextButton'
 import styleString from './index.scss?inline'
 
+/** @deprecated */
 export function createSocialsMenuView() {
   return createXRUI(SocialsMenuView, createSocialsMenuState())
 }
@@ -42,7 +43,7 @@ export function createSocialsMenuView() {
 function createSocialsMenuState() {
   return createState({})
 }
-
+/** @deprecated */
 const SocialsMenuView = () => {
   const { t } = useTranslation()
 

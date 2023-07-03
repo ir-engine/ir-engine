@@ -91,7 +91,13 @@ export const MediaNodeEditor: EditorComponentType = (props) => {
         <></>
       )}
       <InputGroup name="Volume" label={t('editor:properties.media.lbl-volume')}>
-        <CompoundNumericInput value={media.volume.value} onChange={updateProperty(MediaComponent, 'volume')} />
+        <CompoundNumericInput
+          min={0}
+          max={1}
+          step={0.01}
+          value={media.volume.value}
+          onChange={updateProperty(MediaComponent, 'volume')}
+        />
       </InputGroup>
       <InputGroup name="Is Music" label={t('editor:properties.media.lbl-isMusic')}>
         <BooleanInput value={media.isMusic.value} onChange={updateProperty(MediaComponent, 'isMusic')} />

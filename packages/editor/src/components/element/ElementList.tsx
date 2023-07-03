@@ -23,23 +23,30 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React, { memo, useCallback, useEffect, useState } from 'react'
+import React, { memo, useCallback, useEffect } from 'react'
 import { useDrag, useDrop } from 'react-dnd'
 import { getEmptyImage } from 'react-dnd-html5-backend'
 import { useTranslation } from 'react-i18next'
 import { Vector2 } from 'three'
 
+import { MediaPrefabs } from '@etherealengine/engine/src/audio/systems/MediaSystem'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
 import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
 import { getComponent, setComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { createEntity } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
 import { EntityOrObjectUUID, EntityTreeComponent } from '@etherealengine/engine/src/ecs/functions/EntityTree'
+import { PhysicsPrefabs } from '@etherealengine/engine/src/physics/systems/PhysicsSystem'
+import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
+import { LightPrefabs } from '@etherealengine/engine/src/scene/systems/LightSystem'
+import { ScenePrefabs } from '@etherealengine/engine/src/scene/systems/SceneObjectUpdateSystem'
 import { LocalTransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
 import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
+import { NO_PROXY, useState } from '@etherealengine/hyperflux'
 import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
-import { IconButton, MenuItem, PopoverPosition, Tooltip } from '@mui/material'
+import { GroupAddOutlined as PlaceholderIcon } from '@mui/icons-material'
+import { IconButton, MenuItem, PopoverPosition, Tooltip, Typography } from '@mui/material'
 
 import { ItemTypes } from '../../constants/AssetTypes'
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
@@ -57,20 +64,39 @@ export interface PrefabItemType {
   description?: string
 }
 
-const getPrefabList = () => {
-  const arr = [] as PrefabItemType[]
+const categories = {
+  Files: [ScenePrefabs.model, MediaPrefabs.volumetric, MediaPrefabs.audio, MediaPrefabs.video, ScenePrefabs.image],
+  'Scene Composition': [ScenePrefabs.groundPlane, ScenePrefabs.group, ScenePrefabs.prefab, PhysicsPrefabs.collider],
+  Interaction: [ScenePrefabs.spawnPoint, ScenePrefabs.portal],
+  Lighting: [...Object.values(LightPrefabs)],
+  FX: [ScenePrefabs.particleEmitter],
+  Scripting: [ScenePrefabs.system]
+}
 
-  Engine.instance.scenePrefabRegistry.forEach((_, prefabType: string) => {
-    if (!prefabIcons[prefabType]) return
-    arr.push({
-      prefabType,
+const getPrefabList = () => {
+  const result = {} as Record<string, PrefabItemType[]>
+  for (const category in categories) {
+    result[category] = categories[category].map((prefab) => ({
       type: ItemTypes.Prefab,
-      Icon: prefabIcons[prefabType] || null,
-      label: prefabType
-    })
+      prefabType: prefab,
+      Icon: prefabIcons[prefab] || PlaceholderIcon,
+      label: prefab
+    }))
+  }
+  Engine.instance.scenePrefabRegistry.forEach((_, prefabType: string) => {
+    if (Object.entries(categories).every(([_, prefabs]) => !(prefabs as string[]).includes(prefabType))) {
+      !result['Misc'] && (result['Misc'] = [])
+      prefabIcons[prefabType] &&
+        result['Misc'].push({
+          type: ItemTypes.Prefab,
+          prefabType,
+          Icon: prefabIcons[prefabType],
+          label: prefabType
+        })
+    }
   })
 
-  return arr
+  return result
 }
 
 export const addPrefabElement = (item: PrefabItemType, parent = getState(SceneState).sceneEntity, before?: Entity) => {
@@ -130,17 +156,15 @@ const MemoAssetGridItem = memo(PrefabListItem)
 export function ElementList() {
   const { t } = useTranslation()
   const selectionState = useHookstate(getMutableState(SelectionState))
-  const [prefabs, setPrefabs] = useState(getPrefabList())
+  const prefabs = useState(getPrefabList())
   const [selectedItem, setSelectedItem] = React.useState<undefined | PrefabItemType>(undefined)
   const [anchorPosition, setAnchorPosition] = React.useState<undefined | PopoverPosition>(undefined)
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null)
   const open = Boolean(anchorEl)
 
   useEffect(() => {
-    updatePrefabList()
+    prefabs.set(getPrefabList())
   }, [selectionState.sceneGraphChangeCounter.value])
-
-  const updatePrefabList = () => setPrefabs(getPrefabList())
 
   const [{ isDragging }, dropRef] = useDrop({
     accept: [ItemTypes.Prefab],
@@ -197,13 +221,20 @@ export function ElementList() {
   return (
     <>
       <div className={styles.elementListContainer}>
-        {prefabs.map((item) => (
-          <MemoAssetGridItem
-            key={item.prefabType}
-            item={item}
-            onClick={addPrefabElement}
-            onContextMenu={onContextMenu}
-          />
+        {Object.entries(prefabs.get(NO_PROXY)).map(([category, items]) => (
+          <div className={styles.category} key={category}>
+            <Typography variant="subtitle2" className={styles.categoryTitle}>
+              {category}
+            </Typography>
+            {items.map((item) => (
+              <MemoAssetGridItem
+                key={item.prefabType}
+                item={item}
+                onClick={addPrefabElement}
+                onContextMenu={onContextMenu}
+              />
+            ))}
+          </div>
         ))}
       </div>
       <div

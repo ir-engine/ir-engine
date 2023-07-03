@@ -23,8 +23,27 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import i18n from 'i18next'
+import { lazy, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
+
+import { ROUTE_PAGE_LIMIT } from '@etherealengine/client-core/src/admin/services/RouteService'
+import { API } from '@etherealengine/client-core/src/API'
 import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
-import { defineAction, defineState, dispatchAction, getMutableState, useState } from '@etherealengine/hyperflux'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { routePath } from '@etherealengine/engine/src/schemas/route/route.schema'
+import {
+  addActionReceptor,
+  defineAction,
+  defineState,
+  dispatchAction,
+  getMutableState,
+  NO_PROXY,
+  removeActionReceptor,
+  useHookstate,
+  useState
+} from '@etherealengine/hyperflux'
+import { loadRoute } from '@etherealengine/projects/loadRoute'
 
 export const RouterState = defineState({
   name: 'RouterState',
@@ -44,6 +63,72 @@ export const useRouter = () => {
   return (pathname: string) => {
     dispatchAction(RouterAction.route({ pathname }))
   }
+}
+
+export type CustomRoute = {
+  route: string
+  component: ReturnType<typeof lazy>
+  props: any
+}
+
+/**
+ * getCustomRoutes used to get the routes created by the user.
+ *
+ * @return {Promise}
+ */
+export const getCustomRoutes = async (): Promise<CustomRoute[]> => {
+  const routes = (await Engine.instance.api.service(routePath).find({ paginate: false })) as any
+  console.log(routes)
+
+  const elements: CustomRoute[] = []
+
+  if (!Array.isArray(routes.data) || routes.data == null) {
+    throw new Error(i18n.t('editor:errors.fetchingRouteError', { error: i18n.t('editor:errors.unknownError') }))
+  } else {
+    for (const project of routes.data) {
+      const routeLazyLoad = await loadRoute(project.project, project.route)
+      if (routeLazyLoad)
+        elements.push({
+          route: project.route,
+          ...routeLazyLoad
+        })
+    }
+  }
+
+  return elements.filter((c) => !!c)
+}
+
+export const useCustomRoutes = () => {
+  const customRoutes = useHookstate([] as CustomRoute[])
+
+  const navigate = useNavigate()
+  const routerState = useHookstate(getMutableState(RouterState))
+  const route = useRouter()
+
+  useEffect(() => {
+    getCustomRoutes().then((routes) => {
+      customRoutes.set(routes)
+    })
+
+    addActionReceptor(RouterServiceReceptor)
+    return () => {
+      removeActionReceptor(RouterServiceReceptor)
+    }
+  }, [])
+
+  useEffect(() => {
+    if (location.pathname !== routerState.pathname.value) {
+      route(location.pathname)
+    }
+  }, [location.pathname])
+
+  useEffect(() => {
+    if (location.pathname !== routerState.pathname.value) {
+      navigate(routerState.pathname.value)
+    }
+  }, [routerState.pathname])
+
+  return customRoutes.get(NO_PROXY)
 }
 
 export class RouterAction {
