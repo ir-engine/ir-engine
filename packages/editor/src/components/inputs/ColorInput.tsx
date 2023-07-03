@@ -128,15 +128,14 @@ export function ColorInput({ value, onChange, onSelect, disabled, ...rest }: Col
     }
   }, [value])
 
-  const handleChange = (color) => {
-    const rgbaColor = new Color(color.hex)
+  const handleChange = ({ hex }) => {
+    const rgbaColor = new Color(hex)
     setColor(rgbaColor)
     onChange(rgbaColor)
     return rgbaColor
   }
 
   const open = Boolean(anchorEl)
-  console.log('DEBUG: in return', color)
   const hexColor = typeof color.getHexString === 'function' ? '#' + color.getHexString() : '#000'
 
   //creating view for ColorInput
