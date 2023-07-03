@@ -23,9 +23,11 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { Cos } from 'behave-graph/dist/lib/Profiles/Core/Values/FloatNodes'
 import React, { useEffect, useState } from 'react'
 import SketchPicker from 'react-color/lib/Sketch'
 import styled from 'styled-components'
+import { Color } from 'three'
 
 import Popover from '@mui/material/Popover'
 
@@ -102,7 +104,7 @@ const ColorInputPopover = (styled as any).div`
 `
 
 interface ColorInputProp {
-  value: string
+  value: Color
   onChange: Function
   onSelect?: Function
   disabled?: boolean
@@ -122,6 +124,7 @@ interface ColorInputProp {
 export function ColorInput({ value, onChange, onSelect, disabled, ...rest }: ColorInputProp) {
   const [color, setColor] = useState(value)
   const [anchorEl, setAnchorEl] = React.useState<HTMLElement | null>(null)
+
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget)
   }
@@ -133,27 +136,32 @@ export function ColorInput({ value, onChange, onSelect, disabled, ...rest }: Col
   useEffect(() => {
     if (color !== value) {
       setColor(value)
+      if (onSelect) {
+        onSelect(new Color(value))
+      }
     }
   }, [value])
 
   const handleChange = (color) => {
-    const rgbaColor = `rgba(${color.rgb.r},${color.rgb.g},${color.rgb.b},${color.rgb.a})`
+    const rgbaColor = new Color(color.hex)
     setColor(rgbaColor)
     onChange(rgbaColor)
   }
 
   const open = Boolean(anchorEl)
+  console.log('DEBUG: in return', color)
+  const hexColor = typeof color.getHexString === 'function' ? '#' + color.getHexString() : '#000'
 
   //creating view for ColorInput
   return (
     <ColorInputContainer>
       <StyledColorInput as="button" disabled={disabled} onClick={handleClick}>
-        <ColorPreview style={{ background: color }} />
-        <ColorText>{toHex(color).toUpperCase()}</ColorText>
+        <ColorPreview style={{ background: hexColor }} />
+        <ColorText>{hexColor.toUpperCase()}</ColorText>
       </StyledColorInput>
       <Popover open={open && !disabled} anchorEl={anchorEl} onClose={handleClose}>
         <ColorInputPopover>
-          <SketchPicker {...rest} color={color} disableAlpha={true} onChange={handleChange} />
+          <SketchPicker {...rest} color={hexColor} disableAlpha={true} onChange={handleChange} />
         </ColorInputPopover>
       </Popover>
     </ColorInputContainer>
@@ -161,7 +169,7 @@ export function ColorInput({ value, onChange, onSelect, disabled, ...rest }: Col
 }
 
 ColorInput.defaultProps = {
-  value: '',
+  value: new Color(),
   onChange: () => {}
 }
 
