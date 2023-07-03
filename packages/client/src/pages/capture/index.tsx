@@ -23,40 +23,23 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import type { ProjectConfigInterface } from '@etherealengine/projects/ProjectConfigInterface'
+import { t } from 'i18next'
+import React, { lazy, Suspense } from 'react'
+import { Navigate, Route, Routes } from 'react-router-dom'
 
-const config: ProjectConfigInterface = {
-  onEvent: './projectEventHooks.ts',
-  thumbnail: '/static/etherealengine_thumbnail.jpg',
-  routes: {
-    '/': {
-      component: () => import('@etherealengine/client/src/pages/index'),
-      props: {
-        exact: true
-      }
-    },
-    '/admin': {
-      component: () => import('@etherealengine/client-core/src/admin/adminRoutes')
-    },
-    '/location': {
-      component: () => import('@etherealengine/client/src/pages/location/location')
-    },
-    '/auth': {
-      component: () => import('@etherealengine/client/src/pages/auth/authRoutes')
-    },
-    '/editor': {
-      component: () => import('@etherealengine/client/src/pages/editor/editor')
-    },
-    '/studio': {
-      component: () => import('@etherealengine/client/src/pages/editor/editor')
-    },
-    '/room': {
-      component: () => import('@etherealengine/client/src/pages/room')
-    },
-    '/capture': {
-      component: () => import('@etherealengine/client/src/pages/capture')
-    }
-  }
+import LoadingCircle from '@etherealengine/ui/src/primitives/tailwind/LoadingCircle'
+
+import Capture from './capture'
+
+const LocationRoutes = () => {
+  return (
+    <Suspense fallback={<LoadingCircle message={t('common:loader.loadingLocation')} />}>
+      <Routes>
+        <Route path=":locationName" element={<Capture />} />
+        <Route path="/" element={<Navigate to="/capture/default" />} />
+      </Routes>
+    </Suspense>
+  )
 }
 
-export default config
+export default LocationRoutes
