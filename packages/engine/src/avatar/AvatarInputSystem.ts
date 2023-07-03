@@ -179,11 +179,19 @@ const isAvatarClicked = () => {
   console.log('DEBUG: did not hit avatar')
   return false
 }
+
 const inputSourceQuery = defineQuery([InputSourceComponent])
 
 const walkableQuery = defineQuery([RigidBodyFixedTagComponent, InputComponent])
 
 let mouseMovedDuringPrimaryClick = false
+let primaryClickCount = 0
+const primaryClickTimeout = 0.3
+let primaryClickTimer = 0
+const reDoubleClickTimeout = 0.2
+let reDoubleClickTimer = 0
+let doubleClicked = false
+
 const execute = () => {
   const { localClientEntity } = Engine.instance
   if (!localClientEntity) return
@@ -255,9 +263,34 @@ const execute = () => {
 
     if (!hasMovementControls()) return
     //** touch input (only for avatar jump)*/
-    let avatarClicked = false
-    if (isTouchAvailable && buttons.PrimaryClick?.pressed) {
-      avatarClicked = isAvatarClicked()
+    if (isTouchAvailable) {
+      if (doubleClicked) {
+        // this helps with the system not capturing one frame changes
+        reDoubleClickTimer += getState(EngineState).deltaSeconds
+        if (reDoubleClickTimer > reDoubleClickTimeout) {
+          doubleClicked = false
+          reDoubleClickTimer = 0
+        }
+      } else {
+        if (primaryClickCount > 0) {
+          primaryClickTimer += getState(EngineState).deltaSeconds
+          if (primaryClickTimer <= primaryClickTimeout) {
+            if (buttons.PrimaryClick?.up) {
+              // second click completed
+              doubleClicked = true
+              primaryClickCount = 0
+              primaryClickTimer = 0
+            }
+          } else {
+            primaryClickTimer = 0
+            primaryClickCount = 0
+          }
+        }
+        if (buttons.PrimaryClick?.up && !doubleClicked) {
+          // first click completed
+          primaryClickCount += 1
+        }
+      }
     }
     /** keyboard input */
     const keyDeltaX = (buttons.KeyA?.pressed ? -1 : 0) + (buttons.KeyD?.pressed ? 1 : 0)
@@ -269,7 +302,7 @@ const execute = () => {
 
     controller.gamepadLocalInput.set(keyDeltaX, 0, keyDeltaZ).normalize()
 
-    controller.gamepadJumpActive = !!buttons.Space?.pressed || gamepadJump || avatarClicked
+    controller.gamepadJumpActive = !!buttons.Space?.pressed || gamepadJump || doubleClicked
 
     const controlScheme =
       inputSource.source.handedness === 'none'
