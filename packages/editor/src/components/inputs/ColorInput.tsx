@@ -122,9 +122,7 @@ export function ColorInput({ value, onChange, onSelect, disabled, ...rest }: Col
   useEffect(() => {
     if (color !== value) {
       setColor(value)
-      if (onSelect) {
-        onSelect(value)
-      }
+      if (onSelect) onSelect(value)
     }
   }, [value])
 
