@@ -112,6 +112,7 @@ export type OutlineEffectProps = EffectProps & {
   kernelSize: number
   blur: boolean
   xRay: boolean
+  opacity: number
 }
 
 export type SSAOEffectProps = EffectProps & {
@@ -270,15 +271,16 @@ export const defaultPostProcessingSchema: EffectPropsSchema = {
     blendFunction: BlendFunction.SCREEN,
     patternTexture: null,
     edgeStrength: 2.0,
-    pulseSpeed: 0.0,
+    pulseSpeed: 0.25,
     visibleEdgeColor: 0xffffff,
     hiddenEdgeColor: 0xffffff,
     resolutionScale: 0.5,
     width: Resolution.AUTO_SIZE,
     height: Resolution.AUTO_SIZE,
-    kernelSize: KernelSize.VERY_SMALL,
+    kernelSize: KernelSize.MEDIUM,
     blur: false,
-    xRay: true
+    xRay: true,
+    opacity: 0.5
   },
   [Effects.SSAOEffect]: {
     isActive: false,
