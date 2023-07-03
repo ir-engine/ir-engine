@@ -33,20 +33,6 @@ import Popover from '@mui/material/Popover'
 
 import Input from './Input'
 
-function toHex(rgba: any): string {
-  if (typeof rgba !== 'string') {
-    // a null check
-    return ''
-  }
-  const values = rgba.substring(rgba.indexOf('(') + 1, rgba.lastIndexOf(')')).split(',')
-  const r = parseInt(values[0].trim())
-  const g = parseInt(values[1].trim())
-  const b = parseInt(values[2].trim())
-
-  const hex = ((r << 16) | (g << 8) | b).toString(16).padStart(6, '0')
-  return `#${hex}`
-}
-
 /**
  * ColorInputContainer used to provide styles for ColorInputContainer div.
  *
@@ -136,20 +122,18 @@ export function ColorInput({ value, onChange, onSelect, disabled, ...rest }: Col
   useEffect(() => {
     if (color !== value) {
       setColor(value)
-      if (onSelect) {
-        onSelect(new Color(value))
-      }
+      if (onSelect) onSelect(value)
     }
   }, [value])
 
-  const handleChange = (color) => {
-    const rgbaColor = new Color(color.hex)
-    setColor(rgbaColor)
-    onChange(rgbaColor)
+  const handleChange = ({ hex }) => {
+    const color = new Color(hex)
+    setColor(color)
+    onChange(color)
+    return color
   }
 
   const open = Boolean(anchorEl)
-  console.log('DEBUG: in return', color)
   const hexColor = typeof color.getHexString === 'function' ? '#' + color.getHexString() : '#000'
 
   //creating view for ColorInput
