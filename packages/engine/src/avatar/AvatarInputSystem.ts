@@ -178,17 +178,45 @@ const isAvatarClicked = () => {
   return false
 }
 
+let primaryClickCount = 0
+const primaryClickTimeout = 2
+let primaryClickTimer = 0
+const reDoubleClickTimeout = 0.2
+let reDoubleClickTimer = 0
+const handleTouchJump = (buttons): boolean => {
+  //if(!isTouchAvailable) return false
+  const clickFinished = buttons.PrimaryClick?.up
+  if (clickFinished) {
+    //for single frame raycast
+    const avatarClicked = isAvatarClicked()
+    if (!avatarClicked) return false
+    primaryClickCount += 1
+  }
+  // log a click
+  if (primaryClickCount < 1) return false //no clicks logged
+  if (primaryClickCount > 1) {
+    // handle the second click
+    reDoubleClickTimer += getState(EngineState).deltaSeconds
+    // this helps with the system not capturing single frame changes
+    if (reDoubleClickTimer <= reDoubleClickTimeout) return true
+    // end of double click
+    reDoubleClickTimer = 0
+    primaryClickCount = 0
+    return false
+  }
+  // exactly one click confirmed
+  primaryClickTimer += getState(EngineState).deltaSeconds
+  if (primaryClickTimer <= primaryClickTimeout) return false
+  //timed out
+  primaryClickTimer = 0
+  primaryClickCount = 0
+  return false
+}
 const inputSourceQuery = defineQuery([InputSourceComponent])
 
 const walkableQuery = defineQuery([RigidBodyFixedTagComponent, InputComponent])
 
 let mouseMovedDuringPrimaryClick = false
-let primaryClickCount = 0
-const primaryClickTimeout = 0.3
-let primaryClickTimer = 0
-const reDoubleClickTimeout = 0.2
-let reDoubleClickTimer = 0
-let doubleClicked = false
 
 const execute = () => {
   const { localClientEntity } = Engine.instance
@@ -261,37 +289,8 @@ const execute = () => {
 
     if (!hasMovementControls()) return
     //** touch input (only for avatar jump)*/
-    if (isTouchAvailable) {
-      if (doubleClicked) {
-        // this helps with the system not capturing single frame changes
-        reDoubleClickTimer += getState(EngineState).deltaSeconds
-        if (reDoubleClickTimer > reDoubleClickTimeout) {
-          doubleClicked = false
-          reDoubleClickTimer = 0
-        }
-      } else {
-        const avatarClicked = isAvatarClicked()
-        const clickFinished = buttons.PrimaryClick?.up
-        if (primaryClickCount > 0) {
-          primaryClickTimer += getState(EngineState).deltaSeconds
-          if (primaryClickTimer <= primaryClickTimeout) {
-            if (clickFinished && avatarClicked) {
-              // second click completed
-              doubleClicked = true
-              primaryClickCount = 0
-              primaryClickTimer = 0
-            }
-          } else {
-            primaryClickTimer = 0
-            primaryClickCount = 0
-          }
-        }
-        if (clickFinished && avatarClicked && !doubleClicked) {
-          // first click completed
-          primaryClickCount += 1
-        }
-      }
-    }
+
+    const doubleClicked = handleTouchJump(buttons)
     /** keyboard input */
     const keyDeltaX = (buttons.KeyA?.pressed ? -1 : 0) + (buttons.KeyD?.pressed ? 1 : 0)
     const keyDeltaZ =
