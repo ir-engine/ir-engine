@@ -29,7 +29,6 @@ import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { addActionReceptor, defineActionQueue, dispatchAction, removeActionReceptor } from '@etherealengine/hyperflux'
 
 import { FollowCameraComponent } from '../camera/components/FollowCameraComponent'
-import { TargetCameraRotationComponent } from '../camera/components/TargetCameraRotationComponent'
 import { Engine } from '../ecs/classes/Engine'
 import {
   defineQuery,
@@ -46,34 +45,12 @@ import { NetworkObjectAuthorityTag, NetworkObjectComponent } from '../networking
 import { WorldNetworkAction } from '../networking/functions/WorldNetworkAction'
 import { RigidBodyComponent } from '../physics/components/RigidBodyComponent'
 import { UUIDComponent } from '../scene/components/UUIDComponent'
-import { XRAction } from '../xr/XRState'
 import { VehicleControllerComponent } from './components/VehicleControllerComponent'
-
-//import { respawnVehicle } from './functions/respawnVehicle'
-//import { VehicleInputSettingsReceptor } from './state/VehicleInputSettingsState'
 
 const localControllerQuery = defineQuery([VehicleControllerComponent, LocalInputTagComponent])
 const controllerQuery = defineQuery([VehicleControllerComponent])
 
 const execute = () => {
-  for (const vehicleEntity of localControllerQuery.enter()) {
-    const controller = getComponent(vehicleEntity, VehicleControllerComponent)
-
-    const targetCameraRotation = getComponent(controller.cameraEntity, TargetCameraRotationComponent)
-    setComponent(controller.cameraEntity, FollowCameraComponent, {
-      targetEntity: vehicleEntity,
-      phi: targetCameraRotation.phi,
-      theta: targetCameraRotation.theta
-    })
-
-    // todo: this should be called when the avatar is spawned
-    dispatchAction(
-      WorldNetworkAction.spawnCamera({
-        uuid: ('camera_' + getComponent(vehicleEntity, UUIDComponent)) as EntityUUID
-      })
-    )
-  }
-
   const controlledEntity = Engine.instance.localClientEntity
 
   if (hasComponent(controlledEntity, VehicleControllerComponent)) {

@@ -29,6 +29,7 @@ import {
   JointData,
   MotorModel,
   Quaternion as RapierQuat,
+  RevoluteImpulseJoint,
   RigidBody,
   RigidBodyDesc
 } from '@dimforge/rapier3d-compat'
@@ -41,8 +42,7 @@ import { createEntity } from '@etherealengine/engine/src/ecs/functions/EntityFun
 import { setTargetCameraRotation } from '../../camera/systems/CameraInputSystem'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
-import { addComponent, getComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
-import { addEntityNodeChild, EntityTreeComponent } from '../../ecs/functions/EntityTree'
+import { getComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
 //import { LocalVehicleTagComponent } from '../../input/components/LocalVehicleTagComponent'
 import { BoundingBoxComponent } from '../../interaction/components/BoundingBoxComponents'
 import { NetworkObjectSendPeriodicUpdatesTag } from '../../networking/components/NetworkObjectComponent'
@@ -88,7 +88,7 @@ export const spawnVehicleReceptor = (spawnAction: typeof WorldNetworkAction.spaw
     Math.abs(axleDisplacements[0].z) * 2 + defaultWheelDimensions.r,
     defaultChassisDimensions.z * 2
   )
-  const { chassis, axles, wheels } = createVehicle(entity)
+  const { chassis, axles, wheels, jointMap } = createVehicle(entity)
 
   setComponent(entity, VehicleComponent, {
     vehicleHeight: vehicleHeight,
@@ -96,7 +96,8 @@ export const spawnVehicleReceptor = (spawnAction: typeof WorldNetworkAction.spaw
     vehicleLength: vehicleLength,
     chassis: chassis,
     axles: axles,
-    wheels: wheels
+    wheels: wheels,
+    jointMap: jointMap
   })
 
   setComponent(entity, NetworkObjectSendPeriodicUpdatesTag)
@@ -110,7 +111,7 @@ const createVehicle = (entity: Entity): any => {
   const wheels = [] as Entity[]
   createVehicleChassis(entity)
   const chassisTransform = getComponent(entity, TransformComponent)
-
+  const jointMap = new Map()
   for (let i = 0; i < axleDisplacements.length; i++) {
     const wheelSide = Math.sign(axleDisplacements[i].x) // right is + ve , left is - ve
     const wheelIsSteered = Boolean(Math.min(0, Math.sign(axleDisplacements[i].z)))
@@ -143,11 +144,24 @@ const createVehicle = (entity: Entity): any => {
     const axleRigidBody = getComponent(axles[i], RigidBodyComponent)
     const wheelRigidBody = getComponent(wheels[i], RigidBodyComponent)
 
-    Engine.instance.physicsWorld.createImpulseJoint(wheelJointData, axleRigidBody.body, wheelRigidBody.body, true)
-    Engine.instance.physicsWorld.createImpulseJoint(axleJointData, chassisRigidBody.body, axleRigidBody.body, true)
+    const wheelJoint = Engine.instance.physicsWorld.createImpulseJoint(
+      wheelJointData,
+      axleRigidBody.body,
+      wheelRigidBody.body,
+      true
+    )
+    const axleJoint = Engine.instance.physicsWorld.createImpulseJoint(
+      axleJointData,
+      chassisRigidBody.body,
+      axleRigidBody.body,
+      true
+    )
+    jointMap.set(axleRigidBody.body.handle, axleJoint.handle)
+    jointMap.set(wheelRigidBody.body.handle, wheelJoint.handle)
+    ;(wheelJoint as RevoluteImpulseJoint).configureMotorModel(MotorModel.AccelerationBased)
   }
 
-  return { entity, axles, wheels }
+  return { entity, axles, wheels, jointMap }
 }
 
 const createVehicleChassis = (entity: Entity): Entity => {

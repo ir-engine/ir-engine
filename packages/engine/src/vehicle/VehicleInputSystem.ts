@@ -118,7 +118,7 @@ const execute = () => {
   }
 }
 
-export const AvatarInputSystem = defineSystem({
+export const VehicleInputSystem = defineSystem({
   uuid: 'ee.engine.VehicleInputSystem',
   execute
 })

@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { QueryFilterFlags } from '@dimforge/rapier3d-compat'
+import { QueryFilterFlags, RevoluteImpulseJoint } from '@dimforge/rapier3d-compat'
 import { Euler, Matrix4, Quaternion, Vector3 } from 'three'
 
 import { smootheLerpAlpha } from '@etherealengine/common/src/utils/smootheLerpAlpha'
@@ -64,19 +64,31 @@ const vehicleGroundRaycast = {
 
 const cameraDirection = new Vector3()
 const forwardOrientation = new Quaternion()
-const targetWorldMovement = new Vector3()
-const desiredMovement = new Vector3()
-const finalVehicleMovement = new Vector3()
 
 const minimumDistanceSquared = 0.5 * 0.5
 const currentDirection = new Vector3()
+
 /**
  * Vehicle movement via gamepad
  */
+
 export const applyGamepadInput = (entity: Entity) => {
   if (!entity) return
 
   const camera = Engine.instance.camera
   const deltaSeconds = getState(EngineState).simulationTimestep / 1000
   const controller = getComponent(entity, VehicleControllerComponent)
+
+  camera.getWorldDirection(cameraDirection).setY(0).normalize()
+  forwardOrientation.setFromUnitVectors(ObjectDirection.Forward, cameraDirection)
+  const vehicle = getComponent(entity, VehicleComponent)
+
+  if (controller.gamepadLocalInput.z > 0) {
+    for (const wheel of vehicle.wheels) {
+      const handle = getComponent(wheel, RigidBodyComponent).body.handle
+      const joint = vehicle.jointMap.get(handle)!
+      const wheelJoint = Engine.instance.physicsWorld.getImpulseJoint(joint) as RevoluteImpulseJoint
+      wheelJoint.configureMotorVelocity(controller.gamepadLocalInput.z * 1.0, 0.5) // replace 1.0 with speed variable later
+    }
+  }
 }

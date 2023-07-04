@@ -39,7 +39,8 @@ export const VehicleComponent = defineComponent({
       vehicleLength: null! as number,
       chassis: null! as Entity,
       axles: null! as Entity[],
-      wheels: null! as Entity[]
+      wheels: null! as Entity[],
+      jointMap: null! as Map<number, number>
     }
   },
 
@@ -51,5 +52,6 @@ export const VehicleComponent = defineComponent({
     if (matches.object.test(json.chassis)) component.chassis.set(json.chassis as Entity)
     if (matches.object.test(json.axles)) component.axles.set(json.axles as Entity[])
     if (matches.object.test(json.wheels)) component.axles.set(json.wheels as Entity[])
+    if (matches.object.test(json.jointMap)) component.jointMap.set(json.jointMap as Map<number, number>)
   }
 })

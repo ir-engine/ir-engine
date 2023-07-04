@@ -118,11 +118,6 @@ export const AvatarAxesControlSchemeBehavior = {
   }
 }
 
-const onShiftLeft = () => {
-  const controller = getMutableComponent(Engine.instance.localClientEntity, AvatarControllerComponent)
-  controller.isWalking.set(!controller.isWalking.value)
-}
-
 const onInteract = (handedness: XRHandedness = 'none') => {
   dispatchAction(
     EngineActions.interactedWithObject({
@@ -202,17 +197,6 @@ const execute = () => {
 
     const buttons = inputSource.buttons
 
-    const standardGamepad =
-      inputSource.source.gamepad?.mapping === 'standard' || inputSource.source.gamepad?.mapping === ''
-    const xrStandardGamepad = inputSource.source.gamepad?.mapping === 'xr-standard'
-
-    if (buttons.ShiftLeft?.down) onShiftLeft()
-    if (xrStandardGamepad) {
-      if (buttons[XRStandardGamepadButton.Trigger]?.down) onInteract(inputSource.source.handedness)
-    }
-
-    const gamepadJump = standardGamepad && buttons[StandardGamepadButton.ButtonA]?.down
-
     if (isDev) {
       if (buttons.KeyO?.down) onKeyO()
       if (buttons.KeyP?.down) onKeyP()
@@ -229,20 +213,6 @@ const execute = () => {
       (buttons.ArrowDown?.pressed ? 1 : 0)
 
     controller.gamepadLocalInput.set(keyDeltaX, 0, keyDeltaZ).normalize()
-
-    controller.gamepadJumpActive = !!buttons.Space?.pressed || gamepadJump
-
-    const controlScheme =
-      inputSource.source.handedness === 'none'
-        ? AvatarAxesControlScheme.Move
-        : inputSource.source.handedness === avatarInputSettings.preferredHand
-        ? avatarInputSettings.rightAxesControlScheme
-        : avatarInputSettings.leftAxesControlScheme
-    AvatarAxesControlSchemeBehavior[controlScheme](
-      inputSource.source,
-      controller,
-      avatarInputSettings.preferredHand === 'left' ? 'right' : 'left'
-    )
   }
 }
 
