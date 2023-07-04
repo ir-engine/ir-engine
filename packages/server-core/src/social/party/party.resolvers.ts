@@ -25,6 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
 import { resolve } from '@feathersjs/schema'
+import { v4 } from 'uuid'
 
 import { PartyQuery, PartyType } from '@etherealengine/engine/src/schemas/social/party/party.schema'
 import type { HookContext } from '@etherealengine/server-core/declarations'
@@ -36,6 +37,9 @@ export const partyResolver = resolve<PartyType, HookContext>({})
 export const partyExternalResolver = resolve<PartyType, HookContext>({})
 
 export const partyDataResolver = resolve<PartyType, HookContext>({
+  id: async () => {
+    return v4()
+  },
   createdAt: getDateTimeSql,
   updatedAt: getDateTimeSql
 })

@@ -45,7 +45,7 @@ export default (app: Application): void => {
     multi: true
   }
 
-  app.use(partyPath, new PartyService(options), {
+  app.use(partyPath, new PartyService(options, app), {
     // A list of all methods this service exposes externally
     methods: partyMethods,
     // You can add additional custom events to be sent to clients here

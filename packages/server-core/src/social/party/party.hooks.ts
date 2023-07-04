@@ -24,19 +24,52 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { HookOptions } from '@feathersjs/feathers'
+import { hooks as schemaHooks } from '@feathersjs/schema'
+import { getValidator } from '@feathersjs/typebox'
 import { disallow, iff, isProvider } from 'feathers-hooks-common'
+
+import {
+  partyDataSchema,
+  partyPatchSchema,
+  partyQuerySchema,
+  partySchema
+} from '@etherealengine/engine/src/schemas/social/party/party.schema'
+import { dataValidator, queryValidator } from '@etherealengine/server-core/validators'
 
 import addAssociations from '../../hooks/add-associations'
 import authenticate from '../../hooks/authenticate'
 import isInternalRequest from '../../hooks/isInternalRequest'
 import partyPermissionAuthenticate from '../../hooks/party-permission-authenticate'
 import verifyScope from '../../hooks/verify-scope'
+import {
+  partyDataResolver,
+  partyExternalResolver,
+  partyPatchResolver,
+  partyQueryResolver,
+  partyResolver
+} from './party.resolvers'
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const partyValidator = getValidator(partySchema, dataValidator)
+const partyDataValidator = getValidator(partyDataSchema, dataValidator)
+const partyPatchValidator = getValidator(partyPatchSchema, dataValidator)
+const partyQueryValidator = getValidator(partyQuerySchema, queryValidator)
 
 // Don't remove this comment. It's needed to format import lines nicely.
 
 export default {
+  around: {
+    all: [schemaHooks.resolveExternal(partyExternalResolver), schemaHooks.resolveResult(partyResolver)]
+  },
+
   before: {
-    all: [authenticate(), isInternalRequest()],
+    all: [
+      authenticate(),
+      isInternalRequest(),
+      iff(isProvider('external'), verifyScope('admin', 'admin')),
+      () => schemaHooks.validateQuery(partyQueryValidator),
+      schemaHooks.resolveQuery(partyQueryResolver)
+    ],
     find: [
       iff(isProvider('external'), verifyScope('admin', 'admin') as any),
       addAssociations({
