@@ -95,6 +95,12 @@ export const TransformPropertyGroup: EditorComponentType = (props) => {
   const onChangeRotation = (value: Euler) => {
     const nodes = getEntityNodeArrayFromEntities(getMutableState(SelectionState).selectedEntities.value)
     EditorControlFunctions.rotateObject(nodes, [value])
+
+    const gizmoQuery = defineQuery([TransformGizmoComponent])
+    for (const entity of gizmoQuery()) {
+      const gizmoTransform = getComponent(entity, TransformComponent)
+      gizmoTransform.rotation.setFromEuler(value, true)
+    }
   }
 
   //function to handle changes in scale properties
