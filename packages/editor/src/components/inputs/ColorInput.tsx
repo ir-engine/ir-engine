@@ -23,7 +23,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Cos } from 'behave-graph/dist/lib/Profiles/Core/Values/FloatNodes'
 import React, { useEffect, useState } from 'react'
 import SketchPicker from 'react-color/lib/Sketch'
 import styled from 'styled-components'
