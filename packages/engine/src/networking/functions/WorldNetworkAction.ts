@@ -73,6 +73,13 @@ export class WorldNetworkAction {
     $topic: NetworkTopics.world
   })
 
+  static spawnVehicle = defineAction({
+    ...WorldNetworkAction.spawnObject.actionShape,
+    prefab: 'vehicle',
+    uuid: matchesUserId,
+    $topic: NetworkTopics.world
+  })
+
   static spawnAvatar = defineAction({
     ...WorldNetworkAction.spawnObject.actionShape,
     prefab: 'avatar',

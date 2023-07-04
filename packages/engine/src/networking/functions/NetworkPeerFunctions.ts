@@ -49,6 +49,7 @@ function createPeer(
   userIndex: number,
   name: string
 ) {
+  console.log('inside function', network)
   network.userIDToUserIndex.set(userID, userIndex)
   network.userIndexToUserID.set(userIndex, userID)
   network.peerIDToPeerIndex.set(peerID, peerIndex)
