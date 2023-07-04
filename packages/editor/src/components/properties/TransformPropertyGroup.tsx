@@ -25,10 +25,11 @@ Ethereal Engine. All Rights Reserved.
 
 import React from 'react'
 import { useTranslation } from 'react-i18next'
-import { Euler } from 'three'
+import { Euler, Vector3 } from 'three'
 
 import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
 import {
+  defineQuery,
   getComponent,
   hasComponent,
   useComponent,
@@ -36,6 +37,7 @@ import {
 } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { getEntityNodeArrayFromEntities } from '@etherealengine/engine/src/ecs/functions/EntityTree'
 import { SceneDynamicLoadTagComponent } from '@etherealengine/engine/src/scene/components/SceneDynamicLoadTagComponent'
+import { TransformGizmoComponent } from '@etherealengine/engine/src/scene/components/TransformGizmo'
 import { TransformSpace } from '@etherealengine/engine/src/scene/constants/transformConstants'
 import { LocalTransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
 import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
@@ -78,9 +80,15 @@ export const TransformPropertyGroup: EditorComponentType = (props) => {
   }
 
   //function to handle the position properties
-  const onChangePosition = (value) => {
+  const onChangePosition = (value: Vector3) => {
     const nodes = getEntityNodeArrayFromEntities(getMutableState(SelectionState).selectedEntities.value)
     EditorControlFunctions.positionObject(nodes, [value])
+
+    const gizmoQuery = defineQuery([TransformGizmoComponent])
+    for (const entity of gizmoQuery()) {
+      const gizmoTransform = getComponent(entity, TransformComponent)
+      gizmoTransform.position.set(value.x, value.y, value.z)
+    }
   }
 
   //function to handle changes rotation properties
