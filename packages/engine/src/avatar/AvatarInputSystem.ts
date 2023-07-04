@@ -184,12 +184,10 @@ let primaryClickTimer = 0
 const reDoubleClickTimeout = 0.2
 let reDoubleClickTimer = 0
 const handleTouchJump = (buttons): boolean => {
-  //if(!isTouchAvailable) return false
-  const clickFinished = buttons.PrimaryClick?.up
-  if (clickFinished) {
+  if (!isTouchAvailable) return false
+  if (buttons.PrimaryClick?.up) {
     //for single frame raycast
-    const avatarClicked = isAvatarClicked()
-    if (!avatarClicked) return false
+    if (!isAvatarClicked()) return false
     primaryClickCount += 1
   }
   // log a click
