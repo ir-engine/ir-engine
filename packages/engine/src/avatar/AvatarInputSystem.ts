@@ -172,11 +172,9 @@ const isAvatarClicked = () => {
     const hitEntity = (hit.body?.userData as any)?.entity as Entity
     console.log(hitEntity, Engine.instance.localClientEntity)
     if (typeof hitEntity !== 'undefined' && hitEntity == Engine.instance.localClientEntity) {
-      console.log('DEBUG: Hit avatar')
       return true
     }
   }
-  console.log('DEBUG: did not hit avatar')
   return false
 }
 
@@ -265,7 +263,7 @@ const execute = () => {
     //** touch input (only for avatar jump)*/
     if (isTouchAvailable) {
       if (doubleClicked) {
-        // this helps with the system not capturing one frame changes
+        // this helps with the system not capturing single frame changes
         reDoubleClickTimer += getState(EngineState).deltaSeconds
         if (reDoubleClickTimer > reDoubleClickTimeout) {
           doubleClicked = false
@@ -275,7 +273,7 @@ const execute = () => {
         if (primaryClickCount > 0) {
           primaryClickTimer += getState(EngineState).deltaSeconds
           if (primaryClickTimer <= primaryClickTimeout) {
-            if (buttons.PrimaryClick?.up) {
+            if (buttons.PrimaryClick?.up && isAvatarClicked()) {
               // second click completed
               doubleClicked = true
               primaryClickCount = 0
@@ -286,7 +284,7 @@ const execute = () => {
             primaryClickCount = 0
           }
         }
-        if (buttons.PrimaryClick?.up && !doubleClicked) {
+        if (buttons.PrimaryClick?.up && isAvatarClicked() && !doubleClicked) {
           // first click completed
           primaryClickCount += 1
         }
