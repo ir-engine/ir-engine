@@ -350,11 +350,9 @@ const execute = () => {
       switch (ikTargetComponent.handedness) {
         case 'left':
           worldSpaceTargets.leftHandTarget.copy(ikTransform.position)
-          console.log('left')
           break
         case 'right':
           worldSpaceTargets.rightHandTarget.copy(ikTransform.position)
-          console.log('right')
           break
         case 'none':
           worldSpaceTargets.hipsTarget.copy(
