@@ -147,8 +147,8 @@ export const uploadCubemapBakeToServer = async (name: string, position: Vector3)
   const sceneName = editorState.sceneName!
   const projectName = editorState.projectName!
   const filename = `${sceneName}-${name.replace(' ', '-')}.ktx2`
-
-  const url = (await uploadProjectFiles(projectName, [new File([blob], filename)])[0])[0]
+  const urlList = await uploadProjectFiles(projectName, [new File([blob], filename)]).promises[0]
+  const url = urlList[0]
 
   return url
 }
