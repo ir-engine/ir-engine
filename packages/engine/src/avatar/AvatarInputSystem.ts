@@ -270,10 +270,12 @@ const execute = () => {
           reDoubleClickTimer = 0
         }
       } else {
+        const avatarClicked = isAvatarClicked()
+        const clickFinished = buttons.PrimaryClick?.up
         if (primaryClickCount > 0) {
           primaryClickTimer += getState(EngineState).deltaSeconds
           if (primaryClickTimer <= primaryClickTimeout) {
-            if (buttons.PrimaryClick?.up && isAvatarClicked()) {
+            if (clickFinished && avatarClicked) {
               // second click completed
               doubleClicked = true
               primaryClickCount = 0
@@ -284,7 +286,7 @@ const execute = () => {
             primaryClickCount = 0
           }
         }
-        if (buttons.PrimaryClick?.up && isAvatarClicked() && !doubleClicked) {
+        if (clickFinished && avatarClicked && !doubleClicked) {
           // first click completed
           primaryClickCount += 1
         }
