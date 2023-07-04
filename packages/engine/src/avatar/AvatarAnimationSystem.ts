@@ -131,6 +131,7 @@ const hipsRotationoffset = new Quaternion().setFromEuler(new Euler(0, Math.PI, 0
 
 let avatarSortAccumulator = 0
 const _quat = new Quaternion()
+const _flipQuat = new Quaternion().setFromEuler(new Euler(0, Math.PI, 0))
 
 const _vector3 = new Vector3()
 const _position = new Vector3()
@@ -335,6 +336,7 @@ const execute = () => {
     applyInputSourcePoseToIKTargets()
 
     for (const ikEntity of ikEntities) {
+      if (ikEntities.length <= 1) continue
       const networkObject = getComponent(ikEntity, NetworkObjectComponent)
       const ownerEntity = Engine.instance.getUserAvatarEntity(networkObject.ownerId)
       if (ownerEntity != entity) continue
@@ -348,19 +350,30 @@ const execute = () => {
       switch (ikTargetComponent.handedness) {
         case 'left':
           worldSpaceTargets.leftHandTarget.copy(ikTransform.position)
+          console.log('left')
           break
         case 'right':
           worldSpaceTargets.rightHandTarget.copy(ikTransform.position)
+          console.log('right')
           break
         case 'none':
           worldSpaceTargets.hipsTarget.copy(
-            _vector3.copy(ikTransform.position).setY(ikTransform.position.y - rigComponent.torsoLength)
+            _vector3.copy(ikTransform.position).setY(ikTransform.position.y - rigComponent.torsoLength - 0.125)
           )
           //offset target forward to account for hips being behind the head
           const hipsForward = new Vector3(0, 0, 1)
           hipsForward.applyQuaternion(rigidbodyComponent!.rotation)
           hipsForward.multiplyScalar(0.125)
           worldSpaceTargets.hipsTarget.sub(hipsForward)
+
+          //calculate head look direction and apply to head bone
+          rig.head.node.quaternion.copy(
+            _quat.multiplyQuaternions(
+              rig.spine.node.getWorldQuaternion(new Quaternion()).invert(),
+              ikTransform.rotation
+            )
+          )
+          break
       }
     }
 
