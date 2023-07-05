@@ -23,8 +23,10 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { render } from 'react-dom'
 import { Vector3 } from 'three'
 
+import { renderTargetFromTexture } from '@etherealengine/engine/src/assets/functions/createReadableTexture'
 import { addOBCPlugin, removeOBCPlugin } from '@etherealengine/engine/src/common/functions/OnBeforeCompilePlugin'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
@@ -129,10 +131,15 @@ const resolution = 1024
  * @returns
  */
 
+export const getCubmapBakeTexture = (position: Vector3) => {
+  const cubemapCapturer = new CubemapCapturer(EngineRenderer.instance.renderer, Engine.instance.scene, resolution / 2)
+  const renderTarget = cubemapCapturer.update(position)
+  return renderTarget.texture
+}
+
 export const uploadCubemapBakeToServer = async (name: string, position: Vector3) => {
   const cubemapCapturer = new CubemapCapturer(EngineRenderer.instance.renderer, Engine.instance.scene, resolution)
   const renderTarget = cubemapCapturer.update(position)
-
   const blob = (await convertCubemapToKTX2(
     EngineRenderer.instance.renderer,
     renderTarget.texture,

@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Euler, Quaternion } from 'three'
+import { CubeTexture, Euler, Quaternion } from 'three'
 
 import { API } from '@etherealengine/client-core/src/API'
 import { PortalDetail } from '@etherealengine/common/src/interfaces/PortalInterface'
@@ -42,7 +42,7 @@ import { TransformComponent } from '@etherealengine/engine/src/transform/compone
 import MeetingRoomIcon from '@mui/icons-material/MeetingRoom'
 import { Box } from '@mui/material'
 
-import { uploadCubemapBakeToServer } from '../../functions/uploadEnvMapBake'
+import { getCubmapBakeTexture, uploadCubemapBakeToServer } from '../../functions/uploadEnvMapBake'
 import { AssetSelectionChangePropsType, AssetsPreviewPanel } from '../assets/AssetsPreviewPanel'
 import BooleanInput from '../inputs/BooleanInput'
 import { Button } from '../inputs/Button'
@@ -97,7 +97,7 @@ export const PortalNodeEditor: EditorComponentType = (props) => {
         })
     )
   }
-  const updatePreview = (url: string) => {
+  const updatePreviewWithUrl = (url: string) => {
     if (!url) {
       ;(portalPreviewPanelRef as any).current?.onSelectionChanged?.({ resourceUrl: '', name: '', contentType: '' })
       return
@@ -108,6 +108,14 @@ export const PortalNodeEditor: EditorComponentType = (props) => {
       contentType: 'image/ktx2'
     } as AssetSelectionChangePropsType)
   }
+
+  const updatePreviewWithTexture = (texture: CubeTexture) => {
+    if (!texture) {
+      ;(portalPreviewPanelRef as any).current?.onSelectionChanged?.({ resourceUrl: '', name: '', contentType: '' })
+      return
+    }
+  }
+
   const bakeCubemap = async () => {
     const url = await uploadCubemapBakeToServer(
       getComponent(props.entity, NameComponent),
@@ -115,7 +123,7 @@ export const PortalNodeEditor: EditorComponentType = (props) => {
     )
     loadPortals()
     updateProperties(PortalComponent, { previewImageURL: url }, [props.entity])
-    updatePreview(url)
+    updatePreviewWithUrl(url)
   }
 
   const changeSpawnRotation = (value: Euler) => {
@@ -131,7 +139,7 @@ export const PortalNodeEditor: EditorComponentType = (props) => {
 
   const portalComponent = useComponent(props.entity, PortalComponent)
   if (portalComponent.previewImageURL.value) {
-    updatePreview(portalComponent.previewImageURL.value)
+    updatePreviewWithUrl(portalComponent.previewImageURL.value)
   }
   // please mention better alternative to box( if i dont hide heading the preview cuts into spawn rotation)
   return (
