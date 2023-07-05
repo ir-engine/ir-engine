@@ -35,10 +35,11 @@ import { useState } from '@etherealengine/hyperflux'
 
 import AnimationIcon from '@mui/icons-material/Animation'
 
+import BooleanInput from '../inputs/BooleanInput'
 import InputGroup from '../inputs/InputGroup'
 import SelectInput from '../inputs/SelectInput'
 import NodeEditor from './NodeEditor'
-import { EditorComponentType, updateProperties } from './Util'
+import { EditorComponentType, updateProperties, updateProperty } from './Util'
 
 /**
  * ModelNodeEditor used to create editor view for the properties of ModelNode.
@@ -49,13 +50,13 @@ export const LoopAnimationNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
   const entity = props.entity
   const modelComponent = useComponent(entity, ModelComponent)
-  if (!modelComponent) return <></>
+  const loopAnimationComponent = useComponent(entity, LoopAnimationComponent)
 
-  const loopAnimationComponent = getOptionalComponent(entity, LoopAnimationComponent)
+  if (!modelComponent || !loopAnimationComponent) return <></>
 
   const animationOptions = useState(() => {
     const obj3d = modelComponent.value.scene
-    const animations = loopAnimationComponent?.hasAvatarAnimations
+    const animations = loopAnimationComponent.value.hasAvatarAnimations
       ? AnimationManager.instance._animations
       : obj3d?.animations ?? []
     return [{ label: 'None', value: -1 }, ...animations.map((clip, index) => ({ label: clip.name, value: index }))]
@@ -78,8 +79,14 @@ export const LoopAnimationNodeEditor: EditorComponentType = (props) => {
         <SelectInput
           key={props.entity}
           options={animationOptions.value}
-          value={loopAnimationComponent?.activeClipIndex}
+          value={loopAnimationComponent.value.activeClipIndex}
           onChange={onChangePlayingAnimation}
+        />
+      </InputGroup>
+      <InputGroup name="Is Avatar" label={t('editor:properties.model.lbl-isAvatar')}>
+        <BooleanInput
+          value={loopAnimationComponent.value.hasAvatarAnimations}
+          onChange={updateProperty(LoopAnimationComponent, 'hasAvatarAnimations')}
         />
       </InputGroup>
     </NodeEditor>

@@ -73,16 +73,6 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
   if (!modelComponent) return <></>
   const errors = getEntityErrors(props.entity, ModelComponent)
 
-  const loopAnimationComponent = getOptionalComponent(entity, LoopAnimationComponent)
-
-  const animationOptions = useState(() => {
-    const obj3d = modelComponent.value.scene
-    const animations = loopAnimationComponent?.hasAvatarAnimations
-      ? AnimationManager.instance._animations
-      : obj3d?.animations ?? []
-    return [{ label: 'None', value: -1 }, ...animations.map((clip, index) => ({ label: clip.name, value: index }))]
-  })
-
   const onChangeExportPath = useCallback(
     (path: string) => {
       let finalPath = path
@@ -120,13 +110,6 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
     updateProperty(ModelComponent, 'src')(path)
   }, [])
 
-  const onChangePlayingAnimation = (index) => {
-    updateProperties(LoopAnimationComponent, {
-      activeClipIndex: index
-    })
-    getCallback(props.entity, 'xre.play')!()
-  }
-
   return (
     <NodeEditor
       name={t('editor:properties.model.title')}
@@ -152,12 +135,6 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
         <BooleanInput
           value={modelComponent.avoidCameraOcclusion.value}
           onChange={updateProperty(ModelComponent, 'avoidCameraOcclusion')}
-        />
-      </InputGroup>
-      <InputGroup name="Is Avatar" label={t('editor:properties.model.lbl-isAvatar')}>
-        <BooleanInput
-          value={!!loopAnimationComponent?.hasAvatarAnimations}
-          onChange={updateProperty(LoopAnimationComponent, 'hasAvatarAnimations')}
         />
       </InputGroup>
       <LoopAnimationNodeEditor entity={props.entity} />
