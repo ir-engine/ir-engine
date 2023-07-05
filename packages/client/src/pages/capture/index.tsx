@@ -23,27 +23,23 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { getState } from '@etherealengine/hyperflux'
-import type { WebContainer3D } from '@etherealengine/xrui'
+import { t } from 'i18next'
+import React, { lazy, Suspense } from 'react'
+import { Navigate, Route, Routes } from 'react-router-dom'
 
-import { defineComponent } from '../../ecs/functions/ComponentFunctions'
-import { XRUIState } from '../XRUIState'
+import LoadingCircle from '@etherealengine/ui/src/primitives/tailwind/LoadingCircle'
 
-export const XRUIComponent = defineComponent({
-  name: 'XRUIComponent',
+import Capture from './capture'
 
-  onInit: (entity) => {
-    return null! as WebContainer3D
-  },
+const LocationRoutes = () => {
+  return (
+    <Suspense fallback={<LoadingCircle message={t('common:loader.loadingLocation')} />}>
+      <Routes>
+        <Route path=":locationName" element={<Capture />} />
+        <Route path="/" element={<Navigate to="/capture/default" />} />
+      </Routes>
+    </Suspense>
+  )
+}
 
-  onSet: (entity, component, json: WebContainer3D) => {
-    if (typeof json !== 'undefined') {
-      component.set(json)
-      component.value.interactionRays = getState(XRUIState).interactionRays
-    }
-  },
-
-  onRemove: (entity, component) => {
-    component.value.destroy()
-  }
-})
+export default LocationRoutes

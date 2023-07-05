@@ -134,11 +134,10 @@ export default (app: Application): void => {
   const service = app.service(routePath)
   service.hooks(hooks)
 
-  // @ts-ignore
   app.use('routes-installed', {
     find: getInstalledRoutes()
   })
-  // @ts-ignore
+
   app.use('route-activate', {
     create: activateRoute(service)
   })

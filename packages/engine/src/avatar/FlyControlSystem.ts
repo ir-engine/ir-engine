@@ -32,7 +32,7 @@ import { defineQuery, getComponent, removeQuery } from '@etherealengine/engine/s
 import { V_010 } from '../common/constants/MathConstants'
 import { Entity } from '../ecs/classes/Entity'
 import { defineSystem } from '../ecs/functions/SystemFunctions'
-import { getFirstNonCapturedInputSource, InputSourceComponent } from '../input/components/InputSourceComponent'
+import { InputSourceComponent } from '../input/components/InputSourceComponent'
 import { TransformComponent } from '../transform/components/TransformComponent'
 import { FlyControlComponent } from './components/FlyControlComponent'
 
@@ -50,7 +50,7 @@ const worldScale = new Vector3(1, 1, 1)
 const candidateWorldQuat = new Quaternion()
 
 const execute = () => {
-  const nonCapturedInputSource = getFirstNonCapturedInputSource()
+  const nonCapturedInputSource = InputSourceComponent.nonCapturedInputSourceQuery()[0]
   if (!nonCapturedInputSource) return
 
   const inputSource = getComponent(nonCapturedInputSource, InputSourceComponent)

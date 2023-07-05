@@ -24,15 +24,12 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { useHookstate } from '@hookstate/core'
-import React from 'react'
+import React, { useEffect } from 'react'
 import { Joystick } from 'react-joystick-component'
 
 import { isTouchAvailable } from '@etherealengine/engine/src/common/functions/DetectFeatures'
 import { getComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
-import {
-  getFirstNonCapturedInputSource,
-  InputSourceComponent
-} from '@etherealengine/engine/src/input/components/InputSourceComponent'
+import { InputSourceComponent } from '@etherealengine/engine/src/input/components/InputSourceComponent'
 import {
   AnyButton,
   createInitialButtonState,
@@ -47,7 +44,7 @@ import { AppState } from '../../services/AppService'
 import styles from './index.module.scss'
 
 const triggerButton = (button: AnyButton, pressed: boolean): void => {
-  const nonCapturedInputSource = getFirstNonCapturedInputSource()
+  const nonCapturedInputSource = InputSourceComponent.nonCapturedInputSourceQuery()[0]
   if (!nonCapturedInputSource) return
 
   const inputSource = getComponent(nonCapturedInputSource, InputSourceComponent)
@@ -62,22 +59,11 @@ const triggerButton = (button: AnyButton, pressed: boolean): void => {
   document.dispatchEvent(event)
 }
 
-const normalizeValues = (val) => {
-  const a = 5
-  const b = -5
-  const maxVal = 50
-  const minVal = -50
-
-  const newValue = (b - a) * ((val - minVal) / (maxVal - minVal)) + a
-
-  return newValue
-}
-
 const handleMove = (e) => {
   const event = new CustomEvent('touchstickmove', {
     detail: {
       stick: 'LeftStick',
-      value: { x: normalizeValues(-e.x), y: normalizeValues(e.y), angleRad: 0 }
+      value: { x: e.x, y: -e.y, angleRad: 0 }
     }
   })
 
@@ -103,7 +89,22 @@ export const TouchGamepad = () => {
   const availableInteractable = interactState.available.value?.[0]
   const appState = useHookstate(getMutableState(AppState))
 
-  if (!isTouchAvailable || isMobileXRHeadset || !appState.showTouchPad.value) return <></>
+  const hasGamepad = useHookstate(false)
+
+  useEffect(() => {
+    const getGamepads = () => {
+      hasGamepad.set(!!navigator.getGamepads().filter(Boolean).length)
+    }
+    getGamepads()
+    window.addEventListener('gamepadconnected', getGamepads)
+    window.addEventListener('gamepaddisconnected', getGamepads)
+    return () => {
+      window.removeEventListener('gamepadconnected', getGamepads)
+      window.removeEventListener('gamepaddisconnected', getGamepads)
+    }
+  }, [])
+
+  if (!isTouchAvailable || isMobileXRHeadset || !appState.showTouchPad.value || hasGamepad.value) return <></>
 
   const buttons = buttonsConfig.map((value, index) => {
     return (

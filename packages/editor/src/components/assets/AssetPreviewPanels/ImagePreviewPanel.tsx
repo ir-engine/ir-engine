@@ -39,5 +39,5 @@ const ImagePreview = styled.img`
 
 export const ImagePreviewPanel = (props) => {
   const url = props.resourceProps.resourceUrl
-  return <ImagePreview src={url} alt="Photo" />
+  return <ImagePreview src={url} alt="Photo" crossOrigin="anonymous" />
 }

@@ -54,7 +54,7 @@ import { VisibleComponent } from '../scene/components/VisibleComponent'
 import { ObjectLayers } from '../scene/constants/ObjectLayers'
 import { setObjectLayers } from '../scene/functions/setObjectLayers'
 import {
-  compareDistance,
+  compareDistanceToCamera,
   DistanceFromCameraComponent,
   FrustumCullCameraComponent
 } from '../transform/components/DistanceComponents'
@@ -259,7 +259,7 @@ const execute = () => {
   }
 
   if (needsSorting) {
-    insertionSort(sortedTransformEntities, compareDistance)
+    insertionSort(sortedTransformEntities, compareDistanceToCamera)
   }
 
   const filteredSortedTransformEntities = sortedTransformEntities.filter(filterFrustumCulledEntities)

@@ -105,7 +105,7 @@ const settingItems = [
   },
   {
     name: 'aws',
-    title: 'Aws',
+    title: 'AWS',
     icon: <Iconify icon="logos:aws" />,
     content: <Aws />
   },
@@ -171,17 +171,19 @@ const Setting = () => {
   return (
     <div ref={rootRef}>
       <div className={styles.invisible}>
-        <Button size="small" onClick={() => menuVisible.set(!menuVisible.value)} className={styles.menuBtn}>
-          <Icon type="Menu" />
-        </Button>
-        {menuVisible && (
+        {!menuVisible.value && (
+          <Button size="small" onClick={() => menuVisible.set(true)} className={styles.menuBtn}>
+            <Icon type="Menu" />
+          </Button>
+        )}
+        {menuVisible.value && (
           <div className={styles.hoverSettings}>
             <Grid display="flex" flexDirection="row" alignItems="center" marginBottom="10px">
               <Typography variant="h6" className={styles.settingsHeading}>
                 {t('admin:components.setting.settings')}
               </Typography>
               <IconButton
-                onClick={() => menuVisible.set(!menuVisible.value)}
+                onClick={() => menuVisible.set(false)}
                 style={{
                   color: 'orange',
                   fontSize: '3rem',

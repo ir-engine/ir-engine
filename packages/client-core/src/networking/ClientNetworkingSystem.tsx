@@ -75,11 +75,15 @@ const execute = () => {
 
   for (const action of noWorldServersAvailableQueue()) {
     const currentLocationID = locationState.currentLocation.location.id
-    WarningUIService.openWarning({
-      title: t('common:instanceServer.noAvailableServers'),
-      body: t('common:instanceServer.noAvailableServersMessage'),
-      action: (timeout) => timeout && LocationInstanceConnectionService.provisionServer(currentLocationID)
-    })
+    /** @todo - revisit reconnection UX */
+    // WarningUIService.openWarning({
+    //   title: t('common:instanceServer.noAvailableServers'),
+    //   body: t('common:instanceServer.noAvailableServersMessage'),
+    //   action: (timeout) => timeout && LocationInstanceConnectionService.provisionServer(currentLocationID)
+    // })
+    setTimeout(() => {
+      LocationInstanceConnectionService.provisionServer(currentLocationID)
+    }, 2000)
   }
 
   for (const action of noMediaServersAvailableQueue()) {
@@ -95,13 +99,17 @@ const execute = () => {
       //   updateWarningModal(WarningModalTypes.NO_MEDIA_SERVER_PROVISIONED)
       // }, 2000)
     } else {
+      /** @todo - revisit reconnection UX */
       const channelId = partyChannel ? partyChannel.id : instanceChannel!.id
-      WarningUIService.openWarning({
-        title: t('common:instanceServer.noAvailableServers'),
-        body: t('common:instanceServer.noAvailableServersMessage'),
-        timeout: 15,
-        action: (timeout) => timeout && MediaInstanceConnectionService.provisionServer(channelId, false)
-      })
+      // WarningUIService.openWarning({
+      //   title: t('common:instanceServer.noAvailableServers'),
+      //   body: t('common:instanceServer.noAvailableServersMessage'),
+      //   timeout: 15,
+      //   action: (timeout) => timeout && MediaInstanceConnectionService.provisionServer(channelId, false)
+      // })
+      setTimeout(() => {
+        MediaInstanceConnectionService.provisionServer(channelId, false)
+      }, 2000)
     }
   }
 
@@ -109,12 +117,17 @@ const execute = () => {
     const transport = Engine.instance.worldNetwork as SocketWebRTCClientNetwork
     if (engineState.isTeleporting || transport.reconnecting) continue
 
-    WarningUIService.openWarning({
-      title: t('common:instanceServer.worldDisconnected'),
-      body: t('common:instanceServer.worldDisconnectedMessage'),
-      // action: () => window.location.reload(),
-      timeout: 30
-    })
+    const currentLocationID = locationState.currentLocation.location.id
+    /** @todo - revisit reconnection UX */
+    // WarningUIService.openWarning({
+    //   title: t('common:instanceServer.worldDisconnected'),
+    //   body: t('common:instanceServer.worldDisconnectedMessage'),
+    //   // action: () => window.location.reload(),
+    //   timeout: 30
+    // })
+    setTimeout(() => {
+      LocationInstanceConnectionService.provisionServer(currentLocationID)
+    }, 2000)
   }
 
   for (const action of worldInstanceKickedQueue()) {
@@ -135,13 +148,18 @@ const execute = () => {
       (channel) => channel.channelType === 'party' && channel.partyId === authState.user.partyId
     )
     const channelId = partyChannel ? partyChannel.id : instanceChannel ? instanceChannel.id : null
-    if (channelId && !mediaInstanceState.joiningNewMediaChannel)
-      WarningUIService.openWarning({
-        title: 'Media disconnected',
-        body: "You've lost your connection with the media server. We'll try to reconnect when the following time runs out.",
-        action: (timeout) => timeout && MediaInstanceConnectionService.provisionServer(channelId, false),
-        timeout: 15
-      })
+    if (channelId && !mediaInstanceState.joiningNewMediaChannel) {
+      /** @todo - revisit reconnection UX */
+      // WarningUIService.openWarning({
+      //   title: 'Media disconnected',
+      //   body: "You've lost your connection with the media server. We'll try to reconnect when the following time runs out.",
+      //   action: (timeout) => timeout && MediaInstanceConnectionService.provisionServer(channelId, false),
+      //   timeout: 15
+      // })
+      setTimeout(() => {
+        MediaInstanceConnectionService.provisionServer(channelId, false)
+      }, 2000)
+    }
   }
 
   for (const action of worldInstanceReconnectedQueue()) {

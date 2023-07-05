@@ -54,7 +54,7 @@ const config: ProjectConfigInterface = {
       component: () => import('@etherealengine/client/src/pages/room')
     },
     '/capture': {
-      component: () => import('@etherealengine/client/src/route/capture')
+      component: () => import('@etherealengine/client/src/pages/capture')
     }
   }
 }

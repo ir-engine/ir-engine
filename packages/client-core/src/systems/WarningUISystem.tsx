@@ -36,10 +36,11 @@ import {
 } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { removeEntity } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
 import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
+import { InputComponent } from '@etherealengine/engine/src/input/components/InputComponent'
 import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
 import { setVisibleComponent, VisibleComponent } from '@etherealengine/engine/src/scene/components/VisibleComponent'
 import { ComputedTransformComponent } from '@etherealengine/engine/src/transform/components/ComputedTransformComponent'
-import { XRUIComponent, XRUIInteractableComponent } from '@etherealengine/engine/src/xrui/components/XRUIComponent'
+import { XRUIComponent } from '@etherealengine/engine/src/xrui/components/XRUIComponent'
 import { createTransitionState } from '@etherealengine/engine/src/xrui/functions/createTransitionState'
 import { createXRUI } from '@etherealengine/engine/src/xrui/functions/createXRUI'
 import { ObjectFitFunctions } from '@etherealengine/engine/src/xrui/functions/ObjectFitFunctions'
@@ -157,7 +158,6 @@ export const WarningUISystemState = defineState({
     const ui = createXRUI(WarningSystemXRUI)
     removeComponent(ui.entity, VisibleComponent)
     addComponent(ui.entity, NameComponent, 'Warning XRUI')
-    setComponent(ui.entity, XRUIInteractableComponent)
 
     return {
       ui,
