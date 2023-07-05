@@ -170,7 +170,6 @@ const isAvatarClicked = () => {
   if (hits.length) {
     const hit = hits[0]
     const hitEntity = (hit.body?.userData as any)?.entity as Entity
-    console.log(hitEntity, Engine.instance.localClientEntity)
     if (typeof hitEntity !== 'undefined' && hitEntity == Engine.instance.localClientEntity) {
       return true
     }
