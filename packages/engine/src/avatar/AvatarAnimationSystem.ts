@@ -356,7 +356,9 @@ const execute = () => {
           break
         case 'none':
           worldSpaceTargets.hipsTarget.copy(
-            _vector3.copy(ikTransform.position).setY(ikTransform.position.y - rigComponent.torsoLength - 0.125)
+            _vector3
+              .copy(ikTransform.position.multiplyScalar(xrState.localAvatarScale))
+              .setY(ikTransform.position.y - rigComponent.torsoLength - 0.125)
           )
           //offset target forward to account for hips being behind the head
           const hipsForward = new Vector3(0, 0, 1)
