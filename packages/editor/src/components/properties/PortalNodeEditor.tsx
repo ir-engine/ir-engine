@@ -40,8 +40,10 @@ import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDC
 import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
 
 import MeetingRoomIcon from '@mui/icons-material/MeetingRoom'
+import { Box } from '@mui/material'
 
 import { uploadCubemapBakeToServer } from '../../functions/uploadEnvMapBake'
+import { AssetSelectionChangePropsType, AssetsPreviewPanel } from '../assets/AssetsPreviewPanel'
 import BooleanInput from '../inputs/BooleanInput'
 import { Button } from '../inputs/Button'
 import EulerInput from '../inputs/EulerInput'
@@ -73,8 +75,8 @@ const rotation = new Quaternion()
 export const PortalNodeEditor: EditorComponentType = (props) => {
   const [portals, setPortals] = useState<Array<{ value: string; label: string }>>([])
   const { t } = useTranslation()
+  const portalPreviewPanelRef = React.useRef()
   const transformComponent = useComponent(props.entity, TransformComponent)
-
   useEffect(() => {
     loadPortals()
   }, [])
@@ -95,7 +97,17 @@ export const PortalNodeEditor: EditorComponentType = (props) => {
         })
     )
   }
-
+  const updatePreview = (url: string) => {
+    if (!url) {
+      ;(portalPreviewPanelRef as any).current?.onSelectionChanged?.({ resourceUrl: '', name: '', contentType: '' })
+      return
+    }
+    ;(portalPreviewPanelRef as any).current?.onSelectionChanged?.({
+      name: url.split('/').pop(),
+      resourceUrl: url,
+      contentType: 'image/ktx2'
+    } as AssetSelectionChangePropsType)
+  }
   const bakeCubemap = async () => {
     const url = await uploadCubemapBakeToServer(
       getComponent(props.entity, NameComponent),
@@ -103,6 +115,7 @@ export const PortalNodeEditor: EditorComponentType = (props) => {
     )
     loadPortals()
     updateProperties(PortalComponent, { previewImageURL: url }, [props.entity])
+    updatePreview(url)
   }
 
   const changeSpawnRotation = (value: Euler) => {
@@ -117,7 +130,10 @@ export const PortalNodeEditor: EditorComponentType = (props) => {
   }
 
   const portalComponent = useComponent(props.entity, PortalComponent)
-
+  if (portalComponent.previewImageURL.value) {
+    updatePreview(portalComponent.previewImageURL.value)
+  }
+  // please mention better alternative to box( if i dont hide heading the preview cuts into spawn rotation)
   return (
     <NodeEditor description={t('editor:properties.portal.description')} {...props}>
       <InputGroup name="Location" label={t('editor:properties.portal.lbl-locationName')}>
@@ -164,9 +180,14 @@ export const PortalNodeEditor: EditorComponentType = (props) => {
         />
       </InputGroup>
       <InputGroup name="Preview Image Bake" label={t('editor:properties.portal.lbl-createPreviewImage')}>
-        <Button style={{ width: 'auto', fontSize: '11px' }} type="submit" onClick={bakeCubemap}>
-          {t('editor:properties.portal.lbl-createPreviewImage')}
-        </Button>
+        <div style={{ display: 'flex', flexDirection: 'column' }}>
+          <Button style={{ width: '100%', fontSize: '11px' }} type="submit" onClick={bakeCubemap}>
+            {t('editor:properties.portal.lbl-createPreviewImage')}
+          </Button>
+          <div style={{ width: '100%', padding: '10px 0' }}>
+            <AssetsPreviewPanel hideHeading ref={portalPreviewPanelRef} />
+          </div>
+        </div>
       </InputGroup>
       <InputGroup name="Spawn Position" label={t('editor:properties.portal.lbl-spawnPosition')}>
         <Vector3Input
