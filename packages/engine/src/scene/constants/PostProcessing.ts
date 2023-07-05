@@ -396,7 +396,7 @@ export const effectInOrder = [
   /** 1. input aliasing */
   Effects.SMAAEffect,
 
-  /** 3. world effects */
+  /** 2. world effects */
   // Effects.PaniniProjection,
   Effects.OutlineEffect,
   Effects.DepthOfFieldEffect,
@@ -405,7 +405,7 @@ export const effectInOrder = [
   Effects.SSGIEffect,
   // Effects.GodRaysEffect,
 
-  /** 4. camera effects */
+  /** 3. camera effects */
   // Effects.LensDistortionEffect,
   // Effects.LensFlareEffect,
   // Effects.ChromaticAberrationEffect,
@@ -413,7 +413,7 @@ export const effectInOrder = [
   Effects.BloomEffect,
   // Effects.VignetteEffect,
 
-  /** 5. color grading */
+  /** 4. color grading */
   Effects.ToneMappingEffect,
   // maybe replace with Shadows/Midtones/Highlights ?
   Effects.BrightnessContrastEffect,
@@ -423,7 +423,7 @@ export const effectInOrder = [
   // Effects.ColorCurvesEffect,
   // Effects.WhiteBalanceEffect,
 
-  /** 6. final fix, aliasing and noise passes */
+  /** 5. final fix, aliasing and noise passes */
   // Effects.ChromaticAberrationEffect,
   Effects.LinearTosRGBEffect, // should this just be always on?
   Effects.TRAAEffect // TODO - add option to use FXAA
