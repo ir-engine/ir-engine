@@ -49,6 +49,7 @@ import InputGroup from '../inputs/InputGroup'
 import ModelInput from '../inputs/ModelInput'
 import SelectInput from '../inputs/SelectInput'
 import Well from '../layout/Well'
+import LoopAnimationNodeEditor from './LoopAnimationNodeEditor'
 import ModelTransformProperties from './ModelTransformProperties'
 import NodeEditor from './NodeEditor'
 import ScreenshareTargetNodeEditor from './ScreenshareTargetNodeEditor'
@@ -153,20 +154,13 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
           onChange={updateProperty(ModelComponent, 'avoidCameraOcclusion')}
         />
       </InputGroup>
-      <InputGroup name="Loop Animation" label={t('editor:properties.model.lbl-loopAnimation')}>
-        <SelectInput
-          key={props.entity}
-          options={animationOptions.value}
-          value={loopAnimationComponent?.activeClipIndex}
-          onChange={onChangePlayingAnimation}
-        />
-      </InputGroup>
       <InputGroup name="Is Avatar" label={t('editor:properties.model.lbl-isAvatar')}>
         <BooleanInput
           value={!!loopAnimationComponent?.hasAvatarAnimations}
           onChange={updateProperty(LoopAnimationComponent, 'hasAvatarAnimations')}
         />
       </InputGroup>
+      <LoopAnimationNodeEditor entity={props.entity} />
       <ScreenshareTargetNodeEditor entity={props.entity} multiEdit={props.multiEdit} />
       <ShadowProperties entity={props.entity} />
       <ModelTransformProperties modelState={modelComponent} onChangeModel={(val) => modelComponent.src.set(val)} />
