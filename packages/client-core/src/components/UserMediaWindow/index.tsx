@@ -34,6 +34,7 @@ import {
   globalUnmuteProducer,
   pauseConsumer,
   resumeConsumer,
+  setPreferredConsumerLayer,
   toggleMicrophonePaused,
   toggleScreenshareAudioPaused,
   toggleScreenshareVideoPaused,
@@ -433,6 +434,35 @@ export const UserMediaWindow = ({ peerID, type }: Props): JSX.Element => {
     document.getElementById(peerID + '-' + type + '-video-container')!.append(videoElement)
     document.getElementById(peerID + '-' + type + '-audio-container')!.append(audioElement)
   }, [])
+
+  useEffect(() => {
+    if (!videoStream) return
+    const mediaNetwork = Engine.instance.mediaNetwork as SocketWebRTCClientNetwork
+    const encodings = videoStream.rtpParameters.encodings
+
+    const immersiveMedia = getMutableState(MediaSettingsState).immersiveMedia
+    if (isPiP || immersiveMedia.value) {
+      let maxLayer
+      const scalabilityMode = encodings && encodings[0].scalabilityMode
+      if (!scalabilityMode) maxLayer = 0
+      else {
+        const execed = /L([0-9])/.exec(scalabilityMode)
+        if (execed) maxLayer = parseInt(execed[1]) - 1 //Subtract 1 from max scalabilityMode since layers are 0-indexed
+        else maxLayer = 0
+      }
+      // If we're in immersive media mode, using max-resolution video for everyone could overwhelm some devices.
+      // If there are more than 2 layers, then use layer n-1 to balance quality and performance
+      // (immersive video bubbles are bigger than the flat bubbles, so low-quality video will be more noticeable).
+      // If we're not, then use the highest layer when opening PiP for a video
+      setPreferredConsumerLayer(
+        mediaNetwork,
+        videoStream as ConsumerExtension,
+        immersiveMedia && maxLayer > 1 ? maxLayer - 1 : maxLayer
+      )
+    }
+    // Standard video bubbles in flat/non-immersive mode should use the lowest quality layer for performance reasons
+    else setPreferredConsumerLayer(mediaNetwork, videoStream as ConsumerExtension, 0)
+  }, [videoStream, isPiP])
 
   return (
     <Draggable isPiP={isPiP}>
