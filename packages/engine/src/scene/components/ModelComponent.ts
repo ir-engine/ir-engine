@@ -184,12 +184,6 @@ function ModelReactor() {
     }
   }, [modelComponent.src])
 
-  useEffect(() => {
-    const scene = modelComponent.scene.value
-    if (!scene) return
-    enableObjectLayer(scene, ObjectLayers.Camera, !model.avoidCameraOcclusion && model.generateBVH)
-  }, [modelComponent.avoidCameraOcclusion, modelComponent.scene])
-
   // update scene
   useEffect(() => {
     const scene = modelComponent.scene.get({ noproxy: true })
@@ -204,6 +198,7 @@ function ModelReactor() {
     let active = true
 
     if (model.generateBVH) {
+      enableObjectLayer(scene, ObjectLayers.Camera, false)
       const bvhDone = [] as Promise<void>[]
       scene.traverse((obj: Mesh) => {
         bvhDone.push(generateMeshBVH(obj))
@@ -213,6 +208,7 @@ function ModelReactor() {
         if (!active) return
         const group = getMutableComponent(entity, GroupComponent)
         if (group) group.set([...group.value])
+        enableObjectLayer(scene, ObjectLayers.Camera, !model.avoidCameraOcclusion && model.generateBVH)
       })
     }
 
