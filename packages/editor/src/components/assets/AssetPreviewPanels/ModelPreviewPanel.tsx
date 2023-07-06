@@ -24,17 +24,16 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import React, { useEffect, useRef } from 'react'
-import { Mesh } from 'three'
 
 import LoadingView from '@etherealengine/client-core/src/common/components/LoadingView'
-import { useRender3DPanelSystem } from '@etherealengine/client-core/src/user/components/Panel3D/useRender3DPanelSystem'
-import { loadAvatarModelAsset } from '@etherealengine/engine/src/avatar/functions/avatarFunctions'
-import { SourceType } from '@etherealengine/engine/src/renderer/materials/components/MaterialSource'
 import {
-  removeMaterialSource,
-  unregisterMaterial
-} from '@etherealengine/engine/src/renderer/materials/functions/MaterialLibraryFunctions'
-import { State, useHookstate } from '@etherealengine/hyperflux'
+  loadModelForPreview,
+  resetAnimationLogic
+} from '@etherealengine/client-core/src/user/components/Panel3D/helperFunctions'
+import { useRender3DPanelSystem } from '@etherealengine/client-core/src/user/components/Panel3D/useRender3DPanelSystem'
+import { SourceType } from '@etherealengine/engine/src/renderer/materials/components/MaterialSource'
+import { removeMaterialSource } from '@etherealengine/engine/src/renderer/materials/functions/MaterialLibraryFunctions'
+import { useHookstate } from '@etherealengine/hyperflux'
 
 import styles from '../styles.module.scss'
 
@@ -44,20 +43,23 @@ export const ModelPreviewPanel = (props) => {
 
   const error = useHookstate('')
   const panelRef = useRef() as React.MutableRefObject<HTMLDivElement>
-
   const renderPanel = useRender3DPanelSystem(panelRef)
-  const { scene } = renderPanel.state
+  const { camera, entity, scene, renderer } = renderPanel.state
+  const augmentSceneForPreview = (camera, scene, renderer) => {
+    // empty for now but we can augment in any way needed like change camera, lighting, etc
+  }
 
   useEffect(() => {
     const loadModel = async () => {
       try {
-        const model = await loadAvatarModelAsset(url)
+        //const model = (await loadAvatarModelAsset(url))!
+        augmentSceneForPreview(camera, scene, renderer)
+        const model = await loadModelForPreview(entity.value, url)
         if (model) {
           model.name = 'avatar'
           const result = scene.value.getObjectByName(model.name)
           if (result) scene.value.remove(result)
           scene.value.add(model)
-          console.log('DEBUG', scene.value)
         }
         loading.set(false)
       } catch (err) {
@@ -85,7 +87,7 @@ export const ModelPreviewPanel = (props) => {
           <h1 className={styles.error}>{error.value}</h1>
         </div>
       )}
-      <div id="stage" ref={panelRef} style={{ width: '100%', minHeight: '250px', height: '100%' }}></div>
+      <div id="stage" ref={panelRef} style={{ minHeight: '250px', width: '100%', height: '100%' }}></div>
     </>
   )
 }
