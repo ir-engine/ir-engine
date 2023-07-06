@@ -23,6 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import React, { useEffect } from 'react'
+
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { SceneData, SceneJson } from '@etherealengine/common/src/interfaces/SceneInterface'
 import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
@@ -37,7 +39,14 @@ import {
   removeSceneEntitiesFromOldJSON,
   updateSceneEntitiesFromJSON
 } from '@etherealengine/engine/src/scene/systems/SceneLoadingSystem'
-import { defineAction, defineState, getMutableState, getState } from '@etherealengine/hyperflux'
+import {
+  defineAction,
+  defineState,
+  getMutableState,
+  getState,
+  receiveActions,
+  useHookstate
+} from '@etherealengine/hyperflux'
 import { defineActionQueue, dispatchAction, Topic } from '@etherealengine/hyperflux/functions/ActionFunctions'
 
 import { SelectionAction, SelectionState } from './SelectionServices'
@@ -49,15 +58,8 @@ export type EditorStateSnapshot = {
   data: SceneData
 }
 
-export const EditorHistoryState = defineState({
-  name: 'EditorHistoryState',
-  initial: () => ({
-    index: 0,
-    history: [] as EditorStateSnapshot[]
-  })
-})
-
 export class EditorHistoryAction {
+  /** @deprecated - use EditorHistoryState.undo() */
   static undo = defineAction({
     type: 'ee.editor.EditorHistory.UNDO' as const,
     count: matches.number
@@ -65,6 +67,7 @@ export class EditorHistoryAction {
     // $cache: true
   })
 
+  /** @deprecated - use EditorHistoryState.redo() */
   static redo = defineAction({
     type: 'ee.editor.EditorHistory.REDO' as const,
     count: matches.number
@@ -87,12 +90,65 @@ export class EditorHistoryAction {
     type: 'ee.editor.EditorHistory.CREATE_SNAPSHOT' as const,
     selectedEntities: matches.array.optional() as Validator<unknown, Array<Entity | string> | undefined>
   })
+
+  // new API
+  static setIndex = defineAction({
+    type: 'ee.editor.EditorHistory.SET_INDEX' as const,
+    index: matches.number
+  })
 }
+
+export const EditorHistoryState = defineState({
+  name: 'EditorHistoryState',
+
+  initial: () => ({
+    index: 0,
+    history: [] as EditorStateSnapshot[]
+  }),
+
+  receptors: [
+    [
+      EditorHistoryAction.undo,
+      (state, action: typeof EditorHistoryAction.undo.matches._TYPE) => {
+        if (state.index.value <= 0) return
+        state.index.set(Math.max(state.index.value - action.count, 0))
+      }
+    ],
+    [
+      EditorHistoryAction.redo,
+      (state, action: typeof EditorHistoryAction.redo.matches._TYPE) => {
+        if (state.index.value >= state.history.value.length - 1) return
+        state.index.set(Math.min(state.index.value + action.count, state.history.value.length - 1))
+      }
+    ],
+    [
+      EditorHistoryAction.setIndex,
+      (state, action: typeof EditorHistoryAction.setIndex.matches._TYPE) => {
+        state.index.set(action.index)
+      }
+    ]
+  ],
+
+  undo: (count = 1) => {
+    const state = getState(EditorHistoryState)
+    if (state.index <= 0) return
+    const index = Math.max(state.index - count, 0)
+    dispatchAction(EditorHistoryAction.setIndex({ index }))
+  },
+
+  redo: (count = 1) => {
+    const state = getState(EditorHistoryState)
+    if (state.index >= state.history.length - 1) return
+    const index = Math.min(state.index + count, state.history.length - 1)
+    dispatchAction(EditorHistoryAction.setIndex({ index }))
+  }
+})
 
 const applyCurrentSnapshot = () => {
   const state = getState(EditorHistoryState)
   const snapshot = state.history[state.index]
   if (snapshot.data) {
+    if (getState(SceneState).sceneData?.scene === snapshot.data.scene) return
     getMutableState(SceneState).sceneData.ornull!.scene.set(snapshot.data.scene)
     removeSceneEntitiesFromOldJSON()
     updateSceneEntitiesFromJSON(snapshot.data.scene.root)
@@ -105,8 +161,6 @@ const applyCurrentSnapshot = () => {
     )
 }
 
-const undoQueue = defineActionQueue(EditorHistoryAction.undo.matches)
-const redoQueue = defineActionQueue(EditorHistoryAction.redo.matches)
 const clearHistoryQueue = defineActionQueue(EditorHistoryAction.clearHistory.matches)
 const appendSnapshotQueue = defineActionQueue(EditorHistoryAction.appendSnapshot.matches)
 const modifyQueue = defineActionQueue(EditorHistoryAction.createSnapshot.matches)
@@ -115,17 +169,6 @@ const execute = () => {
   const selectedEntitiesState = getState(SelectionState)
 
   const state = getMutableState(EditorHistoryState)
-  for (const action of undoQueue()) {
-    if (state.index.value <= 0) continue
-    state.index.set(Math.max(state.index.value - action.count, 0))
-    applyCurrentSnapshot()
-  }
-
-  for (const action of redoQueue()) {
-    if (state.index.value >= state.history.value.length - 1) continue
-    state.index.set(Math.min(state.index.value + action.count, state.history.value.length - 1))
-    applyCurrentSnapshot()
-  }
 
   for (const action of clearHistoryQueue()) {
     const selectedEntities = selectedEntitiesState.selectedEntities.map((entity) =>
@@ -166,7 +209,18 @@ const execute = () => {
   }
 }
 
+const reactor = ({ entityUUID }: { entityUUID: EntityUUID }) => {
+  const state = useHookstate(getMutableState(EditorHistoryState))
+
+  useEffect(() => {
+    applyCurrentSnapshot()
+  }, [state.index])
+
+  return null
+}
+
 export const EditorHistoryReceptorSystem = defineSystem({
   uuid: 'ee.editor.EditorHistoryReceptorSystem',
-  execute
+  execute: () => receiveActions(EditorHistoryState),
+  reactor
 })
