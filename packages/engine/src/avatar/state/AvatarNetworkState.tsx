@@ -29,6 +29,7 @@ import matches from 'ts-matches'
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { defineAction, defineState, getMutableState, none, useHookstate, useState } from '@etherealengine/hyperflux'
 
+import { isClient } from '../../common/functions/getEnvironment'
 import { matchesEntityUUID } from '../../common/functions/MatchesUtils'
 import { Engine } from '../../ecs/classes/Engine'
 import { getComponent } from '../../ecs/functions/ComponentFunctions'
@@ -114,8 +115,6 @@ export const AvatarState = defineState({
 const AvatarReactor = React.memo(({ entityUUID }: { entityUUID: EntityUUID }) => {
   const state = useHookstate(getMutableState(AvatarState)[entityUUID])
 
-  console.log(state.value)
-
   useEffect(() => {
     spawnAvatarReceptor(entityUUID)
   }, [])
@@ -144,6 +143,8 @@ const AvatarReactor = React.memo(({ entityUUID }: { entityUUID: EntityUUID }) =>
 
         // backwards compat
         getMutableState(WorldState).userAvatarDetails[entityUUID].set(avatarDetails)
+
+        if (!isClient) return
 
         const entity = UUIDComponent.entitiesByUUID[entityUUID]
         loadAvatarForUser(entity, avatarDetails.modelResource?.url)
