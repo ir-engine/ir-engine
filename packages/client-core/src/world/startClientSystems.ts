@@ -25,10 +25,12 @@ Ethereal Engine. All Rights Reserved.
 
 import { MediaSystem } from '@etherealengine/engine/src/audio/systems/MediaSystem'
 import { PositionalAudioSystem } from '@etherealengine/engine/src/audio/systems/PositionalAudioSystem'
-import { AnimationSystem } from '@etherealengine/engine/src/avatar/AnimationSystem'
-import { AvatarAnimationSystem } from '@etherealengine/engine/src/avatar/AvatarAnimationSystem'
-import { AvatarInputGroup, AvatarSimulationGroup } from '@etherealengine/engine/src/avatar/AvatarClientSystems'
-import { AvatarSpawnSystem } from '@etherealengine/engine/src/avatar/AvatarSpawnSystem'
+import {
+  AvatarAnimationSystemGroup,
+  AvatarInputSystemGroup,
+  AvatarSimulationSystemGroup
+} from '@etherealengine/engine/src/avatar/AvatarSystemGroups'
+import { AnimationSystem } from '@etherealengine/engine/src/avatar/systems/AnimationSystem'
 import { CameraInputSystem } from '@etherealengine/engine/src/camera/systems/CameraInputSystem'
 import { CameraSystem } from '@etherealengine/engine/src/camera/systems/CameraSystem'
 import { DebugRendererSystem } from '@etherealengine/engine/src/debug/systems/DebugRendererSystem'
@@ -62,29 +64,21 @@ import { XRUISystem } from '@etherealengine/engine/src/xrui/systems/XRUISystem'
 
 export const startClientSystems = () => {
   /** Input */
-  startSystems([XRSystem, MotionCaptureSystem, ClientInputSystem, AvatarInputGroup, CameraInputSystem], {
+  startSystems([XRSystem, MotionCaptureSystem, ClientInputSystem, AvatarInputSystemGroup, CameraInputSystem], {
     with: InputSystemGroup
   })
 
   /** Fixed */
-  startSystems(
-    [IncomingNetworkSystem, WorldNetworkActionSystem, EquippableSystem, AvatarSimulationGroup, OutgoingNetworkSystem],
-    { with: SimulationSystemGroup }
-  )
+  startSystems([IncomingNetworkSystem, WorldNetworkActionSystem, EquippableSystem, AvatarSimulationSystemGroup], {
+    with: SimulationSystemGroup
+  })
 
   /** Physics */
-  startSystems([PhysicsSystem], { after: SimulationSystemGroup })
+  startSystems([PhysicsSystem, OutgoingNetworkSystem], { after: SimulationSystemGroup })
 
   /** Avatar / Animation */
   startSystems(
-    [
-      ReferenceSpaceTransformSystem,
-      XRAnchorSystem,
-      AnimationSystem,
-      CameraSystem,
-      AvatarSpawnSystem,
-      AvatarAnimationSystem
-    ],
+    [ReferenceSpaceTransformSystem, XRAnchorSystem, AnimationSystem, CameraSystem, AvatarAnimationSystemGroup],
     {
       with: AnimationSystemGroup
     }

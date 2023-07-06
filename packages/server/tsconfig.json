@@ -35,6 +35,8 @@
     "**/node_modules/**"
   ],
   "include": [
+    "../engine/src/**/*.ts",
+    "../engine/src/**/*.tsx",
     "./**/*.ts",
     "./**/*.tsx"
   ]

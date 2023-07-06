@@ -25,7 +25,6 @@ Ethereal Engine. All Rights Reserved.
 
 import { defineAction } from '@etherealengine/hyperflux'
 
-import { matchesWeightsParameters } from '../../avatar/animation/Util'
 import {
   matches,
   matchesEntityUUID,
@@ -34,20 +33,12 @@ import {
   matchesQuaternion,
   matchesUserId,
   matchesVector3,
-  matchesWithDefault,
-  string
+  matchesWithDefault
 } from '../../common/functions/MatchesUtils'
 import { Engine } from '../../ecs/classes/Engine'
 import { NetworkTopics } from '../classes/Network'
-import { matchesAvatarProps } from '../interfaces/WorldState'
 
 export class WorldNetworkAction {
-  static xrHandsConnected = defineAction({
-    type: 'xre.world.XR_HANDS_CONNECTED',
-    $cache: true,
-    $topic: NetworkTopics.world
-  })
-
   static spawnDebugPhysicsObject = defineAction({
     type: 'xre.world.SPAWN_DEBUG_PHYSICS_OBJECT',
     config: matches.any.optional(),
@@ -65,18 +56,11 @@ export class WorldNetworkAction {
   static spawnObject = defineAction({
     type: 'xre.world.SPAWN_OBJECT',
     prefab: matches.string,
+    entityUUID: matchesEntityUUID,
     networkId: matchesWithDefault(matchesNetworkId, () => Engine.instance.createNetworkId()),
     position: matchesVector3.optional(),
     rotation: matchesQuaternion.optional(),
-    uuid: matchesEntityUUID,
     $cache: true,
-    $topic: NetworkTopics.world
-  })
-
-  static spawnAvatar = defineAction({
-    ...WorldNetworkAction.spawnObject.actionShape,
-    prefab: 'avatar',
-    uuid: matchesUserId,
     $topic: NetworkTopics.world
   })
 
@@ -88,7 +72,7 @@ export class WorldNetworkAction {
 
   static destroyObject = defineAction({
     type: 'xre.world.DESTROY_OBJECT',
-    networkId: matchesNetworkId,
+    entityUUID: matchesEntityUUID,
     $topic: NetworkTopics.world
   })
 
@@ -108,37 +92,6 @@ export class WorldNetworkAction {
     equip: matches.boolean,
     attachmentPoint: matches.literals('left', 'right', 'none').optional(),
     $cache: true,
-    $topic: NetworkTopics.world
-  })
-
-  static avatarAnimation = defineAction({
-    type: 'xre.world.AVATAR_ANIMATION',
-    newStateName: matches.string,
-    params: matchesWeightsParameters,
-    $cache: {
-      removePrevious: true
-    },
-    $topic: NetworkTopics.world
-  })
-
-  static avatarDetails = defineAction({
-    type: 'xre.world.AVATAR_DETAILS',
-    avatarDetail: matchesAvatarProps,
-    uuid: matchesUserId,
-    $cache: {
-      removePrevious: true
-    },
-    $topic: NetworkTopics.world
-  })
-
-  static teleportObject = defineAction({
-    type: 'xre.world.TELEPORT_OBJECT',
-    object: matches.shape({
-      ownerId: matchesUserId,
-      networkId: matchesNetworkId
-    }),
-    position: matchesVector3,
-    rotation: matchesQuaternion,
     $topic: NetworkTopics.world
   })
 

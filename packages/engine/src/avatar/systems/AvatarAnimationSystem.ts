@@ -30,49 +30,49 @@ import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { insertionSort } from '@etherealengine/common/src/utils/insertionSort'
 import { defineActionQueue, defineState, dispatchAction, getState } from '@etherealengine/hyperflux'
 
-import { Axis } from '../common/constants/Axis3D'
-import { V_000 } from '../common/constants/MathConstants'
-import { proxifyQuaternion } from '../common/proxies/createThreejsProxy'
-import { Engine } from '../ecs/classes/Engine'
-import { EngineState } from '../ecs/classes/EngineState'
-import { Entity } from '../ecs/classes/Entity'
-import { defineQuery, getComponent, getOptionalComponent, setComponent } from '../ecs/functions/ComponentFunctions'
-import { removeEntity } from '../ecs/functions/EntityFunctions'
-import { defineSystem } from '../ecs/functions/SystemFunctions'
-import { createPriorityQueue } from '../ecs/PriorityQueue'
-import { InputSourceComponent } from '../input/components/InputSourceComponent'
-import { NetworkObjectComponent } from '../networking/components/NetworkObjectComponent'
-import { RigidBodyComponent } from '../physics/components/RigidBodyComponent'
-import { addObjectToGroup, GroupComponent } from '../scene/components/GroupComponent'
-import { NameComponent } from '../scene/components/NameComponent'
-import { UUIDComponent } from '../scene/components/UUIDComponent'
-import { VisibleComponent } from '../scene/components/VisibleComponent'
-import { ObjectLayers } from '../scene/constants/ObjectLayers'
-import { setObjectLayers } from '../scene/functions/setObjectLayers'
+import { Axis } from '../../common/constants/Axis3D'
+import { V_000 } from '../../common/constants/MathConstants'
+import { proxifyQuaternion } from '../../common/proxies/createThreejsProxy'
+import { Engine } from '../../ecs/classes/Engine'
+import { EngineState } from '../../ecs/classes/EngineState'
+import { Entity } from '../../ecs/classes/Entity'
+import { defineQuery, getComponent, getOptionalComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
+import { removeEntity } from '../../ecs/functions/EntityFunctions'
+import { defineSystem } from '../../ecs/functions/SystemFunctions'
+import { createPriorityQueue } from '../../ecs/PriorityQueue'
+import { InputSourceComponent } from '../../input/components/InputSourceComponent'
+import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
+import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
+import { addObjectToGroup, GroupComponent } from '../../scene/components/GroupComponent'
+import { NameComponent } from '../../scene/components/NameComponent'
+import { UUIDComponent } from '../../scene/components/UUIDComponent'
+import { VisibleComponent } from '../../scene/components/VisibleComponent'
+import { ObjectLayers } from '../../scene/constants/ObjectLayers'
+import { setObjectLayers } from '../../scene/functions/setObjectLayers'
 import {
   compareDistanceToCamera,
   DistanceFromCameraComponent,
   FrustumCullCameraComponent
-} from '../transform/components/DistanceComponents'
-import { TransformComponent } from '../transform/components/TransformComponent'
-import { updateGroupChildren } from '../transform/systems/TransformSystem'
-import { getCameraMode, isMobileXRHeadset, XRAction, XRState } from '../xr/XRState'
-import { updateAnimationGraph } from './animation/AnimationGraph'
-import { solveHipHeight } from './animation/HipIKSolver'
-import { solveLookIK } from './animation/LookAtIKSolver'
-import { solveTwoBoneIK } from './animation/TwoBoneIKSolver'
-import { AnimationManager } from './AnimationManager'
-import { AnimationComponent } from './components/AnimationComponent'
-import { AvatarAnimationComponent, AvatarRigComponent } from './components/AvatarAnimationComponent'
+} from '../../transform/components/DistanceComponents'
+import { TransformComponent } from '../../transform/components/TransformComponent'
+import { updateGroupChildren } from '../../transform/systems/TransformSystem'
+import { getCameraMode, isMobileXRHeadset, XRAction, XRState } from '../../xr/XRState'
+import { updateAnimationGraph } from '.././animation/AnimationGraph'
+import { solveHipHeight } from '.././animation/HipIKSolver'
+import { solveLookIK } from '.././animation/LookAtIKSolver'
+import { solveTwoBoneIK } from '.././animation/TwoBoneIKSolver'
+import { AnimationManager } from '.././AnimationManager'
+import { AnimationComponent } from '.././components/AnimationComponent'
+import { AvatarAnimationComponent, AvatarRigComponent } from '.././components/AvatarAnimationComponent'
 import {
   AvatarIKTargetComponent,
   xrTargetHeadSuffix,
   xrTargetLeftHandSuffix,
   xrTargetRightHandSuffix
-} from './components/AvatarIKComponents'
-import { LoopAnimationComponent } from './components/LoopAnimationComponent'
-import { applyInputSourcePoseToIKTargets } from './functions/applyInputSourcePoseToIKTargets'
-import { AvatarMovementSettingsState } from './state/AvatarMovementSettingsState'
+} from '.././components/AvatarIKComponents'
+import { LoopAnimationComponent } from '.././components/LoopAnimationComponent'
+import { applyInputSourcePoseToIKTargets } from '.././functions/applyInputSourcePoseToIKTargets'
+import { AvatarMovementSettingsState } from '.././state/AvatarMovementSettingsState'
 
 export const AvatarAnimationState = defineState({
   name: 'AvatarAnimationState',
@@ -194,11 +194,11 @@ const execute = () => {
     if (!leftHand && ikTargetLeftHand) removeEntity(ikTargetLeftHand)
     if (!rightHand && ikTargetRightHand) removeEntity(ikTargetRightHand)
 
-    if (head && !ikTargetHead) dispatchAction(XRAction.spawnIKTarget({ handedness: 'none', uuid: headUUID }))
+    if (head && !ikTargetHead) dispatchAction(XRAction.spawnIKTarget({ handedness: 'none', entityUUID: headUUID }))
     if (leftHand && !ikTargetLeftHand)
-      dispatchAction(XRAction.spawnIKTarget({ handedness: 'left', uuid: leftHandUUID }))
+      dispatchAction(XRAction.spawnIKTarget({ handedness: 'left', entityUUID: leftHandUUID }))
     if (rightHand && !ikTargetRightHand)
-      dispatchAction(XRAction.spawnIKTarget({ handedness: 'right', uuid: rightHandUUID }))
+      dispatchAction(XRAction.spawnIKTarget({ handedness: 'right', entityUUID: rightHandUUID }))
   }
 
   /**

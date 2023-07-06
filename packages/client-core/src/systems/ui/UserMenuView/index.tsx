@@ -40,7 +40,7 @@ import { FriendService, FriendState } from '../../../social/services/FriendServi
 import { InviteService } from '../../../social/services/InviteService'
 import { PartyState } from '../../../social/services/PartyService'
 import { PopupMenuActions } from '../../../user/components/UserMenu/PopupMenuService'
-import { getAvatarURLForUser } from '../../../user/components/UserMenu/util'
+import { getUserAvatarThumbnail } from '../../../user/functions/useUserAvatarThumbnail'
 import { AuthState } from '../../../user/services/AuthService'
 import { AvatarMenus } from '../../AvatarUISystem'
 import XRTextButton from '../../components/XRTextButton'
@@ -122,12 +122,7 @@ const AvatarContextMenu = () => {
       <style>{styleString}</style>
       {user?.userId && (
         <div className="rootContainer">
-          <img
-            className="ownerImage"
-            src={getAvatarURLForUser(userAvatarDetails, user?.userId)}
-            alt=""
-            crossOrigin="anonymous"
-          />
+          <img className="ownerImage" src={getUserAvatarThumbnail(user.userId)} alt="" crossOrigin="anonymous" />
           <div className="buttonContainer">
             <section className="buttonSection">
               {partyState?.party?.id?.value != null &&

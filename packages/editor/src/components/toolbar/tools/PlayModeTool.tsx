@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import React from 'react'
 
 import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
-import { getRandomSpawnPoint } from '@etherealengine/engine/src/avatar/AvatarSpawnSystem'
+import { getRandomSpawnPoint } from '@etherealengine/engine/src/avatar/functions/getSpawnPoint'
 import { FollowCameraComponent } from '@etherealengine/engine/src/camera/components/FollowCameraComponent'
 import { TargetCameraRotationComponent } from '@etherealengine/engine/src/camera/components/TargetCameraRotationComponent'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
@@ -63,13 +63,10 @@ const PlayModeTool = () => {
 
       const avatarSpawnPose = getRandomSpawnPoint(Engine.instance.userId)
 
-      if (avatarDetails.modelResource?.url)
+      if (avatarDetails)
         spawnLocalAvatarInWorld({
           avatarSpawnPose,
-          avatarDetail: {
-            avatarURL: avatarDetails.modelResource?.url!,
-            thumbnailURL: avatarDetails.thumbnailResource?.url!
-          },
+          avatarID: avatarDetails.id,
           name: authState.user.name.value
         })
       dispatchAction(EditorHelperAction.changedPlayMode({ isPlayModeEnabled: true }))

@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import * as bitecs from 'bitecs'
 
 import type { UserId } from '@etherealengine/common/src/interfaces/UserId'
-import { createHyperStore, getMutableState, getState, hookstate, ReactorRoot, State } from '@etherealengine/hyperflux'
+import { createHyperStore, getMutableState, getState, ReactorRoot, State } from '@etherealengine/hyperflux'
 import * as Hyperflux from '@etherealengine/hyperflux'
 import { HyperStore } from '@etherealengine/hyperflux/functions/StoreFunctions'
 
@@ -48,11 +48,7 @@ import { ComponentJson } from '@etherealengine/common/src/interfaces/SceneInterf
 import { GLTFLoader } from '../../assets/loaders/gltf/GLTFLoader'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { CameraComponent } from '../../camera/components/CameraComponent'
-import { SceneLoaderType } from '../../common/constants/PrefabFunctionType'
-import { nowMilliseconds } from '../../common/functions/nowMilliseconds'
 import { Timer } from '../../common/functions/Timer'
-import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
-import { InputState } from '../../input/state/InputState'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
 import { NetworkState } from '../../networking/NetworkState'
 import { PhysicsWorld } from '../../physics/classes/Physics'

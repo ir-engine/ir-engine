@@ -25,18 +25,19 @@ Ethereal Engine. All Rights Reserved.
 
 import assert from 'assert'
 
+import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { NetworkId } from '@etherealengine/common/src/interfaces/NetworkId'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { UserId } from '@etherealengine/common/src/interfaces/UserId'
-import { applyIncomingActions, clearOutgoingActions, getMutableState } from '@etherealengine/hyperflux'
+import { applyIncomingActions, getMutableState } from '@etherealengine/hyperflux'
 
 import { createMockNetwork } from '../../../tests/util/createMockNetwork'
 import { destroyEngine, Engine } from '../../ecs/classes/Engine'
-import { addComponent } from '../../ecs/functions/ComponentFunctions'
-import { executeSystems, RootSystemGroup, SimulationSystemGroup } from '../../ecs/functions/EngineFunctions'
+import { setComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
-import { startSystem, startSystems, SystemDefinitions } from '../../ecs/functions/SystemFunctions'
+import { SystemDefinitions } from '../../ecs/functions/SystemFunctions'
 import { createEngine } from '../../initializeEngine'
+import { UUIDComponent } from '../../scene/components/UUIDComponent'
 import { Network } from '../classes/Network'
 import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
 import { WorldState } from '../interfaces/WorldState'
@@ -150,11 +151,12 @@ describe('NetworkPeerFunctions', () => {
       const networkId = 2 as NetworkId
 
       const entity = createEntity()
-      addComponent(entity, NetworkObjectComponent, {
+      setComponent(entity, NetworkObjectComponent, {
         ownerId: userId,
         authorityPeerID: peerID,
         networkId
       })
+      setComponent(entity, UUIDComponent, 'entity_uuid' as EntityUUID)
 
       // process remove actions and execute entity removal
       Engine.instance.store.defaultDispatchDelay = () => 0
