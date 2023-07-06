@@ -42,9 +42,9 @@ jobs:
           NPM_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - run: npm install --production=false --loglevel notice --legacy-peer-deps
       - run: npm run lint
-      - run: npm run check-errors
-        timeout-minutes: 20
       - run: npm run dev-docker
       - run: npm run dev-reinit
+      - run: npm run check-errors
+        timeout-minutes: 20
       - run: npm run build-client
       - run: npm run test

@@ -1,3 +1,4 @@
+
 /*
 CPAL-1.0 License
 
@@ -23,18 +24,36 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import type { Function, Object, String } from 'ts-toolbelt'
 
-export type Paths<S extends unknown> = S extends object
-  ? {
-      [K in keyof S]: K extends string ? [K, ...Paths<S[K]>] : never
-    }[keyof S]
-  : []
+const { register } = require('trace-unhandled')
+register()
 
-export function resolveObject<O extends object, P extends string>(
-  obj: O,
-  path: Function.AutoPath<O, P>
-): Object.Path<O, String.Split<P, '.'>> {
-  const keyPath = Array.isArray(path) ? path : path.split('.')
-  return keyPath.reduce((prev, curr) => prev?.[curr], obj as any)
-}
+require("ts-node").register({
+  project: "./tsconfig.json",
+})
+
+process.on('warning', e => console.warn(e.stack));
+
+process.on('SIGTERM', async (err) => {
+  console.log('[Ethereal Engine Tests]: Server SIGTERM')
+  console.log(err)
+})
+process.on('SIGINT', () => {
+  console.log('[Ethereal Engine Tests]: RECEIVED SIGINT')
+  process.exit()
+})
+
+//emitted when an uncaught JavaScript exception bubbles
+process.on('uncaughtException', (err) => {
+  console.log('[Ethereal Engine Tests]: UNCAUGHT EXCEPTION')
+  console.log(err)
+  process.exit()
+})
+
+//emitted whenever a Promise is rejected and no error handler is attached to it
+process.on('unhandledRejection', (reason, p) => {
+  console.log('[Ethereal Engine Tests]: UNHANDLED REJECTION')
+  console.log(reason)
+  console.log(p)
+  process.exit()
+})

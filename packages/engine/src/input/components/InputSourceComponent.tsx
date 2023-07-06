@@ -108,8 +108,8 @@ export const InputSourceComponent = defineComponent({
   isAssignedButtons: (targetEntity: Entity) => {
     const sourceEntities = getOptionalComponent(targetEntity, InputComponent)?.inputSources
     return !!sourceEntities?.find((sourceEntity) => {
-      const inputSourceComponent = getComponent(sourceEntity, InputSourceComponent)
-      return inputSourceComponent.assignedButtonEntity === targetEntity
+      const inputSourceComponent = getOptionalComponent(sourceEntity, InputSourceComponent)
+      return inputSourceComponent?.assignedButtonEntity === targetEntity
     })
   },
 

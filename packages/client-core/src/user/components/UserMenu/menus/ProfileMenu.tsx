@@ -54,11 +54,11 @@ import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
 import { AuthSettingsState } from '../../../../admin/services/Setting/AuthSettingService'
 import { initialAuthState, initialOAuthConnectedState } from '../../../../common/initialAuthState'
 import { NotificationService } from '../../../../common/services/NotificationService'
+import { useUserAvatarThumbnail } from '../../../functions/useUserAvatarThumbnail'
 import { AuthService, AuthState } from '../../../services/AuthService'
 import { UserMenus } from '../../../UserUISystem'
 import styles from '../index.module.scss'
 import { PopupMenuServices } from '../PopupMenuService'
-import { getAvatarURLForUser } from '../util'
 
 const logger = multiLogger.child({ component: 'client-core:ProfileMenu' })
 
@@ -95,7 +95,7 @@ const ProfileMenu = ({ hideLogin, onClose, isPopover }: Props): JSX.Element => {
 
   const hasAdminAccess =
     selfUser?.id?.value?.length > 0 && selfUser?.scopes?.value?.find((scope) => scope.type === 'admin:admin')
-  const userAvatarDetails = useHookstate(getMutableState(WorldState).userAvatarDetails)
+  const avatarThumbnail = useUserAvatarThumbnail(userId)
 
   useEffect(() => {
     if (authSetting) {
@@ -359,7 +359,7 @@ const ProfileMenu = ({ hideLogin, onClose, isPopover }: Props): JSX.Element => {
       <Box className={styles.menuContent}>
         <Box className={styles.profileContainer}>
           <Avatar
-            imageSrc={getAvatarURLForUser(userAvatarDetails, userId)}
+            imageSrc={avatarThumbnail}
             showChangeButton={!!engineInitialized.value}
             onChange={() => PopupMenuServices.showPopupMenu(UserMenus.AvatarSelect)}
           />

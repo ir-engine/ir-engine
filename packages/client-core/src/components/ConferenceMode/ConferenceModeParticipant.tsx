@@ -27,7 +27,6 @@ import classNames from 'classnames'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { getAvatarURLForUser } from '@etherealengine/client-core/src/user/components/UserMenu/util'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
@@ -46,7 +45,6 @@ const { t } = useTranslation()
 
 const ConferenceModeParticipant = ({ peerID, type }: Props): JSX.Element => {
   const {
-    userId,
     volume,
     isScreen,
     username,
@@ -55,7 +53,7 @@ const ConferenceModeParticipant = ({ peerID, type }: Props): JSX.Element => {
     videoStream,
     audioStream,
     enableGlobalMute,
-    userAvatarDetails,
+    avatarThumbnail,
     videoStreamPaused,
     audioStreamPaused,
     videoProducerPaused,
@@ -87,12 +85,7 @@ const ConferenceModeParticipant = ({ peerID, type }: Props): JSX.Element => {
         })}
       >
         {(videoStream == null || videoStreamPaused || videoProducerPaused || videoProducerGlobalMute) && (
-          <img
-            src={getAvatarURLForUser(userAvatarDetails, isSelf ? selfUser?.id : userId)}
-            alt=""
-            crossOrigin="anonymous"
-            draggable={false}
-          />
+          <img src={avatarThumbnail} alt="" crossOrigin="anonymous" draggable={false} />
         )}
         <span key={peerID + '-video-container'} id={peerID + '-video-container'} />
       </div>

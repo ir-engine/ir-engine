@@ -26,6 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import assert, { strictEqual } from 'assert'
 import { PerspectiveCamera, Quaternion, Vector3 } from 'three'
 
+import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 import { getMutableState } from '@etherealengine/hyperflux'
@@ -39,6 +40,7 @@ import { WorldNetworkActionReceptor } from '../../networking/functions/WorldNetw
 import { Physics } from '../../physics/classes/Physics'
 import { RigidBodyComponent, RigidBodyFixedTagComponent } from '../../physics/components/RigidBodyComponent'
 import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
+import { AvatarNetworkAction } from '../state/AvatarNetworkState'
 import { applyGamepadInput } from './moveAvatar'
 import { spawnAvatarReceptor } from './spawnAvatarReceptor'
 
@@ -59,16 +61,16 @@ describe('moveAvatar function tests', () => {
     const engineState = getMutableState(EngineState)
     engineState.simulationTimestep.set(1000 / 60)
 
-    const spawnAvatar = WorldNetworkAction.spawnAvatar({
+    const spawnAvatar = AvatarNetworkAction.spawn({
       $from: Engine.instance.userId,
       position: new Vector3(),
       rotation: new Quaternion(),
-      uuid: Engine.instance.userId
+      entityUUID: Engine.instance.userId as string as EntityUUID
     })
 
     WorldNetworkActionReceptor.receiveSpawnObject(spawnAvatar as any)
 
-    spawnAvatarReceptor(spawnAvatar)
+    spawnAvatarReceptor(Engine.instance.userId as string as EntityUUID)
     const entity = Engine.instance.getUserAvatarEntity(Engine.instance.userId)
 
     const camera = new PerspectiveCamera(60, 800 / 600, 0.1, 10000)
@@ -92,16 +94,16 @@ describe('moveAvatar function tests', () => {
     const engineState = getMutableState(EngineState)
     engineState.simulationTimestep.set(1000 / 60)
 
-    const spawnAvatar = WorldNetworkAction.spawnAvatar({
+    const spawnAvatar = AvatarNetworkAction.spawn({
       $from: Engine.instance.userId,
       position: new Vector3(),
       rotation: new Quaternion(),
-      uuid: Engine.instance.userId
+      entityUUID: Engine.instance.userId as string as EntityUUID
     })
 
     WorldNetworkActionReceptor.receiveSpawnObject(spawnAvatar as any)
 
-    spawnAvatarReceptor(spawnAvatar)
+    spawnAvatarReceptor(Engine.instance.userId as string as EntityUUID)
     const entity = Engine.instance.getUserAvatarEntity(Engine.instance.userId)
 
     const camera = new PerspectiveCamera(60, 800 / 600, 0.1, 10000)
@@ -127,16 +129,16 @@ describe('moveAvatar function tests', () => {
     /* mock */
     Engine.instance.physicsWorld.timestep = 1 / 2
 
-    const spawnAvatar = WorldNetworkAction.spawnAvatar({
+    const spawnAvatar = AvatarNetworkAction.spawn({
       $from: Engine.instance.userId,
       position: new Vector3(),
       rotation: new Quaternion(),
-      uuid: Engine.instance.userId
+      entityUUID: Engine.instance.userId as string as EntityUUID
     })
 
     WorldNetworkActionReceptor.receiveSpawnObject(spawnAvatar as any)
 
-    spawnAvatarReceptor(spawnAvatar)
+    spawnAvatarReceptor(Engine.instance.userId as string as EntityUUID)
     const entity = Engine.instance.getUserAvatarEntity(Engine.instance.userId)
 
     const camera = new PerspectiveCamera(60, 800 / 600, 0.1, 10000)
@@ -159,16 +161,16 @@ describe('moveAvatar function tests', () => {
     const engineState = getMutableState(EngineState)
     engineState.simulationTimestep.set(1000 / 60)
 
-    const spawnAvatar = WorldNetworkAction.spawnAvatar({
+    const spawnAvatar = AvatarNetworkAction.spawn({
       $from: Engine.instance.userId,
       position: new Vector3(),
       rotation: new Quaternion(),
-      uuid: Engine.instance.userId
+      entityUUID: Engine.instance.userId as string as EntityUUID
     })
 
     WorldNetworkActionReceptor.receiveSpawnObject(spawnAvatar as any)
 
-    spawnAvatarReceptor(spawnAvatar)
+    spawnAvatarReceptor(Engine.instance.userId as string as EntityUUID)
     const entity = Engine.instance.getUserAvatarEntity(Engine.instance.userId)
 
     const camera = new PerspectiveCamera(60, 800 / 600, 0.1, 10000)

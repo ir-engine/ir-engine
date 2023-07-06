@@ -31,7 +31,6 @@ import { dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
 import {
-  getComponent,
   getMutableComponent,
   hasComponent,
   removeComponent,
@@ -40,7 +39,7 @@ import {
 import { createEntity, removeEntity } from '../../ecs/functions/EntityFunctions'
 import { generatePhysicsObject } from '../../physics/functions/physicsObjectDebugFunctions'
 import { UUIDComponent } from '../../scene/components/UUIDComponent'
-import { setTransformComponent, TransformComponent } from '../../transform/components/TransformComponent'
+import { TransformComponent } from '../../transform/components/TransformComponent'
 import {
   NetworkObjectAuthorityTag,
   NetworkObjectComponent,
@@ -49,16 +48,12 @@ import {
 import { WorldNetworkAction } from './WorldNetworkAction'
 
 const receiveSpawnObject = (action: typeof WorldNetworkAction.spawnObject.matches._TYPE) => {
-  // const existingAvatar =
-  //   WorldNetworkAction.spawnAvatar.matches.test(action) &&
-  //   !!Engine.instance.getUserAvatarEntity(action.$from) &&
-  //   action.uuid === action.$from
-  // if (existingAvatar) return
+  if (UUIDComponent.entitiesByUUID[action.entityUUID]) return
 
-  if (UUIDComponent.entitiesByUUID[action.uuid]) return
+  console.log('Received spawn object', action)
 
   const entity = createEntity()
-  setComponent(entity, UUIDComponent, action.uuid)
+  setComponent(entity, UUIDComponent, action.entityUUID)
 
   setComponent(entity, NetworkObjectComponent, {
     ownerId: action.$from,
@@ -118,12 +113,12 @@ const receiveSpawnDebugPhysicsObject = (action: typeof WorldNetworkAction.spawnD
 }
 
 const receiveDestroyObject = (action: ReturnType<typeof WorldNetworkAction.destroyObject>) => {
-  const entity = Engine.instance.getNetworkObject(action.$from, action.networkId)
+  const entity = UUIDComponent.entitiesByUUID[action.entityUUID]
   if (!entity) return
   removeEntity(entity)
-  const idx = Engine.instance.store.actions.cached.findIndex((a) => {
-    WorldNetworkAction.spawnObject.matches.test(a) && a.networkId === action.networkId
-  })
+  const idx = Engine.instance.store.actions.cached.findIndex(
+    (a) => WorldNetworkAction.spawnObject.matches.test(a) && a.entityUUID === action.entityUUID
+  )
   if (idx !== -1) Engine.instance.store.actions.cached.splice(idx, 1)
 }
 

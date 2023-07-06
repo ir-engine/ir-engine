@@ -33,6 +33,7 @@ import { getMutableState } from '@etherealengine/hyperflux'
 
 import { useMediaInstance } from '../../common/services/MediaInstanceConnectionService'
 import { PeerMediaChannelState, PeerMediaStreamInterface } from '../../transports/PeerMediaChannelState'
+import { AuthState } from '../../user/services/AuthService'
 import { useShelfStyles } from '../Shelves/useShelfStyles'
 import { UserMediaWindow, UserMediaWindowWidget } from '../UserMediaWindow'
 import styles from './index.module.scss'
@@ -49,6 +50,7 @@ export const UserMediaWindows = () => {
   const peerMediaChannelState = useHookstate(getMutableState(PeerMediaChannelState))
   const mediaNetworkInstanceState = useMediaInstance()
   const mediaNetwork = Engine.instance.mediaNetwork
+  const selfUser = useHookstate(getMutableState(AuthState).user)
   const mediaNetworkConnected = mediaNetwork && mediaNetworkInstanceState?.connected?.value
 
   const consumers = Object.entries(peerMediaChannelState.get({ noproxy: true })) as [
@@ -70,6 +72,7 @@ export const UserMediaWindows = () => {
   // reduce all userPeers to an array 'windows' of { peerID, type } objects, displaying screens first, then cams. if a user has no cameras, only include one peerID for that user
   const windows = userPeers
     .reduce((acc, [userID, peerIDs]) => {
+      const isSelfWindows = userID === selfUser.id.value
       const userCams = consumers
         .filter(([peerID, { cam, screen }]) => peerIDs.includes(peerID) && cam && camActive(cam))
         .map(([peerID]) => {
@@ -84,9 +87,11 @@ export const UserMediaWindows = () => {
 
       const userWindows = [...userScreens, ...userCams]
       if (userWindows.length) {
-        acc.push(...userWindows)
+        if (isSelfWindows) acc.unshift(...userWindows)
+        else acc.push(...userWindows)
       } else {
-        acc.push({ peerID: peerIDs[0], type: 'cam' })
+        if (isSelfWindows) acc.unshift({ peerID: peerIDs[0], type: 'cam' })
+        else acc.push({ peerID: peerIDs[0], type: 'cam' })
       }
       return acc
     }, [] as WindowType[])

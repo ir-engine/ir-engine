@@ -75,10 +75,9 @@ const SelectAvatarMenu = () => {
     }
   }, [avatarState.total])
 
-  const setAvatar = (avatarId: string, avatarURL: string, thumbnailURL: string) => {
+  const setAvatar = (avatarId: string) => {
     if (hasComponent(Engine.instance.localClientEntity, AvatarEffectComponent)) return
-    if (authState.user?.value)
-      AvatarService.updateUserAvatarId(authState.user.id.value!, avatarId, avatarURL, thumbnailURL)
+    if (authState.user?.value) AvatarService.updateUserAvatarId(authState.user.id.value!, avatarId)
   }
 
   const loadNextAvatars = () => {
@@ -95,11 +94,7 @@ const SelectAvatarMenu = () => {
 
   const confirmAvatar = () => {
     if (selectedAvatar && avatarId != selectedAvatar?.avatar?.name) {
-      setAvatar(
-        selectedAvatar?.id || '',
-        selectedAvatar?.modelResource?.url || '',
-        selectedAvatar?.thumbnailResource?.url || ''
-      )
+      setAvatar(selectedAvatar?.id || '')
       WidgetAppService.setWidgetVisibility(WidgetName.PROFILE, false)
     }
     setSelectedAvatar('')

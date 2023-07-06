@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { MathUtils } from 'three'
-import { matches, Validator } from 'ts-matches'
+import { matches, Parser, Validator } from 'ts-matches'
 
 import { OpaqueType } from '@etherealengine/common/src/interfaces/OpaqueType'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
@@ -262,7 +262,7 @@ function defineAction<Shape extends ActionShape<Action>>(actionShape: Shape) {
         partialAction[k] ?? ('defaultValue' in v ? v.defaultValue() : v.parser['defaultValue'])
       ]) as [string, any]
     )
-    let action = {
+    const action = {
       $from: HyperFlux.store?.getDispatchId(),
       ...allValuesNull,
       ...Object.fromEntries([...optionEntries, ...literalEntries]),
@@ -396,8 +396,8 @@ const _updateCachedActions = (incomingAction: Required<ResolvedActionType>) => {
 }
 
 const applyIncomingActionsToAllQueues = (action: Required<ResolvedActionType>) => {
-  for (const [shape, queueDefintions] of HyperFlux.store.actions.queueDefinitions) {
-    if (shape.test(action)) {
+  for (const [shapeHash, queueDefintions] of HyperFlux.store.actions.queueDefinitions) {
+    if (queueDefintions[0]?.test(action)) {
       for (const queues of queueDefintions) {
         if (!HyperFlux.store.actions.queues.has(queues)) continue
         HyperFlux.store.actions.queues.get(queues)!.push(action)
@@ -484,15 +484,22 @@ const clearOutgoingActions = (topic: string) => {
   queue.length = 0
 }
 
-function defineActionQueue<V extends Validator<unknown, ResolvedActionType>>(shape: V): () => V['_TYPE'][] {
-  const actionQueueDefinition = () => {
-    if (!HyperFlux.store.actions.queueDefinitions.has(shape)) HyperFlux.store.actions.queueDefinitions.set(shape, [])
+function defineActionQueue<V extends Validator<unknown, ResolvedActionType>>(shape: V[] | V) {
+  const shapes = Array.isArray(shape) ? shape : [shape]
+  const shapeHash = shapes.map(Parser.parserAsString).join('|')
 
-    if (!HyperFlux.store.actions.queueDefinitions.get(shape)!.includes(actionQueueDefinition))
-      HyperFlux.store.actions.queueDefinitions.get(shape)!.push(actionQueueDefinition)
+  const actionQueueDefinition = (): V['_TYPE'][] => {
+    if (!HyperFlux.store.actions.queueDefinitions.has(shapeHash))
+      HyperFlux.store.actions.queueDefinitions.set(shapeHash, [])
+
+    if (!HyperFlux.store.actions.queueDefinitions.get(shapeHash)!.includes(actionQueueDefinition))
+      HyperFlux.store.actions.queueDefinitions.get(shapeHash)!.push(actionQueueDefinition)
 
     if (!HyperFlux.store.actions.queues.has(actionQueueDefinition)) {
-      HyperFlux.store.actions.queues.set(actionQueueDefinition, HyperFlux.store.actions.history.filter(shape.test))
+      HyperFlux.store.actions.queues.set(
+        actionQueueDefinition,
+        HyperFlux.store.actions.history.filter(actionQueueDefinition.test)
+      )
       HyperFlux.store.getCurrentReactorRoot()?.cleanupFunctions.add(() => {
         removeActionQueue(actionQueueDefinition)
       })
@@ -503,7 +510,13 @@ function defineActionQueue<V extends Validator<unknown, ResolvedActionType>>(sha
     queue.length = 0
     return result
   }
-  actionQueueDefinition._shape = shape
+
+  actionQueueDefinition.test = (a: Action) => {
+    return shapes.some((s) => s.test(a))
+  }
+
+  actionQueueDefinition.shapeHash = shapeHash
+
   return actionQueueDefinition
 }
 
@@ -514,14 +527,11 @@ const createActionQueue = defineActionQueue
 
 export type ActionQueueDefinition = ReturnType<typeof defineActionQueue>
 
-const removeActionQueue = (queueFunction) => {
-  const queue = queueFunction._queue
-  const shape = queueFunction._shape
-  const shapeQueues = HyperFlux.store.actions.queues.get(shape)
-  if (!shapeQueues) return
-  const index = shapeQueues.indexOf(queue)
-  if (index > -1) shapeQueues!.splice(index, 1)
-  if (!shapeQueues.length) HyperFlux.store.actions.queues.delete(shape)
+const removeActionQueue = (queueFunction: ActionQueueDefinition) => {
+  const queueDefinitions = HyperFlux.store.actions.queueDefinitions.get(queueFunction.shapeHash)
+  if (queueDefinitions) queueDefinitions.splice(queueDefinitions.indexOf(queueFunction), 1)
+  if (!queueDefinitions?.length) HyperFlux.store.actions.queueDefinitions.delete(queueFunction.shapeHash)
+  HyperFlux.store.actions.queues.delete(queueFunction)
 }
 
 export {

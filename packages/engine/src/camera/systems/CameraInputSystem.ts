@@ -28,10 +28,10 @@ import { Vector2 } from 'three'
 
 import { getState } from '@etherealengine/hyperflux'
 
-import { getThumbstickOrThumbpadAxes } from '../../avatar/AvatarInputSystem'
 import { AvatarControllerComponent } from '../../avatar/components/AvatarControllerComponent'
 import { switchCameraMode } from '../../avatar/functions/switchCameraMode'
 import { AvatarInputSettingsState } from '../../avatar/state/AvatarInputSettingsState'
+import { getThumbstickOrThumbpadAxes } from '../../avatar/systems/AvatarInputSystem'
 import { throttle } from '../../common/functions/FunctionHelpers'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
