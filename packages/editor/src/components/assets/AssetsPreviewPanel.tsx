@@ -1,3 +1,4 @@
+/* eslint-disable no-case-declarations */
 /*
 CPAL-1.0 License
 
@@ -70,6 +71,8 @@ export const AssetsPreviewPanel = React.forwardRef(({ hideHeading }: Props, ref)
   const thumbnail = useHookstate('')
 
   const onSelectionChanged = async (props: AssetSelectionChangePropsType) => {
+    console.log('DEBUG: asset changed')
+
     thumbnail.value && URL.revokeObjectURL(thumbnail.value)
     if (/ktx2$/.test(props.resourceUrl)) {
       const texture = await AssetLoader.loadAsync(props.resourceUrl)
@@ -94,6 +97,7 @@ export const AssetsPreviewPanel = React.forwardRef(({ hideHeading }: Props, ref)
           PreviewSource: ModelPreviewPanel,
           resourceProps: { resourceUrl: props.resourceUrl, name: props.name }
         }
+        console.log('DEBUG: render model')
         usePreviewPanel(modelPreviewPanel)
         break
       case 'image/png':
@@ -105,6 +109,7 @@ export const AssetsPreviewPanel = React.forwardRef(({ hideHeading }: Props, ref)
           PreviewSource: ImagePreviewPanel,
           resourceProps: { resourceUrl: props.resourceUrl, name: props.name }
         }
+        console.log('DEBUG:render image')
         usePreviewPanel(imagePreviewPanel)
         break
       case 'ktx2':

@@ -57,6 +57,7 @@ export const ModelPreviewPanel = (props) => {
           const result = scene.value.getObjectByName(model.name)
           if (result) scene.value.remove(result)
           scene.value.add(model)
+          console.log('DEBUG', scene.value)
         }
         loading.set(false)
       } catch (err) {
@@ -74,7 +75,7 @@ export const ModelPreviewPanel = (props) => {
         removeMaterialSource({ type: SourceType.MODEL, path: avatar.userData['src'] })
       }
     }
-  }, [])
+  }, [url])
 
   return (
     <>
