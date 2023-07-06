@@ -177,36 +177,36 @@ const isAvatarClicked = () => {
   return false
 }
 
-let primaryClickCount = 0
-const primaryClickTimeout = 2
-let primaryClickTimer = 0
-const reDoubleClickTimeout = 0.2
-let reDoubleClickTimer = 0
+let doubleClickCount = 0
+const doubleClickTimeout = 0.6
+let doubleClickTimer = 0
+const reClickTimeout = 0.2
+let reClickTimer = 0
 const handleTouchJump = (buttons): boolean => {
-  if (!isTouchAvailable) return false
+  //if (!isTouchAvailable) return false
   if (buttons.PrimaryClick?.up) {
     //for single frame raycast
     if (!isAvatarClicked()) return false
-    primaryClickCount += 1
+    doubleClickCount += 1
   }
   // log a click
-  if (primaryClickCount < 1) return false //no clicks logged
-  if (primaryClickCount > 1) {
+  if (doubleClickCount < 1) return false //no clicks logged
+  if (doubleClickCount > 1) {
     // handle the second click
-    reDoubleClickTimer += getState(EngineState).deltaSeconds
+    reClickTimer += getState(EngineState).deltaSeconds
     // this helps with the system not capturing single frame changes
-    if (reDoubleClickTimer <= reDoubleClickTimeout) return true
+    if (reClickTimer <= reClickTimeout) return true
     // end of double click
-    reDoubleClickTimer = 0
-    primaryClickCount = 0
+    reClickTimer = 0
+    doubleClickCount = 0
     return false
   }
   // exactly one click confirmed
-  primaryClickTimer += getState(EngineState).deltaSeconds
-  if (primaryClickTimer <= primaryClickTimeout) return false
+  doubleClickTimer += getState(EngineState).deltaSeconds
+  if (doubleClickTimer <= doubleClickTimeout) return false
   //timed out
-  primaryClickTimer = 0
-  primaryClickCount = 0
+  doubleClickTimer = 0
+  doubleClickCount = 0
   return false
 }
 const inputSourceQuery = defineQuery([InputSourceComponent])
