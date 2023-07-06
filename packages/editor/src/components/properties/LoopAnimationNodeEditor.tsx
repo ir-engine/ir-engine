@@ -52,8 +52,6 @@ export const LoopAnimationNodeEditor: EditorComponentType = (props) => {
   const modelComponent = useComponent(entity, ModelComponent)
   const loopAnimationComponent = useComponent(entity, LoopAnimationComponent)
 
-  if (!modelComponent || !loopAnimationComponent) return <></>
-
   const animationOptions = useState(() => {
     const obj3d = modelComponent.value.scene
     const animations = loopAnimationComponent.value.hasAvatarAnimations

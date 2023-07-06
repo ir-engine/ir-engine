@@ -67,10 +67,9 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
   const modelComponent = useComponent(entity, ModelComponent)
   const exporting = useState(false)
 
-  const exportPath = useState(() => modelComponent?.src.value)
-  const exportType = useState(modelComponent?.src.value?.endsWith('.gltf') ? 'gltf' : 'glb')
+  const exportPath = useState(() => modelComponent.src.value)
+  const exportType = useState(modelComponent.src.value.endsWith('.gltf') ? 'gltf' : 'glb')
 
-  if (!modelComponent) return <></>
   const errors = getEntityErrors(props.entity, ModelComponent)
 
   const onChangeExportPath = useCallback(
