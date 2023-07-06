@@ -23,20 +23,25 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { t } from 'i18next'
 import React from 'react'
 
 import { API } from '@etherealengine/client-core/src/API'
 import { uploadToFeathersService } from '@etherealengine/client-core/src/util/upload'
 import { KTX2EncodeArguments } from '@etherealengine/engine/src/assets/constants/CompressionParms'
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { State } from '@etherealengine/hyperflux'
+import Button from '@etherealengine/ui/src/primitives/mui/Button'
+import Container from '@etherealengine/ui/src/primitives/mui/Container'
+import DialogTitle from '@etherealengine/ui/src/primitives/mui/DialogTitle'
+import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 import { KTX2Encoder } from '@etherealengine/xrui/core/textures/KTX2Encoder'
 
-import { Button, Dialog, DialogTitle, Grid, Typography } from '@mui/material'
+import { Dialog } from '@mui/material'
 
 import BooleanInput from '../inputs/BooleanInput'
-import Scrubber from '../inputs/Scrubber'
+import InputGroup from '../inputs/InputGroup'
 import SelectInput from '../inputs/SelectInput'
+import Slider from '../inputs/Slider'
 import { FileType } from './FileBrowserContentPanel'
 import styles from './styles.module.scss'
 
@@ -104,25 +109,21 @@ export default function CompressionPanel({
   }
 
   return (
-    <Dialog
-      open={openCompress.value}
-      onClose={() => openCompress.set(false)}
-      aria-labelledby="alert-dialog-title"
-      aria-describedby="alert-dialog-description"
-      classes={{ paper: styles.paperDialog }}
-    >
+    <Dialog open={openCompress.value} onClose={() => openCompress.set(false)} classes={{ paper: styles.paperDialog }}>
       <DialogTitle style={{ padding: '0', textTransform: 'capitalize' }} id="alert-dialog-title">
         {fileProperties.value?.name}
       </DialogTitle>
-      <Typography>{fileProperties.value?.isFolder ? 'Directory' : 'File'}</Typography>
-      <Grid container spacing={3} style={{ width: '100%', margin: '2 rem' }}>
-        <Grid item xs={12} style={{ paddingLeft: '10px', paddingTop: '10px', width: '100%', textAlign: 'center' }}>
-          <Typography className={styles.primatyText}>Compress</Typography>
-        </Grid>
-        <Grid item xs={4}>
-          <Typography className={styles.secondaryText}>Mode:</Typography>
-        </Grid>
-        <Grid item xs={8}>
+      <div>
+        <InputGroup name="fileType" label={fileProperties.value?.isFolder ? 'Directory' : 'File'}>
+          <Typography className={styles.secondaryText}>
+            {t('editor:properties.model.transform.compress') as string}
+          </Typography>
+        </InputGroup>
+        <InputGroup
+          name="mode"
+          label={t('editor:properties.model.transform.mode')}
+          info={t('editor:properties.model.transform.modeTooltip')}
+        >
           <SelectInput
             options={[
               { label: 'ETC1S', value: 'ETC1S' },
@@ -131,55 +132,47 @@ export default function CompressionPanel({
             value={compressProperties.mode.value}
             onChange={(val: 'ETC1S' | 'UASTC') => compressProperties.mode.set(val)}
           />
-        </Grid>
-
-        <Grid item xs={4}>
-          <Typography className={styles.secondaryText}>Flip Y:</Typography>
-        </Grid>
-        <Grid item xs={8}>
+        </InputGroup>
+        <InputGroup
+          name="flipY"
+          label={t('editor:properties.model.transform.flipY')}
+          info={t('editor:properties.model.transform.flipYTooltip')}
+        >
           <BooleanInput value={compressProperties.flipY.value} onChange={compressProperties.flipY.set} />
-        </Grid>
-
-        <Grid item xs={4}>
-          <Typography className={styles.secondaryText}>Linear Color Space:</Typography>
-        </Grid>
-        <Grid item xs={8}>
+        </InputGroup>
+        <InputGroup
+          name="linear"
+          label={t('editor:properties.model.transform.linear')}
+          info={t('editor:properties.model.transform.linearTooltip')}
+        >
           <BooleanInput value={compressProperties.linear.value} onChange={compressProperties.linear.set} />
-        </Grid>
-
-        <Grid item xs={4}>
-          <Typography className={styles.secondaryText}>Quality:</Typography>
-        </Grid>
-        <Grid item xs={8}>
-          <Scrubber
-            tag="div"
+        </InputGroup>
+        <InputGroup
+          name="quality"
+          label={t('editor:properties.model.transform.quality')}
+          info={t('editor:properties.model.transform.qualityTooltip')}
+        >
+          <Slider
             value={compressProperties.quality.value}
-            onChange={(val) => compressProperties.quality.set(val)}
+            onChange={(val: number) => compressProperties.quality.set(val)}
             min={1}
             max={255}
-            smallStep={1}
-            mediumStep={1}
-            largeStep={5}
-            style={{ display: 'flex', alignItems: 'center', width: '100%' }}
-          >
-            Level: {compressProperties.quality.value}
-          </Scrubber>
-        </Grid>
-
-        <Grid item xs={4}>
-          <Typography className={styles.secondaryText}>Mipmaps:</Typography>
-        </Grid>
-        <Grid item xs={8}>
+          />
+        </InputGroup>
+        <InputGroup
+          name="mipmaps"
+          label={t('editor:properties.model.transform.mipmaps')}
+          info={t('editor:properties.model.transform.mipmapsTooltip')}
+        >
           <BooleanInput
             value={compressProperties.mipmaps.value}
             onChange={(val) => compressProperties.mipmaps.set(val)}
           />
-        </Grid>
-
-        <Grid item xs={12}>
-          <Button onClick={compressContentInBrowser}> Compress </Button>
-        </Grid>
-      </Grid>
+        </InputGroup>
+        <Button variant="outlined" className={styles.horizontalCenter} onClick={compressContentInBrowser}>
+          {t('editor:properties.model.transform.compress') as string}
+        </Button>
+      </div>
     </Dialog>
   )
 }
