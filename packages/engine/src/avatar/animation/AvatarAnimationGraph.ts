@@ -31,10 +31,11 @@ import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import { getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { NetworkObjectAuthorityTag, NetworkObjectOwnedTag } from '../../networking/components/NetworkObjectComponent'
-import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
+import { UUIDComponent } from '../../scene/components/UUIDComponent'
 import { AnimationManager } from '../AnimationManager'
 import { AvatarAnimationComponent } from '../components/AvatarAnimationComponent'
 import { AvatarMovementSettingsState } from '../state/AvatarMovementSettingsState'
+import { AvatarNetworkAction } from '../state/AvatarNetworkState'
 import { AnimationGraph, changeState } from './AnimationGraph'
 import { enterAnimationState } from './AnimationState'
 import {
@@ -75,9 +76,14 @@ export function createAvatarAnimationGraph(
     states: {},
     transitionRules: {},
     currentState: null!,
-    stateChanged: (name) => {
+    stateChanged: (name: keyof typeof AvatarStates) => {
       hasComponent(entity, NetworkObjectAuthorityTag) &&
-        dispatchAction(WorldNetworkAction.avatarAnimation({ newStateName: name, params: {} }))
+        dispatchAction(
+          AvatarNetworkAction.setAnimationState({
+            animationState: name,
+            entityUUID: getComponent(entity, UUIDComponent)
+          })
+        )
     }
   }
 

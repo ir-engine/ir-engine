@@ -28,9 +28,9 @@ import { useEffect } from 'react'
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { addActionReceptor, defineActionQueue, dispatchAction, removeActionReceptor } from '@etherealengine/hyperflux'
 
-import { FollowCameraComponent } from '../camera/components/FollowCameraComponent'
-import { TargetCameraRotationComponent } from '../camera/components/TargetCameraRotationComponent'
-import { Engine } from '../ecs/classes/Engine'
+import { FollowCameraComponent } from '../../camera/components/FollowCameraComponent'
+import { TargetCameraRotationComponent } from '../../camera/components/TargetCameraRotationComponent'
+import { Engine } from '../../ecs/classes/Engine'
 import {
   defineQuery,
   getComponent,
@@ -39,18 +39,18 @@ import {
   removeComponent,
   removeQuery,
   setComponent
-} from '../ecs/functions/ComponentFunctions'
-import { defineSystem } from '../ecs/functions/SystemFunctions'
-import { LocalInputTagComponent } from '../input/components/LocalInputTagComponent'
-import { NetworkObjectAuthorityTag, NetworkObjectComponent } from '../networking/components/NetworkObjectComponent'
-import { WorldNetworkAction } from '../networking/functions/WorldNetworkAction'
-import { RigidBodyComponent } from '../physics/components/RigidBodyComponent'
-import { UUIDComponent } from '../scene/components/UUIDComponent'
-import { XRAction } from '../xr/XRState'
-import { AvatarControllerComponent } from './components/AvatarControllerComponent'
-import { AvatarHeadDecapComponent } from './components/AvatarIKComponents'
-import { respawnAvatar } from './functions/respawnAvatar'
-import { AvatarInputSettingsReceptor } from './state/AvatarInputSettingsState'
+} from '../../ecs/functions/ComponentFunctions'
+import { defineSystem } from '../../ecs/functions/SystemFunctions'
+import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
+import { NetworkObjectAuthorityTag, NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
+import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
+import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
+import { UUIDComponent } from '../../scene/components/UUIDComponent'
+import { XRAction } from '../../xr/XRState'
+import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
+import { AvatarHeadDecapComponent } from '../components/AvatarIKComponents'
+import { respawnAvatar } from '../functions/respawnAvatar'
+import { AvatarInputSettingsReceptor } from '../state/AvatarInputSettingsState'
 
 const localControllerQuery = defineQuery([AvatarControllerComponent, LocalInputTagComponent])
 const controllerQuery = defineQuery([AvatarControllerComponent])
@@ -89,7 +89,7 @@ const execute = () => {
     // todo: this should be called when the avatar is spawned
     dispatchAction(
       WorldNetworkAction.spawnCamera({
-        uuid: ('camera_' + getComponent(avatarEntity, UUIDComponent)) as EntityUUID
+        entityUUID: ('camera_' + getComponent(avatarEntity, UUIDComponent)) as EntityUUID
       })
     )
   }

@@ -31,10 +31,12 @@ import { dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 import { Action, ResolvedActionType } from '@etherealengine/hyperflux/functions/ActionFunctions'
 import { getState, none } from '@etherealengine/hyperflux/functions/StateFunctions'
 
+import { AvatarNetworkAction } from '../../avatar/state/AvatarNetworkState'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineActions } from '../../ecs/classes/EngineState'
 import { getComponent } from '../../ecs/functions/ComponentFunctions'
 import { removeEntity } from '../../ecs/functions/EntityFunctions'
+import { UUIDComponent } from '../../scene/components/UUIDComponent'
 import { Network, NetworkTopics } from '../classes/Network'
 import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
 import { WorldState } from '../interfaces/WorldState'
@@ -118,7 +120,9 @@ function destroyPeer(network: Network, peerID: PeerID) {
       for (const eid of Engine.instance.getOwnedNetworkObjects(userID)) {
         const networkObject = getComponent(eid, NetworkObjectComponent)
         if (networkObject) {
-          dispatchAction(WorldNetworkAction.destroyObject({ networkId: networkObject.networkId, $from: userID }))
+          dispatchAction(
+            WorldNetworkAction.destroyObject({ entityUUID: getComponent(eid, UUIDComponent), $from: userID })
+          )
         }
       }
       // clearCachedActionsForUser(userID)
@@ -162,9 +166,7 @@ function clearCachedActionsOfTypeForUser(userId: UserId, actionShape: Validator<
 function getCachedActionsForUser(toUserId: UserId) {
   // send all cached and outgoing actions to joining user
   const cachedActions = [] as Required<Action>[]
-  for (const action of Engine.instance.store.actions.cached as Array<
-    ReturnType<typeof WorldNetworkAction.spawnAvatar>
-  >) {
+  for (const action of Engine.instance.store.actions.cached as Array<ReturnType<typeof AvatarNetworkAction.spawn>>) {
     if (action.$from === toUserId) continue
     if (action.$to === 'all' || action.$to === toUserId) cachedActions.push({ ...action, $stack: undefined! })
   }

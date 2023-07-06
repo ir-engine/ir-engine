@@ -67,16 +67,16 @@ const AvatarMenu = () => {
     AvatarService.fetchAvatarList()
   }, [])
 
-  const setAvatar = (avatarId: string, avatarURL: string, thumbnailURL: string) => {
+  const setAvatar = (avatarId: string) => {
     if (hasComponent(Engine.instance.localClientEntity, AvatarEffectComponent)) return
     if (authState.user?.value) {
-      AvatarService.updateUserAvatarId(authState.user.id.value!, avatarId, avatarURL, thumbnailURL)
+      AvatarService.updateUserAvatarId(authState.user.id.value!, avatarId)
     }
   }
 
   const handleConfirmAvatar = () => {
     if (selectedAvatarId && selectedAvatar && userAvatarId !== selectedAvatarId) {
-      setAvatar(selectedAvatarId, selectedAvatar.modelResource?.url || '', selectedAvatar.thumbnailResource?.url || '')
+      setAvatar(selectedAvatarId)
       PopupMenuServices.showPopupMenu()
     }
     setSelectedAvatarId(undefined)
