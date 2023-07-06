@@ -40,13 +40,13 @@ import { NetworkTopics } from '../classes/Network'
 
 export class WorldNetworkAction {
   static spawnDebugPhysicsObject = defineAction({
-    type: 'xre.world.SPAWN_DEBUG_PHYSICS_OBJECT',
+    type: 'ee.engine.world.SPAWN_DEBUG_PHYSICS_OBJECT',
     config: matches.any.optional(),
     $topic: NetworkTopics.world
   })
 
   static registerSceneObject = defineAction({
-    type: 'xre.world.REGISTER_SCENE_OBJECT',
+    type: 'ee.engine.world.REGISTER_SCENE_OBJECT',
     networkId: matchesWithDefault(matchesNetworkId, () => Engine.instance.createNetworkId()),
     objectUuid: matchesEntityUUID,
     $cache: true,
@@ -54,7 +54,7 @@ export class WorldNetworkAction {
   })
 
   static spawnObject = defineAction({
-    type: 'xre.world.SPAWN_OBJECT',
+    type: 'ee.engine.world.SPAWN_OBJECT',
     prefab: matches.string,
     entityUUID: matchesEntityUUID,
     networkId: matchesWithDefault(matchesNetworkId, () => Engine.instance.createNetworkId()),
@@ -71,20 +71,20 @@ export class WorldNetworkAction {
   })
 
   static destroyObject = defineAction({
-    type: 'xre.world.DESTROY_OBJECT',
+    type: 'ee.engine.world.DESTROY_OBJECT',
     entityUUID: matchesEntityUUID,
     $topic: NetworkTopics.world
   })
 
   static interact = defineAction({
-    type: 'xre.world.INTERACT',
+    type: 'ee.engine.world.INTERACT',
     object: { ownerId: matchesUserId, networkId: matchesNetworkId },
     parity: matches.literals('left', 'right', 'none'),
     $topic: NetworkTopics.world
   })
 
   static setEquippedObject = defineAction({
-    type: 'xre.world.SET_EQUIPPED_OBJECT',
+    type: 'ee.engine.world.SET_EQUIPPED_OBJECT',
     object: matches.shape({
       ownerId: matchesUserId,
       networkId: matchesNetworkId
@@ -96,7 +96,7 @@ export class WorldNetworkAction {
   })
 
   static requestAuthorityOverObject = defineAction({
-    type: 'xre.world.REQUEST_AUTHORITY_OVER_OBJECT',
+    type: 'ee.engine.world.REQUEST_AUTHORITY_OVER_OBJECT',
     ownerId: matchesUserId,
     networkId: matchesNetworkId,
     newAuthority: matchesPeerID,
@@ -104,7 +104,7 @@ export class WorldNetworkAction {
   })
 
   static transferAuthorityOfObject = defineAction({
-    type: 'xre.world.TRANSFER_AUTHORITY_OF_OBJECT',
+    type: 'ee.engine.world.TRANSFER_AUTHORITY_OF_OBJECT',
     ownerId: matchesUserId,
     networkId: matchesNetworkId,
     newAuthority: matchesPeerID,
@@ -112,7 +112,7 @@ export class WorldNetworkAction {
   })
 
   static setUserTyping = defineAction({
-    type: 'xre.world.USER_IS_TYPING',
+    type: 'ee.engine.world.USER_IS_TYPING',
     typing: matches.boolean,
     $topic: NetworkTopics.world
   })
