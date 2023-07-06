@@ -28,7 +28,11 @@ import { useTranslation } from 'react-i18next'
 
 import { AnimationManager } from '@etherealengine/engine/src/avatar/AnimationManager'
 import { LoopAnimationComponent } from '@etherealengine/engine/src/avatar/components/LoopAnimationComponent'
-import { getOptionalComponent, useComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import {
+  getOptionalComponent,
+  hasComponent,
+  useComponent
+} from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { getCallback } from '@etherealengine/engine/src/scene/components/CallbackComponent'
 import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
 import { useState } from '@etherealengine/hyperflux'
@@ -50,9 +54,11 @@ export const LoopAnimationNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
   const entity = props.entity
   const modelComponent = useComponent(entity, ModelComponent)
-  const loopAnimationComponent = useComponent(entity, LoopAnimationComponent)
 
-  if (!modelComponent || !loopAnimationComponent) return <></>
+  if (!hasComponent(entity, LoopAnimationComponent)) return <></>
+
+  const loopAnimationComponent = useComponent(entity, LoopAnimationComponent)
+  if (!loopAnimationComponent) return <></>
 
   const animationOptions = useState(() => {
     const obj3d = modelComponent.value.scene

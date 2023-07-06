@@ -64,6 +64,8 @@ import { EditorComponentType, updateProperties, updateProperty } from './Util'
 export const ModelNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
   const entity = props.entity
+  if (!hasComponent(entity, ModelComponent)) return <></>
+
   const modelComponent = useComponent(entity, ModelComponent)
   const exporting = useState(false)
 
