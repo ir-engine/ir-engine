@@ -33,14 +33,17 @@ import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { WorldState } from '@etherealengine/engine/src/networking/interfaces/WorldState'
 import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
+import { AuthState } from '../services/AuthService'
+
 export const DEFAULT_PROFILE_IMG_PLACEHOLDER = `${config.client.fileServer}/projects/default-project/assets/default-silhouette.svg`
 
 export const useUserAvatarThumbnail = (userID = '' as UserId) => {
   const avatarState = useHookstate(DEFAULT_PROFILE_IMG_PLACEHOLDER)
+  const localUserAvatarState = useHookstate(getState(AuthState).user.avatar)
   const userAvatarState = useHookstate(getMutableState(AvatarState)[userID as string as EntityUUID])
 
   useEffect(() => {
-    if (!userAvatarState.avatarID.value) return
+    if (!userAvatarState.avatarID?.value) return
     Engine.instance.api
       .service('avatar')
       .get(userAvatarState.avatarID.value)
@@ -48,6 +51,10 @@ export const useUserAvatarThumbnail = (userID = '' as UserId) => {
         avatarState.set(avatarDetails.thumbnailResource?.url ?? DEFAULT_PROFILE_IMG_PLACEHOLDER)
       })
   }, [userAvatarState.avatarID])
+
+  if (userID === Engine.instance.userId) {
+    return localUserAvatarState.thumbnailResource.ornull?.url.value ?? DEFAULT_PROFILE_IMG_PLACEHOLDER
+  }
 
   return avatarState.value ?? DEFAULT_PROFILE_IMG_PLACEHOLDER
 }
