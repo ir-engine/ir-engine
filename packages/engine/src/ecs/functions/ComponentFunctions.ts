@@ -140,7 +140,7 @@ export const defineComponent = <
   if (Component.jsonID) ComponentJSONIDMap.set(Component.jsonID, Component)
   ComponentMap.set(Component.name, Component)
 
-  return Component
+  return Component as typeof Component & { _TYPE: ComponentType }
 }
 
 /**
