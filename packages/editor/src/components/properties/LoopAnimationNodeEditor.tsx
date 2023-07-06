@@ -55,14 +55,12 @@ export const LoopAnimationNodeEditor: EditorComponentType = (props) => {
   const entity = props.entity
   const modelComponent = useComponent(entity, ModelComponent)
 
-  if (!hasComponent(entity, LoopAnimationComponent)) return <></>
-
-  const loopAnimationComponent = useComponent(entity, LoopAnimationComponent)
+  const loopAnimationComponent = getOptionalComponent(entity, LoopAnimationComponent)
   if (!loopAnimationComponent) return <></>
 
   const animationOptions = useState(() => {
     const obj3d = modelComponent.value.scene
-    const animations = loopAnimationComponent.value.hasAvatarAnimations
+    const animations = loopAnimationComponent.hasAvatarAnimations
       ? AnimationManager.instance._animations
       : obj3d?.animations ?? []
     return [{ label: 'None', value: -1 }, ...animations.map((clip, index) => ({ label: clip.name, value: index }))]
@@ -85,13 +83,13 @@ export const LoopAnimationNodeEditor: EditorComponentType = (props) => {
         <SelectInput
           key={props.entity}
           options={animationOptions.value}
-          value={loopAnimationComponent.value.activeClipIndex}
+          value={loopAnimationComponent.activeClipIndex}
           onChange={onChangePlayingAnimation}
         />
       </InputGroup>
       <InputGroup name="Is Avatar" label={t('editor:properties.model.lbl-isAvatar')}>
         <BooleanInput
-          value={loopAnimationComponent.value.hasAvatarAnimations}
+          value={loopAnimationComponent.hasAvatarAnimations}
           onChange={updateProperty(LoopAnimationComponent, 'hasAvatarAnimations')}
         />
       </InputGroup>
