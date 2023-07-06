@@ -40,7 +40,10 @@ const transferAuthorityOfObjectQueue = defineActionQueue(WorldNetworkAction.tran
 const setUserTypingQueue = defineActionQueue(WorldNetworkAction.setUserTyping.matches)
 
 const execute = () => {
-  for (const action of spawnObjectQueue()) WorldNetworkActionReceptor.receiveSpawnObject(action)
+  for (const action of spawnObjectQueue()) {
+    console.log(action)
+    WorldNetworkActionReceptor.receiveSpawnObject(action)
+  }
   for (const action of registerSceneObjectQueue()) WorldNetworkActionReceptor.receiveRegisterSceneObject(action)
   for (const action of spawnDebugPhysicsObjectQueue()) WorldNetworkActionReceptor.receiveSpawnDebugPhysicsObject(action)
   for (const action of destroyObjectQueue()) WorldNetworkActionReceptor.receiveDestroyObject(action)

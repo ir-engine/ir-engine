@@ -4,6 +4,7 @@
     <style>
       html,
       body {
+        margin: 0;
         width: 100%;
         height: 100%;
         pointer-events: none;
@@ -49,7 +50,7 @@
     </script>
 </head>
   <body>
-    <div id="root"  style='z-index: 0; width: 100%; height: 100%; position: absolute; pointer-events: none;'></div>
+    <div id="root"  style='z-index: 0; margin: 0; width: 100%; height: 100%; position: absolute; pointer-events: none;'></div>
     <script type="module" src="/src/main.tsx"></script>
     <canvas id='engine-renderer-canvas' style='z-index: -1; width: 100%; height: 100%; position: fixed; -webkit-user-select: none; pointer-events: auto; user-select: none'></canvas>
   </body>

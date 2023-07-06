@@ -23,6 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import detect from 'detect-port'
 import { createWorker } from 'mediasoup'
 import {
   DataConsumer,
@@ -41,7 +42,6 @@ import {
 } from 'mediasoup/node/lib/types'
 import os from 'os'
 import { Spark } from 'primus'
-import { check } from 'tcp-port-used'
 
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { DataChannelType } from '@etherealengine/engine/src/networking/classes/Network'
@@ -72,8 +72,9 @@ const logger = multiLogger.child({ component: 'instanceserver:webrtc' })
 const portsInUse: number[] = []
 
 const getNewOffset = async (ipAddress, startPort, i, offset) => {
-  const inUse = await check(startPort + i + offset, ipAddress)
-  if (inUse || portsInUse.indexOf(startPort + i + offset) >= 0) return getNewOffset(ipAddress, startPort, i, offset + 1)
+  const inUse = await detect(startPort + i + offset, ipAddress)
+  if (inUse !== startPort + i + offset || portsInUse.indexOf(startPort + i + offset) >= 0)
+    return getNewOffset(ipAddress, startPort, i, offset + 1)
   else return offset
 }
 
@@ -540,7 +541,6 @@ export async function handleWebRtcProduceData(
   messageId?: string
 ): Promise<any> {
   try {
-    console.log('webRTCProduceData')
     const userId = getUserIdFromPeerID(network, peerID)
     if (!userId) {
       logger.info('userId could not be found for sparkID ' + peerID)
@@ -992,9 +992,24 @@ export async function handleWebRtcConsumerSetLayers(
 ): Promise<any> {
   const { consumerId, spatialLayer } = data
   const consumer = network.consumers.find((c) => c.id === consumerId)!
+  if (!consumer)
+    return spark.write({
+      type: MessageTypes.WebRTCConsumerSetLayers.toString(),
+      data: { layersSet: false },
+      id: messageId
+    })
   logger.info('consumer-set-layers: %o, %o', spatialLayer, consumer.appData)
-  await consumer.setPreferredLayers({ spatialLayer })
-  spark.write({ type: MessageTypes.WebRTCConsumerSetLayers.toString(), data: { layersSet: true }, id: messageId })
+  try {
+    await consumer.setPreferredLayers({ spatialLayer })
+    spark.write({ type: MessageTypes.WebRTCConsumerSetLayers.toString(), data: { layersSet: true }, id: messageId })
+  } catch (err) {
+    logger.warn(err)
+    return spark.write({
+      type: MessageTypes.WebRTCConsumerSetLayers.toString(),
+      data: { layersSet: false },
+      id: messageId
+    })
+  }
 }
 
 export async function handleWebRtcResumeProducer(

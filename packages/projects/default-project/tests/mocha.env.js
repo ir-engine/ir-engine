@@ -1,3 +1,4 @@
+
 /*
 CPAL-1.0 License
 
@@ -23,18 +24,9 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import type { Function, Object, String } from 'ts-toolbelt'
 
-export type Paths<S extends unknown> = S extends object
-  ? {
-      [K in keyof S]: K extends string ? [K, ...Paths<S[K]>] : never
-    }[keyof S]
-  : []
-
-export function resolveObject<O extends object, P extends string>(
-  obj: O,
-  path: Function.AutoPath<O, P>
-): Object.Path<O, String.Split<P, '.'>> {
-  const keyPath = Array.isArray(path) ? path : path.split('.')
-  return keyPath.reduce((prev, curr) => prev?.[curr], obj as any)
-}
+process.env.APP_ENV = 'test'
+process.env.TS_NODE_FILES = true
+process.env.TS_NODE_PROJECT = 'tsconfig.json'
+process.env.TS_NODE_COMPILER_OPTIONS = '{\"module\": \"commonjs\" }'
+process.env.NODE_TLS_REJECT_UNAUTHORIZED='0'

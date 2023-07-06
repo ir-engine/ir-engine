@@ -35,13 +35,13 @@ export function LoadingCircle(props: Props) {
   return (
     <div
       style={{
-        height: '100vh',
-        width: '100%',
-        textAlign: 'center',
-        paddingTop: 'calc(50vh - 7px)',
         display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center'
+        alignItems: 'center',
+        justifyContent: 'center',
+        textAlign: 'center',
+        height: '100%',
+        width: '100%',
+        flexDirection: 'column'
       }}
     >
       <CircularProgress />

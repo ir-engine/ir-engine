@@ -26,16 +26,17 @@ Ethereal Engine. All Rights Reserved.
 // spawnPose is temporary - just so portals work for now - will be removed in favor of instanceserver-instanceserver communication
 import { Quaternion, Vector3 } from 'three'
 
+import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { getSearchParamFromURL } from '@etherealengine/common/src/utils/getSearchParamFromURL'
 import { dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 import { Action } from '@etherealengine/hyperflux/functions/ActionFunctions'
 
+import { AvatarNetworkAction } from '../../avatar/state/AvatarNetworkState'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineActions } from '../../ecs/classes/EngineState'
 import { NetworkTopics } from '../classes/Network'
-import { AvatarProps, WorldState } from '../interfaces/WorldState'
-import { WorldNetworkAction } from './WorldNetworkAction'
+import { WorldState } from '../interfaces/WorldState'
 
 export type JoinWorldRequestData = {
   inviteCode?: string
@@ -49,18 +50,18 @@ export type JoinWorldProps = {
 
 export type SpawnInWorldProps = {
   avatarSpawnPose: { position: Vector3; rotation: Quaternion }
-  avatarDetail: AvatarProps
+  avatarID: string
   name: string
 }
 
 export const spawnLocalAvatarInWorld = (props: SpawnInWorldProps) => {
-  const { avatarSpawnPose, avatarDetail, name } = props
-  console.log('SPAWN IN WORLD', avatarSpawnPose, avatarDetail, name)
+  const { avatarSpawnPose, avatarID, name } = props
+  console.log('SPAWN IN WORLD', avatarSpawnPose, avatarID, name)
   const worldState = getMutableState(WorldState)
+  const entityUUID = Engine.instance.userId as string as EntityUUID
   worldState.userNames[Engine.instance.userId].set(name)
-  worldState.userAvatarDetails[Engine.instance.userId].set(avatarDetail)
-  dispatchAction(WorldNetworkAction.spawnAvatar({ ...avatarSpawnPose, uuid: Engine.instance.userId }))
-  dispatchAction(WorldNetworkAction.avatarDetails({ avatarDetail, uuid: Engine.instance.userId }))
+  dispatchAction(AvatarNetworkAction.spawn({ ...avatarSpawnPose, entityUUID }))
+  dispatchAction(AvatarNetworkAction.setAvatarID({ avatarID, entityUUID }))
 }
 
 export const receiveJoinWorld = (props: JoinWorldProps) => {

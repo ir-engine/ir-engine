@@ -23,8 +23,9 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React, { PropsWithChildren } from 'react'
+import React, { PropsWithChildren, Suspense } from 'react'
 
+import { LoadingCircle } from '@etherealengine/client-core/src/components/LoadingCircle'
 import { hasComponent, removeComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { dispatchAction } from '@etherealengine/hyperflux'
 
@@ -104,7 +105,9 @@ export const NodeEditor: React.FC<PropsWithChildren<NodeEditorProps>> = ({
           : undefined
       }
     >
-      <NodeEditorErrorBoundary name={name}>{children}</NodeEditorErrorBoundary>
+      <Suspense fallback={<LoadingCircle message={`Loading ${name} Editor...`} />}>
+        <NodeEditorErrorBoundary name={name}>{children}</NodeEditorErrorBoundary>
+      </Suspense>
     </PropertyGroup>
   )
 }

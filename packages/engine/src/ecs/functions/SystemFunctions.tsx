@@ -43,9 +43,10 @@ const logger = multiLogger.child({ component: 'engine:ecs:SystemFunctions' })
 export type SystemUUID = OpaqueType<'SystemUUID'> & string
 export interface System {
   uuid: SystemUUID
-  execute: () => void // runs after preSystems, and before subSystems
   reactor: FC
   preSystems: SystemUUID[]
+  /** runs after preSystems, and before subSystems */
+  execute: () => void
   subSystems: SystemUUID[]
   postSystems: SystemUUID[]
   sceneSystem?: boolean
