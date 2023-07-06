@@ -137,7 +137,6 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
           onChange={updateProperty(ModelComponent, 'avoidCameraOcclusion')}
         />
       </InputGroup>
-      <LoopAnimationNodeEditor entity={props.entity} />
       <ScreenshareTargetNodeEditor entity={props.entity} multiEdit={props.multiEdit} />
       <ShadowProperties entity={props.entity} />
       <ModelTransformProperties modelState={modelComponent} onChangeModel={(val) => modelComponent.src.set(val)} />

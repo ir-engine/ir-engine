@@ -28,11 +28,7 @@ import { useTranslation } from 'react-i18next'
 
 import { AnimationManager } from '@etherealengine/engine/src/avatar/AnimationManager'
 import { LoopAnimationComponent } from '@etherealengine/engine/src/avatar/components/LoopAnimationComponent'
-import {
-  getOptionalComponent,
-  hasComponent,
-  useComponent
-} from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { useComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { getCallback } from '@etherealengine/engine/src/scene/components/CallbackComponent'
 import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
 import { useState } from '@etherealengine/hyperflux'
@@ -54,13 +50,13 @@ export const LoopAnimationNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
   const entity = props.entity
   const modelComponent = useComponent(entity, ModelComponent)
+  const loopAnimationComponent = useComponent(entity, LoopAnimationComponent)
 
-  const loopAnimationComponent = getOptionalComponent(entity, LoopAnimationComponent)
-  if (!loopAnimationComponent) return <></>
+  if (!modelComponent || !loopAnimationComponent) return <></>
 
   const animationOptions = useState(() => {
     const obj3d = modelComponent.value.scene
-    const animations = loopAnimationComponent.hasAvatarAnimations
+    const animations = loopAnimationComponent.value.hasAvatarAnimations
       ? AnimationManager.instance._animations
       : obj3d?.animations ?? []
     return [{ label: 'None', value: -1 }, ...animations.map((clip, index) => ({ label: clip.name, value: index }))]
@@ -83,13 +79,13 @@ export const LoopAnimationNodeEditor: EditorComponentType = (props) => {
         <SelectInput
           key={props.entity}
           options={animationOptions.value}
-          value={loopAnimationComponent.activeClipIndex}
+          value={loopAnimationComponent.value.activeClipIndex}
           onChange={onChangePlayingAnimation}
         />
       </InputGroup>
       <InputGroup name="Is Avatar" label={t('editor:properties.model.lbl-isAvatar')}>
         <BooleanInput
-          value={loopAnimationComponent.hasAvatarAnimations}
+          value={loopAnimationComponent.value.hasAvatarAnimations}
           onChange={updateProperty(LoopAnimationComponent, 'hasAvatarAnimations')}
         />
       </InputGroup>
