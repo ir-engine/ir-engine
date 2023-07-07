@@ -77,7 +77,12 @@ export class GithubStrategy extends CustomOAuthStrategy {
       })) as UserInterface
       entity.userId = newUser.id
       await this.app.service('identity-provider').patch(entity.id, {
-        userId: newUser.id
+        userId: newUser.id,
+        oauthToken: params.access_token
+      })
+    } else {
+      await this.app.service('identity-provider').patch(entity.id, {
+        oauthToken: params.access_token
       })
     }
     const identityProvider = authResult['identity-provider']
