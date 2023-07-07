@@ -116,9 +116,9 @@ const receiveDestroyObject = (action: ReturnType<typeof WorldNetworkAction.destr
   const entity = UUIDComponent.entitiesByUUID[action.entityUUID]
   if (!entity) return
   removeEntity(entity)
-  const idx = Engine.instance.store.actions.cached.findIndex((a) => {
-    WorldNetworkAction.spawnObject.matches.test(a) && a.entityUUID === action.entityUUID
-  })
+  const idx = Engine.instance.store.actions.cached.findIndex(
+    (a) => WorldNetworkAction.spawnObject.matches.test(a) && a.entityUUID === action.entityUUID
+  )
   if (idx !== -1) Engine.instance.store.actions.cached.splice(idx, 1)
 }
 

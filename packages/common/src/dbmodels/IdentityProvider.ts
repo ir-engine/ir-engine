@@ -39,4 +39,5 @@ export interface IdentityProviderInterface {
   resetExpires: string
   type: string
   userId: UserId
+  oauthToken?: string
 }

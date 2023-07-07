@@ -37,6 +37,7 @@ import {
   defineQuery,
   getComponent,
   getMutableComponent,
+  getOptionalComponent,
   removeComponent,
   setComponent
 } from '../../ecs/functions/ComponentFunctions'
@@ -167,8 +168,8 @@ const execute = () => {
     const inputSourceEntity = inputComponent?.inputSources[0]
 
     if (inputSourceEntity) {
-      const inputSourceComponent = getComponent(inputSourceEntity, InputSourceComponent)
-      if (inputSourceComponent.buttons.PrimaryClick?.touched) {
+      const inputSourceComponent = getOptionalComponent(inputSourceEntity, InputSourceComponent)
+      if (inputSourceComponent?.buttons.PrimaryClick?.touched) {
         let mouseMoved = Engine.instance.pointerState.movement.lengthSq() > 0
         if (mouseMoved) mouseMovedDuringPrimaryClick = true
 

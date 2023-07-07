@@ -330,7 +330,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
     if (isLoading.value) return
     isLoading.set(true)
     openConfirm.set(false)
-    await FileBrowserService.deleteContent(contentToDeletePath, contentToDeleteType)
+    await FileBrowserService.deleteContent(contentToDeletePath.value, contentToDeleteType.value)
     props.onSelectionChanged({ resourceUrl: '', name: '', contentType: '' })
     await onRefreshDirectory()
   }
