@@ -27,6 +27,7 @@ import { Color, DoubleSide, Mesh, Plane, PlaneGeometry, ShaderMaterial, Vector3 
 
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
 import { setObjectLayers } from '../../scene/functions/setObjectLayers'
+import LogarithmicDepthBufferMaterialChunk from '../functions/LogarithmicDepthBufferMaterialChunk'
 
 /**
  * Original Author: Fyrestar
@@ -36,18 +37,21 @@ const vertexShader = `
 varying vec3 worldPosition;
       
 uniform float uDistance;
+#include <logdepthbuf_pars_vertex>
+${LogarithmicDepthBufferMaterialChunk}
 
 void main() {
 
-      vec3 pos = position.xzy * uDistance;
-      pos.xz += cameraPosition.xz;
+  vec3 pos = position.xzy * uDistance;
+  pos.xz += cameraPosition.xz;
+  // this is necessary to avoid z fighting
+  pos.y += 0.001;
 
-      worldPosition = pos;
+  worldPosition = pos;
 
-      gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);
+  gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);
 
-      // this is necessary to avoid z fighting
-      gl_Position.z -= 0.01;
+  #include <logdepthbuf_vertex>
 }
 `
 const fragmentShader = `
@@ -58,6 +62,8 @@ uniform float uSize2;
 uniform vec3 uColor;
 uniform float uDistance;
 
+#include <logdepthbuf_pars_fragment>
+
 float getGrid(float size) {
     vec2 r = worldPosition.xz / size;
     vec2 grid = abs(fract(r - 0.5) - 0.5) / fwidth(r);
@@ -66,6 +72,7 @@ float getGrid(float size) {
 }
 
 void main() {
+  #include <logdepthbuf_fragment>
 
   float d = 1.0 - min(distance(cameraPosition.xz, worldPosition.xz) / uDistance, 1.0);
 
@@ -159,5 +166,6 @@ export default class InfiniteGridHelper extends Mesh {
 
   setGridHeight(value) {
     this.position.y = value
+    this.updateMatrixWorld(true)
   }
 }
