@@ -51,7 +51,7 @@ const Header = () => {
             <div className="avatar">
               <div className="w-8 rounded-full">
                 {avatarDetails.thumbnailResource?.url ? (
-                  <img src={avatarDetails.thumbnailResource?.url} className="w-auto h-8" />
+                  <img src={avatarDetails.thumbnailResource?.url} crossOrigin="anonymous" className="w-auto h-8" />
                 ) : (
                   <UserCircleIcon className="w-8 h-8" />
                 )}
