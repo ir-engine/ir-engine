@@ -35,6 +35,7 @@ import * as ActionFunctions from '@etherealengine/hyperflux/functions/ActionFunc
 import { createMockNetwork } from '../../../tests/util/createMockNetwork'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { spawnAvatarReceptor } from '../../avatar/functions/spawnAvatarReceptor'
+import { AvatarNetworkAction } from '../../avatar/state/AvatarNetworkState'
 import { destroyEngine, Engine } from '../../ecs/classes/Engine'
 import { defineQuery, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { SystemDefinitions } from '../../ecs/functions/SystemFunctions'
@@ -85,7 +86,7 @@ describe('WorldNetworkActionReceptors', () => {
           networkId: objNetId,
           $topic: NetworkTopics.world,
           $peer: Engine.instance.peerID,
-          uuid: Engine.instance.peerID as any as EntityUUID
+          entityUUID: Engine.instance.peerID as any as EntityUUID
         })
       )
 
@@ -127,7 +128,7 @@ describe('WorldNetworkActionReceptors', () => {
           prefab: objPrefab, // generic prefab
           networkId: objNetId,
           $peer: Engine.instance.peerID,
-          uuid: Engine.instance.peerID as any as EntityUUID
+          entityUUID: Engine.instance.peerID as any as EntityUUID
         })
       )
 
@@ -171,7 +172,7 @@ describe('WorldNetworkActionReceptors', () => {
           networkId: objNetId,
           $peer: peerID3,
           $topic: NetworkTopics.world,
-          uuid: peerID3 as any as EntityUUID
+          entityUUID: peerID3 as any as EntityUUID
         })
       )
 
@@ -201,13 +202,13 @@ describe('WorldNetworkActionReceptors', () => {
 
       NetworkPeerFunctions.createPeer(network, peerID, 1, userId, 1, 'user name')
 
-      const action = WorldNetworkAction.spawnAvatar({
+      const action = AvatarNetworkAction.spawn({
         networkId: 42 as NetworkId,
         $peer: peerID,
-        uuid: userId
+        entityUUID: Engine.instance.userId as string as EntityUUID
       })
       WorldNetworkActionReceptor.receiveSpawnObject(action as any)
-      spawnAvatarReceptor(action)
+      spawnAvatarReceptor(Engine.instance.userId as string as EntityUUID)
 
       const entity = Engine.instance.getOwnedNetworkObjectWithComponent(userId, AvatarComponent)
 
@@ -245,7 +246,7 @@ describe('WorldNetworkActionReceptors', () => {
           networkId: objNetId,
           $topic: NetworkTopics.world,
           $peer: Engine.instance.peerID,
-          uuid: Engine.instance.peerID as any as EntityUUID
+          entityUUID: Engine.instance.peerID as any as EntityUUID
         })
       )
 
@@ -318,7 +319,7 @@ describe('WorldNetworkActionReceptors', () => {
         networkId: objNetId,
         $topic: NetworkTopics.world,
         $peer: Engine.instance.peerID,
-        uuid: Engine.instance.peerID as any as EntityUUID
+        entityUUID: Engine.instance.peerID as any as EntityUUID
       })
     )
 

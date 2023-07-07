@@ -27,9 +27,8 @@ import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import ConfirmDialog from '@etherealengine/client-core/src/common/components/ConfirmDialog'
-import { AnimationSystem } from '@etherealengine/engine/src/avatar/AnimationSystem'
-import { AvatarAnimationSystem } from '@etherealengine/engine/src/avatar/AvatarAnimationSystem'
-import { AvatarSpawnSystem } from '@etherealengine/engine/src/avatar/AvatarSpawnSystem'
+import { AnimationSystem } from '@etherealengine/engine/src/avatar/systems/AnimationSystem'
+import { AvatarAnimationSystem } from '@etherealengine/engine/src/avatar/systems/AvatarAnimationSystem'
 import { DebugRendererSystem } from '@etherealengine/engine/src/debug/systems/DebugRendererSystem'
 import { AnimationSystemGroup, PresentationSystemGroup } from '@etherealengine/engine/src/ecs/functions/EngineFunctions'
 import { useSystem, useSystems } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
@@ -56,7 +55,7 @@ const Avatar = () => {
   const [selectedAvatarIds, setSelectedAvatarIds] = useState(() => new Set<string>())
 
   /** Avatar / Animation */
-  useSystems([AnimationSystem, AvatarSpawnSystem, AvatarAnimationSystem], {
+  useSystems([AnimationSystem, AvatarAnimationSystem], {
     with: AnimationSystemGroup
   })
 

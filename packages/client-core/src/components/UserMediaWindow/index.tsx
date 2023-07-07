@@ -34,12 +34,12 @@ import {
   globalUnmuteProducer,
   pauseConsumer,
   resumeConsumer,
+  setPreferredConsumerLayer,
   toggleMicrophonePaused,
   toggleScreenshareAudioPaused,
   toggleScreenshareVideoPaused,
   toggleWebcamPaused
 } from '@etherealengine/client-core/src/transports/SocketWebRTCClientFunctions'
-import { getAvatarURLForUser } from '@etherealengine/client-core/src/user/components/UserMenu/util'
 import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { UserId } from '@etherealengine/common/src/interfaces/UserId'
@@ -58,6 +58,8 @@ import Tooltip from '@etherealengine/ui/src/primitives/mui/Tooltip'
 import { MediaStreamState } from '../../transports/MediaStreams'
 import { PeerMediaChannelState, PeerMediaStreamInterface } from '../../transports/PeerMediaChannelState'
 import { ConsumerExtension, SocketWebRTCClientNetwork } from '../../transports/SocketWebRTCClientFunctions'
+import { useUserAvatarThumbnail } from '../../user/functions/useUserAvatarThumbnail'
+import { AvatarState } from '../../user/services/AvatarService'
 import Draggable from './Draggable'
 import styles from './index.module.scss'
 
@@ -115,10 +117,7 @@ export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
     peerID === 'self'
   const volume = isSelf ? audioState.microphoneGain.value : _volume.value
   const isScreen = type === 'screen'
-  const userId =
-    mediaNetwork && mediaNetwork.peers && mediaNetwork.peers.get(peerID)
-      ? mediaNetwork.peers.get(peerID!)?.userId
-      : undefined
+  const userId = isSelf ? selfUser?.id : mediaNetwork?.peers?.get(peerID!)?.userId
 
   const mediaStreamState = useHookstate(getMutableState(MediaStreamState))
   const mediaSettingState = useHookstate(getMutableState(MediaSettingsState))
@@ -323,7 +322,7 @@ export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
 
   const username = getUsername()
 
-  const userAvatarDetails = useHookstate(getMutableState(WorldState).userAvatarDetails)
+  const avatarThumbnail = useUserAvatarThumbnail(userId)
 
   const handleVisibilityChange = () => {
     if (document.hidden) {
@@ -365,7 +364,6 @@ export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
   }, [])
 
   return {
-    userId,
     isPiP: isPiP.value,
     volume,
     isScreen,
@@ -375,7 +373,7 @@ export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
     videoStream,
     audioStream,
     enableGlobalMute,
-    userAvatarDetails,
+    avatarThumbnail,
     videoStreamPaused,
     audioStreamPaused,
     videoProducerPaused,
@@ -395,7 +393,6 @@ export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
 
 export const UserMediaWindow = ({ peerID, type }: Props): JSX.Element => {
   const {
-    userId,
     isPiP,
     volume,
     isScreen,
@@ -405,7 +402,7 @@ export const UserMediaWindow = ({ peerID, type }: Props): JSX.Element => {
     videoStream,
     audioStream,
     enableGlobalMute,
-    userAvatarDetails,
+    avatarThumbnail,
     videoStreamPaused,
     audioStreamPaused,
     videoProducerPaused,
@@ -433,6 +430,35 @@ export const UserMediaWindow = ({ peerID, type }: Props): JSX.Element => {
     document.getElementById(peerID + '-' + type + '-video-container')!.append(videoElement)
     document.getElementById(peerID + '-' + type + '-audio-container')!.append(audioElement)
   }, [])
+
+  useEffect(() => {
+    if (!videoStream) return
+    const mediaNetwork = Engine.instance.mediaNetwork as SocketWebRTCClientNetwork
+    const encodings = videoStream.rtpParameters.encodings
+
+    const immersiveMedia = getMutableState(MediaSettingsState).immersiveMedia
+    if (isPiP || immersiveMedia.value) {
+      let maxLayer
+      const scalabilityMode = encodings && encodings[0].scalabilityMode
+      if (!scalabilityMode) maxLayer = 0
+      else {
+        const execed = /L([0-9])/.exec(scalabilityMode)
+        if (execed) maxLayer = parseInt(execed[1]) - 1 //Subtract 1 from max scalabilityMode since layers are 0-indexed
+        else maxLayer = 0
+      }
+      // If we're in immersive media mode, using max-resolution video for everyone could overwhelm some devices.
+      // If there are more than 2 layers, then use layer n-1 to balance quality and performance
+      // (immersive video bubbles are bigger than the flat bubbles, so low-quality video will be more noticeable).
+      // If we're not, then use the highest layer when opening PiP for a video
+      setPreferredConsumerLayer(
+        mediaNetwork,
+        videoStream as ConsumerExtension,
+        immersiveMedia && maxLayer > 1 ? maxLayer - 1 : maxLayer
+      )
+    }
+    // Standard video bubbles in flat/non-immersive mode should use the lowest quality layer for performance reasons
+    else setPreferredConsumerLayer(mediaNetwork, videoStream as ConsumerExtension, 0)
+  }, [videoStream, isPiP])
 
   return (
     <Draggable isPiP={isPiP}>
@@ -468,14 +494,7 @@ export const UserMediaWindow = ({ peerID, type }: Props): JSX.Element => {
             videoStreamPaused ||
             videoProducerPaused ||
             videoProducerGlobalMute ||
-            !videoDisplayReady) && (
-            <img
-              src={getAvatarURLForUser(userAvatarDetails, isSelf ? selfUser?.id : userId)}
-              alt=""
-              crossOrigin="anonymous"
-              draggable={false}
-            />
-          )}
+            !videoDisplayReady) && <img src={avatarThumbnail} alt="" crossOrigin="anonymous" draggable={false} />}
           <span key={peerID + '-' + type + '-video-container'} id={peerID + '-' + type + '-video-container'} />
         </div>
         <span key={peerID + '-' + type + '-audio-container'} id={peerID + '-' + type + '-audio-container'} />
@@ -585,7 +604,6 @@ export const UserMediaWindow = ({ peerID, type }: Props): JSX.Element => {
 
 export const UserMediaWindowWidget = ({ peerID, type }: Props): JSX.Element => {
   const {
-    userId,
     volume,
     isScreen,
     username,
@@ -594,7 +612,7 @@ export const UserMediaWindowWidget = ({ peerID, type }: Props): JSX.Element => {
     videoStream,
     audioStream,
     enableGlobalMute,
-    userAvatarDetails,
+    avatarThumbnail,
     videoStreamPaused,
     audioStreamPaused,
     videoProducerPaused,
@@ -644,13 +662,7 @@ export const UserMediaWindowWidget = ({ peerID, type }: Props): JSX.Element => {
       xr-layer="true"
     >
       {videoStream == null || videoStreamPaused || videoProducerPaused || videoProducerGlobalMute ? (
-        <img
-          src={getAvatarURLForUser(userAvatarDetails, isSelf ? selfUser?.id : userId)}
-          alt=""
-          crossOrigin="anonymous"
-          draggable={false}
-          xr-layer="true"
-        />
+        <img src={avatarThumbnail} alt="" crossOrigin="anonymous" draggable={false} xr-layer="true" />
       ) : (
         <video
           xr-layer="true"

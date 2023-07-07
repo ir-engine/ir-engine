@@ -108,8 +108,8 @@ export const InputSourceComponent = defineComponent({
   isAssignedButtons: (targetEntity: Entity) => {
     const sourceEntities = getOptionalComponent(targetEntity, InputComponent)?.inputSources
     return !!sourceEntities?.find((sourceEntity) => {
-      const inputSourceComponent = getComponent(sourceEntity, InputSourceComponent)
-      return inputSourceComponent.assignedButtonEntity === targetEntity
+      const inputSourceComponent = getOptionalComponent(sourceEntity, InputSourceComponent)
+      return inputSourceComponent?.assignedButtonEntity === targetEntity
     })
   },
 
@@ -177,6 +177,7 @@ const InputSourceAssignmentReactor = React.memo((props: { assignedEntity: Entity
     const idx = input.inputSources.value.indexOf(sourceEntity)
     idx === -1 && input.inputSources.merge([sourceEntity])
     return () => {
+      if (!input.inputSources?.value) return
       const idx = input.inputSources.value.indexOf(sourceEntity)
       idx > -1 && input.inputSources[idx].set(none)
     }

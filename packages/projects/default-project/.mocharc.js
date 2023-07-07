@@ -1,3 +1,4 @@
+
 /*
 CPAL-1.0 License
 
@@ -23,15 +24,21 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Engine } from '../ecs/classes/Engine'
-import { defineSystem } from '../ecs/functions/SystemFunctions'
-import { applyAutopilotInput } from './functions/moveAvatar'
 
-const execute = () => {
-  applyAutopilotInput(Engine.instance.localClientEntity)
-}
-
-export const AvatarAutopilotSystem = defineSystem({
-  uuid: 'ee.engine.AvatarAutopilotSystem',
-  execute
-})
+module.exports = {
+  failZero: false,
+  parallel: false,
+  spec: ['tests/**/*.test.ts'],
+  require: [
+    'tests/mocha.env', // init env here
+    'ts-node/register'
+  ],
+  extension: [
+    'ts'
+  ],
+  bail: true,
+  exit: true,
+  recursive: true,
+  jobs: '1',
+  timeout: '20000'
+};

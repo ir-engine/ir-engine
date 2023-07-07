@@ -49,11 +49,11 @@ import { SocialMenus } from '../../../../networking/NetworkInstanceProvisioning'
 import { FriendService, FriendState } from '../../../../social/services/FriendService'
 import { AvatarMenus } from '../../../../systems/AvatarUISystem'
 import { AvatarUIContextMenuService } from '../../../../systems/ui/UserMenuView'
+import { getUserAvatarThumbnail } from '../../../functions/useUserAvatarThumbnail'
 import { AuthState } from '../../../services/AuthService'
 import { UserMenus } from '../../../UserUISystem'
 import styles from '../index.module.scss'
 import { PopupMenuServices } from '../PopupMenuService'
-import { getAvatarURLForUser } from '../util'
 
 interface Props {
   defaultSelectedTab?: string
@@ -138,11 +138,7 @@ const FriendsMenu = ({ defaultSelectedTab }: Props): JSX.Element => {
         {displayList.length > 0 &&
           displayList.map((value) => (
             <Box key={value.id} display="flex" alignItems="center" m={2} gap={1.5}>
-              <Avatar
-                alt={value.name}
-                imageSrc={getAvatarURLForUser(userAvatarDetails, value.id as UserId)}
-                size={50}
-              />
+              <Avatar alt={value.name} imageSrc={getUserAvatarThumbnail(value.id as UserId)} size={50} />
 
               <Text flex={1}>{value.name}</Text>
 

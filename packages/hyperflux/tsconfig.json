@@ -39,5 +39,5 @@
     "../server-core/src/",
     "./**/*.ts",
     "./**/*.tsx"
-, "../engine/src/common/functions/MatchesUtils.ts"  ]
+  ]
 }

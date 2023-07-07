@@ -1370,6 +1370,17 @@ export async function closeConsumer(network: SocketWebRTCClientNetwork, consumer
   })
 }
 
+export async function setPreferredConsumerLayer(
+  network: SocketWebRTCClientNetwork,
+  consumer: ConsumerExtension,
+  layer: number
+) {
+  await promisedRequest(network, MessageTypes.WebRTCConsumerSetLayers.toString(), {
+    consumerId: consumer.id,
+    spatialLayer: layer
+  })
+}
+
 const checkEndVideoChat = async () => {
   const mediaStreamState = getMutableState(MediaStreamState)
   const mediaNetwork = Engine.instance.mediaNetwork as SocketWebRTCClientNetwork

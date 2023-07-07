@@ -23,21 +23,15 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { defineSystem } from '../ecs/functions/SystemFunctions'
-import { AvatarAutopilotSystem } from './AvatarAutopilotSystem'
-import { AvatarControllerSystem } from './AvatarControllerSystem'
-import { AvatarInputSystem } from './AvatarInputSystem'
-import { AvatarLoadingSystem } from './AvatarLoadingSystem'
-import { AvatarMovementSystem } from './AvatarMovementSystem'
-import { AvatarTeleportSystem } from './AvatarTeleportSystem'
-import { FlyControlSystem } from './FlyControlSystem'
+import { Engine } from '../../ecs/classes/Engine'
+import { defineSystem } from '../../ecs/functions/SystemFunctions'
+import { applyAutopilotInput } from '../functions/moveAvatar'
 
-export const AvatarInputGroup = defineSystem({
-  uuid: 'ee.engine.avatar-input-group',
-  subSystems: [AvatarInputSystem, AvatarControllerSystem, AvatarTeleportSystem, FlyControlSystem, AvatarLoadingSystem]
-})
+const execute = () => {
+  applyAutopilotInput(Engine.instance.localClientEntity)
+}
 
-export const AvatarSimulationGroup = defineSystem({
-  uuid: 'ee.engine.avatar-simulation-group',
-  subSystems: [AvatarMovementSystem, AvatarAutopilotSystem]
+export const AvatarAutopilotSystem = defineSystem({
+  uuid: 'ee.engine.AvatarAutopilotSystem',
+  execute
 })
