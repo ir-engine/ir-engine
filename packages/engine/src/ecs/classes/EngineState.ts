@@ -116,10 +116,12 @@ export class EngineActions {
     type: 'xre.engine.Engine.LEAVE_WORLD' as const
   })
 
+  /** @deprecated */
   static sceneLoaded = defineAction({
     type: 'xre.engine.Engine.SCENE_LOADED' as const
   })
 
+  /** @deprecated */
   static sceneUnloaded = defineAction({
     type: 'xre.engine.Engine.SCENE_UNLOADED' as const
   })
