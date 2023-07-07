@@ -32,6 +32,7 @@ import { RecordingResult } from '@etherealengine/common/src/interfaces/Recording
 import { StaticResourceInterface } from '@etherealengine/common/src/interfaces/StaticResourceInterface'
 import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 import multiLogger from '@etherealengine/common/src/logger'
+import { AvatarNetworkAction } from '@etherealengine/engine/src/avatar/state/AvatarNetworkState'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { ECSRecordingActions } from '@etherealengine/engine/src/ecs/ECSRecording'
@@ -370,7 +371,7 @@ export const onStartPlayback = async (action: ReturnType<typeof ECSRecordingActi
           for (let i = 0; i < entityChunks[chunkIndex].entities.length; i++) {
             const uuid = entityChunks[chunkIndex].entities[i]
             // override entity ID such that it is actually unique, by appendig the recording id
-            const entityID = (uuid + '_' + recording.id) as UserId
+            const entityID = (uuid + '_' + recording.id) as EntityUUID
             entityChunks[chunkIndex].entities[i] = entityID
             if (!UUIDComponent.entitiesByUUID[entityID]) {
               app
@@ -379,18 +380,15 @@ export const onStartPlayback = async (action: ReturnType<typeof ECSRecordingActi
                 .then((user) => {
                   if (user && !UUIDComponent.entitiesByUUID[entityID]) {
                     dispatchAction(
-                      WorldNetworkAction.spawnAvatar({
-                        uuid: entityID
+                      AvatarNetworkAction.spawn({
+                        entityUUID: entityID
                       })
                     )
                     dispatchAction(
-                      WorldNetworkAction.avatarDetails({
+                      AvatarNetworkAction.setAvatarID({
                         // $from: entityID,
-                        avatarDetail: {
-                          avatarURL: user.avatar.modelResource?.url || '',
-                          thumbnailURL: user.avatar.thumbnailResource?.url || ''
-                        },
-                        uuid: entityID
+                        avatarID: user.avatar.id,
+                        entityUUID: entityID
                       })
                     )
                     entitiesSpawned.push(entityID)
@@ -462,11 +460,9 @@ const playbackStopped = (userId: UserId, recordingID: string) => {
   const activePlayback = activePlaybacks.get(recordingID)!
 
   for (const entityUUID of activePlayback.entitiesSpawned) {
-    const entity = UUIDComponent.entitiesByUUID[entityUUID]
-    const networkObject = getComponent(entity, NetworkObjectComponent)
     dispatchAction(
       WorldNetworkAction.destroyObject({
-        networkId: networkObject.networkId
+        entityUUID: entityUUID as EntityUUID
       })
     )
   }

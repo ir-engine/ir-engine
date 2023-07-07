@@ -61,7 +61,7 @@ enum PropertyTypes {
 
 type EffectPropertyDetail = { propertyType: PropertyTypes; name: string; min?: number; max?: number; step?: number }
 type EffectPropertiesType = { [key: string]: EffectPropertyDetail }
-type EffectOptionsType = { [key in Effects]: EffectPropertiesType }
+type EffectOptionsType = { [key in keyof typeof Effects]: EffectPropertiesType }
 
 const EffectsOptions: EffectOptionsType = {
   // FXAAEffect: {
@@ -385,13 +385,13 @@ export const PostProcessingSettingsEditor: EditorComponentType = (props) => {
     )
   }
 
-  const renderEffectsTypes = (effectName: Effects) => {
+  const renderEffectsTypes = (effectName: keyof typeof Effects) => {
     const effect = EffectsOptions[effectName]
     return Object.keys(effect).map((prop, index) => renderProperty(effect[prop], [effectName, prop], index))
   }
 
   const renderEffects = () => {
-    const items = Object.keys(EffectsOptions).map((effect: Effects) => {
+    const items = Object.keys(EffectsOptions).map((effect: keyof typeof Effects) => {
       return (
         <div key={effect}>
           <Checkbox

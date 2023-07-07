@@ -30,18 +30,24 @@ import { AvatarControllerComponent } from '../../../avatar/components/AvatarCont
 import { SpawnPoseComponent } from '../../../avatar/components/SpawnPoseComponent'
 import { teleportAvatar } from '../../../avatar/functions/moveAvatar'
 import { switchCameraMode } from '../../../avatar/functions/switchCameraMode'
+import { AvatarNetworkAction } from '../../../avatar/state/AvatarNetworkState'
 import { CameraMode } from '../../../camera/types/CameraMode'
 import { Engine } from '../../../ecs/classes/Engine'
 import { EngineActions, EngineState } from '../../../ecs/classes/EngineState'
 import { Entity } from '../../../ecs/classes/Entity'
 import { getComponent } from '../../../ecs/functions/ComponentFunctions'
-import { WorldNetworkAction } from '../../../networking/functions/WorldNetworkAction'
 import { PortalComponent } from '../../components/PortalComponent'
+import { UUIDComponent } from '../../components/UUIDComponent'
 
 export const setAvatarToLocationTeleportingState = () => {
   switchCameraMode(Engine.instance.cameraEntity, { cameraMode: CameraMode.ShoulderCam })
   getComponent(Engine.instance.localClientEntity, AvatarControllerComponent).movementEnabled = false
-  dispatchAction(WorldNetworkAction.avatarAnimation({ newStateName: AvatarStates.FALL_IDLE, params: {} }))
+  dispatchAction(
+    AvatarNetworkAction.setAnimationState({
+      animationState: AvatarStates.FALL_IDLE,
+      entityUUID: getComponent(Engine.instance.localClientEntity, UUIDComponent)
+    })
+  )
 }
 
 export const revertAvatarToMovingStateFromTeleport = () => {

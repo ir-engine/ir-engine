@@ -30,38 +30,38 @@ import { isDev } from '@etherealengine/common/src/config'
 import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
 
-import { V_000, V_010 } from '../common/constants/MathConstants'
-import { isTouchAvailable } from '../common/functions/DetectFeatures'
-import { Engine } from '../ecs/classes/Engine'
-import { EngineActions } from '../ecs/classes/EngineState'
-import { Entity } from '../ecs/classes/Entity'
+import { V_000, V_010 } from '../../common/constants/MathConstants'
+import { Engine } from '../../ecs/classes/Engine'
+import { EngineActions } from '../../ecs/classes/EngineState'
+import { Entity } from '../../ecs/classes/Entity'
 import {
   ComponentType,
   defineQuery,
   getComponent,
   getMutableComponent,
+  getOptionalComponent,
   removeComponent,
   setComponent
-} from '../ecs/functions/ComponentFunctions'
-import { defineSystem } from '../ecs/functions/SystemFunctions'
-import { InputComponent } from '../input/components/InputComponent'
-import { InputSourceComponent } from '../input/components/InputSourceComponent'
-import { StandardGamepadButton, XRStandardGamepadButton } from '../input/state/ButtonState'
-import { InteractState } from '../interaction/systems/InteractiveSystem'
-import { WorldNetworkAction } from '../networking/functions/WorldNetworkAction'
-import { Physics, RaycastArgs } from '../physics/classes/Physics'
-import { RigidBodyFixedTagComponent } from '../physics/components/RigidBodyComponent'
-import { CollisionGroups } from '../physics/enums/CollisionGroups'
-import { getInteractionGroups } from '../physics/functions/getInteractionGroups'
-import { boxDynamicConfig } from '../physics/functions/physicsObjectDebugFunctions'
-import { SceneQueryType } from '../physics/types/PhysicsTypes'
-import { RendererState } from '../renderer/RendererState'
-import { hasMovementControls } from '../xr/XRState'
-import { AvatarControllerComponent } from './components/AvatarControllerComponent'
-import { AvatarTeleportComponent } from './components/AvatarTeleportComponent'
-import { autopilotSetPosition } from './functions/autopilotFunctions'
-import { translateAndRotateAvatar } from './functions/moveAvatar'
-import { AvatarAxesControlScheme, AvatarInputSettingsState } from './state/AvatarInputSettingsState'
+} from '../../ecs/functions/ComponentFunctions'
+import { defineSystem } from '../../ecs/functions/SystemFunctions'
+import { InputComponent } from '../../input/components/InputComponent'
+import { InputSourceComponent } from '../../input/components/InputSourceComponent'
+import { StandardGamepadButton, XRStandardGamepadButton } from '../../input/state/ButtonState'
+import { InteractState } from '../../interaction/systems/InteractiveSystem'
+import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
+import { Physics, RaycastArgs } from '../../physics/classes/Physics'
+import { RigidBodyFixedTagComponent } from '../../physics/components/RigidBodyComponent'
+import { CollisionGroups } from '../../physics/enums/CollisionGroups'
+import { getInteractionGroups } from '../../physics/functions/getInteractionGroups'
+import { boxDynamicConfig } from '../../physics/functions/physicsObjectDebugFunctions'
+import { SceneQueryType } from '../../physics/types/PhysicsTypes'
+import { RendererState } from '../../renderer/RendererState'
+import { hasMovementControls } from '../../xr/XRState'
+import { AvatarControllerComponent } from '.././components/AvatarControllerComponent'
+import { AvatarTeleportComponent } from '.././components/AvatarTeleportComponent'
+import { autopilotSetPosition } from '.././functions/autopilotFunctions'
+import { translateAndRotateAvatar } from '.././functions/moveAvatar'
+import { AvatarAxesControlScheme, AvatarInputSettingsState } from '.././state/AvatarInputSettingsState'
 
 const _quat = new Quaternion()
 
@@ -233,9 +233,9 @@ const execute = () => {
     const inputSourceEntity = inputComponent?.inputSources[0]
 
     if (inputSourceEntity) {
-      const inputSourceComponent = getComponent(inputSourceEntity, InputSourceComponent)
-      if (inputSourceComponent.buttons.PrimaryClick?.touched) {
-        let mouseMoved = Engine.instance.pointerState.movement.lengthSq() > 0
+      const inputSourceComponent = getOptionalComponent(inputSourceEntity, InputSourceComponent)
+      if (inputSourceComponent?.buttons.PrimaryClick?.touched) {
+        const mouseMoved = Engine.instance.pointerState.movement.lengthSq() > 0
         if (mouseMoved) mouseMovedDuringPrimaryClick = true
 
         if (inputSourceComponent.buttons.PrimaryClick.up) {
