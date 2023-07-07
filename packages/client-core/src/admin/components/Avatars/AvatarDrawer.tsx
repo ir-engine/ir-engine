@@ -427,73 +427,75 @@ const AvatarDrawerContent = ({ open, mode, selectedAvatar, onClose }: Props) => 
         />
       )}
 
-      <Box
-        className={styles.preview}
-        style={{ width: THUMBNAIL_WIDTH + 'px', height: THUMBNAIL_HEIGHT + 'px', position: 'relative' }}
-      >
-        <div ref={panelRef} id="stage" style={{ width: THUMBNAIL_WIDTH + 'px', height: THUMBNAIL_HEIGHT + 'px' }} />
-
-        {avatarLoading.value && (
-          <LoadingView
-            title={t('admin:components.avatar.loading')}
-            variant="body2"
-            sx={{ position: 'absolute', top: 0 }}
-          />
-        )}
-
-        {((state.source.value === 'file' && !state.avatarFile.value) ||
-          (state.source.value === 'url' && !state.avatarUrl.value)) && (
-          <Typography
-            sx={{
-              position: 'absolute',
-              display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center',
-              height: '100%',
-              width: '100%',
-              fontSize: 14,
-              top: 0
-            }}
-          >
-            {t('admin:components.avatar.avatarPreview')}
-          </Typography>
-        )}
-
-        <Tooltip
-          arrow
-          title={
-            <Box sx={{ width: 100 }}>
-              <Typography variant="subtitle2" sx={{ fontWeight: 'bold' }}>
-                {t('user:avatar.rotate')}:
-              </Typography>
-              <Typography variant="body2" sx={{ display: 'flex', justifyContent: 'center' }}>
-                {t('admin:components.avatar.leftClick')}
-                <Icon type="Mouse" fontSize="small" />
-              </Typography>
-
-              <br />
-
-              <Typography variant="subtitle2" sx={{ fontWeight: 'bold' }}>
-                {t('user:avatar.pan')}:
-              </Typography>
-              <Typography variant="body2" sx={{ display: 'flex', justifyContent: 'center' }}>
-                {t('admin:components.avatar.rightClick')} <Icon type="Mouse" fontSize="small" />
-              </Typography>
-
-              <br />
-
-              <Typography variant="subtitle2" sx={{ fontWeight: 'bold' }}>
-                {t('admin:components.avatar.zoom')}:
-              </Typography>
-              <Typography variant="body2" sx={{ display: 'flex', justifyContent: 'center' }}>
-                {t('admin:components.avatar.scroll')} <Icon type="Mouse" fontSize="small" />
-              </Typography>
-            </Box>
-          }
+      {editMode.value && (
+        <Box
+          className={styles.preview}
+          style={{ width: THUMBNAIL_WIDTH + 'px', height: THUMBNAIL_HEIGHT + 'px', position: 'relative' }}
         >
-          <Icon type="Help" sx={{ position: 'absolute', top: 0, right: 0, margin: 1 }} />
-        </Tooltip>
-      </Box>
+          <div ref={panelRef} id="stage" style={{ width: THUMBNAIL_WIDTH + 'px', height: THUMBNAIL_HEIGHT + 'px' }} />
+
+          {avatarLoading.value && (
+            <LoadingView
+              title={t('admin:components.avatar.loading')}
+              variant="body2"
+              sx={{ position: 'absolute', top: 0 }}
+            />
+          )}
+
+          {((state.source.value === 'file' && !state.avatarFile.value) ||
+            (state.source.value === 'url' && !state.avatarUrl.value)) && (
+            <Typography
+              sx={{
+                position: 'absolute',
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                height: '100%',
+                width: '100%',
+                fontSize: 14,
+                top: 0
+              }}
+            >
+              {t('admin:components.avatar.avatarPreview')}
+            </Typography>
+          )}
+
+          <Tooltip
+            arrow
+            title={
+              <Box sx={{ width: 100 }}>
+                <Typography variant="subtitle2" sx={{ fontWeight: 'bold' }}>
+                  {t('user:avatar.rotate')}:
+                </Typography>
+                <Typography variant="body2" sx={{ display: 'flex', justifyContent: 'center' }}>
+                  {t('admin:components.avatar.leftClick')}
+                  <Icon type="Mouse" fontSize="small" />
+                </Typography>
+
+                <br />
+
+                <Typography variant="subtitle2" sx={{ fontWeight: 'bold' }}>
+                  {t('user:avatar.pan')}:
+                </Typography>
+                <Typography variant="body2" sx={{ display: 'flex', justifyContent: 'center' }}>
+                  {t('admin:components.avatar.rightClick')} <Icon type="Mouse" fontSize="small" />
+                </Typography>
+
+                <br />
+
+                <Typography variant="subtitle2" sx={{ fontWeight: 'bold' }}>
+                  {t('admin:components.avatar.zoom')}:
+                </Typography>
+                <Typography variant="body2" sx={{ display: 'flex', justifyContent: 'center' }}>
+                  {t('admin:components.avatar.scroll')} <Icon type="Mouse" fontSize="small" />
+                </Typography>
+              </Box>
+            }
+          >
+            <Icon type="Help" sx={{ position: 'absolute', top: 0, right: 0, margin: 1 }} />
+          </Tooltip>
+        </Box>
+      )}
 
       {state.source.value === 'file' && (
         <>

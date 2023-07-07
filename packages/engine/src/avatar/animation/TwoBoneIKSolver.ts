@@ -71,25 +71,25 @@ export function solveTwoBoneIK(
   targetRotation: Quaternion, // world space
   rotationOffset: Quaternion | null = null,
   hint: Vector3 | null = null,
-  rootAxisRestriction: Euler | null = null,
-  midAxisRestriction: Euler | null = null,
-  tipAxisRestriction: Euler | null = null,
-  targetPosWeight: number = 1,
-  targetRotWeight: number = 1,
-  hintWeight: number = 1
+  // rootAxisRestriction: Euler | null = null,
+  // midAxisRestriction: Euler | null = null,
+  // tipAxisRestriction: Euler | null = null,
+  targetPosWeight = 1,
+  targetRotWeight = 1,
+  hintWeight = 1
 ) {
-  if (rootAxisRestriction) {
-    root.quaternion.setFromEuler(rootAxisRestriction)
-    root.updateWorldMatrix(false, true)
-  }
-  if (midAxisRestriction) {
-    mid.quaternion.setFromEuler(midAxisRestriction)
-    mid.updateWorldMatrix(false, true)
-  }
-  if (tipAxisRestriction) {
-    tip.quaternion.setFromEuler(tipAxisRestriction)
-    tip.updateWorldMatrix(false, true)
-  }
+  // if (rootAxisRestriction) {
+  //   root.quaternion.setFromEuler(rootAxisRestriction)
+  //   root.updateWorldMatrix(false, true)
+  // }
+  // if (midAxisRestriction) {
+  //   mid.quaternion.setFromEuler(midAxisRestriction)
+  //   mid.updateWorldMatrix(false, true)
+  // }
+  // if (tipAxisRestriction) {
+  //   tip.quaternion.setFromEuler(tipAxisRestriction)
+  //   tip.updateWorldMatrix(false, true)
+  // }
 
   targetPos.copy(targetPosition)
   targetRot.copy(targetRotation)
@@ -110,10 +110,10 @@ export function solveTwoBoneIK(
 
   // Apply twist restriction
 
-  let abLength = ab.length()
-  let bcLength = bc.length()
-  let acLength = ac.length()
-  let atLength = at.length()
+  const abLength = ab.length()
+  const bcLength = bc.length()
+  const acLength = ac.length()
+  const atLength = at.length()
 
   const oldAngle = triangleAngle(acLength, abLength, bcLength)
   const newAngle = triangleAngle(atLength, abLength, bcLength)

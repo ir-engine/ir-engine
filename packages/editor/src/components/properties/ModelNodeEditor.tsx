@@ -26,10 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import React, { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import {
-  DefaultModelTransformParameters,
-  ModelTransformParameters
-} from '@etherealengine/engine/src/assets/classes/ModelTransform'
+import { AnimationManager } from '@etherealengine/engine/src/avatar/AnimationManager'
 import { LoopAnimationComponent } from '@etherealengine/engine/src/avatar/components/LoopAnimationComponent'
 import {
   addComponent,
@@ -74,14 +71,6 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
   const exportType = useState(modelComponent.src.value.endsWith('.gltf') ? 'gltf' : 'glb')
 
   const errors = getEntityErrors(props.entity, ModelComponent)
-
-  const loopAnimationComponent = getOptionalComponent(entity, LoopAnimationComponent)
-
-  const animationOptions = useState(() => {
-    const obj3d = modelComponent.value.scene
-    const animations = obj3d?.animations ?? []
-    return [{ label: 'None', value: -1 }, ...animations.map((clip, index) => ({ label: clip.name, value: index }))]
-  })
 
   const onChangeExportPath = useCallback(
     (path: string) => {

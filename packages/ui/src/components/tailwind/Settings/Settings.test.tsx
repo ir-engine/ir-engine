@@ -22,3 +22,17 @@ Original Code is the Ethereal Engine team.
 All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
 Ethereal Engine. All Rights Reserved.
 */
+
+import { describe, expect, it } from '@jest/globals'
+import { shallow } from 'enzyme'
+import React from 'react'
+
+import Settings from './index'
+import { Default as story } from './index.stories'
+
+describe('Settings', () => {
+  it('- should render', () => {
+    const wrapper = shallow(<Settings {...story?.args} />)
+    expect(wrapper).toMatchSnapshot()
+  })
+})

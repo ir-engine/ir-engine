@@ -25,11 +25,19 @@ Ethereal Engine. All Rights Reserved.
 
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 import { useHookstate } from '@hookstate/core'
-import { DrawingUtils, FaceLandmarker, FilesetResolver, HandLandmarker, PoseLandmarker } from '@mediapipe/tasks-vision'
+import {
+  DrawingUtils,
+  FaceLandmarker,
+  FilesetResolver,
+  HandLandmarker,
+  NormalizedLandmark,
+  PoseLandmarker
+} from '@mediapipe/tasks-vision'
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react'
 
 import { useMediaInstance } from '@etherealengine/client-core/src/common/services/MediaInstanceConnectionService'
 import { InstanceChatWrapper } from '@etherealengine/client-core/src/components/InstanceChat'
+import { CaptureClientSettingsState } from '@etherealengine/client-core/src/media/CaptureClientSettingsState'
 import { RecordingFunctions, RecordingState } from '@etherealengine/client-core/src/recording/RecordingService'
 import { MediaStreamService, MediaStreamState } from '@etherealengine/client-core/src/transports/MediaStreams'
 import {
@@ -83,25 +91,23 @@ const startPlayback = async (recordingID: string, twin = true) => {
   })
 }
 
-// const sendResults = (results: NormalizedLandmarkList) => {
-//   const network = Engine.instance.worldNetwork as SocketWebRTCClientNetwork
-//   if (!network?.sendTransport) return
-//   const dataProducer = network.dataProducers.get(mocapDataChannelType)
-//   if (!dataProducer) {
-//     startDataProducer()
-//     return
-//   }
-//   if (!dataProducer.closed && dataProducer.readyState === 'open') {
-//     const data = MotionCaptureFunctions.sendResults(results)
-//     dataProducer.send(data)
-//   }
-// }
+const sendResults = (results: NormalizedLandmark[]) => {
+  const network = Engine.instance.worldNetwork as SocketWebRTCClientNetwork
+  if (!network?.sendTransport) return
+  const dataProducer = network.dataProducers.get(mocapDataChannelType)
+  if (!dataProducer) {
+    startDataProducer()
+    return
+  }
+  if (!dataProducer.closed && dataProducer.readyState === 'open') {
+    const data = MotionCaptureFunctions.sendResults(results)
+    dataProducer.send(data)
+  }
+}
 
 const CaptureDashboard = () => {
-  const [isVideoFlipped, setIsVideoFlipped] = useState(true)
-  const [isDrawingBody, setIsDrawingBody] = useState(true)
-  const [isDrawingHands, setIsDrawingHands] = useState(true)
-  const [isDrawingFace, setIsDrawingFace] = useState(true)
+  const captureState = useHookstate(getMutableState(CaptureClientSettingsState))
+  const displaySettings = captureState?.nested('settings')?.value?.filter((s) => s?.name.toLowerCase() === 'display')[0]
 
   const isDetecting = useHookstate(false)
   const [detectingStatus, setDetectingStatus] = useState('inactive')
@@ -155,10 +161,10 @@ const CaptureDashboard = () => {
   }, [])
 
   useEffect(() => {
-    const factor = isVideoFlipped === true ? '-1' : '1'
+    const factor = displaySettings.flipVideo === true ? '-1' : '1'
     canvasRef.current!.style.transform = `scaleX(${factor})`
     videoRef.current!.style.transform = `scaleX(${factor})`
-  }, [isVideoFlipped])
+  }, [displaySettings.flipVideo])
 
   useLayoutEffect(() => {
     canvasCtxRef.current = canvasRef.current!.getContext('2d')!
@@ -254,6 +260,7 @@ const CaptureDashboard = () => {
     if (processingFrame.value || !poseDetector.value || !handDetector.value || !faceDetector.value) return
 
     poseDetector?.value?.detectForVideo(videoRef.current!, videoTime * 1000, (poseResults) => {
+      // sendResults(poseResults.landmarks)
       canvasCtxRef?.current?.save()
       canvasCtxRef?.current?.clearRect(0, 0, canvasRef.current!.width, canvasRef.current!.height)
 
@@ -427,7 +434,7 @@ const CaptureDashboard = () => {
         }
       >
         <Header />
-        <div className="w-full container mx-auto">
+        <div className="w-full container mx-auto pointer-events-auto">
           <div className="w-full h-auto px-2">
             <div className="w-full h-auto relative aspect-w-16 aspect-h-9 overflow-hidden">
               <div className="absolute w-full h-auto top-0 left-0" style={{ backgroundColor: '#000000' }}>
@@ -461,23 +468,7 @@ const CaptureDashboard = () => {
               toggleDetecting={() => isDetecting.set((v) => !v)}
               isRecording={recordingState?.started?.value}
               recordingStatus={recordingStatus}
-              isVideoFlipped={isVideoFlipped}
-              flipVideo={(v) => {
-                setIsVideoFlipped(v)
-              }}
               cycleCamera={MediaStreamService.cycleCamera}
-              isDrawingBody={isDrawingBody}
-              drawBody={(v) => {
-                setIsDrawingBody(v)
-              }}
-              isDrawingHands={isDrawingHands}
-              drawHands={(v) => {
-                setIsDrawingHands(v)
-              }}
-              isDrawingFace={isDrawingFace}
-              drawFace={(v) => {
-                setIsDrawingFace(v)
-              }}
             />
           </div>
           <div className="w-full container mx-auto">
