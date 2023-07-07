@@ -31,7 +31,7 @@ import Button from '@etherealengine/client-core/src/common/components/Button'
 import Menu from '@etherealengine/client-core/src/common/components/Menu'
 import { uploadToFeathersService } from '@etherealengine/client-core/src/util/upload'
 import { KTX2EncodeArguments } from '@etherealengine/engine/src/assets/constants/CompressionParms'
-import { State } from '@etherealengine/hyperflux'
+import { State, useHookstate } from '@etherealengine/hyperflux'
 import CircularProgress from '@etherealengine/ui/src/primitives/mui/CircularProgress'
 import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 import { KTX2Encoder } from '@etherealengine/xrui/core/textures/KTX2Encoder'
@@ -54,10 +54,10 @@ export default function CompressionPanel({
   compressProperties: State<KTX2EncodeArguments>
   onRefreshDirectory: () => Promise<void>
 }) {
-  const [compressionLoading, setCompressionLoading] = useState(false)
+  const compressionLoading = useHookstate(false)
 
   const compressContentInBrowser = async () => {
-    setCompressionLoading(true)
+    compressionLoading.set(true)
 
     const props = fileProperties.value
     compressProperties.src.set(props.type === 'folder' ? `${props.url}/${props.key}` : props.url)
@@ -99,7 +99,7 @@ export default function CompressionPanel({
     }).promise
     await onRefreshDirectory()
 
-    setCompressionLoading(false)
+    compressionLoading.set(false)
     openCompress.set(false)
   }
 
@@ -119,7 +119,7 @@ export default function CompressionPanel({
       header={fileProperties.value.name}
       actions={
         <>
-          {!compressionLoading ? (
+          {!compressionLoading.value ? (
             <Button type="gradient" className={styles.horizontalCenter} onClick={compressContentInBrowser}>
               {t('editor:properties.model.transform.compress') as string}
             </Button>
