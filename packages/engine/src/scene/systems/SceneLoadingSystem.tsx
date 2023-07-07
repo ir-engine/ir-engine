@@ -240,10 +240,10 @@ export const updateSceneEntitiesFromJSON = (parent: string) => {
 /** 2. remove old scene entities - GLTF loaded entities will be handled by their parents if removed */
 export const removeSceneEntitiesFromOldJSON = () => {
   const sceneState = getState(SceneState)
-  const sceneData = sceneState.sceneData as SceneData
+  const sceneData = sceneState.sceneData
   const oldLoadedEntityNodesToRemove = getAllEntitiesInTree(sceneState.sceneEntity).filter(
     (entity) =>
-      !sceneData.scene.entities[getComponent(entity, UUIDComponent)] &&
+      !sceneData?.scene.entities[getComponent(entity, UUIDComponent)] &&
       !getOptionalComponent(entity, GLTFLoadedComponent)?.includes('entity')
   )
   /** @todo this will not  */
@@ -263,7 +263,7 @@ export const updateSceneFromJSON = async () => {
   if (getState(AppLoadingState).state !== AppLoadingStates.SUCCESS)
     dispatchAction(AppLoadingAction.setLoadingState({ state: AppLoadingStates.SCENE_LOADING }))
 
-  const sceneData = getState(SceneState).sceneData as SceneData
+  const sceneData = getState(SceneState).sceneData
 
   getMutableState(EngineState).merge({
     sceneLoading: true,
@@ -272,7 +272,7 @@ export const updateSceneFromJSON = async () => {
 
   const systemsToLoad = [] as SystemImportType[]
 
-  if (!getState(EngineState).isEditor) {
+  if (!getState(EngineState).isEditor && sceneData) {
     /** get systems that have changed */
     const sceneSystems = await getSystemsFromSceneData(sceneData.project, sceneData.scene)
     systemsToLoad.push(
@@ -292,6 +292,14 @@ export const updateSceneFromJSON = async () => {
   }
 
   removeSceneEntitiesFromOldJSON()
+
+  if (!sceneData) {
+    getMutableState(EngineState).merge({
+      sceneLoading: false,
+      sceneLoaded: false
+    })
+    return
+  }
 
   /** 3. load new systems */
   if (!getState(EngineState).isEditor) {
@@ -326,7 +334,13 @@ export const updateSceneFromJSON = async () => {
   }
 
   if (!sceneAssetPendingTagQuery().length) {
-    if (getState(EngineState).sceneLoading) dispatchAction(EngineActions.sceneLoaded({}))
+    if (getState(EngineState).sceneLoading) {
+      getMutableState(EngineState).merge({
+        sceneLoading: false,
+        sceneLoaded: true
+      })
+      dispatchAction(EngineActions.sceneLoaded({}))
+    }
   }
 }
 
@@ -418,13 +432,17 @@ const reactor = () => {
 
     if (!sceneAssetPendingTagQuery.length && !getState(EngineState).sceneLoaded) {
       for (const entity of sceneAssetPendingTagQuery) removeComponent(entity, SceneAssetPendingTagComponent)
+      getMutableState(EngineState).merge({
+        sceneLoading: false,
+        sceneLoaded: true
+      })
       dispatchAction(EngineActions.sceneLoaded({}))
       SceneAssetPendingTagComponent.loadingProgress.set({})
     }
   }, [sceneAssetPendingTagQuery, assetLoadingState])
 
   useEffect(() => {
-    if (sceneData.value && isEngineInitialized.value) updateSceneFromJSON()
+    if (isEngineInitialized.value) updateSceneFromJSON()
   }, [sceneData, isEngineInitialized])
 
   useEffect(() => {

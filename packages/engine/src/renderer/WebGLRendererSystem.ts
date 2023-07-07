@@ -24,20 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import _ from 'lodash'
-import {
-  BloomEffect,
-  BrightnessContrastEffect,
-  ColorDepthEffect,
-  DepthOfFieldEffect,
-  EffectComposer,
-  HueSaturationEffect,
-  NormalPass,
-  OutlineEffect,
-  RenderPass,
-  SMAAEffect,
-  SSAOEffect,
-  ToneMappingEffect
-} from 'postprocessing'
+import { EffectComposer, NormalPass, RenderPass } from 'postprocessing'
 import { useEffect } from 'react'
 import {
   LinearToneMapping,
@@ -51,21 +38,20 @@ import {
   WebGLRendererParameters
 } from 'three'
 
-import { defineState, dispatchAction, getMutableState, getState, none, useHookstate } from '@etherealengine/hyperflux'
+import { defineState, dispatchAction, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
-import { CSM } from '../assets/csm/CSM'
 import { ExponentialMovingAverage } from '../common/classes/ExponentialAverageCurve'
 import { nowMilliseconds } from '../common/functions/nowMilliseconds'
 import { overrideOnBeforeCompile } from '../common/functions/OnBeforeCompilePlugin'
 import { Engine } from '../ecs/classes/Engine'
 import { EngineActions, EngineState } from '../ecs/classes/EngineState'
-import { SceneState } from '../ecs/classes/Scene'
 import { defineSystem } from '../ecs/functions/SystemFunctions'
+import InfiniteGridHelper from '../scene/classes/InfiniteGridHelper'
 import { ObjectLayers } from '../scene/constants/ObjectLayers'
 import { defaultPostProcessingSchema } from '../scene/constants/PostProcessing'
+import { EffectMapType } from '../scene/constants/PostProcessing'
 import { createWebXRManager, WebXRManager } from '../xr/WebXRManager'
 import { XRState } from '../xr/XRState'
-import { LinearTosRGBEffect } from './effects/LinearTosRGBEffect'
 import { changeRenderMode } from './functions/changeRenderMode'
 import { configureEffectComposer } from './functions/configureEffectComposer'
 import { updateShadowMap } from './functions/RenderSettingsFunction'
@@ -73,19 +59,7 @@ import { RendererState } from './RendererState'
 import { RenderInfoSystem } from './RenderInfoSystem'
 import WebGL from './THREE.WebGL'
 
-export interface EffectComposerWithSchema extends EffectComposer {
-  OutlineEffect: OutlineEffect
-  // FXAAEffect: FXAAEffect
-  SMAAEffect: SMAAEffect
-  SSAOEffect: SSAOEffect
-  DepthOfFieldEffect: DepthOfFieldEffect
-  BloomEffect: BloomEffect
-  ToneMappingEffect: ToneMappingEffect
-  BrightnessContrastEffect: BrightnessContrastEffect
-  HueSaturationEffect: HueSaturationEffect
-  ColorDepthEffect: ColorDepthEffect
-  LinearTosRGBEffect: LinearTosRGBEffect
-}
+export type EffectComposerWithSchema = EffectComposer & EffectMapType
 
 let lastRenderTime = 0
 
@@ -366,6 +340,10 @@ const reactor = () => {
     if (engineRendererSettings.debugEnable.value) Engine.instance.camera.layers.enable(ObjectLayers.PhysicsHelper)
     else Engine.instance.camera.layers.disable(ObjectLayers.PhysicsHelper)
   }, [engineRendererSettings.debugEnable])
+
+  useEffect(() => {
+    InfiniteGridHelper.instance.setGridHeight(engineRendererSettings.gridHeight.value)
+  }, [engineRendererSettings.gridHeight])
 
   useEffect(() => {
     if (engineRendererSettings.gridVisibility.value) Engine.instance.camera.layers.enable(ObjectLayers.Gizmos)

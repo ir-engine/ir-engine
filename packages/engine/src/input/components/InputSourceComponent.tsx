@@ -177,6 +177,7 @@ const InputSourceAssignmentReactor = React.memo((props: { assignedEntity: Entity
     const idx = input.inputSources.value.indexOf(sourceEntity)
     idx === -1 && input.inputSources.merge([sourceEntity])
     return () => {
+      if (!input.inputSources?.value) return
       const idx = input.inputSources.value.indexOf(sourceEntity)
       idx > -1 && input.inputSources[idx].set(none)
     }
