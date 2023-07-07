@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { Quaternion } from 'three'
-import { Group, Matrix4, Vector3 } from 'three'
+import { Vector3 } from 'three'
 
 import { isDev } from '@etherealengine/common/src/config'
 import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
