@@ -26,6 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { Paginated } from '@feathersjs/feathers'
 
 import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import {
   AwsSettingPatch,
   awsSettingPath,
@@ -33,7 +34,6 @@ import {
 } from '@etherealengine/engine/src/schemas/setting/aws-setting.schema'
 import { defineAction, defineState, dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 
-import { API } from '../../../API'
 import { NotificationService } from '../../../common/services/NotificationService'
 
 export const AdminAwsSettingState = defineState({
@@ -65,7 +65,7 @@ export const AwsSettingReceptors = {
 export const AwsSettingService = {
   fetchAwsSetting: async () => {
     try {
-      const awsSettings = (await API.instance.client.service(awsSettingPath).find()) as Paginated<AwsSettingType>
+      const awsSettings = (await Engine.instance.api.service(awsSettingPath).find()) as Paginated<AwsSettingType>
       dispatchAction(AdminAwsSettingActions.awsSettingRetrieved({ awsSettings }))
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
@@ -73,7 +73,7 @@ export const AwsSettingService = {
   },
   patchAwsSetting: async (data: AwsSettingPatch, id: string) => {
     try {
-      await API.instance.client.service(awsSettingPath).patch(id, data)
+      await Engine.instance.api.service(awsSettingPath).patch(id, data)
       dispatchAction(AdminAwsSettingActions.awsSettingPatched({}))
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })

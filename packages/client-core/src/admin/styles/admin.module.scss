@@ -805,3 +805,16 @@
     }
   }
 }
+
+.helmSubheader {
+  color: var(--textColor);
+  text-align: center;
+  margin-bottom: 10px;
+  font-weight: 300;
+  font-size: 18px;
+  display: flex;
+
+  a {
+    margin-left: 2px;
+  }
+}

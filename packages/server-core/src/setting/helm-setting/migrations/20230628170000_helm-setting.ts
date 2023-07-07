@@ -23,30 +23,37 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import Authentication from './authentication-setting/authentication.service'
-import Aws from './aws-setting/aws-setting'
-import Chargebee from './chargebee-setting/chargebee-setting'
-import ClientSetting from './client-setting/client-setting'
-import Coil from './coil-setting/coil-setting'
-import Email from './email-setting/email-setting'
-import Helm from './helm-setting/helm-setting'
-import InstanceServer from './instance-server-setting/instance-server-setting'
-import ProjectSetting from './project-setting/project-setting.service'
-import RedisSetting from './redis-setting/redis-setting'
-import ServerSetting from './server-setting/server-setting'
-import TaskServer from './task-server-setting/task-server-setting'
+import type { Knex } from 'knex'
 
-export default [
-  ServerSetting,
-  ClientSetting,
-  InstanceServer,
-  Email,
-  Authentication,
-  Aws,
-  Chargebee,
-  Coil,
-  RedisSetting,
-  TaskServer,
-  ProjectSetting,
-  Helm
-]
+import { helmSettingPath } from '@etherealengine/engine/src/schemas/setting/helm-setting.schema'
+
+/**
+ * @param { import("knex").Knex } knex
+ * @returns { Promise<void> }
+ */
+export async function up(knex: Knex): Promise<void> {
+  const tableExists = await knex.schema.hasTable(helmSettingPath)
+
+  if (tableExists === false) {
+    await knex.schema.createTable(helmSettingPath, (table) => {
+      //@ts-ignore
+      table.uuid('id').collate('utf8mb4_bin').primary()
+      table.string('main', 255).nullable()
+      table.string('builder', 255).nullable()
+      table.dateTime('createdAt').notNullable()
+      table.dateTime('updatedAt').notNullable()
+    })
+  }
+}
+
+/**
+ * @param { import("knex").Knex } knex
+ * @returns { Promise<void> }
+ */
+export async function down(knex: Knex): Promise<void> {
+  const tableExists = await knex.schema.hasTable(helmSettingPath)
+
+  if (tableExists === true) {
+    await knex.schema.dropTable(helmSettingPath)
+  }
+}
