@@ -38,7 +38,7 @@ import { ObjectLayers } from '@etherealengine/engine/src/scene/constants/ObjectL
 
 export const validate = (obj: Object3D, renderer: WebGLRenderer, scene: Scene, camera: Camera) => {
   const objBoundingBox = new Box3().setFromObject(obj)
-  let maxBB = new Vector3(2, 3, 2)
+  const maxBB = new Vector3(2, 3, 2)
 
   let bone = false
   let skinnedMesh = false
