@@ -23,14 +23,24 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-export interface AuthenticationInterface {
-  id: string
-  service: string
-  entity: string
-  secret: string
-  authStrategies: string
-  jwtOptions: string
-  bearerToken: string
-  callback: string
-  oauth: string
-}
+import { createSwaggerServiceOptions } from 'feathers-swagger'
+
+import {
+  authenticationDataSchema,
+  authenticationPatchSchema,
+  authenticationQuerySchema,
+  authenticationSchema
+} from '@etherealengine/engine/src/schemas/setting/authentication.schema'
+
+export default createSwaggerServiceOptions({
+  schemas: {
+    authenticationDataSchema,
+    authenticationPatchSchema,
+    authenticationQuerySchema,
+    authenticationSchema
+  },
+  docs: {
+    description: 'Authentication service description',
+    securities: ['all']
+  }
+})
