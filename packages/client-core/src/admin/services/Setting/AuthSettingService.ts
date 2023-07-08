@@ -27,9 +27,9 @@ import { Paginated } from '@feathersjs/feathers'
 
 import { AdminAuthSetting, PatchAuthSetting } from '@etherealengine/common/src/interfaces/AdminAuthSetting'
 import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { defineAction, defineState, dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 
-import { API } from '../../../API'
 import { NotificationService } from '../../../common/services/NotificationService'
 import waitForClientAuthenticated from '../../../util/wait-for-client-authenticated'
 
@@ -88,7 +88,7 @@ export const AuthSettingsService = {
   fetchAuthSetting: async () => {
     try {
       await waitForClientAuthenticated()
-      const authSetting = (await API.instance.client
+      const authSetting = (await Engine.instance.api
         .service('authentication-setting')
         .find()) as Paginated<AdminAuthSetting>
       dispatchAction(AuthSettingsActions.authSettingRetrieved({ authSetting }))
@@ -99,7 +99,7 @@ export const AuthSettingsService = {
   },
   patchAuthSetting: async (data: PatchAuthSetting, id: string) => {
     try {
-      await API.instance.client.service('authentication-setting').patch(id, data)
+      await Engine.instance.api.service('authentication-setting').patch(id, data)
       dispatchAction(AuthSettingsActions.authSettingPatched({}))
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })

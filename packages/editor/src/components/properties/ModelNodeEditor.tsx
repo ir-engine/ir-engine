@@ -116,10 +116,7 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
       {...props}
     >
       <InputGroup name="Model Url" label={t('editor:properties.model.lbl-modelurl')}>
-        <ModelInput
-          value={modelComponent.resource?.value?.staticResource?.url || modelComponent.src?.value}
-          onChange={updateResources}
-        />
+        <ModelInput value={modelComponent.src.value} onChange={updateResources} />
         {errors?.LOADING_ERROR && (
           <div style={{ marginTop: 2, color: '#FF8C00' }}>{t('editor:properties.model.error-url')}</div>
         )}

@@ -24,9 +24,8 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { defineAction, defineState, dispatchAction, getMutableState } from '@etherealengine/hyperflux'
-
-import { API } from '../../../API'
 
 export const PROJECT_PAGE_LIMIT = 100
 
@@ -57,7 +56,7 @@ export const ProjectSettingReceptors = {
 
 export const ProjectSettingService = {
   fetchProjectSetting: async (projectId: string) => {
-    const projectSettings = await API.instance.client.service('project-setting').find({
+    const projectSettings = await Engine.instance.api.service('project-setting').find({
       query: {
         $limit: 1,
         id: projectId,
@@ -69,7 +68,7 @@ export const ProjectSettingService = {
 
   // restricted to admin scope
   updateProjectSetting: async (projectId: string, data: ProjectSettingValue[]) => {
-    await API.instance.client.service('project-setting').patch(projectId, { settings: JSON.stringify(data) })
+    await Engine.instance.api.service('project-setting').patch(projectId, { settings: JSON.stringify(data) })
     ProjectSettingService.fetchProjectSetting(projectId)
   }
 }
