@@ -24,6 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { render } from 'react-dom'
+import { blob } from 'stream/consumers'
 import { Vector3 } from 'three'
 
 import { renderTargetFromTexture } from '@etherealengine/engine/src/assets/functions/createReadableTexture'
@@ -39,7 +40,10 @@ import {
 } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { EngineRenderer } from '@etherealengine/engine/src/renderer/WebGLRendererSystem'
 import CubemapCapturer from '@etherealengine/engine/src/scene/classes/CubemapCapturer'
-import { convertCubemapToKTX2 } from '@etherealengine/engine/src/scene/classes/ImageUtils'
+import {
+  convertCubemapToEquiImageData,
+  convertCubemapToKTX2
+} from '@etherealengine/engine/src/scene/classes/ImageUtils'
 import { EnvMapBakeComponent } from '@etherealengine/engine/src/scene/components/EnvMapBakeComponent'
 import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
 import { ScenePreviewCameraComponent } from '@etherealengine/engine/src/scene/components/ScenePreviewCamera'
@@ -130,21 +134,30 @@ const resolution = 1024
  * @param entity
  * @returns
  */
-
+const previewCubemapCapturer = new CubemapCapturer(
+  EngineRenderer.instance.renderer,
+  Engine.instance.scene,
+  resolution / 8
+)
 export const getCubmapBakeTexture = (position: Vector3) => {
-  const cubemapCapturer = new CubemapCapturer(EngineRenderer.instance.renderer, Engine.instance.scene, resolution / 2)
-  const renderTarget = cubemapCapturer.update(position)
-  return renderTarget.texture
+  const renderTarget = previewCubemapCapturer.update(position)
+  const image = convertCubemapToEquiImageData(
+    EngineRenderer.instance.renderer,
+    renderTarget.texture,
+    resolution / 4,
+    resolution / 4
+  ) as ImageData
+  return image
 }
 
-export const uploadCubemapBakeToServer = async (name: string, position: Vector3) => {
-  const cubemapCapturer = new CubemapCapturer(EngineRenderer.instance.renderer, Engine.instance.scene, resolution)
-  const renderTarget = cubemapCapturer.update(position)
+const saveCubemapCapturer = new CubemapCapturer(EngineRenderer.instance.renderer, Engine.instance.scene, resolution)
+export const uploadCubemapBakeToServer = async (name: string, position: Vector3, res: number = resolution) => {
+  const renderTarget = saveCubemapCapturer.update(position)
   const blob = (await convertCubemapToKTX2(
     EngineRenderer.instance.renderer,
     renderTarget.texture,
-    resolution,
-    resolution,
+    res,
+    res,
     true
   )) as Blob
 
