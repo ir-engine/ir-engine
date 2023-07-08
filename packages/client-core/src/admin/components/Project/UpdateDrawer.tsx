@@ -45,8 +45,10 @@ import FormControlLabel from '@etherealengine/ui/src/primitives/mui/FormControlL
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 
 import { ProjectService, ProjectState } from '../../../common/services/ProjectService'
+import { AuthState } from '../../../user/services/AuthService'
 import DrawerView from '../../common/DrawerView'
 import { ProjectUpdateService, ProjectUpdateState } from '../../services/ProjectUpdateService'
+import { AdminHelmSettingsState, HelmSettingService } from '../../services/Setting/HelmSettingService'
 import styles from '../../styles/admin.module.scss'
 import ProjectFields from './ProjectFields'
 
@@ -64,6 +66,9 @@ const UpdateDrawer = ({ open, builderTags, onClose }: Props) => {
   const projectsToUpdate = useHookstate(new Map())
   const submitDisabled = useHookstate(true)
   const processing = useHookstate(false)
+  const user = useHookstate(getMutableState(AuthState).user)
+  const helmSettingState = useHookstate(getMutableState(AdminHelmSettingsState))
+  const [helmSetting] = helmSettingState?.helmSettings?.get({ noproxy: true }) || []
 
   const adminProjectState = useHookstate(getMutableState(ProjectState))
   const adminProjects = adminProjectState.projects
@@ -153,6 +158,12 @@ const UpdateDrawer = ({ open, builderTags, onClose }: Props) => {
     if (open && engineCommit.value && matchingTag && selectedTag.value.length === 0) selectedTag.set(engineCommit.value)
   }, [open, engineCommit.value, builderTags])
 
+  useEffect(() => {
+    if (user?.id?.value != null && helmSettingState?.updateNeeded?.value) {
+      HelmSettingService.fetchHelmSetting()
+    }
+  }, [user?.id?.value, helmSettingState?.updateNeeded?.value])
+
   return (
     <DrawerView open={open} onClose={handleClose}>
       <Container maxWidth="sm" className={styles.mt20}>
@@ -165,6 +176,16 @@ const UpdateDrawer = ({ open, builderTags, onClose }: Props) => {
           {' '}
           {t('admin:components.project.updateEngine')}
         </DialogTitle>
+
+        <div className={styles.helmSubheader}>
+          <div>{t('admin:components.setting.helm.mainHelmToDeploy')}</div>:
+          <a href="/admin/settings#helm">{helmSetting?.main.length > 0 ? helmSetting.main : 'Current Version'}</a>
+        </div>
+
+        <div className={styles.helmSubheader}>
+          <div>{t('admin:components.setting.helm.builderHelmToDeploy')}</div>:
+          <a href="/admin/settings#helm">{helmSetting?.builder.length > 0 ? helmSetting.builder : 'Current Version'}</a>
+        </div>
 
         {
           <InputSelect

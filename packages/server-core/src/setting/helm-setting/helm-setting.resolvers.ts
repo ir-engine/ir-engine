@@ -23,30 +23,33 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import Authentication from './authentication-setting/authentication.service'
-import Aws from './aws-setting/aws-setting'
-import Chargebee from './chargebee-setting/chargebee-setting'
-import ClientSetting from './client-setting/client-setting'
-import Coil from './coil-setting/coil-setting'
-import Email from './email-setting/email-setting'
-import Helm from './helm-setting/helm-setting'
-import InstanceServer from './instance-server-setting/instance-server-setting'
-import ProjectSetting from './project-setting/project-setting.service'
-import RedisSetting from './redis-setting/redis-setting'
-import ServerSetting from './server-setting/server-setting'
-import TaskServer from './task-server-setting/task-server-setting'
+// For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
+import { resolve } from '@feathersjs/schema'
+import { v4 } from 'uuid'
 
-export default [
-  ServerSetting,
-  ClientSetting,
-  InstanceServer,
-  Email,
-  Authentication,
-  Aws,
-  Chargebee,
-  Coil,
-  RedisSetting,
-  TaskServer,
-  ProjectSetting,
-  Helm
-]
+import {
+  HelmSettingDatabaseType,
+  HelmSettingQuery,
+  HelmSettingType
+} from '@etherealengine/engine/src/schemas/setting/helm-setting.schema'
+import type { HookContext } from '@etherealengine/server-core/declarations'
+
+import { getDateTimeSql } from '../../util/get-datetime-sql'
+
+export const helmSettingResolver = resolve<HelmSettingType, HookContext>({})
+
+export const helmSettingExternalResolver = resolve<HelmSettingType, HookContext>({})
+
+export const helmSettingDataResolver = resolve<HelmSettingType, HookContext>({
+  id: async () => {
+    return v4()
+  },
+  createdAt: getDateTimeSql,
+  updatedAt: getDateTimeSql
+})
+
+export const helmSettingPatchResolver = resolve<HelmSettingType, HookContext>({
+  updatedAt: getDateTimeSql
+})
+
+export const helmSettingQueryResolver = resolve<HelmSettingQuery, HookContext>({})

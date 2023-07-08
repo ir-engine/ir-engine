@@ -47,6 +47,7 @@ export async function up(knex: Knex): Promise<void> {
   const keysColumnExists = await knex.schema.hasColumn(awsSettingPath, 'keys')
   if (keysColumnExists) {
     const awsSettings = await knex.table(awsSettingPath).first()
+    if (!awsSettings) return
     let keys = JSON.parse(awsSettings.keys)
     if (typeof keys === 'string') keys = JSON.parse(keys)
     let s3 = JSON.parse(awsSettings.s3)
