@@ -71,7 +71,6 @@ function oldestFirstComparator(a: JitterBufferEntry, b: JitterBufferEntry) {
 
 const execute = () => {
   const engineState = getState(EngineState)
-  if (!engineState.isEngineInitialized) return
 
   const network = Engine.instance.worldNetwork
   if (!network) return

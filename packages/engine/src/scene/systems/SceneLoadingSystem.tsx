@@ -416,7 +416,6 @@ const sceneAssetPendingTagQuery = defineQuery([SceneAssetPendingTagComponent])
 
 const reactor = () => {
   const sceneData = useHookstate(getMutableState(SceneState).sceneData)
-  const isEngineInitialized = useHookstate(getMutableState(EngineState).isEngineInitialized)
   const sceneAssetPendingTagQuery = useQuery([SceneAssetPendingTagComponent])
   const assetLoadingState = useHookstate(SceneAssetPendingTagComponent.loadingProgress)
 
@@ -442,8 +441,8 @@ const reactor = () => {
   }, [sceneAssetPendingTagQuery, assetLoadingState])
 
   useEffect(() => {
-    if (isEngineInitialized.value) updateSceneFromJSON()
-  }, [sceneData, isEngineInitialized])
+    updateSceneFromJSON()
+  }, [sceneData])
 
   useEffect(() => {
     addActionReceptor(AppLoadingServiceReceptor)

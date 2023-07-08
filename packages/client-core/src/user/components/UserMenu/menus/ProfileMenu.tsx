@@ -43,7 +43,6 @@ import Menu from '@etherealengine/client-core/src/common/components/Menu'
 import Text from '@etherealengine/client-core/src/common/components/Text'
 import { validateEmail, validatePhoneNumber } from '@etherealengine/common/src/config'
 import multiLogger from '@etherealengine/common/src/logger'
-import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { WorldState } from '@etherealengine/engine/src/networking/interfaces/WorldState'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import Box from '@etherealengine/ui/src/primitives/mui/Box'
@@ -85,7 +84,6 @@ const ProfileMenu = ({ hideLogin, onClose, isPopover }: Props): JSX.Element => {
   const oauthConnectedState = useHookstate(Object.assign({}, initialOAuthConnectedState))
   const authState = useHookstate(initialAuthState)
 
-  const engineInitialized = useHookstate(getMutableState(EngineState).isEngineInitialized)
   const authSettingState = useHookstate(getMutableState(AuthSettingsState))
   const [authSetting] = authSettingState?.authSettings?.value || []
   const loading = useHookstate(getMutableState(AuthState).isProcessing)
@@ -358,11 +356,7 @@ const ProfileMenu = ({ hideLogin, onClose, isPopover }: Props): JSX.Element => {
     <Menu open isPopover={isPopover} onClose={() => PopupMenuServices.showPopupMenu()}>
       <Box className={styles.menuContent}>
         <Box className={styles.profileContainer}>
-          <Avatar
-            imageSrc={avatarThumbnail}
-            showChangeButton={!!engineInitialized.value}
-            onChange={() => PopupMenuServices.showPopupMenu(UserMenus.AvatarSelect)}
-          />
+          <Avatar imageSrc={avatarThumbnail} onChange={() => PopupMenuServices.showPopupMenu(UserMenus.AvatarSelect)} />
 
           <Box className={styles.profileDetails}>
             <Text variant="body2">
