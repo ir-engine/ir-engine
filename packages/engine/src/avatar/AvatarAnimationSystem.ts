@@ -96,13 +96,6 @@ export const AvatarAnimationState = defineState({
   }
 })
 
-// setComponent(entity, AvatarArmsTwistCorrectionComponent, {
-//   LeftHandBindRotationInv: new Quaternion(),
-//   LeftArmTwistAmount: 0.6,
-//   RightHandBindRotationInv: new Quaternion(),
-//   rightUpperArmTwistAmount: 0.6
-// })
-
 const loopAnimationQuery = defineQuery([
   VisibleComponent,
   LoopAnimationComponent,
@@ -127,11 +120,9 @@ const filterFrustumCulledEntities = (entity: Entity) =>
     FrustumCullCameraComponent.isCulled[entity]
   )
 
-const hipsRotationoffset = new Quaternion().setFromEuler(new Euler(0, Math.PI, 0))
-
 let avatarSortAccumulator = 0
 const _quat = new Quaternion()
-const _flipQuat = new Quaternion().setFromEuler(new Euler(0, Math.PI, 0))
+const _worldQuat = new Quaternion()
 
 const _vector3 = new Vector3()
 const _position = new Vector3()
@@ -139,24 +130,29 @@ const _hipVector = new Vector3()
 const leftLegVector = new Vector3()
 const rightLegVector = new Vector3()
 
-const rightHandRot = new Quaternion()
-const leftHandRot = new Quaternion()
+const rightHandOffset = new Quaternion().setFromEuler(new Euler(0, Math.PI / 2, 0))
+const leftHandOffset = new Quaternion().setFromEuler(new Euler(0, -Math.PI / 2, 0))
 
 const midAxisRestriction = new Euler(-Math.PI / 4, undefined, undefined) // Restrict rotation around the X-axis to 45 degrees
 
-const worldSpaceTargets = {
-  rightHandTarget: new Vector3(),
-  leftHandTarget: new Vector3(),
-  rightFootTarget: new Vector3(),
-  leftFootTarget: new Vector3(),
-  headTarget: new Vector3(),
-  hipsTarget: new Vector3(),
+interface targetTransform {
+  position: Vector3
+  rotation: Quaternion
+}
 
-  rightElbowHint: new Vector3(),
-  leftElbowHint: new Vector3(),
-  rightKneeHint: new Vector3(),
-  leftKneeHint: new Vector3(),
-  headHint: new Vector3()
+const worldSpaceTargets = {
+  rightHandTarget: { position: new Vector3(), rotation: new Quaternion() } as targetTransform,
+  leftHandTarget: { position: new Vector3(), rotation: new Quaternion() } as targetTransform,
+  rightFootTarget: { position: new Vector3(), rotation: new Quaternion() } as targetTransform,
+  leftFootTarget: { position: new Vector3(), rotation: new Quaternion() } as targetTransform,
+  headTarget: { position: new Vector3(), rotation: new Quaternion() } as targetTransform,
+  hipsTarget: { position: new Vector3(), rotation: new Quaternion() } as targetTransform,
+
+  rightElbowHint: { position: new Vector3(), rotation: new Quaternion() } as targetTransform,
+  leftElbowHint: { position: new Vector3(), rotation: new Quaternion() } as targetTransform,
+  rightKneeHint: { position: new Vector3(), rotation: new Quaternion() } as targetTransform,
+  leftKneeHint: { position: new Vector3(), rotation: new Quaternion() } as targetTransform,
+  headHint: { position: new Vector3(), rotation: new Quaternion() } as targetTransform
 }
 
 //debug visualizers
@@ -322,7 +318,7 @@ const execute = () => {
     let i = 0
     for (const [key, value] of Object.entries(rigComponent.ikTargetsMap)) {
       //if xr is active, set select targets to xr tracking data
-      worldSpaceTargets[key]
+      worldSpaceTargets[key].position
         .copy(value.position)
         .add(rigComponent.ikOffsetsMap.get(key)!)
         .applyMatrix4(root.matrixWorld)
@@ -349,13 +345,15 @@ const execute = () => {
       //todo - use a map for this
       switch (ikTargetComponent.handedness) {
         case 'left':
-          worldSpaceTargets.leftHandTarget.copy(ikTransform.position)
+          worldSpaceTargets.leftHandTarget.position.copy(ikTransform.position)
+          worldSpaceTargets.leftHandTarget.rotation.copy(ikTransform.rotation)
           break
         case 'right':
-          worldSpaceTargets.rightHandTarget.copy(ikTransform.position)
+          worldSpaceTargets.rightHandTarget.position.copy(ikTransform.position)
+          worldSpaceTargets.rightHandTarget.rotation.copy(ikTransform.rotation)
           break
         case 'none':
-          worldSpaceTargets.hipsTarget.copy(
+          worldSpaceTargets.hipsTarget.position.copy(
             _vector3
               .copy(ikTransform.position.multiplyScalar(xrState.localAvatarScale))
               .setY(ikTransform.position.y - rigComponent.torsoLength - 0.125)
@@ -364,9 +362,10 @@ const execute = () => {
           const hipsForward = new Vector3(0, 0, 1)
           hipsForward.applyQuaternion(rigidbodyComponent!.rotation)
           hipsForward.multiplyScalar(0.125)
-          worldSpaceTargets.hipsTarget.sub(hipsForward)
+          worldSpaceTargets.hipsTarget.position.sub(hipsForward)
 
           //calculate head look direction and apply to head bone
+          //look direction should be set outside of the xr switch
           rig.head.node.quaternion.copy(
             _quat.multiplyQuaternions(
               rig.spine.node.getWorldQuaternion(new Quaternion()).invert(),
@@ -382,63 +381,69 @@ const execute = () => {
     rig.hips.node.getWorldPosition(hipsWorldSpace)
 
     const leftLegLength =
-      leftLegVector.subVectors(worldSpaceTargets.hipsTarget, worldSpaceTargets.leftFootTarget).length() +
-      rigComponent.footHeight
+      leftLegVector
+        .subVectors(worldSpaceTargets.hipsTarget.position, worldSpaceTargets.leftFootTarget.position)
+        .length() + rigComponent.footHeight
     const rightLegLength =
-      rightLegVector.subVectors(worldSpaceTargets.hipsTarget, worldSpaceTargets.rightFootTarget).length() +
-      rigComponent.footHeight
+      rightLegVector
+        .subVectors(worldSpaceTargets.hipsTarget.position, worldSpaceTargets.rightFootTarget.position)
+        .length() + rigComponent.footHeight
 
     //get rotations from ik targets and convert to world space relative to hips
     const rot = new Quaternion()
     rig.hips.node.getWorldQuaternion(rot)
 
-    rightHandRot.multiplyQuaternions(rot, rigComponent.ikTargetsMap.rightHandTarget.quaternion)
-    leftHandRot.multiplyQuaternions(rot, rigComponent.ikTargetsMap.leftHandTarget.quaternion)
-
     //calculate hips to head
     rig.hips.node.position.copy(
-      rigComponent.vrm.humanoid.normalizedHumanBonesRoot.worldToLocal(worldSpaceTargets.hipsTarget)
+      rigComponent.vrm.humanoid.normalizedHumanBonesRoot.worldToLocal(worldSpaceTargets.hipsTarget.position)
     )
     _hipVector.subVectors(rigComponent.ikTargetsMap.headTarget.position, rigComponent.ikTargetsMap.hipsTarget.position)
     rig.hips.node.quaternion
       .setFromUnitVectors(V_010, _hipVector)
       .multiply(new Quaternion().setFromEuler(new Euler(0, Math.PI)))
 
-    //rig.hips.node.position.setY(rigComponent.ikTargetsMap.headTarget.position.y-rigComponent.torsoLength)
-    //const vectorToHips = new Vector3().copy()
-
-    //Setting x axis of the mid bone in the solve is necessary to prevent incorrect twisting.
-    //This is done for every solve.
+    //right now we only want hand rotation set if we are in xr
+    const xrValue = xrState.sessionActive ? 1 : 0
 
     solveTwoBoneIK(
       rig.rightUpperArm.node,
       rig.rightLowerArm.node,
       rig.rightHand.node,
-      worldSpaceTargets.rightHandTarget,
-      rightHandRot,
+      worldSpaceTargets.rightHandTarget.position,
+      worldSpaceTargets.rightHandTarget.rotation,
       null,
-      worldSpaceTargets.rightElbowHint,
+      worldSpaceTargets.rightElbowHint.position,
       null,
-      midAxisRestriction
+      midAxisRestriction,
+      null,
+      1,
+      xrValue
     )
 
     solveTwoBoneIK(
       rig.leftUpperArm.node,
       rig.leftLowerArm.node,
       rig.leftHand.node,
-      worldSpaceTargets.leftHandTarget,
-      leftHandRot,
+      worldSpaceTargets.leftHandTarget.position,
+      worldSpaceTargets.leftHandTarget.rotation,
       null,
-      worldSpaceTargets.leftElbowHint,
+      worldSpaceTargets.leftElbowHint.position,
       null,
-      midAxisRestriction
+      midAxisRestriction,
+      null,
+      1,
+      xrValue
     )
 
     //raycasting here every frame is terrible, this should be done every quarter of a second at most, or else done with colliders
     //cast ray for right foot, starting at hips y position and foot x/z
     const footRaycastArgs = {
       type: SceneQueryType.Closest,
-      origin: new Vector3(worldSpaceTargets.rightFootTarget.x, hipsWorldSpace.y, worldSpaceTargets.rightFootTarget.z),
+      origin: new Vector3(
+        worldSpaceTargets.rightFootTarget.position.x,
+        hipsWorldSpace.y,
+        worldSpaceTargets.rightFootTarget.position.z
+      ),
       direction: new Vector3(0, -1, 0),
       maxDistance: rightLegLength,
       groups: interactionGroups
@@ -451,16 +456,22 @@ const execute = () => {
       rig.rightUpperLeg.node,
       rig.rightLowerLeg.node,
       rig.rightFoot.node,
-      worldSpaceTargets.rightFootTarget.setY(worldSpaceTargets.rightFootTarget.y + rigComponent.footHeight),
-      rot,
+      worldSpaceTargets.rightFootTarget.position.setY(
+        worldSpaceTargets.rightFootTarget.position.y + rigComponent.footHeight
+      ),
+      worldSpaceTargets.rightFootTarget.rotation,
       null,
-      worldSpaceTargets.rightKneeHint,
+      worldSpaceTargets.rightKneeHint.position,
       null,
       midAxisRestriction
     )
 
     //reuse raycast args object, cast ray for left foot
-    footRaycastArgs.origin.set(worldSpaceTargets.leftFootTarget.x, hipsWorldSpace.y, worldSpaceTargets.leftFootTarget.z)
+    footRaycastArgs.origin.set(
+      worldSpaceTargets.leftFootTarget.position.x,
+      hipsWorldSpace.y,
+      worldSpaceTargets.leftFootTarget.position.z
+    )
     footRaycastArgs.maxDistance = leftLegLength
     const leftCastedRay = Physics.castRay(Engine.instance.physicsWorld, footRaycastArgs)
     //if (leftCastedRay[0]) worldSpaceTargets.leftFootTarget.copy(leftCastedRay[0].position as Vector3)
@@ -468,10 +479,12 @@ const execute = () => {
       rig.leftUpperLeg.node,
       rig.leftLowerLeg.node,
       rig.leftFoot.node,
-      worldSpaceTargets.leftFootTarget.setY(worldSpaceTargets.leftFootTarget.y + rigComponent.footHeight),
+      worldSpaceTargets.leftFootTarget.position.setY(
+        worldSpaceTargets.leftFootTarget.position.y + rigComponent.footHeight
+      ),
       rot,
       null,
-      worldSpaceTargets.leftKneeHint,
+      worldSpaceTargets.leftKneeHint.position,
       null,
       midAxisRestriction
     )

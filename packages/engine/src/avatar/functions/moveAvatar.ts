@@ -328,6 +328,8 @@ export const translateAndRotateAvatar = (entity: Entity, translation: Vector3, r
 
     updateWorldOrigin()
   }
+
+  rotationNeedsUpdate = true
 }
 
 export const updateLocalAvatarPositionAttachedMode = () => {
@@ -347,6 +349,7 @@ export const updateLocalAvatarPositionAttachedMode = () => {
 const viewerQuat = new Quaternion()
 const avatarRotationAroundY = new Euler()
 const avatarRotation = new Quaternion()
+let rotationNeedsUpdate = false
 
 const _updateLocalAvatarRotationAttachedMode = () => {
   const entity = Engine.instance.localClientEntity
@@ -364,13 +367,15 @@ const _updateLocalAvatarRotationAttachedMode = () => {
   const rigidbodyForward = new Vector3(0, 0, -1).applyQuaternion(rigidbody.targetKinematicRotation).setY(0)
   const angle = viewerForward.angleTo(rigidbodyForward)
 
-  if (angle > Math.PI * 0.25) {
+  if (angle > Math.PI * 0.25 || rotationNeedsUpdate) {
     viewerQuat
       .set(viewerOrientation.x, viewerOrientation.y, viewerOrientation.z, viewerOrientation.w)
       .premultiply(originTransform.rotation)
     // const avatarRotation = extractRotationAboutAxis(viewerQuat, V_010, _quat)
     avatarRotationAroundY.setFromQuaternion(viewerQuat, 'YXZ')
     avatarRotation.setFromAxisAngle(V_010, avatarRotationAroundY.y + Math.PI)
+
+    rotationNeedsUpdate = false
   }
 
   // for immersive and attached avatars, we don't want to interpolate the rigidbody in the transform system, so set
