@@ -46,7 +46,6 @@ import { overrideOnBeforeCompile } from '../common/functions/OnBeforeCompilePlug
 import { Engine } from '../ecs/classes/Engine'
 import { EngineActions, EngineState } from '../ecs/classes/EngineState'
 import { defineSystem } from '../ecs/functions/SystemFunctions'
-import InfiniteGridHelper from '../scene/classes/InfiniteGridHelper'
 import { ObjectLayers } from '../scene/constants/ObjectLayers'
 import { defaultPostProcessingSchema } from '../scene/constants/PostProcessing'
 import { EffectMapType } from '../scene/constants/PostProcessing'
@@ -340,11 +339,6 @@ const reactor = () => {
     if (engineRendererSettings.debugEnable.value) Engine.instance.camera.layers.enable(ObjectLayers.PhysicsHelper)
     else Engine.instance.camera.layers.disable(ObjectLayers.PhysicsHelper)
   }, [engineRendererSettings.debugEnable])
-
-  useEffect(() => {
-    InfiniteGridHelper.instance.setGridHeight(engineRendererSettings.gridHeight.value)
-  }, [engineRendererSettings.gridHeight])
-
   useEffect(() => {
     if (engineRendererSettings.gridVisibility.value) Engine.instance.camera.layers.enable(ObjectLayers.Gizmos)
     else Engine.instance.camera.layers.disable(ObjectLayers.Gizmos)
