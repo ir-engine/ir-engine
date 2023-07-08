@@ -56,7 +56,7 @@ import { getInteractionGroups } from '../../physics/functions/getInteractionGrou
 import { boxDynamicConfig } from '../../physics/functions/physicsObjectDebugFunctions'
 import { SceneQueryType } from '../../physics/types/PhysicsTypes'
 import { RendererState } from '../../renderer/RendererState'
-import { hasMovementControls } from '../../xr/XRState'
+import { hasMovementControls, XRState } from '../../xr/XRState'
 import { AvatarControllerComponent } from '.././components/AvatarControllerComponent'
 import { AvatarTeleportComponent } from '.././components/AvatarTeleportComponent'
 import { autopilotSetPosition } from '.././functions/autopilotFunctions'
@@ -177,36 +177,35 @@ const isAvatarClicked = () => {
   return false
 }
 
-let doubleClickCount = 0
-const doubleClickTimeout = 0.6
-let doubleClickTimer = 0
-const reClickTimeout = 0.2
-let reClickTimer = 0
-const handleTouchJump = (buttons): boolean => {
-  //if (!isTouchAvailable) return false
+let clickCount = 0
+const clickTimeout = 0.6
+let douubleClickTimer = 0
+const secondClickTimeout = 0.2
+let secondClickTimer = 0
+
+const getAvatarDoubleClick = (buttons): boolean => {
+  if (getState(XRState).sessionActive) return false
   if (buttons.PrimaryClick?.up) {
-    //for single frame raycast
-    if (!isAvatarClicked()) return false
-    doubleClickCount += 1
+    if (!isAvatarClicked()) {
+      clickCount = 0
+      secondClickTimer = 0
+      douubleClickTimer = 0
+      return false
+    }
+    clickCount += 1
   }
-  // log a click
-  if (doubleClickCount < 1) return false //no clicks logged
-  if (doubleClickCount > 1) {
-    // handle the second click
-    reClickTimer += getState(EngineState).deltaSeconds
-    // this helps with the system not capturing single frame changes
-    if (reClickTimer <= reClickTimeout) return true
-    // end of double click
-    reClickTimer = 0
-    doubleClickCount = 0
+  if (clickCount < 1) return false
+  if (clickCount > 1) {
+    secondClickTimer += getState(EngineState).deltaSeconds
+    if (secondClickTimer <= secondClickTimeout) return true
+    secondClickTimer = 0
+    clickCount = 0
     return false
   }
-  // exactly one click confirmed
-  doubleClickTimer += getState(EngineState).deltaSeconds
-  if (doubleClickTimer <= doubleClickTimeout) return false
-  //timed out
-  doubleClickTimer = 0
-  doubleClickCount = 0
+  douubleClickTimer += getState(EngineState).deltaSeconds
+  if (douubleClickTimer <= clickTimeout) return false
+  douubleClickTimer = 0
+  clickCount = 0
   return false
 }
 const inputSourceQuery = defineQuery([InputSourceComponent])
@@ -287,7 +286,7 @@ const execute = () => {
     if (!hasMovementControls()) return
     //** touch input (only for avatar jump)*/
 
-    const doubleClicked = handleTouchJump(buttons)
+    const doubleClicked = getAvatarDoubleClick(buttons)
     /** keyboard input */
     const keyDeltaX = (buttons.KeyA?.pressed ? -1 : 0) + (buttons.KeyD?.pressed ? 1 : 0)
     const keyDeltaZ =
