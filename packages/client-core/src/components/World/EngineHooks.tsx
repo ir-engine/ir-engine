@@ -34,7 +34,7 @@ import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 import multiLogger from '@etherealengine/common/src/logger'
 import { getSearchParamFromURL } from '@etherealengine/common/src/utils/getSearchParamFromURL'
-import { getRandomSpawnPoint, getSpawnPoint } from '@etherealengine/engine/src/avatar/AvatarSpawnSystem'
+import { getRandomSpawnPoint, getSpawnPoint } from '@etherealengine/engine/src/avatar/functions/getSpawnPoint'
 import { teleportAvatar } from '@etherealengine/engine/src/avatar/functions/moveAvatar'
 import {
   AppLoadingAction,
@@ -88,10 +88,7 @@ const fetchMissingAvatar = async (user, avatarSpawnPose) => {
   if (avatar && avatar.modelResource?.url)
     spawnLocalAvatarInWorld({
       avatarSpawnPose,
-      avatarDetail: {
-        avatarURL: avatar.modelResource?.url || '',
-        thumbnailURL: avatar.thumbnailResource?.url || ''
-      },
+      avatarID: avatar.id,
       name: user.name.value
     })
   else
@@ -136,10 +133,7 @@ export const useLocationSpawnAvatar = (spectate = false) => {
     if (avatarDetails.modelResource?.url)
       spawnLocalAvatarInWorld({
         avatarSpawnPose,
-        avatarDetail: {
-          avatarURL: avatarDetails.modelResource?.url || '',
-          thumbnailURL: avatarDetails.thumbnailResource?.url || ''
-        },
+        avatarID: user.avatar.id.value,
         name: user.name.value
       })
     else fetchMissingAvatar(user, avatarSpawnPose)

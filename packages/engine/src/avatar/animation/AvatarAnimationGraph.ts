@@ -25,10 +25,10 @@ Ethereal Engine. All Rights Reserved.
 
 import { clamp } from 'lodash'
 import { AnimationClip, AnimationMixer, LoopOnce, LoopRepeat, Vector2, Vector3 } from 'three'
-import { lerp } from 'three/src/math/MathUtils'
 
 import { getState } from '@etherealengine/hyperflux'
 
+import { lerp } from '../../common/functions/MathLerpFunctions'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'

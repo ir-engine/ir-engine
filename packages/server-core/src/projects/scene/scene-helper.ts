@@ -31,7 +31,7 @@ import { SceneJson } from '@etherealengine/common/src/interfaces/SceneInterface'
 
 import { Application } from '../../../declarations'
 import config from '../../appconfig'
-import { addAssetsFromProject } from '../../media/static-resource/static-resource-helper'
+import { addAssetFromProject } from '../../media/static-resource/static-resource-helper'
 import { getCacheDomain } from '../../media/storageprovider/getCacheDomain'
 import { getStorageProvider } from '../../media/storageprovider/storageprovider'
 // import { addVolumetricAssetFromProject } from '../../media/volumetric/volumetric-upload.helper'
@@ -116,6 +116,7 @@ export const uploadSceneToStaticResources = async (
 }
 
 export const convertStaticResource = async (app: Application, project: string, sceneData: SceneJson) => {
+  // parallelizes each entity, serializes each component to avoid media playlists taking up gigs of memory when downloading
   await Promise.all(
     Object.values(sceneData!.entities).map(async (entity) => {
       try {
@@ -147,8 +148,12 @@ export const convertStaticResource = async (app: Application, project: string, s
                 }
                 urls = newUrls
               }
-              const response = await Promise.all(urls.map(async (url) => addAssetsFromProject(app, [url], project)))
-              const newUrls = response.flat().map((asset) => asset.url!)
+
+              const newUrls = [] as string[]
+              for (const url of urls) {
+                const newURL = await addAssetFromProject(app, url, project)
+                newUrls.push(newURL.url!)
+              }
               if (isVolumetric) {
                 component.props.resources = newUrls.filter((url) => url.endsWith('.mp4'))
               } else {
@@ -158,17 +163,16 @@ export const convertStaticResource = async (app: Application, project: string, s
             }
             case 'gltf-model': {
               if (component.props.src) {
-                const src = (await addAssetsFromProject(app, [component.props.src], project))[0].url
-                component.props.src = src
+                const resource = await addAssetFromProject(app, component.props.src, project)
+                component.props.src = resource.url
               }
               break
             }
             case 'image': {
-              const source = component.props.source
-              const urls = [source]
-              const response = await Promise.all(urls.map(async (url) => addAssetsFromProject(app, [url], project)))
-              const newUrls = response.flat().map((asset) => asset.url)
-              component.props.source = newUrls[0]
+              if (component.props.source) {
+                const resource = await addAssetFromProject(app, component.props.source, project)
+                component.props.source = resource.url
+              }
               break
             }
           }

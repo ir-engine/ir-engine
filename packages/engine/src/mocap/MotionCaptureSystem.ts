@@ -185,11 +185,11 @@ const execute = () => {
       if (!leftHand && ikTargetLeftHand) removeEntity(ikTargetLeftHand)
       if (!rightHand && ikTargetRightHand) removeEntity(ikTargetRightHand)
 
-      if (head && !ikTargetHead) dispatchAction(XRAction.spawnIKTarget({ handedness: 'none', uuid: headUUID }))
+      if (head && !ikTargetHead) dispatchAction(XRAction.spawnIKTarget({ handedness: 'none', entityUUID: headUUID }))
       if (leftHand && !ikTargetLeftHand)
-        dispatchAction(XRAction.spawnIKTarget({ handedness: 'left', uuid: leftHandUUID }))
+        dispatchAction(XRAction.spawnIKTarget({ handedness: 'left', entityUUID: leftHandUUID }))
       if (rightHand && !ikTargetRightHand)
-        dispatchAction(XRAction.spawnIKTarget({ handedness: 'right', uuid: rightHandUUID }))
+        dispatchAction(XRAction.spawnIKTarget({ handedness: 'right', entityUUID: rightHandUUID }))
 
       const avatarRig = getComponent(entity, AvatarRigComponent)
       const avatarTransform = getComponent(entity, TransformComponent)

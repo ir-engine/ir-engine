@@ -40,6 +40,7 @@ import XRInput from '../../components/XRInput'
 import XRTextButton from '../../components/XRTextButton'
 import styleString from './index.scss?inline'
 
+/** @deprecated */
 export function createShareLocationDetailView() {
   return createXRUI(ShareLocationDetailView, createShareLocationDetailState())
 }
@@ -47,7 +48,7 @@ export function createShareLocationDetailView() {
 function createShareLocationDetailState() {
   return createState({})
 }
-
+/** @deprecated */
 const ShareLocationDetailView = () => {
   const { t } = useTranslation()
   const engineState = useHookstate(getMutableState(EngineState))

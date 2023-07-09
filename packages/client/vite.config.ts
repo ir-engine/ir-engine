@@ -272,13 +272,14 @@ export default defineConfig(async () => {
   const returned = {
     server: {
       cors: isDevOrLocal ? false : true,
-      hmr: process.env.VITE_HMR
-        ? {
-            port: process.env['VITE_APP_PORT'],
-            host: process.env['VITE_APP_HOST'],
-            overlay: false
-          }
-        : undefined,
+      hmr:
+        process.env.VITE_HMR === 'true'
+          ? {
+              port: process.env['VITE_APP_PORT'],
+              host: process.env['VITE_APP_HOST'],
+              overlay: false
+            }
+          : false,
       host: process.env['VITE_APP_HOST'],
       port: process.env['VITE_APP_PORT'],
       headers: {
@@ -321,9 +322,11 @@ export default defineConfig(async () => {
         icon512px: clientSetting.icon512px || '/android-chrome-512x512.png',
         webmanifestLink: clientSetting.webmanifestLink || '/manifest.webmanifest',
         swScriptLink:
-          process.env.APP_ENV === 'development'
-            ? 'dev-sw.js?dev-sw'
-            : clientSetting.swScriptLink || 'service-worker.js',
+          clientSetting.swScriptLink || process.env.VITE_PWA_ENABLED === 'true'
+            ? process.env.APP_ENV === 'development'
+              ? 'dev-sw.js?dev-sw'
+              : 'service-worker.js'
+            : '',
         paymentPointer: coilSetting.paymentPointer || ''
       }),
       viteCompression({

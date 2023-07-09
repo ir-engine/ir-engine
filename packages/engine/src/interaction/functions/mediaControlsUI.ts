@@ -26,16 +26,14 @@ Ethereal Engine. All Rights Reserved.
 import { WebLayer3D } from '@etherealengine/xrui'
 
 import { Entity } from '../../ecs/classes/Entity'
-import { addComponent, getComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
+import { addComponent, getComponent } from '../../ecs/functions/ComponentFunctions'
 import { addEntityNodeChild } from '../../ecs/functions/EntityTree'
 import { NameComponent } from '../../scene/components/NameComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
-import { XRUIInteractableComponent } from '../../xrui/components/XRUIComponent'
 import { createMediaControlsView } from '../ui/MediaControlsUI'
 
 export const createMediaControlsUI = (entity: Entity) => {
   const ui = createMediaControlsView(entity)
-  setComponent(ui.entity, XRUIInteractableComponent)
 
   addEntityNodeChild(ui.entity, entity)
 

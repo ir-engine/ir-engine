@@ -31,9 +31,12 @@
   "exclude": [
     "../projects/projects/**",
     "./upload/**",
+    "./upload_test/**",
     "**/node_modules/**"
   ],
   "include": [
+    "../engine/src/**/*.ts",
+    "../engine/src/**/*.tsx",
     "./**/*.ts",
     "./**/*.tsx"
   ]

@@ -23,12 +23,23 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { useEffect } from 'react'
+
 import { defaultThemeSettings, getCurrentTheme } from '@etherealengine/common/src/constants/DefaultThemeSettings'
 import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
 import { ClientThemeOptionsType } from '@etherealengine/engine/src/schemas/setting/client-setting.schema'
-import { defineAction, defineState, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
+import {
+  addActionReceptor,
+  defineAction,
+  defineState,
+  getMutableState,
+  getState,
+  NO_PROXY,
+  removeActionReceptor,
+  useHookstate
+} from '@etherealengine/hyperflux'
 
-import { AdminClientSettingsState } from '../../admin/services/Setting/ClientSettingService'
+import { AdminClientSettingsState, ClientSettingService } from '../../admin/services/Setting/ClientSettingService'
 import { AuthState } from '../../user/services/AuthService'
 
 export const AppThemeState = defineState({
@@ -57,6 +68,15 @@ export class AppThemeActions {
     theme: matches.object.optional() as Validator<unknown, ClientThemeOptionsType>,
     themeName: matches.string.optional()
   })
+}
+
+export const AppThemeFunctions = {
+  setTheme: (theme?: ClientThemeOptionsType, themeName?: string) => {
+    const themeState = getMutableState(AppThemeState)
+    themeState.customTheme.set(theme ?? null)
+    themeState.customThemeName.set(themeName ?? null)
+    themeState.mode.set(themeName ? 'custom' : 'auto')
+  }
 }
 
 export const useAppThemeName = (): string => {

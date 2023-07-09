@@ -91,11 +91,10 @@ const PartyTable = ({ className, search }: PartyPropsTable) => {
       maxMembers,
       action: (
         <>
-          <a href="#" className={styles.actionStyle} onClick={() => handleOpenPartyDrawer(true, el)}>
+          <a className={styles.actionStyle} onClick={() => handleOpenPartyDrawer(true, el)}>
             <span className={styles.spanWhite}>{t('admin:components.common.view')}</span>
           </a>
           <a
-            href="#"
             className={styles.actionStyle}
             onClick={() => {
               partyId.set(id)

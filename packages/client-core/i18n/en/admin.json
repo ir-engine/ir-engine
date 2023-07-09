@@ -361,6 +361,14 @@
         "taskServer": "Task Server",
         "port": "Port",
         "processInterval": "Process Interval"
+      },
+      "helm": {
+        "header": "Helm Chart Versions",
+        "main": "Main deployment Helm version",
+        "builder": "Builder deployment Helm version",
+        "explainer": "To apply a new Helm chart version, Save here, then go to /admin/projects and then Rebuild",
+        "builderHelmToDeploy": "Builder Helm chart to deploy",
+        "mainHelmToDeploy": "Main Helm chart to deploy"
       }
     },
     "avatar": {

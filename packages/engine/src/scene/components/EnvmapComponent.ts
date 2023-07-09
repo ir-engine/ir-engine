@@ -23,12 +23,13 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import {
   Color,
   CubeTexture,
   DataTexture,
-  EquirectangularRefractionMapping,
+  EquirectangularReflectionMapping,
+  Group,
   Mesh,
   MeshMatcapMaterial,
   MeshStandardMaterial,
@@ -44,21 +45,26 @@ import { getMutableState, getState, useHookstate } from '@etherealengine/hyperfl
 
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { isClient } from '../../common/functions/getEnvironment'
+import { EngineState } from '../../ecs/classes/EngineState'
+import { Entity } from '../../ecs/classes/Entity'
 import { SceneState } from '../../ecs/classes/Scene'
 import {
+  ComponentType,
   defineComponent,
-  getOptionalComponent,
-  removeComponent,
+  defineQuery,
+  getComponent,
+  removeQuery,
+  setComponent,
   useComponent,
   useOptionalComponent
 } from '../../ecs/functions/ComponentFunctions'
 import { useEntityContext } from '../../ecs/functions/EntityFunctions'
-import { isMobileXRHeadset } from '../../xr/XRState'
+import { RendererState } from '../../renderer/RendererState'
+import { TransformComponent } from '../../transform/components/TransformComponent'
 import { EnvMapSourceType, EnvMapTextureType } from '../constants/EnvMapEnum'
-import { getPmremGenerator, loadCubeMapTexture } from '../constants/Util'
+import { getPmremGenerator, getRGBArray, loadCubeMapTexture } from '../constants/Util'
 import { addError, removeError } from '../functions/ErrorFunctions'
-import { EnvMapBakeTypes } from '../types/EnvMapBakeTypes'
-import { EnvMapBakeComponent } from './EnvMapBakeComponent'
+import { applyBoxProjection, EnvMapBakeComponent, isInsideBox } from './EnvMapBakeComponent'
 import { GroupComponent } from './GroupComponent'
 
 const tempColor = new Color()
@@ -100,57 +106,31 @@ export const EnvmapComponent = defineComponent({
     if (!isClient) return null
 
     const component = useComponent(entity, EnvmapComponent)
-    const group = useOptionalComponent(entity, GroupComponent)
+    const group = useComponent(entity, GroupComponent)
     const background = useHookstate(getMutableState(SceneState).background)
 
-    const updateGroup = () => {
-      if (group?.value)
-        for (const obj of group.value)
-          obj.traverse((obj: Mesh) => {
-            if (!obj.material) return
-
-            if (Array.isArray(obj.material)) {
-              obj.material.forEach((m: MeshStandardMaterial) => (m.envMapIntensity = component.envMapIntensity.value))
-            } else {
-              ;(obj.material as MeshStandardMaterial).envMapIntensity = component.envMapIntensity.value
-            }
-          })
-    }
+    useEffect(() => {
+      updateEnvMapIntensity(group.value, component.envMapIntensity.value)
+    }, [group, component.envMapIntensity])
 
     useEffect(() => {
-      if (!group?.value?.length) return
       if (component.type.value !== EnvMapSourceType.Skybox) return
-
-      applyEnvMap(group.value, background.value as Texture | null)
-      updateGroup()
-    }, [component.type, group?.length, background])
+      updateEnvMap(group.value, background.value as Texture | null)
+    }, [component.type, group, background])
 
     useEffect(() => {
-      if (!group?.value?.length) return
       if (component.type.value !== EnvMapSourceType.Color) return
 
       const col = component.envMapSourceColor.value ?? tempColor
       const resolution = 64 // Min value required
-      const size = resolution * resolution
-      const data = new Uint8Array(4 * size)
-
-      for (let i = 0; i < size; i++) {
-        const stride = i * 4
-        data[stride] = Math.floor(col.r * 255)
-        data[stride + 1] = Math.floor(col.g * 255)
-        data[stride + 2] = Math.floor(col.b * 255)
-        data[stride + 3] = 255
-      }
-
-      const texture = new DataTexture(data, resolution, resolution, RGBAFormat)
+      const texture = new DataTexture(getRGBArray(col), resolution, resolution, RGBAFormat)
       texture.needsUpdate = true
       texture.encoding = sRGBEncoding
 
-      applyEnvMap(group.value, getPmremGenerator().fromEquirectangular(texture).texture)
-    }, [component.type, group?.length])
+      updateEnvMap(group.value, getPmremGenerator().fromEquirectangular(texture).texture)
+    }, [component.type, group])
 
     useEffect(() => {
-      if (!group?.value?.length) return
       if (component.type.value !== EnvMapSourceType.Texture) return
 
       switch (component.envMapTextureType.value) {
@@ -161,7 +141,7 @@ export const EnvmapComponent = defineComponent({
               if (texture) {
                 const EnvMap = getPmremGenerator().fromCubemap(texture).texture
                 EnvMap.encoding = sRGBEncoding
-                if (group?.value) applyEnvMap(group.value, EnvMap)
+                if (group?.value) updateEnvMap(group.value, texture)
                 removeError(entity, EnvmapComponent, 'MISSING_FILE')
               }
             },
@@ -173,9 +153,8 @@ export const EnvmapComponent = defineComponent({
         case EnvMapTextureType.Equirectangular:
           AssetLoader.loadAsync(component.envMapSourceURL.value, {}).then((texture) => {
             if (texture) {
-              const EnvMap = getPmremGenerator().fromEquirectangular(texture).texture
-              EnvMap.encoding = sRGBEncoding
-              applyEnvMap(group.value, EnvMap)
+              texture.mapping = EquirectangularReflectionMapping
+              updateEnvMap(group.value, texture)
               removeError(entity, EnvmapComponent, 'MISSING_FILE')
               texture.dispose()
             } else {
@@ -183,29 +162,39 @@ export const EnvmapComponent = defineComponent({
             }
           })
       }
-    }, [component.type, group?.length])
+    }, [component.type, group, component.envMapSourceURL])
+
+    const engineState = useHookstate(getMutableState(EngineState))
+    const renderState = useHookstate(getMutableState(RendererState))
+    const relativePos = new Vector3()
 
     useEffect(() => {
-      if (!group?.value?.length) return
+      if (!engineState.sceneLoaded.value) return
       if (component.type.value !== EnvMapSourceType.Default) return
+      const bakeComponentQuery = defineQuery([EnvMapBakeComponent])
+      for (const bakeEntity of bakeComponentQuery()) {
+        const bakeComponent = getComponent(bakeEntity, EnvMapBakeComponent)
+        const transformComponent = getComponent(entity, TransformComponent)
+        relativePos.subVectors(transformComponent.position, getComponent(bakeEntity, TransformComponent).position)
+        if (!isInsideBox(bakeComponent.bakeScale, relativePos) || !bakeComponent.boxProjection) continue
+        setComponent(entity, EnvmapComponent, { envMapSourceURL: bakeComponent.envMapOrigin })
 
-      const options = getOptionalComponent(entity, EnvMapBakeComponent)
-      if (options)
-        switch (options.bakeType) {
-          case EnvMapBakeTypes.Baked:
-            AssetLoader.loadAsync(options.envMapOrigin, {}).then((texture: Texture) => {
-              texture.mapping = EquirectangularRefractionMapping
-              applyEnvMap(group.value, texture)
-            })
-            break
-          case EnvMapBakeTypes.Realtime:
-            // const map = new CubemapCapturer(EngineRenderer.instance.renderer, Engine.scene, options.resolution)
-            // const EnvMap = (await map.update(options.bakePosition)).cubeRenderTarget.texture
-            // applyEnvMap(obj3d, EnvMap)
-            break
-        }
-      applyEnvMap(group.value, null)
-    }, [component.type, group?.length])
+        AssetLoader.loadAsync(component.envMapSourceURL.value, {}).then((texture) => {
+          if (texture) {
+            texture.mapping = EquirectangularReflectionMapping
+            updateEnvMap(group.value, texture)
+            applyBoxProjection(bakeEntity, group.value)
+            removeError(entity, EnvmapComponent, 'MISSING_FILE')
+            texture.dispose()
+          } else {
+            addError(entity, EnvmapComponent, 'MISSING_FILE', 'Skybox texture could not be found!')
+          }
+        })
+      }
+      return () => {
+        removeQuery(bakeComponentQuery)
+      }
+    }, [group, component.type, engineState.sceneLoaded, renderState.forceBasicMaterials])
 
     return null
   },
@@ -213,23 +202,34 @@ export const EnvmapComponent = defineComponent({
   errors: ['MISSING_FILE']
 })
 
-function applyEnvMap(obj3ds: Object3D[], envmap: Texture | null) {
+function updateEnvMap(obj3ds: Object3D[], envmap: Texture | null) {
   if (!obj3ds?.length) return
 
   for (const obj of obj3ds) {
     if (obj instanceof Scene) {
       obj.environment = envmap
     } else {
-      if (isMobileXRHeadset) return
       obj.traverse((child: Mesh<any, MeshStandardMaterial>) => {
         if (child.material instanceof MeshMatcapMaterial) return
-        if (child.material) child.material.envMap = envmap
+        if (child.material) child.material.envMap = envmap!
       })
 
       if ((obj as Mesh<any, MeshStandardMaterial>).material) {
         if ((obj as Mesh).material instanceof MeshMatcapMaterial) return
-        ;(obj as Mesh<any, MeshStandardMaterial>).material.envMap = envmap
+        ;(obj as Mesh<any, MeshStandardMaterial>).material.envMap = envmap!
       }
     }
   }
+}
+
+const updateEnvMapIntensity = (group: typeof GroupComponent._TYPE, intensity: number) => {
+  for (const obj of group)
+    obj.traverse((obj: Mesh) => {
+      if (!obj.material) return
+      if (Array.isArray(obj.material)) {
+        obj.material.forEach((m: MeshStandardMaterial) => (m.envMapIntensity = intensity))
+      } else {
+        ;(obj.material as MeshStandardMaterial).envMapIntensity = intensity
+      }
+    })
 }

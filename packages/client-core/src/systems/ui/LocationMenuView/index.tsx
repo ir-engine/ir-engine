@@ -43,6 +43,7 @@ import { EmoteIcon } from '../../../user/UserUISystem'
 import XRTextButton from '../../components/XRTextButton'
 import styleString from './index.scss?inline'
 
+/** @deprecated */
 export function createLocationMenuView() {
   return createXRUI(LocationMenuView, createLocationMenuState())
 }
@@ -50,7 +51,7 @@ export function createLocationMenuView() {
 function createLocationMenuState() {
   return createState({})
 }
-
+/** @deprecated */
 const LocationMenuView = () => {
   const { t } = useTranslation()
   const xrState = useState(getMutableState(XRState))

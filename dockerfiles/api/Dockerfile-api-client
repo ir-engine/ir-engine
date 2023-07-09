@@ -106,4 +106,6 @@ WORKDIR /app
 COPY --from=apiBuilder /app ./
 COPY --from=clientBuilder /app/packages/client ./packages/client
 
+RUN bash ./scripts/setup_helm.sh
+
 CMD ["scripts/start-server.sh"]

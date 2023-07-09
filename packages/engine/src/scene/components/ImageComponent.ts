@@ -77,7 +77,6 @@ export const ImageComponent = defineComponent({
   onInit: (entity) => {
     return {
       source: '',
-      resource: null as unknown as ImageResource,
       alphaMode: ImageAlphaMode.Opaque as ImageAlphaModeType,
       alphaCutoff: 0.5,
       projection: ImageProjection.Flat as ImageProjectionType,
@@ -90,7 +89,6 @@ export const ImageComponent = defineComponent({
   toJSON: (entity, component) => {
     return {
       source: component.source.value,
-      resource: component.resource.value,
       alphaMode: component.alphaMode.value,
       alphaCutoff: component.alphaCutoff.value,
       projection: component.projection.value,
@@ -101,12 +99,7 @@ export const ImageComponent = defineComponent({
   onSet: (entity, component, json) => {
     if (!json) return
     // backwards compatability
-    if (typeof json['imageSource'] === 'string' && json['imageSource'] !== component.source.value)
-      component.source.set(json['imageSource'])
-    if (typeof json.resource === 'object') {
-      const resource = json.resource ? (json.resource as ImageResource) : ({ source: json.source } as ImageResource)
-      component.resource.set(resource)
-    }
+    if (typeof json.source === 'string' && json.source !== component.source.value) component.source.set(json.source)
     if (typeof json.alphaMode === 'string' && json.alphaMode !== component.alphaMode.value)
       component.alphaMode.set(json.alphaMode)
     if (typeof json.alphaCutoff === 'number' && json.alphaCutoff !== component.alphaCutoff.value)
@@ -160,27 +153,19 @@ export function ImageReactor() {
   const entity = useEntityContext()
   const image = useComponent(entity, ImageComponent)
   const texture = useHookstate(null as Texture | null)
-  const imageValue = image.value
-  const source =
-    imageValue.resource?.jpegStaticResource?.url ||
-    imageValue.resource?.gifStaticResource?.url ||
-    imageValue.resource?.pngStaticResource?.url ||
-    imageValue.resource?.ktx2StaticResource?.url ||
-    imageValue.resource?.source ||
-    imageValue.source
 
   useEffect(
     function updateTextureSource() {
-      if (!source) {
+      if (!image.source.value) {
         return addError(entity, ImageComponent, `MISSING_TEXTURE_SOURCE`)
       }
 
-      const assetType = AssetLoader.getAssetClass(source)
+      const assetType = AssetLoader.getAssetClass(image.source.value)
       if (assetType !== AssetClass.Image) {
         return addError(entity, ImageComponent, `UNSUPPORTED_ASSET_CLASS`)
       }
 
-      AssetLoader.loadAsync(source)
+      AssetLoader.loadAsync(image.source.value)
         .then((_texture) => {
           texture.set(_texture)
         })
@@ -192,7 +177,7 @@ export function ImageReactor() {
         // TODO: abort load request, pending https://github.com/mrdoob/three.js/pull/23070
       }
     },
-    [image.resource]
+    [image.source]
   )
 
   useEffect(

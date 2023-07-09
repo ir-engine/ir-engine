@@ -37,10 +37,11 @@ import {
 
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
-import { addComponent, defineQuery, getComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { defineQuery, getComponent, setComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { createEntity } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
 import { addEntityNodeChild } from '@etherealengine/engine/src/ecs/functions/EntityTree'
 import { EngineRenderer } from '@etherealengine/engine/src/renderer/WebGLRendererSystem'
+import { ScreenshotSettings } from '@etherealengine/engine/src/scene/classes/ImageUtils'
 import { addObjectToGroup } from '@etherealengine/engine/src/scene/components/GroupComponent'
 import { ScenePreviewCameraComponent } from '@etherealengine/engine/src/scene/components/ScenePreviewCamera'
 import { ObjectLayers } from '@etherealengine/engine/src/scene/constants/ObjectLayers'
@@ -88,7 +89,7 @@ export async function takeScreenshot(
 
     if (!scenePreviewCamera) {
       const entity = createEntity()
-      addComponent(entity, ScenePreviewCameraComponent)
+      setComponent(entity, ScenePreviewCameraComponent)
       scenePreviewCamera = getComponent(entity, ScenePreviewCameraComponent).camera
       const { position, rotation } = getComponent(Engine.instance.cameraEntity, TransformComponent)
       setTransformComponent(entity, position, rotation)
@@ -164,13 +165,7 @@ export async function takeScreenshot(
     const imageData = new ImageData(new Uint8ClampedArray(pixels), width, height)
     renderer.setRenderTarget(null) // pass `null` to set canvas as render target
 
-    const ktx2texture = (await ktx2Encoder.encode(imageData, {
-      srgb: false,
-      uastc: true,
-      uastcZstandard: true,
-      qualityLevel: 256,
-      compressionLevel: 3
-    })) as ArrayBuffer
+    const ktx2texture = (await ktx2Encoder.encode(imageData, getState(ScreenshotSettings).ktx2)) as ArrayBuffer
 
     blob = new Blob([ktx2texture])
   } else {
