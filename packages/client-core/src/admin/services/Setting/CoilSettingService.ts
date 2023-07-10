@@ -26,10 +26,10 @@ Ethereal Engine. All Rights Reserved.
 import { Paginated } from '@feathersjs/feathers'
 
 import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { coilSettingPath, CoilSettingType } from '@etherealengine/engine/src/schemas/setting/coil-setting.schema'
 import { defineAction, defineState, dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 
-import { API } from '../../../API'
 import { NotificationService } from '../../../common/services/NotificationService'
 
 export const AdminCoilSettingsState = defineState({
@@ -52,7 +52,7 @@ export const CoilSettingReceptors = {
 export const AdminCoilSettingService = {
   fetchCoil: async () => {
     try {
-      const coilSettings = (await API.instance.client.service(coilSettingPath).find()) as Paginated<CoilSettingType>
+      const coilSettings = (await Engine.instance.api.service(coilSettingPath).find()) as Paginated<CoilSettingType>
       dispatchAction(AdminCoilSettingActions.fetchedCoil({ coilSettings }))
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })

@@ -26,4 +26,6 @@ WORKDIR /app
 
 COPY --from=builder /app ./
 
+RUN bash ./scripts/setup_helm.sh
+
 CMD ["scripts/start-server.sh"]

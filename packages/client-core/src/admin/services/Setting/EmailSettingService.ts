@@ -26,6 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { Paginated } from '@feathersjs/feathers'
 
 import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import {
   EmailSettingPatch,
   emailSettingPath,
@@ -33,7 +34,6 @@ import {
 } from '@etherealengine/engine/src/schemas/setting/email-setting.schema'
 import { defineAction, defineState, dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 
-import { API } from '../../../API'
 import { NotificationService } from '../../../common/services/NotificationService'
 
 export const AdminEmailSettingsState = defineState({
@@ -62,7 +62,7 @@ export const EmailSettingReceptors = {
 export const EmailSettingService = {
   fetchedEmailSettings: async (inDec?: 'increment' | 'dcrement') => {
     try {
-      const emailSettings = (await API.instance.client.service(emailSettingPath).find()) as Paginated<EmailSettingType>
+      const emailSettings = (await Engine.instance.api.service(emailSettingPath).find()) as Paginated<EmailSettingType>
       dispatchAction(EmailSettingActions.fetchedEmail({ emailSettings }))
     } catch (err) {
       console.log(err.message)
@@ -71,7 +71,7 @@ export const EmailSettingService = {
   },
   patchEmailSetting: async (data: EmailSettingPatch, id: string) => {
     try {
-      await API.instance.client.service(emailSettingPath).patch(id, data)
+      await Engine.instance.api.service(emailSettingPath).patch(id, data)
       dispatchAction(EmailSettingActions.emailSettingPatched({}))
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })

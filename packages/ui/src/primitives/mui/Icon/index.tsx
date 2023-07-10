@@ -121,6 +121,7 @@ import {
   PersonAdd,
   PersonOff,
   Phone,
+  Poll,
   Portrait,
   QrCode2,
   RecordVoiceOver,
@@ -443,6 +444,8 @@ const Icon = ({ type, ...props }: SvgIconProps & { type: string }) => {
       return <Phone {...props} />
     case 'FlipCameraAndroid':
       return <FlipCameraAndroid {...props} />
+    case 'Poll':
+      return <Poll {...props} />
   }
 }
 

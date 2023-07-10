@@ -48,7 +48,7 @@ import { LinkedInIcon } from '../../../common/components/Icons/LinkedInIcon'
 import { TwitterIcon } from '../../../common/components/Icons/TwitterIcon'
 import { initialAuthState, initialOAuthConnectedState } from '../../../common/initialAuthState'
 import { NotificationService } from '../../../common/services/NotificationService'
-import { getAvatarURLForUser } from '../../../user/components/UserMenu/util'
+import { getUserAvatarThumbnail } from '../../../user/functions/useUserAvatarThumbnail'
 import { AuthService, AuthState } from '../../../user/services/AuthService'
 import { userHasAccess } from '../../../user/userHasAccess'
 import XRIconButton from '../../components/XRIconButton'
@@ -311,7 +311,7 @@ const ProfileDetailView = () => {
         <section className="profilePanel">
           <section className="profileBlock">
             <div className="avatarBlock">
-              <img src={getAvatarURLForUser(userAvatarDetails, userId)} alt="" />
+              <img src={getUserAvatarThumbnail(userId)} alt="" />
               <XRIconButton
                 size="large"
                 xr-layer="true"

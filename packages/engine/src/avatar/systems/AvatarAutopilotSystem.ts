@@ -23,9 +23,9 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Engine } from '../ecs/classes/Engine'
-import { defineSystem } from '../ecs/functions/SystemFunctions'
-import { applyAutopilotInput } from './functions/moveAvatar'
+import { Engine } from '../../ecs/classes/Engine'
+import { defineSystem } from '../../ecs/functions/SystemFunctions'
+import { applyAutopilotInput } from '../functions/moveAvatar'
 
 const execute = () => {
   applyAutopilotInput(Engine.instance.localClientEntity)

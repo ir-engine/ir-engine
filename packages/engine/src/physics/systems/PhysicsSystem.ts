@@ -28,14 +28,13 @@ import { useEffect } from 'react'
 import { Quaternion, Vector3 } from 'three'
 
 import { smootheLerpAlpha } from '@etherealengine/common/src/utils/smootheLerpAlpha'
-import { defineActionQueue, getMutableState, getState, none } from '@etherealengine/hyperflux'
+import { getMutableState, getState, none } from '@etherealengine/hyperflux'
 
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import { defineQuery, getComponent } from '../../ecs/functions/ComponentFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
-import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
 import { NetworkState } from '../../networking/NetworkState'
 import { ColliderComponent } from '../../scene/components/ColliderComponent'
 import { VisibleComponent } from '../../scene/components/VisibleComponent'
@@ -67,12 +66,6 @@ export function teleportObject(entity: Entity, position: Vector3, rotation: Quat
     rigidbody.body.setLinvel({ x: 0, y: 0, z: 0 }, true)
     rigidbody.body.setAngvel({ x: 0, y: 0, z: 0 }, true)
   }
-}
-
-// Receptor
-export function teleportObjectReceptor(action: ReturnType<typeof WorldNetworkAction.teleportObject>) {
-  const entity = Engine.instance.getNetworkObject(action.object.ownerId, action.object.networkId)!
-  teleportObject(entity, action.position, action.rotation)
 }
 
 export const PhysicsPrefabs = {
@@ -138,15 +131,11 @@ const kinematicVelocityBodyQuery = defineQuery([
   TransformComponent
 ])
 
-const teleportObjectQueue = defineActionQueue(WorldNetworkAction.teleportObject.matches)
-
 let drainCollisions: ReturnType<typeof Physics.drainCollisionEventQueue>
 let drainContacts: ReturnType<typeof Physics.drainContactEventQueue>
 
 const execute = () => {
   if (!Engine.instance.physicsWorld) return
-
-  for (const action of teleportObjectQueue()) teleportObjectReceptor(action)
 
   const allRigidBodies = allRigidBodyQuery()
 

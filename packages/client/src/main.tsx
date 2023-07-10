@@ -31,6 +31,8 @@ import { BrowserRouter, Route, Routes } from 'react-router-dom'
 import ErrorBoundary from '@etherealengine/client-core/src/common/components/ErrorBoundary'
 import { LoadingCircle } from '@etherealengine/client-core/src/components/LoadingCircle'
 
+import './pages/styles.scss'
+
 // @ts-ignore
 
 ;(globalThis as any).process = { env: { ...(import.meta as any).env, APP_ENV: (import.meta as any).env.MODE } }

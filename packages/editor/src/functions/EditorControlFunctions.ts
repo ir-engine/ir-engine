@@ -62,6 +62,7 @@ import { ColliderComponent } from '@etherealengine/engine/src/scene/components/C
 import { GLTFLoadedComponent } from '@etherealengine/engine/src/scene/components/GLTFLoadedComponent'
 import { GroupComponent, Object3DWithEntity } from '@etherealengine/engine/src/scene/components/GroupComponent'
 import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
+import { SceneObjectComponent } from '@etherealengine/engine/src/scene/components/SceneObjectComponent'
 import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
 import { TransformSpace } from '@etherealengine/engine/src/scene/constants/transformConstants'
 import { getUniqueName } from '@etherealengine/engine/src/scene/functions/getUniqueName'
@@ -285,12 +286,17 @@ const duplicateObject = (nodes: EntityOrObjectUUID[]) => {
 
       traverseEntityNode(object, (entity) => {
         const node = getComponent(entity, EntityTreeComponent)
+        if (!node.parentEntity) return
         const nodeUUID = getComponent(entity, UUIDComponent)
         if (!data.entities[nodeUUID]) return
         const newEntity = createEntity()
+        const parentEntity = (copyMap[node.parentEntity] as Entity) ?? node.parentEntity
+        setComponent(newEntity, SceneObjectComponent)
         setComponent(newEntity, EntityTreeComponent, {
-          parentEntity: (node.parentEntity && (copyMap[node.parentEntity] as Entity)) ?? node.parentEntity
+          parentEntity,
+          uuid: MathUtils.generateUUID() as EntityUUID
         })
+        addEntityNodeChild(newEntity, parentEntity)
         deserializeSceneEntity(newEntity, data.entities[nodeUUID])
         copyMap[entity] = newEntity
       })

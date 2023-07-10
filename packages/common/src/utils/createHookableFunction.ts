@@ -53,5 +53,13 @@ export const createHookableFunction = <F extends (...args) => any>(func: F): Hoo
   wrapped.implementation = func
   wrapped.beforeHooks = []
   wrapped.afterHooks = []
+  wrapped.before = (hook: (context: HookableFunctionContext<F>) => void) => {
+    wrapped.beforeHooks.push(hook)
+    return wrapped
+  }
+  wrapped.after = (hook: (context: HookableFunctionContext<F>) => void) => {
+    wrapped.afterHooks.push(hook)
+    return wrapped
+  }
   return wrapped
 }

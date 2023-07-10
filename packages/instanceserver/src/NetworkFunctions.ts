@@ -297,7 +297,6 @@ export const handleConnectingPeer = async (
   user: UserInterface
 ) => {
   const userId = user.id
-  const avatarDetail = user.avatar
 
   // Create a new client object
   // and add to the dictionary
@@ -329,10 +328,6 @@ export const handleConnectingPeer = async (
 
   const worldState = getMutableState(WorldState)
   worldState.userNames[userId].set(user.name)
-  worldState.userAvatarDetails[userId].set({
-    avatarURL: avatarDetail.modelResource?.url || '',
-    thumbnailURL: avatarDetail.thumbnailResource?.url || ''
-  })
 
   network.userIDToUserIndex.set(userId, userIndex)
   network.userIndexToUserID.set(userIndex, userId)

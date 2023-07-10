@@ -30,6 +30,7 @@ import { useEffect } from 'react'
 import { isDev } from '@etherealengine/common/src/config'
 import { createWorkerFromCrossOriginURL } from '@etherealengine/common/src/utils/createWorkerFromCrossOriginURL'
 import { AvatarRigComponent } from '@etherealengine/engine/src/avatar/components/AvatarAnimationComponent'
+import { AvatarNetworkAction } from '@etherealengine/engine/src/avatar/state/AvatarNetworkState'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
 import {
@@ -281,11 +282,11 @@ const setAvatarExpression = (entity: Entity): void => {
   }
 }
 const webcamQuery = defineQuery([GroupComponent, AvatarRigComponent, WebcamInputComponent])
-const avatarSpawnQueue = defineActionQueue(WorldNetworkAction.spawnAvatar.matches)
+const avatarSpawnQueue = defineActionQueue(AvatarNetworkAction.spawn.matches)
 
 const execute = () => {
   for (const action of avatarSpawnQueue()) {
-    const entity = UUIDComponent.entitiesByUUID[action.uuid]
+    const entity = UUIDComponent.entitiesByUUID[action.entityUUID]
     setComponent(entity, WebcamInputComponent)
   }
   for (const entity of webcamQuery()) setAvatarExpression(entity)

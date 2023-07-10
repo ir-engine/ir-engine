@@ -29,12 +29,12 @@ import { Matrix4, Quaternion, Vector3 } from 'three'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { defineQuery, getComponent, removeQuery } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 
-import { V_010 } from '../common/constants/MathConstants'
-import { Entity } from '../ecs/classes/Entity'
-import { defineSystem } from '../ecs/functions/SystemFunctions'
-import { InputSourceComponent } from '../input/components/InputSourceComponent'
-import { TransformComponent } from '../transform/components/TransformComponent'
-import { FlyControlComponent } from './components/FlyControlComponent'
+import { V_010 } from '../../common/constants/MathConstants'
+import { Entity } from '../../ecs/classes/Entity'
+import { defineSystem } from '../../ecs/functions/SystemFunctions'
+import { InputSourceComponent } from '../../input/components/InputSourceComponent'
+import { TransformComponent } from '../../transform/components/TransformComponent'
+import { FlyControlComponent } from '../components/FlyControlComponent'
 
 const EPSILON = 10e-5
 const IDENTITY = new Matrix4().identity()
