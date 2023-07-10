@@ -45,14 +45,6 @@ export class WorldNetworkAction {
     $topic: NetworkTopics.world
   })
 
-  static registerSceneObject = defineAction({
-    type: 'ee.engine.world.REGISTER_SCENE_OBJECT',
-    networkId: matchesWithDefault(matchesNetworkId, () => Engine.instance.createNetworkId()),
-    objectUuid: matchesEntityUUID,
-    $cache: true,
-    $topic: NetworkTopics.world
-  })
-
   static spawnObject = defineAction({
     type: 'ee.engine.world.SPAWN_OBJECT',
     prefab: matches.string,
@@ -73,13 +65,7 @@ export class WorldNetworkAction {
   static destroyObject = defineAction({
     type: 'ee.engine.world.DESTROY_OBJECT',
     entityUUID: matchesEntityUUID,
-    $topic: NetworkTopics.world
-  })
-
-  static interact = defineAction({
-    type: 'ee.engine.world.INTERACT',
-    object: { ownerId: matchesUserId, networkId: matchesNetworkId },
-    parity: matches.literals('left', 'right', 'none'),
+    $cache: true,
     $topic: NetworkTopics.world
   })
 
@@ -108,12 +94,6 @@ export class WorldNetworkAction {
     ownerId: matchesUserId,
     networkId: matchesNetworkId,
     newAuthority: matchesPeerID,
-    $topic: NetworkTopics.world
-  })
-
-  static setUserTyping = defineAction({
-    type: 'ee.engine.world.USER_IS_TYPING',
-    typing: matches.boolean,
     $topic: NetworkTopics.world
   })
 }
