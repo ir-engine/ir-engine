@@ -60,26 +60,21 @@ export const ScenePreviewCameraNodeEditor: EditorComponentType = (props) => {
     LocalTransformComponent.stateMap[props.entity]!.set(LocalTransformComponent.valueMap[props.entity])
   }
 
-  const canvas = document.createElement('canvas')
-  const context = canvas.getContext('2d')
-  const updateBPCEMBake = () => {
+  const updateBPCEMBake = async () => {
     const { position } = getComponent(Engine.instance.cameraEntity, TransformComponent)
-    const imageData = getPreviewBakeTexture(position)
-    canvas.width = imageData.width
-    canvas.height = imageData.height
-    context?.putImageData(imageData, 0, 0)
-    const url = canvas.toDataURL()
+    const imageData = await getPreviewBakeTexture(position)
+    const url = URL.createObjectURL(imageData)
     setBufferUrl(url)
   }
 
-  const updateBPCEMBakeDebounced = debounce(updateBPCEMBake, 500) //ms
+  const updateCubeMapBakeDebounced = debounce(updateBPCEMBake, 500) //ms
 
   useEffect(() => {
-    updateBPCEMBakeDebounced()
+    updateCubeMapBakeDebounced()
     return () => {
-      updateBPCEMBakeDebounced.cancel()
+      updateCubeMapBakeDebounced.cancel()
     }
-  }, [transformComponent.matrix])
+  }, [transformComponent.position])
 
   return (
     <NodeEditor

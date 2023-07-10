@@ -86,14 +86,9 @@ export const PortalNodeEditor: EditorComponentType = (props) => {
     loadPortals()
   }, [])
 
-  const canvas = document.createElement('canvas')
-  const context = canvas.getContext('2d')
-  const updateCubeMapBake = () => {
-    const imageData = getPreviewBakeTexture(transformComponent.value.position)
-    canvas.width = imageData.width
-    canvas.height = imageData.height
-    context?.putImageData(imageData, 0, 0)
-    const url = canvas.toDataURL()
+  const updateCubeMapBake = async () => {
+    const imageData = await getPreviewBakeTexture(transformComponent.value.position)
+    const url = URL.createObjectURL(imageData)
     setBufferUrl(url)
   }
 

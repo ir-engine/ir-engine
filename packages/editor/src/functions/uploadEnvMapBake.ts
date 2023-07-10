@@ -140,14 +140,15 @@ const previewCubemapCapturer = new CubemapCapturer(
  * @param position
  * @returns
  */
-export const getPreviewBakeTexture = (position: Vector3) => {
+export const getPreviewBakeTexture = async (position: Vector3) => {
   const renderTarget = previewCubemapCapturer.update(position)
-  const image = convertCubemapToEquiImageData(
+  const image = (await convertCubemapToEquiImageData(
     EngineRenderer.instance.renderer,
     renderTarget.texture,
     resolution / 4,
-    resolution / 4
-  ) as ImageData
+    resolution / 4,
+    true
+  )) as Blob
   return image
 }
 
