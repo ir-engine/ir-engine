@@ -45,6 +45,7 @@ export const ModelPreviewPanel = (props) => {
   const panelRef = useRef() as React.MutableRefObject<HTMLDivElement>
   const renderPanel = useRender3DPanelSystem(panelRef)
   const { camera, entity, scene, renderer } = renderPanel.state
+
   const augmentSceneForPreview = (camera, scene, renderer) => {
     // empty for now but we can augment in any way needed like change camera, lighting, etc
   }
@@ -52,8 +53,8 @@ export const ModelPreviewPanel = (props) => {
   useEffect(() => {
     const loadModel = async () => {
       try {
-        //const model = (await loadAvatarModelAsset(url))!
-        augmentSceneForPreview(camera, scene, renderer)
+        //augmentSceneForPreview(camera, scene, renderer)
+        resetAnimationLogic(entity.value)
         const model = await loadModelForPreview(entity.value, url)
         if (model) {
           model.name = 'avatar'
