@@ -26,13 +26,13 @@ Ethereal Engine. All Rights Reserved.
 import { Paginated } from '@feathersjs/feathers'
 
 import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import {
   taskServerSettingPath,
   TaskServerSettingType
 } from '@etherealengine/engine/src/schemas/setting/task-server-setting.schema'
 import { defineAction, defineState, dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 
-import { API } from '../../../API'
 import { NotificationService } from '../../../common/services/NotificationService'
 
 export const AdminTaskServerSettingsState = defineState({
@@ -55,7 +55,7 @@ export const TaskServerSettingReceptors = {
 export const AdminSettingTaskServerService = {
   fetchSettingsTaskServer: async (inDec?: 'increment' | 'decrement') => {
     try {
-      const taskServerSettings = (await API.instance.client
+      const taskServerSettings = (await Engine.instance.api
         .service(taskServerSettingPath)
         .find()) as Paginated<TaskServerSettingType>
       dispatchAction(AdminTaskServerSettingActions.fetchedTaskServers({ taskServerSettings }))

@@ -25,6 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { Downgraded } from '@hookstate/core'
 import React, { useEffect, useRef } from 'react'
+import { useDrop } from 'react-dnd'
 import { useTranslation } from 'react-i18next'
 import { saveAs } from 'save-as'
 
@@ -65,6 +66,7 @@ import { PopoverPosition } from '@mui/material/Popover'
 import TablePagination from '@mui/material/TablePagination'
 import Typography from '@mui/material/Typography'
 
+import { SupportedFileTypes } from '../../constants/AssetTypes'
 import { prefabIcons } from '../../functions/PrefabEditors'
 import { unique } from '../../functions/utils'
 import { ContextMenu } from '../layout/ContextMenu'
@@ -157,6 +159,12 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
   const openConfirm = useState(false)
   const contentToDeletePath = useState('')
   const contentToDeleteType = useState('')
+
+  const [{ isFileDropOver }, fileDropRef] = useDrop({
+    accept: [...SupportedFileTypes],
+    drop: (dropItem) => dropItemsOnPanel(dropItem as any),
+    collect: (monitor) => ({ isFileDropOver: monitor.isOver() })
+  })
 
   const page = skip / FILES_PAGE_LIMIT
 
@@ -447,7 +455,13 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
         />
       )}
 
-      <div onContextMenu={handleContextMenu} id="file-browser-panel" className={styles.panelContainer}>
+      <div
+        ref={fileDropRef}
+        onContextMenu={handleContextMenu}
+        id="file-browser-panel"
+        className={styles.panelContainer}
+        style={{ border: isFileDropOver ? '3px solid #ccc' : '' }}
+      >
         <div className={styles.contentContainer}>
           {unique(files, (file) => file.key).map((file, i) => (
             <FileBrowserItem
