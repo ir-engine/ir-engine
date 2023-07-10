@@ -23,37 +23,43 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import type { ProjectConfigInterface } from '@etherealengine/projects/ProjectConfigInterface'
+import { Knex } from 'knex'
+import { v4 } from 'uuid'
 
-const config: ProjectConfigInterface = {
-  onEvent: './projectEventHooks.ts',
-  thumbnail: '/static/etherealengine_thumbnail.jpg',
-  routes: {
-    '/': {
-      component: () => import('@etherealengine/client/src/pages/index'),
-      props: {
-        exact: true
+import {
+  HelmSettingDatabaseType,
+  helmSettingPath
+} from '@etherealengine/engine/src/schemas/setting/helm-setting.schema'
+import appConfig from '@etherealengine/server-core/src/appconfig'
+
+import { getDateTimeSql } from '../../util/get-datetime-sql'
+
+export async function seed(knex: Knex): Promise<void> {
+  const { testEnabled } = appConfig
+  const { forceRefresh } = appConfig.db
+
+  const seedData: HelmSettingDatabaseType[] = await Promise.all(
+    [
+      {
+        main: '',
+        builder: ''
       }
-    },
-    '/admin': {
-      component: () => import('@etherealengine/client-core/src/admin/adminRoutes')
-    },
-    '/location': {
-      component: () => import('@etherealengine/client/src/pages/location/location')
-    },
-    '/auth': {
-      component: () => import('@etherealengine/client/src/pages/auth/authRoutes')
-    },
-    '/studio': {
-      component: () => import('@etherealengine/client/src/pages/editor/editor')
-    },
-    '/room': {
-      component: () => import('@etherealengine/client/src/pages/room')
-    },
-    '/capture': {
-      component: () => import('@etherealengine/client/src/pages/capture')
+    ].map(async (item) => ({ ...item, id: v4(), createdAt: await getDateTimeSql(), updatedAt: await getDateTimeSql() }))
+  )
+
+  if (forceRefresh || testEnabled) {
+    // Deletes ALL existing entries
+    await knex(helmSettingPath).del()
+
+    // Inserts seed entries
+    await knex(helmSettingPath).insert(seedData)
+  } else {
+    const existingData = await knex(helmSettingPath).count({ count: '*' })
+
+    if (existingData.length === 0 || existingData[0].count === 0) {
+      for (const item of seedData) {
+        await knex(helmSettingPath).insert(item)
+      }
     }
   }
 }
-
-export default config

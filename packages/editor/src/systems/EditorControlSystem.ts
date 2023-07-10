@@ -76,6 +76,7 @@ import {
 } from '@etherealengine/engine/src/scene/constants/transformConstants'
 import { TransformSpace } from '@etherealengine/engine/src/scene/constants/transformConstants'
 import {
+  LocalTransformComponent,
   setTransformComponent,
   TransformComponent
 } from '@etherealengine/engine/src/transform/components/TransformComponent'
@@ -425,11 +426,12 @@ const execute = () => {
       if (!hasComponent(gizmoEntity, VisibleComponent)) setComponent(gizmoEntity, VisibleComponent)
 
       if (transformSpace === TransformSpace.Local) {
+        const localTransform = getComponent(lastSelection as Entity, LocalTransformComponent)
+        gizmoObj.quaternion.copy(localTransform.rotation)
+      } else {
         gizmoObj.quaternion.copy(
           'quaternion' in lastSelectedTransform ? lastSelectedTransform.quaternion : lastSelectedTransform.rotation
         )
-      } else {
-        gizmoObj.rotation.set(0, 0, 0)
       }
 
       inverseGizmoQuaternion.copy(gizmoObj.quaternion).invert()

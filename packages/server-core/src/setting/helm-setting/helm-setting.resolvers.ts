@@ -23,37 +23,33 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import type { ProjectConfigInterface } from '@etherealengine/projects/ProjectConfigInterface'
+// For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
+import { resolve } from '@feathersjs/schema'
+import { v4 } from 'uuid'
 
-const config: ProjectConfigInterface = {
-  onEvent: './projectEventHooks.ts',
-  thumbnail: '/static/etherealengine_thumbnail.jpg',
-  routes: {
-    '/': {
-      component: () => import('@etherealengine/client/src/pages/index'),
-      props: {
-        exact: true
-      }
-    },
-    '/admin': {
-      component: () => import('@etherealengine/client-core/src/admin/adminRoutes')
-    },
-    '/location': {
-      component: () => import('@etherealengine/client/src/pages/location/location')
-    },
-    '/auth': {
-      component: () => import('@etherealengine/client/src/pages/auth/authRoutes')
-    },
-    '/studio': {
-      component: () => import('@etherealengine/client/src/pages/editor/editor')
-    },
-    '/room': {
-      component: () => import('@etherealengine/client/src/pages/room')
-    },
-    '/capture': {
-      component: () => import('@etherealengine/client/src/pages/capture')
-    }
-  }
-}
+import {
+  HelmSettingDatabaseType,
+  HelmSettingQuery,
+  HelmSettingType
+} from '@etherealengine/engine/src/schemas/setting/helm-setting.schema'
+import type { HookContext } from '@etherealengine/server-core/declarations'
 
-export default config
+import { getDateTimeSql } from '../../util/get-datetime-sql'
+
+export const helmSettingResolver = resolve<HelmSettingType, HookContext>({})
+
+export const helmSettingExternalResolver = resolve<HelmSettingType, HookContext>({})
+
+export const helmSettingDataResolver = resolve<HelmSettingType, HookContext>({
+  id: async () => {
+    return v4()
+  },
+  createdAt: getDateTimeSql,
+  updatedAt: getDateTimeSql
+})
+
+export const helmSettingPatchResolver = resolve<HelmSettingType, HookContext>({
+  updatedAt: getDateTimeSql
+})
+
+export const helmSettingQueryResolver = resolve<HelmSettingQuery, HookContext>({})

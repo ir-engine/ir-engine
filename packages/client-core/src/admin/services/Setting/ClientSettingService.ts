@@ -28,6 +28,7 @@ import { Paginated } from '@feathersjs/feathers'
 import config from '@etherealengine/common/src/config'
 import multiLogger from '@etherealengine/common/src/logger'
 import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import {
   ClientSettingPatch,
   clientSettingPath,
@@ -35,7 +36,6 @@ import {
 } from '@etherealengine/engine/src/schemas/setting/client-setting.schema'
 import { defineAction, defineState, dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 
-import { API } from '../../../API'
 import { NotificationService } from '../../../common/services/NotificationService'
 import waitForClientAuthenticated from '../../../util/wait-for-client-authenticated'
 
@@ -86,7 +86,7 @@ export const ClientSettingService = {
       logger.info('waitingForClientAuthenticated')
       await waitForClientAuthenticated()
       logger.info('CLIENT AUTHENTICATED!')
-      const clientSettings = (await API.instance.client
+      const clientSettings = (await Engine.instance.api
         .service(clientSettingPath)
         .find()) as Paginated<ClientSettingType>
       logger.info('Dispatching fetchedClient')
@@ -98,7 +98,7 @@ export const ClientSettingService = {
   },
   patchClientSetting: async (data: ClientSettingPatch, id: string) => {
     try {
-      await API.instance.client.service(clientSettingPath).patch(id, data)
+      await Engine.instance.api.service(clientSettingPath).patch(id, data)
       dispatchAction(ClientSettingActions.clientSettingPatched({}))
     } catch (err) {
       logger.error(err)

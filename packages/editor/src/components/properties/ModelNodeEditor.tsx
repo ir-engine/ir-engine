@@ -67,10 +67,9 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
   const modelComponent = useComponent(entity, ModelComponent)
   const exporting = useState(false)
 
-  const exportPath = useState(() => modelComponent?.src.value)
-  const exportType = useState(modelComponent?.src.value?.endsWith('.gltf') ? 'gltf' : 'glb')
+  const exportPath = useState(() => modelComponent.src.value)
+  const exportType = useState(modelComponent.src.value.endsWith('.gltf') ? 'gltf' : 'glb')
 
-  if (!modelComponent) return <></>
   const errors = getEntityErrors(props.entity, ModelComponent)
 
   const onChangeExportPath = useCallback(
@@ -117,10 +116,7 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
       {...props}
     >
       <InputGroup name="Model Url" label={t('editor:properties.model.lbl-modelurl')}>
-        <ModelInput
-          value={modelComponent.resource?.value?.staticResource?.url || modelComponent.src?.value}
-          onChange={updateResources}
-        />
+        <ModelInput value={modelComponent.src.value} onChange={updateResources} />
         {errors?.LOADING_ERROR && (
           <div style={{ marginTop: 2, color: '#FF8C00' }}>{t('editor:properties.model.error-url')}</div>
         )}
@@ -137,7 +133,6 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
           onChange={updateProperty(ModelComponent, 'avoidCameraOcclusion')}
         />
       </InputGroup>
-      <LoopAnimationNodeEditor entity={props.entity} />
       <ScreenshareTargetNodeEditor entity={props.entity} multiEdit={props.multiEdit} />
       <ShadowProperties entity={props.entity} />
       <ModelTransformProperties modelState={modelComponent} onChangeModel={(val) => modelComponent.src.set(val)} />

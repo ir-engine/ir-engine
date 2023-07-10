@@ -64,6 +64,7 @@ import {
 // import { ClientSettingActions, ClientSettingReceptors } from '../admin/services/Setting/ClientSettingService'
 import { AdminCoilSettingActions, CoilSettingReceptors } from '../admin/services/Setting/CoilSettingService'
 import { EmailSettingActions, EmailSettingReceptors } from '../admin/services/Setting/EmailSettingService'
+import { AdminHelmSettingActions, HelmSettingReceptors } from '../admin/services/Setting/HelmSettingService'
 import {
   AdminInstanceServerReceptors,
   InstanceServerSettingActions
@@ -90,6 +91,10 @@ const awsSettingPatchedQueue = defineActionQueue(AdminAwsSettingActions.awsSetti
 const fetchedCoilQueue = defineActionQueue(AdminCoilSettingActions.fetchedCoil.matches)
 const fetchedEmailQueue = defineActionQueue(EmailSettingActions.fetchedEmail.matches)
 const emailSettingPatchedQueue = defineActionQueue(EmailSettingActions.emailSettingPatched.matches)
+const fetchedHelmQueue = defineActionQueue(AdminHelmSettingActions.helmSettingRetrieved.matches)
+const patchedHelmQueue = defineActionQueue(AdminHelmSettingActions.helmSettingPatched.matches)
+const fetchedHelmMainVersionsQueue = defineActionQueue(AdminHelmSettingActions.helmMainVersionsRetrieved.matches)
+const fetchedHelmBuilderVersionsQueue = defineActionQueue(AdminHelmSettingActions.helmBuilderVersionsRetrieved.matches)
 const patchInstanceserverQueue = defineActionQueue(AdminInstanceserverActions.patchInstanceserver.matches)
 const patchedInstanceserverQueue = defineActionQueue(AdminInstanceserverActions.patchedInstanceserver.matches)
 const projectSettingFetchedQueue = defineActionQueue(AdminProjectSettingsActions.projectSettingFetched.matches)
@@ -183,6 +188,11 @@ const execute = () => {
   for (const action of fetchedCoilQueue()) CoilSettingReceptors.fetchedCoilReceptor(action)
   for (const action of fetchedEmailQueue()) EmailSettingReceptors.fetchedEmailReceptor(action)
   for (const action of emailSettingPatchedQueue()) EmailSettingReceptors.emailSettingPatchedReceptor(action)
+  for (const action of fetchedHelmQueue()) HelmSettingReceptors.helmSettingRetrievedReceptor(action)
+  for (const action of patchedHelmQueue()) HelmSettingReceptors.helmSettingPatchedReceptor(action)
+  for (const action of fetchedHelmMainVersionsQueue()) HelmSettingReceptors.helmMainVersionsRetrievedReceptor(action)
+  for (const action of fetchedHelmBuilderVersionsQueue())
+    HelmSettingReceptors.helmBuilderVersionsRetrievedReceptor(action)
   for (const action of patchInstanceserverQueue()) InstanceServerSettingReceptors.patchInstanceserverReceptor(action)
   for (const action of patchedInstanceserverQueue())
     InstanceServerSettingReceptors.patchedInstanceserverReceptor(action)

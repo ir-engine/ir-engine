@@ -23,34 +23,21 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Static, Type } from '@feathersjs/typebox'
 import appRootPath from 'app-root-path'
 import cli from 'cli'
 import dotenv from 'dotenv-flow'
 import fs from 'fs'
 import knex from 'knex'
 
+import {
+  BuildStatusType,
+  buildStatusPath
+} from '@etherealengine/engine/src/schemas/cluster/build-status.schema'
+
 dotenv.config({
   path: appRootPath.path,
   silent: true
 })
-
-export const buildStatusSchema = Type.Object(
-  {
-    id: Type.Integer(),
-    status: Type.String(),
-    dateStarted: Type.String(),
-    dateEnded: Type.String(),
-    logs: Type.String(),
-    commitSHA: Type.String(),
-    createdAt: Type.String({ format: 'date-time' }),
-    updatedAt: Type.String({ format: 'date-time' })
-  },
-  { $id: 'BuildStatus', additionalProperties: false }
-)
-
-export type BuildStatusType = Static<typeof buildStatusSchema>
-export const buildStatusPath = 'build-status'
 
 cli.enable('status')
 

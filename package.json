@@ -66,7 +66,7 @@
     "local": "npm run dev-docker && cross-env VITE_LOCAL_BUILD=true LOCAL=true concurrently -n agones,server,worldserver,mediaserver,client,files npm:dev-agones-silent \"cd packages/server && npm run start\" \"cd packages/instanceserver && npm run start\" \"cd packages/instanceserver && npm run start-channel\" \"cd packages/client && npm run local\" \"cd packages/server && npm run serve-local-files\"",
     "make-user-admin": "ts-node --swc scripts/make-user-admin.js",
     "migrate": "cd packages/server-core && npm run migrate",
-    "postinstall": "patch-package",
+    "postinstall": "patch-package --exclude ./node_modules/@mui/",
     "precommit": "no-master-commits -b master",
     "prepare-database": "cross-env APP_ENV=production PREPARE_DATABASE=true EXIT_ON_DB_INIT=true ts-node --swc packages/server/src/index.ts",
     "publish": "lerna publish from-package --yes --registry https://registry.npmjs.org",

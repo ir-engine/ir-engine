@@ -23,37 +23,21 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import type { ProjectConfigInterface } from '@etherealengine/projects/ProjectConfigInterface'
+import type { Params } from '@feathersjs/feathers'
+import { KnexService } from '@feathersjs/knex'
+import type { KnexAdapterParams } from '@feathersjs/knex'
 
-const config: ProjectConfigInterface = {
-  onEvent: './projectEventHooks.ts',
-  thumbnail: '/static/etherealengine_thumbnail.jpg',
-  routes: {
-    '/': {
-      component: () => import('@etherealengine/client/src/pages/index'),
-      props: {
-        exact: true
-      }
-    },
-    '/admin': {
-      component: () => import('@etherealengine/client-core/src/admin/adminRoutes')
-    },
-    '/location': {
-      component: () => import('@etherealengine/client/src/pages/location/location')
-    },
-    '/auth': {
-      component: () => import('@etherealengine/client/src/pages/auth/authRoutes')
-    },
-    '/studio': {
-      component: () => import('@etherealengine/client/src/pages/editor/editor')
-    },
-    '/room': {
-      component: () => import('@etherealengine/client/src/pages/room')
-    },
-    '/capture': {
-      component: () => import('@etherealengine/client/src/pages/capture')
-    }
-  }
-}
+import {
+  HelmSettingData,
+  HelmSettingPatch,
+  HelmSettingQuery,
+  HelmSettingType
+} from '@etherealengine/engine/src/schemas/setting/helm-setting.schema'
 
-export default config
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+export interface HelmSettingParams extends KnexAdapterParams<HelmSettingQuery> {}
+
+export class HelmSettingService<
+  T = HelmSettingType,
+  ServiceParams extends Params = HelmSettingParams
+> extends KnexService<HelmSettingType, HelmSettingData, HelmSettingParams, HelmSettingPatch> {}
