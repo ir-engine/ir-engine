@@ -32,6 +32,7 @@ import {
   RGBAFormat,
   sRGBEncoding,
   UnsignedByteType,
+  Vector2,
   WebGLRenderTarget
 } from 'three'
 
@@ -126,7 +127,6 @@ export async function previewScreenshot(
 
   renderer.setRenderTarget(renderTarget)
 
-  // EngineRenderer.instance.effectComposer.render()
   renderer.render(Engine.instance.scene, scenePreviewCamera)
 
   const pixels = new Uint8Array(4 * width * height)
@@ -152,6 +152,7 @@ export async function previewScreenshot(
   canvas.width = width
   canvas.height = height
   ctx.putImageData(flippedImageData, 0, 0)
+  ctx.scale(1, -1)
   blob = await getCanvasBlob(canvas, 'image/jpeg', quality)
 
   // Restoring previous state
@@ -193,8 +194,9 @@ export async function takeScreenshot(
   scenePreviewCamera.layers.disableAll()
   scenePreviewCamera.layers.set(ObjectLayers.Scene)
 
-  const originalWidth = EngineRenderer.instance.renderer.domElement.width
-  const originalHeight = EngineRenderer.instance.renderer.domElement.height
+  const originalSize = EngineRenderer.instance.renderer.getSize(new Vector2())
+
+  const pixelRatio = EngineRenderer.instance.renderer.getPixelRatio()
 
   // Rendering the scene to the new canvas with given size
   await new Promise<void>((resolve, reject) => {
@@ -202,7 +204,6 @@ export async function takeScreenshot(
       const viewport = EngineRenderer.instance.renderContext.getParameter(
         EngineRenderer.instance.renderContext.VIEWPORT
       )
-      const pixelRatio = EngineRenderer.instance.renderer.getPixelRatio()
       // todo - scrolling in and out sometimes causes weird pixel ratios that can cause this to fail
       if (viewport[2] === Math.round(width * pixelRatio) && viewport[3] === Math.round(height * pixelRatio)) {
         console.log('Resized viewport')
@@ -220,7 +221,8 @@ export async function takeScreenshot(
 
     // set up effect composer
     EngineRenderer.instance.effectComposer.setMainCamera(scenePreviewCamera as Camera)
-    EngineRenderer.instance.effectComposer.setSize(width, height, true)
+    EngineRenderer.instance.effectComposer.setSize(width, height, false)
+    EngineRenderer.instance.renderer.setPixelRatio(1)
   })
 
   let blob: Blob | null = null
@@ -264,8 +266,10 @@ export async function takeScreenshot(
     )
   }
 
+  // restore
   EngineRenderer.instance.effectComposer.setMainCamera(Engine.instance.camera)
-  EngineRenderer.instance.effectComposer.setSize(originalWidth, originalHeight, true)
+  EngineRenderer.instance.effectComposer.setSize(originalSize.width, originalSize.height, false)
+  EngineRenderer.instance.renderer.setPixelRatio(pixelRatio)
 
   // Restoring previous state
   scenePreviewCamera.aspect = prevAspect

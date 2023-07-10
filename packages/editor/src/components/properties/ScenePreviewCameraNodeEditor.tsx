@@ -36,7 +36,7 @@ import {
 
 import CameraAltIcon from '@mui/icons-material/CameraAlt'
 
-import { previewScreenshot } from '../../functions/takeScreenshot'
+import { previewScreenshot, takeScreenshot } from '../../functions/takeScreenshot'
 import { PropertiesPanelButton } from '../inputs/Button'
 import ImagePreviewInput from '../inputs/ImagePreviewInput'
 import NodeEditor from './NodeEditor'
@@ -62,7 +62,7 @@ export const ScenePreviewCameraNodeEditor: EditorComponentType = (props) => {
 
   const updateScenePreview = async () => {
     const { position } = getComponent(Engine.instance.cameraEntity, TransformComponent)
-    const imageBlob = (await previewScreenshot(512 / 2, 320 / 2))!
+    const imageBlob = (await takeScreenshot(512 / 2, 320 / 2, 'jpeg'))!
     const url = URL.createObjectURL(imageBlob)
     setBufferUrl(url)
   }
