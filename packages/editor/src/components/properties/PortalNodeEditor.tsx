@@ -43,7 +43,7 @@ import { TransformComponent } from '@etherealengine/engine/src/transform/compone
 import MeetingRoomIcon from '@mui/icons-material/MeetingRoom'
 import { Box } from '@mui/material'
 
-import { getCubmapBakeTexture, uploadCubemapBakeToServer } from '../../functions/uploadEnvMapBake'
+import { getPreviewBakeTexture, uploadCubemapBakeToServer } from '../../functions/uploadEnvMapBake'
 import { AssetSelectionChangePropsType, AssetsPreviewPanel } from '../assets/AssetsPreviewPanel'
 import BooleanInput from '../inputs/BooleanInput'
 import { Button } from '../inputs/Button'
@@ -89,7 +89,7 @@ export const PortalNodeEditor: EditorComponentType = (props) => {
   const canvas = document.createElement('canvas')
   const context = canvas.getContext('2d')
   const updateCubeMapBake = () => {
-    const imageData = getCubmapBakeTexture(transformComponent.value.position)
+    const imageData = getPreviewBakeTexture(transformComponent.value.position)
     canvas.width = imageData.width
     canvas.height = imageData.height
     context?.putImageData(imageData, 0, 0)

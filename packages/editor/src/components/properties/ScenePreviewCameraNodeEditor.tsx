@@ -23,11 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React from 'react'
+import { debounce } from 'lodash'
+import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { getComponent, setComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { getComponent, setComponent, useComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import {
   LocalTransformComponent,
   TransformComponent
@@ -35,7 +36,9 @@ import {
 
 import CameraAltIcon from '@mui/icons-material/CameraAlt'
 
+import { getPreviewBakeTexture } from '../../functions/uploadEnvMapBake'
 import { PropertiesPanelButton } from '../inputs/Button'
+import ImagePreviewInput from '../inputs/ImagePreviewInput'
 import NodeEditor from './NodeEditor'
 import { EditorComponentType } from './Util'
 
@@ -46,6 +49,8 @@ import { EditorComponentType } from './Util'
  */
 export const ScenePreviewCameraNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
+  const [bufferUrl, setBufferUrl] = useState<string>('')
+  const transformComponent = useComponent(Engine.instance.cameraEntity, TransformComponent)
 
   const onSetFromViewport = () => {
     const { position, rotation } = getComponent(Engine.instance.cameraEntity, TransformComponent)
@@ -55,15 +60,42 @@ export const ScenePreviewCameraNodeEditor: EditorComponentType = (props) => {
     LocalTransformComponent.stateMap[props.entity]!.set(LocalTransformComponent.valueMap[props.entity])
   }
 
+  const canvas = document.createElement('canvas')
+  const context = canvas.getContext('2d')
+  const updateBPCEMBake = () => {
+    const { position } = getComponent(Engine.instance.cameraEntity, TransformComponent)
+    const imageData = getPreviewBakeTexture(position)
+    canvas.width = imageData.width
+    canvas.height = imageData.height
+    context?.putImageData(imageData, 0, 0)
+    const url = canvas.toDataURL()
+    setBufferUrl(url)
+  }
+
+  const updateBPCEMBakeDebounced = debounce(updateBPCEMBake, 500) //ms
+
+  useEffect(() => {
+    updateBPCEMBakeDebounced()
+    return () => {
+      updateBPCEMBakeDebounced.cancel()
+    }
+  }, [transformComponent.matrix])
+
   return (
     <NodeEditor
       {...props}
       name={t('editor:properties.sceneCamera.name')}
       description={t('editor:properties.sceneCamera.description')}
     >
-      <PropertiesPanelButton onClick={onSetFromViewport}>
+      <PropertiesPanelButton
+        onClick={() => {
+          onSetFromViewport()
+          updateBPCEMBake()
+        }}
+      >
         {t('editor:properties.sceneCamera.lbl-setFromViewPort')}
       </PropertiesPanelButton>
+      <ImagePreviewInput value={bufferUrl} />
     </NodeEditor>
   )
 }

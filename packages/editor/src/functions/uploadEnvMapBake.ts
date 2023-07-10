@@ -128,18 +128,19 @@ export const uploadBPCEMBakeToServer = async (entity: Entity) => {
 
 const resolution = 1024
 
-/**
- * Generates and uploads a cubemap at a specific position in the world.
- *
- * @param entity
- * @returns
- */
 const previewCubemapCapturer = new CubemapCapturer(
   EngineRenderer.instance.renderer,
   Engine.instance.scene,
   resolution / 8
 )
-export const getCubmapBakeTexture = (position: Vector3) => {
+
+/**
+ * Generates a low res cubemap at a specific position in the world for preview.
+ *
+ * @param position
+ * @returns
+ */
+export const getPreviewBakeTexture = (position: Vector3) => {
   const renderTarget = previewCubemapCapturer.update(position)
   const image = convertCubemapToEquiImageData(
     EngineRenderer.instance.renderer,
@@ -150,6 +151,12 @@ export const getCubmapBakeTexture = (position: Vector3) => {
   return image
 }
 
+/**
+ * Generates and iploads a high res cubemap at a specific position in the world for saving and export.
+ *
+ * @param position
+ * @returns
+ */
 const saveCubemapCapturer = new CubemapCapturer(EngineRenderer.instance.renderer, Engine.instance.scene, resolution)
 export const uploadCubemapBakeToServer = async (name: string, position: Vector3, res: number = resolution) => {
   const renderTarget = saveCubemapCapturer.update(position)
