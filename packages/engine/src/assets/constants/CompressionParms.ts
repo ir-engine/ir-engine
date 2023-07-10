@@ -35,6 +35,7 @@ export type KTX2EncodeArguments = {
   resizeWidth: number
   resizeHeight: number
   resizeMethod: 'stretch' | 'aspect'
+  compressionLevel: number
 }
 
 export const KTX2EncodeDefaultArguments: KTX2EncodeArguments = {
@@ -48,5 +49,6 @@ export const KTX2EncodeDefaultArguments: KTX2EncodeArguments = {
   resize: false,
   resizeWidth: 0,
   resizeHeight: 0,
-  resizeMethod: 'stretch'
+  resizeMethod: 'stretch',
+  compressionLevel: 2
 }

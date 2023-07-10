@@ -37,9 +37,9 @@ import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 import { KTX2Encoder } from '@etherealengine/xrui/core/textures/KTX2Encoder'
 
 import BooleanInput from '../inputs/BooleanInput'
+import CompoundNumericInput from '../inputs/CompoundNumericInput'
 import InputGroup from '../inputs/InputGroup'
 import SelectInput from '../inputs/SelectInput'
-import Slider from '../inputs/Slider'
 import { FileType } from './FileBrowserContentPanel'
 import styles from './styles.module.scss'
 
@@ -82,7 +82,7 @@ export default function CompressionPanel({
       uastc: compressProperties.mode.value === 'UASTC',
       qualityLevel: compressProperties.quality.value,
       mipmaps: compressProperties.mipmaps.value,
-      compressionLevel: 2,
+      compressionLevel: compressProperties.compressionLevel.value,
       yFlip: compressProperties.flipY.value,
       srgb: !compressProperties.linear.value
     })
@@ -165,11 +165,12 @@ export default function CompressionPanel({
         label={t('editor:properties.model.transform.quality')}
         info={t('editor:properties.model.transform.qualityTooltip')}
       >
-        <Slider
+        <CompoundNumericInput
           value={compressProperties.quality.value}
-          onChange={(val: number) => compressProperties.quality.set(val)}
+          onChange={(val) => compressProperties.quality.set(val)}
           min={1}
           max={255}
+          step={1}
         />
       </InputGroup>
       <InputGroup
@@ -180,6 +181,19 @@ export default function CompressionPanel({
         <BooleanInput
           value={compressProperties.mipmaps.value}
           onChange={(val) => compressProperties.mipmaps.set(val)}
+        />
+      </InputGroup>
+      <InputGroup
+        name="compressionLevel"
+        label={t('editor:properties.model.transform.compressionLevel')}
+        info={t('editor:properties.model.transform.compressionLevelTooltip')}
+      >
+        <CompoundNumericInput
+          value={compressProperties.compressionLevel.value}
+          onChange={(val) => compressProperties.compressionLevel.set(val)}
+          min={0}
+          max={6}
+          step={1}
         />
       </InputGroup>
     </Menu>

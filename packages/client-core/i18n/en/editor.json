@@ -319,7 +319,9 @@
         "mode": "Mode",
         "modeTooltip": "If checked, the encoder will output a UASTC texture, otherwise a ETC1S texture",
         "mipmaps": "Mipmaps",
-        "mipmapsTooltip": "If checked, the encoder will generate mipmaps"
+        "mipmapsTooltip": "If checked, the encoder will generate mipmaps",
+        "compressionLevel": "Compression Level",
+        "compressionLevelTooltip": "The compression level parameter controls the encoder perf vs. file size tradeoff for ETC1S files. It does not directly control file size vs. quality (see Quality)"
       },
       "lods": {
         "label": "Level of Detail",
