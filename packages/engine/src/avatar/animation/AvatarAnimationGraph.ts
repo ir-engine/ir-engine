@@ -33,7 +33,7 @@ import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import { getComponent } from '../../ecs/functions/ComponentFunctions'
-import { AnimationManager } from '../AnimationManager'
+import { AnimationManager, AnimationState } from '../AnimationManager'
 import { AnimationComponent } from '../components/AnimationComponent'
 import { AvatarAnimationComponent } from '../components/AvatarAnimationComponent'
 import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
@@ -45,7 +45,7 @@ export const changeAvatarAnimationState = (entity: Entity, newStateName: string)
 }
 
 export const getAnimationAction = (name: string, mixer: AnimationMixer, animations?: AnimationClip[]) => {
-  const manager = getState(AnimationManager)
+  const manager = getState(AnimationState)
   const clip = AnimationClip.findByName(animations ?? manager.targetsAnimation!, name)
   return mixer.clipAction(clip)
 }

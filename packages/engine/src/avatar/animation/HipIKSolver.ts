@@ -218,6 +218,9 @@ export function solveHipHeight(entity: Entity, headPosition: Vector3) {
     leftFootTarget.quaternion,
     null,
     leftFootTargetHint.position,
+    null,
+    null,
+    null,
     1,
     0,
     1
@@ -248,6 +251,9 @@ export function solveHipHeight(entity: Entity, headPosition: Vector3) {
     rightFootTarget.quaternion,
     null,
     rightFootTargetHint.position,
+    null,
+    null,
+    null,
     1,
     0,
     1

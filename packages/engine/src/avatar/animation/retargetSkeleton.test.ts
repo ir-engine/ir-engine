@@ -98,7 +98,7 @@ describe('retargetSkeleton', () => {
       .skeleton
 
     // Check for same bone world positions with original target skeleton
-    rig.hips.node.traverse((bone: Bone) => {
+    rig?.hips?.node?.traverse((bone: Bone) => {
       // Find the bone index
       const i = targetSkeleton.bones.findIndex((b) => b.name === bone.name)
       assert(i > -1, `Could not find bone ${bone.name}`)

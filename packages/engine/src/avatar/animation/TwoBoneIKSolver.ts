@@ -74,9 +74,9 @@ export function solveTwoBoneIK(
   rootAxisRestriction: Euler | null = null,
   midAxisRestriction: Euler | null = null,
   tipAxisRestriction: Euler | null = null,
-  targetPosWeight: number = 1,
-  targetRotWeight: number = 0,
-  hintWeight: number = 1
+  targetPosWeight = 1,
+  targetRotWeight = 0,
+  hintWeight = 1
 ) {
   // if (rootAxisRestriction) {
   //   root.quaternion.setFromEuler(rootAxisRestriction)

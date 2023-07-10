@@ -59,7 +59,7 @@ import { setObjectLayers } from '../../scene/functions/setObjectLayers'
 import { PoseSchema } from '../../transform/components/TransformComponent'
 import { AnimationGraph } from '../animation/AnimationGraph'
 import { getAnimationAction } from '../animation/AvatarAnimationGraph'
-import { AnimationManager } from '../AnimationManager'
+import { AnimationManager, AnimationState } from '../AnimationManager'
 import { AnimationComponent } from './AnimationComponent'
 import { AvatarComponent } from './AvatarComponent'
 import { AvatarPendingComponent } from './AvatarPendingComponent'
@@ -220,7 +220,7 @@ export const AvatarRigComponent = defineComponent({
     //Calculate ik target offsets for retargeting
     useEffect(() => {
       if (!animComponent.animations.value.length || !rigComponent.targets.children.length) return
-      const bindTracks = AnimationClip.findByName(getState(AnimationManager).targetsAnimation!, 'BindPose').tracks
+      const bindTracks = AnimationClip.findByName(getState(AnimationState).targetsAnimation!, 'BindPose').tracks
       if (!bindTracks) return
       for (let i = 0; i < bindTracks.length; i += 3) {
         const key = bindTracks[i].name.substring(0, bindTracks[i].name.indexOf('.'))
@@ -281,10 +281,12 @@ export const AvatarRigComponent = defineComponent({
           case 'headHint':
           case 'headTarget':
             bonePos.copy(rigComponent.bindRig.head.value.node.matrixWorld.multiply(new Matrix4().setPosition(0, 0, 0)))
+            break
           case 'hipsTarget':
             bonePos.copy(
               rigComponent.bindRig.hips.value.node.matrixWorld.multiply(new Matrix4().setPosition(0, -0.05, 0))
             )
+            break
         }
         const pos = new Vector3()
         bonePos.decompose(pos, new Quaternion(), new Vector3())

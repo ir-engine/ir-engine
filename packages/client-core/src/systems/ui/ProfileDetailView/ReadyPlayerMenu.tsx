@@ -97,7 +97,7 @@ const ReadyPlayerMenu = () => {
             scene.value.add(obj)
             const avatarRigComponent = getOptionalComponent(entity.value, AvatarRigComponent)
             if (avatarRigComponent) {
-              avatarRigComponent.rig.Neck.getWorldPosition(camera.value.position)
+              avatarRigComponent.rig.head.node.getWorldPosition(camera.value.position)
               camera.value.position.y += 0.2
               camera.value.position.z = 0.6
             }
