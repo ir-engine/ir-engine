@@ -54,17 +54,14 @@ export const ModelPreviewPanel = (props) => {
 
   useEffect(() => {
     const handleSizeChange = () => {
-      // Perform your desired actions here
       renderPanel.resize()
     }
 
     const handleSizeChangeDebounced = debounce(handleSizeChange, 100)
 
     const resizeObserver = new ResizeObserver((entries) => {
-      // The callback function will be called whenever the size changes
       for (const entry of entries) {
         if (entry.target === panelRef.current) {
-          // Call your function here
           handleSizeChangeDebounced()
         }
       }
