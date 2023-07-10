@@ -36,7 +36,7 @@ import {
 
 import CameraAltIcon from '@mui/icons-material/CameraAlt'
 
-import { getPreviewBakeTexture } from '../../functions/uploadEnvMapBake'
+import { takeScreenshot } from '../../functions/takeScreenshot'
 import { PropertiesPanelButton } from '../inputs/Button'
 import ImagePreviewInput from '../inputs/ImagePreviewInput'
 import NodeEditor from './NodeEditor'
@@ -60,14 +60,14 @@ export const ScenePreviewCameraNodeEditor: EditorComponentType = (props) => {
     LocalTransformComponent.stateMap[props.entity]!.set(LocalTransformComponent.valueMap[props.entity])
   }
 
-  const updateBPCEMBake = async () => {
+  const updateScenePreview = async () => {
     const { position } = getComponent(Engine.instance.cameraEntity, TransformComponent)
-    const imageData = await getPreviewBakeTexture(position)
-    const url = URL.createObjectURL(imageData)
+    const imageBlob = (await takeScreenshot(512 / 2, 320 / 2, 'jpeg'))!
+    const url = URL.createObjectURL(imageBlob)
     setBufferUrl(url)
   }
 
-  const updateCubeMapBakeDebounced = debounce(updateBPCEMBake, 500) //ms
+  const updateCubeMapBakeDebounced = debounce(updateScenePreview, 500) //ms
 
   useEffect(() => {
     updateCubeMapBakeDebounced()
@@ -85,7 +85,7 @@ export const ScenePreviewCameraNodeEditor: EditorComponentType = (props) => {
       <PropertiesPanelButton
         onClick={() => {
           onSetFromViewport()
-          updateBPCEMBake()
+          updateScenePreview()
         }}
       >
         {t('editor:properties.sceneCamera.lbl-setFromViewPort')}

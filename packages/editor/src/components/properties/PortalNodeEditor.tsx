@@ -87,8 +87,8 @@ export const PortalNodeEditor: EditorComponentType = (props) => {
   }, [])
 
   const updateCubeMapBake = async () => {
-    const imageData = await getPreviewBakeTexture(transformComponent.value.position)
-    const url = URL.createObjectURL(imageData)
+    const imageBlob = await getPreviewBakeTexture(transformComponent.value.position)
+    const url = URL.createObjectURL(imageBlob)
     setBufferUrl(url)
   }
 

@@ -133,7 +133,6 @@ const previewCubemapCapturer = new CubemapCapturer(
   Engine.instance.scene,
   resolution / 8
 )
-
 /**
  * Generates a low res cubemap at a specific position in the world for preview.
  *
@@ -142,14 +141,14 @@ const previewCubemapCapturer = new CubemapCapturer(
  */
 export const getPreviewBakeTexture = async (position: Vector3) => {
   const renderTarget = previewCubemapCapturer.update(position)
-  const image = (await convertCubemapToEquiImageData(
+  const imageBlob = (await convertCubemapToEquiImageData(
     EngineRenderer.instance.renderer,
     renderTarget.texture,
     resolution / 4,
     resolution / 4,
     true
   )) as Blob
-  return image
+  return imageBlob
 }
 
 /**
