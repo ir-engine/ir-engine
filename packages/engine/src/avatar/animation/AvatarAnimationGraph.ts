@@ -25,10 +25,10 @@ Ethereal Engine. All Rights Reserved.
 
 import { clamp } from 'lodash'
 import { AnimationClip, AnimationMixer, LoopOnce, LoopRepeat, Vector2, Vector3 } from 'three'
-import { lerp } from 'three/src/math/MathUtils'
 
 import { getState } from '@etherealengine/hyperflux'
 
+import { lerp } from '../../common/functions/MathLerpFunctions'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
@@ -55,7 +55,7 @@ let fallWeight = 0,
   runWeight = 0,
   idleWeight = 1
 
-//This is a stateless blend tree, it is not a graph
+//This is a stateless animation blend, it is not a graph
 //To do: make a stateful blend tree
 export const setAvatarLocomotionAnimation = (entity: Entity) => {
   const animationComponent = getComponent(entity, AnimationComponent)
@@ -69,7 +69,7 @@ export const setAvatarLocomotionAnimation = (entity: Entity) => {
   run.play()
 
   fallWeight = lerp(
-    fallWeight,
+    fall.getEffectiveWeight(),
     clamp(Math.abs(avatarAnimationComponent.locomotion.y), 0, 1),
     getState(EngineState).deltaSeconds * 10
   )
@@ -78,11 +78,4 @@ export const setAvatarLocomotionAnimation = (entity: Entity) => {
   run.setEffectiveWeight(runWeight)
   fall.setEffectiveWeight(fallWeight)
   idle.setEffectiveWeight(idleWeight)
-}
-
-export const startAnimation = (avatar: Entity, animationName: string, loop: boolean = false, speed: number = 1) => {
-  const animationComponent = getComponent(avatar, AnimationComponent)
-  const animationAction = getAnimationAction(animationName, animationComponent.mixer)
-  animationAction.setLoop(loop ? LoopRepeat : LoopOnce, Infinity)
-  //blend from animation component mixer's current animation to passed animation
 }

@@ -280,9 +280,7 @@ export const AvatarRigComponent = defineComponent({
             break
           case 'headHint':
           case 'headTarget':
-            bonePos.copy(
-              rigComponent.bindRig.head.value.node.matrixWorld.multiply(new Matrix4().setPosition(0, -0.05, 0))
-            )
+            bonePos.copy(rigComponent.bindRig.head.value.node.matrixWorld.multiply(new Matrix4().setPosition(0, 0, 0)))
           case 'hipsTarget':
             bonePos.copy(
               rigComponent.bindRig.hips.value.node.matrixWorld.multiply(new Matrix4().setPosition(0, -0.05, 0))

@@ -100,71 +100,12 @@ export const loadAvatarModelAsset = async (avatarURL: string) => {
   const scene = model.scene || model // FBX files does not have 'scene' property
   if (!scene) return
 
-  if (model.userData.vrm) {
-    const vrm: VRM = model.userData.vrm
-    VRMUtils.VRMUtils.removeUnnecessaryJoints(vrm.scene)
-    VRMUtils.VRMUtils.removeUnnecessaryVertices(vrm.scene)
+  let vrm = model instanceof VRM ? model : model.userData.vrm
 
-    return vrm as VRM
-    // vrm.scene.traverse((l) => {
-    //   l.frustumCulled = false;
-    // });
+  VRMUtils.VRMUtils.removeUnnecessaryJoints(vrm.scene)
+  VRMUtils.VRMUtils.removeUnnecessaryVertices(vrm.scene)
 
-    //
-    //
-    //
-
-    // scene = vrm.scene
-    // scene.userData = model.userData
-
-    // this._vrm = vrm;
-    // this._positionBone.add(vrm.scene);
-    // this._avatarScene.add(this._positionBone);
-    // this._stage.rootScene.add(this._avatarScene);
-
-    // model = {
-    //   ...model,
-    //   ...model.userData.vrm,
-    //   scene: {
-    //     ...model.scene,
-    //   }
-    // };
-    // VRMUtils.removeUnnecessaryVertices(model.scene);
-    // VRMUtils.removeUnnecessaryJoints(model.scene);
-    // model.scene.traverse((obj) => { obj.frustumCulled = false; });
-  }
-
-  // console.log(model.userData);
-  // const { vrmCore } = model.userData;
-  // VRMUtils.rotateVRM0(vrmCore);
-  // VRMUtils.removeUnnecessaryJoints(model.scene);
-  // return vrmCore as VRM;
-  // VRMUtils.removeUnnecessaryJoints(model.scene);
-
-  // const parent = new Group()
-  // parent.name = 'model-parent'
-  // const root = new Group()
-  // root.name = 'model-root'
-  // root.add(scene)
-  // parent.add(root)
-  // parent.userData = scene.userData
-
-  // scene.traverse((obj) => {
-  //   //TODO: To avoid the changes of the source material
-  //   if (obj.material && obj.material.clone) {
-  //     obj.material = obj.material.clone()
-  //     //TODO: to fix alphablend issue of some models (mostly fbx converted models)
-  //     if (obj.material.opacity != 0) {
-  //       obj.material.depthWrite = true
-  //     } else {
-  //       obj.material.depthWrite = false
-  //     }
-  //     obj.material.depthTest = true
-  //   }
-  //   // Enable shadow for avatars
-  //   obj.castShadow = true
-  // })
-  return scene as Object3D
+  return vrm as VRM
 }
 
 export const loadAvatarForUser = async (

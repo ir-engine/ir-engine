@@ -71,12 +71,12 @@ export function solveTwoBoneIK(
   targetRotation: Quaternion, // world space
   rotationOffset: Quaternion | null = null,
   hint: Vector3 | null = null,
-  // rootAxisRestriction: Euler | null = null,
-  // midAxisRestriction: Euler | null = null,
-  // tipAxisRestriction: Euler | null = null,
-  targetPosWeight = 1,
-  targetRotWeight = 1,
-  hintWeight = 1
+  rootAxisRestriction: Euler | null = null,
+  midAxisRestriction: Euler | null = null,
+  tipAxisRestriction: Euler | null = null,
+  targetPosWeight: number = 1,
+  targetRotWeight: number = 0,
+  hintWeight: number = 1
 ) {
   // if (rootAxisRestriction) {
   //   root.quaternion.setFromEuler(rootAxisRestriction)
@@ -164,10 +164,10 @@ export function solveTwoBoneIK(
   }
 
   // Apply tip rotation
-  //Object3DUtils.getWorldQuaternion(tip, tip.quaternion)
-  //tip.quaternion.slerp(targetRot, targetRotWeight)
-  //Object3DUtils.worldQuaternionToLocal(tip.quaternion, mid)
-  //if (rotationOffset != undefined) tip.quaternion.premultiply(rotationOffset)
+  Object3DUtils.getWorldQuaternion(tip, tip.quaternion)
+  tip.quaternion.slerp(targetRot, targetRotWeight)
+  Object3DUtils.worldQuaternionToLocal(tip.quaternion, mid)
+  if (rotationOffset != undefined) tip.quaternion.premultiply(rotationOffset)
 }
 
 const targetPos = new Vector3(),
