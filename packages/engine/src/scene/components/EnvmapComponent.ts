@@ -29,6 +29,7 @@ import {
   CubeTexture,
   DataTexture,
   EquirectangularReflectionMapping,
+  Group,
   Mesh,
   MeshMatcapMaterial,
   MeshStandardMaterial,
@@ -48,9 +49,11 @@ import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import { SceneState } from '../../ecs/classes/Scene'
 import {
+  ComponentType,
   defineComponent,
   defineQuery,
   getComponent,
+  removeQuery,
   setComponent,
   useComponent,
   useOptionalComponent
@@ -103,33 +106,19 @@ export const EnvmapComponent = defineComponent({
     if (!isClient) return null
 
     const component = useComponent(entity, EnvmapComponent)
-    const group = useOptionalComponent(entity, GroupComponent)
+    const group = useComponent(entity, GroupComponent)
     const background = useHookstate(getMutableState(SceneState).background)
 
-    const updateGroup = () => {
-      if (group?.value)
-        for (const obj of group.value)
-          obj.traverse((obj: Mesh) => {
-            if (!obj.material) return
-
-            if (Array.isArray(obj.material)) {
-              obj.material.forEach((m: MeshStandardMaterial) => (m.envMapIntensity = component.envMapIntensity.value))
-            } else {
-              ;(obj.material as MeshStandardMaterial).envMapIntensity = component.envMapIntensity.value
-            }
-          })
-    }
+    useEffect(() => {
+      updateEnvMapIntensity(group.value, component.envMapIntensity.value)
+    }, [group, component.envMapIntensity])
 
     useEffect(() => {
-      if (!group?.value?.length) return
       if (component.type.value !== EnvMapSourceType.Skybox) return
-
-      applyEnvMap(group.value, background.value as Texture | null)
-      updateGroup()
-    }, [component.type, group?.length, background])
+      updateEnvMap(group.value, background.value as Texture | null)
+    }, [component.type, group, background])
 
     useEffect(() => {
-      if (!group?.value?.length) return
       if (component.type.value !== EnvMapSourceType.Color) return
 
       const col = component.envMapSourceColor.value ?? tempColor
@@ -138,11 +127,10 @@ export const EnvmapComponent = defineComponent({
       texture.needsUpdate = true
       texture.encoding = sRGBEncoding
 
-      applyEnvMap(group.value, getPmremGenerator().fromEquirectangular(texture).texture)
-    }, [component.type, group?.length])
+      updateEnvMap(group.value, getPmremGenerator().fromEquirectangular(texture).texture)
+    }, [component.type, group])
 
     useEffect(() => {
-      if (!group?.value?.length) return
       if (component.type.value !== EnvMapSourceType.Texture) return
 
       switch (component.envMapTextureType.value) {
@@ -153,7 +141,7 @@ export const EnvmapComponent = defineComponent({
               if (texture) {
                 const EnvMap = getPmremGenerator().fromCubemap(texture).texture
                 EnvMap.encoding = sRGBEncoding
-                if (group?.value) applyEnvMap(group.value, texture)
+                if (group?.value) updateEnvMap(group.value, texture)
                 removeError(entity, EnvmapComponent, 'MISSING_FILE')
               }
             },
@@ -166,7 +154,7 @@ export const EnvmapComponent = defineComponent({
           AssetLoader.loadAsync(component.envMapSourceURL.value, {}).then((texture) => {
             if (texture) {
               texture.mapping = EquirectangularReflectionMapping
-              applyEnvMap(group.value, texture)
+              updateEnvMap(group.value, texture)
               removeError(entity, EnvmapComponent, 'MISSING_FILE')
               texture.dispose()
             } else {
@@ -174,12 +162,14 @@ export const EnvmapComponent = defineComponent({
             }
           })
       }
-    }, [component.type, group?.length, component.envMapSourceURL])
+    }, [component.type, group, component.envMapSourceURL])
+
     const engineState = useHookstate(getMutableState(EngineState))
     const renderState = useHookstate(getMutableState(RendererState))
     const relativePos = new Vector3()
+
     useEffect(() => {
-      if (!group?.value?.length || !engineState.sceneLoaded.value) return
+      if (!engineState.sceneLoaded.value) return
       if (component.type.value !== EnvMapSourceType.Default) return
       const bakeComponentQuery = defineQuery([EnvMapBakeComponent])
       for (const bakeEntity of bakeComponentQuery()) {
@@ -192,7 +182,7 @@ export const EnvmapComponent = defineComponent({
         AssetLoader.loadAsync(component.envMapSourceURL.value, {}).then((texture) => {
           if (texture) {
             texture.mapping = EquirectangularReflectionMapping
-            applyEnvMap(group.value, texture)
+            updateEnvMap(group.value, texture)
             applyBoxProjection(bakeEntity, group.value)
             removeError(entity, EnvmapComponent, 'MISSING_FILE')
             texture.dispose()
@@ -201,7 +191,10 @@ export const EnvmapComponent = defineComponent({
           }
         })
       }
-    }, [group?.length, component.type, engineState.sceneLoaded, renderState.forceBasicMaterials])
+      return () => {
+        removeQuery(bakeComponentQuery)
+      }
+    }, [group, component.type, engineState.sceneLoaded, renderState.forceBasicMaterials])
 
     return null
   },
@@ -209,7 +202,7 @@ export const EnvmapComponent = defineComponent({
   errors: ['MISSING_FILE']
 })
 
-function applyEnvMap(obj3ds: Object3D[], envmap: Texture | null) {
+function updateEnvMap(obj3ds: Object3D[], envmap: Texture | null) {
   if (!obj3ds?.length) return
 
   for (const obj of obj3ds) {
@@ -227,4 +220,16 @@ function applyEnvMap(obj3ds: Object3D[], envmap: Texture | null) {
       }
     }
   }
+}
+
+const updateEnvMapIntensity = (group: typeof GroupComponent._TYPE, intensity: number) => {
+  for (const obj of group)
+    obj.traverse((obj: Mesh) => {
+      if (!obj.material) return
+      if (Array.isArray(obj.material)) {
+        obj.material.forEach((m: MeshStandardMaterial) => (m.envMapIntensity = intensity))
+      } else {
+        ;(obj.material as MeshStandardMaterial).envMapIntensity = intensity
+      }
+    })
 }

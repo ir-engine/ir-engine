@@ -27,32 +27,28 @@ Ethereal Engine. All Rights Reserved.
 import { SnackbarProvider } from 'notistack'
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 
+import { AdminCoilSettingService } from '@etherealengine/client-core/src/admin/services/Setting/CoilSettingService'
 import { initGA, logPageView } from '@etherealengine/client-core/src/common/analytics'
 import { defaultAction } from '@etherealengine/client-core/src/common/components/NotificationActions'
+import {
+  NotificationAction,
+  NotificationActions
+} from '@etherealengine/client-core/src/common/services/NotificationService'
 import { ProjectService, ProjectState } from '@etherealengine/client-core/src/common/services/ProjectService'
+import Debug from '@etherealengine/client-core/src/components/Debug'
 import InviteToast from '@etherealengine/client-core/src/components/InviteToast'
 import { theme } from '@etherealengine/client-core/src/theme'
 import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
 import GlobalStyle from '@etherealengine/client-core/src/util/GlobalStyle'
+import { AudioEffectPlayer } from '@etherealengine/engine/src/audio/systems/MediaSystem'
 import { matches } from '@etherealengine/engine/src/common/functions/MatchesUtils'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { addActionReceptor, getMutableState, removeActionReceptor, useHookstate } from '@etherealengine/hyperflux'
 import { loadWebappInjection } from '@etherealengine/projects/loadWebappInjection'
 
 import { StyledEngineProvider, Theme, ThemeProvider } from '@mui/material/styles'
 
 import RouterComp from '../route/public'
-
-import './styles.scss'
-
-import { AdminCoilSettingService } from '@etherealengine/client-core/src/admin/services/Setting/CoilSettingService'
-import {
-  NotificationAction,
-  NotificationActions
-} from '@etherealengine/client-core/src/common/services/NotificationService'
-import Debug from '@etherealengine/client-core/src/components/Debug'
-import { AudioEffectPlayer } from '@etherealengine/engine/src/audio/systems/MediaSystem'
-import { addActionReceptor, getMutableState, removeActionReceptor, useHookstate } from '@etherealengine/hyperflux'
-
 import { ThemeContextProvider } from '../themes/themeContext'
 
 declare module '@mui/styles/defaultTheme' {

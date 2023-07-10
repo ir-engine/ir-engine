@@ -23,37 +23,24 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import type { ProjectConfigInterface } from '@etherealengine/projects/ProjectConfigInterface'
+import { createSwaggerServiceOptions } from 'feathers-swagger'
 
-const config: ProjectConfigInterface = {
-  onEvent: './projectEventHooks.ts',
-  thumbnail: '/static/etherealengine_thumbnail.jpg',
-  routes: {
-    '/': {
-      component: () => import('@etherealengine/client/src/pages/index'),
-      props: {
-        exact: true
-      }
-    },
-    '/admin': {
-      component: () => import('@etherealengine/client-core/src/admin/adminRoutes')
-    },
-    '/location': {
-      component: () => import('@etherealengine/client/src/pages/location/location')
-    },
-    '/auth': {
-      component: () => import('@etherealengine/client/src/pages/auth/authRoutes')
-    },
-    '/studio': {
-      component: () => import('@etherealengine/client/src/pages/editor/editor')
-    },
-    '/room': {
-      component: () => import('@etherealengine/client/src/pages/room')
-    },
-    '/capture': {
-      component: () => import('@etherealengine/client/src/pages/capture')
-    }
+import {
+  helmSettingDataSchema,
+  helmSettingPatchSchema,
+  helmSettingQuerySchema,
+  helmSettingSchema
+} from '@etherealengine/engine/src/schemas/setting/helm-setting.schema'
+
+export default createSwaggerServiceOptions({
+  schemas: {
+    helmSettingDataSchema,
+    helmSettingPatchSchema,
+    helmSettingQuerySchema,
+    helmSettingSchema
+  },
+  docs: {
+    description: 'Helm setting service description',
+    securities: ['all']
   }
-}
-
-export default config
+})

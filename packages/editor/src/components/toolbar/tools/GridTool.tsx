@@ -43,7 +43,7 @@ const GridTool = () => {
   }
 
   const onChangeGridHeight = (value) => {
-    InfiniteGridHelper.instance.setGridHeight(value)
+    rendererState.gridHeight.set(value)
   }
 
   return (

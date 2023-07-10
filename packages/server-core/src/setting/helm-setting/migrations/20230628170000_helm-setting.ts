@@ -23,37 +23,37 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import type { ProjectConfigInterface } from '@etherealengine/projects/ProjectConfigInterface'
+import type { Knex } from 'knex'
 
-const config: ProjectConfigInterface = {
-  onEvent: './projectEventHooks.ts',
-  thumbnail: '/static/etherealengine_thumbnail.jpg',
-  routes: {
-    '/': {
-      component: () => import('@etherealengine/client/src/pages/index'),
-      props: {
-        exact: true
-      }
-    },
-    '/admin': {
-      component: () => import('@etherealengine/client-core/src/admin/adminRoutes')
-    },
-    '/location': {
-      component: () => import('@etherealengine/client/src/pages/location/location')
-    },
-    '/auth': {
-      component: () => import('@etherealengine/client/src/pages/auth/authRoutes')
-    },
-    '/studio': {
-      component: () => import('@etherealengine/client/src/pages/editor/editor')
-    },
-    '/room': {
-      component: () => import('@etherealengine/client/src/pages/room')
-    },
-    '/capture': {
-      component: () => import('@etherealengine/client/src/pages/capture')
-    }
+import { helmSettingPath } from '@etherealengine/engine/src/schemas/setting/helm-setting.schema'
+
+/**
+ * @param { import("knex").Knex } knex
+ * @returns { Promise<void> }
+ */
+export async function up(knex: Knex): Promise<void> {
+  const tableExists = await knex.schema.hasTable(helmSettingPath)
+
+  if (tableExists === false) {
+    await knex.schema.createTable(helmSettingPath, (table) => {
+      //@ts-ignore
+      table.uuid('id').collate('utf8mb4_bin').primary()
+      table.string('main', 255).nullable()
+      table.string('builder', 255).nullable()
+      table.dateTime('createdAt').notNullable()
+      table.dateTime('updatedAt').notNullable()
+    })
   }
 }
 
-export default config
+/**
+ * @param { import("knex").Knex } knex
+ * @returns { Promise<void> }
+ */
+export async function down(knex: Knex): Promise<void> {
+  const tableExists = await knex.schema.hasTable(helmSettingPath)
+
+  if (tableExists === true) {
+    await knex.schema.dropTable(helmSettingPath)
+  }
+}
