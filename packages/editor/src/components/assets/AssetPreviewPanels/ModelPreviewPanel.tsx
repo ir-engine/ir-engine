@@ -23,7 +23,9 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import debounce from 'lodash.debounce'
 import React, { useEffect, useRef } from 'react'
+import ResizeObserver from 'resize-observer-polyfill'
 
 import LoadingView from '@etherealengine/client-core/src/common/components/LoadingView'
 import {
@@ -51,6 +53,27 @@ export const ModelPreviewPanel = (props) => {
   }
 
   useEffect(() => {
+    const handleSizeChange = () => {
+      // Perform your desired actions here
+      renderPanel.resize()
+    }
+
+    const handleSizeChangeDebounced = debounce(handleSizeChange, 100)
+
+    const resizeObserver = new ResizeObserver((entries) => {
+      // The callback function will be called whenever the size changes
+      for (const entry of entries) {
+        if (entry.target === panelRef.current) {
+          // Call your function here
+          handleSizeChangeDebounced()
+        }
+      }
+    })
+
+    if (panelRef.current) {
+      resizeObserver.observe(panelRef.current)
+    }
+
     const loadModel = async () => {
       try {
         //augmentSceneForPreview(camera, scene, renderer)
@@ -72,6 +95,9 @@ export const ModelPreviewPanel = (props) => {
     loadModel()
 
     return () => {
+      resizeObserver.disconnect()
+      handleSizeChangeDebounced.cancel()
+
       const sceneVal = scene.value
       const avatar = sceneVal.children.find((child) => child.name === 'avatar')
       if (avatar?.userData['src']) {
