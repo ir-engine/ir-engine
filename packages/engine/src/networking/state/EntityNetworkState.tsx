@@ -23,30 +23,23 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React, { useEffect, useLayoutEffect } from 'react'
 import { Quaternion, Vector3 } from 'three'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { NetworkId } from '@etherealengine/common/src/interfaces/NetworkId'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { UserId } from '@etherealengine/common/src/interfaces/UserId'
-import {
-  defineActionQueue,
-  defineState,
-  getMutableState,
-  none,
-  receiveActions,
-  useHookstate,
-  useState
-} from '@etherealengine/hyperflux'
+import { defineActionQueue, defineState, dispatchAction, none, receiveActions } from '@etherealengine/hyperflux'
 
-import { setComponent } from '../../ecs/functions/ComponentFunctions'
-import { removeEntity } from '../../ecs/functions/EntityFunctions'
+import { Engine } from '../../ecs/classes/Engine'
+import { getMutableComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
+import { createEntity, removeEntity } from '../../ecs/functions/EntityFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
+import { generatePhysicsObject } from '../../physics/functions/physicsObjectDebugFunctions'
 import { UUIDComponent } from '../../scene/components/UUIDComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
-import { WorldNetworkActionReceptor } from '../functions/WorldNetworkActionReceptor'
+import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
 
 export const EntityNetworkState = defineState({
   name: 'ee.engine.avatar.EntityNetworkState',
@@ -58,6 +51,8 @@ export const EntityNetworkState = defineState({
       networkId: NetworkId
       peerId: PeerID
       prefab: string
+      spawnPosition: Vector3
+      spawnRotation: Quaternion
     }
   >,
 
@@ -65,11 +60,22 @@ export const EntityNetworkState = defineState({
     [
       WorldNetworkAction.spawnObject,
       (state, action: typeof WorldNetworkAction.spawnObject.matches._TYPE) => {
+        const entity = UUIDComponent.entitiesByUUID[action.entityUUID] ?? createEntity()
+        setComponent(entity, UUIDComponent, action.entityUUID)
+        setComponent(entity, NetworkObjectComponent, {
+          ownerId: action.$from,
+          authorityPeerID: action.$peer,
+          networkId: action.networkId
+        })
+        setComponent(entity, TransformComponent, { position: action.position!, rotation: action.rotation! })
+
         state[action.entityUUID].merge({
           ownerId: action.$from,
           networkId: action.networkId,
           peerId: action.$peer,
-          prefab: action.prefab
+          prefab: action.prefab,
+          spawnPosition: action.position ?? new Vector3(),
+          spawnRotation: action.rotation ?? new Quaternion()
         })
       }
     ],
@@ -78,66 +84,71 @@ export const EntityNetworkState = defineState({
       WorldNetworkAction.destroyObject,
       (state, action: typeof WorldNetworkAction.destroyObject.matches._TYPE) => {
         state[action.entityUUID].set(none)
+        const entity = UUIDComponent.entitiesByUUID[action.entityUUID]
+        if (!entity) return
+        removeEntity(entity)
       }
     ]
   ]
 })
 
-const EntityNetworkReactor = React.memo(({ entityUUID }: { entityUUID: EntityUUID }) => {
-  const state = useHookstate(getMutableState(EntityNetworkState)[entityUUID])
+const receiveSpawnDebugPhysicsObject = (action: typeof WorldNetworkAction.spawnDebugPhysicsObject.matches._TYPE) => {
+  generatePhysicsObject(action.config, action.config.spawnPosition, true, action.config.spawnScale)
+}
 
-  useEffect(() => {
-    WorldNetworkActionReceptor.receiveSpawnObject({
-      entityUUID,
-      $from: state.ownerId.value,
-      networkId: state.networkId.value,
-      $peer: state.peerId.value,
-      prefab: state.prefab.value
+const receiveRequestAuthorityOverObject = (
+  action: typeof WorldNetworkAction.requestAuthorityOverObject.matches._TYPE
+) => {
+  // Authority request can only be processed by owner
+  if (Engine.instance.userId !== action.ownerId) return
+
+  const ownerId = action.ownerId
+  const entity = Engine.instance.getNetworkObject(ownerId, action.networkId)
+  if (!entity)
+    return console.log(
+      `Warning - tried to get entity belonging to ${action.ownerId} with ID ${action.networkId}, but it doesn't exist`
+    )
+
+  /**
+   * Custom logic for disallowing transfer goes here
+   */
+  dispatchAction(
+    WorldNetworkAction.transferAuthorityOfObject({
+      ownerId: action.ownerId,
+      networkId: action.networkId,
+      newAuthority: action.newAuthority
     })
-
-    return () => {
-      const entity = UUIDComponent.entitiesByUUID[entityUUID]
-      if (!entity) return
-      removeEntity(entity)
-    }
-  }, [])
-
-  return null
-})
-
-export const EntityNetworkStateReactor = () => {
-  const entityNetworkState = useState(getMutableState(EntityNetworkState))
-  return (
-    <>
-      {entityNetworkState.keys.map((entityUUID: EntityUUID) => {
-        return <EntityNetworkReactor key={entityUUID} entityUUID={entityUUID} />
-      })}
-    </>
   )
 }
 
-export const applySpawnObjectPose = (action: typeof WorldNetworkAction.spawnObject.matches._TYPE) => {
-  const entity = UUIDComponent.entitiesByUUID[action.entityUUID]
+const receiveTransferAuthorityOfObject = (
+  action: typeof WorldNetworkAction.transferAuthorityOfObject.matches._TYPE
+) => {
+  // Authority request can only be processed by owner
+  if (action.$from !== action.ownerId) return
 
-  const position = new Vector3()
-  const rotation = new Quaternion()
+  const entity = Engine.instance.getNetworkObject(action.ownerId, action.networkId)
+  if (!entity)
+    return console.log(
+      `Warning - tried to get entity belonging to ${action.ownerId} with ID ${action.networkId}, but it doesn't exist`
+    )
 
-  if (action.position) position.copy(action.position)
-  if (action.rotation) rotation.copy(action.rotation)
-
-  setComponent(entity, TransformComponent, { position, rotation })
+  getMutableComponent(entity, NetworkObjectComponent).authorityPeerID.set(action.newAuthority)
 }
 
-const spawnObjectQueue = defineActionQueue(WorldNetworkAction.spawnObject.matches)
+const spawnDebugPhysicsObjectQueue = defineActionQueue(WorldNetworkAction.spawnDebugPhysicsObject.matches)
+const requestAuthorityOverObjectQueue = defineActionQueue(WorldNetworkAction.requestAuthorityOverObject.matches)
+const transferAuthorityOfObjectQueue = defineActionQueue(WorldNetworkAction.transferAuthorityOfObject.matches)
+
+const execute = () => {
+  receiveActions(EntityNetworkState)
+
+  for (const action of spawnDebugPhysicsObjectQueue()) receiveSpawnDebugPhysicsObject(action)
+  for (const action of requestAuthorityOverObjectQueue()) receiveRequestAuthorityOverObject(action)
+  for (const action of transferAuthorityOfObjectQueue()) receiveTransferAuthorityOfObject(action)
+}
 
 export const EntityNetworkStateSystem = defineSystem({
   uuid: 'ee.engine.avatar.EntityNetworkStateSystem',
-  execute: () => {
-    receiveActions(EntityNetworkState)
-
-    for (const action of spawnObjectQueue()) applySpawnObjectPose(action)
-  },
-  reactor: () => {
-    return <EntityNetworkStateReactor />
-  }
+  execute
 })
