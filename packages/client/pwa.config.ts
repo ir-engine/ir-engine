@@ -121,8 +121,8 @@ const PWA = (clientSetting) =>
       // Set additional manifest entries for the cache
       additionalManifestEntries: [
         // { url: '/service-worker.js', revision: null },
-        { url: '/dev-sw', revision: null },
-        { url: '/src/main', revision: null }
+        // { url: '/dev-sw', revision: null },
+        // { url: '/src/main', revision: null }
       ],
       // Enable cleanup of outdated caches
       cleanupOutdatedCaches: true,
