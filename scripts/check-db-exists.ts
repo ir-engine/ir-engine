@@ -28,6 +28,7 @@ import { spawn } from 'child_process'
 import cli from 'cli'
 import dotenv from 'dotenv-flow'
 import { Sequelize } from 'sequelize'
+import { redisSettingPath } from '@etherealengine/engine/src/schemas/setting/redis-setting.schema'
 
 const kubernetesEnabled = process.env.KUBERNETES === 'true'
 if (!kubernetesEnabled) {
@@ -86,6 +87,8 @@ cli.main(async () => {
   } else {
     console.log('Database found')
   }
+
+  if (kubernetesEnabled) await sequelize.query(`UPDATE \`${redisSettingPath}\` SET address='${process.env.REDIS_ADDRESS}',password='${process.env.REDIS_PASSWORD}',port='${process.env.REDIS_PORT}';`)
 
   process.exit(0)
 })

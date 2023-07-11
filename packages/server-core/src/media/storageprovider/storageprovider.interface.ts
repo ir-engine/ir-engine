@@ -167,6 +167,16 @@ export interface StorageProviderInterface {
    */
   createInvalidation(invalidationItems: string[]): Promise<any>
 
+  associateWithFunction(functionARN: string): Promise<any>
+
+  createFunction(functionName: string, routes: string[]): Promise<any>
+
+  listFunctions(marker: string | null, functions: any[]): Promise<any>
+
+  publishFunction(functionName: string): Promise<any>
+
+  updateFunction(functionName: string, routes: string[]): Promise<any>
+
   /**
    * Delete resources in the storage provider.
    * @param keys List of keys.
