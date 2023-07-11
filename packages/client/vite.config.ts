@@ -244,7 +244,7 @@ const resetSWFiles = () => {
 }
 
 // this will copy all files in each installed project's "/static" folder to the "/public/projects" folder
-copyProjectDependencies()
+if (process.env.SERVE_CLIENT_FROM_STORAGE_PROVIDER !== 'true') copyProjectDependencies()
 
 export default defineConfig(async () => {
   dotenv.config({
