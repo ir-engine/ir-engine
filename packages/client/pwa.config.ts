@@ -120,7 +120,7 @@ const PWA = (clientSetting) =>
       ],
       // Set additional manifest entries for the cache
       additionalManifestEntries: [
-        { url: '/service-worker', revision: null },
+        // { url: '/service-worker.js', revision: null },
         { url: '/dev-sw', revision: null },
         { url: '/src/main', revision: null }
       ],
