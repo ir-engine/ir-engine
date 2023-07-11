@@ -40,6 +40,7 @@ import {
 import { UserInterface } from '@etherealengine/common/src/interfaces/User'
 import { processFileName } from '@etherealengine/common/src/utils/processFileName'
 import { routePath, RouteType } from '@etherealengine/engine/src/schemas/route/route.schema'
+import { avatarPath } from '@etherealengine/engine/src/schemas/user/avatar.schema'
 import { getState } from '@etherealengine/hyperflux'
 import templateProjectJson from '@etherealengine/projects/template-project/package.json'
 
@@ -596,19 +597,6 @@ export class Project extends Service {
         await this.app.service('location').remove(location.dataValues.id)
       })
 
-    const whereClause = {
-      [Op.and]: [
-        {
-          project: name
-        },
-        {
-          project: {
-            [Op.ne]: null
-          }
-        }
-      ]
-    }
-
     const routeItems = (await this.app.service(routePath).find({
       query: {
         $and: [{ project: { $ne: null } }, { project: name }]
@@ -621,17 +609,40 @@ export class Project extends Service {
         await this.app.service(routePath).remove(route.id)
       })
 
-    const avatarItems = await (this.app.service('avatar') as any).Model.findAll({
-      where: whereClause
+    const avatarItems = await this.app.service(avatarPath).find({
+      query: {
+        $and: [
+          {
+            project: name
+          },
+          {
+            project: {
+              $ne: null
+            }
+          }
+        ]
+      }
     })
+
     await Promise.all(
-      avatarItems.map(async (avatar) => {
-        await this.app.service('avatar').remove(avatar.dataValues.id)
+      avatarItems.data.map(async (avatar) => {
+        await this.app.service(avatarPath).remove(avatar.id)
       })
     )
 
     const staticResourceItems = await (this.app.service('static-resource') as any).Model.findAll({
-      where: whereClause
+      where: {
+        [Op.and]: [
+          {
+            project: name
+          },
+          {
+            project: {
+              [Op.ne]: null
+            }
+          }
+        ]
+      }
     })
     staticResourceItems.length &&
       staticResourceItems.forEach(async (staticResource) => {
@@ -680,7 +691,7 @@ export class Project extends Service {
         include: [{ model: this.app.service('project').Model }],
         paginate: false
       })) as any
-      let allowedProjects = await projectPermissions.map((permission) => permission.project)
+      const allowedProjects = await projectPermissions.map((permission) => permission.project)
       const repoAccess = githubIdentityProvider
         ? await this.app.service('github-repo-access').Model.findAll({
             paginate: false,

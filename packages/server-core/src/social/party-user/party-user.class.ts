@@ -27,14 +27,13 @@ import { Params } from '@feathersjs/feathers/lib'
 import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
 import { Op } from 'sequelize'
 
-import { PartyUserInterface } from '@etherealengine/common/src/dbmodels/PartyUser'
 import { PartyUser as PartyUserDataType } from '@etherealengine/common/src/interfaces/PartyUser'
 import { UserInterface } from '@etherealengine/common/src/interfaces/User'
+import { avatarPath } from '@etherealengine/engine/src/schemas/user/avatar.schema'
 
 import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
 import { UserParams } from '../../user/user/user.class'
-import { PartyUserModelStatic } from './party-user.model'
 
 interface PartyUserParams extends Params {
   deletingParty?: boolean
@@ -83,7 +82,7 @@ export class PartyUser<T = PartyUserDataType> extends Service<T> {
         users.map(
           (partyUser: PartyUserDataType) =>
             new Promise(async (resolve, reject) => {
-              const avatar = await self.app.service('avatar').get(partyUser.user!.avatarId)
+              const avatar = await self.app.service(avatarPath).get(partyUser.user!.avatarId)
               if ((partyUser.user as any)!.dataValues) (partyUser.user as any)!.dataValues.avatar = avatar
               else partyUser.user!.avatar = avatar
               resolve(partyUser)

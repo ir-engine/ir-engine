@@ -28,6 +28,7 @@ import { v1 } from 'uuid'
 
 import { UserInterface } from '@etherealengine/common/src/interfaces/User'
 import { destroyEngine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { avatarPath } from '@etherealengine/engine/src/schemas/user/avatar.schema'
 
 import { Application } from '../../../declarations'
 import { createFeathersKoaApp } from '../../createApp'
@@ -54,7 +55,7 @@ describe('user service', () => {
     const avatarName = 'CyberbotGreen'
     const isGuest = true
 
-    const avatar = await app.service('avatar').create({
+    const avatar = await app.service(avatarPath).create({
       name: avatarName
     })
 
@@ -76,7 +77,7 @@ describe('user service', () => {
     const avatarName = 'CyberbotGreen'
     const isGuest = false
 
-    const avatar = await app.service('avatar').create({
+    const avatar = await app.service(avatarPath).create({
       name: avatarName
     })
 
