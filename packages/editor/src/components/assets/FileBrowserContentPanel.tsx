@@ -457,7 +457,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
     !['projects', 'projects/'].includes(selectedDirectory.value.slice(1))
 
   return (
-    <div className={styles.fileBrowserRoot}>
+    <div id="file-browser-panel" className={styles.fileBrowserRoot}>
       <div style={headGrid}>
         <ToolButton
           tooltip={t('editor:layout.filebrowser.back')}
