@@ -23,6 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { useHookstate } from '@hookstate/core'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 import {
@@ -40,7 +41,9 @@ import {
 } from 'three'
 
 import { useComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { RendererState } from '@etherealengine/engine/src/renderer/RendererState'
 import { RenderSettingsComponent } from '@etherealengine/engine/src/scene/components/RenderSettingsComponent'
+import { getMutableState } from '@etherealengine/hyperflux'
 
 import BooleanInput from '../inputs/BooleanInput'
 import CompoundNumericInput from '../inputs/CompoundNumericInput'
@@ -107,7 +110,8 @@ const ShadowTypeOptions = [
 
 export const RenderSettingsEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
-  const rendererState = useComponent(props.entity, RenderSettingsComponent)
+  const rendererSettingsState = useComponent(props.entity, RenderSettingsComponent)
+  const rendererState = useHookstate(getMutableState(RendererState))
 
   return (
     <PropertyGroup
@@ -115,11 +119,28 @@ export const RenderSettingsEditor: EditorComponentType = (props) => {
       description={t('editor:properties.renderSettings.description')}
     >
       <InputGroup
+        name="Use Post Processing"
+        label={t('editor:properties.renderSettings.lbl-usePostProcessing')}
+        info={t('editor:properties.renderSettings.info-usePostProcessing')}
+      >
+        <BooleanInput
+          value={rendererState.usePostProcessing.value}
+          onChange={(val) => rendererState.usePostProcessing.set(val)}
+        />
+      </InputGroup>
+      <InputGroup
+        name="Use Shadows"
+        label={t('editor:properties.renderSettings.lbl-useShadows')}
+        info={t('editor:properties.renderSettings.info-useShadows')}
+      >
+        <BooleanInput value={rendererState.useShadows.value} onChange={(val) => rendererState.useShadows.set(val)} />
+      </InputGroup>
+      <InputGroup
         name="Use Cascading Shadow Maps"
         label={t('editor:properties.renderSettings.lbl-csm')}
         info={t('editor:properties.renderSettings.info-csm')}
       >
-        <BooleanInput value={rendererState.csm.value} onChange={(val) => rendererState.csm.set(val)} />
+        <BooleanInput value={rendererSettingsState.csm.value} onChange={(val) => rendererSettingsState.csm.set(val)} />
       </InputGroup>
       <InputGroup
         name="Tone Mapping"
@@ -128,8 +149,8 @@ export const RenderSettingsEditor: EditorComponentType = (props) => {
       >
         <SelectInput
           options={ToneMappingOptions}
-          value={rendererState.toneMapping.value}
-          onChange={(val: ToneMapping) => rendererState.toneMapping.set(val)}
+          value={rendererSettingsState.toneMapping.value}
+          onChange={(val: ToneMapping) => rendererSettingsState.toneMapping.set(val)}
         />
       </InputGroup>
       <InputGroup
@@ -141,8 +162,8 @@ export const RenderSettingsEditor: EditorComponentType = (props) => {
           min={0}
           max={10}
           step={0.1}
-          value={rendererState.toneMappingExposure.value}
-          onChange={(val) => rendererState.toneMappingExposure.set(val)}
+          value={rendererSettingsState.toneMappingExposure.value}
+          onChange={(val) => rendererSettingsState.toneMappingExposure.set(val)}
         />
       </InputGroup>
       <InputGroup
@@ -152,8 +173,8 @@ export const RenderSettingsEditor: EditorComponentType = (props) => {
       >
         <SelectInput
           options={ShadowTypeOptions}
-          value={rendererState.shadowMapType.value ?? -1}
-          onChange={(val: ShadowMapType) => rendererState.shadowMapType.set(val)}
+          value={rendererSettingsState.shadowMapType.value ?? -1}
+          onChange={(val: ShadowMapType) => rendererSettingsState.shadowMapType.set(val)}
         />
       </InputGroup>
     </PropertyGroup>
