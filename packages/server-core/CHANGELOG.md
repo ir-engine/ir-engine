@@ -37,6 +37,14 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
+**Note:** Version bump only for package @etherealengine/server-core
+
+
+
+
+
+
+
 **Note:** Version bump only for package @xrengine/server-core
 
 

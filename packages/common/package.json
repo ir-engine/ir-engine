@@ -1,6 +1,6 @@
 {
   "name": "@etherealengine/common",
-  "version": "1.3.0",
+  "version": "1.4.0",
   "main": "lib/common.umd.js",
   "module": "lib/common.es.js",
   "types": "lib/index.d.ts",
@@ -21,8 +21,8 @@
     "ts-toolbelt": "^9.6.0"
   },
   "devDependencies": {
-    "@types/node": "18.15.5",
     "@types/mocha": "10.0.1",
+    "@types/node": "18.15.5",
     "rimraf": "4.4.0"
   },
   "gitHead": "2313453697ca7c6b8d36b3b166b5a6445fe1c851"

@@ -1,6 +1,6 @@
 {
   "name": "@etherealengine/xrui",
-  "version": "1.3.0",
+  "version": "1.4.0",
   "description": "A set of utilities for using DOM elements to create immerive user interfaces",
   "homepage": "https://github.com/etherealengine/etherealengine#readme",
   "keywords": [
