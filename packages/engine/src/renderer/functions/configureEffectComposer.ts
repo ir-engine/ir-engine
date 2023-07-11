@@ -23,6 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { Cos } from 'behave-graph/dist/lib/Profiles/Core/Values/FloatNodes'
 import {
   BlendFunction,
   BloomEffect,
@@ -34,12 +35,15 @@ import {
   TextureEffect
 } from 'postprocessing'
 import { VelocityDepthNormalPass } from 'realism-effects'
-import { NearestFilter, PerspectiveCamera, RGBAFormat, WebGLRenderTarget } from 'three'
+import { NearestFilter, PerspectiveCamera, RGBAFormat, Scene, WebGLRenderTarget } from 'three'
 
 import { getState } from '@etherealengine/hyperflux'
 
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
+import { SceneState } from '../../ecs/classes/Scene'
+import { getComponent } from '../../ecs/functions/ComponentFunctions'
+import { PostProcessingComponent } from '../../scene/components/PostProcessingComponent'
 import { EffectMap, EffectPropsSchema, Effects } from '../../scene/constants/PostProcessing'
 import { RendererState } from '../RendererState'
 import { EffectComposerWithSchema, EngineRenderer, PostProcessingSettingsState } from '../WebGLRendererSystem'
@@ -64,14 +68,10 @@ export const configureEffectComposer = (remove?: boolean, camera: PerspectiveCam
     return
   }
 
-  const postProcessingEnabled = getState(RendererState).usePostProcessing
-  if (!postProcessingEnabled && !getState(EngineState).isEditor) return
-
-  const postprocessing = getState(PostProcessingSettingsState)
+  const postprocessing = getComponent(getState(SceneState).sceneEntity, PostProcessingComponent)
   if (!postprocessing.enabled) return
 
   const postProcessingEffects = postprocessing.effects as EffectPropsSchema
-
   const effects: any[] = []
   const effectKeys = Object.keys(EffectMap)
 
@@ -144,7 +144,6 @@ export const configureEffectComposer = (remove?: boolean, camera: PerspectiveCam
       effects.push(eff)
     }
   }
-
   if (effects.length) {
     if (useVelocityDepthNormalPass) composer.addPass(velocityDepthNormalPass)
 
@@ -156,9 +155,9 @@ export const configureEffectComposer = (remove?: boolean, camera: PerspectiveCam
       })
       effects.push(textureEffect)
     }
+    console.log('DEBUG effects', effects)
 
     composer.addPass(new EffectPass(camera, ...effects))
   }
-
   if (getState(EngineState).isEditor) changeRenderMode()
 }
