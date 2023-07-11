@@ -7,6 +7,5 @@
   "npmClient": "npm",
   "useNx": true,
   "loglevel": "verbose",
-  "useWorkspaces": true,
   "hoist": true
 }
