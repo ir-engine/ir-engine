@@ -103,7 +103,7 @@ export default (app: Application) => {
   return User
 }
 
-const createAvatarModel = (app: Application) => {
+export const createAvatarModel = (app: Application) => {
   const sequelizeClient: Sequelize = app.get('sequelizeClient')
   const Avatar = sequelizeClient.define<Model<AvatarInterface>>(
     'avatar',
