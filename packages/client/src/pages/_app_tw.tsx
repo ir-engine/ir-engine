@@ -129,9 +129,7 @@ const AppPage = () => {
 
   return (
     <>
-      <div className="w-full h-full container mx-auto">
-        <PublicRouter />
-      </div>
+      <PublicRouter />
       {projectComponents.map((Component, i) => (
         <Component key={i} />
       ))}
