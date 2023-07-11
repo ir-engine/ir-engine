@@ -79,9 +79,6 @@ export const startWorldServerSystems = () => {
     after: SimulationSystemGroup
   })
 
-  /** Avatar / Pre Transform */
-  startSystems([AvatarAnimationSystemGroup], { with: AnimationSystemGroup })
-
   /** Post Transform / Pre Render */
   startSystems([InteractiveSystem, SceneSystemUpdateGroup], {
     before: PresentationSystemGroup
