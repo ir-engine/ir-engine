@@ -23,13 +23,13 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Id, Paginated, Params } from '@feathersjs/feathers'
+import { Id, Params } from '@feathersjs/feathers'
 import { KnexAdapter } from '@feathersjs/knex'
 import type { KnexAdapterOptions, KnexAdapterParams } from '@feathersjs/knex'
 import { Knex } from 'knex'
 
 import { UserInterface } from '@etherealengine/common/src/interfaces/User'
-import { staticResourcePath, StaticResourceType } from '@etherealengine/engine/src/schemas/media/static-resource.schema'
+import { staticResourcePath } from '@etherealengine/engine/src/schemas/media/static-resource.schema'
 import {
   AvatarData,
   AvatarDatabaseType,
@@ -85,7 +85,7 @@ export class AvatarService<T = AvatarType, ServiceParams extends Params = Avatar
       }
     }
 
-    if (params?.query?.search) delete params.query.search
+    if (params?.query) delete params.query.search
 
     if (!isAdmin && params) {
       if (params.user && params.user.id) {
@@ -109,33 +109,7 @@ export class AvatarService<T = AvatarType, ServiceParams extends Params = Avatar
       }
     }
 
-    const avatars = (await super._find(params)) as Paginated<AvatarType>
-    await Promise.all(
-      avatars.data.map(async (avatar) => {
-        if (avatar.modelResourceId)
-          try {
-            //TODO: Remove `as StaticResourceType` once static-resource service is migrated to feathers 5.
-            avatar.modelResource = (await this.app
-              .service(staticResourcePath)
-              .get(avatar.modelResourceId)) as StaticResourceType
-          } catch (err) {
-            logger.error(err)
-          }
-        if (avatar.thumbnailResourceId)
-          try {
-            //TODO: Remove `as StaticResourceType` once static-resource service is migrated to feathers 5.
-            avatar.thumbnailResource = (await this.app
-              .service(staticResourcePath)
-              .get(avatar.thumbnailResourceId)) as StaticResourceType
-          } catch (err) {
-            logger.error(err)
-          }
-
-        return avatar
-      })
-    )
-
-    return avatars
+    return await super._find(params)
   }
 
   async create(data: AvatarData, params?: AvatarParams) {
