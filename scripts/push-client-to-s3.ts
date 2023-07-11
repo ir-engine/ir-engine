@@ -60,7 +60,7 @@ cli.main(async () => {
               Body: fileResult,
               ContentType: contentType,
               Key: `client${filePathRelative}`
-            }
+            } as any
             if (/.br$/.exec(filePathRelative)) {
               filePathRelative = filePathRelative.replace(/.br$/, '')
               putData.ContentType = getContentType(filePathRelative)
@@ -86,6 +86,7 @@ cli.main(async () => {
       Key: 'client/S3FilesToRemove.json'
     }
     await storageProvider.putObject(putData, { isDirectory: false })
+    await storageProvider.createInvalidation(['client/*'])
     console.log('Pushed filtered list of files to remove to S3')
     process.exit(0)
   } catch (err) {
