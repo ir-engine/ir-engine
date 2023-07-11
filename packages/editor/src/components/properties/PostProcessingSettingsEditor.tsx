@@ -278,10 +278,15 @@ export const PostProcessingSettingsEditor: EditorComponentType = (props) => {
 
   // trigger re-render - @todo find out why just setting the value doesn't trigger the reactor
   // action: debounced the set property value
-  const setPropertyValue = debounce((prop, val) => {
-    prop.set(val)
+
+  const debouncedComposer = debounce(() => {
     configureEffectComposer()
-  }, 500)
+  }, 1000)
+
+  const setPropertyValue = (prop, val) => {
+    prop.set(val)
+    debouncedComposer()
+  }
 
   const renderProperty = (propertyDetail: EffectPropertyDetail, propertyPath: string[], index: number) => {
     let renderVal = <></>
