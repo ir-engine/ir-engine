@@ -40,7 +40,7 @@
           navigator.serviceWorker
             .register(`${window.location.origin}/<%- swScriptLink %>`, {
               scope: `./`,
-              
+
             })
             .then(function (reg) {
               console.log("[PWA] SW registered at " + reg.scope);

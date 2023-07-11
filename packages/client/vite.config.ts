@@ -6,8 +6,8 @@ Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
 https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
-and 15 have been added to cover use of software over a computer network and 
-provide for limited attribution for the Original Developer. In addition, 
+and 15 have been added to cover use of software over a computer network and
+provide for limited attribution for the Original Developer. In addition,
 Exhibit A has been modified to be consistent with Exhibit B.
 
 Software distributed under the License is distributed on an "AS IS" basis,
@@ -19,7 +19,7 @@ The Original Code is Ethereal Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Ethereal Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023
 Ethereal Engine. All Rights Reserved.
 */
 
@@ -259,14 +259,12 @@ export default defineConfig(async () => {
 
   let base = `https://${process.env['APP_HOST'] ? process.env['APP_HOST'] : process.env['VITE_APP_HOST']}/`
 
-  if (
-    process.env.SERVE_CLIENT_FROM_STORAGE_PROVIDER === 'true' &&
-    process.env.STORAGE_PROVIDER === 's3' &&
-    process.env.STORAGE_CLOUDFRONT_DOMAIN
-  )
-    base = `https://${process.env.STORAGE_CLOUDFRONT_DOMAIN}/client/`
-  else if (process.env.SERVE_CLIENT_FROM_STORAGE_PROVIDER === 'true' && process.env.STORAGE_PROVIDER === 'local') {
-    base = `https://${process.env.LOCAL_STORAGE_PROVIDER}/client/`
+  if (process.env.SERVE_CLIENT_FROM_STORAGE_PROVIDER === 'true') {
+    if (process.env.STORAGE_PROVIDER === 's3') {
+      // base = `${path.join(clientSetting.url, 'client', '/')}`
+    } else if (process.env.STORAGE_PROVIDER === 'local') {
+      base = `https://${process.env.LOCAL_STORAGE_PROVIDER}/client/`
+    }
   }
 
   const returned = {
