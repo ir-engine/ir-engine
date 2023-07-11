@@ -15,11 +15,9 @@ if [ $PRIVATE_ECR == "true" ]
 then
   aws ecr get-login-password --region $REGION | docker login -u AWS --password-stdin $ECR_URL
   aws ecr describe-repositories --repository-names $REPO_NAME-$PACKAGE --region $REGION || aws ecr create-repository --repository-name $REPO_NAME-$PACKAGE --region $REGION
-  node ./scripts/prune_ecr_images.js --repoName $REPO_NAME-$PACKAGE --region $REGION
 else
   aws ecr-public get-login-password --region us-east-1 | docker login -u AWS --password-stdin $ECR_URL
   aws ecr-public describe-repositories --repository-names $REPO_NAME-$PACKAGE --region us-east-1 || aws ecr-public create-repository --repository-name $REPO_NAME-$PACKAGE --region us-east-1
-  node ./scripts/prune_ecr_images.js --repoName $REPO_NAME-$PACKAGE --region us-east-1 --public
 fi
 
 #echo "PRUNED"
@@ -117,6 +115,13 @@ else
 fi
 
 npx cross-env ts-node --swc scripts/prune_docker_cache.ts --bucket "${CACHE_BUCKET_STEM}-${PACKAGE}-cache" --releaseName $STAGE
+
+if [ $PRIVATE_ECR == "true" ]
+then
+  node ./scripts/prune_ecr_images.js --repoName $REPO_NAME-$PACKAGE --region $REGION --service $PACKAGE --releaseName $STAGE
+else
+  node ./scripts/prune_ecr_images.js --repoName $REPO_NAME-$PACKAGE --region us-east-1 --service $PACKAGE --releaseName $STAGE --public
+fi
 
 BUILD_END_TIME=`date +"%d-%m-%yT%H-%M-%S"`
 echo "Ending ${PACKAGE} build at ${BUILD_END_TIME}, start time was ${BUILD_START_TIME}"
