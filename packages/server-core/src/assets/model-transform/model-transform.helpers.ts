@@ -1,3 +1,28 @@
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
 import { Application } from '@feathersjs/koa/lib'
 import {
   Accessor,
@@ -12,7 +37,7 @@ import {
   Texture
 } from '@gltf-transform/core'
 import { EXTMeshGPUInstancing, KHRTextureBasisu } from '@gltf-transform/extensions'
-import { dedup, draco, partition, prune, reorder, weld } from '@gltf-transform/functions'
+import { dedup, draco, flatten, join, palette, partition, prune, reorder, weld } from '@gltf-transform/functions'
 import appRootPath from 'app-root-path'
 import { execFileSync } from 'child_process'
 import { createHash } from 'crypto'
@@ -92,6 +117,31 @@ function pruneUnusedNodes(nodes: Node[], logger) {
   }
 }
 
+function removeUVsOnUntexturedMeshes(document: Document) {
+  document
+    .getRoot()
+    .listMeshes()
+    .map((mesh) => {
+      const prims = mesh.listPrimitives()
+      if (prims.length === 1) {
+        const prim = prims[0]
+        const material = prim.getMaterial()
+        if (
+          material &&
+          (material.getBaseColorTexture() ||
+            material.getNormalTexture() ||
+            material.getEmissiveTexture() ||
+            material.getOcclusionTexture() ||
+            material.getMetallicRoughnessTexture())
+        ) {
+          return
+        }
+        prim.setAttribute('TEXCOORD_0', null)
+        prim.setAttribute('TEXCOORD_1', null)
+      }
+    })
+}
+
 const split = async (document: Document) => {
   const root = document.getRoot()
   const scene = root.listScenes()[0]
@@ -103,6 +153,7 @@ const split = async (document: Document) => {
   const primMeshes = new Map()
   toSplit.map((node) => {
     const mesh = node.getMesh()!
+    const nuNodes: Node[] = []
     mesh.listPrimitives().map((prim, primIdx) => {
       if (primIdx > 0) {
         if (!primMeshes.has(prim)) {
@@ -111,10 +162,16 @@ const split = async (document: Document) => {
           console.log('found cached prim')
         }
         const nuNode = document.createNode(node.getName() + '-' + primIdx).setMesh(primMeshes.get(prim))
-        node.getParent()?.addChild(nuNode)
+        node.getSkin() && nuNode.setSkin(node.getSkin())
+        ;(node.getParentNode() ?? scene).addChild(nuNode)
         nuNode.setMatrix(node.getMatrix())
+        nuNodes.push(nuNode)
       }
     })
+    node.listChildren().map((child) => {
+      nuNodes[0]?.addChild(child)
+    })
+    node.detach()
   })
   toSplit.map((node) => {
     const mesh = node.getMesh()!
@@ -123,6 +180,7 @@ const split = async (document: Document) => {
         mesh.removePrimitive(prim)
       }
     })
+    node.setMesh(null)
   })
 }
 
@@ -233,14 +291,15 @@ export async function combineMeshes(document: Document) {
       matPrims?.push(prim)
     }
   }
-  ;[...matMap.entries()].map(([material, prims]) => {
+  const nuPrims = [...matMap.entries()].map(([material, prims]) => {
     const nuPrim = document.createPrimitive()
     nuPrim.setMaterial(material)
     prims.map((prim) => {
-      prim.listAttributes().map((accessor) => {
-        let nuAttrib = nuPrim.getAttribute(accessor.getName())
+      prim.listSemantics().map((key) => {
+        const accessor = prim.getAttribute(key)!
+        let nuAttrib = nuPrim.getAttribute(key)
         if (!nuAttrib) {
-          nuPrim.setAttribute(accessor.getName(), accessor)
+          nuPrim.setAttribute(key, accessor)
           nuAttrib = accessor
         } else {
           nuAttrib.setArray(
@@ -249,6 +308,15 @@ export async function combineMeshes(document: Document) {
         }
       })
     })
+    return nuPrim
+  })
+  root.listNodes().map((node) => {
+    if (node.getMesh()) {
+      node.setMesh(null)
+    }
+  })
+  nuPrims.map((nuPrim) => {
+    root.listScenes()[0].addChild(document.createNode().setMesh(document.createMesh().addPrimitive(nuPrim)))
   })
 }
 
@@ -343,15 +411,15 @@ export async function transformModel(app: Application, args: ModelTransformArgum
   unInstanceSingletons(document)
   await split(document)
   await combineMaterials(document)
-  await myInstance(document)
-
-  if (args.parms.dedup) {
-    await document.transform(dedup())
+  args.parms.instance && (await myInstance(document))
+  args.parms.dedup && (await document.transform(dedup()))
+  args.parms.flatten && (await document.transform(flatten()))
+  args.parms.join && (await document.transform(join(args.parms.join.options)))
+  if (args.parms.palette.enabled) {
+    removeUVsOnUntexturedMeshes(document)
+    await document.transform(palette(args.parms.palette.options))
   }
-
-  if (args.parms.prune) {
-    await document.transform(prune())
-  }
+  args.parms.prune && (await document.transform(prune()))
 
   /* Separate Instanced Geometry */
   const instancedNodes = root
@@ -540,6 +608,6 @@ export async function transformModel(app: Application, args: ModelTransformArgum
     result = await doUpload(args.dst.replace(/\.glb$/, '.gltf'), Buffer.from(JSON.stringify(json)))
     console.log('Handled gltf file')
   }
-  if (fs.existsSync(tmpDir)) await execFileSync('rm', ['-R', tmpDir])
+  fs.existsSync(tmpDir) && (await execFileSync('rm', ['-R', tmpDir]))
   return result
 }

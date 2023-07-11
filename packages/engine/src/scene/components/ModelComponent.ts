@@ -1,8 +1,32 @@
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
 import { useEffect } from 'react'
 import { Mesh, Scene } from 'three'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
-import { StaticResourceInterface } from '@etherealengine/common/src/interfaces/StaticResourceInterface'
 import { getState, none } from '@etherealengine/hyperflux'
 
 import { AssetLoader } from '../../assets/classes/AssetLoader'
@@ -11,6 +35,7 @@ import {
   defineComponent,
   getComponent,
   getMutableComponent,
+  hasComponent,
   removeComponent,
   setComponent,
   useComponent,
@@ -27,19 +52,9 @@ import { addError, removeError } from '../functions/ErrorFunctions'
 import { parseGLTFModel } from '../functions/loadGLTFModel'
 import { enableObjectLayer } from '../functions/setObjectLayers'
 import { addObjectToGroup, GroupComponent, removeObjectFromGroup } from './GroupComponent'
-import { LODComponent } from './LODComponent'
-import { LODComponentType } from './LODComponent'
 import { SceneAssetPendingTagComponent } from './SceneAssetPendingTagComponent'
+import { SceneObjectComponent } from './SceneObjectComponent'
 import { UUIDComponent } from './UUIDComponent'
-
-export type ModelResource = {
-  src?: string
-  gltfStaticResource?: StaticResourceInterface
-  glbStaticResource?: StaticResourceInterface
-  fbxStaticResource?: StaticResourceInterface
-  usdzStaticResource?: StaticResourceInterface
-  id?: EntityUUID
-}
 
 export const ModelComponent = defineComponent({
   name: 'EE_model',
@@ -48,7 +63,6 @@ export const ModelComponent = defineComponent({
   onInit: (entity) => {
     return {
       src: '',
-      resource: null as ModelResource | null,
       generateBVH: true,
       avoidCameraOcclusion: false,
       scene: null as Scene | null
@@ -58,7 +72,6 @@ export const ModelComponent = defineComponent({
   toJSON: (entity, component) => {
     return {
       src: component.src.value,
-      resource: component.resource.value,
       generateBVH: component.generateBVH.value,
       avoidCameraOcclusion: component.avoidCameraOcclusion.value
     }
@@ -67,17 +80,14 @@ export const ModelComponent = defineComponent({
   onSet: (entity, component, json) => {
     if (!json) return
     if (typeof json.src === 'string' && json.src !== component.src.value) component.src.set(json.src)
-    if (typeof json.resource === 'object') {
-      const resource = json.resource ? (json.resource as ModelResource) : ({ src: json.src } as ModelResource)
-      component.resource.set(resource)
-    }
     if (typeof json.generateBVH === 'boolean' && json.generateBVH !== component.generateBVH.value)
       component.generateBVH.set(json.generateBVH)
 
     /**
      * Add SceneAssetPendingTagComponent to tell scene loading system we should wait for this asset to load
      */
-    if (!getState(EngineState).sceneLoaded) setComponent(entity, SceneAssetPendingTagComponent, true)
+    if (!getState(EngineState).sceneLoaded && hasComponent(entity, SceneObjectComponent))
+      setComponent(entity, SceneAssetPendingTagComponent)
   },
 
   onRemove: (entity, component) => {
@@ -85,8 +95,6 @@ export const ModelComponent = defineComponent({
       removeObjectFromGroup(entity, component.scene.value)
       component.scene.set(null)
     }
-    LODComponent.lodsByEntity[entity].value && LODComponent.lodsByEntity[entity].set(none)
-    removeMaterialSource({ type: SourceType.MODEL, path: component.src.value })
   },
 
   errors: ['LOADING_ERROR', 'INVALID_URL'],
@@ -99,12 +107,8 @@ function ModelReactor() {
   const modelComponent = useComponent(entity, ModelComponent)
   const groupComponent = useOptionalComponent(entity, GroupComponent)
   const model = modelComponent.value
-  const source =
-    model.resource?.gltfStaticResource?.LOD0_url ||
-    model.resource?.glbStaticResource?.LOD0_url ||
-    model.resource?.fbxStaticResource?.LOD0_url ||
-    model.resource?.usdzStaticResource?.LOD0_url ||
-    model.src
+  const source = model.src
+
   // update src
   useEffect(() => {
     if (source === model.scene?.userData?.src) return
@@ -122,6 +126,7 @@ function ModelReactor() {
         }
       }
       if (!model.src) return
+
       const uuid = getComponent(entity, UUIDComponent)
       const fileExtension = model.src.split('.').pop()?.toLowerCase()
       switch (fileExtension) {
@@ -143,6 +148,17 @@ function ModelReactor() {
               loadedAsset.scene.userData.type === 'glb' && delete loadedAsset.scene.userData.type
               model.scene && removeObjectFromGroup(entity, model.scene)
               modelComponent.scene.set(loadedAsset.scene)
+              if (!hasComponent(entity, SceneAssetPendingTagComponent)) return
+              removeComponent(entity, SceneAssetPendingTagComponent)
+            },
+            (onprogress) => {
+              if (!hasComponent(entity, SceneAssetPendingTagComponent)) return
+              SceneAssetPendingTagComponent.loadingProgress.merge({
+                [entity]: {
+                  loadedAmount: onprogress.loaded,
+                  totalAmount: onprogress.total
+                }
+              })
             }
           )
           break
@@ -155,12 +171,6 @@ function ModelReactor() {
     }
   }, [modelComponent.src])
 
-  useEffect(() => {
-    const scene = modelComponent.scene.value
-    if (!scene) return
-    enableObjectLayer(scene, ObjectLayers.Camera, model.avoidCameraOcclusion)
-  }, [modelComponent.avoidCameraOcclusion, modelComponent.scene])
-
   // update scene
   useEffect(() => {
     const scene = modelComponent.scene.get({ noproxy: true })
@@ -170,12 +180,12 @@ function ModelReactor() {
 
     if (groupComponent?.value?.find((group: any) => group === scene)) return
     parseGLTFModel(entity)
-    setComponent(entity, BoundingBoxComponent)
-    removeComponent(entity, SceneAssetPendingTagComponent)
+    // setComponent(entity, BoundingBoxComponent)
 
     let active = true
 
     if (model.generateBVH) {
+      enableObjectLayer(scene, ObjectLayers.Camera, false)
       const bvhDone = [] as Promise<void>[]
       scene.traverse((obj: Mesh) => {
         bvhDone.push(generateMeshBVH(obj))
@@ -185,6 +195,7 @@ function ModelReactor() {
         if (!active) return
         const group = getMutableComponent(entity, GroupComponent)
         if (group) group.set([...group.value])
+        enableObjectLayer(scene, ObjectLayers.Camera, !model.avoidCameraOcclusion && model.generateBVH)
       })
     }
 

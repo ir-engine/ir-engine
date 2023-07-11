@@ -1,4 +1,29 @@
-import React, { useCallback, useState } from 'react'
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
+import React, { useEffect, useState } from 'react'
 import SketchPicker from 'react-color/lib/Sketch'
 import styled from 'styled-components'
 import { Color } from 'three'
@@ -6,15 +31,6 @@ import { Color } from 'three'
 import Popover from '@mui/material/Popover'
 
 import Input from './Input'
-
-function toHex(str) {
-  const arr1 = [] as any[]
-  for (var n = 0, l = str.length; n < l; n++) {
-    var hex = Number(str.charCodeAt(n)).toString(16)
-    arr1.push(hex)
-  }
-  return arr1.join('')
-}
 
 /**
  * ColorInputContainer used to provide styles for ColorInputContainer div.
@@ -91,40 +107,44 @@ interface ColorInputProp {
  */
 
 export function ColorInput({ value, onChange, onSelect, disabled, ...rest }: ColorInputProp) {
-  const onChangePicker = useCallback(
-    ({ hex }) => {
-      value.set(hex)
-      if (onSelect) onSelect(new Color(hex))
-    },
-    [onChange]
-  )
-
+  const [color, setColor] = useState(value)
   const [anchorEl, setAnchorEl] = React.useState<HTMLElement | null>(null)
 
-  const handlePopoverOpen = (event: React.MouseEvent<HTMLElement>) => {
+  const handleClick = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget)
   }
 
-  const handlePopoverClose = () => {
-    onChange(value)
+  const handleClose = () => {
     setAnchorEl(null)
   }
 
-  const open = Boolean(anchorEl)
+  useEffect(() => {
+    if (color !== value) {
+      setColor(value)
+      if (onSelect) onSelect(value)
+    }
+  }, [value])
 
-  //initializing hexColor by getting hexString
-  const hexColor = typeof value.getHexString === 'function' ? '#' + value.getHexString() : '#000'
+  const handleChange = ({ hex }) => {
+    const color = new Color(hex)
+    setColor(color)
+    onChange(color)
+    return color
+  }
+
+  const open = Boolean(anchorEl)
+  const hexColor = typeof color.getHexString === 'function' ? '#' + color.getHexString() : '#000'
 
   //creating view for ColorInput
   return (
     <ColorInputContainer>
-      <StyledColorInput as="button" disabled={disabled} onClick={handlePopoverOpen}>
+      <StyledColorInput as="button" disabled={disabled} onClick={handleClick}>
         <ColorPreview style={{ background: hexColor }} />
         <ColorText>{hexColor.toUpperCase()}</ColorText>
       </StyledColorInput>
-      <Popover open={open && !disabled} anchorEl={anchorEl} onClose={handlePopoverClose}>
+      <Popover open={open && !disabled} anchorEl={anchorEl} onClose={handleClose}>
         <ColorInputPopover>
-          <SketchPicker {...rest} color={hexColor} disableAlpha={true} onChange={onChangePicker} />
+          <SketchPicker {...rest} color={hexColor} disableAlpha={true} onChange={handleChange} />
         </ColorInputPopover>
       </Popover>
     </ColorInputContainer>

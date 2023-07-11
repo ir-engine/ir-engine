@@ -1,5 +1,31 @@
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
 import { AnimationMixer, Group, LoopOnce } from 'three'
 
+import { config } from '@etherealengine/common/src/config'
 import { getMutableState } from '@etherealengine/hyperflux'
 
 import { AvatarControllerType, AvatarInputSettingsState } from '../avatar/state/AvatarInputSettingsState'
@@ -14,7 +40,9 @@ export const initializeControllerModel = async (entity: Entity, handedness: stri
   const avatarInputControllerType = avatarInputState.controlType.value
   if (avatarInputControllerType !== AvatarControllerType.OculusQuest) return
 
-  const gltf = await AssetLoader.loadAsync(`/default_assets/controllers/hands/${handedness}_controller.glb`)
+  const gltf = await AssetLoader.loadAsync(
+    `${config.client.fileServer}/projects/default-project/assets/controllers/${handedness}_controller.glb`
+  )
   let handMesh = gltf?.scene?.children[0]
 
   if (!handMesh) {
@@ -49,7 +77,9 @@ export const initializeHandModel = async (entity: Entity, handedness: string) =>
   // if is hands and 'none' type enabled (instead we use IK to move hands in avatar model)
   if (avatarInputControllerType === AvatarControllerType.None) return
 
-  const gltf = await AssetLoader.loadAsync(`/default_assets/controllers/hands/${handedness}.glb`)
+  const gltf = await AssetLoader.loadAsync(
+    `${config.client.fileServer}/projects/default-project/assets/controllers/${handedness}.glb`
+  )
   let handMesh = gltf?.scene?.children[0]
 
   const controller = new Group()

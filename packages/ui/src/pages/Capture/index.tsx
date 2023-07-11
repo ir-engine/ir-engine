@@ -1,3 +1,28 @@
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 import { useHookstate } from '@hookstate/core'
 import { drawConnectors, drawLandmarks } from '@mediapipe/drawing_utils'
@@ -114,6 +139,18 @@ const CaptureDashboard = () => {
 
   const videoActive = useHookstate(false)
 
+  const resizeCanvas = () => {
+    canvasRef.current!.width = videoRef.current!.clientWidth
+    canvasRef.current!.height = videoRef.current!.clientHeight
+  }
+
+  useEffect(() => {
+    window.addEventListener('resize', resizeCanvas)
+    return () => {
+      window.removeEventListener('resize', resizeCanvas)
+    }
+  }, [])
+
   useEffect(() => {
     RecordingFunctions.getRecordings()
   }, [])
@@ -129,6 +166,7 @@ const CaptureDashboard = () => {
     videoRef.current!.srcObject = videoStream.value
     videoRef.current!.onplay = () => videoActive.set(true)
     videoRef.current!.onpause = () => videoActive.set(false)
+    resizeCanvas()
   }, [videoStream, poseOptions.selfieMode])
 
   useEffect(() => {
@@ -251,8 +289,7 @@ const CaptureDashboard = () => {
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   useVideoFrameCallback(videoRef.current, (videoTime, metadata) => {
-    canvasRef.current!.width = videoRef.current!.clientWidth
-    canvasRef.current!.height = videoRef.current!.clientHeight
+    resizeCanvas()
 
     if (processingFrame.value) return
 
@@ -279,16 +316,22 @@ const CaptureDashboard = () => {
   }
 
   const isCamVideoEnabled =
-    mediaStreamState?.camVideoProducer?.value !== null && mediaStreamState.videoPaused.value !== null
+    mediaStreamState?.camVideoProducer?.value !== null && mediaStreamState?.videoPaused?.value === false
   const videoStatus =
-    mediaConnection?.connected?.value === false && videoActive?.value === false
+    !mediaConnection?.connected?.value && !videoActive?.value
       ? 'loading'
       : isCamVideoEnabled !== true
       ? 'ready'
       : 'active'
+  const recordingStatus =
+    !recordingState?.recordingID?.value && isDetecting?.value !== true
+      ? 'inactive'
+      : recordingState?.started?.value
+      ? 'active'
+      : 'ready'
 
   return (
-    <div className="w-full">
+    <div className="w-full container mx-auto pointer-events-auto">
       <Drawer
         settings={
           <div className="w-100 bg-base-100">
@@ -396,13 +439,16 @@ const CaptureDashboard = () => {
         }
       >
         <Header />
-        <div className="grid justify-items-center grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="card p-4 pb-6 overflow-hidden">
-            <div className="w-full relative ">
-              <div className="relative w-full h-auto max-w-full" style={{ backgroundColor: '#000000' }}>
-                <Video ref={videoRef} className="w-full h-auto max-w-full" />
+        <div className="w-full container mx-auto">
+          <div className="w-full h-auto px-2">
+            <div className="w-full h-auto relative aspect-w-16 aspect-h-9 overflow-hidden">
+              <div className="absolute w-full h-auto top-0 left-0" style={{ backgroundColor: '#000000' }}>
+                <Video ref={videoRef} className="w-full h-auto" />
               </div>
-              <div className="object-contain absolute top-0 z-20" style={{ objectFit: 'contain', top: '0px' }}>
+              <div
+                className="object-contain absolute top-0 left-0 z-20 min-w-full h-auto"
+                style={{ objectFit: 'contain', top: '0px' }}
+              >
                 <Canvas ref={canvasRef} />
               </div>
               {videoStatus !== 'active' ? (
@@ -410,50 +456,43 @@ const CaptureDashboard = () => {
                   onClick={() => {
                     if (mediaConnection?.connected?.value) toggleWebcamPaused()
                   }}
-                  className="absolute btn btn-ghost w-full h-full bg-none"
-                  style={{ objectFit: 'contain', top: '0px' }}
+                  className="absolute btn btn-ghost bg-none h-full w-full container mx-auto m-0 p-0 top-0 left-0"
                 >
-                  <div className="grid w-screen h-screen place-items-center">
-                    <h1>{mediaConnection?.connected?.value ? 'Enable Camera' : 'Connecting...'}</h1>
-                  </div>
+                  <h1>{mediaConnection?.connected?.value ? 'Enable Camera' : 'Loading...'}</h1>
                 </button>
               ) : null}
             </div>
-            <div className="w-full relative ">
-              {mediaConnection?.connected?.value ? (
-                <Toolbar
-                  className="w-full z-30 fixed bottom-0"
-                  videoStatus={videoStatus}
-                  detectingStatus={detectingStatus}
-                  onToggleRecording={onToggleRecording}
-                  toggleWebcam={toggleWebcamPaused}
-                  toggleDetecting={() => isDetecting.set((v) => !v)}
-                  isRecording={recordingState.started.value}
-                  recordingStatus={recordingState.recordingID.value}
-                  isVideoFlipped={isVideoFlipped}
-                  flipVideo={(v) => {
-                    setIsVideoFlipped(v)
-                  }}
-                  cycleCamera={MediaStreamService.cycleCamera}
-                  isDrawingBody={isDrawingBody}
-                  drawBody={(v) => {
-                    setIsDrawingBody(v)
-                  }}
-                  isDrawingHands={isDrawingHands}
-                  drawHands={(v) => {
-                    setIsDrawingHands(v)
-                  }}
-                  isDrawingFace={isDrawingFace}
-                  drawFace={(v) => {
-                    setIsDrawingFace(v)
-                  }}
-                />
-              ) : (
-                <div className="navbar border-none w-full z-30 fixed bottom-0"></div>
-              )}
-            </div>
           </div>
-          <div className="card p-4">
+          <div className="w-full container mx-auto">
+            <Toolbar
+              className="w-full"
+              videoStatus={videoStatus}
+              detectingStatus={detectingStatus}
+              onToggleRecording={onToggleRecording}
+              toggleWebcam={toggleWebcamPaused}
+              toggleDetecting={() => isDetecting.set((v) => !v)}
+              isRecording={recordingState?.started?.value}
+              recordingStatus={recordingStatus}
+              isVideoFlipped={isVideoFlipped}
+              flipVideo={(v) => {
+                setIsVideoFlipped(v)
+              }}
+              cycleCamera={MediaStreamService.cycleCamera}
+              isDrawingBody={isDrawingBody}
+              drawBody={(v) => {
+                setIsDrawingBody(v)
+              }}
+              isDrawingHands={isDrawingHands}
+              drawHands={(v) => {
+                setIsDrawingHands(v)
+              }}
+              isDrawingFace={isDrawingFace}
+              drawFace={(v) => {
+                setIsDrawingFace(v)
+              }}
+            />
+          </div>
+          <div className="w-full container mx-auto">
             <div className="w-full relative">
               <RecordingsList
                 {...{

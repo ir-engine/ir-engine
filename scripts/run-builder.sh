@@ -12,14 +12,14 @@ mkdir -pv ~/.docker
 cp -v /var/lib/docker/certs/client/* ~/.docker
 touch ./builder-started.txt
 bash ./scripts/setup_helm.sh
-bash ./scripts/setup_aws.sh $AWS_ACCESS_KEY $AWS_SECRET $AWS_REGION $CLUSTER_NAME
-npm run check-db-exists
+bash ./scripts/setup_aws.sh $EKS_AWS_ACCESS_KEY $EKS_AWS_SECRET $AWS_REGION $CLUSTER_NAME
+npx cross-env ts-node --swc scripts/check-db-exists.ts
 npm run prepare-database
 npm run create-build-status
 BUILDER_RUN=$(tail -1 builder-run.txt)
-npm run install-projects >project-install-build-logs.txt 2>project-install-build-error.txt || npm run record-build-error -- --service=project-install
+npx ts-node --swc scripts/install-projects.js >project-install-build-logs.txt 2>project-install-build-error.txt || npm run record-build-error -- --service=project-install
 test -s project-install-build-error.txt && npm run record-build-error -- --service=project-install
-npm run create-root-package-json
+npx cross-env ts-node --swc scripts/create-root-package-json.ts
 mv package.json package.jsonmoved
 mv package-root-build.json package.json
 npm install
@@ -27,11 +27,11 @@ rm package.json
 mv package.jsonmoved package.json
 npm run prepare-database >prepare-database-build-logs.txt 2>prepare-database-build-error.txt || npm run record-build-error -- --service=prepare-database
 test -s prepare-database-build-error.txt && npm run record-build-error -- --service=prepare-database
-cd packages/client && npm run buildenv >buildenv-build-logs.txt 2>buildenv-build-error.txt || npm run record-build-error -- --service=buildenv
+cd packages/client && npx cross-env ts-node --swc scripts/create-env-production.ts >buildenv-build-logs.txt 2>buildenv-build-error.txt || npm run record-build-error -- --service=buildenv
 test -s buildenv-build-error.txt && npm run record-build-error -- --service=buildenv
 if [ -n "$TWA_LINK" ]
 then
-  npm run populate-assetlinks >populate-assetlinks-build-logs.txt >populate-assetlinks-build-logs.txt 2>populate-assetlinks-build-error.txt || npm run record-build-error -- --service=populate-assetlinks
+  npx cross-env ts-node --swc scripts/populate-assetlinks.ts >populate-assetlinks-build-logs.txt >populate-assetlinks-build-logs.txt 2>populate-assetlinks-build-error.txt || npm run record-build-error -- --service=populate-assetlinks
 test -s populate-assetlinks-build-error.txt && npm run record-build-error -- --service=populate-assetlinks
 fi
 cd ../..
@@ -54,9 +54,24 @@ npm run record-build-error -- --service=root --isDocker=true
 
 npm install -g cli @aws-sdk/client-s3
 
-if [ "$SERVE_CLIENT_FROM_STORAGE_PROVIDER" = "true" ] && [ "$STORAGE_PROVIDER" = "aws" ] ; then npm run list-client-s3-files-to-delete ; fi
+if [ "$SERVE_CLIENT_FROM_STORAGE_PROVIDER" = "true" ] && [ "$STORAGE_PROVIDER" = "s3" ]
+then
+  npx cross-env ts-node --swc scripts/get-deletable-client-files.ts
 
-if [ "$SERVE_CLIENT_FROM_API" = "true" ]
+  bash ./scripts/build_and_publish_package.sh $RELEASE_NAME $DOCKER_LABEL api api $START_TIME $AWS_REGION $NODE_ENV $PRIVATE_ECR >api-build-logs.txt 2>api-build-error.txt &
+  bash ./scripts/build_and_publish_package.sh $RELEASE_NAME $DOCKER_LABEL client client-serve-static $START_TIME $AWS_REGION $NODE_ENV $PRIVATE_ECR >client-build-logs.txt 2>client-build-error.txt &
+  bash ./scripts/build_and_publish_package.sh $RELEASE_NAME $DOCKER_LABEL instanceserver instanceserver $START_TIME $AWS_REGION $NODE_ENV $PRIVATE_ECR >instanceserver-build-logs.txt 2>instanceserver-build-error.txt &
+  bash ./scripts/build_and_publish_package.sh $RELEASE_NAME $DOCKER_LABEL taskserver taskserver $START_TIME $AWS_REGION $NODE_ENV $PRIVATE_ECR >taskserver-build-logs.txt 2>taskserver-build-error.txt &
+  #bash ./scripts/build_and_publish_package.sh $RELEASE_NAME $DOCKER_LABEL testbot testbot $START_TIME $AWS_REGION $NODE_ENV $PRIVATE_ECR >testbot-build-logs.txt 2>testbot-build-error.txt && &
+
+  wait < <(jobs -p)
+
+  npm run record-build-error -- --service=api --isDocker=true
+  npm run record-build-error -- --service=client --isDocker=true
+  npm run record-build-error -- --service=instanceserver --isDocker=true
+  npm run record-build-error -- --service=taskserver --isDocker=true
+  #npm run record-build-error -- --service=testbot --isDocker=true
+elif [ "$SERVE_CLIENT_FROM_API" = "true" ]
 then
   bash ./scripts/build_and_publish_package.sh $RELEASE_NAME $DOCKER_LABEL api api-client $START_TIME $AWS_REGION $NODE_ENV $PRIVATE_ECR >api-build-logs.txt 2>api-build-error.txt &
   bash ./scripts/build_and_publish_package.sh $RELEASE_NAME $DOCKER_LABEL instanceserver instanceserver $START_TIME $AWS_REGION $NODE_ENV $PRIVATE_ECR >instanceserver-build-logs.txt 2>instanceserver-build-error.txt &
@@ -87,9 +102,9 @@ fi
 
 bash ./scripts/deploy.sh $RELEASE_NAME ${TAG}__${START_TIME}
 
-npm run updateCronjobImage -- --repoName=${REPO_NAME} --tag=${TAG} --ecrUrl=${ECR_URL} --startTime=${START_TIME}
+npx cross-env ts-node --swc scripts/update-cronjob-image.ts --repoName=${REPO_NAME} --tag=${TAG} --ecrUrl=${ECR_URL} --startTime=${START_TIME}
 
-npm run clear-projects-rebuild
+npx cross-env ts-node --swc scripts/clear-projects-rebuild.ts
 npm run record-build-success
 DEPLOY_TIME=`date +"%d-%m-%yT%H-%M-%S"`
 
@@ -98,8 +113,8 @@ bash ./scripts/cleanup_builder.sh $DOCKER_LABEL
 END_TIME=`date +"%d-%m-%yT%H-%M-%S"`
 echo "Started build at $START_TIME, deployed image to K8s at $DEPLOY_TIME, ended at $END_TIME"
 sleep 5m
-if [ "$SERVE_CLIENT_FROM_STORAGE_PROVIDER" = "true" ] && [ "$STORAGE_PROVIDER" = "aws" ] ; then
-  npm run delete-old-s3-files;
+if [ "$SERVE_CLIENT_FROM_STORAGE_PROVIDER" = "true" ] && [ "$STORAGE_PROVIDER" = "s3" ] ; then
+  npx cross-env ts-node --swc scripts/delete-old-s3-files.ts;
   echo "Deleted old client files from S3"
 fi
 

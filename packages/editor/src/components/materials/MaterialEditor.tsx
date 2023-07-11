@@ -1,27 +1,57 @@
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
 import React, { useCallback, useEffect } from 'react'
 import { Material, Texture } from 'three'
 
 import styles from '@etherealengine/editor/src/components/layout/styles.module.scss'
 import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoader'
 import createReadableTexture from '@etherealengine/engine/src/assets/functions/createReadableTexture'
+import { LibraryEntryType } from '@etherealengine/engine/src/renderer/materials/constants/LibraryEntry'
 import {
   changeMaterialPrototype,
+  entryId,
   materialFromId,
   prototypeFromId
 } from '@etherealengine/engine/src/renderer/materials/functions/MaterialLibraryFunctions'
+import { removeMaterialPlugin } from '@etherealengine/engine/src/renderer/materials/functions/MaterialPluginFunctions'
 import { MaterialLibraryState } from '@etherealengine/engine/src/renderer/materials/MaterialLibrary'
-import { getMutableState, getState, none, useState } from '@etherealengine/hyperflux'
+import { getMutableState, getState, none, State, useState } from '@etherealengine/hyperflux'
 
 import { Box, Divider, Stack } from '@mui/material'
 
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
 import { SelectionState } from '../../services/SelectionServices'
+import { Button } from '../inputs/Button'
 import { InputGroup } from '../inputs/InputGroup'
 import ParameterInput from '../inputs/ParameterInput'
 import SelectInput from '../inputs/SelectInput'
 import StringInput from '../inputs/StringInput'
+import PaginatedList from '../layout/PaginatedList'
 
-export default function MaterialEditor({ material, ...rest }: { ['material']: Material }) {
+export default function MaterialEditor({ material, ...rest }: { material: Material }) {
   if (material === undefined) return <></>
   const materialLibrary = useState(getMutableState(MaterialLibraryState))
   const materialComponent = materialLibrary.materials[material.uuid]
@@ -51,7 +81,7 @@ export default function MaterialEditor({ material, ...rest }: { ['material']: Ma
       })
     )
     return result
-  }, [materialComponent.parameters, materialComponent.material.uuid, materialComponent.prototype])
+  }, [materialComponent.parameters, materialComponent.material, materialComponent.prototype])
 
   const checkThumbs = useCallback(async () => {
     thumbnails.promised && (await thumbnails.promise)
@@ -83,6 +113,8 @@ export default function MaterialEditor({ material, ...rest }: { ['material']: Ma
   useEffect(() => {
     checkThumbs()
   }, [materialComponent.parameters])
+
+  const selectedPlugin = useState('vegetation')
 
   return (
     <div {...rest}>
@@ -141,13 +173,63 @@ export default function MaterialEditor({ material, ...rest }: { ['material']: Ma
           }
           EditorControlFunctions.modifyMaterial(
             getState(SelectionState).selectedEntities.filter((val) => typeof val === 'string') as string[],
-            material.uuid,
+            entryId(materialComponent.value, LibraryEntryType.MATERIAL),
             [{ [k]: prop }]
           )
           materialComponent.parameters[k].set(prop)
         }}
         defaults={loadingData.value ? {} : prototypeComponent.arguments.value}
         thumbnails={thumbnails.value}
+      />
+      <br />
+      <div
+        style={{
+          display: 'flex',
+          flexDirection: 'row',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          border: '1px solid #fff',
+          borderRadius: '4px',
+          padding: '4px'
+        }}
+      >
+        <SelectInput
+          value={selectedPlugin.value}
+          options={Object.keys(materialLibrary.plugins.value).map((key) => ({ label: key, value: key }))}
+          onChange={selectedPlugin.set}
+        />
+        <Button
+          onClick={() => {
+            materialComponent.plugins.set(materialComponent.plugins.value.concat(selectedPlugin.value))
+          }}
+        >
+          Add Plugin
+        </Button>
+      </div>
+      <PaginatedList
+        list={materialComponent.plugins}
+        element={(plugin: State<string>) => {
+          return (
+            <div className={styles.contentContainer}>
+              <InputGroup name="Plugin" label="Plugin">
+                <SelectInput
+                  value={plugin.value}
+                  options={Object.keys(materialLibrary.plugins.value).map((key) => ({ label: key, value: key }))}
+                  onChange={plugin.set}
+                />
+              </InputGroup>
+              <Button
+                onClick={() => {
+                  removeMaterialPlugin(material, plugin.value)
+                  materialComponent.plugins.set(materialComponent.plugins.value.filter((val) => val !== plugin.value))
+                }}
+                style={{ backgroundColor: '#f00' }}
+              >
+                x
+              </Button>
+            </div>
+          )
+        }}
       />
     </div>
   )

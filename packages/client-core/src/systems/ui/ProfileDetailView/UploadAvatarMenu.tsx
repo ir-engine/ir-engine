@@ -1,3 +1,28 @@
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
 import { createState } from '@hookstate/core'
 import React, { useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -41,14 +66,13 @@ function createUploadAvatarMenuState() {
   return createState({})
 }
 
-let camera: PerspectiveCamera
-let scene: Scene
-let renderer: WebGLRenderer = null!
-let entity: Entity = null!
+type FileEvent = React.ChangeEvent<HTMLInputElement> & {
+  target: EventTarget & { files: FileList }
+}
 
 export const UploadAvatarMenu = () => {
-  const [selectedFile, setSelectedFile] = useState<any>(null)
-  const [selectedThumbnail, setSelectedThumbnail] = useState<any>(null)
+  const [selectedFile, setSelectedFile] = useState<Blob | null>(null)
+  const [selectedThumbnail, setSelectedThumbnail] = useState<File | null>(null)
   const [avatarName, setAvatarName] = useState('')
   const [error, setError] = useState('')
   const [avatarModel, setAvatarModel] = useState<any>(null)
@@ -56,8 +80,8 @@ export const UploadAvatarMenu = () => {
   const [avatarUrl, setAvatarUrl] = useState('')
   const [thumbnailUrl, setThumbnailUrl] = useState('')
   const [validAvatarUrl, setValidAvatarUrl] = useState(false)
-  const [selectedThumbnailUrl, setSelectedThumbNailUrl] = useState<any>(null)
-  const [selectedAvatarlUrl, setSelectedAvatarUrl] = useState<any>(null)
+  const [selectedThumbnailUrl, setSelectedThumbNailUrl] = useState<Blob | null>(null)
+  const [selectedAvatarlUrl, setSelectedAvatarUrl] = useState<Blob | null>(null)
   const panelRef = useRef() as React.MutableRefObject<HTMLDivElement>
   const renderPanel = useRender3DPanelSystem(panelRef)
   const { entity, camera, scene, renderer } = renderPanel.state
@@ -163,10 +187,11 @@ export const UploadAvatarMenu = () => {
 
   const uploadAvatar = async () => {
     if (avatarModel == null) return
-    const thumbnailBlob = activeSourceType ? selectedThumbnail : selectedThumbnailUrl
+    const thumbnailFile = activeSourceType ? selectedThumbnail : new File([selectedThumbnailUrl!], `${avatarName}.png`)
     const avatarBlob = activeSourceType ? selectedFile : selectedAvatarlUrl
+    const avatarFile = new File([avatarBlob!], `${avatarName}.glb`) // todo - use correct extension
 
-    if (thumbnailBlob == null) {
+    if (thumbnailFile == null) {
       await new Promise((resolve) => {
         const canvas = document.createElement('canvas')
         canvas.width = THUMBNAIL_WIDTH
@@ -174,20 +199,23 @@ export const UploadAvatarMenu = () => {
         const newContext = canvas.getContext('2d')
         newContext?.drawImage(renderer.value.domElement, 0, 0)
         canvas.toBlob(async (blob) => {
-          const uploadResponse = await AvatarService.uploadAvatarModel(avatarBlob, blob!, avatarName, false).then(
-            resolve
-          )
+          const uploadResponse = await AvatarService.uploadAvatarModel(
+            avatarFile,
+            new File([blob!], `${avatarName}.png`),
+            avatarName,
+            false
+          ).then(resolve)
           await AvatarService.createAvatar(uploadResponse[0], uploadResponse[1], avatarName, false)
         })
       })
     } else {
-      await AvatarService.createAvatar(avatarBlob, thumbnailBlob, avatarName, false)
+      await AvatarService.createAvatar(avatarFile, thumbnailFile, avatarName, false)
     }
 
     WidgetAppService.setWidgetVisibility(WidgetName.PROFILE, true)
   }
 
-  const handleThumbnailChange = (e) => {
+  const handleThumbnailChange = (e: FileEvent) => {
     if (e.target.files[0].size < MIN_AVATAR_FILE_SIZE || e.target.files[0].size > MAX_AVATAR_FILE_SIZE) {
       setError(
         t('user:avatar.fileOversized', {

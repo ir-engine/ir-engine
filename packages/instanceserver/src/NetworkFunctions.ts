@@ -1,3 +1,28 @@
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
 import _ from 'lodash'
 import { DataConsumer, DataProducer } from 'mediasoup/node/lib/types'
 import { Spark } from 'primus'
@@ -88,6 +113,11 @@ export const setupSubdomain = async () => {
       announcedIp
     }
   ]
+
+  localConfig.mediasoup.webRtcServerOptions.listenInfos.forEach((listenInfo) => {
+    listenInfo.announcedIp = announcedIp
+    listenInfo.ip = '0.0.0.0'
+  })
 
   localConfig.mediasoup.plainTransport.listenIp = {
     ip: '0.0.0.0',
@@ -267,7 +297,6 @@ export const handleConnectingPeer = async (
   user: UserInterface
 ) => {
   const userId = user.id
-  const avatarDetail = user.avatar
 
   // Create a new client object
   // and add to the dictionary
@@ -299,10 +328,6 @@ export const handleConnectingPeer = async (
 
   const worldState = getMutableState(WorldState)
   worldState.userNames[userId].set(user.name)
-  worldState.userAvatarDetails[userId].set({
-    avatarURL: avatarDetail.modelResource?.LOD0_url || '',
-    thumbnailURL: avatarDetail.thumbnailResource?.LOD0_url || ''
-  })
 
   network.userIDToUserIndex.set(userId, userIndex)
   network.userIndexToUserID.set(userIndex, userId)
@@ -459,8 +484,9 @@ export async function handleHeartbeat(network: SocketWebRTCServerNetwork, spark:
 
 export async function handleDisconnect(network: SocketWebRTCServerNetwork, spark: Spark, peerID: PeerID): Promise<any> {
   const userId = getUserIdFromPeerID(network, peerID) as UserId
+  console.log('peers', network.peers)
   const disconnectedClient = network.peers.get(peerID)
-  if (!disconnectedClient) return logger.warn(`Tried to handle disconnect for peer ${peerID} but was not foudn`)
+  if (!disconnectedClient) return logger.warn(`Tried to handle disconnect for peer ${peerID} but was not found`)
   // On local, new connections can come in before the old sockets are disconnected.
   // The new connection will overwrite the socketID for the user's client.
   // This will only clear transports if the client's socketId matches the socket that's disconnecting.

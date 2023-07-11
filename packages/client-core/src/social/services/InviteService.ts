@@ -1,6 +1,37 @@
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
 import { Paginated } from '@feathersjs/feathers'
 import { useEffect } from 'react'
 
+import {
+  EMAIL_REGEX,
+  INVITE_CODE_REGEX,
+  PHONE_REGEX,
+  USER_ID_REGEX
+} from '@etherealengine/common/src/constants/IdConstants'
 import { Invite, SendInvite } from '@etherealengine/common/src/interfaces/Invite'
 import { UserInterface } from '@etherealengine/common/src/interfaces/User'
 import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
@@ -11,12 +42,6 @@ import { MediaInstanceConnectionAction } from '../../common/services/MediaInstan
 import { NotificationService } from '../../common/services/NotificationService'
 import { AuthState } from '../../user/services/AuthService'
 import { PartyService } from './PartyService'
-
-export const emailRegex =
-  /[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/
-export const phoneRegex = /^[0-9]{10}$/
-export const userIdRegex = /^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$/
-export const inviteCodeRegex = /^[0-9a-fA-F]{8}$/
 
 //State
 export const INVITE_PAGE_LIMIT = 100
@@ -111,14 +136,14 @@ export const InviteServiceReceptor = (action) => {
 export const InviteService = {
   sendInvite: async (data: SendInvite) => {
     if (data.identityProviderType === 'email') {
-      if (!data.token || !emailRegex.test(data.token)) {
+      if (!data.token || !EMAIL_REGEX.test(data.token)) {
         NotificationService.dispatchNotify(`Invalid email address: ${data.token}`, { variant: 'error' })
         return
       }
     }
 
     if (data.identityProviderType === 'sms') {
-      if (!data.token || !phoneRegex.test(data.token)) {
+      if (!data.token || !PHONE_REGEX.test(data.token)) {
         NotificationService.dispatchNotify(`Invalid 10-digit US phone number: ${data.token}`, { variant: 'error' })
         return
       }
@@ -130,7 +155,7 @@ export const InviteService = {
     }
 
     if (data.inviteCode != null) {
-      if (!inviteCodeRegex.test(data.inviteCode)) {
+      if (!INVITE_CODE_REGEX.test(data.inviteCode)) {
         NotificationService.dispatchNotify(`Invalid Invite Code: ${data.inviteCode}`, { variant: 'error' })
         return
       } else {
@@ -154,7 +179,7 @@ export const InviteService = {
     }
 
     if (data.inviteeId != null) {
-      if (!userIdRegex.test(data.inviteeId)) {
+      if (!USER_ID_REGEX.test(data.inviteeId)) {
         NotificationService.dispatchNotify('Invalid user ID', { variant: 'error' })
         return
       }

@@ -1,4 +1,41 @@
-import { CloudFrontClient, CreateInvalidationCommand } from '@aws-sdk/client-cloudfront'
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and
+provide for limited attribution for the Original Developer. In addition,
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023
+Ethereal Engine. All Rights Reserved.
+*/
+
+import {
+  CloudFrontClient,
+  CreateFunctionCommand,
+  CreateInvalidationCommand,
+  DescribeFunctionCommand,
+  FunctionSummary,
+  GetDistributionCommand,
+  ListFunctionsCommand,
+  ListFunctionsCommandInput,
+  PublishFunctionCommand,
+  UpdateDistributionCommand,
+  UpdateFunctionCommand
+} from '@aws-sdk/client-cloudfront'
 import {
   CopyObjectCommand,
   DeleteObjectsCommand,
@@ -11,6 +48,8 @@ import {
 } from '@aws-sdk/client-s3'
 import { Options, Upload } from '@aws-sdk/lib-storage'
 import { createPresignedPost } from '@aws-sdk/s3-presigned-post'
+import appRootPath from 'app-root-path'
+import fs from 'fs'
 import { reject } from 'lodash'
 import fetch from 'node-fetch'
 import { buffer } from 'node:stream/consumers'
@@ -22,6 +61,7 @@ import { PassThrough } from 'stream'
 import { FileContentType } from '@etherealengine/common/src/interfaces/FileContentType'
 
 import config from '../../appconfig'
+import { getCacheDomain } from './getCacheDomain'
 import { getCachedURL } from './getCachedURL'
 import {
   PutObjectParams,
@@ -31,6 +71,26 @@ import {
   StorageObjectPutInterface,
   StorageProviderInterface
 } from './storageprovider.interface'
+
+const MAX_ITEMS = 1
+const CFFunctionTemplate = `
+function handler(event) {
+    var request = event.request;
+    var routeRegexRoot = __$routeRegex$__
+    var routeRegex = new RegExp(routeRegexRoot)
+    var publicRegexRoot = __$publicRegex$__
+    var publicRegex = new RegExp(publicRegexRoot)
+
+    if (routeRegex.test(request.uri)) {
+        request.uri = '/client/index.html'
+    }
+    
+    if (publicRegex.test(request.uri)) {
+        request.uri = '/client' + request.uri
+    }
+    return request;
+}
+`
 
 /**
  * Storage provide class to communicate with AWS S3 API.
@@ -46,12 +106,15 @@ export class S3Provider implements StorageProviderInterface {
    */
   provider: S3Client = new S3Client({
     credentials: {
-      accessKeyId: config.aws.keys.accessKeyId,
-      secretAccessKey: config.aws.keys.secretAccessKey
+      accessKeyId: config.aws.s3.accessKeyId,
+      secretAccessKey: config.aws.s3.secretAccessKey
     },
-    endpoint: config.aws.s3.endpoint,
+    endpoint: config.server.storageProviderExternalEndpoint
+      ? config.server.storageProviderExternalEndpoint
+      : config.aws.s3.endpoint,
     region: config.aws.s3.region,
     forcePathStyle: true,
+    tls: config.aws.s3.s3DevMode === 'local' ? false : undefined,
     maxAttempts: 5
   })
 
@@ -59,13 +122,17 @@ export class S3Provider implements StorageProviderInterface {
    * Domain address of S3 cache.
    */
   cacheDomain =
-    config.server.storageProvider === 'aws'
-      ? config.aws.cloudfront.domain
+    config.server.storageProvider === 's3'
+      ? config.aws.s3.endpoint
+        ? `${config.aws.s3.endpoint.replace('http://', '').replace('https://', '')}/${this.bucket}`
+        : config.aws.cloudfront.domain
       : `${config.aws.cloudfront.domain}/${this.bucket}`
 
   private bucketAssetURL =
-    config.server.storageProvider === 'aws'
-      ? `https://${this.bucket}.s3.${config.aws.s3.region}.amazonaws.com`
+    config.server.storageProvider === 's3'
+      ? config.aws.s3.endpoint
+        ? `${config.aws.s3.endpoint}/${this.bucket}`
+        : `https://${this.bucket}.s3.${config.aws.s3.region}.amazonaws.com`
       : `https://${config.aws.cloudfront.domain}/${this.bucket}`
 
   private blob: typeof S3BlobStore = new S3BlobStore({
@@ -77,8 +144,8 @@ export class S3Provider implements StorageProviderInterface {
   private cloudfront: CloudFrontClient = new CloudFrontClient({
     region: config.aws.cloudfront.region,
     credentials: {
-      accessKeyId: config.aws.keys.accessKeyId,
-      secretAccessKey: config.aws.keys.secretAccessKey
+      accessKeyId: config.aws.s3.accessKeyId,
+      secretAccessKey: config.aws.s3.secretAccessKey
     }
   })
 
@@ -145,7 +212,8 @@ export class S3Provider implements StorageProviderInterface {
    * @param key Key of object.
    */
   async getCachedObject(key: string): Promise<StorageObjectInterface> {
-    const data = await fetch(getCachedURL(key, this.cacheDomain))
+    const cacheDomain = getCacheDomain(this, true)
+    const data = await fetch(getCachedURL(key, cacheDomain))
     return { Body: Buffer.from(await data.arrayBuffer()), ContentType: (await data.headers.get('content-type')) || '' }
   }
 
@@ -188,7 +256,7 @@ export class S3Provider implements StorageProviderInterface {
 
   /**
    * Adds an object into the S3 storage.
-   * @param object Storage object to be added.
+   * @param data Storage object to be added.
    * @param params Parameters of the add request.
    */
   async putObject(data: StorageObjectPutInterface, params: PutObjectParams = {}): Promise<any> {
@@ -238,9 +306,10 @@ export class S3Provider implements StorageProviderInterface {
    * Invalidate items in the S3 storage.
    * @param invalidationItems List of keys.
    */
-  async createInvalidation(invalidationItems: any[]) {
+  async createInvalidation(invalidationItems: string[]) {
+    if (!invalidationItems || invalidationItems.length === 0) return
     // for non-standard s3 setups, we don't use cloudfront
-    if (config.server.storageProvider !== 'aws') return
+    if (config.server.storageProvider !== 's3' || config.aws.s3.s3DevMode === 'local') return
     const params = {
       DistributionId: config.aws.cloudfront.distributionId,
       InvalidationBatch: {
@@ -252,6 +321,138 @@ export class S3Provider implements StorageProviderInterface {
       }
     }
     const command = new CreateInvalidationCommand(params)
+    return await this.cloudfront.send(command)
+  }
+
+  async listFunctions(marker: string | null, functions: FunctionSummary[]): Promise<FunctionSummary[]> {
+    if (config.server.storageProvider !== 's3') return []
+    const params: ListFunctionsCommandInput = {
+      MaxItems: MAX_ITEMS
+    }
+    if (marker) params.Marker = marker
+    const command = new ListFunctionsCommand(params)
+    const response = await this.cloudfront.send(command)
+    functions = functions.concat(response.FunctionList?.Items ? response.FunctionList.Items : [])
+    if (response.FunctionList?.NextMarker) return this.listFunctions(response.FunctionList?.NextMarker, functions)
+    else return functions
+  }
+
+  getFunctionCode(routes: string[]) {
+    let routeRegex = ''
+    for (let route of routes)
+      if (route !== '/')
+        routeRegex +=
+          route === '/location' ||
+          route === '/auth' ||
+          route === '/admin' ||
+          route === '/editor' ||
+          route === '/studio' ||
+          route === '/capture'
+            ? `^${route}/|`
+            : `^${route}|`
+    if (routes.length > 0) routeRegex = routeRegex.slice(0, routeRegex.length - 1)
+    let publicRegex = ''
+    fs.readdirSync(path.join(appRootPath.path, 'packages', 'client', 'dist'), { withFileTypes: true }).forEach(
+      (dirent) => {
+        if (dirent.name !== 'projects') {
+          if (dirent.isDirectory()) publicRegex += `^/${dirent.name}/|`
+          else {
+            // .br compressed files are uploaded to S3 without this extension in their name, but with a
+            // content-encoding header to mark them as brotli-compressed. Need to use the sans-.br name for
+            // the CloudFront redirect rule.
+            if (/.br$/.test(dirent.name)) dirent.name = dirent.name.replace('.br', '')
+            publicRegex += `^/${dirent.name}|`
+          }
+        }
+      }
+    )
+    if (publicRegex.length > 0) publicRegex = publicRegex.slice(0, publicRegex.length - 1)
+    return CFFunctionTemplate.replace('__$routeRegex$__', `'${routeRegex}'`).replace(
+      '__$publicRegex$__',
+      `'${publicRegex}'`
+    )
+  }
+
+  async createFunction(functionName: string, routes: string[]) {
+    const code = this.getFunctionCode(routes)
+    const params = {
+      Name: functionName,
+      FunctionCode: new TextEncoder().encode(code),
+      FunctionConfig: {
+        Comment: 'Function to handle routing of Ethereal Engine client',
+        Runtime: 'cloudfront-js-1.0'
+      }
+    }
+    const command = new CreateFunctionCommand(params)
+    return await this.cloudfront.send(command)
+  }
+
+  async associateWithFunction(functionARN: string, attempts = 1) {
+    try {
+      const getDistributionParams = {
+        Id: config.aws.cloudfront.distributionId
+      }
+      const getDistributionCommand = new GetDistributionCommand(getDistributionParams)
+      const distribution = await this.cloudfront.send(getDistributionCommand)
+      if (!distribution.Distribution) return
+      const updateDistributionParams = {
+        Id: distribution.Distribution.Id,
+        DistributionConfig: distribution.Distribution.DistributionConfig,
+        IfMatch: distribution.ETag
+      }
+      updateDistributionParams.DistributionConfig!.DefaultCacheBehavior!.FunctionAssociations = {
+        Quantity: 1,
+        Items: [
+          {
+            FunctionARN: functionARN,
+            EventType: 'viewer-request'
+          }
+        ]
+      }
+      const updateDistributionCommand = new UpdateDistributionCommand(updateDistributionParams)
+      return await this.cloudfront.send(updateDistributionCommand)
+    } catch (err) {
+      console.log('error in update distribution', err, err.$metadata)
+      if (err.$metadata.httpStatusCode === 412 && attempts <= 5) {
+        console.log('Updated Distribution Command failed with error code 412, attempting again')
+        setTimeout(() => {
+          return this.associateWithFunction(functionARN, attempts + 1)
+        }, 3000)
+      } else throw err
+    }
+  }
+
+  async publishFunction(functionName: string) {
+    const functionDetailsParams = {
+      Name: functionName
+    }
+    const functionDetailsCommand = new DescribeFunctionCommand(functionDetailsParams)
+    const functionDetails = await this.cloudfront.send(functionDetailsCommand)
+    const params = {
+      Name: functionName,
+      IfMatch: functionDetails.ETag
+    }
+    const command = new PublishFunctionCommand(params)
+    return await this.cloudfront.send(command)
+  }
+
+  async updateFunction(functionName: string, routes: string[]) {
+    const code = this.getFunctionCode(routes)
+    const functionDetailsParams = {
+      Name: functionName
+    }
+    const functionDetailsCommand = new DescribeFunctionCommand(functionDetailsParams)
+    const functionDetails = await this.cloudfront.send(functionDetailsCommand)
+    const params = {
+      Name: functionName,
+      IfMatch: functionDetails.ETag,
+      FunctionCode: new TextEncoder().encode(code),
+      FunctionConfig: {
+        Comment: 'Function to handle routing of Ethereal Engine client',
+        Runtime: 'cloudfront-js-1.0'
+      }
+    }
+    const command = new UpdateFunctionCommand(params)
     return await this.cloudfront.send(command)
   }
 
@@ -304,18 +505,16 @@ export class S3Provider implements StorageProviderInterface {
       batches[index].push({ Key: keys[i] })
     }
 
-    const data = await Promise.all(
+    return await Promise.all(
       batches.map(async (batch) => {
         const input = {
           Bucket: this.bucket,
           Delete: { Objects: batch }
         }
         const command = new DeleteObjectsCommand(input)
-        const response = await this.provider.send(command)
-        return response
+        return await this.provider.send(command)
       })
     )
-    return data
   }
 
   /**

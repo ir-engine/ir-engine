@@ -1,3 +1,28 @@
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
 import { none } from '@hookstate/core'
 import { Quaternion, Vector3 } from 'three'
 
@@ -6,7 +31,6 @@ import { dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
 import {
-  getComponent,
   getMutableComponent,
   hasComponent,
   removeComponent,
@@ -15,7 +39,7 @@ import {
 import { createEntity, removeEntity } from '../../ecs/functions/EntityFunctions'
 import { generatePhysicsObject } from '../../physics/functions/physicsObjectDebugFunctions'
 import { UUIDComponent } from '../../scene/components/UUIDComponent'
-import { setTransformComponent, TransformComponent } from '../../transform/components/TransformComponent'
+import { TransformComponent } from '../../transform/components/TransformComponent'
 import {
   NetworkObjectAuthorityTag,
   NetworkObjectComponent,
@@ -24,16 +48,12 @@ import {
 import { WorldNetworkAction } from './WorldNetworkAction'
 
 const receiveSpawnObject = (action: typeof WorldNetworkAction.spawnObject.matches._TYPE) => {
-  // const existingAvatar =
-  //   WorldNetworkAction.spawnAvatar.matches.test(action) &&
-  //   !!Engine.instance.getUserAvatarEntity(action.$from) &&
-  //   action.uuid === action.$from
-  // if (existingAvatar) return
+  if (UUIDComponent.entitiesByUUID[action.entityUUID]) return
 
-  if (UUIDComponent.entitiesByUUID[action.uuid]) return
+  console.log('Received spawn object', action)
 
   const entity = createEntity()
-  setComponent(entity, UUIDComponent, action.uuid)
+  setComponent(entity, UUIDComponent, action.entityUUID)
 
   setComponent(entity, NetworkObjectComponent, {
     ownerId: action.$from,
@@ -64,12 +84,7 @@ const receiveSpawnObject = (action: typeof WorldNetworkAction.spawnObject.matche
   if (action.position) position.copy(action.position)
   if (action.rotation) rotation.copy(action.rotation)
 
-  setTransformComponent(entity, position, rotation)
-  const transform = getComponent(entity, TransformComponent)
-
-  // set cached action refs to the new components so they stay up to date with future movements
-  action.position = transform.position
-  action.rotation = transform.rotation
+  setComponent(entity, TransformComponent, { position, rotation })
 }
 
 const receiveRegisterSceneObject = (action: typeof WorldNetworkAction.registerSceneObject.matches._TYPE) => {
@@ -98,12 +113,12 @@ const receiveSpawnDebugPhysicsObject = (action: typeof WorldNetworkAction.spawnD
 }
 
 const receiveDestroyObject = (action: ReturnType<typeof WorldNetworkAction.destroyObject>) => {
-  const entity = Engine.instance.getNetworkObject(action.$from, action.networkId)
+  const entity = UUIDComponent.entitiesByUUID[action.entityUUID]
   if (!entity) return
   removeEntity(entity)
-  const idx = Engine.instance.store.actions.cached.findIndex((a) => {
-    WorldNetworkAction.spawnObject.matches.test(a) && a.networkId === action.networkId
-  })
+  const idx = Engine.instance.store.actions.cached.findIndex(
+    (a) => WorldNetworkAction.spawnObject.matches.test(a) && a.entityUUID === action.entityUUID
+  )
   if (idx !== -1) Engine.instance.store.actions.cached.splice(idx, 1)
 }
 

@@ -237,12 +237,24 @@
       "description": "Link to a room or a website.",
       "lbl-url": "URL"
     },
-    "lod": {
+    "loopAnimation": {
+      "title": "Loop Animation",
+      "description": "Looped animation associated with your 3d model, loaded from a GLTF URL or file.",
+      "lbl-loopAnimation": "Loop Animation"
+    },
+    "variant": {
+      "name": "Variant",
+      "description": "Load different assets based on heuristics",
+      "device": "Device",
+      "device-mobile": "Mobile",
+      "device-desktop": "Desktop",
       "heuristic": "Heuristic",
       "heuristic-distance": "Distance",
       "heuristic-sceneScale": "Scene Scale",
       "heuristic-manual": "Manual",
-      "distance": "Distance",
+      "heuristic-device": "Device",
+      "minDistance": "Minimum Distance",
+      "maxDistance": "Maximum Distance",
       "src": "Source"
     },
     "map": {
@@ -285,7 +297,11 @@
         "dst": "File Name",
         "resampleAnimations": "Resample Animations",
         "maxTextureSize": "Max Texture Size",
+        "flatten": "Flatten Scene Graph",
+        "join": "Join Meshes",
+        "palette": "Generate Palette Textures",
         "flipY": "Flip Y",
+        "instance": "Instance Identical Meshes",
         "linear": "Linear Color Space",
         "textureCompressionType": "Texture Compression Type",
         "ktx2Quality": "Compression Quality",
@@ -340,7 +356,7 @@
     "image": {
       "name": "Image",
       "description": "Dynamically loads an image.",
-      "lbl-imgURL": "Image Url",
+      "lbl-imgURL": "Image URL",
       "lbl-transparency": "Transparency Mode",
       "lbl-alphaCutoff": "Alpha Cutoff",
       "lbl-projection": "Projection",
@@ -355,7 +371,7 @@
     },
     "screenshare": {
       "name": "Screenshare Target",
-      "description": "Allows this object to be a target for screeshare projection."
+      "description": "Allows this object to be a target for screen-share projection."
     },
     "name": {
       "lbl-name": "Name"
@@ -363,6 +379,9 @@
     "particle-system": {
       "name": "Particle System",
       "description": "Particle emitter to create particles.",
+      "looping": "Looping",
+      "duration": "Duration",
+      "prewarm": "Prewarm",
       "emitter-shape": "Emitter Shape",
       "emission-bursts": "Emission Bursts",
       "shape-mesh": "Emitter Shape Mesh",
@@ -379,6 +398,7 @@
       "start-tile-index": "Starting Tile Index",
       "mesh": "Particle Mesh",
       "blending": "Blending",
+      "transparent": "Transparent",
       "world-space": "Use World Space"
     },
     "clouds": {
@@ -621,14 +641,16 @@
     "portal": {
       "lbl-portal": "Linked Portal",
       "lbl-redirect": "Use Page Redirect",
-      "description": "A Portat to teleport players to specified location",
+      "description": "A Portal to teleport players to specified location",
       "lbl-locationName": "Location",
       "lbl-modelUrl": "Model URL",
       "lbl-displayText": "Display Text",
       "lbl-effectType": "Loading Effect",
       "lbl-previewType": "Preview Type",
       "lbl-previewImageURL": "Preview Image URL",
-      "lbl-createPreviewImage": "Create Preview Image",
+      "lbl-savedImageURL": "Saved Image URL",
+      "lbl-previewImage": "Preview Image",
+      "lbl-saveImage": "Save Image",
       "lbl-spawnPosition": "Spawn Position",
       "lbl-spawnRotation": "Spawn Rotation",
       "lbl-triggerPosition": "Trigger Position",
@@ -693,7 +715,9 @@
       "viewAssetProperties": "View Properties",
       "refresh": "Refresh",
       "back": "Back",
-      "loadingFiles": "Loading files"
+      "loadingFiles": "Loading files",
+      "compress": "Compress",
+      "convert": "Convert"
     }
   },
   "hierarchy": {

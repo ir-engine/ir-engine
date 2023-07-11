@@ -1,16 +1,45 @@
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
+import { ECRClient } from '@aws-sdk/client-ecr'
 import { DescribeImagesCommand, ECRPUBLICClient } from '@aws-sdk/client-ecr-public'
 import * as k8s from '@kubernetes/client-node'
 import appRootPath from 'app-root-path'
-import axios from 'axios'
+import { exec } from 'child_process'
 import { compareVersions } from 'compare-versions'
 import _ from 'lodash'
+import fetch from 'node-fetch'
 import path from 'path'
 import semver from 'semver'
 import Sequelize, { Op } from 'sequelize'
+import { promisify } from 'util'
 
 import { BuilderTag } from '@etherealengine/common/src/interfaces/BuilderTags'
 import { ProjectCommitInterface } from '@etherealengine/common/src/interfaces/ProjectCommitInterface'
 import { ProjectInterface, ProjectPackageJsonType } from '@etherealengine/common/src/interfaces/ProjectInterface'
+import { helmSettingPath } from '@etherealengine/engine/src/schemas/setting/helm-setting.schema'
 import { getState } from '@etherealengine/hyperflux'
 import { ProjectConfigInterface, ProjectEventHooks } from '@etherealengine/projects/ProjectConfigInterface'
 
@@ -20,6 +49,7 @@ import { getPodsData } from '../../cluster/server-info/server-info-helper'
 import { getStorageProvider } from '../../media/storageprovider/storageprovider'
 import logger from '../../ServerLogger'
 import { ServerState } from '../../ServerState'
+import { BUILDER_CHART_REGEX, MAIN_CHART_REGEX } from '../../setting/helm-setting/helm-setting'
 import { getOctokitForChecking, getUserRepos } from './github-helper'
 import { ProjectParams } from './project.class'
 
@@ -31,6 +61,8 @@ export const privateECRTagRegex = /^[a-zA-Z0-9]+.dkr.ecr.([\w\d\s\-_]+).amazonaw
 
 const BRANCH_PER_PAGE = 100
 const COMMIT_PER_PAGE = 10
+
+const execAsync = promisify(exec)
 
 interface GitHubFile {
   status: number
@@ -74,52 +106,21 @@ export const updateBuilder = async (
     await Promise.all(data.projectsToUpdate.map((project) => app.service('project').update(project, null, params)))
   }
 
-  const k8AppsClient = getState(ServerState).k8AppsClient
+  const helmSettingsResult = await app.service(helmSettingPath).find()
+  const helmSettings = helmSettingsResult.total > 0 ? helmSettingsResult.data[0] : null
+  const builderDeploymentName = `${config.server.releaseName}-builder`
 
-  // trigger k8s to re-run the builder service
-  if (k8AppsClient) {
-    try {
-      logger.info('Attempting to update builder tag')
-      const builderRepo = process.env.BUILDER_REPOSITORY
-      const updateBuilderTagResponse = await k8AppsClient.patchNamespacedDeployment(
-        `${config.server.releaseName}-builder-etherealengine-builder`,
-        'default',
-        {
-          spec: {
-            template: {
-              metadata: {
-                annotations: {
-                  'kubectl.kubernetes.io/restartedAt': new Date().toISOString()
-                }
-              },
-              spec: {
-                containers: [
-                  {
-                    name: 'etherealengine-builder',
-                    image: `${builderRepo}:${tag}`
-                  }
-                ]
-              }
-            }
-          }
-        },
-        undefined,
-        undefined,
-        undefined,
-        undefined,
-        undefined,
-        {
-          headers: {
-            'Content-Type': k8s.PatchUtils.PATCH_FORMAT_STRATEGIC_MERGE_PATCH
-          }
-        }
+  if (helmSettings && helmSettings.builder && helmSettings.builder.length > 0)
+    await execAsync(
+      `helm upgrade --reuse-values --version ${helmSettings.builder} --set builder.image.tag=${tag} ${builderDeploymentName} etherealengine/etherealengine-builder`
+    )
+  else {
+    const { stdout } = await execAsync(`helm history ${builderDeploymentName} | grep deployed`)
+    const builderChartVersion = BUILDER_CHART_REGEX.exec(stdout)
+    if (builderChartVersion)
+      await execAsync(
+        `helm upgrade --reuse-values --version ${builderChartVersion} --set builder.image.tag=${tag} ${builderDeploymentName} etherealengine/etherealengine-builder`
       )
-      logger.info(updateBuilderTagResponse, 'updateBuilderTagResponse')
-      return updateBuilderTagResponse
-    } catch (e) {
-      logger.error(e)
-      return e
-    }
   }
 }
 
@@ -671,8 +672,8 @@ export const findBuilderTags = async (): Promise<Array<BuilderTag>> => {
   if (publicECRExec) {
     const ecr = new ECRPUBLICClient({
       credentials: {
-        accessKeyId: config.aws.keys.accessKeyId,
-        secretAccessKey: config.aws.keys.secretAccessKey
+        accessKeyId: config.aws.eks.accessKeyId,
+        secretAccessKey: config.aws.eks.secretAccessKey
       },
       region: 'us-east-1'
     })
@@ -698,10 +699,10 @@ export const findBuilderTags = async (): Promise<Array<BuilderTag>> => {
         }
       })
   } else if (privateECRExec) {
-    const ecr = new ECRPUBLICClient({
+    const ecr = new ECRClient({
       credentials: {
-        accessKeyId: config.aws.keys.accessKeyId,
-        secretAccessKey: config.aws.keys.secretAccessKey
+        accessKeyId: config.aws.eks.accessKeyId,
+        secretAccessKey: config.aws.eks.secretAccessKey
       },
       region: privateECRExec[1]
     })
@@ -728,14 +729,15 @@ export const findBuilderTags = async (): Promise<Array<BuilderTag>> => {
       })
   } else {
     const repoSplit = builderRepo.split('/')
-    const registry = repoSplit.length === 1 ? 'lagunalabs' : repoSplit[0]
+    const registry = repoSplit.length === 1 ? 'etherealengine' : repoSplit[0]
     const repo =
       repoSplit.length === 1 ? (repoSplit[0].length === 0 ? 'etherealengine-builder' : repoSplit[0]) : repoSplit[1]
     try {
-      const result = await axios.get(
+      const result = await fetch(
         `https://registry.hub.docker.com/v2/repositories/${registry}/${repo}/tags?page_size=100`
       )
-      return result.data.results.map((imageDetails) => {
+      const body = JSON.parse(Buffer.from(await result.arrayBuffer()).toString())
+      return body.results.map((imageDetails) => {
         const tag = imageDetails.name
         const tagSplit = tag.split('_')
         return {
@@ -835,7 +837,15 @@ export const getCronJobBody = (project: ProjectInterface, image: string): object
                   name: `${process.env.RELEASE_NAME}-${project.name}-auto-update`,
                   image,
                   imagePullPolicy: 'IfNotPresent',
-                  command: ['npm', 'run', 'updateProject', '--', '--projectName', `${project.name}`],
+                  command: [
+                    'npx',
+                    'cross-env',
+                    'ts-node',
+                    '--swc',
+                    'scripts/update-project.ts',
+                    '--projectName',
+                    `${project.name}`
+                  ],
                   env: Object.entries(process.env).map(([key, value]) => {
                     return { name: key, value: value }
                   })

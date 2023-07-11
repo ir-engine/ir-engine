@@ -1,3 +1,28 @@
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
 import { compress } from 'fflate'
 import {
   BackSide,
@@ -24,10 +49,8 @@ import {
 } from 'three'
 import { WebGLRenderer } from 'three/src/renderers/WebGLRenderer'
 
-import { KTX2Encoder } from '@etherealengine/xrui/core/textures/KTX2Encoder'
-
-import BasisuExporterExtension from '../../assets/exporters/gltf/extensions/BasisuExporterExtension'
-import { GLTFWriter } from '../../assets/exporters/gltf/GLTFExporter'
+import { defineState, getState } from '@etherealengine/hyperflux'
+import { KTX2EncodeOptions, KTX2Encoder, UASTCFlags } from '@etherealengine/xrui/core/textures/KTX2Encoder'
 
 export const ImageProjection = {
   Flat: 'Flat',
@@ -115,6 +138,20 @@ export const downloadImage = (imageData: ImageData, imageName = 'Image', width: 
   }, 'image/png')
 }
 
+/** Used in editor */
+export const ScreenshotSettings = defineState({
+  name: 'ScreenshotSettings',
+  initial: {
+    ktx2: {
+      srgb: false,
+      uastc: true,
+      uastcZstandard: true,
+      qualityLevel: 256,
+      compressionLevel: 3
+    } as KTX2EncodeOptions
+  }
+})
+
 const ktx2write = new KTX2Encoder()
 
 export const convertCubemapToKTX2 = async (
@@ -161,11 +198,7 @@ export const convertCubemapToKTX2 = async (
   const imageData = new ImageData(new Uint8ClampedArray(pixels), width, height)
   renderer.setRenderTarget(null) // pass `null` to set canvas as render target
 
-  const ktx2texture = (await ktx2write.encode(imageData, {
-    srgb: true,
-    qualityLevel: 256,
-    compressionLevel: 5
-  })) as ArrayBuffer
+  const ktx2texture = (await ktx2write.encode(imageData, getState(ScreenshotSettings).ktx2)) as ArrayBuffer
 
   if (returnAsBlob) {
     return new Blob([ktx2texture])

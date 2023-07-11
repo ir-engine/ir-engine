@@ -5,7 +5,6 @@
   z-index: 100000;
   height: 95vh;
   padding: 7px;
-  background: #00000082;
   width: calc(100vw - 50px);
   max-width: 450px;
 
@@ -38,23 +37,24 @@
   overflow: hidden;
   gap: 5px;
 
-  .flagBtn {
-    background: var(--buttonFilled);
+}
+
+.flagBtn {
+  background: var(--buttonFilled);
+  color: var(--text);
+  border: none;
+  flex-shrink: 0;
+  height: 30px;
+  border-radius: 3px;
+
+  &:hover,
+  &:focus-visible {
+    opacity: 0.8;
     color: var(--text);
-    border: none;
-    flex-shrink: 0;
-    height: 30px;
-    border-radius: 3px;
+  }
 
-    &:hover,
-    &:focus-visible {
-      opacity: 0.8;
-      color: var(--text);
-    }
-
-    &.active {
-      background: var(--blue);
-    }
+  &.active {
+    background: var(--blue);
   }
 }
 

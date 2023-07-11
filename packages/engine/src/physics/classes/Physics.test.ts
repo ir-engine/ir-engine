@@ -1,3 +1,28 @@
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
 import {
   ActiveCollisionTypes,
   ActiveEvents,
@@ -92,6 +117,7 @@ describe('Physics', () => {
     const mesh = new Mesh(geometry, material)
     mesh.translateX(10)
     mesh.rotateX(3.1415918)
+    mesh.updateMatrixWorld(true)
 
     const collisionGroup = 0x0001
     const collisionMask = 0x0003
@@ -101,7 +127,41 @@ describe('Physics', () => {
 
     const boxColliderDesc = Physics.createColliderDesc(mesh, boxDynamicConfig)!
     const interactionGroups = getInteractionGroups(collisionGroup, collisionMask)
-    console.log({ boxColliderDesc })
+
+    assert.deepEqual(boxColliderDesc.shape.type, boxDynamicConfig.shapeType)
+    assert.deepEqual(boxColliderDesc.collisionGroups, interactionGroups)
+    assert.deepEqual(boxColliderDesc.isSensor, boxDynamicConfig.isTrigger)
+    assert.deepEqual(boxColliderDesc.friction, boxDynamicConfig.friction)
+    assert.deepEqual(boxColliderDesc.restitution, boxDynamicConfig.restitution)
+    assert.deepEqual(boxColliderDesc.activeEvents, ActiveEvents.COLLISION_EVENTS)
+    assert.deepEqual(boxColliderDesc.activeCollisionTypes, ActiveCollisionTypes.ALL)
+    assert.deepEqual(boxColliderDesc.translation.x, 0)
+    assert.deepEqual(boxColliderDesc.translation.y, 0)
+    assert.deepEqual(boxColliderDesc.translation.z, 0)
+    assert.deepEqual(boxColliderDesc.rotation.x, 0)
+    assert.deepEqual(boxColliderDesc.rotation.y, 0)
+    assert.deepEqual(boxColliderDesc.rotation.z, 0)
+    assert.deepEqual(boxColliderDesc.rotation.w, 1)
+  })
+
+  it('should create collider desc from input config data in nested mesh', async () => {
+    const geometry = new BoxGeometry(1, 1, 1)
+    const material = new MeshBasicMaterial()
+    const root = new Mesh(geometry, material)
+    const mesh = new Mesh(geometry, material)
+    root.add(mesh)
+    mesh.position.set(1, 2, 3)
+    mesh.rotateX(3.1415918)
+    mesh.updateMatrixWorld(true)
+
+    const collisionGroup = 0x0001
+    const collisionMask = 0x0003
+    boxDynamicConfig.collisionLayer = collisionGroup
+    boxDynamicConfig.collisionMask = collisionMask
+    boxDynamicConfig.isTrigger = true
+
+    const boxColliderDesc = Physics.createColliderDesc(mesh, boxDynamicConfig, root)!
+    const interactionGroups = getInteractionGroups(collisionGroup, collisionMask)
 
     assert.deepEqual(boxColliderDesc.shape.type, boxDynamicConfig.shapeType)
     assert.deepEqual(boxColliderDesc.collisionGroups, interactionGroups)

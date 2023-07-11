@@ -46,6 +46,6 @@ jobs:
       - run: npm run check-errors
       - run: npm run dev-docker
       - run: npm run dev-reinit
-      - run: npm run test:projects
+      - run: npm run test
       - run: npm run build-client
       

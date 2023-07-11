@@ -1,3 +1,28 @@
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
 import { clamp } from 'lodash'
 import { Vector2 } from 'three'
 
@@ -5,17 +30,20 @@ import { getState } from '@etherealengine/hyperflux'
 
 import { AvatarControllerComponent } from '../../avatar/components/AvatarControllerComponent'
 import { switchCameraMode } from '../../avatar/functions/switchCameraMode'
+import { AvatarInputSettingsState } from '../../avatar/state/AvatarInputSettingsState'
+import { getThumbstickOrThumbpadAxes } from '../../avatar/systems/AvatarInputSystem'
 import { throttle } from '../../common/functions/FunctionHelpers'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import {
-  addComponent,
   ComponentType,
   defineQuery,
   getComponent,
-  getOptionalComponent
+  getOptionalComponent,
+  setComponent
 } from '../../ecs/functions/ComponentFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
+import { InputSourceComponent } from '../../input/components/InputSourceComponent'
 import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
 import { CameraSettings } from '../CameraState'
 import { FollowCameraComponent } from '../components/FollowCameraComponent'
@@ -27,7 +55,7 @@ export const setTargetCameraRotation = (entity: Entity, phi: number, theta: numb
     | ComponentType<typeof TargetCameraRotationComponent>
     | undefined
   if (!cameraRotationTransition) {
-    addComponent(entity, TargetCameraRotationComponent, {
+    setComponent(entity, TargetCameraRotationComponent, {
       phi: phi,
       phiVelocity: { value: 0 },
       theta: theta,
@@ -96,10 +124,10 @@ export const handleCameraZoom = (cameraEntity: Entity, value: number): void => {
   followComponent.zoomLevel = nextZoomLevel
 }
 
-const inputQuery = defineQuery([LocalInputTagComponent, AvatarControllerComponent])
+const avatarControllerQuery = defineQuery([LocalInputTagComponent, AvatarControllerComponent])
 
 const onKeyV = () => {
-  for (const entity of inputQuery()) {
+  for (const entity of avatarControllerQuery()) {
     const avatarController = getComponent(entity, AvatarControllerComponent)
     const cameraEntity = avatarController.cameraEntity
     const followComponent = getOptionalComponent(cameraEntity, FollowCameraComponent)
@@ -125,7 +153,7 @@ const onKeyV = () => {
 }
 
 const onKeyF = () => {
-  for (const entity of inputQuery()) {
+  for (const entity of avatarControllerQuery()) {
     const avatarController = getComponent(entity, AvatarControllerComponent)
     const cameraEntity = avatarController.cameraEntity
     const followComponent = getOptionalComponent(cameraEntity, FollowCameraComponent)
@@ -136,7 +164,7 @@ const onKeyF = () => {
 }
 
 const onKeyC = () => {
-  for (const entity of inputQuery()) {
+  for (const entity of avatarControllerQuery()) {
     const avatarController = getComponent(entity, AvatarControllerComponent)
     const cameraEntity = avatarController.cameraEntity
     const followComponent = getOptionalComponent(cameraEntity, FollowCameraComponent)
@@ -157,15 +185,24 @@ const execute = () => {
 
   const cameraSettings = getState(CameraSettings)
 
-  const keys = Engine.instance.buttons
+  const avatarControllerEntities = avatarControllerQuery()
+
+  const nonCapturedInputSource = InputSourceComponent.nonCapturedInputSourceQuery()[0]
+  if (!nonCapturedInputSource) return
+
+  const avatarInputSettings = getState(AvatarInputSettingsState)
+
+  const inputSource = getComponent(nonCapturedInputSource, InputSourceComponent)
+
+  const keys = inputSource.buttons
+
   if (keys.KeyV?.down) onKeyV()
   if (keys.KeyF?.down) onKeyF()
   if (keys.KeyC?.down) onKeyC()
 
-  const inputEntities = inputQuery()
   const mouseMoved = Engine.instance.pointerState.movement.lengthSq() > 0 && keys.PrimaryClick?.pressed
 
-  for (const entity of inputEntities) {
+  for (const entity of avatarControllerEntities) {
     const avatarController = getComponent(entity, AvatarControllerComponent)
     const cameraEntity = avatarController.cameraEntity
     const target =
@@ -175,6 +212,15 @@ const execute = () => {
 
     if (!lastMouseMoved && mouseMoved)
       lastLookDelta.set(Engine.instance.pointerState.position.x, Engine.instance.pointerState.position.y)
+
+    if (
+      (inputSource.source.gamepad?.mapping === 'standard' || inputSource.source.gamepad?.mapping === '') &&
+      inputSource.source.handedness === 'none'
+    ) {
+      const [x, z] = getThumbstickOrThumbpadAxes(inputSource.source, avatarInputSettings.preferredHand)
+      target.theta -= x * 2
+      target.phi += z * 2
+    }
 
     const keyDelta = (keys.ArrowLeft ? 1 : 0) + (keys.ArrowRight ? -1 : 0)
     target.theta += 100 * deltaSeconds * keyDelta

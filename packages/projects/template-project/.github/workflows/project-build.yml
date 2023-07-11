@@ -44,5 +44,5 @@ jobs:
       - run: npm run check-errors
       - run: npm run dev-docker
       - run: npm run dev-reinit
-      - run: npm run test:projects
+      - run: npx lerna run --ignore '@etherealengine/*' test
       - run: npm run build-client

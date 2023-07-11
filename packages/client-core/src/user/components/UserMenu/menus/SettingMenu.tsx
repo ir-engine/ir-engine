@@ -1,3 +1,28 @@
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
 import React, { useLayoutEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 
@@ -66,29 +91,20 @@ const SettingMenu = ({ isPopover }: Props): JSX.Element => {
     selfUser?.id?.value?.length > 0 && selfUser?.scopes?.value?.find((scope) => scope.type === 'admin:admin')
   const hasEditorAccess = userHasAccess('editor:write')
   const themeSettings = { ...defaultThemeSettings, ...clientSetting.themeSettings }
-  const themeModes = { ...defaultThemeModes, ...userSettings?.themeModes }
-
-  // This is done as a fix because previously studio was called editor
-  if (themeModes['editor']) {
-    if (!themeModes['studio']) {
-      themeModes['studio'] = themeModes['editor']
-    }
-
-    delete themeModes['editor']
+  const themeModes = {
+    client: userSettings?.themeModes?.client ?? defaultThemeModes.client,
+    studio: userSettings?.themeModes?.studio ?? defaultThemeModes.studio,
+    admin: userSettings?.themeModes?.admin ?? defaultThemeModes.admin
   }
 
   const showWorldSettings = Engine.instance.localClientEntity || engineState.value
 
-  /**
-   * Note: If you're editing this function, be sure to make the same changes to
-   * the XRUI version over at packages/client-core/src/systems/ui/ProfileDetailView/index.tsx
-   * @param event
-   */
   const handleChangeUserThemeMode = (event) => {
+    if (!userSettings) return
     const { name, value } = event.target
 
-    const settings = { ...userSettings, themeModes: { ...themeModes, [name]: value } }
-    userSettings && AuthService.updateUserSettings(userSettings.id as string, settings)
+    const settings = { themeModes: { ...themeModes, [name]: value } }
+    AuthService.updateUserSettings(userSettings.id as string, settings)
   }
 
   const handleChangeInvertRotationAndMoveSticks = () => {
