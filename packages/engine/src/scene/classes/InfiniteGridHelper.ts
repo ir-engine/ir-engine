@@ -23,7 +23,19 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Color, DoubleSide, Mesh, Plane, PlaneGeometry, ShaderMaterial, Vector3 } from 'three'
+import {
+  BufferAttribute,
+  BufferGeometry,
+  Color,
+  DoubleSide,
+  LineBasicMaterial,
+  LineSegments,
+  Mesh,
+  Plane,
+  PlaneGeometry,
+  ShaderMaterial,
+  Vector3
+} from 'three'
 
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
 import { setObjectLayers } from '../../scene/functions/setObjectLayers'
@@ -71,6 +83,18 @@ float getGrid(float size) {
     return 1.0 - min(line, 1.0);
 }
 
+float getXAxisLine() {
+  float lineWidth = 0.5; // Adjust line width if needed
+  float xLine = smoothstep(-lineWidth, lineWidth, abs(worldPosition.x));
+  return 1.0 - xLine;
+}
+
+float getZAxisLine() {
+  float lineWidth = 0.5; // Adjust line width if needed
+  float zLine = smoothstep(-lineWidth, lineWidth, abs(worldPosition.z));
+  return 1.0 - zLine;
+}
+
 void main() {
   #include <logdepthbuf_fragment>
 
@@ -78,9 +102,12 @@ void main() {
 
   float g1 = getGrid(uSize1);
   float g2 = getGrid(uSize2);
+  float xAxisLine = getXAxisLine();
+  float zAxisLine = getZAxisLine();
 
-
-  gl_FragColor = vec4(uColor.rgb, mix(g2, g1, g1) * pow(d, 3.0));
+  vec3 color = mix(uColor.rgb, vec3(1.0, 0.0, 0.0), xAxisLine); 
+  color = mix(color, vec3(0.0, 0.0, 1.0), zAxisLine);
+  gl_FragColor = vec4(color, mix(g2, g1, g1) * pow(d, 3.0));
   gl_FragColor.a = mix(0.5 * gl_FragColor.a, gl_FragColor.a, g2);
 
   if ( gl_FragColor.a <= 0.0 ) discard;

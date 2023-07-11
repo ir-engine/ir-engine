@@ -35,6 +35,8 @@ import {
 import { useRender3DPanelSystem } from '@etherealengine/client-core/src/user/components/Panel3D/useRender3DPanelSystem'
 import { SourceType } from '@etherealengine/engine/src/renderer/materials/components/MaterialSource'
 import { removeMaterialSource } from '@etherealengine/engine/src/renderer/materials/functions/MaterialLibraryFunctions'
+import InfiniteGridHelper from '@etherealengine/engine/src/scene/classes/InfiniteGridHelper'
+import { ObjectLayers } from '@etherealengine/engine/src/scene/constants/ObjectLayers'
 import { useHookstate } from '@etherealengine/hyperflux'
 
 import styles from '../styles.module.scss'
@@ -47,18 +49,17 @@ export const ModelPreviewPanel = (props) => {
   const panelRef = useRef() as React.MutableRefObject<HTMLDivElement>
   const renderPanel = useRender3DPanelSystem(panelRef)
   const { camera, entity, scene, renderer } = renderPanel.state
-
-  const augmentSceneForPreview = (camera, scene, renderer) => {
-    // empty for now but we can augment in any way needed like change camera, lighting, etc
-  }
+  const gridHelper = new InfiniteGridHelper()
 
   useEffect(() => {
+    gridHelper.layers.set(ObjectLayers.Panel)
+    scene.value.add(gridHelper)
+
     const handleSizeChange = () => {
       renderPanel.resize()
     }
 
     const handleSizeChangeDebounced = debounce(handleSizeChange, 100)
-
     const resizeObserver = new ResizeObserver((entries) => {
       for (const entry of entries) {
         if (entry.target === panelRef.current) {
@@ -71,9 +72,17 @@ export const ModelPreviewPanel = (props) => {
       resizeObserver.observe(panelRef.current)
     }
 
+    return () => {
+      resizeObserver.disconnect()
+      handleSizeChangeDebounced.cancel()
+      gridHelper.layers.set(ObjectLayers.Scene)
+      scene.value.remove(gridHelper)
+    }
+  }, [])
+
+  useEffect(() => {
     const loadModel = async () => {
       try {
-        //augmentSceneForPreview(camera, scene, renderer)
         resetAnimationLogic(entity.value)
         const model = await loadModelForPreview(entity.value, url)
         if (model) {
@@ -92,9 +101,6 @@ export const ModelPreviewPanel = (props) => {
     loadModel()
 
     return () => {
-      resizeObserver.disconnect()
-      handleSizeChangeDebounced.cancel()
-
       const sceneVal = scene.value
       const avatar = sceneVal.children.find((child) => child.name === 'avatar')
       if (avatar?.userData['src']) {

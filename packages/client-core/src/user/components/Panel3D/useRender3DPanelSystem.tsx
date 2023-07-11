@@ -32,6 +32,7 @@ import { PresentationSystemGroup } from '@etherealengine/engine/src/ecs/function
 import { createEntity, removeEntity } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
 import { defineSystem, disableSystem, startSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import { getOrbitControls } from '@etherealengine/engine/src/input/functions/loadOrbitControl'
+import InfiniteGridHelper from '@etherealengine/engine/src/scene/classes/InfiniteGridHelper'
 import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
 import { ObjectLayers } from '@etherealengine/engine/src/scene/constants/ObjectLayers'
 
