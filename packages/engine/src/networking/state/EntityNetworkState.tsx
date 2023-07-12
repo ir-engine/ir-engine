@@ -92,10 +92,6 @@ export const EntityNetworkState = defineState({
   ]
 })
 
-const receiveSpawnDebugPhysicsObject = (action: typeof WorldNetworkAction.spawnDebugPhysicsObject.matches._TYPE) => {
-  generatePhysicsObject(action.config, action.config.spawnPosition, true, action.config.spawnScale)
-}
-
 const receiveRequestAuthorityOverObject = (
   action: typeof WorldNetworkAction.requestAuthorityOverObject.matches._TYPE
 ) => {
@@ -136,14 +132,12 @@ const receiveTransferAuthorityOfObject = (
   getMutableComponent(entity, NetworkObjectComponent).authorityPeerID.set(action.newAuthority)
 }
 
-const spawnDebugPhysicsObjectQueue = defineActionQueue(WorldNetworkAction.spawnDebugPhysicsObject.matches)
 const requestAuthorityOverObjectQueue = defineActionQueue(WorldNetworkAction.requestAuthorityOverObject.matches)
 const transferAuthorityOfObjectQueue = defineActionQueue(WorldNetworkAction.transferAuthorityOfObject.matches)
 
 const execute = () => {
   receiveActions(EntityNetworkState)
 
-  for (const action of spawnDebugPhysicsObjectQueue()) receiveSpawnDebugPhysicsObject(action)
   for (const action of requestAuthorityOverObjectQueue()) receiveRequestAuthorityOverObject(action)
   for (const action of transferAuthorityOfObjectQueue()) receiveTransferAuthorityOfObject(action)
 }

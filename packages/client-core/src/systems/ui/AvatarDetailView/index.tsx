@@ -39,7 +39,6 @@ import { createState, getMutableState, useHookstate } from '@etherealengine/hype
 import { AvatarUIState } from '../../state/AvatarUIState'
 import styleString from './index.scss?inline'
 
-/** @deprecated */
 export function createAvatarDetailView(id: string) {
   const videoPreviewMesh = new Mesh(new CircleGeometry(0.25, 32), new MeshBasicMaterial())
   const ui = createXRUI(
@@ -56,16 +55,16 @@ export function createAvatarDetailView(id: string) {
 interface AvatarDetailState {
   id: string
 }
-/** @deprecated */
+
 const AvatarDetailView = () => {
   const { t } = useTranslation()
   const detailState = useXRUIState<AvatarDetailState>()
-  const user = Array.from(Engine.instance.worldNetworkState.peers?.get({ noproxy: true }).values()).find(
-    (peer) => peer.userId === detailState.id.value
-  )
+  const user = Engine.instance.worldNetworkState?.peers
+    ? Array.from(Engine.instance.worldNetwork.peers.values()).find((peer) => peer.userId === detailState.id.value)
+    : undefined
   const worldState = useHookstate(getMutableState(WorldState)).get({ noproxy: true })
   const usersTypingState = useHookstate(getMutableState(AvatarUIState).usersTyping)
-  const usersTyping = usersTypingState[detailState.id.value].value
+  const usersTyping = usersTypingState[detailState.id.value]?.value
   const username = worldState?.userNames && user ? worldState.userNames[user.userId] : 'A user'
 
   return (
