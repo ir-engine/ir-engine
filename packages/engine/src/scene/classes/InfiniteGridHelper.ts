@@ -125,10 +125,6 @@ export default class InfiniteGridHelper extends Mesh {
   intersection: any
 
   constructor(size1 = 1, size2 = 10, color = new Color('white'), distance = 8000) {
-    color = color || new Color('white')
-    size1 = size1 || 1
-    size2 = size2 || 10
-    distance = distance || 8000
     const geometry = new PlaneGeometry(2, 2, 1, 1)
     const material = new ShaderMaterial({
       side: DoubleSide,
