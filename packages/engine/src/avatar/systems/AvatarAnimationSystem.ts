@@ -60,6 +60,7 @@ import { NetworkObjectComponent } from '../../networking/components/NetworkObjec
 import { Physics, RaycastArgs } from '../../physics/classes/Physics'
 import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
 import { SceneQueryType } from '../../physics/types/PhysicsTypes'
+import { RendererState } from '../../renderer/RendererState'
 import { addObjectToGroup, GroupComponent } from '../../scene/components/GroupComponent'
 import { NameComponent } from '../../scene/components/NameComponent'
 import { UUIDComponent } from '../../scene/components/UUIDComponent'
@@ -106,7 +107,6 @@ export const AvatarAnimationState = defineState({
     return {
       priorityQueue,
       sortedTransformEntities: [] as Entity[],
-      visualizeTargets: true,
       visualizers: [] as Entity[]
     }
   }
@@ -175,14 +175,15 @@ const worldSpaceTargets = {
 }
 
 const setVisualizers = () => {
-  const { visualizers, visualizeTargets } = getMutableState(AvatarAnimationState)
-  if (!visualizeTargets) {
-    if (visualizers.length > 0) {
-      //remove visualizers
-      for (let i = 0; i < visualizers.length; i++) {
-        removeEntity(visualizers[i].value)
-      }
+  const { visualizers } = getMutableState(AvatarAnimationState)
+  const { debugEnable } = getMutableState(RendererState)
+  console.log(debugEnable)
+  if (!debugEnable.value) {
+    //remove visualizers
+    for (let i = 0; i < visualizers.length; i++) {
+      removeEntity(visualizers[i].value)
     }
+
     return
   }
   for (let i = 0; i < 11; i++) {
@@ -197,8 +198,9 @@ const setVisualizers = () => {
 
 const execute = () => {
   const xrState = getState(XRState)
-  const { priorityQueue, sortedTransformEntities, visualizeTargets, visualizers } = getState(AvatarAnimationState)
+  const { priorityQueue, sortedTransformEntities, visualizers } = getState(AvatarAnimationState)
   const { elapsedSeconds, deltaSeconds, localClientEntity } = Engine.instance
+  const { debugEnable } = getState(RendererState)
 
   for (const action of sessionChangedQueue()) {
     if (!localClientEntity) continue
@@ -352,7 +354,7 @@ const execute = () => {
         .add(rigComponent.ikOffsetsMap.get(key)!)
         .applyMatrix4(root.matrixWorld)
 
-      if (visualizeTargets) {
+      if (debugEnable) {
         const visualizerTransform = getComponent(visualizers[i], TransformComponent)
         visualizerTransform.position.copy(worldSpaceTargets[key].position)
       }
@@ -602,10 +604,11 @@ const execute = () => {
 }
 
 const reactor = () => {
-  const animationState = useHookstate(getState(AvatarAnimationState))
+  const renderState = useHookstate(getMutableState(RendererState))
   useEffect(() => {
     setVisualizers()
-  }, [animationState.visualizers])
+    console.log('set')
+  }, [renderState.debugEnable])
   return null
 }
 
