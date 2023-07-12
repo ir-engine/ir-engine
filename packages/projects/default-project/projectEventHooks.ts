@@ -34,7 +34,7 @@ import { Application } from '@etherealengine/server-core/declarations'
 import { getStorageProvider } from '@etherealengine/server-core/src/media/storageprovider/storageprovider'
 import { installAvatarsFromProject } from '@etherealengine/server-core/src/user/avatar/avatar-helper'
 
-const avatarsFolder = path.resolve(__dirname, 'public/avatars')
+const avatarsFolder = path.resolve(__dirname, 'assets/avatars')
 
 const handleOEmbedRequest = async (app: Application, url: URL, currentOEmbed: OEmbed) => {
   const isLocation = /^\/location\//.test(url.pathname)

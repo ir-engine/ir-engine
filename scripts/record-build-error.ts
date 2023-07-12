@@ -29,10 +29,7 @@ import dotenv from 'dotenv-flow'
 import fs from 'fs'
 import knex from 'knex'
 
-import {
-  BuildStatusType,
-  buildStatusPath
-} from '@etherealengine/engine/src/schemas/cluster/build-status.schema'
+import { buildStatusPath, BuildStatusType } from '@etherealengine/engine/src/schemas/cluster/build-status.schema'
 
 dotenv.config({
   path: appRootPath.path,
@@ -67,7 +64,7 @@ cli.main(async () => {
     const builderRun = fs.readFileSync('builder-run.txt').toString()
     if (options.isDocker) {
       const cacheMissRegex = new RegExp(`${options.service}:latest_${process.env.RELEASE_NAME}: not found`)
-      if (/ERROR:/.test(buildErrors) && !cacheMissRegex) {
+      if (/ERROR:/.test(buildErrors) && !cacheMissRegex.test(buildErrors)) {
         const combinedLogs = `Docker task that errored: ${options.service}\n\nTask logs:\n\n${buildErrors}`
         await knexClient
           .from<BuildStatusType>(buildStatusPath)
