@@ -32,75 +32,68 @@ import knex from 'knex'
 import path from 'path'
 import { promisify } from 'util'
 
+import { helmSettingPath, HelmSettingType } from '@etherealengine/engine/src/schemas/setting/helm-setting.schema'
 import {
-    helmSettingPath,
-    HelmSettingType
-} from '@etherealengine/engine/src/schemas/setting/helm-setting.schema'
-import {
-    MAIN_CHART_REGEX,
-    BUILDER_CHART_REGEX
+  BUILDER_CHART_REGEX,
+  MAIN_CHART_REGEX
 } from '@etherealengine/server-core/src/setting/helm-setting/helm-setting'
 
 dotenv.config({
-    path: appRootPath.path,
-    silent: true
+  path: appRootPath.path,
+  silent: true
 })
 
 const execAsync = promisify(exec)
 
 cli.enable('status')
 
-
 const options = cli.parse({
-    stage: [true, 'dev, prod, etc; deployment stage', 'string']
+  stage: [true, 'dev, prod, etc; deployment stage', 'string']
 })
 
 cli.main(async () => {
-    try {
-        const knexClient = knex({
-            client: 'mysql',
-            connection: {
-                user: process.env.MYSQL_USER ?? 'server',
-                password: process.env.MYSQL_PASSWORD ?? 'password',
-                host: process.env.MYSQL_HOST ?? '127.0.0.1',
-                port: parseInt(process.env.MYSQL_PORT || '3306'),
-                database: process.env.MYSQL_DATABASE ?? 'etherealengine',
-                charset: 'utf8mb4'
-            }
-        })
+  try {
+    const knexClient = knex({
+      client: 'mysql',
+      connection: {
+        user: process.env.MYSQL_USER ?? 'server',
+        password: process.env.MYSQL_PASSWORD ?? 'password',
+        host: process.env.MYSQL_HOST ?? '127.0.0.1',
+        port: parseInt(process.env.MYSQL_PORT || '3306'),
+        database: process.env.MYSQL_DATABASE ?? 'etherealengine',
+        charset: 'utf8mb4'
+      }
+    })
 
-        const [helmSettings] = await knexClient
-            .select()
-            .from<HelmSettingType>(helmSettingPath)
+    const [helmSettings] = await knexClient.select().from<HelmSettingType>(helmSettingPath)
 
-        const helmMainVersionName = path.join(appRootPath.path, 'helm-main-version.txt')
-        const helmBuilderVersionName = path.join(appRootPath.path, 'helm-builder-version.txt')
+    const helmMainVersionName = path.join(appRootPath.path, 'helm-main-version.txt')
+    const helmBuilderVersionName = path.join(appRootPath.path, 'helm-builder-version.txt')
 
-        if (helmSettings) {
-            if (helmSettings.main && helmSettings.main.length > 0)
-                fs.writeFileSync(helmMainVersionName, helmSettings.main)
-            else {
-                const { stdout } = await execAsync(`helm history ${options.stage} | grep deployed`)
-                const mainChartVersion = MAIN_CHART_REGEX.exec(stdout)
-                if (mainChartVersion) fs.writeFileSync(helmMainVersionName, mainChartVersion[1])
-            }
-            if (helmSettings.builder && helmSettings.builder.length > 0)
-                fs.writeFileSync(helmBuilderVersionName, helmSettings.builder)
-            else {
-                const { stdout } = await execAsync(`helm history ${options.stage}-builder | grep deployed`)
-                const builderChartVersion = BUILDER_CHART_REGEX.exec(stdout)
-                if (builderChartVersion) fs.writeFileSync(helmBuilderVersionName, builderChartVersion[1])
-            }
-        } else {
-            const { stdout } = await execAsync(`helm history ${options.stage} | grep deployed`)
-            const mainChartVersion = MAIN_CHART_REGEX.exec(stdout)
-            if (mainChartVersion) fs.writeFileSync(helmMainVersionName, mainChartVersion[1])
-            const builderChartVersion = BUILDER_CHART_REGEX.exec(stdout)
-            if (builderChartVersion) fs.writeFileSync(helmBuilderVersionName, builderChartVersion[1])
-        }
-        cli.exit(0)
-    } catch (err) {
-        console.log(err)
-        cli.fatal(err)
+    if (helmSettings) {
+      if (helmSettings.main && helmSettings.main.length > 0) fs.writeFileSync(helmMainVersionName, helmSettings.main)
+      else {
+        const { stdout } = await execAsync(`helm history ${options.stage} | grep deployed`)
+        const mainChartVersion = MAIN_CHART_REGEX.exec(stdout)
+        if (mainChartVersion) fs.writeFileSync(helmMainVersionName, mainChartVersion[1])
+      }
+      if (helmSettings.builder && helmSettings.builder.length > 0)
+        fs.writeFileSync(helmBuilderVersionName, helmSettings.builder)
+      else {
+        const { stdout } = await execAsync(`helm history ${options.stage}-builder | grep deployed`)
+        const builderChartVersion = BUILDER_CHART_REGEX.exec(stdout)
+        if (builderChartVersion) fs.writeFileSync(helmBuilderVersionName, builderChartVersion[1])
+      }
+    } else {
+      const { stdout } = await execAsync(`helm history ${options.stage} | grep deployed`)
+      const mainChartVersion = MAIN_CHART_REGEX.exec(stdout)
+      if (mainChartVersion) fs.writeFileSync(helmMainVersionName, mainChartVersion[1])
+      const builderChartVersion = BUILDER_CHART_REGEX.exec(stdout)
+      if (builderChartVersion) fs.writeFileSync(helmBuilderVersionName, builderChartVersion[1])
     }
+    cli.exit(0)
+  } catch (err) {
+    console.log(err)
+    cli.fatal(err)
+  }
 })

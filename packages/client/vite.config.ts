@@ -123,24 +123,6 @@ require('ts-node').register({
   project: './tsconfig.json'
 })
 
-/** @deprecated */
-const copyProjectDependencies = () => {
-  if (!fs.existsSync(path.resolve(__dirname, '../projects/projects/'))) {
-    // create directory
-    fs.mkdirSync(path.resolve(__dirname, '../projects/projects/'))
-  }
-  const projects = fs
-    .readdirSync(path.resolve(__dirname, '../projects/projects/'), { withFileTypes: true })
-    .filter((dirent) => dirent.isDirectory())
-    .map((dirent) => dirent.name)
-  for (const project of projects) {
-    const staticPath = path.resolve(__dirname, `../projects/projects/`, project, 'public')
-    if (fs.existsSync(staticPath)) {
-      fsExtra.copySync(staticPath, path.resolve(__dirname, `public/projects`, project))
-    }
-  }
-}
-
 const getProjectConfigExtensions = async (config: UserConfig) => {
   const projects = fs
     .readdirSync(path.resolve(__dirname, '../projects/projects/'), { withFileTypes: true })
@@ -242,9 +224,6 @@ const resetSWFiles = () => {
     }
   }
 }
-
-// this will copy all files in each installed project's "/static" folder to the "/public/projects" folder
-copyProjectDependencies()
 
 export default defineConfig(async () => {
   dotenv.config({

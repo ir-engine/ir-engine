@@ -53,7 +53,7 @@ cli.enable('status')
 const options = cli.parse({
   subdomainFrom: [true, 'Old subdomain', 'string'],
   subdomainTo: [true, 'New subdomain', 'string']
-});
+})
 
 cli.main(async () => {
   try {
@@ -120,13 +120,16 @@ cli.main(async () => {
         console.log('old URL', url)
         url = url.replace(options.subdomainFrom, options.subdomainTo)
         console.log('new URL', url)
-        await StaticResource.update({
-          url
-        }, {
-          where: {
-            id: resource.id
+        await StaticResource.update(
+          {
+            url
+          },
+          {
+            where: {
+              id: resource.id
+            }
           }
-        })
+        )
       }
     }
     cli.ok(`All static resources updated with new subdomain`)
