@@ -23,12 +23,11 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React, { useEffect, useLayoutEffect } from 'react'
+import { useLayoutEffect } from 'react'
 
 import { Entity } from '../../ecs/classes/Entity'
 import { defineComponent, removeComponent, setComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
 import { useEntityContext } from '../../ecs/functions/EntityFunctions'
-import { BoundingBoxComponent } from '../../interaction/components/BoundingBoxComponents'
 import { HighlightComponent } from '../../renderer/components/HighlightComponent'
 
 export const InputComponent = defineComponent({
@@ -37,21 +36,28 @@ export const InputComponent = defineComponent({
   onInit: () => {
     return {
       /** populated automatically by ClientInputSystem */
-      inputSources: [] as Entity[]
+      inputSources: [] as Entity[],
+      highlight: false
       // priority: 0
     }
+  },
+
+  onSet(entity, component, json) {
+    if (!json) return
+
+    if (typeof json.highlight === 'string') component.highlight.set(json.highlight)
   },
 
   reactor: () => {
     const entity = useEntityContext()
     const input = useComponent(entity, InputComponent)
     useLayoutEffect(() => {
-      if (input.inputSources.length === 0) return
+      if (!input.inputSources.length || !input.highlight.value) return
       setComponent(entity, HighlightComponent)
       return () => {
         removeComponent(entity, HighlightComponent)
       }
-    }, [input.inputSources])
+    }, [input.inputSources, input.highlight])
     return null
   }
 })
