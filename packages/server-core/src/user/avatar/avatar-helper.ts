@@ -89,8 +89,8 @@ export const installAvatarsFromProject = async (app: Application, avatarsFolder:
 
   const provider = getStorageProvider()
 
-  const uploadDependencies = (filePaths: string[]) =>
-    Promise.all([
+  const uploadDependencies = (filePaths: string[]) => {
+    return Promise.all([
       provider.createInvalidation(filePaths),
       ...filePaths.map((filePath) => {
         const key = `static-resources/avatar/public${filePath.replace(avatarsFolder, '')}`
@@ -108,6 +108,7 @@ export const installAvatarsFromProject = async (app: Application, avatarsFolder:
         )
       })
     ])
+  }
 
   /**
    * @todo

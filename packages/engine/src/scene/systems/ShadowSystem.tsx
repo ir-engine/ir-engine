@@ -291,7 +291,7 @@ const reactor = () => {
   useEffect(() => {
     Engine.instance.scene.add(csmGroup)
 
-    AssetLoader.loadAsync(`${config.client.fileServer}/projects/default-project/public/drop-shadow.png`).then(
+    AssetLoader.loadAsync(`${config.client.fileServer}/projects/default-project/assets/drop-shadow.png`).then(
       (texture: Texture) => {
         shadowMaterial.map = texture
         shadowMaterial.needsUpdate = true

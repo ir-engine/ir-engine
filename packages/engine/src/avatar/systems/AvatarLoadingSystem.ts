@@ -304,13 +304,13 @@ const execute = () => {
 
 const reactor = () => {
   useEffect(() => {
-    AssetLoader.loadAsync('/itemLight.png').then((texture) => {
+    AssetLoader.loadAsync('/static/itemLight.png').then((texture) => {
       texture.encoding = sRGBEncoding
       texture.needsUpdate = true
       light.material.map = texture
     })
 
-    AssetLoader.loadAsync('/itemPlate.png').then((texture) => {
+    AssetLoader.loadAsync('/static/itemPlate.png').then((texture) => {
       texture.encoding = sRGBEncoding
       texture.needsUpdate = true
       plate.material.map = texture
