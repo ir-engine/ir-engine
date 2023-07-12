@@ -30,6 +30,7 @@ import {
   ConeGeometry,
   CylinderGeometry,
   Euler,
+  FrontSide,
   Mesh,
   MeshBasicMaterial,
   Quaternion,
@@ -179,8 +180,7 @@ export const PortalComponent = defineComponent({
       }
 
       if (!portalComponent.mesh.value && portalComponent.previewType.value === PortalPreviewTypeSpherical) {
-        const portalMesh = new Mesh(new SphereGeometry(1.5, 32, 32), new MeshBasicMaterial({ side: BackSide }))
-        portalMesh.scale.x = -1
+        const portalMesh = new Mesh(new SphereGeometry(1.5, 32, 32), new MeshBasicMaterial({ side: FrontSide }))
         portalComponent.mesh.set(portalMesh)
         addObjectToGroup(entity, portalMesh)
       }

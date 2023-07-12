@@ -489,13 +489,6 @@ const EditorContainer = () => {
 
   useEffect(() => {
     if (!dockPanelRef.current) return
-
-    dockPanelRef.current.updateTab('viewPanel', {
-      id: 'viewPanel',
-      title: 'Viewport',
-      content: viewPortPanelContent(!sceneLoaded.value)
-    })
-
     const activePanel = sceneLoaded.value ? 'filesPanel' : 'scenePanel'
     dockPanelRef.current.updateTab(activePanel, dockPanelRef.current.find(activePanel) as TabData, true)
   }, [sceneLoaded])
@@ -540,16 +533,17 @@ const EditorContainer = () => {
     ]
   }
 
-  const viewPortPanelContent = useCallback((shouldDisplay) => {
-    return shouldDisplay ? (
+  const ViewPortPanelContent = () => {
+    const sceneLoaded = useHookstate(getMutableState(EngineState)).sceneLoaded.value
+    return sceneLoaded ? (
+      <div />
+    ) : (
       <div className={styles.bgImageBlock}>
         <img src="/static/etherealengine.png" alt="" />
         <h2>{t('editor:selectSceneMsg')}</h2>
       </div>
-    ) : (
-      <div />
     )
-  }, [])
+  }
 
   const toolbarMenu = generateToolbarMenu()
 
@@ -603,7 +597,7 @@ const EditorContainer = () => {
                 {
                   id: 'viewPanel',
                   title: 'Viewport',
-                  content: viewPortPanelContent(true)
+                  content: <ViewPortPanelContent />
                 }
               ],
               size: 1
