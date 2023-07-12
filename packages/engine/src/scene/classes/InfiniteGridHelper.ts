@@ -153,19 +153,6 @@ export default class InfiniteGridHelper extends Mesh {
         derivatives: true
       }
     })
-
-    super(geometry, material)
-
-    this.name = 'InfiniteGridHelper'
-    setObjectLayers(this, ObjectLayers.Gizmos)
-    this.frustumCulled = false
-    this.plane = new Plane(this.up)
-    this.intersectionPointWorld = new Vector3()
-    this.intersection = {
-      distance: 0,
-      point: this.intersectionPointWorld,
-      object: this
-    }
     const yLineGeometry = new BufferGeometry()
     const yLinePositions = new Float32Array([0, -distance, 0, 0, distance, 0])
     yLineGeometry.setAttribute('position', new BufferAttribute(yLinePositions, 3))
@@ -179,7 +166,19 @@ export default class InfiniteGridHelper extends Mesh {
       depthWrite: true
     })
     const yLine = new LineSegments(yLineGeometry, yLineMaterial)
-    this.add(yLine)
+    super(geometry, material)
+    super.add(yLine)
+
+    this.name = 'InfiniteGridHelper'
+    setObjectLayers(this, ObjectLayers.Gizmos)
+    this.frustumCulled = false
+    this.plane = new Plane(this.up)
+    this.intersectionPointWorld = new Vector3()
+    this.intersection = {
+      distance: 0,
+      point: this.intersectionPointWorld,
+      object: this
+    }
   }
 
   setSize(size) {
