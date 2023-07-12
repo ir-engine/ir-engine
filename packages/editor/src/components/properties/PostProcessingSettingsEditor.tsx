@@ -23,13 +23,14 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { debounce } from 'lodash'
 import { BlendFunction } from 'postprocessing'
 import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Color } from 'three'
 
 import { useComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
-import { debouncedConfigureEffectComposer } from '@etherealengine/engine/src/renderer/functions/configureEffectComposer'
+import { configureEffectComposer } from '@etherealengine/engine/src/renderer/functions/configureEffectComposer'
 import { PostProcessingComponent } from '@etherealengine/engine/src/scene/components/PostProcessingComponent'
 import { Effects } from '@etherealengine/engine/src/scene/constants/PostProcessing'
 
@@ -254,6 +255,10 @@ const PredicationMode = [
   { label: 'DEPTH', value: 1 },
   { label: 'CUSTOM', value: 2 }
 ]
+
+const debouncedConfigureEffectComposer = debounce(() => {
+  configureEffectComposer()
+}, 200) // in ms
 
 export const PostProcessingSettingsEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
