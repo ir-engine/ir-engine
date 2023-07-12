@@ -74,8 +74,6 @@ const rotation = new Quaternion()
  *
  * @type {class component}
  */
-const updateCubeMapBakeDebounced = debounce(updateCubeMapBake, 500) //ms
-
 export const PortalNodeEditor: EditorComponentType = (props) => {
   const [portals, setPortals] = useState<Array<{ value: string; label: string }>>([])
   const [bufferUrl, setBufferUrl] = useState<string>('')
@@ -93,6 +91,8 @@ export const PortalNodeEditor: EditorComponentType = (props) => {
     const url = URL.createObjectURL(imageBlob)
     setBufferUrl(url)
   }
+
+  const updateCubeMapBakeDebounced = debounce(updateCubeMapBake, 500) //ms
 
   useEffect(() => {
     updateCubeMapBakeDebounced()
