@@ -26,6 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { t } from 'i18next'
 import React, { useRef, useState } from 'react'
 
+import { ShadowMapResolutionOptions } from '@etherealengine/client-core/src/user/components/UserMenu/menus/SettingMenu'
 import { RenderModesType } from '@etherealengine/engine/src/renderer/constants/RenderModes'
 import { RenderModes } from '@etherealengine/engine/src/renderer/constants/RenderModes'
 import { RendererState } from '@etherealengine/engine/src/renderer/RendererState'
@@ -63,11 +64,6 @@ const RenderModeTool = () => {
     rendererState.renderMode.set(mode)
   }
 
-  const handleQualityLevelChange = (value) => {
-    rendererState.qualityLevel.set(value)
-    rendererState.automatic.set(false)
-  }
-
   const handlePostProcessingCheckbox = () => {
     rendererState.usePostProcessing.set(!rendererState.usePostProcessing.value)
     rendererState.automatic.set(false)
@@ -94,19 +90,6 @@ const RenderModeTool = () => {
             <BooleanInput value={rendererState.usePostProcessing.value} onChange={handlePostProcessingCheckbox} />
           </InputGroup>
           <InputGroup
-            name="Resolution"
-            label={t('editor:toolbar.render-settings.lbl-resolution')} // resusing this, can be moved to its own section
-            info={t('editor:toolbar.render-settings.info-resolution')} // resusing this, can be moved to its own section
-          >
-            <CompoundNumericInput
-              max={5}
-              min={1}
-              step={1}
-              value={rendererState.qualityLevel.value}
-              onChange={handleQualityLevelChange}
-            />
-          </InputGroup>
-          <InputGroup
             name="Render Mode"
             label={t('editor:toolbar.render-settings.lbl-renderMode')} // need to figure out where this goes, maybe make a new section in editor.json, HELP!
             info={t('editor:toolbar.render-settings.info-renderMode')}
@@ -121,6 +104,19 @@ const RenderModeTool = () => {
               isSearchable={false}
             />
           </InputGroup>
+          {rendererState.renderMode.value == RenderModes.SHADOW && (
+            <InputGroup
+              name="Shadow Map Resolution"
+              label={t('editor:toolbar.render-settings.lbl-shadowMapResolution')}
+              info={t('editor:toolbar.render-settings.info-shadowMapResolution')}
+            >
+              <SelectInput
+                options={ShadowMapResolutionOptions}
+                value={rendererState.shadowMapResolution.value}
+                onChange={(resolution: number) => rendererState.shadowMapResolution.set(resolution)}
+              />
+            </InputGroup>
+          )}
         </div>
       )}
     </>

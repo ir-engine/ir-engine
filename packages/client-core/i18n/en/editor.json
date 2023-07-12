@@ -122,8 +122,8 @@
     "render-settings":{
       "lbl-usePostProcessing":"Use Post Processing",
       "info-usePostProcessing":"Enables post processing",
-      "lbl-resolution":"Resolution",
-      "info-resolution":"Set graphic resolution (0 - 5)",
+      "lbl-shadowMapResolution":"Shadow Map Resolution",
+      "info-shadowMapResolution":"Set shadowmap resolution",
       "lbl-renderMode":"Render Mode",
       "info-renderMode":"Choose render mode"
     }
