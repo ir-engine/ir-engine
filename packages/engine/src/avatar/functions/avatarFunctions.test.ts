@@ -57,7 +57,7 @@ before(async () => {
   await loadDRACODecoderNode()
 })
 
-const testGLTF = '/packages/projects/default-project/public/avatars/CyberbotRed.glb'
+const testGLTF = '/packages/projects/default-project/assets/avatars/CyberbotRed.glb'
 
 describe('avatarFunctions Unit', async () => {
   let assetModel
