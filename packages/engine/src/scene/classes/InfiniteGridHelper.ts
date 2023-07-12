@@ -124,7 +124,7 @@ export default class InfiniteGridHelper extends Mesh {
   intersectionPointWorld: Vector3
   intersection: any
 
-  constructor(size1?, size2?, color?, distance?) {
+  constructor(size1 = 1, size2 = 10, color = new Color('white'), distance = 8000) {
     color = color || new Color('white')
     size1 = size1 || 1
     size2 = size2 || 10
