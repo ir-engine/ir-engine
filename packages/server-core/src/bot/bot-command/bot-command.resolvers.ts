@@ -23,30 +23,29 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Application } from '../../../declarations'
-import { BotCommand } from './bot-command.class'
-import docs from './bot-command.docs'
-import hooks from './Bot-command.hooks'
-import createModel from './bot-command.model'
+// For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
+import { resolve } from '@feathersjs/schema'
+import { v4 } from 'uuid'
 
-declare module '@etherealengine/common/declarations' {
-  interface ServiceTypes {
-    'bot-command': BotCommand
-  }
-}
+import { BotCommandQuery, BotCommandType } from '@etherealengine/engine/src/schemas/bot/bot-command.schema'
+import type { HookContext } from '@etherealengine/server-core/declarations'
 
-export default (app: Application): void => {
-  const options = {
-    Model: createModel(app),
-    paginate: app.get('paginate'),
-    multi: true
-  }
+import { getDateTimeSql } from '../../util/get-datetime-sql'
 
-  const event = new BotCommand(options, app)
-  event.docs = docs
-  app.use('bot-command', event)
+export const botCommandResolver = resolve<BotCommandType, HookContext>({})
 
-  const service = app.service('bot-command')
+export const botCommandExternalResolver = resolve<BotCommandType, HookContext>({})
 
-  service.hooks(hooks)
-}
+export const botCommandDataResolver = resolve<BotCommandType, HookContext>({
+  id: async () => {
+    return v4()
+  },
+  createdAt: getDateTimeSql,
+  updatedAt: getDateTimeSql
+})
+
+export const botCommandPatchResolver = resolve<BotCommandType, HookContext>({
+  updatedAt: getDateTimeSql
+})
+
+export const botCommandQueryResolver = resolve<BotCommandQuery, HookContext>({})
