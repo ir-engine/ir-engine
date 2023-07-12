@@ -98,7 +98,7 @@ export const AdminAvatarService = {
     }
     const adminAvatarState = getMutableState(AdminAvatarState)
     const limit = adminAvatarState.limit.value
-    const avatars = await API.instance.client.service(avatarPath).find({
+    const avatars = (await API.instance.client.service(avatarPath).find({
       query: {
         admin: true,
         $sort: {
@@ -108,7 +108,7 @@ export const AdminAvatarService = {
         $skip: skip * AVATAR_PAGE_LIMIT,
         search: search
       }
-    })
+    })) as Paginated<AvatarType>
     dispatchAction(AdminAvatarActions.avatarsFetched({ avatars }))
   },
   removeAdminAvatar: async (id: string) => {

@@ -28,7 +28,7 @@ import { Paginated, Params } from '@feathersjs/feathers'
 import { random } from 'lodash'
 
 import { UserInterface } from '@etherealengine/common/src/interfaces/User'
-import { avatarPath } from '@etherealengine/engine/src/schemas/user/avatar.schema'
+import { avatarPath, AvatarType } from '@etherealengine/engine/src/schemas/user/avatar.schema'
 
 import { Application } from '../../../declarations'
 import config from '../../appconfig'
@@ -66,7 +66,7 @@ export class Googlestrategy extends CustomOAuthStrategy {
       {}
     )
     if (!entity.userId) {
-      const avatars = await this.app.service(avatarPath).find({ isInternal: true })
+      const avatars = (await this.app.service(avatarPath).find({ isInternal: true })) as Paginated<AvatarType>
       const code = await getFreeInviteCode(this.app)
       const newUser = (await this.app.service('user').create({
         isGuest: false,

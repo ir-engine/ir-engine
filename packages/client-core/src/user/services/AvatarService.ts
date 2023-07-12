@@ -23,6 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { Paginated } from '@feathersjs/feathers'
+
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { StaticResourceInterface } from '@etherealengine/common/src/interfaces/StaticResourceInterface'
 import { UserId } from '@etherealengine/common/src/interfaces/UserId'
@@ -84,13 +86,13 @@ export const AvatarService = {
     const skip = getState(AvatarState).skip
     const newSkip =
       incDec === 'increment' ? skip + AVATAR_PAGE_LIMIT : incDec === 'decrement' ? skip - AVATAR_PAGE_LIMIT : skip
-    const result = await Engine.instance.api.service(avatarPath).find({
+    const result = (await Engine.instance.api.service(avatarPath).find({
       query: {
         search,
         $skip: newSkip,
         $limit: AVATAR_PAGE_LIMIT
       }
-    })
+    })) as Paginated<AvatarType>
     dispatchAction(
       AvatarActions.updateAvatarListAction({ avatarList: result.data, search, skip: result.skip, total: result.total })
     )

@@ -23,6 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { Paginated } from '@feathersjs/feathers'
 import appRootPath from 'app-root-path'
 import fs from 'fs'
 import path from 'path'
@@ -116,7 +117,7 @@ export const installAvatarsFromProject = async (app: Application, avatarsFolder:
   await Promise.all(
     avatarsToInstall.map(async (avatar) => {
       try {
-        const existingAvatar = await app.service(avatarPath).find({
+        const existingAvatar = (await app.service(avatarPath).find({
           query: {
             name: avatar.avatarName,
             isPublic: true,
@@ -129,7 +130,7 @@ export const installAvatarsFromProject = async (app: Application, avatarsFolder:
               }
             ]
           }
-        })
+        })) as Paginated<AvatarType>
         console.log({ existingAvatar })
 
         let selectedAvatar: AvatarType

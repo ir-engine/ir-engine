@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { BadRequest, Forbidden } from '@feathersjs/errors'
-import { Id, Params } from '@feathersjs/feathers'
+import { Id, Paginated, Params } from '@feathersjs/feathers'
 import appRootPath from 'app-root-path'
 import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
 import fs from 'fs'
@@ -40,7 +40,7 @@ import {
 import { UserInterface } from '@etherealengine/common/src/interfaces/User'
 import { processFileName } from '@etherealengine/common/src/utils/processFileName'
 import { routePath, RouteType } from '@etherealengine/engine/src/schemas/route/route.schema'
-import { avatarPath } from '@etherealengine/engine/src/schemas/user/avatar.schema'
+import { avatarPath, AvatarType } from '@etherealengine/engine/src/schemas/user/avatar.schema'
 import { getState } from '@etherealengine/hyperflux'
 import templateProjectJson from '@etherealengine/projects/template-project/package.json'
 
@@ -609,7 +609,7 @@ export class Project extends Service {
         await this.app.service(routePath).remove(route.id)
       })
 
-    const avatarItems = await this.app.service(avatarPath).find({
+    const avatarItems = (await this.app.service(avatarPath).find({
       query: {
         $and: [
           {
@@ -622,7 +622,7 @@ export class Project extends Service {
           }
         ]
       }
-    })
+    })) as Paginated<AvatarType>
 
     await Promise.all(
       avatarItems.data.map(async (avatar) => {
