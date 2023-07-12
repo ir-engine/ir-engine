@@ -47,6 +47,8 @@ import { EditorComponentType } from './Util'
  *
  * @type {Class component}
  */
+const updateCubeMapBakeDebounced = debounce(updateScenePreview, 500) //ms
+
 export const ScenePreviewCameraNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
   const [bufferUrl, setBufferUrl] = useState<string>('')
@@ -65,8 +67,6 @@ export const ScenePreviewCameraNodeEditor: EditorComponentType = (props) => {
     const url = URL.createObjectURL(imageBlob)
     setBufferUrl(url)
   }
-
-  const updateCubeMapBakeDebounced = debounce(updateScenePreview, 500) //ms
 
   useEffect(() => {
     updateCubeMapBakeDebounced()
