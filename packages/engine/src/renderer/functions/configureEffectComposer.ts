@@ -23,6 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { debounce } from 'lodash'
 import {
   BlendFunction,
   DepthDownsamplingPass,
@@ -47,6 +48,9 @@ import { EffectComposerWithSchema, EngineRenderer } from '../WebGLRendererSystem
 import { changeRenderMode } from './changeRenderMode'
 
 // can use both as needed
+export const debouncedConfigureEffectComposer = debounce(() => {
+  configureEffectComposer()
+}, 200) // in ms
 
 export const configureEffectComposer = (remove?: boolean, camera: PerspectiveCamera = Engine.instance.camera): void => {
   if (!EngineRenderer.instance) return
