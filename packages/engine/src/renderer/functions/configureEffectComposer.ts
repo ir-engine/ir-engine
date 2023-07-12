@@ -23,10 +23,9 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Cos } from 'behave-graph/dist/lib/Profiles/Core/Values/FloatNodes'
+import { debounce } from 'lodash'
 import {
   BlendFunction,
-  BloomEffect,
   DepthDownsamplingPass,
   EffectComposer,
   EffectPass,
@@ -35,7 +34,7 @@ import {
   TextureEffect
 } from 'postprocessing'
 import { VelocityDepthNormalPass } from 'realism-effects'
-import { NearestFilter, PerspectiveCamera, RGBAFormat, Scene, WebGLRenderTarget } from 'three'
+import { NearestFilter, PerspectiveCamera, RGBAFormat, WebGLRenderTarget } from 'three'
 
 import { getState } from '@etherealengine/hyperflux'
 
@@ -45,9 +44,13 @@ import { SceneState } from '../../ecs/classes/Scene'
 import { getComponent } from '../../ecs/functions/ComponentFunctions'
 import { PostProcessingComponent } from '../../scene/components/PostProcessingComponent'
 import { EffectMap, EffectPropsSchema, Effects } from '../../scene/constants/PostProcessing'
-import { RendererState } from '../RendererState'
-import { EffectComposerWithSchema, EngineRenderer, PostProcessingSettingsState } from '../WebGLRendererSystem'
+import { EffectComposerWithSchema, EngineRenderer } from '../WebGLRendererSystem'
 import { changeRenderMode } from './changeRenderMode'
+
+// can use both as needed
+export const debouncedConfigureEffectComposer = debounce(() => {
+  configureEffectComposer()
+}, 200) // in ms
 
 export const configureEffectComposer = (remove?: boolean, camera: PerspectiveCamera = Engine.instance.camera): void => {
   if (!EngineRenderer.instance) return

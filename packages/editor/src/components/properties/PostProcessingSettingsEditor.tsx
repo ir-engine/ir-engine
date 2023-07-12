@@ -23,14 +23,13 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { debounce } from 'lodash'
 import { BlendFunction } from 'postprocessing'
 import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Color } from 'three'
 
 import { useComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
-import { configureEffectComposer } from '@etherealengine/engine/src/renderer/functions/configureEffectComposer'
+import { debouncedConfigureEffectComposer } from '@etherealengine/engine/src/renderer/functions/configureEffectComposer'
 import { PostProcessingComponent } from '@etherealengine/engine/src/scene/components/PostProcessingComponent'
 import { Effects } from '@etherealengine/engine/src/scene/constants/PostProcessing'
 
@@ -279,13 +278,9 @@ export const PostProcessingSettingsEditor: EditorComponentType = (props) => {
   // trigger re-render - @todo find out why just setting the value doesn't trigger the reactor
   // action: debounced the set property value
 
-  const debouncedComposer = debounce(() => {
-    configureEffectComposer()
-  }, 1000)
-
   const setPropertyValue = (prop, val) => {
     prop.set(val)
-    debouncedComposer()
+    debouncedConfigureEffectComposer()
   }
 
   const renderProperty = (propertyDetail: EffectPropertyDetail, propertyPath: string[], index: number) => {
