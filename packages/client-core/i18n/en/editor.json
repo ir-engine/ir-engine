@@ -118,6 +118,14 @@
       "none": "None",
       "users": "Users",
       "user": "User"
+    },
+    "render-settings":{
+      "lbl-usePostProcessing":"Use Post Processing",
+      "info-usePostProcessing":"Enables post processing",
+      "lbl-resolution":"Resolution",
+      "info-resolution":"Set graphic resolution (0 - 5)",
+      "lbl-renderMode":"Render Mode",
+      "info-renderMode":"Choose render mode"
     }
   },
   "properties": {
