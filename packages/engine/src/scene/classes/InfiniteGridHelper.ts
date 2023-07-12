@@ -31,6 +31,7 @@ import {
   LineBasicMaterial,
   LineSegments,
   Mesh,
+  NormalBlending,
   Plane,
   PlaneGeometry,
   ShaderMaterial,
@@ -45,7 +46,7 @@ import LogarithmicDepthBufferMaterialChunk from '../functions/LogarithmicDepthBu
  * Original Author: Fyrestar
  * https://discourse.threejs.org/t/three-infinitegridhelper-anti-aliased/8377
  */
-const vertexShader = `
+const vertexShaderGrid = `
 varying vec3 worldPosition;
       
 uniform float uDistance;
@@ -57,7 +58,7 @@ void main() {
   vec3 pos = position.xzy * uDistance;
   pos.xz += cameraPosition.xz;
   // this is necessary to avoid z fighting
-  pos.y += 0.001;
+  pos.y += 0.001; // Rahul: noticed -0.025 is ideal to prevent default z fighting 
 
   worldPosition = pos;
 
@@ -66,7 +67,8 @@ void main() {
   #include <logdepthbuf_vertex>
 }
 `
-const fragmentShader = `
+
+const fragmentShaderGrid = `
 varying vec3 worldPosition;
 
 uniform float uSize1;
@@ -145,8 +147,8 @@ export default class InfiniteGridHelper extends Mesh {
         }
       },
       transparent: true,
-      vertexShader,
-      fragmentShader,
+      vertexShader: vertexShaderGrid,
+      fragmentShader: fragmentShaderGrid,
       extensions: {
         derivatives: true
       }
@@ -164,6 +166,20 @@ export default class InfiniteGridHelper extends Mesh {
       point: this.intersectionPointWorld,
       object: this
     }
+    const yLineGeometry = new BufferGeometry()
+    const yLinePositions = new Float32Array([0, -distance, 0, 0, distance, 0])
+    yLineGeometry.setAttribute('position', new BufferAttribute(yLinePositions, 3))
+    const yLineMaterial = new LineBasicMaterial({
+      side: DoubleSide,
+      color: 0x00ff00,
+      transparent: true,
+      opacity: 0.3,
+      blending: NormalBlending,
+      depthTest: true,
+      depthWrite: true
+    })
+    const yLine = new LineSegments(yLineGeometry, yLineMaterial)
+    this.add(yLine)
   }
 
   setSize(size) {
