@@ -1,7 +1,7 @@
 /*
 CPAL-1.0 License
 
-The contents of this file are subject to the Common Public Attribution License
+The contents of this file are subject to the Common assets Attribution License
 Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
 https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
@@ -45,9 +45,9 @@ describe('Auth Service', () => {
   //     const mockAuthState = getMutableState(AuthState)
   //     const mockData = {
   //       id: 'c7456310-48d5-11ec-8706-c7fb367d91f0',
-  //       key: 'avatars/public/CyberbotGreen.glb',
+  //       key: 'avatars/assets/CyberbotGreen.glb',
   //       name: 'CyberbotGreen',
-  //       url: 'https://host.name/avatars/public/CyberbotGreen.glb',
+  //       url: 'https://host.name/avatars/assets/CyberbotGreen.glb',
   //       userId: null
   //     } as any
   //     const mockAction = AuthAction.updateAvatarListAction({ avatarList: [mockData] })
