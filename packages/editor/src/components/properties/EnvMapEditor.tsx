@@ -73,7 +73,6 @@ export const EnvMapEditor: EditorComponentType = (props) => {
       value: getComponent(entity, UUIDComponent)
     }
   })
-  console.log(bakeEntities)
 
   const onChangeCubemapURLSource = useCallback((value) => {
     const directory = value[value.length - 1] === '/' ? value.substring(0, value.length - 1) : value
