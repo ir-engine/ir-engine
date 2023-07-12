@@ -59,7 +59,9 @@ export async function seed(knex: Knex): Promise<void> {
           secretAccessKey: process.env.EKS_AWS_ACCESS_KEY_SECRET
         }),
         cloudfront: JSON.stringify({
-          domain: process.env.STORAGE_CLOUDFRONT_DOMAIN,
+          domain: process.env.SERVE_CLIENT_FROM_STORAGE_PROVIDER
+            ? process.env.APP_HOST
+            : process.env.STORAGE_CLOUDFRONT_DOMAIN!,
           distributionId: process.env.STORAGE_CLOUDFRONT_DISTRIBUTION_ID,
           region: process.env.STORAGE_CLOUDFRONT_REGION || process.env.STORAGE_S3_REGION
         }),

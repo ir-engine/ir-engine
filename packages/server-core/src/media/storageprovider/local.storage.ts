@@ -170,6 +170,16 @@ export class LocalStorage implements StorageProviderInterface {
    */
   createInvalidation = async (): Promise<any> => Promise.resolve()
 
+  associateWithFunction = async (): Promise<any> => Promise.resolve()
+
+  createFunction = async (): Promise<any> => Promise.resolve()
+
+  listFunctions = async (): Promise<any> => Promise.resolve()
+
+  publishFunction = async (): Promise<any> => Promise.resolve()
+
+  updateFunction = async (): Promise<any> => Promise.resolve()
+
   /**
    * Get the instance of local storage provider.
    */
