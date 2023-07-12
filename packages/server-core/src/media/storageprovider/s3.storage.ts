@@ -356,7 +356,13 @@ export class S3Provider implements StorageProviderInterface {
       (dirent) => {
         if (dirent.name !== 'projects') {
           if (dirent.isDirectory()) publicRegex += `^/${dirent.name}/|`
-          else publicRegex += `^/${dirent.name}|`
+          else {
+            // .br compressed files are uploaded to S3 without this extension in their name, but with a
+            // content-encoding header to mark them as brotli-compressed. Need to use the sans-.br name for
+            // the CloudFront redirect rule.
+            if (/.br$/.test(dirent.name)) dirent.name = dirent.name.replace('.br', '')
+            publicRegex += `^/${dirent.name}|`
+          }
         }
       }
     )
