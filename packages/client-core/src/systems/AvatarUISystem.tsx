@@ -57,6 +57,7 @@ import { getMutableState, getState, none } from '@etherealengine/hyperflux'
 
 import AvatarContextMenu from '../user/components/UserMenu/menus/AvatarContextMenu'
 import { PopupMenuState } from '../user/components/UserMenu/PopupMenuService'
+import { AvatarUIStateSystem } from './state/AvatarUIState'
 import { createAvatarDetailView } from './ui/AvatarDetailView'
 import { AvatarUIContextMenuState } from './ui/UserMenuView'
 
@@ -290,5 +291,6 @@ const reactor = () => {
 export const AvatarUISystem = defineSystem({
   uuid: 'ee.client.AvatarUISystem',
   execute,
-  reactor
+  reactor,
+  subSystems: [AvatarUIStateSystem]
 })

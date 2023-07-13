@@ -23,24 +23,39 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Quaternion, Vector3 } from 'three'
+import { matches } from '@etherealengine/engine/src/common/functions/MatchesUtils'
+import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
+import { NetworkTopics } from '@etherealengine/engine/src/networking/classes/Network'
+import { defineAction, defineState, none, receiveActions } from '@etherealengine/hyperflux'
 
-import { defineComponent } from '../../ecs/functions/ComponentFunctions'
+export class AvatarUIActions {
+  static setUserTyping = defineAction({
+    type: 'ee.client.avatar.USER_IS_TYPING',
+    typing: matches.boolean,
+    $topic: NetworkTopics.world
+  })
+}
 
-export const SpawnPoseComponent = defineComponent({
-  name: 'SpawnPoseComponent',
+export const AvatarUIState = defineState({
+  name: 'AvatarUIState',
 
-  onInit: (entity) => {
-    return {
-      position: new Vector3(),
-      rotation: new Quaternion()
-    }
+  initial: {
+    usersTyping: {} as { [key: string]: true }
   },
 
-  onSet: (entity, component, json) => {
-    if (!json) return
+  receptors: [
+    [
+      AvatarUIActions.setUserTyping,
+      (state, action) => {
+        state.usersTyping[action.$from].set(action.typing ? true : none)
+      }
+    ]
+  ]
+})
 
-    if (json.position) component.position.set(json.position)
-    if (json.rotation) component.rotation.set(json.rotation)
+export const AvatarUIStateSystem = defineSystem({
+  uuid: 'ee.engine.avatar.AvatarUIStateSystem',
+  execute: () => {
+    receiveActions(AvatarUIState)
   }
 })

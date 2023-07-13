@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { debounce } from 'lodash'
-import React, { useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Euler, Quaternion } from 'three'
 
@@ -92,7 +92,7 @@ export const PortalNodeEditor: EditorComponentType = (props) => {
     setBufferUrl(url)
   }
 
-  const updateCubeMapBakeDebounced = debounce(updateCubeMapBake, 500) //ms
+  const updateCubeMapBakeDebounced = useCallback(debounce(updateCubeMapBake, 500), []) //ms
 
   useEffect(() => {
     updateCubeMapBakeDebounced()

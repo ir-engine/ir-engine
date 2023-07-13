@@ -107,20 +107,6 @@ export const AvatarState = defineState({
       WorldNetworkAction.destroyObject,
       (state, action: typeof WorldNetworkAction.destroyObject.matches._TYPE) => {
         state[action.entityUUID].set(none)
-        /** @todo - This is a hack until all actions use event sourcing */
-
-        const cachedActionsToRemove = Engine.instance.store.actions.cached.filter(
-          (a) =>
-            (AvatarNetworkAction.setAvatarID.matches.test(a) ||
-              AvatarNetworkAction.setAnimationState.matches.test(a)) &&
-            a.entityUUID === action.entityUUID
-        )
-
-        if (cachedActionsToRemove) {
-          cachedActionsToRemove.forEach((a) =>
-            Engine.instance.store.actions.cached.splice(Engine.instance.store.actions.cached.indexOf(a), 1)
-          )
-        }
       }
     ]
   ]

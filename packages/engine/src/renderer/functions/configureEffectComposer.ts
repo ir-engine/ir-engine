@@ -41,6 +41,9 @@ import { getState } from '@etherealengine/hyperflux'
 
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
+import { SceneState } from '../../ecs/classes/Scene'
+import { getComponent } from '../../ecs/functions/ComponentFunctions'
+import { PostProcessingComponent } from '../../scene/components/PostProcessingComponent'
 import { EffectMap, EffectPropsSchema, Effects } from '../../scene/constants/PostProcessing'
 import { HighlightState } from '../HighlightState'
 import { RendererState } from '../RendererState'
@@ -66,8 +69,8 @@ export const configureEffectComposer = (remove?: boolean, camera: PerspectiveCam
     return
   }
 
-  const postProcessingEnabled = getState(RendererState).usePostProcessing
-  if (!postProcessingEnabled && !getState(EngineState).isEditor) return
+  const postprocessing = getComponent(getState(SceneState).sceneEntity, PostProcessingComponent)
+  if (!postprocessing.enabled) return
 
   const effects: any[] = []
 
@@ -154,7 +157,6 @@ export const configureEffectComposer = (remove?: boolean, camera: PerspectiveCam
       effects.push(eff)
     }
   }
-
   if (effects.length) {
     if (useVelocityDepthNormalPass) composer.addPass(velocityDepthNormalPass)
 
@@ -169,6 +171,5 @@ export const configureEffectComposer = (remove?: boolean, camera: PerspectiveCam
 
     composer.addPass(new EffectPass(camera, ...effects))
   }
-
   if (getState(EngineState).isEditor) changeRenderMode()
 }

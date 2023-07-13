@@ -23,6 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { debounce } from 'lodash'
 import { BlendFunction } from 'postprocessing'
 import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -235,6 +236,10 @@ const PredicationMode = [
   { label: 'CUSTOM', value: 2 }
 ]
 
+const debouncedConfigureEffectComposer = debounce(() => {
+  configureEffectComposer()
+}, 200)
+
 export const PostProcessingSettingsEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
 
@@ -255,11 +260,12 @@ export const PostProcessingSettingsEditor: EditorComponentType = (props) => {
     return value
   }
 
+  // trigger re-render - @todo find out why just setting the value doesn't trigger the reactor
+  // action: debounced the set property value
+
   const setPropertyValue = (prop, val) => {
     prop.set(val)
-
-    // trigger re-render - @todo find out why just setting the value doesnt trigger the reactor
-    configureEffectComposer()
+    debouncedConfigureEffectComposer()
   }
 
   const renderProperty = (propertyDetail: EffectPropertyDetail, propertyPath: string[], index: number) => {
