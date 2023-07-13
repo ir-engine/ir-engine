@@ -107,7 +107,7 @@ const ShadowTypeOptions = [
 
 export const RenderSettingsEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
-  const rendererState = useComponent(props.entity, RenderSettingsComponent)
+  const rendererSettingsState = useComponent(props.entity, RenderSettingsComponent)
 
   return (
     <PropertyGroup
@@ -119,7 +119,7 @@ export const RenderSettingsEditor: EditorComponentType = (props) => {
         label={t('editor:properties.renderSettings.lbl-csm')}
         info={t('editor:properties.renderSettings.info-csm')}
       >
-        <BooleanInput value={rendererState.csm.value} onChange={(val) => rendererState.csm.set(val)} />
+        <BooleanInput value={rendererSettingsState.csm.value} onChange={(val) => rendererSettingsState.csm.set(val)} />
       </InputGroup>
       <InputGroup
         name="Tone Mapping"
@@ -128,8 +128,8 @@ export const RenderSettingsEditor: EditorComponentType = (props) => {
       >
         <SelectInput
           options={ToneMappingOptions}
-          value={rendererState.toneMapping.value}
-          onChange={(val: ToneMapping) => rendererState.toneMapping.set(val)}
+          value={rendererSettingsState.toneMapping.value}
+          onChange={(val: ToneMapping) => rendererSettingsState.toneMapping.set(val)}
         />
       </InputGroup>
       <InputGroup
@@ -141,8 +141,8 @@ export const RenderSettingsEditor: EditorComponentType = (props) => {
           min={0}
           max={10}
           step={0.1}
-          value={rendererState.toneMappingExposure.value}
-          onChange={(val) => rendererState.toneMappingExposure.set(val)}
+          value={rendererSettingsState.toneMappingExposure.value}
+          onChange={(val) => rendererSettingsState.toneMappingExposure.set(val)}
         />
       </InputGroup>
       <InputGroup
@@ -152,8 +152,8 @@ export const RenderSettingsEditor: EditorComponentType = (props) => {
       >
         <SelectInput
           options={ShadowTypeOptions}
-          value={rendererState.shadowMapType.value ?? -1}
-          onChange={(val: ShadowMapType) => rendererState.shadowMapType.set(val)}
+          value={rendererSettingsState.shadowMapType.value ?? -1}
+          onChange={(val: ShadowMapType) => rendererSettingsState.shadowMapType.set(val)}
         />
       </InputGroup>
     </PropertyGroup>
