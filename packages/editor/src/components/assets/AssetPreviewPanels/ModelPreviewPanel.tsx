@@ -49,9 +49,9 @@ export const ModelPreviewPanel = (props) => {
   const panelRef = useRef() as React.MutableRefObject<HTMLDivElement>
   const renderPanel = useRender3DPanelSystem(panelRef)
   const { camera, entity, scene, renderer } = renderPanel.state
-  const gridHelper = new InfiniteGridHelper()
 
   useEffect(() => {
+    const gridHelper = new InfiniteGridHelper()
     gridHelper.layers.set(ObjectLayers.Panel)
     scene.value.add(gridHelper)
 
