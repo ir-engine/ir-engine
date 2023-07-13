@@ -23,44 +23,36 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { DataTypes, Model, Sequelize } from 'sequelize'
-
-import { BotCommandInterface } from '@etherealengine/common/src/dbmodels/BotCommand'
+import { botCommandMethods, botCommandPath } from '@etherealengine/engine/src/schemas/bot/bot-command.schema'
 
 import { Application } from '../../../declarations'
+import { updateAppConfig } from '../../updateAppConfig'
+import { BotCommandService } from './bot-command.class'
+import botCommandDocs from './bot-command.docs'
+import hooks from './bot-command.hooks'
 
-export default (app: Application) => {
-  const sequelizeClient: Sequelize = app.get('sequelizeClient')
-  const BotCommand = sequelizeClient.define<Model<BotCommandInterface>>(
-    'botCommand',
-    {
-      id: {
-        type: DataTypes.UUID,
-        defaultValue: DataTypes.UUIDV1,
-        allowNull: false,
-        primaryKey: true
-      },
-      name: {
-        type: DataTypes.STRING,
-        allowNull: false,
-        unique: true
-      },
-      description: {
-        type: DataTypes.STRING,
-        allowNull: true
-      }
-    },
-    {
-      hooks: {
-        beforeCount(options: any): void {
-          options.raw = true
-        }
-      }
-    }
-  )
-  ;(BotCommand as any).associate = (models: any): void => {
-    ;(BotCommand as any).belongsTo(models.bot, { foreignKey: 'botId' })
+declare module '@etherealengine/common/declarations' {
+  interface ServiceTypes {
+    [botCommandPath]: BotCommandService
+  }
+}
+
+export default (app: Application): void => {
+  const options = {
+    name: botCommandPath,
+    paginate: app.get('paginate'),
+    Model: app.get('knexClient'),
+    multi: true
   }
 
-  return BotCommand
+  app.use(botCommandPath, new BotCommandService(options), {
+    // A list of all methods this service exposes externally
+    methods: botCommandMethods,
+    // You can add additional custom events to be sent to clients here
+    events: [],
+    docs: botCommandDocs
+  })
+
+  const service = app.service(botCommandPath)
+  service.hooks(hooks)
 }
