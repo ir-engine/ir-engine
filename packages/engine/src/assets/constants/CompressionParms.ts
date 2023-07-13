@@ -23,6 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { UASTCFlags } from '@etherealengine/xrui/core/textures/KTX2Encoder'
+
 export type KTX2EncodeArguments = {
   src: string
   flipY: boolean
@@ -36,6 +38,8 @@ export type KTX2EncodeArguments = {
   resizeHeight: number
   resizeMethod: 'stretch' | 'aspect'
   compressionLevel: number
+  uastcFlags: number
+  normalMap: boolean
 }
 
 export const KTX2EncodeDefaultArguments: KTX2EncodeArguments = {
@@ -50,5 +54,7 @@ export const KTX2EncodeDefaultArguments: KTX2EncodeArguments = {
   resizeWidth: 0,
   resizeHeight: 0,
   resizeMethod: 'stretch',
-  compressionLevel: 2
+  compressionLevel: 2,
+  uastcFlags: UASTCFlags.UASTCLevelFastest,
+  normalMap: false
 }

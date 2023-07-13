@@ -304,8 +304,8 @@
         "flipY": "Flip Y",
         "flipYTooltip": "If checked, the source images will be Y flipped before compression",
         "instance": "Instance Identical Meshes",
-        "linear": "Linear Color Space",
-        "linearTooltip": "If checked, the provided map is assumed to be in sRGB space",
+        "srgb": "Linear Color Space",
+        "srgbTooltip": "If checked, the provided map is assumed to be in sRGB space",
         "textureCompressionType": "Texture Compression Type",
         "ktx2Quality": "Compression Quality",
         "weldVertices": "Weld Vertices",
@@ -321,7 +321,11 @@
         "mipmaps": "Mipmaps",
         "mipmapsTooltip": "If checked, the encoder will generate mipmaps",
         "compressionLevel": "Compression Level",
-        "compressionLevelTooltip": "The compression level parameter controls the encoder perf vs. file size tradeoff for ETC1S files. It does not directly control file size vs. quality (see Quality)"
+        "compressionLevelTooltip": "The compression level parameter controls the encoder perf vs. file size tradeoff for ETC1S files. It does not directly control file size vs. quality (see Quality)",
+        "uastcFlags": "UASTC Flags",
+        "uastcFlagsTooltip": "Sets the UASTC encoding performance vs. quality tradeoff, and other lesser used UASTC encoder flags. This is a combination of flags",
+        "normalMap": "Normal Map",
+        "normalMapTooltip": "Tunes several codec parameters so compression works better on normal maps"
       },
       "lods": {
         "label": "Level of Detail",

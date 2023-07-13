@@ -46,6 +46,20 @@ import SelectInput from '../inputs/SelectInput'
 import { FileType } from './FileBrowserContentPanel'
 import styles from './styles.module.scss'
 
+const UASTCFlagOptions = [
+  { label: 'Fastest', value: 0 },
+  { label: 'Faster', value: 1 },
+  { label: 'Default', value: 2 },
+  { label: 'Slower', value: 3 },
+  { label: 'Very Slow', value: 4 },
+  { label: 'Mask', value: 0xf },
+  { label: 'UASTC Error', value: 8 },
+  { label: 'BC7 Error', value: 16 },
+  { label: 'Faster Hints', value: 64 },
+  { label: 'Fastest Hints', value: 128 },
+  { label: 'Disable Flip and Individual', value: 256 }
+]
+
 export default function CompressionPanel({
   openCompress,
   fileProperties,
@@ -169,7 +183,7 @@ export default function CompressionPanel({
       >
         <CompoundNumericInput
           value={compressProperties.quality.value}
-          onChange={(val) => compressProperties.quality.set(val)}
+          onChange={compressProperties.quality.set}
           min={1}
           max={255}
           step={1}
@@ -180,10 +194,7 @@ export default function CompressionPanel({
         label={t('editor:properties.model.transform.mipmaps')}
         info={t('editor:properties.model.transform.mipmapsTooltip')}
       >
-        <BooleanInput
-          value={compressProperties.mipmaps.value}
-          onChange={(val) => compressProperties.mipmaps.set(val)}
-        />
+        <BooleanInput value={compressProperties.mipmaps.value} onChange={compressProperties.mipmaps.set} />
       </InputGroup>
       <InputGroup
         name="compressionLevel"
@@ -192,11 +203,29 @@ export default function CompressionPanel({
       >
         <CompoundNumericInput
           value={compressProperties.compressionLevel.value}
-          onChange={(val) => compressProperties.compressionLevel.set(val)}
+          onChange={compressProperties.compressionLevel.set}
           min={0}
           max={6}
           step={1}
         />
+      </InputGroup>
+      <InputGroup
+        name="uastcFlags"
+        label={t('editor:properties.model.transform.uastcFlags')}
+        info={t('editor:properties.model.transform.uastcFlagsTooltip')}
+      >
+        <SelectInput
+          options={UASTCFlagOptions}
+          value={compressProperties.uastcFlags.value}
+          onChange={(val: number) => compressProperties.uastcFlags.set(val)}
+        />
+      </InputGroup>
+      <InputGroup
+        name="normalMap"
+        label={t('editor:properties.model.transform.normalMap')}
+        info={t('editor:properties.model.transform.normalMapTooltip')}
+      >
+        <BooleanInput value={compressProperties.normalMap.value} onChange={compressProperties.normalMap.set} />
       </InputGroup>
     </Menu>
   )
