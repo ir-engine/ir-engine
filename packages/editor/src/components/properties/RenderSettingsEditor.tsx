@@ -23,7 +23,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { useHookstate } from '@hookstate/core'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 import {
@@ -41,9 +40,7 @@ import {
 } from 'three'
 
 import { useComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
-import { RendererState } from '@etherealengine/engine/src/renderer/RendererState'
 import { RenderSettingsComponent } from '@etherealengine/engine/src/scene/components/RenderSettingsComponent'
-import { getMutableState } from '@etherealengine/hyperflux'
 
 import BooleanInput from '../inputs/BooleanInput'
 import CompoundNumericInput from '../inputs/CompoundNumericInput'
@@ -111,30 +108,12 @@ const ShadowTypeOptions = [
 export const RenderSettingsEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
   const rendererSettingsState = useComponent(props.entity, RenderSettingsComponent)
-  const rendererState = useHookstate(getMutableState(RendererState))
 
   return (
     <PropertyGroup
       name={t('editor:properties.renderSettings.name')}
       description={t('editor:properties.renderSettings.description')}
     >
-      <InputGroup
-        name="Use Post Processing"
-        label={t('editor:properties.renderSettings.lbl-usePostProcessing')}
-        info={t('editor:properties.renderSettings.info-usePostProcessing')}
-      >
-        <BooleanInput
-          value={rendererState.usePostProcessing.value}
-          onChange={(val) => rendererState.usePostProcessing.set(val)}
-        />
-      </InputGroup>
-      <InputGroup
-        name="Use Shadows"
-        label={t('editor:properties.renderSettings.lbl-useShadows')}
-        info={t('editor:properties.renderSettings.info-useShadows')}
-      >
-        <BooleanInput value={rendererState.useShadows.value} onChange={(val) => rendererState.useShadows.set(val)} />
-      </InputGroup>
       <InputGroup
         name="Use Cascading Shadow Maps"
         label={t('editor:properties.renderSettings.lbl-csm')}
