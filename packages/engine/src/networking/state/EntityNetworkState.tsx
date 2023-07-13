@@ -36,7 +36,6 @@ import { getMutableComponent, setComponent } from '../../ecs/functions/Component
 import { createEntity, removeEntity } from '../../ecs/functions/EntityFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
-import { generatePhysicsObject } from '../../physics/functions/physicsObjectDebugFunctions'
 import { UUIDComponent } from '../../scene/components/UUIDComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
@@ -92,7 +91,7 @@ export const EntityNetworkState = defineState({
   ]
 })
 
-const receiveRequestAuthorityOverObject = (
+export const receiveRequestAuthorityOverObject = (
   action: typeof WorldNetworkAction.requestAuthorityOverObject.matches._TYPE
 ) => {
   // Authority request can only be processed by owner
@@ -117,7 +116,7 @@ const receiveRequestAuthorityOverObject = (
   )
 }
 
-const receiveTransferAuthorityOfObject = (
+export const receiveTransferAuthorityOfObject = (
   action: typeof WorldNetworkAction.transferAuthorityOfObject.matches._TYPE
 ) => {
   // Authority request can only be processed by owner

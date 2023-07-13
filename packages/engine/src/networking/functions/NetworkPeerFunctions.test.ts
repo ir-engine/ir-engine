@@ -29,7 +29,7 @@ import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { NetworkId } from '@etherealengine/common/src/interfaces/NetworkId'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { UserId } from '@etherealengine/common/src/interfaces/UserId'
-import { applyIncomingActions, getMutableState } from '@etherealengine/hyperflux'
+import { applyIncomingActions, getMutableState, receiveActions } from '@etherealengine/hyperflux'
 
 import { createMockNetwork } from '../../../tests/util/createMockNetwork'
 import { destroyEngine, Engine } from '../../ecs/classes/Engine'
@@ -42,13 +42,14 @@ import { Network } from '../classes/Network'
 import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
 import { WorldState } from '../interfaces/WorldState'
 import { NetworkState } from '../NetworkState'
-import { WorldNetworkActionSystem } from '../systems/WorldNetworkActionSystem'
+import { EntityNetworkState } from '../state/EntityNetworkState'
 import { NetworkPeerFunctions } from './NetworkPeerFunctions'
 
 describe('NetworkPeerFunctions', () => {
   beforeEach(() => {
     createEngine()
     createMockNetwork()
+    Engine.instance.store.defaultDispatchDelay = () => 0
   })
 
   afterEach(() => {
@@ -163,7 +164,7 @@ describe('NetworkPeerFunctions', () => {
       NetworkPeerFunctions.destroyPeer(network, peerID)
 
       applyIncomingActions()
-      SystemDefinitions.get(WorldNetworkActionSystem)!.execute()
+      receiveActions(EntityNetworkState)
 
       assert(!Engine.instance.getNetworkObject(userId, networkId))
     })
