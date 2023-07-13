@@ -40,6 +40,7 @@ export type KTX2EncodeArguments = {
   compressionLevel: number
   uastcFlags: number
   normalMap: boolean
+  uastcZstandard: boolean
 }
 
 export const KTX2EncodeDefaultArguments: KTX2EncodeArguments = {
@@ -56,5 +57,6 @@ export const KTX2EncodeDefaultArguments: KTX2EncodeArguments = {
   resizeMethod: 'stretch',
   compressionLevel: 2,
   uastcFlags: UASTCFlags.UASTCLevelFastest,
-  normalMap: false
+  normalMap: false,
+  uastcZstandard: false
 }

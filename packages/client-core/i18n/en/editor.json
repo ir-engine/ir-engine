@@ -325,7 +325,9 @@
         "uastcFlags": "UASTC Flags",
         "uastcFlagsTooltip": "Sets the UASTC encoding performance vs. quality tradeoff, and other lesser used UASTC encoder flags. This is a combination of flags",
         "normalMap": "Normal Map",
-        "normalMapTooltip": "Tunes several codec parameters so compression works better on normal maps"
+        "normalMapTooltip": "Tunes several codec parameters so compression works better on normal maps",
+        "uastcZstandard": "UASTC Zstandard",
+        "uastcZstandardTooltip": "Use UASTC Zstandard supercompression"
       },
       "lods": {
         "label": "Level of Detail",

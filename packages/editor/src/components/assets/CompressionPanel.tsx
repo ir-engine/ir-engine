@@ -100,7 +100,10 @@ export default function CompressionPanel({
       mipmaps: compressProperties.mipmaps.value,
       compressionLevel: compressProperties.compressionLevel.value,
       yFlip: compressProperties.flipY.value,
-      srgb: !compressProperties.srgb.value
+      srgb: !compressProperties.srgb.value,
+      uastcFlags: compressProperties.uastcFlags.value,
+      normalMap: compressProperties.normalMap.value,
+      uastcZstandard: compressProperties.uastcZstandard.value
     })
 
     const newFileName = props.key.replace(/.*\/(.*)\..*/, '$1') + '.ktx2'
@@ -177,48 +180,11 @@ export default function CompressionPanel({
         <BooleanInput value={compressProperties.srgb.value} onChange={compressProperties.srgb.set} />
       </InputGroup>
       <InputGroup
-        name="quality"
-        label={t('editor:properties.model.transform.quality')}
-        info={t('editor:properties.model.transform.qualityTooltip')}
-      >
-        <CompoundNumericInput
-          value={compressProperties.quality.value}
-          onChange={compressProperties.quality.set}
-          min={1}
-          max={255}
-          step={1}
-        />
-      </InputGroup>
-      <InputGroup
         name="mipmaps"
         label={t('editor:properties.model.transform.mipmaps')}
         info={t('editor:properties.model.transform.mipmapsTooltip')}
       >
         <BooleanInput value={compressProperties.mipmaps.value} onChange={compressProperties.mipmaps.set} />
-      </InputGroup>
-      <InputGroup
-        name="compressionLevel"
-        label={t('editor:properties.model.transform.compressionLevel')}
-        info={t('editor:properties.model.transform.compressionLevelTooltip')}
-      >
-        <CompoundNumericInput
-          value={compressProperties.compressionLevel.value}
-          onChange={compressProperties.compressionLevel.set}
-          min={0}
-          max={6}
-          step={1}
-        />
-      </InputGroup>
-      <InputGroup
-        name="uastcFlags"
-        label={t('editor:properties.model.transform.uastcFlags')}
-        info={t('editor:properties.model.transform.uastcFlagsTooltip')}
-      >
-        <SelectInput
-          options={UASTCFlagOptions}
-          value={compressProperties.uastcFlags.value}
-          onChange={(val: number) => compressProperties.uastcFlags.set(val)}
-        />
       </InputGroup>
       <InputGroup
         name="normalMap"
@@ -227,6 +193,61 @@ export default function CompressionPanel({
       >
         <BooleanInput value={compressProperties.normalMap.value} onChange={compressProperties.normalMap.set} />
       </InputGroup>
+      {compressProperties.mode.value === 'ETC1S' && (
+        <>
+          <InputGroup
+            name="quality"
+            label={t('editor:properties.model.transform.quality')}
+            info={t('editor:properties.model.transform.qualityTooltip')}
+          >
+            <CompoundNumericInput
+              value={compressProperties.quality.value}
+              onChange={compressProperties.quality.set}
+              min={1}
+              max={255}
+              step={1}
+            />
+          </InputGroup>
+          <InputGroup
+            name="compressionLevel"
+            label={t('editor:properties.model.transform.compressionLevel')}
+            info={t('editor:properties.model.transform.compressionLevelTooltip')}
+          >
+            <CompoundNumericInput
+              value={compressProperties.compressionLevel.value}
+              onChange={compressProperties.compressionLevel.set}
+              min={0}
+              max={6}
+              step={1}
+            />
+          </InputGroup>
+        </>
+      )}
+      {compressProperties.mode.value === 'UASTC' && (
+        <>
+          <InputGroup
+            name="uastcFlags"
+            label={t('editor:properties.model.transform.uastcFlags')}
+            info={t('editor:properties.model.transform.uastcFlagsTooltip')}
+          >
+            <SelectInput
+              options={UASTCFlagOptions}
+              value={compressProperties.uastcFlags.value}
+              onChange={(val: number) => compressProperties.uastcFlags.set(val)}
+            />
+          </InputGroup>
+          <InputGroup
+            name="uastcZstandard"
+            label={t('editor:properties.model.transform.uastcZstandard')}
+            info={t('editor:properties.model.transform.uastcZstandardTooltip')}
+          >
+            <BooleanInput
+              value={compressProperties.uastcZstandard.value}
+              onChange={compressProperties.uastcZstandard.set}
+            />
+          </InputGroup>
+        </>
+      )}
     </Menu>
   )
 }
