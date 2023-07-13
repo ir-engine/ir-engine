@@ -50,11 +50,13 @@ export const ModelPreviewPanel = (props) => {
   const renderPanel = useRender3DPanelSystem(panelRef)
   const { camera, entity, scene, renderer } = renderPanel.state
   const gridHelper = new InfiniteGridHelper()
+  gridHelper.layers.set(ObjectLayers.Panel)
+  gridHelper.children.forEach((child) => {
+    child.layers.set(ObjectLayers.Panel)
+  })
 
   useEffect(() => {
-    gridHelper.layers.set(ObjectLayers.Panel)
     scene.value.add(gridHelper)
-
     const handleSizeChange = () => {
       renderPanel.resize()
     }
@@ -75,7 +77,6 @@ export const ModelPreviewPanel = (props) => {
     return () => {
       resizeObserver.disconnect()
       handleSizeChangeDebounced.cancel()
-      gridHelper.layers.set(ObjectLayers.Scene)
       scene.value.remove(gridHelper)
     }
   }, [])

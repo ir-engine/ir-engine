@@ -173,6 +173,7 @@ export default class InfiniteGridHelper extends Mesh {
         depthTest: true,
         depthWrite: true
       })
+      //super(lineGeometry, lineMaterial)
       const line = new LineSegments(lineGeometry, lineMaterial)
       super.add(line)
     }
