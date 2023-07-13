@@ -29,6 +29,7 @@ import { getMutableState, getState, useHookstate } from '@etherealengine/hyperfl
 
 import { iOS } from '../../common/functions/isMobile'
 import { Engine } from '../../ecs/classes/Engine'
+import { EngineState } from '../../ecs/classes/EngineState'
 import { RendererState } from '../../renderer/RendererState'
 import { isMobileXRHeadset } from '../../xr/XRState'
 import { RenderModes } from '../constants/RenderModes'
@@ -36,14 +37,21 @@ import { EngineRenderer, RenderSettingsState } from '../WebGLRendererSystem'
 
 export const getShadowsEnabled = () => {
   const rendererState = getState(RendererState)
-  return !isMobileXRHeadset && !iOS && rendererState.useShadows && rendererState.renderMode === RenderModes.SHADOW
+  const isEditor = getState(EngineState).isEditor
+  return (
+    !isMobileXRHeadset &&
+    !iOS &&
+    rendererState.useShadows &&
+    (isEditor ? rendererState.renderMode === RenderModes.SHADOW : true)
+  )
 }
 
 export const useShadowsEnabled = () => {
   const rendererState = getMutableState(RendererState)
   const useShadows = useHookstate(rendererState.useShadows).value
   const renderMode = useHookstate(rendererState.renderMode).value
-  return !isMobileXRHeadset && !iOS && useShadows && renderMode === RenderModes.SHADOW
+  const isEditor = useHookstate(getMutableState(EngineState).isEditor).value
+  return !isMobileXRHeadset && !iOS && useShadows && (isEditor ? renderMode === RenderModes.SHADOW : true)
 }
 
 export const updateShadowMap = () => {
