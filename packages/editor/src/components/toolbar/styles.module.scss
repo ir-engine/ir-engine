@@ -47,6 +47,42 @@
   }
 }
 
+.settingsContainer {
+  position: absolute;
+  top: 70px;
+  z-index: 1000;
+  right: 100px;
+  color: var(--white);
+  padding: 8px;
+  background-color: var(--popupBackground);
+  opacity: 0.88;
+  backdrop-filter: blur(1px);
+  border-radius: 4px;
+  width: 500px;
+
+  h3 {
+    font-size: 14px;
+  }
+
+  & > ul {
+    margin: 8px 4px;
+
+    & > li {
+      font: 12px;
+      color: var(--textColor);
+
+      & + li {
+        margin-top: 5px;
+      }
+
+      ul {
+        margin-left: 5px;
+        color: var(--white);
+      }
+    }
+  }
+}
+
 .toolbarNumericStepperInput {
   width: 120px;
 

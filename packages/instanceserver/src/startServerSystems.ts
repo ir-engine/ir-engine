@@ -38,9 +38,9 @@ import { startSystems } from '@etherealengine/engine/src/ecs/functions/SystemFun
 import { EquippableSystem } from '@etherealengine/engine/src/interaction/systems/EquippableSystem'
 import { InteractiveSystem } from '@etherealengine/engine/src/interaction/systems/InteractiveSystem'
 import { MotionCaptureSystem } from '@etherealengine/engine/src/mocap/MotionCaptureSystem'
+import { EntityNetworkStateSystem } from '@etherealengine/engine/src/networking/state/EntityNetworkState'
 import { IncomingNetworkSystem } from '@etherealengine/engine/src/networking/systems/IncomingNetworkSystem'
 import { OutgoingNetworkSystem } from '@etherealengine/engine/src/networking/systems/OutgoingNetworkSystem'
-import { WorldNetworkActionSystem } from '@etherealengine/engine/src/networking/systems/WorldNetworkActionSystem'
 import { PhysicsSystem } from '@etherealengine/engine/src/physics/systems/PhysicsSystem'
 import { SceneSystemLoadGroup, SceneSystemUpdateGroup } from '@etherealengine/engine/src/scene/SceneClientModule'
 
@@ -49,7 +49,7 @@ import { ServerRecordingSystem } from './ServerRecordingSystem'
 
 export const startMediaServerSystems = () => {
   /** Fixed */
-  startSystems([WorldNetworkActionSystem], { with: SimulationSystemGroup })
+  startSystems([EntityNetworkStateSystem], { with: SimulationSystemGroup })
 
   /** Post Render */
   startSystems([ServerRecordingSystem], {
@@ -65,7 +65,7 @@ export const startWorldServerSystems = () => {
   startSystems(
     [
       IncomingNetworkSystem,
-      WorldNetworkActionSystem,
+      EntityNetworkStateSystem,
       ServerHostNetworkSystem,
       EquippableSystem,
       AvatarSimulationSystemGroup
@@ -78,9 +78,6 @@ export const startWorldServerSystems = () => {
   startSystems([PhysicsSystem, OutgoingNetworkSystem], {
     after: SimulationSystemGroup
   })
-
-  /** Avatar / Pre Transform */
-  startSystems([AvatarAnimationSystemGroup], { with: AnimationSystemGroup })
 
   /** Post Transform / Pre Render */
   startSystems([InteractiveSystem, SceneSystemUpdateGroup], {

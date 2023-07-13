@@ -179,10 +179,6 @@ export const requestXRSession = createHookableFunction(
 
       getReferenceSpaces(xrSession)
 
-      const mode = xrState.sessionMode.value
-      if (mode === 'immersive-ar') setupARSession()
-      if (mode === 'immersive-vr') setupVRSession()
-
       dispatchAction(XRAction.sessionChanged({ active: true }))
 
       xrSession.addEventListener('end', onSessionEnd)
@@ -214,11 +210,3 @@ export const xrSessionChanged = createHookableFunction((action: typeof XRAction.
     }
   }
 })
-
-export const setupVRSession = () => {}
-
-export const setupARSession = () => {
-  const session = getMutableState(XRState).session.value!
-
-  getMutableState(SceneState).background.set(null)
-}

@@ -50,8 +50,8 @@ import { LinearTosRGBEffect } from '../../renderer/effects/LinearTosRGBEffect'
 
 export const Effects = {
   // FXAAEffect = 'FXAAEffect' as const,
-  SMAAEffect: 'SMAAEffect' as const,
-  OutlineEffect: 'OutlineEffect' as const,
+  // SMAAEffect: 'SMAAEffect' as const,
+  // OutlineEffect: 'OutlineEffect' as const,
   SSAOEffect: 'SSAOEffect' as const,
   SSREffect: 'SSREffect' as const,
   DepthOfFieldEffect: 'DepthOfFieldEffect' as const,
@@ -69,8 +69,8 @@ export const Effects = {
 export const EffectMap = {
   // TODO: FXAA recently broke due to new threejs & postprocessing version #5568
   // EffectMap.set(Effects.FXAAEffect, FXAAEffect)
-  [Effects.SMAAEffect]: SMAAEffect,
-  [Effects.OutlineEffect]: OutlineEffect,
+  // [Effects.SMAAEffect]: SMAAEffect,
+  // [Effects.OutlineEffect]: OutlineEffect,
   [Effects.SSAOEffect]: SSAOEffect,
   [Effects.SSREffect]: SSREffect,
   [Effects.DepthOfFieldEffect]: DepthOfFieldEffect,
@@ -238,8 +238,8 @@ export type MotionBlurEffectProps = EffectProps & {
 
 export type EffectPropsSchema = {
   // [Effects.FXAAEffect]: FXAAEffectProps
-  [Effects.SMAAEffect]: SMAAEffectProps
-  [Effects.OutlineEffect]: OutlineEffectProps
+  // [Effects.SMAAEffect]: SMAAEffectProps
+  // [Effects.OutlineEffect]: OutlineEffectProps
   [Effects.SSAOEffect]: SSAOEffectProps
   [Effects.SSREffect]: SSREffectProps
   [Effects.DepthOfFieldEffect]: DepthOfFieldEffectProps
@@ -259,29 +259,29 @@ export const defaultPostProcessingSchema: EffectPropsSchema = {
   //   isActive: true,
   //   blendFunction: BlendFunction.NORMAL
   // },
-  [Effects.SMAAEffect]: {
-    isActive: true,
-    blendFunction: BlendFunction.NORMAL,
-    preset: SMAAPreset.MEDIUM,
-    edgeDetectionMode: EdgeDetectionMode.COLOR,
-    predicationMode: PredicationMode.DISABLED
-  },
-  [Effects.OutlineEffect]: {
-    isActive: true,
-    blendFunction: BlendFunction.SCREEN,
-    patternTexture: null,
-    edgeStrength: 2.0,
-    pulseSpeed: 0.25,
-    visibleEdgeColor: 0xffffff,
-    hiddenEdgeColor: 0xffffff,
-    resolutionScale: 0.5,
-    width: Resolution.AUTO_SIZE,
-    height: Resolution.AUTO_SIZE,
-    kernelSize: KernelSize.MEDIUM,
-    blur: false,
-    xRay: true,
-    opacity: 0.5
-  },
+  // [Effects.SMAAEffect]: {
+  //   isActive: true,
+  //   blendFunction: BlendFunction.NORMAL,
+  //   preset: SMAAPreset.MEDIUM,
+  //   edgeDetectionMode: EdgeDetectionMode.COLOR,
+  //   predicationMode: PredicationMode.DISABLED
+  // },
+  // [Effects.OutlineEffect]: {
+  //   isActive: true,
+  //   blendFunction: BlendFunction.SCREEN,
+  //   patternTexture: null,
+  //   edgeStrength: 2.0,
+  //   pulseSpeed: 0.25,
+  //   visibleEdgeColor: 0xffffff,
+  //   hiddenEdgeColor: 0xffffff,
+  //   resolutionScale: 0.5,
+  //   width: Resolution.AUTO_SIZE,
+  //   height: Resolution.AUTO_SIZE,
+  //   kernelSize: KernelSize.MEDIUM,
+  //   blur: false,
+  //   xRay: true,
+  //   opacity: 0.5
+  // },
   [Effects.SSAOEffect]: {
     isActive: false,
     blendFunction: BlendFunction.MULTIPLY,
@@ -392,13 +392,13 @@ export const defaultPostProcessingSchema: EffectPropsSchema = {
  * - https://docs.unity3d.com/Packages/com.unity.render-pipelines.core@16.0/manual
  */
 
-export const effectInOrder = [
-  /** 1. input aliasing */
-  Effects.SMAAEffect,
+/** 1. input aliasing */
+// Effects.SMAAEffect,
+// Effects.OutlineEffect,
 
+export const effectInOrder = [
   /** 2. world effects */
   // Effects.PaniniProjection,
-  Effects.OutlineEffect,
   Effects.DepthOfFieldEffect,
   Effects.SSAOEffect, // TODO- add option to use HBAO
   Effects.SSREffect,
