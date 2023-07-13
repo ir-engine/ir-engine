@@ -24,13 +24,16 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { t } from 'i18next'
-import React, { useState } from 'react'
+import React from 'react'
 
 import { API } from '@etherealengine/client-core/src/API'
 import Button from '@etherealengine/client-core/src/common/components/Button'
 import Menu from '@etherealengine/client-core/src/common/components/Menu'
 import { uploadToFeathersService } from '@etherealengine/client-core/src/util/upload'
-import { KTX2EncodeArguments } from '@etherealengine/engine/src/assets/constants/CompressionParms'
+import {
+  KTX2EncodeArguments,
+  KTX2EncodeDefaultArguments
+} from '@etherealengine/engine/src/assets/constants/CompressionParms'
 import { State, useHookstate } from '@etherealengine/hyperflux'
 import CircularProgress from '@etherealengine/ui/src/primitives/mui/CircularProgress'
 import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
@@ -46,14 +49,13 @@ import styles from './styles.module.scss'
 export default function CompressionPanel({
   openCompress,
   fileProperties,
-  compressProperties,
   onRefreshDirectory
 }: {
   openCompress: State<boolean>
   fileProperties: State<FileType>
-  compressProperties: State<KTX2EncodeArguments>
   onRefreshDirectory: () => Promise<void>
 }) {
+  const compressProperties = useHookstate<KTX2EncodeArguments>(KTX2EncodeDefaultArguments)
   const compressionLoading = useHookstate(false)
 
   const compressContentInBrowser = async () => {
@@ -84,7 +86,7 @@ export default function CompressionPanel({
       mipmaps: compressProperties.mipmaps.value,
       compressionLevel: compressProperties.compressionLevel.value,
       yFlip: compressProperties.flipY.value,
-      srgb: !compressProperties.linear.value
+      srgb: !compressProperties.srgb.value
     })
 
     const newFileName = props.key.replace(/.*\/(.*)\..*/, '$1') + '.ktx2'
@@ -155,10 +157,10 @@ export default function CompressionPanel({
       </InputGroup>
       <InputGroup
         name="linear"
-        label={t('editor:properties.model.transform.linear')}
-        info={t('editor:properties.model.transform.linearTooltip')}
+        label={t('editor:properties.model.transform.srgb')}
+        info={t('editor:properties.model.transform.srgbTooltip')}
       >
-        <BooleanInput value={compressProperties.linear.value} onChange={compressProperties.linear.set} />
+        <BooleanInput value={compressProperties.srgb.value} onChange={compressProperties.srgb.set} />
       </InputGroup>
       <InputGroup
         name="quality"

@@ -27,7 +27,7 @@ export type KTX2EncodeArguments = {
   src: string
   flipY: boolean
   format: 'ktx2' | 'basis'
-  linear: boolean
+  srgb: boolean
   mode: 'ETC1S' | 'UASTC'
   quality: number
   mipmaps: boolean
@@ -42,7 +42,7 @@ export const KTX2EncodeDefaultArguments: KTX2EncodeArguments = {
   src: '',
   flipY: false,
   format: 'ktx2',
-  linear: true,
+  srgb: true,
   mode: 'ETC1S',
   quality: 128,
   mipmaps: true,
