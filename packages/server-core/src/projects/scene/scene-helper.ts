@@ -105,7 +105,7 @@ export const uploadSceneToStaticResources = async (
 
   if (/.scene.json$/.test(file)) {
     const sceneData = JSON.parse(fileResult.toString())
-    const convertedSceneData = await convertStaticResource(app, projectName, sceneData)
+    const convertedSceneData = await downloadAssetsFromScene(app, projectName, sceneData)
     cleanSceneDataCacheURLs(convertedSceneData, cacheDomain)
     const newFile = Buffer.from(JSON.stringify(convertedSceneData, null, 2))
     fs.writeFileSync(file, newFile)
@@ -115,7 +115,7 @@ export const uploadSceneToStaticResources = async (
   return fileResult
 }
 
-export const convertStaticResource = async (app: Application, project: string, sceneData: SceneJson) => {
+export const downloadAssetsFromScene = async (app: Application, project: string, sceneData: SceneJson) => {
   // parallelizes each entity, serializes each component to avoid media playlists taking up gigs of memory when downloading
   await Promise.all(
     Object.values(sceneData!.entities).map(async (entity) => {
