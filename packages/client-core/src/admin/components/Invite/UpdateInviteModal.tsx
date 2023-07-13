@@ -360,9 +360,6 @@ const UpdateInviteModal = ({ open, onClose, invite }: Props) => {
                     label="Start Time"
                     value={startTime.value}
                     onChange={(e) => startTime.set(dayjs(e))}
-                    slots={{
-                      textField: (params) => <TextField className={styles.dateTimePickerDialog} {...params} />
-                    }}
                   />
                   <IconButton
                     color="primary"
@@ -373,14 +370,7 @@ const UpdateInviteModal = ({ open, onClose, invite }: Props) => {
                   />
                 </div>
                 <div className={styles.pickerControls}>
-                  <DateTimePicker
-                    label="End Time"
-                    value={endTime.value}
-                    onChange={(e) => endTime.set(dayjs(e))}
-                    slots={{
-                      textField: (params) => <TextField className={styles.dateTimePickerDialog} {...params} />
-                    }}
-                  />
+                  <DateTimePicker label="End Time" value={endTime.value} onChange={(e) => endTime.set(dayjs(e))} />
                   <IconButton
                     color="primary"
                     size="small"
