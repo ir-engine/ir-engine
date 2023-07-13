@@ -37,7 +37,7 @@ export const InputComponent = defineComponent({
     return {
       /** populated automatically by ClientInputSystem */
       inputSources: [] as Entity[],
-      highlight: false
+      highlight: true
       // priority: 0
     }
   },

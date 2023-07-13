@@ -52,7 +52,6 @@ import { IncomingNetworkSystem } from '@etherealengine/engine/src/networking/sys
 import { OutgoingNetworkSystem } from '@etherealengine/engine/src/networking/systems/OutgoingNetworkSystem'
 import { WorldNetworkActionSystem } from '@etherealengine/engine/src/networking/systems/WorldNetworkActionSystem'
 import { PhysicsSystem } from '@etherealengine/engine/src/physics/systems/PhysicsSystem'
-import { HighlightSystem } from '@etherealengine/engine/src/renderer/HighlightSystem'
 import { WebGLRendererSystem } from '@etherealengine/engine/src/renderer/WebGLRendererSystem'
 import { SceneSystemLoadGroup, SceneSystemUpdateGroup } from '@etherealengine/engine/src/scene/SceneClientModule'
 import { PortalSystem } from '@etherealengine/engine/src/scene/systems/PortalSystem'
@@ -88,7 +87,7 @@ export const startClientSystems = () => {
   startSystems([XRUISystem, InteractiveSystem, MediaControlSystem], { before: TransformSystem })
 
   /** Post Transform / Pre Render */
-  startSystems([HighlightSystem, MediaSystem, DebugRendererSystem, SceneSystemUpdateGroup], {
+  startSystems([MediaSystem, DebugRendererSystem, SceneSystemUpdateGroup], {
     before: PresentationSystemGroup
   })
 
