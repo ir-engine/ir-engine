@@ -718,7 +718,6 @@ const SceneObjectEntityReactor = (props: { entity: Entity }) => {
   useEffect(() => {
     setComponent(props.entity, InputComponent)
     return () => {
-      if (!entityExists(props.entity)) return
       removeComponent(props.entity, InputComponent)
     }
   }, [])

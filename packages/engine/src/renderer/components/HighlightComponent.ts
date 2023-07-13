@@ -28,7 +28,7 @@ import { Object3D } from 'three'
 
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
-import { defineComponent, useOptionalComponent } from '../../ecs/functions/ComponentFunctions'
+import { defineComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
 import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { GroupComponent } from '../../scene/components/GroupComponent'
 import { RendererState } from '../RendererState'
@@ -42,10 +42,9 @@ export const HighlightComponent = defineComponent({
 
     const postProcessingSettingsState = useHookstate(getMutableState(PostProcessingSettingsState))
     const usePostProcessing = useHookstate(getMutableState(RendererState).usePostProcessing)
-    const group = useOptionalComponent(entity, GroupComponent)
+    const group = useComponent(entity, GroupComponent)
 
     useEffect(() => {
-      if (!group?.value) return
       const objs = [...group.value]
       for (const object of objs) object.traverse(addToSelection)
       return () => {
