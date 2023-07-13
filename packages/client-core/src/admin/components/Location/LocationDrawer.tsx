@@ -29,7 +29,7 @@ import { useTranslation } from 'react-i18next'
 import InputSelect, { InputMenuItem } from '@etherealengine/client-core/src/common/components/InputSelect'
 import InputSwitch from '@etherealengine/client-core/src/common/components/InputSwitch'
 import InputText from '@etherealengine/client-core/src/common/components/InputText'
-import { LocationFetched } from '@etherealengine/common/src/interfaces/Location'
+import { LocationType } from '@etherealengine/engine/src/schemas/social/location.schema'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import Button from '@etherealengine/ui/src/primitives/mui/Button'
 import Container from '@etherealengine/ui/src/primitives/mui/Container'
@@ -53,7 +53,7 @@ export enum LocationDrawerMode {
 interface Props {
   open: boolean
   mode: LocationDrawerMode
-  selectedLocation?: LocationFetched
+  selectedLocation?: LocationType
   onClose: () => void
 }
 

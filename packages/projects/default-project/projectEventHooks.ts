@@ -27,8 +27,8 @@ import { BadRequest } from '@feathersjs/errors'
 import { Paginated } from '@feathersjs/feathers/lib'
 import path from 'path'
 
-import { Location } from '@etherealengine/common/src/interfaces/Location'
 import { OEmbed } from '@etherealengine/common/src/interfaces/OEmbed'
+import { LocationType } from '@etherealengine/engine/src/schemas/social/location.schema'
 import { ProjectEventHooks } from '@etherealengine/projects/ProjectConfigInterface'
 import { Application } from '@etherealengine/server-core/declarations'
 import { getStorageProvider } from '@etherealengine/server-core/src/media/storageprovider/storageprovider'
@@ -42,11 +42,11 @@ const handleOEmbedRequest = async (app: Application, url: URL, currentOEmbed: OE
   const isEditor = /^\/studio/.test(url.pathname)
   if (isLocation) {
     const locationName = url.pathname.replace(/\/location\//, '')
-    const locationResult = (await app.service('location').find({
+    const locationResult = (await app.service(locationPath).find({
       query: {
         slugifiedName: locationName
       }
-    })) as Paginated<Location>
+    })) as Paginated<LocationType>
     if (locationResult.total === 0) throw new BadRequest('Invalid location name')
     const [projectName, sceneName] = locationResult.data[0].sceneId.split('/')
     const storageProvider = getStorageProvider()
@@ -73,11 +73,11 @@ const handleOEmbedRequest = async (app: Application, url: URL, currentOEmbed: OE
     }
 
     if (subPath.includes('/')) {
-      const locationResult = (await app.service('location').find({
+      const locationResult = (await app.service(locationPath).find({
         query: {
           sceneId: subPath
         }
-      })) as Paginated<Location>
+      })) as Paginated<LocationType>
       if (locationResult.total > 0) {
         const [projectName, sceneName] = locationResult.data[0].sceneId.split('/')
         const storageProvider = getStorageProvider()

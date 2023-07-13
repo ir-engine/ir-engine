@@ -31,6 +31,7 @@ import * as pug from 'pug'
 import { IdentityProviderInterface } from '@etherealengine/common/src/dbmodels/IdentityProvider'
 import { Invite as InviteType } from '@etherealengine/common/src/interfaces/Invite'
 import { UserInterface } from '@etherealengine/common/src/interfaces/User'
+import { locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
 
 import { Application } from '../../declarations'
 import config from '../appconfig'
@@ -63,13 +64,13 @@ async function generateEmail(
   }
 
   if (inviteType === 'location') {
-    const location = await app.service('location').get(targetObjectId!)
+    const location = await app.service(locationPath).get(targetObjectId!)
     locationName = location.name
   }
 
   if (inviteType === 'instance') {
     const instance = await app.service('instance').get(targetObjectId!)
-    const location = await app.service('location').get(instance.locationId)
+    const location = await app.service(locationPath).get(instance.locationId)
     locationName = location.name
   }
 
@@ -108,13 +109,13 @@ async function generateSMS(
   }
 
   if (inviteType === 'location') {
-    const location = await app.service('location').get(targetObjectId!)
+    const location = await app.service(locationPath).get(targetObjectId!)
     locationName = location.name
   }
 
   if (inviteType === 'instance') {
     const instance = await app.service('instance').get(targetObjectId!)
-    const location = await app.service('location').get(instance.locationId)
+    const location = await app.service(locationPath).get(instance.locationId)
     locationName = location.name
   }
   const templatePath = path.join(emailAccountTemplatesPath, `magiclink-sms-invite-${inviteType}.pug`)

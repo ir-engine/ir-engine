@@ -28,6 +28,7 @@ import { v1 } from 'uuid'
 
 import { destroyEngine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { locationSettingPath } from '@etherealengine/engine/src/schemas/social/location-setting.schema'
+import { locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
 
 import { Application } from '../../../declarations'
 import { createFeathersKoaApp } from '../../createApp'
@@ -59,7 +60,7 @@ describe('location.test', () => {
       locationId: ''
     })
 
-    const item = await app.service('location').create(
+    const item = await app.service(locationPath).create(
       {
         name,
         locationSetting
@@ -73,7 +74,7 @@ describe('location.test', () => {
   })
 
   it('should get the new location', async () => {
-    const item = await app.service('location').get(locations[0].id)
+    const item = await app.service(locationPath).get(locations[0].id)
 
     assert.ok(item)
     assert.equal(item.name, locations[0].name)
@@ -92,7 +93,7 @@ describe('location.test', () => {
       locationId: ''
     })
     const item = await app
-      .service('location')
+      .service(locationPath)
       .patch(locations[0].id, { ...locations[0], name: newName, locationSetting })
 
     assert.ok(item)
@@ -102,13 +103,13 @@ describe('location.test', () => {
   })
 
   it('should not be able to make lobby if not admin', () => {
-    assert.rejects(() => app.service('location').patch(locations[0].id, { isLobby: true }))
+    assert.rejects(() => app.service(locationPath).patch(locations[0].id, { isLobby: true }))
   })
 
   it('should be able to delete the location', async () => {
-    await app.service('location').remove(locations[0].id)
+    await app.service(locationPath).remove(locations[0].id)
 
-    const item = await app.service('location').find({ query: { id: locations[0].id } })
+    const item = await app.service(locationPath).find({ query: { id: locations[0].id } })
 
     assert.equal((item as any).total, 0)
   })

@@ -32,6 +32,7 @@ import Sequelize, { Op } from 'sequelize'
 
 import { Instance } from '@etherealengine/common/src/interfaces/Instance'
 import { InstanceServerProvisionResult } from '@etherealengine/common/src/interfaces/InstanceServerProvisionResult'
+import { locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
 import { getState } from '@etherealengine/hyperflux'
 
 import { Application } from '../../../declarations'
@@ -558,7 +559,7 @@ export class InstanceProvision implements ServiceMethods<any> {
         }
       } else {
         if (locationId == null) throw new BadRequest('Missing location ID')
-        const location = await this.app.service('location').get(locationId)
+        const location = await this.app.service(locationPath).get(locationId)
         if (location == null) throw new BadRequest('Invalid location ID')
 
         let instance: Instance | null = null

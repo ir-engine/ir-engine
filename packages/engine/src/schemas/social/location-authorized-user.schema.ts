@@ -24,66 +24,51 @@ Ethereal Engine. All Rights Reserved.
 */
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
-import { querySyntax, StringEnum, Type } from '@feathersjs/typebox'
+import { querySyntax, Type } from '@feathersjs/typebox'
 import type { Static } from '@feathersjs/typebox'
 
-export const locationSettingPath = 'location-setting'
-
-export const locationSettingMethods = ['find', 'get', 'create', 'patch', 'remove'] as const
-
 // Main data model schema
-export const locationSettingSchema = Type.Object(
+export const locationAuthorizedUserSchema = Type.Object(
   {
     id: Type.String({
       format: 'uuid'
     }),
-    locationId: Type.String({
+    userId: Type.String({
       format: 'uuid'
     }),
-    locationType: StringEnum(['private', 'public', 'showroom']),
-    audioEnabled: Type.Boolean(),
-    screenSharingEnabled: Type.Boolean(),
-    faceStreamingEnabled: Type.Boolean(),
-    videoEnabled: Type.Boolean(),
-    createdAt: Type.String({ format: 'date-time' }),
-    updatedAt: Type.String({ format: 'date-time' })
+    locationId: Type.String({
+      format: 'uuid'
+    })
   },
-  { $id: 'LocationSetting', additionalProperties: false }
+  { $id: 'LocationAuthorizedUser', additionalProperties: false }
 )
-export type LocationSettingType = Static<typeof locationSettingSchema>
+export type LocationAuthorizedUserType = Static<typeof locationAuthorizedUserSchema>
 
 // Schema for creating new entries
-export const locationSettingDataSchema = Type.Pick(
-  locationSettingSchema,
-  ['locationId', 'locationType', 'audioEnabled', 'screenSharingEnabled', 'faceStreamingEnabled', 'videoEnabled'],
-  {
-    $id: 'LocationSettingData'
-  }
-)
-export type LocationSettingData = Static<typeof locationSettingDataSchema>
+export const locationAuthorizedUserDataSchema = Type.Pick(locationAuthorizedUserSchema, ['userId', 'locationId'], {
+  $id: 'LocationAuthorizedUserData'
+})
+export type LocationAuthorizedUserData = Static<typeof locationAuthorizedUserDataSchema>
 
 // Schema for updating existing entries
-export const locationSettingPatchSchema = Type.Partial(locationSettingSchema, {
-  $id: 'LocationSettingPatch'
+export const locationAuthorizedUserPatchSchema = Type.Partial(locationAuthorizedUserSchema, {
+  $id: 'LocationAuthorizedUserPatch'
 })
-export type LocationSettingPatch = Static<typeof locationSettingPatchSchema>
+export type LocationAuthorizedUserPatch = Static<typeof locationAuthorizedUserPatchSchema>
 
 // Schema for allowed query properties
-export const locationSettingQueryProperties = Type.Pick(locationSettingSchema, [
+export const locationAuthorizedUserQueryProperties = Type.Pick(locationAuthorizedUserSchema, [
   'id',
-  'locationId',
-  'locationType',
-  'audioEnabled',
-  'screenSharingEnabled',
-  'faceStreamingEnabled',
-  'videoEnabled'
+  'userId',
+  'locationId'
 ])
-export const locationSettingQuerySchema = Type.Intersect(
+export const locationAuthorizedUserQuerySchema = Type.Intersect(
   [
-    querySyntax(locationSettingQueryProperties),
+    querySyntax(locationAuthorizedUserQueryProperties),
     // Add additional query properties here
     Type.Object({}, { additionalProperties: false })
   ],
   { additionalProperties: false }
 )
-export type LocationSettingQuery = Static<typeof locationSettingQuerySchema>
+
+export type LocationAuthorizedUserQuery = Static<typeof locationAuthorizedUserQuerySchema>

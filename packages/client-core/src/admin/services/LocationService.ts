@@ -25,10 +25,15 @@ Ethereal Engine. All Rights Reserved.
 
 import { Paginated } from '@feathersjs/feathers'
 
-import { Location } from '@etherealengine/common/src/interfaces/Location'
 import multiLogger from '@etherealengine/common/src/logger'
 import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
 import { locationTypePath, LocationTypeType } from '@etherealengine/engine/src/schemas/social/location-type.schema'
+import {
+  LocationData,
+  LocationPatch,
+  locationPath,
+  LocationType
+} from '@etherealengine/engine/src/schemas/social/location.schema'
 import { defineAction, defineState, dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 
 import { API } from '../../API'
@@ -42,7 +47,7 @@ export const LOCATION_PAGE_LIMIT = 100
 export const AdminLocationState = defineState({
   name: 'AdminLocationState',
   initial: () => ({
-    locations: [] as Array<Location>,
+    locations: [] as Array<LocationType>,
     skip: 0,
     limit: LOCATION_PAGE_LIMIT,
     total: 0,
@@ -105,28 +110,28 @@ export const AdminLocationService = {
     const locationTypes = await API.instance.client.service(locationTypePath).find()
     dispatchAction(AdminLocationActions.locationTypesRetrieved({ locationTypes }))
   },
-  patchLocation: async (id: string, location: any) => {
+  patchLocation: async (id: string, location: LocationPatch) => {
     try {
-      const result = await API.instance.client.service('location').patch(id, location)
+      const result = await API.instance.client.service(locationPath).patch(id, location)
       dispatchAction(AdminLocationActions.locationPatched({ location: result }))
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
   },
   removeLocation: async (id: string) => {
-    const result = await API.instance.client.service('location').remove(id)
+    const result = await API.instance.client.service(locationPath).remove(id)
     dispatchAction(AdminLocationActions.locationRemoved({ location: result }))
   },
-  createLocation: async (location: any) => {
+  createLocation: async (location: LocationData) => {
     try {
-      const result = await API.instance.client.service('location').create(location)
+      const result = await API.instance.client.service(locationPath).create(location)
       dispatchAction(AdminLocationActions.locationCreated({ location: result }))
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
   },
   fetchAdminLocations: async (
-    value: string | null = null,
+    value = '',
     skip = getMutableState(AdminLocationState).skip.value,
     sortField = 'name',
     orderBy = 'asc'
@@ -135,14 +140,14 @@ export const AdminLocationService = {
       const sortData = {}
       if (sortField.length > 0) {
         if (sortField === 'tags') {
-          sortData['isFeatured'] = orderBy === 'desc' ? 0 : 1
-          sortData['isLobby'] = orderBy === 'desc' ? 0 : 1
+          sortData['isFeatured'] = orderBy === 'desc' ? -1 : 1
+          sortData['isLobby'] = orderBy === 'desc' ? -1 : 1
         } else {
-          sortData[sortField] = orderBy === 'desc' ? 0 : 1
+          sortData[sortField] = orderBy === 'desc' ? -1 : 1
         }
       }
 
-      const locations = (await API.instance.client.service('location').find({
+      const locations = (await API.instance.client.service(locationPath).find({
         query: {
           $sort: {
             ...sortData
@@ -152,7 +157,7 @@ export const AdminLocationService = {
           adminnedLocations: true,
           search: value
         }
-      })) as Paginated<Location>
+      })) as Paginated<LocationType>
 
       dispatchAction(AdminLocationActions.locationsRetrieved({ locations }))
     } catch (error) {
@@ -161,17 +166,17 @@ export const AdminLocationService = {
   },
   searchAdminLocations: async (value, orderBy = 'asc') => {
     try {
-      const locations = (await API.instance.client.service('location').find({
+      const locations = (await API.instance.client.service(locationPath).find({
         query: {
           search: value,
           $sort: {
-            name: orderBy === 'desc' ? 0 : 1
+            name: orderBy === 'desc' ? -1 : 1
           },
           $skip: getMutableState(AdminLocationState).skip.value,
           $limit: getMutableState(AdminLocationState).limit.value,
           adminnedLocations: true
         }
-      })) as Paginated<Location>
+      })) as Paginated<LocationType>
     } catch (error) {
       logger.error(error)
     }
@@ -182,27 +187,27 @@ export const AdminLocationService = {
 export class AdminLocationActions {
   static locationsRetrieved = defineAction({
     type: 'ee.client.AdminLocation.ADMIN_LOCATIONS_RETRIEVED' as const,
-    locations: matches.object as Validator<unknown, Paginated<Location>>
+    locations: matches.object as Validator<unknown, Paginated<LocationType>>
   })
 
   // static locationRetrieved = defineAction({
   //   type: 'ee.client.AdminLocation.ADMIN_LOCATION_RETRIEVED' as const,
-  //   location: matches.object as Validator<unknown, Location>
+  //   location: matches.object as Validator<unknown, LocationType>
   // })
 
   static locationCreated = defineAction({
     type: 'ee.client.AdminLocation.ADMIN_LOCATION_CREATED' as const,
-    location: matches.object as Validator<unknown, Location>
+    location: matches.object as Validator<unknown, LocationType>
   })
 
   static locationPatched = defineAction({
     type: 'ee.client.AdminLocation.ADMIN_LOCATION_PATCHED' as const,
-    location: matches.object as Validator<unknown, Location>
+    location: matches.object as Validator<unknown, LocationType>
   })
 
   static locationRemoved = defineAction({
     type: 'ee.client.AdminLocation.ADMIN_LOCATION_REMOVED' as const,
-    location: matches.object as Validator<unknown, Location>
+    location: matches.object as Validator<unknown, LocationType>
   })
 
   // static locationBanCreated = defineAction({

@@ -28,6 +28,7 @@ import nock from 'nock'
 
 import { destroyEngine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { matchInstancePath } from '@etherealengine/engine/src/schemas/matchmaking/match-instance.schema'
+import { locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
 import { FRONTEND_SERVICE_URL } from '@etherealengine/matchmaking/src/functions'
 import { matchTicketAssignmentPath } from '@etherealengine/matchmaking/src/match-ticket-assignment.schema'
 import { matchTicketPath, MatchTicketType } from '@etherealengine/matchmaking/src/match-ticket.schema'
@@ -93,7 +94,7 @@ describe.skip('matchmaking match-instance service', () => {
       }
     })
 
-    location = await app.service('location').create(
+    location = await app.service(locationPath).create(
       {
         name: `game-${gameMode}`,
         slugifiedName: `game-${gameMode}`,
@@ -163,7 +164,7 @@ describe.skip('matchmaking match-instance service', () => {
     })
     users.length = 0
 
-    cleanupPromises.push(app.service('location').remove(location.id, {}))
+    cleanupPromises.push(app.service(locationPath).remove(location.id, {}))
 
     await Promise.all(cleanupPromises)
     return destroyEngine()

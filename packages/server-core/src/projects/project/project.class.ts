@@ -40,6 +40,7 @@ import {
 import { UserInterface } from '@etherealengine/common/src/interfaces/User'
 import { processFileName } from '@etherealengine/common/src/utils/processFileName'
 import { routePath, RouteType } from '@etherealengine/engine/src/schemas/route/route.schema'
+import { locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
 import { getState } from '@etherealengine/hyperflux'
 import templateProjectJson from '@etherealengine/projects/template-project/package.json'
 
@@ -584,7 +585,7 @@ export class Project extends Service {
     logger.info(`[Projects]: removing project id "${id}", name: "${name}".`)
     await deleteProjectFilesInStorageProvider(name)
 
-    const locationItems = await (this.app.service('location') as any).Model.findAll({
+    const locationItems = await this.app.service('location').Model.findAll({
       where: {
         sceneId: {
           [Op.like]: `${name}/%`
@@ -593,7 +594,7 @@ export class Project extends Service {
     })
     locationItems.length &&
       locationItems.forEach(async (location) => {
-        await this.app.service('location').remove(location.dataValues.id)
+        await this.app.service(locationPath).remove(location.dataValues.id)
       })
 
     const whereClause = {
