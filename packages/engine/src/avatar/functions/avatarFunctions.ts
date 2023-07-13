@@ -288,7 +288,7 @@ export const setupAvatarMaterials = (entity, root) => {
         id: object.uuid,
         material: material
       })
-      object.material = DissolveEffect.getDissolveTexture(object)
+      object.material = DissolveEffect.createDissolveMaterial(object)
     }
   })
 
