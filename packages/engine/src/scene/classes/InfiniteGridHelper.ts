@@ -58,7 +58,7 @@ void main() {
   vec3 pos = position.xzy * uDistance;
   pos.xz += cameraPosition.xz;
   // this is necessary to avoid z fighting
-  pos.y += 0.001; // Rahul: noticed -0.025 is ideal to prevent default z fighting 
+  pos.y -= 0.025; // Rahul: noticed -0.025 is ideal to prevent default z fighting 
 
   worldPosition = pos;
 
@@ -86,13 +86,13 @@ float getGrid(float size) {
 }
 
 float getXAxisLine() {
-  float lineWidth = 0.5; // Adjust line width if needed
+  float lineWidth = 0.02; // Adjust line width if needed
   float xLine = smoothstep(-lineWidth, lineWidth, abs(worldPosition.x));
   return 1.0 - xLine;
 }
 
 float getZAxisLine() {
-  float lineWidth = 0.5; // Adjust line width if needed
+  float lineWidth = 0.02; // Adjust line width if needed
   float zLine = smoothstep(-lineWidth, lineWidth, abs(worldPosition.z));
   return 1.0 - zLine;
 }
@@ -106,11 +106,15 @@ void main() {
   float g2 = getGrid(uSize2);
   float xAxisLine = getXAxisLine();
   float zAxisLine = getZAxisLine();
+  vec3 xAxisColor = vec3(1.0, 0.0, 0.0);
+  vec3 zAxisColor = vec3(0.0, 0.0, 1.0);
 
-  vec3 color = mix(uColor.rgb, vec3(1.0, 0.0, 0.0), xAxisLine); 
-  color = mix(color, vec3(0.0, 0.0, 1.0), zAxisLine);
-  gl_FragColor = vec4(color, mix(g2, g1, g1) * pow(d, 3.0));
-  gl_FragColor.a = mix(0.5 * gl_FragColor.a, gl_FragColor.a, g2);
+  if (xAxisLine > 0.0 || zAxisLine > 0.0) {
+    discard;
+  } else {
+    gl_FragColor = vec4(uColor.rgb, mix(g2, g1, g1) * pow(d, 3.0));
+    gl_FragColor.a = mix(0.5 * gl_FragColor.a, gl_FragColor.a, g2);
+}
 
   if ( gl_FragColor.a <= 0.0 ) discard;
 }
@@ -149,21 +153,30 @@ export default class InfiniteGridHelper extends Mesh {
         derivatives: true
       }
     })
-    const yLineGeometry = new BufferGeometry()
-    const yLinePositions = new Float32Array([0, -distance, 0, 0, distance, 0])
-    yLineGeometry.setAttribute('position', new BufferAttribute(yLinePositions, 3))
-    const yLineMaterial = new LineBasicMaterial({
-      side: DoubleSide,
-      color: 0x00ff00,
-      transparent: true,
-      opacity: 0.3,
-      blending: NormalBlending,
-      depthTest: true,
-      depthWrite: true
-    })
-    const yLine = new LineSegments(yLineGeometry, yLineMaterial)
+
     super(geometry, material)
-    super.add(yLine)
+
+    const lineColors = ['red', 'green', 'blue']
+    for (let i = 0; i < lineColors.length; i++) {
+      const lineGeometry = new BufferGeometry()
+      const floatArray = [0, 0, 0, 0, 0, 0]
+      floatArray[i] = -distance
+      floatArray[i + 3] = distance
+      const linePositions = new Float32Array(floatArray)
+      lineGeometry.setAttribute('position', new BufferAttribute(linePositions, 3))
+      const lineMaterial = new LineBasicMaterial({
+        side: DoubleSide,
+        color: lineColors[i],
+        transparent: true,
+        opacity: 0.3,
+        blending: NormalBlending,
+        depthTest: true,
+        depthWrite: true
+      })
+      //super(lineGeometry, lineMaterial)
+      const line = new LineSegments(lineGeometry, lineMaterial)
+      super.add(line)
+    }
 
     this.name = 'InfiniteGridHelper'
     setObjectLayers(this, ObjectLayers.Gizmos)
