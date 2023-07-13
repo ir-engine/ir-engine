@@ -58,8 +58,4 @@ export default (app: Application): void => {
 
   const service = app.service(authenticationSettingPath)
   service.hooks(hooks)
-
-  service.on('patched', () => {
-    updateAppConfig()
-  })
 }

@@ -44,7 +44,7 @@ export async function up(knex: Knex): Promise<void> {
   if (tableExists === false) {
     await knex.schema.createTable(authenticationSettingPath, (table) => {
       //@ts-ignore
-      table.string('id', 36).primary().notNullable()
+      table.uuid('id').collate('utf8mb4_bin').primary()
       table.string('service', 255).nullable()
       table.string('entity', 255).nullable()
       table.string('secret', 255).nullable()
