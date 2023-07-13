@@ -29,7 +29,9 @@ import {
   EffectComposer,
   EffectPass,
   NormalPass,
+  OutlineEffect,
   RenderPass,
+  SMAAEffect,
   TextureEffect
 } from 'postprocessing'
 import { VelocityDepthNormalPass } from 'realism-effects'
@@ -43,7 +45,9 @@ import { SceneState } from '../../ecs/classes/Scene'
 import { getComponent } from '../../ecs/functions/ComponentFunctions'
 import { PostProcessingComponent } from '../../scene/components/PostProcessingComponent'
 import { EffectMap, EffectPropsSchema, Effects } from '../../scene/constants/PostProcessing'
-import { EffectComposerWithSchema, EngineRenderer } from '../WebGLRendererSystem'
+import { HighlightState } from '../HighlightState'
+import { RendererState } from '../RendererState'
+import { EffectComposerWithSchema, EngineRenderer, PostProcessingSettingsState } from '../WebGLRendererSystem'
 import { changeRenderMode } from './changeRenderMode'
 
 export const configureEffectComposer = (remove?: boolean, camera: PerspectiveCamera = Engine.instance.camera): void => {
@@ -68,8 +72,24 @@ export const configureEffectComposer = (remove?: boolean, camera: PerspectiveCam
   const postprocessing = getComponent(getState(SceneState).sceneEntity, PostProcessingComponent)
   if (!postprocessing.enabled) return
 
-  const postProcessingEffects = postprocessing.effects as EffectPropsSchema
   const effects: any[] = []
+
+  const smaaEffect = new SMAAEffect()
+  composer.SMAAEffect = smaaEffect
+  effects.push(smaaEffect)
+
+  const outlineEffect = new OutlineEffect(scene, camera, getState(HighlightState))
+  composer.HighlightEffect = outlineEffect
+  effects.push(outlineEffect)
+
+  const postprocessingSettings = getState(PostProcessingSettingsState)
+  if (!postprocessingSettings.enabled) {
+    composer.addPass(new EffectPass(camera, ...effects))
+    return
+  }
+
+  const postProcessingEffects = postprocessingSettings.effects as EffectPropsSchema
+
   const effectKeys = Object.keys(EffectMap)
 
   const normalPass = new NormalPass(scene, camera, {
@@ -112,10 +132,6 @@ export const configureEffectComposer = (remove?: boolean, camera: PerspectiveCam
       effects.push(eff)
     } else if (key === Effects.DepthOfFieldEffect) {
       const eff = new EffectClass(camera, effect)
-      composer[key] = eff
-      effects.push(eff)
-    } else if (key === Effects.OutlineEffect) {
-      const eff = new EffectClass(scene, camera, effect)
       composer[key] = eff
       effects.push(eff)
     } else if (key === Effects.SSGIEffect) {

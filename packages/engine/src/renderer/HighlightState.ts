@@ -23,33 +23,31 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { useEffect } from 'react'
-import { Object3D } from 'three'
+import { KernelSize, Resolution } from 'postprocessing'
+import { Texture } from 'three'
 
-import { defineQuery, getComponent, removeQuery } from '../ecs/functions/ComponentFunctions'
-import { defineSystem } from '../ecs/functions/SystemFunctions'
-import { GroupComponent } from '../scene/components/GroupComponent'
-import { HighlightComponent } from './components/HighlightComponent'
-import { EngineRenderer } from './WebGLRendererSystem'
+import { defineState } from '@etherealengine/hyperflux'
 
-const highlightedObjectQuery = defineQuery([GroupComponent, HighlightComponent])
+import { BlendFunction } from './effects/blending/BlendFunction'
 
-const addToSelection = (obj: Object3D) => {
-  EngineRenderer.instance.effectComposer.OutlineEffect.selection.add(obj)
-}
-
-const execute = () => {
-  if (!EngineRenderer.instance.effectComposer.OutlineEffect) return
-
-  EngineRenderer.instance.effectComposer.OutlineEffect.selection.clear()
-
-  for (const entity of highlightedObjectQuery()) {
-    const group = getComponent(entity, GroupComponent)
-    for (const object of group) object.traverse(addToSelection)
+export const HighlightState = defineState({
+  name: 'HighlightState',
+  initial: {
+    blendFunction: BlendFunction.SCREEN,
+    patternTexture: null! as Texture, // post processing args typed as (Texture | undefined) so we must override the type
+    patternScale: 1.0,
+    edgeStrength: 1.0,
+    pulseSpeed: 0.0,
+    visibleEdgeColor: 0xffffff,
+    hiddenEdgeColor: 0x999999,
+    kernelSize: KernelSize.MEDIUM,
+    blur: false,
+    xRay: true,
+    multisampling: 0,
+    resolutionScale: 0.5,
+    resolutionX: Resolution.AUTO_SIZE,
+    resolutionY: Resolution.AUTO_SIZE,
+    width: Resolution.AUTO_SIZE,
+    height: Resolution.AUTO_SIZE
   }
-}
-
-export const HighlightSystem = defineSystem({
-  uuid: 'ee.engine.HighlightSystem',
-  execute
 })
