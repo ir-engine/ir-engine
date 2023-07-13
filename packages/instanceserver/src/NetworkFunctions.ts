@@ -31,10 +31,8 @@ import { Instance } from '@etherealengine/common/src/interfaces/Instance'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { UserInterface } from '@etherealengine/common/src/interfaces/User'
 import { UserId } from '@etherealengine/common/src/interfaces/UserId'
-import { SpawnPoseComponent } from '@etherealengine/engine/src/avatar/components/SpawnPoseComponent'
 import { respawnAvatar } from '@etherealengine/engine/src/avatar/functions/respawnAvatar'
 import checkPositionIsValid from '@etherealengine/engine/src/common/functions/checkPositionIsValid'
-import { performance } from '@etherealengine/engine/src/common/functions/performance'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { getComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { DataChannelType } from '@etherealengine/engine/src/networking/classes/Network'
@@ -43,6 +41,7 @@ import { NetworkPeerFunctions } from '@etherealengine/engine/src/networking/func
 import { JoinWorldRequestData } from '@etherealengine/engine/src/networking/functions/receiveJoinWorld'
 import { WorldState } from '@etherealengine/engine/src/networking/interfaces/WorldState'
 import { updateNetwork } from '@etherealengine/engine/src/networking/NetworkState'
+import { EntityNetworkState } from '@etherealengine/engine/src/networking/state/EntityNetworkState'
 import { updatePeers } from '@etherealengine/engine/src/networking/systems/OutgoingActionSystem'
 import { GroupComponent } from '@etherealengine/engine/src/scene/components/GroupComponent'
 import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
@@ -451,9 +450,9 @@ const getUserSpawnFromInvite = async (
         const validSpawnablePosition = checkPositionIsValid(inviterUserObject3d.position, false)
 
         if (validSpawnablePosition) {
-          const spawnPoseComponent = getComponent(selfAvatarEntity, SpawnPoseComponent)
-          spawnPoseComponent?.position.copy(inviterUserObject3d.position)
-          spawnPoseComponent?.rotation.copy(inviterUserTransform.rotation)
+          const spawnPose = getState(EntityNetworkState)[selfAvatarEntity]
+          spawnPose.position.copy(inviterUserObject3d.position)
+          spawnPose.rotation.copy(inviterUserTransform.rotation)
           respawnAvatar(selfAvatarEntity)
         }
       } else {

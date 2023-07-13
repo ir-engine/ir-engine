@@ -47,7 +47,6 @@ import { TransformComponent } from '../../transform/components/TransformComponen
 import { AvatarAnimationComponent } from '../components/AvatarAnimationComponent'
 import { AvatarComponent } from '../components/AvatarComponent'
 import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
-import { SpawnPoseComponent } from '../components/SpawnPoseComponent'
 import { AvatarNetworkAction } from '../state/AvatarNetworkState'
 import { spawnAvatarReceptor } from './spawnAvatarReceptor'
 
@@ -87,7 +86,6 @@ describe('spawnAvatarReceptor', () => {
     assert(hasComponent(entity, AvatarComponent))
     assert(hasComponent(entity, NameComponent))
     assert(hasComponent(entity, AvatarAnimationComponent))
-    assert(hasComponent(entity, SpawnPoseComponent))
     assert(hasComponent(entity, AvatarControllerComponent))
     assert(hasComponent(entity, LocalInputTagComponent))
     assert(hasComponent(entity, RigidBodyComponent))
