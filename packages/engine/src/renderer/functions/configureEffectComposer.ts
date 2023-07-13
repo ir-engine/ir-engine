@@ -23,7 +23,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { debounce } from 'lodash'
 import {
   BlendFunction,
   DepthDownsamplingPass,
@@ -46,11 +45,6 @@ import { PostProcessingComponent } from '../../scene/components/PostProcessingCo
 import { EffectMap, EffectPropsSchema, Effects } from '../../scene/constants/PostProcessing'
 import { EffectComposerWithSchema, EngineRenderer } from '../WebGLRendererSystem'
 import { changeRenderMode } from './changeRenderMode'
-
-// can use both as needed
-export const debouncedConfigureEffectComposer = debounce(() => {
-  configureEffectComposer()
-}, 200) // in ms
 
 export const configureEffectComposer = (remove?: boolean, camera: PerspectiveCamera = Engine.instance.camera): void => {
   if (!EngineRenderer.instance) return
@@ -158,7 +152,6 @@ export const configureEffectComposer = (remove?: boolean, camera: PerspectiveCam
       })
       effects.push(textureEffect)
     }
-    console.log('DEBUG effects', effects)
 
     composer.addPass(new EffectPass(camera, ...effects))
   }
