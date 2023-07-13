@@ -39,18 +39,18 @@ export const botCommandSchema = Type.Object(
     }),
     name: Type.String(),
     description: Type.String(),
-    createdAt: Type.String({ format: 'date-time' }),
-    updatedAt: Type.String({ format: 'date-time' }),
     botId: Type.String({
       format: 'uuid'
-    })
+    }),
+    createdAt: Type.String({ format: 'date-time' }),
+    updatedAt: Type.String({ format: 'date-time' })
   },
   { $id: 'BotCommand', additionalProperties: false }
 )
 export type BotCommandType = Static<typeof botCommandSchema>
 
 // Schema for creating new entries
-export const botCommandDataSchema = Type.Pick(botCommandSchema, ['name', 'description', 'botId'], {
+export const botCommandDataSchema = Type.Partial(botCommandSchema, {
   $id: 'BotCommandData'
 })
 export type BotCommandData = Static<typeof botCommandDataSchema>
