@@ -97,13 +97,13 @@ const tempVec3ForCenter = new Vector3()
 
 export const loadAvatarModelAsset = async (avatarURL: string) => {
   const model = await AssetLoader.loadAsync(avatarURL)
-  const scene = model.scene || model // FBX files does not have 'scene' property
-  if (!scene) return
+  // const scene = model.scene || model // FBX files does not have 'scene' property
+  // if (!scene) return
 
-  const vrm = model instanceof VRM ? model : model.userData.vrm
-  vrm.name = 'vrm'
-  VRMUtils.VRMUtils.removeUnnecessaryJoints(vrm.scene)
-  VRMUtils.VRMUtils.removeUnnecessaryVertices(vrm.scene)
+  const vrm = model instanceof VRM ? model : model?.userData?.vrm
+  // vrm.name = 'vrm'
+  // VRMUtils.VRMUtils.removeUnnecessaryJoints(vrm?.scene)
+  // VRMUtils.VRMUtils.removeUnnecessaryVertices(vrm?.scene)
 
   return vrm
 }
@@ -215,7 +215,7 @@ export const rigAvatarModel = (entity: Entity) => (model: VRM) => {
   removeComponent(entity, AvatarRigComponent)
 
   const rig = model.humanoid?.humanBones
-
+  console.log(model.expressionManager)
   const skinnedMeshes = findSkinnedMeshes(model.scene)
 
   setComponent(entity, AvatarRigComponent, {

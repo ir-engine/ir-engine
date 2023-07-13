@@ -51,31 +51,29 @@ export const getAnimationAction = (name: string, mixer: AnimationMixer, animatio
 }
 
 const moveLength = new Vector3()
-let fallWeight = 0,
-  runWeight = 0,
-  idleWeight = 1
+// let fallWeight = 0,
+//   runWeight = 0,
+//   idleWeight = 1
 
 //This is a stateless animation blend, it is not a graph
 //To do: make a stateful blend tree
 export const setAvatarLocomotionAnimation = (entity: Entity) => {
-  const animationComponent = getComponent(entity, AnimationComponent)
-  const avatarAnimationComponent = getComponent(entity, AvatarAnimationComponent)
-
-  const idle = getAnimationAction('Idle', animationComponent.mixer)
-  const run = getAnimationAction('Run', animationComponent.mixer)
-  const fall = getAnimationAction('Fall', animationComponent.mixer)
-  idle.play()
-  fall.play()
-  run.play()
-
-  fallWeight = lerp(
-    fall.getEffectiveWeight(),
-    clamp(Math.abs(avatarAnimationComponent.locomotion.y), 0, 1),
-    getState(EngineState).deltaSeconds * 10
-  )
-  runWeight = clamp(moveLength.copy(avatarAnimationComponent.locomotion).setY(0).lengthSq() * 0.1, 0, 1) - fallWeight
-  idleWeight = clamp(1 - runWeight, 0, 1) - fallWeight
-  run.setEffectiveWeight(runWeight)
-  fall.setEffectiveWeight(fallWeight)
-  idle.setEffectiveWeight(idleWeight)
+  // const animationComponent = getComponent(entity, AnimationComponent)
+  // const avatarAnimationComponent = getComponent(entity, AvatarAnimationComponent)
+  // const idle = getAnimationAction('Idle', animationComponent.mixer)
+  // const run = getAnimationAction('Run', animationComponent.mixer)
+  // const fall = getAnimationAction('Fall', animationComponent.mixer)
+  // idle.play()
+  // fall.play()
+  // run.play()
+  // fallWeight = lerp(
+  //   fall.getEffectiveWeight(),
+  //   clamp(Math.abs(avatarAnimationComponent.locomotion.y), 0, 1),
+  //   getState(EngineState).deltaSeconds * 10
+  // )
+  // runWeight = clamp(moveLength.copy(avatarAnimationComponent.locomotion).setY(0).lengthSq() * 0.1, 0, 1) - fallWeight
+  // idleWeight = clamp(1 - runWeight, 0, 1) - fallWeight
+  // run.setEffectiveWeight(runWeight)
+  // fall.setEffectiveWeight(fallWeight)
+  // idle.setEffectiveWeight(idleWeight)
 }

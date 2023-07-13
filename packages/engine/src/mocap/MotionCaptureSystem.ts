@@ -24,9 +24,13 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { POSE_LANDMARKS } from '@mediapipe/holistic'
+import { Classifications, NormalizedLandmark } from '@mediapipe/tasks-vision'
+import { VRM, VRMHumanBoneList, VRMHumanBones } from '@pixiv/three-vrm'
+// import { Classifications } from '@mediapipe/tasks-vision'
+import { VRMExpression } from '@pixiv/three-vrm'
 import { decode, encode } from 'msgpackr'
 import { useEffect } from 'react'
-import { Mesh, MeshBasicMaterial, SphereGeometry, Vector3 } from 'three'
+import { Matrix4, Mesh, MeshBasicMaterial, Quaternion, SkeletonHelper, SphereGeometry, Vector3 } from 'three'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
@@ -50,29 +54,30 @@ export const motionCaptureHeadSuffix = '_motion_capture_head'
 export const motionCaptureLeftHandSuffix = '_motion_capture_left_hand'
 export const motionCaptureRightHandSuffix = '_motion_capture_right_hand'
 
-export interface NormalizedLandmark {
-  x: number
-  y: number
-  z: number
-  visibility?: number
+export interface MotionCaptureStream {
+  pose: NormalizedLandmark[]
+  worldPose: NormalizedLandmark[]
+  face: Classifications[] | undefined
+  hands: NormalizedLandmark[] | undefined
 }
 
-export const sendResults = (landmarks: NormalizedLandmark[]) => {
+export const sendResults = (results: MotionCaptureStream) => {
   return encode({
     timestamp: Date.now(),
     peerIndex: Engine.instance.worldNetwork.peerIDToPeerIndex.get(Engine.instance.peerID)!,
-    landmarks
+    results
   })
 }
 
-export const receiveResults = (results: ArrayBuffer) => {
-  const { timestamp, peerIndex, landmarks } = decode(new Uint8Array(results)) as {
+export const receiveResults = (buff: ArrayBuffer) => {
+  const { timestamp, peerIndex, results } = decode(new Uint8Array(buff)) as {
     timestamp: number
     peerIndex: number
-    landmarks: NormalizedLandmark[]
+    results: MotionCaptureStream
   }
+  // console.log('receiveResults', results)
   const peerID = Engine.instance.worldNetwork.peerIndexToPeerID.get(peerIndex)
-  return { timestamp, peerID, landmarks }
+  return { timestamp, peerID, results }
 }
 
 export const MotionCaptureFunctions = {
@@ -91,37 +96,40 @@ const handleMocapData = (
   if (network.isHosting) {
     network.transport.bufferToAll(mocapDataChannelType, message)
   }
-  const { peerID, landmarks } = MotionCaptureFunctions.receiveResults(message as ArrayBuffer)
+  const { peerID, results } = MotionCaptureFunctions.receiveResults(message as ArrayBuffer)
   if (!peerID) return
   if (!timeSeriesMocapData.has(peerID)) {
     timeSeriesMocapData.set(peerID, new RingBuffer(10))
   }
-  timeSeriesMocapData.get(peerID)!.add(landmarks)
+  timeSeriesMocapData.get(peerID)!.add(results)
 }
 
-const timeSeriesMocapData = new Map<PeerID, RingBuffer<NormalizedLandmark[]>>()
+const timeSeriesMocapData = new Map<PeerID, RingBuffer<MotionCaptureStream>>()
 const timeSeriesMocapLastSeen = new Map<PeerID, number>()
 
-const objs = [] as Mesh[]
-const debug = false
+// const objs = [] as Mesh[]
+const debug = true
 
-if (debug)
-  for (let i = 0; i < 33; i++) {
-    objs.push(new Mesh(new SphereGeometry(0.05), new MeshBasicMaterial()))
-    Engine.instance.scene.add(objs[i])
-  }
+// if (debug)
+//   for (let i = 0; i < 33; i++) {
+//     objs.push(new Mesh(new SphereGeometry(0.05), new MeshBasicMaterial()))
+//     Engine.instance.scene.add(objs[i])
+//   }
 
-const hipsPos = new Vector3()
-const headPos = new Vector3()
-const leftHandPos = new Vector3()
-const rightHandPos = new Vector3()
+// const hipsPos = new Vector3()
+// const headPos = new Vector3()
+// const leftHandPos = new Vector3()
+// const rightHandPos = new Vector3()
+
+const poseDebugObjs = [] as Mesh[]
+const handDebugObjs = [] as Mesh[]
 
 const execute = () => {
   const engineState = getState(EngineState)
 
-  const localClientEntity = Engine.instance.localClientEntity
+  const localClientEntity = Engine?.instance?.localClientEntity
 
-  const network = Engine.instance.worldNetwork
+  const network = Engine?.instance?.worldNetwork
 
   for (const [peerID, mocapData] of timeSeriesMocapData) {
     if (!network?.peers?.has(peerID) || timeSeriesMocapLastSeen.get(peerID)! < Date.now() - 1000) {
@@ -130,128 +138,131 @@ const execute = () => {
     }
   }
 
-  const userPeers = network?.users?.get(Engine.instance.userId)
-
-  // Stop mocap by removing entities if data doesnt exist
-  if (isClient && (!localClientEntity || !userPeers?.find((peerID) => timeSeriesMocapData.has(peerID)))) {
-    const headUUID = (Engine.instance.userId + motionCaptureHeadSuffix) as EntityUUID
-    const leftHandUUID = (Engine.instance.userId + motionCaptureLeftHandSuffix) as EntityUUID
-    const rightHandUUID = (Engine.instance.userId + motionCaptureRightHandSuffix) as EntityUUID
-
-    const ikTargetHead = UUIDComponent.entitiesByUUID[headUUID]
-    const ikTargetLeftHand = UUIDComponent.entitiesByUUID[leftHandUUID]
-    const ikTargetRightHand = UUIDComponent.entitiesByUUID[rightHandUUID]
-
-    if (ikTargetHead) removeEntity(ikTargetHead)
-    if (ikTargetLeftHand) removeEntity(ikTargetLeftHand)
-    if (ikTargetRightHand) removeEntity(ikTargetRightHand)
-  }
-
   for (const [peerID, mocapData] of timeSeriesMocapData) {
-    const userID = network.peers.get(peerID)!.userId
-    const entity = Engine.instance.getUserAvatarEntity(userID)
+    const userID = network?.peers?.get(peerID)!.userId
+    const entity = Engine?.instance?.getUserAvatarEntity(userID)
+    if (!entity) continue
+    //   const ownerEntity = Engine.instance.getUserAvatarEntity(networkObject.ownerId)
+    // console.log('entity', entity)
+    // if (entity && entity === localClientEntity) {
+    const data = mocapData.popLast()
 
-    if (entity && entity === localClientEntity) {
-      const data = mocapData.popLast()
-      if (!data) continue
+    if (!data) continue
 
-      timeSeriesMocapLastSeen.set(peerID, Date.now())
+    timeSeriesMocapLastSeen.set(peerID, Date.now())
 
-      const leftHips = data[POSE_LANDMARKS.LEFT_HIP]
-      const rightHips = data[POSE_LANDMARKS.RIGHT_HIP]
-      const nose = data[POSE_LANDMARKS.NOSE]
-      const leftEar = data[POSE_LANDMARKS.LEFT_EAR]
-      const rightEar = data[POSE_LANDMARKS.RIGHT_EAR]
-      const leftShoulder = data[POSE_LANDMARKS.LEFT_SHOULDER]
-      const rightShoulder = data[POSE_LANDMARKS.RIGHT_SHOULDER]
-      const leftElbow = data[POSE_LANDMARKS.LEFT_ELBOW]
-      const rightElbow = data[POSE_LANDMARKS.RIGHT_ELBOW]
-      const rightWrist = data[POSE_LANDMARKS.LEFT_WRIST]
-      const leftWrist = data[POSE_LANDMARKS.RIGHT_WRIST]
+    const avatarRig = getComponent(entity, AvatarRigComponent)
+    const avatarTransform = getComponent(entity, TransformComponent)
 
-      const head = !!nose.visibility && nose.visibility > 0.5
-      const leftHand = !!leftWrist.visibility && leftWrist.visibility > 0.1
-      const rightHand = !!rightWrist.visibility && rightWrist.visibility > 0.1
+    if (!avatarRig) continue
 
-      const headUUID = (userID + motionCaptureHeadSuffix) as EntityUUID
-      const leftHandUUID = (userID + motionCaptureLeftHandSuffix) as EntityUUID
-      const rightHandUUID = (userID + motionCaptureRightHandSuffix) as EntityUUID
+    const avatarHips = avatarRig?.vrm?.humanoid?.getRawBone('hips')?.node
+    const hipsPos = new Vector3()
+    avatarHips?.getWorldPosition(hipsPos)
 
-      const ikTargetHead = UUIDComponent.entitiesByUUID[headUUID]
-      const ikTargetLeftHand = UUIDComponent.entitiesByUUID[leftHandUUID]
-      const ikTargetRightHand = UUIDComponent.entitiesByUUID[rightHandUUID]
+    // draw pose
+    if (data?.worldPose) {
+      for (let i = 0; i < data?.worldPose?.length - 1; i++) {
+        const name = VRMHumanBoneList[i].toLowerCase()
+        const pose = data?.worldPose[i]
+        const posePos = new Vector3()
+        posePos
+          .set(pose?.x, -pose?.y, pose?.z)
+          // .multiplyScalar(-1)
+          .applyQuaternion(avatarTransform.rotation)
+          // .setX(pose?.x)
+          // .setZ(pose?.z)
+          .add(hipsPos)
 
-      if (!head && ikTargetHead) removeEntity(ikTargetHead)
-      if (!leftHand && ikTargetLeftHand) removeEntity(ikTargetLeftHand)
-      if (!rightHand && ikTargetRightHand) removeEntity(ikTargetRightHand)
+        // const bone = Object.keys(POSE_LANDMARKS)[i]
+        // avatarRig?.rig[bone]?.node.position.lerp(newPos, engineState.deltaSeconds * 10)
+        // avatarRig?.rig[bone]?.node.updateMatrixWorld()
+        // const Part = avatarRig?.vrm?.humanoid?.getRawBoneNode(VRMHumanBoneList[i])
+        // // const bonePos = new Vector3()
+        // // bonePos
+        // //     .set(data?.pose[i]?.x, data?.pose[i]?.y, data?.pose[i]?.z)
+        //     // .multiplyScalar(-1)
+        //     // .applyQuaternion(avatarTransform.rotation)
+        //     // .add(hipsPos)
+        // // if (!Part) return
+        // const partPos = Part?.position || new Vector3()
+        // const bonePos = poseDebugObjs[i]?.worldToLocal(partPos) || new Vector3()
 
-      if (head && !ikTargetHead) dispatchAction(XRAction.spawnIKTarget({ handedness: 'none', entityUUID: headUUID }))
-      if (leftHand && !ikTargetLeftHand)
-        dispatchAction(XRAction.spawnIKTarget({ handedness: 'left', entityUUID: leftHandUUID }))
-      if (rightHand && !ikTargetRightHand)
-        dispatchAction(XRAction.spawnIKTarget({ handedness: 'right', entityUUID: rightHandUUID }))
+        // Part?.position?.lerp(posePos, engineState.deltaSeconds * 50)
 
-      const avatarRig = getComponent(entity, AvatarRigComponent)
-      const avatarTransform = getComponent(entity, TransformComponent)
-      if (!avatarRig) continue
+        if (debug) {
+          if (poseDebugObjs[i] === undefined) {
+            let matOptions = {}
+            if (name === 'lefthand') {
+              matOptions = { color: 0x0000ff }
+            } else if (name === 'righthand') {
+              matOptions = { color: 0xff0000 }
+            }
+            const mesh = new Mesh(new SphereGeometry(0.025), new MeshBasicMaterial(matOptions))
+            poseDebugObjs[i] = mesh
+            Engine?.instance?.scene?.add(mesh)
+          }
 
-      const avatarHips = avatarRig?.rig?.hips?.node
-      avatarHips.getWorldPosition(hipsPos)
+          poseDebugObjs[i].position.lerp(posePos.clone(), engineState.deltaSeconds * 10)
+          poseDebugObjs[i].updateMatrixWorld()
 
-      if (debug)
-        for (let i = 0; i < 33; i++) {
-          objs[i].position
-            .set(data[i].x, data[i].y, data[i].z)
-            .multiplyScalar(-1)
-            .applyQuaternion(avatarTransform.rotation)
-            .add(hipsPos)
-          objs[i].visible = !!data[i].visibility && data[i].visibility! > 0.5
-          objs[i].updateMatrixWorld(true)
+          // if (VRMHumanBoneList[i].toLowerCase() === 'lefthand') {
+          //   poseDebugObjs[i]?.material?
+          // }
+
+          // draw pose
+          if (data?.hands && (name.startsWith('lefthand') || name.startsWith('righthand'))) {
+            for (let i = 0; i < data?.hands?.length - 1; i++) {
+              const pose = data?.hands[i]
+              const newPos = new Vector3()
+              newPos.applyQuaternion(poseDebugObjs[i].quaternion).add(new Vector3(pose?.x, -pose?.y, pose?.z))
+              // .multiplyScalar(-1)
+
+              // .setX(pose?.x)
+              // .setZ(pose?.z)
+              // .add(hipsPos)
+
+              if (handDebugObjs[i] === undefined) {
+                const matOptions = {}
+                // if (name === 'lefthand') {
+                //   matOptions = { color: 0x0000ff }
+                // } else if (name === 'righthand') {
+                //   matOptions = { color: 0xff0000 }
+                // }
+                const mesh = new Mesh(new SphereGeometry(0.0125), new MeshBasicMaterial(matOptions))
+                handDebugObjs[i] = mesh
+                Engine?.instance?.scene?.add(mesh)
+
+                handDebugObjs[i].position.lerp(newPos.clone(), engineState.deltaSeconds * 10)
+                handDebugObjs[i].updateMatrixWorld()
+              }
+
+              // if (VRMHumanBoneList[i].toLowerCase() === 'lefthand') {
+              //   poseDebugObjs[i]?.material?
+              // }
+            }
+          }
         }
 
-      if (ikTargetHead) {
-        if (!nose.visibility || nose.visibility < 0.1) continue
-        if (!nose.x || !nose.y || !nose.z) continue
-        const ik = getComponent(ikTargetHead, TransformComponent)
-        headPos
-          .set((leftEar.x + rightEar.x) / 2, (leftEar.y + rightEar.y) / 2, (leftEar.z + rightEar.z) / 2)
-          .multiplyScalar(-1)
-          .applyQuaternion(avatarTransform.rotation)
-          .add(hipsPos)
-        ik.position.copy(headPos)
-        // ik.rotation.setFromUnitVectors(
-        //   new Vector3(0, 1, 0),
-        //   new Vector3(nose.x, -nose.y, nose.z).sub(headPos).normalize()
-        // ).multiply(avatarTransform.rotation)
-      }
+        // const bone = Object.keys(POSE_LANDMARKS)[i]
+        // avatarRig?.rig[bone]?.node.position.lerp(newPos, engineState.deltaSeconds * 10)
+        // avatarRig?.rig[bone]?.node.updateMatrixWorld()
+        // const Part = avatarRig?.vrm?.humanoid?.getRawBoneNode(VRMHumanBoneList[i])
+        // // const bonePos = new Vector3()
+        // // bonePos
+        // //     .set(data?.pose[i]?.x, data?.pose[i]?.y, data?.pose[i]?.z)
+        //     // .multiplyScalar(-1)
+        //     // .applyQuaternion(avatarTransform.rotation)
+        //     // .add(hipsPos)
+        // // if (!Part) return
+        // const partPos = Part?.position || new Vector3()
+        // const bonePos = poseDebugObjs[i]?.worldToLocal(partPos) || new Vector3()
 
-      if (ikTargetLeftHand) {
-        if (!leftWrist.visibility || leftWrist.visibility < 0.1) continue
-        if (!leftWrist.x || !leftWrist.y || !leftWrist.z) continue
-        const ik = getComponent(ikTargetLeftHand, TransformComponent)
-        leftHandPos
-          .set(leftWrist.x, leftWrist.y, leftWrist.z)
-          .multiplyScalar(-1)
-          .applyQuaternion(avatarTransform.rotation)
-          .add(hipsPos)
-        ik.position.lerp(leftHandPos, engineState.deltaSeconds * 10)
-        // ik.quaternion.copy()
-      }
-
-      if (ikTargetRightHand) {
-        if (!rightWrist.visibility || rightWrist.visibility < 0.5) continue
-        if (!rightWrist.x || !rightWrist.y || !rightWrist.z) continue
-        const ik = getComponent(ikTargetRightHand, TransformComponent)
-        rightHandPos
-          .set(rightWrist.x, rightWrist.y, rightWrist.z)
-          .multiplyScalar(-1)
-          .applyQuaternion(avatarTransform.rotation)
-          .add(hipsPos)
-        ik.position.lerp(rightHandPos, engineState.deltaSeconds * 10)
-        // ik.quaternion.copy()
+        // Part?.position?.lerp(bonePos, engineState.deltaSeconds * 50)
       }
     }
   }
+  // }
 }
 
 const reactor = () => {

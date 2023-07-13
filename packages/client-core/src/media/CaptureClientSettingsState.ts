@@ -33,18 +33,20 @@ export const CaptureClientSettingsState = defineState({
       {
         name: 'Display',
         tabOrder: 0,
-        showVideo: true,
-        flipVideo: false
+        showVideo: false,
+        flipVideo: true,
+        show2dSkeleton: true
       },
       {
         name: 'Tracking',
         tabOrder: 1,
-        enabled: true
+        trackFace: false,
+        trackBody: true,
+        trackHands: true
       },
       {
         name: 'Other',
-        tabOrder: 2,
-        showDebug: false
+        tabOrder: 2
       }
     ]
   })

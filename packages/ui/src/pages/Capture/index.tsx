@@ -26,6 +26,7 @@ Ethereal Engine. All Rights Reserved.
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 import { useHookstate } from '@hookstate/core'
 import {
+  Classifications,
   DrawingUtils,
   FaceLandmarker,
   FilesetResolver,
@@ -33,7 +34,11 @@ import {
   NormalizedLandmark,
   PoseLandmarker
 } from '@mediapipe/tasks-vision'
+// import * as Kalidokit from 'kalidokit'
+// import PoseSolver from './kalidokit/PoseSolver'
+
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { twMerge } from 'tailwind-merge'
 
 import { useMediaInstance } from '@etherealengine/client-core/src/common/services/MediaInstanceConnectionService'
 import { InstanceChatWrapper } from '@etherealengine/client-core/src/components/InstanceChat'
@@ -48,7 +53,11 @@ import {
 import { useVideoFrameCallback } from '@etherealengine/common/src/utils/useVideoFrameCallback'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { ECSRecordingFunctions } from '@etherealengine/engine/src/ecs/ECSRecording'
-import { mocapDataChannelType, MotionCaptureFunctions } from '@etherealengine/engine/src/mocap/MotionCaptureSystem'
+import {
+  mocapDataChannelType,
+  MotionCaptureFunctions,
+  MotionCaptureStream
+} from '@etherealengine/engine/src/mocap/MotionCaptureSystem'
 import { getMutableState, getState } from '@etherealengine/hyperflux'
 import Drawer from '@etherealengine/ui/src/components/tailwind/Drawer'
 import Header from '@etherealengine/ui/src/components/tailwind/Header'
@@ -81,8 +90,8 @@ const startDataProducer = async () => {
  * - If we are streaming data, close the data producer
  */
 const startPlayback = async (recordingID: string, twin = true) => {
-  const network = Engine.instance.worldNetwork as SocketWebRTCClientNetwork
-  if (getState(RecordingState).playback && network.dataProducers.has(mocapDataChannelType)) {
+  const network = Engine?.instance?.worldNetwork as SocketWebRTCClientNetwork
+  if (getState(RecordingState)?.playback && network?.dataProducers?.has(mocapDataChannelType)) {
     await closeDataProducer(network, mocapDataChannelType)
   }
   ECSRecordingFunctions.startPlayback({
@@ -91,23 +100,27 @@ const startPlayback = async (recordingID: string, twin = true) => {
   })
 }
 
-const sendResults = (results: NormalizedLandmark[]) => {
-  const network = Engine.instance.worldNetwork as SocketWebRTCClientNetwork
+const sendResults = (results: MotionCaptureStream) => {
+  const network = Engine?.instance?.worldNetwork as SocketWebRTCClientNetwork
   if (!network?.sendTransport) return
-  const dataProducer = network.dataProducers.get(mocapDataChannelType)
+  const dataProducer = network?.dataProducers?.get(mocapDataChannelType)
   if (!dataProducer) {
     startDataProducer()
     return
   }
-  if (!dataProducer.closed && dataProducer.readyState === 'open') {
+  if (!dataProducer?.closed && dataProducer?.readyState === 'open') {
+    // console.log('sending results', results)
     const data = MotionCaptureFunctions.sendResults(results)
-    dataProducer.send(data)
+    dataProducer?.send(data)
   }
 }
 
 const CaptureDashboard = () => {
   const captureState = useHookstate(getMutableState(CaptureClientSettingsState))
   const displaySettings = captureState?.nested('settings')?.value?.filter((s) => s?.name.toLowerCase() === 'display')[0]
+  const trackingSettings = captureState
+    ?.nested('settings')
+    ?.value?.filter((s) => s?.name.toLowerCase() === 'tracking')[0]
 
   const isDetecting = useHookstate(false)
   const [detectingStatus, setDetectingStatus] = useState('inactive')
@@ -115,16 +128,7 @@ const CaptureDashboard = () => {
   const poseDetector = useHookstate(null as null | PoseLandmarker)
   const handDetector = useHookstate(null as null | HandLandmarker)
   const faceDetector = useHookstate(null as null | FaceLandmarker)
-  // const poseOptions = useHookstate({
-  //   enableFaceGeometry: isDrawingFace,
-  //   selfieMode: false,
-  //   modelComplexity: 1,
-  //   smoothLandmarks: true,
-  //   enableSegmentation: false,
-  //   smoothSegmentation: false,
-  //   minDetectionConfidence: 0.5,
-  //   minTrackingConfidence: 0.5
-  // } as Options)
+
   const processingFrame = useHookstate(false)
 
   const videoRef = useRef<HTMLVideoElement>()
@@ -190,46 +194,52 @@ const CaptureDashboard = () => {
       const createDetectors = async (vision) => {
         setDetectingStatus('loading')
 
-        const poseLandmarker = await PoseLandmarker.createFromOptions(vision, {
-          baseOptions: {
-            modelAssetPath:
-              'https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_lite/float16/1/pose_landmarker_lite.task',
-            delegate: 'GPU'
-          },
-          runningMode: 'VIDEO'
-          // numPoses: 1,
-          // minPoseDetectionConfidence: 0.5,
-          // minPosePresenceConfidence: 0.5,
-          // minTrackingConfidence: 0.5,
-          // outputSegmentationMasks: false,
-        })
-        poseDetector.set(poseLandmarker)
-        const handLandmarker = await HandLandmarker.createFromOptions(vision, {
-          baseOptions: {
-            modelAssetPath:
-              'https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task'
-          },
-          runningMode: 'VIDEO',
-          numHands: 2
-          // minHandDetectionConfidence: 0.5,
-          // minHandPresenceConfidence: 0.5,
-          // minTrackingConfidence: 0.5,
-        })
-        handDetector.set(handLandmarker)
-        const faceLandmarker = await FaceLandmarker.createFromOptions(vision, {
-          baseOptions: {
-            modelAssetPath:
-              'https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task'
-          },
-          runningMode: 'VIDEO',
-          // numFaces: 1,
-          // minFaceDetectionConfidence: 0.5,
-          // minFacePresenceConfidence: 0.5,
-          // minTrackingConfidence: 0.5,
-          outputFaceBlendshapes: true,
-          outputFacialTransformationMatrixes: true
-        })
-        faceDetector.set(faceLandmarker)
+        if (trackingSettings?.trackBody === true) {
+          const poseLandmarker = await PoseLandmarker.createFromOptions(vision, {
+            baseOptions: {
+              modelAssetPath:
+                'https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_lite/float16/1/pose_landmarker_lite.task',
+              delegate: 'GPU'
+            },
+            runningMode: 'VIDEO',
+            numPoses: 1,
+            minPoseDetectionConfidence: 0.25,
+            minPosePresenceConfidence: 0.25,
+            minTrackingConfidence: 0.25,
+            outputSegmentationMasks: false
+          })
+          poseDetector.set(poseLandmarker)
+        }
+        if (trackingSettings?.trackHands === true) {
+          const handLandmarker = await HandLandmarker.createFromOptions(vision, {
+            baseOptions: {
+              modelAssetPath:
+                'https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task'
+            },
+            runningMode: 'VIDEO',
+            numHands: 2
+            // minHandDetectionConfidence: 0.5,
+            // minHandPresenceConfidence: 0.5,
+            // minTrackingConfidence: 0.5,
+          })
+          handDetector.set(handLandmarker)
+        }
+        if (trackingSettings?.trackFace === true) {
+          const faceLandmarker = await FaceLandmarker.createFromOptions(vision, {
+            baseOptions: {
+              modelAssetPath:
+                'https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task'
+            },
+            runningMode: 'VIDEO',
+            // numFaces: 1,
+            // minFaceDetectionConfidence: 0.5,
+            // minFacePresenceConfidence: 0.5,
+            // minTrackingConfidence: 0.5,
+            outputFaceBlendshapes: true,
+            outputFacialTransformationMatrixes: true
+          })
+          faceDetector.set(faceLandmarker)
+        }
       }
       loadWASM()
     }
@@ -257,41 +267,56 @@ const CaptureDashboard = () => {
   useVideoFrameCallback(videoRef.current, (videoTime, metadata) => {
     resizeCanvas()
 
-    if (processingFrame.value || !poseDetector.value || !handDetector.value || !faceDetector.value) return
+    if (processingFrame.value || !poseDetector.value) return
 
     poseDetector?.value?.detectForVideo(videoRef.current!, videoTime * 1000, (poseResults) => {
-      // sendResults(poseResults.landmarks)
-      canvasCtxRef?.current?.save()
-      canvasCtxRef?.current?.clearRect(0, 0, canvasRef.current!.width, canvasRef.current!.height)
+      if (detectingStatus !== 'active') setDetectingStatus('active')
+      if (displaySettings?.show2dSkeleton) {
+        // const poseRig = PoseSolver(poseResults.landmarks, poseResults.worldLandmarks, true)
+        // console.log(`poseRig`, poseRig)
 
-      const handResults = handDetector?.value?.detectForVideo(videoRef.current!, videoTime * 1000)
-      const faceResults = faceDetector?.value?.detectForVideo(videoRef.current!, videoTime * 1000)
-
-      for (const landmark of faceResults!.faceLandmarks) {
-        drawUtilsRef.current?.drawConnectors(landmark, FaceLandmarker.FACE_LANDMARKS_TESSELATION)
-      }
-
-      for (const landmark of handResults!.landmarks) {
-        drawUtilsRef.current?.drawConnectors(landmark, HandLandmarker.HAND_CONNECTIONS)
-      }
-
-      for (const landmark of poseResults.landmarks) {
-        // drawUtilsRef.current?.drawLandmarks(landmark, {
-        //   // color: 'none',
-        //   radius: (data) => DrawingUtils.lerp(data.from!.z, -0.15, 0.1, 5, 1)
-        // })
-        drawUtilsRef.current?.drawConnectors(landmark, PoseLandmarker.POSE_CONNECTIONS)
-      }
-
-      for (const landmark of poseResults.landmarks) {
-        drawUtilsRef.current?.drawLandmarks(landmark, {
-          // color: 'none',
-          radius: (data) => DrawingUtils.lerp(data.from!.z, -0.15, 0.1, 5, 1)
+        const faceResults = faceDetector?.value?.detectForVideo(videoRef.current!, videoTime * 1000)
+        const handResults = handDetector?.value?.detectForVideo(videoRef.current!, videoTime * 1000)
+        sendResults({
+          pose: poseResults.landmarks[0],
+          worldPose: poseResults.worldLandmarks[0],
+          face: faceResults?.faceBlendshapes,
+          hands: handResults?.landmarks[0]
         })
-        drawUtilsRef.current?.drawConnectors(landmark, PoseLandmarker.POSE_CONNECTIONS)
-      }
 
-      canvasCtxRef.current?.restore()
+        canvasCtxRef?.current?.save()
+        canvasCtxRef?.current?.clearRect(0, 0, canvasRef.current!.width, canvasRef.current!.height)
+
+        for (const landmark of poseResults.landmarks) {
+          // drawUtilsRef.current?.drawLandmarks(landmark, {
+          //   // color: 'none',
+          //   radius: (data) => DrawingUtils.lerp(data.from!.z, -0.15, 0.1, 5, 1)
+          // })
+          drawUtilsRef.current?.drawConnectors(landmark, PoseLandmarker.POSE_CONNECTIONS)
+        }
+
+        for (const landmark of poseResults.landmarks) {
+          drawUtilsRef.current?.drawLandmarks(landmark, {
+            // color: 'none',
+            radius: (data) => DrawingUtils.lerp(data.from!.z, -0.15, 0.1, 5, 1)
+          })
+          drawUtilsRef.current?.drawConnectors(landmark, PoseLandmarker.POSE_CONNECTIONS)
+        }
+
+        if (trackingSettings?.trackFace === true && faceDetector?.value) {
+          // for (const landmark of faceResults!.faceLandmarks) {
+          //   drawUtilsRef.current?.drawConnectors(landmark, FaceLandmarker.FACE_LANDMARKS_TESSELATION)
+          // }
+        }
+
+        if (trackingSettings?.trackHands === true && handDetector?.value) {
+          for (const landmark of handResults?.landmarks || []) {
+            drawUtilsRef.current?.drawConnectors(landmark, HandLandmarker.HAND_CONNECTIONS)
+          }
+        }
+
+        canvasCtxRef.current?.restore()
+      }
     })
   })
 
@@ -436,12 +461,18 @@ const CaptureDashboard = () => {
         <Header />
         <div className="w-full container mx-auto pointer-events-auto">
           <div className="w-full h-auto px-2">
-            <div className="w-full h-auto relative aspect-w-16 aspect-h-9 overflow-hidden">
-              <div className="absolute w-full h-auto top-0 left-0" style={{ backgroundColor: '#000000' }}>
-                <Video ref={videoRef} className="w-full h-auto" />
+            <div className="w-full h-auto relative aspect-video overflow-hidden">
+              <div
+                className="absolute w-full h-full top-0 left-0 flex items-center"
+                style={{ backgroundColor: '#000000' }}
+              >
+                <Video
+                  ref={videoRef}
+                  className={twMerge('w-full h-auto opacity-100', !displaySettings?.showVideo && 'opacity-0')}
+                />
               </div>
               <div
-                className="object-contain absolute top-0 left-0 z-20 min-w-full h-auto"
+                className="object-contain absolute top-0 left-0 z-20 w-full h-full flex items-center"
                 style={{ objectFit: 'contain', top: '0px' }}
               >
                 <Canvas ref={canvasRef} />
@@ -451,7 +482,7 @@ const CaptureDashboard = () => {
                   onClick={() => {
                     if (mediaConnection?.connected?.value) toggleWebcamPaused()
                   }}
-                  className="absolute btn btn-ghost bg-none h-full w-full container mx-auto m-0 p-0 top-0 left-0"
+                  className="absolute top-0 left-0 z-30 w-full h-full btn btn-ghost bg-none flex items-center"
                 >
                   <h1>{mediaConnection?.connected?.value ? 'Enable Camera' : 'Loading...'}</h1>
                 </button>
