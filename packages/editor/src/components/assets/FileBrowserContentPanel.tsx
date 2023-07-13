@@ -49,8 +49,8 @@ import {
   ImageConvertDefaultParms,
   ImageConvertParms
 } from '@etherealengine/engine/src/assets/constants/ImageConvertParms'
-import { MediaPrefabs } from '@etherealengine/engine/src/audio/systems/MediaSystem'
-import { ScenePrefabs } from '@etherealengine/engine/src/scene/systems/SceneObjectUpdateSystem'
+import { MediaElements } from '@etherealengine/engine/src/audio/systems/MediaSystem'
+import { SceneElements } from '@etherealengine/engine/src/scene/systems/SceneObjectUpdateSystem'
 import { getMutableState, useHookstate, useState } from '@etherealengine/hyperflux'
 import { addActionReceptor, removeActionReceptor } from '@etherealengine/hyperflux'
 
@@ -68,7 +68,6 @@ import TablePagination from '@mui/material/TablePagination'
 import Typography from '@mui/material/Typography'
 
 import { SupportedFileTypes } from '../../constants/AssetTypes'
-import { prefabIcons } from '../../functions/PrefabEditors'
 import { unique } from '../../functions/utils'
 import { ContextMenu } from '../layout/ContextMenu'
 import { ToolButton } from '../toolbar/ToolButton'
@@ -78,32 +77,32 @@ import { FileDataType } from './FileDataType'
 import ImageConvertPanel from './ImageConvertPanel'
 import styles from './styles.module.scss'
 
-export const PrefabFileType = {
-  gltf: ScenePrefabs.model,
-  'gltf-binary': ScenePrefabs.model,
-  glb: ScenePrefabs.model,
-  usdz: ScenePrefabs.model,
-  fbx: ScenePrefabs.model,
-  png: ScenePrefabs.image,
-  jpeg: ScenePrefabs.image,
-  jpg: ScenePrefabs.image,
-  m3u8: MediaPrefabs.video,
-  mp4: MediaPrefabs.video,
-  mpeg: MediaPrefabs.audio,
-  mp3: MediaPrefabs.audio,
-  'model/gltf-binary': ScenePrefabs.model,
-  'model/gltf': ScenePrefabs.model,
-  'model/glb': ScenePrefabs.model,
-  'model/usdz': ScenePrefabs.model,
-  'model/fbx': ScenePrefabs.model,
-  'image/png': ScenePrefabs.image,
-  'image/jpeg': ScenePrefabs.image,
-  'image/jpg': ScenePrefabs.image,
+export const SceneElementIcon = {
+  gltf: SceneElements.model.icon,
+  'gltf-binary': SceneElements.model.icon,
+  glb: SceneElements.model.icon,
+  usdz: SceneElements.model.icon,
+  fbx: SceneElements.model.icon,
+  png: SceneElements.image.icon,
+  jpeg: SceneElements.image.icon,
+  jpg: SceneElements.image.icon,
+  m3u8: MediaElements.video.icon,
+  mp4: MediaElements.video.icon,
+  mpeg: MediaElements.audio.icon,
+  mp3: MediaElements.audio.icon,
+  'model/gltf-binary': SceneElements.model.icon,
+  'model/gltf': SceneElements.model.icon,
+  'model/glb': SceneElements.model.icon,
+  'model/usdz': SceneElements.model.icon,
+  'model/fbx': SceneElements.model.icon,
+  'image/png': SceneElements.image.icon,
+  'image/jpeg': SceneElements.image.icon,
+  'image/jpg': SceneElements.image.icon,
   'application/pdf': null,
-  'application/vnd.apple.mpegurl': MediaPrefabs.video,
-  'video/mp4': MediaPrefabs.video,
-  'audio/mpeg': MediaPrefabs.audio,
-  'audio/mp3': MediaPrefabs.audio
+  'application/vnd.apple.mpegurl': MediaElements.video.icon,
+  'video/mp4': MediaElements.video.icon,
+  'audio/mpeg': MediaElements.audio.icon,
+  'audio/mp3': MediaElements.audio.icon
 }
 
 type FileBrowserContentPanelProps = {
@@ -238,7 +237,6 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
     })
 
   const files = fileState.files.value.map((file) => {
-    const prefabType = PrefabFileType[file.type]
     const isFolder = file.type === 'folder'
     const fullName = isFolder ? file.name : file.name + '.' + file.type
 
@@ -247,8 +245,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
       path: isFolder ? file.key.split(file.name)[0] : file.key.split(fullName)[0],
       fullName,
       isFolder,
-      prefabType,
-      Icon: prefabIcons[prefabType]
+      Icon: SceneElementIcon[file.type]
     }
   })
 

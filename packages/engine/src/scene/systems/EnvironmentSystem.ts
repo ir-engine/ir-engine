@@ -25,6 +25,9 @@ Ethereal Engine. All Rights Reserved.
 
 import { useEffect } from 'react'
 
+import { SceneElementsRecord } from '@etherealengine/common/src/interfaces/SceneInterface'
+import EnvMapBakeNodeEditor from '@etherealengine/editor/src/components/properties/EnvMapBakeNodeEditor'
+import SkyboxNodeEditor from '@etherealengine/editor/src/components/properties/SkyboxNodeEditor'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
 import { Engine } from '../../ecs/classes/Engine'
@@ -35,7 +38,23 @@ import { XRState } from '../../xr/XRState'
 import { EnvMapBakeComponent } from '../components/EnvMapBakeComponent'
 import { SkyboxComponent } from '../components/SkyboxComponent'
 import { VisibleComponent } from '../components/VisibleComponent'
-import { ScenePrefabs } from './SceneObjectUpdateSystem'
+
+export const EnvironmentElements: SceneElementsRecord = {
+  envMapBake: {
+    name: 'EnvMap Bake',
+    components: [
+      { name: TransformComponent.jsonID },
+      { name: VisibleComponent.jsonID },
+      { name: EnvMapBakeComponent.jsonID }
+    ],
+    icon: EnvMapBakeNodeEditor.iconComponent
+  },
+  skybox: {
+    name: 'Skybox',
+    components: [{ name: VisibleComponent.jsonID }, { name: SkyboxComponent.jsonID }],
+    icon: SkyboxNodeEditor.iconComponent
+  }
+}
 
 const reactor = () => {
   const background = useHookstate(getMutableState(SceneState).background)
@@ -45,24 +64,6 @@ const reactor = () => {
     Engine.instance.scene.background = sessionMode.value === 'immersive-ar' ? null : background.value
   }, [background, sessionMode])
 
-  useEffect(() => {
-    Engine.instance.scenePrefabRegistry.set(ScenePrefabs.skybox, [
-      { name: VisibleComponent.jsonID },
-      { name: SkyboxComponent.jsonID }
-    ])
-
-    Engine.instance.scenePrefabRegistry.set(ScenePrefabs.envMapbake, [
-      { name: TransformComponent.jsonID },
-      { name: VisibleComponent.jsonID },
-      { name: EnvMapBakeComponent.jsonID }
-    ])
-
-    return () => {
-      Engine.instance.scenePrefabRegistry.delete(ScenePrefabs.skybox)
-
-      Engine.instance.scenePrefabRegistry.delete(ScenePrefabs.envMapbake)
-    }
-  }, [])
   return null
 }
 

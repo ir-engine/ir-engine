@@ -27,12 +27,15 @@ import _ from 'lodash'
 import { useEffect } from 'react'
 import { VideoTexture } from 'three'
 
+import { SceneElementsRecord } from '@etherealengine/common/src/interfaces/SceneInterface'
 import logger from '@etherealengine/common/src/logger'
+import PositionalAudioNodeEditor from '@etherealengine/editor/src/components/properties/PositionalAudioNodeEditor'
+import VideoNodeEditor from '@etherealengine/editor/src/components/properties/VideoNodeEditor'
+import VolumetricNodeEditor from '@etherealengine/editor/src/components/properties/VolumetricNodeEditor'
 import { addActionReceptor, getMutableState, getState } from '@etherealengine/hyperflux'
 
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { isClient } from '../../common/functions/getEnvironment'
-import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
 import { defineQuery, getComponent, getMutableComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
@@ -107,10 +110,37 @@ export class AudioEffectPlayer {
 
 globalThis.AudioEffectPlayer = AudioEffectPlayer
 
-export const MediaPrefabs = {
-  audio: 'Audio' as const,
-  video: 'Video' as const,
-  volumetric: 'Volumetric' as const
+export const MediaElements: SceneElementsRecord = {
+  audio: {
+    name: 'Audio',
+    components: [
+      { name: TransformComponent.jsonID },
+      { name: VisibleComponent.jsonID },
+      { name: MediaComponent.jsonID, props: { paths: ['__$project$__/default-project/assets/SampleAudio.mp3'] } },
+      { name: PositionalAudioComponent.jsonID }
+    ],
+    icon: PositionalAudioNodeEditor.iconComponent
+  },
+  video: {
+    name: 'Video',
+    components: [
+      ...defaultSpatialComponents,
+      { name: MediaComponent.jsonID, props: { paths: ['__$project$__/default-project/assets/SampleVideo.mp4'] } },
+      { name: PositionalAudioComponent.jsonID },
+      { name: VideoComponent.jsonID }
+    ],
+    icon: VideoNodeEditor.iconComponent
+  },
+  volumetric: {
+    name: 'Volumetric',
+    components: [
+      ...defaultSpatialComponents,
+      { name: MediaComponent.jsonID },
+      { name: PositionalAudioComponent.jsonID },
+      { name: VolumetricComponent.jsonID }
+    ],
+    icon: VolumetricNodeEditor.iconComponent
+  }
 }
 
 const mediaQuery = defineQuery([MediaComponent])
@@ -183,27 +213,6 @@ const reactor = () => {
       EngineRenderer.instance.renderer.domElement.addEventListener('touchstart', handleAutoplay)
     }
 
-    Engine.instance.scenePrefabRegistry.set(MediaPrefabs.audio, [
-      { name: TransformComponent.jsonID },
-      { name: VisibleComponent.jsonID },
-      { name: MediaComponent.jsonID, props: { paths: ['__$project$__/default-project/assets/SampleAudio.mp3'] } },
-      { name: PositionalAudioComponent.jsonID }
-    ])
-
-    Engine.instance.scenePrefabRegistry.set(MediaPrefabs.video, [
-      ...defaultSpatialComponents,
-      { name: MediaComponent.jsonID, props: { paths: ['__$project$__/default-project/assets/SampleVideo.mp4'] } },
-      { name: PositionalAudioComponent.jsonID },
-      { name: VideoComponent.jsonID }
-    ])
-
-    Engine.instance.scenePrefabRegistry.set(MediaPrefabs.volumetric, [
-      ...defaultSpatialComponents,
-      { name: MediaComponent.jsonID },
-      { name: PositionalAudioComponent.jsonID },
-      { name: VolumetricComponent.jsonID }
-    ])
-
     const audioState = getMutableState(AudioState)
     const currentTime = audioState.audioContext.currentTime.value
 
@@ -247,10 +256,6 @@ const reactor = () => {
     addActionReceptor(AudioSettingReceptor)
 
     return () => {
-      Engine.instance.scenePrefabRegistry.delete(MediaPrefabs.audio)
-      Engine.instance.scenePrefabRegistry.delete(MediaPrefabs.video)
-      Engine.instance.scenePrefabRegistry.delete(MediaPrefabs.volumetric)
-
       audioState.gainNodeMixBuses.mediaStreams.value.disconnect()
       audioState.gainNodeMixBuses.mediaStreams.set(null!)
       audioState.gainNodeMixBuses.notifications.value.disconnect()

@@ -24,10 +24,8 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { PositionalAudioComponent } from '@etherealengine/engine/src/audio/components/PositionalAudioComponent'
-import { MediaPrefabs } from '@etherealengine/engine/src/audio/systems/MediaSystem'
 import { LoopAnimationComponent } from '@etherealengine/engine/src/avatar/components/LoopAnimationComponent'
 import { Component } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
-import { PhysicsPrefabs } from '@etherealengine/engine/src/physics/systems/PhysicsSystem'
 import { AmbientLightComponent } from '@etherealengine/engine/src/scene/components/AmbientLightComponent'
 import { CameraSettingsComponent } from '@etherealengine/engine/src/scene/components/CameraSettingsComponent'
 import { CloudComponent } from '@etherealengine/engine/src/scene/components/CloudComponent'
@@ -64,8 +62,6 @@ import { VariantComponent } from '@etherealengine/engine/src/scene/components/Va
 import { VideoComponent } from '@etherealengine/engine/src/scene/components/VideoComponent'
 import { VolumetricComponent } from '@etherealengine/engine/src/scene/components/VolumetricComponent'
 import { WaterComponent } from '@etherealengine/engine/src/scene/components/WaterComponent'
-import { LightPrefabs } from '@etherealengine/engine/src/scene/systems/LightSystem'
-import { ScenePrefabs } from '@etherealengine/engine/src/scene/systems/SceneObjectUpdateSystem'
 import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
 import { PersistentAnchorComponent } from '@etherealengine/engine/src/xr/XRAnchorComponents'
 
@@ -154,36 +150,3 @@ EntityNodeEditor.set(EnvMapBakeComponent, EnvMapBakeNodeEditor)
 // EntityNodeEditor.set(InstancingComponent, InstancingNodeEditor)
 EntityNodeEditor.set(PersistentAnchorComponent, PersistentAnchorNodeEditor)
 EntityNodeEditor.set(VariantComponent, VariantNodeEditor)
-
-export const prefabIcons = {
-  [LightPrefabs.ambientLight]: AmbientLightNodeEditor.iconComponent,
-  [LightPrefabs.pointLight]: PointLightNodeEditor.iconComponent,
-  [LightPrefabs.spotLight]: SpotLightNodeEditor.iconComponent,
-  [LightPrefabs.directionalLight]: DirectionalLightNodeEditor.iconComponent,
-  [LightPrefabs.hemisphereLight]: HemisphereLightNodeEditor.iconComponent,
-  [ScenePrefabs.groundPlane]: GroundPlaneNodeEditor.iconComponent,
-  [ScenePrefabs.model]: ModelNodeEditor.iconComponent,
-  [ScenePrefabs.previewCamera]: ScenePreviewCameraNodeEditor.iconComponent,
-  [ScenePrefabs.particleEmitter]: ParticleSystemNodeEditor.iconComponent,
-  [ScenePrefabs.portal]: PortalNodeEditor.iconComponent,
-  [PhysicsPrefabs.collider]: ColliderNodeEditor.iconComponent,
-  // [ScenePrefabs.chair]: ChairIcon,
-  [ScenePrefabs.group]: GroupNodeEditor.iconComponent,
-  [ScenePrefabs.prefab]: PrefabNodeEditor.iconComponent,
-  [ScenePrefabs.skybox]: SkyboxNodeEditor.iconComponent,
-  [ScenePrefabs.spawnPoint]: SpawnPointNodeEditor.iconComponent,
-  [ScenePrefabs.image]: ImageNodeEditor.iconComponent,
-  [MediaPrefabs.audio]: PositionalAudioNodeEditor.iconComponent,
-  [MediaPrefabs.video]: VideoNodeEditor.iconComponent,
-  [MediaPrefabs.volumetric]: VolumetricNodeEditor.iconComponent,
-  // [ScenePrefabs.cloud]: CloudsNodeEditor.iconComponent,
-  // [ScenePrefabs.ocean]: OceanNodeEditor.iconComponent,
-  // [ScenePrefabs.water]: WaterNodeEditor.iconComponent,
-  // [ScenePrefabs.interior]: InteriorNodeEditor.iconComponent,
-  [ScenePrefabs.system]: SystemNodeEditor.iconComponent,
-  // [ScenePrefabs.spline]: SplineNodeEditor.iconComponent,
-  // [ScenePrefabs.instancing]: InstancingNodeEditor.iconComponent,
-  [ScenePrefabs.envMapbake]: EnvMapBakeNodeEditor.iconComponent
-  // [ScenePrefabs.behaveGraph]: ChairIcon,
-  // [ScenePrefabs.loadVolume]: ChairIcon
-}

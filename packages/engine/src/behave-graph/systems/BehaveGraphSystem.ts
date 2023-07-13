@@ -27,9 +27,9 @@ import { ILifecycleEventEmitter, ILogger, Registry } from 'behave-graph'
 import { useEffect } from 'react'
 import { matches, Validator } from 'ts-matches'
 
+import { SceneElementsRecord } from '@etherealengine/common/src/interfaces/SceneInterface'
 import { defineAction, defineActionQueue, defineState, removeActionQueue } from '@etherealengine/hyperflux'
 
-import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import {
   addComponent,
@@ -40,7 +40,6 @@ import {
   removeQuery
 } from '../../ecs/functions/ComponentFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
-import { ScenePrefabs } from '../../scene/systems/SceneObjectUpdateSystem'
 import { BehaveGraphComponent, GraphDomainID } from '../components/BehaveGraphComponent'
 import { RuntimeGraphComponent } from '../components/RuntimeGraphComponent'
 
@@ -50,6 +49,13 @@ export type BehaveGraphDomainType = {
 
 export type BehaveGraphSystemStateType = {
   domains: Record<GraphDomainID, BehaveGraphDomainType>
+}
+
+export const BehaveGraphElements: SceneElementsRecord = {
+  behaveGraph: {
+    name: 'Behave Graph',
+    components: [{ name: BehaveGraphComponent.jsonID }]
+  }
 }
 
 export const BehaveGraphSystemState = defineState({
@@ -102,19 +108,7 @@ function execute() {
   }
 }
 
-const reactor = () => {
-  useEffect(() => {
-    Engine.instance.scenePrefabRegistry.set(ScenePrefabs.behaveGraph, [{ name: BehaveGraphComponent.jsonID }])
-
-    return () => {
-      Engine.instance.scenePrefabRegistry.delete(ScenePrefabs.behaveGraph)
-    }
-  }, [])
-  return null
-}
-
 export const BehaveGraphSystem = defineSystem({
   uuid: 'ee.engine.BehaveGraphSystem',
-  execute,
-  reactor
+  execute
 })

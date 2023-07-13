@@ -27,7 +27,7 @@ import { command } from 'cli'
 import { Euler, Material, MathUtils, Matrix4, Mesh, Quaternion, Vector3 } from 'three'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
-import { EntityJson, SceneJson } from '@etherealengine/common/src/interfaces/SceneInterface'
+import { EntityJson, ISceneElement, SceneJson } from '@etherealengine/common/src/interfaces/SceneInterface'
 import logger from '@etherealengine/common/src/logger'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { EngineActions } from '@etherealengine/engine/src/ecs/classes/EngineState'
@@ -72,7 +72,6 @@ import {
   createNewEditorNode,
   deserializeSceneEntity
 } from '@etherealengine/engine/src/scene/systems/SceneLoadingSystem'
-import { ScenePrefabs } from '@etherealengine/engine/src/scene/systems/SceneObjectUpdateSystem'
 import obj3dFromUuid from '@etherealengine/engine/src/scene/util/obj3dFromUuid'
 import {
   LocalTransformComponent,
@@ -83,7 +82,7 @@ import {
   computeLocalTransformMatrix,
   computeTransformMatrix
 } from '@etherealengine/engine/src/transform/systems/TransformSystem'
-import { dispatchAction, getMutableState, getState, useState } from '@etherealengine/hyperflux'
+import { dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
 
 import { EditorHistoryAction } from '../services/EditorHistory'
 import { EditorAction } from '../services/EditorServices'
@@ -212,8 +211,8 @@ const modifyMaterial = (nodes: string[], materialId: string, properties: { [_: s
    */
 }
 
-const createObjectFromPrefab = (
-  prefab: string,
+const createObjectFromSceneElement = (
+  element: ISceneElement,
   parentEntity = getState(SceneState).sceneEntity as Entity | null,
   beforeEntity = null as Entity | null,
   updateSelection = true
@@ -231,7 +230,7 @@ const createObjectFromPrefab = (
   setComponent(newEntity, EntityTreeComponent, { parentEntity, childIndex })
   setComponent(newEntity, UUIDComponent, MathUtils.generateUUID() as EntityUUID)
 
-  createNewEditorNode(newEntity, prefab)
+  createNewEditorNode(newEntity, element)
 
   if (updateSelection) {
     EditorControlFunctions.replaceSelection([newEntity])
@@ -243,6 +242,38 @@ const createObjectFromPrefab = (
 
   return newEntity
 }
+
+// const createObjectFromPrefab = (
+//   prefab: string,
+//   parentEntity = getState(SceneState).sceneEntity as Entity | null,
+//   beforeEntity = null as Entity | null,
+//   updateSelection = true
+// ) => {
+//   cancelGrabOrPlacement()
+
+//   const newEntity = createEntity()
+//   let childIndex = undefined as undefined | number
+//   if (beforeEntity) {
+//     const beforeNode = getComponent(beforeEntity, EntityTreeComponent)
+//     if (beforeNode?.parentEntity && hasComponent(beforeNode.parentEntity, EntityTreeComponent)) {
+//       childIndex = getComponent(beforeNode.parentEntity, EntityTreeComponent).children.indexOf(beforeEntity)
+//     }
+//   }
+//   setComponent(newEntity, EntityTreeComponent, { parentEntity, childIndex })
+//   setComponent(newEntity, UUIDComponent, MathUtils.generateUUID() as EntityUUID)
+
+//   createNewEditorNode(newEntity, prefab)
+
+//   if (updateSelection) {
+//     EditorControlFunctions.replaceSelection([newEntity])
+//   }
+
+//   dispatchAction(EditorAction.sceneModified({ modified: true }))
+//   dispatchAction(SelectionAction.changedSceneGraph({}))
+//   dispatchAction(EditorHistoryAction.createSnapshot({}))
+
+//   return newEntity
+// }
 
 /**
  * @todo copying an object should be rooted to which object is currently selected
@@ -553,22 +584,22 @@ const reparentObject = (
 }
 
 /** @todo - grouping currently doesnt take into account parentEntity or beforeEntity */
-const groupObjects = (
-  nodes: EntityOrObjectUUID[],
-  parents: EntityOrObjectUUID[] = [],
-  befores: EntityOrObjectUUID[] = [],
-  updateSelection = true
-) => {
-  cancelGrabOrPlacement()
+// const groupObjects = (
+//   nodes: EntityOrObjectUUID[],
+//   parents: EntityOrObjectUUID[] = [],
+//   befores: EntityOrObjectUUID[] = [],
+//   updateSelection = true
+// ) => {
+//   cancelGrabOrPlacement()
 
-  const groupNode = EditorControlFunctions.createObjectFromPrefab(ScenePrefabs.group, null, null, false)
+//   const groupNode = EditorControlFunctions.createObjectFromPrefab(ScenePrefabs.group, null, null, false)
 
-  EditorControlFunctions.reparentObject(nodes, groupNode, null, false)
+//   EditorControlFunctions.reparentObject(nodes, groupNode, null, false)
 
-  if (updateSelection) {
-    EditorControlFunctions.replaceSelection([groupNode])
-  }
-}
+//   if (updateSelection) {
+//     EditorControlFunctions.replaceSelection([groupNode])
+//   }
+// }
 
 /**
  *
@@ -661,14 +692,14 @@ export const EditorControlFunctions = {
   modifyProperty,
   modifyObject3d,
   modifyMaterial,
-  createObjectFromPrefab,
+  createObjectFromSceneElement,
   duplicateObject,
   positionObject,
   rotateObject,
   rotateAround,
   scaleObject,
   reparentObject,
-  groupObjects,
+  // groupObjects,
   removeObject,
   addToSelection,
   replaceSelection,
