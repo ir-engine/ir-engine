@@ -101,7 +101,7 @@ const CreateBot = () => {
       if (found) {
         NotificationService.dispatchNotify(t('admin:components.bot.uniqueCommand'), { variant: 'error' })
       } else {
-        commandData.merge([addCommand])
+        commandData.merge([JSON.parse(JSON.stringify(addCommand))])
         command.set({ id: '', name: '', description: '' })
       }
     } else {

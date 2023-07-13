@@ -33,7 +33,7 @@ export interface AdminBot {
   userId: string
   instanceId: string
   locationId: string
-  botCommands?: BotCommandType[]
+  botCommands?: BotCommandData[]
   location?: Location
   instance?: Instance
 }

@@ -27,9 +27,11 @@ import { NullableId, Paginated, Params } from '@feathersjs/feathers'
 import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
 
 import { AdminBot, CreateBotAsAdmin } from '@etherealengine/common/src/interfaces/AdminBot'
+import { botCommandPath } from '@etherealengine/engine/src/schemas/bot/bot-command.schema'
 
 import { Application } from '../../../declarations'
 import { createBotCommands } from './bot.functions'
+import { createBotCommandModel } from './bot.model'
 
 export type AdminBotDataType = AdminBot
 
@@ -43,10 +45,10 @@ export class Bot extends Service {
   }
 
   async find(params?: Params): Promise<Paginated<AdminBotDataType>> {
-    const bots = await this.app.service('bot').Model.findAll({
+    const bots = (await this.app.service('bot').Model.findAll({
       include: [
         {
-          model: this.app.service('bot-command').Model
+          model: createBotCommandModel(this.app)
         },
         {
           model: this.app.service('location').Model
@@ -55,7 +57,17 @@ export class Bot extends Service {
           model: this.app.service('instance').Model
         }
       ]
-    })
+    })) as AdminBotDataType[]
+
+    for (const bot of bots) {
+      const botCommand = await this.app.service(botCommandPath).find({
+        query: {
+          botId: bot.id
+        }
+      })
+      bot.botCommands = JSON.parse(JSON.stringify(botCommand.data))
+    }
+
     return { data: bots } as Paginated<AdminBotDataType>
   }
 
