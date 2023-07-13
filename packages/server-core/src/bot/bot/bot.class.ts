@@ -31,7 +31,6 @@ import { botCommandPath } from '@etherealengine/engine/src/schemas/bot/bot-comma
 
 import { Application } from '../../../declarations'
 import { createBotCommands } from './bot.functions'
-import { createBotCommandModel } from './bot.model'
 
 export type AdminBotDataType = AdminBot
 
@@ -45,11 +44,10 @@ export class Bot extends Service {
   }
 
   async find(params?: Params): Promise<Paginated<AdminBotDataType>> {
-    const bots = (await this.app.service('bot').Model.findAll({
+    const data: AdminBotDataType[] = []
+
+    const bots = await this.app.service('bot').Model.findAll({
       include: [
-        {
-          model: createBotCommandModel(this.app)
-        },
         {
           model: this.app.service('location').Model
         },
@@ -57,7 +55,7 @@ export class Bot extends Service {
           model: this.app.service('instance').Model
         }
       ]
-    })) as AdminBotDataType[]
+    })
 
     for (const bot of bots) {
       const botCommand = await this.app.service(botCommandPath).find({
@@ -65,10 +63,13 @@ export class Bot extends Service {
           botId: bot.id
         }
       })
-      bot.botCommands = JSON.parse(JSON.stringify(botCommand.data))
+      data.push({
+        ...bot.dataValues,
+        botCommands: JSON.parse(JSON.stringify(botCommand.data))
+      })
     }
 
-    return { data: bots } as Paginated<AdminBotDataType>
+    return { data } as Paginated<AdminBotDataType>
   }
 
   async create(data: CreateBotAsAdmin): Promise<AdminBotDataType> {
