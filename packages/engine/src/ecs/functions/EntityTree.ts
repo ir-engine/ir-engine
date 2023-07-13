@@ -219,8 +219,9 @@ export function addEntityNodeChild(entity: Entity, parentEntity: Entity, uuid?: 
   if (Engine.instance.worldNetwork?.isHosting) {
     const uuid = getComponent(entity, UUIDComponent)
     dispatchAction(
-      WorldNetworkAction.registerSceneObject({
-        objectUuid: uuid
+      WorldNetworkAction.spawnObject({
+        entityUUID: uuid,
+        prefab: ''
       })
     )
   }

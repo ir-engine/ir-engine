@@ -39,7 +39,6 @@ import { defineAction, defineActionQueue, defineState, getMutableState } from '@
 
 import { cancelGrabOrPlacement } from '../functions/cancelGrabOrPlacement'
 import { filterParentEntities } from '../functions/filterParentEntities'
-import { updateOutlinePassSelection } from '../functions/updateOutlinePassSelection'
 
 const transformProps = ['position', 'rotation', 'scale', 'matrix']
 
@@ -111,7 +110,6 @@ const execute = () => {
       selectedEntities: action.selectedEntities,
       selectedParentEntities: filterParentEntities(action.selectedEntities)
     })
-    updateOutlinePassSelection()
   }
   for (const action of changedObjectQueue())
     selectionState.merge({

@@ -65,7 +65,6 @@ import { AnimationComponent } from '../components/AnimationComponent'
 import { AvatarAnimationComponent } from '../components/AvatarAnimationComponent'
 import { AvatarComponent } from '../components/AvatarComponent'
 import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
-import { SpawnPoseComponent } from '../components/SpawnPoseComponent'
 
 export const avatarRadius = 0.25
 export const defaultAvatarHeight = 1.8
@@ -119,11 +118,6 @@ export const spawnAvatarReceptor = (entityUUID: EntityUUID) => {
     },
     rootYRatio: 1,
     locomotion: new Vector3()
-  })
-
-  addComponent(entity, SpawnPoseComponent, {
-    position: new Vector3().copy(transform.position),
-    rotation: new Quaternion().copy(transform.rotation)
   })
 
   if (ownerID === Engine.instance.userId) {
