@@ -80,8 +80,7 @@ export interface ReactorRoot {
   isRunning: boolean
   promise: Promise<void>
   cleanupFunctions: Set<() => void>
-  forceRender: () => void
-  run: () => Promise<void>
+  run: (force?: boolean) => Promise<void>
   stop: () => Promise<void>
 }
 
@@ -115,17 +114,8 @@ export function startReactor(Reactor: React.FC): ReactorRoot {
     isRunning: false,
     Reactor,
     promise: null! as Promise<void>,
-    forceRender: () => {
-      if (!reactorRoot.isRunning) return reactorRoot.run()
-      ReactorReconciler.updateContainer(
-        <ReactorRootContext.Provider value={reactorRoot}>
-          <Reactor />
-        </ReactorRootContext.Provider>,
-        fiberRoot
-      )
-    },
-    run() {
-      if (reactorRoot.isRunning) return Promise.resolve()
+    run(force = false) {
+      if (!force && reactorRoot.isRunning) return Promise.resolve()
       reactorRoot.isRunning = true
       return new Promise<void>((resolve) => {
         HyperFlux.store.activeReactors.add(reactorRoot)
