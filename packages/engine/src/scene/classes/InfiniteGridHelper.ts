@@ -153,10 +153,7 @@ export default class InfiniteGridHelper extends Mesh {
     const yLinePositions = new Float32Array([0, -distance, 0, 0, distance, 0])
     yLineGeometry.setAttribute('position', new BufferAttribute(yLinePositions, 3))
     const yLineMaterial = new LineBasicMaterial({
-      side: DoubleSide,
       color: 0x00ff00,
-      transparent: true,
-      opacity: 0.3,
       blending: NormalBlending,
       depthTest: true,
       depthWrite: true
