@@ -27,6 +27,7 @@ import _ from 'lodash'
 import { DataConsumer, DataProducer } from 'mediasoup/node/lib/types'
 import { Spark } from 'primus'
 
+import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { Instance } from '@etherealengine/common/src/interfaces/Instance'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { UserInterface } from '@etherealengine/common/src/interfaces/User'
@@ -450,9 +451,9 @@ const getUserSpawnFromInvite = async (
         const validSpawnablePosition = checkPositionIsValid(inviterUserObject3d.position, false)
 
         if (validSpawnablePosition) {
-          const spawnPose = getState(EntityNetworkState)[selfAvatarEntity]
-          spawnPose.position.copy(inviterUserObject3d.position)
-          spawnPose.rotation.copy(inviterUserTransform.rotation)
+          const spawnPose = getState(EntityNetworkState)[user.id as any as EntityUUID]
+          spawnPose.spawnPosition.copy(inviterUserObject3d.position)
+          spawnPose.spawnRotation.copy(inviterUserTransform.rotation)
           respawnAvatar(selfAvatarEntity)
         }
       } else {

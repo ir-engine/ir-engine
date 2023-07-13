@@ -23,6 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { act } from '@testing-library/react'
 import assert from 'assert'
 import { Quaternion, Vector3 } from 'three'
 
@@ -35,8 +36,6 @@ import * as ActionFunctions from '@etherealengine/hyperflux/functions/ActionFunc
 import { applyIncomingActions, dispatchAction } from '@etherealengine/hyperflux/functions/ActionFunctions'
 
 import { createMockNetwork } from '../../../tests/util/createMockNetwork'
-import { renderComponentReactor } from '../../../tests/util/ReactorHelpers'
-import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { spawnAvatarReceptor } from '../../avatar/functions/spawnAvatarReceptor'
 import { AvatarNetworkAction } from '../../avatar/state/AvatarNetworkState'
 import { destroyEngine, Engine } from '../../ecs/classes/Engine'
@@ -145,10 +144,8 @@ describe('EntityNetworkState', () => {
         })
       )
       applyIncomingActions()
-      receiveActions(EntityNetworkState)
 
-      const entity = UUIDComponent.entitiesByUUID[Engine.instance.peerID as any as EntityUUID]
-      await renderComponentReactor(entity, NetworkObjectComponent)
+      await act(() => receiveActions(EntityNetworkState))
 
       const networkObjectQuery = defineQuery([NetworkObjectComponent])
       const networkObjectOwnedQuery = defineQuery([NetworkObjectOwnedTag])
@@ -194,10 +191,7 @@ describe('EntityNetworkState', () => {
         })
       )
       applyIncomingActions()
-      receiveActions(EntityNetworkState)
-
-      const entity = UUIDComponent.entitiesByUUID[peerID3 as any as EntityUUID]
-      await renderComponentReactor(entity, NetworkObjectComponent)
+      await act(() => receiveActions(EntityNetworkState))
 
       const networkObjectQuery = defineQuery([NetworkObjectComponent])
       const networkObjectOwnedQuery = defineQuery([NetworkObjectOwnedTag])
@@ -231,10 +225,9 @@ describe('EntityNetworkState', () => {
         })
       )
       applyIncomingActions()
-      receiveActions(EntityNetworkState)
+      await act(() => receiveActions(EntityNetworkState))
 
       const entity = UUIDComponent.entitiesByUUID[Engine.instance.userId as any as EntityUUID]
-      await renderComponentReactor(entity, NetworkObjectComponent)
 
       spawnAvatarReceptor(Engine.instance.userId as string as EntityUUID)
 
@@ -276,10 +269,7 @@ describe('EntityNetworkState', () => {
         })
       )
       applyIncomingActions()
-      receiveActions(EntityNetworkState)
-
-      const entity = UUIDComponent.entitiesByUUID[Engine.instance.peerID as any as EntityUUID]
-      await renderComponentReactor(entity, NetworkObjectComponent)
+      await act(() => receiveActions(EntityNetworkState))
 
       const networkObjectQuery = defineQuery([NetworkObjectComponent])
       const networkObjectOwnedQuery = defineQuery([NetworkObjectOwnedTag])
@@ -354,10 +344,7 @@ describe('EntityNetworkState', () => {
     )
 
     applyIncomingActions()
-    receiveActions(EntityNetworkState)
-
-    const entity = UUIDComponent.entitiesByUUID[Engine.instance.peerID as any as EntityUUID]
-    await renderComponentReactor(entity, NetworkObjectComponent)
+    await act(() => receiveActions(EntityNetworkState))
 
     const networkObjectQuery = defineQuery([NetworkObjectComponent])
     const networkObjectOwnedQuery = defineQuery([NetworkObjectOwnedTag])
@@ -387,7 +374,7 @@ describe('EntityNetworkState', () => {
     )
 
     applyIncomingActions()
-    receiveActions(EntityNetworkState)
+    await act(() => receiveActions(EntityNetworkState))
 
     for (const action of transferAuthorityOfObjectQueue()) receiveTransferAuthorityOfObject(action)
 

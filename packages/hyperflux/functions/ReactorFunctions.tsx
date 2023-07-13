@@ -114,8 +114,8 @@ export function startReactor(Reactor: React.FC): ReactorRoot {
     isRunning: false,
     Reactor,
     promise: null! as Promise<void>,
-    run(force = false) {
-      if (!force && reactorRoot.isRunning) return Promise.resolve()
+    run() {
+      if (reactorRoot.isRunning) return Promise.resolve()
       reactorRoot.isRunning = true
       return new Promise<void>((resolve) => {
         HyperFlux.store.activeReactors.add(reactorRoot)

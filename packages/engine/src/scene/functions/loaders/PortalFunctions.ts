@@ -52,7 +52,9 @@ export const setAvatarToLocationTeleportingState = () => {
 
 export const revertAvatarToMovingStateFromTeleport = () => {
   const localClientEntity = Engine.instance.localClientEntity
-  getState(EntityNetworkState)[localClientEntity].position.copy(Engine.instance.activePortal!.remoteSpawnPosition)
+  getState(EntityNetworkState)[getComponent(localClientEntity, UUIDComponent)].spawnPosition.copy(
+    Engine.instance.activePortal!.remoteSpawnPosition
+  )
   getComponent(localClientEntity, AvatarControllerComponent).movementEnabled = true
 
   // teleport player to where the portal spawn position is
