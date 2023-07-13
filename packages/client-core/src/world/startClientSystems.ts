@@ -48,9 +48,9 @@ import { EquippableSystem } from '@etherealengine/engine/src/interaction/systems
 import { InteractiveSystem } from '@etherealengine/engine/src/interaction/systems/InteractiveSystem'
 import { MediaControlSystem } from '@etherealengine/engine/src/interaction/systems/MediaControlSystem'
 import { MotionCaptureSystem } from '@etherealengine/engine/src/mocap/MotionCaptureSystem'
+import { EntityNetworkStateSystem } from '@etherealengine/engine/src/networking/state/EntityNetworkState'
 import { IncomingNetworkSystem } from '@etherealengine/engine/src/networking/systems/IncomingNetworkSystem'
 import { OutgoingNetworkSystem } from '@etherealengine/engine/src/networking/systems/OutgoingNetworkSystem'
-import { WorldNetworkActionSystem } from '@etherealengine/engine/src/networking/systems/WorldNetworkActionSystem'
 import { PhysicsSystem } from '@etherealengine/engine/src/physics/systems/PhysicsSystem'
 import { HighlightSystem } from '@etherealengine/engine/src/renderer/HighlightSystem'
 import { WebGLRendererSystem } from '@etherealengine/engine/src/renderer/WebGLRendererSystem'
@@ -69,7 +69,7 @@ export const startClientSystems = () => {
   })
 
   /** Fixed */
-  startSystems([IncomingNetworkSystem, WorldNetworkActionSystem, EquippableSystem, AvatarSimulationSystemGroup], {
+  startSystems([IncomingNetworkSystem, EntityNetworkStateSystem, EquippableSystem, AvatarSimulationSystemGroup], {
     with: SimulationSystemGroup
   })
 
