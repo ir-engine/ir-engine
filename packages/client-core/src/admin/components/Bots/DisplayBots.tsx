@@ -27,7 +27,8 @@ import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import ConfirmDialog from '@etherealengine/client-core/src/common/components/ConfirmDialog'
-import { AdminBot, BotCommands, CreateBotCammand } from '@etherealengine/common/src/interfaces/AdminBot'
+import { AdminBot } from '@etherealengine/common/src/interfaces/AdminBot'
+import { BotCommandData } from '@etherealengine/engine/src/schemas/bot/bot-command.schema'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import Accordion from '@etherealengine/ui/src/primitives/mui/Accordion'
 import AccordionDetails from '@etherealengine/ui/src/primitives/mui/AccordionDetails'
@@ -47,7 +48,7 @@ import UpdateBot from './UpdateBot'
 
 const DisplayBots = () => {
   const expanded = useHookstate<string | false>('panel0')
-  const command = useHookstate<BotCommands>({
+  const command = useHookstate<BotCommandData>({
     name: '',
     description: ''
   })
@@ -83,12 +84,12 @@ const DisplayBots = () => {
   }
 
   const submitCommandBot = (id: string) => {
-    const data: CreateBotCammand = {
+    const data: BotCommandData = {
       name: command.name.value,
       description: command.description.value,
       botId: id
     }
-    AdminBotCommandService.createBotCammand(data)
+    AdminBotCommandService.createBotCommand(data)
     command.set({
       name: '',
       description: ''

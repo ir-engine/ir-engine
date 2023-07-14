@@ -24,12 +24,15 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { Types } from 'bitecs'
+import { useEffect } from 'react'
 
 import { NetworkId } from '@etherealengine/common/src/interfaces/NetworkId'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 
-import { defineComponent } from '../../ecs/functions/ComponentFunctions'
+import { Engine } from '../../ecs/classes/Engine'
+import { defineComponent, removeComponent, setComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
+import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 
 export const NetworkObjectComponent = defineComponent({
   name: 'NetworkObjectComponent',
@@ -64,6 +67,24 @@ export const NetworkObjectComponent = defineComponent({
       component.networkId.set(json.networkId)
       NetworkObjectComponent.networkId[entity] = json.networkId
     }
+  },
+
+  reactor: function () {
+    const entity = useEntityContext()
+    const networkObject = useComponent(entity, NetworkObjectComponent)
+
+    useEffect(() => {
+      if (networkObject.authorityPeerID.value === Engine.instance.peerID)
+        setComponent(entity, NetworkObjectAuthorityTag)
+      else removeComponent(entity, NetworkObjectAuthorityTag)
+    }, [networkObject.authorityPeerID])
+
+    useEffect(() => {
+      if (networkObject.ownerId.value === Engine.instance.userId) setComponent(entity, NetworkObjectOwnedTag)
+      else removeComponent(entity, NetworkObjectOwnedTag)
+    }, [networkObject.ownerId])
+
+    return null
   }
 })
 

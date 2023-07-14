@@ -83,7 +83,6 @@ export default class BasisuExporterExtension extends ExporterExtension implement
   writeTexture(_texture: CompressedTexture, textureDef) {
     if (!_texture?.isCompressedTexture) return
     const writer = this.writer
-    _texture.encoding = LinearEncoding
     writer.pending.push(
       new Promise((resolve) => {
         createReadableTexture(_texture, { canvas: true, flipY: true }).then((texture: Texture) => {

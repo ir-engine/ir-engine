@@ -61,7 +61,7 @@ cli.main(async () => {
     const functionList = (await storageProvider.listFunctions(null, [])).map((thisFunction) => thisFunction.Name)
     const currentFunctions = [...new Set(functionList)]
     let functionResponse
-    if (currentFunctions.indexOf(name) > 0) functionResponse = await storageProvider.updateFunction(name, routes)
+    if (currentFunctions.indexOf(name) >= 0) functionResponse = await storageProvider.updateFunction(name, routes)
     else functionResponse = await storageProvider.createFunction(name, routes)
     await storageProvider.publishFunction(name)
     await storageProvider.associateWithFunction(functionResponse.FunctionSummary.FunctionMetadata.FunctionARN)

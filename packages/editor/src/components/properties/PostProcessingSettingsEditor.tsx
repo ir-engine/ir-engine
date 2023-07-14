@@ -23,6 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { debounce } from 'lodash'
 import { BlendFunction } from 'postprocessing'
 import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -64,26 +65,6 @@ type EffectPropertiesType = { [key: string]: EffectPropertyDetail }
 type EffectOptionsType = { [key in keyof typeof Effects]: EffectPropertiesType }
 
 const EffectsOptions: EffectOptionsType = {
-  // FXAAEffect: {
-  //   blendFunction: { propertyType: PropertyTypes.BlendFunction, name: 'Blend Function' }
-  // },
-  SMAAEffect: {
-    blendFunction: { propertyType: PropertyTypes.BlendFunction, name: 'Blend Function' },
-    preset: { propertyType: PropertyTypes.SMAAPreset, name: 'Preset' },
-    edgeDetectionMode: { propertyType: PropertyTypes.EdgeDetectionMode, name: 'Edge Detection Mode' },
-    predicationMode: { propertyType: PropertyTypes.PredicationMode, name: 'Predication Mode' }
-  },
-  OutlineEffect: {
-    blendFunction: { propertyType: PropertyTypes.BlendFunction, name: 'Blend Function' },
-    edgeStrength: { propertyType: PropertyTypes.Number, name: 'Edge Strength', min: -1, max: 1, step: 0.01 },
-    pulseSpeed: { propertyType: PropertyTypes.Number, name: 'Pulse Speed', min: -1, max: 1, step: 0.01 },
-    visibleEdgeColor: { propertyType: PropertyTypes.Color, name: 'Visible Edge Color' },
-    hiddenEdgeColor: { propertyType: PropertyTypes.Color, name: 'Hidden Edge Color' },
-    resolutionScale: { propertyType: PropertyTypes.Number, name: 'Resolution Scale', min: -1, max: 1, step: 0.01 },
-    kernelSize: { propertyType: PropertyTypes.KernelSize, name: 'Kernel Size' },
-    blur: { propertyType: PropertyTypes.Boolean, name: 'Blur' },
-    xRay: { propertyType: PropertyTypes.Boolean, name: 'XRay' }
-  },
   SSAOEffect: {
     blendFunction: { propertyType: PropertyTypes.BlendFunction, name: 'Blend Function' },
     distanceScaling: { propertyType: PropertyTypes.Boolean, name: 'Distance Scaling' },
@@ -255,6 +236,10 @@ const PredicationMode = [
   { label: 'CUSTOM', value: 2 }
 ]
 
+const debouncedConfigureEffectComposer = debounce(() => {
+  configureEffectComposer()
+}, 200)
+
 export const PostProcessingSettingsEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
 
@@ -275,11 +260,12 @@ export const PostProcessingSettingsEditor: EditorComponentType = (props) => {
     return value
   }
 
+  // trigger re-render - @todo find out why just setting the value doesn't trigger the reactor
+  // action: debounced the set property value
+
   const setPropertyValue = (prop, val) => {
     prop.set(val)
-
-    // trigger re-render - @todo find out why just setting the value doesnt trigger the reactor
-    configureEffectComposer()
+    debouncedConfigureEffectComposer()
   }
 
   const renderProperty = (propertyDetail: EffectPropertyDetail, propertyPath: string[], index: number) => {

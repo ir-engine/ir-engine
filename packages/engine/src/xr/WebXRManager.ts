@@ -81,6 +81,10 @@ declare global {
   interface XRSession {
     interactionMode: 'screen-space' | 'world-space'
   }
+
+  interface XRProjectionLayer {
+    quality: 'default' | 'text-optimized' | 'graphics-optimized'
+  }
 }
 
 export const XRRendererState = defineState({
@@ -193,12 +197,14 @@ export function createWebXRManager() {
           depthFormat: glDepthFormat,
           scaleFactor: framebufferScaleFactor,
           textureType: (scope.isMultiview ? 'texture-array' : 'texture') as XRTextureType
+          // quality: "graphics-optimized" /** @todo - this does not work yet, must be set directly on the layer */
         }
 
         const glBinding = new XRWebGLBinding(session, gl)
         xrRendererState.glBinding.set(glBinding)
 
         const glProjLayer = glBinding.createProjectionLayer(projectionlayerInit)
+        glProjLayer.quality = 'graphics-optimized'
         xrRendererState.glProjLayer.set(glProjLayer)
 
         session.updateRenderState({ layers: [glProjLayer] })
