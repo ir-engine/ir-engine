@@ -23,6 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { act } from '@testing-library/react'
 import assert from 'assert'
 import { Quaternion, Vector3 } from 'three'
 
@@ -30,32 +31,40 @@ import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { NetworkId } from '@etherealengine/common/src/interfaces/NetworkId'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { UserId } from '@etherealengine/common/src/interfaces/UserId'
+import { ReactorRoot, receiveActions } from '@etherealengine/hyperflux'
 import * as ActionFunctions from '@etherealengine/hyperflux/functions/ActionFunctions'
+import { applyIncomingActions, dispatchAction } from '@etherealengine/hyperflux/functions/ActionFunctions'
 
 import { createMockNetwork } from '../../../tests/util/createMockNetwork'
-import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { spawnAvatarReceptor } from '../../avatar/functions/spawnAvatarReceptor'
 import { AvatarNetworkAction } from '../../avatar/state/AvatarNetworkState'
 import { destroyEngine, Engine } from '../../ecs/classes/Engine'
 import { defineQuery, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
-import { SystemDefinitions } from '../../ecs/functions/SystemFunctions'
+import { SimulationSystemGroup } from '../../ecs/functions/EngineFunctions'
+import { startSystem, SystemDefinitions } from '../../ecs/functions/SystemFunctions'
 import { createEngine } from '../../initializeEngine'
 import { Physics } from '../../physics/classes/Physics'
+import { UUIDComponent } from '../../scene/components/UUIDComponent'
 import { Network, NetworkTopics } from '../classes/Network'
 import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
 import { NetworkObjectOwnedTag } from '../components/NetworkObjectComponent'
-import { WorldNetworkActionSystem } from '../systems/WorldNetworkActionSystem'
-import { NetworkPeerFunctions } from './NetworkPeerFunctions'
-import { WorldNetworkAction } from './WorldNetworkAction'
-import { WorldNetworkActionReceptor } from './WorldNetworkActionReceptor'
+import { NetworkPeerFunctions } from '../functions/NetworkPeerFunctions'
+import { WorldNetworkAction } from '../functions/WorldNetworkAction'
+import {
+  EntityNetworkState,
+  EntityNetworkStateSystem,
+  receiveRequestAuthorityOverObject,
+  receiveTransferAuthorityOfObject
+} from './EntityNetworkState'
 
-describe('WorldNetworkActionReceptors', () => {
+describe('EntityNetworkState', () => {
   beforeEach(async () => {
     createEngine()
     createMockNetwork()
     await Physics.load()
     Engine.instance.physicsWorld = Physics.createWorld()
     Engine.instance.store.defaultDispatchDelay = () => 0
+    startSystem(EntityNetworkStateSystem, { with: SimulationSystemGroup })
   })
 
   afterEach(() => {
@@ -79,7 +88,7 @@ describe('WorldNetworkActionReceptors', () => {
       const objNetId = 3 as NetworkId
       const objPrefab = 'generic prefab'
 
-      WorldNetworkActionReceptor.receiveSpawnObject(
+      dispatchAction(
         WorldNetworkAction.spawnObject({
           $from: Engine.instance.worldNetwork.hostId, // from  host
           prefab: objPrefab, // generic prefab
@@ -89,6 +98,9 @@ describe('WorldNetworkActionReceptors', () => {
           entityUUID: Engine.instance.peerID as any as EntityUUID
         })
       )
+
+      applyIncomingActions()
+      receiveActions(EntityNetworkState)
 
       const networkObjectQuery = defineQuery([NetworkObjectComponent])
       const networkObjectOwnedQuery = defineQuery([NetworkObjectOwnedTag])
@@ -104,7 +116,7 @@ describe('WorldNetworkActionReceptors', () => {
       assert.equal(hasComponent(networkObjectEntities[0], NetworkObjectOwnedTag), false)
     })
 
-    it('should spawn object owned by user', () => {
+    it('should spawn object owned by user', async () => {
       const userId = 'user id' as UserId
       const hostId = 'host' as UserId
       const peerID = 'peer id' as PeerID
@@ -122,7 +134,7 @@ describe('WorldNetworkActionReceptors', () => {
       const objNetId = 3 as NetworkId
       const objPrefab = 'generic prefab'
 
-      WorldNetworkActionReceptor.receiveSpawnObject(
+      dispatchAction(
         WorldNetworkAction.spawnObject({
           $from: userId, // from  user
           prefab: objPrefab, // generic prefab
@@ -131,6 +143,9 @@ describe('WorldNetworkActionReceptors', () => {
           entityUUID: Engine.instance.peerID as any as EntityUUID
         })
       )
+      applyIncomingActions()
+
+      await act(() => receiveActions(EntityNetworkState))
 
       const networkObjectQuery = defineQuery([NetworkObjectComponent])
       const networkObjectOwnedQuery = defineQuery([NetworkObjectOwnedTag])
@@ -165,7 +180,7 @@ describe('WorldNetworkActionReceptors', () => {
       const objNetId = 3 as NetworkId
       const objPrefab = 'avatar'
 
-      WorldNetworkActionReceptor.receiveSpawnObject(
+      dispatchAction(
         WorldNetworkAction.spawnObject({
           $from: userId2, // from other user
           prefab: objPrefab, // generic prefab
@@ -175,8 +190,8 @@ describe('WorldNetworkActionReceptors', () => {
           entityUUID: peerID3 as any as EntityUUID
         })
       )
-
-      SystemDefinitions.get(WorldNetworkActionSystem)!.execute()
+      applyIncomingActions()
+      await act(() => receiveActions(EntityNetworkState))
 
       const networkObjectQuery = defineQuery([NetworkObjectComponent])
       const networkObjectOwnedQuery = defineQuery([NetworkObjectOwnedTag])
@@ -202,15 +217,19 @@ describe('WorldNetworkActionReceptors', () => {
 
       NetworkPeerFunctions.createPeer(network, peerID, 1, userId, 1, 'user name')
 
-      const action = AvatarNetworkAction.spawn({
-        networkId: 42 as NetworkId,
-        $peer: peerID,
-        entityUUID: Engine.instance.userId as string as EntityUUID
-      })
-      WorldNetworkActionReceptor.receiveSpawnObject(action as any)
-      spawnAvatarReceptor(Engine.instance.userId as string as EntityUUID)
+      dispatchAction(
+        AvatarNetworkAction.spawn({
+          networkId: 42 as NetworkId,
+          $peer: peerID,
+          entityUUID: Engine.instance.userId as string as EntityUUID
+        })
+      )
+      applyIncomingActions()
+      await act(() => receiveActions(EntityNetworkState))
 
-      const entity = Engine.instance.getOwnedNetworkObjectWithComponent(userId, AvatarComponent)
+      const entity = UUIDComponent.entitiesByUUID[Engine.instance.userId as any as EntityUUID]
+
+      spawnAvatarReceptor(Engine.instance.userId as string as EntityUUID)
 
       assert.equal(getComponent(entity, NetworkObjectComponent).networkId, 42)
       assert.equal(getComponent(entity, NetworkObjectComponent).authorityPeerID, peerID)
@@ -239,7 +258,7 @@ describe('WorldNetworkActionReceptors', () => {
       const objNetId = 3 as NetworkId
       const objPrefab = 'generic prefab'
 
-      WorldNetworkActionReceptor.receiveSpawnObject(
+      dispatchAction(
         WorldNetworkAction.spawnObject({
           $from: userId,
           prefab: objPrefab,
@@ -249,6 +268,8 @@ describe('WorldNetworkActionReceptors', () => {
           entityUUID: Engine.instance.peerID as any as EntityUUID
         })
       )
+      applyIncomingActions()
+      await act(() => receiveActions(EntityNetworkState))
 
       const networkObjectQuery = defineQuery([NetworkObjectComponent])
       const networkObjectOwnedQuery = defineQuery([NetworkObjectOwnedTag])
@@ -267,7 +288,7 @@ describe('WorldNetworkActionReceptors', () => {
         WorldNetworkAction.transferAuthorityOfObject.matches
       )
 
-      WorldNetworkActionReceptor.receiveRequestAuthorityOverObject(
+      receiveRequestAuthorityOverObject(
         WorldNetworkAction.requestAuthorityOverObject({
           $from: userId,
           ownerId: userId,
@@ -279,8 +300,7 @@ describe('WorldNetworkActionReceptors', () => {
 
       ActionFunctions.applyIncomingActions()
 
-      for (const action of transferAuthorityOfObjectQueue())
-        WorldNetworkActionReceptor.receiveTransferAuthorityOfObject(action)
+      for (const action of transferAuthorityOfObjectQueue()) receiveTransferAuthorityOfObject(action)
 
       const networkObjectEntitiesAfter = networkObjectQuery()
       const networkObjectOwnedEntitiesAfter = networkObjectOwnedQuery()
@@ -312,7 +332,7 @@ describe('WorldNetworkActionReceptors', () => {
     const objNetId = 3 as NetworkId
     const objPrefab = 'generic prefab'
 
-    WorldNetworkActionReceptor.receiveSpawnObject(
+    dispatchAction(
       WorldNetworkAction.spawnObject({
         $from: hostUserId, // from  host
         prefab: objPrefab, // generic prefab
@@ -322,6 +342,9 @@ describe('WorldNetworkActionReceptors', () => {
         entityUUID: Engine.instance.peerID as any as EntityUUID
       })
     )
+
+    applyIncomingActions()
+    await act(() => receiveActions(EntityNetworkState))
 
     const networkObjectQuery = defineQuery([NetworkObjectComponent])
     const networkObjectOwnedQuery = defineQuery([NetworkObjectOwnedTag])
@@ -340,7 +363,7 @@ describe('WorldNetworkActionReceptors', () => {
       WorldNetworkAction.transferAuthorityOfObject.matches
     )
 
-    WorldNetworkActionReceptor.receiveRequestAuthorityOverObject(
+    receiveRequestAuthorityOverObject(
       WorldNetworkAction.requestAuthorityOverObject({
         $from: userId, // from user
         ownerId: hostUserId,
@@ -350,10 +373,10 @@ describe('WorldNetworkActionReceptors', () => {
       })
     )
 
-    ActionFunctions.applyIncomingActions()
+    applyIncomingActions()
+    await act(() => receiveActions(EntityNetworkState))
 
-    for (const action of transferAuthorityOfObjectQueue())
-      WorldNetworkActionReceptor.receiveTransferAuthorityOfObject(action)
+    for (const action of transferAuthorityOfObjectQueue()) receiveTransferAuthorityOfObject(action)
 
     const networkObjectEntitiesAfter = networkObjectQuery()
     const networkObjectOwnedEntitiesAfter = networkObjectOwnedQuery()

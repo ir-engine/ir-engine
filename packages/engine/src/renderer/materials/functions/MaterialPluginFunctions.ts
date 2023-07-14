@@ -52,6 +52,10 @@ export function unregisterMaterialPlugin(component: MaterialPluginType) {
 export function applyMaterialPlugin(material: Material, pluginId: string) {
   const materialLibrary = getMutableState(MaterialLibraryState)
   const pluginComponent = materialLibrary.plugins[pluginId]
+  if (!pluginComponent.plugin.value) {
+    console.warn('Unsupported material plugin ' + pluginId)
+    return
+  }
   addOBCPlugin(material, pluginComponent.plugin.get(NO_PROXY))
   pluginComponent.instances.set([...pluginComponent.instances.value, material])
 }

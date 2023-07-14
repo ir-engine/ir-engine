@@ -29,9 +29,10 @@ import { v4 as uuidv4 } from 'uuid'
 
 import InputSelect, { InputMenuItem } from '@etherealengine/client-core/src/common/components/InputSelect'
 import InputText from '@etherealengine/client-core/src/common/components/InputText'
-import { BotCommands, CreateBotAsAdmin } from '@etherealengine/common/src/interfaces/AdminBot'
+import { CreateBotAsAdmin } from '@etherealengine/common/src/interfaces/AdminBot'
 import { Instance } from '@etherealengine/common/src/interfaces/Instance'
 import capitalizeFirstLetter from '@etherealengine/common/src/utils/capitalizeFirstLetter'
+import { BotCommandData } from '@etherealengine/engine/src/schemas/bot/bot-command.schema'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import Button from '@etherealengine/ui/src/primitives/mui/Button'
 import Card from '@etherealengine/ui/src/primitives/mui/Card'
@@ -51,12 +52,12 @@ import { AdminLocationService, AdminLocationState } from '../../services/Locatio
 import styles from '../../styles/admin.module.scss'
 
 const CreateBot = () => {
-  const command = useHookstate<BotCommands>({
+  const command = useHookstate<BotCommandData>({
     id: '',
     name: '',
     description: ''
   })
-  const commandData = useHookstate<BotCommands[]>([])
+  const commandData = useHookstate<BotCommandData[]>([])
 
   const formErrors = useHookstate({
     name: '',
@@ -94,13 +95,13 @@ const CreateBot = () => {
     command.merge({ id: uuidv4(), [name]: value })
   }
 
-  const addCommandData = (addCommand) => {
+  const addCommandData = (addCommand: BotCommandData) => {
     if (addCommand.name) {
       const found = commandData.get({ noproxy: true }).find((el) => el.name === addCommand.name)
       if (found) {
         NotificationService.dispatchNotify(t('admin:components.bot.uniqueCommand'), { variant: 'error' })
       } else {
-        commandData.merge([addCommand])
+        commandData.merge([JSON.parse(JSON.stringify(addCommand))])
         command.set({ id: '', name: '', description: '' })
       }
     } else {

@@ -292,6 +292,7 @@ const execute = () => {
   for (const entity of webcamQuery()) setAvatarExpression(entity)
 }
 
+/** @todo - this system currently is not used and has been replaced by the /capture route */
 export const WebcamInputSystem = defineSystem({
   uuid: 'ee.client.WebcamInputSystem',
   execute
