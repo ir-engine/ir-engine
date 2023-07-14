@@ -430,11 +430,12 @@ const execute = () => {
 
       if (transformSpace === TransformSpace.Local) {
         const localTransform = getComponent(lastSelection as Entity, LocalTransformComponent)
-        gizmoObj.quaternion.copy(localTransform.rotation)
+        if (localTransform) gizmoObj.quaternion.copy(localTransform.rotation)
       } else {
-        gizmoObj.quaternion.copy(
-          'quaternion' in lastSelectedTransform ? lastSelectedTransform.quaternion : lastSelectedTransform.rotation
-        )
+        if (lastSelectedTransform)
+          gizmoObj.quaternion.copy(
+            'quaternion' in lastSelectedTransform ? lastSelectedTransform.quaternion : lastSelectedTransform.rotation
+          )
       }
 
       inverseGizmoQuaternion.copy(gizmoObj.quaternion).invert()
