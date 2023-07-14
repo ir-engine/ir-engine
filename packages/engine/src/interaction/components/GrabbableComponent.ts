@@ -28,16 +28,21 @@ import { useEffect } from 'react'
 import { getState } from '@etherealengine/hyperflux'
 
 import { EngineState } from '../../ecs/classes/EngineState'
+import { Entity } from '../../ecs/classes/Entity'
 import { SceneState } from '../../ecs/classes/Scene'
-import { defineComponent, hasComponent, removeComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
+import { defineComponent, removeComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
 import { useEntityContext } from '../../ecs/functions/EntityFunctions'
-import { EntityTreeComponent, removeFromEntityTree } from '../../ecs/functions/EntityTree'
+import { EntityTreeComponent } from '../../ecs/functions/EntityTree'
 import { ColliderComponent } from '../../scene/components/ColliderComponent'
 import { LocalTransformComponent } from '../../transform/components/TransformComponent'
 
-export const EquippableComponent = defineComponent({
-  name: 'EquippableComponent',
-  jsonID: 'equippable',
+/**
+ * GrabbableComponent
+ * - Allows an entity to be grabbed by a GrabberComponent
+ */
+export const GrabbableComponent = defineComponent({
+  name: 'GrabbableComponent',
+  jsonID: 'equippable', // TODO: rename to grabbable
   toJSON: () => true,
 
   reactor: () => {
@@ -52,5 +57,53 @@ export const EquippableComponent = defineComponent({
     }, [])
 
     return null
+  }
+})
+
+/**
+ * GrabbedComponent
+ * - Indicates that an entity is currently being grabbed by a GrabberComponent
+ */
+export const GrabbedComponent = defineComponent({
+  name: 'GrabbedComponent',
+
+  onInit(entity) {
+    return {
+      attachmentPoint: 'none' as XRHandedness,
+      grabberEntity: null! as Entity
+    }
+  },
+
+  onSet(entity, component, json) {
+    if (!json) return
+
+    if (typeof json.attachmentPoint === 'string') component.attachmentPoint.set(json.attachmentPoint)
+    if (typeof json.grabberEntity === 'number') component.grabberEntity.set(json.grabberEntity)
+  }
+})
+
+/**
+ * GrabberComponent
+ * - Allows an entity to grab a GrabbableComponent
+ */
+export const GrabberComponent = defineComponent({
+  name: 'GrabberComponent',
+
+  onInit(entity) {
+    return {
+      grabbedEntity: null as Entity | null
+    }
+  },
+
+  onSet(entity, component, json) {
+    if (!json) return
+    if (typeof json.grabbedEntity === 'number' || json.grabbedEntity === null)
+      component.grabbedEntity.set(json.grabbedEntity)
+  },
+
+  onRemove(entity, component) {
+    const grabbedEntity = component.grabbedEntity.value
+    if (!grabbedEntity) return
+    removeComponent(grabbedEntity, GrabbedComponent)
   }
 })

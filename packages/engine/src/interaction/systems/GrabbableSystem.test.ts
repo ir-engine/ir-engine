@@ -92,11 +92,11 @@ describe.skip('EquippableSystem Integration Tests', () => {
     spawnAvatarReceptor(Engine.instance.userId as string as EntityUUID)
 
     addComponent(item, EquippedComponent, {
-      equipperEntity: player,
+      grabberEntity: player,
       attachmentPoint: 'none'
     })
     const equippedComponent = getComponent(player, EquippedComponent)
-    addComponent(player, EquipperComponent, { equippedEntity: item })
+    addComponent(player, EquipperComponent, { grabbedEntity: item })
 
     setTransformComponent(item)
     const equippableTransform = getComponent(item, TransformComponent)

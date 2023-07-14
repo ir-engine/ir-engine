@@ -36,9 +36,8 @@ import { destroyEngine, Engine } from '../../src/ecs/classes/Engine'
 import { addComponent, getComponent, hasComponent } from '../../src/ecs/functions/ComponentFunctions'
 import { createEntity } from '../../src/ecs/functions/EntityFunctions'
 import { createEngine } from '../../src/initializeEngine'
-import { EquippedComponent } from '../../src/interaction/components/EquippedComponent'
-import { EquipperComponent } from '../../src/interaction/components/EquipperComponent'
-import { equipEntity, unequipEntity } from '../../src/interaction/functions/equippableFunctions'
+import { GrabbedComponent, GrabberComponent } from '../../src/interaction/components/GrabbableComponent'
+import { equipEntity, unequipEntity } from '../../src/interaction/systems/GrabbableSystem'
 import { Network } from '../../src/networking/classes/Network'
 import { NetworkObjectComponent } from '../../src/networking/components/NetworkObjectComponent'
 import { Physics } from '../../src/physics/classes/Physics'
@@ -46,7 +45,7 @@ import { addObjectToGroup } from '../../src/scene/components/GroupComponent'
 import { setTransformComponent, TransformComponent } from '../../src/transform/components/TransformComponent'
 import { createMockNetwork } from '../util/createMockNetwork'
 
-describe.skip('Equippables Integration Tests', () => {
+describe.skip('Grabbables Integration Tests', () => {
   beforeEach(async () => {
     createEngine()
     createMockNetwork()
@@ -74,9 +73,9 @@ describe.skip('Equippables Integration Tests', () => {
     const userIndex = 1
     Engine.instance.userId = userId
 
-    const equippableEntity = createEntity()
+    const grabbableEntity = createEntity()
 
-    setTransformComponent(equippableEntity)
+    setTransformComponent(grabbableEntity)
 
     // physics mock stuff
     const type = ShapeType.Cuboid
@@ -89,21 +88,21 @@ describe.skip('Equippables Integration Tests', () => {
     }
     mesh.userData = bodyOptions
 
-    addObjectToGroup(equippableEntity, mesh)
-    Physics.createRigidBodyForGroup(equippableEntity, Engine.instance.physicsWorld, bodyOptions)
+    addObjectToGroup(grabbableEntity, mesh)
+    Physics.createRigidBodyForGroup(grabbableEntity, Engine.instance.physicsWorld, bodyOptions)
     // network mock stuff
     // initially the object is owned by server
-    addComponent(equippableEntity, NetworkObjectComponent, {
+    addComponent(grabbableEntity, NetworkObjectComponent, {
       ownerId: Engine.instance.worldNetwork.hostId,
       authorityPeerID: Engine.instance.peerID,
       networkId: 0 as NetworkId
     })
 
     // Equipper
-    const equipperEntity = createEntity()
-    setTransformComponent(equipperEntity)
+    const grabberEntity = createEntity()
+    setTransformComponent(grabberEntity)
 
-    equipEntity(equipperEntity, equippableEntity, 'none')
+    equipEntity(grabberEntity, grabbableEntity, 'none')
 
     // world.receptors.push(
     //     (a) => matches(a).when(WorldNetworkAction.setEquippedObject.matches, setEquippedObjectReceptor)
@@ -111,24 +110,24 @@ describe.skip('Equippables Integration Tests', () => {
     clearOutgoingActions(Engine.instance.worldNetwork.topic)
     applyIncomingActions()
 
-    // equipperQueryEnter(equipperEntity)
+    // equipperQueryEnter(grabberEntity)
 
     // validations for equip
-    assert(hasComponent(equipperEntity, EquipperComponent))
-    const equipperComponent = getComponent(equipperEntity, EquipperComponent)
-    assert.equal(equippableEntity, equipperComponent.equippedEntity)
-    // assert(hasComponent(equippableEntity, NetworkObjectAuthorityTag))
-    assert(hasComponent(equippableEntity, EquippedComponent))
+    assert(hasComponent(grabberEntity, GrabberComponent))
+    const grabberComponent = getComponent(grabberEntity, GrabberComponent)
+    assert.equal(grabbableEntity, grabberComponent.grabbedEntity)
+    // assert(hasComponent(grabbableEntity, NetworkObjectAuthorityTag))
+    assert(hasComponent(grabbableEntity, GrabbedComponent))
 
     // unequip stuff
-    unequipEntity(equipperEntity)
+    unequipEntity(grabberEntity)
 
     clearOutgoingActions(Engine.instance.worldNetwork.topic)
     applyIncomingActions()
 
     // validations for unequip
-    assert(!hasComponent(equipperEntity, EquipperComponent))
-    // assert(!hasComponent(equippableEntity, NetworkObjectAuthorityTag))
-    assert(!hasComponent(equippableEntity, EquippedComponent))
+    assert(!hasComponent(grabberEntity, GrabberComponent))
+    // assert(!hasComponent(grabbableEntity, NetworkObjectAuthorityTag))
+    assert(!hasComponent(grabbableEntity, GrabbedComponent))
   })
 })
