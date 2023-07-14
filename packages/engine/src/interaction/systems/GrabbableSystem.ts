@@ -357,8 +357,8 @@ const execute = () => {
   }
 }
 
-export const EquippableSystem = defineSystem({
-  uuid: 'ee.engine.EquippableSystem',
+export const GrabbableSystem = defineSystem({
+  uuid: 'ee.engine.GrabbableSystem',
   execute,
   reactor: GrabbableReactor
 })
