@@ -27,9 +27,7 @@ import { Not } from 'bitecs'
 import { useEffect } from 'react'
 import { Quaternion, Vector3 } from 'three'
 
-import { SceneElementsRecord } from '@etherealengine/common/src/interfaces/SceneInterface'
 import { smootheLerpAlpha } from '@etherealengine/common/src/utils/smootheLerpAlpha'
-import ColliderNodeEditor from '@etherealengine/editor/src/components/properties/ColliderNodeEditor'
 import { getMutableState, getState, none } from '@etherealengine/hyperflux'
 
 import { Engine } from '../../ecs/classes/Engine'
@@ -70,16 +68,8 @@ export function teleportObject(entity: Entity, position: Vector3, rotation: Quat
   }
 }
 
-export const PhysicsElements: SceneElementsRecord = {
-  collider: {
-    name: 'Collider',
-    components: [
-      { name: TransformComponent.jsonID },
-      { name: VisibleComponent.jsonID },
-      { name: ColliderComponent.jsonID }
-    ],
-    icon: ColliderNodeEditor.iconComponent
-  }
+export const PhysicsPrefabs = {
+  collider: 'collider' as const
 }
 
 export function smoothPositionBasedKinematicBody(entity: Entity, dt: number, substep: number) {
@@ -239,6 +229,11 @@ const execute = () => {
 
 const reactor = () => {
   useEffect(() => {
+    Engine.instance.scenePrefabRegistry.set(PhysicsPrefabs.collider, [
+      { name: TransformComponent.jsonID },
+      { name: VisibleComponent.jsonID },
+      { name: ColliderComponent.jsonID }
+    ])
     const networkState = getMutableState(NetworkState)
 
     networkState.networkSchema[PhysicsSerialization.ID].set({
@@ -254,6 +249,8 @@ const reactor = () => {
     })
 
     return () => {
+      Engine.instance.scenePrefabRegistry.delete(PhysicsPrefabs.collider)
+
       Engine.instance.physicsWorld.free()
       Engine.instance.physicsWorld = null!
       drainCollisions = null!

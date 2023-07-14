@@ -23,19 +23,13 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { cloneDeep, startCase } from 'lodash'
+import { cloneDeep } from 'lodash'
 import { useEffect } from 'react'
 import React from 'react'
 import { MathUtils } from 'three'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
-import {
-  ComponentJson,
-  EntityJson,
-  ISceneElement,
-  SceneData,
-  SceneJson
-} from '@etherealengine/common/src/interfaces/SceneInterface'
+import { ComponentJson, EntityJson, SceneData, SceneJson } from '@etherealengine/common/src/interfaces/SceneInterface'
 import logger from '@etherealengine/common/src/logger'
 import {
   LocalTransformComponent,
@@ -97,34 +91,26 @@ import { UUIDComponent } from '../components/UUIDComponent'
 import { VisibleComponent } from '../components/VisibleComponent'
 import { getUniqueName } from '../functions/getUniqueName'
 
-export const createNewEditorNode = (entityNode: Entity, element: ISceneElement) => {
-  const components = element.components
+const toCapitalCase = (str: string) =>
+  str
+    .split(' ')
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(' ')
 
-  const name = getUniqueName(entityNode, `New ${startCase(element.name.toLowerCase())}`)
+export const createNewEditorNode = (entityNode: Entity, prefabType: string): void => {
+  const components = Engine.instance.scenePrefabRegistry.get(prefabType)
+  if (!components) return console.warn(`[createNewEditorNode]: ${prefabType} is not a prefab`)
+
+  const name = getUniqueName(entityNode, `New ${toCapitalCase(prefabType)}`)
 
   addEntityNodeChild(entityNode, getState(SceneState).sceneEntity)
   // Clone the defualt values so that it will not be bound to newly created node
   deserializeSceneEntity(entityNode, {
     name,
-    type: element.name.toLowerCase().replace(/\s/, '_'),
+    type: prefabType.toLowerCase().replace(/\s/, '_'),
     components: cloneDeep(components)
   })
 }
-
-// export const createNewEditorNode2 = (entityNode: Entity, prefabType: string): void => {
-//   const components = Engine.instance.scenePrefabRegistry.get(prefabType)
-//   if (!components) return console.warn(`[createNewEditorNode]: ${prefabType} is not a prefab`)
-
-//   const name = getUniqueName(entityNode, `New ${toCapitalCase(prefabType)}`)
-
-//   addEntityNodeChild(entityNode, getState(SceneState).sceneEntity)
-//   // Clone the defualt values so that it will not be bound to newly created node
-//   deserializeSceneEntity(entityNode, {
-//     name,
-//     type: prefabType.toLowerCase().replace(/\s/, '_'),
-//     components: cloneDeep(components)
-//   })
-// }
 
 export const splitLazyLoadedSceneEntities = (json: SceneJson) => {
   const entityLoadQueue = {} as { [uuid: string]: EntityJson }

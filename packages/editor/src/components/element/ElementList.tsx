@@ -29,18 +29,17 @@ import { getEmptyImage } from 'react-dnd-html5-backend'
 import { useTranslation } from 'react-i18next'
 import { Vector2 } from 'three'
 
-import { ISceneElement } from '@etherealengine/common/src/interfaces/SceneInterface'
-import { MediaElements } from '@etherealengine/engine/src/audio/systems/MediaSystem'
+import { MediaPrefabs } from '@etherealengine/engine/src/audio/systems/MediaSystem'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
 import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
 import { getComponent, setComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { createEntity } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
 import { EntityOrObjectUUID, EntityTreeComponent } from '@etherealengine/engine/src/ecs/functions/EntityTree'
-import { PhysicsElements } from '@etherealengine/engine/src/physics/systems/PhysicsSystem'
+import { PhysicsPrefabs } from '@etherealengine/engine/src/physics/systems/PhysicsSystem'
 import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
-import { LightElements } from '@etherealengine/engine/src/scene/systems/LightSystem'
-import { SceneElements } from '@etherealengine/engine/src/scene/systems/SceneObjectUpdateSystem'
+import { LightPrefabs } from '@etherealengine/engine/src/scene/systems/LightSystem'
+import { ScenePrefabs } from '@etherealengine/engine/src/scene/systems/SceneObjectUpdateSystem'
 import { LocalTransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
 import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
 import { NO_PROXY, useState } from '@etherealengine/hyperflux'
@@ -51,6 +50,7 @@ import { IconButton, MenuItem, PopoverPosition, Tooltip, Typography } from '@mui
 
 import { ItemTypes } from '../../constants/AssetTypes'
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
+import { prefabIcons } from '../../functions/PrefabEditors'
 import { getCursorSpawnPosition, getSpawnPositionAtCenter } from '../../functions/screenSpaceFunctions'
 import { SelectionState } from '../../services/SelectionServices'
 import { ContextMenu } from '../layout/ContextMenu'
@@ -65,13 +65,12 @@ export interface PrefabItemType {
 }
 
 const categories = {
-  Files: [SceneElements.model, MediaElements.volumetric, MediaElements.audio, MediaElements.video, SceneElements.image],
-  'Scene Composition': [SceneElements.groundPlane, SceneElements.group, SceneElements.prefab, PhysicsElements.collider],
-  Interaction: [SceneElements.spawnPoint, SceneElements.portal],
-  Lighting: [...Object.values(LightElements)],
-  FX: [SceneElements.particleEmitter],
-  Scripting: [SceneElements.system]
-  // Misc: [] // TODO: add these
+  Files: [ScenePrefabs.model, MediaPrefabs.volumetric, MediaPrefabs.audio, MediaPrefabs.video, ScenePrefabs.image],
+  'Scene Composition': [ScenePrefabs.groundPlane, ScenePrefabs.group, ScenePrefabs.prefab, PhysicsPrefabs.collider],
+  Interaction: [ScenePrefabs.spawnPoint, ScenePrefabs.portal],
+  Lighting: [...Object.values(LightPrefabs)],
+  FX: [ScenePrefabs.particleEmitter],
+  Scripting: [ScenePrefabs.system]
 }
 
 const getPrefabList = () => {
@@ -80,49 +79,76 @@ const getPrefabList = () => {
     result[category] = categories[category].map((prefab) => ({
       type: ItemTypes.Prefab,
       prefabType: prefab,
-      Icon: PlaceholderIcon,
+      Icon: prefabIcons[prefab] || PlaceholderIcon,
       label: prefab
     }))
   }
+  Engine.instance.scenePrefabRegistry.forEach((_, prefabType: string) => {
+    if (Object.entries(categories).every(([_, prefabs]) => !(prefabs as string[]).includes(prefabType))) {
+      !result['Misc'] && (result['Misc'] = [])
+      prefabIcons[prefabType] &&
+        result['Misc'].push({
+          type: ItemTypes.Prefab,
+          prefabType,
+          Icon: prefabIcons[prefabType],
+          label: prefabType
+        })
+    }
+  })
 
   return result
 }
 
 export const addPrefabElement = (item: PrefabItemType, parent = getState(SceneState).sceneEntity, before?: Entity) => {
-  // const newEntity = EditorControlFunctions.createObjectFromPrefab(item.prefabType, parent, before, true)
-  // return newEntity
+  const newEntity = EditorControlFunctions.createObjectFromPrefab(item.prefabType, parent, before, true)
+
+  return newEntity
 }
 
-type ElementListItemType = {
-  item: ISceneElement
-  onClick: (item: ISceneElement) => void
-  onContextMenu: (event: React.MouseEvent<HTMLElement>, item: ISceneElement) => void
+type PrefabListItemType = {
+  item: PrefabItemType
+  onClick: (item: PrefabItemType) => void
+  onContextMenu: (event: React.MouseEvent<HTMLElement>, item: PrefabItemType) => void
 }
 
-/**AssetGridItem used to create grid item view.*/
-function ElementListItem({ item, onClick, onContextMenu }: ElementListItemType) {
+/**
+ * AssetGridItem used to create grid item view.
+ *
+ * @param       {PrefabItemType} item
+ * @param       {Function} onClick
+ * @param       {Function} onContextMenu
+ * @constructor
+ */
+function PrefabListItem({ item, onClick, onContextMenu }: PrefabListItemType) {
   const onClickItem = useCallback(() => {
     onClick?.(item)
   }, [item, onClick])
 
-  // const [_, drag, preview] = useDrag(() => ({ type: item.type, item, multiple: false }))
+  const [_, drag, preview] = useDrag(() => ({ type: item.type, item, multiple: false }))
 
   //showing the object in viewport once it drag and droped
-  // useEffect(() => {
-  //   preview(getEmptyImage(), { captureDraggingState: true })
-  // }, [preview])
+  useEffect(() => {
+    preview(getEmptyImage(), { captureDraggingState: true })
+  }, [preview])
 
   return (
     <div onContextMenu={(event) => onContextMenu(event, item)}>
-      <Tooltip title={item.name} placement="left" disableInteractive>
-        {/* <IconButton className={styles.element} disableRipple ref={drag} onClick={onClickItem}> */}
-        <IconButton className={styles.element} disableRipple onClick={onClickItem}>
-          <item.icon />
+      <Tooltip title={item.label} placement="left" disableInteractive>
+        <IconButton className={styles.element} disableRipple ref={drag} onClick={onClickItem}>
+          <item.Icon />
         </IconButton>
       </Tooltip>
     </div>
   )
 }
+
+/**
+ * Memo
+ * React renders the component and memoizes the result.
+ * Before the next render, if the new props are the same,
+ * React reuses the memoized result skipping the next rendering
+ */
+const MemoAssetGridItem = memo(PrefabListItem)
 
 /**
  * AssetGrid component used to render AssetGridItems.
@@ -140,39 +166,39 @@ export function ElementList() {
     prefabs.set(getPrefabList())
   }, [selectionState.sceneGraphChangeCounter.value])
 
-  // const [{ isDragging }, dropRef] = useDrop({
-  //   accept: [ItemTypes.Prefab],
-  //   collect: (monitor) => ({ isDragging: monitor.getItem() !== null && monitor.canDrop() }),
-  //   drop(item: PrefabItemType, monitor) {
-  //     const node = addPrefabElement(item)
-  //     if (!node) return
+  const [{ isDragging }, dropRef] = useDrop({
+    accept: [ItemTypes.Prefab],
+    collect: (monitor) => ({ isDragging: monitor.getItem() !== null && monitor.canDrop() }),
+    drop(item: PrefabItemType, monitor) {
+      const node = addPrefabElement(item)
+      if (!node) return
 
-  //     const transformComponent = getComponent(node, TransformComponent)
-  //     if (transformComponent) {
-  //       getCursorSpawnPosition(monitor.getClientOffset() as Vector2, transformComponent.position)
-  //       const localTransformComponent = getComponent(node, LocalTransformComponent)
-  //       if (localTransformComponent) {
-  //         localTransformComponent.position.copy(transformComponent.position)
-  //       }
-  //     }
-  //   }
-  // })
+      const transformComponent = getComponent(node, TransformComponent)
+      if (transformComponent) {
+        getCursorSpawnPosition(monitor.getClientOffset() as Vector2, transformComponent.position)
+        const localTransformComponent = getComponent(node, LocalTransformComponent)
+        if (localTransformComponent) {
+          localTransformComponent.position.copy(transformComponent.position)
+        }
+      }
+    }
+  })
 
-  // const placeObject = () => {
-  //   handleClose()
+  const placeObject = () => {
+    handleClose()
 
-  //   const node = addPrefabElement(selectedItem!)
-  //   if (!node) return
+    const node = addPrefabElement(selectedItem!)
+    if (!node) return
 
-  //   const transformComponent = getComponent(node, TransformComponent)
-  //   if (transformComponent) getSpawnPositionAtCenter(transformComponent.position)
-  // }
+    const transformComponent = getComponent(node, TransformComponent)
+    if (transformComponent) getSpawnPositionAtCenter(transformComponent.position)
+  }
 
-  // const placeObjectAtOrigin = () => {
-  //   handleClose()
+  const placeObjectAtOrigin = () => {
+    handleClose()
 
-  //   addPrefabElement(selectedItem!)
-  // }
+    addPrefabElement(selectedItem!)
+  }
 
   const onContextMenu = (event: React.MouseEvent<HTMLDivElement>, item: PrefabItemType) => {
     event.preventDefault()
@@ -195,22 +221,31 @@ export function ElementList() {
   return (
     <>
       <div className={styles.elementListContainer}>
-        {Object.entries(categories).map(([category, items]) => (
+        {Object.entries(prefabs.get(NO_PROXY)).map(([category, items]) => (
           <div className={styles.category} key={category}>
             <Typography variant="subtitle2" className={styles.categoryTitle}>
               {category}
             </Typography>
             {items.map((item) => (
-              <ElementListItem key={item.name} item={item} onClick={() => {}} onContextMenu={() => {}} />
+              <MemoAssetGridItem
+                key={item.prefabType}
+                item={item}
+                onClick={addPrefabElement}
+                onContextMenu={onContextMenu}
+              />
             ))}
           </div>
         ))}
       </div>
-      {/* <div className={styles.elementDropZone} ref={dropRef} style={{ pointerEvents: isDragging ? 'auto' : 'none' }} />
+      <div
+        className={styles.elementDropZone}
+        ref={dropRef}
+        style={{ pointerEvents: isDragging ? 'auto' : 'none' }}
+      ></div>
       <ContextMenu open={open} anchorEl={anchorEl} anchorPosition={anchorPosition} onClose={handleClose}>
         <MenuItem onClick={placeObject}>{t('editor:layout.assetGrid.placeObject')}</MenuItem>
         <MenuItem onClick={placeObjectAtOrigin}>{t('editor:layout.assetGrid.placeObjectAtOrigin')}</MenuItem>
-      </ContextMenu> */}
+      </ContextMenu>
     </>
   )
 }

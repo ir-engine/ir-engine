@@ -23,32 +23,18 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { SceneElementsRecord } from '@etherealengine/common/src/interfaces/SceneInterface'
-import PortalNodeEditor from '@etherealengine/editor/src/components/properties/PortalNodeEditor'
+import { useEffect } from 'react'
+
 import { defineActionQueue, getState } from '@etherealengine/hyperflux'
 
+import { Engine } from '../../ecs/classes/Engine'
 import { EngineActions, EngineState } from '../../ecs/classes/EngineState'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
-import { TransformComponent } from '../../transform/components/TransformComponent'
 import { PortalComponent } from '../components/PortalComponent'
-import { ShadowComponent } from '../components/ShadowComponent'
-import { VisibleComponent } from '../components/VisibleComponent'
 import { revertAvatarToMovingStateFromTeleport } from '../functions/loaders/PortalFunctions'
 import { HyperspacePortalSystem } from './HyperspacePortalSystem'
 import { PortalLoadSystem } from './PortalLoadSystem'
-
-export const PortalElements: SceneElementsRecord = {
-  portal: {
-    name: 'Portal',
-    components: [
-      { name: TransformComponent.jsonID },
-      { name: VisibleComponent.jsonID },
-      { name: ShadowComponent.jsonID },
-      { name: PortalComponent.jsonID }
-    ],
-    icon: PortalNodeEditor.iconComponent
-  }
-}
+import { defaultSpatialComponents, ScenePrefabs } from './SceneObjectUpdateSystem'
 
 const sceneLoadedQueue = defineActionQueue(EngineActions.sceneLoaded.matches)
 
@@ -56,8 +42,23 @@ const execute = () => {
   if (sceneLoadedQueue().length && getState(EngineState).isTeleporting) revertAvatarToMovingStateFromTeleport()
 }
 
+const reactor = () => {
+  useEffect(() => {
+    Engine.instance.scenePrefabRegistry.set(ScenePrefabs.portal, [
+      ...defaultSpatialComponents,
+      { name: PortalComponent.jsonID }
+    ])
+
+    return () => {
+      Engine.instance.scenePrefabRegistry.delete(ScenePrefabs.portal)
+    }
+  }, [])
+  return null
+}
+
 export const PortalSystem = defineSystem({
   uuid: 'ee.engine.PortalSystem',
   execute,
+  reactor,
   subSystems: [PortalLoadSystem, HyperspacePortalSystem]
 })

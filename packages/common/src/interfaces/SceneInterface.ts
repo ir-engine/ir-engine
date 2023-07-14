@@ -53,11 +53,3 @@ export interface SceneMetadata {
 export interface SceneData extends SceneMetadata {
   scene: SceneJson
 }
-
-export interface ISceneElement {
-  name: string
-  components: ComponentJson<any>[]
-  icon?: any
-}
-
-export type SceneElementsRecord = Record<string, ISceneElement>
