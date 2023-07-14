@@ -134,6 +134,7 @@ export default function CompressionPanel({
   return (
     <Menu
       open={openCompress.value}
+      onClose={() => openCompress.set(false)}
       showCloseButton={true}
       header={fileProperties.value.name}
       actions={
