@@ -23,44 +23,29 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { DataTypes, Model, Sequelize } from 'sequelize'
+// For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
+import { resolve } from '@feathersjs/schema'
+import { v4 } from 'uuid'
 
-import { BotCommandInterface } from '@etherealengine/common/src/dbmodels/BotCommand'
+import { BotCommandQuery, BotCommandType } from '@etherealengine/engine/src/schemas/bot/bot-command.schema'
+import type { HookContext } from '@etherealengine/server-core/declarations'
 
-import { Application } from '../../../declarations'
+import { getDateTimeSql } from '../../util/get-datetime-sql'
 
-export default (app: Application) => {
-  const sequelizeClient: Sequelize = app.get('sequelizeClient')
-  const BotCommand = sequelizeClient.define<Model<BotCommandInterface>>(
-    'botCommand',
-    {
-      id: {
-        type: DataTypes.UUID,
-        defaultValue: DataTypes.UUIDV1,
-        allowNull: false,
-        primaryKey: true
-      },
-      name: {
-        type: DataTypes.STRING,
-        allowNull: false,
-        unique: true
-      },
-      description: {
-        type: DataTypes.STRING,
-        allowNull: true
-      }
-    },
-    {
-      hooks: {
-        beforeCount(options: any): void {
-          options.raw = true
-        }
-      }
-    }
-  )
-  ;(BotCommand as any).associate = (models: any): void => {
-    ;(BotCommand as any).belongsTo(models.bot, { foreignKey: 'botId' })
-  }
+export const botCommandResolver = resolve<BotCommandType, HookContext>({})
 
-  return BotCommand
-}
+export const botCommandExternalResolver = resolve<BotCommandType, HookContext>({})
+
+export const botCommandDataResolver = resolve<BotCommandType, HookContext>({
+  id: async () => {
+    return v4()
+  },
+  createdAt: getDateTimeSql,
+  updatedAt: getDateTimeSql
+})
+
+export const botCommandPatchResolver = resolve<BotCommandType, HookContext>({
+  updatedAt: getDateTimeSql
+})
+
+export const botCommandQueryResolver = resolve<BotCommandQuery, HookContext>({})
