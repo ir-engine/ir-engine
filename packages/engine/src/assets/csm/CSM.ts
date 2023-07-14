@@ -288,7 +288,6 @@ export class CSM {
   }
 
   update(): void {
-    if (globalThis.csmHelper.paused) return
     if (this.needsUpdate) {
       for (const light of this.lights) {
         this.updateFrustums()
