@@ -24,81 +24,135 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { RigidBodyType } from '@dimforge/rapier3d-compat'
+import { useEffect } from 'react'
+import React from 'react'
 import { MeshBasicMaterial, Vector3 } from 'three'
 
-import { defineActionQueue, dispatchAction, getState } from '@etherealengine/hyperflux'
+import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
+import {
+  defineAction,
+  defineActionQueue,
+  defineState,
+  dispatchAction,
+  getMutableState,
+  getState,
+  none,
+  useHookstate
+} from '@etherealengine/hyperflux'
 
 import { getHandTarget } from '../../avatar/components/AvatarIKComponents'
 import { getAvatarBoneWorldPosition } from '../../avatar/functions/avatarFunctions'
-import { V_000 } from '../../common/constants/MathConstants'
 import { isClient } from '../../common/functions/getEnvironment'
+import { matches, matchesEntityUUID } from '../../common/functions/MatchesUtils'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineActions, EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import {
-  addComponent,
   defineQuery,
   getComponent,
   hasComponent,
   removeComponent,
-  setComponent
+  setComponent,
+  useComponent
 } from '../../ecs/functions/ComponentFunctions'
-import { entityExists } from '../../ecs/functions/EntityFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { InputSourceComponent } from '../../input/components/InputSourceComponent'
 import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
+import { NetworkTopics } from '../../networking/classes/Network'
+import { NetworkObjectAuthorityTag, NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
 import { Physics } from '../../physics/classes/Physics'
-import {
-  RigidBodyComponent,
-  RigidBodyDynamicTagComponent,
-  RigidBodyKinematicPositionBasedTagComponent
-} from '../../physics/components/RigidBodyComponent'
+import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
 import { CollisionGroups } from '../../physics/enums/CollisionGroups'
-import { ColliderComponent } from '../../scene/components/ColliderComponent'
 import { UUIDComponent } from '../../scene/components/UUIDComponent'
 import { VisibleComponent } from '../../scene/components/VisibleComponent'
-import { LocalTransformComponent, TransformComponent } from '../../transform/components/TransformComponent'
-import { ObjectFitFunctions } from '../../xrui/functions/ObjectFitFunctions'
+import { TransformComponent } from '../../transform/components/TransformComponent'
 import { BoundingBoxComponent } from '../components/BoundingBoxComponents'
 import { EquippableComponent } from '../components/EquippableComponent'
 import { EquippedComponent } from '../components/EquippedComponent'
 import { EquipperComponent } from '../components/EquipperComponent'
-import { changeHand, equipEntity, unequipEntity } from '../functions/equippableFunctions'
 import { createInteractUI } from '../functions/interactUI'
 import { addInteractableUI, InteractableTransitions, removeInteractiveUI } from './InteractiveSystem'
 
-export function setEquippedObjectReceptor(action: ReturnType<typeof WorldNetworkAction.setEquippedObject>) {
-  const equippedEntity = Engine.instance.getNetworkObject(action.object.ownerId, action.object.networkId)!
-  // todo, ensure the user has authority when equipping
-  if (action.equip && action.$from === Engine.instance.userId) {
-    const equipperEntity = Engine.instance.localClientEntity
-    setComponent(equipperEntity, EquipperComponent, { equippedEntity })
-    setComponent(equippedEntity, EquippedComponent, { equipperEntity, attachmentPoint: action.attachmentPoint! })
-  }
-  if (action.equip) {
-    if (hasComponent(equippedEntity, LocalTransformComponent)) {
-      removeComponent(equippedEntity, LocalTransformComponent)
-    }
-    if (hasComponent(equippedEntity, ColliderComponent)) {
-      removeComponent(equippedEntity, ColliderComponent)
-    }
-  }
-  const body = getComponent(equippedEntity, RigidBodyComponent)?.body
-  if (body) {
-    if (action.equip) {
-      Physics.changeRigidbodyType(equippedEntity, RigidBodyType.KinematicPositionBased)
-    } else {
-      Physics.changeRigidbodyType(equippedEntity, RigidBodyType.Dynamic)
-    }
-    for (let i = 0; i < body.numColliders(); i++) {
-      const collider = body.collider(i)
-      let oldCollisionGroups = collider.collisionGroups()
-      oldCollisionGroups ^= CollisionGroups.Default << 16
-      collider.setCollisionGroups(oldCollisionGroups)
-    }
-  }
+export class GrabbableNetworkAction {
+  static setGrabbedObject = defineAction({
+    type: 'ee.engine.equippables.SET_GRABBED_OBJECT',
+    entityUUID: matchesEntityUUID,
+    equip: matches.boolean,
+    attachmentPoint: matches.literals('left', 'right', 'none'),
+    equipperUserId: matchesEntityUUID,
+    $cache: true,
+    $topic: NetworkTopics.world
+  })
 }
+
+export const GrabbableState = defineState({
+  name: 'ee.engine.grabbables.GrabbableState',
+
+  initial: {} as Record<
+    EntityUUID,
+    {
+      attachmentPoint: 'left' | 'right' | 'none'
+      equipperUserId: EntityUUID
+    }
+  >,
+
+  receptors: [
+    [
+      GrabbableNetworkAction.setGrabbedObject,
+      (state, action: typeof GrabbableNetworkAction.setGrabbedObject.matches._TYPE) => {
+        if (action.equip)
+          state[action.entityUUID].set({
+            attachmentPoint: action.attachmentPoint,
+            equipperUserId: action.equipperUserId
+          })
+        else state[action.entityUUID].set(none)
+      }
+    ]
+  ]
+})
+
+const GrabbableReactor = React.memo(({ entityUUID }: { entityUUID: EntityUUID }) => {
+  const state = useHookstate(getMutableState(GrabbableState)[entityUUID])
+  const entity = UUIDComponent.entitiesByUUID[entityUUID]
+  const isAuthority = !!useComponent(entity, NetworkObjectAuthorityTag)
+  const equipperEntity = UUIDComponent.entitiesByUUID[state.equipperUserId.value as EntityUUID]
+  const attachmentPoint = state.attachmentPoint.value
+
+  useEffect(() => {
+    setComponent(equipperEntity, EquipperComponent, { equippedEntity: entity })
+    setComponent(entity, EquippedComponent, {
+      equipperEntity,
+      attachmentPoint
+    })
+
+    const body = getComponent(entity, RigidBodyComponent)?.body
+    if (body) {
+      Physics.changeRigidbodyType(entity, RigidBodyType.KinematicPositionBased)
+      for (let i = 0; i < body.numColliders(); i++) {
+        const collider = body.collider(i)
+        let oldCollisionGroups = collider.collisionGroups()
+        oldCollisionGroups ^= CollisionGroups.Default << 16
+        collider.setCollisionGroups(oldCollisionGroups)
+      }
+    }
+
+    return () => {
+      removeComponent(entity, EquippedComponent)
+      if (body) {
+        Physics.changeRigidbodyType(entity, RigidBodyType.Dynamic)
+        for (let i = 0; i < body.numColliders(); i++) {
+          const collider = body.collider(i)
+          let oldCollisionGroups = collider.collisionGroups()
+          oldCollisionGroups ^= CollisionGroups.Default << 16
+          collider.setCollisionGroups(oldCollisionGroups)
+        }
+      }
+    }
+  }, [isAuthority])
+
+  return null
+})
 
 /** @deprecated @todo - replace with reactor */
 export function transferAuthorityOfObjectReceptor(
@@ -108,11 +162,9 @@ export function transferAuthorityOfObjectReceptor(
   const equippableEntity = Engine.instance.getNetworkObject(action.ownerId, action.networkId)!
   if (hasComponent(equippableEntity, EquippableComponent)) {
     dispatchAction(
-      WorldNetworkAction.setEquippedObject({
-        object: {
-          networkId: action.networkId,
-          ownerId: action.ownerId
-        },
+      GrabbableNetworkAction.setGrabbedObject({
+        entityUUID: getComponent(equippableEntity, UUIDComponent),
+        equipperUserId: action.$from as string as EntityUUID,
         equip: !hasComponent(equippableEntity, EquippedComponent),
         // todo, pass attachment point through actions somehow
         attachmentPoint: 'right'
@@ -127,7 +179,7 @@ export function equipperQueryAll(equipperEntity: Entity) {
   const equippedEntity = equipperComponent.equippedEntity
   if (!equippedEntity) return
 
-  const equippedComponent = getComponent(equipperComponent.equippedEntity, EquippedComponent)
+  const equippedComponent = getComponent(equippedEntity, EquippedComponent)
   const attachmentPoint = equippedComponent.attachmentPoint
 
   const target = getHandTarget(equipperEntity, attachmentPoint ?? 'right')!
@@ -141,7 +193,7 @@ export function equipperQueryAll(equipperEntity: Entity) {
     rigidbodyComponent.body.setRotation(target.rotation, true)
   }
 
-  const equippableTransform = getComponent(equipperComponent.equippedEntity, TransformComponent)
+  const equippableTransform = getComponent(equippedEntity, TransformComponent)
   equippableTransform.position.copy(target.position)
   equippableTransform.rotation.copy(target.rotation)
 }
@@ -195,6 +247,55 @@ export const onEquippableInteractUpdate = (entity: Entity, xrui: ReturnType<type
   })
 }
 
+export const equipEntity = (equipperEntity: Entity, equippedEntity: Entity, attachmentPoint: XRHandedness): void => {
+  const networkComponent = getComponent(equippedEntity, NetworkObjectComponent)
+  if (networkComponent.authorityPeerID === Engine.instance.peerID) {
+    dispatchAction(
+      GrabbableNetworkAction.setGrabbedObject({
+        entityUUID: getComponent(equippedEntity, UUIDComponent),
+        equipperUserId: getComponent(equipperEntity, UUIDComponent),
+        equip: true,
+        attachmentPoint
+      })
+    )
+  } else {
+    dispatchAction(
+      WorldNetworkAction.requestAuthorityOverObject({
+        networkId: networkComponent.networkId,
+        ownerId: networkComponent.ownerId,
+        newAuthority: Engine.instance.peerID,
+        $to: Engine.instance.worldNetwork.peers.get(networkComponent.authorityPeerID)?.userId
+      })
+    )
+  }
+}
+
+export const unequipEntity = (equipperEntity: Entity): void => {
+  const equipperComponent = getComponent(equipperEntity, EquipperComponent)
+  if (!equipperComponent) return
+  const equippedEntity = equipperComponent.equippedEntity!
+  if (!equippedEntity) return
+  const networkComponent = getComponent(equippedEntity, NetworkObjectComponent)
+  if (networkComponent.authorityPeerID === Engine.instance.peerID) {
+    dispatchAction(
+      GrabbableNetworkAction.setGrabbedObject({
+        entityUUID: getComponent(equippedEntity, UUIDComponent),
+        equipperUserId: getComponent(equipperEntity, UUIDComponent),
+        attachmentPoint: 'none',
+        equip: false
+      })
+    )
+  } else {
+    dispatchAction(
+      WorldNetworkAction.transferAuthorityOfObject({
+        networkId: networkComponent.networkId,
+        ownerId: networkComponent.ownerId,
+        newAuthority: networkComponent.authorityPeerID
+      })
+    )
+  }
+}
+
 /**
  * @todo refactor this into i18n and configurable
  */
@@ -202,17 +303,22 @@ export const equippableInteractMessage = 'Grab'
 
 const interactedActionQueue = defineActionQueue(EngineActions.interactedWithObject.matches)
 const transferAuthorityOfObjectQueue = defineActionQueue(WorldNetworkAction.transferAuthorityOfObject.matches)
-const setEquippedObjectQueue = defineActionQueue(WorldNetworkAction.setEquippedObject.matches)
 
 const equipperQuery = defineQuery([EquipperComponent])
-const equipperInputQuery = defineQuery([LocalInputTagComponent, EquipperComponent])
 const equippableQuery = defineQuery([EquippableComponent])
 
-const onKeyU = () => {
-  for (const entity of equipperInputQuery()) {
-    const equipper = getComponent(entity, EquipperComponent)
-    if (!equipper.equippedEntity) return
-    unequipEntity(entity)
+const onUnequip = () => {
+  const equipper = getComponent(Engine.instance.localClientEntity, EquipperComponent)
+  if (!equipper?.equippedEntity) return
+  unequipEntity(Engine.instance.localClientEntity)
+}
+
+const onEquip = (targetEntity: Entity, handedness = 'right' as XRHandedness) => {
+  const equipper = getComponent(Engine.instance.localClientEntity, EquipperComponent)
+  if (equipper?.equippedEntity) {
+    onUnequip()
+  } else {
+    equipEntity(Engine.instance.localClientEntity, targetEntity, handedness)
   }
 }
 
@@ -222,37 +328,15 @@ const execute = () => {
   const nonCapturedInputSource = InputSourceComponent.nonCapturedInputSourceQuery()[0]
   if (nonCapturedInputSource) {
     const inputSource = getComponent(nonCapturedInputSource, InputSourceComponent)
-    if (inputSource.buttons.KeyU?.down) onKeyU()
+    if (inputSource.buttons.KeyU?.down) onUnequip()
+    if (inputSource.buttons.KeyE?.down) onEquip(inputSource.assignedButtonEntity)
   }
 
   for (const action of interactedActionQueue()) {
-    if (
-      action.$from !== Engine.instance.userId ||
-      !action.targetEntity ||
-      !entityExists(action.targetEntity!) ||
-      !hasComponent(action.targetEntity!, EquippableComponent)
-    )
-      continue
-
-    const avatarEntity = Engine.instance.localClientEntity
-
-    const equipperComponent = getComponent(avatarEntity, EquipperComponent)
-    if (equipperComponent?.equippedEntity) {
-      /** @todo - figure better way of swapping hands */
-      // const equippedComponent = getComponent(equipperComponent.equippedEntity, EquippedComponent)
-      // const attachmentPoint = equippedComponent.attachmentPoint
-      // if (attachmentPoint !== action.handedness) {
-      //   changeHand(avatarEntity, action.handedness)
-      // } else {
-      //   drop(entity, inputKey, inputValue)
-      // }
-      unequipEntity(avatarEntity)
-    } else {
-      equipEntity(avatarEntity, action.targetEntity!, 'right')
+    if (action.targetEntity && hasComponent(action.targetEntity, EquippableComponent)) {
+      onEquip(action.targetEntity, action.handedness)
     }
   }
-
-  for (const action of setEquippedObjectQueue()) setEquippedObjectReceptor(action)
 
   for (const action of transferAuthorityOfObjectQueue()) transferAuthorityOfObjectReceptor(action)
 
@@ -275,5 +359,6 @@ const execute = () => {
 
 export const EquippableSystem = defineSystem({
   uuid: 'ee.engine.EquippableSystem',
-  execute
+  execute,
+  reactor: GrabbableReactor
 })

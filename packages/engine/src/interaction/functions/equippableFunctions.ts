@@ -23,73 +23,15 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { dispatchAction } from '@etherealengine/hyperflux'
-
-import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
-import { getComponent, hasComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
-import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
-import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
+import { getComponent } from '../../ecs/functions/ComponentFunctions'
 import { EquippedComponent } from '../components/EquippedComponent'
 import { EquipperComponent } from '../components/EquipperComponent'
-
-export const equipEntity = (equipperEntity: Entity, equippedEntity: Entity, attachmentPoint: XRHandedness): void => {
-  if (!hasComponent(equipperEntity, EquipperComponent) && !hasComponent(equippedEntity, EquippedComponent)) {
-    const networkComponent = getComponent(equippedEntity, NetworkObjectComponent)
-    if (networkComponent.authorityPeerID === Engine.instance.peerID) {
-      dispatchAction(
-        WorldNetworkAction.setEquippedObject({
-          object: {
-            networkId: networkComponent.networkId,
-            ownerId: networkComponent.ownerId
-          },
-          equip: true,
-          attachmentPoint
-        })
-      )
-    } else {
-      dispatchAction(
-        WorldNetworkAction.requestAuthorityOverObject({
-          networkId: networkComponent.networkId,
-          ownerId: networkComponent.ownerId,
-          newAuthority: Engine.instance.peerID,
-          $to: Engine.instance.worldNetwork.peers.get(networkComponent.authorityPeerID)?.userId
-        })
-      )
-    }
-  }
-}
-
-export const unequipEntity = (equipperEntity: Entity): void => {
-  const equipperComponent = getComponent(equipperEntity, EquipperComponent)
-  if (!equipperComponent) return
-  removeComponent(equipperEntity, EquipperComponent)
-  const networkComponent = getComponent(equipperComponent.equippedEntity, NetworkObjectComponent)
-  if (networkComponent.authorityPeerID === Engine.instance.peerID) {
-    dispatchAction(
-      WorldNetworkAction.setEquippedObject({
-        object: {
-          networkId: networkComponent.networkId,
-          ownerId: networkComponent.ownerId
-        },
-        equip: false
-      })
-    )
-  } else {
-    dispatchAction(
-      WorldNetworkAction.transferAuthorityOfObject({
-        networkId: networkComponent.networkId,
-        ownerId: networkComponent.ownerId,
-        newAuthority: networkComponent.authorityPeerID
-      })
-    )
-  }
-}
 
 export const changeHand = (equipperEntity: Entity, attachmentPoint: XRHandedness): void => {
   const equipperComponent = getComponent(equipperEntity, EquipperComponent)
   if (equipperComponent) {
-    const equippedEntity = equipperComponent.equippedEntity
+    const equippedEntity = equipperComponent.equippedEntity!
     const equippedComponent = getComponent(equippedEntity, EquippedComponent)
     equippedComponent.attachmentPoint = attachmentPoint
   } else {

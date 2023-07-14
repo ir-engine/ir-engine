@@ -32,18 +32,19 @@ export const EquipperComponent = defineComponent({
 
   onInit(entity) {
     return {
-      equippedEntity: null! as Entity
+      equippedEntity: null as Entity | null
     }
   },
 
   onSet(entity, component, json) {
     if (!json) return
-
-    if (typeof json.equippedEntity === 'number') component.equippedEntity.set(json.equippedEntity)
+    if (typeof json.equippedEntity === 'number' || json.equippedEntity === null)
+      component.equippedEntity.set(json.equippedEntity)
   },
 
   onRemove(entity, component) {
     const equippedEntity = component.equippedEntity.value
+    if (!equippedEntity) return
     removeComponent(equippedEntity, EquippedComponent)
   }
 })

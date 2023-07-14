@@ -23,10 +23,34 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { defineComponent } from '../../ecs/functions/ComponentFunctions'
+import { useEffect } from 'react'
+
+import { getState } from '@etherealengine/hyperflux'
+
+import { EngineState } from '../../ecs/classes/EngineState'
+import { SceneState } from '../../ecs/classes/Scene'
+import { defineComponent, hasComponent, removeComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
+import { useEntityContext } from '../../ecs/functions/EntityFunctions'
+import { EntityTreeComponent, removeFromEntityTree } from '../../ecs/functions/EntityTree'
+import { ColliderComponent } from '../../scene/components/ColliderComponent'
+import { LocalTransformComponent } from '../../transform/components/TransformComponent'
 
 export const EquippableComponent = defineComponent({
   name: 'EquippableComponent',
   jsonID: 'equippable',
-  toJSON: () => true
+  toJSON: () => true,
+
+  reactor: () => {
+    const entity = useEntityContext()
+
+    /** @todo figure out a better way of disassociating dynamic objects from the scene */
+    useEffect(() => {
+      if (getState(EngineState).isEditor) return
+      removeComponent(entity, LocalTransformComponent)
+      setComponent(entity, EntityTreeComponent, { parentEntity: getState(SceneState).sceneEntity })
+      removeComponent(entity, ColliderComponent)
+    }, [])
+
+    return null
+  }
 })
