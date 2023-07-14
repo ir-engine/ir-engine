@@ -56,7 +56,7 @@ import { isAncestor } from '../../functions/getDetachedObjectsRoots'
 import { EntityNodeEditor } from '../../functions/PrefabEditors'
 import { SelectionState } from '../../services/SelectionServices'
 import useUpload from '../assets/useUpload'
-import { addPrefabElement } from '../element/ElementList'
+import { addSceneComponentElement } from '../element/ElementList'
 import { HeirarchyTreeNodeType } from './HeirarchyTreeWalker'
 import NodeIssuesIcon from './NodeIssuesIcon'
 import styles from './styles.module.scss'
@@ -210,7 +210,7 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
         }
 
         if (item.type === ItemTypes.Prefab) {
-          addPrefabElement(item, parentNode, beforeNode!)
+          addSceneComponentElement(item, parentNode, beforeNode!) // TODO: need to test this
           return
         }
       }

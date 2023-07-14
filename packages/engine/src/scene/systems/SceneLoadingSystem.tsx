@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { cloneDeep } from 'lodash'
+import { cloneDeep, startCase } from 'lodash'
 import { useEffect } from 'react'
 import React from 'react'
 import { MathUtils } from 'three'
@@ -56,8 +56,9 @@ import { EngineActions, EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import { SceneState } from '../../ecs/classes/Scene'
 import {
+  Component,
   ComponentJSONIDMap,
-  ComponentType,
+  ComponentMap,
   defineQuery,
   getAllComponents,
   getComponent,
@@ -72,7 +73,6 @@ import {
   addEntityNodeChild,
   EntityTreeComponent,
   getAllEntitiesInTree,
-  removeEntityNode,
   removeEntityNodeRecursively
 } from '../../ecs/functions/EntityTree'
 import { defineSystem, disableSystems, startSystem, SystemDefinitions } from '../../ecs/functions/SystemFunctions'
@@ -91,23 +91,20 @@ import { UUIDComponent } from '../components/UUIDComponent'
 import { VisibleComponent } from '../components/VisibleComponent'
 import { getUniqueName } from '../functions/getUniqueName'
 
-const toCapitalCase = (str: string) =>
-  str
-    .split(' ')
-    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
-    .join(' ')
-
-export const createNewEditorNode = (entityNode: Entity, prefabType: string): void => {
-  const components = Engine.instance.scenePrefabRegistry.get(prefabType)
-  if (!components) return console.warn(`[createNewEditorNode]: ${prefabType} is not a prefab`)
-
-  const name = getUniqueName(entityNode, `New ${toCapitalCase(prefabType)}`)
+export const createNewEditorNode = (entityNode: Entity, componentName: string): void => {
+  const components = [
+    ComponentMap.get(componentName)!,
+    ComponentMap.get(VisibleComponent.name)!,
+    ComponentMap.get(TransformComponent.name)!
+  ]
+  console.log('debug1 components-->', components)
+  const name = getUniqueName(entityNode, `New ${startCase(componentName.toLowerCase())}`)
 
   addEntityNodeChild(entityNode, getState(SceneState).sceneEntity)
   // Clone the defualt values so that it will not be bound to newly created node
   deserializeSceneEntity(entityNode, {
     name,
-    type: prefabType.toLowerCase().replace(/\s/, '_'),
+    type: componentName.toLowerCase().replace(/\s/, '_'),
     components: cloneDeep(components)
   })
 }

@@ -49,14 +49,16 @@ import {
   ImageConvertDefaultParms,
   ImageConvertParms
 } from '@etherealengine/engine/src/assets/constants/ImageConvertParms'
-import { MediaPrefabs } from '@etherealengine/engine/src/audio/systems/MediaSystem'
-import { ScenePrefabs } from '@etherealengine/engine/src/scene/systems/SceneObjectUpdateSystem'
 import { getMutableState, useHookstate, useState } from '@etherealengine/hyperflux'
 import { addActionReceptor, removeActionReceptor } from '@etherealengine/hyperflux'
 
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import AutorenewIcon from '@mui/icons-material/Autorenew'
 import DownloadIcon from '@mui/icons-material/Download'
+import PhotoSizeSelectActualIcon from '@mui/icons-material/PhotoSizeSelectActual'
+import VideocamIcon from '@mui/icons-material/Videocam'
+import ViewInArIcon from '@mui/icons-material/ViewInAr'
+import VolumeUpIcon from '@mui/icons-material/VolumeUp'
 import Breadcrumbs from '@mui/material/Breadcrumbs'
 import Dialog from '@mui/material/Dialog'
 import DialogTitle from '@mui/material/DialogTitle'
@@ -68,7 +70,6 @@ import TablePagination from '@mui/material/TablePagination'
 import Typography from '@mui/material/Typography'
 
 import { SupportedFileTypes } from '../../constants/AssetTypes'
-import { prefabIcons } from '../../functions/PrefabEditors'
 import { unique } from '../../functions/utils'
 import { ContextMenu } from '../layout/ContextMenu'
 import { ToolButton } from '../toolbar/ToolButton'
@@ -78,32 +79,32 @@ import { FileDataType } from './FileDataType'
 import ImageConvertPanel from './ImageConvertPanel'
 import styles from './styles.module.scss'
 
-export const PrefabFileType = {
-  gltf: ScenePrefabs.model,
-  'gltf-binary': ScenePrefabs.model,
-  glb: ScenePrefabs.model,
-  usdz: ScenePrefabs.model,
-  fbx: ScenePrefabs.model,
-  png: ScenePrefabs.image,
-  jpeg: ScenePrefabs.image,
-  jpg: ScenePrefabs.image,
-  m3u8: MediaPrefabs.video,
-  mp4: MediaPrefabs.video,
-  mpeg: MediaPrefabs.audio,
-  mp3: MediaPrefabs.audio,
-  'model/gltf-binary': ScenePrefabs.model,
-  'model/gltf': ScenePrefabs.model,
-  'model/glb': ScenePrefabs.model,
-  'model/usdz': ScenePrefabs.model,
-  'model/fbx': ScenePrefabs.model,
-  'image/png': ScenePrefabs.image,
-  'image/jpeg': ScenePrefabs.image,
-  'image/jpg': ScenePrefabs.image,
+export const FileIconType = {
+  gltf: ViewInArIcon,
+  'gltf-binary': ViewInArIcon,
+  glb: ViewInArIcon,
+  usdz: ViewInArIcon,
+  fbx: ViewInArIcon,
+  png: PhotoSizeSelectActualIcon,
+  jpeg: PhotoSizeSelectActualIcon,
+  jpg: PhotoSizeSelectActualIcon,
+  m3u8: VideocamIcon,
+  mp4: VideocamIcon,
+  mpeg: VolumeUpIcon,
+  mp3: VolumeUpIcon,
+  'model/gltf-binary': ViewInArIcon,
+  'model/gltf': ViewInArIcon,
+  'model/glb': ViewInArIcon,
+  'model/usdz': ViewInArIcon,
+  'model/fbx': ViewInArIcon,
+  'image/png': PhotoSizeSelectActualIcon,
+  'image/jpeg': PhotoSizeSelectActualIcon,
+  'image/jpg': PhotoSizeSelectActualIcon,
   'application/pdf': null,
-  'application/vnd.apple.mpegurl': MediaPrefabs.video,
-  'video/mp4': MediaPrefabs.video,
-  'audio/mpeg': MediaPrefabs.audio,
-  'audio/mp3': MediaPrefabs.audio
+  'application/vnd.apple.mpegurl': VideocamIcon,
+  'video/mp4': VideocamIcon,
+  'audio/mpeg': VolumeUpIcon,
+  'audio/mp3': VolumeUpIcon
 }
 
 type FileBrowserContentPanelProps = {
@@ -125,7 +126,6 @@ export type FileType = {
   key: string
   name: string
   path: string
-  prefabType: string
   size: string
   type: string
   url: string
@@ -238,7 +238,6 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
     })
 
   const files = fileState.files.value.map((file) => {
-    const prefabType = PrefabFileType[file.type]
     const isFolder = file.type === 'folder'
     const fullName = isFolder ? file.name : file.name + '.' + file.type
 
@@ -247,8 +246,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
       path: isFolder ? file.key.split(file.name)[0] : file.key.split(fullName)[0],
       fullName,
       isFolder,
-      prefabType,
-      Icon: prefabIcons[prefabType]
+      Icon: FileIconType[file.type]
     }
   })
 
