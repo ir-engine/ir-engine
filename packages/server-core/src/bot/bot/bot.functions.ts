@@ -23,15 +23,16 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { AdminBot, BotCommands } from '@etherealengine/common/src/interfaces/AdminBot'
+import { AdminBot } from '@etherealengine/common/src/interfaces/AdminBot'
+import { BotCommandData, botCommandPath } from '@etherealengine/engine/src/schemas/bot/bot-command.schema'
 
 import { Application } from '../../../declarations'
 
-export const createBotCommands = async (app: Application, bot: AdminBot, commands: BotCommands[]) => {
+export const createBotCommands = async (app: Application, bot: AdminBot, commands: BotCommandData[]) => {
   const botId = bot.id
 
   for (let element of commands) {
-    await app.service('bot-command').create({
+    await app.service(botCommandPath).create({
       name: element.name,
       description: element.description,
       botId: botId

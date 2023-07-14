@@ -23,30 +23,39 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Application } from '../../../declarations'
-import { BotCommand } from './bot-command.class'
-import docs from './bot-command.docs'
-import hooks from './Bot-command.hooks'
-import createModel from './bot-command.model'
+import { matches } from '@etherealengine/engine/src/common/functions/MatchesUtils'
+import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
+import { NetworkTopics } from '@etherealengine/engine/src/networking/classes/Network'
+import { defineAction, defineState, none, receiveActions } from '@etherealengine/hyperflux'
 
-declare module '@etherealengine/common/declarations' {
-  interface ServiceTypes {
-    'bot-command': BotCommand
-  }
+export class AvatarUIActions {
+  static setUserTyping = defineAction({
+    type: 'ee.client.avatar.USER_IS_TYPING',
+    typing: matches.boolean,
+    $topic: NetworkTopics.world
+  })
 }
 
-export default (app: Application): void => {
-  const options = {
-    Model: createModel(app),
-    paginate: app.get('paginate'),
-    multi: true
+export const AvatarUIState = defineState({
+  name: 'AvatarUIState',
+
+  initial: {
+    usersTyping: {} as { [key: string]: true }
+  },
+
+  receptors: [
+    [
+      AvatarUIActions.setUserTyping,
+      (state, action) => {
+        state.usersTyping[action.$from].set(action.typing ? true : none)
+      }
+    ]
+  ]
+})
+
+export const AvatarUIStateSystem = defineSystem({
+  uuid: 'ee.engine.avatar.AvatarUIStateSystem',
+  execute: () => {
+    receiveActions(AvatarUIState)
   }
-
-  const event = new BotCommand(options, app)
-  event.docs = docs
-  app.use('bot-command', event)
-
-  const service = app.service('bot-command')
-
-  service.hooks(hooks)
-}
+})

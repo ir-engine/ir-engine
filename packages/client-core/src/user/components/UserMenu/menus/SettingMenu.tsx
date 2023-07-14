@@ -60,7 +60,7 @@ import { UserMenus } from '../../../UserUISystem'
 import styles from '../index.module.scss'
 import { PopupMenuServices } from '../PopupMenuService'
 
-const ShadowMapResolutionOptions = [
+export const ShadowMapResolutionOptions = [
   {
     label: '256px',
     value: 256

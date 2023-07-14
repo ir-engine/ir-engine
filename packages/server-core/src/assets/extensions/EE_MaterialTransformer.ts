@@ -49,6 +49,7 @@ interface IEEMaterial extends IProperty {
   name: string
   prototype: string
   args: EEMaterialArgs
+  plugins: string[]
 }
 
 interface EEMaterialDef {
@@ -56,6 +57,7 @@ interface EEMaterialDef {
   name?: string
   prototype?: string
   args?: Record<string, any>
+  plugins?: string[]
 }
 
 export class EEMaterialArgs extends Property<IEEMaterialArgs> {
@@ -100,7 +102,8 @@ export class EEMaterial extends ExtensionProperty<IEEMaterial> {
       uuid: '',
       name: '',
       prototype: '',
-      args: null
+      args: null,
+      plugins: []
     })
   }
 
@@ -127,6 +130,12 @@ export class EEMaterial extends ExtensionProperty<IEEMaterial> {
   }
   public set args(val) {
     this.setRef('args', val)
+  }
+  public get plugins() {
+    return this.get('plugins')
+  }
+  public set plugins(val: string[]) {
+    this.set('plugins', val)
   }
 }
 
@@ -169,6 +178,9 @@ export class EEMaterialExtension extends Extension {
           })
           eeMaterial.args = processedArgs
         }
+        if (eeDef.plugins) {
+          eeMaterial.plugins = eeDef.plugins
+        }
       }
     })
     return this
@@ -187,7 +199,8 @@ export class EEMaterialExtension extends Extension {
           const extensionDef: EEMaterialDef = {
             uuid: eeMaterial.uuid,
             name: eeMaterial.name,
-            prototype: eeMaterial.prototype
+            prototype: eeMaterial.prototype,
+            plugins: eeMaterial.plugins
           }
           const matArgs = eeMaterial.args
           if (matArgs) {

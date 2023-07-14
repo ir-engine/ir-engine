@@ -53,7 +53,6 @@ export const EngineState = defineState({
     leaveWorld: false,
     socketInstance: false,
     spectating: false,
-    usersTyping: {} as { [key: string]: true },
     avatarLoadingEffect: true,
     /**
      * An empty share link will default to the current URL, plus any modifiers (such as spectate mode)

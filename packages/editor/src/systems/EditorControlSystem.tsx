@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { useEffect } from 'react'
+import React, { useEffect } from 'react'
 import {
   Box3,
   Intersection,
@@ -51,18 +51,21 @@ import {
   hasComponent,
   removeComponent,
   removeQuery,
-  setComponent
+  setComponent,
+  useQuery
 } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
-import { createEntity } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
+import { createEntity, entityExists } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
 import {
   EntityTreeComponent,
   getEntityNodeArrayFromEntities
 } from '@etherealengine/engine/src/ecs/functions/EntityTree'
 import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
+import { InputComponent } from '@etherealengine/engine/src/input/components/InputComponent'
 import { InputSourceComponent } from '@etherealengine/engine/src/input/components/InputSourceComponent'
 import InfiniteGridHelper from '@etherealengine/engine/src/scene/classes/InfiniteGridHelper'
 import { addObjectToGroup, GroupComponent } from '@etherealengine/engine/src/scene/components/GroupComponent'
 import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
+import { SceneObjectComponent } from '@etherealengine/engine/src/scene/components/SceneObjectComponent'
 import { TransformGizmoComponent } from '@etherealengine/engine/src/scene/components/TransformGizmo'
 import { VisibleComponent } from '@etherealengine/engine/src/scene/components/VisibleComponent'
 import {
@@ -427,11 +430,12 @@ const execute = () => {
 
       if (transformSpace === TransformSpace.Local) {
         const localTransform = getComponent(lastSelection as Entity, LocalTransformComponent)
-        gizmoObj.quaternion.copy(localTransform.rotation)
+        if (localTransform) gizmoObj.quaternion.copy(localTransform.rotation)
       } else {
-        gizmoObj.quaternion.copy(
-          'quaternion' in lastSelectedTransform ? lastSelectedTransform.quaternion : lastSelectedTransform.rotation
-        )
+        if (lastSelectedTransform)
+          gizmoObj.quaternion.copy(
+            'quaternion' in lastSelectedTransform ? lastSelectedTransform.quaternion : lastSelectedTransform.rotation
+          )
       }
 
       inverseGizmoQuaternion.copy(gizmoObj.quaternion).invert()
@@ -711,7 +715,20 @@ const execute = () => {
   }
 }
 
+const SceneObjectEntityReactor = (props: { entity: Entity }) => {
+  useEffect(() => {
+    setComponent(props.entity, InputComponent)
+    return () => {
+      removeComponent(props.entity, InputComponent)
+    }
+  }, [])
+
+  return null
+}
+
 const reactor = () => {
+  const sceneObjectEntities = useQuery([SceneObjectComponent])
+
   useEffect(() => {
     // todo figure out how to do these with our input system
     window.addEventListener('copy', copy)
@@ -722,7 +739,14 @@ const reactor = () => {
       window.removeEventListener('paste', paste)
     }
   }, [])
-  return null
+
+  return (
+    <>
+      {sceneObjectEntities.map((entity) => (
+        <SceneObjectEntityReactor key={entity} entity={entity} />
+      ))}
+    </>
+  )
 }
 
 export const EditorControlSystem = defineSystem({

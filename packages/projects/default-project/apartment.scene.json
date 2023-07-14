@@ -337,10 +337,11 @@
         {
           "name": "envmap",
           "props": {
-            "type": "Default",
+            "type": "Bake",
             "envMapTextureType": "Equirectangular",
             "envMapSourceColor": 1193046,
-            "envMapSourceURL": "__$project$__/default-project/apartment-New-EnvMap%20Bake.ktx2",
+            "envMapSourceURL": "",
+            "envMapSourceEntityUUID": "1f374932-e649-4b30-b6e7-de990fdee2a1",
             "envMapIntensity": 1
           }
         }

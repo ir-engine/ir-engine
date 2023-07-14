@@ -23,19 +23,55 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { hooks as schemaHooks } from '@feathersjs/schema'
+import { getValidator } from '@feathersjs/typebox'
 import { disallow, iff, isProvider } from 'feathers-hooks-common'
+
+import {
+  botCommandDataSchema,
+  botCommandPatchSchema,
+  botCommandQuerySchema,
+  botCommandSchema
+} from '@etherealengine/engine/src/schemas/bot/bot-command.schema'
+import { dataValidator, queryValidator } from '@etherealengine/server-core/validators'
 
 import authenticate from '../../hooks/authenticate'
 import verifyScope from '../../hooks/verify-scope'
+import {
+  botCommandDataResolver,
+  botCommandExternalResolver,
+  botCommandPatchResolver,
+  botCommandQueryResolver,
+  botCommandResolver
+} from './bot-command.resolvers'
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const botCommandValidator = getValidator(botCommandSchema, dataValidator)
+const botCommandDataValidator = getValidator(botCommandDataSchema, dataValidator)
+const botCommandPatchValidator = getValidator(botCommandPatchSchema, dataValidator)
+const botCommandQueryValidator = getValidator(botCommandQuerySchema, queryValidator)
 
 export default {
+  around: {
+    all: [schemaHooks.resolveExternal(botCommandExternalResolver), schemaHooks.resolveResult(botCommandResolver)]
+  },
+
   before: {
-    all: [authenticate(), iff(isProvider('external'), verifyScope('admin', 'admin') as any)],
+    all: [
+      authenticate(),
+      iff(isProvider('external'), verifyScope('admin', 'admin')),
+      () => schemaHooks.validateQuery(botCommandQueryValidator),
+      schemaHooks.resolveQuery(botCommandQueryResolver)
+    ],
     find: [],
     get: [],
-    create: [],
+    create: [() => schemaHooks.validateData(botCommandDataValidator), schemaHooks.resolveData(botCommandDataResolver)],
     update: [disallow()],
-    patch: [disallow()],
+    patch: [
+      disallow(),
+      () => schemaHooks.validateData(botCommandPatchValidator),
+      schemaHooks.resolveData(botCommandPatchResolver)
+    ],
     remove: []
   },
 
