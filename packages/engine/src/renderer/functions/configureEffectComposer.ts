@@ -23,7 +23,17 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { BlendFunction, DepthDownsamplingPass, EffectPass, NormalPass, RenderPass, TextureEffect } from 'postprocessing'
+import {
+  BlendFunction,
+  DepthDownsamplingPass,
+  EffectComposer,
+  EffectPass,
+  NormalPass,
+  OutlineEffect,
+  RenderPass,
+  SMAAEffect,
+  TextureEffect
+} from 'postprocessing'
 import { VelocityDepthNormalPass } from 'realism-effects'
 import { NearestFilter, PerspectiveCamera, RGBAFormat, WebGLRenderTarget } from 'three'
 
@@ -32,8 +42,8 @@ import { getState } from '@etherealengine/hyperflux'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
 import { EffectMap, EffectPropsSchema, Effects } from '../../scene/constants/PostProcessing'
-import { RendererState } from '../RendererState'
-import { EngineRenderer, PostProcessingSettingsState } from '../WebGLRendererSystem'
+import { HighlightState } from '../HighlightState'
+import { EffectComposerWithSchema, EngineRenderer, PostProcessingSettingsState } from '../WebGLRendererSystem'
 import { changeRenderMode } from './changeRenderMode'
 
 export const configureEffectComposer = (remove?: boolean, camera: PerspectiveCamera = Engine.instance.camera): void => {
@@ -41,33 +51,42 @@ export const configureEffectComposer = (remove?: boolean, camera: PerspectiveCam
 
   const scene = Engine.instance.scene
 
-  if (!EngineRenderer.instance.renderPass) {
-    // we always want to have at least the render pass enabled
-    const renderPass = new RenderPass(scene, camera)
-    EngineRenderer.instance.effectComposer.addPass(renderPass)
-    EngineRenderer.instance.renderPass = renderPass
-  }
+  EngineRenderer.instance.renderPass = null!
+  EngineRenderer.instance.effectComposer.dispose()
+  const composer = new EffectComposer(EngineRenderer.instance.renderer) as EffectComposerWithSchema
+  EngineRenderer.instance.effectComposer = composer
 
-  for (const pass of EngineRenderer.instance.effectComposer.passes) {
-    if (pass !== EngineRenderer.instance.renderPass) EngineRenderer.instance.effectComposer.removePass(pass)
-  }
+  // we always want to have at least the render pass enabled
+  const renderPass = new RenderPass(scene, camera)
+  EngineRenderer.instance.effectComposer.addPass(renderPass)
+  EngineRenderer.instance.renderPass = renderPass
 
   if (remove) {
     return
   }
 
-  const postProcessingEnabled = getState(RendererState).usePostProcessing
-  if (!postProcessingEnabled && !getState(EngineState).isEditor) return
-
   const postprocessing = getState(PostProcessingSettingsState)
   if (!postprocessing.enabled) return
 
-  const postProcessingEffects = postprocessing.effects as EffectPropsSchema
-
   const effects: any[] = []
-  const effectKeys = EffectMap.keys()
 
-  const composer = EngineRenderer.instance.effectComposer
+  const smaaEffect = new SMAAEffect()
+  composer.SMAAEffect = smaaEffect
+  effects.push(smaaEffect)
+
+  const outlineEffect = new OutlineEffect(scene, camera, getState(HighlightState))
+  composer.HighlightEffect = outlineEffect
+  effects.push(outlineEffect)
+
+  const postprocessingSettings = getState(PostProcessingSettingsState)
+  if (!postprocessingSettings.enabled) {
+    composer.addPass(new EffectPass(camera, ...effects))
+    return
+  }
+
+  const postProcessingEffects = postprocessingSettings.effects as EffectPropsSchema
+
+  const effectKeys = Object.keys(EffectMap)
 
   const normalPass = new NormalPass(scene, camera, {
     renderTarget: new WebGLRenderTarget(1, 1, {
@@ -85,71 +104,68 @@ export const configureEffectComposer = (remove?: boolean, camera: PerspectiveCam
 
   const velocityDepthNormalPass = new VelocityDepthNormalPass(scene, camera)
   let useVelocityDepthNormalPass = false
+  let useDepthDownsamplingPass = false
 
-  for (let key of effectKeys) {
+  for (const key of effectKeys) {
     const effect = postProcessingEffects[key]
 
     if (!effect || !effect.isActive) continue
-    const effectClass = EffectMap.get(key)?.EffectClass
+    const EffectClass = EffectMap[key]
 
-    if (!effectClass) return
+    if (!EffectClass) continue
 
     if (key === Effects.SSAOEffect) {
-      const eff = new effectClass(camera, normalPass.texture, {
+      const eff = new EffectClass(camera, normalPass.texture, {
         ...effect,
         normalDepthBuffer: depthDownsamplingPass.texture
       })
+      useDepthDownsamplingPass = true
       composer[key] = eff
       effects.push(eff)
     } else if (key === Effects.SSREffect) {
-      const eff = new effectClass(scene, camera, effect)
+      const eff = new EffectClass(scene, camera, effect)
       composer[key] = eff
       effects.push(eff)
     } else if (key === Effects.DepthOfFieldEffect) {
-      const eff = new effectClass(camera, effect)
-      composer[key] = eff
-      effects.push(eff)
-    } else if (key === Effects.OutlineEffect) {
-      const eff = new effectClass(scene, camera, effect)
+      const eff = new EffectClass(camera, effect)
       composer[key] = eff
       effects.push(eff)
     } else if (key === Effects.SSGIEffect) {
-      const eff = new effectClass(scene, camera, velocityDepthNormalPass, effect)
+      const eff = new EffectClass(scene, camera, velocityDepthNormalPass, effect)
       useVelocityDepthNormalPass = true
       composer[key] = eff
       effects.push(eff)
     } else if (key === Effects.TRAAEffect) {
       // todo support more than 1 texture
       const textureCount = 1
-      const eff = new effectClass(scene, camera, velocityDepthNormalPass, textureCount, effect)
+      const eff = new EffectClass(scene, camera, velocityDepthNormalPass, textureCount, effect)
       useVelocityDepthNormalPass = true
       composer[key] = eff
       effects.push(eff)
     } else if (key === Effects.MotionBlurEffect) {
-      const eff = new effectClass(velocityDepthNormalPass, effect)
+      const eff = new EffectClass(velocityDepthNormalPass, effect)
       useVelocityDepthNormalPass = true
       composer[key] = eff
       effects.push(eff)
     } else {
-      if (effectClass) {
-        const eff = new effectClass(effect)
-        composer[key] = eff
-        effects.push(eff)
-      }
+      const eff = new EffectClass(effect)
+      composer[key] = eff
+      effects.push(eff)
     }
   }
-
   if (effects.length) {
-    const textureEffect = new TextureEffect({
-      blendFunction: BlendFunction.SKIP,
-      texture: depthDownsamplingPass.texture
-    })
-
     if (useVelocityDepthNormalPass) composer.addPass(velocityDepthNormalPass)
 
-    composer.addPass(depthDownsamplingPass)
-    composer.addPass(new EffectPass(camera, ...effects, textureEffect))
-  }
+    if (useDepthDownsamplingPass) {
+      composer.addPass(depthDownsamplingPass)
+      const textureEffect = new TextureEffect({
+        blendFunction: BlendFunction.SKIP,
+        texture: depthDownsamplingPass.texture
+      })
+      effects.push(textureEffect)
+    }
 
+    composer.addPass(new EffectPass(camera, ...effects))
+  }
   if (getState(EngineState).isEditor) changeRenderMode()
 }

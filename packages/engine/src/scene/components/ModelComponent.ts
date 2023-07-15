@@ -27,7 +27,6 @@ import { useEffect } from 'react'
 import { Mesh, Scene } from 'three'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
-import { StaticResourceInterface } from '@etherealengine/common/src/interfaces/StaticResourceInterface'
 import { getState, none } from '@etherealengine/hyperflux'
 
 import { AssetLoader } from '../../assets/classes/AssetLoader'
@@ -57,12 +56,6 @@ import { SceneAssetPendingTagComponent } from './SceneAssetPendingTagComponent'
 import { SceneObjectComponent } from './SceneObjectComponent'
 import { UUIDComponent } from './UUIDComponent'
 
-export type ModelResource = {
-  src?: string
-  staticResource?: StaticResourceInterface
-  id?: EntityUUID
-}
-
 export const ModelComponent = defineComponent({
   name: 'EE_model',
   jsonID: 'gltf-model',
@@ -70,7 +63,6 @@ export const ModelComponent = defineComponent({
   onInit: (entity) => {
     return {
       src: '',
-      resource: null as ModelResource | null,
       generateBVH: true,
       avoidCameraOcclusion: false,
       scene: null as Scene | null
@@ -80,7 +72,6 @@ export const ModelComponent = defineComponent({
   toJSON: (entity, component) => {
     return {
       src: component.src.value,
-      resource: component.resource.value,
       generateBVH: component.generateBVH.value,
       avoidCameraOcclusion: component.avoidCameraOcclusion.value
     }
@@ -89,10 +80,6 @@ export const ModelComponent = defineComponent({
   onSet: (entity, component, json) => {
     if (!json) return
     if (typeof json.src === 'string' && json.src !== component.src.value) component.src.set(json.src)
-    if (typeof json.resource === 'object') {
-      const resource = json.resource ? (json.resource as ModelResource) : ({ src: json.src } as ModelResource)
-      component.resource.set(resource)
-    }
     if (typeof json.generateBVH === 'boolean' && json.generateBVH !== component.generateBVH.value)
       component.generateBVH.set(json.generateBVH)
 
@@ -120,14 +107,14 @@ function ModelReactor() {
   const modelComponent = useComponent(entity, ModelComponent)
   const groupComponent = useOptionalComponent(entity, GroupComponent)
   const model = modelComponent.value
-  const source = model.resource?.staticResource?.url || model.src
+  const source = model.src
 
   // update src
   useEffect(() => {
     if (source === model.scene?.userData?.src) return
 
     try {
-      if (model.scene && model.scene.userData.src && model.scene.userData.src !== model.src) {
+      if (model.scene)
         try {
           removeMaterialSource({ type: SourceType.MODEL, path: model.scene.userData.src })
         } catch (e) {
@@ -137,7 +124,6 @@ function ModelReactor() {
             throw e
           }
         }
-      }
       if (!model.src) return
 
       const uuid = getComponent(entity, UUIDComponent)
@@ -184,12 +170,6 @@ function ModelReactor() {
     }
   }, [modelComponent.src])
 
-  useEffect(() => {
-    const scene = modelComponent.scene.value
-    if (!scene) return
-    enableObjectLayer(scene, ObjectLayers.Camera, !model.avoidCameraOcclusion && model.generateBVH)
-  }, [modelComponent.avoidCameraOcclusion, modelComponent.scene])
-
   // update scene
   useEffect(() => {
     const scene = modelComponent.scene.get({ noproxy: true })
@@ -204,6 +184,7 @@ function ModelReactor() {
     let active = true
 
     if (model.generateBVH) {
+      enableObjectLayer(scene, ObjectLayers.Camera, false)
       const bvhDone = [] as Promise<void>[]
       scene.traverse((obj: Mesh) => {
         bvhDone.push(generateMeshBVH(obj))
@@ -213,6 +194,7 @@ function ModelReactor() {
         if (!active) return
         const group = getMutableComponent(entity, GroupComponent)
         if (group) group.set([...group.value])
+        enableObjectLayer(scene, ObjectLayers.Camera, !model.avoidCameraOcclusion && model.generateBVH)
       })
     }
 

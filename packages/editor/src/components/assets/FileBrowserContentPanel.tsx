@@ -25,6 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { Downgraded } from '@hookstate/core'
 import React, { useEffect, useRef } from 'react'
+import { useDrop } from 'react-dnd'
 import { useTranslation } from 'react-i18next'
 import { saveAs } from 'save-as'
 
@@ -41,6 +42,7 @@ import { NotificationService } from '@etherealengine/client-core/src/common/serv
 import { uploadToFeathersService } from '@etherealengine/client-core/src/util/upload'
 import config from '@etherealengine/common/src/config'
 import { processFileName } from '@etherealengine/common/src/utils/processFileName'
+import { DndWrapper } from '@etherealengine/editor/src/components/dnd/DndWrapper'
 import { KTX2EncodeArguments } from '@etherealengine/engine/src/assets/constants/CompressionParms'
 import { KTX2EncodeDefaultArguments } from '@etherealengine/engine/src/assets/constants/CompressionParms'
 import {
@@ -65,6 +67,7 @@ import { PopoverPosition } from '@mui/material/Popover'
 import TablePagination from '@mui/material/TablePagination'
 import Typography from '@mui/material/Typography'
 
+import { SupportedFileTypes } from '../../constants/AssetTypes'
 import { prefabIcons } from '../../functions/PrefabEditors'
 import { unique } from '../../functions/utils'
 import { ContextMenu } from '../layout/ContextMenu'
@@ -158,6 +161,55 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
   const contentToDeletePath = useState('')
   const contentToDeleteType = useState('')
 
+  const DropArea = () => {
+    const [{ isFileDropOver }, fileDropRef] = useDrop({
+      accept: [...SupportedFileTypes],
+      drop: (dropItem) => dropItemsOnPanel(dropItem as any),
+      collect: (monitor) => ({ isFileDropOver: monitor.isOver() })
+    })
+
+    return (
+      <div
+        ref={fileDropRef}
+        onContextMenu={handleContextMenu}
+        id="file-browser-panel"
+        className={styles.panelContainer}
+        style={{ border: isFileDropOver ? '3px solid #ccc' : '' }}
+      >
+        <div className={styles.contentContainer}>
+          {unique(files, (file) => file.key).map((file, i) => (
+            <FileBrowserItem
+              key={file.key}
+              contextMenuId={i.toString()}
+              item={file}
+              disableDnD={props.disableDnD}
+              onClick={onSelect}
+              moveContent={moveContent}
+              deleteContent={handleConfirmDelete}
+              currentContent={currentContentRef}
+              setOpenPropertiesModal={openProperties.set}
+              setFileProperties={fileProperties.set}
+              setOpenCompress={openCompress.set}
+              setOpenConvert={openConvert.set}
+              dropItemsOnPanel={dropItemsOnPanel}
+            />
+          ))}
+
+          {total > 0 && fileState.files.value.length < total && (
+            <TablePagination
+              className={styles.pagination}
+              component="div"
+              count={total}
+              page={page}
+              rowsPerPage={FILES_PAGE_LIMIT}
+              rowsPerPageOptions={[]}
+              onPageChange={handlePageChange}
+            />
+          )}
+        </div>
+      </div>
+    )
+  }
   const page = skip / FILES_PAGE_LIMIT
 
   const breadcrumbs = selectedDirectory.value
@@ -330,7 +382,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
     if (isLoading.value) return
     isLoading.set(true)
     openConfirm.set(false)
-    await FileBrowserService.deleteContent(contentToDeletePath, contentToDeleteType)
+    await FileBrowserService.deleteContent(contentToDeletePath.value, contentToDeleteType.value)
     props.onSelectionChanged({ resourceUrl: '', name: '', contentType: '' })
     await onRefreshDirectory()
   }
@@ -405,7 +457,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
     !['projects', 'projects/'].includes(selectedDirectory.value.slice(1))
 
   return (
-    <div className={styles.fileBrowserRoot}>
+    <div id="file-browser-panel" className={styles.fileBrowserRoot}>
       <div style={headGrid}>
         <ToolButton
           tooltip={t('editor:layout.filebrowser.back')}
@@ -447,39 +499,9 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
         />
       )}
 
-      <div onContextMenu={handleContextMenu} id="file-browser-panel" className={styles.panelContainer}>
-        <div className={styles.contentContainer}>
-          {unique(files, (file) => file.key).map((file, i) => (
-            <FileBrowserItem
-              key={file.key}
-              contextMenuId={i.toString()}
-              item={file}
-              disableDnD={props.disableDnD}
-              onClick={onSelect}
-              moveContent={moveContent}
-              deleteContent={handleConfirmDelete}
-              currentContent={currentContentRef}
-              setOpenPropertiesModal={openProperties.set}
-              setFileProperties={fileProperties.set}
-              setOpenCompress={openCompress.set}
-              setOpenConvert={openConvert.set}
-              dropItemsOnPanel={dropItemsOnPanel}
-            />
-          ))}
-
-          {total > 0 && fileState.files.value.length < total && (
-            <TablePagination
-              className={styles.pagination}
-              component="div"
-              count={total}
-              page={page}
-              rowsPerPage={FILES_PAGE_LIMIT}
-              rowsPerPageOptions={[]}
-              onPageChange={handlePageChange}
-            />
-          )}
-        </div>
-      </div>
+      <DndWrapper id="file-browser-panel">
+        <DropArea />
+      </DndWrapper>
 
       <ContextMenu open={open} anchorEl={anchorEl.value} anchorPosition={anchorPosition.value} onClose={handleClose}>
         <MenuItem onClick={createNewFolder}>{t('editor:layout.filebrowser.addNewFolder')}</MenuItem>

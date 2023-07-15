@@ -29,8 +29,10 @@ import i18n from 'i18next'
 
 import config from '@etherealengine/common/src/config'
 import { AvatarInterface } from '@etherealengine/common/src/interfaces/AvatarInterface'
+import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { StaticResourceInterface } from '@etherealengine/common/src/interfaces/StaticResourceInterface'
 import { UserId } from '@etherealengine/common/src/interfaces/UserId'
+import { AvatarNetworkAction } from '@etherealengine/engine/src/avatar/state/AvatarNetworkState'
 import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { WorldNetworkAction } from '@etherealengine/engine/src/networking/functions/WorldNetworkAction'
@@ -76,23 +78,12 @@ export const AvatarService = {
       isPublic
     })
 
-    const uploadResponse = await AvatarService.uploadAvatarModel(
-      model,
-      thumbnail,
-      newAvatar.identifierName,
-      isPublic,
-      newAvatar.id
-    )
+    await AvatarService.uploadAvatarModel(model, thumbnail, newAvatar.identifierName, isPublic, newAvatar.id)
 
     if (!isPublic) {
       const selfUser = getState(AuthState).user
       const userId = selfUser.id!
-      await AvatarService.updateUserAvatarId(
-        userId,
-        newAvatar.id,
-        uploadResponse[0]?.url || '',
-        uploadResponse[1]?.url || ''
-      )
+      await AvatarService.updateUserAvatarId(userId, newAvatar.id)
     }
   },
 
@@ -154,12 +145,7 @@ export const AvatarService = {
     const userAvatarId = authState.user?.avatarId
     if (userAvatarId === avatar.id) {
       const userId = authState.user?.id!
-      await AvatarService.updateUserAvatarId(
-        userId,
-        avatar.id,
-        avatar.modelResource?.url || '',
-        avatar.thumbnailResource?.url || ''
-      )
+      await AvatarService.updateUserAvatarId(userId, avatar.id)
     }
   },
 
@@ -173,14 +159,14 @@ export const AvatarService = {
     return Engine.instance.api.service('static-resource').remove(id)
   },
 
-  async updateUserAvatarId(userId: UserId, avatarId: string, avatarURL: string, thumbnailURL: string) {
+  async updateUserAvatarId(userId: UserId, avatarId: string) {
     const res = await Engine.instance.api.service('user').patch(userId, { avatarId: avatarId })
     // dispatchAlertSuccess(dispatch, 'User Avatar updated');
     dispatchAction(AuthAction.userAvatarIdUpdatedAction({ avatarId: res.avatarId! }))
     dispatchAction(
-      WorldNetworkAction.avatarDetails({
-        avatarDetail: { avatarURL, thumbnailURL },
-        uuid: userId
+      AvatarNetworkAction.setAvatarID({
+        avatarID: avatarId,
+        entityUUID: userId as string as EntityUUID
       })
     )
   },

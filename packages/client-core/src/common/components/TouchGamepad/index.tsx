@@ -59,22 +59,11 @@ const triggerButton = (button: AnyButton, pressed: boolean): void => {
   document.dispatchEvent(event)
 }
 
-const normalizeValues = (val) => {
-  const a = 5
-  const b = -5
-  const maxVal = 50
-  const minVal = -50
-
-  const newValue = (b - a) * ((val - minVal) / (maxVal - minVal)) + a
-
-  return newValue
-}
-
 const handleMove = (e) => {
   const event = new CustomEvent('touchstickmove', {
     detail: {
       stick: 'LeftStick',
-      value: { x: normalizeValues(-e.x), y: normalizeValues(e.y), angleRad: 0 }
+      value: { x: e.x, y: -e.y, angleRad: 0 }
     }
   })
 

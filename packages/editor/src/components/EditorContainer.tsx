@@ -38,6 +38,7 @@ import multiLogger from '@etherealengine/common/src/logger'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
+import { unloadScene } from '@etherealengine/engine/src/ecs/functions/EngineFunctions'
 import { gltfToSceneJson, sceneToGLTF } from '@etherealengine/engine/src/scene/functions/GLTFConversion'
 import { dispatchAction, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
@@ -217,10 +218,16 @@ const EditorContainer = () => {
   const loadScene = async (sceneName: string) => {
     setDialogComponent(<ProgressDialog message={t('editor:loading')} />)
     try {
-      if (!projectName.value) return
+      if (!projectName.value) {
+        setDialogComponent(null)
+        return
+      }
       const project = await getScene(projectName.value, sceneName, false)
 
-      if (!project.scene) return
+      if (!project.scene) {
+        setDialogComponent(null)
+        return
+      }
       loadProjectScene(project)
     } catch (error) {
       logger.error(error)
@@ -280,7 +287,11 @@ const EditorContainer = () => {
   }
 
   const onCloseProject = () => {
-    route('/editor')
+    editorState.sceneModified.set(false)
+    editorState.projectName.set(null)
+    editorState.sceneName.set(null)
+    getMutableState(SceneState).sceneData.set(null)
+    route('/studio')
   }
 
   const onSaveAs = async () => {
@@ -478,13 +489,6 @@ const EditorContainer = () => {
 
   useEffect(() => {
     if (!dockPanelRef.current) return
-
-    dockPanelRef.current.updateTab('viewPanel', {
-      id: 'viewPanel',
-      title: 'Viewport',
-      content: viewPortPanelContent(!sceneLoaded.value)
-    })
-
     const activePanel = sceneLoaded.value ? 'filesPanel' : 'scenePanel'
     dockPanelRef.current.updateTab(activePanel, dockPanelRef.current.find(activePanel) as TabData, true)
   }, [sceneLoaded])
@@ -529,16 +533,17 @@ const EditorContainer = () => {
     ]
   }
 
-  const viewPortPanelContent = useCallback((shouldDisplay) => {
-    return shouldDisplay ? (
+  const ViewPortPanelContent = () => {
+    const sceneLoaded = useHookstate(getMutableState(EngineState)).sceneLoaded.value
+    return sceneLoaded ? (
+      <div />
+    ) : (
       <div className={styles.bgImageBlock}>
         <img src="/static/etherealengine.png" alt="" />
         <h2>{t('editor:selectSceneMsg')}</h2>
       </div>
-    ) : (
-      <div />
     )
-  }, [])
+  }
 
   const toolbarMenu = generateToolbarMenu()
 
@@ -592,7 +597,7 @@ const EditorContainer = () => {
                 {
                   id: 'viewPanel',
                   title: 'Viewport',
-                  content: viewPortPanelContent(true)
+                  content: <ViewPortPanelContent />
                 }
               ],
               size: 1

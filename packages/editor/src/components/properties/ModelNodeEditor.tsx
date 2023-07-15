@@ -49,6 +49,7 @@ import InputGroup from '../inputs/InputGroup'
 import ModelInput from '../inputs/ModelInput'
 import SelectInput from '../inputs/SelectInput'
 import Well from '../layout/Well'
+import LoopAnimationNodeEditor from './LoopAnimationNodeEditor'
 import ModelTransformProperties from './ModelTransformProperties'
 import NodeEditor from './NodeEditor'
 import ScreenshareTargetNodeEditor from './ScreenshareTargetNodeEditor'
@@ -66,21 +67,10 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
   const modelComponent = useComponent(entity, ModelComponent)
   const exporting = useState(false)
 
-  const exportPath = useState(() => modelComponent?.src.value)
-  const exportType = useState(modelComponent?.src.value?.endsWith('.gltf') ? 'gltf' : 'glb')
+  const exportPath = useState(() => modelComponent.src.value)
+  const exportType = useState(modelComponent.src.value.endsWith('.gltf') ? 'gltf' : 'glb')
 
-  if (!modelComponent) return <></>
   const errors = getEntityErrors(props.entity, ModelComponent)
-
-  const loopAnimationComponent = getOptionalComponent(entity, LoopAnimationComponent)
-
-  const animationOptions = useState(() => {
-    const obj3d = modelComponent.value.scene
-    const animations = loopAnimationComponent?.hasAvatarAnimations
-      ? AnimationManager.instance._animations
-      : obj3d?.animations ?? []
-    return [{ label: 'None', value: -1 }, ...animations.map((clip, index) => ({ label: clip.name, value: index }))]
-  })
 
   const onChangeExportPath = useCallback(
     (path: string) => {
@@ -119,13 +109,6 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
     updateProperty(ModelComponent, 'src')(path)
   }, [])
 
-  const onChangePlayingAnimation = (index) => {
-    updateProperties(LoopAnimationComponent, {
-      activeClipIndex: index
-    })
-    getCallback(props.entity, 'xre.play')!()
-  }
-
   return (
     <NodeEditor
       name={t('editor:properties.model.title')}
@@ -133,10 +116,7 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
       {...props}
     >
       <InputGroup name="Model Url" label={t('editor:properties.model.lbl-modelurl')}>
-        <ModelInput
-          value={modelComponent.resource?.value?.staticResource?.url || modelComponent.src?.value}
-          onChange={updateResources}
-        />
+        <ModelInput value={modelComponent.src.value} onChange={updateResources} />
         {errors?.LOADING_ERROR && (
           <div style={{ marginTop: 2, color: '#FF8C00' }}>{t('editor:properties.model.error-url')}</div>
         )}
@@ -151,20 +131,6 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
         <BooleanInput
           value={modelComponent.avoidCameraOcclusion.value}
           onChange={updateProperty(ModelComponent, 'avoidCameraOcclusion')}
-        />
-      </InputGroup>
-      <InputGroup name="Loop Animation" label={t('editor:properties.model.lbl-loopAnimation')}>
-        <SelectInput
-          key={props.entity}
-          options={animationOptions.value}
-          value={loopAnimationComponent?.activeClipIndex}
-          onChange={onChangePlayingAnimation}
-        />
-      </InputGroup>
-      <InputGroup name="Is Avatar" label={t('editor:properties.model.lbl-isAvatar')}>
-        <BooleanInput
-          value={!!loopAnimationComponent?.hasAvatarAnimations}
-          onChange={updateProperty(LoopAnimationComponent, 'hasAvatarAnimations')}
         />
       </InputGroup>
       <ScreenshareTargetNodeEditor entity={props.entity} multiEdit={props.multiEdit} />

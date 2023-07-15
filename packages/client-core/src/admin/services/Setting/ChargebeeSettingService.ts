@@ -26,13 +26,13 @@ Ethereal Engine. All Rights Reserved.
 import { Paginated } from '@feathersjs/feathers'
 
 import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import {
   chargebeeSettingPath,
   ChargebeeSettingType
 } from '@etherealengine/engine/src/schemas/setting/chargebee-setting.schema'
 import { defineAction, defineState, dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 
-import { API } from '../../../API'
 import { NotificationService } from '../../../common/services/NotificationService'
 
 export const AdminChargebeeSettingsState = defineState({
@@ -57,7 +57,7 @@ export const AdminChargebeeReceptors = {
 export const ChargebeeSettingService = {
   fetchChargeBee: async () => {
     try {
-      const chargeBee = (await API.instance.client
+      const chargeBee = (await Engine.instance.api
         .service(chargebeeSettingPath)
         .find()) as Paginated<ChargebeeSettingType>
       dispatchAction(AdminChargebeeSettingActions.chargebeeSettingRetrieved({ chargebeeSetting: chargeBee }))

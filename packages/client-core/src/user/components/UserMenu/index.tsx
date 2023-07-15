@@ -56,7 +56,7 @@ export const UserMenu = () => {
   const { bottomShelfStyle } = useShelfStyles()
 
   return (
-    <div style={{ pointerEvents: 'auto' }}>
+    <div>
       <ClickAwayListener onClickAway={() => PopupMenuServices.showPopupMenu()} mouseEvent="onMouseDown">
         <>
           <section

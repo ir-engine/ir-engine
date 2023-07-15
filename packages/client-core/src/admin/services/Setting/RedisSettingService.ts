@@ -26,10 +26,10 @@ Ethereal Engine. All Rights Reserved.
 import { Paginated } from '@feathersjs/feathers'
 
 import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { redisSettingPath, RedisSettingType } from '@etherealengine/engine/src/schemas/setting/redis-setting.schema'
 import { defineAction, defineState, dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 
-import { API } from '../../../API'
 import { NotificationService } from '../../../common/services/NotificationService'
 
 export const AdminRedisSettingsState = defineState({
@@ -55,7 +55,7 @@ export const RedisSettingReceptors = {
 export const RedisSettingService = {
   fetchRedisSetting: async () => {
     try {
-      const redisSetting = (await API.instance.client.service(redisSettingPath).find()) as Paginated<RedisSettingType>
+      const redisSetting = (await Engine.instance.api.service(redisSettingPath).find()) as Paginated<RedisSettingType>
       dispatchAction(AdminRedisSettingActions.redisSettingRetrieved({ adminRedisSetting: redisSetting }))
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })

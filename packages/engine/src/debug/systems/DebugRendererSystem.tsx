@@ -140,6 +140,8 @@ const execute = () => {
 }
 
 const reactor = () => {
+  const engineRendererSettings = useHookstate(getMutableState(RendererState))
+
   useEffect(() => {
     InfiniteGridHelper.instance = new InfiniteGridHelper()
     Engine.instance.scene.add(InfiniteGridHelper.instance)
@@ -153,6 +155,10 @@ const reactor = () => {
       InfiniteGridHelper.instance = null!
     }
   }, [])
+
+  useEffect(() => {
+    InfiniteGridHelper.instance.setGridHeight(engineRendererSettings.gridHeight.value)
+  }, [engineRendererSettings.gridHeight])
 
   return <GroupQueryReactor GroupChildReactor={DebugGroupChildReactor} />
 }

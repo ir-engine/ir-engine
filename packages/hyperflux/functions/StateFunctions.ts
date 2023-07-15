@@ -23,12 +23,23 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { createState, SetInitialStateAction, State } from '@hookstate/core'
+import { createState, SetInitialStateAction, State, useHookstate } from '@hookstate/core'
+import type { Function, Object, String } from 'ts-toolbelt'
 
 import { DeepReadonly } from '@etherealengine/common/src/DeepReadonly'
 import multiLogger from '@etherealengine/common/src/logger'
+import { resolveObject } from '@etherealengine/common/src/utils/resolveObject'
 import { isClient } from '@etherealengine/engine/src/common/functions/getEnvironment'
 
+import {
+  Action,
+  ActionCreator,
+  ActionQueueDefinition,
+  ActionShape,
+  defineActionQueue,
+  removeActionQueue,
+  ResolvedActionType
+} from './ActionFunctions'
 import { HyperFlux, HyperStore } from './StoreFunctions'
 
 export * from '@hookstate/core'
@@ -37,9 +48,16 @@ const logger = multiLogger.child({ component: 'hyperflux:State' })
 
 export const NO_PROXY = { noproxy: true }
 
+export type StateActionReceptor<S, A extends ActionShape<Action>> = [
+  ActionCreator<A>,
+  (state: State<S>, action: any) => void
+]
+
 export type StateDefinition<S> = {
   name: string
   initial: SetInitialStateAction<S>
+  receptors?: StateActionReceptor<S, any>[]
+  receptorActionQueue?: ActionQueueDefinition
   onCreate?: (store: HyperStore, state: State<S>) => void
 }
 
@@ -70,6 +88,28 @@ export function registerState<S>(StateDefinition: StateDefinition<S>) {
     })
   }))
   if (StateDefinition.onCreate) StateDefinition.onCreate(HyperFlux.store, getMutableState(StateDefinition))
+
+  if (StateDefinition.receptors) {
+    StateDefinition.receptorActionQueue = defineActionQueue(StateDefinition.receptors.map((r) => r[0].matches as any))
+    HyperFlux.store.getCurrentReactorRoot()?.cleanupFunctions.add(() => {
+      removeActionQueue(StateDefinition.receptorActionQueue!)
+    })
+  }
+}
+
+export function receiveActions<S>(StateDefinition: StateDefinition<S>) {
+  if (!StateDefinition.receptors) throw new Error(`State ${StateDefinition.name} has no receptors.`)
+  const store = HyperFlux.store
+  if (!store.stateMap[StateDefinition.name]) registerState(StateDefinition)
+  const actions = StateDefinition.receptorActionQueue?.() // TODO: should probably put the receptor query in the store, not the state definition
+  if (!actions) return
+  const state = store.stateMap[StateDefinition.name] as State<S>
+  for (const a of actions) {
+    // TODO: implement state snapshots, rewind / replay when receiving actions out of order, etc.
+    for (const receptor of StateDefinition.receptors) {
+      receptor[0].matches.test(a) && receptor[1](state, a)
+    }
+  }
 }
 
 export function getMutableState<S>(StateDefinition: StateDefinition<S>) {
@@ -80,6 +120,20 @@ export function getMutableState<S>(StateDefinition: StateDefinition<S>) {
 export function getState<S>(StateDefinition: StateDefinition<S>) {
   if (!HyperFlux.store.stateMap[StateDefinition.name]) registerState(StateDefinition)
   return HyperFlux.store.valueMap[StateDefinition.name] as DeepReadonly<S>
+}
+
+export function useMutableState<S, P extends string>(StateDefinition: StateDefinition<S>): State<S>
+export function useMutableState<S, P extends string>(
+  StateDefinition: StateDefinition<S>,
+  path: Function.AutoPath<State<S>, P>
+): Object.Path<State<S>, String.Split<P, '.'>>
+export function useMutableState<S, P extends string>(
+  StateDefinition: StateDefinition<S>,
+  path?: Function.AutoPath<State<S>, P>
+): Object.Path<State<S>, String.Split<P, '.'>> {
+  const rootState = getMutableState(StateDefinition)
+  const resolvedState = path ? resolveObject(rootState, path as any) : rootState
+  return useHookstate(resolvedState) as any
 }
 
 const stateNamespaceKey = 'ee.hyperflux'

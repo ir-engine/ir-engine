@@ -100,6 +100,7 @@ export function setEquippedObjectReceptor(action: ReturnType<typeof WorldNetwork
   }
 }
 
+/** @deprecated @todo - replace with reactor */
 export function transferAuthorityOfObjectReceptor(
   action: ReturnType<typeof WorldNetworkAction.transferAuthorityOfObject>
 ) {

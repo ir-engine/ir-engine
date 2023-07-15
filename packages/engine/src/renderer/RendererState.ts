@@ -43,7 +43,8 @@ export const RendererState = defineState({
     nodeHelperVisibility: false,
     gridVisibility: false,
     gridHeight: 0,
-    forceBasicMaterials: false
+    forceBasicMaterials: false,
+    shadowMapResolution: 256
   }),
   onCreate: (store, state) => {
     syncStateWithLocalStorage(RendererState, [

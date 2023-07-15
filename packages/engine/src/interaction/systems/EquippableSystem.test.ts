@@ -26,11 +26,14 @@ Ethereal Engine. All Rights Reserved.
 import assert, { strictEqual } from 'assert'
 import { Quaternion, Vector3 } from 'three'
 
+import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { NetworkId } from '@etherealengine/common/src/interfaces/NetworkId'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
+import { applyIncomingActions, dispatchAction, receiveActions } from '@etherealengine/hyperflux'
 
 import { getHandTarget } from '../../avatar/components/AvatarIKComponents'
 import { spawnAvatarReceptor } from '../../avatar/functions/spawnAvatarReceptor'
+import { AvatarNetworkAction } from '../../avatar/state/AvatarNetworkState'
 import { destroyEngine, Engine } from '../../ecs/classes/Engine'
 import {
   addComponent,
@@ -42,7 +45,7 @@ import {
 import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { createEngine } from '../../initializeEngine'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
-import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
+import { EntityNetworkState } from '../../networking/state/EntityNetworkState'
 import { Physics } from '../../physics/classes/Physics'
 import { setTransformComponent, TransformComponent } from '../../transform/components/TransformComponent'
 import { EquippedComponent } from '../components/EquippedComponent'
@@ -55,6 +58,7 @@ describe.skip('EquippableSystem Integration Tests', () => {
   beforeEach(async () => {
     createEngine()
     await Physics.load()
+    Engine.instance.store.defaultDispatchDelay = () => 0
     Engine.instance.physicsWorld = Physics.createWorld()
   })
 
@@ -73,15 +77,19 @@ describe.skip('EquippableSystem Integration Tests', () => {
     })
     const networkObject = getComponent(player, NetworkObjectComponent)
 
-    spawnAvatarReceptor(
-      WorldNetworkAction.spawnAvatar({
+    dispatchAction(
+      AvatarNetworkAction.spawn({
         $from: Engine.instance.userId,
         networkId: networkObject.networkId,
         position: new Vector3(-0.48624888685311896, 0, -0.12087574159728942),
         rotation: new Quaternion(),
-        uuid: Engine.instance.userId
+        entityUUID: Engine.instance.userId as string as EntityUUID
       })
     )
+    applyIncomingActions()
+    receiveActions(EntityNetworkState)
+
+    spawnAvatarReceptor(Engine.instance.userId as string as EntityUUID)
 
     addComponent(item, EquippedComponent, {
       equipperEntity: player,

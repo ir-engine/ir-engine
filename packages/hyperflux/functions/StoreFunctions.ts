@@ -78,7 +78,7 @@ export interface HyperStore {
   valueMap: { [type: string]: any }
 
   actions: {
-    queueDefinitions: Map<Validator<any, any>, Array<ActionQueueDefinition>>
+    queueDefinitions: Map<string, Array<ActionQueueDefinition>>
     /** */
     queues: Map<ActionQueueDefinition, Array<ResolvedActionType>>
     /** Cached actions */
@@ -86,7 +86,7 @@ export interface HyperStore {
     /** Incoming actions */
     incoming: Array<Required<ResolvedActionType>>
     /** All actions that have been applied, in the order they were processed */
-    history: Array<Required<ResolvedActionType>>
+    history: Array<ResolvedActionType>
     /** All action UUIDs that have been processed and should not be processed again */
     knownUUIDs: Set<string>
     /** Outgoing actions */
@@ -137,7 +137,7 @@ export function createHyperStore(options: {
       queues: new Map(),
       cached: [],
       incoming: [],
-      history: new Array(),
+      history: [],
       knownUUIDs: new Set(),
       outgoing: {}
     },

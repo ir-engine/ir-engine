@@ -4,9 +4,12 @@
   "description": "",
   "main": "",
   "etherealEngine": {
-    "version": "1.3.0"
+    "version": "1.4.0"
   },
-  "scripts": {},
+  "scripts": {
+    "check-errors": "tsc --noemit",
+    "test": "mocha --config .mocharc.js"
+  },
   "dependencies": {},
   "peerDependencies": {},
   "license": "ISC"

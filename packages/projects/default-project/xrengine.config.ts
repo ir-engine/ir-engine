@@ -44,9 +44,6 @@ const config: ProjectConfigInterface = {
     '/auth': {
       component: () => import('@etherealengine/client/src/pages/auth/authRoutes')
     },
-    '/editor': {
-      component: () => import('@etherealengine/client/src/pages/editor/editor')
-    },
     '/studio': {
       component: () => import('@etherealengine/client/src/pages/editor/editor')
     },
