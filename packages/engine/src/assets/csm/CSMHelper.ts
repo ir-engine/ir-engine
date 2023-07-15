@@ -1,3 +1,28 @@
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
 import {
   Box3,
   Box3Helper,
@@ -14,7 +39,7 @@ import {
   PlaneGeometry
 } from 'three'
 
-import type { CSM } from './CSM'
+import { CSM } from './CSM'
 
 class CSMHelper extends Group {
   private readonly csm: CSM
@@ -25,10 +50,12 @@ class CSMHelper extends Group {
   private cascadeLines: Box3Helper[] = []
   private cascadePlanes: Mesh[] = []
   private shadowLines: Group[] = []
+  paused = false
 
   public constructor(csm: CSM) {
     super()
     this.csm = csm
+    globalThis.csmHelper = this
 
     const indices = new Uint16Array([0, 1, 1, 2, 2, 3, 3, 0, 4, 5, 5, 6, 6, 7, 7, 4, 0, 4, 1, 5, 2, 6, 3, 7])
     const positions = new Float32Array(24)
@@ -64,6 +91,8 @@ class CSMHelper extends Group {
   }
 
   public update() {
+    if (this.paused) return
+
     const csm = this.csm
     const camera = csm.camera
     const cascades = csm.cascades
@@ -85,9 +114,9 @@ class CSMHelper extends Group {
     this.updateMatrixWorld(true)
 
     while (cascadeLines.length > cascades) {
-      this.remove(cascadeLines.pop() as any)
-      this.remove(cascadePlanes.pop() as any)
-      this.remove(shadowLines.pop() as any)
+      this.remove(cascadeLines.pop()!)
+      this.remove(cascadePlanes.pop()!)
+      this.remove(shadowLines.pop()!)
     }
 
     while (cascadeLines.length < cascades) {

@@ -1,11 +1,38 @@
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
 import { Paginated } from '@feathersjs/feathers'
 import axios from 'axios'
 import i18n from 'i18next'
 
 import config from '@etherealengine/common/src/config'
 import { AvatarInterface } from '@etherealengine/common/src/interfaces/AvatarInterface'
+import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { StaticResourceInterface } from '@etherealengine/common/src/interfaces/StaticResourceInterface'
 import { UserId } from '@etherealengine/common/src/interfaces/UserId'
+import { AvatarNetworkAction } from '@etherealengine/engine/src/avatar/state/AvatarNetworkState'
 import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { WorldNetworkAction } from '@etherealengine/engine/src/networking/functions/WorldNetworkAction'
@@ -45,29 +72,18 @@ export const AvatarServiceReceptor = (action) => {
 }
 
 export const AvatarService = {
-  async createAvatar(model: Blob, thumbnail: Blob, avatarName: string, isPublic: boolean) {
+  async createAvatar(model: File, thumbnail: File, avatarName: string, isPublic: boolean) {
     const newAvatar = await Engine.instance.api.service('avatar').create({
       name: avatarName,
       isPublic
     })
 
-    const uploadResponse = await AvatarService.uploadAvatarModel(
-      model,
-      thumbnail,
-      newAvatar.identifierName,
-      isPublic,
-      newAvatar.id
-    )
+    await AvatarService.uploadAvatarModel(model, thumbnail, newAvatar.identifierName, isPublic, newAvatar.id)
 
     if (!isPublic) {
       const selfUser = getState(AuthState).user
       const userId = selfUser.id!
-      await AvatarService.updateUserAvatarId(
-        userId,
-        newAvatar.id,
-        uploadResponse[0]?.LOD0_url || '',
-        uploadResponse[1]?.LOD0_url || ''
-      )
+      await AvatarService.updateUserAvatarId(userId, newAvatar.id)
     }
   },
 
@@ -91,8 +107,8 @@ export const AvatarService = {
     originalAvatar: AvatarInterface,
     avatarName: string,
     updateModels: boolean,
-    avatarBlob?: Blob,
-    thumbnailBlob?: Blob
+    avatarFile?: File,
+    thumbnailFile?: File
   ) {
     let payload = {
       modelResourceId: originalAvatar.modelResourceId,
@@ -100,10 +116,10 @@ export const AvatarService = {
       name: avatarName
     }
 
-    if (updateModels && avatarBlob && thumbnailBlob) {
+    if (updateModels && avatarFile && thumbnailFile) {
       const uploadResponse = await AvatarService.uploadAvatarModel(
-        avatarBlob,
-        thumbnailBlob,
+        avatarFile,
+        thumbnailFile,
         avatarName + '_' + originalAvatar.id,
         originalAvatar.isPublic,
         originalAvatar.id
@@ -129,12 +145,7 @@ export const AvatarService = {
     const userAvatarId = authState.user?.avatarId
     if (userAvatarId === avatar.id) {
       const userId = authState.user?.id!
-      await AvatarService.updateUserAvatarId(
-        userId,
-        avatar.id,
-        avatar.modelResource?.LOD0_url || '',
-        avatar.thumbnailResource?.LOD0_url || ''
-      )
+      await AvatarService.updateUserAvatarId(userId, avatar.id)
     }
   },
 
@@ -148,14 +159,14 @@ export const AvatarService = {
     return Engine.instance.api.service('static-resource').remove(id)
   },
 
-  async updateUserAvatarId(userId: UserId, avatarId: string, avatarURL: string, thumbnailURL: string) {
+  async updateUserAvatarId(userId: UserId, avatarId: string) {
     const res = await Engine.instance.api.service('user').patch(userId, { avatarId: avatarId })
     // dispatchAlertSuccess(dispatch, 'User Avatar updated');
     dispatchAction(AuthAction.userAvatarIdUpdatedAction({ avatarId: res.avatarId! }))
     dispatchAction(
-      WorldNetworkAction.avatarDetails({
-        avatarDetail: { avatarURL, thumbnailURL },
-        uuid: userId
+      AvatarNetworkAction.setAvatarID({
+        avatarID: avatarId,
+        entityUUID: userId as string as EntityUUID
       })
     )
   },
@@ -179,7 +190,7 @@ export const AvatarService = {
     dispatchAction(AuthAction.avatarUpdatedAction({ url: result.url }))
   },
 
-  async uploadAvatarModel(avatar: Blob, thumbnail: Blob, avatarName: string, isPublic: boolean, avatarId?: string) {
+  async uploadAvatarModel(avatar: File, thumbnail: File, avatarName: string, isPublic: boolean, avatarId?: string) {
     return uploadToFeathersService('upload-asset', [avatar, thumbnail], {
       type: 'user-avatar-upload',
       args: {

@@ -1,3 +1,28 @@
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
 import { Quaternion, Vector3 } from 'three'
 import matches from 'ts-matches'
 
@@ -5,10 +30,11 @@ import { defineAction, defineState, getState, syncStateWithLocalStorage } from '
 
 import { AvatarInputSettingsState } from '../avatar/state/AvatarInputSettingsState'
 import { Entity } from '../ecs/classes/Entity'
+import { defineQuery, getComponent } from '../ecs/functions/ComponentFunctions'
+import { InputSourceComponent } from '../input/components/InputSourceComponent'
 import { NetworkTopics } from '../networking/classes/Network'
 import { WorldNetworkAction } from '../networking/functions/WorldNetworkAction'
 import { DepthDataTexture } from './DepthDataTexture'
-import { XREstimatedLight } from './XREstimatedLight'
 
 // TODO: divide this up into the systems that manage these states
 export const XRState = defineState({
@@ -35,8 +61,6 @@ export const XRState = defineState({
       /** Stores the depth map data - will exist if depth map is supported */
       depthDataTexture: null as DepthDataTexture | null,
       is8thWallActive: false,
-      isEstimatingLight: false,
-      lightEstimator: null! as XREstimatedLight,
       viewerInputSourceEntity: 0 as Entity,
       viewerPose: null as XRViewerPose | null | undefined,
       userEyeLevel: 1.8,
@@ -70,15 +94,6 @@ export const ReferenceSpace = {
 globalThis.ReferenceSpace = ReferenceSpace
 
 export class XRAction {
-  static requestSession = defineAction({
-    type: 'xre.xr.requestSession' as const,
-    mode: matches.literals('inline', 'immersive-ar', 'immersive-vr').optional()
-  })
-
-  static endSession = defineAction({
-    type: 'xre.xr.endSession' as const
-  })
-
   static sessionChanged = defineAction({
     type: 'xre.xr.sessionChanged' as const,
     active: matches.boolean,
@@ -128,19 +143,23 @@ export const hasMovementControls = () => {
   return sessionMode === 'immersive-ar' ? sceneScale !== 1 : true
 }
 
+const inputSourceQuery = defineQuery([InputSourceComponent])
+
 /**
  * Gets the preferred controller entity - will return null if the entity is not in an active session or the controller is not available
  * @param {boolean} offhand specifies to return the non-preferred hand instead
  * @returns {Entity}
  */
-export const getPreferredInputSource = (inputSources: readonly XRInputSource[], offhand = false) => {
+export const getPreferredInputSource = (offhand = false) => {
   const xrState = getState(XRState)
   if (!xrState.sessionActive) return
   const avatarInputSettings = getState(AvatarInputSettingsState)
-  for (const inputSource of inputSources) {
-    if (inputSource.handedness === 'none') continue
-    if (!offhand && avatarInputSettings.preferredHand == inputSource.handedness) return inputSource
-    if (offhand && avatarInputSettings.preferredHand !== inputSource.handedness) return inputSource
+  for (const inputSourceEntity of inputSourceQuery()) {
+    const inputSourceComponent = getComponent(inputSourceEntity, InputSourceComponent)
+    const source = inputSourceComponent.source
+    if (source.handedness === 'none') continue
+    if (!offhand && avatarInputSettings.preferredHand == source.handedness) return source
+    if (offhand && avatarInputSettings.preferredHand !== source.handedness) return source
   }
 }
 

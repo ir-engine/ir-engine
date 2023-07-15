@@ -1,3 +1,28 @@
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
 import { Matrix4, Object3D, Quaternion, Vector3 } from 'three'
 
 const _v1 = new Vector3()
@@ -147,6 +172,30 @@ export class Object3DUtils {
     for (let i = 0, l = children.length; i < l; i++) {
       if (Object3DUtils.traverse(children[i], callback)) return true
     }
+  }
+
+  static traverseAncestors(object: Object3D, callback) {
+    if (!object) return false
+
+    if (callback(object)) return true
+    const parent = object.parent
+
+    if (parent) {
+      if (Object3DUtils.traverseAncestors(parent, callback)) return true
+    }
+  }
+
+  static findAncestor(object: Object3D, callback) {
+    if (!object) return null
+
+    if (callback(object)) return object
+    const parent = object.parent
+
+    if (parent) {
+      return Object3DUtils.findAncestor(parent, callback)
+    }
+
+    return null
   }
 
   /**

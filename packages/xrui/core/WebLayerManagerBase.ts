@@ -1,3 +1,28 @@
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
 import Dexie, { Table } from 'dexie'
 import { compress, decompress } from 'fflate'
 import { Packr, Unpackr } from 'msgpackr'
@@ -129,8 +154,20 @@ export class WebLayerManagerBase {
 
   store: LayerStore
 
-  serializeQueue = [] as { layer: WebLayer; resolve: (val: any) => void; promise: any }[]
-  rasterizeQueue = [] as { hash: StateHash; svgUrl: string; resolve: (val: any) => void; promise: any }[]
+  serializeQueue = [] as {
+    layer: WebLayer
+    // element?: HTMLElement;
+    resolve: (val: any) => void
+    promise: any
+  }[]
+  rasterizeQueue = [] as {
+    hash: StateHash
+    svgUrl: string
+    // layer?: WebLayer
+    // char?: string
+    resolve: (val: any) => void
+    promise: any
+  }[]
   optimizeQueue = [] as { textureHash: TextureHash; resolve: (val: any) => void; promise: any }[]
 
   ktx2Encoder = new KTX2Encoder()
@@ -423,6 +460,7 @@ export class WebLayerManagerBase {
   async serialize(layer: WebLayer) {
     this.updateDOMMetrics(layer)
     const layerElement = layer.element as HTMLElement
+    // if (element) layerElement.textContent = element.textContent
     const metrics = layer.domMetrics
 
     const { top, left, width, height } = metrics.bounds
@@ -576,11 +614,12 @@ export class WebLayerManagerBase {
       return
     }
 
+    // if (layer && char) {
+    //   layer.prerasterizedImages.set(char, stateData.texture.hash)
+    // }
+
     // in case the svg image wasn't finished loading, we should try again a few times
-    setTimeout(
-      () => this.addToRasterizeQueue(stateHash, svgUrl),
-      ((500 + Math.random() * 1000) * 2) ^ stateData.renderAttempts
-    )
+    setTimeout(() => this.addToRasterizeQueue(stateHash, svgUrl), ((500 + 0.1 * 1000) * 2) ^ stateData.renderAttempts)
 
     if (stateData.texture.canvas) return
 
@@ -598,6 +637,8 @@ export class WebLayerManagerBase {
       this._imagePool.push(svgImage)
     }
   }
+
+  prerasterized = false
 
   async rasterizeToCanvas(
     svgImage: HTMLImageElement,

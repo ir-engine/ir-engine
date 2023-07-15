@@ -1,3 +1,29 @@
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
+import { debounce } from 'lodash'
 import { BlendFunction } from 'postprocessing'
 import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -36,29 +62,9 @@ enum PropertyTypes {
 
 type EffectPropertyDetail = { propertyType: PropertyTypes; name: string; min?: number; max?: number; step?: number }
 type EffectPropertiesType = { [key: string]: EffectPropertyDetail }
-type EffectOptionsType = { [key in Effects]: EffectPropertiesType }
+type EffectOptionsType = { [key in keyof typeof Effects]: EffectPropertiesType }
 
 const EffectsOptions: EffectOptionsType = {
-  // FXAAEffect: {
-  //   blendFunction: { propertyType: PropertyTypes.BlendFunction, name: 'Blend Function' }
-  // },
-  SMAAEffect: {
-    blendFunction: { propertyType: PropertyTypes.BlendFunction, name: 'Blend Function' },
-    preset: { propertyType: PropertyTypes.SMAAPreset, name: 'Preset' },
-    edgeDetectionMode: { propertyType: PropertyTypes.EdgeDetectionMode, name: 'Edge Detection Mode' },
-    predicationMode: { propertyType: PropertyTypes.PredicationMode, name: 'Predication Mode' }
-  },
-  OutlineEffect: {
-    blendFunction: { propertyType: PropertyTypes.BlendFunction, name: 'Blend Function' },
-    edgeStrength: { propertyType: PropertyTypes.Number, name: 'Edge Strength', min: -1, max: 1, step: 0.01 },
-    pulseSpeed: { propertyType: PropertyTypes.Number, name: 'Pulse Speed', min: -1, max: 1, step: 0.01 },
-    visibleEdgeColor: { propertyType: PropertyTypes.Color, name: 'Visible Edge Color' },
-    hiddenEdgeColor: { propertyType: PropertyTypes.Color, name: 'Hidden Edge Color' },
-    resolutionScale: { propertyType: PropertyTypes.Number, name: 'Resolution Scale', min: -1, max: 1, step: 0.01 },
-    kernelSize: { propertyType: PropertyTypes.KernelSize, name: 'Kernel Size' },
-    blur: { propertyType: PropertyTypes.Boolean, name: 'Blur' },
-    xRay: { propertyType: PropertyTypes.Boolean, name: 'XRay' }
-  },
   SSAOEffect: {
     blendFunction: { propertyType: PropertyTypes.BlendFunction, name: 'Blend Function' },
     distanceScaling: { propertyType: PropertyTypes.Boolean, name: 'Distance Scaling' },
@@ -230,6 +236,10 @@ const PredicationMode = [
   { label: 'CUSTOM', value: 2 }
 ]
 
+const debouncedConfigureEffectComposer = debounce(() => {
+  configureEffectComposer()
+}, 200)
+
 export const PostProcessingSettingsEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
 
@@ -250,11 +260,12 @@ export const PostProcessingSettingsEditor: EditorComponentType = (props) => {
     return value
   }
 
+  // trigger re-render - @todo find out why just setting the value doesn't trigger the reactor
+  // action: debounced the set property value
+
   const setPropertyValue = (prop, val) => {
     prop.set(val)
-
-    // trigger re-render - @todo find out why just setting the value doesnt trigger the reactor
-    configureEffectComposer()
+    debouncedConfigureEffectComposer()
   }
 
   const renderProperty = (propertyDetail: EffectPropertyDetail, propertyPath: string[], index: number) => {
@@ -360,13 +371,13 @@ export const PostProcessingSettingsEditor: EditorComponentType = (props) => {
     )
   }
 
-  const renderEffectsTypes = (effectName: Effects) => {
+  const renderEffectsTypes = (effectName: keyof typeof Effects) => {
     const effect = EffectsOptions[effectName]
     return Object.keys(effect).map((prop, index) => renderProperty(effect[prop], [effectName, prop], index))
   }
 
   const renderEffects = () => {
-    const items = Object.keys(EffectsOptions).map((effect: Effects) => {
+    const items = Object.keys(EffectsOptions).map((effect: keyof typeof Effects) => {
       return (
         <div key={effect}>
           <Checkbox

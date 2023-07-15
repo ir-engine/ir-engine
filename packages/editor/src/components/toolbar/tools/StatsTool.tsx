@@ -1,60 +1,38 @@
-import React, { useState } from 'react'
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
+import React from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
-import { EngineRenderer } from '@etherealengine/engine/src/renderer/WebGLRendererSystem'
-import { defineState, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
+import { RenderInfoState } from '@etherealengine/engine/src/renderer/RenderInfoSystem'
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
 import SsidChartIcon from '@mui/icons-material/SsidChart'
 
 import { InfoTooltip } from '../../layout/Tooltip'
 import styles from '../styles.module.scss'
-
-export const RenderInfoState = defineState({
-  name: 'RenderInfoState',
-  initial: {
-    visible: false,
-    info: {
-      geometries: 0,
-      textures: 0,
-      fps: 0,
-      frameTime: 0,
-      calls: 0,
-      triangles: 0,
-      points: 0,
-      lines: 0
-    }
-  }
-})
-
-const execute = () => {
-  const state = getState(RenderInfoState)
-  if (state.visible) {
-    const info = EngineRenderer.instance.renderer.info
-
-    const fps = 1 / Engine.instance.deltaSeconds
-    const frameTime = Engine.instance.deltaSeconds * 1000
-
-    getMutableState(RenderInfoState).info.set({
-      geometries: info.memory.geometries,
-      textures: info.memory.textures,
-      fps,
-      frameTime,
-      calls: info.render.calls,
-      triangles: info.render.triangles,
-      points: info.render.points,
-      lines: info.render.lines
-    })
-
-    info.reset()
-  }
-}
-
-export const RenderInfoSystem = defineSystem({
-  uuid: 'ee.editor.RenderInfoSystem',
-  execute
-})
 
 /**
  * Stats used to show stats of  memory and  render.

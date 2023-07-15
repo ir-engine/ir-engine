@@ -1,3 +1,28 @@
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
 import classNames from 'classnames'
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -20,8 +45,10 @@ import FormControlLabel from '@etherealengine/ui/src/primitives/mui/FormControlL
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 
 import { ProjectService, ProjectState } from '../../../common/services/ProjectService'
+import { AuthState } from '../../../user/services/AuthService'
 import DrawerView from '../../common/DrawerView'
 import { ProjectUpdateService, ProjectUpdateState } from '../../services/ProjectUpdateService'
+import { AdminHelmSettingsState, HelmSettingService } from '../../services/Setting/HelmSettingService'
 import styles from '../../styles/admin.module.scss'
 import ProjectFields from './ProjectFields'
 
@@ -39,6 +66,9 @@ const UpdateDrawer = ({ open, builderTags, onClose }: Props) => {
   const projectsToUpdate = useHookstate(new Map())
   const submitDisabled = useHookstate(true)
   const processing = useHookstate(false)
+  const user = useHookstate(getMutableState(AuthState).user)
+  const helmSettingState = useHookstate(getMutableState(AdminHelmSettingsState))
+  const [helmSetting] = helmSettingState?.helmSettings?.get({ noproxy: true }) || []
 
   const adminProjectState = useHookstate(getMutableState(ProjectState))
   const adminProjects = adminProjectState.projects
@@ -128,6 +158,12 @@ const UpdateDrawer = ({ open, builderTags, onClose }: Props) => {
     if (open && engineCommit.value && matchingTag && selectedTag.value.length === 0) selectedTag.set(engineCommit.value)
   }, [open, engineCommit.value, builderTags])
 
+  useEffect(() => {
+    if (user?.id?.value != null && helmSettingState?.updateNeeded?.value) {
+      HelmSettingService.fetchHelmSetting()
+    }
+  }, [user?.id?.value, helmSettingState?.updateNeeded?.value])
+
   return (
     <DrawerView open={open} onClose={handleClose}>
       <Container maxWidth="sm" className={styles.mt20}>
@@ -140,6 +176,16 @@ const UpdateDrawer = ({ open, builderTags, onClose }: Props) => {
           {' '}
           {t('admin:components.project.updateEngine')}
         </DialogTitle>
+
+        <div className={styles.helmSubheader}>
+          <div>{t('admin:components.setting.helm.mainHelmToDeploy')}</div>:
+          <a href="/admin/settings#helm">{helmSetting?.main.length > 0 ? helmSetting.main : 'Current Version'}</a>
+        </div>
+
+        <div className={styles.helmSubheader}>
+          <div>{t('admin:components.setting.helm.builderHelmToDeploy')}</div>:
+          <a href="/admin/settings#helm">{helmSetting?.builder.length > 0 ? helmSetting.builder : 'Current Version'}</a>
+        </div>
 
         {
           <InputSelect

@@ -1,13 +1,43 @@
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
 import { Frustum, Matrix4, PerspectiveCamera, Vector3 } from 'three'
 
-import { dispatchAction, getMutableState } from '@etherealengine/hyperflux'
+import { dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
 
 import { AvatarControllerComponent } from '../../avatar/components/AvatarControllerComponent'
 import { CameraComponent } from '../../camera/components/CameraComponent'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { getComponent } from '../../ecs/functions/ComponentFunctions'
-import { compareDistance, DistanceFromCameraComponent } from '../../transform/components/DistanceComponents'
+import {
+  compareDistanceToCamera,
+  compareDistanceToLocalClient,
+  DistanceFromCameraComponent,
+  DistanceFromLocalClientComponent
+} from '../../transform/components/DistanceComponents'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { InteractState } from '../systems/InteractiveSystem'
 
@@ -20,7 +50,7 @@ const mat4 = new Matrix4()
 //   0.1, // near
 //   2 // far
 // )
-const frustum = new Frustum()
+// const frustum = new Frustum()
 
 /**
  * Checks if entity can interact with any of entities listed in 'interactive' array, checking distance, guards and raycast
@@ -35,11 +65,13 @@ export const gatherAvailableInteractables = (interactables: Entity[]) => {
 
   if (!controller || !transform) return
 
+  const maxDistance = getState(InteractState).maxDistance
+  const maxDistanceSquare = maxDistance * maxDistance
   const availableInteractable = getMutableState(InteractState).available
-  const camera = getComponent(controller.cameraEntity, CameraComponent)
+  // const camera = getComponent(controller.cameraEntity, CameraComponent)
 
-  mat4.multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse)
-  frustum.setFromProjectionMatrix(mat4)
+  // mat4.multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse)
+  // frustum.setFromProjectionMatrix(mat4)
 
   // const available = [] as Entity[]
   // for (const entityIn of interactables) {
@@ -47,5 +79,9 @@ export const gatherAvailableInteractables = (interactables: Entity[]) => {
   //   available.push(entityIn)
   // }
 
-  availableInteractable.set([...interactables].sort(compareDistance))
+  availableInteractable.set(
+    [...interactables]
+      .filter((entity) => DistanceFromLocalClientComponent.squaredDistance[entity] < maxDistanceSquare)
+      .sort(compareDistanceToLocalClient)
+  )
 }

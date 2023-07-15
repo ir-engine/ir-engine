@@ -1,5 +1,30 @@
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
 import { pipe } from 'bitecs'
-import { AnimationClip, AnimationMixer, Bone, Box3, Group, Object3D, Skeleton, SkinnedMesh, Vector3 } from 'three'
+import { AnimationClip, AnimationMixer, Bone, Box3, Group, Mesh, Object3D, Skeleton, SkinnedMesh, Vector3 } from 'three'
 
 import { dispatchAction, getState } from '@etherealengine/hyperflux'
 
@@ -26,6 +51,7 @@ import { addObjectToGroup, GroupComponent, removeObjectFromGroup } from '../../s
 import { UpdatableCallback, UpdatableComponent } from '../../scene/components/UpdatableComponent'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
 import { setObjectLayers } from '../../scene/functions/setObjectLayers'
+import iterateObject3D from '../../scene/util/iterateObject3D'
 import { computeTransformMatrix, updateGroupChildren } from '../../transform/systems/TransformSystem'
 import { XRState } from '../../xr/XRState'
 import { createAvatarAnimationGraph } from '../animation/AvatarAnimationGraph'
@@ -122,6 +148,9 @@ export const setupAvatarForUser = (entity: Entity, model: Object3D) => {
 
   setupAvatarModel(entity)(model)
   addObjectToGroup(entity, model)
+  iterateObject3D(model, (obj) => {
+    obj && (obj.frustumCulled = false)
+  })
 
   computeTransformMatrix(entity)
   updateGroupChildren(entity)
@@ -146,7 +175,7 @@ export const boneMatchAvatarModel = (entity: Entity) => (model: Object3D) => {
     if (groupComponent) for (const obj of groupComponent) obj.userData.scale = 0.01
   } else if (assetType == AssetType.VRM) {
     if (model && (model as UpdateableObject3D).update) {
-      addComponent(entity, UpdatableComponent, true)
+      setComponent(entity, UpdatableComponent, true)
       setCallback(entity, UpdatableCallback, (delta: number) => {
         ;(model as UpdateableObject3D).update(delta)
       })
@@ -158,7 +187,7 @@ export const boneMatchAvatarModel = (entity: Entity) => (model: Object3D) => {
 
 export const rigAvatarModel = (entity: Entity) => (model: Object3D) => {
   const avatarAnimationComponent = getComponent(entity, AvatarAnimationComponent)
-  removeComponent(entity, AvatarRigComponent)
+
   const rig = avatarBoneMatching(model)
   const rootBone = rig.Root || rig.Hips
   rootBone.updateWorldMatrix(true, true)
@@ -230,7 +259,7 @@ export const setupAvatarMaterials = (entity, root) => {
         id: object.uuid,
         material: material
       })
-      object.material = DissolveEffect.getDissolveTexture(object)
+      object.material = DissolveEffect.createDissolveMaterial(object)
     }
   })
 

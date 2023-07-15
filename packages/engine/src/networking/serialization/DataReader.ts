@@ -1,8 +1,33 @@
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
 import { TypedArray } from 'bitecs'
 
 import { NetworkId } from '@etherealengine/common/src/interfaces/NetworkId'
 import { UserId } from '@etherealengine/common/src/interfaces/UserId'
-import { getState } from '@etherealengine/hyperflux'
+import { defineState, getMutableState, getState } from '@etherealengine/hyperflux'
 
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { Engine } from '../../ecs/classes/Engine'
@@ -22,7 +47,16 @@ import {
   VEC3_PRECISION_MULT
 } from './Utils'
 import { flatten, Vector3SoA, Vector4SoA } from './Utils'
-import { createViewCursor, readProp, readUint8, readUint16, readUint32, readUint64, ViewCursor } from './ViewCursor'
+import {
+  createViewCursor,
+  readFloat64,
+  readProp,
+  readUint8,
+  readUint16,
+  readUint32,
+  readUint64,
+  ViewCursor
+} from './ViewCursor'
 
 export const checkBitflag = (mask: number, flag: number) => (mask & flag) === flag
 
@@ -197,18 +231,22 @@ export const readEntities = (v: ViewCursor, byteLength: number, fromUserID: User
 export const readMetadata = (v: ViewCursor) => {
   const userIndex = readUint32(v)
   const peerIndex = readUint32(v)
-  const fixedTick = readUint32(v)
+  const simulationTime = readFloat64(v)
   // if (userIndex === world.peerIDToUserIndex.get(Engine.instance.worldNetwork.hostId)! && !Engine.instance.worldNetwork.isHosting) Engine.instance.fixedTick = fixedTick
-  return { userIndex, peerIndex }
+  return { userIndex, peerIndex, simulationTime }
 }
 
-export const createDataReader = () => {
-  return (network: Network, packet: ArrayBuffer) => {
-    const view = createViewCursor(packet)
-    const { userIndex, peerIndex } = readMetadata(view)
-    const fromUserID = network.userIndexToUserID.get(userIndex)
-    const fromPeerID = network.peerIndexToPeerID.get(peerIndex)
-    const isLoopback = fromPeerID && fromPeerID === network.peerID
-    if (fromUserID && !isLoopback) readEntities(view, packet.byteLength, fromUserID)
-  }
+export const readDataPacket = (network: Network, packet: ArrayBuffer) => {
+  const view = createViewCursor(packet)
+  const { userIndex, peerIndex, simulationTime } = readMetadata(view)
+  const fromUserID = network.userIndexToUserID.get(userIndex)
+  const fromPeerID = network.peerIndexToPeerID.get(peerIndex)
+  const isLoopback = fromPeerID && fromPeerID === Engine.instance.peerID
+  if (!fromUserID || isLoopback) return
+  network.jitterBufferTaskList.push({
+    simulationTime,
+    read: () => {
+      readEntities(view, packet.byteLength, fromUserID)
+    }
+  })
 }

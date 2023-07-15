@@ -1,6 +1,32 @@
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
 import approot from 'app-root-path'
 import assert from 'assert'
 import fs from 'fs-extra'
+import https from 'https'
 import fetch from 'node-fetch'
 import path from 'path/posix'
 import { v4 as uuid } from 'uuid'
@@ -10,8 +36,6 @@ import S3Provider from '../../src/media/storageprovider/s3.storage'
 import { StorageProviderInterface } from '../../src/media/storageprovider/storageprovider.interface'
 import { getContentType } from '../../src/util/fileUtils'
 import { providerAfterTest, providerBeforeTest } from './storageproviderconfig'
-
-const https = require('https')
 
 describe('storageprovider', () => {
   const testFileName = 'TestFile.txt'
@@ -73,7 +97,8 @@ describe('storageprovider', () => {
       const fileKey = path.join('/', testFolderName, testFileName)
       const signedUrl = await provider.getSignedUrl(fileKey, 20000, [])
       const httpAgent = new https.Agent({
-        rejectUnauthorized: false
+        rejectUnauthorized: false,
+        timeout: 1000
       })
       let res
       try {
@@ -116,7 +141,7 @@ describe('storageprovider', () => {
     })
 
     it(`should put and get same data for glbs in ${provider.constructor.name}`, async function () {
-      const glbTestPath = 'packages/client/public/default_assets/collisioncube.glb'
+      const glbTestPath = 'packages/projects/default-project/assets/collisioncube.glb'
       const filePath = path.join(approot.path, glbTestPath)
       const fileData = fs.readFileSync(filePath)
       const contentType = getContentType(filePath)

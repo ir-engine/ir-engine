@@ -72,3 +72,11 @@
     flex-direction: column;
   }
 }
+
+.loader {
+  display: flex;
+  padding: 0;
+  align-items: center;
+  text-align: center;
+  margin: 5px;
+}

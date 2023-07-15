@@ -32,14 +32,14 @@
     "types": ["vite/client"]
   },
   "exclude": [
-    "../server-core/src/",
-    "../client-core/src/",
-    "../xrui/core/",
-    "../projects/projects/**",
-    "**/node_modules/**",
+    // ignore all packages in monorepo
+    "../../packages/**/src/**",
+    "./node_modules/**",
   ],
   "include": [
+    // allow everything in this package
+    "./**/**/*",
     "./src/**/*.ts",
-    "./serc/**/*.tsx"
+    "./src/**/*.tsx"
   ]
 }

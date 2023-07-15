@@ -29,8 +29,8 @@
     "outDir": "./lib"
   },
   "exclude": [
-    "**/node_modules/**",
-    "./tests/**/*.ts"
+    "../projects/projects/**",
+    "**/node_modules/**"
   ],
   "include": [
     "../../../server-core/src/*",

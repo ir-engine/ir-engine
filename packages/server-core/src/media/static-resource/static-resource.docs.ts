@@ -1,3 +1,28 @@
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
 /**
  * An object for swagger documentation configuration
  */
@@ -23,114 +48,6 @@ export default {
         },
         metadata: {
           type: 'string'
-        },
-        LOD0_url: {
-          type: 'string'
-        },
-        LOD0_metadata: {
-          type: 'object'
-        },
-        LOD1_url: {
-          type: 'string'
-        },
-        LOD1_metadata: {
-          type: 'object'
-        },
-        LOD2_url: {
-          type: 'string'
-        },
-        LOD2_metadata: {
-          type: 'object'
-        },
-        LOD3_url: {
-          type: 'string'
-        },
-        LOD3_metadata: {
-          type: 'object'
-        },
-        LOD4_url: {
-          type: 'string'
-        },
-        LOD4_metadata: {
-          type: 'object'
-        },
-        LOD5_url: {
-          type: 'string'
-        },
-        LOD5_metadata: {
-          type: 'object'
-        },
-        LOD6_url: {
-          type: 'string'
-        },
-        LOD6_metadata: {
-          type: 'object'
-        },
-        LOD7_url: {
-          type: 'string'
-        },
-        LOD7_metadata: {
-          type: 'object'
-        },
-        LOD8_url: {
-          type: 'string'
-        },
-        LOD8_metadata: {
-          type: 'object'
-        },
-        LOD9_url: {
-          type: 'string'
-        },
-        LOD9_metadata: {
-          type: 'object'
-        },
-        LOD10_url: {
-          type: 'string'
-        },
-        LOD10_metadata: {
-          type: 'object'
-        },
-        LOD11_url: {
-          type: 'string'
-        },
-        LOD11_metadata: {
-          type: 'object'
-        },
-        LOD12_url: {
-          type: 'string'
-        },
-        LOD12_metadata: {
-          type: 'object'
-        },
-        LOD13_url: {
-          type: 'string'
-        },
-        LOD13_metadata: {
-          type: 'object'
-        },
-        LOD14_url: {
-          type: 'string'
-        },
-        LOD14_metadata: {
-          type: 'object'
-        },
-        LOD15_url: {
-          type: 'string'
-        },
-        LOD15_metadata: {
-          type: 'object'
-        },
-        LOD16_url: {
-          type: 'string'
-        },
-        LOD16_metadata: {
-          type: 'object'
-        },
-        LOD17_url: {
-          type: 'string'
-        },
-        LOD17_metadata: {
-          type: 'object'
         }
       }
     },

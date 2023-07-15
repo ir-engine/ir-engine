@@ -1,3 +1,28 @@
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
 import { QueryFilterFlags } from '@dimforge/rapier3d-compat'
 import { Euler, Matrix4, Quaternion, Vector3 } from 'three'
 
@@ -9,19 +34,21 @@ import { V_000, V_010 } from '../../common/constants/MathConstants'
 import checkPositionIsValid from '../../common/functions/checkPositionIsValid'
 import { lerp } from '../../common/functions/MathLerpFunctions'
 import { Engine } from '../../ecs/classes/Engine'
+import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import { ComponentType, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
+import { EntityNetworkState } from '../../networking/state/EntityNetworkState'
 import { Physics } from '../../physics/classes/Physics'
 import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
 import { CollisionGroups } from '../../physics/enums/CollisionGroups'
 import { SceneQueryType } from '../../physics/types/PhysicsTypes'
+import { UUIDComponent } from '../../scene/components/UUIDComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { computeAndUpdateWorldOrigin, updateWorldOrigin } from '../../transform/updateWorldOrigin'
 import { getCameraMode, hasMovementControls, ReferenceSpace, XRState } from '../../xr/XRState'
 import { AvatarComponent } from '../components/AvatarComponent'
 import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
 import { AvatarHeadDecapComponent } from '../components/AvatarIKComponents'
-import { SpawnPoseComponent } from '../components/SpawnPoseComponent'
 import { AvatarMovementSettingsState } from '../state/AvatarMovementSettingsState'
 import { AutopilotMarker, clearWalkPoint, scaleFluctuate } from './autopilotFunctions'
 
@@ -149,7 +176,7 @@ const walkPoint = new Vector3()
 
 const currentDirection = new Vector3()
 export const applyAutopilotInput = (entity: Entity) => {
-  const deltaSeconds = Engine.instance.fixedDeltaSeconds
+  const deltaSeconds = getState(EngineState).simulationTimestep / 1000
 
   const markerState = getState(AutopilotMarker)
 
@@ -195,7 +222,7 @@ export const applyGamepadInput = (entity: Entity) => {
   if (!entity) return
 
   const camera = Engine.instance.camera
-  const deltaSeconds = Engine.instance.fixedDeltaSeconds
+  const deltaSeconds = getState(EngineState).simulationTimestep / 1000
   const controller = getComponent(entity, AvatarControllerComponent)
 
   const avatarMovementSettings = getState(AvatarMovementSettingsState)
@@ -205,7 +232,6 @@ export const applyGamepadInput = (entity: Entity) => {
 
   targetWorldMovement
     .copy(controller.gamepadLocalInput)
-    .normalize()
     .multiplyScalar(legSpeed * deltaSeconds)
     .applyQuaternion(forwardOrientation)
 
@@ -366,7 +392,7 @@ export const updateLocalAvatarRotation = () => {
  * @param entity
  * @param newPosition
  */
-export const teleportAvatar = (entity: Entity, targetPosition: Vector3): void => {
+export const teleportAvatar = (entity: Entity, targetPosition: Vector3, force = false): void => {
   if (!hasComponent(entity, AvatarComponent)) {
     console.warn('Teleport avatar called on non-avatar entity')
     return
@@ -376,17 +402,14 @@ export const teleportAvatar = (entity: Entity, targetPosition: Vector3): void =>
   raycastOrigin.y += 0.1
   const { raycastHit } = checkPositionIsValid(raycastOrigin, false)
 
-  if (raycastHit) {
+  if (raycastHit || force) {
     const transform = getComponent(entity, TransformComponent)
     const rigidbody = getComponent(entity, RigidBodyComponent)
-    const newPosition = raycastHit.position as Vector3
+    const newPosition = raycastHit ? (raycastHit.position as Vector3) : targetPosition
     rigidbody.targetKinematicPosition.copy(newPosition)
     rigidbody.position.copy(newPosition)
     const attached = getCameraMode() === 'attached'
-    if (attached)
-      updateReferenceSpaceFromAvatarMovement(
-        new Vector3().subVectors(raycastHit.position as Vector3, transform.position)
-      )
+    if (attached) updateReferenceSpaceFromAvatarMovement(new Vector3().subVectors(newPosition, transform.position))
   } else {
     console.log('invalid position', targetPosition, raycastHit)
   }
@@ -418,7 +441,9 @@ const _slerpBodyTowardsVelocity = (entity: Entity, alpha: number) => {
 
   let prevVector = prevVectors.get(entity)!
   if (!prevVector) {
-    prevVector = new Vector3(0, 0, 1).applyQuaternion(getComponent(entity, SpawnPoseComponent).rotation)
+    prevVector = new Vector3(0, 0, 1).applyQuaternion(
+      getState(EntityNetworkState)[getComponent(entity, UUIDComponent)].spawnRotation
+    )
     prevVectors.set(entity, prevVector)
   }
 

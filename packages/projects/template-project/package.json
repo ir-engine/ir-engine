@@ -4,10 +4,10 @@
   "description": "",
   "main": "",
   "etherealEngine": {
-    "version": "1.2.1"
+    "version": "1.4.0"
   },
   "scripts": {
-    "test:projects": "mocha --config .mocharc.js",
+    "test": "mocha --config .mocharc.js",
     "format": "prettier --write \"**/*.{ts,tsx}\"",
     "format-scss": "stylelint \"**/*.scss\" --fix",
     "format-staged": "lint-staged",
@@ -15,9 +15,7 @@
   },
   "peerDependencies": {},
   "dependencies": {},
-  "devDependencies": {
-    "trace-unhandled": "2.0.1"
-  },
+  "devDependencies": {},
   "license": "ISC",
   "pre-commit": [
     "format-staged"

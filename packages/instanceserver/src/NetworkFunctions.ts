@@ -1,15 +1,39 @@
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
 import _ from 'lodash'
 import { DataConsumer, DataProducer } from 'mediasoup/node/lib/types'
 import { Spark } from 'primus'
 
+import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { Instance } from '@etherealengine/common/src/interfaces/Instance'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { UserInterface } from '@etherealengine/common/src/interfaces/User'
 import { UserId } from '@etherealengine/common/src/interfaces/UserId'
-import { SpawnPoseComponent } from '@etherealengine/engine/src/avatar/components/SpawnPoseComponent'
 import { respawnAvatar } from '@etherealengine/engine/src/avatar/functions/respawnAvatar'
 import checkPositionIsValid from '@etherealengine/engine/src/common/functions/checkPositionIsValid'
-import { performance } from '@etherealengine/engine/src/common/functions/performance'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { getComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { DataChannelType } from '@etherealengine/engine/src/networking/classes/Network'
@@ -18,6 +42,7 @@ import { NetworkPeerFunctions } from '@etherealengine/engine/src/networking/func
 import { JoinWorldRequestData } from '@etherealengine/engine/src/networking/functions/receiveJoinWorld'
 import { WorldState } from '@etherealengine/engine/src/networking/interfaces/WorldState'
 import { updateNetwork } from '@etherealengine/engine/src/networking/NetworkState'
+import { EntityNetworkState } from '@etherealengine/engine/src/networking/state/EntityNetworkState'
 import { updatePeers } from '@etherealengine/engine/src/networking/systems/OutgoingActionSystem'
 import { GroupComponent } from '@etherealengine/engine/src/scene/components/GroupComponent'
 import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
@@ -77,17 +102,29 @@ export const setupSubdomain = async () => {
   }
 
   // Set up our instanceserver according to our current environment
-  const localIp = await getLocalServerIp(instanceServerState.isMediaInstance.value)
   const announcedIp = config.kubernetes.enabled
     ? instanceServerState.instanceServer.value.status.address
-    : localIp.ipAddress
+    : (await getLocalServerIp(instanceServerState.isMediaInstance.value)).ipAddress
 
+  // @todo put this in hyperflux state
   localConfig.mediasoup.webRtcTransport.listenIps = [
     {
       ip: '0.0.0.0',
       announcedIp
     }
   ]
+
+  localConfig.mediasoup.webRtcServerOptions.listenInfos.forEach((listenInfo) => {
+    listenInfo.announcedIp = announcedIp
+    listenInfo.ip = '0.0.0.0'
+  })
+
+  localConfig.mediasoup.plainTransport.listenIp = {
+    ip: '0.0.0.0',
+    announcedIp
+  }
+
+  localConfig.mediasoup.recording.ip = announcedIp
 }
 
 export async function getFreeSubdomain(isIdentifier: string, subdomainNumber: number): Promise<string> {
@@ -248,15 +285,18 @@ export const authorizeUserToJoinServer = async (app: Application, instance: Inst
   return true
 }
 
-export function getUserIdFromPeerID(network: SocketWebRTCServerNetwork, sparkID: PeerID) {
-  const client = Array.from(network.peers.values()).find((c) => c.peerID === sparkID)
+export function getUserIdFromPeerID(network: SocketWebRTCServerNetwork, peerID: PeerID) {
+  const client = Array.from(network.peers.values()).find((c) => c.peerID === peerID)
   return client?.userId
 }
 
-export const handleConnectingPeer = async (network: SocketWebRTCServerNetwork, spark: Spark, user: UserInterface) => {
+export const handleConnectingPeer = async (
+  network: SocketWebRTCServerNetwork,
+  spark: Spark,
+  peerID: PeerID,
+  user: UserInterface
+) => {
   const userId = user.id
-  const avatarDetail = user.avatar
-  const peerID = spark.id as PeerID
 
   // Create a new client object
   // and add to the dictionary
@@ -288,10 +328,6 @@ export const handleConnectingPeer = async (network: SocketWebRTCServerNetwork, s
 
   const worldState = getMutableState(WorldState)
   worldState.userNames[userId].set(user.name)
-  worldState.userAvatarDetails[userId].set({
-    avatarURL: avatarDetail.modelResource?.LOD0_url || '',
-    thumbnailURL: avatarDetail.thumbnailResource?.LOD0_url || ''
-  })
 
   network.userIDToUserIndex.set(userId, userIndex)
   network.userIndexToUserID.set(userIndex, userId)
@@ -324,6 +360,7 @@ export const handleConnectingPeer = async (network: SocketWebRTCServerNetwork, s
 export async function handleJoinWorld(
   network: SocketWebRTCServerNetwork,
   spark: Spark,
+  peerID: PeerID,
   data: JoinWorldRequestData,
   messageId: string,
   userId: UserId,
@@ -332,13 +369,8 @@ export async function handleJoinWorld(
   logger.info('Connect to world from ' + userId)
 
   const cachedActions = NetworkPeerFunctions.getCachedActionsForUser(userId).map((action) => {
-    const _action = _.cloneDeep(action)
-    // todo, can we ensure the server actions always has a peerID?
-    if (!_action.$peer) _action.$peer = network.hostPeerID
-    return _action
+    return _.cloneDeep(action)
   })
-
-  const peerID = spark.id as PeerID
 
   updatePeers(network)
 
@@ -346,10 +378,7 @@ export async function handleJoinWorld(
     type: MessageTypes.JoinWorld.toString(),
     data: {
       peerIndex: network.peerIDToPeerIndex.get(peerID)!,
-      peerID,
       routerRtpCapabilities: network.routers.instance[0].rtpCapabilities,
-      highResTimeOrigin: performance.timeOrigin,
-      worldStartTime: Engine.instance.startTime,
       cachedActions
     },
     id: messageId
@@ -422,9 +451,9 @@ const getUserSpawnFromInvite = async (
         const validSpawnablePosition = checkPositionIsValid(inviterUserObject3d.position, false)
 
         if (validSpawnablePosition) {
-          const spawnPoseComponent = getComponent(selfAvatarEntity, SpawnPoseComponent)
-          spawnPoseComponent?.position.copy(inviterUserObject3d.position)
-          spawnPoseComponent?.rotation.copy(inviterUserTransform.rotation)
+          const spawnPose = getState(EntityNetworkState)[user.id as any as EntityUUID]
+          spawnPose.spawnPosition.copy(inviterUserObject3d.position)
+          spawnPose.spawnRotation.copy(inviterUserTransform.rotation)
           respawnAvatar(selfAvatarEntity)
         }
       } else {
@@ -434,31 +463,30 @@ const getUserSpawnFromInvite = async (
   }
 }
 
-export function handleIncomingActions(network: SocketWebRTCServerNetwork, spark: Spark, message) {
+export function handleIncomingActions(network: SocketWebRTCServerNetwork, spark: Spark, peerID: PeerID, message) {
   if (!message) return
-  const networkPeer = network.peers.get(spark.id as PeerID)
-  if (!networkPeer) throw new Error('Received actions from a peer that does not exist: ' + JSON.stringify(message))
+  const networkPeer = network.peers.get(peerID)
+  if (!networkPeer) return logger.error('Received actions from a peer that does not exist: ' + JSON.stringify(message))
 
-  const actions = /*decode(new Uint8Array(*/ message /*))*/ as Required<Action>[]
+  const actions = /*decode(n
+    ew Uint8Array(*/ message /*))*/ as Required<Action>[]
   for (const a of actions) {
-    a.$peer = spark.id as PeerID
     a.$from = networkPeer.userId
     dispatchAction(a)
   }
   // logger.info('SERVER INCOMING ACTIONS: %s', JSON.stringify(actions))
 }
 
-export async function handleHeartbeat(network: SocketWebRTCServerNetwork, spark: Spark): Promise<any> {
-  const peerID = spark.id as PeerID
+export async function handleHeartbeat(network: SocketWebRTCServerNetwork, spark: Spark, peerID: PeerID): Promise<any> {
   // logger.info('Got heartbeat from user ' + userId + ' at ' + Date.now())
   if (network.peers.has(peerID)) network.peers.get(peerID)!.lastSeenTs = Date.now()
 }
 
-export async function handleDisconnect(network: SocketWebRTCServerNetwork, spark: Spark): Promise<any> {
-  const peerID = spark.id as PeerID
+export async function handleDisconnect(network: SocketWebRTCServerNetwork, spark: Spark, peerID: PeerID): Promise<any> {
   const userId = getUserIdFromPeerID(network, peerID) as UserId
+  console.log('peers', network.peers)
   const disconnectedClient = network.peers.get(peerID)
-  if (!disconnectedClient) return logger.warn(`Tried to handle disconnect for peer ${peerID} but was not foudn`)
+  if (!disconnectedClient) return logger.warn(`Tried to handle disconnect for peer ${peerID} but was not found`)
   // On local, new connections can come in before the old sockets are disconnected.
   // The new connection will overwrite the socketID for the user's client.
   // This will only clear transports if the client's socketId matches the socket that's disconnecting.
@@ -499,10 +527,10 @@ export async function handleDisconnect(network: SocketWebRTCServerNetwork, spark
 export async function handleLeaveWorld(
   network: SocketWebRTCServerNetwork,
   spark: Spark,
+  peerID: PeerID,
   data,
   messageId: string
 ): Promise<any> {
-  const peerID = spark.id as PeerID
   for (const [, transport] of Object.entries(network.mediasoupTransports))
     if (transport.appData.peerID === peerID) await closeTransport(network, transport)
   if (network.peers.has(peerID)) {
