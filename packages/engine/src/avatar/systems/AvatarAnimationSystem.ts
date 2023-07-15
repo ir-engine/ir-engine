@@ -56,6 +56,7 @@ import { createEntity, removeEntity } from '../../ecs/functions/EntityFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { createPriorityQueue } from '../../ecs/PriorityQueue'
 import { InputSourceComponent } from '../../input/components/InputSourceComponent'
+import { InputState } from '../../input/state/InputState'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
 import { Physics, RaycastArgs } from '../../physics/classes/Physics'
 import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
@@ -74,6 +75,7 @@ import {
 } from '../../transform/components/DistanceComponents'
 import { TransformComponent, TransformComponentType } from '../../transform/components/TransformComponent'
 import { updateGroupChildren } from '../../transform/systems/TransformSystem'
+import { setTrackingSpace } from '../../xr/XRScaleAdjustmentFunctions'
 import { getCameraMode, isMobileXRHeadset, XRAction, XRState } from '../../xr/XRState'
 import { updateAnimationGraph } from '.././animation/AnimationGraph'
 import { solveHipHeight } from '.././animation/HipIKSolver'
@@ -148,8 +150,8 @@ const _hipVector = new Vector3()
 const leftLegVector = new Vector3()
 const rightLegVector = new Vector3()
 
-const rightHandOffset = new Quaternion().setFromEuler(new Euler(0, Math.PI / 2, 0))
-const leftHandOffset = new Quaternion().setFromEuler(new Euler(0, -Math.PI / 2, 0))
+const rightHandOffset = new Quaternion().setFromEuler(new Euler(0, 0, 0))
+const leftHandOffset = new Quaternion().setFromEuler(new Euler(0, 0, 0))
 
 const midAxisRestriction = new Euler(-Math.PI / 4, undefined, undefined) // Restrict rotation around the X-axis to 45 degrees
 
@@ -230,6 +232,8 @@ const execute = () => {
     setObjectLayers(helper, ObjectLayers.Gizmos)
     addObjectToGroup(entity, helper)
     setComponent(entity, VisibleComponent)
+
+    setTrackingSpace()
   }
 
   // todo - remove ik targets when session ends
@@ -343,8 +347,8 @@ const execute = () => {
     if (!animationState.targetsAnimation) return
 
     //calculate world positions
-    const root = rigComponent.vrm.humanoid.normalizedHumanBonesRoot
-    root.updateMatrixWorld()
+
+    const transform = getComponent(entity, TransformComponent)
 
     let i = 0
     for (const [key, value] of Object.entries(rigComponent.ikTargetsMap)) {
@@ -352,7 +356,7 @@ const execute = () => {
       worldSpaceTargets[key].position
         .copy(value.position)
         .add(rigComponent.ikOffsetsMap.get(key)!)
-        .applyMatrix4(root.matrixWorld)
+        .applyMatrix4(transform.matrix)
 
       if (debugEnable) {
         const visualizerTransform = getComponent(visualizers[i], TransformComponent)
@@ -386,9 +390,7 @@ const execute = () => {
           break
         case 'none':
           worldSpaceTargets.hipsTarget.position.copy(
-            _vector3
-              .copy(ikTransform.position.multiplyScalar(xrState.localAvatarScale))
-              .setY(ikTransform.position.y - rigComponent.torsoLength - 0.125)
+            _vector3.copy(ikTransform.position).setY(ikTransform.position.y - rigComponent.torsoLength - 0.125)
           )
           //offset target forward to account for hips being behind the head
           const hipsForward = new Vector3(0, 0, 1)

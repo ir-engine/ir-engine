@@ -167,7 +167,8 @@ export function solveTwoBoneIK(
   Object3DUtils.getWorldQuaternion(tip, tip.quaternion)
   tip.quaternion.slerp(targetRot, targetRotWeight)
   Object3DUtils.worldQuaternionToLocal(tip.quaternion, mid)
-  if (rotationOffset != undefined) tip.quaternion.premultiply(rotationOffset)
+  if (rotationOffset != undefined)
+    tip.quaternion.slerp(tip.quaternion.clone().premultiply(rotationOffset), targetRotWeight)
 }
 
 const targetPos = new Vector3(),

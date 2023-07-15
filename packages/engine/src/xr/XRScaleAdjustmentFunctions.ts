@@ -39,5 +39,7 @@ export const getTrackingSpaceOffset = (height: number) => {
 export const setTrackingSpace = () => {
   const xrState = getMutableState(XRState)
   const offset = getTrackingSpaceOffset(xrState.viewerPose.value!.transform.position.y)
-  xrState.localAvatarScale.set(offset)
+  xrState.sceneScale.set(offset)
+  xrState.avatarCameraMode.set('attached')
+  xrState.sessionMode.set('immersive-vr')
 }
