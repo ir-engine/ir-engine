@@ -23,8 +23,11 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { InstanceAttendanceInterface } from './InstanceAttendance'
 import { Location } from './Location'
 import { LocationSettings } from './LocationSettings'
+import { UserInterface } from './User'
+import { UserId } from './UserId'
 
 export interface Instance {
   id: string

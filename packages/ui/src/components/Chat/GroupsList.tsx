@@ -38,10 +38,10 @@ export const GroupsList = () => {
 
   useEffect(() => {
     /** @todo only join party once call has been joined / started */
-    PartyService.getParty()
-    return () => {
-      PartyService.leaveNetwork(false)
-    }
+    // PartyService.getParty()
+    // return () => {
+    //   PartyService.leaveNetwork(false)
+    // }
   }, [])
 
   const isDrawerOpen = useHookstate(false)

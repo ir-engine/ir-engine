@@ -23,69 +23,36 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React, { useCallback, useEffect, useRef, useState } from 'react'
+import React, { useEffect } from 'react'
 
 import UserIcon from './assets/icon-user.png'
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
-import { DrawerCreateGroup } from './DrawerCreateGroup'
-import { BsThreeDots } from 'react-icons/bs'
-import { GroupEdit } from './GroupEdit'
+import { useHookstate } from '@etherealengine/hyperflux'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { Instance } from '@etherealengine/common/src/interfaces/Instance'
+
 
 /**
  * @todo
- * - locations list should be list of locations with friends in
+ * - worlds list should be list of world instances with friends in
  * */
 export const WorldsList = () => {
-  const isDrawerOpen = useHookstate(false)
+  const instances = useHookstate<Instance[]>([])
   const selectedParty = useHookstate(-1)
-  const openMenu = useHookstate(-1)
-
-  const modalRef = useRef<HTMLDivElement>(null)
-
-  const closeModal = useCallback((modalId?: number) => {
-    openMenu.set(modalId as number)
-  }, [])
-
-  const handleOutsideClick = useCallback(
-    (event: MouseEvent) => {
-      if (modalRef.current && !modalRef.current.contains(event.target as Node)) {
-        closeModal()
-      }
-    },
-    [modalRef, closeModal]
-  )
 
   useEffect(() => {
-    if (openMenu.value) {
-      document.addEventListener('mousedown', handleOutsideClick)
-    } else {
-      document.removeEventListener('mousedown', handleOutsideClick)
+    try {
+      Engine.instance.api.service('instance-friends').find({}).then((data) => {
+        instances.set(data)
+      })
+    } catch (e) {
+      console.error(e)
     }
-
-    return () => {
-      document.removeEventListener('mousedown', handleOutsideClick)
-    }
-  }, [openMenu, handleOutsideClick])
-
-  const worlds = []
+  }, [])
 
   return (
     <div className="w-[320px] h-[70vh] overflow-scroll hide-scroll mt-[8px]">
       <div className="w-[320px] mb-[42px] flex flex-wrap gap-[0.5px]">
-        <div className="w-[330px] flex justify-center items-center">
-          <button className="cursor-pointer rounded-[20px] p-0 bg-[#3F3960] w-[120px] h-8" onClick={() => isDrawerOpen.set(true)}>
-            <div className="[text-align-last:center] rounded-2xl text-[16px] text-sm font-segoe-ui text-white text-left">
-              CREATE GROUP
-            </div>
-          </button>
-          {isDrawerOpen.value && (
-            <div className="fixed inset-0 flex z-50">
-              <div className="bg-gray-500 bg-opacity-50 flex-1" onClick={() => isDrawerOpen.set(!isDrawerOpen.value)}></div>
-              <DrawerCreateGroup />
-            </div>
-          )}
-        </div>
-        {worlds.map((item, index) => {
+        {instances.value.map((item, index) => {
           return <div
             key={index}
             className={`w-[320px] h-[68px] flex flex-wrap mx-4 gap-1 justify-center rounded-[5px] ${selectedParty.value === index ? 'bg-[#D4D7DC]' : ''
@@ -95,30 +62,14 @@ export const WorldsList = () => {
             <div className="w-[230px] flex flex-wrap gap-5 justify-start">
               <img className="mt-3 rounded-8xs w-11 h-11 object-cover" alt="" src={UserIcon} />
               <div className="mt-3 justify-start">
-                <p className="font-bold text-[#3F3960]">{item.name || 'World ' + (index + 1)}</p>
-                {item.partyUsers?.map((user) =>
-                  <p className="h-4 text-xs text-[#787589]">{user.user?.name}</p>
-                )}
+                <p className="font-bold text-[#3F3960]">{item.location.slugifiedName || 'World ' + (index + 1)}</p>
               </div>
             </div>
             <div className="">
-              <p className="mt-3 h-4 text-xs text-[#787589]">{item.createdAt}</p>
-            </div>
-            <div className="mt-6">
-              <button onClick={() => openMenu.set(index)}>
-                <BsThreeDots />
-                <div className="">
-                  {openMenu.value === index && (
-                    <div ref={modalRef} className="bg-[#919eac] flex flex-wrap gap-2">
-                      <GroupEdit />
-                    </div>
-                  )}
-                </div>
-              </button>
+              <p className="mt-3 h-4 text-xs text-[#787589]">{item.currentUsers + ' User' + (item.currentUsers === 1 ? '' : 's')}</p>
             </div>
           </div>
-        })
-        }
+        })}
       </div>
     </div>
   )

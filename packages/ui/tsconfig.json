@@ -39,6 +39,7 @@
   "include": [
     // allow everything in this package
     "./typings.d.ts",
+    "../server-core/src/",
     "./**/**/*",
     "./src/**/*.ts",
     "./src/**/*.tsx"
