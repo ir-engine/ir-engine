@@ -30,24 +30,22 @@ import BoxSearch from './assets/bxbxsearchalt2.svg'
 import AddSquare from './assets/fluentaddsquare24filled.svg'
 import UserIcon from './assets/icon-user.png'
 import SettingIcon from './assets/setting.svg'
-import { ChatUser } from './ChatUser'
+import { Friends } from './FriendsList'
+import { Parties } from './PartiesList'
 import { Create } from './Create'
 import { GroupUser } from './GroupUser'
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { PartyService, PartyState } from '@etherealengine/client-core/src/social/services/PartyService'
+import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
+import { useUserAvatarThumbnail } from '@etherealengine/client-core/src/user/functions/useUserAvatarThumbnail'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+
+const ChatTypes = ['Party', 'Friends', 'Group', 'Layer', 'Instance'] as const
 
 export const ChatSection = () => {
-  const ChatTypes: string[] = ['Party', 'Friends', 'Group', 'Layer', 'Instance']
-
-  const [activeComponent, setActiveComponent] = useState<number>(1)
-
-  const handleButtonClickComp = (component: number) => {
-    setActiveComponent(component)
-  }
-
-  const [activeButton, setActiveButton] = useState<number>(1)
-
-  const handleButtonClick = (buttonId: number) => {
-    setActiveButton(buttonId)
-  }
+  const userName = useHookstate(getMutableState(AuthState).user.name).value
+  const userThumbnail = useUserAvatarThumbnail(Engine.instance.userId)
+  const currentChatType = useHookstate<typeof ChatTypes[number]>('Friends')
 
   const [checked, setChecked] = useState<boolean>(false)
 
@@ -121,13 +119,11 @@ export const ChatSection = () => {
         {ChatTypes.map((item, index) => {
           return (
             <button
+              key={index}
               className={`cursor-pointer rounded-[20px] border-dashed box-border border-[1px] p-0 border-[#A0A0B2] w-[76px] h-6 ${
-                activeButton === index ? 'bg-[#3F3960] text-white' : 'text-[#A0A0B2]'
+                currentChatType.value === item ? 'bg-[#3F3960] text-white' : 'text-[#A0A0B2]'
               }`}
-              onClick={() => {
-                handleButtonClick(index)
-                handleButtonClickComp(index)
-              }}
+              onClick={() => currentChatType.set(item)}
             >
               <div className={`[text-align-last:center] rounded-xl text-sm font-segoe-ui text-left`}>{item}</div>
             </button>
@@ -136,12 +132,13 @@ export const ChatSection = () => {
       </div>
       <div className="box-border w-[320px] border-t-[1px] border-solid border-[#D1D3D7]" />
 
-      {activeComponent === 1 && <ChatUser />}
-      {activeComponent === 2 && <GroupUser />}
+      {currentChatType.value === 'Party' && <Parties />}
+      {currentChatType.value === 'Friends' && <Friends />}
+      {currentChatType.value === 'Group' && <GroupUser />}
       <div className="absolute bottom-0 w-[320px] h-[70px] gap-4 flex flex-wrap justify-center bg-[#ECECEC]">
-        <img className="rounded-[38px] mt-3 w-11 h-11 object-cover" alt="" src={UserIcon} />
+        <img className="rounded-[38px] mt-3 w-11 h-11 object-cover" alt="" src={userThumbnail} />
         <div className="mt-3">
-          <p className="font-bold text-[#3F3960]">Laura Palmeri</p>
+          <p className="font-bold text-[#3F3960]">{userName}</p>
           <div className="flex flex-wrap gap-1">
             <div className={`${isToggleOn ? 'bg-[#57C290]' : 'bg-[#b3b5b9]'} rounded-[50%] mt-[4.2px] w-2.5 h-2.5`} />
             <p className="h-4 text-xs text-[#787589]">Active now</p>

@@ -38,6 +38,7 @@
   ],
   "include": [
     // allow everything in this package
+    "./typings.d.ts",
     "./**/**/*",
     "./src/**/*.ts",
     "./src/**/*.tsx"

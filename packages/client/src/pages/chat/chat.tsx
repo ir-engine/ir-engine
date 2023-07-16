@@ -23,22 +23,19 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React from 'react'
+import { t } from 'i18next'
+import React, { Suspense } from 'react'
+import { Route, Routes } from 'react-router-dom'
 
-import { ChatSection } from '@etherealengine/ui/src/components/Chat/ChatSection'
-import { Media } from '@etherealengine/ui/src/components/Chat/Media'
-import { Message } from '@etherealengine/ui/src/components/Chat/Message'
-import { Sidebar } from '@etherealengine/ui/src/components/Chat/Sidebar'
-
-import './index.css'
+import LoadingCircle from '@etherealengine/ui/src/primitives/tailwind/LoadingCircle'
+import { ChatPage } from '@etherealengine/ui/src/pages/Chat/chat'
 
 export default function Chat() {
   return (
-    <div className="w-full h-[100%] flex bg-slate-600 pointer">
-      <Sidebar />
-      <ChatSection />
-      <Message />
-      <Media />
-    </div>
+    <Suspense fallback={<LoadingCircle message={t('common:loader.loadingLocation')} />}>
+      <Routes>
+        <Route path="*" element={<ChatPage />} />
+      </Routes>
+    </Suspense>
   )
 }

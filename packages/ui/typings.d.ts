@@ -27,3 +27,5 @@ Ethereal Engine. All Rights Reserved.
 
 declare module '*.scss'
 declare module '*.scss?inline'
+declare module '*.svg'
+declare module '*.png'

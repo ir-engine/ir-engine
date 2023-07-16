@@ -30,13 +30,16 @@ import CallIcon from './assets/call.svg'
 import UserIcon from './assets/icon-user1.png'
 import SendIcon from './assets/send.svg'
 import UserSvg from './assets/user.svg'
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
 
 export const Message = () => {
+  const userName = useHookstate(getMutableState(AuthState).user.name).value
   return (
     <div className="maxw-[760px] w-[765px] h-[100vh] bg-white">
       <div className="w-[720px] h-[90px] flex flex-wrap gap-[450px] ml-5 justify-center">
         <div className="mt-7">
-          <p className="text-3xl font-bold text-[#3F3960]">Laura Palmeri</p>
+          <p className="text-3xl font-bold text-[#3F3960]">{userName}</p>
         </div>
         <div className="flex justify-center">
           <button className="">
