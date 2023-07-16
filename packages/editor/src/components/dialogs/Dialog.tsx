@@ -99,11 +99,11 @@ const Dialog = (props: Props) => {
     (e) => {
       e.preventDefault()
 
-      if (onConfirm) {
-        onConfirm(e)
+      if (props.onConfirm) {
+        props.onConfirm(e)
       }
     },
-    [onConfirm]
+    [props.onConfirm]
   )
   // returning view for Dialog component
   return (
