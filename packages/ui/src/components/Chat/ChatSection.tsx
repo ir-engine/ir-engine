@@ -32,18 +32,29 @@ import SettingIcon from './assets/setting.svg'
 import { FriendsList } from './FriendsList'
 import { GroupsList } from './GroupsList'
 import { WorldsList } from './WorldsList'
+import { ChannelsList } from './ChannelsList'
 import { Create } from './Create'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
 import { useUserAvatarThumbnail } from '@etherealengine/client-core/src/user/functions/useUserAvatarThumbnail'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 
-const ChatTypes = ['Groups', 'Friends', 'Worlds'] as const
+/**
+ * @todo
+ * - replace ChatTypes with just 'Channels'
+ * - remove channelType
+ * - 
+*/
 
+const ChatTypes = ['Groups', 'Channels', 'Friends', 'Worlds'] as const
+
+/**
+ * Chat
+ */
 export const ChatSection = () => {
   const userName = useHookstate(getMutableState(AuthState).user.name).value
   const userThumbnail = useUserAvatarThumbnail(Engine.instance.userId)
-  const currentChatType = useHookstate<typeof ChatTypes[number]>('Worlds')
+  const currentChatType = useHookstate<typeof ChatTypes[number]>('Channels')
 
   const [checked, setChecked] = useState<boolean>(false)
 
@@ -130,6 +141,7 @@ export const ChatSection = () => {
       <div className="box-border w-[320px] border-t-[1px] border-solid border-[#D1D3D7]" />
 
       {currentChatType.value === 'Groups' && <GroupsList />}
+      {currentChatType.value === 'Channels' && <ChannelsList />}
       {currentChatType.value === 'Friends' && <FriendsList />}
       {currentChatType.value === 'Worlds' && <WorldsList />}
       <div className="absolute bottom-0 w-[320px] h-[70px] gap-4 flex flex-wrap justify-center bg-[#ECECEC]">

@@ -30,11 +30,7 @@ import { useHookstate } from '@etherealengine/hyperflux'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { Instance } from '@etherealengine/common/src/interfaces/Instance'
 
-
-/**
- * @todo
- * - worlds list should be list of world instances with friends in
- * */
+/** Renders a list of world instances that have a friend in them */
 export const WorldsList = () => {
   const instances = useHookstate<Instance[]>([])
   const selectedParty = useHookstate(-1)

@@ -25,6 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { GroupUser } from './GroupUser'
 
+/** @deprecated */
 export type Group = {
   id?: string
   name?: string
@@ -35,11 +36,13 @@ export type Group = {
   updatedAt?: string
 }
 
+/** @deprecated */
 export type GroupScope = {
   id: string
   type: string
 }
 
+/** @deprecated */
 export interface CreateGroup {
   name: string
   description: string

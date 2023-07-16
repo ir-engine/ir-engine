@@ -32,9 +32,52 @@ import SendIcon from './assets/send.svg'
 import UserSvg from './assets/user.svg'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
+import { ChatService, ChatState } from '@etherealengine/client-core/src/social/services/ChatService'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { useUserAvatarThumbnail } from '@etherealengine/client-core/src/user/functions/useUserAvatarThumbnail'
 
 export const Message = () => {
   const userName = useHookstate(getMutableState(AuthState).user.name).value
+  const chatState = useHookstate(getMutableState(ChatState))
+  const activeChannel = chatState.channels.value?.channels.find(channel => channel.id === chatState.targetChannelId.value)
+  const userThumbnail = useUserAvatarThumbnail(Engine.instance.userId)
+
+  const messages = activeChannel?.messages ?? []
+
+  const composingMessage = useHookstate('')
+
+  const SelfMessage = (props: { message: typeof messages[0] }) => {
+    return <div className="flex flex-wrap mt-6 ">
+      <div className="h-[20px] mx-[147px] mr-5">
+        <p className="rounded-xl border-[#E1E1E1] border-2 text-black bg-[#E1E1E1] p-[3px]">
+          {props.message.text}
+        </p>
+      </div>
+      <img className="rounded-[38px]  w-9 h-9 object-cover" alt="" src={userThumbnail} />
+    </div>
+  }
+
+  const OtherMessage = (props: { message: typeof messages[0] }) => {
+    const userThumbnail = useUserAvatarThumbnail(props.message.sender.id)
+    return <div className="flex flex-wrap">
+      <img className="rounded-[38px]  w-9 h-9 object-cover" alt="" src={userThumbnail} />
+      <div className="h-[20px] ml-5">
+        <p className="rounded-3xl border-[#F8F8F8] border-2 text-black bg-[#F8F8F8] p-[3px]">
+        {props.message.text}
+        </p>
+      </div>
+    </div>
+  }
+
+  const sendMessage = () => {
+    ChatService.sendChatMessage({
+      targetObjectId: chatState.targetObjectId.value,
+      targetObjectType:chatState.targetObjectType.value, 
+      text: composingMessage.value
+    })
+    composingMessage.set('')
+  }
+
   return (
     <div className="maxw-[760px] w-[765px] h-[100vh] bg-white">
       <div className="w-[720px] h-[90px] flex flex-wrap gap-[450px] ml-5 justify-center">
@@ -49,50 +92,9 @@ export const Message = () => {
       </div>
       <div className="box-border w-[765px] border-t-[1px] border-solid border-[#D1D3D7]" />
       <div className="w-[720px] bg-[#FFFFFF] ml-6 mb-[100px] mt-4 justify-center content-center overflow-scroll hide-scroll">
-        <div className="flex flex-wrap">
-          <img className="rounded-[38px]  w-9 h-9 object-cover" alt="" src={UserIcon} />
-          <div className="h-[20px] ml-5">
-            <p className="rounded-3xl border-[#F8F8F8] border-2 text-black bg-[#F8F8F8] p-[3px]">
-              Hello there, I’m Dwark Matthiews G. Just in case.
-            </p>
-          </div>
-        </div>
-
-        <div className="flex flex-wrap mt-6 ">
-          <div className="h-[20px] mx-[147px] mr-5">
-            <p className="rounded-xl border-[#E1E1E1] border-2 text-black bg-[#E1E1E1] p-[3px]">
-              Hello Dwark Matthiews G. glad you reach out to me. Which timezon you In, just In case we want.
-            </p>
-          </div>
-          <img className="rounded-[38px]  w-9 h-9 object-cover" alt="" src={UserIcon} />
-        </div>
-
-        <div className="flex flex-wrap mt-12">
-          <img className="rounded-[38px]  w-9 h-9 object-cover" alt="" src={UserIcon} />
-          <div className="h-[20px] ml-5">
-            <p className="rounded-3xl border-[#F8F8F8] border-2 text-black bg-[#F8F8F8] p-[3px]">
-              I’m currenctly in UTF+8.
-            </p>
-          </div>
-        </div>
-
-        <div className="flex flex-wrap mt-6">
-          <div className="h-[20px] mx-[405px] mr-5">
-            <p className="rounded-3xl border-[#E1E1E1] border-2 text-black bg-[#E1E1E1] p-[3px]">
-              Good to know, let prepare tasks, and get back!
-            </p>
-          </div>
-          <img className="rounded-[38px]  w-9 h-9 object-cover" alt="" src={UserIcon} />
-        </div>
-
-        <div className="flex flex-wrap mt-6">
-          <img className="rounded-[38px]  w-9 h-9 object-cover" alt="" src={UserIcon} />
-          <div className="h-[20px] ml-2">
-            <p className="rounded-3xl border-[#F8F8F8] border-2 text-black bg-[#F8F8F8] p-[3px]">
-              All good, take your time I’m here.
-            </p>
-          </div>
-        </div>
+        {messages.map((message, index) => <>
+          {message.sender.id === Engine.instance.userId ? <SelfMessage key={index} message={message} /> : <OtherMessage key={index} message={message} />}
+        </>)}
       </div>
       <div className="absolute w-[755px] bottom-0 h-[70px]  gap-5 flex flex-wrap justify-center bg-[#ffffff]">
         <button className="">
@@ -106,11 +108,12 @@ export const Message = () => {
             <input
               type="text"
               className="rounded-3xl focus:outline-none focus:border-[#d7d7d7] border-[#d7d7d7] border-2 text-black bg-[#d7d7d7] p-2 w-full "
-              placeholder="Your message"
+              value={composingMessage.value}
+              onChange={(e) => composingMessage.set(e.target.value)}
             />
           </div>
         </div>
-        <button className="">
+        <button className="" onClick={sendMessage}>
           <img className="w-[30px] h-[30px]" alt="" src={SendIcon} />
         </button>
       </div>

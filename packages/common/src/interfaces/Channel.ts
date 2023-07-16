@@ -28,26 +28,40 @@ import { Instance } from './Instance'
 import { Message } from './Message'
 import { Party } from './Party'
 import { UserInterface } from './User'
+import { UserId } from './UserId'
 
+/** @deprecated */
 export type ChannelType = 'channel' | 'user' | 'group' | 'instance' | 'party'
 
 export type Channel = {
   id: string
-  channelType: ChannelType
+  ownerId: UserId
   messages: Message[]
-  userId1: string | null
-  userId2: string | null
-  groupId: string | null
-  partyId: string | null
-  instanceId: string | null
-  user1: UserInterface
-  user2: UserInterface
-  group: Group
-  party: Party
-  instance: Instance
   updatedAt: string
   updateNeeded: boolean
   limit: 5
   skip: 0
   total: 0
+  /** @deprecated */
+  channelType: ChannelType
+  /** @deprecated */
+  userId1: string | null
+  /** @deprecated */
+  userId2: string | null
+  /** @deprecated */
+  groupId: string | null
+  /** @deprecated */
+  partyId: string | null
+  /** @deprecated */
+  instanceId: string | null
+  /** @deprecated */
+  user1: UserInterface
+  /** @deprecated */
+  user2: UserInterface
+  /** @deprecated */
+  group: Group
+  /** @deprecated */
+  party: Party
+  /** @deprecated */
+  instance: Instance
 }

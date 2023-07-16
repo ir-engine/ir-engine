@@ -45,8 +45,9 @@ import { AuthState } from '../../user/services/AuthService'
 const logger = multiLogger.child({ component: 'client-core:social' })
 
 interface ChatMessageProps {
-  targetObjectId: string
-  targetObjectType: string
+  targetObjectId: string // ChannelID
+  /**@deprecated */
+  targetObjectType: string // 
   text: string
 }
 
@@ -66,8 +67,6 @@ export const ChatState = defineState({
     targetObjectId: '',
     targetObject: {} as UserInterface | Group | Party | Instance,
     targetChannelId: '',
-    updateMessageScroll: false,
-    messageScrollInit: false,
     instanceChannelFetching: false,
     instanceChannelFetched: false,
     partyChannelFetching: false,
@@ -81,11 +80,8 @@ export const ChatServiceReceptor = (action) => {
   matches(action)
     .when(ChatAction.loadedChannelsAction.matches, (action) => {
       return s.channels.merge({
-        limit: action.channels.limit,
-        skip: action.channels.skip,
-        total: action.channels.total,
         updateNeeded: false,
-        channels: action.channels.data
+        channels: action.channels
       })
     })
     .when(ChatAction.loadedChannelAction.matches, (action) => {
@@ -131,7 +127,6 @@ export const ChatServiceReceptor = (action) => {
         }
       }
 
-      s.updateMessageScroll.set(true)
       s.merge({ messageCreated: true })
       if (s.targetChannelId.value.length === 0 && channel) {
         const channelType = channel.channelType.value
@@ -229,23 +224,8 @@ export const ChatServiceReceptor = (action) => {
         targetObjectType: targetObjectType,
         targetObjectId: targetObject.id,
         targetObject: targetObject,
-        targetChannelId: targetChannelId,
-        updateMessageScroll: true,
-        messageScrollInit: true
+        targetChannelId: targetChannelId
       })
-    })
-    .when(ChatAction.setMessageScrollInitAction.matches, (action) => {
-      const { value } = action
-      return s.merge({ messageScrollInit: value })
-    })
-    .when(ChatAction.fetchingInstanceChannelAction.matches, () => {
-      return s.merge({ instanceChannelFetching: true })
-    })
-    .when(ChatAction.fetchingPartyChannelAction.matches, () => {
-      return s.merge({ partyChannelFetching: true })
-    })
-    .when(ChatAction.setUpdateMessageScrollAction.matches, (action) => {
-      return s.merge({ updateMessageScroll: action.value })
     })
     .when(ChatAction.refetchPartyChannelAction.matches, () => {
       return s.merge({ partyChannelFetched: false })
@@ -270,7 +250,7 @@ export const ChatService = {
           $limit: limit != null ? limit : chatState.channels.limit,
           $skip: skip != null ? skip : chatState.channels.skip
         }
-      })) as Paginated<Channel>
+      })) as Channel[]
       dispatchAction(ChatAction.loadedChannelsAction({ channels: channelResult }))
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
@@ -344,64 +324,6 @@ export const ChatService = {
       })
     }
   },
-  getChannelMessages: async (channelId: string, skip?: number, limit?: number) => {
-    if (channelId && channelId.length > 0) {
-      try {
-        const chatState = getMutableState(ChatState).value
-        const messageResult = (await API.instance.client.service('message').find({
-          query: {
-            channelId: channelId,
-            $sort: {
-              createdAt: -1
-            },
-            $limit: limit != null ? limit : chatState.channels.channels[channelId].limit,
-            $skip: skip != null ? skip : chatState.channels.channels[channelId].skip
-          }
-        })) as Paginated<Message>
-        dispatchAction(ChatAction.loadedMessagesAction({ channelId: channelId, messages: messageResult.data }))
-      } catch (err) {
-        NotificationService.dispatchNotify(err.message, { variant: 'error' })
-      }
-    }
-  },
-  removeMessage: async (messageId: string) => {
-    try {
-      await API.instance.client.service('message').remove(messageId)
-    } catch (err) {
-      NotificationService.dispatchNotify(err.message, { variant: 'error' })
-    }
-  },
-  patchMessage: async (messageId: string, text: string) => {
-    try {
-      await API.instance.client.service('message').patch(messageId, {
-        text: text
-      })
-    } catch (err) {
-      NotificationService.dispatchNotify(err.message, { variant: 'error' })
-    }
-  },
-  updateChatTarget: async (targetObjectType: string, targetObject: any) => {
-    if (!targetObject) {
-      dispatchAction(
-        ChatAction.setChatTargetAction({ targetObjectType: targetObjectType, targetObject, targetChannelId: '' })
-      )
-    } else {
-      const targetChannelResult = (await API.instance.client.service('channel').find({
-        query: {
-          findTargetId: true,
-          targetObjectType: targetObjectType,
-          targetObjectId: targetObject.id
-        }
-      })) as Paginated<Channel>
-      dispatchAction(
-        ChatAction.setChatTargetAction({
-          targetObjectType: targetObjectType,
-          targetObject,
-          targetChannelId: targetChannelResult.total > 0 ? targetChannelResult.data[0].id : ''
-        })
-      )
-    }
-  },
   clearChatTargetIfCurrent: async (targetObjectType: string, targetObject: any) => {
     const chatState = getMutableState(ChatState).value
     const chatStateTargetObjectType = chatState.targetObjectType
@@ -414,9 +336,6 @@ export const ChatService = {
     ) {
       dispatchAction(ChatAction.setChatTargetAction({ targetObjectType: '', targetObject: {}, targetChannelId: '' }))
     }
-  },
-  updateMessageScrollInit: async (value: boolean) => {
-    dispatchAction(ChatAction.setMessageScrollInitAction({ value }))
   },
   useAPIListeners: () => {
     useEffect(() => {
@@ -475,7 +394,7 @@ export class ChatAction {
 
   static loadedChannelsAction = defineAction({
     type: 'ee.client.Chat.LOADED_CHANNELS' as const,
-    channels: matches.any as Validator<unknown, Paginated<Channel>>
+    channels: matches.any as Validator<unknown, Channel[]>
   })
 
   static createdMessageAction = defineAction({
@@ -528,19 +447,6 @@ export class ChatAction {
   static removedChannelAction = defineAction({
     type: 'ee.client.Chat.REMOVED_CHANNEL' as const,
     channel: matches.object as Validator<unknown, Channel>
-  })
-
-  static fetchingInstanceChannelAction = defineAction({
-    type: 'ee.client.Chat.FETCHING_INSTANCE_CHANNEL' as const
-  })
-
-  static fetchingPartyChannelAction = defineAction({
-    type: 'ee.client.Chat.FETCHING_PARTY_CHANNEL' as const
-  })
-
-  static setUpdateMessageScrollAction = defineAction({
-    type: 'ee.client.Chat.SET_UPDATE_MESSAGE_SCROLL' as const,
-    value: matches.boolean
   })
 
   static refetchPartyChannelAction = defineAction({

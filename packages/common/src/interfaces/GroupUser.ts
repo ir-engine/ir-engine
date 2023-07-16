@@ -25,6 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { UserInterface } from './User'
 
+/** @deprecated */
 export type GroupUser = {
   id: string
   groupUserRank: string

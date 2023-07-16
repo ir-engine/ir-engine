@@ -191,9 +191,7 @@ export class Channel<T = ChannelDataType> extends Service<T> {
             ]
           }
         else
-          where = {
-            channelType: 'intentionallyBadType'
-          }
+          where = {}
         return this.app.service('channel').Model.findAll({
           include: params.sequelize.include,
           where: where
