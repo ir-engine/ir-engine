@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import React, { useEffect, useState } from 'react'
 import styled, { keyframes } from 'styled-components'
 
-import { InfoSharp, SvgIconComponent } from '@mui/icons-material'
+import { InfoSharp } from '@mui/icons-material'
 
 const fadeOutAnimation = keyframes`
   from {
