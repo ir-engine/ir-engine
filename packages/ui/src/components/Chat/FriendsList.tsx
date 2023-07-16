@@ -32,13 +32,12 @@ import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { useUserAvatarThumbnail } from '@etherealengine/client-core/src/user/functions/useUserAvatarThumbnail'
 import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 
-export const Friends = () => {
+export const FriendsList = () => {
   const friendState = useHookstate(getMutableState(FriendState))
 
   useEffect(() => {
     FriendService.getUserRelationship(Engine.instance.userId)
   }, [])
-
 
   const selectedFriend = useHookstate<UserId>('' as UserId)
 
@@ -53,8 +52,6 @@ export const Friends = () => {
 
   const RenderUser = (props: { friend: typeof friends[number] }) => {
     const userThumbnail = useUserAvatarThumbnail(props.friend.id)
-    console.log(props.friend.id, userThumbnail)
-
     return (
       <>
         <div
@@ -75,9 +72,7 @@ export const Friends = () => {
         </div>
       </>
     )
-
   }
-  
 
   return (
     <div className="w-[320px] h-[70vh] overflow-scroll hide-scroll mt-[8px]">

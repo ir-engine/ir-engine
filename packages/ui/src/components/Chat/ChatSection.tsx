@@ -28,19 +28,16 @@ import React, { useEffect, useRef, useState } from 'react'
 import NotificationIcon from './assets/attach-file2.svg'
 import BoxSearch from './assets/bxbxsearchalt2.svg'
 import AddSquare from './assets/fluentaddsquare24filled.svg'
-import UserIcon from './assets/icon-user.png'
 import SettingIcon from './assets/setting.svg'
-import { Friends } from './FriendsList'
-import { Parties } from './PartiesList'
+import { FriendsList } from './FriendsList'
+import { GroupsList } from './GroupsList'
 import { Create } from './Create'
-import { GroupUser } from './GroupUser'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
-import { PartyService, PartyState } from '@etherealengine/client-core/src/social/services/PartyService'
 import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
 import { useUserAvatarThumbnail } from '@etherealengine/client-core/src/user/functions/useUserAvatarThumbnail'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 
-const ChatTypes = ['Party', 'Friends', 'Group', 'Layer', 'Instance'] as const
+const ChatTypes = ['Group', 'Friends', 'World'] as const
 
 export const ChatSection = () => {
   const userName = useHookstate(getMutableState(AuthState).user.name).value
@@ -120,9 +117,8 @@ export const ChatSection = () => {
           return (
             <button
               key={index}
-              className={`cursor-pointer rounded-[20px] border-dashed box-border border-[1px] p-0 border-[#A0A0B2] w-[76px] h-6 ${
-                currentChatType.value === item ? 'bg-[#3F3960] text-white' : 'text-[#A0A0B2]'
-              }`}
+              className={`cursor-pointer rounded-[20px] border-dashed box-border border-[1px] p-0 border-[#A0A0B2] w-[76px] h-6 ${currentChatType.value === item ? 'bg-[#3F3960] text-white' : 'text-[#A0A0B2]'
+                }`}
               onClick={() => currentChatType.set(item)}
             >
               <div className={`[text-align-last:center] rounded-xl text-sm font-segoe-ui text-left`}>{item}</div>
@@ -132,9 +128,9 @@ export const ChatSection = () => {
       </div>
       <div className="box-border w-[320px] border-t-[1px] border-solid border-[#D1D3D7]" />
 
-      {currentChatType.value === 'Party' && <Parties />}
-      {currentChatType.value === 'Friends' && <Friends />}
-      {currentChatType.value === 'Group' && <GroupUser />}
+      {currentChatType.value === 'Group' && <GroupsList />}
+      {currentChatType.value === 'Friends' && <FriendsList />}
+      {currentChatType.value === 'World' && <WorldList />}
       <div className="absolute bottom-0 w-[320px] h-[70px] gap-4 flex flex-wrap justify-center bg-[#ECECEC]">
         <img className="rounded-[38px] mt-3 w-11 h-11 object-cover" alt="" src={userThumbnail} />
         <div className="mt-3">
@@ -157,9 +153,8 @@ export const ChatSection = () => {
               className={`toggle__line w-10 h-5  rounded-full shadow-inner ${checked ? 'bg-[#3F3960]' : 'bg-gray-400'}`}
             ></div>
             <div
-              className={`toggle__dot absolute w-4 h-4 bg-white rounded-full shadow inset-y-[2px] inset-x-[2px] ${
-                checked ? 'translate-x-5' : ''
-              }`}
+              className={`toggle__dot absolute w-4 h-4 bg-white rounded-full shadow inset-y-[2px] inset-x-[2px] ${checked ? 'translate-x-5' : ''
+                }`}
             ></div>
           </div>
         </label>

@@ -74,11 +74,12 @@ export function ChatPage() {
   }, [])
 
   return (
-    <div className="w-full h-[100%] flex bg-slate-600 pointer">
-      <Sidebar />
-      <ChatSection />
-      <Message />
-      <Media />
-    </div>
+    <div className="w-full container mx-auto pointer-events-auto">
+      <div className="w-full h-[100%] flex bg-slate-600 pointer">
+        <ChatSection />
+        <Message />
+        <Media />
+      </div>
+    </div >
   )
 }

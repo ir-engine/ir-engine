@@ -24,27 +24,26 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import React, { useCallback, useEffect, useRef, useState } from 'react'
-import { BsThreeDots } from 'react-icons/bs'
 
+import UserIcon from './assets/icon-user.png'
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import { DrawerCreateGroup } from './DrawerCreateGroup'
+import { BsThreeDots } from 'react-icons/bs'
 import { GroupEdit } from './GroupEdit'
 
-export const GroupUser = () => {
-  const [activeButton, setActiveButton] = useState<number>(2)
+/**
+ * @todo
+ * - locations list should be list of locations with friends in
+ * */
+export const WorldsList = () => {
+  const isDrawerOpen = useHookstate(false)
+  const selectedParty = useHookstate(-1)
+  const openMenu = useHookstate(-1)
 
-  const handleButtonClick = (buttonId: number) => {
-    setActiveButton(buttonId)
-  }
-
-  const [activeModal, setActiveModal] = useState<number | null>(null)
   const modalRef = useRef<HTMLDivElement>(null)
 
-  const openModal = (modalId: number) => {
-    setActiveModal(modalId)
-  }
-
   const closeModal = useCallback((modalId?: number) => {
-    setActiveModal(modalId as number)
+    openMenu.set(modalId as number)
   }, [])
 
   const handleOutsideClick = useCallback(
@@ -56,14 +55,8 @@ export const GroupUser = () => {
     [modalRef, closeModal]
   )
 
-  const [isDrawerOpen, setIsDrawerOpen] = useState(false)
-
-  const toggleDrawer = () => {
-    setIsDrawerOpen(!isDrawerOpen)
-  }
-
   useEffect(() => {
-    if (activeModal) {
+    if (openMenu.value) {
       document.addEventListener('mousedown', handleOutsideClick)
     } else {
       document.removeEventListener('mousedown', handleOutsideClick)
@@ -72,67 +65,50 @@ export const GroupUser = () => {
     return () => {
       document.removeEventListener('mousedown', handleOutsideClick)
     }
-  }, [activeModal, handleOutsideClick])
+  }, [openMenu, handleOutsideClick])
+
+  const worlds = []
 
   return (
-    <div className="w-[320px] h-[70vh]">
-      <div className="w-[320px] mb-[100px] flex flex-wrap mt-6 gap-1">
+    <div className="w-[320px] h-[70vh] overflow-scroll hide-scroll mt-[8px]">
+      <div className="w-[320px] mb-[42px] flex flex-wrap gap-[0.5px]">
         <div className="w-[330px] flex justify-center items-center">
-          <button className="cursor-pointer rounded-[20px] p-0 bg-[#3F3960] w-[120px] h-8" onClick={toggleDrawer}>
+          <button className="cursor-pointer rounded-[20px] p-0 bg-[#3F3960] w-[120px] h-8" onClick={() => isDrawerOpen.set(true)}>
             <div className="[text-align-last:center] rounded-2xl text-[16px] text-sm font-segoe-ui text-white text-left">
               CREATE GROUP
             </div>
           </button>
-          {isDrawerOpen && (
+          {isDrawerOpen.value && (
             <div className="fixed inset-0 flex z-50">
-              <div className="bg-gray-500 bg-opacity-50 flex-1" onClick={toggleDrawer}></div>
+              <div className="bg-gray-500 bg-opacity-50 flex-1" onClick={() => isDrawerOpen.set(!isDrawerOpen.value)}></div>
               <DrawerCreateGroup />
             </div>
           )}
         </div>
-        <div className="w-[320px] mb-[100px] flex flex-wrap gap-2">
-          <div
-            className={`w-[320px] flex flex-wrap gap-2 mx-3 mt-5 justify-center h-[68px] rounded-[5px] ${
-              activeButton === 1 ? 'bg-[#D4D7DC]' : ''
-            }`}
-            onClick={() => handleButtonClick(1)}
+        {worlds.map((item, index) => {
+          return <div
+            key={index}
+            className={`w-[320px] h-[68px] flex flex-wrap mx-4 gap-1 justify-center rounded-[5px] ${selectedParty.value === index ? 'bg-[#D4D7DC]' : ''
+              }`}
+            onClick={() => selectedParty.set(index)}
           >
-            <div className="w-[230px] flex flex-wrap gap-3 justify-start">
+            <div className="w-[230px] flex flex-wrap gap-5 justify-start">
+              <img className="mt-3 rounded-8xs w-11 h-11 object-cover" alt="" src={UserIcon} />
               <div className="mt-3 justify-start">
-                <p className="font-bold text-[#3F3960]">Test Group 1</p>
-                <p className="h-4 text-xs text-[#787589]">You: We need a designer</p>
+                <p className="font-bold text-[#3F3960]">{item.name || 'World ' + (index + 1)}</p>
+                {item.partyUsers?.map((user) =>
+                  <p className="h-4 text-xs text-[#787589]">{user.user?.name}</p>
+                )}
               </div>
             </div>
-            <div className="mt-6">
-              <button onClick={() => openModal(1)}>
-                <BsThreeDots />
-                <div className="">
-                  {activeModal === 1 && (
-                    <div ref={modalRef} className="relative flex flex-wrap gap-2">
-                      <GroupEdit />
-                    </div>
-                  )}
-                </div>
-              </button>
-            </div>
-          </div>
-          <div
-            className={`w-[320px] flex flex-wrap gap-2 mx-3 justify-center h-[68px] rounded-[5px] ${
-              activeButton === 2 ? 'bg-[#D4D7DC]' : ''
-            }`}
-            onClick={() => handleButtonClick(2)}
-          >
-            <div className="w-[230px] flex flex-wrap gap-3 justify-start">
-              <div className="mt-3 justify-start">
-                <p className="font-bold text-[#3F3960]">Test Group 1</p>
-                <p className="h-4 text-xs text-[#787589]">You: We need a designer</p>
-              </div>
+            <div className="">
+              <p className="mt-3 h-4 text-xs text-[#787589]">{item.createdAt}</p>
             </div>
             <div className="mt-6">
-              <button onClick={() => openModal(2)}>
+              <button onClick={() => openMenu.set(index)}>
                 <BsThreeDots />
                 <div className="">
-                  {activeModal === 2 && (
+                  {openMenu.value === index && (
                     <div ref={modalRef} className="bg-[#919eac] flex flex-wrap gap-2">
                       <GroupEdit />
                     </div>
@@ -141,7 +117,8 @@ export const GroupUser = () => {
               </button>
             </div>
           </div>
-        </div>
+        })
+        }
       </div>
     </div>
   )
