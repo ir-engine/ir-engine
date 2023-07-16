@@ -23,11 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React from 'react'
+import { debounce } from 'lodash'
+import React, { useCallback, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { getComponent, setComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { getComponent, useComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import {
   LocalTransformComponent,
   TransformComponent
@@ -35,7 +36,9 @@ import {
 
 import CameraAltIcon from '@mui/icons-material/CameraAlt'
 
+import { previewScreenshot } from '../../functions/takeScreenshot'
 import { PropertiesPanelButton } from '../inputs/Button'
+import ImagePreviewInput from '../inputs/ImagePreviewInput'
 import NodeEditor from './NodeEditor'
 import { EditorComponentType } from './Util'
 
@@ -46,6 +49,8 @@ import { EditorComponentType } from './Util'
  */
 export const ScenePreviewCameraNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
+  const [bufferUrl, setBufferUrl] = useState<string>('')
+  const transformComponent = useComponent(Engine.instance.cameraEntity, TransformComponent)
 
   const onSetFromViewport = () => {
     const { position, rotation } = getComponent(Engine.instance.cameraEntity, TransformComponent)
@@ -55,15 +60,36 @@ export const ScenePreviewCameraNodeEditor: EditorComponentType = (props) => {
     LocalTransformComponent.stateMap[props.entity]!.set(LocalTransformComponent.valueMap[props.entity])
   }
 
+  const updateScenePreview = async () => {
+    const imageBlob = (await previewScreenshot(512 / 2, 320 / 2))!
+    const url = URL.createObjectURL(imageBlob)
+    setBufferUrl(url)
+  }
+
+  const updateCubeMapBakeDebounced = useCallback(debounce(updateScenePreview, 500), []) //ms
+
+  useEffect(() => {
+    updateCubeMapBakeDebounced()
+    return () => {
+      updateCubeMapBakeDebounced.cancel()
+    }
+  }, [transformComponent.position])
+
   return (
     <NodeEditor
       {...props}
       name={t('editor:properties.sceneCamera.name')}
       description={t('editor:properties.sceneCamera.description')}
     >
-      <PropertiesPanelButton onClick={onSetFromViewport}>
+      <PropertiesPanelButton
+        onClick={() => {
+          onSetFromViewport()
+          updateScenePreview()
+        }}
+      >
         {t('editor:properties.sceneCamera.lbl-setFromViewPort')}
       </PropertiesPanelButton>
+      <ImagePreviewInput value={bufferUrl} />
     </NodeEditor>
   )
 }

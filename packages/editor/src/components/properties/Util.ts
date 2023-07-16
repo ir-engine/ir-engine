@@ -23,6 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { debounce } from 'lodash'
+
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
 import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
@@ -77,7 +79,7 @@ export const updateProperties = <C extends Component>(
 
   EditorControlFunctions.modifyProperty(affectedNodes, component, properties)
 
-  dispatchAction(EditorHistoryAction.createSnapshot({}))
+  debounce(() => dispatchAction(EditorHistoryAction.createSnapshot({})), 100)
 }
 
 export function traverseScene<T>(

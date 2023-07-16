@@ -123,7 +123,6 @@ function blitTexture(map: Texture, options?: BlitTextureOptions | undefined) {
   if ((map as CubeTexture).isCubeTexture) {
     blit = new Texture(map.source.data[0])
   }
-  map.encoding = LinearEncoding
   const temporaryRenderer = getTemporaryRenderer()
   const temporaryScene = getTemporaryScene()
   if (options?.keepTransform) {
@@ -206,5 +205,6 @@ export default async function createReadableTexture(
   }
   finalTexture.wrapS = map.wrapS
   finalTexture.wrapT = map.wrapT
+  finalTexture.encoding = map.encoding
   return finalTexture
 }

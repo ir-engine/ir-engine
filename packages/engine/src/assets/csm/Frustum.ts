@@ -27,31 +27,29 @@ import { Matrix4, Vector3 } from 'three'
 
 const inverseProjectionMatrix = new Matrix4()
 
-type FrustumParams = {
+interface Params {
   projectionMatrix?: Matrix4
   maxFar?: number
 }
 
-type VerticesType = {
-  near: Vector3[]
+interface FrustumVertices {
   far: Vector3[]
+  near: Vector3[]
 }
 
-export default class Frustum {
-  vertices: VerticesType
+export default class CSMFrustum {
+  public vertices: FrustumVertices = {
+    near: [new Vector3(), new Vector3(), new Vector3(), new Vector3()],
+    far: [new Vector3(), new Vector3(), new Vector3(), new Vector3()]
+  }
 
-  constructor(data: FrustumParams = {}) {
-    this.vertices = {
-      near: [new Vector3(), new Vector3(), new Vector3(), new Vector3()],
-      far: [new Vector3(), new Vector3(), new Vector3(), new Vector3()]
-    }
-
+  public constructor(data: Params = {}) {
     if (data.projectionMatrix !== undefined) {
       this.setFromProjectionMatrix(data.projectionMatrix, data.maxFar || 10000)
     }
   }
 
-  setFromProjectionMatrix(projectionMatrix: Matrix4, maxFar: number): VerticesType {
+  public setFromProjectionMatrix(projectionMatrix: Matrix4, maxFar: number): FrustumVertices {
     const isOrthographic = projectionMatrix.elements[2 * 4 + 3] === 0
 
     inverseProjectionMatrix.copy(projectionMatrix).invert()
@@ -65,7 +63,7 @@ export default class Frustum {
     this.vertices.near[1].set(1, -1, -1)
     this.vertices.near[2].set(-1, -1, -1)
     this.vertices.near[3].set(-1, 1, -1)
-    this.vertices.near.forEach((v: Vector3) => {
+    this.vertices.near.forEach(function (v) {
       v.applyMatrix4(inverseProjectionMatrix)
     })
 
@@ -73,7 +71,7 @@ export default class Frustum {
     this.vertices.far[1].set(1, -1, 1)
     this.vertices.far[2].set(-1, -1, 1)
     this.vertices.far[3].set(-1, 1, 1)
-    this.vertices.far.forEach((v: Vector3) => {
+    this.vertices.far.forEach(function (v) {
       v.applyMatrix4(inverseProjectionMatrix)
 
       const absZ = Math.abs(v.z)
@@ -87,9 +85,9 @@ export default class Frustum {
     return this.vertices
   }
 
-  split(breaks: number[], target: Frustum[]): void {
+  public split(breaks: number[], target: CSMFrustum[]) {
     while (breaks.length > target.length) {
-      target.push(new Frustum())
+      target.push(new CSMFrustum())
     }
 
     target.length = breaks.length
@@ -107,7 +105,6 @@ export default class Frustum {
         }
       }
 
-      // Check below
       if (i === breaks.length - 1) {
         for (let j = 0; j < 4; j++) {
           cascade.vertices.far[j].copy(this.vertices.far[j])
@@ -120,8 +117,8 @@ export default class Frustum {
     }
   }
 
-  toSpace(cameraMatrix: Matrix4, target: Frustum): void {
-    for (var i = 0; i < 4; i++) {
+  public toSpace(cameraMatrix: Matrix4, target: CSMFrustum) {
+    for (let i = 0; i < 4; i++) {
       target.vertices.near[i].copy(this.vertices.near[i]).applyMatrix4(cameraMatrix)
 
       target.vertices.far[i].copy(this.vertices.far[i]).applyMatrix4(cameraMatrix)

@@ -45,9 +45,9 @@ describe('Auth Service', () => {
   //     const mockAuthState = getMutableState(AuthState)
   //     const mockData = {
   //       id: 'c7456310-48d5-11ec-8706-c7fb367d91f0',
-  //       key: 'avatars/public/CyberbotGreen.glb',
+  //       key: 'avatars/assets/CyberbotGreen.glb',
   //       name: 'CyberbotGreen',
-  //       url: 'https://host.name/avatars/public/CyberbotGreen.glb',
+  //       url: 'https://host.name/avatars/assets/CyberbotGreen.glb',
   //       userId: null
   //     } as any
   //     const mockAction = AuthAction.updateAvatarListAction({ avatarList: [mockData] })

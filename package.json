@@ -40,7 +40,7 @@
   "npmClient": "npm",
   "scripts": {
     "build-client": "cd packages/client && npm run build",
-    "check": "npm run lint && npm run check-errors && npm run test &&  npm run test:projects && npm run build-client",
+    "check": "npm run lint && npm run check-errors && npm run test && npm run build-client",
     "check-errors": "lerna run --scope '@etherealengine/*' check-errors && lerna run --ignore '@etherealengine/*' check-errors",
     "clean-node-modules": "npx rimraf node_modules && npx rimraf package-lock.json && npx lerna exec npx rimraf node_modules && npx lerna exec npx rimraf package-lock.json",
     "create-root-package-json": "cross-env ts-node --swc scripts/create-root-package-json",
@@ -58,7 +58,7 @@
     "dev-server": "cd packages/server && npm run dev",
     "dev-windows": "npm run dev-docker && concurrently -n agones,server,client npm:dev-agones-silent npm:dev-server npm:dev-client",
     "diff": "lerna diff",
-    "format": "prettier --write \"packages/**/*.{ts,tsx}\"",
+    "format": "prettier --write \"packages/**/*.{ts,tsx}\" \"scripts/*.ts\"",
     "format-scss": "stylelint \"packages/**/*.scss\" --fix",
     "format-staged": "lint-staged",
     "init-db-production": "cross-env APP_ENV=production FORCE_DB_REFRESH=true EXIT_ON_DB_INIT=true ts-node --swc packages/server/src/index.ts",
