@@ -46,6 +46,7 @@ import {
   ComponentType,
   defineComponent,
   hasComponent,
+  setComponent,
   useComponent
 } from '../../ecs/functions/ComponentFunctions'
 import { useEntityContext } from '../../ecs/functions/EntityFunctions'
@@ -57,6 +58,7 @@ import { setObjectLayers } from '../functions/setObjectLayers'
 import { setCallback } from './CallbackComponent'
 import { ColliderComponent } from './ColliderComponent'
 import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
+import { ShadowComponent } from './ShadowComponent'
 
 export const PortalPreviewTypeSimple = 'Simple' as const
 export const PortalPreviewTypeSpherical = 'Spherical' as const
@@ -120,6 +122,7 @@ export const PortalComponent = defineComponent({
           new Quaternion().setFromEuler(new Euler().setFromVector3(json.spawnRotation as any))
         )
     }
+    setComponent(entity, ShadowComponent)
   },
 
   toJSON: (entity, component) => {

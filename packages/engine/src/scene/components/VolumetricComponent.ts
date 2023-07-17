@@ -26,6 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { PositionalAudioComponent } from '../../audio/components/PositionalAudioComponent'
 import { defineComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
 import { MediaComponent } from './MediaComponent'
+import { ShadowComponent } from './ShadowComponent'
 
 export const VolumetricComponent = defineComponent({
   name: 'EE_volumetric',
@@ -49,6 +50,7 @@ export const VolumetricComponent = defineComponent({
 
     setComponent(entity, MediaComponent)
     setComponent(entity, PositionalAudioComponent)
+    setComponent(entity, ShadowComponent)
   }
 })
 

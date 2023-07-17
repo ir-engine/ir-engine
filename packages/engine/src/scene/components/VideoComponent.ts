@@ -50,6 +50,7 @@ import { resizeImageMesh } from './../components/ImageComponent'
 import { MediaComponent, MediaElementComponent } from './../components/MediaComponent'
 import { UUIDComponent } from './../components/UUIDComponent'
 import { PLANE_GEO } from './ImageComponent'
+import { ShadowComponent } from './ShadowComponent'
 
 export const VideoTexturePriorityQueueState = defineState({
   name: 'VideoTexturePriorityQueueState',
@@ -115,6 +116,7 @@ export const VideoComponent = defineComponent({
 
     setComponent(entity, MediaComponent, { paths: ['__$project$__/default-project/assets/SampleAudio.mp3'] })
     setComponent(entity, PositionalAudioComponent)
+    setComponent(entity, ShadowComponent)
   },
 
   onRemove: (entity, component) => {

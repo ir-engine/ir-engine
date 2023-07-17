@@ -56,6 +56,7 @@ import { EnvmapComponent } from './EnvmapComponent'
 import { addObjectToGroup, GroupComponent, removeObjectFromGroup } from './GroupComponent'
 import { SceneAssetPendingTagComponent } from './SceneAssetPendingTagComponent'
 import { SceneObjectComponent } from './SceneObjectComponent'
+import { ShadowComponent } from './ShadowComponent'
 import { UUIDComponent } from './UUIDComponent'
 
 export const ModelComponent = defineComponent({
@@ -93,6 +94,7 @@ export const ModelComponent = defineComponent({
 
     setComponent(entity, EnvmapComponent)
     setComponent(entity, LoopAnimationComponent)
+    setComponent(entity, ShadowComponent)
   },
 
   onRemove: (entity, component) => {

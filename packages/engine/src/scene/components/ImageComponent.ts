@@ -47,6 +47,7 @@ import { AssetClass } from '../../assets/enum/AssetClass'
 import {
   defineComponent,
   hasComponent,
+  setComponent,
   useComponent,
   useOptionalComponent
 } from '../../ecs/functions/ComponentFunctions'
@@ -55,6 +56,7 @@ import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { ImageAlphaMode, ImageAlphaModeType, ImageProjection, ImageProjectionType } from '../classes/ImageUtils'
 import { addObjectToGroup, removeObjectFromGroup } from '../components/GroupComponent'
 import { addError, clearErrors } from '../functions/ErrorFunctions'
+import { ShadowComponent } from './ShadowComponent'
 
 export const PLANE_GEO = new PlaneGeometry(1, 1, 1, 1)
 export const SPHERE_GEO = new SphereGeometry(1, 64, 32)
@@ -108,6 +110,8 @@ export const ImageComponent = defineComponent({
     if (typeof json.projection === 'string' && json.projection !== component.projection.value)
       component.projection.set(json.projection)
     if (typeof json.side === 'number' && json.side !== component.side.value) component.side.set(json.side)
+
+    setComponent(entity, ShadowComponent)
   },
 
   onRemove: (entity, component) => {

@@ -27,8 +27,9 @@ import { Color, Vector2, Vector3 } from 'three'
 
 import { config } from '@etherealengine/common/src/config'
 
-import { defineComponent } from '../../ecs/functions/ComponentFunctions'
+import { defineComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
 import { Clouds } from '../classes/Clouds'
+import { ShadowComponent } from './ShadowComponent'
 
 export type CloudComponentType = {
   texture: string
@@ -72,6 +73,8 @@ export const CloudComponent = defineComponent({
       component.spriteScaleRange.set(new Vector2(json.spriteScaleRange.x, json.spriteScaleRange.y))
     if (typeof json.fogColor === 'number') component.fogColor.set(new Color(json.fogColor))
     if (typeof json.fogRange === 'object') component.fogRange.set(new Vector2(json.fogRange.x, json.fogRange.y))
+
+    setComponent(entity, ShadowComponent)
   },
   toJSON(entity, component) {
     return {
