@@ -210,7 +210,8 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
         }
 
         if (item.type === ItemTypes.Prefab) {
-          addSceneComponentElement(item, parentNode, beforeNode!) // TODO: need to test this
+          const createdEntity = addSceneComponentElement(item, parentNode, beforeNode!)
+          EditorControlFunctions.reparentObject([createdEntity], parentNode, beforeNode)
           return
         }
       }

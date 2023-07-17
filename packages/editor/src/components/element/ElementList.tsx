@@ -75,6 +75,7 @@ type SceneElementType = {
   componentName: string
   label: string
   Icon: any
+  type: typeof ItemTypes.Prefab
 }
 
 type SceneElementListItemType = {
@@ -208,7 +209,8 @@ export function ElementList() {
                 item={{
                   componentName: item.name,
                   label: startCase((item.jsonID || item.name).replace('-', ' ').toLowerCase()),
-                  Icon: EntityNodeEditor.get(item)?.iconComponent || PlaceHolderIcon
+                  Icon: EntityNodeEditor.get(item)?.iconComponent || PlaceHolderIcon,
+                  type: ItemTypes.Prefab
                 }}
                 onClick={addSceneComponentElement}
                 onContextMenu={onContextMenu}
