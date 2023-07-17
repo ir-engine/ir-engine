@@ -24,7 +24,6 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import React, { useState } from 'react'
-import styled from 'styled-components'
 
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import { Box, Collapse, Container, ContainerProps, Divider, Stack } from '@mui/material'
