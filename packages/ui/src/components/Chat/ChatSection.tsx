@@ -40,13 +40,6 @@ import SettingIcon from './assets/setting.svg'
 import { ChannelsList } from './ChannelsList'
 import { Create } from './Create'
 
-/**
- * @todo
- * - replace ChatTypes with just 'Channels'
- * - remove channelType
- * -
- */
-
 const ChatTypes = ['Channels'] as const
 
 /**

@@ -206,14 +206,14 @@ export const startMediaRecording = async (recordingID: string, userID: UserId, m
     const peerMedia = Object.entries(peer.media!).filter(([type]) => mediaChannels.includes(type as DataChannelType))
 
     if (peerMedia.length) {
-      for (const [channelType, media] of peerMedia) {
+      for (const [dataChannelType, media] of peerMedia) {
         if (!mediaStreams[peerID]) mediaStreams[peerID] = {}
         const mediaType =
-          channelType === webcamAudioDataChannelType || channelType === webcamVideoDataChannelType
+          dataChannelType === webcamAudioDataChannelType || dataChannelType === webcamVideoDataChannelType
             ? 'webcam'
             : 'screenshare'
         const trackType =
-          channelType === webcamAudioDataChannelType || channelType === screenshareAudioDataChannelType
+          dataChannelType === webcamAudioDataChannelType || dataChannelType === screenshareAudioDataChannelType
             ? 'audio'
             : 'video'
         if (!mediaStreams[peerID][mediaType]) mediaStreams[peerID][mediaType] = {}

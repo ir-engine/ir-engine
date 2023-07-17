@@ -27,6 +27,7 @@ import { BadRequest } from '@feathersjs/errors'
 import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
 import { Op } from 'sequelize'
 
+import { Channel } from '@etherealengine/common/src/interfaces/Channel'
 import { Message as MessageInterface } from '@etherealengine/common/src/interfaces/Message'
 import { UserInterface } from '@etherealengine/common/src/interfaces/User'
 
@@ -58,119 +59,62 @@ export class Message<T = MessageDataType> extends Service<T> {
    * @returns {@Object} created message
    */
   async create(data: any, params?: MessageParams): Promise<T> {
-    let channel, channelId
+    let channel: Channel | null = null
     let userIdList: any[] = []
     const loggedInUser = params!.user as UserInterface
     const userId = loggedInUser?.id
-    const targetObjectId = data.channelId
+    const givenChannelId = data.channelId
+    const instanceId = data.instanceId
     const channelModel = this.app.service('channel').Model
 
-    if (targetObjectType === 'user') {
-      const targetUser = await this.app.service('user').get(targetObjectId)
-      if (targetUser == null) {
-        throw new BadRequest('Invalid target user ID')
-      }
-      channel = await channelModel.findOne({
-        where: {
-          [Op.or]: [
-            {
-              userId1: userId,
-              userId2: targetObjectId
-            },
-            {
-              userId2: userId,
-              userId1: targetObjectId
-            }
-          ]
+    if (givenChannelId) channel = await this.app.service('channel').get(givenChannelId)
+
+    if (!channel) {
+      if (instanceId) {
+        const targetInstance = await this.app.service('instance').get(instanceId)
+        if (targetInstance == null) {
+          throw new BadRequest('Invalid target instance ID')
         }
-      })
-      if (channel == null) {
-        channel = await this.app.service('channel').create({})
-      }
-      channelId = channel.id
-      userIdList = [userId, targetObjectId]
-    } else if (targetObjectType === 'group') {
-      const targetGroup = await this.app.service('group').get(targetObjectId)
-      if (targetGroup == null) {
-        throw new BadRequest('Invalid target group ID')
-      }
-      channel = await channelModel.findOne({
-        where: {
-          groupId: targetObjectId
+        channel = await channelModel.findOne({
+          where: {
+            instanceId
+          }
+        })
+        if (channel == null) {
+          channel = (await this.app.service('channel').create({
+            instanceId
+          })) as Channel
         }
-      })
-      if (channel == null) {
-        channel = await this.app.service('channel').create({})
-      }
-      channelId = channel.id
-      const groupUsers = await this.app.service('group-user').find({
-        query: {
-          groupId: targetObjectId
-        }
-      })
-      userIdList = (groupUsers as any).data.map((groupUser) => {
-        return groupUser.userId
-      })
-    } else if (targetObjectType === 'party') {
-      const targetParty = await this.app.service('party').Model.count({ where: { id: targetObjectId } })
-      if (targetParty <= 0) {
-        throw new BadRequest('Invalid target party ID')
-      }
-      channel = await channelModel.findOne({
-        where: {
-          partyId: targetObjectId
-        }
-      })
-      if (channel == null) {
-        channel = await this.app.service('channel').create({})
-      }
-      channelId = channel.id
-      const partyUsers = await this.app.service('party-user').Model.findAll({ where: { partyId: targetObjectId } })
-      userIdList = partyUsers.map((partyUser) => partyUser.userId)
-    } else if (targetObjectType === 'instance') {
-      const targetInstance = await this.app.service('instance').get(targetObjectId)
-      if (targetInstance == null) {
-        throw new BadRequest('Invalid target instance ID')
-      }
-      channel = await channelModel.findOne({
-        where: {
-          instanceId: targetObjectId
-        }
-      })
-      if (channel == null) {
-        channel = await this.app.service('channel').create({
-          instanceId: targetObjectId
+        const instanceUsers = await this.app.service('user').find({
+          query: {
+            $limit: 1000
+          },
+          sequelize: {
+            include: [
+              {
+                model: this.app.service('instance-attendance').Model,
+                as: 'instanceAttendance',
+                where: {
+                  instanceId
+                }
+              }
+            ]
+          }
+        })
+        userIdList = (instanceUsers as any).data.map((instanceUser) => {
+          return instanceUser.id
         })
       }
-      channelId = channel.id
-      const instanceUsers = await this.app.service('user').find({
-        query: {
-          $limit: 1000
-        },
-        sequelize: {
-          include: [
-            {
-              model: this.app.service('instance-attendance').Model,
-              as: 'instanceAttendance',
-              where: {
-                instanceId: targetObjectId
-              }
-            }
-          ]
-        }
-      })
-      userIdList = (instanceUsers as any).data.map((instanceUser) => {
-        return instanceUser.id
-      })
     }
+    if (!channel) throw new BadRequest('Could not find or create channel')
 
-    const messageData: any = {
+    const messageData = {
       senderId: userId,
-      channelId: channelId,
+      channelId: channel.id,
       text: data.text,
       isNotification: data.isNotification
     }
-    const newMessage: any = await super.create({ ...messageData })
+    const newMessage = (await super.create(messageData as any)) as MessageInterface
     newMessage.sender = loggedInUser
 
     await Promise.all(
@@ -185,6 +129,6 @@ export class Message<T = MessageDataType> extends Service<T> {
 
     // await this.app.service('channel').patch(channelId, {})
 
-    return newMessage
+    return newMessage as T
   }
 }

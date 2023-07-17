@@ -57,6 +57,9 @@ export default (app: Application) => {
 
   service.hooks(hooks)
 
+  // temp
+  return
+
   /**
    * A method which is used to create channel
    *

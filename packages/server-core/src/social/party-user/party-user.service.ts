@@ -119,7 +119,6 @@ export default (app: Application): void => {
         .Model.findAll({ where: { partyId: data.partyId }, limit: 1000 })
       const partyChannel = await app.service('channel').Model.findOne({
         where: {
-          channelType: 'party',
           partyId: data.partyId
         }
       })

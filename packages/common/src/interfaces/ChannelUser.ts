@@ -23,6 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { ChannelInterface } from '../dbmodels/Channel'
 import { OpaqueType } from './OpaqueType'
 import { UserInterface } from './User'
 import { UserId } from './UserId'
@@ -30,7 +31,9 @@ import { UserId } from './UserId'
 export type ChannelID = OpaqueType<'ChannelID'> & string
 
 export type ChannelUser = {
-  id: ChannelID
+  id: string
   userId?: UserId
-  user: UserInterface
+  user?: UserInterface
+  channelId?: ChannelID
+  channel?: ChannelInterface
 }

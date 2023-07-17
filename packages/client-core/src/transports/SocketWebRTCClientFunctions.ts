@@ -629,10 +629,7 @@ export async function onConnectToMediaInstance(network: SocketWebRTCClientNetwor
       //to provide data for a short time. If it's necessary for some logic to work, then it should be rewritten
       //to do something like record when it started being muted, and only run if it's been muted for a while.
       consumerMatch == null /*|| (consumerMatch.track?.muted && consumerMatch.track?.enabled)*/ &&
-      (channelType === 'instance'
-        ? currentChannelInstanceConnection.channelType === 'instance'
-        : currentChannelInstanceConnection.channelType === channelType &&
-          currentChannelInstanceConnection.channelId === channelId)
+      currentChannelInstanceConnection.channelId === channelId
     ) {
       // that we don't already have consumers for...
       await subscribeToTrack(network as SocketWebRTCClientNetwork, peerID, mediaTag)
@@ -805,7 +802,7 @@ export async function createTransport(network: SocketWebRTCClientNetwork, direct
   const { transportOptions } = await promisedRequest(network, MessageTypes.WebRTCTransportCreate.toString(), {
     direction,
     sctpCapabilities: network.mediasoupDevice.sctpCapabilities,
-    channelId: channelId
+    channelId
   })
 
   if (config.client.nodeEnv === 'production') transportOptions.iceServers = PUBLIC_STUN_SERVERS

@@ -341,11 +341,10 @@ export const handleConnectingPeer = async (
 
   const app = Engine.instance.api as Application
 
-  if (!instanceServerState.isMediaInstance)
+  if (!instanceServerState.isMediaInstance) {
     app.service('message').create(
       {
-        targetObjectId: instanceServerState.instance.id,
-        targetObjectType: 'instance',
+        instanceId: instanceServerState.instance.id,
         text: `${user.name} joined` + (spectating ? ' as spectator' : ''),
         isNotification: true
       },
@@ -355,6 +354,7 @@ export const handleConnectingPeer = async (
         }
       }
     )
+  }
 }
 
 export async function handleJoinWorld(
@@ -515,10 +515,8 @@ export async function handleDisconnect(network: SocketWebRTCServerNetwork, spark
     NetworkPeerFunctions.destroyPeer(network, peerID)
     updatePeers(network)
     logger.info(`Disconnecting user ${userId} on spark ${peerID}`)
-    if (disconnectedClient?.instanceRecvTransport) disconnectedClient.instanceRecvTransport.close()
-    if (disconnectedClient?.instanceSendTransport) disconnectedClient.instanceSendTransport.close()
-    if (disconnectedClient?.channelRecvTransport) disconnectedClient.channelRecvTransport.close()
-    if (disconnectedClient?.channelSendTransport) disconnectedClient.channelSendTransport.close()
+    if (disconnectedClient?.recvTransport) disconnectedClient.recvTransport.close()
+    if (disconnectedClient?.sendTransport) disconnectedClient.sendTransport.close()
   } else {
     logger.warn("Spark didn't match for disconnecting client.")
   }

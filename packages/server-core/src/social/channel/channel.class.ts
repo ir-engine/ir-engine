@@ -30,6 +30,7 @@ import _ from 'lodash'
 import { Op } from 'sequelize'
 
 import { Channel as ChannelInterface } from '@etherealengine/common/src/interfaces/Channel'
+import { ChannelID } from '@etherealengine/common/src/interfaces/ChannelUser'
 import { UserInterface } from '@etherealengine/common/src/interfaces/User'
 import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 
@@ -64,7 +65,7 @@ export class Channel<T = ChannelDataType> extends Service<T> {
       await Promise.all(
         [userId, ...users].map(async (user) =>
           this.app.service('channel-user').create({
-            channelId: channel.id,
+            channelId: channel.id as ChannelID,
             userId: user
           })
         )
@@ -86,6 +87,7 @@ export class Channel<T = ChannelDataType> extends Service<T> {
       return channelWithUsers
     } else if (data.instanceId) {
       const channel = (await super.create({
+        // @ts-ignore
         instanceId: data.instanceId
       })) as ChannelDataType
     }
