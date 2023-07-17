@@ -159,7 +159,7 @@ export const AssetsPreviewPanel = React.forwardRef(({ hideHeading }: Props, ref)
 
   return (
     <>
-      {!hideHeading && <div style={assetHeadingStyles}>{previewPanel.resourceProps.name}</div>}
+      {!hideHeading && <div style={assetHeadingStyles as React.CSSProperties}>{previewPanel.resourceProps.name}</div>}
       {previewPanel.PreviewSource && <previewPanel.PreviewSource resourceProps={previewPanel.resourceProps} />}
     </>
   )
