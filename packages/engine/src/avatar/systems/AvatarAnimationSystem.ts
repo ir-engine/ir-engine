@@ -60,7 +60,7 @@ import { InputState } from '../../input/state/InputState'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
 import { Physics, RaycastArgs } from '../../physics/classes/Physics'
 import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
-import { SceneQueryType } from '../../physics/types/PhysicsTypes'
+import { RaycastHit, SceneQueryType } from '../../physics/types/PhysicsTypes'
 import { RendererState } from '../../renderer/RendererState'
 import { addObjectToGroup, GroupComponent } from '../../scene/components/GroupComponent'
 import { NameComponent } from '../../scene/components/NameComponent'
@@ -198,6 +198,38 @@ const setVisualizers = () => {
   console.log(visualizers)
 }
 
+const footRaycastArgs = {
+  type: SceneQueryType.Closest,
+  origin: new Vector3(),
+  direction: new Vector3(0, -1, 0),
+  maxDistance: 0,
+  groups: interactionGroups
+} as RaycastArgs
+
+const lastRayInfo = {} as Record<number, RaycastHit>
+const setFootTarget = (
+  hipsPos: Vector3,
+  footPos: targetTransform,
+  legLength: number,
+  castRay: boolean,
+  index: number
+) => {
+  footRaycastArgs.origin.set(footPos.position.x, hipsPos.y, footPos.position.z)
+  footRaycastArgs.maxDistance = legLength
+
+  if (castRay) {
+    const castedRay = Physics.castRay(Engine.instance.physicsWorld, footRaycastArgs)
+    if (castedRay[0]) lastRayInfo[index] = castedRay[0]
+    else delete lastRayInfo[index]
+  }
+
+  const castedRay = lastRayInfo[index]
+  if (castedRay) footPos.position.copy(castedRay.position as Vector3)
+}
+
+const footRaycastInterval = 0.25
+let footRaycastTimer = 0
+
 const execute = () => {
   const xrState = getState(XRState)
   const { priorityQueue, sortedTransformEntities, visualizers } = getState(AvatarAnimationState)
@@ -307,6 +339,8 @@ const execute = () => {
   const avatarAnimationEntities = avatarAnimationQuery().filter(filterPriorityEntities)
   const loopAnimationEntities = loopAnimationQuery().filter(filterPriorityEntities)
   const ikEntities = ikTargetQuery()
+
+  footRaycastTimer += deltaSeconds
 
   for (const entity of avatarAnimationEntities) {
     /**
@@ -469,22 +503,12 @@ const execute = () => {
       xrValue
     )
 
-    //raycasting here every frame is terrible, this should be done every quarter of a second at most, or else done with colliders
-    //cast ray for right foot, starting at hips y position and foot x/z
-    const footRaycastArgs = {
-      type: SceneQueryType.Closest,
-      origin: new Vector3(
-        worldSpaceTargets.rightFootTarget.position.x,
-        hipsWorldSpace.y,
-        worldSpaceTargets.rightFootTarget.position.z
-      ),
-      direction: new Vector3(0, -1, 0),
-      maxDistance: rightLegLength,
-      groups: interactionGroups
-    } as RaycastArgs
+    setFootTarget(worldSpaceTargets.hipsTarget.position, worldSpaceTargets.rightFootTarget, rightLegLength, true, 0)
+    setFootTarget(worldSpaceTargets.hipsTarget.position, worldSpaceTargets.leftFootTarget, leftLegLength, true, 1)
 
-    const rightCastedRay = Physics.castRay(Engine.instance.physicsWorld, footRaycastArgs)
-    //if (rightCastedRay[0]) worldSpaceTargets.rightFootTarget.copy(rightCastedRay[0].position as Vector3)
+    if (footRaycastTimer >= footRaycastInterval) {
+      footRaycastTimer = 0
+    }
 
     solveTwoBoneIK(
       rig.rightUpperLeg.node,
@@ -500,15 +524,6 @@ const execute = () => {
       midAxisRestriction
     )
 
-    //reuse raycast args object, cast ray for left foot
-    footRaycastArgs.origin.set(
-      worldSpaceTargets.leftFootTarget.position.x,
-      hipsWorldSpace.y,
-      worldSpaceTargets.leftFootTarget.position.z
-    )
-    footRaycastArgs.maxDistance = leftLegLength
-    const leftCastedRay = Physics.castRay(Engine.instance.physicsWorld, footRaycastArgs)
-    //if (leftCastedRay[0]) worldSpaceTargets.leftFootTarget.copy(leftCastedRay[0].position as Vector3)
     solveTwoBoneIK(
       rig.leftUpperLeg.node,
       rig.leftLowerLeg.node,
