@@ -278,9 +278,6 @@ export class Engine {
    */
   networkObjectQuery = defineQuery([NetworkObjectComponent])
 
-  /** Registry map of prefabs  */
-  scenePrefabRegistry = new Map<string, ComponentJson[]>()
-
   /** A screenspace raycaster for the pointer */
   pointerScreenRaycaster = new Raycaster()
 
