@@ -38,6 +38,7 @@ import { ChatService } from './ChatService'
 
 //State
 
+/** @deprecated */
 const GroupState = defineState({
   name: 'GroupState',
   initial: () => ({
@@ -61,6 +62,7 @@ const GroupState = defineState({
   })
 })
 
+/** @deprecated */
 export const GroupServiceReceptor = (action) => {
   const s = getMutableState(GroupState)
   matches(action)
@@ -173,6 +175,7 @@ export const GroupServiceReceptor = (action) => {
 }
 
 //Service
+/** @deprecated */
 export const GroupService = {
   getGroups: async (skip?: number, limit?: number) => {
     dispatchAction(GroupAction.fetchingGroups({}))
@@ -329,6 +332,7 @@ export const GroupService = {
 }
 
 //Action
+/** @deprecated */
 export class GroupAction {
   static loadedGroups = defineAction({
     type: 'ee.client.Group.LOADED_GROUPS' as const,

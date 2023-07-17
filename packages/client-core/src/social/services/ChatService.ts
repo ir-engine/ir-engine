@@ -23,36 +23,22 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Paginated } from '@feathersjs/feathers'
 import { none } from '@hookstate/core'
 import { useEffect } from 'react'
 
 import { Channel } from '@etherealengine/common/src/interfaces/Channel'
-import { Group } from '@etherealengine/common/src/interfaces/Group'
-import { Instance } from '@etherealengine/common/src/interfaces/Instance'
 import { Message } from '@etherealengine/common/src/interfaces/Message'
-import { Party } from '@etherealengine/common/src/interfaces/Party'
 import { UserInterface } from '@etherealengine/common/src/interfaces/User'
 import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 import multiLogger from '@etherealengine/common/src/logger'
 import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { defineAction, defineState, dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
+import { defineAction, defineState, dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 
-import { API } from '../../API'
 import { NotificationService } from '../../common/services/NotificationService'
 import { AuthState } from '../../user/services/AuthService'
 
 const logger = multiLogger.child({ component: 'client-core:social' })
-
-interface ChatMessageProps {
-  targetObjectId: string // ChannelID
-  /**@deprecated */
-  targetObjectType: string //
-  text: string
-}
-
-//State
 
 export const ChatState = defineState({
   name: 'ChatState',
@@ -205,12 +191,7 @@ export const ChatService = {
     try {
       const chatState = getMutableState(ChatState).value
 
-      const channelResult = (await Engine.instance.api.service('channel').find({
-        query: {
-          $limit: limit != null ? limit : chatState.channels.limit,
-          $skip: skip != null ? skip : chatState.channels.skip
-        }
-      })) as Channel[]
+      const channelResult = (await Engine.instance.api.service('channel').find({})) as Channel[]
       dispatchAction(ChatAction.loadedChannelsAction({ channels: channelResult }))
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
@@ -253,41 +234,19 @@ export const ChatService = {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
   },
-  createMessage: async (values: ChatMessageProps) => {
+  createMessage: async (text: string) => {
     try {
       const chatState = getMutableState(ChatState).value
-      const data = {
-        channelId: chatState.targetChannelId || values.targetObjectId || '',
-        text: values.text
-      }
-      if (!data.channelId) {
-        logger.warn({ data }, 'Invalid data, something is null.')
+      if (!chatState.targetChannelId) {
+        logger.error('Error no target channel found')
         return
       }
-      await Engine.instance.api.service('message').create(data)
+      await Engine.instance.api.service('message').create({
+        channelId: chatState.targetChannelId,
+        text
+      })
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
-    }
-  },
-  sendChatMessage: (values: ChatMessageProps) => {
-    try {
-      Engine.instance.api.service('message').create({
-        targetObjectId: values.targetObjectId,
-        targetObjectType: values.targetObjectType,
-        text: values.text
-      })
-    } catch (err) {
-      logger.error(err, 'Error in sendChatMessage.')
-    }
-  },
-  sendMessage: (text: string) => {
-    const instanceId = Engine.instance.worldNetwork.hostId
-    if (instanceId && text) {
-      ChatService.sendChatMessage({
-        targetObjectId: instanceId,
-        targetObjectType: 'instance',
-        text: text
-      })
     }
   },
   clearChatTargetIfCurrent: async (targetChannelId: string) => {

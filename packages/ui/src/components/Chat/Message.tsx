@@ -25,56 +25,58 @@ Ethereal Engine. All Rights Reserved.
 
 import React from 'react'
 
+import { ChatService, ChatState } from '@etherealengine/client-core/src/social/services/ChatService'
+import { useUserAvatarThumbnail } from '@etherealengine/client-core/src/user/functions/useUserAvatarThumbnail'
+import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+
 import AttachFileIcon from './assets/attach-file2.svg'
 import CallIcon from './assets/call.svg'
 import UserIcon from './assets/icon-user1.png'
 import SendIcon from './assets/send.svg'
 import UserSvg from './assets/user.svg'
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
-import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
-import { ChatService, ChatState } from '@etherealengine/client-core/src/social/services/ChatService'
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { useUserAvatarThumbnail } from '@etherealengine/client-core/src/user/functions/useUserAvatarThumbnail'
 
 export const Message = () => {
   const userName = useHookstate(getMutableState(AuthState).user.name).value
   const chatState = useHookstate(getMutableState(ChatState))
-  const activeChannel = chatState.channels.value?.channels.find(channel => channel.id === chatState.targetChannelId.value)
+  const activeChannel = chatState.channels.value?.channels.find(
+    (channel) => channel.id === chatState.targetChannelId.value
+  )
   const userThumbnail = useUserAvatarThumbnail(Engine.instance.userId)
+
+  const channelUserNames =
+    activeChannel?.channel_users.map((user) => user.user!.name).filter((name) => name !== userName) ?? []
 
   const messages = activeChannel?.messages ?? []
 
   const composingMessage = useHookstate('')
 
-  const SelfMessage = (props: { message: typeof messages[0] }) => {
-    return <div className="flex flex-wrap mt-6 ">
-      <div className="h-[20px] mx-[147px] mr-5">
-        <p className="rounded-xl border-[#E1E1E1] border-2 text-black bg-[#E1E1E1] p-[3px]">
-          {props.message.text}
-        </p>
+  const SelfMessage = (props: { message: (typeof messages)[0] }) => {
+    return (
+      <div className="flex flex-wrap mt-6 ">
+        <div className="h-[20px] mx-[147px] mr-5">
+          <p className="rounded-xl border-[#E1E1E1] border-2 text-black bg-[#E1E1E1] p-[3px]">{props.message.text}</p>
+        </div>
+        <img className="rounded-[38px]  w-9 h-9 object-cover" alt="" src={userThumbnail} />
       </div>
-      <img className="rounded-[38px]  w-9 h-9 object-cover" alt="" src={userThumbnail} />
-    </div>
+    )
   }
 
-  const OtherMessage = (props: { message: typeof messages[0] }) => {
+  const OtherMessage = (props: { message: (typeof messages)[0] }) => {
     const userThumbnail = useUserAvatarThumbnail(props.message.sender.id)
-    return <div className="flex flex-wrap">
-      <img className="rounded-[38px]  w-9 h-9 object-cover" alt="" src={userThumbnail} />
-      <div className="h-[20px] ml-5">
-        <p className="rounded-3xl border-[#F8F8F8] border-2 text-black bg-[#F8F8F8] p-[3px]">
-        {props.message.text}
-        </p>
+    return (
+      <div className="flex flex-wrap">
+        <img className="rounded-[38px]  w-9 h-9 object-cover" alt="" src={userThumbnail} />
+        <div className="h-[20px] ml-5">
+          <p className="rounded-3xl border-[#F8F8F8] border-2 text-black bg-[#F8F8F8] p-[3px]">{props.message.text}</p>
+        </div>
       </div>
-    </div>
+    )
   }
 
   const sendMessage = () => {
-    ChatService.sendChatMessage({
-      targetObjectId: chatState.targetObjectId.value,
-      targetObjectType:chatState.targetObjectType.value, 
-      text: composingMessage.value
-    })
+    ChatService.createMessage(composingMessage.value)
     composingMessage.set('')
   }
 
@@ -82,7 +84,7 @@ export const Message = () => {
     <div className="maxw-[760px] w-[765px] h-[100vh] bg-white">
       <div className="w-[720px] h-[90px] flex flex-wrap gap-[450px] ml-5 justify-center">
         <div className="mt-7">
-          <p className="text-3xl font-bold text-[#3F3960]">{userName}</p>
+          <p className="text-3xl font-bold text-[#3F3960]">{channelUserNames.join(', ')}</p>
         </div>
         <div className="flex justify-center">
           <button className="">
@@ -92,9 +94,10 @@ export const Message = () => {
       </div>
       <div className="box-border w-[765px] border-t-[1px] border-solid border-[#D1D3D7]" />
       <div className="w-[720px] bg-[#FFFFFF] ml-6 mb-[100px] mt-4 justify-center content-center overflow-scroll hide-scroll">
-        {messages.map((message, index) => <>
-          {message.sender.id === Engine.instance.userId ? <SelfMessage key={index} message={message} /> : <OtherMessage key={index} message={message} />}
-        </>)}
+        {messages.map((message, index) => {
+          if (message.sender.id === Engine.instance.userId) return <SelfMessage key={index} message={message} />
+          else return <OtherMessage key={index} message={message} />
+        })}
       </div>
       <div className="absolute w-[755px] bottom-0 h-[70px]  gap-5 flex flex-wrap justify-center bg-[#ffffff]">
         <button className="">

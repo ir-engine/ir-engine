@@ -38,15 +38,13 @@ import { ChatAction, ChatService, ChatState } from '@etherealengine/client-core/
 import { LocationState } from '@etherealengine/client-core/src/social/services/LocationService'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
-import { PresentationSystemGroup } from '@etherealengine/engine/src/ecs/functions/EngineFunctions'
-import { useSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
 import { dispatchAction, getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
 
 import { Groups } from '@mui/icons-material'
 
 import { FriendService } from '../social/services/FriendService'
-import { PartyService, PartyState, PartySystem } from '../social/services/PartyService'
+import { PartyService, PartyState } from '../social/services/PartyService'
 import FriendsMenu from '../user/components/UserMenu/menus/FriendsMenu'
 import PartyMenu from '../user/components/UserMenu/menus/PartyMenu'
 import { PopupMenuState } from '../user/components/UserMenu/PopupMenuService'
@@ -196,8 +194,6 @@ export const PartyInstanceProvisioning = () => {
   const selfUser = authState.user
   const chatState = useHookstate(getMutableState(ChatState))
   const partyState = useHookstate(getMutableState(PartyState))
-
-  useSystem(PartySystem, { before: PresentationSystemGroup })
 
   const currentChannelInstanceConnection = useMediaInstance()
 

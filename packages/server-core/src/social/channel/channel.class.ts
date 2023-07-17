@@ -103,47 +103,52 @@ export class Channel<T = ChannelDataType> extends Service<T> {
   async find(params?: UserParams): Promise<T[] | Paginated<T>> {
     if (!params) params = {}
     const query = params.query!
-    const skip = query?.skip || 0
-    const limit = query?.limit || 10
     const loggedInUser = params!.user as UserInterface
     const userId = loggedInUser.id
+    if (!userId) return []
+
     try {
-      const subParams = {
-        subQuery: false,
-        offset: skip,
-        limit: limit,
-        order: [['updatedAt', 'DESC']],
+      if (query.instanceId) {
+        const channels = await this.app.service('channel').Model.findAll({
+          include: [
+            {
+              model: this.app.service('instance').Model,
+              required: true,
+              where: {
+                ended: false
+              },
+              include: [
+                /** @todo - couldn't figure out how to include active users */
+                // {
+                //   model: this.app.service('user').Model,
+                // },
+                {
+                  model: this.app.service('message').Model,
+                  limit: 20,
+                  order: [['createdAt', 'DESC']],
+                  include: [
+                    {
+                      model: this.app.service('user').Model,
+                      as: 'sender'
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        })
+
+        return channels.filter((channel) => {
+          return channel.instance.id === query.instanceId // && channel.instance.users.find((user) => user.id === userId)
+        })
+      }
+
+      return this.app.service('channel').Model.findAll({
         include: [
-          // 'user1',
-          // 'user2',
-          // {
-          //   model: this.app.service('group').Model,
-          //   include: [
-          //     {
-          //       model: this.app.service('group-user').Model,
-          //       include: [
-          //         {
-          //           model: this.app.service('user').Model
-          //         }
-          //       ]
-          //     }
-          //   ]
-          // },
-          // {
-          //   model: this.app.service('party').Model,
-          //   include: [
-          //     {
-          //       model: this.app.service('party-user').Model,
-          //       include: [
-          //         {
-          //           model: this.app.service('user').Model
-          //         }
-          //       ]
-          //     }
-          //   ]
-          // },
           {
-            model: this.app.service('instance').Model,
+            model: this.app.service('channel-user').Model,
+            required: true,
+            where: { userId },
             include: [
               {
                 model: this.app.service('user').Model
@@ -161,40 +166,7 @@ export class Channel<T = ChannelDataType> extends Service<T> {
               }
             ]
           }
-        ],
-        where: {
-          [Op.or]: [
-            // {
-            //   [Op.or]: [
-            //     {
-            //       userId1: userId
-            //     },
-            //     {
-            //       userId2: userId
-            //     }
-            //   ]
-            // },
-            // {
-            //   '$group.group_users.userId$': userId
-            // },
-            // {
-            //   '$party.party_users.userId$': userId
-            // },
-            {
-              '$instance.users.id$': userId
-            }
-          ]
-        }
-      }
-      // if (query.targetObjectType) (subParams.where as any).channelType = query.targetObjectType
-      // if (query.channelType) (subParams.where as any).channelType = query.channelType
-      // const results = await this.app.service('channel').Model.findAndCountAll(subParams)
-
-      let where = {} as any
-      if (query.instanceId) where.instanceId = query.instanceId
-      return this.app.service('channel').Model.findAll({
-        include: params.sequelize.include,
-        where
+        ]
       })
     } catch (err) {
       logger.error(err, `Channel find failed: ${err.message}`)

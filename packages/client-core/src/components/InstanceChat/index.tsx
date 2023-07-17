@@ -164,11 +164,7 @@ export const useChatHooks = ({ chatWindowOpen, setUnreadMessages, messageRefInpu
         )
       }
 
-      ChatService.createMessage({
-        targetObjectId: instanceId,
-        targetObjectType: 'instance',
-        text: composingMessage.value
-      })
+      ChatService.createMessage(composingMessage.value)
       composingMessage.set('')
     }
 

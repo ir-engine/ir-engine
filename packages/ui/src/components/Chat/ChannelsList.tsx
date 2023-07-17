@@ -23,15 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React, { useEffect, useState } from 'react'
+import React, { useEffect } from 'react'
 
 import { ChatService, ChatState } from '@etherealengine/client-core/src/social/services/ChatService'
 import { useUserAvatarThumbnail } from '@etherealengine/client-core/src/user/functions/useUserAvatarThumbnail'
-import { UserId } from '@etherealengine/common/src/interfaces/UserId'
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
-import UserIcon from './assets/icon-user.png'
 import { DrawerCreateChannel } from './DrawerCreateChannel'
 
 export const ChannelsList = () => {
@@ -51,8 +48,6 @@ export const ChannelsList = () => {
 
   useEffect(() => {
     chatState.targetChannelId.set(selectedChannelId.value)
-    chatState.targetObjectId.set(selectedChannelId.value)
-    chatState.targetObjectType.set('user') //todo
   }, [selectedChannelId])
 
   const channels = chatState.channels.value.channels ?? []

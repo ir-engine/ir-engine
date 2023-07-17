@@ -23,6 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { ChannelUser } from './ChannelUser'
 import { Message } from './Message'
 import { UserId } from './UserId'
 
@@ -37,4 +38,5 @@ export type Channel = {
   limit: 5
   skip: 0
   total: 0
+  channel_users: ChannelUser[]
 }

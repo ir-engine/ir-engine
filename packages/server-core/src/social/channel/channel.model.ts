@@ -52,7 +52,7 @@ export default (app: Application) => {
 
   ;(channel as any).associate = (models: any): void => {
     ;(channel as any).hasMany(models.message, { foreignKey: 'channelId', onDelete: 'cascade', hooks: true })
-    // ;(channel as any).hasMany(models.user, { foreignKey: 'ownerId' })
+    ;(channel as any).hasMany(models.channel_user, { foreignKey: 'channelId', onDelete: 'cascade', hooks: true })
     ;(channel as any).belongsTo(models.instance, { foreignKey: 'instanceId' })
   }
 
