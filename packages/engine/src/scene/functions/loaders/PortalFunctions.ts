@@ -27,7 +27,6 @@ import { dispatchAction, getState } from '@etherealengine/hyperflux'
 
 import { AvatarStates } from '../../../avatar/animation/Util'
 import { AvatarControllerComponent } from '../../../avatar/components/AvatarControllerComponent'
-import { SpawnPoseComponent } from '../../../avatar/components/SpawnPoseComponent'
 import { teleportAvatar } from '../../../avatar/functions/moveAvatar'
 import { switchCameraMode } from '../../../avatar/functions/switchCameraMode'
 import { AvatarNetworkAction } from '../../../avatar/state/AvatarNetworkState'
@@ -36,6 +35,7 @@ import { Engine } from '../../../ecs/classes/Engine'
 import { EngineActions, EngineState } from '../../../ecs/classes/EngineState'
 import { Entity } from '../../../ecs/classes/Entity'
 import { getComponent } from '../../../ecs/functions/ComponentFunctions'
+import { EntityNetworkState } from '../../../networking/state/EntityNetworkState'
 import { PortalComponent } from '../../components/PortalComponent'
 import { UUIDComponent } from '../../components/UUIDComponent'
 
@@ -52,7 +52,9 @@ export const setAvatarToLocationTeleportingState = () => {
 
 export const revertAvatarToMovingStateFromTeleport = () => {
   const localClientEntity = Engine.instance.localClientEntity
-  getComponent(localClientEntity, SpawnPoseComponent).position.copy(Engine.instance.activePortal!.remoteSpawnPosition)
+  getState(EntityNetworkState)[getComponent(localClientEntity, UUIDComponent)].spawnPosition.copy(
+    Engine.instance.activePortal!.remoteSpawnPosition
+  )
   getComponent(localClientEntity, AvatarControllerComponent).movementEnabled = true
 
   // teleport player to where the portal spawn position is

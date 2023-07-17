@@ -201,7 +201,7 @@ const setupLoadingEffect = (entity: Entity, obj: Object3D) => {
         id: object.uuid,
         material: material
       })
-      object.material = DissolveEffect.getDissolveTexture(object as any)
+      object.material = DissolveEffect.createDissolveMaterial(object as any)
     }
   })
   if (hasComponent(entity, AvatarEffectComponent)) removeComponent(entity, AvatarEffectComponent)

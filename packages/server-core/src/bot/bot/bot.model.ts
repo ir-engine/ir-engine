@@ -23,9 +23,15 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { DataTypes, Sequelize } from 'sequelize'
+import { DataTypes, Model, Sequelize } from 'sequelize'
 
 import { Application } from '../../../declarations'
+
+interface BotCommandInterface {
+  id: string
+  name: string
+  description?: string
+}
 
 export default (app: Application) => {
   const sequelizeClient: Sequelize = app.get('sequelizeClient')
@@ -61,7 +67,43 @@ export default (app: Application) => {
     ;(Bot as any).belongsTo(models.location, { foreignKey: 'locationId' })
     ;(Bot as any).belongsTo(models.instance, { foreignKey: { allowNull: true } })
     ;(Bot as any).belongsTo(models.user, { foreignKey: 'userId' })
-    ;(Bot as any).hasMany(models.botCommand, { foreignKey: 'botId' })
+    ;(Bot as any).hasMany(createBotCommandModel(app), { foreignKey: 'botId' })
   }
   return Bot
+}
+
+export const createBotCommandModel = (app: Application) => {
+  const sequelizeClient: Sequelize = app.get('sequelizeClient')
+  const BotCommand = sequelizeClient.define<Model<BotCommandInterface>>(
+    'botCommand',
+    {
+      id: {
+        type: DataTypes.UUID,
+        defaultValue: DataTypes.UUIDV1,
+        allowNull: false,
+        primaryKey: true
+      },
+      name: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        unique: true
+      },
+      description: {
+        type: DataTypes.STRING,
+        allowNull: true
+      }
+    },
+    {
+      hooks: {
+        beforeCount(options: any): void {
+          options.raw = true
+        }
+      }
+    }
+  )
+  ;(BotCommand as any).associate = (models: any): void => {
+    ;(BotCommand as any).belongsTo(models.bot, { foreignKey: 'botId' })
+  }
+
+  return BotCommand
 }

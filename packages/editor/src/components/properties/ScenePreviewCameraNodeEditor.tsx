@@ -24,11 +24,11 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { debounce } from 'lodash'
-import React, { useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { getComponent, setComponent, useComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { getComponent, useComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import {
   LocalTransformComponent,
   TransformComponent
@@ -66,7 +66,7 @@ export const ScenePreviewCameraNodeEditor: EditorComponentType = (props) => {
     setBufferUrl(url)
   }
 
-  const updateCubeMapBakeDebounced = debounce(updateScenePreview, 500) //ms
+  const updateCubeMapBakeDebounced = useCallback(debounce(updateScenePreview, 500), []) //ms
 
   useEffect(() => {
     updateCubeMapBakeDebounced()

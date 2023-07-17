@@ -75,7 +75,7 @@ export class DissolveEffect {
     return true
   }
 
-  static getDissolveTexture(object: Mesh<any, MeshBasicMaterial & ShaderMaterial>): any {
+  static createDissolveMaterial(object: Mesh<any, MeshBasicMaterial & ShaderMaterial>): any {
     const hasUV = object.geometry.hasAttribute('uv')
     const isShaderMaterial = object.material.type == 'ShaderMaterial'
     const isPhysicalMaterial = object.material.type == 'MeshStandardMaterial'
