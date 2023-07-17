@@ -23,21 +23,36 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import type { Params } from '@feathersjs/feathers'
-import { KnexService } from '@feathersjs/knex'
-import type { KnexAdapterParams } from '@feathersjs/knex'
+import { iff, isProvider } from 'feathers-hooks-common'
 
-import {
-  GithubRepoAccessData,
-  GithubRepoAccessPatch,
-  GithubRepoAccessQuery,
-  GithubRepoAccessType
-} from '@etherealengine/engine/src/schemas/user/github-repo-access.schema'
+import authenticate from '../../hooks/authenticate'
 
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface GithubRepoAccessParams extends KnexAdapterParams<GithubRepoAccessQuery> {}
-
-export class GithubRepoAccessService<
-  T = GithubRepoAccessType,
-  ServiceParams extends Params = GithubRepoAccessParams
-> extends KnexService<GithubRepoAccessType, GithubRepoAccessData, GithubRepoAccessParams, GithubRepoAccessPatch> {}
+export default {
+  before: {
+    all: [],
+    find: [iff(isProvider('external'), authenticate() as any)],
+    get: [],
+    create: [],
+    update: [],
+    patch: [],
+    remove: []
+  },
+  after: {
+    all: [],
+    find: [],
+    get: [],
+    create: [],
+    update: [],
+    patch: [],
+    remove: []
+  },
+  error: {
+    all: [],
+    find: [],
+    get: [],
+    create: [],
+    update: [],
+    patch: [],
+    remove: []
+  }
+} as any

@@ -23,21 +23,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import type { Params } from '@feathersjs/feathers'
-import { KnexService } from '@feathersjs/knex'
-import type { KnexAdapterParams } from '@feathersjs/knex'
+export const githubRepoAccessWebhookPath = 'github-repo-access-webhook'
 
-import {
-  GithubRepoAccessData,
-  GithubRepoAccessPatch,
-  GithubRepoAccessQuery,
-  GithubRepoAccessType
-} from '@etherealengine/engine/src/schemas/user/github-repo-access.schema'
-
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface GithubRepoAccessParams extends KnexAdapterParams<GithubRepoAccessQuery> {}
-
-export class GithubRepoAccessService<
-  T = GithubRepoAccessType,
-  ServiceParams extends Params = GithubRepoAccessParams
-> extends KnexService<GithubRepoAccessType, GithubRepoAccessData, GithubRepoAccessParams, GithubRepoAccessPatch> {}
+export const githubRepoAccessWebhookMethods = ['create'] as const
