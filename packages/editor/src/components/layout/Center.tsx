@@ -23,14 +23,18 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import styled from 'styled-components'
+import React from 'react'
 
-const Center = (styled as any).div`
-  display: flex;
-  flex: 1;
-  justify-content: center;
-  align-items: center;
-`
+const centerStyles = {
+  display: 'flex',
+  flex: '1',
+  justifyContent: 'center',
+  alignItems: 'center'
+}
+
+const Center = ({ children }) => {
+  return <div style={centerStyles}>{children}</div>
+}
 
 Center.displayName = 'Center'
 
