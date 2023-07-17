@@ -72,13 +72,21 @@ const PWA = (clientSetting) =>
       enabled: process.env.APP_ENV === 'development' ? true : false,
       // Navigate to index.html for all 404 errors during development
       navigateFallback: undefined,
-      // Allowlist all paths for navigateFallback during development
+      // Allowlist all paths for navigateFallback during production
       navigateFallbackAllowlist: [
         // allow everything
-        new RegExp('^/.*$'),
-        // allow @fs
-        new RegExp('^/@fs/.*$')
+        new RegExp('^/.*$')
       ]
+      // navigateFallbackAllowlist: [
+      //   // allow all node_modules in monorepo
+      //   new RegExp('^/node_modules/.*$'),
+      //   // allow wss://tcb-mbp.shetland-turtle.ts.net:3031/primus
+      //   new RegExp('^/primus/.*$'),
+      //   // allow everything
+      //   new RegExp('^/.*$'),
+      //   // allow @fs
+      //   new RegExp('^/@fs/.*$')
+      // ]
     },
     workbox: {
       // don't wait for service worker to become active

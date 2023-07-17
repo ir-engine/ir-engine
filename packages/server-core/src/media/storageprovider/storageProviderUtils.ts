@@ -31,8 +31,8 @@ export const getFileKeysRecursive = async (path: string, storageProviderName?: s
   const files: string[] = []
   try {
     const response = await storageProvider.listObjects(path, true)
-    const entries = response.Contents
-    if (entries.length) {
+    const entries = response?.Contents
+    if (entries?.length) {
       for (const { Key } of entries) {
         files.push(Key)
       }

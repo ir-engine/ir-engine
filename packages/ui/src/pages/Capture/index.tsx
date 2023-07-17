@@ -34,9 +34,7 @@ import {
   NormalizedLandmark,
   PoseLandmarker
 } from '@mediapipe/tasks-vision'
-// import * as Kalidokit from 'kalidokit'
-// import PoseSolver from './kalidokit/PoseSolver'
-
+import { Face } from 'kalidokit'
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { twMerge } from 'tailwind-merge'
 
@@ -235,8 +233,9 @@ const CaptureDashboard = () => {
             // minFaceDetectionConfidence: 0.5,
             // minFacePresenceConfidence: 0.5,
             // minTrackingConfidence: 0.5,
-            outputFaceBlendshapes: true,
-            outputFacialTransformationMatrixes: true
+
+            outputFaceBlendshapes: true
+            // outputFacialTransformationMatrixes: true
           })
           faceDetector.set(faceLandmarker)
         }
@@ -269,56 +268,88 @@ const CaptureDashboard = () => {
 
     if (processingFrame.value || !poseDetector.value) return
 
-    poseDetector?.value?.detectForVideo(videoRef.current!, videoTime * 1000, (poseResults) => {
-      if (detectingStatus !== 'active') setDetectingStatus('active')
-      if (displaySettings?.show2dSkeleton) {
-        // const poseRig = PoseSolver(poseResults.landmarks, poseResults.worldLandmarks, true)
-        // console.log(`poseRig`, poseRig)
+    const faceResults = faceDetector?.value?.detectForVideo(videoRef.current!, videoTime * 1000)
 
-        const faceResults = faceDetector?.value?.detectForVideo(videoRef.current!, videoTime * 1000)
-        const handResults = handDetector?.value?.detectForVideo(videoRef.current!, videoTime * 1000)
-        sendResults({
-          pose: poseResults.landmarks[0],
-          worldPose: poseResults.worldLandmarks[0],
-          face: faceResults?.faceBlendshapes,
-          hands: handResults?.landmarks[0]
-        })
+    if (detectingStatus !== 'active') setDetectingStatus('active')
 
-        canvasCtxRef?.current?.save()
-        canvasCtxRef?.current?.clearRect(0, 0, canvasRef.current!.width, canvasRef.current!.height)
+    const handResults = handDetector?.value?.detectForVideo(videoRef.current!, videoTime * 1000)
 
-        for (const landmark of poseResults.landmarks) {
-          // drawUtilsRef.current?.drawLandmarks(landmark, {
-          //   // color: 'none',
-          //   radius: (data) => DrawingUtils.lerp(data.from!.z, -0.15, 0.1, 5, 1)
-          // })
-          drawUtilsRef.current?.drawConnectors(landmark, PoseLandmarker.POSE_CONNECTIONS)
-        }
+    const solvedFace = Face?.solve(faceResults?.faceLandmarks[0] || [], {
+      runtime: 'mediapipe', // `mediapipe` or `tfjs`
+      video: videoRef.current!,
+      imageSize: { height: videoRef.current!.clientHeight, width: videoRef.current!.clientWidth }
+      // smoothBlink: false, // smooth left and right eye blink delays
+      // blinkSettings: [0.25, 0.75], // adjust upper and lower bound blink sensitivity
+    })
 
-        for (const landmark of poseResults.landmarks) {
-          drawUtilsRef.current?.drawLandmarks(landmark, {
-            // color: 'none',
-            radius: (data) => DrawingUtils.lerp(data.from!.z, -0.15, 0.1, 5, 1)
-          })
-          drawUtilsRef.current?.drawConnectors(landmark, PoseLandmarker.POSE_CONNECTIONS)
-        }
-
-        if (trackingSettings?.trackFace === true && faceDetector?.value) {
-          // for (const landmark of faceResults!.faceLandmarks) {
-          //   drawUtilsRef.current?.drawConnectors(landmark, FaceLandmarker.FACE_LANDMARKS_TESSELATION)
-          // }
-        }
-
-        if (trackingSettings?.trackHands === true && handDetector?.value) {
-          for (const landmark of handResults?.landmarks || []) {
-            drawUtilsRef.current?.drawConnectors(landmark, HandLandmarker.HAND_CONNECTIONS)
-          }
-        }
-
-        canvasCtxRef.current?.restore()
-      }
+    sendResults({
+      pose: undefined,
+      worldPose: undefined,
+      face: faceResults?.faceBlendshapes,
+      tFace: undefined, // solvedFace,
+      hands: undefined
     })
   })
+  // poseDetector?.value?.detectForVideo(videoRef.current!, videoTime * 1000, (poseResults) => {
+  //   if (detectingStatus !== 'active') setDetectingStatus('active')
+  //   if (displaySettings?.show2dSkeleton) {
+  //     // const poseRig = PoseSolver(poseResults.landmarks, poseResults.worldLandmarks, true)
+  //     // console.log(`poseRig`, poseRig)
+
+  //     const faceResults = faceDetector?.value?.detectForVideo(videoRef.current!, videoTime * 1000)
+  //     const handResults = handDetector?.value?.detectForVideo(videoRef.current!, videoTime * 1000)
+
+  //     const solvedFace = Face.solve(faceResults?.faceLandmarks[0] || [], {
+  //       runtime: "mediapipe", // `mediapipe` or `tfjs`
+  //       video: videoRef.current!,
+  //       imageSize: { height: videoRef.current!.clientHeight, width: videoRef.current!.clientWidth },
+  //       // smoothBlink: false, // smooth left and right eye blink delays
+  //       // blinkSettings: [0.25, 0.75], // adjust upper and lower bound blink sensitivity
+  //     });
+
+  //     sendResults({
+  //       pose: poseResults.landmarks[0],
+  //       worldPose: poseResults.worldLandmarks[0],
+  //       face:  faceResults?.faceBlendshapes,
+  //       solvedFace,
+  //       hands: handResults?.landmarks[0]
+  //     })
+
+  //     canvasCtxRef?.current?.save()
+  //     canvasCtxRef?.current?.clearRect(0, 0, canvasRef.current!.width, canvasRef.current!.height)
+
+  //     for (const landmark of poseResults.landmarks) {
+  //       // drawUtilsRef.current?.drawLandmarks(landmark, {
+  //       //   // color: 'none',
+  //       //   radius: (data) => DrawingUtils.lerp(data.from!.z, -0.15, 0.1, 5, 1)
+  //       // })
+  //       drawUtilsRef.current?.drawConnectors(landmark, PoseLandmarker.POSE_CONNECTIONS)
+  //     }
+
+  //     for (const landmark of poseResults.landmarks) {
+  //       drawUtilsRef.current?.drawLandmarks(landmark, {
+  //         // color: 'none',
+  //         radius: (data) => DrawingUtils.lerp(data.from!.z, -0.15, 0.1, 5, 1)
+  //       })
+  //       drawUtilsRef.current?.drawConnectors(landmark, PoseLandmarker.POSE_CONNECTIONS)
+  //     }
+
+  //     if (trackingSettings?.trackFace === true && faceDetector?.value) {
+  //       // for (const landmark of faceResults!.faceLandmarks) {
+  //       //   drawUtilsRef.current?.drawConnectors(landmark, FaceLandmarker.FACE_LANDMARKS_TESSELATION)
+  //       // }
+  //     }
+
+  //     if (trackingSettings?.trackHands === true && handDetector?.value) {
+  //       for (const landmark of handResults?.landmarks || []) {
+  //         drawUtilsRef.current?.drawConnectors(landmark, HandLandmarker.HAND_CONNECTIONS)
+  //       }
+  //     }
+
+  //     canvasCtxRef.current?.restore()
+  //   }
+  // })
+  // })
 
   // todo include a mechanism to confirm that the recording has started/stopped
   const onToggleRecording = () => {

@@ -101,6 +101,7 @@ export const loadAvatarModelAsset = async (avatarURL: string) => {
   // if (!scene) return
 
   const vrm = model instanceof VRM ? model : model?.userData?.vrm
+  // vrm.humanoid?.autoUpdateHumanBones = false
   // vrm.name = 'vrm'
   // VRMUtils.VRMUtils.removeUnnecessaryJoints(vrm?.scene)
   // VRMUtils.VRMUtils.removeUnnecessaryVertices(vrm?.scene)
