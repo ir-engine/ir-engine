@@ -31,25 +31,25 @@ import { AssetSelectionChangePropsType, AssetsPreviewPanel } from './AssetsPrevi
 import FileBrowserContentPanel from './FileBrowserContentPanel'
 
 const projectDockContainerStyles = {
-  '.dock-panel': {
+  '.dockPanel': {
     background: 'transparent',
     pointerEvents: 'auto',
     border: 'none'
   },
-  '.dock-panel:first-child': {
+  '.dockPanel:firstChild': {
     position: 'relative',
     zIndex: '99'
   },
-  '.dock-panel[data-dockid="+5"]': {
+  '.dockPanel[dataDockid="+5"]': {
     pointerEvents: 'none'
   },
-  '.dock-panel[data-dockid="+5"] .dock-bar': {
+  '.dockPanel[dataDockid="+5"] .dockBar': {
     display: 'none'
   },
-  '.dock-panel[data-dockid="+5"] .dock': {
+  '.dockPanel[dataDockid="+5"] .dock': {
     background: 'transparent'
   },
-  '.dock-divider': {
+  '.dockDivider': {
     pointerEvents: 'auto',
     background: 'rgba(1, 1, 1, 0.3)'
   },
@@ -57,31 +57,31 @@ const projectDockContainerStyles = {
     borderRadius: '4px',
     background: 'var(--dockBackground)'
   },
-  '.dock-top .dock-bar': {
+  '.dockTop .dockBar': {
     fontSize: '12px',
     borderBottom: '1px solid rgba(0, 0, 0, 0.2)',
     background: 'transparent'
   },
-  '.dock-tab': {
+  '.dockTab': {
     background: 'transparent',
     borderBottom: 'none'
   },
-  '.dock-tab:hover, .dock-tab-active, .dock-tab-active:hover': {
+  '.dockTab:hover, .dockTabActive, .dockTabActive:hover': {
     borderBottom: '1px solid #ddd'
   },
-  '.dock-tab:hover div, .dock-tab:hover svg': {
+  '.dockTab:hover div, .dockTab:hover svg': {
     color: 'var(--textColor)'
   },
-  '.dock-tab > div': {
+  '.dockTab > div': {
     padding: '2px 12px'
   },
-  '.dock-tab-active': {
+  '.dockTabActive': {
     color: 'var(--textColor)'
   },
-  '.dock-ink-bar': {
+  '.dockInkBar': {
     backgroundColor: 'var(--textColor)'
   },
-  '.dock-panel-max-btn:before': {
+  '.dockPanelMaxBtn:before': {
     borderColor: 'var(--iconButtonColor)'
   }
 }
