@@ -57,13 +57,12 @@ import { VolumetricComponent } from '@etherealengine/engine/src/scene/components
 import { LocalTransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
 import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
 import { getState } from '@etherealengine/hyperflux'
-import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
 import MenuItem from '@etherealengine/ui/src/primitives/mui/MenuItem'
 import Tooltip from '@etherealengine/ui/src/primitives/mui/Tooltip'
 import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 
 import { GroupAddOutlined as PlaceHolderIcon } from '@mui/icons-material'
-import { PopoverPosition } from '@mui/material'
+import { IconButton, PopoverPosition } from '@mui/material'
 
 import { ItemTypes } from '../../constants/AssetTypes'
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
@@ -124,7 +123,13 @@ const SceneElementListItem = ({ item, onClick, onContextMenu }: SceneElementList
   return (
     <div onContextMenu={(event) => onContextMenu(event, item)}>
       <Tooltip title={item.label} placement="left" disableInteractive>
-        <IconButton className={styles.element} disableRipple ref={drag} onClick={onClickItem} icon={<item.Icon />} />
+        <IconButton
+          className={styles.element}
+          disableRipple
+          ref={drag}
+          onClick={onClickItem}
+          children={<item.Icon />}
+        />
       </Tooltip>
     </div>
   )
@@ -212,7 +217,11 @@ export function ElementList() {
           </div>
         ))}
       </div>
-      <div className={styles.elementDropZone} ref={dropRef} style={{ pointerEvents: isDragging ? 'auto' : 'none' }} />
+      <div
+        className={styles.elementDropZone}
+        ref={dropRef}
+        style={{ pointerEvents: isDragging ? 'auto' : 'none', border: isDragging ? '5px solid red' : 'none' }}
+      />
       <ContextMenu open={open} anchorEl={anchorEl} anchorPosition={anchorPosition} onClose={handleClose}>
         <MenuItem onClick={placeObject}>{t('editor:layout.assetGrid.placeObject')}</MenuItem>
         <MenuItem onClick={placeObjectAtOrigin}>{t('editor:layout.assetGrid.placeObjectAtOrigin')}</MenuItem>
