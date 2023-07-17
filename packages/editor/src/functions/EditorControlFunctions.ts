@@ -207,7 +207,6 @@ const createObjectFromSceneElement = (
   beforeEntity = null as Entity | null,
   updateSelection = true
 ) => {
-  console.log('debug1 componentName--->', componentName)
   cancelGrabOrPlacement()
 
   const newEntity = createEntity()

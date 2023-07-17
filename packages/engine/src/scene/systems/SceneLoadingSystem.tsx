@@ -93,11 +93,10 @@ import { getUniqueName } from '../functions/getUniqueName'
 
 export const createNewEditorNode = (entityNode: Entity, componentName: string): void => {
   const components = [
-    ComponentMap.get(componentName)!,
-    ComponentMap.get(VisibleComponent.name)!,
-    ComponentMap.get(TransformComponent.name)!
+    { name: ComponentMap.get(componentName)!.jsonID! },
+    { name: ComponentMap.get(VisibleComponent.name)!.jsonID! },
+    { name: ComponentMap.get(TransformComponent.name)!.jsonID! }
   ]
-  console.log('debug1 components-->', components)
   const name = getUniqueName(entityNode, `New ${startCase(componentName.toLowerCase())}`)
 
   addEntityNodeChild(entityNode, getState(SceneState).sceneEntity)

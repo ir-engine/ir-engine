@@ -37,6 +37,7 @@ import { Component, getComponent } from '@etherealengine/engine/src/ecs/function
 import { AmbientLightComponent } from '@etherealengine/engine/src/scene/components/AmbientLightComponent'
 import { ColliderComponent } from '@etherealengine/engine/src/scene/components/ColliderComponent'
 import { DirectionalLightComponent } from '@etherealengine/engine/src/scene/components/DirectionalLightComponent'
+import { EnvMapBakeComponent } from '@etherealengine/engine/src/scene/components/EnvMapBakeComponent'
 import { GroundPlaneComponent } from '@etherealengine/engine/src/scene/components/GroundPlaneComponent'
 import { GroupComponent } from '@etherealengine/engine/src/scene/components/GroupComponent'
 import { HemisphereLightComponent } from '@etherealengine/engine/src/scene/components/HemisphereLightComponent'
@@ -46,6 +47,8 @@ import { ParticleSystemComponent } from '@etherealengine/engine/src/scene/compon
 import { PointLightComponent } from '@etherealengine/engine/src/scene/components/PointLightComponent'
 import { PortalComponent } from '@etherealengine/engine/src/scene/components/PortalComponent'
 import { PrefabComponent } from '@etherealengine/engine/src/scene/components/PrefabComponent'
+import { ScenePreviewCameraComponent } from '@etherealengine/engine/src/scene/components/ScenePreviewCamera'
+import { SkyboxComponent } from '@etherealengine/engine/src/scene/components/SkyboxComponent'
 import { SpawnPointComponent } from '@etherealengine/engine/src/scene/components/SpawnPointComponent'
 import { SpotLightComponent } from '@etherealengine/engine/src/scene/components/SpotLightComponent'
 import { SystemComponent } from '@etherealengine/engine/src/scene/components/SystemComponent'
@@ -53,7 +56,7 @@ import { VideoComponent } from '@etherealengine/engine/src/scene/components/Vide
 import { VolumetricComponent } from '@etherealengine/engine/src/scene/components/VolumetricComponent'
 import { LocalTransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
 import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
-import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
+import { getState } from '@etherealengine/hyperflux'
 import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
 import MenuItem from '@etherealengine/ui/src/primitives/mui/MenuItem'
 import Tooltip from '@etherealengine/ui/src/primitives/mui/Tooltip'
@@ -66,7 +69,6 @@ import { ItemTypes } from '../../constants/AssetTypes'
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
 import { EntityNodeEditor } from '../../functions/PrefabEditors'
 import { getCursorSpawnPosition, getSpawnPositionAtCenter } from '../../functions/screenSpaceFunctions'
-import { SelectionState } from '../../services/SelectionServices'
 import { ContextMenu } from '../layout/ContextMenu'
 import styles from './styles.module.scss'
 
@@ -94,7 +96,8 @@ const categories: Record<string, Component[]> = {
     HemisphereLightComponent
   ],
   FX: [ParticleSystemComponent],
-  Scripting: [SystemComponent]
+  Scripting: [SystemComponent],
+  Misc: [EnvMapBakeComponent, ScenePreviewCameraComponent, SkyboxComponent]
 }
 
 export const addSceneComponentElement = (
@@ -106,7 +109,7 @@ export const addSceneComponentElement = (
   return newEntity
 }
 
-function SceneElementListItem({ item, onClick, onContextMenu }: SceneElementListItemType) {
+const SceneElementListItem = ({ item, onClick, onContextMenu }: SceneElementListItemType) => {
   const onClickItem = useCallback(() => {
     onClick?.(item)
   }, [item, onClick])
@@ -121,9 +124,7 @@ function SceneElementListItem({ item, onClick, onContextMenu }: SceneElementList
   return (
     <div onContextMenu={(event) => onContextMenu(event, item)}>
       <Tooltip title={item.label} placement="left" disableInteractive>
-        <IconButton className={styles.element} disableRipple ref={drag} onClick={onClickItem}>
-          <item.Icon />
-        </IconButton>
+        <IconButton className={styles.element} disableRipple ref={drag} onClick={onClickItem} icon={<item.Icon />} />
       </Tooltip>
     </div>
   )
