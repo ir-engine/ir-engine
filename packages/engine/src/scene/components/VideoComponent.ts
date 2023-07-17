@@ -28,12 +28,14 @@ import { DoubleSide, Group, LinearFilter, Mesh, MeshBasicMaterial, Side, Texture
 
 import { defineState } from '@etherealengine/hyperflux'
 
+import { PositionalAudioComponent } from '../../audio/components/PositionalAudioComponent'
 import { isMobile } from '../../common/functions/isMobile'
 import { Entity } from '../../ecs/classes/Entity'
 import {
   defineComponent,
   getComponent,
   hasComponent,
+  setComponent,
   useComponent,
   useOptionalComponent
 } from '../../ecs/functions/ComponentFunctions'
@@ -45,7 +47,7 @@ import { addError, clearErrors } from '../functions/ErrorFunctions'
 import { ObjectFitFunctions } from './../../xrui/functions/ObjectFitFunctions'
 import { addObjectToGroup, removeObjectFromGroup } from './../components/GroupComponent'
 import { resizeImageMesh } from './../components/ImageComponent'
-import { MediaElementComponent } from './../components/MediaComponent'
+import { MediaComponent, MediaElementComponent } from './../components/MediaComponent'
 import { UUIDComponent } from './../components/UUIDComponent'
 import { PLANE_GEO } from './ImageComponent'
 
@@ -110,6 +112,9 @@ export const VideoComponent = defineComponent({
     if (typeof json.side === 'number') component.side.set(json.side)
     if (json.size) component.size.set(new Vector2(json.size.x, json.size.y))
     if (json.fit) component.fit.set(json.fit)
+
+    setComponent(entity, MediaComponent, { paths: ['__$project$__/default-project/assets/SampleAudio.mp3'] })
+    setComponent(entity, PositionalAudioComponent)
   },
 
   onRemove: (entity, component) => {

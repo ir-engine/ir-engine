@@ -98,6 +98,7 @@ export const ImageComponent = defineComponent({
 
   onSet: (entity, component, json) => {
     if (!json) return
+    if (!component.source.value) component.source.set('__$project$__/default-project/assets/sample_etc1s.ktx2')
     // backwards compatability
     if (typeof json.source === 'string' && json.source !== component.source.value) component.source.set(json.source)
     if (typeof json.alphaMode === 'string' && json.alphaMode !== component.alphaMode.value)

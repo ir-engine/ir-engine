@@ -30,6 +30,7 @@ import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { getState, none } from '@etherealengine/hyperflux'
 
 import { AssetLoader } from '../../assets/classes/AssetLoader'
+import { LoopAnimationComponent } from '../../avatar/components/LoopAnimationComponent'
 import { EngineState } from '../../ecs/classes/EngineState'
 import {
   defineComponent,
@@ -51,6 +52,7 @@ import { generateMeshBVH } from '../functions/bvhWorkerPool'
 import { addError, removeError } from '../functions/ErrorFunctions'
 import { parseGLTFModel } from '../functions/loadGLTFModel'
 import { enableObjectLayer } from '../functions/setObjectLayers'
+import { EnvmapComponent } from './EnvmapComponent'
 import { addObjectToGroup, GroupComponent, removeObjectFromGroup } from './GroupComponent'
 import { SceneAssetPendingTagComponent } from './SceneAssetPendingTagComponent'
 import { SceneObjectComponent } from './SceneObjectComponent'
@@ -88,6 +90,9 @@ export const ModelComponent = defineComponent({
      */
     if (!getState(EngineState).sceneLoaded && hasComponent(entity, SceneObjectComponent))
       setComponent(entity, SceneAssetPendingTagComponent)
+
+    setComponent(entity, EnvmapComponent)
+    setComponent(entity, LoopAnimationComponent)
   },
 
   onRemove: (entity, component) => {
