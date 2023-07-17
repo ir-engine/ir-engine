@@ -180,7 +180,6 @@ export const PartyService = {
     try {
       const channelResult = (await Engine.instance.api.service('channel').find({
         query: {
-          channelType: 'party',
           partyId: partyId
         }
       })) as Paginated<Channel>

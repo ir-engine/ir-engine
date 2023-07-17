@@ -23,18 +23,14 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Message } from './Message'
+import { OpaqueType } from './OpaqueType'
+import { UserInterface } from './User'
 import { UserId } from './UserId'
 
-export type Channel = {
-  id: string
-  ownerId: UserId
-  messages: Message[]
-  instanceId: string | null
-  createdAt: string
-  updatedAt: string
-  updateNeeded: boolean
-  limit: 5
-  skip: 0
-  total: 0
+export type ChannelID = OpaqueType<'ChannelID'> & string
+
+export type ChannelUser = {
+  id: ChannelID
+  userId?: UserId
+  user: UserInterface
 }

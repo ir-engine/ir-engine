@@ -52,12 +52,13 @@ export default (app: Application) => {
 
   ;(channel as any).associate = (models: any): void => {
     ;(channel as any).hasMany(models.message, { foreignKey: 'channelId', onDelete: 'cascade', hooks: true })
-    ;(channel as any).belongsTo(models.user, { as: 'user1', foreignKey: 'userId1' })
-    ;(channel as any).belongsTo(models.user, { as: 'user2', foreignKey: 'userId2' })
-    ;(channel as any).belongsTo(models.group, { foreignKey: 'groupId' })
-    ;(channel as any).belongsTo(models.party, { foreignKey: 'partyId', onDelete: 'cascade' })
-    ;(channel as any).belongsTo(models.channel_type, { foreignKey: 'channelType', as: 'type', required: true })
+    ;(channel as any).hasMany(models.user, { foreignKey: 'ownerId' })
     ;(channel as any).belongsTo(models.instance, { foreignKey: 'instanceId' })
+    // ;(channel as any).belongsTo(models.user, { as: 'user1', foreignKey: 'userId1' })
+    // ;(channel as any).belongsTo(models.user, { as: 'user2', foreignKey: 'userId2' })
+    // ;(channel as any).belongsTo(models.group, { foreignKey: 'groupId' })
+    // ;(channel as any).belongsTo(models.party, { foreignKey: 'partyId', onDelete: 'cascade' })
+    // ;(channel as any).belongsTo(models.channel_type, { foreignKey: 'channelType', as: 'type', required: true })
   }
 
   return channel

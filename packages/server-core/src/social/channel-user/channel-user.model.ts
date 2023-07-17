@@ -23,18 +23,37 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Message } from './Message'
-import { UserId } from './UserId'
+import { DataTypes, Model, Sequelize } from 'sequelize'
 
-export type Channel = {
-  id: string
-  ownerId: UserId
-  messages: Message[]
-  instanceId: string | null
-  createdAt: string
-  updatedAt: string
-  updateNeeded: boolean
-  limit: 5
-  skip: 0
-  total: 0
+import { ChannelUserInterface } from '@etherealengine/common/src/dbmodels/ChannelUser'
+
+import { Application } from '../../../declarations'
+
+export default (app: Application) => {
+  const sequelizeClient: Sequelize = app.get('sequelizeClient')
+  const channelUser = sequelizeClient.define<Model<ChannelUserInterface>>(
+    'channel_user',
+    {
+      id: {
+        type: DataTypes.UUID,
+        defaultValue: DataTypes.UUIDV1,
+        allowNull: false,
+        primaryKey: true
+      }
+    },
+    {
+      hooks: {
+        beforeCount(options: any): void {
+          options.raw = true
+        }
+      }
+    }
+  )
+
+  ;(channelUser as any).associate = (models: any): void => {
+    ;(channelUser as any).belongsTo(models.channel, { required: true, allowNull: false })
+    ;(channelUser as any).belongsTo(models.user, { required: true, allowNull: false })
+  }
+
+  return channelUser
 }

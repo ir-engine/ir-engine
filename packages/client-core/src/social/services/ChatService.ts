@@ -33,6 +33,7 @@ import { Instance } from '@etherealengine/common/src/interfaces/Instance'
 import { Message } from '@etherealengine/common/src/interfaces/Message'
 import { Party } from '@etherealengine/common/src/interfaces/Party'
 import { UserInterface } from '@etherealengine/common/src/interfaces/User'
+import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 import multiLogger from '@etherealengine/common/src/logger'
 import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
@@ -47,7 +48,7 @@ const logger = multiLogger.child({ component: 'client-core:social' })
 interface ChatMessageProps {
   targetObjectId: string // ChannelID
   /**@deprecated */
-  targetObjectType: string // 
+  targetObjectType: string //
   text: string
 }
 
@@ -63,9 +64,6 @@ export const ChatState = defineState({
       total: 0,
       updateNeeded: true
     },
-    targetObjectType: '',
-    targetObjectId: '',
-    targetObject: {} as UserInterface | Group | Party | Instance,
     targetChannelId: '',
     instanceChannelFetching: false,
     instanceChannelFetched: false,
@@ -90,25 +88,14 @@ export const ChatServiceReceptor = (action) => {
         findIndex = s.channels.channels.findIndex((c) => c.id.value === action.channel.id)
       let idx = findIndex > -1 ? findIndex : s.channels.channels.length
       s.channels.channels[idx].set(action.channel)
-      if (action.channelType === 'instance') {
-        const endedInstanceChannelIndex = s.channels.channels.findIndex(
-          (channel) => channel.channelType.value === 'instance' && channel.id.value !== action.channel.id
-        )
-        if (endedInstanceChannelIndex > -1) s.channels.channels[endedInstanceChannelIndex].set(none)
-        s.merge({
-          instanceChannelFetched: true,
-          instanceChannelFetching: false
-        })
-      } else if (action.channelType === 'party') {
-        const endedPartyChannelIndex = s.channels.channels.findIndex(
-          (channel) => channel.channelType.value === 'party' && channel.id.value !== action.channel.id
-        )
-        if (endedPartyChannelIndex > -1) s.channels.channels[endedPartyChannelIndex].set(none)
-        s.merge({
-          partyChannelFetched: true,
-          partyChannelFetching: false
-        })
-      }
+      const endedInstanceChannelIndex = s.channels.channels.findIndex(
+        (channel) => channel.id.value !== action.channel.id
+      )
+      if (endedInstanceChannelIndex > -1) s.channels.channels[endedInstanceChannelIndex].set(none)
+      s.merge({
+        instanceChannelFetched: true,
+        instanceChannelFetching: false
+      })
       s.merge({ messageCreated: true })
       return
     })
@@ -129,23 +116,7 @@ export const ChatServiceReceptor = (action) => {
 
       s.merge({ messageCreated: true })
       if (s.targetChannelId.value.length === 0 && channel) {
-        const channelType = channel.channelType.value
-        const targetObject =
-          channelType === 'user'
-            ? channel.userId1.value === selfUser.id
-              ? channel.user1
-              : channel.user2
-            : channelType === 'group'
-            ? channel.group
-            : channelType === 'instance'
-            ? channel.instance
-            : channel.party
-        s.merge({
-          targetChannelId: channelId,
-          targetObjectType: channelType,
-          targetObject: targetObject.value,
-          targetObjectId: targetObject.id.value
-        })
+        s.merge({ targetChannelId: channelId })
       }
       return
     })
@@ -219,21 +190,10 @@ export const ChatServiceReceptor = (action) => {
       return
     })
     .when(ChatAction.setChatTargetAction.matches, (action) => {
-      const { targetObjectType, targetObject, targetChannelId } = action
+      const { targetChannelId } = action
       return s.merge({
-        targetObjectType: targetObjectType,
-        targetObjectId: targetObject.id,
-        targetObject: targetObject,
         targetChannelId: targetChannelId
       })
-    })
-    .when(ChatAction.refetchPartyChannelAction.matches, () => {
-      return s.merge({ partyChannelFetched: false })
-    })
-    .when(ChatAction.removePartyChannelAction.matches, () => {
-      const endedPartyChannelIndex = s.channels.channels.findIndex((channel) => channel.channelType.value === 'party')
-      if (endedPartyChannelIndex > -1) s.channels.channels[endedPartyChannelIndex].set(none)
-      return s
     })
 }
 
@@ -245,7 +205,7 @@ export const ChatService = {
     try {
       const chatState = getMutableState(ChatState).value
 
-      const channelResult = (await API.instance.client.service('channel').find({
+      const channelResult = (await Engine.instance.api.service('channel').find({
         query: {
           $limit: limit != null ? limit : chatState.channels.limit,
           $skip: skip != null ? skip : chatState.channels.skip
@@ -258,14 +218,13 @@ export const ChatService = {
   },
   getInstanceChannel: async () => {
     try {
-      const channelResult = (await API.instance.client.service('channel').find({
+      const channelResult = (await Engine.instance.api.service('channel').find({
         query: {
-          channelType: 'instance',
           instanceId: Engine.instance.worldNetwork.hostId
         }
       })) as Channel[]
       if (!channelResult.length) return setTimeout(() => ChatService.getInstanceChannel(), 2000)
-      dispatchAction(ChatAction.loadedChannelAction({ channel: channelResult[0], channelType: 'instance' }))
+      dispatchAction(ChatAction.loadedChannelAction({ channel: channelResult[0] }))
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
@@ -273,15 +232,23 @@ export const ChatService = {
   getPartyChannel: async () => {
     try {
       const selfUser = getMutableState(AuthState).user.value
-      const channelResult = (await API.instance.client.service('channel').find({
+      const channelResult = (await Engine.instance.api.service('channel').find({
         query: {
-          channelType: 'party',
           partyId: selfUser.partyId
         }
       })) as Channel[]
-      if (channelResult[0])
-        dispatchAction(ChatAction.loadedChannelAction({ channel: channelResult[0], channelType: 'party' }))
+      if (channelResult[0]) dispatchAction(ChatAction.loadedChannelAction({ channel: channelResult[0] }))
       else dispatchAction(ChatAction.removePartyChannelAction({}))
+    } catch (err) {
+      NotificationService.dispatchNotify(err.message, { variant: 'error' })
+    }
+  },
+  createChannel: async (users: UserId[]) => {
+    try {
+      await Engine.instance.api.service('channel').create({
+        users
+      })
+      ChatService.getChannels()
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
@@ -290,22 +257,21 @@ export const ChatService = {
     try {
       const chatState = getMutableState(ChatState).value
       const data = {
-        targetObjectId: chatState.targetObjectId || values.targetObjectId || '',
-        targetObjectType: chatState.targetObjectType || values.targetObjectType || 'party',
+        channelId: chatState.targetChannelId || values.targetObjectId || '',
         text: values.text
       }
-      if (!data.targetObjectId || !data.targetObjectType) {
+      if (!data.channelId) {
         logger.warn({ data }, 'Invalid data, something is null.')
         return
       }
-      await API.instance.client.service('message').create(data)
+      await Engine.instance.api.service('message').create(data)
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
   },
   sendChatMessage: (values: ChatMessageProps) => {
     try {
-      API.instance.client.service('message').create({
+      Engine.instance.api.service('message').create({
         targetObjectId: values.targetObjectId,
         targetObjectType: values.targetObjectType,
         text: values.text
@@ -324,17 +290,11 @@ export const ChatService = {
       })
     }
   },
-  clearChatTargetIfCurrent: async (targetObjectType: string, targetObject: any) => {
+  clearChatTargetIfCurrent: async (targetChannelId: string) => {
     const chatState = getMutableState(ChatState).value
-    const chatStateTargetObjectType = chatState.targetObjectType
-    const chatStateTargetObjectId = chatState.targetObjectId
-    if (
-      targetObjectType === chatStateTargetObjectType &&
-      (targetObject.id === chatStateTargetObjectId ||
-        targetObject.relatedUserId === chatStateTargetObjectId ||
-        targetObject.userId === chatStateTargetObjectId)
-    ) {
-      dispatchAction(ChatAction.setChatTargetAction({ targetObjectType: '', targetObject: {}, targetChannelId: '' }))
+    const chatStateTargetObjectId = chatState.targetChannelId
+    if (targetChannelId === chatStateTargetObjectId) {
+      dispatchAction(ChatAction.setChatTargetAction({ targetChannelId: '' }))
     }
   },
   useAPIListeners: () => {
@@ -364,20 +324,20 @@ export const ChatService = {
         dispatchAction(ChatAction.removedChannelAction(params))
       }
 
-      API.instance.client.service('message').on('created', messageCreatedListener)
-      API.instance.client.service('message').on('patched', messagePatchedListener)
-      API.instance.client.service('message').on('removed', messageRemovedListener)
-      API.instance.client.service('channel').on('created', channelCreatedListener)
-      API.instance.client.service('channel').on('patched', channelPatchedListener)
-      API.instance.client.service('channel').on('removed', channelRemovedListener)
+      Engine.instance.api.service('message').on('created', messageCreatedListener)
+      Engine.instance.api.service('message').on('patched', messagePatchedListener)
+      Engine.instance.api.service('message').on('removed', messageRemovedListener)
+      Engine.instance.api.service('channel').on('created', channelCreatedListener)
+      Engine.instance.api.service('channel').on('patched', channelPatchedListener)
+      Engine.instance.api.service('channel').on('removed', channelRemovedListener)
 
       return () => {
-        API.instance.client.service('message').off('created', messageCreatedListener)
-        API.instance.client.service('message').off('patched', messagePatchedListener)
-        API.instance.client.service('message').off('removed', messageRemovedListener)
-        API.instance.client.service('channel').off('created', channelCreatedListener)
-        API.instance.client.service('channel').off('patched', channelPatchedListener)
-        API.instance.client.service('channel').off('removed', channelRemovedListener)
+        Engine.instance.api.service('message').off('created', messageCreatedListener)
+        Engine.instance.api.service('message').off('patched', messagePatchedListener)
+        Engine.instance.api.service('message').off('removed', messageRemovedListener)
+        Engine.instance.api.service('channel').off('created', channelCreatedListener)
+        Engine.instance.api.service('channel').off('patched', channelPatchedListener)
+        Engine.instance.api.service('channel').off('removed', channelRemovedListener)
       }
     }, [])
   }
@@ -388,8 +348,7 @@ export const ChatService = {
 export class ChatAction {
   static loadedChannelAction = defineAction({
     type: 'ee.client.Chat.LOADED_CHANNEL' as const,
-    channel: matches.object as Validator<unknown, Channel>,
-    channelType: matches.string
+    channel: matches.object as Validator<unknown, Channel>
   })
 
   static loadedChannelsAction = defineAction({
@@ -424,8 +383,6 @@ export class ChatAction {
 
   static setChatTargetAction = defineAction({
     type: 'ee.client.Chat.CHAT_TARGET_SET' as const,
-    targetObjectType: matches.any,
-    targetObject: matches.any,
     targetChannelId: matches.any
   })
 

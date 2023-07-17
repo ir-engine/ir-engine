@@ -120,7 +120,7 @@ export const startMediaRecordingPair = async (
   const promises = [] as Promise<any>[]
 
   if (tracks.video) {
-    const routers = network.routers[`${tracks.video.channelType}:${tracks.video.channelId}`]
+    const routers = network.routers[tracks.video.channelId]
     const transportPromise = createTransport(
       routers[0],
       localConfig.mediasoup.recording.videoPort,
@@ -135,7 +135,7 @@ export const startMediaRecordingPair = async (
   }
 
   if (tracks.audio) {
-    const routers = network.routers[`${tracks.audio.channelType}:${tracks.audio.channelId}`]
+    const routers = network.routers[tracks.audio.channelId]
     const transportPromise = createTransport(
       routers[0],
       localConfig.mediasoup.recording.audioPort,

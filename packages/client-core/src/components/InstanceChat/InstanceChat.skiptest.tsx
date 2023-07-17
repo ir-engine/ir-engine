@@ -58,7 +58,6 @@ describe('Instance Chat Component', () => {
     getMutableState(ChatState).channels.channels.set([
       {
         id: 'id',
-        channelType: 'instance',
         messages: [
           {
             id: 'message id',

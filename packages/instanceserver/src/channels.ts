@@ -106,7 +106,6 @@ const createNewInstance = async (app: Application, newInstance: InstanceMetadata
   const instanceResult = (await app.service('instance').create(newInstance)) as Instance
   if (!channelId) {
     await app.service('channel').create({
-      channelType: 'instance',
       instanceId: instanceResult.id
     })
   }
@@ -235,13 +234,11 @@ const initializeInstance = async (
     if (locationId) {
       const existingChannel = await app.service('channel').Model.findOne({
         where: {
-          channelType: 'instance',
           instanceId: instance.id
         }
       })
       if (!existingChannel) {
         await app.service('channel').create({
-          channelType: 'instance',
           instanceId: instance.id
         })
       }
@@ -569,7 +566,8 @@ const handlePartyUserRemoved = (app: Application) => async (params) => {
       id: instance.channelId
     }
   })
-  if (channel.channelType !== 'party') return
+  // TODO - get is party from channel
+  // if (channel.channelType !== 'party') return
   const network = getServerNetwork(app)
   const matchingPeer = Array.from(network.peers.values()).find((peer) => peer.userId === params.userId)
   if (matchingPeer) {

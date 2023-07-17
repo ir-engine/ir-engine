@@ -227,7 +227,6 @@ export const GroupService = {
     try {
       const channelResult = (await Engine.instance.api.service('channel').find({
         query: {
-          channelType: 'group',
           groupId: groupId
         }
       })) as any

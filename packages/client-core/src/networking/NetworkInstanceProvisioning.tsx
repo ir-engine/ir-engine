@@ -224,28 +224,27 @@ export const PartyInstanceProvisioning = () => {
 
   // Once we have the world server, provision the party server
   useEffect(() => {
-    if (selfUser?.partyId?.value && chatState.channels.channels?.get({ noproxy: true })) {
-      const partyChannel = Object.values(chatState.channels.channels.get({ noproxy: true })).find(
-        (channel) => channel.channelType === 'party' && channel.partyId === selfUser.partyId.value
-      )
+    const activeChannel = Object.values(chatState.channels.value.channels ?? []).find(
+      (channel) => channel.id === chatState.targetChannelId.value
+    )
+    if (selfUser?.partyId?.value && activeChannel) {
       const partyUser =
         partyState.party?.partyUsers
           ?.get({ noproxy: true })
           ?.find((partyUser) => partyUser.userId === selfUser.id.value) || null
       if (
         chatState.partyChannelFetched?.value &&
-        partyChannel &&
-        currentChannelInstanceConnection?.channelId.value !== partyChannel.id &&
+        currentChannelInstanceConnection?.channelId.value !== activeChannel.id &&
         partyUser
       )
-        MediaInstanceConnectionService.provisionServer(partyChannel?.id!, false)
+        MediaInstanceConnectionService.provisionServer(activeChannel?.id!, false)
       else if (!chatState.partyChannelFetched.value && !chatState.partyChannelFetching.value)
         ChatService.getPartyChannel()
     }
   }, [
     selfUser?.partyId?.value,
     partyState.party?.id,
-    chatState.channels.channels?.get({ noproxy: true }),
+    chatState.channels.channels,
     chatState.partyChannelFetching?.value,
     chatState.partyChannelFetched?.value
   ])

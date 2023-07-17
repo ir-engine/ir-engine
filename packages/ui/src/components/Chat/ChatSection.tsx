@@ -25,28 +25,29 @@ Ethereal Engine. All Rights Reserved.
 
 import React, { useEffect, useRef, useState } from 'react'
 
+import { useUserAvatarThumbnail } from '@etherealengine/client-core/src/user/functions/useUserAvatarThumbnail'
+import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+
 import NotificationIcon from './assets/attach-file2.svg'
 import BoxSearch from './assets/bxbxsearchalt2.svg'
 import AddSquare from './assets/fluentaddsquare24filled.svg'
 import SettingIcon from './assets/setting.svg'
-import { FriendsList } from './FriendsList'
-import { GroupsList } from './GroupsList'
-import { WorldsList } from './WorldsList'
+// import { FriendsList } from './FriendsList'
+// import { GroupsList } from './GroupsList'
+// import { WorldsList } from './WorldsList'
 import { ChannelsList } from './ChannelsList'
 import { Create } from './Create'
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
-import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
-import { useUserAvatarThumbnail } from '@etherealengine/client-core/src/user/functions/useUserAvatarThumbnail'
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 
 /**
  * @todo
  * - replace ChatTypes with just 'Channels'
  * - remove channelType
- * - 
-*/
+ * -
+ */
 
-const ChatTypes = ['Groups', 'Channels', 'Friends', 'Worlds'] as const
+const ChatTypes = ['Channels'] as const
 
 /**
  * Chat
@@ -54,7 +55,7 @@ const ChatTypes = ['Groups', 'Channels', 'Friends', 'Worlds'] as const
 export const ChatSection = () => {
   const userName = useHookstate(getMutableState(AuthState).user.name).value
   const userThumbnail = useUserAvatarThumbnail(Engine.instance.userId)
-  const currentChatType = useHookstate<typeof ChatTypes[number]>('Channels')
+  const currentChatType = useHookstate<(typeof ChatTypes)[number]>('Channels')
 
   const [checked, setChecked] = useState<boolean>(false)
 
@@ -124,7 +125,7 @@ export const ChatSection = () => {
         </div>
       </div>
       <div className="box-border w-[320px] border-t-[1px] border-solid border-[#D1D3D7]" />
-      <div className="w-full flex flex-wrap justify-start ml-8 mt-4 my-4 gap-[9px]">
+      {/* <div className="w-full flex flex-wrap justify-start ml-8 mt-4 my-4 gap-[9px]">
         {ChatTypes.map((item, index) => {
           return (
             <button
@@ -137,13 +138,13 @@ export const ChatSection = () => {
             </button>
           )
         })}
-      </div>
+      </div> */}
       <div className="box-border w-[320px] border-t-[1px] border-solid border-[#D1D3D7]" />
 
-      {currentChatType.value === 'Groups' && <GroupsList />}
-      {currentChatType.value === 'Channels' && <ChannelsList />}
-      {currentChatType.value === 'Friends' && <FriendsList />}
-      {currentChatType.value === 'Worlds' && <WorldsList />}
+      <ChannelsList />
+      {/* {currentChatType.value === 'Groups' && <GroupsList />} */}
+      {/* {currentChatType.value === 'Friends' && <FriendsList />}
+      {currentChatType.value === 'Worlds' && <WorldsList />} */}
       <div className="absolute bottom-0 w-[320px] h-[70px] gap-4 flex flex-wrap justify-center bg-[#ECECEC]">
         <img className="rounded-[38px] mt-3 w-11 h-11 object-cover" alt="" src={userThumbnail} />
         <div className="mt-3">
@@ -166,8 +167,9 @@ export const ChatSection = () => {
               className={`toggle__line w-10 h-5  rounded-full shadow-inner ${checked ? 'bg-[#3F3960]' : 'bg-gray-400'}`}
             ></div>
             <div
-              className={`toggle__dot absolute w-4 h-4 bg-white rounded-full shadow inset-y-[2px] inset-x-[2px] ${checked ? 'translate-x-5' : ''
-                }`}
+              className={`toggle__dot absolute w-4 h-4 bg-white rounded-full shadow inset-y-[2px] inset-x-[2px] ${
+                checked ? 'translate-x-5' : ''
+              }`}
             ></div>
           </div>
         </label>

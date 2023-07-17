@@ -84,7 +84,9 @@ const WidgetButtons = () => {
   const widgetMutableState = useHookstate(getMutableState(WidgetAppState))
   const channelState = chatState.channels
   const channels = channelState.channels.value as Channel[]
-  const activeChannelMatch = Object.entries(channels).find(([key, channel]) => channel.channelType === 'instance')
+  const activeChannelMatch = Object.entries(channels).find(
+    ([key, channel]) => channel.id === chatState.targetChannelId.value
+  )
   if (activeChannelMatch && activeChannelMatch.length > 0) {
     activeChannel = activeChannelMatch[1]
   }

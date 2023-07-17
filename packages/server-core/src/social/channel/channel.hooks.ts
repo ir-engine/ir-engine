@@ -26,6 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { disallow } from 'feathers-hooks-common'
 
 import addAssociations from '@etherealengine/server-core/src/hooks/add-associations'
+import setLoggedInUser from '@etherealengine/server-core/src/hooks/set-loggedin-user-in-body'
 
 import authenticate from '../../hooks/authenticate'
 
@@ -51,20 +52,6 @@ export default {
           },
           {
             model: 'instance'
-          },
-          {
-            model: 'group'
-          },
-          {
-            model: 'party'
-          },
-          {
-            model: 'user',
-            as: 'user1'
-          },
-          {
-            model: 'user',
-            as: 'user2'
           }
         ]
       })
@@ -84,25 +71,11 @@ export default {
           },
           {
             model: 'instance'
-          },
-          {
-            model: 'group'
-          },
-          {
-            model: 'party'
-          },
-          {
-            model: 'user',
-            as: 'user1'
-          },
-          {
-            model: 'user',
-            as: 'user2'
           }
         ]
       })
     ],
-    create: [disallow('external')],
+    create: [setLoggedInUser('userId')],
     update: [disallow('external')],
     patch: [disallow('external')],
     remove: [disallow('external')]

@@ -65,10 +65,7 @@ export default () => {
       selfIpAddress = `${emittedIp.ipAddress}:${emittedIp.port}`
     }
 
-    const channel = (await context.app.service('channel').create({
-      channelType: 'party',
-      partyId: party.id
-    })) as Channel
+    const channel = (await context.app.service('channel').create({})) as Channel
 
     if (!channel) return context
 
@@ -87,8 +84,7 @@ export default () => {
       ipAddress: emittedIp.ipAddress,
       port: emittedIp.port,
       instanceId: instance.id,
-      channelId: channel.id,
-      channelType: channel.channelType
+      channelId: channel.id
     })
 
     return context

@@ -23,6 +23,24 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-export interface ChannelTypeInterface {
-  type: string
+/**
+ * An object for swagger documentation configuration
+ */
+export default {
+  definitions: {
+    'channel-user': {
+      type: 'object',
+      properties: {}
+    },
+    'channel-user_list': {
+      type: 'array',
+      items: { $ref: '#definitions/channel-user' }
+    }
+  },
+  securities: ['create', 'update', 'patch', 'remove'],
+  operations: {
+    find: {
+      security: [{ bearer: [] }]
+    }
+  }
 }

@@ -25,12 +25,14 @@ Ethereal Engine. All Rights Reserved.
 
 import React, { useEffect, useState } from 'react'
 
-import UserIcon from './assets/icon-user.png'
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { ChatService, ChatState } from '@etherealengine/client-core/src/social/services/ChatService'
 import { useUserAvatarThumbnail } from '@etherealengine/client-core/src/user/functions/useUserAvatarThumbnail'
 import { UserId } from '@etherealengine/common/src/interfaces/UserId'
-import { ChatService, ChatState } from '@etherealengine/client-core/src/social/services/ChatService'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+
+import UserIcon from './assets/icon-user.png'
+import { DrawerCreateChannel } from './DrawerCreateChannel'
 
 export const ChannelsList = () => {
   const chatState = useHookstate(getMutableState(ChatState))
@@ -40,39 +42,39 @@ export const ChannelsList = () => {
   useEffect(() => {
     ChatService.getChannels()
     return () => {
-    chatState.targetChannelId.set('')
+      chatState.targetChannelId.set('')
     }
   }, [])
 
+  const isDrawerOpen = useHookstate(false)
   const selectedChannelId = useHookstate('')
 
-  useEffect(() =>{ 
+  useEffect(() => {
     chatState.targetChannelId.set(selectedChannelId.value)
     chatState.targetObjectId.set(selectedChannelId.value)
     chatState.targetObjectType.set('user') //todo
   }, [selectedChannelId])
 
-  const channels = (chatState.channels.value.channels ?? []).filter(channel => channel.channelType === 'user')
+  const channels = chatState.channels.value.channels ?? []
 
-  const RenderChannel = (props: { channel: typeof channels[number] }) => {
-    const userId = (props.channel.userId1 === Engine.instance.userId ? props.channel.userId2 : props.channel.userId1) as UserId
-    const user = (props.channel.userId1 === Engine.instance.userId ? props.channel.user2 : props.channel.user1)
-
+  const RenderChannel = (props: { channel: (typeof channels)[number] }) => {
     const userThumbnail = useUserAvatarThumbnail() // todo
-
-    const latestMessage = props.channel.messages.length ? props.channel.messages[props.channel.messages.length - 1]?.text : '...'
+    const latestMessage = props.channel.messages.length
+      ? props.channel.messages[props.channel.messages.length - 1]?.text
+      : '...'
 
     return (
       <>
         <div
-          className={`w-[320px] h-[68px] flex flex-wrap mx-4 gap-1 justify-center rounded-[5px] ${selectedChannelId.value === props.channel.id ? 'bg-[#D4D7DC]' : ''
-            }`}
+          className={`w-[320px] h-[68px] flex flex-wrap mx-4 gap-1 justify-center rounded-[5px] ${
+            selectedChannelId.value === props.channel.id ? 'bg-[#D4D7DC]' : ''
+          }`}
           onClick={() => selectedChannelId.set(props.channel.id)}
         >
           <div className="w-[230px] flex flex-wrap gap-5 justify-start">
             <img className="mt-3 rounded-8xs w-11 h-11 object-cover" alt="" src={userThumbnail} />
             <div className="mt-3 justify-start">
-              <p className="font-bold text-[#3F3960]">{user.name}</p>
+              <p className="font-bold text-[#3F3960]">{props.channel.ownerId}</p>
               <p className="h-4 text-xs text-[#787589]">{latestMessage}</p>
             </div>
           </div>
@@ -84,7 +86,25 @@ export const ChannelsList = () => {
   return (
     <div className="w-[320px] h-[70vh] overflow-scroll hide-scroll mt-[8px]">
       <div className="w-[320px] mb-[42px] flex flex-wrap gap-[0.5px]">
-        {channels.map((channel, index) => <RenderChannel channel={channel} key={index} />)}
+        <div className="w-[330px] flex justify-center items-center">
+          <button
+            className="cursor-pointer rounded-[20px] p-0 bg-[#3F3960] w-[120px] h-8"
+            onClick={() => isDrawerOpen.set(true)}
+          >
+            <div className="[text-align-last:center] rounded-2xl text-[16px] text-sm font-segoe-ui text-white text-left">
+              CREATE CHANNEL
+            </div>
+          </button>
+          {isDrawerOpen.value && (
+            <div className="fixed inset-0 flex z-50">
+              <div className="bg-gray-500 bg-opacity-50 flex-1" onClick={() => isDrawerOpen.set(false)}></div>
+              <DrawerCreateChannel />
+            </div>
+          )}
+        </div>
+        {channels.map((channel, index) => (
+          <RenderChannel channel={channel} key={index} />
+        ))}
       </div>
     </div>
   )

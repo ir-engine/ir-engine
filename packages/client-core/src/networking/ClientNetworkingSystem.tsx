@@ -88,19 +88,15 @@ const execute = () => {
 
   for (const action of noMediaServersAvailableQueue()) {
     const channels = chatState.channels.channels
-    const partyChannel = Object.values(channels).find(
-      (channel) => channel.channelType === 'party' && channel.partyId === authState.user.partyId
-    )
-    const instanceChannel = Object.values(channels).find((channel) => channel.channelType === 'instance')
+    const activeChannel = Object.values(channels).find((channel) => channel.id === chatState.targetChannelId)
 
-    if (!partyChannel && !instanceChannel) {
+    if (!activeChannel) {
       // setTimeout(() => {
       //   ChatService.getInstanceChannel()
       //   updateWarningModal(WarningModalTypes.NO_MEDIA_SERVER_PROVISIONED)
       // }, 2000)
     } else {
       /** @todo - revisit reconnection UX */
-      const channelId = partyChannel ? partyChannel.id : instanceChannel!.id
       // WarningUIService.openWarning({
       //   title: t('common:instanceServer.noAvailableServers'),
       //   body: t('common:instanceServer.noAvailableServersMessage'),
@@ -108,7 +104,7 @@ const execute = () => {
       //   action: (timeout) => timeout && MediaInstanceConnectionService.provisionServer(channelId, false)
       // })
       setTimeout(() => {
-        MediaInstanceConnectionService.provisionServer(channelId, false)
+        MediaInstanceConnectionService.provisionServer(activeChannel.id, false)
       }, 2000)
     }
   }
@@ -143,12 +139,8 @@ const execute = () => {
     if (transport?.reconnecting) continue
 
     const channels = chatState.channels.channels
-    const instanceChannel = Object.values(channels).find((channel) => channel.channelType === 'instance')
-    const partyChannel = Object.values(channels).find(
-      (channel) => channel.channelType === 'party' && channel.partyId === authState.user.partyId
-    )
-    const channelId = partyChannel ? partyChannel.id : instanceChannel ? instanceChannel.id : null
-    if (channelId && !mediaInstanceState.joiningNewMediaChannel) {
+    const activeChannel = Object.values(channels).find((channel) => channel.id === chatState.targetChannelId)
+    if (activeChannel && !mediaInstanceState.joiningNewMediaChannel) {
       /** @todo - revisit reconnection UX */
       // WarningUIService.openWarning({
       //   title: 'Media disconnected',
@@ -157,7 +149,7 @@ const execute = () => {
       //   timeout: 15
       // })
       setTimeout(() => {
-        MediaInstanceConnectionService.provisionServer(channelId, false)
+        MediaInstanceConnectionService.provisionServer(activeChannel.id, false)
       }, 2000)
     }
   }

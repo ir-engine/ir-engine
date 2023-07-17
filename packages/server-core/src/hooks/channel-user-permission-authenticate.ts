@@ -23,18 +23,32 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Message } from './Message'
-import { UserId } from './UserId'
+import { BadRequest } from '@feathersjs/errors'
+import { HookContext } from '@feathersjs/feathers'
+import _ from 'lodash'
 
-export type Channel = {
-  id: string
-  ownerId: UserId
-  messages: Message[]
-  instanceId: string | null
-  createdAt: string
-  updatedAt: string
-  updateNeeded: boolean
-  limit: 5
-  skip: 0
-  total: 0
+import { UserInterface } from '@etherealengine/common/src/interfaces/User'
+
+// This will attach the owner ID in the contact while creating/updating list item
+export default () => {
+  return async (context: HookContext): Promise<HookContext> => {
+    const { params, app } = context
+    const loggedInUser = params.user as UserInterface
+    const channelId = params.query!.channelId
+    const userId = params.query!.userId || loggedInUser.id
+    const paramsClone = _.cloneDeep(context.params)
+    paramsClone.provider = null!
+    if (params.channelUsersRemoved !== true) {
+      const channelUserResult = await app.service('channel-user').find({
+        query: {
+          channelId: channelId,
+          userId: userId
+        }
+      })
+      if (channelUserResult.total === 0) {
+        throw new BadRequest('Invalid channel ID in channel-user-permission')
+      }
+    }
+    return context
+  }
 }

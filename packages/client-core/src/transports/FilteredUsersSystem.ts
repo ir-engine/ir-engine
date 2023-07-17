@@ -72,7 +72,6 @@ export const updateNearbyAvatars = () => {
 
   promisedRequest(network, MessageTypes.WebRTCRequestCurrentProducers.toString(), {
     userIds: nearbyUserIds,
-    channelType: currentChannelInstanceConnection.channelType,
     channelId: currentChannelInstanceConnection.channelId
   })
 

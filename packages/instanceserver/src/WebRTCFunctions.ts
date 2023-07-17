@@ -43,6 +43,7 @@ import {
 import os from 'os'
 import { Spark } from 'primus'
 
+import { ChannelID } from '@etherealengine/common/src/interfaces/ChannelUser'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { DataChannelType } from '@etherealengine/engine/src/networking/classes/Network'
 import { MessageTypes } from '@etherealengine/engine/src/networking/enums/MessageTypes'
@@ -82,7 +83,7 @@ export async function startWebRTC() {
   logger.info('Starting WebRTC Server.')
   // Initialize roomstate
   const cores = os.cpus()
-  const routers = { instance: [] } as { instance: Router[]; [channelTypeAndChannelID: string]: Router[] }
+  const routers = { instance: [] } as { instance: Router[]; [channelID: ChannelID]: Router[] }
   const workers = [] as Worker[]
   //This is used in case ports in the range to use are in use by something else
   let offset = 0
@@ -161,7 +162,6 @@ export const createOutgoingDataProducer = async (network: SocketWebRTCServerNetw
  * @param spark
  * @param selfPeerID
  * @param userIds
- * @param channelType
  * @param channelId
  */
 export const sendCurrentProducers = async (
@@ -169,8 +169,7 @@ export const sendCurrentProducers = async (
   spark: Spark,
   selfPeerID: PeerID,
   userIds: string[],
-  channelType: string,
-  channelId?: string
+  channelId?: ChannelID
 ): Promise<void> => {
   for (const [peerID, client] of network.peers) {
     if (
@@ -182,7 +181,7 @@ export const sendCurrentProducers = async (
       continue
 
     for (const [dataChannel, peerMedia] of Object.entries(client.media)) {
-      if (peerMedia.channelType !== channelType || peerMedia.channelId !== channelId || peerMedia.paused) continue
+      if (peerMedia.channelId !== channelId || peerMedia.paused) continue
       // logger.info(`Sending producer ${peerMedia.producerId} to peer "${peerID}".`)
       spark.write({
         type: MessageTypes.WebRTCCreateProducer.toString(),
@@ -190,7 +189,6 @@ export const sendCurrentProducers = async (
           peerID,
           mediaTag: dataChannel,
           producerId: peerMedia.producerId,
-          channelType,
           channelId
         }
       })

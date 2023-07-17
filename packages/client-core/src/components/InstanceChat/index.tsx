@@ -76,7 +76,9 @@ export const useChatHooks = ({ chatWindowOpen, setUnreadMessages, messageRefInpu
 
   const chatState = useHookstate(getMutableState(ChatState))
   const channels = chatState.channels.channels
-  const activeChannel = Object.values(channels).find((channel) => channel.channelType.value === 'instance')
+  const activeChannel = Object.values(channels).find(
+    (channel) => channel.instanceId.value === Engine.instance.worldNetwork.hostId
+  )
 
   useEffect(() => {
     if (activeChannel?.messages?.length && !chatWindowOpen) setUnreadMessages(true)

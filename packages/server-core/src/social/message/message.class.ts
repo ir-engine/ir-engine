@@ -62,8 +62,7 @@ export class Message<T = MessageDataType> extends Service<T> {
     let userIdList: any[] = []
     const loggedInUser = params!.user as UserInterface
     const userId = loggedInUser?.id
-    const targetObjectId = data.targetObjectId
-    const targetObjectType = data.targetObjectType
+    const targetObjectId = data.channelId
     const channelModel = this.app.service('channel').Model
 
     if (targetObjectType === 'user') {
@@ -86,11 +85,7 @@ export class Message<T = MessageDataType> extends Service<T> {
         }
       })
       if (channel == null) {
-        channel = await this.app.service('channel').create({
-          channelType: 'user',
-          userId1: userId,
-          userId2: targetObjectId
-        })
+        channel = await this.app.service('channel').create({})
       }
       channelId = channel.id
       userIdList = [userId, targetObjectId]
@@ -105,10 +100,7 @@ export class Message<T = MessageDataType> extends Service<T> {
         }
       })
       if (channel == null) {
-        channel = await this.app.service('channel').create({
-          channelType: 'group',
-          groupId: targetObjectId
-        })
+        channel = await this.app.service('channel').create({})
       }
       channelId = channel.id
       const groupUsers = await this.app.service('group-user').find({
@@ -130,10 +122,7 @@ export class Message<T = MessageDataType> extends Service<T> {
         }
       })
       if (channel == null) {
-        channel = await this.app.service('channel').create({
-          channelType: 'party',
-          partyId: targetObjectId
-        })
+        channel = await this.app.service('channel').create({})
       }
       channelId = channel.id
       const partyUsers = await this.app.service('party-user').Model.findAll({ where: { partyId: targetObjectId } })
@@ -150,7 +139,6 @@ export class Message<T = MessageDataType> extends Service<T> {
       })
       if (channel == null) {
         channel = await this.app.service('channel').create({
-          channelType: 'instance',
           instanceId: targetObjectId
         })
       }
@@ -195,9 +183,7 @@ export class Message<T = MessageDataType> extends Service<T> {
       })
     )
 
-    await this.app.service('channel').patch(channelId, {
-      channelType: channel.channelType
-    })
+    // await this.app.service('channel').patch(channelId, {})
 
     return newMessage
   }

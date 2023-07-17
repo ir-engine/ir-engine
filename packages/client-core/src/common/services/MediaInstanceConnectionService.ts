@@ -26,7 +26,6 @@ Ethereal Engine. All Rights Reserved.
 import { none } from '@hookstate/core'
 import { useEffect } from 'react'
 
-import { ChannelType } from '@etherealengine/common/src/interfaces/Channel'
 import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 import multiLogger from '@etherealengine/common/src/logger'
 import { matches, matchesUserId, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
@@ -59,7 +58,6 @@ const logger = multiLogger.child({ component: 'client-core:service:media-instanc
 type InstanceState = {
   ipAddress: string
   port: string
-  channelType: ChannelType
   channelId: string
   roomCode: string
   videoEnabled: boolean
@@ -102,7 +100,6 @@ export const MediaInstanceConnectionServiceReceptor = (action) => {
         return s.instances[action.instanceId].set({
           ipAddress: action.ipAddress,
           port: action.port,
-          channelType: action.channelType!,
           channelId: action.channelId!,
           roomCode: action.roomCode,
           videoEnabled: false,
@@ -171,9 +168,7 @@ export const MediaInstanceConnectionService = {
           ipAddress: provisionResult.ipAddress,
           port: provisionResult.port,
           roomCode: provisionResult.roomCode,
-          channelId: channelId ? channelId : '',
-          channelType: getMutableState(ChatState).channels.channels.value.find((channel) => channel.id === channelId)!
-            .channelType
+          channelId: channelId ? channelId : ''
         })
       )
     } else {
@@ -223,8 +218,7 @@ export const MediaInstanceConnectionService = {
               ipAddress: params.ipAddress,
               port: params.port,
               roomCode: params.roomCode,
-              channelId: params.channelId,
-              channelType: params.channelType
+              channelId: params.channelId
             })
           )
         }
@@ -248,7 +242,6 @@ export class MediaInstanceConnectionAction {
     ipAddress: matches.string,
     port: matches.string,
     roomCode: matches.string,
-    channelType: matches.string as Validator<unknown, ChannelType>,
     channelId: matches.string
   })
 

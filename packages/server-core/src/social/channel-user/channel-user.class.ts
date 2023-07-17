@@ -23,18 +23,20 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Message } from './Message'
-import { UserId } from './UserId'
+import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
 
-export type Channel = {
-  id: string
-  ownerId: UserId
-  messages: Message[]
-  instanceId: string | null
-  createdAt: string
-  updatedAt: string
-  updateNeeded: boolean
-  limit: 5
-  skip: 0
-  total: 0
+import { ChannelUser as ChannelUserInterface } from '@etherealengine/common/src/interfaces/ChannelUser'
+
+import { Application } from '../../../declarations'
+
+export type ChannelUserDataType = ChannelUserInterface
+
+/**
+ * A class for Channel user service
+ */
+export class ChannelUser<T = ChannelUserDataType> extends Service<T> {
+  public docs: any
+  constructor(options: Partial<SequelizeServiceOptions>, app: Application) {
+    super(options)
+  }
 }

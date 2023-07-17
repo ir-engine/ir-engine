@@ -23,7 +23,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { ChannelType } from '@etherealengine/common/src/interfaces/Channel'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 import { defineState, getMutableState, getState, none } from '@etherealengine/hyperflux'
@@ -80,7 +79,6 @@ export type MediaStreamAppData = {
   mediaTag: MediaTagType
   peerID: PeerID
   direction: TransportDirection
-  channelType: ChannelType
   channelId: string
   clientDirection?: 'recv' | 'send'
 }
@@ -96,7 +94,6 @@ export type PeerMediaType = {
     parameters: any
     rtcpFeedback: any[]
   }>
-  channelType: ChannelType
   channelId: string
 }
 

@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import Location from '../social/location/location.service'
-import ChannelType from './channel-type/channel-type.service'
+import ChannelUser from './channel-user/channel-user.service'
 import Channel from './channel/channel.service'
 import GroupUserRank from './group-user-rank/group-user-rank.service'
 import GroupUser from './group-user/group-user.service'
@@ -42,7 +42,7 @@ import PartyUser from './party-user/party-user.service'
 import Party from './party/party.service'
 
 export default [
-  ChannelType,
+  ChannelUser,
   InviteType,
   Channel,
   Location,
