@@ -68,12 +68,7 @@ export function ToolButton({ id, icon: Icon, onClick, isSelected, tooltip }: Too
   const styledToolButtonStyle = styledToolButtonStyles(isSelected)
   return (
     <InfoTooltip title={tooltip!} placement="bottom">
-      <button
-        id={id as string}
-        isSelected={isSelected}
-        style={styledToolButtonStyle as React.CSSProperties}
-        onClick={onClick}
-      >
+      <button id={id as string} style={styledToolButtonStyle as React.CSSProperties} onClick={onClick}>
         <Icon style={iconStyles} />
       </button>
     </InfoTooltip>
