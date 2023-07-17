@@ -97,7 +97,7 @@ export const createNewEditorNode = (entityNode: Entity, componentName: string): 
     { name: ComponentMap.get(VisibleComponent.name)!.jsonID! },
     { name: ComponentMap.get(TransformComponent.name)!.jsonID! }
   ]
-  const name = getUniqueName(entityNode, `New ${startCase(componentName.toLowerCase())}`)
+  const name = getUniqueName(entityNode, `New ${startCase(components[0].name.toLowerCase())}`)
 
   addEntityNodeChild(entityNode, getState(SceneState).sceneEntity)
   // Clone the defualt values so that it will not be bound to newly created node
