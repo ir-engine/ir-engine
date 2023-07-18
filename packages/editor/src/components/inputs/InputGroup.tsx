@@ -24,7 +24,6 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import React from 'react'
-import styled from 'styled-components'
 
 import { InfoOutlined } from '@mui/icons-material'
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline'
@@ -33,6 +32,8 @@ import Grid from '@mui/material/Grid'
 import makeStyles from '@mui/styles/makeStyles'
 
 import { InfoTooltip } from '../layout/Tooltip'
+
+import './InputGroup.css'
 
 const useStyles = makeStyles<any, {}, any>((theme: any) => {
   return createStyles({
@@ -48,7 +49,7 @@ const useStyles = makeStyles<any, {}, any>((theme: any) => {
 /**
  * Used to provide styles for InputGroupContainer div.
  *
- * @type {Styled component}
+ * @type {component}
  */
 export const InputGroupContainer = ({ disabled = false, children }) => (
   <div className={`input-group-container ${disabled ? 'disabled' : ''}`}>{children}</div>
@@ -56,15 +57,15 @@ export const InputGroupContainer = ({ disabled = false, children }) => (
 /**
  * Used to provide styles for InputGroupContent div.
  *
- * @type {Styled component}
+ * @type {component}
  */
 export const InputGroupContent = ({ children }) => <div className="input-group-content">{children}</div>
 
-export const InputGroupVerticalContainer = ({ disabled, children }) => (
+export const InputGroupVerticalContainer = ({ disabled = false, children }) => (
   <div className={`input-group-vertical-container ${disabled ? 'disabled' : ''}`}>{children}</div>
 )
 
-export const InputGroupVerticalContainerWide = ({ disabled, children }) => (
+export const InputGroupVerticalContainerWide = ({ disabled = false, children }) => (
   <div className={`input-group-vertical-container-wide ${disabled ? 'disabled' : ''}`}>{children}</div>
 )
 
@@ -74,9 +75,9 @@ export const InputGroupVerticalContent = ({ children }) => (
 /**
  * Used to provide styles for InputGroupInfoIcon div.
  *
- *  @type {styled component}
+ *  @type {component}
  */
-export const InputGroupInfoIcon = ({ onClick }) => (
+export const InputGroupInfoIcon = ({ onClick = () => {} }) => (
   <HelpOutlineIcon className="input-group-info-icon" onClick={onClick} />
 )
 

@@ -28,13 +28,6 @@ import React from 'react'
 import NumericInput, { NumericInputProp } from './NumericInput'
 import Slider from './Slider'
 
-const compoundNumericInputStyle = {
-  display: 'flex',
-  flexDirection: 'row',
-  justifyContent: 'space-between',
-  alignItems: 'center',
-  width: '100%'
-}
 /**
  * CompoundNumericInput used to render the view of component.
  *
@@ -49,13 +42,24 @@ export function CompoundNumericInput({
   ...extras
 }: NumericInputProp & { step: number; style?: React.CSSProperties }) {
   const { min, max, step, style } = extras
+
+  const compoundNumericInputStyle = {
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    width: '100%',
+    ...style // Merge the external styles with the inline styles
+  }
+
   return (
-    <div style={style ? style : compoundNumericInputStyle}>
+    <div style={compoundNumericInputStyle}>
       <Slider min={min} max={max} value={value} step={step} onChange={onChange} />
       <NumericInput {...extras} mediumStep={step} value={value} onChange={onChange} />
     </div>
   )
 }
+
 CompoundNumericInput.defaultProps = {
   value: 0,
   onChange: () => {},

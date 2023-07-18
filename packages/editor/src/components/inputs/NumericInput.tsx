@@ -24,14 +24,15 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import PropTypes from 'prop-types'
-import React, { useEffect } from 'react'
-import { useRef } from 'react'
-import { useState } from 'react'
-import styled from 'styled-components'
+import React, { useEffect, useRef, useState } from 'react'
 
 import { clamp } from '@etherealengine/engine/src/common/functions/MathLerpFunctions'
 
 import { getStepSize, toPrecision } from '../../functions/utils'
+
+import './NumericInput.css'
+
+// Import the CSS file
 
 /**
  * @param value
@@ -54,59 +55,17 @@ function toPrecisionString(value, precision) {
   }
 }
 
-const NumericInputContainer = styled.div`
-  position: relative;
-  display: flex;
-  flex: 1;
-  background-color: var(--inputBackground);
-  border: 1px solid var(--inputOutline);
-  border-radius: 4px;
-  height: 24px;
-  overflow: hidden;
+const NumericInputContainer = ({ className = '', ...rest }) => {
+  return <div className={`NumericInputContainer ${className}`} {...rest} />
+}
 
-  &:hover {
-    border-color: var(--blueHover);
-  }
+const StyledNumericInput = ({ className = '', ...rest }) => {
+  return <input className={`StyledNumericInput ${className}`} {...rest} />
+}
 
-  &:focus,
-  &:focus-visible,
-  &:focus-within {
-    border-color: var(--blue);
-  }
-
-  &:disabled {
-    background-color: var(--disabled);
-    color: var(--disabledText);
-  }
-`
-
-const StyledNumericInput = styled.input`
-  color: var(--textColor);
-  background-color: var(--inputBackground);
-  border: none;
-  font-size: 12px;
-  height: 22px;
-  box-sizing: border-box;
-  outline: none;
-  padding: 0 4px;
-  flex-grow: 1;
-  min-width: 0;
-
-  &:disabled {
-    background-color: var(--disabled);
-    color: var(--disabledText);
-  }
-`
-
-const NumericInputUnit = styled.div`
-  color: var(--textColor);
-  background-color: var(--inputBackground);
-  padding-right: 4px;
-  border-top-right-radius: 4px;
-  border-bottom-right-radius: 4px;
-  line-height: 20px;
-  height: 100%;
-`
+const NumericInputUnit = ({ className = '', ...rest }) => {
+  return <div className={`NumericInputUnit ${className}`} {...rest} />
+}
 
 export interface NumericInputProp {
   className?: string
@@ -252,7 +211,7 @@ const NumericInput = ({
   }
 
   return (
-    <NumericInputContainer>
+    <NumericInputContainer className={className}>
       {prefix ? prefix : null}
       <StyledNumericInput
         {...rest}
@@ -270,7 +229,7 @@ const NumericInput = ({
   )
 }
 
-;(NumericInput as any).propTypes = {
+NumericInput.propTypes = {
   className: PropTypes.string,
   unit: PropTypes.node,
   smallStep: PropTypes.number.isRequired,
@@ -286,19 +245,8 @@ const NumericInput = ({
   precision: PropTypes.number.isRequired,
   displayPrecision: PropTypes.number.isRequired
 }
-;(NumericInput as any).defaultProps = {
-  value: 0,
-  smallStep: 0.025,
-  mediumStep: 0.1,
-  largeStep: 0.25,
-  min: -Infinity,
-  max: Infinity,
-  displayPrecision: 0.001,
-  precision: Number.EPSILON,
-  convertTo: (value) => value,
-  convertFrom: (value) => value
-}
-;(NumericInput as any).defaultProps = {
+
+NumericInput.defaultProps = {
   value: 0,
   smallStep: 0.025,
   mediumStep: 0.1,
