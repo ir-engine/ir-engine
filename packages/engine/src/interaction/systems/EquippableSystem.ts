@@ -1,3 +1,28 @@
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
 import { RigidBodyType } from '@dimforge/rapier3d-compat'
 import { MeshBasicMaterial, Vector3 } from 'three'
 
@@ -20,6 +45,7 @@ import {
 } from '../../ecs/functions/ComponentFunctions'
 import { entityExists } from '../../ecs/functions/EntityFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
+import { InputSourceComponent } from '../../input/components/InputSourceComponent'
 import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
 import { Physics } from '../../physics/classes/Physics'
@@ -74,6 +100,7 @@ export function setEquippedObjectReceptor(action: ReturnType<typeof WorldNetwork
   }
 }
 
+/** @deprecated @todo - replace with reactor */
 export function transferAuthorityOfObjectReceptor(
   action: ReturnType<typeof WorldNetworkAction.transferAuthorityOfObject>
 ) {
@@ -171,7 +198,7 @@ export const onEquippableInteractUpdate = (entity: Entity, xrui: ReturnType<type
 /**
  * @todo refactor this into i18n and configurable
  */
-export const equippableInteractMessage = 'Equip'
+export const equippableInteractMessage = 'Grab'
 
 const interactedActionQueue = defineActionQueue(EngineActions.interactedWithObject.matches)
 const transferAuthorityOfObjectQueue = defineActionQueue(WorldNetworkAction.transferAuthorityOfObject.matches)
@@ -191,8 +218,12 @@ const onKeyU = () => {
 
 const execute = () => {
   if (getState(EngineState).isEditor) return
-  const keys = Engine.instance.buttons
-  if (keys.KeyU?.down) onKeyU()
+
+  const nonCapturedInputSource = InputSourceComponent.nonCapturedInputSourceQuery()[0]
+  if (nonCapturedInputSource) {
+    const inputSource = getComponent(nonCapturedInputSource, InputSourceComponent)
+    if (inputSource.buttons.KeyU?.down) onKeyU()
+  }
 
   for (const action of interactedActionQueue()) {
     if (

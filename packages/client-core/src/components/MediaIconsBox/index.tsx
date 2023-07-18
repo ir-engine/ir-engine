@@ -1,3 +1,28 @@
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
 import { t } from 'i18next'
 import React, { useEffect } from 'react'
 import { useLocation } from 'react-router-dom'
@@ -14,6 +39,7 @@ import { AudioEffectPlayer } from '@etherealengine/engine/src/audio/systems/Medi
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { EngineActions, EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
+import { endXRSession, requestXRSession } from '@etherealengine/engine/src/xr/XRSessionFunctions'
 import { XRAction, XRState } from '@etherealengine/engine/src/xr/XRState'
 import { dispatchAction, getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import CircularProgress from '@etherealengine/ui/src/primitives/mui/CircularProgress'
@@ -71,7 +97,7 @@ export const MediaIconsBox = () => {
 
   return (
     <section className={`${styles.drawerBox} ${topShelfStyle}`}>
-      {(currentChannelInstanceConnection == null || !currentChannelInstanceConnection?.connected.value) && (
+      {networkState.config.media.value && !currentChannelInstanceConnection?.connected.value && (
         <div className={styles.loader}>
           <CircularProgress />
           <div
@@ -156,11 +182,9 @@ export const MediaIconsBox = () => {
           type="button"
           id="UserVR"
           className={styles.iconContainer + ' ' + (xrMode === 'immersive-vr' ? styles.on : '')}
-          onClick={() =>
-            dispatchAction(
-              xrSessionActive ? XRAction.endSession({}) : XRAction.requestSession({ mode: 'immersive-vr' })
-            )
-          }
+          onClick={() => {
+            xrSessionActive ? endXRSession() : requestXRSession({ mode: 'immersive-vr' })
+          }}
           onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
           onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
         >
@@ -172,11 +196,9 @@ export const MediaIconsBox = () => {
           type="button"
           id="UserAR"
           className={styles.iconContainer + ' ' + (xrMode === 'immersive-ar' ? styles.on : '')}
-          onClick={() =>
-            dispatchAction(
-              xrSessionActive ? XRAction.endSession({}) : XRAction.requestSession({ mode: 'immersive-ar' })
-            )
-          }
+          onClick={() => {
+            xrSessionActive ? endXRSession() : requestXRSession({ mode: 'immersive-ar' })
+          }}
           onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
           onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
         >

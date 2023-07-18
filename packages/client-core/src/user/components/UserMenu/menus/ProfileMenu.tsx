@@ -1,3 +1,28 @@
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
 // import * as polyfill from 'credential-handler-polyfill'
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -29,11 +54,11 @@ import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
 import { AuthSettingsState } from '../../../../admin/services/Setting/AuthSettingService'
 import { initialAuthState, initialOAuthConnectedState } from '../../../../common/initialAuthState'
 import { NotificationService } from '../../../../common/services/NotificationService'
+import { useUserAvatarThumbnail } from '../../../functions/useUserAvatarThumbnail'
 import { AuthService, AuthState } from '../../../services/AuthService'
 import { UserMenus } from '../../../UserUISystem'
 import styles from '../index.module.scss'
 import { PopupMenuServices } from '../PopupMenuService'
-import { getAvatarURLForUser } from '../util'
 
 const logger = multiLogger.child({ component: 'client-core:ProfileMenu' })
 
@@ -70,7 +95,7 @@ const ProfileMenu = ({ hideLogin, onClose, isPopover }: Props): JSX.Element => {
 
   const hasAdminAccess =
     selfUser?.id?.value?.length > 0 && selfUser?.scopes?.value?.find((scope) => scope.type === 'admin:admin')
-  const userAvatarDetails = useHookstate(getMutableState(WorldState).userAvatarDetails)
+  const avatarThumbnail = useUserAvatarThumbnail(userId)
 
   useEffect(() => {
     if (authSetting) {
@@ -334,7 +359,7 @@ const ProfileMenu = ({ hideLogin, onClose, isPopover }: Props): JSX.Element => {
       <Box className={styles.menuContent}>
         <Box className={styles.profileContainer}>
           <Avatar
-            imageSrc={getAvatarURLForUser(userAvatarDetails, userId)}
+            imageSrc={avatarThumbnail}
             showChangeButton={!!engineInitialized.value}
             onChange={() => PopupMenuServices.showPopupMenu(UserMenus.AvatarSelect)}
           />

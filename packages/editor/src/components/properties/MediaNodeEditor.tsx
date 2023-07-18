@@ -1,3 +1,28 @@
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
@@ -14,7 +39,6 @@ import { PlayMode } from '@etherealengine/engine/src/scene/constants/PlayMode'
 import { addError } from '@etherealengine/engine/src/scene/functions/ErrorFunctions'
 
 import { SupportedFileTypes } from '../../constants/AssetTypes'
-import { StaticResourceService } from '../../services/StaticResourceService'
 import ArrayInputGroup from '../inputs/ArrayInputGroup'
 import BooleanInput from '../inputs/BooleanInput'
 import { Button } from '../inputs/Button'
@@ -53,27 +77,6 @@ export const MediaNodeEditor: EditorComponentType = (props) => {
     media.paused.set(!media.paused.value)
   }
 
-  const updateResources = async (e) => {
-    const resources = await Promise.all(
-      e.map(async (path, index) => {
-        const extension = `.${path.split('.').pop()}`
-        let existingMedia
-        try {
-          if (AudioFileTypes.indexOf(extension) > -1) existingMedia = await StaticResourceService.uploadAudio(path)
-          else if (VideoFileTypes.indexOf(extension) > -1) existingMedia = await StaticResourceService.uploadVideo(path)
-          else if (VolumetricFileTypes.indexOf(extension) > -1)
-            existingMedia = await StaticResourceService.uploadVolumetric(path)
-          return existingMedia
-        } catch (err) {
-          addError(props.entity, MediaComponent, 'INVALID_URL', path)
-          return {}
-        }
-      })
-    )
-
-    updateProperty(MediaComponent, 'resources')(resources)
-  }
-
   return (
     <NodeEditor
       {...props}
@@ -88,7 +91,13 @@ export const MediaNodeEditor: EditorComponentType = (props) => {
         <></>
       )}
       <InputGroup name="Volume" label={t('editor:properties.media.lbl-volume')}>
-        <CompoundNumericInput value={media.volume.value} onChange={updateProperty(MediaComponent, 'volume')} />
+        <CompoundNumericInput
+          min={0}
+          max={1}
+          step={0.01}
+          value={media.volume.value}
+          onChange={updateProperty(MediaComponent, 'volume')}
+        />
       </InputGroup>
       <InputGroup name="Is Music" label={t('editor:properties.media.lbl-isMusic')}>
         <BooleanInput value={media.isMusic.value} onChange={updateProperty(MediaComponent, 'isMusic')} />
@@ -117,19 +126,8 @@ export const MediaNodeEditor: EditorComponentType = (props) => {
       <ArrayInputGroup
         name="Source Paths"
         prefix="Content"
-        values={media.resources.value.map(
-          (resource) =>
-            resource?.mp3StaticResource?.url ||
-            resource?.mpegStaticResource?.url ||
-            resource?.oggStaticResource?.url ||
-            resource?.mp4StaticResource?.url ||
-            resource?.manifest?.staticResource?.url ||
-            resource?.uvolStaticResource?.url ||
-            resource?.drcsStaticResource?.url ||
-            resource?.path ||
-            ''
-        )}
-        onChange={updateResources}
+        values={media.resources.value}
+        onChange={updateProperty(MediaComponent, 'resources')}
         label={t('editor:properties.media.paths')}
         acceptFileTypes={AllFileTypes}
         itemType={SupportedFileTypes}

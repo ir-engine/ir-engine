@@ -1,7 +1,32 @@
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
 import { getEntityComponents } from 'bitecs'
 import React, { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import JSONTree from 'react-json-tree'
+import { JSONTree } from 'react-json-tree'
 
 import { AvatarControllerComponent } from '@etherealengine/engine/src/avatar/components/AvatarControllerComponent'
 import { respawnAvatar } from '@etherealengine/engine/src/avatar/functions/respawnAvatar'
@@ -175,7 +200,7 @@ export const Debug = ({ showingStateRef }) => {
   namedEntities.set(renderAllEntities())
   entityTree.set(renderEntityTreeRoots())
   return (
-    <div className={styles.debugContainer}>
+    <div className={styles.debugContainer} style={{ pointerEvents: 'all' }}>
       <div className={styles.debugOptionContainer}>
         <h1>{t('common:debug.debugOptions')}</h1>
         <div className={styles.optionBlock}>
@@ -222,6 +247,27 @@ export const Debug = ({ showingStateRef }) => {
       </div>
       <StatsPanel show={showingStateRef.current} />
       <div className={styles.jsonPanel}>
+        <h1>{t('common:debug.entities')}</h1>
+        <JSONTree data={namedEntities.get({ noproxy: true })} />
+      </div>
+      <div className={styles.jsonPanel}>
+        <h1>{t('common:debug.entityTree')}</h1>
+        <JSONTree
+          data={entityTree.value}
+          postprocessValue={(v: any) => v?.value ?? v}
+          shouldExpandNodeInitially={(keyPath, data: any, level) =>
+            !!data.components && !!data.children && typeof data.entity === 'number'
+          }
+        />
+      </div>
+      <div className={styles.jsonPanel}>
+        <h1>{t('common:debug.state')}</h1>
+        <JSONTree
+          data={Engine.instance.store.stateMap}
+          postprocessValue={(v: any) => (v?.value && v?.get({ noproxy: true })) ?? v}
+        />
+      </div>
+      <div className={styles.jsonPanel}>
         <h1>{t('common:debug.systems')}</h1>
         <JSONTree
           data={dag}
@@ -239,7 +285,7 @@ export const Debug = ({ showingStateRef }) => {
               <>
                 <input
                   type="checkbox"
-                  checked={value}
+                  checked={value ? true : false}
                   onChange={() => {
                     if (Engine.instance.activeSystems.has(system.uuid)) {
                       Engine.instance.activeSystems.delete(system.uuid)
@@ -251,29 +297,8 @@ export const Debug = ({ showingStateRef }) => {
               </>
             )
           }}
-          shouldExpandNode={() => true}
+          shouldExpandNodeInitially={() => true}
         />
-      </div>
-      <div className={styles.jsonPanel}>
-        <h1>{t('common:debug.state')}</h1>
-        <JSONTree
-          data={Engine.instance.store.stateMap}
-          postprocessValue={(v) => (v?.value && v?.get({ noproxy: true })) ?? v}
-        />
-      </div>
-      <div className={styles.jsonPanel}>
-        <h1>{t('common:debug.entityTree')}</h1>
-        <JSONTree
-          data={entityTree.value}
-          postprocessValue={(v) => v?.value ?? v}
-          shouldExpandNode={(keyPath, data, level) =>
-            !!data.components && !!data.children && typeof data.entity === 'number'
-          }
-        />
-      </div>
-      <div className={styles.jsonPanel}>
-        <h1>{t('common:debug.entities')}</h1>
-        <JSONTree data={namedEntities.get({ noproxy: true })} />
       </div>
     </div>
   )

@@ -1,3 +1,28 @@
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
 import { useEffect } from 'react'
 import {
   AdditiveBlending,
@@ -26,11 +51,12 @@ import { defineQuery, getComponent, hasComponent, removeQuery } from '../../ecs/
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { InputComponent } from '../../input/components/InputComponent'
 import { InputSourceComponent } from '../../input/components/InputSourceComponent'
+import { XRStandardGamepadButton } from '../../input/state/ButtonState'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { VisibleComponent } from '../../scene/components/VisibleComponent'
 import { DistanceFromCameraComponent } from '../../transform/components/DistanceComponents'
 import { ReferenceSpace } from '../../xr/XRState'
-import { XRUIComponent, XRUIInteractableComponent } from '../components/XRUIComponent'
+import { XRUIComponent } from '../components/XRUIComponent'
 import { XRUIState } from '../XRUIState'
 
 // pointer taken from https://github.com/mrdoob/three.js/blob/master/examples/webxr_vr_ballshooter.html
@@ -66,8 +92,7 @@ export type PointerObject = (Line<BufferGeometry, LineBasicMaterial> | Mesh<Ring
 
 const hitColor = new Color(0x00e6e6)
 const normalColor = new Color(0xffffff)
-const visibleXruiQuery = defineQuery([XRUIComponent, VisibleComponent, InputComponent])
-const visibleInteractableXRUIQuery = defineQuery([XRUIInteractableComponent, XRUIComponent, VisibleComponent])
+const visibleInteractableXRUIQuery = defineQuery([XRUIComponent, VisibleComponent, InputComponent])
 const xruiQuery = defineQuery([XRUIComponent])
 
 // todo - hoist to hyperflux state
@@ -77,9 +102,9 @@ const maxXruiPointerDistanceSqr = 3 * 3
 // to the appropriate child Web3DLayer, and finally (back) to the
 // DOM to dispatch an event on the intended DOM target
 const redirectDOMEvent = (evt) => {
-  for (const entity of visibleXruiQuery()) {
+  for (const entity of visibleInteractableXRUIQuery()) {
     const layer = getComponent(entity, XRUIComponent)
-    const assigned = InputSourceComponent.isAssigned(entity)
+    const assigned = InputSourceComponent.isAssignedButtons(entity)
     if (!assigned) continue
     layer.updateWorldMatrix(true, true)
     const hit = layer.hitTest(Engine.instance.pointerScreenRaycaster.ray)
@@ -96,7 +121,7 @@ const updateControllerRayInteraction = (controller: PointerObject, xruiEntities:
   let hit = null! as ReturnType<typeof WebContainer3D.prototype.hitTest>
 
   for (const entity of xruiEntities) {
-    const assigned = InputSourceComponent.isAssigned(entity)
+    const assigned = InputSourceComponent.isAssignedButtons(entity)
     if (!assigned) continue
 
     const layer = getComponent(entity, XRUIComponent)
@@ -142,11 +167,13 @@ const updateClickEventsForController = (controller: PointerObject) => {
   }
 }
 
+const inputSourceQuery = defineQuery([InputSourceComponent])
+
 export const pointers = new Map<XRInputSource, PointerObject>()
 
 const execute = () => {
   const xruiState = getState(XRUIState)
-  const buttons = Engine.instance.buttons
+  const inputSourceEntities = inputSourceQuery()
 
   const xrFrame = Engine.instance.xrFrame
 
@@ -176,7 +203,11 @@ const execute = () => {
     getMutableState(XRUIState).pointerActive.set(isCloseToVisibleXRUI)
 
   /** do intersection tests */
-  for (const inputSource of Engine.instance.inputSources) {
+  for (const inputSourceEntity of inputSourceEntities) {
+    const inputSourceComponent = getComponent(inputSourceEntity, InputSourceComponent)
+    const inputSource = inputSourceComponent.source
+    const buttons = inputSourceComponent.buttons
+
     if (inputSource.targetRayMode !== 'tracked-pointer') continue
     if (!pointers.has(inputSource)) {
       const pointer = createPointer(inputSource)
@@ -203,18 +234,16 @@ const execute = () => {
     pointer.material.visible = isCloseToVisibleXRUI
 
     if (
-      (inputSource.handedness === 'left' && buttons.LeftTrigger?.down) ||
-      (inputSource.handedness === 'right' && buttons.RightTrigger?.down)
+      buttons[XRStandardGamepadButton.Trigger]?.down &&
+      (inputSource.handedness === 'left' || inputSource.handedness === 'right')
     )
       updateClickEventsForController(pointer)
 
-    if (inputSource.targetRayMode === 'tracked-pointer')
-      updateControllerRayInteraction(pointer, interactableXRUIEntities)
+    updateControllerRayInteraction(pointer, interactableXRUIEntities)
   }
 
-  const inputSources = Array.from(Engine.instance.inputSources.values())
   for (const [pointerSource, pointer] of pointers) {
-    if (!inputSources.includes(pointerSource)) {
+    if (!inputSourceEntities.find((entity) => getComponent(entity, InputSourceComponent).source === pointerSource)) {
       Engine.instance.scene.remove(pointer)
       pointers.delete(pointerSource)
     }
@@ -222,7 +251,7 @@ const execute = () => {
 
   /** only update visible XRUI */
 
-  for (const entity of visibleXruiQuery()) {
+  for (const entity of visibleInteractableXRUIQuery()) {
     const xrui = getComponent(entity, XRUIComponent)
     xrui.update()
   }
@@ -254,6 +283,7 @@ const reactor = () => {
     // }
 
     // const canvas = EngineRenderer.instance.renderer.getContext().canvas
+    document.body.addEventListener('pointerdown', redirectDOMEvent)
     document.body.addEventListener('click', redirectDOMEvent)
     document.body.addEventListener('contextmenu', redirectDOMEvent)
     document.body.addEventListener('dblclick', redirectDOMEvent)
@@ -261,6 +291,7 @@ const reactor = () => {
     getMutableState(XRUIState).interactionRays.set([Engine.instance.pointerScreenRaycaster.ray])
 
     return () => {
+      document.body.removeEventListener('pointerdown', redirectDOMEvent)
       document.body.removeEventListener('click', redirectDOMEvent)
       document.body.removeEventListener('contextmenu', redirectDOMEvent)
       document.body.removeEventListener('dblclick', redirectDOMEvent)

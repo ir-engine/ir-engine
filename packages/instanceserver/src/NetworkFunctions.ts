@@ -1,15 +1,39 @@
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
 import _ from 'lodash'
 import { DataConsumer, DataProducer } from 'mediasoup/node/lib/types'
 import { Spark } from 'primus'
 
+import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { Instance } from '@etherealengine/common/src/interfaces/Instance'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { UserInterface } from '@etherealengine/common/src/interfaces/User'
 import { UserId } from '@etherealengine/common/src/interfaces/UserId'
-import { SpawnPoseComponent } from '@etherealengine/engine/src/avatar/components/SpawnPoseComponent'
 import { respawnAvatar } from '@etherealengine/engine/src/avatar/functions/respawnAvatar'
 import checkPositionIsValid from '@etherealengine/engine/src/common/functions/checkPositionIsValid'
-import { performance } from '@etherealengine/engine/src/common/functions/performance'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { getComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { DataChannelType } from '@etherealengine/engine/src/networking/classes/Network'
@@ -18,6 +42,7 @@ import { NetworkPeerFunctions } from '@etherealengine/engine/src/networking/func
 import { JoinWorldRequestData } from '@etherealengine/engine/src/networking/functions/receiveJoinWorld'
 import { WorldState } from '@etherealengine/engine/src/networking/interfaces/WorldState'
 import { updateNetwork } from '@etherealengine/engine/src/networking/NetworkState'
+import { EntityNetworkState } from '@etherealengine/engine/src/networking/state/EntityNetworkState'
 import { updatePeers } from '@etherealengine/engine/src/networking/systems/OutgoingActionSystem'
 import { GroupComponent } from '@etherealengine/engine/src/scene/components/GroupComponent'
 import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
@@ -272,7 +297,6 @@ export const handleConnectingPeer = async (
   user: UserInterface
 ) => {
   const userId = user.id
-  const avatarDetail = user.avatar
 
   // Create a new client object
   // and add to the dictionary
@@ -304,10 +328,6 @@ export const handleConnectingPeer = async (
 
   const worldState = getMutableState(WorldState)
   worldState.userNames[userId].set(user.name)
-  worldState.userAvatarDetails[userId].set({
-    avatarURL: avatarDetail.modelResource?.url || '',
-    thumbnailURL: avatarDetail.thumbnailResource?.url || ''
-  })
 
   network.userIDToUserIndex.set(userId, userIndex)
   network.userIndexToUserID.set(userIndex, userId)
@@ -431,9 +451,9 @@ const getUserSpawnFromInvite = async (
         const validSpawnablePosition = checkPositionIsValid(inviterUserObject3d.position, false)
 
         if (validSpawnablePosition) {
-          const spawnPoseComponent = getComponent(selfAvatarEntity, SpawnPoseComponent)
-          spawnPoseComponent?.position.copy(inviterUserObject3d.position)
-          spawnPoseComponent?.rotation.copy(inviterUserTransform.rotation)
+          const spawnPose = getState(EntityNetworkState)[user.id as any as EntityUUID]
+          spawnPose.spawnPosition.copy(inviterUserObject3d.position)
+          spawnPose.spawnRotation.copy(inviterUserTransform.rotation)
           respawnAvatar(selfAvatarEntity)
         }
       } else {

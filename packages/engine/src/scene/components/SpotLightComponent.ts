@@ -1,3 +1,28 @@
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
 import { useEffect } from 'react'
 import { Color, ConeGeometry, DoubleSide, Mesh, MeshBasicMaterial, Object3D, SpotLight, TorusGeometry } from 'three'
 
@@ -30,7 +55,6 @@ export const SpotLightComponent = defineComponent({
       angle: Math.PI / 3,
       penumbra: 1,
       castShadow: false,
-      shadowMapResolution: 256,
       shadowBias: 0.00001,
       shadowRadius: 1,
       light,
@@ -51,9 +75,6 @@ export const SpotLightComponent = defineComponent({
     if (matches.number.test(json.penumbra)) component.angle.set(json.penumbra)
     if (matches.boolean.test(json.castShadow)) component.castShadow.set(json.castShadow)
     /** backwards compat */
-    if (matches.array.test(json.shadowMapResolution))
-      component.shadowMapResolution.set((json.shadowMapResolution as any)[0])
-    if (matches.number.test(json.shadowMapResolution)) component.shadowMapResolution.set(json.shadowMapResolution)
     if (matches.number.test(json.shadowBias)) component.shadowBias.set(json.shadowBias)
     if (matches.number.test(json.shadowRadius)) component.shadowRadius.set(json.shadowRadius)
   },
@@ -67,7 +88,6 @@ export const SpotLightComponent = defineComponent({
       angle: component.angle.value,
       penumbra: component.penumbra.value,
       castShadow: component.castShadow.value,
-      shadowMapResolution: component.shadowMapResolution.value,
       shadowBias: component.shadowBias.value,
       shadowRadius: component.shadowRadius.value
     }
@@ -80,7 +100,8 @@ export const SpotLightComponent = defineComponent({
 
   reactor: function () {
     const entity = useEntityContext()
-    const debugEnabled = useHookstate(getMutableState(RendererState).nodeHelperVisibility)
+    const renderState = useHookstate(getMutableState(RendererState))
+    const debugEnabled = renderState.nodeHelperVisibility
     const light = useComponent(entity, SpotLightComponent)
 
     useEffect(() => {
@@ -122,14 +143,17 @@ export const SpotLightComponent = defineComponent({
     }, [light.castShadow])
 
     useEffect(() => {
-      if (light.light.value.shadow.mapSize.x !== light.shadowMapResolution.value) {
-        light.light.value.shadow.mapSize.set(light.shadowMapResolution.value, light.shadowMapResolution.value)
+      if (light.light.value.shadow.mapSize.x !== renderState.shadowMapResolution.value) {
+        light.light.value.shadow.mapSize.set(
+          renderState.shadowMapResolution.value,
+          renderState.shadowMapResolution.value
+        )
         light.light.value.shadow.map?.dispose()
         light.light.value.shadow.map = null as any
         light.light.value.shadow.camera.updateProjectionMatrix()
         light.light.value.shadow.needsUpdate = true
       }
-    }, [light.shadowMapResolution])
+    }, [renderState.shadowMapResolution])
 
     useEffect(() => {
       if (debugEnabled.value && !light.helper.value) {

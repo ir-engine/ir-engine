@@ -1,18 +1,30 @@
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
 import _ from 'lodash'
-import {
-  BloomEffect,
-  BrightnessContrastEffect,
-  ColorDepthEffect,
-  DepthOfFieldEffect,
-  EffectComposer,
-  HueSaturationEffect,
-  NormalPass,
-  OutlineEffect,
-  RenderPass,
-  SMAAEffect,
-  SSAOEffect,
-  ToneMappingEffect
-} from 'postprocessing'
+import { EffectComposer, NormalPass, RenderPass } from 'postprocessing'
 import { useEffect } from 'react'
 import {
   LinearToneMapping,
@@ -26,21 +38,19 @@ import {
   WebGLRendererParameters
 } from 'three'
 
-import { defineState, dispatchAction, getMutableState, getState, none, useHookstate } from '@etherealengine/hyperflux'
+import { defineState, dispatchAction, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
-import { CSM } from '../assets/csm/CSM'
 import { ExponentialMovingAverage } from '../common/classes/ExponentialAverageCurve'
 import { nowMilliseconds } from '../common/functions/nowMilliseconds'
 import { overrideOnBeforeCompile } from '../common/functions/OnBeforeCompilePlugin'
 import { Engine } from '../ecs/classes/Engine'
 import { EngineActions, EngineState } from '../ecs/classes/EngineState'
-import { SceneState } from '../ecs/classes/Scene'
 import { defineSystem } from '../ecs/functions/SystemFunctions'
 import { ObjectLayers } from '../scene/constants/ObjectLayers'
 import { defaultPostProcessingSchema } from '../scene/constants/PostProcessing'
+import { EffectMapType } from '../scene/constants/PostProcessing'
 import { createWebXRManager, WebXRManager } from '../xr/WebXRManager'
 import { XRState } from '../xr/XRState'
-import { LinearTosRGBEffect } from './effects/LinearTosRGBEffect'
 import { changeRenderMode } from './functions/changeRenderMode'
 import { configureEffectComposer } from './functions/configureEffectComposer'
 import { updateShadowMap } from './functions/RenderSettingsFunction'
@@ -48,19 +58,7 @@ import { RendererState } from './RendererState'
 import { RenderInfoSystem } from './RenderInfoSystem'
 import WebGL from './THREE.WebGL'
 
-export interface EffectComposerWithSchema extends EffectComposer {
-  OutlineEffect: OutlineEffect
-  // FXAAEffect: FXAAEffect
-  SMAAEffect: SMAAEffect
-  SSAOEffect: SSAOEffect
-  DepthOfFieldEffect: DepthOfFieldEffect
-  BloomEffect: BloomEffect
-  ToneMappingEffect: ToneMappingEffect
-  BrightnessContrastEffect: BrightnessContrastEffect
-  HueSaturationEffect: HueSaturationEffect
-  ColorDepthEffect: ColorDepthEffect
-  LinearTosRGBEffect: LinearTosRGBEffect
-}
+export type EffectComposerWithSchema = EffectComposer & EffectMapType
 
 let lastRenderTime = 0
 
@@ -341,7 +339,6 @@ const reactor = () => {
     if (engineRendererSettings.debugEnable.value) Engine.instance.camera.layers.enable(ObjectLayers.PhysicsHelper)
     else Engine.instance.camera.layers.disable(ObjectLayers.PhysicsHelper)
   }, [engineRendererSettings.debugEnable])
-
   useEffect(() => {
     if (engineRendererSettings.gridVisibility.value) Engine.instance.camera.layers.enable(ObjectLayers.Gizmos)
     else Engine.instance.camera.layers.disable(ObjectLayers.Gizmos)

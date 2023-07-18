@@ -1,3 +1,28 @@
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
 import * as k8s from '@kubernetes/client-node'
 import { Op } from 'sequelize'
 
@@ -238,21 +263,31 @@ const populateInstanceServerType = async (app: Application, items: ServerPodInfo
 
   for (const item of items) {
     const instanceExists = instances.find((instance) => instance.podName === item.name)
-
     item.instanceId = instanceExists ? instanceExists.id : ''
     item.currentUsers = instanceExists ? instanceExists.currentUsers : 0
-
-    if (instanceExists && instanceExists.locationId) {
+    if (!instanceExists) {
+      item.type = 'Unassigned'
+      continue
+    }
+    if (!instanceExists.locationId && !instanceExists.channelId) {
+      item.type = 'Unassigned'
+      continue
+    }
+    if (instanceExists.locationId) {
       item.type = `World (${instanceExists.location.name})`
       item.locationSlug = instanceExists.location.slugifiedName
-    } else if (instanceExists && instanceExists.channelId) {
+    } else if (instanceExists.channelId) {
       item.type = 'Media'
       const channelExists = channels.find((channel) => channel.instanceId === instanceExists.id)
-      if (channelExists && channelExists.channelType) {
+      if (!channelExists) {
+        continue
+      }
+      if (channelExists.channelType) {
         item.type = `Media (${channelExists.channelType})`
       }
-    } else {
-      item.type = 'Unassigned'
+      if (instanceExists.locationId) {
+        item.type = `Media (${instanceExists.location.name} - ${instanceExists.id})`
+      }
     }
   }
 }

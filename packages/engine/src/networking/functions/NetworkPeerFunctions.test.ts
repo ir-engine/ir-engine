@@ -1,28 +1,55 @@
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
 import assert from 'assert'
 
+import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { NetworkId } from '@etherealengine/common/src/interfaces/NetworkId'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { UserId } from '@etherealengine/common/src/interfaces/UserId'
-import { applyIncomingActions, clearOutgoingActions, getMutableState } from '@etherealengine/hyperflux'
+import { applyIncomingActions, getMutableState, receiveActions } from '@etherealengine/hyperflux'
 
 import { createMockNetwork } from '../../../tests/util/createMockNetwork'
 import { destroyEngine, Engine } from '../../ecs/classes/Engine'
-import { addComponent } from '../../ecs/functions/ComponentFunctions'
-import { executeSystems, RootSystemGroup, SimulationSystemGroup } from '../../ecs/functions/EngineFunctions'
+import { setComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
-import { startSystem, startSystems, SystemDefinitions } from '../../ecs/functions/SystemFunctions'
+import { SystemDefinitions } from '../../ecs/functions/SystemFunctions'
 import { createEngine } from '../../initializeEngine'
+import { UUIDComponent } from '../../scene/components/UUIDComponent'
 import { Network } from '../classes/Network'
 import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
 import { WorldState } from '../interfaces/WorldState'
 import { NetworkState } from '../NetworkState'
-import { WorldNetworkActionSystem } from '../systems/WorldNetworkActionSystem'
+import { EntityNetworkState } from '../state/EntityNetworkState'
 import { NetworkPeerFunctions } from './NetworkPeerFunctions'
 
 describe('NetworkPeerFunctions', () => {
   beforeEach(() => {
     createEngine()
     createMockNetwork()
+    Engine.instance.store.defaultDispatchDelay = () => 0
   })
 
   afterEach(() => {
@@ -125,18 +152,19 @@ describe('NetworkPeerFunctions', () => {
       const networkId = 2 as NetworkId
 
       const entity = createEntity()
-      addComponent(entity, NetworkObjectComponent, {
+      setComponent(entity, NetworkObjectComponent, {
         ownerId: userId,
         authorityPeerID: peerID,
         networkId
       })
+      setComponent(entity, UUIDComponent, 'entity_uuid' as EntityUUID)
 
       // process remove actions and execute entity removal
       Engine.instance.store.defaultDispatchDelay = () => 0
       NetworkPeerFunctions.destroyPeer(network, peerID)
 
       applyIncomingActions()
-      SystemDefinitions.get(WorldNetworkActionSystem)!.execute()
+      receiveActions(EntityNetworkState)
 
       assert(!Engine.instance.getNetworkObject(userId, networkId))
     })

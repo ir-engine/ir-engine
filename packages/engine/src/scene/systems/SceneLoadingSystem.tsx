@@ -1,17 +1,45 @@
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
 import { cloneDeep } from 'lodash'
 import { useEffect } from 'react'
+import React from 'react'
 import { MathUtils } from 'three'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { ComponentJson, EntityJson, SceneData, SceneJson } from '@etherealengine/common/src/interfaces/SceneInterface'
 import logger from '@etherealengine/common/src/logger'
-import { setLocalTransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
+import {
+  LocalTransformComponent,
+  setLocalTransformComponent
+} from '@etherealengine/engine/src/transform/components/TransformComponent'
 import {
   addActionReceptor,
   dispatchAction,
   getMutableState,
   getState,
-  NO_PROXY,
   removeActionReceptor,
   useHookstate
 } from '@etherealengine/hyperflux'
@@ -29,13 +57,15 @@ import { Entity } from '../../ecs/classes/Entity'
 import { SceneState } from '../../ecs/classes/Scene'
 import {
   ComponentJSONIDMap,
+  ComponentType,
   defineQuery,
   getAllComponents,
   getComponent,
   getOptionalComponent,
   hasComponent,
   removeComponent,
-  setComponent
+  setComponent,
+  useQuery
 } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
 import {
@@ -56,6 +86,7 @@ import { PostProcessingComponent } from '../components/PostProcessingComponent'
 import { RenderSettingsComponent } from '../components/RenderSettingsComponent'
 import { SceneAssetPendingTagComponent } from '../components/SceneAssetPendingTagComponent'
 import { SceneDynamicLoadTagComponent } from '../components/SceneDynamicLoadTagComponent'
+import { SceneObjectComponent } from '../components/SceneObjectComponent'
 import { UUIDComponent } from '../components/UUIDComponent'
 import { VisibleComponent } from '../components/VisibleComponent'
 import { getUniqueName } from '../functions/getUniqueName'
@@ -194,36 +225,25 @@ export const updateSceneEntitiesFromJSON = (parent: string) => {
     ([uuid, entity]) => entity.parent === parent
   ) as [EntityUUID, EntityJson][]
   for (const [uuid, entityJson] of entitiesToLoad) {
-    updateSceneEntity(uuid, entityJson)
+    /** Dynamic loading handled by SceneObejctDynamicLoadSystem */
     const JSONEntityIsDynamic = !!entityJson.components.find(
       (comp) => comp.name === SceneDynamicLoadTagComponent.jsonID
     )
-
-    if (JSONEntityIsDynamic && !getMutableState(EngineState).isEditor.value) {
-      const existingEntity = UUIDComponent.entitiesByUUID[uuid]
-      if (existingEntity) {
-        const previouslyNotDynamic = !getOptionalComponent(existingEntity, SceneDynamicLoadTagComponent)?.loaded
-        if (previouslyNotDynamic) {
-          // remove children from world (get from entity tree)
-          // these are children who have potentially been previously loaded and are now to be dynamically loaded
-          const nodes = getComponent(existingEntity, EntityTreeComponent).children
-          for (const node of nodes) removeEntityNode(node, false)
-        }
-      }
-    } else {
-      // iterate children
-      updateSceneEntitiesFromJSON(uuid)
-    }
+    if (JSONEntityIsDynamic && !getMutableState(EngineState).isEditor.value) continue
+    /** Deserialize */
+    updateSceneEntity(uuid, entityJson)
+    /** Iterate Children */
+    updateSceneEntitiesFromJSON(uuid)
   }
 }
 
 /** 2. remove old scene entities - GLTF loaded entities will be handled by their parents if removed */
 export const removeSceneEntitiesFromOldJSON = () => {
   const sceneState = getState(SceneState)
-  const sceneData = sceneState.sceneData as SceneData
+  const sceneData = sceneState.sceneData
   const oldLoadedEntityNodesToRemove = getAllEntitiesInTree(sceneState.sceneEntity).filter(
     (entity) =>
-      !sceneData.scene.entities[getComponent(entity, UUIDComponent)] &&
+      !sceneData?.scene.entities[getComponent(entity, UUIDComponent)] &&
       !getOptionalComponent(entity, GLTFLoadedComponent)?.includes('entity')
   )
   /** @todo this will not  */
@@ -243,13 +263,16 @@ export const updateSceneFromJSON = async () => {
   if (getState(AppLoadingState).state !== AppLoadingStates.SUCCESS)
     dispatchAction(AppLoadingAction.setLoadingState({ state: AppLoadingStates.SCENE_LOADING }))
 
-  const sceneData = getState(SceneState).sceneData as SceneData
+  const sceneData = getState(SceneState).sceneData
 
-  getMutableState(EngineState).sceneLoading.set(true)
+  getMutableState(EngineState).merge({
+    sceneLoading: true,
+    sceneLoaded: false
+  })
 
   const systemsToLoad = [] as SystemImportType[]
 
-  if (!getState(EngineState).isEditor) {
+  if (!getState(EngineState).isEditor && sceneData) {
     /** get systems that have changed */
     const sceneSystems = await getSystemsFromSceneData(sceneData.project, sceneData.scene)
     systemsToLoad.push(
@@ -269,6 +292,14 @@ export const updateSceneFromJSON = async () => {
   }
 
   removeSceneEntitiesFromOldJSON()
+
+  if (!sceneData) {
+    getMutableState(EngineState).merge({
+      sceneLoading: false,
+      sceneLoaded: false
+    })
+    return
+  }
 
   /** 3. load new systems */
   if (!getState(EngineState).isEditor) {
@@ -303,11 +334,14 @@ export const updateSceneFromJSON = async () => {
   }
 
   if (!sceneAssetPendingTagQuery().length) {
-    if (getState(EngineState).sceneLoading) dispatchAction(EngineActions.sceneLoaded({}))
+    if (getState(EngineState).sceneLoading) {
+      getMutableState(EngineState).merge({
+        sceneLoading: false,
+        sceneLoaded: true
+      })
+      dispatchAction(EngineActions.sceneLoaded({}))
+    }
   }
-
-  if (getState(AppLoadingState).state !== AppLoadingStates.SUCCESS)
-    dispatchAction(AppLoadingAction.setLoadingState({ state: AppLoadingStates.SUCCESS }))
 }
 
 /**
@@ -320,6 +354,7 @@ export const updateSceneEntity = (uuid: EntityUUID, entityJson: EntityJson) => {
   try {
     const existingEntity = UUIDComponent.entitiesByUUID[uuid]
     if (existingEntity) {
+      setComponent(existingEntity, SceneObjectComponent)
       deserializeSceneEntity(existingEntity, entityJson)
       /** @todo handle reparenting due to changes in scene json */
       // const parent = existingEntity.parentEntity
@@ -328,6 +363,7 @@ export const updateSceneEntity = (uuid: EntityUUID, entityJson: EntityJson) => {
     } else {
       const entity = createEntity()
       const parentEntity = UUIDComponent.entitiesByUUID[entityJson.parent!]
+      setComponent(entity, SceneObjectComponent)
       setComponent(entity, EntityTreeComponent, { parentEntity, uuid, childIndex: entityJson.index })
       setLocalTransformComponent(entity, parentEntity)
       addEntityNodeChild(entity, parentEntity)
@@ -378,42 +414,35 @@ export const deserializeComponent = (entity: Entity, component: ComponentJson): 
 
 const sceneAssetPendingTagQuery = defineQuery([SceneAssetPendingTagComponent])
 
-let totalPendingAssets = 0
-
-const onComplete = (pendingAssets: number) => {
-  const promisesCompleted = totalPendingAssets - pendingAssets
-  dispatchAction(
-    EngineActions.sceneLoadingProgress({
-      progress:
-        promisesCompleted >= totalPendingAssets ? 100 : Math.round((100 * promisesCompleted) / totalPendingAssets)
-    })
-  )
-}
-
-const execute = () => {
-  if (!getState(EngineState).sceneLoading) return
-
-  const pendingAssets = sceneAssetPendingTagQuery().length
-
-  for (const entity of sceneAssetPendingTagQuery.enter()) {
-    totalPendingAssets++
-  }
-
-  if (sceneAssetPendingTagQuery.exit().length) {
-    onComplete(pendingAssets)
-    if (pendingAssets === 0) {
-      totalPendingAssets = 0
-      dispatchAction(EngineActions.sceneLoaded({}))
-    }
-  }
-}
-
 const reactor = () => {
   const sceneData = useHookstate(getMutableState(SceneState).sceneData)
   const isEngineInitialized = useHookstate(getMutableState(EngineState).isEngineInitialized)
+  const sceneAssetPendingTagQuery = useQuery([SceneAssetPendingTagComponent])
+  const assetLoadingState = useHookstate(SceneAssetPendingTagComponent.loadingProgress)
 
   useEffect(() => {
-    if (sceneData.value && isEngineInitialized.value) updateSceneFromJSON()
+    if (!getState(EngineState).sceneLoading) return
+
+    const values = Object.values(assetLoadingState.value)
+    const total = values.reduce((acc, curr) => acc + curr.totalAmount, 0)
+    const loaded = values.reduce((acc, curr) => acc + curr.loadedAmount, 0)
+    const progress = !sceneAssetPendingTagQuery.length || total === 0 ? 100 : Math.round((100 * loaded) / total)
+
+    getMutableState(EngineState).loadingProgress.set(progress)
+
+    if (!sceneAssetPendingTagQuery.length && !getState(EngineState).sceneLoaded) {
+      for (const entity of sceneAssetPendingTagQuery) removeComponent(entity, SceneAssetPendingTagComponent)
+      getMutableState(EngineState).merge({
+        sceneLoading: false,
+        sceneLoaded: true
+      })
+      dispatchAction(EngineActions.sceneLoaded({}))
+      SceneAssetPendingTagComponent.loadingProgress.set({})
+    }
+  }, [sceneAssetPendingTagQuery, assetLoadingState])
+
+  useEffect(() => {
+    if (isEngineInitialized.value) updateSceneFromJSON()
   }, [sceneData, isEngineInitialized])
 
   useEffect(() => {
@@ -422,11 +451,12 @@ const reactor = () => {
       removeActionReceptor(AppLoadingServiceReceptor)
     }
   }, [])
+
   return null
 }
 
 export const SceneLoadingSystem = defineSystem({
   uuid: 'ee.engine.scene.SceneLoadingSystem',
-  execute,
+  execute: () => {},
   reactor
 })

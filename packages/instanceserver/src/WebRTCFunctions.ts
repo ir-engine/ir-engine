@@ -1,3 +1,29 @@
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
+import detect from 'detect-port'
 import { createWorker } from 'mediasoup'
 import {
   DataConsumer,
@@ -43,12 +69,23 @@ import {
 
 const logger = multiLogger.child({ component: 'instanceserver:webrtc' })
 
+const portsInUse: number[] = []
+
+const getNewOffset = async (ipAddress, startPort, i, offset) => {
+  const inUse = await detect(startPort + i + offset, ipAddress)
+  if (inUse !== startPort + i + offset || portsInUse.indexOf(startPort + i + offset) >= 0)
+    return getNewOffset(ipAddress, startPort, i, offset + 1)
+  else return offset
+}
+
 export async function startWebRTC() {
   logger.info('Starting WebRTC Server.')
   // Initialize roomstate
   const cores = os.cpus()
   const routers = { instance: [] } as { instance: Router[]; [channelTypeAndChannelID: string]: Router[] }
   const workers = [] as Worker[]
+  //This is used in case ports in the range to use are in use by something else
+  let offset = 0
   for (let i = 0; i < cores.length; i++) {
     const newWorker = await createWorker({
       logLevel: 'debug',
@@ -60,7 +97,14 @@ export async function startWebRTC() {
     })
 
     const webRtcServerOptions = JSON.parse(JSON.stringify(localConfig.mediasoup.webRtcServerOptions))
-    for (const listenInfo of webRtcServerOptions.listenInfos) listenInfo.port += i
+    offset = await getNewOffset(
+      webRtcServerOptions.listenInfos[0].ipAddress,
+      webRtcServerOptions.listenInfos[0].port,
+      i,
+      offset
+    )
+    for (const listenInfo of webRtcServerOptions.listenInfos) listenInfo.port += i + offset
+    portsInUse.push(webRtcServerOptions.listenInfos[0].port)
     newWorker.appData.webRtcServer = await newWorker.createWebRtcServer(webRtcServerOptions)
 
     newWorker.on('died', (err) => {
@@ -497,7 +541,6 @@ export async function handleWebRtcProduceData(
   messageId?: string
 ): Promise<any> {
   try {
-    console.log('webRTCProduceData')
     const userId = getUserIdFromPeerID(network, peerID)
     if (!userId) {
       logger.info('userId could not be found for sparkID ' + peerID)
@@ -949,9 +992,24 @@ export async function handleWebRtcConsumerSetLayers(
 ): Promise<any> {
   const { consumerId, spatialLayer } = data
   const consumer = network.consumers.find((c) => c.id === consumerId)!
+  if (!consumer)
+    return spark.write({
+      type: MessageTypes.WebRTCConsumerSetLayers.toString(),
+      data: { layersSet: false },
+      id: messageId
+    })
   logger.info('consumer-set-layers: %o, %o', spatialLayer, consumer.appData)
-  await consumer.setPreferredLayers({ spatialLayer })
-  spark.write({ type: MessageTypes.WebRTCConsumerSetLayers.toString(), data: { layersSet: true }, id: messageId })
+  try {
+    await consumer.setPreferredLayers({ spatialLayer })
+    spark.write({ type: MessageTypes.WebRTCConsumerSetLayers.toString(), data: { layersSet: true }, id: messageId })
+  } catch (err) {
+    logger.warn(err)
+    return spark.write({
+      type: MessageTypes.WebRTCConsumerSetLayers.toString(),
+      data: { layersSet: false },
+      id: messageId
+    })
+  }
 }
 
 export async function handleWebRtcResumeProducer(

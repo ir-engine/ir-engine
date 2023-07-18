@@ -40,10 +40,10 @@ jobs:
       - name: Setup Helm
         run: scripts/setup_helm_builder.sh
       - name: Setup AWS
-        run: scripts/setup_aws_builder.sh $AWS_ACCESS_KEY $AWS_SECRET $AWS_REGION $CLUSTER_NAME
+        run: scripts/setup_aws_builder.sh $EKS_AWS_ACCESS_KEY $EKS_AWS_SECRET $AWS_REGION $CLUSTER_NAME
         env:
-          AWS_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY }}
-          AWS_SECRET: ${{ secrets.AWS_SECRET }}
+          EKS_AWS_ACCESS_KEY: ${{ secrets.EKS_AWS_ACCESS_KEY }}
+          EKS_AWS_SECRET: ${{ secrets.EKS_AWS_SECRET }}
           AWS_REGION: ${{ secrets.AWS_REGION }}
           CLUSTER_NAME: ${{ secrets.CLUSTER_NAME }}
       - name: Space debug
@@ -54,8 +54,8 @@ jobs:
           sudo rm -rf "$AGENT_TOOLSDIRECTORY"
       - name: move package.json
         run: mv package.json package.jsonmoved
-      - name: npm-install 'cli' and @aws-sdk/client-ecr(-public)
-        run: npm install cli @aws-sdk/client-ecr @aws-sdk/client-ecr-public
+      - name: npm-install 'cli', @aws-sdk/client-ecr(-public), and @kubernetes/client-node
+        run: npm install cli @aws-sdk/client-ecr @aws-sdk/client-ecr-public @kubernetes/client-node
       - name: restore package.json
         run: mv package.jsonmoved package.json
       - name: Expose GitHub Runtime

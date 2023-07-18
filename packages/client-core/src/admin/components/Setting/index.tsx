@@ -1,3 +1,28 @@
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
 import { Icon as Iconify } from '@iconify/react'
 import React, { Fragment, useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -23,6 +48,7 @@ import Client from './Client'
 import ClientTheme from './ClientTheme'
 import Coil from './Coil'
 import Email from './Email'
+import Helm from './Helm'
 import InstanceServer from './InstanceServer'
 import Project from './Project'
 import Redis from './Redis'
@@ -41,6 +67,12 @@ const settingItems = [
     title: 'Server',
     icon: <Iconify icon="carbon:bare-metal-server" color="orange" />,
     content: <Server />
+  },
+  {
+    name: 'helm',
+    title: 'Helm Charts',
+    icon: <Icon type="Poll" sx={{ color: 'orange' }} />,
+    content: <Helm />
   },
   {
     name: 'client',
@@ -80,7 +112,7 @@ const settingItems = [
   },
   {
     name: 'aws',
-    title: 'Aws',
+    title: 'AWS',
     icon: <Iconify icon="logos:aws" />,
     content: <Aws />
   },
@@ -143,20 +175,28 @@ const Setting = () => {
     rootRef?.current?.scrollIntoView()
   }, [menuVisible.value])
 
+  useEffect(() => {
+    const hash = window.location.hash.replace('#', '')
+    const settingsItemsNames = settingItems.map((item) => item.name)
+    if (settingsItemsNames.indexOf(hash) >= 0) selectedItem.set(hash)
+  }, [])
+
   return (
     <div ref={rootRef}>
       <div className={styles.invisible}>
-        <Button size="small" onClick={() => menuVisible.set(!menuVisible.value)} className={styles.menuBtn}>
-          <Icon type="Menu" />
-        </Button>
-        {menuVisible && (
+        {!menuVisible.value && (
+          <Button size="small" onClick={() => menuVisible.set(true)} className={styles.menuBtn}>
+            <Icon type="Menu" />
+          </Button>
+        )}
+        {menuVisible.value && (
           <div className={styles.hoverSettings}>
             <Grid display="flex" flexDirection="row" alignItems="center" marginBottom="10px">
               <Typography variant="h6" className={styles.settingsHeading}>
                 {t('admin:components.setting.settings')}
               </Typography>
               <IconButton
-                onClick={() => menuVisible.set(!menuVisible.value)}
+                onClick={() => menuVisible.set(false)}
                 style={{
                   color: 'orange',
                   fontSize: '3rem',
@@ -170,6 +210,7 @@ const Setting = () => {
             <Sidebar
               selected={selectedItem.value}
               onChange={(name) => {
+                window.location.hash = `#${name}`
                 selectedItem.set(name)
               }}
             />
@@ -184,6 +225,7 @@ const Setting = () => {
           <Sidebar
             selected={selectedItem.value}
             onChange={(name) => {
+              window.location.hash = `#${name}`
               selectedItem.set(name)
             }}
           />

@@ -1,3 +1,28 @@
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
 import { useHookstate } from '@hookstate/core'
 import React from 'react'
 
@@ -8,6 +33,7 @@ import { getMutableState } from '@etherealengine/hyperflux'
 
 import { useMediaInstance } from '../../common/services/MediaInstanceConnectionService'
 import { PeerMediaChannelState, PeerMediaStreamInterface } from '../../transports/PeerMediaChannelState'
+import { AuthState } from '../../user/services/AuthService'
 import { useShelfStyles } from '../Shelves/useShelfStyles'
 import { UserMediaWindow, UserMediaWindowWidget } from '../UserMediaWindow'
 import styles from './index.module.scss'
@@ -24,6 +50,7 @@ export const UserMediaWindows = () => {
   const peerMediaChannelState = useHookstate(getMutableState(PeerMediaChannelState))
   const mediaNetworkInstanceState = useMediaInstance()
   const mediaNetwork = Engine.instance.mediaNetwork
+  const selfUser = useHookstate(getMutableState(AuthState).user)
   const mediaNetworkConnected = mediaNetwork && mediaNetworkInstanceState?.connected?.value
 
   const consumers = Object.entries(peerMediaChannelState.get({ noproxy: true })) as [
@@ -45,6 +72,7 @@ export const UserMediaWindows = () => {
   // reduce all userPeers to an array 'windows' of { peerID, type } objects, displaying screens first, then cams. if a user has no cameras, only include one peerID for that user
   const windows = userPeers
     .reduce((acc, [userID, peerIDs]) => {
+      const isSelfWindows = userID === selfUser.id.value
       const userCams = consumers
         .filter(([peerID, { cam, screen }]) => peerIDs.includes(peerID) && cam && camActive(cam))
         .map(([peerID]) => {
@@ -59,9 +87,11 @@ export const UserMediaWindows = () => {
 
       const userWindows = [...userScreens, ...userCams]
       if (userWindows.length) {
-        acc.push(...userWindows)
+        if (isSelfWindows) acc.unshift(...userWindows)
+        else acc.push(...userWindows)
       } else {
-        acc.push({ peerID: peerIDs[0], type: 'cam' })
+        if (isSelfWindows) acc.unshift({ peerID: peerIDs[0], type: 'cam' })
+        else acc.push({ peerID: peerIDs[0], type: 'cam' })
       }
       return acc
     }, [] as WindowType[])
