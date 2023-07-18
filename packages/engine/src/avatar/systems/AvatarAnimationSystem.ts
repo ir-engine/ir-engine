@@ -60,6 +60,8 @@ import { InputState } from '../../input/state/InputState'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
 import { Physics, RaycastArgs } from '../../physics/classes/Physics'
 import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
+import { CollisionGroups } from '../../physics/enums/CollisionGroups'
+import { getInteractionGroups } from '../../physics/functions/getInteractionGroups'
 import { RaycastHit, SceneQueryType } from '../../physics/types/PhysicsTypes'
 import { RendererState } from '../../renderer/RendererState'
 import { addObjectToGroup, GroupComponent } from '../../scene/components/GroupComponent'
@@ -94,7 +96,6 @@ import { LoopAnimationComponent } from '.././components/LoopAnimationComponent'
 import { applyInputSourcePoseToIKTargets } from '.././functions/applyInputSourcePoseToIKTargets'
 import { AvatarMovementSettingsState } from '.././state/AvatarMovementSettingsState'
 import { setAvatarLocomotionAnimation } from '../animation/AvatarAnimationGraph'
-import { interactionGroups } from '../functions/autopilotFunctions'
 
 export const AvatarAnimationState = defineState({
   name: 'AvatarAnimationState',
@@ -197,7 +198,7 @@ const setVisualizers = () => {
   }
   console.log(visualizers)
 }
-
+const interactionGroups = getInteractionGroups(CollisionGroups.Avatars, CollisionGroups.Default)
 const footRaycastArgs = {
   type: SceneQueryType.Closest,
   origin: new Vector3(),
@@ -214,7 +215,7 @@ const setFootTarget = (
   castRay: boolean,
   index: number
 ) => {
-  footRaycastArgs.origin.set(footPos.position.x, hipsPos.y, footPos.position.z)
+  footRaycastArgs.origin.set(footPos.position.x, hipsPos.y + legLength, footPos.position.z)
   footRaycastArgs.maxDistance = legLength
 
   if (castRay) {
@@ -224,7 +225,10 @@ const setFootTarget = (
   }
 
   const castedRay = lastRayInfo[index]
-  if (castedRay) footPos.position.copy(castedRay.position as Vector3)
+  if (castedRay) {
+    footPos.position.copy(castedRay.position as Vector3)
+    //footPos.rotation.copy(new Quaternion().setFromUnitVectors(castedRay.normal as Vector3, new Vector3(0, 1, 0)))
+  }
 }
 
 const footRaycastInterval = 0.25
@@ -503,8 +507,20 @@ const execute = () => {
       xrValue
     )
 
-    setFootTarget(worldSpaceTargets.hipsTarget.position, worldSpaceTargets.rightFootTarget, rightLegLength, true, 0)
-    setFootTarget(worldSpaceTargets.hipsTarget.position, worldSpaceTargets.leftFootTarget, leftLegLength, true, 1)
+    setFootTarget(
+      transform.position,
+      worldSpaceTargets.rightFootTarget,
+      rightLegLength,
+      footRaycastTimer >= footRaycastInterval,
+      0
+    )
+    setFootTarget(
+      transform.position,
+      worldSpaceTargets.leftFootTarget,
+      leftLegLength,
+      footRaycastTimer >= footRaycastInterval,
+      1
+    )
 
     if (footRaycastTimer >= footRaycastInterval) {
       footRaycastTimer = 0
