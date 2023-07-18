@@ -58,12 +58,13 @@ let fallWeight = 0,
 //This is a stateless animation blend, it is not a graph
 //To do: make a stateful blend tree
 export const setAvatarLocomotionAnimation = (entity: Entity) => {
+  if (!getState(AnimationManager).targetsAnimation) return
   const animationComponent = getComponent(entity, AnimationComponent)
   const avatarAnimationComponent = getComponent(entity, AvatarAnimationComponent)
 
-  const idle = getAnimationAction('Idle', animationComponent.mixer)
-  const run = getAnimationAction('Run', animationComponent.mixer)
-  const fall = getAnimationAction('Fall', animationComponent.mixer)
+  const idle = getAnimationAction('Idle', animationComponent.mixer, animationComponent.animations)
+  const run = getAnimationAction('Run', animationComponent.mixer, animationComponent.animations)
+  const fall = getAnimationAction('Fall', animationComponent.mixer, animationComponent.animations)
   idle.play()
   fall.play()
   run.play()
