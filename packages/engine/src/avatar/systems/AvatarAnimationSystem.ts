@@ -41,6 +41,7 @@ import {
 
 import { Axis } from '../../common/constants/Axis3D'
 import { V_000, V_010 } from '../../common/constants/MathConstants'
+import { lerp } from '../../common/functions/MathLerpFunctions'
 import { proxifyQuaternion } from '../../common/proxies/createThreejsProxy'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
@@ -204,7 +205,7 @@ const footRaycastArgs = {
 } as RaycastArgs
 
 const lastRayInfo = {} as Record<number, RaycastHit>
-const lastLerpPosition = {} as Record<number, Vector3>
+const lastLerpPosition = {} as Record<number, number>
 const setFootTarget = (
   hipsPos: Vector3,
   footPos: targetTransform,
@@ -227,10 +228,13 @@ const setFootTarget = (
 
   const castedRay = lastRayInfo[index]
   if (castedRay) {
-    if (!lastLerpPosition[index])
-      lastLerpPosition[index] = new Vector3().set(castedRay.position.x, castedRay.position.y, castedRay.position.z)
-    lastLerpPosition[index].lerp(castedRay.position as Vector3, getState(EngineState).deltaSeconds * 5)
-    footPos.position.copy(lastLerpPosition[index])
+    if (!lastLerpPosition[index]) lastLerpPosition[index] = footPos.position.y
+    lastLerpPosition[index] = lerp(
+      lastLerpPosition[index],
+      castedRay.position.y,
+      getState(EngineState).deltaSeconds * 10
+    )
+    footPos.position.setY(lastLerpPosition[index])
     //footPos.rotation.copy(new Quaternion().setFromUnitVectors(castedRay.normal as Vector3, new Vector3(0, 1, 0)))
   }
 }
