@@ -167,15 +167,8 @@ const client = {
   logo: process.env.APP_LOGO!,
   title: process.env.APP_TITLE!,
   get dist() {
-    if (process.env.SERVE_CLIENT_FROM_STORAGE_PROVIDER === 'true') {
-      if (process.env.STORAGE_PROVIDER === 's3' && process.env.STORAGE_CLOUDFRONT_DOMAIN) {
-        return `https://${process.env.STORAGE_CLOUDFRONT_DOMAIN}/client/`
-      } else if (process.env.STORAGE_PROVIDER === 's3' && process.env.STORAGE_S3_DEV_MODE === 'local') {
-        return `${process.env.STORAGE_S3_ENDPOINT}/${process.env.STORAGE_S3_STATIC_RESOURCE_BUCKET}/client/`
-      } else if (process.env.STORAGE_PROVIDER === 'local') {
-        return `https://${process.env.LOCAL_STORAGE_PROVIDER}/client/`
-      }
-    }
+    if (process.env.SERVE_CLIENT_FROM_STORAGE_PROVIDER === 'true' && process.env.STORAGE_PROVIDER === 'local')
+      return `https://${process.env.LOCAL_STORAGE_PROVIDER}/client/`
     return client.url
   },
   url:
@@ -324,7 +317,7 @@ const aws = {
     s3DevMode: process.env.STORAGE_S3_DEV_MODE!
   },
   cloudfront: {
-    domain: process.env.STORAGE_CLOUDFRONT_DOMAIN!,
+    domain: process.env.SERVE_CLIENT_FROM_STORAGE_PROVIDER ? server.clientHost : process.env.STORAGE_CLOUDFRONT_DOMAIN!,
     distributionId: process.env.STORAGE_CLOUDFRONT_DISTRIBUTION_ID!,
     region: process.env.STORAGE_CLOUDFRONT_REGION || process.env.STORAGE_S3_REGION
   },

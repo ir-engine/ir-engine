@@ -33,7 +33,6 @@ import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { PortalComponent } from '../components/PortalComponent'
 import { revertAvatarToMovingStateFromTeleport } from '../functions/loaders/PortalFunctions'
 import { HyperspacePortalSystem } from './HyperspacePortalSystem'
-import { PortalLoadSystem } from './PortalLoadSystem'
 import { defaultSpatialComponents, ScenePrefabs } from './SceneObjectUpdateSystem'
 
 const sceneLoadedQueue = defineActionQueue(EngineActions.sceneLoaded.matches)
@@ -60,5 +59,5 @@ export const PortalSystem = defineSystem({
   uuid: 'ee.engine.PortalSystem',
   execute,
   reactor,
-  subSystems: [PortalLoadSystem, HyperspacePortalSystem]
+  subSystems: [HyperspacePortalSystem]
 })

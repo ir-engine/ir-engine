@@ -23,9 +23,13 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { BotCommands, CreateBotCammand } from '@etherealengine/common/src/interfaces/AdminBot'
 import multiLogger from '@etherealengine/common/src/logger'
 import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
+import {
+  BotCommandData,
+  botCommandPath,
+  BotCommandType
+} from '@etherealengine/engine/src/schemas/bot/bot-command.schema'
 import { defineAction, defineState, dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 
 import { API } from '../../API'
@@ -38,7 +42,7 @@ export const BOTS_PAGE_LIMIT = 100
 export const AdminBotsCommandState = defineState({
   name: 'AdminBotsCommandState',
   initial: () => ({
-    botCommand: [] as BotCommands[],
+    botCommand: [] as Array<BotCommandType>,
     skip: 0,
     limit: BOTS_PAGE_LIMIT,
     total: 0,
@@ -65,9 +69,9 @@ export const AdminBotsCommandReceptors = {
 
 //Service
 export const AdminBotCommandService = {
-  createBotCammand: async (data: CreateBotCammand) => {
+  createBotCommand: async (data: BotCommandData) => {
     try {
-      const botCommand = (await API.instance.client.service('bot-command').create(data)) as BotCommands
+      const botCommand = (await API.instance.client.service(botCommandPath).create(data)) as BotCommandType
       dispatchAction(AdminBotCommandActions.botCommandCreated({ botCommand }))
     } catch (error) {
       logger.error(error)
@@ -75,7 +79,7 @@ export const AdminBotCommandService = {
   },
   removeBotsCommand: async (id: string) => {
     try {
-      const result = (await API.instance.client.service('bot-command').remove(id)) as BotCommands
+      const result = (await API.instance.client.service(botCommandPath).remove(id)) as BotCommandType
       dispatchAction(AdminBotCommandActions.botCommandRemoved({ botCommand: result }))
     } catch (error) {
       logger.error(error)
@@ -86,10 +90,10 @@ export const AdminBotCommandService = {
 export class AdminBotCommandActions {
   static botCommandCreated = defineAction({
     type: 'ee.client.AdminBotCommand.BOT_COMMAND_ADMIN_CREATE' as const,
-    botCommand: matches.object as Validator<unknown, BotCommands>
+    botCommand: matches.object as Validator<unknown, BotCommandType>
   })
   static botCommandRemoved = defineAction({
     type: 'ee.client.AdminBotCommand.BOT_COMMAND_ADMIN_REMOVE' as const,
-    botCommand: matches.object as Validator<unknown, BotCommands>
+    botCommand: matches.object as Validator<unknown, BotCommandType>
   })
 }

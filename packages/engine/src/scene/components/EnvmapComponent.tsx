@@ -23,13 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { useEffect, useState } from 'react'
+import React, { useEffect } from 'react'
 import {
   Color,
   CubeTexture,
   DataTexture,
   EquirectangularReflectionMapping,
-  Group,
   Mesh,
   MeshMatcapMaterial,
   MeshStandardMaterial,
@@ -41,31 +40,22 @@ import {
   Vector3
 } from 'three'
 
-import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
+import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { isClient } from '../../common/functions/getEnvironment'
-import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import { SceneState } from '../../ecs/classes/Scene'
-import {
-  ComponentType,
-  defineComponent,
-  defineQuery,
-  getComponent,
-  removeQuery,
-  setComponent,
-  useComponent,
-  useOptionalComponent
-} from '../../ecs/functions/ComponentFunctions'
+import { defineComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
 import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { RendererState } from '../../renderer/RendererState'
-import { TransformComponent } from '../../transform/components/TransformComponent'
 import { EnvMapSourceType, EnvMapTextureType } from '../constants/EnvMapEnum'
 import { getPmremGenerator, getRGBArray, loadCubeMapTexture } from '../constants/Util'
 import { addError, removeError } from '../functions/ErrorFunctions'
 import { applyBoxProjection, EnvMapBakeComponent, isInsideBox } from './EnvMapBakeComponent'
 import { GroupComponent } from './GroupComponent'
+import { UUIDComponent } from './UUIDComponent'
 
 const tempColor = new Color()
 
@@ -79,6 +69,7 @@ export const EnvmapComponent = defineComponent({
         EnvMapTextureType.Equirectangular as (typeof EnvMapTextureType)[keyof typeof EnvMapTextureType],
       envMapSourceColor: new Color(0xfff) as Color,
       envMapSourceURL: '',
+      envMapSourceEntityUUID: '' as EntityUUID,
       envMapIntensity: 1
     }
   },
@@ -88,6 +79,8 @@ export const EnvmapComponent = defineComponent({
     if (typeof json?.envMapTextureType === 'string') component.envMapTextureType.set(json.envMapTextureType)
     if (typeof json?.envMapSourceColor === 'number') component.envMapSourceColor.set(new Color(json.envMapSourceColor))
     if (typeof json?.envMapSourceURL === 'string') component.envMapSourceURL.set(json.envMapSourceURL)
+    if (typeof json?.envMapSourceEntityUUID === 'string')
+      component.envMapSourceEntityUUID.set(json.envMapSourceEntityUUID)
     if (typeof json?.envMapIntensity === 'number') component.envMapIntensity.set(json.envMapIntensity)
   },
 
@@ -97,6 +90,7 @@ export const EnvmapComponent = defineComponent({
       envMapTextureType: component.envMapTextureType.value,
       envMapSourceColor: component.envMapSourceColor.value,
       envMapSourceURL: component.envMapSourceURL.value,
+      envMapSourceEntityUUID: component.envMapSourceEntityUUID.value,
       envMapIntensity: component.envMapIntensity.value
     }
   },
@@ -164,43 +158,39 @@ export const EnvmapComponent = defineComponent({
       }
     }, [component.type, group, component.envMapSourceURL])
 
-    const engineState = useHookstate(getMutableState(EngineState))
-    const renderState = useHookstate(getMutableState(RendererState))
-    const relativePos = new Vector3()
+    const entitiesByUUIDState = useHookstate(UUIDComponent.entitiesByUUIDState)
+    const bakeEntity = entitiesByUUIDState[component.envMapSourceEntityUUID.value].value
 
-    useEffect(() => {
-      if (!engineState.sceneLoaded.value) return
-      if (component.type.value !== EnvMapSourceType.Default) return
-      const bakeComponentQuery = defineQuery([EnvMapBakeComponent])
-      for (const bakeEntity of bakeComponentQuery()) {
-        const bakeComponent = getComponent(bakeEntity, EnvMapBakeComponent)
-        const transformComponent = getComponent(entity, TransformComponent)
-        relativePos.subVectors(transformComponent.position, getComponent(bakeEntity, TransformComponent).position)
-        if (!isInsideBox(bakeComponent.bakeScale, relativePos) || !bakeComponent.boxProjection) continue
-        setComponent(entity, EnvmapComponent, { envMapSourceURL: bakeComponent.envMapOrigin })
+    if (component.type.value !== EnvMapSourceType.Bake) return null
 
-        AssetLoader.loadAsync(component.envMapSourceURL.value, {}).then((texture) => {
-          if (texture) {
-            texture.mapping = EquirectangularReflectionMapping
-            updateEnvMap(group.value, texture)
-            applyBoxProjection(bakeEntity, group.value)
-            removeError(entity, EnvmapComponent, 'MISSING_FILE')
-            texture.dispose()
-          } else {
-            addError(entity, EnvmapComponent, 'MISSING_FILE', 'Skybox texture could not be found!')
-          }
-        })
-      }
-      return () => {
-        removeQuery(bakeComponentQuery)
-      }
-    }, [group, component.type, engineState.sceneLoaded, renderState.forceBasicMaterials])
-
-    return null
+    return <EnvBakeComponentReactor key={bakeEntity} envmapEntity={entity} bakeEntity={bakeEntity} />
   },
 
   errors: ['MISSING_FILE']
 })
+
+const EnvBakeComponentReactor = (props: { envmapEntity: Entity; bakeEntity: Entity }) => {
+  const { envmapEntity, bakeEntity } = props
+  const bakeComponent = useComponent(bakeEntity, EnvMapBakeComponent)
+  const group = useComponent(envmapEntity, GroupComponent)
+  const renderState = useHookstate(getMutableState(RendererState))
+
+  useEffect(() => {
+    AssetLoader.loadAsync(bakeComponent.envMapOrigin.value, {}).then((texture) => {
+      if (texture) {
+        texture.mapping = EquirectangularReflectionMapping
+        updateEnvMap(group.value, texture)
+        if (bakeComponent.boxProjection.value) applyBoxProjection(bakeEntity, group.value)
+        removeError(envmapEntity, EnvmapComponent, 'MISSING_FILE')
+        texture.dispose()
+      } else {
+        addError(envmapEntity, EnvmapComponent, 'MISSING_FILE', 'Skybox texture could not be found!')
+      }
+    })
+  }, [renderState.forceBasicMaterials, bakeComponent.envMapOrigin])
+
+  return null
+}
 
 function updateEnvMap(obj3ds: Object3D[], envmap: Texture | null) {
   if (!obj3ds?.length) return

@@ -30,18 +30,13 @@ import { useHookstateFromFactory } from '@etherealengine/common/src/utils/useHoo
 import { setComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { PresentationSystemGroup } from '@etherealengine/engine/src/ecs/functions/EngineFunctions'
 import { createEntity, removeEntity } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
-import {
-  defineSystem,
-  disableSystem,
-  startSystem,
-  SystemDefinitions
-} from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
+import { defineSystem, disableSystem, startSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import { getOrbitControls } from '@etherealengine/engine/src/input/functions/loadOrbitControl'
 import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
 import { ObjectLayers } from '@etherealengine/engine/src/scene/constants/ObjectLayers'
 
 const initialize3D = () => {
-  const camera = new PerspectiveCamera(60, 1, 0.25, 20)
+  const camera = new PerspectiveCamera(60, 1, 0.25, 200)
   camera.position.set(0, 1.75, 0.5)
   camera.layers.set(ObjectLayers.Panel)
 
@@ -59,6 +54,7 @@ const initialize3D = () => {
   scene.add(frontLight)
   scene.add(frontLight.target)
   scene.add(hemi)
+
   scene.traverse((obj) => {
     obj.layers.set(ObjectLayers.Panel)
   })
@@ -69,10 +65,9 @@ const initialize3D = () => {
   const controls = getOrbitControls(camera, renderer.domElement)
 
   controls.minDistance = 0.1
-  controls.maxDistance = 10
+  controls.maxDistance = 100
   controls.target.set(0, 1.65, 0)
   controls.update()
-
   const entity = createEntity()
   setComponent(entity, NameComponent, '3D Preview Entity')
 

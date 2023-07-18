@@ -281,7 +281,6 @@ const overrideXRSessionFunctions = () => {
     xrState.session.set(xrSession)
     xrState.sessionActive.set(true)
     xrState.sessionMode.set('immersive-ar')
-    getMutableState(SceneState).background.set(null)
 
     getReferenceSpaces(xrSession)
 
@@ -336,33 +335,22 @@ const revertXRSessionFunctions = () => {
  *     or exiting one that does to one that does not. This requires exiting the immersive
  *     session, changing the overrides, and entering the session again
  */
-let lastSeenBackground = null as Color | Texture | null
 
 const execute = () => {
   if (!XR8) return
 
-  const backgroundState = getState(SceneState).background
   const xrState = getState(XRState)
 
-  /**
-   * Update the background to be invisble if the AR session is active,
-   * as well as updating the camera transform from the 8thwall camera
-   */
+  /** Update the camera transform from the 8thwall camera */
   const sessionActive = xrState.sessionActive
   const xr8scene = XR8.Threejs.xrScene()
   if (sessionActive && xr8scene) {
-    if (backgroundState) lastSeenBackground = backgroundState
-    getMutableState(SceneState).background.set(null)
     const { camera } = xr8scene
     /** update the camera in world space as updateXRInput will update it to local space */
     Engine.instance.camera.position.copy(camera.position)
     Engine.instance.camera.quaternion.copy(camera.quaternion).normalize()
     /** 8thwall always expects the camera to be unscaled */
     Engine.instance.camera.scale.set(1, 1, 1)
-  } else {
-    if (!backgroundState && lastSeenBackground) getMutableState(SceneState).background.set(lastSeenBackground)
-    lastSeenBackground = null
-    return
   }
 
   Engine.instance.xrFrame = new XRFrameProxy() as any as XRFrame

@@ -23,33 +23,36 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { useEffect } from 'react'
-import { Object3D } from 'three'
+import { botCommandMethods, botCommandPath } from '@etherealengine/engine/src/schemas/bot/bot-command.schema'
 
-import { defineQuery, getComponent, removeQuery } from '../ecs/functions/ComponentFunctions'
-import { defineSystem } from '../ecs/functions/SystemFunctions'
-import { GroupComponent } from '../scene/components/GroupComponent'
-import { HighlightComponent } from './components/HighlightComponent'
-import { EngineRenderer } from './WebGLRendererSystem'
+import { Application } from '../../../declarations'
+import { updateAppConfig } from '../../updateAppConfig'
+import { BotCommandService } from './bot-command.class'
+import botCommandDocs from './bot-command.docs'
+import hooks from './bot-command.hooks'
 
-const highlightedObjectQuery = defineQuery([GroupComponent, HighlightComponent])
-
-const addToSelection = (obj: Object3D) => {
-  EngineRenderer.instance.effectComposer.OutlineEffect.selection.add(obj)
-}
-
-const execute = () => {
-  if (!EngineRenderer.instance.effectComposer.OutlineEffect) return
-
-  EngineRenderer.instance.effectComposer.OutlineEffect.selection.clear()
-
-  for (const entity of highlightedObjectQuery()) {
-    const group = getComponent(entity, GroupComponent)
-    for (const object of group) object.traverse(addToSelection)
+declare module '@etherealengine/common/declarations' {
+  interface ServiceTypes {
+    [botCommandPath]: BotCommandService
   }
 }
 
-export const HighlightSystem = defineSystem({
-  uuid: 'ee.engine.HighlightSystem',
-  execute
-})
+export default (app: Application): void => {
+  const options = {
+    name: botCommandPath,
+    paginate: app.get('paginate'),
+    Model: app.get('knexClient'),
+    multi: true
+  }
+
+  app.use(botCommandPath, new BotCommandService(options), {
+    // A list of all methods this service exposes externally
+    methods: botCommandMethods,
+    // You can add additional custom events to be sent to clients here
+    events: [],
+    docs: botCommandDocs
+  })
+
+  const service = app.service(botCommandPath)
+  service.hooks(hooks)
+}

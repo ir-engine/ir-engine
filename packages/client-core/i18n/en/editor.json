@@ -118,6 +118,14 @@
       "none": "None",
       "users": "Users",
       "user": "User"
+    },
+    "render-settings":{
+      "lbl-usePostProcessing":"Use Post Processing",
+      "info-usePostProcessing":"Enables post processing",
+      "lbl-shadowMapResolution":"Shadow Map Resolution",
+      "info-shadowMapResolution":"Set shadowmap resolution",
+      "lbl-renderMode":"Render Mode",
+      "info-renderMode":"Choose render mode"
     }
   },
   "properties": {
@@ -288,6 +296,7 @@
       "lbl-interactionText": "Interaction Text",
       "lbl-interactionType": "Interaction Type",
       "transform": {
+        "compress": "Compress",
         "useDraco": "Use DRACO Mesh Compression",
         "useMeshopt": "Use Meshoptimizer",
         "useQuantization": "Use Mesh Quantization",
@@ -301,8 +310,10 @@
         "join": "Join Meshes",
         "palette": "Generate Palette Textures",
         "flipY": "Flip Y",
+        "flipYTooltip": "If checked, the source images will be Y flipped before compression",
         "instance": "Instance Identical Meshes",
-        "linear": "Linear Color Space",
+        "srgb": "Linear Color Space",
+        "srgbTooltip": "If checked, the provided map is assumed to be in sRGB space",
         "textureCompressionType": "Texture Compression Type",
         "ktx2Quality": "Compression Quality",
         "weldVertices": "Weld Vertices",
@@ -310,7 +321,21 @@
         "removeDuplicates": "Remove Duplicates",
         "pruneUnused": "Prune Unused",
         "reorder": "Reorder",
-        "resourceOverrides": "Resource Overrides"
+        "resourceOverrides": "Resource Overrides",
+        "quality": "Quality",
+        "qualityTooltip": "Sets the ETC1S encoder's quality level, which controls the file size vs. quality tradeoff",
+        "mode": "Mode",
+        "modeTooltip": "If checked, the encoder will output a UASTC texture, otherwise a ETC1S texture",
+        "mipmaps": "Mipmaps",
+        "mipmapsTooltip": "If checked, the encoder will generate mipmaps",
+        "compressionLevel": "Compression Level",
+        "compressionLevelTooltip": "The compression level parameter controls the encoder perf vs. file size tradeoff for ETC1S files. It does not directly control file size vs. quality (see Quality)",
+        "uastcFlags": "UASTC Flags",
+        "uastcFlagsTooltip": "Sets the UASTC encoding performance vs. quality tradeoff, and other lesser used UASTC encoder flags. This is a combination of flags",
+        "normalMap": "Normal Map",
+        "normalMapTooltip": "Tunes several codec parameters so compression works better on normal maps",
+        "uastcZstandard": "UASTC Zstandard",
+        "uastcZstandardTooltip": "Use UASTC Zstandard supercompression"
       },
       "lods": {
         "label": "Level of Detail",
@@ -547,6 +572,10 @@
       "lbl-lods": "LODs",
       "info-lods": "Sets the distances at which levels of detail change.",
       "lbl-rendererSettings": "Override Renderer Settings",
+      "lbl-usePostProcessing": "Use Post Processing",
+      "info-usePostProcessing": "Enables post processing",
+      "lbl-useShadows": "Use Shadows",
+      "info-useShadows": "Enables shadows",
       "lbl-csm": "Cascading Shadow Maps",
       "info-csm": "Enables cascading shadow maps.",
       "lbl-toneMapping": "Tone Mapping",

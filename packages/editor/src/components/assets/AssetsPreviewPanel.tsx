@@ -1,3 +1,4 @@
+/* eslint-disable no-case-declarations */
 /*
 CPAL-1.0 License
 
