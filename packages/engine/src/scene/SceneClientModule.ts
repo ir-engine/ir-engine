@@ -29,7 +29,6 @@ import { MountPointSystem } from '../interaction/systems/MountPointSystem'
 import { MaterialLibrarySystem } from '../renderer/materials/systems/MaterialLibrarySystem'
 import { LightSystem } from './systems/LightSystem'
 import { ParticleSystem } from './systems/ParticleSystemSystem'
-import { PortalLoadSystem } from './systems/PortalLoadSystem'
 import { SceneLoadingSystem } from './systems/SceneLoadingSystem'
 import { SceneObjectDynamicLoadSystem } from './systems/SceneObjectDynamicLoadSystem'
 import { SceneObjectSystem } from './systems/SceneObjectSystem'
@@ -46,7 +45,6 @@ export const SceneSystemLoadGroup = defineSystem({
   subSystems: [
     SceneLoadingSystem,
     VariantSystem,
-    PortalLoadSystem,
     SceneObjectDynamicLoadSystem,
     MaterialLibrarySystem,
     SceneObjectUpdateSystem
