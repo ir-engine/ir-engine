@@ -31,7 +31,9 @@ import * as k8s from '@kubernetes/client-node'
 import { UserInterface } from '@etherealengine/common/src/interfaces/User'
 import {
   AuthenticationSettingData,
+  AuthenticationSettingDatabaseType,
   AuthenticationSettingPatch,
+  authenticationSettingPath,
   AuthenticationSettingQuery,
   AuthenticationSettingType
 } from '@etherealengine/engine/src/schemas/setting/authentication-setting.schema'
@@ -41,6 +43,7 @@ import { Application } from '../../../declarations'
 import config from '../../appconfig'
 import logger from '../../ServerLogger'
 import { ServerState } from '../../ServerState'
+import { authenticationSettingSchemaToDb } from './authentication-setting.resolvers'
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface AuthenticationSettingParams extends KnexAdapterParams<AuthenticationSettingQuery> {
@@ -99,11 +102,23 @@ export class AuthenticationSettingService<
     }
   }
 
+  async get(id: Id, params?: AuthenticationSettingParams) {
+    return super._get(id, params)
+  }
+
   async patch(id: Id, data: AuthenticationSettingPatch, params?: AuthenticationSettingParams) {
-    const authSettings = await super._get(id)
+    const authSettings = await this.app.service(authenticationSettingPath).get(id)
+
+    if (typeof data.oauth === 'string') {
+      data.oauth = JSON.parse(data.oauth)
+    }
 
     let newOAuth = data.oauth!
     data.callback = authSettings.callback
+
+    if (typeof data.callback === 'string') {
+      data.callback = JSON.parse(data.callback)
+    }
 
     for (let key of Object.keys(newOAuth)) {
       if (config.authentication.oauth[key]?.scope) newOAuth[key].scope = config.authentication.oauth[key].scope
@@ -113,7 +128,7 @@ export class AuthenticationSettingService<
         data.callback[key] = `${config.client.url}/auth/oauth/${key}`
     }
 
-    const patchResult = await super._patch(id, data, params)
+    const patchResult = await super._patch(id, authenticationSettingSchemaToDb(data) as any, params)
 
     const k8AppsClient = getState(ServerState).k8AppsClient
 

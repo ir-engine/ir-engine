@@ -42,11 +42,30 @@ import {
 import type { HookContext } from '@etherealengine/server-core/declarations'
 
 import { getDateTimeSql } from '../../util/get-datetime-sql'
+import { AuthenticationSettingPatch } from './../../../../engine/src/schemas/setting/authentication-setting.schema'
 
 export const authenticationSettingResolver = resolve<AuthenticationSettingType, HookContext>({})
 
+export const authenticationSettingSchemaToDb = (patch: AuthenticationSettingPatch) => {
+  return {
+    ...patch,
+    authStrategies:
+      patch.authStrategies && typeof patch.authStrategies !== 'string'
+        ? JSON.stringify(patch.authStrategies)
+        : patch.authStrategies,
+    jwtOptions:
+      patch.jwtOptions && typeof patch.jwtOptions !== 'string' ? JSON.stringify(patch.jwtOptions) : patch.jwtOptions,
+    bearerToken:
+      patch.bearerToken && typeof patch.bearerToken !== 'string'
+        ? JSON.stringify(patch.bearerToken)
+        : patch.bearerToken,
+    callback: patch.callback && typeof patch.callback !== 'string' ? JSON.stringify(patch.callback) : patch.callback,
+    oauth: patch.oauth && typeof patch.oauth !== 'string' ? JSON.stringify(patch.oauth) : patch.oauth
+  }
+}
+
 export const authenticationDbToSchema = (rawData: AuthenticationSettingDatabaseType): AuthenticationSettingType => {
-  if (typeof rawData.oauth !== 'string') {
+  if (rawData.oauth && typeof rawData.oauth !== 'string') {
     // Did following because oauth string was incorrect
     rawData.oauth = Object.values(rawData.oauth).join('')
   }
@@ -175,23 +194,8 @@ export const authenticationSettingDataResolver = resolve<AuthenticationSettingDa
   }
 )
 
-export const authenticationSettingPatchResolver = resolve<AuthenticationSettingType, HookContext>(
-  {
-    updatedAt: getDateTimeSql
-  },
-  {
-    // Convert the raw data into a new structure before running property resolvers
-    converter: async (rawData, context) => {
-      return {
-        ...rawData,
-        authStrategies: JSON.stringify(rawData.authStrategies),
-        jwtOptions: JSON.stringify(rawData.jwtOptions),
-        bearerToken: JSON.stringify(rawData.bearerToken),
-        callback: JSON.stringify(rawData.callback),
-        oauth: JSON.stringify(rawData.oauth)
-      }
-    }
-  }
-)
+export const authenticationSettingPatchResolver = resolve<AuthenticationSettingType, HookContext>({
+  updatedAt: getDateTimeSql
+})
 
 export const authenticationSettingQueryResolver = resolve<AuthenticationSettingQuery, HookContext>({})
