@@ -23,36 +23,38 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React, { useCallback, useEffect, useRef, useState } from 'react'
-import styled from 'styled-components'
+import React, { Ref, useCallback, useEffect, useRef, useState } from 'react'
 
-import Input from './Input'
+import './Input.css'
 
-const StyledStringInput = (styled as any)(Input)`
-  display: flex;
-  width: 100%;
-`
+const inputStyle = {
+  display: 'flex',
+  width: '100%'
+}
 
 export interface StringInputProps {
   id?: string
   value?: string
-  onChange?: Function
+  onChange?: any
   required?: boolean
   pattern?: string
   title?: string
   error?: boolean
   canDrop?: boolean
-  onFocus?: Function
-  onBlur?: Function
-  onKeyUp?: Function
+  onFocus?: any
+  onBlur?: any
+  onKeyUp?: any
   type?: string
   placeholder?: string
   disabled?: boolean
 }
 
-const StringInput = React.forwardRef<{}, StringInputProps>(({ onChange, ...rest }, ref) => (
-  <StyledStringInput onChange={(e) => onChange?.(e.target.value, e)} {...rest} ref={ref} />
-))
+const StringInput = React.forwardRef<HTMLInputElement, StringInputProps>(({ onChange, ...rest }, ref) => {
+  const { error, canDrop, ...other } = rest
+  return (
+    <input className="Input" style={inputStyle} onChange={(e) => onChange?.(e.target.value, e)} {...other} ref={ref} />
+  )
+})
 
 StringInput.displayName = 'StringInput'
 StringInput.defaultProps = {
@@ -65,63 +67,66 @@ StringInput.defaultProps = {
 
 export default StringInput
 
-const DropContainer = (styled as any).div`
-  display: flex;
-  width: 100%;
-`
+const containerStyle = {
+  display: 'flex',
+  width: '100%'
+}
 
-export const ControlledStringInput = React.forwardRef<{}, StringInputProps>((values, ref) => {
-  const { onChange, value, ...rest } = values
-  const inputRef = useRef<HTMLInputElement>()
+export const ControlledStringInput = React.forwardRef<HTMLInputElement, StringInputProps>(
+  ({ onChange, value, ...rest }, ref) => {
+    const { error, canDrop, ...other } = rest
+    const inputRef = useRef<HTMLInputElement>()
+    const [tempValue, setTempValue] = useState(value)
 
-  const [tempValue, setTempValue] = useState(value)
+    const onKeyUp = useCallback((e) => {
+      if (e.key === 'Enter' || e.key === 'Escape') {
+        inputRef.current?.blur()
+      }
+    }, [])
 
-  const onKeyUp = useCallback((e) => {
-    if (e.key === 'Enter' || e.key === 'Escape') {
-      ;(inputRef as any).current.blur()
-    }
-  }, [])
+    useEffect(() => {
+      setTempValue(value)
+    }, [value])
 
-  useEffect(() => {
-    setTempValue(value)
-  }, [value])
+    const onBlur = useCallback(() => {
+      onChange?.(tempValue)
+    }, [onChange, tempValue])
 
-  const onBlur = useCallback(() => {
-    onChange?.(tempValue)
-  }, [onChange, tempValue])
+    const onChangeValue = useCallback(
+      (e) => {
+        setTempValue(e.target.value)
+      },
+      [setTempValue]
+    )
 
-  const onChangeValue = useCallback(
-    (e) => {
-      setTempValue(e.target.value)
-    },
-    [setTempValue]
-  )
+    const onFocus = useCallback(() => {
+      inputRef.current?.select()
+      if (rest.onFocus) rest.onFocus()
+    }, [rest.onFocus])
 
-  const onFocus = useCallback(() => {
-    inputRef.current?.select()
-    if (rest.onFocus) rest.onFocus()
-  }, [rest.onFocus])
-
-  ControlledStringInput.defaultProps = {
-    value: '',
-    onChange: () => {},
-    type: 'text',
-    required: false
+    return (
+      <div style={containerStyle} ref={ref}>
+        <input
+          ref={inputRef}
+          className="Input"
+          onChange={onChangeValue}
+          onBlur={onBlur}
+          onKeyUp={onKeyUp}
+          value={tempValue || ''}
+          onFocus={onFocus}
+          {...other}
+          style={inputStyle}
+        />
+      </div>
+    )
   }
-
-  return (
-    <DropContainer ref={ref}>
-      <StyledStringInput
-        ref={inputRef}
-        onChange={onChangeValue}
-        onBlur={onBlur}
-        onKeyUp={onKeyUp}
-        value={tempValue}
-        onFocus={onFocus}
-        {...rest}
-      />
-    </DropContainer>
-  )
-})
+)
 
 ControlledStringInput.displayName = 'ControlledStringInput'
+
+ControlledStringInput.defaultProps = {
+  value: '',
+  onChange: () => {},
+  type: 'text',
+  required: false
+}

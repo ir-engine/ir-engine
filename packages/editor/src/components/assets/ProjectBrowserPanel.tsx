@@ -30,61 +30,7 @@ import { DockContainer } from '../EditorContainer'
 import { AssetSelectionChangePropsType, AssetsPreviewPanel } from './AssetsPreviewPanel'
 import FileBrowserContentPanel from './FileBrowserContentPanel'
 
-const projectDockContainerStyles = {
-  '.dockPanel': {
-    background: 'transparent',
-    pointerEvents: 'auto',
-    border: 'none'
-  },
-  '.dockPanel:firstChild': {
-    position: 'relative',
-    zIndex: '99'
-  },
-  '.dockPanel[dataDockid="+5"]': {
-    pointerEvents: 'none'
-  },
-  '.dockPanel[dataDockid="+5"] .dockBar': {
-    display: 'none'
-  },
-  '.dockPanel[dataDockid="+5"] .dock': {
-    background: 'transparent'
-  },
-  '.dockDivider': {
-    pointerEvents: 'auto',
-    background: 'rgba(1, 1, 1, 0.3)'
-  },
-  '.dock': {
-    borderRadius: '4px',
-    background: 'var(--dockBackground)'
-  },
-  '.dockTop .dockBar': {
-    fontSize: '12px',
-    borderBottom: '1px solid rgba(0, 0, 0, 0.2)',
-    background: 'transparent'
-  },
-  '.dockTab': {
-    background: 'transparent',
-    borderBottom: 'none'
-  },
-  '.dockTab:hover, .dockTabActive, .dockTabActive:hover': {
-    borderBottom: '1px solid #ddd'
-  },
-  '.dockTab:hover div, .dockTab:hover svg': {
-    color: 'var(--textColor)'
-  },
-  '.dockTab > div': {
-    padding: '2px 12px'
-  },
-  '.dockTabActive': {
-    color: 'var(--textColor)'
-  },
-  '.dockInkBar': {
-    backgroundColor: 'var(--textColor)'
-  },
-  '.dockPanelMaxBtn:before': {
-    borderColor: 'var(--iconButtonColor)'
-  }
-}
+import './ProjectBrowserPanel.css'
 
 /**
  * ProjectBrowserPanel used to render view for Project Panel.
@@ -130,7 +76,7 @@ export default function ProjectBrowserPanel() {
 
   return (
     <>
-      <div id="filePanel" style={projectDockContainerStyles as React.CSSProperties}>
+      <div id="filePanel" className="projectDockContainerStyles">
         <DockContainer dividerAlpha={0.3}>
           <DockLayout
             defaultLayout={defaultLayout}

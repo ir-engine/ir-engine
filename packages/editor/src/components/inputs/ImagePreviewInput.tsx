@@ -24,45 +24,45 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import React from 'react'
-import styled from 'styled-components'
 
 import { Stack } from '@mui/material'
 
 import ImageInput from './ImageInput'
-import InputGroup, { InputGroupProps } from './InputGroup'
-import { StringInputProps } from './StringInput'
+import InputGroup from './InputGroup'
 
-export const ImageContainer = (styled as any).div`
-  display: flex;
-  width: 100%;
-  border-radius: 4px;
-  border: solid;
-  border-color: var(--inputOutline);
-  margin: 8px;
-  padding: 4px;
-`
+const imageContainerStyle = {
+  display: 'flex',
+  width: '100%',
+  borderRadius: '4px',
+  border: 'solid',
+  borderColor: 'var(--inputOutline)',
+  margin: '8px',
+  padding: '4px'
+}
 
-export default function ImagePreviewInput({ value, onChange, ...rest }: StringInputProps) {
+const imgStyle = {
+  maxWidth: '128px',
+  maxHeight: '128px',
+  width: 'auto',
+  height: 'auto'
+}
+
+export const ImageContainer = ({ children }) => {
+  return <div style={imageContainerStyle}>{children}</div>
+}
+
+export default function ImagePreviewInput({ value, onChange, ...rest }) {
   return (
     <ImageContainer>
       <Stack>
         <ImageInput value={value} onChange={onChange} />
-        <img
-          src={value}
-          crossOrigin="anonymous"
-          style={{
-            maxWidth: '128px',
-            maxHeight: '128px',
-            width: 'auto',
-            height: 'auto'
-          }}
-        />
+        <img src={value} crossOrigin="anonymous" style={imgStyle} />
       </Stack>
     </ImageContainer>
   )
 }
 
-export function ImagePreviewInputGroup({ name, label, value, onChange, ...rest }: StringInputProps & InputGroupProps) {
+export function ImagePreviewInputGroup({ name, label, value, onChange, ...rest }) {
   return (
     <InputGroup name={name} label={label} {...rest}>
       <ImagePreviewInput value={value} onChange={onChange} />

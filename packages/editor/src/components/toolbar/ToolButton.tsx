@@ -27,20 +27,10 @@ import React from 'react'
 
 import { InfoTooltip } from '../layout/Tooltip'
 
-const styledToolButtonStyles = (isSelected) => ({
-  width: '40px',
-  height: '40px',
-  border: 'none',
-  color: 'var(--iconButtonColor)',
-  cursor: 'pointer',
-  position: 'relative',
-  backgroundColor: isSelected ? 'var(--iconButtonHoverColor)' : 'var(--toolbar)',
-  '&:hover': {
-    backgroundColor: 'var(--iconButtonHoverColor)'
-  }
-})
+import './ToolButton.css'
 
 const iconStyles = {
+  //MUI icon styles
   width: '100%',
   height: '100%',
   fontSize: '14px',
@@ -64,11 +54,13 @@ interface ToolButtonProp {
  * @param {any} tooltip
  * @returns
  */
+
 export function ToolButton({ id, icon: Icon, onClick, isSelected, tooltip }: ToolButtonProp) {
-  const styledToolButtonStyle = styledToolButtonStyles(isSelected)
+  const toolButtonClassNames = ['toolButton', isSelected ? 'selected' : ''].join(' ')
+
   return (
     <InfoTooltip title={tooltip!} placement="bottom">
-      <button id={id as string} style={styledToolButtonStyle as React.CSSProperties} onClick={onClick}>
+      <button id={id as string} className={toolButtonClassNames} onClick={onClick}>
         <Icon style={iconStyles} />
       </button>
     </InfoTooltip>

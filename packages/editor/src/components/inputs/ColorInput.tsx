@@ -25,68 +25,14 @@ Ethereal Engine. All Rights Reserved.
 
 import React, { useEffect, useState } from 'react'
 import SketchPicker from 'react-color/lib/Sketch'
-import styled from 'styled-components'
 import { Color } from 'three'
 
 import Popover from '@mui/material/Popover'
 
 import Input from './Input'
 
-/**
- * ColorInputContainer used to provide styles for ColorInputContainer div.
- *
- * @type {styled component}
- */
-const ColorInputContainer = (styled as any).div`
-  display: flex;
-  position: relative;
-  width: 100%;
-  max-width: 100px;
-`
-
-/**
- * StyledColorInput used to provide styles for StyledColorInput div.
- *
- * @type {styled component}
- */
-const StyledColorInput = (styled as any)(Input)`
-  display: flex;
-  flex: 1;
-  align-items: center;
-  &:focus-visible { outline: none; }
-`
-
-/**
- * ColorPreview used to provide styles for ColorPreview div.
- *
- * @type {styled component}
- */
-const ColorPreview = (styled as any).div`
-  width: 32px;
-  height: auto;
-  border-radius: 2px;
-  padding: 6px;
-  margin-right: 8px;
-`
-
-/**
- * ColorText used to provide styles for ColorText div.
- *
- * @type {styled component}
- */
-const ColorText = (styled as any).div`
-  padding-top: 2px;
-`
-
-/**
- * ColorInputPopover used to provide styles for ColorText popover.
- *
- * @type {styled component}
- */
-const ColorInputPopover = (styled as any).div`
-  box-shadow: var(--shadow30);
-  margin-bottom: 3px;
-`
+// kept to show style inheritance
+import './ColorInput.css'
 
 interface ColorInputProp {
   value: Color
@@ -137,17 +83,17 @@ export function ColorInput({ value, onChange, onSelect, disabled, ...rest }: Col
 
   //creating view for ColorInput
   return (
-    <ColorInputContainer>
-      <StyledColorInput as="button" disabled={disabled} onClick={handleClick}>
-        <ColorPreview style={{ background: hexColor }} />
-        <ColorText>{hexColor.toUpperCase()}</ColorText>
-      </StyledColorInput>
+    <div className="ColorInputContainer">
+      <button className="StyledColorInput Input" disabled={disabled} onClick={handleClick}>
+        <div className="ColorPreview" style={{ background: hexColor }} />
+        <div className="ColorText">{hexColor.toUpperCase()}</div>
+      </button>
       <Popover open={open && !disabled} anchorEl={anchorEl} onClose={handleClose}>
-        <ColorInputPopover>
+        <div className="ColorInputPopover">
           <SketchPicker {...rest} color={hexColor} disableAlpha={true} onChange={handleChange} />
-        </ColorInputPopover>
+        </div>
       </Popover>
-    </ColorInputContainer>
+    </div>
   )
 }
 
