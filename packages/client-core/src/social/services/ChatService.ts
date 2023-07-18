@@ -187,10 +187,8 @@ globalThis.chatState = ChatState
 
 //Service
 export const ChatService = {
-  getChannels: async (skip?: number, limit?: number) => {
+  getChannels: async () => {
     try {
-      const chatState = getMutableState(ChatState).value
-
       const channelResult = (await Engine.instance.api.service('channel').find({})) as Channel[]
       dispatchAction(ChatAction.loadedChannelsAction({ channels: channelResult }))
     } catch (err) {

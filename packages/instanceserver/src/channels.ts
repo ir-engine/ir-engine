@@ -494,27 +494,27 @@ const handleUserDisconnect = async (
 
   const userPatch = {} as any
 
-  if (user?.partyId && instanceServerState.isMediaInstance) {
-    const partyChannel = await app.service('channel').Model.findOne({
-      where: {
-        partyId: user.partyId
-      }
-    })
-    if (partyChannel?.id === instanceServerState.instance.channelId) {
-      userPatch.partyId = null
-      const partyUser = await app.service('party-user').find({
-        query: {
-          userId: user.id,
-          partyId: user.partyId
-        }
-      })
-      if (partyUser.total > 0) {
-        try {
-          await app.service('party-user').remove(partyUser.data[0].id)
-        } catch (err) {}
-      }
-    }
-  }
+  // if (user?.partyId && instanceServerState.isMediaInstance) {
+  //   const partyChannel = await app.service('channel').Model.findOne({
+  //     where: {
+  //       partyId: user.partyId
+  //     }
+  //   })
+  //   if (partyChannel?.id === instanceServerState.instance.channelId) {
+  //     userPatch.partyId = null
+  //     const partyUser = await app.service('party-user').find({
+  //       query: {
+  //         userId: user.id,
+  //         partyId: user.partyId
+  //       }
+  //     })
+  //     if (partyUser.total > 0) {
+  //       try {
+  //         await app.service('party-user').remove(partyUser.data[0].id)
+  //       } catch (err) {}
+  //     }
+  //   }
+  // }
   // Patch the user's (channel)instanceId to null if they're leaving this instance.
   // But, don't change their (channel)instanceId if it's already something else.
   const userPatchResult = await app

@@ -57,40 +57,56 @@ export class Channel<T = ChannelDataType> extends Service<T> {
   // @ts-ignore
   async create(data: ChannelCreateType, params?: UserParams) {
     const users = data.users
-    if (users) {
-      const loggedInUser = params!.user as UserInterface
-      const userId = loggedInUser.id
+    const channel = (await super.create({})) as ChannelDataType
 
-      const channel = (await super.create({})) as ChannelDataType
+    const loggedInUser = params!.user as UserInterface
+    const userId = loggedInUser.id
+
+    if (userId) {
+      await this.app.service('channel-user').create({
+        channelId: channel.id as ChannelID,
+        userId
+      })
+    }
+
+    if (users) {
       await Promise.all(
-        [userId, ...users].map(async (user) =>
+        users.map(async (user) =>
           this.app.service('channel-user').create({
             channelId: channel.id as ChannelID,
             userId: user
           })
         )
       )
-
-      const channelWithUsers = await this.app.service('channel').get(channel.id, {
-        include: [
-          {
-            model: this.app.service('channel-user').Model,
-            include: [
-              {
-                model: this.app.service('user').Model
-              }
-            ]
-          }
-        ]
-      })
-
-      return channelWithUsers
-    } else if (data.instanceId) {
-      const channel = (await super.create({
-        // @ts-ignore
-        instanceId: data.instanceId
-      })) as ChannelDataType
     }
+
+    if (data.instanceId) {
+      // @ts-ignore
+      await super.patch(channel.id, { instanceId: data.instanceId })
+    }
+
+    const channelWithUsers = await this.app.service('channel').get(channel.id, {
+      include: [
+        {
+          model: this.app.service('channel-user').Model,
+          include: [
+            {
+              model: this.app.service('user').Model
+            }
+          ]
+        },
+        {
+          model: this.app.service('instance').Model,
+          include: [
+            {
+              model: this.app.service('location').Model
+            }
+          ]
+        }
+      ]
+    })
+
+    return channelWithUsers
   }
 
   /**
@@ -107,6 +123,8 @@ export class Channel<T = ChannelDataType> extends Service<T> {
     const userId = loggedInUser.id
     if (!userId) return []
 
+    console.log()
+
     try {
       if (query.instanceId) {
         const channels = await this.app.service('channel').Model.findAll({
@@ -122,16 +140,16 @@ export class Channel<T = ChannelDataType> extends Service<T> {
                 // {
                 //   model: this.app.service('user').Model,
                 // },
+              ]
+            },
+            {
+              model: this.app.service('message').Model,
+              limit: 20,
+              order: [['createdAt', 'DESC']],
+              include: [
                 {
-                  model: this.app.service('message').Model,
-                  limit: 20,
-                  order: [['createdAt', 'DESC']],
-                  include: [
-                    {
-                      model: this.app.service('user').Model,
-                      as: 'sender'
-                    }
-                  ]
+                  model: this.app.service('user').Model,
+                  as: 'sender'
                 }
               ]
             }

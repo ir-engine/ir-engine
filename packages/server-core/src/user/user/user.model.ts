@@ -80,8 +80,6 @@ export default (app: Application) => {
       through: models.user_relationship
     })
     ;(User as any).hasMany(models.user_relationship, { onDelete: 'cascade' })
-    ;(User as any).belongsToMany(models.group, { through: 'group_user' }) // user can join multiple orgs
-    ;(User as any).hasMany(models.group_user, { unique: false, onDelete: 'cascade' })
     ;(User as any).hasMany(models.identity_provider, { onDelete: 'cascade' })
     ;(User as any).hasMany(models.channel)
     ;(User as any).belongsToMany(models.location, { through: 'location_admin' })

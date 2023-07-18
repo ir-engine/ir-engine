@@ -23,6 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { useFind } from 'figbird'
 import React from 'react'
 
 import { ChatService, ChatState } from '@etherealengine/client-core/src/social/services/ChatService'
@@ -47,6 +48,14 @@ export const Message = () => {
 
   const channelUserNames =
     activeChannel?.channel_users.map((user) => user.user!.name).filter((name) => name !== userName) ?? []
+
+  const messages_ = useFind('message', {
+    query: {
+      channelId: chatState.targetChannelId.value
+    }
+  })
+
+  console.log(messages_.data, messages_.error)
 
   const messages = activeChannel?.messages ?? []
 
