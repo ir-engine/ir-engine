@@ -25,7 +25,6 @@ Ethereal Engine. All Rights Reserved.
 
 import React, { useCallback, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import styled from 'styled-components'
 import { DoubleSide, Mesh, MeshStandardMaterial } from 'three'
 
 import { FileBrowserService } from '@etherealengine/client-core/src/common/services/FileBrowserService'
@@ -68,56 +67,7 @@ import PaginatedList from '../layout/PaginatedList'
 import GLTFTransformProperties from './GLTFTransformProperties'
 import LightmapBakerProperties from './LightmapBakerProperties'
 
-const TransformContainer = (styled as any).div`
-  color: var(--textColor);
-  text-align: -webkit-center;
-  margin-top: 2em;
-  margin-bottom: 4em;
-  background-color: var(--background2);
-  overflow: scroll;
-`
-
-const FilterToggle = styled(ToggleButton)`
-  color: var(--textColor);
-`
-
-const OptimizeButton = styled(Button)`
-  @keyframes glowing {
-    0% {
-      background-color: #f00;
-      box-shadow: 0 0 5px #f00;
-    }
-    16% {
-      background-color: #ff0;
-      box-shadow: 0 0 20px #ff0;
-    }
-    33% {
-      background-color: #0f0;
-      box-shadow: 0 0 5px #0f0;
-    }
-    50% {
-      background-color: #0ff;
-      box-shadow: 0 0 20px #0ff;
-    }
-    66% {
-      background-color: #00f;
-      box-shadow: 0 0 5px #00f;
-    }
-    83% {
-      background-color: #f0f;
-      box-shadow: 0 0 20px #f0f;
-    }
-    100% {
-      background-color: #f00;
-      box-shadow: 0 0 5px #f00;
-    }
-  }
-  animation: glowing 5000ms infinite;
-
-  &:hover {
-    animation: glowing 250ms infinite;
-  }
-`
+import './ModelTransformProperties.css'
 
 export default function ModelTransformProperties({
   modelState,
@@ -254,13 +204,17 @@ export default function ModelTransformProperties({
 
   return (
     <CollapsibleBlock label="Model Transform Properties">
-      <TransformContainer>
+      <div className="TransformContainer">
         <LightmapBakerProperties modelState={modelState} />
         <GLTFTransformProperties
           transformParms={transformParms}
           onChange={(transformParms: ModelTransformParameters) => {}}
         />
-        {!transforming.value && <OptimizeButton onClick={onTransformModel(modelState)}>Optimize</OptimizeButton>}
+        {!transforming.value && (
+          <button className="OptimizeButton button" onClick={onTransformModel(modelState)}>
+            Optimize
+          </button>
+        )}
         {transforming.value && <p>Transforming...</p>}
         {transformHistory.length > 0 && <Button onClick={onUndoTransform}>Undo</Button>}
 
@@ -306,7 +260,7 @@ export default function ModelTransformProperties({
           <Button onClick={doVertexBake(modelState)}>Bake To Vertices</Button>
           <Button onClick={onBakeSelected}>Bake And Optimize</Button>
         </CollapsibleBlock>
-      </TransformContainer>
+      </div>
     </CollapsibleBlock>
   )
 }

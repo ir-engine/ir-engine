@@ -124,7 +124,7 @@ export type InputGroupProps = React.PropsWithChildren<
  * @param       {string} label
  * @constructor
  */
-export function InputGroup({ name, children, disabled, info, label, ...rest }: InputGroupProps) {
+export const InputGroup = ({ name, children, disabled, info, label, ...rest }: InputGroupProps) => {
   const styles = useStyles()
 
   return (

@@ -25,7 +25,6 @@ Ethereal Engine. All Rights Reserved.
 
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import styled from 'styled-components'
 
 import {
   getComponent,
@@ -44,15 +43,15 @@ import StringInput from '../inputs/StringInput'
 import { EditorComponentType } from './Util'
 
 /**
- * Creating styled component using InputGroup component.
+ * Creating component using InputGroup component.
  *
- * @type {Styled Component}
+ * @type {Component}
  */
-const StyledNameInputGroup = (styled as any)(InputGroup)`
-  label {
-    width: auto !important;
+const styledNameInputGroupStyle = {
+  label: {
+    width: 'auto !important'
   }
-`
+}
 
 /**
  * NameInputGroup is used to render input group PropertiesPanelContainer.
@@ -110,7 +109,7 @@ export const NameInputGroup: EditorComponentType = (props) => {
   }
 
   return (
-    <StyledNameInputGroup name="Name" label={t('editor:properties.name.lbl-name')}>
+    <InputGroup style={styledNameInputGroupStyle} name="Name" label={t('editor:properties.name.lbl-name')}>
       <StringInput
         value={tempName}
         onChange={setTempName}
@@ -118,7 +117,7 @@ export const NameInputGroup: EditorComponentType = (props) => {
         onBlur={onBlurName}
         onKeyUp={onKeyUpName}
       />
-    </StyledNameInputGroup>
+    </InputGroup>
   )
 }
 

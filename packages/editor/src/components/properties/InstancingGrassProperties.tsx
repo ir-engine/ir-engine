@@ -25,7 +25,6 @@ Ethereal Engine. All Rights Reserved.
 
 import React, { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
-import styled from 'styled-components'
 import { Texture } from 'three'
 
 import { GrassProperties, TextureRef } from '@etherealengine/engine/src/scene/components/InstancingComponent'

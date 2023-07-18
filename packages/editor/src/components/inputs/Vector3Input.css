@@ -1,0 +1,44 @@
+.Vector3InputContainer {
+  display: flex;
+  flex-direction: row;
+  flex: 1 1 auto;
+  justify-content: flex-start;
+  gap: 6px;
+}
+
+.Vector3Scrubber {
+  display: flex;
+  align-items: center;
+  color: var(--textColor);
+  padding: 4px;
+}
+
+.Vector3Scrubber.x {
+  background: var(--red);
+}
+
+.Vector3Scrubber.y {
+  background: var(--green);
+}
+
+.Vector3Scrubber.z {
+  background: var(--blue);
+}
+
+.UniformButtonContainer {
+  display: flex;
+  align-items: center;
+  width: 18px;
+}
+
+.UniformButtonContainer svg {
+  width: 100%;
+}
+
+.UniformButtonContainer label {
+  color: var(--textColor);
+}
+
+.UniformButtonContainer label:hover {
+  color: var(--blueHover);
+}

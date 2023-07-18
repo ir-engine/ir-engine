@@ -25,7 +25,6 @@ Ethereal Engine. All Rights Reserved.
 
 import React from 'react'
 import { useTranslation } from 'react-i18next'
-import styled from 'styled-components'
 
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import {
@@ -52,35 +51,20 @@ import InputGroup from '../inputs/InputGroup'
 import NameInputGroup from './NameInputGroup'
 import { EditorComponentType } from './Util'
 
-/**
- * PropertiesHeader used as a wrapper for NameInputGroupContainer component.
- */
-const PropertiesHeader = styled.div`
-  border: none !important;
-  padding-bottom: 0 !important;
-`
+const propertiesHeaderStyle = {
+  border: 'none !important',
+  paddingBottom: '0 !important'
+}
 
-/**
- * NameInputGroupContainer used to provides styles and contains NameInputGroup and VisibleInputGroup.
- *
- *  @type {Styled Component}
- */
-const NameInputGroupContainer = styled.div``
-/**
- * Styled component used to provide styles for visiblity checkbox.
- */
-const VisibleInputGroup = styled(InputGroup)`
-  & > label {
-    width: auto !important;
+const nameInputGroupContainerStyle = {}
+
+const visibleInputGroupStyle = {
+  '& > label': {
+    width: 'auto !important'
   }
-`
+}
 
-/**
- * CoreNodeEditor component is used to render editor view to customize properties.
- *
- * @type {class component}
- */
-export const CoreNodeEditor: EditorComponentType = (props) => {
+export const CoreNodeEditor = (props) => {
   const { t } = useTranslation()
   const editorState = useHookstate(getMutableState(EditorState))
 
@@ -96,17 +80,17 @@ export const CoreNodeEditor: EditorComponentType = (props) => {
   const registeredComponents = Array.from(ComponentJSONIDMap.entries())
 
   return (
-    <PropertiesHeader>
-      <NameInputGroupContainer>
+    <div style={propertiesHeaderStyle}>
+      <div style={nameInputGroupContainerStyle}>
         <NameInputGroup entity={props.entity} key={props.entity} />
         {!hasComponent(props.entity, SceneTagComponent) && (
           <>
-            <VisibleInputGroup name="Visible" label={t('editor:properties.lbl-visible')}>
+            <InputGroup style={visibleInputGroupStyle} name="Visible" label={t('editor:properties.lbl-visible')}>
               <BooleanInput value={hasComponent(props.entity, VisibleComponent)} onChange={onChangeVisible} />
-            </VisibleInputGroup>
+            </InputGroup>
           </>
         )}
-      </NameInputGroupContainer>
+      </div>
 
       {/** @todo #7258 */}
       {editorState.advancedMode.value && typeof props.entity === 'number' && (
@@ -124,6 +108,6 @@ export const CoreNodeEditor: EditorComponentType = (props) => {
           />
         </div>
       )}
-    </PropertiesHeader>
+    </div>
   )
 }

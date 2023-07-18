@@ -25,7 +25,6 @@ Ethereal Engine. All Rights Reserved.
 
 import { useHookstate } from '@hookstate/core'
 import React, { useState } from 'react'
-import styled from 'styled-components'
 import { Vector3 } from 'three'
 
 import LinkIcon from '@mui/icons-material/Link'
@@ -35,41 +34,40 @@ import Hidden from '../layout/Hidden'
 import NumericInput from './NumericInput'
 import Scrubber from './Scrubber'
 
-export const Vector3InputContainer = (styled as any).div`
-  position: relative;
-  display: flex;
-  flex-direction: row;
-  flex: 1 1 auto;
-  justify-content: flex-start;
-  gap: 6px;
-`
+// style inheritance
+import './Vector3Input.css'
 
-export const Vector3Scrubber = (styled as any)(Scrubber)`
-  display: flex;
-  align-items: center;
-  color: var(--textColor);
-  padding: 4px;
-  background: ${(props) => (props.axis === 'x' ? 'var(--red)' : props.axis === 'y' ? 'var(--green)' : 'var(--blue)')};
-`
+export const Vector3InputContainer = ({ children }) => {
+  return <div className="Vector3InputContainer">{children}</div>
+}
 
-export const UniformButtonContainer = (styled as any).div`
-  top: 0;
-  display: flex;
-  align-items: center;
-  width: 18px;
+type Vector3ScrubberProps = {
+  axis: 'x' | 'y' | 'z'
+  value: number
+  onChange: (value: number) => void
+  onPointerUp: any
+  className?: string
+}
 
-  svg {
-    width: 100%;
-  }
+export const Vector3Scrubber = ({ axis, value, onChange, onPointerUp, className }: Vector3ScrubberProps) => {
+  return (
+    <div
+      className={`Vector3Scrubber ${axis} ${className}`}
+      onMouseMove={(e) => {
+        if (e.buttons === 1) {
+          onChange(value + e.movementX)
+        }
+      }}
+      onMouseUp={onPointerUp}
+    >
+      {axis}
+    </div>
+  )
+}
 
-  label {
-    color: var(--textColor);
-  }
-
-  label:hover {
-    color: var(--blueHover);
-  }
-`
+export const UniformButtonContainer = ({ children }) => {
+  return <div className="UniformButtonContainer">{children}</div>
+}
 
 let uniqueId = 0
 
@@ -104,7 +102,7 @@ export const Vector3Input = ({
     setUniformEnabled(!uniformEnabled)
   }
 
-  const processChange = (field, fieldValue) => {
+  const processChange = (field: string, fieldValue: number) => {
     if (uniformEnabled) {
       newValue.value.set(fieldValue, fieldValue, fieldValue)
     } else {
@@ -122,11 +120,11 @@ export const Vector3Input = ({
     }
   }
 
-  const onChangeX = (x) => processChange('x', x)
+  const onChangeX = (x: number) => processChange('x', x)
 
-  const onChangeY = (y) => processChange('y', y)
+  const onChangeY = (y: number) => processChange('y', y)
 
-  const onChangeZ = (z) => processChange('z', z)
+  const onChangeZ = (z: number) => processChange('z', z)
 
   const vx = value ? value.x : 0
   const vy = value ? value.y : 0
@@ -152,9 +150,7 @@ export const Vector3Input = ({
         onCommit={onRelease}
         prefix={
           hideLabels ? null : (
-            <Vector3Scrubber {...rest} tag="div" value={vx} onChange={onChangeX} onPointerUp={onRelease} axis="x">
-              X
-            </Vector3Scrubber>
+            <Vector3Scrubber className="x" value={vx} onChange={onChangeX} onPointerUp={onRelease} axis="x" />
           )
         }
       />
@@ -165,9 +161,7 @@ export const Vector3Input = ({
         onCommit={onRelease}
         prefix={
           hideLabels ? null : (
-            <Vector3Scrubber {...rest} tag="div" value={vy} onChange={onChangeY} onPointerUp={onRelease} axis="y">
-              Y
-            </Vector3Scrubber>
+            <Vector3Scrubber className="y" value={vy} onChange={onChangeY} onPointerUp={onRelease} axis="y" />
           )
         }
       />
@@ -178,9 +172,7 @@ export const Vector3Input = ({
         onCommit={onRelease}
         prefix={
           hideLabels ? null : (
-            <Vector3Scrubber {...rest} tag="div" value={vz} onChange={onChangeZ} onPointerUp={onRelease} axis="z">
-              Z
-            </Vector3Scrubber>
+            <Vector3Scrubber className="z" value={vz} onChange={onChangeZ} onPointerUp={onRelease} axis="z" />
           )
         }
       />

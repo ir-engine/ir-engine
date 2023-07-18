@@ -27,7 +27,6 @@ Ethereal Engine. All Rights Reserved.
 
 import RCSlider from 'rc-slider/es/Slider'
 import React from 'react'
-import { createGlobalStyle } from 'styled-components'
 
 import './Slider.css'
 
