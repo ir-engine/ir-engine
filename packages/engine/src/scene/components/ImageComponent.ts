@@ -78,7 +78,7 @@ export const ImageComponent = defineComponent({
 
   onInit: (entity) => {
     return {
-      source: '',
+      source: '__$project$__/default-project/assets/sample_etc1s.ktx2',
       alphaMode: ImageAlphaMode.Opaque as ImageAlphaModeType,
       alphaCutoff: 0.5,
       projection: ImageProjection.Flat as ImageProjectionType,
@@ -99,8 +99,9 @@ export const ImageComponent = defineComponent({
   },
 
   onSet: (entity, component, json) => {
+    setComponent(entity, ShadowComponent)
+
     if (!json) return
-    if (!component.source.value) component.source.set('__$project$__/default-project/assets/sample_etc1s.ktx2')
     // backwards compatability
     if (typeof json.source === 'string' && json.source !== component.source.value) component.source.set(json.source)
     if (typeof json.alphaMode === 'string' && json.alphaMode !== component.alphaMode.value)
@@ -110,8 +111,6 @@ export const ImageComponent = defineComponent({
     if (typeof json.projection === 'string' && json.projection !== component.projection.value)
       component.projection.set(json.projection)
     if (typeof json.side === 'number' && json.side !== component.side.value) component.side.set(json.side)
-
-    setComponent(entity, ShadowComponent)
   },
 
   onRemove: (entity, component) => {

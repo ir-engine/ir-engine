@@ -106,6 +106,8 @@ export const PortalComponent = defineComponent({
   },
 
   onSet: (entity, component, json) => {
+    setComponent(entity, ShadowComponent)
+
     if (!json) return
     if (matches.string.test(json.linkedPortalId)) component.linkedPortalId.set(json.linkedPortalId)
     if (matches.string.test(json.location)) component.location.set(json.location)
@@ -122,7 +124,6 @@ export const PortalComponent = defineComponent({
           new Quaternion().setFromEuler(new Euler().setFromVector3(json.spawnRotation as any))
         )
     }
-    setComponent(entity, ShadowComponent)
   },
 
   toJSON: (entity, component) => {

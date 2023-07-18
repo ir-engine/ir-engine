@@ -64,6 +64,8 @@ export const GroundPlaneComponent = defineComponent({
   },
 
   onSet(entity, component, json) {
+    setComponent(entity, ShadowComponent)
+
     if (!json) return
 
     if (matches.object.test(json.color) || matches.string.test(json.color) || matches.number.test(json.color))
@@ -76,8 +78,6 @@ export const GroundPlaneComponent = defineComponent({
      */
     if (!getState(EngineState).sceneLoaded && hasComponent(entity, SceneObjectComponent))
       setComponent(entity, SceneAssetPendingTagComponent)
-
-    setComponent(entity, ShadowComponent)
   },
 
   toJSON(entity, component) {

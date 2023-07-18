@@ -80,6 +80,8 @@ export const VideoComponent = defineComponent({
   jsonID: 'video',
 
   onInit: (entity) => {
+    setComponent(entity, MediaComponent, { paths: ['__$project$__/default-project/assets/SampleAudio.mp3'] })
+
     const videoGroup = new Group()
     videoGroup.name = `video-group-${entity}`
     const videoMesh = new Mesh(PLANE_GEO, new MeshBasicMaterial())
@@ -108,15 +110,15 @@ export const VideoComponent = defineComponent({
   },
 
   onSet: (entity, component, json) => {
+    setComponent(entity, MediaComponent)
+    setComponent(entity, PositionalAudioComponent)
+    setComponent(entity, ShadowComponent)
+
     if (!json) return
     if (typeof json.mediaUUID === 'string') component.mediaUUID.set(json.mediaUUID)
     if (typeof json.side === 'number') component.side.set(json.side)
     if (json.size) component.size.set(new Vector2(json.size.x, json.size.y))
     if (json.fit) component.fit.set(json.fit)
-
-    setComponent(entity, MediaComponent, { paths: ['__$project$__/default-project/assets/SampleAudio.mp3'] })
-    setComponent(entity, PositionalAudioComponent)
-    setComponent(entity, ShadowComponent)
   },
 
   onRemove: (entity, component) => {

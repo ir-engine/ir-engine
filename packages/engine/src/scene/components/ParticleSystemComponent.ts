@@ -750,6 +750,8 @@ export const ParticleSystemComponent = defineComponent({
     } as ParticleSystemComponentType
   },
   onSet: (entity, component, json) => {
+    setComponent(entity, ShadowComponent)
+
     !!json?.systemParameters &&
       component.systemParameters.set({
         ...JSON.parse(JSON.stringify(component.systemParameters.value)),
@@ -759,8 +761,6 @@ export const ParticleSystemComponent = defineComponent({
     !!json?.behaviorParameters && component.behaviorParameters.set(JSON.parse(JSON.stringify(json.behaviorParameters)))
     ;(!!json?.systemParameters || !!json?.behaviorParameters) &&
       component._refresh.set((component._refresh.value + 1) % 1000)
-
-    setComponent(entity, ShadowComponent)
   },
   onRemove: (entity, component) => {
     if (component.system.value) {

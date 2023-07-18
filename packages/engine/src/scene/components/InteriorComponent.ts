@@ -51,12 +51,12 @@ export const InteriorComponent = defineComponent({
     } as InteriorComponentType
   },
   onSet: (entity, component, json) => {
+    setComponent(entity, ShadowComponent)
+
     if (!json) return
     if (typeof json.cubeMap === 'string') component.cubeMap.set(json.cubeMap)
     if (typeof json.tiling === 'number') component.tiling.set(json.tiling)
     if (typeof json.size === 'object') component.size.set(new Vector2(json.size.x, json.size.y))
-
-    setComponent(entity, ShadowComponent)
   },
   toJSON(entity, component) {
     return {

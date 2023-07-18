@@ -43,11 +43,11 @@ export const SplineComponent = defineComponent({
   },
 
   onSet: (entity, component, json) => {
+    setComponent(entity, ShadowComponent)
+
     if (!json) return
     if (typeof json.splinePositions !== 'undefined')
       component.splinePositions.set(json.splinePositions.map((pos) => new Vector3(pos.x, pos.y, pos.z)))
-
-    setComponent(entity, ShadowComponent)
   },
 
   toJSON(entity, component) {

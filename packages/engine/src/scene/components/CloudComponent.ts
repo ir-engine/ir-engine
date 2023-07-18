@@ -59,6 +59,8 @@ export const CloudComponent = defineComponent({
     } as CloudComponentType
   },
   onSet: (entity, component, json) => {
+    setComponent(entity, ShadowComponent)
+
     if (!json) return
     if (typeof json.texture === 'string') component.texture.set(json.texture)
     if (typeof json.worldScale === 'object')
@@ -73,8 +75,6 @@ export const CloudComponent = defineComponent({
       component.spriteScaleRange.set(new Vector2(json.spriteScaleRange.x, json.spriteScaleRange.y))
     if (typeof json.fogColor === 'number') component.fogColor.set(new Color(json.fogColor))
     if (typeof json.fogRange === 'object') component.fogRange.set(new Vector2(json.fogRange.x, json.fogRange.y))
-
-    setComponent(entity, ShadowComponent)
   },
   toJSON(entity, component) {
     return {

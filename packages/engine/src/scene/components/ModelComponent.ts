@@ -81,6 +81,10 @@ export const ModelComponent = defineComponent({
   },
 
   onSet: (entity, component, json) => {
+    setComponent(entity, EnvmapComponent)
+    setComponent(entity, LoopAnimationComponent)
+    setComponent(entity, ShadowComponent)
+
     if (!json) return
     if (typeof json.src === 'string' && json.src !== component.src.value) component.src.set(json.src)
     if (typeof json.generateBVH === 'boolean' && json.generateBVH !== component.generateBVH.value)
@@ -91,10 +95,6 @@ export const ModelComponent = defineComponent({
      */
     if (!getState(EngineState).sceneLoaded && hasComponent(entity, SceneObjectComponent))
       setComponent(entity, SceneAssetPendingTagComponent)
-
-    setComponent(entity, EnvmapComponent)
-    setComponent(entity, LoopAnimationComponent)
-    setComponent(entity, ShadowComponent)
   },
 
   onRemove: (entity, component) => {
