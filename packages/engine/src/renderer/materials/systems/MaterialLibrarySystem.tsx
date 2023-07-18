@@ -49,12 +49,6 @@ function MaterialReactor({ materialId }: { materialId: string }) {
 function PluginReactor({ pluginId }: { pluginId: string }) {
   const materialLibrary = useState(getMutableState(MaterialLibraryState))
   const component = materialLibrary.plugins[pluginId]
-  useEffect(() => {
-    component.instances.value.forEach((material) => {
-      material.needsUpdate = true
-    })
-  }, [component.parameters])
-
   return null
 }
 

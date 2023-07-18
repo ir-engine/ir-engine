@@ -57,7 +57,6 @@ export function applyMaterialPlugin(material: Material, pluginId: string) {
     return
   }
   addOBCPlugin(material, pluginComponent.plugin.get(NO_PROXY))
-  pluginComponent.instances.set([...pluginComponent.instances.value, material])
 }
 
 export function removeMaterialPlugin(material: Material, pluginId: string) {
@@ -65,5 +64,4 @@ export function removeMaterialPlugin(material: Material, pluginId: string) {
   const pluginComponent = materialLibrary.plugins[pluginId]
   removeOBCPlugin(material, pluginComponent.plugin.value)
   material.needsUpdate = true
-  pluginComponent.instances.set(pluginComponent.instances.value.filter((item) => item !== material))
 }
