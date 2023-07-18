@@ -31,16 +31,21 @@ import {
   CylinderGeometry,
   Euler,
   FrontSide,
+  Material,
   Mesh,
   MeshBasicMaterial,
   Quaternion,
   SphereGeometry,
+  Texture,
   Vector3
 } from 'three'
 
 import { getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
 
+import { AssetLoader } from '../../assets/classes/AssetLoader'
+import { isClient } from '../../common/functions/getEnvironment'
 import { matches } from '../../common/functions/MatchesUtils'
+import { Engine } from '../../ecs/classes/Engine'
 import {
   addComponent,
   ComponentType,
@@ -48,7 +53,7 @@ import {
   hasComponent,
   useComponent
 } from '../../ecs/functions/ComponentFunctions'
-import { useEntityContext } from '../../ecs/functions/EntityFunctions'
+import { entityExists, useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { CollisionGroups } from '../../physics/enums/CollisionGroups'
 import { RendererState } from '../../renderer/RendererState'
 import { ObjectLayers } from '../constants/ObjectLayers'
@@ -183,8 +188,61 @@ export const PortalComponent = defineComponent({
         const portalMesh = new Mesh(new SphereGeometry(1.5, 32, 32), new MeshBasicMaterial({ side: FrontSide }))
         portalComponent.mesh.set(portalMesh)
         addObjectToGroup(entity, portalMesh)
+        return () => {
+          if (Array.isArray(portalMesh.material)) {
+            portalMesh.material.forEach((material: Material) => {
+              for (const key of Object.keys(portalMesh.material)) {
+                const material = portalMesh.material[key]
+                material?.dispose()
+              }
+              material.dispose()
+            })
+          } else {
+            for (const key of Object.keys(portalMesh.material)) {
+              const material = portalMesh.material[key]
+              material?.dispose()
+            }
+            portalMesh.material?.dispose()
+          }
+          portalMesh.geometry?.dispose()
+        }
       }
     }, [portalComponent.previewType])
+
+    useEffect(() => {
+      if (!isClient) return
+      Engine.instance.api
+        .service('portal')
+        .get(portalComponent.linkedPortalId.value)
+        .then((data) => {
+          const portalDetails = data.data!
+          if (portalDetails) {
+            portalComponent.remoteSpawnPosition.value.copy(portalDetails.spawnPosition)
+            portalComponent.remoteSpawnRotation.value.setFromEuler(
+              new Euler(
+                portalDetails.spawnRotation.x,
+                portalDetails.spawnRotation.y,
+                portalDetails.spawnRotation.z,
+                portalDetails.spawnRotation.order
+              )
+            )
+            if (
+              typeof portalComponent.previewImageURL.value !== 'undefined' &&
+              portalComponent.previewImageURL.value !== ''
+            ) {
+              const mesh = portalComponent.mesh.value
+              if (mesh) {
+                AssetLoader.loadAsync(portalDetails.previewImageURL).then((texture: Texture) => {
+                  console.log(texture, mesh, entityExists(entity))
+                  if (!mesh || !entityExists(entity)) return
+                  mesh.material.map = texture
+                  texture.needsUpdate = true
+                })
+              }
+            }
+          }
+        })
+    }, [portalComponent.previewImageURL, portalComponent.mesh])
 
     return null
   }
