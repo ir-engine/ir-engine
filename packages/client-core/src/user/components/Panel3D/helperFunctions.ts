@@ -94,3 +94,15 @@ export const loadAvatarForPreview = async (entity: Entity, avatarURL: string) =>
   // animateModel(entity)
   return parent
 }
+
+export const loadModelForPreview = async (entity: Entity, avatarURL: string) => {
+  const parent = await loadAvatarModelAsset(avatarURL)
+  if (!parent) return
+  removeGroupComponent(entity)
+  addObjectToGroup(entity, parent)
+  parent.traverse((obj: Object3D) => {
+    obj.layers.set(ObjectLayers.Panel)
+  })
+  parent.removeFromParent()
+  return parent
+}
