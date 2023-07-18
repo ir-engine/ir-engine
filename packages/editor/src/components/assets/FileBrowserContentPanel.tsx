@@ -43,8 +43,6 @@ import { uploadToFeathersService } from '@etherealengine/client-core/src/util/up
 import config from '@etherealengine/common/src/config'
 import { processFileName } from '@etherealengine/common/src/utils/processFileName'
 import { DndWrapper } from '@etherealengine/editor/src/components/dnd/DndWrapper'
-import { KTX2EncodeArguments } from '@etherealengine/engine/src/assets/constants/CompressionParms'
-import { KTX2EncodeDefaultArguments } from '@etherealengine/engine/src/assets/constants/CompressionParms'
 import {
   ImageConvertDefaultParms,
   ImageConvertParms
@@ -155,7 +153,6 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
   const openProperties = useState(false)
   const openCompress = useState(false)
   const openConvert = useState(false)
-  const compressProperties = useState<KTX2EncodeArguments>(KTX2EncodeDefaultArguments)
   const convertProperties = useState<ImageConvertParms>(ImageConvertDefaultParms)
   const openConfirm = useState(false)
   const contentToDeletePath = useState('')
@@ -521,7 +518,6 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
         <CompressionPanel
           openCompress={openCompress}
           fileProperties={fileProperties as any}
-          compressProperties={compressProperties}
           onRefreshDirectory={onRefreshDirectory}
         />
       )}

@@ -24,6 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 // @ts-nocheck
+import { SliderProps } from 'rc-slider'
 import RCSlider from 'rc-slider/es/Slider'
 import React from 'react'
 import { createGlobalStyle } from 'styled-components'
@@ -101,7 +102,7 @@ const SliderGlobalStyles = createGlobalStyle`
  * @param props
  * @returns
  */
-export default function Slider(props) {
+export default function Slider(props: SliderProps) {
   return (
     <>
       <RCSlider {...props} />
