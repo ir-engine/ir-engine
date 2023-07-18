@@ -53,7 +53,7 @@ import { Physics } from '../../physics/classes/Physics'
 import { addObjectToGroup } from '../../scene/components/GroupComponent'
 import { setTransformComponent, TransformComponent } from '../../transform/components/TransformComponent'
 import { GrabbedComponent, GrabberComponent } from '../components/GrabbableComponent'
-import { equipEntity, unequipEntity } from './GrabbableSystem'
+import { dropEntity, grabEntity } from './GrabbableSystem'
 
 // @TODO this needs to be re-thought
 
@@ -170,7 +170,7 @@ describe.skip('EquippableSystem Integration Tests', () => {
     const grabberEntity = createEntity()
     setTransformComponent(grabberEntity)
 
-    equipEntity(grabberEntity, grabbableEntity, 'none')
+    grabEntity(grabberEntity, grabbableEntity, 'none')
 
     // world.receptors.push(
     //     (a) => matches(a).when(WorldNetworkAction.setEquippedObject.matches, setEquippedObjectReceptor)
@@ -188,7 +188,7 @@ describe.skip('EquippableSystem Integration Tests', () => {
     assert(hasComponent(grabbableEntity, GrabbedComponent))
 
     // unequip stuff
-    unequipEntity(grabberEntity)
+    dropEntity(grabberEntity)
 
     clearOutgoingActions(Engine.instance.worldNetwork.topic)
     applyIncomingActions()
