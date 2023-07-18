@@ -53,7 +53,6 @@ export const GrabbableComponent = defineComponent({
       if (getState(EngineState).isEditor) return
       removeComponent(entity, LocalTransformComponent)
       setComponent(entity, EntityTreeComponent, { parentEntity: getState(SceneState).sceneEntity })
-      removeComponent(entity, ColliderComponent)
     }, [])
 
     return null
