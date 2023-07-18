@@ -217,11 +217,18 @@ export const AvatarRigComponent = defineComponent({
 
     const animComponent = useComponent(entity, AnimationComponent)
 
+    const offset = new Vector3()
+    const foot = new Vector3()
     //Calculate ik target offsets for retargeting
     useEffect(() => {
       if (!animComponent.animations.value.length || !rigComponent.targets.children.length) return
       const bindTracks = AnimationClip.findByName(getState(AnimationManager).targetsAnimation!, 'BindPose').tracks
       if (!bindTracks) return
+
+      rigComponent.bindRig.hips.node.value.getWorldPosition(offset).multiplyScalar(2)
+      offset.y = rigComponent.bindRig.rightFoot.node.value.getWorldPosition(foot).y
+      rigComponent.vrm.humanoid.normalizedHumanBonesRoot.position.value.add(offset)
+
       for (let i = 0; i < bindTracks.length; i += 3) {
         const key = bindTracks[i].name.substring(0, bindTracks[i].name.indexOf('.'))
         const hipsRotationoffset = new Quaternion().setFromEuler(new Euler(0, Math.PI, 0))
@@ -290,6 +297,7 @@ export const AvatarRigComponent = defineComponent({
         bonePos.decompose(pos, new Quaternion(), new Vector3())
         pos.applyQuaternion(hipsRotationoffset)
         pos.sub(new Vector3(bindTracks[i].values[0], bindTracks[i].values[1], bindTracks[i].values[2]))
+        pos.sub(offset)
         rigComponent.ikOffsetsMap.value.set(key, pos)
       }
     }, [animComponent.animations, rigComponent.targets])
