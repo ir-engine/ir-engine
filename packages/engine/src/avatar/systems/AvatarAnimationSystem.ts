@@ -208,6 +208,7 @@ const footRaycastArgs = {
 } as RaycastArgs
 
 const lastRayInfo = {} as Record<number, RaycastHit>
+const lastLerpPosition = {} as Record<number, Vector3>
 const setFootTarget = (
   hipsPos: Vector3,
   footPos: targetTransform,
@@ -220,13 +221,20 @@ const setFootTarget = (
 
   if (castRay) {
     const castedRay = Physics.castRay(Engine.instance.physicsWorld, footRaycastArgs)
-    if (castedRay[0]) lastRayInfo[index] = castedRay[0]
-    else delete lastRayInfo[index]
+    if (castedRay[0]) {
+      lastRayInfo[index] = castedRay[0]
+    } else {
+      delete lastRayInfo[index]
+      delete lastLerpPosition[index]
+    }
   }
 
   const castedRay = lastRayInfo[index]
   if (castedRay) {
-    footPos.position.copy(castedRay.position as Vector3)
+    if (!lastLerpPosition[index])
+      lastLerpPosition[index] = new Vector3().set(castedRay.position.x, castedRay.position.y, castedRay.position.z)
+    lastLerpPosition[index].lerp(castedRay.position as Vector3, getState(EngineState).deltaSeconds * 5)
+    footPos.position.copy(lastLerpPosition[index])
     //footPos.rotation.copy(new Quaternion().setFromUnitVectors(castedRay.normal as Vector3, new Vector3(0, 1, 0)))
   }
 }
