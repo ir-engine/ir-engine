@@ -143,16 +143,12 @@ const filterFrustumCulledEntities = (entity: Entity) =>
 
 let avatarSortAccumulator = 0
 const _quat = new Quaternion()
-const _worldQuat = new Quaternion()
 
 const _vector3 = new Vector3()
-const _position = new Vector3()
+const _empty = new Vector3()
 const _hipVector = new Vector3()
 const leftLegVector = new Vector3()
 const rightLegVector = new Vector3()
-
-const rightHandOffset = new Quaternion().setFromEuler(new Euler(0, 0, 0))
-const leftHandOffset = new Quaternion().setFromEuler(new Euler(0, 0, 0))
 
 const midAxisRestriction = new Euler(-Math.PI / 4, undefined, undefined) // Restrict rotation around the X-axis to 45 degrees
 
@@ -401,7 +397,7 @@ const execute = () => {
       //if xr is active, set select targets to xr tracking data
       worldSpaceTargets[key].position
         .copy(value.position)
-        .add(rigComponent.ikOffsetsMap.get(key)!)
+        .add(rigComponent.ikOffsetsMap.get(key) ?? _empty)
         .applyMatrix4(transform.matrix)
 
       if (debugEnable) {
