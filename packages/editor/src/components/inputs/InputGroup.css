@@ -29,7 +29,7 @@
   max-width: calc(100% - 2px);
 }
 
-.input-group-content label {
+.input-group-content > label {
   display: block;
   width: 35%;
   color: var(--textColor);
@@ -42,7 +42,7 @@
   opacity: 0.3;
 }
 
-.input-group-vertical-container label {
+.input-group-vertical-container > label {
   display: block;
   width: 35%;
   color: var(--textColor);
@@ -55,7 +55,7 @@
   opacity: 0.3;
 }
 
-.input-group-vertical-container-wide label {
+.input-group-vertical-container-wide > label {
   display: block;
   width: 100%;
   color: var(--textColor);
