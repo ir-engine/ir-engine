@@ -24,35 +24,20 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import React from 'react'
-import styled from 'styled-components'
 
 import { ErrorSharp } from '@mui/icons-material'
 
-import PopUp, { PopUpContainer, PopUpContent, PopUpIconBox } from './PopUp'
+import PopUp from './PopUp'
 
-/**
- * ErrorPopUpContainer used as wrapper element for ErrorMessage.
- *
- * @param {any} styled
- * @type {Styled component}
- */
-
-const ErrorPopUp = styled(PopUp)`
-  /* Override the background-color to red */
-  --popup-bg-color: #ff8080;
-  ${PopUpIconBox} {
-    --icon-bg-color: red;
-  }
-  /* Add any additional styles for the ErrorPopUp here */
-`
 /**
  * ErrorPopup is used to render error message.
  *
- * @type {Object}
+ * @param {Object} props
+ * @returns {JSX.Element}
  */
 export function ErrorPopup(props) {
   if (!props) return null
-  return <ErrorPopUp icon={ErrorSharp} {...props} />
+  return <PopUp className="error-pop-up-container" iconClassName="error-pop-up-icon-box" icon={ErrorSharp} {...props} />
 }
 
 export default ErrorPopup

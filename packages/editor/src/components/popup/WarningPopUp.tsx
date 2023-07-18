@@ -24,39 +24,27 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import React from 'react'
-import styled from 'styled-components'
 
 import { WarningSharp } from '@mui/icons-material'
 
-import PopUp, { PopUpContainer, PopUpContent, PopUpIconBox } from './PopUp'
+import PopUp from './PopUp'
 
 /**
- * WarningPopUpContainer used as wrapper element for WarningMessage.
+ * ErrorPopup is used to render error message.
  *
- * @param {any} styled
- * @type {Styled component}
+ * @param {Object} props
+ * @returns {JSX.Element}
  */
-
-const WarningPopUp = styled(PopUp)`
-  /* Override the background-color to red */
-  --popup-bg-color: #ffffe0;
-  ${PopUpIconBox} {
-    --icon-bg-color: yellow;
-  }
-  ${PopUpContent} {
-    --textColor: black;
-  }
-  /* Add any additional styles for the ErrorPopUp here */
-`
-
-/**
- * WarningPopup is used to render warning message.
- *
- * @type {Object}
- */
-export function WarningPopup(props) {
+export function ErrorPopup(props) {
   if (!props) return null
-  return <WarningPopUp icon={WarningSharp} {...props} />
+  return (
+    <PopUp
+      className="warning-pop-up-container"
+      iconClassName="warning-pop-up-icon-box"
+      icon={WarningSharp}
+      {...props}
+    />
+  )
 }
 
 export default WarningPopup
