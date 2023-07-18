@@ -125,7 +125,6 @@ transformed += offset;
     textureSize: 128,
     frequency: 0.001
   } as NoiseOffsetParameters,
-  instances: [] as Material[],
   src: {
     type: SourceType.BUILT_IN,
     path: ''
