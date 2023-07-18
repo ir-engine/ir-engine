@@ -107,7 +107,7 @@ export const HomePage = (): any => {
                 <span>{clientSetting.appDescription}</span>
               </Trans>
             )}
-            {clientSetting.homepageLinkButtonEnabled && (
+            {Boolean(clientSetting.homepageLinkButtonEnabled) && (
               <Button
                 className={styles.gradientButton + ' ' + styles.forceVaporwave}
                 autoFocus

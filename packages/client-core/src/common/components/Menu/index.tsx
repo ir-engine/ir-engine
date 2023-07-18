@@ -96,7 +96,13 @@ const Menu = ({
 
             {header}
 
-            {showCloseButton && <IconButton icon={<Icon type="Close" />} sx={{ ml: 1 }} onClick={onClose} />}
+            {showCloseButton && (
+              <IconButton
+                icon={<Icon type="Close" />}
+                sx={{ position: 'absolute', right: '0.5rem', top: '0.5rem' }}
+                onClick={onClose}
+              />
+            )}
           </span>
         </DialogTitle>
       )}
@@ -123,14 +129,21 @@ const Menu = ({
 
   if (isPopover) {
     return (
-      <Box className={styles.menu} sx={{ width: '100%', ...sx }}>
+      <Box className={styles.menu} sx={{ pointerEvents: 'all', width: '100%', ...sx }}>
         {dialogContent}
       </Box>
     )
   }
 
   return (
-    <MUIDialog open={open} maxWidth={maxWidth} fullWidth PaperProps={{ className: styles.menu }} onClose={onClose}>
+    <MUIDialog
+      sx={{ pointerEvents: 'all', ...sx }}
+      open={open}
+      maxWidth={maxWidth}
+      fullWidth
+      PaperProps={{ className: styles.menu }}
+      onClose={onClose}
+    >
       {dialogContent}
     </MUIDialog>
   )

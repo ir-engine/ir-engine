@@ -26,9 +26,12 @@ Ethereal Engine. All Rights Reserved.
 import React, { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { useComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { getComponent, useComponent, useQuery } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { EnvMapBakeComponent } from '@etherealengine/engine/src/scene/components/EnvMapBakeComponent'
 import { EnvmapComponent } from '@etherealengine/engine/src/scene/components/EnvmapComponent'
 import { getEntityErrors } from '@etherealengine/engine/src/scene/components/ErrorComponent'
+import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
+import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
 import { EnvMapSourceType, EnvMapTextureType } from '@etherealengine/engine/src/scene/constants/EnvMapEnum'
 
 import ColorInput from '../inputs/ColorInput'
@@ -64,6 +67,13 @@ export const EnvMapEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
   const entity = props.entity
 
+  const bakeEntities = useQuery([EnvMapBakeComponent]).map((entity) => {
+    return {
+      label: getComponent(entity, NameComponent),
+      value: getComponent(entity, UUIDComponent)
+    }
+  })
+
   const onChangeCubemapURLSource = useCallback((value) => {
     const directory = value[value.length - 1] === '/' ? value.substring(0, value.length - 1) : value
     if (directory !== envmapComponent.envMapSourceURL) {
@@ -95,6 +105,15 @@ export const EnvMapEditor: EditorComponentType = (props) => {
           <ColorInput
             value={envmapComponent.envMapSourceColor.value}
             onChange={updateProperty(EnvmapComponent, 'envMapSourceColor')}
+          />
+        </InputGroup>
+      )}
+      {envmapComponent.type.value === EnvMapSourceType.Bake && (
+        <InputGroup name="EnvMapBake" label="EnvMap Bake">
+          <SelectInput
+            options={bakeEntities}
+            value={envmapComponent.envMapSourceEntityUUID.value}
+            onChange={updateProperty(EnvmapComponent, 'envMapSourceEntityUUID')}
           />
         </InputGroup>
       )}

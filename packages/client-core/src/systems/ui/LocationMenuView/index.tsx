@@ -30,6 +30,7 @@ import { useTranslation } from 'react-i18next'
 import { VrIcon } from '@etherealengine/client-core/src/common/components/Icons/VrIcon'
 import { respawnAvatar } from '@etherealengine/engine/src/avatar/functions/respawnAvatar'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { requestXRSession } from '@etherealengine/engine/src/xr/XRSessionFunctions'
 import { XRAction, XRState } from '@etherealengine/engine/src/xr/XRState'
 import { createXRUI } from '@etherealengine/engine/src/xrui/functions/createXRUI'
 import { WidgetAppService } from '@etherealengine/engine/src/xrui/WidgetAppService'
@@ -42,6 +43,7 @@ import { EmoteIcon } from '../../../user/UserUISystem'
 import XRTextButton from '../../components/XRTextButton'
 import styleString from './index.scss?inline'
 
+/** @deprecated */
 export function createLocationMenuView() {
   return createXRUI(LocationMenuView, createLocationMenuState())
 }
@@ -49,7 +51,7 @@ export function createLocationMenuView() {
 function createLocationMenuState() {
   return createState({})
 }
-
+/** @deprecated */
 const LocationMenuView = () => {
   const { t } = useTranslation()
   const xrState = useState(getMutableState(XRState))
@@ -60,7 +62,7 @@ const LocationMenuView = () => {
 
   const handleStartXRSession = () => {
     if (!xrState.sessionActive.value) {
-      dispatchAction(XRAction.requestSession({}))
+      requestXRSession()
     }
   }
 

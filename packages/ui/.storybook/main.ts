@@ -26,6 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { loadConfigFromFile, mergeConfig } from 'vite'
 
 export default {
+  // managerEntries: [require('path').resolve(__dirname, './addons/RegisterAddons')],
   headers: {
     'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, PATCH, OPTIONS',
@@ -38,26 +39,15 @@ export default {
       path: '../../.env.local'
     }).parsed
   }),
-  stories: ['../src/**/*.stories.mdx', '../src/**/*.stories.@(js|jsx|ts|tsx)'],
+  stories: ['./**/*.stories.@(js|jsx|ts|tsx)', '../src/**/*.stories.mdx', '../src/**/*.stories.@(js|jsx|ts|tsx)'],
   addons: [
-    // "@storybook/addon-links",
+    '@storybook/addon-toolbars',
+    '@storybook/manager-api',
     '@storybook/addon-essentials',
     '@storybook/addon-interactions',
     '@storybook/addon-a11y',
     '@storybook/addon-jest',
     'storybook-addon-react-router-v6'
-    // 'storybook-addon-designs',
-    // {
-    //   name: '@storybook/addon-postcss',
-    //   options: {
-    //     cssLoaderOptions: {
-    //       importLoaders: 1
-    //     },
-    //     postcssLoaderOptions: {
-    //       implementation: require('postcss')
-    //     }
-    //   }
-    // }
   ],
   core: {
     builder: '@storybook/builder-vite'
@@ -70,9 +60,6 @@ export default {
     storyStoreV7: true
   },
   async viteFinal(config) {
-    // const c = await loadConfigFromFile(
-    //   require('path').resolve(__dirname, '../../client/vite.config.ts')
-    // );
     const userConfig = config
     return mergeConfig(config, {
       ...userConfig,
@@ -110,6 +97,13 @@ export default {
             ws: true
           },
           '/sfx': {
+            target: 'https://travis.shetland-turtle.ts.net:3000',
+            changeOrigin: true,
+            secure: false,
+            // replace port 6006 with 3000
+            pathRewrite: { '^6006': '3000' }
+          },
+          '/fonts': {
             target: 'https://travis.shetland-turtle.ts.net:3000',
             changeOrigin: true,
             secure: false,

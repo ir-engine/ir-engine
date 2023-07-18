@@ -109,11 +109,10 @@ const GroupTable = ({ className, search }: Props) => {
       description,
       action: (
         <>
-          <a href="#" className={styles.actionStyle} onClick={() => handleGroupDrawer(id)}>
+          <a className={styles.actionStyle} onClick={() => handleGroupDrawer(id)}>
             <span className={styles.spanWhite}>{t('admin:components.common.view')}</span>
           </a>
           <a
-            href="#"
             className={styles.actionStyle}
             onClick={() => {
               handleOpenConfirm(id)

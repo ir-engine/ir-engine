@@ -26,7 +26,6 @@ Ethereal Engine. All Rights Reserved.
 import { removeComponent, setComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { VisibleComponent } from '@etherealengine/engine/src/scene/components/VisibleComponent'
 import { ReferenceSpace, XRAction, XRState } from '@etherealengine/engine/src/xr/XRState'
-import { XRUIInteractableComponent } from '@etherealengine/engine/src/xrui/components/XRUIComponent'
 import { createXRUI } from '@etherealengine/engine/src/xrui/functions/createXRUI'
 import { WidgetAppActions, WidgetAppState } from '@etherealengine/engine/src/xrui/WidgetAppService'
 import { Widget, Widgets } from '@etherealengine/engine/src/xrui/Widgets'
@@ -38,7 +37,6 @@ import { AnchorWidgetUI } from './ui/AnchorWidgetUI'
 export function createAnchorWidget() {
   const ui = createXRUI(AnchorWidgetUI)
   removeComponent(ui.entity, VisibleComponent)
-  setComponent(ui.entity, XRUIInteractableComponent)
   const xrState = getMutableState(XRState)
   // const avatarInputSettings = getMutableState(AvatarInputSettingsState)
 

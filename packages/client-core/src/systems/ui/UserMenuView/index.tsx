@@ -32,7 +32,6 @@ import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { removeComponent, setComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { WorldState } from '@etherealengine/engine/src/networking/interfaces/WorldState'
 import { VisibleComponent } from '@etherealengine/engine/src/scene/components/VisibleComponent'
-import { XRUIInteractableComponent } from '@etherealengine/engine/src/xrui/components/XRUIComponent'
 import { createXRUI, XRUI } from '@etherealengine/engine/src/xrui/functions/createXRUI'
 import { useXRUIState } from '@etherealengine/engine/src/xrui/functions/useXRUIState'
 import { defineState, dispatchAction, getMutableState, useHookstate } from '@etherealengine/hyperflux'
@@ -41,7 +40,7 @@ import { FriendService, FriendState } from '../../../social/services/FriendServi
 import { InviteService } from '../../../social/services/InviteService'
 import { PartyState } from '../../../social/services/PartyService'
 import { PopupMenuActions } from '../../../user/components/UserMenu/PopupMenuService'
-import { getAvatarURLForUser } from '../../../user/components/UserMenu/util'
+import { getUserAvatarThumbnail } from '../../../user/functions/useUserAvatarThumbnail'
 import { AuthState } from '../../../user/services/AuthService'
 import { AvatarMenus } from '../../AvatarUISystem'
 import XRTextButton from '../../components/XRTextButton'
@@ -52,7 +51,6 @@ export const AvatarUIContextMenuState = defineState({
   initial: () => {
     const ui = createXRUI(AvatarContextMenu) as XRUI<null>
     removeComponent(ui.entity, VisibleComponent)
-    setComponent(ui.entity, XRUIInteractableComponent)
     return {
       ui,
       id: null! as string | UserId
@@ -124,12 +122,7 @@ const AvatarContextMenu = () => {
       <style>{styleString}</style>
       {user?.userId && (
         <div className="rootContainer">
-          <img
-            className="ownerImage"
-            src={getAvatarURLForUser(userAvatarDetails, user?.userId)}
-            alt=""
-            crossOrigin="anonymous"
-          />
+          <img className="ownerImage" src={getUserAvatarThumbnail(user.userId)} alt="" crossOrigin="anonymous" />
           <div className="buttonContainer">
             <section className="buttonSection">
               {partyState?.party?.id?.value != null &&

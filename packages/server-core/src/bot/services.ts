@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import BotCommand from './bot-command/bot-command.service'
+import BotCommand from './bot-command/bot-command'
 import Bot from './bot/bot.service'
 import TestBot from './testbot/testbot.service'
 

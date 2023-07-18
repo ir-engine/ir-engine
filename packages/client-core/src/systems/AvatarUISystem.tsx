@@ -38,6 +38,7 @@ import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
 import { defineQuery, getComponent, hasComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { removeEntity } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
 import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
+import { InputSourceComponent } from '@etherealengine/engine/src/input/components/InputSourceComponent'
 import { NetworkObjectComponent } from '@etherealengine/engine/src/networking/components/NetworkObjectComponent'
 import { NetworkObjectOwnedTag } from '@etherealengine/engine/src/networking/components/NetworkObjectComponent'
 import { MediaSettingsState } from '@etherealengine/engine/src/networking/MediaSettingsState'
@@ -56,6 +57,7 @@ import { getMutableState, getState, none } from '@etherealengine/hyperflux'
 
 import AvatarContextMenu from '../user/components/UserMenu/menus/AvatarContextMenu'
 import { PopupMenuState } from '../user/components/UserMenu/PopupMenuService'
+import { AvatarUIStateSystem } from './state/AvatarUIState'
 import { createAvatarDetailView } from './ui/AvatarDetailView'
 import { AvatarUIContextMenuState } from './ui/UserMenuView'
 
@@ -147,12 +149,17 @@ const execute = () => {
   const engineState = getState(EngineState)
   if (!engineState.isEngineInitialized) return
 
-  const keys = Engine.instance.buttons
+  const nonCapturedInputSource = InputSourceComponent.nonCapturedInputSourceQuery()[0]
+  if (!nonCapturedInputSource) return
+
+  const inputSource = getComponent(nonCapturedInputSource, InputSourceComponent)
+
+  const keys = inputSource.buttons
 
   if (keys.PrimaryClick?.down) onPrimaryClick()
   if (keys.SecondaryClick?.down) onSecondaryClick()
 
-  videoPreviewTimer += Engine.instance.deltaSeconds
+  videoPreviewTimer += engineState.deltaSeconds
   if (videoPreviewTimer > 1) videoPreviewTimer = 0
 
   for (const userEntity of userQuery.enter()) {
@@ -284,5 +291,6 @@ const reactor = () => {
 export const AvatarUISystem = defineSystem({
   uuid: 'ee.client.AvatarUISystem',
   execute,
-  reactor
+  reactor,
+  subSystems: [AvatarUIStateSystem]
 })

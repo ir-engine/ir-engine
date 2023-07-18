@@ -48,6 +48,7 @@ import Client from './Client'
 import ClientTheme from './ClientTheme'
 import Coil from './Coil'
 import Email from './Email'
+import Helm from './Helm'
 import InstanceServer from './InstanceServer'
 import Project from './Project'
 import Redis from './Redis'
@@ -66,6 +67,12 @@ const settingItems = [
     title: 'Server',
     icon: <Iconify icon="carbon:bare-metal-server" color="orange" />,
     content: <Server />
+  },
+  {
+    name: 'helm',
+    title: 'Helm Charts',
+    icon: <Icon type="Poll" sx={{ color: 'orange' }} />,
+    content: <Helm />
   },
   {
     name: 'client',
@@ -105,7 +112,7 @@ const settingItems = [
   },
   {
     name: 'aws',
-    title: 'Aws',
+    title: 'AWS',
     icon: <Iconify icon="logos:aws" />,
     content: <Aws />
   },
@@ -168,20 +175,28 @@ const Setting = () => {
     rootRef?.current?.scrollIntoView()
   }, [menuVisible.value])
 
+  useEffect(() => {
+    const hash = window.location.hash.replace('#', '')
+    const settingsItemsNames = settingItems.map((item) => item.name)
+    if (settingsItemsNames.indexOf(hash) >= 0) selectedItem.set(hash)
+  }, [])
+
   return (
     <div ref={rootRef}>
       <div className={styles.invisible}>
-        <Button size="small" onClick={() => menuVisible.set(!menuVisible.value)} className={styles.menuBtn}>
-          <Icon type="Menu" />
-        </Button>
-        {menuVisible && (
+        {!menuVisible.value && (
+          <Button size="small" onClick={() => menuVisible.set(true)} className={styles.menuBtn}>
+            <Icon type="Menu" />
+          </Button>
+        )}
+        {menuVisible.value && (
           <div className={styles.hoverSettings}>
             <Grid display="flex" flexDirection="row" alignItems="center" marginBottom="10px">
               <Typography variant="h6" className={styles.settingsHeading}>
                 {t('admin:components.setting.settings')}
               </Typography>
               <IconButton
-                onClick={() => menuVisible.set(!menuVisible.value)}
+                onClick={() => menuVisible.set(false)}
                 style={{
                   color: 'orange',
                   fontSize: '3rem',
@@ -195,6 +210,7 @@ const Setting = () => {
             <Sidebar
               selected={selectedItem.value}
               onChange={(name) => {
+                window.location.hash = `#${name}`
                 selectedItem.set(name)
               }}
             />
@@ -209,6 +225,7 @@ const Setting = () => {
           <Sidebar
             selected={selectedItem.value}
             onChange={(name) => {
+              window.location.hash = `#${name}`
               selectedItem.set(name)
             }}
           />

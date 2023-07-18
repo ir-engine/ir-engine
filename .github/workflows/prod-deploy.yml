@@ -54,8 +54,8 @@ jobs:
           sudo rm -rf "$AGENT_TOOLSDIRECTORY"
       - name: move package.json
         run: mv package.json package.jsonmoved
-      - name: npm-install 'cli' and @aws-sdk/client-ecr(-public)
-        run: npm install cli @aws-sdk/client-ecr @aws-sdk/client-ecr-public
+      - name: npm-install 'cli', @aws-sdk/client-ecr(-public), and @kubernetes/client-node
+        run: npm install cli @aws-sdk/client-ecr @aws-sdk/client-ecr-public @kubernetes/client-node
       - name: restore package.json
         run: mv package.jsonmoved package.json
       - name: Expose GitHub Runtime

@@ -29,6 +29,7 @@ import Chargebee from './chargebee-setting/chargebee-setting'
 import ClientSetting from './client-setting/client-setting'
 import Coil from './coil-setting/coil-setting'
 import Email from './email-setting/email-setting'
+import Helm from './helm-setting/helm-setting'
 import InstanceServer from './instance-server-setting/instance-server-setting'
 import ProjectSetting from './project-setting/project-setting.service'
 import RedisSetting from './redis-setting/redis-setting'
@@ -46,5 +47,6 @@ export default [
   Coil,
   RedisSetting,
   TaskServer,
-  ProjectSetting
+  ProjectSetting,
+  Helm
 ]

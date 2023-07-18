@@ -30,17 +30,20 @@ import { getState } from '@etherealengine/hyperflux'
 
 import { AvatarControllerComponent } from '../../avatar/components/AvatarControllerComponent'
 import { switchCameraMode } from '../../avatar/functions/switchCameraMode'
+import { AvatarInputSettingsState } from '../../avatar/state/AvatarInputSettingsState'
+import { getThumbstickOrThumbpadAxes } from '../../avatar/systems/AvatarInputSystem'
 import { throttle } from '../../common/functions/FunctionHelpers'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import {
-  addComponent,
   ComponentType,
   defineQuery,
   getComponent,
-  getOptionalComponent
+  getOptionalComponent,
+  setComponent
 } from '../../ecs/functions/ComponentFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
+import { InputSourceComponent } from '../../input/components/InputSourceComponent'
 import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
 import { CameraSettings } from '../CameraState'
 import { FollowCameraComponent } from '../components/FollowCameraComponent'
@@ -52,7 +55,7 @@ export const setTargetCameraRotation = (entity: Entity, phi: number, theta: numb
     | ComponentType<typeof TargetCameraRotationComponent>
     | undefined
   if (!cameraRotationTransition) {
-    addComponent(entity, TargetCameraRotationComponent, {
+    setComponent(entity, TargetCameraRotationComponent, {
       phi: phi,
       phiVelocity: { value: 0 },
       theta: theta,
@@ -121,10 +124,10 @@ export const handleCameraZoom = (cameraEntity: Entity, value: number): void => {
   followComponent.zoomLevel = nextZoomLevel
 }
 
-const inputQuery = defineQuery([LocalInputTagComponent, AvatarControllerComponent])
+const avatarControllerQuery = defineQuery([LocalInputTagComponent, AvatarControllerComponent])
 
 const onKeyV = () => {
-  for (const entity of inputQuery()) {
+  for (const entity of avatarControllerQuery()) {
     const avatarController = getComponent(entity, AvatarControllerComponent)
     const cameraEntity = avatarController.cameraEntity
     const followComponent = getOptionalComponent(cameraEntity, FollowCameraComponent)
@@ -150,7 +153,7 @@ const onKeyV = () => {
 }
 
 const onKeyF = () => {
-  for (const entity of inputQuery()) {
+  for (const entity of avatarControllerQuery()) {
     const avatarController = getComponent(entity, AvatarControllerComponent)
     const cameraEntity = avatarController.cameraEntity
     const followComponent = getOptionalComponent(cameraEntity, FollowCameraComponent)
@@ -161,7 +164,7 @@ const onKeyF = () => {
 }
 
 const onKeyC = () => {
-  for (const entity of inputQuery()) {
+  for (const entity of avatarControllerQuery()) {
     const avatarController = getComponent(entity, AvatarControllerComponent)
     const cameraEntity = avatarController.cameraEntity
     const followComponent = getOptionalComponent(cameraEntity, FollowCameraComponent)
@@ -182,15 +185,24 @@ const execute = () => {
 
   const cameraSettings = getState(CameraSettings)
 
-  const keys = Engine.instance.buttons
+  const avatarControllerEntities = avatarControllerQuery()
+
+  const nonCapturedInputSource = InputSourceComponent.nonCapturedInputSourceQuery()[0]
+  if (!nonCapturedInputSource) return
+
+  const avatarInputSettings = getState(AvatarInputSettingsState)
+
+  const inputSource = getComponent(nonCapturedInputSource, InputSourceComponent)
+
+  const keys = inputSource.buttons
+
   if (keys.KeyV?.down) onKeyV()
   if (keys.KeyF?.down) onKeyF()
   if (keys.KeyC?.down) onKeyC()
 
-  const inputEntities = inputQuery()
   const mouseMoved = Engine.instance.pointerState.movement.lengthSq() > 0 && keys.PrimaryClick?.pressed
 
-  for (const entity of inputEntities) {
+  for (const entity of avatarControllerEntities) {
     const avatarController = getComponent(entity, AvatarControllerComponent)
     const cameraEntity = avatarController.cameraEntity
     const target =
@@ -200,6 +212,15 @@ const execute = () => {
 
     if (!lastMouseMoved && mouseMoved)
       lastLookDelta.set(Engine.instance.pointerState.position.x, Engine.instance.pointerState.position.y)
+
+    if (
+      (inputSource.source.gamepad?.mapping === 'standard' || inputSource.source.gamepad?.mapping === '') &&
+      inputSource.source.handedness === 'none'
+    ) {
+      const [x, z] = getThumbstickOrThumbpadAxes(inputSource.source, avatarInputSettings.preferredHand)
+      target.theta -= x * 2
+      target.phi += z * 2
+    }
 
     const keyDelta = (keys.ArrowLeft ? 1 : 0) + (keys.ArrowRight ? -1 : 0)
     target.theta += 100 * deltaSeconds * keyDelta

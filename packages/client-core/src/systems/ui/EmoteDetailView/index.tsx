@@ -36,6 +36,7 @@ import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 import XRIconButton from '../../components/XRIconButton'
 import styleString from './index.scss?inline'
 
+/** @deprecated */
 export function createEmoteDetailView() {
   return createXRUI(EmoteDetailView, createEmoteDetailState())
 }
@@ -43,7 +44,7 @@ export function createEmoteDetailView() {
 function createEmoteDetailState() {
   return createState({})
 }
-
+/** @deprecated */
 const EmoteDetailView = () => {
   const [page, setPage] = useState(0)
 

@@ -55,10 +55,10 @@ import { ServerState } from '@etherealengine/server-core/src/ServerState'
 import getLocalServerIp from '@etherealengine/server-core/src/util/get-local-server-ip'
 
 import { InstanceServerState } from './InstanceServerState'
-import { startMediaServerSystems, startWorldServerSystems } from './InstanceServerSystems'
 import { authorizeUserToJoinServer, setupSubdomain } from './NetworkFunctions'
 import { restartInstanceServer } from './restartInstanceServer'
 import { getServerNetwork, initializeNetwork } from './SocketWebRTCServerFunctions'
+import { startMediaServerSystems, startWorldServerSystems } from './startServerSystems'
 
 const logger = multiLogger.child({ component: 'instanceserver:channels' })
 
@@ -431,6 +431,9 @@ const shutdownServer = async (app: Application, instanceId: string) => {
   const instanceServer = getState(InstanceServerState)
   const serverState = getState(ServerState)
 
+  // already shut down
+  if (!instanceServer.instance) return
+
   logger.info('Deleting instance ' + instanceId)
   try {
     await app.service('instance').patch(instanceId, {
@@ -449,6 +452,9 @@ const shutdownServer = async (app: Application, instanceId: string) => {
       allocated: false
     })
   }
+
+  // already shut down
+  if (!instanceServer.instance) return
   ;(instanceServer.instance as Instance).ended = true
   if (config.kubernetes.enabled) {
     const instanceServerState = getMutableState(InstanceServerState)

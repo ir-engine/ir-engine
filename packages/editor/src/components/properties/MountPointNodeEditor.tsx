@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { getComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { useComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { MountPoint, MountPointComponent } from '@etherealengine/engine/src/scene/components/MountPointComponent'
 
 import InputGroup from '../inputs/InputGroup'
@@ -39,7 +39,7 @@ const MountPointTypes = [{ label: 'Seat', value: MountPoint.seat }]
 export const MountPointNodeEditor: React.FC<EditorPropType> = (props) => {
   const { t } = useTranslation()
 
-  const mountPointComponent = getComponent(props.entity, MountPointComponent)
+  const mountPointComponent = useComponent(props.entity, MountPointComponent)
 
   return (
     <NodeEditor
@@ -51,7 +51,7 @@ export const MountPointNodeEditor: React.FC<EditorPropType> = (props) => {
         <SelectInput
           key={props.entity}
           options={MountPointTypes}
-          value={mountPointComponent.type}
+          value={mountPointComponent.type.value}
           onChange={updateProperty(MountPointComponent, 'type')}
         />
       </InputGroup>

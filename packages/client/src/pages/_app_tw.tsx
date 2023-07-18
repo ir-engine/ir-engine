@@ -34,8 +34,6 @@ import {
 import { AdminCoilSettingService } from '@etherealengine/client-core/src/admin/services/Setting/CoilSettingService'
 import { API } from '@etherealengine/client-core/src/API'
 import { initGA, logPageView } from '@etherealengine/client-core/src/common/analytics'
-import MetaTags from '@etherealengine/client-core/src/common/components/MetaTags'
-// import { defaultAction } from '@etherealengine/client-core/src/common/components/NotificationActions'
 import {
   NotificationAction,
   NotificationActions
@@ -50,8 +48,14 @@ import { addActionReceptor, getMutableState, removeActionReceptor, useHookstate 
 import { loadWebappInjection } from '@etherealengine/projects/loadWebappInjection'
 
 import EngineTW from '../engine_tw'
-import CaptureComp from '../route/capture'
+import PublicRouter from '../route/public_tw'
 import { ThemeContextProvider } from '../themes/themeContext'
+
+import 'tailwindcss/tailwind.css'
+import '../themes/base.css'
+import '../themes/components.css'
+import '../themes/utilities.css'
+import 'daisyui/dist/full.css'
 
 const AppPage = () => {
   const notistackRef = useRef<SnackbarProvider>()
@@ -125,9 +129,7 @@ const AppPage = () => {
 
   return (
     <>
-      <div className="w-full h-full container mx-auto overflow-y-scroll pointer-events-auto">
-        <CaptureComp />
-      </div>
+      <PublicRouter />
       {projectComponents.map((Component, i) => (
         <Component key={i} />
       ))}

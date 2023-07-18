@@ -52,73 +52,52 @@ const PWA = (clientSetting) =>
       start_url:
         process.env.APP_ENV === 'development' || process.env.VITE_LOCAL_BUILD === 'true' ? '/' : process.env.APP_URL,
       scope: `./`,
-      id: `ETHEREAL_ENGINE`
+      id: `ETHEREAL_ENGINE`,
+      protocol_handlers: [
+        {
+          protocol: 'web+etherealengine',
+          url: '/?deeplink=%s'
+        }
+      ]
     },
+    useCredentials: true,
     // Use generateSW when building
-    strategies: process.env.GEN_SW === 'true' ? 'generateSW' : 'injectManifest',
+    strategies: 'generateSW',
     // Set mode to development or production depending on environment variable
     mode: process.env.APP_ENV === 'development' ? 'development' : 'production',
     injectRegister: null,
     includeManifestIcons: true,
     devOptions: {
-      disableRuntimeConfig: false,
       // Enable dev options only during development
-      enabled: process.env.APP_ENV === 'development',
+      enabled: process.env.APP_ENV === 'development' ? true : false,
       // Navigate to index.html for all 404 errors during development
-      navigateFallback: '/index.html',
+      navigateFallback: undefined,
       // Allowlist all paths for navigateFallback during development
       navigateFallbackAllowlist: [
-        // allow all files for local vite dev server
-        /^\/.*/,
-        // allow node_modules/.vite cache
-        /^\/node_modules\/\.vite\/.*/,
-        // @vite/client
-        /^\/@vite\/client\/.*/,
-        // src/main.tsx
-        /^\/src\/main\.tsx/,
-        // @vite-plugin-pwa
-        /^\/@vite-plugin-pwa\/.*/
+        // allow everything
+        new RegExp('^/.*$'),
+        // allow @fs
+        new RegExp('^/@fs/.*$')
       ]
     },
     workbox: {
+      // don't wait for service worker to become active
+      skipWaiting: true,
+      // claim clients immediately
+      clientsClaim: true,
+      // show source maps
       sourcemap: true,
       // Set the path for the service worker file
-      swDest: process.env.GEN_SW === 'true' ? 'public/service-worker.js' : 'src/service-worker.js',
+      swDest: process.env.APP_ENV === 'development' ? 'public/service-worker.js' : 'dist/service-worker.js',
       // Navigate to index.html for all 404 errors during production
-      navigateFallback: '/index.html',
+      navigateFallback: null,
       // Allowlist all paths for navigateFallback during production
       navigateFallbackAllowlist: [
-        // manifest route
-        // /^\/manifest\.json/,
-        // service worker route
-        /^\/service-worker\.js/,
-        // allow access to loder_decoder directory
-        /^\/loader_decoder\/.*/,
-        // allow jsdelivr cdn
-        /^https:\/\/cdn.jsdelivr.net\/.*/,
-        // location route
-        /^\/location?.*/,
-        // editor route
-        /^\/editor?.*/,
-        // sutdio route
-        /^\/studio?.*/,
-        // admin route
-        /^\/admin?.*/,
-        // auth route
-        /^\/auth?.*/,
-        // api route
-        /^\/api-?.*/,
-        // resources route
-        /^\/resources-?.*/,
-        // instanceserver route
-        /^\/instanceserver-?.*/,
-        // assets route
-        /^\/assets\/.*/,
-        // allow all files for production build
-        /^\/.*/
+        // allow everything
+        new RegExp('^/.*$')
       ],
       // Set the glob directory and patterns for the cache
-      globDirectory: './public',
+      globDirectory: process.env.APP_ENV === 'development' ? './public' : './dist',
       globPatterns: [
         // fonts
         '**/*.{woff2,woff,ttf,eot}',
@@ -127,7 +106,7 @@ const PWA = (clientSetting) =>
         // media
         '**/*.{mp3,mp4,webm}',
         // code
-        '**/*.{js, css, html}',
+        '**/*.{js, css}',
         // docs
         '**/*.{txt,xml,json,pdf}',
         // 3d objects
@@ -141,45 +120,37 @@ const PWA = (clientSetting) =>
       ],
       // Set additional manifest entries for the cache
       additionalManifestEntries: [
-        { url: '/index.html', revision: null },
-        { url: '/service-worker.js', revision: null }
+        // { url: '/service-worker.js', revision: null },
+        // { url: '/dev-sw', revision: null },
+        // { url: '/src/main', revision: null }
       ],
       // Enable cleanup of outdated caches
       cleanupOutdatedCaches: true,
       // Set maximum cache size to 10 MB
       maximumFileSizeToCacheInBytes: 1000 * 1000 * 10,
       runtimeCaching: [
-        // Cache all requests on the resources- subdomain for this domain
+        // Cache local assets
         {
-          urlPattern: /^https?:\/\/resources-*\/.*/i,
-          handler: 'NetworkFirst',
+          urlPattern: ({ url }) => {
+            return /\/assets?.*/i.test(url.href)
+          },
+          handler: 'CacheFirst',
           options: {
-            cacheName: 'resources',
+            cacheName: 'build-assets-cache',
             expiration: {
-              maxEntries: 1000,
-              maxAgeSeconds: 24 * 60 * 60 // <== 24 hours
+              maxEntries: 100,
+              maxAgeSeconds: 24 * 60 * 60 * 30 // <== 30 days
             },
             cacheableResponse: {
               statuses: [0, 200]
             }
           }
         },
+        // Cache local fonts
         {
-          urlPattern: /^https?.*/i,
-          handler: 'NetworkFirst',
-          options: {
-            cacheName: 'all-content-cache',
-            expiration: {
-              maxEntries: 1000,
-              maxAgeSeconds: 24 * 60 * 60 // <== 24 hours
-            },
-            cacheableResponse: {
-              statuses: [0, 200]
-            }
-          }
-        },
-        {
-          urlPattern: /^\/fonts?.*/i,
+          urlPattern: ({ url }) => {
+            return /\/fonts?.*/i.test(url.href)
+          },
           handler: 'CacheFirst',
           options: {
             cacheName: 'fonts-assets-cache',
@@ -192,8 +163,11 @@ const PWA = (clientSetting) =>
             }
           }
         },
+        // Cache local icons
         {
-          urlPattern: /^\/icons?.*/,
+          urlPattern: ({ url }) => {
+            return /\/icons?.*/.test(url.href)
+          },
           handler: 'CacheFirst',
           options: {
             cacheName: 'icons-assets-cache',
@@ -206,8 +180,11 @@ const PWA = (clientSetting) =>
             }
           }
         },
+        // Cache local static assets
         {
-          urlPattern: /^\/static?.*/i,
+          urlPattern: ({ url }) => {
+            return /\/static?.*/i.test(url.href)
+          },
           handler: 'CacheFirst',
           options: {
             cacheName: 'static-assets-cache',
@@ -218,6 +195,51 @@ const PWA = (clientSetting) =>
             cacheableResponse: {
               statuses: [0, 200]
             }
+          }
+        },
+        // Cache google font requests
+        {
+          urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
+          handler: 'CacheFirst',
+          options: {
+            cacheName: 'google-fonts-cache',
+            expiration: {
+              maxEntries: 10,
+              maxAgeSeconds: 60 * 60 * 24 * 365 // <== 365 days
+            },
+            cacheableResponse: {
+              statuses: [0, 200]
+            }
+          }
+        },
+        {
+          urlPattern: /^https:\/\/fonts\.gstatic\.com\/.*/i,
+          handler: 'CacheFirst',
+          options: {
+            cacheName: 'gstatic-fonts-cache',
+            expiration: {
+              maxEntries: 10,
+              maxAgeSeconds: 60 * 60 * 24 * 365 // <== 365 days
+            },
+            cacheableResponse: {
+              statuses: [0, 200]
+            }
+          }
+        },
+        // Cache all requests
+        {
+          urlPattern: /^https?:\/\/.*\..*/i,
+          handler: 'NetworkFirst',
+          options: {
+            cacheName: 'all-content-cache',
+            expiration: {
+              maxEntries: 1000,
+              maxAgeSeconds: 24 * 60 * 60 // <== 24 hours
+            },
+            cacheableResponse: {
+              statuses: [0, 200]
+            },
+            networkTimeoutSeconds: 10
           }
         }
       ]

@@ -168,30 +168,26 @@ export const uploadLocalProjectToProvider = async (
   // upload new files to storage provider
   const projectPath = path.resolve(projectsRootFolder, projectName)
   const files = getFilesRecursive(projectPath)
-  const results = await Promise.all(
-    files
-      .filter((file) => !file.includes(`projects/${projectName}/.git/`))
-      .map((file: string) => {
-        return new Promise(async (resolve) => {
-          try {
-            const fileResult = await uploadSceneToStaticResources(app, projectName, file, storageProviderName)
-            const filePathRelative = processFileName(file.slice(projectPath.length))
-            await storageProvider.putObject(
-              {
-                Body: fileResult,
-                ContentType: getContentType(file),
-                Key: `projects/${projectName}${filePathRelative}`
-              },
-              { isDirectory: false }
-            )
-            resolve(getCachedURL(`projects/${projectName}${filePathRelative}`, cacheDomain))
-          } catch (e) {
-            logger.error(e)
-            resolve(null)
-          }
-        })
-      })
-  )
+  const filtered = files.filter((file) => !file.includes(`projects/${projectName}/.git/`))
+  const results = [] as (string | null)[]
+  for (let file of filtered) {
+    try {
+      const fileResult = await uploadSceneToStaticResources(app, projectName, file, storageProviderName)
+      const filePathRelative = processFileName(file.slice(projectPath.length))
+      await storageProvider.putObject(
+        {
+          Body: fileResult,
+          ContentType: getContentType(file),
+          Key: `projects/${projectName}${filePathRelative}`
+        },
+        { isDirectory: false }
+      )
+      results.push(getCachedURL(`projects/${projectName}${filePathRelative}`, cacheDomain))
+    } catch (e) {
+      logger.error(e)
+      results.push(null)
+    }
+  }
   logger.info(`uploadLocalProjectToProvider for project "${projectName}" ended at "${new Date()}".`)
   return results.filter((success) => !!success) as string[]
 }

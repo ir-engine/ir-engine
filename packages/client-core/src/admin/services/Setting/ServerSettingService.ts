@@ -26,6 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { Paginated } from '@feathersjs/feathers'
 
 import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import {
   ServerSettingPatch,
   serverSettingPath,
@@ -33,7 +34,6 @@ import {
 } from '@etherealengine/engine/src/schemas/setting/server-setting.schema'
 import { defineAction, defineState, dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 
-import { API } from '../../../API'
 import { NotificationService } from '../../../common/services/NotificationService'
 
 export const AdminServerSettingsState = defineState({
@@ -62,7 +62,7 @@ export const ServerSettingReceptors = {
 export const ServerSettingService = {
   fetchServerSettings: async (inDec?: 'increment' | 'decrement') => {
     try {
-      const serverSettings = (await API.instance.client
+      const serverSettings = (await Engine.instance.api
         .service(serverSettingPath)
         .find()) as Paginated<ServerSettingType>
       dispatchAction(AdminServerSettingActions.fetchedSeverInfo({ serverSettings }))
@@ -72,7 +72,7 @@ export const ServerSettingService = {
   },
   patchServerSetting: async (data: ServerSettingPatch, id: string) => {
     try {
-      await API.instance.client.service(serverSettingPath).patch(id, data)
+      await Engine.instance.api.service(serverSettingPath).patch(id, data)
       dispatchAction(AdminServerSettingActions.serverSettingPatched({}))
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })

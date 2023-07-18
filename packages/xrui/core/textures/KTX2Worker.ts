@@ -75,10 +75,10 @@ async function encodeKTX2BasisTexture(data: KTX2EncodeRequestData): Promise<Arra
     if (data.options.uastc) {
       basisEncoder.setKTX2UASTCSupercompression(data.options.uastcZstandard ?? false)
       basisEncoder.setPackUASTCFlags(data.options.uastcFlags ?? 2)
-    } else {
-      basisEncoder.setQualityLevel(data.options.qualityLevel ?? 128)
-      basisEncoder.setCompressionLevel(data.options.compressionLevel ?? 2)
     }
+
+    basisEncoder.setQualityLevel(data.options.qualityLevel ?? 128)
+    basisEncoder.setCompressionLevel(data.options.compressionLevel ?? 2)
 
     if (data.options.srgb) {
       basisEncoder.setPerceptual(true)

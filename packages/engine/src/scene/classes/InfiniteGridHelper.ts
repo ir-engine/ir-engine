@@ -23,40 +23,60 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Color, DoubleSide, Mesh, Plane, PlaneGeometry, ShaderMaterial, Vector3 } from 'three'
+import {
+  BufferAttribute,
+  BufferGeometry,
+  Color,
+  DoubleSide,
+  LineBasicMaterial,
+  LineSegments,
+  Mesh,
+  NormalBlending,
+  Plane,
+  PlaneGeometry,
+  ShaderMaterial,
+  Vector3
+} from 'three'
 
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
 import { setObjectLayers } from '../../scene/functions/setObjectLayers'
+import LogarithmicDepthBufferMaterialChunk from '../functions/LogarithmicDepthBufferMaterialChunk'
 
 /**
  * Original Author: Fyrestar
  * https://discourse.threejs.org/t/three-infinitegridhelper-anti-aliased/8377
  */
-const vertexShader = `
+const vertexShaderGrid = `
 varying vec3 worldPosition;
       
 uniform float uDistance;
+#include <logdepthbuf_pars_vertex>
+${LogarithmicDepthBufferMaterialChunk}
 
 void main() {
 
-      vec3 pos = position.xzy * uDistance;
-      pos.xz += cameraPosition.xz;
+  vec3 pos = position.xzy * uDistance;
+  pos.xz += cameraPosition.xz;
+  // this is necessary to avoid z fighting
+  pos.y -= 0.025; // Rahul: noticed -0.025 is ideal to prevent default z fighting 
 
-      worldPosition = pos;
+  worldPosition = pos;
 
-      gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);
+  gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);
 
-      // this is necessary to avoid z fighting
-      gl_Position.z -= 0.01;
+  #include <logdepthbuf_vertex>
 }
 `
-const fragmentShader = `
+
+const fragmentShaderGrid = `
 varying vec3 worldPosition;
 
 uniform float uSize1;
 uniform float uSize2;
 uniform vec3 uColor;
 uniform float uDistance;
+
+#include <logdepthbuf_pars_fragment>
 
 float getGrid(float size) {
     vec2 r = worldPosition.xz / size;
@@ -65,16 +85,36 @@ float getGrid(float size) {
     return 1.0 - min(line, 1.0);
 }
 
+float getXAxisLine() {
+  float lineWidth = 0.02; // Adjust line width if needed
+  float xLine = smoothstep(-lineWidth, lineWidth, abs(worldPosition.x));
+  return 1.0 - xLine;
+}
+
+float getZAxisLine() {
+  float lineWidth = 0.02; // Adjust line width if needed
+  float zLine = smoothstep(-lineWidth, lineWidth, abs(worldPosition.z));
+  return 1.0 - zLine;
+}
+
 void main() {
+  #include <logdepthbuf_fragment>
 
   float d = 1.0 - min(distance(cameraPosition.xz, worldPosition.xz) / uDistance, 1.0);
 
   float g1 = getGrid(uSize1);
   float g2 = getGrid(uSize2);
+  float xAxisLine = getXAxisLine();
+  float zAxisLine = getZAxisLine();
+  vec3 xAxisColor = vec3(1.0, 0.0, 0.0);
+  vec3 zAxisColor = vec3(0.0, 0.0, 1.0);
 
-
-  gl_FragColor = vec4(uColor.rgb, mix(g2, g1, g1) * pow(d, 3.0));
-  gl_FragColor.a = mix(0.5 * gl_FragColor.a, gl_FragColor.a, g2);
+  if (xAxisLine > 0.0 || zAxisLine > 0.0) {
+    discard;
+  } else {
+    gl_FragColor = vec4(uColor.rgb, mix(g2, g1, g1) * pow(d, 3.0));
+    gl_FragColor.a = mix(0.5 * gl_FragColor.a, gl_FragColor.a, g2);
+}
 
   if ( gl_FragColor.a <= 0.0 ) discard;
 }
@@ -88,11 +128,7 @@ export default class InfiniteGridHelper extends Mesh {
   intersectionPointWorld: Vector3
   intersection: any
 
-  constructor(size1?, size2?, color?, distance?) {
-    color = color || new Color('white')
-    size1 = size1 || 1
-    size2 = size2 || 10
-    distance = distance || 8000
+  constructor(size1 = 1, size2 = 10, color = new Color('white'), distance = 8000) {
     const geometry = new PlaneGeometry(2, 2, 1, 1)
     const material = new ShaderMaterial({
       side: DoubleSide,
@@ -111,14 +147,36 @@ export default class InfiniteGridHelper extends Mesh {
         }
       },
       transparent: true,
-      vertexShader,
-      fragmentShader,
+      vertexShader: vertexShaderGrid,
+      fragmentShader: fragmentShaderGrid,
       extensions: {
         derivatives: true
       }
     })
 
     super(geometry, material)
+
+    const lineColors = ['red', 'green', 'blue']
+    for (let i = 0; i < lineColors.length; i++) {
+      const lineGeometry = new BufferGeometry()
+      const floatArray = [0, 0, 0, 0, 0, 0]
+      floatArray[i] = -distance
+      floatArray[i + 3] = distance
+      const linePositions = new Float32Array(floatArray)
+      lineGeometry.setAttribute('position', new BufferAttribute(linePositions, 3))
+      const lineMaterial = new LineBasicMaterial({
+        side: DoubleSide,
+        color: lineColors[i],
+        transparent: true,
+        opacity: 0.3,
+        blending: NormalBlending,
+        depthTest: true,
+        depthWrite: true
+      })
+      //super(lineGeometry, lineMaterial)
+      const line = new LineSegments(lineGeometry, lineMaterial)
+      super.add(line)
+    }
 
     this.name = 'InfiniteGridHelper'
     setObjectLayers(this, ObjectLayers.Gizmos)
@@ -159,5 +217,6 @@ export default class InfiniteGridHelper extends Mesh {
 
   setGridHeight(value) {
     this.position.y = value
+    this.updateMatrixWorld(true)
   }
 }

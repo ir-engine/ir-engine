@@ -35,6 +35,8 @@ import Text from '@etherealengine/client-core/src/common/components/Text'
 import { AuthService, AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
 import { defaultThemeModes, defaultThemeSettings } from '@etherealengine/common/src/constants/DefaultThemeSettings'
 import capitalizeFirstLetter from '@etherealengine/common/src/utils/capitalizeFirstLetter'
+import InputGroup from '@etherealengine/editor/src/components/inputs/InputGroup'
+import SelectInput from '@etherealengine/editor/src/components/inputs/SelectInput'
 import { AudioSettingAction, AudioState } from '@etherealengine/engine/src/audio/AudioState'
 import {
   AvatarAxesControlScheme,
@@ -57,6 +59,29 @@ import { userHasAccess } from '../../../userHasAccess'
 import { UserMenus } from '../../../UserUISystem'
 import styles from '../index.module.scss'
 import { PopupMenuServices } from '../PopupMenuService'
+
+export const ShadowMapResolutionOptions = [
+  {
+    label: '256px',
+    value: 256
+  },
+  {
+    label: '512px',
+    value: 512
+  },
+  {
+    label: '1024px',
+    value: 1024
+  },
+  {
+    label: '2048px',
+    value: 2048
+  },
+  {
+    label: '4096px (not recommended)',
+    value: 4096
+  }
+]
 
 const chromeDesktop = !isMobile && /chrome/i.test(navigator.userAgent)
 
@@ -91,29 +116,20 @@ const SettingMenu = ({ isPopover }: Props): JSX.Element => {
     selfUser?.id?.value?.length > 0 && selfUser?.scopes?.value?.find((scope) => scope.type === 'admin:admin')
   const hasEditorAccess = userHasAccess('editor:write')
   const themeSettings = { ...defaultThemeSettings, ...clientSetting.themeSettings }
-  const themeModes = { ...defaultThemeModes, ...userSettings?.themeModes }
-
-  // This is done as a fix because previously studio was called editor
-  if (themeModes['editor']) {
-    if (!themeModes['studio']) {
-      themeModes['studio'] = themeModes['editor']
-    }
-
-    delete themeModes['editor']
+  const themeModes = {
+    client: userSettings?.themeModes?.client ?? defaultThemeModes.client,
+    studio: userSettings?.themeModes?.studio ?? defaultThemeModes.studio,
+    admin: userSettings?.themeModes?.admin ?? defaultThemeModes.admin
   }
 
   const showWorldSettings = Engine.instance.localClientEntity || engineState.value
 
-  /**
-   * Note: If you're editing this function, be sure to make the same changes to
-   * the XRUI version over at packages/client-core/src/systems/ui/ProfileDetailView/index.tsx
-   * @param event
-   */
   const handleChangeUserThemeMode = (event) => {
+    if (!userSettings) return
     const { name, value } = event.target
 
-    const settings = { ...userSettings, themeModes: { ...themeModes, [name]: value } }
-    userSettings && AuthService.updateUserSettings(userSettings.id as string, settings)
+    const settings = { themeModes: { ...themeModes, [name]: value } }
+    AuthService.updateUserSettings(userSettings.id as string, settings)
   }
 
   const handleChangeInvertRotationAndMoveSticks = () => {
@@ -466,6 +482,17 @@ const SettingMenu = ({ isPopover }: Props): JSX.Element => {
               sx={{ mt: 4 }}
               onChange={handleQualityLevelChange}
             />
+
+            <InputGroup
+              name="Shadow Map Resolution"
+              label={t('editor:properties.directionalLight.lbl-shadowmapResolution')}
+            >
+              <SelectInput
+                options={ShadowMapResolutionOptions}
+                value={rendererState.shadowMapResolution.value}
+                onChange={(resolution: number) => rendererState.shadowMapResolution.set(resolution)}
+              />
+            </InputGroup>
 
             <Grid container spacing={{ xs: 0, sm: 2 }}>
               <Grid item xs={12} sm={4}>

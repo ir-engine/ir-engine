@@ -24,11 +24,13 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import classNames from 'classnames'
+import dayjs, { Dayjs } from 'dayjs'
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import InputSelect, { InputMenuItem } from '@etherealengine/client-core/src/common/components/InputSelect'
 import InputText from '@etherealengine/client-core/src/common/components/InputText'
+import { EMAIL_REGEX, PHONE_REGEX } from '@etherealengine/common/src/constants/IdConstants'
 import { InviteInterface } from '@etherealengine/common/src/interfaces/Invite'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import Button from '@etherealengine/ui/src/primitives/mui/Button'
@@ -43,12 +45,11 @@ import Tab from '@etherealengine/ui/src/primitives/mui/Tab'
 import Tabs from '@etherealengine/ui/src/primitives/mui/Tabs'
 import TextField from '@etherealengine/ui/src/primitives/mui/TextField'
 
-import { AdapterMoment } from '@mui/x-date-pickers/AdapterMoment'
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker'
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
 
 import { NotificationService } from '../../../common/services/NotificationService'
-import { emailRegex, InviteService, phoneRegex } from '../../../social/services/InviteService'
 import DrawerView from '../../common/DrawerView'
 import { AdminInstanceService, AdminInstanceState } from '../../services/InstanceService'
 import { AdminInviteService } from '../../services/InviteService'
@@ -84,8 +85,8 @@ const UpdateInviteModal = ({ open, onClose, invite }: Props) => {
   const setSpawn = useHookstate(false)
   const spawnTypeTab = useHookstate(0)
   const timed = useHookstate(false)
-  const startTime = useHookstate<Date | null | undefined>(null)
-  const endTime = useHookstate<Date | null | undefined>(null)
+  const startTime = useHookstate<Dayjs>(dayjs(null))
+  const endTime = useHookstate<Dayjs>(dayjs(null))
   const { t } = useTranslation()
   const adminLocationState = useHookstate(getMutableState(AdminLocationState))
   const adminInstanceState = useHookstate(getMutableState(AdminInstanceState))
@@ -101,7 +102,7 @@ const UpdateInviteModal = ({ open, onClose, invite }: Props) => {
     : []
 
   useEffect(() => {
-    console.log('invite changed', invite)
+    console.log('DEBUG : invite changed', invite)
     AdminLocationService.fetchAdminLocations()
     AdminInstanceService.fetchAdminInstances()
     AdminUserService.setSkipGuests(true)
@@ -152,8 +153,8 @@ const UpdateInviteModal = ({ open, onClose, invite }: Props) => {
     }
     if (invite.timed || invite.timed === 1) {
       timed.set(true)
-      startTime.set(invite.startTime)
-      endTime.set(invite.endTime)
+      startTime.set(dayjs(invite.startTime))
+      endTime.set(dayjs(invite.endTime))
     }
   }, [invite])
 
@@ -234,8 +235,8 @@ const UpdateInviteModal = ({ open, onClose, invite }: Props) => {
     const target = textValue.value
     try {
       const inviteType = INVITE_TYPE_TAB_MAP[inviteTypeTab.value]
-      const isPhone = phoneRegex.test(target)
-      const isEmail = emailRegex.test(target)
+      const isPhone = PHONE_REGEX.test(target)
+      const isEmail = EMAIL_REGEX.test(target)
       const sendData = {
         id: invite.id,
         inviteType: inviteType,
@@ -262,8 +263,8 @@ const UpdateInviteModal = ({ open, onClose, invite }: Props) => {
       }
       sendData.timed = timed.value && (startTime.value != null || endTime.value != null)
       if (sendData.timed) {
-        sendData.startTime = startTime.value
-        sendData.endTime = endTime.value
+        sendData.startTime = startTime.value?.toDate()
+        sendData.endTime = endTime.value?.toDate()
       }
       await AdminInviteService.updateInvite(invite.id, sendData)
       instanceId.set('')
@@ -277,8 +278,8 @@ const UpdateInviteModal = ({ open, onClose, invite }: Props) => {
       spawnTypeTab.set(0)
       inviteTypeTab.set(0)
       timed.set(false)
-      startTime.set(null)
-      endTime.set(null)
+      startTime.set(dayjs(null))
+      endTime.set(dayjs(null))
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
@@ -353,34 +354,28 @@ const UpdateInviteModal = ({ open, onClose, invite }: Props) => {
           />
           {timed.value && (
             <div className={styles.datePickerContainer}>
-              <LocalizationProvider dateAdapter={AdapterMoment}>
+              <LocalizationProvider dateAdapter={AdapterDayjs}>
                 <div className={styles.pickerControls}>
                   <DateTimePicker
                     label="Start Time"
                     value={startTime.value}
-                    onChange={(e) => startTime.set(e)}
-                    renderInput={(params) => <TextField className={styles.dateTimePickerDialog} {...params} />}
+                    onChange={(e) => startTime.set(dayjs(e))}
                   />
                   <IconButton
                     color="primary"
                     size="small"
                     className={styles.clearTime}
-                    onClick={() => startTime.set(null)}
+                    onClick={() => startTime.set(dayjs(null))}
                     icon={<Icon type="HighlightOff" />}
                   />
                 </div>
                 <div className={styles.pickerControls}>
-                  <DateTimePicker
-                    label="End Time"
-                    value={endTime.value}
-                    onChange={(e) => endTime.set(e)}
-                    renderInput={(params) => <TextField className={styles.dateTimePickerDialog} {...params} />}
-                  />
+                  <DateTimePicker label="End Time" value={endTime.value} onChange={(e) => endTime.set(dayjs(e))} />
                   <IconButton
                     color="primary"
                     size="small"
                     className={styles.clearTime}
-                    onClick={() => endTime.set(null)}
+                    onClick={() => endTime.set(dayjs(null))}
                     icon={<Icon type="HighlightOff" />}
                   />
                 </div>

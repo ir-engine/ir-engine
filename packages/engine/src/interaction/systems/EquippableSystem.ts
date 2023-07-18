@@ -45,6 +45,7 @@ import {
 } from '../../ecs/functions/ComponentFunctions'
 import { entityExists } from '../../ecs/functions/EntityFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
+import { InputSourceComponent } from '../../input/components/InputSourceComponent'
 import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
 import { Physics } from '../../physics/classes/Physics'
@@ -99,6 +100,7 @@ export function setEquippedObjectReceptor(action: ReturnType<typeof WorldNetwork
   }
 }
 
+/** @deprecated @todo - replace with reactor */
 export function transferAuthorityOfObjectReceptor(
   action: ReturnType<typeof WorldNetworkAction.transferAuthorityOfObject>
 ) {
@@ -216,8 +218,12 @@ const onKeyU = () => {
 
 const execute = () => {
   if (getState(EngineState).isEditor) return
-  const keys = Engine.instance.buttons
-  if (keys.KeyU?.down) onKeyU()
+
+  const nonCapturedInputSource = InputSourceComponent.nonCapturedInputSourceQuery()[0]
+  if (nonCapturedInputSource) {
+    const inputSource = getComponent(nonCapturedInputSource, InputSourceComponent)
+    if (inputSource.buttons.KeyU?.down) onKeyU()
+  }
 
   for (const action of interactedActionQueue()) {
     if (

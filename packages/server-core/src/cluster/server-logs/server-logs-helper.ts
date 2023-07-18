@@ -38,7 +38,7 @@ export const getServerLogs = async (podName: string, containerName: string, app:
   try {
     logger.info('Attempting to check k8s server logs')
 
-    if (podName.startsWith(`${config.server.releaseName}-`) === false) {
+    if (!podName.startsWith(`${config.server.releaseName}-`)) {
       logger.error('You can only request server logs for current deployment.')
       new BadRequest('You can only request server logs for current deployment.')
     }

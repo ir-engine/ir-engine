@@ -89,7 +89,7 @@ export const sendActionsAsHost = (network: Network) => {
   }
 
   // TODO: refactor this to support multiple connections of the same topic type
-  clearOutgoingActions(network.topic, Engine.instance.store)
+  clearOutgoingActions(network.topic)
 }
 
 export const sendOutgoingActions = () => {

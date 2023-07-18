@@ -44,10 +44,10 @@ import { FriendService, FriendState } from '../../../../social/services/FriendSe
 import { InviteService } from '../../../../social/services/InviteService'
 import { PartyState } from '../../../../social/services/PartyService'
 import { AvatarUIContextMenuState } from '../../../../systems/ui/UserMenuView'
+import { getUserAvatarThumbnail } from '../../../functions/useUserAvatarThumbnail'
 import { AuthState } from '../../../services/AuthService'
 import styles from '../index.module.scss'
 import { PopupMenuServices } from '../PopupMenuService'
-import { getAvatarURLForUser } from '../util'
 
 interface Props {
   onBack?: () => void
@@ -125,7 +125,7 @@ const AvatarContextMenu = ({ onBack }: Props): JSX.Element => {
     >
       {userId && (
         <Box className={styles.menuContent} display={'flex'} flexDirection={'column'}>
-          <Avatar imageSrc={getAvatarURLForUser(userAvatarDetails, userId)} size={150} sx={{ margin: '0 auto' }} />
+          <Avatar imageSrc={getUserAvatarThumbnail(userId)} size={150} sx={{ margin: '0 auto' }} />
 
           <Text variant="h6" align="center" mt={2} mb={1}>
             {userName}

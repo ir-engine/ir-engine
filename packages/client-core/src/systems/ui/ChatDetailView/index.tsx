@@ -34,10 +34,11 @@ import Avatar from '@etherealengine/ui/src/primitives/mui/Avatar'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 
 import { useChatHooks } from '../../../components/InstanceChat'
-import { getAvatarURLForUser } from '../../../user/components/UserMenu/util'
+import { getUserAvatarThumbnail } from '../../../user/functions/useUserAvatarThumbnail'
 import XRInput from '../../components/XRInput'
 import styleString from './index.scss?inline'
 
+/** @deprecated */
 export function createChatDetailView() {
   return createXRUI(ChatDetailView, createChatDetailState())
 }
@@ -45,7 +46,7 @@ export function createChatDetailView() {
 function createChatDetailState() {
   return createState({})
 }
-
+/** @deprecated */
 const ChatDetailView = () => {
   const [unreadMessages, setUnreadMessages] = useState(false)
 
@@ -101,16 +102,14 @@ const ChatDetailView = () => {
                           <p className="text">{message.text}</p>
                         </div>
                         {index !== 0 && messages[index - 1] && messages[index - 1].isNotification ? (
-                          <Avatar src={getAvatarURLForUser(userAvatarDetails, message.senderId)} className="avatar" />
+                          <Avatar src={getUserAvatarThumbnail(message.senderId)} className="avatar" />
                         ) : (
                           messages[index - 1] &&
                           message.senderId !== messages[index - 1].senderId && (
-                            <Avatar src={getAvatarURLForUser(userAvatarDetails, message.senderId)} className="avatar" />
+                            <Avatar src={getUserAvatarThumbnail(message.senderId)} className="avatar" />
                           )
                         )}
-                        {index === 0 && (
-                          <Avatar src={getAvatarURLForUser(userAvatarDetails, message.senderId)} className="avatar" />
-                        )}
+                        {index === 0 && <Avatar src={getUserAvatarThumbnail(message.senderId)} className="avatar" />}
                       </div>
                     </div>
                   </div>
