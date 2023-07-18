@@ -150,7 +150,7 @@ export const loadAvatarForUser = async (
 
 export const setupAvatarForUser = (entity: Entity, model: VRM) => {
   const avatar = getComponent(entity, AvatarComponent)
-  // if (avatar.model) removeObjectFromGroup(entity, avatar.model)
+  if (avatar.model) removeObjectFromGroup(entity, avatar.model)
 
   setupAvatarModel(entity)(model)
   addObjectToGroup(entity, model.scene)

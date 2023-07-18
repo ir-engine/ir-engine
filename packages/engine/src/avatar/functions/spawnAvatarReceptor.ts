@@ -110,13 +110,7 @@ export const spawnAvatarReceptor = (entityUUID: EntityUUID) => {
     animationSpeed: 1
   })
 
-  addComponent(entity, AvatarAnimationComponent, {
-    animationGraph: {
-      states: {},
-      transitionRules: {},
-      currentState: null!,
-      stateChanged: null!
-    },
+  setComponent(entity, AvatarAnimationComponent, {
     rootYRatio: 1,
     locomotion: new Vector3()
   })

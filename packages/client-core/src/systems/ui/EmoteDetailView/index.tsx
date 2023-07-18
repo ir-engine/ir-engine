@@ -26,7 +26,6 @@ Ethereal Engine. All Rights Reserved.
 import { createState } from '@hookstate/core'
 import React, { useEffect, useState } from 'react'
 
-import { changeAvatarAnimationState } from '@etherealengine/engine/src/avatar/animation/AvatarAnimationGraph'
 import { AvatarStates } from '@etherealengine/engine/src/avatar/animation/Util'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { createXRUI } from '@etherealengine/engine/src/xrui/functions/createXRUI'
@@ -60,61 +59,61 @@ const EmoteDetailView = () => {
     {
       body: <img src="/static/grinning.svg" alt="Dance 4" />,
       containerProps: {
-        onClick: () => runAnimation(AvatarStates.DANCE4)
+        //onClick: () => runAnimation(AvatarStates.DANCE4)
       }
     },
     {
       body: <img src="/static/sad.svg" alt="sad" />,
       containerProps: {
-        onClick: () => runAnimation(AvatarStates.CLAP)
+        //onClick: () => runAnimation(AvatarStates.CLAP)
       }
     },
     {
       body: <img src="/static/Kiss.svg" alt="Kiss" />,
       containerProps: {
-        onClick: () => runAnimation(AvatarStates.KISS)
+        //onClick: () => runAnimation(AvatarStates.KISS)
       }
     },
     {
       body: <img src="/static/Cry.svg" alt="Cry" />,
       containerProps: {
-        onClick: () => runAnimation(AvatarStates.CRY)
+        //onClick: () => runAnimation(AvatarStates.CRY)
       }
     },
     {
       body: <img src="/static/dance_new1.svg" alt="Dance 1" />,
       containerProps: {
-        onClick: () => runAnimation(AvatarStates.DANCE1)
+        //onClick: () => runAnimation(AvatarStates.DANCE1)
       }
     },
     {
       body: <img src="/static/clap1.svg" alt="Dance 2" />,
       containerProps: {
-        onClick: () => runAnimation(AvatarStates.DANCE2)
+        //onClick: () => runAnimation(AvatarStates.DANCE2)
       }
     },
     {
       body: <img src="/static/victory.svg" alt="Dance 3" />,
       containerProps: {
-        onClick: () => runAnimation(AvatarStates.DANCE3)
+        //onClick: () => runAnimation(AvatarStates.DANCE3)
       }
     },
     {
       body: <img src="/static/Laugh.svg" alt="Laugh" />,
       containerProps: {
-        onClick: () => runAnimation(AvatarStates.LAUGH)
+        //onClick: () => runAnimation(AvatarStates.LAUGH)
       }
     },
     {
       body: <img src="/static/Defeat.svg" alt="Defeat" />,
       containerProps: {
-        onClick: () => runAnimation(AvatarStates.DEFEAT)
+        //onClick: () => runAnimation(AvatarStates.DEFEAT)
       }
     },
     {
       body: <img src="/static/Wave.svg" alt="Wave" />,
       containerProps: {
-        onClick: () => runAnimation(AvatarStates.WAVE)
+        //onClick: () => runAnimation(AvatarStates.WAVE)
       }
     },
     {
@@ -139,11 +138,6 @@ const EmoteDetailView = () => {
     menuItemWidth = menuThickness - menuPadding
     menuItemRadius = menuItemWidth / 2
     effectiveRadius = menuRadius - menuItemRadius - menuPadding / 2
-  }
-
-  const runAnimation = (stateName: string) => {
-    const entity = Engine.instance.localClientEntity
-    changeAvatarAnimationState(entity, stateName)
   }
 
   const renderEmoteList = () => {

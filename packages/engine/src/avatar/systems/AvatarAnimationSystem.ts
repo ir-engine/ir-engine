@@ -177,7 +177,6 @@ const worldSpaceTargets = {
 const setVisualizers = () => {
   const { visualizers } = getMutableState(AvatarAnimationState)
   const { debugEnable } = getMutableState(RendererState)
-  console.log(debugEnable)
   if (!debugEnable.value) {
     //remove visualizers
     for (let i = 0; i < visualizers.length; i++) {
@@ -193,7 +192,6 @@ const setVisualizers = () => {
     setComponent(e, TransformComponent)
     visualizers[i].set(e)
   }
-  console.log(visualizers)
 }
 const interactionGroups = getInteractionGroups(CollisionGroups.Avatars, CollisionGroups.Default)
 const footRaycastArgs = {
@@ -648,7 +646,6 @@ const reactor = () => {
   const renderState = useHookstate(getMutableState(RendererState))
   useEffect(() => {
     setVisualizers()
-    console.log('set')
   }, [renderState.debugEnable])
   return null
 }

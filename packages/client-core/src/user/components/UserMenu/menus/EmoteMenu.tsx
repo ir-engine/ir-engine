@@ -26,7 +26,6 @@ Ethereal Engine. All Rights Reserved.
 import React, { useEffect, useState } from 'react'
 
 import { AudioEffectPlayer } from '@etherealengine/engine/src/audio/systems/MediaSystem'
-import { changeAvatarAnimationState } from '@etherealengine/engine/src/avatar/animation/AvatarAnimationGraph'
 import { AvatarStates } from '@etherealengine/engine/src/avatar/animation/Util'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import Button from '@etherealengine/ui/src/primitives/mui/Button'
@@ -147,7 +146,6 @@ export const useEmoteMenuHooks = () => {
 
   const runAnimation = (stateName: string) => {
     const entity = Engine.instance.localClientEntity
-    changeAvatarAnimationState(entity, stateName)
     // close Menu after playing animation
     PopupMenuServices.showPopupMenu()
   }

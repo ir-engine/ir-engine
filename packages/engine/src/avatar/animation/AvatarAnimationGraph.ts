@@ -39,11 +39,6 @@ import { AvatarAnimationComponent } from '../components/AvatarAnimationComponent
 import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
 import { changeState } from './AnimationGraph'
 
-export const changeAvatarAnimationState = (entity: Entity, newStateName: string): void => {
-  const avatarAnimationComponent = getComponent(entity, AvatarAnimationComponent)
-  changeState(avatarAnimationComponent.animationGraph, newStateName)
-}
-
 export const getAnimationAction = (name: string, mixer: AnimationMixer, animations?: AnimationClip[]) => {
   const manager = getState(AnimationManager)
   const clip = AnimationClip.findByName(animations ?? manager.targetsAnimation!, name)
