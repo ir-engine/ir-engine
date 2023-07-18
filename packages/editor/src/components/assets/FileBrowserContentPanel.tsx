@@ -189,6 +189,8 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
               setOpenCompress={openCompress.set}
               setOpenConvert={openConvert.set}
               dropItemsOnPanel={dropItemsOnPanel}
+              isFilesLoading={isLoading}
+              refreshDirectory={onRefreshDirectory}
             />
           ))}
 
@@ -401,8 +403,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
     await onRefreshDirectory()
   }
 
-  const currentContent = null! as { item: FileDataType; isCopy: boolean }
-  const currentContentRef = useRef(currentContent)
+  const currentContentRef = useRef(null! as { item: FileDataType; isCopy: boolean })
 
   const headGrid = {
     display: 'flex',
@@ -502,7 +503,9 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
 
       <ContextMenu open={open} anchorEl={anchorEl.value} anchorPosition={anchorPosition.value} onClose={handleClose}>
         <MenuItem onClick={createNewFolder}>{t('editor:layout.filebrowser.addNewFolder')}</MenuItem>
-        <MenuItem onClick={pasteContent}>{t('editor:layout.filebrowser.pasteAsset')}</MenuItem>
+        <MenuItem disabled={!currentContentRef.current} onClick={pasteContent}>
+          {t('editor:layout.filebrowser.pasteAsset')}
+        </MenuItem>
       </ContextMenu>
 
       {openConvert.value && fileProperties.value && (
