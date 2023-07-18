@@ -23,7 +23,32 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Location } from './Location'
+import { LocationAuthorizedUser } from './LocationAuthorizedUser'
+
+interface LocationSettings {
+  id: string
+  locationId: string
+  locationType: 'private' | 'public' | 'showroom'
+  audioEnabled: boolean
+  screenSharingEnabled: boolean
+  faceStreamingEnabled: boolean
+  videoEnabled: boolean
+}
+
+interface Location {
+  id: string
+  name: string
+  slugifiedName: string
+  maxUsersPerInstance: number
+  sceneId: string
+  locationSettingsId: string
+  locationSetting: LocationSettings
+  isLobby: boolean
+  isFeatured: boolean
+  location_settings?: LocationSettings
+  location_setting?: LocationSettings
+  location_authorized_users?: LocationAuthorizedUser[]
+}
 
 export interface Instance {
   id: string
@@ -51,7 +76,7 @@ export const InstanceSeed: Instance = {
     slugifiedName: '',
     maxUsersPerInstance: 10,
     sceneId: '',
-    locationSettingId: '',
+    locationSettingsId: '',
     locationSetting: {
       id: '',
       locationId: '',

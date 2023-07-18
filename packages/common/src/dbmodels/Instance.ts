@@ -23,8 +23,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { LocationInterface } from './Location'
-
 export interface InstanceInterface {
   id: string
   roomCode: string
@@ -37,4 +35,14 @@ export interface InstanceInterface {
   assignedAt: Date
   locationId?: string
   location?: LocationInterface
+}
+
+interface LocationInterface {
+  id: string
+  name: string
+  sceneId: string
+  slugifiedName: string
+  isLobby: boolean
+  isFeatured: boolean
+  maxUsersPerInstance: number
 }

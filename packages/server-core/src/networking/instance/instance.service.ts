@@ -25,8 +25,8 @@ Ethereal Engine. All Rights Reserved.
 
 import { Params } from '@feathersjs/feathers/lib'
 
-import { LocationInterface } from '@etherealengine/common/src/dbmodels/Location'
 import { Instance as InstanceInterface } from '@etherealengine/common/src/interfaces/Instance'
+import { LocationDatabaseType } from '@etherealengine/engine/src/schemas/social/location.schema'
 
 import { Application } from '../../../declarations'
 import authenticate from '../../hooks/authenticate'
@@ -65,7 +65,7 @@ export const getActiveInstancesForScene =
       where: {
         sceneId
       }
-    })) as LocationInterface[]
+    })) as LocationDatabaseType[]
 
     if (!locations) return []
 
