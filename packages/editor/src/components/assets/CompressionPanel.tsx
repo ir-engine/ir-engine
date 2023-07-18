@@ -23,35 +23,58 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { t } from 'i18next'
 import React from 'react'
 
 import { API } from '@etherealengine/client-core/src/API'
+import Button from '@etherealengine/client-core/src/common/components/Button'
+import Menu from '@etherealengine/client-core/src/common/components/Menu'
 import { uploadToFeathersService } from '@etherealengine/client-core/src/util/upload'
-import { KTX2EncodeArguments } from '@etherealengine/engine/src/assets/constants/CompressionParms'
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { State } from '@etherealengine/hyperflux'
+import {
+  KTX2EncodeArguments,
+  KTX2EncodeDefaultArguments
+} from '@etherealengine/engine/src/assets/constants/CompressionParms'
+import { State, useHookstate } from '@etherealengine/hyperflux'
+import CircularProgress from '@etherealengine/ui/src/primitives/mui/CircularProgress'
+import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 import { KTX2Encoder } from '@etherealengine/xrui/core/textures/KTX2Encoder'
 
-import { Button, Dialog, DialogTitle, Grid, Typography } from '@mui/material'
-
 import BooleanInput from '../inputs/BooleanInput'
-import Scrubber from '../inputs/Scrubber'
+import CompoundNumericInput from '../inputs/CompoundNumericInput'
+import InputGroup from '../inputs/InputGroup'
 import SelectInput from '../inputs/SelectInput'
 import { FileType } from './FileBrowserContentPanel'
 import styles from './styles.module.scss'
 
+const UASTCFlagOptions = [
+  { label: 'Fastest', value: 0 },
+  { label: 'Faster', value: 1 },
+  { label: 'Default', value: 2 },
+  { label: 'Slower', value: 3 },
+  { label: 'Very Slow', value: 4 },
+  { label: 'Mask', value: 0xf },
+  { label: 'UASTC Error', value: 8 },
+  { label: 'BC7 Error', value: 16 },
+  { label: 'Faster Hints', value: 64 },
+  { label: 'Fastest Hints', value: 128 },
+  { label: 'Disable Flip and Individual', value: 256 }
+]
+
 export default function CompressionPanel({
   openCompress,
   fileProperties,
-  compressProperties,
   onRefreshDirectory
 }: {
   openCompress: State<boolean>
   fileProperties: State<FileType>
-  compressProperties: State<KTX2EncodeArguments>
   onRefreshDirectory: () => Promise<void>
 }) {
+  const compressProperties = useHookstate<KTX2EncodeArguments>(KTX2EncodeDefaultArguments)
+  const compressionLoading = useHookstate(false)
+
   const compressContentInBrowser = async () => {
+    compressionLoading.set(true)
+
     const props = fileProperties.value
     compressProperties.src.set(props.type === 'folder' ? `${props.url}/${props.key}` : props.url)
     const ktx2Encoder = new KTX2Encoder()
@@ -75,9 +98,12 @@ export default function CompressionPanel({
       uastc: compressProperties.mode.value === 'UASTC',
       qualityLevel: compressProperties.quality.value,
       mipmaps: compressProperties.mipmaps.value,
-      compressionLevel: 2,
+      compressionLevel: compressProperties.compressionLevel.value,
       yFlip: compressProperties.flipY.value,
-      srgb: !compressProperties.linear.value
+      srgb: !compressProperties.srgb.value,
+      uastcFlags: compressProperties.uastcFlags.value,
+      normalMap: compressProperties.normalMap.value,
+      uastcZstandard: compressProperties.uastcZstandard.value
     })
 
     const newFileName = props.key.replace(/.*\/(.*)\..*/, '$1') + '.ktx2'
@@ -91,6 +117,8 @@ export default function CompressionPanel({
       contentType: file.type
     }).promise
     await onRefreshDirectory()
+
+    compressionLoading.set(false)
     openCompress.set(false)
   }
 
@@ -104,82 +132,123 @@ export default function CompressionPanel({
   }
 
   return (
-    <Dialog
+    <Menu
       open={openCompress.value}
       onClose={() => openCompress.set(false)}
-      aria-labelledby="alert-dialog-title"
-      aria-describedby="alert-dialog-description"
-      classes={{ paper: styles.paperDialog }}
+      showCloseButton={true}
+      header={fileProperties.value.name}
+      actions={
+        <>
+          {!compressionLoading.value ? (
+            <Button type="gradient" className={styles.horizontalCenter} onClick={compressContentInBrowser}>
+              {t('editor:properties.model.transform.compress') as string}
+            </Button>
+          ) : (
+            <CircularProgress style={{ margin: '1rem auto' }} className={styles.horizontalCenter} />
+          )}
+        </>
+      }
     >
-      <DialogTitle style={{ padding: '0', textTransform: 'capitalize' }} id="alert-dialog-title">
-        {fileProperties.value?.name}
-      </DialogTitle>
-      <Typography>{fileProperties.value?.isFolder ? 'Directory' : 'File'}</Typography>
-      <Grid container spacing={3} style={{ width: '100%', margin: '2 rem' }}>
-        <Grid item xs={12} style={{ paddingLeft: '10px', paddingTop: '10px', width: '100%', textAlign: 'center' }}>
-          <Typography className={styles.primatyText}>Compress</Typography>
-        </Grid>
-        <Grid item xs={4}>
-          <Typography className={styles.secondaryText}>Mode:</Typography>
-        </Grid>
-        <Grid item xs={8}>
-          <SelectInput
-            options={[
-              { label: 'ETC1S', value: 'ETC1S' },
-              { label: 'UASTC', value: 'UASTC' }
-            ]}
-            value={compressProperties.mode.value}
-            onChange={(val: 'ETC1S' | 'UASTC') => compressProperties.mode.set(val)}
-          />
-        </Grid>
-
-        <Grid item xs={4}>
-          <Typography className={styles.secondaryText}>Flip Y:</Typography>
-        </Grid>
-        <Grid item xs={8}>
-          <BooleanInput value={compressProperties.flipY.value} onChange={compressProperties.flipY.set} />
-        </Grid>
-
-        <Grid item xs={4}>
-          <Typography className={styles.secondaryText}>Linear Color Space:</Typography>
-        </Grid>
-        <Grid item xs={8}>
-          <BooleanInput value={compressProperties.linear.value} onChange={compressProperties.linear.set} />
-        </Grid>
-
-        <Grid item xs={4}>
-          <Typography className={styles.secondaryText}>Quality:</Typography>
-        </Grid>
-        <Grid item xs={8}>
-          <Scrubber
-            tag="div"
-            value={compressProperties.quality.value}
-            onChange={(val) => compressProperties.quality.set(val)}
-            min={1}
-            max={255}
-            smallStep={1}
-            mediumStep={1}
-            largeStep={5}
-            style={{ display: 'flex', alignItems: 'center', width: '100%' }}
+      <InputGroup name="fileType" label={fileProperties.value?.isFolder ? 'Directory' : 'File'}>
+        <Typography variant="body2">{t('editor:properties.model.transform.compress') as string}</Typography>
+      </InputGroup>
+      <InputGroup
+        name="mode"
+        label={t('editor:properties.model.transform.mode')}
+        info={t('editor:properties.model.transform.modeTooltip')}
+      >
+        <SelectInput
+          options={[
+            { label: 'ETC1S', value: 'ETC1S' },
+            { label: 'UASTC', value: 'UASTC' }
+          ]}
+          value={compressProperties.mode.value}
+          onChange={(val: 'ETC1S' | 'UASTC') => compressProperties.mode.set(val)}
+        />
+      </InputGroup>
+      <InputGroup
+        name="flipY"
+        label={t('editor:properties.model.transform.flipY')}
+        info={t('editor:properties.model.transform.flipYTooltip')}
+      >
+        <BooleanInput value={compressProperties.flipY.value} onChange={compressProperties.flipY.set} />
+      </InputGroup>
+      <InputGroup
+        name="linear"
+        label={t('editor:properties.model.transform.srgb')}
+        info={t('editor:properties.model.transform.srgbTooltip')}
+      >
+        <BooleanInput value={compressProperties.srgb.value} onChange={compressProperties.srgb.set} />
+      </InputGroup>
+      <InputGroup
+        name="mipmaps"
+        label={t('editor:properties.model.transform.mipmaps')}
+        info={t('editor:properties.model.transform.mipmapsTooltip')}
+      >
+        <BooleanInput value={compressProperties.mipmaps.value} onChange={compressProperties.mipmaps.set} />
+      </InputGroup>
+      <InputGroup
+        name="normalMap"
+        label={t('editor:properties.model.transform.normalMap')}
+        info={t('editor:properties.model.transform.normalMapTooltip')}
+      >
+        <BooleanInput value={compressProperties.normalMap.value} onChange={compressProperties.normalMap.set} />
+      </InputGroup>
+      {compressProperties.mode.value === 'ETC1S' && (
+        <>
+          <InputGroup
+            name="quality"
+            label={t('editor:properties.model.transform.quality')}
+            info={t('editor:properties.model.transform.qualityTooltip')}
           >
-            Level: {compressProperties.quality.value}
-          </Scrubber>
-        </Grid>
-
-        <Grid item xs={4}>
-          <Typography className={styles.secondaryText}>Mipmaps:</Typography>
-        </Grid>
-        <Grid item xs={8}>
-          <BooleanInput
-            value={compressProperties.mipmaps.value}
-            onChange={(val) => compressProperties.mipmaps.set(val)}
-          />
-        </Grid>
-
-        <Grid item xs={12}>
-          <Button onClick={compressContentInBrowser}> Compress </Button>
-        </Grid>
-      </Grid>
-    </Dialog>
+            <CompoundNumericInput
+              value={compressProperties.quality.value}
+              onChange={compressProperties.quality.set}
+              min={1}
+              max={255}
+              step={1}
+            />
+          </InputGroup>
+          <InputGroup
+            name="compressionLevel"
+            label={t('editor:properties.model.transform.compressionLevel')}
+            info={t('editor:properties.model.transform.compressionLevelTooltip')}
+          >
+            <CompoundNumericInput
+              value={compressProperties.compressionLevel.value}
+              onChange={compressProperties.compressionLevel.set}
+              min={0}
+              max={6}
+              step={1}
+            />
+          </InputGroup>
+        </>
+      )}
+      {compressProperties.mode.value === 'UASTC' && (
+        <>
+          <InputGroup
+            name="uastcFlags"
+            label={t('editor:properties.model.transform.uastcFlags')}
+            info={t('editor:properties.model.transform.uastcFlagsTooltip')}
+          >
+            <SelectInput
+              options={UASTCFlagOptions}
+              value={compressProperties.uastcFlags.value}
+              onChange={(val: number) => compressProperties.uastcFlags.set(val)}
+            />
+          </InputGroup>
+          <InputGroup
+            name="uastcZstandard"
+            label={t('editor:properties.model.transform.uastcZstandard')}
+            info={t('editor:properties.model.transform.uastcZstandardTooltip')}
+          >
+            <BooleanInput
+              value={compressProperties.uastcZstandard.value}
+              onChange={compressProperties.uastcZstandard.set}
+            />
+          </InputGroup>
+        </>
+      )}
+    </Menu>
   )
 }
