@@ -35,9 +35,8 @@ import {
   Object3D,
   RGBAFormat,
   Scene,
-  sRGBEncoding,
-  Texture,
-  Vector3
+  SRGBColorSpace,
+  Texture
 } from 'three'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
@@ -119,7 +118,7 @@ export const EnvmapComponent = defineComponent({
       const resolution = 64 // Min value required
       const texture = new DataTexture(getRGBArray(col), resolution, resolution, RGBAFormat)
       texture.needsUpdate = true
-      texture.encoding = sRGBEncoding
+      texture.colorSpace = SRGBColorSpace
 
       updateEnvMap(group.value, getPmremGenerator().fromEquirectangular(texture).texture)
     }, [component.type, group])
@@ -134,7 +133,7 @@ export const EnvmapComponent = defineComponent({
             (texture: CubeTexture | undefined) => {
               if (texture) {
                 const EnvMap = getPmremGenerator().fromCubemap(texture).texture
-                EnvMap.encoding = sRGBEncoding
+                EnvMap.colorSpace = SRGBColorSpace
                 if (group?.value) updateEnvMap(group.value, texture)
                 removeError(entity, EnvmapComponent, 'MISSING_FILE')
               }
@@ -217,7 +216,9 @@ const updateEnvMapIntensity = (group: typeof GroupComponent._TYPE, intensity: nu
     obj.traverse((obj: Mesh) => {
       if (!obj.material) return
       if (Array.isArray(obj.material)) {
-        obj.material.forEach((m: MeshStandardMaterial) => (m.envMapIntensity = intensity))
+        obj.material.forEach((m: MeshStandardMaterial) => {
+          m.envMapIntensity = intensity
+        })
       } else {
         ;(obj.material as MeshStandardMaterial).envMapIntensity = intensity
       }

@@ -41,7 +41,7 @@ Ethereal Engine. All Rights Reserved.
 import {
   CompressedTexture,
   FileLoader,
-  LinearEncoding,
+  LinearSRGBColorSpace,
   LinearFilter,
   LinearMipmapLinearFilter,
   Loader,
@@ -55,7 +55,7 @@ import {
   RGB_ETC2_Format,
   RGB_PVRTC_4BPPV1_Format,
   RGB_S3TC_DXT1_Format,
-  sRGBEncoding,
+  SRGBColorSpace,
   UnsignedByteType
 } from 'three'
 import { WorkerPool } from './WorkerPool'
@@ -224,7 +224,7 @@ class KTX2Loader extends Loader {
     texture.magFilter = LinearFilter
     texture.generateMipmaps = false
     texture.needsUpdate = true
-    texture.encoding = dfdTransferFn === KTX2TransferSRGB ? sRGBEncoding : LinearEncoding
+    texture.colorSpace = dfdTransferFn === KTX2TransferSRGB ? SRGBColorSpace : LinearSRGBColorSpace
     texture.premultiplyAlpha = !!(dfdFlags & KTX2_ALPHA_PREMULTIPLIED)
 
     return texture
