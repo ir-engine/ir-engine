@@ -23,13 +23,15 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { RigidBodyType, ShapeType } from '@dimforge/rapier3d-compat'
 import assert, { strictEqual } from 'assert'
-import { Quaternion, Vector3 } from 'three'
+import { Mesh, MeshNormalMaterial, Quaternion, SphereGeometry, Vector3 } from 'three'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { NetworkId } from '@etherealengine/common/src/interfaces/NetworkId'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
-import { applyIncomingActions, dispatchAction, receiveActions } from '@etherealengine/hyperflux'
+import { UserId } from '@etherealengine/common/src/interfaces/UserId'
+import { applyIncomingActions, clearOutgoingActions, dispatchAction, receiveActions } from '@etherealengine/hyperflux'
 
 import { getHandTarget } from '../../avatar/components/AvatarIKComponents'
 import { spawnAvatarReceptor } from '../../avatar/functions/spawnAvatarReceptor'
@@ -44,12 +46,14 @@ import {
 } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { createEngine } from '../../initializeEngine'
+import { Network } from '../../networking/classes/Network'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
 import { EntityNetworkState } from '../../networking/state/EntityNetworkState'
 import { Physics } from '../../physics/classes/Physics'
+import { addObjectToGroup } from '../../scene/components/GroupComponent'
 import { setTransformComponent, TransformComponent } from '../../transform/components/TransformComponent'
-import { EquippedComponent } from '../components/EquippedComponent'
-import { EquipperComponent } from '../components/EquipperComponent'
+import { GrabbedComponent, GrabberComponent } from '../components/GrabbableComponent'
+import { dropEntity, grabEntity } from './GrabbableSystem'
 
 // @TODO this needs to be re-thought
 
@@ -91,21 +95,21 @@ describe.skip('EquippableSystem Integration Tests', () => {
 
     spawnAvatarReceptor(Engine.instance.userId as string as EntityUUID)
 
-    addComponent(item, EquippedComponent, {
-      equipperEntity: player,
+    addComponent(item, GrabbedComponent, {
+      grabberEntity: player,
       attachmentPoint: 'none'
     })
-    const equippedComponent = getComponent(player, EquippedComponent)
-    addComponent(player, EquipperComponent, { equippedEntity: item })
+    const grabbedComponent = getComponent(player, GrabbedComponent)
+    addComponent(player, GrabberComponent, { grabbedEntity: item })
 
     setTransformComponent(item)
     const equippableTransform = getComponent(item, TransformComponent)
-    const attachmentPoint = equippedComponent.attachmentPoint
+    const attachmentPoint = grabbedComponent.attachmentPoint
     const { position, rotation } = getHandTarget(item, attachmentPoint)!
 
     equippableSystem()
 
-    assert(!hasComponent(item, EquipperComponent))
+    assert(!hasComponent(item, GrabberComponent))
 
     strictEqual(equippableTransform.position.x, position.x)
     strictEqual(equippableTransform.position.y, position.y)
@@ -116,7 +120,82 @@ describe.skip('EquippableSystem Integration Tests', () => {
     strictEqual(equippableTransform.rotation.z, rotation.z)
     strictEqual(equippableTransform.rotation.w, rotation.w)
 
-    removeComponent(item, EquippedComponent)
+    removeComponent(item, GrabbedComponent)
     equippableSystem()
+  })
+
+  it('Can equip and unequip', async () => {
+    const hostUserId = 'world' as UserId & PeerID
+    ;(Engine.instance.worldNetwork as Network).hostId = hostUserId
+    const hostIndex = 0
+
+    Engine.instance.worldNetwork.peers.set(hostUserId, {
+      peerID: hostUserId,
+      peerIndex: hostIndex,
+      userId: hostUserId,
+      userIndex: hostIndex
+    })
+
+    const userId = 'user id' as UserId
+    const userName = 'user name'
+    const userIndex = 1
+    Engine.instance.userId = userId
+
+    const grabbableEntity = createEntity()
+
+    setTransformComponent(grabbableEntity)
+
+    // physics mock stuff
+    const type = ShapeType.Cuboid
+    const geom = new SphereGeometry()
+
+    const mesh = new Mesh(geom, new MeshNormalMaterial())
+    const bodyOptions = {
+      type,
+      bodyType: RigidBodyType.Dynamic
+    }
+    mesh.userData = bodyOptions
+
+    addObjectToGroup(grabbableEntity, mesh)
+    Physics.createRigidBodyForGroup(grabbableEntity, Engine.instance.physicsWorld, bodyOptions)
+    // network mock stuff
+    // initially the object is owned by server
+    addComponent(grabbableEntity, NetworkObjectComponent, {
+      ownerId: Engine.instance.worldNetwork.hostId,
+      authorityPeerID: Engine.instance.peerID,
+      networkId: 0 as NetworkId
+    })
+
+    // Equipper
+    const grabberEntity = createEntity()
+    setTransformComponent(grabberEntity)
+
+    grabEntity(grabberEntity, grabbableEntity, 'none')
+
+    // world.receptors.push(
+    //     (a) => matches(a).when(WorldNetworkAction.setEquippedObject.matches, setEquippedObjectReceptor)
+    // )
+    clearOutgoingActions(Engine.instance.worldNetwork.topic)
+    applyIncomingActions()
+
+    // equipperQueryEnter(grabberEntity)
+
+    // validations for equip
+    assert(hasComponent(grabberEntity, GrabberComponent))
+    const grabberComponent = getComponent(grabberEntity, GrabberComponent)
+    assert.equal(grabbableEntity, grabberComponent.grabbedEntity)
+    // assert(hasComponent(grabbableEntity, NetworkObjectAuthorityTag))
+    assert(hasComponent(grabbableEntity, GrabbedComponent))
+
+    // unequip stuff
+    dropEntity(grabberEntity)
+
+    clearOutgoingActions(Engine.instance.worldNetwork.topic)
+    applyIncomingActions()
+
+    // validations for unequip
+    assert(!hasComponent(grabberEntity, GrabberComponent))
+    // assert(!hasComponent(grabbableEntity, NetworkObjectAuthorityTag))
+    assert(!hasComponent(grabbableEntity, GrabbedComponent))
   })
 })

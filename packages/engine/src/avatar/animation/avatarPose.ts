@@ -178,7 +178,7 @@ export function applySkeletonPose(mesh: SkinnedMesh) {
 
   for (let i = 0; i < posAttr.count; i++) {
     target.fromBufferAttribute(posAttr, i)
-    mesh.boneTransform(i, target)
+    mesh.applyBoneTransform(i, target)
     posAttr.setXYZ(i, target.x, target.y, target.z)
 
     target.fromBufferAttribute(normalAttr, i)

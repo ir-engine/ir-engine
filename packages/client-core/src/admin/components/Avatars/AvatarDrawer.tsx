@@ -42,10 +42,10 @@ import {
   THUMBNAIL_HEIGHT,
   THUMBNAIL_WIDTH
 } from '@etherealengine/common/src/constants/AvatarConstants'
-import { AvatarInterface } from '@etherealengine/common/src/interfaces/AvatarInterface'
 import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoader'
 import { AvatarRigComponent } from '@etherealengine/engine/src/avatar/components/AvatarAnimationComponent'
 import { getOptionalComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { AvatarType } from '@etherealengine/engine/src/schemas/user/avatar.schema'
 import { dispatchAction, getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import Box from '@etherealengine/ui/src/primitives/mui/Box'
 import Button from '@etherealengine/ui/src/primitives/mui/Button'
@@ -81,7 +81,7 @@ enum ConfirmState {
 interface Props {
   open: boolean
   mode: AvatarDrawerMode
-  selectedAvatar?: AvatarInterface
+  selectedAvatar?: AvatarType
   onClose: () => void
 }
 

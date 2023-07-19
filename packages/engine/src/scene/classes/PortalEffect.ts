@@ -84,7 +84,6 @@ export class PortalEffect extends Object3D {
     }
 
     this.curve = new CatmullRomCurve3(points)
-    this.curve.type = 'catmullrom'
 
     const geometry = new BufferGeometry()
     const curvePoints = new Float32Array(

@@ -1,4 +1,3 @@
-
 /*
 CPAL-1.0 License
 
@@ -24,36 +23,38 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import {
+  githubRepoAccessMethods,
+  githubRepoAccessPath
+} from '@etherealengine/engine/src/schemas/user/github-repo-access.schema'
 
-const { register } = require('trace-unhandled')
-register()
+import { Application } from '../../../declarations'
+import { GithubRepoAccessService } from './github-repo-access.class'
+import githubRepoAccessDocs from './github-repo-access.docs'
+import hooks from './github-repo-access.hooks'
 
-require("ts-node").register({
-  project: "./tsconfig.json",
-})
+declare module '@etherealengine/common/declarations' {
+  interface ServiceTypes {
+    [githubRepoAccessPath]: GithubRepoAccessService
+  }
+}
 
-process.on('warning', e => console.warn(e.stack));
+export default (app: Application): void => {
+  const options = {
+    name: githubRepoAccessPath,
+    paginate: app.get('paginate'),
+    Model: app.get('knexClient'),
+    multi: true
+  }
 
-process.on('SIGTERM', async (err) => {
-  console.log('[Ethereal Engine Tests]: Server SIGTERM')
-  console.log(err)
-})
-process.on('SIGINT', () => {
-  console.log('[Ethereal Engine Tests]: RECEIVED SIGINT')
-  process.exit()
-})
+  app.use(githubRepoAccessPath, new GithubRepoAccessService(options), {
+    // A list of all methods this service exposes externally
+    methods: githubRepoAccessMethods,
+    // You can add additional custom events to be sent to clients here
+    events: [],
+    docs: githubRepoAccessDocs
+  })
 
-//emitted when an uncaught JavaScript exception bubbles
-process.on('uncaughtException', (err) => {
-  console.log('[Ethereal Engine Tests]: UNCAUGHT EXCEPTION')
-  console.log(err)
-  process.exit()
-})
-
-//emitted whenever a Promise is rejected and no error handler is attached to it
-process.on('unhandledRejection', (reason, p) => {
-  console.log('[Ethereal Engine Tests]: UNHANDLED REJECTION')
-  console.log(reason)
-  console.log(p)
-  process.exit()
-})
+  const service = app.service(githubRepoAccessPath)
+  service.hooks(hooks)
+}

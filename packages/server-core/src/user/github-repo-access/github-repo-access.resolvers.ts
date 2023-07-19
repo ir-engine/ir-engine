@@ -1,4 +1,3 @@
-
 /*
 CPAL-1.0 License
 
@@ -24,36 +23,32 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+// For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
+import { resolve } from '@feathersjs/schema'
+import { v4 } from 'uuid'
 
-const { register } = require('trace-unhandled')
-register()
+import {
+  GithubRepoAccessQuery,
+  GithubRepoAccessType
+} from '@etherealengine/engine/src/schemas/user/github-repo-access.schema'
+import type { HookContext } from '@etherealengine/server-core/declarations'
 
-require("ts-node").register({
-  project: "./tsconfig.json",
+import { getDateTimeSql } from '../../util/get-datetime-sql'
+
+export const githubRepoAccessResolver = resolve<GithubRepoAccessType, HookContext>({})
+
+export const githubRepoAccessExternalResolver = resolve<GithubRepoAccessType, HookContext>({})
+
+export const githubRepoAccessDataResolver = resolve<GithubRepoAccessType, HookContext>({
+  id: async () => {
+    return v4()
+  },
+  createdAt: getDateTimeSql,
+  updatedAt: getDateTimeSql
 })
 
-process.on('warning', e => console.warn(e.stack));
-
-process.on('SIGTERM', async (err) => {
-  console.log('[Ethereal Engine Tests]: Server SIGTERM')
-  console.log(err)
-})
-process.on('SIGINT', () => {
-  console.log('[Ethereal Engine Tests]: RECEIVED SIGINT')
-  process.exit()
+export const githubRepoAccessPatchResolver = resolve<GithubRepoAccessType, HookContext>({
+  updatedAt: getDateTimeSql
 })
 
-//emitted when an uncaught JavaScript exception bubbles
-process.on('uncaughtException', (err) => {
-  console.log('[Ethereal Engine Tests]: UNCAUGHT EXCEPTION')
-  console.log(err)
-  process.exit()
-})
-
-//emitted whenever a Promise is rejected and no error handler is attached to it
-process.on('unhandledRejection', (reason, p) => {
-  console.log('[Ethereal Engine Tests]: UNHANDLED REJECTION')
-  console.log(reason)
-  console.log(p)
-  process.exit()
-})
+export const githubRepoAccessQueryResolver = resolve<GithubRepoAccessQuery, HookContext>({})

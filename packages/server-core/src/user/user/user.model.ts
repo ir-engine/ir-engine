@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { DataTypes, Model, Sequelize } from 'sequelize'
 
-import { UserInterface } from '@etherealengine/common/src/dbmodels/UserInterface'
+import { AvatarInterface, UserInterface } from '@etherealengine/common/src/dbmodels/UserInterface'
 
 import { Application } from '../../../declarations'
 
@@ -96,9 +96,62 @@ export default (app: Application) => {
     ;(User as any).belongsToMany(models.instance, { through: 'instance_authorized_user' })
     ;(User as any).hasMany(models.instance_authorized_user, { foreignKey: { allowNull: false } })
     ;(User as any).hasOne(models.user_api_key)
-    ;(User as any).belongsTo(models.avatar)
+    ;(User as any).belongsTo(createAvatarModel(app))
     ;(User as any).hasMany(models.user_kick, { onDelete: 'cascade' })
   }
 
   return User
+}
+
+export const createAvatarModel = (app: Application) => {
+  const sequelizeClient: Sequelize = app.get('sequelizeClient')
+  const Avatar = sequelizeClient.define<Model<AvatarInterface>>(
+    'avatar',
+    {
+      id: {
+        type: DataTypes.UUID,
+        defaultValue: DataTypes.UUIDV1,
+        allowNull: false,
+        primaryKey: true
+      },
+      name: {
+        type: DataTypes.STRING,
+        allowNull: true
+      },
+      identifierName: {
+        type: DataTypes.STRING,
+        unique: true
+      },
+      modelResourceId: {
+        type: DataTypes.STRING
+      },
+      thumbnailResourceId: {
+        type: DataTypes.STRING
+      },
+      isPublic: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: true
+      },
+      userId: {
+        type: DataTypes.UUID
+      },
+      project: {
+        type: DataTypes.STRING,
+        allowNull: true
+      }
+    },
+    {
+      hooks: {
+        beforeCount(options: any): void {
+          options.raw = true
+        }
+      }
+    }
+  )
+
+  ;(Avatar as any).associate = (models: any): void => {
+    ;(Avatar as any).hasMany(models.user)
+  }
+
+  return Avatar
 }

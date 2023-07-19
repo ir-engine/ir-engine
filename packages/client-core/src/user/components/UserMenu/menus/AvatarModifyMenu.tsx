@@ -45,8 +45,8 @@ import {
   THUMBNAIL_HEIGHT,
   THUMBNAIL_WIDTH
 } from '@etherealengine/common/src/constants/AvatarConstants'
-import { AvatarInterface } from '@etherealengine/common/src/interfaces/AvatarInterface'
 import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoader'
+import { AvatarType } from '@etherealengine/engine/src/schemas/user/avatar.schema'
 import Box from '@etherealengine/ui/src/primitives/mui/Box'
 import CircularProgress from '@etherealengine/ui/src/primitives/mui/CircularProgress'
 import Grid from '@etherealengine/ui/src/primitives/mui/Grid'
@@ -59,7 +59,7 @@ import styles from '../index.module.scss'
 import { PopupMenuServices } from '../PopupMenuService'
 
 interface Props {
-  selectedAvatar?: AvatarInterface
+  selectedAvatar?: AvatarType
 }
 
 const defaultState = {
