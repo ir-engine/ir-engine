@@ -23,23 +23,35 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Entity } from '../../ecs/classes/Entity'
-import { defineComponent } from '../../ecs/functions/ComponentFunctions'
+import { avatarMethods, avatarPath } from '@etherealengine/engine/src/schemas/user/avatar.schema'
 
-export const EquippedComponent = defineComponent({
-  name: 'EquippedComponent',
+import { Application } from '../../../declarations'
+import { AvatarService } from './avatar.class'
+import avatarDocs from './avatar.docs'
+import hooks from './avatar.hooks'
 
-  onInit(entity) {
-    return {
-      attachmentPoint: 'none' as XRHandedness,
-      equipperEntity: null! as Entity
-    }
-  },
-
-  onSet(entity, component, json) {
-    if (!json) return
-
-    if (typeof json.attachmentPoint === 'string') component.attachmentPoint.set(json.attachmentPoint)
-    if (typeof json.equipperEntity === 'number') component.equipperEntity.set(json.equipperEntity)
+declare module '@etherealengine/common/declarations' {
+  interface ServiceTypes {
+    [avatarPath]: AvatarService
   }
-})
+}
+
+export default (app: Application): void => {
+  const options = {
+    name: avatarPath,
+    paginate: app.get('paginate'),
+    Model: app.get('knexClient'),
+    multi: true
+  }
+
+  app.use(avatarPath, new AvatarService(options, app), {
+    // A list of all methods this service exposes externally
+    methods: avatarMethods,
+    // You can add additional custom events to be sent to clients here
+    events: [],
+    docs: avatarDocs
+  })
+
+  const service = app.service(avatarPath)
+  service.hooks(hooks)
+}

@@ -25,10 +25,12 @@ Ethereal Engine. All Rights Reserved.
 
 import AcceptInvite from '../user/accept-invite/accept-invite.service'
 import Auth from './auth-management/auth-management.service'
-import Avatar from './avatar/avatar.service'
+import Avatar from './avatar/avatar'
 import DiscordBotAuth from './discord-bot-auth/discord-bot-auth.service'
 import Email from './email/email.service'
-import GithubRepoAccess from './github-repo-access/github-repo-access.service'
+import GithubRepoAccessRefresh from './github-repo-access-refresh/github-repo-access-refresh'
+import GithubRepoAccessWebhook from './github-repo-access-webhook/github-repo-access-webhook'
+import GithubRepoAccess from './github-repo-access/github-repo-access'
 import IdentityProvider from './identity-provider/identity-provider.service'
 import LoginToken from './login-token/login-token.service'
 import Login from './login/login.service'
@@ -58,5 +60,7 @@ export default [
   Email,
   SMS,
   DiscordBotAuth,
-  GithubRepoAccess
+  GithubRepoAccess,
+  GithubRepoAccessRefresh,
+  GithubRepoAccessWebhook
 ]

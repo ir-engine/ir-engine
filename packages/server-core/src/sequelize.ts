@@ -50,6 +50,7 @@ export default (app: Application): void => {
       }
     })
     const oldSetup = app.setup
+    const oldTeardown = app.teardown
 
     app.set('sequelizeClient', sequelize)
 
@@ -58,6 +59,19 @@ export default (app: Application): void => {
       promiseResolve = resolve
       promiseReject = reject
     })
+
+    app.teardown = async function (...args) {
+      try {
+        await sequelize.close()
+        console.log('Sequelize connection closed')
+      } catch (err) {
+        logger.error('Sequelize teardown error')
+        logger.error(err)
+        promiseReject()
+        throw err
+      }
+      return oldTeardown.apply(this, args)
+    }
 
     app.setup = async function (...args) {
       try {

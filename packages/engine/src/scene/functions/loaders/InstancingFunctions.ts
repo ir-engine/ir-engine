@@ -693,6 +693,7 @@ export async function stageInstancing(entity: Entity) {
         emissiveMap: iMat.emissiveMap
       })
       result = new InstancedMesh(instancedGeometry, resultMat, numInstances)
+      ;(result as InstancedMesh).frustumCulled = false
       ;(result as InstancedMesh).instanceMatrix.set(transforms)
       ;(result as InstancedMesh).instanceMatrix.needsUpdate = true
       break

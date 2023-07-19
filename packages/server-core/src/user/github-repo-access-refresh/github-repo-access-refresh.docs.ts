@@ -23,10 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { defineComponent } from '../../ecs/functions/ComponentFunctions'
+import { createSwaggerServiceOptions } from 'feathers-swagger'
 
-export const EquippableComponent = defineComponent({
-  name: 'EquippableComponent',
-  jsonID: 'equippable',
-  toJSON: () => true
+export default createSwaggerServiceOptions({
+  schemas: {},
+  docs: {
+    description: 'Github repo access refresh service description',
+    securities: ['all']
+  }
 })

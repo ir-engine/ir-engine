@@ -142,8 +142,9 @@ describe('EntityTreeComponent', () => {
     setComponent(entity, EntityTreeComponent, { parentEntity: sceneEntity, uuid: 'test-uuid' as EntityUUID })
     removeComponent(entity, EntityTreeComponent)
 
-    assert.equal(getComponent(entity, UUIDComponent), undefined)
-    assert.equal(UUIDComponent.entitiesByUUID['test-uuid'], undefined)
+    // UUIDComponent should remain
+    assert.equal(getComponent(entity, UUIDComponent), 'test-uuid')
+    assert.equal(UUIDComponent.entitiesByUUID['test-uuid'], entity)
 
     const parentNode = getComponent(sceneEntity, EntityTreeComponent)
     assert.equal(parentNode.children.length, 0)

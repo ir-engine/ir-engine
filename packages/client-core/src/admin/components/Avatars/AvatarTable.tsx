@@ -27,7 +27,7 @@ import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import ConfirmDialog from '@etherealengine/client-core/src/common/components/ConfirmDialog'
-import { AvatarInterface } from '@etherealengine/common/src/interfaces/AvatarInterface'
+import { AvatarType } from '@etherealengine/engine/src/schemas/user/avatar.schema'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import Box from '@etherealengine/ui/src/primitives/mui/Box'
 import Checkbox from '@etherealengine/ui/src/primitives/mui/Checkbox'
@@ -63,7 +63,7 @@ const AvatarTable = ({ className, search, selectedAvatarIds, setSelectedAvatarId
   const fieldOrder = useHookstate('asc')
   const sortField = useHookstate('name')
   const openAvatarDrawer = useHookstate(false)
-  const avatarData = useHookstate<AvatarInterface | null>(null)
+  const avatarData = useHookstate<AvatarType | null>(null)
 
   const handlePageChange = (event: unknown, newPage: number) => {
     AdminAvatarService.fetchAdminAvatars(newPage, search, sortField.value, fieldOrder.value)
@@ -97,7 +97,7 @@ const AvatarTable = ({ className, search, selectedAvatarIds, setSelectedAvatarId
     }
   }
 
-  const createData = (el: AvatarInterface): AvatarData => {
+  const createData = (el: AvatarType): AvatarData => {
     return {
       el,
       select: (
