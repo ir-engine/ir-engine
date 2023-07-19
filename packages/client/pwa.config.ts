@@ -94,6 +94,8 @@ const PWA = (clientSetting) =>
       navigateFallback: null,
       // Allowlist all paths for navigateFallback during production
       navigateFallbackAllowlist: [
+        // allow everything
+        new RegExp('^/.*$'),
         // allow /static
         new RegExp('^/static/.*$')
       ],
@@ -121,7 +123,6 @@ const PWA = (clientSetting) =>
       ],
       // Set additional manifest entries for the cache
       additionalManifestEntries: [
-        // { url: '/index', revision: `${packageJson?.version}_${Date.now()}` },
         { url: '/service-worker', revision: `${packageJson?.version}_${Date.now()}` },
         { url: '/dev-sw', revision: `${packageJson?.version}_${Date.now()}` },
         { url: '/src/main', revision: `${packageJson?.version}_${Date.now()}` }
