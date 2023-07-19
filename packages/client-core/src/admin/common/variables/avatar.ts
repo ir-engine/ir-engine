@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { AvatarInterface } from '@etherealengine/common/src/interfaces/AvatarInterface'
+import { AvatarType } from '@etherealengine/engine/src/schemas/user/avatar.schema'
 
 export interface AvatarColumn {
   id: 'select' | 'id' | 'name' | 'owner' | 'thumbnail' | 'action'
@@ -51,7 +51,7 @@ export const avatarColumns: AvatarColumn[] = [
 ]
 
 export interface AvatarData {
-  el: AvatarInterface
+  el: AvatarType
   select: JSX.Element
   id: string
   name: string | undefined

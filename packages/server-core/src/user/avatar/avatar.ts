@@ -23,24 +23,35 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { createSwaggerServiceOptions } from 'feathers-swagger'
+import { avatarMethods, avatarPath } from '@etherealengine/engine/src/schemas/user/avatar.schema'
 
-import {
-  avatarDataSchema,
-  avatarPatchSchema,
-  avatarQuerySchema,
-  avatarSchema
-} from '@etherealengine/engine/src/schemas/user/avatar.schema'
+import { Application } from '../../../declarations'
+import { AvatarService } from './avatar.class'
+import avatarDocs from './avatar.docs'
+import hooks from './avatar.hooks'
 
-export default createSwaggerServiceOptions({
-  schemas: {
-    avatarDataSchema,
-    avatarPatchSchema,
-    avatarQuerySchema,
-    avatarSchema
-  },
-  docs: {
-    description: 'Avatar service description',
-    securities: ['all']
+declare module '@etherealengine/common/declarations' {
+  interface ServiceTypes {
+    [avatarPath]: AvatarService
   }
-})
+}
+
+export default (app: Application): void => {
+  const options = {
+    name: avatarPath,
+    paginate: app.get('paginate'),
+    Model: app.get('knexClient'),
+    multi: true
+  }
+
+  app.use(avatarPath, new AvatarService(options, app), {
+    // A list of all methods this service exposes externally
+    methods: avatarMethods,
+    // You can add additional custom events to be sent to clients here
+    events: [],
+    docs: avatarDocs
+  })
+
+  const service = app.service(avatarPath)
+  service.hooks(hooks)
+}

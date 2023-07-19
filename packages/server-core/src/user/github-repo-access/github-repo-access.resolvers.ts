@@ -23,24 +23,32 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { createSwaggerServiceOptions } from 'feathers-swagger'
+// For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
+import { resolve } from '@feathersjs/schema'
+import { v4 } from 'uuid'
 
 import {
-  avatarDataSchema,
-  avatarPatchSchema,
-  avatarQuerySchema,
-  avatarSchema
-} from '@etherealengine/engine/src/schemas/user/avatar.schema'
+  GithubRepoAccessQuery,
+  GithubRepoAccessType
+} from '@etherealengine/engine/src/schemas/user/github-repo-access.schema'
+import type { HookContext } from '@etherealengine/server-core/declarations'
 
-export default createSwaggerServiceOptions({
-  schemas: {
-    avatarDataSchema,
-    avatarPatchSchema,
-    avatarQuerySchema,
-    avatarSchema
+import { getDateTimeSql } from '../../util/get-datetime-sql'
+
+export const githubRepoAccessResolver = resolve<GithubRepoAccessType, HookContext>({})
+
+export const githubRepoAccessExternalResolver = resolve<GithubRepoAccessType, HookContext>({})
+
+export const githubRepoAccessDataResolver = resolve<GithubRepoAccessType, HookContext>({
+  id: async () => {
+    return v4()
   },
-  docs: {
-    description: 'Avatar service description',
-    securities: ['all']
-  }
+  createdAt: getDateTimeSql,
+  updatedAt: getDateTimeSql
 })
+
+export const githubRepoAccessPatchResolver = resolve<GithubRepoAccessType, HookContext>({
+  updatedAt: getDateTimeSql
+})
+
+export const githubRepoAccessQueryResolver = resolve<GithubRepoAccessQuery, HookContext>({})

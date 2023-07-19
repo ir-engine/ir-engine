@@ -23,24 +23,36 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { createSwaggerServiceOptions } from 'feathers-swagger'
+import { iff, isProvider } from 'feathers-hooks-common'
 
-import {
-  avatarDataSchema,
-  avatarPatchSchema,
-  avatarQuerySchema,
-  avatarSchema
-} from '@etherealengine/engine/src/schemas/user/avatar.schema'
+import authenticate from '../../hooks/authenticate'
 
-export default createSwaggerServiceOptions({
-  schemas: {
-    avatarDataSchema,
-    avatarPatchSchema,
-    avatarQuerySchema,
-    avatarSchema
+export default {
+  before: {
+    all: [],
+    find: [iff(isProvider('external'), authenticate() as any)],
+    get: [],
+    create: [],
+    update: [],
+    patch: [],
+    remove: []
   },
-  docs: {
-    description: 'Avatar service description',
-    securities: ['all']
+  after: {
+    all: [],
+    find: [],
+    get: [],
+    create: [],
+    update: [],
+    patch: [],
+    remove: []
+  },
+  error: {
+    all: [],
+    find: [],
+    get: [],
+    create: [],
+    update: [],
+    patch: [],
+    remove: []
   }
-})
+} as any

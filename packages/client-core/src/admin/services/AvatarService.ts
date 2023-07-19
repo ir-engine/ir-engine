@@ -25,11 +25,10 @@ Ethereal Engine. All Rights Reserved.
 
 import { Paginated } from '@feathersjs/feathers'
 
-import { AvatarInterface } from '@etherealengine/common/src/interfaces/AvatarInterface'
-import { AvatarResult } from '@etherealengine/common/src/interfaces/AvatarResult'
 import { StaticResourceInterface } from '@etherealengine/common/src/interfaces/StaticResourceInterface'
 import multiLogger from '@etherealengine/common/src/logger'
 import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
+import { avatarPath, AvatarType } from '@etherealengine/engine/src/schemas/user/avatar.schema'
 import { defineAction, defineState, dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 
 import { API } from '../../API'
@@ -42,7 +41,7 @@ export const AVATAR_PAGE_LIMIT = 100
 export const AdminAvatarState = defineState({
   name: 'AdminAvatarState',
   initial: () => ({
-    avatars: [] as Array<AvatarInterface>,
+    avatars: [] as Array<AvatarType>,
     thumbnail: undefined as StaticResourceInterface | undefined,
     skip: 0,
     limit: AVATAR_PAGE_LIMIT,
@@ -92,14 +91,14 @@ export const AdminAvatarReceptors = {
 
 //Service
 export const AdminAvatarService = {
-  fetchAdminAvatars: async (skip = 0, search: string | null = null, sortField = 'name', orderBy = 'asc') => {
-    let sortData = {}
+  fetchAdminAvatars: async (skip = 0, search: string | undefined = undefined, sortField = 'name', orderBy = 'asc') => {
+    const sortData = {}
     if (sortField.length > 0) {
-      sortData[sortField] = orderBy === 'desc' ? 0 : 1
+      sortData[sortField] = orderBy === 'desc' ? -1 : 1
     }
     const adminAvatarState = getMutableState(AdminAvatarState)
     const limit = adminAvatarState.limit.value
-    const avatars = (await API.instance.client.service('avatar').find({
+    const avatars = (await API.instance.client.service(avatarPath).find({
       query: {
         admin: true,
         $sort: {
@@ -109,12 +108,12 @@ export const AdminAvatarService = {
         $skip: skip * AVATAR_PAGE_LIMIT,
         search: search
       }
-    })) as Paginated<AvatarInterface>
+    })) as Paginated<AvatarType>
     dispatchAction(AdminAvatarActions.avatarsFetched({ avatars }))
   },
   removeAdminAvatar: async (id: string) => {
     try {
-      await API.instance.client.service('avatar').remove(id)
+      await API.instance.client.service(avatarPath).remove(id)
       dispatchAction(AdminAvatarActions.avatarRemoved({}))
     } catch (err) {
       logger.error(err)
@@ -126,7 +125,7 @@ export const AdminAvatarService = {
 export class AdminAvatarActions {
   static avatarsFetched = defineAction({
     type: 'ee.client.AdminAvatar.AVATARS_RETRIEVED' as const,
-    avatars: matches.object as Validator<unknown, AvatarResult>
+    avatars: matches.object as Validator<unknown, Paginated<AvatarType>>
   })
 
   static avatarCreated = defineAction({
