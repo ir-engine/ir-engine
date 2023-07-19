@@ -118,6 +118,12 @@ export class AuthenticationSettingService<
 
     if (typeof data.callback === 'string') {
       data.callback = JSON.parse(data.callback)
+
+      // Usually above JSON.parse should be enough. But since our pre-feathers 5 data
+      // was serialized multiple times, therefore we need to parse it twice.
+      if (typeof data.callback === 'string') {
+        data.callback = JSON.parse(data.callback)
+      }
     }
 
     for (let key of Object.keys(newOAuth)) {
