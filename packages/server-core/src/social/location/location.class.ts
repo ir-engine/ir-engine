@@ -22,7 +22,7 @@ Original Code is the Ethereal Engine team.
 All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
 Ethereal Engine. All Rights Reserved.
 */
-import { Id, Paginated, Params } from '@feathersjs/feathers'
+import { Id, NullableId, Params } from '@feathersjs/feathers'
 import { KnexAdapter } from '@feathersjs/knex'
 import type { KnexAdapterOptions, KnexAdapterParams } from '@feathersjs/knex'
 import { Knex } from 'knex'
@@ -327,14 +327,14 @@ export class LocationService<T = LocationType, ServiceParams extends Params = Lo
    * @param params which contain user information
    * @returns {@function} of remove data
    */
-  async remove(id: Id, params?: LocationParams) {
-    const location = await this.app.service(locationPath).get(id)
-
-    if (location && location.isLobby) {
-      throw new Error("Lobby can't be deleted")
-    }
-
+  async remove(id: NullableId, params?: LocationParams) {
     if (id) {
+      const location = await this.app.service(locationPath).get(id)
+
+      if (location && location.isLobby) {
+        throw new Error("Lobby can't be deleted")
+      }
+
       const selfUser = params!.user as UserInterface
       if (location.locationSetting) await this.app.service(locationSettingPath).remove(location.locationSetting.id)
 

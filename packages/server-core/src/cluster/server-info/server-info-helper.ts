@@ -23,6 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { Paginated } from '@feathersjs/feathers'
 import * as k8s from '@kubernetes/client-node'
 import { Op } from 'sequelize'
 
@@ -33,6 +34,7 @@ import {
   ServerInfoInterface,
   ServerPodInfo
 } from '@etherealengine/common/src/interfaces/ServerInfo'
+import { locationPath, LocationType } from '@etherealengine/engine/src/schemas/social/location.schema'
 import { getState } from '@etherealengine/hyperflux'
 
 import { Application } from '../../../declarations'
@@ -41,7 +43,7 @@ import logger from '../../ServerLogger'
 import { ServerState } from '../../ServerState'
 
 export const getServerInfo = async (app: Application): Promise<ServerInfoInterface[]> => {
-  let serverInfo: ServerInfoInterface[] = []
+  const serverInfo: ServerInfoInterface[] = []
 
   const k8DefaultClient = getState(ServerState).k8DefaultClient
 
@@ -235,17 +237,21 @@ const populateInstanceServerType = async (app: Application, items: ServerPodInfo
   const instances = (await app.service('instance').Model.findAll({
     where: {
       ended: false
-    },
-    include: [
-      {
-        model: app.service('location').Model,
-        required: false
-      }
-    ]
+    }
   })) as Instance[]
 
   if (instances.length === 0) {
     return
+  }
+
+  // TODO: Move following to instance.resolvers once instance service is migrated to feathers 5.
+  for (const instance of instances) {
+    const location = (await app.service(locationPath).find({
+      query: {
+        id: instance.locationId
+      }
+    })) as Paginated<LocationType>
+    instance.location = location.data.length > 0 ? location.data[0] : instance.location
   }
 
   const channelInstances = instances.filter((item) => item.channelId)

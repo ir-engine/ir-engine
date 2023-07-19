@@ -28,6 +28,7 @@ import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
 
 import { AdminBot, CreateBotAsAdmin } from '@etherealengine/common/src/interfaces/AdminBot'
 import { botCommandPath } from '@etherealengine/engine/src/schemas/bot/bot-command.schema'
+import { locationPath, LocationType } from '@etherealengine/engine/src/schemas/social/location.schema'
 
 import { Application } from '../../../declarations'
 import { createBotCommands } from './bot.functions'
@@ -49,15 +50,18 @@ export class Bot extends Service {
     const bots = await this.app.service('bot').Model.findAll({
       include: [
         {
-          model: this.app.service('location').Model
-        },
-        {
           model: this.app.service('instance').Model
         }
       ]
     })
 
+    // TODO: Move following to bot.resolvers once bot service is migrated to feathers 5.
     for (const bot of bots) {
+      const location = (await this.app.service(locationPath).find({
+        query: {
+          id: bot.locationId
+        }
+      })) as Paginated<LocationType>
       const botCommand = await this.app.service(botCommandPath).find({
         query: {
           botId: bot.id
@@ -65,6 +69,7 @@ export class Bot extends Service {
       })
       data.push({
         ...bot.dataValues,
+        location: JSON.parse(JSON.stringify(location.data)),
         botCommands: JSON.parse(JSON.stringify(botCommand.data))
       })
     }

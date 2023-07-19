@@ -25,30 +25,33 @@ Ethereal Engine. All Rights Reserved.
 
 import { LocationAuthorizedUser } from './LocationAuthorizedUser'
 
-interface LocationSettings {
-  id: string
-  locationId: string
-  locationType: 'private' | 'public' | 'showroom'
-  audioEnabled: boolean
-  screenSharingEnabled: boolean
-  faceStreamingEnabled: boolean
-  videoEnabled: boolean
-}
+// TODO: Remove once Instance service is moved to feathers 5. Did it as a temp fix to dynamically import location schema.
+const { LocationType } = require('../../../engine/src/schemas/social/location.schema')
 
-interface Location {
-  id: string
-  name: string
-  slugifiedName: string
-  maxUsersPerInstance: number
-  sceneId: string
-  locationSettingsId: string
-  locationSetting: LocationSettings
-  isLobby: boolean
-  isFeatured: boolean
-  location_settings?: LocationSettings
-  location_setting?: LocationSettings
-  location_authorized_users?: LocationAuthorizedUser[]
-}
+// interface LocationSettings {
+//   id: string
+//   locationId: string
+//   locationType: 'private' | 'public' | 'showroom'
+//   audioEnabled: boolean
+//   screenSharingEnabled: boolean
+//   faceStreamingEnabled: boolean
+//   videoEnabled: boolean
+// }
+
+// interface Location {
+//   id: string
+//   name: string
+//   slugifiedName: string
+//   maxUsersPerInstance: number
+//   sceneId: string
+//   locationSettingsId: string
+//   locationSetting: LocationSettings
+//   isLobby: boolean
+//   isFeatured: boolean
+//   location_settings?: LocationSettings
+//   location_setting?: LocationSettings
+//   location_authorized_users?: LocationAuthorizedUser[]
+// }
 
 export interface Instance {
   id: string
@@ -56,7 +59,7 @@ export interface Instance {
   currentUsers: number
   ipAddress: string
   locationId: string
-  location: Location
+  location: typeof LocationType
   channelId: string
   podName?: string
   ended?: boolean

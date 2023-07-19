@@ -88,8 +88,8 @@ describe.skip('matchmaking match-instance service', () => {
         return { id: 'tst' + Math.random().toString() }
       })
 
-    await app.service('location').Model.destroy({
-      where: {
+    await app.service(locationPath).remove(null, {
+      query: {
         slugifiedName: `game-${gameMode}`
       }
     })
