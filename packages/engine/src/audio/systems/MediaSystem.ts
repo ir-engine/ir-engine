@@ -69,7 +69,7 @@ export class AudioEffectPlayer {
 
   loadBuffer = async (path: string) => {
     const buffer = await AssetLoader.loadAsync(path)
-    this.bufferMap[path] = buffer
+    return buffer
   }
 
   // pool of elements
@@ -79,6 +79,7 @@ export class AudioEffectPlayer {
     if (this.#els.length) return
     for (let i = 0; i < 20; i++) {
       const audioElement = document.createElement('audio')
+      audioElement.crossOrigin = 'anonymous'
       audioElement.loop = false
       this.#els.push(audioElement)
     }
@@ -90,8 +91,8 @@ export class AudioEffectPlayer {
     if (!this.#els.length) return
 
     if (!this.bufferMap[sound]) {
-      logger.error('[AudioEffectPlayer]: Buffer not found for source: ', sound)
-      return
+      // create buffer if doesn't exist
+      this.bufferMap[sound] = await AudioEffectPlayer?.instance?.loadBuffer(sound)
     }
 
     const source = getState(AudioState).audioContext.createBufferSource()
@@ -241,8 +242,6 @@ const reactor = () => {
       currentTime,
       0.01
     )
-
-    Object.values(AudioEffectPlayer.SOUNDS).map((sound) => AudioEffectPlayer.instance.loadBuffer(sound))
 
     addActionReceptor(AudioSettingReceptor)
 

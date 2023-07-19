@@ -85,8 +85,8 @@ const parseModuleName = (moduleName: string) => {
     if (moduleName.includes('quarks/dist')) {
       return `vendor_three_quarks_${moduleName.toString().split('dist/')[1].split('/')[0].toString()}`
     }
-    if (moduleName.includes('three/build')) {
-      return `vendor_three_build_${moduleName.toString().split('build/')[1].split('/')[0].toString()}`
+    if (moduleName.includes('three')) {
+      return `vendor_three_build_${moduleName.toString().split('/')[1].split('/')[0].toString()}`
     }
   }
   // chunk mui
