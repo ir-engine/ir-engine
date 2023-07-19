@@ -34,13 +34,8 @@ import NotificationIcon from './assets/attach-file2.svg'
 import BoxSearch from './assets/bxbxsearchalt2.svg'
 import AddSquare from './assets/fluentaddsquare24filled.svg'
 import SettingIcon from './assets/setting.svg'
-// import { FriendsList } from './FriendsList'
-// import { GroupsList } from './GroupsList'
-// import { WorldsList } from './WorldsList'
 import { ChannelsList } from './ChannelsList'
 import { Create } from './Create'
-
-const ChatTypes = ['Channels'] as const
 
 /**
  * Chat
@@ -48,7 +43,6 @@ const ChatTypes = ['Channels'] as const
 export const ChatSection = () => {
   const userName = useHookstate(getMutableState(AuthState).user.name).value
   const userThumbnail = useUserAvatarThumbnail(Engine.instance.userId)
-  const currentChatType = useHookstate<(typeof ChatTypes)[number]>('Channels')
 
   const [checked, setChecked] = useState<boolean>(false)
 
@@ -118,26 +112,8 @@ export const ChatSection = () => {
         </div>
       </div>
       <div className="box-border w-[320px] border-t-[1px] border-solid border-[#D1D3D7]" />
-      {/* <div className="w-full flex flex-wrap justify-start ml-8 mt-4 my-4 gap-[9px]">
-        {ChatTypes.map((item, index) => {
-          return (
-            <button
-              key={index}
-              className={`cursor-pointer rounded-[20px] border-dashed box-border border-[1px] p-0 border-[#A0A0B2] w-[76px] h-6 ${currentChatType.value === item ? 'bg-[#3F3960] text-white' : 'text-[#A0A0B2]'
-                }`}
-              onClick={() => currentChatType.set(item)}
-            >
-              <div className={`[text-align-last:center] rounded-xl text-sm font-segoe-ui text-left`}>{item}</div>
-            </button>
-          )
-        })}
-      </div> */}
       <div className="box-border w-[320px] border-t-[1px] border-solid border-[#D1D3D7]" />
-
       <ChannelsList />
-      {/* {currentChatType.value === 'Groups' && <GroupsList />} */}
-      {/* {currentChatType.value === 'Friends' && <FriendsList />}
-      {currentChatType.value === 'Worlds' && <WorldsList />} */}
       <div className="absolute bottom-0 w-[320px] h-[70px] gap-4 flex flex-wrap justify-center bg-[#ECECEC]">
         <img className="rounded-[38px] mt-3 w-11 h-11 object-cover" alt="" src={userThumbnail} />
         <div className="mt-3">

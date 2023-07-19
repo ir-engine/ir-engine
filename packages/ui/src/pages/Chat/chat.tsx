@@ -27,20 +27,20 @@ import React, { useEffect } from 'react'
 
 import { ChatSection } from '@etherealengine/ui/src/components/Chat/ChatSection'
 import { Media } from '@etherealengine/ui/src/components/Chat/Media'
-import { Message } from '@etherealengine/ui/src/components/Chat/Message'
-import { Sidebar } from '@etherealengine/ui/src/components/Chat/Sidebar'
+import { MessageContainer } from '@etherealengine/ui/src/components/Chat/Message'
 
 import './index.css'
-import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
-import { dispatchAction, getMutableState } from '@etherealengine/hyperflux'
-import { AuthService } from '@etherealengine/client-core/src/user/services/AuthService'
+
 import { ClientNetworkingSystem } from '@etherealengine/client-core/src/networking/ClientNetworkingSystem'
+import { AuthService } from '@etherealengine/client-core/src/user/services/AuthService'
 import { MediaSystem } from '@etherealengine/engine/src/audio/systems/MediaSystem'
-import { EngineState, EngineActions } from '@etherealengine/engine/src/ecs/classes/EngineState'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { EngineActions, EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { PresentationSystemGroup } from '@etherealengine/engine/src/ecs/functions/EngineFunctions'
 import { startSystem, startSystems } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
+import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
+import { dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 import { loadEngineInjection } from '@etherealengine/projects/loadEngineInjection'
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 
 const startChatSystems = () => {
   startSystem(MediaSystem, { before: PresentationSystemGroup })
@@ -77,9 +77,9 @@ export function ChatPage() {
     <div className="w-full container mx-auto pointer-events-auto">
       <div className="w-full h-[100%] flex bg-slate-600 pointer">
         <ChatSection />
-        <Message />
+        <MessageContainer />
         <Media />
       </div>
-    </div >
+    </div>
   )
 }

@@ -23,12 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { ChannelUser } from './ChannelUser'
+import { ChannelID, ChannelUser } from './ChannelUser'
 import { Message } from './Message'
 import { UserId } from './UserId'
 
 export type Channel = {
-  id: string
+  id: ChannelID
   ownerId: UserId
   messages: Message[]
   instanceId: string | null

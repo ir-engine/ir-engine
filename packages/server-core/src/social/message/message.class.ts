@@ -25,23 +25,30 @@ Ethereal Engine. All Rights Reserved.
 
 import { BadRequest } from '@feathersjs/errors'
 import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
-import { Op } from 'sequelize'
 
 import { Channel } from '@etherealengine/common/src/interfaces/Channel'
+import { ChannelID } from '@etherealengine/common/src/interfaces/ChannelUser'
 import { Message as MessageInterface } from '@etherealengine/common/src/interfaces/Message'
 import { UserInterface } from '@etherealengine/common/src/interfaces/User'
+import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 
 import { Application } from '../../../declarations'
-import logger from '../../ServerLogger'
 import { UserParams } from '../../user/user/user.class'
 
 export interface MessageParams extends UserParams {
   'identity-provider': {
-    userId: string
+    userId: UserId
   }
 }
 
 export type MessageDataType = MessageInterface
+
+export type CreateMessageDataType = {
+  channelId?: ChannelID
+  instanceId?: string
+  text: string
+  isNotification?: boolean
+}
 
 export class Message<T = MessageDataType> extends Service<T> {
   app: Application
@@ -58,7 +65,8 @@ export class Message<T = MessageDataType> extends Service<T> {
    * @param params contain user info
    * @returns {@Object} created message
    */
-  async create(data: any, params?: MessageParams): Promise<T> {
+  // @ts-ignore
+  async create(data: CreateMessageDataType, params?: MessageParams): Promise<T> {
     let channel: Channel | null = null
     let userIdList: any[] = []
     const loggedInUser = params!.user as UserInterface
@@ -116,18 +124,6 @@ export class Message<T = MessageDataType> extends Service<T> {
     }
     const newMessage = (await super.create(messageData as any)) as MessageInterface
     newMessage.sender = loggedInUser
-
-    await Promise.all(
-      userIdList.map((mappedUserId: string) => {
-        return this.app.service('message-status').create({
-          userId: mappedUserId,
-          messageId: newMessage.id,
-          status: userId === mappedUserId ? 'read' : 'unread'
-        })
-      })
-    )
-
-    // await this.app.service('channel').patch(channelId, {})
 
     return newMessage as T
   }

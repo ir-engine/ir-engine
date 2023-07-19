@@ -27,8 +27,8 @@ import { none } from '@hookstate/core'
 import { useEffect } from 'react'
 
 import { Channel } from '@etherealengine/common/src/interfaces/Channel'
+import { ChannelID } from '@etherealengine/common/src/interfaces/ChannelUser'
 import { Message } from '@etherealengine/common/src/interfaces/Message'
-import { UserInterface } from '@etherealengine/common/src/interfaces/User'
 import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 import multiLogger from '@etherealengine/common/src/logger'
 import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
@@ -50,7 +50,7 @@ export const ChatState = defineState({
       total: 0,
       updateNeeded: true
     },
-    targetChannelId: '',
+    targetChannelId: '' as ChannelID,
     instanceChannelFetching: false,
     instanceChannelFetched: false,
     partyChannelFetching: false,
@@ -87,7 +87,6 @@ export const ChatServiceReceptor = (action) => {
     })
     .when(ChatAction.createdMessageAction.matches, (action) => {
       const channelId = action.message.channelId
-      const selfUser = action.selfUser
       const channel = s.channels.channels.find((c) => c.id.value === channelId)
 
       if (!channel) {
@@ -256,29 +255,28 @@ export const ChatService = {
   },
   useAPIListeners: () => {
     useEffect(() => {
-      const messageCreatedListener = (params) => {
-        const selfUser = getMutableState(AuthState).user.value
-        dispatchAction(ChatAction.createdMessageAction({ message: params, selfUser }))
+      const messageCreatedListener = (params: Message) => {
+        dispatchAction(ChatAction.createdMessageAction({ message: params }))
       }
 
-      const messagePatchedListener = (params) => {
+      const messagePatchedListener = (params: Message) => {
         dispatchAction(ChatAction.patchedMessageAction({ message: params }))
       }
 
-      const messageRemovedListener = (params) => {
+      const messageRemovedListener = (params: Message) => {
         dispatchAction(ChatAction.removedMessageAction({ message: params }))
       }
 
-      const channelCreatedListener = (params) => {
-        dispatchAction(ChatAction.createdChannelAction(params))
+      const channelCreatedListener = (params: Channel) => {
+        dispatchAction(ChatAction.createdChannelAction({ channel: params }))
       }
 
-      const channelPatchedListener = (params) => {
-        dispatchAction(ChatAction.patchedChannelAction(params))
+      const channelPatchedListener = (params: Channel) => {
+        dispatchAction(ChatAction.patchedChannelAction({ channel: params }))
       }
 
-      const channelRemovedListener = (params) => {
-        dispatchAction(ChatAction.removedChannelAction(params))
+      const channelRemovedListener = (params: Channel) => {
+        dispatchAction(ChatAction.removedChannelAction({ channel: params }))
       }
 
       Engine.instance.api.service('message').on('created', messageCreatedListener)
@@ -315,8 +313,7 @@ export class ChatAction {
 
   static createdMessageAction = defineAction({
     type: 'ee.client.Chat.CREATED_MESSAGE' as const,
-    message: matches.object as Validator<unknown, Message>,
-    selfUser: matches.object as Validator<unknown, UserInterface>
+    message: matches.object as Validator<unknown, Message>
   })
 
   static patchedMessageAction = defineAction({

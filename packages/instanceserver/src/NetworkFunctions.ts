@@ -334,27 +334,6 @@ export const handleConnectingPeer = async (
 
   //TODO: remove this once all network state properties are reactively set
   updateNetwork(network)
-
-  const spectating = network.peers.get(peerID)!.spectating
-
-  const instanceServerState = getState(InstanceServerState)
-
-  const app = Engine.instance.api as Application
-
-  if (!instanceServerState.isMediaInstance) {
-    app.service('message').create(
-      {
-        instanceId: instanceServerState.instance.id,
-        text: `${user.name} joined` + (spectating ? ' as spectator' : ''),
-        isNotification: true
-      },
-      {
-        'identity-provider': {
-          userId: userId
-        }
-      }
-    )
-  }
 }
 
 export async function handleJoinWorld(
@@ -484,7 +463,6 @@ export async function handleHeartbeat(network: SocketWebRTCServerNetwork, spark:
 
 export async function handleDisconnect(network: SocketWebRTCServerNetwork, spark: Spark, peerID: PeerID): Promise<any> {
   const userId = getUserIdFromPeerID(network, peerID) as UserId
-  console.log('peers', network.peers)
   const disconnectedClient = network.peers.get(peerID)
   if (!disconnectedClient) return logger.warn(`Tried to handle disconnect for peer ${peerID} but was not found`)
   // On local, new connections can come in before the old sockets are disconnected.
@@ -500,8 +478,7 @@ export async function handleDisconnect(network: SocketWebRTCServerNetwork, spark
     if (!instanceServerState.isMediaInstance)
       app.service('message').create(
         {
-          targetObjectId: instanceServerState.instance.id,
-          targetObjectType: 'instance',
+          instanceId: instanceServerState.instance.id,
           text: `${userName} left`,
           isNotification: true
         },

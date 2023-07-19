@@ -123,7 +123,7 @@ export class Channel<T = ChannelDataType> extends Service<T> {
     const userId = loggedInUser.id
     if (!userId) return []
 
-    console.log()
+    console.log(params)
 
     try {
       if (query.instanceId) {
@@ -133,6 +133,7 @@ export class Channel<T = ChannelDataType> extends Service<T> {
               model: this.app.service('instance').Model,
               required: true,
               where: {
+                id: query.instanceId,
                 ended: false
               },
               include: [
@@ -156,9 +157,13 @@ export class Channel<T = ChannelDataType> extends Service<T> {
           ]
         })
 
-        return channels.filter((channel) => {
-          return channel.instance.id === query.instanceId // && channel.instance.users.find((user) => user.id === userId)
-        })
+        console.log(channels)
+
+        return channels
+
+        // return channels.filter((channel) => {
+        //   return channel.instance.id === query.instanceId // && channel.instance.users.find((user) => user.id === userId)
+        // })
       }
 
       return this.app.service('channel').Model.findAll({

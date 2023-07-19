@@ -31,6 +31,7 @@ import { decode } from 'jsonwebtoken'
 import { v4 as uuidv4 } from 'uuid'
 
 import { IdentityProviderInterface } from '@etherealengine/common/src/dbmodels/IdentityProvider'
+import { ChannelID } from '@etherealengine/common/src/interfaces/ChannelUser'
 import { Instance } from '@etherealengine/common/src/interfaces/Instance'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { UserInterface, UserKick } from '@etherealengine/common/src/interfaces/User'
@@ -141,7 +142,7 @@ const createNewInstance = async (app: Application, newInstance: InstanceMetadata
 const assignExistingInstance = async (
   app: Application,
   existingInstance: Instance,
-  channelId: string,
+  channelId: ChannelID,
   locationId: string
 ) => {
   const serverState = getState(ServerState)
@@ -189,7 +190,7 @@ const initializeInstance = async (
   app: Application,
   status: InstanceserverStatus,
   locationId: string,
-  channelId: string,
+  channelId: ChannelID,
   userId?: UserId
 ) => {
   logger.info('Initializing new instance')
@@ -336,6 +337,17 @@ const loadEngine = async (app: Application, sceneId: string) => {
 const handleUserAttendance = async (app: Application, userId: UserId) => {
   const instanceServerState = getState(InstanceServerState)
 
+  const channel = await app.service('channel').Model.findOne({
+    where: {
+      instanceId: instanceServerState.instance.id
+    }
+  })
+
+  await app.service('channel-user').create({
+    channelId: channel.id,
+    userId: userId
+  })
+
   await app.service('instance-attendance').patch(
     null,
     {
@@ -378,7 +390,7 @@ const createOrUpdateInstance = async (
   app: Application,
   status: InstanceserverStatus,
   locationId: string,
-  channelId: string,
+  channelId: ChannelID,
   sceneId: string,
   userId?: UserId
 ) => {
@@ -591,7 +603,7 @@ const onConnection = (app: Application) => async (connection: PrimusConnectionTy
 
   const userId = identityProvider.userId
   let locationId = connection.socketQuery.locationId!
-  let channelId = connection.socketQuery.channelId!
+  let channelId = connection.socketQuery.channelId! as ChannelID
   let roomCode = connection.socketQuery.roomCode!
 
   if (locationId === '') {

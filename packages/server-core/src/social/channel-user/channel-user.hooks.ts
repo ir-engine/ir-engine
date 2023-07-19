@@ -26,7 +26,6 @@ Ethereal Engine. All Rights Reserved.
 import { HookContext } from '@feathersjs/feathers'
 import { disallow, iff, isProvider } from 'feathers-hooks-common'
 
-// import channelPermissionAuthenticate from '@etherealengine/server-core/src/hooks/channel-permission-authenticate'
 import channelUserPermissionAuthenticate from '@etherealengine/server-core/src/hooks/channel-user-permission-authenticate'
 
 import authenticate from '../../hooks/authenticate'
@@ -40,9 +39,7 @@ export default {
     create: [iff(isProvider('external'), verifyScope('admin', 'admin'))],
     update: [disallow('external')],
     patch: [iff(isProvider('external'), channelUserPermissionAuthenticate())],
-    remove: [
-      /**channelPermissionAuthenticate()*/
-    ]
+    remove: []
   },
 
   after: {
@@ -71,8 +68,7 @@ export default {
         const user = await app.service('user').get(result.userId)
         await app.service('message').create(
           {
-            targetObjectId: result.channelId,
-            targetObjectType: 'channel',
+            channelId: result.channelId,
             text: `${user.name} joined the channel`,
             isNotification: true
           },
@@ -92,8 +88,7 @@ export default {
         const { app, params, result } = context
         const user = await app.service('user').get(result.userId)
         await app.service('message').create({
-          targetObjectId: result.channelId,
-          targetObjectType: 'channel',
+          channelId: result.channelId,
           text: `${user.name} left the channel`,
           isNotification: true
         })
@@ -106,33 +101,6 @@ export default {
           })
           if (channelUserCount.total < 1) {
             await app.service('channel').remove(params.query!.channelId, params)
-          }
-          if (channelUserCount.total >= 1 && result.channelUserRank === 'owner') {
-            const channelAdminResult = await app.service('channel-user').find({
-              query: {
-                channelId: params.query!.channelId,
-                channelUserRank: 'admin'
-              }
-            })
-            if (channelAdminResult.total > 0) {
-              const channelAdmins = channelAdminResult.data
-              const newOwner = channelAdmins[Math.floor(Math.random() * channelAdmins.length)]
-              await app.service('channel-user').patch(newOwner.id, {
-                channelUserRank: 'owner'
-              })
-            } else {
-              const channelUserResult = await app.service('channel-user').find({
-                query: {
-                  channelId: params.query!.channelId,
-                  channelUserRank: 'user'
-                }
-              })
-              const channelUsers = channelUserResult.data
-              const newOwner = channelUsers[Math.floor(Math.random() * channelUsers.length)]
-              await app.service('channel-user').patch(newOwner.id, {
-                channelUserRank: 'owner'
-              })
-            }
           }
         }
         return context

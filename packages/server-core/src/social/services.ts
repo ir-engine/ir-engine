@@ -33,7 +33,6 @@ import LocationAuthorizedUser from './location-authorized-user/location-authoriz
 import LocationBan from './location-ban/location-ban.service'
 import LocationSettings from './location-settings/location-settings.service'
 import LocationType from './location-type/location-type.service'
-import MessageStatus from './message-status/message-status.service'
 import Message from './message/message.service'
 import PartyUser from './party-user/party-user.service'
 import Party from './party/party.service'
@@ -47,7 +46,6 @@ export default [
   Party,
   PartyUser,
   Message,
-  MessageStatus,
   LocationType,
   LocationSettings,
   LocationBan,

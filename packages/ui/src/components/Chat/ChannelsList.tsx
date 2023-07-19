@@ -27,6 +27,7 @@ import React, { useEffect } from 'react'
 
 import { ChatService, ChatState } from '@etherealengine/client-core/src/social/services/ChatService'
 import { useUserAvatarThumbnail } from '@etherealengine/client-core/src/user/functions/useUserAvatarThumbnail'
+import { ChannelID } from '@etherealengine/common/src/interfaces/ChannelUser'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
 import { DrawerCreateChannel } from './DrawerCreateChannel'
@@ -39,12 +40,12 @@ export const ChannelsList = () => {
   useEffect(() => {
     ChatService.getChannels()
     return () => {
-      chatState.targetChannelId.set('')
+      chatState.targetChannelId.set('' as ChannelID)
     }
   }, [])
 
   const isDrawerOpen = useHookstate(false)
-  const selectedChannelId = useHookstate('')
+  const selectedChannelId = useHookstate('' as ChannelID)
 
   useEffect(() => {
     chatState.targetChannelId.set(selectedChannelId.value)

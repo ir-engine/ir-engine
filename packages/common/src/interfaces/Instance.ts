@@ -23,6 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { ChannelID } from './ChannelUser'
 import { InstanceAttendanceInterface } from './InstanceAttendance'
 import { Location } from './Location'
 import { LocationSettings } from './LocationSettings'
@@ -36,7 +37,7 @@ export interface Instance {
   ipAddress: string
   locationId: string
   location: Location
-  channelId: string
+  channelId: ChannelID
   podName?: string
   ended?: boolean
   assigned?: boolean

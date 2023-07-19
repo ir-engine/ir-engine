@@ -134,8 +134,7 @@ export class PartyUser<T = PartyUserDataType> extends Service<T> {
 
       await this.app.service('message').create(
         {
-          targetObjectId: partyUser.partyId,
-          targetObjectType: 'party',
+          channelId: party.channelId,
           text: `${user.name} joined the party`,
           isNotification: true
         },
