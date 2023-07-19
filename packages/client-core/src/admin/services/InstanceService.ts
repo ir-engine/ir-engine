@@ -88,7 +88,7 @@ export const AdminInstanceService = {
     }
   },
   removeInstance: async (id: string) => {
-    ;(await API.instance.client.service('instance').patch(id, { ended: true })) as Instance
+    await API.instance.client.service('instance').patch(id, { ended: true })
     getMutableState(AdminInstanceState).merge({ updateNeeded: true })
   },
   useAPIListeners: () => {
