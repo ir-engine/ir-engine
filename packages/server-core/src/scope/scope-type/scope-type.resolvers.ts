@@ -23,24 +23,25 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { createSwaggerServiceOptions } from 'feathers-swagger'
+// For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
+import { resolve } from '@feathersjs/schema'
 
-import {
-  scopeTypeDataSchema,
-  scopeTypePatchSchema,
-  scopeTypeQuerySchema,
-  scopeTypeSchema
-} from '@etherealengine/engine/src/schemas/scope/scope-type.schema'
+import { ScopeTypeQuery, ScopeTypeType } from '@etherealengine/engine/src/schemas/scope/scope-type.schema'
+import type { HookContext } from '@etherealengine/server-core/declarations'
 
-export default createSwaggerServiceOptions({
-  schemas: {
-    scopeTypeDataSchema,
-    scopeTypePatchSchema,
-    scopeTypeQuerySchema,
-    scopeTypeSchema
-  },
-  docs: {
-    description: 'Scope type service description',
-    securities: ['all']
-  }
+import { getDateTimeSql } from '../../util/get-datetime-sql'
+
+export const scopeTypeResolver = resolve<ScopeTypeType, HookContext>({})
+
+export const scopeTypeExternalResolver = resolve<ScopeTypeType, HookContext>({})
+
+export const scopeTypeDataResolver = resolve<ScopeTypeType, HookContext>({
+  createdAt: getDateTimeSql,
+  updatedAt: getDateTimeSql
 })
+
+export const scopeTypePatchResolver = resolve<ScopeTypeType, HookContext>({
+  updatedAt: getDateTimeSql
+})
+
+export const scopeTypeQueryResolver = resolve<ScopeTypeQuery, HookContext>({})
