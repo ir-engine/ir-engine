@@ -113,13 +113,13 @@ export async function previewScreenshot(
 
   let blob: Blob | null = null
   const renderer = EngineRenderer.instance.renderer
-  renderer.outputEncoding = sRGBEncoding
+  renderer.outputColorSpace = SRGBColorSpace
   const renderTarget = new WebGLRenderTarget(width, height, {
     minFilter: LinearFilter,
     magFilter: LinearFilter,
     wrapS: ClampToEdgeWrapping,
     wrapT: ClampToEdgeWrapping,
-    encoding: sRGBEncoding,
+    colorSpace: SRGBColorSpace,
     format: RGBAFormat,
     type: UnsignedByteType
   })
