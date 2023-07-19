@@ -35,7 +35,7 @@ import {
   SimulationSystemGroup
 } from '@etherealengine/engine/src/ecs/functions/EngineFunctions'
 import { startSystems } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
-import { EquippableSystem } from '@etherealengine/engine/src/interaction/systems/EquippableSystem'
+import { GrabbableSystem } from '@etherealengine/engine/src/interaction/systems/GrabbableSystem'
 import { InteractiveSystem } from '@etherealengine/engine/src/interaction/systems/InteractiveSystem'
 import { MotionCaptureSystem } from '@etherealengine/engine/src/mocap/MotionCaptureSystem'
 import { EntityNetworkStateSystem } from '@etherealengine/engine/src/networking/state/EntityNetworkState'
@@ -67,7 +67,7 @@ export const startWorldServerSystems = () => {
       IncomingNetworkSystem,
       EntityNetworkStateSystem,
       ServerHostNetworkSystem,
-      EquippableSystem,
+      GrabbableSystem,
       AvatarSimulationSystemGroup
     ],
     {

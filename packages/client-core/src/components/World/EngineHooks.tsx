@@ -204,7 +204,7 @@ export const useLoadEngineWithScene = ({ spectate }: Props = {}) => {
   }, [engineState.sceneLoaded, engineState.loadingProgress])
 }
 
-export const useOnlineInstance = () => {
+export const useOnlineNetwork = () => {
   useEffect(() => {
     getMutableState(NetworkState).config.set({
       world: true,
@@ -216,7 +216,7 @@ export const useOnlineInstance = () => {
   }, [])
 }
 
-export const useOfflineScene = (props?: { spectate?: boolean }) => {
+export const useOfflineNetwork = (props?: { spectate?: boolean }) => {
   const engineState = useHookstate(getMutableState(EngineState))
   const authState = useHookstate(getMutableState(AuthState))
 
@@ -228,8 +228,8 @@ export const useOfflineScene = (props?: { spectate?: boolean }) => {
   useEffect(() => {
     if (engineState.sceneLoaded.value) {
       const userId = Engine.instance.userId
+      const peerID = Engine.instance.peerID
       const userIndex = 1
-      const peerID = 'peerID' as PeerID
       const peerIndex = 1
 
       const networkState = getMutableState(NetworkState)

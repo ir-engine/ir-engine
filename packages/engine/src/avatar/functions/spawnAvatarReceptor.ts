@@ -42,6 +42,7 @@ import {
 } from '../../ecs/functions/ComponentFunctions'
 import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
 import { BoundingBoxComponent } from '../../interaction/components/BoundingBoxComponents'
+import { GrabberComponent } from '../../interaction/components/GrabbableComponent'
 import {
   NetworkObjectAuthorityTag,
   NetworkObjectComponent,
@@ -132,6 +133,7 @@ export const spawnAvatarReceptor = (entityUUID: EntityUUID) => {
 
   setComponent(entity, ShadowComponent)
   setComponent(entity, BoundingBoxComponent)
+  setComponent(entity, GrabberComponent)
 }
 
 export const createAvatarCollider = (entity: Entity): Collider => {

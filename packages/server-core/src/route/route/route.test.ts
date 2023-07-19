@@ -82,8 +82,8 @@ describe('route.test', () => {
   })
 
   after(async () => {
-    await destroyEngine()
     await cleanup(app, testProject)
+    await destroyEngine()
   })
 
   it('should find the installed project routes', async () => {

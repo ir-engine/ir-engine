@@ -204,11 +204,19 @@ export const readCompressedRotation = (vector4: Vector4SoA) => (v: ViewCursor, e
   }
 }
 
-export const readEntity = (v: ViewCursor, fromUserId: UserId, serializationSchema: SerializationSchema[]) => {
+export const readEntity = (
+  v: ViewCursor,
+  network: Network,
+  fromUserId: UserId,
+  serializationSchema: SerializationSchema[]
+) => {
   const netId = readUint32(v) as NetworkId
+  const ownerIndex = readUint32(v) as NetworkId
   const changeMask = readUint8(v)
 
-  let entity = Engine.instance.getNetworkObject(fromUserId, netId)
+  const ownerId = network.userIndexToUserID.get(ownerIndex)!
+
+  let entity = Engine.instance.getNetworkObject(ownerId, netId)
   if (entity && hasComponent(entity, NetworkObjectAuthorityTag)) entity = UndefinedEntity
 
   let b = 0
@@ -218,12 +226,12 @@ export const readEntity = (v: ViewCursor, fromUserId: UserId, serializationSchem
   }
 }
 
-export const readEntities = (v: ViewCursor, byteLength: number, fromUserID: UserId) => {
+export const readEntities = (v: ViewCursor, network: Network, byteLength: number, fromUserID: UserId) => {
   const entitySchema = Object.values(getState(NetworkState).networkSchema)
   while (v.cursor < byteLength) {
     const count = readUint32(v)
     for (let i = 0; i < count; i++) {
-      readEntity(v, fromUserID, entitySchema)
+      readEntity(v, network, fromUserID, entitySchema)
     }
   }
 }
@@ -246,7 +254,7 @@ export const readDataPacket = (network: Network, packet: ArrayBuffer) => {
   network.jitterBufferTaskList.push({
     simulationTime,
     read: () => {
-      readEntities(view, packet.byteLength, fromUserID)
+      readEntities(view, network, packet.byteLength, fromUserID)
     }
   })
 }
