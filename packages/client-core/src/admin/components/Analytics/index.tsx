@@ -164,25 +164,27 @@ const Analytics = () => {
             <LocalizationProvider dateAdapter={AdapterMoment}>
               <MobileDateTimePicker
                 value={startDate.value}
-                DialogProps={{
-                  PaperProps: {
-                    className: styles.dateTimePickerDialog
+                slotProps={{
+                  dialog: {
+                    PaperProps: {
+                      className: styles.dateTimePickerDialog
+                    }
                   }
                 }}
                 onChange={(value) => onDateRangeStartChange(value)}
-                renderInput={(params) => <TextField {...params} />}
               />
               <Box sx={{ mx: 2 }}> to </Box>
               <MobileDateTimePicker
                 value={endDate.value}
-                DialogProps={{
-                  PaperProps: {
-                    className: styles.dateTimePickerDialog
+                slotProps={{
+                  dialog: {
+                    PaperProps: {
+                      className: styles.dateTimePickerDialog
+                    }
                   }
                 }}
                 minDateTime={minEndDate}
                 onChange={(value) => onDateRangeEndChange(value)}
-                renderInput={(params) => <TextField {...params} />}
               />
             </LocalizationProvider>
           </div>
