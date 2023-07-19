@@ -25,6 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 export const EnvMapSourceType = {
   Skybox: 'Skybox' as const,
+  Bake: 'Bake' as const,
   Default: 'Default' as const,
   Texture: 'Texture' as const,
   Color: 'Color' as const,

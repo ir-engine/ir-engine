@@ -32,6 +32,7 @@ import { isDev } from '@etherealengine/common/src/config'
 import { HyperFlux } from './StoreFunctions'
 
 const ReactorReconciler = Reconciler({
+  warnsIfNotActing: true,
   getPublicInstance: (instance) => instance,
   getRootHostContext: () => null,
   getChildHostContext: (parentHostContext) => parentHostContext,
@@ -79,7 +80,7 @@ export interface ReactorRoot {
   isRunning: boolean
   promise: Promise<void>
   cleanupFunctions: Set<() => void>
-  run: () => Promise<void>
+  run: (force?: boolean) => Promise<void>
   stop: () => Promise<void>
 }
 

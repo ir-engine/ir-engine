@@ -357,6 +357,12 @@ globalThis.Hyperflux = Hyperflux
 export async function destroyEngine() {
   Engine.instance.engineTimer.clear()
 
+  if (Engine.instance.api) {
+    if ((Engine.instance.api as any).server) await Engine.instance.api.teardown()
+    else if ((Engine.instance.api as any).get('sequelizeClient'))
+      await (Engine.instance.api as any).get('sequelizeClient').close()
+  }
+
   /** Remove all entities */
   const entities = Engine.instance.entityQuery()
 

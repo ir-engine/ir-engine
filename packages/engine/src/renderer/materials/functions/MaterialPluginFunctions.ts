@@ -52,14 +52,17 @@ export function unregisterMaterialPlugin(component: MaterialPluginType) {
 export function applyMaterialPlugin(material: Material, pluginId: string) {
   const materialLibrary = getMutableState(MaterialLibraryState)
   const pluginComponent = materialLibrary.plugins[pluginId]
+  if (!pluginComponent.plugin.value) {
+    console.warn('Unsupported material plugin ' + pluginId)
+    return
+  }
   addOBCPlugin(material, pluginComponent.plugin.get(NO_PROXY))
-  pluginComponent.instances.set([...pluginComponent.instances.value, material])
 }
 
 export function removeMaterialPlugin(material: Material, pluginId: string) {
   const materialLibrary = getMutableState(MaterialLibraryState)
-  const pluginComponent = materialLibrary.plugins[pluginId]
-  removeOBCPlugin(material, pluginComponent.plugin.value)
+  const pluginComponent = materialLibrary.plugins[pluginId].value
+  if (!pluginComponent) return
+  removeOBCPlugin(material, pluginComponent.plugin)
   material.needsUpdate = true
-  pluginComponent.instances.set(pluginComponent.instances.value.filter((item) => item !== material))
 }

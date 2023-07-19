@@ -38,7 +38,7 @@ import { getCachedURL } from '../../media/storageprovider/getCachedURL'
 import { getStorageProvider } from '../../media/storageprovider/storageprovider'
 import logger from '../../ServerLogger'
 import { cleanString } from '../../util/cleanString'
-import { convertStaticResource } from './scene-helper'
+import { downloadAssetsFromScene } from './scene-helper'
 import { cleanSceneDataCacheURLs, parseSceneDataCacheURLs } from './scene-parser'
 
 const NEW_SCENE_NAME = 'New-Scene'
@@ -250,7 +250,7 @@ export class Scene implements ServiceMethods<any> {
       const project = await this.app.service('project').get(projectName, params)
       if (!project.data) throw new Error(`No project named ${projectName} exists`)
 
-      await convertStaticResource(this.app, projectName, sceneData)
+      await downloadAssetsFromScene(this.app, projectName, sceneData)
 
       const newSceneJsonPath = `projects/${projectName}/${sceneName}.scene.json`
       await storageProvider.putObject({

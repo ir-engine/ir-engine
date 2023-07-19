@@ -54,6 +54,7 @@ export class CapsuleGeometry extends BufferGeometry {
   _halfHeight = 0
   _indexArray: number[][] = []
   _indexOffset = 0
+  type = 'CapsuleGeometry'
 
   constructor(
     radiusTop?: number,
@@ -67,7 +68,6 @@ export class CapsuleGeometry extends BufferGeometry {
     thetaLength?: number
   ) {
     super()
-    this.type = 'CapsuleGeometry'
 
     this.parameters = {
       radiusTop: radiusTop,

@@ -40,7 +40,7 @@ import {
 	MirroredRepeatWrapping,
 	Quaternion,
 	RepeatWrapping,
-	sRGBEncoding,
+	SRGBColorSpace,
 	Texture,
 	TextureLoader,
 	Vector3,
@@ -546,7 +546,7 @@ class USDZLoader extends Loader {
 													const sampler = findTexture( root, /(\w+).output/.exec( path )[ 1 ] );
 	
 													material.map = buildTexture( sampler );
-													material.map.encoding = sRGBEncoding;
+													material.map.colorSpace = SRGBColorSpace;
 	
 											} 
 											if ( `${colorType} inputs:diffuseColor` in surface ) {
@@ -633,7 +633,7 @@ class USDZLoader extends Loader {
 					const sampler = data[ 'def Shader "diffuseColor_texture"' ];
 
 					material.map = buildTexture( sampler );
-					material.map.encoding = sRGBEncoding;
+					material.map.colorSpace = SRGBColorSpace;
 
 				}
 

@@ -42,6 +42,7 @@ import {
 } from '../../ecs/functions/ComponentFunctions'
 import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
 import { BoundingBoxComponent } from '../../interaction/components/BoundingBoxComponents'
+import { GrabberComponent } from '../../interaction/components/GrabbableComponent'
 import {
   NetworkObjectAuthorityTag,
   NetworkObjectComponent,
@@ -65,7 +66,6 @@ import { AnimationComponent } from '../components/AnimationComponent'
 import { AvatarAnimationComponent } from '../components/AvatarAnimationComponent'
 import { AvatarComponent } from '../components/AvatarComponent'
 import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
-import { SpawnPoseComponent } from '../components/SpawnPoseComponent'
 
 export const avatarRadius = 0.25
 export const defaultAvatarHeight = 1.8
@@ -121,11 +121,6 @@ export const spawnAvatarReceptor = (entityUUID: EntityUUID) => {
     locomotion: new Vector3()
   })
 
-  addComponent(entity, SpawnPoseComponent, {
-    position: new Vector3().copy(transform.position),
-    rotation: new Quaternion().copy(transform.rotation)
-  })
-
   if (ownerID === Engine.instance.userId) {
     createAvatarController(entity)
     addComponent(entity, LocalInputTagComponent, true)
@@ -138,6 +133,7 @@ export const spawnAvatarReceptor = (entityUUID: EntityUUID) => {
 
   setComponent(entity, ShadowComponent)
   setComponent(entity, BoundingBoxComponent)
+  setComponent(entity, GrabberComponent)
 }
 
 export const createAvatarCollider = (entity: Entity): Collider => {

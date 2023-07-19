@@ -140,8 +140,6 @@ export const EntityTreeComponent = defineComponent({
     } else {
       EntityTreeComponent.roots[entity].set(none)
     }
-
-    removeComponent(entity, UUIDComponent)
   },
 
   roots: hookstate({} as Record<Entity, true>)
@@ -219,8 +217,9 @@ export function addEntityNodeChild(entity: Entity, parentEntity: Entity, uuid?: 
   if (Engine.instance.worldNetwork?.isHosting) {
     const uuid = getComponent(entity, UUIDComponent)
     dispatchAction(
-      WorldNetworkAction.registerSceneObject({
-        objectUuid: uuid
+      WorldNetworkAction.spawnObject({
+        entityUUID: uuid,
+        prefab: ''
       })
     )
   }

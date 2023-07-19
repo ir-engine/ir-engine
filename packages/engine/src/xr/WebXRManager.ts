@@ -30,6 +30,7 @@ import {
   DepthTexture,
   PerspectiveCamera,
   RGBAFormat,
+  TextureDataType,
   UnsignedByteType,
   UnsignedInt248Type,
   UnsignedIntType,
@@ -80,6 +81,10 @@ declare global {
 
   interface XRSession {
     interactionMode: 'screen-space' | 'world-space'
+  }
+
+  interface XRProjectionLayer {
+    quality: 'default' | 'text-optimized' | 'graphics-optimized'
   }
 }
 
@@ -170,12 +175,12 @@ export function createWebXRManager() {
         newRenderTarget = new WebGLRenderTarget(glBaseLayer.framebufferWidth, glBaseLayer.framebufferHeight, {
           format: RGBAFormat,
           type: UnsignedByteType,
-          encoding: renderer.outputEncoding,
+          colorSpace: renderer.outputColorSpace,
           stencilBuffer: attributes.stencil
         })
       } else {
         let depthFormat: number | undefined
-        let depthType: number | undefined
+        let depthType: TextureDataType | undefined
         let glDepthFormat: number | undefined
 
         if (attributes.depth) {
@@ -193,12 +198,14 @@ export function createWebXRManager() {
           depthFormat: glDepthFormat,
           scaleFactor: framebufferScaleFactor,
           textureType: (scope.isMultiview ? 'texture-array' : 'texture') as XRTextureType
+          // quality: "graphics-optimized" /** @todo - this does not work yet, must be set directly on the layer */
         }
 
         const glBinding = new XRWebGLBinding(session, gl)
         xrRendererState.glBinding.set(glBinding)
 
         const glProjLayer = glBinding.createProjectionLayer(projectionlayerInit)
+        glProjLayer.quality = 'graphics-optimized'
         xrRendererState.glProjLayer.set(glProjLayer)
 
         session.updateRenderState({ layers: [glProjLayer] })
@@ -220,7 +227,7 @@ export function createWebXRManager() {
             depthFormat
           ),
           stencilBuffer: attributes.stencil,
-          encoding: renderer.outputEncoding,
+          colorSpace: renderer.outputColorSpace,
           samples: attributes.antialias ? 4 : 0
         }
 
@@ -253,6 +260,12 @@ export function createWebXRManager() {
       animation.start()
 
       scope.isPresenting = true
+    }
+  }
+
+  scope.getEnvironmentBlendMode = function () {
+    if (xrState.session !== null) {
+      return xrState.session.environmentBlendMode
     }
   }
 

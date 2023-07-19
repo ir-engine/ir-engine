@@ -341,15 +341,22 @@ export class S3Provider implements StorageProviderInterface {
     let routeRegex = ''
     for (let route of routes)
       if (route !== '/')
-        routeRegex +=
-          route === '/location' ||
-          route === '/auth' ||
-          route === '/admin' ||
-          route === '/editor' ||
-          route === '/studio' ||
-          route === '/capture'
-            ? `^${route}/|`
-            : `^${route}|`
+        switch (route) {
+          case '/admin':
+          case '/editor':
+          case '/studio':
+            routeRegex += `^${route}$$|` // String.replace will convert this to a single $
+            routeRegex += `^${route}/|`
+            break
+          case '/location':
+          case '/auth':
+          case '/capture':
+            routeRegex += `^${route}/|`
+            break
+          default:
+            routeRegex += `^${route}$$|` // String.replace will convert this to a single $
+            break
+        }
     if (routes.length > 0) routeRegex = routeRegex.slice(0, routeRegex.length - 1)
     let publicRegex = ''
     fs.readdirSync(path.join(appRootPath.path, 'packages', 'client', 'dist'), { withFileTypes: true }).forEach(
