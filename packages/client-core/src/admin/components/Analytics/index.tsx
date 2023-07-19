@@ -34,8 +34,8 @@ import ToggleButton from '@etherealengine/ui/src/primitives/mui/ToggleButton'
 import ToggleButtonGroup from '@etherealengine/ui/src/primitives/mui/ToggleButtonGroup'
 
 import DateAdapter from '@mui/lab/AdapterMoment'
-import LocalizationProvider from '@mui/lab/LocalizationProvider'
 import MobileDateTimePicker from '@mui/lab/MobileDateTimePicker'
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
 
 import { AuthState } from '../../../user/services/AuthService'
 import { AdminAnalyticsService, AdminAnalyticsState } from '../../services/AnalyticsService'
