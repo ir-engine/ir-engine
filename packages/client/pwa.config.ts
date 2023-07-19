@@ -26,6 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { VitePWA } from 'vite-plugin-pwa'
 
 import manifest from './manifest.default.json'
+import packageJson from './package.json'
 
 /**
  * Creates a new instance of the VitePWA plugin for Vite.js.
@@ -86,15 +87,15 @@ const PWA = (clientSetting) =>
       // claim clients immediately
       clientsClaim: true,
       // show source maps
-      sourcemap: true,
+      sourcemap: process.env.APP_ENV === 'development' ? false : true,
       // Set the path for the service worker file
       swDest: process.env.APP_ENV === 'development' ? 'public/service-worker.js' : 'dist/service-worker.js',
       // Navigate to index.html for all 404 errors during production
       navigateFallback: null,
       // Allowlist all paths for navigateFallback during production
       navigateFallbackAllowlist: [
-        // allow everything
-        new RegExp('^/.*$')
+        // allow /static
+        new RegExp('^/static/.*$')
       ],
       // Set the glob directory and patterns for the cache
       globDirectory: process.env.APP_ENV === 'development' ? './public' : './dist',
@@ -106,7 +107,7 @@ const PWA = (clientSetting) =>
         // media
         '**/*.{mp3,mp4,webm}',
         // code
-        '**/*.{js, css}',
+        '**/*.{js, css, html}',
         // docs
         '**/*.{txt,xml,json,pdf}',
         // 3d objects
@@ -120,15 +121,67 @@ const PWA = (clientSetting) =>
       ],
       // Set additional manifest entries for the cache
       additionalManifestEntries: [
-        // { url: '/service-worker.js', revision: null },
-        // { url: '/dev-sw', revision: null },
-        // { url: '/src/main', revision: null }
+        // { url: '/index', revision: `${packageJson?.version}_${Date.now()}` },
+        { url: '/service-worker', revision: `${packageJson?.version}_${Date.now()}` },
+        { url: '/dev-sw', revision: `${packageJson?.version}_${Date.now()}` },
+        { url: '/src/main', revision: `${packageJson?.version}_${Date.now()}` }
       ],
       // Enable cleanup of outdated caches
       cleanupOutdatedCaches: true,
       // Set maximum cache size to 10 MB
       maximumFileSizeToCacheInBytes: 1000 * 1000 * 10,
       runtimeCaching: [
+        // Cache static resources
+        {
+          urlPattern: ({ url }) => {
+            return /\/static?.*/i.test(url.href)
+          },
+          handler: 'CacheFirst',
+          options: {
+            cacheName: 'static-cache',
+            expiration: {
+              maxEntries: 100,
+              maxAgeSeconds: 24 * 60 * 60 * 30 // <== 30 days
+            },
+            cacheableResponse: {
+              statuses: [0, 200]
+            }
+          }
+        },
+        // Cache static resources
+        {
+          urlPattern: ({ url }) => {
+            return /\/static-resources?.*/i.test(url.href)
+          },
+          handler: 'CacheFirst',
+          options: {
+            cacheName: 'static-assets-cache',
+            expiration: {
+              maxEntries: 100,
+              maxAgeSeconds: 24 * 60 * 60 * 30 // <== 30 days
+            },
+            cacheableResponse: {
+              statuses: [0, 200]
+            }
+          }
+        },
+        // Cache sfx assets
+        {
+          urlPattern: ({ url }) => {
+            return /\/sfx?.*/i.test(url.href)
+          },
+          handler: 'CacheFirst',
+          options: {
+            cacheName: 'sfx-assets-cache',
+            expiration: {
+              maxEntries: 100,
+              maxAgeSeconds: 24 * 60 * 60 * 30 // <== 30 days
+            },
+            cacheableResponse: {
+              statuses: [0, 200]
+            }
+          }
+        },
         // Cache local assets
         {
           urlPattern: ({ url }) => {
@@ -240,6 +293,21 @@ const PWA = (clientSetting) =>
               statuses: [0, 200]
             },
             networkTimeoutSeconds: 10
+          }
+        },
+        // Cache everything else
+        {
+          urlPattern: /^\/*/,
+          handler: 'CacheFirst',
+          options: {
+            cacheName: 'all-local-cache',
+            expiration: {
+              maxEntries: 100,
+              maxAgeSeconds: 24 * 60 * 60 * 30 // <== 30 days
+            },
+            cacheableResponse: {
+              statuses: [0, 200]
+            }
           }
         }
       ]
