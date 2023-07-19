@@ -35,6 +35,10 @@ import { findRootBone, processRootAnimation } from './animation/Util'
 import avatarBoneMatching, { findSkinnedMeshes } from './AvatarBoneMatching'
 import { makeDefaultSkinnedMesh } from './functions/avatarFunctions'
 
+//Create all IK targets as object 3ds, stored in
+//a named struct and in an object 3d hierarchy
+//the former allows easy accessability while the
+//latter allows for threejs keyframe animation
 export const AnimationState = defineState({
   name: 'animationManager',
   initial: () => ({
@@ -77,16 +81,16 @@ export class AnimationManager {
     this._defaultRootBone = findRootBone(this._defaultSkinnedMesh)!
     this._rootAnimationData = {}
     this._animations = gltf.animations
-    // this._animations?.forEach((clip) => {
-    //   // TODO: make list of morph targets names
-    //   clip.tracks = clip.tracks.filter((track) => !track.name.match(/^CC_Base_/))
+    this._animations?.forEach((clip) => {
+      // TODO: make list of morph targets names
+      clip.tracks = clip.tracks.filter((track) => !track.name.match(/^CC_Base_/))
 
-    //   const rootData = processRootAnimation(clip, this._defaultRootBone)
+      // const rootData = processRootAnimation(clip, this._defaultRootBone)
 
-    //   if (rootData) {
-    //     this._rootAnimationData[clip.name] = rootData
-    //   }
-    // })
+      // if (rootData) {
+      //   this._rootAnimationData[clip.name] = rootData
+      // }
+    })
     return this._animations
   }
 }

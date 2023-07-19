@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import appRootPath from 'app-root-path'
-import * as chargebeeInst from 'chargebee'
+import chargebeeInst from 'chargebee'
 import dotenv from 'dotenv-flow'
 import path from 'path'
 import url from 'url'

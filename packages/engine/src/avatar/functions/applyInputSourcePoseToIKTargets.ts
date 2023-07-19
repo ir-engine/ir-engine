@@ -26,6 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { Bone, Euler, Matrix4, Quaternion, Vector3 } from 'three'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
+import { getState } from '@etherealengine/hyperflux'
 
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
@@ -40,7 +41,7 @@ import { InputSourceComponent } from '../../input/components/InputSourceComponen
 import { UUIDComponent } from '../../scene/components/UUIDComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { XRHand, XRJointBones, XRLeftHandComponent, XRRightHandComponent } from '../../xr/XRComponents'
-import { getCameraMode, ReferenceSpace } from '../../xr/XRState'
+import { getCameraMode, ReferenceSpace, XRState } from '../../xr/XRState'
 import { BoneStructure } from '../AvatarBoneMatching'
 import { AvatarRigComponent } from '../components/AvatarAnimationComponent'
 import { xrTargetHeadSuffix, xrTargetLeftHandSuffix, xrTargetRightHandSuffix } from '../components/AvatarIKComponents'
@@ -261,8 +262,13 @@ const handOffsetRadians = Math.PI / 2.5
 const rightHandOffset = new Quaternion().setFromEuler(new Euler(0, 0, handOffsetRadians))
 const leftHandOffset = new Quaternion().setFromEuler(new Euler(0, 0, -handOffsetRadians))
 
-const leftControllerOffset = new Quaternion().setFromEuler(new Euler(0, -Math.PI / 2, 0))
-const rightControllerOffset = new Quaternion().setFromEuler(new Euler(0, Math.PI / 2, 0))
+//set offsets so hands align with controllers. Multiplying two quaternions because gimbal lock in euler angles prevents setting the offset in one quaternion
+const leftControllerOffset = new Quaternion()
+  .setFromEuler(new Euler(0, -Math.PI / 2, 0))
+  .multiply(new Quaternion().setFromEuler(new Euler(Math.PI / 4, 0, 0)))
+const rightControllerOffset = new Quaternion()
+  .setFromEuler(new Euler(0, Math.PI / 2, 0))
+  .multiply(new Quaternion().setFromEuler(new Euler(Math.PI / 4, 0, 0)))
 
 export const applyInputSourcePoseToIKTargets = () => {
   const { localClientEntity } = Engine.instance
@@ -300,7 +306,7 @@ export const applyInputSourcePoseToIKTargets = () => {
 
       const entity = handedness === 'right' ? ikTargetRightHand : ikTargetLeftHand
       const XRHandComponent = handedness === 'right' ? XRRightHandComponent : XRLeftHandComponent
-
+      const player = getComponent(Engine.instance.localClientEntity, TransformComponent)
       if (entity) {
         const ikTransform = getComponent(entity, TransformComponent)
         const hand = inputSourceComponent.source.hand as XRHand | undefined
@@ -324,7 +330,11 @@ export const applyInputSourcePoseToIKTargets = () => {
           if (inputSourceComponent.source.gripSpace) {
             const pose = Engine.instance.xrFrame!.getPose(inputSourceComponent.source.gripSpace, referenceSpace)
             if (pose) {
-              ikTransform.position.copy(pose.transform.position as any as Vector3)
+              ikTransform.position
+                .copy(pose.transform.position as any as Vector3)
+                .sub(player.position)
+                .multiplyScalar(1 / getState(XRState).sceneScale)
+                .add(player.position)
               ikTransform.rotation
                 .copy(pose.transform.orientation as any as Quaternion)
                 .multiply(handedness === 'right' ? rightControllerOffset : leftControllerOffset)

@@ -94,12 +94,13 @@ export function updateLocalAvatarPosition(additionalMovement?: Vector3) {
     const viewerPose = xrState.viewerPose
     /** move head position forward a bit to not be inside the avatar's body */
     avatarHeadPosition
-      .set(0, avatarHeight * 0.95, 0.25)
+      .set(0, avatarHeight * 0.925, 0.25)
       .applyQuaternion(rigidbody.targetKinematicRotation)
       .add(rigidbody.targetKinematicPosition)
     viewerPose &&
       viewerMovement
         .copy(viewerPose.transform.position as any)
+        .multiplyScalar(1 / xrState.sceneScale)
         .applyMatrix4(originTransform.matrix)
         .sub(avatarHeadPosition)
     // vertical viewer movement should only apply updward movement to the rigidbody,

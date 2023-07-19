@@ -229,6 +229,7 @@ export const rigAvatarModel = (entity: Entity) => (model: VRM) => {
   centerAvatar(entity)
 
   const rigComponent = getComponent(entity, AvatarRigComponent)
+  rigComponent.targets.name = 'IKTargets'
   for (const [key, value] of Object.entries(rigComponent.ikTargetsMap)) {
     value.name = key
     rigComponent.targets.add(value)
@@ -242,11 +243,10 @@ export const rigAvatarModel = (entity: Entity) => (model: VRM) => {
 const offset = new Vector3()
 const foot = new Vector3()
 export const centerAvatar = (entity: Entity) => {
-  //use right foot and left food rig nodes to calculate the center of the avatar
+  //use right foot and left foot rig nodes to calculate the center of the avatar
   const rigComponent = getComponent(entity, AvatarRigComponent)
-  rigComponent.vrm.humanoid.humanBones.hips.node.getWorldPosition(offset).multiplyScalar(2)
-  console.log(-rigComponent.vrm.humanoid.humanBones.rightFoot.node.getWorldPosition(foot).y)
-  offset.y = -rigComponent.vrm.humanoid.humanBones.rightFoot.node.getWorldPosition(foot).y
+  rigComponent.bindRig.hips.node.getWorldPosition(offset).multiplyScalar(2)
+  offset.y = -rigComponent.bindRig.rightFoot.node.getWorldPosition(foot).y * 2
   rigComponent.vrm.humanoid.normalizedHumanBonesRoot.position.add(offset)
 }
 
