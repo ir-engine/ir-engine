@@ -81,8 +81,6 @@ export const ModelComponent = defineComponent({
   },
 
   onSet: (entity, component, json) => {
-    setComponent(entity, EnvmapComponent)
-    setComponent(entity, LoopAnimationComponent)
     setComponent(entity, ShadowComponent)
 
     if (!json) return
