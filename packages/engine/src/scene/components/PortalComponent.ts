@@ -233,7 +233,6 @@ export const PortalComponent = defineComponent({
               const mesh = portalComponent.mesh.value
               if (mesh) {
                 AssetLoader.loadAsync(portalDetails.previewImageURL).then((texture: Texture) => {
-                  console.log(texture, mesh, entityExists(entity))
                   if (!mesh || !entityExists(entity)) return
                   mesh.material.map = texture
                   texture.needsUpdate = true

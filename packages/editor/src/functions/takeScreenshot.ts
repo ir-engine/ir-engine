@@ -24,13 +24,12 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import {
-  _SRGBFormat,
   Camera,
   ClampToEdgeWrapping,
   LinearFilter,
   PerspectiveCamera,
   RGBAFormat,
-  sRGBEncoding,
+  SRGBColorSpace,
   UnsignedByteType,
   Vector2,
   WebGLRenderTarget
@@ -114,13 +113,13 @@ export async function previewScreenshot(
 
   let blob: Blob | null = null
   const renderer = EngineRenderer.instance.renderer
-  renderer.outputEncoding = sRGBEncoding
+  renderer.outputColorSpace = SRGBColorSpace
   const renderTarget = new WebGLRenderTarget(width, height, {
     minFilter: LinearFilter,
     magFilter: LinearFilter,
     wrapS: ClampToEdgeWrapping,
     wrapT: ClampToEdgeWrapping,
-    encoding: sRGBEncoding,
+    colorSpace: SRGBColorSpace,
     format: RGBAFormat,
     type: UnsignedByteType
   })
@@ -232,13 +231,13 @@ export async function takeScreenshot(
     // todo - support post processing
     // EngineRenderer.instance.effectComposer.setMainCamera(scenePreviewCamera as Camera)
     // const renderer = EngineRenderer.instance.effectComposer.getRenderer()
-    renderer.outputEncoding = sRGBEncoding
+    renderer.outputColorSpace = SRGBColorSpace
     const renderTarget = new WebGLRenderTarget(width, height, {
       minFilter: LinearFilter,
       magFilter: LinearFilter,
       wrapS: ClampToEdgeWrapping,
       wrapT: ClampToEdgeWrapping,
-      encoding: sRGBEncoding,
+      colorSpace: SRGBColorSpace,
       format: RGBAFormat,
       type: UnsignedByteType
     })

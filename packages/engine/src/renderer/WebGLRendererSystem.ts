@@ -31,7 +31,7 @@ import {
   PCFSoftShadowMap,
   PerspectiveCamera,
   ShadowMapType,
-  sRGBEncoding,
+  SRGBColorSpace,
   ToneMapping,
   WebGL1Renderer,
   WebGLRenderer,
@@ -148,7 +148,7 @@ export class EngineRenderer {
     this.renderer = renderer
     // @ts-ignore
     this.renderer.useLegacyLights = false //true
-    this.renderer.outputEncoding = sRGBEncoding
+    this.renderer.outputColorSpace = SRGBColorSpace
 
     // DISABLE THIS IF YOU ARE SEEING SHADER MISBEHAVING - UNCHECK THIS WHEN TESTING UPDATING THREEJS
     this.renderer.debug.checkShaderErrors = false //isDev

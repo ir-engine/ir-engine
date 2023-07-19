@@ -63,18 +63,6 @@ export class WorldNetworkAction {
     $topic: NetworkTopics.world
   })
 
-  static setEquippedObject = defineAction({
-    type: 'ee.engine.world.SET_EQUIPPED_OBJECT',
-    object: matches.shape({
-      ownerId: matchesUserId,
-      networkId: matchesNetworkId
-    }),
-    equip: matches.boolean,
-    attachmentPoint: matches.literals('left', 'right', 'none').optional(),
-    $cache: true,
-    $topic: NetworkTopics.world
-  })
-
   static requestAuthorityOverObject = defineAction({
     type: 'ee.engine.world.REQUEST_AUTHORITY_OVER_OBJECT',
     ownerId: matchesUserId,

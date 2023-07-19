@@ -23,43 +23,34 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { DataTypes, Model, Sequelize } from 'sequelize'
+import setResponseStatusCode from '../../hooks/set-response-status-code'
 
-import { GithubRepoAccessInterface } from '@etherealengine/common/src/dbmodels/GithubRepoAccess'
-
-import { Application } from '../../../declarations'
-
-export default (app: Application) => {
-  const sequelizeClient: Sequelize = app.get('sequelizeClient')
-  const githubRepoAccess = sequelizeClient.define<Model<GithubRepoAccessInterface>>(
-    'github-repo-access',
-    {
-      id: {
-        type: DataTypes.UUID,
-        defaultValue: DataTypes.UUIDV1,
-        allowNull: false,
-        primaryKey: true
-      },
-      repo: {
-        type: DataTypes.STRING,
-        allowNull: false
-      },
-      hasWriteAccess: {
-        type: DataTypes.BOOLEAN
-      }
-    },
-    {
-      hooks: {
-        beforeCount(options: any): void {
-          options.raw = true
-        }
-      }
-    }
-  )
-
-  ;(githubRepoAccess as any).associate = (models: any): void => {
-    ;(githubRepoAccess as any).belongsTo(models.identity_provider, { required: true, onDelete: 'cascade' })
+export default {
+  before: {
+    all: [],
+    find: [],
+    get: [],
+    create: [],
+    update: [],
+    patch: [],
+    remove: []
+  },
+  after: {
+    all: [],
+    find: [],
+    get: [],
+    create: [setResponseStatusCode(200)],
+    update: [],
+    patch: [],
+    remove: []
+  },
+  error: {
+    all: [],
+    find: [],
+    get: [],
+    create: [],
+    update: [],
+    patch: [],
+    remove: []
   }
-
-  return githubRepoAccess
-}
+} as any

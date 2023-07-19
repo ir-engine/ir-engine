@@ -31,6 +31,7 @@ import path from 'path'
 import { ProjectPermissionInterface } from '@etherealengine/common/src/interfaces/ProjectPermissionInterface'
 import { UserInterface } from '@etherealengine/common/src/interfaces/User'
 import { destroyEngine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { avatarPath } from '@etherealengine/engine/src/schemas/user/avatar.schema'
 
 import { Application } from '../../../declarations'
 import { createFeathersKoaApp } from '../../createApp'
@@ -68,7 +69,7 @@ describe('project-permission.test', () => {
     await cleanup(app)
     const avatarName = 'CyberbotGreen'
 
-    const avatar = await app.service('avatar').create({
+    const avatar = await app.service(avatarPath).create({
       name: avatarName
     })
 
