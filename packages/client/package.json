@@ -76,7 +76,7 @@
     "sass": "1.59.3",
     "tailwindcss": "^3.3.2",
     "ts-node": "10.9.1",
-    "vite": "4.2.1",
+    "vite": "4.4.4",
     "vite-plugin-compression": "0.5.1",
     "vite-plugin-ejs": "^1.6.4",
     "vite-plugin-optimize-persist": "^0.1.2",
