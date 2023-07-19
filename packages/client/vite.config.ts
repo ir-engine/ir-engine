@@ -329,7 +329,7 @@ export default defineConfig(async () => {
         warnOnError: true
       },
       rollupOptions: {
-        external: ['dotenv-flow', 'react-is'],
+        external: ['dotenv-flow'],
         output: {
           dir: 'dist',
           format: 'es', // 'commonjs' | 'esm' | 'module' | 'systemjs'
