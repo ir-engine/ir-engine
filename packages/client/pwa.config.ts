@@ -131,7 +131,7 @@ const PWA = (clientSetting) =>
       // Set maximum cache size to 10 MB
       maximumFileSizeToCacheInBytes: 1000 * 1000 * 10,
       runtimeCaching: [
-        // Cache static resources
+        // Cache static
         {
           urlPattern: ({ url }) => {
             return /\/static?.*/i.test(url.href)
