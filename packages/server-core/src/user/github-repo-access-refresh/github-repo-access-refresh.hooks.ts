@@ -1,4 +1,3 @@
-
 /*
 CPAL-1.0 License
 
@@ -24,36 +23,36 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { iff, isProvider } from 'feathers-hooks-common'
 
-const { register } = require('trace-unhandled')
-register()
+import authenticate from '../../hooks/authenticate'
 
-require("ts-node").register({
-  project: "./tsconfig.json",
-})
-
-process.on('warning', e => console.warn(e.stack));
-
-process.on('SIGTERM', async (err) => {
-  console.log('[Ethereal Engine Tests]: Server SIGTERM')
-  console.log(err)
-})
-process.on('SIGINT', () => {
-  console.log('[Ethereal Engine Tests]: RECEIVED SIGINT')
-  process.exit()
-})
-
-//emitted when an uncaught JavaScript exception bubbles
-process.on('uncaughtException', (err) => {
-  console.log('[Ethereal Engine Tests]: UNCAUGHT EXCEPTION')
-  console.log(err)
-  process.exit()
-})
-
-//emitted whenever a Promise is rejected and no error handler is attached to it
-process.on('unhandledRejection', (reason, p) => {
-  console.log('[Ethereal Engine Tests]: UNHANDLED REJECTION')
-  console.log(reason)
-  console.log(p)
-  process.exit()
-})
+export default {
+  before: {
+    all: [],
+    find: [iff(isProvider('external'), authenticate() as any)],
+    get: [],
+    create: [],
+    update: [],
+    patch: [],
+    remove: []
+  },
+  after: {
+    all: [],
+    find: [],
+    get: [],
+    create: [],
+    update: [],
+    patch: [],
+    remove: []
+  },
+  error: {
+    all: [],
+    find: [],
+    get: [],
+    create: [],
+    update: [],
+    patch: [],
+    remove: []
+  }
+} as any

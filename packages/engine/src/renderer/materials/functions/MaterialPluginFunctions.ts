@@ -61,7 +61,8 @@ export function applyMaterialPlugin(material: Material, pluginId: string) {
 
 export function removeMaterialPlugin(material: Material, pluginId: string) {
   const materialLibrary = getMutableState(MaterialLibraryState)
-  const pluginComponent = materialLibrary.plugins[pluginId]
-  removeOBCPlugin(material, pluginComponent.plugin.value)
+  const pluginComponent = materialLibrary.plugins[pluginId].value
+  if (!pluginComponent) return
+  removeOBCPlugin(material, pluginComponent.plugin)
   material.needsUpdate = true
 }

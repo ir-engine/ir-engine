@@ -23,10 +23,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { defineComponent } from '../../ecs/functions/ComponentFunctions'
+export const githubRepoAccessRefreshPath = 'github-repo-access-refresh'
 
-export const EquippableComponent = defineComponent({
-  name: 'EquippableComponent',
-  jsonID: 'equippable',
-  toJSON: () => true
-})
+export const githubRepoAccessRefreshMethods = ['find'] as const

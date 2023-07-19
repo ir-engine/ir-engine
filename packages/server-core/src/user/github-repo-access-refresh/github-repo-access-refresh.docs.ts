@@ -1,4 +1,3 @@
-
 /*
 CPAL-1.0 License
 
@@ -24,20 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { createSwaggerServiceOptions } from 'feathers-swagger'
 
-module.exports = {
-  failZero: false,
-  parallel: true,
-  spec: ['tests/**/*.test.ts'],
-  require: [
-    'tests/mocha.env', // init env here
-    'ts-node/register'
-  ],
-  extension: [
-    'ts'
-  ],
-  exit: true,
-  recursive: true,
-  jobs: '1',
-  timeout: '300000'
-};
+export default createSwaggerServiceOptions({
+  schemas: {},
+  docs: {
+    description: 'Github repo access refresh service description',
+    securities: ['all']
+  }
+})
