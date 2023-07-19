@@ -33,7 +33,6 @@ import { AdminBotCommandActions, AdminBotsCommandReceptors } from '../admin/serv
 import { AdminBotsActions, AdminBotServiceReceptors } from '../admin/services/BotsService'
 import { AdminBuildStatusActions, AdminBuildStatusReceptors } from '../admin/services/BuildStatusService'
 import { AdminGroupActions, AdminGroupServiceReceptors } from '../admin/services/GroupService'
-import { AdminInstanceserverActions, InstanceServerSettingReceptors } from '../admin/services/InstanceserverService'
 import {
   AdminInstanceActions,
   AdminInstanceReceptors,
@@ -95,8 +94,6 @@ const fetchedHelmQueue = defineActionQueue(AdminHelmSettingActions.helmSettingRe
 const patchedHelmQueue = defineActionQueue(AdminHelmSettingActions.helmSettingPatched.matches)
 const fetchedHelmMainVersionsQueue = defineActionQueue(AdminHelmSettingActions.helmMainVersionsRetrieved.matches)
 const fetchedHelmBuilderVersionsQueue = defineActionQueue(AdminHelmSettingActions.helmBuilderVersionsRetrieved.matches)
-const patchInstanceserverQueue = defineActionQueue(AdminInstanceserverActions.patchInstanceserver.matches)
-const patchedInstanceserverQueue = defineActionQueue(AdminInstanceserverActions.patchedInstanceserver.matches)
 const projectSettingFetchedQueue = defineActionQueue(AdminProjectSettingsActions.projectSettingFetched.matches)
 const fetchedSeverInfoQueue = defineActionQueue(AdminServerSettingActions.fetchedSeverInfo.matches)
 const serverSettingPatchedQueue = defineActionQueue(AdminServerSettingActions.serverSettingPatched.matches)
@@ -193,9 +190,6 @@ const execute = () => {
   for (const action of fetchedHelmMainVersionsQueue()) HelmSettingReceptors.helmMainVersionsRetrievedReceptor(action)
   for (const action of fetchedHelmBuilderVersionsQueue())
     HelmSettingReceptors.helmBuilderVersionsRetrievedReceptor(action)
-  for (const action of patchInstanceserverQueue()) InstanceServerSettingReceptors.patchInstanceserverReceptor(action)
-  for (const action of patchedInstanceserverQueue())
-    InstanceServerSettingReceptors.patchedInstanceserverReceptor(action)
   for (const action of projectSettingFetchedQueue()) ProjectSettingReceptors.projectSettingFetchedReceptor(action)
   for (const action of fetchedSeverInfoQueue()) ServerSettingReceptors.fetchedSeverInfoReceptor(action)
   for (const action of serverSettingPatchedQueue()) ServerSettingReceptors.serverSettingPatchedReceptor(action)
