@@ -29,7 +29,6 @@ import { EngineActions, EngineState } from '../../ecs/classes/EngineState'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { revertAvatarToMovingStateFromTeleport } from '../functions/loaders/PortalFunctions'
 import { HyperspacePortalSystem } from './HyperspacePortalSystem'
-import { PortalLoadSystem } from './PortalLoadSystem'
 
 const sceneLoadedQueue = defineActionQueue(EngineActions.sceneLoaded.matches)
 
@@ -40,5 +39,5 @@ const execute = () => {
 export const PortalSystem = defineSystem({
   uuid: 'ee.engine.PortalSystem',
   execute,
-  subSystems: [PortalLoadSystem, HyperspacePortalSystem]
+  subSystems: [HyperspacePortalSystem]
 })

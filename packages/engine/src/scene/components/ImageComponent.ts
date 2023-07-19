@@ -36,7 +36,7 @@ import {
   SphereGeometry,
   Vector2
 } from 'three'
-import { LinearMipmapLinearFilter, sRGBEncoding, Texture } from 'three'
+import { LinearMipmapLinearFilter, SRGBColorSpace, Texture } from 'three'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { StaticResourceInterface } from '@etherealengine/common/src/interfaces/StaticResourceInterface'
@@ -191,7 +191,7 @@ export function ImageReactor() {
 
       clearErrors(entity, ImageComponent)
 
-      texture.value.encoding = sRGBEncoding
+      texture.value.colorSpace = SRGBColorSpace
       texture.value.minFilter = LinearMipmapLinearFilter
 
       image.mesh.material.map.ornull?.value.dispose()
