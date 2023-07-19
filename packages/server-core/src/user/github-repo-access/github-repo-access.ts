@@ -23,21 +23,38 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import type { Params } from '@feathersjs/feathers'
-import { KnexService } from '@feathersjs/knex'
-import type { KnexAdapterParams } from '@feathersjs/knex'
-
 import {
-  GithubRepoAccessData,
-  GithubRepoAccessPatch,
-  GithubRepoAccessQuery,
-  GithubRepoAccessType
+  githubRepoAccessMethods,
+  githubRepoAccessPath
 } from '@etherealengine/engine/src/schemas/user/github-repo-access.schema'
 
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface GithubRepoAccessParams extends KnexAdapterParams<GithubRepoAccessQuery> {}
+import { Application } from '../../../declarations'
+import { GithubRepoAccessService } from './github-repo-access.class'
+import githubRepoAccessDocs from './github-repo-access.docs'
+import hooks from './github-repo-access.hooks'
 
-export class GithubRepoAccessService<
-  T = GithubRepoAccessType,
-  ServiceParams extends Params = GithubRepoAccessParams
-> extends KnexService<GithubRepoAccessType, GithubRepoAccessData, GithubRepoAccessParams, GithubRepoAccessPatch> {}
+declare module '@etherealengine/common/declarations' {
+  interface ServiceTypes {
+    [githubRepoAccessPath]: GithubRepoAccessService
+  }
+}
+
+export default (app: Application): void => {
+  const options = {
+    name: githubRepoAccessPath,
+    paginate: app.get('paginate'),
+    Model: app.get('knexClient'),
+    multi: true
+  }
+
+  app.use(githubRepoAccessPath, new GithubRepoAccessService(options), {
+    // A list of all methods this service exposes externally
+    methods: githubRepoAccessMethods,
+    // You can add additional custom events to be sent to clients here
+    events: [],
+    docs: githubRepoAccessDocs
+  })
+
+  const service = app.service(githubRepoAccessPath)
+  service.hooks(hooks)
+}

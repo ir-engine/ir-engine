@@ -40,6 +40,10 @@ import {
 import { UserInterface } from '@etherealengine/common/src/interfaces/User'
 import { processFileName } from '@etherealengine/common/src/utils/processFileName'
 import { routePath, RouteType } from '@etherealengine/engine/src/schemas/route/route.schema'
+import {
+  githubRepoAccessPath,
+  GithubRepoAccessType
+} from '@etherealengine/engine/src/schemas/user/github-repo-access.schema'
 import { getState } from '@etherealengine/hyperflux'
 import templateProjectJson from '@etherealengine/projects/template-project/package.json'
 
@@ -678,12 +682,12 @@ export class Project extends Service {
       })) as any
       let allowedProjects = await projectPermissions.map((permission) => permission.project)
       const repoAccess = githubIdentityProvider
-        ? await this.app.service('github-repo-access').Model.findAll({
-            paginate: false,
-            where: {
+        ? ((await this.app.service(githubRepoAccessPath).find({
+            query: {
               identityProviderId: githubIdentityProvider.id
-            }
-          })
+            },
+            paginate: false
+          })) as any as GithubRepoAccessType[])
         : []
       const pushRepoPaths = repoAccess.filter((repo) => repo.hasWriteAccess).map((item) => item.repo.toLowerCase())
       let allowedProjectGithubRepos = allowedProjects.filter((project) => project.repositoryPath != null)
@@ -702,24 +706,25 @@ export class Project extends Service {
       projectPushIds = projectPushIds.concat(pushableAllowedProjects.map((project) => project.id))
 
       if (githubIdentityProvider) {
-        repoAccess.forEach((item, index) => {
+        const repositoryPaths: string[] = []
+        repoAccess.forEach((item) => {
           if (item.hasWriteAccess) {
             const url = item.repo.toLowerCase()
-            repoAccess[index] = url
-            repoAccess.push(`${url}.git`)
+            repositoryPaths.push(url)
+            repositoryPaths.push(`${url}.git`)
             const regexExec = GITHUB_URL_REGEX.exec(url)
             if (regexExec) {
               const split = regexExec[2].split('/')
-              repoAccess.push(`git@github.com:${split[0]}/${split[1]}`)
-              repoAccess.push(`git@github.com:${split[0]}/${split[1]}.git`)
+              repositoryPaths.push(`git@github.com:${split[0]}/${split[1]}`)
+              repositoryPaths.push(`git@github.com:${split[0]}/${split[1]}.git`)
             }
-          } else repoAccess.splice(index)
+          }
         })
 
         const matchingAllowedRepos = await this.app.service('project').Model.findAll({
           where: {
             repositoryPath: {
-              [Op.in]: repoAccess
+              [Op.in]: repositoryPaths
             }
           }
         })
