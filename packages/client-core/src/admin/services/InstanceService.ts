@@ -28,6 +28,7 @@ import { useEffect } from 'react'
 
 import { Instance } from '@etherealengine/common/src/interfaces/Instance'
 import { UserInterface } from '@etherealengine/common/src/interfaces/User'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { defineState, getMutableState } from '@etherealengine/hyperflux'
 
 import { API } from '../../API'
@@ -61,7 +62,7 @@ export const AdminInstanceService = {
 
     try {
       const sortData = sortField.length ? { [sortField]: orderBy === 'desc' ? 0 : 1 } : {}
-      const instances = (await API.instance.client.service('instance').find({
+      const instances = (await Engine.instance.api.service('instance').find({
         query: {
           $sort: {
             ...sortData
@@ -88,7 +89,7 @@ export const AdminInstanceService = {
     }
   },
   removeInstance: async (id: string) => {
-    await API.instance.client.service('instance').patch(id, { ended: true })
+    await Engine.instance.api.service('instance').patch(id, { ended: true })
     getMutableState(AdminInstanceState).merge({ updateNeeded: true })
   },
   useAPIListeners: () => {
@@ -96,9 +97,9 @@ export const AdminInstanceService = {
       const listener = () => {
         getMutableState(AdminInstanceState).merge({ updateNeeded: true })
       }
-      API.instance.client.service('instance').on('removed', listener)
+      Engine.instance.api.service('instance').on('removed', listener)
       return () => {
-        API.instance.client.service('instance').off('removed', listener)
+        Engine.instance.api.service('instance').off('removed', listener)
       }
     }, [])
   }
@@ -123,7 +124,7 @@ export const AdminInstanceUserState = defineState({
 
 export const AdminInstanceUserService = {
   fetchUsersInInstance: async (instanceId: string) => {
-    const instanceAttendances = await API.instance.client.service('instance-attendance').find({
+    const instanceAttendances = await Engine.instance.api.service('instance-attendance').find({
       query: {
         instanceId
       }
@@ -133,7 +134,7 @@ export const AdminInstanceUserService = {
 
     const userIds = instanceAttendances.data.map((d: any) => d.userId)
 
-    const users = await API.instance.client.service('user').find({
+    const users = await Engine.instance.api.service('user').find({
       query: {
         id: {
           $in: userIds
@@ -160,7 +161,7 @@ export const AdminInstanceUserService = {
       duration.setHours(duration.getHours() + parseInt(kickData.duration, 10))
     }
 
-    await API.instance.client.service('user-kick').create({ ...kickData, duration })
+    await Engine.instance.api.service('user-kick').create({ ...kickData, duration })
 
     NotificationService.dispatchNotify(`user was kicked`, { variant: 'default' })
   }
