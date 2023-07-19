@@ -24,9 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { AdminScopeType } from './AdminScopeType'
-import { AvatarInterface } from './AvatarInterface'
 import { IdentityProvider } from './IdentityProvider'
-import { Instance } from './Instance'
 import { InstanceAttendanceInterface } from './InstanceAttendance'
 import { LocationAdmin } from './LocationAdmin'
 import { LocationBan } from './LocationBan'
@@ -107,6 +105,19 @@ export interface CreateEditUser {
   inviteCode?: string
   isGuest?: boolean
   scopes?: UserScope[] | AdminScopeType[]
+}
+
+type AvatarInterface = {
+  id: string
+  name: string
+  isPublic: boolean
+  userId: string
+  modelResourceId: string
+  thumbnailResourceId: string
+  identifierName: string
+  modelResource?: StaticResourceInterface
+  thumbnailResource?: StaticResourceInterface
+  project?: string
 }
 
 export function resolveUser(user: any): UserInterface {
