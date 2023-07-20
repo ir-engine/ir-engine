@@ -148,6 +148,14 @@ const onInteract = (handedness: XRHandedness = 'none') => {
   )
 }
 
+const onKeyO = () => {
+  dispatchAction(
+    WorldNetworkAction.spawnDebugPhysicsObject({
+      config: boxDynamicConfig
+    })
+  )
+}
+
 const onKeyP = () => {
   getMutableState(RendererState).debugEnable.set(!getMutableState(RendererState).debugEnable.value)
 }
@@ -271,6 +279,7 @@ const execute = () => {
     const gamepadJump = standardGamepad && buttons[StandardGamepadButton.ButtonA]?.down
 
     if (isDev) {
+      if (buttons.KeyO?.down) onKeyO()
       if (buttons.KeyP?.down) onKeyP()
     }
 

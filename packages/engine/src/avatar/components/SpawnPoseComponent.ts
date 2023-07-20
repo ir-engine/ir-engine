@@ -23,25 +23,24 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { AnimationClip, Bone, SkinnedMesh } from 'three'
+import { Quaternion, Vector3 } from 'three'
 
-import { config } from '@etherealengine/common/src/config'
-import { defineState } from '@etherealengine/hyperflux'
+import { defineComponent } from '../../ecs/functions/ComponentFunctions'
 
-import { AssetLoader } from '../assets/classes/AssetLoader'
-import { GLTF } from '../assets/loaders/gltf/GLTFLoader'
-import { applySkeletonPose, makeTPose } from './animation/avatarPose'
-import { findRootBone, processRootAnimation } from './animation/Util'
-import avatarBoneMatching, { findSkinnedMeshes, makeBindPose } from './AvatarBoneMatching'
-import { makeDefaultSkinnedMesh } from './functions/avatarFunctions'
+export const SpawnPoseComponent = defineComponent({
+  name: 'SpawnPoseComponent',
 
-//Create all IK targets as object 3ds, stored in
-//a named struct and in an object 3d hierarchy
-//the former allows easy accessability while the
-//latter allows for threejs keyframe animation
-export const AnimationManager = defineState({
-  name: 'animationManager',
-  initial: () => ({
-    targetsAnimation: undefined as AnimationClip[] | undefined
-  })
+  onInit: (entity) => {
+    return {
+      position: new Vector3(),
+      rotation: new Quaternion()
+    }
+  },
+
+  onSet: (entity, component, json) => {
+    if (!json) return
+
+    if (json.position) component.position.set(json.position)
+    if (json.rotation) component.rotation.set(json.rotation)
+  }
 })

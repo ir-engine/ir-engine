@@ -41,7 +41,7 @@ import { SceneQueryType } from '../../physics/types/PhysicsTypes'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
 
-const interactionGroups = getInteractionGroups(
+export const interactionGroups = getInteractionGroups(
   CollisionGroups.Avatars,
   CollisionGroups.Ground | CollisionGroups.Default
 )
