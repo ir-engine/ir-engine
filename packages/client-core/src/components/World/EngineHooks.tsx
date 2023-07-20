@@ -228,8 +228,8 @@ export const useOfflineNetwork = (props?: { spectate?: boolean }) => {
   useEffect(() => {
     if (engineState.sceneLoaded.value) {
       const userId = Engine.instance.userId
+      const peerID = Engine.instance.peerID
       const userIndex = 1
-      const peerID = 'peerID' as PeerID
       const peerIndex = 1
 
       const networkState = getMutableState(NetworkState)

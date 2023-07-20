@@ -23,34 +23,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Application } from '../../../declarations'
-import { Avatar } from './avatar.class'
-import avatarDocs from './avatar.docs'
-import hooks from './avatar.hooks'
-import createModel from './avatar.model'
+export const githubRepoAccessRefreshPath = 'github-repo-access-refresh'
 
-declare module '@etherealengine/common/declarations' {
-  /**
-   * Interface for users input
-   */
-  interface ServiceTypes {
-    avatar: Avatar
-  }
-}
-
-export default (app: Application): void => {
-  const options = {
-    Model: createModel(app),
-    paginate: app.get('paginate'),
-    multi: true
-  }
-
-  const event = new Avatar(options, app)
-  event.docs = avatarDocs
-
-  app.use('avatar', event)
-
-  const service = app.service('avatar')
-
-  service.hooks(hooks)
-}
+export const githubRepoAccessRefreshMethods = ['find'] as const

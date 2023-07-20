@@ -23,11 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { AvatarInterface } from './AvatarInterface'
+import { createSwaggerServiceOptions } from 'feathers-swagger'
 
-export type AvatarResult = {
-  data: AvatarInterface[]
-  total: number
-  limit: number
-  skip: number
-}
+export default createSwaggerServiceOptions({
+  schemas: {},
+  docs: {
+    description: 'Github repo access webhook service description',
+    securities: ['all']
+  }
+})

@@ -31,6 +31,7 @@ import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 import { AvatarState } from '@etherealengine/engine/src/avatar/state/AvatarNetworkState'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { WorldState } from '@etherealengine/engine/src/networking/interfaces/WorldState'
+import { avatarPath } from '@etherealengine/engine/src/schemas/user/avatar.schema'
 import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
 import { AuthState } from '../services/AuthService'
@@ -45,7 +46,7 @@ export const useUserAvatarThumbnail = (userID = '' as UserId) => {
   useEffect(() => {
     if (!userAvatarState.avatarID?.value) return
     Engine.instance.api
-      .service('avatar')
+      .service(avatarPath)
       .get(userAvatarState.avatarID.value)
       .then((avatarDetails) => {
         avatarState.set(avatarDetails.thumbnailResource?.url ?? DEFAULT_PROFILE_IMG_PLACEHOLDER)

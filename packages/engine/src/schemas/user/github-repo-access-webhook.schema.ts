@@ -23,17 +23,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { StaticResourceInterface } from './StaticResourceInterface'
+export const githubRepoAccessWebhookPath = 'github-repo-access-webhook'
 
-export type AvatarInterface = {
-  id: string
-  name: string
-  isPublic: boolean
-  userId: string
-  modelResourceId: string
-  thumbnailResourceId: string
-  identifierName: string
-  modelResource?: StaticResourceInterface
-  thumbnailResource?: StaticResourceInterface
-  project?: string
-}
+export const githubRepoAccessWebhookMethods = ['create'] as const
