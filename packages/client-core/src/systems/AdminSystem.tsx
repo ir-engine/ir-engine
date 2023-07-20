@@ -45,7 +45,6 @@ import {
 import { AdminResourceActions, AdminResourceReceptors } from '../admin/services/ResourceService'
 import { AdminRouteActions, AdminRouteReceptors } from '../admin/services/RouteService'
 import { AdminSceneActions, AdminSceneReceptors } from '../admin/services/SceneService'
-import { AdminScopeTypeActions, AdminScopeTypeReceptor } from '../admin/services/ScopeTypeService'
 import { AdminServerInfoActions, AdminServerInfoReceptors } from '../admin/services/ServerInfoService'
 import { AdminServerLogsActions, AdminServerLogsReceptors } from '../admin/services/ServerLogsService'
 // import { AuthSettingsActions, AuthSettingsReceptors } from '../admin/services/Setting/AuthSettingService'
@@ -90,7 +89,6 @@ const fetchedHelmBuilderVersionsQueue = defineActionQueue(AdminHelmSettingAction
 const projectSettingFetchedQueue = defineActionQueue(AdminProjectSettingsActions.projectSettingFetched.matches)
 const fetchedSeverInfoQueue = defineActionQueue(AdminServerSettingActions.fetchedSeverInfo.matches)
 const serverSettingPatchedQueue = defineActionQueue(AdminServerSettingActions.serverSettingPatched.matches)
-const getScopeTypesQueue = defineActionQueue(AdminScopeTypeActions.getScopeTypes.matches)
 const avatarsFetchedQueue = defineActionQueue(AdminAvatarActions.avatarsFetched.matches)
 const avatarCreatedQueue = defineActionQueue(AdminAvatarActions.avatarCreated.matches)
 const avatarRemovedQueue = defineActionQueue(AdminAvatarActions.avatarRemoved.matches)
@@ -176,7 +174,6 @@ const execute = () => {
   for (const action of projectSettingFetchedQueue()) ProjectSettingReceptors.projectSettingFetchedReceptor(action)
   for (const action of fetchedSeverInfoQueue()) ServerSettingReceptors.fetchedSeverInfoReceptor(action)
   for (const action of serverSettingPatchedQueue()) ServerSettingReceptors.serverSettingPatchedReceptor(action)
-  for (const action of getScopeTypesQueue()) AdminScopeTypeReceptor.getScopeTypesReceptor(action)
   for (const action of avatarsFetchedQueue()) AdminAvatarReceptors.avatarsFetchedReceptor(action)
   for (const action of avatarCreatedQueue()) AdminAvatarReceptors.avatarCreatedReceptor(action)
   for (const action of avatarRemovedQueue()) AdminAvatarReceptors.avatarRemovedReceptor(action)
