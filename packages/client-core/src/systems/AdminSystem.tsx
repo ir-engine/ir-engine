@@ -47,7 +47,6 @@ import { AdminRouteActions, AdminRouteReceptors } from '../admin/services/RouteS
 import { AdminSceneActions, AdminSceneReceptors } from '../admin/services/SceneService'
 import { AdminScopeTypeActions, AdminScopeTypeReceptor } from '../admin/services/ScopeTypeService'
 import { AdminServerInfoActions, AdminServerInfoReceptors } from '../admin/services/ServerInfoService'
-import { AdminServerLogsActions, AdminServerLogsReceptors } from '../admin/services/ServerLogsService'
 // import { AuthSettingsActions, AuthSettingsReceptors } from '../admin/services/Setting/AuthSettingService'
 import { AdminAwsSettingActions, AwsSettingReceptors } from '../admin/services/Setting/AwsSettingService'
 import {
@@ -75,8 +74,6 @@ const fetchedTaskServersQueue = defineActionQueue(AdminTaskServerSettingActions.
 const fetchServerInfoRequestedQueue = defineActionQueue(AdminServerInfoActions.fetchServerInfoRequested.matches)
 const fetchServerInfoRetrievedQueue = defineActionQueue(AdminServerInfoActions.fetchServerInfoRetrieved.matches)
 const serverInfoPodRemovedQueue = defineActionQueue(AdminServerInfoActions.serverInfoPodRemoved.matches)
-const fetchServerLogsRequestedQueue = defineActionQueue(AdminServerLogsActions.fetchServerLogsRequested.matches)
-const fetchServerLogsRetrievedQueue = defineActionQueue(AdminServerLogsActions.fetchServerLogsRetrieved.matches)
 const redisSettingRetrievedQueue = defineActionQueue(AdminRedisSettingActions.redisSettingRetrieved.matches)
 const awsSettingRetrievedQueue = defineActionQueue(AdminAwsSettingActions.awsSettingRetrieved.matches)
 const awsSettingPatchedQueue = defineActionQueue(AdminAwsSettingActions.awsSettingPatched.matches)
@@ -158,10 +155,6 @@ const execute = () => {
   for (const action of fetchServerInfoRetrievedQueue())
     AdminServerInfoReceptors.fetchServerInfoRetrievedReceptor(action)
   for (const action of serverInfoPodRemovedQueue()) AdminServerInfoReceptors.serverInfoPodRemovedReceptor(action)
-  for (const action of fetchServerLogsRequestedQueue())
-    AdminServerLogsReceptors.fetchServerLogsRequestedReceptor(action)
-  for (const action of fetchServerLogsRetrievedQueue())
-    AdminServerLogsReceptors.fetchServerLogsRetrievedReceptor(action)
   for (const action of redisSettingRetrievedQueue()) RedisSettingReceptors.redisSettingRetrievedReceptor(action)
   for (const action of awsSettingRetrievedQueue()) AwsSettingReceptors.awsSettingRetrievedReceptor(action)
   for (const action of awsSettingPatchedQueue()) AwsSettingReceptors.awsSettingPatchedReceptor(action)
