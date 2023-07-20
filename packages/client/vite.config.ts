@@ -224,14 +224,6 @@ const resetSWFiles = () => {
   deleteDirFilesUsingPattern(/service-/, './public/')
   // Delete old workbox files
   deleteDirFilesUsingPattern(/workbox-/, './public/')
-
-  if (process.env.APP_ENV !== 'development') {
-    // Write empty service worker file
-    const swPath = path.resolve(packageRoot.path, 'packages/client/public/service-worker.js')
-    if (!fs.existsSync(swPath)) {
-      fs.writeFileSync(swPath, 'if(!self.define){}')
-    }
-  }
 }
 
 export default defineConfig(async () => {

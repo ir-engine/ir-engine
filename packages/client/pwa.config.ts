@@ -129,12 +129,6 @@ const PWA = (clientSetting) =>
         // ktx2
         '**/*.{ktx2}'
       ],
-      // Set additional manifest entries for the cache
-      additionalManifestEntries: [
-        { url: '/service-worker', revision: `${packageJson?.version}_${Date.now()}` },
-        { url: '/dev-sw', revision: `${packageJson?.version}_${Date.now()}` },
-        { url: '/src/main', revision: `${packageJson?.version}_${Date.now()}` }
-      ],
       // Enable cleanup of outdated caches
       cleanupOutdatedCaches: true,
       // Set maximum cache size to 10 MB
