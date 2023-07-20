@@ -40,7 +40,6 @@ import {
   AdminInstanceUserReceptors
 } from '../admin/services/InstanceService'
 import { AdminInviteActions, AdminInviteReceptors } from '../admin/services/InviteService'
-import { AdminLocationActions, AdminLocationReceptors } from '../admin/services/LocationService'
 import { AdminPartyActions, AdminPartyReceptors } from '../admin/services/PartyService'
 import {
   AdminRecordingReceptors,
@@ -111,11 +110,6 @@ const resourceNeedsUpdateQueue = defineActionQueue(AdminResourceActions.resource
 const resourcesResetFilterQueue = defineActionQueue(AdminResourceActions.resourcesResetFilter.matches)
 const scenesFetchedQueue = defineActionQueue(AdminSceneActions.scenesFetched.matches)
 const sceneFetchedQueue = defineActionQueue(AdminSceneActions.sceneFetched.matches)
-const locationsRetrievedQueue = defineActionQueue(AdminLocationActions.locationsRetrieved.matches)
-const locationCreatedQueue = defineActionQueue(AdminLocationActions.locationCreated.matches)
-const locationPatchedQueue = defineActionQueue(AdminLocationActions.locationPatched.matches)
-const locationRemovedQueue = defineActionQueue(AdminLocationActions.locationRemoved.matches)
-const locationTypesRetrievedQueue = defineActionQueue(AdminLocationActions.locationTypesRetrieved.matches)
 const partyRetrievedQueue = defineActionQueue(AdminPartyActions.partyRetrieved.matches)
 const partyAdminCreatedQueue = defineActionQueue(AdminPartyActions.partyAdminCreated.matches)
 const partyRemovedQueue = defineActionQueue(AdminPartyActions.partyRemoved.matches)
@@ -200,11 +194,6 @@ const execute = () => {
   for (const action of resourcesResetFilterQueue()) AdminResourceReceptors.resourcesResetFilterReceptor(action)
   for (const action of scenesFetchedQueue()) AdminSceneReceptors.scenesFetchedReceptor(action)
   for (const action of sceneFetchedQueue()) AdminSceneReceptors.sceneFetchedReceptor(action)
-  for (const action of locationsRetrievedQueue()) AdminLocationReceptors.locationsRetrievedReceptor(action)
-  for (const action of locationCreatedQueue()) AdminLocationReceptors.locationCreatedReceptor(action)
-  for (const action of locationPatchedQueue()) AdminLocationReceptors.locationPatchedReceptor(action)
-  for (const action of locationRemovedQueue()) AdminLocationReceptors.locationRemovedReceptor(action)
-  for (const action of locationTypesRetrievedQueue()) AdminLocationReceptors.locationTypesRetrievedReceptor(action)
   for (const action of partyRetrievedQueue()) AdminPartyReceptors.partyRetrievedReceptor(action)
   for (const action of partyAdminCreatedQueue()) AdminPartyReceptors.partyAdminCreatedReceptor(action)
   for (const action of partyRemovedQueue()) AdminPartyReceptors.partyRemovedReceptor(action)
