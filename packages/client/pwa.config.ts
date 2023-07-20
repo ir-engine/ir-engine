@@ -95,9 +95,7 @@ const PWA = (clientSetting) =>
       // Allowlist all paths for navigateFallback during production
       navigateFallbackAllowlist: [
         // allow everything
-        new RegExp('^/.*$'),
-        // allow /static
-        new RegExp('^/static/.*$')
+        new RegExp('^/.*$')
       ],
       // Set the glob directory and patterns for the cache
       globDirectory: process.env.APP_ENV === 'development' ? './public' : './dist',
@@ -109,7 +107,7 @@ const PWA = (clientSetting) =>
         // media
         '**/*.{mp3,mp4,webm}',
         // code
-        '**/*.{js, css, html}',
+        '**/*.{js, css}',
         // docs
         '**/*.{txt,xml,json,pdf}',
         // 3d objects
@@ -120,12 +118,6 @@ const PWA = (clientSetting) =>
         '**/*.{wasm}',
         // ktx2
         '**/*.{ktx2}'
-      ],
-      // Set additional manifest entries for the cache
-      additionalManifestEntries: [
-        { url: '/service-worker', revision: `${packageJson?.version}_${Date.now()}` },
-        { url: '/dev-sw', revision: `${packageJson?.version}_${Date.now()}` },
-        { url: '/src/main', revision: `${packageJson?.version}_${Date.now()}` }
       ],
       // Enable cleanup of outdated caches
       cleanupOutdatedCaches: true,
