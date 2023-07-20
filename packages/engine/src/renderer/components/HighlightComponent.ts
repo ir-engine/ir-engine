@@ -26,10 +26,13 @@ Ethereal Engine. All Rights Reserved.
 import { useEffect } from 'react'
 import { Object3D } from 'three'
 
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+
 import { defineComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
 import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { GroupComponent } from '../../scene/components/GroupComponent'
-import { EngineRenderer } from '../WebGLRendererSystem'
+import { RendererState } from '../RendererState'
+import { EngineRenderer, PostProcessingSettingsState } from '../WebGLRendererSystem'
 
 export const HighlightComponent = defineComponent({
   name: 'HighlightComponent',
@@ -37,6 +40,8 @@ export const HighlightComponent = defineComponent({
   reactor: function () {
     const entity = useEntityContext()
 
+    const postProcessingSettingsState = useHookstate(getMutableState(PostProcessingSettingsState))
+    const usePostProcessing = useHookstate(getMutableState(RendererState).usePostProcessing)
     const group = useComponent(entity, GroupComponent)
 
     useEffect(() => {
@@ -45,7 +50,7 @@ export const HighlightComponent = defineComponent({
       return () => {
         for (const object of objs) object.traverse(removeFromSelection)
       }
-    }, [group])
+    }, [group, postProcessingSettingsState.effects, postProcessingSettingsState.enabled, usePostProcessing])
 
     return null
   }
