@@ -106,7 +106,8 @@ export const loadAvatarForPreview = async (entity: Entity, avatarURL: string) =>
 }
 
 export const loadModelForPreview = async (entity: Entity, avatarURL: string) => {
-  const parent = await loadAvatarModelAsset(avatarURL)
+  const avatar = await loadAvatarModelAsset(avatarURL)
+  const parent = avatar?.scene
   if (!parent) return
   removeGroupComponent(entity)
   addObjectToGroup(entity, parent)
