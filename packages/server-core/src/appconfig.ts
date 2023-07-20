@@ -277,7 +277,6 @@ const authentication = {
       secret: process.env.FACEBOOK_CLIENT_SECRET!
     },
     github: {
-      appid: process.env.GITHUB_APP_ID!,
       key: process.env.GITHUB_CLIENT_ID!,
       secret: process.env.GITHUB_CLIENT_SECRET!,
       scope: ['repo', 'user']

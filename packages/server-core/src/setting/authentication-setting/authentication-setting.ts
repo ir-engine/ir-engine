@@ -23,53 +23,39 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { DataTypes, Model, Sequelize } from 'sequelize'
-
-import { AuthenticationInterface } from '@etherealengine/common/src/dbmodels/Authentication'
+import {
+  authenticationSettingMethods,
+  authenticationSettingPath
+} from '@etherealengine/engine/src/schemas/setting/authentication-setting.schema'
 
 import { Application } from '../../../declarations'
+import { updateAppConfig } from '../../updateAppConfig'
+import { AuthenticationSettingService } from './authentication-setting.class'
+import authenticationSettingDocs from './authentication-setting.docs'
+import hooks from './authentication-setting.hooks'
 
-export default (app: Application) => {
-  const sequelizeClient: Sequelize = app.get('sequelizeClient')
-  const Authentication = sequelizeClient.define<Model<AuthenticationInterface>>('authentication', {
-    id: {
-      type: DataTypes.UUID,
-      defaultValue: DataTypes.UUIDV1,
-      allowNull: false,
-      primaryKey: true
-    },
-    service: {
-      type: DataTypes.STRING,
-      allowNull: true
-    },
-    entity: {
-      type: DataTypes.STRING,
-      allowNull: true
-    },
-    secret: {
-      type: DataTypes.STRING,
-      allowNull: true
-    },
-    authStrategies: {
-      type: DataTypes.JSON,
-      allowNull: true
-    },
-    jwtOptions: {
-      type: DataTypes.JSON,
-      allowNull: true
-    },
-    bearerToken: {
-      type: DataTypes.JSON,
-      allowNull: true
-    },
-    callback: {
-      type: DataTypes.JSON,
-      allowNull: true
-    },
-    oauth: {
-      type: DataTypes.JSON,
-      allowNull: true
-    }
+declare module '@etherealengine/common/declarations' {
+  interface ServiceTypes {
+    [authenticationSettingPath]: AuthenticationSettingService
+  }
+}
+
+export default (app: Application): void => {
+  const options = {
+    name: authenticationSettingPath,
+    paginate: app.get('paginate'),
+    Model: app.get('knexClient'),
+    multi: true
+  }
+
+  app.use(authenticationSettingPath, new AuthenticationSettingService(options, app), {
+    // A list of all methods this service exposes externally
+    methods: authenticationSettingMethods,
+    // You can add additional custom events to be sent to clients here
+    events: [],
+    docs: authenticationSettingDocs
   })
-  return Authentication
+
+  const service = app.service(authenticationSettingPath)
+  service.hooks(hooks)
 }
