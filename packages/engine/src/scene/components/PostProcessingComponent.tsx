@@ -87,7 +87,7 @@ function PostProcessingComponentReactor(): ReactElement {
   )
 }
 
-function PostProcessingEffectReactor(props: { effect: EffectPropsSchemaType; name: string }) {
+const PostProcessingEffectReactor = React.memo((props: { effect: EffectPropsSchemaType; name: string }) => {
   const { effect, name } = props
 
   useEffect(() => {
@@ -96,4 +96,4 @@ function PostProcessingEffectReactor(props: { effect: EffectPropsSchemaType; nam
   }, [effect])
 
   return <></>
-}
+})
