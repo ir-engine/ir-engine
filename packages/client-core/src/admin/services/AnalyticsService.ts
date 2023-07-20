@@ -26,15 +26,12 @@ Ethereal Engine. All Rights Reserved.
 import { Paginated } from '@feathersjs/feathers'
 
 import multiLogger from '@etherealengine/common/src/logger'
-import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { analyticsPath, AnalyticsType } from '@etherealengine/engine/src/schemas/analytics/analytics.schema'
-import { defineAction, defineState, dispatchAction, getMutableState } from '@etherealengine/hyperflux'
-
-import { API } from '../../API'
+import { defineState, getMutableState } from '@etherealengine/hyperflux'
 
 const logger = multiLogger.child({ component: 'client-core:AnalyticsService' })
 
-//State
 export const ANALYTICS_PAGE_LIMIT = 100
 
 export const AdminAnalyticsState = defineState({
@@ -51,74 +48,6 @@ export const AdminAnalyticsState = defineState({
   })
 })
 
-const activeInstancesFetchedReceptor = (action: typeof AdminAnalyticsActions.activeInstancesFetched.matches._TYPE) => {
-  const state = getMutableState(AdminAnalyticsState)
-  return state.merge({
-    activeInstances: action.analytics.reverse()
-  })
-}
-
-const activePartiesFetchedReceptor = (action: typeof AdminAnalyticsActions.activePartiesFetched.matches._TYPE) => {
-  const state = getMutableState(AdminAnalyticsState)
-  return state.merge({
-    activeParties: action.analytics.reverse()
-  })
-}
-
-const activeLocationsFetchedReceptor = (action: typeof AdminAnalyticsActions.activeLocationsFetched.matches._TYPE) => {
-  const state = getMutableState(AdminAnalyticsState)
-  return state.merge({
-    activeLocations: action.analytics.reverse()
-  })
-}
-
-const activeScenesFetchedReceptor = (action: typeof AdminAnalyticsActions.activeScenesFetched.matches._TYPE) => {
-  const state = getMutableState(AdminAnalyticsState)
-  return state.merge({
-    activeScenes: action.analytics.reverse()
-  })
-}
-
-const channelUsersFetchedReceptor = (action: typeof AdminAnalyticsActions.channelUsersFetched.matches._TYPE) => {
-  const state = getMutableState(AdminAnalyticsState)
-  return state.merge({
-    channelUsers: action.analytics.reverse()
-  })
-}
-
-const instanceUsersFetchedReceptor = (action: typeof AdminAnalyticsActions.instanceUsersFetched.matches._TYPE) => {
-  const state = getMutableState(AdminAnalyticsState)
-  return state.merge({
-    instanceUsers: action.analytics.reverse()
-  })
-}
-
-const dailyNewUsersFetchedReceptor = (action: typeof AdminAnalyticsActions.dailyNewUsersFetched.matches._TYPE) => {
-  const state = getMutableState(AdminAnalyticsState)
-  return state.merge({
-    dailyNewUsers: action.analytics.reverse()
-  })
-}
-
-const dailyUsersFetchedReceptor = (action: typeof AdminAnalyticsActions.dailyUsersFetched.matches._TYPE) => {
-  const state = getMutableState(AdminAnalyticsState)
-  return state.merge({
-    dailyUsers: action.analytics.reverse()
-  })
-}
-
-export const AdminAnalyticsReceptors = {
-  activeInstancesFetchedReceptor,
-  activePartiesFetchedReceptor,
-  activeLocationsFetchedReceptor,
-  activeScenesFetchedReceptor,
-  channelUsersFetchedReceptor,
-  instanceUsersFetchedReceptor,
-  dailyNewUsersFetchedReceptor,
-  dailyUsersFetchedReceptor
-}
-
-//Service
 export const AdminAnalyticsService = {
   fetchActiveParties: async (startDate?: Date, endDate?: Date) => {
     try {
@@ -137,10 +66,12 @@ export const AdminAnalyticsService = {
         }
       }
 
-      const activeParties = (await API.instance.client.service(analyticsPath).find({
+      const activeParties = (await Engine.instance.api.service(analyticsPath).find({
         query: query
       })) as Paginated<AnalyticsType>
-      dispatchAction(AdminAnalyticsActions.activePartiesFetched({ analytics: activeParties.data }))
+      getMutableState(AdminAnalyticsState).merge({
+        activeInstances: activeParties.data.reverse()
+      })
     } catch (err) {
       logger.error(err)
     }
@@ -162,10 +93,12 @@ export const AdminAnalyticsService = {
     }
 
     try {
-      const activeInstances = (await API.instance.client.service(analyticsPath).find({
+      const activeInstances = (await Engine.instance.api.service(analyticsPath).find({
         query: query
       })) as Paginated<AnalyticsType>
-      dispatchAction(AdminAnalyticsActions.activeInstancesFetched({ analytics: activeInstances.data }))
+      getMutableState(AdminAnalyticsState).merge({
+        activeInstances: activeInstances.data.reverse()
+      })
     } catch (err) {
       logger.error(err)
     }
@@ -187,10 +120,12 @@ export const AdminAnalyticsService = {
         }
       }
 
-      const activeLocations = (await API.instance.client.service(analyticsPath).find({
+      const activeLocations = (await Engine.instance.api.service(analyticsPath).find({
         query: query
       })) as Paginated<AnalyticsType>
-      dispatchAction(AdminAnalyticsActions.activeLocationsFetched({ analytics: activeLocations.data }))
+      getMutableState(AdminAnalyticsState).merge({
+        activeLocations: activeLocations.data.reverse()
+      })
     } catch (err) {
       logger.error(err)
     }
@@ -212,10 +147,12 @@ export const AdminAnalyticsService = {
         }
       }
 
-      const activeScenes = (await API.instance.client.service(analyticsPath).find({
+      const activeScenes = (await Engine.instance.api.service(analyticsPath).find({
         query: query
       })) as Paginated<AnalyticsType>
-      dispatchAction(AdminAnalyticsActions.activeScenesFetched({ analytics: activeScenes.data }))
+      getMutableState(AdminAnalyticsState).merge({
+        activeScenes: activeScenes.data.reverse()
+      })
     } catch (err) {
       logger.error(err)
     }
@@ -237,10 +174,12 @@ export const AdminAnalyticsService = {
         }
       }
 
-      const channelUsers = (await API.instance.client.service(analyticsPath).find({
+      const channelUsers = (await Engine.instance.api.service(analyticsPath).find({
         query: query
       })) as Paginated<AnalyticsType>
-      dispatchAction(AdminAnalyticsActions.channelUsersFetched({ analytics: channelUsers.data }))
+      getMutableState(AdminAnalyticsState).merge({
+        channelUsers: channelUsers.data.reverse()
+      })
     } catch (err) {
       logger.error(err)
     }
@@ -262,10 +201,12 @@ export const AdminAnalyticsService = {
         }
       }
 
-      const instanceUsers = (await API.instance.client.service(analyticsPath).find({
+      const instanceUsers = (await Engine.instance.api.service(analyticsPath).find({
         query: query
       })) as Paginated<AnalyticsType>
-      dispatchAction(AdminAnalyticsActions.instanceUsersFetched({ analytics: instanceUsers.data }))
+      getMutableState(AdminAnalyticsState).merge({
+        instanceUsers: instanceUsers.data.reverse()
+      })
     } catch (err) {
       logger.error(err)
     }
@@ -287,10 +228,13 @@ export const AdminAnalyticsService = {
         }
       }
 
-      const dailyUsers = (await API.instance.client.service(analyticsPath).find({
+      const dailyUsers = (await Engine.instance.api.service(analyticsPath).find({
         query: query
       })) as Paginated<AnalyticsType>
-      dispatchAction(AdminAnalyticsActions.dailyUsersFetched({ analytics: dailyUsers.data }))
+
+      getMutableState(AdminAnalyticsState).merge({
+        dailyUsers: dailyUsers.data.reverse()
+      })
     } catch (error) {
       logger.error(error)
     }
@@ -312,48 +256,14 @@ export const AdminAnalyticsService = {
         }
       }
 
-      const dailyNewUsers = (await API.instance.client.service(analyticsPath).find({
+      const dailyNewUsers = (await Engine.instance.api.service(analyticsPath).find({
         query: query
       })) as Paginated<AnalyticsType>
-      dispatchAction(AdminAnalyticsActions.dailyNewUsersFetched({ analytics: dailyNewUsers.data }))
+      getMutableState(AdminAnalyticsState).merge({
+        dailyNewUsers: dailyNewUsers.data.reverse()
+      })
     } catch (err) {
       logger.error(err)
     }
   }
-}
-
-//Action
-export class AdminAnalyticsActions {
-  static activePartiesFetched = defineAction({
-    type: 'ee.client.AdminAnalytics.ACTIVE_PARTIES_FETCHED' as const,
-    analytics: matches.object as Validator<unknown, AnalyticsType[]>
-  })
-  static activeInstancesFetched = defineAction({
-    type: 'ee.client.AdminAnalytics.ACTIVE_INSTANCES_FETCHED' as const,
-    analytics: matches.object as Validator<unknown, AnalyticsType[]>
-  })
-  static channelUsersFetched = defineAction({
-    type: 'ee.client.AdminAnalytics.CHANNEL_USERS_FETCHED' as const,
-    analytics: matches.object as Validator<unknown, AnalyticsType[]>
-  })
-  static instanceUsersFetched = defineAction({
-    type: 'ee.client.AdminAnalytics.INSTANCE_USERS_FETCHED' as const,
-    analytics: matches.object as Validator<unknown, AnalyticsType[]>
-  })
-  static activeLocationsFetched = defineAction({
-    type: 'ee.client.AdminAnalytics.ACTIVE_LOCATIONS_FETCHED' as const,
-    analytics: matches.object as Validator<unknown, AnalyticsType[]>
-  })
-  static activeScenesFetched = defineAction({
-    type: 'ee.client.AdminAnalytics.ACTIVE_SCENES_FETCHED' as const,
-    analytics: matches.object as Validator<unknown, AnalyticsType[]>
-  })
-  static dailyUsersFetched = defineAction({
-    type: 'ee.client.AdminAnalytics.DAILY_USERS_FETCHED' as const,
-    analytics: matches.object as Validator<unknown, AnalyticsType[]>
-  })
-  static dailyNewUsersFetched = defineAction({
-    type: 'ee.client.AdminAnalytics.DAILY_NEW_USERS_FETCHED' as const,
-    analytics: matches.object as Validator<unknown, AnalyticsType[]>
-  })
 }
