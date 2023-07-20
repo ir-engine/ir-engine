@@ -23,7 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { AdminScopeType } from './AdminScopeType'
+import { ScopeTypeType } from '@etherealengine/engine/src/schemas/scope/scope-type.schema'
+
 import { Group } from './Group'
 import { UserInterface } from './User'
 
@@ -34,7 +35,7 @@ export interface AdminScope {
   userId?: string
   groupId?: string
   type: string
-  scopeType?: AdminScopeType
+  scopeType?: ScopeTypeType
   user?: UserInterface
   group?: Group
 }

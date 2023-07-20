@@ -30,112 +30,118 @@ import appConfig from '@etherealengine/server-core/src/appconfig'
 
 import { getDateTimeSql } from '../../util/get-datetime-sql'
 
+export const scopeTypeSeed = [
+  {
+    type: 'admin:admin'
+  },
+  {
+    type: 'routes:read'
+  },
+  {
+    type: 'routes:write'
+  },
+  {
+    type: 'location:read'
+  },
+  {
+    type: 'location:write'
+  },
+  {
+    type: 'static_resource:read'
+  },
+  {
+    type: 'static_resource:write'
+  },
+  {
+    type: 'editor:write'
+  },
+  {
+    type: 'bot:read'
+  },
+  {
+    type: 'bot:write'
+  },
+  {
+    type: 'globalAvatars:read'
+  },
+  {
+    type: 'globalAvatars:write'
+  },
+  {
+    type: 'benchmarking:read'
+  },
+  {
+    type: 'benchmarking:write'
+  },
+  {
+    type: 'groups:read'
+  },
+  {
+    type: 'groups:write'
+  },
+  {
+    type: 'instance:read'
+  },
+  {
+    type: 'instance:write'
+  },
+  {
+    type: 'invite:read'
+  },
+  {
+    type: 'party:read'
+  },
+  {
+    type: 'party:write'
+  },
+  {
+    type: 'user:read'
+  },
+  {
+    type: 'user:write'
+  },
+  {
+    type: 'scene:read'
+  },
+  {
+    type: 'scene:write'
+  },
+  {
+    type: 'projects:read'
+  },
+  {
+    type: 'projects:write'
+  },
+  {
+    type: 'settings:read'
+  },
+  {
+    type: 'settings:write'
+  },
+  {
+    type: 'server:read'
+  },
+  {
+    type: 'server:write'
+  },
+  {
+    type: 'recording:read'
+  },
+  {
+    type: 'recording:write'
+  }
+]
+
 export async function seed(knex: Knex): Promise<void> {
   const { testEnabled } = appConfig
   const { forceRefresh } = appConfig.db
 
   const seedData: ScopeTypeType[] = await Promise.all(
-    [
-      {
-        type: 'admin:admin'
-      },
-      {
-        type: 'routes:read'
-      },
-      {
-        type: 'routes:write'
-      },
-      {
-        type: 'location:read'
-      },
-      {
-        type: 'location:write'
-      },
-      {
-        type: 'static_resource:read'
-      },
-      {
-        type: 'static_resource:write'
-      },
-      {
-        type: 'editor:write'
-      },
-      {
-        type: 'bot:read'
-      },
-      {
-        type: 'bot:write'
-      },
-      {
-        type: 'globalAvatars:read'
-      },
-      {
-        type: 'globalAvatars:write'
-      },
-      {
-        type: 'benchmarking:read'
-      },
-      {
-        type: 'benchmarking:write'
-      },
-      {
-        type: 'groups:read'
-      },
-      {
-        type: 'groups:write'
-      },
-      {
-        type: 'instance:read'
-      },
-      {
-        type: 'instance:write'
-      },
-      {
-        type: 'invite:read'
-      },
-      {
-        type: 'party:read'
-      },
-      {
-        type: 'party:write'
-      },
-      {
-        type: 'user:read'
-      },
-      {
-        type: 'user:write'
-      },
-      {
-        type: 'scene:read'
-      },
-      {
-        type: 'scene:write'
-      },
-      {
-        type: 'projects:read'
-      },
-      {
-        type: 'projects:write'
-      },
-      {
-        type: 'settings:read'
-      },
-      {
-        type: 'settings:write'
-      },
-      {
-        type: 'server:read'
-      },
-      {
-        type: 'server:write'
-      },
-      {
-        type: 'recording:read'
-      },
-      {
-        type: 'recording:write'
-      }
-    ].map(async (item) => ({ ...item, createdAt: await getDateTimeSql(), updatedAt: await getDateTimeSql() }))
+    scopeTypeSeed.map(async (item) => ({
+      ...item,
+      createdAt: await getDateTimeSql(),
+      updatedAt: await getDateTimeSql()
+    }))
   )
 
   if (forceRefresh || testEnabled) {

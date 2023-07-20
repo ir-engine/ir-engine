@@ -25,9 +25,10 @@ Ethereal Engine. All Rights Reserved.
 
 import { Paginated } from '@feathersjs/feathers'
 
-import { AdminScopeType } from '@etherealengine/common/src/interfaces/AdminScopeType'
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
+import { scopeTypePath, ScopeTypeType } from '@etherealengine/engine/src/schemas/scope/scope-type.schema'
 import { defineState, getMutableState } from '@etherealengine/hyperflux'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 
 import { NotificationService } from '../../common/services/NotificationService'
 
@@ -43,7 +44,7 @@ export const AdminScopeTypeState = defineState({
     fetched: false,
     updateNeeded: true,
     lastFetched: Date.now(),
-    scopeTypes: [] as Array<AdminScopeType>,
+    scopeTypes: [] as Array<ScopeTypeType>,
     fetching: false
   })
 })
@@ -54,12 +55,12 @@ export const AdminScopeTypeService = {
     const $limit = scopeState.limit.value
     const $skip = page * $limit
     try {
-      const result = (await Engine.instance.api.service('scope-type').find({
+      const result = (await Engine.instance.api.service(scopeTypePath).find({
         query: {
           $skip,
           $limit
         }
-      })) as Paginated<AdminScopeType>
+      })) as Paginated<ScopeTypeType>
       getMutableState(AdminScopeTypeState).merge({
         scopeTypes: result.data,
         skip: result.skip,

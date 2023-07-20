@@ -43,7 +43,7 @@ export const scopeTypeSchema = Type.Object(
 export type ScopeTypeType = Static<typeof scopeTypeSchema>
 
 // Schema for creating new entries
-export const scopeTypeDataSchema = Type.Pick(scopeTypeSchema, [], {
+export const scopeTypeDataSchema = Type.Pick(scopeTypeSchema, ['type'], {
   $id: 'ScopeTypeData'
 })
 export type ScopeTypeData = Static<typeof scopeTypeDataSchema>
