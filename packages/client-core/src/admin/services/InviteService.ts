@@ -26,17 +26,11 @@ Ethereal Engine. All Rights Reserved.
 import { Paginated } from '@feathersjs/feathers'
 
 import { Invite as InviteInterface } from '@etherealengine/common/src/interfaces/Invite'
-import { Invite as InviteType } from '@etherealengine/common/src/interfaces/Invite'
-import multiLogger from '@etherealengine/common/src/logger'
-import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
-import { defineAction, defineState, dispatchAction, getMutableState } from '@etherealengine/hyperflux'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { defineState, getMutableState } from '@etherealengine/hyperflux'
 
-import { API } from '../../API'
 import { NotificationService } from '../../common/services/NotificationService'
 
-const logger = multiLogger.child({ component: 'client-core:InviteService' })
-
-//State
 export const INVITE_PAGE_LIMIT = 100
 
 export const AdminInviteState = defineState({
@@ -54,81 +48,33 @@ export const AdminInviteState = defineState({
   })
 })
 
-export const invitesRetrievedReceptor = (action: typeof AdminInviteActions.invitesRetrieved.matches._TYPE) => {
-  const state = getMutableState(AdminInviteState)
-  return state.merge({
-    invites: action.invites.data,
-    skip: action.invites.skip,
-    limit: action.invites.limit,
-    total: action.invites.total,
-    retrieving: false,
-    fetched: true,
-    updateNeeded: false,
-    lastFetched: Date.now()
-  })
-}
-
-export const inviteCreatedReceptor = (action: typeof AdminInviteActions.inviteCreated.matches._TYPE) => {
-  const state = getMutableState(AdminInviteState)
-  return state.merge({ updateNeeded: true, created: true })
-}
-
-export const invitePatchedReceptor = (action: typeof AdminInviteActions.invitePatched.matches._TYPE) => {
-  const state = getMutableState(AdminInviteState)
-  return state.merge({ updateNeeded: true })
-}
-
-export const inviteRemovedReceptor = (action: typeof AdminInviteActions.inviteRemoved.matches._TYPE) => {
-  const state = getMutableState(AdminInviteState)
-  return state.merge({ updateNeeded: true })
-}
-
-export const fetchingInvitesReceptor = (action: typeof AdminInviteActions.fetchingInvites.matches._TYPE) => {
-  const state = getMutableState(AdminInviteState)
-  return state.merge({ retrieving: true, fetched: false })
-}
-
-export const AdminInviteReceptors = {
-  invitesRetrievedReceptor,
-  inviteCreatedReceptor,
-  invitePatchedReceptor,
-  inviteRemovedReceptor
-}
-
-//Service
 export const AdminInviteService = {
   updateInvite: async (id: string, invite: InviteInterface) => {
     try {
-      const result = await API.instance.client.service('invite').update(id, invite)
-      dispatchAction(AdminInviteActions.invitePatched({ invite: result }))
+      await Engine.instance.api.service('invite').update(id, invite)
+      getMutableState(AdminInviteState).merge({ updateNeeded: true })
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
   },
   removeInvite: async (id: string) => {
-    const result = (await API.instance.client.service('invite').remove(id)) as InviteInterface
-    dispatchAction(AdminInviteActions.inviteRemoved({ invite: result }))
+    await Engine.instance.api.service('invite').remove(id)
+    getMutableState(AdminInviteState).merge({ updateNeeded: true })
   },
   createInvite: async (invite: any) => {
     try {
-      const result = await API.instance.client.service('invite').create(invite)
-      dispatchAction(AdminInviteActions.inviteCreated({ invite: result as InviteType }))
+      await Engine.instance.api.service('invite').create(invite)
+      getMutableState(AdminInviteState).merge({ updateNeeded: true, created: true })
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
   },
-  fetchAdminInvites: async (
-    incDec?: 'increment' | 'decrement',
-    search?: string,
-    sortField = 'id',
-    orderBy = 'asc',
-    value: string | null = null
-  ) => {
+  fetchAdminInvites: async (search?: string, page = 0, sortField = 'id', orderBy = 'asc') => {
+    getMutableState(AdminInviteState).merge({ retrieving: true, fetched: false })
     try {
-      dispatchAction(AdminInviteActions.fetchingInvites({}))
-      const adminInviteState = getMutableState(AdminInviteState).value
-      const skip = adminInviteState.skip
-      const limit = adminInviteState.limit
+      const adminInviteState = getMutableState(AdminInviteState)
+      const limit = adminInviteState.limit.value
+      const skip = page * limit
       let sortData = {}
       if (sortField.length > 0) {
         if (sortField === 'type') {
@@ -140,62 +86,28 @@ export const AdminInviteService = {
           sortData[sortField] = orderBy === 'desc' ? -1 : 1
         }
       }
-      const invites = (await API.instance.client.service('invite').find({
+      const invites = (await Engine.instance.api.service('invite').find({
         query: {
           $sort: {
             ...sortData
           },
           $skip: skip * INVITE_PAGE_LIMIT,
           $limit: limit
-          // search: value
+          // search /** @todo reimplement invite search */
         }
       })) as Paginated<InviteInterface>
-      dispatchAction(AdminInviteActions.invitesRetrieved({ invites }))
+      getMutableState(AdminInviteState).merge({
+        invites: invites.data,
+        skip: invites.skip,
+        limit: invites.limit,
+        total: invites.total,
+        retrieving: false,
+        fetched: true,
+        updateNeeded: false,
+        lastFetched: Date.now()
+      })
     } catch (error) {
-      logger.error(error)
-    }
-  },
-  searchAdminInvites: async (value, orderBy = 'asc') => {
-    try {
-      const invites = (await API.instance.client.service('invite').find({
-        query: {
-          search: value,
-          $sort: {
-            name: orderBy === 'desc' ? 0 : 1
-          },
-          $skip: getMutableState(AdminInviteState).skip.value,
-          $limit: getMutableState(AdminInviteState).limit.value
-        }
-      })) as Paginated<InviteInterface>
-    } catch (error) {
-      logger.error(error)
+      NotificationService.dispatchNotify(error.message, { variant: 'error' })
     }
   }
-}
-
-//Action
-export class AdminInviteActions {
-  static invitesRetrieved = defineAction({
-    type: 'ee.client.AdminInvite.ADMIN_INVITES_RETRIEVED' as const,
-    invites: matches.object as Validator<unknown, Paginated<InviteInterface>>
-  })
-
-  static inviteCreated = defineAction({
-    type: 'ee.client.AdminInvite.ADMIN_INVITE_CREATED' as const,
-    invite: matches.object as Validator<unknown, InviteInterface>
-  })
-
-  static invitePatched = defineAction({
-    type: 'ee.client.AdminInvite.ADMIN_INVITE_PATCHED' as const,
-    invite: matches.object as Validator<unknown, InviteInterface>
-  })
-
-  static inviteRemoved = defineAction({
-    type: 'ee.client.AdminInvite.ADMIN_INVITE_REMOVED' as const,
-    invite: matches.object as Validator<unknown, InviteInterface>
-  })
-
-  static fetchingInvites = defineAction({
-    type: 'ee.client.AdminInvite.FETCHING_ADMIN_INVITES' as const
-  })
 }

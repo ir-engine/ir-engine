@@ -26,14 +26,12 @@ Ethereal Engine. All Rights Reserved.
 import { Paginated } from '@feathersjs/feathers'
 
 import { Party, PatchParty } from '@etherealengine/common/src/interfaces/Party'
-import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
-import { defineAction, defineState, dispatchAction, getMutableState } from '@etherealengine/hyperflux'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { defineState, getMutableState } from '@etherealengine/hyperflux'
 
-import { API } from '../../API'
 import { NotificationService } from '../../common/services/NotificationService'
-import { AuthState } from '../../user/services/AuthService'
+import { userIsAdmin } from '../../user/userHasAccess'
 
-//State
 export const PARTY_PAGE_LIMIT = 100
 
 export const AdminPartyState = defineState({
@@ -50,61 +48,20 @@ export const AdminPartyState = defineState({
   })
 })
 
-const partyRetrievedReceptor = (action: typeof AdminPartyActions.partyRetrieved.matches._TYPE) => {
-  const state = getMutableState(AdminPartyState)
-  return state.merge({
-    parties: action.party.data,
-    updateNeeded: false,
-    skip: action.party.skip,
-    limit: action.party.limit,
-    total: action.party.total,
-    fetched: true,
-    lastFetched: Date.now()
-  })
-}
-
-const partyAdminCreatedReceptor = (action: typeof AdminPartyActions.partyAdminCreated.matches._TYPE) => {
-  const state = getMutableState(AdminPartyState)
-  return state.merge({ updateNeeded: true })
-}
-
-const partyRemovedReceptor = (action: typeof AdminPartyActions.partyRemoved.matches._TYPE) => {
-  const state = getMutableState(AdminPartyState)
-  return state.merge({ updateNeeded: true })
-}
-
-const partyPatchedReceptor = (action: typeof AdminPartyActions.partyPatched.matches._TYPE) => {
-  const state = getMutableState(AdminPartyState)
-  return state.merge({ updateNeeded: true })
-}
-
-export const AdminPartyReceptors = {
-  partyRetrievedReceptor,
-  partyAdminCreatedReceptor,
-  partyRemovedReceptor,
-  partyPatchedReceptor
-}
-
-//Service
 export const AdminPartyService = {
   createAdminParty: async (data) => {
     try {
-      const party = (await API.instance.client.service('party').create(data)) as Party
-      dispatchAction(AdminPartyActions.partyAdminCreated({ party }))
+      await Engine.instance.api.service('party').create(data)
+      getMutableState(AdminPartyState).merge({ updateNeeded: true })
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
   },
   fetchAdminParty: async (value: string | null = null, skip = 0, sortField = 'maxMembers', orderBy = 'asc') => {
-    const user = getMutableState(AuthState).user
-
     try {
-      if (user.scopes?.value?.find((scope) => scope.type === 'admin:admin')) {
-        let sortData = {}
-        if (sortField.length > 0) {
-          sortData[sortField] = orderBy === 'desc' ? 0 : 1
-        }
-        const party = (await API.instance.client.service('party').find({
+      if (userIsAdmin()) {
+        const sortData = sortField.length > 0 ? { [sortField]: orderBy === 'desc' ? 0 : 1 } : {}
+        const party = (await Engine.instance.api.service('party').find({
           query: {
             $sort: {
               ...sortData
@@ -116,46 +73,30 @@ export const AdminPartyService = {
           }
         })) as Paginated<Party>
 
-        dispatchAction(AdminPartyActions.partyRetrieved({ party }))
+        getMutableState(AdminPartyState).merge({
+          parties: party.data,
+          updateNeeded: false,
+          skip: party.skip,
+          limit: party.limit,
+          total: party.total,
+          fetched: true,
+          lastFetched: Date.now()
+        })
       }
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
   },
   removeParty: async (id: string) => {
-    const party = (await API.instance.client.service('party').remove(id)) as Party
-    dispatchAction(AdminPartyActions.partyRemoved({ party }))
+    await Engine.instance.api.service('party').remove(id)
+    getMutableState(AdminPartyState).merge({ updateNeeded: true })
   },
   patchParty: async (id: string, party: PatchParty) => {
     try {
-      const result = (await API.instance.client.service('party').patch(id, party)) as Party
-      dispatchAction(AdminPartyActions.partyPatched({ party: result }))
+      await Engine.instance.api.service('party').patch(id, party)
+      getMutableState(AdminPartyState).merge({ updateNeeded: true })
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
   }
-}
-
-//Action
-
-export class AdminPartyActions {
-  static partyAdminCreated = defineAction({
-    type: 'ee.client.AdminParty.PARTY_ADMIN_CREATED' as const,
-    party: matches.object as Validator<unknown, Party>
-  })
-
-  static partyRetrieved = defineAction({
-    type: 'ee.client.AdminParty.PARTY_ADMIN_DISPLAYED' as const,
-    party: matches.object as Validator<unknown, Paginated<Party>>
-  })
-
-  static partyRemoved = defineAction({
-    type: 'ee.client.AdminParty.ADMIN_PARTY_REMOVED' as const,
-    party: matches.object as Validator<unknown, Party>
-  })
-
-  static partyPatched = defineAction({
-    type: 'ee.client.AdminParty.ADMIN_PARTY_PATCHED' as const,
-    party: matches.object as Validator<unknown, Party>
-  })
 }
