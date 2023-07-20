@@ -45,10 +45,6 @@ export const VolumetricComponent = defineComponent({
   },
 
   onSet: (entity, component, json) => {
-    setComponent(entity, MediaComponent)
-    setComponent(entity, PositionalAudioComponent)
-    setComponent(entity, ShadowComponent)
-
     if (typeof json?.useLoadingEffect === 'boolean' && json.useLoadingEffect !== component.useLoadingEffect.value)
       component.useLoadingEffect.set(json.useLoadingEffect)
   }

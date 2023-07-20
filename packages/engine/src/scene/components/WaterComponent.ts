@@ -45,8 +45,6 @@ export const WaterComponent = defineComponent({
   },
 
   onSet: (entity, _component, json) => {
-    setComponent(entity, ShadowComponent)
-
     if (!json) return
   },
 
