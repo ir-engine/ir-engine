@@ -61,7 +61,6 @@ import {
   AdminTaskServerSettingActions,
   TaskServerSettingReceptors
 } from '../admin/services/Setting/TaskServerSettingsService'
-import { AdminTestBotActions, AdminTestBotReceptors } from '../admin/services/TestBotService'
 
 const fetchedTaskServersQueue = defineActionQueue(AdminTaskServerSettingActions.fetchedTaskServers.matches)
 const fetchServerLogsRequestedQueue = defineActionQueue(AdminServerLogsActions.fetchServerLogsRequested.matches)
@@ -108,9 +107,6 @@ const channelUsersFetchedQueue = defineActionQueue(AdminAnalyticsActions.channel
 const instanceUsersFetchedQueue = defineActionQueue(AdminAnalyticsActions.instanceUsersFetched.matches)
 const dailyNewUsersFetchedQueue = defineActionQueue(AdminAnalyticsActions.dailyNewUsersFetched.matches)
 const dailyUsersFetchedQueue = defineActionQueue(AdminAnalyticsActions.dailyUsersFetched.matches)
-const fetchedTestBotsQueue = defineActionQueue(AdminTestBotActions.fetchedBots.matches)
-const spawnBotsQueue = defineActionQueue(AdminTestBotActions.spawnBots.matches)
-const spawnedBotsQueue = defineActionQueue(AdminTestBotActions.spawnedBots.matches)
 const botCommandCreatedQueue = defineActionQueue(AdminBotCommandActions.botCommandCreated.matches)
 const botCommandRemovedQueue = defineActionQueue(AdminBotCommandActions.botCommandRemoved.matches)
 const fetchedBotQueue = defineActionQueue(AdminBotsActions.fetchedBot.matches)
@@ -184,9 +180,6 @@ const execute = () => {
   for (const action of instanceUsersFetchedQueue()) AdminAnalyticsReceptors.instanceUsersFetchedReceptor(action)
   for (const action of dailyNewUsersFetchedQueue()) AdminAnalyticsReceptors.dailyNewUsersFetchedReceptor(action)
   for (const action of dailyUsersFetchedQueue()) AdminAnalyticsReceptors.dailyUsersFetchedReceptor(action)
-  for (const action of fetchedTestBotsQueue()) AdminTestBotReceptors.fetchedBotsReceptor(action)
-  for (const action of spawnBotsQueue()) AdminTestBotReceptors.spawnBotsReceptor(action)
-  for (const action of spawnedBotsQueue()) AdminTestBotReceptors.spawnedBotsReceptor(action)
   for (const action of botCommandCreatedQueue()) AdminBotsCommandReceptors.botCommandCreatedReceptor(action)
   for (const action of botCommandRemovedQueue()) AdminBotsCommandReceptors.botCommandRemovedReceptor(action)
   for (const action of fetchedBotQueue()) AdminBotServiceReceptors.fetchedBotReceptor(action)
