@@ -43,7 +43,13 @@ import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
 import { EffectMap, EffectPropsSchema, Effects } from '../../scene/constants/PostProcessing'
 import { HighlightState } from '../HighlightState'
-import { EffectComposerWithSchema, EngineRenderer, PostProcessingSettingsState } from '../WebGLRendererSystem'
+import { RendererState } from '../RendererState'
+import {
+  EffectComposerWithSchema,
+  EngineRenderer,
+  PostProcessingSettingsState,
+  RenderSettingsState
+} from '../WebGLRendererSystem'
 import { changeRenderMode } from './changeRenderMode'
 
 export const configureEffectComposer = (remove?: boolean, camera: PerspectiveCamera = Engine.instance.camera): void => {
@@ -61,12 +67,14 @@ export const configureEffectComposer = (remove?: boolean, camera: PerspectiveCam
   EngineRenderer.instance.effectComposer.addPass(renderPass)
   EngineRenderer.instance.renderPass = renderPass
 
+  console.log(remove)
   if (remove) {
     return
   }
 
-  const postprocessing = getState(PostProcessingSettingsState)
-  if (!postprocessing.enabled) return
+  const renderSettings = getState(RendererState)
+  console.log(renderSettings)
+  if (!renderSettings.usePostProcessing) return
 
   const effects: any[] = []
 
@@ -79,6 +87,7 @@ export const configureEffectComposer = (remove?: boolean, camera: PerspectiveCam
   effects.push(outlineEffect)
 
   const postprocessingSettings = getState(PostProcessingSettingsState)
+  console.log(postprocessingSettings)
   if (!postprocessingSettings.enabled) {
     composer.addPass(new EffectPass(camera, ...effects))
     return

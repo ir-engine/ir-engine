@@ -254,6 +254,8 @@ export type EffectPropsSchema = {
   [Effects.MotionBlurEffect]: MotionBlurEffectProps
 }
 
+export type EffectPropsSchemaType = (typeof defaultPostProcessingSchema)[keyof typeof defaultPostProcessingSchema]
+
 export const defaultPostProcessingSchema: EffectPropsSchema = {
   // FXAAEffect: {
   //   isActive: true,

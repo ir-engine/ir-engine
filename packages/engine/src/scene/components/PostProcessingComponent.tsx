@@ -23,9 +23,9 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { useEffect } from 'react'
+import React, { useEffect } from 'react'
 
-import { getMutableState, getState } from '@etherealengine/hyperflux'
+import { getMutableState, getState, NO_PROXY } from '@etherealengine/hyperflux'
 
 import { defineComponent, getComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
 import { useEntityContext } from '../../ecs/functions/EntityFunctions'
@@ -43,7 +43,11 @@ export const PostProcessingComponent = defineComponent({
     if (!json) return
 
     if (json.enabled) component.enabled.set(json.enabled)
-    if (json.effects) component.effects.set(json.effects)
+    if (json.effects) {
+      for (const [name, effect] of Object.entries(json.effects)) {
+        component.effects[name].merge(effect)
+      }
+    }
   },
 
   toJSON: (entity, component) => {
@@ -55,17 +59,25 @@ export const PostProcessingComponent = defineComponent({
 
   reactor: () => {
     const entity = useEntityContext()
-    const component = useComponent(entity, PostProcessingComponent)
+    useComponent(entity, PostProcessingComponent)
 
-    for (const prop of Object.keys(getState(PostProcessingSettingsState))) {
-      useEffect(() => {
-        if (component[prop].value !== getState(PostProcessingSettingsState)[prop])
-          getMutableState(PostProcessingSettingsState)[prop].set(
-            JSON.parse(JSON.stringify(getComponent(entity, PostProcessingComponent)[prop]))
-          )
-      }, [component[prop]])
-    }
-
-    return null
+    return (
+      <>
+        {Object.entries(getComponent(entity, PostProcessingComponent).effects).map(([name, effect], index) => {
+          return <PostProcessingEffectReactor effect={effect} name={name} key={index} />
+        })}
+      </>
+    )
   }
 })
+
+const PostProcessingEffectReactor = (props: { effect; name }) => {
+  const { effect, name } = props
+
+  useEffect(() => {
+    if (effect !== getState(PostProcessingSettingsState).effects[name])
+      getMutableState(PostProcessingSettingsState).effects[name].merge(JSON.parse(JSON.stringify(effect)))
+  }, [effect])
+
+  return null
+}
