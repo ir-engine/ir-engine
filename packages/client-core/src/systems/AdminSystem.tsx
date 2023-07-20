@@ -32,7 +32,6 @@ import { AdminAvatarActions, AdminAvatarReceptors } from '../admin/services/Avat
 import { AdminBotCommandActions, AdminBotsCommandReceptors } from '../admin/services/BotsCommand'
 import { AdminBotsActions, AdminBotServiceReceptors } from '../admin/services/BotsService'
 import { AdminBuildStatusActions, AdminBuildStatusReceptors } from '../admin/services/BuildStatusService'
-import { AdminGroupActions, AdminGroupServiceReceptors } from '../admin/services/GroupService'
 import {
   AdminInstanceActions,
   AdminInstanceReceptors,
@@ -137,11 +136,6 @@ const fetchedBotQueue = defineActionQueue(AdminBotsActions.fetchedBot.matches)
 const botCreatedQueue = defineActionQueue(AdminBotsActions.botCreated.matches)
 const botPatchedQueue = defineActionQueue(AdminBotsActions.botPatched.matches)
 const botRemovedQueue = defineActionQueue(AdminBotsActions.botRemoved.matches)
-const fetchingGroupQueue = defineActionQueue(AdminGroupActions.fetchingGroup.matches)
-const setAdminGroupQueue = defineActionQueue(AdminGroupActions.setAdminGroup.matches)
-const updateGroupQueue = defineActionQueue(AdminGroupActions.updateGroup.matches)
-const removeGroupActionQueue = defineActionQueue(AdminGroupActions.removeGroupAction.matches)
-const addAdminGroupQueue = defineActionQueue(AdminGroupActions.addAdminGroup.matches)
 const installedRoutesRetrievedQueue = defineActionQueue(AdminRouteActions.installedRoutesRetrieved.matches)
 const activeRoutesRetrievedQueue = defineActionQueue(AdminActiveRouteActions.activeRoutesRetrieved.matches)
 
@@ -226,11 +220,6 @@ const execute = () => {
   for (const action of botCreatedQueue()) AdminBotServiceReceptors.botCreatedReceptor(action)
   for (const action of botPatchedQueue()) AdminBotServiceReceptors.botPatchedReceptor(action)
   for (const action of botRemovedQueue()) AdminBotServiceReceptors.botRemovedReceptor(action)
-  for (const action of fetchingGroupQueue()) AdminGroupServiceReceptors.fetchingGroupReceptor(action)
-  for (const action of setAdminGroupQueue()) AdminGroupServiceReceptors.setAdminGroupReceptor(action)
-  for (const action of updateGroupQueue()) AdminGroupServiceReceptors.updateGroupReceptor(action)
-  for (const action of removeGroupActionQueue()) AdminGroupServiceReceptors.removeGroupActionReceptor(action)
-  for (const action of addAdminGroupQueue()) AdminGroupServiceReceptors.addAdminGroupReceptor(action)
   for (const action of installedRoutesRetrievedQueue()) AdminRouteReceptors.installedRoutesRetrievedReceptor(action)
   for (const action of activeRoutesRetrievedQueue()) AdminActiveRouteReceptors.activeRoutesRetrievedReceptor(action)
   for (const action of fetchedInstanceServerQueue()) AdminInstanceServerReceptors.fetchedInstanceServerReceptor(action)
