@@ -24,13 +24,12 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
-import { defineAction, defineActionQueue } from '@etherealengine/hyperflux'
+import { defineActionQueue } from '@etherealengine/hyperflux'
 
 import { AdminActiveRouteActions, AdminActiveRouteReceptors } from '../admin/services/ActiveRouteService'
 import { AdminAnalyticsActions, AdminAnalyticsReceptors } from '../admin/services/AnalyticsService'
 import { AdminAvatarActions, AdminAvatarReceptors } from '../admin/services/AvatarService'
 import { AdminBotCommandActions, AdminBotsCommandReceptors } from '../admin/services/BotsCommand'
-import { AdminBotsActions, AdminBotServiceReceptors } from '../admin/services/BotsService'
 import { AdminBuildStatusActions, AdminBuildStatusReceptors } from '../admin/services/BuildStatusService'
 import { AdminGroupActions, AdminGroupServiceReceptors } from '../admin/services/GroupService'
 import { AdminInviteActions, AdminInviteReceptors } from '../admin/services/InviteService'
@@ -124,10 +123,6 @@ const spawnBotsQueue = defineActionQueue(AdminTestBotActions.spawnBots.matches)
 const spawnedBotsQueue = defineActionQueue(AdminTestBotActions.spawnedBots.matches)
 const botCommandCreatedQueue = defineActionQueue(AdminBotCommandActions.botCommandCreated.matches)
 const botCommandRemovedQueue = defineActionQueue(AdminBotCommandActions.botCommandRemoved.matches)
-const fetchedBotQueue = defineActionQueue(AdminBotsActions.fetchedBot.matches)
-const botCreatedQueue = defineActionQueue(AdminBotsActions.botCreated.matches)
-const botPatchedQueue = defineActionQueue(AdminBotsActions.botPatched.matches)
-const botRemovedQueue = defineActionQueue(AdminBotsActions.botRemoved.matches)
 const fetchingGroupQueue = defineActionQueue(AdminGroupActions.fetchingGroup.matches)
 const setAdminGroupQueue = defineActionQueue(AdminGroupActions.setAdminGroup.matches)
 const updateGroupQueue = defineActionQueue(AdminGroupActions.updateGroup.matches)
@@ -210,10 +205,6 @@ const execute = () => {
   for (const action of spawnedBotsQueue()) AdminTestBotReceptors.spawnedBotsReceptor(action)
   for (const action of botCommandCreatedQueue()) AdminBotsCommandReceptors.botCommandCreatedReceptor(action)
   for (const action of botCommandRemovedQueue()) AdminBotsCommandReceptors.botCommandRemovedReceptor(action)
-  for (const action of fetchedBotQueue()) AdminBotServiceReceptors.fetchedBotReceptor(action)
-  for (const action of botCreatedQueue()) AdminBotServiceReceptors.botCreatedReceptor(action)
-  for (const action of botPatchedQueue()) AdminBotServiceReceptors.botPatchedReceptor(action)
-  for (const action of botRemovedQueue()) AdminBotServiceReceptors.botRemovedReceptor(action)
   for (const action of fetchingGroupQueue()) AdminGroupServiceReceptors.fetchingGroupReceptor(action)
   for (const action of setAdminGroupQueue()) AdminGroupServiceReceptors.setAdminGroupReceptor(action)
   for (const action of updateGroupQueue()) AdminGroupServiceReceptors.updateGroupReceptor(action)
