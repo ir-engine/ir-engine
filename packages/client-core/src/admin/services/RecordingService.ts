@@ -27,10 +27,9 @@ import { Paginated } from '@feathersjs/feathers'
 import { useEffect } from 'react'
 
 import { RecordingResult } from '@etherealengine/common/src/interfaces/Recording'
-import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
-import { defineAction, defineState, dispatchAction, getMutableState } from '@etherealengine/hyperflux'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { defineState, getMutableState } from '@etherealengine/hyperflux'
 
-import { API } from '../../API'
 import { NotificationService } from '../../common/services/NotificationService'
 
 type RecordingResultFetch = RecordingResult & { 'user.name': string }
@@ -51,31 +50,6 @@ export const AdminRecordingState = defineState({
   })
 })
 
-const recordingsRetrievedReceptor = (action: typeof AdminRecordingsActions.recordingsRetrieved.matches._TYPE) => {
-  const state = getMutableState(AdminRecordingState)
-  return state.merge({
-    recordings: action.recordingsResult.data,
-    skip: action.recordingsResult.skip,
-    limit: action.recordingsResult.limit,
-    total: action.recordingsResult.total,
-    retrieving: false,
-    fetched: true,
-    updateNeeded: false,
-    lastFetched: Date.now()
-  })
-}
-
-const recordingRemovedReceptor = (_action: typeof AdminRecordingsActions.recordingsRemoved.matches._TYPE) => {
-  const state = getMutableState(AdminRecordingState)
-  return state.merge({ updateNeeded: true })
-}
-
-export const AdminRecordingReceptors = {
-  recordingsRetrievedReceptor,
-  recordingRemovedReceptor
-}
-
-//Service
 export const AdminRecordingService = {
   fetchAdminRecordings: async (
     _value: string | null = null,
@@ -85,11 +59,8 @@ export const AdminRecordingService = {
     $limit = RECORDING_PAGE_LIMIT
   ) => {
     try {
-      let $sort = {}
-      if (sortField.length > 0) {
-        $sort[sortField] = orderBy === 'desc' ? -1 : 1
-      }
-      const recordings = (await API.instance.client.service('recording').find({
+      const $sort = sortField.length > 0 ? { [sortField]: orderBy === 'desc' ? -1 : 1 } : {}
+      const recordings = (await Engine.instance.api.service('recording').find({
         query: {
           $skip,
           $sort,
@@ -98,38 +69,35 @@ export const AdminRecordingService = {
         }
       })) as Paginated<RecordingResultFetch>
 
-      dispatchAction(AdminRecordingsActions.recordingsRetrieved({ recordingsResult: recordings }))
+      getMutableState(AdminRecordingState).merge({
+        recordings: recordings.data,
+        skip: recordings.skip,
+        limit: recordings.limit,
+        total: recordings.total,
+        retrieving: false,
+        fetched: true,
+        updateNeeded: false,
+        lastFetched: Date.now()
+      })
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
   },
   removeRecording: async (id: string) => {
-    const recording = (await API.instance.client.service('recording').remove(id)) as RecordingResult
-    dispatchAction(AdminRecordingsActions.recordingsRemoved({ recording }))
+    await Engine.instance.api.service('recording').remove(id)
+    getMutableState(AdminRecordingState).merge({ updateNeeded: true })
   },
   useAPIListeners: () => {
     useEffect(() => {
-      const listener = (params) => {
-        dispatchAction(AdminRecordingsActions.recordingsRemoved({ recording: params.recording }))
+      const listener = () => {
+        getMutableState(AdminRecordingState).merge({ updateNeeded: true })
       }
-      API.instance.client.service('instance').on('removed', listener)
+      Engine.instance.api.service('instance').on('removed', listener)
       return () => {
-        API.instance.client.service('instance').off('removed', listener)
+        Engine.instance.api.service('instance').off('removed', listener)
       }
     }, [])
   }
-}
-
-export class AdminRecordingsActions {
-  static recordingsRetrieved = defineAction({
-    type: 'ee.client.AdminRecording.RECORDINGS_RETRIEVED',
-    recordingsResult: matches.object as Validator<unknown, Paginated<RecordingResultFetch>>
-  })
-
-  static recordingsRemoved = defineAction({
-    type: 'ee.client.AdminRecording.RECORDING_REMOVED_ROW',
-    recording: matches.object as Validator<unknown, RecordingResult>
-  })
 }
 
 export const AdminSingleRecordingState = defineState({
@@ -141,25 +109,7 @@ export const AdminSingleRecordingState = defineState({
 
 export const AdminSingleRecordingService = {
   fetchSingleAdminRecording: async (id: RecordingResult['id']) => {
-    const recording = await API.instance.client.service('recording').get(id)
-    dispatchAction(AdminSingleRecordingsActions.recordingsRetrieved({ recording }))
+    const recording = await Engine.instance.api.service('recording').get(id)
+    getMutableState(AdminSingleRecordingState).merge({ recording })
   }
-}
-
-export class AdminSingleRecordingsActions {
-  static recordingsRetrieved = defineAction({
-    type: 'ee.client.AdminSingleRecording.RECORDING_RETRIEVED',
-    recording: matches.object as Validator<unknown, RecordingResult>
-  })
-}
-
-const singleRecordingFetchedReceptor = (
-  action: typeof AdminSingleRecordingsActions.recordingsRetrieved.matches._TYPE
-) => {
-  const state = getMutableState(AdminSingleRecordingState)
-  return state.merge({ recording: action.recording })
-}
-
-export const AdminSingleRecordingReceptors = {
-  singleRecordingFetchedReceptor
 }
