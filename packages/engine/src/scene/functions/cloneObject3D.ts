@@ -131,7 +131,7 @@ export const getAnimationClips = (): AnimationClip[] => {
   const loopAnimationQuery = defineQuery([LoopAnimationComponent])
   const result = new Set<AnimationClip>()
 
-  for (let entity of loopAnimationQuery()) {
+  for (const entity of loopAnimationQuery()) {
     const comp = getComponent(entity, LoopAnimationComponent)
     if (comp.activeClipIndex < 0) continue
 

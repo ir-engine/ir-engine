@@ -72,7 +72,7 @@ import { computeTransformMatrix, updateGroupChildren } from '../../transform/sys
 import { XRState } from '../../xr/XRState'
 import { applySkeletonPose, isSkeletonInTPose, makeTPose } from '../animation/avatarPose'
 import { retargetSkeleton, syncModelSkeletons } from '../animation/retargetSkeleton'
-import { AnimationManager } from '../AnimationManager'
+import { AnimationState } from '../AnimationManager'
 // import { retargetSkeleton, syncModelSkeletons } from '../animation/retargetSkeleton'
 import avatarBoneMatching, {
   BoneNames,
@@ -100,7 +100,7 @@ export const loadAvatarModelAsset = async (avatarURL: string) => {
   const scene = model.scene || model // FBX files does not have 'scene' property
   if (!scene) return
 
-  let vrm = model instanceof VRM ? model : model.userData.vrm
+  const vrm = model instanceof VRM ? model : model.userData.vrm
 
   VRMUtils.VRMUtils.removeUnnecessaryJoints(vrm.scene)
   VRMUtils.VRMUtils.removeUnnecessaryVertices(vrm.scene)
@@ -201,7 +201,7 @@ export const createIKAnimator = async (entity: Entity) => {
 }
 
 export const getAnimations = async () => {
-  const manager = getMutableState(AnimationManager)
+  const manager = getMutableState(AnimationState)
   if (!manager.targetsAnimation.value) {
     const asset = await AssetLoader.loadAsync('/vrm_mocap_targets.glb')
     const glb = asset as GLTF
@@ -288,7 +288,7 @@ export const setupAvatarMaterials = (entity, root) => {
         id: object.uuid,
         material: material
       })
-      object.material = DissolveEffect.getDissolveTexture(object)
+      object.material = DissolveEffect.createDissolveMaterial(object)
     }
   })
 

@@ -35,13 +35,13 @@ import {
 import { getState } from '@etherealengine/hyperflux'
 
 import { Entity } from '../../ecs/classes/Entity'
-import { AnimationManager } from '../AnimationManager'
+import { AnimationState } from '../AnimationManager'
 import { ikTargets } from '../components/AvatarAnimationComponent'
 
 //Programatic keyframe placement for complex animations is not scalable
 //Used here for an idle pose experimentally
 export const getIdlePose = (map: ikTargets) => {
-  const state = getState(AnimationManager)
+  const state = getState(AnimationState)
 
   const idleTrackRightHand = new VectorKeyframeTrack(
     map.rightHandTarget.name + '.position',
@@ -97,7 +97,7 @@ export const getIdlePose = (map: ikTargets) => {
 }
 
 export const getWalkForwardPose = (map: ikTargets) => {
-  const state = getState(AnimationManager)
+  const state = getState(AnimationState)
 
   const walkTrackLeftLeg = new VectorKeyframeTrack(
     map.leftFootTarget.name + '.position',

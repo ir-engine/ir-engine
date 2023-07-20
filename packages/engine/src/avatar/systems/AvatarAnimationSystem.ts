@@ -84,7 +84,7 @@ import { updateAnimationGraph } from '.././animation/AnimationGraph'
 import { solveHipHeight } from '.././animation/HipIKSolver'
 import { solveLookIK } from '.././animation/LookAtIKSolver'
 import { solveTwoBoneIK } from '.././animation/TwoBoneIKSolver'
-import { AnimationManager } from '.././AnimationManager'
+import { AnimationState } from '.././AnimationManager'
 import { AnimationComponent } from '.././components/AnimationComponent'
 import { AvatarAnimationComponent, AvatarRigComponent } from '.././components/AvatarAnimationComponent'
 import {
@@ -388,7 +388,7 @@ const execute = () => {
 
     const rigComponent = getComponent(entity, AvatarRigComponent)
     const rig = rigComponent.rig
-    const animationState = getState(AnimationManager)
+    const animationState = getState(AnimationState)
 
     if (!animationState.targetsAnimation) return
 
@@ -424,6 +424,7 @@ const execute = () => {
 
       const ikTargetComponent = getComponent(ikEntity, AvatarIKTargetComponent)
       const ikTransform = getComponent(ikEntity, TransformComponent)
+      const hipsForward = new Vector3(0, 0, 1)
       //todo - use a map for this
       switch (ikTargetComponent.handedness) {
         case 'left':
@@ -439,7 +440,6 @@ const execute = () => {
             _vector3.copy(ikTransform.position).setY(ikTransform.position.y - rigComponent.torsoLength - 0.125)
           )
           //offset target forward to account for hips being behind the head
-          const hipsForward = new Vector3(0, 0, 1)
           hipsForward.applyQuaternion(rigidbodyComponent!.rotation)
           hipsForward.multiplyScalar(0.125)
           worldSpaceTargets.hipsTarget.position.sub(hipsForward)
