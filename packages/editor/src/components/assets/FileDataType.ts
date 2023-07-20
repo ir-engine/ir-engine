@@ -33,5 +33,4 @@ export type FileDataType = {
   type: string
   isFolder: boolean
   Icon: any
-  prefabType: string
 }

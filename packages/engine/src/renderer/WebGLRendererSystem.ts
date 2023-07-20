@@ -322,7 +322,7 @@ const reactor = () => {
 
   useEffect(() => {
     configureEffectComposer()
-  }, [postprocessing, postprocessing.effects, engineRendererSettings.usePostProcessing])
+  }, [postprocessing.enabled, postprocessing.effects, engineRendererSettings.usePostProcessing])
 
   useEffect(() => {
     EngineRenderer.instance.scaleFactor =

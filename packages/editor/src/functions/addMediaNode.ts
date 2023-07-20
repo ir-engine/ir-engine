@@ -24,13 +24,14 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { getContentType } from '@etherealengine/common/src/utils/getContentType'
-import { MediaPrefabs } from '@etherealengine/engine/src/audio/systems/MediaSystem'
+import { PositionalAudioComponent } from '@etherealengine/engine/src/audio/components/PositionalAudioComponent'
 import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
 import { ImageComponent } from '@etherealengine/engine/src/scene/components/ImageComponent'
 import { MediaComponent } from '@etherealengine/engine/src/scene/components/MediaComponent'
 import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
 import { PrefabComponent } from '@etherealengine/engine/src/scene/components/PrefabComponent'
-import { ScenePrefabs } from '@etherealengine/engine/src/scene/systems/SceneObjectUpdateSystem'
+import { VideoComponent } from '@etherealengine/engine/src/scene/components/VideoComponent'
+import { VolumetricComponent } from '@etherealengine/engine/src/scene/components/VolumetricComponent'
 
 import { updateProperties } from '../components/properties/Util'
 import { EditorControlFunctions } from './EditorControlFunctions'
@@ -46,33 +47,33 @@ export async function addMediaNode(url: string, parent?: Entity | null, before?:
   const contentType = (await getContentType(url)) || ''
   const { hostname } = new URL(url)
 
-  let prefabType = ''
+  let componentName: string | null = null
   let updateFunc = null! as Function
 
   let node: Entity | null = null
 
   if (contentType.startsWith('prefab/')) {
-    prefabType = ScenePrefabs.prefab
+    componentName = PrefabComponent.name
     updateFunc = () => updateProperties(PrefabComponent, { src: url }, [node!])
   } else if (contentType.startsWith('model/')) {
-    prefabType = ScenePrefabs.model
+    componentName = ModelComponent.name
     updateFunc = () => updateProperties(ModelComponent, { src: url }, [node!])
   } else if (contentType.startsWith('video/') || hostname.includes('twitch.tv') || hostname.includes('youtube.com')) {
-    prefabType = MediaPrefabs.video
+    componentName = VideoComponent.name
     updateFunc = () => updateProperties(MediaComponent, { paths: [url] }, [node!])
   } else if (contentType.startsWith('image/')) {
-    prefabType = ScenePrefabs.image
+    componentName = ImageComponent.name
     updateFunc = () => updateProperties(ImageComponent, { source: url }, [node!])
   } else if (contentType.startsWith('audio/')) {
-    prefabType = MediaPrefabs.audio
+    componentName = PositionalAudioComponent.name
     updateFunc = () => updateProperties(MediaComponent, { paths: [url] }, [node!])
   } else if (url.includes('.uvol')) {
-    prefabType = MediaPrefabs.volumetric
+    componentName = VolumetricComponent.name
     updateFunc = () => updateProperties(MediaComponent, { paths: [url] }, [node!])
   }
 
-  if (prefabType) {
-    node = EditorControlFunctions.createObjectFromPrefab(prefabType, parent, before!)
+  if (componentName) {
+    node = EditorControlFunctions.createObjectFromSceneElement(componentName, parent, before)
 
     if (node) updateFunc()
   }

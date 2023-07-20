@@ -40,3 +40,9 @@ export const userHasAccess = (scope: string) => {
   const isAdmin = authState.user?.scopes?.find((r) => r.type === 'admin:admin')
   return Boolean(hasScope || isAdmin)
 }
+
+export const userIsAdmin = () => {
+  const authState = getState(AuthState)
+  const isAdmin = authState.user?.scopes?.find((r) => r.type === 'admin:admin')
+  return Boolean(isAdmin)
+}

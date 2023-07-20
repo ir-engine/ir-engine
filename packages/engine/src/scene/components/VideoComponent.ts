@@ -28,12 +28,14 @@ import { DoubleSide, Group, LinearFilter, Mesh, MeshBasicMaterial, Side, Texture
 
 import { defineState } from '@etherealengine/hyperflux'
 
+import { PositionalAudioComponent } from '../../audio/components/PositionalAudioComponent'
 import { isMobile } from '../../common/functions/isMobile'
 import { Entity } from '../../ecs/classes/Entity'
 import {
   defineComponent,
   getComponent,
   hasComponent,
+  setComponent,
   useComponent,
   useOptionalComponent
 } from '../../ecs/functions/ComponentFunctions'
@@ -45,9 +47,10 @@ import { addError, clearErrors } from '../functions/ErrorFunctions'
 import { ObjectFitFunctions } from './../../xrui/functions/ObjectFitFunctions'
 import { addObjectToGroup, removeObjectFromGroup } from './../components/GroupComponent'
 import { resizeImageMesh } from './../components/ImageComponent'
-import { MediaElementComponent } from './../components/MediaComponent'
+import { MediaComponent, MediaElementComponent } from './../components/MediaComponent'
 import { UUIDComponent } from './../components/UUIDComponent'
 import { PLANE_GEO } from './ImageComponent'
+import { ShadowComponent } from './ShadowComponent'
 
 export const VideoTexturePriorityQueueState = defineState({
   name: 'VideoTexturePriorityQueueState',
@@ -77,6 +80,8 @@ export const VideoComponent = defineComponent({
   jsonID: 'video',
 
   onInit: (entity) => {
+    setComponent(entity, MediaComponent, { paths: ['__$project$__/default-project/assets/SampleAudio.mp3'] })
+
     const videoGroup = new Group()
     videoGroup.name = `video-group-${entity}`
     const videoMesh = new Mesh(PLANE_GEO, new MeshBasicMaterial())
@@ -105,6 +110,10 @@ export const VideoComponent = defineComponent({
   },
 
   onSet: (entity, component, json) => {
+    setComponent(entity, MediaComponent)
+    setComponent(entity, PositionalAudioComponent)
+    setComponent(entity, ShadowComponent)
+
     if (!json) return
     if (typeof json.mediaUUID === 'string') component.mediaUUID.set(json.mediaUUID)
     if (typeof json.side === 'number') component.side.set(json.side)

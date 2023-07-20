@@ -23,7 +23,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { useEffect } from 'react'
 import { Box3, Vector3 } from 'three'
 
 import { defineActionQueue, getState } from '@etherealengine/hyperflux'
@@ -51,8 +50,6 @@ import { getInteractionGroups } from '../../physics/functions/getInteractionGrou
 import { RaycastHit, SceneQueryType } from '../../physics/types/PhysicsTypes'
 import { MountPoint, MountPointComponent } from '../../scene/components/MountPointComponent'
 import { SittingComponent } from '../../scene/components/SittingComponent'
-import { VisibleComponent } from '../../scene/components/VisibleComponent'
-import { ScenePrefabs } from '../../scene/systems/SceneObjectUpdateSystem'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { BoundingBoxComponent } from '../components/BoundingBoxComponents'
 import { createInteractUI } from '../functions/interactUI'
@@ -167,23 +164,7 @@ const execute = () => {
   }
 }
 
-const reactor = () => {
-  useEffect(() => {
-    Engine.instance.scenePrefabRegistry.set(ScenePrefabs.chair, [
-      { name: TransformComponent.jsonID },
-      { name: VisibleComponent.jsonID },
-      { name: MountPointComponent.jsonID }
-    ])
-
-    return () => {
-      Engine.instance.scenePrefabRegistry.delete(ScenePrefabs.chair)
-    }
-  }, [])
-  return null
-}
-
 export const MountPointSystem = defineSystem({
   uuid: 'ee.engine.MountPointSystem',
-  execute,
-  reactor
+  execute
 })

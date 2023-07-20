@@ -33,13 +33,6 @@ import { AdminBotCommandActions, AdminBotsCommandReceptors } from '../admin/serv
 import { AdminBotsActions, AdminBotServiceReceptors } from '../admin/services/BotsService'
 import { AdminBuildStatusActions, AdminBuildStatusReceptors } from '../admin/services/BuildStatusService'
 import { AdminGroupActions, AdminGroupServiceReceptors } from '../admin/services/GroupService'
-import { AdminInstanceserverActions, InstanceServerSettingReceptors } from '../admin/services/InstanceserverService'
-import {
-  AdminInstanceActions,
-  AdminInstanceReceptors,
-  AdminInstanceUserActions,
-  AdminInstanceUserReceptors
-} from '../admin/services/InstanceService'
 import { AdminInviteActions, AdminInviteReceptors } from '../admin/services/InviteService'
 import { AdminLocationActions, AdminLocationReceptors } from '../admin/services/LocationService'
 import { AdminPartyActions, AdminPartyReceptors } from '../admin/services/PartyService'
@@ -77,7 +70,6 @@ import {
   TaskServerSettingReceptors
 } from '../admin/services/Setting/TaskServerSettingsService'
 import { AdminTestBotActions, AdminTestBotReceptors } from '../admin/services/TestBotService'
-import { AdminUserActions, AdminUserReceptors } from '../admin/services/UserService'
 
 const fetchedTaskServersQueue = defineActionQueue(AdminTaskServerSettingActions.fetchedTaskServers.matches)
 const fetchServerInfoRequestedQueue = defineActionQueue(AdminServerInfoActions.fetchServerInfoRequested.matches)
@@ -95,15 +87,10 @@ const fetchedHelmQueue = defineActionQueue(AdminHelmSettingActions.helmSettingRe
 const patchedHelmQueue = defineActionQueue(AdminHelmSettingActions.helmSettingPatched.matches)
 const fetchedHelmMainVersionsQueue = defineActionQueue(AdminHelmSettingActions.helmMainVersionsRetrieved.matches)
 const fetchedHelmBuilderVersionsQueue = defineActionQueue(AdminHelmSettingActions.helmBuilderVersionsRetrieved.matches)
-const patchInstanceserverQueue = defineActionQueue(AdminInstanceserverActions.patchInstanceserver.matches)
-const patchedInstanceserverQueue = defineActionQueue(AdminInstanceserverActions.patchedInstanceserver.matches)
 const projectSettingFetchedQueue = defineActionQueue(AdminProjectSettingsActions.projectSettingFetched.matches)
 const fetchedSeverInfoQueue = defineActionQueue(AdminServerSettingActions.fetchedSeverInfo.matches)
 const serverSettingPatchedQueue = defineActionQueue(AdminServerSettingActions.serverSettingPatched.matches)
 const getScopeTypesQueue = defineActionQueue(AdminScopeTypeActions.getScopeTypes.matches)
-const instancesRetrievedQueue = defineActionQueue(AdminInstanceActions.instancesRetrieved.matches)
-const instanceRemovedQueue = defineActionQueue(AdminInstanceActions.instanceRemoved.matches)
-const userInstanceRetrievedQueue = defineActionQueue(AdminInstanceUserActions.instanceUsersRetrieved.matches)
 const avatarsFetchedQueue = defineActionQueue(AdminAvatarActions.avatarsFetched.matches)
 const avatarCreatedQueue = defineActionQueue(AdminAvatarActions.avatarCreated.matches)
 const avatarRemovedQueue = defineActionQueue(AdminAvatarActions.avatarRemoved.matches)
@@ -148,14 +135,7 @@ const removeGroupActionQueue = defineActionQueue(AdminGroupActions.removeGroupAc
 const addAdminGroupQueue = defineActionQueue(AdminGroupActions.addAdminGroup.matches)
 const installedRoutesRetrievedQueue = defineActionQueue(AdminRouteActions.installedRoutesRetrieved.matches)
 const activeRoutesRetrievedQueue = defineActionQueue(AdminActiveRouteActions.activeRoutesRetrieved.matches)
-const fetchedSingleUserQueue = defineActionQueue(AdminUserActions.fetchedSingleUser.matches)
-const loadedUsersQueue = defineActionQueue(AdminUserActions.loadedUsers.matches)
-const userAdminRemovedQueue = defineActionQueue(AdminUserActions.userAdminRemoved.matches)
-const userCreatedQueue = defineActionQueue(AdminUserActions.userCreated.matches)
-const userPatchedQueue = defineActionQueue(AdminUserActions.userPatched.matches)
-const searchedUserQueue = defineActionQueue(AdminUserActions.searchedUser.matches)
-const setSkipGuestsQueue = defineActionQueue(AdminUserActions.setSkipGuests.matches)
-const resetFilterQueue = defineActionQueue(AdminUserActions.resetFilter.matches)
+
 const fetchedInstanceServerQueue = defineActionQueue(InstanceServerSettingActions.fetchedInstanceServer.matches)
 const chargebeeSettingRetrievedQueue = defineActionQueue(AdminChargebeeSettingActions.chargebeeSettingRetrieved.matches)
 const invitesRetrievedQueue = defineActionQueue(AdminInviteActions.invitesRetrieved.matches)
@@ -193,16 +173,10 @@ const execute = () => {
   for (const action of fetchedHelmMainVersionsQueue()) HelmSettingReceptors.helmMainVersionsRetrievedReceptor(action)
   for (const action of fetchedHelmBuilderVersionsQueue())
     HelmSettingReceptors.helmBuilderVersionsRetrievedReceptor(action)
-  for (const action of patchInstanceserverQueue()) InstanceServerSettingReceptors.patchInstanceserverReceptor(action)
-  for (const action of patchedInstanceserverQueue())
-    InstanceServerSettingReceptors.patchedInstanceserverReceptor(action)
   for (const action of projectSettingFetchedQueue()) ProjectSettingReceptors.projectSettingFetchedReceptor(action)
   for (const action of fetchedSeverInfoQueue()) ServerSettingReceptors.fetchedSeverInfoReceptor(action)
   for (const action of serverSettingPatchedQueue()) ServerSettingReceptors.serverSettingPatchedReceptor(action)
   for (const action of getScopeTypesQueue()) AdminScopeTypeReceptor.getScopeTypesReceptor(action)
-  for (const action of instancesRetrievedQueue()) AdminInstanceReceptors.instancesRetrievedReceptor(action)
-  for (const action of instanceRemovedQueue()) AdminInstanceReceptors.instanceRemovedReceptor(action)
-  for (const action of userInstanceRetrievedQueue()) AdminInstanceUserReceptors.userInstancesReceivedReceptor(action)
   for (const action of avatarsFetchedQueue()) AdminAvatarReceptors.avatarsFetchedReceptor(action)
   for (const action of avatarCreatedQueue()) AdminAvatarReceptors.avatarCreatedReceptor(action)
   for (const action of avatarRemovedQueue()) AdminAvatarReceptors.avatarRemovedReceptor(action)
@@ -247,14 +221,6 @@ const execute = () => {
   for (const action of addAdminGroupQueue()) AdminGroupServiceReceptors.addAdminGroupReceptor(action)
   for (const action of installedRoutesRetrievedQueue()) AdminRouteReceptors.installedRoutesRetrievedReceptor(action)
   for (const action of activeRoutesRetrievedQueue()) AdminActiveRouteReceptors.activeRoutesRetrievedReceptor(action)
-  for (const action of fetchedSingleUserQueue()) AdminUserReceptors.fetchedSingleUserReceptor(action)
-  for (const action of loadedUsersQueue()) AdminUserReceptors.loadedUsersReceptor(action)
-  for (const action of userAdminRemovedQueue()) AdminUserReceptors.userAdminRemovedReceptor(action)
-  for (const action of userCreatedQueue()) AdminUserReceptors.userCreatedReceptor(action)
-  for (const action of userPatchedQueue()) AdminUserReceptors.userPatchedReceptor(action)
-  for (const action of searchedUserQueue()) AdminUserReceptors.searchedUserReceptor(action)
-  for (const action of setSkipGuestsQueue()) AdminUserReceptors.setSkipGuestsReceptor(action)
-  for (const action of resetFilterQueue()) AdminUserReceptors.resetFilterReceptor(action)
   for (const action of fetchedInstanceServerQueue()) AdminInstanceServerReceptors.fetchedInstanceServerReceptor(action)
   for (const action of chargebeeSettingRetrievedQueue())
     AdminChargebeeReceptors.chargebeeSettingRetrievedReceptor(action)
