@@ -36,7 +36,6 @@ import CircularProgress from '@etherealengine/ui/src/primitives/mui/CircularProg
 import Grid from '@etherealengine/ui/src/primitives/mui/Grid'
 
 import { ProjectService, ProjectState } from '../../../common/services/ProjectService'
-import { ProjectUpdateSystem } from '../../../systems/ProjectUpdateSystem'
 import { AuthState } from '../../../user/services/AuthService'
 import styles from '../../styles/admin.module.scss'
 import BuildStatusDrawer from './BuildStatusDrawer'
@@ -60,8 +59,6 @@ const Projects = () => {
   const refreshGithubRepoAccess = () => {
     ProjectService.refreshGithubRepoAccess()
   }
-
-  useSystem(ProjectUpdateSystem, { after: PresentationSystemGroup })
 
   useEffect(() => {
     ProjectService.checkReloadStatus()

@@ -58,7 +58,7 @@ const InstanceTable = ({ className, search }: Props) => {
   const openConfirm = useHookstate(false)
   const instanceId = useHookstate('')
   const instanceName = useHookstate('')
-  const fieldOrder = useHookstate('asc')
+  const fieldOrder = useHookstate<'asc' | 'desc'>('asc')
   const sortField = useHookstate('createdAt')
   const instanceAdmin = useHookstate<Instance | undefined>(undefined)
   const openInstanceDrawer = useHookstate(false)

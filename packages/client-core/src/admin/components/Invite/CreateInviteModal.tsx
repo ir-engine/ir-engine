@@ -45,9 +45,8 @@ import Tab from '@etherealengine/ui/src/primitives/mui/Tab'
 import Tabs from '@etherealengine/ui/src/primitives/mui/Tabs'
 import TextField from '@etherealengine/ui/src/primitives/mui/TextField'
 
+import { DateTimePicker, LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
-import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker'
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
 
 import { NotificationService } from '../../../common/services/NotificationService'
 import { InviteService } from '../../../social/services/InviteService'
