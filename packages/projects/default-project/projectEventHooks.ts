@@ -24,11 +24,10 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { BadRequest } from '@feathersjs/errors'
-import { Paginated } from '@feathersjs/feathers/lib'
 import path from 'path'
 
 import { OEmbed } from '@etherealengine/common/src/interfaces/OEmbed'
-import { LocationType } from '@etherealengine/engine/src/schemas/social/location.schema'
+import { locationPath, LocationType } from '@etherealengine/engine/src/schemas/social/location.schema'
 import { ProjectEventHooks } from '@etherealengine/projects/ProjectConfigInterface'
 import { Application } from '@etherealengine/server-core/declarations'
 import { getStorageProvider } from '@etherealengine/server-core/src/media/storageprovider/storageprovider'
@@ -45,13 +44,14 @@ const handleOEmbedRequest = async (app: Application, url: URL, currentOEmbed: OE
     const locationResult = (await app.service(locationPath).find({
       query: {
         slugifiedName: locationName
-      }
-    })) as Paginated<LocationType>
-    if (locationResult.total === 0) throw new BadRequest('Invalid location name')
-    const [projectName, sceneName] = locationResult.data[0].sceneId.split('/')
+      },
+      pagination: false
+    })) as LocationType[]
+    if (locationResult.length === 0) throw new BadRequest('Invalid location name')
+    const [projectName, sceneName] = locationResult[0].sceneId.split('/')
     const storageProvider = getStorageProvider()
-    currentOEmbed.title = `${locationResult.data[0].name} - ${currentOEmbed.title}`
-    currentOEmbed.description = `Join others in VR at ${locationResult.data[0].name}, directly from the web browser`
+    currentOEmbed.title = `${locationResult[0].name} - ${currentOEmbed.title}`
+    currentOEmbed.description = `Join others in VR at ${locationResult[0].name}, directly from the web browser`
     currentOEmbed.type = 'photo'
     currentOEmbed.url = `https://${storageProvider.cacheDomain}/projects/${projectName}/${sceneName}.thumbnail.jpeg`
     currentOEmbed.height = 320
@@ -76,12 +76,13 @@ const handleOEmbedRequest = async (app: Application, url: URL, currentOEmbed: OE
       const locationResult = (await app.service(locationPath).find({
         query: {
           sceneId: subPath
-        }
-      })) as Paginated<LocationType>
-      if (locationResult.total > 0) {
-        const [projectName, sceneName] = locationResult.data[0].sceneId.split('/')
+        },
+        pagination: false
+      })) as LocationType[]
+      if (locationResult.length > 0) {
+        const [projectName, sceneName] = locationResult[0].sceneId.split('/')
         const storageProvider = getStorageProvider()
-        currentOEmbed.title = `${locationResult.data[0].name} Studio - ${currentOEmbed.title}`
+        currentOEmbed.title = `${locationResult[0].name} Studio - ${currentOEmbed.title}`
         currentOEmbed.type = 'photo'
         currentOEmbed.url = `https://${storageProvider.cacheDomain}/projects/${projectName}/${sceneName}.thumbnail.jpeg`
         currentOEmbed.height = 320

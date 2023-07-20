@@ -23,10 +23,9 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { LocationAuthorizedUser } from './LocationAuthorizedUser'
+import { LocationData, LocationType } from '@etherealengine/engine/src/schemas/social/location.schema'
 
-// TODO: Remove once Instance service is moved to feathers 5. Did it as a temp fix to dynamically import location schema.
-const { LocationType } = require('../../../engine/src/schemas/social/location.schema')
+// import { LocationAuthorizedUser } from './LocationAuthorizedUser'
 
 // interface LocationSettings {
 //   id: string
@@ -59,7 +58,7 @@ export interface Instance {
   currentUsers: number
   ipAddress: string
   locationId: string
-  location: typeof LocationType
+  location: LocationData | LocationType
   channelId: string
   podName?: string
   ended?: boolean
@@ -74,12 +73,15 @@ export const InstanceSeed: Instance = {
   ipAddress: '',
   currentUsers: 0,
   location: {
-    id: '',
     name: '',
     slugifiedName: '',
     maxUsersPerInstance: 10,
     sceneId: '',
-    locationSettingsId: '',
+    locationAuthorizedUsers: {
+      id: '',
+      locationId: '',
+      userId: ''
+    },
     locationSetting: {
       id: '',
       locationId: '',
@@ -87,7 +89,9 @@ export const InstanceSeed: Instance = {
       audioEnabled: false,
       screenSharingEnabled: false,
       faceStreamingEnabled: false,
-      videoEnabled: false
+      videoEnabled: false,
+      createdAt: '',
+      updatedAt: ''
     },
     isLobby: false,
     isFeatured: false

@@ -23,7 +23,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Paginated } from '@feathersjs/feathers'
 import * as k8s from '@kubernetes/client-node'
 import { Op } from 'sequelize'
 
@@ -245,13 +244,17 @@ const populateInstanceServerType = async (app: Application, items: ServerPodInfo
   }
 
   // TODO: Move following to instance.resolvers once instance service is migrated to feathers 5.
-  for (const instance of instances) {
-    const location = (await app.service(locationPath).find({
-      query: {
-        id: instance.locationId
+  const locations = (await app.service(locationPath).find({
+    query: {
+      id: {
+        $in: instances.map((instance) => instance.locationId)
       }
-    })) as Paginated<LocationType>
-    instance.location = location.data.length > 0 ? location.data[0] : instance.location
+    },
+    paginate: false
+  })) as LocationType[]
+
+  for (const instance of instances) {
+    instance.location = locations.find((location) => location.id === instance.locationId)!
   }
 
   const channelInstances = instances.filter((item) => item.channelId)

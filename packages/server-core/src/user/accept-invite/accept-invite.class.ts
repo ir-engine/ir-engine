@@ -318,12 +318,7 @@ export class AcceptInvite implements ServiceMethods<Data> {
                     required: false,
                     include: [
                       {
-                        model: this.app.service('instance').Model,
-                        include: [
-                          {
-                            model: this.app.service('location').Model
-                          }
-                        ]
+                        model: this.app.service('instance').Model
                       }
                     ]
                   }
@@ -337,7 +332,11 @@ export class AcceptInvite implements ServiceMethods<Data> {
         const ownerInstanceAttendance = owner?.user?.instanceAttendance
 
         if (ownerInstanceAttendance && ownerInstanceAttendance[0]) {
-          returned.locationName = ownerInstanceAttendance[0].instance.location.slugifiedName
+          if (ownerInstanceAttendance[0].instance.locationId) {
+            const location = await this.app.service(locationPath).get(ownerInstanceAttendance[0].instance.locationId)
+            returned.locationName = location.slugifiedName
+          }
+
           returned.instanceId = ownerInstanceAttendance[0].instanceId
           returned.inviteCode = owner.user.inviteCode
         }
@@ -360,7 +359,7 @@ export class AcceptInvite implements ServiceMethods<Data> {
 
         if (location.locationSetting?.locationType === 'private') {
           const userId = inviteeIdentityProvider.userId
-          if (!location.locationAuthorizedUsers?.find((authUser) => authUser.userId === userId))
+          if (!location.locationAuthorizedUsers.find((authUser) => authUser.userId === userId))
             await this.app.service('location-authorized-user').create({
               locationId: location.id,
               userId: userId

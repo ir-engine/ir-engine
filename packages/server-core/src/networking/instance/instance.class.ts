@@ -28,6 +28,7 @@ import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
 import Sequelize, { Op } from 'sequelize'
 
 import { Instance as InstanceInterface } from '@etherealengine/common/src/interfaces/Instance'
+import { locationPath, LocationType } from '@etherealengine/engine/src/schemas/social/location.schema'
 
 import { Application } from '../../../declarations'
 
@@ -74,7 +75,7 @@ export class Instance<T = InstanceDataType> extends Service<T> {
       if (!isNaN(search)) {
         ip = search ? { ipAddress: { [Op.like]: `%${search}%` } } : {}
       } else {
-        name = search ? { name: { [Op.like]: `%${search}%` } } : {}
+        name = search ? { name: { $like: `%${search}%` } } : {}
       }
       const order: any[] = []
       if (sort != null)
@@ -85,23 +86,52 @@ export class Instance<T = InstanceDataType> extends Service<T> {
             order.push([name, sort[name] === 0 ? 'DESC' : 'ASC'])
           }
         })
-      const foundLocation = await this.app.service('instance').Model.findAndCountAll({
+
+      const foundLocations = (await this.app.service(locationPath).find({
+        query: search ? { name: { $like: `%${search}%` } } : {},
+        paginate: false
+      })) as LocationType[]
+
+      const foundInstances = await this.app.service('instance').Model.findAndCountAll({
         offset: skip,
         limit: limit,
-        include: {
-          model: this.app.service('location').Model,
-          required: true,
-          where: { ...name }
-        },
         nest: false,
-        where: { ended: false, ...ip }
+        where: {
+          ended: false,
+          [Op.or]: [
+            {
+              ipAddress: {
+                [Op.like]: `%${search}%`
+              }
+            },
+            {
+              locationId: {
+                [Op.in]: foundLocations.map((item) => item.id)
+              }
+            }
+          ]
+        }
       })
+
+      // TODO: Move following to instance.resolvers once instance service is migrated to feathers 5.
+      const locations = (await this.app.service(locationPath).find({
+        query: {
+          id: {
+            $in: foundInstances.map((instance) => instance.locationId)
+          }
+        },
+        paginate: false
+      })) as LocationType[]
+
+      for (const instance of foundInstances) {
+        instance.location = locations.data.find((location) => location.id === instance.locationId)
+      }
 
       return {
         skip: skip,
         limit: limit,
-        total: foundLocation.count,
-        data: foundLocation.rows
+        total: foundInstances.count,
+        data: foundInstances.rows
       }
     } else {
       return super.find(params)

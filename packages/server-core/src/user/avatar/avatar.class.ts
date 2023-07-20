@@ -26,7 +26,6 @@ Ethereal Engine. All Rights Reserved.
 import { Id, Params } from '@feathersjs/feathers'
 import { KnexAdapter } from '@feathersjs/knex'
 import type { KnexAdapterOptions, KnexAdapterParams } from '@feathersjs/knex'
-import { Knex } from 'knex'
 
 import { UserInterface } from '@etherealengine/common/src/interfaces/User'
 import { staticResourcePath } from '@etherealengine/engine/src/schemas/media/static-resource.schema'
@@ -34,7 +33,6 @@ import {
   AvatarData,
   AvatarDatabaseType,
   AvatarPatch,
-  avatarPath,
   AvatarQuery,
   AvatarType
 } from '@etherealengine/engine/src/schemas/user/avatar.schema'
@@ -145,12 +143,14 @@ export class AvatarService<T = AvatarType, ServiceParams extends Params = Avatar
       logger.error(err)
     }
 
-    const knexClient: Knex = this.app.get('knexClient')
-
-    const avatars = (await knexClient
-      .from<AvatarDatabaseType>(avatarPath)
-      .whereNot('id', id)
-      .select()) as AvatarDatabaseType[]
+    const avatars = super._find({
+      query: {
+        id: {
+          $ne: id
+        }
+      },
+      paginate: false
+    }) as any as AvatarDatabaseType[]
 
     //Users that have the avatar that's being deleted will have theirs replaced with a random one, if there are other
     //avatars to use

@@ -23,10 +23,14 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Params } from '@feathersjs/feathers/lib'
+import { Paginated, Params } from '@feathersjs/feathers/lib'
 
 import { Instance as InstanceInterface } from '@etherealengine/common/src/interfaces/Instance'
-import { LocationDatabaseType } from '@etherealengine/engine/src/schemas/social/location.schema'
+import {
+  LocationDatabaseType,
+  locationPath,
+  LocationType
+} from '@etherealengine/engine/src/schemas/social/location.schema'
 
 import { Application } from '../../../declarations'
 import authenticate from '../../hooks/authenticate'
@@ -61,29 +65,27 @@ export const getActiveInstancesForScene =
     if (!sceneId) return []
 
     // get all locationIds for sceneId
-    const locations = (await app.service('location').Model.findAll({
-      where: {
+    const locations = (await app.service(locationPath).find({
+      query: {
         sceneId
-      }
-    })) as LocationDatabaseType[]
+      },
+      paginate: false
+    })) as LocationType[]
 
-    if (!locations) return []
+    if (locations.length === 0) return []
 
     const instances = (
       (await Promise.all(
         locations.map((location) => {
-          return app.service('instance').Model.findAll({
+          const instance = app.service('instance').Model.findAll({
             where: {
               ended: false,
               locationId: location.id
-            },
-            include: [
-              {
-                model: app.service('location').Model,
-                where: {}
-              }
-            ]
+            }
           })
+          instance.location = location
+
+          return instance
         })
       )) as InstanceInterface[]
     ).flat()

@@ -27,7 +27,7 @@ import { NullableId, Paginated, Params } from '@feathersjs/feathers'
 import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
 
 import { AdminBot, CreateBotAsAdmin } from '@etherealengine/common/src/interfaces/AdminBot'
-import { botCommandPath } from '@etherealengine/engine/src/schemas/bot/bot-command.schema'
+import { botCommandPath, BotCommandType } from '@etherealengine/engine/src/schemas/bot/bot-command.schema'
 import { locationPath, LocationType } from '@etherealengine/engine/src/schemas/social/location.schema'
 
 import { Application } from '../../../declarations'
@@ -56,21 +56,32 @@ export class Bot extends Service {
     })
 
     // TODO: Move following to bot.resolvers once bot service is migrated to feathers 5.
+    const locations = (await this.app.service(locationPath).find({
+      query: {
+        id: {
+          $in: bots.map((bot) => bot.locationId)
+        }
+      },
+      paginate: false
+    })) as LocationType[]
+
+    const botCommands = (await this.app.service(botCommandPath).find({
+      query: {
+        botId: {
+          $in: bots.map((bot) => bot.id)
+        }
+      },
+      paginate: false
+    })) as any as BotCommandType[]
+
     for (const bot of bots) {
-      const location = (await this.app.service(locationPath).find({
-        query: {
-          id: bot.locationId
-        }
-      })) as Paginated<LocationType>
-      const botCommand = await this.app.service(botCommandPath).find({
-        query: {
-          botId: bot.id
-        }
-      })
+      const location = locations.find((location) => location.id === bot.locationId)
+      const botCommand = botCommands.find((botCommand) => botCommand.botId === bot.id)
+
       data.push({
         ...bot.dataValues,
-        location: JSON.parse(JSON.stringify(location.data)),
-        botCommands: JSON.parse(JSON.stringify(botCommand.data))
+        location: location ? JSON.parse(JSON.stringify(location)) : undefined,
+        botCommands: botCommand ? JSON.parse(JSON.stringify(botCommand)) : undefined
       })
     }
 

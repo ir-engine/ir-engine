@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { BadRequest, Forbidden } from '@feathersjs/errors'
-import { Id, Paginated, Params } from '@feathersjs/feathers'
+import { Id, Params } from '@feathersjs/feathers'
 import appRootPath from 'app-root-path'
 import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
 import fs from 'fs'
@@ -40,7 +40,7 @@ import {
 import { UserInterface } from '@etherealengine/common/src/interfaces/User'
 import { processFileName } from '@etherealengine/common/src/utils/processFileName'
 import { routePath, RouteType } from '@etherealengine/engine/src/schemas/route/route.schema'
-import { locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
+import { locationPath, LocationType } from '@etherealengine/engine/src/schemas/social/location.schema'
 import { avatarPath, AvatarType } from '@etherealengine/engine/src/schemas/user/avatar.schema'
 import {
   githubRepoAccessPath,
@@ -586,17 +586,24 @@ export class Project extends Service {
     logger.info(`[Projects]: removing project id "${id}", name: "${name}".`)
     await deleteProjectFilesInStorageProvider(name)
 
-    const locationItems = await this.app.service('location').Model.findAll({
-      where: {
+    const locationItems = (await this.app.service(locationPath).find({
+      query: {
         sceneId: {
-          [Op.like]: `${name}/%`
+          $like: `${name}/%`
         }
-      }
-    })
-    locationItems.length &&
-      locationItems.forEach(async (location) => {
-        await this.app.service(locationPath).remove(location.dataValues.id)
+      },
+      paginate: false
+    })) as LocationType[]
+
+    if (locationItems.length) {
+      await this.app.service(locationPath).remove(null, {
+        query: {
+          id: {
+            $in: locationItems.map((item) => item.id)
+          }
+        }
       })
+    }
 
     const routeItems = (await this.app.service(routePath).find({
       query: {
@@ -605,10 +612,15 @@ export class Project extends Service {
       paginate: false
     })) as any as RouteType[]
 
-    routeItems.length &&
-      routeItems.forEach(async (route) => {
-        await this.app.service(routePath).remove(route.id)
+    if (routeItems.length) {
+      await this.app.service(routePath).remove(null, {
+        query: {
+          id: {
+            $in: routeItems.map((item) => item.id)
+          }
+        }
       })
+    }
 
     const avatarItems = (await this.app.service(avatarPath).find({
       query: {
@@ -622,11 +634,12 @@ export class Project extends Service {
             }
           }
         ]
-      }
-    })) as Paginated<AvatarType>
+      },
+      paginate: false
+    })) as AvatarType[]
 
     await Promise.all(
-      avatarItems.data.map(async (avatar) => {
+      avatarItems.map(async (avatar) => {
         await this.app.service(avatarPath).remove(avatar.id)
       })
     )

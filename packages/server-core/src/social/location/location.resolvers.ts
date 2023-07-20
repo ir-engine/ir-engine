@@ -25,7 +25,6 @@ Ethereal Engine. All Rights Reserved.
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
 
-import { Paginated } from '@feathersjs/feathers'
 import { resolve } from '@feathersjs/schema'
 import { v4 } from 'uuid'
 
@@ -47,17 +46,19 @@ export const locationExternalResolver = resolve<LocationType, HookContext>({
     const locationSetting = await context.app.service(locationSettingPath).find({
       query: {
         locationId: location.id
-      }
+      },
+      paginate: false
     })
-    return locationSetting.data.length > 0 ? locationSetting.data[0] : undefined
+    return locationSetting.length > 0 ? locationSetting[0] : undefined
   },
   locationAuthorizedUsers: async (value, location, context) => {
     const locationAuthorizedUser = (await context.app.service('location-authorized-user').find({
       query: {
         locationId: location.id
-      }
-    })) as Paginated<LocationAuthorizedUser>
-    return locationAuthorizedUser?.data.length > 0 ? locationAuthorizedUser.data[0] : undefined
+      },
+      paginate: false
+    })) as LocationAuthorizedUser[]
+    return locationAuthorizedUser
   }
 })
 

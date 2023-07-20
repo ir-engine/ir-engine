@@ -49,7 +49,7 @@ export const locationSchema = Type.Object(
     isFeatured: Type.Boolean(),
     maxUsersPerInstance: Type.Number(),
     locationSetting: Type.Ref(locationSettingSchema),
-    locationAuthorizedUsers: Type.Ref(locationAuthorizedUserSchema),
+    locationAuthorizedUsers: Type.Array(Type.Ref(locationAuthorizedUserSchema)),
     createdAt: Type.String({ format: 'date-time' }),
     updatedAt: Type.String({ format: 'date-time' })
   },
@@ -62,7 +62,16 @@ export type LocationDatabaseType = Omit<LocationType, 'locationSetting' | 'locat
 // Schema for creating new entries
 export const locationDataSchema = Type.Pick(
   locationSchema,
-  ['name', 'sceneId', 'slugifiedName', 'isLobby', 'isFeatured', 'maxUsersPerInstance'],
+  [
+    'name',
+    'sceneId',
+    'slugifiedName',
+    'isLobby',
+    'isFeatured',
+    'maxUsersPerInstance',
+    'locationSetting',
+    'locationAuthorizedUsers'
+  ],
   {
     $id: 'LocationData'
   }
@@ -87,7 +96,14 @@ export const locationQueryProperties = Type.Pick(locationSchema, [
 ])
 export const locationQuerySchema = Type.Intersect(
   [
-    querySyntax(locationQueryProperties),
+    querySyntax(locationQueryProperties, {
+      name: {
+        $like: Type.String()
+      },
+      sceneId: {
+        $like: Type.String()
+      }
+    }),
     // Add additional query properties here
     Type.Object(
       {

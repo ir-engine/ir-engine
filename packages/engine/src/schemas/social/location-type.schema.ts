@@ -41,7 +41,7 @@ export const locationTypeSchema = Type.Object(
 export type LocationTypeType = Static<typeof locationTypeSchema>
 
 // Schema for creating new entries
-export const locationTypeDataSchema = Type.Pick(locationTypeSchema, [], {
+export const locationTypeDataSchema = Type.Pick(locationTypeSchema, ['type'], {
   $id: 'LocationTypeData'
 })
 export type LocationTypeData = Static<typeof locationTypeDataSchema>
