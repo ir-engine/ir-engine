@@ -25,7 +25,8 @@ Ethereal Engine. All Rights Reserved.
 
 import { Vector3 } from 'three'
 
-import { defineComponent } from '../../ecs/functions/ComponentFunctions'
+import { defineComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
+import { ShadowComponent } from './ShadowComponent'
 
 export type SplineComponentType = {
   splinePositions: Vector3[]
@@ -42,6 +43,8 @@ export const SplineComponent = defineComponent({
   },
 
   onSet: (entity, component, json) => {
+    setComponent(entity, ShadowComponent)
+
     if (!json) return
     if (typeof json.splinePositions !== 'undefined')
       component.splinePositions.set(json.splinePositions.map((pos) => new Vector3(pos.x, pos.y, pos.z)))

@@ -51,6 +51,7 @@ import {
   ComponentType,
   defineComponent,
   hasComponent,
+  setComponent,
   useComponent
 } from '../../ecs/functions/ComponentFunctions'
 import { entityExists, useEntityContext } from '../../ecs/functions/EntityFunctions'
@@ -62,6 +63,7 @@ import { setObjectLayers } from '../functions/setObjectLayers'
 import { setCallback } from './CallbackComponent'
 import { ColliderComponent } from './ColliderComponent'
 import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
+import { ShadowComponent } from './ShadowComponent'
 
 export const PortalPreviewTypeSimple = 'Simple' as const
 export const PortalPreviewTypeSpherical = 'Spherical' as const
@@ -109,6 +111,8 @@ export const PortalComponent = defineComponent({
   },
 
   onSet: (entity, component, json) => {
+    setComponent(entity, ShadowComponent)
+
     if (!json) return
     if (matches.string.test(json.linkedPortalId)) component.linkedPortalId.set(json.linkedPortalId)
     if (matches.string.test(json.location)) component.location.set(json.location)
@@ -233,7 +237,6 @@ export const PortalComponent = defineComponent({
               const mesh = portalComponent.mesh.value
               if (mesh) {
                 AssetLoader.loadAsync(portalDetails.previewImageURL).then((texture: Texture) => {
-                  console.log(texture, mesh, entityExists(entity))
                   if (!mesh || !entityExists(entity)) return
                   mesh.material.map = texture
                   texture.needsUpdate = true

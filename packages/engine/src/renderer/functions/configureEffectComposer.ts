@@ -43,6 +43,7 @@ import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
 import { EffectMap, EffectPropsSchema, Effects } from '../../scene/constants/PostProcessing'
 import { HighlightState } from '../HighlightState'
+import { RendererState } from '../RendererState'
 import { EffectComposerWithSchema, EngineRenderer, PostProcessingSettingsState } from '../WebGLRendererSystem'
 import { changeRenderMode } from './changeRenderMode'
 
@@ -65,8 +66,8 @@ export const configureEffectComposer = (remove?: boolean, camera: PerspectiveCam
     return
   }
 
-  const postprocessing = getState(PostProcessingSettingsState)
-  if (!postprocessing.enabled) return
+  const renderSettings = getState(RendererState)
+  if (!renderSettings.usePostProcessing) return
 
   const effects: any[] = []
 
@@ -123,7 +124,8 @@ export const configureEffectComposer = (remove?: boolean, camera: PerspectiveCam
       composer[key] = eff
       effects.push(eff)
     } else if (key === Effects.SSREffect) {
-      const eff = new EffectClass(scene, camera, effect)
+      const eff = new EffectClass(scene, camera, velocityDepthNormalPass, effect)
+      useVelocityDepthNormalPass = true
       composer[key] = eff
       effects.push(eff)
     } else if (key === Effects.DepthOfFieldEffect) {

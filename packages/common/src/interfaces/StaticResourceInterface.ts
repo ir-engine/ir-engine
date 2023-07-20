@@ -40,6 +40,8 @@ export interface StaticResourceInterface {
   tags?: string[]
   url: string
   stats?: Record<string, any>
+  createdAt: string
+  updatedAt: string
 }
 
 export interface StaticResourceCreateInterface {}

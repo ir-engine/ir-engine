@@ -32,6 +32,7 @@ class PositionalAudioHelper extends Line {
   range: number
   divisionsInnerAngle: number
   divisionsOuterAngle: number
+  type = 'PositionalAudioHelper'
 
   constructor(audio: AudioNodeGroup, range = 1, divisionsInnerAngle = 16, divisionsOuterAngle = 2) {
     const geometry = new BufferGeometry()
@@ -48,7 +49,6 @@ class PositionalAudioHelper extends Line {
     this.range = range
     this.divisionsInnerAngle = divisionsInnerAngle
     this.divisionsOuterAngle = divisionsOuterAngle
-    this.type = 'PositionalAudioHelper'
     this.userData = {}
 
     this.update()

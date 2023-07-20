@@ -26,6 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { useEffect } from 'react'
 import {
   AdditiveBlending,
+  Blending,
   BufferGeometry,
   Material,
   MeshBasicMaterial,
@@ -42,11 +43,12 @@ import { NO_PROXY, none } from '@etherealengine/hyperflux'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { AssetClass } from '../../assets/enum/AssetClass'
 import { GLTF } from '../../assets/loaders/gltf/GLTFLoader'
-import { defineComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
+import { defineComponent, setComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
 import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { getBatchRenderer } from '../systems/ParticleSystemSystem'
 import getFirstMesh from '../util/getFirstMesh'
 import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
+import { ShadowComponent } from './ShadowComponent'
 
 /*
 SHAPE TYPES
@@ -749,6 +751,8 @@ export const ParticleSystemComponent = defineComponent({
     } as ParticleSystemComponentType
   },
   onSet: (entity, component, json) => {
+    setComponent(entity, ShadowComponent)
+
     !!json?.systemParameters &&
       component.systemParameters.set({
         ...JSON.parse(JSON.stringify(component.systemParameters.value)),
@@ -823,7 +827,7 @@ export const ParticleSystemComponent = defineComponent({
       const dudMaterial = new MeshBasicMaterial({
         color: 0xffffff,
         transparent: component.systemParameters.transparent ?? true,
-        blending: component.systemParameters.blending
+        blending: component.systemParameters.blending as Blending
       })
       metadata.materials['dud'] = dudMaterial
 

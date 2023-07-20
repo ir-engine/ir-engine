@@ -32,6 +32,5 @@ import { MaterialSource, SourceType } from './MaterialSource'
 export type MaterialPluginType = {
   plugin: PluginObjectType
   parameters: Record<string, any>
-  instances: Material[]
   src: MaterialSource
 }

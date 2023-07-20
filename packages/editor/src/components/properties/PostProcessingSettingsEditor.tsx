@@ -84,40 +84,32 @@ const EffectsOptions: EffectOptionsType = {
     fade: { propertyType: PropertyTypes.Number, name: 'Fade', min: -1, max: 1, step: 0.01 }
   },
   SSREffect: {
-    intensity: { propertyType: PropertyTypes.Number, name: 'Intensity', min: 0, max: 3, step: 0.01 },
-    exponent: { propertyType: PropertyTypes.Number, name: 'Exponent', min: 0.125, max: 8, step: 0.125 },
-    distance: { propertyType: PropertyTypes.Number, name: 'Distance', min: 0.001, max: 10, step: 0.1 },
-    fade: { propertyType: PropertyTypes.Number, name: 'Fade', min: 0.01, max: 20, step: 0.01 },
-    roughnessFade: { propertyType: PropertyTypes.Number, name: 'Roughness Fade', min: 0, max: 1, step: 0.01 },
-    thickness: { propertyType: PropertyTypes.Number, name: 'Thickness', min: 0, max: 10, step: 0.01 },
-    ior: { propertyType: PropertyTypes.Number, name: 'ior', min: 1, max: 2.33333, step: 0.01 },
+    distance: { propertyType: PropertyTypes.Number, name: 'Distance', min: 0.001, max: 10, step: 0.01 },
+    thickness: { propertyType: PropertyTypes.Number, name: 'Thickness', min: 0, max: 5, step: 0.01 },
+    autoThickness: { propertyType: PropertyTypes.Boolean, name: 'Auto Thickness' },
     maxRoughness: { propertyType: PropertyTypes.Number, name: 'Max Roughness', min: 0, max: 1, step: 0.01 },
-    maxDepthDifference: {
-      propertyType: PropertyTypes.Number,
-      name: 'Max Depth Difference',
-      min: 0,
-      max: 100,
-      step: 0.1
-    },
     blend: { propertyType: PropertyTypes.Number, name: 'Blend', min: 0, max: 1, step: 0.001 },
-    correction: { propertyType: PropertyTypes.Number, name: 'Correction', min: 0, max: 1, step: 0.0001 },
-    correctionRadius: { propertyType: PropertyTypes.Number, name: 'Correction Radius', min: 1, max: 4, step: 1 },
-    blur: { propertyType: PropertyTypes.Number, name: 'Blur', min: 0, max: 1, step: 0.01 },
-    blurKernel: { propertyType: PropertyTypes.Number, name: 'Blur Kernel', min: 0, max: 5, step: 1 },
-    blurSharpness: { propertyType: PropertyTypes.Number, name: 'Blur Sharpness', min: 0, max: 100, step: 1 },
-    jitter: { propertyType: PropertyTypes.Number, name: 'Jitter', min: 0, max: 4, step: 0.01 },
-    jitterRoughness: { propertyType: PropertyTypes.Number, name: 'Jitter Roughness', min: 0, max: 4, step: 0.01 },
-    steps: { propertyType: PropertyTypes.Number, name: 'Steps', min: 1, max: 256, step: 1 },
-    refineSteps: { propertyType: PropertyTypes.Number, name: 'Refine Steps', min: 0, max: 16, step: 1 },
-    missedRays: { propertyType: PropertyTypes.Boolean, name: 'Missed Rays' },
-    resolutionScale: { propertyType: PropertyTypes.Number, name: 'Resolution Scale', min: 0.125, max: 1, step: 0.125 },
-    velocityResolutionScale: {
+    denoiseIterations: { propertyType: PropertyTypes.Number, name: 'Denoise Iterations', min: 0, max: 5, step: 1 },
+    denoiseKernel: { propertyType: PropertyTypes.Number, name: 'Denoise Kernel', min: 1, max: 5, step: 1 },
+    denoiseDiffuse: { propertyType: PropertyTypes.Number, name: 'Denoise Diffuse', min: 0, max: 50, step: 0.01 },
+    denoiseSpecular: { propertyType: PropertyTypes.Number, name: 'Denoise Specular', min: 0, max: 50, step: 0.01 },
+    depthPhi: { propertyType: PropertyTypes.Number, name: 'Depth Phi', min: 0, max: 15, step: 0.001 },
+    normalPhi: { propertyType: PropertyTypes.Number, name: 'Normal Phi', min: 0, max: 50, step: 0.001 },
+    roughnessPhi: { propertyType: PropertyTypes.Number, name: 'Roughness Phi', min: 0, max: 100, step: 0.001 },
+    envBlur: { propertyType: PropertyTypes.Number, name: 'Environment Blur', min: 0, max: 1, step: 0.01 },
+    importanceSampling: { propertyType: PropertyTypes.Boolean, name: 'Importance Sampling' },
+    directLightMultiplier: {
       propertyType: PropertyTypes.Number,
-      name: 'Velocity Resolution Scale',
-      min: 0.125,
-      max: 1,
-      step: 0.125
-    }
+      name: 'Direct Light Multiplier',
+      min: 0.001,
+      max: 10,
+      step: 0.01
+    },
+    steps: { propertyType: PropertyTypes.Number, name: 'Steps', min: 0, max: 256, step: 1 },
+    refineSteps: { propertyType: PropertyTypes.Number, name: 'Refine Steps', min: 0, max: 16, step: 1 },
+    spp: { propertyType: PropertyTypes.Number, name: 'SPP', min: 1, max: 32, step: 1 },
+    resolutionScale: { propertyType: PropertyTypes.Number, name: 'Resolution Scale', min: 0.25, max: 1, step: 0.25 },
+    missedRays: { propertyType: PropertyTypes.Boolean, name: 'Missed Rays' }
   },
   DepthOfFieldEffect: {
     blendFunction: { propertyType: PropertyTypes.BlendFunction, name: 'Blend Function' },

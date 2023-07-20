@@ -278,9 +278,6 @@ export class Engine {
    */
   networkObjectQuery = defineQuery([NetworkObjectComponent])
 
-  /** Registry map of prefabs  */
-  scenePrefabRegistry = new Map<string, ComponentJson[]>()
-
   /** A screenspace raycaster for the pointer */
   pointerScreenRaycaster = new Raycaster()
 
@@ -356,6 +353,12 @@ globalThis.Hyperflux = Hyperflux
 
 export async function destroyEngine() {
   Engine.instance.engineTimer.clear()
+
+  if (Engine.instance.api) {
+    if ((Engine.instance.api as any).server) await Engine.instance.api.teardown()
+    else if ((Engine.instance.api as any).get('sequelizeClient'))
+      await (Engine.instance.api as any).get('sequelizeClient').close()
+  }
 
   /** Remove all entities */
   const entities = Engine.instance.entityQuery()

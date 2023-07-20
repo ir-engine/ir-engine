@@ -26,14 +26,12 @@ Ethereal Engine. All Rights Reserved.
 import { Paginated } from '@feathersjs/feathers'
 
 import { CreateEditUser, UserInterface, UserSeed } from '@etherealengine/common/src/interfaces/User'
-import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
-import { defineAction, defineState, dispatchAction, getMutableState } from '@etherealengine/hyperflux'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { defineState, getMutableState } from '@etherealengine/hyperflux'
 
-import { API } from '../../API'
 import { NotificationService } from '../../common/services/NotificationService'
 import { AuthService, AuthState } from '../../user/services/AuthService'
 
-//State
 export const USER_PAGE_LIMIT = 10
 export const AdminUserState = defineState({
   name: 'AdminUserState',
@@ -51,87 +49,11 @@ export const AdminUserState = defineState({
   })
 })
 
-const fetchedSingleUserReceptor = (action: typeof AdminUserActions.fetchedSingleUser.matches._TYPE) => {
-  const state = getMutableState(AdminUserState)
-  return state.merge({ singleUser: action.data, updateNeeded: false })
-}
-
-const loadedUsersReceptor = (action: typeof AdminUserActions.loadedUsers.matches._TYPE) => {
-  const state = getMutableState(AdminUserState)
-  return state.merge({
-    users: action.userResult.data,
-    skip: action.userResult.skip,
-    limit: action.userResult.limit,
-    total: action.userResult.total,
-    retrieving: false,
-    fetched: true,
-    updateNeeded: false,
-    lastFetched: Date.now()
-  })
-}
-
-const userAdminRemovedReceptor = (action: typeof AdminUserActions.userAdminRemoved.matches._TYPE) => {
-  const state = getMutableState(AdminUserState)
-  return state.merge({ updateNeeded: true })
-}
-
-const userCreatedReceptor = (action: typeof AdminUserActions.userCreated.matches._TYPE) => {
-  const state = getMutableState(AdminUserState)
-  return state.merge({ updateNeeded: true })
-}
-
-const userPatchedReceptor = (action: typeof AdminUserActions.userPatched.matches._TYPE) => {
-  const state = getMutableState(AdminUserState)
-  return state.merge({ updateNeeded: true })
-}
-
-const searchedUserReceptor = (action: typeof AdminUserActions.searchedUser.matches._TYPE) => {
-  const state = getMutableState(AdminUserState)
-  return state.merge({
-    users: action.userResult.data,
-    skip: action.userResult.skip,
-    limit: action.userResult.limit,
-    total: action.userResult.total,
-    retrieving: false,
-    fetched: true,
-    updateNeeded: false,
-    lastFetched: Date.now()
-  })
-}
-
-const setSkipGuestsReceptor = (action: typeof AdminUserActions.setSkipGuests.matches._TYPE) => {
-  const state = getMutableState(AdminUserState)
-  return state.merge({
-    skipGuests: action.skipGuests,
-    updateNeeded: true
-  })
-}
-
-const resetFilterReceptor = (action: typeof AdminUserActions.resetFilter.matches._TYPE) => {
-  const state = getMutableState(AdminUserState)
-  return state.merge({
-    skipGuests: false,
-    updateNeeded: true
-  })
-}
-
-export const AdminUserReceptors = {
-  fetchedSingleUserReceptor,
-  loadedUsersReceptor,
-  userAdminRemovedReceptor,
-  userCreatedReceptor,
-  userPatchedReceptor,
-  searchedUserReceptor,
-  setSkipGuestsReceptor,
-  resetFilterReceptor
-}
-
-//Service
 export const AdminUserService = {
   fetchSingleUserAdmin: async (id: string) => {
     try {
-      const result = await API.instance.client.service('user').get(id)
-      dispatchAction(AdminUserActions.fetchedSingleUser({ data: result }))
+      const result = await Engine.instance.api.service('user').get(id)
+      getMutableState(AdminUserState).merge({ singleUser: result, updateNeeded: false })
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
@@ -162,8 +84,18 @@ export const AdminUserService = {
         if (skipGuests) {
           ;(params.query as any).isGuest = false
         }
-        const userResult = (await API.instance.client.service('user').find(params)) as Paginated<UserInterface>
-        dispatchAction(AdminUserActions.loadedUsers({ userResult }))
+        const userResult = (await Engine.instance.api.service('user').find(params)) as Paginated<UserInterface>
+
+        getMutableState(AdminUserState).merge({
+          users: userResult.data,
+          skip: userResult.skip,
+          limit: userResult.limit,
+          total: userResult.total,
+          retrieving: false,
+          fetched: true,
+          updateNeeded: false,
+          lastFetched: Date.now()
+        })
       }
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
@@ -171,71 +103,33 @@ export const AdminUserService = {
   },
   createUser: async (user: CreateEditUser) => {
     try {
-      const result = (await API.instance.client.service('user').create(user)) as UserInterface
-      dispatchAction(AdminUserActions.userCreated({ user: result }))
+      await Engine.instance.api.service('user').create(user)
+      getMutableState(AdminUserState).merge({
+        updateNeeded: true
+      })
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
   },
   patchUser: async (id: string, user: CreateEditUser) => {
     try {
-      const result = (await API.instance.client.service('user').patch(id, user)) as UserInterface
-      dispatchAction(AdminUserActions.userPatched({ user: result }))
+      await Engine.instance.api.service('user').patch(id, user)
+      getMutableState(AdminUserState).merge({
+        updateNeeded: true
+      })
       if (id === getMutableState(AuthState).user.id.value) await AuthService.loadUserData(id)
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
   },
   removeUserAdmin: async (id: string) => {
-    const result = (await API.instance.client.service('user').remove(id)) as UserInterface
-    dispatchAction(AdminUserActions.userAdminRemoved({ data: result }))
+    await Engine.instance.api.service('user').remove(id)
+    getMutableState(AdminUserState).merge({ updateNeeded: true })
   },
   setSkipGuests: async (skipGuests: boolean) => {
-    dispatchAction(AdminUserActions.setSkipGuests({ skipGuests }))
+    getMutableState(AdminUserState).merge({ skipGuests, updateNeeded: true })
   },
   resetFilter: () => {
-    dispatchAction(AdminUserActions.resetFilter({}))
+    getMutableState(AdminUserState).merge({ skipGuests: false, updateNeeded: true })
   }
-}
-
-//Action
-export class AdminUserActions {
-  static fetchedSingleUser = defineAction({
-    type: 'ee.client.AdminUser.SINGLE_USER_ADMIN_LOADED' as const,
-    data: matches.object as Validator<unknown, UserInterface>
-  })
-
-  static loadedUsers = defineAction({
-    type: 'ee.client.AdminUser.ADMIN_LOADED_USERS' as const,
-    userResult: matches.object as Validator<unknown, Paginated<UserInterface>>
-  })
-
-  static userCreated = defineAction({
-    type: 'ee.client.AdminUser.USER_ADMIN_CREATED' as const,
-    user: matches.object as Validator<unknown, UserInterface>
-  })
-
-  static userPatched = defineAction({
-    type: 'ee.client.AdminUser.USER_ADMIN_PATCHED' as const,
-    user: matches.object as Validator<unknown, UserInterface>
-  })
-
-  static userAdminRemoved = defineAction({
-    type: 'ee.client.AdminUser.USER_ADMIN_REMOVED' as const,
-    data: matches.object as Validator<unknown, UserInterface>
-  })
-
-  static searchedUser = defineAction({
-    type: 'ee.client.AdminUser.USER_SEARCH_ADMIN' as const,
-    userResult: matches.object as Validator<unknown, Paginated<UserInterface>>
-  })
-
-  static setSkipGuests = defineAction({
-    type: 'ee.client.AdminUser.SET_SKIP_GUESTS' as const,
-    skipGuests: matches.boolean
-  })
-
-  static resetFilter = defineAction({
-    type: 'ee.client.AdminUser.RESET_USER_FILTER' as const
-  })
 }

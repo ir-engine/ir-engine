@@ -29,7 +29,7 @@ import {
   HemisphereLight,
   PerspectiveCamera,
   Scene,
-  sRGBEncoding,
+  SRGBColorSpace,
   Vector3,
   WebGLRenderer
 } from 'three'
@@ -94,7 +94,7 @@ const createThreeScene = () => {
   renderer.setClearColor(0xffffff, 1)
   renderer.setPixelRatio(1)
   renderer.setSize(THUMBNAIL_WIDTH, THUMBNAIL_HEIGHT, false)
-  renderer.outputEncoding = sRGBEncoding
+  renderer.outputColorSpace = SRGBColorSpace
 
   loader = createGLTFLoader(true)
 }
