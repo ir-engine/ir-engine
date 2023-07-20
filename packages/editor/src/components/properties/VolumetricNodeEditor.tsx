@@ -26,15 +26,40 @@ Ethereal Engine. All Rights Reserved.
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
+import { AllFileTypes } from '@etherealengine/engine/src/assets/constants/fileTypes'
 import { useComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { VolumetricComponent } from '@etherealengine/engine/src/scene/components/VolumetricComponent'
+import { PlayMode } from '@etherealengine/engine/src/scene/constants/PlayMode'
 
 import VideocamIcon from '@mui/icons-material/Videocam'
 
+import { SupportedFileTypes } from '../../constants/AssetTypes'
+import ArrayInputGroup from '../inputs/ArrayInputGroup'
 import BooleanInput from '../inputs/BooleanInput'
+import { Button } from '../inputs/Button'
 import InputGroup from '../inputs/InputGroup'
+import SelectInput from '../inputs/SelectInput'
 import NodeEditor from './NodeEditor'
 import { EditorComponentType, updateProperty } from './Util'
+
+const PlayModeOptions = [
+  {
+    label: 'Single',
+    value: PlayMode.single
+  },
+  {
+    label: 'Random',
+    value: PlayMode.random
+  },
+  {
+    label: 'Loop',
+    value: PlayMode.loop
+  },
+  {
+    label: 'SingleLoop',
+    value: PlayMode.singleloop
+  }
+]
 
 /**
  * VolumetricNodeEditor provides the editor view to customize properties.
@@ -47,6 +72,10 @@ export const VolumetricNodeEditor: EditorComponentType = (props) => {
 
   const volumetricComponent = useComponent(props.entity, VolumetricComponent)
 
+  const toggle = () => {
+    volumetricComponent.paused.set(!volumetricComponent.paused.value)
+  }
+
   return (
     <NodeEditor
       {...props}
@@ -58,6 +87,43 @@ export const VolumetricNodeEditor: EditorComponentType = (props) => {
           onChange={updateProperty(VolumetricComponent, 'useLoadingEffect')}
           value={volumetricComponent.useLoadingEffect.value}
         />
+      </InputGroup>
+
+      <InputGroup
+        name="Auto Play"
+        label={t('editor:properties.media.lbl-paused')}
+        info={t('editor:properties.media.info-paused')}
+      >
+        <BooleanInput
+          value={volumetricComponent.paused.value}
+          onChange={updateProperty(VolumetricComponent, 'paused')}
+        />
+      </InputGroup>
+
+      <ArrayInputGroup
+        name="Source Paths"
+        prefix="Content"
+        values={volumetricComponent.paths.value}
+        onChange={updateProperty(VolumetricComponent, 'paths')}
+        label={t('editor:properties.media.paths')}
+        acceptFileTypes={AllFileTypes}
+        itemType={SupportedFileTypes}
+      ></ArrayInputGroup>
+
+      <InputGroup name="Play Mode" label={t('editor:properties.media.playmode')}>
+        <SelectInput
+          key={props.entity}
+          options={PlayModeOptions}
+          value={volumetricComponent.playMode.value}
+          onChange={updateProperty(VolumetricComponent, 'playMode')}
+        />
+        {volumetricComponent.paths && volumetricComponent.paths.length > 0 && volumetricComponent.paths[0] && (
+          <Button style={{ marginLeft: '5px', width: '60px' }} type="submit" onClick={toggle}>
+            {volumetricComponent.paused
+              ? t('editor:properties.media.playtitle')
+              : t('editor:properties.media.pausetitle')}
+          </Button>
+        )}
       </InputGroup>
     </NodeEditor>
   )
