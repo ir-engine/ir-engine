@@ -85,8 +85,8 @@ const parseModuleName = (moduleName: string) => {
     if (moduleName.includes('quarks/dist')) {
       return `vendor_three_quarks_${moduleName.toString().split('dist/')[1].split('/')[0].toString()}`
     }
-    if (moduleName.includes('three/build')) {
-      return `vendor_three_build_${moduleName.toString().split('build/')[1].split('/')[0].toString()}`
+    if (moduleName.includes('three')) {
+      return `vendor_three_build_${moduleName.toString().split('/')[1].split('/')[0].toString()}`
     }
   }
   // chunk mui
@@ -215,14 +215,6 @@ const resetSWFiles = () => {
   deleteDirFilesUsingPattern(/service-/, './public/')
   // Delete old workbox files
   deleteDirFilesUsingPattern(/workbox-/, './public/')
-
-  if (process.env.APP_ENV !== 'development') {
-    // Write empty service worker file
-    const swPath = path.resolve(packageRoot.path, 'packages/client/public/service-worker.js')
-    if (!fs.existsSync(swPath)) {
-      fs.writeFileSync(swPath, 'if(!self.define){}')
-    }
-  }
 }
 
 export default defineConfig(async () => {
