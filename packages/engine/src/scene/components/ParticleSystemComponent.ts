@@ -751,8 +751,6 @@ export const ParticleSystemComponent = defineComponent({
     } as ParticleSystemComponentType
   },
   onSet: (entity, component, json) => {
-    setComponent(entity, ShadowComponent)
-
     !!json?.systemParameters &&
       component.systemParameters.set({
         ...JSON.parse(JSON.stringify(component.systemParameters.value)),

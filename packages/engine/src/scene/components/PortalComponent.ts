@@ -111,8 +111,6 @@ export const PortalComponent = defineComponent({
   },
 
   onSet: (entity, component, json) => {
-    setComponent(entity, ShadowComponent)
-
     if (!json) return
     if (matches.string.test(json.linkedPortalId)) component.linkedPortalId.set(json.linkedPortalId)
     if (matches.string.test(json.location)) component.location.set(json.location)

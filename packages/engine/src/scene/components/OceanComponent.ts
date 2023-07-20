@@ -62,8 +62,6 @@ export const OceanComponent = defineComponent({
     }
   },
   onSet: (entity, component, json) => {
-    setComponent(entity, ShadowComponent)
-
     if (!json) return
     if (typeof json.normalMap === 'string') component.normalMap.set(json.normalMap)
     if (typeof json.distortionMap === 'string') component.distortionMap.set(json.distortionMap)

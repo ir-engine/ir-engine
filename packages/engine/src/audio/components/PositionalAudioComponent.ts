@@ -56,8 +56,6 @@ export const PositionalAudioComponent = defineComponent({
   jsonID: 'audio',
 
   onInit: (entity) => {
-    setComponent(entity, MediaComponent, { paths: ['__$project$__/default-project/assets/SampleAudio.mp3'] })
-
     return {
       // default values as suggested at https://medium.com/@kfarr/understanding-web-audio-api-positional-audio-distance-models-for-webxr-e77998afcdff
       distanceModel: 'inverse' as DistanceModelType,
@@ -72,8 +70,6 @@ export const PositionalAudioComponent = defineComponent({
   },
 
   onSet: (entity, component, json) => {
-    setComponent(entity, MediaComponent)
-
     if (!json) return
     if (typeof json.distanceModel === 'number' && component.distanceModel.value !== json.distanceModel)
       component.distanceModel.set(json.distanceModel)
