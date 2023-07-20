@@ -25,11 +25,12 @@ Ethereal Engine. All Rights Reserved.
 
 import React, { useEffect } from 'react'
 
-import { getMutableState, getState, NO_PROXY } from '@etherealengine/hyperflux'
+import { getMutableState, getState } from '@etherealengine/hyperflux'
 
-import { defineComponent, getComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
+import { ComponentPartial, defineComponent, getComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
 import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { PostProcessingSettingsState } from '../../renderer/WebGLRendererSystem'
+import { EffectPropsSchema, EffectPropsSchemaType } from '../constants/PostProcessing'
 
 export const PostProcessingComponent = defineComponent({
   name: 'PostProcessingComponent',
@@ -57,21 +58,25 @@ export const PostProcessingComponent = defineComponent({
     }
   },
 
-  reactor: () => {
-    const entity = useEntityContext()
-    useComponent(entity, PostProcessingComponent)
+  reactor: PostProcessingComponentReactor
 
-    return (
-      <>
-        {Object.entries(getComponent(entity, PostProcessingComponent).effects).map(([name, effect], index) => {
-          return <PostProcessingEffectReactor effect={effect} name={name} key={index} />
-        })}
-      </>
-    )
-  }
-})
+  // types dont quite work properly here for some reason
+} as ComponentPartial<{ enabled: boolean; effects: EffectPropsSchema }>)
 
-const PostProcessingEffectReactor = (props: { effect; name }) => {
+function PostProcessingComponentReactor() {
+  const entity = useEntityContext()
+  useComponent(entity, PostProcessingComponent)
+
+  return (
+    <>
+      {Object.entries(getComponent(entity, PostProcessingComponent).effects).map(([name, effect], index) => {
+        return <PostProcessingEffectReactor effect={effect} name={name} key={index} />
+      })}
+    </>
+  )
+}
+
+function PostProcessingEffectReactor(props: { effect: EffectPropsSchemaType; name: string }) {
   const { effect, name } = props
 
   useEffect(() => {
@@ -79,5 +84,5 @@ const PostProcessingEffectReactor = (props: { effect; name }) => {
       getMutableState(PostProcessingSettingsState).effects[name].merge(JSON.parse(JSON.stringify(effect)))
   }, [effect])
 
-  return null
+  return <></>
 }

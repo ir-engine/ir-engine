@@ -67,13 +67,11 @@ export const configureEffectComposer = (remove?: boolean, camera: PerspectiveCam
   EngineRenderer.instance.effectComposer.addPass(renderPass)
   EngineRenderer.instance.renderPass = renderPass
 
-  console.log(remove)
   if (remove) {
     return
   }
 
   const renderSettings = getState(RendererState)
-  console.log(renderSettings)
   if (!renderSettings.usePostProcessing) return
 
   const effects: any[] = []
@@ -87,7 +85,6 @@ export const configureEffectComposer = (remove?: boolean, camera: PerspectiveCam
   effects.push(outlineEffect)
 
   const postprocessingSettings = getState(PostProcessingSettingsState)
-  console.log(postprocessingSettings)
   if (!postprocessingSettings.enabled) {
     composer.addPass(new EffectPass(camera, ...effects))
     return

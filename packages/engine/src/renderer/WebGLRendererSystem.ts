@@ -151,7 +151,7 @@ export class EngineRenderer {
     this.renderer.outputColorSpace = SRGBColorSpace
 
     // DISABLE THIS IF YOU ARE SEEING SHADER MISBEHAVING - UNCHECK THIS WHEN TESTING UPDATING THREEJS
-    // this.renderer.debug.checkShaderErrors = false //isDev
+    this.renderer.debug.checkShaderErrors = false //isDev
 
     // @ts-ignore
     this.xrManager = renderer.xr = createWebXRManager()
@@ -291,7 +291,7 @@ export const RenderSettingsState = defineState({
 export const PostProcessingSettingsState = defineState({
   name: 'PostProcessingSettingsState',
   initial: {
-    enabled: true,
+    enabled: false,
     effects: defaultPostProcessingSchema
   }
 })
