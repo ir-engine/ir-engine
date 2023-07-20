@@ -28,7 +28,6 @@ import { defineActionQueue } from '@etherealengine/hyperflux'
 
 import { AdminActiveRouteActions, AdminActiveRouteReceptors } from '../admin/services/ActiveRouteService'
 import { AdminSceneActions, AdminSceneReceptors } from '../admin/services/SceneService'
-import { AdminServerLogsActions, AdminServerLogsReceptors } from '../admin/services/ServerLogsService'
 // import { AuthSettingsActions, AuthSettingsReceptors } from '../admin/services/Setting/AuthSettingService'
 import { AdminAwsSettingActions, AwsSettingReceptors } from '../admin/services/Setting/AwsSettingService'
 import {
@@ -52,8 +51,6 @@ import {
 } from '../admin/services/Setting/TaskServerSettingsService'
 
 const fetchedTaskServersQueue = defineActionQueue(AdminTaskServerSettingActions.fetchedTaskServers.matches)
-const fetchServerLogsRequestedQueue = defineActionQueue(AdminServerLogsActions.fetchServerLogsRequested.matches)
-const fetchServerLogsRetrievedQueue = defineActionQueue(AdminServerLogsActions.fetchServerLogsRetrieved.matches)
 const redisSettingRetrievedQueue = defineActionQueue(AdminRedisSettingActions.redisSettingRetrieved.matches)
 const awsSettingRetrievedQueue = defineActionQueue(AdminAwsSettingActions.awsSettingRetrieved.matches)
 const awsSettingPatchedQueue = defineActionQueue(AdminAwsSettingActions.awsSettingPatched.matches)
@@ -79,10 +76,6 @@ const chargebeeSettingRetrievedQueue = defineActionQueue(AdminChargebeeSettingAc
 
 const execute = () => {
   for (const action of fetchedTaskServersQueue()) TaskServerSettingReceptors.fetchedTaskServersReceptor(action)
-  for (const action of fetchServerLogsRequestedQueue())
-    AdminServerLogsReceptors.fetchServerLogsRequestedReceptor(action)
-  for (const action of fetchServerLogsRetrievedQueue())
-    AdminServerLogsReceptors.fetchServerLogsRetrievedReceptor(action)
   for (const action of redisSettingRetrievedQueue()) RedisSettingReceptors.redisSettingRetrievedReceptor(action)
   for (const action of awsSettingRetrievedQueue()) AwsSettingReceptors.awsSettingRetrievedReceptor(action)
   for (const action of awsSettingPatchedQueue()) AwsSettingReceptors.awsSettingPatchedReceptor(action)
