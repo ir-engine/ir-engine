@@ -69,6 +69,8 @@ export default (app: Application): void => {
    * @returns users
    */
 
+  return
+
   // @ts-ignore
   service.publish('patched', async (data: UserInterface, params): Promise<any> => {
     try {

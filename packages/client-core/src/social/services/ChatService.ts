@@ -85,63 +85,63 @@ export const ChatServiceReceptor = (action) => {
       s.merge({ messageCreated: true })
       return
     })
-    .when(ChatAction.createdMessageAction.matches, (action) => {
-      const channelId = action.message.channelId
-      const channel = s.channels.channels.find((c) => c.id.value === channelId)
+    // .when(ChatAction.createdMessageAction.matches, (action) => {
+    //   const channelId = action.message.channelId
+    //   const channel = s.channels.channels.find((c) => c.id.value === channelId)
 
-      if (!channel) {
-        s.channels.updateNeeded.set(true)
-      } else {
-        if (!channel.messages.length) channel.messages.set([action.message])
-        else {
-          const existingMessage = channel.messages.find((message) => message.id.value === action.message.id)
-          if (!existingMessage) channel.messages[channel.messages.length].set(action.message)
-        }
-      }
+    //   if (!channel) {
+    //     s.channels.updateNeeded.set(true)
+    //   } else {
+    //     if (!channel.messages.length) channel.messages.set([action.message])
+    //     else {
+    //       const existingMessage = channel.messages.find((message) => message.id.value === action.message.id)
+    //       if (!existingMessage) channel.messages[channel.messages.length].set(action.message)
+    //     }
+    //   }
 
-      s.merge({ messageCreated: true })
-      if (s.targetChannelId.value.length === 0 && channel) {
-        s.merge({ targetChannelId: channelId })
-      }
-      return
-    })
-    .when(ChatAction.loadedMessagesAction.matches, (action) => {
-      const channelId = action.channelId
-      const channel = s.channels.channels.find((c) => c.id.value === channelId)
-      if (channel) {
-        for (const m of action.messages) {
-          const message = channel.messages.find((m2) => m2.id.value === m.id)
-          if (message) message.set(m)
-          else channel.messages[channel.messages.length].set(m)
-        }
-      }
+    //   s.merge({ messageCreated: true })
+    //   if (s.targetChannelId.value.length === 0 && channel) {
+    //     s.merge({ targetChannelId: channelId })
+    //   }
+    //   return
+    // })
+    // .when(ChatAction.loadedMessagesAction.matches, (action) => {
+    //   const channelId = action.channelId
+    //   const channel = s.channels.channels.find((c) => c.id.value === channelId)
+    //   if (channel) {
+    //     for (const m of action.messages) {
+    //       const message = channel.messages.find((m2) => m2.id.value === m.id)
+    //       if (message) message.set(m)
+    //       else channel.messages[channel.messages.length].set(m)
+    //     }
+    //   }
 
-      return
-    })
-    .when(ChatAction.removedMessageAction.matches, (action) => {
-      const channelId = action.message.channelId
-      const channel = s.channels.channels.find((c) => c.id.value === channelId)
-      if (channel) {
-        const messageIdx = channel.messages.findIndex((m) => m.id.value === action.message.id)
-        if (messageIdx > -1) channel.messages.merge({ [messageIdx]: none })
-      } else {
-        s.channels.updateNeeded.set(true)
-      }
+    //   return
+    // })
+    // .when(ChatAction.removedMessageAction.matches, (action) => {
+    //   const channelId = action.message.channelId
+    //   const channel = s.channels.channels.find((c) => c.id.value === channelId)
+    //   if (channel) {
+    //     const messageIdx = channel.messages.findIndex((m) => m.id.value === action.message.id)
+    //     if (messageIdx > -1) channel.messages.merge({ [messageIdx]: none })
+    //   } else {
+    //     s.channels.updateNeeded.set(true)
+    //   }
 
-      return
-    })
-    .when(ChatAction.patchedMessageAction.matches, (action) => {
-      const channelId = action.message.channelId
-      const channel = s.channels.channels.find((c) => c.id.value === channelId)
-      if (channel) {
-        const messageIdx = channel.messages.findIndex((m) => m.id.value === action.message.id)
-        if (messageIdx > -1) channel.messages[messageIdx].set(action.message)
-      } else {
-        s.channels.updateNeeded.set(true)
-      }
+    //   return
+    // })
+    // .when(ChatAction.patchedMessageAction.matches, (action) => {
+    //   const channelId = action.message.channelId
+    //   const channel = s.channels.channels.find((c) => c.id.value === channelId)
+    //   if (channel) {
+    //     const messageIdx = channel.messages.findIndex((m) => m.id.value === action.message.id)
+    //     if (messageIdx > -1) channel.messages[messageIdx].set(action.message)
+    //   } else {
+    //     s.channels.updateNeeded.set(true)
+    //   }
 
-      return
-    })
+    //   return
+    // })
     .when(ChatAction.createdChannelAction.matches, (action) => {
       const channelId = action.channel.id
       const channel = s.channels.channels.find((c) => c.id.value === channelId)
@@ -255,17 +255,17 @@ export const ChatService = {
   },
   useAPIListeners: () => {
     useEffect(() => {
-      const messageCreatedListener = (params: Message) => {
-        dispatchAction(ChatAction.createdMessageAction({ message: params }))
-      }
+      // const messageCreatedListener = (params: Message) => {
+      //   dispatchAction(ChatAction.createdMessageAction({ message: params }))
+      // }
 
-      const messagePatchedListener = (params: Message) => {
-        dispatchAction(ChatAction.patchedMessageAction({ message: params }))
-      }
+      // const messagePatchedListener = (params: Message) => {
+      //   dispatchAction(ChatAction.patchedMessageAction({ message: params }))
+      // }
 
-      const messageRemovedListener = (params: Message) => {
-        dispatchAction(ChatAction.removedMessageAction({ message: params }))
-      }
+      // const messageRemovedListener = (params: Message) => {
+      //   dispatchAction(ChatAction.removedMessageAction({ message: params }))
+      // }
 
       const channelCreatedListener = (params: Channel) => {
         dispatchAction(ChatAction.createdChannelAction({ channel: params }))
@@ -279,17 +279,17 @@ export const ChatService = {
         dispatchAction(ChatAction.removedChannelAction({ channel: params }))
       }
 
-      Engine.instance.api.service('message').on('created', messageCreatedListener)
-      Engine.instance.api.service('message').on('patched', messagePatchedListener)
-      Engine.instance.api.service('message').on('removed', messageRemovedListener)
+      // Engine.instance.api.service('message').on('created', messageCreatedListener)
+      // Engine.instance.api.service('message').on('patched', messagePatchedListener)
+      // Engine.instance.api.service('message').on('removed', messageRemovedListener)
       Engine.instance.api.service('channel').on('created', channelCreatedListener)
       Engine.instance.api.service('channel').on('patched', channelPatchedListener)
       Engine.instance.api.service('channel').on('removed', channelRemovedListener)
 
       return () => {
-        Engine.instance.api.service('message').off('created', messageCreatedListener)
-        Engine.instance.api.service('message').off('patched', messagePatchedListener)
-        Engine.instance.api.service('message').off('removed', messageRemovedListener)
+        // Engine.instance.api.service('message').off('created', messageCreatedListener)
+        // Engine.instance.api.service('message').off('patched', messagePatchedListener)
+        // Engine.instance.api.service('message').off('removed', messageRemovedListener)
         Engine.instance.api.service('channel').off('created', channelCreatedListener)
         Engine.instance.api.service('channel').off('patched', channelPatchedListener)
         Engine.instance.api.service('channel').off('removed', channelRemovedListener)
@@ -311,29 +311,29 @@ export class ChatAction {
     channels: matches.any as Validator<unknown, Channel[]>
   })
 
-  static createdMessageAction = defineAction({
-    type: 'ee.client.Chat.CREATED_MESSAGE' as const,
-    message: matches.object as Validator<unknown, Message>
-  })
+  // static createdMessageAction = defineAction({
+  //   type: 'ee.client.Chat.CREATED_MESSAGE' as const,
+  //   message: matches.object as Validator<unknown, Message>
+  // })
 
-  static patchedMessageAction = defineAction({
-    type: 'ee.client.Chat.PATCHED_MESSAGE' as const,
-    message: matches.object as Validator<unknown, Message>
-  })
+  // static patchedMessageAction = defineAction({
+  //   type: 'ee.client.Chat.PATCHED_MESSAGE' as const,
+  //   message: matches.object as Validator<unknown, Message>
+  // })
 
-  static removedMessageAction = defineAction({
-    type: 'ee.client.Chat.REMOVED_MESSAGE' as const,
-    message: matches.object as Validator<unknown, Message>
-  })
+  // static removedMessageAction = defineAction({
+  //   type: 'ee.client.Chat.REMOVED_MESSAGE' as const,
+  //   message: matches.object as Validator<unknown, Message>
+  // })
 
-  static loadedMessagesAction = defineAction({
-    type: 'ee.client.Chat.LOADED_MESSAGES' as const,
-    messages: matches.array as Validator<unknown, Message[]>,
-    limit: matches.any,
-    skip: matches.any,
-    total: matches.any,
-    channelId: matches.any
-  })
+  // static loadedMessagesAction = defineAction({
+  //   type: 'ee.client.Chat.LOADED_MESSAGES' as const,
+  //   messages: matches.array as Validator<unknown, Message[]>,
+  //   limit: matches.any,
+  //   skip: matches.any,
+  //   total: matches.any,
+  //   channelId: matches.any
+  // })
 
   static setChatTargetAction = defineAction({
     type: 'ee.client.Chat.CHAT_TARGET_SET' as const,

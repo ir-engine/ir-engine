@@ -32,15 +32,11 @@
     "types": ["vite/client"]
   },
   "exclude": [
-    // ignore all packages in monorepo
-    "../../packages/**/src/**",
     "./node_modules/**",
   ],
   "include": [
-    // allow everything in this package
     "./typings.d.ts",
     "../server-core/src/",
-    "./**/**/*",
     "./src/**/*.ts",
     "./src/**/*.tsx"
   ]

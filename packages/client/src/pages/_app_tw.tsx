@@ -25,7 +25,6 @@ Ethereal Engine. All Rights Reserved.
 
 // import * as chapiWalletPolyfill from 'credential-handler-polyfill'
 
-import { Provider as FigbirdProvider } from 'figbird'
 import { SnackbarProvider } from 'notistack'
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 
@@ -142,12 +141,10 @@ const AppPage = () => {
 const TailwindPage = () => {
   return (
     <EngineTW>
-      <FigbirdProvider feathers={Engine.instance.api}>
-        <ThemeContextProvider>
-          <AppPage />
-          <Debug />
-        </ThemeContextProvider>
-      </FigbirdProvider>
+      <ThemeContextProvider>
+        <AppPage />
+        <Debug />
+      </ThemeContextProvider>
     </EngineTW>
   )
 }

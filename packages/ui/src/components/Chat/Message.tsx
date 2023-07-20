@@ -23,19 +23,26 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { useFind } from 'figbird'
 import React from 'react'
 
 import { ChatService, ChatState } from '@etherealengine/client-core/src/social/services/ChatService'
 import { useUserAvatarThumbnail } from '@etherealengine/client-core/src/user/functions/useUserAvatarThumbnail'
 import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
+import { useFind } from '@etherealengine/engine/src/common/functions/figbird'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { routePath } from '@etherealengine/engine/src/schemas/route/route.schema'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
 import AttachFileIcon from './assets/attach-file2.svg'
 import CallIcon from './assets/call.svg'
 import SendIcon from './assets/send.svg'
 import UserSvg from './assets/user.svg'
+
+/**
+ * Create reactor in client-core around messages
+ * reacts to chat state changes, both active channel and channel data, and fetches new messages
+ * use figbird to fetch messages
+ */
 
 export const MessageList = () => {
   const userName = useHookstate(getMutableState(AuthState).user.name).value
@@ -48,15 +55,15 @@ export const MessageList = () => {
   const channelUserNames =
     activeChannel?.channel_users.map((user) => user.user!.name).filter((name) => name !== userName) ?? []
 
-  const messages_ = useFind('message', {
+  const messagesResponse = useFind('message', {
     query: {
       channelId: chatState.targetChannelId.value
     }
   })
 
-  console.log(messages_.data, messages_.error)
+  const messages = messagesResponse.data
 
-  const messages = activeChannel?.messages ?? []
+  console.log(messages)
 
   const composingMessage = useHookstate('')
 
@@ -102,7 +109,7 @@ export const MessageList = () => {
       </div>
       <div className="box-border w-[765px] border-t-[1px] border-solid border-[#D1D3D7]" />
       <div className="w-[720px] bg-[#FFFFFF] ml-6 mb-[100px] mt-4 justify-center content-center overflow-scroll hide-scroll">
-        {messages.map((message, index) => {
+        {messages?.map((message, index) => {
           if (message.sender.id === Engine.instance.userId) return <SelfMessage key={index} message={message} />
           else return <OtherMessage key={index} message={message} />
         })}
