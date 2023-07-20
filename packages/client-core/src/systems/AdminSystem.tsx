@@ -27,7 +27,6 @@ import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFun
 import { defineActionQueue } from '@etherealengine/hyperflux'
 
 import { AdminActiveRouteActions, AdminActiveRouteReceptors } from '../admin/services/ActiveRouteService'
-import { AdminLocationActions, AdminLocationReceptors } from '../admin/services/LocationService'
 import { AdminResourceActions, AdminResourceReceptors } from '../admin/services/ResourceService'
 import { AdminSceneActions, AdminSceneReceptors } from '../admin/services/SceneService'
 import { AdminServerLogsActions, AdminServerLogsReceptors } from '../admin/services/ServerLogsService'
@@ -76,11 +75,6 @@ const resourceNeedsUpdateQueue = defineActionQueue(AdminResourceActions.resource
 const resourcesResetFilterQueue = defineActionQueue(AdminResourceActions.resourcesResetFilter.matches)
 const scenesFetchedQueue = defineActionQueue(AdminSceneActions.scenesFetched.matches)
 const sceneFetchedQueue = defineActionQueue(AdminSceneActions.sceneFetched.matches)
-const locationsRetrievedQueue = defineActionQueue(AdminLocationActions.locationsRetrieved.matches)
-const locationCreatedQueue = defineActionQueue(AdminLocationActions.locationCreated.matches)
-const locationPatchedQueue = defineActionQueue(AdminLocationActions.locationPatched.matches)
-const locationRemovedQueue = defineActionQueue(AdminLocationActions.locationRemoved.matches)
-const locationTypesRetrievedQueue = defineActionQueue(AdminLocationActions.locationTypesRetrieved.matches)
 const activeRoutesRetrievedQueue = defineActionQueue(AdminActiveRouteActions.activeRoutesRetrieved.matches)
 const fetchedInstanceServerQueue = defineActionQueue(InstanceServerSettingActions.fetchedInstanceServer.matches)
 const chargebeeSettingRetrievedQueue = defineActionQueue(AdminChargebeeSettingActions.chargebeeSettingRetrieved.matches)
@@ -116,11 +110,6 @@ const execute = () => {
   for (const action of resourcesResetFilterQueue()) AdminResourceReceptors.resourcesResetFilterReceptor(action)
   for (const action of scenesFetchedQueue()) AdminSceneReceptors.scenesFetchedReceptor(action)
   for (const action of sceneFetchedQueue()) AdminSceneReceptors.sceneFetchedReceptor(action)
-  for (const action of locationsRetrievedQueue()) AdminLocationReceptors.locationsRetrievedReceptor(action)
-  for (const action of locationCreatedQueue()) AdminLocationReceptors.locationCreatedReceptor(action)
-  for (const action of locationPatchedQueue()) AdminLocationReceptors.locationPatchedReceptor(action)
-  for (const action of locationRemovedQueue()) AdminLocationReceptors.locationRemovedReceptor(action)
-  for (const action of locationTypesRetrievedQueue()) AdminLocationReceptors.locationTypesRetrievedReceptor(action)
   for (const action of activeRoutesRetrievedQueue()) AdminActiveRouteReceptors.activeRoutesRetrievedReceptor(action)
   for (const action of fetchedInstanceServerQueue()) AdminInstanceServerReceptors.fetchedInstanceServerReceptor(action)
   for (const action of chargebeeSettingRetrievedQueue())
