@@ -35,7 +35,6 @@ import { AdminBuildStatusActions, AdminBuildStatusReceptors } from '../admin/ser
 import { AdminGroupActions, AdminGroupServiceReceptors } from '../admin/services/GroupService'
 import { AdminInviteActions, AdminInviteReceptors } from '../admin/services/InviteService'
 import { AdminLocationActions, AdminLocationReceptors } from '../admin/services/LocationService'
-import { AdminPartyActions, AdminPartyReceptors } from '../admin/services/PartyService'
 import {
   AdminRecordingReceptors,
   AdminRecordingsActions,
@@ -107,10 +106,6 @@ const locationCreatedQueue = defineActionQueue(AdminLocationActions.locationCrea
 const locationPatchedQueue = defineActionQueue(AdminLocationActions.locationPatched.matches)
 const locationRemovedQueue = defineActionQueue(AdminLocationActions.locationRemoved.matches)
 const locationTypesRetrievedQueue = defineActionQueue(AdminLocationActions.locationTypesRetrieved.matches)
-const partyRetrievedQueue = defineActionQueue(AdminPartyActions.partyRetrieved.matches)
-const partyAdminCreatedQueue = defineActionQueue(AdminPartyActions.partyAdminCreated.matches)
-const partyRemovedQueue = defineActionQueue(AdminPartyActions.partyRemoved.matches)
-const partyPatchedQueue = defineActionQueue(AdminPartyActions.partyPatched.matches)
 const activeInstancesFetchedQueue = defineActionQueue(AdminAnalyticsActions.activeInstancesFetched.matches)
 const activePartiesFetchedQueue = defineActionQueue(AdminAnalyticsActions.activePartiesFetched.matches)
 const activeLocationsFetchedQueue = defineActionQueue(AdminAnalyticsActions.activeLocationsFetched.matches)
@@ -193,10 +188,6 @@ const execute = () => {
   for (const action of locationPatchedQueue()) AdminLocationReceptors.locationPatchedReceptor(action)
   for (const action of locationRemovedQueue()) AdminLocationReceptors.locationRemovedReceptor(action)
   for (const action of locationTypesRetrievedQueue()) AdminLocationReceptors.locationTypesRetrievedReceptor(action)
-  for (const action of partyRetrievedQueue()) AdminPartyReceptors.partyRetrievedReceptor(action)
-  for (const action of partyAdminCreatedQueue()) AdminPartyReceptors.partyAdminCreatedReceptor(action)
-  for (const action of partyRemovedQueue()) AdminPartyReceptors.partyRemovedReceptor(action)
-  for (const action of partyPatchedQueue()) AdminPartyReceptors.partyPatchedReceptor(action)
   for (const action of activeInstancesFetchedQueue()) AdminAnalyticsReceptors.activeInstancesFetchedReceptor(action)
   for (const action of activePartiesFetchedQueue()) AdminAnalyticsReceptors.activePartiesFetchedReceptor(action)
   for (const action of activeLocationsFetchedQueue()) AdminAnalyticsReceptors.activeLocationsFetchedReceptor(action)
