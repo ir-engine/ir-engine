@@ -32,12 +32,6 @@ import { AdminBotCommandActions, AdminBotsCommandReceptors } from '../admin/serv
 import { AdminBotsActions, AdminBotServiceReceptors } from '../admin/services/BotsService'
 import { AdminBuildStatusActions, AdminBuildStatusReceptors } from '../admin/services/BuildStatusService'
 import { AdminGroupActions, AdminGroupServiceReceptors } from '../admin/services/GroupService'
-import {
-  AdminInstanceActions,
-  AdminInstanceReceptors,
-  AdminInstanceUserActions,
-  AdminInstanceUserReceptors
-} from '../admin/services/InstanceService'
 import { AdminInviteActions, AdminInviteReceptors } from '../admin/services/InviteService'
 import { AdminLocationActions, AdminLocationReceptors } from '../admin/services/LocationService'
 import { AdminPartyActions, AdminPartyReceptors } from '../admin/services/PartyService'
@@ -96,9 +90,7 @@ const projectSettingFetchedQueue = defineActionQueue(AdminProjectSettingsActions
 const fetchedSeverInfoQueue = defineActionQueue(AdminServerSettingActions.fetchedSeverInfo.matches)
 const serverSettingPatchedQueue = defineActionQueue(AdminServerSettingActions.serverSettingPatched.matches)
 const getScopeTypesQueue = defineActionQueue(AdminScopeTypeActions.getScopeTypes.matches)
-const instancesRetrievedQueue = defineActionQueue(AdminInstanceActions.instancesRetrieved.matches)
-const instanceRemovedQueue = defineActionQueue(AdminInstanceActions.instanceRemoved.matches)
-const userInstanceRetrievedQueue = defineActionQueue(AdminInstanceUserActions.instanceUsersRetrieved.matches)
+
 const resourceFiltersFetchedQueue = defineActionQueue(AdminResourceActions.resourceFiltersFetched.matches)
 const resourcesFetchedQueue = defineActionQueue(AdminResourceActions.resourcesFetched.matches)
 const setSelectedMimeTypesQueue = defineActionQueue(AdminResourceActions.setSelectedMimeTypes.matches)
@@ -139,7 +131,6 @@ const removeGroupActionQueue = defineActionQueue(AdminGroupActions.removeGroupAc
 const addAdminGroupQueue = defineActionQueue(AdminGroupActions.addAdminGroup.matches)
 const installedRoutesRetrievedQueue = defineActionQueue(AdminRouteActions.installedRoutesRetrieved.matches)
 const activeRoutesRetrievedQueue = defineActionQueue(AdminActiveRouteActions.activeRoutesRetrieved.matches)
-
 const fetchedInstanceServerQueue = defineActionQueue(InstanceServerSettingActions.fetchedInstanceServer.matches)
 const chargebeeSettingRetrievedQueue = defineActionQueue(AdminChargebeeSettingActions.chargebeeSettingRetrieved.matches)
 const invitesRetrievedQueue = defineActionQueue(AdminInviteActions.invitesRetrieved.matches)
@@ -181,9 +172,6 @@ const execute = () => {
   for (const action of fetchedSeverInfoQueue()) ServerSettingReceptors.fetchedSeverInfoReceptor(action)
   for (const action of serverSettingPatchedQueue()) ServerSettingReceptors.serverSettingPatchedReceptor(action)
   for (const action of getScopeTypesQueue()) AdminScopeTypeReceptor.getScopeTypesReceptor(action)
-  for (const action of instancesRetrievedQueue()) AdminInstanceReceptors.instancesRetrievedReceptor(action)
-  for (const action of instanceRemovedQueue()) AdminInstanceReceptors.instanceRemovedReceptor(action)
-  for (const action of userInstanceRetrievedQueue()) AdminInstanceUserReceptors.userInstancesReceivedReceptor(action)
   for (const action of resourceFiltersFetchedQueue()) AdminResourceReceptors.resourceFiltersFetchedReceptor(action)
   for (const action of resourcesFetchedQueue()) AdminResourceReceptors.resourcesFetchedReceptor(action)
   for (const action of setSelectedMimeTypesQueue()) AdminResourceReceptors.setSelectedMimeTypesReceptor(action)
