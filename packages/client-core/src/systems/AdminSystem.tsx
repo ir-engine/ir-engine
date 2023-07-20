@@ -32,7 +32,6 @@ import { AdminBotCommandActions, AdminBotsCommandReceptors } from '../admin/serv
 import { AdminBotsActions, AdminBotServiceReceptors } from '../admin/services/BotsService'
 import { AdminBuildStatusActions, AdminBuildStatusReceptors } from '../admin/services/BuildStatusService'
 import { AdminGroupActions, AdminGroupServiceReceptors } from '../admin/services/GroupService'
-import { AdminInviteActions, AdminInviteReceptors } from '../admin/services/InviteService'
 import { AdminLocationActions, AdminLocationReceptors } from '../admin/services/LocationService'
 import { AdminPartyActions, AdminPartyReceptors } from '../admin/services/PartyService'
 import { AdminResourceActions, AdminResourceReceptors } from '../admin/services/ResourceService'
@@ -117,10 +116,6 @@ const addAdminGroupQueue = defineActionQueue(AdminGroupActions.addAdminGroup.mat
 const activeRoutesRetrievedQueue = defineActionQueue(AdminActiveRouteActions.activeRoutesRetrieved.matches)
 const fetchedInstanceServerQueue = defineActionQueue(InstanceServerSettingActions.fetchedInstanceServer.matches)
 const chargebeeSettingRetrievedQueue = defineActionQueue(AdminChargebeeSettingActions.chargebeeSettingRetrieved.matches)
-const invitesRetrievedQueue = defineActionQueue(AdminInviteActions.invitesRetrieved.matches)
-const inviteCreatedQueue = defineActionQueue(AdminInviteActions.inviteCreated.matches)
-const invitePatchedQueue = defineActionQueue(AdminInviteActions.invitePatched.matches)
-const inviteRemovedQueue = defineActionQueue(AdminInviteActions.inviteRemoved.matches)
 // const authSettingRetrievedQueue = defineActionQueue(AuthSettingsActions.authSettingRetrieved.matches)
 // const authSettingPatchedQueue = defineActionQueue(AuthSettingsActions.authSettingPatched.matches)
 // const fetchedClientQueue = defineActionQueue(ClientSettingActions.fetchedClient.matches)
@@ -186,10 +181,6 @@ const execute = () => {
   for (const action of fetchedInstanceServerQueue()) AdminInstanceServerReceptors.fetchedInstanceServerReceptor(action)
   for (const action of chargebeeSettingRetrievedQueue())
     AdminChargebeeReceptors.chargebeeSettingRetrievedReceptor(action)
-  for (const action of invitesRetrievedQueue()) AdminInviteReceptors.invitesRetrievedReceptor(action)
-  for (const action of inviteCreatedQueue()) AdminInviteReceptors.inviteCreatedReceptor(action)
-  for (const action of invitePatchedQueue()) AdminInviteReceptors.invitePatchedReceptor(action)
-  for (const action of inviteRemovedQueue()) AdminInviteReceptors.inviteRemovedReceptor(action)
   // for (const action of authSettingRetrievedQueue()) //   AuthSettingsReceptors.authSettingRetrievedReceptor(action)/ }
   // for (const action of authSettingPatchedQueue()) //   AuthSettingsReceptors.authSettingPatchedReceptor(action)/ }
   // for (const action of fetchedClientQueue()) //   ClientSettingReceptors.fetchedClientReceptor(action)/ }
