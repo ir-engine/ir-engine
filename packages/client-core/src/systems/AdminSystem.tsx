@@ -43,7 +43,6 @@ import {
   AdminSingleRecordingsActions
 } from '../admin/services/RecordingService'
 import { AdminResourceActions, AdminResourceReceptors } from '../admin/services/ResourceService'
-import { AdminRouteActions, AdminRouteReceptors } from '../admin/services/RouteService'
 import { AdminSceneActions, AdminSceneReceptors } from '../admin/services/SceneService'
 import { AdminScopeTypeActions, AdminScopeTypeReceptor } from '../admin/services/ScopeTypeService'
 import { AdminServerInfoActions, AdminServerInfoReceptors } from '../admin/services/ServerInfoService'
@@ -133,7 +132,6 @@ const setAdminGroupQueue = defineActionQueue(AdminGroupActions.setAdminGroup.mat
 const updateGroupQueue = defineActionQueue(AdminGroupActions.updateGroup.matches)
 const removeGroupActionQueue = defineActionQueue(AdminGroupActions.removeGroupAction.matches)
 const addAdminGroupQueue = defineActionQueue(AdminGroupActions.addAdminGroup.matches)
-const installedRoutesRetrievedQueue = defineActionQueue(AdminRouteActions.installedRoutesRetrieved.matches)
 const activeRoutesRetrievedQueue = defineActionQueue(AdminActiveRouteActions.activeRoutesRetrieved.matches)
 
 const fetchedInstanceServerQueue = defineActionQueue(InstanceServerSettingActions.fetchedInstanceServer.matches)
@@ -219,7 +217,6 @@ const execute = () => {
   for (const action of updateGroupQueue()) AdminGroupServiceReceptors.updateGroupReceptor(action)
   for (const action of removeGroupActionQueue()) AdminGroupServiceReceptors.removeGroupActionReceptor(action)
   for (const action of addAdminGroupQueue()) AdminGroupServiceReceptors.addAdminGroupReceptor(action)
-  for (const action of installedRoutesRetrievedQueue()) AdminRouteReceptors.installedRoutesRetrievedReceptor(action)
   for (const action of activeRoutesRetrievedQueue()) AdminActiveRouteReceptors.activeRoutesRetrievedReceptor(action)
   for (const action of fetchedInstanceServerQueue()) AdminInstanceServerReceptors.fetchedInstanceServerReceptor(action)
   for (const action of chargebeeSettingRetrievedQueue())
