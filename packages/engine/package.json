@@ -57,7 +57,6 @@
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "realism-effects": "1.1.2",
-    "screen-space-reflections": "^2.5.0",
     "sharp": "^0.31.3",
     "simplex-noise": "^4.0.1",
     "three": "0.153.0",

@@ -65,7 +65,11 @@ export const PostProcessingComponent = defineComponent({
 
 function PostProcessingComponentReactor() {
   const entity = useEntityContext()
-  useComponent(entity, PostProcessingComponent)
+  const component = useComponent(entity, PostProcessingComponent)
+
+  useEffect(() => {
+    getMutableState(PostProcessingSettingsState).enabled.set(component.enabled.value)
+  }, [component.enabled])
 
   return (
     <>
