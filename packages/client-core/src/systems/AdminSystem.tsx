@@ -28,7 +28,6 @@ import { defineAction, defineActionQueue } from '@etherealengine/hyperflux'
 
 import { AdminActiveRouteActions, AdminActiveRouteReceptors } from '../admin/services/ActiveRouteService'
 import { AdminAnalyticsActions, AdminAnalyticsReceptors } from '../admin/services/AnalyticsService'
-import { AdminAvatarActions, AdminAvatarReceptors } from '../admin/services/AvatarService'
 import { AdminBotCommandActions, AdminBotsCommandReceptors } from '../admin/services/BotsCommand'
 import { AdminBotsActions, AdminBotServiceReceptors } from '../admin/services/BotsService'
 import { AdminBuildStatusActions, AdminBuildStatusReceptors } from '../admin/services/BuildStatusService'
@@ -79,10 +78,7 @@ const projectSettingFetchedQueue = defineActionQueue(AdminProjectSettingsActions
 const fetchedSeverInfoQueue = defineActionQueue(AdminServerSettingActions.fetchedSeverInfo.matches)
 const serverSettingPatchedQueue = defineActionQueue(AdminServerSettingActions.serverSettingPatched.matches)
 const getScopeTypesQueue = defineActionQueue(AdminScopeTypeActions.getScopeTypes.matches)
-const avatarsFetchedQueue = defineActionQueue(AdminAvatarActions.avatarsFetched.matches)
-const avatarCreatedQueue = defineActionQueue(AdminAvatarActions.avatarCreated.matches)
-const avatarRemovedQueue = defineActionQueue(AdminAvatarActions.avatarRemoved.matches)
-const avatarUpdatedQueue = defineActionQueue(AdminAvatarActions.avatarUpdated.matches)
+
 const resourceFiltersFetchedQueue = defineActionQueue(AdminResourceActions.resourceFiltersFetched.matches)
 const resourcesFetchedQueue = defineActionQueue(AdminResourceActions.resourcesFetched.matches)
 const setSelectedMimeTypesQueue = defineActionQueue(AdminResourceActions.setSelectedMimeTypes.matches)
@@ -119,7 +115,6 @@ const updateGroupQueue = defineActionQueue(AdminGroupActions.updateGroup.matches
 const removeGroupActionQueue = defineActionQueue(AdminGroupActions.removeGroupAction.matches)
 const addAdminGroupQueue = defineActionQueue(AdminGroupActions.addAdminGroup.matches)
 const activeRoutesRetrievedQueue = defineActionQueue(AdminActiveRouteActions.activeRoutesRetrieved.matches)
-
 const fetchedInstanceServerQueue = defineActionQueue(InstanceServerSettingActions.fetchedInstanceServer.matches)
 const chargebeeSettingRetrievedQueue = defineActionQueue(AdminChargebeeSettingActions.chargebeeSettingRetrieved.matches)
 const invitesRetrievedQueue = defineActionQueue(AdminInviteActions.invitesRetrieved.matches)
@@ -152,10 +147,6 @@ const execute = () => {
   for (const action of fetchedSeverInfoQueue()) ServerSettingReceptors.fetchedSeverInfoReceptor(action)
   for (const action of serverSettingPatchedQueue()) ServerSettingReceptors.serverSettingPatchedReceptor(action)
   for (const action of getScopeTypesQueue()) AdminScopeTypeReceptor.getScopeTypesReceptor(action)
-  for (const action of avatarsFetchedQueue()) AdminAvatarReceptors.avatarsFetchedReceptor(action)
-  for (const action of avatarCreatedQueue()) AdminAvatarReceptors.avatarCreatedReceptor(action)
-  for (const action of avatarRemovedQueue()) AdminAvatarReceptors.avatarRemovedReceptor(action)
-  for (const action of avatarUpdatedQueue()) AdminAvatarReceptors.avatarUpdatedReceptor(action)
   for (const action of resourceFiltersFetchedQueue()) AdminResourceReceptors.resourceFiltersFetchedReceptor(action)
   for (const action of resourcesFetchedQueue()) AdminResourceReceptors.resourcesFetchedReceptor(action)
   for (const action of setSelectedMimeTypesQueue()) AdminResourceReceptors.setSelectedMimeTypesReceptor(action)
