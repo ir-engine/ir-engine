@@ -40,6 +40,7 @@ declare module '@etherealengine/common/declarations' {
 export default (app: Application): void => {
   const options = {
     name: scopeTypePath,
+    id: 'type',
     paginate: app.get('paginate'),
     Model: app.get('knexClient'),
     multi: true
