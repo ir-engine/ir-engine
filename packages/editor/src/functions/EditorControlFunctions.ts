@@ -23,21 +23,17 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { command } from 'cli'
 import { Euler, Material, MathUtils, Matrix4, Mesh, Quaternion, Vector3 } from 'three'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
-import { EntityJson, SceneJson } from '@etherealengine/common/src/interfaces/SceneInterface'
 import logger from '@etherealengine/common/src/logger'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { EngineActions } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
 import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
 import {
-  addComponent,
   Component,
   getComponent,
-  getMutableComponent,
   getOptionalComponent,
   hasComponent,
   removeComponent,
@@ -45,12 +41,11 @@ import {
   setComponent,
   updateComponent
 } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
-import { createEntity, removeEntity } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
+import { createEntity } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
 import {
   addEntityNodeChild,
   EntityOrObjectUUID,
   EntityTreeComponent,
-  getAllEntitiesInTree,
   getEntityNodeArrayFromEntities,
   removeEntityNodeRecursively,
   reparentEntityNode,
@@ -58,32 +53,26 @@ import {
 } from '@etherealengine/engine/src/ecs/functions/EntityTree'
 import { materialFromId } from '@etherealengine/engine/src/renderer/materials/functions/MaterialLibraryFunctions'
 import { MaterialLibraryState } from '@etherealengine/engine/src/renderer/materials/MaterialLibrary'
-import { ColliderComponent } from '@etherealengine/engine/src/scene/components/ColliderComponent'
-import { GLTFLoadedComponent } from '@etherealengine/engine/src/scene/components/GLTFLoadedComponent'
-import { GroupComponent, Object3DWithEntity } from '@etherealengine/engine/src/scene/components/GroupComponent'
-import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
+import { GroupComponent } from '@etherealengine/engine/src/scene/components/GroupComponent'
 import { SceneObjectComponent } from '@etherealengine/engine/src/scene/components/SceneObjectComponent'
 import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
 import { TransformSpace } from '@etherealengine/engine/src/scene/constants/transformConstants'
-import { getUniqueName } from '@etherealengine/engine/src/scene/functions/getUniqueName'
 import { reparentObject3D } from '@etherealengine/engine/src/scene/functions/ReparentFunction'
-import { serializeEntity, serializeWorld } from '@etherealengine/engine/src/scene/functions/serializeWorld'
+import { serializeWorld } from '@etherealengine/engine/src/scene/functions/serializeWorld'
 import {
   createNewEditorNode,
   deserializeSceneEntity
 } from '@etherealengine/engine/src/scene/systems/SceneLoadingSystem'
-import { ScenePrefabs } from '@etherealengine/engine/src/scene/systems/SceneObjectUpdateSystem'
 import obj3dFromUuid from '@etherealengine/engine/src/scene/util/obj3dFromUuid'
 import {
   LocalTransformComponent,
-  TransformComponent,
-  TransformComponentType
+  TransformComponent
 } from '@etherealengine/engine/src/transform/components/TransformComponent'
 import {
   computeLocalTransformMatrix,
   computeTransformMatrix
 } from '@etherealengine/engine/src/transform/systems/TransformSystem'
-import { dispatchAction, getMutableState, getState, useState } from '@etherealengine/hyperflux'
+import { dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
 
 import { EditorHistoryAction } from '../services/EditorHistory'
 import { EditorAction } from '../services/EditorServices'
@@ -212,8 +201,8 @@ const modifyMaterial = (nodes: string[], materialId: string, properties: { [_: s
    */
 }
 
-const createObjectFromPrefab = (
-  prefab: string,
+const createObjectFromSceneElement = (
+  componentName: string,
   parentEntity = getState(SceneState).sceneEntity as Entity | null,
   beforeEntity = null as Entity | null,
   updateSelection = true
@@ -231,7 +220,7 @@ const createObjectFromPrefab = (
   setComponent(newEntity, EntityTreeComponent, { parentEntity, childIndex })
   setComponent(newEntity, UUIDComponent, MathUtils.generateUUID() as EntityUUID)
 
-  createNewEditorNode(newEntity, prefab)
+  createNewEditorNode(newEntity, componentName)
 
   if (updateSelection) {
     EditorControlFunctions.replaceSelection([newEntity])
@@ -561,7 +550,7 @@ const groupObjects = (
 ) => {
   cancelGrabOrPlacement()
 
-  const groupNode = EditorControlFunctions.createObjectFromPrefab(ScenePrefabs.group, null, null, false)
+  const groupNode = EditorControlFunctions.createObjectFromSceneElement(GroupComponent.name, null, null, false)
 
   EditorControlFunctions.reparentObject(nodes, groupNode, null, false)
 
@@ -661,7 +650,7 @@ export const EditorControlFunctions = {
   modifyProperty,
   modifyObject3d,
   modifyMaterial,
-  createObjectFromPrefab,
+  createObjectFromSceneElement,
   duplicateObject,
   positionObject,
   rotateObject,

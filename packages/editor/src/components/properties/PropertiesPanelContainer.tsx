@@ -39,7 +39,7 @@ import { MaterialLibraryState } from '@etherealengine/engine/src/renderer/materi
 import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
 import { getMutableState, getState } from '@etherealengine/hyperflux'
 
-import { EntityNodeEditor } from '../../functions/PrefabEditors'
+import { EntityNodeEditor } from '../../functions/ComponentEditors'
 import { EditorState } from '../../services/EditorServices'
 import { SelectionState } from '../../services/SelectionServices'
 import MaterialEditor from '../materials/MaterialEditor'

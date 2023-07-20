@@ -25,10 +25,11 @@ Ethereal Engine. All Rights Reserved.
 
 import { Color, Vector2 } from 'three'
 
-import { defineComponent } from '../../ecs/functions/ComponentFunctions'
+import { defineComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
 import { Ocean } from '../classes/Ocean'
 import { setCallback } from './CallbackComponent'
 import { addObjectToGroup } from './GroupComponent'
+import { ShadowComponent } from './ShadowComponent'
 import { UpdatableCallback } from './UpdatableComponent'
 
 export const OceanComponent = defineComponent({
@@ -61,6 +62,8 @@ export const OceanComponent = defineComponent({
     }
   },
   onSet: (entity, component, json) => {
+    setComponent(entity, ShadowComponent)
+
     if (!json) return
     if (typeof json.normalMap === 'string') component.normalMap.set(json.normalMap)
     if (typeof json.distortionMap === 'string') component.distortionMap.set(json.distortionMap)
