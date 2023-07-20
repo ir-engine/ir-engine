@@ -42,12 +42,7 @@ import { AnimationComponent } from '../components/AnimationComponent'
 import { AvatarAnimationComponent, AvatarRigComponent } from '../components/AvatarAnimationComponent'
 import { AvatarComponent } from '../components/AvatarComponent'
 import { SkeletonUtils } from '../SkeletonUtils'
-import {
-  animateAvatarModel,
-  // boneMatchAvatarModel,
-  makeDefaultSkinnedMesh,
-  rigAvatarModel
-} from './avatarFunctions'
+import { animateAvatarModel, boneMatchAvatarModel, makeDefaultSkinnedMesh, rigAvatarModel } from './avatarFunctions'
 
 const animGLB = '/packages/projects/default-project/assets/Animations.glb'
 
@@ -100,11 +95,11 @@ describe('avatarFunctions Unit', async () => {
       addComponent(entity, GroupComponent)
       addComponent(entity, AvatarAnimationComponent, {} as any)
       const animationComponent = getComponent(entity, AvatarAnimationComponent)
-      // const model = boneMatchAvatarModel(entity)(SkeletonUtils.clone(assetModel.scene))
-      // setComponent(entity, AvatarComponent, { model })
+      const model = boneMatchAvatarModel(entity)(SkeletonUtils.clone(assetModel.scene))
+      setComponent(entity, AvatarComponent, { model })
       setTransformComponent(entity)
-      // AnimationManager.instance._defaultSkinnedMesh = makeDefaultSkinnedMesh().children[0] as SkinnedMesh
-      // rigAvatarModel(entity)(model)
+      AnimationManager.instance._defaultSkinnedMesh = makeDefaultSkinnedMesh().children[0] as SkinnedMesh
+      rigAvatarModel(entity)(model)
       assert(animationComponent.rootYRatio > 0)
     })
   })
@@ -131,17 +126,17 @@ describe('avatarFunctions Unit', async () => {
         rootYRatio: 1,
         locomotion: new Vector3()
       })
-      // await AnimationManager.instance.loadDefaultAnimations(animGLB)
+      await AnimationManager.instance.loadDefaultAnimations(animGLB)
 
       const group = new Group()
-      // animateAvatarModel(entity)(group)
+      animateAvatarModel(entity)(group)
 
-      // const sourceHips = (makeDefaultSkinnedMesh().children[0] as SkinnedMesh).skeleton.bones[0]
-      // const mixerRoot = getComponent(entity, AnimationComponent).mixer.getRoot() as Bone
+      const sourceHips = (makeDefaultSkinnedMesh().children[0] as SkinnedMesh).skeleton.bones[0]
+      const mixerRoot = getComponent(entity, AnimationComponent).mixer.getRoot() as Bone
 
-      // assert(mixerRoot.isBone)
-      // assert.equal(mixerRoot.name, sourceHips.name)
-      // assert.deepEqual(sourceHips.matrix, mixerRoot.matrix)
+      assert(mixerRoot.isBone)
+      assert.equal(mixerRoot.name, sourceHips.name)
+      assert.deepEqual(sourceHips.matrix, mixerRoot.matrix)
     })
   })
 })

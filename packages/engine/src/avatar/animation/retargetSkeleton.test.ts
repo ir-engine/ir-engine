@@ -72,7 +72,7 @@ describe('retargetSkeleton', () => {
         return
       }
 
-      const message =
+      let message =
         bone.name +
         ' Quaternion / Source: ' +
         formatQuat(bone.quaternion) +
@@ -98,7 +98,7 @@ describe('retargetSkeleton', () => {
       .skeleton
 
     // Check for same bone world positions with original target skeleton
-    rig?.hips?.node?.traverse((bone: Bone) => {
+    rig.Hips.traverse((bone: Bone) => {
       // Find the bone index
       const i = targetSkeleton.bones.findIndex((b) => b.name === bone.name)
       assert(i > -1, `Could not find bone ${bone.name}`)
@@ -111,7 +111,7 @@ describe('retargetSkeleton', () => {
       origWorldMat.decompose(origPos, new Quaternion(), new Vector3())
       modWorldMat.decompose(modPos, new Quaternion(), new Vector3())
 
-      const message = bone.name + ' Position / Original: ' + formatVec3(origPos) + ' / Modified: ' + formatVec3(modPos)
+      let message = bone.name + ' Position / Original: ' + formatVec3(origPos) + ' / Modified: ' + formatVec3(modPos)
 
       assert(vec3NearEqual(origPos, modPos), message)
     })

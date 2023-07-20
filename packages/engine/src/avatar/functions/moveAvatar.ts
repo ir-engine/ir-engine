@@ -94,13 +94,12 @@ export function updateLocalAvatarPosition(additionalMovement?: Vector3) {
     const viewerPose = xrState.viewerPose
     /** move head position forward a bit to not be inside the avatar's body */
     avatarHeadPosition
-      .set(0, avatarHeight * 0.925, 0.25)
+      .set(0, avatarHeight * 0.95, 0.15)
       .applyQuaternion(rigidbody.targetKinematicRotation)
       .add(rigidbody.targetKinematicPosition)
     viewerPose &&
       viewerMovement
         .copy(viewerPose.transform.position as any)
-        .multiplyScalar(1 / xrState.sceneScale)
         .applyMatrix4(originTransform.matrix)
         .sub(avatarHeadPosition)
     // vertical viewer movement should only apply updward movement to the rigidbody,
@@ -329,8 +328,6 @@ export const translateAndRotateAvatar = (entity: Entity, translation: Vector3, r
 
     updateWorldOrigin()
   }
-
-  rotationNeedsUpdate = true
 }
 
 export const updateLocalAvatarPositionAttachedMode = () => {
@@ -350,7 +347,6 @@ export const updateLocalAvatarPositionAttachedMode = () => {
 const viewerQuat = new Quaternion()
 const avatarRotationAroundY = new Euler()
 const avatarRotation = new Quaternion()
-let rotationNeedsUpdate = false
 
 const _updateLocalAvatarRotationAttachedMode = () => {
   const entity = Engine.instance.localClientEntity
@@ -362,26 +358,19 @@ const _updateLocalAvatarRotationAttachedMode = () => {
 
   const originTransform = getComponent(Engine.instance.originEntity, TransformComponent)
   const viewerOrientation = viewerPose.transform.orientation
-
-  //if angle between rigidbody forward and viewer forward is greater than 15 degrees, rotate rigidbody to viewer forward
-  const viewerForward = new Vector3(0, 0, 1).applyQuaternion(viewerOrientation as any).setY(0)
-  const rigidbodyForward = new Vector3(0, 0, -1).applyQuaternion(rigidbody.targetKinematicRotation).setY(0)
-  const angle = viewerForward.angleTo(rigidbodyForward)
-
-  if (angle > Math.PI * 0.25 || rotationNeedsUpdate) {
-    viewerQuat
-      .set(viewerOrientation.x, viewerOrientation.y, viewerOrientation.z, viewerOrientation.w)
-      .premultiply(originTransform.rotation)
-    // const avatarRotation = extractRotationAboutAxis(viewerQuat, V_010, _quat)
-    avatarRotationAroundY.setFromQuaternion(viewerQuat, 'YXZ')
-    avatarRotation.setFromAxisAngle(V_010, avatarRotationAroundY.y + Math.PI)
-
-    rotationNeedsUpdate = false
-  }
+  viewerQuat
+    .set(viewerOrientation.x, viewerOrientation.y, viewerOrientation.z, viewerOrientation.w)
+    .premultiply(originTransform.rotation)
+  // const avatarRotation = extractRotationAboutAxis(viewerQuat, V_010, _quat)
+  avatarRotationAroundY.setFromQuaternion(viewerQuat, 'YXZ')
+  avatarRotation.setFromAxisAngle(V_010, avatarRotationAroundY.y + Math.PI)
 
   // for immersive and attached avatars, we don't want to interpolate the rigidbody in the transform system, so set
   // previous and current rotation to the target rotation
-  rigidbody.targetKinematicRotation.slerp(avatarRotation, 5 * getState(EngineState).deltaSeconds)
+  rigidbody.targetKinematicRotation.copy(avatarRotation)
+  rigidbody.previousRotation.copy(avatarRotation)
+  rigidbody.rotation.copy(avatarRotation)
+  transform.rotation.copy(avatarRotation)
 }
 
 export const updateLocalAvatarRotation = () => {

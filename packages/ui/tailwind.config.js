@@ -34,9 +34,9 @@ module.exports = {
   ],
   darkMode: "class",
   important: true, // important in prod is must be
-  theme: ["default"],
+  theme: ["dark"],
   daisyui: {
-    themes: ['default', 'dark', 'vaporwave'],
+    themes: ['default', 'dark', 'luxury', 'cupcake'],
     // daisyUI config (optional)
     styled: true,
     base: true,
@@ -47,6 +47,8 @@ module.exports = {
     darkTheme: "dark",
   },
   plugins: [
+    require("@tailwindcss/typography"),
     require("daisyui"),
+    require('@tailwindcss/aspect-ratio'),
   ],
 }

@@ -26,7 +26,6 @@ Ethereal Engine. All Rights Reserved.
 import { AnimationClip, Bone, SkinnedMesh } from 'three'
 
 import { config } from '@etherealengine/common/src/config'
-import { defineState } from '@etherealengine/hyperflux'
 
 import { AssetLoader } from '../assets/classes/AssetLoader'
 import { GLTF } from '../assets/loaders/gltf/GLTFLoader'
@@ -35,23 +34,12 @@ import { findRootBone, processRootAnimation } from './animation/Util'
 import avatarBoneMatching, { findSkinnedMeshes } from './AvatarBoneMatching'
 import { makeDefaultSkinnedMesh } from './functions/avatarFunctions'
 
-//Create all IK targets as object 3ds, stored in
-//a named struct and in an object 3d hierarchy
-//the former allows easy accessability while the
-//latter allows for threejs keyframe animation
-export const AnimationState = defineState({
-  name: 'animationManager',
-  initial: () => ({
-    targetsAnimation: undefined as AnimationClip[] | undefined
-  })
-})
-
 export class AnimationManager {
   static instance: AnimationManager = new AnimationManager()
 
   _animations: AnimationClip[]
   _defaultSkinnedMesh: SkinnedMesh
-  _rootAnimationData: object
+  _rootAnimationData: {}
   _defaultRootBone: Bone
 
   getAnimationDuration(name: string): number {
@@ -59,7 +47,9 @@ export class AnimationManager {
     return animation ? animation.duration : 0
   }
 
-  async loadDefaultAnimations(path = `${config.client.fileServer}/projects/default-project/assets/Animations.glb`) {
+  async loadDefaultAnimations(
+    path: string = `${config.client.fileServer}/projects/default-project/assets/Animations.glb`
+  ) {
     if (this._animations) {
       return this._animations
     }
@@ -68,10 +58,10 @@ export class AnimationManager {
 
     const defaultRig = makeDefaultSkinnedMesh()
     const rig = avatarBoneMatching(defaultRig)
-    const rootBone = rig.hips.node
+    const rootBone = rig.Hips
     rootBone.updateWorldMatrix(true, true)
     const skinnedMeshes = findSkinnedMeshes(defaultRig)
-    // makeTPose(rig)
+    makeTPose(rig)
     rootBone.updateWorldMatrix(true, true)
     skinnedMeshes.forEach((mesh) => mesh.skeleton.calculateInverses())
     skinnedMeshes.forEach((mesh) => mesh.skeleton.computeBoneTexture())
@@ -85,11 +75,11 @@ export class AnimationManager {
       // TODO: make list of morph targets names
       clip.tracks = clip.tracks.filter((track) => !track.name.match(/^CC_Base_/))
 
-      // const rootData = processRootAnimation(clip, this._defaultRootBone)
+      const rootData = processRootAnimation(clip, this._defaultRootBone)
 
-      // if (rootData) {
-      //   this._rootAnimationData[clip.name] = rootData
-      // }
+      if (rootData) {
+        this._rootAnimationData[clip.name] = rootData
+      }
     })
     return this._animations
   }

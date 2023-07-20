@@ -111,11 +111,11 @@ export class LocalStorage implements StorageProviderInterface {
     const filePath = path.join(this.PATH_PREFIX, prefix)
     if (!fs.existsSync(filePath)) return { Contents: [] }
     // glob all files and directories
-    let globResult = glob?.sync(path.join(filePath, '**'))
-    globResult = globResult?.filter((item) => /[a-zA-Z0-9]+\.[a-zA-Z0-9]+$/.test(item))
+    let globResult = glob.sync(path.join(filePath, '**'))
+    globResult = globResult.filter((item) => /[a-zA-Z0-9]+\.[a-zA-Z0-9]+$/.test(item))
     return {
-      Contents: globResult?.map((result) => {
-        return { Key: result?.replace(path.join(this.PATH_PREFIX), '') }
+      Contents: globResult.map((result) => {
+        return { Key: result.replace(path.join(this.PATH_PREFIX), '') }
       })
     }
   }

@@ -73,21 +73,13 @@ const PWA = (clientSetting) =>
       enabled: process.env.APP_ENV === 'development' ? true : false,
       // Navigate to index.html for all 404 errors during development
       navigateFallback: undefined,
-      // Allowlist all paths for navigateFallback during production
+      // Allowlist all paths for navigateFallback during development
       navigateFallbackAllowlist: [
         // allow everything
-        new RegExp('^/.*$')
+        new RegExp('^/.*$'),
+        // allow @fs
+        new RegExp('^/@fs/.*$')
       ]
-      // navigateFallbackAllowlist: [
-      //   // allow all node_modules in monorepo
-      //   new RegExp('^/node_modules/.*$'),
-      //   // allow wss://tcb-mbp.shetland-turtle.ts.net:3031/primus
-      //   new RegExp('^/primus/.*$'),
-      //   // allow everything
-      //   new RegExp('^/.*$'),
-      //   // allow @fs
-      //   new RegExp('^/@fs/.*$')
-      // ]
     },
     workbox: {
       // don't wait for service worker to become active
@@ -103,9 +95,7 @@ const PWA = (clientSetting) =>
       // Allowlist all paths for navigateFallback during production
       navigateFallbackAllowlist: [
         // allow everything
-        new RegExp('^/.*$'),
-        // allow /static
-        new RegExp('^/static/.*$')
+        new RegExp('^/.*$')
       ],
       // Set the glob directory and patterns for the cache
       globDirectory: process.env.APP_ENV === 'development' ? './public' : './dist',
@@ -117,7 +107,7 @@ const PWA = (clientSetting) =>
         // media
         '**/*.{mp3,mp4,webm}',
         // code
-        '**/*.{js, css, html}',
+        '**/*.{js, css}',
         // docs
         '**/*.{txt,xml,json,pdf}',
         // 3d objects

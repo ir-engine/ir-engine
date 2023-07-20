@@ -99,7 +99,7 @@ export const UploadAvatarMenu = () => {
       setError(error)
       const avatarRigComponent = getOptionalComponent(entity.value, AvatarRigComponent)
       if (avatarRigComponent) {
-        avatarRigComponent.rig.head.node.getWorldPosition(camera.value.position)
+        avatarRigComponent.rig.Neck.getWorldPosition(camera.value.position)
         camera.value.position.y += 0.2
         camera.value.position.z = 0.6
       }
@@ -277,8 +277,6 @@ export const UploadAvatarMenu = () => {
         {selectedThumbnail != null && (
           <div className="thumbnailContainer">
             <img
-              width={`${THUMBNAIL_WIDTH}px`}
-              height={`${THUMBNAIL_HEIGHT}px`}
               src={URL.createObjectURL(selectedThumbnail)}
               alt={selectedThumbnail?.name}
               className="thumbnailPreview"
@@ -287,14 +285,7 @@ export const UploadAvatarMenu = () => {
         )}
         {thumbnailUrl.length > 0 && (
           <div className="thumbnailContainer">
-            <img
-              width={`${THUMBNAIL_WIDTH}px`}
-              height={`${THUMBNAIL_HEIGHT}px`}
-              src={thumbnailUrl}
-              crossOrigin="anonymous"
-              alt="Avatar"
-              className="thumbnailPreview"
-            />
+            <img src={thumbnailUrl} crossOrigin="anonymous" alt="Avatar" className="thumbnailPreview" />
           </div>
         )}
         <div className="paper2">

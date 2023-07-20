@@ -252,7 +252,7 @@ const AvatarModifyMenu = ({ selectedAvatar }: Props) => {
     const avatarCanvas = document.getElementById('stage')?.firstChild as CanvasImageSource
 
     const newContext = canvas.getContext('2d')
-    newContext?.drawImage(avatarCanvas, 0, 0, THUMBNAIL_WIDTH, THUMBNAIL_HEIGHT)
+    newContext?.drawImage(avatarCanvas, 0, 0)
 
     const blob = await getCanvasBlob(canvas)
     setState({ ...state, thumbnailUrl: 'thumbnail.png', thumbnailFile: new File([blob!], 'thumbnail.png') })

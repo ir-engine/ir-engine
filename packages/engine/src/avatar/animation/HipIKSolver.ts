@@ -152,17 +152,16 @@ export function solveHipHeight(entity: Entity, headPosition: Vector3) {
   /** Solve IK */
   const rig = rigComponent.rig
 
-  // console.log(rig.hips.node.name, rig.hips.node.parent!.name, rig.hips.node.parent!.parent!.name, rig.hips.node.parent!.parent!.parent!.name)
-  // console.log('before', rig.hips.node.getWorldPosition(_vec3).y, rig.hips.node.parent!.getWorldPosition(_vec3).y, rig.hips.node.parent!.parent!.getWorldPosition(_vec3).y, rig.hips.node.parent!.parent!.parent!.getWorldPosition(_vec3).y)
+  // console.log(rig.Hips.name, rig.Hips.parent!.name, rig.Hips.parent!.parent!.name, rig.Hips.parent!.parent!.parent!.name)
+  // console.log('before', rig.Hips.getWorldPosition(_vec3).y, rig.Hips.parent!.getWorldPosition(_vec3).y, rig.Hips.parent!.parent!.getWorldPosition(_vec3).y, rig.Hips.parent!.parent!.parent!.getWorldPosition(_vec3).y)
 
   /** move hips to the new position */
   const hipDifference = fullLegLength - (footToKneeY + kneeToHipsY)
-  console.log(rig.hips.node.position.y)
-  //rig.hips.node.position.y -= hipDifference
-  //rig.hips.node.position.z -= hipX
+  rig.Hips.position.y -= hipDifference
+  rig.Hips.position.z -= hipX
 
   /** Update matrices */
-  rig.hips.node.updateWorldMatrix(true, true)
+  rig.Hips.updateWorldMatrix(true, true)
 
   /**
    * @todo
@@ -178,17 +177,17 @@ export function solveHipHeight(entity: Entity, headPosition: Vector3) {
   const footKneeFlareRatio = 0.2
 
   /** copy foot world pose into target */
-  rig.leftFoot.node.getWorldPosition(leftFootTarget.position) //.sub(body.position)
-  rig.rightFoot.node.getWorldPosition(rightFootTarget.position) //.sub(body.position)
+  rig.LeftFoot.getWorldPosition(leftFootTarget.position) //.sub(body.position)
+  rig.RightFoot.getWorldPosition(rightFootTarget.position) //.sub(body.position)
 
   /** get original knee position in avatar local space */
-  rig.leftUpperLeg.node.getWorldPosition(originalLeftKneeOffset).sub(body.position)
+  rig.LeftLeg.getWorldPosition(originalLeftKneeOffset).sub(body.position)
   originalLeftKneeOffset.applyQuaternion(_quat.copy(body.rotation).invert())
-  const originalLeftFootAngle = rig.leftFoot.node.getWorldQuaternion(_quat).angleTo(quatXforward0)
+  const originalLeftFootAngle = rig.LeftFoot.getWorldQuaternion(_quat).angleTo(quatXforward0)
 
-  rig.rightUpperLeg.node.getWorldPosition(originalRightKneeOffset).sub(body.position)
+  rig.RightLeg.getWorldPosition(originalRightKneeOffset).sub(body.position)
   originalRightKneeOffset.applyQuaternion(_quat.copy(body.rotation).invert())
-  const originalRightFootAngle = rig.rightFoot.node.getWorldQuaternion(_quat).angleTo(quatXforward0)
+  const originalRightFootAngle = rig.RightFoot.getWorldQuaternion(_quat).angleTo(quatXforward0)
 
   /** calculate how much the knees should flare out based on the distance the knees move forward, adding to the original position (to preserve animations) */
   const leftKneeFlare = kneeFlareSeparation + kneeX * kneeFlareMultiplier
@@ -207,20 +206,17 @@ export function solveHipHeight(entity: Entity, headPosition: Vector3) {
   leftFootTargetHint.position.set(kneeFlareSeparation + leftKneeFlare, footToKneeY, 0.1 + kneeX * 0.9)
   leftFootTargetHint.position.applyQuaternion(body.rotation)
   leftFootTargetHint.position.add(leftFootTarget.position)
-  rig.leftFoot.node.getWorldQuaternion(leftFootTarget.quaternion)
+  rig.LeftFoot.getWorldQuaternion(leftFootTarget.quaternion)
   leftFootTargetHint.updateMatrixWorld(true)
 
   solveTwoBoneIK(
-    rig.leftUpperLeg.node,
-    rig.leftLowerLeg.node,
-    rig.leftFoot.node,
+    rig.LeftUpLeg,
+    rig.LeftLeg,
+    rig.LeftFoot,
     leftFootTarget.position,
     leftFootTarget.quaternion,
     null,
-    leftFootTargetHint.position,
-    null,
-    null,
-    null,
+    leftFootTargetHint,
     1,
     0,
     1
@@ -240,27 +236,25 @@ export function solveHipHeight(entity: Entity, headPosition: Vector3) {
   rightFootTargetHint.position.set(kneeFlareSeparation + rightKneeFlare, footToKneeY, 0.1 + kneeX * 0.9)
   rightFootTargetHint.position.applyQuaternion(body.rotation)
   rightFootTargetHint.position.add(rightFootTarget.position)
-  rig.rightFoot.node.getWorldQuaternion(rightFootTarget.quaternion)
+  rig.RightFoot.getWorldQuaternion(rightFootTarget.quaternion)
   rightFootTargetHint.updateMatrixWorld(true)
 
   solveTwoBoneIK(
-    rig.rightUpperLeg.node,
-    rig.rightLowerLeg.node,
-    rig.rightFoot.node,
+    rig.RightUpLeg,
+    rig.RightLeg,
+    rig.RightFoot,
     rightFootTarget.position,
     rightFootTarget.quaternion,
     null,
-    rightFootTargetHint.position,
-    null,
-    null,
-    null,
+    rightFootTargetHint,
     1,
     0,
     1
   )
+
   /** Torso */
   /** Apply the hip internal angle we calculated previously */
-  rig.spine.node.applyQuaternion(_quat.setFromAxisAngle(V_100, degtoRad90 - hipToHeadAngle))
+  rig.Spine.applyQuaternion(_quat.setFromAxisAngle(V_100, degtoRad90 - hipToHeadAngle))
 
   /** Angle feet */
 
@@ -268,12 +262,12 @@ export function solveHipHeight(entity: Entity, headPosition: Vector3) {
   /** get the difference between the two angles */
   /** apply the difference to the foot */
   /** left foot */
-  const currentLeftFootAngle = rig.leftFoot.node.getWorldQuaternion(_quat).angleTo(quatXforward0)
+  const currentLeftFootAngle = rig.LeftFoot.getWorldQuaternion(_quat).angleTo(quatXforward0)
   const leftFootAngleDifference = originalLeftFootAngle - currentLeftFootAngle
-  rig.leftFoot.node.applyQuaternion(_quat.setFromAxisAngle(V_100, leftFootAngleDifference))
+  rig.LeftFoot.applyQuaternion(_quat.setFromAxisAngle(V_100, leftFootAngleDifference))
 
   /** right foot */
-  const currentRightFootAngle = rig.rightFoot.node.getWorldQuaternion(_quat).angleTo(quatXforward0)
+  const currentRightFootAngle = rig.RightFoot.getWorldQuaternion(_quat).angleTo(quatXforward0)
   const rightFootAngleDifference = originalRightFootAngle - currentRightFootAngle
-  rig.rightFoot.node.applyQuaternion(_quat.setFromAxisAngle(V_100, rightFootAngleDifference))
+  rig.RightFoot.applyQuaternion(_quat.setFromAxisAngle(V_100, rightFootAngleDifference))
 }

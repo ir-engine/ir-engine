@@ -749,7 +749,7 @@ export async function createDataProducer(
   console.log('createDataProducer', dataChannelType, network.sendTransport)
   if (network.dataProducers.has(dataChannelType)) return
   const sendTransport = network.sendTransport
-  const dataProducer = await sendTransport?.produceData({
+  const dataProducer = await sendTransport.produceData({
     appData: { data: customInitInfo },
     ordered: false,
     label: dataChannelType,
@@ -760,10 +760,10 @@ export async function createDataProducer(
   // dataProducer.on("open", () => {
   //     network.dataProducer.send(JSON.stringify({ info: 'init' }));
   // });
-  dataProducer?.on('transportclose', () => {
+  dataProducer.on('transportclose', () => {
     dataProducer?.close()
   })
-  network?.dataProducers?.set(dataChannelType, dataProducer)
+  network.dataProducers.set(dataChannelType, dataProducer)
 }
 
 export async function closeDataProducer(network: SocketWebRTCClientNetwork, dataChannelType: DataChannelType) {
@@ -797,7 +797,7 @@ export async function createDataConsumer(
   const response = await promisedRequest(network, MessageTypes.WebRTCConsumeData.toString(), {
     label: dataChannelType
   })
-  // console.log({ response })
+  console.log({ response })
 }
 
 export async function createTransport(network: SocketWebRTCClientNetwork, direction: string) {

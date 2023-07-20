@@ -57,7 +57,6 @@
     "detect-port": "^1.5.1",
     "ffmpeg-static": "^5.1.0",
     "jsonwebtoken": "^9.0.0",
-    "kalidokit": "^1.1.5",
     "lodash": "^4.17.21",
     "mediasoup": "3.12.4",
     "msgpackr": "^1.9.2",

@@ -25,9 +25,6 @@ Ethereal Engine. All Rights Reserved.
 
 // This retargeting logic is based exokitxr retargeting system
 // https://github.com/exokitxr/avatars
-
-import { VRMHumanBones } from '@pixiv/three-vrm'
-import { cloneDeep } from 'lodash'
 import { Bone, Object3D, Quaternion, Skeleton, SkinnedMesh, Vector3 } from 'three'
 
 import { Object3DUtils } from '../common/functions/Object3DUtils'
@@ -386,7 +383,7 @@ function fixSkeletonZForward(rootBone, context) {
   context = context || {}
   precalculateZForwards(rootBone, context)
   if (context.exclude) {
-    const bones = [rootBone]
+    var bones = [rootBone]
     rootBone.traverse((b) => bones.push(b))
     bones.forEach((b) => {
       if (~context.exclude.indexOf(b.id) || ~context.exclude.indexOf(b.name)) {
@@ -417,7 +414,7 @@ function setZForward(rootBone, context) {
 }
 
 function getOriginalWorldPositions(rootBone, worldPos) {
-  const rootBoneWorldPos = rootBone.getWorldPosition(new Vector3())
+  var rootBoneWorldPos = rootBone.getWorldPosition(new Vector3())
   worldPos[rootBone.id] = [rootBoneWorldPos]
   rootBone.children.forEach((child) => {
     getOriginalWorldPositions(child, worldPos)
@@ -425,10 +422,10 @@ function getOriginalWorldPositions(rootBone, worldPos) {
 }
 
 function calculateAverages(parentBone, worldPos, averagedDirs) {
-  const averagedDir = new Vector3()
+  var averagedDir = new Vector3()
   parentBone.children.forEach((childBone) => {
     //average the child bone world pos
-    const childBonePosWorld = worldPos[childBone.id][0]
+    var childBonePosWorld = worldPos[childBone.id][0]
     averagedDir.add(childBonePosWorld)
   })
 
@@ -441,7 +438,7 @@ function calculateAverages(parentBone, worldPos, averagedDirs) {
 }
 
 function updateTransformations(parentBone, worldPos, averagedDirs, preRotations) {
-  const averagedDir = averagedDirs[parentBone.id]
+  var averagedDir = averagedDirs[parentBone.id]
   if (averagedDir) {
     //set quaternion
     const RESETQUAT = new Quaternion()
@@ -450,20 +447,20 @@ function updateTransformations(parentBone, worldPos, averagedDirs, preRotations)
     parentBone.updateMatrixWorld()
 
     //get the child bone position in local coordinates
-    // const childBoneDir = parentBone.worldToLocal(averagedDir.clone()).normalize();
+    // var childBoneDir = parentBone.worldToLocal(averagedDir.clone()).normalize();
 
     //set direction to face child
     // setQuaternionFromDirection(childBoneDir, Y_AXIS, parentBone.quaternion)
     // console.log('new quaternion', parentBone.quaternion.toArray().join(','));
   }
-  const preRot = preRotations[parentBone.id] || preRotations[parentBone.name]
+  var preRot = preRotations[parentBone.id] || preRotations[parentBone.name]
   if (preRot) parentBone.quaternion.multiply(preRot)
   // parentBone.quaternion.multiply(new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), Math.PI));
   parentBone.updateMatrixWorld()
 
   //set child bone position relative to the new parent matrix.
   parentBone.children.forEach((childBone) => {
-    const childBonePosWorld = worldPos[childBone.id][0].clone()
+    var childBonePosWorld = worldPos[childBone.id][0].clone()
     parentBone.worldToLocal(childBonePosWorld)
     childBone.position.copy(childBonePosWorld)
   })
@@ -642,36 +639,144 @@ function findFirstTwistChildBone(parent: Object3D, hand: Object3D, left: boolean
   return existingBone
 }
 
-export default function avatarBoneMatching(model: Object3D): VRMHumanBones {
-  //this is a mess
-  //tentatively mapping mixamo rig to animated vrm object :)
-  const _animatedVRM = {} as VRMHumanBones
-  _animatedVRM.hips = { node: model.getObjectByName('mixamorigHips')! }
-  _animatedVRM.head = { node: model.getObjectByName('mixamorigHead')! }
-  _animatedVRM.chest = { node: model.getObjectByName('mixamorigSpine2')! }
-  _animatedVRM.spine = { node: model.getObjectByName('mixamorigSpine')! }
-  _animatedVRM.leftUpperLeg = { node: model.getObjectByName('mixamorigLeftUpLeg')! }
-  _animatedVRM.leftLowerLeg = { node: model.getObjectByName('mixamorigLeftLeg')! }
-  _animatedVRM.leftFoot = { node: model.getObjectByName('mixamorigLeftFoot')! }
-  _animatedVRM.rightUpperLeg = { node: model.getObjectByName('mixamorigRightUpLeg')! }
-  _animatedVRM.rightLowerLeg = { node: model.getObjectByName('mixamorigRightLeg')! }
-  _animatedVRM.rightFoot = { node: model.getObjectByName('mixamorigRightFoot')! }
-  _animatedVRM.leftShoulder = { node: model.getObjectByName('mixamorigLeftShoulder')! }
-  _animatedVRM.leftUpperArm = { node: model.getObjectByName('mixamorigLeftArm')! }
-  _animatedVRM.leftLowerArm = { node: model.getObjectByName('mixamorigLeftForeArm')! }
-  _animatedVRM.leftHand = { node: model.getObjectByName('mixamorigLeftHand')! }
-  _animatedVRM.leftShoulder = { node: model.getObjectByName('mixamorigRightShoulder')! }
-  _animatedVRM.leftUpperArm = { node: model.getObjectByName('mixamorigRightArm')! }
-  _animatedVRM.leftLowerArm = { node: model.getObjectByName('mixamorigRightForeArm')! }
-  _animatedVRM.leftHand = { node: model.getObjectByName('mixamorigRightHand')! }
+export default function avatarBoneMatching(model: Object3D): BoneStructure {
+  try {
+    let Root = findRootBone(model.getObjectByProperty('type', 'Bone') as Bone)
+    const skinnedMeshes = [] as SkinnedMesh[]
+    model.traverse((obj: SkinnedMesh) => {
+      if (obj.isSkinnedMesh) skinnedMeshes.push(obj)
+    })
+    Root.updateMatrixWorld(true)
 
-  return _animatedVRM
-}
+    const Hips = _findHips(Root)
+    const tailBones = _getTailBones(Root)
+    const LeftEye = _findEye(tailBones, true)
+    const RightEye = _findEye(tailBones, false)
+    const Head = _findHead(tailBones)
+    const Neck = Head.parent
+    const Spine2 = Neck.parent
+    const Spine1 = Spine2.parent
+    const Spine = _findSpine(Spine2, Hips)
+    const LeftShoulder = _findShoulder(tailBones, true)
+    const LeftHand = _findHand(LeftShoulder)
+    const LeftForeArm = LeftHand.parent
+    // const LeftForeArmTwist = findFirstTwistChildBone(LeftForeArm, LeftHand, true)
+    const LeftArm = LeftForeArm.parent
+    const RightShoulder = _findShoulder(tailBones, false)
+    const RightHand = _findHand(RightShoulder)
+    const RightForeArm = RightHand.parent
+    // const RightForeArmTwist = findFirstTwistChildBone(RightForeArm, RightHand, false)
+    const RightArm = RightForeArm.parent
+    const LeftFoot = _findFoot(tailBones, true)
+    const LeftLeg = LeftFoot.parent
+    const LeftUpLeg = LeftLeg.parent
+    const RightFoot = _findFoot(tailBones, false)
+    const RightLeg = RightFoot.parent
+    const RightUpLeg = RightLeg.parent
+    const leftHandBones = findHandBones(LeftHand)
+    const rightHandBones = findHandBones(RightHand)
 
-export function makeBindPose(bones: VRMHumanBones) {
-  const newRig = cloneDeep(bones)
-  for (const [key, value] of Object.entries(newRig)) {
-    value.node.quaternion.set(0, 0, 0, 0)
+    // for (const mesh of skinnedMeshes) {
+    //   if(!mesh.skeleton.bones.includes(LeftForeArmTwist))
+    //     mesh.skeleton.bones.push(LeftForeArmTwist)
+    //   if(!mesh.skeleton.bones.includes(RightForeArmTwist))
+    //     mesh.skeleton.bones.push(RightForeArmTwist)
+    //   mesh.skeleton.calculateInverses()
+    // }
+
+    if (Root === Hips) {
+      Root = null!
+    }
+
+    const targetModelBones = {
+      Root,
+      Hips,
+      Spine,
+      Spine1,
+      Spine2,
+      Neck,
+      Head,
+      LeftEye,
+      RightEye,
+
+      LeftShoulder,
+      LeftArm,
+      LeftForeArm,
+      // LeftForeArmTwist,
+      LeftHand,
+      LeftUpLeg,
+      LeftLeg,
+      LeftFoot,
+
+      LeftHandPinky1: leftHandBones.pinky1,
+      LeftHandPinky2: leftHandBones.pinky2,
+      LeftHandPinky3: leftHandBones.pinky3,
+      LeftHandPinky4: leftHandBones.pinky4,
+      LeftHandPinky5: leftHandBones.pinky5,
+      LeftHandRing1: leftHandBones.ring1,
+      LeftHandRing2: leftHandBones.ring2,
+      LeftHandRing3: leftHandBones.ring3,
+      LeftHandRing4: leftHandBones.ring4,
+      LeftHandRing5: leftHandBones.ring5,
+      LeftHandMiddle1: leftHandBones.middle1,
+      LeftHandMiddle2: leftHandBones.middle2,
+      LeftHandMiddle3: leftHandBones.middle3,
+      LeftHandMiddle4: leftHandBones.middle4,
+      LeftHandMiddle5: leftHandBones.middle5,
+      LeftHandIndex1: leftHandBones.index1,
+      LeftHandIndex2: leftHandBones.index2,
+      LeftHandIndex3: leftHandBones.index3,
+      LeftHandIndex4: leftHandBones.index4,
+      LeftHandIndex5: leftHandBones.index5,
+      LeftHandThumb1: leftHandBones.thumb1,
+      LeftHandThumb2: leftHandBones.thumb2,
+      LeftHandThumb3: leftHandBones.thumb3,
+      LeftHandThumb4: leftHandBones.thumb4,
+
+      RightShoulder,
+      RightArm,
+      RightForeArm,
+      // RightForeArmTwist,
+      RightHand,
+      RightUpLeg,
+      RightLeg,
+      RightFoot,
+
+      RightHandPinky1: rightHandBones.pinky1,
+      RightHandPinky2: rightHandBones.pinky2,
+      RightHandPinky3: rightHandBones.pinky3,
+      RightHandPinky4: rightHandBones.pinky4,
+      RightHandPinky5: rightHandBones.pinky5,
+      RightHandRing1: rightHandBones.ring1,
+      RightHandRing2: rightHandBones.ring2,
+      RightHandRing3: rightHandBones.ring3,
+      RightHandRing4: rightHandBones.ring4,
+      RightHandRing5: rightHandBones.ring5,
+      RightHandMiddle1: rightHandBones.middle1,
+      RightHandMiddle2: rightHandBones.middle2,
+      RightHandMiddle3: rightHandBones.middle3,
+      RightHandMiddle4: rightHandBones.middle4,
+      RightHandMiddle5: rightHandBones.middle5,
+      RightHandIndex1: rightHandBones.index1,
+      RightHandIndex2: rightHandBones.index2,
+      RightHandIndex3: rightHandBones.index3,
+      RightHandIndex4: rightHandBones.index4,
+      RightHandIndex5: rightHandBones.index5,
+      RightHandThumb1: rightHandBones.thumb1,
+      RightHandThumb2: rightHandBones.thumb2,
+      RightHandThumb3: rightHandBones.thumb3,
+      RightHandThumb4: rightHandBones.thumb4
+    }
+
+    Object.keys(targetModelBones).forEach((key) => {
+      if (!targetModelBones[key]) return
+      targetModelBones[key].userData.name = targetModelBones[key].name
+      targetModelBones[key].name = key
+    })
+
+    return targetModelBones as any
+  } catch (error) {
+    console.error(error)
+    return null!
   }
-  return newRig
 }

@@ -23,7 +23,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { VRMHumanBone } from '@pixiv/three-vrm'
 import {
   AnimationAction,
   AnimationActionLoopStyles,
@@ -246,14 +245,14 @@ export function findRootBone(skinnedMesh: SkinnedMesh) {
   return skinnedMesh.skeleton.bones.find((obj) => obj.parent?.type !== 'Bone')
 }
 
-export const processRootAnimation = (clip: AnimationClip, rootBone: VRMHumanBone | undefined): any => {
+export const processRootAnimation = (clip: AnimationClip, rootBone: Bone | undefined): any => {
   if (!rootBone || !clip || !clip.name.endsWith('root')) return null
 
   const meshQuat = new Quaternion(),
     meshScale = new Vector3()
   meshScale.setScalar(1)
 
-  const posTrack = findAnimationClipTrack(clip, rootBone.node.name, 'position')
+  const posTrack = findAnimationClipTrack(clip, rootBone.name, 'position')
   const velocity = computeRootAnimationVelocity(posTrack, meshQuat, meshScale)
   const distTrack = mapPositionTrackToDistanceTrack(posTrack, meshQuat, meshScale)
 

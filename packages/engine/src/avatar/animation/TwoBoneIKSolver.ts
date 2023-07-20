@@ -25,7 +25,6 @@ Ethereal Engine. All Rights Reserved.
 
 import { Bone, Euler, MathUtils, Object3D, Quaternion, Vector3 } from 'three'
 
-import { Axis } from '../../common/constants/Axis3D'
 import { Object3DUtils } from '../../common/functions/Object3DUtils'
 
 const sqrEpsilon = 1e-8
@@ -42,14 +41,6 @@ function triangleAngle(aLen: number, bLen: number, cLen: number): number {
   return Math.acos(c)
 }
 
-//mutates target position to constrain it to max distance
-const distVector = new Vector3()
-export function constrainTargetPosition(targetPosition: Vector3, constraintCenter: Vector3, distance: number) {
-  distVector.subVectors(targetPosition, constraintCenter)
-  distVector.clampLength(0, distance)
-  targetPosition.copy(constraintCenter).add(distVector)
-}
-
 /**
  * Solves Two-Bone IK.
  * targetOffset is assumed to have no parents
@@ -64,33 +55,17 @@ export function constrainTargetPosition(targetPosition: Vector3, constraintCente
  * @param {number} hintWeight
  */
 export function solveTwoBoneIK(
-  root: Object3D,
-  mid: Object3D,
-  tip: Object3D,
+  root: Bone,
+  mid: Bone,
+  tip: Bone,
   targetPosition: Vector3, // world space
   targetRotation: Quaternion, // world space
   rotationOffset: Quaternion | null = null,
-  hint: Vector3 | null = null,
-  rootAxisRestriction: Euler | null = null,
-  midAxisRestriction: Euler | null = null,
-  tipAxisRestriction: Euler | null = null,
-  targetPosWeight = 1,
-  targetRotWeight = 0,
-  hintWeight = 1
+  hint: Object3D | null = null, // todo: in local space, should be in world space, convert to matrix or dual quat
+  targetPosWeight: number = 1,
+  targetRotWeight: number = 1,
+  hintWeight: number = 1
 ) {
-  // if (rootAxisRestriction) {
-  //   root.quaternion.setFromEuler(rootAxisRestriction)
-  //   root.updateWorldMatrix(false, true)
-  // }
-  // if (midAxisRestriction) {
-  //   mid.quaternion.setFromEuler(midAxisRestriction)
-  //   mid.updateWorldMatrix(false, true)
-  // }
-  // if (tipAxisRestriction) {
-  //   tip.quaternion.setFromEuler(tipAxisRestriction)
-  //   tip.updateWorldMatrix(false, true)
-  // }
-
   targetPos.copy(targetPosition)
   targetRot.copy(targetRotation)
 
@@ -106,14 +81,12 @@ export function solveTwoBoneIK(
   at.subVectors(targetPos, aPosition)
 
   const hasHint = hint && hintWeight > 0
-  if (hasHint) ah.copy(hint).sub(aPosition)
+  if (hasHint) ah.setFromMatrixPosition(hint.matrixWorld).sub(aPosition)
 
-  // Apply twist restriction
-
-  const abLength = ab.length()
-  const bcLength = bc.length()
-  const acLength = ac.length()
-  const atLength = at.length()
+  let abLength = ab.length()
+  let bcLength = bc.length()
+  let acLength = ac.length()
+  let atLength = at.length()
 
   const oldAngle = triangleAngle(acLength, abLength, bcLength)
   const newAngle = triangleAngle(atLength, abLength, bcLength)
@@ -167,15 +140,13 @@ export function solveTwoBoneIK(
   Object3DUtils.getWorldQuaternion(tip, tip.quaternion)
   tip.quaternion.slerp(targetRot, targetRotWeight)
   Object3DUtils.worldQuaternionToLocal(tip.quaternion, mid)
-  if (rotationOffset != undefined)
-    tip.quaternion.slerp(tip.quaternion.clone().premultiply(rotationOffset), targetRotWeight)
+  if (rotationOffset != undefined) tip.quaternion.premultiply(rotationOffset)
 }
 
 const targetPos = new Vector3(),
   aPosition = new Vector3(),
   bPosition = new Vector3(),
   cPosition = new Vector3(),
-  dPosition = new Vector3(),
   rotAxis = new Vector3(),
   ab = new Vector3(),
   bc = new Vector3(),

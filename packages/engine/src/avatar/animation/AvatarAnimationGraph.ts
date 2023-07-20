@@ -68,7 +68,7 @@ export function createAvatarAnimationGraph(
   entity: Entity,
   mixer: AnimationMixer,
   locomotion: Vector3,
-  jumpValue: object | null
+  jumpValue: {} | null
 ): AnimationGraph {
   if (!mixer) return null!
 

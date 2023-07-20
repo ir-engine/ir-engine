@@ -298,7 +298,7 @@ const execute = () => {
       targetBone.quaternion.copy(bone.quaternion)
 
       // Only copy the root position
-      if (targetBone === rig.hips) {
+      if (targetBone === rig.Hips) {
         targetBone.position.copy(bone.position)
         targetBone.position.y *= avatarAnimationComponent.rootYRatio
       }
@@ -306,7 +306,7 @@ const execute = () => {
 
     // TODO: Find a more elegant way to handle root motion
     const rootPos = AnimationManager.instance._defaultRootBone.position
-    rig.hips.node.position.setX(rootPos.x).setZ(rootPos.z)
+    rig.Hips.position.setX(rootPos.x).setZ(rootPos.z)
   }
 
   /**
@@ -328,8 +328,7 @@ const execute = () => {
     // If data is zeroed out, assume there is no input and do not run IK
     if (transformComponent.position.equals(V_000)) continue
 
-    const { rig } = getComponent(ownerEntity, AvatarRigComponent)
-    const handRadius = 0.1
+    const { rig, handRadius } = getComponent(ownerEntity, AvatarRigComponent)
 
     _fwd.set(0, 0, 1).applyQuaternion(transformComponent.rotation)
 
@@ -343,27 +342,27 @@ const execute = () => {
         )
         .normalize() // equivalent to Object3D.getWorldDirection
       solveHipHeight(ownerEntity, transformComponent.position)
-      // solveLookIK(rig.head.node, _vec)
+      solveLookIK(rig.Head, _vec)
     } else if (ikComponent.handedness === 'left') {
-      rig.leftLowerArm.node.quaternion.setFromAxisAngle(Axis.X, Math.PI * -0.25)
+      rig.LeftForeArm.quaternion.setFromAxisAngle(Axis.X, Math.PI * -0.25)
       /** @todo see if this is still necessary */
-      rig.leftLowerArm.node.updateWorldMatrix(true, true)
+      rig.LeftForeArm.updateWorldMatrix(true, true)
       solveTwoBoneIK(
-        rig.leftUpperArm.node,
-        rig.leftLowerArm.node,
-        rig.leftHand.node,
+        rig.LeftArm,
+        rig.LeftForeArm,
+        rig.LeftHand,
         _vector3.addVectors(transformComponent.position, _fwd.multiplyScalar(handRadius)),
         _quat.multiplyQuaternions(transformComponent.rotation, leftHandRotation),
         leftHandRotationOffset
       )
     } else if (ikComponent.handedness === 'right') {
-      rig.rightLowerArm.node.quaternion.setFromAxisAngle(Axis.X, Math.PI * 0.25)
+      rig.RightForeArm.quaternion.setFromAxisAngle(Axis.X, Math.PI * 0.25)
       /** @todo see if this is still necessary */
-      rig.rightLowerArm.node.updateWorldMatrix(true, true)
+      rig.RightForeArm.updateWorldMatrix(true, true)
       solveTwoBoneIK(
-        rig.rightUpperArm.node,
-        rig.rightLowerArm.node,
-        rig.rightHand.node,
+        rig.RightArm,
+        rig.RightForeArm,
+        rig.RightHand,
         _vector3.addVectors(transformComponent.position, _fwd.multiplyScalar(handRadius)),
         _quat.multiplyQuaternions(transformComponent.rotation, rightHandRotation),
         rightHandRotationOffset
@@ -381,7 +380,7 @@ const execute = () => {
   for (const entity of Engine.instance.priorityAvatarEntities) {
     const avatarRig = getComponent(entity, AvatarRigComponent)
     if (avatarRig?.helper) {
-      avatarRig.rig.hips.node.updateWorldMatrix(true, true)
+      avatarRig.rig.Hips.updateWorldMatrix(true, true)
       avatarRig.helper?.updateMatrixWorld(true)
     }
   }

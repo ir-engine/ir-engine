@@ -31,7 +31,6 @@ import { ComponentType, getComponent, hasComponent } from '../../ecs/functions/C
 import { Physics } from '../../physics/classes/Physics'
 import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
-import { AnimationComponent } from '../components/AnimationComponent'
 import { AvatarRigComponent } from '../components/AvatarAnimationComponent'
 import { AvatarComponent } from '../components/AvatarComponent'
 import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
@@ -48,13 +47,14 @@ export const resizeAvatar = (entity: Entity, height: number, center: Vector3) =>
 
   avatar.avatarHeight = height
   avatar.avatarHalfHeight = avatar.avatarHeight / 2
-  rig.hips.node.updateWorldMatrix(true, true)
-  rigComponent.torsoLength = rig.head.node.getWorldPosition(vec3).y - rig.hips.node.getWorldPosition(vec3).y
-  rigComponent.upperLegLength = rig.hips.node.getWorldPosition(vec3).y - rig.leftUpperLeg.node.getWorldPosition(vec3).y
-  rigComponent.lowerLegLength =
-    rig.leftLowerLeg.node.getWorldPosition(vec3).y - rig.leftFoot.node.getWorldPosition(vec3).y
-  rigComponent.footHeight = rig.leftFoot.node.getWorldPosition(vec3).y - transform.position.y
-  rigComponent.armLength = rig.leftUpperArm.node.getWorldPosition(vec3).y - rig.leftHand.node.getWorldPosition(vec3).y
+  rig.Hips.updateWorldMatrix(true, true)
+  rigComponent.handRadius =
+    rig.LeftHand.getWorldPosition(vec3).distanceTo(rig.LeftHandIndex1.getWorldPosition(vec3_2)) / 2
+  rigComponent.torsoLength = rig.Head.getWorldPosition(vec3).y - rig.Hips.getWorldPosition(vec3).y
+  rigComponent.upperLegLength = rig.Hips.getWorldPosition(vec3).y - rig.LeftLeg.getWorldPosition(vec3).y
+  rigComponent.lowerLegLength = rig.LeftLeg.getWorldPosition(vec3).y - rig.LeftFoot.getWorldPosition(vec3).y
+  rigComponent.footHeight = rig.LeftFoot.getWorldPosition(vec3).y - transform.position.y
+
   if (!hasComponent(entity, RigidBodyComponent)) return
 
   Physics.removeCollidersFromRigidBody(entity, Engine.instance.physicsWorld)

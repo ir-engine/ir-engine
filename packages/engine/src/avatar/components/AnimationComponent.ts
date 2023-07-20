@@ -40,6 +40,7 @@ export const AnimationComponent = defineComponent({
 
   onSet: (entity, component, json) => {
     if (!json) return
+
     if (json.mixer) component.mixer.set(json.mixer)
     if (json.animations) component.animations.set(json.animations as AnimationClip[])
     if (json.animationSpeed) component.animationSpeed.set(json.animationSpeed)

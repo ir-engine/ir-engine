@@ -205,10 +205,10 @@ export function boneNormalTransform(mesh: SkinnedMesh, index: number, target: Ve
   target.set(0, 0, 0)
 
   for (let i = 0; i < 4; i++) {
-    const weight = skinWeight.getComponent(i)
+    let weight = skinWeight.getComponent(i)
 
     if (weight !== 0) {
-      const boneIndex = skinIndex.getComponent(i)
+      let boneIndex = skinIndex.getComponent(i)
 
       matrix.multiplyMatrices(skeleton.bones[boneIndex].matrixWorld, skeleton.boneInverses[boneIndex])
 
