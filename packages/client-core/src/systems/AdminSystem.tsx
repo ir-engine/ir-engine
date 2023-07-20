@@ -42,7 +42,6 @@ import {
   AdminSingleRecordingReceptors,
   AdminSingleRecordingsActions
 } from '../admin/services/RecordingService'
-import { AdminResourceActions, AdminResourceReceptors } from '../admin/services/ResourceService'
 import { AdminRouteActions, AdminRouteReceptors } from '../admin/services/RouteService'
 import { AdminSceneActions, AdminSceneReceptors } from '../admin/services/SceneService'
 import { AdminScopeTypeActions, AdminScopeTypeReceptor } from '../admin/services/ScopeTypeService'
@@ -95,11 +94,6 @@ const avatarsFetchedQueue = defineActionQueue(AdminAvatarActions.avatarsFetched.
 const avatarCreatedQueue = defineActionQueue(AdminAvatarActions.avatarCreated.matches)
 const avatarRemovedQueue = defineActionQueue(AdminAvatarActions.avatarRemoved.matches)
 const avatarUpdatedQueue = defineActionQueue(AdminAvatarActions.avatarUpdated.matches)
-const resourceFiltersFetchedQueue = defineActionQueue(AdminResourceActions.resourceFiltersFetched.matches)
-const resourcesFetchedQueue = defineActionQueue(AdminResourceActions.resourcesFetched.matches)
-const setSelectedMimeTypesQueue = defineActionQueue(AdminResourceActions.setSelectedMimeTypes.matches)
-const resourceNeedsUpdateQueue = defineActionQueue(AdminResourceActions.resourceNeedsUpdated.matches)
-const resourcesResetFilterQueue = defineActionQueue(AdminResourceActions.resourcesResetFilter.matches)
 const scenesFetchedQueue = defineActionQueue(AdminSceneActions.scenesFetched.matches)
 const sceneFetchedQueue = defineActionQueue(AdminSceneActions.sceneFetched.matches)
 const locationsRetrievedQueue = defineActionQueue(AdminLocationActions.locationsRetrieved.matches)
@@ -181,11 +175,6 @@ const execute = () => {
   for (const action of avatarCreatedQueue()) AdminAvatarReceptors.avatarCreatedReceptor(action)
   for (const action of avatarRemovedQueue()) AdminAvatarReceptors.avatarRemovedReceptor(action)
   for (const action of avatarUpdatedQueue()) AdminAvatarReceptors.avatarUpdatedReceptor(action)
-  for (const action of resourceFiltersFetchedQueue()) AdminResourceReceptors.resourceFiltersFetchedReceptor(action)
-  for (const action of resourcesFetchedQueue()) AdminResourceReceptors.resourcesFetchedReceptor(action)
-  for (const action of setSelectedMimeTypesQueue()) AdminResourceReceptors.setSelectedMimeTypesReceptor(action)
-  for (const action of resourceNeedsUpdateQueue()) AdminResourceReceptors.resourceNeedsUpdateReceptor(action)
-  for (const action of resourcesResetFilterQueue()) AdminResourceReceptors.resourcesResetFilterReceptor(action)
   for (const action of scenesFetchedQueue()) AdminSceneReceptors.scenesFetchedReceptor(action)
   for (const action of sceneFetchedQueue()) AdminSceneReceptors.sceneFetchedReceptor(action)
   for (const action of locationsRetrievedQueue()) AdminLocationReceptors.locationsRetrievedReceptor(action)
