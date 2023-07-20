@@ -28,7 +28,6 @@ import { defineActionQueue } from '@etherealengine/hyperflux'
 
 import { AdminActiveRouteActions, AdminActiveRouteReceptors } from '../admin/services/ActiveRouteService'
 import { AdminLocationActions, AdminLocationReceptors } from '../admin/services/LocationService'
-import { AdminPartyActions, AdminPartyReceptors } from '../admin/services/PartyService'
 import { AdminResourceActions, AdminResourceReceptors } from '../admin/services/ResourceService'
 import { AdminSceneActions, AdminSceneReceptors } from '../admin/services/SceneService'
 import { AdminServerLogsActions, AdminServerLogsReceptors } from '../admin/services/ServerLogsService'
@@ -82,10 +81,6 @@ const locationCreatedQueue = defineActionQueue(AdminLocationActions.locationCrea
 const locationPatchedQueue = defineActionQueue(AdminLocationActions.locationPatched.matches)
 const locationRemovedQueue = defineActionQueue(AdminLocationActions.locationRemoved.matches)
 const locationTypesRetrievedQueue = defineActionQueue(AdminLocationActions.locationTypesRetrieved.matches)
-const partyRetrievedQueue = defineActionQueue(AdminPartyActions.partyRetrieved.matches)
-const partyAdminCreatedQueue = defineActionQueue(AdminPartyActions.partyAdminCreated.matches)
-const partyRemovedQueue = defineActionQueue(AdminPartyActions.partyRemoved.matches)
-const partyPatchedQueue = defineActionQueue(AdminPartyActions.partyPatched.matches)
 const activeRoutesRetrievedQueue = defineActionQueue(AdminActiveRouteActions.activeRoutesRetrieved.matches)
 const fetchedInstanceServerQueue = defineActionQueue(InstanceServerSettingActions.fetchedInstanceServer.matches)
 const chargebeeSettingRetrievedQueue = defineActionQueue(AdminChargebeeSettingActions.chargebeeSettingRetrieved.matches)
@@ -126,10 +121,6 @@ const execute = () => {
   for (const action of locationPatchedQueue()) AdminLocationReceptors.locationPatchedReceptor(action)
   for (const action of locationRemovedQueue()) AdminLocationReceptors.locationRemovedReceptor(action)
   for (const action of locationTypesRetrievedQueue()) AdminLocationReceptors.locationTypesRetrievedReceptor(action)
-  for (const action of partyRetrievedQueue()) AdminPartyReceptors.partyRetrievedReceptor(action)
-  for (const action of partyAdminCreatedQueue()) AdminPartyReceptors.partyAdminCreatedReceptor(action)
-  for (const action of partyRemovedQueue()) AdminPartyReceptors.partyRemovedReceptor(action)
-  for (const action of partyPatchedQueue()) AdminPartyReceptors.partyPatchedReceptor(action)
   for (const action of activeRoutesRetrievedQueue()) AdminActiveRouteReceptors.activeRoutesRetrievedReceptor(action)
   for (const action of fetchedInstanceServerQueue()) AdminInstanceServerReceptors.fetchedInstanceServerReceptor(action)
   for (const action of chargebeeSettingRetrievedQueue())
