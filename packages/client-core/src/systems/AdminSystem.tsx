@@ -39,7 +39,6 @@ import { AdminPartyActions, AdminPartyReceptors } from '../admin/services/PartyS
 import { AdminResourceActions, AdminResourceReceptors } from '../admin/services/ResourceService'
 import { AdminSceneActions, AdminSceneReceptors } from '../admin/services/SceneService'
 import { AdminScopeTypeActions, AdminScopeTypeReceptor } from '../admin/services/ScopeTypeService'
-import { AdminServerInfoActions, AdminServerInfoReceptors } from '../admin/services/ServerInfoService'
 import { AdminServerLogsActions, AdminServerLogsReceptors } from '../admin/services/ServerLogsService'
 // import { AuthSettingsActions, AuthSettingsReceptors } from '../admin/services/Setting/AuthSettingService'
 import { AdminAwsSettingActions, AwsSettingReceptors } from '../admin/services/Setting/AwsSettingService'
@@ -65,9 +64,6 @@ import {
 import { AdminTestBotActions, AdminTestBotReceptors } from '../admin/services/TestBotService'
 
 const fetchedTaskServersQueue = defineActionQueue(AdminTaskServerSettingActions.fetchedTaskServers.matches)
-const fetchServerInfoRequestedQueue = defineActionQueue(AdminServerInfoActions.fetchServerInfoRequested.matches)
-const fetchServerInfoRetrievedQueue = defineActionQueue(AdminServerInfoActions.fetchServerInfoRetrieved.matches)
-const serverInfoPodRemovedQueue = defineActionQueue(AdminServerInfoActions.serverInfoPodRemoved.matches)
 const fetchServerLogsRequestedQueue = defineActionQueue(AdminServerLogsActions.fetchServerLogsRequested.matches)
 const fetchServerLogsRetrievedQueue = defineActionQueue(AdminServerLogsActions.fetchServerLogsRetrieved.matches)
 const redisSettingRetrievedQueue = defineActionQueue(AdminRedisSettingActions.redisSettingRetrieved.matches)
@@ -141,11 +137,6 @@ const inviteRemovedQueue = defineActionQueue(AdminInviteActions.inviteRemoved.ma
 
 const execute = () => {
   for (const action of fetchedTaskServersQueue()) TaskServerSettingReceptors.fetchedTaskServersReceptor(action)
-  for (const action of fetchServerInfoRequestedQueue())
-    AdminServerInfoReceptors.fetchServerInfoRequestedReceptor(action)
-  for (const action of fetchServerInfoRetrievedQueue())
-    AdminServerInfoReceptors.fetchServerInfoRetrievedReceptor(action)
-  for (const action of serverInfoPodRemovedQueue()) AdminServerInfoReceptors.serverInfoPodRemovedReceptor(action)
   for (const action of fetchServerLogsRequestedQueue())
     AdminServerLogsReceptors.fetchServerLogsRequestedReceptor(action)
   for (const action of fetchServerLogsRetrievedQueue())
