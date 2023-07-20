@@ -102,8 +102,8 @@ export const loadAvatarModelAsset = async (avatarURL: string) => {
 
   const vrm = model instanceof VRM ? model : model.userData.vrm
 
-  VRMUtils.VRMUtils.removeUnnecessaryJoints(vrm.scene)
-  VRMUtils.VRMUtils.removeUnnecessaryVertices(vrm.scene)
+  // VRMUtils.VRMUtils.removeUnnecessaryJoints(vrm.scene)
+  // VRMUtils.VRMUtils.removeUnnecessaryVertices(vrm.scene)
 
   return vrm as VRM
 }
@@ -216,12 +216,12 @@ export const rigAvatarModel = (entity: Entity) => (model: VRM) => {
 
   const rig = model.humanoid?.humanBones
 
-  const skinnedMeshes = findSkinnedMeshes(model.scene)
+  // const skinnedMeshes = findSkinnedMeshes(model.scene)
 
   setComponent(entity, AvatarRigComponent, {
     rig,
     bindRig: cloneDeep(rig),
-    skinnedMeshes,
+    skinnedMeshes: [],
     vrm: model
   })
 
