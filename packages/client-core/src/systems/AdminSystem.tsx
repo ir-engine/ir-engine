@@ -36,12 +36,6 @@ import { AdminGroupActions, AdminGroupServiceReceptors } from '../admin/services
 import { AdminInviteActions, AdminInviteReceptors } from '../admin/services/InviteService'
 import { AdminLocationActions, AdminLocationReceptors } from '../admin/services/LocationService'
 import { AdminPartyActions, AdminPartyReceptors } from '../admin/services/PartyService'
-import {
-  AdminRecordingReceptors,
-  AdminRecordingsActions,
-  AdminSingleRecordingReceptors,
-  AdminSingleRecordingsActions
-} from '../admin/services/RecordingService'
 import { AdminResourceActions, AdminResourceReceptors } from '../admin/services/ResourceService'
 import { AdminRouteActions, AdminRouteReceptors } from '../admin/services/RouteService'
 import { AdminSceneActions, AdminSceneReceptors } from '../admin/services/SceneService'
@@ -146,10 +140,6 @@ const inviteRemovedQueue = defineActionQueue(AdminInviteActions.inviteRemoved.ma
 // const authSettingPatchedQueue = defineActionQueue(AuthSettingsActions.authSettingPatched.matches)
 // const fetchedClientQueue = defineActionQueue(ClientSettingActions.fetchedClient.matches)
 // const clientSettingPatchedQueue = defineActionQueue(ClientSettingActions.clientSettingPatched.matches)
-const buildStatusRetrievedQueue = defineActionQueue(AdminBuildStatusActions.fetchBuildStatusRetrieved.matches)
-const recordingsRetrievedQueue = defineActionQueue(AdminRecordingsActions.recordingsRetrieved.matches)
-const recordingRemovedQueue = defineActionQueue(AdminRecordingsActions.recordingsRemoved.matches)
-const singleRecordingRetrievedQueue = defineActionQueue(AdminSingleRecordingsActions.recordingsRetrieved.matches)
 
 const execute = () => {
   for (const action of fetchedTaskServersQueue()) TaskServerSettingReceptors.fetchedTaskServersReceptor(action)
@@ -232,11 +222,6 @@ const execute = () => {
   // for (const action of authSettingPatchedQueue()) //   AuthSettingsReceptors.authSettingPatchedReceptor(action)/ }
   // for (const action of fetchedClientQueue()) //   ClientSettingReceptors.fetchedClientReceptor(action)/ }
   // for (const action of clientSettingPatchedQueue()) //   ClientSettingReceptors.clientSettingPatchedReceptor(action)/ }
-  for (const action of buildStatusRetrievedQueue()) AdminBuildStatusReceptors.fetchBuildStatusReceptor(action)
-  for (const action of recordingsRetrievedQueue()) AdminRecordingReceptors.recordingsRetrievedReceptor(action)
-  for (const action of recordingRemovedQueue()) AdminRecordingReceptors.recordingRemovedReceptor(action)
-  for (const action of singleRecordingRetrievedQueue())
-    AdminSingleRecordingReceptors.singleRecordingFetchedReceptor(action)
 }
 
 export const AdminSystem = defineSystem({
