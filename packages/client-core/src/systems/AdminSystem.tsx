@@ -29,7 +29,6 @@ import { defineAction, defineActionQueue } from '@etherealengine/hyperflux'
 import { AdminActiveRouteActions, AdminActiveRouteReceptors } from '../admin/services/ActiveRouteService'
 import { AdminAnalyticsActions, AdminAnalyticsReceptors } from '../admin/services/AnalyticsService'
 import { AdminAvatarActions, AdminAvatarReceptors } from '../admin/services/AvatarService'
-import { AdminBotCommandActions, AdminBotsCommandReceptors } from '../admin/services/BotsCommand'
 import { AdminBotsActions, AdminBotServiceReceptors } from '../admin/services/BotsService'
 import { AdminBuildStatusActions, AdminBuildStatusReceptors } from '../admin/services/BuildStatusService'
 import { AdminGroupActions, AdminGroupServiceReceptors } from '../admin/services/GroupService'
@@ -131,8 +130,6 @@ const dailyUsersFetchedQueue = defineActionQueue(AdminAnalyticsActions.dailyUser
 const fetchedTestBotsQueue = defineActionQueue(AdminTestBotActions.fetchedBots.matches)
 const spawnBotsQueue = defineActionQueue(AdminTestBotActions.spawnBots.matches)
 const spawnedBotsQueue = defineActionQueue(AdminTestBotActions.spawnedBots.matches)
-const botCommandCreatedQueue = defineActionQueue(AdminBotCommandActions.botCommandCreated.matches)
-const botCommandRemovedQueue = defineActionQueue(AdminBotCommandActions.botCommandRemoved.matches)
 const fetchedBotQueue = defineActionQueue(AdminBotsActions.fetchedBot.matches)
 const botCreatedQueue = defineActionQueue(AdminBotsActions.botCreated.matches)
 const botPatchedQueue = defineActionQueue(AdminBotsActions.botPatched.matches)
@@ -220,8 +217,6 @@ const execute = () => {
   for (const action of fetchedTestBotsQueue()) AdminTestBotReceptors.fetchedBotsReceptor(action)
   for (const action of spawnBotsQueue()) AdminTestBotReceptors.spawnBotsReceptor(action)
   for (const action of spawnedBotsQueue()) AdminTestBotReceptors.spawnedBotsReceptor(action)
-  for (const action of botCommandCreatedQueue()) AdminBotsCommandReceptors.botCommandCreatedReceptor(action)
-  for (const action of botCommandRemovedQueue()) AdminBotsCommandReceptors.botCommandRemovedReceptor(action)
   for (const action of fetchedBotQueue()) AdminBotServiceReceptors.fetchedBotReceptor(action)
   for (const action of botCreatedQueue()) AdminBotServiceReceptors.botCreatedReceptor(action)
   for (const action of botPatchedQueue()) AdminBotServiceReceptors.botPatchedReceptor(action)
