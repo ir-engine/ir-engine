@@ -36,7 +36,7 @@ import { networkingSeeds } from './networking/seeder-config'
 import { projectSeeds } from './projects/seeder-config'
 import { routeSeeds } from './route/seeder-config'
 import { scopeSeeds } from './scope/seeder-config'
-import { settingSeeds, settingSequelizeSeeds } from './setting/seeder-config'
+import { settingSeeds } from './setting/seeder-config'
 import { socialSeeds } from './social/seeder-config'
 import { userSeeds } from './user/seeder-config'
 
@@ -65,7 +65,6 @@ export const sequelizeSeeds: Array<ServicesSeedConfig> = [
   ...socialSeeds,
   ...userSeeds,
   ...scopeSeeds,
-  ...settingSequelizeSeeds,
   ...projectSeeds,
   ...installedProjects
 ]

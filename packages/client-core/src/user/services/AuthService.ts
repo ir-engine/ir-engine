@@ -30,7 +30,6 @@ import { v1 } from 'uuid'
 
 import { validateEmail, validatePhoneNumber } from '@etherealengine/common/src/config'
 import config from '@etherealengine/common/src/config'
-import { AuthStrategies } from '@etherealengine/common/src/interfaces/AuthStrategies'
 import { AuthUser, AuthUserSeed, resolveAuthUser } from '@etherealengine/common/src/interfaces/AuthUser'
 import { IdentityProvider } from '@etherealengine/common/src/interfaces/IdentityProvider'
 import {
@@ -43,6 +42,7 @@ import {
 import { UserApiKey } from '@etherealengine/common/src/interfaces/UserApiKey'
 import multiLogger from '@etherealengine/common/src/logger'
 import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
+import { AuthStrategiesType } from '@etherealengine/engine/src/schemas/setting/authentication-setting.schema'
 import {
   defineAction,
   defineState,
@@ -616,7 +616,7 @@ export const AuthService = {
     }
   },
 
-  async createMagicLink(emailPhone: string, authState: AuthStrategies, linkType?: 'email' | 'sms') {
+  async createMagicLink(emailPhone: string, authState: AuthStrategiesType, linkType?: 'email' | 'sms') {
     dispatchAction(AuthAction.actionProcessing({ processing: true }))
 
     let type = 'email'

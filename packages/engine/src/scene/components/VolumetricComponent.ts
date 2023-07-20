@@ -23,7 +23,10 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { defineComponent } from '../../ecs/functions/ComponentFunctions'
+import { PositionalAudioComponent } from '../../audio/components/PositionalAudioComponent'
+import { defineComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
+import { MediaComponent } from './MediaComponent'
+import { ShadowComponent } from './ShadowComponent'
 
 export const VolumetricComponent = defineComponent({
   name: 'EE_volumetric',
@@ -42,6 +45,10 @@ export const VolumetricComponent = defineComponent({
   },
 
   onSet: (entity, component, json) => {
+    setComponent(entity, MediaComponent)
+    setComponent(entity, PositionalAudioComponent)
+    setComponent(entity, ShadowComponent)
+
     if (typeof json?.useLoadingEffect === 'boolean' && json.useLoadingEffect !== component.useLoadingEffect.value)
       component.useLoadingEffect.set(json.useLoadingEffect)
   }

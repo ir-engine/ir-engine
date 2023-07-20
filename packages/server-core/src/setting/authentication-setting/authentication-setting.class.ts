@@ -23,71 +23,75 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Paginated, Params } from '@feathersjs/feathers'
+import type { Id, Params } from '@feathersjs/feathers'
+import { KnexAdapter } from '@feathersjs/knex'
+import type { KnexAdapterOptions, KnexAdapterParams } from '@feathersjs/knex'
 import * as k8s from '@kubernetes/client-node'
-import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
 
-import { AdminAuthSetting as AdminAuthSettingInterface } from '@etherealengine/common/src/interfaces/AdminAuthSetting'
 import { UserInterface } from '@etherealengine/common/src/interfaces/User'
+import {
+  AuthenticationSettingData,
+  AuthenticationSettingDatabaseType,
+  AuthenticationSettingPatch,
+  authenticationSettingPath,
+  AuthenticationSettingQuery,
+  AuthenticationSettingType
+} from '@etherealengine/engine/src/schemas/setting/authentication-setting.schema'
 import { getState } from '@etherealengine/hyperflux'
 
 import { Application } from '../../../declarations'
 import config from '../../appconfig'
 import logger from '../../ServerLogger'
 import { ServerState } from '../../ServerState'
-import { UserParams } from '../../user/user/user.class'
+import { authenticationSettingSchemaToDb } from './authentication-setting.resolvers'
 
-export type AdminAuthSettingDataType = AdminAuthSettingInterface
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+export interface AuthenticationSettingParams extends KnexAdapterParams<AuthenticationSettingQuery> {
+  user: UserInterface
+}
 
-export class Authentication<T = AdminAuthSettingDataType> extends Service<T> {
+/**
+ * A class for AuthenticationSetting service
+ */
+
+export class AuthenticationSettingService<
+  T = AuthenticationSettingType,
+  ServiceParams extends Params = AuthenticationSettingParams
+> extends KnexAdapter<
+  AuthenticationSettingType,
+  AuthenticationSettingData,
+  AuthenticationSettingParams,
+  AuthenticationSettingPatch
+> {
   app: Application
 
-  constructor(options: Partial<SequelizeServiceOptions>, app: Application) {
+  constructor(options: KnexAdapterOptions, app: Application) {
     super(options)
     this.app = app
   }
 
-  async find(params?: UserParams): Promise<T[] | Paginated<T>> {
-    const auth = (await super.find()) as any
-    const loggedInUser = params!.user as UserInterface
+  async find(params?: AuthenticationSettingParams) {
+    const auth = await super._find()
+    const loggedInUser = params!.user
     const data = auth.data.map((el) => {
-      let oauth = JSON.parse(el.oauth)
-      let authStrategies = JSON.parse(el.authStrategies)
-      let jwtOptions = JSON.parse(el.jwtOptions)
-      let bearerToken = JSON.parse(el.bearerToken)
-      let callback = JSON.parse(el.callback)
-
-      if (typeof oauth === 'string') oauth = JSON.parse(oauth)
-      if (typeof authStrategies === 'string') authStrategies = JSON.parse(authStrategies)
-      if (typeof jwtOptions === 'string') jwtOptions = JSON.parse(jwtOptions)
-      if (typeof bearerToken === 'string') bearerToken = JSON.parse(bearerToken)
-      if (typeof callback === 'string') callback = JSON.parse(callback)
-
       if (!loggedInUser.scopes || !loggedInUser.scopes.find((scope) => scope.type === 'admin:admin'))
         return {
           id: el.id,
           entity: el.entity,
           service: el.service,
-          authStrategies: authStrategies
+          authStrategies: el.authStrategies
         }
 
       const returned = {
         ...el,
-        authStrategies: authStrategies,
-        jwtOptions: jwtOptions,
-        bearerToken: bearerToken,
-        callback: callback,
+        authStrategies: el.authStrategies,
+        jwtOptions: el.jwtOptions,
+        bearerToken: el.bearerToken,
+        callback: el.callback,
         oauth: {
-          ...oauth
+          ...el.oauth
         }
       }
-      if (oauth.defaults) returned.oauth.defaults = JSON.parse(oauth.defaults)
-      if (oauth.discord) returned.oauth.discord = JSON.parse(oauth.discord)
-      if (oauth.facebook) returned.oauth.facebook = JSON.parse(oauth.facebook)
-      if (oauth.github) returned.oauth.github = JSON.parse(oauth.github)
-      if (oauth.google) returned.oauth.google = JSON.parse(oauth.google)
-      if (oauth.linkedin) returned.oauth.linkedin = JSON.parse(oauth.linkedin)
-      if (oauth.twitter) returned.oauth.twitter = JSON.parse(oauth.twitter)
       return returned
     })
     return {
@@ -98,27 +102,39 @@ export class Authentication<T = AdminAuthSettingDataType> extends Service<T> {
     }
   }
 
-  async patch(id: string, data: any, params?: Params): Promise<T[] | T> {
-    const authSettings = await this.app.service('authentication-setting').get(id)
-    let existingCallback = JSON.parse(authSettings.callback as any)
-    if (typeof existingCallback === 'string') existingCallback = JSON.parse(existingCallback)
+  async get(id: Id, params?: AuthenticationSettingParams) {
+    return super._get(id, params)
+  }
 
-    let newOAuth = JSON.parse(data.oauth)
-    data.callback = existingCallback
+  async patch(id: Id, data: AuthenticationSettingPatch, params?: AuthenticationSettingParams) {
+    const authSettings = await this.app.service(authenticationSettingPath).get(id)
+
+    if (typeof data.oauth === 'string') {
+      data.oauth = JSON.parse(data.oauth)
+    }
+
+    let newOAuth = data.oauth!
+    data.callback = authSettings.callback
+
+    if (typeof data.callback === 'string') {
+      data.callback = JSON.parse(data.callback)
+
+      // Usually above JSON.parse should be enough. But since our pre-feathers 5 data
+      // was serialized multiple times, therefore we need to parse it twice.
+      if (typeof data.callback === 'string') {
+        data.callback = JSON.parse(data.callback)
+      }
+    }
 
     for (let key of Object.keys(newOAuth)) {
-      newOAuth[key] = JSON.parse(newOAuth[key])
       if (config.authentication.oauth[key]?.scope) newOAuth[key].scope = config.authentication.oauth[key].scope
       if (config.authentication.oauth[key]?.custom_data)
         newOAuth[key].custom_data = config.authentication.oauth[key].custom_data
-      if (key !== 'defaults' && !data.callback[key]) data.callback[key] = `${config.client.url}/auth/oauth/${key}`
-      newOAuth[key] = JSON.stringify(newOAuth[key])
+      if (key !== 'defaults' && data.callback && !data.callback[key])
+        data.callback[key] = `${config.client.url}/auth/oauth/${key}`
     }
 
-    data.oauth = JSON.stringify(newOAuth)
-    data.callback = JSON.stringify(data.callback)
-
-    const patchResult = await super.patch(id, data, params)
+    const patchResult = await super._patch(id, authenticationSettingSchemaToDb(data) as any, params)
 
     const k8AppsClient = getState(ServerState).k8AppsClient
 
