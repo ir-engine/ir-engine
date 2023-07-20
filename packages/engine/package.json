@@ -41,7 +41,7 @@
     "@gltf-transform/functions": "3.4.2",
     "@hookstate/subscribable": "^4.0.0",
     "@mediapipe/holistic": "^0.5.1675471629",
-    "@pixiv/three-vrm": "^1.0.9",
+    "@pixiv/three-vrm": "~2.0.0",
     "@tweenjs/tween.js": "^18.6.4",
     "alea": "1.0.1",
     "bitecs": "git://github.com/NateTheGreatt/bitECS.git#056c637e05327aab8e355ebf25e9ff202b67e495",
@@ -69,13 +69,12 @@
     "web-worker": "1.2.0"
   },
   "devDependencies": {
-    "@magic-works/commonjs-import.meta": "^1.0.1",
     "@testing-library/react": "^14.0.0",
     "@types/mocha": "10.0.1",
     "@types/mock-require": "2.0.1",
     "@types/offscreencanvas": "2019.7.0",
     "@types/sinon": "10.0.13",
-    "@types/three": "0.153.0",
+    "@types/three": "0.152.1",
     "jsdom": "21.1.1",
     "jsdom-global": "3.0.2",
     "mocha": "10.2.0",

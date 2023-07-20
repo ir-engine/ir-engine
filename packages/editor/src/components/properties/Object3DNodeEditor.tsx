@@ -23,10 +23,10 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import ReactJson from '@microlink/react-json-view'
 import { range } from 'lodash'
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import ReactJson from 'react-json-view'
 import { Euler, InstancedMesh, Material, Matrix4, Mesh, Object3D, Quaternion, Scene, Vector3 } from 'three'
 import { createMeshesFromInstancedMesh } from 'three/examples/jsm/utils/SceneUtils'
 

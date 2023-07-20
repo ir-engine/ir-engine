@@ -29,7 +29,7 @@ import SearchIcon from '@mui/icons-material/Search'
 import InputBase from '@mui/material/InputBase'
 import Paper from '@mui/material/Paper'
 
-import { useStyles } from './styles'
+import styles from './Search.module.scss'
 
 interface Props {
   elementsName: string
@@ -37,20 +37,20 @@ interface Props {
 }
 
 const Search = (props: Props) => {
-  const classes = useStyles()
   const { elementsName, handleInputChange } = props
 
   const handleChange = (e: any) => {
+    console.log('handleChange', e)
     handleInputChange(e.target.value)
   }
 
   return (
-    <Paper component="form" className={elementsName === 'hierarchy' ? classes.searchRoot : classes.searchRootB}>
+    <Paper component="form" className={elementsName === 'hierarchy' ? styles.searchRoot : styles.searchRootB}>
       <InputBase
-        className={classes.input}
+        className={styles.input}
         onChange={handleChange}
         placeholder="search..."
-        endAdornment={<SearchIcon className={classes.iconButton} />}
+        endAdornment={<SearchIcon className={styles.iconButton} />}
       />
     </Paper>
   )

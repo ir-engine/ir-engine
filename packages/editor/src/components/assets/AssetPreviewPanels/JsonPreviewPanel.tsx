@@ -23,8 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import ReactJson from '@microlink/react-json-view'
 import React, { useEffect, useState } from 'react'
-import ReactJson from 'react-json-view'
 
 import CircularProgress from '@mui/material/CircularProgress'
 

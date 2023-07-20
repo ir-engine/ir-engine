@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { createState } from '@hookstate/core'
+import { hookstate } from '@etherealengine/hyperflux'
 import React from 'react'
 
 import { Entity } from '../../ecs/classes/Entity'
@@ -35,13 +35,12 @@ export interface InteractiveModalState {
 }
 
 export const createInteractiveModalView = (entity: Entity, interactMessage: string) => {
-  const ui = createXRUI(
+  return createXRUI(
     InteractiveModalView,
-    createState({
+    hookstate({
       interactMessage
     } as InteractiveModalState)
   )
-  return ui
 }
 
 export const InteractiveModalView = () => {

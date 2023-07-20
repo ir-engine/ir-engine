@@ -1,0 +1,33 @@
+.searchRoot {
+  width: 80px;
+  display: flex;
+  background: transparent;
+  box-shadow: none;
+  align-items: center;
+}
+
+.input {
+  width: 120px;
+  color: #ffffff;
+  font-size: 0.8rem;
+}
+
+.iconButton {
+  width: 20px;
+  height: 20px;
+  color: #ffffff;
+  margin-left: 4px;
+}
+
+.searchRootB {
+  position: absolute;
+  left: 7rem;
+  top: -2px;
+  width: 80px;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+}

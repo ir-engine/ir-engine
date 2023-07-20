@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import React, { useCallback, useContext, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
-import styled, { ThemeContext } from 'styled-components'
+import styled from 'styled-components'
 
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline'
 
@@ -82,16 +82,12 @@ const IssueIcon = (styled as any)(ErrorOutlineIcon)`
  * @constructor
  */
 export function NodeIssuesIcon({ node }) {
-  const theme = useContext(ThemeContext) as any
   const { t } = useTranslation()
 
-  const severityToColor = useMemo(
-    () => ({
-      warning: theme.yellow,
-      error: theme.red
-    }),
-    [theme]
-  )
+  const severityToColor = {
+    warning: 'yellow',
+    error: 'red'
+  }
 
   /**
    * renderInfo function used to return view.

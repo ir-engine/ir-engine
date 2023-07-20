@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import appRootPath from 'app-root-path'
 import fs from 'fs'
 import fsStore from 'fs-blob-store'
-import glob from 'glob'
+import { sync } from 'glob'
 import path from 'path/posix'
 import { PassThrough } from 'stream'
 
@@ -111,7 +111,7 @@ export class LocalStorage implements StorageProviderInterface {
     const filePath = path.join(this.PATH_PREFIX, prefix)
     if (!fs.existsSync(filePath)) return { Contents: [] }
     // glob all files and directories
-    let globResult = glob.sync(path.join(filePath, '**'))
+    let globResult = sync(path.join(filePath, '**'))
     globResult = globResult.filter((item) => /[a-zA-Z0-9]+\.[a-zA-Z0-9]+$/.test(item))
     return {
       Contents: globResult.map((result) => {
@@ -288,7 +288,7 @@ export class LocalStorage implements StorageProviderInterface {
     const signedUrl = this.getSignedUrl(res.key, 3600, null)
 
     if (isDir) {
-      const filePaths = glob.sync('**', {
+      const filePaths = sync('**', {
         // "**" means you search on the whole folder
         cwd: pathString, // folder path
         absolute: true // you have to set glob to return absolute path not only file names
@@ -319,10 +319,8 @@ export class LocalStorage implements StorageProviderInterface {
   listFolderContent = async (relativeDirPath: string): Promise<FileContentType[]> => {
     const absoluteDirPath = path.join(this.PATH_PREFIX, relativeDirPath)
 
-    const folder = glob
-      .sync(path.join(absoluteDirPath, '*/'))
-      .map((p) => this._processContent(relativeDirPath, p, true))
-    const files = glob.sync(path.join(absoluteDirPath, '*.*')).map((p) => this._processContent(relativeDirPath, p))
+    const folder = sync(path.join(absoluteDirPath, '*/')).map((p) => this._processContent(relativeDirPath, p, true))
+    const files = sync(path.join(absoluteDirPath, '*.*')).map((p) => this._processContent(relativeDirPath, p))
 
     folder.push(...files)
     return folder

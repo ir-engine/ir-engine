@@ -27,7 +27,7 @@ import { Subscribable, subscribable } from '@hookstate/subscribable'
 import * as bitECS from 'bitecs'
 // tslint:disable:ordered-imports
 import type from 'react/experimental'
-import React, { startTransition, use, useEffect, useLayoutEffect } from 'react'
+import React, { startTransition, useEffect, useLayoutEffect } from 'react'
 
 import config from '@etherealengine/common/src/config'
 import { DeepReadonly } from '@etherealengine/common/src/DeepReadonly'
@@ -514,7 +514,7 @@ export function useComponent<C extends Component<any>>(entity: Entity, Component
   }
 
   // use() will suspend the component (by throwing a promise) and resume when the promise is resolved
-  ;(use ?? _use)(promiseResolver.promise)
+  _use(promiseResolver.promise)
 
   return useHookstate(Component.stateMap[entity]) as any as State<ComponentType<C>> // todo fix any cast
 }

@@ -50,11 +50,6 @@ import { StyledEngineProvider, Theme, ThemeProvider } from '@mui/material/styles
 import RouterComp from '../route/public'
 import { ThemeContextProvider } from '../themes/themeContext'
 
-declare module '@mui/styles/defaultTheme' {
-  // eslint-disable-next-line @typescript-eslint/no-empty-interface
-  interface DefaultTheme extends Theme {}
-}
-
 /** @deprecated see https://github.com/EtherealEngine/etherealengine/issues/6485 */
 const AppPage = ({ route }: { route: string }) => {
   const notistackRef = useRef<SnackbarProvider>()

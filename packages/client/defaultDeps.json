@@ -172,8 +172,6 @@
     "@mui/material/Typography",
     "@mui/material/colors",
     "@mui/material/styles",
-    "@mui/styles/createStyles",
-    "@mui/styles/makeStyles",
     "@tweenjs/tween.js",
     "axios",
     "bitecs",

@@ -46,7 +46,7 @@ interface LoadingUIState {
 }
 
 export function createLoaderDetailView() {
-  const xrui = createXRUI(
+  return createXRUI(
     function Loading() {
       return <LoadingDetailView />
     },
@@ -58,7 +58,6 @@ export function createLoaderDetailView() {
       }
     })
   )
-  return xrui
 }
 
 const LoadingDetailView = () => {

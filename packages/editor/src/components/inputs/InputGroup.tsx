@@ -28,22 +28,10 @@ import styled from 'styled-components'
 
 import { InfoOutlined } from '@mui/icons-material'
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline'
-import { createStyles } from '@mui/material'
 import Grid from '@mui/material/Grid'
-import makeStyles from '@mui/styles/makeStyles'
 
 import { InfoTooltip } from '../layout/Tooltip'
-
-const useStyles = makeStyles<any, any, any>((theme: any) => {
-  return createStyles({
-    info: {
-      color: 'var(--textColor)',
-      height: '16px',
-      width: 'auto',
-      marginLeft: '5px'
-    }
-  })
-})
+import styles from './InputGroup.module.scss'
 
 /**
  * Used to provide styles for InputGroupContainer div.
@@ -195,8 +183,7 @@ export type InputGroupProps = React.PropsWithChildren<
  * @constructor
  */
 export function InputGroup({ name, children, disabled, info, label, ...rest }: InputGroupProps) {
-  const styles = useStyles({})
-
+  console.log('info', info)
   return (
     <InputGroupContainer disabled={disabled} {...rest}>
       <Grid container>
