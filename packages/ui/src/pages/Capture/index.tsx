@@ -34,7 +34,7 @@ import {
   NormalizedLandmark,
   PoseLandmarker
 } from '@mediapipe/tasks-vision'
-import { Face } from 'kalidokit'
+import { Face } from 'kalidokit/dist/kalidokit.umd.js'
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { twMerge } from 'tailwind-merge'
 

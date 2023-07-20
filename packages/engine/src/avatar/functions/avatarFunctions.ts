@@ -23,19 +23,23 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { VRM, VRMHumanBone, VRMHumanBoneList, VRMHumanBoneName } from '@pixiv/three-vrm'
-import * as VRMUtils from '@pixiv/three-vrm'
+import {
+  VRM,
+  VRMHumanBone
+  // VRMHumanBoneList, VRMHumanBoneName
+} from '@pixiv/three-vrm'
+// import * as VRMUtils from '@pixiv/three-vrm'
 import { pipe } from 'bitecs'
 import { clone, cloneDeep } from 'lodash'
-import { useEffect } from 'react'
+// import { useEffect } from 'react'
 import {
-  AnimationClip,
+  // AnimationClip,
   AnimationMixer,
   Bone,
   Box3,
   Group,
-  Matrix4,
-  Mesh,
+  // Matrix4,
+  // Mesh,
   Object3D,
   Skeleton,
   SkinnedMesh,
@@ -46,8 +50,8 @@ import { GLTF } from 'three/examples/jsm/loaders/GLTFLoader'
 import { dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
 
 import { AssetLoader } from '../../assets/classes/AssetLoader'
-import { AssetType } from '../../assets/enum/AssetType'
-import { LoopAnimationComponent } from '../../avatar/components/LoopAnimationComponent'
+// import { AssetType } from '../../assets/enum/AssetType'
+// import { LoopAnimationComponent } from '../../avatar/components/LoopAnimationComponent'
 import { isClient } from '../../common/functions/getEnvironment'
 import { iOS } from '../../common/functions/isMobile'
 import { EngineActions, EngineState } from '../../ecs/classes/EngineState'
@@ -61,24 +65,30 @@ import {
   setComponent
 } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
-import UpdateableObject3D from '../../scene/classes/UpdateableObject3D'
-import { setCallback } from '../../scene/components/CallbackComponent'
-import { addObjectToGroup, GroupComponent, removeObjectFromGroup } from '../../scene/components/GroupComponent'
-import { UpdatableCallback, UpdatableComponent } from '../../scene/components/UpdatableComponent'
+// import UpdateableObject3D from '../../scene/classes/UpdateableObject3D'
+// import { setCallback } from '../../scene/components/CallbackComponent'
+import {
+  addObjectToGroup
+  // GroupComponent, removeObjectFromGroup
+} from '../../scene/components/GroupComponent'
+// import { UpdatableCallback, UpdatableComponent } from '../../scene/components/UpdatableComponent'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
 import { setObjectLayers } from '../../scene/functions/setObjectLayers'
 import iterateObject3D from '../../scene/util/iterateObject3D'
-import { computeTransformMatrix, updateGroupChildren } from '../../transform/systems/TransformSystem'
+import {
+  computeTransformMatrix
+  // updateGroupChildren
+} from '../../transform/systems/TransformSystem'
 import { XRState } from '../../xr/XRState'
-import { applySkeletonPose, isSkeletonInTPose, makeTPose } from '../animation/avatarPose'
-import { retargetSkeleton, syncModelSkeletons } from '../animation/retargetSkeleton'
+// import { applySkeletonPose, isSkeletonInTPose, makeTPose } from '../animation/avatarPose'
+// import { retargetSkeleton, syncModelSkeletons } from '../animation/retargetSkeleton'
 import { AnimationState } from '../AnimationManager'
 // import { retargetSkeleton, syncModelSkeletons } from '../animation/retargetSkeleton'
-import avatarBoneMatching, {
-  BoneNames,
-  BoneStructure,
-  createSkeletonFromBone,
-  findSkinnedMeshes
+import {
+  BoneNames
+  // BoneStructure,
+  // createSkeletonFromBone,
+  // findSkinnedMeshes
 } from '../AvatarBoneMatching'
 import { AnimationComponent } from '../components/AnimationComponent'
 import { AvatarAnimationComponent, AvatarRigComponent } from '../components/AvatarAnimationComponent'
@@ -86,10 +96,10 @@ import { AvatarComponent } from '../components/AvatarComponent'
 import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
 import { AvatarEffectComponent, MaterialMap } from '../components/AvatarEffectComponent'
 import { AvatarPendingComponent } from '../components/AvatarPendingComponent'
-import { defaultBonesData } from '../DefaultSkeletonBones'
+// import { defaultBonesData } from '../DefaultSkeletonBones'
 import { DissolveEffect } from '../DissolveEffect'
-import { SkeletonUtils } from '../SkeletonUtils'
-import { getIdlePose, getWalkForwardPose } from './proceduralIKAnimations'
+// import { SkeletonUtils } from '../SkeletonUtils'
+// import { getIdlePose, getWalkForwardPose } from './proceduralIKAnimations'
 import { resizeAvatar } from './resizeAvatar'
 
 const tempVec3ForHeight = new Vector3()
@@ -307,52 +317,52 @@ export const setupAvatarHeight = (entity: Entity, model: Object3D) => {
  * The skeleton created is compatible with default animation tracks
  * @returns SkinnedMesh
  */
-export function makeDefaultSkinnedMesh() {
-  return makeSkinnedMeshFromBoneData(defaultBonesData)
-}
+// export function makeDefaultSkinnedMesh() {
+//   return makeSkinnedMeshFromBoneData(defaultBonesData)
+// }
 
 /**
  * Creates an empty skinned mesh using list of bones to build skeleton structure
  * @returns SkinnedMesh
  */
-export function makeSkinnedMeshFromBoneData(bonesData) {
-  const bones: Bone[] = []
-  bonesData.forEach((data) => {
-    const bone = new Bone()
-    bone.name = data.name
-    bone.position.fromArray(data.position)
-    bone.quaternion.fromArray(data.quaternion)
-    bone.scale.setScalar(1)
-    bones.push(bone)
-  })
+// export function makeSkinnedMeshFromBoneData(bonesData) {
+//   const bones: Bone[] = []
+//   bonesData.forEach((data) => {
+//     const bone = new Bone()
+//     bone.name = data.name
+//     bone.position.fromArray(data.position)
+//     bone.quaternion.fromArray(data.quaternion)
+//     bone.scale.setScalar(1)
+//     bones.push(bone)
+//   })
 
-  bonesData.forEach((data, index) => {
-    if (data.parentIndex > -1) {
-      bones[data.parentIndex].add(bones[index])
-    }
-  })
+//   bonesData.forEach((data, index) => {
+//     if (data.parentIndex > -1) {
+//       bones[data.parentIndex].add(bones[index])
+//     }
+//   })
 
-  // we assume that root bone is the first one
-  const hipBone = bones[0]
-  hipBone.updateWorldMatrix(false, true)
+//   // we assume that root bone is the first one
+//   const hipBone = bones[0]
+//   hipBone.updateWorldMatrix(false, true)
 
-  const group = new Group()
-  group.name = 'skinned-mesh-group'
-  const skinnedMesh = new SkinnedMesh()
-  const skeleton = new Skeleton(bones)
-  skinnedMesh.bind(skeleton)
-  group.add(skinnedMesh)
-  group.add(hipBone)
+//   const group = new Group()
+//   // group.name = 'skinned-mesh-group'
+//   // const skinnedMesh = new SkinnedMesh()
+//   // const skeleton = new Skeleton(bones)
+//   // skinnedMesh.bind(skeleton)
+//   // group.add(skinnedMesh)
+//   // group.add(hipBone)
 
-  return group
-}
+//   return group
+// }
 
 export const getAvatarBoneWorldPosition = (entity: Entity, boneName: BoneNames, position: Vector3): boolean => {
   const avatarRigComponent = getOptionalComponent(entity, AvatarRigComponent)
   if (!avatarRigComponent) return false
   const bone = avatarRigComponent.rig[boneName.toLowerCase()] as VRMHumanBone
   if (!bone) return false
-  const el = bone.node.matrixWorld.elements
+  const el = bone?.node?.matrixWorld?.elements
   position.set(el[12], el[13], el[14])
   return true
 }

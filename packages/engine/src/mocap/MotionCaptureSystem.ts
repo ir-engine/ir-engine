@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { Classifications, NormalizedLandmark } from '@mediapipe/tasks-vision'
 import { VRMExpressionPresetName } from '@pixiv/three-vrm'
 // import { XRAction, XRState } from '../xr/XRState'
-import { TFace, Vector } from 'kalidokit'
+import { TFace, Vector } from 'kalidokit/dist/kalidokit.umd.js'
 // import { Classifications } from '@mediapipe/tasks-vision'
 // import { VRMExpression } from '@pixiv/three-vrm'
 import { decode, encode } from 'msgpackr'
