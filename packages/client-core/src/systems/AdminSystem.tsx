@@ -27,25 +27,10 @@ import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFun
 import { defineActionQueue } from '@etherealengine/hyperflux'
 
 import { AdminActiveRouteActions, AdminActiveRouteReceptors } from '../admin/services/ActiveRouteService'
-import { AdminAnalyticsActions, AdminAnalyticsReceptors } from '../admin/services/AnalyticsService'
-import { AdminAvatarActions, AdminAvatarReceptors } from '../admin/services/AvatarService'
-import { AdminBotCommandActions, AdminBotsCommandReceptors } from '../admin/services/BotsCommand'
-import { AdminBuildStatusActions, AdminBuildStatusReceptors } from '../admin/services/BuildStatusService'
-import { AdminGroupActions, AdminGroupServiceReceptors } from '../admin/services/GroupService'
-import { AdminInviteActions, AdminInviteReceptors } from '../admin/services/InviteService'
 import { AdminLocationActions, AdminLocationReceptors } from '../admin/services/LocationService'
 import { AdminPartyActions, AdminPartyReceptors } from '../admin/services/PartyService'
-import {
-  AdminRecordingReceptors,
-  AdminRecordingsActions,
-  AdminSingleRecordingReceptors,
-  AdminSingleRecordingsActions
-} from '../admin/services/RecordingService'
 import { AdminResourceActions, AdminResourceReceptors } from '../admin/services/ResourceService'
-import { AdminRouteActions, AdminRouteReceptors } from '../admin/services/RouteService'
 import { AdminSceneActions, AdminSceneReceptors } from '../admin/services/SceneService'
-import { AdminScopeTypeActions, AdminScopeTypeReceptor } from '../admin/services/ScopeTypeService'
-import { AdminServerInfoActions, AdminServerInfoReceptors } from '../admin/services/ServerInfoService'
 import { AdminServerLogsActions, AdminServerLogsReceptors } from '../admin/services/ServerLogsService'
 // import { AuthSettingsActions, AuthSettingsReceptors } from '../admin/services/Setting/AuthSettingService'
 import { AdminAwsSettingActions, AwsSettingReceptors } from '../admin/services/Setting/AwsSettingService'
@@ -68,12 +53,8 @@ import {
   AdminTaskServerSettingActions,
   TaskServerSettingReceptors
 } from '../admin/services/Setting/TaskServerSettingsService'
-import { AdminTestBotActions, AdminTestBotReceptors } from '../admin/services/TestBotService'
 
 const fetchedTaskServersQueue = defineActionQueue(AdminTaskServerSettingActions.fetchedTaskServers.matches)
-const fetchServerInfoRequestedQueue = defineActionQueue(AdminServerInfoActions.fetchServerInfoRequested.matches)
-const fetchServerInfoRetrievedQueue = defineActionQueue(AdminServerInfoActions.fetchServerInfoRetrieved.matches)
-const serverInfoPodRemovedQueue = defineActionQueue(AdminServerInfoActions.serverInfoPodRemoved.matches)
 const fetchServerLogsRequestedQueue = defineActionQueue(AdminServerLogsActions.fetchServerLogsRequested.matches)
 const fetchServerLogsRetrievedQueue = defineActionQueue(AdminServerLogsActions.fetchServerLogsRetrieved.matches)
 const redisSettingRetrievedQueue = defineActionQueue(AdminRedisSettingActions.redisSettingRetrieved.matches)
@@ -89,11 +70,6 @@ const fetchedHelmBuilderVersionsQueue = defineActionQueue(AdminHelmSettingAction
 const projectSettingFetchedQueue = defineActionQueue(AdminProjectSettingsActions.projectSettingFetched.matches)
 const fetchedSeverInfoQueue = defineActionQueue(AdminServerSettingActions.fetchedSeverInfo.matches)
 const serverSettingPatchedQueue = defineActionQueue(AdminServerSettingActions.serverSettingPatched.matches)
-const getScopeTypesQueue = defineActionQueue(AdminScopeTypeActions.getScopeTypes.matches)
-const avatarsFetchedQueue = defineActionQueue(AdminAvatarActions.avatarsFetched.matches)
-const avatarCreatedQueue = defineActionQueue(AdminAvatarActions.avatarCreated.matches)
-const avatarRemovedQueue = defineActionQueue(AdminAvatarActions.avatarRemoved.matches)
-const avatarUpdatedQueue = defineActionQueue(AdminAvatarActions.avatarUpdated.matches)
 const resourceFiltersFetchedQueue = defineActionQueue(AdminResourceActions.resourceFiltersFetched.matches)
 const resourcesFetchedQueue = defineActionQueue(AdminResourceActions.resourcesFetched.matches)
 const setSelectedMimeTypesQueue = defineActionQueue(AdminResourceActions.setSelectedMimeTypes.matches)
@@ -110,49 +86,16 @@ const partyRetrievedQueue = defineActionQueue(AdminPartyActions.partyRetrieved.m
 const partyAdminCreatedQueue = defineActionQueue(AdminPartyActions.partyAdminCreated.matches)
 const partyRemovedQueue = defineActionQueue(AdminPartyActions.partyRemoved.matches)
 const partyPatchedQueue = defineActionQueue(AdminPartyActions.partyPatched.matches)
-const activeInstancesFetchedQueue = defineActionQueue(AdminAnalyticsActions.activeInstancesFetched.matches)
-const activePartiesFetchedQueue = defineActionQueue(AdminAnalyticsActions.activePartiesFetched.matches)
-const activeLocationsFetchedQueue = defineActionQueue(AdminAnalyticsActions.activeLocationsFetched.matches)
-const activeScenesFetchedQueue = defineActionQueue(AdminAnalyticsActions.activeScenesFetched.matches)
-const channelUsersFetchedQueue = defineActionQueue(AdminAnalyticsActions.channelUsersFetched.matches)
-const instanceUsersFetchedQueue = defineActionQueue(AdminAnalyticsActions.instanceUsersFetched.matches)
-const dailyNewUsersFetchedQueue = defineActionQueue(AdminAnalyticsActions.dailyNewUsersFetched.matches)
-const dailyUsersFetchedQueue = defineActionQueue(AdminAnalyticsActions.dailyUsersFetched.matches)
-const fetchedTestBotsQueue = defineActionQueue(AdminTestBotActions.fetchedBots.matches)
-const spawnBotsQueue = defineActionQueue(AdminTestBotActions.spawnBots.matches)
-const spawnedBotsQueue = defineActionQueue(AdminTestBotActions.spawnedBots.matches)
-const botCommandCreatedQueue = defineActionQueue(AdminBotCommandActions.botCommandCreated.matches)
-const botCommandRemovedQueue = defineActionQueue(AdminBotCommandActions.botCommandRemoved.matches)
-const fetchingGroupQueue = defineActionQueue(AdminGroupActions.fetchingGroup.matches)
-const setAdminGroupQueue = defineActionQueue(AdminGroupActions.setAdminGroup.matches)
-const updateGroupQueue = defineActionQueue(AdminGroupActions.updateGroup.matches)
-const removeGroupActionQueue = defineActionQueue(AdminGroupActions.removeGroupAction.matches)
-const addAdminGroupQueue = defineActionQueue(AdminGroupActions.addAdminGroup.matches)
-const installedRoutesRetrievedQueue = defineActionQueue(AdminRouteActions.installedRoutesRetrieved.matches)
 const activeRoutesRetrievedQueue = defineActionQueue(AdminActiveRouteActions.activeRoutesRetrieved.matches)
-
 const fetchedInstanceServerQueue = defineActionQueue(InstanceServerSettingActions.fetchedInstanceServer.matches)
 const chargebeeSettingRetrievedQueue = defineActionQueue(AdminChargebeeSettingActions.chargebeeSettingRetrieved.matches)
-const invitesRetrievedQueue = defineActionQueue(AdminInviteActions.invitesRetrieved.matches)
-const inviteCreatedQueue = defineActionQueue(AdminInviteActions.inviteCreated.matches)
-const invitePatchedQueue = defineActionQueue(AdminInviteActions.invitePatched.matches)
-const inviteRemovedQueue = defineActionQueue(AdminInviteActions.inviteRemoved.matches)
 // const authSettingRetrievedQueue = defineActionQueue(AuthSettingsActions.authSettingRetrieved.matches)
 // const authSettingPatchedQueue = defineActionQueue(AuthSettingsActions.authSettingPatched.matches)
 // const fetchedClientQueue = defineActionQueue(ClientSettingActions.fetchedClient.matches)
 // const clientSettingPatchedQueue = defineActionQueue(ClientSettingActions.clientSettingPatched.matches)
-const buildStatusRetrievedQueue = defineActionQueue(AdminBuildStatusActions.fetchBuildStatusRetrieved.matches)
-const recordingsRetrievedQueue = defineActionQueue(AdminRecordingsActions.recordingsRetrieved.matches)
-const recordingRemovedQueue = defineActionQueue(AdminRecordingsActions.recordingsRemoved.matches)
-const singleRecordingRetrievedQueue = defineActionQueue(AdminSingleRecordingsActions.recordingsRetrieved.matches)
 
 const execute = () => {
   for (const action of fetchedTaskServersQueue()) TaskServerSettingReceptors.fetchedTaskServersReceptor(action)
-  for (const action of fetchServerInfoRequestedQueue())
-    AdminServerInfoReceptors.fetchServerInfoRequestedReceptor(action)
-  for (const action of fetchServerInfoRetrievedQueue())
-    AdminServerInfoReceptors.fetchServerInfoRetrievedReceptor(action)
-  for (const action of serverInfoPodRemovedQueue()) AdminServerInfoReceptors.serverInfoPodRemovedReceptor(action)
   for (const action of fetchServerLogsRequestedQueue())
     AdminServerLogsReceptors.fetchServerLogsRequestedReceptor(action)
   for (const action of fetchServerLogsRetrievedQueue())
@@ -171,11 +114,6 @@ const execute = () => {
   for (const action of projectSettingFetchedQueue()) ProjectSettingReceptors.projectSettingFetchedReceptor(action)
   for (const action of fetchedSeverInfoQueue()) ServerSettingReceptors.fetchedSeverInfoReceptor(action)
   for (const action of serverSettingPatchedQueue()) ServerSettingReceptors.serverSettingPatchedReceptor(action)
-  for (const action of getScopeTypesQueue()) AdminScopeTypeReceptor.getScopeTypesReceptor(action)
-  for (const action of avatarsFetchedQueue()) AdminAvatarReceptors.avatarsFetchedReceptor(action)
-  for (const action of avatarCreatedQueue()) AdminAvatarReceptors.avatarCreatedReceptor(action)
-  for (const action of avatarRemovedQueue()) AdminAvatarReceptors.avatarRemovedReceptor(action)
-  for (const action of avatarUpdatedQueue()) AdminAvatarReceptors.avatarUpdatedReceptor(action)
   for (const action of resourceFiltersFetchedQueue()) AdminResourceReceptors.resourceFiltersFetchedReceptor(action)
   for (const action of resourcesFetchedQueue()) AdminResourceReceptors.resourcesFetchedReceptor(action)
   for (const action of setSelectedMimeTypesQueue()) AdminResourceReceptors.setSelectedMimeTypesReceptor(action)
@@ -192,42 +130,14 @@ const execute = () => {
   for (const action of partyAdminCreatedQueue()) AdminPartyReceptors.partyAdminCreatedReceptor(action)
   for (const action of partyRemovedQueue()) AdminPartyReceptors.partyRemovedReceptor(action)
   for (const action of partyPatchedQueue()) AdminPartyReceptors.partyPatchedReceptor(action)
-  for (const action of activeInstancesFetchedQueue()) AdminAnalyticsReceptors.activeInstancesFetchedReceptor(action)
-  for (const action of activePartiesFetchedQueue()) AdminAnalyticsReceptors.activePartiesFetchedReceptor(action)
-  for (const action of activeLocationsFetchedQueue()) AdminAnalyticsReceptors.activeLocationsFetchedReceptor(action)
-  for (const action of activeScenesFetchedQueue()) AdminAnalyticsReceptors.activeScenesFetchedReceptor(action)
-  for (const action of channelUsersFetchedQueue()) AdminAnalyticsReceptors.channelUsersFetchedReceptor(action)
-  for (const action of instanceUsersFetchedQueue()) AdminAnalyticsReceptors.instanceUsersFetchedReceptor(action)
-  for (const action of dailyNewUsersFetchedQueue()) AdminAnalyticsReceptors.dailyNewUsersFetchedReceptor(action)
-  for (const action of dailyUsersFetchedQueue()) AdminAnalyticsReceptors.dailyUsersFetchedReceptor(action)
-  for (const action of fetchedTestBotsQueue()) AdminTestBotReceptors.fetchedBotsReceptor(action)
-  for (const action of spawnBotsQueue()) AdminTestBotReceptors.spawnBotsReceptor(action)
-  for (const action of spawnedBotsQueue()) AdminTestBotReceptors.spawnedBotsReceptor(action)
-  for (const action of botCommandCreatedQueue()) AdminBotsCommandReceptors.botCommandCreatedReceptor(action)
-  for (const action of botCommandRemovedQueue()) AdminBotsCommandReceptors.botCommandRemovedReceptor(action)
-  for (const action of fetchingGroupQueue()) AdminGroupServiceReceptors.fetchingGroupReceptor(action)
-  for (const action of setAdminGroupQueue()) AdminGroupServiceReceptors.setAdminGroupReceptor(action)
-  for (const action of updateGroupQueue()) AdminGroupServiceReceptors.updateGroupReceptor(action)
-  for (const action of removeGroupActionQueue()) AdminGroupServiceReceptors.removeGroupActionReceptor(action)
-  for (const action of addAdminGroupQueue()) AdminGroupServiceReceptors.addAdminGroupReceptor(action)
-  for (const action of installedRoutesRetrievedQueue()) AdminRouteReceptors.installedRoutesRetrievedReceptor(action)
   for (const action of activeRoutesRetrievedQueue()) AdminActiveRouteReceptors.activeRoutesRetrievedReceptor(action)
   for (const action of fetchedInstanceServerQueue()) AdminInstanceServerReceptors.fetchedInstanceServerReceptor(action)
   for (const action of chargebeeSettingRetrievedQueue())
     AdminChargebeeReceptors.chargebeeSettingRetrievedReceptor(action)
-  for (const action of invitesRetrievedQueue()) AdminInviteReceptors.invitesRetrievedReceptor(action)
-  for (const action of inviteCreatedQueue()) AdminInviteReceptors.inviteCreatedReceptor(action)
-  for (const action of invitePatchedQueue()) AdminInviteReceptors.invitePatchedReceptor(action)
-  for (const action of inviteRemovedQueue()) AdminInviteReceptors.inviteRemovedReceptor(action)
   // for (const action of authSettingRetrievedQueue()) //   AuthSettingsReceptors.authSettingRetrievedReceptor(action)/ }
   // for (const action of authSettingPatchedQueue()) //   AuthSettingsReceptors.authSettingPatchedReceptor(action)/ }
   // for (const action of fetchedClientQueue()) //   ClientSettingReceptors.fetchedClientReceptor(action)/ }
   // for (const action of clientSettingPatchedQueue()) //   ClientSettingReceptors.clientSettingPatchedReceptor(action)/ }
-  for (const action of buildStatusRetrievedQueue()) AdminBuildStatusReceptors.fetchBuildStatusReceptor(action)
-  for (const action of recordingsRetrievedQueue()) AdminRecordingReceptors.recordingsRetrievedReceptor(action)
-  for (const action of recordingRemovedQueue()) AdminRecordingReceptors.recordingRemovedReceptor(action)
-  for (const action of singleRecordingRetrievedQueue())
-    AdminSingleRecordingReceptors.singleRecordingFetchedReceptor(action)
 }
 
 export const AdminSystem = defineSystem({
