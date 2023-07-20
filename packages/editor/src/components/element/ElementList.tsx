@@ -84,7 +84,7 @@ type SceneElementListItemType = {
   onContextMenu: (event: React.MouseEvent<HTMLElement>, item: SceneElementType) => void
 }
 
-const categories: Record<string, Component[]> = {
+export const ComponentShelfCategories: Record<string, Component[]> = {
   Files: [ModelComponent, VolumetricComponent, PositionalAudioComponent, VideoComponent, ImageComponent],
   'Scene Composition': [GroundPlaneComponent, GroupComponent, PrefabComponent, ColliderComponent],
   Interaction: [SpawnPointComponent, PortalComponent],
@@ -198,7 +198,7 @@ export function ElementList() {
   return (
     <>
       <div className={styles.elementListContainer}>
-        {Object.entries(categories).map(([category, items]) => (
+        {Object.entries(ComponentShelfCategories).map(([category, items]) => (
           <div className={styles.category} key={category}>
             <Typography variant="subtitle2" className={styles.categoryTitle}>
               {category}
