@@ -36,7 +36,6 @@ import { AdminLocationActions, AdminLocationReceptors } from '../admin/services/
 import { AdminPartyActions, AdminPartyReceptors } from '../admin/services/PartyService'
 import { AdminResourceActions, AdminResourceReceptors } from '../admin/services/ResourceService'
 import { AdminSceneActions, AdminSceneReceptors } from '../admin/services/SceneService'
-import { AdminScopeTypeActions, AdminScopeTypeReceptor } from '../admin/services/ScopeTypeService'
 import { AdminServerLogsActions, AdminServerLogsReceptors } from '../admin/services/ServerLogsService'
 // import { AuthSettingsActions, AuthSettingsReceptors } from '../admin/services/Setting/AuthSettingService'
 import { AdminAwsSettingActions, AwsSettingReceptors } from '../admin/services/Setting/AwsSettingService'
@@ -76,8 +75,6 @@ const fetchedHelmBuilderVersionsQueue = defineActionQueue(AdminHelmSettingAction
 const projectSettingFetchedQueue = defineActionQueue(AdminProjectSettingsActions.projectSettingFetched.matches)
 const fetchedSeverInfoQueue = defineActionQueue(AdminServerSettingActions.fetchedSeverInfo.matches)
 const serverSettingPatchedQueue = defineActionQueue(AdminServerSettingActions.serverSettingPatched.matches)
-const getScopeTypesQueue = defineActionQueue(AdminScopeTypeActions.getScopeTypes.matches)
-
 const resourceFiltersFetchedQueue = defineActionQueue(AdminResourceActions.resourceFiltersFetched.matches)
 const resourcesFetchedQueue = defineActionQueue(AdminResourceActions.resourcesFetched.matches)
 const setSelectedMimeTypesQueue = defineActionQueue(AdminResourceActions.setSelectedMimeTypes.matches)
@@ -141,7 +138,6 @@ const execute = () => {
   for (const action of projectSettingFetchedQueue()) ProjectSettingReceptors.projectSettingFetchedReceptor(action)
   for (const action of fetchedSeverInfoQueue()) ServerSettingReceptors.fetchedSeverInfoReceptor(action)
   for (const action of serverSettingPatchedQueue()) ServerSettingReceptors.serverSettingPatchedReceptor(action)
-  for (const action of getScopeTypesQueue()) AdminScopeTypeReceptor.getScopeTypesReceptor(action)
   for (const action of resourceFiltersFetchedQueue()) AdminResourceReceptors.resourceFiltersFetchedReceptor(action)
   for (const action of resourcesFetchedQueue()) AdminResourceReceptors.resourcesFetchedReceptor(action)
   for (const action of setSelectedMimeTypesQueue()) AdminResourceReceptors.setSelectedMimeTypesReceptor(action)
