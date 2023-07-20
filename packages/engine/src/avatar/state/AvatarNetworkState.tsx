@@ -38,6 +38,7 @@ import { NetworkObjectComponent } from '../../networking/components/NetworkObjec
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
 import { WorldState } from '../../networking/interfaces/WorldState'
 import { UUIDComponent } from '../../scene/components/UUIDComponent'
+import { avatarPath } from '../../schemas/user/avatar.schema'
 import { changeAvatarAnimationState } from '../animation/AvatarAnimationGraph'
 import { AvatarStates, matchesAvatarState } from '../animation/Util'
 import { loadAvatarForUser } from '../functions/avatarFunctions'
@@ -134,7 +135,7 @@ const AvatarReactor = React.memo(({ entityUUID }: { entityUUID: EntityUUID }) =>
     if (!state.avatarID.value) return
 
     Engine.instance.api
-      .service('avatar')
+      .service(avatarPath)
       .get(state.avatarID.value)
       .then((avatarDetails) => {
         if (!avatarDetails.modelResource?.url) return

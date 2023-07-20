@@ -30,6 +30,7 @@ import { getState } from '@etherealengine/hyperflux'
 import '@feathersjs/transport-commons'
 
 import { InstanceInterface } from '@etherealengine/common/src/dbmodels/Instance'
+import { avatarPath } from '@etherealengine/engine/src/schemas/user/avatar.schema'
 
 import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
@@ -72,7 +73,7 @@ export default (app: Application): void => {
       data.user = await app.service('user').Model.findOne({
         where: { id: data.userId }
       })
-      const avatar = await app.service('avatar').get(data.user.avatarId)
+      const avatar = await app.service(avatarPath).get(data.user.avatarId)
       if (data.user.dataValues) data.user.dataValues.avatar = avatar
       else data.user.avatar = avatar
       return Promise.all(
@@ -97,7 +98,7 @@ export default (app: Application): void => {
       data.user = await app.service('user').Model.findOne({
         where: { id: data.userId }
       })
-      const avatar = await app.service('avatar').get(data.user.avatarId)
+      const avatar = await app.service(avatarPath).get(data.user.avatarId)
       if (data.user.dataValues) data.user.dataValues.avatar = avatar
       else data.user.avatar = avatar
       return Promise.all(

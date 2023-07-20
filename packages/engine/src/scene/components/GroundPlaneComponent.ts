@@ -49,6 +49,7 @@ import { enableObjectLayer } from '../functions/setObjectLayers'
 import { addObjectToGroup, GroupComponent, removeObjectFromGroup } from './GroupComponent'
 import { SceneAssetPendingTagComponent } from './SceneAssetPendingTagComponent'
 import { SceneObjectComponent } from './SceneObjectComponent'
+import { ShadowComponent } from './ShadowComponent'
 
 export const GroundPlaneComponent = defineComponent({
   name: 'GroundPlaneComponent',
@@ -63,6 +64,8 @@ export const GroundPlaneComponent = defineComponent({
   },
 
   onSet(entity, component, json) {
+    setComponent(entity, ShadowComponent)
+
     if (!json) return
 
     if (matches.object.test(json.color) || matches.string.test(json.color) || matches.number.test(json.color))

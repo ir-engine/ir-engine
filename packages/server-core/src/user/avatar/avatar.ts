@@ -23,34 +23,35 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { avatarMethods, avatarPath } from '@etherealengine/engine/src/schemas/user/avatar.schema'
+
 import { Application } from '../../../declarations'
-import { Avatar } from './avatar.class'
+import { AvatarService } from './avatar.class'
 import avatarDocs from './avatar.docs'
 import hooks from './avatar.hooks'
-import createModel from './avatar.model'
 
 declare module '@etherealengine/common/declarations' {
-  /**
-   * Interface for users input
-   */
   interface ServiceTypes {
-    avatar: Avatar
+    [avatarPath]: AvatarService
   }
 }
 
 export default (app: Application): void => {
   const options = {
-    Model: createModel(app),
+    name: avatarPath,
     paginate: app.get('paginate'),
+    Model: app.get('knexClient'),
     multi: true
   }
 
-  const event = new Avatar(options, app)
-  event.docs = avatarDocs
+  app.use(avatarPath, new AvatarService(options, app), {
+    // A list of all methods this service exposes externally
+    methods: avatarMethods,
+    // You can add additional custom events to be sent to clients here
+    events: [],
+    docs: avatarDocs
+  })
 
-  app.use('avatar', event)
-
-  const service = app.service('avatar')
-
+  const service = app.service(avatarPath)
   service.hooks(hooks)
 }

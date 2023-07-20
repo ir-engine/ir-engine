@@ -24,11 +24,11 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { AuthenticationRequest } from '@feathersjs/authentication'
-import { Paginated, Params } from '@feathersjs/feathers'
+import { Paginated } from '@feathersjs/feathers'
 import { random } from 'lodash'
 
-import { AvatarInterface } from '@etherealengine/common/src/interfaces/AvatarInterface'
 import { UserInterface } from '@etherealengine/common/src/interfaces/User'
+import { avatarPath, AvatarType } from '@etherealengine/engine/src/schemas/user/avatar.schema'
 import { githubRepoAccessRefreshPath } from '@etherealengine/engine/src/schemas/user/github-repo-access-refresh.schema'
 
 import { Application } from '../../../declarations'
@@ -69,7 +69,7 @@ export class GithubStrategy extends CustomOAuthStrategy {
       {}
     )
     if (!entity.userId) {
-      const avatars = (await this.app.service('avatar').find({ isInternal: true })) as Paginated<AvatarInterface>
+      const avatars = (await this.app.service(avatarPath).find({ isInternal: true })) as Paginated<AvatarType>
       const code = await getFreeInviteCode(this.app)
       const newUser = (await this.app.service('user').create({
         isGuest: false,
