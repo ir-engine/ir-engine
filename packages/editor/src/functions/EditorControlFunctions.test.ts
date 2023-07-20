@@ -189,13 +189,8 @@ describe('EditorControlFunctions', () => {
       const entity3 = EditorControlFunctions.createObjectFromSceneElement(GroupComponent.name, rootNode)
 
       assert.equal(getComponent(entity1, NameComponent), 'New Group')
-      /**@todo fix name iteration */
-      // assert.equal(getComponent(entity2, NameComponent), 'New Group 2')
-      // assert.equal(getComponent(entity3, NameComponent), 'New Group 3')
-    })
-
-    afterEach(() => {
-      NameComponent.entitiesByNameState.set({})
+      assert.equal(getComponent(entity2, NameComponent), 'New Group 2')
+      assert.equal(getComponent(entity3, NameComponent), 'New Group 3')
     })
   })
 
