@@ -28,7 +28,6 @@ import { defineAction, defineActionQueue } from '@etherealengine/hyperflux'
 
 import { AdminActiveRouteActions, AdminActiveRouteReceptors } from '../admin/services/ActiveRouteService'
 import { AdminAnalyticsActions, AdminAnalyticsReceptors } from '../admin/services/AnalyticsService'
-import { AdminAvatarActions, AdminAvatarReceptors } from '../admin/services/AvatarService'
 import { AdminBotCommandActions, AdminBotsCommandReceptors } from '../admin/services/BotsCommand'
 import { AdminBotsActions, AdminBotServiceReceptors } from '../admin/services/BotsService'
 import { AdminBuildStatusActions, AdminBuildStatusReceptors } from '../admin/services/BuildStatusService'
@@ -100,10 +99,6 @@ const getScopeTypesQueue = defineActionQueue(AdminScopeTypeActions.getScopeTypes
 const instancesRetrievedQueue = defineActionQueue(AdminInstanceActions.instancesRetrieved.matches)
 const instanceRemovedQueue = defineActionQueue(AdminInstanceActions.instanceRemoved.matches)
 const userInstanceRetrievedQueue = defineActionQueue(AdminInstanceUserActions.instanceUsersRetrieved.matches)
-const avatarsFetchedQueue = defineActionQueue(AdminAvatarActions.avatarsFetched.matches)
-const avatarCreatedQueue = defineActionQueue(AdminAvatarActions.avatarCreated.matches)
-const avatarRemovedQueue = defineActionQueue(AdminAvatarActions.avatarRemoved.matches)
-const avatarUpdatedQueue = defineActionQueue(AdminAvatarActions.avatarUpdated.matches)
 const resourceFiltersFetchedQueue = defineActionQueue(AdminResourceActions.resourceFiltersFetched.matches)
 const resourcesFetchedQueue = defineActionQueue(AdminResourceActions.resourcesFetched.matches)
 const setSelectedMimeTypesQueue = defineActionQueue(AdminResourceActions.setSelectedMimeTypes.matches)
@@ -189,10 +184,6 @@ const execute = () => {
   for (const action of instancesRetrievedQueue()) AdminInstanceReceptors.instancesRetrievedReceptor(action)
   for (const action of instanceRemovedQueue()) AdminInstanceReceptors.instanceRemovedReceptor(action)
   for (const action of userInstanceRetrievedQueue()) AdminInstanceUserReceptors.userInstancesReceivedReceptor(action)
-  for (const action of avatarsFetchedQueue()) AdminAvatarReceptors.avatarsFetchedReceptor(action)
-  for (const action of avatarCreatedQueue()) AdminAvatarReceptors.avatarCreatedReceptor(action)
-  for (const action of avatarRemovedQueue()) AdminAvatarReceptors.avatarRemovedReceptor(action)
-  for (const action of avatarUpdatedQueue()) AdminAvatarReceptors.avatarUpdatedReceptor(action)
   for (const action of resourceFiltersFetchedQueue()) AdminResourceReceptors.resourceFiltersFetchedReceptor(action)
   for (const action of resourcesFetchedQueue()) AdminResourceReceptors.resourcesFetchedReceptor(action)
   for (const action of setSelectedMimeTypesQueue()) AdminResourceReceptors.setSelectedMimeTypesReceptor(action)

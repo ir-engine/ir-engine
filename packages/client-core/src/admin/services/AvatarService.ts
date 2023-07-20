@@ -28,14 +28,12 @@ import { Paginated } from '@feathersjs/feathers'
 import { StaticResourceInterface } from '@etherealengine/common/src/interfaces/StaticResourceInterface'
 import multiLogger from '@etherealengine/common/src/logger'
 import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { avatarPath, AvatarType } from '@etherealengine/engine/src/schemas/user/avatar.schema'
 import { defineAction, defineState, dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 
-import { API } from '../../API'
-
 const logger = multiLogger.child({ component: 'client-core:AvatarService' })
 
-//State
 export const AVATAR_PAGE_LIMIT = 100
 
 export const AdminAvatarState = defineState({
@@ -53,43 +51,6 @@ export const AdminAvatarState = defineState({
   })
 })
 
-const avatarsFetchedReceptor = (action: typeof AdminAvatarActions.avatarsFetched.matches._TYPE) => {
-  const state = getMutableState(AdminAvatarState)
-  return state.merge({
-    avatars: action.avatars.data,
-    skip: action.avatars.skip,
-    limit: action.avatars.limit,
-    total: action.avatars.total,
-    retrieving: false,
-    fetched: true,
-    updateNeeded: false,
-    lastFetched: Date.now()
-  })
-}
-
-const avatarCreatedReceptor = (action: typeof AdminAvatarActions.avatarCreated.matches._TYPE) => {
-  const state = getMutableState(AdminAvatarState)
-  return state.merge({ updateNeeded: true })
-}
-
-const avatarRemovedReceptor = (action: typeof AdminAvatarActions.avatarRemoved.matches._TYPE) => {
-  const state = getMutableState(AdminAvatarState)
-  return state.merge({ updateNeeded: true })
-}
-
-const avatarUpdatedReceptor = (action: typeof AdminAvatarActions.avatarUpdated.matches._TYPE) => {
-  const state = getMutableState(AdminAvatarState)
-  return state.merge({ updateNeeded: true })
-}
-
-export const AdminAvatarReceptors = {
-  avatarsFetchedReceptor,
-  avatarCreatedReceptor,
-  avatarRemovedReceptor,
-  avatarUpdatedReceptor
-}
-
-//Service
 export const AdminAvatarService = {
   fetchAdminAvatars: async (skip = 0, search: string | undefined = undefined, sortField = 'name', orderBy = 'asc') => {
     const sortData = {}
@@ -98,7 +59,7 @@ export const AdminAvatarService = {
     }
     const adminAvatarState = getMutableState(AdminAvatarState)
     const limit = adminAvatarState.limit.value
-    const avatars = (await API.instance.client.service(avatarPath).find({
+    const avatars = (await Engine.instance.api.service(avatarPath).find({
       query: {
         admin: true,
         $sort: {
@@ -109,34 +70,23 @@ export const AdminAvatarService = {
         search: search
       }
     })) as Paginated<AvatarType>
-    dispatchAction(AdminAvatarActions.avatarsFetched({ avatars }))
+    getMutableState(AdminAvatarState).merge({
+      avatars: avatars.data,
+      skip: avatars.skip,
+      limit: avatars.limit,
+      total: avatars.total,
+      retrieving: false,
+      fetched: true,
+      updateNeeded: false,
+      lastFetched: Date.now()
+    })
   },
   removeAdminAvatar: async (id: string) => {
     try {
-      await API.instance.client.service(avatarPath).remove(id)
-      dispatchAction(AdminAvatarActions.avatarRemoved({}))
+      await Engine.instance.api.service(avatarPath).remove(id)
+      getMutableState(AdminAvatarState).merge({ updateNeeded: true })
     } catch (err) {
       logger.error(err)
     }
   }
-}
-
-//Action
-export class AdminAvatarActions {
-  static avatarsFetched = defineAction({
-    type: 'ee.client.AdminAvatar.AVATARS_RETRIEVED' as const,
-    avatars: matches.object as Validator<unknown, Paginated<AvatarType>>
-  })
-
-  static avatarCreated = defineAction({
-    type: 'ee.client.AdminAvatar.AVATAR_CREATED' as const
-  })
-
-  static avatarRemoved = defineAction({
-    type: 'ee.client.AdminAvatar.AVATAR_REMOVED' as const
-  })
-
-  static avatarUpdated = defineAction({
-    type: 'ee.client.AdminAvatar.AVATAR_UPDATED' as const
-  })
 }
