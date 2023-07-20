@@ -23,11 +23,17 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React, { useEffect } from 'react'
+import React, { ReactElement, useEffect } from 'react'
 
-import { getMutableState, getState } from '@etherealengine/hyperflux'
+import { getMutableState, getState, State } from '@etherealengine/hyperflux'
 
-import { ComponentPartial, defineComponent, getComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
+import {
+  ComponentPartial,
+  ComponentType,
+  defineComponent,
+  getComponent,
+  useComponent
+} from '../../ecs/functions/ComponentFunctions'
 import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { PostProcessingSettingsState } from '../../renderer/WebGLRendererSystem'
 import { EffectPropsSchema, EffectPropsSchemaType } from '../constants/PostProcessing'
@@ -37,7 +43,10 @@ export const PostProcessingComponent = defineComponent({
   jsonID: 'postprocessing',
 
   onInit(entity) {
-    return JSON.parse(JSON.stringify(getState(PostProcessingSettingsState))) as typeof PostProcessingSettingsState._TYPE
+    return {
+      enabled: false,
+      effects: JSON.parse(JSON.stringify(getState(PostProcessingSettingsState).effects)) as EffectPropsSchema
+    }
   },
 
   onSet: (entity, component, json) => {
@@ -59,11 +68,9 @@ export const PostProcessingComponent = defineComponent({
   },
 
   reactor: PostProcessingComponentReactor
+})
 
-  // types dont quite work properly here for some reason
-} as ComponentPartial<{ enabled: boolean; effects: EffectPropsSchema }>)
-
-function PostProcessingComponentReactor() {
+function PostProcessingComponentReactor(): ReactElement {
   const entity = useEntityContext()
   const component = useComponent(entity, PostProcessingComponent)
 
