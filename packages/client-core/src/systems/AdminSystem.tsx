@@ -27,7 +27,6 @@ import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFun
 import { defineAction, defineActionQueue } from '@etherealengine/hyperflux'
 
 import { AdminActiveRouteActions, AdminActiveRouteReceptors } from '../admin/services/ActiveRouteService'
-import { AdminAnalyticsActions, AdminAnalyticsReceptors } from '../admin/services/AnalyticsService'
 import { AdminBotCommandActions, AdminBotsCommandReceptors } from '../admin/services/BotsCommand'
 import { AdminBotsActions, AdminBotServiceReceptors } from '../admin/services/BotsService'
 import { AdminBuildStatusActions, AdminBuildStatusReceptors } from '../admin/services/BuildStatusService'
@@ -91,14 +90,6 @@ const partyRetrievedQueue = defineActionQueue(AdminPartyActions.partyRetrieved.m
 const partyAdminCreatedQueue = defineActionQueue(AdminPartyActions.partyAdminCreated.matches)
 const partyRemovedQueue = defineActionQueue(AdminPartyActions.partyRemoved.matches)
 const partyPatchedQueue = defineActionQueue(AdminPartyActions.partyPatched.matches)
-const activeInstancesFetchedQueue = defineActionQueue(AdminAnalyticsActions.activeInstancesFetched.matches)
-const activePartiesFetchedQueue = defineActionQueue(AdminAnalyticsActions.activePartiesFetched.matches)
-const activeLocationsFetchedQueue = defineActionQueue(AdminAnalyticsActions.activeLocationsFetched.matches)
-const activeScenesFetchedQueue = defineActionQueue(AdminAnalyticsActions.activeScenesFetched.matches)
-const channelUsersFetchedQueue = defineActionQueue(AdminAnalyticsActions.channelUsersFetched.matches)
-const instanceUsersFetchedQueue = defineActionQueue(AdminAnalyticsActions.instanceUsersFetched.matches)
-const dailyNewUsersFetchedQueue = defineActionQueue(AdminAnalyticsActions.dailyNewUsersFetched.matches)
-const dailyUsersFetchedQueue = defineActionQueue(AdminAnalyticsActions.dailyUsersFetched.matches)
 const botCommandCreatedQueue = defineActionQueue(AdminBotCommandActions.botCommandCreated.matches)
 const botCommandRemovedQueue = defineActionQueue(AdminBotCommandActions.botCommandRemoved.matches)
 const fetchedBotQueue = defineActionQueue(AdminBotsActions.fetchedBot.matches)
@@ -154,14 +145,6 @@ const execute = () => {
   for (const action of partyAdminCreatedQueue()) AdminPartyReceptors.partyAdminCreatedReceptor(action)
   for (const action of partyRemovedQueue()) AdminPartyReceptors.partyRemovedReceptor(action)
   for (const action of partyPatchedQueue()) AdminPartyReceptors.partyPatchedReceptor(action)
-  for (const action of activeInstancesFetchedQueue()) AdminAnalyticsReceptors.activeInstancesFetchedReceptor(action)
-  for (const action of activePartiesFetchedQueue()) AdminAnalyticsReceptors.activePartiesFetchedReceptor(action)
-  for (const action of activeLocationsFetchedQueue()) AdminAnalyticsReceptors.activeLocationsFetchedReceptor(action)
-  for (const action of activeScenesFetchedQueue()) AdminAnalyticsReceptors.activeScenesFetchedReceptor(action)
-  for (const action of channelUsersFetchedQueue()) AdminAnalyticsReceptors.channelUsersFetchedReceptor(action)
-  for (const action of instanceUsersFetchedQueue()) AdminAnalyticsReceptors.instanceUsersFetchedReceptor(action)
-  for (const action of dailyNewUsersFetchedQueue()) AdminAnalyticsReceptors.dailyNewUsersFetchedReceptor(action)
-  for (const action of dailyUsersFetchedQueue()) AdminAnalyticsReceptors.dailyUsersFetchedReceptor(action)
   for (const action of botCommandCreatedQueue()) AdminBotsCommandReceptors.botCommandCreatedReceptor(action)
   for (const action of botCommandRemovedQueue()) AdminBotsCommandReceptors.botCommandRemovedReceptor(action)
   for (const action of fetchedBotQueue()) AdminBotServiceReceptors.fetchedBotReceptor(action)
