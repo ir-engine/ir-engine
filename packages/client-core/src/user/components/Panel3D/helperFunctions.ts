@@ -38,7 +38,7 @@ import { ObjectLayers } from '@etherealengine/engine/src/scene/constants/ObjectL
 
 export const validate = (obj: Object3D, renderer: WebGLRenderer, scene: Scene, camera: Camera) => {
   const objBoundingBox = new Box3().setFromObject(obj)
-  let maxBB = new Vector3(2, 3, 2)
+  const maxBB = new Vector3(2, 3, 2)
 
   let bone = false
   let skinnedMesh = false
@@ -82,17 +82,27 @@ export const resetAnimationLogic = (entity: Entity) => {
 }
 
 export const loadAvatarForPreview = async (entity: Entity, avatarURL: string) => {
-  const parent = await loadAvatarModelAsset(avatarURL)
-  if (!parent) return
-  setupAvatarModel(entity)(parent)
+  //Quick fix to make sure we're always getting the .scene property regardless of VRM/Object3D return type.
+  //This won't be necessary if we decide to return only VRM
+  const loaded = (await loadAvatarModelAsset(avatarURL)) as any
+  if (!loaded) return
+  let scene = undefined! as Object3D
+  if (loaded.scene) scene = loaded.scene
+  else scene = loaded
+
+  //setupAvatarModel(entity)(loaded)
   removeGroupComponent(entity)
-  addObjectToGroup(entity, parent)
-  parent.traverse((obj: Object3D) => {
+
+  if (scene) addObjectToGroup(entity, scene)
+  scene.traverse((obj: Object3D) => {
     obj.layers.set(ObjectLayers.Panel)
   })
-  parent.removeFromParent()
-  // animateModel(entity)
-  return parent
+  scene.removeFromParent()
+
+  // face the camera
+  scene.rotateY(Math.PI)
+
+  return scene
 }
 
 export const loadModelForPreview = async (entity: Entity, avatarURL: string) => {

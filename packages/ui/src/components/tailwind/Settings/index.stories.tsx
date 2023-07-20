@@ -23,22 +23,21 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import logger from '../../ServerLogger'
-import { getStorageProvider } from './storageprovider'
+import Component from './index'
 
-export const getFileKeysRecursive = async (path: string, storageProviderName?: string) => {
-  const storageProvider = getStorageProvider(storageProviderName)
-  const files: string[] = []
-  try {
-    const response = await storageProvider.listObjects(path, true)
-    const entries = response?.Contents
-    if (entries?.length) {
-      for (const { Key } of entries) {
-        files.push(Key)
-      }
+const argTypes = {}
+
+export default {
+  title: 'Capture/Settings',
+  component: Component,
+  parameters: {
+    componentSubtitle: 'Settings',
+    jest: 'Settings.test.tsx',
+    design: {
+      type: 'figma',
+      url: ''
     }
-  } catch (e) {
-    logger.error(e)
-  }
-  return files
+  },
+  argTypes
 }
+export const Default = { args: Component.defaultProps }

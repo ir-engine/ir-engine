@@ -23,22 +23,16 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import logger from '../../ServerLogger'
-import { getStorageProvider } from './storageprovider'
+import { describe, expect, it } from '@jest/globals'
+import { shallow } from 'enzyme'
+import React from 'react'
 
-export const getFileKeysRecursive = async (path: string, storageProviderName?: string) => {
-  const storageProvider = getStorageProvider(storageProviderName)
-  const files: string[] = []
-  try {
-    const response = await storageProvider.listObjects(path, true)
-    const entries = response?.Contents
-    if (entries?.length) {
-      for (const { Key } of entries) {
-        files.push(Key)
-      }
-    }
-  } catch (e) {
-    logger.error(e)
-  }
-  return files
-}
+import Settings from './index'
+import { Default as story } from './index.stories'
+
+describe('Settings', () => {
+  it('- should render', () => {
+    const wrapper = shallow(<Settings {...story?.args} />)
+    expect(wrapper).toMatchSnapshot()
+  })
+})

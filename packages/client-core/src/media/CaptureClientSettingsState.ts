@@ -23,22 +23,31 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import logger from '../../ServerLogger'
-import { getStorageProvider } from './storageprovider'
+import { defineState } from '@etherealengine/hyperflux'
 
-export const getFileKeysRecursive = async (path: string, storageProviderName?: string) => {
-  const storageProvider = getStorageProvider(storageProviderName)
-  const files: string[] = []
-  try {
-    const response = await storageProvider.listObjects(path, true)
-    const entries = response?.Contents
-    if (entries?.length) {
-      for (const { Key } of entries) {
-        files.push(Key)
+export const CaptureClientSettingsState = defineState({
+  name: 'CaptureClientSettingsState',
+  initial: () => ({
+    tab: 0,
+    settings: [
+      {
+        name: 'Display',
+        tabOrder: 0,
+        showVideo: false,
+        flipVideo: true,
+        show2dSkeleton: true
+      },
+      {
+        name: 'Tracking',
+        tabOrder: 1,
+        trackFace: true,
+        trackBody: true,
+        trackHands: false
+      },
+      {
+        name: 'Other',
+        tabOrder: 2
       }
-    }
-  } catch (e) {
-    logger.error(e)
-  }
-  return files
-}
+    ]
+  })
+})
