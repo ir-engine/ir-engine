@@ -24,15 +24,11 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { StaticResourceInterface } from '@etherealengine/common/src/interfaces/StaticResourceInterface'
-import {
-  StaticResourceFilterResult,
-  StaticResourceResult
-} from '@etherealengine/common/src/interfaces/StaticResourceResult'
+import { StaticResourceFilterResult } from '@etherealengine/common/src/interfaces/StaticResourceResult'
 import { AdminAssetUploadArgumentsType } from '@etherealengine/common/src/interfaces/UploadAssetInterface'
 import multiLogger from '@etherealengine/common/src/logger'
-import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { defineAction, defineState, dispatchAction, getMutableState } from '@etherealengine/hyperflux'
+import { defineState, getMutableState } from '@etherealengine/hyperflux'
 
 import { NotificationService } from '../../common/services/NotificationService'
 import { uploadToFeathersService } from '../../util/upload'
@@ -41,7 +37,6 @@ const logger = multiLogger.child({ component: 'client-core:ResourcesService' })
 
 export const RESOURCE_PAGE_LIMIT = 100
 
-//State
 export const AdminResourceState = defineState({
   name: 'AdminResourceState',
   initial: () => ({
@@ -58,57 +53,6 @@ export const AdminResourceState = defineState({
   })
 })
 
-const resourceNeedsUpdateReceptor = (action: typeof AdminResourceActions.resourceNeedsUpdated.matches._TYPE) => {
-  const state = getMutableState(AdminResourceState)
-  return state.merge({ updateNeeded: true })
-}
-
-const resourcesFetchedReceptor = (action: typeof AdminResourceActions.resourcesFetched.matches._TYPE) => {
-  const state = getMutableState(AdminResourceState)
-  return state.merge({
-    resources: action.resources.data,
-    skip: action.resources.skip,
-    limit: action.resources.limit,
-    total: action.resources.total,
-    retrieving: false,
-    fetched: true,
-    updateNeeded: false,
-    lastFetched: Date.now()
-  })
-}
-
-const resourceFiltersFetchedReceptor = (action: typeof AdminResourceActions.resourceFiltersFetched.matches._TYPE) => {
-  const state = getMutableState(AdminResourceState)
-  return state.merge({
-    filters: action.filters,
-    selectedMimeTypes: action.filters.mimeTypes
-  })
-}
-
-const setSelectedMimeTypesReceptor = (action: typeof AdminResourceActions.setSelectedMimeTypes.matches._TYPE) => {
-  const state = getMutableState(AdminResourceState)
-  return state.merge({
-    updateNeeded: true,
-    selectedMimeTypes: action.types
-  })
-}
-
-const resourcesResetFilterReceptor = (action: typeof AdminResourceActions.resourcesResetFilter.matches._TYPE) => {
-  const state = getMutableState(AdminResourceState)
-  return state.merge({
-    updateNeeded: true,
-    selectedMimeTypes: state.filters.value?.mimeTypes
-  })
-}
-
-export const AdminResourceReceptors = {
-  resourcesFetchedReceptor,
-  resourceFiltersFetchedReceptor,
-  setSelectedMimeTypesReceptor,
-  resourceNeedsUpdateReceptor,
-  resourcesResetFilterReceptor
-}
-
 export const ResourceService = {
   createOrUpdateResource: async (resource: AdminAssetUploadArgumentsType, resourceBlob: File) => {
     try {
@@ -118,7 +62,7 @@ export const ResourceService = {
       })
 
       await ResourceService.getResourceFilters()
-      dispatchAction(AdminResourceActions.resourceNeedsUpdated({}))
+      getMutableState(AdminResourceState).merge({ updateNeeded: true })
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
@@ -128,67 +72,55 @@ export const ResourceService = {
       await Engine.instance.api.service('static-resource').remove(id)
 
       await ResourceService.getResourceFilters()
-      dispatchAction(AdminResourceActions.resourceNeedsUpdated({}))
+      getMutableState(AdminResourceState).merge({ updateNeeded: true })
     } catch (err) {
       logger.error(err)
     }
   },
   fetchAdminResources: async (skip = 0, search: string | null = null, sortField = 'key', orderBy = 'asc') => {
-    const sortData = {}
-    if (sortField.length > 0) {
-      sortData[sortField] = orderBy === 'desc' ? 0 : 1
-    }
+    const $sort = sortField.length ? { [sortField]: orderBy === 'desc' ? 0 : 1 } : {}
     const adminResourceState = getMutableState(AdminResourceState)
     const limit = adminResourceState.limit.value
     const selectedMimeTypes = adminResourceState.selectedMimeTypes.value
 
     const resources = await Engine.instance.api.service('static-resource').find({
       query: {
-        $sort: {
-          ...sortData
-        },
+        $sort,
         $limit: limit,
         $skip: skip * RESOURCE_PAGE_LIMIT,
         search: search,
         mimeTypes: selectedMimeTypes
       }
     })
-    dispatchAction(AdminResourceActions.resourcesFetched({ resources }))
+
+    getMutableState(AdminResourceState).merge({
+      resources: resources.data,
+      skip: resources.skip,
+      limit: resources.limit,
+      total: resources.total,
+      retrieving: false,
+      fetched: true,
+      updateNeeded: false,
+      lastFetched: Date.now()
+    })
   },
   getResourceFilters: async () => {
-    const filters = (await Engine.instance.api.service('static-resource-filters').get()) as StaticResourceFilterResult
-    dispatchAction(AdminResourceActions.resourceFiltersFetched({ filters }))
+    const filters = await Engine.instance.api.service('static-resource-filters').get()
+    getMutableState(AdminResourceState).merge({
+      filters: filters,
+      selectedMimeTypes: filters.mimeTypes
+    })
   },
   setSelectedMimeTypes: async (types: string[]) => {
-    dispatchAction(AdminResourceActions.setSelectedMimeTypes({ types }))
+    getMutableState(AdminResourceState).merge({
+      updateNeeded: true,
+      selectedMimeTypes: types
+    })
   },
   resetFilter: () => {
-    dispatchAction(AdminResourceActions.resourcesResetFilter({}))
+    getMutableState(AdminResourceState).merge((prevState) => ({
+      updateNeeded: true,
+      selectedMimeTypes: prevState.filters?.mimeTypes
+    }))
   }
-}
-
-//Action
-export class AdminResourceActions {
-  static resourceNeedsUpdated = defineAction({
-    type: 'ee.client.AdminResource.RESOURCE_NEEDS_UPDATE' as const
-  })
-
-  static resourcesFetched = defineAction({
-    type: 'ee.client.AdminResource.RESOURCES_RETRIEVED' as const,
-    resources: matches.object as Validator<unknown, StaticResourceResult>
-  })
-
-  static resourceFiltersFetched = defineAction({
-    type: 'ee.client.AdminResource.RESOURCE_FILTERS_RETRIEVED' as const,
-    filters: matches.object as Validator<unknown, StaticResourceFilterResult>
-  })
-
-  static setSelectedMimeTypes = defineAction({
-    type: 'ee.client.AdminResource.RESOURCE_SET_MIME' as const,
-    types: matches.object as Validator<unknown, string[]>
-  })
-
-  static resourcesResetFilter = defineAction({
-    type: 'ee.client.AdminResource.RESOURCES_RESET_FILTER' as const
-  })
 }

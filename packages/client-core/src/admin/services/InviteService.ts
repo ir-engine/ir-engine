@@ -92,8 +92,8 @@ export const AdminInviteService = {
             ...sortData
           },
           $skip: skip * INVITE_PAGE_LIMIT,
-          $limit: limit,
-          search
+          $limit: limit
+          // search /** @todo reimplement invite search */
         }
       })) as Paginated<InviteInterface>
       getMutableState(AdminInviteState).merge({
