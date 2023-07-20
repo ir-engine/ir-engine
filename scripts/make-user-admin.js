@@ -1,5 +1,3 @@
-import appRootPath from 'app-root-path'
-
 /*
 CPAL-1.0 License
 
@@ -24,6 +22,8 @@ Original Code is the Ethereal Engine team.
 All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
 Ethereal Engine. All Rights Reserved.
 */
+
+import appRootPath from 'app-root-path'
 
 /* eslint-disable @typescript-eslint/no-var-requires */
 const dotenv = require('dotenv-flow')
