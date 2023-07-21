@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
-import { createState, none } from '@etherealengine/hyperflux'
+import { hookstate, none } from '@etherealengine/hyperflux'
 
 import { Entity } from '../../ecs/classes/Entity'
 import { defineComponent, EntityRemovedComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
@@ -60,6 +60,6 @@ export const UUIDComponent = defineComponent({
     }
   },
 
-  entitiesByUUIDState: createState(entitiesByUUID),
+  entitiesByUUIDState: hookstate(entitiesByUUID),
   entitiesByUUID: entitiesByUUID as Readonly<typeof entitiesByUUID>
 })

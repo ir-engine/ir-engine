@@ -27,7 +27,7 @@ import React, { useEffect } from 'react'
 import matches from 'ts-matches'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
-import { defineAction, defineState, getMutableState, none, useHookstate, useState } from '@etherealengine/hyperflux'
+import { defineAction, defineState, getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
 
 import { matchesEntityUUID } from '../../common/functions/MatchesUtils'
 import { isClient } from '../../common/functions/getEnvironment'
@@ -158,7 +158,7 @@ const AvatarReactor = React.memo(({ entityUUID }: { entityUUID: EntityUUID }) =>
 })
 
 export const AvatarStateReactor = () => {
-  const avatarState = useState(getMutableState(AvatarState))
+  const avatarState = useHookstate(getMutableState(AvatarState))
   return (
     <>
       {avatarState.keys.map((entityUUID: EntityUUID) => {

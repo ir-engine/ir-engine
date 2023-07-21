@@ -33,7 +33,7 @@ import { WorldState } from '@etherealengine/engine/src/networking/interfaces/Wor
 import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
 import { createXRUI } from '@etherealengine/engine/src/xrui/functions/createXRUI'
 import { useXRUIState } from '@etherealengine/engine/src/xrui/functions/useXRUIState'
-import { createState, getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { hookstate, getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
 import { AvatarUIState } from '../../state/AvatarUIState'
 import styleString from './index.scss?inline'
@@ -42,7 +42,7 @@ export function createAvatarDetailView(id: string) {
   const videoPreviewMesh = new Mesh(new CircleGeometry(0.25, 32), new MeshBasicMaterial())
   const ui = createXRUI(
     AvatarDetailView,
-    createState({
+    hookstate({
       id,
       videoPreviewMesh
     })

@@ -30,7 +30,7 @@ import { respawnAvatar } from '@etherealengine/engine/src/avatar/functions/respa
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { createXRUI } from '@etherealengine/engine/src/xrui/functions/createXRUI'
 import { RegisteredWidgets, WidgetAppActions, WidgetAppState } from '@etherealengine/engine/src/xrui/WidgetAppService'
-import { createState, dispatchAction, getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { dispatchAction, getMutableState, hookstate, useHookstate } from '@etherealengine/hyperflux'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 
 import { XRState } from '@etherealengine/engine/src/xr/XRState'
@@ -42,11 +42,7 @@ import XRIconButton from '../../components/XRIconButton'
 import styleString from './index.scss?inline'
 
 export function createWidgetButtonsView() {
-  return createXRUI(WidgetButtons, createWidgetButtonsState())
-}
-
-function createWidgetButtonsState() {
-  return createState({})
+  return createXRUI(WidgetButtons, hookstate({}))
 }
 
 type WidgetButtonProps = {

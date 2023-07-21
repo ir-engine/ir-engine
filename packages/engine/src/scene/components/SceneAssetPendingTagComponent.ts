@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { createState } from '@etherealengine/hyperflux'
+import { hookstate } from '@etherealengine/hyperflux'
 
 import { Entity } from '../../ecs/classes/Entity'
 import { defineComponent } from '../../ecs/functions/ComponentFunctions'
@@ -31,7 +31,7 @@ import { defineComponent } from '../../ecs/functions/ComponentFunctions'
 export const SceneAssetPendingTagComponent = defineComponent({
   name: 'SceneAssetPendingTagComponent',
 
-  loadingProgress: createState(
+  loadingProgress: hookstate(
     {} as Record<
       Entity,
       {

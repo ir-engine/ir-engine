@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { createState, SetInitialStateAction, State, useHookstate } from '@hookstate/core'
+import { hookstate, SetInitialStateAction, State, useHookstate } from '@etherealengine/hyperflux'
 import type { Function, Object, String } from 'ts-toolbelt'
 
 import { DeepReadonly } from '@etherealengine/common/src/DeepReadonly'
@@ -76,7 +76,7 @@ export function registerState<S>(StateDefinition: StateDefinition<S>) {
       ? (StateDefinition.initial as any)()
       : JSON.parse(JSON.stringify(StateDefinition.initial))
   HyperFlux.store.valueMap[StateDefinition.name] = initial
-  HyperFlux.store.stateMap[StateDefinition.name] = createState(initial)
+  HyperFlux.store.stateMap[StateDefinition.name] = hookstate(initial)
   HyperFlux.store.stateMap[StateDefinition.name].attach(() => ({
     id: Symbol('update root state value map'),
     init: () => ({

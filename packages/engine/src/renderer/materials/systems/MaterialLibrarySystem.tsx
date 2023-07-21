@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import React, { ReactElement, useEffect } from 'react'
 
-import { getMutableState, useState } from '@etherealengine/hyperflux'
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
 import { defineSystem } from '../../../ecs/functions/SystemFunctions'
 import { NoiseOffsetSystem } from '../constants/plugins/NoiseOffsetPlugin'
@@ -33,7 +33,7 @@ import { applyMaterialPlugin, removeMaterialPlugin } from '../functions/Material
 import { initializeMaterialLibrary, MaterialLibraryState } from '../MaterialLibrary'
 
 function MaterialReactor({ materialId }: { materialId: string }) {
-  const materialLibrary = useState(getMutableState(MaterialLibraryState))
+  const materialLibrary = useHookstate(getMutableState(MaterialLibraryState))
   const component = materialLibrary.materials[materialId]
   useEffect(() => {
     const material = component.material.value
@@ -46,7 +46,7 @@ function MaterialReactor({ materialId }: { materialId: string }) {
 }
 
 function PluginReactor({ pluginId }: { pluginId: string }) {
-  const materialLibrary = useState(getMutableState(MaterialLibraryState))
+  const materialLibrary = useHookstate(getMutableState(MaterialLibraryState))
   const component = materialLibrary.plugins[pluginId]
   return null
 }
@@ -64,7 +64,7 @@ function reactor(): ReactElement {
     }
   }, [])
 
-  const materialLibrary = useState(getMutableState(MaterialLibraryState))
+  const materialLibrary = useHookstate(getMutableState(MaterialLibraryState))
   const plugins = materialLibrary.plugins
   return (
     <>

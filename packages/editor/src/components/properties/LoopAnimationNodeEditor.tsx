@@ -31,7 +31,7 @@ import { LoopAnimationComponent } from '@etherealengine/engine/src/avatar/compon
 import { useComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { getCallback } from '@etherealengine/engine/src/scene/components/CallbackComponent'
 import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
-import { useState } from '@etherealengine/hyperflux'
+import { useHookstate } from '@etherealengine/hyperflux'
 
 import AnimationIcon from '@mui/icons-material/Animation'
 
@@ -52,7 +52,7 @@ export const LoopAnimationNodeEditor: EditorComponentType = (props) => {
   const modelComponent = useComponent(entity, ModelComponent)
   const loopAnimationComponent = useComponent(entity, LoopAnimationComponent)
 
-  const animationOptions = useState([] as { label: string; value: number }[])
+  const animationOptions = useHookstate([] as { label: string; value: number }[])
 
   useEffect(() => {
     const obj3d = modelComponent.value.scene

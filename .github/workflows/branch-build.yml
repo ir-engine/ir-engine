@@ -40,7 +40,7 @@ jobs:
         run: npm config set '//npm.pkg.github.com/:_authToken' "${NPM_TOKEN}"
         env:
           NPM_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - run: npm install --production=false --loglevel notice --legacy-peer-deps
+      - run: npm install --production=false --loglevel notice
       - run: npm run lint
       - run: npm run dev-docker
       - run: npm run dev-reinit

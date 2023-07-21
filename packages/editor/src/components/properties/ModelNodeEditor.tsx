@@ -29,7 +29,7 @@ import { useTranslation } from 'react-i18next'
 import { useComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { getEntityErrors } from '@etherealengine/engine/src/scene/components/ErrorComponent'
 import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
-import { useState } from '@etherealengine/hyperflux'
+import { useHookstate } from '@etherealengine/hyperflux'
 
 import ViewInArIcon from '@mui/icons-material/ViewInAr'
 
@@ -55,10 +55,10 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
   const entity = props.entity
   const modelComponent = useComponent(entity, ModelComponent)
-  const exporting = useState(false)
+  const exporting = useHookstate(false)
 
-  const exportPath = useState(() => modelComponent.src.value)
-  const exportType = useState(modelComponent.src.value.endsWith('.gltf') ? 'gltf' : 'glb')
+  const exportPath = useHookstate(() => modelComponent.src.value)
+  const exportType = useHookstate(modelComponent.src.value.endsWith('.gltf') ? 'gltf' : 'glb')
 
   const errors = getEntityErrors(props.entity, ModelComponent)
 

@@ -10,7 +10,7 @@ WORKDIR /app
 COPY packages/server/package.json ./packages/server/
 
 ARG NODE_ENV
-RUN npm install --loglevel notice --legacy-peer-deps --production
+RUN npm install --loglevel notice --production
 
 COPY . .
 
@@ -37,7 +37,7 @@ COPY packages/ui/package.json ./packages/ui/
 COPY patches/ ./patches/
 
 ARG NODE_ENV
-RUN npm install --loglevel notice --legacy-peer-deps --production
+RUN npm install --loglevel notice --production
 # Hackfix for issue with broken installation of react-is
 RUN npm install react-is
 
