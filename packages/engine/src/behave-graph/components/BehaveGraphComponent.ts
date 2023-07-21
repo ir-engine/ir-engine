@@ -23,12 +23,13 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { GraphJSON, Registry } from 'behave-graph'
 import matches, { Validator } from 'ts-matches'
 
 import { OpaqueType } from '@etherealengine/common/src/interfaces/OpaqueType'
+import { GraphJSON } from '@etherealengine/engine/src/behave-graph/core'
 
 import { defineComponent, hasComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
+import DefaultGraph from '../graph/default-graph.json'
 import { RuntimeGraphComponent } from './RuntimeGraphComponent'
 
 export type GraphDomainID = OpaqueType<'GraphDomainID'> & string
@@ -41,7 +42,7 @@ export const BehaveGraphComponent = defineComponent({
   onInit: (entity) => {
     return {
       domain: 'ECS' as GraphDomainID,
-      graph: {} as GraphJSON
+      graph: DefaultGraph as unknown as GraphJSON
     }
   },
 

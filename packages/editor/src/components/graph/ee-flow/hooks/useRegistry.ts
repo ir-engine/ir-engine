@@ -23,36 +23,29 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { useState } from 'react'
+
 import {
   DefaultLogger,
-  Engine,
+  getCoreNodesMap,
+  getCoreValuesMap,
+  IRegistry,
   ManualLifecycleEventEmitter,
-  readGraphFromJSON,
-  registerCoreProfile
+  memo
 } from '@etherealengine/engine/src/behave-graph/core'
-import { getState } from '@etherealengine/hyperflux'
 
-import { defineComponent, getComponent } from '../../ecs/functions/ComponentFunctions'
-import { BehaveGraphSystemState } from '../systems/BehaveGraphSystem'
-import { BehaveGraphComponent } from './BehaveGraphComponent'
-
-export const RuntimeGraphComponent = defineComponent({
-  name: 'EE_runtimeGraph',
-
-  onInit: (entity) => {
-    const graphComponent = getComponent(entity, BehaveGraphComponent)
-    /*const registry = new Registry()
-    const logger = new DefaultLogger()
-    const ticker = new ManualLifecycleEventEmitter()
-    registerCoreProfile(registry, logger, ticker)
-    const systemState = getState(BehaveGraphSystemState)
-    systemState.domains[graphComponent.domain]?.register(registry, logger, ticker)
-    const graph = readGraphFromJSON(graphComponent.graph, registry)
-    const engine = new Engine(graph)
-    return { engine, ticker }*/
-  },
-
-  onRemove: (entity, component) => {
-    //component.value.engine.dispose()
+export const createRegistry = memo<IRegistry>(() => {
+  return {
+    nodes: getCoreNodesMap(),
+    values: getCoreValuesMap(),
+    dependencies: {
+      logger: new DefaultLogger(),
+      lifecycleEventEmitter: new ManualLifecycleEventEmitter()
+    }
   }
 })
+
+export const useRegistry = () => {
+  const [registry] = useState<IRegistry>(() => createRegistry())
+  return registry
+}

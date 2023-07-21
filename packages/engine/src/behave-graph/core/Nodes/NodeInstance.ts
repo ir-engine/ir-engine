@@ -1,0 +1,96 @@
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
+import { Engine } from '../Execution/Engine.js'
+import { Fiber } from '../Execution/Fiber.js'
+import { IGraphApi } from '../Graphs/Graph.js'
+import { Socket } from '../Sockets/Socket.js'
+import { NodeConfiguration } from './Node.js'
+import { readInputFromSockets, writeOutputsToSocket } from './NodeSockets.js'
+import { INodeDescription } from './Registry/NodeDescription.js'
+
+export enum NodeType {
+  Event = 'Event',
+  Flow = 'Flow',
+  Async = 'Async',
+  Function = 'Function'
+}
+
+export interface INode {
+  readonly inputs: Socket[]
+  readonly outputs: Socket[]
+  readonly graph: IGraphApi
+  description: INodeDescription
+  configuration: NodeConfiguration
+  nodeType: NodeType
+  label?: string
+  metadata?: any
+}
+
+export interface IFunctionNode extends INode {
+  nodeType: NodeType.Function
+  exec: (node: INode) => void
+}
+
+export interface IEventNode extends INode {
+  nodeType: NodeType.Event
+  init: (engine: Engine) => void
+  dispose: (engine: Engine) => void
+}
+
+export interface IFlowNode extends INode {
+  nodeType: NodeType.Flow
+  triggered: (fiber: Fiber, triggeringSocketName: string) => void
+}
+
+export interface IAsyncNode extends INode {
+  nodeType: NodeType.Async
+  triggered: (engine: Engine, triggeringSocketName: string, finished: () => void) => void
+  dispose: () => void
+}
+
+export const isFlowNode = (node: INode): node is IFlowNode => node.nodeType === NodeType.Flow
+
+export const isEventNode = (node: INode): node is IEventNode => node.nodeType === NodeType.Event
+
+export const isAsyncNode = (node: INode): node is IAsyncNode => node.nodeType === NodeType.Async
+
+export const isFunctionNode = (node: INode): node is IFunctionNode => node.nodeType === NodeType.Function
+
+export const makeNodeInstance = (node: INode) => {
+  const readInput = <T>(inputName: string): T => {
+    return readInputFromSockets(node.inputs, inputName, node.description.typeName)
+  }
+
+  const writeOutput = <T>(outputName: string, value: T) => {
+    writeOutputsToSocket(node.outputs, outputName, value, node.description.typeName)
+  }
+
+  return {
+    ...node,
+    readInput,
+    writeOutput
+  }
+}

@@ -26,6 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { PositionalAudioComponent } from '@etherealengine/engine/src/audio/components/PositionalAudioComponent'
 import { MediaPrefabs } from '@etherealengine/engine/src/audio/systems/MediaSystem'
 import { LoopAnimationComponent } from '@etherealengine/engine/src/avatar/components/LoopAnimationComponent'
+import { BehaveGraphComponent } from '@etherealengine/engine/src/behave-graph/components/BehaveGraphComponent'
 import { Component } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { PhysicsPrefabs } from '@etherealengine/engine/src/physics/systems/PhysicsSystem'
 import { AmbientLightComponent } from '@etherealengine/engine/src/scene/components/AmbientLightComponent'
@@ -72,6 +73,7 @@ import { PersistentAnchorComponent } from '@etherealengine/engine/src/xr/XRAncho
 // import ChairIcon from '@mui/icons-material/Chair'
 
 import AmbientLightNodeEditor from '../components/properties/AmbientLightNodeEditor'
+import BehaveGraphNodeEditor from '../components/properties/BehaveGraphNodeEditor'
 import { CameraPropertiesNodeEditor } from '../components/properties/CameraPropertiesNodeEditor'
 import CloudsNodeEditor from '../components/properties/CloudsNodeEditor'
 import ColliderNodeEditor from '../components/properties/ColliderNodeEditor'
@@ -154,7 +156,7 @@ EntityNodeEditor.set(EnvMapBakeComponent, EnvMapBakeNodeEditor)
 // EntityNodeEditor.set(InstancingComponent, InstancingNodeEditor)
 EntityNodeEditor.set(PersistentAnchorComponent, PersistentAnchorNodeEditor)
 EntityNodeEditor.set(VariantComponent, VariantNodeEditor)
-
+EntityNodeEditor.set(BehaveGraphComponent, BehaveGraphNodeEditor)
 export const prefabIcons = {
   [LightPrefabs.ambientLight]: AmbientLightNodeEditor.iconComponent,
   [LightPrefabs.pointLight]: PointLightNodeEditor.iconComponent,

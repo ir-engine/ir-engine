@@ -39,7 +39,10 @@ import { getMutableState } from '@etherealengine/hyperflux'
 
 import { SelectionState } from '../../services/SelectionServices'
 import hierarchyStyles from '../hierarchy/styles.module.scss'
-import BehaveFlow from './ee-behave-flow/BehaveFlow'
+import { Flow } from './ee-flow'
+
+import './ee-flow/styles.css'
+import 'reactflow/dist/style.css'
 
 export default function GraphPanel() {
   const selectionState = useHookstate(getMutableState(SelectionState))
@@ -53,9 +56,7 @@ export default function GraphPanel() {
           <AutoSizer>
             {({ width, height }) => (
               <div style={{ width, height }}>
-                {validEntity && (
-                  <BehaveFlow graphJSON={graphState?.graph.value ?? {}} onChangeGraph={graphState?.graph.set} />
-                )}
+                {validEntity && <Flow initialGraph={graphState?.value.graph ?? {}} examples={{}} />}
               </div>
             )}
           </AutoSizer>
