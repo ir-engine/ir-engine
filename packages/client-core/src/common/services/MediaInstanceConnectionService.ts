@@ -28,7 +28,7 @@ import { useEffect } from 'react'
 
 import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 import multiLogger from '@etherealengine/common/src/logger'
-import { matches, matchesUserId, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
+import { matches, matchesUserId } from '@etherealengine/engine/src/common/functions/MatchesUtils'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { NetworkTopics } from '@etherealengine/engine/src/networking/classes/Network'
 import { addNetwork, NetworkState, updateNetworkID } from '@etherealengine/engine/src/networking/NetworkState'
@@ -43,10 +43,11 @@ import {
 } from '@etherealengine/hyperflux'
 
 import { LocationState } from '../../social/services/LocationService'
-import { endVideoChat, leaveNetwork } from '../../transports/SocketWebRTCClientFunctions'
 import {
   connectToNetwork,
+  endVideoChat,
   initializeNetwork,
+  leaveNetwork,
   SocketWebRTCClientNetwork
 } from '../../transports/SocketWebRTCClientFunctions'
 import { AuthState } from '../../user/services/AuthService'

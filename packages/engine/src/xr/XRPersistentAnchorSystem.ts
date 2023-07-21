@@ -28,7 +28,6 @@ import { Quaternion, Vector3 } from 'three'
 import { Engine } from '../ecs/classes/Engine'
 import { defineSystem } from '../ecs/functions/SystemFunctions'
 import { ReferenceSpace } from './XRState'
-import { XRSystem } from './XRSystem'
 
 /**
  * XRPersistentAnchorSystem

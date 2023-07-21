@@ -38,7 +38,6 @@ import {
   Vector3
 } from 'three'
 
-import { OBCType } from '../../common/constants/OBCTypes'
 import { addOBCPlugin, removeOBCPlugin } from '../../common/functions/OnBeforeCompilePlugin'
 import Frustum from './Frustum'
 import Shader from './Shader'

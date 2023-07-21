@@ -24,9 +24,9 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { ILifecycleEventEmitter, ILogger, Registry } from 'behave-graph'
-import { matches, Validator } from 'ts-matches'
+import { Validator, matches } from 'ts-matches'
 
-import { defineAction, defineActionQueue, defineState, removeActionQueue } from '@etherealengine/hyperflux'
+import { defineAction, defineActionQueue, defineState } from '@etherealengine/hyperflux'
 
 import { Entity } from '../../ecs/classes/Entity'
 import {

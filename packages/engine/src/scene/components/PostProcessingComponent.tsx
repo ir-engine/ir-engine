@@ -25,15 +25,9 @@ Ethereal Engine. All Rights Reserved.
 
 import React, { ReactElement, useEffect } from 'react'
 
-import { getMutableState, getState, State } from '@etherealengine/hyperflux'
+import { getMutableState, getState } from '@etherealengine/hyperflux'
 
-import {
-  ComponentPartial,
-  ComponentType,
-  defineComponent,
-  getComponent,
-  useComponent
-} from '../../ecs/functions/ComponentFunctions'
+import { defineComponent, getComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
 import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { PostProcessingSettingsState } from '../../renderer/WebGLRendererSystem'
 import { EffectPropsSchema, EffectPropsSchemaType } from '../constants/PostProcessing'

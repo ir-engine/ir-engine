@@ -47,11 +47,10 @@ import { getMutableState, getState, hookstate, useHookstate } from '@etherealeng
 
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { CSM } from '../../assets/csm/CSM'
-import CSMHelper from '../../assets/csm/CSMHelper'
 import { V_001 } from '../../common/constants/MathConstants'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
-import { Entity, UndefinedEntity } from '../../ecs/classes/Entity'
+import { Entity } from '../../ecs/classes/Entity'
 import {
   addComponent,
   defineQuery,
@@ -63,15 +62,13 @@ import {
   useOptionalComponent,
   useQuery
 } from '../../ecs/functions/ComponentFunctions'
-import { useEntityContext } from '../../ecs/functions/EntityFunctions'
-import { createEntity, removeEntity } from '../../ecs/functions/EntityFunctions'
+import { createEntity, removeEntity, useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { createQueryReactor, defineSystem } from '../../ecs/functions/SystemFunctions'
 import { getShadowsEnabled, useShadowsEnabled } from '../../renderer/functions/RenderSettingsFunction'
 import { RendererState } from '../../renderer/RendererState'
-import { EngineRenderer, RenderSettingsState } from '../../renderer/WebGLRendererSystem'
+import { RenderSettingsState } from '../../renderer/WebGLRendererSystem'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { XRLightProbeState } from '../../xr/XRLightProbeSystem'
-import { XRState } from '../../xr/XRState'
 import { DirectionalLightComponent } from '../components/DirectionalLightComponent'
 import { DropShadowComponent } from '../components/DropShadowComponent'
 import { addObjectToGroup, GroupComponent } from '../components/GroupComponent'

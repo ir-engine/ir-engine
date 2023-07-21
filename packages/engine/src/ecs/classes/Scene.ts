@@ -25,11 +25,9 @@ Ethereal Engine. All Rights Reserved.
 
 import { Color, Texture } from 'three'
 
-import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { SceneData } from '@etherealengine/common/src/interfaces/SceneInterface'
-import { defineState, getState } from '@etherealengine/hyperflux'
+import { defineState } from '@etherealengine/hyperflux'
 
-import { UUIDComponent } from '../../scene/components/UUIDComponent'
 import { UndefinedEntity } from './Entity'
 
 export const SceneState = defineState({

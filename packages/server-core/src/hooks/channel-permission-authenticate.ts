@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { BadRequest, Forbidden } from '@feathersjs/errors'
+import { BadRequest } from '@feathersjs/errors'
 import { HookContext } from '@feathersjs/feathers'
 
 import { UserInterface } from '@etherealengine/common/src/interfaces/User'

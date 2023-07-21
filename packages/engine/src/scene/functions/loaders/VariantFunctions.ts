@@ -1,11 +1,8 @@
 import { DistanceFromCameraComponent } from '@etherealengine/engine/src/transform/components/DistanceComponents'
-import { getState } from '@etherealengine/hyperflux'
 
 import { isMobile } from '../../../common/functions/isMobile'
-import { EngineState } from '../../../ecs/classes/EngineState'
 import { Entity } from '../../../ecs/classes/Entity'
 import { getComponent, getMutableComponent } from '../../../ecs/functions/ComponentFunctions'
-import { TransformComponent } from '../../../transform/components/TransformComponent'
 import { isMobileXRHeadset } from '../../../xr/XRState'
 import { ModelComponent } from '../../components/ModelComponent'
 import { VariantComponent } from '../../components/VariantComponent'

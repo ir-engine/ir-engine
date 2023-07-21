@@ -23,8 +23,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { useState } from '@hookstate/core'
-
 import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
 import {
   hasComponent,
@@ -63,7 +61,7 @@ export const SelectionState = defineState({
       sceneGraphChangeCounter: 1,
       propertyName: '',
       transformPropertyChanged: false
-    } as SelectionServiceStateType)
+    }) as SelectionServiceStateType
 })
 
 //Action

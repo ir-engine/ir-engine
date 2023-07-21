@@ -26,8 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import React, { useState } from 'react'
 import { BsPersonCircle } from 'react-icons/bs'
 import { IoMdAddCircle } from 'react-icons/io'
-import { MdEmail } from 'react-icons/md'
-import { MdPhoneIphone } from 'react-icons/md'
+import { MdEmail, MdPhoneIphone } from 'react-icons/md'
 
 import FriendIcon from './assets/Friend'
 import GroupIcon from './assets/Group'

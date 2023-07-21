@@ -23,10 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Material } from 'three'
-import matches, { Validator } from 'ts-matches'
-
-import { defineAction, defineState, getMutableState, getState, StateDefinition } from '@etherealengine/hyperflux'
+import { defineState, getMutableState, getState, StateDefinition } from '@etherealengine/hyperflux'
 
 import { MaterialComponentType } from './components/MaterialComponent'
 import { MaterialPluginType } from './components/MaterialPluginComponent'

@@ -70,9 +70,8 @@ const execute = () => {
     // todo - figure out how to include parent transforms in this calculation
     const transformComponent = entityJson.components.find((comp) => comp.name === TransformComponent.jsonID)!.props
 
-    const dynamicComponent = entityJson.components.find(
-      (comp) => comp.name === SceneDynamicLoadTagComponent.jsonID
-    )?.props
+    const dynamicComponent = entityJson.components.find((comp) => comp.name === SceneDynamicLoadTagComponent.jsonID)
+      ?.props
 
     const distanceToAvatar = avatarPosition.distanceToSquared(transformComponent.position)
     const loadDistance = dynamicComponent.distance * dynamicComponent.distance * distanceMultiplier

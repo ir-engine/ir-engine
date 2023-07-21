@@ -28,7 +28,7 @@ import { useEffect } from 'react'
 
 import { CreateGroup, Group } from '@etherealengine/common/src/interfaces/Group'
 import { GroupUser } from '@etherealengine/common/src/interfaces/GroupUser'
-import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
+import { Validator, matches } from '@etherealengine/engine/src/common/functions/MatchesUtils'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { defineAction, defineState, dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
 

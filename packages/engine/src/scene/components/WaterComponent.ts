@@ -23,11 +23,10 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { addComponent, defineComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
+import { addComponent, defineComponent } from '../../ecs/functions/ComponentFunctions'
 import { Water } from '../classes/Water'
 import { setCallback } from './CallbackComponent'
 import { addObjectToGroup } from './GroupComponent'
-import { ShadowComponent } from './ShadowComponent'
 import { UpdatableCallback, UpdatableComponent } from './UpdatableComponent'
 
 export const WaterComponent = defineComponent({

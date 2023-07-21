@@ -23,23 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { useEffect } from 'react'
-
 import { defaultThemeSettings, getCurrentTheme } from '@etherealengine/common/src/constants/DefaultThemeSettings'
-import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
+import { Validator, matches } from '@etherealengine/engine/src/common/functions/MatchesUtils'
 import { ClientThemeOptionsType } from '@etherealengine/engine/src/schemas/setting/client-setting.schema'
-import {
-  addActionReceptor,
-  defineAction,
-  defineState,
-  getMutableState,
-  getState,
-  NO_PROXY,
-  removeActionReceptor,
-  useHookstate
-} from '@etherealengine/hyperflux'
+import { defineAction, defineState, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
-import { AdminClientSettingsState, ClientSettingService } from '../../admin/services/Setting/ClientSettingService'
+import { AdminClientSettingsState } from '../../admin/services/Setting/ClientSettingService'
 import { AuthState } from '../../user/services/AuthService'
 
 export const AppThemeState = defineState({

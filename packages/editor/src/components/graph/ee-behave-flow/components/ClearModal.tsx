@@ -23,8 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React from 'react'
-import { FC } from 'react'
+import React, { FC } from 'react'
 import { useReactFlow } from 'reactflow'
 
 import { Modal } from './Modal'

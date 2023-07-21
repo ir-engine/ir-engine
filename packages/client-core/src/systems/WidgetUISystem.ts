@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { useEffect } from 'react'
-import { AxesHelper, Quaternion, Vector3 } from 'three'
+import { Quaternion, Vector3 } from 'three'
 
 import { isDev } from '@etherealengine/common/src/config'
 import { V_001, V_010, V_111 } from '@etherealengine/engine/src/common/constants/MathConstants'
@@ -34,18 +34,14 @@ import {
   defineQuery,
   getComponent,
   hasComponent,
-  removeComponent,
-  setComponent
+  removeComponent
 } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { removeEntity } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
 import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import { InputSourceComponent } from '@etherealengine/engine/src/input/components/InputSourceComponent'
-import { StandardGamepadButton, XRStandardGamepadButton } from '@etherealengine/engine/src/input/state/ButtonState'
-import { addObjectToGroup } from '@etherealengine/engine/src/scene/components/GroupComponent'
+import { XRStandardGamepadButton } from '@etherealengine/engine/src/input/state/ButtonState'
 import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
 import { setVisibleComponent, VisibleComponent } from '@etherealengine/engine/src/scene/components/VisibleComponent'
-import { ObjectLayers } from '@etherealengine/engine/src/scene/constants/ObjectLayers'
-import { setObjectLayers } from '@etherealengine/engine/src/scene/functions/setObjectLayers'
 import {
   ComputedTransformComponent,
   setComputedTransformComponent
@@ -65,7 +61,6 @@ import {
 import { defineActionQueue, defineState, dispatchAction, getState, removeActionQueue } from '@etherealengine/hyperflux'
 
 import { createAnchorWidget } from './createAnchorWidget'
-import { createMediaWidget } from './createMediaWidget'
 // import { createHeightAdjustmentWidget } from './createHeightAdjustmentWidget'
 // import { createAdminControlsMenuWidget } from './createAdminControlsMenuWidget'
 // import { createChatWidget } from './createChatWidget'

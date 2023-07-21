@@ -23,11 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { BadRequest } from '@feathersjs/errors'
 import { Paginated } from '@feathersjs/feathers'
 import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
-import _ from 'lodash'
-import { Op } from 'sequelize'
 
 import { Channel as ChannelInterface } from '@etherealengine/common/src/interfaces/Channel'
 import { ChannelID } from '@etherealengine/common/src/interfaces/ChannelUser'

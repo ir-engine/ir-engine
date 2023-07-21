@@ -27,11 +27,7 @@ Ethereal Engine. All Rights Reserved.
 import { resolve } from '@feathersjs/schema'
 import { v4 } from 'uuid'
 
-import {
-  HelmSettingDatabaseType,
-  HelmSettingQuery,
-  HelmSettingType
-} from '@etherealengine/engine/src/schemas/setting/helm-setting.schema'
+import { HelmSettingQuery, HelmSettingType } from '@etherealengine/engine/src/schemas/setting/helm-setting.schema'
 import type { HookContext } from '@etherealengine/server-core/declarations'
 
 import { getDateTimeSql } from '../../util/get-datetime-sql'

@@ -23,12 +23,11 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React, { JSXElementConstructor, useEffect } from 'react'
+import React, { useEffect } from 'react'
 
-import { any } from '@etherealengine/engine/src/common/functions/MatchesUtils'
 import { State, useHookstate } from '@etherealengine/hyperflux'
 
-import { Grid, Stack } from '@mui/material'
+import { Grid } from '@mui/material'
 
 import { Button } from '../inputs/Button'
 import Well from './Well'

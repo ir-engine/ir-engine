@@ -24,7 +24,6 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { ChannelID, ChannelUser } from './ChannelUser'
-import { Message } from './Message'
 import { UserId } from './UserId'
 
 export type Channel = {

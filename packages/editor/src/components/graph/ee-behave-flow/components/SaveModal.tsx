@@ -23,8 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React from 'react'
-import { FC, useMemo, useRef, useState } from 'react'
+import React, { FC, useMemo, useRef, useState } from 'react'
 import { useEdges, useNodes } from 'reactflow'
 
 import styles from '../styles.module.scss'

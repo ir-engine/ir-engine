@@ -23,10 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { useEffect } from 'react'
-
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { defineQuery, getComponent, removeQuery } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { defineQuery, getComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import { TransformGizmoComponent } from '@etherealengine/engine/src/scene/components/TransformGizmo'
 import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'

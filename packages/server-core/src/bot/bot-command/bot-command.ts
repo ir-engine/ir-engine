@@ -26,7 +26,6 @@ Ethereal Engine. All Rights Reserved.
 import { botCommandMethods, botCommandPath } from '@etherealengine/engine/src/schemas/bot/bot-command.schema'
 
 import { Application } from '../../../declarations'
-import { updateAppConfig } from '../../updateAppConfig'
 import { BotCommandService } from './bot-command.class'
 import botCommandDocs from './bot-command.docs'
 import hooks from './bot-command.hooks'

@@ -24,11 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { ChannelID } from './ChannelUser'
-import { InstanceAttendanceInterface } from './InstanceAttendance'
 import { Location } from './Location'
-import { LocationSettings } from './LocationSettings'
-import { UserInterface } from './User'
-import { UserId } from './UserId'
 
 export interface Instance {
   id: string
@@ -71,7 +67,7 @@ export const InstanceSeed: Instance = {
   },
   podName: '',
   locationId: '',
-  channelId: ''
+  channelId: '' as ChannelID
 }
 
 export interface InstanceServerSubdomainProvision {

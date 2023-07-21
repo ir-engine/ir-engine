@@ -29,7 +29,6 @@ import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 import { getState } from '@etherealengine/hyperflux'
 
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
-import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import { getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
@@ -40,26 +39,28 @@ import { NetworkObjectComponent, NetworkObjectSendPeriodicUpdatesTag } from '../
 import { NetworkState } from '../NetworkState'
 import {
   compress,
+  flatten,
+  getVector4IndexBasedComponentValue,
   QUAT_MAX_RANGE,
   QUAT_PRECISION_MULT,
   SerializationSchema,
   VEC3_MAX_RANGE,
-  VEC3_PRECISION_MULT
+  VEC3_PRECISION_MULT,
+  Vector3SoA,
+  Vector4SoA
 } from './Utils'
-import { flatten, getVector4IndexBasedComponentValue, Vector3SoA, Vector4SoA } from './Utils'
 import {
   createViewCursor,
   rewindViewCursor,
   sliceViewCursor,
-  spaceUint8,
   spaceUint16,
   spaceUint32,
   spaceUint64,
+  spaceUint8,
   ViewCursor,
   writeFloat64,
   writePropIfChanged,
-  writeUint32,
-  writeUint64
+  writeUint32
 } from './ViewCursor'
 
 /**

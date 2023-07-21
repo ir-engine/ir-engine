@@ -60,9 +60,12 @@ const ServerLogs = () => {
 
   useEffect(() => {
     if (autoRefresh.value !== '0') {
-      const interval = setInterval(() => {
-        handleRefreshServerLogs()
-      }, parseInt(autoRefresh.value) * 1000)
+      const interval = setInterval(
+        () => {
+          handleRefreshServerLogs()
+        },
+        parseInt(autoRefresh.value) * 1000
+      )
       intervalTimer.set(interval)
       return () => {
         if (interval) clearInterval(interval) // This represents the unmount function, in which you need to clear your interval to prevent memory leaks.

@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import React from 'react'
 
-import { ChannelService, ChannelState } from '@etherealengine/client-core/src/social/services/ChannelService'
+import { ChannelState } from '@etherealengine/client-core/src/social/services/ChannelService'
 import { useUserAvatarThumbnail } from '@etherealengine/client-core/src/user/functions/useUserAvatarThumbnail'
 import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
 import { useFind, useMutation } from '@etherealengine/engine/src/common/functions/FeathersHooks'

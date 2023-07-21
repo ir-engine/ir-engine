@@ -23,16 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import {
-  Material,
-  Mesh,
-  MeshBasicMaterial,
-  Object3D,
-  ShaderLib,
-  ShaderMaterial,
-  UniformsLib,
-  UniformsUtils
-} from 'three'
+import { Mesh, MeshBasicMaterial, Object3D, ShaderLib, ShaderMaterial, UniformsLib, UniformsUtils } from 'three'
 
 import { Engine } from '../ecs/classes/Engine'
 

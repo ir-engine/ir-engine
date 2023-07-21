@@ -26,7 +26,6 @@ Ethereal Engine. All Rights Reserved.
 import { getMutableState, getState } from '@etherealengine/hyperflux'
 
 import { nowMilliseconds } from '../../common/functions/nowMilliseconds'
-import { Engine } from '../classes/Engine'
 import { EngineState } from '../classes/EngineState'
 import { SimulationSystemGroup } from './EngineFunctions'
 import { executeSystem } from './SystemFunctions'

@@ -23,13 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { getState } from '@etherealengine/hyperflux'
-
-import { Engine } from '../ecs/classes/Engine'
 import { defineSystem } from '../ecs/functions/SystemFunctions'
-import { XRRendererState } from './WebXRManager'
-import { ReferenceSpace } from './XRState'
-import { XRSystem } from './XRSystem'
 
 /**
  * https://github.com/immersive-web/raw-camera-access/blob/main/explainer.md

@@ -23,7 +23,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { compress } from 'fflate'
 import {
   BackSide,
   ClampToEdgeWrapping,
@@ -34,10 +33,8 @@ import {
   LinearFilter,
   Mesh,
   MeshBasicMaterial,
-  Object3D,
   OrthographicCamera,
   PlaneGeometry,
-  PMREMGenerator,
   RawShaderMaterial,
   RGBAFormat,
   Scene,
@@ -50,7 +47,7 @@ import {
 import { WebGLRenderer } from 'three/src/renderers/WebGLRenderer'
 
 import { defineState, getState } from '@etherealengine/hyperflux'
-import { KTX2EncodeOptions, KTX2Encoder, UASTCFlags } from '@etherealengine/xrui/core/textures/KTX2Encoder'
+import { KTX2EncodeOptions, KTX2Encoder } from '@etherealengine/xrui/core/textures/KTX2Encoder'
 
 export const ImageProjection = {
   Flat: 'Flat',

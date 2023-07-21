@@ -39,8 +39,10 @@ import { getEntityNodeArrayFromEntities } from '@etherealengine/engine/src/ecs/f
 import { SceneDynamicLoadTagComponent } from '@etherealengine/engine/src/scene/components/SceneDynamicLoadTagComponent'
 import { TransformGizmoComponent } from '@etherealengine/engine/src/scene/components/TransformGizmo'
 import { TransformSpace } from '@etherealengine/engine/src/scene/constants/transformConstants'
-import { LocalTransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
-import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
+import {
+  LocalTransformComponent,
+  TransformComponent
+} from '@etherealengine/engine/src/transform/components/TransformComponent'
 import { dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'

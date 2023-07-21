@@ -29,15 +29,7 @@ import { Box3, Box3Helper, Group } from 'three'
 import { getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
 
 import { matches } from '../../common/functions/MatchesUtils'
-import { Entity } from '../../ecs/classes/Entity'
-import {
-  defineComponent,
-  getComponent,
-  hasComponent,
-  setComponent,
-  useComponent,
-  useOptionalComponent
-} from '../../ecs/functions/ComponentFunctions'
+import { defineComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
 import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { RendererState } from '../../renderer/RendererState'
 import { addObjectToGroup, removeObjectFromGroup } from '../../scene/components/GroupComponent'

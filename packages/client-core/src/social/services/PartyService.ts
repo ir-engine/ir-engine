@@ -32,15 +32,14 @@ import { SendInvite } from '@etherealengine/common/src/interfaces/Invite'
 import { Party } from '@etherealengine/common/src/interfaces/Party'
 import { PartyUser } from '@etherealengine/common/src/interfaces/PartyUser'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { defineState, dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
+import { defineState, getMutableState, getState } from '@etherealengine/hyperflux'
 
 import {
   MediaInstanceConnectionService,
   MediaInstanceState
 } from '../../common/services/MediaInstanceConnectionService'
 import { NotificationService } from '../../common/services/NotificationService'
-import { endVideoChat, leaveNetwork } from '../../transports/SocketWebRTCClientFunctions'
-import { SocketWebRTCClientNetwork } from '../../transports/SocketWebRTCClientFunctions'
+import { SocketWebRTCClientNetwork, endVideoChat, leaveNetwork } from '../../transports/SocketWebRTCClientFunctions'
 import { AuthState } from '../../user/services/AuthService'
 import { ChannelState } from './ChannelService'
 import { InviteService } from './InviteService'

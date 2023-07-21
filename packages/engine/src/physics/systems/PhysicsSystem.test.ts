@@ -23,14 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import assert from 'assert'
-import sinon from 'sinon'
-
-import { AvatarComponent } from '../../avatar/components/AvatarComponent'
-import { AvatarControllerComponent } from '../../avatar/components/AvatarControllerComponent'
 import { destroyEngine, Engine } from '../../ecs/classes/Engine'
-import { addComponent } from '../../ecs/functions/ComponentFunctions'
-import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { createEngine } from '../../initializeEngine'
 import { Physics } from '../classes/Physics'
 

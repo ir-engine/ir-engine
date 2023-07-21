@@ -29,15 +29,15 @@ import { LocationInterface } from '@etherealengine/common/src/dbmodels/Location'
 import { Instance as InstanceInterface } from '@etherealengine/common/src/interfaces/Instance'
 
 import { Application } from '../../../declarations'
-import authenticate from '../../hooks/authenticate'
-import verifyScope from '../../hooks/verify-scope'
 import logger from '../../ServerLogger'
+import authenticate from '../../hooks/authenticate'
+import setLoggedInUser from '../../hooks/set-loggedin-user-in-body'
+import verifyScope from '../../hooks/verify-scope'
+import { UserParams } from '../../user/user/user.class'
 import { Instance } from './instance.class'
 import instanceDocs from './instance.docs'
 import hooks from './instance.hooks'
 import createModel from './instance.model'
-import { UserParams } from '../../user/user/user.class'
-import setLoggedInUser from '../../hooks/set-loggedin-user-in-body'
 
 declare module '@etherealengine/common/declarations' {
   interface ServiceTypes {
@@ -61,114 +61,112 @@ type ActiveInstance = {
 
 export const getActiveInstancesForScene =
   (app: Application) =>
-    async (params: Params & { query: { sceneId: string } }): Promise<ActiveInstance[]> => {
-      const sceneId = params.query!.sceneId
-      if (!sceneId) return []
+  async (params: Params & { query: { sceneId: string } }): Promise<ActiveInstance[]> => {
+    const sceneId = params.query!.sceneId
+    if (!sceneId) return []
 
-      // get all locationIds for sceneId
-      const locations = (await app.service('location').Model.findAll({
-        where: {
-          sceneId
-        }
-      })) as LocationInterface[]
-
-      if (!locations) return []
-
-      const instances = (
-        (await Promise.all(
-          locations.map((location) => {
-            return app.service('instance').Model.findAll({
-              where: {
-                ended: false,
-                locationId: location.id
-              },
-              include: [
-                {
-                  model: app.service('location').Model,
-                  where: {}
-                }
-              ]
-            })
-          })
-        )) as InstanceInterface[]
-      ).flat()
-
-      // return all active instances for each location
-      const instancesData: ActiveInstance[] = instances
-        .map((instance) => {
-          return {
-            id: instance.id,
-            location: instance.location!.id,
-            currentUsers: instance.currentUsers
-          }
-        })
-        .filter((a) => !!a)
-
-      return instancesData
-    }
-
-
-export const getActiveInstancesForUserFriends =
-  (app: Application) =>
-    async (data: UserParams, params) => {
-      console.log(data)
-      if (!data.user) throw new Error('User not found')
-      try {
-
-        const instances = await app.service('instance').Model.findAll({
-          where: {
-            ended: false
-          },
-          include: [
-            {
-              model: app.service('location').Model,
-              required: true
-            },
-          ]
-        }) as InstanceInterface[]
-
-        const filteredInstances = (await Promise.all(
-          instances.map(async (instance) => {
-            const instanceAttendance = await app.service('instance-attendance').Model.findAll({
-              where: {
-                ended: false,
-                isChannel: false
-              },
-              include: [
-                {
-                  model: app.service('instance').Model,
-                  required: true,
-                  where: {
-                    id: instance.id
-                  }
-                },
-                {
-                  model: app.service('user').Model,
-                  required: true,
-                  include: [
-                    {
-                      model: app.service('user-relationship').Model,
-                      required: true,
-                      where: {
-                        userRelationshipType: 'friend',
-                        relatedUserId: data.user!.id
-                      }
-                    }
-                  ]
-                }
-              ]
-            })
-            if (instanceAttendance.length > 0) return instance
-          })
-        )).filter(Boolean)
-
-        console.log('instances-friends', filteredInstances)
-        return filteredInstances
-      } catch (err) {
-        console.log(err)
-        return []
+    // get all locationIds for sceneId
+    const locations = (await app.service('location').Model.findAll({
+      where: {
+        sceneId
       }
-    }
+    })) as LocationInterface[]
+
+    if (!locations) return []
+
+    const instances = (
+      (await Promise.all(
+        locations.map((location) => {
+          return app.service('instance').Model.findAll({
+            where: {
+              ended: false,
+              locationId: location.id
+            },
+            include: [
+              {
+                model: app.service('location').Model,
+                where: {}
+              }
+            ]
+          })
+        })
+      )) as InstanceInterface[]
+    ).flat()
+
+    // return all active instances for each location
+    const instancesData: ActiveInstance[] = instances
+      .map((instance) => {
+        return {
+          id: instance.id,
+          location: instance.location!.id,
+          currentUsers: instance.currentUsers
+        }
+      })
+      .filter((a) => !!a)
+
+    return instancesData
+  }
+
+export const getActiveInstancesForUserFriends = (app: Application) => async (data: UserParams, params) => {
+  console.log(data)
+  if (!data.user) throw new Error('User not found')
+  try {
+    const instances = (await app.service('instance').Model.findAll({
+      where: {
+        ended: false
+      },
+      include: [
+        {
+          model: app.service('location').Model,
+          required: true
+        }
+      ]
+    })) as InstanceInterface[]
+
+    const filteredInstances = (
+      await Promise.all(
+        instances.map(async (instance) => {
+          const instanceAttendance = await app.service('instance-attendance').Model.findAll({
+            where: {
+              ended: false,
+              isChannel: false
+            },
+            include: [
+              {
+                model: app.service('instance').Model,
+                required: true,
+                where: {
+                  id: instance.id
+                }
+              },
+              {
+                model: app.service('user').Model,
+                required: true,
+                include: [
+                  {
+                    model: app.service('user-relationship').Model,
+                    required: true,
+                    where: {
+                      userRelationshipType: 'friend',
+                      relatedUserId: data.user!.id
+                    }
+                  }
+                ]
+              }
+            ]
+          })
+          if (instanceAttendance.length > 0) return instance
+        })
+      )
+    ).filter(Boolean)
+
+    console.log('instances-friends', filteredInstances)
+    return filteredInstances
+  } catch (err) {
+    console.log(err)
+    return []
+  }
+}
 
 export default (app: Application) => {
   const options = {
@@ -230,7 +228,6 @@ export default (app: Application) => {
       find: [authenticate(), verifyScope('editor', 'write')]
     }
   })
-
 
   app.use('instance-friends', {
     find: getActiveInstancesForUserFriends(app)

@@ -27,8 +27,8 @@ import { t } from 'i18next'
 import React, { Suspense } from 'react'
 import { Route, Routes } from 'react-router-dom'
 
-import LoadingCircle from '@etherealengine/ui/src/primitives/tailwind/LoadingCircle'
 import { ChatPage } from '@etherealengine/ui/src/pages/Chat/chat'
+import LoadingCircle from '@etherealengine/ui/src/primitives/tailwind/LoadingCircle'
 
 export default function Chat() {
   return (

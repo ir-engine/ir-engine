@@ -23,14 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { useEffect } from 'react'
 import { Matrix4, Quaternion, Vector3 } from 'three'
 
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { defineQuery, getComponent, removeQuery } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { defineQuery, getComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 
 import { V_010 } from '../../common/constants/MathConstants'
-import { Entity } from '../../ecs/classes/Entity'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { InputSourceComponent } from '../../input/components/InputSourceComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'

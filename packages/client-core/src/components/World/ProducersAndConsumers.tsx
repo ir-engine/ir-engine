@@ -30,7 +30,7 @@ import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { DataChannelType } from '@etherealengine/engine/src/networking/classes/Network'
 import { dataChannelRegistry, NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
-import { getMutableState, getState } from '@etherealengine/hyperflux'
+import { getMutableState } from '@etherealengine/hyperflux'
 
 import { useWorldInstance } from '../../common/services/LocationInstanceConnectionService'
 import {

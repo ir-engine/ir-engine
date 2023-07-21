@@ -30,7 +30,6 @@ import fs from 'fs'
 import path from 'path/posix'
 
 import { FileContentType } from '@etherealengine/common/src/interfaces/FileContentType'
-import { StaticResourceInterface } from '@etherealengine/common/src/interfaces/StaticResourceInterface'
 import { processFileName } from '@etherealengine/common/src/utils/processFileName'
 
 import { Application } from '../../../declarations'

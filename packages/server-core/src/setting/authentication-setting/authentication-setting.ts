@@ -29,7 +29,6 @@ import {
 } from '@etherealengine/engine/src/schemas/setting/authentication-setting.schema'
 
 import { Application } from '../../../declarations'
-import { updateAppConfig } from '../../updateAppConfig'
 import { AuthenticationSettingService } from './authentication-setting.class'
 import authenticationSettingDocs from './authentication-setting.docs'
 import hooks from './authentication-setting.hooks'
