@@ -586,41 +586,19 @@ export class Project extends Service {
     logger.info(`[Projects]: removing project id "${id}", name: "${name}".`)
     await deleteProjectFilesInStorageProvider(name)
 
-    const locationItems = (await this.app.service(locationPath).find({
+    await this.app.service(locationPath).remove(null, {
       query: {
         sceneId: {
           $like: `${name}/%`
         }
-      },
-      paginate: false
-    })) as LocationType[]
+      }
+    })
 
-    if (locationItems.length) {
-      await this.app.service(locationPath).remove(null, {
-        query: {
-          id: {
-            $in: locationItems.map((item) => item.id)
-          }
-        }
-      })
-    }
-
-    const routeItems = (await this.app.service(routePath).find({
+    await this.app.service(routePath).remove(null, {
       query: {
         $and: [{ project: { $ne: null } }, { project: name }]
-      },
-      paginate: false
-    })) as any as RouteType[]
-
-    if (routeItems.length) {
-      await this.app.service(routePath).remove(null, {
-        query: {
-          id: {
-            $in: routeItems.map((item) => item.id)
-          }
-        }
-      })
-    }
+      }
+    })
 
     const avatarItems = (await this.app.service(avatarPath).find({
       query: {

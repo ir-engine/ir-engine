@@ -245,6 +245,7 @@ export class LocationService<T = LocationType, ServiceParams extends Params = Lo
       throw err
     }
   }
+
   /**
    * A function which is used to remove location
    *
@@ -264,17 +265,12 @@ export class LocationService<T = LocationType, ServiceParams extends Params = Lo
       if (location.locationSetting) await this.app.service(locationSettingPath).remove(location.locationSetting.id)
 
       try {
-        const locationAdminItems = await this.app.service('location-admin').Model.findAll({
-          where: {
+        await this.app.service('location-admin').remove(null, {
+          query: {
             locationId: id,
             userId: selfUser.id ?? null
           }
         })
-
-        locationAdminItems.length &&
-          locationAdminItems.forEach(async (route) => {
-            await this.app.service('location-admin').remove(route.dataValues.id)
-          })
       } catch (err) {
         logger.error(err, `Could not remove location-admin: ${err.message}`)
       }
