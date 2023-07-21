@@ -36,7 +36,6 @@ export default () => {
     const { params, app } = context
     const loggedInUser = params.user as UserInterface
     const userId = loggedInUser.id
-    console.log(params)
     if (!params.query!.channelId) {
       throw new BadRequest('Must provide a channel ID')
     }

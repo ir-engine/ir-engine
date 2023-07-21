@@ -123,8 +123,6 @@ export class Channel<T = ChannelDataType> extends Service<T> {
     const userId = loggedInUser.id
     if (!userId) return []
 
-    console.log(params)
-
     try {
       if (query.instanceId) {
         const channels = await this.app.service('channel').Model.findAll({

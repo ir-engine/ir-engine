@@ -23,12 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { useFind } from 'figbird'
 import React from 'react'
 
 import { ChatService, ChatState } from '@etherealengine/client-core/src/social/services/ChatService'
 import { useUserAvatarThumbnail } from '@etherealengine/client-core/src/user/functions/useUserAvatarThumbnail'
 import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
+import { useFind } from '@etherealengine/engine/src/common/functions/FeathersHooks'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
@@ -36,6 +36,11 @@ import AttachFileIcon from './assets/attach-file2.svg'
 import CallIcon from './assets/call.svg'
 import SendIcon from './assets/send.svg'
 import UserSvg from './assets/user.svg'
+
+/**
+ * Create reactor in client-core around messages
+ * reacts to chat state changes, both active channel and channel data, and fetches new messages
+ */
 
 export const MessageList = () => {
   const userName = useHookstate(getMutableState(AuthState).user.name).value
@@ -48,15 +53,11 @@ export const MessageList = () => {
   const channelUserNames =
     activeChannel?.channel_users.map((user) => user.user!.name).filter((name) => name !== userName) ?? []
 
-  const messages_ = useFind('message', {
+  const { data: messages } = useFind('message', {
     query: {
       channelId: chatState.targetChannelId.value
     }
   })
-
-  console.log(messages_.data, messages_.error)
-
-  const messages = activeChannel?.messages ?? []
 
   const composingMessage = useHookstate('')
 

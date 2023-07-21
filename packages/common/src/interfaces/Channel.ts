@@ -30,7 +30,6 @@ import { UserId } from './UserId'
 export type Channel = {
   id: ChannelID
   ownerId: UserId
-  messages: Message[]
   instanceId: string | null
   createdAt: string
   updatedAt: string

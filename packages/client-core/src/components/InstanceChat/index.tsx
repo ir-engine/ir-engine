@@ -30,6 +30,7 @@ import { useWorldInstance } from '@etherealengine/client-core/src/common/service
 import { ChatService, ChatState } from '@etherealengine/client-core/src/social/services/ChatService'
 import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
 import { AudioEffectPlayer } from '@etherealengine/engine/src/audio/systems/MediaSystem'
+import { useFind } from '@etherealengine/engine/src/common/functions/FeathersHooks'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { WorldState } from '@etherealengine/engine/src/networking/interfaces/WorldState'
@@ -60,29 +61,20 @@ interface ChatHooksProps {
 
 export const useChatHooks = ({ chatWindowOpen, setUnreadMessages, messageRefInput }: ChatHooksProps) => {
   /**
-   * Provisioning logic
-   */
-  const currentInstanceConnection = useWorldInstance()
-
-  useEffect(() => {
-    if (Engine.instance.worldNetwork?.hostId && currentInstanceConnection?.connected?.value) {
-      ChatService.getInstanceChannel()
-    }
-  }, [currentInstanceConnection?.connected])
-
-  /**
    * Message display logic
    */
 
-  const chatState = useHookstate(getMutableState(ChatState))
-  const channels = chatState.channels.channels
-  const activeChannel = Object.values(channels).find(
-    (channel) => channel.instanceId.value === Engine.instance.worldNetwork.hostId
-  )
+  const targetChannelId = useHookstate(getMutableState(ChatState).targetChannelId)
+
+  const messages = useFind('message', {
+    query: {
+      channelId: targetChannelId.value
+    }
+  })
 
   useEffect(() => {
-    if (activeChannel?.messages?.length && !chatWindowOpen) setUnreadMessages(true)
-  }, [activeChannel?.messages])
+    if (messages.data?.length && !chatWindowOpen) setUnreadMessages(true)
+  }, [messages.data, chatWindowOpen])
 
   /**
    * Message composition logic
@@ -196,10 +188,10 @@ export const useChatHooks = ({ chatWindowOpen, setUnreadMessages, messageRefInpu
 
   return {
     dimensions: dimensions.get({ noproxy: true }),
-    activeChannel,
     handleComposingMessageChange,
     packageMessage,
-    composingMessage: composingMessage.value
+    composingMessage: composingMessage.value,
+    messages
   }
 }
 
@@ -221,16 +213,14 @@ export const InstanceChat = ({
   const messageContainerVisible = useHookstate(false)
   const messageRefInput = useRef<HTMLInputElement>()
 
-  const { activeChannel, handleComposingMessageChange, packageMessage, composingMessage } = useChatHooks({
+  const { handleComposingMessageChange, packageMessage, composingMessage, messages } = useChatHooks({
     chatWindowOpen: chatWindowOpen.value,
     setUnreadMessages: unreadMessages.set,
     messageRefInput: messageRefInput as any
   })
 
-  const sortedMessages = activeChannel?.messages?.get({ noproxy: true })?.length
-    ? [...activeChannel.messages.get({ noproxy: true })].sort(
-        (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
-      )
+  const sortedMessages = messages.data
+    ? messages.data.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime())
     : []
 
   const user = useHookstate(getMutableState(AuthState).user)
@@ -449,9 +439,23 @@ export const InstanceChatWrapper = () => {
   const engineState = useHookstate(getMutableState(EngineState))
   const { t } = useTranslation()
   const { bottomShelfStyle } = useShelfStyles()
+
+  const targetChannelId = useHookstate(getMutableState(ChatState).targetChannelId)
+
+  /**
+   * Provisioning logic
+   */
+  const currentInstanceConnection = useWorldInstance()
+
+  useEffect(() => {
+    if (Engine.instance.worldNetwork?.hostId && currentInstanceConnection?.connected?.value) {
+      ChatService.getInstanceChannel()
+    }
+  }, [currentInstanceConnection?.connected])
+
   return (
     <>
-      {engineState.connectedWorld.value ? (
+      {engineState.connectedWorld.value && targetChannelId.value ? (
         <div className={`${bottomShelfStyle} ${styles.chatRoot}`}>
           <InstanceChat />
         </div>
