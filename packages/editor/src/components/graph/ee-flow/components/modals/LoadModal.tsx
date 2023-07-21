@@ -92,14 +92,29 @@ export const LoadModal: React.FC<LoadModalProps> = ({ open = false, onClose, set
     >
       <textarea
         autoFocus
-        className="border border-gray-300 w-full p-2 h-32 align-top"
+        style={{
+          border: '1px solid #cbd5e0',
+          width: '100%',
+          padding: '0.5rem',
+          height: '8rem',
+          verticalAlign: 'top'
+        }}
         placeholder="Paste JSON here"
         value={value}
         onChange={(e) => setValue(e.currentTarget.value)}
       ></textarea>
-      <div className="p-4 text-center text-gray-800">or</div>
+      <div style={{ padding: '1rem', textAlign: 'center', color: '#4a5568' }}>or</div>
       <select
-        className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded block w-full p-3"
+        style={{
+          backgroundColor: '#f7fafc',
+          border: '1px solid #cbd5e0',
+          color: '#1a202c',
+          fontSize: '14px',
+          borderRadius: '0.25rem',
+          display: 'block',
+          width: '100%',
+          padding: '0.75rem'
+        }}
         onChange={(e) => setSelected(e.target.value)}
         value={selected}
       >

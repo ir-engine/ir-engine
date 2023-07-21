@@ -29,7 +29,7 @@ export interface ValueType<TValue = any, TJson = any> {
   creator: () => TValue
   deserialize: (value: TJson) => TValue
   serialize: (value: TValue) => TJson
-  lerp: (start: TValue, end: TValue, t: number) => TValue
   equals: (a: TValue, b: TValue) => boolean
   clone: (value: TValue) => TValue
+  lerp?: (start: TValue, end: TValue, t: number) => TValue
 }

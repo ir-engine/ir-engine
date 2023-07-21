@@ -53,14 +53,19 @@ export const Node: React.FC<NodeProps> = ({ id, data, spec, selected, allSpecs }
   const edges = useEdges()
   const handleChange = useChangeNodeData(id)
   const pairs = getPairs(spec.inputs, spec.outputs)
+
+  const containerRowStyle: React.CSSProperties = {
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    gap: '2px',
+    padding: '0 8px'
+  }
+
   return (
     <NodeContainer title={spec.label} category={spec.category} selected={selected}>
       {pairs.map(([input, output], ix) => (
-        <div
-          key={ix}
-          className="flex flex-row justify-between gap-8 relative px-2"
-          // className={styles.container}
-        >
+        <div key={ix} className="node-container-row" style={containerRowStyle}>
           {input && (
             <InputSocket
               {...input}

@@ -23,26 +23,23 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React from 'react'
+import { Entity } from '../../../../../ecs/classes/Entity.js'
+import { makeInNOutFunctionDesc } from '../../../Nodes/FunctionNode.js'
 
-import { Modal } from './Modal.js'
+// Unreal Engine Integer Blueprints API: https://docs.unrealengine.com/4.27/en-US/BlueprintAPI/Math/Integer/
 
-export type HelpModalProps = {
-  open?: boolean
-  onClose: () => void
-}
+export const Constant = makeInNOutFunctionDesc({
+  name: 'engine/entity',
+  label: 'Entity',
+  in: ['entity'],
+  out: 'entity',
+  exec: (a: Entity) => a
+})
 
-export const HelpModal: React.FC<HelpModalProps> = ({ open = false, onClose }) => {
-  return (
-    <Modal title="Help" actions={[{ label: 'Close', onClick: onClose }]} open={open} onClose={onClose}>
-      <p style={{ marginBottom: '0.5rem' }}>Right click anywhere to add a new node.</p>
-      <p style={{ marginBottom: '0.5rem' }}>
-        Drag a connection into empty space to add a new node and connect it to the source.
-      </p>
-      <p style={{ marginBottom: '0.5rem' }}>
-        Click and drag on a socket to connect to another socket of the same type.
-      </p>
-      <p>Left click to select nodes or connections, backspace to delete selected nodes or connections.</p>
-    </Modal>
-  )
-}
+export const Equal = makeInNOutFunctionDesc({
+  name: 'engine/equal/entity',
+  label: 'Entity =',
+  in: ['entity', 'entity'],
+  out: 'boolean',
+  exec: (a: Entity, b: Entity) => a === b
+})

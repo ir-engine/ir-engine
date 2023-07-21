@@ -28,13 +28,13 @@ import { NodeSpecJSON } from '@etherealengine/engine/src/behave-graph/core'
 export type color = 'red' | 'green' | 'lime' | 'purple' | 'blue' | 'gray' | 'white'
 
 export const colors: Record<color, [string, string, string]> = {
-  red: ['bg-orange-700', 'border-orange-700', 'text-white'],
-  green: ['bg-green-600', 'border-green-600', 'text-white'],
-  lime: ['bg-lime-500', 'border-lime-500', 'text-gray-900'],
-  purple: ['bg-purple-500', 'border-purple-500', 'text-white'],
-  blue: ['bg-cyan-600', 'border-cyan-600', 'text-white'],
-  gray: ['bg-gray-500', 'border-gray-500', 'text-white'],
-  white: ['bg-white', 'border-white', 'text-gray-700']
+  red: ['#dd6b20', '#dd6b20', '#fff'],
+  green: ['#38a169', '#38a169', '#fff'],
+  lime: ['#84cc16', '#84cc16', '#2d3748'],
+  purple: ['#9f7aea', '#9f7aea', '#fff'],
+  blue: ['#22d3ee', '#22d3ee', '#fff'],
+  gray: ['#718096', '#718096', '#fff'],
+  white: ['#fff', '#fff', '#4a5568']
 }
 
 export const valueTypeColorMap: Record<string, string> = {

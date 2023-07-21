@@ -69,7 +69,11 @@ export const SaveModal: React.FC<SaveModalProps> = ({ open = false, onClose, spe
       open={open}
       onClose={onClose}
     >
-      <textarea ref={ref} className="border border-gray-300 w-full p-2 h-32" defaultValue={jsonString}></textarea>
+      <textarea
+        ref={ref}
+        style={{ border: '1px solid #cbd5e0', width: '100%', padding: '0.5rem', height: '8rem' }}
+        defaultValue={jsonString}
+      ></textarea>
     </Modal>
   )
 }

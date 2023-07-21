@@ -30,6 +30,8 @@ import { NodeSpecJSON } from '@etherealengine/engine/src/behave-graph/core'
 
 import { useOnPressKey } from '../hooks/useOnPressKey.js'
 
+import './NodePicker.css'
+
 export type NodePickerFilters = {
   handleType: 'source' | 'target'
   valueType: string
@@ -71,28 +73,21 @@ export const NodePicker: React.FC<NodePickerProps> = ({
     }) || []
 
   return (
-    <div
-      className="node-picker absolute z-10 text-sm text-white bg-gray-800 border rounded border-gray-500"
-      style={{ top: position.y, left: position.x }}
-    >
-      <div className="bg-gray-500 p-2">Add Node</div>
-      <div className="p-2">
+    <div className="node-picker-container" style={{ top: position.y, left: position.x }}>
+      <div className="node-picker-header">Add Node</div>
+      <div className="node-picker-search">
         <input
           type="text"
           autoFocus
           placeholder="Type to filter"
-          className=" bg-gray-600 disabled:bg-gray-700 w-full py-1 px-2"
+          className="node-picker-input"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
       </div>
-      <div className="max-h-48 overflow-y-scroll">
+      <div className="node-picker-list">
         {filtered.map(({ type }) => (
-          <div
-            key={type}
-            className="p-2 cursor-pointer border-b border-gray-600"
-            onClick={() => onPickNode(type, instance.project(position))}
-          >
+          <div key={type} className="node-picker-item" onClick={() => onPickNode(type, instance.project(position))}>
             {type}
           </div>
         ))}

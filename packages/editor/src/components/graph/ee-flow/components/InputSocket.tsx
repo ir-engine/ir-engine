@@ -52,11 +52,19 @@ const InputFieldForValue = ({
 }: Pick<InputSocketProps, 'choices' | 'value' | 'defaultValue' | 'name' | 'onChange' | 'valueType'>) => {
   const showChoices = choices?.length
   const inputVal = String(value) ?? defaultValue ?? ''
-
+  const inputSocketStyle = {
+    backgroundColor: '#4a5568',
+    cursor: 'not-allowed',
+    padding: '0.25rem 0.5rem',
+    userDrag: 'none',
+    WebkitUserDrag: 'none',
+    MozUserDrag: 'none'
+  }
   if (showChoices)
     return (
       <select
-        className="bg-gray-600 disabled:bg-gray-700 py-1 px-2 nodrag"
+        className="socket-input choice"
+        style={inputSocketStyle}
         value={value ?? defaultValue ?? ''}
         onChange={(e) => onChange(name, e.currentTarget.value)}
       >
@@ -75,7 +83,8 @@ const InputFieldForValue = ({
       {valueType === 'string' && (
         <AutoSizeInput
           type="text"
-          className="bg-gray-600 disabled:bg-gray-700 py-1 px-2 nodrag"
+          className="socket-input string"
+          style={inputSocketStyle}
           value={inputVal}
           onChange={(e) => onChange(name, e.currentTarget.value)}
         />
@@ -83,7 +92,8 @@ const InputFieldForValue = ({
       {valueType === 'number' && (
         <AutoSizeInput
           type="number"
-          className=" bg-gray-600 disabled:bg-gray-700 py-1 px-2 nodrag"
+          className="socket-input number"
+          style={inputSocketStyle}
           value={inputVal}
           onChange={(e) => onChange(name, e.currentTarget.value)}
         />
@@ -91,7 +101,8 @@ const InputFieldForValue = ({
       {valueType === 'float' && (
         <AutoSizeInput
           type="number"
-          className=" bg-gray-600 disabled:bg-gray-700 py-1 px-2 nodrag"
+          className="socket-input float"
+          style={inputSocketStyle}
           value={inputVal}
           onChange={(e) => onChange(name, e.currentTarget.value)}
         />
@@ -99,7 +110,8 @@ const InputFieldForValue = ({
       {valueType === 'integer' && (
         <AutoSizeInput
           type="number"
-          className=" bg-gray-600 disabled:bg-gray-700 py-1 px-2 nodrag"
+          className="socket-input integer"
+          style={inputSocketStyle}
           value={inputVal}
           onChange={(e) => onChange(name, e.currentTarget.value)}
         />
@@ -107,7 +119,8 @@ const InputFieldForValue = ({
       {valueType === 'boolean' && (
         <input
           type="checkbox"
-          className=" bg-gray-600 disabled:bg-gray-700 py-1 px-2 nodrag"
+          className="socket-input boolean"
+          style={inputSocketStyle}
           value={inputVal}
           onChange={(e) => onChange(name, e.currentTarget.checked)}
         />
@@ -134,16 +147,22 @@ const InputSocket: React.FC<InputSocketProps> = ({ connected, specJSON, ...rest 
   const showName = isFlowSocket === false || name !== 'flow'
 
   return (
-    <div className="flex grow items-center justify-start h-7">
+    <div
+      style={{ display: 'flex', flexGrow: 1, alignItems: 'center', justifyContent: 'flex-start', height: '1.75rem' }}
+    >
       {isFlowSocket && <FontAwesomeIcon icon={faCaretRight} color="#ffffff" size="lg" />}
-      {showName && <div className="capitalize mr-2">{name}</div>}
+      {showName && <div style={{ textTransform: 'capitalize', marginRight: '0.5rem' }}>{name}</div>}
 
       {!isFlowSocket && !connected && <InputFieldForValue {...rest} />}
       <Handle
         id={name}
         type="target"
         position={Position.Left}
-        className={cx(borderColor, connected ? backgroundColor : 'bg-gray-800')}
+        className="socket-input-handle"
+        style={{
+          backgroundColor: connected ? backgroundColor : '#2d3748',
+          borderColor: borderColor
+        }}
         isValidConnection={(connection: Connection) => isValidConnection(connection, instance, specJSON)}
       />
     </div>

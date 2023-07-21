@@ -30,6 +30,8 @@ import { NodeCategory, NodeSpecJSON } from '@etherealengine/engine/src/behave-gr
 
 import { categoryColorMap, colors } from '../util/colors.js'
 
+import './NodeContainer.css'
+
 type NodeProps = {
   title: string
   category?: NodeSpecJSON['category']
@@ -47,13 +49,18 @@ const NodeContainer: React.FC<PropsWithChildren<NodeProps>> = ({
     colorName = 'red'
   }
   let [backgroundColor, borderColor, textColor] = colors[colorName]
-  if (selected) {
-    borderColor = 'border-gray-800'
+  const titleStyle = {
+    backgroundColor,
+    color: textColor
   }
   return (
-    <div className={cx('rounded text-white text-sm bg-gray-800 min-w-[120px]', selected && 'outline outline-1')}>
-      <div className={`${backgroundColor} ${textColor} px-2 py-1 rounded-t`}>{title}</div>
-      <div className={`flex flex-col gap-2 py-2 border-l border-r border-b ${borderColor} `}>{children}</div>
+    <div className={'node-container'} style={{ ...(selected && { outline: '2px solid #4a5568' }) }}>
+      <div className={`node-title`} style={titleStyle}>
+        {title}
+      </div>
+      <div className={`node-content`} style={{ borderColor: borderColor }}>
+        {children}
+      </div>
     </div>
   )
 }
