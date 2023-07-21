@@ -725,7 +725,9 @@ export class InstanceProvision implements ServiceMethods<any> {
         const availableLocationInstances = await knexClient
           .from('instance')
           .join(locationPath, 'instance.locationId', '=', `${locationPath}.id`)
-          .where(`${locationPath}.maxUsersPerInstance`, '>', 'instance.currentUsers')
+          .where('instance.locationId', '=', location.id)
+          .andWhere('instance.ended', '=', false)
+          .andWhere(`${locationPath}.maxUsersPerInstance`, '>', 'instance.currentUsers')
           .select()
 
         // TODO: Need to see if we need to populate following using below query. Or is it something knex join already runs us.

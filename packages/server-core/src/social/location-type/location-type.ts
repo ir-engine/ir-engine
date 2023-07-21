@@ -26,7 +26,6 @@ Ethereal Engine. All Rights Reserved.
 import { locationTypeMethods, locationTypePath } from '@etherealengine/engine/src/schemas/social/location-type.schema'
 
 import { Application } from '../../../declarations'
-import { updateAppConfig } from '../../updateAppConfig'
 import { LocationTypeService } from './location-type.class'
 import locationTypeDocs from './location-type.docs'
 import hooks from './location-type.hooks'
@@ -39,6 +38,7 @@ declare module '@etherealengine/common/declarations' {
 
 export default (app: Application): void => {
   const options = {
+    id: 'type',
     name: locationTypePath,
     paginate: app.get('paginate'),
     Model: app.get('knexClient'),

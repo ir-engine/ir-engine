@@ -25,7 +25,6 @@ Ethereal Engine. All Rights Reserved.
 
 import { Paginated } from '@feathersjs/feathers'
 
-import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { locationPath, LocationType } from '@etherealengine/engine/src/schemas/social/location.schema'
@@ -41,7 +40,7 @@ export const LocationState = defineState({
     locationName: null! as string,
     currentLocation: {
       location: LocationSeed as LocationType,
-      bannedUsers: [] as UserId[],
+      bannedUsers: [] as string[],
       selfUserBanned: false,
       selfNotAuthorized: false
     },
@@ -65,7 +64,7 @@ export const LocationServiceReceptor = (action) => {
         fetchingCurrentLocation: true,
         currentLocation: {
           location: LocationSeed as LocationType,
-          bannedUsers: [] as UserId[],
+          bannedUsers: [] as string[],
           selfUserBanned: false,
           selfNotAuthorized: false
         },
@@ -74,8 +73,8 @@ export const LocationServiceReceptor = (action) => {
       })
     })
     .when(LocationAction.socialLocationRetrieved.matches, (action) => {
-      let bannedUsers = [] as UserId[]
-      ;(action.location as any)?.location_bans?.forEach((ban) => {
+      let bannedUsers = [] as string[]
+      action.location.locationBans.forEach((ban) => {
         bannedUsers.push(ban.userId)
       })
       bannedUsers = [...new Set(bannedUsers)]

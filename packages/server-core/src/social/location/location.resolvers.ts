@@ -29,6 +29,7 @@ import { resolve } from '@feathersjs/schema'
 import { v4 } from 'uuid'
 
 import { LocationAuthorizedUser } from '@etherealengine/common/src/interfaces/LocationAuthorizedUser'
+import { LocationBan } from '@etherealengine/common/src/interfaces/LocationBan'
 import { locationSettingPath } from '@etherealengine/engine/src/schemas/social/location-setting.schema'
 import {
   LocationDatabaseType,
@@ -59,6 +60,15 @@ export const locationExternalResolver = resolve<LocationType, HookContext>({
       paginate: false
     })) as LocationAuthorizedUser[]
     return locationAuthorizedUser
+  },
+  locationBans: async (value, location, context) => {
+    const locationBan = (await context.app.service('location-ban').find({
+      query: {
+        locationId: location.id
+      },
+      paginate: false
+    })) as LocationBan[]
+    return locationBan
   }
 })
 

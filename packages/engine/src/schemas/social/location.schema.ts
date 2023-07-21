@@ -28,6 +28,7 @@ import { querySyntax, Type } from '@feathersjs/typebox'
 import type { Static } from '@feathersjs/typebox'
 
 import { locationAuthorizedUserSchema } from './location-authorized-user.schema'
+import { locationBanSchema } from './location-ban.schema'
 import { locationSettingSchema } from './location-setting.schema'
 
 export const locationPath = 'location'
@@ -50,6 +51,7 @@ export const locationSchema = Type.Object(
     maxUsersPerInstance: Type.Number(),
     locationSetting: Type.Ref(locationSettingSchema),
     locationAuthorizedUsers: Type.Array(Type.Ref(locationAuthorizedUserSchema)),
+    locationBans: Type.Array(Type.Ref(locationBanSchema)),
     createdAt: Type.String({ format: 'date-time' }),
     updatedAt: Type.String({ format: 'date-time' })
   },

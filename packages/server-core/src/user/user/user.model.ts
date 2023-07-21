@@ -90,7 +90,7 @@ export default (app: Application) => {
     // (User as any).hasOne(models.seat, { foreignKey: 'userId' });
     ;(User as any).belongsToMany(models.location, { through: 'location_admin' })
     ;(User as any).hasMany(models.location_admin, { unique: false })
-    ;(User as any).hasMany(models.location_ban)
+    ;(User as any).hasMany(models.location_ban, { as: 'locationBans' })
     ;(User as any).hasMany(models.bot, { foreignKey: 'userId' })
     ;(User as any).hasMany(models.scope, { foreignKey: 'userId', onDelete: 'cascade' })
     ;(User as any).belongsToMany(models.instance, { through: 'instance_authorized_user' })

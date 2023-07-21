@@ -77,62 +77,42 @@ export class LocationService<T = LocationType, ServiceParams extends Params = Lo
    * @returns {@Array} of all locations
    */
   async find(params: LocationParams) {
-    const { $sort, joinableLocations, adminnedLocations, search, ...strippedQuery } = params.query || {}
-    let { $skip, $limit } = params.query || {}
+    const { joinableLocations, adminnedLocations, search } = params.query || {}
+    // const { $sort, joinableLocations, adminnedLocations, search, ...strippedQuery } = params.query || {}
+    // let { $skip, $limit } = params.query || {}
 
-    if ($skip == null) $skip = 0
-    if ($limit == null) $limit = 10
+    // if ($skip == null) $skip = 0
+    // if ($limit == null) $limit = 10
 
-    const order: string[] = []
-    if ($sort != null)
-      Object.keys($sort).forEach((name, val) => {
-        if (name === 'type') {
-          order.push(['locationSetting', 'locationType', $sort[name] === 0 ? 'DESC' : 'ASC'])
-        } else if (name === 'audioEnabled') {
-          order.push(['locationSetting', 'audioEnabled', $sort[name] === 0 ? 'DESC' : 'ASC'])
-        } else if (name === 'videoEnabled') {
-          order.push(['locationSetting', 'videoEnabled', $sort[name] === 0 ? 'DESC' : 'ASC'])
-        } else {
-          order.push([name, $sort[name] === 0 ? 'DESC' : 'ASC'])
-        }
-      })
+    // const order: string[] = []
+    // if ($sort != null)
+    //   Object.keys($sort).forEach((name, val) => {
+    //     if (name === 'type') {
+    //       order.push(['locationSetting', 'locationType', $sort[name] === 0 ? 'DESC' : 'ASC'])
+    //     } else if (name === 'audioEnabled') {
+    //       order.push(['locationSetting', 'audioEnabled', $sort[name] === 0 ? 'DESC' : 'ASC'])
+    //     } else if (name === 'videoEnabled') {
+    //       order.push(['locationSetting', 'videoEnabled', $sort[name] === 0 ? 'DESC' : 'ASC'])
+    //     } else {
+    //       order.push([name, $sort[name] === 0 ? 'DESC' : 'ASC'])
+    //     }
+    //   })
 
     if (joinableLocations) {
-      const locationResult = await this.app.service('location').Model.findAndCountAll({
-        offset: $skip,
-        limit: $limit,
-        where: strippedQuery,
-        order: order,
-        include: [
-          {
-            model: this.app.service('instance').Model,
-            required: false,
-            where: {
-              currentUsers: {
-                [Op.lt]: Sequelize.col('location.maxUsersPerInstance')
-              },
-              ended: false
-            }
-          },
-          {
-            model: createLocationSettingModel(this.app),
-            required: false
-          },
-          {
-            model: this.app.service('location-ban').Model,
-            required: false
-          },
-          {
-            model: this.app.service('location-authorized-user').Model,
-            required: false
-          }
-        ]
-      })
-      return {
-        skip: $skip,
-        limit: $limit,
-        total: locationResult.count,
-        data: locationResult.rows
+      const knexClient: Knex = this.app.get('knexClient')
+
+      const locations = await knexClient
+        .from(locationPath)
+        .join('instance', 'instance.locationId', '=', `${locationPath}.id`)
+        .andWhere('instance.ended', '=', false)
+        .andWhere('instance.currentUsers', '<', `${locationPath}.maxUsersPerInstance`)
+        .select(`${locationPath}.id`)
+
+      params.query = {
+        ...params.query,
+        id: {
+          $in: locations.map((location) => location.id)
+        }
       }
     } else if (adminnedLocations) {
       const loggedInUser = params!.user as UserInterface
@@ -160,36 +140,26 @@ export class LocationService<T = LocationType, ServiceParams extends Params = Lo
         })
       }
 
-      let q = {}
-
       if (search) {
-        q = {
-          [Op.or]: [
-            Sequelize.where(Sequelize.fn('lower', Sequelize.col('name')), {
-              [Op.like]: '%' + search.toLowerCase() + '%'
-            }),
-            Sequelize.where(Sequelize.fn('lower', Sequelize.col('sceneId')), {
-              [Op.like]: '%' + search.toLowerCase() + '%'
-            })
+        params.query = {
+          ...params.query,
+          $or: [
+            {
+              name: {
+                $like: `%${search}%`
+              }
+            },
+            {
+              sceneId: {
+                $like: `%${search}%`
+              }
+            }
           ]
         }
       }
-      const locationResult = await this.app.service('location').Model.findAndCountAll({
-        offset: $skip,
-        limit: $limit,
-        where: { ...strippedQuery, ...q },
-        order: order,
-        include: include
-      })
-      return {
-        skip: $skip,
-        limit: $limit,
-        total: locationResult.count,
-        data: locationResult.rows
-      }
-    } else {
-      return super._find(params)
     }
+
+    return super._find(params)
   }
 
   /**

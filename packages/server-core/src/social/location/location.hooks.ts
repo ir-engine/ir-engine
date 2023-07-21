@@ -25,7 +25,6 @@ Ethereal Engine. All Rights Reserved.
 
 import { iff, isProvider } from 'feathers-hooks-common'
 
-import addAssociations from '@etherealengine/server-core/src/hooks/add-associations'
 import verifyScope from '@etherealengine/server-core/src/hooks/verify-scope'
 
 import authenticate from '../../hooks/authenticate'
@@ -33,38 +32,8 @@ import authenticate from '../../hooks/authenticate'
 export default {
   before: {
     all: [authenticate()],
-    find: [
-      addAssociations({
-        models: [
-          {
-            model: 'location-ban'
-          },
-          {
-            model: 'location-setting',
-            as: 'locationSetting'
-          },
-          {
-            model: 'location-authorized-user'
-          }
-        ]
-      })
-    ],
-    get: [
-      addAssociations({
-        models: [
-          {
-            model: 'location-ban'
-          },
-          {
-            model: 'location-setting',
-            as: 'locationSetting'
-          },
-          {
-            model: 'location-authorized-user'
-          }
-        ]
-      })
-    ],
+    find: [],
+    get: [],
     create: [iff(isProvider('external'), verifyScope('location', 'write') as any)],
     update: [iff(isProvider('external'), verifyScope('location', 'write') as any)],
     patch: [iff(isProvider('external'), verifyScope('location', 'write') as any)],
