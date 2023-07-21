@@ -25,18 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { Noise } from 'noisejs'
 import { useEffect } from 'react'
-import {
-  Data3DTexture,
-  DataTexture,
-  IUniform,
-  LinearFilter,
-  Material,
-  RedFormat,
-  RepeatWrapping,
-  RGBAFormat,
-  Uniform,
-  UnsignedByteType
-} from 'three'
+import { DataTexture, IUniform, LinearFilter, RedFormat, RepeatWrapping, Uniform, UnsignedByteType } from 'three'
 
 import { getMutableState, NO_PROXY } from '@etherealengine/hyperflux'
 

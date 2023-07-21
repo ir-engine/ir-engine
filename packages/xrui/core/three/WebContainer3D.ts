@@ -25,8 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { Object3D, Raycaster, Vector3 } from 'three'
 
-import { Bounds, downloadBlob } from '../dom-utils'
-import { getBounds, toDOM, traverseChildElements } from '../dom-utils'
+import { Bounds, downloadBlob, getBounds, toDOM, traverseChildElements } from '../dom-utils'
 import { WebLayerOptions, WebRenderer } from '../WebRenderer'
 import { ON_BEFORE_UPDATE, WebLayer3D } from './WebLayer3D'
 import { WebLayerManager } from './WebLayerManager'

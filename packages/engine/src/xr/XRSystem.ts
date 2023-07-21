@@ -37,7 +37,7 @@ import { XRHapticsSystem } from './XRHapticsSystem'
 import { XRLightProbeSystem } from './XRLightProbeSystem'
 import { XRPersistentAnchorSystem } from './XRPersistentAnchorSystem'
 import { XRScenePlacementShaderSystem } from './XRScenePlacementShaderSystem'
-import { endXRSession, requestXRSession, xrSessionChanged } from './XRSessionFunctions'
+import { xrSessionChanged } from './XRSessionFunctions'
 import { XRAction, XRState } from './XRState'
 
 declare global {

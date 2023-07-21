@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { ChannelType } from '@etherealengine/common/src/interfaces/Channel'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { UserId } from '@etherealengine/common/src/interfaces/UserId'
-import { defineState, getMutableState, getState, none } from '@etherealengine/hyperflux'
+import { defineState, getMutableState, none } from '@etherealengine/hyperflux'
 
 import { DataChannelType, Network } from './classes/Network'
 import { SerializationSchema } from './serialization/Utils'

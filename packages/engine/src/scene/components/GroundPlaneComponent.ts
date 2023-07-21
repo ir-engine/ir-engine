@@ -34,7 +34,6 @@ import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
 import {
   defineComponent,
-  getMutableComponent,
   hasComponent,
   removeComponent,
   setComponent,
@@ -46,10 +45,9 @@ import { CollisionGroups } from '../../physics/enums/CollisionGroups'
 import { getInteractionGroups } from '../../physics/functions/getInteractionGroups'
 import { ObjectLayers } from '../constants/ObjectLayers'
 import { enableObjectLayer } from '../functions/setObjectLayers'
-import { addObjectToGroup, GroupComponent, removeObjectFromGroup } from './GroupComponent'
+import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
 import { SceneAssetPendingTagComponent } from './SceneAssetPendingTagComponent'
 import { SceneObjectComponent } from './SceneObjectComponent'
-import { ShadowComponent } from './ShadowComponent'
 
 export const GroundPlaneComponent = defineComponent({
   name: 'GroundPlaneComponent',

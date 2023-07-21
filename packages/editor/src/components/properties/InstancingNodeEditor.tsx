@@ -25,19 +25,14 @@ Ethereal Engine. All Rights Reserved.
 
 import React, { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Mesh, Object3D, Scene, Texture } from 'three'
+import { Scene } from 'three'
 
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import {
-  addComponent,
-  ComponentType,
   getComponent,
   getMutableComponent,
-  getOrAddComponent,
   hasComponent,
   useComponent
 } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
-import { iterateEntityNode } from '@etherealengine/engine/src/ecs/functions/EntityTree'
 import {
   InstancingComponent,
   SampleMode,
@@ -61,7 +56,6 @@ import { State, useState } from '@etherealengine/hyperflux'
 import AcUnitIcon from '@mui/icons-material/AcUnit'
 
 import { PropertiesPanelButton } from '../inputs/Button'
-import { ImagePreviewInputGroup } from '../inputs/ImagePreviewInput'
 import InputGroup from '../inputs/InputGroup'
 import NumericInputGroup from '../inputs/NumericInputGroup'
 import SelectInput from '../inputs/SelectInput'

@@ -23,10 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { PositionalAudioComponent } from '../../audio/components/PositionalAudioComponent'
-import { defineComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
-import { MediaComponent } from './MediaComponent'
-import { ShadowComponent } from './ShadowComponent'
+import { defineComponent } from '../../ecs/functions/ComponentFunctions'
 
 export const VolumetricComponent = defineComponent({
   name: 'EE_volumetric',

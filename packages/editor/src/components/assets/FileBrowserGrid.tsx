@@ -29,7 +29,6 @@ import { getEmptyImage } from 'react-dnd-html5-backend'
 import { useTranslation } from 'react-i18next'
 
 import { FileBrowserService } from '@etherealengine/client-core/src/common/services/FileBrowserService'
-import { KTX2EncodeArguments } from '@etherealengine/engine/src/assets/constants/CompressionParms'
 import { getComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
 import { StateMethods } from '@etherealengine/hyperflux'

@@ -23,9 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import _ from 'lodash'
-import { useEffect } from 'react'
-import React from 'react'
+import React, { useEffect } from 'react'
 import { MathUtils, Matrix4, PerspectiveCamera, Raycaster, Vector3 } from 'three'
 
 import { UserId } from '@etherealengine/common/src/interfaces/UserId'
@@ -59,7 +57,7 @@ import {
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { CameraSettingsState } from '../CameraSceneMetadata'
 import { CameraComponent } from '../components/CameraComponent'
-import { coneDebugHelpers, debugRays, FollowCameraComponent } from '../components/FollowCameraComponent'
+import { FollowCameraComponent, coneDebugHelpers, debugRays } from '../components/FollowCameraComponent'
 import { SpectatorComponent } from '../components/SpectatorComponent'
 import { TargetCameraRotationComponent } from '../components/TargetCameraRotationComponent'
 import { CameraFadeBlackEffectSystem } from './CameraFadeBlackEffectSystem'

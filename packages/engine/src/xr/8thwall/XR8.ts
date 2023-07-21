@@ -24,21 +24,17 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { useEffect } from 'react'
-import { Color, Texture } from 'three'
 
 import config from '@etherealengine/common/src/config'
-import { dispatchAction, getMutableState, getState, startReactor, useHookstate } from '@etherealengine/hyperflux'
+import { dispatchAction, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
 import { isMobile } from '../../common/functions/isMobile'
 import { Engine } from '../../ecs/classes/Engine'
-import { SceneState } from '../../ecs/classes/Scene'
-import { defineQuery, removeQuery, useQuery } from '../../ecs/functions/ComponentFunctions'
+import { defineQuery, useQuery } from '../../ecs/functions/ComponentFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
-import { SkyboxComponent } from '../../scene/components/SkyboxComponent'
 import { PersistentAnchorComponent } from '../XRAnchorComponents'
 import { endXRSession, getReferenceSpaces, requestXRSession } from '../XRSessionFunctions'
 import { ReferenceSpace, XRAction, XRState } from '../XRState'
-import { XRSystem } from '../XRSystem'
 import { XR8Pipeline } from './XR8Pipeline'
 import { XR8Type } from './XR8Types'
 import { XRFrameProxy, XRRigidTransform, XRSessionProxy, XRSpace } from './XR8WebXRProxy'

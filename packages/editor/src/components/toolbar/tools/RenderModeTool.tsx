@@ -24,20 +24,16 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { t } from 'i18next'
-import React, { useRef, useState } from 'react'
+import React, { useState } from 'react'
 
 import { ShadowMapResolutionOptions } from '@etherealengine/client-core/src/user/components/UserMenu/menus/SettingMenu'
-import { RenderModesType } from '@etherealengine/engine/src/renderer/constants/RenderModes'
-import { RenderModes } from '@etherealengine/engine/src/renderer/constants/RenderModes'
+import { RenderModes, RenderModesType } from '@etherealengine/engine/src/renderer/constants/RenderModes'
 import { RendererState } from '@etherealengine/engine/src/renderer/RendererState'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
 import WbSunnyOutlinedIcon from '@mui/icons-material/WbSunnyOutlined'
-import { Container } from '@mui/material'
 
-import { Modal } from '../../graph/ee-behave-flow/components/Modal'
 import BooleanInput from '../../inputs/BooleanInput'
-import CompoundNumericInput from '../../inputs/CompoundNumericInput'
 import InputGroup from '../../inputs/InputGroup'
 import SelectInput from '../../inputs/SelectInput'
 import { InfoTooltip } from '../../layout/Tooltip'

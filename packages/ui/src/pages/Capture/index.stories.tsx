@@ -29,28 +29,32 @@ import React, { useEffect, useRef, useState } from 'react'
 
 // import { useTranslation } from 'react-i18next'
 
-import { AuthSettingsServiceReceptor } from '@etherealengine/client-core/src/admin/services/Setting/AuthSettingService'
 // import { useLocation, useNavigate } from 'react-router-dom'
-
-import { AuthSettingsService } from '@etherealengine/client-core/src/admin/services/Setting/AuthSettingService'
+import {
+  AuthSettingsService,
+  AuthSettingsServiceReceptor
+} from '@etherealengine/client-core/src/admin/services/Setting/AuthSettingService'
 import { ClientSettingsServiceReceptor } from '@etherealengine/client-core/src/admin/services/Setting/ClientSettingService'
 import { AdminCoilSettingService } from '@etherealengine/client-core/src/admin/services/Setting/CoilSettingService'
 import {
   NotificationAction,
   NotificationActions
 } from '@etherealengine/client-core/src/common/services/NotificationService'
-import { ProjectService, ProjectState } from '@etherealengine/client-core/src/common/services/ProjectService'
-import { ProjectServiceReceptor } from '@etherealengine/client-core/src/common/services/ProjectService'
+import {
+  ProjectService,
+  ProjectServiceReceptor,
+  ProjectState
+} from '@etherealengine/client-core/src/common/services/ProjectService'
 import { useLoadLocationScene } from '@etherealengine/client-core/src/components/World/LoadLocationScene'
 import { ClientNetworkingSystem } from '@etherealengine/client-core/src/networking/ClientNetworkingSystem'
 import { RecordingServiceSystem } from '@etherealengine/client-core/src/recording/RecordingService'
-import { LocationServiceReceptor } from '@etherealengine/client-core/src/social/services/LocationService'
-import { LocationAction } from '@etherealengine/client-core/src/social/services/LocationService'
-import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
-import { AuthService, AuthServiceReceptor } from '@etherealengine/client-core/src/user/services/AuthService'
+import {
+  LocationAction,
+  LocationServiceReceptor
+} from '@etherealengine/client-core/src/social/services/LocationService'
+import { AuthService, AuthServiceReceptor, AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
 import { SceneService } from '@etherealengine/client-core/src/world/services/SceneService'
-import { MediaSystem } from '@etherealengine/engine/src/audio/systems/MediaSystem'
-import { AudioEffectPlayer } from '@etherealengine/engine/src/audio/systems/MediaSystem'
+import { AudioEffectPlayer, MediaSystem } from '@etherealengine/engine/src/audio/systems/MediaSystem'
 import { matches } from '@etherealengine/engine/src/common/functions/MatchesUtils'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { EngineActions } from '@etherealengine/engine/src/ecs/classes/EngineState'
@@ -69,11 +73,11 @@ import { loadEngineInjection } from '@etherealengine/projects/loadEngineInjectio
 
 import Component from './index'
 
-import 'tailwindcss/tailwind.css'
 import '@etherealengine/client/src/themes/base.css'
 import '@etherealengine/client/src/themes/components.css'
 import '@etherealengine/client/src/themes/utilities.css'
 import 'daisyui/dist/full.css'
+import 'tailwindcss/tailwind.css'
 
 // import { useLocation } from 'react-router-dom'
 

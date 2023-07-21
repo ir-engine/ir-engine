@@ -28,14 +28,11 @@ import { DoubleSide, Group, LinearFilter, Mesh, MeshBasicMaterial, Side, Texture
 
 import { defineState } from '@etherealengine/hyperflux'
 
-import { PositionalAudioComponent } from '../../audio/components/PositionalAudioComponent'
 import { isMobile } from '../../common/functions/isMobile'
 import { Entity } from '../../ecs/classes/Entity'
 import {
   defineComponent,
   getComponent,
-  hasComponent,
-  setComponent,
   useComponent,
   useOptionalComponent
 } from '../../ecs/functions/ComponentFunctions'
@@ -47,10 +44,9 @@ import { addError, clearErrors } from '../functions/ErrorFunctions'
 import { ObjectFitFunctions } from './../../xrui/functions/ObjectFitFunctions'
 import { addObjectToGroup, removeObjectFromGroup } from './../components/GroupComponent'
 import { resizeImageMesh } from './../components/ImageComponent'
-import { MediaComponent, MediaElementComponent } from './../components/MediaComponent'
+import { MediaElementComponent } from './../components/MediaComponent'
 import { UUIDComponent } from './../components/UUIDComponent'
 import { PLANE_GEO } from './ImageComponent'
-import { ShadowComponent } from './ShadowComponent'
 
 export const VideoTexturePriorityQueueState = defineState({
   name: 'VideoTexturePriorityQueueState',

@@ -27,16 +27,10 @@ import React from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { AllFileTypes } from '@etherealengine/engine/src/assets/constants/fileTypes'
-import {
-  AudioFileTypes,
-  VideoFileTypes,
-  VolumetricFileTypes
-} from '@etherealengine/engine/src/assets/constants/fileTypes'
 import { useComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { getEntityErrors } from '@etherealengine/engine/src/scene/components/ErrorComponent'
 import { MediaComponent } from '@etherealengine/engine/src/scene/components/MediaComponent'
 import { PlayMode } from '@etherealengine/engine/src/scene/constants/PlayMode'
-import { addError } from '@etherealengine/engine/src/scene/functions/ErrorFunctions'
 
 import { SupportedFileTypes } from '../../constants/AssetTypes'
 import ArrayInputGroup from '../inputs/ArrayInputGroup'

@@ -67,12 +67,12 @@ import {
   MeshProperties,
   SampleMode,
   SampleProperties,
-  sampleVar,
   ScatterMode,
   ScatterProperties,
   ScatterState,
   TextureRef,
-  VertexProperties
+  VertexProperties,
+  sampleVar
 } from '../../components/InstancingComponent'
 import { UpdatableCallback, UpdatableComponent } from '../../components/UpdatableComponent'
 import getFirstMesh from '../../util/getFirstMesh'

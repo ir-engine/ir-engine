@@ -25,7 +25,6 @@ Ethereal Engine. All Rights Reserved.
 
 import { t } from 'i18next'
 import React, { lazy, Suspense, useEffect, useState } from 'react'
-import { useTranslation } from 'react-i18next'
 import { Route, Routes, useLocation } from 'react-router-dom'
 
 import {

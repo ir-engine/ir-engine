@@ -33,21 +33,11 @@ import { defineAction, getMutableState, getState, State, useHookstate } from '@e
 import { matchesQuaternion, matchesVector3 } from '../common/functions/MatchesUtils'
 import { Engine } from '../ecs/classes/Engine'
 import { SceneState } from '../ecs/classes/Scene'
-import {
-  defineComponent,
-  getComponent,
-  hasComponent,
-  useComponent,
-  useOptionalComponent
-} from '../ecs/functions/ComponentFunctions'
+import { defineComponent, getComponent, useComponent, useOptionalComponent } from '../ecs/functions/ComponentFunctions'
 import { useEntityContext } from '../ecs/functions/EntityFunctions'
 import { GroupComponent, Object3DWithEntity } from '../scene/components/GroupComponent'
 import { UUIDComponent } from '../scene/components/UUIDComponent'
-import {
-  LocalTransformComponent,
-  setLocalTransformComponent,
-  TransformComponent
-} from '../transform/components/TransformComponent'
+import { LocalTransformComponent, TransformComponent } from '../transform/components/TransformComponent'
 import { XRState } from './XRState'
 
 /**

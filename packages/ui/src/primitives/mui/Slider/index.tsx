@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React, { ReactNode } from 'react'
+import React from 'react'
 
 import { Slider as MuiSlider, SliderProps } from '@mui/material'
 

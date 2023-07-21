@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Euler, EulerOrder, Quaternion, Vector3 } from 'three'
+import { Quaternion, Vector3 } from 'three'
 
 export const Deg2Rad = (Math.PI * 2) / 360
 export const Rad2Deg = 1 / Deg2Rad

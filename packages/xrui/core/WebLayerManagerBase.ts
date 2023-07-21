@@ -39,8 +39,7 @@ import {
   parseCSSTransform
 } from './dom-utils'
 import { bufferToHex } from './hex-utils'
-import { serializeToString } from './serialization-utils'
-import { getParentsHTML } from './serialization-utils'
+import { getParentsHTML, serializeToString } from './serialization-utils'
 import { getAllEmbeddedStyles } from './serialization/getAllEmbeddedStyles'
 import { KTX2Encoder, UASTCFlags } from './textures/KTX2Encoder'
 import { WebLayer } from './WebLayer'

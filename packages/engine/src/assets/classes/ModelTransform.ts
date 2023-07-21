@@ -23,8 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { DracoOptions, JoinOptions, PaletteOptions, QuantizeOptions } from '@gltf-transform/functions'
-import { BufferGeometry, Material, Texture } from 'three'
+import { DracoOptions, JoinOptions, PaletteOptions } from '@gltf-transform/functions'
 
 import { OpaqueType } from '@etherealengine/common/src/interfaces/OpaqueType'
 

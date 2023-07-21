@@ -25,32 +25,20 @@ Ethereal Engine. All Rights Reserved.
 
 import { useEffect } from 'react'
 import {
-  AxesHelper,
   ConeGeometry,
   Group,
   MathUtils,
-  Matrix4,
   Mesh,
   MeshBasicMaterial,
-  MeshNormalMaterial,
   Plane,
   Quaternion,
-  Ray,
   RingGeometry,
   SphereGeometry,
   Vector3
 } from 'three'
 
 import { smootheLerpAlpha } from '@etherealengine/common/src/utils/smootheLerpAlpha'
-import {
-  defineActionQueue,
-  defineState,
-  getMutableState,
-  getState,
-  removeActionQueue,
-  startReactor,
-  useState
-} from '@etherealengine/hyperflux'
+import { defineActionQueue, defineState, getMutableState, getState, useState } from '@etherealengine/hyperflux'
 
 import { V_010 } from '../common/constants/MathConstants'
 import { Engine } from '../ecs/classes/Engine'
@@ -60,25 +48,19 @@ import {
   defineQuery,
   getComponent,
   getMutableComponent,
-  getOptionalComponent,
   removeComponent,
-  removeQuery,
   setComponent,
-  useComponent,
   useOptionalComponent
 } from '../ecs/functions/ComponentFunctions'
 import { createEntity } from '../ecs/functions/EntityFunctions'
 import { defineSystem } from '../ecs/functions/SystemFunctions'
-import { addObjectToGroup, removeObjectFromGroup } from '../scene/components/GroupComponent'
 import { NameComponent } from '../scene/components/NameComponent'
 import { VisibleComponent } from '../scene/components/VisibleComponent'
-import { ObjectLayers } from '../scene/constants/ObjectLayers'
-import { setObjectLayers } from '../scene/functions/setObjectLayers'
 import {
   LocalTransformComponent,
+  TransformComponent,
   setLocalTransformComponent,
-  setTransformComponent,
-  TransformComponent
+  setTransformComponent
 } from '../transform/components/TransformComponent'
 import { updateWorldOriginFromScenePlacement } from '../transform/updateWorldOrigin'
 import { XRAnchorComponent, XRHitTestComponent } from './XRComponents'

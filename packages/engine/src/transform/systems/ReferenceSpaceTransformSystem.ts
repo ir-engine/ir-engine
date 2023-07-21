@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { MeshDepthMaterial, Scene, Skeleton, SkinnedMesh, WebGLRenderTarget } from 'three'
+import { MeshDepthMaterial, Scene, WebGLRenderTarget } from 'three'
 
 import { updateLocalAvatarPosition, updateLocalAvatarRotation } from '../../avatar/functions/moveAvatar'
 import { Engine } from '../../ecs/classes/Engine'

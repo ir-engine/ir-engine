@@ -23,8 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { DeleteObjectCommand, ListObjectsV2Command } from '@aws-sdk/client-s3'
-import { CreateBucketCommand, HeadBucketCommand } from '@aws-sdk/client-s3'
+import { CreateBucketCommand, DeleteObjectCommand, HeadBucketCommand, ListObjectsV2Command } from '@aws-sdk/client-s3'
 import appRootPath from 'app-root-path'
 import fs from 'fs'
 import path from 'path'

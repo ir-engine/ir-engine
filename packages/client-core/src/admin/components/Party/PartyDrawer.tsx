@@ -27,7 +27,6 @@ import { useHookstate } from '@hookstate/core'
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import InputSelect, { InputMenuItem } from '@etherealengine/client-core/src/common/components/InputSelect'
 import InputText from '@etherealengine/client-core/src/common/components/InputText'
 import { Party } from '@etherealengine/common/src/interfaces/Party'
 import { getMutableState } from '@etherealengine/hyperflux'

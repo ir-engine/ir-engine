@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { spawn } from 'child_process'
 import { Sequelize } from 'sequelize'
 
-import config, { isDev } from '@etherealengine/common/src/config'
+import { isDev } from '@etherealengine/common/src/config'
 import appConfig from '@etherealengine/server-core/src/appconfig'
 
 import { Application } from '../declarations'
@@ -140,10 +140,13 @@ export default (app: Application): void => {
           await Promise.race([
             initPromise,
             new Promise<void>((resolve) => {
-              setTimeout(() => {
-                console.log('WARNING: Knex migrations took too long to run!')
-                resolve()
-              }, 2 * 60 * 1000) // timeout after 2 minutes
+              setTimeout(
+                () => {
+                  console.log('WARNING: Knex migrations took too long to run!')
+                  resolve()
+                },
+                2 * 60 * 1000
+              ) // timeout after 2 minutes
             })
           ])
         }

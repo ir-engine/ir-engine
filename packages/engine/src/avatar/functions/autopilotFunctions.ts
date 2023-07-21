@@ -24,13 +24,11 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { World } from '@dimforge/rapier3d-compat'
-import _ from 'lodash'
-import { CylinderGeometry, Mesh, MeshBasicMaterial, Object3D, Quaternion, Scene } from 'three'
-import { Vector3 } from 'three'
+import { CylinderGeometry, Mesh, MeshBasicMaterial, Object3D, Quaternion, Vector3 } from 'three'
 
 import { defineState, getMutableState, getState } from '@etherealengine/hyperflux'
 
-import { V_000, V_010 } from '../../common/constants/MathConstants'
+import { V_010 } from '../../common/constants/MathConstants'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { getComponent } from '../../ecs/functions/ComponentFunctions'

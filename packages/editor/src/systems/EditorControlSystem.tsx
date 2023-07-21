@@ -44,17 +44,14 @@ import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { EngineActions } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
 import {
-  addComponent,
-  defineQuery,
   getComponent,
   getOptionalComponent,
   hasComponent,
   removeComponent,
-  removeQuery,
   setComponent,
   useQuery
 } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
-import { createEntity, entityExists } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
+import { createEntity } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
 import {
   EntityTreeComponent,
   getEntityNodeArrayFromEntities
@@ -75,21 +72,14 @@ import {
   TransformMode,
   TransformModeType,
   TransformPivot,
-  TransformPivotType
+  TransformPivotType,
+  TransformSpace
 } from '@etherealengine/engine/src/scene/constants/transformConstants'
-import { TransformSpace } from '@etherealengine/engine/src/scene/constants/transformConstants'
 import {
   LocalTransformComponent,
-  setTransformComponent,
   TransformComponent
 } from '@etherealengine/engine/src/transform/components/TransformComponent'
-import {
-  defineActionQueue,
-  dispatchAction,
-  getMutableState,
-  getState,
-  removeActionQueue
-} from '@etherealengine/hyperflux'
+import { defineActionQueue, dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
 
 import { EditorCameraState } from '../classes/EditorCameraState'
 import { addMediaNode } from '../functions/addMediaNode'

@@ -23,13 +23,11 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import _ from 'lodash'
-
 import { addActionReceptor } from '@etherealengine/hyperflux'
 
 import { Timer } from './common/functions/Timer'
 import { Engine } from './ecs/classes/Engine'
-import { EngineEventReceptor, EngineState } from './ecs/classes/EngineState'
+import { EngineEventReceptor } from './ecs/classes/EngineState'
 import { executeSystems, startCoreSystems } from './ecs/functions/EngineFunctions'
 import { EngineRenderer } from './renderer/WebGLRendererSystem'
 

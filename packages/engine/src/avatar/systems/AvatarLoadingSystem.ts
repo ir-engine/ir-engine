@@ -42,14 +42,11 @@ import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { ObjectDirection } from '../../common/constants/Axis3D'
 import { Engine } from '../../ecs/classes/Engine'
 import {
-  addComponent,
-  ComponentType,
   defineQuery,
   getComponent,
   getOptionalComponent,
   hasComponent,
   removeComponent,
-  removeQuery,
   setComponent
 } from '../../ecs/functions/ComponentFunctions'
 import { removeEntity } from '../../ecs/functions/EntityFunctions'
@@ -61,7 +58,7 @@ import { SceneQueryType } from '../../physics/types/PhysicsTypes'
 import { addObjectToGroup, GroupComponent } from '../../scene/components/GroupComponent'
 import { VisibleComponent } from '../../scene/components/VisibleComponent'
 import { setupObject } from '../../scene/systems/SceneObjectSystem'
-import { setTransformComponent, TransformComponent } from '../../transform/components/TransformComponent'
+import { TransformComponent } from '../../transform/components/TransformComponent'
 import { TweenComponent } from '../../transform/components/TweenComponent'
 import { AvatarControllerComponent } from '.././components/AvatarControllerComponent'
 import { AvatarDissolveComponent } from '.././components/AvatarDissolveComponent'

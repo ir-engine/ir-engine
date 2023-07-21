@@ -24,9 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import PropTypes from 'prop-types'
-import React, { useEffect } from 'react'
-import { useRef } from 'react'
-import { useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import styled from 'styled-components'
 
 import { clamp } from '@etherealengine/engine/src/common/functions/MathLerpFunctions'

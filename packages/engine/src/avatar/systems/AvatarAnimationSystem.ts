@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { useEffect } from 'react'
-import { AxesHelper, Bone, Euler, MathUtils, Matrix4, Quaternion, Vector3 } from 'three'
+import { AxesHelper, Bone, Euler, MathUtils, Quaternion, Vector3 } from 'three'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { insertionSort } from '@etherealengine/common/src/utils/insertionSort'
@@ -32,7 +32,6 @@ import { defineActionQueue, defineState, dispatchAction, getState } from '@ether
 
 import { Axis } from '../../common/constants/Axis3D'
 import { V_000 } from '../../common/constants/MathConstants'
-import { proxifyQuaternion } from '../../common/proxies/createThreejsProxy'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'

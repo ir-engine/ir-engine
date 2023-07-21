@@ -23,9 +23,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import type { TransportListenIp } from 'mediasoup/node/lib/Transport'
-import type { WebRtcTransportOptions } from 'mediasoup/node/lib/WebRtcTransport'
-
 import configFile from './appconfig'
 import { SctpParameters } from './types/SctpParameters'
 

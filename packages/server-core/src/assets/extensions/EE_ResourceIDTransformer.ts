@@ -28,7 +28,6 @@ import {
   ExtensionProperty,
   IProperty,
   Nullable,
-  Property,
   PropertyType,
   ReaderContext,
   WriterContext

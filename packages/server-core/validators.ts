@@ -24,8 +24,8 @@ Ethereal Engine. All Rights Reserved.
 */
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/validators.html
-import { addFormats, Ajv } from '@feathersjs/schema'
 import type { FormatsPluginOptions } from '@feathersjs/schema'
+import { addFormats, Ajv } from '@feathersjs/schema'
 
 const formats: FormatsPluginOptions = [
   'date-time',
