@@ -222,7 +222,6 @@ export const AvatarRigComponent = defineComponent({
 
       rigComponent.bindRig.hips.node.value.getWorldPosition(offset).multiplyScalar(2)
       offset.y = rigComponent.bindRig.rightFoot.node.value.getWorldPosition(foot).y
-      rigComponent.vrm.humanoid.normalizedHumanBonesRoot.position.value.add(offset)
 
       for (let i = 0; i < bindTracks.length; i += 3) {
         const key = bindTracks[i].name.substring(0, bindTracks[i].name.indexOf('.'))
@@ -282,15 +281,13 @@ export const AvatarRigComponent = defineComponent({
             break
           case 'headHint':
           case 'headTarget':
-            bonePos.copy(rigComponent.bindRig.head.value.node.matrixWorld.multiply(new Matrix4().setPosition(0, 0, 0)))
+            bonePos.copy(rigComponent.bindRig.head.value.node.matrixWorld)
           case 'hipsTarget':
-            bonePos.copy(
-              rigComponent.bindRig.hips.value.node.matrixWorld.multiply(new Matrix4().setPosition(0, -0.05, 0))
-            )
+            bonePos.copy(rigComponent.bindRig.hips.value.node.matrixWorld)
         }
         const pos = new Vector3()
         bonePos.decompose(pos, new Quaternion(), new Vector3())
-        pos.applyQuaternion(hipsRotationoffset)
+        if (!(rigComponent.vrm.value as any).userData) pos.applyQuaternion(hipsRotationoffset)
         pos.sub(new Vector3(bindTracks[i].values[0], bindTracks[i].values[1], bindTracks[i].values[2]))
         pos.sub(offset)
         rigComponent.ikOffsetsMap.value.set(key, pos)

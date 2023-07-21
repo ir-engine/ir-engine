@@ -148,6 +148,7 @@ const _quat = new Quaternion()
 const _vector3 = new Vector3()
 const _empty = new Vector3()
 const _hipVector = new Vector3()
+const _hipRot = new Quaternion()
 const leftLegVector = new Vector3()
 const rightLegVector = new Vector3()
 
@@ -467,18 +468,12 @@ const execute = () => {
         .subVectors(worldSpaceTargets.hipsTarget.position, worldSpaceTargets.rightFootTarget.position)
         .length() + rigComponent.footHeight
 
-    //get rotations from ik targets and convert to world space relative to hips
-    const rot = new Quaternion()
-    rig.hips.node.getWorldQuaternion(rot)
-
     //calculate hips to head
-    rig.hips.node.position.copy(
-      rigComponent.vrm.humanoid.normalizedHumanBonesRoot.worldToLocal(worldSpaceTargets.hipsTarget.position)
-    )
+    rig.hips.node.position.copy(worldSpaceTargets.hipsTarget.position.applyMatrix4(transform.matrixInverse))
     _hipVector.subVectors(rigComponent.ikTargetsMap.headTarget.position, rigComponent.ikTargetsMap.hipsTarget.position)
     rig.hips.node.quaternion
       .setFromUnitVectors(V_010, _hipVector)
-      .multiply(new Quaternion().setFromEuler(new Euler(0, Math.PI)))
+      .multiply(_hipRot.setFromEuler(new Euler(0, (rigComponent.vrm as any).userData ? 0 : Math.PI)))
 
     //right now we only want hand rotation set if we are in xr
     const xrValue = xrState.sessionActive ? 1 : 0
@@ -553,7 +548,7 @@ const execute = () => {
       worldSpaceTargets.leftFootTarget.position.setY(
         worldSpaceTargets.leftFootTarget.position.y + rigComponent.footHeight
       ),
-      rot,
+      worldSpaceTargets.leftFootTarget.rotation,
       null,
       worldSpaceTargets.leftKneeHint.position,
       null,

@@ -363,18 +363,17 @@ const _updateLocalAvatarRotationAttachedMode = () => {
   const viewerOrientation = viewerPose.transform.orientation
 
   //if angle between rigidbody forward and viewer forward is greater than 15 degrees, rotate rigidbody to viewer forward
-  const viewerForward = new Vector3(0, 0, 1).applyQuaternion(viewerOrientation as any).setY(0)
+  viewerQuat
+    .set(viewerOrientation.x, viewerOrientation.y, viewerOrientation.z, viewerOrientation.w)
+    .premultiply(originTransform.rotation)
+  const viewerForward = new Vector3(0, 0, 1).applyQuaternion(viewerQuat as any).setY(0)
   const rigidbodyForward = new Vector3(0, 0, -1).applyQuaternion(rigidbody.targetKinematicRotation).setY(0)
   const angle = viewerForward.angleTo(rigidbodyForward)
 
-  if (angle > Math.PI * 0.25 || rotationNeedsUpdate) {
-    viewerQuat
-      .set(viewerOrientation.x, viewerOrientation.y, viewerOrientation.z, viewerOrientation.w)
-      .premultiply(originTransform.rotation)
+  if (angle > Math.PI * 0.25 || rotationNeedsUpdate == true) {
     // const avatarRotation = extractRotationAboutAxis(viewerQuat, V_010, _quat)
     avatarRotationAroundY.setFromQuaternion(viewerQuat, 'YXZ')
     avatarRotation.setFromAxisAngle(V_010, avatarRotationAroundY.y + Math.PI)
-
     rotationNeedsUpdate = false
   }
 

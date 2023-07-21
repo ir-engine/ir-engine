@@ -100,7 +100,7 @@ export const loadAvatarModelAsset = async (avatarURL: string) => {
   const scene = model.scene || model // FBX files does not have 'scene' property
   if (!scene) return
 
-  let vrm = model instanceof VRM ? model : model.userData.vrm
+  let vrm = (model instanceof VRM ? model : model.userData.vrm ?? avatarBoneMatching(scene)) as VRM
 
   VRMUtils.VRMUtils.removeUnnecessaryJoints(vrm.scene)
   VRMUtils.VRMUtils.removeUnnecessaryVertices(vrm.scene)
@@ -152,7 +152,7 @@ export const setupAvatarForUser = (entity: Entity, model: VRM) => {
   const avatar = getComponent(entity, AvatarComponent)
   if (avatar.model) removeObjectFromGroup(entity, avatar.model)
 
-  setupAvatarModel(entity)(model)
+  rigAvatarModel(entity)(model)
   addObjectToGroup(entity, model.scene)
   iterateObject3D(model.scene, (obj) => {
     obj && (obj.frustumCulled = false)
@@ -165,29 +165,6 @@ export const setupAvatarForUser = (entity: Entity, model: VRM) => {
   setObjectLayers(model.scene, ObjectLayers.Avatar)
   avatar.model = model.scene
 }
-
-export const setupAvatarModel = (entity: Entity) => pipe(rigAvatarModel(entity), animateAvatarModel(entity))
-
-// export const boneMatchAvatarModel = (entity: Entity) => (model: Object3D) => {
-//   const assetType = model.scene.userData.type
-
-//   const groupComponent = getOptionalComponent(entity, GroupComponent)
-
-//   if (assetType == AssetType.FBX) {
-//     // TODO: Should probably be applied to vertexes in the modeling tool
-//     model.children[0].scale.setScalar(0.01)
-//     if (groupComponent) for (const obj of groupComponent) obj.userData.scale = 0.01
-//   } else if (assetType == AssetType.VRM) {
-//     if (model && (model as UpdateableObject3D).update) {
-//       addComponent(entity, UpdatableComponent, true)
-//       setCallback(entity, UpdatableCallback, (delta: number) => {
-//         ;(model as UpdateableObject3D).update(delta)
-//       })
-//     }
-//   }
-
-//   return model
-// }
 
 export const createIKAnimator = async (entity: Entity) => {
   const rigComponent = getComponent(entity, AvatarRigComponent)
@@ -225,8 +202,6 @@ export const rigAvatarModel = (entity: Entity) => (model: VRM) => {
     vrm: model
   })
 
-  centerAvatar(entity)
-
   const rigComponent = getComponent(entity, AvatarRigComponent)
   rigComponent.targets.name = 'IKTargets'
   for (const [key, value] of Object.entries(rigComponent.ikTargetsMap)) {
@@ -237,43 +212,6 @@ export const rigAvatarModel = (entity: Entity) => (model: VRM) => {
   avatarAnimationComponent.rootYRatio = 1
 
   return model
-}
-
-const offset = new Vector3()
-const foot = new Vector3()
-export const centerAvatar = (entity: Entity) => {
-  //use right foot and left foot rig nodes to calculate the center of the avatar
-  const rigComponent = getComponent(entity, AvatarRigComponent)
-  rigComponent.bindRig.hips.node.getWorldPosition(offset).multiplyScalar(2)
-  offset.y = -rigComponent.bindRig.rightFoot.node.getWorldPosition(foot).y * 2
-  rigComponent.vrm.humanoid.normalizedHumanBonesRoot.position.add(offset)
-}
-
-export const animateAvatarModel = (entity: Entity) => (model: VRM) => {
-  const animationComponent = getComponent(entity, AnimationComponent)
-  const avatarAnimationComponent = getComponent(entity, AvatarAnimationComponent)
-  const controllerComponent = getOptionalComponent(entity, AvatarControllerComponent)
-
-  animationComponent.mixer?.stopAllAction()
-  // Mixer has some issues when binding with the target skeleton
-  // We have to bind the mixer with original skeleton and copy resulting bone transforms after update
-
-  //const sourceSkeleton = getComponent(entity, AvatarRigComponent).bindRig
-  // debugger
-  //animationComponent.mixer = new AnimationMixer(AnimationManager.instance._animatedScene.children[0].children[0])
-  //animationComponent.animations = AnimationManager.instance._animations
-  //animationComponent.mixer.clipAction(animationComponent.animations[0]).play()
-
-  /* if (avatarAnimationComponent)
-    avatarAnimationComponent.animationGraph = createAvatarAnimationGraph(
-      entity,
-      animationComponent.mixer,
-      avatarAnimationComponent.locomotion,
-      controllerComponent ?? {}
-    )
-*/
-  // advance animation for a frame to eliminate potential t-pose
-  animationComponent.mixer.update(1 / 60)
 }
 
 export const setupAvatarMaterials = (entity, root) => {
