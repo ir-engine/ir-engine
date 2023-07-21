@@ -30,6 +30,7 @@ import { v4 } from 'uuid'
 
 import { LocationAuthorizedUser } from '@etherealengine/common/src/interfaces/LocationAuthorizedUser'
 import { LocationBan } from '@etherealengine/common/src/interfaces/LocationBan'
+import { LocationAdminType } from '@etherealengine/engine/src/schemas/social/location-admin.schema'
 import { locationSettingPath } from '@etherealengine/engine/src/schemas/social/location-setting.schema'
 import {
   LocationDatabaseType,
@@ -39,6 +40,7 @@ import {
 import type { HookContext } from '@etherealengine/server-core/declarations'
 
 import { getDateTimeSql } from '../../util/get-datetime-sql'
+import { LocationParams } from './location.class'
 
 export const locationResolver = resolve<LocationType, HookContext>({})
 
@@ -51,6 +53,30 @@ export const locationExternalResolver = resolve<LocationType, HookContext>({
       paginate: false
     })
     return locationSetting.length > 0 ? locationSetting[0] : undefined
+  },
+  locationAdmin: async (value, location, context) => {
+    const params = context.params as LocationParams
+    const loggedInUser = params.user
+
+    if (
+      loggedInUser &&
+      params.query &&
+      params.query.adminnedLocations &&
+      (!loggedInUser.scopes || !loggedInUser.scopes.find((scope) => scope.type === 'admin:admin'))
+    ) {
+      //TODO: We should replace `as any as LocationAdminType[]` with `as LocationAdminType[]` once location-admin service is migrated to feathers 5.
+      const locationAdmin = (await context.app.service('location-admin').find({
+        query: {
+          locationId: location.id,
+          userId: loggedInUser.id
+        },
+        paginate: false
+      })) as any as LocationAdminType[]
+
+      return locationAdmin.length > 0 ? locationAdmin[0] : undefined
+    }
+
+    return undefined
   },
   locationAuthorizedUsers: async (value, location, context) => {
     const locationAuthorizedUser = (await context.app.service('location-authorized-user').find({

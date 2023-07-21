@@ -22,6 +22,7 @@ Original Code is the Ethereal Engine team.
 All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
 Ethereal Engine. All Rights Reserved.
 */
+
 import { Id, NullableId, Params } from '@feathersjs/feathers'
 import { KnexAdapter } from '@feathersjs/knex'
 import type { KnexAdapterOptions, KnexAdapterParams } from '@feathersjs/knex'
@@ -78,25 +79,6 @@ export class LocationService<T = LocationType, ServiceParams extends Params = Lo
    */
   async find(params: LocationParams) {
     const { joinableLocations, adminnedLocations, search } = params.query || {}
-    // const { $sort, joinableLocations, adminnedLocations, search, ...strippedQuery } = params.query || {}
-    // let { $skip, $limit } = params.query || {}
-
-    // if ($skip == null) $skip = 0
-    // if ($limit == null) $limit = 10
-
-    // const order: string[] = []
-    // if ($sort != null)
-    //   Object.keys($sort).forEach((name, val) => {
-    //     if (name === 'type') {
-    //       order.push(['locationSetting', 'locationType', $sort[name] === 0 ? 'DESC' : 'ASC'])
-    //     } else if (name === 'audioEnabled') {
-    //       order.push(['locationSetting', 'audioEnabled', $sort[name] === 0 ? 'DESC' : 'ASC'])
-    //     } else if (name === 'videoEnabled') {
-    //       order.push(['locationSetting', 'videoEnabled', $sort[name] === 0 ? 'DESC' : 'ASC'])
-    //     } else {
-    //       order.push([name, $sort[name] === 0 ? 'DESC' : 'ASC'])
-    //     }
-    //   })
 
     if (joinableLocations) {
       const knexClient: Knex = this.app.get('knexClient')
@@ -114,48 +96,21 @@ export class LocationService<T = LocationType, ServiceParams extends Params = Lo
           $in: locations.map((location) => location.id)
         }
       }
-    } else if (adminnedLocations) {
-      const loggedInUser = params!.user as UserInterface
-      const include = [
-        {
-          model: createLocationSettingModel(this.app),
-          required: false
-        },
-        {
-          model: this.app.service('location-ban').Model,
-          required: false
-        },
-        {
-          model: this.app.service('location-authorized-user').Model,
-          require: false
-        }
-      ]
-
-      if (!loggedInUser.scopes || !loggedInUser.scopes.find((scope) => scope.type === 'admin:admin')) {
-        ;(include as any).push({
-          model: this.app.service('location-admin').Model,
-          where: {
-            userId: loggedInUser.id
-          }
-        })
-      }
-
-      if (search) {
-        params.query = {
-          ...params.query,
-          $or: [
-            {
-              name: {
-                $like: `%${search}%`
-              }
-            },
-            {
-              sceneId: {
-                $like: `%${search}%`
-              }
+    } else if (adminnedLocations && search) {
+      params.query = {
+        ...params.query,
+        $or: [
+          {
+            name: {
+              $like: `%${search}%`
             }
-          ]
-        }
+          },
+          {
+            sceneId: {
+              $like: `%${search}%`
+            }
+          }
+        ]
       }
     }
 

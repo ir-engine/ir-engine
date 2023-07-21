@@ -27,6 +27,7 @@ Ethereal Engine. All Rights Reserved.
 import { querySyntax, Type } from '@feathersjs/typebox'
 import type { Static } from '@feathersjs/typebox'
 
+import { locationAdminSchema } from './location-admin.schema'
 import { locationAuthorizedUserSchema } from './location-authorized-user.schema'
 import { locationBanSchema } from './location-ban.schema'
 import { locationSettingSchema } from './location-setting.schema'
@@ -50,6 +51,7 @@ export const locationSchema = Type.Object(
     isFeatured: Type.Boolean(),
     maxUsersPerInstance: Type.Number(),
     locationSetting: Type.Ref(locationSettingSchema),
+    locationAdmin: Type.Optional(Type.Ref(locationAdminSchema)),
     locationAuthorizedUsers: Type.Array(Type.Ref(locationAuthorizedUserSchema)),
     locationBans: Type.Array(Type.Ref(locationBanSchema)),
     createdAt: Type.String({ format: 'date-time' }),
