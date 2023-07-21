@@ -132,7 +132,7 @@ export class IPFSStorage implements StorageProviderInterface {
   async getSignedUrl(key: string, _expiresAfter: number, _conditions: any) {
     const url = await this._getUrl(key)
     return {
-      fields: { Key: key },
+      fields: { key: key },
       url,
       local: false,
       cacheDomain: this.cacheDomain
