@@ -24,19 +24,17 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { clamp } from 'lodash'
-import { AnimationClip, AnimationMixer, LoopOnce, LoopRepeat, Vector2, Vector3 } from 'three'
+import { AnimationClip, AnimationMixer, Vector3 } from 'three'
 
 import { getState } from '@etherealengine/hyperflux'
 
 import { lerp } from '../../common/functions/MathLerpFunctions'
-import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import { getComponent } from '../../ecs/functions/ComponentFunctions'
 import { AnimationState } from '../AnimationManager'
 import { AnimationComponent } from '../components/AnimationComponent'
 import { AvatarAnimationComponent } from '../components/AvatarAnimationComponent'
-import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
 import { changeState } from './AnimationGraph'
 
 export const changeAvatarAnimationState = (entity: Entity, newStateName: string): void => {

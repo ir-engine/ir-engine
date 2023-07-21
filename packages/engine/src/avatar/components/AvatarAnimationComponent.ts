@@ -25,29 +25,15 @@ Ethereal Engine. All Rights Reserved.
 
 import { VRM, VRMHumanBoneList, VRMHumanBones } from '@pixiv/three-vrm'
 import { useEffect } from 'react'
-import {
-  AnimationClip,
-  AxesHelper,
-  Euler,
-  Matrix4,
-  Mesh,
-  Object3D,
-  Quaternion,
-  SkeletonHelper,
-  SkinnedMesh,
-  SphereGeometry,
-  Vector3
-} from 'three'
+import { AnimationClip, Euler, Matrix4, Object3D, Quaternion, SkeletonHelper, SkinnedMesh, Vector3 } from 'three'
 
 import { getMutableState, getState, none, useHookstate } from '@etherealengine/hyperflux'
 
 import { matches } from '../../common/functions/MatchesUtils'
 import { proxifyQuaternion, proxifyVector3 } from '../../common/proxies/createThreejsProxy'
-import { Engine } from '../../ecs/classes/Engine'
 import {
   defineComponent,
   getMutableComponent,
-  hasComponent,
   useComponent,
   useOptionalComponent
 } from '../../ecs/functions/ComponentFunctions'
@@ -57,11 +43,9 @@ import { addObjectToGroup, removeObjectFromGroup } from '../../scene/components/
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
 import { setObjectLayers } from '../../scene/functions/setObjectLayers'
 import { PoseSchema } from '../../transform/components/TransformComponent'
+import { AnimationState } from '../AnimationManager'
 import { AnimationGraph } from '../animation/AnimationGraph'
-import { getAnimationAction } from '../animation/AvatarAnimationGraph'
-import { AnimationManager, AnimationState } from '../AnimationManager'
 import { AnimationComponent } from './AnimationComponent'
-import { AvatarComponent } from './AvatarComponent'
 import { AvatarPendingComponent } from './AvatarPendingComponent'
 
 export const AvatarAnimationComponent = defineComponent({

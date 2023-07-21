@@ -25,8 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { Paginated, Params } from '@feathersjs/feathers'
 import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
-import { Op } from 'sequelize'
-import { Sequelize } from 'sequelize'
+import { Op, Sequelize } from 'sequelize'
 
 import { Party as PartyDataType } from '@etherealengine/common/src/interfaces/Party'
 import { UserInterface } from '@etherealengine/common/src/interfaces/User'

@@ -24,24 +24,21 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { useEffect } from 'react'
-import { AnimationAction, AnimationClip, AnimationMixer, Vector3 } from 'three'
+import { AnimationAction, AnimationClip, AnimationMixer } from 'three'
 
 import { isClient } from '../../common/functions/getEnvironment'
 import {
-  addComponent,
   ComponentType,
   defineComponent,
   getComponent,
   hasComponent,
   removeComponent,
   setComponent,
-  useComponent,
   useOptionalComponent
 } from '../../ecs/functions/ComponentFunctions'
 import { useEntityContext } from '../../ecs/functions/EntityFunctions'
-import { CallbackComponent, setCallback, StandardCallbacks } from '../../scene/components/CallbackComponent'
+import { CallbackComponent, StandardCallbacks, setCallback } from '../../scene/components/CallbackComponent'
 import { ModelComponent } from '../../scene/components/ModelComponent'
-import { setupAvatarModel } from '../functions/avatarFunctions'
 import { AnimationComponent } from './AnimationComponent'
 import { AvatarAnimationComponent } from './AvatarAnimationComponent'
 

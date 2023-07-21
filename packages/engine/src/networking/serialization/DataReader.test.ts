@@ -52,8 +52,11 @@ import {
 } from '../../transform/TransformSerialization'
 import { Network } from '../classes/Network'
 // import { XRHandBones } from '../../xr/XRHandBones'
-import { NetworkObjectAuthorityTag, NetworkObjectSendPeriodicUpdatesTag } from '../components/NetworkObjectComponent'
-import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
+import {
+  NetworkObjectAuthorityTag,
+  NetworkObjectComponent,
+  NetworkObjectSendPeriodicUpdatesTag
+} from '../components/NetworkObjectComponent'
 import { NetworkState } from '../NetworkState'
 import {
   checkBitflag,
@@ -76,7 +79,7 @@ import {
   // writeXRHands
 } from './DataWriter'
 import { Vector3SoA } from './Utils'
-import { createViewCursor, readFloat64, readUint8, readUint32, sliceViewCursor, writeProp } from './ViewCursor'
+import { createViewCursor, readFloat64, readUint32, readUint8, sliceViewCursor, writeProp } from './ViewCursor'
 
 describe('DataReader', () => {
   beforeEach(() => {

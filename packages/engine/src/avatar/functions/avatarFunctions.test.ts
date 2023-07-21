@@ -67,15 +67,6 @@
 //     return destroyEngine()
 //   })
 
-//   // describe('boneMatchAvatarModel', () => {
-//   //   it('should set up bone matching', async () => {
-//   //     const entity = createEntity()
-//   //     addComponent(entity, AvatarAnimationComponent, {} as any)
-//   //     const model = boneMatchAvatarModel(entity)(SkeletonUtils.clone(assetModel.scene))
-//   //     rigAvatarModel(entity)(model)
-//   //     const avatarRigComponent = getComponent(entity, AvatarRigComponent)
-//   //     const boneStructure = avatarRigComponent.rig
-
 //   //     assert(boneStructure.Hips)
 //   //     assert(boneStructure.Head)
 //   //     assert(boneStructure.Neck)

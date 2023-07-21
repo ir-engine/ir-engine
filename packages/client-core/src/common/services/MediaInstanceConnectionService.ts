@@ -45,10 +45,11 @@ import {
 
 import { ChatState } from '../../social/services/ChatService'
 import { LocationState } from '../../social/services/LocationService'
-import { endVideoChat, leaveNetwork } from '../../transports/SocketWebRTCClientFunctions'
 import {
   connectToNetwork,
+  endVideoChat,
   initializeNetwork,
+  leaveNetwork,
   SocketWebRTCClientNetwork
 } from '../../transports/SocketWebRTCClientFunctions'
 import { AuthState } from '../../user/services/AuthService'

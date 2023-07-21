@@ -52,7 +52,7 @@ import { RendererState } from '../../renderer/RendererState'
 import { EnvMapSourceType, EnvMapTextureType } from '../constants/EnvMapEnum'
 import { getPmremGenerator, getRGBArray, loadCubeMapTexture } from '../constants/Util'
 import { addError, removeError } from '../functions/ErrorFunctions'
-import { applyBoxProjection, EnvMapBakeComponent, isInsideBox } from './EnvMapBakeComponent'
+import { applyBoxProjection, EnvMapBakeComponent } from './EnvMapBakeComponent'
 import { GroupComponent } from './GroupComponent'
 import { UUIDComponent } from './UUIDComponent'
 

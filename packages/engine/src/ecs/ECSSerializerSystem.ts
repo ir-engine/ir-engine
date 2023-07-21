@@ -30,14 +30,14 @@ import { getComponent } from '../ecs/functions/ComponentFunctions'
 import { checkBitflag } from '../networking/serialization/DataReader'
 import { SerializationSchema } from '../networking/serialization/Utils'
 import {
+  ViewCursor,
   createViewCursor,
-  readUint8,
   readUint32,
+  readUint8,
   rewindViewCursor,
   sliceViewCursor,
-  spaceUint8,
   spaceUint32,
-  ViewCursor
+  spaceUint8
 } from '../networking/serialization/ViewCursor'
 import { UUIDComponent } from '../scene/components/UUIDComponent'
 import { Entity, UndefinedEntity } from './classes/Entity'

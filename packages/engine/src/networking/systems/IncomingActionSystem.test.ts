@@ -28,8 +28,13 @@ import matches from 'ts-matches'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { UserId } from '@etherealengine/common/src/interfaces/UserId'
-import { getMutableState } from '@etherealengine/hyperflux'
-import { ActionRecipients, addActionReceptor, applyIncomingActions, getState } from '@etherealengine/hyperflux'
+import {
+  ActionRecipients,
+  addActionReceptor,
+  applyIncomingActions,
+  getMutableState,
+  getState
+} from '@etherealengine/hyperflux'
 
 import { createMockNetwork } from '../../../tests/util/createMockNetwork'
 import { destroyEngine, Engine } from '../../ecs/classes/Engine'

@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React, { ReactNode } from 'react'
+import React from 'react'
 
 import {
   Accessibility,
@@ -132,7 +132,6 @@ import {
   ScreenshotMonitor,
   Search,
   SelectAll,
-  SelfImprovement,
   Send,
   Settings,
   Shuffle,

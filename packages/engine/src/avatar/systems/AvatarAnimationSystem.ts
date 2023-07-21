@@ -23,9 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { clone } from 'lodash'
 import { useEffect } from 'react'
-import { AxesHelper, Bone, Euler, MathUtils, Matrix4, Mesh, Quaternion, SphereGeometry, Vector3 } from 'three'
+import { AxesHelper, Euler, MathUtils, Mesh, Quaternion, SphereGeometry, Vector3 } from 'three'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { insertionSort } from '@etherealengine/common/src/utils/insertionSort'
@@ -35,29 +34,19 @@ import {
   dispatchAction,
   getMutableState,
   getState,
-  startReactor,
   useHookstate
 } from '@etherealengine/hyperflux'
 
-import { Axis } from '../../common/constants/Axis3D'
-import { V_000, V_010 } from '../../common/constants/MathConstants'
-import { lerp } from '../../common/functions/MathLerpFunctions'
-import { proxifyQuaternion } from '../../common/proxies/createThreejsProxy'
+import { lerp } from 'three/src/math/MathUtils'
+import { V_010 } from '../../common/constants/MathConstants'
+import { createPriorityQueue } from '../../ecs/PriorityQueue'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
-import {
-  defineQuery,
-  getComponent,
-  getMutableComponent,
-  getOptionalComponent,
-  setComponent
-} from '../../ecs/functions/ComponentFunctions'
+import { defineQuery, getComponent, getOptionalComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity, removeEntity } from '../../ecs/functions/EntityFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
-import { createPriorityQueue } from '../../ecs/PriorityQueue'
 import { InputSourceComponent } from '../../input/components/InputSourceComponent'
-import { InputState } from '../../input/state/InputState'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
 import { Physics, RaycastArgs } from '../../physics/classes/Physics'
 import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
@@ -65,26 +54,23 @@ import { CollisionGroups } from '../../physics/enums/CollisionGroups'
 import { getInteractionGroups } from '../../physics/functions/getInteractionGroups'
 import { RaycastHit, SceneQueryType } from '../../physics/types/PhysicsTypes'
 import { RendererState } from '../../renderer/RendererState'
-import { addObjectToGroup, GroupComponent } from '../../scene/components/GroupComponent'
+import { addObjectToGroup } from '../../scene/components/GroupComponent'
 import { NameComponent } from '../../scene/components/NameComponent'
 import { UUIDComponent } from '../../scene/components/UUIDComponent'
 import { VisibleComponent } from '../../scene/components/VisibleComponent'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
 import { setObjectLayers } from '../../scene/functions/setObjectLayers'
 import {
-  compareDistanceToCamera,
   DistanceFromCameraComponent,
-  FrustumCullCameraComponent
+  FrustumCullCameraComponent,
+  compareDistanceToCamera
 } from '../../transform/components/DistanceComponents'
-import { TransformComponent, TransformComponentType } from '../../transform/components/TransformComponent'
+import { TransformComponent } from '../../transform/components/TransformComponent'
 import { updateGroupChildren } from '../../transform/systems/TransformSystem'
 import { setTrackingSpace } from '../../xr/XRScaleAdjustmentFunctions'
-import { getCameraMode, isMobileXRHeadset, XRAction, XRState } from '../../xr/XRState'
-import { updateAnimationGraph } from '.././animation/AnimationGraph'
-import { solveHipHeight } from '.././animation/HipIKSolver'
-import { solveLookIK } from '.././animation/LookAtIKSolver'
-import { solveTwoBoneIK } from '.././animation/TwoBoneIKSolver'
+import { XRAction, XRState, getCameraMode, isMobileXRHeadset } from '../../xr/XRState'
 import { AnimationState } from '.././AnimationManager'
+import { solveTwoBoneIK } from '.././animation/TwoBoneIKSolver'
 import { AnimationComponent } from '.././components/AnimationComponent'
 import { AvatarAnimationComponent, AvatarRigComponent } from '.././components/AvatarAnimationComponent'
 import {
@@ -95,7 +81,6 @@ import {
 } from '.././components/AvatarIKComponents'
 import { LoopAnimationComponent } from '.././components/LoopAnimationComponent'
 import { applyInputSourcePoseToIKTargets } from '.././functions/applyInputSourcePoseToIKTargets'
-import { AvatarMovementSettingsState } from '.././state/AvatarMovementSettingsState'
 import { setAvatarLocomotionAnimation } from '../animation/AvatarAnimationGraph'
 
 export const AvatarAnimationState = defineState({

@@ -25,7 +25,6 @@ Ethereal Engine. All Rights Reserved.
 
 import { Group, Object3D, SkinnedMesh } from 'three'
 
-import { proxifyQuaternion, proxifyVector3 } from './../common/proxies/createThreejsProxy'
 import { Entity } from './../ecs/classes/Entity'
 import { XRHandBones } from './XRHandBones'
 

@@ -28,7 +28,6 @@ import { useTranslation } from 'react-i18next'
 import { CircleGeometry, Mesh, MeshBasicMaterial } from 'three'
 
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { addComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { WorldState } from '@etherealengine/engine/src/networking/interfaces/WorldState'
 import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'

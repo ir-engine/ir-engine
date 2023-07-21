@@ -26,7 +26,6 @@ Ethereal Engine. All Rights Reserved.
 import { VitePWA } from 'vite-plugin-pwa'
 
 import manifest from './manifest.default.json'
-import packageJson from './package.json'
 
 /**
  * Creates a new instance of the VitePWA plugin for Vite.js.

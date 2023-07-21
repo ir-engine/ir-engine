@@ -25,15 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 import { useHookstate } from '@hookstate/core'
-import {
-  Classifications,
-  DrawingUtils,
-  FaceLandmarker,
-  FilesetResolver,
-  HandLandmarker,
-  NormalizedLandmark,
-  PoseLandmarker
-} from '@mediapipe/tasks-vision'
+import { DrawingUtils, FaceLandmarker, FilesetResolver, HandLandmarker, PoseLandmarker } from '@mediapipe/tasks-vision'
 import { Face } from 'kalidokit/dist/kalidokit.umd.js'
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { twMerge } from 'tailwind-merge'

@@ -23,16 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { useEffect } from 'react'
-
 import {
   defineAction,
   defineActionQueue,
   defineState,
   dispatchAction,
-  getMutableState,
-  removeActionQueue,
-  useState
+  getMutableState
 } from '@etherealengine/hyperflux'
 import { none } from '@etherealengine/hyperflux/functions/StateFunctions'
 

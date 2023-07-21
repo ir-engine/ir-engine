@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { getValidator } from '@feathersjs/typebox'
-import { disallow, iff, isProvider } from 'feathers-hooks-common'
+import { disallow } from 'feathers-hooks-common'
 
 import {
   staticResourceDataSchema,
@@ -36,7 +36,6 @@ import collectAnalytics from '@etherealengine/server-core/src/hooks/collect-anal
 import attachOwnerIdInQuery from '@etherealengine/server-core/src/hooks/set-loggedin-user-in-query'
 import { dataValidator, queryValidator } from '@etherealengine/server-core/validators'
 
-import addAssociations from '../../hooks/add-associations'
 import authenticate from '../../hooks/authenticate'
 import verifyScope from '../../hooks/verify-scope'
 

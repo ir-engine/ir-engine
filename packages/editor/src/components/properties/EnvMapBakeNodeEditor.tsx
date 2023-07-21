@@ -29,13 +29,10 @@ import styled from 'styled-components'
 import { useComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { EnvMapBakeComponent } from '@etherealengine/engine/src/scene/components/EnvMapBakeComponent'
 import { EnvMapBakeTypes } from '@etherealengine/engine/src/scene/types/EnvMapBakeTypes'
-import { dispatchAction } from '@etherealengine/hyperflux'
 
 import SportsGolfIcon from '@mui/icons-material/SportsGolf'
 
 import { uploadBPCEMBakeToServer } from '../../functions/uploadEnvMapBake'
-import { EditorHistoryAction } from '../../services/EditorHistory'
-import { EditorAction } from '../../services/EditorServices'
 import BooleanInput from '../inputs/BooleanInput'
 import { PropertiesPanelButton } from '../inputs/Button'
 import InputGroup from '../inputs/InputGroup'

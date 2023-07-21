@@ -23,13 +23,9 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import {
-  AvatarAnimationSystemGroup,
-  AvatarSimulationSystemGroup
-} from '@etherealengine/engine/src/avatar/AvatarSystemGroups'
+import { AvatarSimulationSystemGroup } from '@etherealengine/engine/src/avatar/AvatarSystemGroups'
 import { ECSSerializerSystem } from '@etherealengine/engine/src/ecs/ECSSerializerSystem'
 import {
-  AnimationSystemGroup,
   InputSystemGroup,
   PresentationSystemGroup,
   SimulationSystemGroup

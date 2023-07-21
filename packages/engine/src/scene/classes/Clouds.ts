@@ -30,7 +30,6 @@ import {
   InstancedBufferAttribute,
   InstancedBufferGeometry,
   Mesh,
-  Object3D,
   PlaneGeometry,
   RawShaderMaterial,
   ShaderMaterial,

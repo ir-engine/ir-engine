@@ -23,41 +23,28 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import {
-  ActiveCollisionTypes,
-  ActiveEvents,
-  ColliderDesc,
-  RigidBodyDesc,
-  RigidBodyType,
-  ShapeType
-} from '@dimforge/rapier3d-compat'
-import { BoxGeometry, Mesh, MeshBasicMaterial, Object3D, SphereGeometry, Vector3 } from 'three'
+import { RigidBodyType, ShapeType } from '@dimforge/rapier3d-compat'
+import { BoxGeometry, Mesh, MeshBasicMaterial, Vector3 } from 'three'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 // import { getColorForBodyType } from '@etherealengine/engine/src/debug/systems/DebugRenderer'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { addComponent, getComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { getComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { createEntity } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
 import { WorldNetworkAction } from '@etherealengine/engine/src/networking/functions/WorldNetworkAction'
 import { CollisionGroups } from '@etherealengine/engine/src/physics/enums/CollisionGroups'
 import { ColliderDescOptions } from '@etherealengine/engine/src/physics/types/PhysicsTypes'
-import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
-import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
-import { parseGLTFModel } from '@etherealengine/engine/src/scene/functions/loadGLTFModel'
-import { createNewEditorNode } from '@etherealengine/engine/src/scene/systems/SceneLoadingSystem'
 import {
-  setTransformComponent,
-  TransformComponent
+  TransformComponent,
+  setTransformComponent
 } from '@etherealengine/engine/src/transform/components/TransformComponent'
 import { dispatchAction, getState } from '@etherealengine/hyperflux'
 
 import { EngineState } from '../../ecs/classes/EngineState'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
-import { NetworkTopics } from '../../networking/classes/Network'
 import { addObjectToGroup } from '../../scene/components/GroupComponent'
 import { Physics } from '../classes/Physics'
 import { RigidBodyComponent } from '../components/RigidBodyComponent'
-import { getInteractionGroups } from './getInteractionGroups'
 
 /**
  * Returns a random number between min (inclusive) and max (exclusive)

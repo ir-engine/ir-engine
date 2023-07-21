@@ -23,18 +23,10 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import {
-  AnimationClip,
-  InterpolateSmooth,
-  InterpolationModes,
-  QuaternionKeyframeTrack,
-  Vector3,
-  VectorKeyframeTrack
-} from 'three'
+import { AnimationClip, InterpolateSmooth, QuaternionKeyframeTrack, VectorKeyframeTrack } from 'three'
 
 import { getState } from '@etherealengine/hyperflux'
 
-import { Entity } from '../../ecs/classes/Entity'
 import { AnimationState } from '../AnimationManager'
 import { ikTargets } from '../components/AvatarAnimationComponent'
 

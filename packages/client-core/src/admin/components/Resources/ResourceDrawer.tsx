@@ -28,7 +28,6 @@ import { useTranslation } from 'react-i18next'
 
 import InputFile from '@etherealengine/client-core/src/common/components/InputFile'
 import InputRadio from '@etherealengine/client-core/src/common/components/InputRadio'
-import InputSelect, { InputMenuItem } from '@etherealengine/client-core/src/common/components/InputSelect'
 import InputText from '@etherealengine/client-core/src/common/components/InputText'
 import { MAX_AVATAR_FILE_SIZE, MIN_AVATAR_FILE_SIZE } from '@etherealengine/common/src/constants/AvatarConstants'
 import { StaticResourceInterface } from '@etherealengine/common/src/interfaces/StaticResourceInterface'

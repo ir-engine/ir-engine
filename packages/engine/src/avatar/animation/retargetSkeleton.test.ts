@@ -26,12 +26,6 @@
 // import assert from 'assert'
 // import { Bone, Group, Matrix4, Quaternion, SkinnedMesh, Vector3 } from 'three'
 
-// import { quaternionEqualsEpsilon, quatNearEqual } from '../../../tests/util/MathTestUtils'
-// import avatarBoneMatching from '../AvatarBoneMatching'
-// import { makeDefaultSkinnedMesh, makeSkinnedMeshFromBoneData } from '../functions/avatarFunctions'
-// import { retargetSkeleton } from './retargetSkeleton'
-// import { targetSkeletonData } from './retargetSkeleton.test-data'
-
 // const EPSILON = 0.001
 // const EPSILON_SQ = EPSILON * EPSILON
 // const tempVec3 = new Vector3()

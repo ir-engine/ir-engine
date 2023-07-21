@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Id, Params } from '@feathersjs/feathers'
+import { Id } from '@feathersjs/feathers'
 import appRootPath from 'app-root-path'
 import { iff, isProvider } from 'feathers-hooks-common'
 import fs from 'fs'
@@ -48,13 +48,15 @@ import {
   checkDestination,
   checkProjectDestinationMatch,
   checkUnfetchedSourceCommit,
+  dockerHubRegex,
   findBuilderTags,
   getBranches,
   getEnginePackageJson,
   getProjectCommits,
+  privateECRTagRegex,
+  publicECRTagRegex,
   updateBuilder
 } from './project-helper'
-import { dockerHubRegex, privateECRTagRegex, publicECRTagRegex } from './project-helper'
 import { Project, ProjectParams, ProjectParamsClient } from './project.class'
 import projectDocs from './project.docs'
 import hooks from './project.hooks'

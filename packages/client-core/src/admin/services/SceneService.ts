@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { SceneData, SceneMetadata } from '@etherealengine/common/src/interfaces/SceneInterface'
-import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
+import { Validator, matches } from '@etherealengine/engine/src/common/functions/MatchesUtils'
 import { defineAction, defineState, dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 
 import { API } from '../../API'

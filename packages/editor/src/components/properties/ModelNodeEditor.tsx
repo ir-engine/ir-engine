@@ -26,16 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import React, { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { AnimationManager } from '@etherealengine/engine/src/avatar/AnimationManager'
-import { LoopAnimationComponent } from '@etherealengine/engine/src/avatar/components/LoopAnimationComponent'
-import {
-  addComponent,
-  getOptionalComponent,
-  hasComponent,
-  removeComponent,
-  useComponent
-} from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
-import { getCallback } from '@etherealengine/engine/src/scene/components/CallbackComponent'
+import { useComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { getEntityErrors } from '@etherealengine/engine/src/scene/components/ErrorComponent'
 import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
 import { useState } from '@etherealengine/hyperflux'
@@ -49,12 +40,11 @@ import InputGroup from '../inputs/InputGroup'
 import ModelInput from '../inputs/ModelInput'
 import SelectInput from '../inputs/SelectInput'
 import Well from '../layout/Well'
-import LoopAnimationNodeEditor from './LoopAnimationNodeEditor'
 import ModelTransformProperties from './ModelTransformProperties'
 import NodeEditor from './NodeEditor'
 import ScreenshareTargetNodeEditor from './ScreenshareTargetNodeEditor'
 import ShadowProperties from './ShadowProperties'
-import { EditorComponentType, updateProperties, updateProperty } from './Util'
+import { EditorComponentType, updateProperty } from './Util'
 
 /**
  * ModelNodeEditor used to create editor view for the properties of ModelNode.

@@ -33,7 +33,6 @@ import { SceneState } from '../../ecs/classes/Scene'
 import { defineComponent, removeComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
 import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { EntityTreeComponent } from '../../ecs/functions/EntityTree'
-import { ColliderComponent } from '../../scene/components/ColliderComponent'
 import { LocalTransformComponent } from '../../transform/components/TransformComponent'
 
 /**

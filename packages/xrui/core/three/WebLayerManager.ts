@@ -23,16 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import {
-  CanvasTexture,
-  ClampToEdgeWrapping,
-  CompressedTexture,
-  LinearFilter,
-  LinearMipmapLinearFilter,
-  SRGBColorSpace,
-  Texture,
-  VideoTexture
-} from 'three'
+import { CanvasTexture, ClampToEdgeWrapping, CompressedTexture, LinearMipmapLinearFilter, SRGBColorSpace } from 'three'
 
 import { KTX2Loader } from '@etherealengine/engine/src/assets/loaders/gltf/KTX2Loader'
 

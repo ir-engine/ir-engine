@@ -30,7 +30,6 @@ import {
   ConeGeometry,
   CylinderGeometry,
   Euler,
-  FrontSide,
   Material,
   Mesh,
   MeshBasicMaterial,
@@ -51,7 +50,6 @@ import {
   ComponentType,
   defineComponent,
   hasComponent,
-  setComponent,
   useComponent
 } from '../../ecs/functions/ComponentFunctions'
 import { entityExists, useEntityContext } from '../../ecs/functions/EntityFunctions'
@@ -63,7 +61,6 @@ import { setObjectLayers } from '../functions/setObjectLayers'
 import { setCallback } from './CallbackComponent'
 import { ColliderComponent } from './ColliderComponent'
 import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
-import { ShadowComponent } from './ShadowComponent'
 
 export const PortalPreviewTypeSimple = 'Simple' as const
 export const PortalPreviewTypeSpherical = 'Spherical' as const

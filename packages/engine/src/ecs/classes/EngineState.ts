@@ -23,10 +23,9 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { defineAction, defineState, getMutableState, useState } from '@etherealengine/hyperflux'
+import { defineAction, defineState, getMutableState } from '@etherealengine/hyperflux'
 
-import { matches, matchesEntity, matchesPeerID, Validator } from '../../common/functions/MatchesUtils'
-import { NetworkPeer } from '../../networking/interfaces/NetworkPeer'
+import { matches, matchesEntity, Validator } from '../../common/functions/MatchesUtils'
 import { Entity } from './Entity'
 
 // TODO: #6016 Refactor EngineState into multiple state objects: timer, scene, world, xr, etc.

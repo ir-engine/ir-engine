@@ -30,22 +30,7 @@ import {
 } from '@pixiv/three-vrm'
 // import * as VRMUtils from '@pixiv/three-vrm'
 import { pipe } from 'bitecs'
-import { clone, cloneDeep } from 'lodash'
-// import { useEffect } from 'react'
-import {
-  // AnimationClip,
-  AnimationMixer,
-  Bone,
-  Box3,
-  Group,
-  // Matrix4,
-  // Mesh,
-  Object3D,
-  Skeleton,
-  SkinnedMesh,
-  Vector3
-} from 'three'
-import { GLTF } from 'three/examples/jsm/loaders/GLTFLoader'
+import { AnimationMixer, Box3, Object3D, Vector3 } from 'three'
 
 import { dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
 
@@ -100,6 +85,8 @@ import { AvatarPendingComponent } from '../components/AvatarPendingComponent'
 import { DissolveEffect } from '../DissolveEffect'
 // import { SkeletonUtils } from '../SkeletonUtils'
 // import { getIdlePose, getWalkForwardPose } from './proceduralIKAnimations'
+import { clone, cloneDeep } from 'lodash'
+import { GLTF } from 'three/examples/jsm/loaders/GLTFLoader'
 import { resizeAvatar } from './resizeAvatar'
 
 const tempVec3ForHeight = new Vector3()

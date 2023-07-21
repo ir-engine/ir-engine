@@ -29,8 +29,10 @@ import { useTranslation } from 'react-i18next'
 
 import { useWorldInstance } from '@etherealengine/client-core/src/common/services/LocationInstanceConnectionService'
 import { LoadingCircle } from '@etherealengine/client-core/src/components/LoadingCircle'
-import { leaveNetwork } from '@etherealengine/client-core/src/transports/SocketWebRTCClientFunctions'
-import { SocketWebRTCClientNetwork } from '@etherealengine/client-core/src/transports/SocketWebRTCClientFunctions'
+import {
+  leaveNetwork,
+  SocketWebRTCClientNetwork
+} from '@etherealengine/client-core/src/transports/SocketWebRTCClientFunctions'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { getMutableState } from '@etherealengine/hyperflux'
 
