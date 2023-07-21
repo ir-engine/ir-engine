@@ -111,8 +111,6 @@ export const PortalComponent = defineComponent({
   },
 
   onSet: (entity, component, json) => {
-    setComponent(entity, ShadowComponent)
-
     if (!json) return
     if (matches.string.test(json.linkedPortalId)) component.linkedPortalId.set(json.linkedPortalId)
     if (matches.string.test(json.location)) component.location.set(json.location)
@@ -189,7 +187,7 @@ export const PortalComponent = defineComponent({
       }
 
       if (!portalComponent.mesh.value && portalComponent.previewType.value === PortalPreviewTypeSpherical) {
-        const portalMesh = new Mesh(new SphereGeometry(1.5, 32, 32), new MeshBasicMaterial({ side: FrontSide }))
+        const portalMesh = new Mesh(new SphereGeometry(1.5, 32, 32), new MeshBasicMaterial({ side: BackSide }))
         portalComponent.mesh.set(portalMesh)
         addObjectToGroup(entity, portalMesh)
         return () => {

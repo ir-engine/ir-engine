@@ -59,8 +59,6 @@ export const CloudComponent = defineComponent({
     } as CloudComponentType
   },
   onSet: (entity, component, json) => {
-    setComponent(entity, ShadowComponent)
-
     if (!json) return
     if (typeof json.texture === 'string') component.texture.set(json.texture)
     if (typeof json.worldScale === 'object')

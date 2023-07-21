@@ -130,6 +130,7 @@ let drainContacts: ReturnType<typeof Physics.drainContactEventQueue>
 
 const execute = () => {
   if (!Engine.instance.physicsWorld) return
+  if (!getState(EngineState).sceneLoaded) return
 
   const allRigidBodies = allRigidBodyQuery()
 
