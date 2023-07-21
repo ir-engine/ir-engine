@@ -28,9 +28,8 @@ import React from 'react'
 import { ChatService, ChatState } from '@etherealengine/client-core/src/social/services/ChatService'
 import { useUserAvatarThumbnail } from '@etherealengine/client-core/src/user/functions/useUserAvatarThumbnail'
 import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
-import { useFind } from '@etherealengine/engine/src/common/functions/figbird'
+import { useFind } from '@etherealengine/engine/src/common/functions/FeathersHooks'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { routePath } from '@etherealengine/engine/src/schemas/route/route.schema'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
 import AttachFileIcon from './assets/attach-file2.svg'
@@ -41,7 +40,6 @@ import UserSvg from './assets/user.svg'
 /**
  * Create reactor in client-core around messages
  * reacts to chat state changes, both active channel and channel data, and fetches new messages
- * use figbird to fetch messages
  */
 
 export const MessageList = () => {
@@ -55,15 +53,11 @@ export const MessageList = () => {
   const channelUserNames =
     activeChannel?.channel_users.map((user) => user.user!.name).filter((name) => name !== userName) ?? []
 
-  const messagesResponse = useFind('message', {
+  const { data: messages } = useFind('message', {
     query: {
       channelId: chatState.targetChannelId.value
     }
   })
-
-  const messages = messagesResponse.data
-
-  console.log(messages)
 
   const composingMessage = useHookstate('')
 

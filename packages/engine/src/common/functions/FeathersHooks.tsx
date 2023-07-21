@@ -23,35 +23,30 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+/**
+ * This file is a modified version of figbird.
+ * It now runs on hookstate instead of redux, and has been modified to work with
+ */
+
 import { Params, Query } from '@feathersjs/feathers'
-import { useCallback, useEffect, useMemo, useReducer, useRef } from 'react'
+import { useCallback, useEffect, useMemo, useRef } from 'react'
 import sift from 'sift'
 
 import { ServiceTypes } from '@etherealengine/common/declarations'
-import { createState, NO_PROXY, none, useHookstate } from '@etherealengine/hyperflux'
+import { defineState, getMutableState, getState, NO_PROXY, none, State, useHookstate } from '@etherealengine/hyperflux'
 
 import { Engine } from '../../ecs/classes/Engine'
 
 export type Methods = 'find' | 'get' | 'create' | 'update' | 'patch' | 'remove'
 
-const initialState = () => ({
-  entities: {} as Record<keyof ServiceTypes, Record<string, any>>, // <serviceName, <id, item>>
-  queries: {} as Record<keyof ServiceTypes, Record<string, any>>, // <serviceName, <queryId, query>>
-  refs: {} as Record<keyof ServiceTypes, Record<string, any>>, // <serviceName, <id, refCount>>
-  index: {} as Record<keyof ServiceTypes, Record<string, any>> // <serviceName, <id, index>>
+export const FeathersState = defineState({
+  name: 'ee.engine.figbird',
+  initial: () => ({
+    entities: {} as Record<keyof ServiceTypes, Record<string, any>>, // <serviceName, <id, item>>
+    queries: {} as Record<keyof ServiceTypes, Record<string, any>>, // <serviceName, <queryId, query>>
+    index: {} as Record<keyof ServiceTypes, Record<string, any>> // <serviceName, <id, index>>
+  })
 })
-
-const FigbirdHookstateStore = createState(initialState())
-globalThis.FigbirdHookstateStore = FigbirdHookstateStore
-
-const actions = {
-  fetched: fetched(),
-  created: created(),
-  updated: updated(),
-  patched: updated(),
-  removed: removed(),
-  updateQuery: updateQuery()
-}
 
 type FetchedArgs = {
   serviceName: keyof ServiceTypes
@@ -60,185 +55,194 @@ type FetchedArgs = {
   params: Params
   queryId: string
   realtime: Realtime
-  matcher: (query: any) => (item: any) => boolean
+  matcher?: (query: any) => (item: any) => boolean
 }
 
-function fetched() {
-  return ({ serviceName, data, method, params, queryId, realtime, matcher }: FetchedArgs) => {
-    const { data: items, ...meta } = data
-    const entities = realtime === 'merge' ? { ...FigbirdHookstateStore.entities[serviceName].get(NO_PROXY) } : {}
-    const index = realtime === 'merge' ? { ...FigbirdHookstateStore.index[serviceName].get(NO_PROXY) } : {}
-    for (const item of items) {
-      const itemId = item.id
-      entities[itemId] = item
+type MethodArgs = {
+  serviceName: keyof ServiceTypes
+  item: any
+}
 
-      if (realtime === 'merge') {
-        const itemIndex = { ...index[itemId] }
-        itemIndex.queries = { ...itemIndex.queries, [queryId]: true }
-        itemIndex.size = itemIndex.size ? itemIndex.size + 1 : 1
-        index[itemId] = itemIndex
-      }
-    }
+function fetched({ serviceName, data, method, params, queryId, realtime, matcher }: FetchedArgs) {
+  const { data: items, ...meta } = data
+  const state = getState(FeathersState)
+  const mutableState = getMutableState(FeathersState)
+  const entities = realtime === 'merge' ? { ...state.entities[serviceName] } : {}
+  const index = realtime === 'merge' ? { ...state.index[serviceName] } : {}
+  for (const item of items) {
+    const itemId = item.id
+    entities[itemId] = item
 
     if (realtime === 'merge') {
-      // update entities
-      FigbirdHookstateStore.entities[serviceName].set(entities)
-      FigbirdHookstateStore.index[serviceName].set(index)
+      const itemIndex = { ...index[itemId] }
+      itemIndex.queries = { ...itemIndex.queries, [queryId]: true }
+      itemIndex.size = itemIndex.size ? itemIndex.size + 1 : 1
+      index[itemId] = itemIndex
     }
-
-    if (!FigbirdHookstateStore.queries.get(NO_PROXY)[serviceName]) {
-      FigbirdHookstateStore.queries[serviceName].set({})
-    }
-
-    // update queries
-    FigbirdHookstateStore.queries[serviceName].merge({
-      [queryId]: {
-        params,
-        data: items.map((x) => x.id),
-        meta,
-        method,
-        realtime,
-        matcher,
-        ...(realtime === 'merge' ? {} : { entities })
-      }
-    })
   }
+
+  if (realtime === 'merge') {
+    // update entities
+    mutableState.entities[serviceName].set(entities)
+    mutableState.index[serviceName].set(index)
+  }
+
+  if (!state[serviceName]) {
+    mutableState.queries[serviceName].set({})
+  }
+
+  // update queries
+  mutableState.queries[serviceName].merge({
+    [queryId]: {
+      params,
+      data: items.map((x) => x.id),
+      meta,
+      method,
+      realtime,
+      matcher,
+      ...(realtime === 'merge' ? {} : { entities })
+    }
+  })
 }
 
-function created() {
-  return ({ serviceName, item }) => {
-    actions.updateQuery({ serviceName, method: 'create', item })
-  }
+function created({ serviceName, item }: MethodArgs) {
+  updateQuery({ serviceName, method: 'create', item })
 }
 
 // applies to both update and patch
-function updated() {
-  return ({ serviceName, item }) => {
-    const itemId = item.id
-    const currItem = FigbirdHookstateStore.entities[serviceName][itemId].get(NO_PROXY)
+function updated({ serviceName, item }: MethodArgs) {
+  const itemId = item.id
+  const state = getState(FeathersState)
+  const mutableState = getMutableState(FeathersState)
+  const currItem = state.entities[serviceName][itemId].get(NO_PROXY)
 
-    // check to see if we should discard this update
-    if (currItem) {
-      const currUpdatedAt = currItem.updatedAt
-      const nextUpdatedAt = item.updatedAt
-      if (nextUpdatedAt && nextUpdatedAt < currUpdatedAt) {
+  // check to see if we should discard this update
+  if (currItem) {
+    const currUpdatedAt = currItem.updatedAt
+    const nextUpdatedAt = item.updatedAt
+    if (nextUpdatedAt && nextUpdatedAt < currUpdatedAt) {
+      return
+    }
+  }
+
+  if (currItem) {
+    mutableState.entities[serviceName][itemId].set(item)
+  } else {
+    const index = { queries: {}, size: 0 }
+    mutableState.entities[serviceName][itemId].set(item)
+    mutableState.index[serviceName][itemId].set(index)
+  }
+
+  updateQuery({ serviceName, method: 'update', item })
+}
+
+function removed({ serviceName, item: itemOrItems }: MethodArgs) {
+  const items = Array.isArray(itemOrItems) ? itemOrItems : [itemOrItems]
+  const state = getState(FeathersState)
+  const mutableState = getMutableState(FeathersState)
+
+  const exists = items.some((item) => state.entities[serviceName][item.id])
+  if (!exists) return
+
+  // remove this item from all the queries that reference it
+  updateQuery({ serviceName, method: 'remove', item: itemOrItems })
+
+  // now remove it from entities
+  const serviceEntities = mutableState.entities[serviceName]
+  const removedIds = [] as string[]
+  for (const item of items) {
+    serviceEntities[item.id].set(none)
+    removedIds.push(item.id)
+  }
+}
+
+type UpdateQueryArgs = {
+  serviceName: keyof ServiceTypes
+  method: Methods
+  item: any
+}
+
+function updateQuery({ serviceName, method, item }: UpdateQueryArgs) {
+  const items = Array.isArray(item) ? item : [item]
+  for (const item of items) {
+    const itemId = item.id
+
+    const state = getState(FeathersState)
+    const mutableState = getMutableState(FeathersState)
+
+    const queries = { ...state.queries[serviceName] }
+    const index = { ...state.index[serviceName][itemId] }
+    index.queries = { ...index.queries }
+    index.size = index.size || 0
+
+    let updateCount = 0
+
+    forEachObj(queries, (query, queryId) => {
+      let matches
+
+      // do not update non realtime queries
+      // those get updated/refetched in a different way
+      if (query.realtime !== 'merge') {
         return
       }
-    }
 
-    if (currItem) {
-      FigbirdHookstateStore.entities[serviceName][itemId].set(item)
-    } else {
-      const index = { queries: {}, size: 0 }
-      FigbirdHookstateStore.entities[serviceName][itemId].set(item)
-      FigbirdHookstateStore.index[serviceName][itemId].set(index)
-    }
+      if (method === 'remove') {
+        // optimisation, if method is remove, we want to immediately remove the object
+        // from cache, which means we don't need to match using matcher
+        matches = false
+      } else if (!query.params.query || Object.keys(query.params.query).length === 0) {
+        // another optimisation, if there is no query, the object matches
+        matches = true
+      } else {
+        const matcher = query.matcher ? query.matcher(defaultMatcher) : defaultMatcher
+        matches = matcher(query.params.query)(item)
+      }
 
-    actions.updateQuery({ serviceName, method: 'update', item })
-  }
-}
-
-function removed() {
-  return ({ serviceName, item: itemOrItems }) => {
-    const items = Array.isArray(itemOrItems) ? itemOrItems : [itemOrItems]
-    const entities = FigbirdHookstateStore.entities.get(NO_PROXY)
-
-    const exists = items.some((item) => entities[serviceName][item.id])
-    if (!exists) return
-
-    // remove this item from all the queries that reference it
-    actions.updateQuery({ serviceName, method: 'remove', item: itemOrItems })
-
-    // now remove it from entities
-    const serviceEntities = FigbirdHookstateStore.entities[serviceName]
-    const removedIds = [] as string[]
-    for (const item of items) {
-      serviceEntities[item.id].set(none)
-      removedIds.push(item.id)
-    }
-  }
-}
-
-function updateQuery() {
-  return function feathersUpdateQueries({ serviceName, method, item }) {
-    const items = Array.isArray(item) ? item : [item]
-    for (const item of items) {
-      const itemId = item.id
-
-      const queries = { ...FigbirdHookstateStore.queries[serviceName].get(NO_PROXY) }
-      const index = { ...FigbirdHookstateStore.index[serviceName][itemId].get(NO_PROXY) }
-      index.queries = { ...index.queries }
-      index.size = index.size || 0
-
-      let updateCount = 0
-
-      forEachObj(queries, (query, queryId) => {
-        let matches
-
-        // do not update non realtime queries
-        // those get updated/refetched in a different way
-        if (query.realtime !== 'merge') {
-          return
-        }
-
-        if (method === 'remove') {
-          // optimisation, if method is remove, we want to immediately remove the object
-          // from cache, which means we don't need to match using matcher
-          matches = false
-        } else if (!query.params.query || Object.keys(query.params.query).length === 0) {
-          // another optimisation, if there is no query, the object matches
-          matches = true
-        } else {
-          const matcher = query.matcher ? query.matcher(defaultMatcher) : defaultMatcher
-          matches = matcher(query.params.query)(item)
-        }
-
-        if (index.queries[queryId]) {
-          if (!matches) {
-            updateCount++
-            queries[queryId] = {
-              ...query,
-              meta: { ...query.meta, total: query.meta.total - 1 },
-              data: query.data.filter((id) => id !== itemId)
-            }
-            delete index.queries[queryId]
-            index.size -= 1
+      if (index.queries[queryId]) {
+        if (!matches) {
+          updateCount++
+          queries[queryId] = {
+            ...query,
+            meta: { ...query.meta, total: query.meta.total - 1 },
+            data: query.data.filter((id) => id !== itemId)
           }
-        } else {
-          // only add if query has fetched all of the data..
-          // if it hasn't fetched all of the data then leave this
-          // up to the consumer of the figbird to decide if data
-          // should be refetched
-          if (matches && query.data.length <= query.meta.total) {
-            updateCount++
-            // TODO - sort
-            queries[queryId] = {
-              ...query,
-              meta: { ...query.meta, total: query.meta.total + 1 },
-              data: query.data.concat(itemId)
-            }
-            index.queries[queryId] = true
-            index.size += 1
+          delete index.queries[queryId]
+          index.size -= 1
+        }
+      } else {
+        // only add if query has fetched all of the data..
+        // if it hasn't fetched all of the data then leave this
+        // up to the consumer of the figbird to decide if data
+        // should be refetched
+        if (matches && query.data.length <= query.meta.total) {
+          updateCount++
+          // TODO - sort
+          queries[queryId] = {
+            ...query,
+            meta: { ...query.meta, total: query.meta.total + 1 },
+            data: query.data.concat(itemId)
           }
+          index.queries[queryId] = true
+          index.size += 1
         }
-      })
+      }
+    })
 
-      if (updateCount > 0) {
-        FigbirdHookstateStore.queries[serviceName].set(queries)
-        FigbirdHookstateStore.index[serviceName][itemId].set(index)
+    if (updateCount > 0) {
+      mutableState.queries[serviceName].set(queries)
+      mutableState.index[serviceName][itemId].set(index)
 
-        // in case of create, only ever add it to the cache if it's relevant for any of the
-        // queries, otherwise, we might end up piling in newly created objects into cache
-        // even if the app never uses them
-        if (!FigbirdHookstateStore.entities.get(NO_PROXY)[serviceName][itemId]) {
-          FigbirdHookstateStore.entities[serviceName][itemId].set(item)
-        }
+      // in case of create, only ever add it to the cache if it's relevant for any of the
+      // queries, otherwise, we might end up piling in newly created objects into cache
+      // even if the app never uses them
+      if (!state.entities[serviceName][itemId]) {
+        mutableState.entities[serviceName][itemId].set(item)
+      }
 
-        // this item is no longer relevant to any query, garbage collect it
-        if (index.size === 0) {
-          FigbirdHookstateStore.entities[serviceName][itemId].set(none)
-          FigbirdHookstateStore.index[serviceName][itemId].set(none)
-        }
+      // this item is no longer relevant to any query, garbage collect it
+      if (index.size === 0) {
+        mutableState.entities[serviceName][itemId].set(none)
+        mutableState.index[serviceName][itemId].set(none)
       }
     }
   }
@@ -398,7 +402,7 @@ type ResourceDescriptor = {
   realtime: Realtime
   selectData: (data: any) => any
   transformResponse: (data: any) => any
-  matcher: (query: any) => (item: any) => boolean
+  matcher?: (query: any) => (item: any) => boolean
 }
 
 export function useCache(resourceDescriptor: ResourceDescriptor) {
@@ -410,14 +414,14 @@ export function useCache(resourceDescriptor: ResourceDescriptor) {
   // want consumers of useFind to have to worry about changing reference
   const dataRef = useRef([])
 
-  const queryState = useHookstate(FigbirdHookstateStore.queries[serviceName])
-  const cachedData = useHookstate({ data: null })
+  const queryState = useHookstate(getMutableState(FeathersState).queries[serviceName])
+  const cachedData = useHookstate({ data: null } as { data: any })
 
   useEffect(() => {
     const query = queryState.get(NO_PROXY)?.[queryId]
     if (query) {
       let { data, meta } = query
-      const entities = query.entities || FigbirdHookstateStore.entities[serviceName].get(NO_PROXY)
+      const entities = query.entities || getState(FeathersState).entities[serviceName]
       data = data.map((id) => entities[id])
       if (same(data, dataRef.current)) {
         data = dataRef.current
@@ -432,7 +436,7 @@ export function useCache(resourceDescriptor: ResourceDescriptor) {
   }, [serviceName, queryId, selectData, queryState])
 
   const onFetched = (data) =>
-    actions.fetched({
+    fetched({
       serviceName,
       queryId,
       method,
@@ -445,7 +449,10 @@ export function useCache(resourceDescriptor: ResourceDescriptor) {
       matcher
     })
 
-  return [cachedData.get(NO_PROXY), onFetched]
+  return {
+    cachedData: cachedData.get(NO_PROXY),
+    updateCache: onFetched
+  }
 }
 
 function same(a, b) {
@@ -466,17 +473,12 @@ export interface UseFindParams<Q extends Query> extends BaseParams<Q> {
 }
 
 type UseFindReturnType<S extends keyof ServiceTypes> = {
-  data: Awaited<ReturnType<ServiceTypes[S]['find']>> // | null
+  data: Awaited<ReturnType<ServiceTypes[S]['find']>> | null
   status: Status
   refetch: () => void
 
   isFetching: boolean
   error: any
-
-  /** @deprecated use status and isFetching instead */
-  loading: boolean
-  /** @deprecated use isFetching instead */
-  reloading: boolean
 }
 
 type Paginated<T> = {
@@ -523,11 +525,6 @@ type UseGetReturnType<S extends keyof ServiceTypes> = {
 
   isFetching: boolean
   error: any
-
-  /** @deprecated use status and isFetching instead */
-  loading: boolean
-  /** @deprecated use isFetching instead */
-  reloading: boolean
 }
 
 export function useGet<S extends keyof ServiceTypes, Q extends Query>(
@@ -535,12 +532,14 @@ export function useGet<S extends keyof ServiceTypes, Q extends Query>(
   id: string,
   options = {} as GetFindParams<Q>
 ): UseGetReturnType<S> {
-  return useQuery<S>(serviceName, options, {
+  const response = useQuery<S>(serviceName, options, {
     method: 'get',
     id,
     selectData: getSelectData,
     transformResponse: getTransformResponse
   })
+
+  return response as UseGetReturnType<S>
 }
 
 /**
@@ -555,26 +554,16 @@ export function useGet<S extends keyof ServiceTypes, Q extends Query>(
  * const { create, patch, remove, status, data, error } = useMutation('notes')
  */
 export function useMutation(serviceName: keyof ServiceTypes) {
-  const [state, dispatch] = useReducer(mutationReducer, {
+  const state = useHookstate({
     status: 'idle',
-    data: null,
-    error: null,
-    loading: false // deprecated, use status
+    data: null as unknown | null,
+    error: null as string | null
   })
 
-  const mountedRef = useRef<boolean>(false)
-  useEffect(() => {
-    mountedRef.current = true
-    return () => {
-      mountedRef.current = false
-    }
-  }, [])
-
-  const common = [serviceName, dispatch, mountedRef]
-  const create = useMethod('create', actions.created, ...common)
-  const update = useMethod('update', actions.updated, ...common)
-  const patch = useMethod('patch', actions.patched, ...common)
-  const remove = useMethod('remove', actions.removed, ...common)
+  const create = useMethod('create', created, serviceName, state)
+  const update = useMethod('update', updated, serviceName, state)
+  const patch = useMethod('patch', updated, serviceName, state)
+  const remove = useMethod('remove', removed, serviceName, state)
 
   const mutation = useMemo(
     () => ({
@@ -582,10 +571,9 @@ export function useMutation(serviceName: keyof ServiceTypes) {
       update,
       patch,
       remove,
-      data: state.data,
-      status: state.status,
-      error: state.error,
-      loading: state.loading // deprecated, use status instead
+      data: state.data.value,
+      status: state.status.value,
+      error: state.error.value
     }),
     [create, update, patch, remove, state]
   )
@@ -593,42 +581,28 @@ export function useMutation(serviceName: keyof ServiceTypes) {
   return mutation
 }
 
-function mutationReducer(state, action) {
-  switch (action.type) {
-    case 'mutating':
-      return { ...state, status: 'loading', loading: true, data: null, error: null }
-    case 'success':
-      return { ...state, status: 'success', loading: false, data: action.payload }
-    case 'error':
-      return { ...state, status: 'error', loading: false, error: action.payload }
-  }
-}
-
 function useMethod(
   method: Methods,
   action: (props: { serviceName: keyof ServiceTypes; item: any }) => void,
   serviceName: keyof ServiceTypes,
-  dispatch,
-  mountedRef
+  state: State<any>
 ) {
   return useCallback(
     (...args) => {
       const service = Engine.instance.api.service(serviceName)
-      dispatch({ type: 'mutating' })
+      state.merge({ status: 'loading', loading: true, data: null, error: null })
       return service[method](...args)
         .then((item) => {
-          const isMounted = mountedRef.current
           action({ serviceName, item })
-          isMounted && dispatch({ type: 'success', payload: item })
+          state.merge({ status: 'success', loading: false, data: item })
           return item
         })
         .catch((err) => {
-          const isMounted = mountedRef.current
-          isMounted && dispatch({ type: 'error', payload: err })
+          state.merge({ status: 'error', loading: false, error: err })
           throw err
         })
     },
-    [serviceName, method, action, dispatch]
+    [serviceName, method, action]
   )
 }
 
@@ -652,8 +626,8 @@ export interface BaseParams<Q extends Query> extends Params<Q> {
 export interface QueryHookOptions {
   method: 'get' | 'find'
   id?: string
-  selectData?: (data: any) => any
-  transformResponse?: (data: any) => any
+  selectData: (data: any) => any
+  transformResponse: (data: any) => any
 }
 
 /**
@@ -681,7 +655,7 @@ export function useQuery<S extends keyof ServiceTypes>(
     throw new Error(`Bad fetchPolicy option, must be one of ${[fetchPolicies].join(', ')}`)
   }
 
-  const queryId = `${method.substr(0, 1)}:${hashObject({
+  const queryId = `${method.substring(0, 1)}:${hashObject({
     serviceName,
     method,
     id,
@@ -689,7 +663,7 @@ export function useQuery<S extends keyof ServiceTypes>(
     realtime
   })}`
 
-  let [cachedData, updateCache] = useCache({
+  let { cachedData, updateCache } = useCache({
     serviceName,
     queryId,
     method,
@@ -704,7 +678,7 @@ export function useQuery<S extends keyof ServiceTypes>(
   let hasCachedData = !!cachedData.data
   const fetched = fetchPolicy === 'cache-first' && hasCachedData
 
-  const [state, dispatch] = useReducer(queryReducer, {
+  const state = useHookstate({
     reloading: false,
     fetched,
     fetchedCount: 0,
@@ -712,7 +686,7 @@ export function useQuery<S extends keyof ServiceTypes>(
     error: null
   })
 
-  if (fetchPolicy === 'network-only' && state.fetchedCount === 0) {
+  if (fetchPolicy === 'network-only' && state.fetchedCount.value === 0) {
     cachedData = { data: null }
     hasCachedData = false
   }
@@ -721,9 +695,9 @@ export function useQuery<S extends keyof ServiceTypes>(
     (payload) => {
       if (disposed.current) return
       if (realtime !== 'refetch') return
-      dispatch({ type: 'refetch' })
+      state.merge({ fetched: false, refetchSeq: state.refetchSeq.value + 1 })
     },
-    [dispatch, realtime, disposed]
+    [realtime, disposed]
   )
 
   useEffect(() => {
@@ -737,8 +711,7 @@ export function useQuery<S extends keyof ServiceTypes>(
 
     if (state.fetched) return
     if (skip) return
-
-    dispatch({ type: 'fetching' })
+    state.merge({ reloading: true, error: null })
     const service = feathers.service(serviceName)
     const result =
       method === 'get'
@@ -753,12 +726,12 @@ export function useQuery<S extends keyof ServiceTypes>(
         }
 
         if (!disposed) {
-          dispatch({ type: 'success' })
+          state.merge({ fetched: true, fetchedCount: state.fetchedCount.value + 1, reloading: false })
         }
       })
       .catch((err) => {
         if (!disposed) {
-          dispatch({ type: 'error', payload: err })
+          state.merge({ reloading: false, fetched: true, fetchedCount: state.fetchedCount.value + 1, error: err })
         }
       })
 
@@ -770,7 +743,11 @@ export function useQuery<S extends keyof ServiceTypes>(
   // If serviceName or queryId changed, we should refetch the data
   useEffect(() => {
     if (!isInitialMount.current) {
-      dispatch({ type: 'reset' })
+      if (state.fetched.value)
+        state.merge({
+          fetched: false,
+          fetchedCount: 0
+        })
     }
   }, [serviceName, queryId])
 
@@ -785,66 +762,21 @@ export function useQuery<S extends keyof ServiceTypes>(
   }, [])
 
   // derive the loading/reloading state from other substates
-  const loading = !skip && !hasCachedData && !state.error
-  const reloading = loading || state.reloading
+  const loading = !skip && !hasCachedData && !state.error.value
+  const reloading = loading || state.reloading.value
 
-  const refetch = useCallback(() => dispatch({ type: 'refetch' }), [dispatch])
+  const refetch = () => state.merge({ fetched: false, refetchSeq: state.refetchSeq.value + 1 })
 
   return useMemo(
     () => ({
       ...(skip ? { data: null } : cachedData),
-      status: loading ? 'loading' : state.error ? 'error' : 'success',
+      status: loading ? 'loading' : state.error.value ? 'error' : 'success',
       refetch,
       isFetching: reloading,
-      error: state.error,
-
-      loading, // deprecated, use status and isFetching instead
-      reloading // deprecated, use isFetching instead
+      error: state.error.value
     }),
-    [skip, cachedData.data, loading, state.error, refetch, reloading, state.error, loading, reloading]
+    [skip, cachedData.data, loading, state.error, refetch, reloading, loading, reloading]
   )
-}
-
-function queryReducer(state, action) {
-  switch (action.type) {
-    case 'fetching':
-      return {
-        ...state,
-        reloading: true,
-        error: null
-      }
-    case 'success':
-      return {
-        ...state,
-        fetched: true,
-        fetchedCount: state.fetchedCount + 1,
-        reloading: false
-      }
-    case 'error':
-      return {
-        ...state,
-        reloading: false,
-        fetched: true,
-        fetchedCount: state.fetchedCount + 1,
-        error: action.payload
-      }
-    case 'refetch':
-      return {
-        ...state,
-        fetched: false,
-        refetchSeq: state.refetchSeq + 1
-      }
-    case 'reset':
-      if (state.fetched) {
-        return {
-          ...state,
-          fetched: false,
-          fetchedCount: 0
-        }
-      } else {
-        return state
-      }
-  }
 }
 
 function getter(service, id, params) {
@@ -923,6 +855,8 @@ function finder(service, params, { queryId, allPages, parallel }) {
   })
 }
 
+const refs = {} as Record<keyof ServiceTypes, Record<string, any>> // <serviceName, <id, refCount>>
+
 /**
  * An internal hook that will listen to realtime updates to a service
  * and update the cache as changes happen.
@@ -933,7 +867,6 @@ export function useRealtime(serviceName: keyof ServiceTypes, mode, cb) {
     if (mode === 'disabled') return
 
     // get the ref store of this service
-    const refs = FigbirdHookstateStore.refs.get(NO_PROXY)
     refs[serviceName] = refs[serviceName] || {}
     refs[serviceName].realtime = refs[serviceName].realtime || 0
     refs[serviceName].callbacks = refs[serviceName].callbacks || []
@@ -952,19 +885,19 @@ export function useRealtime(serviceName: keyof ServiceTypes, mode, cb) {
     // bind to the realtime events, but only once globally per service
     if (ref.realtime === 1) {
       ref.created = (item) => {
-        actions.created({ serviceName, item })
+        created({ serviceName, item })
         refs[serviceName].callbacks.forEach((c) => c({ event: 'created', serviceName, item }))
       }
       ref.updated = (item) => {
-        actions.updated({ serviceName, item })
+        updated({ serviceName, item })
         refs[serviceName].callbacks.forEach((c) => c({ event: 'updated', serviceName, item }))
       }
       ref.patched = (item) => {
-        actions.patched({ serviceName, item })
+        updated({ serviceName, item })
         refs[serviceName].callbacks.forEach((c) => c({ event: 'patched', serviceName, item }))
       }
       ref.removed = (item) => {
-        actions.removed({ serviceName, item })
+        removed({ serviceName, item })
         refs[serviceName].callbacks.forEach((c) => c({ event: 'removed', serviceName, item }))
       }
 
