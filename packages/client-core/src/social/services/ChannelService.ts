@@ -34,7 +34,6 @@ import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { defineState, getMutableState } from '@etherealengine/hyperflux'
 
 import { NotificationService } from '../../common/services/NotificationService'
-import { AuthState } from '../../user/services/AuthService'
 
 const logger = multiLogger.child({ component: 'client-core:social' })
 
@@ -45,8 +44,7 @@ export const ChannelState = defineState({
       channels: [] as Channel[],
       limit: 5,
       skip: 0,
-      total: 0,
-      updateNeeded: true
+      total: 0
     },
     targetChannelId: '' as ChannelID,
     instanceChannelFetching: false,
@@ -63,7 +61,6 @@ export const ChannelService = {
       const channelResult = (await Engine.instance.api.service('channel').find({})) as Channel[]
       const channelState = getMutableState(ChannelState)
       channelState.channels.merge({
-        updateNeeded: false,
         channels: channelResult
       })
     } catch (err) {
@@ -93,49 +90,36 @@ export const ChannelService = {
       if (endedInstanceChannelIndex > -1) channelState.channels.channels[endedInstanceChannelIndex].set(none)
       channelState.merge({
         instanceChannelFetched: true,
-        instanceChannelFetching: false
+        instanceChannelFetching: false,
+        targetChannelId: channel.id,
+        messageCreated: true
       })
       channelState.merge({ messageCreated: true })
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
   },
-  getPartyChannel: async () => {
+  createChannel: async (users: UserId[]) => {
     try {
-      const selfUser = getMutableState(AuthState).user.value
-      const channelResult = (await Engine.instance.api.service('channel').find({
-        query: {
-          partyId: selfUser.partyId
-        }
-      })) as Channel[]
-      if (channelResult[0]) {
-        const channel = channelResult[0]
-        const channelState = getMutableState(ChannelState)
-        let findIndex
-        if (typeof channel.id === 'string')
-          findIndex = channelState.channels.channels.findIndex((c) => c.id.value === channel.id)
-        let idx = findIndex > -1 ? findIndex : channelState.channels.channels.length
-        channelState.channels.channels[idx].set(channel)
-        const endedInstanceChannelIndex = channelState.channels.channels.findIndex(
-          (_channel) => channel.id !== _channel.id.value
-        )
-        if (endedInstanceChannelIndex > -1) channelState.channels.channels[endedInstanceChannelIndex].set(none)
-        channelState.merge({
-          instanceChannelFetched: true,
-          instanceChannelFetching: false
-        })
-        channelState.merge({ messageCreated: true })
-      }
+      const channel = await Engine.instance.api.service('channel').create({
+        users
+      })
+      await ChannelService.getChannels()
+      const channelState = getMutableState(ChannelState)
+      channelState.targetChannelId.set(channel.id)
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
   },
-  createChannel: async (users: UserId[]) => {
+  removeUserFromChannel: async (channelId: ChannelID, userId: UserId) => {
     try {
-      await Engine.instance.api.service('channel').create({
-        users
+      await Engine.instance.api.service('channel-user').remove(null, {
+        query: {
+          channelId,
+          userId
+        }
       })
-      ChannelService.getChannels()
+      await ChannelService.getChannels()
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }

@@ -28,7 +28,7 @@ import { useEffect } from 'react'
 
 import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 import multiLogger from '@etherealengine/common/src/logger'
-import { matches, matchesUserId } from '@etherealengine/engine/src/common/functions/MatchesUtils'
+import { matches, matchesUserId, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { NetworkTopics } from '@etherealengine/engine/src/networking/classes/Network'
 import { addNetwork, NetworkState, updateNetworkID } from '@etherealengine/engine/src/networking/NetworkState'
@@ -42,6 +42,7 @@ import {
   useState
 } from '@etherealengine/hyperflux'
 
+import { ChannelID } from '@etherealengine/common/src/interfaces/ChannelUser'
 import { LocationState } from '../../social/services/LocationService'
 import {
   connectToNetwork,
@@ -58,7 +59,7 @@ const logger = multiLogger.child({ component: 'client-core:service:media-instanc
 type InstanceState = {
   ipAddress: string
   port: string
-  channelId: string
+  channelId?: ChannelID
   roomCode: string
   videoEnabled: boolean
   provisioned: boolean
@@ -72,7 +73,9 @@ export const MediaInstanceState = defineState({
   name: 'MediaInstanceState',
   initial: () => ({
     instances: {} as { [id: string]: InstanceState },
+    /** @deprecated */
     joiningNonInstanceMediaChannel: false,
+    /** @deprecated */
     joiningNewMediaChannel: false
   })
 })
@@ -100,7 +103,7 @@ export const MediaInstanceConnectionServiceReceptor = (action) => {
         return s.instances[action.instanceId].set({
           ipAddress: action.ipAddress,
           port: action.port,
-          channelId: action.channelId!,
+          channelId: action.channelId,
           roomCode: action.roomCode,
           videoEnabled: false,
           provisioned: true,
@@ -151,7 +154,7 @@ export const MediaInstanceConnectionServiceReceptor = (action) => {
 
 //Service
 export const MediaInstanceConnectionService = {
-  provisionServer: async (channelId?: string, createPrivateRoom = false) => {
+  provisionServer: async (channelId?: ChannelID, createPrivateRoom = false) => {
     logger.info(`Provision Media Server, channelId: "${channelId}".`)
     const token = getState(AuthState).authUser.accessToken
     const provisionResult = await Engine.instance.api.service('instance-provision').find({
@@ -168,14 +171,14 @@ export const MediaInstanceConnectionService = {
           ipAddress: provisionResult.ipAddress,
           port: provisionResult.port,
           roomCode: provisionResult.roomCode,
-          channelId: channelId ? channelId : ''
+          channelId: channelId
         })
       )
     } else {
       dispatchAction(NetworkConnectionService.actions.noMediaServersAvailable({ instanceId: channelId! ?? '' }))
     }
   },
-  connectToServer: async (instanceId: string, channelId: string) => {
+  connectToServer: async (instanceId: string, channelId: ChannelID) => {
     dispatchAction(MediaInstanceConnectionAction.serverConnecting({ instanceId }))
     const authState = getState(AuthState)
     const user = authState.user
@@ -242,7 +245,7 @@ export class MediaInstanceConnectionAction {
     ipAddress: matches.string,
     port: matches.string,
     roomCode: matches.string,
-    channelId: matches.string
+    channelId: matches.string.optional() as Validator<unknown, ChannelID | undefined>
   })
 
   static serverConnecting = defineAction({

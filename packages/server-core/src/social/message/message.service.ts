@@ -47,8 +47,6 @@ export const onCRUD =
       }
     })
 
-    console.log('channelUsers', channelUsers)
-
     const userIds = (channelUsers as any).data.map((channelUser) => {
       return channelUser.userId
     })

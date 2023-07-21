@@ -31,7 +31,7 @@ import { decode } from 'jsonwebtoken'
 import { v4 as uuidv4 } from 'uuid'
 
 import { IdentityProviderInterface } from '@etherealengine/common/src/dbmodels/IdentityProvider'
-import { ChannelID } from '@etherealengine/common/src/interfaces/ChannelUser'
+import { ChannelID, ChannelUser } from '@etherealengine/common/src/interfaces/ChannelUser'
 import { Instance } from '@etherealengine/common/src/interfaces/Instance'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { UserInterface, UserKick } from '@etherealengine/common/src/interfaces/User'
@@ -343,10 +343,22 @@ const handleUserAttendance = async (app: Application, userId: UserId) => {
     }
   })
 
-  await app.service('channel-user').create({
-    channelId: channel.id,
-    userId: userId
-  })
+  /** Only a world server gets assigned a channel, since it has chat. A media server uses a channel but does not have one itself */
+  if (channel) {
+    const existingChannelUser = (await app.service('channel-user').find({
+      query: {
+        channelId: channel.id,
+        userId: userId
+      }
+    })) as Paginated<ChannelUser>
+
+    if (!existingChannelUser.total) {
+      await app.service('channel-user').create({
+        channelId: channel.id,
+        userId: userId
+      })
+    }
+  }
 
   await app.service('instance-attendance').patch(
     null,
@@ -783,7 +795,7 @@ export default (app: Application): void => {
 
   logger.info('registered kickCreatedListener')
 
-  app.service('party-user').on('removed', handlePartyUserRemoved(app))
+  // app.service('party-user').on('removed', handlePartyUserRemoved(app))
 
   app.on('connection', onConnection(app))
   app.on('disconnect', onDisconnection(app))

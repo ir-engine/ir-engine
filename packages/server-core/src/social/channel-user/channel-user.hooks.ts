@@ -27,6 +27,7 @@ import { HookContext } from '@feathersjs/feathers'
 import { disallow, iff, isProvider } from 'feathers-hooks-common'
 
 import channelUserPermissionAuthenticate from '@etherealengine/server-core/src/hooks/channel-user-permission-authenticate'
+import setLoggedInUser from '@etherealengine/server-core/src/hooks/set-loggedin-user-in-body'
 
 import authenticate from '../../hooks/authenticate'
 import verifyScope from '../../hooks/verify-scope'
@@ -39,22 +40,12 @@ export default {
     create: [iff(isProvider('external'), verifyScope('admin', 'admin'))],
     update: [disallow('external')],
     patch: [iff(isProvider('external'), channelUserPermissionAuthenticate())],
-    remove: []
+    remove: [setLoggedInUser('userId')]
   },
 
   after: {
     all: [],
-    find: [
-      async (context: HookContext): Promise<HookContext> => {
-        const { app, result } = context
-        await Promise.all(
-          result.data.map(async (channelUser) => {
-            channelUser.user = await app.service('user').get(channelUser.userId)
-          })
-        )
-        return context
-      }
-    ],
+    find: [],
     get: [
       async (context: HookContext): Promise<HookContext> => {
         const { app, result } = context
@@ -86,23 +77,25 @@ export default {
     remove: [
       async (context: HookContext): Promise<HookContext> => {
         const { app, params, result } = context
+        console.log('params', params, result)
         const user = await app.service('user').get(result.userId)
         await app.service('message').create({
           channelId: result.channelId,
           text: `${user.name} left the channel`,
           isNotification: true
         })
-        if (params.channelUsersRemoved !== true) {
-          const channelUserCount = await app.service('channel-user').find({
-            query: {
-              channelId: params.query!.channelId,
-              $limit: 0
-            }
-          })
-          if (channelUserCount.total < 1) {
-            await app.service('channel').remove(params.query!.channelId, params)
-          }
-        }
+        /** @todo - remove channel if no users left */
+        // if (params.channelUsersRemoved !== true) {
+        //   const channelUserCount = await app.service('channel-user').find({
+        //     query: {
+        //       channelId: params.query!.channelId,
+        //       $limit: 0
+        //     }
+        //   })
+        //   if (channelUserCount.total < 1) {
+        //     await app.service('channel').remove(params.query!.channelId, params)
+        //   }
+        // }
         return context
       }
     ]

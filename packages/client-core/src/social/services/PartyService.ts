@@ -84,7 +84,7 @@ export const PartyService = {
       const network = Engine.instance.mediaNetwork as SocketWebRTCClientNetwork
       await endVideoChat(network, {})
       await leaveNetwork(network)
-      await Engine.instance.api.service('party').create()
+      await Engine.instance.api.service('channel').create({})
       PartyService.getParty()
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
@@ -100,7 +100,7 @@ export const PartyService = {
       if (channelResult.total > 0) {
         await Engine.instance.api.service('channel').remove(channelResult.data[0].id)
       }
-      const party = (await Engine.instance.api.service('party').remove(partyId)) as Party
+      // const party = (await Engine.instance.api.service('party').remove(partyId)) as Party
       const state = getMutableState(PartyState)
       return state.merge({ party: null!, updateNeeded: true })
     } catch (err) {

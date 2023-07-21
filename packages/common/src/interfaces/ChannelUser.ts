@@ -32,8 +32,9 @@ export type ChannelID = OpaqueType<'ChannelID'> & string
 
 export type ChannelUser = {
   id: string
-  userId?: UserId
+  isOwner: boolean
+  userId: UserId
   user?: UserInterface
-  channelId?: ChannelID
+  channelId: ChannelID
   channel?: ChannelInterface
 }

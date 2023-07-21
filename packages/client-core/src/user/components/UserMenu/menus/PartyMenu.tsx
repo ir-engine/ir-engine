@@ -41,33 +41,34 @@ import Box from '@etherealengine/ui/src/primitives/mui/Box'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 
 import { SocialMenus } from '../../../../networking/NetworkInstanceProvisioning'
+import { ChannelService, ChannelState } from '../../../../social/services/ChannelService'
 import { InviteService } from '../../../../social/services/InviteService'
 import { PartyService, PartyState } from '../../../../social/services/PartyService'
 import { AuthState } from '../../../services/AuthService'
-import styles from '../index.module.scss'
 import { PopupMenuServices } from '../PopupMenuService'
+import styles from '../index.module.scss'
 
 export const usePartyMenuHooks = () => {
   const token = useHookstate('')
   const isInviteOpen = useHookstate(false)
   const isDeleteConfirmOpen = useHookstate(false)
-  const partyState = useHookstate(getMutableState(PartyState))
+  // const partyState = useHookstate(getMutableState(PartyState))
+  const channelState = useHookstate(getMutableState(ChannelState))
   const selfUser = useHookstate(getMutableState(AuthState).user)
 
-  const isOwned = partyState.isOwned?.value
+  const currentChannel = channelState.channels.channels.find(
+    (channel) => channel.id.value === channelState.targetChannelId.value
+  )
+
+  const isOwned = currentChannel?.ornull.ownerId.value === selfUser.id.value
 
   const createParty = () => {
-    PartyService.createParty()
+    ChannelService.createChannel([])
   }
 
   const kickUser = (userId?: UserId) => {
     if (!userId) return
-    const partyUser = partyState.party?.partyUsers?.value
-      ? partyState.party.partyUsers.value.find((partyUser) => {
-          return partyUser.userId === userId
-        })
-      : null
-    if (partyUser) PartyService.removePartyUser(partyUser.id)
+    ChannelService.removeUserFromChannel(userId)
   }
 
   const handleChangeToken = (e) => {
@@ -86,7 +87,7 @@ export const usePartyMenuHooks = () => {
       token: token.value,
       inviteCode: null,
       identityProviderType: isEmail ? 'email' : isPhone ? 'sms' : null,
-      targetObjectId: partyState.party.id.value,
+      targetObjectId: channelState.targetChannelId.value,
       inviteeId: null,
       deleteOnUse: true,
       spawnType: 'inviteCode',

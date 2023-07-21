@@ -40,6 +40,11 @@ export default (app: Application) => {
         allowNull: false,
         primaryKey: true
       }
+      /** @todo */
+      // name: {
+      //   type: DataTypes.STRING,
+      //   defaultValue: ''
+      // },
     },
     {
       hooks: {

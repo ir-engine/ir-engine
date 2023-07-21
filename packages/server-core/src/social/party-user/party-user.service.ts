@@ -42,7 +42,7 @@ import createModel from './party-user.model'
 
 declare module '@etherealengine/common/declarations' {
   interface ServiceTypes {
-    'party-user': PartyUser
+    // 'party-user': PartyUser
   }
 }
 

@@ -153,9 +153,10 @@ export const MediaInstanceProvisioning = () => {
   useEffect(() => {
     if (chatState.instanceChannelFetched.value) {
       const channels = chatState.channels.channels.value
-      const instanceChannel = Object.values(channels).find((channel) => channel.instanceId === worldNetworkHostId)
+      // const instanceChannel = Object.values(channels).find((channel) => channel.instanceId === worldNetworkHostId)
+      const currentChannel = chatState.targetChannelId.value
       if (!currentChannelInstanceConnection?.provisioned.value)
-        MediaInstanceConnectionService.provisionServer(instanceChannel?.id!, true)
+        MediaInstanceConnectionService.provisionServer(currentChannel, true)
     }
   }, [chatState.instanceChannelFetched])
 
@@ -163,7 +164,7 @@ export const MediaInstanceProvisioning = () => {
   useEffect(() => {
     if (
       mediaNetworkHostId &&
-      currentChannelInstanceConnection?.get({ noproxy: true }) &&
+      currentChannelInstanceConnection?.value &&
       currentChannelInstanceConnection.provisioned.value &&
       currentChannelInstanceConnection.readyToConnect.value &&
       !currentChannelInstanceConnection.connecting.value &&
@@ -171,7 +172,7 @@ export const MediaInstanceProvisioning = () => {
     ) {
       MediaInstanceConnectionService.connectToServer(
         mediaNetworkHostId,
-        currentChannelInstanceConnection.channelId.value
+        currentChannelInstanceConnection.channelId.value!
       )
     }
   }, [
@@ -219,35 +220,31 @@ export const PartyInstanceProvisioning = () => {
   PartyService.useAPIListeners()
 
   // Once we have the world server, provision the party server
-  useEffect(() => {
-    const activeChannel = Object.values(chatState.channels.value.channels ?? []).find(
-      (channel) => channel.id === chatState.targetChannelId.value
-    )
-    if (selfUser?.partyId?.value && activeChannel) {
-      const partyUser =
-        partyState.party?.partyUsers
-          ?.get({ noproxy: true })
-          ?.find((partyUser) => partyUser.userId === selfUser.id.value) || null
-      if (
-        chatState.partyChannelFetched?.value &&
-        currentChannelInstanceConnection?.channelId.value !== activeChannel.id &&
-        partyUser
-      )
-        MediaInstanceConnectionService.provisionServer(activeChannel?.id!, false)
-      else if (!chatState.partyChannelFetched.value && !chatState.partyChannelFetching.value)
-        ChannelService.getPartyChannel()
-    }
-  }, [
-    selfUser?.partyId?.value,
-    partyState.party?.id,
-    chatState.channels.channels,
-    chatState.partyChannelFetching?.value,
-    chatState.partyChannelFetched?.value
-  ])
-
-  useEffect(() => {
-    if (partyState.updateNeeded.value) PartyService.getParty()
-  }, [partyState.updateNeeded.value])
+  // useEffect(() => {
+  //   const activeChannel = Object.values(chatState.channels.value.channels ?? []).find(
+  //     (channel) => channel.id === chatState.targetChannelId.value
+  //   )
+  //   if (selfUser?.partyId?.value && activeChannel) {
+  //     const partyUser =
+  //       partyState.party?.partyUsers
+  //         ?.get({ noproxy: true })
+  //         ?.find((partyUser) => partyUser.userId === selfUser.id.value) || null
+  //     if (
+  //       chatState.partyChannelFetched?.value &&
+  //       currentChannelInstanceConnection?.channelId.value !== activeChannel.id &&
+  //       partyUser
+  //     )
+  //       MediaInstanceConnectionService.provisionServer(activeChannel?.id!, false)
+  //     else if (!chatState.partyChannelFetched.value && !chatState.partyChannelFetching.value)
+  //       ChannelService.getPartyChannel()
+  //   }
+  // }, [
+  //   selfUser?.partyId?.value,
+  //   partyState.party?.id,
+  //   chatState.channels.channels,
+  //   chatState.partyChannelFetching?.value,
+  //   chatState.partyChannelFetched?.value
+  // ])
 
   return null
 }

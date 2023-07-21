@@ -39,6 +39,11 @@ export default (app: Application) => {
         defaultValue: DataTypes.UUIDV1,
         allowNull: false,
         primaryKey: true
+      },
+      isOwner: {
+        type: DataTypes.BOOLEAN,
+        allowNull: false,
+        defaultValue: false
       }
     },
     {

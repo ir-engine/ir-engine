@@ -321,7 +321,7 @@ export const InviteService = {
   },
   acceptInvite: async (invite: Invite) => {
     try {
-      if (invite.inviteType === 'party') {
+      if (invite.inviteType === 'channel') {
         dispatchAction(MediaInstanceConnectionAction.joiningNonInstanceMediaChannel({}))
       }
       await Engine.instance.api.service('a-i').get(invite.id, {
@@ -329,7 +329,7 @@ export const InviteService = {
           passcode: invite.passcode
         }
       })
-      if (invite.inviteType === 'party') await PartyService.leaveNetwork(false)
+      if (invite.inviteType === 'channel') await PartyService.leaveNetwork(false)
       dispatchAction(InviteAction.acceptedInvite({}))
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })

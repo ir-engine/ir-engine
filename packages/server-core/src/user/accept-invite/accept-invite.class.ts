@@ -262,83 +262,76 @@ export class AcceptInvite implements ServiceMethods<Data> {
           )
         }
       } else if (invite.inviteType === 'party') {
-        const party = await this.app.service('party').Model.findOne({ where: { id: invite.targetObjectId } })
-
-        if (party == null) {
-          await this.app.service('invite').remove(invite.id)
-          return new BadRequest('Invalid party ID')
-        }
-
-        const patchUser: any = { partyId: invite.targetObjectId }
-        await this.app.service('user').patch(inviteeIdentityProvider.userId, {
-          ...patchUser
-        })
-
-        const { query, ...paramsCopy } = params
-
-        const existingPartyUser = await this.app.service('party-user').Model.count({
-          where: {
-            userId: inviteeIdentityProvider.userId,
-            partyId: invite.targetObjectId,
-            isOwner: false
-          }
-        })
-
-        if (existingPartyUser === 0) {
-          paramsCopy.skipAuth = true
-          await this.app.service('party-user').create(
-            {
-              userId: inviteeIdentityProvider.userId,
-              partyId: invite.targetObjectId,
-              isOwner: false
-            },
-            paramsCopy
-          )
-        }
-
-        const ownerResult = await this.app.service('party-user').find({
-          query: {
-            partyId: invite.targetObjectId,
-            isOwner: true
-          },
-          sequelize: {
-            include: [
-              {
-                model: this.app.service('user').Model,
-                include: [
-                  {
-                    model: this.app.service('instance-attendance').Model,
-                    as: 'instanceAttendance',
-                    where: {
-                      isChannel: false,
-                      ended: false
-                    },
-                    required: false,
-                    include: [
-                      {
-                        model: this.app.service('instance').Model,
-                        include: [
-                          {
-                            model: this.app.service('location').Model
-                          }
-                        ]
-                      }
-                    ]
-                  }
-                ]
-              }
-            ]
-          }
-        })
-
-        const owner = ownerResult.data[0]
-        const ownerInstanceAttendance = owner?.user?.instanceAttendance
-
-        if (ownerInstanceAttendance && ownerInstanceAttendance[0]) {
-          returned.locationName = ownerInstanceAttendance[0].instance.location.slugifiedName
-          returned.instanceId = ownerInstanceAttendance[0].instanceId
-          returned.inviteCode = owner.user.inviteCode
-        }
+        /** @todo replace party invite type with channel invite type */
+        // const party = await this.app.service('party').Model.findOne({ where: { id: invite.targetObjectId } })
+        // if (party == null) {
+        //   await this.app.service('invite').remove(invite.id)
+        //   return new BadRequest('Invalid party ID')
+        // }
+        // const patchUser: any = { partyId: invite.targetObjectId }
+        // await this.app.service('user').patch(inviteeIdentityProvider.userId, {
+        //   ...patchUser
+        // })
+        // const { query, ...paramsCopy } = params
+        // const existingPartyUser = await this.app.service('party-user').Model.count({
+        //   where: {
+        //     userId: inviteeIdentityProvider.userId,
+        //     partyId: invite.targetObjectId,
+        //     isOwner: false
+        //   }
+        // })
+        // if (existingPartyUser === 0) {
+        //   paramsCopy.skipAuth = true
+        //   await this.app.service('party-user').create(
+        //     {
+        //       userId: inviteeIdentityProvider.userId,
+        //       partyId: invite.targetObjectId,
+        //       isOwner: false
+        //     },
+        //     paramsCopy
+        //   )
+        // }
+        // const ownerResult = await this.app.service('party-user').find({
+        //   query: {
+        //     partyId: invite.targetObjectId,
+        //     isOwner: true
+        //   },
+        //   sequelize: {
+        //     include: [
+        //       {
+        //         model: this.app.service('user').Model,
+        //         include: [
+        //           {
+        //             model: this.app.service('instance-attendance').Model,
+        //             as: 'instanceAttendance',
+        //             where: {
+        //               isChannel: false,
+        //               ended: false
+        //             },
+        //             required: false,
+        //             include: [
+        //               {
+        //                 model: this.app.service('instance').Model,
+        //                 include: [
+        //                   {
+        //                     model: this.app.service('location').Model
+        //                   }
+        //                 ]
+        //               }
+        //             ]
+        //           }
+        //         ]
+        //       }
+        //     ]
+        //   }
+        // })
+        // const owner = ownerResult.data[0]
+        // const ownerInstanceAttendance = owner?.user?.instanceAttendance
+        // if (ownerInstanceAttendance && ownerInstanceAttendance[0]) {
+        //   returned.locationName = ownerInstanceAttendance[0].instance.location.slugifiedName
+        //   returned.instanceId = ownerInstanceAttendance[0].instanceId
+        //   returned.inviteCode = owner.user.inviteCode
+        // }
       }
 
       params.preventUserRelationshipRemoval = true

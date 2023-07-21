@@ -34,8 +34,6 @@ import LocationBan from './location-ban/location-ban.service'
 import LocationSettings from './location-settings/location-settings.service'
 import LocationType from './location-type/location-type.service'
 import Message from './message/message.service'
-import PartyUser from './party-user/party-user.service'
-import Party from './party/party.service'
 
 export default [
   ChannelUser,
@@ -43,8 +41,6 @@ export default [
   Channel,
   Location,
   Invite,
-  Party,
-  PartyUser,
   Message,
   LocationType,
   LocationSettings,

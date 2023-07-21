@@ -30,6 +30,7 @@ import { useUserAvatarThumbnail } from '@etherealengine/client-core/src/user/fun
 import { ChannelID } from '@etherealengine/common/src/interfaces/ChannelUser'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
+import { useFind } from '@etherealengine/engine/src/common/functions/FeathersHooks'
 import { DrawerCreateChannel } from './DrawerCreateChannel'
 
 export const ChannelsList = () => {
@@ -55,9 +56,14 @@ export const ChannelsList = () => {
 
   const RenderChannel = (props: { channel: (typeof channels)[number] }) => {
     const userThumbnail = useUserAvatarThumbnail() // todo
-    const latestMessage = props.channel.messages.length
-      ? props.channel.messages[props.channel.messages.length - 1]?.text
-      : '...'
+
+    const { data: messages } = useFind('message', {
+      query: {
+        channelId: props.channel.id
+      }
+    })
+
+    const latestMessage = messages.length ? messages[messages.length - 1]?.text : '...'
 
     return (
       <>

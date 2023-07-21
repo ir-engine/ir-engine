@@ -36,6 +36,11 @@ declare module '@etherealengine/common/declarations' {
   }
 }
 
+/**
+ * @todo
+ * - destroy channel after last person leaves
+ */
+
 export default (app: Application) => {
   const options = {
     Model: createModel(app),
@@ -65,20 +70,6 @@ export default (app: Application) => {
       app.service('channel').emit('refresh', {
         userId: data.userId
       })
-      // const channel = await (app.service('channel')).Model.findOne({
-      //   where: {
-      //     channelId: data.channelId
-      //   }
-      // });
-      // if (channel != null) {
-      //   await app.service('channel').patch(channel.id, {
-      //     channelType: channel.channelType
-      //   }, {
-      //     sequelize: {
-      //       silent: true
-      //     }
-      //   });
-      // }
       const channelUsers = await app.service('channel-user').find({
         query: {
           $limit: 1000,

@@ -35,6 +35,8 @@ export default () => {
   return async (context: HookContext<Application>): Promise<HookContext> => {
     const { params } = context
 
+    if (params.isInternal) return context
+
     if (!context.params) context.params = {}
     const authHeader = params.headers?.authorization
     let authSplit

@@ -34,6 +34,7 @@ import { Instance } from '@etherealengine/common/src/interfaces/Instance'
 import { InstanceServerProvisionResult } from '@etherealengine/common/src/interfaces/InstanceServerProvisionResult'
 import { getState } from '@etherealengine/hyperflux'
 
+import { ChannelID } from '@etherealengine/common/src/interfaces/ChannelUser'
 import { Application } from '../../../declarations'
 import config from '../../appconfig'
 import logger from '../../ServerLogger'
@@ -61,7 +62,7 @@ export async function getFreeInstanceserver({
   app: Application
   iteration: number
   locationId?: string
-  channelId?: string
+  channelId?: ChannelID
   roomCode?: string
   userId?: string
   createPrivateRoom?: boolean
@@ -153,7 +154,7 @@ export async function checkForDuplicatedAssignments({
   ipAddress: string
   iteration: number
   locationId?: string
-  channelId?: string
+  channelId?: ChannelID
   roomCode?: string | undefined
   createPrivateRoom?: boolean
   userId?: string
@@ -390,7 +391,7 @@ export class InstanceProvision implements ServiceMethods<any> {
   }: {
     availableLocationInstances: Instance[]
     locationId?: string
-    channelId?: string
+    channelId?: ChannelID
     roomCode?: undefined | string
     userId?: undefined | string
   }): Promise<InstanceServerProvisionResult> {
@@ -514,7 +515,7 @@ export class InstanceProvision implements ServiceMethods<any> {
       let userId
       const locationId = params?.query?.locationId
       const instanceId = params?.query?.instanceId
-      const channelId = params?.query?.channelId
+      const channelId = params?.query?.channelId as ChannelID | undefined
       const roomCode = params?.query?.roomCode
       const createPrivateRoom = params?.query?.createPrivateRoom
       const token = params?.query?.token

@@ -31,6 +31,7 @@ import { ChannelID } from '@etherealengine/common/src/interfaces/ChannelUser'
 import { UserInterface } from '@etherealengine/common/src/interfaces/User'
 import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 
+import { Op } from 'sequelize'
 import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
 import { UserParams } from '../../user/user/user.class'
@@ -56,13 +57,16 @@ export class Channel<T = ChannelDataType> extends Service<T> {
     const users = data.users
     const channel = (await super.create({})) as ChannelDataType
 
-    const loggedInUser = params!.user as UserInterface
-    const userId = loggedInUser.id
+    const loggedInUser = params!.user
+    const userId = loggedInUser?.id
+
+    /** @todo ensure all users specified are friends of loggedInUser */
 
     if (userId) {
       await this.app.service('channel-user').create({
         channelId: channel.id as ChannelID,
-        userId
+        userId,
+        isOwner: true
       })
     }
 
@@ -162,6 +166,16 @@ export class Channel<T = ChannelDataType> extends Service<T> {
       }
 
       return this.app.service('channel').Model.findAll({
+        where: {
+          [Op.or]: [
+            {
+              '$instance.ended$': false
+            },
+            {
+              instanceId: null
+            }
+          ]
+        },
         include: [
           {
             model: this.app.service('channel-user').Model,
@@ -183,6 +197,9 @@ export class Channel<T = ChannelDataType> extends Service<T> {
                 as: 'sender'
               }
             ]
+          },
+          {
+            model: this.app.service('instance').Model
           }
         ]
       })

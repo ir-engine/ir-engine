@@ -36,7 +36,7 @@ import createModel from './party.model'
 
 declare module '@etherealengine/common/declarations' {
   interface ServiceTypes {
-    party: Party
+    // party: Party
   }
 }
 

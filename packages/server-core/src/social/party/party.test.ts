@@ -55,7 +55,7 @@ const cleanup = async (app: Application) => {
  * - figure out how to mock git clone functionality (maybe override the function?)
  */
 
-describe('party.test', () => {
+describe.skip('party.test', () => {
   let app: Application
   let user1: UserInterface
   let user2: UserInterface

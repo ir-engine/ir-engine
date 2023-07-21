@@ -27,4 +27,5 @@ import { ChannelID } from '../interfaces/ChannelUser'
 
 export interface ChannelUserInterface {
   id: ChannelID
+  isOwner: boolean
 }
