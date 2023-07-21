@@ -247,7 +247,7 @@ export const AvatarRigComponent = defineComponent({
             bonePos.copy(
               rigComponent.bindRig.rightLowerArm.value.node.matrixWorld.multiply(
                 new Matrix4().setPosition(
-                  rigComponent.bindRig.rightLowerLeg.node.value.getWorldDirection(new Vector3())
+                  rigComponent.bindRig.rightLowerArm.node.value.getWorldDirection(new Vector3())
                 )
               )
             )
@@ -255,9 +255,7 @@ export const AvatarRigComponent = defineComponent({
           case 'leftElbowHint':
             bonePos.copy(
               rigComponent.bindRig.leftLowerArm.value.node.matrixWorld.multiply(
-                new Matrix4().setPosition(
-                  rigComponent.bindRig.rightLowerLeg.node.value.getWorldDirection(new Vector3())
-                )
+                new Matrix4().setPosition(rigComponent.bindRig.leftLowerArm.node.value.getWorldDirection(new Vector3()))
               )
             )
             break
@@ -283,7 +281,9 @@ export const AvatarRigComponent = defineComponent({
           case 'headTarget':
             bonePos.copy(rigComponent.bindRig.head.value.node.matrixWorld)
           case 'hipsTarget':
-            bonePos.copy(rigComponent.bindRig.hips.value.node.matrixWorld)
+            bonePos.copy(
+              rigComponent.bindRig.hips.value.node.matrixWorld.multiply(new Matrix4().setPosition(0, -0.025, 0))
+            )
         }
         const pos = new Vector3()
         bonePos.decompose(pos, new Quaternion(), new Vector3())
