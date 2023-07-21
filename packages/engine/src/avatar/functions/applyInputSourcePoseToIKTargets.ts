@@ -224,6 +224,8 @@ const thumbOffsetRadians = -Math.PI / 2
 const offsetMatrix = new Matrix4()
 
 const applyHandPose = (inputSource: XRInputSource, entity: Entity) => {
+  const rig = getComponent(entity, AvatarRigComponent)
+
   /*  const hand = inputSource.hand as any as XRHand
   const rig = getComponent(entity, AvatarRigComponent)
   const referenceSpace = ReferenceSpace.origin!
@@ -259,8 +261,8 @@ const applyHandPose = (inputSource: XRInputSource, entity: Entity) => {
 }
 
 const handOffsetRadians = Math.PI / 2.5
-const rightHandOffset = new Quaternion().setFromEuler(new Euler(0, 0, handOffsetRadians))
-const leftHandOffset = new Quaternion().setFromEuler(new Euler(0, 0, -handOffsetRadians))
+const rightHandOffset = new Quaternion().setFromEuler(new Euler(0, Math.PI / 2, 0))
+const leftHandOffset = new Quaternion().setFromEuler(new Euler(0, -Math.PI / 2, 0))
 
 //set offsets so hands align with controllers. Multiplying two quaternions because gimbal lock in euler angles prevents setting the offset in one quaternion
 const leftControllerOffset = new Quaternion()
@@ -319,7 +321,11 @@ export const applyInputSourcePoseToIKTargets = () => {
           if (wrist) {
             const jointPose = xrFrame.getJointPose(wrist, referenceSpace)
             if (jointPose) {
-              ikTransform.position.copy(jointPose.transform.position as unknown as Vector3)
+              ikTransform.position
+                .copy(jointPose.transform.position as unknown as Vector3)
+                .sub(player.position)
+                .multiplyScalar(1 / getState(XRState).sceneScale)
+                .add(player.position)
               ikTransform.rotation.copy(jointPose.transform.orientation as unknown as Quaternion)
               ikTransform.rotation.multiply(handedness === 'right' ? rightHandOffset : leftHandOffset)
             }

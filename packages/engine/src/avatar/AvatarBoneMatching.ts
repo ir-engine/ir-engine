@@ -26,9 +26,9 @@ Ethereal Engine. All Rights Reserved.
 // This retargeting logic is based exokitxr retargeting system
 // https://github.com/exokitxr/avatars
 
-import { VRMHumanBones } from '@pixiv/three-vrm'
+import { VRM, VRM1Meta, VRMHumanBone, VRMHumanBones, VRMHumanoid, VRMParameters } from '@pixiv/three-vrm'
 import { cloneDeep } from 'lodash'
-import { Bone, Object3D, Quaternion, Skeleton, SkinnedMesh, Vector3 } from 'three'
+import { Bone, Euler, Object3D, Quaternion, Skeleton, SkinnedMesh, Vector3 } from 'three'
 
 import { Object3DUtils } from '../common/functions/Object3DUtils'
 
@@ -642,30 +642,82 @@ function findFirstTwistChildBone(parent: Object3D, hand: Object3D, left: boolean
   return existingBone
 }
 
-export default function avatarBoneMatching(model: Object3D): VRMHumanBones {
-  //this is a mess
-  //tentatively mapping mixamo rig to animated vrm object :)
-  const _animatedVRM = {} as VRMHumanBones
-  _animatedVRM.hips = { node: model.getObjectByName('mixamorigHips')! }
-  _animatedVRM.head = { node: model.getObjectByName('mixamorigHead')! }
-  _animatedVRM.chest = { node: model.getObjectByName('mixamorigSpine2')! }
-  _animatedVRM.spine = { node: model.getObjectByName('mixamorigSpine')! }
-  _animatedVRM.leftUpperLeg = { node: model.getObjectByName('mixamorigLeftUpLeg')! }
-  _animatedVRM.leftLowerLeg = { node: model.getObjectByName('mixamorigLeftLeg')! }
-  _animatedVRM.leftFoot = { node: model.getObjectByName('mixamorigLeftFoot')! }
-  _animatedVRM.rightUpperLeg = { node: model.getObjectByName('mixamorigRightUpLeg')! }
-  _animatedVRM.rightLowerLeg = { node: model.getObjectByName('mixamorigRightLeg')! }
-  _animatedVRM.rightFoot = { node: model.getObjectByName('mixamorigRightFoot')! }
-  _animatedVRM.leftShoulder = { node: model.getObjectByName('mixamorigLeftShoulder')! }
-  _animatedVRM.leftUpperArm = { node: model.getObjectByName('mixamorigLeftArm')! }
-  _animatedVRM.leftLowerArm = { node: model.getObjectByName('mixamorigLeftForeArm')! }
-  _animatedVRM.leftHand = { node: model.getObjectByName('mixamorigLeftHand')! }
-  _animatedVRM.leftShoulder = { node: model.getObjectByName('mixamorigRightShoulder')! }
-  _animatedVRM.leftUpperArm = { node: model.getObjectByName('mixamorigRightArm')! }
-  _animatedVRM.leftLowerArm = { node: model.getObjectByName('mixamorigRightForeArm')! }
-  _animatedVRM.leftHand = { node: model.getObjectByName('mixamorigRightHand')! }
+export default function avatarBoneMatching(model: Object3D): VRM {
+  const bones = {} as VRMHumanBones
 
-  return _animatedVRM
+  model.traverse((target) => {
+    const bone = mixamoVRMRigMap[target.name]
+    if (bone) {
+      bones[bone] = { node: target } as VRMHumanBone
+    }
+  })
+
+  const vrm = new VRM({
+    humanoid: new VRMHumanoid(bones),
+    scene: model,
+    meta: { name: model.children[0].name } as VRM1Meta
+  } as VRMParameters)
+
+  //quick dirty tag to disable flipping on mixamo rigs
+  ;(vrm as any).userData = { flipped: false } as any
+
+  console.log(vrm)
+  return vrm
+}
+
+export const mixamoVRMRigMap = {
+  mixamorigHips: 'hips',
+  mixamorigSpine: 'spine',
+  mixamorigSpine1: 'chest',
+  mixamorigSpine2: 'upperChest',
+  mixamorigNeck: 'neck',
+  mixamorigHead: 'head',
+  mixamorigLeftShoulder: 'leftShoulder',
+  mixamorigLeftArm: 'leftUpperArm',
+  mixamorigLeftForeArm: 'leftLowerArm',
+  mixamorigLeftHand: 'leftHand',
+  mixamorigLeftHandThumb1: 'leftThumbMetacarpal',
+  mixamorigLeftHandThumb2: 'leftThumbProximal',
+  mixamorigLeftHandThumb3: 'leftThumbDistal',
+  mixamorigLeftHandIndex1: 'leftIndexProximal',
+  mixamorigLeftHandIndex2: 'leftIndexIntermediate',
+  mixamorigLeftHandIndex3: 'leftIndexDistal',
+  mixamorigLeftHandMiddle1: 'leftMiddleProximal',
+  mixamorigLeftHandMiddle2: 'leftMiddleIntermediate',
+  mixamorigLeftHandMiddle3: 'leftMiddleDistal',
+  mixamorigLeftHandRing1: 'leftRingProximal',
+  mixamorigLeftHandRing2: 'leftRingIntermediate',
+  mixamorigLeftHandRing3: 'leftRingDistal',
+  mixamorigLeftHandPinky1: 'leftLittleProximal',
+  mixamorigLeftHandPinky2: 'leftLittleIntermediate',
+  mixamorigLeftHandPinky3: 'leftLittleDistal',
+  mixamorigRightShoulder: 'rightShoulder',
+  mixamorigRightArm: 'rightUpperArm',
+  mixamorigRightForeArm: 'rightLowerArm',
+  mixamorigRightHand: 'rightHand',
+  mixamorigRightHandPinky1: 'rightLittleProximal',
+  mixamorigRightHandPinky2: 'rightLittleIntermediate',
+  mixamorigRightHandPinky3: 'rightLittleDistal',
+  mixamorigRightHandRing1: 'rightRingProximal',
+  mixamorigRightHandRing2: 'rightRingIntermediate',
+  mixamorigRightHandRing3: 'rightRingDistal',
+  mixamorigRightHandMiddle1: 'rightMiddleProximal',
+  mixamorigRightHandMiddle2: 'rightMiddleIntermediate',
+  mixamorigRightHandMiddle3: 'rightMiddleDistal',
+  mixamorigRightHandIndex1: 'rightIndexProximal',
+  mixamorigRightHandIndex2: 'rightIndexIntermediate',
+  mixamorigRightHandIndex3: 'rightIndexDistal',
+  mixamorigRightHandThumb1: 'rightThumbMetacarpal',
+  mixamorigRightHandThumb2: 'rightThumbProximal',
+  mixamorigRightHandThumb3: 'rightThumbDistal',
+  mixamorigLeftUpLeg: 'leftUpperLeg',
+  mixamorigLeftLeg: 'leftLowerLeg',
+  mixamorigLeftFoot: 'leftFoot',
+  mixamorigLeftToeBase: 'leftToes',
+  mixamorigRightUpLeg: 'rightUpperLeg',
+  mixamorigRightLeg: 'rightLowerLeg',
+  mixamorigRightFoot: 'rightFoot',
+  mixamorigRightToeBase: 'rightToes'
 }
 
 export function makeBindPose(bones: VRMHumanBones) {
