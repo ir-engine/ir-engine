@@ -157,7 +157,6 @@ const EditorContainer = () => {
   const editorState = useHookstate(getMutableState(EditorState))
   const projectName = editorState.projectName
   const sceneName = editorState.sceneName
-  const modified = editorState.sceneModified
   const sceneLoaded = useHookstate(getMutableState(EngineState)).sceneLoaded
   const sceneLoading = useHookstate(getMutableState(EngineState)).sceneLoading
 
@@ -183,7 +182,6 @@ const EditorContainer = () => {
         thumbnailUrl: null!,
         name: ''
       })
-      dispatchAction(EditorAction.sceneModified({ modified: true }))
     } catch (error) {
       logger.error(error)
       setDialogComponent(
@@ -195,6 +193,21 @@ const EditorContainer = () => {
       )
     }
   }
+
+  useEffect(() => {
+    if (!editorState.sceneModified.value) return
+    const onBeforeUnload = (e) => {
+      alert('You have unsaved changes. Please save before leaving.')
+      e.preventDefault()
+      e.returnValue = ''
+    }
+
+    window.addEventListener('beforeunload', onBeforeUnload)
+
+    return () => {
+      window.removeEventListener('beforeunload', onBeforeUnload)
+    }
+  }, [editorState.sceneModified])
 
   useEffect(() => {
     if (sceneLoaded.value) {
@@ -305,7 +318,7 @@ const EditorContainer = () => {
 
     const abortController = new AbortController()
     try {
-      if (sceneName.value || modified.value) {
+      if (sceneName.value || editorState.sceneModified.value) {
         const blob = await takeScreenshot(512, 320)
         const file = new File([blob!], editorState.sceneName + '.thumbnail.png')
         const result: { name: string } = (await new Promise((resolve) => {
@@ -321,7 +334,7 @@ const EditorContainer = () => {
         if (result && projectName.value) {
           await uploadBPCEMBakeToServer(getState(SceneState).sceneEntity)
           await saveScene(projectName.value, result.name, file, abortController.signal)
-          dispatchAction(EditorAction.sceneModified({ modified: false }))
+          editorState.sceneModified.set(false)
         }
       }
       setDialogComponent(null)
@@ -414,7 +427,7 @@ const EditorContainer = () => {
     }
 
     if (!sceneName.value) {
-      if (modified.value) {
+      if (editorState.sceneModified.value) {
         onSaveAs()
       }
       return
@@ -458,7 +471,7 @@ const EditorContainer = () => {
         }
       }
 
-      dispatchAction(EditorAction.sceneModified({ modified: false }))
+      editorState.sceneModified.set(false)
 
       setDialogComponent(null)
     } catch (error) {
