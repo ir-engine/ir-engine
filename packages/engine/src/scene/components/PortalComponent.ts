@@ -51,6 +51,7 @@ import {
   ComponentType,
   defineComponent,
   hasComponent,
+  setComponent,
   useComponent
 } from '../../ecs/functions/ComponentFunctions'
 import { entityExists, useEntityContext } from '../../ecs/functions/EntityFunctions'
@@ -62,6 +63,7 @@ import { setObjectLayers } from '../functions/setObjectLayers'
 import { setCallback } from './CallbackComponent'
 import { ColliderComponent } from './ColliderComponent'
 import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
+import { ShadowComponent } from './ShadowComponent'
 
 export const PortalPreviewTypeSimple = 'Simple' as const
 export const PortalPreviewTypeSpherical = 'Spherical' as const
@@ -185,7 +187,7 @@ export const PortalComponent = defineComponent({
       }
 
       if (!portalComponent.mesh.value && portalComponent.previewType.value === PortalPreviewTypeSpherical) {
-        const portalMesh = new Mesh(new SphereGeometry(1.5, 32, 32), new MeshBasicMaterial({ side: FrontSide }))
+        const portalMesh = new Mesh(new SphereGeometry(1.5, 32, 32), new MeshBasicMaterial({ side: BackSide }))
         portalComponent.mesh.set(portalMesh)
         addObjectToGroup(entity, portalMesh)
         return () => {

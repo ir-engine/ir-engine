@@ -27,8 +27,9 @@ import { Color, Vector2, Vector3 } from 'three'
 
 import { config } from '@etherealengine/common/src/config'
 
-import { defineComponent } from '../../ecs/functions/ComponentFunctions'
+import { defineComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
 import { Clouds } from '../classes/Clouds'
+import { ShadowComponent } from './ShadowComponent'
 
 export type CloudComponentType = {
   texture: string

@@ -36,8 +36,6 @@ import { Entity } from '../../ecs/classes/Entity'
 import { defineQuery, getComponent } from '../../ecs/functions/ComponentFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { NetworkState } from '../../networking/NetworkState'
-import { ColliderComponent } from '../../scene/components/ColliderComponent'
-import { VisibleComponent } from '../../scene/components/VisibleComponent'
 import { TriggerSystem } from '../../scene/systems/TriggerSystem'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { Physics } from '../classes/Physics'
@@ -66,10 +64,6 @@ export function teleportObject(entity: Entity, position: Vector3, rotation: Quat
     rigidbody.body.setLinvel({ x: 0, y: 0, z: 0 }, true)
     rigidbody.body.setAngvel({ x: 0, y: 0, z: 0 }, true)
   }
-}
-
-export const PhysicsPrefabs = {
-  collider: 'collider' as const
 }
 
 export function smoothPositionBasedKinematicBody(entity: Entity, dt: number, substep: number) {
@@ -136,6 +130,7 @@ let drainContacts: ReturnType<typeof Physics.drainContactEventQueue>
 
 const execute = () => {
   if (!Engine.instance.physicsWorld) return
+  if (!getState(EngineState).sceneLoaded) return
 
   const allRigidBodies = allRigidBodyQuery()
 
@@ -229,11 +224,6 @@ const execute = () => {
 
 const reactor = () => {
   useEffect(() => {
-    Engine.instance.scenePrefabRegistry.set(PhysicsPrefabs.collider, [
-      { name: TransformComponent.jsonID },
-      { name: VisibleComponent.jsonID },
-      { name: ColliderComponent.jsonID }
-    ])
     const networkState = getMutableState(NetworkState)
 
     networkState.networkSchema[PhysicsSerialization.ID].set({
@@ -249,8 +239,6 @@ const reactor = () => {
     })
 
     return () => {
-      Engine.instance.scenePrefabRegistry.delete(PhysicsPrefabs.collider)
-
       Engine.instance.physicsWorld.free()
       Engine.instance.physicsWorld = null!
       drainCollisions = null!

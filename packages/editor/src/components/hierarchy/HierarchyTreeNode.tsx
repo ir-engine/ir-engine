@@ -51,12 +51,12 @@ import ArrowRightIcon from '@mui/icons-material/ArrowRight'
 
 import { ItemTypes, SupportedFileTypes } from '../../constants/AssetTypes'
 import { addMediaNode } from '../../functions/addMediaNode'
+import { EntityNodeEditor } from '../../functions/ComponentEditors'
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
 import { isAncestor } from '../../functions/getDetachedObjectsRoots'
-import { EntityNodeEditor } from '../../functions/PrefabEditors'
 import { SelectionState } from '../../services/SelectionServices'
 import useUpload from '../assets/useUpload'
-import { addPrefabElement } from '../element/ElementList'
+import { addSceneComponentElement } from '../element/ElementList'
 import { HeirarchyTreeNodeType } from './HeirarchyTreeWalker'
 import NodeIssuesIcon from './NodeIssuesIcon'
 import styles from './styles.module.scss'
@@ -210,7 +210,8 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
         }
 
         if (item.type === ItemTypes.Prefab) {
-          addPrefabElement(item, parentNode, beforeNode!)
+          const createdEntity = addSceneComponentElement(item, parentNode, beforeNode!)
+          EditorControlFunctions.reparentObject([createdEntity], parentNode, beforeNode)
           return
         }
       }

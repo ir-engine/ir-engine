@@ -24,14 +24,11 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { CreateGroup, Group } from '@etherealengine/common/src/interfaces/Group'
-import { GroupResult } from '@etherealengine/common/src/interfaces/GroupResult'
-import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
-import { defineAction, defineState, dispatchAction, getMutableState } from '@etherealengine/hyperflux'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { defineState, getMutableState } from '@etherealengine/hyperflux'
 
-import { API } from '../../API'
 import { NotificationService } from '../../common/services/NotificationService'
 
-//State
 export const GROUP_PAGE_LIMIT = 100
 
 export const AdminGroupState = defineState({
@@ -49,60 +46,13 @@ export const AdminGroupState = defineState({
   })
 })
 
-const fetchingGroupReceptor = (action: typeof AdminGroupActions.fetchingGroup.matches._TYPE) => {
-  const state = getMutableState(AdminGroupState)
-  return state.merge({ fetching: true })
-}
-
-const setAdminGroupReceptor = (action: typeof AdminGroupActions.setAdminGroup.matches._TYPE) => {
-  const state = getMutableState(AdminGroupState)
-  return state.merge({
-    group: action.list.data,
-    skip: action.list.skip,
-    limit: action.list.limit,
-    total: action.list.total,
-    retrieving: false,
-    fetched: true,
-    updateNeeded: false,
-    lastFetched: Date.now()
-  })
-}
-
-const updateGroupReceptor = (action: typeof AdminGroupActions.updateGroup.matches._TYPE) => {
-  const state = getMutableState(AdminGroupState)
-  return state.merge({ updateNeeded: true })
-}
-
-const removeGroupActionReceptor = (action: typeof AdminGroupActions.removeGroupAction.matches._TYPE) => {
-  const state = getMutableState(AdminGroupState)
-  return state.merge({ updateNeeded: true })
-}
-
-const addAdminGroupReceptor = (action: typeof AdminGroupActions.addAdminGroup.matches._TYPE) => {
-  const state = getMutableState(AdminGroupState)
-  return state.merge({ updateNeeded: true })
-}
-
-export const AdminGroupServiceReceptors = {
-  fetchingGroupReceptor,
-  setAdminGroupReceptor,
-  updateGroupReceptor,
-  removeGroupActionReceptor,
-  addAdminGroupReceptor
-}
-
-//Service
 export const AdminGroupService = {
   getGroupService: async (search: string | null = null, skip = 0, sortField = 'name', orderBy = 'asc') => {
+    getMutableState(AdminGroupState).merge({ fetching: true })
     const limit = getMutableState(AdminGroupState).limit.value
     try {
-      let sortData = {}
-
-      if (sortField.length > 0) {
-        sortData[sortField] = orderBy === 'desc' ? 0 : 1
-      }
-      dispatchAction(AdminGroupActions.fetchingGroup({}))
-      const list = await API.instance.client.service('group').find({
+      const sortData = sortField.length ? { [sortField]: orderBy === 'desc' ? 0 : 1 } : {}
+      const fetchedAdminGroups = await Engine.instance.api.service('group').find({
         query: {
           $sort: {
             ...sortData
@@ -112,60 +62,43 @@ export const AdminGroupService = {
           search: search
         }
       })
-      dispatchAction(AdminGroupActions.setAdminGroup({ list }))
+      getMutableState(AdminGroupState).merge({
+        group: fetchedAdminGroups.data,
+        skip: fetchedAdminGroups.skip,
+        limit: fetchedAdminGroups.limit,
+        total: fetchedAdminGroups.total,
+        retrieving: false,
+        fetched: true,
+        updateNeeded: false,
+        lastFetched: Date.now()
+      })
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
+      getMutableState(AdminGroupState).merge({ fetching: false })
     }
   },
   createGroupByAdmin: async (groupItem: CreateGroup) => {
     try {
-      const newGroup = (await API.instance.client.service('group').create({ ...groupItem })) as Group
-      dispatchAction(AdminGroupActions.addAdminGroup({ item: newGroup }))
+      await Engine.instance.api.service('group').create({ ...groupItem })
+      getMutableState(AdminGroupState).merge({ updateNeeded: true })
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
   },
   patchGroupByAdmin: async (groupId, groupItem) => {
     try {
-      const group = (await API.instance.client.service('group').patch(groupId, groupItem)) as Group
-      dispatchAction(AdminGroupActions.updateGroup({ item: group }))
+      await Engine.instance.api.service('group').patch(groupId, groupItem)
+      getMutableState(AdminGroupState).merge({ updateNeeded: true })
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
   },
   deleteGroupByAdmin: async (groupId) => {
     try {
-      await API.instance.client.service('group').remove(groupId)
-      dispatchAction(AdminGroupActions.removeGroupAction({ item: groupId }))
+      await Engine.instance.api.service('group').remove(groupId)
+      getMutableState(AdminGroupState).merge({ updateNeeded: true })
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
   }
-}
-
-//Action
-export class AdminGroupActions {
-  static fetchingGroup = defineAction({
-    type: 'ee.client.AdminGroup.GROUP_FETCHING' as const
-  })
-
-  static setAdminGroup = defineAction({
-    type: 'ee.client.AdminGroup.GROUP_ADMIN_RETRIEVED' as const,
-    list: matches.object as Validator<unknown, GroupResult>
-  })
-
-  static addAdminGroup = defineAction({
-    type: 'ee.client.AdminGroup.ADD_GROUP' as const,
-    item: matches.object as Validator<unknown, Group>
-  })
-
-  static updateGroup = defineAction({
-    type: 'ee.client.AdminGroup.GROUP_ADMIN_UPDATE' as const,
-    item: matches.object as Validator<unknown, Group>
-  })
-
-  static removeGroupAction = defineAction({
-    type: 'ee.client.AdminGroup.GROUP_ADMIN_DELETE' as const,
-    item: matches.object as Validator<unknown, Group>
-  })
 }

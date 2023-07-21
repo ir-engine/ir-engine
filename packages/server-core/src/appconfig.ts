@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import appRootPath from 'app-root-path'
-import * as chargebeeInst from 'chargebee'
+import chargebeeInst from 'chargebee'
 import dotenv from 'dotenv-flow'
 import path from 'path'
 import url from 'url'
@@ -277,7 +277,6 @@ const authentication = {
       secret: process.env.FACEBOOK_CLIENT_SECRET!
     },
     github: {
-      appid: process.env.GITHUB_APP_ID!,
       key: process.env.GITHUB_CLIENT_ID!,
       secret: process.env.GITHUB_CLIENT_SECRET!,
       scope: ['repo', 'user']

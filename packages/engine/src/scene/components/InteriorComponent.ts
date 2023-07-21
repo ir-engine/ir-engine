@@ -27,10 +27,11 @@ import { Vector2 } from 'three'
 
 import { ComponentUpdateFunction } from '../../common/constants/PrefabFunctionType'
 import { Entity } from '../../ecs/classes/Entity'
-import { defineComponent, getComponent } from '../../ecs/functions/ComponentFunctions'
+import { defineComponent, getComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
 import { Interior } from '../classes/Interior'
 import { addError, removeError } from '../functions/ErrorFunctions'
 import { addObjectToGroup } from './GroupComponent'
+import { ShadowComponent } from './ShadowComponent'
 
 export type InteriorComponentType = {
   cubeMap: string
