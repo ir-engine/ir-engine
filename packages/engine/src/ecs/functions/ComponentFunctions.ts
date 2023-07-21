@@ -25,6 +25,8 @@ Ethereal Engine. All Rights Reserved.
 
 import { Subscribable, subscribable } from '@hookstate/subscribable'
 import * as bitECS from 'bitecs'
+// tslint:disable:ordered-imports
+import type from 'react/experimental'
 import React, { startTransition, use, useEffect, useLayoutEffect } from 'react'
 
 import config from '@etherealengine/common/src/config'
