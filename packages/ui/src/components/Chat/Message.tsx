@@ -103,7 +103,7 @@ export const MessageList = () => {
       </div>
       <div className="box-border w-[765px] border-t-[1px] border-solid border-[#D1D3D7]" />
       <div className="w-[720px] bg-[#FFFFFF] ml-6 mb-[100px] mt-4 justify-center content-center overflow-scroll hide-scroll">
-        {messages?.map((message, index) => {
+        {messages.map((message, index) => {
           if (message.sender.id === Engine.instance.userId) return <SelfMessage key={index} message={message} />
           else return <OtherMessage key={index} message={message} />
         })}

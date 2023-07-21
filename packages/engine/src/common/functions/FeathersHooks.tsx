@@ -24,8 +24,15 @@ Ethereal Engine. All Rights Reserved.
 */
 
 /**
- * This file is a modified version of figbird.
+ * This is a modified version of figbird. https://humaans.github.io/figbird/
  * It now runs on hookstate instead of redux, and has been modified to work with
+ */
+
+/**
+ * API:
+ * useFind(serviceName, options) => { data, status, refetch, isFetching, error }
+ * useGet(serviceName, id, options) => { data, status, refetch, isFetching, error }
+ * useMutation(serviceName) => { create, update, patch, remove, status, data, error }
  */
 
 import { Params, Query } from '@feathersjs/feathers'
@@ -492,6 +499,13 @@ type ArrayOrPaginated<T> = T[] | Paginated<T>
 
 type ArrayOrPaginatedType<T> = T extends ArrayOrPaginated<infer R> ? R[] : never
 
+/**
+ * Simple find hook exposing find method of any feathers service.
+ *
+ * @param serviceName
+ * @param options
+ * @returns {data, status, refetch, isFetching, error}
+ */
 export function useFind<S extends keyof ServiceTypes, Q extends Query>(
   serviceName: S,
   options = {} as UseFindParams<Q>
@@ -527,6 +541,14 @@ type UseGetReturnType<S extends keyof ServiceTypes> = {
   error: any
 }
 
+/**
+ * Simple get hook exposing get method of any feathers service.
+ *
+ * @param serviceName
+ * @param id
+ * @param options
+ * @returns {data, status, refetch, isFetching, error}
+ */
 export function useGet<S extends keyof ServiceTypes, Q extends Query>(
   serviceName: S,
   id: string,
@@ -549,9 +571,8 @@ export function useGet<S extends keyof ServiceTypes, Q extends Query>(
  * by the caller. as you create/update/patch/remove
  * entities using this helper, the entities cache gets updated
  *
- * e.g.
- *
- * const { create, patch, remove, status, data, error } = useMutation('notes')
+ * @param serviceName
+ * @returns {create, update, patch, remove, status, data, error}
  */
 export function useMutation(serviceName: keyof ServiceTypes) {
   const state = useHookstate({
