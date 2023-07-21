@@ -158,7 +158,8 @@ const execute = () => {
     if (!avatarRig) continue
 
     // const rawPose = avatarRig?.vrm?.humanoid?.getNormalizedPose()
-    const avatarHips = avatarRig?.vrm?.humanoid?.getNormalizedBone('hips')?.node
+    const avatarHips = avatarRig?.vrm?.humanoid?.getRawBone('hips')?.node
+
     const hipsPos = new Vector3()
     avatarHips?.getWorldPosition(hipsPos)
 

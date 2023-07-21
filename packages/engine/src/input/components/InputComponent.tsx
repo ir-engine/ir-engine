@@ -36,28 +36,21 @@ export const InputComponent = defineComponent({
   onInit: () => {
     return {
       /** populated automatically by ClientInputSystem */
-      inputSources: [] as Entity[],
-      highlight: true
+      inputSources: [] as Entity[]
       // priority: 0
     }
-  },
-
-  onSet(entity, component, json) {
-    if (!json) return
-
-    if (typeof json.highlight === 'string') component.highlight.set(json.highlight)
   },
 
   reactor: () => {
     const entity = useEntityContext()
     const input = useComponent(entity, InputComponent)
     useLayoutEffect(() => {
-      if (!input.inputSources.length || !input.highlight.value) return
+      if (input.inputSources.length === 0) return
       setComponent(entity, HighlightComponent)
       return () => {
         removeComponent(entity, HighlightComponent)
       }
-    }, [input.inputSources, input.highlight])
+    }, [input.inputSources])
     return null
   }
 })

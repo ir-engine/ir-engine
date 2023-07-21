@@ -25,12 +25,12 @@ Ethereal Engine. All Rights Reserved.
 
 import {
   VRM,
-  VRMHumanBone
+  VRMHumanBoneName
   // VRMHumanBoneList, VRMHumanBoneName
 } from '@pixiv/three-vrm'
 // import * as VRMUtils from '@pixiv/three-vrm'
 import { pipe } from 'bitecs'
-import { AnimationMixer, Box3, Object3D, Vector3 } from 'three'
+import { AnimationMixer, Bone, Box3, Group, Object3D, Skeleton, SkinnedMesh, Vector3 } from 'three'
 
 import { dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
 
@@ -70,10 +70,9 @@ import { XRState } from '../../xr/XRState'
 import { AnimationState } from '../AnimationManager'
 // import { retargetSkeleton, syncModelSkeletons } from '../animation/retargetSkeleton'
 import {
-  BoneNames
   // BoneStructure,
   // createSkeletonFromBone,
-  // findSkinnedMeshes
+  findSkinnedMeshes
 } from '../AvatarBoneMatching'
 import { AnimationComponent } from '../components/AnimationComponent'
 import { AvatarAnimationComponent, AvatarRigComponent } from '../components/AvatarAnimationComponent'
@@ -110,12 +109,13 @@ export const loadAvatarForUser = async (
   avatarURL: string,
   loadingEffect = getState(EngineState).avatarLoadingEffect && !getState(XRState).sessionActive && !iOS
 ) => {
-  if (hasComponent(entity, AvatarPendingComponent) && getComponent(entity, AvatarPendingComponent).url === avatarURL)
-    return
+  const avatarPendingComponent = getComponent(entity, AvatarPendingComponent)
+  if (hasComponent(entity, AvatarPendingComponent) && avatarPendingComponent.url === avatarURL) return
 
   if (loadingEffect) {
     if (hasComponent(entity, AvatarControllerComponent)) {
-      getComponent(entity, AvatarControllerComponent).movementEnabled = false
+      const avatarControllerComponent = getComponent(entity, AvatarControllerComponent)
+      avatarControllerComponent.movementEnabled = false
     }
   }
 
@@ -123,8 +123,7 @@ export const loadAvatarForUser = async (
   const parent = (await loadAvatarModelAsset(avatarURL)) as VRM
 
   /** hack a cancellable promise - check if the url we start with is the one we end up with */
-  if (!hasComponent(entity, AvatarPendingComponent) || getComponent(entity, AvatarPendingComponent).url !== avatarURL)
-    return
+  if (!hasComponent(entity, AvatarPendingComponent) || avatarPendingComponent?.url !== avatarURL) return
 
   removeComponent(entity, AvatarPendingComponent)
 
@@ -213,12 +212,12 @@ export const rigAvatarModel = (entity: Entity) => (model: VRM) => {
 
   const rig = model.humanoid?.humanBones
 
-  // const skinnedMeshes = findSkinnedMeshes(model.scene)
+  const skinnedMeshes = findSkinnedMeshes(model.scene)
 
   setComponent(entity, AvatarRigComponent, {
     rig,
     bindRig: cloneDeep(rig),
-    skinnedMeshes: [],
+    skinnedMeshes,
     vrm: model
   })
 
@@ -226,6 +225,7 @@ export const rigAvatarModel = (entity: Entity) => (model: VRM) => {
 
   const rigComponent = getComponent(entity, AvatarRigComponent)
   rigComponent.targets.name = 'IKTargets'
+
   for (const [key, value] of Object.entries(rigComponent.ikTargetsMap)) {
     value.name = key
     rigComponent.targets.add(value)
@@ -312,42 +312,42 @@ export const setupAvatarHeight = (entity: Entity, model: Object3D) => {
  * Creates an empty skinned mesh using list of bones to build skeleton structure
  * @returns SkinnedMesh
  */
-// export function makeSkinnedMeshFromBoneData(bonesData) {
-//   const bones: Bone[] = []
-//   bonesData.forEach((data) => {
-//     const bone = new Bone()
-//     bone.name = data.name
-//     bone.position.fromArray(data.position)
-//     bone.quaternion.fromArray(data.quaternion)
-//     bone.scale.setScalar(1)
-//     bones.push(bone)
-//   })
+export function makeSkinnedMeshFromBoneData(bonesData) {
+  const bones: Bone[] = []
+  bonesData.forEach((data) => {
+    const bone = new Bone()
+    bone.name = data.name
+    bone.position.fromArray(data.position)
+    bone.quaternion.fromArray(data.quaternion)
+    bone.scale.setScalar(1)
+    bones.push(bone)
+  })
 
-//   bonesData.forEach((data, index) => {
-//     if (data.parentIndex > -1) {
-//       bones[data.parentIndex].add(bones[index])
-//     }
-//   })
+  bonesData.forEach((data, index) => {
+    if (data.parentIndex > -1) {
+      bones[data.parentIndex].add(bones[index])
+    }
+  })
 
-//   // we assume that root bone is the first one
-//   const hipBone = bones[0]
-//   hipBone.updateWorldMatrix(false, true)
+  // we assume that root bone is the first one
+  const hipBone = bones[0]
+  hipBone.updateWorldMatrix(false, true)
 
-//   const group = new Group()
-//   // group.name = 'skinned-mesh-group'
-//   // const skinnedMesh = new SkinnedMesh()
-//   // const skeleton = new Skeleton(bones)
-//   // skinnedMesh.bind(skeleton)
-//   // group.add(skinnedMesh)
-//   // group.add(hipBone)
+  const group = new Group()
+  group.name = 'skinned-mesh-group'
+  const skinnedMesh = new SkinnedMesh()
+  const skeleton = new Skeleton(bones)
+  skinnedMesh.bind(skeleton)
+  group.add(skinnedMesh)
+  group.add(hipBone)
 
-//   return group
-// }
+  return group
+}
 
-export const getAvatarBoneWorldPosition = (entity: Entity, boneName: BoneNames, position: Vector3): boolean => {
+export const getAvatarBoneWorldPosition = (entity: Entity, boneName: VRMHumanBoneName, position: Vector3): boolean => {
   const avatarRigComponent = getOptionalComponent(entity, AvatarRigComponent)
   if (!avatarRigComponent) return false
-  const bone = avatarRigComponent.rig[boneName.toLowerCase()] as VRMHumanBone
+  const bone = avatarRigComponent?.vrm?.humanoid?.getRawBone(boneName)
   if (!bone) return false
   const el = bone?.node?.matrixWorld?.elements
   position.set(el[12], el[13], el[14])
