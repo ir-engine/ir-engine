@@ -356,7 +356,7 @@ export async function destroyEngine() {
 
   if (Engine.instance.api) {
     if ((Engine.instance.api as any).server) await Engine.instance.api.teardown()
-    else if ((Engine.instance.api as any).get('sequelizeClient'))
+    else if ((Engine.instance.api as any).get?.('sequelizeClient'))
       await (Engine.instance.api as any).get('sequelizeClient').close()
   }
 

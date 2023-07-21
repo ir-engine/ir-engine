@@ -608,7 +608,7 @@ export function useMutation<S extends keyof ServiceTypes>(serviceName: S) {
       remove,
       data: state.data.value,
       status: state.status.value,
-      error: state.error.value
+      error: state.value.error
     }),
     [create, update, patch, remove, state]
   )
@@ -744,7 +744,7 @@ export function useQuery<S extends keyof ServiceTypes>(
   useEffect(() => {
     let disposed = false
 
-    if (state.fetched) return
+    if (state.fetched.value) return
     if (skip) return
     state.merge({ reloading: true, error: null })
     const service = feathers.service(serviceName)
@@ -797,7 +797,7 @@ export function useQuery<S extends keyof ServiceTypes>(
   }, [])
 
   // derive the loading/reloading state from other substates
-  const loading = !skip && !hasCachedData && !state.error.value
+  const loading = !skip && !hasCachedData && !state.value.error
   const reloading = loading || state.reloading.value
 
   const refetch = () => state.merge({ fetched: false, refetchSeq: state.refetchSeq.value + 1 })
@@ -805,10 +805,10 @@ export function useQuery<S extends keyof ServiceTypes>(
   return useMemo(
     () => ({
       ...(skip ? { data: null } : cachedData),
-      status: loading ? 'loading' : state.error.value ? 'error' : 'success',
+      status: loading ? 'loading' : state.value.error ? 'error' : 'success',
       refetch,
       isFetching: reloading,
-      error: state.error.value
+      error: state.value.error
     }),
     [skip, cachedData.data, loading, state.error, refetch, reloading, loading, reloading]
   )

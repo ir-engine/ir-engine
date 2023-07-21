@@ -23,9 +23,11 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { act, renderHook } from '@testing-library/react'
 import assert from 'assert'
+import { afterEach } from 'mocha'
 
-import { Engine } from '../../ecs/classes/Engine'
+import { destroyEngine, Engine } from '../../ecs/classes/Engine'
 import { createEngine } from '../../initializeEngine'
 import { useFind, useGet, useMutation } from './FeathersHooks'
 
@@ -37,7 +39,7 @@ describe('FeathersHooks', () => {
       { id: '2', name: 'Jane' }
     ]
     ;(Engine.instance.api as any) = {
-      service: (serviceName) => {
+      service: () => {
         return {
           find: () => {
             return new Promise((resolve) => {
@@ -71,6 +73,7 @@ describe('FeathersHooks', () => {
           },
           update: (id, data) => {
             return new Promise((resolve) => {
+              db.find((item) => item.id === id)!.name = data.name
               resolve({
                 id,
                 name: data.name
@@ -79,6 +82,7 @@ describe('FeathersHooks', () => {
           },
           patch: (id, data) => {
             return new Promise((resolve) => {
+              db.find((item) => item.id === id)!.name = data.name
               resolve({
                 id,
                 name: data.name
@@ -87,6 +91,10 @@ describe('FeathersHooks', () => {
           },
           remove: (id) => {
             return new Promise((resolve) => {
+              db.splice(
+                db.findIndex((item) => item.id === id),
+                1
+              )
               resolve({
                 id
               })
@@ -99,50 +107,128 @@ describe('FeathersHooks', () => {
     }
   })
 
-  describe.skip('useFind', () => {
+  afterEach(() => {
+    return destroyEngine()
+  })
+
+  describe('useFind', () => {
     it('should populate data', async () => {
-      const { data } = useFind('user')
+      const { result, rerender } = renderHook(() => {
+        return useFind('user')
+      })
+      await act(() => {
+        rerender()
+      })
+      const { data } = result.current
       assert.strictEqual(data.length, 2)
       assert.strictEqual(data[0]?.name, 'John')
       assert.strictEqual(data[1]?.name, 'Jane')
     })
 
     it('should return the data with params', async () => {
-      const { data } = useFind('user', { query: { name: 'John' } })
+      const { result, rerender } = renderHook(() => {
+        return useFind('user', { query: { name: 'John' } })
+      })
+      await act(() => {
+        rerender()
+      })
+      const { data } = result.current
       assert.strictEqual(data?.[0]?.name, 'John')
     })
   })
 
   describe('useGet', () => {
     it('should get entry', async () => {
-      const { data } = useGet('user', '1')
+      const { result, rerender } = renderHook(() => {
+        return useGet('user', '1')
+      })
+      await act(() => {
+        rerender()
+      })
+      const { data } = result.current
       assert.strictEqual(data?.name, 'John')
     })
   })
 
   describe('useMutation', () => {
     it('should create data', async () => {
-      useMutation('user').create({ name: 'Jack' })
-      const { data } = useFind('user')
+      const { result, rerender } = renderHook(() => {
+        return useMutation('user')
+      })
+      await act(() => {
+        rerender()
+      })
+      await act(() => {
+        result.current.create({ name: 'Jack' })
+      })
+      const findHook = renderHook(() => {
+        return useFind('user')
+      })
+      await act(() => {
+        findHook.rerender()
+      })
+      const { data } = findHook.result.current
       assert.strictEqual(data.length, 3)
       assert.strictEqual(data[2]?.name, 'Jack')
     })
 
     it('should update data', async () => {
-      useMutation('user').update('1', { name: 'Jack' } as any)
-      const { data } = useFind('user')
+      const { result, rerender } = renderHook(() => {
+        return useMutation('user')
+      })
+      await act(() => {
+        rerender()
+      })
+      await act(() => {
+        result.current.update('1', { name: 'Jack' } as any)
+      })
+      const findHook = renderHook(() => {
+        return useFind('user')
+      })
+      await act(() => {
+        findHook.rerender()
+      })
+      const { data } = findHook.result.current
       assert.strictEqual(data[0]?.name, 'Jack')
     })
 
     it('should patch data', async () => {
-      useMutation('user').patch('1', { name: 'Jack' })
-      const { data } = useFind('user')
+      const { result, rerender } = renderHook(() => {
+        return useMutation('user')
+      })
+      await act(() => {
+        rerender()
+      })
+      await act(() => {
+        result.current.patch('1', { name: 'Jack' })
+      })
+      const findHook = renderHook(() => {
+        return useFind('user')
+      })
+      await act(() => {
+        findHook.rerender()
+      })
+      const { data } = findHook.result.current
       assert.strictEqual(data[0]?.name, 'Jack')
     })
 
     it('should remove data', async () => {
-      useMutation('user').remove('1')
-      const { data } = useFind('user')
+      const { result, rerender } = renderHook(() => {
+        return useMutation('user')
+      })
+      await act(() => {
+        rerender()
+      })
+      await act(() => {
+        result.current.remove('1')
+      })
+      const findHook = renderHook(() => {
+        return useFind('user')
+      })
+      await act(() => {
+        findHook.rerender()
+      })
+      const { data } = findHook.result.current
       assert.strictEqual(data.length, 1)
     })
   })
