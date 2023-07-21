@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { hookstate, SetInitialStateAction, State, useHookstate } from '@etherealengine/hyperflux'
+import { hookstate, SetInitialStateAction, State, useHookstate } from '@hookstate/core'
 import type { Function, Object, String } from 'ts-toolbelt'
 
 import { DeepReadonly } from '@etherealengine/common/src/DeepReadonly'

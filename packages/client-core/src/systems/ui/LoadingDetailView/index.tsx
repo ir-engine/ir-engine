@@ -28,15 +28,12 @@ import { useTranslation } from 'react-i18next'
 
 import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { createXRUI } from '@etherealengine/engine/src/xrui/functions/createXRUI'
-import { useXRUIState } from '@etherealengine/engine/src/xrui/functions/useXRUIState'
 import { getMutableState, hookstate, useHookstate } from '@etherealengine/hyperflux'
 
 import ProgressBar from './SimpleProgressBar'
 import LoadingDetailViewStyle from './style'
 
 interface LoadingUIState {
-  imageWidth: number
-  imageHeight: number
   colors: {
     main: string
     background: string
@@ -46,9 +43,7 @@ interface LoadingUIState {
 
 export function createLoaderDetailView() {
   return createXRUI(
-    function Loading() {
-      return <LoadingDetailView />
-    },
+    LoadingDetailView,
     hookstate({
       colors: {
         main: '',
@@ -60,7 +55,6 @@ export function createLoaderDetailView() {
 }
 
 const LoadingDetailView = () => {
-  const uiState = useXRUIState<LoadingUIState>()
   const engineState = useHookstate(getMutableState(EngineState))
   const { t } = useTranslation()
 

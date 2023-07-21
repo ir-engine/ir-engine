@@ -68,38 +68,41 @@ export default function MaterialLibraryPanel() {
   )
 
   const collapsedNodes = useHookstate(collapsedSrcs())
-  const createNodes = useCallback((): MaterialLibraryEntryType[] =>
-    srcs.value.flatMap((srcComp) => {
-      const uuid = entryId(srcComp, LibraryEntryType.MATERIAL_SOURCE)
-      const isCollapsed = collapsedNodes.value.has(uuid)
-      return [
-        {
-          uuid,
-          type: LibraryEntryType.MATERIAL_SOURCE,
-          entry: srcComp,
-          selected: selectionState.selectedEntities.value.some(
-            (entity) => typeof entity === 'string' && entity === uuid
-          ),
-          active: selectionState.selectedEntities.value.at(-1) === uuid,
-          isCollapsed
-        },
-        ...(isCollapsed
-          ? []
-          : srcComp.entries
-              .filter((uuid) => !!materialLibrary.materials[uuid].value)
-              .map((uuid) => {
-                return {
-                  uuid,
-                  type: LibraryEntryType.MATERIAL,
-                  entry: materialFromId(uuid),
-                  selected: selectionState.selectedEntities.value.some(
-                    (entity) => typeof entity === 'string' && entity === uuid
-                  ),
-                  active: selectionState.selectedEntities.value.at(-1) === uuid
-                }
-              }))
-      ]
-    }), [nodeChanges, srcs, selectionState.selectedEntities])
+  const createNodes = useCallback(
+    (): MaterialLibraryEntryType[] =>
+      srcs.value.flatMap((srcComp) => {
+        const uuid = entryId(srcComp, LibraryEntryType.MATERIAL_SOURCE)
+        const isCollapsed = collapsedNodes.value.has(uuid)
+        return [
+          {
+            uuid,
+            type: LibraryEntryType.MATERIAL_SOURCE,
+            entry: srcComp,
+            selected: selectionState.selectedEntities.value.some(
+              (entity) => typeof entity === 'string' && entity === uuid
+            ),
+            active: selectionState.selectedEntities.value.at(-1) === uuid,
+            isCollapsed
+          },
+          ...(isCollapsed
+            ? []
+            : srcComp.entries
+                .filter((uuid) => !!materialLibrary.materials[uuid].value)
+                .map((uuid) => {
+                  return {
+                    uuid,
+                    type: LibraryEntryType.MATERIAL,
+                    entry: materialFromId(uuid),
+                    selected: selectionState.selectedEntities.value.some(
+                      (entity) => typeof entity === 'string' && entity === uuid
+                    ),
+                    active: selectionState.selectedEntities.value.at(-1) === uuid
+                  }
+                }))
+        ]
+      }),
+    [nodeChanges, srcs, selectionState.selectedEntities]
+  )
 
   const nodes = useHookstate(createNodes())
 

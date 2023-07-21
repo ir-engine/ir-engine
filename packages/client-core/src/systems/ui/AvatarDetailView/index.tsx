@@ -33,7 +33,7 @@ import { WorldState } from '@etherealengine/engine/src/networking/interfaces/Wor
 import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
 import { createXRUI } from '@etherealengine/engine/src/xrui/functions/createXRUI'
 import { useXRUIState } from '@etherealengine/engine/src/xrui/functions/useXRUIState'
-import { hookstate, getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { getMutableState, hookstate, useHookstate } from '@etherealengine/hyperflux'
 
 import { AvatarUIState } from '../../state/AvatarUIState'
 import styleString from './index.scss?inline'

@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import React, { useCallback, useEffect } from 'react'
-import { MathUtils as _Math, Euler, Quaternion } from 'three'
+import { Euler, Quaternion, MathUtils as _Math } from 'three'
 
 import { useHookstate } from '@etherealengine/hyperflux'
 
