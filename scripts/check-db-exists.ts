@@ -79,10 +79,13 @@ cli.main(async () => {
     await Promise.race([
       initPromise,
       new Promise<void>((resolve) => {
-        setTimeout(() => {
-          console.log('WARNING: Initialisation too long to launch!')
-          resolve()
-        }, 5 * 60 * 1000) // timeout after 5 minutes - it needs to be this long as the default project is uploaded to the storage provider in this time
+        setTimeout(
+          () => {
+            console.log('WARNING: Initialisation too long to launch!')
+            resolve()
+          },
+          5 * 60 * 1000
+        ) // timeout after 5 minutes - it needs to be this long as the default project is uploaded to the storage provider in this time
       })
     ])
   } else {

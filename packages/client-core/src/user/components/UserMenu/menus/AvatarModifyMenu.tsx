@@ -33,8 +33,7 @@ import ConfirmDialog from '@etherealengine/client-core/src/common/components/Con
 import InputFile from '@etherealengine/client-core/src/common/components/InputFile'
 import InputText from '@etherealengine/client-core/src/common/components/InputText'
 import Menu from '@etherealengine/client-core/src/common/components/Menu'
-import { isValidHttpUrl } from '@etherealengine/client-core/src/common/utils'
-import { getCanvasBlob } from '@etherealengine/client-core/src/common/utils'
+import { getCanvasBlob, isValidHttpUrl } from '@etherealengine/client-core/src/common/utils'
 import {
   AVATAR_FILE_ALLOWED_EXTENSIONS,
   MAX_AVATAR_FILE_SIZE,

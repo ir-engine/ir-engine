@@ -25,11 +25,10 @@ Ethereal Engine. All Rights Reserved.
 
 import { Color, Vector2 } from 'three'
 
-import { defineComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
+import { defineComponent } from '../../ecs/functions/ComponentFunctions'
 import { Ocean } from '../classes/Ocean'
 import { setCallback } from './CallbackComponent'
 import { addObjectToGroup } from './GroupComponent'
-import { ShadowComponent } from './ShadowComponent'
 import { UpdatableCallback } from './UpdatableComponent'
 
 export const OceanComponent = defineComponent({

@@ -26,8 +26,6 @@ Ethereal Engine. All Rights Reserved.
 import React, { KeyboardEvent, useState } from 'react'
 import styled from 'styled-components'
 
-import { State, useHookstate } from '@etherealengine/hyperflux/functions/StateFunctions'
-
 import CheckIcon from '@mui/icons-material/Check'
 
 import Input from './Input'

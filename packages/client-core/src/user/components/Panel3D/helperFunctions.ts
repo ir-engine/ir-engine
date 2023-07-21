@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { t } from 'i18next'
-import { AnimationMixer, Box3, Camera, Mesh, Object3D, Scene, Vector3, WebGLRenderer } from 'three'
+import { AnimationMixer, Box3, Camera, Object3D, Scene, Vector3, WebGLRenderer } from 'three'
 
 import { MAX_ALLOWED_TRIANGLES } from '@etherealengine/common/src/constants/AvatarConstants'
 import { AnimationComponent } from '@etherealengine/engine/src/avatar/components/AnimationComponent'

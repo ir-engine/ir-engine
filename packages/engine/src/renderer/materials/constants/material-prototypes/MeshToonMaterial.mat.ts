@@ -28,7 +28,7 @@ import { MeshToonMaterial as Toon } from 'three'
 import { MaterialPrototypeComponentType } from '../../components/MaterialPrototypeComponent'
 import { SourceType } from '../../components/MaterialSource'
 import { BasicArgs, DisplacementMapArgs, EmissiveMapArgs, NormalMapArgs } from '../BasicArgs'
-import { BoolArg, ColorArg, FloatArg, NormalizedFloatArg, TextureArg } from '../DefaultArgs'
+import { BoolArg, TextureArg } from '../DefaultArgs'
 
 export const DefaultArgs = {
   ...BasicArgs,

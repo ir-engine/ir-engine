@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { Not } from 'bitecs'
 import { Consumer } from 'mediasoup-client/lib/Consumer'
 import { useEffect } from 'react'
-import { Group, Matrix4, Vector3 } from 'three'
+import { Group, Vector3 } from 'three'
 
 import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 import multiLogger from '@etherealengine/common/src/logger'
@@ -39,8 +39,10 @@ import { defineQuery, getComponent, hasComponent } from '@etherealengine/engine/
 import { removeEntity } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
 import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import { InputSourceComponent } from '@etherealengine/engine/src/input/components/InputSourceComponent'
-import { NetworkObjectComponent } from '@etherealengine/engine/src/networking/components/NetworkObjectComponent'
-import { NetworkObjectOwnedTag } from '@etherealengine/engine/src/networking/components/NetworkObjectComponent'
+import {
+  NetworkObjectComponent,
+  NetworkObjectOwnedTag
+} from '@etherealengine/engine/src/networking/components/NetworkObjectComponent'
 import { MediaSettingsState } from '@etherealengine/engine/src/networking/MediaSettingsState'
 import { webcamVideoDataChannelType } from '@etherealengine/engine/src/networking/NetworkState'
 import { Physics, RaycastArgs } from '@etherealengine/engine/src/physics/classes/Physics'

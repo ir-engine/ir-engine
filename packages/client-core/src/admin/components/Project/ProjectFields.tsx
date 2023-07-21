@@ -484,9 +484,9 @@ const ProjectFields = ({ inputProject, existingProject = false, changeDestinatio
           {!processing &&
             !projectUpdateStatus.value?.commitsProcessing &&
             projectUpdateStatus.value?.sourceProjectName.length > 0 && (
-              <div className={styles.projectVersion}>{`${t('admin:components.project.sourceProjectName')}: ${
-                projectUpdateStatus.value?.sourceProjectName
-              }`}</div>
+              <div className={styles.projectVersion}>{`${t(
+                'admin:components.project.sourceProjectName'
+              )}: ${projectUpdateStatus.value?.sourceProjectName}`}</div>
             )}
 
           {projectUpdateStatus.value?.branchProcessing && (

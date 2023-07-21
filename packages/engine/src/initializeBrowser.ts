@@ -23,13 +23,10 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import _ from 'lodash'
-
 import { BotUserAgent } from '@etherealengine/common/src/constants/BotUserAgent'
 import { dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 import { WebLayerManager } from '@etherealengine/xrui'
 
-import { loadDRACODecoderNode } from './assets/loaders/gltf/NodeDracoLoader'
 import { AudioState } from './audio/AudioState'
 import { Engine } from './ecs/classes/Engine'
 import { EngineActions, EngineState } from './ecs/classes/EngineState'

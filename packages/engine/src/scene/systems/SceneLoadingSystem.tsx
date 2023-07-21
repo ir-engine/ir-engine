@@ -25,16 +25,12 @@ Ethereal Engine. All Rights Reserved.
 
 import { cloneDeep, startCase } from 'lodash'
 import { useEffect } from 'react'
-import React from 'react'
 import { MathUtils } from 'three'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { ComponentJson, EntityJson, SceneData, SceneJson } from '@etherealengine/common/src/interfaces/SceneInterface'
 import logger from '@etherealengine/common/src/logger'
-import {
-  LocalTransformComponent,
-  setLocalTransformComponent
-} from '@etherealengine/engine/src/transform/components/TransformComponent'
+import { setLocalTransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
 import {
   addActionReceptor,
   dispatchAction,
@@ -43,7 +39,7 @@ import {
   removeActionReceptor,
   useHookstate
 } from '@etherealengine/hyperflux'
-import { getSystemsFromSceneData, SystemImportType } from '@etherealengine/projects/loadSystemInjection'
+import { SystemImportType, getSystemsFromSceneData } from '@etherealengine/projects/loadSystemInjection'
 
 import {
   AppLoadingAction,
@@ -56,7 +52,6 @@ import { EngineActions, EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import { SceneState } from '../../ecs/classes/Scene'
 import {
-  Component,
   ComponentJSONIDMap,
   ComponentMap,
   defineQuery,
@@ -70,12 +65,12 @@ import {
 } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
 import {
-  addEntityNodeChild,
   EntityTreeComponent,
+  addEntityNodeChild,
   getAllEntitiesInTree,
   removeEntityNodeRecursively
 } from '../../ecs/functions/EntityTree'
-import { defineSystem, disableSystems, startSystem, SystemDefinitions } from '../../ecs/functions/SystemFunctions'
+import { SystemDefinitions, defineSystem, disableSystems, startSystem } from '../../ecs/functions/SystemFunctions'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { FogSettingsComponent } from '../components/FogSettingsComponent'
 import { GLTFLoadedComponent } from '../components/GLTFLoadedComponent'

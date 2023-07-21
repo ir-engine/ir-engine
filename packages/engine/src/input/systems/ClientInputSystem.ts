@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { useEffect } from 'react'
-import { LineBasicMaterial, Mesh, MeshBasicMaterial, Quaternion, Ray, Raycaster, Vector3 } from 'three'
+import { Mesh, MeshBasicMaterial, Quaternion, Ray, Raycaster, Vector3 } from 'three'
 
 import { dispatchAction, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
@@ -65,7 +65,7 @@ import {
   InputSourceComponent
 } from '../components/InputSourceComponent'
 import normalizeWheel from '../functions/normalizeWheel'
-import { ButtonStateMap, createInitialButtonState, MouseButton } from '../state/ButtonState'
+import { ButtonStateMap, MouseButton, createInitialButtonState } from '../state/ButtonState'
 
 function preventDefault(e) {
   e.preventDefault()

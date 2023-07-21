@@ -44,7 +44,7 @@ import { DataChannelType, Network } from '../networking/classes/Network'
 import { addDataChannelHandler, removeDataChannelHandler } from '../networking/NetworkState'
 import { UUIDComponent } from '../scene/components/UUIDComponent'
 import { TransformComponent } from '../transform/components/TransformComponent'
-import { XRAction, XRState } from '../xr/XRState'
+import { XRAction } from '../xr/XRState'
 
 export const motionCaptureHeadSuffix = '_motion_capture_head'
 export const motionCaptureLeftHandSuffix = '_motion_capture_left_hand'

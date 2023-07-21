@@ -23,14 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
-import {
-  defineAction,
-  defineState,
-  getMutableState,
-  syncStateWithLocalStorage,
-  useState
-} from '@etherealengine/hyperflux'
+import { matches } from '@etherealengine/engine/src/common/functions/MatchesUtils'
+import { defineAction, defineState, getMutableState, syncStateWithLocalStorage } from '@etherealengine/hyperflux'
 
 export const AppState = defineState({
   name: 'AppState',

@@ -25,8 +25,6 @@ Ethereal Engine. All Rights Reserved.
 
 import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
 
-import { UserRelationshipTypeInterface } from '@etherealengine/common/src/dbmodels/UserRelationshipType'
-
 import { Application } from '../../../declarations'
 
 export type UserRelationshipTypeDataType = UserRelationshipType

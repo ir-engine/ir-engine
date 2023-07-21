@@ -24,20 +24,16 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import {
-  ArrayCamera,
   DepthFormat,
   DepthStencilFormat,
   DepthTexture,
-  PerspectiveCamera,
   RGBAFormat,
   TextureDataType,
   UnsignedByteType,
   UnsignedInt248Type,
   UnsignedIntType,
-  Vector3,
   Vector4,
   WebGLMultiviewRenderTarget,
-  WebGLRenderer,
   WebGLRenderTarget,
   WebGLRenderTargetOptions
 } from 'three'

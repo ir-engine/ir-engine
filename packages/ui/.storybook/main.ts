@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { loadConfigFromFile, mergeConfig } from 'vite'
+import { mergeConfig } from 'vite'
 
 export default {
   // managerEntries: [require('path').resolve(__dirname, './addons/RegisterAddons')],

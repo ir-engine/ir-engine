@@ -24,14 +24,13 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import assert from 'assert'
-import { Matrix4, Vector3 } from 'three'
 
 import { proxifyQuaternion, proxifyVector3 } from '../src/common/proxies/createThreejsProxy'
 import { destroyEngine } from '../src/ecs/classes/Engine'
-import { addComponent, getComponent } from '../src/ecs/functions/ComponentFunctions'
+import { getComponent } from '../src/ecs/functions/ComponentFunctions'
 import { createEntity } from '../src/ecs/functions/EntityFunctions'
 import { createEngine } from '../src/initializeEngine'
-import { setTransformComponent, TransformComponent } from '../src/transform/components/TransformComponent'
+import { TransformComponent, setTransformComponent } from '../src/transform/components/TransformComponent'
 
 describe('Structure of Array Synchronization', () => {
   beforeEach(() => {

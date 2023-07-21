@@ -23,12 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { render } from 'react-dom'
-import { blob } from 'stream/consumers'
 import { Vector3 } from 'three'
 
-import { renderTargetFromTexture } from '@etherealengine/engine/src/assets/functions/createReadableTexture'
-import { addOBCPlugin, removeOBCPlugin } from '@etherealengine/engine/src/common/functions/OnBeforeCompilePlugin'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
 import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'

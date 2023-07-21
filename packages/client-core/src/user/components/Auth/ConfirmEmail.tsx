@@ -33,8 +33,7 @@ import Button from '@etherealengine/ui/src/primitives/mui/Button'
 import Container from '@etherealengine/ui/src/primitives/mui/Container'
 import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 
-import { AuthService } from '../../services/AuthService'
-import { AuthState } from '../../services/AuthService'
+import { AuthService, AuthState } from '../../services/AuthService'
 import styles from './index.module.scss'
 
 const ConfirmEmail = (): JSX.Element => {

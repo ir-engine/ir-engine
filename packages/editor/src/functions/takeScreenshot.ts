@@ -46,8 +46,8 @@ import { addObjectToGroup } from '@etherealengine/engine/src/scene/components/Gr
 import { ScenePreviewCameraComponent } from '@etherealengine/engine/src/scene/components/ScenePreviewCamera'
 import { ObjectLayers } from '@etherealengine/engine/src/scene/constants/ObjectLayers'
 import {
-  setTransformComponent,
-  TransformComponent
+  TransformComponent,
+  setTransformComponent
 } from '@etherealengine/engine/src/transform/components/TransformComponent'
 import { getState } from '@etherealengine/hyperflux'
 import { KTX2Encoder } from '@etherealengine/xrui/core/textures/KTX2Encoder'

@@ -29,7 +29,6 @@ import React, { useEffect } from 'react'
 
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import Box from '@etherealengine/ui/src/primitives/mui/Box'
-import TextField from '@etherealengine/ui/src/primitives/mui/TextField'
 import ToggleButton from '@etherealengine/ui/src/primitives/mui/ToggleButton'
 import ToggleButtonGroup from '@etherealengine/ui/src/primitives/mui/ToggleButtonGroup'
 

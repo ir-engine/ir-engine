@@ -35,7 +35,6 @@ import { destroyEngine, Engine } from '../../ecs/classes/Engine'
 import { hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEngine } from '../../initializeEngine'
 import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
-import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
 import { EntityNetworkState } from '../../networking/state/EntityNetworkState'
 import { Physics } from '../../physics/classes/Physics'
 import {

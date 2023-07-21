@@ -23,9 +23,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import _ from 'lodash'
-import { string } from 'ts-matches'
-
 import { Bounds, Edges, traverseChildElements } from './dom-utils'
 import { WebLayerManagerBase } from './WebLayerManagerBase'
 import { WebRenderer } from './WebRenderer'
@@ -36,7 +33,11 @@ export class WebLayer {
   isVideoElement = false
   isCanvasElement = false
 
-  constructor(public manager: WebLayerManagerBase, public element: Element, public eventCallback: EventCallback) {
+  constructor(
+    public manager: WebLayerManagerBase,
+    public element: Element,
+    public eventCallback: EventCallback
+  ) {
     if (!manager) throw new Error('WebLayerManager must be initialized')
     WebRenderer.layers.set(element, this)
     element.setAttribute(WebRenderer.LAYER_ATTRIBUTE, '')

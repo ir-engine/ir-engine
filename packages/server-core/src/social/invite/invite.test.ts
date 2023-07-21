@@ -23,12 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import assert from 'assert'
-import { v1 } from 'uuid'
-
 import { Application } from '../../../declarations'
-import { createFeathersKoaApp } from '../../createApp'
-import { InviteDataType } from './invite.class'
 
 let invites: any = []
 let user: any = null

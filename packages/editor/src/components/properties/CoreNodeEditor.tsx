@@ -27,12 +27,9 @@ import React from 'react'
 import { useTranslation } from 'react-i18next'
 import styled from 'styled-components'
 
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import {
   ComponentJSONIDMap,
-  ComponentMap,
   hasComponent,
-  setComponent,
   useOptionalComponent
 } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { EntityOrObjectUUID, getEntityNodeArrayFromEntities } from '@etherealengine/engine/src/ecs/functions/EntityTree'

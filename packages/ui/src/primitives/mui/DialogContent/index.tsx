@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React, { ReactNode } from 'react'
+import React from 'react'
 
 import DialogContentText from '@etherealengine/ui/src/primitives/mui/DialogContentText'
 import TextField from '@etherealengine/ui/src/primitives/mui/TextField'

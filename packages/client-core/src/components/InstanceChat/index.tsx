@@ -49,8 +49,7 @@ import { AppAction } from '../../common/services/AppService'
 import { AvatarUIActions, AvatarUIState } from '../../systems/state/AvatarUIState'
 import { getUserAvatarThumbnail } from '../../user/functions/useUserAvatarThumbnail'
 import { useShelfStyles } from '../Shelves/useShelfStyles'
-import defaultStyles from './index.module.scss'
-import styles from './index.module.scss'
+import { default as defaultStyles, default as styles } from './index.module.scss'
 
 interface ChatHooksProps {
   chatWindowOpen: boolean

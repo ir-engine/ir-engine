@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { useEffect } from 'react'
-import { AmbientLight, Color, Quaternion, Vector3 } from 'three'
+import { AmbientLight, Vector3 } from 'three'
 
 import config from '@etherealengine/common/src/config'
 import { defineState, getMutableState, getState } from '@etherealengine/hyperflux'
@@ -34,13 +34,11 @@ import { teleportAvatar } from '../../avatar/functions/moveAvatar'
 import { ObjectDirection } from '../../common/constants/Axis3D'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
-import { SceneState } from '../../ecs/classes/Scene'
 import {
   defineQuery,
   getComponent,
   getOptionalComponent,
-  removeComponent,
-  removeQuery
+  removeComponent
 } from '../../ecs/functions/ComponentFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { TransformComponent } from '../../transform/components/TransformComponent'

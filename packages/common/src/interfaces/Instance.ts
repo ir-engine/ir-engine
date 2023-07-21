@@ -24,7 +24,6 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { Location } from './Location'
-import { LocationSettings } from './LocationSettings'
 
 export interface Instance {
   id: string

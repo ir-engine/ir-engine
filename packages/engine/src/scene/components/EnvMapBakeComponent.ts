@@ -27,17 +27,14 @@ import { useEffect } from 'react'
 import {
   BoxGeometry,
   BoxHelper,
-  Material,
   Mesh,
   MeshLambertMaterial,
-  MeshPhongMaterial,
   MeshPhysicalMaterial,
   MeshStandardMaterial,
   Object3D,
   Scene,
   SphereGeometry,
-  Vector3,
-  WebGLCubeRenderTarget
+  Vector3
 } from 'three'
 
 import { getMutableState, getState, none, useHookstate } from '@etherealengine/hyperflux'
@@ -60,7 +57,7 @@ import { ObjectLayers } from '../constants/ObjectLayers'
 import { setObjectLayers } from '../functions/setObjectLayers'
 import { EnvMapBakeRefreshTypes } from '../types/EnvMapBakeRefreshTypes'
 import { EnvMapBakeTypes } from '../types/EnvMapBakeTypes'
-import { addObjectToGroup, GroupComponent, removeObjectFromGroup } from './GroupComponent'
+import { GroupComponent, addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
 
 export const EnvMapBakeComponent = defineComponent({
   name: 'EnvMapBakeComponent',

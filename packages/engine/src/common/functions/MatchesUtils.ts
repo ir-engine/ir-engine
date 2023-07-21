@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { Quaternion, Vector3 } from 'three'
-import { matches, Validator } from 'ts-matches'
+import { Validator, matches } from 'ts-matches'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { NetworkId } from '@etherealengine/common/src/interfaces/NetworkId'
@@ -34,6 +34,17 @@ import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 import { Entity } from '../../ecs/classes/Entity'
 
 export * from 'ts-matches'
+export {
+  matchesUserId,
+  matchesPeerID,
+  matchesNetworkId,
+  matchesEntity,
+  matchesEntityUUID,
+  matchesVector3,
+  matchesQuaternion,
+  matchesActionFromUser,
+  matchesWithDefault
+}
 
 const matchesVec3Shape = matches.shape({
   x: matches.number,
@@ -72,16 +83,4 @@ export type MatchesWithDefault<A> = { matches: Validator<unknown, A>; defaultVal
 
 const matchesWithDefault = <A>(matches: Validator<unknown, A>, defaultValue: () => A): MatchesWithDefault<A> => {
   return { matches, defaultValue }
-}
-
-export {
-  matchesUserId,
-  matchesPeerID,
-  matchesNetworkId,
-  matchesEntity,
-  matchesEntityUUID,
-  matchesVector3,
-  matchesQuaternion,
-  matchesActionFromUser,
-  matchesWithDefault
 }

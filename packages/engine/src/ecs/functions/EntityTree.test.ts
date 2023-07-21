@@ -34,15 +34,15 @@ import { SceneTagComponent } from '../../scene/components/SceneTagComponent'
 import { UUIDComponent } from '../../scene/components/UUIDComponent'
 import { VisibleComponent } from '../../scene/components/VisibleComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
-import { destroyEngine, Engine } from '../classes/Engine'
+import { destroyEngine } from '../classes/Engine'
 import { Entity } from '../classes/Entity'
 import { SceneState } from '../classes/Scene'
 import { createEntity } from '../functions/EntityFunctions'
 import { getComponent, hasComponent, removeComponent, setComponent } from './ComponentFunctions'
 import {
+  EntityTreeComponent,
   addEntityNodeChild,
   destroyEntityTree,
-  EntityTreeComponent,
   findIndexOfEntityNode,
   getEntityNodeArrayFromEntities,
   initializeSceneEntity,

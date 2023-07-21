@@ -44,10 +44,10 @@ import {
 } from '@etherealengine/hyperflux'
 
 import { API } from '../../API'
-import { leaveNetwork } from '../../transports/SocketWebRTCClientFunctions'
 import {
   connectToNetwork,
   initializeNetwork,
+  leaveNetwork,
   SocketWebRTCClientNetwork
 } from '../../transports/SocketWebRTCClientFunctions'
 import { AuthState } from '../../user/services/AuthService'

@@ -23,7 +23,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import _ from 'lodash'
 import { EffectComposer, NormalPass, RenderPass } from 'postprocessing'
 import { useEffect } from 'react'
 import {
@@ -47,8 +46,7 @@ import { Engine } from '../ecs/classes/Engine'
 import { EngineActions, EngineState } from '../ecs/classes/EngineState'
 import { defineSystem } from '../ecs/functions/SystemFunctions'
 import { ObjectLayers } from '../scene/constants/ObjectLayers'
-import { defaultPostProcessingSchema } from '../scene/constants/PostProcessing'
-import { EffectMapType } from '../scene/constants/PostProcessing'
+import { defaultPostProcessingSchema, EffectMapType } from '../scene/constants/PostProcessing'
 import { createWebXRManager, WebXRManager } from '../xr/WebXRManager'
 import { XRState } from '../xr/XRState'
 import { changeRenderMode } from './functions/changeRenderMode'
