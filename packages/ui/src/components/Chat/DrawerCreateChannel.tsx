@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import React, { useEffect } from 'react'
 import { IoMdAddCircle } from 'react-icons/io'
 
-import { ChatService } from '@etherealengine/client-core/src/social/services/ChatService'
+import { ChannelService } from '@etherealengine/client-core/src/social/services/ChannelService'
 import { FriendService, FriendState } from '@etherealengine/client-core/src/social/services/FriendService'
 import { useUserAvatarThumbnail } from '@etherealengine/client-core/src/user/functions/useUserAvatarThumbnail'
 import { UserId } from '@etherealengine/common/src/interfaces/UserId'
@@ -50,7 +50,7 @@ export const DrawerCreateChannel = () => {
   })
 
   const createChannel = () => {
-    ChatService.createChannel(selectedFriends.get(NO_PROXY))
+    ChannelService.createChannel(selectedFriends.get(NO_PROXY))
   }
 
   const RenderUser = (props: { friend: (typeof friends)[number] }) => {

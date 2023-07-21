@@ -36,7 +36,7 @@ import { InstanceChat } from '.'
 import { createDOM } from '../../../tests/createDOM'
 import { createMockAPI } from '../../../tests/createMockAPI'
 import { API } from '../../API'
-import { ChatState } from '../../social/services/ChatService'
+import { ChannelState } from '../../social/services/ChannelService'
 
 describe('Instance Chat Component', () => {
   let rootContainer: HTMLDivElement
@@ -55,7 +55,7 @@ describe('Instance Chat Component', () => {
   })
 
   it('displays chat message', async () => {
-    getMutableState(ChatState).channels.channels.set([
+    getMutableState(ChannelState).channels.channels.set([
       {
         id: 'id',
         messages: [

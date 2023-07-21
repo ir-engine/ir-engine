@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import React, { useEffect } from 'react'
 
-import { ChatService, ChatState } from '@etherealengine/client-core/src/social/services/ChatService'
+import { ChannelService, ChannelState } from '@etherealengine/client-core/src/social/services/ChannelService'
 import { useUserAvatarThumbnail } from '@etherealengine/client-core/src/user/functions/useUserAvatarThumbnail'
 import { ChannelID } from '@etherealengine/common/src/interfaces/ChannelUser'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
@@ -33,12 +33,12 @@ import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import { DrawerCreateChannel } from './DrawerCreateChannel'
 
 export const ChannelsList = () => {
-  const chatState = useHookstate(getMutableState(ChatState))
+  const chatState = useHookstate(getMutableState(ChannelState))
 
-  ChatService.useAPIListeners()
+  ChannelService.useAPIListeners()
 
   useEffect(() => {
-    ChatService.getChannels()
+    ChannelService.getChannels()
     return () => {
       chatState.targetChannelId.set('' as ChannelID)
     }

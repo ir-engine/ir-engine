@@ -43,7 +43,7 @@ import { MediaInstanceState } from '../common/services/MediaInstanceConnectionSe
 import { NetworkConnectionService } from '../common/services/NetworkConnectionService'
 import { DataChannels } from '../components/World/ProducersAndConsumers'
 import { PeerConsumers } from '../media/PeerMedia'
-import { ChatServiceReceptor, ChatState } from '../social/services/ChatService'
+import { ChannelState } from '../social/services/ChannelService'
 import { FriendServiceReceptor } from '../social/services/FriendService'
 import { LocationState } from '../social/services/LocationService'
 import { WarningUIService } from '../systems/WarningUISystem'
@@ -69,7 +69,7 @@ const mediaInstanceReconnectedQueue = defineActionQueue(
 
 const execute = () => {
   const locationState = getState(LocationState)
-  const chatState = getState(ChatState)
+  const chatState = getState(ChannelState)
   const authState = getState(AuthState)
   const engineState = getState(EngineState)
 
@@ -92,7 +92,7 @@ const execute = () => {
 
     if (!activeChannel) {
       // setTimeout(() => {
-      //   ChatService.getInstanceChannel()
+      //   ChannelState.getInstanceChannel()
       //   updateWarningModal(WarningModalTypes.NO_MEDIA_SERVER_PROVISIONED)
       // }, 2000)
     } else {
@@ -168,14 +168,12 @@ const reactor = () => {
     addActionReceptor(LocationInstanceConnectionServiceReceptor)
     addActionReceptor(MediaInstanceConnectionServiceReceptor)
     addActionReceptor(FriendServiceReceptor)
-    addActionReceptor(ChatServiceReceptor)
 
     return () => {
       // todo replace with subsystems
       removeActionReceptor(LocationInstanceConnectionServiceReceptor)
       removeActionReceptor(MediaInstanceConnectionServiceReceptor)
       removeActionReceptor(FriendServiceReceptor)
-      removeActionReceptor(ChatServiceReceptor)
     }
   }, [])
 

@@ -34,7 +34,7 @@ import { defineAction, defineState, dispatchAction, getMutableState, getState } 
 
 import { NotificationService } from '../../common/services/NotificationService'
 import { AuthState } from '../../user/services/AuthService'
-import { ChatService } from './ChatService'
+import { ChannelService } from './ChannelService'
 
 //State
 
@@ -290,7 +290,7 @@ export const GroupService = {
         const selfUser = getState(AuthState).user
         dispatchAction(GroupAction.removedGroupUser({ groupUser: deletedGroupUser, self: params.self }))
         if (deletedGroupUser.userId === selfUser.id)
-          ChatService.clearChatTargetIfCurrent('group', { id: params.groupUser.groupId })
+          ChannelService.clearChatTargetIfCurrent('group', { id: params.groupUser.groupId })
       }
 
       const groupCreatedListener = (params) => {
@@ -303,7 +303,7 @@ export const GroupService = {
 
       const groupRemovedListener = (params) => {
         dispatchAction(GroupAction.removedGroup({ group: params.group }))
-        ChatService.clearChatTargetIfCurrent('group', params.group)
+        ChannelService.clearChatTargetIfCurrent('group', params.group)
       }
 
       const groupRefreshListener = (params) => {

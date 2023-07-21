@@ -103,7 +103,7 @@ import {
   stopFaceTracking,
   stopLipsyncTracking
 } from '../media/webcam/WebcamInput'
-import { ChatState } from '../social/services/ChatService'
+import { ChannelState } from '../social/services/ChannelService'
 import { LocationState } from '../social/services/LocationService'
 import { AuthState } from '../user/services/AuthService'
 import { updateNearbyAvatars } from './FilteredUsersSystem'
@@ -167,7 +167,7 @@ const handleFailedConnection = (locationConnectionFailed) => {
       dispatchAction(MediaInstanceConnectionAction.disconnect({ instanceId }))
       const authState = getMutableState(AuthState)
       const selfUser = authState.user
-      const chatState = getMutableState(ChatState)
+      const chatState = getMutableState(ChannelState)
       const channelState = chatState.channels
       const channels = channelState.channels.value as Channel[]
       const channelEntries = Object.values(channels).filter((channel) => !!channel) as any
@@ -1360,7 +1360,7 @@ export async function setPreferredConsumerLayer(
 const checkEndVideoChat = async () => {
   const mediaStreamState = getMutableState(MediaStreamState)
   const mediaNetwork = Engine.instance.mediaNetwork as SocketWebRTCClientNetwork
-  const chatState = getMutableState(ChatState)
+  const chatState = getMutableState(ChannelState)
   const channelState = chatState.channels
   const channels = channelState.channels.value
 

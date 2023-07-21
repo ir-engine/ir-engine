@@ -42,7 +42,7 @@ import { NotificationService } from '../../common/services/NotificationService'
 import { endVideoChat, leaveNetwork } from '../../transports/SocketWebRTCClientFunctions'
 import { SocketWebRTCClientNetwork } from '../../transports/SocketWebRTCClientFunctions'
 import { AuthState } from '../../user/services/AuthService'
-import { ChatAction, ChatState } from './ChatService'
+import { ChannelState } from './ChannelService'
 import { InviteService } from './InviteService'
 
 // State
@@ -139,7 +139,7 @@ export const PartyService = {
     await endVideoChat(network, {})
     await leaveNetwork(network)
     if (joinInstanceChannelServer && !getState(MediaInstanceState).joiningNonInstanceMediaChannel) {
-      const channels = getState(ChatState).channels.channels
+      const channels = getState(ChannelState).channels.channels
       const instanceChannel = Object.values(channels).find(
         (channel) => channel.instanceId === Engine.instance.worldNetwork?.hostId
       )
@@ -187,7 +187,6 @@ export const PartyService = {
           state.updateNeeded.set(true)
         } else {
           NotificationService.dispatchNotify(t('social:selfJoinedParty'), { variant: 'success' })
-          dispatchAction(ChatAction.refetchPartyChannelAction({}))
           const state = getMutableState(PartyState)
           return state.updateNeeded.set(true)
         }
@@ -242,14 +241,12 @@ export const PartyService = {
         }
 
         if (params.userId === selfUser.id) {
-          dispatchAction(ChatAction.refetchPartyChannelAction({}))
-
           const network = Engine.instance.mediaNetwork as SocketWebRTCClientNetwork
           if (params.instance?.id === network?.hostId) {
             NotificationService.dispatchNotify(t('social:selfLeftParty'), { variant: 'warning' })
             await PartyService.leaveNetwork(true)
           }
-          // ChatService.clearChatTargetIfCurrent('party', {
+          // ChannelState.clearChatTargetIfCurrent('party', {
           //   id: params.partyId
           // })
         } else {
@@ -260,7 +257,6 @@ export const PartyService = {
 
       const partyCreatedListener = (party: Party) => {
         party.partyUsers = party.party_users
-        dispatchAction(ChatAction.refetchPartyChannelAction({}))
         const state = getMutableState(PartyState)
         state.merge({ party, updateNeeded: true })
       }
@@ -268,12 +264,11 @@ export const PartyService = {
       const partyPatchedListener = (party: Party) => {
         party.partyUsers = party.party_users
         // dispatchAction(PartyActions.patchedPartyAction({ party }))
-        // ChatService.clearChatTargetIfCurrent('party', party)
+        // ChannelState.clearChatTargetIfCurrent('party', party)
       }
 
       const partyRemovedListener = (party: Party) => {
         party.partyUsers = party.party_users
-        dispatchAction(ChatAction.refetchPartyChannelAction({}))
         const state = getMutableState(PartyState)
         return state.merge({ party: null!, updateNeeded: true })
       }

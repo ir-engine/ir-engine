@@ -46,6 +46,15 @@ import { Engine } from '../../ecs/classes/Engine'
 
 export type Methods = 'find' | 'get' | 'create' | 'update' | 'patch' | 'remove'
 
+export type MethodArgs = {
+  find: [Params, any?]
+  get: [string, any?]
+  create: [any, any?]
+  update: [string, any, any?]
+  patch: [string, any, any?]
+  remove: [string, any?]
+}
+
 export const FeathersState = defineState({
   name: 'ee.engine.figbird',
   initial: () => ({
@@ -65,7 +74,7 @@ type FetchedArgs = {
   matcher?: (query: any) => (item: any) => boolean
 }
 
-type MethodArgs = {
+type MethodCallbackArgs = {
   serviceName: keyof ServiceTypes
   item: any
 }
@@ -112,12 +121,12 @@ function fetched({ serviceName, data, method, params, queryId, realtime, matcher
   })
 }
 
-function created({ serviceName, item }: MethodArgs) {
+function created({ serviceName, item }: MethodCallbackArgs) {
   updateQuery({ serviceName, method: 'create', item })
 }
 
 // applies to both update and patch
-function updated({ serviceName, item }: MethodArgs) {
+function updated({ serviceName, item }: MethodCallbackArgs) {
   const itemId = item.id
   const state = getState(FeathersState)
   const mutableState = getMutableState(FeathersState)
@@ -143,7 +152,7 @@ function updated({ serviceName, item }: MethodArgs) {
   updateQuery({ serviceName, method: 'update', item })
 }
 
-function removed({ serviceName, item: itemOrItems }: MethodArgs) {
+function removed({ serviceName, item: itemOrItems }: MethodCallbackArgs) {
   const items = Array.isArray(itemOrItems) ? itemOrItems : [itemOrItems]
   const state = getState(FeathersState)
   const mutableState = getMutableState(FeathersState)
@@ -564,6 +573,11 @@ export function useGet<S extends keyof ServiceTypes, Q extends Query>(
   return response as UseGetReturnType<S>
 }
 
+type CreateMethodParameters<S extends keyof ServiceTypes> = ServiceTypes[S]['create']
+type UpdateMethodParameters<S extends keyof ServiceTypes> = ServiceTypes[S]['update']
+type PatchMethodParameters<S extends keyof ServiceTypes> = ServiceTypes[S]['patch']
+type RemoveMethodParameters<S extends keyof ServiceTypes> = ServiceTypes[S]['remove']
+
 /**
  * Simple mutation hook exposing crud methods
  * of any feathers service. The resulting state
@@ -574,17 +588,17 @@ export function useGet<S extends keyof ServiceTypes, Q extends Query>(
  * @param serviceName
  * @returns {create, update, patch, remove, status, data, error}
  */
-export function useMutation(serviceName: keyof ServiceTypes) {
+export function useMutation<S extends keyof ServiceTypes>(serviceName: S) {
   const state = useHookstate({
     status: 'idle',
     data: null as unknown | null,
     error: null as string | null
   })
 
-  const create = useMethod('create', created, serviceName, state)
-  const update = useMethod('update', updated, serviceName, state)
-  const patch = useMethod('patch', updated, serviceName, state)
-  const remove = useMethod('remove', removed, serviceName, state)
+  const create = useMethod('create', created, serviceName, state) as CreateMethodParameters<S>
+  const update = useMethod('update', updated, serviceName, state) as UpdateMethodParameters<S>
+  const patch = useMethod('patch', updated, serviceName, state) as PatchMethodParameters<S>
+  const remove = useMethod('remove', removed, serviceName, state) as RemoveMethodParameters<S>
 
   const mutation = useMemo(
     () => ({

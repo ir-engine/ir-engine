@@ -42,7 +42,6 @@ import {
   useState
 } from '@etherealengine/hyperflux'
 
-import { ChatState } from '../../social/services/ChatService'
 import { LocationState } from '../../social/services/LocationService'
 import { endVideoChat, leaveNetwork } from '../../transports/SocketWebRTCClientFunctions'
 import {

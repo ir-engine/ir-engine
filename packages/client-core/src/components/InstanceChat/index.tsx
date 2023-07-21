@@ -27,10 +27,10 @@ import React, { Fragment, useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { useWorldInstance } from '@etherealengine/client-core/src/common/services/LocationInstanceConnectionService'
-import { ChatService, ChatState } from '@etherealengine/client-core/src/social/services/ChatService'
+import { ChannelService, ChannelState } from '@etherealengine/client-core/src/social/services/ChannelService'
 import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
 import { AudioEffectPlayer } from '@etherealengine/engine/src/audio/systems/MediaSystem'
-import { useFind } from '@etherealengine/engine/src/common/functions/FeathersHooks'
+import { useFind, useMutation } from '@etherealengine/engine/src/common/functions/FeathersHooks'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { WorldState } from '@etherealengine/engine/src/networking/interfaces/WorldState'
@@ -64,13 +64,14 @@ export const useChatHooks = ({ chatWindowOpen, setUnreadMessages, messageRefInpu
    * Message display logic
    */
 
-  const targetChannelId = useHookstate(getMutableState(ChatState).targetChannelId)
+  const targetChannelId = useHookstate(getMutableState(ChannelState).targetChannelId)
 
   const messages = useFind('message', {
     query: {
       channelId: targetChannelId.value
     }
   })
+  const mutateMessage = useMutation('message')
 
   useEffect(() => {
     if (messages.data?.length && !chatWindowOpen) setUnreadMessages(true)
@@ -156,7 +157,10 @@ export const useChatHooks = ({ chatWindowOpen, setUnreadMessages, messageRefInpu
         )
       }
 
-      ChatService.createMessage(composingMessage.value)
+      mutateMessage.create({
+        text: composingMessage.value,
+        channelId: targetChannelId.value
+      })
       composingMessage.set('')
     }
 
@@ -228,7 +232,7 @@ export const InstanceChat = ({
   const isInitRender = useHookstate<Boolean>(false)
 
   const isMobile = /Mobi/i.test(window.navigator.userAgent)
-  const chatState = useHookstate(getMutableState(ChatState))
+  const chatState = useHookstate(getMutableState(ChannelState))
 
   /**
    * Audio effect
@@ -440,7 +444,7 @@ export const InstanceChatWrapper = () => {
   const { t } = useTranslation()
   const { bottomShelfStyle } = useShelfStyles()
 
-  const targetChannelId = useHookstate(getMutableState(ChatState).targetChannelId)
+  const targetChannelId = useHookstate(getMutableState(ChannelState).targetChannelId)
 
   /**
    * Provisioning logic
@@ -449,7 +453,7 @@ export const InstanceChatWrapper = () => {
 
   useEffect(() => {
     if (Engine.instance.worldNetwork?.hostId && currentInstanceConnection?.connected?.value) {
-      ChatService.getInstanceChannel()
+      ChannelService.getInstanceChannel()
     }
   }, [currentInstanceConnection?.connected])
 

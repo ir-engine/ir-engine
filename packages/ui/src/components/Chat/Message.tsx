@@ -25,10 +25,10 @@ Ethereal Engine. All Rights Reserved.
 
 import React from 'react'
 
-import { ChatService, ChatState } from '@etherealengine/client-core/src/social/services/ChatService'
+import { ChannelService, ChannelState } from '@etherealengine/client-core/src/social/services/ChannelService'
 import { useUserAvatarThumbnail } from '@etherealengine/client-core/src/user/functions/useUserAvatarThumbnail'
 import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
-import { useFind } from '@etherealengine/engine/src/common/functions/FeathersHooks'
+import { useFind, useMutation } from '@etherealengine/engine/src/common/functions/FeathersHooks'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
@@ -44,7 +44,7 @@ import UserSvg from './assets/user.svg'
 
 export const MessageList = () => {
   const userName = useHookstate(getMutableState(AuthState).user.name).value
-  const chatState = useHookstate(getMutableState(ChatState))
+  const chatState = useHookstate(getMutableState(ChannelState))
   const activeChannel = chatState.channels.value?.channels.find(
     (channel) => channel.id === chatState.targetChannelId.value
   )
@@ -58,6 +58,8 @@ export const MessageList = () => {
       channelId: chatState.targetChannelId.value
     }
   })
+
+  const mutateMessage = useMutation('message')
 
   const composingMessage = useHookstate('')
 
@@ -85,7 +87,10 @@ export const MessageList = () => {
   }
 
   const sendMessage = () => {
-    ChatService.createMessage(composingMessage.value)
+    mutateMessage.create({
+      text: composingMessage.value,
+      channelId: chatState.targetChannelId.value
+    })
     composingMessage.set('')
   }
 
@@ -134,6 +139,6 @@ export const MessageList = () => {
 }
 
 export const MessageContainer = () => {
-  const activeChannel = !!useHookstate(getMutableState(ChatState).targetChannelId).value
+  const activeChannel = !!useHookstate(getMutableState(ChannelState).targetChannelId).value
   return <div className="maxw-[760px] w-[765px] h-[100vh] bg-white">{activeChannel && <MessageList />}</div>
 }

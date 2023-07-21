@@ -37,7 +37,7 @@ import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 
 import { setTrackingSpace } from '../../../../../engine/src/xr/XRScaleAdjustmentFunctions'
 import { useMediaInstance } from '../../../common/services/MediaInstanceConnectionService'
-import { ChatState } from '../../../social/services/ChatService'
+import { ChannelState } from '../../../social/services/ChannelService'
 import { MediaStreamState } from '../../../transports/MediaStreams'
 import { toggleMicrophonePaused } from '../../../transports/SocketWebRTCClientFunctions'
 import XRIconButton from '../../components/XRIconButton'
@@ -80,7 +80,7 @@ const WidgetButton = ({ icon: name, toggle, label, disabled }: WidgetButtonProps
 
 const WidgetButtons = () => {
   let activeChannel: Channel | null = null
-  const chatState = useHookstate(getMutableState(ChatState))
+  const chatState = useHookstate(getMutableState(ChannelState))
   const widgetMutableState = useHookstate(getMutableState(WidgetAppState))
   const channelState = chatState.channels
   const channels = channelState.channels.value as Channel[]
