@@ -25,13 +25,12 @@ Ethereal Engine. All Rights Reserved.
 
 import { Paginated } from '@feathersjs/feathers'
 
-import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import {
   taskServerSettingPath,
   TaskServerSettingType
 } from '@etherealengine/engine/src/schemas/setting/task-server-setting.schema'
-import { defineAction, defineState, dispatchAction, getMutableState } from '@etherealengine/hyperflux'
+import { defineState, getMutableState } from '@etherealengine/hyperflux'
 
 import { NotificationService } from '../../../common/services/NotificationService'
 
@@ -43,31 +42,15 @@ export const AdminTaskServerSettingsState = defineState({
   })
 })
 
-const fetchedTaskServersReceptor = (action: typeof AdminTaskServerSettingActions.fetchedTaskServers.matches._TYPE) => {
-  const state = getMutableState(AdminTaskServerSettingsState)
-  return state.merge({ taskservers: action.taskServerSettings.data, updateNeeded: false })
-}
-
-export const TaskServerSettingReceptors = {
-  fetchedTaskServersReceptor
-}
-
 export const AdminSettingTaskServerService = {
-  fetchSettingsTaskServer: async (inDec?: 'increment' | 'decrement') => {
+  fetchSettingsTaskServer: async () => {
     try {
       const taskServerSettings = (await Engine.instance.api
         .service(taskServerSettingPath)
         .find()) as Paginated<TaskServerSettingType>
-      dispatchAction(AdminTaskServerSettingActions.fetchedTaskServers({ taskServerSettings }))
+      getMutableState(AdminTaskServerSettingsState).merge({ taskservers: taskServerSettings.data, updateNeeded: false })
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
   }
-}
-
-export class AdminTaskServerSettingActions {
-  static fetchedTaskServers = defineAction({
-    type: 'ee.client.AdminTaskServerSetting.SETTING_ANALYIS_DISPLAY' as const,
-    taskServerSettings: matches.object as Validator<unknown, Paginated<TaskServerSettingType>>
-  })
 }
