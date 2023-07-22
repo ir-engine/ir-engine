@@ -222,7 +222,6 @@ export const Object3DNodeEditor = (props: Object3DProps) => {
                     obj3d.position.set(nuPosition.x, nuPosition.y, nuPosition.z)
                   }}
                   onRelease={() => {
-                    dispatchAction(EditorAction.sceneModified({ modified: true }))
                     dispatchAction(EditorHistoryAction.createSnapshot({}))
                   }}
                 />
@@ -240,7 +239,6 @@ export const Object3DNodeEditor = (props: Object3DProps) => {
                     //obj3d.rotation.setFromVector3(nuEulers.multiplyScalar(Deg2Rad))
                   }}
                   onRelease={() => {
-                    dispatchAction(EditorAction.sceneModified({ modified: true }))
                     dispatchAction(EditorHistoryAction.createSnapshot({}))
                   }}
                 />
@@ -256,7 +254,6 @@ export const Object3DNodeEditor = (props: Object3DProps) => {
                     //obj3d.scale.copy(nuScale)
                   }}
                   onRelease={() => {
-                    dispatchAction(EditorAction.sceneModified({ modified: true }))
                     dispatchAction(EditorHistoryAction.createSnapshot({}))
                   }}
                 />

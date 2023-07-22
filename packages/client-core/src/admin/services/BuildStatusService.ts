@@ -23,12 +23,9 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { buildStatusPath, BuildStatusType } from '@etherealengine/engine/src/schemas/cluster/build-status.schema'
-import { defineAction, defineState, dispatchAction, getMutableState } from '@etherealengine/hyperflux'
-
-import { API } from '../../API'
-import { NotificationService } from '../../common/services/NotificationService'
+import { defineState, getMutableState } from '@etherealengine/hyperflux'
 
 //State
 export const AdminBuildStatusState = defineState({
@@ -43,30 +40,10 @@ export const AdminBuildStatusState = defineState({
   })
 })
 
-const fetchBuildStatusReceptor = (action: typeof AdminBuildStatusActions.fetchBuildStatusRetrieved.matches._TYPE) => {
-  try {
-    const state = getMutableState(AdminBuildStatusState)
-    return state.merge({
-      buildStatuses: action.data,
-      skip: action.skip,
-      limit: action.limit,
-      total: action.total,
-      fetched: true,
-      updateNeeded: false
-    })
-  } catch (err) {
-    NotificationService.dispatchNotify(err.message, { variant: 'error' })
-  }
-}
-
-export const AdminBuildStatusReceptors = {
-  fetchBuildStatusReceptor
-}
-
 //Service
 export const BuildStatusService = {
   fetchBuildStatus: async (skip = 0) => {
-    let buildStatusResult = await API.instance.client.service(buildStatusPath).find({
+    let buildStatusResult = await Engine.instance.api.service(buildStatusPath).find({
       query: {
         $limit: 10,
         $skip: skip,
@@ -76,24 +53,13 @@ export const BuildStatusService = {
       }
     })
 
-    dispatchAction(
-      AdminBuildStatusActions.fetchBuildStatusRetrieved({
-        data: buildStatusResult.data,
-        total: buildStatusResult.total,
-        skip: buildStatusResult.total,
-        limit: buildStatusResult.limit
-      })
-    )
+    getMutableState(AdminBuildStatusState).merge({
+      buildStatuses: buildStatusResult.data,
+      total: buildStatusResult.total,
+      skip: buildStatusResult.total,
+      limit: buildStatusResult.limit,
+      fetched: true,
+      updateNeeded: false
+    })
   }
-}
-
-//Action
-export class AdminBuildStatusActions {
-  static fetchBuildStatusRetrieved = defineAction({
-    type: 'ee.client.AdminBuildStatus.FETCH_BUILD_STATUS_RETRIEVED' as const,
-    data: matches.array as Validator<unknown, BuildStatusType[]>,
-    total: matches.number,
-    limit: matches.number,
-    skip: matches.number
-  })
 }

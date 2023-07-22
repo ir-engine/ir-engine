@@ -70,7 +70,6 @@ export const TransformPropertyGroup: EditorComponentType = (props) => {
   const localTransformComponent = useOptionalComponent(props.entity, LocalTransformComponent)
 
   const onRelease = () => {
-    dispatchAction(EditorAction.sceneModified({ modified: true }))
     dispatchAction(EditorHistoryAction.createSnapshot({}))
   }
 
