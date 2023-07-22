@@ -63,11 +63,14 @@ export class Channel<T = ChannelDataType> extends Service<T> {
     /** @todo ensure all users specified are friends of loggedInUser */
 
     if (userId) {
-      await this.app.service('channel-user').create({
-        channelId: channel.id as ChannelID,
-        userId,
-        isOwner: true
-      })
+      await this.app.service('channel-user').create(
+        {
+          channelId: channel.id as ChannelID,
+          userId,
+          isOwner: true
+        },
+        params
+      )
     }
 
     if (users) {

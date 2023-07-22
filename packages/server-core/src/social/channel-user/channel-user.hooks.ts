@@ -54,8 +54,8 @@ export default {
     ],
     create: [
       async (context: HookContext): Promise<HookContext> => {
-        const { app, result } = context
-        const user = await app.service('user').get(result.userId)
+        const { app, result, params } = context
+        const user = await app.service('user').get(result.userId, { ...params, query: {} })
         await app.service('message').create(
           {
             channelId: result.channelId,
@@ -76,7 +76,7 @@ export default {
     remove: [
       async (context: HookContext): Promise<HookContext> => {
         const { app, params, result } = context
-        const user = await app.service('user').get(result.userId)
+        const user = await app.service('user').get(result.userId, { ...params, query: {} })
         await app.service('message').create({
           channelId: result.channelId,
           text: `${user.name} left the channel`,
@@ -86,12 +86,12 @@ export default {
         if (channel.instanceId) return context
         const channelUserCount = await app.service('channel-user').find({
           query: {
-            channelId: params.query!.channelId,
+            channelId: result.channelId,
             $limit: 0
           }
         })
         if (channelUserCount.total < 1) {
-          await app.service('channel').remove(params.query!.channelId)
+          await app.service('channel').remove(result.channelId)
         }
         return context
       }

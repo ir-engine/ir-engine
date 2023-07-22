@@ -59,6 +59,7 @@ export const afterCreate = async (app: Application, result: UserInterface, scope
   }
 
   if (Array.isArray(result)) result = result[0]
+  console.log(result)
   if (!result?.isGuest)
     await app.service('user-api-key').create({
       userId: result.id

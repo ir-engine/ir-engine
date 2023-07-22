@@ -35,12 +35,12 @@ import { Paginated } from '@feathersjs/feathers'
 
 describe('channel service', () => {
   let app: Application
-  before(async () => {
+  beforeEach(async () => {
     app = createFeathersKoaApp()
     await app.setup()
   })
 
-  after(() => {
+  afterEach(() => {
     return destroyEngine()
   })
 
@@ -56,17 +56,15 @@ describe('channel service', () => {
 
   it('creates and finds channel with userId', async () => {
     const user = (await app.service('user').create({
-      name: 'user'
+      name: 'user',
+      isGuest: false
     })) as UserInterface
 
     const channel = await app.service('channel').create(
       {
         userId: user.id
       },
-      {
-        user,
-        isInternal: true
-      }
+      { user }
     )
 
     assert.ok(channel.id)
@@ -75,8 +73,7 @@ describe('channel service', () => {
       query: {
         channelId: channel.id
       },
-      user,
-      isInternal: true
+      user
     })) as ChannelInterface[]
 
     assert.equal(channelFindAsLoggedInUser.length, 1)
@@ -120,10 +117,7 @@ describe('channel service', () => {
       {
         instanceId: instance.id
       },
-      {
-        user,
-        isInternal: true
-      }
+      { user }
     )
 
     assert.ok(channel.id)
@@ -132,8 +126,7 @@ describe('channel service', () => {
       query: {
         channelId: channel.id
       },
-      user,
-      isInternal: true
+      user
     })) as ChannelInterface[]
 
     assert.equal(channelFindAsLoggedInUser.length, 1)
@@ -143,8 +136,7 @@ describe('channel service', () => {
       query: {
         instanceId: instance.id
       },
-      user,
-      isInternal: true
+      user
     })) as ChannelInterface[]
 
     assert.equal(channelFindAsUser.length, 1)
@@ -153,7 +145,8 @@ describe('channel service', () => {
 
   it('will not create a channel with both userId and instanceId', async () => {
     const user = (await app.service('user').create({
-      name: 'user'
+      name: 'user',
+      isGuest: false
     })) as UserInterface
 
     const instance = (await app.service('instance').create(
@@ -170,10 +163,7 @@ describe('channel service', () => {
           instanceId: instance.id,
           userId: user.id
         },
-        {
-          user,
-          isInternal: true
-        }
+        { user }
       )
     } catch (e) {
       assert.ok(e)
@@ -182,7 +172,8 @@ describe('channel service', () => {
 
   it('creates and finds channel with instanceId', async () => {
     const user = (await app.service('user').create({
-      name: 'user'
+      name: 'user',
+      isGuest: false
     })) as UserInterface
 
     const instance = (await app.service('instance').create(
@@ -197,10 +188,7 @@ describe('channel service', () => {
       {
         instanceId: instance.id
       },
-      {
-        user,
-        isInternal: true
-      }
+      { user }
     )
 
     assert.ok(channel.id)
@@ -209,8 +197,7 @@ describe('channel service', () => {
       query: {
         channelId: channel.id
       },
-      user,
-      isInternal: true
+      user
     })) as ChannelInterface[]
 
     assert.equal(channelFindAsLoggedInUser.length, 1)
@@ -220,8 +207,7 @@ describe('channel service', () => {
       query: {
         instanceId: instance.id
       },
-      user,
-      isInternal: true
+      user
     })) as ChannelInterface[]
 
     assert.equal(channelFindAsUser.length, 1)

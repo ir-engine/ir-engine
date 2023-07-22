@@ -26,6 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import * as authentication from '@feathersjs/authentication'
 import { HookContext } from '@feathersjs/feathers'
 
+import { isProvider } from 'feathers-hooks-common'
 import config from '../appconfig'
 import { Application } from './../../declarations'
 
@@ -33,13 +34,13 @@ const { authenticate } = authentication.hooks
 
 export default () => {
   return async (context: HookContext<Application>): Promise<HookContext> => {
+    if (!context.params) context.params = {}
     const { params } = context
 
-    // If it's an internal call then skip authentication
-    // TODO Currently this breaks new users, and potentially other things, as we also populate user data here
-    // if (params.isInternal) return context
+    // no need to authenticate if it's an internal call, but we still want to ensure the user is set
+    const isInternal = isProvider('server')(context)
+    if (isInternal) return context
 
-    if (!context.params) context.params = {}
     const authHeader = params.headers?.authorization
     let authSplit
     if (authHeader) authSplit = authHeader.split(' ')
@@ -69,19 +70,17 @@ export default () => {
     }
     context = await authenticate('jwt')(context as any)
     // if (!context.params[config.authentication.entity]?.userId) throw new BadRequest('Must authenticate with valid JWT or login token')
-    context.params.user =
-      context.params[config.authentication.entity] && context.params[config.authentication.entity].userId
-        ? await context.app.service('user').Model.findOne({
-            include: [
-              {
-                model: context.app.service('scope').Model
-              }
-            ],
-            where: {
-              id: context.params[config.authentication.entity].userId
-            }
-          })
-        : {}
+    if (context.params[config.authentication.entity]?.userId)
+      context.params.user = await context.app.service('user').Model.findOne({
+        include: [
+          {
+            model: context.app.service('scope').Model
+          }
+        ],
+        where: {
+          id: context.params[config.authentication.entity].userId
+        }
+      })
     return context
   }
 }
