@@ -35,7 +35,6 @@ import {
   AdminChargebeeSettingActions
 } from '../admin/services/Setting/ChargebeeSettingService'
 // import { ClientSettingActions, ClientSettingReceptors } from '../admin/services/Setting/ClientSettingService'
-import { AdminCoilSettingActions, CoilSettingReceptors } from '../admin/services/Setting/CoilSettingService'
 import { EmailSettingActions, EmailSettingReceptors } from '../admin/services/Setting/EmailSettingService'
 import { AdminHelmSettingActions, HelmSettingReceptors } from '../admin/services/Setting/HelmSettingService'
 import {
@@ -54,7 +53,6 @@ const fetchedTaskServersQueue = defineActionQueue(AdminTaskServerSettingActions.
 const redisSettingRetrievedQueue = defineActionQueue(AdminRedisSettingActions.redisSettingRetrieved.matches)
 const awsSettingRetrievedQueue = defineActionQueue(AdminAwsSettingActions.awsSettingRetrieved.matches)
 const awsSettingPatchedQueue = defineActionQueue(AdminAwsSettingActions.awsSettingPatched.matches)
-const fetchedCoilQueue = defineActionQueue(AdminCoilSettingActions.fetchedCoil.matches)
 const fetchedEmailQueue = defineActionQueue(EmailSettingActions.fetchedEmail.matches)
 const emailSettingPatchedQueue = defineActionQueue(EmailSettingActions.emailSettingPatched.matches)
 const fetchedHelmQueue = defineActionQueue(AdminHelmSettingActions.helmSettingRetrieved.matches)
