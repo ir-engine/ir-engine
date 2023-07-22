@@ -45,12 +45,7 @@ import {
 import { AdminProjectSettingsActions, ProjectSettingReceptors } from '../admin/services/Setting/ProjectSettingService'
 import { AdminRedisSettingActions, RedisSettingReceptors } from '../admin/services/Setting/RedisSettingService'
 import { AdminServerSettingActions, ServerSettingReceptors } from '../admin/services/Setting/ServerSettingService'
-import {
-  AdminTaskServerSettingActions,
-  TaskServerSettingReceptors
-} from '../admin/services/Setting/TaskServerSettingsService'
 
-const fetchedTaskServersQueue = defineActionQueue(AdminTaskServerSettingActions.fetchedTaskServers.matches)
 const redisSettingRetrievedQueue = defineActionQueue(AdminRedisSettingActions.redisSettingRetrieved.matches)
 const awsSettingRetrievedQueue = defineActionQueue(AdminAwsSettingActions.awsSettingRetrieved.matches)
 const awsSettingPatchedQueue = defineActionQueue(AdminAwsSettingActions.awsSettingPatched.matches)
@@ -75,7 +70,6 @@ const chargebeeSettingRetrievedQueue = defineActionQueue(AdminChargebeeSettingAc
 // const clientSettingPatchedQueue = defineActionQueue(ClientSettingActions.clientSettingPatched.matches)
 
 const execute = () => {
-  for (const action of fetchedTaskServersQueue()) TaskServerSettingReceptors.fetchedTaskServersReceptor(action)
   for (const action of redisSettingRetrievedQueue()) RedisSettingReceptors.redisSettingRetrievedReceptor(action)
   for (const action of awsSettingRetrievedQueue()) AwsSettingReceptors.awsSettingRetrievedReceptor(action)
   for (const action of awsSettingPatchedQueue()) AwsSettingReceptors.awsSettingPatchedReceptor(action)
