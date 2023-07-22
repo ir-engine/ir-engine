@@ -34,10 +34,6 @@ import {
 import { AdminCoilSettingActions, CoilSettingReceptors } from '../admin/services/Setting/CoilSettingService'
 import { EmailSettingActions, EmailSettingReceptors } from '../admin/services/Setting/EmailSettingService'
 import { AdminHelmSettingActions, HelmSettingReceptors } from '../admin/services/Setting/HelmSettingService'
-import {
-  AdminInstanceServerReceptors,
-  InstanceServerSettingActions
-} from '../admin/services/Setting/InstanceServerSettingService'
 
 const fetchedCoilQueue = defineActionQueue(AdminCoilSettingActions.fetchedCoil.matches)
 const fetchedEmailQueue = defineActionQueue(EmailSettingActions.fetchedEmail.matches)
@@ -47,12 +43,7 @@ const patchedHelmQueue = defineActionQueue(AdminHelmSettingActions.helmSettingPa
 const fetchedHelmMainVersionsQueue = defineActionQueue(AdminHelmSettingActions.helmMainVersionsRetrieved.matches)
 const fetchedHelmBuilderVersionsQueue = defineActionQueue(AdminHelmSettingActions.helmBuilderVersionsRetrieved.matches)
 const activeRoutesRetrievedQueue = defineActionQueue(AdminActiveRouteActions.activeRoutesRetrieved.matches)
-const fetchedInstanceServerQueue = defineActionQueue(InstanceServerSettingActions.fetchedInstanceServer.matches)
 const chargebeeSettingRetrievedQueue = defineActionQueue(AdminChargebeeSettingActions.chargebeeSettingRetrieved.matches)
-// const authSettingRetrievedQueue = defineActionQueue(AuthSettingsActions.authSettingRetrieved.matches)
-// const authSettingPatchedQueue = defineActionQueue(AuthSettingsActions.authSettingPatched.matches)
-// const fetchedClientQueue = defineActionQueue(ClientSettingActions.fetchedClient.matches)
-// const clientSettingPatchedQueue = defineActionQueue(ClientSettingActions.clientSettingPatched.matches)
 
 const execute = () => {
   for (const action of fetchedCoilQueue()) CoilSettingReceptors.fetchedCoilReceptor(action)
@@ -64,13 +55,8 @@ const execute = () => {
   for (const action of fetchedHelmBuilderVersionsQueue())
     HelmSettingReceptors.helmBuilderVersionsRetrievedReceptor(action)
   for (const action of activeRoutesRetrievedQueue()) AdminActiveRouteReceptors.activeRoutesRetrievedReceptor(action)
-  for (const action of fetchedInstanceServerQueue()) AdminInstanceServerReceptors.fetchedInstanceServerReceptor(action)
   for (const action of chargebeeSettingRetrievedQueue())
     AdminChargebeeReceptors.chargebeeSettingRetrievedReceptor(action)
-  // for (const action of authSettingRetrievedQueue()) //   AuthSettingsReceptors.authSettingRetrievedReceptor(action)/ }
-  // for (const action of authSettingPatchedQueue()) //   AuthSettingsReceptors.authSettingPatchedReceptor(action)/ }
-  // for (const action of fetchedClientQueue()) //   ClientSettingReceptors.fetchedClientReceptor(action)/ }
-  // for (const action of clientSettingPatchedQueue()) //   ClientSettingReceptors.clientSettingPatchedReceptor(action)/ }
 }
 
 export const AdminSystem = defineSystem({
