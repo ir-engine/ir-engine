@@ -27,12 +27,10 @@ import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFun
 import { defineActionQueue } from '@etherealengine/hyperflux'
 
 import { AdminActiveRouteActions, AdminActiveRouteReceptors } from '../admin/services/ActiveRouteService'
-// import { AuthSettingsActions, AuthSettingsReceptors } from '../admin/services/Setting/AuthSettingService'
 import {
   AdminChargebeeReceptors,
   AdminChargebeeSettingActions
 } from '../admin/services/Setting/ChargebeeSettingService'
-// import { ClientSettingActions, ClientSettingReceptors } from '../admin/services/Setting/ClientSettingService'
 import { AdminCoilSettingActions, CoilSettingReceptors } from '../admin/services/Setting/CoilSettingService'
 import { EmailSettingActions, EmailSettingReceptors } from '../admin/services/Setting/EmailSettingService'
 import { AdminHelmSettingActions, HelmSettingReceptors } from '../admin/services/Setting/HelmSettingService'
@@ -41,7 +39,6 @@ import {
   InstanceServerSettingActions
 } from '../admin/services/Setting/InstanceServerSettingService'
 import { AdminRedisSettingActions, RedisSettingReceptors } from '../admin/services/Setting/RedisSettingService'
-import { AdminServerSettingActions, ServerSettingReceptors } from '../admin/services/Setting/ServerSettingService'
 
 const redisSettingRetrievedQueue = defineActionQueue(AdminRedisSettingActions.redisSettingRetrieved.matches)
 const fetchedCoilQueue = defineActionQueue(AdminCoilSettingActions.fetchedCoil.matches)
@@ -51,8 +48,6 @@ const fetchedHelmQueue = defineActionQueue(AdminHelmSettingActions.helmSettingRe
 const patchedHelmQueue = defineActionQueue(AdminHelmSettingActions.helmSettingPatched.matches)
 const fetchedHelmMainVersionsQueue = defineActionQueue(AdminHelmSettingActions.helmMainVersionsRetrieved.matches)
 const fetchedHelmBuilderVersionsQueue = defineActionQueue(AdminHelmSettingActions.helmBuilderVersionsRetrieved.matches)
-const fetchedSeverInfoQueue = defineActionQueue(AdminServerSettingActions.fetchedSeverInfo.matches)
-const serverSettingPatchedQueue = defineActionQueue(AdminServerSettingActions.serverSettingPatched.matches)
 const activeRoutesRetrievedQueue = defineActionQueue(AdminActiveRouteActions.activeRoutesRetrieved.matches)
 const fetchedInstanceServerQueue = defineActionQueue(InstanceServerSettingActions.fetchedInstanceServer.matches)
 const chargebeeSettingRetrievedQueue = defineActionQueue(AdminChargebeeSettingActions.chargebeeSettingRetrieved.matches)
@@ -71,8 +66,6 @@ const execute = () => {
   for (const action of fetchedHelmMainVersionsQueue()) HelmSettingReceptors.helmMainVersionsRetrievedReceptor(action)
   for (const action of fetchedHelmBuilderVersionsQueue())
     HelmSettingReceptors.helmBuilderVersionsRetrievedReceptor(action)
-  for (const action of fetchedSeverInfoQueue()) ServerSettingReceptors.fetchedSeverInfoReceptor(action)
-  for (const action of serverSettingPatchedQueue()) ServerSettingReceptors.serverSettingPatchedReceptor(action)
   for (const action of activeRoutesRetrievedQueue()) AdminActiveRouteReceptors.activeRoutesRetrievedReceptor(action)
   for (const action of fetchedInstanceServerQueue()) AdminInstanceServerReceptors.fetchedInstanceServerReceptor(action)
   for (const action of chargebeeSettingRetrievedQueue())
