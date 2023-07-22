@@ -27,59 +27,23 @@ import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFun
 import { defineActionQueue } from '@etherealengine/hyperflux'
 
 import { AdminActiveRouteActions, AdminActiveRouteReceptors } from '../admin/services/ActiveRouteService'
-import { AdminSceneActions, AdminSceneReceptors } from '../admin/services/SceneService'
-// import { AuthSettingsActions, AuthSettingsReceptors } from '../admin/services/Setting/AuthSettingService'
-import { AdminAwsSettingActions, AwsSettingReceptors } from '../admin/services/Setting/AwsSettingService'
 import {
   AdminChargebeeReceptors,
   AdminChargebeeSettingActions
 } from '../admin/services/Setting/ChargebeeSettingService'
-// import { ClientSettingActions, ClientSettingReceptors } from '../admin/services/Setting/ClientSettingService'
-import { AdminCoilSettingActions, CoilSettingReceptors } from '../admin/services/Setting/CoilSettingService'
 import { EmailSettingActions, EmailSettingReceptors } from '../admin/services/Setting/EmailSettingService'
 import { AdminHelmSettingActions, HelmSettingReceptors } from '../admin/services/Setting/HelmSettingService'
-import {
-  AdminInstanceServerReceptors,
-  InstanceServerSettingActions
-} from '../admin/services/Setting/InstanceServerSettingService'
-import { AdminProjectSettingsActions, ProjectSettingReceptors } from '../admin/services/Setting/ProjectSettingService'
-import { AdminRedisSettingActions, RedisSettingReceptors } from '../admin/services/Setting/RedisSettingService'
-import { AdminServerSettingActions, ServerSettingReceptors } from '../admin/services/Setting/ServerSettingService'
-import {
-  AdminTaskServerSettingActions,
-  TaskServerSettingReceptors
-} from '../admin/services/Setting/TaskServerSettingsService'
 
-const fetchedTaskServersQueue = defineActionQueue(AdminTaskServerSettingActions.fetchedTaskServers.matches)
-const redisSettingRetrievedQueue = defineActionQueue(AdminRedisSettingActions.redisSettingRetrieved.matches)
-const awsSettingRetrievedQueue = defineActionQueue(AdminAwsSettingActions.awsSettingRetrieved.matches)
-const awsSettingPatchedQueue = defineActionQueue(AdminAwsSettingActions.awsSettingPatched.matches)
-const fetchedCoilQueue = defineActionQueue(AdminCoilSettingActions.fetchedCoil.matches)
 const fetchedEmailQueue = defineActionQueue(EmailSettingActions.fetchedEmail.matches)
 const emailSettingPatchedQueue = defineActionQueue(EmailSettingActions.emailSettingPatched.matches)
 const fetchedHelmQueue = defineActionQueue(AdminHelmSettingActions.helmSettingRetrieved.matches)
 const patchedHelmQueue = defineActionQueue(AdminHelmSettingActions.helmSettingPatched.matches)
 const fetchedHelmMainVersionsQueue = defineActionQueue(AdminHelmSettingActions.helmMainVersionsRetrieved.matches)
 const fetchedHelmBuilderVersionsQueue = defineActionQueue(AdminHelmSettingActions.helmBuilderVersionsRetrieved.matches)
-const projectSettingFetchedQueue = defineActionQueue(AdminProjectSettingsActions.projectSettingFetched.matches)
-const fetchedSeverInfoQueue = defineActionQueue(AdminServerSettingActions.fetchedSeverInfo.matches)
-const serverSettingPatchedQueue = defineActionQueue(AdminServerSettingActions.serverSettingPatched.matches)
-const scenesFetchedQueue = defineActionQueue(AdminSceneActions.scenesFetched.matches)
-const sceneFetchedQueue = defineActionQueue(AdminSceneActions.sceneFetched.matches)
 const activeRoutesRetrievedQueue = defineActionQueue(AdminActiveRouteActions.activeRoutesRetrieved.matches)
-const fetchedInstanceServerQueue = defineActionQueue(InstanceServerSettingActions.fetchedInstanceServer.matches)
 const chargebeeSettingRetrievedQueue = defineActionQueue(AdminChargebeeSettingActions.chargebeeSettingRetrieved.matches)
-// const authSettingRetrievedQueue = defineActionQueue(AuthSettingsActions.authSettingRetrieved.matches)
-// const authSettingPatchedQueue = defineActionQueue(AuthSettingsActions.authSettingPatched.matches)
-// const fetchedClientQueue = defineActionQueue(ClientSettingActions.fetchedClient.matches)
-// const clientSettingPatchedQueue = defineActionQueue(ClientSettingActions.clientSettingPatched.matches)
 
 const execute = () => {
-  for (const action of fetchedTaskServersQueue()) TaskServerSettingReceptors.fetchedTaskServersReceptor(action)
-  for (const action of redisSettingRetrievedQueue()) RedisSettingReceptors.redisSettingRetrievedReceptor(action)
-  for (const action of awsSettingRetrievedQueue()) AwsSettingReceptors.awsSettingRetrievedReceptor(action)
-  for (const action of awsSettingPatchedQueue()) AwsSettingReceptors.awsSettingPatchedReceptor(action)
-  for (const action of fetchedCoilQueue()) CoilSettingReceptors.fetchedCoilReceptor(action)
   for (const action of fetchedEmailQueue()) EmailSettingReceptors.fetchedEmailReceptor(action)
   for (const action of emailSettingPatchedQueue()) EmailSettingReceptors.emailSettingPatchedReceptor(action)
   for (const action of fetchedHelmQueue()) HelmSettingReceptors.helmSettingRetrievedReceptor(action)
@@ -87,19 +51,9 @@ const execute = () => {
   for (const action of fetchedHelmMainVersionsQueue()) HelmSettingReceptors.helmMainVersionsRetrievedReceptor(action)
   for (const action of fetchedHelmBuilderVersionsQueue())
     HelmSettingReceptors.helmBuilderVersionsRetrievedReceptor(action)
-  for (const action of projectSettingFetchedQueue()) ProjectSettingReceptors.projectSettingFetchedReceptor(action)
-  for (const action of fetchedSeverInfoQueue()) ServerSettingReceptors.fetchedSeverInfoReceptor(action)
-  for (const action of serverSettingPatchedQueue()) ServerSettingReceptors.serverSettingPatchedReceptor(action)
-  for (const action of scenesFetchedQueue()) AdminSceneReceptors.scenesFetchedReceptor(action)
-  for (const action of sceneFetchedQueue()) AdminSceneReceptors.sceneFetchedReceptor(action)
   for (const action of activeRoutesRetrievedQueue()) AdminActiveRouteReceptors.activeRoutesRetrievedReceptor(action)
-  for (const action of fetchedInstanceServerQueue()) AdminInstanceServerReceptors.fetchedInstanceServerReceptor(action)
   for (const action of chargebeeSettingRetrievedQueue())
     AdminChargebeeReceptors.chargebeeSettingRetrievedReceptor(action)
-  // for (const action of authSettingRetrievedQueue()) //   AuthSettingsReceptors.authSettingRetrievedReceptor(action)/ }
-  // for (const action of authSettingPatchedQueue()) //   AuthSettingsReceptors.authSettingPatchedReceptor(action)/ }
-  // for (const action of fetchedClientQueue()) //   ClientSettingReceptors.fetchedClientReceptor(action)/ }
-  // for (const action of clientSettingPatchedQueue()) //   ClientSettingReceptors.clientSettingPatchedReceptor(action)/ }
 }
 
 export const AdminSystem = defineSystem({
