@@ -29,7 +29,6 @@ import { useLocation } from 'react-router-dom'
 
 import {
   AuthSettingsService,
-  AuthSettingsServiceReceptor,
   AuthSettingsState
 } from '@etherealengine/client-core/src/admin/services/Setting/AuthSettingService'
 import { AdminClientSettingsState } from '@etherealengine/client-core/src/admin/services/Setting/ClientSettingService'
@@ -58,7 +57,6 @@ function RouterComp({ route }: { route: string }) {
 
   useEffect(() => {
     addActionReceptor(RouterServiceReceptor)
-    addActionReceptor(AuthSettingsServiceReceptor)
     addActionReceptor(AuthServiceReceptor)
     addActionReceptor(LocationServiceReceptor)
     addActionReceptor(ProjectServiceReceptor)
@@ -73,7 +71,6 @@ function RouterComp({ route }: { route: string }) {
     }
     return () => {
       removeActionReceptor(RouterServiceReceptor)
-      removeActionReceptor(AuthSettingsServiceReceptor)
       removeActionReceptor(AuthServiceReceptor)
       removeActionReceptor(LocationServiceReceptor)
       removeActionReceptor(ProjectServiceReceptor)

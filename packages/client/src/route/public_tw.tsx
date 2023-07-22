@@ -29,7 +29,6 @@ import { Route, Routes, useLocation } from 'react-router-dom'
 
 import {
   AuthSettingsService,
-  AuthSettingsServiceReceptor,
   AuthSettingsState
 } from '@etherealengine/client-core/src/admin/services/Setting/AuthSettingService'
 import { AdminClientSettingsState } from '@etherealengine/client-core/src/admin/services/Setting/ClientSettingService'
@@ -62,7 +61,6 @@ function PublicRouter() {
   const [routesReady, setRoutesReady] = useState(false)
 
   useEffect(() => {
-    addActionReceptor(AuthSettingsServiceReceptor)
     addActionReceptor(AuthServiceReceptor)
     addActionReceptor(LocationServiceReceptor)
     addActionReceptor(ProjectServiceReceptor)
@@ -77,7 +75,6 @@ function PublicRouter() {
     }
 
     return () => {
-      removeActionReceptor(AuthSettingsServiceReceptor)
       removeActionReceptor(AuthServiceReceptor)
       removeActionReceptor(LocationServiceReceptor)
       removeActionReceptor(ProjectServiceReceptor)
