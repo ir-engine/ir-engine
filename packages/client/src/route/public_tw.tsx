@@ -29,7 +29,6 @@ import { Route, Routes, useLocation } from 'react-router-dom'
 
 import {
   AuthSettingsService,
-  AuthSettingsServiceReceptor,
   AuthSettingsState
 } from '@etherealengine/client-core/src/admin/services/Setting/AuthSettingService'
 import {
@@ -66,7 +65,6 @@ function PublicRouter() {
 
   useEffect(() => {
     addActionReceptor(ClientSettingsServiceReceptor)
-    addActionReceptor(AuthSettingsServiceReceptor)
     addActionReceptor(AuthServiceReceptor)
     addActionReceptor(LocationServiceReceptor)
     addActionReceptor(ProjectServiceReceptor)
@@ -82,7 +80,6 @@ function PublicRouter() {
 
     return () => {
       removeActionReceptor(ClientSettingsServiceReceptor)
-      removeActionReceptor(AuthSettingsServiceReceptor)
       removeActionReceptor(AuthServiceReceptor)
       removeActionReceptor(LocationServiceReceptor)
       removeActionReceptor(ProjectServiceReceptor)
