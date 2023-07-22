@@ -38,9 +38,7 @@ import {
   AdminInstanceServerReceptors,
   InstanceServerSettingActions
 } from '../admin/services/Setting/InstanceServerSettingService'
-import { AdminRedisSettingActions, RedisSettingReceptors } from '../admin/services/Setting/RedisSettingService'
 
-const redisSettingRetrievedQueue = defineActionQueue(AdminRedisSettingActions.redisSettingRetrieved.matches)
 const fetchedCoilQueue = defineActionQueue(AdminCoilSettingActions.fetchedCoil.matches)
 const fetchedEmailQueue = defineActionQueue(EmailSettingActions.fetchedEmail.matches)
 const emailSettingPatchedQueue = defineActionQueue(EmailSettingActions.emailSettingPatched.matches)
@@ -57,7 +55,6 @@ const chargebeeSettingRetrievedQueue = defineActionQueue(AdminChargebeeSettingAc
 // const clientSettingPatchedQueue = defineActionQueue(ClientSettingActions.clientSettingPatched.matches)
 
 const execute = () => {
-  for (const action of redisSettingRetrievedQueue()) RedisSettingReceptors.redisSettingRetrievedReceptor(action)
   for (const action of fetchedCoilQueue()) CoilSettingReceptors.fetchedCoilReceptor(action)
   for (const action of fetchedEmailQueue()) EmailSettingReceptors.fetchedEmailReceptor(action)
   for (const action of emailSettingPatchedQueue()) EmailSettingReceptors.emailSettingPatchedReceptor(action)
