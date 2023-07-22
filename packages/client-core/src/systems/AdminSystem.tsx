@@ -44,7 +44,6 @@ import {
 } from '../admin/services/Setting/InstanceServerSettingService'
 import { AdminProjectSettingsActions, ProjectSettingReceptors } from '../admin/services/Setting/ProjectSettingService'
 import { AdminRedisSettingActions, RedisSettingReceptors } from '../admin/services/Setting/RedisSettingService'
-import { AdminServerSettingActions, ServerSettingReceptors } from '../admin/services/Setting/ServerSettingService'
 import {
   AdminTaskServerSettingActions,
   TaskServerSettingReceptors
@@ -62,8 +61,6 @@ const patchedHelmQueue = defineActionQueue(AdminHelmSettingActions.helmSettingPa
 const fetchedHelmMainVersionsQueue = defineActionQueue(AdminHelmSettingActions.helmMainVersionsRetrieved.matches)
 const fetchedHelmBuilderVersionsQueue = defineActionQueue(AdminHelmSettingActions.helmBuilderVersionsRetrieved.matches)
 const projectSettingFetchedQueue = defineActionQueue(AdminProjectSettingsActions.projectSettingFetched.matches)
-const fetchedSeverInfoQueue = defineActionQueue(AdminServerSettingActions.fetchedSeverInfo.matches)
-const serverSettingPatchedQueue = defineActionQueue(AdminServerSettingActions.serverSettingPatched.matches)
 const scenesFetchedQueue = defineActionQueue(AdminSceneActions.scenesFetched.matches)
 const sceneFetchedQueue = defineActionQueue(AdminSceneActions.sceneFetched.matches)
 const activeRoutesRetrievedQueue = defineActionQueue(AdminActiveRouteActions.activeRoutesRetrieved.matches)
@@ -88,8 +85,6 @@ const execute = () => {
   for (const action of fetchedHelmBuilderVersionsQueue())
     HelmSettingReceptors.helmBuilderVersionsRetrievedReceptor(action)
   for (const action of projectSettingFetchedQueue()) ProjectSettingReceptors.projectSettingFetchedReceptor(action)
-  for (const action of fetchedSeverInfoQueue()) ServerSettingReceptors.fetchedSeverInfoReceptor(action)
-  for (const action of serverSettingPatchedQueue()) ServerSettingReceptors.serverSettingPatchedReceptor(action)
   for (const action of scenesFetchedQueue()) AdminSceneReceptors.scenesFetchedReceptor(action)
   for (const action of sceneFetchedQueue()) AdminSceneReceptors.sceneFetchedReceptor(action)
   for (const action of activeRoutesRetrievedQueue()) AdminActiveRouteReceptors.activeRoutesRetrievedReceptor(action)
