@@ -31,10 +31,7 @@ import {
   AuthSettingsService,
   AuthSettingsState
 } from '@etherealengine/client-core/src/admin/services/Setting/AuthSettingService'
-import {
-  AdminClientSettingsState,
-  ClientSettingsServiceReceptor
-} from '@etherealengine/client-core/src/admin/services/Setting/ClientSettingService'
+import { AdminClientSettingsState } from '@etherealengine/client-core/src/admin/services/Setting/ClientSettingService'
 import ErrorBoundary from '@etherealengine/client-core/src/common/components/ErrorBoundary'
 import { ProjectServiceReceptor } from '@etherealengine/client-core/src/common/services/ProjectService'
 import { RouterServiceReceptor, useCustomRoutes } from '@etherealengine/client-core/src/common/services/RouterService'
@@ -60,7 +57,6 @@ function RouterComp({ route }: { route: string }) {
 
   useEffect(() => {
     addActionReceptor(RouterServiceReceptor)
-    addActionReceptor(ClientSettingsServiceReceptor)
     addActionReceptor(AuthServiceReceptor)
     addActionReceptor(LocationServiceReceptor)
     addActionReceptor(ProjectServiceReceptor)
@@ -75,7 +71,6 @@ function RouterComp({ route }: { route: string }) {
     }
     return () => {
       removeActionReceptor(RouterServiceReceptor)
-      removeActionReceptor(ClientSettingsServiceReceptor)
       removeActionReceptor(AuthServiceReceptor)
       removeActionReceptor(LocationServiceReceptor)
       removeActionReceptor(ProjectServiceReceptor)

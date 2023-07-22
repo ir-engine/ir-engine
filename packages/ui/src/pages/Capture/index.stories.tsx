@@ -30,8 +30,7 @@ import React, { useEffect, useRef, useState } from 'react'
 // import { useTranslation } from 'react-i18next'
 
 // import { useLocation, useNavigate } from 'react-router-dom'
-import { AuthSettingsService } from '@etherealengine/client-core/src/admin/services/Setting/AuthSettingService'
-import { ClientSettingsServiceReceptor } from '@etherealengine/client-core/src/admin/services/Setting/ClientSettingService'
+
 import { AdminCoilSettingService } from '@etherealengine/client-core/src/admin/services/Setting/CoilSettingService'
 import {
   NotificationAction,
@@ -70,6 +69,7 @@ import { loadEngineInjection } from '@etherealengine/projects/loadEngineInjectio
 
 import Component from './index'
 
+import { AuthSettingsService } from '@etherealengine/client-core/src/admin/services/Setting/AuthSettingService'
 import '@etherealengine/client/src/themes/base.css'
 import '@etherealengine/client/src/themes/components.css'
 import '@etherealengine/client/src/themes/utilities.css'
@@ -158,7 +158,6 @@ const decorators = [
     }, [authState.isLoggedIn])
 
     useEffect(() => {
-      addActionReceptor(ClientSettingsServiceReceptor)
       addActionReceptor(AuthServiceReceptor)
       addActionReceptor(LocationServiceReceptor)
       addActionReceptor(ProjectServiceReceptor)
@@ -182,7 +181,6 @@ const decorators = [
 
       return () => {
         // removeActionReceptor(RouterServiceReceptor)
-        removeActionReceptor(ClientSettingsServiceReceptor)
         removeActionReceptor(AuthServiceReceptor)
         removeActionReceptor(LocationServiceReceptor)
         removeActionReceptor(ProjectServiceReceptor)
