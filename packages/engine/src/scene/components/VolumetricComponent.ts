@@ -146,8 +146,6 @@ export function VolumetricReactor() {
           const element = mediaElement.element.value
 
           element.autoplay = true
-          /** If muted is set to false, user must interact with the page just before video is loaded */
-          element.muted = true
           ;(element as HTMLVideoElement).playsInline = true
 
           element.preload = 'auto'
@@ -170,6 +168,10 @@ export function VolumetricReactor() {
           addObjectToGroup(entity, volumetric.player.value.mesh)
 
           element.addEventListener('playing', () => {
+            if (audioContext.state == 'suspended') {
+              audioContext.resume()
+            }
+
             const transform = getComponent(entity, TransformComponent)
             if (!transform) return
             if (volumetric.loadingEffectActive.value) {
@@ -179,11 +181,13 @@ export function VolumetricReactor() {
           })
 
           if (!AudioNodeGroups.get(element)) {
-            const audioNodes = createAudioNodeGroup(
-              element,
-              audioContext.createMediaElementSource(element),
-              gainNodeMixBuses.soundEffects
-            )
+            const source = audioContext.createMediaElementSource(element)
+
+            if (audioContext.state == 'suspended') {
+              audioContext.resume()
+            }
+
+            const audioNodes = createAudioNodeGroup(element, source, gainNodeMixBuses.soundEffects)
 
             audioNodes.gain.gain.setTargetAtTime(volumetric.volume.value, audioContext.currentTime, 0.1)
           }
