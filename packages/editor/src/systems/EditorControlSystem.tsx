@@ -81,6 +81,7 @@ import {
 } from '@etherealengine/engine/src/transform/components/TransformComponent'
 import { defineActionQueue, dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
 
+import { CameraComponent } from '@etherealengine/engine/src/camera/components/CameraComponent'
 import { EditorCameraState } from '../classes/EditorCameraState'
 import { addMediaNode } from '../functions/addMediaNode'
 import { cancelGrabOrPlacement } from '../functions/cancelGrabOrPlacement'
@@ -299,7 +300,7 @@ const findIntersectObjects = (object: Object3D, excludeObjects?: Object3D[], exc
 }
 
 const getRaycastPosition = (coords: Vector2, target: Vector3, snapAmount: number = 0): void => {
-  raycaster.setFromCamera(coords, Engine.instance.camera)
+  raycaster.setFromCamera(coords, getComponent(Engine.instance.cameraEntity, CameraComponent))
   raycasterResults.length = 0
   raycastIgnoreLayers.set(1)
   const scene = Engine.instance.scene
@@ -477,8 +478,11 @@ const execute = () => {
       )
       constraint = TransformAxisConstraints.XYZ
     } else {
-      ray.origin.setFromMatrixPosition(Engine.instance.camera.matrixWorld)
-      ray.direction.set(cursorPosition.x, cursorPosition.y, 0).unproject(Engine.instance.camera).sub(ray.origin)
+      ray.origin.setFromMatrixPosition(getComponent(Engine.instance.cameraEntity, CameraComponent).matrixWorld)
+      ray.direction
+        .set(cursorPosition.x, cursorPosition.y, 0)
+        .unproject(getComponent(Engine.instance.cameraEntity, CameraComponent))
+        .sub(ray.origin)
       ray.intersectPlane(transformPlane, planeIntersection)
       constraint = TransformAxisConstraints[gizmoObj.selectedAxis!]
     }
@@ -601,7 +605,7 @@ const execute = () => {
       let scaleFactor =
         gizmoObj.selectedAxis === TransformAxis.XYZ
           ? 1 +
-            Engine.instance.camera
+            getComponent(Engine.instance.cameraEntity, CameraComponent)
               .getWorldDirection(viewDirection)
               .applyQuaternion(gizmoObj.quaternion)
               .dot(deltaDragVector)

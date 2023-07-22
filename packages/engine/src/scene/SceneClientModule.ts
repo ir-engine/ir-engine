@@ -23,10 +23,51 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { PositionalAudioComponent } from '../audio/components/PositionalAudioComponent'
+import { LoopAnimationComponent } from '../avatar/components/LoopAnimationComponent'
 import { BehaveGraphSystem } from '../behave-graph/systems/BehaveGraphSystem'
 import { defineSystem } from '../ecs/functions/SystemFunctions'
+import { GrabbableComponent } from '../interaction/components/GrabbableComponent'
 import { MountPointSystem } from '../interaction/systems/MountPointSystem'
 import { MaterialLibrarySystem } from '../renderer/materials/systems/MaterialLibrarySystem'
+import { TransformComponent } from '../transform/components/TransformComponent'
+import { XRAnchorComponent } from '../xr/XRComponents'
+import { AmbientLightComponent } from './components/AmbientLightComponent'
+import { CameraSettingsComponent } from './components/CameraSettingsComponent'
+import { CloudComponent } from './components/CloudComponent'
+import { ColliderComponent } from './components/ColliderComponent'
+import { DirectionalLightComponent } from './components/DirectionalLightComponent'
+import { EnvMapBakeComponent } from './components/EnvMapBakeComponent'
+import { EnvmapComponent } from './components/EnvmapComponent'
+import { GroundPlaneComponent } from './components/GroundPlaneComponent'
+import { GroupComponent } from './components/GroupComponent'
+import { HemisphereLightComponent } from './components/HemisphereLightComponent'
+import { ImageComponent } from './components/ImageComponent'
+import { InteriorComponent } from './components/InteriorComponent'
+import { LoadVolumeComponent } from './components/LoadVolumeComponent'
+import { MediaComponent } from './components/MediaComponent'
+import { MountPointComponent } from './components/MountPointComponent'
+import { OceanComponent } from './components/OceanComponent'
+import { ParticleSystemComponent } from './components/ParticleSystemComponent'
+import { PointLightComponent } from './components/PointLightComponent'
+import { PostProcessingComponent } from './components/PostProcessingComponent'
+import { PrefabComponent } from './components/PrefabComponent'
+import { RenderSettingsComponent } from './components/RenderSettingsComponent'
+import { SceneDynamicLoadTagComponent } from './components/SceneDynamicLoadTagComponent'
+import { ScenePreviewCameraComponent } from './components/ScenePreviewCamera'
+import { ScreenshareTargetComponent } from './components/ScreenshareTargetComponent'
+import { ShadowComponent } from './components/ShadowComponent'
+import { SkyboxComponent } from './components/SkyboxComponent'
+import { SpawnPointComponent } from './components/SpawnPointComponent'
+import { SplineComponent } from './components/SplineComponent'
+import { SpotLightComponent } from './components/SpotLightComponent'
+import { SystemComponent } from './components/SystemComponent'
+import { VariantComponent } from './components/VariantComponent'
+import { VideoComponent } from './components/VideoComponent'
+import { VisibleComponent } from './components/VisibleComponent'
+import { VolumetricComponent } from './components/VolumetricComponent'
+import { WaterComponent } from './components/WaterComponent'
+import { FogSettingState } from './systems/FogSystem'
 import { LightSystem } from './systems/LightSystem'
 import { ParticleSystem } from './systems/ParticleSystemSystem'
 import { SceneLoadingSystem } from './systems/SceneLoadingSystem'
@@ -34,6 +75,53 @@ import { SceneObjectDynamicLoadSystem } from './systems/SceneObjectDynamicLoadSy
 import { SceneObjectSystem } from './systems/SceneObjectSystem'
 import { SceneObjectUpdateSystem } from './systems/SceneObjectUpdateSystem'
 import { VariantSystem } from './systems/VariantSystem'
+
+/** This const MUST be kept here, to ensure all components definitions are loaded by the time the scene loading occurs */
+export const SceneComponents = [
+  PositionalAudioComponent,
+  LoopAnimationComponent,
+  GrabbableComponent,
+  AmbientLightComponent,
+  CameraSettingsComponent,
+  CloudComponent,
+  ColliderComponent,
+  DirectionalLightComponent,
+  EnvMapBakeComponent,
+  EnvmapComponent,
+  FogSettingState,
+  GroundPlaneComponent,
+  GroupComponent,
+  HemisphereLightComponent,
+  ImageComponent,
+  InteriorComponent,
+  LoadVolumeComponent,
+  MediaComponent,
+  MountPointComponent,
+  OceanComponent,
+  ParticleSystemComponent,
+  PointLightComponent,
+  PostProcessingComponent,
+  PrefabComponent,
+  RenderSettingsComponent,
+  SceneDynamicLoadTagComponent,
+  ScenePreviewCameraComponent,
+  ScreenshareTargetComponent,
+  ShadowComponent,
+  SkyboxComponent,
+  SpawnPointComponent,
+  SplineComponent,
+  SystemComponent,
+  SplineComponent,
+  SpotLightComponent,
+  SystemComponent,
+  VariantComponent,
+  VideoComponent,
+  VisibleComponent,
+  VolumetricComponent,
+  WaterComponent,
+  TransformComponent,
+  XRAnchorComponent
+]
 
 export const SceneSystemUpdateGroup = defineSystem({
   uuid: 'ee.engine.scene.SceneSystemUpdateGroup',

@@ -26,6 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { MeshDepthMaterial, Scene, WebGLRenderTarget } from 'three'
 
 import { updateLocalAvatarPosition, updateLocalAvatarRotation } from '../../avatar/functions/moveAvatar'
+import { CameraComponent } from '../../camera/components/CameraComponent'
 import { Engine } from '../../ecs/classes/Engine'
 import { getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
@@ -68,7 +69,7 @@ const execute = () => {
       skeletonForceUpdateScene.children = localClientGroup
       renderer.setRenderTarget(dummyRenderTarget)
       renderer.info.autoReset = false
-      renderer.render(skeletonForceUpdateScene, Engine.instance.camera)
+      renderer.render(skeletonForceUpdateScene, getComponent(Engine.instance.cameraEntity, CameraComponent))
       renderer.info.autoReset = true
       renderer.setRenderTarget(null)
     }

@@ -25,10 +25,11 @@ Ethereal Engine. All Rights Reserved.
 
 import { Vector3 } from 'three'
 
-import { Engine } from '../../ecs/classes/Engine'
+import { getState } from '@etherealengine/hyperflux'
 import { Physics } from '../../physics/classes/Physics'
 import { AvatarCollisionMask, CollisionGroups } from '../../physics/enums/CollisionGroups'
 import { getInteractionGroups } from '../../physics/functions/getInteractionGroups'
+import { PhysicsState } from '../../physics/state/PhysicsState'
 import { RaycastHit, SceneQueryType } from '../../physics/types/PhysicsTypes'
 
 const raycastComponentData = {
@@ -59,7 +60,7 @@ export default function checkPositionIsValid(
   raycastComponentData.direction.copy(raycastDirection)
   raycastComponentData.origin.copy(position)
   raycastComponentData.groups = interactionGroups
-  const hits = Physics.castRay(Engine.instance.physicsWorld, raycastComponentData)
+  const hits = Physics.castRay(getState(PhysicsState).physicsWorld, raycastComponentData)
 
   let positionValid = false
   let raycastHit = null as RaycastHit | null

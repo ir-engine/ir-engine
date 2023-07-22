@@ -41,9 +41,6 @@ import {
 } from '@etherealengine/hyperflux'
 import { SystemImportType, getSystemsFromSceneData } from '@etherealengine/projects/loadSystemInjection'
 
-import { PositionalAudioComponent } from '../../audio/components/PositionalAudioComponent'
-import { LoopAnimationComponent } from '../../avatar/components/LoopAnimationComponent'
-import { BehaveGraphComponent } from '../../behave-graph/components/BehaveGraphComponent'
 import {
   AppLoadingAction,
   AppLoadingServiceReceptor,
@@ -74,101 +71,20 @@ import {
   removeEntityNodeRecursively
 } from '../../ecs/functions/EntityTree'
 import { SystemDefinitions, defineSystem, disableSystems, startSystem } from '../../ecs/functions/SystemFunctions'
-import { GrabbableComponent } from '../../interaction/components/GrabbableComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
-import { XRAnchorComponent } from '../../xr/XRComponents'
-import { AmbientLightComponent } from '../components/AmbientLightComponent'
-import { CameraSettingsComponent } from '../components/CameraSettingsComponent'
-import { CloudComponent } from '../components/CloudComponent'
-import { ColliderComponent } from '../components/ColliderComponent'
-import { DirectionalLightComponent } from '../components/DirectionalLightComponent'
-import { EnvMapBakeComponent } from '../components/EnvMapBakeComponent'
-import { EnvmapComponent } from '../components/EnvmapComponent'
 import { FogSettingsComponent } from '../components/FogSettingsComponent'
 import { GLTFLoadedComponent } from '../components/GLTFLoadedComponent'
-import { GroundPlaneComponent } from '../components/GroundPlaneComponent'
 import { GroupComponent } from '../components/GroupComponent'
-import { HemisphereLightComponent } from '../components/HemisphereLightComponent'
-import { ImageComponent } from '../components/ImageComponent'
-import { InteriorComponent } from '../components/InteriorComponent'
-import { LoadVolumeComponent } from '../components/LoadVolumeComponent'
-import { MediaComponent } from '../components/MediaComponent'
 import { MediaSettingsComponent } from '../components/MediaSettingsComponent'
-import { MountPointComponent } from '../components/MountPointComponent'
 import { NameComponent } from '../components/NameComponent'
-import { OceanComponent } from '../components/OceanComponent'
-import { ParticleSystemComponent } from '../components/ParticleSystemComponent'
-import { PointLightComponent } from '../components/PointLightComponent'
 import { PostProcessingComponent } from '../components/PostProcessingComponent'
-import { PrefabComponent } from '../components/PrefabComponent'
 import { RenderSettingsComponent } from '../components/RenderSettingsComponent'
 import { SceneAssetPendingTagComponent } from '../components/SceneAssetPendingTagComponent'
 import { SceneDynamicLoadTagComponent } from '../components/SceneDynamicLoadTagComponent'
 import { SceneObjectComponent } from '../components/SceneObjectComponent'
-import { ScenePreviewCameraComponent } from '../components/ScenePreviewCamera'
-import { ScreenshareTargetComponent } from '../components/ScreenshareTargetComponent'
-import { ShadowComponent } from '../components/ShadowComponent'
-import { SkyboxComponent } from '../components/SkyboxComponent'
-import { SpawnPointComponent } from '../components/SpawnPointComponent'
-import { SplineComponent } from '../components/SplineComponent'
-import { SpotLightComponent } from '../components/SpotLightComponent'
-import { SystemComponent } from '../components/SystemComponent'
 import { UUIDComponent } from '../components/UUIDComponent'
-import { VariantComponent } from '../components/VariantComponent'
-import { VideoComponent } from '../components/VideoComponent'
 import { VisibleComponent } from '../components/VisibleComponent'
-import { VolumetricComponent } from '../components/VolumetricComponent'
-import { WaterComponent } from '../components/WaterComponent'
 import { getUniqueName } from '../functions/getUniqueName'
-import { FogSettingState } from './FogSystem'
-
-/** This const MUST be kept here, to ensure all components definitions are loaded by the time the scene loading occurs */
-export const SceneComponents = [
-  PositionalAudioComponent,
-  LoopAnimationComponent,
-  BehaveGraphComponent,
-  GrabbableComponent,
-  AmbientLightComponent,
-  CameraSettingsComponent,
-  CloudComponent,
-  ColliderComponent,
-  DirectionalLightComponent,
-  EnvMapBakeComponent,
-  EnvmapComponent,
-  FogSettingState,
-  GroundPlaneComponent,
-  GroupComponent,
-  HemisphereLightComponent,
-  ImageComponent,
-  InteriorComponent,
-  LoadVolumeComponent,
-  MediaComponent,
-  MountPointComponent,
-  OceanComponent,
-  ParticleSystemComponent,
-  PointLightComponent,
-  PostProcessingComponent,
-  PrefabComponent,
-  RenderSettingsComponent,
-  SceneDynamicLoadTagComponent,
-  ScenePreviewCameraComponent,
-  ScreenshareTargetComponent,
-  ShadowComponent,
-  SkyboxComponent,
-  SpawnPointComponent,
-  SplineComponent,
-  SystemComponent,
-  SplineComponent,
-  SpotLightComponent,
-  SystemComponent,
-  VariantComponent,
-  VideoComponent,
-  VisibleComponent,
-  VolumetricComponent,
-  WaterComponent,
-  TransformComponent,
-  XRAnchorComponent
-]
 
 export const createNewEditorNode = (entityNode: Entity, componentName: string): void => {
   const components = [

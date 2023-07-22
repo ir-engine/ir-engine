@@ -28,8 +28,10 @@ import { dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 import { WebLayerManager } from '@etherealengine/xrui'
 
 import { AudioState } from './audio/AudioState'
+import { CameraComponent } from './camera/components/CameraComponent'
 import { Engine } from './ecs/classes/Engine'
 import { EngineActions, EngineState } from './ecs/classes/EngineState'
+import { getComponent } from './ecs/functions/ComponentFunctions'
 import { EngineRenderer } from './renderer/WebGLRendererSystem'
 import { ObjectLayers } from './scene/constants/ObjectLayers'
 
@@ -49,11 +51,13 @@ export const initializeBrowser = () => {
   audioState.cameraGainNode.set(cameraGainNode)
   cameraGainNode.connect(audioContext.destination)
 
-  Engine.instance.camera.layers.disableAll()
-  Engine.instance.camera.layers.enable(ObjectLayers.Scene)
-  Engine.instance.camera.layers.enable(ObjectLayers.Avatar)
-  Engine.instance.camera.layers.enable(ObjectLayers.UI)
-  Engine.instance.camera.layers.enable(ObjectLayers.TransformGizmo)
+  const camera = getComponent(Engine.instance.cameraEntity, CameraComponent)
+
+  camera.layers.disableAll()
+  camera.layers.enable(ObjectLayers.Scene)
+  camera.layers.enable(ObjectLayers.Avatar)
+  camera.layers.enable(ObjectLayers.UI)
+  camera.layers.enable(ObjectLayers.TransformGizmo)
 
   getMutableState(EngineState).isBot.set(navigator.userAgent === BotUserAgent)
 

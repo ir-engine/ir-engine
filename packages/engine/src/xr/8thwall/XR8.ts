@@ -28,9 +28,10 @@ import { useEffect } from 'react'
 import config from '@etherealengine/common/src/config'
 import { dispatchAction, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
+import { CameraComponent } from '../../camera/components/CameraComponent'
 import { isMobile } from '../../common/functions/isMobile'
 import { Engine } from '../../ecs/classes/Engine'
-import { defineQuery, useQuery } from '../../ecs/functions/ComponentFunctions'
+import { defineQuery, getComponent, useQuery } from '../../ecs/functions/ComponentFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { PersistentAnchorComponent } from '../XRAnchorComponents'
 import { endXRSession, getReferenceSpaces, requestXRSession } from '../XRSessionFunctions'
@@ -195,7 +196,8 @@ const viewerInputSource = {
   handedness: 'none',
   targetRayMode: 'screen',
   get targetRaySpace() {
-    return new XRSpace(Engine.instance.camera.position, Engine.instance.camera.quaternion) as any
+    const camera = getComponent(Engine.instance.cameraEntity, CameraComponent)
+    return new XRSpace(camera.position, camera.quaternion) as any
   },
   gamepad: {
     axes: [0, 0],
@@ -342,11 +344,12 @@ const execute = () => {
   const xr8scene = XR8.Threejs.xrScene()
   if (sessionActive && xr8scene) {
     const { camera } = xr8scene
+    const engineCamera = getComponent(Engine.instance.cameraEntity, CameraComponent)
     /** update the camera in world space as updateXRInput will update it to local space */
-    Engine.instance.camera.position.copy(camera.position)
-    Engine.instance.camera.quaternion.copy(camera.quaternion).normalize()
+    engineCamera.position.copy(camera.position)
+    engineCamera.quaternion.copy(camera.quaternion).normalize()
     /** 8thwall always expects the camera to be unscaled */
-    Engine.instance.camera.scale.set(1, 1, 1)
+    engineCamera.scale.set(1, 1, 1)
   }
 
   Engine.instance.xrFrame = new XRFrameProxy() as any as XRFrame

@@ -37,6 +37,7 @@ import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFun
 import { InputSourceComponent } from '@etherealengine/engine/src/input/components/InputSourceComponent'
 import { dispatchAction } from '@etherealengine/hyperflux'
 
+import { CameraComponent } from '@etherealengine/engine/src/camera/components/CameraComponent'
 import { editorCameraCenter } from '../classes/EditorCameraState'
 import { EditorHelperAction } from '../services/EditorHelperState'
 
@@ -56,7 +57,7 @@ const onSecondaryClick = () => {
 }
 
 const onSecondaryReleased = () => {
-  const camera = Engine.instance.camera
+  const camera = getComponent(Engine.instance.cameraEntity, CameraComponent)
   if (hasComponent(Engine.instance.cameraEntity, FlyControlComponent)) {
     const distance = camera.position.distanceTo(editorCameraCenter)
     editorCameraCenter.addVectors(

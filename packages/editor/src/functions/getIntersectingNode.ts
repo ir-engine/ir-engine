@@ -33,6 +33,7 @@ import { GroupComponent, Object3DWithEntity } from '@etherealengine/engine/src/s
 import { ObjectLayers } from '@etherealengine/engine/src/scene/constants/ObjectLayers'
 import { getState } from '@etherealengine/hyperflux'
 
+import { CameraComponent } from '@etherealengine/engine/src/camera/components/CameraComponent'
 import { SelectionState } from '../services/SelectionServices'
 
 type RaycastIntersectionNode = Intersection<Object3DWithEntity> & {
@@ -80,7 +81,7 @@ export const getIntersectingNodeOnScreen = (
   raycaster: Raycaster,
   coord: Vector2,
   target: Intersection<Object3D>[] = [],
-  camera: Camera = Engine.instance.camera,
+  camera: Camera = getComponent(Engine.instance.cameraEntity, CameraComponent),
   object?: Object3D,
   recursive: boolean = true
 ): RaycastIntersectionNode | undefined => {

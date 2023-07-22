@@ -138,7 +138,10 @@ export const defineComponent = <
   Component.existenceMapPromiseResolver = {}
   Component.stateMap = {}
   Component.valueMap = {}
-  if (Component.jsonID) ComponentJSONIDMap.set(Component.jsonID, Component)
+  if (Component.jsonID) {
+    ComponentJSONIDMap.set(Component.jsonID, Component)
+    console.log(`Registered component ${Component.name} with jsonID ${Component.jsonID}`)
+  }
   ComponentMap.set(Component.name, Component)
 
   return Component as typeof Component & { _TYPE: ComponentType }
