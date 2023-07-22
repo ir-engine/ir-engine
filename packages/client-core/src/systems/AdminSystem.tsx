@@ -27,7 +27,6 @@ import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFun
 import { defineActionQueue } from '@etherealengine/hyperflux'
 
 import { AdminActiveRouteActions, AdminActiveRouteReceptors } from '../admin/services/ActiveRouteService'
-import { AdminSceneActions, AdminSceneReceptors } from '../admin/services/SceneService'
 // import { AuthSettingsActions, AuthSettingsReceptors } from '../admin/services/Setting/AuthSettingService'
 import {
   AdminChargebeeReceptors,
@@ -61,8 +60,6 @@ const fetchedHelmBuilderVersionsQueue = defineActionQueue(AdminHelmSettingAction
 const projectSettingFetchedQueue = defineActionQueue(AdminProjectSettingsActions.projectSettingFetched.matches)
 const fetchedSeverInfoQueue = defineActionQueue(AdminServerSettingActions.fetchedSeverInfo.matches)
 const serverSettingPatchedQueue = defineActionQueue(AdminServerSettingActions.serverSettingPatched.matches)
-const scenesFetchedQueue = defineActionQueue(AdminSceneActions.scenesFetched.matches)
-const sceneFetchedQueue = defineActionQueue(AdminSceneActions.sceneFetched.matches)
 const activeRoutesRetrievedQueue = defineActionQueue(AdminActiveRouteActions.activeRoutesRetrieved.matches)
 const fetchedInstanceServerQueue = defineActionQueue(InstanceServerSettingActions.fetchedInstanceServer.matches)
 const chargebeeSettingRetrievedQueue = defineActionQueue(AdminChargebeeSettingActions.chargebeeSettingRetrieved.matches)
@@ -85,8 +82,6 @@ const execute = () => {
   for (const action of projectSettingFetchedQueue()) ProjectSettingReceptors.projectSettingFetchedReceptor(action)
   for (const action of fetchedSeverInfoQueue()) ServerSettingReceptors.fetchedSeverInfoReceptor(action)
   for (const action of serverSettingPatchedQueue()) ServerSettingReceptors.serverSettingPatchedReceptor(action)
-  for (const action of scenesFetchedQueue()) AdminSceneReceptors.scenesFetchedReceptor(action)
-  for (const action of sceneFetchedQueue()) AdminSceneReceptors.sceneFetchedReceptor(action)
   for (const action of activeRoutesRetrievedQueue()) AdminActiveRouteReceptors.activeRoutesRetrievedReceptor(action)
   for (const action of fetchedInstanceServerQueue()) AdminInstanceServerReceptors.fetchedInstanceServerReceptor(action)
   for (const action of chargebeeSettingRetrievedQueue())
