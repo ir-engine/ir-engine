@@ -79,41 +79,4 @@ export default (app: Application) => {
 
   service.publish('created', onCRUD(app))
   service.publish('patched', onCRUD(app))
-
-  // service.publish('removed', async (data): Promise<any> => {
-  //   let targetIds
-  //   if (data.channelType === 'user') {
-  //     targetIds = [data.userId1, data.userId2]
-  //   } else if (data.channelType === 'group') {
-  //     const groupUsers = await app.service('group-user').Model.findAll({
-  //       where: {
-  //         groupId: data.groupId
-  //       }
-  //     })
-  //     targetIds = groupUsers.map((groupUser) => groupUser.userId)
-  //   } else if (data.channelType === 'party') {
-  //     const partyUsers = await app.service('party-user').Model.findAll({ where: { partyId: data.partyId } })
-  //     targetIds = partyUsers.map((partyUser) => partyUser.userId)
-  //   } else if (data.channelType === 'instance') {
-  //     const instanceUsers = await app.service('user').Model.findAll({
-  //       sequelize: {
-  //         include: {
-  //           model: 'instance-attendance'
-  //         },
-  //         where: {
-  //           instanceId: data.instanceId
-  //         }
-  //       }
-  //     })
-  //     targetIds = instanceUsers.map((instanceUser) => instanceUser.id)
-  //   }
-  //   // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-  //   return Promise.all(
-  //     targetIds.map((userId) => {
-  //       return app.channel(`userIds/${userId}`).send({
-  //         channel: data
-  //       })
-  //     })
-  //   )
-  // })
 }

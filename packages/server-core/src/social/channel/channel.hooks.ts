@@ -78,7 +78,7 @@ export default {
     create: [setLoggedInUser('userId')],
     update: [disallow('external')],
     patch: [disallow('external')],
-    remove: [disallow('external')]
+    remove: [setLoggedInUser('userId')]
   },
 
   after: {

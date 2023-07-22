@@ -40,10 +40,15 @@ import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import Box from '@etherealengine/ui/src/primitives/mui/Box'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 
+import { ChannelID } from '@etherealengine/common/src/interfaces/ChannelUser'
+import { UserRelationship } from '@etherealengine/common/src/interfaces/UserRelationship'
+import { useFind, useGet } from '@etherealengine/engine/src/common/functions/FeathersHooks'
+import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
+import { LoadingCircle } from '../../../../components/LoadingCircle'
 import { SocialMenus } from '../../../../networking/NetworkInstanceProvisioning'
 import { ChannelService, ChannelState } from '../../../../social/services/ChannelService'
 import { InviteService } from '../../../../social/services/InviteService'
-import { PartyService, PartyState } from '../../../../social/services/PartyService'
+import { getUserAvatarThumbnail, useUserAvatarThumbnail } from '../../../functions/useUserAvatarThumbnail'
 import { AuthState } from '../../../services/AuthService'
 import { PopupMenuServices } from '../PopupMenuService'
 import styles from '../index.module.scss'
@@ -52,15 +57,8 @@ export const usePartyMenuHooks = () => {
   const token = useHookstate('')
   const isInviteOpen = useHookstate(false)
   const isDeleteConfirmOpen = useHookstate(false)
-  // const partyState = useHookstate(getMutableState(PartyState))
   const channelState = useHookstate(getMutableState(ChannelState))
   const selfUser = useHookstate(getMutableState(AuthState).user)
-
-  const currentChannel = channelState.channels.channels.find(
-    (channel) => channel.id.value === channelState.targetChannelId.value
-  )
-
-  const isOwned = currentChannel?.ornull.ownerId.value === selfUser.id.value
 
   const createParty = () => {
     ChannelService.createChannel([])
@@ -75,15 +73,15 @@ export const usePartyMenuHooks = () => {
     token.set(e.target.value)
   }
 
-  const deleteParty = (partyId: string) => {
-    PartyService.removeParty(partyId)
+  const deleteParty = (channelID: ChannelID) => {
+    ChannelService.removeChannel(channelID)
   }
 
   const sendInvite = async (): Promise<void> => {
     const isEmail = EMAIL_REGEX.test(token.value)
     const isPhone = PHONE_REGEX.test(token.value)
     const sendData = {
-      inviteType: 'party',
+      inviteType: 'channel',
       token: token.value,
       inviteCode: null,
       identityProviderType: isEmail ? 'email' : isPhone ? 'sms' : null,
@@ -108,14 +106,17 @@ export const usePartyMenuHooks = () => {
     isInviteOpen,
     isDeleteConfirmOpen,
     deleteParty,
-    isOwned,
     selfUser
   }
 }
 
 const PartyMenu = (): JSX.Element => {
   const { t } = useTranslation()
-  const partyState = useHookstate(getMutableState(PartyState))
+  const channelState = useHookstate(getMutableState(ChannelState))
+  const activeChannel = channelState.channels.channels.find(
+    (channel) => channel.id.value === channelState.targetChannelId.value
+  )
+  const inParty = !activeChannel?.ornull.instanceId.value
 
   const {
     createParty,
@@ -126,11 +127,10 @@ const PartyMenu = (): JSX.Element => {
     isInviteOpen,
     isDeleteConfirmOpen,
     deleteParty,
-    isOwned,
     selfUser
   } = usePartyMenuHooks()
 
-  const renderCreate = () => {
+  const RenderCreate = () => {
     return (
       <Text align="center" flex={1} mt={4} variant="body2">
         {t('user:usermenu.party.createPartyText')}
@@ -138,31 +138,46 @@ const PartyMenu = (): JSX.Element => {
     )
   }
 
-  const renderUser = () => {
-    return partyState.party.partyUsers.get({ noproxy: true })?.map((user, i) => {
+  const RenderUsers = () => {
+    const channelUsers = useFind('channel-user', {
+      query: {
+        channelId: channelState.targetChannelId.value
+      }
+    })
+    const RenderUser = (props: { channelUser }) => {
+      const { channelUser } = props
+      const userThumbnail = useUserAvatarThumbnail() //useUserAvatarThumbnail(channelUser.userId) / TODO: throws an error
+      const user = useGet('user', channelUser.userId).data
       return (
-        <Box key={i} display="flex" alignItems="center" mb={2} gap={1}>
-          <Avatar imageSrc={user.user?.avatar?.thumbnailResource?.url} size={50} />
+        <Box display="flex" alignItems="center" mb={2} gap={1}>
+          <Avatar imageSrc={userThumbnail} size={50} />
 
-          <Text>{user.user?.name}</Text>
+          <Text>{user?.name ?? ''}</Text>
 
-          {user.isOwner && <CrownIcon sx={{ height: '22px', width: '22px', mt: -0.5 }} />}
+          {channelUser.isOwner ? <CrownIcon sx={{ height: '22px', width: '22px', mt: -0.5 }} /> : null}
 
           <Box flex={1} />
 
-          {user.user?.id === selfUser.id.value ? (
+          {user?.id === selfUser.id.value ? (
             <Text variant="body2">{t('user:usermenu.party.you')}</Text>
-          ) : partyState.isOwned.value && user.user ? (
-            <Text color="red" variant="body2" onClick={() => kickUser(user.user?.id)}>
+          ) : channelUser.isOwner && user ? (
+            <Text color="red" variant="body2" onClick={() => kickUser(user?.id)}>
               {t('user:usermenu.party.kick')}
             </Text>
           ) : null}
         </Box>
       )
-    })
+    }
+    return (
+      <>
+        {channelUsers.data.map((channelUser, i) => (
+          <RenderUser key={channelUser.id} channelUser={channelUser} />
+        ))}
+      </>
+    )
   }
 
-  const renderCreateButtons = () => {
+  const RenderCreateButtons = () => {
     return (
       <Box flex={1}>
         <Button fullWidth type="gradientRounded" onClick={createParty}>
@@ -177,20 +192,65 @@ const PartyMenu = (): JSX.Element => {
     )
   }
 
-  const renderUserButtons = () => {
+  const RenderUserButtons = () => {
+    const selfChannelUser = useFind('channel-user', {
+      query: {
+        channelId: channelState.targetChannelId.value,
+        userId: selfUser.id.value
+      }
+    })
+    const friends = useFind('user-relationship', {
+      query: {
+        relationshipType: 'friend'
+      }
+    })
+    const isOwned = selfChannelUser.data.length && selfChannelUser.data[0].isOwner
+    const addFriendToChannel = (userId: UserId) => {
+      const sendData = {
+        inviteType: 'channel',
+        inviteeId: userId,
+        targetObjectId: channelState.targetChannelId.value,
+        token: null
+      } as SendInvite
+      InviteService.sendInvite(sendData)
+    }
+    const InviteFriend = (props: { relationship: UserRelationship }) => {
+      const friend = useGet('user', props.relationship.userId).data
+      if (!friend) return <LoadingCircle />
+      return (
+        <Box key={friend.id} display="flex" alignItems="center" m={2} gap={1.5}>
+          <Avatar alt={friend.name} imageSrc={getUserAvatarThumbnail(friend.id as UserId)} size={50} />
+
+          <Text flex={1}>{friend.name}</Text>
+
+          {props.relationship.userRelationshipType === 'friend' && (
+            <IconButton
+              icon={<Icon type="PersonAdd" sx={{ height: 30, width: 30 }} />}
+              title={t('user:friends.message')}
+              onClick={() => addFriendToChannel(props.relationship.userId)}
+            />
+          )}
+        </Box>
+      )
+    }
     return (
       <Box flex={1}>
         {isInviteOpen.value && (
-          <InputText
-            endIcon={<Icon type="Send" />}
-            placeholder={t('user:usermenu.share.ph-phoneEmail')}
-            startIcon={<Icon type="Clear" />}
-            sx={{ mb: 1, mt: 1 }}
-            value={token}
-            onChange={(e) => handleChangeToken(e)}
-            onEndIconClick={sendInvite}
-            onStartIconClick={() => isInviteOpen.set(false)}
-          />
+          <>
+            {friends.data.map((relationship: UserRelationship) => (
+              <InviteFriend key={relationship.id} relationship={relationship} />
+            ))}
+            <InputText
+              endIcon={<Icon type="Send" />}
+              placeholder={t('user:usermenu.share.ph-phoneEmail')}
+              startIcon={<Icon type="Clear" />}
+              sx={{ mb: 1, mt: 1 }}
+              value={token}
+              onChange={(e) => handleChangeToken(e)}
+              onEndIconClick={sendInvite}
+              onStartIconClick={() => isInviteOpen.set(false)}
+            />
+          </>
         )}
 
         <Box display="flex" columnGap={2} alignItems="center">
@@ -217,7 +277,7 @@ const PartyMenu = (): JSX.Element => {
             submitButtonText={t('user:common.delete')}
             onClose={() => isDeleteConfirmOpen.set(false)}
             onSubmit={() => {
-              deleteParty(partyState.party.id.value)
+              deleteParty(channelState.targetChannelId.value)
               isDeleteConfirmOpen.set(false)
             }}
           />
@@ -231,11 +291,11 @@ const PartyMenu = (): JSX.Element => {
       open
       maxWidth="xs"
       title={t('user:usermenu.party.title')}
-      actions={partyState.party.value ? renderUserButtons() : renderCreateButtons()}
+      actions={inParty ? <RenderUserButtons /> : <RenderCreateButtons />}
       onClose={() => PopupMenuServices.showPopupMenu()}
     >
       <Box className={styles.menuContent} display="flex" flexDirection="column">
-        {partyState.party.value ? renderUser() : renderCreate()}
+        {inParty ? <RenderUsers /> : <RenderCreate />}
       </Box>
     </Menu>
   )

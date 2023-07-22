@@ -62,7 +62,9 @@ export interface UserInterface {
   identity_providers?: IdentityProvider[]
   identityProviders?: IdentityProvider[]
   locationAdmins?: LocationAdmin[]
+  /* @deprecated */
   relationType?: RelationshipType
+  /* @deprecated */
   inverseRelationType?: RelationshipType
   avatarUrl?: string
   partyId?: string

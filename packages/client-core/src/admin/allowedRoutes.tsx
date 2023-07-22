@@ -36,7 +36,7 @@ const Groups = lazy(() => import('./components/Group'))
 const Instance = lazy(() => import('./components/Instance'))
 const Invites = lazy(() => import('./components/Invite'))
 const Locations = lazy(() => import('./components/Location'))
-const Party = lazy(() => import('./components/Party'))
+const Channels = lazy(() => import('./components/Party'))
 const Projects = lazy(() => import('./components/Project'))
 const Recordings = lazy(() => import('./components/Recordings'))
 const Resources = lazy(() => import('./components/Resources'))
@@ -53,7 +53,7 @@ const availableRoutes = [
   { route: '/invites', key: 'invite', component: Invites, props: {} },
   { route: '/locations', key: 'location', component: Locations, props: {} },
   { route: '/routes', key: 'routes', component: RoutesComp, props: {} },
-  { route: '/parties', key: 'party', component: Party, props: {} },
+  { route: '/channels', key: 'channels', component: Channels, props: {} },
   { route: '/bots', key: 'bot', component: BotSetting, props: {} },
   { route: '/projects', key: 'projects', component: Projects, props: {} },
   { route: '/server', key: 'server', component: Server, props: {} },

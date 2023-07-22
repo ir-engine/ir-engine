@@ -56,7 +56,7 @@ export type MethodArgs = {
 }
 
 export const FeathersState = defineState({
-  name: 'ee.engine.figbird',
+  name: 'ee.engine.FeathersState',
   initial: () => ({
     entities: {} as Record<keyof ServiceTypes, Record<string, any>>, // <serviceName, <id, item>>
     queries: {} as Record<keyof ServiceTypes, Record<string, any>>, // <serviceName, <queryId, query>>
@@ -449,7 +449,7 @@ export function useCache(resourceDescriptor: ResourceDescriptor) {
   }, [serviceName, queryId, queryState])
 
   const onFetched = (response) => {
-    const data = Array.isArray(response) ? { data: response } : response
+    const data = method === 'get' ? { data: [response] } : Array.isArray(response) ? { data: response } : response
     return fetched({
       serviceName,
       queryId,
@@ -551,7 +551,10 @@ export function useGet<S extends keyof ServiceTypes, Q extends Query>(
     id
   })
 
-  return response as UseGetReturnType<S>
+  return {
+    ...response,
+    data: response.data ? response.data[0] : null
+  } as UseGetReturnType<S>
 }
 
 type CreateMethodParameters<S extends keyof ServiceTypes> = ServiceTypes[S]['create']
@@ -654,7 +657,6 @@ export function useQuery<S extends keyof ServiceTypes>(
 ) {
   const { method, id } = queryHookOptions
 
-  const feathers = Engine.instance.api
   const disposed = useRef(false)
   const isInitialMount = useRef(true)
 
@@ -724,7 +726,7 @@ export function useQuery<S extends keyof ServiceTypes>(
     if (state.fetched.value) return
     if (skip) return
     state.merge({ reloading: true, error: null })
-    const service = feathers.service(serviceName)
+    const service = Engine.instance.api.service(serviceName)
     const result =
       method === 'get'
         ? getInflight(service, id, params, { queryId })
@@ -743,6 +745,7 @@ export function useQuery<S extends keyof ServiceTypes>(
       })
       .catch((err) => {
         if (!disposed) {
+          console.error(err)
           state.merge({ reloading: false, fetched: true, fetchedCount: state.fetchedCount.value + 1, error: err })
         }
       })

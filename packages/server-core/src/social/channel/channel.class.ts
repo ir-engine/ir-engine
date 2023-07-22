@@ -27,7 +27,7 @@ import { Paginated } from '@feathersjs/feathers'
 import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
 
 import { Channel as ChannelInterface } from '@etherealengine/common/src/interfaces/Channel'
-import { ChannelID } from '@etherealengine/common/src/interfaces/ChannelUser'
+import { ChannelID, ChannelUser } from '@etherealengine/common/src/interfaces/ChannelUser'
 import { UserInterface } from '@etherealengine/common/src/interfaces/User'
 import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 
@@ -207,5 +207,23 @@ export class Channel<T = ChannelDataType> extends Service<T> {
       logger.error(err, `Channel find failed: ${err.message}`)
       throw err
     }
+  }
+
+  /** only allow logged in user to delete the party if they are the owner */
+  async remove(id: ChannelID, params?: UserParams) {
+    const loggedInUser = params!.user
+    if (!loggedInUser) return super.remove(id, params)
+
+    const channelUser = (await this.app.service('channel-user').find({
+      query: {
+        channelId: id,
+        userId: loggedInUser.id,
+        isOwner: true
+      }
+    })) as Paginated<ChannelUser>
+
+    if (!channelUser.data.length) throw new Error('Must be owner to delete channel')
+
+    return super.remove(id)
   }
 }

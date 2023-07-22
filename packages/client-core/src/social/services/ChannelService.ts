@@ -27,15 +27,12 @@ import { none } from '@hookstate/core'
 import { useEffect } from 'react'
 
 import { Channel } from '@etherealengine/common/src/interfaces/Channel'
-import { ChannelID } from '@etherealengine/common/src/interfaces/ChannelUser'
+import { ChannelID, ChannelUser } from '@etherealengine/common/src/interfaces/ChannelUser'
 import { UserId } from '@etherealengine/common/src/interfaces/UserId'
-import multiLogger from '@etherealengine/common/src/logger'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { defineState, getMutableState } from '@etherealengine/hyperflux'
 
 import { NotificationService } from '../../common/services/NotificationService'
-
-const logger = multiLogger.child({ component: 'client-core:social' })
 
 export const ChannelState = defineState({
   name: 'ChannelState',
@@ -121,6 +118,15 @@ export const ChannelService = {
       })
       await ChannelService.getChannels()
     } catch (err) {
+      console.log(err)
+      NotificationService.dispatchNotify(err.message, { variant: 'error' })
+    }
+  },
+  removeChannel: async (channelId: ChannelID) => {
+    try {
+      await Engine.instance.api.service('channel').remove(channelId)
+      await ChannelService.getChannels()
+    } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
   },
@@ -163,14 +169,25 @@ export const ChannelService = {
         }
       }
 
+      const channelUserRemovedListener = (params: ChannelUser) => {
+        ChannelService.getChannels()
+        const channelState = getMutableState(ChannelState)
+        if (params.userId === Engine.instance.userId && params.channelId === channelState.targetChannelId.value) {
+          channelState.targetChannelId.set('' as ChannelID)
+          ChannelService.getInstanceChannel()
+        }
+      }
+
       Engine.instance.api.service('channel').on('created', channelCreatedListener)
       Engine.instance.api.service('channel').on('patched', channelPatchedListener)
       Engine.instance.api.service('channel').on('removed', channelRemovedListener)
+      Engine.instance.api.service('channel-user').on('removed', channelUserRemovedListener)
 
       return () => {
         Engine.instance.api.service('channel').off('created', channelCreatedListener)
         Engine.instance.api.service('channel').off('patched', channelPatchedListener)
         Engine.instance.api.service('channel').off('removed', channelRemovedListener)
+        Engine.instance.api.service('channel-user').off('removed', channelUserRemovedListener)
       }
     }, [])
   }

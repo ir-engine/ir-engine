@@ -24,11 +24,9 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { ChannelID, ChannelUser } from './ChannelUser'
-import { UserId } from './UserId'
 
 export type Channel = {
   id: ChannelID
-  ownerId: UserId
   instanceId: string | null
   createdAt: string
   updatedAt: string

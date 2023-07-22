@@ -76,11 +76,15 @@ export class ChannelUser<T = ChannelUserDataType> extends Service<T> {
     // if no id is provided, remove all who match the userId and channelId
     const { userId, channelId } = params!.query!
     const channelUser = (await this.Model.findOne({
-      query: {
+      where: {
         userId,
         channelId
       }
     })) as ChannelUserDataType
+
+    if (!channelUser) {
+      throw new Error('Channel user not found')
+    }
 
     return super.remove(channelUser.id, params) as Promise<T>
   }

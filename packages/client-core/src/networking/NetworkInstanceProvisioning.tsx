@@ -44,7 +44,6 @@ import { getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
 import { Groups } from '@mui/icons-material'
 
 import { FriendService } from '../social/services/FriendService'
-import { PartyService, PartyState } from '../social/services/PartyService'
 import FriendsMenu from '../user/components/UserMenu/menus/FriendsMenu'
 import PartyMenu from '../user/components/UserMenu/menus/PartyMenu'
 import { PopupMenuState } from '../user/components/UserMenu/PopupMenuService'
@@ -191,7 +190,6 @@ export const PartyInstanceProvisioning = () => {
   const authState = useHookstate(getMutableState(AuthState))
   const selfUser = authState.user
   const chatState = useHookstate(getMutableState(ChannelState))
-  const partyState = useHookstate(getMutableState(PartyState))
 
   const currentChannelInstanceConnection = useMediaInstance()
 
@@ -214,7 +212,6 @@ export const PartyInstanceProvisioning = () => {
   }, [])
 
   FriendService.useAPIListeners()
-  PartyService.useAPIListeners()
 
   // Once we have the world server, provision the party server
   // useEffect(() => {

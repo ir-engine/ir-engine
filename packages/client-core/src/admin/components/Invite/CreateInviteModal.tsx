@@ -67,8 +67,7 @@ const INVITE_TYPE_TAB_MAP = {
   1: 'location',
   2: 'instance',
   3: 'friend',
-  4: 'group',
-  5: 'party'
+  4: 'channel'
 }
 
 const CreateInviteModal = ({ open, onClose }: Props) => {

@@ -49,6 +49,7 @@ export const useUserAvatarThumbnail = (userID = '' as UserId) => {
       .service(avatarPath)
       .get(userAvatarState.avatarID.value)
       .then((avatarDetails) => {
+        console.log('avatarDetails', avatarDetails)
         avatarState.set(avatarDetails.thumbnailResource?.url ?? DEFAULT_PROFILE_IMG_PLACEHOLDER)
       })
   }, [userAvatarState.avatarID])

@@ -26,7 +26,6 @@ Ethereal Engine. All Rights Reserved.
 import { HookContext } from '@feathersjs/feathers'
 import { disallow, iff, isProvider } from 'feathers-hooks-common'
 
-import channelUserPermissionAuthenticate from '@etherealengine/server-core/src/hooks/channel-user-permission-authenticate'
 import setLoggedInUser from '@etherealengine/server-core/src/hooks/set-loggedin-user-in-body'
 
 import authenticate from '../../hooks/authenticate'
@@ -35,11 +34,11 @@ import verifyScope from '../../hooks/verify-scope'
 export default {
   before: {
     all: [authenticate()],
-    find: [iff(isProvider('external'), channelUserPermissionAuthenticate())],
+    find: [],
     get: [disallow('external')],
     create: [iff(isProvider('external'), verifyScope('admin', 'admin'))],
     update: [disallow('external')],
-    patch: [iff(isProvider('external'), channelUserPermissionAuthenticate())],
+    patch: [],
     remove: [setLoggedInUser('userId')]
   },
 
@@ -77,25 +76,23 @@ export default {
     remove: [
       async (context: HookContext): Promise<HookContext> => {
         const { app, params, result } = context
-        console.log('params', params, result)
         const user = await app.service('user').get(result.userId)
         await app.service('message').create({
           channelId: result.channelId,
           text: `${user.name} left the channel`,
           isNotification: true
         })
-        /** @todo - remove channel if no users left */
-        // if (params.channelUsersRemoved !== true) {
-        //   const channelUserCount = await app.service('channel-user').find({
-        //     query: {
-        //       channelId: params.query!.channelId,
-        //       $limit: 0
-        //     }
-        //   })
-        //   if (channelUserCount.total < 1) {
-        //     await app.service('channel').remove(params.query!.channelId, params)
-        //   }
-        // }
+        const channel = await app.service('channel').get(result.channelId)
+        if (channel.instanceId) return context
+        const channelUserCount = await app.service('channel-user').find({
+          query: {
+            channelId: params.query!.channelId,
+            $limit: 0
+          }
+        })
+        if (channelUserCount.total < 1) {
+          await app.service('channel').remove(params.query!.channelId)
+        }
         return context
       }
     ]

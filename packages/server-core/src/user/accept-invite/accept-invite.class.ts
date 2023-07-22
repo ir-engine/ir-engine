@@ -261,7 +261,7 @@ export class AcceptInvite implements ServiceMethods<Data> {
             paramsCopy
           )
         }
-      } else if (invite.inviteType === 'party') {
+      } else if (invite.inviteType === 'channel') {
         /** @todo replace party invite type with channel invite type */
         // const party = await this.app.service('party').Model.findOne({ where: { id: invite.targetObjectId } })
         // if (party == null) {
