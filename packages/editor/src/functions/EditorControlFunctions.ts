@@ -103,7 +103,6 @@ const addOrRemoveComponent = <C extends Component<any, any>>(
 
   /** @todo remove when all scene components migrated to reactor pattern #6892 */
   dispatchAction(EngineActions.sceneObjectUpdate({ entities: nodes as Entity[] }))
-  dispatchAction(EditorAction.sceneModified({ modified: true }))
   dispatchAction(SelectionAction.changedSceneGraph({}))
   dispatchAction(EditorHistoryAction.createSnapshot({}))
 }
@@ -133,7 +132,6 @@ const modifyProperty = <C extends Component<any, any>>(
       entities: nodes.filter((node) => typeof node !== 'string') as Entity[]
     })
   )
-  dispatchAction(EditorAction.sceneModified({ modified: true }))
   dispatchAction(SelectionAction.changedSceneGraph({}))
   dispatchAction(EditorHistoryAction.createSnapshot({}))
 }
@@ -226,7 +224,6 @@ const createObjectFromSceneElement = (
     EditorControlFunctions.replaceSelection([newEntity])
   }
 
-  dispatchAction(EditorAction.sceneModified({ modified: true }))
   dispatchAction(SelectionAction.changedSceneGraph({}))
   dispatchAction(EditorHistoryAction.createSnapshot({}))
 
@@ -305,7 +302,6 @@ const duplicateObject = (nodes: EntityOrObjectUUID[]) => {
 
   EditorControlFunctions.replaceSelection(Object.values(copyMap))
 
-  dispatchAction(EditorAction.sceneModified({ modified: true }))
   dispatchAction(SelectionAction.changedSceneGraph({}))
   dispatchAction(EditorHistoryAction.createSnapshot({}))
 }
@@ -536,7 +532,6 @@ const reparentObject = (
     EditorControlFunctions.replaceSelection(nodes)
   }
 
-  dispatchAction(EditorAction.sceneModified({ modified: true }))
   dispatchAction(SelectionAction.changedSceneGraph({}))
   dispatchAction(EditorHistoryAction.createSnapshot({}))
 }
