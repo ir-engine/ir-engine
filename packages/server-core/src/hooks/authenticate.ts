@@ -35,7 +35,9 @@ export default () => {
   return async (context: HookContext<Application>): Promise<HookContext> => {
     const { params } = context
 
-    if (params.isInternal) return context
+    // If it's an internal call then skip authentication
+    // TODO Currently this breaks new users, and potentially other things, as we also populate user data here
+    // if (params.isInternal) return context
 
     if (!context.params) context.params = {}
     const authHeader = params.headers?.authorization
