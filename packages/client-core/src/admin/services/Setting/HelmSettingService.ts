@@ -25,7 +25,6 @@ Ethereal Engine. All Rights Reserved.
 
 import { Paginated } from '@feathersjs/feathers'
 
-import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import {
   helmBuilderVersionPath,
@@ -33,7 +32,7 @@ import {
   helmSettingPath,
   HelmSettingType
 } from '@etherealengine/engine/src/schemas/setting/helm-setting.schema'
-import { defineAction, defineState, dispatchAction, getMutableState } from '@etherealengine/hyperflux'
+import { defineState, getMutableState } from '@etherealengine/hyperflux'
 
 import { NotificationService } from '../../../common/services/NotificationService'
 
@@ -50,39 +49,11 @@ export const AdminHelmSettingsState = defineState({
   })
 })
 
-const helmSettingRetrievedReceptor = (action: typeof AdminHelmSettingActions.helmSettingRetrieved.matches._TYPE) => {
-  const state = getMutableState(AdminHelmSettingsState)
-  return state.merge({ helmSettings: action.adminHelmSetting.data, updateNeeded: false })
-}
-const helmSettingPatchedReceptor = (action: typeof AdminHelmSettingActions.helmSettingPatched.matches._TYPE) => {
-  const state = getMutableState(AdminHelmSettingsState)
-  return state.merge({ updateNeeded: true })
-}
-const helmMainVersionsRetrievedReceptor = (
-  action: typeof AdminHelmSettingActions.helmMainVersionsRetrieved.matches._TYPE
-) => {
-  const state = getMutableState(AdminHelmSettingsState)
-  return state.merge({ mainVersions: action.adminHelmMainVersions, updateNeeded: false })
-}
-const helmBuilderVersionsRetrievedReceptor = (
-  action: typeof AdminHelmSettingActions.helmBuilderVersionsRetrieved.matches._TYPE
-) => {
-  const state = getMutableState(AdminHelmSettingsState)
-  return state.merge({ builderVersions: action.adminHelmBuilderVersions, updateNeeded: false })
-}
-
-export const HelmSettingReceptors = {
-  helmSettingRetrievedReceptor,
-  helmSettingPatchedReceptor,
-  helmMainVersionsRetrievedReceptor,
-  helmBuilderVersionsRetrievedReceptor
-}
-
 export const HelmSettingService = {
   fetchHelmSetting: async () => {
     try {
       const helmSetting = (await Engine.instance.api.service(helmSettingPath).find()) as Paginated<HelmSettingType>
-      dispatchAction(AdminHelmSettingActions.helmSettingRetrieved({ adminHelmSetting: helmSetting }))
+      getMutableState(AdminHelmSettingsState).merge({ helmSettings: helmSetting.data, updateNeeded: false })
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
@@ -90,7 +61,7 @@ export const HelmSettingService = {
   fetchMainHelmVersions: async () => {
     try {
       const helmMainVersions = await Engine.instance.api.service(helmMainVersionPath).find()
-      dispatchAction(AdminHelmSettingActions.helmMainVersionsRetrieved({ adminHelmMainVersions: helmMainVersions }))
+      getMutableState(AdminHelmSettingsState).merge({ mainVersions: helmMainVersions, updateNeeded: false })
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
@@ -98,9 +69,7 @@ export const HelmSettingService = {
   fetchBuilderHelmVersions: async () => {
     try {
       const helmBuilderVersions = await Engine.instance.api.service(helmBuilderVersionPath).find()
-      dispatchAction(
-        AdminHelmSettingActions.helmBuilderVersionsRetrieved({ adminHelmBuilderVersions: helmBuilderVersions })
-      )
+      getMutableState(AdminHelmSettingsState).merge({ builderVersions: helmBuilderVersions, updateNeeded: false })
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
@@ -108,30 +77,9 @@ export const HelmSettingService = {
   patchHelmSetting: async (data: { main: string; builder: string }, id: string) => {
     try {
       await Engine.instance.api.service(helmSettingPath).patch(id, data)
-      dispatchAction(AdminHelmSettingActions.helmSettingPatched({}))
+      getMutableState(AdminHelmSettingsState).merge({ updateNeeded: true })
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
   }
-}
-
-export class AdminHelmSettingActions {
-  static helmSettingRetrieved = defineAction({
-    type: 'ee.client.AdminHelmSetting.ADMIN_HELM_SETTING_FETCHED' as const,
-    adminHelmSetting: matches.object as Validator<unknown, Paginated<HelmSettingType>>
-  })
-
-  static helmSettingPatched = defineAction({
-    type: 'ee.client.AdminHelmSetting.ADMIN_HELM_SETTING_PATCHED' as const
-  })
-
-  static helmMainVersionsRetrieved = defineAction({
-    type: 'ee.client.AdminHelmSetting.ADMIN_HELM_MAIN_VERSIONS_FETCHED' as const,
-    adminHelmMainVersions: matches.array as Validator<unknown, string[]>
-  })
-
-  static helmBuilderVersionsRetrieved = defineAction({
-    type: 'ee.client.AdminHelmSetting.ADMIN_HELM_BUILDER_VERSIONS_FETCHED' as const,
-    adminHelmBuilderVersions: matches.array as Validator<unknown, string[]>
-  })
 }
