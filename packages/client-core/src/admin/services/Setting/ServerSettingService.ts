@@ -25,14 +25,13 @@ Ethereal Engine. All Rights Reserved.
 
 import { Paginated } from '@feathersjs/feathers'
 
-import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import {
   ServerSettingPatch,
   serverSettingPath,
   ServerSettingType
 } from '@etherealengine/engine/src/schemas/setting/server-setting.schema'
-import { defineAction, defineState, dispatchAction, getMutableState } from '@etherealengine/hyperflux'
+import { defineState, getMutableState } from '@etherealengine/hyperflux'
 
 import { NotificationService } from '../../../common/services/NotificationService'
 
@@ -44,28 +43,13 @@ export const AdminServerSettingsState = defineState({
   })
 })
 
-const fetchedSeverInfoReceptor = (action: typeof AdminServerSettingActions.fetchedSeverInfo.matches._TYPE) => {
-  const state = getMutableState(AdminServerSettingsState)
-  return state.merge({ server: action.serverSettings.data, updateNeeded: false })
-}
-
-const serverSettingPatchedReceptor = (action: typeof AdminServerSettingActions.serverSettingPatched.matches._TYPE) => {
-  const state = getMutableState(AdminServerSettingsState)
-  return state.updateNeeded.set(true)
-}
-
-export const ServerSettingReceptors = {
-  fetchedSeverInfoReceptor,
-  serverSettingPatchedReceptor
-}
-
 export const ServerSettingService = {
   fetchServerSettings: async (inDec?: 'increment' | 'decrement') => {
     try {
       const serverSettings = (await Engine.instance.api
         .service(serverSettingPath)
         .find()) as Paginated<ServerSettingType>
-      dispatchAction(AdminServerSettingActions.fetchedSeverInfo({ serverSettings }))
+      getMutableState(AdminServerSettingsState).merge({ server: serverSettings.data, updateNeeded: false })
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
@@ -73,19 +57,9 @@ export const ServerSettingService = {
   patchServerSetting: async (data: ServerSettingPatch, id: string) => {
     try {
       await Engine.instance.api.service(serverSettingPath).patch(id, data)
-      dispatchAction(AdminServerSettingActions.serverSettingPatched({}))
+      getMutableState(AdminServerSettingsState).merge({ updateNeeded: true })
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
   }
-}
-
-export class AdminServerSettingActions {
-  static fetchedSeverInfo = defineAction({
-    type: 'ee.client.AdminServerSetting.SETTING_SERVER_DISPLAY' as const,
-    serverSettings: matches.object as Validator<unknown, Paginated<ServerSettingType>>
-  })
-  static serverSettingPatched = defineAction({
-    type: 'ee.client.AdminServerSetting.SERVER_SETTING_PATCHED' as const
-  })
 }
