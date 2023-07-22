@@ -39,15 +39,20 @@ import { NearestFilter, PerspectiveCamera, RGBAFormat, WebGLRenderTarget } from 
 
 import { getState } from '@etherealengine/hyperflux'
 
+import { CameraComponent } from '../../camera/components/CameraComponent'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
+import { getComponent } from '../../ecs/functions/ComponentFunctions'
 import { EffectMap, EffectPropsSchema, Effects } from '../../scene/constants/PostProcessing'
 import { HighlightState } from '../HighlightState'
 import { RendererState } from '../RendererState'
 import { EffectComposerWithSchema, EngineRenderer, PostProcessingSettingsState } from '../WebGLRendererSystem'
 import { changeRenderMode } from './changeRenderMode'
 
-export const configureEffectComposer = (remove?: boolean, camera: PerspectiveCamera = Engine.instance.camera): void => {
+export const configureEffectComposer = (
+  remove?: boolean,
+  camera: PerspectiveCamera = getComponent(Engine.instance.cameraEntity, CameraComponent)
+): void => {
   if (!EngineRenderer.instance) return
 
   const scene = Engine.instance.scene

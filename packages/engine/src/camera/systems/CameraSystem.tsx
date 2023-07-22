@@ -47,7 +47,7 @@ import {
   setComponent
 } from '../../ecs/functions/ComponentFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
-import { NetworkObjectOwnedTag } from '../../networking/components/NetworkObjectComponent'
+import { NetworkObjectComponent, NetworkObjectOwnedTag } from '../../networking/components/NetworkObjectComponent'
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
 import {
@@ -251,7 +251,7 @@ const computeCameraFollow = (cameraEntity: Entity, referenceEntity: Entity) => {
 }
 
 export function cameraSpawnReceptor(spawnAction: ReturnType<typeof WorldNetworkAction.spawnCamera>) {
-  const entity = Engine.instance.getNetworkObject(spawnAction.$from, spawnAction.networkId)
+  const entity = NetworkObjectComponent.getNetworkObject(spawnAction.$from, spawnAction.networkId)
   if (!entity) return
 
   console.log('Camera Spawn Receptor Call', entity)
@@ -271,7 +271,7 @@ function CameraReactor() {
 
   useEffect(() => {
     if (!cameraSettings?.cameraNearClip) return
-    const camera = Engine.instance.camera as PerspectiveCamera
+    const camera = getComponent(Engine.instance.cameraEntity, CameraComponent) as PerspectiveCamera
     if (camera?.isPerspectiveCamera) {
       camera.near = cameraSettings.cameraNearClip.value
       camera.far = cameraSettings.cameraFarClip.value
@@ -318,7 +318,10 @@ const execute = () => {
   for (const cameraEntity of spectatorQuery.enter()) {
     const cameraTransform = getComponent(cameraEntity, TransformComponent)
     const spectator = getComponent(cameraEntity, SpectatorComponent)
-    const networkCameraEntity = Engine.instance.getOwnedNetworkObjectWithComponent(spectator.userId, CameraComponent)
+    const networkCameraEntity = NetworkObjectComponent.getOwnedNetworkObjectWithComponent(
+      spectator.userId,
+      CameraComponent
+    )
     const networkTransform = getComponent(networkCameraEntity, TransformComponent)
     setComputedTransformComponent(cameraEntity, networkCameraEntity, () => {
       cameraTransform.position.copy(networkTransform.position)

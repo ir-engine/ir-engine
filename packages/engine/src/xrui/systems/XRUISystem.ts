@@ -262,7 +262,7 @@ const execute = () => {
     xrui.matrixAutoUpdate = visible
   }
 
-  // xrui.layoutSystem.viewFrustum.setFromPerspectiveProjectionMatrix(Engine.instance.camera.projectionMatrix)
+  // xrui.layoutSystem.viewFrustum.setFromPerspectiveProjectionMatrix(getComponent(Engine.instance.cameraEntity, CameraComponent).projectionMatrix)
   // EngineRenderer.instance.renderer.getSize(xrui.layoutSystem.viewResolution)
   // xrui.layoutSystem.update(world.delta, world.elapsedTime)
 }

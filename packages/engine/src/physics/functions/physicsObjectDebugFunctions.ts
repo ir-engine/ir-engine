@@ -45,6 +45,7 @@ import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { addObjectToGroup } from '../../scene/components/GroupComponent'
 import { Physics } from '../classes/Physics'
 import { RigidBodyComponent } from '../components/RigidBodyComponent'
+import { PhysicsState } from '../state/PhysicsState'
 
 /**
  * Returns a random number between min (inclusive) and max (exclusive)
@@ -78,7 +79,8 @@ export const PhysicsSimulationTestSystem = defineSystem({
   uuid: 'ee.test.PhysicsSimulationTestSystem',
   execute: () => {
     const isInitialized = getState(EngineState).isEngineInitialized
-    if (!isInitialized || !Engine.instance.physicsWorld || simulationObjectsGenerated) return
+    const physicsWorld = getState(PhysicsState).physicsWorld
+    if (!isInitialized || !physicsWorld || simulationObjectsGenerated) return
     simulationObjectsGenerated = true
     generateSimulationData(0)
   }
@@ -170,7 +172,8 @@ export const generatePhysicsObject = (
 
   addObjectToGroup(entity, mesh)
 
-  Physics.createRigidBodyForGroup(entity, Engine.instance.physicsWorld, mesh.userData)
+  const physicsWorld = getState(PhysicsState).physicsWorld
+  Physics.createRigidBodyForGroup(entity, physicsWorld, mesh.userData)
 
   const transform = getComponent(entity, TransformComponent)
   transform.position.copy(spawnPosition)

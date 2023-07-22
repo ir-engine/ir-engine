@@ -33,7 +33,6 @@ import {
   Mesh,
   MeshBasicMaterial,
   Object3D,
-  PerspectiveCamera,
   PlaneGeometry,
   Quaternion,
   Raycaster,
@@ -47,6 +46,7 @@ import { getMutableState, getState, hookstate, useHookstate } from '@etherealeng
 
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { CSM } from '../../assets/csm/CSM'
+import { CameraComponent } from '../../camera/components/CameraComponent'
 import { V_001 } from '../../common/constants/MathConstants'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
@@ -64,14 +64,14 @@ import {
 } from '../../ecs/functions/ComponentFunctions'
 import { createEntity, removeEntity, useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { createQueryReactor, defineSystem } from '../../ecs/functions/SystemFunctions'
-import { getShadowsEnabled, useShadowsEnabled } from '../../renderer/functions/RenderSettingsFunction'
 import { RendererState } from '../../renderer/RendererState'
 import { RenderSettingsState } from '../../renderer/WebGLRendererSystem'
+import { getShadowsEnabled, useShadowsEnabled } from '../../renderer/functions/RenderSettingsFunction'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { XRLightProbeState } from '../../xr/XRLightProbeSystem'
 import { DirectionalLightComponent } from '../components/DirectionalLightComponent'
 import { DropShadowComponent } from '../components/DropShadowComponent'
-import { addObjectToGroup, GroupComponent } from '../components/GroupComponent'
+import { GroupComponent, addObjectToGroup } from '../components/GroupComponent'
 import { NameComponent } from '../components/NameComponent'
 import { ShadowComponent } from '../components/ShadowComponent'
 import { VisibleComponent } from '../components/VisibleComponent'
@@ -91,7 +91,7 @@ const SimpleCSM = (props: { light: DirectionalLight }) => {
   useEffect(() => {
     getMutableState(RendererState).csm.set(
       new CSM({
-        camera: Engine.instance.camera as PerspectiveCamera,
+        camera: getComponent(Engine.instance.cameraEntity, CameraComponent),
         parent: csmGroup,
         light: props.light
       })
@@ -119,7 +119,7 @@ const EntityCSM = (props: { entity: Entity }) => {
 
     getMutableState(RendererState).csm.set(
       new CSM({
-        camera: Engine.instance.camera as PerspectiveCamera,
+        camera: getComponent(Engine.instance.cameraEntity, CameraComponent),
         parent: csmGroup,
         light: directionalLight
       })

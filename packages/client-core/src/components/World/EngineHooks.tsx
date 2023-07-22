@@ -42,7 +42,7 @@ import {
 } from '@etherealengine/engine/src/common/AppLoadingService'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { EngineActions, EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
-import { addComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { addComponent, getComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { createNetwork, Network, NetworkTopics } from '@etherealengine/engine/src/networking/classes/Network'
 import { NetworkPeerFunctions } from '@etherealengine/engine/src/networking/functions/NetworkPeerFunctions'
 import {
@@ -50,12 +50,13 @@ import {
   spawnLocalAvatarInWorld
 } from '@etherealengine/engine/src/networking/functions/receiveJoinWorld'
 import { addNetwork, NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
-import { PortalEffects } from '@etherealengine/engine/src/scene/components/PortalComponent'
+import { PortalComponent, PortalEffects } from '@etherealengine/engine/src/scene/components/PortalComponent'
 import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
 import { setAvatarToLocationTeleportingState } from '@etherealengine/engine/src/scene/functions/loaders/PortalFunctions'
 import { addOutgoingTopicIfNecessary, dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 import { loadEngineInjection } from '@etherealengine/projects/loadEngineInjection'
 
+import { UndefinedEntity } from '@etherealengine/engine/src/ecs/classes/Entity'
 import { NotificationService } from '../../common/services/NotificationService'
 import { useRouter } from '../../common/services/RouterService'
 import { LocationState } from '../../social/services/LocationService'
@@ -147,9 +148,11 @@ export const usePortalTeleport = () => {
   useEffect(() => {
     if (engineState.isTeleporting.value) {
       logger.info('Resetting connection for portal teleport.')
-      const activePortal = Engine.instance.activePortal
+      const activePortalEntity = Engine.instance.activePortalEntity
 
-      if (!activePortal) return
+      if (!activePortalEntity) return
+
+      const activePortal = getComponent(activePortalEntity, PortalComponent)
 
       const currentLocation = locationState.locationName.value.split('/')[1]
       if (currentLocation === activePortal.location || UUIDComponent.entitiesByUUID[activePortal.linkedPortalId]) {
@@ -158,7 +161,7 @@ export const usePortalTeleport = () => {
           activePortal.remoteSpawnPosition
           // activePortal.remoteSpawnRotation
         )
-        Engine.instance.activePortal = null
+        Engine.instance.activePortalEntity = UndefinedEntity
         dispatchAction(EngineActions.setTeleporting({ isTeleporting: false, $time: Date.now() + 500 }))
         return
       }
@@ -168,8 +171,8 @@ export const usePortalTeleport = () => {
         return
       }
 
-      route('/location/' + Engine.instance.activePortal!.location)
-      LocationService.getLocationByName(Engine.instance.activePortal!.location)
+      route('/location/' + activePortal.location)
+      LocationService.getLocationByName(activePortal.location)
 
       // shut down connection with existing world instance server
       // leaving a world instance server will check if we are in a location media instance and shut that down too

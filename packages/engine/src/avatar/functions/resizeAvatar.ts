@@ -25,11 +25,12 @@ Ethereal Engine. All Rights Reserved.
 
 import { Vector3 } from 'three'
 
-import { Engine } from '../../ecs/classes/Engine'
+import { getState } from '@etherealengine/hyperflux'
 import { Entity } from '../../ecs/classes/Entity'
 import { ComponentType, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { Physics } from '../../physics/classes/Physics'
 import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
+import { PhysicsState } from '../../physics/state/PhysicsState'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { AvatarRigComponent } from '../components/AvatarAnimationComponent'
 import { AvatarComponent } from '../components/AvatarComponent'
@@ -57,7 +58,7 @@ export const resizeAvatar = (entity: Entity, height: number, center: Vector3) =>
 
   if (!hasComponent(entity, RigidBodyComponent)) return
 
-  Physics.removeCollidersFromRigidBody(entity, Engine.instance.physicsWorld)
+  Physics.removeCollidersFromRigidBody(entity, getState(PhysicsState).physicsWorld)
 
   const collider = createAvatarCollider(entity)
 

@@ -231,6 +231,8 @@ export function MediaReactor() {
   const audioContext = getState(AudioState).audioContext
   const gainNodeMixBuses = getState(AudioState).gainNodeMixBuses
 
+  if (!isClient) return null
+
   useEffect(
     function updatePlay() {
       if (!mediaElement) return

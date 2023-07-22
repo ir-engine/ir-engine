@@ -29,6 +29,7 @@ import { Euler, Matrix4, Quaternion, Vector3 } from 'three'
 import { smootheLerpAlpha } from '@etherealengine/common/src/utils/smootheLerpAlpha'
 import { getState } from '@etherealengine/hyperflux'
 
+import { CameraComponent } from '../../camera/components/CameraComponent'
 import { ObjectDirection } from '../../common/constants/Axis3D'
 import { V_000, V_010 } from '../../common/constants/MathConstants'
 import checkPositionIsValid from '../../common/functions/checkPositionIsValid'
@@ -40,6 +41,7 @@ import { EntityNetworkState } from '../../networking/state/EntityNetworkState'
 import { Physics } from '../../physics/classes/Physics'
 import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
 import { CollisionGroups } from '../../physics/enums/CollisionGroups'
+import { PhysicsState } from '../../physics/state/PhysicsState'
 import { SceneQueryType } from '../../physics/types/PhysicsTypes'
 import { UUIDComponent } from '../../scene/components/UUIDComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
@@ -137,7 +139,7 @@ export function updateLocalAvatarPosition(additionalMovement?: Vector3) {
   avatarGroundRaycast.origin.copy(rigidbody.targetKinematicPosition)
   avatarGroundRaycast.groups = avatarCollisionGroups
   avatarGroundRaycast.origin.y += avatarGroundRaycastDistanceOffset
-  const groundHits = Physics.castRay(Engine.instance.physicsWorld, avatarGroundRaycast)
+  const groundHits = Physics.castRay(getState(PhysicsState).physicsWorld, avatarGroundRaycast)
   controller.isInAir = true
 
   if (groundHits.length) {
@@ -220,7 +222,7 @@ export const applyAutopilotInput = (entity: Entity) => {
 export const applyGamepadInput = (entity: Entity) => {
   if (!entity) return
 
-  const camera = Engine.instance.camera
+  const camera = getComponent(Engine.instance.cameraEntity, CameraComponent)
   const deltaSeconds = getState(EngineState).simulationTimestep / 1000
   const controller = getComponent(entity, AvatarControllerComponent)
 

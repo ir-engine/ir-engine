@@ -31,6 +31,7 @@ import { defineState, getMutableState, getState } from '@etherealengine/hyperflu
 
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { teleportAvatar } from '../../avatar/functions/moveAvatar'
+import { CameraComponent } from '../../camera/components/CameraComponent'
 import { ObjectDirection } from '../../common/constants/Axis3D'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
@@ -45,7 +46,7 @@ import { TransformComponent } from '../../transform/components/TransformComponen
 import { createTransitionState } from '../../xrui/functions/createTransitionState'
 import { PortalEffect } from '../classes/PortalEffect'
 import { HyperspaceTagComponent } from '../components/HyperspaceTagComponent'
-import { PortalEffects } from '../components/PortalComponent'
+import { PortalComponent, PortalEffects } from '../components/PortalComponent'
 import { SceneAssetPendingTagComponent } from '../components/SceneAssetPendingTagComponent'
 import { ObjectLayers } from '../constants/ObjectLayers'
 import { setObjectLayers } from '../functions/setObjectLayers'
@@ -85,14 +86,15 @@ const execute = () => {
 
   if (!playerTransform) return
   const cameraTransform = getComponent(Engine.instance.cameraEntity, TransformComponent)
+  const camera = getComponent(Engine.instance.cameraEntity, CameraComponent)
 
   // to trigger the hyperspace effect, add the hyperspace tag to the world entity
   for (const entity of hyperspaceTagComponent.enter()) {
     // TODO: add BPCEM of old and new scenes and fade them in and out too
     transition.setState('IN')
-    Engine.instance.camera.layers.enable(ObjectLayers.Portal)
+    camera.layers.enable(ObjectLayers.Portal)
 
-    Engine.instance.camera.zoom = 1.5
+    camera.zoom = 1.5
 
     Engine.instance.scene.add(light)
     Engine.instance.scene.add(hyperspaceEffect)
@@ -106,7 +108,7 @@ const execute = () => {
   for (const entity of hyperspaceTagComponent()) {
     if (sceneLoaded && transition.alpha >= 1 && transition.state === 'IN') {
       transition.setState('OUT')
-      Engine.instance.camera.layers.enable(ObjectLayers.Scene)
+      camera.layers.enable(ObjectLayers.Scene)
     }
 
     transition.update(engineState.deltaSeconds, (opacity) => {
@@ -117,8 +119,9 @@ const execute = () => {
         /**
          * hide scene, render just the hyperspace effect and avatar
          */
-        teleportAvatar(Engine.instance.localClientEntity, Engine.instance.activePortal!.remoteSpawnPosition, true)
-        Engine.instance.camera.layers.disable(ObjectLayers.Scene)
+        const activePortal = getComponent(Engine.instance.activePortalEntity, PortalComponent)
+        teleportAvatar(Engine.instance.localClientEntity, activePortal!.remoteSpawnPosition, true)
+        camera.layers.disable(ObjectLayers.Scene)
         sceneVisible = false
       }
 
@@ -127,16 +130,16 @@ const execute = () => {
         removeComponent(Engine.instance.localClientEntity, HyperspaceTagComponent)
         hyperspaceEffect.removeFromParent()
         light.removeFromParent()
-        Engine.instance.camera.layers.disable(ObjectLayers.Portal)
+        camera.layers.disable(ObjectLayers.Portal)
       }
     })
 
     hyperspaceEffect.position.copy(cameraTransform.position)
     hyperspaceEffect.updateMatrixWorld(true)
 
-    if (Engine.instance.camera.zoom > 0.75) {
-      Engine.instance.camera.zoom -= engineState.deltaSeconds
-      Engine.instance.camera.updateProjectionMatrix()
+    if (camera.zoom > 0.75) {
+      camera.zoom -= engineState.deltaSeconds
+      camera.updateProjectionMatrix()
     }
   }
 }

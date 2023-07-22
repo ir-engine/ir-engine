@@ -57,6 +57,8 @@ import { XRUIComponent } from '@etherealengine/engine/src/xrui/components/XRUICo
 import { createTransitionState } from '@etherealengine/engine/src/xrui/functions/createTransitionState'
 import { getMutableState, getState, none } from '@etherealengine/hyperflux'
 
+import { CameraComponent } from '@etherealengine/engine/src/camera/components/CameraComponent'
+import { PhysicsState } from '@etherealengine/engine/src/physics/state/PhysicsState'
 import AvatarContextMenu from '../user/components/UserMenu/menus/AvatarContextMenu'
 import { PopupMenuState } from '../user/components/UserMenu/PopupMenuService'
 import { AvatarUIStateSystem } from './state/AvatarUIState'
@@ -73,7 +75,7 @@ export const AvatarMenus = {
 }
 
 export const renderAvatarContextMenu = (userId: UserId, contextMenuEntity: Entity) => {
-  const userEntity = Engine.instance.getUserAvatarEntity(userId)
+  const userEntity = NetworkObjectComponent.getUserAvatarEntity(userId)
   if (!userEntity) return
 
   const contextMenuXRUI = getComponent(contextMenuEntity, XRUIComponent)
@@ -124,10 +126,11 @@ const raycastComponentData = {
 } as RaycastArgs
 
 const onSecondaryClick = () => {
+  const { physicsWorld } = getState(PhysicsState)
   const hits = Physics.castRayFromCamera(
-    Engine.instance.camera,
+    getComponent(Engine.instance.cameraEntity, CameraComponent),
     Engine.instance.pointerState.position,
-    Engine.instance.physicsWorld,
+    physicsWorld,
     raycastComponentData
   )
   const state = getMutableState(AvatarUIContextMenuState)

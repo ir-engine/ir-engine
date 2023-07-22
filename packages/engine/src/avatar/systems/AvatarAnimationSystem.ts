@@ -160,7 +160,7 @@ const execute = () => {
   }
 
   for (const action of ikTargetSpawnQueue()) {
-    const entity = Engine.instance.getNetworkObject(action.$from, action.networkId)
+    const entity = NetworkObjectComponent.getNetworkObject(action.$from, action.networkId)
     if (!entity) {
       console.warn('Could not find entity for networkId', action.$from, action.networkId)
       continue
@@ -320,7 +320,7 @@ const execute = () => {
   for (const entity of ikEntities) {
     /** Filter by priority queue */
     const networkObject = getComponent(entity, NetworkObjectComponent)
-    const ownerEntity = Engine.instance.getUserAvatarEntity(networkObject.ownerId)
+    const ownerEntity = NetworkObjectComponent.getUserAvatarEntity(networkObject.ownerId)
     if (!Engine.instance.priorityAvatarEntities.has(ownerEntity)) continue
 
     const transformComponent = getComponent(entity, TransformComponent)

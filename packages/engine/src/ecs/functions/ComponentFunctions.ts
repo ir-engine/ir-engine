@@ -25,6 +25,8 @@ Ethereal Engine. All Rights Reserved.
 
 import { Subscribable, subscribable } from '@hookstate/subscribable'
 import * as bitECS from 'bitecs'
+// tslint:disable:ordered-imports
+import type from 'react/experimental'
 import React, { startTransition, use, useEffect, useLayoutEffect } from 'react'
 
 import config from '@etherealengine/common/src/config'
@@ -136,7 +138,10 @@ export const defineComponent = <
   Component.existenceMapPromiseResolver = {}
   Component.stateMap = {}
   Component.valueMap = {}
-  if (Component.jsonID) ComponentJSONIDMap.set(Component.jsonID, Component)
+  if (Component.jsonID) {
+    ComponentJSONIDMap.set(Component.jsonID, Component)
+    console.log(`Registered component ${Component.name} with jsonID ${Component.jsonID}`)
+  }
   ComponentMap.set(Component.name, Component)
 
   return Component as typeof Component & { _TYPE: ComponentType }

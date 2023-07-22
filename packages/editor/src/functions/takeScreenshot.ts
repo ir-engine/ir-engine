@@ -52,6 +52,7 @@ import {
 import { getState } from '@etherealengine/hyperflux'
 import { KTX2Encoder } from '@etherealengine/xrui/core/textures/KTX2Encoder'
 
+import { CameraComponent } from '@etherealengine/engine/src/camera/components/CameraComponent'
 import { EditorState } from '../services/EditorServices'
 import { getCanvasBlob } from './thumbnails'
 
@@ -266,7 +267,7 @@ export async function takeScreenshot(
   }
 
   // restore
-  EngineRenderer.instance.effectComposer.setMainCamera(Engine.instance.camera)
+  EngineRenderer.instance.effectComposer.setMainCamera(getComponent(Engine.instance.cameraEntity, CameraComponent))
   EngineRenderer.instance.effectComposer.setSize(originalSize.width, originalSize.height, false)
   EngineRenderer.instance.renderer.setPixelRatio(pixelRatio)
 
@@ -279,22 +280,24 @@ export async function takeScreenshot(
 
 /** @todo make size, compression & format configurable */
 export const downloadScreenshot = () => {
-  takeScreenshot(1920 * 4, 1080 * 4, 'png', Engine.instance.camera).then((blob) => {
-    if (!blob) return
+  takeScreenshot(1920 * 4, 1080 * 4, 'png', getComponent(Engine.instance.cameraEntity, CameraComponent)).then(
+    (blob) => {
+      if (!blob) return
 
-    const blobUrl = URL.createObjectURL(blob)
+      const blobUrl = URL.createObjectURL(blob)
 
-    const link = document.createElement('a')
+      const link = document.createElement('a')
 
-    const editorState = getState(EditorState)
+      const editorState = getState(EditorState)
 
-    link.href = blobUrl
-    link.download = editorState.projectName + '_' + editorState.sceneName + '_thumbnail.png'
+      link.href = blobUrl
+      link.download = editorState.projectName + '_' + editorState.sceneName + '_thumbnail.png'
 
-    document.body.appendChild(link)
+      document.body.appendChild(link)
 
-    link.click()
+      link.click()
 
-    document.body.removeChild(link)
-  })
+      document.body.removeChild(link)
+    }
+  )
 }

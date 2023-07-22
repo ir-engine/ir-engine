@@ -25,11 +25,24 @@ Ethereal Engine. All Rights Reserved.
 
 import { addActionReceptor } from '@etherealengine/hyperflux'
 
+import * as bitecs from 'bitecs'
+
+import { BoxGeometry, Mesh, MeshNormalMaterial } from 'three'
+import { CameraComponent } from './camera/components/CameraComponent'
 import { Timer } from './common/functions/Timer'
 import { Engine } from './ecs/classes/Engine'
 import { EngineEventReceptor } from './ecs/classes/EngineState'
+import { getComponent, setComponent } from './ecs/functions/ComponentFunctions'
 import { executeSystems, startCoreSystems } from './ecs/functions/EngineFunctions'
+import { createEntity } from './ecs/functions/EntityFunctions'
+import { EntityTreeComponent, initializeSceneEntity } from './ecs/functions/EntityTree'
 import { EngineRenderer } from './renderer/WebGLRendererSystem'
+import { addObjectToGroup } from './scene/components/GroupComponent'
+import { NameComponent } from './scene/components/NameComponent'
+import { VisibleComponent } from './scene/components/VisibleComponent'
+import { ObjectLayers } from './scene/constants/ObjectLayers'
+import { setObjectLayers } from './scene/functions/setObjectLayers'
+import { TransformComponent, setTransformComponent } from './transform/components/TransformComponent'
 
 /**
  * Creates a new instance of the engine and engine renderer. This initializes all properties and state for the engine,
@@ -41,6 +54,38 @@ export const createEngine = () => {
     throw new Error('Engine already exists')
   }
   Engine.instance = new Engine()
+
+  Engine.instance = Engine.instance
+  bitecs.createWorld(Engine.instance)
+
+  Engine.instance.scene.matrixAutoUpdate = false
+  Engine.instance.scene.matrixWorldAutoUpdate = false
+  Engine.instance.scene.layers.set(ObjectLayers.Scene)
+
+  Engine.instance.originEntity = createEntity()
+  setComponent(Engine.instance.originEntity, NameComponent, 'origin')
+  setComponent(Engine.instance.originEntity, EntityTreeComponent, { parentEntity: null })
+  setTransformComponent(Engine.instance.originEntity)
+  setComponent(Engine.instance.originEntity, VisibleComponent, true)
+  addObjectToGroup(Engine.instance.originEntity, Engine.instance.origin)
+  Engine.instance.origin.name = 'world-origin'
+  const originHelperMesh = new Mesh(new BoxGeometry(0.1, 0.1, 0.1), new MeshNormalMaterial())
+  setObjectLayers(originHelperMesh, ObjectLayers.Gizmos)
+  originHelperMesh.frustumCulled = false
+  Engine.instance.origin.add(originHelperMesh)
+
+  Engine.instance.cameraEntity = createEntity()
+  setComponent(Engine.instance.cameraEntity, NameComponent, 'camera')
+  setComponent(Engine.instance.cameraEntity, CameraComponent)
+  setComponent(Engine.instance.cameraEntity, VisibleComponent, true)
+  getComponent(Engine.instance.cameraEntity, TransformComponent).position.set(0, 5, 2)
+
+  const camera = getComponent(Engine.instance.cameraEntity, CameraComponent)
+  camera.matrixAutoUpdate = false
+  camera.matrixWorldAutoUpdate = false
+
+  initializeSceneEntity()
+
   EngineRenderer.instance = new EngineRenderer()
   addActionReceptor(EngineEventReceptor)
   startCoreSystems()

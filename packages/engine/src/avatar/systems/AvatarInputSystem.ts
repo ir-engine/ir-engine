@@ -29,6 +29,7 @@ import { isDev } from '@etherealengine/common/src/config'
 import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
 
+import { CameraComponent } from '../../camera/components/CameraComponent'
 import { V_000, V_010 } from '../../common/constants/MathConstants'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineActions } from '../../ecs/classes/EngineState'
@@ -51,6 +52,7 @@ import { Physics, RaycastArgs } from '../../physics/classes/Physics'
 import { RigidBodyFixedTagComponent } from '../../physics/components/RigidBodyComponent'
 import { CollisionGroups } from '../../physics/enums/CollisionGroups'
 import { getInteractionGroups } from '../../physics/functions/getInteractionGroups'
+import { PhysicsState } from '../../physics/state/PhysicsState'
 import { SceneQueryType } from '../../physics/types/PhysicsTypes'
 import { RendererState } from '../../renderer/RendererState'
 import { XRState, hasMovementControls } from '../../xr/XRState'
@@ -151,9 +153,9 @@ const onKeyP = () => {
 
 const isAvatarClicked = () => {
   const hits = Physics.castRayFromCamera(
-    Engine.instance.camera,
+    getComponent(Engine.instance.cameraEntity, CameraComponent),
     Engine.instance.pointerState.position,
-    Engine.instance.physicsWorld,
+    getState(PhysicsState).physicsWorld,
     raycastComponentData
   )
   if (hits.length) {

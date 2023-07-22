@@ -36,7 +36,7 @@ import { hasComponent } from '../../ecs/functions/ComponentFunctions'
 // import { XRHandsInputComponent } from '../../xr/XRComponents'
 // import { XRHandBones } from '../../xr/XRHandBones'
 import { Network } from '../classes/Network'
-import { NetworkObjectAuthorityTag } from '../components/NetworkObjectComponent'
+import { NetworkObjectAuthorityTag, NetworkObjectComponent } from '../components/NetworkObjectComponent'
 import { NetworkState } from '../NetworkState'
 import {
   expand,
@@ -218,7 +218,7 @@ export const readEntity = (
 
   const ownerId = network.userIndexToUserID.get(ownerIndex)!
 
-  let entity = Engine.instance.getNetworkObject(ownerId, netId)
+  let entity = NetworkObjectComponent.getNetworkObject(ownerId, netId)
   if (entity && hasComponent(entity, NetworkObjectAuthorityTag)) entity = UndefinedEntity
 
   let b = 0

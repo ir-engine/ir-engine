@@ -30,6 +30,7 @@ import { dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 
 import { AvatarHeadDecapComponent } from '../avatar/components/AvatarIKComponents'
 import { V_000 } from '../common/constants/MathConstants'
+import { NetworkObjectComponent } from '../networking/components/NetworkObjectComponent'
 import { RigidBodyComponent } from '../physics/components/RigidBodyComponent'
 import { setVisibleComponent } from '../scene/components/VisibleComponent'
 import { TransformComponent } from '../transform/components/TransformComponent'
@@ -198,7 +199,7 @@ export const endXRSession = createHookableFunction(async () => {
  * @returns
  */
 export const xrSessionChanged = createHookableFunction((action: typeof XRAction.sessionChanged.matches._TYPE) => {
-  const entity = Engine.instance.getUserAvatarEntity(action.$from)
+  const entity = NetworkObjectComponent.getUserAvatarEntity(action.$from)
   if (!entity) return
 
   if (action.active) {

@@ -54,6 +54,7 @@ import { ObjectFitFunctions } from '@etherealengine/engine/src/xrui/functions/Ob
 import { defineActionQueue, defineState, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 import type { WebLayer3D } from '@etherealengine/xrui'
 
+import { CameraComponent } from '@etherealengine/engine/src/camera/components/CameraComponent'
 import { AdminClientSettingsState } from '../admin/services/Setting/ClientSettingService'
 import { AppThemeState, getAppTheme } from '../common/services/AppThemeState'
 import { AuthState } from '../user/services/AuthService'
@@ -244,12 +245,12 @@ const execute = () => {
     })
   }
 
-  mesh.position.copy(Engine.instance.camera.position)
+  mesh.position.copy(getComponent(Engine.instance.cameraEntity, CameraComponent).position)
   mesh.updateMatrixWorld(true)
 
   // add a slow rotation to animate on desktop, otherwise just keep it static for VR
   // if (!getState(EngineState).joinedWorld) {
-  //   Engine.instance.camera.rotateY(world.delta * 0.35)
+  //   getComponent(Engine.instance.cameraEntity, CameraComponent).rotateY(world.delta * 0.35)
   // } else {
   //   // todo: figure out how to make this work properly for VR #7256
   // }

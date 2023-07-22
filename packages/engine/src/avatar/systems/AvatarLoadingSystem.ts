@@ -38,6 +38,7 @@ import {
   Vector3
 } from 'three'
 
+import { getState } from '@etherealengine/hyperflux'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { ObjectDirection } from '../../common/constants/Axis3D'
 import { Engine } from '../../ecs/classes/Engine'
@@ -54,16 +55,17 @@ import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { Physics, RaycastArgs } from '../../physics/classes/Physics'
 import { AvatarCollisionMask, CollisionGroups } from '../../physics/enums/CollisionGroups'
 import { getInteractionGroups } from '../../physics/functions/getInteractionGroups'
+import { PhysicsState } from '../../physics/state/PhysicsState'
 import { SceneQueryType } from '../../physics/types/PhysicsTypes'
-import { addObjectToGroup, GroupComponent } from '../../scene/components/GroupComponent'
+import { GroupComponent, addObjectToGroup } from '../../scene/components/GroupComponent'
 import { VisibleComponent } from '../../scene/components/VisibleComponent'
 import { setupObject } from '../../scene/systems/SceneObjectSystem'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { TweenComponent } from '../../transform/components/TweenComponent'
+import { DissolveEffect } from '.././DissolveEffect'
 import { AvatarControllerComponent } from '.././components/AvatarControllerComponent'
 import { AvatarDissolveComponent } from '.././components/AvatarDissolveComponent'
 import { AvatarEffectComponent } from '.././components/AvatarEffectComponent'
-import { DissolveEffect } from '.././DissolveEffect'
 
 const lightScale = (y, r) => {
   return Math.min(1, Math.max(1e-3, y / r))
@@ -127,7 +129,7 @@ const execute = () => {
      * cast ray to move this downward to be on the ground
      */
     downwardGroundRaycast.origin.copy(sourceTransform.position)
-    const hits = Physics.castRay(Engine.instance.physicsWorld, downwardGroundRaycast)
+    const hits = Physics.castRay(getState(PhysicsState).physicsWorld, downwardGroundRaycast)
     if (hits.length) {
       transform.position.y = hits[0].position.y
     }

@@ -23,11 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Matrix4, PerspectiveCamera, Quaternion, Vector2, Vector3 } from 'three'
+import { Matrix4, Quaternion, Vector2, Vector3 } from 'three'
 
 import type { WebContainer3D } from '@etherealengine/xrui'
 
 import { AvatarRigComponent } from '../../avatar/components/AvatarAnimationComponent'
+import { CameraComponent } from '../../camera/components/CameraComponent'
 import { Object3DUtils } from '../../common/functions/Object3DUtils'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
@@ -80,7 +81,10 @@ export const ObjectFitFunctions = {
     return scale
   },
 
-  computeFrustumSizeAtDistance: (distance: number, camera = Engine.instance.camera as PerspectiveCamera) => {
+  computeFrustumSizeAtDistance: (
+    distance: number,
+    camera = getComponent(Engine.instance.cameraEntity, CameraComponent)
+  ) => {
     // const vFOV = camera.fov * DEG2RAD
     camera.projectionMatrixInverse.copy(camera.projectionMatrix).invert()
     const inverseProjection = camera.projectionMatrixInverse
@@ -97,7 +101,7 @@ export const ObjectFitFunctions = {
     contentWidth: number,
     contentHeight: number,
     fit: ContentFitType = 'contain',
-    camera = Engine.instance.camera as PerspectiveCamera
+    camera = getComponent(Engine.instance.cameraEntity, CameraComponent)
   ) => {
     const size = ObjectFitFunctions.computeFrustumSizeAtDistance(distance, camera)
     return ObjectFitFunctions.computeContentFitScale(contentWidth, contentHeight, size.width, size.height, fit)
@@ -106,7 +110,7 @@ export const ObjectFitFunctions = {
   attachObjectInFrontOfCamera: (entity: Entity, scale: number, distance: number) => {
     const transform = getComponent(entity, TransformComponent)
     _mat4.makeTranslation(0, 0, -distance).scale(_vec3.set(scale, scale, 1))
-    transform.matrix.multiplyMatrices(Engine.instance.camera.matrixWorld, _mat4)
+    transform.matrix.multiplyMatrices(getComponent(Engine.instance.cameraEntity, CameraComponent).matrixWorld, _mat4)
     transform.matrix.decompose(transform.position, transform.rotation, transform.scale)
     transform.matrixInverse.copy(transform.matrix).invert()
     TransformComponent.dirtyTransforms[entity] = false
@@ -137,8 +141,9 @@ export const ObjectFitFunctions = {
   },
 
   lookAtCameraFromPosition: (container: WebContainer3D, position: Vector3) => {
-    container.scale.setScalar(Math.max(1, Engine.instance.camera.position.distanceTo(position) / 3))
+    const camera = getComponent(Engine.instance.cameraEntity, CameraComponent)
+    container.scale.setScalar(Math.max(1, camera.position.distanceTo(position) / 3))
     container.position.copy(position)
-    container.rotation.setFromRotationMatrix(Engine.instance.camera.matrixWorld)
+    container.rotation.setFromRotationMatrix(camera.matrixWorld)
   }
 }
