@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import VolumetricPlayer from '@citizendot/universal-volumetric/dist/Player'
+import type VolumetricPlayer from '@citizendot/universal-volumetric/dist/Player'
 import { useEffect } from 'react'
 import { Box3, Material, Mesh, Object3D } from 'three'
 
@@ -34,6 +34,7 @@ import { DissolveEffect } from '@etherealengine/engine/src/avatar/DissolveEffect
 import { AvatarDissolveComponent } from '@etherealengine/engine/src/avatar/components/AvatarDissolveComponent'
 import { AvatarEffectComponent, MaterialMap } from '@etherealengine/engine/src/avatar/components/AvatarEffectComponent'
 import { AudioState } from '../../audio/AudioState'
+import { isClient } from '../../common/functions/getEnvironment'
 import { Entity } from '../../ecs/classes/Entity'
 import {
   ComponentType,
@@ -133,54 +134,60 @@ export function VolumetricReactor() {
   const volumetric = useComponent(entity, VolumetricComponent)
 
   useEffect(() => {
-    const worker = createWorkerFromCrossOriginURL(VolumetricPlayer.defaultWorkerURL)
-    setComponent(entity, MediaElementComponent, {
-      element: document.createElement('video') as HTMLMediaElement
-    })
-    const mediaElement = getMutableComponent(entity, MediaElementComponent)
-    const element = mediaElement.element.value
+    if (isClient) {
+      import('@citizendot/universal-volumetric/dist/Player')
+        .then((module) => module.default)
+        .then((VolumetricPlayer) => {
+          const worker = createWorkerFromCrossOriginURL(VolumetricPlayer.defaultWorkerURL)
+          setComponent(entity, MediaElementComponent, {
+            element: document.createElement('video') as HTMLMediaElement
+          })
+          const mediaElement = getMutableComponent(entity, MediaElementComponent)
+          const element = mediaElement.element.value
 
-    element.autoplay = true
-    /** If muted is set to false, user must interact with the page just before video is loaded */
-    element.muted = true
-    ;(element as HTMLVideoElement).playsInline = true
+          element.autoplay = true
+          /** If muted is set to false, user must interact with the page just before video is loaded */
+          element.muted = true
+          ;(element as HTMLVideoElement).playsInline = true
 
-    element.preload = 'auto'
-    element.crossOrigin = 'anonymous'
+          element.preload = 'auto'
+          element.crossOrigin = 'anonymous'
 
-    volumetric.player.set(
-      new VolumetricPlayer({
-        renderer: EngineRenderer.instance.renderer,
-        onTrackEnd: () => {
-          volumetric.track.set(getNextTrack(volumetric.value))
-        },
-        video: element as HTMLVideoElement,
-        V1Args: {
-          worker: worker
-        },
-        paths: [],
-        playMode: PlayMode.loop
-      })
-    )
-    addObjectToGroup(entity, volumetric.player.value.mesh)
+          volumetric.player.set(
+            new VolumetricPlayer({
+              renderer: EngineRenderer.instance.renderer,
+              onTrackEnd: () => {
+                volumetric.track.set(getNextTrack(volumetric.value))
+              },
+              video: element as HTMLVideoElement,
+              V1Args: {
+                worker: worker
+              },
+              paths: [],
+              playMode: PlayMode.loop
+            })
+          )
+          addObjectToGroup(entity, volumetric.player.value.mesh)
 
-    element.addEventListener('playing', () => {
-      const transform = getComponent(entity, TransformComponent)
-      if (!transform) return
-      if (volumetric.loadingEffectActive.value) {
-        volumetric.height.set(calculateHeight(volumetric.player.value.mesh) * transform.scale.y)
-        if (volumetric.loadingEffectTime.value === 0) setupLoadingEffect(entity, volumetric.player.value!.mesh)
-      }
-    })
+          element.addEventListener('playing', () => {
+            const transform = getComponent(entity, TransformComponent)
+            if (!transform) return
+            if (volumetric.loadingEffectActive.value) {
+              volumetric.height.set(calculateHeight(volumetric.player.value.mesh) * transform.scale.y)
+              if (volumetric.loadingEffectTime.value === 0) setupLoadingEffect(entity, volumetric.player.value!.mesh)
+            }
+          })
 
-    if (!AudioNodeGroups.get(element)) {
-      const audioNodes = createAudioNodeGroup(
-        element,
-        audioContext.createMediaElementSource(element),
-        gainNodeMixBuses.soundEffects
-      )
+          if (!AudioNodeGroups.get(element)) {
+            const audioNodes = createAudioNodeGroup(
+              element,
+              audioContext.createMediaElementSource(element),
+              gainNodeMixBuses.soundEffects
+            )
 
-      audioNodes.gain.gain.setTargetAtTime(volumetric.volume.value, audioContext.currentTime, 0.1)
+            audioNodes.gain.gain.setTargetAtTime(volumetric.volume.value, audioContext.currentTime, 0.1)
+          }
+        })
     }
   }, [])
 
@@ -194,10 +201,11 @@ export function VolumetricReactor() {
         audioNodes.gain.gain.setTargetAtTime(volume, audioContext.currentTime, 0.1)
       }
     },
-    [volumetric.volume]
+    [volumetric.volume, volumetric.player]
   )
 
   useEffect(() => {
+    if (!volumetric.player.value) return
     if (volumetric.player.value.stopped) {
       volumetric.loadingEffectActive.set(volumetric.useLoadingEffect.value) // set to user's value
       volumetric.loadingEffectTime.set(0)
@@ -211,15 +219,16 @@ export function VolumetricReactor() {
        * No need to set track path.
        */
     }
-  }, [volumetric.track, volumetric.paths])
+  }, [volumetric.track, volumetric.paths, volumetric.player])
 
   useEffect(() => {
+    if (!volumetric.player.value) return
     if (volumetric.paused.value) {
       volumetric.player.value.pause()
     } else {
       volumetric.player.value.play()
     }
-  }, [volumetric.paused])
+  }, [volumetric.paused, volumetric.player])
 
   return null
 }
