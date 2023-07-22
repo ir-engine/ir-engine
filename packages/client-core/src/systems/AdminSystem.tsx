@@ -29,7 +29,6 @@ import { defineActionQueue } from '@etherealengine/hyperflux'
 import { AdminActiveRouteActions, AdminActiveRouteReceptors } from '../admin/services/ActiveRouteService'
 import { AdminSceneActions, AdminSceneReceptors } from '../admin/services/SceneService'
 // import { AuthSettingsActions, AuthSettingsReceptors } from '../admin/services/Setting/AuthSettingService'
-import { AdminAwsSettingActions, AwsSettingReceptors } from '../admin/services/Setting/AwsSettingService'
 import {
   AdminChargebeeReceptors,
   AdminChargebeeSettingActions
@@ -52,8 +51,6 @@ import {
 
 const fetchedTaskServersQueue = defineActionQueue(AdminTaskServerSettingActions.fetchedTaskServers.matches)
 const redisSettingRetrievedQueue = defineActionQueue(AdminRedisSettingActions.redisSettingRetrieved.matches)
-const awsSettingRetrievedQueue = defineActionQueue(AdminAwsSettingActions.awsSettingRetrieved.matches)
-const awsSettingPatchedQueue = defineActionQueue(AdminAwsSettingActions.awsSettingPatched.matches)
 const fetchedCoilQueue = defineActionQueue(AdminCoilSettingActions.fetchedCoil.matches)
 const fetchedEmailQueue = defineActionQueue(EmailSettingActions.fetchedEmail.matches)
 const emailSettingPatchedQueue = defineActionQueue(EmailSettingActions.emailSettingPatched.matches)
@@ -77,8 +74,6 @@ const chargebeeSettingRetrievedQueue = defineActionQueue(AdminChargebeeSettingAc
 const execute = () => {
   for (const action of fetchedTaskServersQueue()) TaskServerSettingReceptors.fetchedTaskServersReceptor(action)
   for (const action of redisSettingRetrievedQueue()) RedisSettingReceptors.redisSettingRetrievedReceptor(action)
-  for (const action of awsSettingRetrievedQueue()) AwsSettingReceptors.awsSettingRetrievedReceptor(action)
-  for (const action of awsSettingPatchedQueue()) AwsSettingReceptors.awsSettingPatchedReceptor(action)
   for (const action of fetchedCoilQueue()) CoilSettingReceptors.fetchedCoilReceptor(action)
   for (const action of fetchedEmailQueue()) EmailSettingReceptors.fetchedEmailReceptor(action)
   for (const action of emailSettingPatchedQueue()) EmailSettingReceptors.emailSettingPatchedReceptor(action)
