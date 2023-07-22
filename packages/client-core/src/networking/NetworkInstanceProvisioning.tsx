@@ -59,6 +59,8 @@ export const WorldInstanceProvisioning = () => {
   const currentLocationInstanceConnection = useWorldInstance()
   const networkConfigState = useHookstate(getMutableState(NetworkState).config)
 
+  ChannelService.useAPIListeners()
+
   const locationInstance = useHookstate(getMutableState(LocationInstanceState))
   const instance = useWorldInstance()
 
@@ -141,24 +143,19 @@ export const WorldInstanceProvisioning = () => {
 export const MediaInstanceProvisioning = () => {
   const chatState = useHookstate(getMutableState(ChannelState))
 
-  const worldNetworkHostId = Engine.instance.worldNetwork?.hostId
-
   const mediaNetworkHostId = Engine.instance.mediaNetwork?.hostId
   const currentChannelInstanceConnection = useMediaInstance()
 
   MediaInstanceConnectionService.useAPIListeners()
-  ChannelService.useAPIListeners()
 
   // Once we have the world server, provision the media server
   useEffect(() => {
-    if (chatState.instanceChannelFetched.value) {
-      const channels = chatState.channels.channels.value
-      // const instanceChannel = Object.values(channels).find((channel) => channel.instanceId === worldNetworkHostId)
+    if (chatState.channels.channels?.value.length) {
       const currentChannel = chatState.targetChannelId.value
       if (!currentChannelInstanceConnection?.provisioned.value)
         MediaInstanceConnectionService.provisionServer(currentChannel, true)
     }
-  }, [chatState.instanceChannelFetched])
+  }, [chatState.channels.channels?.length])
 
   // Once the media server is provisioned, connect to it
   useEffect(() => {

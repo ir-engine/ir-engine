@@ -25,13 +25,13 @@ Ethereal Engine. All Rights Reserved.
 
 import React from 'react'
 
-import { ChannelState } from '@etherealengine/client-core/src/social/services/ChannelService'
 import { useUserAvatarThumbnail } from '@etherealengine/client-core/src/user/functions/useUserAvatarThumbnail'
-import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
 import { useFind, useMutation } from '@etherealengine/engine/src/common/functions/FeathersHooks'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
+import { ChannelID } from '@etherealengine/common/src/interfaces/ChannelUser'
+import { ChatState } from './ChatState'
 import AttachFileIcon from './assets/attach-file2.svg'
 import CallIcon from './assets/call.svg'
 import SendIcon from './assets/send.svg'
@@ -42,20 +42,12 @@ import UserSvg from './assets/user.svg'
  * reacts to chat state changes, both active channel and channel data, and fetches new messages
  */
 
-export const MessageList = () => {
-  const userName = useHookstate(getMutableState(AuthState).user.name).value
-  const chatState = useHookstate(getMutableState(ChannelState))
-  const activeChannel = chatState.channels.value?.channels.find(
-    (channel) => channel.id === chatState.targetChannelId.value
-  )
+export const MessageList = (props: { channelID: ChannelID }) => {
   const userThumbnail = useUserAvatarThumbnail(Engine.instance.userId)
-
-  const channelUserNames =
-    activeChannel?.channel_users.map((user) => user.user!.name).filter((name) => name !== userName) ?? []
 
   const { data: messages } = useFind('message', {
     query: {
-      channelId: chatState.targetChannelId.value
+      channelId: props.channelID
     }
   })
 
@@ -89,24 +81,13 @@ export const MessageList = () => {
   const sendMessage = () => {
     mutateMessage.create({
       text: composingMessage.value,
-      channelId: chatState.targetChannelId.value
+      channelId: props.channelID
     })
     composingMessage.set('')
   }
 
   return (
     <>
-      <div className="w-[720px] h-[90px] flex flex-wrap gap-[450px] ml-5 justify-center">
-        <div className="mt-7">
-          <p className="text-3xl font-bold text-[#3F3960]">{channelUserNames.join(', ')}</p>
-        </div>
-        <div className="flex justify-center">
-          <button className="">
-            <img className="w-10 h-10 overflow-hidden" alt="" src={CallIcon} />
-          </button>
-        </div>
-      </div>
-      <div className="box-border w-[765px] border-t-[1px] border-solid border-[#D1D3D7]" />
       <div className="w-[720px] bg-[#FFFFFF] ml-6 mb-[100px] mt-4 justify-center content-center overflow-scroll hide-scroll">
         {messages.map((message, index) => {
           if (message.sender.id === Engine.instance.userId) return <SelfMessage key={index} message={message} />
@@ -139,6 +120,27 @@ export const MessageList = () => {
 }
 
 export const MessageContainer = () => {
-  const activeChannel = !!useHookstate(getMutableState(ChannelState).targetChannelId).value
-  return <div className="maxw-[760px] w-[765px] h-[100vh] bg-white">{activeChannel && <MessageList />}</div>
+  const selectedChannelID = useHookstate(getMutableState(ChatState).selectedChannelID).value
+
+  // const userName = useHookstate(getMutableState(AuthState).user.name).value
+  // const channelsList = useFind('channel', {})
+  // const channelUserNames = channelsList?.channel_users.map((user) => user.user!.name).filter((name) => name !== userName) ?? []
+  const channelUserNames = []
+
+  return (
+    <div className="maxw-[760px] w-[765px] h-[100vh] bg-white">
+      <div className="w-[720px] h-[90px] flex flex-wrap gap-[450px] ml-5 justify-center">
+        <div className="mt-7">
+          <p className="text-3xl font-bold text-[#3F3960]">{channelUserNames.join(', ')}</p>
+        </div>
+        <div className="flex justify-center">
+          <button className="">
+            <img className="w-10 h-10 overflow-hidden" alt="" src={CallIcon} />
+          </button>
+        </div>
+      </div>
+      <div className="box-border w-[765px] border-t-[1px] border-solid border-[#D1D3D7]" />
+      {<MessageList channelID={selectedChannelID!} />}
+    </div>
+  )
 }

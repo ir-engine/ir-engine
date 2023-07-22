@@ -25,23 +25,28 @@ Ethereal Engine. All Rights Reserved.
 
 import React, { useEffect } from 'react'
 
-import { ChannelService, ChannelState } from '@etherealengine/client-core/src/social/services/ChannelService'
 import { useUserAvatarThumbnail } from '@etherealengine/client-core/src/user/functions/useUserAvatarThumbnail'
 import { ChannelID } from '@etherealengine/common/src/interfaces/ChannelUser'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
 import { useFind } from '@etherealengine/engine/src/common/functions/FeathersHooks'
+import { ChatState } from './ChatState'
 import { DrawerCreateChannel } from './DrawerCreateChannel'
 
 export const ChannelsList = () => {
-  const chatState = useHookstate(getMutableState(ChannelState))
+  const chatState = useHookstate(getMutableState(ChatState))
 
-  ChannelService.useAPIListeners()
+  const channelsList = useFind('channel', {})
 
   useEffect(() => {
-    ChannelService.getChannels()
+    if (channelsList.error) {
+      console.error(channelsList.error)
+    }
+  }, [channelsList.error])
+
+  useEffect(() => {
     return () => {
-      chatState.targetChannelId.set('' as ChannelID)
+      chatState.selectedChannelID.set('' as ChannelID)
     }
   }, [])
 
@@ -49,10 +54,10 @@ export const ChannelsList = () => {
   const selectedChannelId = useHookstate('' as ChannelID)
 
   useEffect(() => {
-    chatState.targetChannelId.set(selectedChannelId.value)
+    chatState.selectedChannelID.set(selectedChannelId.value)
   }, [selectedChannelId])
 
-  const channels = chatState.channels.value.channels ?? []
+  const channels = channelsList.data
 
   const RenderChannel = (props: { channel: (typeof channels)[number] }) => {
     const userThumbnail = useUserAvatarThumbnail() // todo

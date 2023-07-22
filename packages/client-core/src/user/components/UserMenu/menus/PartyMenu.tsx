@@ -68,7 +68,7 @@ export const usePartyMenuHooks = () => {
 
   const kickUser = (userId?: UserId) => {
     if (!userId) return
-    ChannelService.removeUserFromChannel(userId)
+    ChannelService.removeUserFromChannel(channelState.targetChannelId.value, userId)
   }
 
   const handleChangeToken = (e) => {

@@ -416,14 +416,11 @@ type ResourceDescriptor = {
   id?: string
   params: Params
   realtime: Realtime
-  selectData: (data: any) => any
-  transformResponse: (data: any) => any
   matcher?: (query: any) => (item: any) => boolean
 }
 
 export function useCache(resourceDescriptor: ResourceDescriptor) {
-  const { serviceName, queryId, method, id, params, realtime, selectData, transformResponse, matcher } =
-    resourceDescriptor
+  const { serviceName, queryId, method, id, params, realtime, matcher } = resourceDescriptor
 
   // we'll use a cheeky ref to store the previous mapped data array
   // because if the underlying list of data didn't change we don't
@@ -444,26 +441,25 @@ export function useCache(resourceDescriptor: ResourceDescriptor) {
       } else {
         dataRef.current = data
       }
-      data = selectData(data)
+      if (!Array.isArray(data)) data = [data]
       cachedData.set({ ...meta, data })
     } else {
       cachedData.set({ data: null })
     }
-  }, [serviceName, queryId, selectData, queryState])
+  }, [serviceName, queryId, queryState])
 
-  const onFetched = (data) =>
-    fetched({
+  const onFetched = (response) => {
+    const data = Array.isArray(response) ? { data: response } : response
+    return fetched({
       serviceName,
       queryId,
       method,
       params,
-      data: {
-        ...transformResponse(data),
-        ...(id ? { id } : {})
-      },
+      data,
       realtime,
       matcher
     })
+  }
 
   return {
     cachedData: cachedData.get(NO_PROXY),
@@ -478,9 +474,6 @@ function same(a, b) {
   }
   return true
 }
-
-const findSelectData = (data) => data
-const findTransformResponse = (data) => data
 
 export interface UseFindParams<Q extends Query> extends BaseParams<Q> {
   allPages?: boolean
@@ -520,9 +513,7 @@ export function useFind<S extends keyof ServiceTypes, Q extends Query>(
   options = {} as UseFindParams<Q>
 ) {
   const response = useQuery<S>(serviceName, options, {
-    method: 'find',
-    selectData: findSelectData,
-    transformResponse: findTransformResponse
+    method: 'find'
   }) as UseFindReturnType<S>
 
   const data = response.data ? (Array.isArray(response.data) ? response.data : response.data.data) : []
@@ -531,14 +522,6 @@ export function useFind<S extends keyof ServiceTypes, Q extends Query>(
     ...response,
     data: data as ArrayOrPaginatedType<(typeof response)['data']>
   }
-}
-
-const getSelectData = (data) => data[0]
-const getTransformResponse = (data) => ({ data: [data] })
-
-export interface GetFindParams<Q extends Query> extends BaseParams<Q> {
-  selectData?: (data: any) => any
-  transformResponse?: (data: any) => any
 }
 
 type UseGetReturnType<S extends keyof ServiceTypes> = {
@@ -561,13 +544,11 @@ type UseGetReturnType<S extends keyof ServiceTypes> = {
 export function useGet<S extends keyof ServiceTypes, Q extends Query>(
   serviceName: S,
   id: string,
-  options = {} as GetFindParams<Q>
+  options = {} as BaseParams<Q>
 ): UseGetReturnType<S> {
   const response = useQuery<S>(serviceName, options, {
     method: 'get',
-    id,
-    selectData: getSelectData,
-    transformResponse: getTransformResponse
+    id
   })
 
   return response as UseGetReturnType<S>
@@ -661,8 +642,6 @@ export interface BaseParams<Q extends Query> extends Params<Q> {
 export interface QueryHookOptions {
   method: 'get' | 'find'
   id?: string
-  selectData: (data: any) => any
-  transformResponse: (data: any) => any
 }
 
 /**
@@ -673,7 +652,7 @@ export function useQuery<S extends keyof ServiceTypes>(
   options = {} as UseFindParams<any>,
   queryHookOptions = {} as QueryHookOptions
 ) {
-  const { method, id, selectData, transformResponse } = queryHookOptions
+  const { method, id } = queryHookOptions
 
   const feathers = Engine.instance.api
   const disposed = useRef(false)
@@ -705,8 +684,6 @@ export function useQuery<S extends keyof ServiceTypes>(
     id,
     params,
     realtime,
-    selectData,
-    transformResponse,
     matcher
   })
 
