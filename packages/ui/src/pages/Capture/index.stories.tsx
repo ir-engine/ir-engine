@@ -34,7 +34,7 @@ import {
   AuthSettingsService,
   AuthSettingsServiceReceptor
 } from '@etherealengine/client-core/src/admin/services/Setting/AuthSettingService'
-import { ClientSettingsServiceReceptor } from '@etherealengine/client-core/src/admin/services/Setting/ClientSettingService'
+
 import { AdminCoilSettingService } from '@etherealengine/client-core/src/admin/services/Setting/CoilSettingService'
 import {
   NotificationAction,
@@ -161,7 +161,6 @@ const decorators = [
     }, [authState.isLoggedIn])
 
     useEffect(() => {
-      addActionReceptor(ClientSettingsServiceReceptor)
       addActionReceptor(AuthSettingsServiceReceptor)
       addActionReceptor(AuthServiceReceptor)
       addActionReceptor(LocationServiceReceptor)
@@ -186,7 +185,6 @@ const decorators = [
 
       return () => {
         // removeActionReceptor(RouterServiceReceptor)
-        removeActionReceptor(ClientSettingsServiceReceptor)
         removeActionReceptor(AuthSettingsServiceReceptor)
         removeActionReceptor(AuthServiceReceptor)
         removeActionReceptor(LocationServiceReceptor)
