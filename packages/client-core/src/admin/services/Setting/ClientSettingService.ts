@@ -56,8 +56,8 @@ export const ClientSettingService = {
         .service(clientSettingPath)
         .find()) as Paginated<ClientSettingType>
 
-      if (clientSettings[0].key8thWall) {
-        config.client.key8thWall = clientSettings[0].key8thWall
+      if (clientSettings.data[0].key8thWall) {
+        config.client.key8thWall = clientSettings.data[0].key8thWall
       }
 
       getMutableState(AdminClientSettingsState).merge({ client: clientSettings.data, updateNeeded: false })
