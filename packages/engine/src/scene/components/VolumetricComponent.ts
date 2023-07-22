@@ -25,21 +25,30 @@ Ethereal Engine. All Rights Reserved.
 
 import VolumetricPlayer from '@citizendot/universal-volumetric/dist/Player'
 import { useEffect } from 'react'
+import { Box3, Material, Mesh, Object3D } from 'three'
 
 import { createWorkerFromCrossOriginURL } from '@etherealengine/common/src/utils/createWorkerFromCrossOriginURL'
 import { getState } from '@etherealengine/hyperflux'
 
+import { DissolveEffect } from '@etherealengine/engine/src/avatar/DissolveEffect'
+import { AvatarDissolveComponent } from '@etherealengine/engine/src/avatar/components/AvatarDissolveComponent'
+import { AvatarEffectComponent, MaterialMap } from '@etherealengine/engine/src/avatar/components/AvatarEffectComponent'
 import { AudioState } from '../../audio/AudioState'
+import { Entity } from '../../ecs/classes/Entity'
 import {
   ComponentType,
   defineComponent,
+  getComponent,
   getMutableComponent,
   getOptionalComponent,
+  hasComponent,
+  removeComponent,
   setComponent,
   useComponent
 } from '../../ecs/functions/ComponentFunctions'
-import { useEntityContext } from '../../ecs/functions/EntityFunctions'
+import { createEntity, useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
+import { TransformComponent } from '../../transform/components/TransformComponent'
 import { addObjectToGroup } from '../components/GroupComponent'
 import { PlayMode } from '../constants/PlayMode'
 import { AudioNodeGroups, MediaElementComponent, createAudioNodeGroup } from './MediaComponent'
@@ -51,12 +60,14 @@ export const VolumetricComponent = defineComponent({
 
   onInit: (entity) => {
     return {
-      useLoadingEffect: false,
-      hasSetTrack: false,
+      useLoadingEffect: true,
+      loadingEffectTime: 0,
+      loadingEffectActive: true,
       player: undefined! as VolumetricPlayer,
       paths: [] as string[],
       paused: true,
       volume: 1,
+      height: 1.6,
       playMode: PlayMode.loop as PlayMode,
       track: 0
     }
@@ -73,15 +84,12 @@ export const VolumetricComponent = defineComponent({
   },
 
   onSet: (entity, component, json) => {
-    // setComponent(entity, MediaElementComponent, {
-    //   element: document.createElement('video')
-    // })
-    // setComponent(entity, PositionalAudioComponent)
     setComponent(entity, ShadowComponent)
 
     if (!json) return
-    if (typeof json?.useLoadingEffect === 'boolean' && json.useLoadingEffect !== component.useLoadingEffect.value)
+    if (typeof json?.useLoadingEffect === 'boolean' && json.useLoadingEffect !== component.useLoadingEffect.value) {
       component.useLoadingEffect.set(json.useLoadingEffect)
+    }
 
     if (typeof json.paths === 'object') {
       component.paths.set(json.paths)
@@ -131,11 +139,14 @@ export function VolumetricReactor() {
     })
     const mediaElement = getMutableComponent(entity, MediaElementComponent)
     const element = mediaElement.element.value
-    element.autoplay = true
-    // element.muted = true
-    element.crossOrigin = 'anonymous'
 
-    console.log('[CustomDebug] Volumetric MediaElement: ', element)
+    element.autoplay = true
+    /** If muted is set to false, user must interact with the page just before video is loaded */
+    element.muted = true
+    ;(element as HTMLVideoElement).playsInline = true
+
+    element.preload = 'auto'
+    element.crossOrigin = 'anonymous'
 
     volumetric.player.set(
       new VolumetricPlayer({
@@ -153,18 +164,20 @@ export function VolumetricReactor() {
     )
     addObjectToGroup(entity, volumetric.player.value.mesh)
 
+    element.addEventListener('playing', () => {
+      const transform = getComponent(entity, TransformComponent)
+      if (!transform) return
+      if (volumetric.loadingEffectActive.value) {
+        volumetric.height.set(calculateHeight(volumetric.player.value.mesh) * transform.scale.y)
+        if (volumetric.loadingEffectTime.value === 0) setupLoadingEffect(entity, volumetric.player.value!.mesh)
+      }
+    })
+
     if (!AudioNodeGroups.get(element)) {
       const audioNodes = createAudioNodeGroup(
         element,
         audioContext.createMediaElementSource(element),
         gainNodeMixBuses.soundEffects
-      )
-      console.log(
-        '[CustomDebug] Setting AudioNode for Volumetric Media Element (source created from createMediaElementSource): ',
-        {
-          mediaElement: element,
-          audioNode: audioNodes
-        }
       )
 
       audioNodes.gain.gain.setTargetAtTime(volumetric.volume.value, audioContext.currentTime, 0.1)
@@ -185,23 +198,12 @@ export function VolumetricReactor() {
   )
 
   useEffect(() => {
-    if (!volumetric.hasSetTrack.value && volumetric.paths[volumetric.track.value].value) {
-      console.log('[CustomDebug] Setting the first track: ', {
-        track: volumetric.track.value,
-        manifestPath: volumetric.paths[volumetric.track.value].value
-      })
-      volumetric.player.value.setTrackPath(volumetric.paths[volumetric.track.value].value)
-      volumetric.hasSetTrack.set(true)
-      return
-    }
-
     if (volumetric.player.value.stopped) {
+      volumetric.loadingEffectActive.set(volumetric.useLoadingEffect.value) // set to user's value
+      volumetric.loadingEffectTime.set(0)
+
       // Track is changed. Set the track path
       if (volumetric.paths[volumetric.track.value].value) {
-        console.log('[CustomDebug] Updating VolumetricTrack: ', {
-          track: volumetric.track.value,
-          manifestPath: volumetric.paths[volumetric.track.value].value
-        })
         volumetric.player.value.setTrackPath(volumetric.paths[volumetric.track.value].value)
       }
     } else {
@@ -212,7 +214,6 @@ export function VolumetricReactor() {
   }, [volumetric.track, volumetric.paths])
 
   useEffect(() => {
-    console.log('[CustomDebug] volumetric.paused changed: ', volumetric.paused.value)
     if (volumetric.paused.value) {
       volumetric.player.value.pause()
     } else {
@@ -239,9 +240,78 @@ export function getNextTrack(volumetric: ComponentType<typeof VolumetricComponen
     //PlayMode.Loop
     nextTrack = (currentTrack + 1) % numTracks
   }
-  console.log('[CustomDebug] new track: ', nextTrack)
 
   return nextTrack
 }
 
-export const VolumetricsExtensions = ['drcs', 'uvol', 'manifest']
+export const endLoadingEffect = (entity, object) => {
+  if (!hasComponent(entity, AvatarEffectComponent)) return
+  const plateComponent = getComponent(entity, AvatarEffectComponent)
+  plateComponent.originMaterials.forEach(({ id, material }) => {
+    object.traverse((obj) => {
+      if (obj.uuid === id) {
+        obj['material'] = material
+      }
+    })
+  })
+
+  let pillar: any = null!
+  let plate: any = null!
+
+  const childrens = object.children
+  for (let i = 0; i < childrens.length; i++) {
+    if (childrens[i].name === 'pillar_obj') pillar = childrens[i]
+    if (childrens[i].name === 'plate_obj') plate = childrens[i]
+  }
+
+  if (pillar !== null) {
+    pillar.traverse(function (child) {
+      if (child['material']) child['material'].dispose()
+    })
+
+    pillar.parent.remove(pillar)
+  }
+
+  if (plate !== null) {
+    plate.traverse(function (child) {
+      if (child['material']) child['material'].dispose()
+    })
+
+    plate.parent.remove(plate)
+  }
+
+  removeComponent(entity, AvatarDissolveComponent)
+  removeComponent(entity, AvatarEffectComponent)
+}
+
+const setupLoadingEffect = (entity: Entity, obj: Object3D) => {
+  const materialList: Array<MaterialMap> = []
+  obj.traverse((object: Mesh<any, Material>) => {
+    if (object.material && object.material.clone) {
+      // Transparency fix
+      const material = object.material.clone()
+      materialList.push({
+        id: object.uuid,
+        material: material
+      })
+      object.material = DissolveEffect.createDissolveMaterial(object as any)
+    }
+  })
+  if (hasComponent(entity, AvatarEffectComponent)) removeComponent(entity, AvatarEffectComponent)
+  const effectEntity = createEntity()
+  setComponent(effectEntity, AvatarEffectComponent, {
+    sourceEntity: entity,
+    opacityMultiplier: 0,
+    originMaterials: materialList
+  })
+}
+
+const calculateHeight = (obj: Object3D) => {
+  //calculate the uvol model height
+  const bbox = new Box3().setFromObject(obj)
+  let height = 1.5
+  if (bbox.max.y != undefined && bbox.min.y != undefined) {
+    height = bbox.max.y - bbox.min.y
+  }
+  return height
+}

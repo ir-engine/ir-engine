@@ -37,6 +37,7 @@ import { SupportedFileTypes } from '../../constants/AssetTypes'
 import ArrayInputGroup from '../inputs/ArrayInputGroup'
 import BooleanInput from '../inputs/BooleanInput'
 import { Button } from '../inputs/Button'
+import CompoundNumericInput from '../inputs/CompoundNumericInput'
 import InputGroup from '../inputs/InputGroup'
 import SelectInput from '../inputs/SelectInput'
 import NodeEditor from './NodeEditor'
@@ -97,6 +98,16 @@ export const VolumetricNodeEditor: EditorComponentType = (props) => {
         <BooleanInput
           value={volumetricComponent.paused.value}
           onChange={updateProperty(VolumetricComponent, 'paused')}
+        />
+      </InputGroup>
+
+      <InputGroup name="Volume" label={t('editor:properties.media.lbl-volume')}>
+        <CompoundNumericInput
+          min={0}
+          max={1}
+          step={0.01}
+          value={volumetricComponent.volume.value}
+          onChange={updateProperty(VolumetricComponent, 'volume')}
         />
       </InputGroup>
 

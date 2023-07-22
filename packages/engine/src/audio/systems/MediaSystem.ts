@@ -37,7 +37,7 @@ import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { StandardCallbacks, setCallback } from '../../scene/components/CallbackComponent'
 import { MediaComponent, MediaElementComponent } from '../../scene/components/MediaComponent'
 import { VideoComponent, VideoTexturePriorityQueueState } from '../../scene/components/VideoComponent'
-import { VolumetricComponent } from '../../scene/components/VolumetricComponent'
+import { VolumetricComponent, endLoadingEffect } from '../../scene/components/VolumetricComponent'
 import { AudioSettingReceptor, AudioState } from '../AudioState'
 import { PositionalAudioComponent } from '../components/PositionalAudioComponent'
 
@@ -114,13 +114,25 @@ const execute = () => {
   }
 
   for (const entity of volumetricQuery()) {
-    const player = getComponent(entity, VolumetricComponent).player
+    const volumetric = getComponent(entity, VolumetricComponent)
+    const player = volumetric.player
     if (player) {
       player.update()
-      // console.log('[CustomDebug] Volumetric Video status: ', {
-      //   paused: player.video.paused,
-      //   currentTime: player.video.currentTime
-      // })
+      const height = volumetric.height
+      const step = volumetric.height / 150
+      if (volumetric.loadingEffectActive) {
+        if (volumetric.loadingEffectTime <= height) {
+          player.mesh.traverse((child: any) => {
+            if (child['material']) {
+              if (child.material.uniforms) child.material.uniforms.time.value = volumetric.loadingEffectTime
+            }
+          })
+          volumetric.loadingEffectTime += step
+        } else {
+          volumetric.loadingEffectActive = false
+          endLoadingEffect(entity, player.mesh)
+        }
+      }
     }
   }
   for (const entity of audioQuery()) getComponent(entity, PositionalAudioComponent).helper?.update()
