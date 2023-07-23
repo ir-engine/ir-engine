@@ -36,6 +36,7 @@ import {
 } from '@etherealengine/engine/src/schemas/social/location-setting.schema'
 import {
   LocationData,
+  LocationDatabaseType,
   LocationPatch,
   locationPath,
   LocationQuery,
@@ -124,55 +125,58 @@ export class LocationService<T = LocationType, ServiceParams extends Params = Lo
    * @param params
    * @returns new location object
    */
-  async create(data: any, params?: LocationParams) {
+  async create(data: LocationData, params?: LocationParams) {
     const t = await this.app.get('sequelizeClient').transaction()
     const trx = await (this.app.get('knexClient') as Knex).transaction()
 
     try {
-      // @ts-ignore
-      let { locationSetting, ...locationData } = data
-      const loggedInUser = params!.user as UserInterface
-      locationData.slugifiedName = slugify(locationData.name, { lower: true })
-
       const selfUser = params?.user
-
-      if (locationData.isLobby) await this.makeLobby(t, params)
-      if (!selfUser || !selfUser.scopes || !selfUser.scopes.find((scope) => scope.type === 'admin:admin'))
+      if (!selfUser || !selfUser.scopes || !selfUser.scopes.find((scope) => scope.type === 'admin:admin')) {
         throw new Error('Only Admin can set Lobby')
+      }
 
-      const location = await this.Model.create(locationData, { transaction: t })
+      if (data.isLobby) {
+        await trx.from<LocationDatabaseType>(locationPath).update({ isLobby: false }).where({ isLobby: true })
+      }
+
+      const { locationSetting } = data
+
+      data.slugifiedName = slugify(data.name, { lower: true })
+
+      const inserted = await trx.from<LocationDatabaseType>(locationPath).insert(data, 'id').first()
+
       await trx.from<LocationSettingType>(locationSettingPath).insert({
         videoEnabled: !!locationSetting.videoEnabled,
         audioEnabled: !!locationSetting.audioEnabled,
         faceStreamingEnabled: !!locationSetting.faceStreamingEnabled,
         screenSharingEnabled: !!locationSetting.screenSharingEnabled,
         locationType: locationSetting.locationType || 'private',
-        locationId: location.id
+        locationId: inserted?.id
       })
 
-      if (loggedInUser) {
-        await Promise.all([
-          this.app.service('location-admin').Model.create(
-            {
-              locationId: location.id,
-              userId: loggedInUser.id
-            },
-            { transaction: t }
-          ),
-          this.app.service('location-authorized-user').Model.create(
-            {
-              locationId: location.id,
-              userId: loggedInUser.id
-            },
-            { transaction: t }
-          )
-        ])
-      }
+      await Promise.all([
+        this.app.service('location-admin').Model.create(
+          {
+            locationId: inserted?.id,
+            userId: selfUser.id
+          },
+          { transaction: t }
+        ),
+        this.app.service('location-authorized-user').Model.create(
+          {
+            locationId: inserted?.id,
+            userId: selfUser.id
+          },
+          { transaction: t }
+        )
+      ])
 
       await t.commit()
       await trx.commit()
 
-      return location as T
+      const location = await this.get(inserted?.id)
+
+      return location
     } catch (err) {
       logger.error(err)
       await t.rollback()
@@ -191,50 +195,45 @@ export class LocationService<T = LocationType, ServiceParams extends Params = Lo
    * @param data of location going to be updated
    * @returns updated location
    */
-  async patch(id: string, data: any, params?: LocationParams): Promise<T> {
+  async patch(id: Id, data: LocationData, params?: LocationParams) {
     const t = await this.app.get('sequelizeClient').transaction()
     const trx = await (this.app.get('knexClient') as Knex).transaction()
 
     try {
       const selfUser = params?.user
-
-      if (!old.isLobby && locationData.isLobby) await this.makeLobby(t, params)
-      if (!selfUser || !selfUser.scopes || !selfUser.scopes.find((scope) => scope.type === 'admin:admin'))
+      if (!selfUser || !selfUser.scopes || !selfUser.scopes.find((scope) => scope.type === 'admin:admin')) {
         throw new Error('Only Admin can set Lobby')
+      }
 
-      // @ts-ignore
-      let { locationSetting, ...locationData } = data
-      locationSetting ??= data['locationSetting']
+      const oldLocation = await this.app.service(locationPath).get(id)
 
-      const old = await this.Model.findOne({
-        where: { id },
-        include: [createLocationSettingModel(this.app)]
-      })
+      if (!oldLocation.isLobby && data.isLobby) {
+        await trx.from<LocationDatabaseType>(locationPath).update({ isLobby: false }).where({ isLobby: true })
+      }
 
-      if (locationData.name) locationData.slugifiedName = slugify(locationData.name, { lower: true })
+      if (data.name) {
+        data.slugifiedName = slugify(data.name, { lower: true })
+      }
 
-      await this.Model.update(locationData, { where: { id }, transaction: t }) // super.patch(id, locationData, params);
+      await trx.from<LocationDatabaseType>(locationPath).update(data).where({ id: id.toString() })
 
       await trx
         .from<LocationSettingType>(locationSettingPath)
         .update({
-          videoEnabled: !!locationSetting.videoEnabled,
-          audioEnabled: !!locationSetting.audioEnabled,
-          faceStreamingEnabled: !!locationSetting.faceStreamingEnabled,
-          screenSharingEnabled: !!locationSetting.screenSharingEnabled,
-          locationType: locationSetting.locationType || 'private'
+          videoEnabled: data.locationSetting.videoEnabled,
+          audioEnabled: data.locationSetting.audioEnabled,
+          faceStreamingEnabled: data.locationSetting.faceStreamingEnabled,
+          screenSharingEnabled: data.locationSetting.screenSharingEnabled,
+          locationType: data.locationSetting.locationType || 'private'
         })
-        .where({ id: old.locationSetting.id })
+        .where({ id: oldLocation.locationSetting.id })
 
       await t.commit()
       await trx.commit()
 
-      const location = await this.Model.findOne({
-        where: { id },
-        include: [createLocationSettingModel(this.app)]
-      })
+      const location = await this.get(id)
 
-      return location as T
+      return location
     } catch (err) {
       logger.error(err)
       await t.rollback()
