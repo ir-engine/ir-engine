@@ -23,8 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Color, Mesh, PlaneGeometry, ShaderMaterial, sRGBEncoding, WebGLRenderTarget } from 'three'
-import { Vector3 } from 'three'
+import { Color, Mesh, PlaneGeometry, ShaderMaterial, SRGBColorSpace, Vector3, WebGLRenderTarget } from 'three'
 
 import { loadCubeMapTexture } from '../constants/Util'
 import fragmentShader from './water/shaders/surface/fragment'
@@ -126,7 +125,7 @@ export class Water extends Mesh {
     loadCubeMapTexture(
       path,
       (texture) => {
-        texture.encoding = sRGBEncoding
+        texture.colorSpace = SRGBColorSpace
         this._material.uniforms.skybox.value = texture
       },
       undefined,

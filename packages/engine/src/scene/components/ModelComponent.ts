@@ -26,8 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { useEffect } from 'react'
 import { Mesh, Scene } from 'three'
 
-import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
-import { getState, none } from '@etherealengine/hyperflux'
+import { getState } from '@etherealengine/hyperflux'
 
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { EngineState } from '../../ecs/classes/EngineState'
@@ -41,9 +40,7 @@ import {
   useComponent,
   useOptionalComponent
 } from '../../ecs/functions/ComponentFunctions'
-import { entityExists, removeEntity, useEntityContext } from '../../ecs/functions/EntityFunctions'
-import { EntityTreeComponent } from '../../ecs/functions/EntityTree'
-import { BoundingBoxComponent } from '../../interaction/components/BoundingBoxComponents'
+import { entityExists, useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { SourceType } from '../../renderer/materials/components/MaterialSource'
 import { removeMaterialSource } from '../../renderer/materials/functions/MaterialLibraryFunctions'
 import { ObjectLayers } from '../constants/ObjectLayers'
@@ -114,7 +111,7 @@ function ModelReactor() {
     if (source === model.scene?.userData?.src) return
 
     try {
-      if (model.scene && model.scene.userData.src && model.scene.userData.src !== model.src) {
+      if (model.scene)
         try {
           removeMaterialSource({ type: SourceType.MODEL, path: model.scene.userData.src })
         } catch (e) {
@@ -124,7 +121,6 @@ function ModelReactor() {
             throw e
           }
         }
-      }
       if (!model.src) return
 
       const uuid = getComponent(entity, UUIDComponent)

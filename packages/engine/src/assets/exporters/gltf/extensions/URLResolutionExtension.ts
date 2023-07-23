@@ -25,7 +25,6 @@ Ethereal Engine. All Rights Reserved.
 
 import { Object3D } from 'three'
 
-import { Engine } from '../../../../ecs/classes/Engine'
 import { pathResolver } from '../../../functions/pathResolver'
 import { GLTFWriter } from '../GLTFExporter'
 import { ExporterExtension } from './ExporterExtension'

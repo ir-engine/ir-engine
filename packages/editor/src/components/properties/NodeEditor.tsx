@@ -24,11 +24,18 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import React, { PropsWithChildren, Suspense } from 'react'
+import { useDrop } from 'react-dnd'
 
 import { LoadingCircle } from '@etherealengine/client-core/src/components/LoadingCircle'
-import { hasComponent, removeComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import {
+  ComponentMap,
+  hasComponent,
+  removeComponent,
+  setComponent
+} from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { dispatchAction } from '@etherealengine/hyperflux'
 
+import { ItemTypes } from '../../constants/AssetTypes'
 import { SelectionAction } from '../../services/SelectionServices'
 import PropertyGroup from './PropertyGroup'
 import { EditorPropType } from './Util'
@@ -92,6 +99,15 @@ export const NodeEditor: React.FC<PropsWithChildren<NodeEditorProps>> = ({
   entity,
   component
 }) => {
+  const [, dropRef] = useDrop({
+    accept: [ItemTypes.Prefab],
+    drop: (item: { componentName: string }) => {
+      const component = ComponentMap.get(item.componentName)
+      if (!component || hasComponent(entity, component)) return
+      setComponent(entity, component)
+      dispatchAction(SelectionAction.forceUpdate({}))
+    }
+  })
   return (
     <PropertyGroup
       name={name}
@@ -104,6 +120,7 @@ export const NodeEditor: React.FC<PropsWithChildren<NodeEditorProps>> = ({
             }
           : undefined
       }
+      rest={{ ref: dropRef }}
     >
       <Suspense fallback={<LoadingCircle message={`Loading ${name} Editor...`} />}>
         <NodeEditorErrorBoundary name={name}>{children}</NodeEditorErrorBoundary>

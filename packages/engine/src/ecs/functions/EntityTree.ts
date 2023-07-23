@@ -29,7 +29,7 @@ import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { EntityJson } from '@etherealengine/common/src/interfaces/SceneInterface'
 import { dispatchAction, getMutableState, getState, hookstate, NO_PROXY, none } from '@etherealengine/hyperflux'
 
-import { matchesEntity, matchesEntityUUID } from '../../common/functions/MatchesUtils'
+import { matchesEntityUUID } from '../../common/functions/MatchesUtils'
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
 import { NameComponent } from '../../scene/components/NameComponent'
 import { SceneTagComponent } from '../../scene/components/SceneTagComponent'
@@ -45,7 +45,7 @@ import {
 import { computeTransformMatrix } from '../../transform/systems/TransformSystem'
 import { Engine } from '../classes/Engine'
 import { EngineState } from '../classes/EngineState'
-import { Entity, UndefinedEntity } from '../classes/Entity'
+import { Entity } from '../classes/Entity'
 import { SceneState } from '../classes/Scene'
 import {
   defineComponent,
@@ -140,8 +140,6 @@ export const EntityTreeComponent = defineComponent({
     } else {
       EntityTreeComponent.roots[entity].set(none)
     }
-
-    removeComponent(entity, UUIDComponent)
   },
 
   roots: hookstate({} as Record<Entity, true>)
@@ -219,8 +217,9 @@ export function addEntityNodeChild(entity: Entity, parentEntity: Entity, uuid?: 
   if (Engine.instance.worldNetwork?.isHosting) {
     const uuid = getComponent(entity, UUIDComponent)
     dispatchAction(
-      WorldNetworkAction.registerSceneObject({
-        objectUuid: uuid
+      WorldNetworkAction.spawnObject({
+        entityUUID: uuid,
+        prefab: ''
       })
     )
   }

@@ -29,13 +29,12 @@ import React, { useEffect } from 'react'
 
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import Box from '@etherealengine/ui/src/primitives/mui/Box'
-import TextField from '@etherealengine/ui/src/primitives/mui/TextField'
 import ToggleButton from '@etherealengine/ui/src/primitives/mui/ToggleButton'
 import ToggleButtonGroup from '@etherealengine/ui/src/primitives/mui/ToggleButtonGroup'
 
-import DateAdapter from '@mui/lab/AdapterMoment'
-import LocalizationProvider from '@mui/lab/LocalizationProvider'
-import MobileDateTimePicker from '@mui/lab/MobileDateTimePicker'
+import { AdapterMoment } from '@mui/x-date-pickers/AdapterMoment'
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
+import { MobileDateTimePicker } from '@mui/x-date-pickers/MobileDateTimePicker'
 
 import { AuthState } from '../../../user/services/AuthService'
 import { AdminAnalyticsService, AdminAnalyticsState } from '../../services/AnalyticsService'
@@ -161,28 +160,30 @@ const Analytics = () => {
           </ToggleButtonGroup>
           <div className={styles.datePickerContainer}>
             {/* @ts-ignore */}
-            <LocalizationProvider dateAdapter={DateAdapter}>
+            <LocalizationProvider dateAdapter={AdapterMoment}>
               <MobileDateTimePicker
                 value={startDate.value}
-                DialogProps={{
-                  PaperProps: {
-                    className: styles.dateTimePickerDialog
+                slotProps={{
+                  dialog: {
+                    PaperProps: {
+                      className: styles.dateTimePickerDialog
+                    }
                   }
                 }}
                 onChange={(value) => onDateRangeStartChange(value)}
-                renderInput={(params) => <TextField {...params} />}
               />
               <Box sx={{ mx: 2 }}> to </Box>
               <MobileDateTimePicker
                 value={endDate.value}
-                DialogProps={{
-                  PaperProps: {
-                    className: styles.dateTimePickerDialog
+                slotProps={{
+                  dialog: {
+                    PaperProps: {
+                      className: styles.dateTimePickerDialog
+                    }
                   }
                 }}
                 minDateTime={minEndDate}
                 onChange={(value) => onDateRangeEndChange(value)}
-                renderInput={(params) => <TextField {...params} />}
               />
             </LocalizationProvider>
           </div>

@@ -231,7 +231,27 @@ export class IPFSStorage implements StorageProviderInterface {
    * @param invalidationItems List of keys.
    */
   async createInvalidation() {
-    Promise.resolve()
+    return Promise.resolve()
+  }
+
+  async associateWithFunction() {
+    return Promise.resolve()
+  }
+
+  async createFunction() {
+    return Promise.resolve()
+  }
+
+  async listFunctions() {
+    return Promise.resolve()
+  }
+
+  async publishFunction() {
+    return Promise.resolve()
+  }
+
+  async updateFunction() {
+    return Promise.resolve()
   }
 
   /**

@@ -24,7 +24,6 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import appRootPath from 'app-root-path'
-import assert from 'assert'
 import dotenv from 'dotenv-flow'
 
 // import { SceneJson } from '@etherealengine/common/src/interfaces/SceneInterface'

@@ -25,23 +25,16 @@ Ethereal Engine. All Rights Reserved.
 
 import React, { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
-import styled from 'styled-components'
-import { Texture } from 'three'
 
 import { GrassProperties, TextureRef } from '@etherealengine/engine/src/scene/components/InstancingComponent'
-import { State, useState } from '@etherealengine/hyperflux'
-
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
-import { Box, Collapse, IconButton, IconButtonProps } from '@mui/material'
+import { State } from '@etherealengine/hyperflux'
 
 import ColorInput from '../inputs/ColorInput'
-import ImageInput from '../inputs/ImageInput'
 import { ImagePreviewInputGroup } from '../inputs/ImagePreviewInput'
 import InputGroup from '../inputs/InputGroup'
 import NumericInputGroup from '../inputs/NumericInputGroup'
 import RandomizedPropertyInputGroup from '../inputs/RandomizedPropertyInput'
 import CollapsibleBlock from '../layout/CollapsibleBlock'
-import ExpandMore from '../layout/ExpandMore'
 
 export default function InstancingGrassProperties({
   state,

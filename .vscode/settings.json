@@ -6,15 +6,18 @@
   "search.useParentIgnoreFiles": true,
   "search.exclude": {
     "/packages/server/upload": true,
+    "/packages/server/upload_test": true,
     "/packages/client/dist": true
   },
   "editor.tabSize": 2,
   "scm.alwaysShowRepositories": true,
-  "scm.repositories.visible": 0,
+  "scm.repositories.visible": 1000,
   "i18n-ally.localesPaths": [
     "packages/client-core/i18n",
     "packages/client/i18n"
   ],
   "i18n-ally.keystyle": "nested",
-  "i18n-ally.namespace": true
+  "i18n-ally.namespace": true,
+  "scm.showActionButton": true,
+  "scm.alwaysShowActions": true
 }

@@ -29,6 +29,8 @@ import cli from 'cli'
 import dotenv from 'dotenv-flow'
 import { Sequelize } from 'sequelize'
 
+import { redisSettingPath } from '@etherealengine/engine/src/schemas/setting/redis-setting.schema'
+
 const kubernetesEnabled = process.env.KUBERNETES === 'true'
 if (!kubernetesEnabled) {
   dotenv.config({
@@ -77,15 +79,23 @@ cli.main(async () => {
     await Promise.race([
       initPromise,
       new Promise<void>((resolve) => {
-        setTimeout(() => {
-          console.log('WARNING: Initialisation too long to launch!')
-          resolve()
-        }, 5 * 60 * 1000) // timeout after 5 minutes - it needs to be this long as the default project is uploaded to the storage provider in this time
+        setTimeout(
+          () => {
+            console.log('WARNING: Initialisation too long to launch!')
+            resolve()
+          },
+          5 * 60 * 1000
+        ) // timeout after 5 minutes - it needs to be this long as the default project is uploaded to the storage provider in this time
       })
     ])
   } else {
     console.log('Database found')
   }
+
+  if (kubernetesEnabled)
+    await sequelize.query(
+      `UPDATE \`${redisSettingPath}\` SET address='${process.env.REDIS_ADDRESS}',password='${process.env.REDIS_PASSWORD}',port='${process.env.REDIS_PORT}';`
+    )
 
   process.exit(0)
 })

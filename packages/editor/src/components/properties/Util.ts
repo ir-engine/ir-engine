@@ -23,16 +23,16 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { debounce } from 'lodash'
+
 import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
 import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
+import { Component, SerializedComponentType } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import {
-  Component,
-  ComponentType,
-  SerializedComponentType
-} from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
-import { EntityOrObjectUUID, getEntityNodeArrayFromEntities } from '@etherealengine/engine/src/ecs/functions/EntityTree'
-import { iterateEntityNode } from '@etherealengine/engine/src/ecs/functions/EntityTree'
+  EntityOrObjectUUID,
+  getEntityNodeArrayFromEntities,
+  iterateEntityNode
+} from '@etherealengine/engine/src/ecs/functions/EntityTree'
 import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
 import { dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
 
@@ -77,7 +77,7 @@ export const updateProperties = <C extends Component>(
 
   EditorControlFunctions.modifyProperty(affectedNodes, component, properties)
 
-  dispatchAction(EditorHistoryAction.createSnapshot({}))
+  debounce(() => dispatchAction(EditorHistoryAction.createSnapshot({})), 100)
 }
 
 export function traverseScene<T>(

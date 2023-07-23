@@ -24,51 +24,53 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import appRootPath from 'app-root-path'
-import * as chargebeeInst from 'chargebee'
+import chargebeeInst from 'chargebee'
 import dotenv from 'dotenv-flow'
 import path from 'path'
 import url from 'url'
 
 import multiLogger from './ServerLogger'
 
-const { register } = require('trace-unhandled')
-register()
-
 const logger = multiLogger.child({ component: 'server-core:config' })
 
 const kubernetesEnabled = process.env.KUBERNETES === 'true'
 const testEnabled = process.env.TEST === 'true'
 
-// ensure process fails properly
-process.on('exit', async (code) => {
-  const message = `Server EXIT(${code}).`
-  if (code === 0) {
-    logger.info(message)
-  } else {
-    logger.fatal(message)
-  }
-})
+if (!testEnabled) {
+  const { register } = require('trace-unhandled')
+  register()
 
-process.on('SIGTERM', async (err) => {
-  logger.warn(err, 'Server SIGTERM.')
-  process.exit(1)
-})
-process.on('SIGINT', () => {
-  logger.warn('RECEIVED SIGINT.')
-  process.exit(1)
-})
+  // ensure process fails properly
+  process.on('exit', async (code) => {
+    const message = `Server EXIT(${code}).`
+    if (code === 0) {
+      logger.info(message)
+    } else {
+      logger.fatal(message)
+    }
+  })
 
-// emitted when an uncaught JavaScript exception bubbles
-process.on('uncaughtException', (err) => {
-  logger.fatal(err, 'UNCAUGHT EXCEPTION.')
-  process.exit(1)
-})
+  process.on('SIGTERM', async (err) => {
+    logger.warn(err, 'Server SIGTERM.')
+    process.exit(1)
+  })
+  process.on('SIGINT', () => {
+    logger.warn('RECEIVED SIGINT.')
+    process.exit(1)
+  })
 
-//emitted whenever a Promise is rejected and no error handler is attached to it
-process.on('unhandledRejection', (reason, p) => {
-  logger.fatal({ reason, promise: p }, 'UNHANDLED PROMISE REJECTION.')
-  process.exit(1)
-})
+  // emitted when an uncaught JavaScript exception bubbles
+  process.on('uncaughtException', (err) => {
+    logger.fatal(err, 'UNCAUGHT EXCEPTION.')
+    process.exit(1)
+  })
+
+  //emitted whenever a Promise is rejected and no error handler is attached to it
+  process.on('unhandledRejection', (reason, p) => {
+    logger.fatal({ reason, promise: p }, 'UNHANDLED PROMISE REJECTION.')
+    process.exit(1)
+  })
+}
 
 if (process.env.APP_ENV === 'development' || process.env.LOCAL === 'true') {
   // Avoids DEPTH_ZERO_SELF_SIGNED_CERT error for self-signed certs - needed for local storage provider
@@ -167,15 +169,8 @@ const client = {
   logo: process.env.APP_LOGO!,
   title: process.env.APP_TITLE!,
   get dist() {
-    if (process.env.SERVE_CLIENT_FROM_STORAGE_PROVIDER === 'true') {
-      if (process.env.STORAGE_PROVIDER === 's3' && process.env.STORAGE_CLOUDFRONT_DOMAIN) {
-        return `https://${process.env.STORAGE_CLOUDFRONT_DOMAIN}/client/`
-      } else if (process.env.STORAGE_PROVIDER === 's3' && process.env.STORAGE_S3_DEV_MODE === 'local') {
-        return `${process.env.STORAGE_S3_ENDPOINT}/${process.env.STORAGE_S3_STATIC_RESOURCE_BUCKET}/client/`
-      } else if (process.env.STORAGE_PROVIDER === 'local') {
-        return `https://${process.env.LOCAL_STORAGE_PROVIDER}/client/`
-      }
-    }
+    if (process.env.SERVE_CLIENT_FROM_STORAGE_PROVIDER === 'true' && process.env.STORAGE_PROVIDER === 'local')
+      return `https://${process.env.LOCAL_STORAGE_PROVIDER}/client/`
     return client.url
   },
   url:
@@ -282,7 +277,6 @@ const authentication = {
       secret: process.env.FACEBOOK_CLIENT_SECRET!
     },
     github: {
-      appid: process.env.GITHUB_APP_ID!,
       key: process.env.GITHUB_CLIENT_ID!,
       secret: process.env.GITHUB_CLIENT_SECRET!,
       scope: ['repo', 'user']
@@ -325,7 +319,7 @@ const aws = {
     s3DevMode: process.env.STORAGE_S3_DEV_MODE!
   },
   cloudfront: {
-    domain: process.env.STORAGE_CLOUDFRONT_DOMAIN!,
+    domain: process.env.SERVE_CLIENT_FROM_STORAGE_PROVIDER ? server.clientHost : process.env.STORAGE_CLOUDFRONT_DOMAIN!,
     distributionId: process.env.STORAGE_CLOUDFRONT_DISTRIBUTION_ID!,
     region: process.env.STORAGE_CLOUDFRONT_REGION || process.env.STORAGE_S3_REGION
   },

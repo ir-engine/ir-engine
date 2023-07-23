@@ -39,7 +39,7 @@ export type ErrorComponentType = {
 
 export const ErrorComponent = defineComponent<ErrorComponentType>({
   name: 'ErrorComponent',
-  onInit: () => ({} as ErrorComponentType)
+  onInit: () => ({}) as ErrorComponentType
 })
 
 export const getEntityErrors = <C extends Component>(entity: Entity, component: C) => {

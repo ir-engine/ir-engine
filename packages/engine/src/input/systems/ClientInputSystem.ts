@@ -24,13 +24,15 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { useEffect } from 'react'
-import { LineBasicMaterial, Mesh, MeshBasicMaterial, Quaternion, Ray, Vector3 } from 'three'
+import { Mesh, MeshBasicMaterial, Quaternion, Ray, Raycaster, Vector3 } from 'three'
 
 import { dispatchAction, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
+import { CameraComponent } from '../../camera/components/CameraComponent'
 import { ObjectDirection } from '../../common/constants/Axis3D'
+import { Object3DUtils } from '../../common/functions/Object3DUtils'
 import { Engine } from '../../ecs/classes/Engine'
-import { EngineActions } from '../../ecs/classes/EngineState'
+import { EngineActions, EngineState } from '../../ecs/classes/EngineState'
 import { Entity, UndefinedEntity } from '../../ecs/classes/Entity'
 import {
   defineQuery,
@@ -48,8 +50,10 @@ import { Physics, RaycastArgs } from '../../physics/classes/Physics'
 import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
 import { AllCollisionMask } from '../../physics/enums/CollisionGroups'
 import { getInteractionGroups } from '../../physics/functions/getInteractionGroups'
+import { PhysicsState } from '../../physics/state/PhysicsState'
 import { SceneQueryType } from '../../physics/types/PhysicsTypes'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
+import { GroupComponent, Object3DWithEntity } from '../../scene/components/GroupComponent'
 import { NameComponent } from '../../scene/components/NameComponent'
 import { VisibleComponent } from '../../scene/components/VisibleComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
@@ -63,7 +67,7 @@ import {
   InputSourceComponent
 } from '../components/InputSourceComponent'
 import normalizeWheel from '../functions/normalizeWheel'
-import { ButtonStateMap, createInitialButtonState, MouseButton } from '../state/ButtonState'
+import { ButtonStateMap, MouseButton, createInitialButtonState } from '../state/ButtonState'
 
 function preventDefault(e) {
   e.preventDefault()
@@ -368,6 +372,7 @@ const xrSpaces = defineQuery([XRSpaceComponent, TransformComponent])
 const inputSources = defineQuery([InputSourceComponent])
 
 const inputXRUIs = defineQuery([InputComponent, VisibleComponent, XRUIComponent])
+const inputObjects = defineQuery([InputComponent, VisibleComponent, GroupComponent])
 
 const rayRotation = new Quaternion()
 
@@ -381,9 +386,13 @@ const inputRaycast = {
 } as RaycastArgs
 
 const inputRay = new Ray()
+const raycaster = new Raycaster()
 
 const execute = () => {
-  Engine.instance.pointerScreenRaycaster.setFromCamera(Engine.instance.pointerState.position, Engine.instance.camera)
+  Engine.instance.pointerScreenRaycaster.setFromCamera(
+    Engine.instance.pointerState.position,
+    getComponent(Engine.instance.cameraEntity, CameraComponent)
+  )
 
   Engine.instance.pointerState.movement.subVectors(
     Engine.instance.pointerState.position,
@@ -459,9 +468,28 @@ const execute = () => {
         break
       }
 
-      // 2nd heuristic is physics colliders
-      if (Engine.instance.physicsWorld && !assignedInputEntity) {
-        const hit = Physics.castRay(Engine.instance.physicsWorld, inputRaycast)[0]
+      // 2nd heuristic is scene objects when in the editor
+      if (getState(EngineState).isEditor) {
+        raycaster.set(inputRaycast.origin, inputRaycast.direction)
+        const objects = inputObjects()
+          .map((eid) => getComponent(eid, GroupComponent))
+          .flat()
+        const hits = raycaster
+          .intersectObjects<Object3DWithEntity>(objects, true)
+          .sort((a, b) => a.distance - b.distance)
+
+        if (hits.length) {
+          const object = hits[0].object
+          const parentObject = Object3DUtils.findAncestor(object, (obj) => obj.parent === Engine.instance.scene)
+          assignedInputEntity = parentObject.entity
+        }
+      }
+
+      const physicsWorld = getState(PhysicsState).physicsWorld
+
+      // 3nd heuristic is physics colliders
+      if (physicsWorld && !assignedInputEntity) {
+        const hit = Physics.castRay(physicsWorld, inputRaycast)[0]
         if (hit) assignedInputEntity = hit.entity
       }
 

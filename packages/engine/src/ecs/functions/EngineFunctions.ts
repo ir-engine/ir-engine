@@ -39,17 +39,10 @@ import { EngineActions, EngineState } from '../classes/EngineState'
 import { Entity } from '../classes/Entity'
 import { SceneState } from '../classes/Scene'
 import { removeEntityNodeRecursively } from '../functions/EntityTree'
-import { defineQuery, EntityRemovedComponent } from './ComponentFunctions'
+import { EntityRemovedComponent, defineQuery } from './ComponentFunctions'
 import { removeEntity } from './EntityFunctions'
 import { executeFixedPipeline } from './FixedPipelineSystem'
-import {
-  defineSystem,
-  disableAllSystems,
-  enableSystems,
-  executeSystem,
-  SystemDefinitions,
-  SystemUUID
-} from './SystemFunctions'
+import { SystemDefinitions, defineSystem, disableAllSystems, enableSystems, executeSystem } from './SystemFunctions'
 
 const sceneQuery = defineQuery([SceneObjectComponent])
 

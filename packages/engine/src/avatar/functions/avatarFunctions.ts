@@ -23,31 +23,15 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { VRM, VRMHumanBone, VRMHumanBoneList, VRMHumanBoneName } from '@pixiv/three-vrm'
 import * as VRMUtils from '@pixiv/three-vrm'
-import { pipe } from 'bitecs'
+import { VRM, VRMHumanBone } from '@pixiv/three-vrm'
 import { clone, cloneDeep } from 'lodash'
-import { useEffect } from 'react'
-import {
-  AnimationClip,
-  AnimationMixer,
-  Bone,
-  Box3,
-  Group,
-  Matrix4,
-  Mesh,
-  Object3D,
-  Skeleton,
-  SkinnedMesh,
-  Vector3
-} from 'three'
+import { AnimationMixer, Bone, Box3, Group, Object3D, Skeleton, SkinnedMesh, Vector3 } from 'three'
 import { GLTF } from 'three/examples/jsm/loaders/GLTFLoader'
 
 import { dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
 
 import { AssetLoader } from '../../assets/classes/AssetLoader'
-import { AssetType } from '../../assets/enum/AssetType'
-import { LoopAnimationComponent } from '../../avatar/components/LoopAnimationComponent'
 import { isClient } from '../../common/functions/getEnvironment'
 import { iOS } from '../../common/functions/isMobile'
 import { EngineActions, EngineState } from '../../ecs/classes/EngineState'
@@ -61,25 +45,15 @@ import {
   setComponent
 } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
-import UpdateableObject3D from '../../scene/classes/UpdateableObject3D'
-import { setCallback } from '../../scene/components/CallbackComponent'
-import { addObjectToGroup, GroupComponent, removeObjectFromGroup } from '../../scene/components/GroupComponent'
-import { UpdatableCallback, UpdatableComponent } from '../../scene/components/UpdatableComponent'
+import { addObjectToGroup, removeObjectFromGroup } from '../../scene/components/GroupComponent'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
 import { setObjectLayers } from '../../scene/functions/setObjectLayers'
 import iterateObject3D from '../../scene/util/iterateObject3D'
-import { computeTransformMatrix, updateGroupChildren } from '../../transform/systems/TransformSystem'
+import { computeTransformMatrix } from '../../transform/systems/TransformSystem'
 import { XRState } from '../../xr/XRState'
-import { applySkeletonPose, isSkeletonInTPose, makeTPose } from '../animation/avatarPose'
-import { retargetSkeleton, syncModelSkeletons } from '../animation/retargetSkeleton'
 import { AnimationManager } from '../AnimationManager'
 // import { retargetSkeleton, syncModelSkeletons } from '../animation/retargetSkeleton'
-import avatarBoneMatching, {
-  BoneNames,
-  BoneStructure,
-  createSkeletonFromBone,
-  findSkinnedMeshes
-} from '../AvatarBoneMatching'
+import avatarBoneMatching, { BoneNames, findSkinnedMeshes } from '../AvatarBoneMatching'
 import { AnimationComponent } from '../components/AnimationComponent'
 import { AvatarAnimationComponent, AvatarRigComponent } from '../components/AvatarAnimationComponent'
 import { AvatarComponent } from '../components/AvatarComponent'
@@ -88,8 +62,6 @@ import { AvatarEffectComponent, MaterialMap } from '../components/AvatarEffectCo
 import { AvatarPendingComponent } from '../components/AvatarPendingComponent'
 import { defaultBonesData } from '../DefaultSkeletonBones'
 import { DissolveEffect } from '../DissolveEffect'
-import { SkeletonUtils } from '../SkeletonUtils'
-import { getIdlePose, getWalkForwardPose } from './proceduralIKAnimations'
 import { resizeAvatar } from './resizeAvatar'
 
 const tempVec3ForHeight = new Vector3()
@@ -226,7 +198,7 @@ export const setupAvatarMaterials = (entity, root) => {
         id: object.uuid,
         material: material
       })
-      object.material = DissolveEffect.getDissolveTexture(object)
+      object.material = DissolveEffect.createDissolveMaterial(object)
     }
   })
 

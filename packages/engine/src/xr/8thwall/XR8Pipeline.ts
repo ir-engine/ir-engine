@@ -31,7 +31,6 @@ import { PersistentAnchorActions } from '../XRAnchorComponents'
 import { XR8 } from './XR8'
 import {
   CameraPipelineModule,
-  onUpdate,
   WayspotFoundEvent,
   WayspotLostEvent,
   WayspotScanningEvent,

@@ -23,21 +23,18 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Color, Material, Mesh, Texture } from 'three'
+import { Color, Material } from 'three'
 
 import { getState } from '@etherealengine/hyperflux'
 
 import {
   materialIdToDefaultArgs,
-  materialIdToFactory,
   protoIdToFactory,
   prototypeFromId
 } from '../../../../renderer/materials/functions/MaterialLibraryFunctions'
-import { applyMaterialPlugin } from '../../../../renderer/materials/functions/MaterialPluginFunctions'
 import { MaterialLibraryState } from '../../../../renderer/materials/MaterialLibrary'
-import iterateObject3D from '../../../../scene/util/iterateObject3D'
 import { EEMaterialExtensionType } from '../../../exporters/gltf/extensions/EEMaterialExporterExtension'
-import { GLTF, GLTFLoaderPlugin, GLTFParser } from '../GLTFLoader'
+import { GLTFLoaderPlugin } from '../GLTFLoader'
 import { ImporterExtension } from './ImporterExtension'
 
 export class EEMaterialImporterExtension extends ImporterExtension implements GLTFLoaderPlugin {
@@ -63,7 +60,10 @@ export class EEMaterialImporterExtension extends ImporterExtension implements GL
     const materialDef = parser.json.materials[materialIndex]
     if (!materialDef.extensions?.[this.name]) return Promise.resolve()
     const extension: EEMaterialExtensionType = materialDef.extensions[this.name]
-    extension.plugins && (materialDef.extras['plugins'] = extension.plugins)
+    if (extension.plugins) {
+      if (!materialDef.extras) materialDef.extras = {}
+      materialDef.extras['plugins'] = extension.plugins
+    }
     const defaultArgs = getState(MaterialLibraryState).materials[extension.uuid]
       ? materialIdToDefaultArgs(extension.uuid)!
       : prototypeFromId(extension.prototype).arguments

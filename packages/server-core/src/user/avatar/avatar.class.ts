@@ -23,68 +23,75 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Paginated, Params } from '@feathersjs/feathers'
-import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
-import { Op } from 'sequelize'
+import { Id, Params } from '@feathersjs/feathers'
+import type { KnexAdapterOptions, KnexAdapterParams } from '@feathersjs/knex'
+import { KnexAdapter } from '@feathersjs/knex'
+import { Knex } from 'knex'
 
-import { AvatarInterface } from '@etherealengine/common/src/interfaces/AvatarInterface'
+import { UserInterface } from '@etherealengine/common/src/interfaces/User'
+import { staticResourcePath } from '@etherealengine/engine/src/schemas/media/static-resource.schema'
+import {
+  AvatarData,
+  AvatarDatabaseType,
+  AvatarPatch,
+  avatarPath,
+  AvatarQuery,
+  AvatarType
+} from '@etherealengine/engine/src/schemas/user/avatar.schema'
 
 import { Application } from '../../../declarations'
 import { checkScope } from '../../hooks/verify-scope'
 import logger from '../../ServerLogger'
-import { UnauthorizedException } from '../../util/exceptions/exception'
-import { UserParams } from '../user/user.class'
-import { AvatarCreateArguments, AvatarPatchArguments } from './avatar-helper'
 
-export class Avatar extends Service<AvatarInterface> {
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+export interface AvatarParams extends KnexAdapterParams<AvatarQuery> {
+  user?: UserInterface
+  isInternal?: boolean
+}
+
+/**
+ * A class for Avatar service
+ */
+
+export class AvatarService<T = AvatarType, ServiceParams extends Params = AvatarParams> extends KnexAdapter<
+  AvatarType,
+  AvatarData,
+  AvatarParams,
+  AvatarPatch
+> {
   app: Application
-  docs: any
 
-  constructor(options: Partial<SequelizeServiceOptions>, app: Application) {
+  constructor(options: KnexAdapterOptions, app: Application) {
     super(options)
     this.app = app
   }
 
-  async get(id: string, params?: Params): Promise<AvatarInterface> {
-    const avatar = await super.get(id, params)
-    if (avatar.modelResourceId)
-      try {
-        avatar.modelResource = await this.app.service('static-resource').get(avatar.modelResourceId)
-      } catch (err) {
-        logger.error(err)
-      }
-    if (avatar.thumbnailResourceId)
-      try {
-        avatar.thumbnailResource = await this.app.service('static-resource').get(avatar.thumbnailResourceId)
-      } catch (err) {
-        logger.error(err)
-      }
-    return avatar
+  async get(id: Id, params?: AvatarParams) {
+    return super._get(id, params)
   }
 
-  async find(
-    params?: UserParams & { query?: { admin?: boolean } }
-  ): Promise<AvatarInterface[] | Paginated<AvatarInterface>> {
+  async find(params?: AvatarParams) {
     let isAdmin = false
+
     if (params && params.user && params.user.id && params.query?.admin) {
-      // todo do we want to use globalAvatars:read/write intead here?
+      // TODO: Do we want to use globalAvatars:read/write instead here?
       isAdmin = await checkScope(params?.user, this.app, 'admin', 'admin')
       delete params.query.admin
     }
 
-    if (params?.query?.search != null) {
-      if (params.query.search.length > 0)
-        params.query.name = {
-          [Op.like]: `%${params.query.search}%`
-        }
+    if (params?.query?.search) {
+      params.query.name = {
+        $like: `%${params.query.search}%`
+      }
     }
+
     if (params?.query) delete params.query.search
 
     if (!isAdmin && params) {
       if (params.user && params.user.id) {
         params.query = {
           ...params?.query,
-          [Op.or]: [
+          $or: [
             {
               isPublic: true
             },
@@ -102,81 +109,49 @@ export class Avatar extends Service<AvatarInterface> {
       }
     }
 
-    const avatars = (await super.find(params)) as Paginated<AvatarInterface>
-    await Promise.all(
-      avatars.data.map(async (avatar) => {
-        if (avatar.modelResourceId)
-          try {
-            avatar.modelResource = await this.app.service('static-resource').get(avatar.modelResourceId)
-          } catch (err) {}
-        if (avatar.thumbnailResourceId)
-          try {
-            avatar.thumbnailResource = await this.app.service('static-resource').get(avatar.thumbnailResourceId)
-          } catch (err) {}
-        return avatar
-      })
-    )
-    return avatars
+    return await super._find(params)
   }
 
-  async create(data: AvatarCreateArguments, params?: UserParams): Promise<AvatarInterface> {
-    let avatar = (await super.create({
-      name: data.name,
+  async create(data: AvatarData, params?: AvatarParams) {
+    let avatar = await super._create({
+      ...data,
       isPublic: data.isPublic ?? true,
-      userId: params?.user!.id,
-      modelResourceId: data.modelResourceId,
-      thumbnailResourceId: data.thumbnailResourceId,
-      project: data.project
-    })) as AvatarInterface
-    avatar = await this.patch(avatar.id, {
+      userId: params!.user!.id
+    })
+
+    avatar = await super._patch(avatar.id, {
       identifierName: avatar.name + '_' + avatar.id
     })
+
     return avatar
   }
 
-  async patch(id: string, data: AvatarPatchArguments, params?: UserParams): Promise<AvatarInterface> {
-    let avatar = (await super.get(id, params)) as AvatarInterface
-
-    if (avatar.userId !== params?.user!.id && params && params.user && params.user.id) {
-      const hasPermission = await checkScope(params?.user, this.app, 'admin', 'admin')
-      if (!hasPermission) {
-        throw new UnauthorizedException(`Unauthorized to perform this action.`)
-      }
-    }
-
-    avatar = (await super.patch(id, data, params)) as AvatarInterface
-    avatar = (await super.patch(avatar.id, {
-      identifierName: avatar.name + '_' + avatar.id
-    })) as AvatarInterface
-
-    if (avatar.modelResourceId)
-      try {
-        avatar.modelResource = await this.app.service('static-resource').get(avatar.modelResourceId)
-      } catch (err) {}
-    if (avatar.thumbnailResourceId)
-      try {
-        avatar.thumbnailResource = await this.app.service('static-resource').get(avatar.thumbnailResourceId)
-      } catch (err) {}
-    return avatar
+  async patch(id: Id, data: AvatarPatch, params?: AvatarParams) {
+    return await super._patch(id, data, params)
   }
 
-  async remove(id: string, params?: Params): Promise<AvatarInterface> {
+  async remove(id: string, params?: AvatarParams) {
     const avatar = await this.get(id, params)
+
     try {
-      await this.app.service('static-resource').remove(avatar.modelResourceId)
+      await this.app.service(staticResourcePath).remove(avatar.modelResourceId)
     } catch (err) {
       logger.error(err)
     }
+
     try {
-      await this.app.service('static-resource').remove(avatar.thumbnailResourceId)
-    } catch (err) {}
-    const avatars = (await super.Model.findAll({
-      where: {
-        id: {
-          [Op.ne]: id
-        }
-      }
-    })) as AvatarInterface[]
+      await this.app.service(staticResourcePath).remove(avatar.thumbnailResourceId)
+    } catch (err) {
+      logger.error(err)
+    }
+
+    const knexClient: Knex = this.app.get('knexClient')
+
+    const avatars = (await knexClient
+      .from<AvatarDatabaseType>(avatarPath)
+      .whereNot('id', id)
+      .select()) as AvatarDatabaseType[]
+
     //Users that have the avatar that's being deleted will have theirs replaced with a random one, if there are other
     //avatars to use
     if (id && avatars.length > 0) {
@@ -192,6 +167,7 @@ export class Avatar extends Service<AvatarInterface> {
         }
       )
     }
-    return super.remove(id, params) as Promise<AvatarInterface>
+
+    return super._remove(id, params)
   }
 }

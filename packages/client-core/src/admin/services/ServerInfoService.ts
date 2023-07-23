@@ -24,13 +24,11 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { ServerInfoInterface, ServerPodInfo } from '@etherealengine/common/src/interfaces/ServerInfo'
-import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
-import { defineAction, defineState, dispatchAction, getMutableState } from '@etherealengine/hyperflux'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { defineState, getMutableState } from '@etherealengine/hyperflux'
 
-import { API } from '../../API'
 import { NotificationService } from '../../common/services/NotificationService'
 
-//State
 export const AdminServerInfoState = defineState({
   name: 'AdminServerInfoState',
   initial: () => ({
@@ -41,82 +39,38 @@ export const AdminServerInfoState = defineState({
   })
 })
 
-const fetchServerInfoRequestedReceptor = (
-  action: typeof AdminServerInfoActions.fetchServerInfoRequested.matches._TYPE
-) => {
-  try {
-    const state = getMutableState(AdminServerInfoState)
-    return state.merge({ retrieving: true })
-  } catch (err) {
-    NotificationService.dispatchNotify(err.message, { variant: 'error' })
-  }
-}
-
-const fetchServerInfoRetrievedReceptor = (
-  action: typeof AdminServerInfoActions.fetchServerInfoRetrieved.matches._TYPE
-) => {
-  try {
-    const state = getMutableState(AdminServerInfoState)
-    return state.merge({
-      servers: action.data,
-      retrieving: false,
-      fetched: true,
-      updateNeeded: false
-    })
-  } catch (err) {
-    NotificationService.dispatchNotify(err.message, { variant: 'error' })
-  }
-}
-
-const serverInfoPodRemovedReceptor = (action: typeof AdminServerInfoActions.serverInfoPodRemoved.matches._TYPE) => {
-  const state = getMutableState(AdminServerInfoState)
-  return state.merge({ updateNeeded: true })
-}
-
-export const AdminServerInfoReceptors = {
-  fetchServerInfoRequestedReceptor,
-  fetchServerInfoRetrievedReceptor,
-  serverInfoPodRemovedReceptor
-}
-
-//Service
 export const ServerInfoService = {
   fetchServerInfo: async () => {
-    dispatchAction(AdminServerInfoActions.fetchServerInfoRequested({}))
+    getMutableState(AdminServerInfoState).merge({ retrieving: true })
+    try {
+      let serverInfo: ServerInfoInterface[] = await Engine.instance.api.service('server-info').find()
+      const allPods: ServerPodInfo[] = []
+      for (const item of serverInfo) {
+        allPods.push(...item.pods)
+      }
 
-    let serverInfo: ServerInfoInterface[] = await API.instance.client.service('server-info').find()
-    const allPods: ServerPodInfo[] = []
-    for (const item of serverInfo) {
-      allPods.push(...item.pods)
+      serverInfo = [
+        {
+          id: 'all',
+          label: 'All',
+          pods: allPods
+        },
+        ...serverInfo
+      ]
+
+      getMutableState(AdminServerInfoState).merge({
+        servers: serverInfo,
+        retrieving: false,
+        fetched: true,
+        updateNeeded: false
+      })
+    } catch (err) {
+      getMutableState(AdminServerInfoState).merge({ retrieving: true })
+      NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
-
-    serverInfo = [
-      {
-        id: 'all',
-        label: 'All',
-        pods: allPods
-      },
-      ...serverInfo
-    ]
-
-    dispatchAction(AdminServerInfoActions.fetchServerInfoRetrieved({ data: serverInfo }))
   },
   removePod: async (podName: string) => {
-    await API.instance.client.service('server-info').remove(podName)
-    dispatchAction(AdminServerInfoActions.serverInfoPodRemoved({}))
+    await Engine.instance.api.service('server-info').remove(podName)
+    getMutableState(AdminServerInfoState).merge({ updateNeeded: true })
   }
-}
-
-//Action
-export class AdminServerInfoActions {
-  static fetchServerInfoRequested = defineAction({
-    type: 'ee.client.AdminServerInfo.FETCH_SERVER_INFO_REQUESTED' as const
-  })
-  static fetchServerInfoRetrieved = defineAction({
-    type: 'ee.client.AdminServerInfo.FETCH_SERVER_INFO_RETRIEVED' as const,
-    data: matches.array as Validator<unknown, ServerInfoInterface[]>
-  })
-  static serverInfoPodRemoved = defineAction({
-    type: 'ee.client.AdminLocation.SERVER_INFO_POD_REMOVED' as const
-  })
 }

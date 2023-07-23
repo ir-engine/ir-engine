@@ -31,7 +31,6 @@ import { GroundPlaneComponent } from '@etherealengine/engine/src/scene/component
 
 import SquareIcon from '@mui/icons-material/Square'
 
-import BooleanInput from '../inputs/BooleanInput'
 import ColorInput from '../inputs/ColorInput'
 import InputGroup from '../inputs/InputGroup'
 import NodeEditor from './NodeEditor'

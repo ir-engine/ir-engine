@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React from 'react'
+import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { AnimationManager } from '@etherealengine/engine/src/avatar/AnimationManager'
@@ -52,13 +52,18 @@ export const LoopAnimationNodeEditor: EditorComponentType = (props) => {
   const modelComponent = useComponent(entity, ModelComponent)
   const loopAnimationComponent = useComponent(entity, LoopAnimationComponent)
 
-  const animationOptions = useState(() => {
+  const animationOptions = useState([] as { label: string; value: number }[])
+
+  useEffect(() => {
     const obj3d = modelComponent.value.scene
     const animations = loopAnimationComponent.value.hasAvatarAnimations
       ? AnimationManager.instance._animations
       : obj3d?.animations ?? []
-    return [{ label: 'None', value: -1 }, ...animations.map((clip, index) => ({ label: clip.name, value: index }))]
-  })
+    animationOptions.set([
+      { label: 'None', value: -1 },
+      ...animations.map((clip, index) => ({ label: clip.name, value: index }))
+    ])
+  }, [modelComponent.scene, loopAnimationComponent.hasAvatarAnimations])
 
   const onChangePlayingAnimation = (index) => {
     updateProperties(LoopAnimationComponent, {

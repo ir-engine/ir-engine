@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { spawn } from 'child_process'
 import { Sequelize } from 'sequelize'
 
-import config, { isDev } from '@etherealengine/common/src/config'
+import { isDev } from '@etherealengine/common/src/config'
 import appConfig from '@etherealengine/server-core/src/appconfig'
 
 import { Application } from '../declarations'
@@ -50,6 +50,7 @@ export default (app: Application): void => {
       }
     })
     const oldSetup = app.setup
+    const oldTeardown = app.teardown
 
     app.set('sequelizeClient', sequelize)
 
@@ -58,6 +59,19 @@ export default (app: Application): void => {
       promiseResolve = resolve
       promiseReject = reject
     })
+
+    app.teardown = async function (...args) {
+      try {
+        await sequelize.close()
+        console.log('Sequelize connection closed')
+      } catch (err) {
+        logger.error('Sequelize teardown error')
+        logger.error(err)
+        promiseReject()
+        throw err
+      }
+      return oldTeardown.apply(this, args)
+    }
 
     app.setup = async function (...args) {
       try {
@@ -126,10 +140,13 @@ export default (app: Application): void => {
           await Promise.race([
             initPromise,
             new Promise<void>((resolve) => {
-              setTimeout(() => {
-                console.log('WARNING: Knex migrations took too long to run!')
-                resolve()
-              }, 2 * 60 * 1000) // timeout after 2 minutes
+              setTimeout(
+                () => {
+                  console.log('WARNING: Knex migrations took too long to run!')
+                  resolve()
+                },
+                2 * 60 * 1000
+              ) // timeout after 2 minutes
             })
           ])
         }

@@ -23,17 +23,14 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { ReactElement, useEffect } from 'react'
-import React from 'react'
+import React, { ReactElement, useEffect } from 'react'
 
-import { defineActionQueue, getMutableState, removeActionQueue, useState } from '@etherealengine/hyperflux'
+import { getMutableState, useState } from '@etherealengine/hyperflux'
 
 import { defineSystem } from '../../../ecs/functions/SystemFunctions'
 import { NoiseOffsetSystem } from '../constants/plugins/NoiseOffsetPlugin'
-import { registerMaterial, registerMaterialPrototype } from '../functions/MaterialLibraryFunctions'
 import { applyMaterialPlugin, removeMaterialPlugin } from '../functions/MaterialPluginFunctions'
 import { initializeMaterialLibrary, MaterialLibraryState } from '../MaterialLibrary'
-import { VegetationPluginSystem } from './VegetationSystem'
 
 function MaterialReactor({ materialId }: { materialId: string }) {
   const materialLibrary = useState(getMutableState(MaterialLibraryState))
@@ -51,12 +48,6 @@ function MaterialReactor({ materialId }: { materialId: string }) {
 function PluginReactor({ pluginId }: { pluginId: string }) {
   const materialLibrary = useState(getMutableState(MaterialLibraryState))
   const component = materialLibrary.plugins[pluginId]
-  useEffect(() => {
-    component.instances.value.forEach((material) => {
-      material.needsUpdate = true
-    })
-  }, [component.parameters])
-
   return null
 }
 
@@ -90,5 +81,5 @@ function reactor(): ReactElement {
 export const MaterialLibrarySystem = defineSystem({
   uuid: 'ee.engine.scene.MaterialLibrarySystem',
   reactor,
-  subSystems: [VegetationPluginSystem, NoiseOffsetSystem]
+  subSystems: [NoiseOffsetSystem]
 })

@@ -32,7 +32,6 @@ import { AuthState } from '@etherealengine/client-core/src/user/services/AuthSer
 import { AudioEffectPlayer } from '@etherealengine/engine/src/audio/systems/MediaSystem'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
-import { WorldNetworkAction } from '@etherealengine/engine/src/networking/functions/WorldNetworkAction'
 import { WorldState } from '@etherealengine/engine/src/networking/interfaces/WorldState'
 import { dispatchAction, getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import Avatar from '@etherealengine/ui/src/primitives/mui/Avatar'
@@ -47,10 +46,10 @@ import { Close as CloseIcon, Message as MessageIcon } from '@mui/icons-material'
 import Fab from '@mui/material/Fab'
 
 import { AppAction } from '../../common/services/AppService'
+import { AvatarUIActions, AvatarUIState } from '../../systems/state/AvatarUIState'
 import { getUserAvatarThumbnail } from '../../user/functions/useUserAvatarThumbnail'
 import { useShelfStyles } from '../Shelves/useShelfStyles'
-import defaultStyles from './index.module.scss'
-import styles from './index.module.scss'
+import { default as defaultStyles, default as styles } from './index.module.scss'
 
 interface ChatHooksProps {
   chatWindowOpen: boolean
@@ -89,7 +88,7 @@ export const useChatHooks = ({ chatWindowOpen, setUnreadMessages, messageRefInpu
   const composingMessage = useHookstate('')
   const cursorPosition = useHookstate(0)
   const user = useHookstate(getMutableState(AuthState).user)
-  const usersTyping = useHookstate(getMutableState(EngineState)).usersTyping[user?.id.value].value
+  const usersTyping = useHookstate(getMutableState(AvatarUIState)).usersTyping[user?.id.value].value
   const isMultiline = useHookstate(false)
 
   useEffect(() => {
@@ -102,7 +101,7 @@ export const useChatHooks = ({ chatWindowOpen, setUnreadMessages, messageRefInpu
     if (!composingMessage.value || !usersTyping) return
     const delayDebounce = setTimeout(() => {
       dispatchAction(
-        WorldNetworkAction.setUserTyping({
+        AvatarUIActions.setUserTyping({
           typing: false
         })
       )
@@ -132,7 +131,7 @@ export const useChatHooks = ({ chatWindowOpen, setUnreadMessages, messageRefInpu
     if (message.length > composingMessage.value.length) {
       if (!usersTyping) {
         dispatchAction(
-          WorldNetworkAction.setUserTyping({
+          AvatarUIActions.setUserTyping({
             typing: true
           })
         )
@@ -141,7 +140,7 @@ export const useChatHooks = ({ chatWindowOpen, setUnreadMessages, messageRefInpu
     if (message.length == 0 || message.length < composingMessage.value.length) {
       if (usersTyping) {
         dispatchAction(
-          WorldNetworkAction.setUserTyping({
+          AvatarUIActions.setUserTyping({
             typing: false
           })
         )
@@ -156,7 +155,7 @@ export const useChatHooks = ({ chatWindowOpen, setUnreadMessages, messageRefInpu
     if (composingMessage?.value?.length && instanceId) {
       if (usersTyping) {
         dispatchAction(
-          WorldNetworkAction.setUserTyping({
+          AvatarUIActions.setUserTyping({
             typing: false
           })
         )

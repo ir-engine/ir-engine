@@ -323,9 +323,6 @@
           "name": "gltf-model",
           "props": {
             "src": "__$project$__/default-project/assets/apartment.glb",
-            "resource": {
-              "src": "__$project$__/default-project/assets/apartment.glb"
-            },
             "generateBVH": true,
             "avoidCameraOcclusion": false
           }
@@ -340,10 +337,11 @@
         {
           "name": "envmap",
           "props": {
-            "type": "Default",
+            "type": "Bake",
             "envMapTextureType": "Equirectangular",
             "envMapSourceColor": 1193046,
-            "envMapSourceURL": "__$project$__/default-project/apartment-New-EnvMap%20Bake.ktx2",
+            "envMapSourceURL": "",
+            "envMapSourceEntityUUID": "1f374932-e649-4b30-b6e7-de990fdee2a1",
             "envMapIntensity": 1
           }
         }
@@ -780,44 +778,6 @@
       "index": 15,
       "name": "Portal"
     },
-    "9dcb0074-fda1-42a8-b65f-e7c603eaa920": {
-      "components": [
-        {
-          "name": "transform",
-          "props": {
-            "position": {
-              "x": -3.351901054382324,
-              "y": 0.6000000238418579,
-              "z": -2.362102746963501
-            },
-            "rotation": {
-              "x": 6.794184474394539e-18,
-              "y": -0.7604057516704998,
-              "z": 6.794184474394539e-18,
-              "w": 0.6494482988093988
-            },
-            "scale": {
-              "x": 1,
-              "y": 1,
-              "z": 1
-            }
-          }
-        },
-        {
-          "name": "visible",
-          "props": {}
-        },
-        {
-          "name": "mount-point",
-          "props": {
-            "type": "seat"
-          }
-        }
-      ],
-      "parent": "60a390ad-4193-493d-84bf-cfb77b5095c2",
-      "index": 16,
-      "name": "Chair"
-    },
     "ce1ad9ab-d24a-43a1-9792-ec6ea4f92ac7": {
       "components": [
         {
@@ -873,7 +833,7 @@
         }
       ],
       "parent": "60a390ad-4193-493d-84bf-cfb77b5095c2",
-      "index": 17,
+      "index": 16,
       "name": "Audio - Ambience"
     },
     "0f5b5b02-67f9-4682-b687-d8ef95448c16": {
@@ -920,7 +880,7 @@
         }
       ],
       "parent": "60a390ad-4193-493d-84bf-cfb77b5095c2",
-      "index": 18,
+      "index": 17,
       "name": "Trigger Volume"
     },
     "d8a020bd-0795-44f2-b00a-97c6bc9984a7": {
@@ -967,7 +927,7 @@
         }
       ],
       "parent": "60a390ad-4193-493d-84bf-cfb77b5095c2",
-      "index": 19,
+      "index": 18,
       "name": "Door"
     },
     "61304262-c00c-4f1f-80a2-e4163d97a007": {
@@ -1008,9 +968,6 @@
           "name": "gltf-model",
           "props": {
             "src": "__$project$__/default-project/assets/keycard.glb",
-            "resource": {
-              "src": "__$project$__/default-project/assets/keycard.glb"
-            },
             "generateBVH": true,
             "avoidCameraOcclusion": false
           }
@@ -1027,7 +984,7 @@
         }
       ],
       "parent": "60a390ad-4193-493d-84bf-cfb77b5095c2",
-      "index": 20,
+      "index": 19,
       "name": "Model"
     },
     "9d06e7cb-bd8f-4537-80ad-d62dcc8b89c3": {
@@ -1074,7 +1031,7 @@
         }
       ],
       "parent": "60a390ad-4193-493d-84bf-cfb77b5095c2",
-      "index": 21,
+      "index": 20,
       "name": "VCKey Trigger Volume"
     },
     "1f374932-e649-4b30-b6e7-de990fdee2a1": {
@@ -1131,7 +1088,7 @@
         }
       ],
       "parent": "60a390ad-4193-493d-84bf-cfb77b5095c2",
-      "index": 22,
+      "index": 21,
       "name": "New EnvMap Bake"
     }
   },

@@ -23,7 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React, { useEffect, useState } from 'react'
+import { debounce } from 'lodash'
+import React, { useCallback, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Euler, Quaternion } from 'three'
 
@@ -41,13 +42,14 @@ import { TransformComponent } from '@etherealengine/engine/src/transform/compone
 
 import MeetingRoomIcon from '@mui/icons-material/MeetingRoom'
 
-import { uploadCubemapBakeToServer } from '../../functions/uploadEnvMapBake'
+import { getPreviewBakeTexture, uploadCubemapBakeToServer } from '../../functions/uploadEnvMapBake'
 import BooleanInput from '../inputs/BooleanInput'
 import { Button } from '../inputs/Button'
 import EulerInput from '../inputs/EulerInput'
+import ImagePreviewInput from '../inputs/ImagePreviewInput'
 import InputGroup from '../inputs/InputGroup'
 import SelectInput from '../inputs/SelectInput'
-import StringInput, { ControlledStringInput } from '../inputs/StringInput'
+import { ControlledStringInput } from '../inputs/StringInput'
 import Vector3Input from '../inputs/Vector3Input'
 import NodeEditor from './NodeEditor'
 import { EditorComponentType, updateProperties, updateProperty } from './Util'
@@ -72,12 +74,30 @@ const rotation = new Quaternion()
  */
 export const PortalNodeEditor: EditorComponentType = (props) => {
   const [portals, setPortals] = useState<Array<{ value: string; label: string }>>([])
+  const [bufferUrl, setBufferUrl] = useState<string>('')
+
   const { t } = useTranslation()
   const transformComponent = useComponent(props.entity, TransformComponent)
+  const portalComponent = useComponent(props.entity, PortalComponent)
 
   useEffect(() => {
     loadPortals()
   }, [])
+
+  const updateCubeMapBake = async () => {
+    const imageBlob = await getPreviewBakeTexture(transformComponent.value.position)
+    const url = URL.createObjectURL(imageBlob)
+    setBufferUrl(url)
+  }
+
+  const updateCubeMapBakeDebounced = useCallback(debounce(updateCubeMapBake, 500), []) //ms
+
+  useEffect(() => {
+    updateCubeMapBakeDebounced()
+    return () => {
+      updateCubeMapBakeDebounced.cancel()
+    }
+  }, [transformComponent.position])
 
   const loadPortals = async () => {
     const portalsDetail: PortalDetail[] = []
@@ -115,8 +135,6 @@ export const PortalNodeEditor: EditorComponentType = (props) => {
     updateProperties(PortalComponent, { previewType: val })
     loadPortals()
   }
-
-  const portalComponent = useComponent(props.entity, PortalComponent)
 
   return (
     <NodeEditor description={t('editor:properties.portal.description')} {...props}>
@@ -157,16 +175,36 @@ export const PortalNodeEditor: EditorComponentType = (props) => {
           onChange={changePreviewType}
         />
       </InputGroup>
-      <InputGroup name="Preview Image URL" label={t('editor:properties.portal.lbl-previewImageURL')}>
+      <InputGroup name="Saved Image URL" label={t('editor:properties.portal.lbl-savedImageURL')}>
         <ControlledStringInput
           value={portalComponent.previewImageURL.value}
           onChange={updateProperty(PortalComponent, 'previewImageURL')}
         />
       </InputGroup>
-      <InputGroup name="Preview Image Bake" label={t('editor:properties.portal.lbl-createPreviewImage')}>
-        <Button style={{ width: 'auto', fontSize: '11px' }} type="submit" onClick={bakeCubemap}>
-          {t('editor:properties.portal.lbl-createPreviewImage')}
-        </Button>
+      <InputGroup name="Preview Image Bake" label={t('editor:properties.portal.lbl-previewImage')}>
+        <div style={{ display: 'flex', flexDirection: 'column' }}>
+          <div style={{ width: 'auto', display: 'flex', flexDirection: 'row' }}>
+            <Button
+              style={{ width: '100%', fontSize: '11px', overflow: 'hidden' }}
+              type="submit"
+              onClick={() => {
+                bakeCubemap()
+              }}
+            >
+              {t('editor:properties.portal.lbl-saveImage')}
+            </Button>
+            <Button
+              style={{ width: '100%', fontSize: '11px', overflow: 'hidden' }}
+              type="submit"
+              onClick={() => {
+                updateCubeMapBake()
+              }}
+            >
+              {t('editor:properties.portal.lbl-previewImage')}
+            </Button>
+          </div>
+          <ImagePreviewInput value={bufferUrl} />
+        </div>
       </InputGroup>
       <InputGroup name="Spawn Position" label={t('editor:properties.portal.lbl-spawnPosition')}>
         <Vector3Input

@@ -23,28 +23,22 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import _ from 'lodash'
 import { useEffect } from 'react'
 import { VideoTexture } from 'three'
 
-import logger from '@etherealengine/common/src/logger'
 import { addActionReceptor, getMutableState, getState } from '@etherealengine/hyperflux'
 
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { isClient } from '../../common/functions/getEnvironment'
-import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
 import { defineQuery, getComponent, getMutableComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
-import { setCallback, StandardCallbacks } from '../../scene/components/CallbackComponent'
+import { StandardCallbacks, setCallback } from '../../scene/components/CallbackComponent'
 import { MediaComponent, MediaElementComponent } from '../../scene/components/MediaComponent'
 import { VideoComponent, VideoTexturePriorityQueueState } from '../../scene/components/VideoComponent'
-import { VisibleComponent } from '../../scene/components/VisibleComponent'
 import { VolumetricComponent } from '../../scene/components/VolumetricComponent'
 import { enterVolumetric, updateVolumetric } from '../../scene/functions/loaders/VolumetricFunctions'
-import { defaultSpatialComponents } from '../../scene/systems/SceneObjectUpdateSystem'
-import { TransformComponent } from '../../transform/components/TransformComponent'
 import { AudioSettingReceptor, AudioState } from '../AudioState'
 import { PositionalAudioComponent } from '../components/PositionalAudioComponent'
 
@@ -69,7 +63,7 @@ export class AudioEffectPlayer {
 
   loadBuffer = async (path: string) => {
     const buffer = await AssetLoader.loadAsync(path)
-    this.bufferMap[path] = buffer
+    return buffer
   }
 
   // pool of elements
@@ -79,6 +73,7 @@ export class AudioEffectPlayer {
     if (this.#els.length) return
     for (let i = 0; i < 20; i++) {
       const audioElement = document.createElement('audio')
+      audioElement.crossOrigin = 'anonymous'
       audioElement.loop = false
       this.#els.push(audioElement)
     }
@@ -90,8 +85,8 @@ export class AudioEffectPlayer {
     if (!this.#els.length) return
 
     if (!this.bufferMap[sound]) {
-      logger.error('[AudioEffectPlayer]: Buffer not found for source: ', sound)
-      return
+      // create buffer if doesn't exist
+      this.bufferMap[sound] = await AudioEffectPlayer?.instance?.loadBuffer(sound)
     }
 
     const source = getState(AudioState).audioContext.createBufferSource()
@@ -106,12 +101,6 @@ export class AudioEffectPlayer {
 }
 
 globalThis.AudioEffectPlayer = AudioEffectPlayer
-
-export const MediaPrefabs = {
-  audio: 'Audio' as const,
-  video: 'Video' as const,
-  volumetric: 'Volumetric' as const
-}
 
 const mediaQuery = defineQuery([MediaComponent])
 const videoQuery = defineQuery([VideoComponent])
@@ -183,27 +172,6 @@ const reactor = () => {
       EngineRenderer.instance.renderer.domElement.addEventListener('touchstart', handleAutoplay)
     }
 
-    Engine.instance.scenePrefabRegistry.set(MediaPrefabs.audio, [
-      { name: TransformComponent.jsonID },
-      { name: VisibleComponent.jsonID },
-      { name: MediaComponent.jsonID, props: { paths: ['__$project$__/default-project/assets/SampleAudio.mp3'] } },
-      { name: PositionalAudioComponent.jsonID }
-    ])
-
-    Engine.instance.scenePrefabRegistry.set(MediaPrefabs.video, [
-      ...defaultSpatialComponents,
-      { name: MediaComponent.jsonID, props: { paths: ['__$project$__/default-project/assets/SampleVideo.mp4'] } },
-      { name: PositionalAudioComponent.jsonID },
-      { name: VideoComponent.jsonID }
-    ])
-
-    Engine.instance.scenePrefabRegistry.set(MediaPrefabs.volumetric, [
-      ...defaultSpatialComponents,
-      { name: MediaComponent.jsonID },
-      { name: PositionalAudioComponent.jsonID },
-      { name: VolumetricComponent.jsonID }
-    ])
-
     const audioState = getMutableState(AudioState)
     const currentTime = audioState.audioContext.currentTime.value
 
@@ -242,15 +210,9 @@ const reactor = () => {
       0.01
     )
 
-    Object.values(AudioEffectPlayer.SOUNDS).map((sound) => AudioEffectPlayer.instance.loadBuffer(sound))
-
     addActionReceptor(AudioSettingReceptor)
 
     return () => {
-      Engine.instance.scenePrefabRegistry.delete(MediaPrefabs.audio)
-      Engine.instance.scenePrefabRegistry.delete(MediaPrefabs.video)
-      Engine.instance.scenePrefabRegistry.delete(MediaPrefabs.volumetric)
-
       audioState.gainNodeMixBuses.mediaStreams.value.disconnect()
       audioState.gainNodeMixBuses.mediaStreams.set(null!)
       audioState.gainNodeMixBuses.notifications.value.disconnect()

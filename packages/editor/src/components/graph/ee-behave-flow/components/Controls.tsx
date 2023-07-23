@@ -29,13 +29,12 @@ import {
   DefaultLogger,
   Engine,
   ManualLifecycleEventEmitter,
+  Registry,
   readGraphFromJSON,
   registerCoreProfile,
-  registerSceneProfile,
-  Registry
+  registerSceneProfile
 } from 'behave-graph'
-import { useState } from 'react'
-import React from 'react'
+import React, { useState } from 'react'
 import { ControlButton, Controls, useReactFlow } from 'reactflow'
 
 import { flowToBehave } from '../transformers/flowToBehave'

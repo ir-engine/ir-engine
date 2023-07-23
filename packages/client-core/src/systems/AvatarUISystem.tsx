@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { Not } from 'bitecs'
 import { Consumer } from 'mediasoup-client/lib/Consumer'
 import { useEffect } from 'react'
-import { Group, Matrix4, Vector3 } from 'three'
+import { Group, Vector3 } from 'three'
 
 import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 import multiLogger from '@etherealengine/common/src/logger'
@@ -39,8 +39,10 @@ import { defineQuery, getComponent, hasComponent } from '@etherealengine/engine/
 import { removeEntity } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
 import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import { InputSourceComponent } from '@etherealengine/engine/src/input/components/InputSourceComponent'
-import { NetworkObjectComponent } from '@etherealengine/engine/src/networking/components/NetworkObjectComponent'
-import { NetworkObjectOwnedTag } from '@etherealengine/engine/src/networking/components/NetworkObjectComponent'
+import {
+  NetworkObjectComponent,
+  NetworkObjectOwnedTag
+} from '@etherealengine/engine/src/networking/components/NetworkObjectComponent'
 import { MediaSettingsState } from '@etherealengine/engine/src/networking/MediaSettingsState'
 import { webcamVideoDataChannelType } from '@etherealengine/engine/src/networking/NetworkState'
 import { Physics, RaycastArgs } from '@etherealengine/engine/src/physics/classes/Physics'
@@ -55,8 +57,11 @@ import { XRUIComponent } from '@etherealengine/engine/src/xrui/components/XRUICo
 import { createTransitionState } from '@etherealengine/engine/src/xrui/functions/createTransitionState'
 import { getMutableState, getState, none } from '@etherealengine/hyperflux'
 
+import { CameraComponent } from '@etherealengine/engine/src/camera/components/CameraComponent'
+import { PhysicsState } from '@etherealengine/engine/src/physics/state/PhysicsState'
 import AvatarContextMenu from '../user/components/UserMenu/menus/AvatarContextMenu'
 import { PopupMenuState } from '../user/components/UserMenu/PopupMenuService'
+import { AvatarUIStateSystem } from './state/AvatarUIState'
 import { createAvatarDetailView } from './ui/AvatarDetailView'
 import { AvatarUIContextMenuState } from './ui/UserMenuView'
 
@@ -70,7 +75,7 @@ export const AvatarMenus = {
 }
 
 export const renderAvatarContextMenu = (userId: UserId, contextMenuEntity: Entity) => {
-  const userEntity = Engine.instance.getUserAvatarEntity(userId)
+  const userEntity = NetworkObjectComponent.getUserAvatarEntity(userId)
   if (!userEntity) return
 
   const contextMenuXRUI = getComponent(contextMenuEntity, XRUIComponent)
@@ -121,10 +126,11 @@ const raycastComponentData = {
 } as RaycastArgs
 
 const onSecondaryClick = () => {
+  const { physicsWorld } = getState(PhysicsState)
   const hits = Physics.castRayFromCamera(
-    Engine.instance.camera,
+    getComponent(Engine.instance.cameraEntity, CameraComponent),
     Engine.instance.pointerState.position,
-    Engine.instance.physicsWorld,
+    physicsWorld,
     raycastComponentData
   )
   const state = getMutableState(AvatarUIContextMenuState)
@@ -290,5 +296,6 @@ const reactor = () => {
 export const AvatarUISystem = defineSystem({
   uuid: 'ee.client.AvatarUISystem',
   execute,
-  reactor
+  reactor,
+  subSystems: [AvatarUIStateSystem]
 })

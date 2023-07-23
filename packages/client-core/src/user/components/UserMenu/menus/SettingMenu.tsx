@@ -35,6 +35,8 @@ import Text from '@etherealengine/client-core/src/common/components/Text'
 import { AuthService, AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
 import { defaultThemeModes, defaultThemeSettings } from '@etherealengine/common/src/constants/DefaultThemeSettings'
 import capitalizeFirstLetter from '@etherealengine/common/src/utils/capitalizeFirstLetter'
+import InputGroup from '@etherealengine/editor/src/components/inputs/InputGroup'
+import SelectInput from '@etherealengine/editor/src/components/inputs/SelectInput'
 import { AudioSettingAction, AudioState } from '@etherealengine/engine/src/audio/AudioState'
 import {
   AvatarAxesControlScheme,
@@ -44,10 +46,9 @@ import {
 import { isMobile } from '@etherealengine/engine/src/common/functions/isMobile'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
-import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
 import { RendererState } from '@etherealengine/engine/src/renderer/RendererState'
 import { XRState } from '@etherealengine/engine/src/xr/XRState'
-import { dispatchAction, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
+import { dispatchAction, getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import Box from '@etherealengine/ui/src/primitives/mui/Box'
 import Grid from '@etherealengine/ui/src/primitives/mui/Grid'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
@@ -57,6 +58,29 @@ import { userHasAccess } from '../../../userHasAccess'
 import { UserMenus } from '../../../UserUISystem'
 import styles from '../index.module.scss'
 import { PopupMenuServices } from '../PopupMenuService'
+
+export const ShadowMapResolutionOptions = [
+  {
+    label: '256px',
+    value: 256
+  },
+  {
+    label: '512px',
+    value: 512
+  },
+  {
+    label: '1024px',
+    value: 1024
+  },
+  {
+    label: '2048px',
+    value: 2048
+  },
+  {
+    label: '4096px (not recommended)',
+    value: 4096
+  }
+]
 
 const chromeDesktop = !isMobile && /chrome/i.test(navigator.userAgent)
 
@@ -457,6 +481,17 @@ const SettingMenu = ({ isPopover }: Props): JSX.Element => {
               sx={{ mt: 4 }}
               onChange={handleQualityLevelChange}
             />
+
+            <InputGroup
+              name="Shadow Map Resolution"
+              label={t('editor:properties.directionalLight.lbl-shadowmapResolution')}
+            >
+              <SelectInput
+                options={ShadowMapResolutionOptions}
+                value={rendererState.shadowMapResolution.value}
+                onChange={(resolution: number) => rendererState.shadowMapResolution.set(resolution)}
+              />
+            </InputGroup>
 
             <Grid container spacing={{ xs: 0, sm: 2 }}>
               <Grid item xs={12} sm={4}>

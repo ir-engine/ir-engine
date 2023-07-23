@@ -29,24 +29,31 @@ import { Quaternion, Vector3 } from 'three'
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { UserId } from '@etherealengine/common/src/interfaces/UserId'
+import {
+  applyIncomingActions,
+  dispatchAction,
+  getMutableState,
+  getState,
+  receiveActions
+} from '@etherealengine/hyperflux'
 
 import { destroyEngine, Engine } from '../../ecs/classes/Engine'
 import { hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEngine } from '../../initializeEngine'
 import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
-import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
-import { WorldNetworkActionReceptor } from '../../networking/functions/WorldNetworkActionReceptor'
+import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
+import { EntityNetworkState } from '../../networking/state/EntityNetworkState'
 import { Physics } from '../../physics/classes/Physics'
 import {
   RigidBodyComponent,
   RigidBodyKinematicPositionBasedTagComponent
 } from '../../physics/components/RigidBodyComponent'
+import { PhysicsState } from '../../physics/state/PhysicsState'
 import { NameComponent } from '../../scene/components/NameComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { AvatarAnimationComponent } from '../components/AvatarAnimationComponent'
 import { AvatarComponent } from '../components/AvatarComponent'
 import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
-import { SpawnPoseComponent } from '../components/SpawnPoseComponent'
 import { AvatarNetworkAction } from '../state/AvatarNetworkState'
 import { spawnAvatarReceptor } from './spawnAvatarReceptor'
 
@@ -54,7 +61,8 @@ describe('spawnAvatarReceptor', () => {
   beforeEach(async () => {
     createEngine()
     await Physics.load()
-    Engine.instance.physicsWorld = Physics.createWorld()
+    Engine.instance.store.defaultDispatchDelay = () => 0
+    getMutableState(PhysicsState).physicsWorld.set(Physics.createWorld())
     Engine.instance.userId = 'user' as UserId
     Engine.instance.peerID = 'peerID' as PeerID
   })
@@ -65,26 +73,30 @@ describe('spawnAvatarReceptor', () => {
 
   it('check the create avatar function', () => {
     // mock entity to apply incoming unreliable updates to
-    const action = AvatarNetworkAction.spawn({
-      $from: Engine.instance.userId,
-      position: new Vector3(),
-      rotation: new Quaternion(),
-      entityUUID: Engine.instance.userId as string as EntityUUID
-    })
-    WorldNetworkActionReceptor.receiveSpawnObject(action as any)
+    dispatchAction(
+      AvatarNetworkAction.spawn({
+        $from: Engine.instance.userId,
+        position: new Vector3(),
+        rotation: new Quaternion(),
+        entityUUID: Engine.instance.userId as string as EntityUUID
+      })
+    )
+
+    applyIncomingActions()
+    receiveActions(EntityNetworkState)
+
     spawnAvatarReceptor(Engine.instance.userId as string as EntityUUID)
 
-    const entity = Engine.instance.getUserAvatarEntity(Engine.instance.userId)
+    const entity = NetworkObjectComponent.getUserAvatarEntity(Engine.instance.userId)
 
     assert(hasComponent(entity, TransformComponent))
     assert(hasComponent(entity, AvatarComponent))
     assert(hasComponent(entity, NameComponent))
     assert(hasComponent(entity, AvatarAnimationComponent))
-    assert(hasComponent(entity, SpawnPoseComponent))
     assert(hasComponent(entity, AvatarControllerComponent))
     assert(hasComponent(entity, LocalInputTagComponent))
     assert(hasComponent(entity, RigidBodyComponent))
     assert(hasComponent(entity, RigidBodyKinematicPositionBasedTagComponent))
-    strictEqual(Engine.instance.physicsWorld.colliders.len(), 1)
+    strictEqual(getState(PhysicsState).physicsWorld.colliders.len(), 1)
   })
 })

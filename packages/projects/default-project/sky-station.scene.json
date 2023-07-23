@@ -224,7 +224,7 @@
             "envMapTextureType": "Equirectangular",
             "envMapSourceColor": 1193046,
             "envMapSourceURL": "__$project$__/default-project/assets/sky_skybox.jpg",
-            "envMapIntensity": 20
+            "envMapIntensity": 1.5
           }
         }
       ],
@@ -430,7 +430,7 @@
         {
           "name": "collider",
           "props": {
-            "bodyType": 1,
+            "bodyType": 0,
             "shapeType": 1,
             "isTrigger": false,
             "removeMesh": false,

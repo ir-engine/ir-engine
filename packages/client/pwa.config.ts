@@ -86,7 +86,7 @@ const PWA = (clientSetting) =>
       // claim clients immediately
       clientsClaim: true,
       // show source maps
-      sourcemap: true,
+      sourcemap: process.env.APP_ENV === 'development' ? false : true,
       // Set the path for the service worker file
       swDest: process.env.APP_ENV === 'development' ? 'public/service-worker.js' : 'dist/service-worker.js',
       // Navigate to index.html for all 404 errors during production
@@ -118,17 +118,62 @@ const PWA = (clientSetting) =>
         // ktx2
         '**/*.{ktx2}'
       ],
-      // Set additional manifest entries for the cache
-      additionalManifestEntries: [
-        { url: '/service-worker', revision: null },
-        { url: '/dev-sw', revision: null },
-        { url: '/src/main', revision: null }
-      ],
       // Enable cleanup of outdated caches
       cleanupOutdatedCaches: true,
       // Set maximum cache size to 10 MB
       maximumFileSizeToCacheInBytes: 1000 * 1000 * 10,
       runtimeCaching: [
+        // Cache static
+        {
+          urlPattern: ({ url }) => {
+            return /\/static?.*/i.test(url.href)
+          },
+          handler: 'CacheFirst',
+          options: {
+            cacheName: 'static-cache',
+            expiration: {
+              maxEntries: 100,
+              maxAgeSeconds: 24 * 60 * 60 * 30 // <== 30 days
+            },
+            cacheableResponse: {
+              statuses: [0, 200]
+            }
+          }
+        },
+        // Cache static resources
+        {
+          urlPattern: ({ url }) => {
+            return /\/static-resources?.*/i.test(url.href)
+          },
+          handler: 'CacheFirst',
+          options: {
+            cacheName: 'static-assets-cache',
+            expiration: {
+              maxEntries: 100,
+              maxAgeSeconds: 24 * 60 * 60 * 30 // <== 30 days
+            },
+            cacheableResponse: {
+              statuses: [0, 200]
+            }
+          }
+        },
+        // Cache sfx assets
+        {
+          urlPattern: ({ url }) => {
+            return /\/sfx?.*/i.test(url.href)
+          },
+          handler: 'CacheFirst',
+          options: {
+            cacheName: 'sfx-assets-cache',
+            expiration: {
+              maxEntries: 100,
+              maxAgeSeconds: 24 * 60 * 60 * 30 // <== 30 days
+            },
+            cacheableResponse: {
+              statuses: [0, 200]
+            }
+          }
+        },
         // Cache local assets
         {
           urlPattern: ({ url }) => {
@@ -240,6 +285,21 @@ const PWA = (clientSetting) =>
               statuses: [0, 200]
             },
             networkTimeoutSeconds: 10
+          }
+        },
+        // Cache everything else
+        {
+          urlPattern: /^\/*/,
+          handler: 'CacheFirst',
+          options: {
+            cacheName: 'all-local-cache',
+            expiration: {
+              maxEntries: 100,
+              maxAgeSeconds: 24 * 60 * 60 * 30 // <== 30 days
+            },
+            cacheableResponse: {
+              statuses: [0, 200]
+            }
           }
         }
       ]

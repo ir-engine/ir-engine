@@ -38,6 +38,7 @@ import { NetworkObjectComponent } from '../../networking/components/NetworkObjec
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
 import { WorldState } from '../../networking/interfaces/WorldState'
 import { UUIDComponent } from '../../scene/components/UUIDComponent'
+import { avatarPath } from '../../schemas/user/avatar.schema'
 import { AvatarStates, matchesAvatarState } from '../animation/Util'
 import { loadAvatarForUser } from '../functions/avatarFunctions'
 import { spawnAvatarReceptor } from '../functions/spawnAvatarReceptor'
@@ -106,20 +107,6 @@ export const AvatarState = defineState({
       WorldNetworkAction.destroyObject,
       (state, action: typeof WorldNetworkAction.destroyObject.matches._TYPE) => {
         state[action.entityUUID].set(none)
-        /** @todo - This is a hack until all actions use event sourcing */
-
-        const cachedActionsToRemove = Engine.instance.store.actions.cached.filter(
-          (a) =>
-            (AvatarNetworkAction.setAvatarID.matches.test(a) ||
-              AvatarNetworkAction.setAnimationState.matches.test(a)) &&
-            a.entityUUID === action.entityUUID
-        )
-
-        if (cachedActionsToRemove) {
-          cachedActionsToRemove.forEach((a) =>
-            Engine.instance.store.actions.cached.splice(Engine.instance.store.actions.cached.indexOf(a), 1)
-          )
-        }
       }
     ]
   ]
@@ -145,7 +132,7 @@ const AvatarReactor = React.memo(({ entityUUID }: { entityUUID: EntityUUID }) =>
     if (!state.avatarID.value) return
 
     Engine.instance.api
-      .service('avatar')
+      .service(avatarPath)
       .get(state.avatarID.value)
       .then((avatarDetails) => {
         if (!avatarDetails.modelResource?.url) return

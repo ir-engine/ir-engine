@@ -22,21 +22,23 @@ Original Code is the Ethereal Engine team.
 All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
 Ethereal Engine. All Rights Reserved.
 */
+import type { Params } from '@feathersjs/feathers'
+import type { KnexAdapterParams } from '@feathersjs/knex'
+import { KnexService } from '@feathersjs/knex'
 
-import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
+import {
+  BotCommandData,
+  BotCommandPatch,
+  BotCommandQuery,
+  BotCommandType
+} from '@etherealengine/engine/src/schemas/bot/bot-command.schema'
 
-import { BotCommands as BotCommandInterface } from '@etherealengine/common/src/interfaces/AdminBot'
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+export interface BotCommandParams extends KnexAdapterParams<BotCommandQuery> {}
 
-import { Application } from '../../../declarations'
-
-export type BotCommandDataType = BotCommandInterface
-
-export class BotCommand<T = BotCommandDataType> extends Service<T> {
-  app: Application
-  docs: any
-
-  constructor(options: Partial<SequelizeServiceOptions>, app: Application) {
-    super(options)
-    this.app = app
-  }
-}
+export class BotCommandService<T = BotCommandType, ServiceParams extends Params = BotCommandParams> extends KnexService<
+  BotCommandType,
+  BotCommandData,
+  BotCommandParams,
+  BotCommandPatch
+> {}

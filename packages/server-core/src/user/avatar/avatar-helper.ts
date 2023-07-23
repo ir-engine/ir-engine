@@ -23,36 +23,21 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { Paginated } from '@feathersjs/feathers'
 import appRootPath from 'app-root-path'
 import fs from 'fs'
 import path from 'path'
 
 import { CommonKnownContentTypes } from '@etherealengine/common/src/utils/CommonKnownContentTypes'
+import { avatarPath, AvatarType } from '@etherealengine/engine/src/schemas/user/avatar.schema'
 
 import { Application } from '../../../declarations'
 import { isAssetFromProject } from '../../media/static-resource/static-resource-helper'
 import { getStorageProvider } from '../../media/storageprovider/storageprovider'
 import { addAssetAsStaticResource } from '../../media/upload-asset/upload-asset.service'
-import { getProjectPackageJson } from '../../projects/project/project-helper'
 import logger from '../../ServerLogger'
 import { getContentType } from '../../util/fileUtils'
 import { UserParams } from '../user/user.class'
-
-export type AvatarCreateArguments = {
-  modelResourceId?: string
-  thumbnailResourceId?: string
-  identifierName?: string
-  name: string
-  isPublic?: boolean
-  project?: string
-}
-
-export type AvatarPatchArguments = {
-  modelResourceId?: string
-  thumbnailResourceId?: string
-  identifierName?: string
-  name?: string
-}
 
 export type AvatarUploadArguments = {
   avatar: Buffer
@@ -104,8 +89,8 @@ export const installAvatarsFromProject = async (app: Application, avatarsFolder:
 
   const provider = getStorageProvider()
 
-  const uploadDependencies = (filePaths: string[]) =>
-    Promise.all([
+  const uploadDependencies = (filePaths: string[]) => {
+    return Promise.all([
       provider.createInvalidation(filePaths),
       ...filePaths.map((filePath) => {
         const key = `static-resources/avatar/public${filePath.replace(avatarsFolder, '')}`
@@ -123,6 +108,7 @@ export const installAvatarsFromProject = async (app: Application, avatarsFolder:
         )
       })
     ])
+  }
 
   /**
    * @todo
@@ -132,24 +118,32 @@ export const installAvatarsFromProject = async (app: Application, avatarsFolder:
   await Promise.all(
     avatarsToInstall.map(async (avatar) => {
       try {
-        const existingAvatar = await app.service('avatar').Model.findOne({
-          where: {
+        const existingAvatar = (await app.service(avatarPath).find({
+          query: {
             name: avatar.avatarName,
             isPublic: true,
-            project: projectName || null
+            $or: [
+              {
+                project: projectName
+              },
+              {
+                project: ''
+              }
+            ]
           }
-        })
+        })) as Paginated<AvatarType>
         console.log({ existingAvatar })
-        let selectedAvatar
-        if (!existingAvatar) {
-          selectedAvatar = await app.service('avatar').create({
+
+        let selectedAvatar: AvatarType
+        if (existingAvatar && existingAvatar.data.length > 0) {
+          // todo - clean up old avatar files
+          selectedAvatar = existingAvatar.data[0]
+        } else {
+          selectedAvatar = await app.service(avatarPath).create({
             name: avatar.avatarName,
             isPublic: true,
-            project: projectName || null!
+            project: projectName || undefined
           })
-        } else {
-          // todo - clean up old avatar files
-          selectedAvatar = existingAvatar
         }
 
         await uploadDependencies(avatar.dependencies)
@@ -221,11 +215,13 @@ export const uploadAvatarStaticResource = async (
 
   if (data.avatarId) {
     try {
-      await app.service('avatar').patch(data.avatarId, {
+      await app.service(avatarPath).patch(data.avatarId, {
         modelResourceId: modelResource.id,
         thumbnailResourceId: thumbnailResource.id
       })
-    } catch (err) {}
+    } catch (err) {
+      console.log(err)
+    }
   }
 
   return [modelResource, thumbnailResource]

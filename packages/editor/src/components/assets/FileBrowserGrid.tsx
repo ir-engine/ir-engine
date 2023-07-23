@@ -28,10 +28,10 @@ import { useDrag, useDrop } from 'react-dnd'
 import { getEmptyImage } from 'react-dnd-html5-backend'
 import { useTranslation } from 'react-i18next'
 
-import { KTX2EncodeArguments } from '@etherealengine/engine/src/assets/constants/CompressionParms'
+import { FileBrowserService } from '@etherealengine/client-core/src/common/services/FileBrowserService'
 import { getComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
-import { State } from '@etherealengine/hyperflux'
+import { StateMethods } from '@etherealengine/hyperflux'
 
 import DescriptionIcon from '@mui/icons-material/Description'
 import FolderIcon from '@mui/icons-material/Folder'
@@ -106,10 +106,12 @@ type FileBrowserItemType = {
   setOpenPropertiesModal: any
   setOpenCompress: any
   setOpenConvert: any
+  isFilesLoading: StateMethods<boolean, {}>
   deleteContent: (contentPath: string, type: string) => void
   onClick: (params: FileDataType) => void
   dropItemsOnPanel: (data: any, dropOn?: FileDataType) => void
   moveContent: (oldName: string, newName: string, oldPath: string, newPath: string, isCopy?: boolean) => Promise<void>
+  refreshDirectory: () => Promise<void>
 }
 
 export function FileBrowserItem({
@@ -124,7 +126,9 @@ export function FileBrowserItem({
   deleteContent,
   onClick,
   dropItemsOnPanel,
-  moveContent
+  moveContent,
+  isFilesLoading,
+  refreshDirectory
 }: FileBrowserItemType) {
   const { t } = useTranslation()
   const [anchorPosition, setAnchorPosition] = React.useState<undefined | PopoverPosition>(undefined)
@@ -189,6 +193,23 @@ export function FileBrowserItem({
     currentContent.current = { item: item, isCopy: false }
 
     handleClose()
+  }
+
+  const pasteContent = async () => {
+    handleClose()
+
+    if (isFilesLoading.value) return
+    isFilesLoading.set(true)
+
+    await FileBrowserService.moveContent(
+      currentContent.current.item.fullName,
+      currentContent.current.item.fullName,
+      currentContent.current.item.path,
+      item.isFolder ? item.path + item.fullName : item.path,
+      currentContent.current.isCopy
+    )
+
+    await refreshDirectory()
   }
 
   const viewAssetProperties = () => {
@@ -284,6 +305,9 @@ export function FileBrowserItem({
           <MenuItem onClick={copyURL}>{t('editor:layout.assetGrid.copyURL')}</MenuItem>
           <MenuItem onClick={Cut}>{t('editor:layout.filebrowser.cutAsset')}</MenuItem>
           <MenuItem onClick={Copy}>{t('editor:layout.filebrowser.copyAsset')}</MenuItem>
+          <MenuItem disabled={!currentContent.current} onClick={pasteContent}>
+            {t('editor:layout.filebrowser.pasteAsset')}
+          </MenuItem>
           <MenuItem onClick={rename}>{t('editor:layout.filebrowser.renameAsset')}</MenuItem>
           <MenuItem onClick={deleteContentCallback}>{t('editor:layout.assetGrid.deleteAsset')}</MenuItem>
           <MenuItem onClick={viewAssetProperties}>{t('editor:layout.filebrowser.viewAssetProperties')}</MenuItem>

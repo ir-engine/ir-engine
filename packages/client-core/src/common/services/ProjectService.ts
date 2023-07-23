@@ -30,8 +30,9 @@ import { BuilderTag } from '@etherealengine/common/src/interfaces/BuilderTags'
 import { ProjectInterface, ProjectUpdateType } from '@etherealengine/common/src/interfaces/ProjectInterface'
 import { UpdateProjectInterface } from '@etherealengine/common/src/interfaces/UpdateProjectInterface'
 import multiLogger from '@etherealengine/common/src/logger'
-import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
-import { defineAction, defineState, dispatchAction, getMutableState, useState } from '@etherealengine/hyperflux'
+import { Validator, matches } from '@etherealengine/engine/src/common/functions/MatchesUtils'
+import { githubRepoAccessRefreshPath } from '@etherealengine/engine/src/schemas/user/github-repo-access-refresh.schema'
+import { defineAction, defineState, dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 
 import { API } from '../../API'
 import { NotificationService } from './NotificationService'
@@ -329,7 +330,7 @@ export const ProjectService = {
   refreshGithubRepoAccess: async () => {
     try {
       dispatchAction(ProjectAction.setGithubRepoAccessRefreshing({ refreshing: true }))
-      await API.instance.client.service('github-repo-access-refresh').find()
+      await API.instance.client.service(githubRepoAccessRefreshPath).find()
       dispatchAction(ProjectAction.setGithubRepoAccessRefreshing({ refreshing: false }))
       await ProjectService.fetchProjects()
     } catch (err) {

@@ -24,21 +24,18 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { useEffect } from 'react'
-import { Color, Texture } from 'three'
 
 import config from '@etherealengine/common/src/config'
-import { dispatchAction, getMutableState, getState, startReactor, useHookstate } from '@etherealengine/hyperflux'
+import { dispatchAction, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
+import { CameraComponent } from '../../camera/components/CameraComponent'
 import { isMobile } from '../../common/functions/isMobile'
 import { Engine } from '../../ecs/classes/Engine'
-import { SceneState } from '../../ecs/classes/Scene'
-import { defineQuery, removeQuery, useQuery } from '../../ecs/functions/ComponentFunctions'
+import { defineQuery, getComponent, useQuery } from '../../ecs/functions/ComponentFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
-import { SkyboxComponent } from '../../scene/components/SkyboxComponent'
 import { PersistentAnchorComponent } from '../XRAnchorComponents'
 import { endXRSession, getReferenceSpaces, requestXRSession } from '../XRSessionFunctions'
 import { ReferenceSpace, XRAction, XRState } from '../XRState'
-import { XRSystem } from '../XRSystem'
 import { XR8Pipeline } from './XR8Pipeline'
 import { XR8Type } from './XR8Types'
 import { XRFrameProxy, XRRigidTransform, XRSessionProxy, XRSpace } from './XR8WebXRProxy'
@@ -199,7 +196,8 @@ const viewerInputSource = {
   handedness: 'none',
   targetRayMode: 'screen',
   get targetRaySpace() {
-    return new XRSpace(Engine.instance.camera.position, Engine.instance.camera.quaternion) as any
+    const camera = getComponent(Engine.instance.cameraEntity, CameraComponent)
+    return new XRSpace(camera.position, camera.quaternion) as any
   },
   gamepad: {
     axes: [0, 0],
@@ -281,7 +279,6 @@ const overrideXRSessionFunctions = () => {
     xrState.session.set(xrSession)
     xrState.sessionActive.set(true)
     xrState.sessionMode.set('immersive-ar')
-    getMutableState(SceneState).background.set(null)
 
     getReferenceSpaces(xrSession)
 
@@ -336,33 +333,23 @@ const revertXRSessionFunctions = () => {
  *     or exiting one that does to one that does not. This requires exiting the immersive
  *     session, changing the overrides, and entering the session again
  */
-let lastSeenBackground = null as Color | Texture | null
 
 const execute = () => {
   if (!XR8) return
 
-  const backgroundState = getState(SceneState).background
   const xrState = getState(XRState)
 
-  /**
-   * Update the background to be invisble if the AR session is active,
-   * as well as updating the camera transform from the 8thwall camera
-   */
+  /** Update the camera transform from the 8thwall camera */
   const sessionActive = xrState.sessionActive
   const xr8scene = XR8.Threejs.xrScene()
   if (sessionActive && xr8scene) {
-    if (backgroundState) lastSeenBackground = backgroundState
-    getMutableState(SceneState).background.set(null)
     const { camera } = xr8scene
+    const engineCamera = getComponent(Engine.instance.cameraEntity, CameraComponent)
     /** update the camera in world space as updateXRInput will update it to local space */
-    Engine.instance.camera.position.copy(camera.position)
-    Engine.instance.camera.quaternion.copy(camera.quaternion).normalize()
+    engineCamera.position.copy(camera.position)
+    engineCamera.quaternion.copy(camera.quaternion).normalize()
     /** 8thwall always expects the camera to be unscaled */
-    Engine.instance.camera.scale.set(1, 1, 1)
-  } else {
-    if (!backgroundState && lastSeenBackground) getMutableState(SceneState).background.set(lastSeenBackground)
-    lastSeenBackground = null
-    return
+    engineCamera.scale.set(1, 1, 1)
   }
 
   Engine.instance.xrFrame = new XRFrameProxy() as any as XRFrame

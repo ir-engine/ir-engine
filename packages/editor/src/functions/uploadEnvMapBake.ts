@@ -25,7 +25,6 @@ Ethereal Engine. All Rights Reserved.
 
 import { Vector3 } from 'three'
 
-import { addOBCPlugin, removeOBCPlugin } from '@etherealengine/engine/src/common/functions/OnBeforeCompilePlugin'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
 import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
@@ -37,7 +36,10 @@ import {
 } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { EngineRenderer } from '@etherealengine/engine/src/renderer/WebGLRendererSystem'
 import CubemapCapturer from '@etherealengine/engine/src/scene/classes/CubemapCapturer'
-import { convertCubemapToKTX2 } from '@etherealengine/engine/src/scene/classes/ImageUtils'
+import {
+  convertCubemapToEquiImageData,
+  convertCubemapToKTX2
+} from '@etherealengine/engine/src/scene/classes/ImageUtils'
 import { EnvMapBakeComponent } from '@etherealengine/engine/src/scene/components/EnvMapBakeComponent'
 import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
 import { ScenePreviewCameraComponent } from '@etherealengine/engine/src/scene/components/ScenePreviewCamera'
@@ -122,22 +124,43 @@ export const uploadBPCEMBakeToServer = async (entity: Entity) => {
 
 const resolution = 1024
 
+const previewCubemapCapturer = new CubemapCapturer(
+  EngineRenderer.instance.renderer,
+  Engine.instance.scene,
+  resolution / 8
+)
 /**
- * Generates and uploads a cubemap at a specific position in the world.
+ * Generates a low res cubemap at a specific position in the world for preview.
  *
- * @param entity
+ * @param position
  * @returns
  */
+export const getPreviewBakeTexture = async (position: Vector3) => {
+  const renderTarget = previewCubemapCapturer.update(position)
+  const imageBlob = (await convertCubemapToEquiImageData(
+    EngineRenderer.instance.renderer,
+    renderTarget.texture,
+    resolution / 4,
+    resolution / 4,
+    true
+  )) as Blob
+  return imageBlob
+}
 
-export const uploadCubemapBakeToServer = async (name: string, position: Vector3) => {
-  const cubemapCapturer = new CubemapCapturer(EngineRenderer.instance.renderer, Engine.instance.scene, resolution)
-  const renderTarget = cubemapCapturer.update(position)
-
+/**
+ * Generates and iploads a high res cubemap at a specific position in the world for saving and export.
+ *
+ * @param position
+ * @returns
+ */
+const saveCubemapCapturer = new CubemapCapturer(EngineRenderer.instance.renderer, Engine.instance.scene, resolution)
+export const uploadCubemapBakeToServer = async (name: string, position: Vector3, res: number = resolution) => {
+  const renderTarget = saveCubemapCapturer.update(position)
   const blob = (await convertCubemapToKTX2(
     EngineRenderer.instance.renderer,
     renderTarget.texture,
-    resolution,
-    resolution,
+    res,
+    res,
     true
   )) as Blob
 
@@ -147,8 +170,8 @@ export const uploadCubemapBakeToServer = async (name: string, position: Vector3)
   const sceneName = editorState.sceneName!
   const projectName = editorState.projectName!
   const filename = `${sceneName}-${name.replace(' ', '-')}.ktx2`
-
-  const url = (await uploadProjectFiles(projectName, [new File([blob], filename)])[0])[0]
+  const urlList = await uploadProjectFiles(projectName, [new File([blob], filename)]).promises[0]
+  const url = urlList[0]
 
   return url
 }

@@ -24,10 +24,9 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { Not } from 'bitecs'
-import React, { useEffect } from 'react'
-import { useLayoutEffect } from 'react'
+import React, { useEffect, useLayoutEffect } from 'react'
 
-import { defineState, getMutableState, none, State, useHookstate } from '@etherealengine/hyperflux'
+import { defineState, getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
 
 import { Entity, UndefinedEntity } from '../../ecs/classes/Entity'
 import {

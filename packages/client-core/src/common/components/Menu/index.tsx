@@ -96,7 +96,13 @@ const Menu = ({
 
             {header}
 
-            {showCloseButton && <IconButton icon={<Icon type="Close" />} sx={{ ml: 1 }} onClick={onClose} />}
+            {showCloseButton && (
+              <IconButton
+                icon={<Icon type="Close" />}
+                sx={{ position: 'absolute', right: '0.5rem', top: '0.5rem' }}
+                onClick={onClose}
+              />
+            )}
           </span>
         </DialogTitle>
       )}

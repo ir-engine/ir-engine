@@ -27,10 +27,10 @@ import { createState, useHookstate } from '@hookstate/core'
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { AvatarInterface } from '@etherealengine/common/src/interfaces/AvatarInterface'
 import { AvatarEffectComponent } from '@etherealengine/engine/src/avatar/components/AvatarEffectComponent'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { hasComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { AvatarType } from '@etherealengine/engine/src/schemas/user/avatar.schema'
 import { createXRUI } from '@etherealengine/engine/src/xrui/functions/createXRUI'
 import { WidgetAppService } from '@etherealengine/engine/src/xrui/WidgetAppService'
 import { WidgetName } from '@etherealengine/engine/src/xrui/Widgets'
@@ -62,7 +62,7 @@ const SelectAvatarMenu = () => {
 
   const [page, setPage] = useState(0)
   const [imgPerPage, setImgPerPage] = useState(Math.min(getAvatarPerPage(), avatarState.total.value))
-  const [selectedAvatar, setSelectedAvatar] = useState<any>('')
+  const [selectedAvatar, setSelectedAvatar] = useState<AvatarType | undefined>(undefined)
 
   useEffect(() => {
     AvatarService.fetchAvatarList()
@@ -93,14 +93,14 @@ const SelectAvatarMenu = () => {
   }
 
   const confirmAvatar = () => {
-    if (selectedAvatar && avatarId != selectedAvatar?.avatar?.name) {
+    if (selectedAvatar && avatarId != selectedAvatar?.name) {
       setAvatar(selectedAvatar?.id || '')
       WidgetAppService.setWidgetVisibility(WidgetName.PROFILE, false)
     }
-    setSelectedAvatar('')
+    setSelectedAvatar(undefined)
   }
 
-  const selectAvatar = (avatarResources: AvatarInterface) => {
+  const selectAvatar = (avatarResources: AvatarType) => {
     setSelectedAvatar(avatarResources)
   }
 
@@ -125,7 +125,7 @@ const SelectAvatarMenu = () => {
           key={avatar.id}
           xr-layer="true"
           onClick={() => selectAvatar(avatar)}
-          className={`paperAvatar ${avatar.name == selectedAvatar?.avatar?.name ? 'selectedAvatar' : ''}
+          className={`paperAvatar ${avatar.name == selectedAvatar?.name ? 'selectedAvatar' : ''}
               ${avatar.name == avatarId ? 'activeAvatar' : ''}`}
           style={{
             pointerEvents: avatar.name == avatarId ? 'none' : 'auto',
@@ -175,7 +175,7 @@ const SelectAvatarMenu = () => {
               xr-layer="true"
               backgroundColor="#f87678"
               onClick={() => {
-                setSelectedAvatar('')
+                setSelectedAvatar(undefined)
               }}
               disabled={!selectedAvatar}
               content={<span style={{ fontSize: '15px', fontWeight: 'bold' }}>X</span>}
@@ -184,7 +184,7 @@ const SelectAvatarMenu = () => {
               xr-layer="true"
               backgroundColor="#23af3a"
               onClick={confirmAvatar}
-              disabled={selectedAvatar?.avatar?.name == avatarId}
+              disabled={selectedAvatar?.name == avatarId}
               content={<Icon type="Check" />}
             />
             <XRIconButton

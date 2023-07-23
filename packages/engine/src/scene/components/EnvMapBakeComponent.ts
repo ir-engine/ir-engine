@@ -27,32 +27,26 @@ import { useEffect } from 'react'
 import {
   BoxGeometry,
   BoxHelper,
-  Material,
   Mesh,
   MeshLambertMaterial,
-  MeshPhongMaterial,
   MeshPhysicalMaterial,
   MeshStandardMaterial,
   Object3D,
   Scene,
   SphereGeometry,
-  Vector3,
-  WebGLCubeRenderTarget
+  Vector3
 } from 'three'
 
 import { getMutableState, getState, none, useHookstate } from '@etherealengine/hyperflux'
 
-import { matches, object } from '../../common/functions/MatchesUtils'
+import { matches } from '../../common/functions/MatchesUtils'
 import { Engine } from '../../ecs/classes/Engine'
-import { EngineActions, EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import { SceneState } from '../../ecs/classes/Scene'
-import { defineComponent, getComponent, hasComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
+import { defineComponent, getComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
 import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { EntityTreeComponent, traverseEntityNode } from '../../ecs/functions/EntityTree'
 import { RendererState } from '../../renderer/RendererState'
-import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
-import { TransformComponent } from '../../transform/components/TransformComponent'
 import {
   envmapParsReplaceLambert,
   envmapPhysicalParsReplace,
@@ -63,7 +57,7 @@ import { ObjectLayers } from '../constants/ObjectLayers'
 import { setObjectLayers } from '../functions/setObjectLayers'
 import { EnvMapBakeRefreshTypes } from '../types/EnvMapBakeRefreshTypes'
 import { EnvMapBakeTypes } from '../types/EnvMapBakeTypes'
-import { addObjectToGroup, GroupComponent, removeObjectFromGroup } from './GroupComponent'
+import { GroupComponent, addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
 
 export const EnvMapBakeComponent = defineComponent({
   name: 'EnvMapBakeComponent',

@@ -24,14 +24,14 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import {
-  _SRGBFormat,
   Camera,
   ClampToEdgeWrapping,
   LinearFilter,
   PerspectiveCamera,
   RGBAFormat,
-  sRGBEncoding,
+  SRGBColorSpace,
   UnsignedByteType,
+  Vector2,
   WebGLRenderTarget
 } from 'three'
 
@@ -46,12 +46,13 @@ import { addObjectToGroup } from '@etherealengine/engine/src/scene/components/Gr
 import { ScenePreviewCameraComponent } from '@etherealengine/engine/src/scene/components/ScenePreviewCamera'
 import { ObjectLayers } from '@etherealengine/engine/src/scene/constants/ObjectLayers'
 import {
-  setTransformComponent,
-  TransformComponent
+  TransformComponent,
+  setTransformComponent
 } from '@etherealengine/engine/src/transform/components/TransformComponent'
 import { getState } from '@etherealengine/hyperflux'
 import { KTX2Encoder } from '@etherealengine/xrui/core/textures/KTX2Encoder'
 
+import { CameraComponent } from '@etherealengine/engine/src/camera/components/CameraComponent'
 import { EditorState } from '../services/EditorServices'
 import { getCanvasBlob } from './thumbnails'
 
@@ -73,8 +74,94 @@ const ktx2Encoder = new KTX2Encoder()
  *
  * @param  {any}  width
  * @param  {any}  height
+ * @param  {any}  quality
  * @return {Promise}        [generated screenshot according to height and width]
  */
+
+// TODO: Remove this function later when integrating effect composer for screenshots KTX.
+// Keeping this for now as screenshots with composer cause studio viewport to resize rapidly, causing flashing
+export async function previewScreenshot(
+  width: number,
+  height: number,
+  quality = 0.9,
+  scenePreviewCamera?: PerspectiveCamera
+): Promise<Blob | null> {
+  // Getting Scene preview camera or creating one if not exists
+  if (!scenePreviewCamera) {
+    for (const entity of query()) {
+      scenePreviewCamera = getComponent(entity, ScenePreviewCameraComponent).camera
+    }
+
+    if (!scenePreviewCamera) {
+      const entity = createEntity()
+      setComponent(entity, ScenePreviewCameraComponent)
+      scenePreviewCamera = getComponent(entity, ScenePreviewCameraComponent).camera
+      const { position, rotation } = getComponent(Engine.instance.cameraEntity, TransformComponent)
+      setTransformComponent(entity, position, rotation)
+      addObjectToGroup(entity, scenePreviewCamera)
+      addEntityNodeChild(entity, getState(SceneState).sceneEntity)
+      scenePreviewCamera.updateMatrixWorld(true)
+    }
+  }
+
+  const prevAspect = scenePreviewCamera.aspect
+
+  // Setting up scene preview camera
+  scenePreviewCamera.aspect = width / height
+  scenePreviewCamera.updateProjectionMatrix()
+  scenePreviewCamera.layers.disableAll()
+  scenePreviewCamera.layers.set(ObjectLayers.Scene)
+
+  let blob: Blob | null = null
+  const renderer = EngineRenderer.instance.renderer
+  renderer.outputColorSpace = SRGBColorSpace
+  const renderTarget = new WebGLRenderTarget(width, height, {
+    minFilter: LinearFilter,
+    magFilter: LinearFilter,
+    wrapS: ClampToEdgeWrapping,
+    wrapT: ClampToEdgeWrapping,
+    colorSpace: SRGBColorSpace,
+    format: RGBAFormat,
+    type: UnsignedByteType
+  })
+
+  renderer.setRenderTarget(renderTarget)
+
+  renderer.render(Engine.instance.scene, scenePreviewCamera)
+
+  const pixels = new Uint8Array(4 * width * height)
+  renderer.readRenderTargetPixels(renderTarget, 0, 0, width, height, pixels)
+  const imageData = new ImageData(new Uint8ClampedArray(pixels), width, height)
+  const flippedData = new Uint8ClampedArray(imageData.data.length)
+  for (let y = 0; y < height; y++) {
+    for (let x = 0; x < width; x++) {
+      const flippedY = height - y - 1 // Calculate the flipped y-coordinate
+      const sourceIndex = (y * width + x) * 4
+      const targetIndex = (flippedY * width + x) * 4
+      flippedData[targetIndex] = imageData.data[sourceIndex]
+      flippedData[targetIndex + 1] = imageData.data[sourceIndex + 1]
+      flippedData[targetIndex + 2] = imageData.data[sourceIndex + 2]
+      flippedData[targetIndex + 3] = imageData.data[sourceIndex + 3]
+    }
+  }
+  const flippedImageData = new ImageData(flippedData, width, height)
+
+  renderer.setRenderTarget(null) // pass `null` to set canvas as render target
+  const canvas = document.createElement('canvas')
+  const ctx = canvas.getContext('2d') as CanvasRenderingContext2D
+  canvas.width = width
+  canvas.height = height
+  ctx.putImageData(flippedImageData, 0, 0)
+  ctx.scale(1, -1)
+  blob = await getCanvasBlob(canvas, 'image/jpeg', quality)
+
+  // Restoring previous state
+  scenePreviewCamera.aspect = prevAspect
+  scenePreviewCamera.updateProjectionMatrix()
+
+  return blob
+}
+
 export async function takeScreenshot(
   width: number,
   height: number,
@@ -107,8 +194,9 @@ export async function takeScreenshot(
   scenePreviewCamera.layers.disableAll()
   scenePreviewCamera.layers.set(ObjectLayers.Scene)
 
-  const originalWidth = EngineRenderer.instance.renderer.domElement.width
-  const originalHeight = EngineRenderer.instance.renderer.domElement.height
+  const originalSize = EngineRenderer.instance.renderer.getSize(new Vector2())
+
+  const pixelRatio = EngineRenderer.instance.renderer.getPixelRatio()
 
   // Rendering the scene to the new canvas with given size
   await new Promise<void>((resolve, reject) => {
@@ -116,7 +204,6 @@ export async function takeScreenshot(
       const viewport = EngineRenderer.instance.renderContext.getParameter(
         EngineRenderer.instance.renderContext.VIEWPORT
       )
-      const pixelRatio = EngineRenderer.instance.renderer.getPixelRatio()
       // todo - scrolling in and out sometimes causes weird pixel ratios that can cause this to fail
       if (viewport[2] === Math.round(width * pixelRatio) && viewport[3] === Math.round(height * pixelRatio)) {
         console.log('Resized viewport')
@@ -134,7 +221,8 @@ export async function takeScreenshot(
 
     // set up effect composer
     EngineRenderer.instance.effectComposer.setMainCamera(scenePreviewCamera as Camera)
-    EngineRenderer.instance.effectComposer.setSize(width, height, true)
+    EngineRenderer.instance.effectComposer.setSize(width, height, false)
+    EngineRenderer.instance.renderer.setPixelRatio(1)
   })
 
   let blob: Blob | null = null
@@ -144,13 +232,13 @@ export async function takeScreenshot(
     // todo - support post processing
     // EngineRenderer.instance.effectComposer.setMainCamera(scenePreviewCamera as Camera)
     // const renderer = EngineRenderer.instance.effectComposer.getRenderer()
-    renderer.outputEncoding = sRGBEncoding
+    renderer.outputColorSpace = SRGBColorSpace
     const renderTarget = new WebGLRenderTarget(width, height, {
       minFilter: LinearFilter,
       magFilter: LinearFilter,
       wrapS: ClampToEdgeWrapping,
       wrapT: ClampToEdgeWrapping,
-      encoding: sRGBEncoding,
+      colorSpace: SRGBColorSpace,
       format: RGBAFormat,
       type: UnsignedByteType
     })
@@ -178,8 +266,10 @@ export async function takeScreenshot(
     )
   }
 
-  EngineRenderer.instance.effectComposer.setMainCamera(Engine.instance.camera)
-  EngineRenderer.instance.effectComposer.setSize(originalWidth, originalHeight, true)
+  // restore
+  EngineRenderer.instance.effectComposer.setMainCamera(getComponent(Engine.instance.cameraEntity, CameraComponent))
+  EngineRenderer.instance.effectComposer.setSize(originalSize.width, originalSize.height, false)
+  EngineRenderer.instance.renderer.setPixelRatio(pixelRatio)
 
   // Restoring previous state
   scenePreviewCamera.aspect = prevAspect
@@ -190,22 +280,24 @@ export async function takeScreenshot(
 
 /** @todo make size, compression & format configurable */
 export const downloadScreenshot = () => {
-  takeScreenshot(1920 * 4, 1080 * 4, 'png', Engine.instance.camera).then((blob) => {
-    if (!blob) return
+  takeScreenshot(1920 * 4, 1080 * 4, 'png', getComponent(Engine.instance.cameraEntity, CameraComponent)).then(
+    (blob) => {
+      if (!blob) return
 
-    const blobUrl = URL.createObjectURL(blob)
+      const blobUrl = URL.createObjectURL(blob)
 
-    const link = document.createElement('a')
+      const link = document.createElement('a')
 
-    const editorState = getState(EditorState)
+      const editorState = getState(EditorState)
 
-    link.href = blobUrl
-    link.download = editorState.projectName + '_' + editorState.sceneName + '_thumbnail.png'
+      link.href = blobUrl
+      link.download = editorState.projectName + '_' + editorState.sceneName + '_thumbnail.png'
 
-    document.body.appendChild(link)
+      document.body.appendChild(link)
 
-    link.click()
+      link.click()
 
-    document.body.removeChild(link)
-  })
+      document.body.removeChild(link)
+    }
+  )
 }

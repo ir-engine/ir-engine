@@ -31,15 +31,14 @@ import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { createGLTFLoader } from '../../assets/functions/createGLTFLoader'
 import { loadDRACODecoderNode } from '../../assets/loaders/gltf/NodeDracoLoader'
 import { destroyEngine, Engine } from '../../ecs/classes/Engine'
-import { addComponent, ComponentType, getComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
+import { addComponent, getComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { createEngine } from '../../initializeEngine'
 import { GroupComponent } from '../../scene/components/GroupComponent'
 import { setTransformComponent } from '../../transform/components/TransformComponent'
 import { AnimationManager } from '../AnimationManager'
-import { BoneStructure } from '../AvatarBoneMatching'
 import { AnimationComponent } from '../components/AnimationComponent'
-import { AvatarAnimationComponent, AvatarRigComponent } from '../components/AvatarAnimationComponent'
+import { AvatarAnimationComponent } from '../components/AvatarAnimationComponent'
 import { AvatarComponent } from '../components/AvatarComponent'
 import { SkeletonUtils } from '../SkeletonUtils'
 import { animateAvatarModel, boneMatchAvatarModel, makeDefaultSkinnedMesh, rigAvatarModel } from './avatarFunctions'
@@ -52,7 +51,7 @@ before(async () => {
   await loadDRACODecoderNode()
 })
 
-const testGLTF = '/packages/projects/default-project/public/avatars/CyberbotRed.glb'
+const testGLTF = '/packages/projects/default-project/assets/avatars/CyberbotRed.glb'
 
 describe('avatarFunctions Unit', async () => {
   let assetModel

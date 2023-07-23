@@ -25,13 +25,11 @@ Ethereal Engine. All Rights Reserved.
 
 import type { BadRequest } from '@feathersjs/errors/lib'
 
-import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
-import { defineAction, defineState, dispatchAction, getMutableState } from '@etherealengine/hyperflux'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { defineState, getMutableState } from '@etherealengine/hyperflux'
 
-import { API } from '../../API'
 import { NotificationService } from '../../common/services/NotificationService'
 
-//State
 export const AdminServerLogsState = defineState({
   name: 'AdminServerLogsState',
   initial: () => ({
@@ -43,79 +41,47 @@ export const AdminServerLogsState = defineState({
   })
 })
 
-const fetchServerLogsRequestedReceptor = (
-  action: typeof AdminServerLogsActions.fetchServerLogsRequested.matches._TYPE
-) => {
-  try {
-    const state = getMutableState(AdminServerLogsState)
+const updateServerLogsState = ({ podName, containerName }: { podName: string; containerName: string }) => {
+  const state = getMutableState(AdminServerLogsState)
 
-    let newState: any = { retrieving: true }
-    if (state.podName.value !== action.podName || state.containerName.value !== action.containerName) {
-      newState = {
-        ...newState,
-        logs: '',
-        podName: action.podName,
-        containerName: action.containerName,
-        fetched: false
-      }
+  let newState: any = { retrieving: true }
+  if (state.podName.value !== podName || state.containerName.value !== containerName) {
+    newState = {
+      ...newState,
+      logs: '',
+      podName,
+      containerName,
+      fetched: false
     }
-
-    return state.merge(newState)
-  } catch (err) {
-    NotificationService.dispatchNotify(err.message, { variant: 'error' })
   }
+
+  return state.merge(newState)
 }
 
-const fetchServerLogsRetrievedReceptor = (
-  action: typeof AdminServerLogsActions.fetchServerLogsRetrieved.matches._TYPE
-) => {
-  try {
-    const state = getMutableState(AdminServerLogsState)
-    return state.merge({
-      logs: action.logs,
-      retrieving: false,
-      fetched: true
-    })
-  } catch (err) {
-    NotificationService.dispatchNotify(err.message, { variant: 'error' })
-  }
-}
-
-export const AdminServerLogsReceptors = {
-  fetchServerLogsRequestedReceptor,
-  fetchServerLogsRetrievedReceptor
-}
-
-//Service
 export const ServerLogsService = {
   fetchServerLogs: async (podName: string, containerName: string) => {
-    dispatchAction(AdminServerLogsActions.fetchServerLogsRequested({ podName, containerName }))
+    try {
+      updateServerLogsState({ podName, containerName })
 
-    const serverLogs = (await API.instance.client
-      .service('server-logs')
-      .find({ query: { podName, containerName } })) as string | BadRequest
+      const serverLogs = (await Engine.instance.api
+        .service('server-logs')
+        .find({ query: { podName, containerName } })) as string | BadRequest
 
-    if (typeof serverLogs === 'string') {
-      dispatchAction(AdminServerLogsActions.fetchServerLogsRetrieved({ logs: serverLogs }))
-    } else {
-      console.error(serverLogs)
-      dispatchAction(AdminServerLogsActions.fetchServerLogsRequested({ podName: '', containerName: '' }))
+      if (typeof serverLogs === 'string') {
+        getMutableState(AdminServerLogsState).merge({
+          logs: serverLogs,
+          retrieving: false,
+          fetched: true
+        })
+      } else {
+        console.error(serverLogs)
+        updateServerLogsState({ podName, containerName })
+      }
+    } catch (err) {
+      NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
   },
   resetServerLogs: () => {
-    dispatchAction(AdminServerLogsActions.fetchServerLogsRequested({ podName: '', containerName: '' }))
+    updateServerLogsState({ podName: '', containerName: '' })
   }
-}
-
-//Action
-export class AdminServerLogsActions {
-  static fetchServerLogsRequested = defineAction({
-    type: 'ee.client.AdminServerLogs.FETCH_SERVER_LOGS_REQUESTED' as const,
-    podName: matches.string,
-    containerName: matches.string
-  })
-  static fetchServerLogsRetrieved = defineAction({
-    type: 'ee.client.AdminServerLogs.FETCH_SERVER_LOGS_RETRIEVED' as const,
-    logs: matches.string
-  })
 }

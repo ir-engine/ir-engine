@@ -24,11 +24,11 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { useEffect } from 'react'
-import matches, { Validator } from 'ts-matches'
+import matches from 'ts-matches'
 
 import { matchesEntity } from '../../common/functions/MatchesUtils'
 import { Entity } from '../../ecs/classes/Entity'
-import { defineComponent, getComponent, hasComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
+import { defineComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
 import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { loadPrefab, unloadPrefab } from '../functions/loaders/PrefabComponentFunctions'
 

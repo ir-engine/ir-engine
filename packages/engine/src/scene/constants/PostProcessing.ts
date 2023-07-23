@@ -30,28 +30,23 @@ import {
   ColorDepthEffect,
   DepthOfFieldEffect,
   EdgeDetectionMode,
-  Effect,
   HueSaturationEffect,
   KernelSize,
-  OutlineEffect,
   PredicationMode,
-  Resolution,
-  SMAAEffect,
   SMAAPreset,
   SSAOEffect,
   ToneMappingEffect
 } from 'postprocessing'
-import { MotionBlurEffect, SSGIEffect, TRAAEffect, VelocityDepthNormalPass } from 'realism-effects'
-import { SSREffect } from 'screen-space-reflections'
+import { MotionBlurEffect, SSGIEffect, SSREffect, TRAAEffect } from 'realism-effects'
 import { ColorRepresentation, Texture } from 'three'
 
-import { FXAAEffect } from '../../renderer/effects/FXAAEffect'
+// import { FXAAEffect } from '../../renderer/effects/FXAAEffect'
 import { LinearTosRGBEffect } from '../../renderer/effects/LinearTosRGBEffect'
 
 export const Effects = {
   // FXAAEffect = 'FXAAEffect' as const,
-  SMAAEffect: 'SMAAEffect' as const,
-  OutlineEffect: 'OutlineEffect' as const,
+  // SMAAEffect: 'SMAAEffect' as const,
+  // OutlineEffect: 'OutlineEffect' as const,
   SSAOEffect: 'SSAOEffect' as const,
   SSREffect: 'SSREffect' as const,
   DepthOfFieldEffect: 'DepthOfFieldEffect' as const,
@@ -69,8 +64,8 @@ export const Effects = {
 export const EffectMap = {
   // TODO: FXAA recently broke due to new threejs & postprocessing version #5568
   // EffectMap.set(Effects.FXAAEffect, FXAAEffect)
-  [Effects.SMAAEffect]: SMAAEffect,
-  [Effects.OutlineEffect]: OutlineEffect,
+  // [Effects.SMAAEffect]: SMAAEffect,
+  // [Effects.OutlineEffect]: OutlineEffect,
   [Effects.SSAOEffect]: SSAOEffect,
   [Effects.SSREffect]: SSREffect,
   [Effects.DepthOfFieldEffect]: DepthOfFieldEffect,
@@ -130,30 +125,26 @@ export type SSAOEffectProps = EffectProps & {
 }
 
 const defaultSSROptions = {
-  intensity: 1,
-  exponent: 1,
   distance: 10,
-  fade: 0,
-  roughnessFade: 1,
   thickness: 10,
-  ior: 1.45,
+  autoThickness: false,
   maxRoughness: 1,
-  maxDepthDifference: 10,
-  blend: 0,
-  correction: 1,
-  correctionRadius: 1,
-  blur: 0.5,
-  blurKernel: 1,
-  blurSharpness: 10,
-  jitter: 0,
-  jitterRoughness: 0,
+  blend: 0.9,
+  denoiseIterations: 1,
+  denoiseKernel: 2,
+  denoiseDiffuse: 10,
+  denoiseSpecular: 10,
+  depthPhi: 2,
+  normalPhi: 50,
+  roughnessPhi: 1,
+  envBlur: 0.5,
+  importanceSampling: true,
+  directLightMultiplier: 1,
   steps: 20,
   refineSteps: 5,
-  missedRays: true,
-  useNormalMap: true,
-  useRoughnessMap: true,
+  spp: 1,
   resolutionScale: 1,
-  velocityResolutionScale: 1
+  missedRays: false
 }
 
 export type SSREffectProps = EffectProps & typeof defaultSSROptions
@@ -238,8 +229,8 @@ export type MotionBlurEffectProps = EffectProps & {
 
 export type EffectPropsSchema = {
   // [Effects.FXAAEffect]: FXAAEffectProps
-  [Effects.SMAAEffect]: SMAAEffectProps
-  [Effects.OutlineEffect]: OutlineEffectProps
+  // [Effects.SMAAEffect]: SMAAEffectProps
+  // [Effects.OutlineEffect]: OutlineEffectProps
   [Effects.SSAOEffect]: SSAOEffectProps
   [Effects.SSREffect]: SSREffectProps
   [Effects.DepthOfFieldEffect]: DepthOfFieldEffectProps
@@ -254,34 +245,36 @@ export type EffectPropsSchema = {
   [Effects.MotionBlurEffect]: MotionBlurEffectProps
 }
 
+export type EffectPropsSchemaType = (typeof defaultPostProcessingSchema)[keyof typeof defaultPostProcessingSchema]
+
 export const defaultPostProcessingSchema: EffectPropsSchema = {
   // FXAAEffect: {
   //   isActive: true,
   //   blendFunction: BlendFunction.NORMAL
   // },
-  [Effects.SMAAEffect]: {
-    isActive: true,
-    blendFunction: BlendFunction.NORMAL,
-    preset: SMAAPreset.MEDIUM,
-    edgeDetectionMode: EdgeDetectionMode.COLOR,
-    predicationMode: PredicationMode.DISABLED
-  },
-  [Effects.OutlineEffect]: {
-    isActive: true,
-    blendFunction: BlendFunction.SCREEN,
-    patternTexture: null,
-    edgeStrength: 2.0,
-    pulseSpeed: 0.25,
-    visibleEdgeColor: 0xffffff,
-    hiddenEdgeColor: 0xffffff,
-    resolutionScale: 0.5,
-    width: Resolution.AUTO_SIZE,
-    height: Resolution.AUTO_SIZE,
-    kernelSize: KernelSize.MEDIUM,
-    blur: false,
-    xRay: true,
-    opacity: 0.5
-  },
+  // [Effects.SMAAEffect]: {
+  //   isActive: true,
+  //   blendFunction: BlendFunction.NORMAL,
+  //   preset: SMAAPreset.MEDIUM,
+  //   edgeDetectionMode: EdgeDetectionMode.COLOR,
+  //   predicationMode: PredicationMode.DISABLED
+  // },
+  // [Effects.OutlineEffect]: {
+  //   isActive: true,
+  //   blendFunction: BlendFunction.SCREEN,
+  //   patternTexture: null,
+  //   edgeStrength: 2.0,
+  //   pulseSpeed: 0.25,
+  //   visibleEdgeColor: 0xffffff,
+  //   hiddenEdgeColor: 0xffffff,
+  //   resolutionScale: 0.5,
+  //   width: Resolution.AUTO_SIZE,
+  //   height: Resolution.AUTO_SIZE,
+  //   kernelSize: KernelSize.MEDIUM,
+  //   blur: false,
+  //   xRay: true,
+  //   opacity: 0.5
+  // },
   [Effects.SSAOEffect]: {
     isActive: false,
     blendFunction: BlendFunction.MULTIPLY,
@@ -392,13 +385,13 @@ export const defaultPostProcessingSchema: EffectPropsSchema = {
  * - https://docs.unity3d.com/Packages/com.unity.render-pipelines.core@16.0/manual
  */
 
-export const effectInOrder = [
-  /** 1. input aliasing */
-  Effects.SMAAEffect,
+/** 1. input aliasing */
+// Effects.SMAAEffect,
+// Effects.OutlineEffect,
 
+export const effectInOrder = [
   /** 2. world effects */
   // Effects.PaniniProjection,
-  Effects.OutlineEffect,
   Effects.DepthOfFieldEffect,
   Effects.SSAOEffect, // TODO- add option to use HBAO
   Effects.SSREffect,

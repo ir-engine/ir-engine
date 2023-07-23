@@ -25,12 +25,13 @@ Ethereal Engine. All Rights Reserved.
 
 import {
   BlendFunction,
-  BloomEffect,
   DepthDownsamplingPass,
   EffectComposer,
   EffectPass,
   NormalPass,
+  OutlineEffect,
   RenderPass,
+  SMAAEffect,
   TextureEffect
 } from 'postprocessing'
 import { VelocityDepthNormalPass } from 'realism-effects'
@@ -38,14 +39,20 @@ import { NearestFilter, PerspectiveCamera, RGBAFormat, WebGLRenderTarget } from 
 
 import { getState } from '@etherealengine/hyperflux'
 
+import { CameraComponent } from '../../camera/components/CameraComponent'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
+import { getComponent } from '../../ecs/functions/ComponentFunctions'
 import { EffectMap, EffectPropsSchema, Effects } from '../../scene/constants/PostProcessing'
+import { HighlightState } from '../HighlightState'
 import { RendererState } from '../RendererState'
 import { EffectComposerWithSchema, EngineRenderer, PostProcessingSettingsState } from '../WebGLRendererSystem'
 import { changeRenderMode } from './changeRenderMode'
 
-export const configureEffectComposer = (remove?: boolean, camera: PerspectiveCamera = Engine.instance.camera): void => {
+export const configureEffectComposer = (
+  remove?: boolean,
+  camera: PerspectiveCamera = getComponent(Engine.instance.cameraEntity, CameraComponent)
+): void => {
   if (!EngineRenderer.instance) return
 
   const scene = Engine.instance.scene
@@ -64,15 +71,27 @@ export const configureEffectComposer = (remove?: boolean, camera: PerspectiveCam
     return
   }
 
-  const postProcessingEnabled = getState(RendererState).usePostProcessing
-  if (!postProcessingEnabled && !getState(EngineState).isEditor) return
-
-  const postprocessing = getState(PostProcessingSettingsState)
-  if (!postprocessing.enabled) return
-
-  const postProcessingEffects = postprocessing.effects as EffectPropsSchema
+  const renderSettings = getState(RendererState)
+  if (!renderSettings.usePostProcessing) return
 
   const effects: any[] = []
+
+  const smaaEffect = new SMAAEffect()
+  composer.SMAAEffect = smaaEffect
+  effects.push(smaaEffect)
+
+  const outlineEffect = new OutlineEffect(scene, camera, getState(HighlightState))
+  composer.HighlightEffect = outlineEffect
+  effects.push(outlineEffect)
+
+  const postprocessingSettings = getState(PostProcessingSettingsState)
+  if (!postprocessingSettings.enabled) {
+    composer.addPass(new EffectPass(camera, ...effects))
+    return
+  }
+
+  const postProcessingEffects = postprocessingSettings.effects as EffectPropsSchema
+
   const effectKeys = Object.keys(EffectMap)
 
   const normalPass = new NormalPass(scene, camera, {
@@ -110,15 +129,12 @@ export const configureEffectComposer = (remove?: boolean, camera: PerspectiveCam
       composer[key] = eff
       effects.push(eff)
     } else if (key === Effects.SSREffect) {
-      const eff = new EffectClass(scene, camera, effect)
+      const eff = new EffectClass(scene, camera, velocityDepthNormalPass, effect)
+      useVelocityDepthNormalPass = true
       composer[key] = eff
       effects.push(eff)
     } else if (key === Effects.DepthOfFieldEffect) {
       const eff = new EffectClass(camera, effect)
-      composer[key] = eff
-      effects.push(eff)
-    } else if (key === Effects.OutlineEffect) {
-      const eff = new EffectClass(scene, camera, effect)
       composer[key] = eff
       effects.push(eff)
     } else if (key === Effects.SSGIEffect) {
@@ -144,7 +160,6 @@ export const configureEffectComposer = (remove?: boolean, camera: PerspectiveCam
       effects.push(eff)
     }
   }
-
   if (effects.length) {
     if (useVelocityDepthNormalPass) composer.addPass(velocityDepthNormalPass)
 
@@ -159,6 +174,5 @@ export const configureEffectComposer = (remove?: boolean, camera: PerspectiveCam
 
     composer.addPass(new EffectPass(camera, ...effects))
   }
-
   if (getState(EngineState).isEditor) changeRenderMode()
 }

@@ -23,15 +23,14 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Group, MathUtils, Mesh, MeshBasicMaterial, Object3D, Quaternion, SphereGeometry, Vector3 } from 'three'
+import { Group, Mesh, MeshBasicMaterial, Object3D, Quaternion, SphereGeometry, Vector3 } from 'three'
 
-import { V_001, V_100 } from '../../common/constants/MathConstants'
+import { V_100 } from '../../common/constants/MathConstants'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { getComponent } from '../../ecs/functions/ComponentFunctions'
 import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
 import { addObjectToGroup } from '../../scene/components/GroupComponent'
-import { TransformComponent } from '../../transform/components/TransformComponent'
 import { AvatarRigComponent } from '../components/AvatarAnimationComponent'
 import { solveTwoBoneIK } from './TwoBoneIKSolver'
 

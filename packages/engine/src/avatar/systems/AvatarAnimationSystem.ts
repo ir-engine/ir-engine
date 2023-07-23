@@ -23,9 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { clone } from 'lodash'
 import { useEffect } from 'react'
-import { AxesHelper, Bone, Euler, MathUtils, Matrix4, Mesh, Quaternion, SphereGeometry, Vector3 } from 'three'
+import { AxesHelper, Euler, MathUtils, Mesh, Quaternion, SphereGeometry, Vector3 } from 'three'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { insertionSort } from '@etherealengine/common/src/utils/insertionSort'
@@ -35,56 +34,44 @@ import {
   dispatchAction,
   getMutableState,
   getState,
-  startReactor,
   useHookstate
 } from '@etherealengine/hyperflux'
 
-import { Axis } from '../../common/constants/Axis3D'
-import { V_000, V_010 } from '../../common/constants/MathConstants'
+import { V_010 } from '../../common/constants/MathConstants'
 import { lerp } from '../../common/functions/MathLerpFunctions'
-import { proxifyQuaternion } from '../../common/proxies/createThreejsProxy'
+import { createPriorityQueue } from '../../ecs/PriorityQueue'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
-import {
-  defineQuery,
-  getComponent,
-  getMutableComponent,
-  getOptionalComponent,
-  setComponent
-} from '../../ecs/functions/ComponentFunctions'
+import { defineQuery, getComponent, getOptionalComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity, removeEntity } from '../../ecs/functions/EntityFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
-import { createPriorityQueue } from '../../ecs/PriorityQueue'
 import { InputSourceComponent } from '../../input/components/InputSourceComponent'
-import { InputState } from '../../input/state/InputState'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
 import { Physics, RaycastArgs } from '../../physics/classes/Physics'
 import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
 import { CollisionGroups } from '../../physics/enums/CollisionGroups'
 import { getInteractionGroups } from '../../physics/functions/getInteractionGroups'
+import { PhysicsState } from '../../physics/state/PhysicsState'
 import { RaycastHit, SceneQueryType } from '../../physics/types/PhysicsTypes'
 import { RendererState } from '../../renderer/RendererState'
-import { addObjectToGroup, GroupComponent } from '../../scene/components/GroupComponent'
+import { addObjectToGroup } from '../../scene/components/GroupComponent'
 import { NameComponent } from '../../scene/components/NameComponent'
 import { UUIDComponent } from '../../scene/components/UUIDComponent'
 import { VisibleComponent } from '../../scene/components/VisibleComponent'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
 import { setObjectLayers } from '../../scene/functions/setObjectLayers'
 import {
-  compareDistanceToCamera,
   DistanceFromCameraComponent,
-  FrustumCullCameraComponent
+  FrustumCullCameraComponent,
+  compareDistanceToCamera
 } from '../../transform/components/DistanceComponents'
-import { TransformComponent, TransformComponentType } from '../../transform/components/TransformComponent'
+import { TransformComponent } from '../../transform/components/TransformComponent'
 import { updateGroupChildren } from '../../transform/systems/TransformSystem'
 import { setTrackingSpace } from '../../xr/XRScaleAdjustmentFunctions'
-import { getCameraMode, isMobileXRHeadset, XRAction, XRState } from '../../xr/XRState'
-import { updateAnimationGraph } from '.././animation/AnimationGraph'
-import { solveHipHeight } from '.././animation/HipIKSolver'
-import { solveLookIK } from '.././animation/LookAtIKSolver'
-import { solveTwoBoneIK } from '.././animation/TwoBoneIKSolver'
+import { XRAction, XRState, getCameraMode, isMobileXRHeadset } from '../../xr/XRState'
 import { AnimationManager } from '.././AnimationManager'
+import { solveTwoBoneIK } from '.././animation/TwoBoneIKSolver'
 import { AnimationComponent } from '.././components/AnimationComponent'
 import { AvatarAnimationComponent, AvatarRigComponent } from '.././components/AvatarAnimationComponent'
 import {
@@ -95,7 +82,6 @@ import {
 } from '.././components/AvatarIKComponents'
 import { LoopAnimationComponent } from '.././components/LoopAnimationComponent'
 import { applyInputSourcePoseToIKTargets } from '.././functions/applyInputSourcePoseToIKTargets'
-import { AvatarMovementSettingsState } from '.././state/AvatarMovementSettingsState'
 import { setAvatarLocomotionAnimation } from '../animation/AvatarAnimationGraph'
 
 export const AvatarAnimationState = defineState({
@@ -216,7 +202,7 @@ const setFootTarget = (
   footRaycastArgs.maxDistance = legLength
 
   if (castRay) {
-    const castedRay = Physics.castRay(Engine.instance.physicsWorld, footRaycastArgs)
+    const castedRay = Physics.castRay(getState(PhysicsState).physicsWorld, footRaycastArgs)
     if (castedRay[0]) {
       lastRayInfo[index] = castedRay[0]
     } else {
@@ -264,7 +250,7 @@ const execute = () => {
   }
 
   for (const action of ikTargetSpawnQueue()) {
-    const entity = Engine.instance.getNetworkObject(action.$from, action.networkId)
+    const entity = NetworkObjectComponent.getNetworkObject(action.$from, action.networkId)
     if (!entity) {
       console.warn('Could not find entity for networkId', action.$from, action.networkId)
       continue
@@ -415,7 +401,7 @@ const execute = () => {
     for (const ikEntity of ikEntities) {
       if (ikEntities.length <= 1) continue
       const networkObject = getComponent(ikEntity, NetworkObjectComponent)
-      const ownerEntity = Engine.instance.getUserAvatarEntity(networkObject.ownerId)
+      const ownerEntity = NetworkObjectComponent.getUserAvatarEntity(networkObject.ownerId)
       if (ownerEntity != entity) continue
 
       const rigidbodyComponent = getComponent(ownerEntity, RigidBodyComponent)
@@ -555,66 +541,6 @@ const execute = () => {
       midAxisRestriction
     )
   }
-
-  /**
-   * 3 - Get IK target pose from WebXR
-   */
-
-  // applyInputSourcePoseToIKTargets()
-
-  /**
-   * 4 - Apply avatar IK
-   */
-  // for (const entity of ikEntities) {
-  //   /** Filter by priority queue */
-  //   const networkObject = getComponent(entity, NetworkObjectComponent)
-  //   const ownerEntity = Engine.instance.getUserAvatarEntity(networkObject.ownerId)
-  //   if (!Engine.instance.priorityAvatarEntities.has(ownerEntity)) continue
-
-  //   const transformComponent = getComponent(entity, TransformComponent)
-  //   // If data is zeroed out, assume there is no input and do not run IK
-  //   if (transformComponent.position.equals(V_000)) continue
-
-  //   const { rig } = getComponent(ownerEntity, AvatarRigComponent)
-
-  //   const ikComponent = getComponent(entity, AvatarIKTargetComponent)
-  //   if (ikComponent.handedness === 'none') {
-  //     _vec
-  //       .set(
-  //         transformComponent.matrix.elements[8],
-  //         transformComponent.matrix.elements[9],
-  //         transformComponent.matrix.elements[10]
-  //       )
-  //       .normalize() // equivalent to Object3D.getWorldDirection
-  //     solveHipHeight(ownerEntity, transformComponent.position)
-
-  //     solveLookIK(rig.head.node, _vec)
-  //   } else if (ikComponent.handedness === 'left') {
-  //     rig.leftLowerArm.node.quaternion.setFromAxisAngle(Axis.X, Math.PI * -0.25)
-  //     /** @todo see if this is still necessary */
-  //     rig.leftLowerArm.node.updateWorldMatrix(false, true)
-  //     solveTwoBoneIK(
-  //       rig.leftUpperArm.node,
-  //       rig.leftLowerArm.node,
-  //       rig.leftHand.node,
-  //       transformComponent.position,
-  //       transformComponent.rotation.multiply(leftHandRotation),
-  //       leftHandRotationOffset
-  //     )
-  //   } else if (ikComponent.handedness === 'right') {
-  //     rig.rightLowerArm.node.quaternion.setFromAxisAngle(Axis.X, Math.PI * 0.25)
-  //     /** @todo see if this is still necessary */
-  //     rig.rightLowerArm.node.updateWorldMatrix(false, true)
-  //     solveTwoBoneIK(
-  //       rig.rightUpperArm.node,
-  //       rig.rightLowerArm.node,
-  //       rig.rightHand.node,
-  //       transformComponent.position,
-  //       transformComponent.rotation.multiply(rightHandRotation),
-  //       rightHandRotationOffset
-  //     )
-  //   }
-  // }
 
   /**
    * Since the scene does not automatically update the matricies for all objects, which updates bones,

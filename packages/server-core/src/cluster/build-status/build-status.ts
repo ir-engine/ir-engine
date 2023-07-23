@@ -26,7 +26,6 @@ Ethereal Engine. All Rights Reserved.
 import { buildStatusMethods, buildStatusPath } from '@etherealengine/engine/src/schemas/cluster/build-status.schema'
 
 import { Application } from '../../../declarations'
-import { updateAppConfig } from '../../updateAppConfig'
 import { BuildStatusService } from './build-status.class'
 import buildStatusDocs from './build-status.docs'
 import hooks from './build-status.hooks'

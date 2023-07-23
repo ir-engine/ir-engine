@@ -30,18 +30,15 @@ import { dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 
 import { AvatarHeadDecapComponent } from '../avatar/components/AvatarIKComponents'
 import { V_000 } from '../common/constants/MathConstants'
-import { SceneState } from '../ecs/classes/Scene'
+import { NetworkObjectComponent } from '../networking/components/NetworkObjectComponent'
 import { RigidBodyComponent } from '../physics/components/RigidBodyComponent'
-import { SkyboxComponent } from '../scene/components/SkyboxComponent'
 import { setVisibleComponent } from '../scene/components/VisibleComponent'
 import { TransformComponent } from '../transform/components/TransformComponent'
 import { computeAndUpdateWorldOrigin, updateEyeHeight } from '../transform/updateWorldOrigin'
-import { matches } from './../common/functions/MatchesUtils'
 import { Engine } from './../ecs/classes/Engine'
-import { addComponent, defineQuery, getComponent, hasComponent } from './../ecs/functions/ComponentFunctions'
+import { addComponent, getComponent, hasComponent } from './../ecs/functions/ComponentFunctions'
 import { EngineRenderer } from './../renderer/WebGLRendererSystem'
-import { setTrackingSpace } from './XRScaleAdjustmentFunctions'
-import { getCameraMode, hasMovementControls, ReferenceSpace, XRAction, XRState } from './XRState'
+import { ReferenceSpace, XRAction, XRState, getCameraMode } from './XRState'
 
 const quat180y = new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), Math.PI)
 
@@ -180,10 +177,6 @@ export const requestXRSession = createHookableFunction(
 
       getReferenceSpaces(xrSession)
 
-      const mode = xrState.sessionMode.value
-      if (mode === 'immersive-ar') setupARSession()
-      if (mode === 'immersive-vr') setupVRSession()
-
       dispatchAction(XRAction.sessionChanged({ active: true }))
 
       xrSession.addEventListener('end', onSessionEnd)
@@ -206,7 +199,7 @@ export const endXRSession = createHookableFunction(async () => {
  * @returns
  */
 export const xrSessionChanged = createHookableFunction((action: typeof XRAction.sessionChanged.matches._TYPE) => {
-  const entity = Engine.instance.getUserAvatarEntity(action.$from)
+  const entity = NetworkObjectComponent.getUserAvatarEntity(action.$from)
   if (!entity) return
 
   if (action.active) {
@@ -215,11 +208,3 @@ export const xrSessionChanged = createHookableFunction((action: typeof XRAction.
     }
   }
 })
-
-export const setupVRSession = () => {}
-
-export const setupARSession = () => {
-  const session = getMutableState(XRState).session.value!
-
-  getMutableState(SceneState).background.set(null)
-}

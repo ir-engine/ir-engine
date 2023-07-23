@@ -28,7 +28,6 @@ import React, { useCallback, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { camelCaseToSpacedString } from '@etherealengine/common/src/utils/camelCaseToSpacedString'
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import {
   ComponentType,
   defineQuery,

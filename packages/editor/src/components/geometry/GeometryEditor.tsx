@@ -23,8 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { useCallback, useEffect } from 'react'
-import React from 'react'
+import React, { useCallback, useEffect } from 'react'
 import { BufferAttribute, BufferGeometry, InterleavedBufferAttribute } from 'three'
 
 import { useHookstate } from '@etherealengine/hyperflux'

@@ -24,17 +24,14 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-
 process.env.APP_ENV = 'test'
-process.env.TS_NODE_FILES = true
-process.env.TS_NODE_PROJECT = 'tsconfig.json'
-process.env.TS_NODE_COMPILER_OPTIONS = '{\"module\": \"commonjs\" }'
+process.env.NODE_ENV = 'test'
+process.env.NODE_TLS_REJECT_UNAUTHORIZED='0'
 
-const sass = require('sass')
-const hook = require('css-modules-require-hook')
-
-hook({
-  extensions: [ '.scss', '.css' ],
-  generateScopedName: '[local]___[hash:base64:5]',
-  preprocessCss: data => sass.compileString(data).css
+require("ts-node").register({
+  project: './tsconfig.json',
+  files: true,
+  swc: true
 })
+
+require("fix-esm").register()

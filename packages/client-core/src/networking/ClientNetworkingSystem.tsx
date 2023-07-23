@@ -37,9 +37,9 @@ import {
 } from '../common/services/LocationInstanceConnectionService'
 import {
   MediaInstanceConnectionService,
-  MediaInstanceConnectionServiceReceptor
+  MediaInstanceConnectionServiceReceptor,
+  MediaInstanceState
 } from '../common/services/MediaInstanceConnectionService'
-import { MediaInstanceState } from '../common/services/MediaInstanceConnectionService'
 import { NetworkConnectionService } from '../common/services/NetworkConnectionService'
 import { DataChannels } from '../components/World/ProducersAndConsumers'
 import { PeerConsumers } from '../media/PeerMedia'

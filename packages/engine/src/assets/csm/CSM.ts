@@ -38,7 +38,6 @@ import {
   Vector3
 } from 'three'
 
-import { OBCType } from '../../common/constants/OBCTypes'
 import { addOBCPlugin, removeOBCPlugin } from '../../common/functions/OnBeforeCompilePlugin'
 import Frustum from './Frustum'
 import Shader from './Shader'
@@ -60,7 +59,7 @@ export const CSMModes = {
 type CSMParams = {
   camera: PerspectiveCamera
   parent: Object3D
-  light: DirectionalLight
+  light?: DirectionalLight
   cascades?: number
   maxFar?: number
   mode?: (typeof CSMModes)[keyof typeof CSMModes]
@@ -92,7 +91,7 @@ export class CSM {
   mainFrustum: Frustum
   frustums: Frustum[]
   breaks: number[]
-  sourceLight: DirectionalLight
+  sourceLight?: DirectionalLight
   lights: DirectionalLight[]
   lightSourcesCount: number
   shaders: Map<Material, ShaderType> = new Map()
@@ -124,7 +123,7 @@ export class CSM {
     this.injectInclude()
   }
 
-  changeLights(light: DirectionalLight): void {
+  changeLights(light?: DirectionalLight): void {
     if (light === this.sourceLight) return
     this.remove()
     this.createLights(light)
@@ -333,8 +332,8 @@ export class CSM {
   }
 
   injectInclude(): void {
-    ShaderChunk.lights_fragment_begin = Shader.lights_fragment_begin
-    ShaderChunk.lights_pars_begin = Shader.lights_pars_begin
+    ShaderChunk.lights_fragment_begin = Shader.lights_fragment_begin(this)
+    ShaderChunk.lights_pars_begin = Shader.lights_pars_begin()
   }
 
   setupMaterial(mesh: Mesh): void {

@@ -23,13 +23,13 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Quaternion } from 'three'
-import { Vector3 } from 'three'
+import { Quaternion, Vector3 } from 'three'
 
 import { isDev } from '@etherealengine/common/src/config'
 import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
 
+import { CameraComponent } from '../../camera/components/CameraComponent'
 import { V_000, V_010 } from '../../common/constants/MathConstants'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineActions } from '../../ecs/classes/EngineState'
@@ -48,15 +48,14 @@ import { InputComponent } from '../../input/components/InputComponent'
 import { InputSourceComponent } from '../../input/components/InputSourceComponent'
 import { StandardGamepadButton, XRStandardGamepadButton } from '../../input/state/ButtonState'
 import { InteractState } from '../../interaction/systems/InteractiveSystem'
-import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
 import { Physics, RaycastArgs } from '../../physics/classes/Physics'
 import { RigidBodyFixedTagComponent } from '../../physics/components/RigidBodyComponent'
 import { CollisionGroups } from '../../physics/enums/CollisionGroups'
 import { getInteractionGroups } from '../../physics/functions/getInteractionGroups'
-import { boxDynamicConfig } from '../../physics/functions/physicsObjectDebugFunctions'
+import { PhysicsState } from '../../physics/state/PhysicsState'
 import { SceneQueryType } from '../../physics/types/PhysicsTypes'
 import { RendererState } from '../../renderer/RendererState'
-import { hasMovementControls, XRState } from '../../xr/XRState'
+import { XRState, hasMovementControls } from '../../xr/XRState'
 import { AvatarControllerComponent } from '.././components/AvatarControllerComponent'
 import { AvatarTeleportComponent } from '.././components/AvatarTeleportComponent'
 import { autopilotSetPosition } from '.././functions/autopilotFunctions'
@@ -148,23 +147,15 @@ const onInteract = (handedness: XRHandedness = 'none') => {
   )
 }
 
-const onKeyO = () => {
-  dispatchAction(
-    WorldNetworkAction.spawnDebugPhysicsObject({
-      config: boxDynamicConfig
-    })
-  )
-}
-
 const onKeyP = () => {
   getMutableState(RendererState).debugEnable.set(!getMutableState(RendererState).debugEnable.value)
 }
 
 const isAvatarClicked = () => {
   const hits = Physics.castRayFromCamera(
-    Engine.instance.camera,
+    getComponent(Engine.instance.cameraEntity, CameraComponent),
     Engine.instance.pointerState.position,
-    Engine.instance.physicsWorld,
+    getState(PhysicsState).physicsWorld,
     raycastComponentData
   )
   if (hits.length) {
@@ -279,7 +270,6 @@ const execute = () => {
     const gamepadJump = standardGamepad && buttons[StandardGamepadButton.ButtonA]?.down
 
     if (isDev) {
-      if (buttons.KeyO?.down) onKeyO()
       if (buttons.KeyP?.down) onKeyP()
     }
 

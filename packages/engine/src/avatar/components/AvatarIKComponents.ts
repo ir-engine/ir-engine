@@ -27,12 +27,7 @@ import { useEffect } from 'react'
 import { Quaternion, Vector3 } from 'three'
 
 import { Entity } from '../../ecs/classes/Entity'
-import {
-  ComponentType,
-  defineComponent,
-  getComponent,
-  useOptionalComponent
-} from '../../ecs/functions/ComponentFunctions'
+import { defineComponent, getComponent, useOptionalComponent } from '../../ecs/functions/ComponentFunctions'
 import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
 import { NameComponent } from '../../scene/components/NameComponent'

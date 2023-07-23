@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Paginated, Params } from '@feathersjs/feathers'
+import { Paginated } from '@feathersjs/feathers'
 import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
 import { random } from 'lodash'
 import { Sequelize } from 'sequelize'
@@ -31,8 +31,8 @@ import { v1 as uuidv1 } from 'uuid'
 
 import { isDev } from '@etherealengine/common/src/config'
 import { IdentityProviderInterface } from '@etherealengine/common/src/dbmodels/IdentityProvider'
-import { AvatarInterface } from '@etherealengine/common/src/interfaces/AvatarInterface'
 import { UserInterface } from '@etherealengine/common/src/interfaces/User'
+import { avatarPath, AvatarType } from '@etherealengine/engine/src/schemas/user/avatar.schema'
 
 import { Application } from '../../../declarations'
 import appConfig from '../../appconfig'
@@ -199,8 +199,8 @@ export class IdentityProvider<T = IdentityProviderInterface> extends Service<T> 
       ]
     })
     const avatars = (await this.app
-      .service('avatar')
-      .find({ isInternal: true, query: { $limit: 1000 } })) as Paginated<AvatarInterface>
+      .service(avatarPath)
+      .find({ isInternal: true, query: { $limit: 1000 } })) as Paginated<AvatarType>
 
     let isGuest = type === 'guest'
 

@@ -24,8 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { SnackbarKey, useSnackbar } from 'notistack'
-import { Fragment } from 'react'
-import React from 'react'
+import React, { Fragment } from 'react'
 
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'

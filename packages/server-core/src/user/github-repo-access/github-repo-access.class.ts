@@ -23,21 +23,21 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
+import type { Params } from '@feathersjs/feathers'
+import type { KnexAdapterParams } from '@feathersjs/knex'
+import { KnexService } from '@feathersjs/knex'
 
-import { GithubRepoAccessInterface } from '@etherealengine/common/src/dbmodels/GithubRepoAccess'
+import {
+  GithubRepoAccessData,
+  GithubRepoAccessPatch,
+  GithubRepoAccessQuery,
+  GithubRepoAccessType
+} from '@etherealengine/engine/src/schemas/user/github-repo-access.schema'
 
-import { Application } from '../../../declarations'
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+export interface GithubRepoAccessParams extends KnexAdapterParams<GithubRepoAccessQuery> {}
 
-/**
- * A class for github-repo-access service
- */
-export class GithubRepoAccess<T = GithubRepoAccessInterface> extends Service<T> {
-  public app: Application
-  public docs: any
-
-  constructor(options: Partial<SequelizeServiceOptions>, app: Application) {
-    super(options)
-    this.app = app
-  }
-}
+export class GithubRepoAccessService<
+  T = GithubRepoAccessType,
+  ServiceParams extends Params = GithubRepoAccessParams
+> extends KnexService<GithubRepoAccessType, GithubRepoAccessData, GithubRepoAccessParams, GithubRepoAccessPatch> {}

@@ -37,8 +37,7 @@ import {
   ActionQueueDefinition,
   ActionShape,
   defineActionQueue,
-  removeActionQueue,
-  ResolvedActionType
+  removeActionQueue
 } from './ActionFunctions'
 import { HyperFlux, HyperStore } from './StoreFunctions'
 

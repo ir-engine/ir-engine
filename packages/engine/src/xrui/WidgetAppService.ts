@@ -23,24 +23,23 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { useEffect } from 'react'
-
 import {
   defineAction,
   defineActionQueue,
   defineState,
   dispatchAction,
-  getMutableState,
-  removeActionQueue,
-  useState
+  getMutableState
 } from '@etherealengine/hyperflux'
 import { none } from '@etherealengine/hyperflux/functions/StateFunctions'
 
 import { matches, Validator } from '../common/functions/MatchesUtils'
-import { Engine } from '../ecs/classes/Engine'
 import { defineSystem } from '../ecs/functions/SystemFunctions'
+import { Widget } from './Widgets'
 
 type WidgetMutableState = Record<string, { enabled: boolean; visible: boolean }>
+
+/** @todo refactor this and WidgetAppState into WidgetState */
+export const RegisteredWidgets = new Map<string, Widget>()
 
 export const WidgetAppState = defineState({
   name: 'WidgetAppState',
@@ -57,7 +56,7 @@ export const WidgetAppService = {
     const widgets = Object.entries(widgetMutableState.widgets.value).map(([id, widgetMutableState]) => ({
       id,
       ...widgetMutableState,
-      ...Engine.instance.widgets.get(id)!
+      ...RegisteredWidgets.get(id)!
     }))
 
     const currentWidget = widgets.find((w) => w.label === widgetName)

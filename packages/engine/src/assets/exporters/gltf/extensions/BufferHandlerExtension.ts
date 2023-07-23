@@ -32,7 +32,7 @@ import { defineAction, dispatchAction } from '@etherealengine/hyperflux'
 
 import iterateObject3D from '../../../../scene/util/iterateObject3D'
 import { AssetLoader } from '../../../classes/AssetLoader'
-import { getFileName, getProjectName, getRelativeURI, modelResourcesPath } from '../../../functions/pathResolver'
+import { getProjectName, getRelativeURI, modelResourcesPath } from '../../../functions/pathResolver'
 import { GLTFExporterPlugin, GLTFWriter } from '../GLTFExporter'
 import { ExporterExtension } from './ExporterExtension'
 

@@ -30,13 +30,15 @@ import {
   CompressedTexture,
   DoubleSide,
   InterleavedBufferAttribute,
+  LinearMipmapLinearFilter,
   Mesh,
   MeshBasicMaterial,
   PlaneGeometry,
   SphereGeometry,
+  SRGBColorSpace,
+  Texture,
   Vector2
 } from 'three'
-import { LinearMipmapLinearFilter, sRGBEncoding, Texture } from 'three'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { StaticResourceInterface } from '@etherealengine/common/src/interfaces/StaticResourceInterface'
@@ -44,12 +46,7 @@ import { useHookstate } from '@etherealengine/hyperflux'
 
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { AssetClass } from '../../assets/enum/AssetClass'
-import {
-  defineComponent,
-  hasComponent,
-  useComponent,
-  useOptionalComponent
-} from '../../ecs/functions/ComponentFunctions'
+import { defineComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
 import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { ImageAlphaMode, ImageAlphaModeType, ImageProjection, ImageProjectionType } from '../classes/ImageUtils'
@@ -76,7 +73,7 @@ export const ImageComponent = defineComponent({
 
   onInit: (entity) => {
     return {
-      source: '',
+      source: '__$project$__/default-project/assets/sample_etc1s.ktx2',
       alphaMode: ImageAlphaMode.Opaque as ImageAlphaModeType,
       alphaCutoff: 0.5,
       projection: ImageProjection.Flat as ImageProjectionType,
@@ -187,7 +184,7 @@ export function ImageReactor() {
 
       clearErrors(entity, ImageComponent)
 
-      texture.value.encoding = sRGBEncoding
+      texture.value.colorSpace = SRGBColorSpace
       texture.value.minFilter = LinearMipmapLinearFilter
 
       image.mesh.material.map.ornull?.value.dispose()

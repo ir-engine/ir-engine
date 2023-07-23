@@ -29,8 +29,8 @@ import { isClient } from '@etherealengine/engine/src/common/functions/getEnviron
 import { ComponentType } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { SystemDefinitions, SystemUUID } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import {
-  convertSystemComponentJSON,
-  SystemComponent
+  SystemComponent,
+  convertSystemComponentJSON
 } from '@etherealengine/engine/src/scene/components/SystemComponent'
 
 export type SystemImportType = {

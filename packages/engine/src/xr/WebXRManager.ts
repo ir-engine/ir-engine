@@ -24,26 +24,25 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import {
-  ArrayCamera,
   DepthFormat,
   DepthStencilFormat,
   DepthTexture,
-  PerspectiveCamera,
   RGBAFormat,
+  TextureDataType,
   UnsignedByteType,
   UnsignedInt248Type,
   UnsignedIntType,
-  Vector3,
   Vector4,
   WebGLMultiviewRenderTarget,
-  WebGLRenderer,
   WebGLRenderTarget,
   WebGLRenderTargetOptions
 } from 'three'
 
 import { defineState, getMutableState, getState } from '@etherealengine/hyperflux'
 
+import { CameraComponent } from '../camera/components/CameraComponent'
 import { Engine } from '../ecs/classes/Engine'
+import { getComponent } from '../ecs/functions/ComponentFunctions'
 import { EngineRenderer } from '../renderer/WebGLRendererSystem'
 import { XRState } from './XRState'
 
@@ -80,6 +79,10 @@ declare global {
 
   interface XRSession {
     interactionMode: 'screen-space' | 'world-space'
+  }
+
+  interface XRProjectionLayer {
+    quality: 'default' | 'text-optimized' | 'graphics-optimized'
   }
 }
 
@@ -170,12 +173,12 @@ export function createWebXRManager() {
         newRenderTarget = new WebGLRenderTarget(glBaseLayer.framebufferWidth, glBaseLayer.framebufferHeight, {
           format: RGBAFormat,
           type: UnsignedByteType,
-          encoding: renderer.outputEncoding,
+          colorSpace: renderer.outputColorSpace,
           stencilBuffer: attributes.stencil
         })
       } else {
         let depthFormat: number | undefined
-        let depthType: number | undefined
+        let depthType: TextureDataType | undefined
         let glDepthFormat: number | undefined
 
         if (attributes.depth) {
@@ -193,12 +196,14 @@ export function createWebXRManager() {
           depthFormat: glDepthFormat,
           scaleFactor: framebufferScaleFactor,
           textureType: (scope.isMultiview ? 'texture-array' : 'texture') as XRTextureType
+          // quality: "graphics-optimized" /** @todo - this does not work yet, must be set directly on the layer */
         }
 
         const glBinding = new XRWebGLBinding(session, gl)
         xrRendererState.glBinding.set(glBinding)
 
         const glProjLayer = glBinding.createProjectionLayer(projectionlayerInit)
+        glProjLayer.quality = 'graphics-optimized'
         xrRendererState.glProjLayer.set(glProjLayer)
 
         session.updateRenderState({ layers: [glProjLayer] })
@@ -220,7 +225,7 @@ export function createWebXRManager() {
             depthFormat
           ),
           stencilBuffer: attributes.stencil,
-          encoding: renderer.outputEncoding,
+          colorSpace: renderer.outputColorSpace,
           samples: attributes.antialias ? 4 : 0
         }
 
@@ -256,10 +261,16 @@ export function createWebXRManager() {
     }
   }
 
+  scope.getEnvironmentBlendMode = function () {
+    if (xrState.session !== null) {
+      return xrState.session.environmentBlendMode
+    }
+  }
+
   scope.updateCamera = function () {}
 
   scope.getCamera = function () {
-    return Engine.instance.camera
+    return getComponent(Engine.instance.cameraEntity, CameraComponent)
   }
 
   scope.getFoveation = function () {

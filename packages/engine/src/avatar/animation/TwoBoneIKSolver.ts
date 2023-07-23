@@ -23,9 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Bone, Euler, MathUtils, Object3D, Quaternion, Vector3 } from 'three'
+import { Bone, MathUtils, Object3D, Quaternion, Vector3 } from 'three'
 
-import { Axis } from '../../common/constants/Axis3D'
 import { Object3DUtils } from '../../common/functions/Object3DUtils'
 
 const sqrEpsilon = 1e-8

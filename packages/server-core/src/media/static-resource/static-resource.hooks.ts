@@ -23,14 +23,30 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { disallow, iff, isProvider } from 'feathers-hooks-common'
+import { getValidator } from '@feathersjs/typebox'
+import { disallow } from 'feathers-hooks-common'
 
+import {
+  staticResourceDataSchema,
+  staticResourcePatchSchema,
+  staticResourceQuerySchema,
+  staticResourceSchema
+} from '@etherealengine/engine/src/schemas/media/static-resource.schema'
 import collectAnalytics from '@etherealengine/server-core/src/hooks/collect-analytics'
 import attachOwnerIdInQuery from '@etherealengine/server-core/src/hooks/set-loggedin-user-in-query'
+import { dataValidator, queryValidator } from '@etherealengine/server-core/validators'
 
-import addAssociations from '../../hooks/add-associations'
 import authenticate from '../../hooks/authenticate'
 import verifyScope from '../../hooks/verify-scope'
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const staticResourceValidator = getValidator(staticResourceSchema, dataValidator)
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const staticResourceDataValidator = getValidator(staticResourceDataSchema, dataValidator)
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const staticResourcePatchValidator = getValidator(staticResourcePatchSchema, dataValidator)
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const staticResourceQueryValidator = getValidator(staticResourceQuerySchema, queryValidator)
 
 export default {
   before: {

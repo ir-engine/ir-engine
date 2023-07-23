@@ -25,7 +25,6 @@ Ethereal Engine. All Rights Reserved.
 
 import type { FaceDetection, FaceExpressions } from '@vladmandic/face-api'
 import * as Comlink from 'comlink'
-import { useEffect } from 'react'
 
 import { isDev } from '@etherealengine/common/src/config'
 import { createWorkerFromCrossOriginURL } from '@etherealengine/common/src/utils/createWorkerFromCrossOriginURL'
@@ -37,15 +36,13 @@ import {
   defineQuery,
   getComponent,
   hasComponent,
-  removeQuery,
   setComponent
 } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import { WebcamInputComponent } from '@etherealengine/engine/src/input/components/WebcamInputComponent'
-import { WorldNetworkAction } from '@etherealengine/engine/src/networking/functions/WorldNetworkAction'
 import { GroupComponent } from '@etherealengine/engine/src/scene/components/GroupComponent'
 import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
-import { defineActionQueue, getMutableState, removeActionQueue } from '@etherealengine/hyperflux'
+import { defineActionQueue, getMutableState } from '@etherealengine/hyperflux'
 
 import { MediaStreamState } from '../../transports/MediaStreams'
 
@@ -292,6 +289,7 @@ const execute = () => {
   for (const entity of webcamQuery()) setAvatarExpression(entity)
 }
 
+/** @todo - this system currently is not used and has been replaced by the /capture route */
 export const WebcamInputSystem = defineSystem({
   uuid: 'ee.client.WebcamInputSystem',
   execute

@@ -27,7 +27,6 @@ import appRootPath from 'app-root-path'
 import { execFileSync } from 'child_process'
 import fs from 'fs'
 import path from 'path'
-import { MathUtils } from 'three'
 
 import { KTX2EncodeArguments } from '@etherealengine/engine/src/assets/constants/CompressionParms'
 
@@ -56,7 +55,7 @@ async function createKtx2(data: KTX2EncodeArguments): Promise<string | string[]>
     const fileName = /[^\\/]*$/.exec(outPath)![0]
     const args = `-ktx2${data.mode === 'UASTC' ? ' -uastc' : ''}${data.mipmaps ? ' -mipmap' : ''}${
       data.flipY ? ' -y_flip' : ''
-    }${data.linear ? ' -linear' : ''} -q ${data.quality} ${inPath}`
+    }${data.srgb ? ' -linear' : ''} -q ${data.quality} ${inPath}`
     console.log(args)
     console.log(execFileSync(BASIS_U, args.split(/\s+/)))
     console.log(execFileSync('mv', [fileName, outPath]))

@@ -6,8 +6,8 @@ Version 1.0. (the "License"); you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
 https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
-and 15 have been added to cover use of software over a computer network and 
-provide for limited attribution for the Original Developer. In addition, 
+and 15 have been added to cover use of software over a computer network and
+provide for limited attribution for the Original Developer. In addition,
 Exhibit A has been modified to be consistent with Exhibit B.
 
 Software distributed under the License is distributed on an "AS IS" basis,
@@ -19,11 +19,23 @@ The Original Code is Ethereal Engine.
 The Original Developer is the Initial Developer. The Initial Developer of the
 Original Code is the Ethereal Engine team.
 
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023
 Ethereal Engine. All Rights Reserved.
 */
 
-import { CloudFrontClient, CreateInvalidationCommand } from '@aws-sdk/client-cloudfront'
+import {
+  CloudFrontClient,
+  CreateFunctionCommand,
+  CreateInvalidationCommand,
+  DescribeFunctionCommand,
+  FunctionSummary,
+  GetDistributionCommand,
+  ListFunctionsCommand,
+  ListFunctionsCommandInput,
+  PublishFunctionCommand,
+  UpdateDistributionCommand,
+  UpdateFunctionCommand
+} from '@aws-sdk/client-cloudfront'
 import {
   CopyObjectCommand,
   DeleteObjectsCommand,
@@ -36,13 +48,14 @@ import {
 } from '@aws-sdk/client-s3'
 import { Options, Upload } from '@aws-sdk/lib-storage'
 import { createPresignedPost } from '@aws-sdk/s3-presigned-post'
+import appRootPath from 'app-root-path'
+import fs from 'fs'
 import { reject } from 'lodash'
 import fetch from 'node-fetch'
 import { buffer } from 'node:stream/consumers'
 import path from 'path/posix'
 import S3BlobStore from 's3-blob-store'
-import { Readable } from 'stream'
-import { PassThrough } from 'stream'
+import { PassThrough, Readable } from 'stream'
 
 import { FileContentType } from '@etherealengine/common/src/interfaces/FileContentType'
 
@@ -57,6 +70,26 @@ import {
   StorageObjectPutInterface,
   StorageProviderInterface
 } from './storageprovider.interface'
+
+const MAX_ITEMS = 1
+const CFFunctionTemplate = `
+function handler(event) {
+    var request = event.request;
+    var routeRegexRoot = __$routeRegex$__
+    var routeRegex = new RegExp(routeRegexRoot)
+    var publicRegexRoot = __$publicRegex$__
+    var publicRegex = new RegExp(publicRegexRoot)
+
+    if (routeRegex.test(request.uri)) {
+        request.uri = '/client/index.html'
+    }
+    
+    if (publicRegex.test(request.uri)) {
+        request.uri = '/client' + request.uri
+    }
+    return request;
+}
+`
 
 /**
  * Storage provide class to communicate with AWS S3 API.
@@ -222,7 +255,7 @@ export class S3Provider implements StorageProviderInterface {
 
   /**
    * Adds an object into the S3 storage.
-   * @param object Storage object to be added.
+   * @param data Storage object to be added.
    * @param params Parameters of the add request.
    */
   async putObject(data: StorageObjectPutInterface, params: PutObjectParams = {}): Promise<any> {
@@ -290,6 +323,145 @@ export class S3Provider implements StorageProviderInterface {
     return await this.cloudfront.send(command)
   }
 
+  async listFunctions(marker: string | null, functions: FunctionSummary[]): Promise<FunctionSummary[]> {
+    if (config.server.storageProvider !== 's3') return []
+    const params: ListFunctionsCommandInput = {
+      MaxItems: MAX_ITEMS
+    }
+    if (marker) params.Marker = marker
+    const command = new ListFunctionsCommand(params)
+    const response = await this.cloudfront.send(command)
+    functions = functions.concat(response.FunctionList?.Items ? response.FunctionList.Items : [])
+    if (response.FunctionList?.NextMarker) return this.listFunctions(response.FunctionList?.NextMarker, functions)
+    else return functions
+  }
+
+  getFunctionCode(routes: string[]) {
+    let routeRegex = ''
+    for (let route of routes)
+      if (route !== '/')
+        switch (route) {
+          case '/admin':
+          case '/editor':
+          case '/studio':
+            routeRegex += `^${route}$$|` // String.replace will convert this to a single $
+            routeRegex += `^${route}/|`
+            break
+          case '/location':
+          case '/auth':
+          case '/capture':
+            routeRegex += `^${route}/|`
+            break
+          default:
+            routeRegex += `^${route}$$|` // String.replace will convert this to a single $
+            break
+        }
+    if (routes.length > 0) routeRegex = routeRegex.slice(0, routeRegex.length - 1)
+    let publicRegex = ''
+    fs.readdirSync(path.join(appRootPath.path, 'packages', 'client', 'dist'), { withFileTypes: true }).forEach(
+      (dirent) => {
+        if (dirent.name !== 'projects') {
+          if (dirent.isDirectory()) publicRegex += `^/${dirent.name}/|`
+          else {
+            // .br compressed files are uploaded to S3 without this extension in their name, but with a
+            // content-encoding header to mark them as brotli-compressed. Need to use the sans-.br name for
+            // the CloudFront redirect rule.
+            if (/.br$/.test(dirent.name)) dirent.name = dirent.name.replace('.br', '')
+            publicRegex += `^/${dirent.name}|`
+          }
+        }
+      }
+    )
+    if (publicRegex.length > 0) publicRegex = publicRegex.slice(0, publicRegex.length - 1)
+    return CFFunctionTemplate.replace('__$routeRegex$__', `'${routeRegex}'`).replace(
+      '__$publicRegex$__',
+      `'${publicRegex}'`
+    )
+  }
+
+  async createFunction(functionName: string, routes: string[]) {
+    const code = this.getFunctionCode(routes)
+    const params = {
+      Name: functionName,
+      FunctionCode: new TextEncoder().encode(code),
+      FunctionConfig: {
+        Comment: 'Function to handle routing of Ethereal Engine client',
+        Runtime: 'cloudfront-js-1.0'
+      }
+    }
+    const command = new CreateFunctionCommand(params)
+    return await this.cloudfront.send(command)
+  }
+
+  async associateWithFunction(functionARN: string, attempts = 1) {
+    try {
+      const getDistributionParams = {
+        Id: config.aws.cloudfront.distributionId
+      }
+      const getDistributionCommand = new GetDistributionCommand(getDistributionParams)
+      const distribution = await this.cloudfront.send(getDistributionCommand)
+      if (!distribution.Distribution) return
+      const updateDistributionParams = {
+        Id: distribution.Distribution.Id,
+        DistributionConfig: distribution.Distribution.DistributionConfig,
+        IfMatch: distribution.ETag
+      }
+      updateDistributionParams.DistributionConfig!.DefaultCacheBehavior!.FunctionAssociations = {
+        Quantity: 1,
+        Items: [
+          {
+            FunctionARN: functionARN,
+            EventType: 'viewer-request'
+          }
+        ]
+      }
+      const updateDistributionCommand = new UpdateDistributionCommand(updateDistributionParams)
+      return await this.cloudfront.send(updateDistributionCommand)
+    } catch (err) {
+      console.log('error in update distribution', err, err.$metadata)
+      if (err.$metadata.httpStatusCode === 412 && attempts <= 5) {
+        console.log('Updated Distribution Command failed with error code 412, attempting again')
+        setTimeout(() => {
+          return this.associateWithFunction(functionARN, attempts + 1)
+        }, 3000)
+      } else throw err
+    }
+  }
+
+  async publishFunction(functionName: string) {
+    const functionDetailsParams = {
+      Name: functionName
+    }
+    const functionDetailsCommand = new DescribeFunctionCommand(functionDetailsParams)
+    const functionDetails = await this.cloudfront.send(functionDetailsCommand)
+    const params = {
+      Name: functionName,
+      IfMatch: functionDetails.ETag
+    }
+    const command = new PublishFunctionCommand(params)
+    return await this.cloudfront.send(command)
+  }
+
+  async updateFunction(functionName: string, routes: string[]) {
+    const code = this.getFunctionCode(routes)
+    const functionDetailsParams = {
+      Name: functionName
+    }
+    const functionDetailsCommand = new DescribeFunctionCommand(functionDetailsParams)
+    const functionDetails = await this.cloudfront.send(functionDetailsCommand)
+    const params = {
+      Name: functionName,
+      IfMatch: functionDetails.ETag,
+      FunctionCode: new TextEncoder().encode(code),
+      FunctionConfig: {
+        Comment: 'Function to handle routing of Ethereal Engine client',
+        Runtime: 'cloudfront-js-1.0'
+      }
+    }
+    const command = new UpdateFunctionCommand(params)
+    return await this.cloudfront.send(command)
+  }
+
   /**
    * Get the BlobStore object for S3 storage.
    */
@@ -339,18 +511,16 @@ export class S3Provider implements StorageProviderInterface {
       batches[index].push({ Key: keys[i] })
     }
 
-    const data = await Promise.all(
+    return await Promise.all(
       batches.map(async (batch) => {
         const input = {
           Bucket: this.bucket,
           Delete: { Objects: batch }
         }
         const command = new DeleteObjectsCommand(input)
-        const response = await this.provider.send(command)
-        return response
+        return await this.provider.send(command)
       })
     )
-    return data
   }
 
   /**

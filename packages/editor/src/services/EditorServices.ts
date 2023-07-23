@@ -23,8 +23,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { useState } from '@hookstate/core'
-
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
 import { defineAction, defineState, getMutableState } from '@etherealengine/hyperflux'
@@ -50,9 +48,6 @@ export const EditorServiceReceptor = (action) => {
     .when(EditorAction.projectChanged.matches, (action) => {
       return s.merge({ projectName: action.projectName, sceneName: null, sceneModified: false })
     })
-    .when(EditorAction.sceneModified.matches, (action) => {
-      return s.merge({ sceneModified: action.modified })
-    })
     .when(EditorAction.showObject3DInHierarchy.matches, (action) => {
       return s.merge({ showObject3DInHierarchy: action.showObject3DInHierarchy })
     })
@@ -77,11 +72,6 @@ export class EditorAction {
   static sceneChanged = defineAction({
     type: 'ee.editor.Editor.EDITOR_SCENE_CHANGED' as const,
     sceneName: matches.any as Validator<unknown, string | null>
-  })
-
-  static sceneModified = defineAction({
-    type: 'ee.editor.Editor.EDITOR_SCENE_MODIFIED' as const,
-    modified: matches.boolean
   })
 
   static showObject3DInHierarchy = defineAction({

@@ -31,7 +31,6 @@ import {
   DoubleSide,
   InterleavedBufferAttribute,
   LinearFilter,
-  LinearMipMapLinearFilter,
   Mesh,
   MeshBasicMaterial,
   MeshDepthMaterial,
@@ -83,7 +82,10 @@ export class WebLayer3D extends Object3D {
 
   private _camera?: THREE.PerspectiveCamera
 
-  constructor(public element: Element, public container: WebContainer3D) {
+  constructor(
+    public element: Element,
+    public container: WebContainer3D
+  ) {
     super()
     this.name = element.id
     this._webLayer = WebRenderer.getClosestLayer(element)!
@@ -180,7 +182,7 @@ export class WebLayer3D extends Object3D {
         t.wrapS = ClampToEdgeWrapping
         t.wrapT = ClampToEdgeWrapping
         t.minFilter = LinearFilter // note: media element textures cannot use mipmapping
-        if (manager.textureEncoding) t.encoding = manager.textureEncoding
+        if (manager.textureEncoding) t.colorSpace = manager.textureEncoding
         this._mediaTexture = t
       }
       return t

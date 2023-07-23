@@ -24,6 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import classNames from 'classnames'
+import dayjs, { Dayjs } from 'dayjs'
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
@@ -42,11 +43,9 @@ import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
 import Tab from '@etherealengine/ui/src/primitives/mui/Tab'
 import Tabs from '@etherealengine/ui/src/primitives/mui/Tabs'
-import TextField from '@etherealengine/ui/src/primitives/mui/TextField'
 
-import { AdapterMoment } from '@mui/x-date-pickers/AdapterMoment'
-import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker'
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
+import { DateTimePicker, LocalizationProvider } from '@mui/x-date-pickers'
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
 
 import { NotificationService } from '../../../common/services/NotificationService'
 import DrawerView from '../../common/DrawerView'
@@ -84,8 +83,8 @@ const UpdateInviteModal = ({ open, onClose, invite }: Props) => {
   const setSpawn = useHookstate(false)
   const spawnTypeTab = useHookstate(0)
   const timed = useHookstate(false)
-  const startTime = useHookstate<Date | null | undefined>(null)
-  const endTime = useHookstate<Date | null | undefined>(null)
+  const startTime = useHookstate<Dayjs>(dayjs(null))
+  const endTime = useHookstate<Dayjs>(dayjs(null))
   const { t } = useTranslation()
   const adminLocationState = useHookstate(getMutableState(AdminLocationState))
   const adminInstanceState = useHookstate(getMutableState(AdminInstanceState))
@@ -101,7 +100,7 @@ const UpdateInviteModal = ({ open, onClose, invite }: Props) => {
     : []
 
   useEffect(() => {
-    console.log('invite changed', invite)
+    console.log('DEBUG : invite changed', invite)
     AdminLocationService.fetchAdminLocations()
     AdminInstanceService.fetchAdminInstances()
     AdminUserService.setSkipGuests(true)
@@ -152,8 +151,8 @@ const UpdateInviteModal = ({ open, onClose, invite }: Props) => {
     }
     if (invite.timed || invite.timed === 1) {
       timed.set(true)
-      startTime.set(invite.startTime)
-      endTime.set(invite.endTime)
+      startTime.set(dayjs(invite.startTime))
+      endTime.set(dayjs(invite.endTime))
     }
   }, [invite])
 
@@ -262,8 +261,8 @@ const UpdateInviteModal = ({ open, onClose, invite }: Props) => {
       }
       sendData.timed = timed.value && (startTime.value != null || endTime.value != null)
       if (sendData.timed) {
-        sendData.startTime = startTime.value
-        sendData.endTime = endTime.value
+        sendData.startTime = startTime.value?.toDate()
+        sendData.endTime = endTime.value?.toDate()
       }
       await AdminInviteService.updateInvite(invite.id, sendData)
       instanceId.set('')
@@ -277,8 +276,8 @@ const UpdateInviteModal = ({ open, onClose, invite }: Props) => {
       spawnTypeTab.set(0)
       inviteTypeTab.set(0)
       timed.set(false)
-      startTime.set(null)
-      endTime.set(null)
+      startTime.set(dayjs(null))
+      endTime.set(dayjs(null))
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
@@ -353,34 +352,28 @@ const UpdateInviteModal = ({ open, onClose, invite }: Props) => {
           />
           {timed.value && (
             <div className={styles.datePickerContainer}>
-              <LocalizationProvider dateAdapter={AdapterMoment}>
+              <LocalizationProvider dateAdapter={AdapterDateFns}>
                 <div className={styles.pickerControls}>
                   <DateTimePicker
                     label="Start Time"
                     value={startTime.value}
-                    onChange={(e) => startTime.set(e)}
-                    renderInput={(params) => <TextField className={styles.dateTimePickerDialog} {...params} />}
+                    onChange={(e) => startTime.set(dayjs(e))}
                   />
                   <IconButton
                     color="primary"
                     size="small"
                     className={styles.clearTime}
-                    onClick={() => startTime.set(null)}
+                    onClick={() => startTime.set(dayjs(null))}
                     icon={<Icon type="HighlightOff" />}
                   />
                 </div>
                 <div className={styles.pickerControls}>
-                  <DateTimePicker
-                    label="End Time"
-                    value={endTime.value}
-                    onChange={(e) => endTime.set(e)}
-                    renderInput={(params) => <TextField className={styles.dateTimePickerDialog} {...params} />}
-                  />
+                  <DateTimePicker label="End Time" value={endTime.value} onChange={(e) => endTime.set(dayjs(e))} />
                   <IconButton
                     color="primary"
                     size="small"
                     className={styles.clearTime}
-                    onClick={() => endTime.set(null)}
+                    onClick={() => endTime.set(dayjs(null))}
                     icon={<Icon type="HighlightOff" />}
                   />
                 </div>

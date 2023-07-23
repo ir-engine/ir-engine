@@ -29,12 +29,9 @@ import { useTranslation } from 'react-i18next'
 import ProjectDrawer from '@etherealengine/client-core/src/admin/components/Project/ProjectDrawer'
 import { ProjectService, ProjectState } from '@etherealengine/client-core/src/common/services/ProjectService'
 import { useRouter } from '@etherealengine/client-core/src/common/services/RouterService'
-import { ProjectUpdateSystem } from '@etherealengine/client-core/src/systems/ProjectUpdateSystem'
 import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
 import { ProjectInterface } from '@etherealengine/common/src/interfaces/ProjectInterface'
 import multiLogger from '@etherealengine/common/src/logger'
-import { PresentationSystemGroup } from '@etherealengine/engine/src/ecs/functions/EngineFunctions'
-import { useSystems } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import { dispatchAction, getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
 import {
@@ -141,12 +138,6 @@ const OfficialProjectData = [
   //   needsRebuild: true
   // },
 ]
-
-const ProjectUpdateSystemInjection = {
-  uuid: 'core.admin.ProjectUpdateSystem',
-  type: 'PRE_RENDER',
-  systemLoader: () => Promise.resolve({ default: ProjectUpdateSystem })
-} as const
 
 const CommunityProjectData = [] as any
 
@@ -258,8 +249,6 @@ const ProjectsPage = () => {
     ProjectService.refreshGithubRepoAccess()
     fetchInstalledProjects()
   }
-
-  useSystems([ProjectUpdateSystem], { before: PresentationSystemGroup })
 
   useEffect(() => {
     if (!authUser || !user) return

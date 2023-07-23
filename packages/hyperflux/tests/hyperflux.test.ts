@@ -37,7 +37,6 @@ import {
   defineState,
   dispatchAction,
   getMutableState,
-  getState,
   registerState,
   removeActionReceptor
 } from '..'

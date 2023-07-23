@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React, { FC } from 'react'
+import React from 'react'
 import Reconciler from 'react-reconciler'
 import { ConcurrentRoot, DefaultEventPriority } from 'react-reconciler/constants'
 
@@ -32,6 +32,7 @@ import { isDev } from '@etherealengine/common/src/config'
 import { HyperFlux } from './StoreFunctions'
 
 const ReactorReconciler = Reconciler({
+  warnsIfNotActing: true,
   getPublicInstance: (instance) => instance,
   getRootHostContext: () => null,
   getChildHostContext: (parentHostContext) => parentHostContext,
@@ -79,7 +80,7 @@ export interface ReactorRoot {
   isRunning: boolean
   promise: Promise<void>
   cleanupFunctions: Set<() => void>
-  run: () => Promise<void>
+  run: (force?: boolean) => Promise<void>
   stop: () => Promise<void>
 }
 
