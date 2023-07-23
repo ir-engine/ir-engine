@@ -195,7 +195,7 @@ export class LocationService<T = LocationType, ServiceParams extends Params = Lo
    * @param data of location going to be updated
    * @returns updated location
    */
-  async patch(id: Id, data: LocationData, params?: LocationParams) {
+  async patch(id: Id, data: LocationPatch, params?: LocationParams) {
     const t = await this.app.get('sequelizeClient').transaction()
     const trx = await (this.app.get('knexClient') as Knex).transaction()
 
@@ -217,16 +217,18 @@ export class LocationService<T = LocationType, ServiceParams extends Params = Lo
 
       await trx.from<LocationDatabaseType>(locationPath).update(data).where({ id: id.toString() })
 
-      await trx
-        .from<LocationSettingType>(locationSettingPath)
-        .update({
-          videoEnabled: data.locationSetting.videoEnabled,
-          audioEnabled: data.locationSetting.audioEnabled,
-          faceStreamingEnabled: data.locationSetting.faceStreamingEnabled,
-          screenSharingEnabled: data.locationSetting.screenSharingEnabled,
-          locationType: data.locationSetting.locationType || 'private'
-        })
-        .where({ id: oldLocation.locationSetting.id })
+      if (data.locationSetting) {
+        await trx
+          .from<LocationSettingType>(locationSettingPath)
+          .update({
+            videoEnabled: data.locationSetting.videoEnabled,
+            audioEnabled: data.locationSetting.audioEnabled,
+            faceStreamingEnabled: data.locationSetting.faceStreamingEnabled,
+            screenSharingEnabled: data.locationSetting.screenSharingEnabled,
+            locationType: data.locationSetting.locationType || 'private'
+          })
+          .where({ id: oldLocation.locationSetting.id })
+      }
 
       await t.commit()
       await trx.commit()

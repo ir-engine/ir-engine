@@ -31,13 +31,8 @@ import { groupUserRankSeed } from './group-user-rank/group-user-rank.seed'
 import { inviteTypeSeed } from './invite-type/invite-type.seed'
 import * as locationSettingSeed from './location-setting/location-setting.seed'
 import * as locationTypeSeed from './location-type/location-type.seed'
-import { locationSeed } from './location/location.seed'
+import * as locationSeed from './location/location.seed'
 
-export const socialSequelizeSeeds: Array<ServicesSeedConfig> = [
-  groupUserRankSeed,
-  inviteTypeSeed,
-  channelTypeSeed,
-  locationSeed
-]
+export const socialSequelizeSeeds: Array<ServicesSeedConfig> = [groupUserRankSeed, inviteTypeSeed, channelTypeSeed]
 
-export const socialSeeds: Array<KnexSeed> = [locationTypeSeed, locationSettingSeed]
+export const socialSeeds: Array<KnexSeed> = [locationTypeSeed, locationSettingSeed, locationSeed]

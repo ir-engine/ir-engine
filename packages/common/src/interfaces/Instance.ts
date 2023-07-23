@@ -25,33 +25,6 @@ Ethereal Engine. All Rights Reserved.
 
 import { LocationData, LocationType } from '@etherealengine/engine/src/schemas/social/location.schema'
 
-// import { LocationAuthorizedUser } from './LocationAuthorizedUser'
-
-// interface LocationSettings {
-//   id: string
-//   locationId: string
-//   locationType: 'private' | 'public' | 'showroom'
-//   audioEnabled: boolean
-//   screenSharingEnabled: boolean
-//   faceStreamingEnabled: boolean
-//   videoEnabled: boolean
-// }
-
-// interface Location {
-//   id: string
-//   name: string
-//   slugifiedName: string
-//   maxUsersPerInstance: number
-//   sceneId: string
-//   locationSettingsId: string
-//   locationSetting: LocationSettings
-//   isLobby: boolean
-//   isFeatured: boolean
-//   location_settings?: LocationSettings
-//   location_setting?: LocationSettings
-//   location_authorized_users?: LocationAuthorizedUser[]
-// }
-
 export interface Instance {
   id: string
   roomCode: string
@@ -77,11 +50,13 @@ export const InstanceSeed: Instance = {
     slugifiedName: '',
     maxUsersPerInstance: 10,
     sceneId: '',
-    locationAuthorizedUsers: {
-      id: '',
-      locationId: '',
-      userId: ''
-    },
+    locationAuthorizedUsers: [
+      {
+        id: '',
+        locationId: '',
+        userId: ''
+      }
+    ],
     locationSetting: {
       id: '',
       locationId: '',

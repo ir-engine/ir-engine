@@ -28,10 +28,35 @@ import { Paginated } from '@feathersjs/feathers'
 import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { locationPath, LocationType } from '@etherealengine/engine/src/schemas/social/location.schema'
-import { defineAction, defineState, dispatchAction, getMutableState, useState } from '@etherealengine/hyperflux'
+import { defineAction, defineState, dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 
 import { API } from '../../API'
 import { NotificationService } from '../../common/services/NotificationService'
+
+export const LocationSeed: LocationType = {
+  id: '',
+  name: '',
+  slugifiedName: '',
+  maxUsersPerInstance: 10,
+  sceneId: '',
+  isLobby: false,
+  isFeatured: false,
+  locationSetting: {
+    id: '',
+    locationId: '',
+    audioEnabled: false,
+    screenSharingEnabled: false,
+    faceStreamingEnabled: false,
+    locationType: 'private',
+    videoEnabled: false,
+    createdAt: '',
+    updatedAt: ''
+  },
+  locationAuthorizedUsers: [],
+  locationBans: [],
+  createdAt: '',
+  updatedAt: ''
+}
 
 export const LocationState = defineState({
   name: 'LocationState',

@@ -124,7 +124,7 @@ export class Instance<T = InstanceDataType> extends Service<T> {
       })) as LocationType[]
 
       for (const instance of foundInstances) {
-        instance.location = locations.data.find((location) => location.id === instance.locationId)
+        instance.location = locations.find((location) => location.id === instance.locationId)
       }
 
       return {

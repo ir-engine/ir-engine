@@ -61,21 +61,12 @@ export const locationSchema = Type.Object(
 )
 export type LocationType = Static<typeof locationSchema>
 
-export type LocationDatabaseType = Omit<LocationType, 'locationSetting' | 'locationAuthorizedUsers'>
+export type LocationDatabaseType = Omit<LocationType, 'locationSetting' | 'locationAuthorizedUsers' | 'locationBans'>
 
 // Schema for creating new entries
 export const locationDataSchema = Type.Pick(
   locationSchema,
-  [
-    'name',
-    'sceneId',
-    'slugifiedName',
-    'isLobby',
-    'isFeatured',
-    'maxUsersPerInstance',
-    'locationSetting',
-    'locationAuthorizedUsers'
-  ],
+  ['name', 'sceneId', 'slugifiedName', 'isLobby', 'isFeatured', 'maxUsersPerInstance', 'locationSetting'],
   {
     $id: 'LocationData'
   }

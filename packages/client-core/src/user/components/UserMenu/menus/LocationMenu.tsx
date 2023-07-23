@@ -41,6 +41,7 @@ import TextField from '@etherealengine/ui/src/primitives/mui/TextField'
 import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 
 import { API } from '../../../../API'
+import { LocationSeed } from '../../../../social/services/LocationService'
 import styles from '../index.module.scss'
 
 interface Props {

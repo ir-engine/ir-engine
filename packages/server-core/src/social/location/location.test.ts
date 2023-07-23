@@ -50,6 +50,7 @@ describe('location.test', () => {
 
   it('should create a new location', async () => {
     const name = `Test Location ${v1()}`
+    const sceneId = `test-scene-${v1()}`
 
     const locationSetting = await app.service(locationSettingPath).create({
       locationType: 'public',
@@ -63,7 +64,12 @@ describe('location.test', () => {
     const item = await app.service(locationPath).create(
       {
         name,
-        locationSetting
+        slugifiedName: '',
+        sceneId,
+        maxUsersPerInstance: 30,
+        locationSetting,
+        isLobby: false,
+        isFeatured: false
       },
       params
     )

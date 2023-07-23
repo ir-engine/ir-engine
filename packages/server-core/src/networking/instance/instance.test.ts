@@ -30,7 +30,7 @@ import { v1 } from 'uuid'
 import { Instance } from '@etherealengine/common/src/interfaces/Instance'
 import { destroyEngine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { locationSettingPath } from '@etherealengine/engine/src/schemas/social/location-setting.schema'
-import { locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
+import { locationPath, LocationType } from '@etherealengine/engine/src/schemas/social/location.schema'
 
 import { Application } from '../../../declarations'
 import { createFeathersKoaApp } from '../../createApp'
@@ -68,8 +68,12 @@ describe('instance.test', () => {
     testLocation = await app.service(locationPath).create(
       {
         name,
+        slugifiedName: '',
         sceneId,
-        locationSetting
+        maxUsersPerInstance: 30,
+        locationSetting,
+        isLobby: false,
+        isFeatured: false
       },
       params
     )

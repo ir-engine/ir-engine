@@ -23,14 +23,10 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Paginated, Params } from '@feathersjs/feathers/lib'
+import { Params } from '@feathersjs/feathers/lib'
 
 import { Instance as InstanceInterface } from '@etherealengine/common/src/interfaces/Instance'
-import {
-  LocationDatabaseType,
-  locationPath,
-  LocationType
-} from '@etherealengine/engine/src/schemas/social/location.schema'
+import { locationPath, LocationType } from '@etherealengine/engine/src/schemas/social/location.schema'
 
 import { Application } from '../../../declarations'
 import authenticate from '../../hooks/authenticate'
@@ -95,7 +91,7 @@ export const getActiveInstancesForScene =
       .map((instance) => {
         return {
           id: instance.id,
-          location: instance.location!.id,
+          location: (instance.location as LocationType).id,
           currentUsers: instance.currentUsers
         }
       })
