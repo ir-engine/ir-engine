@@ -31,8 +31,6 @@ import path from 'path'
 
 import { Application } from '@etherealengine/server-core/declarations'
 
-import config from '../../appconfig'
-
 interface CreateParams {
   path: string
 }

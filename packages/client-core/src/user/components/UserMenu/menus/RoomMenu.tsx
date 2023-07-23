@@ -34,8 +34,6 @@ import Menu from '@etherealengine/client-core/src/common/components/Menu'
 import { InstanceService } from '@etherealengine/client-core/src/common/services/InstanceService'
 import { useRouter } from '@etherealengine/client-core/src/common/services/RouterService'
 import { requestXRSession } from '@etherealengine/engine/src/xr/XRSessionFunctions'
-import { XRAction } from '@etherealengine/engine/src/xr/XRState'
-import { dispatchAction } from '@etherealengine/hyperflux'
 import Box from '@etherealengine/ui/src/primitives/mui/Box'
 
 import styles from '../index.module.scss'

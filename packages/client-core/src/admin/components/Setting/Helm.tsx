@@ -26,9 +26,6 @@ Ethereal Engine. All Rights Reserved.
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import InputSwitch from '@etherealengine/client-core/src/common/components/InputSwitch'
-import InputText from '@etherealengine/client-core/src/common/components/InputText'
-import { AwsCloudFrontType, AwsSmsType } from '@etherealengine/engine/src/schemas/setting/aws-setting.schema'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import Box from '@etherealengine/ui/src/primitives/mui/Box'
 import Button from '@etherealengine/ui/src/primitives/mui/Button'
@@ -37,7 +34,6 @@ import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 
 import InputSelect, { InputMenuItem } from '../../../common/components/InputSelect'
 import { AuthState } from '../../../user/services/AuthService'
-import { AwsSettingService } from '../../services/Setting/AwsSettingService'
 import { AdminHelmSettingsState, HelmSettingService } from '../../services/Setting/HelmSettingService'
 import styles from '../../styles/settings.module.scss'
 

@@ -30,7 +30,7 @@ import { addActionReceptor, getMutableState, none, removeActionReceptor } from '
 
 import { FaceRetouchingNatural, Send } from '@mui/icons-material'
 
-import { InviteService, InviteServiceReceptor } from '../social/services/InviteService'
+import { InviteService } from '../social/services/InviteService'
 import AvatarModifyMenu from './components/UserMenu/menus/AvatarModifyMenu'
 import AvatarSelectMenu from './components/UserMenu/menus/AvatarSelectMenu'
 import EmoteMenu from './components/UserMenu/menus/EmoteMenu'

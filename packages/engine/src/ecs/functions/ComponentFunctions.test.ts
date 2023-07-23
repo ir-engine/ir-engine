@@ -25,14 +25,12 @@ Ethereal Engine. All Rights Reserved.
 
 import assert from 'assert'
 import { Types } from 'bitecs'
-import * as bitECS from 'bitecs'
 
 import { createEngine } from '../../initializeEngine'
-import { destroyEngine, Engine } from '../classes/Engine'
+import { destroyEngine } from '../classes/Engine'
 import {
   addComponent,
   ComponentMap,
-  createMappedComponent,
   defineComponent,
   getAllComponents,
   getComponent,

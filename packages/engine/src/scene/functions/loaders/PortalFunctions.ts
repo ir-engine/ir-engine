@@ -33,7 +33,7 @@ import { AvatarNetworkAction } from '../../../avatar/state/AvatarNetworkState'
 import { CameraMode } from '../../../camera/types/CameraMode'
 import { Engine } from '../../../ecs/classes/Engine'
 import { EngineActions, EngineState } from '../../../ecs/classes/EngineState'
-import { Entity } from '../../../ecs/classes/Entity'
+import { Entity, UndefinedEntity } from '../../../ecs/classes/Entity'
 import { getComponent } from '../../../ecs/functions/ComponentFunctions'
 import { EntityNetworkState } from '../../../networking/state/EntityNetworkState'
 import { PortalComponent } from '../../components/PortalComponent'
@@ -52,22 +52,23 @@ export const setAvatarToLocationTeleportingState = () => {
 
 export const revertAvatarToMovingStateFromTeleport = () => {
   const localClientEntity = Engine.instance.localClientEntity
+  const activePortal = getComponent(Engine.instance.activePortalEntity, PortalComponent)
   getState(EntityNetworkState)[getComponent(localClientEntity, UUIDComponent)].spawnPosition.copy(
-    Engine.instance.activePortal!.remoteSpawnPosition
+    activePortal!.remoteSpawnPosition
   )
   getComponent(localClientEntity, AvatarControllerComponent).movementEnabled = true
 
   // teleport player to where the portal spawn position is
-  teleportAvatar(localClientEntity, Engine.instance.activePortal!.remoteSpawnPosition)
+  teleportAvatar(localClientEntity, activePortal!.remoteSpawnPosition)
 
-  Engine.instance.activePortal = null
+  Engine.instance.activePortalEntity = UndefinedEntity
   dispatchAction(EngineActions.setTeleporting({ isTeleporting: false, $time: Date.now() + 500 }))
 }
 
 export const portalTriggerEnter = (triggerEntity: Entity) => {
   if (!getState(EngineState).isTeleporting && getComponent(triggerEntity, PortalComponent)) {
     const portalComponent = getComponent(triggerEntity, PortalComponent)
-    Engine.instance.activePortal = portalComponent
+    Engine.instance.activePortalEntity = triggerEntity
     dispatchAction(EngineActions.setTeleporting({ isTeleporting: true }))
     return
   }

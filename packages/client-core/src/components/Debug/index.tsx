@@ -72,25 +72,34 @@ const convertSystemTypeToDesiredType = (system: System): DesiredType => {
     enabled: Engine.instance.activeSystems.has(system.uuid)
   }
   if (preSystems.length > 0) {
-    desired.preSystems = preSystems.reduce((acc, uuid) => {
-      acc[uuid] = convertSystemTypeToDesiredType(SystemDefinitions.get(uuid)!)
-      return acc
-    }, {} as Record<SystemUUID, DesiredType>)
+    desired.preSystems = preSystems.reduce(
+      (acc, uuid) => {
+        acc[uuid] = convertSystemTypeToDesiredType(SystemDefinitions.get(uuid)!)
+        return acc
+      },
+      {} as Record<SystemUUID, DesiredType>
+    )
   }
   if (system.uuid === RootSystemGroup) {
     desired.simulation = convertSystemTypeToDesiredType(SystemDefinitions.get(SimulationSystemGroup)!)
   }
   if (subSystems.length > 0) {
-    desired.subSystems = subSystems.reduce((acc, uuid) => {
-      acc[uuid] = convertSystemTypeToDesiredType(SystemDefinitions.get(uuid)!)
-      return acc
-    }, {} as Record<SystemUUID, DesiredType>)
+    desired.subSystems = subSystems.reduce(
+      (acc, uuid) => {
+        acc[uuid] = convertSystemTypeToDesiredType(SystemDefinitions.get(uuid)!)
+        return acc
+      },
+      {} as Record<SystemUUID, DesiredType>
+    )
   }
   if (postSystems.length > 0) {
-    desired.postSystems = postSystems.reduce((acc, uuid) => {
-      acc[uuid] = convertSystemTypeToDesiredType(SystemDefinitions.get(uuid)!)
-      return acc
-    }, {} as Record<SystemUUID, DesiredType>)
+    desired.postSystems = postSystems.reduce(
+      (acc, uuid) => {
+        acc[uuid] = convertSystemTypeToDesiredType(SystemDefinitions.get(uuid)!)
+        return acc
+      },
+      {} as Record<SystemUUID, DesiredType>
+    )
   }
   if (system.uuid === RootSystemGroup) delete desired.enabled
   return desired

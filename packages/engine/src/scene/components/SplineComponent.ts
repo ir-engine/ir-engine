@@ -25,8 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { Vector3 } from 'three'
 
-import { defineComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
-import { ShadowComponent } from './ShadowComponent'
+import { defineComponent } from '../../ecs/functions/ComponentFunctions'
 
 export type SplineComponentType = {
   splinePositions: Vector3[]

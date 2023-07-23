@@ -23,8 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React from 'react'
-import { CSSProperties, FC, HTMLProps, useCallback, useEffect, useRef, useState } from 'react'
+import React, { CSSProperties, FC, HTMLProps, useCallback, useEffect, useRef, useState } from 'react'
 
 export type AutoSizeInputProps = HTMLProps<HTMLInputElement> & {
   minWidth?: number

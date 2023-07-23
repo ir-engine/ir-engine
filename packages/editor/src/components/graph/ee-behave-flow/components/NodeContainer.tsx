@@ -24,8 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { NodeSpecJSON } from 'behave-graph'
-import { PropsWithChildren } from 'react'
-import React from 'react'
+import React, { PropsWithChildren } from 'react'
 
 import styles from '../styles.module.scss'
 import { categoryColorMap, colors } from '../util/colors'

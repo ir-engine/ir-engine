@@ -32,7 +32,6 @@ import { loadPrefab, unloadPrefab } from '@etherealengine/engine/src/scene/funct
 import { dispatchAction } from '@etherealengine/hyperflux'
 
 import { exportPrefab } from '../../functions/assetFunctions'
-import { EditorAction } from '../../services/EditorServices'
 import { SelectionAction } from '../../services/SelectionServices'
 import { PropertiesPanelButton } from '../inputs/Button'
 import InputGroup from '../inputs/InputGroup'
@@ -49,13 +48,11 @@ export const PrefabNodeEditor: EditorComponentType = (props) => {
   const onUnload = async () => {
     unloadPrefab(entity)
     await new Promise((resolve) => setTimeout(resolve, 1))
-    dispatchAction(EditorAction.sceneModified({ modified: true }))
     dispatchAction(SelectionAction.changedSceneGraph({}))
   }
 
   const onLoad = async () => {
     await loadPrefab(entity)
-    dispatchAction(EditorAction.sceneModified({ modified: true }))
     dispatchAction(SelectionAction.changedSceneGraph({}))
   }
 

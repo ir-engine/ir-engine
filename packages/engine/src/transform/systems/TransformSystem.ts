@@ -28,19 +28,14 @@ import { useEffect } from 'react'
 import { Camera, Frustum, Matrix4, Mesh, Skeleton, SkinnedMesh, Vector3 } from 'three'
 
 import { insertionSort } from '@etherealengine/common/src/utils/insertionSort'
-import { defineActionQueue, getMutableState, getState, none, removeActionQueue } from '@etherealengine/hyperflux'
+import { defineActionQueue, getMutableState, getState, none } from '@etherealengine/hyperflux'
 
+import { CameraComponent } from '../../camera/components/CameraComponent'
 import { V_000 } from '../../common/constants/MathConstants'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineActions, EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
-import {
-  defineQuery,
-  getComponent,
-  getOptionalComponent,
-  hasComponent,
-  removeQuery
-} from '../../ecs/functions/ComponentFunctions'
+import { defineQuery, getComponent, getOptionalComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { BoundingBoxComponent, BoundingBoxDynamicTag } from '../../interaction/components/BoundingBoxComponents'
 import { NetworkState } from '../../networking/NetworkState'
@@ -52,6 +47,7 @@ import {
   RigidBodyKinematicVelocityBasedTagComponent
 } from '../../physics/components/RigidBodyComponent'
 import { GroupComponent } from '../../scene/components/GroupComponent'
+import { TransformSerialization } from '../TransformSerialization'
 import { ComputedTransformComponent } from '../components/ComputedTransformComponent'
 import {
   DistanceFromCameraComponent,
@@ -59,7 +55,6 @@ import {
   FrustumCullCameraComponent
 } from '../components/DistanceComponents'
 import { LocalTransformComponent, TransformComponent } from '../components/TransformComponent'
-import { TransformSerialization } from '../TransformSerialization'
 
 const transformQuery = defineQuery([TransformComponent])
 const nonDynamicLocalTransformQuery = defineQuery([
@@ -346,7 +341,7 @@ const execute = () => {
   for (const entity of dirtyGroupEntities) updateGroupChildren(entity)
 
   if (!xrFrame) {
-    const camera = Engine.instance.camera
+    const camera = getComponent(Engine.instance.cameraEntity, CameraComponent)
     const viewCamera = camera.cameras[0]
     viewCamera.matrixWorld.copy(camera.matrixWorld)
     viewCamera.matrixWorldInverse.copy(camera.matrixWorldInverse)
@@ -372,11 +367,12 @@ const execute = () => {
   }
 
   const cameraPosition = getComponent(Engine.instance.cameraEntity, TransformComponent).position
+  const camera = getComponent(Engine.instance.cameraEntity, CameraComponent)
   for (const entity of distanceFromCameraQuery())
     DistanceFromCameraComponent.squaredDistance[entity] = getDistanceSquaredFromTarget(entity, cameraPosition)
 
   /** @todo expose the frustum in WebGLRenderer to not calculate this twice  */
-  _projScreenMatrix.multiplyMatrices(Engine.instance.camera.projectionMatrix, Engine.instance.camera.matrixWorldInverse)
+  _projScreenMatrix.multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse)
   _frustum.setFromProjectionMatrix(_projScreenMatrix)
 
   for (const entity of frustumCulledQuery())

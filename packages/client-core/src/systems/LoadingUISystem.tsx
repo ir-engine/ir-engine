@@ -24,21 +24,9 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import getImagePalette from 'image-palette-core'
-import { useEffect } from 'react'
-import React from 'react'
-import {
-  Color,
-  CompressedTexture,
-  DoubleSide,
-  Mesh,
-  MeshBasicMaterial,
-  SphereGeometry,
-  Texture,
-  Vector2,
-  Vector3
-} from 'three'
+import React, { useEffect } from 'react'
+import { Color, CompressedTexture, DoubleSide, Mesh, MeshBasicMaterial, SphereGeometry, Texture, Vector2 } from 'three'
 
-import { UserSetting } from '@etherealengine/common/src/interfaces/User'
 import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoader'
 import createReadableTexture from '@etherealengine/engine/src/assets/functions/createReadableTexture'
 import { AppLoadingState, AppLoadingStates } from '@etherealengine/engine/src/common/AppLoadingService'
@@ -50,7 +38,6 @@ import {
   getComponent,
   removeComponent
 } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
-import { removeEntity } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
 import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import { EngineRenderer } from '@etherealengine/engine/src/renderer/WebGLRendererSystem'
 import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
@@ -64,16 +51,10 @@ import {
 import { XRUIComponent } from '@etherealengine/engine/src/xrui/components/XRUIComponent'
 import { createTransitionState } from '@etherealengine/engine/src/xrui/functions/createTransitionState'
 import { ObjectFitFunctions } from '@etherealengine/engine/src/xrui/functions/ObjectFitFunctions'
-import {
-  defineActionQueue,
-  defineState,
-  getMutableState,
-  getState,
-  State,
-  useHookstate
-} from '@etherealengine/hyperflux'
+import { defineActionQueue, defineState, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 import type { WebLayer3D } from '@etherealengine/xrui'
 
+import { CameraComponent } from '@etherealengine/engine/src/camera/components/CameraComponent'
 import { AdminClientSettingsState } from '../admin/services/Setting/ClientSettingService'
 import { AppThemeState, getAppTheme } from '../common/services/AppThemeState'
 import { AuthState } from '../user/services/AuthService'
@@ -264,12 +245,12 @@ const execute = () => {
     })
   }
 
-  mesh.position.copy(Engine.instance.camera.position)
+  mesh.position.copy(getComponent(Engine.instance.cameraEntity, CameraComponent).position)
   mesh.updateMatrixWorld(true)
 
   // add a slow rotation to animate on desktop, otherwise just keep it static for VR
   // if (!getState(EngineState).joinedWorld) {
-  //   Engine.instance.camera.rotateY(world.delta * 0.35)
+  //   getComponent(Engine.instance.cameraEntity, CameraComponent).rotateY(world.delta * 0.35)
   // } else {
   //   // todo: figure out how to make this work properly for VR #7256
   // }

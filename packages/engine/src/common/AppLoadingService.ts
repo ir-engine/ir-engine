@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
-import { defineAction, defineState, getMutableState, useState } from '@etherealengine/hyperflux'
+import { defineAction, defineState, getMutableState } from '@etherealengine/hyperflux'
 
 export const AppLoadingStates = {
   START_STATE: 'START_STATE' as const,

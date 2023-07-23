@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { useEffect } from 'react'
-import { Color, Material, Mesh, Object3D, Texture } from 'three'
+import { Color, Material, Mesh, Texture } from 'three'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { getMutableState, State, useHookstate } from '@etherealengine/hyperflux'
@@ -32,21 +32,15 @@ import { getMutableState, State, useHookstate } from '@etherealengine/hyperflux'
 import { cleanupAllMeshData } from '../../assets/classes/AssetLoader'
 import { isClient } from '../../common/functions/getEnvironment'
 import { EngineState } from '../../ecs/classes/EngineState'
-import {
-  defineComponent,
-  getComponent,
-  getOptionalComponent,
-  useComponent
-} from '../../ecs/functions/ComponentFunctions'
+import { defineComponent, getComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
 import { useEntityContext } from '../../ecs/functions/EntityFunctions'
-import { TransformComponent } from '../../transform/components/TransformComponent'
 import {
   GRASS_PROPERTIES_DEFAULT_VALUES,
   SCATTER_PROPERTIES_DEFAULT_VALUES,
   stageInstancing,
   unstageInstancing
 } from '../functions/loaders/InstancingFunctions'
-import { addObjectToGroup, GroupComponent } from './GroupComponent'
+import { GroupComponent } from './GroupComponent'
 import { UUIDComponent } from './UUIDComponent'
 
 export enum SampleMode {

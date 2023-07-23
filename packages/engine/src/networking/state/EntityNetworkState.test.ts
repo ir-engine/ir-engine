@@ -25,13 +25,12 @@ Ethereal Engine. All Rights Reserved.
 
 import { act } from '@testing-library/react'
 import assert from 'assert'
-import { Quaternion, Vector3 } from 'three'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { NetworkId } from '@etherealengine/common/src/interfaces/NetworkId'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { UserId } from '@etherealengine/common/src/interfaces/UserId'
-import { ReactorRoot, receiveActions } from '@etherealengine/hyperflux'
+import { getMutableState, receiveActions } from '@etherealengine/hyperflux'
 import * as ActionFunctions from '@etherealengine/hyperflux/functions/ActionFunctions'
 import { applyIncomingActions, dispatchAction } from '@etherealengine/hyperflux/functions/ActionFunctions'
 
@@ -41,13 +40,13 @@ import { AvatarNetworkAction } from '../../avatar/state/AvatarNetworkState'
 import { destroyEngine, Engine } from '../../ecs/classes/Engine'
 import { defineQuery, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { SimulationSystemGroup } from '../../ecs/functions/EngineFunctions'
-import { startSystem, SystemDefinitions } from '../../ecs/functions/SystemFunctions'
+import { startSystem } from '../../ecs/functions/SystemFunctions'
 import { createEngine } from '../../initializeEngine'
 import { Physics } from '../../physics/classes/Physics'
+import { PhysicsState } from '../../physics/state/PhysicsState'
 import { UUIDComponent } from '../../scene/components/UUIDComponent'
 import { Network, NetworkTopics } from '../classes/Network'
-import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
-import { NetworkObjectOwnedTag } from '../components/NetworkObjectComponent'
+import { NetworkObjectComponent, NetworkObjectOwnedTag } from '../components/NetworkObjectComponent'
 import { NetworkPeerFunctions } from '../functions/NetworkPeerFunctions'
 import { WorldNetworkAction } from '../functions/WorldNetworkAction'
 import {
@@ -62,7 +61,7 @@ describe('EntityNetworkState', () => {
     createEngine()
     createMockNetwork()
     await Physics.load()
-    Engine.instance.physicsWorld = Physics.createWorld()
+    getMutableState(PhysicsState).physicsWorld.set(Physics.createWorld())
     Engine.instance.store.defaultDispatchDelay = () => 0
     startSystem(EntityNetworkStateSystem, { with: SimulationSystemGroup })
   })

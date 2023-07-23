@@ -26,8 +26,6 @@ Ethereal Engine. All Rights Reserved.
 import React from 'react'
 import { useDrop } from 'react-dnd'
 
-import { AssetType } from '@etherealengine/engine/src/assets/enum/AssetType'
-
 import { ItemTypes } from '../../constants/AssetTypes'
 import useUpload from '../assets/useUpload'
 import { ControlledStringInput, StringInputProps } from './StringInput'

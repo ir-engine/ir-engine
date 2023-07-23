@@ -41,17 +41,15 @@ import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDC
 import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
 
 import MeetingRoomIcon from '@mui/icons-material/MeetingRoom'
-import { Box } from '@mui/material'
 
 import { getPreviewBakeTexture, uploadCubemapBakeToServer } from '../../functions/uploadEnvMapBake'
-import { AssetSelectionChangePropsType, AssetsPreviewPanel } from '../assets/AssetsPreviewPanel'
 import BooleanInput from '../inputs/BooleanInput'
 import { Button } from '../inputs/Button'
 import EulerInput from '../inputs/EulerInput'
 import ImagePreviewInput from '../inputs/ImagePreviewInput'
 import InputGroup from '../inputs/InputGroup'
 import SelectInput from '../inputs/SelectInput'
-import StringInput, { ControlledStringInput } from '../inputs/StringInput'
+import { ControlledStringInput } from '../inputs/StringInput'
 import Vector3Input from '../inputs/Vector3Input'
 import NodeEditor from './NodeEditor'
 import { EditorComponentType, updateProperties, updateProperty } from './Util'

@@ -23,8 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React, { FC, memo, useMemo } from 'react'
-import { Camera, Material, Mesh, Object3D } from 'three'
+import React, { FC, memo } from 'react'
+import { Camera, Object3D } from 'three'
 
 import { none } from '@etherealengine/hyperflux'
 
@@ -32,20 +32,18 @@ import { proxifyQuaternionWithDirty, proxifyVector3WithDirty } from '../../commo
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import {
+  QueryComponents,
   addComponent,
   defineComponent,
   getComponent,
   getMutableComponent,
   hasComponent,
-  QueryComponents,
   removeComponent,
-  setComponent,
   useComponent
 } from '../../ecs/functions/ComponentFunctions'
 import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { QueryReactor } from '../../ecs/functions/SystemFunctions'
-import { InputComponent } from '../../input/components/InputComponent'
-import { setTransformComponent, TransformComponent } from '../../transform/components/TransformComponent'
+import { TransformComponent, setTransformComponent } from '../../transform/components/TransformComponent'
 
 export type Object3DWithEntity = Object3D & { entity: Entity }
 

@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { CompressedTexture, LinearEncoding, LinearSRGBColorSpace, Texture } from 'three'
+import { CompressedTexture, LinearSRGBColorSpace, Texture } from 'three'
 
 import { dispatchAction } from '@etherealengine/hyperflux'
 import { KTX2Encoder } from '@etherealengine/xrui/core/textures/KTX2Encoder'

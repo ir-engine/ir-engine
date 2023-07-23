@@ -30,7 +30,6 @@ import { DeepReadonly } from '@etherealengine/common/src/DeepReadonly'
 import { getMutableState } from '@etherealengine/hyperflux'
 
 import { proxifyQuaternionWithDirty, proxifyVector3WithDirty } from '../../common/proxies/createThreejsProxy'
-import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity, UndefinedEntity } from '../../ecs/classes/Entity'
 import {

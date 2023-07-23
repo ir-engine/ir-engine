@@ -32,8 +32,6 @@ import { useRouter } from '@etherealengine/client-core/src/common/services/Route
 import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
 import { ProjectInterface } from '@etherealengine/common/src/interfaces/ProjectInterface'
 import multiLogger from '@etherealengine/common/src/logger'
-import { PresentationSystemGroup } from '@etherealengine/engine/src/ecs/functions/EngineFunctions'
-import { useSystems } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import { dispatchAction, getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
 import {

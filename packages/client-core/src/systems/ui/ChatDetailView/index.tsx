@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { createState, useHookstate } from '@hookstate/core'
-import React, { Fragment, useRef, useState } from 'react'
+import React, { Fragment, useState } from 'react'
 
 import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
 import { WorldState } from '@etherealengine/engine/src/networking/interfaces/WorldState'

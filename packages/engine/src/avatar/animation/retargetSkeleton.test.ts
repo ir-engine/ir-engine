@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import assert from 'assert'
 import { Bone, Group, Matrix4, Quaternion, SkinnedMesh, Vector3 } from 'three'
 
-import { quaternionEqualsEpsilon, quatNearEqual } from '../../../tests/util/MathTestUtils'
+import { quatNearEqual } from '../../../tests/util/MathTestUtils'
 import avatarBoneMatching from '../AvatarBoneMatching'
 import { makeDefaultSkinnedMesh, makeSkinnedMeshFromBoneData } from '../functions/avatarFunctions'
 import { retargetSkeleton } from './retargetSkeleton'

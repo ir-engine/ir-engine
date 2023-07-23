@@ -27,10 +27,9 @@ import { Paginated } from '@feathersjs/feathers'
 
 import { InstalledRoutesInterface } from '@etherealengine/common/src/interfaces/Route'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { defineState, getMutableState, getState } from '@etherealengine/hyperflux'
+import { defineState, getMutableState } from '@etherealengine/hyperflux'
 
 import { NotificationService } from '../../common/services/NotificationService'
-import { AuthState } from '../../user/services/AuthService'
 import { userIsAdmin } from '../../user/userHasAccess'
 
 export const ROUTE_PAGE_LIMIT = 10000

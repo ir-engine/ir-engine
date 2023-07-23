@@ -50,7 +50,6 @@ import { Divider } from '@mui/material'
 
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
 import { EditorHistoryAction } from '../../services/EditorHistory'
-import { EditorAction } from '../../services/EditorServices'
 import { SelectionState } from '../../services/SelectionServices'
 import GeometryEditor from '../geometry/GeometryEditor'
 import BooleanInput from '../inputs/BooleanInput'
@@ -222,7 +221,6 @@ export const Object3DNodeEditor = (props: Object3DProps) => {
                     obj3d.position.set(nuPosition.x, nuPosition.y, nuPosition.z)
                   }}
                   onRelease={() => {
-                    dispatchAction(EditorAction.sceneModified({ modified: true }))
                     dispatchAction(EditorHistoryAction.createSnapshot({}))
                   }}
                 />
@@ -240,7 +238,6 @@ export const Object3DNodeEditor = (props: Object3DProps) => {
                     //obj3d.rotation.setFromVector3(nuEulers.multiplyScalar(Deg2Rad))
                   }}
                   onRelease={() => {
-                    dispatchAction(EditorAction.sceneModified({ modified: true }))
                     dispatchAction(EditorHistoryAction.createSnapshot({}))
                   }}
                 />
@@ -256,7 +253,6 @@ export const Object3DNodeEditor = (props: Object3DProps) => {
                     //obj3d.scale.copy(nuScale)
                   }}
                   onRelease={() => {
-                    dispatchAction(EditorAction.sceneModified({ modified: true }))
                     dispatchAction(EditorHistoryAction.createSnapshot({}))
                   }}
                 />

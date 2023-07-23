@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { useEffect } from 'react'
-import { AxesHelper, Quaternion, Vector3 } from 'three'
+import { Quaternion, Vector3 } from 'three'
 
 import { isDev } from '@etherealengine/common/src/config'
 import { V_001, V_010, V_111 } from '@etherealengine/engine/src/common/constants/MathConstants'
@@ -34,18 +34,14 @@ import {
   defineQuery,
   getComponent,
   hasComponent,
-  removeComponent,
-  setComponent
+  removeComponent
 } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { removeEntity } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
 import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import { InputSourceComponent } from '@etherealengine/engine/src/input/components/InputSourceComponent'
-import { StandardGamepadButton, XRStandardGamepadButton } from '@etherealengine/engine/src/input/state/ButtonState'
-import { addObjectToGroup } from '@etherealengine/engine/src/scene/components/GroupComponent'
+import { XRStandardGamepadButton } from '@etherealengine/engine/src/input/state/ButtonState'
 import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
 import { setVisibleComponent, VisibleComponent } from '@etherealengine/engine/src/scene/components/VisibleComponent'
-import { ObjectLayers } from '@etherealengine/engine/src/scene/constants/ObjectLayers'
-import { setObjectLayers } from '@etherealengine/engine/src/scene/functions/setObjectLayers'
 import {
   ComputedTransformComponent,
   setComputedTransformComponent
@@ -58,6 +54,7 @@ import {
 import { isMobileXRHeadset, ReferenceSpace } from '@etherealengine/engine/src/xr/XRState'
 import { ObjectFitFunctions } from '@etherealengine/engine/src/xrui/functions/ObjectFitFunctions'
 import {
+  RegisteredWidgets,
   WidgetAppActions,
   WidgetAppServiceReceptorSystem,
   WidgetAppState
@@ -65,7 +62,6 @@ import {
 import { defineActionQueue, defineState, dispatchAction, getState, removeActionQueue } from '@etherealengine/hyperflux'
 
 import { createAnchorWidget } from './createAnchorWidget'
-import { createMediaWidget } from './createMediaWidget'
 // import { createHeightAdjustmentWidget } from './createHeightAdjustmentWidget'
 // import { createAdminControlsMenuWidget } from './createAdminControlsMenuWidget'
 // import { createChatWidget } from './createChatWidget'
@@ -178,18 +174,18 @@ const execute = () => {
   }
 
   for (const action of showWidgetQueue()) {
-    const widget = Engine.instance.widgets.get(action.id)!
+    const widget = RegisteredWidgets.get(action.id)!
     setVisibleComponent(widget.ui.entity, action.shown)
     if (action.shown) {
       if (typeof widget.onOpen === 'function') widget.onOpen()
     } else if (typeof widget.onClose === 'function') widget.onClose()
   }
   for (const action of registerWidgetQueue()) {
-    const widget = Engine.instance.widgets.get(action.id)!
+    const widget = RegisteredWidgets.get(action.id)!
     setLocalTransformComponent(widget.ui.entity, widgetMenuUI.entity)
   }
   for (const action of unregisterWidgetQueue()) {
-    const widget = Engine.instance.widgets.get(action.id)!
+    const widget = RegisteredWidgets.get(action.id)!
     removeComponent(widget.ui.entity, LocalTransformComponent)
     if (typeof widget.cleanup === 'function') widget.cleanup()
   }
@@ -229,7 +225,7 @@ const execute = () => {
   showWidgetMenu(widgetMenuShown)
   setVisibleComponent(widgetMenuUI.entity, widgetMenuShown)
 
-  for (const [id, widget] of Engine.instance.widgets) {
+  for (const [id, widget] of RegisteredWidgets) {
     if (!widgetState.widgets[id]) continue
     const widgetEnabled = widgetState.widgets[id].enabled
     if (widgetEnabled && typeof widget.system === 'function') {

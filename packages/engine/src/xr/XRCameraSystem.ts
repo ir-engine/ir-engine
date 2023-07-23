@@ -211,7 +211,7 @@ const _vec = new Vector2()
 export function updateXRCamera() {
   const renderer = EngineRenderer.instance.renderer
 
-  const camera = Engine.instance.camera
+  const camera = getComponent(Engine.instance.cameraEntity, CameraComponent)
   const xrState = getState(XRState)
   const session = xrState.session
 

@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { Collider, ColliderDesc, RigidBody, RigidBodyDesc } from '@dimforge/rapier3d-compat'
-import { AnimationClip, AnimationMixer, Object3D, Quaternion, Vector3 } from 'three'
+import { AnimationClip, AnimationMixer, Object3D, Vector3 } from 'three'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { UserId } from '@etherealengine/common/src/interfaces/UserId'
@@ -33,29 +33,21 @@ import { getState } from '@etherealengine/hyperflux'
 import { setTargetCameraRotation } from '../../camera/systems/CameraInputSystem'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
-import {
-  addComponent,
-  getComponent,
-  hasComponent,
-  removeComponent,
-  setComponent
-} from '../../ecs/functions/ComponentFunctions'
+import { addComponent, getComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
 import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
 import { BoundingBoxComponent } from '../../interaction/components/BoundingBoxComponents'
 import { GrabberComponent } from '../../interaction/components/GrabbableComponent'
 import {
-  NetworkObjectAuthorityTag,
   NetworkObjectComponent,
   NetworkObjectSendPeriodicUpdatesTag
 } from '../../networking/components/NetworkObjectComponent'
-import { NetworkPeerFunctions } from '../../networking/functions/NetworkPeerFunctions'
-import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
 import { WorldState } from '../../networking/interfaces/WorldState'
 import { Physics } from '../../physics/classes/Physics'
 import { CollisionComponent } from '../../physics/components/CollisionComponent'
 import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
 import { AvatarCollisionMask, CollisionGroups } from '../../physics/enums/CollisionGroups'
 import { getInteractionGroups } from '../../physics/functions/getInteractionGroups'
+import { PhysicsState } from '../../physics/state/PhysicsState'
 import { NameComponent } from '../../scene/components/NameComponent'
 import { ShadowComponent } from '../../scene/components/ShadowComponent'
 import { UUIDComponent } from '../../scene/components/UUIDComponent'
@@ -79,7 +71,7 @@ export const spawnAvatarReceptor = (entityUUID: EntityUUID) => {
   const primary = ownerID === (entityUUID as string as UserId)
 
   if (primary) {
-    const existingAvatarEntity = Engine.instance.getUserAvatarEntity(entityUUID as string as UserId)
+    const existingAvatarEntity = NetworkObjectComponent.getUserAvatarEntity(entityUUID as string as UserId)
 
     // already spawned into the world on another device or tab
     if (existingAvatarEntity) return
@@ -150,12 +142,16 @@ export const createAvatarCollider = (entity: Entity): Collider => {
   ).setCollisionGroups(interactionGroups)
   bodyColliderDesc.setTranslation(0, avatarComponent.avatarHalfHeight, 0)
 
-  return Physics.createColliderAndAttachToRigidBody(Engine.instance.physicsWorld, bodyColliderDesc, rigidBody.body)
+  return Physics.createColliderAndAttachToRigidBody(
+    getState(PhysicsState).physicsWorld,
+    bodyColliderDesc,
+    rigidBody.body
+  )
 }
 
 const createAvatarRigidBody = (entity: Entity): RigidBody => {
   const rigidBodyDesc = RigidBodyDesc.kinematicPositionBased()
-  const rigidBody = Physics.createRigidBody(entity, Engine.instance.physicsWorld, rigidBodyDesc, [])
+  const rigidBody = Physics.createRigidBody(entity, getState(PhysicsState).physicsWorld, rigidBodyDesc, [])
   rigidBody.lockRotations(true, false)
   rigidBody.setEnabledRotations(false, true, false, false)
 
@@ -180,7 +176,7 @@ export const createAvatarController = (entity: Entity) => {
 
   setComponent(entity, AvatarControllerComponent, {
     bodyCollider: createAvatarCollider(entity),
-    controller: Physics.createCharacterController(Engine.instance.physicsWorld, {})
+    controller: Physics.createCharacterController(getState(PhysicsState).physicsWorld, {})
   })
 
   addComponent(entity, CollisionComponent)

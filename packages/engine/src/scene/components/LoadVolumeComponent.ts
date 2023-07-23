@@ -34,7 +34,6 @@ import {
   removeComponent
 } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 
-import { Engine } from '../../ecs/classes/Engine'
 import { EntityTreeComponent, removeEntityNodeRecursively } from '../../ecs/functions/EntityTree'
 import { serializeEntity } from '../functions/serializeWorld'
 import { updateSceneEntity } from '../systems/SceneLoadingSystem'
@@ -54,7 +53,7 @@ export type LoadVolumeComponentType = {
 export const LoadVolumeComponent = defineComponent({
   name: 'EE_load_volume',
   jsonID: 'load-volume',
-  onInit: (entity) => ({ targets: {} } as LoadVolumeComponentType),
+  onInit: (entity) => ({ targets: {} }) as LoadVolumeComponentType,
   toJSON: (entity, component) => {
     return component.value
   },

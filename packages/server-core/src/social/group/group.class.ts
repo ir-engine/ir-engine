@@ -23,11 +23,10 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Paginated, Params } from '@feathersjs/feathers'
+import { Paginated } from '@feathersjs/feathers'
 import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
 import { Op } from 'sequelize'
 
-import { AdminScope } from '@etherealengine/common/src/interfaces/AdminScope'
 import { Group as GroupInterface } from '@etherealengine/common/src/interfaces/Group'
 import { UserInterface } from '@etherealengine/common/src/interfaces/User'
 

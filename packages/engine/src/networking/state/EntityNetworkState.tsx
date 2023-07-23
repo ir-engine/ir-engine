@@ -98,7 +98,7 @@ export const receiveRequestAuthorityOverObject = (
   if (Engine.instance.userId !== action.ownerId) return
 
   const ownerId = action.ownerId
-  const entity = Engine.instance.getNetworkObject(ownerId, action.networkId)
+  const entity = NetworkObjectComponent.getNetworkObject(ownerId, action.networkId)
   if (!entity)
     return console.log(
       `Warning - tried to get entity belonging to ${action.ownerId} with ID ${action.networkId}, but it doesn't exist`
@@ -122,7 +122,7 @@ export const receiveTransferAuthorityOfObject = (
   // Authority request can only be processed by owner
   if (action.$from !== action.ownerId) return
 
-  const entity = Engine.instance.getNetworkObject(action.ownerId, action.networkId)
+  const entity = NetworkObjectComponent.getNetworkObject(action.ownerId, action.networkId)
   if (!entity)
     return console.log(
       `Warning - tried to get entity belonging to ${action.ownerId} with ID ${action.networkId}, but it doesn't exist`

@@ -24,27 +24,25 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import {
-  ArrayCamera,
   DepthFormat,
   DepthStencilFormat,
   DepthTexture,
-  PerspectiveCamera,
   RGBAFormat,
   TextureDataType,
   UnsignedByteType,
   UnsignedInt248Type,
   UnsignedIntType,
-  Vector3,
   Vector4,
   WebGLMultiviewRenderTarget,
-  WebGLRenderer,
   WebGLRenderTarget,
   WebGLRenderTargetOptions
 } from 'three'
 
 import { defineState, getMutableState, getState } from '@etherealengine/hyperflux'
 
+import { CameraComponent } from '../camera/components/CameraComponent'
 import { Engine } from '../ecs/classes/Engine'
+import { getComponent } from '../ecs/functions/ComponentFunctions'
 import { EngineRenderer } from '../renderer/WebGLRendererSystem'
 import { XRState } from './XRState'
 
@@ -272,7 +270,7 @@ export function createWebXRManager() {
   scope.updateCamera = function () {}
 
   scope.getCamera = function () {
-    return Engine.instance.camera
+    return getComponent(Engine.instance.cameraEntity, CameraComponent)
   }
 
   scope.getFoveation = function () {

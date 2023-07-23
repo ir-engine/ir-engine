@@ -24,8 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { RigidBodyType } from '@dimforge/rapier3d-compat'
-import { useEffect } from 'react'
-import React from 'react'
+import React, { useEffect } from 'react'
 import { MeshBasicMaterial, Vector3 } from 'three'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
@@ -44,7 +43,7 @@ import {
 import { getHandTarget } from '../../avatar/components/AvatarIKComponents'
 import { getAvatarBoneWorldPosition } from '../../avatar/functions/avatarFunctions'
 import { isClient } from '../../common/functions/getEnvironment'
-import { matches, matchesEntityUUID, Validator } from '../../common/functions/MatchesUtils'
+import { matches, matchesEntityUUID } from '../../common/functions/MatchesUtils'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineActions, EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
@@ -53,13 +52,10 @@ import {
   getComponent,
   hasComponent,
   removeComponent,
-  setComponent,
-  useComponent,
-  useOptionalComponent
+  setComponent
 } from '../../ecs/functions/ComponentFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { InputSourceComponent } from '../../input/components/InputSourceComponent'
-import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
 import { NetworkTopics } from '../../networking/classes/Network'
 import { NetworkObjectAuthorityTag, NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
@@ -170,7 +166,7 @@ export function transferAuthorityOfObjectReceptor(
   action: ReturnType<typeof WorldNetworkAction.transferAuthorityOfObject>
 ) {
   if (action.newAuthority !== Engine.instance.peerID) return
-  const grabbableEntity = Engine.instance.getNetworkObject(action.ownerId, action.networkId)!
+  const grabbableEntity = NetworkObjectComponent.getNetworkObject(action.ownerId, action.networkId)!
   if (hasComponent(grabbableEntity, GrabbableComponent)) {
     const grabberUserId = Engine.instance.worldNetwork.peers.get(action.newAuthority)?.userId!
     dispatchAction(

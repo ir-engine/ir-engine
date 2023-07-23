@@ -28,20 +28,19 @@ import i18n from 'i18next'
 import { useEffect } from 'react'
 import { v1 } from 'uuid'
 
-import { validateEmail, validatePhoneNumber } from '@etherealengine/common/src/config'
-import config from '@etherealengine/common/src/config'
+import config, { validateEmail, validatePhoneNumber } from '@etherealengine/common/src/config'
 import { AuthUser, AuthUserSeed, resolveAuthUser } from '@etherealengine/common/src/interfaces/AuthUser'
 import { IdentityProvider } from '@etherealengine/common/src/interfaces/IdentityProvider'
 import {
-  resolveUser,
-  resolveWalletUser,
   UserInterface,
   UserSeed,
-  UserSetting
+  UserSetting,
+  resolveUser,
+  resolveWalletUser
 } from '@etherealengine/common/src/interfaces/User'
 import { UserApiKey } from '@etherealengine/common/src/interfaces/UserApiKey'
 import multiLogger from '@etherealengine/common/src/logger'
-import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
+import { Validator, matches } from '@etherealengine/engine/src/common/functions/MatchesUtils'
 import { AuthStrategiesType } from '@etherealengine/engine/src/schemas/setting/authentication-setting.schema'
 import {
   defineAction,
@@ -49,8 +48,7 @@ import {
   dispatchAction,
   getMutableState,
   getState,
-  syncStateWithLocalStorage,
-  useState
+  syncStateWithLocalStorage
 } from '@etherealengine/hyperflux'
 
 import { API } from '../../API'

@@ -24,7 +24,6 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import * as authentication from '@feathersjs/authentication'
-import { BadRequest } from '@feathersjs/errors'
 import { HookContext } from '@feathersjs/feathers'
 
 import config from '../appconfig'

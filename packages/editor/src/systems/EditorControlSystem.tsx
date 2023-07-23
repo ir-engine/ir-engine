@@ -44,17 +44,14 @@ import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { EngineActions } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
 import {
-  addComponent,
-  defineQuery,
   getComponent,
   getOptionalComponent,
   hasComponent,
   removeComponent,
-  removeQuery,
   setComponent,
   useQuery
 } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
-import { createEntity, entityExists } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
+import { createEntity } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
 import {
   EntityTreeComponent,
   getEntityNodeArrayFromEntities
@@ -63,7 +60,7 @@ import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFun
 import { InputComponent } from '@etherealengine/engine/src/input/components/InputComponent'
 import { InputSourceComponent } from '@etherealengine/engine/src/input/components/InputSourceComponent'
 import InfiniteGridHelper from '@etherealengine/engine/src/scene/classes/InfiniteGridHelper'
-import { addObjectToGroup, GroupComponent } from '@etherealengine/engine/src/scene/components/GroupComponent'
+import { GroupComponent, addObjectToGroup } from '@etherealengine/engine/src/scene/components/GroupComponent'
 import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
 import { SceneObjectComponent } from '@etherealengine/engine/src/scene/components/SceneObjectComponent'
 import { TransformGizmoComponent } from '@etherealengine/engine/src/scene/components/TransformGizmo'
@@ -75,26 +72,20 @@ import {
   TransformMode,
   TransformModeType,
   TransformPivot,
-  TransformPivotType
+  TransformPivotType,
+  TransformSpace
 } from '@etherealengine/engine/src/scene/constants/transformConstants'
-import { TransformSpace } from '@etherealengine/engine/src/scene/constants/transformConstants'
 import {
   LocalTransformComponent,
-  setTransformComponent,
   TransformComponent
 } from '@etherealengine/engine/src/transform/components/TransformComponent'
-import {
-  defineActionQueue,
-  dispatchAction,
-  getMutableState,
-  getState,
-  removeActionQueue
-} from '@etherealengine/hyperflux'
+import { defineActionQueue, dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
 
+import { CameraComponent } from '@etherealengine/engine/src/camera/components/CameraComponent'
 import { EditorCameraState } from '../classes/EditorCameraState'
+import { EditorControlFunctions } from '../functions/EditorControlFunctions'
 import { addMediaNode } from '../functions/addMediaNode'
 import { cancelGrabOrPlacement } from '../functions/cancelGrabOrPlacement'
-import { EditorControlFunctions } from '../functions/EditorControlFunctions'
 import { getIntersectingNodeOnScreen } from '../functions/getIntersectingNode'
 import isInputSelected from '../functions/isInputSelected'
 import {
@@ -309,7 +300,7 @@ const findIntersectObjects = (object: Object3D, excludeObjects?: Object3D[], exc
 }
 
 const getRaycastPosition = (coords: Vector2, target: Vector3, snapAmount: number = 0): void => {
-  raycaster.setFromCamera(coords, Engine.instance.camera)
+  raycaster.setFromCamera(coords, getComponent(Engine.instance.cameraEntity, CameraComponent))
   raycasterResults.length = 0
   raycastIgnoreLayers.set(1)
   const scene = Engine.instance.scene
@@ -487,8 +478,11 @@ const execute = () => {
       )
       constraint = TransformAxisConstraints.XYZ
     } else {
-      ray.origin.setFromMatrixPosition(Engine.instance.camera.matrixWorld)
-      ray.direction.set(cursorPosition.x, cursorPosition.y, 0).unproject(Engine.instance.camera).sub(ray.origin)
+      ray.origin.setFromMatrixPosition(getComponent(Engine.instance.cameraEntity, CameraComponent).matrixWorld)
+      ray.direction
+        .set(cursorPosition.x, cursorPosition.y, 0)
+        .unproject(getComponent(Engine.instance.cameraEntity, CameraComponent))
+        .sub(ray.origin)
       ray.intersectPlane(transformPlane, planeIntersection)
       constraint = TransformAxisConstraints[gizmoObj.selectedAxis!]
     }
@@ -611,7 +605,7 @@ const execute = () => {
       let scaleFactor =
         gizmoObj.selectedAxis === TransformAxis.XYZ
           ? 1 +
-            Engine.instance.camera
+            getComponent(Engine.instance.cameraEntity, CameraComponent)
               .getWorldDirection(viewDirection)
               .applyQuaternion(gizmoObj.quaternion)
               .dot(deltaDragVector)

@@ -24,8 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { Id, Params } from '@feathersjs/feathers'
-import { KnexAdapter } from '@feathersjs/knex'
-import type { KnexAdapterOptions, KnexAdapterParams } from '@feathersjs/knex'
+import { KnexAdapter, type KnexAdapterOptions, type KnexAdapterParams } from '@feathersjs/knex'
 
 import { UserInterface } from '@etherealengine/common/src/interfaces/User'
 import { staticResourcePath } from '@etherealengine/engine/src/schemas/media/static-resource.schema'

@@ -36,7 +36,11 @@ export class ServerLoop {
   _running: boolean
   _step: number
   _deltas: Array<number>
-  constructor(update = () => {}, public _times: number = 10, public _option?: Option) {
+  constructor(
+    update = () => {},
+    public _times: number = 10,
+    public _option?: Option
+  ) {
     this._update = update
     this._running = false
     this._step = 1000 / this._times

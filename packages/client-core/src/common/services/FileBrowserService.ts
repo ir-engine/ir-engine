@@ -27,7 +27,7 @@ import { Paginated } from '@feathersjs/feathers/lib'
 
 import { FileContentType } from '@etherealengine/common/src/interfaces/FileContentType'
 import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
-import { defineAction, defineState, dispatchAction, getMutableState, useState } from '@etherealengine/hyperflux'
+import { defineAction, defineState, dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 
 import { API } from '../../API'
 

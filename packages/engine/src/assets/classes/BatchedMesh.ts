@@ -33,8 +33,7 @@ import {
   MathUtils,
   Matrix4,
   Mesh,
-  RGBAFormat,
-  Uniform
+  RGBAFormat
 } from 'three'
 
 const _identityMatrix = new Matrix4()

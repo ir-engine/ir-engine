@@ -29,12 +29,7 @@ import AutoSizer from 'react-virtualized-auto-sizer'
 
 import { BehaveGraphComponent } from '@etherealengine/engine/src/behave-graph/components/BehaveGraphComponent'
 import { UndefinedEntity } from '@etherealengine/engine/src/ecs/classes/Entity'
-import {
-  getComponent,
-  getMutableComponent,
-  hasComponent,
-  useOptionalComponent
-} from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { hasComponent, useOptionalComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { getMutableState } from '@etherealengine/hyperflux'
 
 import { SelectionState } from '../../services/SelectionServices'

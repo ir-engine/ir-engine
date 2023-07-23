@@ -24,14 +24,13 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import type { Id, Params } from '@feathersjs/feathers'
-import { KnexAdapter } from '@feathersjs/knex'
 import type { KnexAdapterOptions, KnexAdapterParams } from '@feathersjs/knex'
+import { KnexAdapter } from '@feathersjs/knex'
 import * as k8s from '@kubernetes/client-node'
 
 import { UserInterface } from '@etherealengine/common/src/interfaces/User'
 import {
   AuthenticationSettingData,
-  AuthenticationSettingDatabaseType,
   AuthenticationSettingPatch,
   authenticationSettingPath,
   AuthenticationSettingQuery,

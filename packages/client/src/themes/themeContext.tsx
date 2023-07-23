@@ -38,7 +38,7 @@ import {
 } from '@etherealengine/client-core/src/common/services/AppThemeState'
 import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
 import { ClientThemeOptionsType } from '@etherealengine/engine/src/schemas/setting/client-setting.schema'
-import { addActionReceptor, getMutableState, NO_PROXY, removeActionReceptor } from '@etherealengine/hyperflux'
+import { NO_PROXY, addActionReceptor, getMutableState, removeActionReceptor } from '@etherealengine/hyperflux'
 
 export interface ThemeContextProps {
   theme: string

@@ -25,7 +25,6 @@ Ethereal Engine. All Rights Reserved.
 
 import { Color, CompressedTexture, CubeTexture, CubeTextureLoader, PMREMGenerator, TextureLoader } from 'three'
 
-import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { DDSLoader } from '../../assets/loaders/dds/DDSLoader'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 

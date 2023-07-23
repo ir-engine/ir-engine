@@ -29,18 +29,15 @@ import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 import { dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 import { Action, ResolvedActionType } from '@etherealengine/hyperflux/functions/ActionFunctions'
-import { getState, none } from '@etherealengine/hyperflux/functions/StateFunctions'
 
 import { AvatarNetworkAction } from '../../avatar/state/AvatarNetworkState'
 import { Engine } from '../../ecs/classes/Engine'
-import { EngineActions } from '../../ecs/classes/EngineState'
 import { getComponent } from '../../ecs/functions/ComponentFunctions'
-import { removeEntity } from '../../ecs/functions/EntityFunctions'
 import { UUIDComponent } from '../../scene/components/UUIDComponent'
-import { Network, NetworkTopics } from '../classes/Network'
+import { Network } from '../classes/Network'
 import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
 import { WorldState } from '../interfaces/WorldState'
-import { NetworkState, updateNetwork } from '../NetworkState'
+import { updateNetwork } from '../NetworkState'
 import { WorldNetworkAction } from './WorldNetworkAction'
 
 function createPeer(
@@ -117,7 +114,7 @@ function destroyPeer(network: Network, peerID: PeerID) {
     // console.log({remainingPeersForDisconnectingUser})
     if (!network.users.has(userID) && network.isHosting) {
       // Engine.instance.store.actions.cached = Engine.instance.store.actions.cached.filter((a) => a.$from !== userID)
-      for (const eid of Engine.instance.getOwnedNetworkObjects(userID)) {
+      for (const eid of NetworkObjectComponent.getOwnedNetworkObjects(userID)) {
         const networkObject = getComponent(eid, NetworkObjectComponent)
         if (networkObject) {
           dispatchAction(
