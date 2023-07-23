@@ -45,7 +45,7 @@ import { Groups } from '@mui/icons-material'
 
 import { FriendService } from '../social/services/FriendService'
 import FriendsMenu from '../user/components/UserMenu/menus/FriendsMenu'
-import PartyMenu from '../user/components/UserMenu/menus/PartyMenu'
+import MessagesMenu from '../user/components/UserMenu/menus/MessagesMenu'
 import { PopupMenuState } from '../user/components/UserMenu/PopupMenuService'
 import { AuthState } from '../user/services/AuthService'
 
@@ -140,7 +140,7 @@ export const WorldInstanceProvisioning = () => {
 }
 
 export const MediaInstanceProvisioning = () => {
-  const chatState = useHookstate(getMutableState(ChannelState))
+  const channelState = useHookstate(getMutableState(ChannelState))
 
   const mediaNetworkHostId = Engine.instance.mediaNetwork?.hostId
   const currentChannelInstanceConnection = useMediaInstance()
@@ -149,12 +149,13 @@ export const MediaInstanceProvisioning = () => {
 
   // Once we have the world server, provision the media server
   useEffect(() => {
-    if (chatState.channels.channels?.value.length) {
-      const currentChannel = chatState.targetChannelId.value
+    console.log('MEDIA MEDIA', channelState.targetChannelId.value)
+    if (channelState.channels.channels?.value.length) {
+      const currentChannel = channelState.targetChannelId.value
       if (!currentChannelInstanceConnection?.provisioned.value)
         MediaInstanceConnectionService.provisionServer(currentChannel, true)
     }
-  }, [chatState.channels.channels?.length])
+  }, [channelState.channels.channels?.length, channelState.targetChannelId])
 
   // Once the media server is provisioned, connect to it
   useEffect(() => {
@@ -182,8 +183,8 @@ export const MediaInstanceProvisioning = () => {
 }
 
 export const SocialMenus = {
-  Party: 'Party',
-  Friends: 'Friends'
+  Friends: 'Friends',
+  Messages: 'Messages'
 }
 
 export const PartyInstanceProvisioning = () => {
@@ -196,16 +197,16 @@ export const PartyInstanceProvisioning = () => {
   useEffect(() => {
     const menuState = getMutableState(PopupMenuState)
     menuState.menus.merge({
-      [SocialMenus.Party]: PartyMenu,
-      [SocialMenus.Friends]: FriendsMenu
+      [SocialMenus.Friends]: FriendsMenu,
+      [SocialMenus.Messages]: MessagesMenu
     })
     menuState.hotbar.merge({
       [SocialMenus.Friends]: Groups
     })
 
     return () => {
-      menuState.menus[SocialMenus.Party].set(none)
       menuState.menus[SocialMenus.Friends].set(none)
+      menuState.menus[SocialMenus.Messages].set(none)
 
       menuState.hotbar[SocialMenus.Friends].set(none)
     }

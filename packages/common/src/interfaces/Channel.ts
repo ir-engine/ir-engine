@@ -27,6 +27,7 @@ import { ChannelID, ChannelUser } from './ChannelUser'
 
 export type Channel = {
   id: ChannelID
+  name: string
   instanceId: string | null
   createdAt: string
   updatedAt: string

@@ -53,6 +53,12 @@ import { AuthState } from '../../../services/AuthService'
 import { PopupMenuServices } from '../PopupMenuService'
 import styles from '../index.module.scss'
 
+/**
+ * @todo
+ * - chat button takes you to messages screen
+ * - convert party screen to messsages screen
+ */
+
 export const usePartyMenuHooks = () => {
   const token = useHookstate('')
   const isInviteOpen = useHookstate(false)
@@ -110,7 +116,7 @@ export const usePartyMenuHooks = () => {
   }
 }
 
-const PartyMenu = (): JSX.Element => {
+const PartyMenu = (props: { userId: UserId }): JSX.Element => {
   const { t } = useTranslation()
   const channelState = useHookstate(getMutableState(ChannelState))
   const activeChannel = channelState.channels.channels.find(

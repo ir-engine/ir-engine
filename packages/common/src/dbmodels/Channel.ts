@@ -28,6 +28,7 @@ import { UserId } from '../interfaces/UserId'
 
 export interface ChannelInterface {
   id: string
+  name: string
   users: UserInterface[]
   userIds: UserId[]
   instanceId: string

@@ -362,7 +362,7 @@ export default {
         ]
       }),
       iff(
-        (context: HookContext) => context.params.user.id === context.arguments[0],
+        (context: HookContext) => context.params.user?.id === context.arguments[0],
         addAssociations({
           models: [
             {

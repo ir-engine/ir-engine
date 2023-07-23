@@ -51,10 +51,6 @@ export const MessageList = (props: { channelID: ChannelID }) => {
     }
   })
 
-  const mutateMessage = useMutation('message')
-
-  const composingMessage = useHookstate('')
-
   const SelfMessage = (props: { message: (typeof messages)[0] }) => {
     return (
       <div className="flex flex-wrap mt-6 ">
@@ -67,7 +63,7 @@ export const MessageList = (props: { channelID: ChannelID }) => {
   }
 
   const OtherMessage = (props: { message: (typeof messages)[0] }) => {
-    const userThumbnail = useUserAvatarThumbnail(props.message.sender.id)
+    const userThumbnail = useUserAvatarThumbnail(props.message.sender?.id)
     return (
       <div className="flex flex-wrap">
         <img className="rounded-[38px]  w-9 h-9 object-cover" alt="" src={userThumbnail} />
@@ -78,22 +74,20 @@ export const MessageList = (props: { channelID: ChannelID }) => {
     )
   }
 
-  const sendMessage = () => {
-    mutateMessage.create({
-      text: composingMessage.value,
-      channelId: props.channelID
-    })
-    composingMessage.set('')
-  }
+  const MessageField = () => {
+    const mutateMessage = useMutation('message')
 
-  return (
-    <>
-      <div className="w-[720px] bg-[#FFFFFF] ml-6 mb-[100px] mt-4 justify-center content-center overflow-scroll hide-scroll">
-        {messages.map((message, index) => {
-          if (message.sender.id === Engine.instance.userId) return <SelfMessage key={index} message={message} />
-          else return <OtherMessage key={index} message={message} />
-        })}
-      </div>
+    const composingMessage = useHookstate('')
+
+    const sendMessage = () => {
+      mutateMessage.create({
+        text: composingMessage.value,
+        channelId: props.channelID
+      })
+      composingMessage.set('')
+    }
+
+    return (
       <div className="absolute w-[755px] bottom-0 h-[70px]  gap-5 flex flex-wrap justify-center bg-[#ffffff]">
         <button className="">
           <img className="w-[30px] rounded-full font-bold h-[30px] overflow-hidden" alt="" src={AttachFileIcon} />
@@ -115,6 +109,18 @@ export const MessageList = (props: { channelID: ChannelID }) => {
           <img className="w-[30px] h-[30px]" alt="" src={SendIcon} />
         </button>
       </div>
+    )
+  }
+
+  return (
+    <>
+      <div className="w-[720px] bg-[#FFFFFF] ml-6 mb-[100px] mt-4 justify-center content-center overflow-scroll hide-scroll">
+        {messages.map((message, index) => {
+          if (message.sender?.id === Engine.instance.userId) return <SelfMessage key={index} message={message} />
+          else return <OtherMessage key={index} message={message} />
+        })}
+      </div>
+      <MessageField />
     </>
   )
 }

@@ -58,6 +58,25 @@ export class Message<T = MessageDataType> extends Service<T> {
     this.app = app
   }
 
+  async find(params?: MessageParams): Promise<T[]> {
+    const data = await this.Model.findAll({
+      where: {
+        channelID: params?.query?.channelId
+      },
+      skip: params?.query?.skip ?? 0,
+      limit: params?.query?.limit ?? 100,
+      order: params?.query?.order ?? [['createdAt', 'ASC']],
+      include: [
+        {
+          model: this.app.service('user').Model,
+          as: 'sender'
+        }
+      ]
+    })
+
+    return data as T[]
+  }
+
   /**
    * A function which is used to create a message
    *

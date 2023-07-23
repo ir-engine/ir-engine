@@ -55,7 +55,7 @@ export default {
         ]
       })
     ],
-    create: [],
+    create: [], // TODO: disallow if message empty
     update: [
       messagePermissionAuthenticate(),
       addAssociations({

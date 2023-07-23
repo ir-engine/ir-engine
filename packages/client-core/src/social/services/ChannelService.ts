@@ -32,7 +32,9 @@ import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { defineState, getMutableState } from '@etherealengine/hyperflux'
 
+import { MediaInstanceConnectionService } from '../../common/services/MediaInstanceConnectionService'
 import { NotificationService } from '../../common/services/NotificationService'
+import { SocketWebRTCClientNetwork, endVideoChat, leaveNetwork } from '../../transports/SocketWebRTCClientFunctions'
 
 export const ChannelState = defineState({
   name: 'ChannelState',
@@ -43,6 +45,7 @@ export const ChannelState = defineState({
       skip: 0,
       total: 0
     },
+    /** This channel ID is used to connect to a media server. Setting it will automatically connect. */
     targetChannelId: '' as ChannelID,
     instanceChannelFetching: false,
     instanceChannelFetched: false,
@@ -102,11 +105,18 @@ export const ChannelService = {
         users
       })
       await ChannelService.getChannels()
-      const channelState = getMutableState(ChannelState)
-      channelState.targetChannelId.set(channel.id)
+      return channel
     } catch (err) {
+      console.error(err)
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
+  },
+  joinChannelInstance: async (channelID: ChannelID) => {
+    getMutableState(ChannelState).targetChannelId.set(channelID)
+    MediaInstanceConnectionService.setJoining(true)
+    const network = Engine.instance.mediaNetwork as SocketWebRTCClientNetwork
+    await endVideoChat(network, {})
+    await leaveNetwork(network)
   },
   removeUserFromChannel: async (channelId: ChannelID, userId: UserId) => {
     try {

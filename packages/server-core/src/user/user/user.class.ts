@@ -178,7 +178,7 @@ export class User extends Service<UserInterface> {
       return super.find(params)
     } else {
       if (
-        loggedInUser.scopes &&
+        loggedInUser?.scopes &&
         !(
           loggedInUser?.scopes.find((scope) => scope.type === 'admin:admin') &&
           loggedInUser?.scopes.find((scope) => scope.type === 'user:read')

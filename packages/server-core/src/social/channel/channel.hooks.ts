@@ -57,9 +57,17 @@ export default {
       })
     ],
     get: [
-      disallow('external'),
+      disallow('external'), // todo - replace with a hook that checks if you have permission
       addAssociations({
         models: [
+          {
+            model: 'channel-user',
+            include: [
+              {
+                model: 'user'
+              }
+            ]
+          },
           {
             model: 'message',
             include: [

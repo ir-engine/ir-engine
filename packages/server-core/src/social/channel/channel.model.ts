@@ -39,12 +39,11 @@ export default (app: Application) => {
         defaultValue: DataTypes.UUIDV1,
         allowNull: false,
         primaryKey: true
+      },
+      name: {
+        type: DataTypes.STRING,
+        defaultValue: ''
       }
-      /** @todo */
-      // name: {
-      //   type: DataTypes.STRING,
-      //   defaultValue: ''
-      // },
     },
     {
       hooks: {

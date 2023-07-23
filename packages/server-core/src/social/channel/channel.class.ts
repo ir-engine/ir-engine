@@ -60,17 +60,35 @@ export class Channel<T = ChannelDataType> extends Service<T> {
     const loggedInUser = params!.user
     const userId = loggedInUser?.id
 
+    if (!data.instanceId && users?.length) {
+      // get channel that contains the same users
+      const existingChannel = (await this.app.service('channel').Model.findOne({
+        where: {
+          instanceId: null
+        },
+        include: [
+          {
+            model: this.app.service('channel-user').Model,
+            required: true,
+            as: 'channel_users',
+            where: {
+              userId: [userId, ...users]
+            }
+          }
+        ]
+      })) as Paginated<ChannelDataType>
+      console.log('existingChannel', existingChannel)
+      return existingChannel[0]
+    }
+
     /** @todo ensure all users specified are friends of loggedInUser */
 
     if (userId) {
-      await this.app.service('channel-user').create(
-        {
-          channelId: channel.id as ChannelID,
-          userId,
-          isOwner: true
-        },
-        params
-      )
+      await this.app.service('channel-user').create({
+        channelId: channel.id as ChannelID,
+        userId,
+        isOwner: true
+      })
     }
 
     if (users) {
@@ -86,31 +104,18 @@ export class Channel<T = ChannelDataType> extends Service<T> {
 
     if (data.instanceId) {
       // @ts-ignore
-      await super.patch(channel.id, { instanceId: data.instanceId })
+      await super.patch(channel.id, { instanceId: data.instanceId, name: 'channel-' + data.instanceId })
+    } else {
+      const channelWithUsers = await this.app.service('channel').get(channel.id)
+      const userNames = channelWithUsers.channel_users
+        .map((channelUser) => channelUser.user?.name)
+        .filter(Boolean)
+        .join(', ')
+      // @ts-ignore
+      await super.patch(channel.id, { name: userNames })
     }
 
-    const channelWithUsers = await this.app.service('channel').get(channel.id, {
-      include: [
-        {
-          model: this.app.service('channel-user').Model,
-          include: [
-            {
-              model: this.app.service('user').Model
-            }
-          ]
-        },
-        {
-          model: this.app.service('instance').Model,
-          include: [
-            {
-              model: this.app.service('location').Model
-            }
-          ]
-        }
-      ]
-    })
-
-    return channelWithUsers
+    return this.app.service('channel').get(channel.id)
   }
 
   /**
