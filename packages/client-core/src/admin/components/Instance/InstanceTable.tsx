@@ -165,7 +165,15 @@ const InstanceTable = ({ className, search }: Props) => {
   }
 
   const rows = adminInstances.instances.value.map((el: Instance) =>
-    createData({ ...el }, el.id, el.ipAddress, el.currentUsers, el.channelId || '', el.podName || '', el.location)
+    createData(
+      { ...el },
+      el.id,
+      el.ipAddress,
+      el.currentUsers,
+      el.channelId || '',
+      el.podName || '',
+      el.location as LocationType
+    )
   )
 
   return (
