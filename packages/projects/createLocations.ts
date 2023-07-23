@@ -29,6 +29,7 @@ import fs from 'fs'
 import path from 'path'
 import { v4 as generateUUID } from 'uuid'
 
+import { LocationSettingType } from '@etherealengine/engine/src/schemas/social/location-setting.schema'
 import { LocationData, locationPath, LocationType } from '@etherealengine/engine/src/schemas/social/location.schema'
 import { Application } from '@etherealengine/server-core/declarations'
 
@@ -56,7 +57,7 @@ export const createLocations = async (app: Application, projectName: string) => 
           audioEnabled: true,
           videoEnabled: true,
           faceStreamingEnabled: true
-        }
+        } as LocationSettingType
         const location = {
           id: locationId,
           name: locationName,
@@ -64,7 +65,8 @@ export const createLocations = async (app: Application, projectName: string) => 
           maxUsersPerInstance: 30,
           sceneId: `${projectName}/${sceneName}`,
           locationSetting,
-          isLobby: false
+          isLobby: false,
+          isFeatured: false
         } as LocationData
 
         const existingLocation = (await app.service(locationPath).find({
