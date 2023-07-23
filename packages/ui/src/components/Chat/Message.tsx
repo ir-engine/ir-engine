@@ -30,6 +30,7 @@ import { useFind, useMutation } from '@etherealengine/engine/src/common/function
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
+import { ChannelService } from '@etherealengine/client-core/src/social/services/ChannelService'
 import { ChannelID } from '@etherealengine/common/src/interfaces/ChannelUser'
 import { ChatState } from './ChatState'
 import AttachFileIcon from './assets/attach-file2.svg'
@@ -50,6 +51,10 @@ export const MessageList = (props: { channelID: ChannelID }) => {
       channelId: props.channelID
     }
   })
+
+  const startMediaCall = () => {
+    ChannelService.joinChannelInstance(props.channelID)
+  }
 
   const SelfMessage = (props: { message: (typeof messages)[0] }) => {
     return (
