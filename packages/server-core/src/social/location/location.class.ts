@@ -24,8 +24,8 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { Id, NullableId, Params } from '@feathersjs/feathers'
-import { KnexAdapter } from '@feathersjs/knex'
 import type { KnexAdapterOptions, KnexAdapterParams } from '@feathersjs/knex'
+import { KnexAdapter } from '@feathersjs/knex'
 import { Knex } from 'knex'
 import slugify from 'slugify'
 

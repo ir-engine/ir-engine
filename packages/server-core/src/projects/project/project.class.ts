@@ -39,8 +39,8 @@ import {
 } from '@etherealengine/common/src/interfaces/ProjectInterface'
 import { UserInterface } from '@etherealengine/common/src/interfaces/User'
 import { processFileName } from '@etherealengine/common/src/utils/processFileName'
-import { routePath, RouteType } from '@etherealengine/engine/src/schemas/route/route.schema'
-import { locationPath, LocationType } from '@etherealengine/engine/src/schemas/social/location.schema'
+import { routePath } from '@etherealengine/engine/src/schemas/route/route.schema'
+import { locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
 import { avatarPath, AvatarType } from '@etherealengine/engine/src/schemas/user/avatar.schema'
 import {
   githubRepoAccessPath,

@@ -27,8 +27,8 @@ import { NullableId, Paginated, Params } from '@feathersjs/feathers'
 import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
 
 import { AdminBot, CreateBotAsAdmin } from '@etherealengine/common/src/interfaces/AdminBot'
-import { botCommandPath, BotCommandType } from '@etherealengine/engine/src/schemas/bot/bot-command.schema'
-import { locationPath, LocationType } from '@etherealengine/engine/src/schemas/social/location.schema'
+import { BotCommandType, botCommandPath } from '@etherealengine/engine/src/schemas/bot/bot-command.schema'
+import { LocationType, locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
 
 import { Application } from '../../../declarations'
 import { createBotCommands } from './bot.functions'

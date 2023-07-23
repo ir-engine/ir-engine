@@ -29,7 +29,7 @@ import https from 'https'
 import { Knex } from 'knex'
 import _ from 'lodash'
 import fetch from 'node-fetch'
-import Sequelize, { Op } from 'sequelize'
+import { Op } from 'sequelize'
 
 import { Instance } from '@etherealengine/common/src/interfaces/Instance'
 import { InstanceServerProvisionResult } from '@etherealengine/common/src/interfaces/InstanceServerProvisionResult'
