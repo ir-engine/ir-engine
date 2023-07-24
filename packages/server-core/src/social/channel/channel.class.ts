@@ -31,9 +31,10 @@ import { ChannelID, ChannelUser } from '@etherealengine/common/src/interfaces/Ch
 import { UserInterface } from '@etherealengine/common/src/interfaces/User'
 import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 
-import { Op } from 'sequelize'
+import { Op, Sequelize } from 'sequelize'
 import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
+import { checkScope } from '../../hooks/verify-scope'
 import { UserParams } from '../../user/user/user.class'
 
 export type ChannelDataType = ChannelInterface
@@ -55,7 +56,6 @@ export class Channel<T = ChannelDataType> extends Service<T> {
   // @ts-ignore
   async create(data: ChannelCreateType, params?: UserParams) {
     const users = data.users
-    const channel = (await super.create({})) as ChannelDataType
 
     const loggedInUser = params!.user
     const userId = loggedInUser?.id
@@ -76,10 +76,14 @@ export class Channel<T = ChannelDataType> extends Service<T> {
             }
           }
         ]
-      })) as Paginated<ChannelDataType>
-      console.log('existingChannel', existingChannel)
-      return existingChannel[0]
+      })) as ChannelDataType | null
+      if (existingChannel) {
+        console.log('existingChannel', existingChannel)
+        return existingChannel
+      }
     }
+
+    const channel = (await super.create({})) as ChannelDataType
 
     /** @todo ensure all users specified are friends of loggedInUser */
 
@@ -125,14 +129,68 @@ export class Channel<T = ChannelDataType> extends Service<T> {
    * @returns {@Array} which contains list of channel
    */
 
-  async find(params?: UserParams): Promise<T[] | Paginated<T>> {
-    if (!params) params = {}
-    const query = params.query!
-    const loggedInUser = params!.user as UserInterface
-    const userId = loggedInUser.id
-    if (!userId) return []
-
+  async find(params?: UserParams & {}): Promise<T[] | Paginated<T>> {
     try {
+      if (!params) params = {}
+      const query = params.query!
+
+      const loggedInUser = params!.user as UserInterface
+      const userId = loggedInUser?.id
+
+      if (!userId) return []
+
+      const admin = query.action === 'admin' && (await checkScope(loggedInUser, this.app, 'admin', 'admin'))
+
+      if (admin) {
+        const { action, $skip, $limit, search, ...query } = params?.query ?? {}
+        const skip = $skip ? $skip : 0
+        const limit = $limit ? $limit : 10
+
+        const sort = params?.query?.$sort
+        delete query.$sort
+        const order: any[] = []
+        if (sort != null) {
+          Object.keys(sort).forEach((name, val) => {
+            const item: any[] = []
+
+            if (name === 'instance') {
+              //item.push(this.app.service('instance').Model)
+              item.push(Sequelize.literal('`instance.ipAddress`'))
+            } else {
+              item.push(name)
+            }
+            item.push(sort[name] === 0 ? 'DESC' : 'ASC')
+
+            order.push(item)
+          })
+        }
+        let ip = {}
+        let name = {}
+        if (!isNaN(search)) {
+          ip = search ? { ipAddress: { [Op.like]: `%${search}%` } } : {}
+        } else {
+          name = search ? { name: { [Op.like]: `%${search}%` } } : {}
+        }
+
+        const channel = await (this.app.service('channel') as any).Model.findAndCountAll({
+          offset: skip,
+          limit: limit,
+          order: order,
+          include: [
+            {
+              model: (this.app.service('channel-user') as any).Model
+            }
+          ]
+        })
+
+        return {
+          skip: skip,
+          limit: limit,
+          total: channel.count,
+          data: channel.rows
+        }
+      }
+
       if (query.instanceId) {
         const channels = await this.app.service('channel').Model.findAll({
           include: [
@@ -221,7 +279,7 @@ export class Channel<T = ChannelDataType> extends Service<T> {
     }
   }
 
-  /** only allow logged in user to delete the party if they are the owner */
+  /** only allow logged in user to delete the channel if they are the owner */
   async remove(id: ChannelID, params?: UserParams) {
     const loggedInUser = params!.user
     if (!loggedInUser) return super.remove(id, params)

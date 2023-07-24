@@ -37,3 +37,7 @@ export type Channel = {
   total: 0
   channel_users: ChannelUser[]
 }
+
+export interface PatchChannel {
+  name: string
+}

@@ -1121,7 +1121,7 @@ export async function createCamAudioProducer(network: SocketWebRTCClientNetwork)
 
 export async function endVideoChat(
   network: SocketWebRTCClientNetwork | null,
-  options: { leftParty?: boolean; endConsumers?: boolean }
+  options: { endConsumers?: boolean }
 ): Promise<boolean> {
   if (network) {
     const mediaStreamState = getMutableState(MediaStreamState)
@@ -1365,8 +1365,7 @@ const checkEndVideoChat = async () => {
   const instanceChannel = channelEntries.find((entry) => entry.instanceId === Engine.instance.worldNetwork?.hostId)
   if (
     (mediaStreamState.audioPaused.value || mediaStreamState.camAudioProducer.value == null) &&
-    (mediaStreamState.videoPaused.value || mediaStreamState.camVideoProducer.value == null) // &&
-    // instanceChannel.channelType !== 'instance' // TODO - get is party
+    (mediaStreamState.videoPaused.value || mediaStreamState.camVideoProducer.value == null)
   ) {
     await endVideoChat(mediaNetwork, {})
     if (!mediaNetwork.primus?.disconnect) {
@@ -1485,8 +1484,7 @@ export async function leaveNetwork(network: SocketWebRTCClientNetwork, kicked?: 
       // if world has a media server connection
       if (Engine.instance.mediaNetwork) {
         const mediaState = getState(MediaInstanceState).instances[Engine.instance.mediaNetwork.hostId]
-        // TODO - check if we're in a party
-        if (/**mediaState.channelType === 'instance' &&*/ mediaState.connected) {
+        if (!mediaState.channelId && mediaState.connected) {
           await leaveNetwork(Engine.instance.mediaNetwork as SocketWebRTCClientNetwork)
         }
       }

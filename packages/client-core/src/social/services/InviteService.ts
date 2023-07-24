@@ -41,7 +41,6 @@ import { defineAction, defineState, dispatchAction, getMutableState, getState } 
 import { MediaInstanceConnectionAction } from '../../common/services/MediaInstanceConnectionService'
 import { NotificationService } from '../../common/services/NotificationService'
 import { AuthState } from '../../user/services/AuthService'
-import { PartyService } from './PartyService'
 
 //State
 export const INVITE_PAGE_LIMIT = 100
@@ -329,7 +328,6 @@ export const InviteService = {
           passcode: invite.passcode
         }
       })
-      if (invite.inviteType === 'channel') await PartyService.leaveNetwork(false)
       dispatchAction(InviteAction.acceptedInvite({}))
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })

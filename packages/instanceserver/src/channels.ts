@@ -380,7 +380,7 @@ const handleUserAttendance = async (app: Application, userId: UserId) => {
     userId: userId
   }
   if (!instanceServerState.isMediaInstance) {
-    const location = await app.service('location').get(instanceServerState.instance.locationId)
+    const location = await app.service('location').get(instanceServerState.instance.locationId!)
     ;(newInstanceAttendance as any).sceneId = location.sceneId
   }
   await app.service('instance-attendance').create(newInstanceAttendance)
@@ -518,27 +518,6 @@ const handleUserDisconnect = async (
 
   const userPatch = {} as any
 
-  // if (user?.partyId && instanceServerState.isMediaInstance) {
-  //   const partyChannel = await app.service('channel').Model.findOne({
-  //     where: {
-  //       partyId: user.partyId
-  //     }
-  //   })
-  //   if (partyChannel?.id === instanceServerState.instance.channelId) {
-  //     userPatch.partyId = null
-  //     const partyUser = await app.service('party-user').find({
-  //       query: {
-  //         userId: user.id,
-  //         partyId: user.partyId
-  //       }
-  //     })
-  //     if (partyUser.total > 0) {
-  //       try {
-  //         await app.service('party-user').remove(partyUser.data[0].id)
-  //       } catch (err) {}
-  //     }
-  //   }
-  // }
   // Patch the user's (channel)instanceId to null if they're leaving this instance.
   // But, don't change their (channel)instanceId if it's already something else.
   const userPatchResult = await app
@@ -580,7 +559,7 @@ const handleUserDisconnect = async (
   }
 }
 
-const handlePartyUserRemoved = (app: Application) => async (params) => {
+const handleChannelUserRemoved = (app: Application) => async (params) => {
   const instanceServerState = getState(InstanceServerState)
   if (!instanceServerState.isMediaInstance) return
   const instance = instanceServerState.instance
@@ -590,8 +569,7 @@ const handlePartyUserRemoved = (app: Application) => async (params) => {
       id: instance.channelId
     }
   })
-  // TODO - get is party from channel
-  // if (channel.channelType !== 'party') return
+  if (!channel) return
   const network = getServerNetwork(app)
   const matchingPeer = Array.from(network.peers.values()).find((peer) => peer.userId === params.userId)
   if (matchingPeer) {
@@ -795,7 +773,7 @@ export default (app: Application): void => {
 
   logger.info('registered kickCreatedListener')
 
-  // app.service('party-user').on('removed', handlePartyUserRemoved(app))
+  app.service('channel-user').on('removed', handleChannelUserRemoved(app))
 
   app.on('connection', onConnection(app))
   app.on('disconnect', onDisconnection(app))

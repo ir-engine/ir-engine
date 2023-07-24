@@ -110,15 +110,6 @@ const AvatarContextMenu = ({ onBack }: Props): JSX.Element => {
           <Text variant="h6" align="center" mt={2} mb={1}>
             {userName}
           </Text>
-          {/* 
-          {partyState?.party?.id?.value != null &&
-            partyOwner?.userId != null &&
-            partyOwner.userId === authState.user.id?.value &&
-            !partyState.party?.partyUsers.get({ noproxy: true })?.find((partyUser) => partyUser.userId === userId) && (
-              <Button type="gradientRounded" width="70%" onClick={inviteToParty}>
-                {t('user:personMenu.inviteToParty')}
-              </Button>
-            )} */}
 
           {!isFriend && !isRequested && !isPending && !isBlocked && !isBlocking && (
             <Button

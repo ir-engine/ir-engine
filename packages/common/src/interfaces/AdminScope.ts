@@ -24,7 +24,6 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { AdminScopeType } from './AdminScopeType'
-import { Group } from './Group'
 import { UserInterface } from './User'
 
 export interface AdminScope {
@@ -32,9 +31,7 @@ export interface AdminScope {
   createdAt: string
   updatedAt: string
   userId?: string
-  groupId?: string
   type: string
   scopeType?: AdminScopeType
   user?: UserInterface
-  group?: Group
 }

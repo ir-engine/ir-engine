@@ -46,19 +46,21 @@ export default {
     create: [
       async (context: HookContext): Promise<HookContext> => {
         const { app, result } = context
-        await app.service('message').create(
-          {
-            targetObjectId: result.relatedUserId,
-            targetObjectType: 'user',
-            text: 'Hey friend!',
-            isNotification: true
-          },
-          {
-            'identity-provider': {
-              userId: result.userId
-            }
-          } as any
-        )
+        const channel = await app.service('channel').create({
+          users: [result.userId, result.relatedUserId]
+        })
+        // await app.service('message').create(
+        //   {
+        //     channelId: channel.id,
+        //     text: 'Hey friend!',
+        //     isNotification: true
+        //   },
+        //   {
+        //     'identity-provider': {
+        //       userId: result.userId
+        //     }
+        //   } as any
+        // )
         return context
       }
     ],

@@ -31,12 +31,12 @@ import Grid from '@etherealengine/ui/src/primitives/mui/Grid'
 
 import Search from '../../common/Search'
 import styles from '../../styles/admin.module.scss'
-import GroupDrawer, { GroupDrawerMode } from './GroupDrawer'
-import GroupTable from './GroupTable'
+import ChannelDrawer, { ChannelDrawerMode } from './ChannelDrawer'
+import ChannelTable from './ChannelTable'
 
-const GroupConsole = () => {
-  const [openGroupDrawer, setOpenGroupDrawer] = useState(false)
-  const [search, setSearch] = React.useState('')
+const Channel = () => {
+  const [openChannelDrawer, setOpenChannelDrawer] = useState(false)
+  const [search, setSearch] = useState('')
   const { t } = useTranslation()
 
   const handleChange = (e: any) => {
@@ -44,29 +44,32 @@ const GroupConsole = () => {
   }
 
   return (
-    <React.Fragment>
-      <div>
-        <Grid container spacing={1} className={styles.mb10px}>
-          <Grid item xs={12} sm={8}>
-            <Search text="group" handleChange={handleChange} />
-          </Grid>
-          <Grid item xs={12} sm={4}>
-            <Button
-              className={styles.openModalBtn}
-              type="submit"
-              variant="contained"
-              onClick={() => setOpenGroupDrawer(true)}
-            >
-              {t('admin:components.group.createGroup')}
-            </Button>
-          </Grid>
+    <div>
+      <Grid container spacing={1} className={styles.mb10px}>
+        <Grid item xs={12} sm={8}>
+          <Search text="channel" handleChange={handleChange} />
         </Grid>
+        <Grid item xs={12} sm={4}>
+          <Button
+            className={styles.openModalBtn}
+            type="submit"
+            variant="contained"
+            onClick={() => setOpenChannelDrawer(true)}
+          >
+            {t('admin:components.channel.createChannel')}
+          </Button>
+        </Grid>
+      </Grid>
 
-        <GroupTable className={styles.rootTableWithSearch} search={search} />
-      </div>
-      <GroupDrawer open={openGroupDrawer} mode={GroupDrawerMode.Create} onClose={() => setOpenGroupDrawer(false)} />
-    </React.Fragment>
+      <ChannelTable className={styles.rootTableWithSearch} search={search} />
+
+      <ChannelDrawer
+        open={openChannelDrawer}
+        mode={ChannelDrawerMode.Create}
+        onClose={() => setOpenChannelDrawer(false)}
+      />
+    </div>
   )
 }
 
-export default GroupConsole
+export default Channel

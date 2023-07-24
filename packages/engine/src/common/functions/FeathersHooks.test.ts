@@ -27,6 +27,8 @@ import { act, renderHook } from '@testing-library/react'
 import assert from 'assert'
 import { afterEach } from 'mocha'
 
+import { createState } from '@etherealengine/hyperflux'
+import { useEffect } from 'react'
 import { destroyEngine, Engine } from '../../ecs/classes/Engine'
 import { createEngine } from '../../initializeEngine'
 import { EventDispatcher } from '../classes/EventDispatcher'
@@ -262,8 +264,14 @@ describe('FeathersHooks', () => {
   describe('can use listeners', () => {
     describe('on created', () => {
       it('should populate data', async () => {
-        const { result, rerender } = renderHook(() => {
-          return useFind('user')
+        const result = createState({} as any)
+        const { rerender } = renderHook(() => {
+          const data = useFind('user')
+          console.log('rerender', data)
+          result.set(data)
+          useEffect(() => {
+            console.log('useeffect:', data)
+          }, [data.data.length])
         })
         await act(() => {
           rerender()
@@ -274,8 +282,8 @@ describe('FeathersHooks', () => {
         await act(() => {
           rerender()
         })
-        assert.strictEqual(result.current.data.length, 3)
-        assert.strictEqual(result.current.data[2]?.name, 'Jack')
+        assert.strictEqual(result.value.data.length, 3)
+        assert.strictEqual(result.value.data[2]?.name, 'Jack')
       })
     })
 

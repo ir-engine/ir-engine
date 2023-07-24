@@ -783,9 +783,6 @@ export const AuthService = {
         const currentLocation = getState(LocationState).currentLocation.location
         const locationBan = params.locationBan
         if (selfUser.id === locationBan.userId && currentLocation.id === locationBan.locationId) {
-          // TODO: Decouple and reenable me!
-          // endVideoChat({ leftParty: true });
-          // leave(true);
           const userId = selfUser.id ?? ''
           const user = resolveUser(await API.instance.client.service('user').get(userId))
           dispatchAction(AuthAction.userUpdatedAction({ user }))

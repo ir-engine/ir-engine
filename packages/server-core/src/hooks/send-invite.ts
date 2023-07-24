@@ -57,9 +57,9 @@ async function generateEmail(
 
   const templatePath = path.join(emailAccountTemplatesPath, `magiclink-email-invite-${inviteType}.pug`)
 
-  if (inviteType === 'group') {
-    const group = await app.service('group').get(targetObjectId!)
-    groupName = group.name
+  if (inviteType === 'channel') {
+    const channel = await app.service('channel').get(targetObjectId!)
+    groupName = channel.name
   }
 
   if (inviteType === 'location') {
@@ -69,7 +69,7 @@ async function generateEmail(
 
   if (inviteType === 'instance') {
     const instance = await app.service('instance').get(targetObjectId!)
-    const location = await app.service('location').get(instance.locationId)
+    const location = await app.service('location').get(instance.locationId!)
     locationName = location.name
   }
 
@@ -102,9 +102,9 @@ async function generateSMS(
 ): Promise<void> {
   let groupName, locationName
   const hashLink = getInviteLink(inviteType, result.id, result.passcode)
-  if (inviteType === 'group') {
-    const group = await app.service('group').get(targetObjectId!)
-    groupName = group.name
+  if (inviteType === 'channel') {
+    const channel = await app.service('channel').get(targetObjectId!)
+    groupName = channel.name
   }
 
   if (inviteType === 'location') {
@@ -114,7 +114,7 @@ async function generateSMS(
 
   if (inviteType === 'instance') {
     const instance = await app.service('instance').get(targetObjectId!)
-    const location = await app.service('location').get(instance.locationId)
+    const location = await app.service('location').get(instance.locationId!)
     locationName = location.name
   }
   const templatePath = path.join(emailAccountTemplatesPath, `magiclink-sms-invite-${inviteType}.pug`)

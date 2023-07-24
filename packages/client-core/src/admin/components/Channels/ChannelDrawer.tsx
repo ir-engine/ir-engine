@@ -28,7 +28,7 @@ import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import InputText from '@etherealengine/client-core/src/common/components/InputText'
-import { Party } from '@etherealengine/common/src/interfaces/Party'
+import { Channel } from '@etherealengine/common/src/interfaces/Channel'
 import { getMutableState } from '@etherealengine/hyperflux'
 import Button from '@etherealengine/ui/src/primitives/mui/Button'
 import Container from '@etherealengine/ui/src/primitives/mui/Container'
@@ -39,54 +39,54 @@ import { NotificationService } from '../../../common/services/NotificationServic
 import { AuthState } from '../../../user/services/AuthService'
 import DrawerView from '../../common/DrawerView'
 import { validateForm } from '../../common/validation/formValidation'
-import { AdminPartyService } from '../../services/PartyService'
+import { AdminChannelService } from '../../services/ChannelService'
 import styles from '../../styles/admin.module.scss'
 
-export enum PartyDrawerMode {
+export enum ChannelDrawerMode {
   Create,
   ViewEdit
 }
 
 interface Props {
   open: boolean
-  mode: PartyDrawerMode
-  selectedParty?: Party
+  mode: ChannelDrawerMode
+  selectedChannel?: Channel
   onClose: () => void
 }
 
 const defaultState = {
-  maxMembers: 10,
+  name: '',
   formErrors: {
-    maxMembers: ''
+    name: ''
   }
 }
 
-const PartyDrawer = ({ open, mode, selectedParty, onClose }: Props) => {
+const ChannelDrawer = ({ open, mode, selectedChannel, onClose }: Props) => {
   const { t } = useTranslation()
   const [editMode, setEditMode] = useState(false)
   const [state, setState] = useState({ ...defaultState })
 
   const user = useHookstate(getMutableState(AuthState)).user.value
 
-  const hasWriteAccess = user.scopes && user.scopes.find((item) => item.type === 'party:write')
-  const viewMode = mode === PartyDrawerMode.ViewEdit && !editMode
+  const hasWriteAccess = user.scopes && user.scopes.find((item) => item.type === 'channel:write')
+  const viewMode = mode === ChannelDrawerMode.ViewEdit && !editMode
 
   useEffect(() => {
-    loadSelectedParty()
-  }, [selectedParty])
+    loadSelectedChannel()
+  }, [selectedChannel])
 
-  const loadSelectedParty = () => {
-    if (selectedParty) {
+  const loadSelectedChannel = () => {
+    if (selectedChannel) {
       setState({
         ...defaultState,
-        maxMembers: selectedParty.maxMembers ?? 0
+        name: selectedChannel.name ?? 0
       })
     }
   }
 
   const handleCancel = () => {
     if (editMode) {
-      loadSelectedParty()
+      loadSelectedChannel()
       setEditMode(false)
     } else handleClose()
   }
@@ -102,8 +102,8 @@ const PartyDrawer = ({ open, mode, selectedParty, onClose }: Props) => {
     let tempErrors = { ...state.formErrors }
 
     switch (name) {
-      case 'maxMembers':
-        tempErrors.maxMembers = value < 2 ? t('admin:components.party.maxMembersRequired') : ''
+      case 'name':
+        tempErrors.name = value < 2 ? t('admin:components.channel.nameRequired') : ''
         break
       default:
         break
@@ -114,21 +114,21 @@ const PartyDrawer = ({ open, mode, selectedParty, onClose }: Props) => {
 
   const handleSubmit = async () => {
     const data = {
-      maxMembers: state.maxMembers
+      name: state.name
     }
 
     let tempErrors = {
       ...state.formErrors,
-      maxMembers: state.maxMembers ? '' : t('admin:components.party.maxMembersRequired')
+      name: state.name ? '' : t('admin:components.channel.nameRequired')
     }
 
     setState({ ...state, formErrors: tempErrors })
 
     if (validateForm(state, tempErrors)) {
-      if (mode === PartyDrawerMode.Create) {
-        await AdminPartyService.createAdminParty(data)
-      } else if (selectedParty) {
-        await AdminPartyService.patchParty(selectedParty.id!, data)
+      if (mode === ChannelDrawerMode.Create) {
+        await AdminChannelService.createAdminChannel(data)
+      } else if (selectedChannel) {
+        await AdminChannelService.patchChannel(selectedChannel.id!, data)
         setEditMode(false)
       }
 
@@ -142,18 +142,18 @@ const PartyDrawer = ({ open, mode, selectedParty, onClose }: Props) => {
     <DrawerView open={open} onClose={onClose}>
       <Container maxWidth="sm" className={styles.mt20}>
         <DialogTitle className={styles.textAlign}>
-          {mode === PartyDrawerMode.Create && t('admin:components.party.createParty')}
-          {mode === PartyDrawerMode.ViewEdit &&
+          {mode === ChannelDrawerMode.Create && t('admin:components.channel.createChannel')}
+          {mode === ChannelDrawerMode.ViewEdit &&
             editMode &&
-            `${t('admin:components.common.update')} ${selectedParty?.id}`}
-          {mode === PartyDrawerMode.ViewEdit && !editMode && `${selectedParty?.id}`}
+            `${t('admin:components.common.update')} ${selectedChannel?.id}`}
+          {mode === ChannelDrawerMode.ViewEdit && !editMode && `${selectedChannel?.id}`}
         </DialogTitle>
 
         <InputText
-          name="maxMembers"
-          label={t('admin:components.party.maxMembers')}
-          value={state.maxMembers}
-          error={state.formErrors.maxMembers}
+          name="name"
+          label={t('admin:components.channel.name')}
+          value={state.name}
+          error={state.formErrors.name}
           disabled={viewMode}
           onChange={handleChange}
         />
@@ -162,12 +162,12 @@ const PartyDrawer = ({ open, mode, selectedParty, onClose }: Props) => {
           <Button className={styles.outlinedButton} onClick={handleCancel}>
             {t('admin:components.common.cancel')}
           </Button>
-          {(mode === PartyDrawerMode.Create || editMode) && (
+          {(mode === ChannelDrawerMode.Create || editMode) && (
             <Button className={styles.gradientButton} onClick={handleSubmit}>
               {t('admin:components.common.submit')}
             </Button>
           )}
-          {mode === PartyDrawerMode.ViewEdit && !editMode && (
+          {mode === ChannelDrawerMode.ViewEdit && !editMode && (
             <Button className={styles.gradientButton} disabled={!hasWriteAccess} onClick={() => setEditMode(true)}>
               {t('admin:components.common.edit')}
             </Button>
@@ -178,4 +178,4 @@ const PartyDrawer = ({ open, mode, selectedParty, onClose }: Props) => {
   )
 }
 
-export default PartyDrawer
+export default ChannelDrawer

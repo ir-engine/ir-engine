@@ -38,7 +38,7 @@ export default (app): void => {
     logger.info('Collecting analytics at %s.', new Date().toString())
     const activeLocations: any[] = []
     const activeScenes: any[] = []
-    const activeChannels = await app.service('channels').find({
+    const activeChannels = await app.service('channel').find({
       query: {
         $limit: 0
       },

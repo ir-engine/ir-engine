@@ -47,7 +47,6 @@ import { FriendService } from '../social/services/FriendService'
 import FriendsMenu from '../user/components/UserMenu/menus/FriendsMenu'
 import MessagesMenu from '../user/components/UserMenu/menus/MessagesMenu'
 import { PopupMenuState } from '../user/components/UserMenu/PopupMenuService'
-import { AuthState } from '../user/services/AuthService'
 
 export const WorldInstanceProvisioning = () => {
   const locationState = useHookstate(getMutableState(LocationState))
@@ -191,12 +190,8 @@ export const SocialMenus = {
   Messages: 'Messages'
 }
 
-export const PartyInstanceProvisioning = () => {
-  const authState = useHookstate(getMutableState(AuthState))
-  const selfUser = authState.user
-  const chatState = useHookstate(getMutableState(ChannelState))
-
-  const currentChannelInstanceConnection = useMediaInstance()
+export const FriendMenus = () => {
+  FriendService.useAPIListeners()
 
   useEffect(() => {
     const menuState = getMutableState(PopupMenuState)
@@ -216,35 +211,6 @@ export const PartyInstanceProvisioning = () => {
     }
   }, [])
 
-  FriendService.useAPIListeners()
-
-  // Once we have the world server, provision the party server
-  // useEffect(() => {
-  //   const activeChannel = Object.values(chatState.channels.value.channels ?? []).find(
-  //     (channel) => channel.id === chatState.targetChannelId.value
-  //   )
-  //   if (selfUser?.partyId?.value && activeChannel) {
-  //     const partyUser =
-  //       partyState.party?.partyUsers
-  //         ?.get({ noproxy: true })
-  //         ?.find((partyUser) => partyUser.userId === selfUser.id.value) || null
-  //     if (
-  //       chatState.partyChannelFetched?.value &&
-  //       currentChannelInstanceConnection?.channelId.value !== activeChannel.id &&
-  //       partyUser
-  //     )
-  //       MediaInstanceConnectionService.provisionServer(activeChannel?.id!, false)
-  //     else if (!chatState.partyChannelFetched.value && !chatState.partyChannelFetching.value)
-  //       ChannelService.getPartyChannel()
-  //   }
-  // }, [
-  //   selfUser?.partyId?.value,
-  //   partyState.party?.id,
-  //   chatState.channels.channels,
-  //   chatState.partyChannelFetching?.value,
-  //   chatState.partyChannelFetched?.value
-  // ])
-
   return null
 }
 
@@ -255,7 +221,7 @@ export const InstanceProvisioning = () => {
     <>
       {networkConfigState.world.value && <WorldInstanceProvisioning />}
       {networkConfigState.media.value && <MediaInstanceProvisioning />}
-      {networkConfigState.friends.value && <PartyInstanceProvisioning />}
+      {networkConfigState.friends.value && <FriendMenus />}
     </>
   )
 }

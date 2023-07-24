@@ -119,12 +119,12 @@ export const inviteReceived = async (inviteService: Invite, query) => {
 
   await Promise.all(
     result.data.map(async (invite) => {
-      if (invite.inviteType === 'group' && invite.targetObjectId) {
+      if (invite.inviteType === 'channel' && invite.targetObjectId) {
         try {
-          const group = await inviteService.app.service('group').get(invite.targetObjectId)
-          invite.groupName = group.name
+          const channel = await inviteService.app.service('channel').get(invite.targetObjectId)
+          invite.groupName = channel.name
         } catch (err) {
-          invite.groupName = '<A deleted group>'
+          invite.groupName = '<A deleted channel>'
         }
       }
     })
@@ -162,7 +162,7 @@ export const inviteSent = async (inviteService: Invite, query: Query) => {
     result.data.map(async (invite) => {
       if (invite.inviteType === 'group' && invite.targetObjectId) {
         try {
-          const group = await inviteService.app.service('group').get(invite.targetObjectId)
+          const group = await inviteService.app.service('channel').get(invite.targetObjectId)
           invite.groupName = group.name
         } catch (err) {
           invite.groupName = '<A deleted group>'
@@ -209,7 +209,7 @@ export const inviteAll = async (inviteService: Invite, query: Query, user: UserI
     result.data.map(async (invite) => {
       if (invite.inviteType === 'group' && invite.targetObjectId) {
         try {
-          const group = await inviteService.app.service('group').get(invite.targetObjectId)
+          const group = await inviteService.app.service('channel').get(invite.targetObjectId)
           if (!group) throw new Error()
           invite.groupName = group.name
         } catch (err) {

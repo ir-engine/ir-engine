@@ -27,77 +27,78 @@ import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import ConfirmDialog from '@etherealengine/client-core/src/common/components/ConfirmDialog'
-import { Party } from '@etherealengine/common/src/interfaces/Party'
+import { Channel } from '@etherealengine/common/src/interfaces/Channel'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import Box from '@etherealengine/ui/src/primitives/mui/Box'
 
+import { ChannelID } from '@etherealengine/common/src/interfaces/ChannelUser'
 import { AuthState } from '../../../user/services/AuthService'
 import TableComponent from '../../common/Table'
-import { partyColumns, PartyData, PartyPropsTable } from '../../common/variables/party'
-import { AdminPartyService, AdminPartyState, PARTY_PAGE_LIMIT } from '../../services/PartyService'
+import { channelColumns, ChannelData, ChannelPropsTable } from '../../common/variables/channel'
+import { AdminChannelService, AdminChannelState, CHANNEL_PAGE_LIMIT } from '../../services/ChannelService'
 import styles from '../../styles/admin.module.scss'
-import PartyDrawer, { PartyDrawerMode } from './PartyDrawer'
+import ChannelDrawer, { ChannelDrawerMode } from './ChannelDrawer'
 
-const PartyTable = ({ className, search }: PartyPropsTable) => {
+const ChannelTable = ({ className, search }: ChannelPropsTable) => {
   const { t } = useTranslation()
   const page = useHookstate(0)
-  const rowsPerPage = useHookstate(PARTY_PAGE_LIMIT)
+  const rowsPerPage = useHookstate(CHANNEL_PAGE_LIMIT)
   const openConfirm = useHookstate(false)
-  const partyId = useHookstate('')
+  const channelId = useHookstate('' as ChannelID)
   const fieldOrder = useHookstate('asc')
-  const sortField = useHookstate('maxMembers')
-  const openPartyDrawer = useHookstate(false)
-  const partyAdmin = useHookstate<Party | undefined>(undefined)
+  const sortField = useHookstate('name')
+  const openChannelDrawer = useHookstate(false)
+  const channelAdmin = useHookstate<Channel | undefined>(undefined)
 
   const user = useHookstate(getMutableState(AuthState).user)
-  const adminPartyState = useHookstate(getMutableState(AdminPartyState))
-  const adminPartyData = adminPartyState.parties?.get({ noproxy: true }) || []
-  const adminPartyCount = adminPartyState.total.value
+  const adminChannelState = useHookstate(getMutableState(AdminChannelState))
+  const adminChannelData = adminChannelState.channels?.get({ noproxy: true }) || []
+  const adminChannelCount = adminChannelState.total.value
 
   useEffect(() => {
-    AdminPartyService.fetchAdminParty(search, page.value, sortField.value, fieldOrder.value)
-  }, [user?.id?.value, adminPartyState.updateNeeded.value, search])
+    AdminChannelService.fetchAdminChannel(search, page.value, sortField.value, fieldOrder.value)
+  }, [user?.id?.value, adminChannelState.updateNeeded.value, search])
 
   const handlePageChange = (event: unknown, newPage: number) => {
-    AdminPartyService.fetchAdminParty(search, page.value, sortField.value, fieldOrder.value)
+    AdminChannelService.fetchAdminChannel(search, page.value, sortField.value, fieldOrder.value)
     page.set(newPage)
   }
 
   useEffect(() => {
-    if (adminPartyState.fetched.value) {
-      AdminPartyService.fetchAdminParty(search, page.value, sortField.value, fieldOrder.value)
+    if (adminChannelState.fetched.value) {
+      AdminChannelService.fetchAdminChannel(search, page.value, sortField.value, fieldOrder.value)
     }
   }, [fieldOrder.value])
 
-  const submitRemoveParty = async () => {
-    await AdminPartyService.removeParty(partyId.value)
+  const submitRemoveChannel = async () => {
+    await AdminChannelService.removeChannel(channelId.value)
     openConfirm.set(false)
   }
 
-  const handleOpenPartyDrawer = (open: boolean, party: any) => {
-    partyAdmin.set(party)
-    openPartyDrawer.set(open)
+  const handleOpenChannelDrawer = (open: boolean, channel: any) => {
+    channelAdmin.set(channel)
+    openChannelDrawer.set(open)
   }
 
-  const handleClosePartyDrawer = () => {
-    partyAdmin.set(undefined)
-    openPartyDrawer.set(false)
+  const handleCloseChannelDrawer = () => {
+    channelAdmin.set(undefined)
+    openChannelDrawer.set(false)
   }
 
-  const createData = (el: Party, id: string, maxMembers: any): PartyData => {
+  const createData = (el: Channel, id: ChannelID, name: string): ChannelData => {
     return {
       el,
       id,
-      maxMembers,
+      name,
       action: (
         <>
-          <a className={styles.actionStyle} onClick={() => handleOpenPartyDrawer(true, el)}>
+          <a className={styles.actionStyle} onClick={() => handleOpenChannelDrawer(true, el)}>
             <span className={styles.spanWhite}>{t('admin:components.common.view')}</span>
           </a>
           <a
             className={styles.actionStyle}
             onClick={() => {
-              partyId.set(id)
+              channelId.set(id)
               openConfirm.set(true)
             }}
           >
@@ -113,12 +114,8 @@ const PartyTable = ({ className, search }: PartyPropsTable) => {
     page.set(0)
   }
 
-  const rows = adminPartyData?.map((el: Party) => {
-    return createData(
-      el,
-      el.id!,
-      el.maxMembers || <span className={styles.spanNone}>{t('admin:components.common.none')}</span>
-    )
+  const rows = adminChannelData?.map((el: Channel) => {
+    return createData(el, el.id!, el.name)
   })
 
   return (
@@ -129,27 +126,27 @@ const PartyTable = ({ className, search }: PartyPropsTable) => {
         setSortField={sortField.set}
         setFieldOrder={fieldOrder.set}
         rows={rows}
-        column={partyColumns}
+        column={channelColumns}
         page={page.value}
         rowsPerPage={rowsPerPage.value}
-        count={adminPartyCount}
+        count={adminChannelCount}
         handlePageChange={handlePageChange}
         handleRowsPerPageChange={handleRowsPerPageChange}
       />
       <ConfirmDialog
         open={openConfirm.value}
-        description={`${t('admin:components.party.confirmPartyDelete')}`}
+        description={`${t('admin:components.channel.confirmChannelDelete')}`}
         onClose={() => openConfirm.set(false)}
-        onSubmit={submitRemoveParty}
+        onSubmit={submitRemoveChannel}
       />
-      <PartyDrawer
-        open={openPartyDrawer.value}
-        mode={PartyDrawerMode.ViewEdit}
-        selectedParty={partyAdmin.value}
-        onClose={handleClosePartyDrawer}
+      <ChannelDrawer
+        open={openChannelDrawer.value}
+        mode={ChannelDrawerMode.ViewEdit}
+        selectedChannel={channelAdmin.value}
+        onClose={handleCloseChannelDrawer}
       />
     </Box>
   )
 }
 
-export default PartyTable
+export default ChannelTable

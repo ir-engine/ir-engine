@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { BadRequest } from '@feathersjs/errors'
+import { BadRequest, Forbidden } from '@feathersjs/errors'
 import { HookContext } from '@feathersjs/feathers'
 
 import { UserInterface } from '@etherealengine/common/src/interfaces/User'
@@ -43,32 +43,15 @@ export default () => {
     if (channel == null) {
       throw new BadRequest('Invalid channel ID')
     }
-    /** @todo rewrite */
-    // if (channel.channelType === 'user') {
-    //   if (channel.userId1 !== userId && channel.userId2 !== userId) {
-    //     throw new Forbidden('You are not a member of that channel')
-    //   }
-    // } else if (channel.channelType === 'group') {
-    //   const groupUser = await app.service('group-user').Model.findOne({
-    //     where: {
-    //       groupId: channel.groupId,
-    //       userId: userId
-    //     }
-    //   })
-    //   if (groupUser == null) {
-    //     throw new Forbidden('You are not a member of that channel')
-    //   }
-    // } else if (channel.channelType === 'party') {
-    //   const partyUser = await app.service('party-user').Model.findOne({
-    //     where: {
-    //       partyId: channel.partyId,
-    //       userId: userId
-    //     }
-    //   })
-    //   if (partyUser == null) {
-    //     throw new Forbidden('You are not a member of that channel')
-    //   }
-    // }
+    const partyUser = await app.service('channel-user').Model.findOne({
+      where: {
+        channelId: channel.id,
+        userId: userId
+      }
+    })
+    if (partyUser == null) {
+      throw new Forbidden('You are not a member of that channel')
+    }
     return context
   }
 }

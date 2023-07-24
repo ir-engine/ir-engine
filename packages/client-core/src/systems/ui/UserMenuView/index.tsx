@@ -97,13 +97,6 @@ const AvatarContextMenu = () => {
           <img className="ownerImage" src={getUserAvatarThumbnail(user.userId)} alt="" crossOrigin="anonymous" />
           <div className="buttonContainer">
             <section className="buttonSection">
-              {/* {partyState?.party?.id?.value != null &&
-                partyOwner?.userId != null &&
-                partyOwner.userId === authState.user?.id?.value &&
-                !userInParty && (
-                  <XRTextButton onClick={inviteToParty}>{t('user:personMenu.inviteToParty')}</XRTextButton>
-                )} */}
-
               {!isFriend && !isRequested && !isPending && !isBlocked && !isBlocking && (
                 <XRTextButton onClick={() => FriendService.requestFriend(selfId, user?.userId)}>
                   {t('user:personMenu.addAsFriend')}

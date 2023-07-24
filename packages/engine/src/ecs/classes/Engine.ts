@@ -103,11 +103,6 @@ export class Engine {
     return getMutableState(NetworkState).networks[getState(NetworkState).hostIds.media!]!
   }
 
-  /** @todo parties */
-  // get partyNetwork() {
-  //   return this.networks.get(NetworkTopics.localMedia)?.get(this._mediaHostId)!
-  // }
-
   gltfLoader: GLTFLoader = null!
 
   xrFrame: XRFrame | null = null

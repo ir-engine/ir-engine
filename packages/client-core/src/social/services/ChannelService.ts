@@ -49,8 +49,6 @@ export const ChannelState = defineState({
     targetChannelId: '' as ChannelID,
     instanceChannelFetching: false,
     instanceChannelFetched: false,
-    partyChannelFetching: false,
-    partyChannelFetched: false,
     messageCreated: false
   }),
   onCreate: (store, state) => {

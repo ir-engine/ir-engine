@@ -59,8 +59,35 @@ export const FeathersState = defineState({
   name: 'ee.engine.FeathersState',
   initial: () => ({
     entities: {} as Record<keyof ServiceTypes, Record<string, any>>, // <serviceName, <id, item>>
-    queries: {} as Record<keyof ServiceTypes, Record<string, any>>, // <serviceName, <queryId, query>>
-    index: {} as Record<keyof ServiceTypes, Record<string, any>> // <serviceName, <id, index>>
+    queries: {} as Record<
+      keyof ServiceTypes,
+      Record<
+        string,
+        {
+          params: Params
+          data: string[] // ids
+          meta: {
+            total: number
+            limit: number
+            skip: number
+          }
+          method: Methods
+          realtime: Realtime
+          matcher?: (query: any) => (item: any) => boolean
+          entities?: Record<string, any> // <id, item>
+        }
+      >
+    >, // <serviceName, <queryId, query>>
+    index: {} as Record<
+      keyof ServiceTypes,
+      Record<
+        string,
+        {
+          queries: Record<string, boolean> // <queryId, true>
+          size: number
+        }
+      >
+    > // <serviceName, <id, index>>
   })
 })
 
@@ -217,11 +244,11 @@ function updateQuery({ serviceName, method, item }: UpdateQueryArgs) {
       if (index.queries[queryId]) {
         if (!matches) {
           updateCount++
-          queries[queryId] = {
-            ...query,
+          if (!query.meta.total) query.meta.total = 0
+          mutableState.queries[serviceName][queryId].merge({
             meta: { ...query.meta, total: query.meta.total - 1 },
             data: query.data.filter((id) => id !== itemId)
-          }
+          })
           delete index.queries[queryId]
           index.size -= 1
         }
@@ -230,23 +257,21 @@ function updateQuery({ serviceName, method, item }: UpdateQueryArgs) {
         // if it hasn't fetched all of the data then leave this
         // up to the consumer of the figbird to decide if data
         // should be refetched
-        if (matches && query.data.length <= query.meta.total) {
-          updateCount++
-          // TODO - sort
-          queries[queryId] = {
-            ...query,
-            meta: { ...query.meta, total: query.meta.total + 1 },
-            data: query.data.concat(itemId)
-          }
-          index.queries[queryId] = true
-          index.size += 1
-        }
+        if (!query.meta.total) query.meta.total = 0
+        updateCount++
+        // TODO - sort
+        mutableState.queries[serviceName][queryId].merge({
+          meta: { ...query.meta, total: query.meta.total + 1 },
+          data: query.data.concat(itemId)
+        })
+        index.queries[queryId] = true
+        index.size += 1
       }
     })
 
     if (updateCount > 0) {
-      mutableState.queries[serviceName].set(queries)
-      mutableState.index[serviceName][itemId].set(index)
+      // mutableState.queries[serviceName].set(queries)
+      // mutableState.index[serviceName][itemId].set(index)
 
       // in case of create, only ever add it to the cache if it's relevant for any of the
       // queries, otherwise, we might end up piling in newly created objects into cache
@@ -422,11 +447,6 @@ type ResourceDescriptor = {
 export function useCache(resourceDescriptor: ResourceDescriptor) {
   const { serviceName, queryId, method, id, params, realtime, matcher } = resourceDescriptor
 
-  // we'll use a cheeky ref to store the previous mapped data array
-  // because if the underlying list of data didn't change we don't
-  // want consumers of useFind to have to worry about changing reference
-  const dataRef = useRef([])
-
   const queryState = useHookstate(getMutableState(FeathersState).queries[serviceName])
   const cachedData = useHookstate({ data: null } as { data: any })
 
@@ -436,17 +456,12 @@ export function useCache(resourceDescriptor: ResourceDescriptor) {
       let { data, meta } = query
       const entities = query.entities || getState(FeathersState).entities[serviceName]
       data = data.map((id) => entities[id])
-      if (same(data, dataRef.current)) {
-        data = dataRef.current
-      } else {
-        dataRef.current = data
-      }
       if (!Array.isArray(data)) data = [data]
       cachedData.set({ ...meta, data })
     } else {
       cachedData.set({ data: null })
     }
-  }, [serviceName, queryId, queryState])
+  }, [serviceName, queryId, queryState[queryId]])
 
   const onFetched = (response) => {
     const data = method === 'get' ? { data: [response] } : Array.isArray(response) ? { data: response } : response
@@ -782,16 +797,13 @@ export function useQuery<S extends keyof ServiceTypes>(
 
   const refetch = () => state.merge({ fetched: false, refetchSeq: state.refetchSeq.value + 1 })
 
-  return useMemo(
-    () => ({
-      ...(skip ? { data: null } : cachedData),
-      status: loading ? 'loading' : state.value.error ? 'error' : 'success',
-      refetch,
-      isFetching: reloading,
-      error: state.value.error
-    }),
-    [skip, cachedData.data, loading, state.error, refetch, reloading, loading, reloading]
-  )
+  return {
+    ...(skip ? { data: null } : cachedData),
+    status: loading ? 'loading' : state.value.error ? 'error' : 'success',
+    refetch,
+    isFetching: reloading,
+    error: state.value.error
+  }
 }
 
 function getter(service, id, params) {

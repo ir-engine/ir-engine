@@ -23,7 +23,33 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-export const groupUserRankSeed = {
-  path: 'group-user-rank',
-  templates: [{ rank: 'owner' }, { rank: 'admin' }, { rank: 'user' }]
+export interface ChannelPropsTable {
+  className?: string
+  search: string
+}
+
+export interface ChannelColumn {
+  id: 'id' | 'action' | 'name'
+  label: string
+  minWidth?: number
+  align?: 'right'
+}
+
+export const channelColumns: ChannelColumn[] = [
+  { id: 'id', label: 'ID', minWidth: 65 },
+  { id: 'name', label: 'Name', minWidth: 65 },
+  {
+    id: 'action',
+    label: 'Action',
+    minWidth: 65,
+    align: 'right'
+  }
+]
+
+export interface ChannelData {
+  el: any
+  id: string
+  instance?: string
+  name: string
+  action: any
 }

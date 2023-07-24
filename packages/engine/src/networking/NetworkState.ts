@@ -47,7 +47,7 @@ export const NetworkState = defineState({
       world: false,
       /** Allow connections to a media instance server */
       media: false,
-      /** Allow connections to party media instances and friend functionality */
+      /** Allow connections to channel media instances and friend functionality */
       friends: false,
       /** Use instance IDs in url */
       instanceID: false,

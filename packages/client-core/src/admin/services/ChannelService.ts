@@ -25,21 +25,22 @@ Ethereal Engine. All Rights Reserved.
 
 import { Paginated } from '@feathersjs/feathers'
 
-import { Party, PatchParty } from '@etherealengine/common/src/interfaces/Party'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { defineState, getMutableState } from '@etherealengine/hyperflux'
 
+import { Channel, PatchChannel } from '@etherealengine/common/src/interfaces/Channel'
+import { ChannelID } from '@etherealengine/common/src/interfaces/ChannelUser'
 import { NotificationService } from '../../common/services/NotificationService'
 import { userIsAdmin } from '../../user/userHasAccess'
 
-export const PARTY_PAGE_LIMIT = 100
+export const CHANNEL_PAGE_LIMIT = 100
 
-export const AdminPartyState = defineState({
-  name: 'AdminPartyState',
+export const AdminChannelState = defineState({
+  name: 'AdminChannelState',
   initial: () => ({
-    parties: [] as Array<Party>,
+    channels: [] as Array<Channel>,
     skip: 0,
-    limit: PARTY_PAGE_LIMIT,
+    limit: CHANNEL_PAGE_LIMIT,
     total: 0,
     retrieving: false,
     fetched: false,
@@ -48,37 +49,37 @@ export const AdminPartyState = defineState({
   })
 })
 
-export const AdminPartyService = {
-  createAdminParty: async (data) => {
+export const AdminChannelService = {
+  createAdminChannel: async (data) => {
     try {
-      await Engine.instance.api.service('party').create(data)
-      getMutableState(AdminPartyState).merge({ updateNeeded: true })
+      await Engine.instance.api.service('channel').create(data)
+      getMutableState(AdminChannelState).merge({ updateNeeded: true })
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
   },
-  fetchAdminParty: async (value: string | null = null, skip = 0, sortField = 'maxMembers', orderBy = 'asc') => {
+  fetchAdminChannel: async (value: string | null = null, skip = 0, sortField = '', orderBy = 'asc') => {
     try {
       if (userIsAdmin()) {
         const sortData = sortField.length > 0 ? { [sortField]: orderBy === 'desc' ? 0 : 1 } : {}
-        const party = (await Engine.instance.api.service('party').find({
+        const channels = (await Engine.instance.api.service('channel').find({
           query: {
             $sort: {
               ...sortData
             },
-            $skip: skip * PARTY_PAGE_LIMIT,
-            $limit: PARTY_PAGE_LIMIT,
+            $skip: skip * CHANNEL_PAGE_LIMIT,
+            $limit: CHANNEL_PAGE_LIMIT,
             action: 'admin',
             search: value
           }
-        })) as Paginated<Party>
+        })) as Paginated<Channel>
 
-        getMutableState(AdminPartyState).merge({
-          parties: party.data,
+        getMutableState(AdminChannelState).merge({
+          channels: channels.data,
           updateNeeded: false,
-          skip: party.skip,
-          limit: party.limit,
-          total: party.total,
+          skip: channels.skip,
+          limit: channels.limit,
+          total: channels.total,
           fetched: true,
           lastFetched: Date.now()
         })
@@ -87,14 +88,14 @@ export const AdminPartyService = {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
   },
-  removeParty: async (id: string) => {
-    await Engine.instance.api.service('party').remove(id)
-    getMutableState(AdminPartyState).merge({ updateNeeded: true })
+  removeChannel: async (id: ChannelID) => {
+    await Engine.instance.api.service('channel').remove(id)
+    getMutableState(AdminChannelState).merge({ updateNeeded: true })
   },
-  patchParty: async (id: string, party: PatchParty) => {
+  patchChannel: async (id: string, channel: PatchChannel) => {
     try {
-      await Engine.instance.api.service('party').patch(id, party)
-      getMutableState(AdminPartyState).merge({ updateNeeded: true })
+      await Engine.instance.api.service('channel').patch(id, channel)
+      getMutableState(AdminChannelState).merge({ updateNeeded: true })
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }

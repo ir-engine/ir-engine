@@ -31,9 +31,11 @@ export interface Instance {
   roomCode: string
   currentUsers: number
   ipAddress: string
-  locationId: string
+  // World servers have locationIds
+  locationId?: string
   location: Location
-  channelId: ChannelID
+  // Media serves have channelIds
+  channelId?: ChannelID
   podName?: string
   ended?: boolean
   assigned?: boolean
