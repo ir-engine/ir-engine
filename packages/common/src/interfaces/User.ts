@@ -23,6 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { UserApiKeyType } from '@etherealengine/engine/src/schemas/user/user-api-key.schema'
 import { AdminScopeType } from './AdminScopeType'
 import { IdentityProvider } from './IdentityProvider'
 import { InstanceAttendanceInterface } from './InstanceAttendance'
@@ -30,7 +31,6 @@ import { LocationAdmin } from './LocationAdmin'
 import { LocationBan } from './LocationBan'
 import { Party } from './Party'
 import { StaticResourceInterface } from './StaticResourceInterface'
-import { UserApiKey } from './UserApiKey'
 import { UserId } from './UserId'
 import { RelationshipType } from './UserRelationship'
 
@@ -71,7 +71,7 @@ export interface UserInterface {
   user_setting?: UserSetting
   inviteCode?: string
   scopes?: UserScope[]
-  apiKey: UserApiKey
+  apiKey: UserApiKeyType
   static_resources?: StaticResourceInterface
   instanceAttendance?: InstanceAttendanceInterface[]
 }
@@ -93,7 +93,9 @@ export const UserSeed: UserInterface = {
   apiKey: {
     id: '',
     token: '',
-    userId: '' as UserId
+    userId: '' as UserId,
+    createdAt: '',
+    updatedAt: ''
   },
   identityProviders: [],
   locationAdmins: []
