@@ -23,35 +23,46 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Paginated, Params } from '@feathersjs/feathers'
-import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
-import { Op } from 'sequelize'
-import { Sequelize } from 'sequelize'
+import { Id, Paginated, Params } from '@feathersjs/feathers'
+import { KnexAdapter } from '@feathersjs/knex'
+import type { KnexAdapterOptions, KnexAdapterParams } from '@feathersjs/knex'
 
 import { Party as PartyDataType } from '@etherealengine/common/src/interfaces/Party'
 import { UserInterface } from '@etherealengine/common/src/interfaces/User'
+import {
+  PartyData,
+  PartyPatch,
+  partyPath,
+  PartyQuery,
+  PartyType
+} from '@etherealengine/engine/src/schemas/social/party/party.schema'
 
 import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
 import { UserParams } from '../../user/user/user.class'
 
-interface PartyRemoveParams extends Params {
-  skipPartyUserDelete?: boolean
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+export interface PartyParams extends KnexAdapterParams<PartyQuery> {
+  user: UserInterface
 }
 
 /**
  * A class for Party service
  */
-export class Party<T = PartyDataType> extends Service<T> {
+export class PartyService<T = PartyType, ServiceParams extends Params = PartyParams> extends KnexAdapter<
+  PartyType,
+  PartyData,
+  PartyParams,
+  PartyPatch
+> {
   app: Application
-  docs: any
 
-  constructor(options: Partial<SequelizeServiceOptions>, app: Application) {
+  constructor(options: KnexAdapterOptions, app: Application) {
     super(options)
     this.app = app
   }
 
-  async find(params?: Params): Promise<T[] | Paginated<T>> {
+  async find(params?: PartyParams) {
     const { action, $skip, $limit, search, ...query } = params?.query ?? {}
     const skip = $skip ? $skip : 0
     const limit = $limit ? $limit : 10
@@ -101,7 +112,7 @@ export class Party<T = PartyDataType> extends Service<T> {
         data: party.rows
       }
     } else {
-      return super.find(params)
+      return super._find(params)
     }
   }
 
@@ -112,12 +123,12 @@ export class Party<T = PartyDataType> extends Service<T> {
    * @param params contains user info
    * @returns {@Object} of single party
    */
-  async get(id: string, params?: UserParams): Promise<T> {
+  async get(id: Id, params?: PartyParams) {
     if (id == null || id == '') {
       const user = params!.user as UserInterface
       if (user.partyId)
         try {
-          const party = (await super.get(user.partyId)) as any
+          const party = (await super._get(user.partyId)) as any
           party.party_users = (
             await this.app.service('party-user').find({
               query: {
@@ -130,18 +141,18 @@ export class Party<T = PartyDataType> extends Service<T> {
           return null!
         }
     } else {
-      return super.get(id, params)
+      return super._get(id, params)
     }
     return null!
   }
 
-  async create(data?: any, params?: UserParams): Promise<any> {
+  async create(data: PartyData, params?: PartyParams) {
     const self = this
     if (!params) return null!
     const userId = params!.user!.id
 
     try {
-      const existingPartyUsers = await this.app.service('party-user').find({
+      const existingPartyUsers = await this.app.service('party-user')._find({
         query: {
           userId: userId
         }
@@ -152,7 +163,7 @@ export class Party<T = PartyDataType> extends Service<T> {
           (partyUser) =>
             new Promise<void>(async (resolve, reject) => {
               try {
-                await self.app.service('party-user').remove(partyUser.id)
+                await self.app.service('party-user')._remove(partyUser.id)
                 resolve()
               } catch (err) {
                 reject(err)
@@ -161,26 +172,30 @@ export class Party<T = PartyDataType> extends Service<T> {
         )
       )
 
-      const party = (await super.create(data)) as any
+      const party = (await super._create(data)) as any
 
-      await this.app.service('party-user').create({
+      await this.app.service('party-user')._create({
         partyId: party.id,
         isOwner: true,
         userId: userId
       })
 
-      await this.app.service('user').patch(userId, {
+      await this.app.service('user')._patch(userId, {
         partyId: party.id
       })
 
-      return this.app.service('party').get(party.id)
+      return this.app.service('party')._get(party.id)
     } catch (err) {
       logger.error(err)
       throw err
     }
   }
 
-  async remove(id: string, params?: PartyRemoveParams): Promise<T> {
+  async patch(id: Id, data: PartyPatch, params?: PartyParams) {
+    return super._patch(id, data, params)
+  }
+
+  async remove(id: Id, params?: PartyParams) {
     const partyUsers = (
       await this.app.service('party-user').find({
         query: {
@@ -191,12 +206,12 @@ export class Party<T = PartyDataType> extends Service<T> {
     if (!params!.skipPartyUserDelete)
       await Promise.all(
         partyUsers.map(async (partyUser) =>
-          this.app.service('party-user').remove(partyUser.id, { deletingParty: true })
+          this.app.service('party-user')._remove(partyUser.id, { deletingParty: true })
         )
       )
-    const removedParty = (await super.remove(id)) as T
+    const removedParty = (await super._remove(id)) as T
     ;(removedParty as any).party_users = partyUsers
-    await this.app.service('invite').remove(null!, {
+    await this.app.service('invite')._remove(null!, {
       query: {
         inviteType: 'party',
         targetObjectId: id

@@ -27,6 +27,7 @@ import { Paginated } from '@feathersjs/feathers'
 
 import { Party, PatchParty } from '@etherealengine/common/src/interfaces/Party'
 import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
+import { partyPath, PartyType } from '@etherealengine/engine/src/schemas/social/party/party.schema'
 import { defineAction, defineState, dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 
 import { API } from '../../API'
@@ -39,7 +40,7 @@ export const PARTY_PAGE_LIMIT = 100
 export const AdminPartyState = defineState({
   name: 'AdminPartyState',
   initial: () => ({
-    parties: [] as Array<Party>,
+    parties: [] as Array<PartyType>,
     skip: 0,
     limit: PARTY_PAGE_LIMIT,
     total: 0,
@@ -89,7 +90,7 @@ export const AdminPartyReceptors = {
 export const AdminPartyService = {
   createAdminParty: async (data) => {
     try {
-      const party = (await API.instance.client.service('party').create(data)) as Party
+      const party = (await API.instance.client.service(partyPath).create(data)) as PartyType
       dispatchAction(AdminPartyActions.partyAdminCreated({ party }))
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
@@ -104,7 +105,7 @@ export const AdminPartyService = {
         if (sortField.length > 0) {
           sortData[sortField] = orderBy === 'desc' ? 0 : 1
         }
-        const party = (await API.instance.client.service('party').find({
+        const party = (await API.instance.client.service(partyPath).find({
           query: {
             $sort: {
               ...sortData
@@ -114,7 +115,7 @@ export const AdminPartyService = {
             action: 'admin',
             search: value
           }
-        })) as Paginated<Party>
+        })) as Paginated<PartyType>
 
         dispatchAction(AdminPartyActions.partyRetrieved({ party }))
       }
@@ -123,12 +124,12 @@ export const AdminPartyService = {
     }
   },
   removeParty: async (id: string) => {
-    const party = (await API.instance.client.service('party').remove(id)) as Party
+    const party = (await API.instance.client.service(partyPath).remove(id)) as PartyType
     dispatchAction(AdminPartyActions.partyRemoved({ party }))
   },
-  patchParty: async (id: string, party: PatchParty) => {
+  patchParty: async (id: string, party: PartyType) => {
     try {
-      const result = (await API.instance.client.service('party').patch(id, party)) as Party
+      const result = (await API.instance.client.service(partyPath).patch(id, party)) as PartyType
       dispatchAction(AdminPartyActions.partyPatched({ party: result }))
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
@@ -141,21 +142,21 @@ export const AdminPartyService = {
 export class AdminPartyActions {
   static partyAdminCreated = defineAction({
     type: 'ee.client.AdminParty.PARTY_ADMIN_CREATED' as const,
-    party: matches.object as Validator<unknown, Party>
+    party: matches.object as Validator<unknown, PartyType>
   })
 
   static partyRetrieved = defineAction({
     type: 'ee.client.AdminParty.PARTY_ADMIN_DISPLAYED' as const,
-    party: matches.object as Validator<unknown, Paginated<Party>>
+    party: matches.object as Validator<unknown, Paginated<PartyType>>
   })
 
   static partyRemoved = defineAction({
     type: 'ee.client.AdminParty.ADMIN_PARTY_REMOVED' as const,
-    party: matches.object as Validator<unknown, Party>
+    party: matches.object as Validator<unknown, PartyType>
   })
 
   static partyPatched = defineAction({
     type: 'ee.client.AdminParty.ADMIN_PARTY_PATCHED' as const,
-    party: matches.object as Validator<unknown, Party>
+    party: matches.object as Validator<unknown, PartyType>
   })
 }
