@@ -218,7 +218,7 @@ export const createLocationModel = (app: Application) => {
     // (location as any).belongsTo(models.scene, { foreignKey: 'sceneId' }); // scene
     ;(location as any).belongsToMany(models.user, { through: 'location_admin' })
     ;(location as any).hasOne(createLocationSettingsModel(app), { onDelete: 'cascade' })
-    ;(location as any).hasMany(models.location_ban)
+    ;(location as any).hasMany(models.location_ban, { as: 'locationBans' })
     ;(location as any).hasMany(models.bot, { foreignKey: 'locationId' })
     ;(location as any).hasMany(models.location_authorized_user, { onDelete: 'cascade' })
   }
@@ -229,7 +229,7 @@ export const createLocationModel = (app: Application) => {
 export const createLocationSettingsModel = (app: Application) => {
   const sequelizeClient: Sequelize = app.get('sequelizeClient')
   const LocationSettings = sequelizeClient.define<Model<LocationSettingsInterface>>(
-    'location_settings',
+    'location-setting',
     {
       id: {
         type: DataTypes.UUID,
@@ -277,7 +277,7 @@ export const createLocationSettingsModel = (app: Application) => {
 export const createLocationTypeModel = (app: Application) => {
   const sequelizeClient: Sequelize = app.get('sequelizeClient')
   const locationType = sequelizeClient.define<Model<LocationTypeInterface>>(
-    'location_type',
+    'location-type',
     {
       type: {
         type: DataTypes.STRING,

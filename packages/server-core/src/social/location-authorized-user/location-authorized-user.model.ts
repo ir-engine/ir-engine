@@ -28,6 +28,7 @@ import { DataTypes, Model, Sequelize } from 'sequelize'
 import { LocationAuthorizedUserInterface } from '@etherealengine/common/src/dbmodels/LocationAuthorizedUser'
 
 import { Application } from '../../../declarations'
+import { createLocationModel } from '../../user/user/user.model'
 
 export default (app: Application) => {
   const sequelizeClient: Sequelize = app.get('sequelizeClient')
@@ -51,7 +52,7 @@ export default (app: Application) => {
   )
 
   ;(locationAuthorizedUser as any).associate = (models: any): void => {
-    ;(locationAuthorizedUser as any).belongsTo(models.location, {
+    ;(locationAuthorizedUser as any).belongsTo(createLocationModel(app), {
       required: true,
       foreignKey: { allowNull: true },
       onDelete: 'cascade'

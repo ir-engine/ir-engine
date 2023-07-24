@@ -26,6 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { DataTypes, Model, Sequelize } from 'sequelize'
 
 import { Application } from '../../../declarations'
+import { createLocationModel } from '../../user/user/user.model'
 
 interface BotCommandInterface {
   id: string
@@ -64,7 +65,7 @@ export default (app: Application) => {
   )
 
   ;(Bot as any).associate = (models: any): void => {
-    ;(Bot as any).belongsTo(models.location, { foreignKey: 'locationId' })
+    ;(Bot as any).belongsTo(createLocationModel(app), { foreignKey: 'locationId' })
     ;(Bot as any).belongsTo(models.instance, { foreignKey: { allowNull: true } })
     ;(Bot as any).belongsTo(models.user, { foreignKey: 'userId' })
     ;(Bot as any).hasMany(createBotCommandModel(app), { foreignKey: 'botId' })
