@@ -103,15 +103,26 @@ export const EntityTreeComponent = defineComponent({
     if (component.parentEntity.value) {
       const parent = getOptionalComponentState(component.parentEntity.value, EntityTreeComponent)
 
-      // If a new parentEntity, add this entity to its children
-      if (parent && !parent?.children.value.includes(entity)) {
-        if (typeof json.childIndex !== 'undefined')
-          parent.children.set([
-            ...parent.children.value.slice(0, json.childIndex),
-            entity,
-            ...parent.children.value.slice(json.childIndex)
+      if (parent) {
+        const prevChildIndex = parent?.children.value.indexOf(entity)
+        const isDifferentIndex = typeof json.childIndex === 'number' ? prevChildIndex !== json.childIndex : false
+
+        if (isDifferentIndex && prevChildIndex !== -1) {
+          parent.children.set((prevChildren) => [
+            ...prevChildren.slice(0, prevChildIndex),
+            ...prevChildren.slice(prevChildIndex + 1)
           ])
-        else parent.children.set([...parent.children.value, entity])
+        }
+
+        if (isDifferentIndex || !parent?.children.value.includes(entity)) {
+          if (typeof json.childIndex !== 'undefined')
+            parent.children.set((prevChildren) => [
+              ...prevChildren.slice(0, json.childIndex),
+              entity,
+              ...prevChildren.slice(json.childIndex)
+            ])
+          else parent.children.set([...parent.children.value, entity])
+        }
       }
     }
 
@@ -188,17 +199,19 @@ export function removeFromEntityTree(rootEntity: Entity): void {
 }
 
 /**
- * Adds entity node as a child of passed node
- * @param parent Node in which child node will be added
- * @param node Child node to be added
- * @param index Index at which child node will be added
+ * Adds `entity` as a child of `parentEntity`
+ * @param entity Child node to be added
+ * @param parentEntity Node in which child node will be added
+ * @param childIndex Index at which child node will be added
  */
-export function addEntityNodeChild(entity: Entity, parentEntity: Entity, uuid?: EntityUUID): void {
+export function addEntityNodeChild(entity: Entity, parentEntity: Entity, childIndex?: number, uuid?: EntityUUID): void {
+  const entityTreeComponent = getComponent(entity, EntityTreeComponent)
   if (
     !hasComponent(entity, EntityTreeComponent) ||
-    parentEntity !== getComponent(entity, EntityTreeComponent).parentEntity
+    parentEntity !== entityTreeComponent.parentEntity ||
+    childIndex !== findIndexOfEntityNode(getComponent(parentEntity, EntityTreeComponent).children, entity)
   ) {
-    setComponent(entity, EntityTreeComponent, { parentEntity })
+    setComponent(entity, EntityTreeComponent, { parentEntity, childIndex })
     setComponent(entity, UUIDComponent, uuid || (MathUtils.generateUUID() as EntityUUID))
   }
 
@@ -271,10 +284,8 @@ export function removeEntityNode(entity: Entity, serialize = false) {
  * @param index Index at which passed node will be set as child in parent node's children arrays
  */
 export function reparentEntityNode(entity: Entity, parentEntity: Entity | null, index?: number): void {
-  const entityTreeNode = getComponent(entity, EntityTreeComponent)
-  if (entityTreeNode.parentEntity === parentEntity) return
-  if (parentEntity) addEntityNodeChild(entity, parentEntity)
-  else setComponent(entity, EntityTreeComponent, { parentEntity: null })
+  if (parentEntity) addEntityNodeChild(entity, parentEntity, index)
+  else setComponent(entity, EntityTreeComponent, { parentEntity: null, childIndex: index })
 }
 
 /**
