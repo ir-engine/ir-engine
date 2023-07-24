@@ -23,34 +23,24 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-export default {
-  definitions: {
-    user_api_key: {
-      type: 'object',
-      properties: {
-        id: {
-          type: 'string',
-          description: 'API key ID'
-        },
-        userId: {
-          type: 'string',
-          description: 'User that owns this API key'
-        },
-        token: {
-          type: 'string',
-          description: 'API key of user'
-        }
-      }
-    },
-    user_api_key_list: {
-      type: 'array',
-      items: { $ref: '#/definitions/user' }
-    }
+import { createSwaggerServiceOptions } from 'feathers-swagger'
+
+import {
+  userApiKeyDataSchema,
+  userApiKeyPatchSchema,
+  userApiKeyQuerySchema,
+  userApiKeySchema
+} from '@etherealengine/engine/src/schemas/user/user-api-key.schema'
+
+export default createSwaggerServiceOptions({
+  schemas: {
+    userApiKeyDataSchema,
+    userApiKeyPatchSchema,
+    userApiKeyQuerySchema,
+    userApiKeySchema
   },
-  securities: ['create', 'update', 'patch', 'remove'],
-  operations: {
-    find: {
-      security: [{ bearer: [] }]
-    }
+  docs: {
+    description: 'User api key service description',
+    securities: ['all']
   }
-}
+})
