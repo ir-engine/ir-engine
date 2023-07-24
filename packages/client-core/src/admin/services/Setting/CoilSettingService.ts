@@ -25,10 +25,9 @@ Ethereal Engine. All Rights Reserved.
 
 import { Paginated } from '@feathersjs/feathers'
 
-import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { coilSettingPath, CoilSettingType } from '@etherealengine/engine/src/schemas/setting/coil-setting.schema'
-import { defineAction, defineState, dispatchAction, getMutableState } from '@etherealengine/hyperflux'
+import { defineState, getMutableState } from '@etherealengine/hyperflux'
 
 import { NotificationService } from '../../../common/services/NotificationService'
 
@@ -40,29 +39,13 @@ export const AdminCoilSettingsState = defineState({
   })
 })
 
-const fetchedCoilReceptor = (action: typeof AdminCoilSettingActions.fetchedCoil.matches._TYPE) => {
-  const state = getMutableState(AdminCoilSettingsState)
-  return state.merge({ coil: action.coilSettings.data, updateNeeded: false })
-}
-
-export const CoilSettingReceptors = {
-  fetchedCoilReceptor
-}
-
 export const AdminCoilSettingService = {
   fetchCoil: async () => {
     try {
       const coilSettings = (await Engine.instance.api.service(coilSettingPath).find()) as Paginated<CoilSettingType>
-      dispatchAction(AdminCoilSettingActions.fetchedCoil({ coilSettings }))
+      getMutableState(AdminCoilSettingsState).merge({ coil: coilSettings.data, updateNeeded: false })
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
   }
-}
-
-export class AdminCoilSettingActions {
-  static fetchedCoil = defineAction({
-    type: 'ee.client.AdminCoilSetting.COIL_SETTING_DISPLAY' as const,
-    coilSettings: matches.object as Validator<unknown, Paginated<CoilSettingType>>
-  })
 }

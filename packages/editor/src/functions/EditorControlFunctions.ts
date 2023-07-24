@@ -75,7 +75,6 @@ import {
 import { dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
 
 import { EditorHistoryAction } from '../services/EditorHistory'
-import { EditorAction } from '../services/EditorServices'
 import { SelectionAction, SelectionState } from '../services/SelectionServices'
 import { cancelGrabOrPlacement } from './cancelGrabOrPlacement'
 import { filterParentEntities } from './filterParentEntities'
