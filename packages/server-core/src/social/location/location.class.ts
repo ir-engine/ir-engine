@@ -115,7 +115,15 @@ export class LocationService<T = LocationType, ServiceParams extends Params = Lo
       }
     }
 
-    return super._find(params)
+    const paramsWithoutExtras = { ...params }
+
+    // Remove extra params
+    if (paramsWithoutExtras.query?.joinableLocations) delete paramsWithoutExtras.query.joinableLocations
+    if (paramsWithoutExtras.query?.adminnedLocations) delete paramsWithoutExtras.query.adminnedLocations
+    if (paramsWithoutExtras.query?.search || paramsWithoutExtras.query?.search === '')
+      delete paramsWithoutExtras.query.search
+
+    return super._find(paramsWithoutExtras)
   }
 
   /**
