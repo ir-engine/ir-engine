@@ -61,7 +61,7 @@ export class HubsLightMapExtension extends ImporterExtension implements GLTFLoad
     return Promise.all(pending).then((results) => {
       const material: MeshStandardMaterial | MeshBasicMaterial = results[0]
       const lightMap: Texture = (results[1] as Texture).clone()
-
+      lightMap.channel = 1
       const transform = extensionDef.extensions ? extensionDef.extensions['KHR_texture_transform'] : undefined
       if (transform !== undefined) {
         lightMap.wrapS = RepeatWrapping
