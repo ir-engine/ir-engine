@@ -66,7 +66,7 @@ export const getActiveInstancesForScene =
         sceneId
       },
       paginate: false
-    })) as LocationType[]
+    })) as any as LocationType[]
 
     if (locations.length === 0) return []
 

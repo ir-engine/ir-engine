@@ -161,11 +161,14 @@ export class LocationService<T = LocationType, ServiceParams extends Params = Lo
         await this.makeLobby(trx, selfUser)
       }
 
-      const { locationSetting } = data
-
       data.slugifiedName = slugify(data.name, { lower: true })
 
-      const inserted = await trx.from<LocationDatabaseType>(locationPath).insert(data, 'id').first()
+      const insertData = JSON.parse(JSON.stringify(data))
+      delete insertData.locationSetting
+
+      await trx.from<LocationDatabaseType>(locationPath).insert(insertData, 'id')
+
+      const { locationSetting } = data
 
       await trx.from<LocationSettingType>(locationSettingPath).insert({
         videoEnabled: !!locationSetting.videoEnabled,
@@ -173,20 +176,20 @@ export class LocationService<T = LocationType, ServiceParams extends Params = Lo
         faceStreamingEnabled: !!locationSetting.faceStreamingEnabled,
         screenSharingEnabled: !!locationSetting.screenSharingEnabled,
         locationType: locationSetting.locationType || 'private',
-        locationId: inserted?.id
+        locationId: (data as LocationType).id
       })
 
       await Promise.all([
         this.app.service('location-admin').Model.create(
           {
-            locationId: inserted?.id,
+            locationId: (data as LocationType).id,
             userId: selfUser?.id
           },
           { transaction: t }
         ),
         this.app.service('location-authorized-user').Model.create(
           {
-            locationId: inserted?.id,
+            locationId: (data as LocationType).id,
             userId: selfUser?.id
           },
           { transaction: t }
@@ -196,7 +199,7 @@ export class LocationService<T = LocationType, ServiceParams extends Params = Lo
       await t.commit()
       await trx.commit()
 
-      const location = await this.get(inserted?.id)
+      const location = await this.get((data as LocationType).id)
 
       return location
     } catch (err) {

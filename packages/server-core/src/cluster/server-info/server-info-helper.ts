@@ -251,7 +251,7 @@ const populateInstanceServerType = async (app: Application, items: ServerPodInfo
       }
     },
     paginate: false
-  })) as LocationType[]
+  })) as any as LocationType[]
 
   for (const instance of instances) {
     instance.location = locations.find((location) => location.id === instance.locationId)!

@@ -738,7 +738,7 @@ export class InstanceProvision implements ServiceMethods<any> {
             }
           },
           paginate: false
-        })) as LocationType[]
+        })) as any as LocationType[]
         const instanceAuthorizedUsers = (await this.app.service('instance-authorized-user').find({
           query: {
             instanceId: {

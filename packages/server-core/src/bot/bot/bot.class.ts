@@ -63,7 +63,7 @@ export class Bot extends Service {
         }
       },
       paginate: false
-    })) as LocationType[]
+    })) as any as LocationType[]
 
     const botCommands = (await this.app.service(botCommandPath).find({
       query: {

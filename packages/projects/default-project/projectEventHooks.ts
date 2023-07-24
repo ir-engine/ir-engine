@@ -46,7 +46,7 @@ const handleOEmbedRequest = async (app: Application, url: URL, currentOEmbed: OE
         slugifiedName: locationName
       },
       pagination: false
-    } as any)) as LocationType[]
+    } as any)) as any as LocationType[]
     if (locationResult.length === 0) throw new BadRequest('Invalid location name')
     const [projectName, sceneName] = locationResult[0].sceneId.split('/')
     const storageProvider = getStorageProvider()
@@ -78,7 +78,7 @@ const handleOEmbedRequest = async (app: Application, url: URL, currentOEmbed: OE
           sceneId: subPath
         },
         pagination: false
-      } as any)) as LocationType[]
+      } as any)) as any as LocationType[]
       if (locationResult.length > 0) {
         const [projectName, sceneName] = locationResult[0].sceneId.split('/')
         const storageProvider = getStorageProvider()
