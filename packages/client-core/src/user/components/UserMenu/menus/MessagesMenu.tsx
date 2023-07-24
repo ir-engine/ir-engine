@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import React from 'react'
 
-import { useHookstate } from '@etherealengine/hyperflux'
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
 import Menu from '@etherealengine/client-core/src/common/components/Menu'
 import { ChannelID } from '@etherealengine/common/src/interfaces/ChannelUser'
@@ -35,7 +35,7 @@ import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 import { useTranslation } from 'react-i18next'
 import InputText from '../../../../common/components/InputText'
 import { SocialMenus } from '../../../../networking/NetworkInstanceProvisioning'
-import { ChannelService } from '../../../../social/services/ChannelService'
+import { ChannelService, ChannelState } from '../../../../social/services/ChannelService'
 import XRIconButton from '../../../../systems/components/XRIconButton'
 import { useUserAvatarThumbnail } from '../../../functions/useUserAvatarThumbnail'
 import { PopupMenuServices } from '../PopupMenuService'
@@ -59,8 +59,11 @@ const MessagesMenu = (props: { channelID: ChannelID; name: string }): JSX.Elemen
     }
   })
 
+  const channelState = useHookstate(getMutableState(ChannelState))
+  const inChannelCall = channelState.targetChannelId.value === props.channelID
+
   const startMediaCall = () => {
-    ChannelService.joinChannelInstance(props.channelID)
+    ChannelService.joinChannelInstance(inChannelCall ? ('' as ChannelID) : props.channelID)
   }
 
   const SelfMessage = (props: { message: (typeof messages)[0] }) => {
@@ -131,7 +134,7 @@ const MessagesMenu = (props: { channelID: ChannelID; name: string }): JSX.Elemen
     }
 
     return (
-      <div style={{ position: 'absolute', bottom: '0px' }}>
+      <div style={{ position: 'absolute', bottom: '0px', display: 'flex' }}>
         <InputText
           endIcon={<Icon type="Send" />}
           startIcon={
@@ -141,7 +144,7 @@ const MessagesMenu = (props: { channelID: ChannelID; name: string }): JSX.Elemen
               src={userThumbnail}
             />
           }
-          sx={{ mb: 1, mt: 1 }}
+          sx={{ mb: 1, mt: 0 }}
           value={composingMessage.value}
           onChange={(e) => composingMessage.set(e.target.value)}
           onEndIconClick={sendMessage}
@@ -149,23 +152,18 @@ const MessagesMenu = (props: { channelID: ChannelID; name: string }): JSX.Elemen
         <XRIconButton
           size="large"
           xr-layer="true"
+          title={t('user:friends.call')}
           style={{ position: 'absolute', right: '0px' }}
           variant="iconOnly"
           onClick={() => startMediaCall()}
-          content={<Icon type="Call" />}
+          content={<Icon type={inChannelCall ? 'CallEnd' : 'Call'} />}
         />
       </div>
     )
   }
 
   return (
-    <Menu
-      open
-      maxWidth="xs"
-      sx={{}}
-      title={t('user:usermenu.message.title')}
-      onClose={() => PopupMenuServices.showPopupMenu()}
-    >
+    <Menu open maxWidth="xs" sx={{}} title={props.name} onClose={() => PopupMenuServices.showPopupMenu()}>
       <XRIconButton
         size="large"
         xr-layer="true"
@@ -174,14 +172,14 @@ const MessagesMenu = (props: { channelID: ChannelID; name: string }): JSX.Elemen
         onClick={() => PopupMenuServices.showPopupMenu(SocialMenus.Friends)}
         content={<Icon type="ArrowBack" />}
       />
-      <div style={{ height: '600px' }}>
+      <div style={{ height: '600px', maxWidth: '100%', overflowX: 'hidden' }}>
         <div
           style={{
-            height: '100%',
+            height: 'auto',
             marginLeft: '6px',
             marginBottom: '100px',
             marginTop: '4px',
-            overflow: 'scroll',
+            marginRight: '8px',
             display: 'flex',
             flexDirection: 'column',
             flexWrap: 'wrap'

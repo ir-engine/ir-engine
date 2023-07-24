@@ -42,9 +42,10 @@ import Chip from '@etherealengine/ui/src/primitives/mui/Chip'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
 
+import { ChannelID } from '@etherealengine/common/src/interfaces/ChannelUser'
 import { useFind } from '@etherealengine/engine/src/common/functions/FeathersHooks'
 import { SocialMenus } from '../../../../networking/NetworkInstanceProvisioning'
-import { ChannelService } from '../../../../social/services/ChannelService'
+import { ChannelService, ChannelState } from '../../../../social/services/ChannelService'
 import { FriendService, FriendState } from '../../../../social/services/FriendService'
 import { AvatarMenus } from '../../../../systems/AvatarUISystem'
 import { AvatarUIContextMenuService } from '../../../../systems/ui/UserMenuView'
@@ -77,13 +78,21 @@ const FriendsMenu = ({ defaultSelectedTab }: Props): JSX.Element => {
   const selectedTab = useHookstate(defaultSelectedTab ? defaultSelectedTab : 'friends')
 
   const channels = useFind('channel')
-  console.log(channels)
 
   const worldState = useHookstate(getMutableState(WorldState))
   const friendState = useHookstate(getMutableState(FriendState))
   const selfUser = useHookstate(getMutableState(AuthState).user)
   const userId = selfUser.id.value
   const userNames = worldState.userNames.get({ noproxy: true })
+
+  const privateChannels = channels.data.filter((channel) => !channel.instanceId)
+
+  const channelState = useHookstate(getMutableState(ChannelState))
+
+  const startMediaCall = (channelID: ChannelID) => {
+    const inChannelCall = channelState.targetChannelId.value === channelID
+    ChannelService.joinChannelInstance(inChannelCall ? ('' as ChannelID) : channelID)
+  }
 
   useEffect(() => {
     FriendService.getUserRelationship(userId)
@@ -101,20 +110,17 @@ const FriendsMenu = ({ defaultSelectedTab }: Props): JSX.Element => {
   }
 
   const handleOpenChat = (id: string) => {
-    console.log(selectedTab.value, id)
     if (selectedTab.value === 'messages') {
       PopupMenuServices.showPopupMenu(SocialMenus.Messages, { channelID: id })
     } else {
-      const channelWithFriend = channels.data.find(
+      const channelWithFriend = privateChannels.find(
         (channel) =>
           channel.channel_users.length === 2 && channel.channel_users.find((channelUser) => channelUser.userId === id)
       )
-      console.log({ channelWithFriend })
       if (channelWithFriend) {
-        PopupMenuServices.showPopupMenu(SocialMenus.Messages, { channelID: id })
+        PopupMenuServices.showPopupMenu(SocialMenus.Messages, { channelID: channelWithFriend.id })
       } else {
         ChannelService.createChannel([id as UserId]).then((channel) => {
-          console.log({ channel })
           if (channel) PopupMenuServices.showPopupMenu(SocialMenus.Messages, { channelID: channel.id })
         })
       }
@@ -128,9 +134,7 @@ const FriendsMenu = ({ defaultSelectedTab }: Props): JSX.Element => {
     displayList.push(...friendState.relationships.friend.value)
   } else if (selectedTab.value === 'messages') {
     displayList.push(
-      ...channels.data
-        .filter((channel) => !channel.instanceId)
-        .map((channel) => ({ id: channel.id, name: channel.name, relationType: 'friend' as const }))
+      ...privateChannels.map((channel) => ({ id: channel.id, name: channel.name, relationType: 'friend' as const }))
     )
   } else if (selectedTab.value === 'blocked') {
     displayList.push(...friendState.relationships.blocking.value)
@@ -227,11 +231,24 @@ const FriendsMenu = ({ defaultSelectedTab }: Props): JSX.Element => {
                 />
               )}
 
-              <IconButton
-                icon={<Icon type="AccountCircle" sx={{ height: 30, width: 30 }} />}
-                title={t('user:friends.profile')}
-                onClick={() => handleProfile(value)}
-              />
+              {selectedTab.value === 'messages' ? (
+                <IconButton
+                  icon={
+                    <Icon
+                      type={channelState.targetChannelId.value === value.id ? 'CallEnd' : 'Call'}
+                      sx={{ height: 30, width: 30 }}
+                    />
+                  }
+                  title={t('user:friends.call')}
+                  onClick={() => startMediaCall(value.id as ChannelID)}
+                />
+              ) : (
+                <IconButton
+                  icon={<Icon type="AccountCircle" sx={{ height: 30, width: 30 }} />}
+                  title={t('user:friends.profile')}
+                  onClick={() => handleProfile(value)}
+                />
+              )}
             </Box>
           ))}
         {displayList.length === 0 && (

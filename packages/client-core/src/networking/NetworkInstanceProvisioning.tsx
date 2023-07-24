@@ -143,19 +143,23 @@ export const MediaInstanceProvisioning = () => {
   const channelState = useHookstate(getMutableState(ChannelState))
 
   const mediaNetworkHostId = Engine.instance.mediaNetwork?.hostId
+  const worldNetworkHostId = Engine.instance.worldNetwork?.hostId
   const currentChannelInstanceConnection = useMediaInstance()
+  const currentWorldInstanceConnection = useWorldInstance()
 
   MediaInstanceConnectionService.useAPIListeners()
 
   // Once we have the world server, provision the media server
   useEffect(() => {
-    console.log('MEDIA MEDIA', channelState.targetChannelId.value)
     if (channelState.channels.channels?.value.length) {
-      const currentChannel = channelState.targetChannelId.value
-      if (!currentChannelInstanceConnection?.provisioned.value)
+      const currentChannel =
+        channelState.targetChannelId.value === ''
+          ? channelState.channels.channels.value.find((channel) => channel.instanceId === worldNetworkHostId)?.id
+          : channelState.targetChannelId.value
+      if (!currentChannelInstanceConnection?.provisioned.value && currentChannel)
         MediaInstanceConnectionService.provisionServer(currentChannel, true)
     }
-  }, [channelState.channels.channels?.length, channelState.targetChannelId])
+  }, [channelState.channels.channels?.length, currentWorldInstanceConnection?.connected, channelState.targetChannelId])
 
   // Once the media server is provisioned, connect to it
   useEffect(() => {

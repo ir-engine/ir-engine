@@ -173,7 +173,7 @@ export class Channel<T = ChannelDataType> extends Service<T> {
         // })
       }
 
-      return this.app.service('channel').Model.findAll({
+      const allChannels = await this.app.service('channel').Model.findAll({
         where: {
           [Op.or]: [
             {
@@ -187,8 +187,6 @@ export class Channel<T = ChannelDataType> extends Service<T> {
         include: [
           {
             model: this.app.service('channel-user').Model,
-            required: true,
-            where: { userId },
             include: [
               {
                 model: this.app.service('user').Model
@@ -210,6 +208,12 @@ export class Channel<T = ChannelDataType> extends Service<T> {
             model: this.app.service('instance').Model
           }
         ]
+      })
+
+      /** @todo figure out how to do this as part of the query */
+
+      return allChannels.filter((channel) => {
+        return channel.channel_users.find((channelUser) => channelUser.userId === userId)
       })
     } catch (err) {
       logger.error(err, `Channel find failed: ${err.message}`)

@@ -29,6 +29,7 @@ import { afterEach } from 'mocha'
 
 import { destroyEngine, Engine } from '../../ecs/classes/Engine'
 import { createEngine } from '../../initializeEngine'
+import { EventDispatcher } from '../classes/EventDispatcher'
 import { useFind, useGet, useMutation } from './FeathersHooks'
 
 describe('FeathersHooks', () => {
@@ -38,6 +39,7 @@ describe('FeathersHooks', () => {
       { id: '1', name: 'John' },
       { id: '2', name: 'Jane' }
     ]
+    const eventDispatcher = new EventDispatcher()
     ;(Engine.instance.api as any) = {
       service: () => {
         return {
@@ -69,12 +71,22 @@ describe('FeathersHooks', () => {
                 id: '3',
                 name: data.name
               })
+              eventDispatcher.dispatchEvent({
+                type: 'created',
+                id: '3',
+                name: data.name
+              })
             })
           },
           update: (id, data) => {
             return new Promise((resolve) => {
               db.find((item) => item.id === id)!.name = data.name
               resolve({
+                id,
+                name: data.name
+              })
+              eventDispatcher.dispatchEvent({
+                type: 'updated',
                 id,
                 name: data.name
               })
@@ -87,10 +99,16 @@ describe('FeathersHooks', () => {
                 id,
                 name: data.name
               })
+              eventDispatcher.dispatchEvent({
+                type: 'patched',
+                id,
+                name: data.name
+              })
             })
           },
           remove: (id) => {
             return new Promise((resolve) => {
+              const item = db.find((item) => item.id === id)
               db.splice(
                 db.findIndex((item) => item.id === id),
                 1
@@ -98,10 +116,18 @@ describe('FeathersHooks', () => {
               resolve({
                 id
               })
+              eventDispatcher.dispatchEvent({
+                type: 'removed',
+                ...item
+              })
             })
           },
-          on: () => {},
-          off: () => {}
+          on: (serviceName, cb) => {
+            eventDispatcher.addEventListener(serviceName, cb)
+          },
+          off: (serviceName, cb) => {
+            eventDispatcher.removeEventListener(serviceName, cb)
+          }
         }
       }
     }
@@ -230,6 +256,81 @@ describe('FeathersHooks', () => {
       })
       const { data } = findHook.result.current
       assert.strictEqual(data.length, 1)
+    })
+  })
+
+  describe('can use listeners', () => {
+    describe('on created', () => {
+      it('should populate data', async () => {
+        const { result, rerender } = renderHook(() => {
+          return useFind('user')
+        })
+        await act(() => {
+          rerender()
+        })
+        await act(() => {
+          Engine.instance.api.service('user').create({ name: 'Jack' })
+        })
+        await act(() => {
+          rerender()
+        })
+        assert.strictEqual(result.current.data.length, 3)
+        assert.strictEqual(result.current.data[2]?.name, 'Jack')
+      })
+    })
+
+    describe('on updated', () => {
+      it('should populate data', async () => {
+        const { result, rerender } = renderHook(() => {
+          return useFind('user')
+        })
+        await act(() => {
+          rerender()
+        })
+        await act(() => {
+          Engine.instance.api.service('user').update('1', { name: 'Jack' } as any)
+        })
+        await act(() => {
+          rerender()
+        })
+        assert.strictEqual(result.current.data[0]?.name, 'Jack')
+      })
+    })
+
+    describe('on patched', () => {
+      it('should populate data', async () => {
+        const { result, rerender } = renderHook(() => {
+          return useFind('user')
+        })
+        await act(() => {
+          rerender()
+        })
+        await act(() => {
+          Engine.instance.api.service('user').patch('1', { name: 'Jack' })
+        })
+        await act(() => {
+          rerender()
+        })
+        assert.strictEqual(result.current.data[0]?.name, 'Jack')
+      })
+    })
+
+    describe('on removed', () => {
+      it('should populate data', async () => {
+        const { result, rerender } = renderHook(() => {
+          return useFind('user')
+        })
+        await act(() => {
+          rerender()
+        })
+        await act(() => {
+          Engine.instance.api.service('user').remove('1')
+        })
+        await act(() => {
+          rerender()
+        })
+        assert.strictEqual(result.current.data.length, 1)
+      })
     })
   })
 })

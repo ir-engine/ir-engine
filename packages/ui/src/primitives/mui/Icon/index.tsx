@@ -43,6 +43,7 @@ import {
   CachedOutlined,
   CalendarViewDay,
   Call,
+  CallEnd,
   CameraAlt,
   Cancel,
   CancelOutlined,
@@ -382,6 +383,8 @@ const Icon = ({ type, ...props }: SvgIconProps & { type: string }) => {
       return <GridOn {...props} />
     case 'Call':
       return <Call {...props} />
+    case 'CallEnd':
+      return <CallEnd {...props} />
     case 'HighlightOff':
       return <HighlightOff {...props} />
     case 'KeyboardDoubleArrowDown':
