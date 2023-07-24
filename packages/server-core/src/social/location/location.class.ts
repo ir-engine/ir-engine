@@ -55,6 +55,8 @@ export interface LocationParams extends KnexAdapterParams<LocationQuery> {
  * A class for Location service
  */
 
+export const locationSettingSorts = ['locationType', 'audioEnabled', 'videoEnabled']
+
 export class LocationService<T = LocationType, ServiceParams extends Params = LocationParams> extends KnexAdapter<
   LocationType,
   LocationData,
@@ -115,13 +117,28 @@ export class LocationService<T = LocationType, ServiceParams extends Params = Lo
       }
     }
 
-    const paramsWithoutExtras = { ...params }
+    const paramsWithoutExtras = {
+      ...params,
+      // Explicitly cloned sort object because otherwise it was affecting default params object as well.
+      query: params.query ? JSON.parse(JSON.stringify(params.query)) : {}
+    }
 
     // Remove extra params
     if (paramsWithoutExtras.query?.joinableLocations) delete paramsWithoutExtras.query.joinableLocations
     if (paramsWithoutExtras.query?.adminnedLocations) delete paramsWithoutExtras.query.adminnedLocations
     if (paramsWithoutExtras.query?.search || paramsWithoutExtras.query?.search === '')
       delete paramsWithoutExtras.query.search
+
+    // Remove location setting sorts
+    if (paramsWithoutExtras.query?.$sort) {
+      for (const sort of locationSettingSorts) {
+        const hasLocationSettingSort = Object.keys(paramsWithoutExtras.query.$sort).find((item) => item === sort)
+
+        if (hasLocationSettingSort) {
+          delete paramsWithoutExtras.query.$sort[sort]
+        }
+      }
+    }
 
     return super._find(paramsWithoutExtras)
   }

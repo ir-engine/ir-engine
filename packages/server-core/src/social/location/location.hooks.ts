@@ -39,6 +39,8 @@ import {
 } from '@etherealengine/engine/src/schemas/social/location.schema'
 import { dataValidator, queryValidator } from '@etherealengine/server-core/validators'
 
+import { HookContext, NextFunction } from '@feathersjs/feathers'
+import { locationSettingSorts } from './location.class'
 import {
   locationDataResolver,
   locationExternalResolver,
@@ -53,9 +55,54 @@ const locationDataValidator = getValidator(locationDataSchema, dataValidator)
 const locationPatchValidator = getValidator(locationPatchSchema, dataValidator)
 const locationQueryValidator = getValidator(locationQuerySchema, queryValidator)
 
+const applyLocationSettingSort = async (context: HookContext, next: NextFunction) => {
+  await next() // Read more about execution of hooks: https://github.com/feathersjs/hooks#flow-control-with-multiple-hooks
+
+  const hasLocationSettingSort =
+    context.params.query &&
+    context.params.query.$sort &&
+    Object.keys(context.params.query.$sort).some((item) => locationSettingSorts.includes(item))
+
+  if (hasLocationSettingSort) {
+    const { dispatch } = context
+
+    for (const sort of Object.keys(context.params.query.$sort)) {
+      if (locationSettingSorts.includes(sort)) {
+        const data = dispatch.data ? dispatch.data : dispatch
+
+        data.sort((a, b) => {
+          let fa = a.locationSetting[sort],
+            fb = b.locationSetting[sort]
+
+          if (typeof fa === 'string') {
+            fa = fa.toLowerCase()
+            fb = fb.toLowerCase()
+          }
+
+          if (fa < fb) {
+            return -1
+          }
+          if (fa > fb) {
+            return 1
+          }
+          return 0
+        })
+
+        if (context.params.query.$sort[sort] === 1) {
+          data.reverse()
+        }
+      }
+    }
+  }
+}
+
 export default {
   around: {
-    all: [schemaHooks.resolveExternal(locationExternalResolver), schemaHooks.resolveResult(locationResolver)]
+    all: [
+      applyLocationSettingSort,
+      schemaHooks.resolveExternal(locationExternalResolver),
+      schemaHooks.resolveResult(locationResolver)
+    ]
   },
 
   before: {

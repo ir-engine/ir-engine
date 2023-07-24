@@ -112,7 +112,7 @@ const LocationTable = ({ className, search }: Props) => {
     sceneId: string,
     maxUsersPerInstance: string,
     scene: string,
-    type: string,
+    locationType: string,
     tags: any,
     videoEnabled: ReactElement<any, any>
   ) => {
@@ -123,7 +123,7 @@ const LocationTable = ({ className, search }: Props) => {
       sceneId: <a href={`/studio/${sceneId}`}>{sceneId}</a>,
       maxUsersPerInstance,
       scene,
-      type,
+      locationType,
       tags,
       videoEnabled,
       action: (
