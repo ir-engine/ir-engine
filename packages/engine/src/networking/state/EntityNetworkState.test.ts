@@ -30,7 +30,7 @@ import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { NetworkId } from '@etherealengine/common/src/interfaces/NetworkId'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { UserId } from '@etherealengine/common/src/interfaces/UserId'
-import { receiveActions } from '@etherealengine/hyperflux'
+import { getMutableState, receiveActions } from '@etherealengine/hyperflux'
 import * as ActionFunctions from '@etherealengine/hyperflux/functions/ActionFunctions'
 import { applyIncomingActions, dispatchAction } from '@etherealengine/hyperflux/functions/ActionFunctions'
 
@@ -43,6 +43,7 @@ import { SimulationSystemGroup } from '../../ecs/functions/EngineFunctions'
 import { startSystem } from '../../ecs/functions/SystemFunctions'
 import { createEngine } from '../../initializeEngine'
 import { Physics } from '../../physics/classes/Physics'
+import { PhysicsState } from '../../physics/state/PhysicsState'
 import { UUIDComponent } from '../../scene/components/UUIDComponent'
 import { Network, NetworkTopics } from '../classes/Network'
 import { NetworkObjectComponent, NetworkObjectOwnedTag } from '../components/NetworkObjectComponent'
@@ -60,7 +61,7 @@ describe('EntityNetworkState', () => {
     createEngine()
     createMockNetwork()
     await Physics.load()
-    Engine.instance.physicsWorld = Physics.createWorld()
+    getMutableState(PhysicsState).physicsWorld.set(Physics.createWorld())
     Engine.instance.store.defaultDispatchDelay = () => 0
     startSystem(EntityNetworkStateSystem, { with: SimulationSystemGroup })
   })

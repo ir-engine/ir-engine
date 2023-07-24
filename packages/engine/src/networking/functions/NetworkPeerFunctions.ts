@@ -114,7 +114,7 @@ function destroyPeer(network: Network, peerID: PeerID) {
     // console.log({remainingPeersForDisconnectingUser})
     if (!network.users.has(userID) && network.isHosting) {
       // Engine.instance.store.actions.cached = Engine.instance.store.actions.cached.filter((a) => a.$from !== userID)
-      for (const eid of Engine.instance.getOwnedNetworkObjects(userID)) {
+      for (const eid of NetworkObjectComponent.getOwnedNetworkObjects(userID)) {
         const networkObject = getComponent(eid, NetworkObjectComponent)
         if (networkObject) {
           dispatchAction(

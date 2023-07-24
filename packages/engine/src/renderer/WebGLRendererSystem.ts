@@ -28,9 +28,8 @@ import { useEffect } from 'react'
 import {
   LinearToneMapping,
   PCFSoftShadowMap,
-  PerspectiveCamera,
-  ShadowMapType,
   SRGBColorSpace,
+  ShadowMapType,
   ToneMapping,
   WebGL1Renderer,
   WebGLRenderer,
@@ -39,22 +38,24 @@ import {
 
 import { defineState, dispatchAction, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
+import { CameraComponent } from '../camera/components/CameraComponent'
 import { ExponentialMovingAverage } from '../common/classes/ExponentialAverageCurve'
-import { nowMilliseconds } from '../common/functions/nowMilliseconds'
 import { overrideOnBeforeCompile } from '../common/functions/OnBeforeCompilePlugin'
+import { nowMilliseconds } from '../common/functions/nowMilliseconds'
 import { Engine } from '../ecs/classes/Engine'
 import { EngineActions, EngineState } from '../ecs/classes/EngineState'
+import { getComponent } from '../ecs/functions/ComponentFunctions'
 import { defineSystem } from '../ecs/functions/SystemFunctions'
 import { ObjectLayers } from '../scene/constants/ObjectLayers'
-import { defaultPostProcessingSchema, EffectMapType } from '../scene/constants/PostProcessing'
-import { createWebXRManager, WebXRManager } from '../xr/WebXRManager'
+import { EffectMapType, defaultPostProcessingSchema } from '../scene/constants/PostProcessing'
+import { WebXRManager, createWebXRManager } from '../xr/WebXRManager'
 import { XRState } from '../xr/XRState'
+import { RenderInfoSystem } from './RenderInfoSystem'
+import { RendererState } from './RendererState'
+import WebGL from './THREE.WebGL'
+import { updateShadowMap } from './functions/RenderSettingsFunction'
 import { changeRenderMode } from './functions/changeRenderMode'
 import { configureEffectComposer } from './functions/configureEffectComposer'
-import { updateShadowMap } from './functions/RenderSettingsFunction'
-import { RendererState } from './RendererState'
-import { RenderInfoSystem } from './RenderInfoSystem'
-import WebGL from './THREE.WebGL'
 
 export type EffectComposerWithSchema = EffectComposer & EffectMapType
 
@@ -209,14 +210,15 @@ export class EngineRenderer {
     const xrCamera = EngineRenderer.instance.xrManager.getCamera()
     const xrFrame = Engine.instance.xrFrame
 
+    const camera = getComponent(Engine.instance.cameraEntity, CameraComponent)
+
     /** Postprocessing does not support multipass yet, so just use basic renderer when in VR */
     if (xrFrame) {
-      // Assume Engine.instance.camera.layers is source of truth for all xr cameras
-      const camera = Engine.instance.camera as PerspectiveCamera
+      // Assume camera.layers is source of truth for all xr cameras
       xrCamera.layers.mask = camera.layers.mask
       for (const c of xrCamera.cameras) c.layers.mask = camera.layers.mask
 
-      this.renderer.render(Engine.instance.scene, Engine.instance.camera)
+      this.renderer.render(Engine.instance.scene, camera)
     } else {
       const state = getState(RendererState)
       const engineState = getState(EngineState)
@@ -230,10 +232,9 @@ export class EngineRenderer {
         const width = window.innerWidth
         const height = window.innerHeight
 
-        if ((Engine.instance.camera as PerspectiveCamera).isPerspectiveCamera) {
-          const cam = Engine.instance.camera as PerspectiveCamera
-          cam.aspect = width / height
-          cam.updateProjectionMatrix()
+        if (camera.isPerspectiveCamera) {
+          camera.aspect = width / height
+          camera.updateProjectionMatrix()
         }
 
         state.qualityLevel > 0 && state.csm?.updateFrustums()
@@ -334,17 +335,20 @@ const reactor = () => {
   }, [engineRendererSettings.renderMode])
 
   useEffect(() => {
-    if (engineRendererSettings.debugEnable.value) Engine.instance.camera.layers.enable(ObjectLayers.PhysicsHelper)
-    else Engine.instance.camera.layers.disable(ObjectLayers.PhysicsHelper)
+    const camera = getComponent(Engine.instance.cameraEntity, CameraComponent)
+    if (engineRendererSettings.debugEnable.value) camera.layers.enable(ObjectLayers.PhysicsHelper)
+    else camera.layers.disable(ObjectLayers.PhysicsHelper)
   }, [engineRendererSettings.debugEnable])
   useEffect(() => {
-    if (engineRendererSettings.gridVisibility.value) Engine.instance.camera.layers.enable(ObjectLayers.Gizmos)
-    else Engine.instance.camera.layers.disable(ObjectLayers.Gizmos)
+    const camera = getComponent(Engine.instance.cameraEntity, CameraComponent)
+    if (engineRendererSettings.gridVisibility.value) camera.layers.enable(ObjectLayers.Gizmos)
+    else camera.layers.disable(ObjectLayers.Gizmos)
   }, [engineRendererSettings.gridVisibility])
 
   useEffect(() => {
-    if (engineRendererSettings.nodeHelperVisibility.value) Engine.instance.camera.layers.enable(ObjectLayers.NodeHelper)
-    else Engine.instance.camera.layers.disable(ObjectLayers.NodeHelper)
+    const camera = getComponent(Engine.instance.cameraEntity, CameraComponent)
+    if (engineRendererSettings.nodeHelperVisibility.value) camera.layers.enable(ObjectLayers.NodeHelper)
+    else camera.layers.disable(ObjectLayers.NodeHelper)
   }, [engineRendererSettings.nodeHelperVisibility])
 
   return null

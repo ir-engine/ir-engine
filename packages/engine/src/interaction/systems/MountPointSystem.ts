@@ -43,10 +43,12 @@ import {
   removeComponent
 } from '../../ecs/functions/ComponentFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
+import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
 import { Physics } from '../../physics/classes/Physics'
 import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
 import { CollisionGroups } from '../../physics/enums/CollisionGroups'
 import { getInteractionGroups } from '../../physics/functions/getInteractionGroups'
+import { PhysicsState } from '../../physics/state/PhysicsState'
 import { RaycastHit, SceneQueryType } from '../../physics/types/PhysicsTypes'
 import { MountPoint, MountPointComponent } from '../../scene/components/MountPointComponent'
 import { SittingComponent } from '../../scene/components/SittingComponent'
@@ -85,7 +87,7 @@ const execute = () => {
   for (const action of mountPointActionQueue()) {
     if (action.$from !== Engine.instance.userId) continue
     if (!action.targetEntity || !hasComponent(action.targetEntity!, MountPointComponent)) continue
-    const avatarEntity = Engine.instance.getUserAvatarEntity(action.$from)
+    const avatarEntity = NetworkObjectComponent.getUserAvatarEntity(action.$from)
 
     const mountPoint = getComponent(action.targetEntity!, MountPointComponent)
     if (mountPoint.type === MountPoint.seat) {
@@ -142,7 +144,8 @@ const execute = () => {
         maxDistance: 2,
         groups: interactionGroups
       }
-      const hits = Physics.castRay(Engine.instance.physicsWorld, raycastComponentData)
+      const physicsWorld = getState(PhysicsState).physicsWorld
+      const hits = Physics.castRay(physicsWorld, raycastComponentData)
 
       if (hits.length > 0) {
         const raycastHit = hits[0] as RaycastHit

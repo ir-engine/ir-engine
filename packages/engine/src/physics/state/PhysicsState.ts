@@ -23,23 +23,15 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { getMutableState } from '@etherealengine/hyperflux'
-import { destroyEngine } from '../../ecs/classes/Engine'
-import { createEngine } from '../../initializeEngine'
-import { Physics } from '../classes/Physics'
-import { PhysicsState } from '../state/PhysicsState'
+import { EventQueue, World as PhysicsWorld } from '@dimforge/rapier3d-compat'
+import { defineState } from '@etherealengine/hyperflux'
 
-/**
- * @todo
- */
-describe.skip('PhysicsSystem', () => {
-  beforeEach(async () => {
-    createEngine()
-    await Physics.load()
-    getMutableState(PhysicsState).physicsWorld.set(Physics.createWorld())
-  })
-
-  afterEach(() => {
-    return destroyEngine()
-  })
+export const PhysicsState = defineState({
+  name: 'ee.engine.PhysicsState',
+  initial: () => {
+    return {
+      physicsWorld: null! as PhysicsWorld,
+      physicsCollisionEventQueue: null! as EventQueue
+    }
+  }
 })

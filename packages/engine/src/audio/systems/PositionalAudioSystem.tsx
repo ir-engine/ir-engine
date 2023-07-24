@@ -177,7 +177,7 @@ const execute = () => {
     const panner = AudioNodeGroups.get(audioObj)?.panner!
     if (!panner) continue
 
-    getAvatarBoneWorldPosition(entity, 'Head', _vec3)
+    getAvatarBoneWorldPosition(entity, 'head', _vec3)
     const { rotation } = getComponent(entity, TransformComponent)
 
     updateAudioPanner(panner, _vec3, rotation, endTime, mediaSettings)

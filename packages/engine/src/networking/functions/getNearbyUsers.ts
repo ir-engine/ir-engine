@@ -28,7 +28,6 @@ import { Not } from 'bitecs'
 import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
-import { Engine } from '../../ecs/classes/Engine'
 import { defineQuery, getComponent } from '../../ecs/functions/ComponentFunctions'
 import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
@@ -46,7 +45,7 @@ const remoteAvatars = defineQuery([
 ])
 
 export function getNearbyUsers(userId: UserId, nonPartyUserIds: UserId[]): Array<UserId> {
-  const userAvatarEntity = Engine.instance.getUserAvatarEntity(userId)
+  const userAvatarEntity = NetworkObjectComponent.getUserAvatarEntity(userId)
   if (!userAvatarEntity) return []
   const userPosition = getComponent(userAvatarEntity, TransformComponent).position
   if (!userPosition) return []

@@ -166,7 +166,7 @@ export function transferAuthorityOfObjectReceptor(
   action: ReturnType<typeof WorldNetworkAction.transferAuthorityOfObject>
 ) {
   if (action.newAuthority !== Engine.instance.peerID) return
-  const grabbableEntity = Engine.instance.getNetworkObject(action.ownerId, action.networkId)!
+  const grabbableEntity = NetworkObjectComponent.getNetworkObject(action.ownerId, action.networkId)!
   if (hasComponent(grabbableEntity, GrabbableComponent)) {
     const grabberUserId = Engine.instance.worldNetwork.peers.get(action.newAuthority)?.userId!
     dispatchAction(
@@ -236,7 +236,7 @@ export const onGrabbableInteractUpdate = (entity: Entity, xrui: ReturnType<typeo
       removeComponent(xrui.entity, VisibleComponent)
     }
   } else {
-    getAvatarBoneWorldPosition(Engine.instance.localClientEntity, 'Hips', vec3)
+    getAvatarBoneWorldPosition(Engine.instance.localClientEntity, 'hips', vec3)
     const distance = vec3.distanceToSquared(transform.position)
     const inRange = distance < 5
     if (transition.state === 'OUT' && inRange) {

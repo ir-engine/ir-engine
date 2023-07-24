@@ -28,6 +28,7 @@ import { Matrix4, Quaternion, Vector3 } from 'three'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { defineQuery, getComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 
+import { CameraComponent } from '../../camera/components/CameraComponent'
 import { V_010 } from '../../common/constants/MathConstants'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { InputSourceComponent } from '../../input/components/InputSourceComponent'
@@ -57,7 +58,7 @@ const execute = () => {
 
   for (const entity of flyControlQuery()) {
     const flyControlComponent = getComponent(entity, FlyControlComponent)
-    const camera = Engine.instance.camera
+    const camera = getComponent(Engine.instance.cameraEntity, CameraComponent)
 
     const inputState = inputSource.buttons
 

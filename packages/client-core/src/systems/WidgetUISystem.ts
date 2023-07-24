@@ -54,6 +54,7 @@ import {
 import { isMobileXRHeadset, ReferenceSpace } from '@etherealengine/engine/src/xr/XRState'
 import { ObjectFitFunctions } from '@etherealengine/engine/src/xrui/functions/ObjectFitFunctions'
 import {
+  RegisteredWidgets,
   WidgetAppActions,
   WidgetAppServiceReceptorSystem,
   WidgetAppState
@@ -173,18 +174,18 @@ const execute = () => {
   }
 
   for (const action of showWidgetQueue()) {
-    const widget = Engine.instance.widgets.get(action.id)!
+    const widget = RegisteredWidgets.get(action.id)!
     setVisibleComponent(widget.ui.entity, action.shown)
     if (action.shown) {
       if (typeof widget.onOpen === 'function') widget.onOpen()
     } else if (typeof widget.onClose === 'function') widget.onClose()
   }
   for (const action of registerWidgetQueue()) {
-    const widget = Engine.instance.widgets.get(action.id)!
+    const widget = RegisteredWidgets.get(action.id)!
     setLocalTransformComponent(widget.ui.entity, widgetMenuUI.entity)
   }
   for (const action of unregisterWidgetQueue()) {
-    const widget = Engine.instance.widgets.get(action.id)!
+    const widget = RegisteredWidgets.get(action.id)!
     removeComponent(widget.ui.entity, LocalTransformComponent)
     if (typeof widget.cleanup === 'function') widget.cleanup()
   }
@@ -224,7 +225,7 @@ const execute = () => {
   showWidgetMenu(widgetMenuShown)
   setVisibleComponent(widgetMenuUI.entity, widgetMenuShown)
 
-  for (const [id, widget] of Engine.instance.widgets) {
+  for (const [id, widget] of RegisteredWidgets) {
     if (!widgetState.widgets[id]) continue
     const widgetEnabled = widgetState.widgets[id].enabled
     if (widgetEnabled && typeof widget.system === 'function') {

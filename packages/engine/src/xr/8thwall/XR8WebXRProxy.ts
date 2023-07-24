@@ -23,12 +23,14 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { EventDispatcher, Matrix4, PerspectiveCamera, Quaternion, Vector3 } from 'three'
+import { EventDispatcher, Matrix4, Quaternion, Vector3 } from 'three'
 
 import { getState } from '@etherealengine/hyperflux'
 
+import { CameraComponent } from '../../camera/components/CameraComponent'
 import { V_111 } from '../../common/constants/MathConstants'
 import { Engine } from '../../ecs/classes/Engine'
+import { getComponent } from '../../ecs/functions/ComponentFunctions'
 import { XRState } from '../XRState'
 import { XR8 } from './XR8'
 
@@ -46,7 +48,7 @@ export class XRView {
 
   constructor(transform: XRRigidTransform) {
     this.transform = transform
-    const camera = Engine.instance.camera as PerspectiveCamera
+    const camera = getComponent(Engine.instance.cameraEntity, CameraComponent)
     this.projectionMatrix = camera.projectionMatrix.toArray()
   }
 }
@@ -211,6 +213,7 @@ export class XRFrameProxy {
   }
 
   getViewerPose(space: XRReferenceSpace) {
-    return new XRViewerPose(new XRRigidTransform(Engine.instance.camera.position, Engine.instance.camera.quaternion))
+    const camera = getComponent(Engine.instance.cameraEntity, CameraComponent)
+    return new XRViewerPose(new XRRigidTransform(camera.position, camera.quaternion))
   }
 }

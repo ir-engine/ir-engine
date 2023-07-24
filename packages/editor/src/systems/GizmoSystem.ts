@@ -23,6 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { CameraComponent } from '@etherealengine/engine/src/camera/components/CameraComponent'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { defineQuery, getComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
@@ -36,7 +37,9 @@ const gizmoQuery = defineQuery([TransformGizmoComponent])
 const execute = () => {
   for (const entity of gizmoQuery()) {
     const gizmoTransform = getComponent(entity, TransformComponent)
-    const eyeDistance = gizmoTransform.position.distanceTo(Engine.instance.camera.position) / GIZMO_SIZE
+    const eyeDistance =
+      gizmoTransform.position.distanceTo(getComponent(Engine.instance.cameraEntity, CameraComponent).position) /
+      GIZMO_SIZE
     gizmoTransform.scale.set(eyeDistance, eyeDistance, eyeDistance)
   }
 }

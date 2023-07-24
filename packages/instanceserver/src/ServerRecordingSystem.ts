@@ -59,6 +59,7 @@ import { getStorageProvider } from '@etherealengine/server-core/src/media/storag
 import { StorageObjectInterface } from '@etherealengine/server-core/src/media/storageprovider/storageprovider.interface'
 import { createStaticResourceHash } from '@etherealengine/server-core/src/media/upload-asset/upload-asset.service'
 
+import { NetworkObjectComponent } from '@etherealengine/engine/src/networking/components/NetworkObjectComponent'
 import { startMediaRecording } from './MediaRecordingFunctions'
 import { getServerNetwork, SocketWebRTCServerNetwork } from './SocketWebRTCServerFunctions'
 import { createOutgoingDataProducer } from './WebRTCFunctions'
@@ -192,7 +193,7 @@ export const onStartRecording = async (action: ReturnType<typeof ECSRecordingAct
 
     activeRecording.serializer = ECSSerialization.createSerializer({
       entities: () => {
-        return [Engine.instance.getUserAvatarEntity(userID)]
+        return [NetworkObjectComponent.getUserAvatarEntity(userID)]
       },
       schema: serializationSchema,
       chunkLength,

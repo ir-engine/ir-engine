@@ -35,8 +35,8 @@ import {
   matchesVector3,
   matchesWithDefault
 } from '../../common/functions/MatchesUtils'
-import { Engine } from '../../ecs/classes/Engine'
 import { NetworkTopics } from '../classes/Network'
+import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
 
 export class WorldNetworkAction {
   static spawnDebugPhysicsObject = defineAction({
@@ -49,7 +49,7 @@ export class WorldNetworkAction {
     type: 'ee.engine.world.SPAWN_OBJECT',
     prefab: matches.string,
     entityUUID: matchesEntityUUID,
-    networkId: matchesWithDefault(matchesNetworkId, () => Engine.instance.createNetworkId()),
+    networkId: matchesWithDefault(matchesNetworkId, () => NetworkObjectComponent.createNetworkId()),
     position: matchesVector3.optional(),
     rotation: matchesQuaternion.optional(),
     $cache: true,

@@ -28,6 +28,7 @@ import { Mesh, MeshBasicMaterial, Quaternion, Ray, Raycaster, Vector3 } from 'th
 
 import { dispatchAction, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
+import { CameraComponent } from '../../camera/components/CameraComponent'
 import { ObjectDirection } from '../../common/constants/Axis3D'
 import { Object3DUtils } from '../../common/functions/Object3DUtils'
 import { Engine } from '../../ecs/classes/Engine'
@@ -49,6 +50,7 @@ import { Physics, RaycastArgs } from '../../physics/classes/Physics'
 import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
 import { AllCollisionMask } from '../../physics/enums/CollisionGroups'
 import { getInteractionGroups } from '../../physics/functions/getInteractionGroups'
+import { PhysicsState } from '../../physics/state/PhysicsState'
 import { SceneQueryType } from '../../physics/types/PhysicsTypes'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { GroupComponent, Object3DWithEntity } from '../../scene/components/GroupComponent'
@@ -387,7 +389,10 @@ const inputRay = new Ray()
 const raycaster = new Raycaster()
 
 const execute = () => {
-  Engine.instance.pointerScreenRaycaster.setFromCamera(Engine.instance.pointerState.position, Engine.instance.camera)
+  Engine.instance.pointerScreenRaycaster.setFromCamera(
+    Engine.instance.pointerState.position,
+    getComponent(Engine.instance.cameraEntity, CameraComponent)
+  )
 
   Engine.instance.pointerState.movement.subVectors(
     Engine.instance.pointerState.position,
@@ -480,9 +485,11 @@ const execute = () => {
         }
       }
 
+      const physicsWorld = getState(PhysicsState).physicsWorld
+
       // 3nd heuristic is physics colliders
-      if (Engine.instance.physicsWorld && !assignedInputEntity) {
-        const hit = Physics.castRay(Engine.instance.physicsWorld, inputRaycast)[0]
+      if (physicsWorld && !assignedInputEntity) {
+        const hit = Physics.castRay(physicsWorld, inputRaycast)[0]
         if (hit) assignedInputEntity = hit.entity
       }
 

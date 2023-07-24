@@ -30,7 +30,7 @@ import { Channel } from '@etherealengine/common/src/interfaces/Channel'
 import { respawnAvatar } from '@etherealengine/engine/src/avatar/functions/respawnAvatar'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { createXRUI } from '@etherealengine/engine/src/xrui/functions/createXRUI'
-import { WidgetAppActions, WidgetAppState } from '@etherealengine/engine/src/xrui/WidgetAppService'
+import { RegisteredWidgets, WidgetAppActions, WidgetAppState } from '@etherealengine/engine/src/xrui/WidgetAppService'
 import { createState, dispatchAction, getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 
@@ -123,7 +123,7 @@ const WidgetButtons = () => {
   const widgets = Object.entries(widgetMutableState.widgets.value).map(([id, widgetMutableState]) => ({
     id,
     ...widgetMutableState,
-    ...Engine.instance.widgets.get(id)!
+    ...RegisteredWidgets.get(id)!
   }))
 
   const toggleWidget = (toggledWidget) => () => {

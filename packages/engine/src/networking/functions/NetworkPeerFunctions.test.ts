@@ -165,7 +165,7 @@ describe('NetworkPeerFunctions', () => {
       applyIncomingActions()
       receiveActions(EntityNetworkState)
 
-      assert(!Engine.instance.getNetworkObject(userId, networkId))
+      assert(!NetworkObjectComponent.getNetworkObject(userId, networkId))
     })
   })
 })

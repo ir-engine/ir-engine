@@ -37,6 +37,7 @@ import {
   useHookstate
 } from '@etherealengine/hyperflux'
 
+import { PhysicsState } from '@etherealengine/engine/src/physics/state/PhysicsState'
 import { lerp } from 'three/src/math/MathUtils'
 import { V_010 } from '../../common/constants/MathConstants'
 import { createPriorityQueue } from '../../ecs/PriorityQueue'
@@ -202,7 +203,8 @@ const setFootTarget = (
   footRaycastArgs.maxDistance = legLength
 
   if (castRay) {
-    const castedRay = Physics.castRay(Engine.instance.physicsWorld, footRaycastArgs)
+    const { physicsWorld } = getState(PhysicsState)
+    const castedRay = Physics.castRay(physicsWorld, footRaycastArgs)
     if (castedRay[0]) {
       lastRayInfo[index] = castedRay[0]
     } else {
@@ -250,7 +252,7 @@ const execute = () => {
   }
 
   for (const action of ikTargetSpawnQueue()) {
-    const entity = Engine.instance.getNetworkObject(action.$from, action.networkId)
+    const entity = NetworkObjectComponent.getNetworkObject(action.$from, action.networkId)
     if (!entity) {
       console.warn('Could not find entity for networkId', action.$from, action.networkId)
       continue
@@ -401,7 +403,8 @@ const execute = () => {
     for (const ikEntity of ikEntities) {
       if (ikEntities.length <= 1) continue
       const networkObject = getComponent(ikEntity, NetworkObjectComponent)
-      const ownerEntity = Engine.instance.getUserAvatarEntity(networkObject.ownerId)
+      const ownerEntity = NetworkObjectComponent.getUserAvatarEntity(networkObject.ownerId)
+
       if (ownerEntity != entity) continue
 
       const rigidbodyComponent = getComponent(ownerEntity, RigidBodyComponent)
@@ -557,75 +560,76 @@ const execute = () => {
   /**
    * 4 - Apply avatar IK
    */
-  // for (const entity of ikEntities) {
-  //   /** Filter by priority queue */
-  //   const networkObject = getComponent(entity, NetworkObjectComponent)
-  //   const ownerEntity = Engine.instance.getUserAvatarEntity(networkObject.ownerId)
-  //   if (!Engine.instance.priorityAvatarEntities.has(ownerEntity)) continue
-
-  //   const transformComponent = getComponent(entity, TransformComponent)
-  //   // If data is zeroed out, assume there is no input and do not run IK
-  //   if (transformComponent.position.equals(V_000)) continue
-
-  //   const { rig } = getComponent(ownerEntity, AvatarRigComponent)
-
-  //   const ikComponent = getComponent(entity, AvatarIKTargetComponent)
-  //   if (ikComponent.handedness === 'none') {
-  //     _vec
-  //       .set(
-  //         transformComponent.matrix.elements[8],
-  //         transformComponent.matrix.elements[9],
-  //         transformComponent.matrix.elements[10]
-  //       )
-  //       .normalize() // equivalent to Object3D.getWorldDirection
-  //     solveHipHeight(ownerEntity, transformComponent.position)
-
-  //     solveLookIK(rig.head.node, _vec)
-  //   } else if (ikComponent.handedness === 'left') {
-  //     rig.leftLowerArm.node.quaternion.setFromAxisAngle(Axis.X, Math.PI * -0.25)
-  //     /** @todo see if this is still necessary */
-  //     rig.leftLowerArm.node.updateWorldMatrix(false, true)
-  //     solveTwoBoneIK(
-  //       rig.leftUpperArm.node,
-  //       rig.leftLowerArm.node,
-  //       rig.leftHand.node,
-  //       transformComponent.position,
-  //       transformComponent.rotation.multiply(leftHandRotation),
-  //       leftHandRotationOffset
-  //     )
-  //   } else if (ikComponent.handedness === 'right') {
-  //     rig.rightLowerArm.node.quaternion.setFromAxisAngle(Axis.X, Math.PI * 0.25)
-  //     /** @todo see if this is still necessary */
-  //     rig.rightLowerArm.node.updateWorldMatrix(false, true)
-  //     solveTwoBoneIK(
-  //       rig.rightUpperArm.node,
-  //       rig.rightLowerArm.node,
-  //       rig.rightHand.node,
-  //       transformComponent.position,
-  //       transformComponent.rotation.multiply(rightHandRotation),
-  //       rightHandRotationOffset
-  //     )
-  //   }
-  // }
-
-  /**
-   * Since the scene does not automatically update the matricies for all objects, which updates bones,
-   * we need to manually do it for Loop Animation Entities
-   */
-  for (const entity of loopAnimationEntities) updateGroupChildren(entity)
-
-  /** Run debug */
-  for (const entity of Engine.instance.priorityAvatarEntities) {
-    const avatarRig = getComponent(entity, AvatarRigComponent)
-    if (avatarRig?.helper) {
-      avatarRig.rig.hips.node.updateWorldMatrix(true, true)
-      avatarRig.helper?.updateMatrixWorld(true)
-    }
-  }
-
-  /** We don't need to ever calculate the matrices for ik targets, so mark them not dirty */
   for (const entity of ikEntities) {
-    // delete TransformComponent.dirtyTransforms[entity]
+    /** Filter by priority queue */
+    const networkObject = getComponent(entity, NetworkObjectComponent)
+    const ownerEntity = NetworkObjectComponent.getUserAvatarEntity(networkObject.ownerId)
+    if (!Engine.instance.priorityAvatarEntities.has(ownerEntity)) continue
+
+    //   const transformComponent = getComponent(entity, TransformComponent)
+    //   // If data is zeroed out, assume there is no input and do not run IK
+    //   if (transformComponent.position.equals(V_000)) continue
+
+    //   const { rig } = getComponent(ownerEntity, AvatarRigComponent)
+
+    //   const ikComponent = getComponent(entity, AvatarIKTargetComponent)
+    //   if (ikComponent.handedness === 'none') {
+    //     _vec
+    //       .set(
+    //         transformComponent.matrix.elements[8],
+    //         transformComponent.matrix.elements[9],
+    //         transformComponent.matrix.elements[10]
+    //       )
+    //       .normalize() // equivalent to Object3D.getWorldDirection
+    //     solveHipHeight(ownerEntity, transformComponent.position)
+
+    //     solveLookIK(rig.head.node, _vec)
+    //   } else if (ikComponent.handedness === 'left') {
+    //     rig.leftLowerArm.node.quaternion.setFromAxisAngle(Axis.X, Math.PI * -0.25)
+    //     /** @todo see if this is still necessary */
+    //     rig.leftLowerArm.node.updateWorldMatrix(false, true)
+    //     solveTwoBoneIK(
+    //       rig.leftUpperArm.node,
+    //       rig.leftLowerArm.node,
+    //       rig.leftHand.node,
+    //       transformComponent.position,
+    //       transformComponent.rotation.multiply(leftHandRotation),
+    //       leftHandRotationOffset
+    //     )
+    //   } else if (ikComponent.handedness === 'right') {
+    //     rig.rightLowerArm.node.quaternion.setFromAxisAngle(Axis.X, Math.PI * 0.25)
+    //     /** @todo see if this is still necessary */
+    //     rig.rightLowerArm.node.updateWorldMatrix(false, true)
+    //     solveTwoBoneIK(
+    //       rig.rightUpperArm.node,
+    //       rig.rightLowerArm.node,
+    //       rig.rightHand.node,
+    //       transformComponent.position,
+    //       transformComponent.rotation.multiply(rightHandRotation),
+    //       rightHandRotationOffset
+    //     )
+    //   }
+    // }
+
+    /**
+     * Since the scene does not automatically update the matricies for all objects, which updates bones,
+     * we need to manually do it for Loop Animation Entities
+     */
+    for (const entity of loopAnimationEntities) updateGroupChildren(entity)
+
+    /** Run debug */
+    for (const entity of Engine.instance.priorityAvatarEntities) {
+      const avatarRig = getComponent(entity, AvatarRigComponent)
+      if (avatarRig?.helper) {
+        avatarRig.rig.hips.node.updateWorldMatrix(true, true)
+        avatarRig.helper?.updateMatrixWorld(true)
+      }
+    }
+
+    /** We don't need to ever calculate the matrices for ik targets, so mark them not dirty */
+    for (const entity of ikEntities) {
+      // delete TransformComponent.dirtyTransforms[entity]
+    }
   }
 }
 

@@ -40,6 +40,7 @@ import {
 import { defineAction, defineState, getMutableState, getState } from '@etherealengine/hyperflux'
 import { Topic, defineActionQueue, dispatchAction } from '@etherealengine/hyperflux/functions/ActionFunctions'
 
+import { EditorState } from './EditorServices'
 import { SelectionAction, SelectionState } from './SelectionServices'
 
 export const EditorTopic = 'editor' as Topic
@@ -163,6 +164,7 @@ const execute = () => {
     ) as Array<EntityUUID | string>
     state.history.set([...editorHistory.history.slice(0, state.index.value + 1), { data, selectedEntities }])
     state.index.set(state.index.value + 1)
+    getMutableState(EditorState).sceneModified.set(true)
   }
 }
 

@@ -28,6 +28,7 @@ import { CylinderGeometry, Mesh, MeshBasicMaterial, Object3D, Quaternion, Vector
 
 import { defineState, getMutableState, getState } from '@etherealengine/hyperflux'
 
+import { CameraComponent } from '../../camera/components/CameraComponent'
 import { V_010 } from '../../common/constants/MathConstants'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
@@ -35,6 +36,7 @@ import { getComponent } from '../../ecs/functions/ComponentFunctions'
 import { Physics, RaycastArgs } from '../../physics/classes/Physics'
 import { CollisionGroups } from '../../physics/enums/CollisionGroups'
 import { getInteractionGroups } from '../../physics/functions/getInteractionGroups'
+import { PhysicsState } from '../../physics/state/PhysicsState'
 import { SceneQueryType } from '../../physics/types/PhysicsTypes'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
@@ -57,10 +59,10 @@ export const autopilotSetPosition = (entity: Entity) => {
   const markerState = getMutableState(AutopilotMarker)
   if (avatarControllerComponent.gamepadLocalInput.lengthSq() > 0) return
 
-  const physicsWorld = Engine.instance.physicsWorld
+  const { physicsWorld } = getState(PhysicsState)
 
   const castedRay = Physics.castRayFromCamera(
-    Engine.instance.camera,
+    getComponent(Engine.instance.cameraEntity, CameraComponent),
     Engine.instance.pointerState.position,
     physicsWorld,
     autopilotRaycastArgs

@@ -69,11 +69,7 @@ import { XRState } from '../../xr/XRState'
 // import { retargetSkeleton, syncModelSkeletons } from '../animation/retargetSkeleton'
 import { AnimationState } from '../AnimationManager'
 // import { retargetSkeleton, syncModelSkeletons } from '../animation/retargetSkeleton'
-import {
-  // BoneStructure,
-  // createSkeletonFromBone,
-  findSkinnedMeshes
-} from '../AvatarBoneMatching'
+import { findSkinnedMeshes } from '../AvatarBoneMatching'
 import { AnimationComponent } from '../components/AnimationComponent'
 import { AvatarAnimationComponent, AvatarRigComponent } from '../components/AvatarAnimationComponent'
 import { AvatarComponent } from '../components/AvatarComponent'
