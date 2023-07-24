@@ -48,12 +48,10 @@ import { InputComponent } from '../../input/components/InputComponent'
 import { InputSourceComponent } from '../../input/components/InputSourceComponent'
 import { StandardGamepadButton, XRStandardGamepadButton } from '../../input/state/ButtonState'
 import { InteractState } from '../../interaction/systems/InteractiveSystem'
-import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
 import { Physics, RaycastArgs } from '../../physics/classes/Physics'
 import { RigidBodyFixedTagComponent } from '../../physics/components/RigidBodyComponent'
 import { CollisionGroups } from '../../physics/enums/CollisionGroups'
 import { getInteractionGroups } from '../../physics/functions/getInteractionGroups'
-import { boxDynamicConfig } from '../../physics/functions/physicsObjectDebugFunctions'
 import { PhysicsState } from '../../physics/state/PhysicsState'
 import { SceneQueryType } from '../../physics/types/PhysicsTypes'
 import { RendererState } from '../../renderer/RendererState'
@@ -70,7 +68,11 @@ const _quat = new Quaternion()
  * On 'xr-standard' mapping, get thumbstick input [2,3], fallback to thumbpad input [0,1]
  * On 'standard' mapping, get thumbstick input [0,1]
  */
-export function getThumbstickOrThumbpadAxes(inputSource: XRInputSource, thumstick: XRHandedness, deadZone = 0.05) {
+export function getThumbstickOrThumbpadAxes(
+  inputSource: XRInputSource,
+  thumstick: XRHandedness,
+  deadZone: number = 0.05
+) {
   const gamepad = inputSource.gamepad
   const axes = gamepad!.axes
   const axesIndex = inputSource.gamepad?.mapping === 'xr-standard' || thumstick === 'right' ? 2 : 0
@@ -141,14 +143,6 @@ const onInteract = (handedness: XRHandedness = 'none') => {
     EngineActions.interactedWithObject({
       targetEntity: getState(InteractState).available[0],
       handedness
-    })
-  )
-}
-
-const onKeyO = () => {
-  dispatchAction(
-    WorldNetworkAction.spawnDebugPhysicsObject({
-      config: boxDynamicConfig
     })
   )
 }
@@ -276,7 +270,6 @@ const execute = () => {
     const gamepadJump = standardGamepad && buttons[StandardGamepadButton.ButtonA]?.down
 
     if (isDev) {
-      if (buttons.KeyO?.down) onKeyO()
       if (buttons.KeyP?.down) onKeyP()
     }
 

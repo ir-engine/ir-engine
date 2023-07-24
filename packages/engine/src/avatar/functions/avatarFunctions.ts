@@ -23,7 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { VRM, VRMHumanBoneName } from '@pixiv/three-vrm'
+import * as VRMUtils from '@pixiv/three-vrm'
+import { VRM, VRMHumanBone } from '@pixiv/three-vrm'
 import { clone, cloneDeep } from 'lodash'
 import { AnimationMixer, Bone, Box3, Group, Object3D, Skeleton, SkinnedMesh, Vector3 } from 'three'
 import { GLTF } from 'three/examples/jsm/loaders/GLTFLoader'
@@ -50,16 +51,16 @@ import { setObjectLayers } from '../../scene/functions/setObjectLayers'
 import iterateObject3D from '../../scene/util/iterateObject3D'
 import { computeTransformMatrix } from '../../transform/systems/TransformSystem'
 import { XRState } from '../../xr/XRState'
+import { AnimationManager } from '../AnimationManager'
 // import { retargetSkeleton, syncModelSkeletons } from '../animation/retargetSkeleton'
-import avatarBoneMatching, { findSkinnedMeshes } from '../AvatarBoneMatching'
+import avatarBoneMatching, { BoneNames, findSkinnedMeshes } from '../AvatarBoneMatching'
 import { AnimationComponent } from '../components/AnimationComponent'
 import { AvatarAnimationComponent, AvatarRigComponent } from '../components/AvatarAnimationComponent'
 import { AvatarComponent } from '../components/AvatarComponent'
 import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
 import { AvatarEffectComponent, MaterialMap } from '../components/AvatarEffectComponent'
 import { AvatarPendingComponent } from '../components/AvatarPendingComponent'
-// import { defaultBonesData } from '../DefaultSkeletonBones'
-import { AnimationState } from '../AnimationManager'
+import { defaultBonesData } from '../DefaultSkeletonBones'
 import { DissolveEffect } from '../DissolveEffect'
 import { resizeAvatar } from './resizeAvatar'
 
@@ -71,10 +72,10 @@ export const loadAvatarModelAsset = async (avatarURL: string) => {
   const scene = model.scene || model // FBX files does not have 'scene' property
   if (!scene) return
 
-  const vrm = (model instanceof VRM ? model : model.userData.vrm ?? avatarBoneMatching(scene)) as VRM
+  let vrm = (model instanceof VRM ? model : model.userData.vrm ?? avatarBoneMatching(scene)) as VRM
 
-  // VRMUtils.VRMUtils.removeUnnecessaryJoints(vrm.scene)
-  // VRMUtils.VRMUtils.removeUnnecessaryVertices(vrm.scene)
+  VRMUtils.VRMUtils.removeUnnecessaryJoints(vrm.scene)
+  VRMUtils.VRMUtils.removeUnnecessaryVertices(vrm.scene)
 
   return vrm as VRM
 }
@@ -84,13 +85,12 @@ export const loadAvatarForUser = async (
   avatarURL: string,
   loadingEffect = getState(EngineState).avatarLoadingEffect && !getState(XRState).sessionActive && !iOS
 ) => {
-  const avatarPendingComponent = getComponent(entity, AvatarPendingComponent)
-  if (hasComponent(entity, AvatarPendingComponent) && avatarPendingComponent.url === avatarURL) return
+  if (hasComponent(entity, AvatarPendingComponent) && getComponent(entity, AvatarPendingComponent).url === avatarURL)
+    return
 
   if (loadingEffect) {
     if (hasComponent(entity, AvatarControllerComponent)) {
-      const avatarControllerComponent = getComponent(entity, AvatarControllerComponent)
-      avatarControllerComponent.movementEnabled = false
+      getComponent(entity, AvatarControllerComponent).movementEnabled = false
     }
   }
 
@@ -98,7 +98,8 @@ export const loadAvatarForUser = async (
   const parent = (await loadAvatarModelAsset(avatarURL)) as VRM
 
   /** hack a cancellable promise - check if the url we start with is the one we end up with */
-  if (!hasComponent(entity, AvatarPendingComponent) || avatarPendingComponent?.url !== avatarURL) return
+  if (!hasComponent(entity, AvatarPendingComponent) || getComponent(entity, AvatarPendingComponent).url !== avatarURL)
+    return
 
   removeComponent(entity, AvatarPendingComponent)
 
@@ -149,7 +150,7 @@ export const createIKAnimator = async (entity: Entity) => {
 }
 
 export const getAnimations = async () => {
-  const manager = getMutableState(AnimationState)
+  const manager = getMutableState(AnimationManager)
   if (!manager.targetsAnimation.value) {
     const asset = await AssetLoader.loadAsync('/vrm_mocap_targets.glb')
     const glb = asset as GLTF
@@ -175,7 +176,6 @@ export const rigAvatarModel = (entity: Entity) => (model: VRM) => {
 
   const rigComponent = getComponent(entity, AvatarRigComponent)
   rigComponent.targets.name = 'IKTargets'
-
   for (const [key, value] of Object.entries(rigComponent.ikTargetsMap)) {
     value.name = key
     rigComponent.targets.add(value)
@@ -217,9 +217,9 @@ export const setupAvatarHeight = (entity: Entity, model: Object3D) => {
  * The skeleton created is compatible with default animation tracks
  * @returns SkinnedMesh
  */
-// export function makeDefaultSkinnedMesh() {
-//   return makeSkinnedMeshFromBoneData(defaultBonesData)
-// }
+export function makeDefaultSkinnedMesh() {
+  return makeSkinnedMeshFromBoneData(defaultBonesData)
+}
 
 /**
  * Creates an empty skinned mesh using list of bones to build skeleton structure
@@ -257,12 +257,12 @@ export function makeSkinnedMeshFromBoneData(bonesData) {
   return group
 }
 
-export const getAvatarBoneWorldPosition = (entity: Entity, boneName: VRMHumanBoneName, position: Vector3): boolean => {
+export const getAvatarBoneWorldPosition = (entity: Entity, boneName: BoneNames, position: Vector3): boolean => {
   const avatarRigComponent = getOptionalComponent(entity, AvatarRigComponent)
   if (!avatarRigComponent) return false
-  const bone = avatarRigComponent?.vrm?.humanoid?.getRawBone(boneName)
+  const bone = avatarRigComponent.rig[boneName.toLowerCase()] as VRMHumanBone
   if (!bone) return false
-  const el = bone?.node?.matrixWorld?.elements
+  const el = bone.node.matrixWorld.elements
   position.set(el[12], el[13], el[14])
   return true
 }

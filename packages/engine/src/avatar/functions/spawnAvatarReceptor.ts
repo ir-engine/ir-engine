@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { Collider, ColliderDesc, RigidBody, RigidBodyDesc } from '@dimforge/rapier3d-compat'
-import { AnimationClip, AnimationMixer, Object3D, Quaternion, Vector3 } from 'three'
+import { AnimationClip, AnimationMixer, Object3D, Vector3 } from 'three'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { UserId } from '@etherealengine/common/src/interfaces/UserId'
@@ -58,7 +58,6 @@ import { AnimationComponent } from '../components/AnimationComponent'
 import { AvatarAnimationComponent } from '../components/AvatarAnimationComponent'
 import { AvatarComponent } from '../components/AvatarComponent'
 import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
-import { SpawnPoseComponent } from '../components/SpawnPoseComponent'
 
 export const avatarRadius = 0.125
 export const defaultAvatarHeight = 1.8
@@ -106,11 +105,6 @@ export const spawnAvatarReceptor = (entityUUID: EntityUUID) => {
   setComponent(entity, AvatarAnimationComponent, {
     rootYRatio: 1,
     locomotion: new Vector3()
-  })
-
-  addComponent(entity, SpawnPoseComponent, {
-    position: new Vector3().copy(transform.position),
-    rotation: new Quaternion().copy(transform.rotation)
   })
 
   if (ownerID === Engine.instance.userId) {

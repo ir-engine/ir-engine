@@ -31,7 +31,6 @@ import { getMutableState, getState, none, useHookstate } from '@etherealengine/h
 
 import { matches } from '../../common/functions/MatchesUtils'
 import { proxifyQuaternion, proxifyVector3 } from '../../common/proxies/createThreejsProxy'
-
 import {
   defineComponent,
   getMutableComponent,
@@ -44,9 +43,8 @@ import { addObjectToGroup, removeObjectFromGroup } from '../../scene/components/
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
 import { setObjectLayers } from '../../scene/functions/setObjectLayers'
 import { PoseSchema } from '../../transform/components/TransformComponent'
-import { AnimationState } from '../AnimationManager'
+import { AnimationManager } from '../AnimationManager'
 import { AnimationComponent } from './AnimationComponent'
-
 import { AvatarPendingComponent } from './AvatarPendingComponent'
 
 export const AvatarAnimationComponent = defineComponent({
@@ -61,14 +59,7 @@ export const AvatarAnimationComponent = defineComponent({
       /** Time since the last update */
       deltaAccumulator: 0,
       /** Tells us if we are suspended in midair */
-      isGrounded: true,
-
-      animationGraph: {
-        states: {},
-        transitionRules: {},
-        currentState: null!,
-        stateChanged: null!
-      }
+      isGrounded: true
     }
   },
 
@@ -209,7 +200,7 @@ export const AvatarRigComponent = defineComponent({
     //Calculate ik target offsets for retargeting
     useEffect(() => {
       if (!animComponent.animations.value.length || !rigComponent.targets.children.length) return
-      const bindTracks = AnimationClip.findByName(getState(AnimationState).targetsAnimation!, 'BindPose').tracks
+      const bindTracks = AnimationClip.findByName(getState(AnimationManager).targetsAnimation!, 'BindPose').tracks
       if (!bindTracks) return
 
       rigComponent.bindRig.hips.node.value.getWorldPosition(offset).multiplyScalar(2)
@@ -272,12 +263,10 @@ export const AvatarRigComponent = defineComponent({
           case 'headHint':
           case 'headTarget':
             bonePos.copy(rigComponent.bindRig.head.value.node.matrixWorld)
-            break
           case 'hipsTarget':
             bonePos.copy(
               rigComponent.bindRig.hips.value.node.matrixWorld.multiply(new Matrix4().setPosition(0, -0.025, 0))
             )
-            break
         }
         const pos = new Vector3()
         bonePos.decompose(pos, new Quaternion(), new Vector3())
