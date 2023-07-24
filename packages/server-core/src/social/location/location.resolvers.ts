@@ -95,7 +95,9 @@ export const locationExternalResolver = resolve<LocationType, HookContext>({
       paginate: false
     })) as LocationBan[]
     return locationBan
-  }
+  },
+  isLobby: async (value, location) => !!location.isLobby, // https://stackoverflow.com/a/56523892/2077741
+  isFeatured: async (value, location) => !!location.isFeatured // https://stackoverflow.com/a/56523892/2077741
 })
 
 export const locationDataResolver = resolve<LocationDatabaseType, HookContext>({
