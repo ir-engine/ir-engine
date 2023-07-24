@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
 
-import { resolve } from '@feathersjs/schema'
+import { resolve, virtual } from '@feathersjs/schema'
 import { v4 } from 'uuid'
 
 import { LocationAuthorizedUser } from '@etherealengine/common/src/interfaces/LocationAuthorizedUser'
@@ -42,10 +42,8 @@ import type { HookContext } from '@etherealengine/server-core/declarations'
 import { getDateTimeSql } from '../../util/get-datetime-sql'
 import { LocationParams } from './location.class'
 
-export const locationResolver = resolve<LocationType, HookContext>({})
-
-export const locationExternalResolver = resolve<LocationType, HookContext>({
-  locationSetting: async (value, location, context) => {
+export const locationResolver = resolve<LocationType, HookContext>({
+  locationSetting: virtual(async (location, context) => {
     const locationSetting = await context.app.service(locationSettingPath).find({
       query: {
         locationId: location.id
@@ -53,8 +51,8 @@ export const locationExternalResolver = resolve<LocationType, HookContext>({
       paginate: false
     })
     return locationSetting.length > 0 ? locationSetting[0] : undefined
-  },
-  locationAdmin: async (value, location, context) => {
+  }),
+  locationAdmin: virtual(async (location, context) => {
     const params = context.params as LocationParams
     const loggedInUser = params.user
 
@@ -77,8 +75,8 @@ export const locationExternalResolver = resolve<LocationType, HookContext>({
     }
 
     return undefined
-  },
-  locationAuthorizedUsers: async (value, location, context) => {
+  }),
+  locationAuthorizedUsers: virtual(async (location, context) => {
     const locationAuthorizedUser = (await context.app.service('location-authorized-user').find({
       query: {
         locationId: location.id
@@ -86,8 +84,8 @@ export const locationExternalResolver = resolve<LocationType, HookContext>({
       paginate: false
     })) as LocationAuthorizedUser[]
     return locationAuthorizedUser
-  },
-  locationBans: async (value, location, context) => {
+  }),
+  locationBans: virtual(async (location, context) => {
     const locationBan = (await context.app.service('location-ban').find({
       query: {
         locationId: location.id
@@ -95,7 +93,10 @@ export const locationExternalResolver = resolve<LocationType, HookContext>({
       paginate: false
     })) as LocationBan[]
     return locationBan
-  },
+  })
+})
+
+export const locationExternalResolver = resolve<LocationType, HookContext>({
   isLobby: async (value, location) => !!location.isLobby, // https://stackoverflow.com/a/56523892/2077741
   isFeatured: async (value, location) => !!location.isFeatured // https://stackoverflow.com/a/56523892/2077741
 })
