@@ -131,12 +131,9 @@ export class LocationService<T = LocationType, ServiceParams extends Params = Lo
 
     try {
       const selfUser = params?.user
-      if (!selfUser || !selfUser.scopes || !selfUser.scopes.find((scope) => scope.type === 'admin:admin')) {
-        throw new Error('Only Admin can set Lobby')
-      }
 
       if (data.isLobby) {
-        await trx.from<LocationDatabaseType>(locationPath).update({ isLobby: false }).where({ isLobby: true })
+        await this.makeLobby(trx, selfUser)
       }
 
       const { locationSetting } = data
@@ -158,14 +155,14 @@ export class LocationService<T = LocationType, ServiceParams extends Params = Lo
         this.app.service('location-admin').Model.create(
           {
             locationId: inserted?.id,
-            userId: selfUser.id
+            userId: selfUser?.id
           },
           { transaction: t }
         ),
         this.app.service('location-authorized-user').Model.create(
           {
             locationId: inserted?.id,
-            userId: selfUser.id
+            userId: selfUser?.id
           },
           { transaction: t }
         )
@@ -201,14 +198,11 @@ export class LocationService<T = LocationType, ServiceParams extends Params = Lo
 
     try {
       const selfUser = params?.user
-      if (!selfUser || !selfUser.scopes || !selfUser.scopes.find((scope) => scope.type === 'admin:admin')) {
-        throw new Error('Only Admin can set Lobby')
-      }
 
       const oldLocation = await this.app.service(locationPath).get(id)
 
       if (!oldLocation.isLobby && data.isLobby) {
-        await trx.from<LocationDatabaseType>(locationPath).update({ isLobby: false }).where({ isLobby: true })
+        await this.makeLobby(trx, selfUser)
       }
 
       if (data.name) {
@@ -278,5 +272,13 @@ export class LocationService<T = LocationType, ServiceParams extends Params = Lo
     }
 
     return await super._remove(id)
+  }
+
+  async makeLobby(trx: Knex.Transaction, selfUser?: UserInterface) {
+    if (!selfUser || !selfUser.scopes || !selfUser.scopes.find((scope) => scope.type === 'admin:admin')) {
+      throw new Error('Only Admin can set Lobby')
+    }
+
+    await trx.from<LocationDatabaseType>(locationPath).update({ isLobby: false }).where({ isLobby: true })
   }
 }
