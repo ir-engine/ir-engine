@@ -104,7 +104,6 @@ export const locationQuerySchema = Type.Intersect(
       {
         joinableLocations: Type.Optional(Type.Boolean()),
         adminnedLocations: Type.Optional(Type.Boolean()),
-        slugifiedName: Type.Optional(Type.String()),
         search: Type.Optional(Type.String())
       },
       { additionalProperties: false }
