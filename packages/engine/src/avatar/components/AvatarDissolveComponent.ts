@@ -23,20 +23,24 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Material, Mesh, MeshBasicMaterial, MeshStandardMaterial, ShaderMaterial } from 'three'
+import { useEffect } from 'react'
+import { Mesh, MeshBasicMaterial, ShaderLib, ShaderMaterial, UniformsLib, UniformsUtils } from 'three'
 import matches from 'ts-matches'
 import { Entity } from '../../ecs/classes/Entity'
 import { defineComponent, getComponent } from '../../ecs/functions/ComponentFunctions'
+import { useEntityContext } from '../../ecs/functions/EntityFunctions'
+import { AvatarComponent } from './AvatarComponent'
+import { AvatarEffectComponent } from './AvatarEffectComponent'
 
 export const AvatarDissolveComponent = defineComponent({
   name: 'AvatarDissolveComponent',
 
   onInit: (entity) => {
     return {
-      minHeight: 0,
-      maxHeight: 0,
+      minHeight: -1,
+      maxHeight: 1,
       currentTime: 0,
-      dissolveMaterials: [] as Material[]
+      dissolveMaterials: [] as ShaderMaterial[]
     }
   },
 
@@ -48,13 +52,60 @@ export const AvatarDissolveComponent = defineComponent({
     if (matches.number.test(json.currentTime)) component.maxHeight.set(json.currentTime)
   },
 
-  createDissolveMaterial(object: Mesh<any, MeshBasicMaterial & ShaderMaterial>, entity: Entity): any {
+  reactor: () => {
+    const entity = useEntityContext()
+    const dissolveComponent = getComponent(entity, AvatarDissolveComponent)
+    const effectComponent = getComponent(entity, AvatarEffectComponent)
+    const avatarComponent = getComponent(effectComponent.sourceEntity, AvatarComponent)
+
+    useEffect(() => {
+      console.log(avatarComponent)
+      avatarComponent.model?.traverse((child: Mesh<any, any>) => {
+        AvatarDissolveComponent.createDissolveMaterial(child as any)
+        dissolveComponent.dissolveMaterials.push(child.material)
+      })
+    })
+
+    return null
+  },
+
+  createDissolveMaterial(object: Mesh<any, MeshBasicMaterial & ShaderMaterial>): any {
+    if (!object.material) return
+    console.log(object.material)
     const hasUV = object.geometry.hasAttribute('uv')
-    const material = object.material.clone()
+    const isShaderMaterial = object.material.type == 'ShaderMaterial'
+    const material = object.material
     const hasTexture = !!material.map
+
+    material.visible = true
+
+    const shaderNameMapping = {
+      MeshLambertMaterial: 'lambert',
+      MeshBasicMaterial: 'basic',
+      MeshStandardMaterial: 'standard',
+      MeshPhongMaterial: 'phong',
+      MeshMatcapMaterial: 'matcap',
+      MeshToonMaterial: 'toon',
+      PointsMaterial: 'points',
+      LineDashedMaterial: 'dashed',
+      MeshDepthMaterial: 'depth',
+      MeshNormalMaterial: 'normal',
+      MeshDistanceMaterial: 'distanceRGBA',
+      SpriteMaterial: 'sprite'
+    }
 
     let fragmentShader = ''
     let vertexShader = ''
+
+    if (isShaderMaterial) {
+      fragmentShader = material.fragmentShader
+      vertexShader = material.vertexShader
+    } else {
+      // built-in material
+      const shader = ShaderLib[shaderNameMapping[material.type] ?? 'standard']
+      fragmentShader = shader.fragmentShader
+      vertexShader = shader.vertexShader
+    }
 
     const vertexNonUVShader = `
     #include <fog_vertex>
@@ -131,29 +182,32 @@ export const AvatarDissolveComponent = defineComponent({
       hasTexture ? fragmentTextureShader : fragmentColorShader
     )
 
-    material.vertexShader = vertexShader
-    material.fragmentShader = fragmentShader
+    let uniforms = {}
 
-    const myMaterial = Object.assign(new MeshStandardMaterial(), material)
-    myMaterial.onBeforeCompile = function (shader) {
-      shader.fragmentShader = fragmentShader
-      shader.vertexShader = vertexShader
-      myMaterial.uniforms.time = { value: 1 }
+    for (const [key, value] of Object.entries(material)) {
+      uniforms[key] = { value: value }
     }
-    myMaterial.visible = material.visible
 
-    console.log(entity)
-    getComponent(entity, AvatarDissolveComponent).dissolveMaterials.push(myMaterial)
+    uniforms['time'] = { value: 0 }
 
-    return myMaterial
+    uniforms = UniformsUtils.merge([UniformsLib['lights'], uniforms])
+
+    const myMaterial = new ShaderMaterial({ uniforms, vertexShader, fragmentShader, lights: true, fog: false })
+
+    object.material = myMaterial as any
   },
 
   updateDissolveEffect(entity: Entity, dt: number) {
     const dissolveComponent = getComponent(entity, AvatarDissolveComponent)
+    const effect = getComponent(entity, AvatarEffectComponent)
+    if (!dissolveComponent) return false
     dissolveComponent.currentTime += dt
     for (let i = 0; i < dissolveComponent.dissolveMaterials.length; i++) {
-      ;(dissolveComponent.dissolveMaterials[i] as any).uniforms.time.value = dissolveComponent.currentTime
+      const material = dissolveComponent.dissolveMaterials[i]
+      if (material == undefined) continue
+      material.uniforms.time.value = dissolveComponent.currentTime
     }
+
     return dissolveComponent.currentTime >= dissolveComponent.maxHeight
   }
 })

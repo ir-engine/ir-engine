@@ -31,6 +31,7 @@ import {
   Box3,
   EquirectangularReflectionMapping,
   Group,
+  Material,
   Object3D,
   Skeleton,
   SkinnedMesh,
@@ -78,7 +79,6 @@ import { AnimationComponent } from '../components/AnimationComponent'
 import { AvatarAnimationComponent, AvatarRigComponent } from '../components/AvatarAnimationComponent'
 import { AvatarComponent } from '../components/AvatarComponent'
 import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
-import { AvatarDissolveComponent } from '../components/AvatarDissolveComponent'
 import { AvatarEffectComponent, MaterialMap } from '../components/AvatarEffectComponent'
 import { AvatarPendingComponent } from '../components/AvatarPendingComponent'
 import { resizeAvatar } from './resizeAvatar'
@@ -292,7 +292,7 @@ export const setupAvatarMaterials = (entity, root) => {
         id: object.uuid,
         material: material
       })
-      object.material = AvatarDissolveComponent.createDissolveMaterial(object, entity)
+      ;(material as Material).visible = false
     }
   })
 
