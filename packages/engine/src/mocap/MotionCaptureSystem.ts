@@ -40,11 +40,12 @@ import { EngineState } from '../ecs/classes/EngineState'
 import { getComponent } from '../ecs/functions/ComponentFunctions'
 import { removeEntity } from '../ecs/functions/EntityFunctions'
 import { defineSystem } from '../ecs/functions/SystemFunctions'
-import { DataChannelType, Network } from '../networking/classes/Network'
 import { addDataChannelHandler, removeDataChannelHandler } from '../networking/NetworkState'
+import { DataChannelType, Network } from '../networking/classes/Network'
+import { NetworkObjectComponent } from '../networking/components/NetworkObjectComponent'
 import { UUIDComponent } from '../scene/components/UUIDComponent'
 import { TransformComponent } from '../transform/components/TransformComponent'
-import { XRAction, XRState } from '../xr/XRState'
+import { XRAction } from '../xr/XRState'
 
 export const motionCaptureHeadSuffix = '_motion_capture_head'
 export const motionCaptureLeftHandSuffix = '_motion_capture_left_hand'
@@ -149,7 +150,7 @@ const execute = () => {
 
   for (const [peerID, mocapData] of timeSeriesMocapData) {
     const userID = network.peers.get(peerID)!.userId
-    const entity = Engine.instance.getUserAvatarEntity(userID)
+    const entity = NetworkObjectComponent.getUserAvatarEntity(userID)
 
     if (entity && entity === localClientEntity) {
       const data = mocapData.popLast()

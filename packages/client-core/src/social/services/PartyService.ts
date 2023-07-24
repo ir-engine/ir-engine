@@ -48,8 +48,7 @@ import {
   MediaInstanceState
 } from '../../common/services/MediaInstanceConnectionService'
 import { NotificationService } from '../../common/services/NotificationService'
-import { endVideoChat, leaveNetwork } from '../../transports/SocketWebRTCClientFunctions'
-import { SocketWebRTCClientNetwork } from '../../transports/SocketWebRTCClientFunctions'
+import { endVideoChat, leaveNetwork, SocketWebRTCClientNetwork } from '../../transports/SocketWebRTCClientFunctions'
 import { AuthState } from '../../user/services/AuthService'
 import { ChatAction, ChatService, ChatState } from './ChatService'
 import { InviteService } from './InviteService'

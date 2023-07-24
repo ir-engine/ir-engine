@@ -26,14 +26,12 @@ Ethereal Engine. All Rights Reserved.
 import { Paginated } from '@feathersjs/feathers'
 
 import { InstalledRoutesInterface } from '@etherealengine/common/src/interfaces/Route'
-import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { defineAction, defineState, dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
+import { defineState, getMutableState } from '@etherealengine/hyperflux'
 
 import { NotificationService } from '../../common/services/NotificationService'
-import { AuthState } from '../../user/services/AuthService'
+import { userIsAdmin } from '../../user/userHasAccess'
 
-//State
 export const ROUTE_PAGE_LIMIT = 10000
 
 export const AdminRouteState = defineState({
@@ -50,36 +48,17 @@ export const AdminRouteState = defineState({
   })
 })
 
-const installedRoutesRetrievedReceptor = (action: typeof AdminRouteActions.installedRoutesRetrieved.matches._TYPE) => {
-  const state = getMutableState(AdminRouteState)
-  return state.merge({ routes: action.data, updateNeeded: false })
-}
-
-export const AdminRouteReceptors = {
-  installedRoutesRetrievedReceptor
-}
-
-//Service
 export const RouteService = {
-  fetchInstalledRoutes: async (incDec?: 'increment' | 'decrement') => {
-    const user = getState(AuthState).user
+  fetchInstalledRoutes: async (page = 0) => {
     try {
-      if (user.scopes?.find((scope) => scope.type === 'admin:admin')) {
+      if (userIsAdmin()) {
         const routes = (await Engine.instance.api
           .service('routes-installed')
           .find()) as Paginated<InstalledRoutesInterface>
-        dispatchAction(AdminRouteActions.installedRoutesRetrieved({ data: routes.data }))
+        getMutableState(AdminRouteState).merge({ routes: routes.data, updateNeeded: false })
       }
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
   }
-}
-
-//Action
-export class AdminRouteActions {
-  static installedRoutesRetrieved = defineAction({
-    type: 'ee.client.AdminRoute.ADMIN_ROUTE_INSTALLED_RECEIVED' as const,
-    data: matches.array as Validator<unknown, InstalledRoutesInterface[]>
-  })
 }

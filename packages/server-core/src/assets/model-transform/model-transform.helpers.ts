@@ -25,7 +25,6 @@ Ethereal Engine. All Rights Reserved.
 
 import { Application } from '@feathersjs/koa/lib'
 import {
-  Accessor,
   BufferUtils,
   Document,
   Format,
@@ -191,13 +190,16 @@ const myInstance = async (document: Document) => {
   const meshes = root.listMeshes()
   console.log('meshes:', meshes)
   const nodes = root.listNodes().filter((node) => node.getMesh())
-  const table = nodes.reduce((_table, node) => {
-    const mesh = node.getMesh()
-    const idx = meshes.findIndex((mesh2) => mesh?.equals(mesh2))
-    _table[idx] = _table[idx] ?? []
-    _table[idx].push(node)
-    return _table
-  }, {} as Record<number, any[]>)
+  const table = nodes.reduce(
+    (_table, node) => {
+      const mesh = node.getMesh()
+      const idx = meshes.findIndex((mesh2) => mesh?.equals(mesh2))
+      _table[idx] = _table[idx] ?? []
+      _table[idx].push(node)
+      return _table
+    },
+    {} as Record<number, any[]>
+  )
   console.log('table:', table)
   const modifiedNodes = new Set<Node>()
   Object.entries(table)

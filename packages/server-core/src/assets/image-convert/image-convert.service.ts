@@ -24,11 +24,9 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import appRootPath from 'app-root-path'
-import { exec } from 'child_process'
 import fs from 'fs'
 import path from 'path'
 import sharp from 'sharp'
-import util from 'util'
 
 import { ImageConvertParms } from '@etherealengine/engine/src/assets/constants/ImageConvertParms'
 

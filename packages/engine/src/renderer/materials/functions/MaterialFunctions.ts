@@ -23,13 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Mesh, Object3D } from 'three'
+import { Mesh } from 'three'
 
 import multiLogger from '@etherealengine/common/src/logger'
 import { getState } from '@etherealengine/hyperflux'
 
 import { Engine } from '../../../ecs/classes/Engine'
-import iterateObject3D from '../../../scene/util/iterateObject3D'
 import { MaterialLibraryState } from '../MaterialLibrary'
 
 export function dedupMaterials() {

@@ -28,31 +28,29 @@ import i18n from 'i18next'
 import { useEffect } from 'react'
 import { v1 } from 'uuid'
 
-import { validateEmail, validatePhoneNumber } from '@etherealengine/common/src/config'
-import config from '@etherealengine/common/src/config'
-import { AuthStrategies } from '@etherealengine/common/src/interfaces/AuthStrategies'
+import config, { validateEmail, validatePhoneNumber } from '@etherealengine/common/src/config'
 import { AuthUser, AuthUserSeed, resolveAuthUser } from '@etherealengine/common/src/interfaces/AuthUser'
 import { IdentityProvider } from '@etherealengine/common/src/interfaces/IdentityProvider'
 import {
-  resolveUser,
-  resolveWalletUser,
   UserInterface,
   UserSeed,
-  UserSetting
+  UserSetting,
+  resolveUser,
+  resolveWalletUser
 } from '@etherealengine/common/src/interfaces/User'
-import { UserApiKey } from '@etherealengine/common/src/interfaces/UserApiKey'
 import multiLogger from '@etherealengine/common/src/logger'
-import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
+import { Validator, matches } from '@etherealengine/engine/src/common/functions/MatchesUtils'
+import { AuthStrategiesType } from '@etherealengine/engine/src/schemas/setting/authentication-setting.schema'
 import {
   defineAction,
   defineState,
   dispatchAction,
   getMutableState,
   getState,
-  syncStateWithLocalStorage,
-  useState
+  syncStateWithLocalStorage
 } from '@etherealengine/hyperflux'
 
+import { UserApiKeyType, userApiKeyPath } from '@etherealengine/engine/src/schemas/user/user-api-key.schema'
 import { API } from '../../API'
 import { NotificationService } from '../../common/services/NotificationService'
 import { LocationState } from '../../social/services/LocationService'
@@ -260,7 +258,7 @@ export class AuthAction {
 
   static apiKeyUpdatedAction = defineAction({
     type: 'ee.client.Auth.USER_API_KEY_UPDATED' as const,
-    apiKey: matches.object as Validator<unknown, UserApiKey>
+    apiKey: matches.object as Validator<unknown, UserApiKeyType>
   })
 }
 
@@ -616,7 +614,7 @@ export const AuthService = {
     }
   },
 
-  async createMagicLink(emailPhone: string, authState: AuthStrategies, linkType?: 'email' | 'sms') {
+  async createMagicLink(emailPhone: string, authState: AuthStrategiesType, linkType?: 'email' | 'sms') {
     dispatchAction(AuthAction.actionProcessing({ processing: true }))
 
     let type = 'email'
@@ -767,7 +765,7 @@ export const AuthService = {
   },
 
   async updateApiKey() {
-    const apiKey = (await API.instance.client.service('user-api-key').patch(null, {})) as UserApiKey
+    const apiKey = (await API.instance.client.service(userApiKeyPath).patch(null, {})) as UserApiKeyType
     dispatchAction(AuthAction.apiKeyUpdatedAction({ apiKey }))
   },
 

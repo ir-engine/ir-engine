@@ -26,8 +26,6 @@ Ethereal Engine. All Rights Reserved.
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { PresentationSystemGroup } from '@etherealengine/engine/src/ecs/functions/EngineFunctions'
-import { useSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import Box from '@etherealengine/ui/src/primitives/mui/Box'
 import Button from '@etherealengine/ui/src/primitives/mui/Button'
@@ -36,7 +34,6 @@ import CircularProgress from '@etherealengine/ui/src/primitives/mui/CircularProg
 import Grid from '@etherealengine/ui/src/primitives/mui/Grid'
 
 import { ProjectService, ProjectState } from '../../../common/services/ProjectService'
-import { ProjectUpdateSystem } from '../../../systems/ProjectUpdateSystem'
 import { AuthState } from '../../../user/services/AuthService'
 import styles from '../../styles/admin.module.scss'
 import BuildStatusDrawer from './BuildStatusDrawer'
@@ -60,8 +57,6 @@ const Projects = () => {
   const refreshGithubRepoAccess = () => {
     ProjectService.refreshGithubRepoAccess()
   }
-
-  useSystem(ProjectUpdateSystem, { after: PresentationSystemGroup })
 
   useEffect(() => {
     ProjectService.checkReloadStatus()

@@ -29,9 +29,9 @@ import { afterEach } from 'mocha'
 import { defineState, getMutableState } from '@etherealengine/hyperflux'
 
 import { createEngine } from '../../initializeEngine'
-import { destroyEngine, Engine } from '../classes/Engine'
+import { destroyEngine } from '../classes/Engine'
 import { EngineState } from '../classes/EngineState'
-import { executeSystems, PresentationSystemGroup, SimulationSystemGroup } from './EngineFunctions'
+import { executeSystems, SimulationSystemGroup } from './EngineFunctions'
 import { defineSystem, startSystem } from './SystemFunctions'
 
 const MockState = defineState({

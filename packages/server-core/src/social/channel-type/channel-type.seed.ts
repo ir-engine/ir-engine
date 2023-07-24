@@ -23,8 +23,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import config from '../../appconfig'
-
 export const channelTypeSeed = {
   path: 'channel-type',
   templates: [{ type: 'user' }, { type: 'group' }, { type: 'party' }, { type: 'instance' }]

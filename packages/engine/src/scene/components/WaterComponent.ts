@@ -43,6 +43,10 @@ export const WaterComponent = defineComponent({
     return water
   },
 
+  onSet: (entity, _component, json) => {
+    if (!json) return
+  },
+
   toJSON(entity, component) {
     return true
   }

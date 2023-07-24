@@ -24,16 +24,10 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { useEffect } from 'react'
-import { DoubleSide, Mesh, MeshBasicMaterial, PlaneGeometry } from 'three'
 
-import {
-  defineComponent,
-  hasComponent,
-  useComponent
-} from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
-import { createState, getMutableState, none, useHookstate } from '@etherealengine/hyperflux/functions/StateFunctions'
+import { defineComponent, useComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { getMutableState, none, useHookstate } from '@etherealengine/hyperflux/functions/StateFunctions'
 
-import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { PositionalAudioHelper } from '../../debug/PositionalAudioHelper'
 import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { RendererState } from '../../renderer/RendererState'

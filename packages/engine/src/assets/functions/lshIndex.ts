@@ -28,7 +28,10 @@ export type BinaryHash = string
 export class LSHIndex {
   private hashTables: Map<string, BinaryHash[]>[]
 
-  constructor(private k: number, private l: number) {
+  constructor(
+    private k: number,
+    private l: number
+  ) {
     this.hashTables = new Array(l).fill(null).map(() => new Map())
   }
 

@@ -55,8 +55,7 @@ import fetch from 'node-fetch'
 import { buffer } from 'node:stream/consumers'
 import path from 'path/posix'
 import S3BlobStore from 's3-blob-store'
-import { Readable } from 'stream'
-import { PassThrough } from 'stream'
+import { PassThrough, Readable } from 'stream'
 
 import { FileContentType } from '@etherealengine/common/src/interfaces/FileContentType'
 

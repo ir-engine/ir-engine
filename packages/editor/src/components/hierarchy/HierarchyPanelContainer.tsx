@@ -63,7 +63,7 @@ import { cmdOrCtrlString } from '../../functions/utils'
 import { EditorAction, EditorState } from '../../services/EditorServices'
 import { SelectionState } from '../../services/SelectionServices'
 import useUpload from '../assets/useUpload'
-import { addPrefabElement } from '../element/ElementList'
+import { addSceneComponentElement } from '../element/ElementList'
 import { ContextMenu } from '../layout/ContextMenu'
 import { updateProperties } from '../properties/Util'
 import { AppContext } from '../Search/context'
@@ -461,7 +461,7 @@ export default function HierarchyPanel({
       }
 
       if (item.type === ItemTypes.Prefab) {
-        addPrefabElement(item)
+        addSceneComponentElement(item) // TODO: need to test this
         return
       }
 

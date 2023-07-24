@@ -31,8 +31,7 @@ import { RecordingResult } from '@etherealengine/common/src/interfaces/Recording
 import { Application } from '../../../declarations'
 import { checkScope } from '../../hooks/verify-scope'
 import { UserParams } from '../../user/user/user.class'
-import { UnauthorizedException } from '../../util/exceptions/exception'
-import { NotFoundException } from '../../util/exceptions/exception'
+import { NotFoundException, UnauthorizedException } from '../../util/exceptions/exception'
 
 export type RecordingDataType = RecordingResult
 

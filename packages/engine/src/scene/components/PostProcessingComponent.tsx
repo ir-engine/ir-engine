@@ -23,27 +23,35 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { useEffect } from 'react'
+import React, { ReactElement, useEffect } from 'react'
 
 import { getMutableState, getState } from '@etherealengine/hyperflux'
 
 import { defineComponent, getComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
 import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { PostProcessingSettingsState } from '../../renderer/WebGLRendererSystem'
+import { EffectPropsSchema, EffectPropsSchemaType } from '../constants/PostProcessing'
 
 export const PostProcessingComponent = defineComponent({
   name: 'PostProcessingComponent',
   jsonID: 'postprocessing',
 
   onInit(entity) {
-    return JSON.parse(JSON.stringify(getState(PostProcessingSettingsState))) as typeof PostProcessingSettingsState._TYPE
+    return {
+      enabled: false,
+      effects: JSON.parse(JSON.stringify(getState(PostProcessingSettingsState).effects)) as EffectPropsSchema
+    }
   },
 
   onSet: (entity, component, json) => {
     if (!json) return
 
     if (json.enabled) component.enabled.set(json.enabled)
-    if (json.effects) component.effects.set(json.effects)
+    if (json.effects) {
+      for (const [name, effect] of Object.entries(json.effects)) {
+        component.effects[name].merge(effect)
+      }
+    }
   },
 
   toJSON: (entity, component) => {
@@ -53,19 +61,33 @@ export const PostProcessingComponent = defineComponent({
     }
   },
 
-  reactor: () => {
-    const entity = useEntityContext()
-    const component = useComponent(entity, PostProcessingComponent)
+  reactor: PostProcessingComponentReactor
+})
 
-    for (const prop of Object.keys(getState(PostProcessingSettingsState))) {
-      useEffect(() => {
-        if (component[prop].value !== getState(PostProcessingSettingsState)[prop])
-          getMutableState(PostProcessingSettingsState)[prop].set(
-            JSON.parse(JSON.stringify(getComponent(entity, PostProcessingComponent)[prop]))
-          )
-      }, [component[prop]])
-    }
+function PostProcessingComponentReactor(): ReactElement {
+  const entity = useEntityContext()
+  const component = useComponent(entity, PostProcessingComponent)
 
-    return null
-  }
+  useEffect(() => {
+    getMutableState(PostProcessingSettingsState).enabled.set(component.enabled.value)
+  }, [component.enabled])
+
+  return (
+    <>
+      {Object.entries(getComponent(entity, PostProcessingComponent).effects).map(([name, effect], index) => {
+        return <PostProcessingEffectReactor effect={effect} name={name} key={index} />
+      })}
+    </>
+  )
+}
+
+const PostProcessingEffectReactor = React.memo((props: { effect: EffectPropsSchemaType; name: string }) => {
+  const { effect, name } = props
+
+  useEffect(() => {
+    if (effect !== getState(PostProcessingSettingsState).effects[name])
+      getMutableState(PostProcessingSettingsState).effects[name].merge(JSON.parse(JSON.stringify(effect)))
+  }, [effect])
+
+  return <></>
 })

@@ -205,6 +205,6 @@ export default async function createReadableTexture(
   }
   finalTexture.wrapS = map.wrapS
   finalTexture.wrapT = map.wrapT
-  finalTexture.encoding = map.encoding
+  finalTexture.colorSpace = map.colorSpace
   return finalTexture
 }

@@ -25,13 +25,8 @@ Ethereal Engine. All Rights Reserved.
 
 import { Object3D } from 'three'
 
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
-import {
-  getComponent,
-  getOptionalComponent,
-  hasComponent
-} from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { getOptionalComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import {
   EntityOrObjectUUID,
   EntityTreeComponent,

@@ -46,7 +46,7 @@ import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoad
 import { AvatarRigComponent } from '@etherealengine/engine/src/avatar/components/AvatarAnimationComponent'
 import { getOptionalComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { AvatarType } from '@etherealengine/engine/src/schemas/user/avatar.schema'
-import { dispatchAction, getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import Box from '@etherealengine/ui/src/primitives/mui/Box'
 import Button from '@etherealengine/ui/src/primitives/mui/Button'
 import Container from '@etherealengine/ui/src/primitives/mui/Container'
@@ -64,7 +64,7 @@ import { useRender3DPanelSystem } from '../../../user/components/Panel3D/useRend
 import { AuthState } from '../../../user/services/AuthService'
 import { AvatarService } from '../../../user/services/AvatarService'
 import DrawerView from '../../common/DrawerView'
-import { AdminAvatarActions, AdminAvatarState } from '../../services/AvatarService'
+import { AdminAvatarState } from '../../services/AvatarService'
 import styles from '../../styles/admin.module.scss'
 
 export enum AvatarDrawerMode {
@@ -317,7 +317,7 @@ const AvatarDrawerContent = ({ open, mode, selectedAvatar, onClose }: Props) => 
       if (selectedAvatar?.id) {
         await AvatarService.patchAvatar(selectedAvatar, state.name.value, true, avatarFile, thumbnailFile)
       } else await AvatarService.createAvatar(avatarFile, thumbnailFile, state.name.value, true)
-      dispatchAction(AdminAvatarActions.avatarUpdated({}))
+      getMutableState(AdminAvatarState).merge({ updateNeeded: true })
 
       onClose()
     }

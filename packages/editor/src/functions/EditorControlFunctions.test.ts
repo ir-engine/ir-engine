@@ -41,9 +41,6 @@ import { addEntityNodeChild, EntityTreeComponent } from '@etherealengine/engine/
 import { createEngine } from '@etherealengine/engine/src/initializeEngine'
 import { GroupComponent } from '@etherealengine/engine/src/scene/components/GroupComponent'
 import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
-import { VisibleComponent } from '@etherealengine/engine/src/scene/components/VisibleComponent'
-import { ScenePrefabs } from '@etherealengine/engine/src/scene/systems/SceneObjectUpdateSystem'
-import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
 import { applyIncomingActions, getState } from '@etherealengine/hyperflux'
 
 import { registerEditorReceptors } from '../services/EditorServicesReceptor'
@@ -143,7 +140,7 @@ describe('EditorControlFunctions', () => {
     })
   })
 
-  describe('createObjectFromPrefab', async () => {
+  describe('createObjectFromSceneElement', async () => {
     let rootNode: Entity
 
     beforeEach(() => {
@@ -152,13 +149,6 @@ describe('EditorControlFunctions', () => {
       Engine.instance.store.defaultDispatchDelay = () => 0
 
       const world = getState(SceneState)
-
-      Engine.instance.scenePrefabRegistry.set(ScenePrefabs.group, [
-        { name: TransformComponent.jsonID },
-        { name: VisibleComponent.jsonID },
-        { name: GroupComponent.jsonID }
-      ])
-
       rootNode = world.sceneEntity
     })
 
@@ -167,7 +157,7 @@ describe('EditorControlFunctions', () => {
     })
 
     it('creates prefab of given type', () => {
-      const entity = EditorControlFunctions.createObjectFromPrefab(ScenePrefabs.group, rootNode)
+      const entity = EditorControlFunctions.createObjectFromSceneElement(GroupComponent.name, rootNode)
       assert(hasComponent(entity, EntityTreeComponent))
       assert.equal(getComponent(entity, EntityTreeComponent).parentEntity, rootNode)
       assert.equal(getComponent(rootNode, EntityTreeComponent).children.length, 1)
@@ -184,7 +174,7 @@ describe('EditorControlFunctions', () => {
       addEntityNodeChild(createEntity(), rootNode)
       console.log(rootNode)
 
-      const entity = EditorControlFunctions.createObjectFromPrefab(ScenePrefabs.group, rootNode, before)
+      const entity = EditorControlFunctions.createObjectFromSceneElement(GroupComponent.name, rootNode, before)
 
       assert.equal(getComponent(entity, EntityTreeComponent).parentEntity, rootNode)
       assert.equal(getComponent(rootNode, EntityTreeComponent).children.length, 6)
@@ -192,18 +182,13 @@ describe('EditorControlFunctions', () => {
     })
 
     it('creates unique name for each newly created objects', () => {
-      const entity1 = EditorControlFunctions.createObjectFromPrefab(ScenePrefabs.group, rootNode)
-      const entity2 = EditorControlFunctions.createObjectFromPrefab(ScenePrefabs.group, rootNode)
-      const entity3 = EditorControlFunctions.createObjectFromPrefab(ScenePrefabs.group, rootNode)
+      const entity1 = EditorControlFunctions.createObjectFromSceneElement(GroupComponent.name, rootNode)
+      const entity2 = EditorControlFunctions.createObjectFromSceneElement(GroupComponent.name, rootNode)
+      const entity3 = EditorControlFunctions.createObjectFromSceneElement(GroupComponent.name, rootNode)
 
       assert.equal(getComponent(entity1, NameComponent), 'New Group')
-      /**@todo fix name iteration */
-      // assert.equal(getComponent(entity2, NameComponent), 'New Group 2')
-      // assert.equal(getComponent(entity3, NameComponent), 'New Group 3')
-    })
-
-    afterEach(() => {
-      NameComponent.entitiesByNameState.set({})
+      assert.equal(getComponent(entity2, NameComponent), 'New Group 2')
+      assert.equal(getComponent(entity3, NameComponent), 'New Group 3')
     })
   })
 
@@ -258,12 +243,6 @@ describe('EditorControlFunctions', () => {
       Engine.instance.store.defaultDispatchDelay = () => 0
 
       const world = getState(SceneState)
-
-      Engine.instance.scenePrefabRegistry.set(ScenePrefabs.group, [
-        { name: TransformComponent.jsonID },
-        { name: VisibleComponent.jsonID },
-        { name: GroupComponent.jsonID }
-      ])
 
       const rootNode = world.sceneEntity
       nodes = [createEntity(), createEntity()]

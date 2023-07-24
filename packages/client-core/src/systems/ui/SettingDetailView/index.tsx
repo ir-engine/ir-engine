@@ -24,10 +24,9 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { createState } from '@hookstate/core'
-import React, { useEffect, useLayoutEffect, useRef, useState } from 'react'
+import React, { useEffect, useLayoutEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { UserSetting } from '@etherealengine/common/src/interfaces/User'
 import { AudioSettingAction, AudioState } from '@etherealengine/engine/src/audio/AudioState'
 import { AvatarComponent } from '@etherealengine/engine/src/avatar/components/AvatarComponent'
 import {

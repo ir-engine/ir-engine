@@ -23,10 +23,15 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { UserId } from './UserId'
+import { EventQueue, World as PhysicsWorld } from '@dimforge/rapier3d-compat'
+import { defineState } from '@etherealengine/hyperflux'
 
-export interface UserApiKey {
-  id: string
-  token: string
-  userId: UserId
-}
+export const PhysicsState = defineState({
+  name: 'ee.engine.PhysicsState',
+  initial: () => {
+    return {
+      physicsWorld: null! as PhysicsWorld,
+      physicsCollisionEventQueue: null! as EventQueue
+    }
+  }
+})

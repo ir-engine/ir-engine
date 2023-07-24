@@ -210,8 +210,10 @@ export function getParentsHTML(
       (tag === 'html'
         ? ` ${WebRenderer.RENDERING_DOCUMENT_ATTRIBUTE}="" xmlns="http://www.w3.org/1999/xhtml"
                     style="${getPixelScaleStyling(textureWidth / fullWidth, textureHeight / fullHeight)} --x-width:${
-            metrics.bounds.width
-          }px; --x-height:${metrics.bounds.height}px; ${style} width:${fullWidth}px; height:${fullHeight}px;" `
+                      metrics.bounds.width
+                    }px; --x-height:${
+                      metrics.bounds.height
+                    }px; ${style} width:${fullWidth}px; height:${fullHeight}px;" `
         : ` style="${style}" ${WebRenderer.RENDERING_PARENT_ATTRIBUTE}="" `) +
       attributes +
       ' >'

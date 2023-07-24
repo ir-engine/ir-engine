@@ -30,7 +30,6 @@ import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import {
   helmBuilderVersionPath,
   helmMainVersionPath,
-  HelmSettingPatch,
   helmSettingPath,
   HelmSettingType
 } from '@etherealengine/engine/src/schemas/setting/helm-setting.schema'

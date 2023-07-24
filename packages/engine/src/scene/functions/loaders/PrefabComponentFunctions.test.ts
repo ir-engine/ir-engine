@@ -35,10 +35,9 @@ import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
 import {
   addComponent,
   getAllComponentsOfType,
-  getComponent,
-  hasComponent
+  getComponent
 } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
-import { createEntity, removeEntity } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
+import { createEntity } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
 import {
   addEntityNodeChild,
   destroyEntityTree,

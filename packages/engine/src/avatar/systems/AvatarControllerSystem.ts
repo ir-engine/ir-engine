@@ -37,7 +37,6 @@ import {
   getOptionalComponent,
   hasComponent,
   removeComponent,
-  removeQuery,
   setComponent
 } from '../../ecs/functions/ComponentFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'

@@ -23,7 +23,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import cx from 'classnames'
 import React, { PropsWithChildren } from 'react'
 
 import { NodeCategory, NodeSpecJSON } from '@etherealengine/engine/src/behave-graph/core'

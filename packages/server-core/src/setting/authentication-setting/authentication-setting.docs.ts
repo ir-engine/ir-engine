@@ -23,33 +23,24 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Application } from '../../../declarations'
-import appconfig from '../../appconfig'
-import config from '../../appconfig'
-import logger from '../../ServerLogger'
-import { updateAppConfig } from '../../updateAppConfig'
-import authentication from '../../user/authentication'
-import { Authentication } from './authentication.class'
-import hooks from './authentication.hooks'
-import createModel from './authentication.model'
+import { createSwaggerServiceOptions } from 'feathers-swagger'
 
-declare module '@etherealengine/common/declarations' {
-  interface ServiceTypes {
-    'authentication-setting': Authentication
+import {
+  authenticationSettingDataSchema,
+  authenticationSettingPatchSchema,
+  authenticationSettingQuerySchema,
+  authenticationSettingSchema
+} from '@etherealengine/engine/src/schemas/setting/authentication-setting.schema'
+
+export default createSwaggerServiceOptions({
+  schemas: {
+    authenticationSettingDataSchema,
+    authenticationSettingPatchSchema,
+    authenticationSettingQuerySchema,
+    authenticationSettingSchema
+  },
+  docs: {
+    description: 'Authentication setting service description',
+    securities: ['all']
   }
-}
-
-export default (app: Application): void => {
-  const options = {
-    Model: createModel(app),
-    paginate: app.get('paginate'),
-    multi: true
-  }
-
-  const event = new Authentication(options, app)
-  app.use('authentication-setting', event)
-
-  const service = app.service('authentication-setting')
-
-  service.hooks(hooks)
-}
+})

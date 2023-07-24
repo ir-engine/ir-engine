@@ -31,7 +31,6 @@ import { Message as MessageInterface } from '@etherealengine/common/src/interfac
 import { UserInterface } from '@etherealengine/common/src/interfaces/User'
 
 import { Application } from '../../../declarations'
-import logger from '../../ServerLogger'
 import { UserParams } from '../../user/user/user.class'
 
 export interface MessageParams extends UserParams {

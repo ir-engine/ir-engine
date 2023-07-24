@@ -25,8 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import React from 'react'
 
-import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
-import { getMutableState, receiveActions, useState } from '@etherealengine/hyperflux'
+import { receiveActions } from '@etherealengine/hyperflux'
 
 import { defineSystem } from '../ecs/functions/SystemFunctions'
 import { AvatarState, AvatarStateReactor } from './state/AvatarNetworkState'

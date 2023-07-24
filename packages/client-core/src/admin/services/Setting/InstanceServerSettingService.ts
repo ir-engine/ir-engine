@@ -25,13 +25,12 @@ Ethereal Engine. All Rights Reserved.
 
 import { Paginated } from '@feathersjs/feathers'
 
-import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import {
   instanceServerSettingPath,
   InstanceServerSettingType
 } from '@etherealengine/engine/src/schemas/setting/instance-server-setting.schema'
-import { defineAction, defineState, dispatchAction, getMutableState } from '@etherealengine/hyperflux'
+import { defineState, getMutableState } from '@etherealengine/hyperflux'
 
 import { NotificationService } from '../../../common/services/NotificationService'
 
@@ -43,33 +42,18 @@ export const AdminInstanceServerSettingsState = defineState({
   })
 })
 
-const fetchedInstanceServerReceptor = (
-  action: typeof InstanceServerSettingActions.fetchedInstanceServer.matches._TYPE
-) => {
-  const state = getMutableState(AdminInstanceServerSettingsState)
-  return state.merge({ instanceServer: action.instanceServerSettings.data, updateNeeded: false })
-}
-
-export const AdminInstanceServerReceptors = {
-  fetchedInstanceServerReceptor
-}
-
 export const InstanceServerSettingService = {
   fetchedInstanceServerSettings: async (inDec?: 'increment' | 'decrement') => {
     try {
       const instanceServerSettings = (await Engine.instance.api
         .service(instanceServerSettingPath)
         .find()) as Paginated<InstanceServerSettingType>
-      dispatchAction(InstanceServerSettingActions.fetchedInstanceServer({ instanceServerSettings }))
+      getMutableState(AdminInstanceServerSettingsState).merge({
+        instanceServer: instanceServerSettings.data,
+        updateNeeded: false
+      })
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
   }
-}
-
-export class InstanceServerSettingActions {
-  static fetchedInstanceServer = defineAction({
-    type: 'ee.client.InstanceServerSetting.INSTANCE_SERVER_SETTING_DISPLAY',
-    instanceServerSettings: matches.object as Validator<unknown, Paginated<InstanceServerSettingType>>
-  })
 }

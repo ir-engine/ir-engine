@@ -23,11 +23,10 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 import { defineAction, dispatchAction } from '@etherealengine/hyperflux'
 
-import { matches, matchesPeerID, matchesUserId } from '../common/functions/MatchesUtils'
+import { matches, matchesUserId } from '../common/functions/MatchesUtils'
 import { NetworkTopics } from '../networking/classes/Network'
 import { Engine } from './classes/Engine'
 

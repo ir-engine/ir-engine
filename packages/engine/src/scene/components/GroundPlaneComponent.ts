@@ -30,11 +30,9 @@ import { Color, Mesh, MeshLambertMaterial, PlaneGeometry, ShadowMaterial } from 
 import { getState } from '@etherealengine/hyperflux'
 
 import { matches } from '../../common/functions/MatchesUtils'
-import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
 import {
   defineComponent,
-  getMutableComponent,
   hasComponent,
   removeComponent,
   setComponent,
@@ -44,9 +42,10 @@ import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { Physics } from '../../physics/classes/Physics'
 import { CollisionGroups } from '../../physics/enums/CollisionGroups'
 import { getInteractionGroups } from '../../physics/functions/getInteractionGroups'
+import { PhysicsState } from '../../physics/state/PhysicsState'
 import { ObjectLayers } from '../constants/ObjectLayers'
 import { enableObjectLayer } from '../functions/setObjectLayers'
-import { addObjectToGroup, GroupComponent, removeObjectFromGroup } from './GroupComponent'
+import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
 import { SceneAssetPendingTagComponent } from './SceneAssetPendingTagComponent'
 import { SceneObjectComponent } from './SceneObjectComponent'
 
@@ -111,12 +110,13 @@ export const GroundPlaneComponent = defineComponent({
         getInteractionGroups(CollisionGroups.Ground, CollisionGroups.Default | CollisionGroups.Avatars)
       )
 
-      Physics.createRigidBody(entity, Engine.instance.physicsWorld, rigidBodyDesc, [colliderDesc])
+      const physicsWorld = getState(PhysicsState).physicsWorld
+      Physics.createRigidBody(entity, physicsWorld, rigidBodyDesc, [colliderDesc])
 
       if (hasComponent(entity, SceneAssetPendingTagComponent)) removeComponent(entity, SceneAssetPendingTagComponent)
 
       return () => {
-        Physics.removeRigidBody(entity, Engine.instance.physicsWorld)
+        Physics.removeRigidBody(entity, physicsWorld)
         removeObjectFromGroup(entity, component.mesh.value)
       }
     }, [])

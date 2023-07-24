@@ -23,55 +23,34 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { useEffect } from 'react'
-import React from 'react'
+import React, { useEffect } from 'react'
 import {
-  Color,
-  DataTexture,
-  DoubleSide,
-  IntType,
   Material,
   Mesh,
-  MeshBasicMaterial,
   MeshLambertMaterial,
   MeshPhongMaterial,
   MeshPhysicalMaterial,
-  MeshStandardMaterial,
-  RGBAFormat,
-  Texture
+  MeshStandardMaterial
 } from 'three'
 
 import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
 import { createGLTFLoader } from '../../assets/functions/createGLTFLoader'
-import { loadDRACODecoderNode } from '../../assets/loaders/gltf/NodeDracoLoader'
 import { isClient } from '../../common/functions/getEnvironment'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
-import {
-  defineQuery,
-  getComponent,
-  hasComponent,
-  removeQuery,
-  useOptionalComponent
-} from '../../ecs/functions/ComponentFunctions'
+import { defineQuery, getComponent, hasComponent, useOptionalComponent } from '../../ecs/functions/ComponentFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
-import { updateShadowMap } from '../../renderer/functions/RenderSettingsFunction'
 import { registerMaterial, unregisterMaterial } from '../../renderer/materials/functions/MaterialLibraryFunctions'
 import { RendererState } from '../../renderer/RendererState'
-import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { DistanceFromCameraComponent, FrustumCullCameraComponent } from '../../transform/components/DistanceComponents'
-import { TransformComponent } from '../../transform/components/TransformComponent'
 import { isMobileXRHeadset } from '../../xr/XRState'
 import { CallbackComponent } from '../components/CallbackComponent'
-import { applyBoxProjection, EnvMapBakeComponent } from '../components/EnvMapBakeComponent'
-import { EnvmapComponent } from '../components/EnvmapComponent'
 import { GroupComponent, GroupQueryReactor, Object3DWithEntity } from '../components/GroupComponent'
 import { ShadowComponent } from '../components/ShadowComponent'
 import { UpdatableCallback, UpdatableComponent } from '../components/UpdatableComponent'
 import { VisibleComponent } from '../components/VisibleComponent'
-import { getRGBArray } from '../constants/Util'
 import { EnvironmentSystem } from './EnvironmentSystem'
 import { FogSystem } from './FogSystem'
 import { ShadowSystem } from './ShadowSystem'

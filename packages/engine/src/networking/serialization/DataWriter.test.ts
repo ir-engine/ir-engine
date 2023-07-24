@@ -23,9 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { act } from '@testing-library/react'
 import { strictEqual } from 'assert'
-import { Group, Matrix4, Quaternion, Vector3 } from 'three'
+import { Quaternion, Vector3 } from 'three'
 
 import { NetworkId } from '@etherealengine/common/src/interfaces/NetworkId'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
@@ -34,7 +33,6 @@ import { getMutableState, getState } from '@etherealengine/hyperflux'
 
 import { createMockNetwork } from '../../../tests/util/createMockNetwork'
 import { roundNumberToPlaces } from '../../../tests/util/MathTestUtils'
-import { proxifyQuaternion, proxifyVector3 } from '../../common/proxies/createThreejsProxy'
 import { destroyEngine, Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
@@ -47,7 +45,6 @@ import {
   readRotation,
   TransformSerialization,
   writePosition,
-  writeRotation,
   writeTransform
 } from '../../transform/TransformSerialization'
 import { Network } from '../classes/Network'
@@ -64,15 +61,7 @@ import {
   writeVector3
   // writeXRHands
 } from './DataWriter'
-import {
-  createViewCursor,
-  readFloat32,
-  readFloat64,
-  readUint8,
-  readUint16,
-  readUint32,
-  sliceViewCursor
-} from './ViewCursor'
+import { createViewCursor, readFloat64, readUint32, readUint8, sliceViewCursor } from './ViewCursor'
 
 describe('DataWriter', () => {
   beforeEach(() => {

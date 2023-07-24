@@ -22,7 +22,7 @@ Original Code is the Ethereal Engine team.
 All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
 Ethereal Engine. All Rights Reserved.
 */
-import { BotCommandData, BotCommandType } from '@etherealengine/engine/src/schemas/bot/bot-command.schema'
+import { BotCommandData } from '@etherealengine/engine/src/schemas/bot/bot-command.schema'
 
 export interface AdminBot {
   id: string

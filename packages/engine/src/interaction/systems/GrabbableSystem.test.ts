@@ -31,25 +31,27 @@ import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { NetworkId } from '@etherealengine/common/src/interfaces/NetworkId'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { UserId } from '@etherealengine/common/src/interfaces/UserId'
-import { applyIncomingActions, clearOutgoingActions, dispatchAction, receiveActions } from '@etherealengine/hyperflux'
+import {
+  applyIncomingActions,
+  clearOutgoingActions,
+  dispatchAction,
+  getMutableState,
+  getState,
+  receiveActions
+} from '@etherealengine/hyperflux'
 
 import { getHandTarget } from '../../avatar/components/AvatarIKComponents'
 import { spawnAvatarReceptor } from '../../avatar/functions/spawnAvatarReceptor'
 import { AvatarNetworkAction } from '../../avatar/state/AvatarNetworkState'
 import { destroyEngine, Engine } from '../../ecs/classes/Engine'
-import {
-  addComponent,
-  ComponentType,
-  getComponent,
-  hasComponent,
-  removeComponent
-} from '../../ecs/functions/ComponentFunctions'
+import { addComponent, getComponent, hasComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { createEngine } from '../../initializeEngine'
 import { Network } from '../../networking/classes/Network'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
 import { EntityNetworkState } from '../../networking/state/EntityNetworkState'
 import { Physics } from '../../physics/classes/Physics'
+import { PhysicsState } from '../../physics/state/PhysicsState'
 import { addObjectToGroup } from '../../scene/components/GroupComponent'
 import { setTransformComponent, TransformComponent } from '../../transform/components/TransformComponent'
 import { GrabbedComponent, GrabberComponent } from '../components/GrabbableComponent'
@@ -63,7 +65,7 @@ describe.skip('EquippableSystem Integration Tests', () => {
     createEngine()
     await Physics.load()
     Engine.instance.store.defaultDispatchDelay = () => 0
-    Engine.instance.physicsWorld = Physics.createWorld()
+    getMutableState(PhysicsState).physicsWorld.set(Physics.createWorld())
   })
 
   afterEach(() => {
@@ -157,7 +159,7 @@ describe.skip('EquippableSystem Integration Tests', () => {
     mesh.userData = bodyOptions
 
     addObjectToGroup(grabbableEntity, mesh)
-    Physics.createRigidBodyForGroup(grabbableEntity, Engine.instance.physicsWorld, bodyOptions)
+    Physics.createRigidBodyForGroup(grabbableEntity, getState(PhysicsState).physicsWorld, bodyOptions)
     // network mock stuff
     // initially the object is owned by server
     addComponent(grabbableEntity, NetworkObjectComponent, {
