@@ -191,7 +191,7 @@ const EnvBakeComponentReactor = (props: { envmapEntity: Entity; bakeEntity: Enti
   return null
 }
 
-function updateEnvMap(obj3ds: Object3D[], envmap: Texture | null) {
+export function updateEnvMap(obj3ds: Object3D[], envmap: Texture | null) {
   if (!obj3ds?.length) return
 
   for (const obj of obj3ds) {
@@ -199,6 +199,7 @@ function updateEnvMap(obj3ds: Object3D[], envmap: Texture | null) {
       obj.environment = envmap
     } else {
       obj.traverse((child: Mesh<any, MeshStandardMaterial>) => {
+        console.log(child.material)
         if (child.material instanceof MeshMatcapMaterial) return
         if (child.material) child.material.envMap = envmap!
       })

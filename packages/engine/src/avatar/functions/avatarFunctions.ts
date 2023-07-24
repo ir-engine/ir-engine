@@ -24,7 +24,18 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { pipe } from 'bitecs'
-import { AnimationClip, AnimationMixer, Bone, Box3, Group, Object3D, Skeleton, SkinnedMesh, Vector3 } from 'three'
+import {
+  AnimationClip,
+  AnimationMixer,
+  Bone,
+  Box3,
+  EquirectangularReflectionMapping,
+  Group,
+  Object3D,
+  Skeleton,
+  SkinnedMesh,
+  Vector3
+} from 'three'
 
 import { dispatchAction, getState } from '@etherealengine/hyperflux'
 
@@ -38,6 +49,7 @@ import { EngineActions, EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import {
   addComponent,
+  defineQuery,
   getComponent,
   getOptionalComponent,
   hasComponent,
@@ -47,26 +59,28 @@ import {
 import { createEntity } from '../../ecs/functions/EntityFunctions'
 import UpdateableObject3D from '../../scene/classes/UpdateableObject3D'
 import { setCallback } from '../../scene/components/CallbackComponent'
-import { addObjectToGroup, GroupComponent, removeObjectFromGroup } from '../../scene/components/GroupComponent'
+import { EnvMapBakeComponent } from '../../scene/components/EnvMapBakeComponent'
+import { updateEnvMap } from '../../scene/components/EnvmapComponent'
+import { GroupComponent, addObjectToGroup, removeObjectFromGroup } from '../../scene/components/GroupComponent'
 import { UpdatableCallback, UpdatableComponent } from '../../scene/components/UpdatableComponent'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
 import { setObjectLayers } from '../../scene/functions/setObjectLayers'
 import iterateObject3D from '../../scene/util/iterateObject3D'
 import { computeTransformMatrix, updateGroupChildren } from '../../transform/systems/TransformSystem'
 import { XRState } from '../../xr/XRState'
+import avatarBoneMatching, { BoneNames, createSkeletonFromBone, findSkinnedMeshes } from '../AvatarBoneMatching'
+import { defaultBonesData } from '../DefaultSkeletonBones'
+import { SkeletonUtils } from '../SkeletonUtils'
 import { createAvatarAnimationGraph } from '../animation/AvatarAnimationGraph'
 import { applySkeletonPose, isSkeletonInTPose, makeTPose } from '../animation/avatarPose'
 import { retargetSkeleton, syncModelSkeletons } from '../animation/retargetSkeleton'
-import avatarBoneMatching, { BoneNames, createSkeletonFromBone, findSkinnedMeshes } from '../AvatarBoneMatching'
 import { AnimationComponent } from '../components/AnimationComponent'
 import { AvatarAnimationComponent, AvatarRigComponent } from '../components/AvatarAnimationComponent'
 import { AvatarComponent } from '../components/AvatarComponent'
 import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
+import { AvatarDissolveComponent } from '../components/AvatarDissolveComponent'
 import { AvatarEffectComponent, MaterialMap } from '../components/AvatarEffectComponent'
 import { AvatarPendingComponent } from '../components/AvatarPendingComponent'
-import { defaultBonesData } from '../DefaultSkeletonBones'
-import { DissolveEffect } from '../DissolveEffect'
-import { SkeletonUtils } from '../SkeletonUtils'
 import { resizeAvatar } from './resizeAvatar'
 
 const tempVec3ForHeight = new Vector3()
@@ -158,11 +172,30 @@ export const setupAvatarForUser = (entity: Entity, model: Object3D) => {
   setupAvatarHeight(entity, model)
 
   setObjectLayers(model, ObjectLayers.Avatar)
+
+  setupAvatarEnvmaps(entity, model)
+
   avatar.model = model
 }
 
 export const setupAvatarModel = (entity: Entity) =>
   pipe(boneMatchAvatarModel(entity), rigAvatarModel(entity), animateAvatarModel(entity))
+
+const setupAvatarEnvmaps = (entity: Entity, model: Object3D) => {
+  //query all envmap bake components and get the url from the first one
+  const envmapBakes = defineQuery([EnvMapBakeComponent])
+  const envmapBake = getComponent(envmapBakes()[0], EnvMapBakeComponent)
+  console.log(envmapBake)
+  AssetLoader.loadAsync(envmapBake.envMapOrigin, {}).then((texture) => {
+    if (texture) {
+      console.log(texture)
+      texture.mapping = EquirectangularReflectionMapping
+      console.log(getComponent(entity, GroupComponent))
+
+      updateEnvMap(getComponent(entity, GroupComponent), texture)
+    }
+  })
+}
 
 export const boneMatchAvatarModel = (entity: Entity) => (model: Object3D) => {
   const assetType = model.userData.type
@@ -259,7 +292,7 @@ export const setupAvatarMaterials = (entity, root) => {
         id: object.uuid,
         material: material
       })
-      object.material = DissolveEffect.createDissolveMaterial(object)
+      object.material = AvatarDissolveComponent.createDissolveMaterial(object, entity)
     }
   })
 
