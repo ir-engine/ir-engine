@@ -138,7 +138,8 @@ const _hipRot = new Quaternion()
 const leftLegVector = new Vector3()
 const rightLegVector = new Vector3()
 
-const midAxisRestriction = new Euler(-Math.PI / 4, undefined, undefined) // Restrict rotation around the X-axis to 45 degrees
+const midAxisRestriction = new Euler(0, 0, 0) // Restrict rotation around the X-axis to 45 degrees
+const tipAxisRestriction = new Euler(0, 0, 0) // Restrict rotation around the X-axis to 45 degrees
 
 interface targetTransform {
   position: Vector3
@@ -472,7 +473,7 @@ const execute = () => {
       worldSpaceTargets.rightHandTarget.rotation,
       null,
       worldSpaceTargets.rightElbowHint.position,
-      null,
+      tipAxisRestriction,
       midAxisRestriction,
       null,
       1,
@@ -487,7 +488,7 @@ const execute = () => {
       worldSpaceTargets.leftHandTarget.rotation,
       null,
       worldSpaceTargets.leftElbowHint.position,
-      null,
+      tipAxisRestriction,
       midAxisRestriction,
       null,
       1,
