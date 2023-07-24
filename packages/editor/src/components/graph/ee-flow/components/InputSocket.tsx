@@ -54,9 +54,10 @@ const InputFieldForValue = ({
   const inputVal = String(value) ?? defaultValue ?? ''
   const inputSocketStyle = {
     backgroundColor: '#4a5568',
-    cursor: 'not-allowed',
-    padding: '0.25rem 0.5rem',
+    cursor: 'pointer',
+    padding: '0 .5rem',
     userDrag: 'none',
+    marginRight: '0.5rem',
     WebkitUserDrag: 'none',
     MozUserDrag: 'none'
   }
@@ -148,10 +149,17 @@ const InputSocket: React.FC<InputSocketProps> = ({ connected, specJSON, ...rest 
 
   return (
     <div
-      style={{ display: 'flex', flexGrow: 1, alignItems: 'center', justifyContent: 'flex-start', height: '1.75rem' }}
+      style={{
+        display: 'flex',
+        flexGrow: 1,
+        alignItems: 'center',
+        position: 'relative',
+        justifyContent: 'flex-start',
+        height: '1.75rem'
+      }}
     >
       {isFlowSocket && <FontAwesomeIcon icon={faCaretRight} color="#ffffff" size="lg" />}
-      {showName && <div style={{ textTransform: 'capitalize', marginRight: '0.5rem' }}>{name}</div>}
+      {showName && <div style={{ textTransform: 'capitalize', marginRight: '1rem', marginLeft: '0.5rem' }}>{name}</div>}
 
       {!isFlowSocket && !connected && <InputFieldForValue {...rest} />}
       <Handle
@@ -160,8 +168,12 @@ const InputSocket: React.FC<InputSocketProps> = ({ connected, specJSON, ...rest 
         position={Position.Left}
         className="socket-input-handle"
         style={{
+          marginLeft: 'auto',
           backgroundColor: connected ? backgroundColor : '#2d3748',
-          borderColor: borderColor
+          borderColor: borderColor,
+          width: '10px',
+          height: '10px',
+          left: '-12px'
         }}
         isValidConnection={(connection: Connection) => isValidConnection(connection, instance, specJSON)}
       />

@@ -41,7 +41,7 @@ type NodeProps = FlowNodeProps & {
 
 const getPairs = <T, U>(arr1: T[], arr2: U[]) => {
   const max = Math.max(arr1.length, arr2.length)
-  const pairs = []
+  const pairs: any[] = []
   for (let i = 0; i < max; i++) {
     const pair: [T | undefined, U | undefined] = [arr1[i], arr2[i]]
     pairs.push(pair)

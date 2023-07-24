@@ -51,9 +51,20 @@ export default function OutputSocket({ specJSON, connected, valueType, name }: O
   const showName = isFlowSocket === false || name !== 'flow'
 
   return (
-    <div style={{ display: 'flex', flexGrow: 1, alignItems: 'center', justifyContent: 'flex-end', height: '1.75rem' }}>
-      {showName && <div style={{ textTransform: 'capitalize' }}>{name}</div>}
-      {isFlowSocket && <FontAwesomeIcon icon={faCaretRight} color="#ffffff" size="lg" className="ml-1" />}
+    <div
+      style={{
+        display: 'flex',
+        flexGrow: 1,
+        alignItems: 'center',
+        position: 'relative',
+        justifyContent: 'flex-end',
+        height: '1.75rem'
+      }}
+    >
+      {showName && <div style={{ textTransform: 'capitalize', marginRight: '0.5rem', marginLeft: '1rem' }}>{name}</div>}
+      {isFlowSocket && (
+        <FontAwesomeIcon icon={faCaretRight} style={{ marginLeft: '0.25rem' }} color="#ffffff" size="lg" />
+      )}
 
       <Handle
         id={name}
@@ -62,7 +73,10 @@ export default function OutputSocket({ specJSON, connected, valueType, name }: O
         className="socket-output-handle"
         style={{
           backgroundColor: connected ? backgroundColor : '#2d3748', // Equivalent to 'bg-gray-800' in Tailwind
-          borderColor: borderColor
+          borderColor: borderColor,
+          width: '10px',
+          height: '10px',
+          right: '-12px'
         }}
         isValidConnection={(connection: Connection) => isValidConnection(connection, instance, specJSON)}
       />

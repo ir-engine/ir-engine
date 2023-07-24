@@ -40,7 +40,7 @@ const baseStyles: CSSProperties = {
   whiteSpace: 'pre'
 }
 
-export const AutoSizeInput: React.FC<AutoSizeInputProps> = ({ minWidth = 30, ...props }) => {
+export const AutoSizeInput: React.FC<AutoSizeInputProps> = ({ minWidth = 100, ...props }) => {
   const inputRef = useRef<HTMLInputElement | null>(null)
   const measureRef = useRef<HTMLSpanElement | null>(null)
   const [styles, setStyles] = useState<CSSProperties>({})
@@ -63,7 +63,7 @@ export const AutoSizeInput: React.FC<AutoSizeInputProps> = ({ minWidth = 30, ...
     if (measureRef.current === null) return
     if (inputRef.current === null) return
 
-    const padding = props.type === 'number' || props.type === 'float' ? 20 : 0
+    const padding = props.type === 'number' || props.type === 'float' ? 20 : 1
 
     const width = measureRef.current.clientWidth + padding
     inputRef.current.style.width = Math.max(minWidth, width) + 'px'

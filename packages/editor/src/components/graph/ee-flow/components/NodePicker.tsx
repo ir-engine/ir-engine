@@ -74,7 +74,6 @@ export const NodePicker: React.FC<NodePickerProps> = ({
     }) || []
 
   const bounds = flowRef.current!.getBoundingClientRect()
-  console.log('DEBUG', bounds)
   // Adjust the position to fit within the available space
   const adjustedTop = position.y - bounds!.top
   const adjustedLeft = position.x - bounds!.left
