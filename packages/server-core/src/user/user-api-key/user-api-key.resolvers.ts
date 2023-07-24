@@ -23,10 +23,39 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { UserId } from './UserId'
+// For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
+import { resolve } from '@feathersjs/schema'
+import { v4 } from 'uuid'
 
-export interface UserApiKey {
-  id: string
-  token: string
-  userId: UserId
-}
+import { UserApiKeyQuery, UserApiKeyType } from '@etherealengine/engine/src/schemas/user/user-api-key.schema'
+import type { HookContext } from '@etherealengine/server-core/declarations'
+
+import { getDateTimeSql } from '../../util/get-datetime-sql'
+
+export const userApiKeyResolver = resolve<UserApiKeyType, HookContext>({})
+
+export const userApiKeyExternalResolver = resolve<UserApiKeyType, HookContext>({})
+
+export const userApiKeyDataResolver = resolve<UserApiKeyType, HookContext>({
+  id: async () => {
+    return v4()
+  },
+  token: async () => {
+    return v4()
+  },
+  createdAt: getDateTimeSql,
+  updatedAt: getDateTimeSql
+})
+
+export const userApiKeyPatchResolver = resolve<UserApiKeyType, HookContext>({
+  id: async () => {
+    return v4()
+  },
+  token: async () => {
+    return v4()
+  },
+  createdAt: getDateTimeSql,
+  updatedAt: getDateTimeSql
+})
+
+export const userApiKeyQueryResolver = resolve<UserApiKeyQuery, HookContext>({})

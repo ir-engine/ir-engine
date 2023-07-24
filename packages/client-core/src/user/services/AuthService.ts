@@ -32,12 +32,12 @@ import config, { validateEmail, validatePhoneNumber } from '@etherealengine/comm
 import { AuthUserSeed, resolveAuthUser } from '@etherealengine/common/src/interfaces/AuthUser'
 import { IdentityProvider } from '@etherealengine/common/src/interfaces/IdentityProvider'
 import { UserSeed, UserSetting, resolveUser, resolveWalletUser } from '@etherealengine/common/src/interfaces/User'
-import { UserApiKey } from '@etherealengine/common/src/interfaces/UserApiKey'
 import multiLogger from '@etherealengine/common/src/logger'
 import { AuthStrategiesType } from '@etherealengine/engine/src/schemas/setting/authentication-setting.schema'
 import { defineState, getMutableState, getState, syncStateWithLocalStorage } from '@etherealengine/hyperflux'
 
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { UserApiKeyType, userApiKeyPath } from '@etherealengine/engine/src/schemas/user/user-api-key.schema'
 import { API } from '../../API'
 import { NotificationService } from '../../common/services/NotificationService'
 import { LocationState } from '../../social/services/LocationService'
@@ -580,7 +580,7 @@ export const AuthService = {
   },
 
   async updateApiKey() {
-    const apiKey = (await Engine.instance.api.service('user-api-key').patch(null, {})) as UserApiKey
+    const apiKey = (await API.instance.client.service(userApiKeyPath).patch(null, {})) as UserApiKeyType
     getMutableState(AuthState).user.merge({ apiKey })
   },
 
