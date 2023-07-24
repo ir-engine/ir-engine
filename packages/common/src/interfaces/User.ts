@@ -142,10 +142,10 @@ export function resolveUser(user: any): UserInterface {
       locationBans: user.location_bans
     }
   }
-  if (user?.user_api_key && user.user_api_key.id) {
+  if (user['user-api-key'] && user['user-api-key'].id) {
     returned = {
       ...returned,
-      apiKey: user.user_api_key
+      apiKey: user['user-api-key']
     }
   }
 
