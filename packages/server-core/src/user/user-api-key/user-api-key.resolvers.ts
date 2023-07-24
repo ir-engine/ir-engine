@@ -48,6 +48,13 @@ export const userApiKeyDataResolver = resolve<UserApiKeyType, HookContext>({
 })
 
 export const userApiKeyPatchResolver = resolve<UserApiKeyType, HookContext>({
+  id: async () => {
+    return v4()
+  },
+  token: async () => {
+    return v4()
+  },
+  createdAt: getDateTimeSql,
   updatedAt: getDateTimeSql
 })
 

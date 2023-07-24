@@ -26,7 +26,6 @@ Ethereal Engine. All Rights Reserved.
 import type { NullableId, Params } from '@feathersjs/feathers'
 import type { KnexAdapterOptions, KnexAdapterParams } from '@feathersjs/knex'
 import { KnexAdapter } from '@feathersjs/knex'
-import { v1 } from 'uuid'
 
 import { UserInterface } from '@etherealengine/common/src/interfaces/User'
 import {
@@ -87,11 +86,11 @@ export class UserApiKeyService<T = UserApiKeyType, ServiceParams extends Params 
 
     let returned
     if (userApiKey.data.length > 0) {
-      const patchData: any = { token: v1() }
-      returned = await super._patch(userApiKey.data[0].id, { ...patchData })
+      const patchData: UserApiKeyPatch = { token: data.token }
+      returned = await super._patch(userApiKey.data[0].id, patchData)
     } else {
-      const patchData: any = { userId: loggedInUser?.id }
-      returned = await super._create({ ...patchData })
+      const patchData: UserApiKeyData = { ...data, userId: loggedInUser?.id }
+      returned = await super._create(patchData)
     }
     return returned
   }
