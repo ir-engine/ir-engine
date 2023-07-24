@@ -35,7 +35,7 @@ import { avatarPath, AvatarType } from '@etherealengine/engine/src/schemas/user/
 import { defineAction, defineState, dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
 
 import { uploadToFeathersService } from '../../util/upload'
-import { AuthAction, AuthState } from './AuthService'
+import { AuthState } from './AuthService'
 
 export const AVATAR_PAGE_LIMIT = 100
 
@@ -152,7 +152,7 @@ export const AvatarService = {
   async updateUserAvatarId(userId: UserId, avatarId: string) {
     const res = await Engine.instance.api.service('user').patch(userId, { avatarId: avatarId })
     // dispatchAlertSuccess(dispatch, 'User Avatar updated');
-    dispatchAction(AuthAction.userAvatarIdUpdatedAction({ avatarId: res.avatarId! }))
+    getMutableState(AuthState).user.avatarId.set(res.avatarId!)
     dispatchAction(
       AvatarNetworkAction.setAvatarID({
         avatarID: avatarId,
