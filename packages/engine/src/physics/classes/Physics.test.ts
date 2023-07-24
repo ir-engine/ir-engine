@@ -43,10 +43,10 @@ import { addObjectToGroup } from '../../scene/components/GroupComponent'
 import { setTransformComponent } from '../../transform/components/TransformComponent'
 import { CollisionComponent } from '../components/CollisionComponent'
 import {
-  getTagComponentForRigidBody,
   RigidBodyComponent,
   RigidBodyDynamicTagComponent,
-  RigidBodyFixedTagComponent
+  RigidBodyFixedTagComponent,
+  getTagComponentForRigidBody
 } from '../components/RigidBodyComponent'
 import { CollisionGroups, DefaultCollisionMask } from '../enums/CollisionGroups'
 import { getInteractionGroups } from '../functions/getInteractionGroups'
