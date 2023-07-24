@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React from 'react'
+import React, { useEffect, useRef } from 'react'
 import { Background, BackgroundVariant, ReactFlow } from 'reactflow'
 
 import { GraphJSON } from '@etherealengine/engine/src/behave-graph/core'
@@ -40,10 +40,12 @@ import { NodePicker } from './NodePicker.js'
 type FlowProps = {
   initialGraph: GraphJSON
   examples: Examples
+  onChangeGraph?: (nuGraph: GraphJSON) => void
 }
 
-export const Flow: React.FC<FlowProps> = ({ initialGraph: graph, examples }) => {
+export const Flow: React.FC<FlowProps> = ({ initialGraph: graph, examples, onChangeGraph }) => {
   const { nodeDefinitions, valuesDefinitions, dependencies: dependencies } = useCoreRegistry()
+
   const specJson = useNodeSpecJson({
     nodes: nodeDefinitions,
     values: valuesDefinitions,
@@ -54,6 +56,8 @@ export const Flow: React.FC<FlowProps> = ({ initialGraph: graph, examples }) => 
     initialGraphJson: graph,
     specJson
   })
+  const flowRef = useRef(null)
+
   const {
     onConnect,
     handleStartConnect,
@@ -80,8 +84,21 @@ export const Flow: React.FC<FlowProps> = ({ initialGraph: graph, examples }) => 
     dependencies
   })
 
+  const graphJsonRef = useRef(graphJson ?? graph) // used to save the updated graph when component unmounts
+
+  useEffect(() => {
+    graphJsonRef.current = graphJson ?? graphJsonRef.current //the json wont be undefined so we just keep existing value
+  }, [graphJson])
+
+  useEffect(() => {
+    return () => {
+      onChangeGraph?.(graphJsonRef.current) // save the updated graph in component
+    }
+  }, [])
+
   return (
     <ReactFlow
+      ref={flowRef}
       nodeTypes={nodeTypes}
       nodes={nodes}
       edges={edges}
@@ -107,6 +124,7 @@ export const Flow: React.FC<FlowProps> = ({ initialGraph: graph, examples }) => 
       <Background variant={BackgroundVariant.Lines} color="#2a2b2d" style={{ backgroundColor: '#1E1F22' }} />
       {nodePickerVisibility && (
         <NodePicker
+          flowRef={flowRef}
           position={nodePickerVisibility}
           filters={nodePickFilters}
           onPickNode={handleAddNode}

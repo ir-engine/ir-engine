@@ -38,6 +38,7 @@ export type NodePickerFilters = {
 }
 
 type NodePickerProps = {
+  flowRef: React.MutableRefObject<HTMLElement | null>
   position: XYPosition
   filters?: NodePickerFilters
   onPickNode: (type: string, position: XYPosition) => void
@@ -46,6 +47,7 @@ type NodePickerProps = {
 }
 
 export const NodePicker: React.FC<NodePickerProps> = ({
+  flowRef,
   position,
   onPickNode,
   onClose,
@@ -54,7 +56,6 @@ export const NodePicker: React.FC<NodePickerProps> = ({
 }: NodePickerProps) => {
   const [search, setSearch] = useState('')
   const instance = useReactFlow()
-
   useOnPressKey('Escape', onClose)
 
   if (!specJSON) return null
@@ -72,8 +73,14 @@ export const NodePicker: React.FC<NodePickerProps> = ({
       return node.type.toLowerCase().includes(term)
     }) || []
 
+  const bounds = flowRef.current!.getBoundingClientRect()
+  console.log('DEBUG', bounds)
+  // Adjust the position to fit within the available space
+  const adjustedTop = position.y - bounds!.top
+  const adjustedLeft = position.x - bounds!.left
+
   return (
-    <div className="node-picker-container" style={{ top: position.y, left: position.x }}>
+    <div className="node-picker-container" style={{ top: adjustedTop, left: adjustedLeft }}>
       <div className="node-picker-header">Add Node</div>
       <div className="node-picker-search">
         <input

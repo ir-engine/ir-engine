@@ -137,10 +137,7 @@ export const useFlowHandlers = ({
     }
   }, [])
 
-  const handlePaneClick = useCallback(() => {
-    console.log('Pane Clicked')
-    closeNodePicker()
-  }, [closeNodePicker])
+  const handlePaneClick = useCallback(() => closeNodePicker(), [closeNodePicker])
 
   const handlePaneContextMenu = useCallback((e: ReactMouseEvent) => {
     e.preventDefault()

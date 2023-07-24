@@ -56,7 +56,13 @@ export default function GraphPanel() {
           <AutoSizer>
             {({ width, height }) => (
               <div style={{ width, height }}>
-                {validEntity && <Flow initialGraph={graphState?.value.graph ?? {}} examples={{}} />}
+                {validEntity && (
+                  <Flow
+                    initialGraph={graphState?.value.graph ?? {}}
+                    examples={{}}
+                    onChangeGraph={graphState?.graph.set}
+                  />
+                )}
               </div>
             )}
           </AutoSizer>
