@@ -25,10 +25,9 @@ Ethereal Engine. All Rights Reserved.
 
 import { Paginated } from '@feathersjs/feathers'
 
-import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { scopeTypePath, ScopeTypeType } from '@etherealengine/engine/src/schemas/scope/scope-type.schema'
 import { defineState, getMutableState } from '@etherealengine/hyperflux'
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 
 import { NotificationService } from '../../common/services/NotificationService'
 

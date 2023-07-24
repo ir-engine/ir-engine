@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { ScopeTypeData, ScopeTypeType } from '@etherealengine/engine/src/schemas/scope/scope-type.schema'
+import { ScopeTypeData } from '@etherealengine/engine/src/schemas/scope/scope-type.schema'
 import { UserApiKeyType } from '@etherealengine/engine/src/schemas/user/user-api-key.schema'
 
 import { IdentityProvider } from './IdentityProvider'

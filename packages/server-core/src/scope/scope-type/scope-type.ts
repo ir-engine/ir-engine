@@ -26,7 +26,6 @@ Ethereal Engine. All Rights Reserved.
 import { scopeTypeMethods, scopeTypePath } from '@etherealengine/engine/src/schemas/scope/scope-type.schema'
 
 import { Application } from '../../../declarations'
-import { updateAppConfig } from '../../updateAppConfig'
 import { ScopeTypeService } from './scope-type.class'
 import scopeTypeDocs from './scope-type.docs'
 import hooks from './scope-type.hooks'
