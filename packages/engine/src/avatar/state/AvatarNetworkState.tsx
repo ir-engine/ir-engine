@@ -39,7 +39,6 @@ import { WorldNetworkAction } from '../../networking/functions/WorldNetworkActio
 import { WorldState } from '../../networking/interfaces/WorldState'
 import { UUIDComponent } from '../../scene/components/UUIDComponent'
 import { avatarPath } from '../../schemas/user/avatar.schema'
-import { changeAvatarAnimationState } from '../animation/AvatarAnimationGraph'
 import { AvatarStates, matchesAvatarState } from '../animation/Util'
 import { loadAvatarForUser } from '../functions/avatarFunctions'
 import { spawnAvatarReceptor } from '../functions/spawnAvatarReceptor'
@@ -141,8 +140,6 @@ const AvatarReactor = React.memo(({ entityUUID }: { entityUUID: EntityUUID }) =>
     if (!networkObject) {
       return console.warn(`Avatar Entity for user id ${entityUUID} does not exist! You should probably reconnect...`)
     }
-
-    changeAvatarAnimationState(avatarEntity, state.animationState.value)
   }, [state.animationState, entityUUID])
 
   useEffect(() => {

@@ -35,12 +35,6 @@ import { getComponent } from '../../ecs/functions/ComponentFunctions'
 import { AnimationState } from '../AnimationManager'
 import { AnimationComponent } from '../components/AnimationComponent'
 import { AvatarAnimationComponent } from '../components/AvatarAnimationComponent'
-import { changeState } from './AnimationGraph'
-
-export const changeAvatarAnimationState = (entity: Entity, newStateName: string): void => {
-  const avatarAnimationComponent = getComponent(entity, AvatarAnimationComponent)
-  changeState(avatarAnimationComponent.animationGraph, newStateName)
-}
 
 export const getAnimationAction = (name: string, mixer: AnimationMixer, animations?: AnimationClip[]) => {
   const manager = getState(AnimationState)

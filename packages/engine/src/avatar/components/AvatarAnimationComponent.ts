@@ -31,6 +31,7 @@ import { getMutableState, getState, none, useHookstate } from '@etherealengine/h
 
 import { matches } from '../../common/functions/MatchesUtils'
 import { proxifyQuaternion, proxifyVector3 } from '../../common/proxies/createThreejsProxy'
+
 import {
   defineComponent,
   getMutableComponent,
@@ -44,8 +45,8 @@ import { ObjectLayers } from '../../scene/constants/ObjectLayers'
 import { setObjectLayers } from '../../scene/functions/setObjectLayers'
 import { PoseSchema } from '../../transform/components/TransformComponent'
 import { AnimationState } from '../AnimationManager'
-import { AnimationGraph } from '../animation/AnimationGraph'
 import { AnimationComponent } from './AnimationComponent'
+
 import { AvatarPendingComponent } from './AvatarPendingComponent'
 
 export const AvatarAnimationComponent = defineComponent({
@@ -53,28 +54,30 @@ export const AvatarAnimationComponent = defineComponent({
 
   onInit: (entity) => {
     return {
-      /** Animaiton graph of this entity */
-      animationGraph: {
-        states: {},
-        transitionRules: {},
-        currentState: null!,
-        stateChanged: null!
-      } as AnimationGraph,
       /** ratio between original and target skeleton's root.position.y */
       rootYRatio: 1,
       /** The input vector for 2D locomotion blending space */
       locomotion: new Vector3(),
       /** Time since the last update */
-      deltaAccumulator: 0
+      deltaAccumulator: 0,
+      /** Tells us if we are suspended in midair */
+      isGrounded: true,
+
+      animationGraph: {
+        states: {},
+        transitionRules: {},
+        currentState: null!,
+        stateChanged: null!
+      }
     }
   },
 
   onSet: (entity, component, json) => {
     if (!json) return
-    if (matches.object.test(json.animationGraph)) component.animationGraph.set(json.animationGraph as AnimationGraph)
     if (matches.number.test(json.rootYRatio)) component.rootYRatio.set(json.rootYRatio)
     if (matches.object.test(json.locomotion)) component.locomotion.value.copy(json.locomotion)
     if (matches.number.test(json.deltaAccumulator)) component.deltaAccumulator.set(json.deltaAccumulator)
+    if (matches.boolean.test(json.isGrounded)) component.isGrounded.set(json.isGrounded)
   }
 })
 
@@ -211,7 +214,6 @@ export const AvatarRigComponent = defineComponent({
 
       rigComponent.bindRig.hips.node.value.getWorldPosition(offset).multiplyScalar(2)
       offset.y = rigComponent.bindRig.rightFoot.node.value.getWorldPosition(foot).y
-      rigComponent.vrm.humanoid.normalizedHumanBonesRoot.position.value.add(offset)
 
       for (let i = 0; i < bindTracks.length; i += 3) {
         const key = bindTracks[i].name.substring(0, bindTracks[i].name.indexOf('.'))
@@ -237,7 +239,7 @@ export const AvatarRigComponent = defineComponent({
             bonePos.copy(
               rigComponent.bindRig.rightLowerArm.value.node.matrixWorld.multiply(
                 new Matrix4().setPosition(
-                  rigComponent.bindRig.rightLowerLeg.node.value.getWorldDirection(new Vector3())
+                  rigComponent.bindRig.rightLowerArm.node.value.getWorldDirection(new Vector3())
                 )
               )
             )
@@ -245,9 +247,7 @@ export const AvatarRigComponent = defineComponent({
           case 'leftElbowHint':
             bonePos.copy(
               rigComponent.bindRig.leftLowerArm.value.node.matrixWorld.multiply(
-                new Matrix4().setPosition(
-                  rigComponent.bindRig.rightLowerLeg.node.value.getWorldDirection(new Vector3())
-                )
+                new Matrix4().setPosition(rigComponent.bindRig.leftLowerArm.node.value.getWorldDirection(new Vector3()))
               )
             )
             break
@@ -271,17 +271,17 @@ export const AvatarRigComponent = defineComponent({
             break
           case 'headHint':
           case 'headTarget':
-            bonePos.copy(rigComponent.bindRig.head.value.node.matrixWorld.multiply(new Matrix4().setPosition(0, 0, 0)))
+            bonePos.copy(rigComponent.bindRig.head.value.node.matrixWorld)
             break
           case 'hipsTarget':
             bonePos.copy(
-              rigComponent.bindRig.hips.value.node.matrixWorld.multiply(new Matrix4().setPosition(0, -0.05, 0))
+              rigComponent.bindRig.hips.value.node.matrixWorld.multiply(new Matrix4().setPosition(0, -0.025, 0))
             )
             break
         }
         const pos = new Vector3()
         bonePos.decompose(pos, new Quaternion(), new Vector3())
-        pos.applyQuaternion(hipsRotationoffset)
+        if (!(rigComponent.vrm.value as any).userData) pos.applyQuaternion(hipsRotationoffset)
         pos.sub(new Vector3(bindTracks[i].values[0], bindTracks[i].values[1], bindTracks[i].values[2]))
         pos.sub(offset)
         rigComponent.ikOffsetsMap.value.set(key, pos)

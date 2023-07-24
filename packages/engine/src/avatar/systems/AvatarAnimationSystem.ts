@@ -37,9 +37,8 @@ import {
   useHookstate
 } from '@etherealengine/hyperflux'
 
-import { PhysicsState } from '@etherealengine/engine/src/physics/state/PhysicsState'
-import { lerp } from 'three/src/math/MathUtils'
 import { V_010 } from '../../common/constants/MathConstants'
+import { lerp } from '../../common/functions/MathLerpFunctions'
 import { createPriorityQueue } from '../../ecs/PriorityQueue'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
@@ -53,6 +52,7 @@ import { Physics, RaycastArgs } from '../../physics/classes/Physics'
 import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
 import { CollisionGroups } from '../../physics/enums/CollisionGroups'
 import { getInteractionGroups } from '../../physics/functions/getInteractionGroups'
+import { PhysicsState } from '../../physics/state/PhysicsState'
 import { RaycastHit, SceneQueryType } from '../../physics/types/PhysicsTypes'
 import { RendererState } from '../../renderer/RendererState'
 import { addObjectToGroup } from '../../scene/components/GroupComponent'
@@ -134,6 +134,7 @@ const _quat = new Quaternion()
 const _vector3 = new Vector3()
 const _empty = new Vector3()
 const _hipVector = new Vector3()
+const _hipRot = new Quaternion()
 const leftLegVector = new Vector3()
 const rightLegVector = new Vector3()
 
@@ -163,7 +164,6 @@ const worldSpaceTargets = {
 const setVisualizers = () => {
   const { visualizers } = getMutableState(AvatarAnimationState)
   const { debugEnable } = getMutableState(RendererState)
-  console.log(debugEnable)
   if (!debugEnable.value) {
     //remove visualizers
     for (let i = 0; i < visualizers.length; i++) {
@@ -179,7 +179,6 @@ const setVisualizers = () => {
     setComponent(e, TransformComponent)
     visualizers[i].set(e)
   }
-  console.log(visualizers)
 }
 const interactionGroups = getInteractionGroups(CollisionGroups.Avatars, CollisionGroups.Default)
 const footRaycastArgs = {
@@ -203,8 +202,7 @@ const setFootTarget = (
   footRaycastArgs.maxDistance = legLength
 
   if (castRay) {
-    const { physicsWorld } = getState(PhysicsState)
-    const castedRay = Physics.castRay(physicsWorld, footRaycastArgs)
+    const castedRay = Physics.castRay(getState(PhysicsState).physicsWorld, footRaycastArgs)
     if (castedRay[0]) {
       lastRayInfo[index] = castedRay[0]
     } else {
@@ -404,7 +402,6 @@ const execute = () => {
       if (ikEntities.length <= 1) continue
       const networkObject = getComponent(ikEntity, NetworkObjectComponent)
       const ownerEntity = NetworkObjectComponent.getUserAvatarEntity(networkObject.ownerId)
-
       if (ownerEntity != entity) continue
 
       const rigidbodyComponent = getComponent(ownerEntity, RigidBodyComponent)
@@ -457,18 +454,12 @@ const execute = () => {
         .subVectors(worldSpaceTargets.hipsTarget.position, worldSpaceTargets.rightFootTarget.position)
         .length() + rigComponent.footHeight
 
-    //get rotations from ik targets and convert to world space relative to hips
-    const rot = new Quaternion()
-    rig.hips.node.getWorldQuaternion(rot)
-
     //calculate hips to head
-    rig.hips.node.position.copy(
-      rigComponent.vrm.humanoid.normalizedHumanBonesRoot.worldToLocal(worldSpaceTargets.hipsTarget.position)
-    )
+    rig.hips.node.position.copy(worldSpaceTargets.hipsTarget.position.applyMatrix4(transform.matrixInverse))
     _hipVector.subVectors(rigComponent.ikTargetsMap.headTarget.position, rigComponent.ikTargetsMap.hipsTarget.position)
     rig.hips.node.quaternion
       .setFromUnitVectors(V_010, _hipVector)
-      .multiply(new Quaternion().setFromEuler(new Euler(0, Math.PI)))
+      .multiply(_hipRot.setFromEuler(new Euler(0, (rigComponent.vrm as any).userData ? 0 : Math.PI)))
 
     //right now we only want hand rotation set if we are in xr
     const xrValue = xrState.sessionActive ? 1 : 0
@@ -543,7 +534,7 @@ const execute = () => {
       worldSpaceTargets.leftFootTarget.position.setY(
         worldSpaceTargets.leftFootTarget.position.y + rigComponent.footHeight
       ),
-      rot,
+      worldSpaceTargets.leftFootTarget.rotation,
       null,
       worldSpaceTargets.leftKneeHint.position,
       null,
@@ -552,84 +543,23 @@ const execute = () => {
   }
 
   /**
-   * 3 - Get IK target pose from WebXR
+   * Since the scene does not automatically update the matricies for all objects, which updates bones,
+   * we need to manually do it for Loop Animation Entities
    */
+  for (const entity of loopAnimationEntities) updateGroupChildren(entity)
 
-  // applyInputSourcePoseToIKTargets()
+  /** Run debug */
+  for (const entity of Engine.instance.priorityAvatarEntities) {
+    const avatarRig = getComponent(entity, AvatarRigComponent)
+    if (avatarRig?.helper) {
+      avatarRig.rig.hips.node.updateWorldMatrix(true, true)
+      avatarRig.helper?.updateMatrixWorld(true)
+    }
+  }
 
-  /**
-   * 4 - Apply avatar IK
-   */
+  /** We don't need to ever calculate the matrices for ik targets, so mark them not dirty */
   for (const entity of ikEntities) {
-    /** Filter by priority queue */
-    const networkObject = getComponent(entity, NetworkObjectComponent)
-    const ownerEntity = NetworkObjectComponent.getUserAvatarEntity(networkObject.ownerId)
-    if (!Engine.instance.priorityAvatarEntities.has(ownerEntity)) continue
-
-    //   const transformComponent = getComponent(entity, TransformComponent)
-    //   // If data is zeroed out, assume there is no input and do not run IK
-    //   if (transformComponent.position.equals(V_000)) continue
-
-    //   const { rig } = getComponent(ownerEntity, AvatarRigComponent)
-
-    //   const ikComponent = getComponent(entity, AvatarIKTargetComponent)
-    //   if (ikComponent.handedness === 'none') {
-    //     _vec
-    //       .set(
-    //         transformComponent.matrix.elements[8],
-    //         transformComponent.matrix.elements[9],
-    //         transformComponent.matrix.elements[10]
-    //       )
-    //       .normalize() // equivalent to Object3D.getWorldDirection
-    //     solveHipHeight(ownerEntity, transformComponent.position)
-
-    //     solveLookIK(rig.head.node, _vec)
-    //   } else if (ikComponent.handedness === 'left') {
-    //     rig.leftLowerArm.node.quaternion.setFromAxisAngle(Axis.X, Math.PI * -0.25)
-    //     /** @todo see if this is still necessary */
-    //     rig.leftLowerArm.node.updateWorldMatrix(false, true)
-    //     solveTwoBoneIK(
-    //       rig.leftUpperArm.node,
-    //       rig.leftLowerArm.node,
-    //       rig.leftHand.node,
-    //       transformComponent.position,
-    //       transformComponent.rotation.multiply(leftHandRotation),
-    //       leftHandRotationOffset
-    //     )
-    //   } else if (ikComponent.handedness === 'right') {
-    //     rig.rightLowerArm.node.quaternion.setFromAxisAngle(Axis.X, Math.PI * 0.25)
-    //     /** @todo see if this is still necessary */
-    //     rig.rightLowerArm.node.updateWorldMatrix(false, true)
-    //     solveTwoBoneIK(
-    //       rig.rightUpperArm.node,
-    //       rig.rightLowerArm.node,
-    //       rig.rightHand.node,
-    //       transformComponent.position,
-    //       transformComponent.rotation.multiply(rightHandRotation),
-    //       rightHandRotationOffset
-    //     )
-    //   }
-    // }
-
-    /**
-     * Since the scene does not automatically update the matricies for all objects, which updates bones,
-     * we need to manually do it for Loop Animation Entities
-     */
-    for (const entity of loopAnimationEntities) updateGroupChildren(entity)
-
-    /** Run debug */
-    for (const entity of Engine.instance.priorityAvatarEntities) {
-      const avatarRig = getComponent(entity, AvatarRigComponent)
-      if (avatarRig?.helper) {
-        avatarRig.rig.hips.node.updateWorldMatrix(true, true)
-        avatarRig.helper?.updateMatrixWorld(true)
-      }
-    }
-
-    /** We don't need to ever calculate the matrices for ik targets, so mark them not dirty */
-    for (const entity of ikEntities) {
-      // delete TransformComponent.dirtyTransforms[entity]
-    }
+    // delete TransformComponent.dirtyTransforms[entity]
   }
 }
 
@@ -637,7 +567,6 @@ const reactor = () => {
   const renderState = useHookstate(getMutableState(RendererState))
   useEffect(() => {
     setVisualizers()
-    console.log('set')
   }, [renderState.debugEnable])
   return null
 }
