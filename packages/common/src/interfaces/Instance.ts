@@ -54,7 +54,9 @@ export const InstanceSeed: Instance = {
       {
         id: '',
         locationId: '',
-        userId: ''
+        userId: '',
+        createdAt: '',
+        updatedAt: ''
       }
     ],
     locationSetting: {
