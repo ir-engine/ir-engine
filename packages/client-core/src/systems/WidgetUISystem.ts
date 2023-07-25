@@ -59,7 +59,7 @@ import {
   WidgetAppServiceReceptorSystem,
   WidgetAppState
 } from '@etherealengine/engine/src/xrui/WidgetAppService'
-import { defineActionQueue, defineState, dispatchAction, getState, removeActionQueue } from '@etherealengine/hyperflux'
+import { defineActionQueue, defineState, dispatchAction, getState } from '@etherealengine/hyperflux'
 
 import { createAnchorWidget } from './createAnchorWidget'
 // import { createHeightAdjustmentWidget } from './createHeightAdjustmentWidget'
@@ -75,6 +75,7 @@ import { createAnchorWidget } from './createAnchorWidget'
 // import { createShareLocationWidget } from './createShareLocationWidget'
 // import { createSocialsMenuWidget } from './createSocialsMenuWidget'
 // import { createUploadAvatarWidget } from './createUploadAvatarWidget'
+import { createRecordingsWidget } from './createRecordingsWidget'
 import { createWidgetButtonsView } from './ui/WidgetMenuView'
 
 const widgetLeftMenuGripOffset = new Vector3(0.08, 0, -0.05)
@@ -113,6 +114,7 @@ const showWidgetMenu = (show: boolean) => {
   if (!createdWidgets && (isMobileXRHeadset || isDev)) {
     createdWidgets = true
     createAnchorWidget()
+    createRecordingsWidget()
     // createMediaWidget()
     // createHeightAdjustmentWidget()
     // createProfileWidget()
@@ -135,7 +137,7 @@ const showWidgetMenu = (show: boolean) => {
   }
 }
 
-const toggleWidgetsMenu = (handedness?: 'left' | 'right') => {
+const toggleWidgetsMenu = (handedness: 'left' | 'right' = getState(WidgetAppState).handedness) => {
   const widgetState = getState(WidgetAppState)
   const state = widgetState.widgets
   const openWidget = Object.entries(state).find(([id, widget]) => widget.visible)
@@ -238,7 +240,6 @@ const reactor = () => {
   useEffect(() => {
     return () => {
       const { widgetMenuUI } = getState(WidgetUISystemState)
-      removeActionQueue(showWidgetQueue)
       removeEntity(widgetMenuUI.entity)
     }
   }, [])
