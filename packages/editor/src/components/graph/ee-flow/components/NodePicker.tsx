@@ -75,8 +75,8 @@ export const NodePicker: React.FC<NodePickerProps> = ({
 
   const bounds = flowRef.current!.getBoundingClientRect()
   // Adjust the position to fit within the available space
-  const adjustedTop = position.y - bounds!.top
-  const adjustedLeft = position.x - bounds!.left
+  const adjustedTop = position.y
+  const adjustedLeft = position.x
 
   return (
     <div className="node-picker-container" style={{ top: adjustedTop, left: adjustedLeft }}>

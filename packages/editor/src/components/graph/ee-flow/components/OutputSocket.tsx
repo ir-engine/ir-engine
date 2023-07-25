@@ -25,7 +25,6 @@ Ethereal Engine. All Rights Reserved.
 
 import { faCaretRight } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import cx from 'classnames'
 import React from 'react'
 import { Connection, Handle, Position, useReactFlow } from 'reactflow'
 
@@ -72,7 +71,7 @@ export default function OutputSocket({ specJSON, connected, valueType, name }: O
         position={Position.Right}
         className="socket-output-handle"
         style={{
-          backgroundColor: connected ? backgroundColor : '#2d3748', // Equivalent to 'bg-gray-800' in Tailwind
+          backgroundColor: connected ? backgroundColor : 'var(--mainBackground)',
           borderColor: borderColor,
           width: '10px',
           height: '10px',

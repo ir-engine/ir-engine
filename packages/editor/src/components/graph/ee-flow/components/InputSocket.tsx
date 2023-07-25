@@ -25,7 +25,6 @@ Ethereal Engine. All Rights Reserved.
 
 import { faCaretRight } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import cx from 'classnames'
 import React from 'react'
 import { Connection, Handle, Position, useReactFlow } from 'reactflow'
 
@@ -53,7 +52,7 @@ const InputFieldForValue = ({
   const showChoices = choices?.length
   const inputVal = String(value) ?? defaultValue ?? ''
   const inputSocketStyle = {
-    backgroundColor: '#4a5568',
+    backgroundColor: 'var(--panelCards)',
     cursor: 'pointer',
     padding: '0 .5rem',
     userDrag: 'none',
@@ -169,7 +168,7 @@ const InputSocket: React.FC<InputSocketProps> = ({ connected, specJSON, ...rest 
         className="socket-input-handle"
         style={{
           marginLeft: 'auto',
-          backgroundColor: connected ? backgroundColor : '#2d3748',
+          backgroundColor: connected ? backgroundColor : 'var(--mainBackground)',
           borderColor: borderColor,
           width: '10px',
           height: '10px',

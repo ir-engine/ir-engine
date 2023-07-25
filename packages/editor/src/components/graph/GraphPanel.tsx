@@ -24,18 +24,17 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { useHookstate } from '@hookstate/core'
-import React, { useEffect } from 'react'
+import React from 'react'
 import AutoSizer from 'react-virtualized-auto-sizer'
 
 import { BehaveGraphComponent } from '@etherealengine/engine/src/behave-graph/components/BehaveGraphComponent'
-import { getComponent, hasComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { getMutableComponent, hasComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { getMutableState } from '@etherealengine/hyperflux'
 
 import { SelectionState } from '../../services/SelectionServices'
 import hierarchyStyles from '../hierarchy/styles.module.scss'
 import { Flow } from './ee-flow'
 
-import { useForceUpdate } from '@etherealengine/common/src/utils/useForceUpdate'
 import 'reactflow/dist/style.css'
 import './ee-flow/styles.css'
 
@@ -46,16 +45,9 @@ export const GraphPanel = () => {
   const validEntity = typeof entity === 'number' && hasComponent(entity, BehaveGraphComponent)
   let graphState
   if (validEntity) {
-    graphState = getComponent(entity, BehaveGraphComponent)
+    graphState = getMutableComponent(entity, BehaveGraphComponent)
   }
 
-  const forceUpdate = useForceUpdate()
-
-  // force react to re-render upon any object changing
-  /**/
-  useEffect(() => {
-    forceUpdate()
-  }, [selectionState.objectChangeCounter])
   return (
     <>
       <div className={hierarchyStyles.panelContainer}>
@@ -65,10 +57,11 @@ export const GraphPanel = () => {
               <div style={{ width, height }}>
                 {validEntity && (
                   <Flow
-                    initialGraph={graphState!.graph ?? {}}
+                    initialGraph={graphState!.graph.value ?? {}}
                     examples={{}}
                     onChangeGraph={(newGraph) => {
-                      graphState!.graph = newGraph
+                      if (!graphState.graph) return
+                      graphState.graph.set(newGraph)
                     }}
                   />
                 )}

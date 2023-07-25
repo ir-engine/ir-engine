@@ -131,7 +131,8 @@ export const useFlowHandlers = ({
   const handleStopConnect = useCallback((e: MouseEvent) => {
     const element = e.target as HTMLElement
     if (element.classList.contains('react-flow__pane')) {
-      setNodePickerVisibility({ x: e.clientX, y: e.clientY })
+      const targetBounds = element.getBoundingClientRect()
+      setNodePickerVisibility({ x: e.clientX - targetBounds.left, y: e.clientY - targetBounds.left })
     } else {
       setLastConnectStart(undefined)
     }
@@ -141,7 +142,9 @@ export const useFlowHandlers = ({
 
   const handlePaneContextMenu = useCallback((e: ReactMouseEvent) => {
     e.preventDefault()
-    setNodePickerVisibility({ x: e.clientX, y: e.clientY })
+    const targetElement = e.target as HTMLElement
+    const targetBounds = targetElement.getBoundingClientRect()
+    setNodePickerVisibility({ x: e.clientX - targetBounds.left, y: e.clientY - targetBounds.top })
   }, [])
 
   const nodePickFilters = useNodePickFilters({

@@ -45,7 +45,7 @@ type FlowProps = {
 
 export const Flow: React.FC<FlowProps> = ({ initialGraph: graph, examples, onChangeGraph }) => {
   const { nodeDefinitions, valuesDefinitions, dependencies: dependencies } = useCoreRegistry()
-
+  const flowRef = useRef(null)
   const specJson = useNodeSpecJson({
     nodes: nodeDefinitions,
     values: valuesDefinitions,
@@ -56,7 +56,6 @@ export const Flow: React.FC<FlowProps> = ({ initialGraph: graph, examples, onCha
     initialGraphJson: graph,
     specJson
   })
-  const flowRef = useRef(null)
 
   const {
     onConnect,
