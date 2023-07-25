@@ -24,26 +24,38 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { useHookstate } from '@hookstate/core'
-import React from 'react'
+import React, { useEffect } from 'react'
 import AutoSizer from 'react-virtualized-auto-sizer'
 
 import { BehaveGraphComponent } from '@etherealengine/engine/src/behave-graph/components/BehaveGraphComponent'
-import { UndefinedEntity } from '@etherealengine/engine/src/ecs/classes/Entity'
-import { hasComponent, useOptionalComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { getComponent, hasComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { getMutableState } from '@etherealengine/hyperflux'
 
 import { SelectionState } from '../../services/SelectionServices'
 import hierarchyStyles from '../hierarchy/styles.module.scss'
 import { Flow } from './ee-flow'
 
+import { useForceUpdate } from '@etherealengine/common/src/utils/useForceUpdate'
 import 'reactflow/dist/style.css'
 import './ee-flow/styles.css'
 
-export default function GraphPanel() {
+export const GraphPanel = () => {
   const selectionState = useHookstate(getMutableState(SelectionState))
-  const entity = selectionState.selectedEntities[0]?.value
+  const entities = selectionState.selectedEntities.value
+  const entity = entities[entities.length - 1]
   const validEntity = typeof entity === 'number' && hasComponent(entity, BehaveGraphComponent)
-  const graphState = useOptionalComponent(validEntity ? entity : UndefinedEntity, BehaveGraphComponent)
+  let graphState
+  if (validEntity) {
+    graphState = getComponent(entity, BehaveGraphComponent)
+  }
+
+  const forceUpdate = useForceUpdate()
+
+  // force react to re-render upon any object changing
+  /**/
+  useEffect(() => {
+    forceUpdate()
+  }, [selectionState.objectChangeCounter])
   return (
     <>
       <div className={hierarchyStyles.panelContainer}>
@@ -53,9 +65,11 @@ export default function GraphPanel() {
               <div style={{ width, height }}>
                 {validEntity && (
                   <Flow
-                    initialGraph={graphState?.value.graph ?? {}}
+                    initialGraph={graphState!.graph ?? {}}
                     examples={{}}
-                    onChangeGraph={graphState?.graph.set}
+                    onChangeGraph={(newGraph) => {
+                      graphState!.graph = newGraph
+                    }}
                   />
                 )}
               </div>
@@ -66,3 +80,4 @@ export default function GraphPanel() {
     </>
   )
 }
+export default GraphPanel
