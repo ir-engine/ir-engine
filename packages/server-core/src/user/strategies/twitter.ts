@@ -30,6 +30,7 @@ import { random } from 'lodash'
 import { UserInterface } from '@etherealengine/common/src/interfaces/User'
 import { avatarPath, AvatarType } from '@etherealengine/engine/src/schemas/user/avatar.schema'
 
+import { userApiKeyPath, UserApiKeyType } from '@etherealengine/engine/src/schemas/user/user-api-key.schema'
 import { Application } from '../../../declarations'
 import config from '../../appconfig'
 import getFreeInviteCode from '../../util/get-free-invite-code'
@@ -86,13 +87,13 @@ export class TwitterStrategy extends CustomOAuthStrategy {
       await this.app.service('user').patch(entity.userId, {
         isGuest: false
       })
-    const apiKey = await this.app.service('user-api-key').find({
+    const apiKey = (await this.app.service(userApiKeyPath).find({
       query: {
         userId: entity.userId
       }
-    })
-    if ((apiKey as any).total === 0)
-      await this.app.service('user-api-key').create({
+    })) as Paginated<UserApiKeyType>
+    if (apiKey.total === 0)
+      await this.app.service(userApiKeyPath).create({
         userId: entity.userId
       })
     if (entity.type !== 'guest' && identityProvider.type === 'guest') {
