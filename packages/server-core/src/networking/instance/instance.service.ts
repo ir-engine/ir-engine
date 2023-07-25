@@ -73,15 +73,18 @@ export const getActiveInstancesForScene =
     const instances = (
       (await Promise.all(
         locations.map(async (location) => {
-          const instance = await app.service('instance').Model.findAll({
+          const instances = await app.service('instance').Model.findAll({
             where: {
               ended: false,
               locationId: location.id
             }
           })
-          instance.location = location
 
-          return instance
+          for (const instance of instances) {
+            instance.location = location
+          }
+
+          return instances
         })
       )) as InstanceInterface[]
     ).flat()
