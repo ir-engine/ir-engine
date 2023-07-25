@@ -32,6 +32,7 @@ import { Op } from 'sequelize'
 import { AdminScopeType } from '@etherealengine/common/src/interfaces/AdminScopeType'
 import { CreateEditUser, UserInterface, UserScope } from '@etherealengine/common/src/interfaces/User'
 
+import { userApiKeyPath } from '@etherealengine/engine/src/schemas/user/user-api-key.schema'
 import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
 import getFreeInviteCode from '../../util/get-free-invite-code'
@@ -61,7 +62,7 @@ export const afterCreate = async (app: Application, result: UserInterface, scope
   if (Array.isArray(result)) result = result[0]
   console.log(result)
   if (!result?.isGuest)
-    await app.service('user-api-key').create({
+    await app.service(userApiKeyPath).create({
       userId: result.id
     })
   if (!result?.isGuest && result?.inviteCode == null) {
@@ -209,12 +210,14 @@ export class User extends Service<UserInterface> {
   }
 
   async remove(id: NullableId, params?: Params) {
-    const userId = id
-    await this.app.service('user-api-key').remove(null, {
-      query: {
-        userId: userId
-      }
-    })
+    if (id) {
+      await this.app.service(userApiKeyPath).remove(null, {
+        query: {
+          userId: id.toString()
+        }
+      })
+    }
+
     return super.remove(id, params)
   }
 }

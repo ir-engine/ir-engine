@@ -23,52 +23,79 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { NullableId } from '@feathersjs/feathers'
-import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
-import { v1 } from 'uuid'
+import type { NullableId, Params } from '@feathersjs/feathers'
+import type { KnexAdapterOptions, KnexAdapterParams } from '@feathersjs/knex'
+import { KnexAdapter } from '@feathersjs/knex'
 
-import { UserApiKeyInterface } from '@etherealengine/common/src/dbmodels/UserApiKey'
 import { UserInterface } from '@etherealengine/common/src/interfaces/User'
+import {
+  UserApiKeyData,
+  UserApiKeyPatch,
+  UserApiKeyQuery,
+  UserApiKeyType
+} from '@etherealengine/engine/src/schemas/user/user-api-key.schema'
 
 import { Application } from '../../../declarations'
-import { UserParams } from '../user/user.class'
 
-export type UserApiKeyDataType = UserApiKeyInterface & { userId: string }
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+export interface UserApiKeyParams extends KnexAdapterParams<UserApiKeyQuery> {
+  user?: UserInterface
+}
+
 /**
- * This class used to find user-api-keys
- * and returns founded user-api-keys
+ * A class for UserApiKey service
  */
-export class UserApiKey<T = UserApiKeyDataType> extends Service<T> {
-  app: Application
-  docs: any
 
-  constructor(options: Partial<SequelizeServiceOptions>, app: Application) {
+export class UserApiKeyService<T = UserApiKeyType, ServiceParams extends Params = UserApiKeyParams> extends KnexAdapter<
+  UserApiKeyType,
+  UserApiKeyData,
+  UserApiKeyParams,
+  UserApiKeyPatch
+> {
+  app: Application
+
+  constructor(options: KnexAdapterOptions, app: Application) {
     super(options)
     this.app = app
   }
 
-  async patch(id: NullableId, data: any, params: UserParams = {}): Promise<T | T[]> {
-    const loggedInUser = params.user as UserInterface
+  async find(params?: UserApiKeyParams) {
+    return await super._find(params)
+  }
+
+  async create(data: UserApiKeyData, params?: UserApiKeyParams) {
+    return super._create(data, params)
+  }
+
+  async patch(id: NullableId, data: UserApiKeyPatch, params?: UserApiKeyParams) {
+    const loggedInUser = params!.user
     if (
+      loggedInUser &&
       loggedInUser.scopes &&
       loggedInUser.scopes.find((scope) => scope.type === 'admin:admin') &&
       id != null &&
       params
     )
-      return super.patch(id, { ...data })
-    const userApiKey = await this.app.service('user-api-key').Model.findOne({
-      where: {
-        userId: loggedInUser.id
+      return super._patch(id, { ...data })
+
+    const userApiKey = await super._find({
+      query: {
+        userId: loggedInUser?.id
       }
     })
+
     let returned
-    if (userApiKey) {
-      const patchData: any = { token: v1() }
-      returned = await super.patch(userApiKey.id, { ...patchData })
+    if (userApiKey.data.length > 0) {
+      const patchData: UserApiKeyPatch = { token: data.token }
+      returned = await super._patch(userApiKey.data[0].id, patchData)
     } else {
-      const patchData: any = { userId: loggedInUser.id }
-      returned = await super.create({ ...patchData })
+      const patchData: UserApiKeyData = { ...data, userId: loggedInUser?.id }
+      returned = await super._create(patchData)
     }
     return returned
+  }
+
+  async remove(id: NullableId, _params?: UserApiKeyParams) {
+    return super._remove(id, _params)
   }
 }

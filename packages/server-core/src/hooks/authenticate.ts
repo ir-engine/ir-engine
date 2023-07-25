@@ -24,8 +24,9 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import * as authentication from '@feathersjs/authentication'
-import { HookContext } from '@feathersjs/feathers'
+import { HookContext, Paginated } from '@feathersjs/feathers'
 
+import { UserApiKeyType, userApiKeyPath } from '@etherealengine/engine/src/schemas/user/user-api-key.schema'
 import { isProvider } from 'feathers-hooks-common'
 import config from '../appconfig'
 import { Application } from './../../declarations'
@@ -47,12 +48,12 @@ export default () => {
     let token, user
     if (authSplit) token = authSplit[1]
     if (token) {
-      const key = await context.app.service('user-api-key').Model.findOne({
-        where: {
+      const key = (await context.app.service(userApiKeyPath).find({
+        query: {
           token: token
         }
-      })
-      if (key != null)
+      })) as Paginated<UserApiKeyType>
+      if (key.data.length > 0)
         user = await context.app.service('user').Model.findOne({
           include: [
             {
@@ -60,7 +61,7 @@ export default () => {
             }
           ],
           where: {
-            id: key.userId
+            id: key.data[0].userId
           }
         })
     }
