@@ -64,7 +64,6 @@ export const sequelizeSeeds: Array<ServicesSeedConfig> = [
   ...networkingSeeds,
   ...socialSequelizeSeeds,
   ...userSeeds,
-  ...projectSeeds,
   ...installedProjects
 ]
 
@@ -74,4 +73,5 @@ export const knexSeeds: Array<KnexSeed> = [
   ...settingSeeds,
   ...scopeSeeds,
   ...socialSeeds
+  ...projectSeeds
 ]
