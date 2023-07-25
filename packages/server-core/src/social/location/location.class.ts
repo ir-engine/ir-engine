@@ -215,7 +215,6 @@ export class LocationService<T = LocationType, ServiceParams extends Params = Lo
    * @returns updated location
    */
   async patch(id: Id, data: LocationPatch, params?: LocationParams) {
-    const t = await this.app.get('sequelizeClient').transaction()
     const trx = await (this.app.get('knexClient') as Knex).transaction()
 
     try {
@@ -231,7 +230,10 @@ export class LocationService<T = LocationType, ServiceParams extends Params = Lo
         data.slugifiedName = slugify(data.name, { lower: true })
       }
 
-      await trx.from<LocationDatabaseType>(locationPath).update(data).where({ id: id.toString() })
+      const updateData = JSON.parse(JSON.stringify(data))
+      delete updateData.locationSetting
+
+      await trx.from<LocationDatabaseType>(locationPath).update(updateData).where({ id: id.toString() })
 
       if (data.locationSetting) {
         await trx
@@ -246,7 +248,6 @@ export class LocationService<T = LocationType, ServiceParams extends Params = Lo
           .where({ id: oldLocation.locationSetting.id })
       }
 
-      await t.commit()
       await trx.commit()
 
       const location = await this.get(id)
@@ -254,7 +255,6 @@ export class LocationService<T = LocationType, ServiceParams extends Params = Lo
       return location
     } catch (err) {
       logger.error(err)
-      await t.rollback()
       await trx.rollback()
       if (err.errors && err.errors[0].message === 'slugifiedName must be unique') {
         throw new Error('That name is already in use')
@@ -282,12 +282,26 @@ export class LocationService<T = LocationType, ServiceParams extends Params = Lo
       if (location.locationSetting) await this.app.service(locationSettingPath).remove(location.locationSetting.id)
 
       try {
-        await this.app.service('location-admin').remove(null, {
-          query: {
+        const locationAdminItems = await (this.app.service('location-admin') as any).Model.findAll({
+          where: {
             locationId: id,
             userId: selfUser.id ?? null
           }
         })
+
+        locationAdminItems.length &&
+          locationAdminItems.forEach(async (route) => {
+            await this.app.service('location-admin').remove(route.dataValues.id)
+          })
+
+        // TODO: Remove above remove code and use following when moved to feathers 5.
+
+        // await this.app.service('location-admin').remove(null, {
+        //   query: {
+        //     locationId: id,
+        //     userId: selfUser.id ?? null
+        //   }
+        // })
       } catch (err) {
         logger.error(err, `Could not remove location-admin: ${err.message}`)
       }
