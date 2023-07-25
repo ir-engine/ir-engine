@@ -32,7 +32,6 @@ import {
   defineComponent,
   getComponent,
   hasComponent,
-  removeComponent,
   setComponent,
   useOptionalComponent
 } from '../../ecs/functions/ComponentFunctions'
@@ -40,7 +39,6 @@ import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { CallbackComponent, StandardCallbacks, setCallback } from '../../scene/components/CallbackComponent'
 import { ModelComponent } from '../../scene/components/ModelComponent'
 import { AnimationComponent } from './AnimationComponent'
-import { AvatarAnimationComponent } from './AvatarAnimationComponent'
 
 export const LoopAnimationComponent = defineComponent({
   name: 'LoopAnimationComponent',
@@ -49,7 +47,7 @@ export const LoopAnimationComponent = defineComponent({
   onInit: (entity) => {
     return {
       activeClipIndex: -1,
-      hasAvatarAnimations: false,
+      isVRM: false,
       action: null as AnimationAction | null
     }
   },
@@ -58,13 +56,13 @@ export const LoopAnimationComponent = defineComponent({
     if (!json) return
 
     if (typeof json.activeClipIndex === 'number') component.activeClipIndex.set(json.activeClipIndex)
-    if (typeof json.hasAvatarAnimations === 'boolean') component.hasAvatarAnimations.set(json.hasAvatarAnimations)
+    if (typeof json.isVRM === 'boolean') component.isVRM.set(json.isVRM)
   },
 
   toJSON: (entity, component) => {
     return {
       activeClipIndex: component.activeClipIndex.value,
-      hasAvatarAnimations: component.hasAvatarAnimations.value
+      hasAvatarAnimations: component.isVRM.value
     }
   },
 
@@ -98,6 +96,11 @@ export const LoopAnimationComponent = defineComponent({
       setCallback(entity, StandardCallbacks.STOP, stop)
     }, [])
 
+    useEffect(() => {
+      if (loopAnimationComponent && modelComponent?.scene.value)
+        loopAnimationComponent.isVRM.set(modelComponent.scene.value.userData?.assetType === 'vrm')
+    }, [modelComponent?.scene])
+
     /**
      * A model is required for LoopAnimationComponent.
      */
@@ -125,8 +128,6 @@ export const LoopAnimationComponent = defineComponent({
 
       //      const changedToAvatarAnimation =
       //        loopComponent.hasAvatarAnimations && animationComponent.animations !== AnimationManager.instance._animations
-      const changedToObjectAnimation =
-        !loopComponent.hasAvatarAnimations && animationComponent.animations !== scene.animations
 
       /*      if (changedToAvatarAnimation) {
         if (!hasComponent(entity, AvatarAnimationComponent)) {
@@ -145,16 +146,9 @@ export const LoopAnimationComponent = defineComponent({
         }
       }
 */
-      if (changedToObjectAnimation) {
-        if (hasComponent(entity, AvatarAnimationComponent)) {
-          removeComponent(entity, AvatarAnimationComponent)
-        }
-        animationComponent.mixer = new AnimationMixer(scene)
-        animationComponent.animations = scene.animations
-      }
 
       if (!loopComponent.action?.paused) playAnimationClip(animationComponent, loopComponent)
-    }, [animComponent?.animations, loopAnimationComponent?.hasAvatarAnimations])
+    }, [animComponent?.animations, loopAnimationComponent?.isVRM])
 
     return null
   }

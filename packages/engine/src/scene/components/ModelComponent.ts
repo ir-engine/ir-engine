@@ -126,11 +126,11 @@ function ModelReactor() {
       const uuid = getComponent(entity, UUIDComponent)
       const fileExtension = model.src.split('.').pop()?.toLowerCase()
       switch (fileExtension) {
+        case 'vrm':
         case 'glb':
         case 'gltf':
         case 'fbx':
         case 'usdz':
-        case 'vrm':
           AssetLoader.load(
             model.src,
             {
