@@ -23,46 +23,45 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Classifications, NormalizedLandmark } from '@mediapipe/tasks-vision'
-import { VRMExpressionPresetName } from '@pixiv/three-vrm'
-// import { XRAction, XRState } from '../xr/XRState'
-import { TFace } from 'kalidokit/dist/kalidokit.umd.js'
-// import { Classifications } from '@mediapipe/tasks-vision'
-// import { VRMExpression } from '@pixiv/three-vrm'
 import { decode, encode } from 'msgpackr'
 import { useEffect } from 'react'
-import { Mesh, Vector3 } from 'three'
+import { Vector3 } from 'three'
 
-// import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { getState } from '@etherealengine/hyperflux'
 
 import { AvatarRigComponent } from '../avatar/components/AvatarAnimationComponent'
 import { RingBuffer } from '../common/classes/RingBuffer'
-// import { isClient } from '../common/functions/getEnvironment'
+
 import { Engine } from '../ecs/classes/Engine'
 import { EngineState } from '../ecs/classes/EngineState'
 import { getComponent } from '../ecs/functions/ComponentFunctions'
-// import { removeEntity } from '../ecs/functions/EntityFunctions'
+
 import { defineSystem } from '../ecs/functions/SystemFunctions'
 import { addDataChannelHandler, removeDataChannelHandler } from '../networking/NetworkState'
 import { DataChannelType, Network } from '../networking/classes/Network'
 import { NetworkObjectComponent } from '../networking/components/NetworkObjectComponent'
 import { TransformComponent } from '../transform/components/TransformComponent'
 
-import UpdatePose from './UpdatePose'
+import { Classifications, Landmark, NormalizedLandmark } from '@mediapipe/tasks-vision'
+import { TFace, THand, TPose } from 'kalidokit/dist/kalidokit.umd.js'
 
-export const motionCaptureHeadSuffix = '_motion_capture_head'
-export const motionCaptureLeftHandSuffix = '_motion_capture_left_hand'
-export const motionCaptureRightHandSuffix = '_motion_capture_right_hand'
+import UpdateRawFace from './UpdateRawFace'
+import UpdateRawHands from './UpdateRawHands'
+import UpdateRawPose from './UpdateRawPose'
+import UpdateSolvedFace from './UpdateSolvedFace'
+import UpdateSolvedHands from './UpdateSolvedHands'
+import UpdateSolvedPose from './UpdateSolvedPose'
 
 export interface MotionCaptureStream {
   pose?: NormalizedLandmark[] | undefined
-  worldPose?: NormalizedLandmark[] | undefined
-  face?: Classifications[] | undefined
-  lFace?: NormalizedLandmark[] | undefined
-  tFace?: TFace | undefined
+  poseWorld?: Landmark[] | undefined
+  poseSolved?: TPose[] | undefined
   hands?: NormalizedLandmark[] | undefined
+  handsWorld?: Landmark[] | undefined
+  handsSolved?: THand[] | undefined
+  face?: Classifications[] | undefined
+  faceSolved?: TFace | undefined
 }
 
 export const sendResults = (results: MotionCaptureStream) => {
@@ -79,7 +78,6 @@ export const receiveResults = (buff: ArrayBuffer) => {
     peerIndex: number
     results: MotionCaptureStream
   }
-  // console.log('receiveResults', results)
   const peerID = Engine.instance.worldNetwork.peerIndexToPeerID.get(peerIndex)
   return { timestamp, peerID, results }
 }
@@ -111,29 +109,12 @@ const handleMocapData = (
 const timeSeriesMocapData = new Map<PeerID, RingBuffer<MotionCaptureStream>>()
 const timeSeriesMocapLastSeen = new Map<PeerID, number>()
 
-// const objs = [] as Mesh[]
-const debug = true
-
-// if (debug)
-//   for (let i = 0; i < 33; i++) {
-//     objs.push(new Mesh(new SphereGeometry(0.05), new MeshBasicMaterial()))
-//     Engine.instance.scene.add(objs[i])
-//   }
-
-// const hipsPos = new Vector3()
-// const headPos = new Vector3()
-// const leftHandPos = new Vector3()
-// const rightHandPos = new Vector3()
-
-const poseDebugObjs = [] as Mesh[]
-const handDebugObjs = [] as Mesh[]
-
 const execute = () => {
   const engineState = getState(EngineState)
 
-  const localClientEntity = Engine?.instance?.localClientEntity
+  const localClientEntity = Engine.instance.localClientEntity
 
-  const network = Engine?.instance?.worldNetwork
+  const network = Engine.instance.worldNetwork
 
   for (const [peerID, mocapData] of timeSeriesMocapData) {
     if (!network?.peers?.has(peerID) || timeSeriesMocapLastSeen.get(peerID)! < Date.now() - 1000) {
@@ -157,249 +138,55 @@ const execute = () => {
 
       if (!avatarRig) continue
 
-      // const rawPose = avatarRig?.vrm?.humanoid?.getNormalizedPose()
       const avatarHips = avatarRig?.vrm?.humanoid?.getRawBone('hips')?.node
 
       const hipsPos = new Vector3()
       avatarHips?.getWorldPosition(hipsPos)
 
-      // if (data?.pose) {
-      debugger
-      UpdatePose(data?.pose, avatarRig, avatarTransform)
-      // }
-
-      if (data?.tFace) {
-        // avatarRig?.rig?.head?.node?.rotation?.setFromVector3(new Vector3(data?.tFace?.head?.normalized?.x, data?.tFace?.head?.normalized?.y, data?.tFace?.head?.normalized?.z))
-        // head
-        // avatarRig?.vrm?.expressionManager?.setValue(VRMExpressionPresetName.LookUp, data?.tFace?.head?.degrees?.x)
-        // avatarRig?.vrm?.expressionManager?.setValue(VRMExpressionPresetName.LookDown, data?.tFace?.head?.degrees?.x)
-        // avatarRig?.vrm?.expressionManager?.setValue(VRMExpressionPresetName.LookLeft, data?.tFace?.head?.degrees?.y)
-        // avatarRig?.vrm?.expressionManager?.setValue(VRMExpressionPresetName.LookRight, data?.tFace?.head?.degrees?.y)
-
-        // eyes
-        // avatarRig?.vrm?.expressionManager?.setValue(VRMExpressionPresetName.Blink, data?.tFace?.eye?.l)
-        // avatarRig?.vrm?.expressionManager?.setValue(VRMExpressionPresetName.Blink, data?.tFace?.eye?.r)
-
-        // mouth
-        avatarRig?.vrm?.expressionManager?.setValue(VRMExpressionPresetName.Aa, data?.tFace?.mouth?.aa)
-        avatarRig?.vrm?.expressionManager?.setValue(VRMExpressionPresetName.Ee, data?.tFace?.mouth?.ee)
-        avatarRig?.vrm?.expressionManager?.setValue(VRMExpressionPresetName.Oh, data?.tFace?.mouth?.oh)
-        avatarRig?.vrm?.expressionManager?.setValue(VRMExpressionPresetName.Ih, data?.tFace?.mouth?.ih)
-        avatarRig?.vrm?.expressionManager?.setValue(VRMExpressionPresetName.Ou, data?.tFace?.mouth?.ou)
-        avatarRig?.vrm?.expressionManager?.update()
+      // Pose
+      if (data?.poseSolved) {
+        try {
+          UpdateSolvedPose(data?.poseSolved, hipsPos, avatarRig, avatarTransform)
+        } catch (e) {
+          console.error(e)
+        }
+      } else if (data?.poseWorld) {
+        try {
+          UpdateRawPose(data?.poseWorld, hipsPos, avatarRig, avatarTransform)
+        } catch (e) {
+          console.error(e)
+        }
       }
-      //   // console.log('data.face', data?.face[0])
-      //   // console.log('data.lFace', data.lFace)
-      //   // console.log('data.tFace', data.tFace)
-      //   // console.log(avatarRig?.vrm?.expressionManager?.blinkExpressionNames)
-      //   // console.log(avatarRig?.vrm?.expressionManager?.lookAtExpressionNames)
-      //   // console.log(avatarRig?.vrm?.expressionManager?.mouthExpressionNames)
-      //     const faceData = data?.face[0]?.categories
-      //   for (let i = 0; i < faceData?.length - 1; i++) {
-      //     // const expName = faceData[i]?.categoryName.startsWith('_') ? `VRMExpression${faceData[i]?.categoryName}` : `VRMExpression_${faceData[i]?.categoryName}`
-      //     // console.log('exp name: ', expName)
-      //     let name = faceData[i]?.categoryName
-      //     name = name.charAt(0).toUpperCase() + name.slice(1)
-      //     // console.log('Cat name: ', expName)
-      //     // const mapExp = avatarRig?.vrm?.expressionManager?.expressionMap[expName]
-      //     // console.log('map - exp: ', mapExp)
-      //     const map = avatarRig?.vrm?.expressionManager?.expressionMap[name]
-      //     if (!map) continue
-      //     // debugger
-      //     // map.weight = faceData[i]?.score
-      //     // map.applyWeight({ multiplier: faceData[i]?.score })
-      //     const currentWeight = avatarRig?.vrm?.expressionManager?.getValue(VRMExpressionPresetName[name])
 
-      //     const newWeight = Vector.lerp(faceData[i]?.score, currentWeight!, engineState?.deltaSeconds * 10)
-      //     // avatarRig?.vrm?.expressionManager?.setValue(VRMExpressionPresetName[name], faceData[i]?.score)
+      // Hands
+      if (data?.handsSolved) {
+        try {
+          UpdateSolvedHands(data?.handsSolved, hipsPos, avatarRig, avatarTransform)
+        } catch (e) {
+          console.error(e)
+        }
+      } else if (data?.handsWorld) {
+        try {
+          UpdateRawHands(data?.handsWorld, hipsPos, avatarRig, avatarTransform)
+        } catch (e) {
+          console.error(e)
+        }
+      }
 
-      //     console.log('map - cat: ', map)
-      //     const expMap = avatarRig?.vrm?.expressionManager?.expressions.filter((c) => (c?.expressionName.toLowerCase() === expName.toLowerCase()))
-      //     console.log('exp', expMap)
-      //     const exp = avatarRig?.vrm?.expressionManager?.expressions.filter((c) => (c?.expressionName.toLowerCase() === name.toLowerCase()))
-      //     console.log('exp', exp)
-
-      //     avatarRig?.vrm?.expressionManager?.setValue(VRMExpressionPresetName[name], newWeight)
-
-      //     // avatarRig?.vrm?.expressionManager?.setValue(name, faceData[i]?.score)
-
-      //     // console.log('exp', avatarRig?.vrm?.expressionManager?.expressions.filter((c) => (c?.expressionName === `VRMExpression${faceData[i]?.categoryName}`)))
-      //     // console.log(`map ${faceData[i]?.categoryName}`, avatarRig?.vrm?.expressionManager?.expressionMap[faceData[i]?.categoryName])
-      //     // console.log('exp', avatarRig?.vrm?.expressionManager?.expressions?.map((c) => c?.expressionName))
-
-      //     // debugger
-      //   }
-
-      //   // debugger
-
-      //   // console.log('data.tFace', data.tFace)
-      //   // console.log(avatarRig?.vrm?.expressionManager?.blinkExpressionNames)
-      //   // for (let i = 0; i<Object.keys(data.tFace).length-1;i++) {
-      //   //   const exp = avatarRig?.vrm?.expressionManager?.getExpression(Object.keys(data.tFace)[i])
-      //   //   if (exp !== null) {
-      //   //     console.log('exp', exp)
-      //   //   }
-      //   //   // avatarRig?.vrm?.expressionManager?.setValue(Object(data.tFace).keys[i], data.tFace[i])
-      //   // }
-      //   avatarRig?.vrm?.expressionManager?.update()
-      //   // const map = avatarRig?.vrm?.expressionManager
-      //   // avatarRig?.vrm?.expressionManager?.setValue(VRMExpressionPresetName[name], faceData[i]?.score)
-      //   // debugger
-      // }
-
-      // draw face
-      // if (data?.face) {
-      //   const faceData = data?.face[0]?.categories
-      //   // console.log('faceData', faceData)
-      //   // console.log('exp map', avatarRig?.vrm?.expressionManager?.expressionMap)
-      //   for (let i = 0; i < faceData?.length - 1; i++) {
-      //     const expName = faceData[i]?.categoryName.startsWith('_') ? `VRMExpression${faceData[i]?.categoryName}` : `VRMExpression_${faceData[i]?.categoryName}`
-      //     // console.log('exp name: ', expName)
-      //     let name = faceData[i]?.categoryName
-      //     name = name.startsWith('_') ? name = name.slice(1) : name
-      //     name = name.charAt(0).toUpperCase() + name.slice(1)
-      //     // console.log('Cat name: ', expName)
-      //     // const mapExp = avatarRig?.vrm?.expressionManager?.expressionMap[expName]
-      //     // console.log('map - exp: ', mapExp)
-      //     const map = avatarRig?.vrm?.expressionManager?.expressionMap[VRMExpressionPresetName[name]]
-      //     const exp = avatarRig?.vrm?.expressionManager?.getExpression(VRMExpressionPresetName[name])
-
-      //     const map2 = avatarRig?.vrm?.expressionManager?.expressionMap[VRMExpressionPresetName[expName]]
-      //     const exp2 = avatarRig?.vrm?.expressionManager?.getExpression(VRMExpressionPresetName[expName])
-      //     debugger
-      //     // console.log('map - cat: ', map)
-      //     // const expMap = avatarRig?.vrm?.expressionManager?.expressions.filter((c) => (c?.expressionName.toLowerCase() === expName.toLowerCase()))
-      //     // console.log('exp', expMap)
-      //     // const exp = avatarRig?.vrm?.expressionManager?.expressions.filter((c) => (c?.expressionName.toLowerCase() === name.toLowerCase()))
-      //     // console.log('exp', exp)
-      //     if (!map) continue
-      //     // debugger
-      //     // map.weight = faceData[i]?.score
-      //     // map.applyWeight({ multiplier: faceData[i]?.score })
-      //     const currentWeight = avatarRig?.vrm?.expressionManager?.getValue(VRMExpressionPresetName[name])
-
-      //     const newWeight = Vector.lerp(faceData[i]?.score, currentWeight!, engineState?.deltaSeconds * 10)
-      //     // avatarRig?.vrm?.expressionManager?.setValue(VRMExpressionPresetName[name], faceData[i]?.score)
-      //     avatarRig?.vrm?.expressionManager?.setValue(VRMExpressionPresetName[name], newWeight)
-      //     // console.log('map - cat: ', map)
-      //     // const expMap = avatarRig?.vrm?.expressionManager?.expressions.filter((c) => (c?.expressionName.toLowerCase() === expName.toLowerCase()))
-      //     // console.log('exp', expMap)
-      //     // const exp = avatarRig?.vrm?.expressionManager?.expressions.filter((c) => (c?.expressionName.toLowerCase() === name.toLowerCase()))
-      //     // console.log('exp', exp)
-      //     // avatarRig?.vrm?.expressionManager?.setValue(name, faceData[i]?.score)
-
-      //     // console.log('exp', avatarRig?.vrm?.expressionManager?.expressions.filter((c) => (c?.expressionName === `VRMExpression${faceData[i]?.categoryName}`)))
-      //     // console.log(`map ${faceData[i]?.categoryName}`, avatarRig?.vrm?.expressionManager?.expressionMap[faceData[i]?.categoryName])
-      //     // console.log('exp', avatarRig?.vrm?.expressionManager?.expressions?.map((c) => c?.expressionName))
-
-      //     // debugger
-      //   }
-      //   avatarRig?.vrm?.expressionManager?.update()
-      // //   // debugger
-      // //   // const faceData = data?.face[0]?.categories
-
-      // //   // for (let i = 0; i < faceData?.length - 1; i++) {
-      // //   // avatarRig?.vrm?.expressionManager?.expressionMap
-      // //   // []?.forEach((exp) => {
-      // //   //   // console.log('exp', exp?.name, `VRMExpression_${faceData[i]?.categoryName}`)
-      // //   //   if (exp?.name === `VRMExpression_${faceData[i]?.categoryName}`) {
-      // //   //     console.log('exp match! ', exp?.name, `VRMExpression_${faceData[i]?.categoryName}`)
-      // //   //     avatarRig?.vrm?.expressionManager?.setValue(faceData[i]?.categoryName, faceData[i]?.score)
-      // //   //   }
-      // //   // })
-      // //   // }
-      // }
-
-      // // draw pose
-      // if (data?.worldPose) {
-      //   for (let i = 0; i < data?.worldPose?.length - 1; i++) {
-      //     const name = VRMHumanBoneList[i].toLowerCase()
-      //     const pose = data?.worldPose[i]
-      //     const posePos = new Vector3()
-      //     posePos
-      //       .set(pose?.x, pose?.y, pose?.z)
-      //       .multiplyScalar(-1)
-      //       .applyQuaternion(avatarTransform.rotation)
-
-      //     const Part = avatarRig?.vrm?.humanoid?.getRawBone(VRMHumanBoneList[i])
-
-      //     if (!Part) continue
-
-      //     const partPos = Part?.node?.worldToLocal(posePos.clone()).clone()
-
-      //     // Part?.node?.position?.lerp(posePos.clone(), engineState.deltaSeconds * 10)
-
-      //     if (debug) {
-      //       if (poseDebugObjs[i] === undefined) {
-      //         let matOptions = {}
-      //         if (name === 'lefthand') {
-      //           matOptions = { color: 0x0000ff }
-      //         } else if (name === 'righthand') {
-      //           matOptions = { color: 0xff0000 }
-      //         }
-      //         const mesh = new Mesh(new SphereGeometry(0.05), new MeshBasicMaterial(matOptions))
-      //         poseDebugObjs[i] = mesh
-      //         Engine?.instance?.scene?.add(mesh)
-      //       }
-
-      //       poseDebugObjs[i].position.lerp(partPos.clone(), engineState.deltaSeconds * 10)
-      //       poseDebugObjs[i].updateMatrixWorld()
-
-      //       // if (VRMHumanBoneList[i].toLowerCase() === 'lefthand') {
-      //       //   poseDebugObjs[i]?.material?
-      //       // }
-
-      //       // draw pose
-      //       // if (data?.hands && (name.startsWith('lefthand') || name.startsWith('righthand'))) {
-      //       //   for (let i = 0; i < data?.hands?.length - 1; i++) {
-      //       //     const pose = data?.hands[i]
-      //       //     const newPos = new Vector3()
-      //       //     newPos.applyQuaternion(poseDebugObjs[i].quaternion).add(new Vector3(pose?.x, -pose?.y, pose?.z))
-      //       //     // .multiplyScalar(-1)
-
-      //       //     // .setX(pose?.x)
-      //       //     // .setZ(pose?.z)
-      //       //     // .add(hipsPos)
-
-      //       //     if (handDebugObjs[i] === undefined) {
-      //       //       const matOptions = {}
-      //       //       // if (name === 'lefthand') {
-      //       //       //   matOptions = { color: 0x0000ff }
-      //       //       // } else if (name === 'righthand') {
-      //       //       //   matOptions = { color: 0xff0000 }
-      //       //       // }
-      //       //       const mesh = new Mesh(new SphereGeometry(0.0125), new MeshBasicMaterial(matOptions))
-      //       //       handDebugObjs[i] = mesh
-      //       //       Engine?.instance?.scene?.add(mesh)
-
-      //       //       handDebugObjs[i].position.lerp(newPos.clone(), engineState.deltaSeconds * 10)
-      //       //       handDebugObjs[i].updateMatrixWorld()
-      //       //     }
-
-      //       //     // if (VRMHumanBoneList[i].toLowerCase() === 'lefthand') {
-      //       //     //   poseDebugObjs[i]?.material?
-      //       //     // }
-      //       //   }
-      //       // }
-      //     }
-
-      //     // const bone = Object.keys(POSE_LANDMARKS)[i]
-      //     // avatarRig?.rig[bone]?.node.position.lerp(newPos, engineState.deltaSeconds * 10)
-      //     // avatarRig?.rig[bone]?.node.updateMatrixWorld()
-      //     // const Part = avatarRig?.vrm?.humanoid?.getRawBoneNode(VRMHumanBoneList[i])
-      //     // // const bonePos = new Vector3()
-      //     // // bonePos
-      //     // //     .set(data?.pose[i]?.x, data?.pose[i]?.y, data?.pose[i]?.z)
-      //     //     // .multiplyScalar(-1)
-      //     //     // .applyQuaternion(avatarTransform.rotation)
-      //     //     // .add(hipsPos)
-      //     // // if (!Part) return
-      //     // const partPos = Part?.position || new Vector3()
-      //     // const bonePos = poseDebugObjs[i]?.worldToLocal(partPos) || new Vector3()
-
-      //     // Part?.position?.lerp(bonePos, engineState.deltaSeconds * 50)
-      //   }
-      // }
+      // Face
+      if (data?.faceSolved) {
+        try {
+          UpdateSolvedFace(data?.faceSolved, hipsPos, avatarRig, avatarTransform)
+        } catch (e) {
+          console.error(e)
+        }
+      } else if (data?.face) {
+        try {
+          UpdateRawFace(data?.face, hipsPos, avatarRig, avatarTransform)
+        } catch (e) {
+          console.error(e)
+        }
+      }
     }
   }
 }

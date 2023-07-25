@@ -25,11 +25,18 @@ Ethereal Engine. All Rights Reserved.
 
 import { Mesh, MeshBasicMaterial, SphereGeometry, Vector3 } from 'three'
 
-import { getState } from '@etherealengine/hyperflux'
+import { dispatchAction, getState } from '@etherealengine/hyperflux'
 
 import { VRMHumanBoneList } from '@pixiv/three-vrm'
 import { Engine } from '../ecs/classes/Engine'
 import { EngineState } from '../ecs/classes/EngineState'
+
+import { UUIDComponent } from '../scene/components/UUIDComponent'
+import { XRAction } from '../xr/XRState'
+
+import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
+import { getComponent } from '../ecs/functions/ComponentFunctions'
+import { TransformComponent } from '../transform/components/TransformComponent'
 
 export const motionCaptureHeadSuffix = '_motion_capture_head'
 export const motionCaptureLeftHandSuffix = '_motion_capture_left_hand'
@@ -44,35 +51,41 @@ if (debug)
     Engine?.instance?.scene.add(objs[i])
   }
 
-const hipsPos = new Vector3()
-const headPos = new Vector3()
-const leftHandPos = new Vector3()
-const rightHandPos = new Vector3()
-
-const UpdatePose = (data, avatarRig, avatarTransform) => {
+const UpdateHands = (data, hipsPos, avatarRig, avatarTransform) => {
   if (data) {
     const engineState = getState(EngineState)
+
+    const leftWrist = avatarRig?.vrm?.humanoid?.getRawBone('leftWrist')?.node
+    const rightWrist = avatarRig?.vrm?.humanoid?.getRawBone('rightWrist')?.node
+
     for (let i = 0; i < data.length - 1; i++) {
-      const name = VRMHumanBoneList[i].toLowerCase()
-      const pose = data[i]
-      const posePos = new Vector3()
-      posePos
-        .set(pose?.x, pose?.y, pose?.z)
+      // fingers start at 25
+      const name = VRMHumanBoneList[i + 25].toLowerCase()
+      const hand = data[i]
+
+      const lwPos = new Vector3()
+      leftWrist?.getWorldPosition(lwPos)
+      const rwPos = new Vector3()
+      rightWrist?.getWorldPosition(rwPos)
+
+      const targetPos = new Vector3()
+      targetPos
+        .set(hand?.x, hand?.y, hand?.z)
         .multiplyScalar(-1)
         .applyQuaternion(avatarTransform.rotation)
+        .add(name.startsWith('left') ? lwPos : rwPos)
 
-      const Part = avatarRig?.vrm?.humanoid?.getRawBone(VRMHumanBoneList[i])
+      // const Part = avatarRig?.vrm?.humanoid?.getRawBone(VRMHumanBoneList[i])
 
-      if (!Part) continue
+      // if (!Part) continue
 
-      const partPos = Part?.node?.worldToLocal(posePos.clone()).clone()
+      // const partPos = Part?.node?.worldToLocal(posePos.clone()).clone()
 
-      // Part?.node?.position?.lerp(posePos.clone(), engineState.deltaSeconds * 10)
-
+      const allowedTargets = ['leftwrist', 'rightwrist', 'lefthand', 'righthand']
       if (debug) {
         if (objs[i] === undefined) {
           let matOptions = {}
-          if (name === 'lefthand') {
+          if (allowedTargets.includes(name)) {
             matOptions = { color: 0x0000ff }
           } else if (name === 'righthand') {
             matOptions = { color: 0xff0000 }
@@ -82,9 +95,23 @@ const UpdatePose = (data, avatarRig, avatarTransform) => {
           Engine?.instance?.scene?.add(mesh)
         }
 
-        objs[i].position.lerp(partPos.clone(), engineState.deltaSeconds * 10)
+        objs[i].position.lerp(targetPos.clone(), engineState.deltaSeconds * 10)
         objs[i].updateMatrixWorld()
       }
+
+      const entityUUID = `${Engine?.instance?.userId}_mocap_${name}` as EntityUUID
+      const ikTarget = UUIDComponent.entitiesByUUID[entityUUID]
+      // if (ikTarget) removeEntity(ikTarget)
+
+      if (!ikTarget) {
+        const h = name.startsWith('left') ? 'left' : 'right'
+        dispatchAction(XRAction.spawnIKTarget({ handedness: h, entityUUID: entityUUID }))
+      }
+
+      const ik = getComponent(ikTarget, TransformComponent)
+      ik.position.lerp(targetPos, engineState.deltaSeconds * 10)
+
+      // ik.quaternion.copy()
     }
   }
   // const engineState = getState(EngineState)
@@ -177,4 +204,4 @@ const UpdatePose = (data, avatarRig, avatarTransform) => {
   //   }
 }
 
-export default UpdatePose
+export default UpdateHands
