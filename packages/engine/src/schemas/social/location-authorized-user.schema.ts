@@ -27,6 +27,9 @@ Ethereal Engine. All Rights Reserved.
 import type { Static } from '@feathersjs/typebox'
 import { querySyntax, Type } from '@feathersjs/typebox'
 
+// TODO: This is temporary variable. It will be removed once this service is moved to feathers 5.
+export const locationAuthorizedUserDBPath = 'location_authorized_user'
+
 // Main data model schema
 export const locationAuthorizedUserSchema = Type.Object(
   {
@@ -38,7 +41,9 @@ export const locationAuthorizedUserSchema = Type.Object(
     }),
     locationId: Type.String({
       format: 'uuid'
-    })
+    }),
+    createdAt: Type.String({ format: 'date-time' }),
+    updatedAt: Type.String({ format: 'date-time' })
   },
   { $id: 'LocationAuthorizedUser', additionalProperties: false }
 )

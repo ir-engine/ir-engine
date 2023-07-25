@@ -43,6 +43,11 @@ import {
   LocationType
 } from '@etherealengine/engine/src/schemas/social/location.schema'
 
+import { locationAdminDBPath, LocationAdminType } from '@etherealengine/engine/src/schemas/social/location-admin.schema'
+import {
+  locationAuthorizedUserDBPath,
+  LocationAuthorizedUserType
+} from '@etherealengine/engine/src/schemas/social/location-authorized-user.schema'
 import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
 
@@ -151,7 +156,6 @@ export class LocationService<T = LocationType, ServiceParams extends Params = Lo
    * @returns new location object
    */
   async create(data: LocationData, params?: LocationParams) {
-    const t = await this.app.get('sequelizeClient').transaction()
     const trx = await (this.app.get('knexClient') as Knex).transaction()
 
     try {
@@ -165,38 +169,29 @@ export class LocationService<T = LocationType, ServiceParams extends Params = Lo
 
       const insertData = JSON.parse(JSON.stringify(data))
       delete insertData.locationSetting
+      delete insertData.locationAdmin
 
-      await trx.from<LocationDatabaseType>(locationPath).insert(insertData, 'id')
-
-      const { locationSetting } = data
+      await trx.from<LocationDatabaseType>(locationPath).insert(insertData)
 
       await trx.from<LocationSettingType>(locationSettingPath).insert({
-        videoEnabled: !!locationSetting.videoEnabled,
-        audioEnabled: !!locationSetting.audioEnabled,
-        faceStreamingEnabled: !!locationSetting.faceStreamingEnabled,
-        screenSharingEnabled: !!locationSetting.screenSharingEnabled,
-        locationType: locationSetting.locationType || 'private',
+        ...data.locationSetting,
         locationId: (data as LocationType).id
       })
 
-      await Promise.all([
-        this.app.service('location-admin').Model.create(
-          {
-            locationId: (data as LocationType).id,
-            userId: selfUser?.id
-          },
-          { transaction: t }
-        ),
-        this.app.service('location-authorized-user').Model.create(
-          {
-            locationId: (data as LocationType).id,
-            userId: selfUser?.id
-          },
-          { transaction: t }
-        )
-      ])
+      if ((data as LocationType).locationAdmin) {
+        await trx.from<LocationAdminType>(locationAdminDBPath).insert({
+          ...(data as LocationType).locationAdmin,
+          userId: selfUser?.id,
+          locationId: (data as LocationType).id
+        })
 
-      await t.commit()
+        await trx.from<LocationAuthorizedUserType>(locationAuthorizedUserDBPath).insert({
+          ...(data as LocationType).locationAdmin,
+          userId: selfUser?.id,
+          locationId: (data as LocationType).id
+        })
+      }
+
       await trx.commit()
 
       const location = await this.get((data as LocationType).id)
@@ -204,7 +199,6 @@ export class LocationService<T = LocationType, ServiceParams extends Params = Lo
       return location
     } catch (err) {
       logger.error(err)
-      await t.rollback()
       await trx.rollback()
       if (err.errors && err.errors[0].message === 'slugifiedName must be unique') {
         throw new Error('Name is in use.')

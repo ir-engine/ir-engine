@@ -28,17 +28,13 @@ Ethereal Engine. All Rights Reserved.
 import { resolve, virtual } from '@feathersjs/schema'
 import { v4 } from 'uuid'
 
-import { LocationAuthorizedUser } from '@etherealengine/common/src/interfaces/LocationAuthorizedUser'
-import { LocationBan } from '@etherealengine/common/src/interfaces/LocationBan'
 import { LocationAdminType } from '@etherealengine/engine/src/schemas/social/location-admin.schema'
 import { locationSettingPath } from '@etherealengine/engine/src/schemas/social/location-setting.schema'
-import {
-  LocationDatabaseType,
-  LocationQuery,
-  LocationType
-} from '@etherealengine/engine/src/schemas/social/location.schema'
+import { LocationQuery, LocationType } from '@etherealengine/engine/src/schemas/social/location.schema'
 import type { HookContext } from '@etherealengine/server-core/declarations'
 
+import { LocationAuthorizedUserType } from '@etherealengine/engine/src/schemas/social/location-authorized-user.schema'
+import { LocationBanType } from '@etherealengine/engine/src/schemas/social/location-ban.schema'
 import { getDateTimeSql } from '../../util/get-datetime-sql'
 import { LocationParams } from './location.class'
 
@@ -77,21 +73,23 @@ export const locationResolver = resolve<LocationType, HookContext>({
     return undefined
   }),
   locationAuthorizedUsers: virtual(async (location, context) => {
+    //TODO: We should replace `as any as LocationAuthorizedUserType[]` with `as LocationAuthorizedUserType[]` once location-admin service is migrated to feathers 5.
     const locationAuthorizedUser = (await context.app.service('location-authorized-user').find({
       query: {
         locationId: location.id
       },
       paginate: false
-    })) as LocationAuthorizedUser[]
+    })) as LocationAuthorizedUserType[]
     return locationAuthorizedUser
   }),
   locationBans: virtual(async (location, context) => {
+    //TODO: We should replace `as any as LocationBanType[]` with `as LocationBanType[]` once location-admin service is migrated to feathers 5.
     const locationBan = (await context.app.service('location-ban').find({
       query: {
         locationId: location.id
       },
       paginate: false
-    })) as LocationBan[]
+    })) as LocationBanType[]
     return locationBan
   })
 })
@@ -101,9 +99,29 @@ export const locationExternalResolver = resolve<LocationType, HookContext>({
   isFeatured: async (value, location) => !!location.isFeatured // https://stackoverflow.com/a/56523892/2077741
 })
 
-export const locationDataResolver = resolve<LocationDatabaseType, HookContext>({
+export const locationDataResolver = resolve<LocationType, HookContext>({
   id: async () => {
     return v4()
+  },
+  locationSetting: async (value, location) => {
+    return {
+      ...location.locationSetting,
+      id: v4(),
+      locationType: location.locationSetting.locationType || 'private',
+      locationId: '',
+      createdAt: await getDateTimeSql(),
+      updatedAt: await getDateTimeSql()
+    }
+  },
+  locationAdmin: async (value, location) => {
+    return {
+      ...location.locationAdmin,
+      id: v4(),
+      locationId: '',
+      userId: '',
+      createdAt: await getDateTimeSql(),
+      updatedAt: await getDateTimeSql()
+    }
   },
   createdAt: getDateTimeSql,
   updatedAt: getDateTimeSql
