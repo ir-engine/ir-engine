@@ -98,9 +98,17 @@ describe('location.test', () => {
       screenSharingEnabled: false,
       locationId: ''
     })
+
+    const locationData = JSON.parse(JSON.stringify(locations[0]))
+    delete locationData.locationBans
+    delete locationData.locationAuthorizedUsers
+    delete locationData.locationAdmin
+    delete locationData.createdAt
+    delete locationData.updatedAt
+
     const item = await app
       .service(locationPath)
-      .patch(locations[0].id, { ...locations[0], name: newName, locationSetting })
+      .patch(locations[0].id, { ...locationData, name: newName, locationSetting })
 
     assert.ok(item)
     assert.equal(item.name, newName)
