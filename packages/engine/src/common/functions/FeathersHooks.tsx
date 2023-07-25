@@ -97,17 +97,8 @@ export const useQuery = <S extends keyof ServiceTypes, M extends Methods>(servic
     args
   })}` as QueryHash
 
-  const fetch = useCallback(async () => {
-    if (!state.get(NO_PROXY)[serviceName]) state[serviceName].set({})
-    if (!state.get(NO_PROXY)[serviceName][queryId])
-      state[serviceName].merge({
-        [queryId]: {
-          fetch,
-          response: null,
-          status: 'pending',
-          error: ''
-        }
-      })
+  const fetch = () => {
+    console.log('fetch')
     state[serviceName][queryId].merge({
       status: 'pending',
       error: ''
@@ -126,12 +117,24 @@ export const useQuery = <S extends keyof ServiceTypes, M extends Methods>(servic
           error: error.message
         })
       })
-  }, [])
+  }
 
   useRealtime(serviceName, fetch)
 
   useEffect(() => {
-    fetch()
+    console.log('mount')
+    if (!state.get(NO_PROXY)[serviceName]) state[serviceName].set({})
+    if (!state.get(NO_PROXY)[serviceName][queryId]) {
+      state[serviceName].merge({
+        [queryId]: {
+          fetch,
+          response: null,
+          status: 'pending',
+          error: ''
+        }
+      })
+      fetch()
+    }
   }, [])
 
   const query = state[serviceName]?.[queryId]

@@ -25,12 +25,6 @@ Ethereal Engine. All Rights Reserved.
 
 import React, { useEffect, useRef, useState } from 'react'
 
-import NotificationIcon from './assets/attach-file2.svg'
-import BoxSearch from './assets/bxbxsearchalt2.svg'
-import AddSquare from './assets/fluentaddsquare24filled.svg'
-import SettingIcon from './assets/setting.svg'
-// import { FriendsList } from './FriendsList'
-// import { GroupsList } from './GroupsList'
 import { useUserAvatarThumbnail } from '@etherealengine/client-core/src/user/functions/useUserAvatarThumbnail'
 import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
@@ -38,22 +32,17 @@ import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import { Resizable } from 're-resizable'
 import { ChannelsList } from './ChannelsList'
 import { Create } from './Create'
-import { WorldsList } from './WorldsList'
+import NotificationIcon from './assets/attach-file2.svg'
+import BoxSearch from './assets/bxbxsearchalt2.svg'
+import AddSquare from './assets/fluentaddsquare24filled.svg'
+import SettingIcon from './assets/setting.svg'
 
-/**
- * @todo
- * - replace ChatTypes with just 'Channels'
- * - remove channelType
- * -
- */
-const ChatTypes: string[] = ['Party', 'Friends', 'Group', 'Layer', 'Instance']
 /**
  * Chat
  */
 export const ChatSection = () => {
   const userName = useHookstate(getMutableState(AuthState).user.name).value
   const userThumbnail = useUserAvatarThumbnail(Engine.instance.userId)
-  const currentChatType = useHookstate<(typeof ChatTypes)[number]>('Channels')
 
   const [checked, setChecked] = useState<boolean>(false)
 
@@ -141,8 +130,7 @@ export const ChatSection = () => {
           </div>
           <div className="box-border border-t-[1px] border-solid border-[#D1D3D7]" />
           <div className="w-full h-[76vh] justify-center">
-            {currentChatType.value === 'Channels' && <ChannelsList />}
-            {currentChatType.value === 'Worlds' && <WorldsList />}
+            <ChannelsList />
           </div>
           <div className="absolute bottom-0 w-full h-[70px] gap-4 flex flex-wrap justify-center bg-[#ECECEC]">
             <img className="rounded-[38px] mt-3 w-11 h-11 object-cover" alt="" src={userThumbnail} />

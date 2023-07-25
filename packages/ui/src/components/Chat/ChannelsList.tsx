@@ -25,9 +25,9 @@ Ethereal Engine. All Rights Reserved.
 
 import React, { useEffect } from 'react'
 
-import { useUserAvatarThumbnail } from '@etherealengine/client-core/src/user/functions/useUserAvatarThumbnail'
 import { ChannelID } from '@etherealengine/common/src/interfaces/ChannelUser'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import UserIcon from './assets/user.svg'
 
 import { useFind } from '@etherealengine/engine/src/common/functions/FeathersHooks'
 import { ChatState } from './ChatState'
@@ -37,12 +37,6 @@ export const ChannelsList = () => {
   const chatState = useHookstate(getMutableState(ChatState))
 
   const channelsList = useFind('channel', {})
-
-  useEffect(() => {
-    if (channelsList.error) {
-      console.error(channelsList.error)
-    }
-  }, [channelsList.error])
 
   useEffect(() => {
     return () => {
@@ -60,7 +54,7 @@ export const ChannelsList = () => {
   const channels = channelsList.data
 
   const RenderChannel = (props: { channel: (typeof channels)[number] }) => {
-    const userThumbnail = useUserAvatarThumbnail() // todo
+    // const userThumbnail = useUserAvatarThumbnail() // todo
 
     const { data: messages } = useFind('message', {
       query: {
@@ -79,9 +73,9 @@ export const ChannelsList = () => {
           onClick={() => selectedChannelId.set(props.channel.id)}
         >
           <div className="w-[230px] flex flex-wrap gap-5 justify-start">
-            <img className="mt-3 rounded-8xs w-11 h-11 object-cover" alt="" src={userThumbnail} />
+            <img className="mt-3 rounded-8xs w-11 h-11 object-cover" alt="" src={UserIcon /**userThumbnail */} />
             <div className="mt-3 justify-start">
-              <p className="font-bold text-[#3F3960]">{props.channel.ownerId}</p>
+              <p className="font-bold text-[#3F3960]">{props.channel.name}</p>
               <p className="h-4 text-xs text-[#787589]">{latestMessage}</p>
             </div>
           </div>
@@ -109,7 +103,7 @@ export const ChannelsList = () => {
         )}
       </div>
       {channels.map((channel, index) => (
-        <RenderChannel channel={channel} key={index} />
+        <RenderChannel channel={channel} key={channel.id} />
       ))}
     </>
   )
