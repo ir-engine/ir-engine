@@ -44,29 +44,35 @@ export async function up(knex: Knex): Promise<void> {
   const tableExists = await knex.schema.hasTable(locationSettingPath)
 
   if (tableExists === false) {
-    await knex.schema.createTable(locationSettingPath, (table) => {
-      //@ts-ignore
-      table.uuid('id').collate('utf8mb4_bin').primary()
+    try {
+      await knex.raw('SET FOREIGN_KEY_CHECKS=0')
 
-      table.boolean('videoEnabled').defaultTo(false)
-      table.boolean('audioEnabled').defaultTo(false)
-      table.boolean('screenSharingEnabled').defaultTo(false)
-      table.boolean('faceStreamingEnabled').defaultTo(false)
+      await knex.schema.createTable(locationSettingPath, (table) => {
+        //@ts-ignore
+        table.uuid('id').collate('utf8mb4_bin').primary()
 
-      //@ts-ignore
-      table.uuid('locationId').collate('utf8mb4_bin').nullable().index()
-      table.string('locationType', 255).nullable().index()
-      table.dateTime('createdAt').notNullable()
-      table.dateTime('updatedAt').notNullable()
+        table.boolean('videoEnabled').defaultTo(false)
+        table.boolean('audioEnabled').defaultTo(false)
+        table.boolean('screenSharingEnabled').defaultTo(false)
+        table.boolean('faceStreamingEnabled').defaultTo(false)
 
-      table.foreign('locationId').references('id').inTable(locationPath).onDelete('CASCADE').onUpdate('CASCADE')
-      table
-        .foreign('locationType')
-        .references('type')
-        .inTable(locationTypePath)
-        .onDelete('SET NULL')
-        .onUpdate('CASCADE')
-    })
+        //@ts-ignore
+        table.uuid('locationId').collate('utf8mb4_bin').nullable().index()
+        table.string('locationType', 255).nullable().index()
+        table.dateTime('createdAt').notNullable()
+        table.dateTime('updatedAt').notNullable()
+
+        table.foreign('locationId').references('id').inTable(locationPath).onDelete('CASCADE').onUpdate('CASCADE')
+        table
+          .foreign('locationType')
+          .references('type')
+          .inTable(locationTypePath)
+          .onDelete('SET NULL')
+          .onUpdate('CASCADE')
+      })
+    } finally {
+      await knex.raw('SET FOREIGN_KEY_CHECKS=1')
+    }
   }
 }
 
