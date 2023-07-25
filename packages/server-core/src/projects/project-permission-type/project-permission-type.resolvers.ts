@@ -23,36 +23,21 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { DataTypes, Model, Sequelize } from 'sequelize'
+// For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
+import { resolve } from '@feathersjs/schema'
 
-import { ScopeTypeData } from '@etherealengine/engine/src/schemas/scope/scope-type.schema'
+import {
+  ProjectPermissionTypeQuery,
+  ProjectPermissionTypeType
+} from '@etherealengine/engine/src/schemas/projects/project-permission-type.schema'
+import type { HookContext } from '@etherealengine/server-core/declarations'
 
-import { Application } from '../../../declarations'
+export const projectPermissionTypeResolver = resolve<ProjectPermissionTypeType, HookContext>({})
 
-export default (app: Application) => {
-  const sequelizeClient: Sequelize = app.get('sequelizeClient')
-  const ProjectPermissionType = sequelizeClient.define<Model<ScopeTypeData>>(
-    'project_permission_type',
-    {
-      type: {
-        type: DataTypes.STRING,
-        allowNull: false,
-        primaryKey: true,
-        unique: true
-      }
-    },
-    {
-      hooks: {
-        beforeCount(options: any): void {
-          options.raw = true
-        }
-      },
-      timestamps: false
-    }
-  )
-  ;(ProjectPermissionType as any).associate = (models: any): void => {
-    ;(ProjectPermissionType as any).hasMany(models.project_permission, { foreignKey: 'type' })
-  }
+export const projectPermissionTypeExternalResolver = resolve<ProjectPermissionTypeType, HookContext>({})
 
-  return ProjectPermissionType
-}
+export const projectPermissionTypeDataResolver = resolve<ProjectPermissionTypeType, HookContext>({})
+
+export const projectPermissionTypePatchResolver = resolve<ProjectPermissionTypeType, HookContext>({})
+
+export const projectPermissionTypeQueryResolver = resolve<ProjectPermissionTypeQuery, HookContext>({})

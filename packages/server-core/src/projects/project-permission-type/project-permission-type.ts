@@ -23,29 +23,39 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import {
+  projectPermissionTypeMethods,
+  projectPermissionTypePath
+} from '@etherealengine/engine/src/schemas/projects/project-permission-type.schema'
+
 import { Application } from '../../../declarations'
-import { ProjectPermissionType } from './project-permission-type.class'
+import { ProjectPermissionTypeService } from './project-permission-type.class'
 import projectPermissionTypeDocs from './project-permission-type.docs'
 import hooks from './project-permission-type.hooks'
-import createModel from './project-permission-type.model'
 
 declare module '@etherealengine/common/declarations' {
   interface ServiceTypes {
-    'project-permission-type': ProjectPermissionType
+    [projectPermissionTypePath]: ProjectPermissionTypeService
   }
 }
 
 export default (app: Application): void => {
   const options = {
-    Model: createModel(app),
+    name: projectPermissionTypePath,
+    id: 'type',
     paginate: app.get('paginate'),
+    Model: app.get('knexClient'),
     multi: true
   }
 
-  const event = new ProjectPermissionType(options, app)
-  event.docs = projectPermissionTypeDocs
-  app.use('project-permission-type', event)
+  app.use(projectPermissionTypePath, new ProjectPermissionTypeService(options), {
+    // A list of all methods this service exposes externally
+    methods: projectPermissionTypeMethods,
+    // You can add additional custom events to be sent to clients here
+    events: [],
+    docs: projectPermissionTypeDocs
+  })
 
-  const service = app.service('project-permission-type')
+  const service = app.service(projectPermissionTypePath)
   service.hooks(hooks)
 }

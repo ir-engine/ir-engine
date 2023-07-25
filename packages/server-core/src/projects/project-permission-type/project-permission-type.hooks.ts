@@ -23,19 +23,60 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { hooks as schemaHooks } from '@feathersjs/schema'
+import { getValidator } from '@feathersjs/typebox'
 import { iff, isProvider } from 'feathers-hooks-common'
+
+import {
+  projectPermissionTypeDataSchema,
+  projectPermissionTypePatchSchema,
+  projectPermissionTypeQuerySchema,
+  projectPermissionTypeSchema
+} from '@etherealengine/engine/src/schemas/projects/project-permission-type.schema'
+import { dataValidator, queryValidator } from '@etherealengine/server-core/validators'
 
 import authenticate from '../../hooks/authenticate'
 import verifyScope from '../../hooks/verify-scope'
+import {
+  projectPermissionTypeDataResolver,
+  projectPermissionTypeExternalResolver,
+  projectPermissionTypePatchResolver,
+  projectPermissionTypeQueryResolver,
+  projectPermissionTypeResolver
+} from './project-permission-type.resolvers'
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const projectPermissionTypeValidator = getValidator(projectPermissionTypeSchema, dataValidator)
+const projectPermissionTypeDataValidator = getValidator(projectPermissionTypeDataSchema, dataValidator)
+const projectPermissionTypePatchValidator = getValidator(projectPermissionTypePatchSchema, dataValidator)
+const projectPermissionTypeQueryValidator = getValidator(projectPermissionTypeQuerySchema, queryValidator)
 
 export default {
+  around: {
+    all: [
+      schemaHooks.resolveExternal(projectPermissionTypeExternalResolver),
+      schemaHooks.resolveResult(projectPermissionTypeResolver)
+    ]
+  },
+
   before: {
-    all: [authenticate(), iff(isProvider('external'), verifyScope('admin', 'admin') as any)],
+    all: [
+      authenticate(),
+      iff(isProvider('external'), verifyScope('admin', 'admin')),
+      () => schemaHooks.validateQuery(projectPermissionTypeQueryValidator),
+      schemaHooks.resolveQuery(projectPermissionTypeQueryResolver)
+    ],
     find: [],
     get: [],
-    create: [],
+    create: [
+      () => schemaHooks.validateData(projectPermissionTypeDataValidator),
+      schemaHooks.resolveData(projectPermissionTypeDataResolver)
+    ],
     update: [],
-    patch: [],
+    patch: [
+      () => schemaHooks.validateData(projectPermissionTypePatchValidator),
+      schemaHooks.resolveData(projectPermissionTypePatchResolver)
+    ],
     remove: []
   },
 

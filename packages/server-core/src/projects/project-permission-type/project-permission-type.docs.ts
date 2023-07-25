@@ -23,26 +23,24 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-export default {
-  definitions: {
-    'project-permission-type': {
-      type: 'object',
-      properties: {
-        type: {
-          type: 'string',
-          description: ''
-        }
-      }
-    },
-    'project-permission-type_list': {
-      type: 'array',
-      items: { $ref: '#/definitions/project-permission-type' }
-    }
+import { createSwaggerServiceOptions } from 'feathers-swagger'
+
+import {
+  projectPermissionTypeDataSchema,
+  projectPermissionTypePatchSchema,
+  projectPermissionTypeQuerySchema,
+  projectPermissionTypeSchema
+} from '@etherealengine/engine/src/schemas/projects/project-permission-type.schema'
+
+export default createSwaggerServiceOptions({
+  schemas: {
+    projectPermissionTypeDataSchema,
+    projectPermissionTypePatchSchema,
+    projectPermissionTypeQuerySchema,
+    projectPermissionTypeSchema
+  },
+  docs: {
+    description: 'Project permission type service description',
+    securities: ['all']
   }
-  // securities: ['create', 'update', 'patch', 'remove'],
-  // operations: {
-  //   find: {
-  //     security: [{ bearer: [] }]
-  //   }
-  // }
-}
+})

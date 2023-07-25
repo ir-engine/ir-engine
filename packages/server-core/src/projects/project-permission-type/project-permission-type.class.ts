@@ -23,20 +23,26 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
+import type { Params } from '@feathersjs/feathers'
+import type { KnexAdapterParams } from '@feathersjs/knex'
+import { KnexService } from '@feathersjs/knex'
 
-import { ProjectPermissionType as ProjectPermissionTypeInterface } from '@etherealengine/common/src/interfaces/ProjectPermissionType'
+import {
+  ProjectPermissionTypeData,
+  ProjectPermissionTypePatch,
+  ProjectPermissionTypeQuery,
+  ProjectPermissionTypeType
+} from '@etherealengine/engine/src/schemas/projects/project-permission-type.schema'
 
-import { Application } from '../../../declarations'
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+export interface ProjectPermissionTypeParams extends KnexAdapterParams<ProjectPermissionTypeQuery> {}
 
-export type ProjectPermissionTypeDataType = ProjectPermissionTypeInterface
-
-export class ProjectPermissionType<T = ProjectPermissionTypeDataType> extends Service<T> {
-  app: Application
-  docs: any
-
-  constructor(options: Partial<SequelizeServiceOptions>, app: Application) {
-    super(options)
-    this.app = app
-  }
-}
+export class ProjectPermissionTypeService<
+  T = ProjectPermissionTypeType,
+  ServiceParams extends Params = ProjectPermissionTypeParams
+> extends KnexService<
+  ProjectPermissionTypeType,
+  ProjectPermissionTypeData,
+  ProjectPermissionTypeParams,
+  ProjectPermissionTypePatch
+> {}

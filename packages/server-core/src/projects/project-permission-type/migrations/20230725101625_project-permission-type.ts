@@ -23,33 +23,40 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Knex } from 'knex'
+import type { Knex } from 'knex'
 
-import {
-  projectPermissionTypePath,
-  ProjectPermissionTypeType
-} from '@etherealengine/engine/src/schemas/projects/project-permission-type.schema'
-import appConfig from '@etherealengine/server-core/src/appconfig'
+import { projectPermissionTypePath } from '@etherealengine/engine/src/schemas/projects/project-permission-type.schema'
 
-export async function seed(knex: Knex): Promise<void> {
-  const { testEnabled } = appConfig
-  const { forceRefresh } = appConfig.db
+/**
+ * @param { import("knex").Knex } knex
+ * @returns { Promise<void> }
+ */
+export async function up(knex: Knex): Promise<void> {
+  const oldTableName = 'project_permission_type'
 
-  const seedData: ProjectPermissionTypeType[] = await Promise.all([{ type: 'owner' }, { type: 'user' }])
+  const oldNamedTableExists = await knex.schema.hasTable(oldTableName)
+  if (oldNamedTableExists) {
+    await knex.schema.renameTable(oldTableName, projectPermissionTypePath)
+  }
 
-  if (forceRefresh || testEnabled) {
-    // Deletes ALL existing entries
-    await knex(projectPermissionTypePath).del()
+  const tableExists = await knex.schema.hasTable(projectPermissionTypePath)
 
-    // Inserts seed entries
-    await knex(projectPermissionTypePath).insert(seedData)
-  } else {
-    const existingData = await knex(projectPermissionTypePath).count({ count: '*' })
+  if (tableExists === false) {
+    await knex.schema.createTable(projectPermissionTypePath, (table) => {
+      //@ts-ignore
+      table.string('type', 255).notNullable().unique().collate('utf8mb4_bin').primary()
+    })
+  }
+}
 
-    if (existingData.length === 0 || existingData[0].count === 0) {
-      for (const item of seedData) {
-        await knex(projectPermissionTypePath).insert(item)
-      }
-    }
+/**
+ * @param { import("knex").Knex } knex
+ * @returns { Promise<void> }
+ */
+export async function down(knex: Knex): Promise<void> {
+  const tableExists = await knex.schema.hasTable(projectPermissionTypePath)
+
+  if (tableExists === true) {
+    await knex.schema.dropTable(projectPermissionTypePath)
   }
 }
