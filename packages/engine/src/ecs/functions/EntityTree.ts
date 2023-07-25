@@ -114,7 +114,7 @@ export const EntityTreeComponent = defineComponent({
           ])
         }
 
-        if (isDifferentIndex || !parent?.children.value.includes(entity)) {
+        if (isDifferentIndex || prevChildIndex === -1) {
           if (typeof json.childIndex !== 'undefined')
             parent.children.set((prevChildren) => [
               ...prevChildren.slice(0, json.childIndex),
@@ -209,7 +209,8 @@ export function addEntityNodeChild(entity: Entity, parentEntity: Entity, childIn
   if (
     !hasComponent(entity, EntityTreeComponent) ||
     parentEntity !== entityTreeComponent.parentEntity ||
-    childIndex !== findIndexOfEntityNode(getComponent(parentEntity, EntityTreeComponent).children, entity)
+    (typeof childIndex !== 'undefined' &&
+      childIndex !== findIndexOfEntityNode(getComponent(parentEntity, EntityTreeComponent).children, entity))
   ) {
     setComponent(entity, EntityTreeComponent, { parentEntity, childIndex })
     setComponent(entity, UUIDComponent, uuid || (MathUtils.generateUUID() as EntityUUID))
