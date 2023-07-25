@@ -75,13 +75,10 @@ export class Bot extends Service {
     })) as any as BotCommandType[]
 
     for (const bot of bots) {
-      const location = locations.find((location) => location.id === bot.locationId)
-      const botCommand = botCommands.find((botCommand) => botCommand.botId === bot.id)
-
       data.push({
         ...bot.dataValues,
-        location: location ? JSON.parse(JSON.stringify(location)) : undefined,
-        botCommands: botCommand ? JSON.parse(JSON.stringify(botCommand)) : undefined
+        location: locations.find((location) => location.id === bot.locationId),
+        botCommands: botCommands.filter((botCommand) => botCommand.botId === bot.id)
       })
     }
 

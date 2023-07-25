@@ -87,10 +87,12 @@ export class Instance<T = InstanceDataType> extends Service<T> {
           }
         })
 
-      const foundLocations = (await this.app.service(locationPath).find({
-        query: search ? { name: { $like: `%${search}%` } } : {},
-        paginate: false
-      })) as any as LocationType[]
+      const foundLocations = search
+        ? ((await this.app.service(locationPath).find({
+            query: { name: { $like: `%${search}%` } },
+            paginate: false
+          })) as any as LocationType[])
+        : []
 
       const foundInstances = await this.app.service('instance').Model.findAndCountAll({
         offset: skip,
@@ -117,13 +119,13 @@ export class Instance<T = InstanceDataType> extends Service<T> {
       const locations = (await this.app.service(locationPath).find({
         query: {
           id: {
-            $in: foundInstances.map((instance) => instance.locationId)
+            $in: foundInstances.rows.map((instance) => instance.locationId)
           }
         },
         paginate: false
       })) as any as LocationType[]
 
-      for (const instance of foundInstances) {
+      for (const instance of foundInstances.rows) {
         instance.location = locations.find((location) => location.id === instance.locationId)
       }
 

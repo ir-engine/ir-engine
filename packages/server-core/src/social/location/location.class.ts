@@ -95,7 +95,7 @@ export class LocationService<T = LocationType, ServiceParams extends Params = Lo
         .from(locationPath)
         .join('instance', 'instance.locationId', '=', `${locationPath}.id`)
         .andWhere('instance.ended', '=', false)
-        .andWhere('instance.currentUsers', '<', `${locationPath}.maxUsersPerInstance`)
+        .andWhereRaw(`instance.currentUsers < ${locationPath}.maxUsersPerInstance`)
         .select(`${locationPath}.id`)
 
       params.query = {
