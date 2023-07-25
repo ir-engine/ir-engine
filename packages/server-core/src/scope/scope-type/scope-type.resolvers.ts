@@ -23,8 +23,25 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-export interface AdminScopeType {
-  createdAt?: string
-  type: string
-  updatedAt?: string
-}
+// For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
+import { resolve } from '@feathersjs/schema'
+
+import { ScopeTypeQuery, ScopeTypeType } from '@etherealengine/engine/src/schemas/scope/scope-type.schema'
+import type { HookContext } from '@etherealengine/server-core/declarations'
+
+import { getDateTimeSql } from '../../util/get-datetime-sql'
+
+export const scopeTypeResolver = resolve<ScopeTypeType, HookContext>({})
+
+export const scopeTypeExternalResolver = resolve<ScopeTypeType, HookContext>({})
+
+export const scopeTypeDataResolver = resolve<ScopeTypeType, HookContext>({
+  createdAt: getDateTimeSql,
+  updatedAt: getDateTimeSql
+})
+
+export const scopeTypePatchResolver = resolve<ScopeTypeType, HookContext>({
+  updatedAt: getDateTimeSql
+})
+
+export const scopeTypeQueryResolver = resolve<ScopeTypeQuery, HookContext>({})

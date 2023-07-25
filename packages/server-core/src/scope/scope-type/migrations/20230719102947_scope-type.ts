@@ -23,29 +23,43 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Application } from '../../../declarations'
-import { ScopeType } from './scope-type.class'
-import scopeTypeDocs from './scope-type.docs'
-import hooks from './scope-type.hooks'
-import createModel from './scope-type.model'
+import type { Knex } from 'knex'
 
-declare module '@etherealengine/common/declarations' {
-  interface ServiceTypes {
-    'scope-type': ScopeType
+import { scopeTypePath } from '@etherealengine/engine/src/schemas/scope/scope-type.schema'
+
+/**
+ * @param { import("knex").Knex } knex
+ * @returns { Promise<void> }
+ */
+export async function up(knex: Knex): Promise<void> {
+  const oldTableName = 'scopeType'
+
+  const oldNamedTableExists = await knex.schema.hasTable(oldTableName)
+  if (oldNamedTableExists) {
+    await knex.schema.renameTable(oldTableName, scopeTypePath)
+  }
+
+  const tableExists = await knex.schema.hasTable(scopeTypePath)
+
+  if (tableExists === false) {
+    await knex.schema.createTable(scopeTypePath, (table) => {
+      //@ts-ignore
+      table.string('type', 255).notNullable().unique().primary()
+
+      table.dateTime('createdAt').notNullable()
+      table.dateTime('updatedAt').notNullable()
+    })
   }
 }
 
-export default (app: Application): void => {
-  const options = {
-    Model: createModel(app),
-    paginate: app.get('paginate'),
-    multi: true
+/**
+ * @param { import("knex").Knex } knex
+ * @returns { Promise<void> }
+ */
+export async function down(knex: Knex): Promise<void> {
+  const tableExists = await knex.schema.hasTable(scopeTypePath)
+
+  if (tableExists === true) {
+    await knex.schema.dropTable(scopeTypePath)
   }
-
-  const event = new ScopeType(options, app)
-  event.docs = scopeTypeDocs
-  app.use('scope-type', event)
-
-  const service = app.service('scope-type')
-  service.hooks(hooks)
 }

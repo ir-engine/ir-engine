@@ -40,7 +40,7 @@ export default async (app: Application, userId: UserId) => {
     ]
   })
   if (adminCount === 0) {
-    const data = scopeTypeSeed.templates.map(({ type }) => {
+    const data = scopeTypeSeed.map(({ type }) => {
       return { userId, type }
     })
     await app.service('scope').create(data)
