@@ -66,7 +66,8 @@ export const VolumetricComponent = defineComponent({
       loadingEffectActive: true,
       player: undefined! as VolumetricPlayer,
       paths: [] as string[],
-      paused: true,
+      paused: false,
+      hasTrackStopped: true,
       volume: 1,
       height: 1.6,
       playMode: PlayMode.loop as PlayMode,
@@ -155,6 +156,7 @@ export function VolumetricReactor() {
             new VolumetricPlayer({
               renderer: EngineRenderer.instance.renderer,
               onTrackEnd: () => {
+                volumetric.hasTrackStopped.set(true)
                 volumetric.track.set(getNextTrack(volumetric.value))
               },
               video: element as HTMLVideoElement,
@@ -210,20 +212,21 @@ export function VolumetricReactor() {
 
   useEffect(() => {
     if (!volumetric.player.value) return
-    if (volumetric.player.value.stopped) {
+    if (volumetric.hasTrackStopped.value) {
       volumetric.loadingEffectActive.set(volumetric.useLoadingEffect.value) // set to user's value
       volumetric.loadingEffectTime.set(0)
 
       // Track is changed. Set the track path
       if (volumetric.paths[volumetric.track.value].value) {
         volumetric.player.value.setTrackPath(volumetric.paths[volumetric.track.value].value)
+        volumetric.hasTrackStopped.set(false)
       }
     } else {
       /** Track isn't changed. Probably new path is added or edited.
        * No need to set track path.
        */
     }
-  }, [volumetric.track, volumetric.paths, volumetric.player])
+  }, [volumetric.track, volumetric.paths, volumetric.player, volumetric.hasTrackStopped])
 
   useEffect(() => {
     if (!volumetric.player.value) return
