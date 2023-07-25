@@ -72,6 +72,6 @@ export const knexSeeds: Array<KnexSeed> = [
   ...analyticsSeeds,
   ...settingSeeds,
   ...scopeSeeds,
-  ...socialSeeds
+  ...socialSeeds,
   ...projectSeeds
 ]
