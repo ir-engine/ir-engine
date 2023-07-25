@@ -83,6 +83,7 @@ import {
 import { LoopAnimationComponent } from '.././components/LoopAnimationComponent'
 import { applyInputSourcePoseToIKTargets } from '.././functions/applyInputSourcePoseToIKTargets'
 import { setAvatarLocomotionAnimation } from '../animation/AvatarAnimationGraph'
+import { AvatarComponent } from '../components/AvatarComponent'
 
 export const AvatarAnimationState = defineState({
   name: 'AvatarAnimationState',
@@ -138,7 +139,8 @@ const _hipRot = new Quaternion()
 const leftLegVector = new Vector3()
 const rightLegVector = new Vector3()
 
-const midAxisRestriction = new Euler(-Math.PI / 4, undefined, undefined) // Restrict rotation around the X-axis to 45 degrees
+const midAxisRestriction = new Euler(0, 0, 0) // Restrict rotation around the X-axis to 45 degrees
+const tipAxisRestriction = new Euler(0, 0, 0) // Restrict rotation around the X-axis to 45 degrees
 
 interface targetTransform {
   position: Vector3
@@ -374,6 +376,7 @@ const execute = () => {
     const rigComponent = getComponent(entity, AvatarRigComponent)
     const rig = rigComponent.rig
     const animationState = getState(AnimationManager)
+    const avatarComponent = getComponent(entity, AvatarComponent)
 
     if (!animationState.targetsAnimation) return
 
@@ -386,6 +389,7 @@ const execute = () => {
       //if xr is active, set select targets to xr tracking data
       worldSpaceTargets[key].position
         .copy(value.position)
+        .multiplyScalar(avatarComponent.scaleMultiplier)
         .add(rigComponent.ikOffsetsMap.get(key) ?? _empty)
         .applyMatrix4(transform.matrix)
 
@@ -441,10 +445,6 @@ const execute = () => {
       }
     }
 
-    //replace references to this with hips calculation below
-    const hipsWorldSpace = new Vector3()
-    rig.hips.node.getWorldPosition(hipsWorldSpace)
-
     const leftLegLength =
       leftLegVector
         .subVectors(worldSpaceTargets.hipsTarget.position, worldSpaceTargets.leftFootTarget.position)
@@ -472,7 +472,7 @@ const execute = () => {
       worldSpaceTargets.rightHandTarget.rotation,
       null,
       worldSpaceTargets.rightElbowHint.position,
-      null,
+      tipAxisRestriction,
       midAxisRestriction,
       null,
       1,
@@ -487,7 +487,7 @@ const execute = () => {
       worldSpaceTargets.leftHandTarget.rotation,
       null,
       worldSpaceTargets.leftElbowHint.position,
-      null,
+      tipAxisRestriction,
       midAxisRestriction,
       null,
       1,

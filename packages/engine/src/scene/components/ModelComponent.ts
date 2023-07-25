@@ -130,6 +130,7 @@ function ModelReactor() {
         case 'gltf':
         case 'fbx':
         case 'usdz':
+        case 'vrm':
           AssetLoader.load(
             model.src,
             {

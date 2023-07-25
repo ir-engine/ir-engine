@@ -23,7 +23,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import * as VRMUtils from '@pixiv/three-vrm'
 import { VRM, VRMHumanBone } from '@pixiv/three-vrm'
 import { clone, cloneDeep } from 'lodash'
 import { AnimationMixer, Bone, Box3, Group, Object3D, Skeleton, SkinnedMesh, Vector3 } from 'three'
@@ -74,8 +73,7 @@ export const loadAvatarModelAsset = async (avatarURL: string) => {
 
   let vrm = (model instanceof VRM ? model : model.userData.vrm ?? avatarBoneMatching(scene)) as VRM
 
-  VRMUtils.VRMUtils.removeUnnecessaryJoints(vrm.scene)
-  VRMUtils.VRMUtils.removeUnnecessaryVertices(vrm.scene)
+  console.log(scene)
 
   return vrm as VRM
 }
