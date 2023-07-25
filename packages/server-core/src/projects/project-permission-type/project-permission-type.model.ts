@@ -25,13 +25,13 @@ Ethereal Engine. All Rights Reserved.
 
 import { DataTypes, Model, Sequelize } from 'sequelize'
 
-import { ScopeTypeInterface } from '@etherealengine/common/src/dbmodels/ScopeType'
+import { ScopeTypeData } from '@etherealengine/engine/src/schemas/scope/scope-type.schema'
 
 import { Application } from '../../../declarations'
 
 export default (app: Application) => {
   const sequelizeClient: Sequelize = app.get('sequelizeClient')
-  const ProjectPermissionType = sequelizeClient.define<Model<ScopeTypeInterface>>(
+  const ProjectPermissionType = sequelizeClient.define<Model<ScopeTypeData>>(
     'project_permission_type',
     {
       type: {
