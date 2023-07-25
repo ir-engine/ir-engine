@@ -36,7 +36,8 @@ export const AvatarComponent = defineComponent({
       primary: false,
       model: null as Object3D | null,
       avatarHeight: 0,
-      avatarHalfHeight: 0
+      avatarHalfHeight: 0,
+      scaleMultiplier: 1
     }
   },
 
@@ -46,5 +47,6 @@ export const AvatarComponent = defineComponent({
     if (matches.object.test(json.model)) component.model.set(json.model as Object3D)
     if (matches.number.test(json.avatarHeight)) component.avatarHeight.set(json.avatarHeight)
     if (matches.number.test(json.avatarHalfHeight)) component.avatarHalfHeight.set(json.avatarHalfHeight)
+    if (matches.number.test(json.scaleMultiplier)) component.avatarHalfHeight.set(json.scaleMultiplier)
   }
 })

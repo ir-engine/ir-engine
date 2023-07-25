@@ -33,6 +33,7 @@ import { matches } from '../../common/functions/MatchesUtils'
 import { proxifyQuaternion, proxifyVector3 } from '../../common/proxies/createThreejsProxy'
 import {
   defineComponent,
+  getComponent,
   getMutableComponent,
   useComponent,
   useOptionalComponent
@@ -45,6 +46,7 @@ import { setObjectLayers } from '../../scene/functions/setObjectLayers'
 import { PoseSchema } from '../../transform/components/TransformComponent'
 import { AnimationManager } from '../AnimationManager'
 import { AnimationComponent } from './AnimationComponent'
+import { AvatarComponent } from './AvatarComponent'
 import { AvatarPendingComponent } from './AvatarPendingComponent'
 
 export const AvatarAnimationComponent = defineComponent({
@@ -203,8 +205,11 @@ export const AvatarRigComponent = defineComponent({
       const bindTracks = AnimationClip.findByName(getState(AnimationManager).targetsAnimation!, 'BindPose').tracks
       if (!bindTracks) return
 
-      rigComponent.bindRig.hips.node.value.getWorldPosition(offset).multiplyScalar(2)
-      offset.y = rigComponent.bindRig.rightFoot.node.value.getWorldPosition(foot).y
+      const avatarComponent = getComponent(entity, AvatarComponent)
+      const scaleMultiplier = avatarComponent.scaleMultiplier
+      console.log(scaleMultiplier)
+
+      offset.y = rigComponent.bindRig.rightFoot.node.value.getWorldPosition(foot).y * scaleMultiplier
 
       for (let i = 0; i < bindTracks.length; i += 3) {
         const key = bindTracks[i].name.substring(0, bindTracks[i].name.indexOf('.'))
@@ -269,7 +274,11 @@ export const AvatarRigComponent = defineComponent({
         const pos = new Vector3()
         bonePos.decompose(pos, new Quaternion(), new Vector3())
         if (!(rigComponent.vrm.value as any).userData) pos.applyQuaternion(hipsRotationoffset)
-        pos.sub(new Vector3(bindTracks[i].values[0], bindTracks[i].values[1], bindTracks[i].values[2]))
+        pos.sub(
+          new Vector3(bindTracks[i].values[0], bindTracks[i].values[1], bindTracks[i].values[2]).multiplyScalar(
+            scaleMultiplier
+          )
+        )
         pos.sub(offset)
         rigComponent.ikOffsetsMap.value.set(key, pos)
       }

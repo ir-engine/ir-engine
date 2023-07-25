@@ -83,6 +83,7 @@ import {
 import { LoopAnimationComponent } from '.././components/LoopAnimationComponent'
 import { applyInputSourcePoseToIKTargets } from '.././functions/applyInputSourcePoseToIKTargets'
 import { setAvatarLocomotionAnimation } from '../animation/AvatarAnimationGraph'
+import { AvatarComponent } from '../components/AvatarComponent'
 
 export const AvatarAnimationState = defineState({
   name: 'AvatarAnimationState',
@@ -375,6 +376,7 @@ const execute = () => {
     const rigComponent = getComponent(entity, AvatarRigComponent)
     const rig = rigComponent.rig
     const animationState = getState(AnimationManager)
+    const avatarComponent = getComponent(entity, AvatarComponent)
 
     if (!animationState.targetsAnimation) return
 
@@ -387,6 +389,7 @@ const execute = () => {
       //if xr is active, set select targets to xr tracking data
       worldSpaceTargets[key].position
         .copy(value.position)
+        .multiplyScalar(avatarComponent.scaleMultiplier)
         .add(rigComponent.ikOffsetsMap.get(key) ?? _empty)
         .applyMatrix4(transform.matrix)
 
@@ -441,10 +444,6 @@ const execute = () => {
           break
       }
     }
-
-    //replace references to this with hips calculation below
-    const hipsWorldSpace = new Vector3()
-    rig.hips.node.getWorldPosition(hipsWorldSpace)
 
     const leftLegLength =
       leftLegVector
