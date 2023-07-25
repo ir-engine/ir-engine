@@ -142,14 +142,14 @@ export class AvatarService<T = AvatarType, ServiceParams extends Params = Avatar
       logger.error(err)
     }
 
-    const avatars = super._find({
+    const avatars = (await super._find({
       query: {
         id: {
           $ne: id
         }
       },
       paginate: false
-    }) as any as AvatarDatabaseType[]
+    })) as any as AvatarDatabaseType[]
 
     //Users that have the avatar that's being deleted will have theirs replaced with a random one, if there are other
     //avatars to use
