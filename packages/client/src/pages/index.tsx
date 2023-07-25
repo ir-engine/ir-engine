@@ -36,7 +36,6 @@ import {
   PopupMenuServiceReceptor,
   PopupMenuState
 } from '@etherealengine/client-core/src/user/components/UserMenu/PopupMenuService'
-import { AvatarServiceReceptor } from '@etherealengine/client-core/src/user/services/AvatarService'
 import { UserMenus } from '@etherealengine/client-core/src/user/UserUISystem'
 import config from '@etherealengine/common/src/config'
 import { addActionReceptor, getMutableState, removeActionReceptor, useHookstate } from '@etherealengine/hyperflux'
@@ -57,10 +56,8 @@ export const HomePage = (): any => {
 
     openMenu.set(UserMenus.Profile)
 
-    addActionReceptor(AvatarServiceReceptor)
     addActionReceptor(PopupMenuServiceReceptor)
     return () => {
-      removeActionReceptor(AvatarServiceReceptor)
       removeActionReceptor(PopupMenuServiceReceptor)
     }
   }, [])
