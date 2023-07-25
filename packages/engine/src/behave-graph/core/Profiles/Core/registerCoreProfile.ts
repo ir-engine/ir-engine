@@ -58,8 +58,6 @@ import { Delay } from './Time/Delay.js'
 import * as TimeNodes from './Time/TimeNodes.js'
 import * as BooleanNodes from './Values/BooleanNodes.js'
 import { BooleanValue } from './Values/BooleanValue.js'
-import * as EntityNodes from './Values/EntityNodes.js'
-import { EntityValue } from './Values/EntityValue.js'
 import * as FloatNodes from './Values/FloatNodes.js'
 import { FloatValue } from './Values/FloatValue.js'
 import * as IntegerNodes from './Values/IntegerNodes.js'
@@ -81,7 +79,7 @@ export const makeCoreDependencies = ({
 })
 
 export const getCoreValuesMap = memo<ValueTypeMap>(() => {
-  const valueTypes = [BooleanValue, StringValue, IntegerValue, FloatValue, EntityValue]
+  const valueTypes = [BooleanValue, StringValue, IntegerValue, FloatValue]
   return Object.fromEntries(valueTypes.map((valueType) => [valueType.name, valueType]))
 })
 
@@ -97,8 +95,6 @@ export const getCoreNodesMap = memo<Record<string, NodeDefinition>>(() => {
     ...getNodeDescriptions(BooleanNodes),
     ...getNodeDescriptions(IntegerNodes),
     ...getNodeDescriptions(FloatNodes),
-    ...getNodeDescriptions(EntityNodes),
-
     // custom events
     OnCustomEvent.Description,
     TriggerCustomEvent.Description,

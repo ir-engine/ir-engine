@@ -30,12 +30,13 @@ import { GraphJSON } from '@etherealengine/engine/src/behave-graph/core'
 
 import { useBehaveGraphFlow } from '../hooks/useBehaveGraphFlow.js'
 import { useCoreRegistry } from '../hooks/useCoreRegistry.js'
+import { useEngineRegistry } from '../hooks/useEngineRegistry.js'
 import { useFlowHandlers } from '../hooks/useFlowHandlers.js'
 import { useGraphRunner } from '../hooks/useGraphRunner.js'
 import { useNodeSpecJson } from '../hooks/useNodeSpecJson.js'
 import CustomControls from './Controls.js'
-import { Examples } from './modals/LoadModal.js'
 import { NodePicker } from './NodePicker.js'
+import { Examples } from './modals/LoadModal.js'
 
 type FlowProps = {
   initialGraph: GraphJSON
@@ -44,7 +45,19 @@ type FlowProps = {
 }
 
 export const Flow: React.FC<FlowProps> = ({ initialGraph: graph, examples, onChangeGraph }) => {
-  const { nodeDefinitions, valuesDefinitions, dependencies: dependencies } = useCoreRegistry()
+  const {
+    nodeDefinitions: nodeDefinitionsCore,
+    valuesDefinitions: valuesDefinitionsCore,
+    dependencies: dependenciesCore
+  } = useCoreRegistry()
+  const {
+    nodeDefinitions: nodeDefinitionsEngine,
+    valuesDefinitions: valuesDefinitionsEngine,
+    dependencies: dependenciesEngine
+  } = useEngineRegistry()
+  const nodeDefinitions = { ...nodeDefinitionsCore, ...nodeDefinitionsEngine }
+  const valuesDefinitions = { ...valuesDefinitionsCore, ...valuesDefinitionsEngine }
+  const dependencies = { ...dependenciesCore, ...dependenciesEngine }
   const flowRef = useRef(null)
   const specJson = useNodeSpecJson({
     nodes: nodeDefinitions,

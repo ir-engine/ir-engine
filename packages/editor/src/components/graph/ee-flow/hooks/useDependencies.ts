@@ -29,6 +29,7 @@ import {
   DefaultLogger,
   Dependencies,
   makeCoreDependencies,
+  makeEngineDependencies,
   ManualLifecycleEventEmitter
 } from '@etherealengine/engine/src/behave-graph/core'
 
@@ -43,6 +44,12 @@ export const useCoreDependencies = () => {
   return dependencies
 }
 
+export const useEngineDependencies = () => {
+  const [dependencies] = useState(() => makeEngineDependencies())
+
+  return dependencies
+}
+/*
 export const useSceneDependencies = () => {
   const [dependencies] = useState(() =>
     makeSceneDependencies({
@@ -52,6 +59,7 @@ export const useSceneDependencies = () => {
 
   return dependencies
 }
+*/
 
 export const useMergeDependencies = (
   a: Dependencies | undefined,
