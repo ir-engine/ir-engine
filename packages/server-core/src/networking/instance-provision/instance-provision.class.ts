@@ -733,7 +733,6 @@ export class InstanceProvision implements ServiceMethods<any> {
 
         const availableLocationInstances = response.map((item) => item.instance)
 
-        // TODO: Need to see if we need to populate following using below query. Or is it something knex join already runs us.
         const locations = (await this.app.service(locationPath).find({
           query: {
             id: {
