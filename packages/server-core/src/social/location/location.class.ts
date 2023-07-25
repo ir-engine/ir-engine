@@ -86,25 +86,9 @@ export class LocationService<T = LocationType, ServiceParams extends Params = Lo
    * @returns {@Array} of all locations
    */
   async find(params: LocationParams) {
-    const { joinableLocations, adminnedLocations, search } = params.query || {}
+    const { adminnedLocations, search } = params.query || {}
 
-    if (joinableLocations) {
-      const knexClient: Knex = this.app.get('knexClient')
-
-      const locations = await knexClient
-        .from(locationPath)
-        .join('instance', 'instance.locationId', '=', `${locationPath}.id`)
-        .andWhere('instance.ended', '=', false)
-        .andWhereRaw(`instance.currentUsers < ${locationPath}.maxUsersPerInstance`)
-        .select(`${locationPath}.id`)
-
-      params.query = {
-        ...params.query,
-        id: {
-          $in: locations.map((location) => location.id)
-        }
-      }
-    } else if (adminnedLocations && search) {
+    if (adminnedLocations && search) {
       params.query = {
         ...params.query,
         $or: [
@@ -129,7 +113,6 @@ export class LocationService<T = LocationType, ServiceParams extends Params = Lo
     }
 
     // Remove extra params
-    if (paramsWithoutExtras.query?.joinableLocations) delete paramsWithoutExtras.query.joinableLocations
     if (paramsWithoutExtras.query?.adminnedLocations) delete paramsWithoutExtras.query.adminnedLocations
     if (paramsWithoutExtras.query?.search || paramsWithoutExtras.query?.search === '')
       delete paramsWithoutExtras.query.search

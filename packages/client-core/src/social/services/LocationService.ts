@@ -157,8 +157,7 @@ export const LocationService = {
     dispatchAction(LocationAction.fetchingCurrentSocialLocation({}))
     const locationResult = (await API.instance.client.service(locationPath).find({
       query: {
-        slugifiedName: locationName,
-        joinableLocations: true
+        slugifiedName: locationName
       }
     })) as Paginated<LocationType>
 

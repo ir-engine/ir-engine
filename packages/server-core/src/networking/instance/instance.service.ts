@@ -72,8 +72,8 @@ export const getActiveInstancesForScene =
 
     const instances = (
       (await Promise.all(
-        locations.map((location) => {
-          const instance = app.service('instance').Model.findAll({
+        locations.map(async (location) => {
+          const instance = await app.service('instance').Model.findAll({
             where: {
               ended: false,
               locationId: location.id
