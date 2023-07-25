@@ -23,10 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { ServicesSeedConfig } from '@etherealengine/common/src/interfaces/ServicesSeedConfig'
+import { KnexSeed } from '@etherealengine/common/src/interfaces/KnexSeed'
 
-import { projectPermissionTypeSeed } from './project-permission-type/project-permission-type.seed'
+import * as projectPermissionTypeSeed from './project-permission-type/project-permission-type.seed'
 
-export const projectSeeds: Array<ServicesSeedConfig> = [projectPermissionTypeSeed]
-
-export default projectSeeds
+export const projectSeeds: Array<KnexSeed> = [projectPermissionTypeSeed]
