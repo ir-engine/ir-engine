@@ -44,7 +44,7 @@ export async function up(knex: Knex): Promise<void> {
   if (tableExists === false) {
     await knex.schema.createTable(projectPermissionTypePath, (table) => {
       //@ts-ignore
-      table.string('type', 255).notNullable().unique().collate('utf8mb4_bin').primary()
+      table.string('type', 255).notNullable().unique().primary()
     })
   }
 }

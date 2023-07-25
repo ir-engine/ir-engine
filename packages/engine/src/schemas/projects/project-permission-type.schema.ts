@@ -29,8 +29,6 @@ import { querySyntax, Type } from '@feathersjs/typebox'
 
 export const projectPermissionTypePath = 'project-permission-type'
 
-export const projectPermissionTypeMethods = ['find', 'get', 'create', 'patch', 'remove'] as const
-
 // Main data model schema
 export const projectPermissionTypeSchema = Type.Object(
   {
