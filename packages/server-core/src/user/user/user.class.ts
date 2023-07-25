@@ -197,6 +197,7 @@ export class User extends Service<UserInterface> {
     try {
       await afterCreate(this.app, result, data.scopes)
     } catch (err) {
+      console.error(err)
       logger.error(err, `USER AFTER CREATE ERROR: ${err.message}`)
       return null!
     }
