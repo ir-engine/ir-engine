@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { DataTypes, Model, Sequelize } from 'sequelize'
 
-import { ScopeInterface } from '@etherealengine/common/src/dbmodels/Scope'
+import { ScopeInterface, ScopeTypeInterface } from '@etherealengine/common/src/dbmodels/Scope'
 
 import { Application } from '../../../declarations'
 
@@ -51,8 +51,37 @@ export default (app: Application) => {
   )
   ;(Scope as any).associate = (models: any): void => {
     ;(Scope as any).belongsTo(models.user, { foreignKey: 'userId', allowNull: true, onDelete: 'cascade' })
-    ;(Scope as any).belongsTo(models.scopeType, { foreignKey: 'type' })
+    ;(Scope as any).belongsTo(createScopeTypeModel(app), {
+      foreignKey: 'type'
+    })
   }
 
   return Scope
+}
+
+export const createScopeTypeModel = (app: Application) => {
+  const sequelizeClient: Sequelize = app.get('sequelizeClient')
+  const ScopeType = sequelizeClient.define<Model<ScopeTypeInterface>>(
+    'scope-type',
+    {
+      type: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        primaryKey: true,
+        unique: true
+      }
+    },
+    {
+      hooks: {
+        beforeCount(options: any): void {
+          options.raw = true
+        }
+      }
+    }
+  )
+  ;(ScopeType as any).associate = (models: any): void => {
+    ;(ScopeType as any).hasMany(models.scope, { foreignKey: 'type' })
+  }
+
+  return ScopeType
 }

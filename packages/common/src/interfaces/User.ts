@@ -23,8 +23,9 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { ScopeTypeData } from '@etherealengine/engine/src/schemas/scope/scope-type.schema'
 import { UserApiKeyType } from '@etherealengine/engine/src/schemas/user/user-api-key.schema'
-import { AdminScopeType } from './AdminScopeType'
+
 import { IdentityProvider } from './IdentityProvider'
 import { InstanceAttendanceInterface } from './InstanceAttendance'
 import { LocationAdmin } from './LocationAdmin'
@@ -105,7 +106,7 @@ export interface CreateEditUser {
   avatarId?: string
   inviteCode?: string
   isGuest?: boolean
-  scopes?: UserScope[] | AdminScopeType[]
+  scopes?: UserScope[] | ScopeTypeData[]
 }
 
 type AvatarInterface = {
