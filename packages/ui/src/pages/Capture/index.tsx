@@ -135,8 +135,13 @@ const CaptureDashboard = () => {
   const videoActive = useHookstate(false)
 
   const resizeCanvas = () => {
-    canvasRef.current!.width = videoRef.current!.clientWidth
-    canvasRef.current!.height = videoRef.current!.clientHeight
+    if (canvasRef.current?.width !== videoRef.current?.clientWidth) {
+      canvasRef.current!.width = videoRef.current!.clientWidth
+    }
+
+    if (canvasRef.current?.height !== videoRef.current?.clientHeight) {
+      canvasRef.current!.height = videoRef.current!.clientHeight
+    }
   }
 
   useEffect(() => {
@@ -168,10 +173,6 @@ const CaptureDashboard = () => {
     drawUtilsRef.current = new DrawingUtils(canvasRef.current!.getContext('2d')!)
     resizeCanvas()
   }, [videoStream])
-
-  // useEffect(() => {
-  //   detector.value?.setOptions(poseOptions.value)
-  // }, [detector, poseOptions])
 
   useEffect(() => {
     if (!isDetecting?.value) return
@@ -258,29 +259,86 @@ const CaptureDashboard = () => {
   useVideoFrameCallback(videoRef.current, (videoTime, metadata) => {
     resizeCanvas()
 
-    if (processingFrame.value || !poseDetector.value) return
-
-    const faceResults = faceDetector?.value?.detectForVideo(videoRef.current!, videoTime * 1000)
+    if (processingFrame.value) return
 
     if (detectingStatus !== 'active') setDetectingStatus('active')
 
-    const handResults = handDetector?.value?.detectForVideo(videoRef.current!, videoTime * 1000)
+    const faceData = () => {
+      if (trackingSettings?.trackFace === true && faceDetector?.value) {
+        const faceResults = faceDetector?.value?.detectForVideo(videoRef.current!, videoTime * 1000)
 
-    const solvedFace = Face?.solve(faceResults?.faceLandmarks[0] || [], {
-      runtime: 'mediapipe', // `mediapipe` or `tfjs`
-      video: videoRef.current!,
-      imageSize: { height: videoRef.current!.clientHeight, width: videoRef.current!.clientWidth }
-      // smoothBlink: false, // smooth left and right eye blink delays
-      // blinkSettings: [0.25, 0.75], // adjust upper and lower bound blink sensitivity
-    })
+        const solvedFace = Face?.solve(faceResults?.faceLandmarks[0] || [], {
+          runtime: 'mediapipe', // `mediapipe` or `tfjs`
+          video: videoRef.current!,
+          imageSize: { height: videoRef.current!.clientHeight, width: videoRef.current!.clientWidth }
+          // smoothBlink: false, // smooth left and right eye blink delays
+          // blinkSettings: [0.25, 0.75], // adjust upper and lower bound blink sensitivity
+        })
+
+        return {
+          face: faceResults?.faceBlendshapes,
+          lFace: faceResults?.faceLandmarks[0],
+          tFace: solvedFace
+        }
+      } else {
+        return {}
+      }
+    }
+
+    const handData = () => {
+      if (trackingSettings?.trackHands === true && handDetector?.value) {
+        const handResults = handDetector?.value?.detectForVideo(videoRef.current!, videoTime * 1000)
+        // draw
+        if (displaySettings?.show2dSkeleton) {
+          const landmarks = handResults?.landmarks
+          for (const landmark of landmarks) {
+            drawUtilsRef.current?.drawConnectors(landmark, HandLandmarker.HAND_CONNECTIONS)
+          }
+        }
+        return {
+          hands: handResults?.landmarks[0]
+        }
+      } else {
+        return {}
+      }
+    }
+
+    const poseData = async () => {
+      if (trackingSettings?.trackBody === true && poseDetector?.value) {
+        const poseResults = await poseDetector?.value?.detectForVideo(videoRef.current!, videoTime * 1000)
+        // draw
+        if (displaySettings?.show2dSkeleton) {
+          const landmarks = poseResults?.landmarks
+          for (const landmark of landmarks) {
+            drawUtilsRef.current?.drawConnectors(landmark, PoseLandmarker.POSE_CONNECTIONS)
+          }
+        }
+        // debugger
+        return {
+          pose: poseResults?.landmarks[0],
+          worldPose: poseResults?.worldLandmarks[0]
+        }
+      } else {
+        return {}
+      }
+    }
+
+    // only if drawing
+    if (displaySettings?.show2dSkeleton) {
+      canvasCtxRef?.current?.save()
+      canvasCtxRef?.current?.clearRect(0, 0, canvasRef.current!.width, canvasRef.current!.height)
+    }
 
     sendResults({
-      pose: undefined,
-      worldPose: undefined,
-      face: faceResults?.faceBlendshapes,
-      tFace: undefined, // solvedFace,
-      hands: undefined
+      ...poseData(),
+      ...handData(),
+      ...faceData()
     })
+
+    // only if drawing
+    if (displaySettings?.show2dSkeleton) {
+      canvasCtxRef.current?.restore()
+    }
   })
   // poseDetector?.value?.detectForVideo(videoRef.current!, videoTime * 1000, (poseResults) => {
   //   if (detectingStatus !== 'active') setDetectingStatus('active')

@@ -106,7 +106,12 @@ export const addClientInputListeners = () => {
 
   const session = xrState.session
 
-  if (session?.inputSources) for (const inputSource of session?.inputSources) addInputSource(inputSource)
+  if (session?.inputSources) {
+    const { inputSources } = session
+    for (const inputSource of inputSources) {
+      addInputSource(inputSource)
+    }
+  }
 
   const onInputSourcesChanged = (event: XRInputSourceChangeEvent) => {
     event.added.map(addInputSource)
