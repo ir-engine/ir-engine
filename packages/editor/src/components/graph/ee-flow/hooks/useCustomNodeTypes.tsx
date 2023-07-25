@@ -23,11 +23,10 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React from 'react'
-import { useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { NodeTypes } from 'reactflow'
 
-import { NodeSpecJSON } from '@etherealengine/engine/src/behave-graph/core'
+import { NodeSpecJSON } from '@etherealengine/engine/src/behave-graph/nodes'
 
 import { Node } from '../components/Node.js'
 

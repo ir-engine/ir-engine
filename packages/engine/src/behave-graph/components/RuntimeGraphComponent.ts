@@ -23,17 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import {
-  DefaultLogger,
-  Engine,
-  ManualLifecycleEventEmitter,
-  readGraphFromJSON,
-  registerCoreProfile
-} from '@etherealengine/engine/src/behave-graph/core'
-import { getState } from '@etherealengine/hyperflux'
-
 import { defineComponent, getComponent } from '../../ecs/functions/ComponentFunctions'
-import { BehaveGraphSystemState } from '../systems/BehaveGraphSystem'
 import { BehaveGraphComponent } from './BehaveGraphComponent'
 
 export const RuntimeGraphComponent = defineComponent({

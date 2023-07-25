@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { Connection, ReactFlowInstance } from 'reactflow'
 
-import { NodeSpecJSON } from '@etherealengine/engine/src/behave-graph/core'
+import { NodeSpecJSON } from '@etherealengine/engine/src/behave-graph/nodess'
 
 import { getSocketsByNodeTypeAndHandleType } from './getSocketsByNodeTypeAndHandleType.js'
 import { isHandleConnected } from './isHandleConnected.js'

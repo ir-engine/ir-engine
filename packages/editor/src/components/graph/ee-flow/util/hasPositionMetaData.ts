@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { GraphJSON } from '@etherealengine/engine/src/behave-graph/core'
+import { GraphJSON } from '@etherealengine/engine/src/behave-graph/nodess'
 
 export const hasPositionMetaData = (graph: GraphJSON): boolean => {
   if (graph.nodes === undefined) return false

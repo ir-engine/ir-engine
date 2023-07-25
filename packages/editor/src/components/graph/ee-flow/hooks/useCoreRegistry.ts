@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { getCoreNodesMap, getCoreValuesMap } from '@etherealengine/engine/src/behave-graph/core'
+import { getCoreNodesMap, getCoreValuesMap } from '@etherealengine/engine/src/behave-graph/nodes'
 
 import { useCoreDependencies } from './useDependencies.js'
 

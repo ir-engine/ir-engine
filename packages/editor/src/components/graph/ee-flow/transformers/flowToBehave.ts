@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { Edge, Node } from 'reactflow'
 
-import { GraphJSON, NodeJSON, NodeSpecJSON } from '@etherealengine/engine/src/behave-graph/core'
+import { GraphJSON, NodeJSON, NodeSpecJSON } from '@etherealengine/engine/src/behave-graph/nodes'
 
 const isNullish = (value: any): value is null | undefined => value === undefined || value === null
 

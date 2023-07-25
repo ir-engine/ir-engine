@@ -31,7 +31,7 @@ import {
   makeCoreDependencies,
   makeEngineDependencies,
   ManualLifecycleEventEmitter
-} from '@etherealengine/engine/src/behave-graph/core'
+} from '@etherealengine/engine/src/behave-graph/nodes'
 
 export const useCoreDependencies = () => {
   const [dependencies] = useState(() =>

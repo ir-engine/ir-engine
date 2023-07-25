@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { Edge, Node } from 'reactflow'
 import { v4 as uuidv4 } from 'uuid'
 
-import { GraphJSON } from '@etherealengine/engine/src/behave-graph/core'
+import { GraphJSON } from '@etherealengine/engine/src/behave-graph/nodess'
 
 export const behaveToFlow = (graph: GraphJSON): [Node[], Edge[]] => {
   const nodes: Node[] = []

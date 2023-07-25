@@ -23,11 +23,10 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React from 'react'
-import { useMemo, useRef, useState } from 'react'
+import React, { useMemo, useRef, useState } from 'react'
 import { useEdges, useNodes } from 'reactflow'
 
-import { NodeSpecJSON } from '@etherealengine/engine/src/behave-graph/core'
+import { NodeSpecJSON } from '@etherealengine/engine/src/behave-graph/nodes'
 
 import { flowToBehave } from '../../transformers/flowToBehave.js'
 import { Modal } from './Modal.js'

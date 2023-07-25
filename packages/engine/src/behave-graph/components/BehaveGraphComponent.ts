@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import matches, { Validator } from 'ts-matches'
 
 import { OpaqueType } from '@etherealengine/common/src/interfaces/OpaqueType'
-import { GraphJSON } from '@etherealengine/engine/src/behave-graph/core'
+import { GraphJSON } from '@etherealengine/engine/src/behave-graph/nodes'
 
 import { defineComponent, hasComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
 import DefaultGraph from '../graph/default-graph.json'

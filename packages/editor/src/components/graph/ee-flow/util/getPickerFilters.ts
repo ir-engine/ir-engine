@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { Node, OnConnectStartParams } from 'reactflow'
 
-import { NodeSpecJSON } from '@etherealengine/engine/src/behave-graph/core'
+import { NodeSpecJSON } from '@etherealengine/engine/src/behave-graph/nodess'
 
 import { NodePickerFilters } from '../components/NodePicker.js'
 import { getSocketsByNodeTypeAndHandleType } from './getSocketsByNodeTypeAndHandleType.js'

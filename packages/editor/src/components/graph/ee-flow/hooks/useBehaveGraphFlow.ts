@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { useCallback, useEffect, useState } from 'react'
 import { useEdgesState, useNodesState } from 'reactflow'
 
-import { GraphJSON, NodeSpecJSON } from '@etherealengine/engine/src/behave-graph/core'
+import { GraphJSON, NodeSpecJSON } from '@etherealengine/engine/src/behave-graph/nodes'
 
 import { behaveToFlow } from '../transformers/behaveToFlow.js'
 import { flowToBehave } from '../transformers/flowToBehave.js'

@@ -25,11 +25,10 @@ Ethereal Engine. All Rights Reserved.
 
 import { faDownload, faPause, faPlay, faQuestion, faTrash, faUpload } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { useState } from 'react'
-import React from 'react'
+import React, { useState } from 'react'
 import { ControlButton, Controls } from 'reactflow'
 
-import { GraphJSON, NodeSpecJSON } from '@etherealengine/engine/src/behave-graph/core'
+import { GraphJSON, NodeSpecJSON } from '@etherealengine/engine/src/behave-graph/nodes'
 
 import { ClearModal } from './modals/ClearModal.js'
 import { HelpModal } from './modals/HelpModal.js'

@@ -23,29 +23,33 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { useState } from 'react'
-
 import {
   DefaultLogger,
-  getCoreNodesMap,
-  getCoreValuesMap,
+  DummyScene,
   IRegistry,
   ManualLifecycleEventEmitter,
-  memo
-} from '@etherealengine/engine/src/behave-graph/core'
-
-export const createRegistry = memo<IRegistry>(() => {
-  return {
-    nodes: getCoreNodesMap(),
-    values: getCoreValuesMap(),
-    dependencies: {
-      logger: new DefaultLogger(),
-      lifecycleEventEmitter: new ManualLifecycleEventEmitter()
-    }
-  }
-})
+  registerCoreProfile,
+  registerEngineProfile,
+  registerSceneProfile
+} from '@etherealengine/engine/src/behave-graph/nodes'
+import { useMemo } from 'react'
 
 export const useRegistry = () => {
-  const [registry] = useState<IRegistry>(() => createRegistry())
-  return registry
+  return useMemo<IRegistry>(
+    () =>
+      registerEngineProfile(
+        registerSceneProfile(
+          registerCoreProfile({
+            values: {},
+            nodes: {},
+            dependencies: {
+              ILogger: new DefaultLogger(),
+              ILifecycleEventEmitter: new ManualLifecycleEventEmitter(),
+              IScene: new DummyScene()
+            }
+          })
+        )
+      ),
+    []
+  )
 }

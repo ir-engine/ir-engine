@@ -23,36 +23,27 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { useCallback, useEffect, useState } from 'react'
-
 import {
-  Dependencies,
   Engine,
   GraphJSON,
   GraphNodes,
   ILifecycleEventEmitter,
-  NodeDefinitionsMap,
-  readGraphFromJSON,
-  ValueTypeMap
-} from '@etherealengine/engine/src/behave-graph/core'
+  IRegistry,
+  readGraphFromJSON
+} from '@etherealengine/engine/src/behave-graph/nodes'
+import { useCallback, useEffect, useState } from 'react'
 
 /** Runs the behavior graph by building the execution
  * engine and triggering start on the lifecycle event emitter.
  */
 export const useGraphRunner = ({
   graphJson,
-  eventEmitter,
   autoRun = false,
-  nodeDefinitions,
-  valueTypeDefinitions,
-  dependencies
+  registry
 }: {
   graphJson: GraphJSON | undefined
-  eventEmitter: ILifecycleEventEmitter
   autoRun?: boolean
-  nodeDefinitions: NodeDefinitionsMap
-  valueTypeDefinitions: ValueTypeMap
-  dependencies: Dependencies | undefined
+  registry: IRegistry
 }) => {
   const [engine, setEngine] = useState<Engine>()
 
@@ -71,15 +62,13 @@ export const useGraphRunner = ({
   }, [])
 
   useEffect(() => {
-    if (!graphJson || !valueTypeDefinitions || !run || !dependencies) return
+    if (!graphJson || !registry.values || !run || !registry.dependencies) return
 
     let graphNodes: GraphNodes
     try {
       graphNodes = readGraphFromJSON({
         graphJson,
-        nodes: nodeDefinitions,
-        values: valueTypeDefinitions,
-        dependencies
+        registry
       }).nodes
     } catch (e) {
       console.error(e)
@@ -93,7 +82,7 @@ export const useGraphRunner = ({
       engine.dispose()
       setEngine(undefined)
     }
-  }, [graphJson, valueTypeDefinitions, nodeDefinitions, run, dependencies])
+  }, [graphJson, registry.values, registry.nodes, run, registry.dependencies])
 
   useEffect(() => {
     if (!engine || !run) return
@@ -101,6 +90,8 @@ export const useGraphRunner = ({
     engine.executeAllSync()
 
     let timeout: number
+
+    const eventEmitter = registry.dependencies?.ILifecycleEventEmitter as ILifecycleEventEmitter
 
     const onTick = async () => {
       eventEmitter.tickEvent.emit()
@@ -125,7 +116,7 @@ export const useGraphRunner = ({
     return () => {
       window.clearTimeout(timeout)
     }
-  }, [engine, eventEmitter.startEvent, eventEmitter.tickEvent, run])
+  }, [engine, registry.dependencies?.ILifecycleEventEmitter, run])
 
   return {
     engine,

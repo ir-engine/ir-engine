@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-/*import { getCoreRegistry, GraphJSON, writeNodeSpecsToJSON } from '@etherealengine/engine/src/behave-graph/core'
+/*import { getCoreRegistry, GraphJSON, writeNodeSpecsToJSON } from '@etherealengine/engine/src/behave-graph/nodesss'
 
 import rawFlowGraph from '../../../../graphs/react-flow/graph.json'
 import { behaveToFlow } from './behaveToFlow.js'

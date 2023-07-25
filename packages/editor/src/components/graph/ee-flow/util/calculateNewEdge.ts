@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { Node, OnConnectStartParams } from 'reactflow'
 import { v4 as uuidv4 } from 'uuid'
 
-import { NodeSpecJSON } from '@etherealengine/engine/src/behave-graph/core'
+import { NodeSpecJSON } from '@etherealengine/engine/src/behave-graph/nodesss'
 
 import { getSocketsByNodeTypeAndHandleType } from './getSocketsByNodeTypeAndHandleType.js'
 

@@ -26,14 +26,13 @@ Ethereal Engine. All Rights Reserved.
 import React, { useEffect, useRef } from 'react'
 import { Background, BackgroundVariant, ReactFlow } from 'reactflow'
 
-import { GraphJSON } from '@etherealengine/engine/src/behave-graph/core'
+import { GraphJSON } from '@etherealengine/engine/src/behave-graph/nodes'
 
 import { useBehaveGraphFlow } from '../hooks/useBehaveGraphFlow.js'
-import { useCoreRegistry } from '../hooks/useCoreRegistry.js'
-import { useEngineRegistry } from '../hooks/useEngineRegistry.js'
 import { useFlowHandlers } from '../hooks/useFlowHandlers.js'
 import { useGraphRunner } from '../hooks/useGraphRunner.js'
 import { useNodeSpecJson } from '../hooks/useNodeSpecJson.js'
+import { useRegistry } from '../hooks/useRegistry.js'
 import CustomControls from './Controls.js'
 import { NodePicker } from './NodePicker.js'
 import { Examples } from './modals/LoadModal.js'
@@ -45,25 +44,11 @@ type FlowProps = {
 }
 
 export const Flow: React.FC<FlowProps> = ({ initialGraph: graph, examples, onChangeGraph }) => {
-  const {
-    nodeDefinitions: nodeDefinitionsCore,
-    valuesDefinitions: valuesDefinitionsCore,
-    dependencies: dependenciesCore
-  } = useCoreRegistry()
-  const {
-    nodeDefinitions: nodeDefinitionsEngine,
-    valuesDefinitions: valuesDefinitionsEngine,
-    dependencies: dependenciesEngine
-  } = useEngineRegistry()
-  const nodeDefinitions = { ...nodeDefinitionsCore, ...nodeDefinitionsEngine }
-  const valuesDefinitions = { ...valuesDefinitionsCore, ...valuesDefinitionsEngine }
-  const dependencies = { ...dependenciesCore, ...dependenciesEngine }
+  const registry = useRegistry()
+
+  const specJson = useNodeSpecJson(registry)
+
   const flowRef = useRef(null)
-  const specJson = useNodeSpecJson({
-    nodes: nodeDefinitions,
-    values: valuesDefinitions,
-    dependencies
-  })
 
   const { nodes, edges, onNodesChange, onEdgesChange, graphJson, setGraphJson, nodeTypes } = useBehaveGraphFlow({
     initialGraphJson: graph,
@@ -90,10 +75,7 @@ export const Flow: React.FC<FlowProps> = ({ initialGraph: graph, examples, onCha
 
   const { togglePlay, playing } = useGraphRunner({
     graphJson,
-    valueTypeDefinitions: valuesDefinitions,
-    nodeDefinitions,
-    eventEmitter: dependencies.lifecycleEventEmitter,
-    dependencies
+    registry
   })
 
   const graphJsonRef = useRef(graphJson ?? graph) // used to save the updated graph when component unmounts

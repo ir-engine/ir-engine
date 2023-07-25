@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { memo, NodeSpecJSON, writeNodeSpecsToJSON } from '@etherealengine/engine/src/behave-graph/core'
+import { memo, NodeSpecJSON, writeNodeSpecsToJSON } from '@etherealengine/engine/src/behave-graph/nodes'
 
 import { createRegistry } from '../hooks/useRegistry.js'
 

@@ -31,7 +31,7 @@ import {
   NodeSpecJSON,
   ValueTypeMap,
   writeNodeSpecsToJSON
-} from '@etherealengine/engine/src/behave-graph/core'
+} from '@etherealengine/engine/src/behave-graph/nodes'
 
 export const useNodeSpecJson = ({
   values,
