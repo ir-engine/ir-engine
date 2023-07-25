@@ -47,36 +47,36 @@ describe('FeathersHooks', () => {
         return {
           find: () => {
             return new Promise((resolve) => {
-              resolve({
-                data: db,
-                limit: 10,
-                skip: 0,
-                total: 2
-              })
+              resolve(
+                JSON.parse(
+                  JSON.stringify({
+                    data: db,
+                    limit: 10,
+                    skip: 0,
+                    total: db.length
+                  })
+                )
+              )
             })
           },
           get: (id) => {
             return new Promise((resolve) => {
-              resolve({
-                id,
-                name: 'John'
-              })
+              const data = db.find((item) => item.id === id)
+              console.log('get', id, data)
+              resolve(data ? JSON.parse(JSON.stringify(data)) : null)
             })
           },
           create: (data) => {
             return new Promise((resolve) => {
-              db.push({
-                id: '3',
+              const newEntry = {
+                id: `${db.length + 1}`,
                 name: data.name
-              })
-              resolve({
-                id: '3',
-                name: data.name
-              })
+              }
+              db.push(newEntry)
+              resolve({ ...newEntry })
               eventDispatcher.dispatchEvent({
                 type: 'created',
-                id: '3',
-                name: data.name
+                ...newEntry
               })
             })
           },
@@ -97,10 +97,14 @@ describe('FeathersHooks', () => {
           patch: (id, data) => {
             return new Promise((resolve) => {
               db.find((item) => item.id === id)!.name = data.name
-              resolve({
-                id,
-                name: data.name
-              })
+              resolve(
+                JSON.parse(
+                  JSON.stringify({
+                    id,
+                    name: data.name
+                  })
+                )
+              )
               eventDispatcher.dispatchEvent({
                 type: 'patched',
                 id,
@@ -115,9 +119,13 @@ describe('FeathersHooks', () => {
                 db.findIndex((item) => item.id === id),
                 1
               )
-              resolve({
-                id
-              })
+              resolve(
+                JSON.parse(
+                  JSON.stringify({
+                    id
+                  })
+                )
+              )
               eventDispatcher.dispatchEvent({
                 type: 'removed',
                 ...item
@@ -149,8 +157,8 @@ describe('FeathersHooks', () => {
       })
       const { data } = result.current
       assert.strictEqual(data.length, 2)
-      assert.strictEqual(data[0]?.name, 'John')
-      assert.strictEqual(data[1]?.name, 'Jane')
+      assert.strictEqual(data[0].name, 'John')
+      assert.strictEqual(data[1].name, 'Jane')
     })
 
     it('should return the data with params', async () => {
@@ -263,14 +271,12 @@ describe('FeathersHooks', () => {
 
   describe('can use listeners', () => {
     describe('on created', () => {
-      it('should populate data', async () => {
+      it('should populate find query', async () => {
         const result = createState({} as any)
         const { rerender } = renderHook(() => {
           const data = useFind('user')
-          console.log('rerender', data)
-          result.set(data)
           useEffect(() => {
-            console.log('useeffect:', data)
+            result.set(data)
           }, [data.data.length])
         })
         await act(() => {
@@ -284,6 +290,26 @@ describe('FeathersHooks', () => {
         })
         assert.strictEqual(result.value.data.length, 3)
         assert.strictEqual(result.value.data[2]?.name, 'Jack')
+      })
+
+      it('should populate get query', async () => {
+        const result = createState({} as any)
+        const { rerender } = renderHook(() => {
+          const data = useGet('user', '3')
+          useEffect(() => {
+            result.set(data)
+          }, [data.data?.name])
+        })
+        await act(() => {
+          rerender()
+        })
+        await act(() => {
+          Engine.instance.api.service('user').create({ name: 'Jack' })
+        })
+        await act(() => {
+          rerender()
+        })
+        assert.strictEqual(result.value.data?.name, 'Jack')
       })
     })
 
@@ -303,6 +329,26 @@ describe('FeathersHooks', () => {
         })
         assert.strictEqual(result.current.data[0]?.name, 'Jack')
       })
+
+      it('should populate get query', async () => {
+        const result = createState({} as any)
+        const { rerender } = renderHook(() => {
+          const data = useGet('user', '1')
+          useEffect(() => {
+            result.set(data)
+          }, [data.data?.name])
+        })
+        await act(() => {
+          rerender()
+        })
+        await act(() => {
+          Engine.instance.api.service('user').update('1', { name: 'Jack' } as any)
+        })
+        await act(() => {
+          rerender()
+        })
+        assert.strictEqual(result.value.data?.name, 'Jack')
+      })
     })
 
     describe('on patched', () => {
@@ -321,6 +367,26 @@ describe('FeathersHooks', () => {
         })
         assert.strictEqual(result.current.data[0]?.name, 'Jack')
       })
+
+      it('should populate get query', async () => {
+        const result = createState({} as any)
+        const { rerender } = renderHook(() => {
+          const data = useGet('user', '1')
+          useEffect(() => {
+            result.set(data)
+          }, [data.data?.name])
+        })
+        await act(() => {
+          rerender()
+        })
+        await act(() => {
+          Engine.instance.api.service('user').patch('1', { name: 'Jack' })
+        })
+        await act(() => {
+          rerender()
+        })
+        assert.strictEqual(result.value.data?.name, 'Jack')
+      })
     })
 
     describe('on removed', () => {
@@ -338,6 +404,26 @@ describe('FeathersHooks', () => {
           rerender()
         })
         assert.strictEqual(result.current.data.length, 1)
+      })
+
+      it('should populate get query', async () => {
+        const result = createState({} as any)
+        const { rerender } = renderHook(() => {
+          const data = useGet('user', '1')
+          useEffect(() => {
+            result.set(data)
+          }, [data.data?.name])
+        })
+        await act(() => {
+          rerender()
+        })
+        await act(() => {
+          Engine.instance.api.service('user').remove('1')
+        })
+        await act(() => {
+          rerender()
+        })
+        assert.strictEqual(result.value.data, null)
       })
     })
   })

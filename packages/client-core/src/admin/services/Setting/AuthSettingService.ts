@@ -72,6 +72,7 @@ export const AuthSettingsService = {
       await Engine.instance.api.service(authenticationSettingPath).patch(id, data)
       getMutableState(AuthSettingsState)
     } catch (err) {
+      console.error(err)
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
   }

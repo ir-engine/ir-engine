@@ -35,13 +35,13 @@ Ethereal Engine. All Rights Reserved.
  * useMutation(serviceName) => { create, update, patch, remove, status, data, error }
  */
 
-import { Params, Query } from '@feathersjs/feathers'
-import { useCallback, useEffect, useMemo, useRef } from 'react'
-import sift from 'sift'
+import { Params } from '@feathersjs/feathers'
+import { useCallback, useEffect, useMemo } from 'react'
 
 import { ServiceTypes } from '@etherealengine/common/declarations'
-import { defineState, getMutableState, getState, NO_PROXY, none, State, useHookstate } from '@etherealengine/hyperflux'
+import { NO_PROXY, State, defineState, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
+import { OpaqueType } from '@etherealengine/common/src/interfaces/OpaqueType'
 import { Engine } from '../../ecs/classes/Engine'
 
 export type Methods = 'find' | 'get' | 'create' | 'update' | 'patch' | 'remove'
@@ -55,455 +55,7 @@ export type MethodArgs = {
   remove: [string, any?]
 }
 
-export const FeathersState = defineState({
-  name: 'ee.engine.FeathersState',
-  initial: () => ({
-    entities: {} as Record<keyof ServiceTypes, Record<string, any>>, // <serviceName, <id, item>>
-    queries: {} as Record<
-      keyof ServiceTypes,
-      Record<
-        string,
-        {
-          params: Params
-          data: string[] // ids
-          meta: {
-            total: number
-            limit: number
-            skip: number
-          }
-          method: Methods
-          realtime: Realtime
-          matcher?: (query: any) => (item: any) => boolean
-          entities?: Record<string, any> // <id, item>
-        }
-      >
-    >, // <serviceName, <queryId, query>>
-    index: {} as Record<
-      keyof ServiceTypes,
-      Record<
-        string,
-        {
-          queries: Record<string, boolean> // <queryId, true>
-          size: number
-        }
-      >
-    > // <serviceName, <id, index>>
-  })
-})
-
-type FetchedArgs = {
-  serviceName: keyof ServiceTypes
-  data: Paginated<any>
-  method: Methods
-  params: Params
-  queryId: string
-  realtime: Realtime
-  matcher?: (query: any) => (item: any) => boolean
-}
-
-type MethodCallbackArgs = {
-  serviceName: keyof ServiceTypes
-  item: any
-}
-
-function fetched({ serviceName, data, method, params, queryId, realtime, matcher }: FetchedArgs) {
-  const { data: items, ...meta } = data
-  const state = getState(FeathersState)
-  const mutableState = getMutableState(FeathersState)
-  const entities = realtime === 'merge' ? { ...state.entities[serviceName] } : {}
-  const index = realtime === 'merge' ? { ...state.index[serviceName] } : {}
-  for (const item of items) {
-    const itemId = item.id
-    entities[itemId] = item
-
-    if (realtime === 'merge') {
-      const itemIndex = { ...index[itemId] }
-      itemIndex.queries = { ...itemIndex.queries, [queryId]: true }
-      itemIndex.size = itemIndex.size ? itemIndex.size + 1 : 1
-      index[itemId] = itemIndex
-    }
-  }
-
-  if (realtime === 'merge') {
-    // update entities
-    mutableState.entities[serviceName].set(entities)
-    mutableState.index[serviceName].set(index)
-  }
-
-  if (!state[serviceName]) {
-    mutableState.queries[serviceName].set({})
-  }
-
-  // update queries
-  mutableState.queries[serviceName].merge({
-    [queryId]: {
-      params,
-      data: items.map((x) => x.id),
-      meta,
-      method,
-      realtime,
-      matcher,
-      ...(realtime === 'merge' ? {} : { entities })
-    }
-  })
-}
-
-function created({ serviceName, item }: MethodCallbackArgs) {
-  updateQuery({ serviceName, method: 'create', item })
-}
-
-// applies to both update and patch
-function updated({ serviceName, item }: MethodCallbackArgs) {
-  const itemId = item.id
-  const state = getState(FeathersState)
-  const mutableState = getMutableState(FeathersState)
-  const currItem = state.entities[serviceName][itemId].get(NO_PROXY)
-
-  // check to see if we should discard this update
-  if (currItem) {
-    const currUpdatedAt = currItem.updatedAt
-    const nextUpdatedAt = item.updatedAt
-    if (nextUpdatedAt && nextUpdatedAt < currUpdatedAt) {
-      return
-    }
-  }
-
-  if (currItem) {
-    mutableState.entities[serviceName][itemId].set(item)
-  } else {
-    const index = { queries: {}, size: 0 }
-    mutableState.entities[serviceName][itemId].set(item)
-    mutableState.index[serviceName][itemId].set(index)
-  }
-
-  updateQuery({ serviceName, method: 'update', item })
-}
-
-function removed({ serviceName, item: itemOrItems }: MethodCallbackArgs) {
-  const items = Array.isArray(itemOrItems) ? itemOrItems : [itemOrItems]
-  const state = getState(FeathersState)
-  const mutableState = getMutableState(FeathersState)
-
-  const exists = items.some((item) => state.entities[serviceName][item.id])
-  if (!exists) return
-
-  // remove this item from all the queries that reference it
-  updateQuery({ serviceName, method: 'remove', item: itemOrItems })
-
-  // now remove it from entities
-  const serviceEntities = mutableState.entities[serviceName]
-  const removedIds = [] as string[]
-  for (const item of items) {
-    serviceEntities[item.id].set(none)
-    removedIds.push(item.id)
-  }
-}
-
-type UpdateQueryArgs = {
-  serviceName: keyof ServiceTypes
-  method: Methods
-  item: any
-}
-
-function updateQuery({ serviceName, method, item }: UpdateQueryArgs) {
-  const items = Array.isArray(item) ? item : [item]
-  for (const item of items) {
-    const itemId = item.id
-
-    const state = getState(FeathersState)
-    const mutableState = getMutableState(FeathersState)
-
-    const queries = { ...state.queries[serviceName] }
-    const index = { ...state.index[serviceName][itemId] }
-    index.queries = { ...index.queries }
-    index.size = index.size || 0
-
-    let updateCount = 0
-
-    forEachObj(queries, (query, queryId) => {
-      let matches
-
-      // do not update non realtime queries
-      // those get updated/refetched in a different way
-      if (query.realtime !== 'merge') {
-        return
-      }
-
-      if (method === 'remove') {
-        // optimisation, if method is remove, we want to immediately remove the object
-        // from cache, which means we don't need to match using matcher
-        matches = false
-      } else if (!query.params.query || Object.keys(query.params.query).length === 0) {
-        // another optimisation, if there is no query, the object matches
-        matches = true
-      } else {
-        const matcher = query.matcher ? query.matcher(defaultMatcher) : defaultMatcher
-        matches = matcher(query.params.query)(item)
-      }
-
-      if (index.queries[queryId]) {
-        if (!matches) {
-          updateCount++
-          if (!query.meta.total) query.meta.total = 0
-          mutableState.queries[serviceName][queryId].merge({
-            meta: { ...query.meta, total: query.meta.total - 1 },
-            data: query.data.filter((id) => id !== itemId)
-          })
-          delete index.queries[queryId]
-          index.size -= 1
-        }
-      } else {
-        // only add if query has fetched all of the data..
-        // if it hasn't fetched all of the data then leave this
-        // up to the consumer of the figbird to decide if data
-        // should be refetched
-        if (!query.meta.total) query.meta.total = 0
-        updateCount++
-        // TODO - sort
-        mutableState.queries[serviceName][queryId].merge({
-          meta: { ...query.meta, total: query.meta.total + 1 },
-          data: query.data.concat(itemId)
-        })
-        index.queries[queryId] = true
-        index.size += 1
-      }
-    })
-
-    if (updateCount > 0) {
-      // mutableState.queries[serviceName].set(queries)
-      // mutableState.index[serviceName][itemId].set(index)
-
-      // in case of create, only ever add it to the cache if it's relevant for any of the
-      // queries, otherwise, we might end up piling in newly created objects into cache
-      // even if the app never uses them
-      if (!state.entities[serviceName][itemId]) {
-        mutableState.entities[serviceName][itemId].set(item)
-      }
-
-      // this item is no longer relevant to any query, garbage collect it
-      if (index.size === 0) {
-        mutableState.entities[serviceName][itemId].set(none)
-        mutableState.index[serviceName][itemId].set(none)
-      }
-    }
-  }
-}
-
-function cleanQuery(query, operators, filters) {
-  if (Array.isArray(query)) {
-    return query.map((value) => cleanQuery(value, operators, filters))
-  } else if (isObject(query)) {
-    const result = {}
-
-    Object.keys(query).forEach((key) => {
-      const value = query[key]
-      if (key[0] === '$') {
-        if (filters.includes(key)) {
-          return
-        }
-
-        if (!operators.includes(key)) {
-          throw new Error(`Invalid query parameter ${key}`, query)
-        }
-      }
-
-      result[key] = cleanQuery(value, operators, filters)
-    })
-
-    return result
-  }
-  return query
-}
-
-export const FILTERS = ['$sort', '$limit', '$skip', '$select']
-export const OPERATORS = ['$in', '$nin', '$lt', '$lte', '$gt', '$gte', '$ne', '$or']
-
-type FilterQueryOptions = {
-  filters?: string[]
-  operators?: string[]
-}
-
-// Removes special filters from the `query` parameters
-export default function filterQuery(query, options = {} as FilterQueryOptions) {
-  if (!query) return query
-  const { filters: additionalFilters = [], operators: additionalOperators = [] } = options
-  return cleanQuery(query, OPERATORS.concat(additionalOperators), FILTERS.concat(additionalFilters))
-}
-
-export function getIn(obj, path) {
-  for (const segment of path) {
-    if (obj) {
-      obj = obj[segment]
-    }
-  }
-  return obj
-}
-
-export function setIn(obj, path, value) {
-  obj = isObject(obj) ? { ...obj } : {}
-  const res = obj
-
-  for (let i = 0; i < path.length; i++) {
-    const segment = path[i]
-    if (i === path.length - 1) {
-      obj[segment] = value
-    } else {
-      obj[segment] = isObject(obj[segment]) ? { ...obj[segment] } : {}
-      obj = obj[segment]
-    }
-  }
-
-  return res
-}
-
-export function unsetIn(obj, path) {
-  obj = isObject(obj) ? { ...obj } : {}
-  const res = obj
-
-  for (let i = 0; i < path.length; i++) {
-    const segment = path[i]
-    if (i === path.length - 1) {
-      delete obj[segment]
-    } else {
-      if (isObject(obj[segment])) {
-        obj = obj[segment]
-      } else {
-        break
-      }
-    }
-  }
-
-  return res
-}
-
-export function isObject(obj) {
-  return typeof obj === 'object' && obj !== null
-}
-
-export function matcher(query, options) {
-  const filteredQuery = filterQuery(query, options)
-  const sifter = sift(filteredQuery)
-  return (item) => sifter(item)
-}
-
-const defaultMatcher = matcher
-
-export function hashObject(obj) {
-  let hash = 0
-  const str = JSON.stringify(obj)
-
-  for (let i = 0; i < str.length; i++) {
-    const char = str.charCodeAt(i)
-    hash = (hash << 5) - hash + char
-    hash = hash & hash // Convert to 32bit integer
-  }
-
-  return hash
-}
-
-export function forEachObj(obj, fn) {
-  for (const key in obj) {
-    if (Object.prototype.hasOwnProperty.call(obj, key)) {
-      fn(obj[key], key, obj)
-    }
-  }
-}
-
-export function inflight(makeKey, fn) {
-  const flying = {}
-
-  return (...args) => {
-    const key = makeKey(...args)
-
-    if (flying[key]) {
-      return flying[key].then(() => null)
-    }
-
-    const res = fn(...args)
-    flying[key] = res
-      .then((res) => {
-        delete flying[key]
-        return res
-      })
-      .catch((err) => {
-        delete flying[key]
-        throw err
-      })
-
-    return flying[key]
-  }
-}
-
-type ResourceDescriptor = {
-  serviceName: keyof ServiceTypes
-  queryId: string
-  method: Methods
-  id?: string
-  params: Params
-  realtime: Realtime
-  matcher?: (query: any) => (item: any) => boolean
-}
-
-export function useCache(resourceDescriptor: ResourceDescriptor) {
-  const { serviceName, queryId, method, id, params, realtime, matcher } = resourceDescriptor
-
-  const queryState = useHookstate(getMutableState(FeathersState).queries[serviceName])
-  const cachedData = useHookstate({ data: null } as { data: any })
-
-  useEffect(() => {
-    const query = queryState.get(NO_PROXY)?.[queryId]
-    if (query) {
-      let { data, meta } = query
-      const entities = query.entities || getState(FeathersState).entities[serviceName]
-      data = data.map((id) => entities[id])
-      if (!Array.isArray(data)) data = [data]
-      cachedData.set({ ...meta, data })
-    } else {
-      cachedData.set({ data: null })
-    }
-  }, [serviceName, queryId, queryState[queryId]])
-
-  const onFetched = (response) => {
-    const data = method === 'get' ? { data: [response] } : Array.isArray(response) ? { data: response } : response
-    return fetched({
-      serviceName,
-      queryId,
-      method,
-      params,
-      data,
-      realtime,
-      matcher
-    })
-  }
-
-  return {
-    cachedData: cachedData.get(NO_PROXY),
-    updateCache: onFetched
-  }
-}
-
-function same(a, b) {
-  if (a.length !== b.length) return false
-  for (let i = 0; i < a.length; i++) {
-    if (a[i] !== b[i]) return false
-  }
-  return true
-}
-
-export interface UseFindParams<Q extends Query> extends BaseParams<Q> {
-  allPages?: boolean
-  parallel?: boolean
-  matcher?: (query: any) => (item: any) => boolean
-}
-
-type UseFindReturnType<S extends keyof ServiceTypes> = {
-  data: Awaited<ReturnType<ServiceTypes[S]['find']>> | null
-  status: Status
-  refetch: () => void
-
-  isFetching: boolean
-  error: any
-}
+type QueryHash = OpaqueType<'QueryHash'> & string
 
 type Paginated<T> = {
   data: T[]
@@ -516,22 +68,94 @@ type ArrayOrPaginated<T> = T[] | Paginated<T>
 
 type ArrayOrPaginatedType<T> = T extends ArrayOrPaginated<infer R> ? R[] : never
 
-/**
- * Simple find hook exposing find method of any feathers service.
- *
- * @param serviceName
- * @param options
- * @returns {data, status, refetch, isFetching, error}
- */
-export function useFind<S extends keyof ServiceTypes, Q extends Query>(
-  serviceName: S,
-  options = {} as UseFindParams<Q>
-) {
-  const response = useQuery<S>(serviceName, options, {
-    method: 'find'
-  }) as UseFindReturnType<S>
+export const FeathersState = defineState({
+  name: 'ee.engine.FeathersState',
+  initial: () =>
+    ({}) as Record<
+      keyof ServiceTypes,
+      Record<
+        QueryHash,
+        {
+          fetch: () => void
+          response: unknown
+          status: 'pending' | 'success' | 'error'
+          error: ''
+        }
+      >
+    >
+})
 
-  const data = response.data ? (Array.isArray(response.data) ? response.data : response.data.data) : []
+type Args = MethodArgs[Methods]
+
+export const useQuery = <S extends keyof ServiceTypes, M extends Methods>(serviceName: S, method: M, ...args: Args) => {
+  const service = Engine.instance.api.service(serviceName)
+  const state = useHookstate(getMutableState(FeathersState))
+
+  const queryId = `${method.substring(0, 1)}:${hashObject({
+    serviceName,
+    method,
+    args
+  })}` as QueryHash
+
+  const fetch = useCallback(async () => {
+    if (!state.get(NO_PROXY)[serviceName]) state[serviceName].set({})
+    if (!state.get(NO_PROXY)[serviceName][queryId])
+      state[serviceName].merge({
+        [queryId]: {
+          fetch,
+          response: null,
+          status: 'pending',
+          error: ''
+        }
+      })
+    state[serviceName][queryId].merge({
+      status: 'pending',
+      error: ''
+    })
+    service[method](...args)
+      .then((res) => {
+        state[serviceName][queryId].merge({
+          response: res,
+          status: 'success',
+          error: ''
+        })
+      })
+      .catch((error) => {
+        state[serviceName][queryId].merge({
+          status: 'error',
+          error: error.message
+        })
+      })
+  }, [])
+
+  useRealtime(serviceName, fetch)
+
+  useEffect(() => {
+    fetch()
+  }, [])
+
+  const query = state[serviceName]?.[queryId]
+  const data = state.get(NO_PROXY)[serviceName]?.[queryId]?.response as Awaited<ReturnType<ServiceTypes[S][M]>>
+
+  return useMemo(
+    () => ({
+      data: data,
+      status: query?.status?.value,
+      error: query?.error?.value,
+      refetch: fetch
+    }),
+    [data, query?.response, query?.status, query?.error]
+  )
+}
+
+export const useGet = <S extends keyof ServiceTypes>(serviceName: S, id: string, params: Params = {}) => {
+  return useQuery(serviceName, 'get', id, params)
+}
+
+export const useFind = <S extends keyof ServiceTypes>(serviceName: S, params: Params = {}) => {
+  const response = useQuery(serviceName, 'find', params)
+
+  const data = response?.data ? (Array.isArray(response.data) ? response.data : response.data.data) : []
 
   return {
     ...response,
@@ -539,37 +163,24 @@ export function useFind<S extends keyof ServiceTypes, Q extends Query>(
   }
 }
 
-type UseGetReturnType<S extends keyof ServiceTypes> = {
-  data: Awaited<ReturnType<ServiceTypes[S]['get']>> | null
-  status: Status
-  refetch: () => void
-
-  isFetching: boolean
-  error: any
+const forceRefetch = (serviceName: keyof ServiceTypes) => {
+  const feathersState = getState(FeathersState)
+  if (!feathersState[serviceName]) return
+  for (const queryId in feathersState[serviceName]) {
+    feathersState[serviceName][queryId].fetch()
+  }
 }
 
-/**
- * Simple get hook exposing get method of any feathers service.
- *
- * @param serviceName
- * @param id
- * @param options
- * @returns {data, status, refetch, isFetching, error}
- */
-export function useGet<S extends keyof ServiceTypes, Q extends Query>(
-  serviceName: S,
-  id: string,
-  options = {} as BaseParams<Q>
-): UseGetReturnType<S> {
-  const response = useQuery<S>(serviceName, options, {
-    method: 'get',
-    id
-  })
+const created = ({ serviceName, item }) => {
+  forceRefetch(serviceName)
+}
 
-  return {
-    ...response,
-    data: response.data ? response.data[0] : null
-  } as UseGetReturnType<S>
+const updated = ({ serviceName, item }) => {
+  forceRefetch(serviceName)
+}
+
+const removed = ({ serviceName, item }) => {
+  forceRefetch(serviceName)
 }
 
 type CreateMethodParameters<S extends keyof ServiceTypes> = ServiceTypes[S]['create']
@@ -640,312 +251,47 @@ function useMethod(
   )
 }
 
-const getInflight = inflight((service, id, params, options) => `${service.path}/${options.queryId}`, getter)
-const findInflight = inflight((service, params, options) => `${service.path}/${options.queryId}`, finder)
+export function hashObject(obj) {
+  let hash = 0
+  const str = JSON.stringify(obj)
 
-const fetchPolicies = ['swr', 'cache-first', 'network-only']
-const realtimeModes = ['merge', 'refetch', 'disabled']
-
-export type Realtime = 'merge' | 'refetch' | 'disabled'
-export type FetchPolicy = 'swr' | 'cache-first' | 'network-only'
-export type Status = 'loading' | 'success' | 'error'
-export type MutationStatus = Status | 'idle'
-
-export interface BaseParams<Q extends Query> extends Params<Q> {
-  skip?: boolean
-  realtime?: boolean
-  fetchPolicy?: FetchPolicy
-}
-
-export interface QueryHookOptions {
-  method: 'get' | 'find'
-  id?: string
-}
-
-/**
- * A generic abstraction of both get and find
- */
-export function useQuery<S extends keyof ServiceTypes>(
-  serviceName: S,
-  options = {} as UseFindParams<any>,
-  queryHookOptions = {} as QueryHookOptions
-) {
-  const { method, id } = queryHookOptions
-
-  const disposed = useRef(false)
-  const isInitialMount = useRef(true)
-
-  let { skip, allPages, parallel, realtime = 'merge', fetchPolicy = 'swr', matcher, ...params } = options
-
-  realtime = realtime || 'disabled'
-  if (realtime !== 'disabled' && realtime !== 'merge' && realtime !== 'refetch') {
-    throw new Error(`Bad realtime option, must be one of ${[realtimeModes].join(', ')}`)
+  for (let i = 0; i < str.length; i++) {
+    const char = str.charCodeAt(i)
+    hash = (hash << 5) - hash + char
+    hash = hash & hash // Convert to 32bit integer
   }
 
-  if (!fetchPolicies.includes(fetchPolicy)) {
-    throw new Error(`Bad fetchPolicy option, must be one of ${[fetchPolicies].join(', ')}`)
-  }
-
-  const queryId = `${method.substring(0, 1)}:${hashObject({
-    serviceName,
-    method,
-    id,
-    params,
-    realtime
-  })}`
-
-  let { cachedData, updateCache } = useCache({
-    serviceName,
-    queryId,
-    method,
-    id,
-    params,
-    realtime,
-    matcher
-  })
-
-  let hasCachedData = !!cachedData.data
-  const fetched = fetchPolicy === 'cache-first' && hasCachedData
-
-  const state = useHookstate({
-    reloading: false,
-    fetched,
-    fetchedCount: 0,
-    refetchSeq: 0,
-    error: null
-  })
-
-  if (fetchPolicy === 'network-only' && state.fetchedCount.value === 0) {
-    cachedData = { data: null }
-    hasCachedData = false
-  }
-
-  const handleRealtimeEvent = useCallback(
-    (payload) => {
-      if (disposed.current) return
-      if (realtime !== 'refetch') return
-      state.merge({ fetched: false, refetchSeq: state.refetchSeq.value + 1 })
-    },
-    [realtime, disposed]
-  )
-
-  useEffect(() => {
-    return () => {
-      disposed.current = true
-    }
-  }, [])
-
-  useEffect(() => {
-    let disposed = false
-
-    if (state.fetched.value) return
-    if (skip) return
-    state.merge({ reloading: true, error: null })
-    const service = Engine.instance.api.service(serviceName)
-    const result =
-      method === 'get'
-        ? getInflight(service, id, params, { queryId })
-        : findInflight(service, params, { queryId, allPages, parallel })
-
-    result
-      .then((res) => {
-        // no res means we've piggy backed on an in flight request
-        if (res) {
-          updateCache(res)
-        }
-
-        if (!disposed) {
-          state.merge({ fetched: true, fetchedCount: state.fetchedCount.value + 1, reloading: false })
-        }
-      })
-      .catch((err) => {
-        if (!disposed) {
-          console.error(err)
-          state.merge({ reloading: false, fetched: true, fetchedCount: state.fetchedCount.value + 1, error: err })
-        }
-      })
-
-    return () => {
-      disposed = true
-    }
-  }, [serviceName, queryId, state.fetched, state.refetchSeq, skip, allPages, parallel])
-
-  // If serviceName or queryId changed, we should refetch the data
-  useEffect(() => {
-    if (!isInitialMount.current) {
-      if (state.fetched.value)
-        state.merge({
-          fetched: false,
-          fetchedCount: 0
-        })
-    }
-  }, [serviceName, queryId])
-
-  // realtime hook will make sure we're listening to all of the
-  // updates to this service
-  useRealtime(serviceName, realtime, handleRealtimeEvent)
-
-  useEffect(() => {
-    if (isInitialMount.current) {
-      isInitialMount.current = false
-    }
-  }, [])
-
-  // derive the loading/reloading state from other substates
-  const loading = !skip && !hasCachedData && !state.value.error
-  const reloading = loading || state.reloading.value
-
-  const refetch = () => state.merge({ fetched: false, refetchSeq: state.refetchSeq.value + 1 })
-
-  return {
-    ...(skip ? { data: null } : cachedData),
-    status: loading ? 'loading' : state.value.error ? 'error' : 'success',
-    refetch,
-    isFetching: reloading,
-    error: state.value.error
-  }
+  return hash
 }
 
-function getter(service, id, params) {
-  return service.get(id, params)
-}
-
-function finder(service, params, { queryId, allPages, parallel }) {
-  if (!allPages) {
-    return service.find(params)
-  }
-
-  return new Promise((resolve, reject) => {
-    let skip = 0
-    const result = {
-      data: [],
-      skip: 0,
-      limit: undefined!,
-      total: undefined!
-    } as Paginated<any>
-
-    fetchNext()
-
-    function doFind(skip) {
-      return service.find({
-        ...params,
-        query: {
-          ...(params.query || {}),
-          $skip: skip
-        }
-      })
-    }
-
-    function resolveOrFetchNext(res) {
-      if (res.data.length === 0 || result.data.length >= result.total) {
-        resolve(result)
-      } else {
-        skip = result.data.length
-        fetchNext()
-      }
-    }
-
-    function fetchNextParallel() {
-      const requiredFetches = Math.ceil((result.total - result.data.length) / result.limit)
-
-      if (requiredFetches > 0) {
-        Promise.all(new Array(requiredFetches).fill(undefined).map((_, idx) => doFind(skip + idx * result.limit)))
-          .then((results) => {
-            const [lastResult] = results.slice(-1)
-            result.limit = lastResult.limit
-            result.total = lastResult.total
-            result.data = result.data.concat(results.flatMap((r) => r.data))
-
-            resolveOrFetchNext(lastResult)
-          })
-          .catch(reject)
-      } else {
-        resolve(result)
-      }
-    }
-
-    function fetchNext() {
-      if (typeof result.total !== 'undefined' && typeof result.limit !== 'undefined' && parallel === true) {
-        fetchNextParallel()
-      } else {
-        doFind(skip)
-          .then((res) => {
-            result.limit = res.limit
-            result.total = res.total
-            result.data = result.data.concat(res.data)
-
-            resolveOrFetchNext(res)
-          })
-          .catch(reject)
-      }
-    }
-  })
-}
-
-const refs = {} as Record<keyof ServiceTypes, Record<string, any>> // <serviceName, <id, refCount>>
+const refCounting = {} as Record<keyof ServiceTypes, number> // <serviceName, <id, refCount>>
 
 /**
  * An internal hook that will listen to realtime updates to a service
  * and update the cache as changes happen.
  */
-export function useRealtime(serviceName: keyof ServiceTypes, mode, cb) {
+export function useRealtime(serviceName: keyof ServiceTypes, refetch: () => void) {
   useEffect(() => {
-    // realtime is turned off
-    if (mode === 'disabled') return
-
-    // get the ref store of this service
-    refs[serviceName] = refs[serviceName] || {}
-    refs[serviceName].realtime = refs[serviceName].realtime || 0
-    refs[serviceName].callbacks = refs[serviceName].callbacks || []
-    const ref = refs[serviceName]
-
-    if (mode === 'refetch' && cb) {
-      refs[serviceName].callbacks.push(cb)
-    }
-
-    // get the service itself
     const service = Engine.instance.api.service(serviceName)
 
-    // increment the listener counter
-    ref.realtime += 1
+    refCounting[serviceName] = refCounting[serviceName] || 0
 
-    // bind to the realtime events, but only once globally per service
-    if (ref.realtime === 1) {
-      ref.created = (item) => {
-        created({ serviceName, item })
-        refs[serviceName].callbacks.forEach((c) => c({ event: 'created', serviceName, item }))
-      }
-      ref.updated = (item) => {
-        updated({ serviceName, item })
-        refs[serviceName].callbacks.forEach((c) => c({ event: 'updated', serviceName, item }))
-      }
-      ref.patched = (item) => {
-        updated({ serviceName, item })
-        refs[serviceName].callbacks.forEach((c) => c({ event: 'patched', serviceName, item }))
-      }
-      ref.removed = (item) => {
-        removed({ serviceName, item })
-        refs[serviceName].callbacks.forEach((c) => c({ event: 'removed', serviceName, item }))
-      }
-
-      service.on('created', ref.created)
-      service.on('updated', ref.updated)
-      service.on('patched', ref.patched)
-      service.on('removed', ref.removed)
+    refCounting[serviceName] += 1
+    if (refCounting[serviceName] === 1) {
+      service.on('created', refetch)
+      service.on('updated', refetch)
+      service.on('patched', refetch)
+      service.on('removed', refetch)
     }
 
     return () => {
-      // decrement the listener counter
-      ref.realtime -= 1
-      refs[serviceName].callbacks = refs[serviceName].callbacks.filter((c) => c !== cb)
-
-      // unbind from the realtime events if nothing is listening anymore
-      if (ref.realtime === 0) {
-        service.off('created', ref.created)
-        service.off('updated', ref.updated)
-        service.off('patched', ref.patched)
-        service.off('removed', ref.removed)
+      refCounting[serviceName] -= 1
+      if (refCounting[serviceName] === 0) {
+        service.off('created', refetch)
+        service.off('updated', refetch)
+        service.off('patched', refetch)
+        service.off('removed', refetch)
       }
     }
-  }, [serviceName, mode, cb])
+  }, [serviceName])
 }
