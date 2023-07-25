@@ -722,13 +722,16 @@ export class InstanceProvision implements ServiceMethods<any> {
 
         const knexClient: Knex = this.app.get('knexClient')
 
-        const availableLocationInstances = await knexClient
+        const response = await knexClient
           .from('instance')
           .join(locationPath, 'instance.locationId', '=', `${locationPath}.id`)
           .where('instance.locationId', '=', location.id)
           .andWhere('instance.ended', '=', false)
           .andWhere(`${locationPath}.maxUsersPerInstance`, '>', 'instance.currentUsers')
           .select()
+          .options({ nestTables: true }) // https://github.com/knex/knex/issues/61#issuecomment-213949230
+
+        const availableLocationInstances = response.map((item) => item.instance)
 
         // TODO: Need to see if we need to populate following using below query. Or is it something knex join already runs us.
         const locations = (await this.app.service(locationPath).find({
@@ -752,7 +755,7 @@ export class InstanceProvision implements ServiceMethods<any> {
           const location = locations.find((location) => location.id === instance.locationId)
           instance.location = location
 
-          const authorizedUsers = instanceAuthorizedUsers.find((user) => user.instanceId === instance.id)
+          const authorizedUsers = instanceAuthorizedUsers.find((user) => user.instanceId === instance.id) || []
           instance.instance_authorized_users = authorizedUsers
         }
 
