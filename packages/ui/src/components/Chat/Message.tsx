@@ -32,12 +32,16 @@ import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
 import { ChannelService } from '@etherealengine/client-core/src/social/services/ChannelService'
 import { ChannelID } from '@etherealengine/common/src/interfaces/ChannelUser'
+import { Resizable } from 're-resizable'
+import { FaMicrophone } from 'react-icons/fa'
+import { HiPhoneMissedCall } from 'react-icons/hi'
+import { IoMdVideocam } from 'react-icons/io'
+import { MdScreenShare } from 'react-icons/md'
 import { ChatState } from './ChatState'
+import { VideoCall } from './VideoCall'
 import AttachFileIcon from './assets/attach-file2.svg'
-import CallIcon from './assets/call.svg'
 import SendIcon from './assets/send.svg'
 import UserSvg from './assets/user.svg'
-
 /**
  * Create reactor in client-core around messages
  * reacts to chat state changes, both active channel and channel data, and fetches new messages
@@ -93,7 +97,7 @@ export const MessageList = (props: { channelID: ChannelID }) => {
     }
 
     return (
-      <div className="absolute w-[755px] bottom-0 h-[70px]  gap-5 flex flex-wrap justify-center bg-[#ffffff]">
+      <div className="absolute w-full bottom-0 h-[70px]  gap-5 flex flex-wrap justify-center bg-[#ffffff]">
         <button className="">
           <img className="w-[30px] rounded-full font-bold h-[30px] overflow-hidden" alt="" src={AttachFileIcon} />
         </button>
@@ -119,7 +123,7 @@ export const MessageList = (props: { channelID: ChannelID }) => {
 
   return (
     <>
-      <div className="w-[720px] bg-[#FFFFFF] ml-6 mb-[100px] mt-4 justify-center content-center overflow-scroll hide-scroll">
+      <div className="w-full bg-[#FFFFFF] ml-6 mb-[100px] mt-4 justify-center content-center overflow-scroll hide-scroll">
         {messages.map((message, index) => {
           if (message.sender?.id === Engine.instance.userId) return <SelfMessage key={index} message={message} />
           else return <OtherMessage key={index} message={message} />
@@ -137,21 +141,56 @@ export const MessageContainer = () => {
   // const channelsList = useFind('channel', {})
   // const channelUserNames = channelsList?.channel_users.map((user) => user.user!.name).filter((name) => name !== userName) ?? []
   const channelUserNames = []
-
   return (
-    <div className="maxw-[760px] w-[765px] h-[100vh] bg-white">
-      <div className="w-[720px] h-[90px] flex flex-wrap gap-[450px] ml-5 justify-center">
-        <div className="mt-7">
-          <p className="text-3xl font-bold text-[#3F3960]">{channelUserNames.join(', ')}</p>
-        </div>
-        <div className="flex justify-center">
-          <button className="">
+    <>
+      {' '}
+      <Resizable
+        bounds="window"
+        defaultSize={{ width: 780, height: '100%' }}
+        enable={{
+          top: false,
+          right: true,
+          bottom: false,
+          left: false,
+          topRight: false,
+          bottomRight: false,
+          bottomLeft: false,
+          topLeft: false
+        }}
+        minWidth={600}
+        maxWidth={850}
+      >
+        <div className="w-full h-[100vh] bg-white">
+          <div className="w-full h-[90px] flex flex-wrap gap-[450px] justify-center">
+            <div className="mt-7">
+              <p className="text-3xl font-bold text-[#3F3960]">{channelUserNames.join(', ')}</p>
+            </div>
+            <div className="flex gap-6 justify-center">
+              <button className="w-[38px] h-[38px] flex flex-wrap mt-6 justify-center rounded-[5px] bg-[#EDEEF0]">
+                <IoMdVideocam className="w-5 h-5 overflow-hidden mt-2 fill-[#3F3960]" />
+              </button>
+              <button className="w-[38px] h-[38px] flex flex-wrap mt-6 justify-center rounded-[5px] bg-[#EDEEF0]">
+                <FaMicrophone className="w-5 h-5 overflow-hidden mt-2 fill-[#3F3960]" />
+              </button>
+              <button className="w-[38px] h-[38px] flex flex-wrap mt-6 justify-center rounded-[5px] bg-[#EDEEF0]">
+                <MdScreenShare className="w-6 h-6 overflow-hidden mt-2 fill-[#3F3960]" />
+              </button>
+              {/* <button className="">
             <img className="w-10 h-10 overflow-hidden" alt="" src={CallIcon} />
-          </button>
+          </button> */}
+              <button className="w-[38px] h-[38px] flex flex-wrap mt-6 justify-center rounded-[5px] bg-[#EDEEF0]">
+                <HiPhoneMissedCall className="w-5 h-5 overflow-hidden mt-2 fill-[#3F3960]" />
+              </button>
+            </div>
+          </div>
+
+          <div className="box-border w-full border-t-[1px] border-solid border-[#D1D3D7]" />
+          <div className="w-full h-[400vh]">
+            <VideoCall />
+          </div>
+          {<MessageList channelID={selectedChannelID!} />}
         </div>
-      </div>
-      <div className="box-border w-[765px] border-t-[1px] border-solid border-[#D1D3D7]" />
-      {<MessageList channelID={selectedChannelID!} />}
-    </div>
+      </Resizable>
+    </>
   )
 }

@@ -25,24 +25,35 @@ Ethereal Engine. All Rights Reserved.
 
 import React, { useEffect, useRef, useState } from 'react'
 
-import { useUserAvatarThumbnail } from '@etherealengine/client-core/src/user/functions/useUserAvatarThumbnail'
-import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
-
 import NotificationIcon from './assets/attach-file2.svg'
 import BoxSearch from './assets/bxbxsearchalt2.svg'
 import AddSquare from './assets/fluentaddsquare24filled.svg'
 import SettingIcon from './assets/setting.svg'
+// import { FriendsList } from './FriendsList'
+// import { GroupsList } from './GroupsList'
+import { useUserAvatarThumbnail } from '@etherealengine/client-core/src/user/functions/useUserAvatarThumbnail'
+import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { Resizable } from 're-resizable'
 import { ChannelsList } from './ChannelsList'
 import { Create } from './Create'
+import { WorldsList } from './WorldsList'
 
+/**
+ * @todo
+ * - replace ChatTypes with just 'Channels'
+ * - remove channelType
+ * -
+ */
+const ChatTypes: string[] = ['Party', 'Friends', 'Group', 'Layer', 'Instance']
 /**
  * Chat
  */
 export const ChatSection = () => {
   const userName = useHookstate(getMutableState(AuthState).user.name).value
   const userThumbnail = useUserAvatarThumbnail(Engine.instance.userId)
+  const currentChatType = useHookstate<(typeof ChatTypes)[number]>('Channels')
 
   const [checked, setChecked] = useState<boolean>(false)
 
@@ -85,67 +96,92 @@ export const ChatSection = () => {
   }, [isModalOpen])
 
   return (
-    <div className="w-[320px] h-[100vh] [background:linear-gradient(180deg,_#e3e5e8,_#f2f3f5_6.7%,_#f2f3f5_94.1%,_#e3e5e8)]">
-      <div className="w-full h-[90px] flex flex-wrap gap-[92px] justify-center">
-        <div className="mt-6">
-          <b className="text-3xl">Chats</b>
-        </div>
-        <div className="flex justify-center gap-2">
-          <button className="">
-            <img className="w-6 h-6 overflow-hidden" alt="" src={NotificationIcon} />
-          </button>
-          <button className="">
-            <img className="w-6 h-6 overflow-hidden" alt="" src={BoxSearch} />
-          </button>
-          <button onClick={() => openModal(1)}>
-            <img className="w-6 h-6 overflow-hidden" alt="" src={AddSquare} />
-            {isModalOpen === 1 && (
-              <div
-                ref={modalRef}
-                className="fixed w-full h-[100vh] inset-0 flex bg-black  items-center justify-center bg-opacity-50"
-                style={{ zIndex: '1' }}
-              >
-                <Create />
+    <>
+      <Resizable
+        bounds="window"
+        defaultSize={{ width: 385, height: '100%' }}
+        enable={{
+          top: false,
+          right: true,
+          bottom: false,
+          left: false,
+          topRight: false,
+          bottomRight: false,
+          bottomLeft: false,
+          topLeft: false
+        }}
+        minWidth={250}
+        maxWidth={420}
+      >
+        <div className="h-[100vh] [background:linear-gradient(180deg,_#e3e5e8,_#f2f3f5_6.7%,_#f2f3f5_94.1%,_#e3e5e8)]">
+          <div className="h-[90px] flex flex-wrap gap-[92px] justify-center">
+            <div className="mt-6">
+              <b className="text-3xl">Chats</b>
+            </div>
+            <div className="flex justify-center gap-2">
+              <button className="">
+                <img className="w-6 h-6 overflow-hidden" alt="" src={NotificationIcon} />
+              </button>
+              <button className="">
+                <img className="w-6 h-6 overflow-hidden" alt="" src={BoxSearch} />
+              </button>
+              <button onClick={() => openModal(1)}>
+                <img className="w-6 h-6 overflow-hidden" alt="" src={AddSquare} />
+                {isModalOpen === 1 && (
+                  <div
+                    ref={modalRef}
+                    className="fixed h-[100vh] inset-0 flex bg-black  items-center justify-center bg-opacity-50"
+                    style={{ zIndex: '1' }}
+                  >
+                    <Create />
+                  </div>
+                )}
+              </button>
+            </div>
+          </div>
+          <div className="box-border border-t-[1px] border-solid border-[#D1D3D7]" />
+          <div className="w-full h-[76vh] justify-center">
+            {currentChatType.value === 'Channels' && <ChannelsList />}
+            {currentChatType.value === 'Worlds' && <WorldsList />}
+          </div>
+          <div className="absolute bottom-0 w-full h-[70px] gap-4 flex flex-wrap justify-center bg-[#ECECEC]">
+            <img className="rounded-[38px] mt-3 w-11 h-11 object-cover" alt="" src={userThumbnail} />
+            <div className="mt-3">
+              <p className="font-bold text-[#3F3960]">{userName}</p>
+              <div className="flex flex-wrap gap-1">
+                <div
+                  className={`${isToggleOn ? 'bg-[#57C290]' : 'bg-[#b3b5b9]'} rounded-[50%] mt-[4.2px] w-2.5 h-2.5`}
+                />
+                <p className="h-4 text-xs text-[#787589]">Active now</p>
               </div>
-            )}
-          </button>
-        </div>
-      </div>
-      <div className="box-border w-[320px] border-t-[1px] border-solid border-[#D1D3D7]" />
-      <div className="box-border w-[320px] border-t-[1px] border-solid border-[#D1D3D7]" />
-      <ChannelsList />
-      <div className="absolute bottom-0 w-[320px] h-[70px] gap-4 flex flex-wrap justify-center bg-[#ECECEC]">
-        <img className="rounded-[38px] mt-3 w-11 h-11 object-cover" alt="" src={userThumbnail} />
-        <div className="mt-3">
-          <p className="font-bold text-[#3F3960]">{userName}</p>
-          <div className="flex flex-wrap gap-1">
-            <div className={`${isToggleOn ? 'bg-[#57C290]' : 'bg-[#b3b5b9]'} rounded-[50%] mt-[4.2px] w-2.5 h-2.5`} />
-            <p className="h-4 text-xs text-[#787589]">Active now</p>
+            </div>
+            <label className="cursor-pointer mt-[24px]">
+              <div className="relative">
+                <input
+                  type="checkbox"
+                  className="hidden"
+                  checked={checked}
+                  onChange={handleToggle}
+                  onClick={switchToggle}
+                />
+                <div
+                  className={`toggle__line w-10 h-5  rounded-full shadow-inner ${
+                    checked ? 'bg-[#3F3960]' : 'bg-gray-400'
+                  }`}
+                ></div>
+                <div
+                  className={`toggle__dot absolute w-4 h-4 bg-white rounded-full shadow inset-y-[2px] inset-x-[2px] ${
+                    checked ? 'translate-x-5' : ''
+                  }`}
+                ></div>
+              </div>
+            </label>
+            <button className="">
+              <img className="w-6 h-6 overflow-hidden" alt="" src={SettingIcon} />
+            </button>
           </div>
         </div>
-        <label className="cursor-pointer mt-[24px]">
-          <div className="relative">
-            <input
-              type="checkbox"
-              className="hidden"
-              checked={checked}
-              onChange={handleToggle}
-              onClick={switchToggle}
-            />
-            <div
-              className={`toggle__line w-10 h-5  rounded-full shadow-inner ${checked ? 'bg-[#3F3960]' : 'bg-gray-400'}`}
-            ></div>
-            <div
-              className={`toggle__dot absolute w-4 h-4 bg-white rounded-full shadow inset-y-[2px] inset-x-[2px] ${
-                checked ? 'translate-x-5' : ''
-              }`}
-            ></div>
-          </div>
-        </label>
-        <button className="">
-          <img className="w-6 h-6 overflow-hidden" alt="" src={SettingIcon} />
-        </button>
-      </div>
-    </div>
+      </Resizable>
+    </>
   )
 }

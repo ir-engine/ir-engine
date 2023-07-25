@@ -91,28 +91,26 @@ export const ChannelsList = () => {
   }
 
   return (
-    <div className="w-[320px] h-[70vh] overflow-scroll hide-scroll mt-[8px]">
-      <div className="w-[320px] mb-[42px] flex flex-wrap gap-[0.5px]">
-        <div className="w-[330px] flex justify-center items-center">
-          <button
-            className="cursor-pointer rounded-[20px] p-0 bg-[#3F3960] w-[120px] h-8"
-            onClick={() => isDrawerOpen.set(true)}
-          >
-            <div className="[text-align-last:center] rounded-2xl text-[16px] text-sm font-segoe-ui text-white text-left">
-              CREATE CHANNEL
-            </div>
-          </button>
-          {isDrawerOpen.value && (
-            <div className="fixed inset-0 flex z-50">
-              <div className="bg-gray-500 bg-opacity-50 flex-1" onClick={() => isDrawerOpen.set(false)}></div>
-              <DrawerCreateChannel />
-            </div>
-          )}
-        </div>
-        {channels.map((channel, index) => (
-          <RenderChannel channel={channel} key={index} />
-        ))}
+    <>
+      <div className="w-full h-[10vh] flex justify-center items-center">
+        <button
+          className="cursor-pointer rounded-[20px] p-0 bg-[#3F3960] w-[120px] h-8"
+          onClick={() => isDrawerOpen.set(true)}
+        >
+          <div className="[text-align-last:center] rounded-2xl text-[16px] text-sm font-segoe-ui text-white text-left">
+            CREATE CHANNEL
+          </div>
+        </button>
+        {isDrawerOpen.value && (
+          <div className="fixed inset-0 flex z-50">
+            <div className="bg-gray-500 bg-opacity-50 flex-1" onClick={() => isDrawerOpen.set(false)}></div>
+            <DrawerCreateChannel />
+          </div>
+        )}
       </div>
-    </div>
+      {channels.map((channel, index) => (
+        <RenderChannel channel={channel} key={index} />
+      ))}
+    </>
   )
 }

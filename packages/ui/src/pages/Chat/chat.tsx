@@ -75,7 +75,7 @@ export function ChatPage() {
 
   return (
     <div className="w-full container mx-auto pointer-events-auto">
-      <div className="w-full h-[100%] flex bg-slate-600 pointer">
+      <div className="w-full h-[100vh] flex bg-[#E3E5E8] pointer">
         <ChatSection />
         <MessageContainer />
         <Media />

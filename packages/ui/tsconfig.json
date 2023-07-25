@@ -39,5 +39,5 @@
     "../server-core/src/",
     "./src/**/*.ts",
     "./src/**/*.tsx"
-  ]
+, "src/components/Chat/VideoCall.tsx"  ]
 }
