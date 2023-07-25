@@ -307,7 +307,7 @@ export class LocationService<T = LocationType, ServiceParams extends Params = Lo
       }
     }
 
-    return await super._remove(id)
+    return await super._remove(id, params)
   }
 
   async makeLobby(trx: Knex.Transaction, selfUser?: UserInterface) {
