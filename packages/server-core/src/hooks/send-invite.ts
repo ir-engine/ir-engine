@@ -52,14 +52,14 @@ async function generateEmail(
   inviterUsername: string,
   targetObjectId?: string
 ): Promise<void> {
-  let groupName, locationName
+  let channelName, locationName
   const hashLink = getInviteLink(inviteType, result.id, result.passcode)
 
   const templatePath = path.join(emailAccountTemplatesPath, `magiclink-email-invite-${inviteType}.pug`)
 
   if (inviteType === 'channel') {
     const channel = await app.service('channel').get(targetObjectId!)
-    groupName = channel.name
+    channelName = channel.name
   }
 
   if (inviteType === 'location') {
@@ -76,7 +76,7 @@ async function generateEmail(
   const compiledHTML = pug.compileFile(templatePath)({
     logo: config.client.logo,
     title: config.client.title,
-    groupName: groupName,
+    channelName: channelName,
     locationName: locationName,
     inviterUsername: inviterUsername,
     hashLink
@@ -100,11 +100,11 @@ async function generateSMS(
   inviterUsername: string,
   targetObjectId?: string
 ): Promise<void> {
-  let groupName, locationName
+  let channelName, locationName
   const hashLink = getInviteLink(inviteType, result.id, result.passcode)
   if (inviteType === 'channel') {
     const channel = await app.service('channel').get(targetObjectId!)
-    groupName = channel.name
+    channelName = channel.name
   }
 
   if (inviteType === 'location') {
@@ -122,7 +122,7 @@ async function generateSMS(
     .compileFile(templatePath)({
       title: config.client.title,
       inviterUsername: inviterUsername,
-      groupName: groupName,
+      channelName: channelName,
       locationName: locationName,
       hashLink
     })

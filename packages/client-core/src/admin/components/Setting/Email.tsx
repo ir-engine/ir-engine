@@ -208,9 +208,9 @@ const Email = () => {
           />
 
           <InputText
-            name="group"
-            label={t('admin:components.setting.group')}
-            value={subject?.value?.group || ''}
+            name="channel"
+            label={t('admin:components.setting.channel')}
+            value={subject?.value?.channel || ''}
             onChange={(e) => handleUpdateSubject(e, 'channel')}
           />
 

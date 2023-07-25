@@ -23,12 +23,13 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { HookContext } from '@feathersjs/feathers/lib'
+import { HookContext, Paginated } from '@feathersjs/feathers/lib'
 import assert from 'assert'
 
 import { UserInterface } from '@etherealengine/common/src/interfaces/User'
 import { destroyEngine } from '@etherealengine/engine/src/ecs/classes/Engine'
 
+import { userApiKeyPath, UserApiKeyType } from '@etherealengine/engine/src/schemas/user/user-api-key.schema'
 import { Application } from '../../declarations'
 import { createFeathersKoaApp } from '../createApp'
 import { UnauthorizedException } from '../util/exceptions/exception'
@@ -65,11 +66,13 @@ describe('verify-scope', () => {
 
     user = await app.service('user').get(user.id, { user })
 
-    user.apiKey = await app.service('user-api-key').Model.findOne({
-      where: {
+    const user1ApiKeys = (await app.service(userApiKeyPath).find({
+      query: {
         userId: user.id
       }
-    })
+    })) as Paginated<UserApiKeyType>
+
+    user.apiKey = user1ApiKeys.data.length > 0 ? user1ApiKeys.data[0] : user.apiKey
 
     const verifyLocationReadScope = verifyScope('location', 'read')
     const hookContext = mockUserHookContext(user, app)
@@ -121,11 +124,13 @@ describe('verify-scope', () => {
 
     user = await app.service('user').get(user.id, { user })
 
-    user.apiKey = await app.service('user-api-key').Model.findOne({
-      where: {
+    const user1ApiKeys = (await app.service(userApiKeyPath).find({
+      query: {
         userId: user.id
       }
-    })
+    })) as Paginated<UserApiKeyType>
+
+    user.apiKey = user1ApiKeys.data.length > 0 ? user1ApiKeys.data[0] : user.apiKey
 
     const verifyLocationReadScope = verifyScope('location', 'read')
     const hookContext = mockUserHookContext(user, app)
@@ -157,11 +162,13 @@ describe('verify-scope', () => {
 
     user = await app.service('user').get(user.id, { user })
 
-    user.apiKey = await app.service('user-api-key').Model.findOne({
-      where: {
+    const user1ApiKeys = (await app.service(userApiKeyPath).find({
+      query: {
         userId: user.id
       }
-    })
+    })) as Paginated<UserApiKeyType>
+
+    user.apiKey = user1ApiKeys.data.length > 0 ? user1ApiKeys.data[0] : user.apiKey
 
     const verifyLocationReadScope = verifyScope('location', 'read')
     const hookContext = mockUserHookContext(user, app)
