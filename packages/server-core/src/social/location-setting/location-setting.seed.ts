@@ -82,8 +82,13 @@ export async function seed(knex: Knex): Promise<void> {
     // Deletes ALL existing entries
     await knex(locationSettingPath).del()
 
-    // Inserts seed entries
-    await knex(locationSettingPath).insert(seedData)
+    try {
+      await knex.raw('SET FOREIGN_KEY_CHECKS=0')
+      // Inserts seed entries
+      await knex(locationSettingPath).insert(seedData)
+    } finally {
+      await knex.raw('SET FOREIGN_KEY_CHECKS=1')
+    }
   } else {
     const existingData = await knex(locationSettingPath).count({ count: '*' })
 

@@ -26,6 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import type { Knex } from 'knex'
 
 import { locationSettingPath } from '@etherealengine/engine/src/schemas/social/location-setting.schema'
+import { locationTypePath } from '@etherealengine/engine/src/schemas/social/location-type.schema'
 import { locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
 
 /**
@@ -59,7 +60,12 @@ export async function up(knex: Knex): Promise<void> {
       table.dateTime('updatedAt').notNullable()
 
       table.foreign('locationId').references('id').inTable(locationPath).onDelete('CASCADE').onUpdate('CASCADE')
-      table.foreign('locationType').references('type').inTable('location-type').onDelete('SET NULL').onUpdate('CASCADE')
+      table
+        .foreign('locationType')
+        .references('type')
+        .inTable(locationTypePath)
+        .onDelete('SET NULL')
+        .onUpdate('CASCADE')
     })
   }
 }
