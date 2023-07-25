@@ -23,7 +23,35 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-export interface UserApiKey {
-  id: string
-  token: string
+import { userApiKeyMethods, userApiKeyPath } from '@etherealengine/engine/src/schemas/user/user-api-key.schema'
+
+import { Application } from '../../../declarations'
+import { UserApiKeyService } from './user-api-key.class'
+import userApiKeyDocs from './user-api-key.docs'
+import hooks from './user-api-key.hooks'
+
+declare module '@etherealengine/common/declarations' {
+  interface ServiceTypes {
+    [userApiKeyPath]: UserApiKeyService
+  }
+}
+
+export default (app: Application): void => {
+  const options = {
+    name: userApiKeyPath,
+    paginate: app.get('paginate'),
+    Model: app.get('knexClient'),
+    multi: true
+  }
+
+  app.use(userApiKeyPath, new UserApiKeyService(options, app), {
+    // A list of all methods this service exposes externally
+    methods: userApiKeyMethods,
+    // You can add additional custom events to be sent to clients here
+    events: [],
+    docs: userApiKeyDocs
+  })
+
+  const service = app.service(userApiKeyPath)
+  service.hooks(hooks)
 }

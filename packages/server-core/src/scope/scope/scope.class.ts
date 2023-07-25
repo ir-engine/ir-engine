@@ -29,6 +29,7 @@ import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
 import { AdminScope as AdminScopeInterface } from '@etherealengine/common/src/interfaces/AdminScope'
 
 import { Application } from '../../../declarations'
+import { createScopeTypeModel } from './scope.model'
 
 export type AdminScopeDataType = AdminScopeInterface
 
@@ -49,7 +50,7 @@ export class Scope<T = AdminScopeDataType> extends Service<T> {
       limit: limit,
       include: [
         {
-          model: (this.app.service('scope-type') as any).Model,
+          model: createScopeTypeModel(this.app),
           required: false
         },
         {

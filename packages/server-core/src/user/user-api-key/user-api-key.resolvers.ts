@@ -23,35 +23,39 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { DataTypes, Model, Sequelize } from 'sequelize'
+// For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
+import { resolve } from '@feathersjs/schema'
+import { v4 } from 'uuid'
 
-import { ScopeTypeInterface } from '@etherealengine/common/src/dbmodels/ScopeType'
+import { UserApiKeyQuery, UserApiKeyType } from '@etherealengine/engine/src/schemas/user/user-api-key.schema'
+import type { HookContext } from '@etherealengine/server-core/declarations'
 
-import { Application } from '../../../declarations'
+import { getDateTimeSql } from '../../util/get-datetime-sql'
 
-export default (app: Application) => {
-  const sequelizeClient: Sequelize = app.get('sequelizeClient')
-  const ScopeType = sequelizeClient.define<Model<ScopeTypeInterface>>(
-    'scopeType',
-    {
-      type: {
-        type: DataTypes.STRING,
-        allowNull: false,
-        primaryKey: true,
-        unique: true
-      }
-    },
-    {
-      hooks: {
-        beforeCount(options: any): void {
-          options.raw = true
-        }
-      }
-    }
-  )
-  ;(ScopeType as any).associate = (models: any): void => {
-    ;(ScopeType as any).hasMany(models.scope, { foreignKey: 'type' })
-  }
+export const userApiKeyResolver = resolve<UserApiKeyType, HookContext>({})
 
-  return ScopeType
-}
+export const userApiKeyExternalResolver = resolve<UserApiKeyType, HookContext>({})
+
+export const userApiKeyDataResolver = resolve<UserApiKeyType, HookContext>({
+  id: async () => {
+    return v4()
+  },
+  token: async () => {
+    return v4()
+  },
+  createdAt: getDateTimeSql,
+  updatedAt: getDateTimeSql
+})
+
+export const userApiKeyPatchResolver = resolve<UserApiKeyType, HookContext>({
+  id: async () => {
+    return v4()
+  },
+  token: async () => {
+    return v4()
+  },
+  createdAt: getDateTimeSql,
+  updatedAt: getDateTimeSql
+})
+
+export const userApiKeyQueryResolver = resolve<UserApiKeyQuery, HookContext>({})

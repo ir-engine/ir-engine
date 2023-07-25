@@ -85,7 +85,7 @@
             "type": "node-terminal",
         },
         {
-            "command": "cd packages/engine && npm run test",
+            "command": "npm run test",
             "name": "npm run test",
             "request": "launch",
             "type": "node-terminal",

@@ -31,6 +31,11 @@ export interface UserInterface {
   did: string
 }
 
+export interface UserApiKeyInterface {
+  id: string
+  token: string
+}
+
 export interface AvatarInterface {
   id: string
   name: string

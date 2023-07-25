@@ -23,10 +23,36 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { UserId } from './UserId'
+import { scopeTypeMethods, scopeTypePath } from '@etherealengine/engine/src/schemas/scope/scope-type.schema'
 
-export interface UserApiKey {
-  id: string
-  token: string
-  userId: UserId
+import { Application } from '../../../declarations'
+import { ScopeTypeService } from './scope-type.class'
+import scopeTypeDocs from './scope-type.docs'
+import hooks from './scope-type.hooks'
+
+declare module '@etherealengine/common/declarations' {
+  interface ServiceTypes {
+    [scopeTypePath]: ScopeTypeService
+  }
+}
+
+export default (app: Application): void => {
+  const options = {
+    name: scopeTypePath,
+    id: 'type',
+    paginate: app.get('paginate'),
+    Model: app.get('knexClient'),
+    multi: true
+  }
+
+  app.use(scopeTypePath, new ScopeTypeService(options), {
+    // A list of all methods this service exposes externally
+    methods: scopeTypeMethods,
+    // You can add additional custom events to be sent to clients here
+    events: [],
+    docs: scopeTypeDocs
+  })
+
+  const service = app.service(scopeTypePath)
+  service.hooks(hooks)
 }
