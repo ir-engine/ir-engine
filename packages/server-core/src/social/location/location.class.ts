@@ -183,7 +183,7 @@ export class LocationService<T = LocationType, ServiceParams extends Params = Lo
     } catch (err) {
       logger.error(err)
       await trx.rollback()
-      if (err.errors && err.errors[0].message === 'slugifiedName must be unique') {
+      if (err.code === 'ER_DUP_ENTRY') {
         throw new Error('Name is in use.')
       }
       throw err
