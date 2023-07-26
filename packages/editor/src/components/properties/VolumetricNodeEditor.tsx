@@ -26,14 +26,14 @@ Ethereal Engine. All Rights Reserved.
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { AllFileTypes } from '@etherealengine/engine/src/assets/constants/fileTypes'
+import { VolumetricFileTypes } from '@etherealengine/engine/src/assets/constants/fileTypes'
 import { useComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { VolumetricComponent } from '@etherealengine/engine/src/scene/components/VolumetricComponent'
 import { PlayMode } from '@etherealengine/engine/src/scene/constants/PlayMode'
 
 import VideocamIcon from '@mui/icons-material/Videocam'
 
-import { SupportedFileTypes } from '../../constants/AssetTypes'
+import { ItemTypes } from '../../constants/AssetTypes'
 import ArrayInputGroup from '../inputs/ArrayInputGroup'
 import BooleanInput from '../inputs/BooleanInput'
 import { Button } from '../inputs/Button'
@@ -117,8 +117,8 @@ export const VolumetricNodeEditor: EditorComponentType = (props) => {
         values={volumetricComponent.paths.value}
         onChange={updateProperty(VolumetricComponent, 'paths')}
         label={t('editor:properties.media.paths')}
-        acceptFileTypes={AllFileTypes}
-        itemType={SupportedFileTypes}
+        acceptFileTypes={VolumetricFileTypes}
+        itemType={ItemTypes.Volumetrics}
       ></ArrayInputGroup>
 
       <InputGroup name="Play Mode" label={t('editor:properties.media.playmode')}>
