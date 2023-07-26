@@ -23,13 +23,13 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { IGraphApi, makeGraphApi } from '../Graphs/Graph.js'
+import { IGraph, makeGraphApi } from '../Graphs/Graph.js'
 import { NodeConfiguration } from './Node.js'
 import { IFunctionNodeDefinition, IHasTriggered, SocketNames, SocketsDefinition } from './NodeDefinitions.js'
 import { makeOrGenerateSockets } from './nodeFactory.js'
 import { NodeConfigurationDescription } from './Registry/NodeDescription.js'
 
-const makeEmptyGraph = (): IGraphApi => {
+const makeEmptyGraph = (): IGraph => {
   return makeGraphApi({
     dependencies: {},
     values: {}
@@ -59,7 +59,7 @@ export const testExec = <
   configuration?: NodeConfiguration
   /** Simulated input values the input sockets have */
   nodeInputVals?: SocketValues<TInput>
-  makeGraph?: () => IGraphApi
+  makeGraph?: () => IGraph
 }): SocketValues<TOutput> => {
   const outputs: SocketValues<TOutput> = {}
 
@@ -107,7 +107,7 @@ export const generateTriggerTester = <TInput extends SocketsDefinition, TOutput 
     /** Triggered function from the node defintion */
     /** Runtime configuration of the node */
     configuration?: NodeConfiguration
-    makeGraph?: () => IGraphApi
+    makeGraph?: () => IGraph
   } & Pick<IHasTriggered<TInput, TOutput, TState>, 'initialState' | 'triggered'> & {
       out: TOutput
     },
@@ -180,7 +180,7 @@ function getOutputSocketKeys<TSockets extends SocketsDefinition>({
 }: {
   outputs: TSockets
   config: NodeConfiguration
-  graph: IGraphApi
+  graph: IGraph
 }): SocketNames<TSockets>[] {
   const sockets = makeOrGenerateSockets(outputs, config, graph)
 

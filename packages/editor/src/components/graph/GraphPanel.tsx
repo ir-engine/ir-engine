@@ -23,56 +23,16 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { useHookstate } from '@hookstate/core'
-import React, { useEffect } from 'react'
-import AutoSizer from 'react-virtualized-auto-sizer'
-
-import { BehaveGraphComponent } from '@etherealengine/engine/src/behave-graph/components/BehaveGraphComponent'
-import { getMutableComponent, hasComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
-import { getMutableState } from '@etherealengine/hyperflux'
-
-import { SelectionState } from '../../services/SelectionServices'
+import React from 'react'
 import hierarchyStyles from '../hierarchy/styles.module.scss'
-import { Flow } from './ee-flow'
-
-import { useForceUpdate } from '@etherealengine/common/src/utils/useForceUpdate'
-import { UndefinedEntity } from '@etherealengine/engine/src/ecs/classes/Entity'
-import 'reactflow/dist/style.css'
-import './ee-flow/styles.css'
+import BehaveFlow from './BehaveFlow'
 
 export const GraphPanel = () => {
-  const selectionState = useHookstate(getMutableState(SelectionState))
-  const entities = selectionState.selectedEntities.value
-  const entity = entities[entities.length - 1]
-  const validEntity = typeof entity === 'number' && hasComponent(entity, BehaveGraphComponent)
-  const graphState = getMutableComponent(validEntity ? entity : UndefinedEntity, BehaveGraphComponent)
-  const forceUpdate = useForceUpdate()
-
-  // force react to re-render upon any object changing
-  useEffect(() => {
-    forceUpdate()
-  }, [selectionState.objectChangeCounter])
-
   return (
     <>
       <div className={hierarchyStyles.panelContainer}>
         <div className={hierarchyStyles.panelSection}>
-          <AutoSizer>
-            {({ width, height }) => (
-              <div style={{ width, height }}>
-                {validEntity && (
-                  <Flow
-                    initialGraph={graphState?.value?.graph ?? {}}
-                    examples={{}}
-                    onChangeGraph={(newGraph) => {
-                      if (!graphState.graph) return
-                      graphState.graph.set(newGraph)
-                    }}
-                  />
-                )}
-              </div>
-            )}
-          </AutoSizer>
+          <BehaveFlow />
         </div>
       </div>
     </>

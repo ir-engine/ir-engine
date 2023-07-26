@@ -23,12 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { FunctionNode, IGraphApi, NodeDescription, Socket } from '../../../../'
+import { FunctionNode, Socket } from '../../../../'
 
 export class VecElements<T> extends FunctionNode {
   constructor(
     description: NodeDescription,
-    graph: IGraphApi,
+    graph: IGraph,
     valueTypeName: string,
     elementNames: string[] = ['x', 'y', 'z', 'w'],
     toArray: (value: T, array: number[], offset: number) => void

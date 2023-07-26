@@ -23,9 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+export type LogSeverity = 'verbose' | 'info' | 'warning' | 'error'
 export interface ILogger {
-  verbose(text: string): void
-  info(text: string): void
-  warn(text: string): void
-  error(text: string): void
+  log(severity: LogSeverity, text: string): void
 }

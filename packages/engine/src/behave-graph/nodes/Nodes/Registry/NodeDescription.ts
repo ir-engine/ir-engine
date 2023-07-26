@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { IGraphApi } from '../../Graphs/Graph.js'
+import { IGraph } from '../../Graphs/Graph.js'
 import { NodeConfiguration } from '../Node.js'
 import { IHasNodeFactory, INodeDefinition, NodeFactory } from '../NodeDefinitions.js'
 import { INode } from '../NodeInstance.js'
@@ -49,7 +49,7 @@ export interface INodeDescription {
   readonly configuration: NodeConfigurationDescription
 }
 
-export type NodeFactoryWithDescription = (entry: NodeDescription, graph: IGraphApi, config: NodeConfiguration) => INode
+export type NodeFactoryWithDescription = (entry: NodeDescription, graph: IGraph, config: NodeConfiguration) => INode
 
 export class NodeDescription implements INodeDescription, IHasNodeFactory {
   nodeFactory: NodeFactory

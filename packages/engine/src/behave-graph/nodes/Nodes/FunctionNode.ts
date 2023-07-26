@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { Assert } from '../Diagnostics/Assert.js'
-import { IGraphApi } from '../Graphs/Graph.js'
+import { IGraph } from '../Graphs/Graph.js'
 import { Socket } from '../Sockets/Socket.js'
 import { Node, NodeConfiguration } from './Node.js'
 import {
@@ -41,7 +41,7 @@ import { NodeDescription } from './Registry/NodeDescription.js'
 export abstract class FunctionNode extends Node<NodeType.Function> implements IFunctionNode {
   constructor(
     description: NodeDescription,
-    graph: IGraphApi,
+    graph: IGraph,
     inputs: Socket[] = [],
     outputs: Socket[] = [],
     public readonly exec: (node: INode) => void,

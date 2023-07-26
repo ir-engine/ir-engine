@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { Assert } from '../Diagnostics/Assert.js'
 import { Engine } from '../Execution/Engine.js'
-import { IGraphApi } from '../Graphs/Graph.js'
+import { IGraph } from '../Graphs/Graph.js'
 import { Socket } from '../Sockets/Socket.js'
 import { Node, NodeConfiguration } from './Node.js'
 import { IEventNodeDefinition, NodeCategory } from './NodeDefinitions.js'
@@ -36,7 +36,7 @@ import { NodeDescription } from './Registry/NodeDescription.js'
 export class EventNode extends Node<NodeType.Event> implements IEventNode {
   constructor(
     description: NodeDescription,
-    graph: IGraphApi,
+    graph: IGraph,
     inputs: Socket[] = [],
     outputs: Socket[] = [],
     configuration: NodeConfiguration = {}
@@ -74,7 +74,7 @@ export class EventNode extends Node<NodeType.Event> implements IEventNode {
 export class EventNode2 extends EventNode {
   constructor(props: {
     description: NodeDescription
-    graph: IGraphApi
+    graph: IGraph
     inputs?: Socket[]
     outputs?: Socket[]
     configuration?: NodeConfiguration

@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { IGraphApi } from '../Graphs/Graph.js'
+import { IGraph } from '../Graphs/Graph.js'
 import { Socket } from '../Sockets/Socket.js'
 import { INode, NodeType } from './NodeInstance.js'
 import { readInputFromSockets, writeOutputsToSocket } from './NodeSockets.js'
@@ -40,7 +40,7 @@ export abstract class Node<TNodeType extends NodeType> implements INode {
   // public typeName: string;
   public nodeType: TNodeType
   public readonly otherTypeNames: string[] | undefined
-  public graph: IGraphApi
+  public graph: IGraph
   public label?: string
   public metadata: any
   public readonly configuration: NodeConfiguration

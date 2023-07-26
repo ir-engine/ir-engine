@@ -25,45 +25,81 @@ Ethereal Engine. All Rights Reserved.
 
 /* eslint-disable no-console */
 
+/* eslint-disable no-console */
+
 import { EventEmitter } from '../Events/EventEmitter.js'
+import { LogSeverity } from '../index.js'
+
+export enum LogLevel {
+  Verbose = 0,
+  Info = 1,
+  Warning = 2,
+  Error = 3
+}
+
+export function logSeverityToLevel(severity: LogSeverity) {
+  switch (severity) {
+    case 'verbose':
+      return LogLevel.Verbose
+    case 'info':
+      return LogLevel.Info
+    case 'warning':
+      return LogLevel.Warning
+    case 'error':
+      return LogLevel.Error
+  }
+}
+export enum PrefixStyle {
+  None = 0,
+  Time = 1
+}
+
+const Reset = '\x1b[0m'
+const FgRed = '\x1b[31m'
+const BgYellow = '\x1b[43m'
+const Dim = '\x1b[2m'
+
+export type LogMessage = { severity: LogSeverity; text: string }
 
 export class Logger {
-  public static readonly onVerbose = new EventEmitter<string>()
-  public static readonly onInfo = new EventEmitter<string>()
-  public static readonly onWarn = new EventEmitter<string>()
-  public static readonly onError = new EventEmitter<string>()
+  static logLevel = LogLevel.Info
+  static prefixStyle = PrefixStyle.None
+
+  public static readonly onLog = new EventEmitter<LogMessage>()
 
   static {
-    const prefix = () => {
-      return new Date().toLocaleTimeString().padStart(11, '0')
+    const prefix = (): string => {
+      switch (Logger.prefixStyle) {
+        case PrefixStyle.None:
+          return ''
+        case PrefixStyle.Time:
+          return new Date().toLocaleTimeString().padStart(11, '0') + ' '
+      }
     }
-    Logger.onVerbose.addListener((text: string) => {
-      console.log(prefix() + ` VERB:  ${text}`)
+
+    Logger.onLog.addListener((logMessage: LogMessage) => {
+      if (Logger.logLevel > logSeverityToLevel(logMessage.severity)) return
+      console.log(prefix() + logMessage.text)
     })
-    Logger.onInfo.addListener((text: string) => {
-      console.log(prefix() + ` INFO:  ${text}`)
-    })
-    Logger.onWarn.addListener((text: string) => {
-      console.warn(prefix() + ` WARN:  ${text}`)
-    })
-    Logger.onError.addListener((text: string) => {
-      console.error(prefix() + ` ERR:  ${text}`)
-    })
+  }
+
+  static log(severity: LogSeverity, text: string) {
+    this.onLog.emit({ severity, text })
   }
 
   static verbose(text: string) {
-    this.onVerbose.emit(text)
+    this.onLog.emit({ severity: 'verbose', text })
   }
 
   static info(text: string) {
-    this.onInfo.emit(text)
+    this.onLog.emit({ severity: 'info', text })
   }
 
-  static warn(text: string) {
-    this.onWarn.emit(text)
+  static warning(text: string) {
+    this.onLog.emit({ severity: 'warning', text })
   }
 
   static error(text: string) {
-    this.onError.emit(text)
+    this.onLog.emit({ severity: 'error', text })
   }
 }

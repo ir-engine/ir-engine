@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { Fiber } from '../../../Execution/Fiber.js'
-import { IGraphApi } from '../../../Graphs/Graph.js'
+import { IGraph } from '../../../Graphs/Graph.js'
 import { FlowNode } from '../../../Nodes/FlowNode.js'
 import { NodeDescription, NodeDescription2 } from '../../../Nodes/Registry/NodeDescription.js'
 import { Socket } from '../../../Sockets/Socket.js'
@@ -48,7 +48,7 @@ export class WaitAll extends FlowNode {
 
   constructor(
     description: NodeDescription,
-    graph: IGraphApi,
+    graph: IGraph,
     private numInputs: number
   ) {
     const inputs: Socket[] = []

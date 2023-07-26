@@ -38,7 +38,7 @@ import {
   GraphInstance,
   GraphNodes,
   GraphVariables,
-  IGraphApi,
+  IGraph,
   makeGraphApi
 } from '../Graph.js'
 import { CustomEventJSON, FlowsJSON, GraphJSON, NodeJSON, NodeParametersJSON, VariableJSON } from './GraphJSON.js'
@@ -68,7 +68,7 @@ export function readGraphFromJSON({
   const nodesJson = graphJson?.nodes ?? []
 
   if (nodesJson.length === 0) {
-    Logger.warn('readGraphFromJSON: no nodes specified')
+    Logger.warning('readGraphFromJSON: no nodes specified')
   }
 
   const graphApi = makeGraphApi({
@@ -167,7 +167,7 @@ export function readGraphFromJSON({
   }
 }
 
-function readNodeJSON({ graph, registry, nodeJson }: { graph: IGraphApi; registry: IRegistry; nodeJson: NodeJSON }) {
+function readNodeJSON({ graph, registry, nodeJson }: { graph: IGraph; registry: IRegistry; nodeJson: NodeJSON }) {
   if (nodeJson.type === undefined) {
     throw new Error('readGraphFromJSON: no type for node')
   }

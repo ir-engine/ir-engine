@@ -29,7 +29,7 @@ import {
   EasingFunctions,
   EasingModes,
   Engine,
-  IGraphApi,
+  IGraph,
   ILifecycleEventEmitter,
   NodeDescription,
   Socket,
@@ -57,7 +57,7 @@ export class EaseSceneProperty extends AsyncNode {
 
   constructor(
     description: NodeDescription,
-    graph: IGraphApi,
+    graph: IGraph,
     public readonly valueTypeName: string,
     private readonly scene: IScene,
     private readonly lifecycleEventEmitter: ILifecycleEventEmitter

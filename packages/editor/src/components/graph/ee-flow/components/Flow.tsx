@@ -26,13 +26,12 @@ Ethereal Engine. All Rights Reserved.
 import React, { useEffect, useRef } from 'react'
 import { Background, BackgroundVariant, ReactFlow } from 'reactflow'
 
-import { GraphJSON } from '@etherealengine/engine/src/behave-graph/nodes'
+import { GraphJSON, IRegistry } from '@etherealengine/engine/src/behave-graph/nodes'
 
 import { useBehaveGraphFlow } from '../hooks/useBehaveGraphFlow.js'
 import { useFlowHandlers } from '../hooks/useFlowHandlers.js'
 import { useGraphRunner } from '../hooks/useGraphRunner.js'
 import { useNodeSpecJson } from '../hooks/useNodeSpecJson.js'
-import { useRegistry } from '../hooks/useRegistry.js'
 import CustomControls from './Controls.js'
 import { NodePicker } from './NodePicker.js'
 import { Examples } from './modals/LoadModal.js'
@@ -40,12 +39,11 @@ import { Examples } from './modals/LoadModal.js'
 type FlowProps = {
   initialGraph: GraphJSON
   examples: Examples
+  registry: IRegistry
   onChangeGraph?: (nuGraph: GraphJSON) => void
 }
 
-export const Flow: React.FC<FlowProps> = ({ initialGraph: graph, examples, onChangeGraph }) => {
-  const registry = useRegistry()
-
+export const Flow: React.FC<FlowProps> = ({ initialGraph: graph, examples, registry, onChangeGraph }) => {
   const specJson = useNodeSpecJson(registry)
 
   const flowRef = useRef(null)

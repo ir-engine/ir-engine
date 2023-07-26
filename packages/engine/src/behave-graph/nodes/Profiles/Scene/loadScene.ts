@@ -24,9 +24,10 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { Group } from 'three'
-import { DRACOLoader, GLTF, GLTFLoader } from 'three-stdlib'
+import { DRACOLoader } from '../../../../assets/loaders/gltf/DRACOLoader'
+import { GLTF, GLTFLoader } from '../../../../assets/loaders/gltf/GLTFLoader'
 
-import { IScene } from './Profiles/Scene/Abstractionsne/Abstractionsne/Abstractions/IScene.js'
+import { IScene } from './Abstractions/IScene.js'
 import { ObjectMap, buildScene } from './buildScene.js'
 
 // Taken from react-three-fiber

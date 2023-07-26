@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { Assert } from '../../../Diagnostics/Assert.js'
 import { CustomEvent } from '../../../Events/CustomEvent.js'
 import { Engine } from '../../../Execution/Engine.js'
-import { IGraphApi } from '../../../Graphs/Graph.js'
+import { IGraph } from '../../../Graphs/Graph.js'
 import { EventNode2 } from '../../../Nodes/EventNode.js'
 import { NodeConfiguration } from '../../../Nodes/Node.js'
 import { NodeDescription, NodeDescription2 } from '../../../Nodes/Registry/NodeDescription.js'
@@ -48,7 +48,7 @@ export class OnCustomEvent extends EventNode2 {
 
   private readonly customEvent: CustomEvent
 
-  constructor(description: NodeDescription, graph: IGraphApi, configuration: NodeConfiguration) {
+  constructor(description: NodeDescription, graph: IGraph, configuration: NodeConfiguration) {
     const customEvent = graph.customEvents[configuration.customEventId] || new CustomEvent('-1', 'undefined')
     super({
       description,
