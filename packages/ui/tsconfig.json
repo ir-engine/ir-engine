@@ -35,9 +35,9 @@
     "./node_modules/**",
   ],
   "include": [
-    "./typings.d.ts",
+    "../../__global.d.ts",
     "../server-core/src/",
     "./src/**/*.ts",
     "./src/**/*.tsx"
-, "src/components/Chat/VideoCall.tsx"  ]
+  ]
 }
