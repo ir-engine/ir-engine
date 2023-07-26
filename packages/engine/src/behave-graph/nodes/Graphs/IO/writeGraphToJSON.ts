@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { ValueTypeMap } from '../../Values/ValueTypeMap.js'
+import { IRegistry } from '../../Registry.js'
 import { GraphInstance } from '../Graph.js'
 import {
   CustomEventJSON,
@@ -36,7 +36,7 @@ import {
   VariableJSON
 } from './GraphJSON.js'
 
-export function writeGraphToJSON(graph: GraphInstance, valuesRegistry: ValueTypeMap): GraphJSON {
+export function writeGraphToJSON(graph: GraphInstance, registry: IRegistry): GraphJSON {
   const graphJson: GraphJSON = {}
 
   if (Object.keys(graph.metadata).length > 0) {
@@ -78,7 +78,7 @@ export function writeGraphToJSON(graph: GraphInstance, valuesRegistry: ValueType
       valueTypeName: variable.valueTypeName,
       name: variable.name,
       id: variable.id,
-      initialValue: valuesRegistry[variable.valueTypeName]?.serialize(variable.initialValue)
+      initialValue: registry.values[variable.valueTypeName]?.serialize(variable.initialValue)
     }
     if (variable.label.length > 0) {
       variableJson.label = variable.label
@@ -120,7 +120,7 @@ export function writeGraphToJSON(graph: GraphInstance, valuesRegistry: ValueType
 
       if (inputSocket.links.length === 0) {
         parameterJson = {
-          value: valuesRegistry[inputSocket.valueTypeName]?.serialize(inputSocket.value)
+          value: registry.values[inputSocket.valueTypeName]?.serialize(inputSocket.value)
         }
       } else if (inputSocket.links.length === 1) {
         const link = inputSocket.links[0]

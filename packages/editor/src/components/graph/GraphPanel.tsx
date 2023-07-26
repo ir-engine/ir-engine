@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { useHookstate } from '@hookstate/core'
-import React from 'react'
+import React, { useEffect } from 'react'
 import AutoSizer from 'react-virtualized-auto-sizer'
 
 import { BehaveGraphComponent } from '@etherealengine/engine/src/behave-graph/components/BehaveGraphComponent'
@@ -35,6 +35,8 @@ import { SelectionState } from '../../services/SelectionServices'
 import hierarchyStyles from '../hierarchy/styles.module.scss'
 import { Flow } from './ee-flow'
 
+import { useForceUpdate } from '@etherealengine/common/src/utils/useForceUpdate'
+import { UndefinedEntity } from '@etherealengine/engine/src/ecs/classes/Entity'
 import 'reactflow/dist/style.css'
 import './ee-flow/styles.css'
 
@@ -43,10 +45,13 @@ export const GraphPanel = () => {
   const entities = selectionState.selectedEntities.value
   const entity = entities[entities.length - 1]
   const validEntity = typeof entity === 'number' && hasComponent(entity, BehaveGraphComponent)
-  let graphState
-  if (validEntity) {
-    graphState = getMutableComponent(entity, BehaveGraphComponent)
-  }
+  const graphState = getMutableComponent(validEntity ? entity : UndefinedEntity, BehaveGraphComponent)
+  const forceUpdate = useForceUpdate()
+
+  // force react to re-render upon any object changing
+  useEffect(() => {
+    forceUpdate()
+  }, [selectionState.objectChangeCounter])
 
   return (
     <>
@@ -57,7 +62,7 @@ export const GraphPanel = () => {
               <div style={{ width, height }}>
                 {validEntity && (
                   <Flow
-                    initialGraph={graphState!.graph.value ?? {}}
+                    initialGraph={graphState?.value?.graph ?? {}}
                     examples={{}}
                     onChangeGraph={(newGraph) => {
                       if (!graphState.graph) return

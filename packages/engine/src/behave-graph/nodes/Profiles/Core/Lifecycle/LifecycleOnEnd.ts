@@ -25,8 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { Assert } from '../../../Diagnostics/Assert.js'
 import { makeEventNodeDefinition, NodeCategory } from '../../../Nodes/NodeDefinitions.js'
-import { ILifecycleEventEmitter } from '../Profiles/Scene/Abstractionsne/Abstractions/ILifecycleEventEmitter.js'
-import { lifecycleEventEmitterDependencyKey } from './LifecycleOnStart.js'
+import { ILifecycleEventEmitter } from '../Abstractions/ILifecycleEventEmitter.js'
 
 // inspired by: https://docs.unrealengine.com/4.27/en-US/ProgrammingAndScripting/Blueprints/UserGuide/Events/
 
@@ -53,7 +52,7 @@ export const LifecycleOnEnd = makeEventNodeDefinition({
       commit('flow')
     }
 
-    const lifecycleEventEmitter = getDependency<ILifecycleEventEmitter>(lifecycleEventEmitterDependencyKey)
+    const lifecycleEventEmitter = getDependency<ILifecycleEventEmitter>('ILifecycleEventEmitter')
 
     lifecycleEventEmitter?.endEvent.addListener(onEndEvent)
 
@@ -64,7 +63,7 @@ export const LifecycleOnEnd = makeEventNodeDefinition({
   dispose: ({ state: { onEndEvent }, graph: { getDependency } }) => {
     Assert.mustBeTrue(onEndEvent !== undefined)
 
-    const lifecycleEventEmitter = getDependency<ILifecycleEventEmitter>(lifecycleEventEmitterDependencyKey)
+    const lifecycleEventEmitter = getDependency<ILifecycleEventEmitter>('ILifecycleEventEmitter')
 
     if (onEndEvent) lifecycleEventEmitter?.endEvent.removeListener(onEndEvent)
 

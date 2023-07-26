@@ -25,8 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { Assert } from '../../../Diagnostics/Assert.js'
 import { makeEventNodeDefinition, NodeCategory } from '../../../Nodes/NodeDefinitions.js'
-import { ILifecycleEventEmitter } from '../Profiles/Scene/Abstractions/ILifecycleEventEmitter.js'
-import { lifecycleEventEmitterDependencyKey } from './LifecycleOnStart.js'
+import { ILifecycleEventEmitter } from '../Abstractions/ILifecycleEventEmitter.js'
 
 type State = {
   onTickEvent?: (() => void) | undefined
@@ -57,7 +56,7 @@ export const LifecycleOnTick = makeEventNodeDefinition({
       lastTickTime = currentTime
     }
 
-    const lifecycleEventEmitter = getDependency<ILifecycleEventEmitter>(lifecycleEventEmitterDependencyKey)
+    const lifecycleEventEmitter = getDependency<ILifecycleEventEmitter>('ILifecycleEventEmitter')
 
     lifecycleEventEmitter?.tickEvent.addListener(onTickEvent)
 
@@ -68,7 +67,7 @@ export const LifecycleOnTick = makeEventNodeDefinition({
   dispose: ({ state: { onTickEvent }, graph: { getDependency } }) => {
     Assert.mustBeTrue(onTickEvent !== undefined)
 
-    const lifecycleEventEmitter = getDependency<ILifecycleEventEmitter>(lifecycleEventEmitterDependencyKey)
+    const lifecycleEventEmitter = getDependency<ILifecycleEventEmitter>('ILifecycleEventEmitter')
 
     if (onTickEvent) lifecycleEventEmitter?.tickEvent.removeListener(onTickEvent)
 

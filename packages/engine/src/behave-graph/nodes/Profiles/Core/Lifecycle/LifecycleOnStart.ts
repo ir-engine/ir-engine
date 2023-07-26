@@ -35,8 +35,6 @@ const makeInitialState = (): State => ({
   onStartEvent: undefined
 })
 
-export const lifecycleEventEmitterDependencyKey = 'lifecycleEventEmitter'
-
 export const LifecycleOnStart = makeEventNodeDefinition({
   typeName: 'lifecycle/onStart',
   label: 'On Start',
@@ -52,7 +50,7 @@ export const LifecycleOnStart = makeEventNodeDefinition({
       commit('flow')
     }
 
-    const lifecycleEventEmitter = getDependency<ILifecycleEventEmitter>(lifecycleEventEmitterDependencyKey)
+    const lifecycleEventEmitter = getDependency<ILifecycleEventEmitter>('ILifecycleEventEmitter')
 
     lifecycleEventEmitter?.startEvent.addListener(onStartEvent)
 
@@ -63,7 +61,7 @@ export const LifecycleOnStart = makeEventNodeDefinition({
   dispose: ({ state: { onStartEvent }, graph: { getDependency } }) => {
     Assert.mustBeTrue(onStartEvent !== undefined)
 
-    const lifecycleEventEmitter = getDependency<ILifecycleEventEmitter>(lifecycleEventEmitterDependencyKey)
+    const lifecycleEventEmitter = getDependency<ILifecycleEventEmitter>('ILifecycleEventEmitter')
 
     if (onStartEvent) lifecycleEventEmitter?.startEvent.removeListener(onStartEvent)
 

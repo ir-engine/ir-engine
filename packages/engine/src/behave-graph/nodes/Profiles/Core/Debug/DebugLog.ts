@@ -22,11 +22,8 @@ Original Code is the Ethereal Engine team.
 All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
 Ethereal Engine. All Rights Reserved.
 */
-
 import { makeFlowNodeDefinition, NodeCategory } from '../../../Nodes/NodeDefinitions.js'
-import { ILogger } from '../Profiles/Scene/Abstractions/ILogger.js'
-
-export const loggerDependencyKey = 'logger'
+import { ILogger } from '../Abstractions/ILogger.js'
 
 export const Log = makeFlowNodeDefinition({
   typeName: 'debug/log',
@@ -45,7 +42,7 @@ export const Log = makeFlowNodeDefinition({
   out: { flow: 'flow' },
   initialState: undefined,
   triggered: ({ read, commit, graph: { getDependency } }) => {
-    const logger = getDependency<ILogger>(loggerDependencyKey)
+    const logger = getDependency<ILogger>('ILogger')
 
     const text = read<string>('text')
     switch (read<string>('severity')) {

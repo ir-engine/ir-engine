@@ -33,7 +33,7 @@ import { getStringConversionsForValueType } from '../registerSerializersForValue
 import { OnCustomEvent } from './CustomEvents/OnCustomEvent.js'
 import { TriggerCustomEvent } from './CustomEvents/TriggerCustomEvent.js'
 import { ExpectTrue as AssertExpectTrue } from './Debug/AssertExpectTrue.js'
-import { Log as DebugLog, loggerDependencyKey } from './Debug/DebugLog.js'
+import { Log as DebugLog } from './Debug/DebugLog.js'
 import { Branch } from './Flow/Branch.js'
 import { Counter } from './Flow/Counter.js'
 import { Debounce } from './Flow/Debounce.js'
@@ -49,11 +49,9 @@ import { SwitchOnString } from './Flow/SwitchOnString.js'
 import { Throttle } from './Flow/Throttle.js'
 import { WaitAll } from './Flow/WaitAll.js'
 import { LifecycleOnEnd } from './Lifecycle/LifecycleOnEnd.js'
-import { LifecycleOnStart, lifecycleEventEmitterDependencyKey } from './Lifecycle/LifecycleOnStart.js'
+import { LifecycleOnStart } from './Lifecycle/LifecycleOnStart.js'
 import { LifecycleOnTick } from './Lifecycle/LifecycleOnTick.js'
 import { Easing } from './Logic/Easing.js'
-import { ILifecycleEventEmitter } from './Profiles/Scene/Abstractions/ILifecycleEventEmitter.js'
-import { ILogger } from './Profiles/Scene/Abstractions/ILogger.js'
 import { Delay } from './Time/Delay.js'
 import * as TimeNodes from './Time/TimeNodes.js'
 import * as BooleanNodes from './Values/BooleanNodes.js'
@@ -66,17 +64,6 @@ import * as StringNodes from './Values/StringNodes.js'
 import { StringValue } from './Values/StringValue.js'
 import { VariableGet } from './Variables/VariableGet.js'
 import { VariableSet } from './Variables/VariableSet.js'
-
-export const makeCoreDependencies = ({
-  lifecycleEmitter,
-  logger
-}: {
-  lifecycleEmitter: ILifecycleEventEmitter
-  logger: ILogger
-}) => ({
-  [lifecycleEventEmitterDependencyKey]: lifecycleEmitter,
-  [loggerDependencyKey]: logger
-})
 
 export const getCoreValuesMap = memo<ValueTypeMap>(() => {
   const valueTypes = [BooleanValue, StringValue, IntegerValue, FloatValue]

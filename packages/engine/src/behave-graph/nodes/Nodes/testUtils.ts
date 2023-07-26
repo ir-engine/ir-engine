@@ -32,7 +32,7 @@ import { NodeConfigurationDescription } from './Registry/NodeDescription.js'
 const makeEmptyGraph = (): IGraphApi => {
   return makeGraphApi({
     dependencies: {},
-    valuesTypeRegistry: {}
+    values: {}
   })
 }
 
