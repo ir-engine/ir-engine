@@ -33,7 +33,6 @@ import ConfirmDialog from '@etherealengine/client-core/src/common/components/Con
 import LoadingView from '@etherealengine/client-core/src/common/components/LoadingView'
 import {
   FileBrowserService,
-  FileBrowserServiceReceptor,
   FileBrowserState,
   FILES_PAGE_LIMIT
 } from '@etherealengine/client-core/src/common/services/FileBrowserService'
@@ -46,13 +45,7 @@ import {
   ImageConvertDefaultParms,
   ImageConvertParms
 } from '@etherealengine/engine/src/assets/constants/ImageConvertParms'
-import {
-  addActionReceptor,
-  getMutableState,
-  removeActionReceptor,
-  useHookstate,
-  useState
-} from '@etherealengine/hyperflux'
+import { getMutableState, useHookstate, useState } from '@etherealengine/hyperflux'
 
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import AutorenewIcon from '@mui/icons-material/Autorenew'
@@ -161,7 +154,6 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
 
   const openConfirm = useState(false)
   const contentToDeletePath = useState('')
-  const contentToDeleteType = useState('')
 
   const fileState = useHookstate(getMutableState(FileBrowserState))
   const filesValue = fileState.files.attach(Downgraded).value
@@ -182,20 +174,13 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
   })
 
   useEffect(() => {
-    addActionReceptor(FileBrowserServiceReceptor)
-    return () => {
-      removeActionReceptor(FileBrowserServiceReceptor)
-    }
-  }, [])
-
-  useEffect(() => {
     if (filesValue) {
       isLoading.set(false)
     }
   }, [filesValue])
 
   useEffect(() => {
-    FileBrowserService.fetchFiles(selectedDirectory.value)
+    refreshDirectory()
   }, [selectedDirectory.value])
 
   const refreshDirectory = async () => {
@@ -315,21 +300,22 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
 
   const handleConfirmDelete = (contentPath: string, type: string) => {
     contentToDeletePath.set(contentPath)
-    contentToDeleteType.set(type)
+
     openConfirm.set(true)
   }
 
   const handleConfirmClose = () => {
     contentToDeletePath.set('')
-    contentToDeleteType.set('')
+
     openConfirm.set(false)
   }
 
   const deleteContent = async (): Promise<void> => {
     if (isLoading.value) return
+    console.log('debug1', contentToDeletePath.value)
     isLoading.set(true)
     openConfirm.set(false)
-    await FileBrowserService.deleteContent(contentToDeletePath.value, contentToDeleteType.value)
+    await FileBrowserService.deleteContent(contentToDeletePath.value)
     props.onSelectionChanged({ resourceUrl: '', name: '', contentType: '' })
     await refreshDirectory()
   }
@@ -563,9 +549,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
       )}
       <ConfirmDialog
         open={openConfirm.value}
-        description={`${t('editor:dialog.confirmContentDelete')} ${
-          contentToDeleteType.value == 'folder' ? t('editor:dialog.folder') : t('editor:dialog.file')
-        }?`}
+        description={`${t('editor:dialog.confirmContentDelete')} ${contentToDeletePath.value.split('/').at(-1)} ?`}
         onClose={handleConfirmClose}
         onSubmit={deleteContent}
       />
