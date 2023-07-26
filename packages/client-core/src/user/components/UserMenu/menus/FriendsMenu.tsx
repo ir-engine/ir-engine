@@ -42,6 +42,7 @@ import Chip from '@etherealengine/ui/src/primitives/mui/Chip'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
 
+import { Channel } from '@etherealengine/common/src/interfaces/Channel'
 import { ChannelID } from '@etherealengine/common/src/interfaces/ChannelUser'
 import { useFind } from '@etherealengine/engine/src/common/functions/FeathersHooks'
 import { SocialMenus } from '../../../../networking/NetworkInstanceProvisioning'
@@ -65,6 +66,17 @@ interface DisplayedUserInterface {
   id: string
   name: string
   relationType?: 'friend' | 'requested' | 'blocking' | 'pending' | 'blocked'
+}
+
+const getChannelName = (channel: Channel) => {
+  return (
+    channel.name ||
+    channel.channel_users
+      .filter((channelUser) => channelUser.user?.id !== Engine.instance.userId)
+      .map((channelUser) => channelUser.user?.name)
+      .filter(Boolean)
+      .join(', ')
+  )
 }
 
 /**
@@ -134,7 +146,11 @@ const FriendsMenu = ({ defaultSelectedTab }: Props): JSX.Element => {
     displayList.push(...friendState.relationships.friend.value)
   } else if (selectedTab.value === 'messages') {
     displayList.push(
-      ...privateChannels.map((channel) => ({ id: channel.id, name: channel.name, relationType: 'friend' as const }))
+      ...privateChannels.map((channel) => ({
+        id: channel.id,
+        name: getChannelName(channel),
+        relationType: 'friend' as const
+      }))
     )
   } else if (selectedTab.value === 'blocked') {
     displayList.push(...friendState.relationships.blocking.value)

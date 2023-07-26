@@ -459,8 +459,13 @@ const shutdownServer = async (app: Application, instanceId: string) => {
     await app.service('instance').patch(instanceId, {
       ended: true
     })
-    if (instanceServer.instance.channelId) {
-      await app.service('channel').remove(instanceServer.instance.channelId)
+    if (instanceServer.instance.locationId) {
+      const channel = await app.service('channel').Model.findOne({
+        where: {
+          instance: instanceServer.instance.id
+        }
+      })
+      await app.service('channel').remove(channel.id)
     }
   } catch (err) {
     logger.error(err)

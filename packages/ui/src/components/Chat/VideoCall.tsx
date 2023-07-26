@@ -131,6 +131,7 @@ export const UserMedia = (props: { peerID: PeerID; type: 'cam' | 'screen' }) => 
             crossOrigin="anonymous"
             draggable={false}
             className="rounded-full w-[40px] h-[40px]"
+            id={peerID + '-thumbnail'}
           />
         ) : (
           <video

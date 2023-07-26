@@ -223,12 +223,16 @@ export default (app: Application) => {
     try {
       console.log('INSTANCE PATCHED', data)
       /** Remove channel if instance is a world server and it has ended */
-      if (!data.locationId && data.ended && data.channelId) {
-        await app.service('channel').remove(data.channelId)
+      if (data.locationId && data.ended && !data.channelId) {
+        const channel = await app.service('channel').Model.findOne({
+          where: {
+            instance: data.id
+          }
+        })
+        await app.service('channel').remove(channel.id)
       }
-    } catch (err) {
-      logger.error(err)
-      throw err
+    } catch (e) {
+      // fine - channel already cleaned up elsewhere
     }
   })
 

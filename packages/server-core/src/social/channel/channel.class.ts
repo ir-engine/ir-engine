@@ -110,15 +110,10 @@ export class Channel<T = ChannelDataType> extends Service<T> {
 
     if (data.instanceId) {
       // @ts-ignore
-      await super.patch(channel.id, { instanceId: data.instanceId, name: 'channel-' + data.instanceId })
+      await super.patch(channel.id, { instanceId: data.instanceId, name: 'World ' + data.instanceId })
     } else {
-      const channelWithUsers = await this.app.service('channel').get(channel.id)
-      const userNames = channelWithUsers.channel_users
-        .map((channelUser) => channelUser.user?.name)
-        .filter(Boolean)
-        .join(', ')
       // @ts-ignore
-      await super.patch(channel.id, { name: userNames })
+      await super.patch(channel.id, { name: '' })
     }
 
     return this.app.service('channel').get(channel.id)

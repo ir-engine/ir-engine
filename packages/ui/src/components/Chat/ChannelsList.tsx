@@ -32,11 +32,13 @@ import UserIcon from './assets/user.svg'
 import { useFind } from '@etherealengine/engine/src/common/functions/FeathersHooks'
 import { ChatState } from './ChatState'
 import { DrawerCreateChannel } from './DrawerCreateChannel'
+import { getChannelName } from './Message'
 
 export const ChannelsList = () => {
   const chatState = useHookstate(getMutableState(ChatState))
 
-  const channelsList = useFind('channel', {})
+  const channelsList = useFind('channel')
+  console.log(channelsList)
 
   useEffect(() => {
     return () => {
@@ -74,7 +76,7 @@ export const ChannelsList = () => {
         >
           <img className="mt-3 mr-2 rounded-8xs w-11 h-11 object-cover" alt="" src={UserIcon /**userThumbnail */} />
           <div className="mt-3 justify-start w-[200px] whitespace-nowrap overflow-hidden text-ellipsis">
-            <p className="font-bold text-[#3F3960]">{props.channel.name}</p>
+            <p className="font-bold text-[#3F3960]">{getChannelName(props.channel)}</p>
             <p className="h-4 text-xs text-[#787589]">{latestMessage}</p>
           </div>
         </div>
@@ -100,7 +102,7 @@ export const ChannelsList = () => {
           </div>
         )}
       </div>
-      {channels.map((channel, index) => (
+      {channels.map((channel) => (
         <RenderChannel channel={channel} key={channel.id} />
       ))}
     </>

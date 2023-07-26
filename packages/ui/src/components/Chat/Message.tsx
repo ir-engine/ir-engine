@@ -38,6 +38,7 @@ import {
   toggleScreenshare,
   toggleWebcamPaused
 } from '@etherealengine/client-core/src/transports/SocketWebRTCClientFunctions'
+import { Channel } from '@etherealengine/common/src/interfaces/Channel'
 import { ChannelID } from '@etherealengine/common/src/interfaces/ChannelUser'
 import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
 import { Resizable } from 're-resizable'
@@ -53,6 +54,17 @@ import UserSvg from './assets/user.svg'
  * Create reactor in client-core around messages
  * reacts to chat state changes, both active channel and channel data, and fetches new messages
  */
+
+export const getChannelName = (channel: Channel) => {
+  return (
+    channel.name ||
+    channel.channel_users
+      .filter((channelUser) => channelUser.user?.id !== Engine.instance.userId)
+      .map((channelUser) => channelUser.user?.name)
+      .filter(Boolean)
+      .join(', ')
+  )
+}
 
 export const MessageList = (props: { channelID: ChannelID }) => {
   const userThumbnail = useUserAvatarThumbnail(Engine.instance.userId)
@@ -137,11 +149,14 @@ export const MessageList = (props: { channelID: ChannelID }) => {
   )
 }
 
-export const MessageContainer = () => {
-  const selectedChannelID = useHookstate(getMutableState(ChatState).selectedChannelID).value
-  const targetChannelId = useHookstate(getMutableState(ChannelState).targetChannelId).value
+const MessageHeader = (props: { selectedChannelID: ChannelID }) => {
+  const { selectedChannelID } = props
 
+  const targetChannelId = useHookstate(getMutableState(ChannelState).targetChannelId).value
   const { data: channel } = useGet('channel', selectedChannelID!)
+
+  const channelName = channel ? getChannelName(channel) : ''
+  console.log(selectedChannelID, channel, channelName)
 
   const mediaStreamState = useHookstate(getMutableState(MediaStreamState))
   const isCamVideoEnabled = mediaStreamState.camVideoProducer.value != null && !mediaStreamState.videoPaused.value
@@ -170,6 +185,71 @@ export const MessageContainer = () => {
 
   return (
     <>
+      <div className="ml-8">
+        <p className="text-3xl font-bold text-[#3F3960]">{channelName}</p>
+      </div>
+      <div className="flex gap-6 justify-center">
+        {connecting && <p className="mt-6 pt-2 flex flex-wrap text-[#3F3960]">Connecting...</p>}
+        {mediaConnected && (
+          <>
+            <button
+              className="w-[38px] h-[38px] flex flex-wrap mt-6 justify-center rounded-[5px] bg-[#EDEEF0]"
+              onClick={toggleWebcamPaused}
+            >
+              {isCamVideoEnabled ? (
+                <MdVideocam className="w-5 h-5 overflow-hidden mt-2 fill-[#ff1515]" />
+              ) : (
+                <MdVideocamOff className="w-5 h-5 overflow-hidden mt-2 fill-[#3F3960]" />
+              )}
+            </button>
+            <button
+              className="w-[38px] h-[38px] flex flex-wrap mt-6 justify-center rounded-[5px] bg-[#EDEEF0]"
+              onClick={toggleMicrophonePaused}
+            >
+              {isCamAudioEnabled ? (
+                <FaMicrophone className="w-5 h-5 overflow-hidden mt-2 fill-[#ff1515]" />
+              ) : (
+                <FaMicrophoneSlash className="w-5 h-5 overflow-hidden mt-2 fill-[#3F3960]" />
+              )}
+            </button>
+            <button
+              className="w-[38px] h-[38px] flex flex-wrap mt-6 justify-center rounded-[5px] bg-[#EDEEF0]"
+              onClick={toggleScreenshare}
+            >
+              {isScreenVideoEnabled ? (
+                <MdScreenShare className="w-6 h-6 overflow-hidden mt-2 fill-[#ff1515]" />
+              ) : (
+                <MdStopScreenShare className="w-6 h-6 overflow-hidden mt-2 fill-[#3F3960]" />
+              )}
+            </button>
+          </>
+        )}
+        <button
+          className="w-[38px] h-[38px] flex flex-wrap mt-6 justify-center rounded-[5px] bg-[#EDEEF0]"
+          onClick={() => startMediaCall()}
+        >
+          {targetChannelId && targetChannelId === selectedChannelID ? (
+            <HiPhoneMissedCall className="w-5 h-5 overflow-hidden mt-2 fill-[#3F3960]" />
+          ) : (
+            <HiPhone className="w-5 h-5 overflow-hidden mt-2 fill-[#3F3960]" />
+          )}
+        </button>
+      </div>
+    </>
+  )
+}
+
+export const MessageContainer = () => {
+  const selectedChannelID = useHookstate(getMutableState(ChatState).selectedChannelID).value
+
+  const currentChannelInstanceConnection = useMediaInstance()
+  const networkState = useHookstate(getMutableState(NetworkState))
+  const mediaHostId = Engine.instance.mediaNetwork?.hostId
+  const mediaConnected =
+    mediaHostId && networkState.networks[mediaHostId]?.ready?.value && currentChannelInstanceConnection?.connected.value
+
+  return (
+    <>
       <Resizable
         bounds="window"
         defaultSize={{ width: 780, height: '100%' }}
@@ -188,60 +268,7 @@ export const MessageContainer = () => {
       >
         <div className="w-full h-[100vh] bg-white">
           <div className="w-full h-[90px] flex flex-wrap flex-col justify-center">
-            {channel && (
-              <>
-                <div className="ml-8">
-                  <p className="text-3xl font-bold text-[#3F3960]">{channel.name}</p>
-                </div>
-                <div className="flex gap-6 justify-center">
-                  {connecting && <p className="mt-6 pt-2 flex flex-wrap text-[#3F3960]">Connecting...</p>}
-                  {mediaConnected && (
-                    <>
-                      <button
-                        className="w-[38px] h-[38px] flex flex-wrap mt-6 justify-center rounded-[5px] bg-[#EDEEF0]"
-                        onClick={toggleWebcamPaused}
-                      >
-                        {isCamVideoEnabled ? (
-                          <MdVideocam className="w-5 h-5 overflow-hidden mt-2 fill-[#ff1515]" />
-                        ) : (
-                          <MdVideocamOff className="w-5 h-5 overflow-hidden mt-2 fill-[#3F3960]" />
-                        )}
-                      </button>
-                      <button
-                        className="w-[38px] h-[38px] flex flex-wrap mt-6 justify-center rounded-[5px] bg-[#EDEEF0]"
-                        onClick={toggleMicrophonePaused}
-                      >
-                        {isCamAudioEnabled ? (
-                          <FaMicrophone className="w-5 h-5 overflow-hidden mt-2 fill-[#ff1515]" />
-                        ) : (
-                          <FaMicrophoneSlash className="w-5 h-5 overflow-hidden mt-2 fill-[#3F3960]" />
-                        )}
-                      </button>
-                      <button
-                        className="w-[38px] h-[38px] flex flex-wrap mt-6 justify-center rounded-[5px] bg-[#EDEEF0]"
-                        onClick={toggleScreenshare}
-                      >
-                        {isScreenVideoEnabled ? (
-                          <MdScreenShare className="w-6 h-6 overflow-hidden mt-2 fill-[#ff1515]" />
-                        ) : (
-                          <MdStopScreenShare className="w-6 h-6 overflow-hidden mt-2 fill-[#3F3960]" />
-                        )}
-                      </button>
-                    </>
-                  )}
-                  <button
-                    className="w-[38px] h-[38px] flex flex-wrap mt-6 justify-center rounded-[5px] bg-[#EDEEF0]"
-                    onClick={() => startMediaCall()}
-                  >
-                    {targetChannelId && targetChannelId === selectedChannelID ? (
-                      <HiPhoneMissedCall className="w-5 h-5 overflow-hidden mt-2 fill-[#3F3960]" />
-                    ) : (
-                      <HiPhone className="w-5 h-5 overflow-hidden mt-2 fill-[#3F3960]" />
-                    )}
-                  </button>
-                </div>
-              </>
-            )}
+            {selectedChannelID && <MessageHeader selectedChannelID={selectedChannelID!} />}
           </div>
           <Resizable
             bounds="window"
@@ -266,7 +293,7 @@ export const MessageContainer = () => {
               </>
             )}
             <div className="box-border w-full border-t-[1px] border-solid border-[#D1D3D7]" />
-            {<MessageList channelID={selectedChannelID!} />}
+            {selectedChannelID && <MessageList channelID={selectedChannelID} />}
           </Resizable>
         </div>
       </Resizable>

@@ -48,7 +48,7 @@ export const Media = () => {
     <>
       <Resizable
         bounds="window"
-        defaultSize={{ width: 370 }}
+        defaultSize={{ height: '100%', width: 370 }}
         enable={{
           top: false,
           right: true,
@@ -66,7 +66,14 @@ export const Media = () => {
           <p className="ml-8 text-3xl font-bold mt-10">Media</p>
           <div className="w-[330] ml-8 h-[189.94px] flex flex-wrap mt-5 gap-5 font-bold">
             {DownloadImages.map((item) => {
-              return <img className="rounded-8xs w-[120px] h-[84.94px] object-cover" alt="" src={item.image} />
+              return (
+                <img
+                  className="rounded-8xs w-[120px] h-[84.94px] object-cover"
+                  alt=""
+                  src={item.image}
+                  key={item.image}
+                />
+              )
             })}
             <button className="cursor-pointer bg-[transparent] w-[120px] h-[84.94px]">
               <div className="w-[120px] h-[84.94px] rounded bg-[#5B598B] flex flex-col shadow-[0px_0px_4px_rgba(0,_0,_0,_0.1)]">

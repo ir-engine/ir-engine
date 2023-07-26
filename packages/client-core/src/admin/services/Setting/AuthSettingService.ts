@@ -64,6 +64,7 @@ export const AuthSettingsService = {
         updateNeeded: false
       })
     } catch (err) {
+      console.error(err)
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
   },

@@ -166,9 +166,6 @@ export async function checkForDuplicatedAssignments({
     if (locationId) query.locationId = locationId
     if (channelId) query.channelId = channelId
     await app.service('instance').patch(null, { ended: true }, { query })
-    if (channelId) {
-      await app.service('channel').remove(channelId)
-    }
   }
 
   //Create an assigned instance at this IP
@@ -478,9 +475,6 @@ export class InstanceProvision implements ServiceMethods<any> {
         ended: true
       }
       await this.app.service('instance').patch(instance.id, { ...patchInstance })
-      if (instance.channelId) {
-        await this.app.service('channel').remove(instance.channelId)
-      }
       await this.app.service('instanceserver-subdomain-provision').patch(
         null,
         {
