@@ -219,6 +219,19 @@ export default (app: Application) => {
     }
   })
 
+  service.publish('patched', async (data: InstanceInterface): Promise<any> => {
+    try {
+      console.log('INSTANCE PATCHED', data)
+      /** Remove channel if instance is a world server and it has ended */
+      if (!data.locationId && data.ended && data.channelId) {
+        await app.service('channel').remove(data.channelId)
+      }
+    } catch (err) {
+      logger.error(err)
+      throw err
+    }
+  })
+
   app.use('instances-active', {
     find: getActiveInstancesForScene(app)
   })

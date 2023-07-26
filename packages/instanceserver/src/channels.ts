@@ -459,6 +459,9 @@ const shutdownServer = async (app: Application, instanceId: string) => {
     await app.service('instance').patch(instanceId, {
       ended: true
     })
+    if (instanceServer.instance.channelId) {
+      await app.service('channel').remove(instanceServer.instance.channelId)
+    }
   } catch (err) {
     logger.error(err)
   }
@@ -637,6 +640,9 @@ const onConnection = (app: Application) => async (connection: PrimusConnectionTy
     await app.service('instance').patch(instanceServerState.instance.id, {
       ended: true
     })
+    if (instanceServerState.instance.channelId) {
+      await app.service('channel').remove(instanceServerState.instance.channelId)
+    }
     restartInstanceServer()
     return
   }
