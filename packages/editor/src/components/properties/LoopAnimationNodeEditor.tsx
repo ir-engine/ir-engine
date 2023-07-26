@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React, { useEffect } from 'react'
+import React, { useCallback, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { LoopAnimationComponent } from '@etherealengine/engine/src/avatar/components/LoopAnimationComponent'
@@ -34,7 +34,9 @@ import { useState } from '@etherealengine/hyperflux'
 
 import AnimationIcon from '@mui/icons-material/Animation'
 
+import { getEntityErrors } from '@etherealengine/engine/src/scene/components/ErrorComponent'
 import InputGroup from '../inputs/InputGroup'
+import ModelInput from '../inputs/ModelInput'
 import SelectInput from '../inputs/SelectInput'
 import NodeEditor from './NodeEditor'
 import { EditorComponentType, updateProperties } from './Util'
@@ -52,6 +54,8 @@ export const LoopAnimationNodeEditor: EditorComponentType = (props) => {
 
   const animationOptions = useState([] as { label: string; value: number }[])
 
+  const errors = getEntityErrors(props.entity, ModelComponent)
+
   useEffect(() => {
     const obj3d = modelComponent.value.scene
     const animations = obj3d?.animations ?? []
@@ -68,6 +72,10 @@ export const LoopAnimationNodeEditor: EditorComponentType = (props) => {
     getCallback(props.entity, 'xre.play')!()
   }
 
+  const updateResources = useCallback((path: string) => {
+    updateProperties(LoopAnimationComponent, { animationPack: path })
+  }, [])
+
   return (
     <NodeEditor
       name={t('editor:properties.loopAnimation.title')}
@@ -82,6 +90,14 @@ export const LoopAnimationNodeEditor: EditorComponentType = (props) => {
           onChange={onChangePlayingAnimation}
         />
       </InputGroup>
+      {loopAnimationComponent.isVRM.value && (
+        <InputGroup name="Animation Pack" label="Animation Pack (via Mixamo Rig)">
+          <ModelInput value={loopAnimationComponent.animationPack.value} onChange={updateResources} />
+          {errors?.LOADING_ERROR && (
+            <div style={{ marginTop: 2, color: '#FF8C00' }}>{t('editor:properties.model.error-url')}</div>
+          )}
+        </InputGroup>
+      )}
     </NodeEditor>
   )
 }

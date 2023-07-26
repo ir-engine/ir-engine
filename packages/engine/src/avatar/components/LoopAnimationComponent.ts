@@ -26,6 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { useEffect } from 'react'
 import { AnimationAction, AnimationClip, AnimationMixer } from 'three'
 
+import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { isClient } from '../../common/functions/getEnvironment'
 import {
   ComponentType,
@@ -48,6 +49,7 @@ export const LoopAnimationComponent = defineComponent({
     return {
       activeClipIndex: -1,
       isVRM: false,
+      animationPack: '',
       action: null as AnimationAction | null
     }
   },
@@ -56,12 +58,14 @@ export const LoopAnimationComponent = defineComponent({
     if (!json) return
 
     if (typeof json.activeClipIndex === 'number') component.activeClipIndex.set(json.activeClipIndex)
+    if (typeof json.animationPack === 'string') component.animationPack.set(json.animationPack)
     if (typeof json.isVRM === 'boolean') component.isVRM.set(json.isVRM)
   },
 
   toJSON: (entity, component) => {
     return {
       activeClipIndex: component.activeClipIndex.value,
+      animationPack: component.animationPack.value,
       hasAvatarAnimations: component.isVRM.value
     }
   },
@@ -126,6 +130,12 @@ export const LoopAnimationComponent = defineComponent({
       const loopComponent = getComponent(entity, LoopAnimationComponent)
       const animationComponent = getComponent(entity, AnimationComponent)
 
+      if (!loopAnimationComponent || !loopAnimationComponent.animationPack.value) return
+      AssetLoader.loadAsync(loopAnimationComponent?.animationPack.value).then((model) => {
+        const animations = model.animations
+        animationComponent.animations = animations
+      })
+
       //      const changedToAvatarAnimation =
       //        loopComponent.hasAvatarAnimations && animationComponent.animations !== AnimationManager.instance._animations
 
@@ -148,7 +158,7 @@ export const LoopAnimationComponent = defineComponent({
 */
 
       if (!loopComponent.action?.paused) playAnimationClip(animationComponent, loopComponent)
-    }, [animComponent?.animations, loopAnimationComponent?.isVRM])
+    }, [animComponent?.animations, loopAnimationComponent?.isVRM, loopAnimationComponent?.animationPack])
 
     return null
   }
