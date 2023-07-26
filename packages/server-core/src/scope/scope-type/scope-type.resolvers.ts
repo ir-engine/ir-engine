@@ -23,34 +23,25 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Application } from '../../../declarations'
-import { UserApiKey } from './user-api-key.class'
-import userDocs from './user-api-key.docs'
-import hooks from './user-api-key.hooks'
-import createModel from './user-api-key.model'
+// For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
+import { resolve } from '@feathersjs/schema'
 
-declare module '@etherealengine/common/declarations' {
-  /**
-   * Interface for users input
-   */
-  interface ServiceTypes {
-    'user-api-key': UserApiKey
-  }
-}
+import { ScopeTypeQuery, ScopeTypeType } from '@etherealengine/engine/src/schemas/scope/scope-type.schema'
+import type { HookContext } from '@etherealengine/server-core/declarations'
 
-export default (app: Application): void => {
-  const options = {
-    Model: createModel(app),
-    paginate: app.get('paginate'),
-    multi: true
-  }
+import { getDateTimeSql } from '../../util/get-datetime-sql'
 
-  const event = new UserApiKey(options, app)
-  event.docs = userDocs
+export const scopeTypeResolver = resolve<ScopeTypeType, HookContext>({})
 
-  app.use('user-api-key', event)
+export const scopeTypeExternalResolver = resolve<ScopeTypeType, HookContext>({})
 
-  const service = app.service('user-api-key')
+export const scopeTypeDataResolver = resolve<ScopeTypeType, HookContext>({
+  createdAt: getDateTimeSql,
+  updatedAt: getDateTimeSql
+})
 
-  service.hooks(hooks)
-}
+export const scopeTypePatchResolver = resolve<ScopeTypeType, HookContext>({
+  updatedAt: getDateTimeSql
+})
+
+export const scopeTypeQueryResolver = resolve<ScopeTypeQuery, HookContext>({})

@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { DataTypes, Model, Sequelize } from 'sequelize'
 
-import { AvatarInterface, UserInterface } from '@etherealengine/common/src/dbmodels/UserInterface'
+import { AvatarInterface, UserApiKeyInterface, UserInterface } from '@etherealengine/common/src/dbmodels/UserInterface'
 
 import { Application } from '../../../declarations'
 
@@ -95,12 +95,46 @@ export default (app: Application) => {
     ;(User as any).hasMany(models.scope, { foreignKey: 'userId', onDelete: 'cascade' })
     ;(User as any).belongsToMany(models.instance, { through: 'instance_authorized_user' })
     ;(User as any).hasMany(models.instance_authorized_user, { foreignKey: { allowNull: false } })
-    ;(User as any).hasOne(models.user_api_key)
+    ;(User as any).hasOne(createUserApiKeyModel(app))
     ;(User as any).belongsTo(createAvatarModel(app))
     ;(User as any).hasMany(models.user_kick, { onDelete: 'cascade' })
   }
 
   return User
+}
+
+export const createUserApiKeyModel = (app: Application) => {
+  const sequelizeClient: Sequelize = app.get('sequelizeClient')
+  const UserApiKey = sequelizeClient.define<Model<UserApiKeyInterface>>(
+    'user-api-key',
+    {
+      id: {
+        type: DataTypes.UUID,
+        defaultValue: DataTypes.UUIDV1,
+        allowNull: false,
+        primaryKey: true
+      },
+      token: {
+        type: DataTypes.UUID,
+        defaultValue: DataTypes.UUIDV1,
+        allowNull: false,
+        unique: true
+      }
+    },
+    {
+      hooks: {
+        beforeCount(options: any): void {
+          options.raw = true
+        }
+      }
+    }
+  )
+
+  ;(UserApiKey as any).associate = (models: any): void => {
+    ;(UserApiKey as any).belongsTo(models.user, { foreignKey: { allowNull: false, onDelete: 'cascade', unique: true } })
+  }
+
+  return UserApiKey
 }
 
 export const createAvatarModel = (app: Application) => {

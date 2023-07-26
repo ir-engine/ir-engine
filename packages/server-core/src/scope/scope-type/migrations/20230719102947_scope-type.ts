@@ -23,26 +23,43 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-export default {
-  definitions: {
-    'project-permission-type': {
-      type: 'object',
-      properties: {
-        type: {
-          type: 'string',
-          description: ''
-        }
-      }
-    },
-    'project-permission-type_list': {
-      type: 'array',
-      items: { $ref: '#/definitions/project-permission-type' }
-    }
+import type { Knex } from 'knex'
+
+import { scopeTypePath } from '@etherealengine/engine/src/schemas/scope/scope-type.schema'
+
+/**
+ * @param { import("knex").Knex } knex
+ * @returns { Promise<void> }
+ */
+export async function up(knex: Knex): Promise<void> {
+  const oldTableName = 'scopeType'
+
+  const oldNamedTableExists = await knex.schema.hasTable(oldTableName)
+  if (oldNamedTableExists) {
+    await knex.schema.renameTable(oldTableName, scopeTypePath)
   }
-  // securities: ['create', 'update', 'patch', 'remove'],
-  // operations: {
-  //   find: {
-  //     security: [{ bearer: [] }]
-  //   }
-  // }
+
+  const tableExists = await knex.schema.hasTable(scopeTypePath)
+
+  if (tableExists === false) {
+    await knex.schema.createTable(scopeTypePath, (table) => {
+      //@ts-ignore
+      table.string('type', 255).notNullable().unique().primary()
+
+      table.dateTime('createdAt').notNullable()
+      table.dateTime('updatedAt').notNullable()
+    })
+  }
+}
+
+/**
+ * @param { import("knex").Knex } knex
+ * @returns { Promise<void> }
+ */
+export async function down(knex: Knex): Promise<void> {
+  const tableExists = await knex.schema.hasTable(scopeTypePath)
+
+  if (tableExists === true) {
+    await knex.schema.dropTable(scopeTypePath)
+  }
 }

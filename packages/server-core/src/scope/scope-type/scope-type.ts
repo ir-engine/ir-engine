@@ -23,39 +23,36 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { iff, isProvider } from 'feathers-hooks-common'
+import { scopeTypeMethods, scopeTypePath } from '@etherealengine/engine/src/schemas/scope/scope-type.schema'
 
-import authenticate from '../../hooks/authenticate'
-import verifyScope from '../../hooks/verify-scope'
+import { Application } from '../../../declarations'
+import { ScopeTypeService } from './scope-type.class'
+import scopeTypeDocs from './scope-type.docs'
+import hooks from './scope-type.hooks'
 
-export default {
-  before: {
-    all: [authenticate(), iff(isProvider('external'), verifyScope('admin', 'admin') as any)],
-    find: [],
-    get: [],
-    create: [],
-    update: [],
-    patch: [],
-    remove: []
-  },
-
-  after: {
-    all: [],
-    find: [],
-    get: [],
-    create: [],
-    update: [],
-    patch: [],
-    remove: []
-  },
-
-  error: {
-    all: [],
-    find: [],
-    get: [],
-    create: [],
-    update: [],
-    patch: [],
-    remove: []
+declare module '@etherealengine/common/declarations' {
+  interface ServiceTypes {
+    [scopeTypePath]: ScopeTypeService
   }
-} as any
+}
+
+export default (app: Application): void => {
+  const options = {
+    name: scopeTypePath,
+    id: 'type',
+    paginate: app.get('paginate'),
+    Model: app.get('knexClient'),
+    multi: true
+  }
+
+  app.use(scopeTypePath, new ScopeTypeService(options), {
+    // A list of all methods this service exposes externally
+    methods: scopeTypeMethods,
+    // You can add additional custom events to be sent to clients here
+    events: [],
+    docs: scopeTypeDocs
+  })
+
+  const service = app.service(scopeTypePath)
+  service.hooks(hooks)
+}
