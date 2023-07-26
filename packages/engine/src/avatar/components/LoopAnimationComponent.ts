@@ -98,7 +98,7 @@ export const LoopAnimationComponent = defineComponent({
 
     useEffect(() => {
       if (loopAnimationComponent && modelComponent?.scene.value)
-        loopAnimationComponent.isVRM.set(modelComponent.scene.value.userData?.assetType === 'vrm')
+        loopAnimationComponent.isVRM.set(modelComponent.scene.value.userData?.type === 'vrm')
     }, [modelComponent?.scene])
 
     /**
