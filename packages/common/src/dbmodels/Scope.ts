@@ -26,3 +26,7 @@ Ethereal Engine. All Rights Reserved.
 export interface ScopeInterface {
   id: string
 }
+
+export interface ScopeTypeInterface {
+  type: string
+}

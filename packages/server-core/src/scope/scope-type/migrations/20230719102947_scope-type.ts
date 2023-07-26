@@ -23,20 +23,43 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
+import type { Knex } from 'knex'
 
-import { ProjectPermissionType as ProjectPermissionTypeInterface } from '@etherealengine/common/src/interfaces/ProjectPermissionType'
+import { scopeTypePath } from '@etherealengine/engine/src/schemas/scope/scope-type.schema'
 
-import { Application } from '../../../declarations'
+/**
+ * @param { import("knex").Knex } knex
+ * @returns { Promise<void> }
+ */
+export async function up(knex: Knex): Promise<void> {
+  const oldTableName = 'scopeType'
 
-export type ProjectPermissionTypeDataType = ProjectPermissionTypeInterface
+  const oldNamedTableExists = await knex.schema.hasTable(oldTableName)
+  if (oldNamedTableExists) {
+    await knex.schema.renameTable(oldTableName, scopeTypePath)
+  }
 
-export class ProjectPermissionType<T = ProjectPermissionTypeDataType> extends Service<T> {
-  app: Application
-  docs: any
+  const tableExists = await knex.schema.hasTable(scopeTypePath)
 
-  constructor(options: Partial<SequelizeServiceOptions>, app: Application) {
-    super(options)
-    this.app = app
+  if (tableExists === false) {
+    await knex.schema.createTable(scopeTypePath, (table) => {
+      //@ts-ignore
+      table.string('type', 255).notNullable().unique().primary()
+
+      table.dateTime('createdAt').notNullable()
+      table.dateTime('updatedAt').notNullable()
+    })
+  }
+}
+
+/**
+ * @param { import("knex").Knex } knex
+ * @returns { Promise<void> }
+ */
+export async function down(knex: Knex): Promise<void> {
+  const tableExists = await knex.schema.hasTable(scopeTypePath)
+
+  if (tableExists === true) {
+    await knex.schema.dropTable(scopeTypePath)
   }
 }

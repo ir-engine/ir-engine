@@ -23,35 +23,36 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { DataTypes, Model, Sequelize } from 'sequelize'
-
-import { ScopeTypeInterface } from '@etherealengine/common/src/dbmodels/ScopeType'
+import { scopeTypeMethods, scopeTypePath } from '@etherealengine/engine/src/schemas/scope/scope-type.schema'
 
 import { Application } from '../../../declarations'
+import { ScopeTypeService } from './scope-type.class'
+import scopeTypeDocs from './scope-type.docs'
+import hooks from './scope-type.hooks'
 
-export default (app: Application) => {
-  const sequelizeClient: Sequelize = app.get('sequelizeClient')
-  const ScopeType = sequelizeClient.define<Model<ScopeTypeInterface>>(
-    'scopeType',
-    {
-      type: {
-        type: DataTypes.STRING,
-        allowNull: false,
-        primaryKey: true,
-        unique: true
-      }
-    },
-    {
-      hooks: {
-        beforeCount(options: any): void {
-          options.raw = true
-        }
-      }
-    }
-  )
-  ;(ScopeType as any).associate = (models: any): void => {
-    ;(ScopeType as any).hasMany(models.scope, { foreignKey: 'type' })
+declare module '@etherealengine/common/declarations' {
+  interface ServiceTypes {
+    [scopeTypePath]: ScopeTypeService
+  }
+}
+
+export default (app: Application): void => {
+  const options = {
+    name: scopeTypePath,
+    id: 'type',
+    paginate: app.get('paginate'),
+    Model: app.get('knexClient'),
+    multi: true
   }
 
-  return ScopeType
+  app.use(scopeTypePath, new ScopeTypeService(options), {
+    // A list of all methods this service exposes externally
+    methods: scopeTypeMethods,
+    // You can add additional custom events to be sent to clients here
+    events: [],
+    docs: scopeTypeDocs
+  })
+
+  const service = app.service(scopeTypePath)
+  service.hooks(hooks)
 }
