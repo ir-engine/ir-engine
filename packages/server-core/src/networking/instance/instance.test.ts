@@ -29,7 +29,6 @@ import { v1 } from 'uuid'
 
 import { Instance } from '@etherealengine/common/src/interfaces/Instance'
 import { destroyEngine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { locationSettingPath } from '@etherealengine/engine/src/schemas/social/location-setting.schema'
 import { locationPath, LocationType } from '@etherealengine/engine/src/schemas/social/location.schema'
 
 import { Application } from '../../../declarations'
@@ -56,31 +55,28 @@ describe('instance.test', () => {
     const name = `Test Location ${v1()}`
     const sceneId = `test-scene-${v1()}`
 
-    const locationSetting = await app.service(locationSettingPath).create({
-      locationType: 'public',
-      audioEnabled: true,
-      videoEnabled: true,
-      faceStreamingEnabled: false,
-      screenSharingEnabled: false,
-      locationId: ''
-    })
-
     testLocation = await app.service(locationPath).create(
       {
         name,
         slugifiedName: '',
         sceneId,
         maxUsersPerInstance: 30,
-        locationSetting,
+        locationSetting: {
+          id: '',
+          locationType: 'public',
+          audioEnabled: true,
+          videoEnabled: true,
+          faceStreamingEnabled: false,
+          screenSharingEnabled: false,
+          locationId: '',
+          createdAt: '',
+          updatedAt: ''
+        },
         isLobby: false,
         isFeatured: false
       },
       params
     )
-
-    await app.service(locationSettingPath).patch(locationSetting.id, {
-      locationId: testLocation.id
-    })
   })
 
   it('should create an instance', async () => {

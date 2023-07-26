@@ -52,22 +52,23 @@ describe('location.test', () => {
     const name = `Test Location ${v1()}`
     const sceneId = `test-scene-${v1()}`
 
-    const locationSetting = await app.service(locationSettingPath).create({
-      locationType: 'public',
-      audioEnabled: true,
-      videoEnabled: true,
-      faceStreamingEnabled: false,
-      screenSharingEnabled: false,
-      locationId: ''
-    })
-
     const item = await app.service(locationPath).create(
       {
         name,
         slugifiedName: '',
         sceneId,
         maxUsersPerInstance: 30,
-        locationSetting,
+        locationSetting: {
+          id: '',
+          locationType: 'public',
+          audioEnabled: true,
+          videoEnabled: true,
+          faceStreamingEnabled: false,
+          screenSharingEnabled: false,
+          locationId: '',
+          createdAt: '',
+          updatedAt: ''
+        },
         isLobby: false,
         isFeatured: false
       },
@@ -96,7 +97,7 @@ describe('location.test', () => {
       videoEnabled: true,
       faceStreamingEnabled: false,
       screenSharingEnabled: false,
-      locationId: ''
+      locationId: locations[0].id
     })
 
     const locationData = JSON.parse(JSON.stringify(locations[0]))
