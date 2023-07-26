@@ -39,7 +39,6 @@ import './ee-flow/styles.css'
 
 const BehaveFlow = () => {
   const registry = useRegistry()
-
   const selectionState = useHookstate(getMutableState(SelectionState))
   const entities = selectionState.selectedEntities.value
   const entity = entities[entities.length - 1]

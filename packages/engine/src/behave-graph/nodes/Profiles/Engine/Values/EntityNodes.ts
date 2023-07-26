@@ -24,9 +24,32 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { Entity } from '../../../../../ecs/classes/Entity.js'
+import { defineQuery, getComponent } from '../../../../../ecs/functions/ComponentFunctions.js'
+import { NameComponent } from '../../../../../scene/components/NameComponent.js'
+import { SceneObjectComponent } from '../../../../../scene/components/SceneObjectComponent.js'
 import { makeInNOutFunctionDesc } from '../../../Nodes/FunctionNode.js'
+import { makeFunctionNodeDefinition, NodeCategory } from '../../../Nodes/NodeDefinitions.js'
 
 // Unreal Engine Integer Blueprints API: https://docs.unrealengine.com/4.27/en-US/BlueprintAPI/Math/Integer/
+
+const sceneQuery = defineQuery([SceneObjectComponent])
+export const getEntity = makeFunctionNodeDefinition({
+  typeName: 'engine/getEntity',
+  category: NodeCategory.Query,
+  label: 'Get entity',
+  in: {
+    entity: (_, graphApi) => {
+      return {
+        valueType: 'entity',
+        choices: sceneQuery().map((entity) => ({ text: getComponent(entity, NameComponent), value: entity }))
+      }
+    }
+  },
+  out: { entity: 'entity' },
+  exec: ({ read, write, graph }) => {
+    write('entity', read('entity'))
+  }
+})
 
 export const Constant = makeInNOutFunctionDesc({
   name: 'engine/entity',

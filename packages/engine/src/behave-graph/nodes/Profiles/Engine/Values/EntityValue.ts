@@ -30,8 +30,7 @@ export const EntityValue: ValueType = {
   name: 'entity',
   creator: () => 0,
   deserialize: (value: Entity): Entity => value,
-  serialize: (value: Entity) =>
-    Number.MIN_SAFE_INTEGER <= value && value <= Number.MAX_SAFE_INTEGER ? Number(value) : value.toString(), // prefer string to ensure full range is covered
+  serialize: (value: Entity) => value.toString(), // prefer string to ensure full range is covered
   equals: (a: Entity, b: Entity) => a === b,
   clone: (value: Entity) => value
 }
