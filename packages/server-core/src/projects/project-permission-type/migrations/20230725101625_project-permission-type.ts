@@ -23,39 +23,40 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { iff, isProvider } from 'feathers-hooks-common'
+import type { Knex } from 'knex'
 
-import authenticate from '../../hooks/authenticate'
-import verifyScope from '../../hooks/verify-scope'
+import { projectPermissionTypePath } from '@etherealengine/engine/src/schemas/projects/project-permission-type.schema'
 
-export default {
-  before: {
-    all: [authenticate(), iff(isProvider('external'), verifyScope('admin', 'admin') as any)],
-    find: [],
-    get: [],
-    create: [],
-    update: [],
-    patch: [],
-    remove: []
-  },
+/**
+ * @param { import("knex").Knex } knex
+ * @returns { Promise<void> }
+ */
+export async function up(knex: Knex): Promise<void> {
+  const oldTableName = 'project_permission_type'
 
-  after: {
-    all: [],
-    find: [],
-    get: [],
-    create: [],
-    update: [],
-    patch: [],
-    remove: []
-  },
-
-  error: {
-    all: [],
-    find: [],
-    get: [],
-    create: [],
-    update: [],
-    patch: [],
-    remove: []
+  const oldNamedTableExists = await knex.schema.hasTable(oldTableName)
+  if (oldNamedTableExists) {
+    await knex.schema.renameTable(oldTableName, projectPermissionTypePath)
   }
-} as any
+
+  const tableExists = await knex.schema.hasTable(projectPermissionTypePath)
+
+  if (tableExists === false) {
+    await knex.schema.createTable(projectPermissionTypePath, (table) => {
+      //@ts-ignore
+      table.string('type', 255).notNullable().unique().primary()
+    })
+  }
+}
+
+/**
+ * @param { import("knex").Knex } knex
+ * @returns { Promise<void> }
+ */
+export async function down(knex: Knex): Promise<void> {
+  const tableExists = await knex.schema.hasTable(projectPermissionTypePath)
+
+  if (tableExists === true) {
+    await knex.schema.dropTable(projectPermissionTypePath)
+  }
+}
