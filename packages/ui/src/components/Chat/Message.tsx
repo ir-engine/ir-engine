@@ -166,7 +166,7 @@ export const MessageContainer = () => {
     mediaHostId && networkState.networks[mediaHostId]?.ready?.value && currentChannelInstanceConnection?.connected.value
   const connecting =
     mediaHostId &&
-    (currentChannelInstanceConnection?.connecting.value || !networkState.networks[mediaHostId]?.ready?.value)
+    (currentChannelInstanceConnection?.connecting?.value || !networkState.networks[mediaHostId]?.ready?.value)
 
   return (
     <>

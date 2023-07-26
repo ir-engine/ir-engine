@@ -73,7 +73,7 @@ export const ChannelsList = () => {
           onClick={() => selectedChannelId.set(props.channel.id)}
         >
           <img className="mt-3 mr-2 rounded-8xs w-11 h-11 object-cover" alt="" src={UserIcon /**userThumbnail */} />
-          <div className="mt-3 justify-start">
+          <div className="mt-3 justify-start w-[200px] whitespace-nowrap overflow-hidden text-ellipsis">
             <p className="font-bold text-[#3F3960]">{props.channel.name}</p>
             <p className="h-4 text-xs text-[#787589]">{latestMessage}</p>
           </div>
