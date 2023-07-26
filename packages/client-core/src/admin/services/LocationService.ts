@@ -80,7 +80,12 @@ export const AdminLocationService = {
       await Engine.instance.api.service(locationPath).create(location)
       getMutableState(AdminLocationState).merge({ updateNeeded: true, created: true })
     } catch (err) {
-      NotificationService.dispatchNotify(err.message, { variant: 'error' })
+      logger.error(err)
+      if (err.code && err.sqlMessage) {
+        NotificationService.dispatchNotify(`${err.code}: ${err.sqlMessage}`, { variant: 'error' })
+      } else {
+        NotificationService.dispatchNotify(err.message, { variant: 'error' })
+      }
     }
   },
   fetchAdminLocations: async (
