@@ -56,7 +56,11 @@ import { ServerState } from '@etherealengine/server-core/src/ServerState'
 import getLocalServerIp from '@etherealengine/server-core/src/util/get-local-server-ip'
 
 import { NetworkObjectComponent } from '@etherealengine/engine/src/networking/components/NetworkObjectComponent'
-import { instanceServerSubdomainProvisionPath } from '@etherealengine/engine/src/schemas/networking/instance-server-subdomain-provision.schema'
+import {
+  instanceServerSubdomainProvisionPath,
+  InstanceServerSubdomainProvisionType
+} from '@etherealengine/engine/src/schemas/networking/instance-server-subdomain-provision.schema'
+import { Paginated } from '@feathersjs/feathers'
 import { InstanceServerState } from './InstanceServerState'
 import { SocketWebRTCServerNetwork } from './SocketWebRTCServerFunctions'
 import { closeTransport } from './WebRTCFunctions'
@@ -133,18 +137,18 @@ export async function getFreeSubdomain(isIdentifier: string, subdomainNumber: nu
   const app = Engine.instance.api as Application
 
   const stringSubdomainNumber = subdomainNumber.toString().padStart(config.instanceserver.identifierDigits, '0')
-  const subdomainResult = await app.service(instanceServerSubdomainProvisionPath).find({
+  const subdomainResult = (await app.service(instanceServerSubdomainProvisionPath).find({
     query: {
       isNumber: stringSubdomainNumber
     }
-  })
-  if ((subdomainResult as any).total === 0) {
-    await app.service(instanceServerSubdomainProvisionPath).create({
+  })) as Paginated<InstanceServerSubdomainProvisionType>
+  if (subdomainResult.total === 0) {
+    ;(await app.service(instanceServerSubdomainProvisionPath).create({
       allocated: true,
       isNumber: stringSubdomainNumber,
       isId: isIdentifier,
       instanceId: ''
-    })
+    })) as InstanceServerSubdomainProvisionType
 
     await new Promise((resolve) =>
       setTimeout(async () => {
@@ -156,8 +160,8 @@ export async function getFreeSubdomain(isIdentifier: string, subdomainNumber: nu
       query: {
         isNumber: stringSubdomainNumber
       }
-    })) as any
-    if (newSubdomainResult.total > 0 && newSubdomainResult.data[0].gs_id === isIdentifier) return stringSubdomainNumber
+    })) as Paginated<InstanceServerSubdomainProvisionType>
+    if (newSubdomainResult.total > 0 && newSubdomainResult.data[0].isId === isIdentifier) return stringSubdomainNumber
     else return getFreeSubdomain(isIdentifier, subdomainNumber + 1)
   } else {
     const subdomain = (subdomainResult as any).data[0]
@@ -179,8 +183,8 @@ export async function getFreeSubdomain(isIdentifier: string, subdomainNumber: nu
       query: {
         isNumber: stringSubdomainNumber
       }
-    })) as any
-    if (newSubdomainResult.total > 0 && newSubdomainResult.data[0].gs_id === isIdentifier) return stringSubdomainNumber
+    })) as Paginated<InstanceServerSubdomainProvisionType>
+    if (newSubdomainResult.total > 0 && newSubdomainResult.data[0].isId === isIdentifier) return stringSubdomainNumber
     else return getFreeSubdomain(isIdentifier, subdomainNumber + 1)
   }
 }

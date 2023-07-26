@@ -53,7 +53,10 @@ import multiLogger from '@etherealengine/server-core/src/ServerLogger'
 import { ServerState } from '@etherealengine/server-core/src/ServerState'
 import getLocalServerIp from '@etherealengine/server-core/src/util/get-local-server-ip'
 
-import { instanceServerSubdomainProvisionPath } from '@etherealengine/engine/src/schemas/networking/instance-server-subdomain-provision.schema'
+import {
+  instanceServerSubdomainProvisionPath,
+  InstanceServerSubdomainProvisionType
+} from '@etherealengine/engine/src/schemas/networking/instance-server-subdomain-provision.schema'
 import { InstanceServerState } from './InstanceServerState'
 import { authorizeUserToJoinServer, setupSubdomain } from './NetworkFunctions'
 import { restartInstanceServer } from './restartInstanceServer'
@@ -121,13 +124,13 @@ const createNewInstance = async (app: Application, newInstance: InstanceMetadata
       query: {
         isNumber: instanceServerState.isSubdomainNumber.value
       }
-    })) as any
+    })) as Paginated<InstanceServerSubdomainProvisionType>
 
     if (gsSubProvision.total > 0) {
       const provision = gsSubProvision.data[0]
       await app.service(instanceServerSubdomainProvisionPath).patch(provision.id, {
         instanceId: instanceResult.id
-      } as any)
+      } as InstanceServerSubdomainProvisionType)
     }
   }
 }
@@ -165,13 +168,13 @@ const assignExistingInstance = async (
       query: {
         isNumber: instanceServerState.isSubdomainNumber.value
       }
-    })) as any
+    })) as Paginated<InstanceServerSubdomainProvisionType>
 
     if (gsSubProvision.total > 0) {
       const provision = gsSubProvision.data[0]
       await app.service(instanceServerSubdomainProvisionPath).patch(provision.id, {
         instanceId: existingInstance.id
-      } as any)
+      } as InstanceServerSubdomainProvisionType)
     }
   }
 }
@@ -447,10 +450,10 @@ const shutdownServer = async (app: Application, instanceId: string) => {
       query: {
         isNumber: instanceServer.isSubdomainNumber
       }
-    })) as any
-    await app.service(instanceServerSubdomainProvisionPath).patch(gsSubdomainProvision.data[0].id, {
+    })) as Paginated<InstanceServerSubdomainProvisionType>
+    ;(await app.service(instanceServerSubdomainProvisionPath).patch(gsSubdomainProvision.data[0].id, {
       allocated: false
-    })
+    })) as InstanceServerSubdomainProvisionType
   }
 
   // already shut down
