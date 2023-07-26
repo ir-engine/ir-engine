@@ -24,10 +24,12 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { useMediaWindows } from '@etherealengine/client-core/src/components/UserMediaWindows'
+import { MediaStreamState } from '@etherealengine/client-core/src/transports/MediaStreams'
 import {
   PeerMediaChannelState,
   PeerMediaStreamInterface
 } from '@etherealengine/client-core/src/transports/PeerMediaChannelState'
+import { toggleMicrophonePaused } from '@etherealengine/client-core/src/transports/SocketWebRTCClientFunctions'
 import { useUserAvatarThumbnail } from '@etherealengine/client-core/src/user/functions/useUserAvatarThumbnail'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
@@ -36,7 +38,7 @@ import { State, getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import { t } from 'i18next'
 import { Resizable } from 're-resizable'
 import React, { useEffect, useRef } from 'react'
-import { FaMicrophoneSlash } from 'react-icons/fa'
+import { FaMicrophone, FaMicrophoneSlash } from 'react-icons/fa'
 
 export const UserMedia = (props: { peerID: PeerID; type: 'cam' | 'screen' }) => {
   const { peerID, type } = props
@@ -100,6 +102,9 @@ export const UserMedia = (props: { peerID: PeerID; type: 'cam' | 'screen' }) => 
     ref.current.play()
   }, [ref.current, videoStreamState])
 
+  const mediaStreamState = useHookstate(getMutableState(MediaStreamState))
+  const isCamAudioEnabled = mediaStreamState.camAudioProducer.value != null && !mediaStreamState.audioPaused.value
+
   return (
     <Resizable
       key={username}
@@ -146,8 +151,15 @@ export const UserMedia = (props: { peerID: PeerID; type: 'cam' | 'screen' }) => 
             {username}
           </p>
         </div>
-        <button className="absolute bottom-1 right-1 w-[20px] h-[20px] flex px-1 justify-center  items-center rounded-full bg-[#EDEEF0]">
-          <FaMicrophoneSlash className="w-5 h-5 overflow-hidden  fill-[#3F3960]" />
+        <button
+          className="absolute bottom-1 right-1 w-[20px] h-[20px] flex px-1 justify-center  items-center rounded-full bg-[#EDEEF0]"
+          onClick={toggleMicrophonePaused}
+        >
+          {isCamAudioEnabled ? (
+            <FaMicrophone className="w-3 h-3 overflow-hidden fill-[#008000]" />
+          ) : (
+            <FaMicrophoneSlash className="w-5 h-5 overflow-hidden  fill-[#3F3960]" />
+          )}
         </button>
       </div>
     </Resizable>

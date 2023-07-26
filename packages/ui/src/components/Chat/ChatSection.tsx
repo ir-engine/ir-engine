@@ -99,11 +99,11 @@ export const ChatSection = () => {
           bottomLeft: false,
           topLeft: false
         }}
-        minWidth={250}
-        maxWidth={420}
+        minWidth={280}
+        maxWidth={385}
       >
         <div className="h-[100vh] [background:linear-gradient(180deg,_#e3e5e8,_#f2f3f5_6.7%,_#f2f3f5_94.1%,_#e3e5e8)]">
-          <div className="h-[90px] flex flex-wrap gap-[92px] justify-center">
+          <div className="h-[90px] mx-2 flex flex-wrap gap-[92px] justify-center">
             <div className="mt-6">
               <b className="text-3xl">Chats</b>
             </div>
@@ -129,10 +129,10 @@ export const ChatSection = () => {
             </div>
           </div>
           <div className="box-border border-t-[1px] border-solid border-[#D1D3D7]" />
-          <div className="w-full h-[76vh] justify-center">
+          <div className="w-full h-[77.5vh] mb-[90px] justify-center overflow-scroll hide-scroll">
             <ChannelsList />
           </div>
-          <div className="absolute bottom-0 w-full h-[70px] gap-4 flex flex-wrap justify-center bg-[#ECECEC]">
+          <div className="absolute bottom-0 w-full h-[75px] gap-4 flex flex-wrap justify-center bg-[#ECECEC]">
             <img className="rounded-[38px] mt-3 w-11 h-11 object-cover" alt="" src={userThumbnail} />
             <div className="mt-3">
               <p className="font-bold text-[#3F3960]">{userName}</p>

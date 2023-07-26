@@ -47,11 +47,11 @@ export const Media = () => {
   return (
     <>
       <Resizable
-        bounds="window"
+        bounds="parent"
         defaultSize={{ height: '100%', width: 370 }}
         enable={{
           top: false,
-          right: true,
+          right: false,
           bottom: false,
           left: false,
           topRight: false,
@@ -59,8 +59,8 @@ export const Media = () => {
           bottomLeft: false,
           topLeft: false
         }}
-        minWidth={250}
-        maxWidth={450}
+        minWidth={320}
+        maxWidth={370}
       >
         <div className="w-full h-[100vh] bg-[#E3E5E8]">
           <p className="ml-8 text-3xl font-bold mt-10">Media</p>

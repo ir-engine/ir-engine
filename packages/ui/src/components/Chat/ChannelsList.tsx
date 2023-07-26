@@ -30,6 +30,7 @@ import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import UserIcon from './assets/user.svg'
 
 import { useFind } from '@etherealengine/engine/src/common/functions/FeathersHooks'
+import { Resizable } from 're-resizable'
 import { ChatState } from './ChatState'
 import { DrawerCreateChannel } from './DrawerCreateChannel'
 import { getChannelName } from './Message'
@@ -68,18 +69,34 @@ export const ChannelsList = () => {
 
     return (
       <>
-        <div
-          className={`w-[320px] h-[68px] flex flex-nowrap	mx-4 gap-1 justify-center rounded-[5px] ${
-            selectedChannelId.value === props.channel.id ? 'bg-[#D4D7DC]' : ''
-          }`}
-          onClick={() => selectedChannelId.set(props.channel.id)}
+        <Resizable
+          bounds="parent"
+          enable={{
+            top: false,
+            right: false,
+            bottom: false,
+            left: false,
+            topRight: false,
+            bottomRight: false,
+            bottomLeft: false,
+            topLeft: false
+          }}
+          minWidth={260}
+          maxWidth={390}
         >
-          <img className="mt-3 mr-2 rounded-8xs w-11 h-11 object-cover" alt="" src={UserIcon /**userThumbnail */} />
-          <div className="mt-3 justify-start w-[200px] whitespace-nowrap overflow-hidden text-ellipsis">
-            <p className="font-bold text-[#3F3960]">{getChannelName(props.channel)}</p>
-            <p className="h-4 text-xs text-[#787589]">{latestMessage}</p>
+          <div
+            className={` h-[68px] flex flex-nowrap	mx-4 gap-1 justify-center rounded-[5px] ${
+              selectedChannelId.value === props.channel.id ? 'bg-[#D4D7DC]' : ''
+            }`}
+            onClick={() => selectedChannelId.set(props.channel.id)}
+          >
+            <img className="mt-3 ml-5 rounded-8xs w-11 h-11 object-cover" alt="" src={UserIcon /**userThumbnail */} />
+            <div className="mt-3 justify-start w-[200px] whitespace-nowrap overflow-hidden text-ellipsis">
+              <p className="font-bold text-[#3F3960]">{getChannelName(props.channel)}</p>
+              <p className="h-4 text-xs text-[#787589]">{latestMessage}</p>
+            </div>
           </div>
-        </div>
+        </Resizable>
       </>
     )
   }

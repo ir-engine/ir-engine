@@ -84,7 +84,7 @@ export const DrawerCreateChannel = () => {
         <RenderUser friend={friend} key={index} />
       ))}
       {selectedFriends.value && (
-        <div className="w-[330px] flex justify-end mt-9 ml-2 items-center">
+        <div className="w-[330px] flex justify-start ml-9 mt-9 items-center">
           <button className="cursor-pointer rounded-[20px] p-0 bg-[#3F3960] w-[120px] h-8" onClick={createChannel}>
             <div className="[text-align-last:center] rounded-2xl text-[16px] text-sm font-segoe-ui text-white text-left">
               Create Now

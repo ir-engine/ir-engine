@@ -55,6 +55,8 @@ import UserSvg from './assets/user.svg'
  * reacts to chat state changes, both active channel and channel data, and fetches new messages
  */
 
+let height = '75%'
+
 export const getChannelName = (channel: Channel) => {
   return (
     channel.name ||
@@ -77,24 +79,64 @@ export const MessageList = (props: { channelID: ChannelID }) => {
 
   const SelfMessage = (props: { message: (typeof messages)[0] }) => {
     return (
-      <div className="flex flex-wrap mt-6 ">
-        <div className="h-[20px] mx-[147px] mr-5">
-          <p className="rounded-xl border-[#E1E1E1] border-2 text-black bg-[#E1E1E1] p-[3px]">{props.message.text}</p>
-        </div>
-        <img className="rounded-[38px]  w-9 h-9 object-cover" alt="" src={userThumbnail} />
-      </div>
+      <>
+        <Resizable
+          bounds="parent"
+          enable={{
+            top: false,
+            right: false,
+            bottom: false,
+            left: false,
+            topRight: false,
+            bottomRight: false,
+            bottomLeft: false,
+            topLeft: false
+          }}
+          minWidth={260}
+          maxWidth={694}
+        >
+          <div className="flex gap-1 my-5">
+            <div className="h-[100%] mr-5 ml-[58px] justify-end">
+              <p className="rounded-xl border-[#E1E1E1] border-2 text-black bg-[#E1E1E1] p-[3px]">
+                {props.message.text}
+              </p>
+            </div>
+            <img className="rounded-[38px]  w-9 h-9 object-cover" alt="" src={userThumbnail} />
+          </div>
+        </Resizable>
+      </>
     )
   }
 
   const OtherMessage = (props: { message: (typeof messages)[0] }) => {
     const userThumbnail = useUserAvatarThumbnail(props.message.sender?.id)
     return (
-      <div className="flex flex-wrap">
-        <img className="rounded-[38px]  w-9 h-9 object-cover" alt="" src={userThumbnail} />
-        <div className="h-[20px] ml-5">
-          <p className="rounded-3xl border-[#F8F8F8] border-2 text-black bg-[#F8F8F8] p-[3px]">{props.message.text}</p>
-        </div>
-      </div>
+      <>
+        <Resizable
+          bounds="parent"
+          enable={{
+            top: false,
+            right: false,
+            bottom: false,
+            left: false,
+            topRight: false,
+            bottomRight: false,
+            bottomLeft: false,
+            topLeft: false
+          }}
+          minWidth={260}
+          maxWidth={600}
+        >
+          <div className="flex flex-wrap">
+            <img className="rounded-[38px]  w-9 h-9 object-cover" alt="" src={userThumbnail} />
+            <div className="h-[20px] ml-5">
+              <p className="rounded-3xl border-[#F8F8F8] border-2 text-black bg-[#F8F8F8] p-[3px]">
+                {props.message.text}
+              </p>
+            </div>
+          </div>
+        </Resizable>
+      </>
     )
   }
 
@@ -112,7 +154,7 @@ export const MessageList = (props: { channelID: ChannelID }) => {
     }
 
     return (
-      <div className="absolute w-full bottom-0 h-[70px]  gap-5 flex flex-wrap justify-center bg-[#ffffff]">
+      <div className="relative w-full bottom-0 h-[70px]  gap-5 flex flex-wrap justify-center bg-[#ffffff]">
         <button className="">
           <img className="w-[30px] rounded-full font-bold h-[30px] overflow-hidden" alt="" src={AttachFileIcon} />
         </button>
@@ -138,7 +180,10 @@ export const MessageList = (props: { channelID: ChannelID }) => {
 
   return (
     <>
-      <div className="w-full bg-[#FFFFFF] ml-6 mb-[100px] mt-4 justify-center content-center overflow-scroll hide-scroll">
+      <div
+        className="w-full bg-[#FFFFFF] ml-8  mt-4 justify-center content-center overflow-scroll hide-scroll"
+        style={{ height: height }}
+      >
         {messages.map((message, index) => {
           if (message.sender?.id === Engine.instance.userId) return <SelfMessage key={index} message={message} />
           else return <OtherMessage key={index} message={message} />
@@ -186,14 +231,14 @@ const MessageHeader = (props: { selectedChannelID: ChannelID }) => {
   return (
     <>
       <div className="ml-8">
-        <p className="text-3xl font-bold text-[#3F3960]">{channelName}</p>
+        <p className="text-2xl min-w-0 max-w-xs font-bold text-[#3F3960]">{channelName}</p>
       </div>
       <div className="flex gap-6 justify-center">
         {connecting && <p className="mt-6 pt-2 flex flex-wrap text-[#3F3960]">Connecting...</p>}
         {mediaConnected && (
           <>
             <button
-              className="w-[38px] h-[38px] flex flex-wrap mt-6 justify-center rounded-[5px] bg-[#EDEEF0]"
+              className="w-[38px] h-[38px] flex flex-wrap justify-center rounded-[5px] bg-[#EDEEF0]"
               onClick={toggleWebcamPaused}
             >
               {isCamVideoEnabled ? (
@@ -203,7 +248,7 @@ const MessageHeader = (props: { selectedChannelID: ChannelID }) => {
               )}
             </button>
             <button
-              className="w-[38px] h-[38px] flex flex-wrap mt-6 justify-center rounded-[5px] bg-[#EDEEF0]"
+              className="w-[38px] h-[38px] flex flex-wrap justify-center rounded-[5px] bg-[#EDEEF0]"
               onClick={toggleMicrophonePaused}
             >
               {isCamAudioEnabled ? (
@@ -213,7 +258,7 @@ const MessageHeader = (props: { selectedChannelID: ChannelID }) => {
               )}
             </button>
             <button
-              className="w-[38px] h-[38px] flex flex-wrap mt-6 justify-center rounded-[5px] bg-[#EDEEF0]"
+              className="w-[38px] h-[38px] flex flex-wrap justify-center rounded-[5px] bg-[#EDEEF0]"
               onClick={toggleScreenshare}
             >
               {isScreenVideoEnabled ? (
@@ -225,13 +270,25 @@ const MessageHeader = (props: { selectedChannelID: ChannelID }) => {
           </>
         )}
         <button
-          className="w-[38px] h-[38px] flex flex-wrap mt-6 justify-center rounded-[5px] bg-[#EDEEF0]"
-          onClick={() => startMediaCall()}
+          className="w-[38px] h-[38px] flex flex-wrap justify-center rounded-[5px] bg-[#EDEEF0]"
+          onClick={() => {
+            startMediaCall()
+          }}
         >
           {targetChannelId && targetChannelId === selectedChannelID ? (
-            <HiPhoneMissedCall className="w-5 h-5 overflow-hidden mt-2 fill-[#3F3960]" />
+            <HiPhoneMissedCall
+              className="w-5 h-5 overflow-hidden mt-2 fill-[#3F3960]"
+              onClick={() => {
+                height = '75%'
+              }}
+            />
           ) : (
-            <HiPhone className="w-5 h-5 overflow-hidden mt-2 fill-[#3F3960]" />
+            <HiPhone
+              className="w-5 h-5 overflow-hidden mt-2 fill-[#3F3960]"
+              onClick={() => {
+                height = '54%'
+              }}
+            />
           )}
         </button>
       </div>
@@ -263,15 +320,15 @@ export const MessageContainer = () => {
           bottomLeft: false,
           topLeft: false
         }}
-        minWidth={600}
-        maxWidth={850}
+        minWidth={760}
+        maxWidth={830}
       >
         <div className="w-full h-[100vh] bg-white">
           <div className="w-full h-[90px] flex flex-wrap flex-col justify-center">
             {selectedChannelID && <MessageHeader selectedChannelID={selectedChannelID!} />}
           </div>
           <Resizable
-            bounds="window"
+            bounds="parent"
             defaultSize={{ width: '100%', height: '100%' }}
             enable={{
               top: false,
@@ -287,7 +344,7 @@ export const MessageContainer = () => {
           >
             {mediaConnected && (
               <>
-                <div className="w-full">
+                <div className="w-full justify-center content-center overflow-x-scroll hide-scroll">
                   <MediaCall />
                 </div>
               </>
