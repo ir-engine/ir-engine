@@ -23,7 +23,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { HookContext } from '@feathersjs/feathers'
 import { disallow, iff, isProvider } from 'feathers-hooks-common'
 
 import authenticate from '../../hooks/authenticate'
@@ -43,27 +42,7 @@ export default {
     all: [],
     find: [],
     get: [],
-    create: [
-      async (context: HookContext): Promise<HookContext> => {
-        const { app, result } = context
-        const channel = await app.service('channel').create({
-          users: [result.userId, result.relatedUserId]
-        })
-        // await app.service('message').create(
-        //   {
-        //     channelId: channel.id,
-        //     text: 'Hey friend!',
-        //     isNotification: true
-        //   },
-        //   {
-        //     'identity-provider': {
-        //       userId: result.userId
-        //     }
-        //   } as any
-        // )
-        return context
-      }
-    ],
+    create: [],
     update: [],
     patch: [],
     remove: []
