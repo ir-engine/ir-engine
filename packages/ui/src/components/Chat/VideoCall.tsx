@@ -24,12 +24,20 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { useMediaWindows } from '@etherealengine/client-core/src/components/UserMediaWindows'
-import { MediaStreamState } from '@etherealengine/client-core/src/transports/MediaStreams'
 import {
   PeerMediaChannelState,
   PeerMediaStreamInterface
 } from '@etherealengine/client-core/src/transports/PeerMediaChannelState'
-import { toggleMicrophonePaused } from '@etherealengine/client-core/src/transports/SocketWebRTCClientFunctions'
+import {
+  ConsumerExtension,
+  SocketWebRTCClientNetwork,
+  pauseConsumer,
+  resumeConsumer,
+  toggleMicrophonePaused,
+  toggleScreenshareAudioPaused,
+  toggleScreenshareVideoPaused,
+  toggleWebcamPaused
+} from '@etherealengine/client-core/src/transports/SocketWebRTCClientFunctions'
 import { useUserAvatarThumbnail } from '@etherealengine/client-core/src/user/functions/useUserAvatarThumbnail'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
@@ -102,8 +110,41 @@ export const UserMedia = (props: { peerID: PeerID; type: 'cam' | 'screen' }) => 
     ref.current.play()
   }, [ref.current, videoStreamState])
 
-  const mediaStreamState = useHookstate(getMutableState(MediaStreamState))
-  const isCamAudioEnabled = mediaStreamState.camAudioProducer.value != null && !mediaStreamState.audioPaused.value
+  const toggleVideo = async (e) => {
+    e.stopPropagation()
+    const mediaNetwork = Engine.instance.mediaNetwork as SocketWebRTCClientNetwork
+    if (isSelf && !isScreen) {
+      toggleWebcamPaused()
+    } else if (isSelf && isScreen) {
+      toggleScreenshareVideoPaused()
+    } else {
+      if (!videoStreamPaused) {
+        await pauseConsumer(mediaNetwork, videoStream as ConsumerExtension)
+        peerMediaChannelState.videoStreamPaused.set(true)
+      } else {
+        await resumeConsumer(mediaNetwork, videoStream as ConsumerExtension)
+        peerMediaChannelState.videoStreamPaused.set(false)
+      }
+    }
+  }
+
+  const toggleAudio = async (e) => {
+    e.stopPropagation()
+    const mediaNetwork = Engine.instance.mediaNetwork as SocketWebRTCClientNetwork
+    if (isSelf && !isScreen) {
+      toggleMicrophonePaused()
+    } else if (isSelf && isScreen) {
+      toggleScreenshareAudioPaused()
+    } else {
+      if (!audioStreamPaused) {
+        await pauseConsumer(mediaNetwork, audioStream as ConsumerExtension)
+        peerMediaChannelState.audioStreamPaused.set(true)
+      } else {
+        await resumeConsumer(mediaNetwork, audioStream as ConsumerExtension)
+        peerMediaChannelState.audioStreamPaused.set(false)
+      }
+    }
+  }
 
   return (
     <Resizable
@@ -153,12 +194,12 @@ export const UserMedia = (props: { peerID: PeerID; type: 'cam' | 'screen' }) => 
         </div>
         <button
           className="absolute bottom-1 right-1 w-[20px] h-[20px] flex px-1 justify-center  items-center rounded-full bg-[#EDEEF0]"
-          onClick={toggleMicrophonePaused}
+          onClick={toggleAudio}
         >
-          {isCamAudioEnabled ? (
-            <FaMicrophone className="w-3 h-3 overflow-hidden fill-[#008000]" />
-          ) : (
+          {audioStreamPaused ? (
             <FaMicrophoneSlash className="w-5 h-5 overflow-hidden  fill-[#3F3960]" />
+          ) : (
+            <FaMicrophone className="w-3 h-3 overflow-hidden fill-[#008000]" />
           )}
         </button>
       </div>
