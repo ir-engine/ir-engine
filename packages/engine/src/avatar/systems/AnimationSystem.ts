@@ -32,9 +32,11 @@ import { VisibleComponent } from '../../scene/components/VisibleComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { TweenComponent } from '../../transform/components/TweenComponent'
 import { AnimationComponent } from '.././components/AnimationComponent'
+import { LoopAnimationComponent } from '../components/LoopAnimationComponent'
 
 const tweenQuery = defineQuery([TweenComponent])
 const animationQuery = defineQuery([AnimationComponent, VisibleComponent])
+const loopAnimationQuery = defineQuery([LoopAnimationComponent, VisibleComponent])
 
 const execute = () => {
   const { deltaSeconds } = getState(EngineState)
@@ -49,6 +51,11 @@ const execute = () => {
     const modifiedDelta = deltaSeconds * animationComponent.animationSpeed
     animationComponent.mixer.update(modifiedDelta)
     TransformComponent.dirtyTransforms[entity] = true
+  }
+
+  for (const entity of loopAnimationQuery()) {
+    const loopAnimationComponent = getComponent(entity, LoopAnimationComponent)
+    if (loopAnimationComponent.vrm) loopAnimationComponent.vrm.update(getState(EngineState).deltaSeconds)
   }
 }
 

@@ -24,8 +24,9 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { useEffect } from 'react'
-import { AnimationAction, AnimationClip, AnimationMixer } from 'three'
+import { AnimationAction, AnimationClip, AnimationMixer, Object3D } from 'three'
 
+import { VRM } from '@pixiv/three-vrm'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { isClient } from '../../common/functions/getEnvironment'
 import {
@@ -39,6 +40,7 @@ import {
 import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { CallbackComponent, StandardCallbacks, setCallback } from '../../scene/components/CallbackComponent'
 import { ModelComponent } from '../../scene/components/ModelComponent'
+import { retargetMixamoAnimation } from '../functions/retargetMixamoRig'
 import { AnimationComponent } from './AnimationComponent'
 
 export const LoopAnimationComponent = defineComponent({
@@ -48,8 +50,9 @@ export const LoopAnimationComponent = defineComponent({
   onInit: (entity) => {
     return {
       activeClipIndex: -1,
-      isVRM: false,
+      vrm: undefined as VRM | undefined,
       animationPack: '',
+      animationPackScene: undefined as Object3D | undefined,
       action: null as AnimationAction | null
     }
   },
@@ -59,14 +62,12 @@ export const LoopAnimationComponent = defineComponent({
 
     if (typeof json.activeClipIndex === 'number') component.activeClipIndex.set(json.activeClipIndex)
     if (typeof json.animationPack === 'string') component.animationPack.set(json.animationPack)
-    if (typeof json.isVRM === 'boolean') component.isVRM.set(json.isVRM)
   },
 
   toJSON: (entity, component) => {
     return {
       activeClipIndex: component.activeClipIndex.value,
-      animationPack: component.animationPack.value,
-      hasAvatarAnimations: component.isVRM.value
+      animationPack: component.animationPack.value
     }
   },
 
@@ -100,11 +101,6 @@ export const LoopAnimationComponent = defineComponent({
       setCallback(entity, StandardCallbacks.STOP, stop)
     }, [])
 
-    useEffect(() => {
-      if (loopAnimationComponent && modelComponent?.scene.value)
-        loopAnimationComponent.isVRM.set(modelComponent.scene.value.userData?.type === 'vrm')
-    }, [modelComponent?.scene])
-
     /**
      * A model is required for LoopAnimationComponent.
      */
@@ -132,8 +128,11 @@ export const LoopAnimationComponent = defineComponent({
 
       if (!loopAnimationComponent || !loopAnimationComponent.animationPack.value) return
       AssetLoader.loadAsync(loopAnimationComponent?.animationPack.value).then((model) => {
-        const animations = model.animations
+        const animations = model.scene.animations
+        console.log(model)
+        loopAnimationComponent.animationPackScene.set(model.scene)
         animationComponent.animations = animations
+        playAnimationClip(animationComponent, loopComponent)
       })
 
       //      const changedToAvatarAnimation =
@@ -158,7 +157,7 @@ export const LoopAnimationComponent = defineComponent({
 */
 
       if (!loopComponent.action?.paused) playAnimationClip(animationComponent, loopComponent)
-    }, [animComponent?.animations, loopAnimationComponent?.isVRM, loopAnimationComponent?.animationPack])
+    }, [animComponent?.animations, loopAnimationComponent?.vrm, loopAnimationComponent?.animationPack])
 
     return null
   }
@@ -168,18 +167,22 @@ export const playAnimationClip = (
   animationComponent: ComponentType<typeof AnimationComponent>,
   loopAnimationComponent: ComponentType<typeof LoopAnimationComponent>
 ) => {
+  console.log(animationComponent)
   if (loopAnimationComponent.action) loopAnimationComponent.action.stop()
   if (
     loopAnimationComponent.activeClipIndex >= 0 &&
     animationComponent.animations[loopAnimationComponent.activeClipIndex]
   ) {
     animationComponent.mixer.stopAllAction()
+    const clip = AnimationClip.findByName(
+      animationComponent.animations,
+      animationComponent.animations[loopAnimationComponent.activeClipIndex].name
+    )
     loopAnimationComponent.action = animationComponent.mixer
       .clipAction(
-        AnimationClip.findByName(
-          animationComponent.animations,
-          animationComponent.animations[loopAnimationComponent.activeClipIndex].name
-        )
+        loopAnimationComponent.vrm
+          ? retargetMixamoAnimation(clip, loopAnimationComponent.animationPackScene!, loopAnimationComponent.vrm)
+          : clip
       )
       .play()
   }

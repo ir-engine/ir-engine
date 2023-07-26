@@ -161,7 +161,7 @@ export const rigAvatarModel = (entity: Entity) => (model: VRM) => {
   const avatarAnimationComponent = getComponent(entity, AvatarAnimationComponent)
   removeComponent(entity, AvatarRigComponent)
 
-  const rig = model.humanoid?.humanBones
+  const rig = model.humanoid?.normalizedHumanBones
 
   const skinnedMeshes = findSkinnedMeshes(model.scene)
 
