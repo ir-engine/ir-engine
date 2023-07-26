@@ -30,9 +30,8 @@ import { dispatchAction, getMutableState, getState, useHookstate } from '@ethere
 
 import { CameraComponent } from '../../camera/components/CameraComponent'
 import { ObjectDirection } from '../../common/constants/Axis3D'
-import { Object3DUtils } from '../../common/functions/Object3DUtils'
 import { Engine } from '../../ecs/classes/Engine'
-import { EngineActions, EngineState } from '../../ecs/classes/EngineState'
+import { EngineActions } from '../../ecs/classes/EngineState'
 import { Entity, UndefinedEntity } from '../../ecs/classes/Entity'
 import {
   defineQuery,
@@ -53,7 +52,7 @@ import { getInteractionGroups } from '../../physics/functions/getInteractionGrou
 import { PhysicsState } from '../../physics/state/PhysicsState'
 import { SceneQueryType } from '../../physics/types/PhysicsTypes'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
-import { GroupComponent, Object3DWithEntity } from '../../scene/components/GroupComponent'
+import { GroupComponent } from '../../scene/components/GroupComponent'
 import { NameComponent } from '../../scene/components/NameComponent'
 import { VisibleComponent } from '../../scene/components/VisibleComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
@@ -473,7 +472,7 @@ const execute = () => {
         break
       }
 
-      // 2nd heuristic is scene objects when in the editor
+      /*      // 2nd heuristic is scene objects when in the editor
       if (getState(EngineState).isEditor) {
         raycaster.set(inputRaycast.origin, inputRaycast.direction)
         const objects = inputObjects()
@@ -489,7 +488,7 @@ const execute = () => {
           assignedInputEntity = parentObject.entity
         }
       }
-
+*/
       const physicsWorld = getState(PhysicsState).physicsWorld
 
       // 3nd heuristic is physics colliders

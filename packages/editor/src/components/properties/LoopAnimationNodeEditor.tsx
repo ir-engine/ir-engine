@@ -23,10 +23,9 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React, { useEffect } from 'react'
+import React, { useCallback, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { AnimationManager } from '@etherealengine/engine/src/avatar/AnimationManager'
 import { LoopAnimationComponent } from '@etherealengine/engine/src/avatar/components/LoopAnimationComponent'
 import { useComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { getCallback } from '@etherealengine/engine/src/scene/components/CallbackComponent'
@@ -35,11 +34,12 @@ import { useState } from '@etherealengine/hyperflux'
 
 import AnimationIcon from '@mui/icons-material/Animation'
 
-import BooleanInput from '../inputs/BooleanInput'
+import { getEntityErrors } from '@etherealengine/engine/src/scene/components/ErrorComponent'
 import InputGroup from '../inputs/InputGroup'
+import ModelInput from '../inputs/ModelInput'
 import SelectInput from '../inputs/SelectInput'
 import NodeEditor from './NodeEditor'
-import { EditorComponentType, updateProperties, updateProperty } from './Util'
+import { EditorComponentType, updateProperties } from './Util'
 
 /**
  * ModelNodeEditor used to create editor view for the properties of ModelNode.
@@ -54,16 +54,16 @@ export const LoopAnimationNodeEditor: EditorComponentType = (props) => {
 
   const animationOptions = useState([] as { label: string; value: number }[])
 
+  const errors = getEntityErrors(props.entity, ModelComponent)
+
   useEffect(() => {
     const obj3d = modelComponent.value.scene
-    const animations = loopAnimationComponent.value.hasAvatarAnimations
-      ? AnimationManager.instance._animations
-      : obj3d?.animations ?? []
+    const animations = obj3d?.animations ?? []
     animationOptions.set([
       { label: 'None', value: -1 },
       ...animations.map((clip, index) => ({ label: clip.name, value: index }))
     ])
-  }, [modelComponent.scene, loopAnimationComponent.hasAvatarAnimations])
+  }, [modelComponent.scene, loopAnimationComponent.isVRM])
 
   const onChangePlayingAnimation = (index) => {
     updateProperties(LoopAnimationComponent, {
@@ -71,6 +71,10 @@ export const LoopAnimationNodeEditor: EditorComponentType = (props) => {
     })
     getCallback(props.entity, 'xre.play')!()
   }
+
+  const updateResources = useCallback((path: string) => {
+    updateProperties(LoopAnimationComponent, { animationPack: path })
+  }, [])
 
   return (
     <NodeEditor
@@ -86,12 +90,14 @@ export const LoopAnimationNodeEditor: EditorComponentType = (props) => {
           onChange={onChangePlayingAnimation}
         />
       </InputGroup>
-      <InputGroup name="Is Avatar" label={t('editor:properties.model.lbl-isAvatar')}>
-        <BooleanInput
-          value={loopAnimationComponent.value.hasAvatarAnimations}
-          onChange={updateProperty(LoopAnimationComponent, 'hasAvatarAnimations')}
-        />
-      </InputGroup>
+      {loopAnimationComponent.isVRM.value && (
+        <InputGroup name="Animation Pack" label="Animation Pack (via Mixamo Rig)">
+          <ModelInput value={loopAnimationComponent.animationPack.value} onChange={updateResources} />
+          {errors?.LOADING_ERROR && (
+            <div style={{ marginTop: 2, color: '#FF8C00' }}>{t('editor:properties.model.error-url')}</div>
+          )}
+        </InputGroup>
+      )}
     </NodeEditor>
   )
 }
