@@ -60,8 +60,8 @@ export const AdminLocationState = defineState({
 
 export const AdminLocationService = {
   fetchLocationTypes: async () => {
-    await Engine.instance.api.service(locationTypePath).find()
-    getMutableState(AdminLocationState).merge({ updateNeeded: true })
+    const locationType = await Engine.instance.api.service(locationTypePath).find()
+    getMutableState(AdminLocationState).merge({ locationTypes: locationType.data })
   },
   patchLocation: async (id: string, location: LocationPatch) => {
     try {
