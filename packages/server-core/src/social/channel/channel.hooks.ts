@@ -28,6 +28,7 @@ import { disallow, iff, isProvider } from 'feathers-hooks-common'
 import addAssociations from '@etherealengine/server-core/src/hooks/add-associations'
 import setLoggedInUser from '@etherealengine/server-core/src/hooks/set-loggedin-user-in-body'
 
+import { Op } from 'sequelize'
 import { HookContext } from '../../../declarations'
 import authenticate from '../../hooks/authenticate'
 import { ChannelUser } from '../channel-user/channel-user.class'
@@ -101,7 +102,35 @@ export default {
         ]
       })
     ],
-    create: [setLoggedInUser('userId')],
+    create: [
+      setLoggedInUser('userId'),
+      // ensure users are friends of the owner
+      iff(isProvider('external'), async (context: HookContext) => {
+        const data = context.data
+        const users = data.users
+
+        const loggedInUser = context.params!.user
+        const userId = loggedInUser?.id
+
+        if (!users || !userId) return context
+
+        const userRelationships = await context.app.service('user-relationship').Model.findAll({
+          where: {
+            userId: userId,
+            userRelationshipType: 'friend',
+            relatedUserId: {
+              [Op.in]: users
+            }
+          }
+        })
+
+        if (userRelationships.length !== users.length) {
+          throw new Error('Must be friends with all users to create channel!')
+        }
+
+        return context
+      })
+    ],
     update: [disallow('external')],
     patch: [disallow('external')],
     remove: [setLoggedInUser('userId')]

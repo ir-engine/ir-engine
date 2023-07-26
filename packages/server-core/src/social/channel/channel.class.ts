@@ -72,7 +72,7 @@ export class Channel<T = ChannelDataType> extends Service<T> {
             required: true,
             as: 'channel_users',
             where: {
-              userId: [userId, ...users]
+              [Op.and]: [userId, ...users].map((user) => ({ userId: user }))
             }
           }
         ]
