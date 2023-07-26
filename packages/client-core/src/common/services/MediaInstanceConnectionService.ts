@@ -74,8 +74,6 @@ export const MediaInstanceState = defineState({
   initial: () => ({
     instances: {} as { [id: string]: InstanceState },
     /** @deprecated */
-    joiningNonInstanceMediaChannel: false,
-    /** @deprecated */
     joiningNewMediaChannel: false
   })
 })
@@ -118,7 +116,6 @@ export const MediaInstanceConnectionServiceReceptor = (action) => {
       return s.instances[action.instanceId].connecting.set(true)
     })
     .when(MediaInstanceConnectionAction.serverConnected.matches, (action) => {
-      s.joiningNonInstanceMediaChannel.set(false)
       s.joiningNewMediaChannel.set(false)
       return s.instances[action.instanceId].merge({
         connected: true,
@@ -133,10 +130,6 @@ export const MediaInstanceConnectionServiceReceptor = (action) => {
     })
     .when(MediaInstanceConnectionAction.disconnect.matches, (action) => {
       return s.instances[action.instanceId].set(none)
-    })
-    .when(MediaInstanceConnectionAction.joiningNonInstanceMediaChannel.matches, () => {
-      s.joiningNewMediaChannel.set(true)
-      return s.joiningNonInstanceMediaChannel.set(true)
     })
     .when(MediaInstanceConnectionAction.changeActiveConnectionHostId.matches, (action) => {
       const currentNetwork = s.instances[action.currentInstanceId].get({ noproxy: true })
@@ -267,10 +260,6 @@ export class MediaInstanceConnectionAction {
   static disconnect = defineAction({
     type: 'ee.client.MediaInstanceConnection.MEDIA_INSTANCE_SERVER_DISCONNECT' as const,
     instanceId: matches.string
-  })
-
-  static joiningNonInstanceMediaChannel = defineAction({
-    type: 'ee.client.MediaInstanceConnection.JOINING_NON_INSTANCE_MEDIA_CHANNEL' as const
   })
 
   static joiningNewMediaChannel = defineAction({

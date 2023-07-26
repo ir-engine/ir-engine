@@ -98,7 +98,6 @@ export const useQuery = <S extends keyof ServiceTypes, M extends Methods>(servic
   })}` as QueryHash
 
   const fetch = () => {
-    console.log('fetch')
     state[serviceName][queryId].merge({
       status: 'pending',
       error: ''
@@ -112,6 +111,7 @@ export const useQuery = <S extends keyof ServiceTypes, M extends Methods>(servic
         })
       })
       .catch((error) => {
+        console.error(error)
         state[serviceName][queryId].merge({
           status: 'error',
           error: error.message
@@ -122,7 +122,6 @@ export const useQuery = <S extends keyof ServiceTypes, M extends Methods>(servic
   useRealtime(serviceName, fetch)
 
   useEffect(() => {
-    console.log('mount')
     if (!state.get(NO_PROXY)[serviceName]) state[serviceName].set({})
     if (!state.get(NO_PROXY)[serviceName][queryId]) {
       state[serviceName].merge({
@@ -135,16 +134,19 @@ export const useQuery = <S extends keyof ServiceTypes, M extends Methods>(servic
       })
       fetch()
     }
-  }, [])
+  }, [serviceName, method, args])
 
   const query = state[serviceName]?.[queryId]
-  const data = state.get(NO_PROXY)[serviceName]?.[queryId]?.response as Awaited<ReturnType<ServiceTypes[S][M]>>
+  const queryObj = state.get(NO_PROXY)[serviceName]?.[queryId]
+  const data = queryObj?.response as Awaited<ReturnType<ServiceTypes[S][M]>>
+  const error = queryObj?.error
+  const status = queryObj?.status
 
   return useMemo(
     () => ({
-      data: data,
-      status: query?.status?.value,
-      error: query?.error?.value,
+      data,
+      status,
+      error,
       refetch: fetch
     }),
     [data, query?.response, query?.status, query?.error]

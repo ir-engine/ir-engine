@@ -38,7 +38,6 @@ import { Validator, matches } from '@etherealengine/engine/src/common/functions/
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { defineAction, defineState, dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
 
-import { MediaInstanceConnectionAction } from '../../common/services/MediaInstanceConnectionService'
 import { NotificationService } from '../../common/services/NotificationService'
 import { AuthState } from '../../user/services/AuthService'
 
@@ -320,9 +319,6 @@ export const InviteService = {
   },
   acceptInvite: async (invite: Invite) => {
     try {
-      if (invite.inviteType === 'channel') {
-        dispatchAction(MediaInstanceConnectionAction.joiningNonInstanceMediaChannel({}))
-      }
       await Engine.instance.api.service('a-i').get(invite.id, {
         query: {
           passcode: invite.passcode

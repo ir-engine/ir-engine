@@ -23,22 +23,29 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React from 'react'
+import React, { useEffect } from 'react'
 
 import { useUserAvatarThumbnail } from '@etherealengine/client-core/src/user/functions/useUserAvatarThumbnail'
-import { useFind, useMutation } from '@etherealengine/engine/src/common/functions/FeathersHooks'
+import { useFind, useGet, useMutation } from '@etherealengine/engine/src/common/functions/FeathersHooks'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
-import { ChannelService } from '@etherealengine/client-core/src/social/services/ChannelService'
+import { useMediaInstance } from '@etherealengine/client-core/src/common/services/MediaInstanceConnectionService'
+import { ChannelService, ChannelState } from '@etherealengine/client-core/src/social/services/ChannelService'
+import { MediaStreamState } from '@etherealengine/client-core/src/transports/MediaStreams'
+import {
+  toggleMicrophonePaused,
+  toggleScreenshare,
+  toggleWebcamPaused
+} from '@etherealengine/client-core/src/transports/SocketWebRTCClientFunctions'
 import { ChannelID } from '@etherealengine/common/src/interfaces/ChannelUser'
+import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
 import { Resizable } from 're-resizable'
-import { FaMicrophone } from 'react-icons/fa'
-import { HiPhoneMissedCall } from 'react-icons/hi'
-import { IoMdVideocam } from 'react-icons/io'
-import { MdScreenShare } from 'react-icons/md'
+import { FaMicrophone, FaMicrophoneSlash } from 'react-icons/fa'
+import { HiPhone, HiPhoneMissedCall } from 'react-icons/hi'
+import { MdScreenShare, MdStopScreenShare, MdVideocam, MdVideocamOff } from 'react-icons/md'
 import { ChatState } from './ChatState'
-import { VideoCall } from './VideoCall'
+import { MediaCall } from './VideoCall'
 import AttachFileIcon from './assets/attach-file2.svg'
 import SendIcon from './assets/send.svg'
 import UserSvg from './assets/user.svg'
@@ -55,10 +62,6 @@ export const MessageList = (props: { channelID: ChannelID }) => {
       channelId: props.channelID
     }
   })
-
-  const startMediaCall = () => {
-    ChannelService.joinChannelInstance(props.channelID)
-  }
 
   const SelfMessage = (props: { message: (typeof messages)[0] }) => {
     return (
@@ -136,14 +139,37 @@ export const MessageList = (props: { channelID: ChannelID }) => {
 
 export const MessageContainer = () => {
   const selectedChannelID = useHookstate(getMutableState(ChatState).selectedChannelID).value
+  const targetChannelId = useHookstate(getMutableState(ChannelState).targetChannelId).value
 
-  // const userName = useHookstate(getMutableState(AuthState).user.name).value
-  // const channelsList = useFind('channel', {})
-  // const channelUserNames = channelsList?.channel_users.map((user) => user.user!.name).filter((name) => name !== userName) ?? []
-  const channelUserNames = []
+  const { data: channel } = useGet('channel', selectedChannelID!)
+
+  const mediaStreamState = useHookstate(getMutableState(MediaStreamState))
+  const isCamVideoEnabled = mediaStreamState.camVideoProducer.value != null && !mediaStreamState.videoPaused.value
+  const isCamAudioEnabled = mediaStreamState.camAudioProducer.value != null && !mediaStreamState.audioPaused.value
+  const isScreenVideoEnabled =
+    mediaStreamState.screenVideoProducer.value != null && !mediaStreamState.screenShareVideoPaused.value
+
+  const startMediaCall = () => {
+    if (!selectedChannelID) return
+    const inChannelCall = targetChannelId === selectedChannelID
+    ChannelService.joinChannelInstance(inChannelCall ? ('' as ChannelID) : selectedChannelID)
+  }
+
+  useEffect(() => {
+    ChannelService.getChannels()
+  }, [])
+
+  const currentChannelInstanceConnection = useMediaInstance()
+  const networkState = useHookstate(getMutableState(NetworkState))
+  const mediaHostId = Engine.instance.mediaNetwork?.hostId
+  const mediaConnected =
+    mediaHostId && networkState.networks[mediaHostId]?.ready?.value && currentChannelInstanceConnection?.connected.value
+  const connecting =
+    mediaHostId &&
+    (currentChannelInstanceConnection?.connecting.value || !networkState.networks[mediaHostId]?.ready?.value)
+
   return (
     <>
-      {' '}
       <Resizable
         bounds="window"
         defaultSize={{ width: 780, height: '100%' }}
@@ -161,34 +187,87 @@ export const MessageContainer = () => {
         maxWidth={850}
       >
         <div className="w-full h-[100vh] bg-white">
-          <div className="w-full h-[90px] flex flex-wrap gap-[450px] justify-center">
-            <div className="mt-7">
-              <p className="text-3xl font-bold text-[#3F3960]">{channelUserNames.join(', ')}</p>
-            </div>
-            <div className="flex gap-6 justify-center">
-              <button className="w-[38px] h-[38px] flex flex-wrap mt-6 justify-center rounded-[5px] bg-[#EDEEF0]">
-                <IoMdVideocam className="w-5 h-5 overflow-hidden mt-2 fill-[#3F3960]" />
-              </button>
-              <button className="w-[38px] h-[38px] flex flex-wrap mt-6 justify-center rounded-[5px] bg-[#EDEEF0]">
-                <FaMicrophone className="w-5 h-5 overflow-hidden mt-2 fill-[#3F3960]" />
-              </button>
-              <button className="w-[38px] h-[38px] flex flex-wrap mt-6 justify-center rounded-[5px] bg-[#EDEEF0]">
-                <MdScreenShare className="w-6 h-6 overflow-hidden mt-2 fill-[#3F3960]" />
-              </button>
-              {/* <button className="">
-            <img className="w-10 h-10 overflow-hidden" alt="" src={CallIcon} />
-          </button> */}
-              <button className="w-[38px] h-[38px] flex flex-wrap mt-6 justify-center rounded-[5px] bg-[#EDEEF0]">
-                <HiPhoneMissedCall className="w-5 h-5 overflow-hidden mt-2 fill-[#3F3960]" />
-              </button>
-            </div>
+          <div className="w-full h-[90px] flex flex-wrap flex-col justify-center">
+            {channel && (
+              <>
+                <div className="ml-8">
+                  <p className="text-3xl font-bold text-[#3F3960]">{channel.name}</p>
+                </div>
+                <div className="flex gap-6 justify-center">
+                  {connecting && <p className="mt-6 pt-2 flex flex-wrap text-[#3F3960]">Connecting...</p>}
+                  {mediaConnected && (
+                    <>
+                      <button
+                        className="w-[38px] h-[38px] flex flex-wrap mt-6 justify-center rounded-[5px] bg-[#EDEEF0]"
+                        onClick={toggleWebcamPaused}
+                      >
+                        {isCamVideoEnabled ? (
+                          <MdVideocam className="w-5 h-5 overflow-hidden mt-2 fill-[#ff1515]" />
+                        ) : (
+                          <MdVideocamOff className="w-5 h-5 overflow-hidden mt-2 fill-[#3F3960]" />
+                        )}
+                      </button>
+                      <button
+                        className="w-[38px] h-[38px] flex flex-wrap mt-6 justify-center rounded-[5px] bg-[#EDEEF0]"
+                        onClick={toggleMicrophonePaused}
+                      >
+                        {isCamAudioEnabled ? (
+                          <FaMicrophone className="w-5 h-5 overflow-hidden mt-2 fill-[#ff1515]" />
+                        ) : (
+                          <FaMicrophoneSlash className="w-5 h-5 overflow-hidden mt-2 fill-[#3F3960]" />
+                        )}
+                      </button>
+                      <button
+                        className="w-[38px] h-[38px] flex flex-wrap mt-6 justify-center rounded-[5px] bg-[#EDEEF0]"
+                        onClick={toggleScreenshare}
+                      >
+                        {isScreenVideoEnabled ? (
+                          <MdScreenShare className="w-6 h-6 overflow-hidden mt-2 fill-[#ff1515]" />
+                        ) : (
+                          <MdStopScreenShare className="w-6 h-6 overflow-hidden mt-2 fill-[#3F3960]" />
+                        )}
+                      </button>
+                    </>
+                  )}
+                  <button
+                    className="w-[38px] h-[38px] flex flex-wrap mt-6 justify-center rounded-[5px] bg-[#EDEEF0]"
+                    onClick={() => startMediaCall()}
+                  >
+                    {targetChannelId && targetChannelId === selectedChannelID ? (
+                      <HiPhoneMissedCall className="w-5 h-5 overflow-hidden mt-2 fill-[#3F3960]" />
+                    ) : (
+                      <HiPhone className="w-5 h-5 overflow-hidden mt-2 fill-[#3F3960]" />
+                    )}
+                  </button>
+                </div>
+              </>
+            )}
           </div>
-
-          <div className="box-border w-full border-t-[1px] border-solid border-[#D1D3D7]" />
-          <div className="w-full h-[400vh]">
-            <VideoCall />
-          </div>
-          {<MessageList channelID={selectedChannelID!} />}
+          <Resizable
+            bounds="window"
+            defaultSize={{ width: '100%', height: '100%' }}
+            enable={{
+              top: false,
+              right: false,
+              bottom: true,
+              left: false,
+              topRight: false,
+              bottomRight: false,
+              bottomLeft: false,
+              topLeft: false
+            }}
+            maxHeight={'100%'}
+          >
+            {mediaConnected && (
+              <>
+                <div className="w-full">
+                  <MediaCall />
+                </div>
+              </>
+            )}
+            <div className="box-border w-full border-t-[1px] border-solid border-[#D1D3D7]" />
+            {<MessageList channelID={selectedChannelID!} />}
+          </Resizable>
         </div>
       </Resizable>
     </>

@@ -52,8 +52,3 @@ export interface NetworkPeer {
   incomingDataConsumers?: Map<DataChannelType, any> // Key of internal producer id => id of data producer
   dataProducers?: Map<string, any> // Keyof internal producer id => label of data channel
 }
-
-export interface UserClient {
-  userId: UserId
-  name: string
-}

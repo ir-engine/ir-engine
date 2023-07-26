@@ -23,12 +23,14 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { disallow } from 'feathers-hooks-common'
+import { disallow, iff, isProvider } from 'feathers-hooks-common'
 
 import addAssociations from '@etherealengine/server-core/src/hooks/add-associations'
 import setLoggedInUser from '@etherealengine/server-core/src/hooks/set-loggedin-user-in-body'
 
+import { HookContext } from '../../../declarations'
 import authenticate from '../../hooks/authenticate'
+import { ChannelUser } from '../channel-user/channel-user.class'
 
 /**
  *  Don't remove this comment. It's needed to format import lines nicely.
@@ -57,7 +59,23 @@ export default {
       })
     ],
     get: [
-      disallow('external'), // todo - replace with a hook that checks if you have permission
+      setLoggedInUser('userId'),
+      iff(isProvider('external'), async (context: HookContext) => {
+        const channelID = context.arguments[0]
+        if (!channelID) return context
+
+        const loggedInUser = context.params!.user
+        const channelUser = (await context.app.service('channel-user').Model.findOne({
+          query: {
+            channelId: channelID,
+            userId: loggedInUser.id
+          }
+        })) as ChannelUser
+
+        if (!channelUser) throw new Error('Must be member of channel!')
+
+        return context
+      }),
       addAssociations({
         models: [
           {

@@ -23,60 +23,143 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { useMediaWindows } from '@etherealengine/client-core/src/components/UserMediaWindows'
+import {
+  PeerMediaChannelState,
+  PeerMediaStreamInterface
+} from '@etherealengine/client-core/src/transports/PeerMediaChannelState'
+import { useUserAvatarThumbnail } from '@etherealengine/client-core/src/user/functions/useUserAvatarThumbnail'
+import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { WorldState } from '@etherealengine/engine/src/networking/interfaces/WorldState'
+import { State, getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { t } from 'i18next'
 import { Resizable } from 're-resizable'
-import React from 'react'
+import React, { useEffect, useRef } from 'react'
 import { FaMicrophoneSlash } from 'react-icons/fa'
-import DownloadImage1 from './assets/download-image1.png'
 
-export const VideoCall = () => {
-  const Users: { userimage: string; username: string; backgroundcolor: string }[] = [
-    { username: 'John Laouireen', userimage: DownloadImage1, backgroundcolor: '#7D675A' },
-    { username: 'John Laouireen', userimage: DownloadImage1, backgroundcolor: '#DDC1BB' },
-    { username: 'John Laouireen', userimage: DownloadImage1, backgroundcolor: '#B4985F' },
-    { username: 'John Laouireen', userimage: DownloadImage1, backgroundcolor: '#B79E8E' },
-    { username: 'John Laouireen', userimage: DownloadImage1, backgroundcolor: '#949089' },
-    { username: 'John Laouireen', userimage: DownloadImage1, backgroundcolor: '#483E69' }
-  ]
+export const UserMedia = (props: { peerID: PeerID; type: 'cam' | 'screen' }) => {
+  const { peerID, type } = props
+
+  const mediaNetwork = Engine.instance.mediaNetwork
+
+  const isSelf =
+    !mediaNetwork ||
+    peerID === Engine.instance.peerID ||
+    (mediaNetwork?.peers &&
+      Array.from(mediaNetwork.peers.values()).find((peer) => peer.userId === Engine.instance.userId)?.peerID ===
+        peerID) ||
+    peerID === 'self'
+  const isScreen = type === 'screen'
+
+  const userID = mediaNetwork.peers.get(peerID)?.userId!
+
+  const userThumbnail = useUserAvatarThumbnail(userID)
+
+  const usernames = useHookstate(getMutableState(WorldState).userNames)
+  const getUsername = () => {
+    if (isSelf && !isScreen) return t('user:person.you')
+    if (isSelf && isScreen) return t('user:person.yourScreen')
+    const username = userID ? usernames.get({ noproxy: true })[userID] : 'A User'
+    if (!isSelf && isScreen) return username + "'s Screen"
+    return username
+  }
+
+  const peerMediaChannelState = useHookstate(
+    getMutableState(PeerMediaChannelState)[peerID][type] as State<PeerMediaStreamInterface>
+  )
+  const {
+    videoStream,
+    audioStream,
+    videoStreamPaused,
+    audioStreamPaused,
+    videoProducerPaused,
+    audioProducerPaused,
+    videoProducerGlobalMute,
+    audioProducerGlobalMute,
+    videoElement,
+    audioElement
+  } = peerMediaChannelState.get({ noproxy: true })
+
+  const { videoStream: videoStreamState } = peerMediaChannelState
+
+  const username = getUsername()
+
+  const ref = useRef<HTMLVideoElement>(null)
+
+  useEffect(() => {
+    if (!ref.current || ref.current.srcObject || !videoStreamState?.value) return
+
+    ref.current.id = `${peerID}_video_xrui`
+    ref.current.autoplay = true
+    ref.current.muted = true
+    ref.current.setAttribute('playsinline', 'true')
+
+    const newVideoTrack = videoStreamState.value.track!.clone()
+    ref.current.srcObject = new MediaStream([newVideoTrack])
+    ref.current.play()
+  }, [ref.current, videoStreamState])
 
   return (
+    <Resizable
+      key={username}
+      bounds="window"
+      defaultSize={{ width: 254, height: 160 }}
+      enable={{
+        top: false,
+        right: true,
+        bottom: true,
+        left: true,
+        topRight: false,
+        bottomRight: true,
+        bottomLeft: true,
+        topLeft: false
+      }}
+      minWidth={200}
+      maxWidth={420}
+      minHeight={160}
+      maxHeight={250}
+    >
+      <div
+        className={`relative h-full rounded-[5px] flex items-center justify-center`}
+        style={{ backgroundColor: 'gray' }} // TODO derive color from user thumbnail
+      >
+        {videoStream == null || videoStreamPaused || videoProducerPaused || videoProducerGlobalMute ? (
+          <img
+            src={userThumbnail}
+            alt=""
+            crossOrigin="anonymous"
+            draggable={false}
+            className="rounded-full w-[40px] h-[40px]"
+          />
+        ) : (
+          <video
+            className="w-full h-full"
+            ref={ref}
+            key={peerID + '-video-container'}
+            id={peerID + '-video-container'}
+          />
+        )}
+        <div className="absolute min-w-0 max-w-xs bottom-1 left-1  flex justify-center items-center rounded-[20px] px-1 bg-[#B6AFAE]">
+          <p className="[text-align-last:center] rounded-2xl text-[12px] font-segoe-ui text-white text-left">
+            {username}
+          </p>
+        </div>
+        <button className="absolute bottom-1 right-1 w-[20px] h-[20px] flex px-1 justify-center  items-center rounded-full bg-[#EDEEF0]">
+          <FaMicrophoneSlash className="w-5 h-5 overflow-hidden  fill-[#3F3960]" />
+        </button>
+      </div>
+    </Resizable>
+  )
+}
+
+export const MediaCall = () => {
+  const windows = useMediaWindows()
+  return (
     <div className="flex flex-wrap gap-1 mx-1 mt-1">
-      {Users.map((item) => {
-        return (
-          <Resizable
-            bounds="window"
-            defaultSize={{ width: 254, height: 160 }}
-            enable={{
-              top: false,
-              right: true,
-              bottom: true,
-              left: true,
-              topRight: false,
-              bottomRight: true,
-              bottomLeft: true,
-              topLeft: false
-            }}
-            minWidth={200}
-            maxWidth={420}
-            minHeight={160}
-            maxHeight={250}
-          >
-            <div
-              className={`relative h-full rounded-[5px] flex items-center justify-center`}
-              style={{ backgroundColor: item.backgroundcolor }}
-            >
-              <img className="rounded-full w-[40px] h-[40px]" alt="" src={item.userimage} />
-              <div className="absolute min-w-0 max-w-xs bottom-1 left-1  flex justify-center items-center rounded-[20px] px-1 bg-[#B6AFAE]">
-                <p className="[text-align-last:center] rounded-2xl text-[12px] font-segoe-ui text-white text-left">
-                  {item.username}
-                </p>
-              </div>
-              <button className="absolute bottom-1 right-1 w-[20px] h-[20px] flex px-1 justify-center  items-center rounded-full bg-[#EDEEF0]">
-                <FaMicrophoneSlash className="w-5 h-5 overflow-hidden  fill-[#3F3960]" />
-              </button>
-            </div>
-          </Resizable>
-        )
-      })}
+      {windows.map(({ peerID, type }) => (
+        <UserMedia peerID={peerID} type={type} key={peerID} />
+      ))}
     </div>
   )
 }

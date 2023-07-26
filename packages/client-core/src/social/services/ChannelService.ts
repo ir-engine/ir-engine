@@ -30,7 +30,7 @@ import { Channel } from '@etherealengine/common/src/interfaces/Channel'
 import { ChannelID, ChannelUser } from '@etherealengine/common/src/interfaces/ChannelUser'
 import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { defineState, getMutableState, syncStateWithLocalStorage } from '@etherealengine/hyperflux'
+import { defineState, getMutableState } from '@etherealengine/hyperflux'
 
 import { MediaInstanceConnectionService } from '../../common/services/MediaInstanceConnectionService'
 import { NotificationService } from '../../common/services/NotificationService'
@@ -52,7 +52,7 @@ export const ChannelState = defineState({
     messageCreated: false
   }),
   onCreate: (store, state) => {
-    syncStateWithLocalStorage(ChannelState, ['targetChannelId'])
+    // syncStateWithLocalStorage(ChannelState, ['targetChannelId'])
   }
 })
 
@@ -114,13 +114,14 @@ export const ChannelService = {
   },
   joinChannelInstance: async (channelID: ChannelID) => {
     getMutableState(ChannelState).targetChannelId.set(channelID)
-    if (channelID === '' && Engine.instance.worldNetwork.hostId) {
+    if (channelID === '' && Engine.instance.worldNetwork) {
       ChannelService.getInstanceChannel()
     } else {
       getMutableState(ChannelState).targetChannelId.set(channelID)
     }
     MediaInstanceConnectionService.setJoining(true)
     const network = Engine.instance.mediaNetwork as SocketWebRTCClientNetwork
+    if (!network) return
     await endVideoChat(network, {})
     await leaveNetwork(network)
   },

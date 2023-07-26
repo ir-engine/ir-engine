@@ -67,17 +67,15 @@ export const ChannelsList = () => {
     return (
       <>
         <div
-          className={`w-[320px] h-[68px] flex flex-wrap mx-4 gap-1 justify-center rounded-[5px] ${
+          className={`w-[320px] h-[68px] flex flex-nowrap	mx-4 gap-1 justify-center rounded-[5px] ${
             selectedChannelId.value === props.channel.id ? 'bg-[#D4D7DC]' : ''
           }`}
           onClick={() => selectedChannelId.set(props.channel.id)}
         >
-          <div className="w-[230px] flex flex-wrap gap-5 justify-start">
-            <img className="mt-3 rounded-8xs w-11 h-11 object-cover" alt="" src={UserIcon /**userThumbnail */} />
-            <div className="mt-3 justify-start">
-              <p className="font-bold text-[#3F3960]">{props.channel.name}</p>
-              <p className="h-4 text-xs text-[#787589]">{latestMessage}</p>
-            </div>
+          <img className="mt-3 mr-2 rounded-8xs w-11 h-11 object-cover" alt="" src={UserIcon /**userThumbnail */} />
+          <div className="mt-3 justify-start">
+            <p className="font-bold text-[#3F3960]">{props.channel.name}</p>
+            <p className="h-4 text-xs text-[#787589]">{latestMessage}</p>
           </div>
         </div>
       </>
