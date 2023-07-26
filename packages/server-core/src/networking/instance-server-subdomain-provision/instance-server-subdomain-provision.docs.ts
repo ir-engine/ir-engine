@@ -23,9 +23,28 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-export interface InstanceserverSubdomainProvisionInterface {
-  id: number
-  is_id: string
-  is_number: string
-  allocated: boolean
-}
+/**
+ * An object for swagger documentation configuration
+ */
+
+import { createSwaggerServiceOptions } from 'feathers-swagger'
+
+import {
+  instanceServerSubdomainProvisionDataSchema,
+  instanceServerSubdomainProvisionPatchSchema,
+  instanceServerSubdomainProvisionQuerySchema,
+  instanceServerSubdomainProvisionSchema
+} from '@etherealengine/engine/src/schemas/networking/instance-server-subdomain-provision.schema'
+
+export default createSwaggerServiceOptions({
+  schemas: {
+    instanceServerSubdomainProvisionDataSchema,
+    instanceServerSubdomainProvisionPatchSchema,
+    instanceServerSubdomainProvisionQuerySchema,
+    instanceServerSubdomainProvisionSchema
+  },
+  docs: {
+    description: 'Instance server subdomain provision service description',
+    securities: ['all']
+  }
+})

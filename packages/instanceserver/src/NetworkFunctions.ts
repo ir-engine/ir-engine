@@ -56,6 +56,7 @@ import { ServerState } from '@etherealengine/server-core/src/ServerState'
 import getLocalServerIp from '@etherealengine/server-core/src/util/get-local-server-ip'
 
 import { NetworkObjectComponent } from '@etherealengine/engine/src/networking/components/NetworkObjectComponent'
+import { instanceServerSubdomainProvisionPath } from '@etherealengine/engine/src/schemas/networking/instance-server-subdomain-provision.schema'
 import { InstanceServerState } from './InstanceServerState'
 import { SocketWebRTCServerNetwork } from './SocketWebRTCServerFunctions'
 import { closeTransport } from './WebRTCFunctions'
@@ -132,16 +133,17 @@ export async function getFreeSubdomain(isIdentifier: string, subdomainNumber: nu
   const app = Engine.instance.api as Application
 
   const stringSubdomainNumber = subdomainNumber.toString().padStart(config.instanceserver.identifierDigits, '0')
-  const subdomainResult = await app.service('instanceserver-subdomain-provision').find({
+  const subdomainResult = await app.service(instanceServerSubdomainProvisionPath).find({
     query: {
-      is_number: stringSubdomainNumber
+      isNumber: stringSubdomainNumber
     }
   })
   if ((subdomainResult as any).total === 0) {
-    await app.service('instanceserver-subdomain-provision').create({
+    await app.service(instanceServerSubdomainProvisionPath).create({
       allocated: true,
-      is_number: stringSubdomainNumber,
-      is_id: isIdentifier
+      isNumber: stringSubdomainNumber,
+      isId: isIdentifier,
+      instanceId: ''
     })
 
     await new Promise((resolve) =>
@@ -150,9 +152,9 @@ export async function getFreeSubdomain(isIdentifier: string, subdomainNumber: nu
       }, 500)
     )
 
-    const newSubdomainResult = (await app.service('instanceserver-subdomain-provision').find({
+    const newSubdomainResult = (await app.service(instanceServerSubdomainProvisionPath).find({
       query: {
-        is_number: stringSubdomainNumber
+        isNumber: stringSubdomainNumber
       }
     })) as any
     if (newSubdomainResult.total > 0 && newSubdomainResult.data[0].gs_id === isIdentifier) return stringSubdomainNumber
@@ -162,9 +164,9 @@ export async function getFreeSubdomain(isIdentifier: string, subdomainNumber: nu
     if (subdomain.allocated === true || subdomain.allocated === 1) {
       return getFreeSubdomain(isIdentifier, subdomainNumber + 1)
     }
-    await app.service('instanceserver-subdomain-provision').patch(subdomain.id, {
+    await app.service(instanceServerSubdomainProvisionPath).patch(subdomain.id, {
       allocated: true,
-      is_id: isIdentifier
+      isId: isIdentifier
     })
 
     await new Promise((resolve) =>
@@ -173,9 +175,9 @@ export async function getFreeSubdomain(isIdentifier: string, subdomainNumber: nu
       }, 500)
     )
 
-    const newSubdomainResult = (await app.service('instanceserver-subdomain-provision').find({
+    const newSubdomainResult = (await app.service(instanceServerSubdomainProvisionPath).find({
       query: {
-        is_number: stringSubdomainNumber
+        isNumber: stringSubdomainNumber
       }
     })) as any
     if (newSubdomainResult.total > 0 && newSubdomainResult.data[0].gs_id === isIdentifier) return stringSubdomainNumber
@@ -221,14 +223,14 @@ export async function cleanupOldInstanceservers(app: Application): Promise<void>
     isNameRegex.exec(is.metadata.name) != null ? isNameRegex.exec(is.metadata.name)![1] : null
   )
 
-  await app.service('instanceserver-subdomain-provision').patch(
+  await app.service(instanceServerSubdomainProvisionPath).patch(
     null,
     {
       allocated: false
     },
     {
       query: {
-        is_id: {
+        isId: {
           $nin: isIds
         }
       }

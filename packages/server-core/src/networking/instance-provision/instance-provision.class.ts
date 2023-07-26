@@ -34,10 +34,11 @@ import { Instance } from '@etherealengine/common/src/interfaces/Instance'
 import { InstanceServerProvisionResult } from '@etherealengine/common/src/interfaces/InstanceServerProvisionResult'
 import { getState } from '@etherealengine/hyperflux'
 
+import { instanceServerSubdomainProvisionPath } from '@etherealengine/engine/src/schemas/networking/instance-server-subdomain-provision.schema'
 import { Application } from '../../../declarations'
-import config from '../../appconfig'
 import logger from '../../ServerLogger'
 import { ServerState } from '../../ServerState'
+import config from '../../appconfig'
 import getLocalServerIp from '../../util/get-local-server-ip'
 import { InstanceAuthorizedUserDataType } from '../instance-authorized-user/instance-authorized-user.class'
 
@@ -474,15 +475,15 @@ export class InstanceProvision implements ServiceMethods<any> {
         ended: true
       }
       await this.app.service('instance').patch(instance.id, { ...patchInstance })
-      await this.app.service('instanceserver-subdomain-provision').patch(
+      await this.app.service(instanceServerSubdomainProvisionPath).patch(
         null,
         {
           allocated: false
         },
         {
           query: {
-            instanceId: null,
-            is_id: {
+            instanceId: '',
+            isId: {
               $nin: isIds
             }
           }

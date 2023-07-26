@@ -38,3 +38,10 @@ export interface InstanceInterface {
   locationId?: string
   location?: LocationInterface
 }
+
+export interface InstanceserverSubdomainProvisionInterface {
+  id: number
+  isId: string
+  isNumber: string
+  allocated: boolean
+}

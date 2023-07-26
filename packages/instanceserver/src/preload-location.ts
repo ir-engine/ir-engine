@@ -88,15 +88,15 @@ export default async function (locationName, app: Application) {
   app.instance = instanceResult
 
   if (app.isSubdomainNumber != null) {
-    const gsSubProvision = (await app.service('instanceserver-subdomain-provision').find({
+    const gsSubProvision = (await app.service('instance-server-subdomain-provision').find({
       query: {
-        is_number: app.isSubdomainNumber
+        isNumber: app.isSubdomainNumber
       }
     })) as any
 
     if (gsSubProvision.total > 0) {
       const provision = gsSubProvision.data[0]
-      await app.service('instanceserver-subdomain-provision').patch(provision.id, {
+      await app.service('instance-server-subdomain-provision').patch(provision.id, {
         instanceId: instanceResult.id
       })
     }

@@ -37,7 +37,7 @@ export default {
       addAssociations({
         models: [
           {
-            model: 'instanceserver-subdomain-provision'
+            model: 'instance-server-subdomain-provision'
           }
         ]
       })
@@ -46,7 +46,7 @@ export default {
       addAssociations({
         models: [
           {
-            model: 'instanceserver-subdomain-provision'
+            model: 'instance-server-subdomain-provision'
           }
         ]
       })

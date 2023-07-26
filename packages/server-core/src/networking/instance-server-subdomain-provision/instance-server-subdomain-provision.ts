@@ -23,38 +23,38 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-// Initializes the `instanceserver-subdomain-provision` service on path `/instanceserver-subdomain-provision`
-import { Application } from '../../../declarations'
-import { InstanceserverSubdomainProvision } from './instanceserver-subdomain-provision.class'
-import instanceServerSubdomainProvisionDocs from './instanceserver-subdomain-provision.docs'
-import hooks from './instanceserver-subdomain-provision.hooks'
-import createModel from './instanceserver-subdomain-provision.model'
+import {
+  instanceServerSubdomainProvisionMethods,
+  instanceServerSubdomainProvisionPath
+} from '@etherealengine/engine/src/schemas/networking/instance-server-subdomain-provision.schema'
 
-// Add this service to the service type index
+import { Application } from '../../../declarations'
+import { InstanceServerSubdomainProvisionService } from './instance-server-subdomain-provision.class'
+import instanceServerSubdomainProvisionDocs from './instance-server-subdomain-provision.docs'
+import hooks from './instance-server-subdomain-provision.hooks'
+
 declare module '@etherealengine/common/declarations' {
   interface ServiceTypes {
-    'instanceserver-subdomain-provision': InstanceserverSubdomainProvision
+    [instanceServerSubdomainProvisionPath]: InstanceServerSubdomainProvisionService
   }
 }
 
-export default (app: Application) => {
+export default (app: Application): void => {
   const options = {
-    Model: createModel(app),
+    name: instanceServerSubdomainProvisionPath,
     paginate: app.get('paginate'),
+    Model: app.get('knexClient'),
     multi: true
   }
 
-  /**
-   * Initialize our service with any options it requires and docs
-   */
-  const event = new InstanceserverSubdomainProvision(options, app)
-  event.docs = instanceServerSubdomainProvisionDocs
-  app.use('instanceserver-subdomain-provision', event)
+  app.use(instanceServerSubdomainProvisionPath, new InstanceServerSubdomainProvisionService(options), {
+    // A list of all methods this service exposes externally
+    methods: instanceServerSubdomainProvisionMethods,
+    // You can add additional custom events to be sent to clients here
+    events: [],
+    docs: instanceServerSubdomainProvisionDocs
+  })
 
-  /**
-   * Get our initialized service so that we can register hooks
-   */
-  const service = app.service('instanceserver-subdomain-provision')
-
+  const service = app.service(instanceServerSubdomainProvisionPath)
   service.hooks(hooks)
 }

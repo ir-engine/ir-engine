@@ -71,8 +71,8 @@ export const InstanceSeed: Instance = {
 
 export interface InstanceServerSubdomainProvision {
   id: number
-  is_id: string
-  is_number: string
+  isId: string
+  isNumber: string
   allocated: boolean
 }
 

@@ -23,20 +23,27 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
+import type { Params } from '@feathersjs/feathers'
+import type { KnexAdapterParams } from '@feathersjs/knex'
+import { KnexService } from '@feathersjs/knex'
 
-import { InstanceserverSubdomainProvisionInterface } from '@etherealengine/common/src/dbmodels/InstanceserverSubdomainProvision'
+import {
+  InstanceServerSubdomainProvisionData,
+  InstanceServerSubdomainProvisionPatch,
+  InstanceServerSubdomainProvisionQuery,
+  InstanceServerSubdomainProvisionType
+} from '@etherealengine/engine/src/schemas/networking/instance-server-subdomain-provision.schema'
 
-import { Application } from '../../../declarations'
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+export interface InstanceServerSubdomainProvisionParams
+  extends KnexAdapterParams<InstanceServerSubdomainProvisionQuery> {}
 
-export type InstanceserverSubdomainProvisionDataType = InstanceserverSubdomainProvisionInterface
-
-/**
- * A class for instance server domain provision  service
- */
-export class InstanceserverSubdomainProvision<T = InstanceserverSubdomainProvisionDataType> extends Service<T> {
-  public docs: any
-  constructor(options: Partial<SequelizeServiceOptions>, app: Application) {
-    super(options)
-  }
-}
+export class InstanceServerSubdomainProvisionService<
+  T = InstanceServerSubdomainProvisionType,
+  ServiceParams extends Params = InstanceServerSubdomainProvisionParams
+> extends KnexService<
+  InstanceServerSubdomainProvisionType,
+  InstanceServerSubdomainProvisionData,
+  InstanceServerSubdomainProvisionParams,
+  InstanceServerSubdomainProvisionPatch
+> {}

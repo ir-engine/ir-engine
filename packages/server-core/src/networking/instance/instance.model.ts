@@ -25,8 +25,12 @@ Ethereal Engine. All Rights Reserved.
 
 import { DataTypes, Model, Sequelize } from 'sequelize'
 
-import { InstanceInterface } from '@etherealengine/common/src/dbmodels/Instance'
+import {
+  InstanceInterface,
+  InstanceserverSubdomainProvisionInterface
+} from '@etherealengine/common/src/dbmodels/Instance'
 
+import { HookReturn } from 'sequelize/types/hooks'
 import { Application } from '../../../declarations'
 
 export default (app: Application) => {
@@ -80,11 +84,52 @@ export default (app: Application) => {
 
   ;(instance as any).associate = (models: any): void => {
     ;(instance as any).belongsTo(models.location, { foreignKey: { allowNull: true } })
-    ;(instance as any).hasOne(models.instanceserver_subdomain_provision, { foreignKey: { allowNull: true } })
+    ;(instance as any).hasOne(createInstanceServerSubdomainProvisionModel(app), { foreignKey: { allowNull: true } })
     ;(instance as any).hasMany(models.bot, { foreignKey: { allowNull: true } })
     ;(instance as any).belongsToMany(models.user, { through: 'instance_authorized_user' })
     ;(instance as any).hasMany(models.instance_authorized_user, { foreignKey: { allowNull: false } })
     ;(instance as any).hasMany(models.user_kick, { onDelete: 'cascade' })
   }
   return instance
+}
+
+export const createInstanceServerSubdomainProvisionModel = (app: Application) => {
+  const sequelizeClient: Sequelize = app.get('sequelizeClient')
+  const instanceServerSubdomainProvision = sequelizeClient.define<Model<InstanceserverSubdomainProvisionInterface>>(
+    'instance-server-subdomain-provision',
+    {
+      id: {
+        type: DataTypes.INTEGER,
+        autoIncrement: true,
+        primaryKey: true
+      },
+      isId: {
+        type: DataTypes.STRING,
+        allowNull: true
+      },
+      isNumber: {
+        type: DataTypes.STRING,
+        allowNull: false
+      },
+      allocated: {
+        type: DataTypes.BOOLEAN
+      }
+    },
+    {
+      hooks: {
+        beforeCount(options: any): HookReturn {
+          options.raw = true
+        }
+      }
+    }
+  )
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  ;(instanceServerSubdomainProvision as any).associate = function (models: any): void {
+    // (instanceSeserverSubdomainProvision as any).belongsTo(models.instance);
+    // Define associations here
+    // See http://docs.sequelizejs.com/en/latest/docs/associations/
+  }
+
+  return instanceServerSubdomainProvision
 }

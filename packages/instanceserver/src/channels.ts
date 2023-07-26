@@ -53,6 +53,7 @@ import multiLogger from '@etherealengine/server-core/src/ServerLogger'
 import { ServerState } from '@etherealengine/server-core/src/ServerState'
 import getLocalServerIp from '@etherealengine/server-core/src/util/get-local-server-ip'
 
+import { instanceServerSubdomainProvisionPath } from '@etherealengine/engine/src/schemas/networking/instance-server-subdomain-provision.schema'
 import { InstanceServerState } from './InstanceServerState'
 import { authorizeUserToJoinServer, setupSubdomain } from './NetworkFunctions'
 import { restartInstanceServer } from './restartInstanceServer'
@@ -116,15 +117,15 @@ const createNewInstance = async (app: Application, newInstance: InstanceMetadata
   instanceServerState.instance.set(instanceResult)
 
   if (instanceServerState.isSubdomainNumber.value != null) {
-    const gsSubProvision = (await app.service('instanceserver-subdomain-provision').find({
+    const gsSubProvision = (await app.service(instanceServerSubdomainProvisionPath).find({
       query: {
-        is_number: instanceServerState.isSubdomainNumber.value
+        isNumber: instanceServerState.isSubdomainNumber.value
       }
     })) as any
 
     if (gsSubProvision.total > 0) {
       const provision = gsSubProvision.data[0]
-      await app.service('instanceserver-subdomain-provision').patch(provision.id, {
+      await app.service(instanceServerSubdomainProvisionPath).patch(provision.id, {
         instanceId: instanceResult.id
       } as any)
     }
@@ -160,15 +161,15 @@ const assignExistingInstance = async (
   })
 
   if (instanceServerState.isSubdomainNumber.value != null) {
-    const gsSubProvision = (await app.service('instanceserver-subdomain-provision').find({
+    const gsSubProvision = (await app.service(instanceServerSubdomainProvisionPath).find({
       query: {
-        is_number: instanceServerState.isSubdomainNumber.value
+        isNumber: instanceServerState.isSubdomainNumber.value
       }
     })) as any
 
     if (gsSubProvision.total > 0) {
       const provision = gsSubProvision.data[0]
-      await app.service('instanceserver-subdomain-provision').patch(provision.id, {
+      await app.service(instanceServerSubdomainProvisionPath).patch(provision.id, {
         instanceId: existingInstance.id
       } as any)
     }
@@ -442,12 +443,12 @@ const shutdownServer = async (app: Application, instanceId: string) => {
     logger.error(err)
   }
   if (instanceServer.isSubdomainNumber != null) {
-    const gsSubdomainProvision = (await app.service('instanceserver-subdomain-provision').find({
+    const gsSubdomainProvision = (await app.service(instanceServerSubdomainProvisionPath).find({
       query: {
-        is_number: instanceServer.isSubdomainNumber
+        isNumber: instanceServer.isSubdomainNumber
       }
     })) as any
-    await app.service('instanceserver-subdomain-provision').patch(gsSubdomainProvision.data[0].id, {
+    await app.service(instanceServerSubdomainProvisionPath).patch(gsSubdomainProvision.data[0].id, {
       allocated: false
     })
   }

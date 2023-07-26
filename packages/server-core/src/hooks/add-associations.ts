@@ -28,12 +28,14 @@ import { Hook, HookContext } from '@feathersjs/feathers'
 import { Application } from '@etherealengine/server-core/declarations'
 
 import logger from '../ServerLogger'
+import { createInstanceServerSubdomainProvisionModel } from '../networking/instance/instance.model'
 import { createAvatarModel, createUserApiKeyModel } from '../user/user/user.model'
 
 const getMigratedModels = (app: Application) => {
   return {
     avatar: createAvatarModel(app),
-    'user-api-key': createUserApiKeyModel(app)
+    'user-api-key': createUserApiKeyModel(app),
+    'instance-server-subdomain-provision': createInstanceServerSubdomainProvisionModel(app)
   }
 }
 
