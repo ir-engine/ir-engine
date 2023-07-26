@@ -47,7 +47,6 @@ import { Classifications, Landmark, NormalizedLandmark } from '@mediapipe/tasks-
 import { TFace, THand, TPose } from 'kalidokit/dist/kalidokit.umd.js'
 
 import UpdateRawFace from './UpdateRawFace'
-import UpdateRawHands from './UpdateRawHands'
 import UpdateRawPose from './UpdateRawPose'
 import UpdateSolvedFace from './UpdateSolvedFace'
 import UpdateSolvedHands from './UpdateSolvedHands'
@@ -79,6 +78,7 @@ export const receiveResults = (buff: ArrayBuffer) => {
     results: MotionCaptureStream
   }
   const peerID = Engine.instance.worldNetwork.peerIndexToPeerID.get(peerIndex)
+  console.log('received mocap data', peerID, results)
   return { timestamp, peerID, results }
 }
 
@@ -138,54 +138,34 @@ const execute = () => {
 
       if (!avatarRig) continue
 
-      const avatarHips = avatarRig?.vrm?.humanoid?.getRawBone('hips')?.node
+      // const avatarHips = avatarRig?.vrm?.humanoid?.getRawBone('hips')?.node
+      const avatarHips = avatarRig.rig.hips.node
 
       const hipsPos = new Vector3()
       avatarHips?.getWorldPosition(hipsPos)
 
       // Pose
       if (data?.poseSolved) {
-        try {
-          UpdateSolvedPose(data?.poseSolved, hipsPos, avatarRig, avatarTransform)
-        } catch (e) {
-          console.error(e)
+        UpdateSolvedPose(data?.poseSolved, hipsPos.clone(), avatarRig, avatarTransform)
+        if (data?.handsSolved) {
+          UpdateSolvedHands(data?.handsSolved, hipsPos.clone(), avatarRig, avatarTransform)
         }
       } else if (data?.poseWorld) {
-        try {
-          UpdateRawPose(data?.poseWorld, hipsPos, avatarRig, avatarTransform)
-        } catch (e) {
-          console.error(e)
-        }
-      }
-
-      // Hands
-      if (data?.handsSolved) {
-        try {
-          UpdateSolvedHands(data?.handsSolved, hipsPos, avatarRig, avatarTransform)
-        } catch (e) {
-          console.error(e)
-        }
-      } else if (data?.handsWorld) {
-        try {
-          UpdateRawHands(data?.handsWorld, hipsPos, avatarRig, avatarTransform)
-        } catch (e) {
-          console.error(e)
+        // Hands
+        if (data?.handsWorld) {
+          // UpdateRawHands(data?.handsWorld, hipsPos.clone(), avatarRig, avatarTransform)
+          const { poseWorld, handsWorld } = data
+          UpdateRawPose([...poseWorld, ...handsWorld], hipsPos.clone(), avatarTransform)
+        } else {
+          UpdateRawPose(data?.poseWorld, hipsPos.clone(), avatarTransform)
         }
       }
 
       // Face
       if (data?.faceSolved) {
-        try {
-          UpdateSolvedFace(data?.faceSolved, hipsPos, avatarRig, avatarTransform)
-        } catch (e) {
-          console.error(e)
-        }
+        UpdateSolvedFace(data?.faceSolved, hipsPos.clone(), avatarRig, avatarTransform)
       } else if (data?.face) {
-        try {
-          UpdateRawFace(data?.face, hipsPos, avatarRig, avatarTransform)
-        } catch (e) {
-          console.error(e)
-        }
+        UpdateRawFace(data?.face, hipsPos.clone(), avatarRig, avatarTransform)
       }
     }
   }

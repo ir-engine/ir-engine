@@ -38,44 +38,26 @@ import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { getComponent } from '../ecs/functions/ComponentFunctions'
 import { TransformComponent } from '../transform/components/TransformComponent'
 
-export const motionCaptureHeadSuffix = '_motion_capture_head'
-export const motionCaptureLeftHandSuffix = '_motion_capture_left_hand'
-export const motionCaptureRightHandSuffix = '_motion_capture_right_hand'
-
 const objs = [] as Mesh[]
 const debug = true
 
-const UpdateRawPose = (data, hipsPos, avatarRig, avatarTransform) => {
+const UpdateRawPose = (data, hipsPos, avatarTransform) => {
+  // debugger
   if (data) {
     const engineState = getState(EngineState)
-    for (let i = 0; i < data.length - 1; i++) {
+    for (let i = 1; i < data.length - 1; i++) {
       const name = VRMHumanBoneList[i].toLowerCase()
+
       const pose = data[i]
       const posePos = new Vector3()
 
-      // if (name === 'head') {
-      //   const leftEar = data[VRMHumanBoneList.indexOf('leftEar' as VRMHumanBoneName)]
-      //   const rightEar = data[VRMHumanBoneList.indexOf('rightEar' as VRMHumanBoneName)]
-      //   posePos
-      //     .set((leftEar.x + rightEar.x) / 2, (leftEar.y + rightEar.y) / 2, (leftEar.z + rightEar.z) / 2)
-      //     .multiplyScalar(-1)
-      //     .applyQuaternion(avatarTransform.rotation)
-      // } else {
       posePos
         .set(pose?.x, pose?.y, pose?.z)
         .multiplyScalar(-1)
         .applyQuaternion(avatarTransform.rotation)
-      // }
+        .add(hipsPos.clone())
 
-      // .add(hipsPos.clone())
-
-      // const Part = avatarRig?.vrm?.humanoid?.getRawBone(VRMHumanBoneList[i])
-
-      // if (!Part) continue
-
-      // const partPos = Part?.node?.worldToLocal(posePos.clone()).clone()
-
-      const allowedTargets = ['head', 'lefthand', 'righthand', 'spine', 'hips', 'leftfoot', 'rightfoot']
+      const allowedTargets = ['head', 'lefthand', 'righthand', 'hips', 'leftfoot', 'rightfoot']
 
       if (debug) {
         if (objs[i] === undefined) {
@@ -83,7 +65,7 @@ const UpdateRawPose = (data, hipsPos, avatarRig, avatarTransform) => {
           if (allowedTargets.includes(name)) {
             matOptions = { color: 0xff0000 }
           }
-          const mesh = new Mesh(new SphereGeometry(0.05), new MeshBasicMaterial(matOptions))
+          const mesh = new Mesh(new SphereGeometry(i < 34 ? 0.05 : 0.125), new MeshBasicMaterial(matOptions))
           objs[i] = mesh
           Engine?.instance?.scene?.add(mesh)
         }
@@ -103,100 +85,12 @@ const UpdateRawPose = (data, hipsPos, avatarRig, avatarTransform) => {
         }
 
         const ik = getComponent(ikTarget, TransformComponent)
-        ik.position.lerp(posePos, engineState.deltaSeconds * 10)
+        // ik.position.lerp(posePos.clone(), engineState.deltaSeconds * 10)
 
         // ik.quaternion.copy()
       }
     }
   }
-  // const engineState = getState(EngineState)
-
-  //   const leftHips = data[POSE_LANDMARKS.LEFT_HIP]
-  //   const rightHips = data[POSE_LANDMARKS.RIGHT_HIP]
-  //   const nose = data[POSE_LANDMARKS.NOSE]
-  //   const leftEar = data[POSE_LANDMARKS.LEFT_EAR]
-  //   const rightEar = data[POSE_LANDMARKS.RIGHT_EAR]
-  //   const leftShoulder = data[POSE_LANDMARKS.LEFT_SHOULDER]
-  //   const rightShoulder = data[POSE_LANDMARKS.RIGHT_SHOULDER]
-  //   const leftElbow = data[POSE_LANDMARKS.LEFT_ELBOW]
-  //   const rightElbow = data[POSE_LANDMARKS.RIGHT_ELBOW]
-  //   const rightWrist = data[POSE_LANDMARKS.LEFT_WRIST]
-  //   const leftWrist = data[POSE_LANDMARKS.RIGHT_WRIST]
-
-  //   const head = !!nose.visibility && nose.visibility > 0.5
-  //   const leftHand = !!leftWrist.visibility && leftWrist.visibility > 0.1
-  //   const rightHand = !!rightWrist.visibility && rightWrist.visibility > 0.1
-
-  //   const headUUID = (userID + motionCaptureHeadSuffix) as EntityUUID
-  //   const leftHandUUID = (userID + motionCaptureLeftHandSuffix) as EntityUUID
-  //   const rightHandUUID = (userID + motionCaptureRightHandSuffix) as EntityUUID
-
-  //   const ikTargetHead = UUIDComponent.entitiesByUUID[headUUID]
-  //   const ikTargetLeftHand = UUIDComponent.entitiesByUUID[leftHandUUID]
-  //   const ikTargetRightHand = UUIDComponent.entitiesByUUID[rightHandUUID]
-
-  //   if (!head && ikTargetHead) removeEntity(ikTargetHead)
-  //   if (!leftHand && ikTargetLeftHand) removeEntity(ikTargetLeftHand)
-  //   if (!rightHand && ikTargetRightHand) removeEntity(ikTargetRightHand)
-
-  //   if (head && !ikTargetHead) dispatchAction(XRAction.spawnIKTarget({ handedness: 'none', entityUUID: headUUID }))
-  //   if (leftHand && !ikTargetLeftHand)
-  //     dispatchAction(XRAction.spawnIKTarget({ handedness: 'left', entityUUID: leftHandUUID }))
-  //   if (rightHand && !ikTargetRightHand)
-  //     dispatchAction(XRAction.spawnIKTarget({ handedness: 'right', entityUUID: rightHandUUID }))
-
-  //   if (debug)
-  //     for (let i = 0; i < 33; i++) {
-  //       objs[i].position
-  //         .set(data[i].x, data[i].y, data[i].z)
-  //         .multiplyScalar(-1)
-  //         .applyQuaternion(avatarTransform.rotation)
-  //         .add(hipsPos)
-  //       objs[i].visible = !!data[i].visibility && data[i].visibility! > 0.5
-  //       objs[i].updateMatrixWorld(true)
-  //     }
-
-  //   if (ikTargetHead) {
-  //     // if (!nose.visibility || nose.visibility < 0.1) continue
-  //     // if (!nose.x || !nose.y || !nose.z) continue
-  //     const ik = getComponent(ikTargetHead, TransformComponent)
-  //     headPos
-  //       .set((leftEar.x + rightEar.x) / 2, (leftEar.y + rightEar.y) / 2, (leftEar.z + rightEar.z) / 2)
-  //       .multiplyScalar(-1)
-  //       .applyQuaternion(avatarTransform.rotation)
-  //       .add(hipsPos)
-  //     ik.position.copy(headPos)
-  //     // ik.rotation.setFromUnitVectors(
-  //     //   new Vector3(0, 1, 0),
-  //     //   new Vector3(nose.x, -nose.y, nose.z).sub(headPos).normalize()
-  //     // ).multiply(avatarTransform.rotation)
-  //   }
-
-  //   if (ikTargetLeftHand) {
-  //     // if (!leftWrist.visibility || leftWrist.visibility < 0.1) continue
-  //     // if (!leftWrist.x || !leftWrist.y || !leftWrist.z) continue
-  //     const ik = getComponent(ikTargetLeftHand, TransformComponent)
-  //     leftHandPos
-  //       .set(leftWrist.x, leftWrist.y, leftWrist.z)
-  //       .multiplyScalar(-1)
-  //       .applyQuaternion(avatarTransform.rotation)
-  //       .add(hipsPos)
-  //     ik.position.lerp(leftHandPos, engineState.deltaSeconds * 10)
-  //     // ik.quaternion.copy()
-  //   }
-
-  //   if (ikTargetRightHand) {
-  //     // if (!rightWrist.visibility || rightWrist.visibility < 0.5) continue
-  //     // if (!rightWrist.x || !rightWrist.y || !rightWrist.z) continue
-  //     const ik = getComponent(ikTargetRightHand, TransformComponent)
-  //     rightHandPos
-  //       .set(rightWrist.x, rightWrist.y, rightWrist.z)
-  //       .multiplyScalar(-1)
-  //       .applyQuaternion(avatarTransform.rotation)
-  //       .add(hipsPos)
-  //     ik.position.lerp(rightHandPos, engineState.deltaSeconds * 10)
-  //     // ik.quaternion.copy()
-  //   }
 }
 
 export default UpdateRawPose
