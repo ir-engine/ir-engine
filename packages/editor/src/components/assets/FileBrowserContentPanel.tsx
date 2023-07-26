@@ -29,7 +29,6 @@ import { useDrop } from 'react-dnd'
 import { useTranslation } from 'react-i18next'
 import { saveAs } from 'save-as'
 
-import { API } from '@etherealengine/client-core/src/API'
 import ConfirmDialog from '@etherealengine/client-core/src/common/components/ConfirmDialog'
 import LoadingView from '@etherealengine/client-core/src/common/components/LoadingView'
 import {
@@ -62,20 +61,21 @@ import PhotoSizeSelectActualIcon from '@mui/icons-material/PhotoSizeSelectActual
 import VideocamIcon from '@mui/icons-material/Videocam'
 import ViewInArIcon from '@mui/icons-material/ViewInAr'
 import VolumeUpIcon from '@mui/icons-material/VolumeUp'
-import Breadcrumbs from '@mui/material/Breadcrumbs'
-import Dialog from '@mui/material/Dialog'
-import DialogTitle from '@mui/material/DialogTitle'
-import Grid from '@mui/material/Grid'
-import Link from '@mui/material/Link'
-import MenuItem from '@mui/material/MenuItem'
-import { PopoverPosition } from '@mui/material/Popover'
-import TablePagination from '@mui/material/TablePagination'
-import Typography from '@mui/material/Typography'
+
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import Dialog from '@etherealengine/ui/src/primitives/mui/Dialog'
+import DialogTitle from '@etherealengine/ui/src/primitives/mui/DialogTitle'
+import Grid from '@etherealengine/ui/src/primitives/mui/Grid'
+import MenuItem from '@etherealengine/ui/src/primitives/mui/MenuItem'
+import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
+
+import { Breadcrumbs, Link, PopoverPosition, TablePagination } from '@mui/material'
 
 import { SupportedFileTypes } from '../../constants/AssetTypes'
 import { unique } from '../../functions/utils'
 import { ContextMenu } from '../layout/ContextMenu'
 import { ToolButton } from '../toolbar/ToolButton'
+import { AssetSelectionChangePropsType } from './AssetsPreviewPanel'
 import CompressionPanel from './CompressionPanel'
 import { FileBrowserItem } from './FileBrowserGrid'
 import { FileDataType } from './FileDataType'
@@ -111,7 +111,7 @@ export const FileIconType = {
 }
 
 type FileBrowserContentPanelProps = {
-  onSelectionChanged: (AssetSelectionChangePropsType) => void
+  onSelectionChanged: (assetSelectionChange: AssetSelectionChangePropsType) => void
   disableDnD?: boolean
   selectedFile?: string
   folderName?: string
@@ -140,107 +140,34 @@ export function isFileDataType(value: any): value is FileDataType {
 
 /**
  * FileBrowserPanel used to render view for AssetsPanel.
- * @constructor
  */
 const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) => {
   const { t } = useTranslation()
+
   const anchorEl = useHookstate<null | HTMLElement>(null)
   const anchorPosition = useHookstate<undefined | PopoverPosition>(undefined)
+
   const open = Boolean(anchorEl.value)
   const isLoading = useState(true)
   const selectedDirectory = useState(
     `/${props.folderName || 'projects'}/${props.selectedFile ? props.selectedFile + '/' : ''}`
   )
-  const fileState = useHookstate(getMutableState(FileBrowserState))
-  const filesValue = fileState.files.attach(Downgraded).value
-  const { skip, total, retrieving } = fileState.value
   const fileProperties = useState<any>(null)
+
   const openProperties = useState(false)
   const openCompress = useState(false)
   const openConvert = useState(false)
   const convertProperties = useState<ImageConvertParms>(ImageConvertDefaultParms)
+
   const openConfirm = useState(false)
   const contentToDeletePath = useState('')
   const contentToDeleteType = useState('')
 
-  const DropArea = () => {
-    const [{ isFileDropOver }, fileDropRef] = useDrop({
-      accept: [...SupportedFileTypes],
-      drop: (dropItem) => dropItemsOnPanel(dropItem as any),
-      collect: (monitor) => ({ isFileDropOver: monitor.isOver() })
-    })
+  const fileState = useHookstate(getMutableState(FileBrowserState))
+  const filesValue = fileState.files.attach(Downgraded).value
+  const { skip, total, retrieving } = fileState.value
 
-    return (
-      <div
-        ref={fileDropRef}
-        onContextMenu={handleContextMenu}
-        id="file-browser-panel"
-        className={styles.panelContainer}
-        style={{ border: isFileDropOver ? '3px solid #ccc' : '' }}
-      >
-        <div className={styles.contentContainer}>
-          {unique(files, (file) => file.key).map((file, i) => (
-            <FileBrowserItem
-              key={file.key}
-              contextMenuId={i.toString()}
-              item={file}
-              disableDnD={props.disableDnD}
-              onClick={onSelect}
-              moveContent={moveContent}
-              deleteContent={handleConfirmDelete}
-              currentContent={currentContentRef}
-              setOpenPropertiesModal={openProperties.set}
-              setFileProperties={fileProperties.set}
-              setOpenCompress={openCompress.set}
-              setOpenConvert={openConvert.set}
-              dropItemsOnPanel={dropItemsOnPanel}
-              isFilesLoading={isLoading}
-              refreshDirectory={onRefreshDirectory}
-            />
-          ))}
-
-          {total > 0 && fileState.files.value.length < total && (
-            <TablePagination
-              className={styles.pagination}
-              component="div"
-              count={total}
-              page={page}
-              rowsPerPage={FILES_PAGE_LIMIT}
-              rowsPerPageOptions={[]}
-              onPageChange={handlePageChange}
-            />
-          )}
-        </div>
-      </div>
-    )
-  }
   const page = skip / FILES_PAGE_LIMIT
-
-  const breadcrumbs = selectedDirectory.value
-    .slice(1, -1)
-    .split('/')
-    .map((file, index, arr) => {
-      if (arr.length - 1 == index) {
-        return (
-          <Typography key={file} style={{ fontSize: '0.9rem' }}>
-            {file}
-          </Typography>
-        )
-      } else {
-        return (
-          <Link
-            underline="hover"
-            key={file}
-            color="#5d646c"
-            style={{ fontSize: '0.9rem' }}
-            onClick={() => handleClick(file)}
-          >
-            {file}
-          </Link>
-        )
-      }
-    })
-
   const files = fileState.files.value.map((file) => {
     const isFolder = file.type === 'folder'
     const fullName = isFolder ? file.name : file.name + '.' + file.type
@@ -262,12 +189,18 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
   }, [])
 
   useEffect(() => {
-    isLoading.set(false)
+    if (filesValue) {
+      isLoading.set(false)
+    }
   }, [filesValue])
 
   useEffect(() => {
     FileBrowserService.fetchFiles(selectedDirectory.value)
   }, [selectedDirectory.value])
+
+  const refreshDirectory = async () => {
+    await FileBrowserService.fetchFiles(selectedDirectory.value, page)
+  }
 
   const onSelect = (params: FileDataType) => {
     if (params.type !== 'folder') {
@@ -306,7 +239,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
     handleClose()
 
     await FileBrowserService.addNewFolder(`${selectedDirectory.value}New_Folder`)
-    await FileBrowserService.fetchFiles(selectedDirectory.value)
+    await refreshDirectory()
   }
 
   const dropItemsOnPanel = async (data: FileDataType | DnDFileType, dropOn?: FileDataType) => {
@@ -322,8 +255,8 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
     } else {
       await Promise.all(
         data.files.map(async (file) => {
-          // If file is directory then it's type is going to be empty string
           if (!file.type) {
+            // file is directory
             await FileBrowserService.addNewFolder(`${path}${file.name}`)
           } else {
             const name = processFileName(file.name)
@@ -337,11 +270,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
       )
     }
 
-    await onRefreshDirectory()
-  }
-
-  const onRefreshDirectory = async () => {
-    await FileBrowserService.fetchFiles(selectedDirectory.value, page)
+    await refreshDirectory()
   }
 
   const onBackDirectory = () => {
@@ -365,7 +294,23 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
     if (isLoading.value) return
     isLoading.set(true)
     await FileBrowserService.moveContent(oldName, newName, oldPath, newPath, isCopy)
-    await onRefreshDirectory()
+    await refreshDirectory()
+  }
+
+  const pasteContent = async () => {
+    handleClose()
+
+    if (isLoading.value) return
+    isLoading.set(true)
+
+    await FileBrowserService.moveContent(
+      currentContentRef.current.item.fullName,
+      currentContentRef.current.item.fullName,
+      currentContentRef.current.item.path,
+      selectedDirectory.value,
+      currentContentRef.current.isCopy
+    )
+    await refreshDirectory()
   }
 
   const handleConfirmDelete = (contentPath: string, type: string) => {
@@ -386,54 +331,18 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
     openConfirm.set(false)
     await FileBrowserService.deleteContent(contentToDeletePath.value, contentToDeleteType.value)
     props.onSelectionChanged({ resourceUrl: '', name: '', contentType: '' })
-    await onRefreshDirectory()
-  }
-
-  const pasteContent = async () => {
-    handleClose()
-
-    if (isLoading.value) return
-    isLoading.set(true)
-
-    await FileBrowserService.moveContent(
-      currentContentRef.current.item.fullName,
-      currentContentRef.current.item.fullName,
-      currentContentRef.current.item.path,
-      selectedDirectory.value,
-      currentContentRef.current.isCopy
-    )
-
-    await onRefreshDirectory()
+    await refreshDirectory()
   }
 
   const currentContentRef = useRef(null! as { item: FileDataType; isCopy: boolean })
 
-  const headGrid = {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    gap: '20px'
-  }
-
-  function handleClick(targetFolder: string) {
-    const pattern = /([^/]+)/g
-    const result = selectedDirectory.value.match(pattern)
-    if (!result) return
-    let newPath = '/'
-    for (const folder of result) {
-      if (folder != targetFolder) {
-        newPath += folder + '/'
-      } else {
-        newPath += folder + '/'
-        break
-      }
-    }
-    selectedDirectory.set(newPath)
-  }
+  const showDownloadButton =
+    selectedDirectory.value.slice(1).startsWith('projects/') &&
+    !['projects', 'projects/'].includes(selectedDirectory.value.slice(1))
 
   const handleDownloadProject = async () => {
     const url = selectedDirectory.value
-    const data = await API.instance.client
+    const data = await Engine.instance.api
       .service('archiver')
       .get(url)
       .catch((err: Error) => {
@@ -443,7 +352,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
     if (!data) return
     const blob = await (await fetch(`${config.client.fileServer}/${data}`)).blob()
 
-    let fileName = 'download' // default name
+    let fileName: string
     if (selectedDirectory.value[selectedDirectory.value.length - 1] === '/') {
       fileName = selectedDirectory.value.split('/').at(-2) as string
     } else {
@@ -453,37 +362,128 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
     saveAs(blob, fileName + '.zip')
   }
 
-  const showDownloadButton =
-    selectedDirectory.value.slice(1).startsWith('projects/') &&
-    !['projects', 'projects/'].includes(selectedDirectory.value.slice(1))
+  const BreadcrumbItems = () => {
+    const handleBreadcrumbDirectoryClick = (targetFolder: string) => {
+      const pattern = /([^/]+)/g
+      const result = selectedDirectory.value.match(pattern)
+      if (!result) return
+      let newPath = '/'
+      for (const folder of result) {
+        newPath += folder + '/'
+        if (folder === targetFolder) {
+          break
+        }
+      }
+      selectedDirectory.set(newPath)
+    }
+
+    return (
+      <>
+        {selectedDirectory.value
+          .slice(1, -1)
+          .split('/')
+          .map((file, index, arr) =>
+            arr.length - 1 == index ? (
+              <Typography key={file} style={{ fontSize: '0.9rem' }}>
+                {file}
+              </Typography>
+            ) : (
+              <Link
+                underline="hover"
+                key={file}
+                color="#5d646c"
+                style={{ fontSize: '0.9rem' }}
+                onClick={() => handleBreadcrumbDirectoryClick(file)}
+              >
+                {file}
+              </Link>
+            )
+          )}
+      </>
+    )
+  }
+
+  const DropArea = () => {
+    const [{ isFileDropOver }, fileDropRef] = useDrop({
+      accept: [...SupportedFileTypes],
+      drop: (dropItem) => dropItemsOnPanel(dropItem as any),
+      collect: (monitor) => ({ isFileDropOver: monitor.isOver() })
+    })
+
+    return (
+      <div
+        ref={fileDropRef}
+        onContextMenu={handleContextMenu}
+        id="file-browser-panel"
+        className={styles.panelContainer}
+        style={{ border: isFileDropOver ? '3px solid #ccc' : '' }}
+      >
+        <div className={styles.contentContainer}>
+          {unique(files, (file) => file.key).map((file, i) => (
+            <FileBrowserItem
+              key={file.key}
+              contextMenuId={i.toString()}
+              item={file}
+              disableDnD={props.disableDnD}
+              onClick={onSelect}
+              moveContent={moveContent}
+              deleteContent={handleConfirmDelete}
+              currentContent={currentContentRef}
+              setOpenPropertiesModal={openProperties.set}
+              setFileProperties={fileProperties.set}
+              setOpenCompress={openCompress.set}
+              setOpenConvert={openConvert.set}
+              dropItemsOnPanel={dropItemsOnPanel}
+              isFilesLoading={isLoading}
+              refreshDirectory={refreshDirectory}
+            />
+          ))}
+
+          {total > 0 && fileState.files.value.length < total && (
+            <TablePagination
+              className={styles.pagination}
+              component="div"
+              count={total}
+              page={page}
+              rowsPerPage={FILES_PAGE_LIMIT}
+              rowsPerPageOptions={[]}
+              onPageChange={handlePageChange}
+            />
+          )}
+        </div>
+      </div>
+    )
+  }
 
   return (
-    <div id="file-browser-panel" className={styles.fileBrowserRoot}>
-      <div style={headGrid}>
+    <div className={styles.fileBrowserRoot}>
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          gap: '20px'
+        }}
+      >
         <ToolButton
           tooltip={t('editor:layout.filebrowser.back')}
           icon={ArrowBackIcon}
           onClick={onBackDirectory}
           id="backDir"
         />
-        <Breadcrumbs
-          maxItems={3}
-          classes={{ separator: styles.separator, li: styles.breadcrumb }}
-          separator="›"
-          aria-label="breadcrumb"
-        >
-          {breadcrumbs}
+        <Breadcrumbs maxItems={3} classes={{ separator: styles.separator, li: styles.breadcrumb }} separator="›">
+          <BreadcrumbItems />
         </Breadcrumbs>
         <span>
           <ToolButton
             tooltip={t('editor:layout.filebrowser.refresh')}
             icon={AutorenewIcon}
-            onClick={onRefreshDirectory}
+            onClick={refreshDirectory}
             id="refreshDir"
           />
           {showDownloadButton && (
             <ToolButton
-              tooltip={t('admin:components.project.downloadProject')}
+              tooltip={t('editor:layout.filebrowser.downloadProject')}
               onClick={handleDownloadProject}
               icon={DownloadIcon}
               id="downloadProject"
@@ -516,7 +516,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
           openConvert={openConvert}
           fileProperties={fileProperties}
           convertProperties={convertProperties}
-          onRefreshDirectory={onRefreshDirectory}
+          onRefreshDirectory={refreshDirectory}
         />
       )}
 
@@ -524,7 +524,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
         <CompressionPanel
           openCompress={openCompress}
           fileProperties={fileProperties as any}
-          onRefreshDirectory={onRefreshDirectory}
+          onRefreshDirectory={refreshDirectory}
         />
       )}
 
@@ -532,19 +532,25 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
         <Dialog
           open={openProperties.value}
           onClose={() => openProperties.set(false)}
-          aria-labelledby="alert-dialog-title"
-          aria-describedby="alert-dialog-description"
           classes={{ paper: styles.paperDialog }}
         >
-          <DialogTitle style={{ padding: '0', textTransform: 'capitalize' }} id="alert-dialog-title">
+          <DialogTitle style={{ padding: '0', textTransform: 'capitalize' }}>
             {`${fileProperties.value?.name} ${fileProperties.value?.type == 'folder' ? 'folder' : 'file'} Properties`}
           </DialogTitle>
           <Grid container spacing={3} style={{ width: '100%', margin: '0' }}>
             <Grid item xs={4} style={{ paddingLeft: '10px', paddingTop: '10px', width: '100%' }}>
-              <Typography className={styles.primatyText}>Name:</Typography>
-              <Typography className={styles.primatyText}>Type:</Typography>
-              <Typography className={styles.primatyText}>Size:</Typography>
-              <Typography className={styles.primatyText}>URL:</Typography>
+              <Typography className={styles.primatyText}>
+                {t('editor:layout.filebrowser.fileProperties.name')}
+              </Typography>
+              <Typography className={styles.primatyText}>
+                {t('editor:layout.filebrowser.fileProperties.type')}
+              </Typography>
+              <Typography className={styles.primatyText}>
+                {t('editor:layout.filebrowser.fileProperties.size')}
+              </Typography>
+              <Typography className={styles.primatyText}>
+                {t('editor:layout.filebrowser.fileProperties.url')}
+              </Typography>
             </Grid>
             <Grid item xs={8} style={{ paddingLeft: '10px', paddingTop: '10px', width: '100%' }}>
               <Typography className={styles.secondaryText}>{fileProperties.value?.name}</Typography>

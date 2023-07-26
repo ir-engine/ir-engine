@@ -750,7 +750,14 @@
       "back": "Back",
       "loadingFiles": "Loading files",
       "compress": "Compress",
-      "convert": "Convert"
+      "convert": "Convert",
+      "downloadProject": "Download Project",
+      "fileProperties": {
+        "name": "Name:",
+        "type": "Type:",
+        "size": "Size:",
+        "url": "URL:"
+      }
     }
   },
   "hierarchy": {
