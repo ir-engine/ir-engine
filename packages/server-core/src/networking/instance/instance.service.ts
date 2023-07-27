@@ -223,7 +223,7 @@ export default (app: Application) => {
       if (data.locationId && data.ended && !data.channelId) {
         const channel = await app.service('channel').Model.findOne({
           where: {
-            instance: data.id
+            instanceId: data.id
           }
         })
         await app.service('channel').remove(channel.id)
