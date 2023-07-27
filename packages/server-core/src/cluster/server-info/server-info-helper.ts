@@ -247,7 +247,7 @@ const populateInstanceServerType = async (app: Application, items: ServerPodInfo
   const locations = (await app.service(locationPath).find({
     query: {
       id: {
-        $in: instances.map((instance) => instance.locationId)
+        $in: instances.map((instance) => instance.locationId!)
       }
     },
     paginate: false
