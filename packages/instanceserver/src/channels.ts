@@ -45,6 +45,7 @@ import { NetworkPeerFunctions } from '@etherealengine/engine/src/networking/func
 import { WorldState } from '@etherealengine/engine/src/networking/interfaces/WorldState'
 import { addNetwork, NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
 import { updatePeers } from '@etherealengine/engine/src/networking/systems/OutgoingActionSystem'
+import { locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
 import { dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
 import { loadEngineInjection } from '@etherealengine/projects/loadEngineInjection'
 import { Application } from '@etherealengine/server-core/declarations'
@@ -380,7 +381,7 @@ const handleUserAttendance = async (app: Application, userId: UserId) => {
     userId: userId
   }
   if (!instanceServerState.isMediaInstance) {
-    const location = await app.service('location').get(instanceServerState.instance.locationId!)
+    const location = await app.service(locationPath).get(instanceServerState.instance.locationId!)
     ;(newInstanceAttendance as any).sceneId = location.sceneId
   }
   await app.service('instance-attendance').create(newInstanceAttendance)
@@ -668,7 +669,7 @@ const onConnection = (app: Application) => async (connection: PrimusConnectionTy
       return logger.warn('got a connection to the wrong room code', instanceServerState.instance.roomCode, roomCode)
   }
 
-  const sceneId = locationId ? (await app.service('location').get(locationId)).sceneId : ''
+  const sceneId = locationId ? (await app.service(locationPath).get(locationId)).sceneId : ''
 
   /**
    * Now that we have verified the connecting user and that they are connecting to the correct instance, load the instance

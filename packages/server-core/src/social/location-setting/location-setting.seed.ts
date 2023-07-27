@@ -25,7 +25,10 @@ Ethereal Engine. All Rights Reserved.
 
 import { Knex } from 'knex'
 
-import { LocationDatabaseType, locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
+import {
+  locationSettingPath,
+  LocationSettingType
+} from '@etherealengine/engine/src/schemas/social/location-setting.schema'
 import appConfig from '@etherealengine/server-core/src/appconfig'
 
 import { getDateTimeSql } from '../../util/get-datetime-sql'
@@ -34,50 +37,64 @@ export async function seed(knex: Knex): Promise<void> {
   const { testEnabled } = appConfig
   const { forceRefresh } = appConfig.db
 
-  const seedData: LocationDatabaseType[] = await Promise.all(
+  const seedData: LocationSettingType[] = await Promise.all(
     [
       {
-        id: '98cbcc30-fd2d-11ea-bc7c-cd4cac9a8d60',
-        name: 'Default',
-        slugifiedName: 'default',
-        maxUsersPerInstance: 30,
-        sceneId: 'default-project/default',
-        isFeatured: false,
-        isLobby: false
+        id: '37ce32f0-208d-11eb-b02f-37cfdadfe58b',
+        locationId: '98cbcc30-fd2d-11ea-bc7c-cd4cac9a8d60',
+        locationType: 'public' as const,
+        videoEnabled: true,
+        audioEnabled: true,
+        screenSharingEnabled: false,
+        faceStreamingEnabled: false
+      },
+      // {
+      //   id: '37ce32f0-208d-11eb-b02f-37cfdadfe58c',
+      //   locationId: '98cbcc30-fd2d-11ea-bc7c-cd4cac9a8d61',
+      //   locationType: 'public' as const,
+      //   videoEnabled: true,
+      //   audioEnabled: true,
+      //   screenSharingEnabled: false,
+      //   faceStreamingEnabled: false
+      // },
+      {
+        id: '37ce32f0-208d-11eb-b02f-37cfdadfe58d',
+        locationId: '98cbcc30-fd2d-11ea-bc7c-cd4cac9a8d62',
+        locationType: 'public' as const,
+        videoEnabled: true,
+        audioEnabled: true,
+        screenSharingEnabled: false,
+        faceStreamingEnabled: false
       },
       {
-        id: '98cbcc30-fd2d-11ea-bc7c-cd4cac9a8d62',
-        name: 'Sky Station',
-        slugifiedName: 'sky-station',
-        maxUsersPerInstance: 30,
-        sceneId: 'default-project/sky-station',
-        isFeatured: false,
-        isLobby: false
-      },
-      {
-        id: '98cbcc30-fd2d-11ea-bc7c-cd4cac9a8d63',
-        name: 'Apartment',
-        slugifiedName: 'apartment',
-        maxUsersPerInstance: 30,
-        sceneId: 'default-project/apartment',
-        isFeatured: false,
-        isLobby: false
+        id: '37ce32f0-208d-11eb-b02f-37cfdadfe58e',
+        locationId: '98cbcc30-fd2d-11ea-bc7c-cd4cac9a8d63',
+        locationType: 'public' as const,
+        videoEnabled: true,
+        audioEnabled: true,
+        screenSharingEnabled: false,
+        faceStreamingEnabled: false
       }
     ].map(async (item) => ({ ...item, createdAt: await getDateTimeSql(), updatedAt: await getDateTimeSql() }))
   )
 
   if (forceRefresh || testEnabled) {
     // Deletes ALL existing entries
-    await knex(locationPath).del()
+    await knex(locationSettingPath).del()
 
-    // Inserts seed entries
-    await knex(locationPath).insert(seedData)
+    try {
+      await knex.raw('SET FOREIGN_KEY_CHECKS=0')
+      // Inserts seed entries
+      await knex(locationSettingPath).insert(seedData)
+    } finally {
+      await knex.raw('SET FOREIGN_KEY_CHECKS=1')
+    }
   } else {
-    const existingData = await knex(locationPath).count({ count: '*' })
+    const existingData = await knex(locationSettingPath).count({ count: '*' })
 
     if (existingData.length === 0 || existingData[0].count === 0) {
       for (const item of seedData) {
-        await knex(locationPath).insert(item)
+        await knex(locationSettingPath).insert(item)
       }
     }
   }

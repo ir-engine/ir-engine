@@ -23,19 +23,32 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
+// For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
+import { resolve } from '@feathersjs/schema'
+import { v4 } from 'uuid'
 
-import { LocationSettings as LocationSettingsInterface } from '@etherealengine/common/src/interfaces/LocationSettings'
+import {
+  LocationSettingQuery,
+  LocationSettingType
+} from '@etherealengine/engine/src/schemas/social/location-setting.schema'
+import type { HookContext } from '@etherealengine/server-core/declarations'
 
-import { Application } from '../../../declarations'
+import { getDateTimeSql } from '../../util/get-datetime-sql'
 
-export type LocationSettingsDataType = LocationSettingsInterface
-/**
- * A class for Location Setting service
- */
-export class LocationSettings<T = LocationSettingsDataType> extends Service<T> {
-  public docs: any
-  constructor(options: Partial<SequelizeServiceOptions>, app: Application) {
-    super(options)
-  }
-}
+export const locationSettingResolver = resolve<LocationSettingType, HookContext>({})
+
+export const locationSettingExternalResolver = resolve<LocationSettingType, HookContext>({})
+
+export const locationSettingDataResolver = resolve<LocationSettingType, HookContext>({
+  id: async () => {
+    return v4()
+  },
+  createdAt: getDateTimeSql,
+  updatedAt: getDateTimeSql
+})
+
+export const locationSettingPatchResolver = resolve<LocationSettingType, HookContext>({
+  updatedAt: getDateTimeSql
+})
+
+export const locationSettingQueryResolver = resolve<LocationSettingQuery, HookContext>({})

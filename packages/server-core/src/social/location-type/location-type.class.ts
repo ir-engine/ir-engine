@@ -23,20 +23,21 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
+import type { Params } from '@feathersjs/feathers'
+import type { KnexAdapterParams } from '@feathersjs/knex'
+import { KnexService } from '@feathersjs/knex'
 
-import { LocationType as LocationTypeInterface } from '@etherealengine/common/src/interfaces/LocationType'
+import {
+  LocationTypeData,
+  LocationTypePatch,
+  LocationTypeQuery,
+  LocationTypeType
+} from '@etherealengine/engine/src/schemas/social/location-type.schema'
 
-import { Application } from '../../../declarations'
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+export interface LocationTypeParams extends KnexAdapterParams<LocationTypeQuery> {}
 
-export type LocationTypeDataType = LocationTypeInterface
-
-/**
- * A class for Location Type  service
- */
-export class LocationType<T = LocationTypeDataType> extends Service<T> {
-  public docs: any
-  constructor(options: Partial<SequelizeServiceOptions>, app: Application) {
-    super(options)
-  }
-}
+export class LocationTypeService<
+  T = LocationTypeType,
+  ServiceParams extends Params = LocationTypeParams
+> extends KnexService<LocationTypeType, LocationTypeData, LocationTypeParams, LocationTypePatch> {}

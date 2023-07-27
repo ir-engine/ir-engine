@@ -35,7 +35,7 @@ export {}
 export default async function (locationName, app: Application) {
   await app.isSetup
   let service, serviceId
-  const locationResult = await app.service('location').find({
+  const locationResult = await app.service(locationPath).find({
     query: {
       slugifiedName: locationName
     }

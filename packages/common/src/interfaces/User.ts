@@ -136,10 +136,10 @@ export function resolveUser(user: any): UserInterface {
       locationAdmins: user.location_admins
     }
   }
-  if (user?.location_bans && user.location_bans.length > 0) {
+  if (user?.locationBans && user.locationBans.length > 0) {
     returned = {
       ...returned,
-      locationBans: user.location_bans
+      locationBans: user.locationBans
     }
   }
   if (user['user-api-key'] && user['user-api-key'].id) {

@@ -26,6 +26,8 @@ Ethereal Engine. All Rights Reserved.
 import { BadRequest } from '@feathersjs/errors'
 import { Id, NullableId, Params, ServiceMethods } from '@feathersjs/feathers'
 
+import { locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
+
 import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
 import Paginated from '../../types/PageObject'
@@ -266,13 +268,13 @@ export class AcceptInvite implements ServiceMethods<Data> {
         let instance =
           invite.inviteType === 'instance' ? await this.app.service('instance').get(invite.targetObjectId) : null
         const locationId = instance ? instance.locationId : invite.targetObjectId
-        const location = await this.app.service('location').get(locationId)
+        const location = await this.app.service(locationPath).get(locationId)
         returned.locationName = location.slugifiedName
         if (instance) returned.instanceId = instance.id
 
-        if (location.location_setting?.locationType === 'private') {
+        if (location.locationSetting?.locationType === 'private') {
           const userId = inviteeIdentityProvider.userId
-          if (!location.location_authorized_users?.find((authUser) => authUser.userId === userId))
+          if (!location.locationAuthorizedUsers.find((authUser) => authUser.userId === userId))
             await this.app.service('location-authorized-user').create({
               locationId: location.id,
               userId: userId

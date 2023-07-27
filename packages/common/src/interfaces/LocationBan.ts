@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 export interface LocationBan {
-  id: number
+  id: string
   locationId: string
   userId: string
 }

@@ -94,7 +94,6 @@ export async function seed(knex: Knex): Promise<void> {
     } else {
       // If data already exists, we need to make sure any newly added column i.e. appleTouchIcon, etc gets default value populated
       const existingRows = await knex(clientSettingPath).select<ClientSettingDatabaseType[]>()
-      console.log(existingRows)
 
       for (const item of existingRows) {
         if (!item.appleTouchIcon) {
