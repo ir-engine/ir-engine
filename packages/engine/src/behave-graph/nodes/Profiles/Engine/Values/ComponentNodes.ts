@@ -24,32 +24,44 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { Entity } from '../../../../../ecs/classes/Entity.js'
-import { defineQuery, getComponent } from '../../../../../ecs/functions/ComponentFunctions.js'
-import { NameComponent } from '../../../../../scene/components/NameComponent.js'
-import { SceneObjectComponent } from '../../../../../scene/components/SceneObjectComponent.js'
+import { ComponentMap, getComponent } from '../../../../../ecs/functions/ComponentFunctions.js'
 import { makeInNOutFunctionDesc } from '../../../Nodes/FunctionNode.js'
 import { NodeCategory, makeFunctionNodeDefinition } from '../../../Nodes/NodeDefinitions.js'
 
-// Unreal Engine Integer Blueprints API: https://docs.unrealengine.com/4.27/en-US/BlueprintAPI/Math/Integer/
-
-const sceneQuery = defineQuery([SceneObjectComponent])
-export const getEntity = makeFunctionNodeDefinition({
-  typeName: 'engine/getEntityInScene',
+export const getComponentFromRegistry = makeFunctionNodeDefinition({
+  typeName: 'engine/getComponentfromRegistry',
   category: NodeCategory.Query,
-  label: 'Get entity in scene',
+  label: 'Get Component',
   in: {
-    entity: (_, graphApi) => {
+    component: (_, graphApi) => {
       return {
-        valueType: 'entity',
-        choices: sceneQuery().map((entity) => ({ text: getComponent(entity, NameComponent), value: entity }))
+        valueType: 'string',
+        choices: Array.from(ComponentMap.keys()).sort()
       }
     }
   },
-  out: { entity: 'entity' },
+  out: { component: 'string' },
   exec: ({ read, write, graph }) => {
-    const entity = read('entity')
-    console.log('DEBUG enitity in scene', entity)
-    write('entity', entity)
+    const ComponentType: any = read('component')
+    write('component', ComponentType)
+  }
+})
+
+export const getComponentFromEntity = makeFunctionNodeDefinition({
+  typeName: 'engine/getComponentfromEntity',
+  category: NodeCategory.Action,
+  label: 'Get Component in entity',
+  in: {
+    entity: 'entity',
+    component: 'string'
+  },
+  out: { component: 'component' },
+  exec: ({ read, write, graph }) => {
+    const entity: Entity = read('entity')
+    const componentName: string = read('component')
+    const component = ComponentMap.get(componentName)!
+    const componentType = getComponent(entity, component)
+    write('component', componentType)
   }
 })
 

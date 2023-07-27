@@ -24,19 +24,22 @@ Ethereal Engine. All Rights Reserved.
 */
 
 /* eslint-disable max-len */
-import { memo } from '../../memo.js'
 import { NodeDefinition } from '../../Nodes/Registry/NodeDefinitionsMap.js'
 import { getNodeDescriptions } from '../../Nodes/Registry/NodeDescription.js'
 import { IRegistry } from '../../Registry.js'
 import { ValueTypeMap } from '../../Values/ValueTypeMap.js'
+import { memo } from '../../memo.js'
 import { getStringConversionsForValueType } from '../registerSerializersForValueType.js'
+import * as ComponentNodes from './Values/ComponentNodes.js'
+import { ComponentValue } from './Values/ComponentValue.js'
+import * as CustomNodes from './Values/CustomNodes.js'
 import * as EntityNodes from './Values/EntityNodes.js'
 import { EntityValue } from './Values/EntityValue.js'
 
 export const makeEngineDependencies = () => ({})
 
 export const getEngineValuesMap = memo<ValueTypeMap>(() => {
-  const valueTypes = [EntityValue]
+  const valueTypes = [EntityValue, ComponentValue]
   return Object.fromEntries(valueTypes.map((valueType) => [valueType.name, valueType]))
 })
 
@@ -49,6 +52,8 @@ function getEngineStringConversions(values: ValueTypeMap): NodeDefinition[] {
 export const getEngineNodesMap = memo<Record<string, NodeDefinition>>(() => {
   const nodeDefinitions = [
     ...getNodeDescriptions(EntityNodes),
+    ...getNodeDescriptions(ComponentNodes),
+    ...getNodeDescriptions(CustomNodes),
 
     // custom events
 

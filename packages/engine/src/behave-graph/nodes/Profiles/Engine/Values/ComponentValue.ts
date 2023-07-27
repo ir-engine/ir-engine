@@ -23,32 +23,14 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { makeInNOutFunctionDesc } from '../Nodes/FunctionNode.js'
-import { toCamelCase } from '../toCamelCase.js'
-import { ValueTypeMap } from '../Values/ValueTypeMap.js'
+import { Component } from '../../../../../ecs/functions/ComponentFunctions.js'
+import { ValueType } from '../../../Values/ValueType.js'
 
-export function getStringConversionsForValueType({
-  values,
-  valueTypeName
-}: {
-  values: ValueTypeMap
-  valueTypeName: string
-}) {
-  const camelCaseValueTypeName = toCamelCase(valueTypeName)
-  return [
-    makeInNOutFunctionDesc({
-      name: `math/to${camelCaseValueTypeName}/string`,
-      label: `To ${camelCaseValueTypeName}`,
-      in: ['string'],
-      out: valueTypeName,
-      exec: (a: string) => values[valueTypeName]?.deserialize(a)
-    }),
-    makeInNOutFunctionDesc({
-      name: `math/toString/${valueTypeName}`,
-      label: 'To String',
-      in: [valueTypeName],
-      out: 'string',
-      exec: (a: any) => values[valueTypeName]?.serialize(a)
-    })
-  ]
+export const ComponentValue: ValueType = {
+  name: 'component',
+  creator: () => null,
+  deserialize: (value: string) => JSON.parse(value), // parse dict
+  serialize: (value: Component) => JSON.stringify(value), //stringify the dict
+  equals: (a: Component, b: Component) => a === b,
+  clone: (value: Component) => value
 }
