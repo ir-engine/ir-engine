@@ -23,8 +23,29 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-export interface LocationBan {
-  id: string
-  locationId: string
-  userId: string
-}
+// For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
+import { resolve } from '@feathersjs/schema'
+import { v4 } from 'uuid'
+
+import { LocationBanQuery, LocationBanType } from '@etherealengine/engine/src/schemas/social/location-ban.schema'
+import type { HookContext } from '@etherealengine/server-core/declarations'
+
+import { getDateTimeSql } from '../../util/get-datetime-sql'
+
+export const locationBanResolver = resolve<LocationBanType, HookContext>({})
+
+export const locationBanExternalResolver = resolve<LocationBanType, HookContext>({})
+
+export const locationBanDataResolver = resolve<LocationBanType, HookContext>({
+  id: async () => {
+    return v4()
+  },
+  createdAt: getDateTimeSql,
+  updatedAt: getDateTimeSql
+})
+
+export const locationBanPatchResolver = resolve<LocationBanType, HookContext>({
+  updatedAt: getDateTimeSql
+})
+
+export const locationBanQueryResolver = resolve<LocationBanQuery, HookContext>({})
