@@ -26,8 +26,6 @@ Ethereal Engine. All Rights Reserved.
 import { createState } from '@hookstate/core'
 import React, { useEffect, useState } from 'react'
 
-import { AvatarStates } from '@etherealengine/engine/src/avatar/animation/Util'
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { createXRUI } from '@etherealengine/engine/src/xrui/functions/createXRUI'
 import Button from '@etherealengine/ui/src/primitives/mui/Button'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
