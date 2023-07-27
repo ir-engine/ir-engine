@@ -343,9 +343,6 @@ export default {
             model: 'scope'
           },
           {
-            model: 'party'
-          },
-          {
             model: 'avatar'
           }
         ]
@@ -377,15 +374,12 @@ export default {
             model: 'scope'
           },
           {
-            model: 'party'
-          },
-          {
             model: 'avatar'
           }
         ]
       }),
       iff(
-        (context: HookContext) => context.params.user.id === context.arguments[0],
+        (context: HookContext) => context.params.user?.id === context.arguments[0],
         addAssociations({
           models: [
             {
@@ -408,13 +402,6 @@ export default {
             }
           ]
         })
-      ),
-      iff(
-        (context: HookContext) => context.params.user.id !== context.arguments[0],
-        (context: HookContext) => {
-          if (!context.params.sequelize.attributes) context.params.sequelize.attributes = {}
-          context.params.sequelize.attributes.exclude = ['partyId']
-        }
       )
     ],
     create: [iff(isProvider('external'), verifyScope('admin', 'admin') as any, verifyScope('user', 'write') as any)],

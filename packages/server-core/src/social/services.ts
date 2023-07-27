@@ -23,11 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import ChannelType from './channel-type/channel-type.service'
+import ChannelUser from './channel-user/channel-user.service'
 import Channel from './channel/channel.service'
-import GroupUserRank from './group-user-rank/group-user-rank.service'
-import GroupUser from './group-user/group-user.service'
-import Group from './group/group.service'
 import InviteType from './invite-type/invite-type.service'
 import Invite from './invite/invite.service'
 import LocationAdmin from './location-admin/location-admin.service'
@@ -36,24 +33,15 @@ import LocationBan from './location-ban/location-ban.service'
 import LocationSetting from './location-setting/location-setting'
 import LocationType from './location-type/location-type'
 import Location from './location/location'
-import MessageStatus from './message-status/message-status.service'
 import Message from './message/message.service'
-import PartyUser from './party-user/party-user.service'
-import Party from './party/party.service'
 
 export default [
-  ChannelType,
+  ChannelUser,
   InviteType,
   Channel,
   Location,
-  GroupUserRank,
-  Group,
   Invite,
-  Party,
-  PartyUser,
-  GroupUser,
   Message,
-  MessageStatus,
   LocationType,
   LocationSetting,
   LocationBan,

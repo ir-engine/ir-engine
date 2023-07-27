@@ -44,7 +44,7 @@ const remoteAvatars = defineQuery([
   Not(LocalInputTagComponent)
 ])
 
-export function getNearbyUsers(userId: UserId, nonPartyUserIds: UserId[]): Array<UserId> {
+export function getNearbyUsers(userId: UserId, nonChannelUserIds: UserId[]): Array<UserId> {
   const userAvatarEntity = NetworkObjectComponent.getUserAvatarEntity(userId)
   if (!userAvatarEntity) return []
   const userPosition = getComponent(userAvatarEntity, TransformComponent).position
@@ -60,7 +60,7 @@ export function getNearbyUsers(userId: UserId, nonPartyUserIds: UserId[]): Array
     })
   }
   return userDistances
-    .filter((u) => nonPartyUserIds.indexOf(u.id) > -1)
+    .filter((u) => nonChannelUserIds.indexOf(u.id) > -1)
     .sort(compareDistance)
     .map((u) => u.id)
 }

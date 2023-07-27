@@ -54,8 +54,32 @@ export class UserRelationship<T = UserRelationshipDataType> extends Service<T> {
     const userRelationshipTypes = ((await UserRelationshipTypeService.find()) as any).data
 
     const userId = params.query?.userId
-    const result = {}
 
+    /** query relationships for the logged in user */
+    if (!userId) {
+      const loggedInUserId = (params as any).user.id
+
+      const where = {
+        userId: loggedInUserId
+      }
+
+      if (params.query?.userRelationshipType) {
+        Object.assign(where, { userRelationshipType: params.query.userRelationshipType })
+      }
+
+      const relationshipsFound = await this.Model.findAll({
+        where
+      })
+
+      return relationshipsFound
+    }
+
+    /**
+     * @deprecated query relationships for the given user
+     * TODO: migrate admin find query
+     */
+
+    const result = {}
     for (const userRelationType of userRelationshipTypes) {
       const userRelations = await UserRelationshipModel.findAll({
         where: {

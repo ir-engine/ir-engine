@@ -24,15 +24,18 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { LocationData, LocationType } from '@etherealengine/engine/src/schemas/social/location.schema'
+import { ChannelID } from './ChannelUser'
 
 export interface Instance {
   id: string
   roomCode: string
   currentUsers: number
   ipAddress: string
-  locationId: string
+  // World servers have locationIds
+  locationId?: string
   location: LocationData | LocationType
-  channelId: string
+  // Media serves have channelIds
+  channelId?: ChannelID
   podName?: string
   ended?: boolean
   assigned?: boolean
@@ -75,7 +78,7 @@ export const InstanceSeed: Instance = {
   },
   podName: '',
   locationId: '',
-  channelId: ''
+  channelId: '' as ChannelID
 }
 
 export interface InstanceServerSubdomainProvision {

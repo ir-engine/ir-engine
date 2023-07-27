@@ -1,0 +1,8 @@
+.hide-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+.pointer {
+  pointer-events: auto
+}
+

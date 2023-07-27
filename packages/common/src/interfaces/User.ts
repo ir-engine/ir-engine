@@ -30,7 +30,6 @@ import { IdentityProvider } from './IdentityProvider'
 import { InstanceAttendanceInterface } from './InstanceAttendance'
 import { LocationAdmin } from './LocationAdmin'
 import { LocationBan } from './LocationBan'
-import { Party } from './Party'
 import { StaticResourceInterface } from './StaticResourceInterface'
 import { UserId } from './UserId'
 import { RelationshipType } from './UserRelationship'
@@ -63,11 +62,11 @@ export interface UserInterface {
   identity_providers?: IdentityProvider[]
   identityProviders?: IdentityProvider[]
   locationAdmins?: LocationAdmin[]
+  /* @deprecated */
   relationType?: RelationshipType
+  /* @deprecated */
   inverseRelationType?: RelationshipType
   avatarUrl?: string
-  partyId?: string
-  party?: Party
   locationBans?: LocationBan[]
   user_setting?: UserSetting
   inviteCode?: string

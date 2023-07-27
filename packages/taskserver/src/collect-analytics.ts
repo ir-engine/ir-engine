@@ -39,7 +39,7 @@ export default (app): void => {
     logger.info('Collecting analytics at %s.', new Date().toString())
     const activeLocations: any[] = []
     const activeScenes: any[] = []
-    const activeParties = await app.service('party').find({
+    const activeChannels = await app.service('channel').find({
       query: {
         $limit: 0
       },
@@ -108,8 +108,8 @@ export default (app): void => {
 
     await Promise.all([
       app.service(analyticsPath).create({
-        type: 'activeParties',
-        count: activeParties.total
+        type: 'activeChannels',
+        count: activeChannels.total
       }),
       app.service(analyticsPath).create({
         type: 'instanceUsers',

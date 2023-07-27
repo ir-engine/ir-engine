@@ -113,7 +113,7 @@ export class AvatarService<T = AvatarType, ServiceParams extends Params = Avatar
     let avatar = await super._create({
       ...data,
       isPublic: data.isPublic ?? true,
-      userId: params!.user!.id
+      userId: params?.user?.id
     })
 
     avatar = await super._patch(avatar.id, {
