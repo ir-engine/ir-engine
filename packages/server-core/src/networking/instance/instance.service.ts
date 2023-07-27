@@ -25,14 +25,14 @@ Ethereal Engine. All Rights Reserved.
 
 import { Params } from '@feathersjs/feathers/lib'
 
-import { LocationInterface } from '@etherealengine/common/src/dbmodels/Location'
 import { Instance as InstanceInterface } from '@etherealengine/common/src/interfaces/Instance'
+import { locationPath, LocationType } from '@etherealengine/engine/src/schemas/social/location.schema'
 
 import { Application } from '../../../declarations'
-import logger from '../../ServerLogger'
 import authenticate from '../../hooks/authenticate'
 import setLoggedInUser from '../../hooks/set-loggedin-user-in-body'
 import verifyScope from '../../hooks/verify-scope'
+import logger from '../../ServerLogger'
 import { UserParams } from '../../user/user/user.class'
 import { Instance } from './instance.class'
 import instanceDocs from './instance.docs'
@@ -66,29 +66,30 @@ export const getActiveInstancesForScene =
     if (!sceneId) return []
 
     // get all locationIds for sceneId
-    const locations = (await app.service('location').Model.findAll({
-      where: {
+    const locations = (await app.service(locationPath).find({
+      query: {
         sceneId
-      }
-    })) as LocationInterface[]
+      },
+      paginate: false
+    })) as any as LocationType[]
 
-    if (!locations) return []
+    if (locations.length === 0) return []
 
     const instances = (
       (await Promise.all(
-        locations.map((location) => {
-          return app.service('instance').Model.findAll({
+        locations.map(async (location) => {
+          const instances = await app.service('instance').Model.findAll({
             where: {
               ended: false,
               locationId: location.id
-            },
-            include: [
-              {
-                model: app.service('location').Model,
-                where: {}
-              }
-            ]
+            }
           })
+
+          for (const instance of instances) {
+            instance.location = location
+          }
+
+          return instances
         })
       )) as InstanceInterface[]
     ).flat()
@@ -98,7 +99,7 @@ export const getActiveInstancesForScene =
       .map((instance) => {
         return {
           id: instance.id,
-          location: instance.location!.id,
+          location: (instance.location as LocationType).id,
           currentUsers: instance.currentUsers
         }
       })

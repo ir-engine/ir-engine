@@ -23,38 +23,40 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-// Initializes the `location-settings` service on path `/location-settings`
-import { Application } from '../../../declarations'
-import locationSettingsDocs from './location-settings-docs'
-import { LocationSettings } from './location-settings.class'
-import hooks from './location-settings.hooks'
-import createModel from './location-settings.model'
+import type { Knex } from 'knex'
 
-// Add this service to the service type index
-declare module '@etherealengine/common/declarations' {
-  interface ServiceTypes {
-    'location-settings': LocationSettings
+import { locationTypePath } from '@etherealengine/engine/src/schemas/social/location-type.schema'
+
+/**
+ * @param { import("knex").Knex } knex
+ * @returns { Promise<void> }
+ */
+export async function up(knex: Knex): Promise<void> {
+  const oldTableName = 'location_type'
+
+  const oldNamedTableExists = await knex.schema.hasTable(oldTableName)
+  if (oldNamedTableExists) {
+    await knex.schema.renameTable(oldTableName, locationTypePath)
+  }
+
+  const tableExists = await knex.schema.hasTable(locationTypePath)
+
+  if (tableExists === false) {
+    await knex.schema.createTable(locationTypePath, (table) => {
+      //@ts-ignore
+      table.string('type', 255).notNullable().unique().primary()
+    })
   }
 }
 
-export default function (app: Application): void {
-  const options = {
-    Model: createModel(app),
-    paginate: app.get('paginate'),
-    multi: true
+/**
+ * @param { import("knex").Knex } knex
+ * @returns { Promise<void> }
+ */
+export async function down(knex: Knex): Promise<void> {
+  const tableExists = await knex.schema.hasTable(locationTypePath)
+
+  if (tableExists === true) {
+    await knex.schema.dropTable(locationTypePath)
   }
-
-  /**
-   * Initialize our service with any options it requires and docs
-   */
-  const event = new LocationSettings(options, app)
-  event.docs = locationSettingsDocs
-  app.use('location-settings', event)
-
-  /**
-   * Get our initialized service so that we can register hooks
-   */
-  const service = app.service('location-settings')
-
-  service.hooks(hooks)
 }

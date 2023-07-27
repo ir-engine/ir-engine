@@ -23,22 +23,27 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-
 import type { Knex } from 'knex'
+
+import { locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
 
 /**
  * @param { import("knex").Knex } knex
  * @returns { Promise<void> }
  */
 export async function up(knex: Knex): Promise<void> {
-  const tableExists = await knex.schema.hasTable(TABLE_NAME)
+  const tableExists = await knex.schema.hasTable(locationPath)
 
   if (tableExists === false) {
-    await knex.schema.createTable(TABLE_NAME, (table) => {
+    await knex.schema.createTable(locationPath, (table) => {
       //@ts-ignore
       table.uuid('id').collate('utf8mb4_bin').primary()
-
-      
+      table.string('name', 255).notNullable()
+      table.string('sceneId', 255).nullable()
+      table.string('slugifiedName', 255).notNullable().unique()
+      table.boolean('isLobby').defaultTo(false)
+      table.boolean('isFeatured').defaultTo(false)
+      table.integer('maxUsersPerInstance').notNullable().defaultTo(50)
       table.dateTime('createdAt').notNullable()
       table.dateTime('updatedAt').notNullable()
     })
@@ -50,9 +55,9 @@ export async function up(knex: Knex): Promise<void> {
  * @returns { Promise<void> }
  */
 export async function down(knex: Knex): Promise<void> {
-  const tableExists = await knex.schema.hasTable(TABLE_NAME)
+  const tableExists = await knex.schema.hasTable(locationPath)
 
   if (tableExists === true) {
-    await knex.schema.dropTable(TABLE_NAME)
+    await knex.schema.dropTable(locationPath)
   }
 }

@@ -25,48 +25,106 @@ Ethereal Engine. All Rights Reserved.
 
 import { iff, isProvider } from 'feathers-hooks-common'
 
-import addAssociations from '@etherealengine/server-core/src/hooks/add-associations'
 import verifyScope from '@etherealengine/server-core/src/hooks/verify-scope'
 
+import { hooks as schemaHooks } from '@feathersjs/schema'
+import { getValidator } from '@feathersjs/typebox'
 import authenticate from '../../hooks/authenticate'
 
+import {
+  locationDataSchema,
+  locationPatchSchema,
+  locationQuerySchema,
+  locationSchema
+} from '@etherealengine/engine/src/schemas/social/location.schema'
+import { dataValidator, queryValidator } from '@etherealengine/server-core/validators'
+
+import { HookContext, NextFunction } from '@feathersjs/feathers'
+import { locationSettingSorts } from './location.class'
+import {
+  locationDataResolver,
+  locationExternalResolver,
+  locationPatchResolver,
+  locationQueryResolver,
+  locationResolver
+} from './location.resolvers'
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const locationValidator = getValidator(locationSchema, dataValidator)
+const locationDataValidator = getValidator(locationDataSchema, dataValidator)
+const locationPatchValidator = getValidator(locationPatchSchema, dataValidator)
+const locationQueryValidator = getValidator(locationQuerySchema, queryValidator)
+
+const applyLocationSettingSort = async (context: HookContext, next: NextFunction) => {
+  await next() // Read more about execution of hooks: https://github.com/feathersjs/hooks#flow-control-with-multiple-hooks
+
+  const hasLocationSettingSort =
+    context.params.query &&
+    context.params.query.$sort &&
+    Object.keys(context.params.query.$sort).some((item) => locationSettingSorts.includes(item))
+
+  if (hasLocationSettingSort) {
+    const { dispatch } = context
+
+    for (const sort of Object.keys(context.params.query.$sort)) {
+      if (locationSettingSorts.includes(sort)) {
+        const data = dispatch.data ? dispatch.data : dispatch
+
+        data.sort((a, b) => {
+          let fa = a.locationSetting[sort],
+            fb = b.locationSetting[sort]
+
+          if (typeof fa === 'string') {
+            fa = fa.toLowerCase()
+            fb = fb.toLowerCase()
+          }
+
+          if (fa < fb) {
+            return -1
+          }
+          if (fa > fb) {
+            return 1
+          }
+          return 0
+        })
+
+        if (context.params.query.$sort[sort] === 1) {
+          data.reverse()
+        }
+      }
+    }
+  }
+}
+
 export default {
+  around: {
+    all: [
+      applyLocationSettingSort,
+      schemaHooks.resolveExternal(locationExternalResolver),
+      schemaHooks.resolveResult(locationResolver)
+    ]
+  },
+
   before: {
-    all: [authenticate()],
-    find: [
-      addAssociations({
-        models: [
-          {
-            model: 'location-ban'
-          },
-          {
-            model: 'location-settings'
-          },
-          {
-            model: 'location-authorized-user'
-          }
-        ]
-      })
+    all: [
+      authenticate(),
+      () => schemaHooks.validateQuery(locationQueryValidator),
+      schemaHooks.resolveQuery(locationQueryResolver)
     ],
-    get: [
-      addAssociations({
-        models: [
-          {
-            model: 'location-ban'
-          },
-          {
-            model: 'location-settings'
-          },
-          {
-            model: 'location-authorized-user'
-          }
-        ]
-      })
+    find: [],
+    get: [],
+    create: [
+      iff(isProvider('external'), verifyScope('location', 'write')),
+      () => schemaHooks.validateData(locationDataValidator),
+      schemaHooks.resolveData(locationDataResolver)
     ],
-    create: [iff(isProvider('external'), verifyScope('location', 'write') as any)],
-    update: [iff(isProvider('external'), verifyScope('location', 'write') as any)],
-    patch: [iff(isProvider('external'), verifyScope('location', 'write') as any)],
-    remove: [iff(isProvider('external'), verifyScope('location', 'write') as any)]
+    update: [iff(isProvider('external'), verifyScope('location', 'write'))],
+    patch: [
+      iff(isProvider('external'), verifyScope('location', 'write')),
+      () => schemaHooks.validateData(locationPatchValidator),
+      schemaHooks.resolveData(locationPatchResolver)
+    ],
+    remove: [iff(isProvider('external'), verifyScope('location', 'write'))]
   },
 
   after: {

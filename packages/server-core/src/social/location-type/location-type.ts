@@ -23,36 +23,36 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { locationTypeMethods, locationTypePath } from '@etherealengine/engine/src/schemas/social/location-type.schema'
+
 import { Application } from '../../../declarations'
-import { Location } from './location.class'
-import locationDocs from './location.docs'
-import hooks from './location.hooks'
-import createModel from './location.model'
+import { LocationTypeService } from './location-type.class'
+import locationTypeDocs from './location-type.docs'
+import hooks from './location-type.hooks'
 
 declare module '@etherealengine/common/declarations' {
   interface ServiceTypes {
-    location: Location
+    [locationTypePath]: LocationTypeService
   }
 }
 
-export default (app: Application) => {
+export default (app: Application): void => {
   const options = {
-    Model: createModel(app),
+    id: 'type',
+    name: locationTypePath,
     paginate: app.get('paginate'),
+    Model: app.get('knexClient'),
     multi: true
   }
-  /**
-   * Initialize our service with any options it requires and docs
-   */
-  const event = new Location(options, app)
-  event.docs = locationDocs
 
-  app.use('location', event)
+  app.use(locationTypePath, new LocationTypeService(options), {
+    // A list of all methods this service exposes externally
+    methods: locationTypeMethods,
+    // You can add additional custom events to be sent to clients here
+    events: [],
+    docs: locationTypeDocs
+  })
 
-  /**
-   * Get our initialized service so that we can register hooks
-   */
-  const service = app.service('location')
-
+  const service = app.service(locationTypePath)
   service.hooks(hooks)
 }

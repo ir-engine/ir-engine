@@ -24,7 +24,6 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { ChannelID } from '../interfaces/ChannelUser'
-import { LocationInterface } from './Location'
 
 export interface InstanceInterface {
   id: string
@@ -38,4 +37,14 @@ export interface InstanceInterface {
   assignedAt: Date
   locationId?: string
   location?: LocationInterface
+}
+
+interface LocationInterface {
+  id: string
+  name: string
+  sceneId: string
+  slugifiedName: string
+  isLobby: boolean
+  isFeatured: boolean
+  maxUsersPerInstance: number
 }

@@ -23,8 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { LocationData, LocationType } from '@etherealengine/engine/src/schemas/social/location.schema'
 import { ChannelID } from './ChannelUser'
-import { Location } from './Location'
 
 export interface Instance {
   id: string
@@ -33,7 +33,7 @@ export interface Instance {
   ipAddress: string
   // World servers have locationIds
   locationId?: string
-  location: Location
+  location: LocationData | LocationType
   // Media serves have channelIds
   channelId?: ChannelID
   podName?: string
@@ -49,12 +49,19 @@ export const InstanceSeed: Instance = {
   ipAddress: '',
   currentUsers: 0,
   location: {
-    id: '',
     name: '',
     slugifiedName: '',
     maxUsersPerInstance: 10,
     sceneId: '',
-    locationSettingsId: '',
+    locationAuthorizedUsers: [
+      {
+        id: '',
+        locationId: '',
+        userId: '',
+        createdAt: '',
+        updatedAt: ''
+      }
+    ],
     locationSetting: {
       id: '',
       locationId: '',
@@ -62,7 +69,9 @@ export const InstanceSeed: Instance = {
       audioEnabled: false,
       screenSharingEnabled: false,
       faceStreamingEnabled: false,
-      videoEnabled: false
+      videoEnabled: false,
+      createdAt: '',
+      updatedAt: ''
     },
     isLobby: false,
     isFeatured: false
