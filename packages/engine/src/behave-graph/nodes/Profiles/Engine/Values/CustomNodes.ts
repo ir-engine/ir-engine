@@ -23,10 +23,13 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { AnimationManager } from '../../../../../avatar/AnimationManager'
+import { LoopAnimationComponent } from '../../../../../avatar/components/LoopAnimationComponent'
 import { Entity } from '../../../../../ecs/classes/Entity'
 import { setComponent } from '../../../../../ecs/functions/ComponentFunctions'
+import { MediaComponent } from '../../../../../scene/components/MediaComponent'
 import { TransformComponent } from '../../../../../transform/components/TransformComponent'
-import { NodeCategory, makeFlowNodeDefinition } from '../../../Nodes/NodeDefinitions'
+import { NodeCategory, makeFlowNodeDefinition, makeFunctionNodeDefinition } from '../../../Nodes/NodeDefinitions'
 import { eulerToQuat } from '../../Scene/Values/Internal/Vec4'
 import { toQuat, toVector3 } from '../../Scene/buildScene'
 
@@ -59,17 +62,14 @@ export const playVideo = makeFlowNodeDefinition({
   in: {
     flow: 'flow',
     entity: 'entity',
-    targetPosition: 'vec3',
-    targetRotation: 'vec3'
+    mediaPath: 'string'
   },
   out: { flow: 'flow' },
   initialState: undefined,
   triggered: ({ read, commit, graph: { getDependency } }) => {
-    const position = toVector3(read('targetPosition'))
-
-    const rotation = toQuat(eulerToQuat(read('targetRotation')))
+    const media = read('mediaPath')
     const entity = Number(read('entity')) as Entity
-    setComponent(entity, TransformComponent, { position: position, rotation: rotation })
+    setComponent(entity, MediaComponent, {}) // play
     commit('flow')
   }
 })
@@ -81,18 +81,36 @@ export const playAudio = makeFlowNodeDefinition({
   in: {
     flow: 'flow',
     entity: 'entity',
-    targetPosition: 'vec3',
-    targetRotation: 'vec3'
+    mediaPath: 'string'
   },
   out: { flow: 'flow' },
   initialState: undefined,
   triggered: ({ read, commit, graph: { getDependency } }) => {
-    const position = toVector3(read('targetPosition'))
-
-    const rotation = toQuat(eulerToQuat(read('targetRotation')))
+    const media = read('mediaPath')
     const entity = Number(read('entity')) as Entity
-    setComponent(entity, TransformComponent, { position: position, rotation: rotation })
+    setComponent(entity, MediaComponent, {}) // play
     commit('flow')
+  }
+})
+
+export const getAvatarAnimations = makeFunctionNodeDefinition({
+  typeName: 'engine/getAvatarAnimations',
+  category: NodeCategory.Query,
+  label: 'Get Avatar Animations',
+  in: {
+    animationName: (_, graphApi) => {
+      return {
+        valueType: 'string',
+        choices: Array.from(AnimationManager.instance._animations)
+          .map((clip) => clip.name)
+          .sort()
+      }
+    }
+  },
+  out: { animationName: 'string' },
+  exec: ({ read, write, graph }) => {
+    const animationName: string = read('animationName')
+    write('animationName', animationName)
   }
 })
 
@@ -103,17 +121,18 @@ export const playGltfAnimation = makeFlowNodeDefinition({
   in: {
     flow: 'flow',
     entity: 'entity',
-    targetPosition: 'vec3',
-    targetRotation: 'vec3'
+    animationName: 'string',
+    isAvatar: 'boolean'
   },
   out: { flow: 'flow' },
   initialState: undefined,
   triggered: ({ read, commit, graph: { getDependency } }) => {
-    const position = toVector3(read('targetPosition'))
-
-    const rotation = toQuat(eulerToQuat(read('targetRotation')))
+    const animation: string = read('animationName')
+    const animations = AnimationManager.instance._animations
+    const isAvatar: boolean = read('isAvatar')
     const entity = Number(read('entity')) as Entity
-    setComponent(entity, TransformComponent, { position: position, rotation: rotation })
+    const animIndex: number = animations.findIndex((clip) => clip.name === animation)
+    setComponent(entity, LoopAnimationComponent, { activeClipIndex: animIndex, hasAvatarAnimations: isAvatar })
     commit('flow')
   }
 })
