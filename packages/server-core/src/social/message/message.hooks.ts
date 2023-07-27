@@ -26,7 +26,6 @@ Ethereal Engine. All Rights Reserved.
 import addAssociations from '@etherealengine/server-core/src/hooks/add-associations'
 import channelPermissionAuthenticate from '@etherealengine/server-core/src/hooks/channel-permission-authenticate'
 import messagePermissionAuthenticate from '@etherealengine/server-core/src/hooks/message-permission-authenticate'
-import removeMessageStatuses from '@etherealengine/server-core/src/hooks/remove-message-statuses'
 
 import authenticate from '../../hooks/authenticate'
 
@@ -56,7 +55,7 @@ export default {
         ]
       })
     ],
-    create: [],
+    create: [], // TODO: disallow if message empty
     update: [
       messagePermissionAuthenticate(),
       addAssociations({
@@ -89,7 +88,7 @@ export default {
     create: [],
     update: [],
     patch: [],
-    remove: [removeMessageStatuses()]
+    remove: []
   },
 
   error: {

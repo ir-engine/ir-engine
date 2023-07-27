@@ -25,7 +25,6 @@ Ethereal Engine. All Rights Reserved.
 
 import { ScopeTypeType } from '@etherealengine/engine/src/schemas/scope/scope-type.schema'
 
-import { Group } from './Group'
 import { UserInterface } from './User'
 
 export interface AdminScope {
@@ -33,9 +32,7 @@ export interface AdminScope {
   createdAt: string
   updatedAt: string
   userId?: string
-  groupId?: string
   type: string
   scopeType?: ScopeTypeType
   user?: UserInterface
-  group?: Group
 }

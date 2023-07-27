@@ -28,7 +28,7 @@ import { UserInterface } from './User'
 export type Invite = {
   id: string
   inviteType: string
-  groupName?: string
+  channelName?: string
   invitee?: UserInterface
   inviteeId?: string
   token?: string

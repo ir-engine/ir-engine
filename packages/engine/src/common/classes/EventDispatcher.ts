@@ -55,7 +55,6 @@ export class EventDispatcher {
    * @param listener Callback to trigger when the event is fired.
    */
   addEventListener(eventName: string | number, listener: Function, ...args: any): void {
-    console.log(this)
     const listeners = this._listeners
     if (listeners[eventName] === undefined) {
       listeners[eventName] = []

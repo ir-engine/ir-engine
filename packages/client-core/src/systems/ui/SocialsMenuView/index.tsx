@@ -51,10 +51,6 @@ const SocialsMenuView = () => {
     // TODO open friend menu widget here...
   }
 
-  const handleOpenPartyGroupMenuWidget = () => {
-    // TODO open party group menu widget here...
-  }
-
   const handleOpenMediaSessionsMenuWidget = () => {
     WidgetAppService.setWidgetVisibility(WidgetName.MEDIA_SESSION, true)
   }
@@ -71,10 +67,6 @@ const SocialsMenuView = () => {
         <XRTextButton onClick={handleOpenFriendMenuWidget}>
           <Icon type="Group" />
           {t('user:usermenu.socials.btn-friend')}
-        </XRTextButton>
-        <XRTextButton onClick={handleOpenPartyGroupMenuWidget}>
-          <Icon type="Groups" />
-          {t('user:usermenu.socials.btn-party-group')}
         </XRTextButton>
         <XRTextButton onClick={handleOpenMediaSessionsMenuWidget}>
           <Icon type="Newspaper" />

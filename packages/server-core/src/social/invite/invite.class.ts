@@ -119,12 +119,12 @@ export const inviteReceived = async (inviteService: Invite, query) => {
 
   await Promise.all(
     result.data.map(async (invite) => {
-      if (invite.inviteType === 'group' && invite.targetObjectId) {
+      if (invite.inviteType === 'channel' && invite.targetObjectId) {
         try {
-          const group = await inviteService.app.service('group').get(invite.targetObjectId)
-          invite.groupName = group.name
+          const channel = await inviteService.app.service('channel').get(invite.targetObjectId)
+          invite.channelName = channel.name
         } catch (err) {
-          invite.groupName = '<A deleted group>'
+          invite.channelName = '<A deleted channel>'
         }
       }
     })
@@ -160,12 +160,12 @@ export const inviteSent = async (inviteService: Invite, query: Query) => {
 
   await Promise.all(
     result.data.map(async (invite) => {
-      if (invite.inviteType === 'group' && invite.targetObjectId) {
+      if (invite.inviteType === 'channel' && invite.targetObjectId) {
         try {
-          const group = await inviteService.app.service('group').get(invite.targetObjectId)
-          invite.groupName = group.name
+          const channel = await inviteService.app.service('channel').get(invite.targetObjectId)
+          invite.channelName = channel.name
         } catch (err) {
-          invite.groupName = '<A deleted group>'
+          invite.channelName = '<A deleted channel>'
         }
       }
     })
@@ -207,13 +207,13 @@ export const inviteAll = async (inviteService: Invite, query: Query, user: UserI
 
   await Promise.all(
     result.data.map(async (invite) => {
-      if (invite.inviteType === 'group' && invite.targetObjectId) {
+      if (invite.inviteType === 'channel' && invite.targetObjectId) {
         try {
-          const group = await inviteService.app.service('group').get(invite.targetObjectId)
-          if (!group) throw new Error()
-          invite.groupName = group.name
+          const channel = await inviteService.app.service('channel').get(invite.targetObjectId)
+          if (!channel) throw new Error()
+          invite.channelName = channel.name
         } catch (err) {
-          invite.groupName = '<A deleted group>'
+          invite.channelName = '<A deleted channel>'
         }
       }
     })

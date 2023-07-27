@@ -74,12 +74,6 @@ export const scopeTypeSeed = [
     type: 'benchmarking:write'
   },
   {
-    type: 'groups:read'
-  },
-  {
-    type: 'groups:write'
-  },
-  {
     type: 'instance:read'
   },
   {
@@ -89,10 +83,10 @@ export const scopeTypeSeed = [
     type: 'invite:read'
   },
   {
-    type: 'party:read'
+    type: 'channel:read'
   },
   {
-    type: 'party:write'
+    type: 'channel:write'
   },
   {
     type: 'user:read'

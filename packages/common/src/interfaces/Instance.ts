@@ -23,6 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { ChannelID } from './ChannelUser'
 import { Location } from './Location'
 
 export interface Instance {
@@ -30,9 +31,11 @@ export interface Instance {
   roomCode: string
   currentUsers: number
   ipAddress: string
-  locationId: string
+  // World servers have locationIds
+  locationId?: string
   location: Location
-  channelId: string
+  // Media serves have channelIds
+  channelId?: ChannelID
   podName?: string
   ended?: boolean
   assigned?: boolean
@@ -66,7 +69,7 @@ export const InstanceSeed: Instance = {
   },
   podName: '',
   locationId: '',
-  channelId: ''
+  channelId: '' as ChannelID
 }
 
 export interface InstanceServerSubdomainProvision {
