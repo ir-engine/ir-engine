@@ -39,12 +39,12 @@ import DialogTitle from '@etherealengine/ui/src/primitives/mui/DialogTitle'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
 
+import { useFind } from '@etherealengine/engine/src/common/functions/FeathersHooks'
 import { NotificationService } from '../../../common/services/NotificationService'
 import { AuthState } from '../../../user/services/AuthService'
 import { validateForm } from '../../common/validation/formValidation'
 import { AdminBotService } from '../../services/BotsService'
 import { AdminInstanceService, AdminInstanceState } from '../../services/InstanceService'
-import { AdminLocationService, AdminLocationState } from '../../services/LocationService'
 import styles from '../../styles/admin.module.scss'
 
 interface Props {
@@ -67,7 +67,8 @@ const UpdateBot = ({ open, bot, onClose }: Props) => {
   })
   const currentInstance = useHookstate<Instance[]>([])
   const adminInstanceState = useHookstate(getMutableState(AdminInstanceState))
-  const locationData = useHookstate(getMutableState(AdminLocationState).locations)
+  const locationQuery = useFind('location')
+  const locationData = locationQuery.data
   const instanceData = adminInstanceState.instances
   const user = useHookstate(getMutableState(AuthState).user)
   const { t } = useTranslation()
@@ -83,7 +84,7 @@ const UpdateBot = ({ open, bot, onClose }: Props) => {
     }
   }, [bot])
 
-  const locationsMenu: InputMenuItem[] = locationData.get({ noproxy: true }).map((el) => {
+  const locationsMenu: InputMenuItem[] = locationData.map((el) => {
     return {
       label: el.name,
       value: el.id
@@ -160,10 +161,6 @@ const UpdateBot = ({ open, bot, onClose }: Props) => {
     AdminInstanceService.fetchAdminInstances()
   }
 
-  const fetchAdminLocations = () => {
-    AdminLocationService.fetchAdminLocations()
-  }
-
   return (
     <div>
       <Dialog
@@ -199,7 +196,7 @@ const UpdateBot = ({ open, bot, onClose }: Props) => {
             onChange={handleInputChange}
             endControl={
               <IconButton
-                onClick={fetchAdminLocations}
+                onClick={locationQuery.refetch}
                 icon={<Icon type="Autorenew" style={{ color: 'var(--iconButtonColor)' }} />}
               />
             }
