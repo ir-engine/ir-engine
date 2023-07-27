@@ -23,12 +23,35 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-export interface LocationInterface {
-  id: string
-  name: string
-  sceneId: string
-  slugifiedName: string
-  isLobby: boolean
-  isFeatured: boolean
-  maxUsersPerInstance: number
+import { locationMethods, locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
+
+import { Application } from '../../../declarations'
+import { LocationService } from './location.class'
+import locationDocs from './location.docs'
+import hooks from './location.hooks'
+
+declare module '@etherealengine/common/declarations' {
+  interface ServiceTypes {
+    [locationPath]: LocationService
+  }
+}
+
+export default (app: Application): void => {
+  const options = {
+    name: locationPath,
+    paginate: app.get('paginate'),
+    Model: app.get('knexClient'),
+    multi: true
+  }
+
+  app.use(locationPath, new LocationService(options, app), {
+    // A list of all methods this service exposes externally
+    methods: locationMethods,
+    // You can add additional custom events to be sent to clients here
+    events: [],
+    docs: locationDocs
+  })
+
+  const service = app.service(locationPath)
+  service.hooks(hooks)
 }

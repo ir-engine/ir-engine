@@ -28,8 +28,8 @@ import assert from 'assert'
 import { v1 } from 'uuid'
 
 import { Instance } from '@etherealengine/common/src/interfaces/Instance'
-import { Location } from '@etherealengine/common/src/interfaces/Location'
 import { destroyEngine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { locationPath, LocationType } from '@etherealengine/engine/src/schemas/social/location.schema'
 
 import { Application } from '../../../declarations'
 import { createFeathersKoaApp } from '../../createApp'
@@ -45,13 +45,25 @@ describe('instance.test', () => {
     const name = `Test Location ${v1()}`
     const sceneId = `test-scene-${v1()}`
 
-    const location_settings = await app.service('location-settings').create({})
-
-    testLocation = await app.service('location').create(
+    testLocation = await app.service(locationPath).create(
       {
         name,
+        slugifiedName: '',
         sceneId,
-        location_settings
+        maxUsersPerInstance: 30,
+        locationSetting: {
+          id: '',
+          locationType: 'public',
+          audioEnabled: true,
+          videoEnabled: true,
+          faceStreamingEnabled: false,
+          screenSharingEnabled: false,
+          locationId: '',
+          createdAt: '',
+          updatedAt: ''
+        },
+        isLobby: false,
+        isFeatured: false
       },
       params
     )
@@ -61,7 +73,7 @@ describe('instance.test', () => {
     return destroyEngine()
   })
 
-  let testLocation: Location
+  let testLocation: LocationType
   let testInstance: Instance
 
   it('should create an instance', async () => {

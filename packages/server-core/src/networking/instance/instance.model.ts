@@ -28,6 +28,7 @@ import { DataTypes, Model, Sequelize } from 'sequelize'
 import { InstanceInterface } from '@etherealengine/common/src/dbmodels/Instance'
 
 import { Application } from '../../../declarations'
+import { createLocationModel } from '../../user/user/user.model'
 
 export default (app: Application) => {
   const sequelizeClient: Sequelize = app.get('sequelizeClient')
@@ -79,7 +80,7 @@ export default (app: Application) => {
   )
 
   ;(instance as any).associate = (models: any): void => {
-    ;(instance as any).belongsTo(models.location, { foreignKey: { allowNull: true } })
+    ;(instance as any).belongsTo(createLocationModel(app), { foreignKey: { allowNull: true } })
     ;(instance as any).hasOne(models.instanceserver_subdomain_provision, { foreignKey: { allowNull: true } })
     ;(instance as any).hasMany(models.bot, { foreignKey: { allowNull: true } })
     ;(instance as any).belongsToMany(models.user, { through: 'instance_authorized_user' })

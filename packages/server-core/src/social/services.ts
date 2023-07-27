@@ -23,7 +23,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import Location from '../social/location/location.service'
 import ChannelUser from './channel-user/channel-user.service'
 import Channel from './channel/channel.service'
 import InviteType from './invite-type/invite-type.service'
@@ -31,8 +30,9 @@ import Invite from './invite/invite.service'
 import LocationAdmin from './location-admin/location-admin.service'
 import LocationAuthorizedUser from './location-authorized-user/location-authorized-user.service'
 import LocationBan from './location-ban/location-ban.service'
-import LocationSettings from './location-settings/location-settings.service'
-import LocationType from './location-type/location-type.service'
+import LocationSetting from './location-setting/location-setting'
+import LocationType from './location-type/location-type'
+import Location from './location/location'
 import Message from './message/message.service'
 
 export default [
@@ -43,7 +43,7 @@ export default [
   Invite,
   Message,
   LocationType,
-  LocationSettings,
+  LocationSetting,
   LocationBan,
   LocationAdmin,
   LocationAuthorizedUser

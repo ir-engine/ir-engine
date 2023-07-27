@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
-import { resolve } from '@feathersjs/schema'
+import { resolve, virtual } from '@feathersjs/schema'
 import { v4 } from 'uuid'
 
 import { staticResourcePath, StaticResourceType } from '@etherealengine/engine/src/schemas/media/static-resource.schema'
@@ -34,20 +34,20 @@ import type { HookContext } from '@etherealengine/server-core/declarations'
 import { getDateTimeSql } from '../../util/get-datetime-sql'
 
 export const avatarResolver = resolve<AvatarType, HookContext>({
-  modelResource: async (value, avatar, context) => {
+  modelResource: virtual(async (avatar, context) => {
     //TODO: We should replace `as any as StaticResourceType` with `as StaticResourceType` once static-resource service is migrated to feathers 5.
     const modelStaticResource = (await context.app
       .service(staticResourcePath)
       .get(avatar.modelResourceId)) as any as StaticResourceType
     return modelStaticResource
-  },
-  thumbnailResource: async (value, avatar, context) => {
+  }),
+  thumbnailResource: virtual(async (avatar, context) => {
     //TODO: We should replace `as any as StaticResourceType` with `as StaticResourceType` once static-resource service is migrated to feathers 5.
     const thumbnailStaticResource = (await context.app
       .service(staticResourcePath)
       .get(avatar.thumbnailResourceId)) as any as StaticResourceType
     return thumbnailStaticResource
-  }
+  })
 })
 
 export const avatarExternalResolver = resolve<AvatarType, HookContext>({})

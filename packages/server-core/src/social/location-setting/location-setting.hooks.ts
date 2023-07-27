@@ -23,37 +23,58 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { hooks as schemaHooks } from '@feathersjs/schema'
 import { getValidator } from '@feathersjs/typebox'
-import { disallow, iff, isProvider } from 'feathers-hooks-common'
+import { disallow } from 'feathers-hooks-common'
 
 import {
-  locationAuthorizedUserDataSchema,
-  locationAuthorizedUserPatchSchema,
-  locationAuthorizedUserQuerySchema,
-  locationAuthorizedUserSchema
-} from '@etherealengine/engine/src/schemas/social/location-authorized-user.schema'
-import attachOwnerIdInQuery from '@etherealengine/server-core/src/hooks/set-loggedin-user-in-query'
+  locationSettingDataSchema,
+  locationSettingPatchSchema,
+  locationSettingQuerySchema,
+  locationSettingSchema
+} from '@etherealengine/engine/src/schemas/social/location-setting.schema'
 import { dataValidator, queryValidator } from '@etherealengine/server-core/validators'
 
-import authenticate from '../../hooks/authenticate'
+import {
+  locationSettingDataResolver,
+  locationSettingExternalResolver,
+  locationSettingPatchResolver,
+  locationSettingQueryResolver,
+  locationSettingResolver
+} from './location-setting.resolvers'
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-const locationAuthorizedUserValidator = getValidator(locationAuthorizedUserSchema, dataValidator)
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const locationAuthorizedUserDataValidator = getValidator(locationAuthorizedUserDataSchema, dataValidator)
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const locationAuthorizedUserPatchValidator = getValidator(locationAuthorizedUserPatchSchema, dataValidator)
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const locationAuthorizedUserQueryValidator = getValidator(locationAuthorizedUserQuerySchema, queryValidator)
+const locationSettingValidator = getValidator(locationSettingSchema, dataValidator)
+const locationSettingDataValidator = getValidator(locationSettingDataSchema, dataValidator)
+const locationSettingPatchValidator = getValidator(locationSettingPatchSchema, dataValidator)
+const locationSettingQueryValidator = getValidator(locationSettingQuerySchema, queryValidator)
 
 export default {
+  around: {
+    all: [
+      schemaHooks.resolveExternal(locationSettingExternalResolver),
+      schemaHooks.resolveResult(locationSettingResolver)
+    ]
+  },
+
   before: {
-    all: [authenticate()],
-    find: [iff(isProvider('external'), attachOwnerIdInQuery('userId') as any)],
-    get: [iff(isProvider('external'), attachOwnerIdInQuery('userId') as any)],
-    create: [disallow('external')],
+    all: [
+      () => schemaHooks.validateQuery(locationSettingQueryValidator),
+      schemaHooks.resolveQuery(locationSettingQueryResolver)
+    ],
+    find: [],
+    get: [],
+    create: [
+      disallow('external'),
+      () => schemaHooks.validateData(locationSettingDataValidator),
+      schemaHooks.resolveData(locationSettingDataResolver)
+    ],
     update: [disallow('external')],
-    patch: [disallow('external')],
+    patch: [
+      disallow('external'),
+      () => schemaHooks.validateData(locationSettingPatchValidator),
+      schemaHooks.resolveData(locationSettingPatchResolver)
+    ],
     remove: [disallow('external')]
   },
 

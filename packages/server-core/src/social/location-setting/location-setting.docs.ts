@@ -23,10 +23,24 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-export interface LocationSettingsInterface {
-  id: string
-  videoEnabled: boolean
-  audioEnabled: boolean
-  screenSharingEnabled: boolean
-  faceStreamingEnabled: boolean
-}
+import { createSwaggerServiceOptions } from 'feathers-swagger'
+
+import {
+  locationSettingDataSchema,
+  locationSettingPatchSchema,
+  locationSettingQuerySchema,
+  locationSettingSchema
+} from '@etherealengine/engine/src/schemas/social/location-setting.schema'
+
+export default createSwaggerServiceOptions({
+  schemas: {
+    locationSettingDataSchema,
+    locationSettingPatchSchema,
+    locationSettingQuerySchema,
+    locationSettingSchema
+  },
+  docs: {
+    description: 'Location setting service description',
+    securities: ['all']
+  }
+})
