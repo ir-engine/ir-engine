@@ -31,7 +31,7 @@ import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState
 import { dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
 
 import { LocationInstanceConnectionAction } from '../../common/services/LocationInstanceConnectionService'
-import { AuthAction, AuthState } from '../services/AuthService'
+import { AuthState } from '../services/AuthService'
 
 const logger = multiLogger.child({ component: 'client-core:userPatched' })
 
@@ -48,7 +48,7 @@ export const userPatched = (params) => {
   worldState.userNames[patchedUser.id].set(patchedUser.name)
 
   if (selfUser.id.value === patchedUser.id) {
-    dispatchAction(AuthAction.userUpdatedAction({ user: patchedUser }))
+    getMutableState(AuthState).merge({ user: patchedUser })
     const currentInstanceId = patchedUser.instanceAttendance?.find((attendance) => !attendance.isChannel)
       ?.instanceId as UserId
     if (worldHostID && currentInstanceId && worldHostID !== currentInstanceId) {

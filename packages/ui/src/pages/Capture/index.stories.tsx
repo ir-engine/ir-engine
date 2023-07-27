@@ -48,7 +48,7 @@ import {
   LocationAction,
   LocationServiceReceptor
 } from '@etherealengine/client-core/src/social/services/LocationService'
-import { AuthService, AuthServiceReceptor, AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
+import { AuthService, AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
 import { SceneService } from '@etherealengine/client-core/src/world/services/SceneService'
 import { AudioEffectPlayer, MediaSystem } from '@etherealengine/engine/src/audio/systems/MediaSystem'
 import { matches } from '@etherealengine/engine/src/common/functions/MatchesUtils'
@@ -158,7 +158,6 @@ const decorators = [
     }, [authState.isLoggedIn])
 
     useEffect(() => {
-      addActionReceptor(AuthServiceReceptor)
       addActionReceptor(LocationServiceReceptor)
       addActionReceptor(ProjectServiceReceptor)
 
@@ -181,7 +180,6 @@ const decorators = [
 
       return () => {
         // removeActionReceptor(RouterServiceReceptor)
-        removeActionReceptor(AuthServiceReceptor)
         removeActionReceptor(LocationServiceReceptor)
         removeActionReceptor(ProjectServiceReceptor)
       }
