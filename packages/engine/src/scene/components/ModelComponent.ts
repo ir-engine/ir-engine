@@ -49,7 +49,6 @@ import { addError, removeError } from '../functions/ErrorFunctions'
 import { generateMeshBVH } from '../functions/bvhWorkerPool'
 import { parseGLTFModel } from '../functions/loadGLTFModel'
 import { enableObjectLayer } from '../functions/setObjectLayers'
-import { EnvMapBakeComponent } from './EnvMapBakeComponent'
 import { GroupComponent, addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
 import { SceneAssetPendingTagComponent } from './SceneAssetPendingTagComponent'
 import { SceneObjectComponent } from './SceneObjectComponent'
@@ -78,7 +77,6 @@ export const ModelComponent = defineComponent({
 
   onSet: (entity, component, json) => {
     setComponent(entity, LoopAnimationComponent)
-    setComponent(entity, EnvMapBakeComponent)
 
     if (!json) return
     if (typeof json.src === 'string' && json.src !== component.src.value) component.src.set(json.src)
