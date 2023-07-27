@@ -49,9 +49,6 @@ export const userPatched = (params) => {
 
   if (selfUser.id.value === patchedUser.id) {
     getMutableState(AuthState).merge({ user: patchedUser })
-    // if (user.partyId) {
-    //   setRelationship('party', user.partyId);
-    // }
     const currentInstanceId = patchedUser.instanceAttendance?.find((attendance) => !attendance.isChannel)
       ?.instanceId as UserId
     if (worldHostID && currentInstanceId && worldHostID !== currentInstanceId) {

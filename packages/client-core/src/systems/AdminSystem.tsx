@@ -31,11 +31,9 @@ import {
   AdminChargebeeReceptors,
   AdminChargebeeSettingActions
 } from '../admin/services/Setting/ChargebeeSettingService'
-import { EmailSettingActions, EmailSettingReceptors } from '../admin/services/Setting/EmailSettingService'
+// import { ClientSettingActions, ClientSettingReceptors } from '../admin/services/Setting/ClientSettingService'
 import { AdminHelmSettingActions, HelmSettingReceptors } from '../admin/services/Setting/HelmSettingService'
 
-const fetchedEmailQueue = defineActionQueue(EmailSettingActions.fetchedEmail.matches)
-const emailSettingPatchedQueue = defineActionQueue(EmailSettingActions.emailSettingPatched.matches)
 const fetchedHelmQueue = defineActionQueue(AdminHelmSettingActions.helmSettingRetrieved.matches)
 const patchedHelmQueue = defineActionQueue(AdminHelmSettingActions.helmSettingPatched.matches)
 const fetchedHelmMainVersionsQueue = defineActionQueue(AdminHelmSettingActions.helmMainVersionsRetrieved.matches)
@@ -44,8 +42,6 @@ const activeRoutesRetrievedQueue = defineActionQueue(AdminActiveRouteActions.act
 const chargebeeSettingRetrievedQueue = defineActionQueue(AdminChargebeeSettingActions.chargebeeSettingRetrieved.matches)
 
 const execute = () => {
-  for (const action of fetchedEmailQueue()) EmailSettingReceptors.fetchedEmailReceptor(action)
-  for (const action of emailSettingPatchedQueue()) EmailSettingReceptors.emailSettingPatchedReceptor(action)
   for (const action of fetchedHelmQueue()) HelmSettingReceptors.helmSettingRetrievedReceptor(action)
   for (const action of patchedHelmQueue()) HelmSettingReceptors.helmSettingPatchedReceptor(action)
   for (const action of fetchedHelmMainVersionsQueue()) HelmSettingReceptors.helmMainVersionsRetrievedReceptor(action)

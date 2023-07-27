@@ -28,8 +28,8 @@ import assert from 'assert'
 import { v1 } from 'uuid'
 
 import { Instance } from '@etherealengine/common/src/interfaces/Instance'
-import { Location } from '@etherealengine/common/src/interfaces/Location'
 import { destroyEngine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { locationPath, LocationType } from '@etherealengine/engine/src/schemas/social/location.schema'
 
 import { Application } from '../../../declarations'
 import { createFeathersKoaApp } from '../../createApp'
@@ -42,30 +42,39 @@ describe('instance.test', () => {
   before(async () => {
     app = createFeathersKoaApp()
     await app.setup()
+    const name = `Test Location ${v1()}`
+    const sceneId = `test-scene-${v1()}`
+
+    testLocation = await app.service(locationPath).create(
+      {
+        name,
+        slugifiedName: '',
+        sceneId,
+        maxUsersPerInstance: 30,
+        locationSetting: {
+          id: '',
+          locationType: 'public',
+          audioEnabled: true,
+          videoEnabled: true,
+          faceStreamingEnabled: false,
+          screenSharingEnabled: false,
+          locationId: '',
+          createdAt: '',
+          updatedAt: ''
+        },
+        isLobby: false,
+        isFeatured: false
+      },
+      params
+    )
   })
 
   after(() => {
     return destroyEngine()
   })
 
-  let testLocation: Location
+  let testLocation: LocationType
   let testInstance: Instance
-
-  before(async () => {
-    const name = `Test Location ${v1()}`
-    const sceneId = `test-scene-${v1()}`
-
-    const location_settings = await app.service('location-settings').create({})
-
-    testLocation = await app.service('location').create(
-      {
-        name,
-        sceneId,
-        location_settings
-      },
-      params
-    )
-  })
 
   it('should create an instance', async () => {
     const instance = (await app.service('instance').create({ locationId: testLocation.id })) as Instance

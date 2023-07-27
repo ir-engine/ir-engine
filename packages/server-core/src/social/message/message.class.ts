@@ -25,21 +25,30 @@ Ethereal Engine. All Rights Reserved.
 
 import { BadRequest } from '@feathersjs/errors'
 import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
-import { Op } from 'sequelize'
 
+import { Channel } from '@etherealengine/common/src/interfaces/Channel'
+import { ChannelID } from '@etherealengine/common/src/interfaces/ChannelUser'
 import { Message as MessageInterface } from '@etherealengine/common/src/interfaces/Message'
 import { UserInterface } from '@etherealengine/common/src/interfaces/User'
+import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 
 import { Application } from '../../../declarations'
 import { UserParams } from '../../user/user/user.class'
 
 export interface MessageParams extends UserParams {
   'identity-provider': {
-    userId: string
+    userId: UserId
   }
 }
 
 export type MessageDataType = MessageInterface
+
+export type CreateMessageDataType = {
+  channelId?: ChannelID
+  instanceId?: string
+  text: string
+  isNotification?: boolean
+}
 
 export class Message<T = MessageDataType> extends Service<T> {
   app: Application
@@ -49,6 +58,25 @@ export class Message<T = MessageDataType> extends Service<T> {
     this.app = app
   }
 
+  async find(params?: MessageParams): Promise<T[]> {
+    const data = await this.Model.findAll({
+      where: {
+        channelID: params?.query?.channelId
+      },
+      skip: params?.query?.skip ?? 0,
+      limit: params?.query?.limit ?? 100,
+      order: params?.query?.order ?? [['createdAt', 'ASC']],
+      include: [
+        {
+          model: this.app.service('user').Model,
+          as: 'sender'
+        }
+      ]
+    })
+
+    return data as T[]
+  }
+
   /**
    * A function which is used to create a message
    *
@@ -56,148 +84,66 @@ export class Message<T = MessageDataType> extends Service<T> {
    * @param params contain user info
    * @returns {@Object} created message
    */
-  async create(data: any, params?: MessageParams): Promise<T> {
-    let channel, channelId
+  // @ts-ignore
+  async create(data: CreateMessageDataType, params?: MessageParams): Promise<T> {
+    let channel: Channel | null = null
     let userIdList: any[] = []
     const loggedInUser = params!.user as UserInterface
     const userId = loggedInUser?.id
-    const targetObjectId = data.targetObjectId
-    const targetObjectType = data.targetObjectType
+    const givenChannelId = data.channelId
+    const instanceId = data.instanceId
     const channelModel = this.app.service('channel').Model
 
-    if (targetObjectType === 'user') {
-      const targetUser = await this.app.service('user').get(targetObjectId)
-      if (targetUser == null) {
-        throw new BadRequest('Invalid target user ID')
-      }
-      channel = await channelModel.findOne({
-        where: {
-          [Op.or]: [
-            {
-              userId1: userId,
-              userId2: targetObjectId
-            },
-            {
-              userId2: userId,
-              userId1: targetObjectId
-            }
-          ]
-        }
-      })
-      if (channel == null) {
-        channel = await this.app.service('channel').create({
-          channelType: 'user',
-          userId1: userId,
-          userId2: targetObjectId
-        })
-      }
-      channelId = channel.id
-      userIdList = [userId, targetObjectId]
-    } else if (targetObjectType === 'group') {
-      const targetGroup = await this.app.service('group').get(targetObjectId)
-      if (targetGroup == null) {
-        throw new BadRequest('Invalid target group ID')
-      }
-      channel = await channelModel.findOne({
-        where: {
-          groupId: targetObjectId
-        }
-      })
-      if (channel == null) {
-        channel = await this.app.service('channel').create({
-          channelType: 'group',
-          groupId: targetObjectId
-        })
-      }
-      channelId = channel.id
-      const groupUsers = await this.app.service('group-user').find({
-        query: {
-          groupId: targetObjectId
-        }
-      })
-      userIdList = (groupUsers as any).data.map((groupUser) => {
-        return groupUser.userId
-      })
-    } else if (targetObjectType === 'party') {
-      const targetParty = await this.app.service('party').Model.count({ where: { id: targetObjectId } })
-      if (targetParty <= 0) {
-        throw new BadRequest('Invalid target party ID')
-      }
-      channel = await channelModel.findOne({
-        where: {
-          partyId: targetObjectId
-        }
-      })
-      if (channel == null) {
-        channel = await this.app.service('channel').create({
-          channelType: 'party',
-          partyId: targetObjectId
-        })
-      }
-      channelId = channel.id
-      const partyUsers = await this.app.service('party-user').Model.findAll({ where: { partyId: targetObjectId } })
-      userIdList = partyUsers.map((partyUser) => partyUser.userId)
-    } else if (targetObjectType === 'instance') {
-      const targetInstance = await this.app.service('instance').get(targetObjectId)
-      if (targetInstance == null) {
-        throw new BadRequest('Invalid target instance ID')
-      }
-      channel = await channelModel.findOne({
-        where: {
-          instanceId: targetObjectId
-        }
-      })
-      if (channel == null) {
-        channel = await this.app.service('channel').create({
-          channelType: 'instance',
-          instanceId: targetObjectId
-        })
-      }
-      channelId = channel.id
-      const instanceUsers = await this.app.service('user').find({
-        query: {
-          $limit: 1000
-        },
-        sequelize: {
-          include: [
-            {
-              model: this.app.service('instance-attendance').Model,
-              as: 'instanceAttendance',
-              where: {
-                instanceId: targetObjectId
-              }
-            }
-          ]
-        }
-      })
-      userIdList = (instanceUsers as any).data.map((instanceUser) => {
-        return instanceUser.id
-      })
-    }
+    if (givenChannelId) channel = await this.app.service('channel').get(givenChannelId)
 
-    const messageData: any = {
+    if (!channel) {
+      if (instanceId) {
+        const targetInstance = await this.app.service('instance').get(instanceId)
+        if (targetInstance == null) {
+          throw new BadRequest('Invalid target instance ID')
+        }
+        channel = await channelModel.findOne({
+          where: {
+            instanceId
+          }
+        })
+        if (channel == null) {
+          channel = (await this.app.service('channel').create({
+            instanceId
+          })) as Channel
+        }
+        const instanceUsers = await this.app.service('user').find({
+          query: {
+            $limit: 1000
+          },
+          sequelize: {
+            include: [
+              {
+                model: this.app.service('instance-attendance').Model,
+                as: 'instanceAttendance',
+                where: {
+                  instanceId
+                }
+              }
+            ]
+          }
+        })
+        userIdList = (instanceUsers as any).data.map((instanceUser) => {
+          return instanceUser.id
+        })
+      }
+    }
+    if (!channel) throw new BadRequest('Could not find or create channel')
+
+    const messageData = {
       senderId: userId,
-      channelId: channelId,
+      channelId: channel.id,
       text: data.text,
       isNotification: data.isNotification
     }
-    const newMessage: any = await super.create({ ...messageData })
+    const newMessage = (await super.create(messageData as any)) as MessageInterface
     newMessage.sender = loggedInUser
 
-    await Promise.all(
-      userIdList.map((mappedUserId: string) => {
-        return this.app.service('message-status').create({
-          userId: mappedUserId,
-          messageId: newMessage.id,
-          status: userId === mappedUserId ? 'read' : 'unread'
-        })
-      })
-    )
-
-    await this.app.service('channel').patch(channelId, {
-      channelType: channel.channelType
-    })
-
-    return newMessage
+    return newMessage as T
   }
 }

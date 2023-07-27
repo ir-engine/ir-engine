@@ -598,9 +598,6 @@ export const AuthService = {
         const currentLocation = getState(LocationState).currentLocation.location
         const locationBan = params.locationBan
         if (selfUser.id === locationBan.userId && currentLocation.id === locationBan.locationId) {
-          // TODO: Decouple and reenable me!
-          // endVideoChat({ leftParty: true });
-          // leave(true);
           const userId = selfUser.id ?? ''
           const user = resolveUser(await Engine.instance.api.service('user').get(userId))
           getMutableState(AuthState).merge({ user })

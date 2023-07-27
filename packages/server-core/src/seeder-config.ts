@@ -37,7 +37,7 @@ import { projectSeeds } from './projects/seeder-config'
 import { routeSeeds } from './route/seeder-config'
 import { scopeSeeds } from './scope/seeder-config'
 import { settingSeeds } from './setting/seeder-config'
-import { socialSeeds } from './social/seeder-config'
+import { socialSeeds, socialSequelizeSeeds } from './social/seeder-config'
 import { userSeeds } from './user/seeder-config'
 
 const installedProjects = fs.existsSync(path.resolve(__dirname, '../../projects/projects'))
@@ -62,11 +62,16 @@ const installedProjects = fs.existsSync(path.resolve(__dirname, '../../projects/
 export const sequelizeSeeds: Array<ServicesSeedConfig> = [
   ...mediaSeeds,
   ...networkingSeeds,
-  ...socialSeeds,
+  ...socialSequelizeSeeds,
   ...userSeeds,
-  ...scopeSeeds,
-  ...projectSeeds,
   ...installedProjects
 ]
 
-export const knexSeeds: Array<KnexSeed> = [...routeSeeds, ...analyticsSeeds, ...settingSeeds]
+export const knexSeeds: Array<KnexSeed> = [
+  ...routeSeeds,
+  ...analyticsSeeds,
+  ...settingSeeds,
+  ...scopeSeeds,
+  ...socialSeeds,
+  ...projectSeeds
+]

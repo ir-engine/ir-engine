@@ -24,6 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { analyticsPath } from '@etherealengine/engine/src/schemas/analytics/analytics.schema'
+import { locationPath, LocationType } from '@etherealengine/engine/src/schemas/social/location.schema'
 import config from '@etherealengine/server-core/src/appconfig'
 import multiLogger from '@etherealengine/server-core/src/ServerLogger'
 
@@ -38,7 +39,7 @@ export default (app): void => {
     logger.info('Collecting analytics at %s.', new Date().toString())
     const activeLocations: any[] = []
     const activeScenes: any[] = []
-    const activeParties = await app.service('party').find({
+    const activeChannels = await app.service('channel').find({
       query: {
         $limit: 0
       },
@@ -82,25 +83,33 @@ export default (app): void => {
           $ne: 1
         }
       },
-      sequelize: {
-        include: [
-          {
-            model: app.service('location').Model
-          }
-        ]
-      },
       isInternal: true
     })
-    activeInstances.data.forEach((instance) => {
+
+    // TODO: Move following to instance.resolvers once instance service is migrated to feathers 5.
+    const locations = (await app.service(locationPath).find({
+      query: {
+        id: {
+          $in: activeInstances.map((instance) => instance.locationId)
+        }
+      },
+      paginate: false
+    })) as LocationType[]
+
+    for (const instance of activeInstances) {
+      const location = locations.find((location) => location.id === instance.locationId)
+      instance.location = location
+
       if (instance.location) {
         if (activeLocations.indexOf(instance.location.id) < 0) activeLocations.push(instance.location.id)
         if (activeScenes.indexOf(instance.location.sceneId) < 0) activeScenes.push(instance.location.sceneId)
       }
-    })
+    }
+
     await Promise.all([
       app.service(analyticsPath).create({
-        type: 'activeParties',
-        count: activeParties.total
+        type: 'activeChannels',
+        count: activeChannels.total
       }),
       app.service(analyticsPath).create({
         type: 'instanceUsers',
