@@ -93,7 +93,6 @@ export const Vector3Input = ({
   hideLabels,
   onChange,
   onRelease,
-  style,
   ...rest
 }: Vector3InputProp) => {
   const id = uniqueId++
@@ -135,7 +134,7 @@ export const Vector3Input = ({
   const checkboxId = 'uniform-button-' + id
 
   return (
-    <Vector3InputContainer style={style}>
+    <Vector3InputContainer>
       <UniformButtonContainer>
         {uniformScaling && (
           <>

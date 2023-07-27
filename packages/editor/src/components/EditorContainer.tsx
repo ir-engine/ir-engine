@@ -663,10 +663,7 @@ const EditorContainer = () => {
       <div
         id="editor-container"
         className={styles.editorContainer}
-        style={{
-          background: sceneLoaded.value ? 'transparent' : undefined,
-          display: editorVisible.value ? 'flex' : 'none'
-        }}
+        style={sceneLoaded.value ? { background: 'transparent' } : {}}
       >
         <DialogContext.Provider value={[DialogComponent, setDialogComponent]}>
           <DndWrapper id="editor-container">
