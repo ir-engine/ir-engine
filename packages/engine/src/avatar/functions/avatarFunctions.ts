@@ -73,8 +73,6 @@ export const loadAvatarModelAsset = async (avatarURL: string) => {
 
   let vrm = (model instanceof VRM ? model : model.userData.vrm ?? avatarBoneMatching(scene)) as VRM
 
-  console.log(scene)
-
   return vrm as VRM
 }
 

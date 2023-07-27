@@ -28,7 +28,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { VRM, VRM1Meta, VRMHumanBone, VRMHumanBones, VRMHumanoid, VRMParameters } from '@pixiv/three-vrm'
 import { cloneDeep } from 'lodash'
-import { Bone, Euler, Object3D, Quaternion, Skeleton, SkinnedMesh, Vector3 } from 'three'
+import { Bone, Object3D, Quaternion, Skeleton, SkinnedMesh, Vector3 } from 'three'
 
 import { Object3DUtils } from '../common/functions/Object3DUtils'
 
@@ -645,9 +645,14 @@ function findFirstTwistChildBone(parent: Object3D, hand: Object3D, left: boolean
 export default function avatarBoneMatching(model: Object3D): VRM {
   const bones = {} as VRMHumanBones
 
+  const isReadyPlayerMe = model.getObjectByName('Hips') !== undefined
+
   model.traverse((target) => {
-    const bone = mixamoVRMRigMap[target.name]
+    const bone = mixamoVRMRigMap[(isReadyPlayerMe ? 'mixamorig' : '') + target.name] as string
+    console.log(target.name.concat(isReadyPlayerMe ? 'mixamorig' : ''))
+
     if (bone) {
+      //if hips bone does not have mixamo prefix, remove it from the current bone
       bones[bone] = { node: target } as VRMHumanBone
     }
   })
