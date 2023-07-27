@@ -23,13 +23,14 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { ChannelID } from '../interfaces/ChannelUser'
 import { LocationInterface } from './Location'
 
 export interface InstanceInterface {
   id: string
   roomCode: string
   ipAddress: string
-  channelId: string
+  channelId?: ChannelID
   currentUsers: number
   ended: boolean
   podName: string

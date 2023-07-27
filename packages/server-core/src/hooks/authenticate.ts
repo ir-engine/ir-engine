@@ -27,6 +27,7 @@ import * as authentication from '@feathersjs/authentication'
 import { HookContext, Paginated } from '@feathersjs/feathers'
 
 import { UserApiKeyType, userApiKeyPath } from '@etherealengine/engine/src/schemas/user/user-api-key.schema'
+import { isProvider } from 'feathers-hooks-common'
 import config from '../appconfig'
 import { Application } from './../../declarations'
 
@@ -34,9 +35,13 @@ const { authenticate } = authentication.hooks
 
 export default () => {
   return async (context: HookContext<Application>): Promise<HookContext> => {
+    if (!context.params) context.params = {}
     const { params } = context
 
-    if (!context.params) context.params = {}
+    // no need to authenticate if it's an internal call, but we still want to ensure the user is set
+    const isInternal = isProvider('server')(context)
+    if (isInternal) return context
+
     const authHeader = params.headers?.authorization
     let authSplit
     if (authHeader) authSplit = authHeader.split(' ')
@@ -66,19 +71,17 @@ export default () => {
     }
     context = await authenticate('jwt')(context as any)
     // if (!context.params[config.authentication.entity]?.userId) throw new BadRequest('Must authenticate with valid JWT or login token')
-    context.params.user =
-      context.params[config.authentication.entity] && context.params[config.authentication.entity].userId
-        ? await context.app.service('user').Model.findOne({
-            include: [
-              {
-                model: context.app.service('scope').Model
-              }
-            ],
-            where: {
-              id: context.params[config.authentication.entity].userId
-            }
-          })
-        : {}
+    if (context.params[config.authentication.entity]?.userId)
+      context.params.user = await context.app.service('user').Model.findOne({
+        include: [
+          {
+            model: context.app.service('scope').Model
+          }
+        ],
+        where: {
+          id: context.params[config.authentication.entity].userId
+        }
+      })
     return context
   }
 }

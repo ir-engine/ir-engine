@@ -282,11 +282,10 @@ const populateInstanceServerType = async (app: Application, items: ServerPodInfo
       if (!channelExists) {
         continue
       }
-      if (channelExists.channelType) {
-        item.type = `Media (${channelExists.channelType})`
-      }
       if (instanceExists.locationId) {
         item.type = `Media (${instanceExists.location.name} - ${instanceExists.id})`
+      } else {
+        item.type = `Channel (${instanceExists.id})`
       }
     }
   }
