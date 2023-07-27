@@ -28,10 +28,11 @@ import { useEffect } from 'react'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { getState } from '@etherealengine/hyperflux'
 
+import { DataChannelType } from '@etherealengine/common/src/interfaces/DataChannelType'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
-import { DataChannelType, JitterBufferEntry, Network } from '../classes/Network'
+import { JitterBufferEntry, Network } from '../classes/Network'
 import { addDataChannelHandler, removeDataChannelHandler } from '../NetworkState'
 import { readDataPacket } from '../serialization/DataReader'
 

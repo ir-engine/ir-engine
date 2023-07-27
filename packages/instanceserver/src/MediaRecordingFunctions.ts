@@ -27,11 +27,8 @@ import { createHash } from 'crypto'
 import { Router } from 'mediasoup/node/lib/types'
 
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
-import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { DataChannelType } from '@etherealengine/engine/src/networking/classes/Network'
 import {
-  MediaTagType,
   PeerMediaType,
   screenshareAudioDataChannelType,
   webcamAudioDataChannelType,
@@ -40,6 +37,9 @@ import {
 import { localConfig } from '@etherealengine/server-core/src/config'
 import serverLogger from '@etherealengine/server-core/src/ServerLogger'
 
+import { DataChannelType } from '@etherealengine/common/src/interfaces/DataChannelType'
+import { RecordingSchema } from '@etherealengine/common/src/interfaces/Recording'
+import { RecordingID } from '@etherealengine/common/src/interfaces/RecordingID'
 import { startFFMPEG } from './FFMPEG'
 import { uploadRecordingStaticResource } from './ServerRecordingSystem'
 import { SocketWebRTCServerNetwork } from './SocketWebRTCServerFunctions'
@@ -110,6 +110,8 @@ export type MediaTrackPair = {
   audioConsumer?: any
 }
 
+let startingPort = 5000
+
 export const startMediaRecordingPair = async (
   peerID: PeerID,
   mediaType: 'webcam' | 'screenshare',
@@ -119,14 +121,19 @@ export const startMediaRecordingPair = async (
 
   const promises = [] as Promise<any>[]
 
+  // FFmpeg's sdpdemux only supports RTCP = RTP + 1, so spare 4 ports
+  // todo create a pool of ports to use for recording
+  startingPort += 4
+
+  const startPort = startingPort
+  const audioPort = startPort
+  const audioPortRtcp = startPort + 1
+  const videoPort = startPort + 2
+  const videoPortRtcp = startPort + 3
+
   if (tracks.video) {
     const routers = network.routers[`${tracks.video.channelType}:${tracks.video.channelId}`]
-    const transportPromise = createTransport(
-      routers[0],
-      localConfig.mediasoup.recording.videoPort,
-      localConfig.mediasoup.recording.videoPortRtcp,
-      tracks.video.producerId
-    )
+    const transportPromise = createTransport(routers[0], videoPort, videoPortRtcp, tracks.video.producerId)
     promises.push(transportPromise)
     transportPromise.then(({ transport, consumer }) => {
       tracks.videoTransport = transport
@@ -136,12 +143,7 @@ export const startMediaRecordingPair = async (
 
   if (tracks.audio) {
     const routers = network.routers[`${tracks.audio.channelType}:${tracks.audio.channelId}`]
-    const transportPromise = createTransport(
-      routers[0],
-      localConfig.mediasoup.recording.audioPort,
-      localConfig.mediasoup.recording.audioPortRtcp,
-      tracks.audio.producerId
-    )
+    const transportPromise = createTransport(routers[0], audioPort, audioPortRtcp, tracks.audio.producerId)
     promises.push(transportPromise)
     transportPromise.then(({ transport, consumer }) => {
       tracks.audioTransport = transport
@@ -150,6 +152,8 @@ export const startMediaRecordingPair = async (
   }
 
   await Promise.all(promises)
+
+  let ffmpegInitialized = false
 
   const stopRecording = () => {
     if (tracks.video) {
@@ -160,6 +164,7 @@ export const startMediaRecordingPair = async (
       tracks.audioConsumer.close()
       tracks.audioTransport.close()
     }
+    if (!ffmpegInitialized) return logger.warn('ffmpeg closed before it initialized, probably failed to start')
     console.log('ffmpeg connected:', ffmpegProcess.childProcess.connected)
     if (ffmpegProcess.childProcess.connected) ffmpegProcess.stop()
   }
@@ -170,7 +175,9 @@ export const startMediaRecordingPair = async (
 
   /** start ffmpeg */
   const isH264 = !!tracks.video && !!tracks.video?.encodings.find((encoding) => encoding.mimeType === 'video/h264')
-  const ffmpegProcess = await startFFMPEG(!!tracks.audio, !!tracks.video, onExit, isH264)
+  const ffmpegProcess = await startFFMPEG(!!tracks.audio, !!tracks.video, onExit, isH264, startPort)
+
+  ffmpegInitialized = true
 
   /** resume consumers */
   if (tracks.video) {
@@ -192,18 +199,14 @@ export const startMediaRecordingPair = async (
 
 // todo - refactor to be in a reactor such that we can record media tracks that are started after the recording is
 
-export const startMediaRecording = async (recordingID: string, userID: UserId, mediaChannels: MediaTagType[]) => {
+export const startMediaRecording = async (recordingID: RecordingID, schema: RecordingSchema['peers']) => {
   const network = Engine.instance.mediaNetwork as SocketWebRTCServerNetwork
-
-  const peers = network.users.get(userID)
-
-  if (!peers) return
 
   const mediaStreams = {} as Record<PeerID, { [mediaType: string]: MediaTrackPair }>
 
-  for (const peerID of peers) {
-    const peer = network.peers.get(peerID)!
-    const peerMedia = Object.entries(peer.media!).filter(([type]) => mediaChannels.includes(type as DataChannelType))
+  for (const [peerID, dataChannels] of Object.entries(schema)) {
+    const peer = network.peers.get(peerID as PeerID)!
+    const peerMedia = Object.entries(peer.media!).filter(([type]) => dataChannels.includes(type as DataChannelType))
 
     if (peerMedia.length) {
       for (const [channelType, media] of peerMedia) {

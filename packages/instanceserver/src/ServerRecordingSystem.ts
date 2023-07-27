@@ -28,7 +28,7 @@ import { PassThrough } from 'stream'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
-import { RecordingResult } from '@etherealengine/common/src/interfaces/Recording'
+import { RecordingResult, RecordingSchema } from '@etherealengine/common/src/interfaces/Recording'
 import { StaticResourceInterface } from '@etherealengine/common/src/interfaces/StaticResourceInterface'
 import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 import multiLogger from '@etherealengine/common/src/logger'
@@ -38,7 +38,7 @@ import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { ECSRecordingActions } from '@etherealengine/engine/src/ecs/ECSRecording'
 import { ECSDeserializer, ECSSerialization, ECSSerializer } from '@etherealengine/engine/src/ecs/ECSSerializerSystem'
 import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
-import { DataChannelType, Network } from '@etherealengine/engine/src/networking/classes/Network'
+import { Network } from '@etherealengine/engine/src/networking/classes/Network'
 import { WorldNetworkAction } from '@etherealengine/engine/src/networking/functions/WorldNetworkAction'
 import {
   addDataChannelHandler,
@@ -59,6 +59,8 @@ import { getStorageProvider } from '@etherealengine/server-core/src/media/storag
 import { StorageObjectInterface } from '@etherealengine/server-core/src/media/storageprovider/storageprovider.interface'
 import { createStaticResourceHash } from '@etherealengine/server-core/src/media/upload-asset/upload-asset.service'
 
+import { DataChannelType } from '@etherealengine/common/src/interfaces/DataChannelType'
+import { RecordingID } from '@etherealengine/common/src/interfaces/RecordingID'
 import { NetworkObjectComponent } from '@etherealengine/engine/src/networking/components/NetworkObjectComponent'
 import { startMediaRecording } from './MediaRecordingFunctions'
 import { getServerNetwork, SocketWebRTCServerNetwork } from './SocketWebRTCServerFunctions'
@@ -95,7 +97,7 @@ export const dispatchError = (error: string, targetUser: UserId) => {
 }
 
 export const uploadRecordingStaticResource = async (props: {
-  recordingID: string
+  recordingID: RecordingID
   key: string
   body: Buffer | PassThrough
   mimeType: string
@@ -179,7 +181,9 @@ export const onStartRecording = async (action: ReturnType<typeof ECSRecordingAct
     }
   }
 
-  const schema = JSON.parse(recording.schema) as string[]
+  console.log({ recording })
+  const schema = JSON.parse(recording.schema) as RecordingSchema
+  console.log({ schema })
 
   const activeRecording = {
     userID,
@@ -187,7 +191,7 @@ export const onStartRecording = async (action: ReturnType<typeof ECSRecordingAct
   } as ActiveRecording
 
   if (Engine.instance.worldNetwork) {
-    const serializationSchema = schema
+    const serializationSchema = schema.user
       .map((component) => getState(NetworkState).networkSchema[component] as SerializationSchema)
       .filter(Boolean)
 
@@ -231,7 +235,8 @@ export const onStartRecording = async (action: ReturnType<typeof ECSRecordingAct
 
     activeRecording.serializer.active = true
 
-    const dataChannelSchema = schema
+    const dataChannelSchema = Object.values(schema.peers)
+      .flat()
       .filter((component: DataChannelType) => dataChannelRegistry.has(component))
       .filter(Boolean) as DataChannelType[]
 
@@ -241,11 +246,7 @@ export const onStartRecording = async (action: ReturnType<typeof ECSRecordingAct
   }
 
   if (Engine.instance.mediaNetwork) {
-    const dataChannelSchema = schema
-      .filter((component: DataChannelType) => mediaDataChannels.includes(component))
-      .filter(Boolean) as DataChannelType[]
-
-    const mediaRecorder = await startMediaRecording(recording.id, userID, dataChannelSchema)
+    const mediaRecorder = await startMediaRecording(recording.id, schema.peers)
 
     activeRecording.mediaChannelRecorder = mediaRecorder
     console.log('media recording started')
@@ -275,17 +276,13 @@ export const onStopRecording = async (action: ReturnType<typeof ECSRecordingActi
 
   const recording = await app.service('recording').get(action.recordingID)
 
-  const schema = JSON.parse(recording.schema) as string[]
+  const schema = JSON.parse(recording.schema) as RecordingSchema
 
   if (activeRecording.serializer) {
     activeRecording.serializer.end()
   }
 
   if (activeRecording.mediaChannelRecorder) {
-    const dataChannelSchema = schema
-      .filter((component: DataChannelType) => mediaDataChannels.includes(component))
-      .filter(Boolean)
-
     await Promise.all([
       ...activeRecording.mediaChannelRecorder.recordings.map((recording) => recording.stopRecording()),
       ...activeRecording.mediaChannelRecorder.activeUploads
@@ -294,7 +291,8 @@ export const onStopRecording = async (action: ReturnType<typeof ECSRecordingActi
   }
 
   if (activeRecording.dataChannelRecorder) {
-    const dataChannelSchema = schema
+    const dataChannelSchema = Object.values(schema.peers)
+      .flat()
       .filter((component: DataChannelType) => dataChannelRegistry.has(component))
       .filter(Boolean) as DataChannelType[]
 
@@ -324,7 +322,7 @@ export const onStartPlayback = async (action: ReturnType<typeof ECSRecordingActi
 
   if (!recording.resources?.length) return dispatchError('Recording has no resources', recording.userId)
 
-  const schema = JSON.parse(recording.schema) as string[]
+  const schema = JSON.parse(recording.schema) as RecordingSchema
 
   const activePlayback = {
     userID: action.targetUser
@@ -361,7 +359,7 @@ export const onStartPlayback = async (action: ReturnType<typeof ECSRecordingActi
 
   activePlayback.deserializer = ECSSerialization.createDeserializer({
     chunks: entityChunks,
-    schema: schema
+    schema: schema.user
       .map((component) => getState(NetworkState).networkSchema[component] as SerializationSchema)
       .filter(Boolean),
     onChunkStarted: (chunkIndex) => {

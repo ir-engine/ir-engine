@@ -28,7 +28,8 @@ import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 import { defineState, getMutableState, none } from '@etherealengine/hyperflux'
 
-import { DataChannelType, Network } from './classes/Network'
+import { DataChannelType } from '@etherealengine/common/src/interfaces/DataChannelType'
+import { Network } from './classes/Network'
 import { SerializationSchema } from './serialization/Utils'
 
 type RegistryFunction = (network: Network, dataChannel: DataChannelType, fromPeerID: PeerID, message: any) => void

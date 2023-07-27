@@ -23,26 +23,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { DataChannelType } from './DataChannelType'
-import { PeerID } from './PeerID'
-import { RecordingID } from './RecordingID'
-import { UserId } from './UserId'
+import { OpaqueType } from './OpaqueType'
 
-export interface RecordingResult {
-  id: RecordingID
-  userId: UserId
-  ended: boolean
-  schema: string // stringified RecordingSchema
-  resources?: Array<string> // storage provider keys
-}
-
-export interface RecordingResourceResult {
-  id: string
-  recordingId: RecordingID
-  staticResourceId: string
-}
-
-export type RecordingSchema = {
-  user: string[]
-  peers: Record<PeerID, DataChannelType[]>
-}
+export type DataChannelType = OpaqueType<'DataChannelType'> & string

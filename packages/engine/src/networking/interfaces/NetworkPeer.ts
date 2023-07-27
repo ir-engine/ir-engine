@@ -29,7 +29,7 @@ import { NetworkId } from '@etherealengine/common/src/interfaces/NetworkId'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 
-import { DataChannelType } from '../classes/Network'
+import { DataChannelType } from '@etherealengine/common/src/interfaces/DataChannelType'
 import { MediaTagType, PeerMediaType } from '../NetworkState'
 
 export interface NetworkPeer {

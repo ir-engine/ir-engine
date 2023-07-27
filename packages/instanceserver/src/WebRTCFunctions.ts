@@ -44,7 +44,6 @@ import os from 'os'
 import { Spark } from 'primus'
 
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
-import { DataChannelType } from '@etherealengine/engine/src/networking/classes/Network'
 import { MessageTypes } from '@etherealengine/engine/src/networking/enums/MessageTypes'
 import {
   dataChannelRegistry,
@@ -58,6 +57,7 @@ import multiLogger from '@etherealengine/server-core/src/ServerLogger'
 import { ServerState } from '@etherealengine/server-core/src/ServerState'
 import { WebRtcTransportParams } from '@etherealengine/server-core/src/types/WebRtcTransportParams'
 
+import { DataChannelType } from '@etherealengine/common/src/interfaces/DataChannelType'
 import { InstanceServerState } from './InstanceServerState'
 import { getUserIdFromPeerID } from './NetworkFunctions'
 import {
