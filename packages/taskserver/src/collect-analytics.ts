@@ -90,13 +90,13 @@ export default (app): void => {
     const locations = (await app.service(locationPath).find({
       query: {
         id: {
-          $in: activeInstances.map((instance) => instance.locationId)
+          $in: activeInstances.data.map((instance) => instance.locationId)
         }
       },
       paginate: false
     })) as LocationType[]
 
-    for (const instance of activeInstances) {
+    for (const instance of activeInstances.data) {
       const location = locations.find((location) => location.id === instance.locationId)
       instance.location = location
 

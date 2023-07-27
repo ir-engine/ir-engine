@@ -37,8 +37,7 @@ import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { StandardCallbacks, setCallback } from '../../scene/components/CallbackComponent'
 import { MediaComponent, MediaElementComponent } from '../../scene/components/MediaComponent'
 import { VideoComponent, VideoTexturePriorityQueueState } from '../../scene/components/VideoComponent'
-import { VolumetricComponent } from '../../scene/components/VolumetricComponent'
-import { enterVolumetric, updateVolumetric } from '../../scene/functions/loaders/VolumetricFunctions'
+import { VolumetricComponent, endLoadingEffect } from '../../scene/components/VolumetricComponent'
 import { AudioSettingReceptor, AudioState } from '../AudioState'
 import { PositionalAudioComponent } from '../components/PositionalAudioComponent'
 
@@ -104,7 +103,7 @@ globalThis.AudioEffectPlayer = AudioEffectPlayer
 
 const mediaQuery = defineQuery([MediaComponent])
 const videoQuery = defineQuery([VideoComponent])
-const volumetricQuery = defineQuery([VolumetricComponent, MediaElementComponent])
+const volumetricQuery = defineQuery([VolumetricComponent])
 const audioQuery = defineQuery([PositionalAudioComponent])
 
 const execute = () => {
@@ -114,10 +113,30 @@ const execute = () => {
     setCallback(entity, StandardCallbacks.PAUSE, () => media.paused.set(true))
   }
 
-  for (const entity of volumetricQuery.enter()) {
-    enterVolumetric(entity)
+  for (const entity of volumetricQuery()) {
+    const volumetric = getComponent(entity, VolumetricComponent)
+    const player = volumetric.player
+    if (player) {
+      player.update()
+      const height = volumetric.height
+      const step = volumetric.height / 150
+      if (volumetric.loadingEffectActive && player.mesh) {
+        if (volumetric.loadingEffectTime <= height) {
+          player.mesh.traverse((child: any) => {
+            if (child['material']) {
+              if (child.material.uniforms) {
+                child.material.uniforms.time = volumetric.loadingEffectTime
+              }
+            }
+          })
+          volumetric.loadingEffectTime += step
+        } else {
+          volumetric.loadingEffectActive = false
+          endLoadingEffect(entity, player.mesh)
+        }
+      }
+    }
   }
-  for (const entity of volumetricQuery()) updateVolumetric(entity)
   for (const entity of audioQuery()) getComponent(entity, PositionalAudioComponent).helper?.update()
 
   const videoPriorityQueue = getState(VideoTexturePriorityQueueState).queue
