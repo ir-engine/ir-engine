@@ -29,10 +29,10 @@
   },
   "version": "1.4.0",
   "dependencies": {
+    "@etherealengine/volumetric": "^2.0.1",
     "@dimforge/rapier3d-compat": "0.11.1",
     "@etherealengine/common": "^1.4.0",
     "@etherealengine/hyperflux": "^1.4.0",
-    "@etherealengine/volumetric": "^1.1.2",
     "@etherealengine/xrui": "^1.4.0",
     "@gltf-transform/core": "3.4.2",
     "@gltf-transform/extensions": "3.4.2",
