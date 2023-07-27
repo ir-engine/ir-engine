@@ -25,17 +25,25 @@ Ethereal Engine. All Rights Reserved.
 
 import { Paginated } from '@feathersjs/feathers'
 import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
-import _ from 'lodash'
-import { Op } from 'sequelize'
 
 import { Channel as ChannelInterface } from '@etherealengine/common/src/interfaces/Channel'
+import { ChannelID, ChannelUser } from '@etherealengine/common/src/interfaces/ChannelUser'
 import { UserInterface } from '@etherealengine/common/src/interfaces/User'
+import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 
+import { Op, Sequelize } from 'sequelize'
 import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
+import { checkScope } from '../../hooks/verify-scope'
 import { UserParams } from '../../user/user/user.class'
 
 export type ChannelDataType = ChannelInterface
+
+export type ChannelCreateType = {
+  users?: UserId[]
+  userId?: UserId
+  instanceId?: string // InstanceID
+}
 
 export class Channel<T = ChannelDataType> extends Service<T> {
   app: Application
@@ -45,6 +53,69 @@ export class Channel<T = ChannelDataType> extends Service<T> {
     this.app = app
   }
 
+  // @ts-ignore
+  async create(data: ChannelCreateType, params?: UserParams) {
+    const users = data.users
+
+    const loggedInUser = params!.user
+    const userId = loggedInUser?.id
+
+    if (!data.instanceId && users?.length) {
+      // get channel that contains the same users
+      const existingChannel = (await this.app.service('channel').Model.findOne({
+        where: {
+          instanceId: null
+        },
+        include: [
+          {
+            model: this.app.service('channel-user').Model,
+            required: true,
+            as: 'channel_users',
+            where: {
+              [Op.and]: [userId, ...users].filter(Boolean).map((user) => ({ userId: user }))
+            }
+          }
+        ]
+      })) as ChannelDataType | null
+      if (existingChannel) {
+        return existingChannel
+      }
+    }
+
+    const channel = (await super.create({})) as ChannelDataType
+
+    /** @todo ensure all users specified are friends of loggedInUser */
+
+    if (userId) {
+      await this.app.service('channel-user').create({
+        channelId: channel.id as ChannelID,
+        userId,
+        isOwner: true
+      })
+    }
+
+    if (users) {
+      await Promise.all(
+        users.map(async (user) =>
+          this.app.service('channel-user').create({
+            channelId: channel.id as ChannelID,
+            userId: user
+          })
+        )
+      )
+    }
+
+    if (data.instanceId) {
+      // @ts-ignore
+      await super.patch(channel.id, { instanceId: data.instanceId, name: 'World ' + data.instanceId })
+    } else {
+      // @ts-ignore
+      await super.patch(channel.id, { name: '' })
+    }
+
+    return this.app.service('channel').get(channel.id)
+  }
+
   /**
    * A method which find channel and display it
    *
@@ -52,50 +123,120 @@ export class Channel<T = ChannelDataType> extends Service<T> {
    * @returns {@Array} which contains list of channel
    */
 
-  async find(params?: UserParams): Promise<T[] | Paginated<T>> {
-    if (!params) params = {}
-    const query = params.query!
-    const skip = query?.skip || 0
-    const limit = query?.limit || 10
-    const loggedInUser = params!.user as UserInterface
-    const userId = loggedInUser.id
+  async find(params?: UserParams & {}): Promise<T[] | Paginated<T>> {
     try {
-      const subParams = {
-        subQuery: false,
-        offset: skip,
-        limit: limit,
-        order: [['updatedAt', 'DESC']],
+      if (!params) params = {}
+      const query = params.query!
+
+      const loggedInUser = params!.user as UserInterface
+      const userId = loggedInUser?.id
+
+      if (!userId) return []
+
+      const admin = query.action === 'admin' && (await checkScope(loggedInUser, this.app, 'admin', 'admin'))
+
+      if (admin) {
+        const { action, $skip, $limit, search, ...query } = params?.query ?? {}
+        const skip = $skip ? $skip : 0
+        const limit = $limit ? $limit : 10
+
+        const sort = params?.query?.$sort
+        delete query.$sort
+        const order: any[] = []
+        if (sort != null) {
+          Object.keys(sort).forEach((name, val) => {
+            const item: any[] = []
+
+            if (name === 'instance') {
+              //item.push(this.app.service('instance').Model)
+              item.push(Sequelize.literal('`instance.ipAddress`'))
+            } else {
+              item.push(name)
+            }
+            item.push(sort[name] === 0 ? 'DESC' : 'ASC')
+
+            order.push(item)
+          })
+        }
+        let ip = {}
+        let name = {}
+        if (!isNaN(search)) {
+          ip = search ? { ipAddress: { [Op.like]: `%${search}%` } } : {}
+        } else {
+          name = search ? { name: { [Op.like]: `%${search}%` } } : {}
+        }
+
+        const channel = await (this.app.service('channel') as any).Model.findAndCountAll({
+          offset: skip,
+          limit: limit,
+          order: order,
+          include: [
+            {
+              model: (this.app.service('channel-user') as any).Model
+            }
+          ]
+        })
+
+        return {
+          skip: skip,
+          limit: limit,
+          total: channel.count,
+          data: channel.rows
+        }
+      }
+
+      if (query.instanceId) {
+        const channels = await this.app.service('channel').Model.findAll({
+          include: [
+            {
+              model: this.app.service('instance').Model,
+              required: true,
+              where: {
+                id: query.instanceId,
+                ended: false
+              },
+              include: [
+                /** @todo - couldn't figure out how to include active users */
+                // {
+                //   model: this.app.service('user').Model,
+                // },
+              ]
+            },
+            {
+              model: this.app.service('message').Model,
+              limit: 20,
+              order: [['createdAt', 'DESC']],
+              include: [
+                {
+                  model: this.app.service('user').Model,
+                  as: 'sender'
+                }
+              ]
+            }
+          ]
+        })
+
+        return channels
+
+        // return channels.filter((channel) => {
+        //   return channel.instance.id === query.instanceId // && channel.instance.users.find((user) => user.id === userId)
+        // })
+      }
+
+      const allChannels = await this.app.service('channel').Model.findAll({
+        where: {
+          [Op.or]: [
+            {
+              '$instance.ended$': false
+            },
+            {
+              instanceId: null
+            }
+          ]
+        },
         include: [
-          'user1',
-          'user2',
           {
-            model: this.app.service('group').Model,
-            include: [
-              {
-                model: this.app.service('group-user').Model,
-                include: [
-                  {
-                    model: this.app.service('user').Model
-                  }
-                ]
-              }
-            ]
-          },
-          {
-            model: this.app.service('party').Model,
-            include: [
-              {
-                model: this.app.service('party-user').Model,
-                include: [
-                  {
-                    model: this.app.service('user').Model
-                  }
-                ]
-              }
-            ]
-          },
-          {
-            model: this.app.service('instance').Model,
+            model: this.app.service('channel-user').Model,
             include: [
               {
                 model: this.app.service('user').Model
@@ -112,96 +253,39 @@ export class Channel<T = ChannelDataType> extends Service<T> {
                 as: 'sender'
               }
             ]
+          },
+          {
+            model: this.app.service('instance').Model
           }
-        ],
-        where: {
-          [Op.or]: [
-            {
-              [Op.or]: [
-                {
-                  userId1: userId
-                },
-                {
-                  userId2: userId
-                }
-              ]
-            },
-            {
-              '$group.group_users.userId$': userId
-            },
-            {
-              '$party.party_users.userId$': userId
-            },
-            {
-              '$instance.users.id$': userId
-            }
-          ]
-        }
-      }
-      if (query.targetObjectType) (subParams.where as any).channelType = query.targetObjectType
-      if (query.channelType) (subParams.where as any).channelType = query.channelType
-      const results = await this.app.service('channel').Model.findAndCountAll(subParams)
+        ]
+      })
 
-      if (query.findTargetId === true) {
-        const match = _.find(results.rows, (result: any) =>
-          query.targetObjectType === 'user'
-            ? result.userId1 === query.targetObjectId || result.userId2 === query.targetObjectId
-            : query.targetObjectType === 'group'
-            ? result.groupId === query.targetObjectId
-            : query.targetObjectType === 'instance'
-            ? result.instanceId === query.targetObjectId
-            : result.partyId === query.targetObjectId
-        )
-        return {
-          data: [match] || [],
-          total: match == null ? 0 : 1,
-          skip: skip,
-          limit: limit
-        }
-      } else {
-        let where
+      /** @todo figure out how to do this as part of the query */
 
-        if (query.instanceId)
-          where = {
-            channelType: query.channelType,
-            instanceId: query.instanceId
-          }
-        else if (query.partyId)
-          where = {
-            channelType: query.channelType,
-            partyId: query.partyId
-          }
-        else if (query.groupId)
-          where = {
-            channelType: query.channelType,
-            groupId: query.groupId
-          }
-        else if (query.friendId)
-          where = {
-            channelType: query.channelType,
-            [Op.or]: [
-              {
-                userId1: userId,
-                userId2: query.friendId
-              },
-              {
-                userId2: userId,
-                userId1: query.friendId
-              }
-            ]
-          }
-        else
-          where = {
-            channelType: 'intentionallyBadType'
-          }
-        return this.app.service('channel').Model.findAll({
-          include: params.sequelize.include,
-          where: where
-        })
-      }
+      return allChannels.filter((channel) => {
+        return channel.channel_users.find((channelUser) => channelUser.userId === userId)
+      })
     } catch (err) {
       logger.error(err, `Channel find failed: ${err.message}`)
       throw err
     }
+  }
+
+  /** only allow logged in user to delete the channel if they are the owner */
+  async remove(id: ChannelID, params?: UserParams) {
+    const loggedInUser = params!.user
+    if (!loggedInUser) return super.remove(id, params)
+
+    const channelUser = (await this.app.service('channel-user').find({
+      query: {
+        channelId: id,
+        userId: loggedInUser.id,
+        isOwner: true
+      }
+    })) as Paginated<ChannelUser>
+
+    if (!channelUser.data.length) throw new Error('Must be owner to delete channel')
+
+    return super.remove(id)
   }
 }

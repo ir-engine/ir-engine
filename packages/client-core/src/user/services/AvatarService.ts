@@ -29,17 +29,15 @@ import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { StaticResourceInterface } from '@etherealengine/common/src/interfaces/StaticResourceInterface'
 import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 import { AvatarNetworkAction } from '@etherealengine/engine/src/avatar/state/AvatarNetworkState'
-import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { avatarPath, AvatarType } from '@etherealengine/engine/src/schemas/user/avatar.schema'
-import { defineAction, defineState, dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
+import { defineState, dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
 
 import { uploadToFeathersService } from '../../util/upload'
-import { AuthAction, AuthState } from './AuthService'
+import { AuthState } from './AuthService'
 
 export const AVATAR_PAGE_LIMIT = 100
 
-// State
 export const AvatarState = defineState({
   name: 'AvatarState',
   initial: () => ({
@@ -50,21 +48,6 @@ export const AvatarState = defineState({
     total: 0
   })
 })
-
-export const AvatarServiceReceptor = (action) => {
-  const s = getMutableState(AvatarState)
-  matches(action)
-    .when(AvatarActions.updateAvatarListAction.matches, (action) => {
-      s.search.set(action.search ?? undefined)
-      s.skip.set(action.skip)
-      s.total.set(action.total)
-      return s.avatarList.set(action.avatarList)
-    })
-    .when(AvatarActions.updateAvatarAction.matches, (action) => {
-      const index = s.avatarList.findIndex((item) => item.id.value === action.avatar.id)
-      return s.avatarList[index].set(action.avatar)
-    })
-}
 
 export const AvatarService = {
   async createAvatar(model: File, thumbnail: File, avatarName: string, isPublic: boolean) {
@@ -83,7 +66,8 @@ export const AvatarService = {
   },
 
   async fetchAvatarList(search?: string, incDec?: 'increment' | 'decrement') {
-    const skip = getState(AvatarState).skip
+    const avatarState = getMutableState(AvatarState)
+    const skip = avatarState.skip.value
     const newSkip =
       incDec === 'increment' ? skip + AVATAR_PAGE_LIMIT : incDec === 'decrement' ? skip - AVATAR_PAGE_LIMIT : skip
     const result = (await Engine.instance.api.service(avatarPath).find({
@@ -93,9 +77,13 @@ export const AvatarService = {
         $limit: AVATAR_PAGE_LIMIT
       }
     })) as Paginated<AvatarType>
-    dispatchAction(
-      AvatarActions.updateAvatarListAction({ avatarList: result.data, search, skip: result.skip, total: result.total })
-    )
+
+    avatarState.merge({
+      search,
+      skip,
+      total: result.total,
+      avatarList: result.data
+    })
   },
 
   async patchAvatar(
@@ -135,7 +123,11 @@ export const AvatarService = {
     }
 
     const avatar = await Engine.instance.api.service(avatarPath).patch(originalAvatar.id, payload)
-    dispatchAction(AvatarActions.updateAvatarAction({ avatar }))
+    getMutableState(AvatarState).avatarList.set((prevAvatarList) => {
+      const index = prevAvatarList.findIndex((item) => item.id === avatar.id)
+      prevAvatarList[index] = avatar
+      return prevAvatarList
+    })
 
     const authState = getState(AuthState)
     const userAvatarId = authState.user?.avatarId
@@ -151,8 +143,7 @@ export const AvatarService = {
 
   async updateUserAvatarId(userId: UserId, avatarId: string) {
     const res = await Engine.instance.api.service('user').patch(userId, { avatarId: avatarId })
-    // dispatchAlertSuccess(dispatch, 'User Avatar updated');
-    dispatchAction(AuthAction.userAvatarIdUpdatedAction({ avatarId: res.avatarId! }))
+    getMutableState(AuthState).user.avatarId.set(res.avatarId!)
     dispatchAction(
       AvatarNetworkAction.setAvatarID({
         avatarID: avatarId,
@@ -179,18 +170,4 @@ export const AvatarService = {
       return null
     }
   }
-}
-
-export class AvatarActions {
-  static updateAvatarListAction = defineAction({
-    type: 'ee.client.avatar.AVATAR_FETCHED' as const,
-    avatarList: matches.array as Validator<unknown, AvatarType[]>,
-    search: matches.string.optional(),
-    skip: matches.number,
-    total: matches.number
-  })
-  static updateAvatarAction = defineAction({
-    type: 'ee.client.avatar.AVATAR_UPDATED' as const,
-    avatar: matches.object as Validator<unknown, AvatarType>
-  })
 }

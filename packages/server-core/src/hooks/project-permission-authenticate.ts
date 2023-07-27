@@ -34,6 +34,7 @@ import { checkUserRepoWriteStatus } from '../projects/project/github-helper'
 export default (writeAccess) => {
   return async (context: HookContext): Promise<HookContext> => {
     const { params, app } = context
+    if (context.params.isInternal) return context
     const loggedInUser = params.user as UserInterface
     if (
       (!writeAccess && loggedInUser.scopes && loggedInUser.scopes.find((scope) => scope.type === 'admin:admin')) ||

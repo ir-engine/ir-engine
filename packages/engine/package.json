@@ -60,6 +60,7 @@
     "react-dom": "18.2.0",
     "realism-effects": "1.1.2",
     "sharp": "^0.31.3",
+    "sift": "^17.0.1",
     "simplex-noise": "^4.0.1",
     "three": "0.153.0",
     "three-mesh-bvh": "^0.6.2",

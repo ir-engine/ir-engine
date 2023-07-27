@@ -58,9 +58,9 @@ export const SidebarItems = (allowedRoutes) => [
     path: '/admin/instance',
     icon: <Icon type="DirectionsRun" style={{ color: 'white' }} />
   },
-  allowedRoutes.party && {
-    name: 'user:dashboard.parties',
-    path: '/admin/parties',
+  allowedRoutes.channel && {
+    name: 'user:dashboard.channel',
+    path: '/admin/channel',
     icon: <Icon type="CalendarViewDay" style={{ color: 'white' }} />
   },
   allowedRoutes.user && {
@@ -72,11 +72,6 @@ export const SidebarItems = (allowedRoutes) => [
     name: 'user:dashboard.invites',
     path: '/admin/invites',
     icon: <Icon type="PersonAdd" style={{ color: 'white' }} />
-  },
-  allowedRoutes.groups && {
-    name: 'user:dashboard.groups',
-    path: '/admin/groups',
-    icon: <Icon type="GroupAdd" style={{ color: 'white' }} />
   },
   allowedRoutes.globalAvatars && {
     name: 'user:dashboard.avatars',

@@ -23,10 +23,28 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { getValidator } from '@feathersjs/typebox'
 import { disallow, iff, isProvider } from 'feathers-hooks-common'
+
+import {
+  locationBanDataSchema,
+  locationBanPatchSchema,
+  locationBanQuerySchema,
+  locationBanSchema
+} from '@etherealengine/engine/src/schemas/social/location-ban.schema'
+import { dataValidator, queryValidator } from '@etherealengine/server-core/validators'
 
 import authenticate from '../../hooks/authenticate'
 import verifyLocationAdmin from '../../hooks/verify-location-admin'
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const locationBanValidator = getValidator(locationBanSchema, dataValidator)
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const locationBanDataValidator = getValidator(locationBanDataSchema, dataValidator)
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const locationBanPatchValidator = getValidator(locationBanPatchSchema, dataValidator)
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const locationBanQueryValidator = getValidator(locationBanQuerySchema, queryValidator)
 
 export default {
   before: {

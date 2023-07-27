@@ -31,6 +31,7 @@ import { HookReturn } from 'sequelize/types/hooks'
 import { LocationAdminInterface } from '@etherealengine/common/src/dbmodels/LocationAdmin'
 
 import { Application } from '../../../declarations'
+import { createLocationModel } from '../../user/user/user.model'
 
 export default (app: Application) => {
   const sequelizeClient: Sequelize = app.get('sequelizeClient')
@@ -55,7 +56,7 @@ export default (app: Application) => {
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   ;(locationAdmin as any).associate = function (models: any): void {
-    ;(locationAdmin as any).belongsTo(models.location, { required: true, allowNull: false })
+    ;(locationAdmin as any).belongsTo(createLocationModel(app), { required: true, allowNull: false })
     ;(locationAdmin as any).belongsTo(models.user, { required: true, allowNull: false })
   }
 
