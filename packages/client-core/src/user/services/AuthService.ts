@@ -37,6 +37,7 @@ import { AuthStrategiesType } from '@etherealengine/engine/src/schemas/setting/a
 import { defineState, getMutableState, getState, syncStateWithLocalStorage } from '@etherealengine/hyperflux'
 
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { locationBanPath } from '@etherealengine/engine/src/schemas/social/location-ban.schema'
 import { UserApiKeyType, userApiKeyPath } from '@etherealengine/engine/src/schemas/user/user-api-key.schema'
 import { API } from '../../API'
 import { NotificationService } from '../../common/services/NotificationService'
@@ -605,11 +606,11 @@ export const AuthService = {
       }
 
       Engine.instance.api.service('user').on('patched', userPatchedListener)
-      Engine.instance.api.service('location-ban').on('created', locationBanCreatedListener)
+      Engine.instance.api.service(locationBanPath).on('created', locationBanCreatedListener)
 
       return () => {
         Engine.instance.api.service('user').off('patched', userPatchedListener)
-        Engine.instance.api.service('location-ban').off('created', locationBanCreatedListener)
+        Engine.instance.api.service(locationBanPath).off('created', locationBanCreatedListener)
       }
     }, [])
   }

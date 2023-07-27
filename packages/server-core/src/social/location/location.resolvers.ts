@@ -34,7 +34,7 @@ import { LocationQuery, LocationType } from '@etherealengine/engine/src/schemas/
 import type { HookContext } from '@etherealengine/server-core/declarations'
 
 import { LocationAuthorizedUserType } from '@etherealengine/engine/src/schemas/social/location-authorized-user.schema'
-import { LocationBanType } from '@etherealengine/engine/src/schemas/social/location-ban.schema'
+import { LocationBanType, locationBanPath } from '@etherealengine/engine/src/schemas/social/location-ban.schema'
 import { getDateTimeSql } from '../../util/get-datetime-sql'
 import { LocationParams } from './location.class'
 
@@ -83,8 +83,7 @@ export const locationResolver = resolve<LocationType, HookContext>({
     return locationAuthorizedUser
   }),
   locationBans: virtual(async (location, context) => {
-    //TODO: We should replace `as any as LocationBanType[]` with `as LocationBanType[]` once location-admin service is migrated to feathers 5.
-    const locationBan = (await context.app.service('location-ban').find({
+    const locationBan = (await context.app.service(locationBanPath).find({
       query: {
         locationId: location.id
       },

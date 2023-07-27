@@ -30,6 +30,7 @@ import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { locationPath, LocationType } from '@etherealengine/engine/src/schemas/social/location.schema'
 import { defineAction, defineState, dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 
+import { locationBanPath } from '@etherealengine/engine/src/schemas/social/location-ban.schema'
 import { API } from '../../API'
 import { NotificationService } from '../../common/services/NotificationService'
 
@@ -188,7 +189,7 @@ export const LocationService = {
   },
   banUserFromLocation: async (userId: string, locationId: string) => {
     try {
-      await API.instance.client.service('location-ban').create({
+      await API.instance.client.service(locationBanPath).create({
         userId: userId,
         locationId: locationId
       })
