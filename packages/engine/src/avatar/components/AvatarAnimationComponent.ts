@@ -44,8 +44,9 @@ import { addObjectToGroup, removeObjectFromGroup } from '../../scene/components/
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
 import { setObjectLayers } from '../../scene/functions/setObjectLayers'
 import { PoseSchema } from '../../transform/components/TransformComponent'
-import { AnimationManager } from '../AnimationManager'
+import { AnimationState } from '../AnimationManager'
 import { AnimationComponent } from './AnimationComponent'
+import { AvatarComponent } from './AvatarComponent'
 import { AvatarPendingComponent } from './AvatarPendingComponent'
 
 export const AvatarAnimationComponent = defineComponent({
@@ -53,6 +54,12 @@ export const AvatarAnimationComponent = defineComponent({
 
   onInit: (entity) => {
     return {
+      animationGraph: {
+        states: {},
+        transitionRules: {},
+        currentState: null!,
+        stateChanged: null!
+      },
       /** ratio between original and target skeleton's root.position.y */
       rootYRatio: 1,
       /** The input vector for 2D locomotion blending space */
@@ -201,7 +208,7 @@ export const AvatarRigComponent = defineComponent({
     //Calculate ik target offsets for retargeting
     useEffect(() => {
       if (!animComponent.animations.value.length || !rigComponent.targets.children.length) return
-      const bindTracks = AnimationClip.findByName(getState(AnimationManager).targetsAnimation!, 'BindPose').tracks
+      const bindTracks = AnimationClip.findByName(getState(AnimationState).targetsAnimation!, 'BindPose').tracks
       if (!bindTracks) return
 
       const avatarComponent = getComponent(entity, AvatarComponent)
@@ -267,8 +274,10 @@ export const AvatarRigComponent = defineComponent({
           case 'headHint':
           case 'headTarget':
             bonePos.copy(rigComponent.bindRig.head.value.node.matrixWorld)
+            break
           case 'hipsTarget':
             bonePos.copy(rigComponent.bindRig.hips.value.node.matrixWorld)
+            break
         }
         const pos = new Vector3()
         bonePos.decompose(pos, new Quaternion(), new Vector3())

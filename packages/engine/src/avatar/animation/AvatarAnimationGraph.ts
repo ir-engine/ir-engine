@@ -32,12 +32,12 @@ import { lerp } from '../../common/functions/MathLerpFunctions'
 import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import { getComponent } from '../../ecs/functions/ComponentFunctions'
-import { AnimationManager } from '../AnimationManager'
+import { AnimationState } from '../AnimationManager'
 import { AnimationComponent } from '../components/AnimationComponent'
 import { AvatarAnimationComponent } from '../components/AvatarAnimationComponent'
 
 export const getAnimationAction = (name: string, mixer: AnimationMixer, animations?: AnimationClip[]) => {
-  const manager = getState(AnimationManager)
+  const manager = getState(AnimationState)
   const clip = AnimationClip.findByName(animations ?? manager.targetsAnimation!, name)
   return mixer.clipAction(clip)
 }
@@ -50,7 +50,7 @@ let fallWeight = 0,
 //This is a stateless animation blend, it is not a graph
 //To do: make a stateful blend tree
 export const setAvatarLocomotionAnimation = (entity: Entity) => {
-  if (!getState(AnimationManager).targetsAnimation) return
+  if (!getState(AnimationState).targetsAnimation) return
   const animationComponent = getComponent(entity, AnimationComponent)
   const avatarAnimationComponent = getComponent(entity, AvatarAnimationComponent)
 

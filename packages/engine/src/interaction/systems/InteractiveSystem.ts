@@ -78,7 +78,7 @@ export const onInteractableUpdate = (entity: Entity, xrui: ReturnType<typeof cre
   transform.rotation.copy(getComponent(entity, TransformComponent).rotation)
   transform.position.y += 1
   const transition = InteractableTransitions.get(entity)!
-  getAvatarBoneWorldPosition(Engine.instance.localClientEntity, 'hips', vec3)
+  getAvatarBoneWorldPosition(Engine.instance.localClientEntity, 'Hips', vec3)
   const distance = vec3.distanceToSquared(transform.position)
   const inRange = distance < 5
   if (transition.state === 'OUT' && inRange) {

@@ -49,6 +49,7 @@ export const LoopAnimationComponent = defineComponent({
 
   onInit: (entity) => {
     return {
+      hasAvatarAnimations: false,
       activeClipIndex: -1,
       vrm: undefined as VRM | undefined,
       animationPack: '',

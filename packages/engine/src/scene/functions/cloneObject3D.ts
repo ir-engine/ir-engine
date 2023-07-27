@@ -110,6 +110,7 @@ export default function cloneObject3D(source: Object3D, preserveUUIDs?: boolean)
     }
 
     if ((node as Mesh).isMesh && (node as Mesh).geometry.boundsTree) {
+      // eslint-disable-next-line @typescript-eslint/no-extra-semi
       ;(clonedNode as Mesh).geometry.boundsTree = (node as Mesh).geometry.boundsTree
     }
 
@@ -136,7 +137,7 @@ export const getAnimationClips = (): AnimationClip[] => {
     if (comp.activeClipIndex < 0) continue
 
     if (comp.hasAvatarAnimations) {
-      result.add(AnimationManager.instance._animations[comp.activeClipIndex])
+      result.add(AnimationManager?.instance?._animations[comp.activeClipIndex])
     } else {
       const scene = getComponent(entity, ModelComponent).scene!
       if (scene) result.add(scene.animations[comp.activeClipIndex])
