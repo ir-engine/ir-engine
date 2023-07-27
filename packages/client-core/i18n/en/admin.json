@@ -120,15 +120,13 @@
       "spawnPoint": "Spawn Point",
       "deleteSelected": "Delete selected invites"
     },
-    "party": {
-      "maxMembersRequired": "Atleast 2 members requires",
+    "channel": {
       "instanceRequired": "Instance is required",
       "instanceCantEmpty": "Instance can't be empty",
       "instance": "Instance",
-      "maxMembers": "Max Members",
       "createOne": "Create One",
-      "createParty": "Create Party",
-      "confirmPartyDelete": "Do you want to delete party?"
+      "createChannel": "Create Channel",
+      "confirmChannelDelete": "Do you want to delete channel?"
     },
     "project": {
       "addProject": "Add Project",

@@ -47,11 +47,11 @@ export async function up(knex: Knex): Promise<void> {
       table.uuid('id').collate('utf8mb4_bin').primary()
       table.string('token', 36).notNullable().unique()
       //@ts-ignore
-      table.uuid('id').collate('utf8mb4_bin').primary().notNullable()
+      table.uuid('userId').collate('utf8mb4_bin').notNullable().index()
       table.dateTime('createdAt').notNullable()
       table.dateTime('updatedAt').notNullable()
 
-      table.foreign('userId').references('id').inTable('user').onDelete('SET NULL').onUpdate('CASCADE')
+      table.foreign('userId').references('id').inTable('user').onDelete('NO ACTION').onUpdate('CASCADE')
     })
   }
 }

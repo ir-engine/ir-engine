@@ -42,16 +42,6 @@ describe('instance.test', () => {
   before(async () => {
     app = createFeathersKoaApp()
     await app.setup()
-  })
-
-  after(() => {
-    return destroyEngine()
-  })
-
-  let testLocation: Location
-  let testInstance: Instance
-
-  before(async () => {
     const name = `Test Location ${v1()}`
     const sceneId = `test-scene-${v1()}`
 
@@ -66,6 +56,13 @@ describe('instance.test', () => {
       params
     )
   })
+
+  after(() => {
+    return destroyEngine()
+  })
+
+  let testLocation: Location
+  let testInstance: Instance
 
   it('should create an instance', async () => {
     const instance = (await app.service('instance').create({ locationId: testLocation.id })) as Instance

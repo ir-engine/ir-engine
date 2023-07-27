@@ -23,31 +23,21 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Group } from './Group'
-import { Instance } from './Instance'
-import { Message } from './Message'
-import { Party } from './Party'
-import { UserInterface } from './User'
-
-export type ChannelType = 'channel' | 'user' | 'group' | 'instance' | 'party'
+import { ChannelID, ChannelUser } from './ChannelUser'
 
 export type Channel = {
-  id: string
-  channelType: ChannelType
-  messages: Message[]
-  userId1: string | null
-  userId2: string | null
-  groupId: string | null
-  partyId: string | null
+  id: ChannelID
+  name: string
   instanceId: string | null
-  user1: UserInterface
-  user2: UserInterface
-  group: Group
-  party: Party
-  instance: Instance
+  createdAt: string
   updatedAt: string
   updateNeeded: boolean
   limit: 5
   skip: 0
   total: 0
+  channel_users: ChannelUser[]
+}
+
+export interface PatchChannel {
+  name: string
 }

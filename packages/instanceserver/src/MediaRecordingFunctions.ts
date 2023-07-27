@@ -132,7 +132,7 @@ export const startMediaRecordingPair = async (
   const videoPortRtcp = startPort + 3
 
   if (tracks.video) {
-    const routers = network.routers[`${tracks.video.channelType}:${tracks.video.channelId}`]
+    const routers = network.routers[tracks.video.channelId]
     const transportPromise = createTransport(routers[0], videoPort, videoPortRtcp, tracks.video.producerId)
     promises.push(transportPromise)
     transportPromise.then(({ transport, consumer }) => {
@@ -142,7 +142,7 @@ export const startMediaRecordingPair = async (
   }
 
   if (tracks.audio) {
-    const routers = network.routers[`${tracks.audio.channelType}:${tracks.audio.channelId}`]
+    const routers = network.routers[tracks.audio.channelId]
     const transportPromise = createTransport(routers[0], audioPort, audioPortRtcp, tracks.audio.producerId)
     promises.push(transportPromise)
     transportPromise.then(({ transport, consumer }) => {
@@ -209,14 +209,14 @@ export const startMediaRecording = async (recordingID: RecordingID, schema: Reco
     const peerMedia = Object.entries(peer.media!).filter(([type]) => dataChannels.includes(type as DataChannelType))
 
     if (peerMedia.length) {
-      for (const [channelType, media] of peerMedia) {
+      for (const [dataChannelType, media] of peerMedia) {
         if (!mediaStreams[peerID]) mediaStreams[peerID] = {}
         const mediaType =
-          channelType === webcamAudioDataChannelType || channelType === webcamVideoDataChannelType
+          dataChannelType === webcamAudioDataChannelType || dataChannelType === webcamVideoDataChannelType
             ? 'webcam'
             : 'screenshare'
         const trackType =
-          channelType === webcamAudioDataChannelType || channelType === screenshareAudioDataChannelType
+          dataChannelType === webcamAudioDataChannelType || dataChannelType === screenshareAudioDataChannelType
             ? 'audio'
             : 'video'
         if (!mediaStreams[peerID][mediaType]) mediaStreams[peerID][mediaType] = {}

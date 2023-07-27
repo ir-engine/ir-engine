@@ -51,7 +51,6 @@ export default (app: Application) => {
   )
   ;(Scope as any).associate = (models: any): void => {
     ;(Scope as any).belongsTo(models.user, { foreignKey: 'userId', allowNull: true, onDelete: 'cascade' })
-    ;(Scope as any).belongsTo(models.group, { foreignKey: 'groupId', allowNull: true })
     ;(Scope as any).belongsTo(createScopeTypeModel(app), {
       foreignKey: 'type'
     })

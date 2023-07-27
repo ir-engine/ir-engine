@@ -26,40 +26,17 @@ Ethereal Engine. All Rights Reserved.
 
 
 /* eslint-disable no-unused-vars */
-declare module '*.jpg' {
-  const value: any
-  export default value
-}
-
-declare module '*.png' {
-  const value: any
-  export default value
-}
-
-declare module '*.json' {
-  const value: any
-  export default value
-}
-
-declare module '*.wav' {
-  const value: any
-  export default value
-}
-
-declare module '*.glb' {
-  const value: any
-  export default value
-}
-
-declare module '*.frag' {
-  const value: any
-  export default value
-}
-
-declare module '*.vert' {
-  const value: any
-  export default value
-}
+declare module '*.jpg'
+declare module '*.png'
+declare module '*.svg'
+declare module '*.scss'
+declare module '*.scss?inline'
+declare module '*.css'
+declare module '*.json'
+declare module '*.wav'
+declare module '*.glb'
+declare module '*.frag'
+declare module '*.vert'
 
 declare interface Element {
   setAttribute(qualifiedName: string, value: Object): void

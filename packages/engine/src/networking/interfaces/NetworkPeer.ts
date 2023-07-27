@@ -46,16 +46,9 @@ export interface NetworkPeer {
   media?: Record<MediaTagType, PeerMediaType>
   consumerLayers?: {}
   stats?: {}
-  instanceSendTransport?: any
-  instanceRecvTransport?: any
-  channelSendTransport?: any
-  channelRecvTransport?: any
+  sendTransport?: any
+  recvTransport?: any
   outgoingDataConsumers?: Map<DataChannelType, any> // Key of internal producer id => id of data producer
   incomingDataConsumers?: Map<DataChannelType, any> // Key of internal producer id => id of data producer
   dataProducers?: Map<string, any> // Keyof internal producer id => label of data channel
-}
-
-export interface UserClient {
-  userId: UserId
-  name: string
 }
