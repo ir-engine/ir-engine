@@ -29,6 +29,7 @@ import { Mesh, Scene } from 'three'
 import { getState } from '@etherealengine/hyperflux'
 
 import { AssetLoader } from '../../assets/classes/AssetLoader'
+import { LoopAnimationComponent } from '../../avatar/components/LoopAnimationComponent'
 import { EngineState } from '../../ecs/classes/EngineState'
 import {
   defineComponent,
@@ -44,11 +45,12 @@ import { entityExists, useEntityContext } from '../../ecs/functions/EntityFuncti
 import { SourceType } from '../../renderer/materials/components/MaterialSource'
 import { removeMaterialSource } from '../../renderer/materials/functions/MaterialLibraryFunctions'
 import { ObjectLayers } from '../constants/ObjectLayers'
-import { generateMeshBVH } from '../functions/bvhWorkerPool'
 import { addError, removeError } from '../functions/ErrorFunctions'
+import { generateMeshBVH } from '../functions/bvhWorkerPool'
 import { parseGLTFModel } from '../functions/loadGLTFModel'
 import { enableObjectLayer } from '../functions/setObjectLayers'
-import { addObjectToGroup, GroupComponent, removeObjectFromGroup } from './GroupComponent'
+import { EnvMapBakeComponent } from './EnvMapBakeComponent'
+import { GroupComponent, addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
 import { SceneAssetPendingTagComponent } from './SceneAssetPendingTagComponent'
 import { SceneObjectComponent } from './SceneObjectComponent'
 import { UUIDComponent } from './UUIDComponent'
@@ -75,6 +77,9 @@ export const ModelComponent = defineComponent({
   },
 
   onSet: (entity, component, json) => {
+    setComponent(entity, LoopAnimationComponent)
+    setComponent(entity, EnvMapBakeComponent)
+
     if (!json) return
     if (typeof json.src === 'string' && json.src !== component.src.value) component.src.set(json.src)
     if (typeof json.generateBVH === 'boolean' && json.generateBVH !== component.generateBVH.value)
