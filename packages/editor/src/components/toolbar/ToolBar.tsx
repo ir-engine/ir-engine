@@ -42,7 +42,6 @@ import TransformPivotTool from './tools/TransformPivotTool'
 import TransformSnapTool from './tools/TransformSnapTool'
 import TransformSpaceTool from './tools/TransformSpaceTool'
 import TransformTool from './tools/TransformTool'
-import VisibilityTool from './tools/VisibilityTool'
 
 type ToolBarProps = {
   menu?: any
@@ -60,7 +59,6 @@ export const ToolBar = (props: ToolBarProps) => {
       <TransformSnapTool />
       <GridTool />
       <RenderModeTool />
-      <VisibilityTool />
       <PlayModeTool />
       <StatsTool />
       <HelperToggleTool />

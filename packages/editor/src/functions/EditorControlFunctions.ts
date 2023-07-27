@@ -337,7 +337,7 @@ const positionObject = (
         tempVector.applyMatrix4(tempMatrix)
         obj3d.position.copy(tempVector)
       }
-      obj3d.updateMatrixWorld(true)
+      obj3d.updateMatrix()
     } else {
       const transform = getComponent(node, TransformComponent)
       const localTransform = getOptionalComponent(node, LocalTransformComponent) ?? transform
