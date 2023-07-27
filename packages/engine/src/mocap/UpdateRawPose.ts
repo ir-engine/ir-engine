@@ -23,6 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { PoseLandmarker } from '@mediapipe/tasks-vision'
 import { Mesh, MeshBasicMaterial, SphereGeometry, Vector3 } from 'three'
 
 import { dispatchAction, getState } from '@etherealengine/hyperflux'
@@ -41,11 +42,11 @@ import { TransformComponent } from '../transform/components/TransformComponent'
 const objs = [] as Mesh[]
 const debug = true
 
-const UpdateRawPose = (data, hipsPos, avatarTransform) => {
-  // debugger
+const UpdateRawPose = (data, hipsPos, avatarRig, avatarTransform) => {
   if (data) {
     const engineState = getState(EngineState)
-    for (let i = 1; i < data.length - 1; i++) {
+    for (let i = 0; i < data.length - 1; i++) {
+      const name2 = PoseLandmarker.POSE_CONNECTIONS[i]
       const name = VRMHumanBoneList[i].toLowerCase()
 
       const pose = data[i]
@@ -65,7 +66,7 @@ const UpdateRawPose = (data, hipsPos, avatarTransform) => {
           if (allowedTargets.includes(name)) {
             matOptions = { color: 0xff0000 }
           }
-          const mesh = new Mesh(new SphereGeometry(i < 34 ? 0.05 : 0.125), new MeshBasicMaterial(matOptions))
+          const mesh = new Mesh(new SphereGeometry(i < 34 ? 0.05 : 0.025), new MeshBasicMaterial(matOptions))
           objs[i] = mesh
           Engine?.instance?.scene?.add(mesh)
         }
@@ -85,7 +86,7 @@ const UpdateRawPose = (data, hipsPos, avatarTransform) => {
         }
 
         const ik = getComponent(ikTarget, TransformComponent)
-        // ik.position.lerp(posePos.clone(), engineState.deltaSeconds * 10)
+        ik?.position?.lerp(posePos.clone(), engineState.deltaSeconds * 10)
 
         // ik.quaternion.copy()
       }

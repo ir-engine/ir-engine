@@ -267,20 +267,22 @@ const CaptureDashboard = () => {
         const faceResults = faceDetector?.value?.detectForVideo(videoRef.current!, videoTime * 1000)
 
         if (trackingSettings?.solveFace === true) {
-          const solve = Face?.solve(faceResults?.faceLandmarks[0] || [], {
-            runtime: 'mediapipe', // `mediapipe` or `tfjs`
-            video: videoRef.current!,
-            imageSize: { height: videoRef.current!.clientHeight, width: videoRef.current!.clientWidth }
-            // smoothBlink: false, // smooth left and right eye blink delays
-            // blinkSettings: [0.25, 0.75], // adjust upper and lower bound blink sensitivity
+          const solves = faceResults.faceLandmarks.map((landmarks) => {
+            return Face?.solve(landmarks || [], {
+              runtime: 'mediapipe', // `mediapipe` or `tfjs`
+              video: videoRef.current!,
+              imageSize: { height: videoRef.current!.clientHeight, width: videoRef.current!.clientWidth }
+              // smoothBlink: false, // smooth left and right eye blink delays
+              // blinkSettings: [0.25, 0.75], // adjust upper and lower bound blink sensitivity
+            })
           })
           return {
-            faceSolved: solve
+            facesSolved: solves
           }
         } else {
           if (faceResults?.faceBlendshapes) {
             return {
-              face: faceResults?.faceBlendshapes
+              faces: faceResults?.faceBlendshapes
             }
           }
           return {}
@@ -303,13 +305,19 @@ const CaptureDashboard = () => {
         }
 
         if (trackingSettings?.solveHands === true) {
-          const solve = Hand.solve(handResults?.landmarks, handResults?.handednesses)
-          return { handsSolved: solve }
+          const solves = handResults?.landmarks.map((landmarks, idx) => {
+            const side = handResults?.handednesses[idx][0]?.categoryName
+            return {
+              handedness: side,
+              handSolve: Hand?.solve(landmarks, side.toLowerCase())
+            }
+          })
+          return { handsSolved: solves }
         } else {
           if (handResults?.landmarks) {
             return {
-              hands: handResults?.landmarks[0],
-              handsWorld: handResults?.worldLandmarks[0]
+              hands: handResults?.landmarks,
+              handsWorld: handResults?.worldLandmarks
             }
           }
           return {}
@@ -324,17 +332,20 @@ const CaptureDashboard = () => {
         let finalPose = {}
         if (trackingSettings?.solvePose === true) {
           finalPose = {
-            poseSolved: Pose.solve(poseResults?.landmarks[0], poseResults?.worldLandmarks[0], {
-              runtime: 'mediapipe', // `mediapipe` or `tfjs`
-              video: videoRef.current!,
-              imageSize: { height: videoRef.current!.clientHeight, width: videoRef.current!.clientWidth },
-              enableLegs: true
+            posesSolved: poseResults?.landmarks.map((landmarks, idx) => {
+              const solve = Pose.solve(landmarks, poseResults?.worldLandmarks[idx], {
+                runtime: 'mediapipe', // `mediapipe` or `tfjs`
+                video: videoRef.current!,
+                imageSize: { height: videoRef.current!.clientHeight, width: videoRef.current!.clientWidth },
+                enableLegs: true
+              })
+              return solve
             })
           }
         } else {
           finalPose = {
-            pose: poseResults?.landmarks[0],
-            poseWorld: poseResults?.worldLandmarks[0]
+            poses: poseResults?.landmarks,
+            posesWorld: poseResults?.worldLandmarks
           }
         }
 
@@ -405,113 +416,7 @@ const CaptureDashboard = () => {
 
   return (
     <div className="w-full container mx-auto">
-      <Drawer
-        settings={
-          <div></div>
-          // <div className="w-100 bg-base-100">
-          //   <div tabIndex={0} className="collapse collapse-open">
-          //     <div className="collapse-title w-full h-[50px]">
-          //       <h1>Pose Options</h1>
-          //     </div>
-          //     <div className="collapse-content w-full h-auto">
-          //       <ul className="text-base-content w-full h-auto">
-          //         <li>
-          //           <label className="label">
-          //             <span className="label-text">Model Complexity: {poseOptions.modelComplexity.value}</span>
-          //           </label>
-          //           <input
-          //             type="range"
-          //             min="0"
-          //             max="2"
-          //             step="1"
-          //             value={poseOptions.modelComplexity.value}
-          //             className="range w-full"
-          //             onChange={(e) => {
-          //               poseOptions.modelComplexity.set(parseInt(e.currentTarget.value) as 0 | 1 | 2)
-          //             }}
-          //           />
-          //         </li>
-          //         <li>
-          //           <label className="cursor-pointer label">
-          //             <span className="label-text">
-          //               Min Detection Confidence: {poseOptions.minDetectionConfidence.value}
-          //             </span>
-          //           </label>
-          //           <input
-          //             type="range"
-          //             min="0.0"
-          //             max="1.0"
-          //             step="0.1"
-          //             value={poseOptions.minDetectionConfidence.value}
-          //             className="w-full range"
-          //             onChange={(e) => {
-          //               poseOptions.minDetectionConfidence.set(parseFloat(e.currentTarget.value))
-          //             }}
-          //           />
-          //         </li>
-          //         <li>
-          //           <label className="cursor-pointer label">
-          //             <span className="label-text">
-          //               Min Tracking Confidence: {poseOptions.minTrackingConfidence.value}
-          //             </span>
-          //           </label>
-          //           <input
-          //             type="range"
-          //             min="0.0"
-          //             max="1.0"
-          //             step="0.1"
-          //             value={poseOptions.minTrackingConfidence.value}
-          //             className="w-full range"
-          //             onChange={(e) => {
-          //               poseOptions.minTrackingConfidence.set(parseFloat(e.currentTarget.value))
-          //             }}
-          //           />
-          //         </li>
-          //         <li>
-          //           <label className="label">
-          //             <span className="label-text">Smooth Landmarks</span>
-          //             <input
-          //               type="checkbox"
-          //               className="toggle toggle-primary"
-          //               defaultChecked={poseOptions.smoothLandmarks?.value}
-          //               onChange={(e) => {
-          //                 poseOptions.smoothLandmarks.set(e.currentTarget.checked)
-          //               }}
-          //             />
-          //           </label>
-          //         </li>
-          //         <li>
-          //           <label className="cursor-pointer label">
-          //             <span className="label-text">Enable Segmentation</span>
-          //             <input
-          //               type="checkbox"
-          //               className="toggle toggle-primary"
-          //               defaultChecked={poseOptions.enableSegmentation?.value}
-          //               onChange={(e) => {
-          //                 poseOptions.enableSegmentation.set(e.currentTarget.checked)
-          //               }}
-          //             />
-          //           </label>
-          //         </li>
-          //         <li>
-          //           <label className="cursor-pointer label">
-          //             <span className="label-text">Smooth Segmentation</span>
-          //             <input
-          //               type="checkbox"
-          //               className="toggle toggle-primary"
-          //               defaultChecked={poseOptions.smoothSegmentation?.value}
-          //               onChange={(e) => {
-          //                 poseOptions.smoothSegmentation.set(e.currentTarget.checked)
-          //               }}
-          //             />
-          //           </label>
-          //         </li>
-          //       </ul>
-          //     </div>
-          //   </div>
-          // </div>
-        }
-      >
+      <Drawer settings={<div></div>}>
         <Header />
         <div className="w-full container mx-auto pointer-events-auto">
           <div className="w-full h-auto px-2">

@@ -2,7 +2,7 @@
 CPAL-1.0 License
 
 The contents of this file are subject to the Common Public Attribution License
-Version 1.0. (the "License"); you may not use this file except in compliance
+Version 1.0. (the "License") you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
 https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
@@ -24,27 +24,54 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { VRMExpressionPresetName } from '@pixiv/three-vrm'
+import { Face } from 'kalidokit/dist/kalidokit.umd.js'
+import { Euler } from 'three'
+import { updateRigRotation } from './UpdateRig'
 
+const oldLookTarget = new Euler()
 const UpdateSolvedFace = (data, hipsPos, avatarRig, avatarTransform) => {
-  // head
-  // avatarRig?.rig?.head?.node?.rotation?.setFromVector3(new Vector3(data?.tFace?.head?.normalized?.x, data?.tFace?.head?.normalized?.y, data?.tFace?.head?.normalized?.z))
-  // head
-  // avatarRig?.vrm?.expressionManager?.setValue(VRMExpressionPresetName.LookUp, data?.tFace?.head?.degrees?.x)
-  // avatarRig?.vrm?.expressionManager?.setValue(VRMExpressionPresetName.LookDown, data?.tFace?.head?.degrees?.x)
-  // avatarRig?.vrm?.expressionManager?.setValue(VRMExpressionPresetName.LookLeft, data?.tFace?.head?.degrees?.y)
-  // avatarRig?.vrm?.expressionManager?.setValue(VRMExpressionPresetName.LookRight, data?.tFace?.head?.degrees?.y)
+  // if (!vrm) {
+  //   return;
+  // }
+  if (data) {
+    updateRigRotation('Neck', data.head, 0.7, 0.3, avatarRig)
 
-  // eyes
-  avatarRig?.vrm?.expressionManager?.setValue(VRMExpressionPresetName.Blink, data?.tFace?.eye?.l)
-  avatarRig?.vrm?.expressionManager?.setValue(VRMExpressionPresetName.Blink, data?.tFace?.eye?.r)
+    // Blendshapes and Preset Name Schema
+    const Blendshape = avatarRig?.vrm?.expressionManager!
+    const PresetName = VRMExpressionPresetName
 
-  // mouth
-  avatarRig?.vrm?.expressionManager?.setValue(VRMExpressionPresetName.Aa, data?.tFace?.mouth?.aa)
-  avatarRig?.vrm?.expressionManager?.setValue(VRMExpressionPresetName.Ee, data?.tFace?.mouth?.ee)
-  avatarRig?.vrm?.expressionManager?.setValue(VRMExpressionPresetName.Oh, data?.tFace?.mouth?.oh)
-  avatarRig?.vrm?.expressionManager?.setValue(VRMExpressionPresetName.Ih, data?.tFace?.mouth?.ih)
-  avatarRig?.vrm?.expressionManager?.setValue(VRMExpressionPresetName.Ou, data?.tFace?.mouth?.ou)
-  avatarRig?.vrm?.expressionManager?.update()
+    // Simple example without winking. Interpolate based on old blendshape, then stabilize blink with `Kalidokit` helper function.
+    // for VRM, 1 is closed, 0 is open.
+    data.eye.l = lerp(clamp(1 - data.eye.l, 0, 1), Blendshape.getValue(PresetName.Blink)!, 0.5)
+    data.eye.r = lerp(clamp(1 - data.eye.r, 0, 1), Blendshape.getValue(PresetName.Blink)!, 0.5)
+    data.eye = Face.stabilizeBlink(data.eye, data.head.y)
+    Blendshape.setValue(PresetName.Blink, data.eye.l)
+
+    // Interpolate and set mouth blendshapes
+    Blendshape.setValue(PresetName.Ih, lerp(data.mouth.shape.I, Blendshape.getValue(PresetName.Ih)!, 0.5) as number)
+    Blendshape.setValue(PresetName.Aa, lerp(data.mouth.shape.A, Blendshape.getValue(PresetName.Aa)!, 0.5) as number)
+    Blendshape.setValue(PresetName.Ee, lerp(data.mouth.shape.E, Blendshape.getValue(PresetName.Ee)!, 0.5) as number)
+    Blendshape.setValue(PresetName.Ou, lerp(data.mouth.shape.O, Blendshape.getValue(PresetName.Ou)!, 0.5) as number)
+    Blendshape.setValue(PresetName.Oh, lerp(data.mouth.shape.U, Blendshape.getValue(PresetName.Oh)!, 0.5) as number)
+
+    //PUPILS
+    //interpolate pupil and keep a copy of the value
+    const lookTarget = new Euler(
+      lerp(oldLookTarget.x, data.pupil.y, 0.4),
+      lerp(oldLookTarget.y, data.pupil.x, 0.4),
+      0,
+      'XYZ'
+    )
+    oldLookTarget.copy(lookTarget)
+    avatarRig?.vrm?.lookAt!.applier!.lookAt(lookTarget)
+  }
 }
 
 export default UpdateSolvedFace
+function lerp(arg0: any, arg1: any, arg2: number): any {
+  throw new Error('Function not implemented.')
+}
+
+function clamp(arg0: number, arg1: number, arg2: number): any {
+  throw new Error('Function not implemented.')
+}

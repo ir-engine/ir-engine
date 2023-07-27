@@ -2,7 +2,7 @@
 CPAL-1.0 License
 
 The contents of this file are subject to the Common Public Attribution License
-Version 1.0. (the "License"); you may not use this file except in compliance
+Version 1.0. (the "License") you may not use this file except in compliance
 with the License. You may obtain a copy of the License at
 https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
 The License is based on the Mozilla Public License Version 1.1, but Sections 14
@@ -23,76 +23,41 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Mesh, MeshBasicMaterial, SphereGeometry, Vector3 } from 'three'
+import { Mesh } from 'three'
 
-import { dispatchAction, getState } from '@etherealengine/hyperflux'
+import { updateRigPosition, updateRigRotation } from './UpdateRig'
 
-import { VRMHumanBoneName } from '@pixiv/three-vrm'
-import { Engine } from '../ecs/classes/Engine'
-import { EngineState } from '../ecs/classes/EngineState'
-
-import { UUIDComponent } from '../scene/components/UUIDComponent'
-import { XRAction } from '../xr/XRState'
-
-import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
-import { getComponent } from '../ecs/functions/ComponentFunctions'
-import { TransformComponent } from '../transform/components/TransformComponent'
-
-export const motionCaptureHeadSuffix = '_motion_capture_head'
-export const motionCaptureLeftHandSuffix = '_motion_capture_left_hand'
-export const motionCaptureRightHandSuffix = '_motion_capture_right_hand'
+import { TPose } from 'kalidokit'
 
 const objs = [] as Mesh[]
 const debug = true
+const dampener = 1
 
-const UpdateSolvedPose = (data, hipsPos, avatarRig, avatarTransform) => {
+const UpdateSolvedPose = (data: TPose, hipsPos, avatarRig, avatarTransform) => {
   if (data) {
-    const engineState = getState(EngineState)
-    for (let i = 0; i < Object.keys(data).length - 1; i++) {
-      let name = VRMHumanBoneName[Object.keys(data)[i]]
-      name = name.charAt(0).toUpperCase() + name.slice(1)
-      const pose = data[name]
-      const posePos = new Vector3()
+    console.log('updating solved pose', data)
+    // const engineState = getState(EngineState)
+    // const lerpAmount = engineState.deltaSeconds * 10
 
-      posePos
-        .set(pose?.x, pose?.y, pose?.z)
-        .multiplyScalar(-1)
-        .applyQuaternion(avatarTransform.rotation)
-        .add(hipsPos.clone())
+    updateRigRotation('Hips', data!.Hips.rotation, 1, 0.7, avatarRig)
+    updateRigPosition('Hips', data!.Hips.position, 1, 0.07, avatarRig)
 
-      const allowedTargets = Object.keys(data)
+    updateRigRotation('Chest', data!.Spine, 0.25, 0.3, avatarRig)
 
-      if (debug) {
-        if (objs[i] === undefined) {
-          let matOptions = {}
-          if (allowedTargets.includes(name)) {
-            matOptions = { color: 0xff0000 }
-          }
-          const mesh = new Mesh(new SphereGeometry(0.05), new MeshBasicMaterial(matOptions))
-          objs[i] = mesh
-          Engine?.instance?.scene?.add(mesh)
-        }
+    updateRigPosition('Spine', data!.Spine, 0.45, 0.3, avatarRig)
 
-        objs[i].position.lerp(posePos.clone(), engineState.deltaSeconds * 10)
-        objs[i].updateMatrixWorld()
-      }
+    updateRigRotation('RightUpperArm', data!.RightUpperArm, 1, 0.3, avatarRig)
+    updateRigRotation('RightLowerArm', data!.RightLowerArm, 1, 0.3, avatarRig)
+    updateRigRotation('LeftUpperArm', data!.LeftUpperArm, 1, 0.3, avatarRig)
+    updateRigRotation('LeftLowerArm', data!.LeftLowerArm, 1, 0.3, avatarRig)
 
-      if (allowedTargets.includes(name)) {
-        const entityUUID = `${Engine?.instance?.userId}_mocap_${name}` as EntityUUID
-        const ikTarget = UUIDComponent.entitiesByUUID[entityUUID]
-        // if (ikTarget) removeEntity(ikTarget)
+    updateRigRotation('LeftUpperLeg', data!.LeftUpperLeg, 1, 0.3, avatarRig)
+    updateRigRotation('LeftLowerLeg', data!.LeftLowerLeg, 1, 0.3, avatarRig)
+    updateRigRotation('RightUpperLeg', data!.RightUpperLeg, 1, 0.3, avatarRig)
+    updateRigRotation('RightLowerLeg', data!.RightLowerLeg, 1, 0.3, avatarRig)
 
-        if (!ikTarget) {
-          const h = name === 'lefthand' ? 'left' : name === 'righthand' ? 'right' : 'none'
-          dispatchAction(XRAction.spawnIKTarget({ handedness: h, entityUUID: entityUUID }))
-        }
-
-        const ik = getComponent(ikTarget, TransformComponent)
-        ik.position.lerp(posePos, engineState.deltaSeconds * 10)
-
-        // ik.quaternion.copy()
-      }
-    }
+    updateRigPosition('LeftHand', data!.LeftHand, 1, 0.3, avatarRig)
+    updateRigPosition('RightHand', data!.RightHand, 1, 0.3, avatarRig)
   }
 }
 

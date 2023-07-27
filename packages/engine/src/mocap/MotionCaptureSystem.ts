@@ -47,20 +47,26 @@ import { Classifications, Landmark, NormalizedLandmark } from '@mediapipe/tasks-
 import { TFace, THand, TPose } from 'kalidokit/dist/kalidokit.umd.js'
 
 import UpdateRawFace from './UpdateRawFace'
+import UpdateRawHands from './UpdateRawHands'
 import UpdateRawPose from './UpdateRawPose'
 import UpdateSolvedFace from './UpdateSolvedFace'
 import UpdateSolvedHands from './UpdateSolvedHands'
 import UpdateSolvedPose from './UpdateSolvedPose'
 
+export interface SolvedHand {
+  handSolve?: THand | undefined
+  handedness?: string | undefined
+}
+
 export interface MotionCaptureStream {
-  pose?: NormalizedLandmark[] | undefined
-  poseWorld?: Landmark[] | undefined
-  poseSolved?: TPose[] | undefined
-  hands?: NormalizedLandmark[] | undefined
-  handsWorld?: Landmark[] | undefined
-  handsSolved?: THand[] | undefined
-  face?: Classifications[] | undefined
-  faceSolved?: TFace | undefined
+  poses?: NormalizedLandmark[][] | undefined
+  posesWorld?: Landmark[][] | undefined
+  posesSolved?: TPose[] | undefined
+  hands?: NormalizedLandmark[][] | undefined
+  handsWorld?: Landmark[][] | undefined
+  handsSolved?: SolvedHand[] | undefined
+  faces?: Classifications[] | undefined
+  facesSolved?: TFace[] | undefined
 }
 
 export const sendResults = (results: MotionCaptureStream) => {
@@ -78,7 +84,7 @@ export const receiveResults = (buff: ArrayBuffer) => {
     results: MotionCaptureStream
   }
   const peerID = Engine.instance.worldNetwork.peerIndexToPeerID.get(peerIndex)
-  console.log('received mocap data', peerID, results)
+  // console.log('received mocap data', peerID, results)
   return { timestamp, peerID, results }
 }
 
@@ -130,7 +136,7 @@ const execute = () => {
     if (entity && entity === localClientEntity) {
       const data = mocapData.popLast()
       if (!data) continue
-
+      // console.log('received mocap data', peerID, data)
       timeSeriesMocapLastSeen.set(peerID, Date.now())
 
       const avatarRig = getComponent(entity, AvatarRigComponent)
@@ -139,33 +145,45 @@ const execute = () => {
       if (!avatarRig) continue
 
       // const avatarHips = avatarRig?.vrm?.humanoid?.getRawBone('hips')?.node
-      const avatarHips = avatarRig.rig.hips.node
+      const avatarHips = avatarRig?.rig?.hips?.node
 
       const hipsPos = new Vector3()
       avatarHips?.getWorldPosition(hipsPos)
 
       // Pose
-      if (data?.poseSolved) {
-        UpdateSolvedPose(data?.poseSolved, hipsPos.clone(), avatarRig, avatarTransform)
-        if (data?.handsSolved) {
-          UpdateSolvedHands(data?.handsSolved, hipsPos.clone(), avatarRig, avatarTransform)
-        }
-      } else if (data?.poseWorld) {
+      if (data?.posesSolved) {
+        data?.posesSolved.forEach((pose) => {
+          UpdateSolvedPose(pose, hipsPos.clone(), avatarRig, avatarTransform)
+
+          if (data?.handsSolved) {
+            data?.handsSolved.forEach((hand) => {
+              UpdateSolvedHands(hand, pose, avatarRig, avatarTransform)
+            })
+          }
+        })
+      } else if (data?.posesWorld) {
         // Hands
         if (data?.handsWorld) {
-          // UpdateRawHands(data?.handsWorld, hipsPos.clone(), avatarRig, avatarTransform)
-          const { poseWorld, handsWorld } = data
-          UpdateRawPose([...poseWorld, ...handsWorld], hipsPos.clone(), avatarTransform)
-        } else {
-          UpdateRawPose(data?.poseWorld, hipsPos.clone(), avatarTransform)
+          data?.handsWorld.forEach((hand) => {
+            UpdateRawHands(hand, hipsPos.clone(), avatarRig, avatarTransform)
+          })
+        }
+        if (data?.posesWorld) {
+          data?.posesWorld.forEach((pose) => {
+            UpdateRawPose(pose, hipsPos.clone(), avatarRig, avatarTransform)
+          })
         }
       }
 
       // Face
-      if (data?.faceSolved) {
-        UpdateSolvedFace(data?.faceSolved, hipsPos.clone(), avatarRig, avatarTransform)
-      } else if (data?.face) {
-        UpdateRawFace(data?.face, hipsPos.clone(), avatarRig, avatarTransform)
+      if (data?.facesSolved) {
+        data?.facesSolved.forEach((face) => {
+          UpdateSolvedFace(face, hipsPos.clone(), avatarRig, avatarTransform)
+        })
+      } else if (data?.faces) {
+        data?.faces.forEach((face) => {
+          UpdateRawFace(face, hipsPos.clone(), avatarRig, avatarTransform)
+        })
       }
     }
   }
