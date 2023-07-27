@@ -52,6 +52,7 @@ import { computeTransformMatrix } from '../../transform/systems/TransformSystem'
 import { XRState } from '../../xr/XRState'
 import { AnimationManager } from '../AnimationManager'
 // import { retargetSkeleton, syncModelSkeletons } from '../animation/retargetSkeleton'
+import config from '@etherealengine/common/src/config'
 import avatarBoneMatching, { BoneNames, findSkinnedMeshes } from '../AvatarBoneMatching'
 import { AnimationComponent } from '../components/AnimationComponent'
 import { AvatarAnimationComponent, AvatarRigComponent } from '../components/AvatarAnimationComponent'
@@ -148,7 +149,10 @@ export const createIKAnimator = async (entity: Entity) => {
 export const getAnimations = async () => {
   const manager = getMutableState(AnimationManager)
   if (!manager.targetsAnimation.value) {
-    const asset = await AssetLoader.loadAsync('/vrm_mocap_targets.glb')
+    const asset = await AssetLoader.loadAsync(
+      `${config.client.fileServer}/projects/default-project/assets/vrm_mocap_targets.glb`
+    )
+    console.log(asset, `${config.client.fileServer}/projects/default-project/assets/vrm_mocap_targets.glb`)
     const glb = asset as GLTF
     manager.targetsAnimation.set(glb.animations)
   }
