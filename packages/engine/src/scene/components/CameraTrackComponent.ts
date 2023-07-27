@@ -27,12 +27,8 @@ import { useEffect } from 'react'
 import { ArrowHelper, Group, Quaternion } from 'three'
 
 import { matches } from '../../common/functions/MatchesUtils'
-import {
-  defineComponent,
-  hasComponent,
-  useComponent,
-  useOptionalComponent
-} from '../../ecs/functions/ComponentFunctions'
+import { defineComponent, useComponent, useOptionalComponent } from '../../ecs/functions/ComponentFunctions'
+import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { ObjectLayers } from '../constants/ObjectLayers'
 import { setObjectLayers } from '../functions/setObjectLayers'
 import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
@@ -40,6 +36,7 @@ import { SplineComponent } from './SplineComponent'
 
 export const CameraTrackComponent = defineComponent({
   name: 'CameraTrackComponent',
+  jsonID: 'camera-track',
 
   onInit: (entity) => {
     const helper = new Group()
@@ -76,8 +73,7 @@ export const CameraTrackComponent = defineComponent({
   },
 
   reactor: function (props) {
-    const entity = props.root.entity
-    if (!hasComponent(entity, CameraTrackComponent)) throw props.root.stop()
+    const entity = useEntityContext()
 
     const cameraTrack = useComponent(entity, CameraTrackComponent)
     const spline = useOptionalComponent(entity, SplineComponent)
@@ -107,5 +103,3 @@ export const CameraTrackComponent = defineComponent({
     return null
   }
 })
-
-export const SCENE_COMPONENT_CAMERA_TRACK = 'camera-track'
