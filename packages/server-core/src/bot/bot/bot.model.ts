@@ -76,7 +76,7 @@ export default (app: Application) => {
 export const createBotCommandModel = (app: Application) => {
   const sequelizeClient: Sequelize = app.get('sequelizeClient')
   const BotCommand = sequelizeClient.define<Model<BotCommandInterface>>(
-    'botCommand',
+    'bot-command',
     {
       id: {
         type: DataTypes.UUID,
