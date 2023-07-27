@@ -25,14 +25,13 @@ Ethereal Engine. All Rights Reserved.
 
 import { Paginated } from '@feathersjs/feathers'
 
-import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import {
   EmailSettingPatch,
   emailSettingPath,
   EmailSettingType
 } from '@etherealengine/engine/src/schemas/setting/email-setting.schema'
-import { defineAction, defineState, dispatchAction, getMutableState } from '@etherealengine/hyperflux'
+import { defineState, getMutableState } from '@etherealengine/hyperflux'
 
 import { NotificationService } from '../../../common/services/NotificationService'
 
@@ -44,47 +43,21 @@ export const AdminEmailSettingsState = defineState({
   })
 })
 
-const fetchedEmailReceptor = (action: typeof EmailSettingActions.fetchedEmail.matches._TYPE) => {
-  const state = getMutableState(AdminEmailSettingsState)
-  return state.merge({ email: action.emailSettings.data, updateNeeded: false })
-}
-
-const emailSettingPatchedReceptor = (action: typeof EmailSettingActions.emailSettingPatched.matches._TYPE) => {
-  const state = getMutableState(AdminEmailSettingsState)
-  return state.updateNeeded.set(true)
-}
-
-export const EmailSettingReceptors = {
-  fetchedEmailReceptor,
-  emailSettingPatchedReceptor
-}
-
 export const EmailSettingService = {
   fetchedEmailSettings: async (inDec?: 'increment' | 'dcrement') => {
     try {
       const emailSettings = (await Engine.instance.api.service(emailSettingPath).find()) as Paginated<EmailSettingType>
-      dispatchAction(EmailSettingActions.fetchedEmail({ emailSettings }))
+      getMutableState(AdminEmailSettingsState).merge({ email: emailSettings.data, updateNeeded: false })
     } catch (err) {
-      console.log(err.message)
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
   },
   patchEmailSetting: async (data: EmailSettingPatch, id: string) => {
     try {
       await Engine.instance.api.service(emailSettingPath).patch(id, data)
-      dispatchAction(EmailSettingActions.emailSettingPatched({}))
+      getMutableState(AdminEmailSettingsState).merge({ updateNeeded: true })
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
   }
-}
-
-export class EmailSettingActions {
-  static fetchedEmail = defineAction({
-    type: 'ee.client.EmailSetting.EMAIL_SETTING_DISPLAY' as const,
-    emailSettings: matches.object as Validator<unknown, Paginated<EmailSettingType>>
-  })
-  static emailSettingPatched = defineAction({
-    type: 'ee.client.EmailSetting.EMAIL_SETTING_PATCHED' as const
-  })
 }
