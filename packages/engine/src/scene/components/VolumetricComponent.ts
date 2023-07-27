@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import type VolumetricPlayer from '@citizendot/universal-volumetric/dist/Player'
+import type VolumetricPlayer from '@etherealengine/volumetric/dist/Player'
 import { useEffect } from 'react'
 import { Box3, Material, Mesh, Object3D } from 'three'
 
@@ -35,6 +35,7 @@ import { AvatarDissolveComponent } from '@etherealengine/engine/src/avatar/compo
 import { AvatarEffectComponent, MaterialMap } from '@etherealengine/engine/src/avatar/components/AvatarEffectComponent'
 import { AudioState } from '../../audio/AudioState'
 import { isClient } from '../../common/functions/getEnvironment'
+import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import {
   ComponentType,
@@ -136,7 +137,7 @@ export function VolumetricReactor() {
 
   useEffect(() => {
     if (isClient) {
-      import('@citizendot/universal-volumetric/dist/Player')
+      import('@etherealengine/volumetric/dist/Player')
         .then((module) => module.default)
         .then((VolumetricPlayer) => {
           const worker = createWorkerFromCrossOriginURL(VolumetricPlayer.defaultWorkerURL)
@@ -192,6 +193,18 @@ export function VolumetricReactor() {
             const audioNodes = createAudioNodeGroup(element, source, gainNodeMixBuses.soundEffects)
 
             audioNodes.gain.gain.setTargetAtTime(volumetric.volume.value, audioContext.currentTime, 0.1)
+          }
+
+          if (isClient && !getState(EngineState).isEditor) {
+            const handleAutoplay = () => {
+              if (!volumetric.player.value.paused) volumetric.player.value.play()
+            }
+            // TODO: add destroy callbacks
+            window.addEventListener('pointerdown', handleAutoplay)
+            window.addEventListener('keypress', handleAutoplay)
+            window.addEventListener('touchstart', handleAutoplay)
+            EngineRenderer.instance.renderer.domElement.addEventListener('pointerdown', handleAutoplay)
+            EngineRenderer.instance.renderer.domElement.addEventListener('touchstart', handleAutoplay)
           }
         })
     }
