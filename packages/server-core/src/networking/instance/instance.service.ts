@@ -108,7 +108,6 @@ export const getActiveInstancesForScene =
   }
 
 export const getActiveInstancesForUserFriends = (app: Application) => async (data: UserParams, params) => {
-  console.log(data)
   if (!data.user) throw new Error('User not found')
   try {
     const instances = (await app.service('instance').Model.findAll({
@@ -159,8 +158,6 @@ export const getActiveInstancesForUserFriends = (app: Application) => async (dat
         })
       )
     ).filter(Boolean)
-
-    console.log('instances-friends', filteredInstances)
     return filteredInstances
   } catch (err) {
     console.log(err)
@@ -221,7 +218,6 @@ export default (app: Application) => {
 
   service.publish('patched', async (data: InstanceInterface): Promise<any> => {
     try {
-      console.log('INSTANCE PATCHED', data)
       /** Remove channel if instance is a world server and it has ended */
       if (data.locationId && data.ended && !data.channelId) {
         const channel = await app.service('channel').Model.findOne({

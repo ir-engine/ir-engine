@@ -60,8 +60,6 @@ export class Channel<T = ChannelDataType> extends Service<T> {
     const loggedInUser = params!.user
     const userId = loggedInUser?.id
 
-    console.log('create channel', data, data.users, userId)
-
     if (!data.instanceId && users?.length) {
       // get channel that contains the same users
       const existingChannel = (await this.app.service('channel').Model.findOne({
@@ -80,7 +78,6 @@ export class Channel<T = ChannelDataType> extends Service<T> {
         ]
       })) as ChannelDataType | null
       if (existingChannel) {
-        console.log('existingChannel', existingChannel)
         return existingChannel
       }
     }
@@ -218,8 +215,6 @@ export class Channel<T = ChannelDataType> extends Service<T> {
             }
           ]
         })
-
-        console.log(channels)
 
         return channels
 

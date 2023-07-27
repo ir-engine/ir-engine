@@ -359,7 +359,6 @@ export async function createWebRtcTransport(
 ): Promise<WebRtcTransport> {
   const { listenIps, initialAvailableOutgoingBitrate } = localConfig.mediasoup.webRtcTransport
   const mediaCodecs = localConfig.mediasoup.router.mediaCodecs as RtpCodecCapability[]
-  console.log('createWebRtcTransport', { channelId })
   if (channelId) {
     if (!network.routers[channelId]) {
       network.routers[channelId] = [] as any
