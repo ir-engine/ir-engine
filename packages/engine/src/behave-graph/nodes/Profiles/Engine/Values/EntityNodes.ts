@@ -23,6 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { Engine } from '../../../../../ecs/classes/Engine'
 import { Entity } from '../../../../../ecs/classes/Entity.js'
 import { defineQuery, getComponent } from '../../../../../ecs/functions/ComponentFunctions.js'
 import { NameComponent } from '../../../../../scene/components/NameComponent.js'
@@ -48,6 +49,19 @@ export const getEntity = makeFunctionNodeDefinition({
   out: { entity: 'entity' },
   exec: ({ read, write, graph }) => {
     const entity = read('entity')
+    console.log('DEBUG enitity in scene', entity)
+    write('entity', entity)
+  }
+})
+
+export const getCameraEntity = makeFunctionNodeDefinition({
+  typeName: 'engine/getCameraEntity',
+  category: NodeCategory.Query,
+  label: 'Get camera entity',
+  in: {},
+  out: { entity: 'entity' },
+  exec: ({ write, graph }) => {
+    const entity = Engine.instance.cameraEntity
     console.log('DEBUG enitity in scene', entity)
     write('entity', entity)
   }

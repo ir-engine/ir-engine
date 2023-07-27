@@ -23,32 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Engine } from '../../../../../ecs/classes/Engine'
 import { Entity } from '../../../../../ecs/classes/Entity'
 import { setComponent } from '../../../../../ecs/functions/ComponentFunctions'
 import { TransformComponent } from '../../../../../transform/components/TransformComponent'
 import { NodeCategory, makeFlowNodeDefinition } from '../../../Nodes/NodeDefinitions'
+import { eulerToQuat } from '../../Scene/Values/Internal/Vec4'
 import { toQuat, toVector3 } from '../../Scene/buildScene'
-
-export const teleportCamera = makeFlowNodeDefinition({
-  typeName: 'engine/teleportCamera',
-  category: NodeCategory.Action,
-  label: 'Teleport Camera',
-  in: {
-    flow: 'flow',
-    targetPosition: 'vec3',
-    targetRotation: 'quat'
-  },
-  out: { flow: 'flow' },
-  initialState: undefined,
-  triggered: ({ read, commit, graph: { getDependency } }) => {
-    const position = toVector3(read('targetPosition'))
-    const rotation = toQuat(read('targetRotation'))
-    const camera = Engine.instance.cameraEntity
-    setComponent(camera, TransformComponent, { position: position, rotation: rotation })
-    commit('flow')
-  }
-})
 
 export const teleportEntity = makeFlowNodeDefinition({
   typeName: 'engine/teleportEntity',
@@ -58,13 +38,80 @@ export const teleportEntity = makeFlowNodeDefinition({
     flow: 'flow',
     entity: 'entity',
     targetPosition: 'vec3',
-    targetRotation: 'quat'
+    targetRotation: 'vec3'
   },
   out: { flow: 'flow' },
   initialState: undefined,
   triggered: ({ read, commit, graph: { getDependency } }) => {
     const position = toVector3(read('targetPosition'))
-    const rotation = toQuat(read('targetRotation'))
+
+    const rotation = toQuat(eulerToQuat(read('targetRotation')))
+    const entity = Number(read('entity')) as Entity
+    setComponent(entity, TransformComponent, { position: position, rotation: rotation })
+    commit('flow')
+  }
+})
+
+export const playVideo = makeFlowNodeDefinition({
+  typeName: 'engine/playVideo',
+  category: NodeCategory.Action,
+  label: 'Play video',
+  in: {
+    flow: 'flow',
+    entity: 'entity',
+    targetPosition: 'vec3',
+    targetRotation: 'vec3'
+  },
+  out: { flow: 'flow' },
+  initialState: undefined,
+  triggered: ({ read, commit, graph: { getDependency } }) => {
+    const position = toVector3(read('targetPosition'))
+
+    const rotation = toQuat(eulerToQuat(read('targetRotation')))
+    const entity = Number(read('entity')) as Entity
+    setComponent(entity, TransformComponent, { position: position, rotation: rotation })
+    commit('flow')
+  }
+})
+
+export const playAudio = makeFlowNodeDefinition({
+  typeName: 'engine/playAudio',
+  category: NodeCategory.Action,
+  label: 'Play audio',
+  in: {
+    flow: 'flow',
+    entity: 'entity',
+    targetPosition: 'vec3',
+    targetRotation: 'vec3'
+  },
+  out: { flow: 'flow' },
+  initialState: undefined,
+  triggered: ({ read, commit, graph: { getDependency } }) => {
+    const position = toVector3(read('targetPosition'))
+
+    const rotation = toQuat(eulerToQuat(read('targetRotation')))
+    const entity = Number(read('entity')) as Entity
+    setComponent(entity, TransformComponent, { position: position, rotation: rotation })
+    commit('flow')
+  }
+})
+
+export const playGltfAnimation = makeFlowNodeDefinition({
+  typeName: 'engine/playGltfAnimation',
+  category: NodeCategory.Action,
+  label: 'Play gltf animation',
+  in: {
+    flow: 'flow',
+    entity: 'entity',
+    targetPosition: 'vec3',
+    targetRotation: 'vec3'
+  },
+  out: { flow: 'flow' },
+  initialState: undefined,
+  triggered: ({ read, commit, graph: { getDependency } }) => {
+    const position = toVector3(read('targetPosition'))
+
+    const rotation = toQuat(eulerToQuat(read('targetRotation')))
     const entity = Number(read('entity')) as Entity
     setComponent(entity, TransformComponent, { position: position, rotation: rotation })
     commit('flow')
