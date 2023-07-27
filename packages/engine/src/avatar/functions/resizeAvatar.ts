@@ -48,7 +48,8 @@ export const resizeAvatar = (entity: Entity, height: number, center: Vector3) =>
 
   avatar.avatarHeight = height
   avatar.avatarHalfHeight = avatar.avatarHeight / 2
-  avatar.scaleMultiplier = height / 1.75
+  const animationsRigHeight = 1.56
+  avatar.scaleMultiplier = height / animationsRigHeight
   rig.hips.node.updateWorldMatrix(true, true)
   rigComponent.torsoLength = rig.head.node.getWorldPosition(vec3).y - rig.hips.node.getWorldPosition(vec3).y
   rigComponent.upperLegLength = rig.hips.node.getWorldPosition(vec3).y - rig.leftUpperLeg.node.getWorldPosition(vec3).y
