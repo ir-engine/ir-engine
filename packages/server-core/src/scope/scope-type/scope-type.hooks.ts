@@ -22,17 +22,52 @@ Original Code is the Ethereal Engine team.
 All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
 Ethereal Engine. All Rights Reserved.
 */
-
+import { hooks as schemaHooks } from '@feathersjs/schema'
+import { getValidator } from '@feathersjs/typebox'
 import { disallow } from 'feathers-hooks-common'
 
+import {
+  scopeTypeDataSchema,
+  scopeTypePatchSchema,
+  scopeTypeQuerySchema,
+  scopeTypeSchema
+} from '@etherealengine/engine/src/schemas/scope/scope-type.schema'
+import { dataValidator, queryValidator } from '@etherealengine/server-core/validators'
+
+import {
+  scopeTypeDataResolver,
+  scopeTypeExternalResolver,
+  scopeTypePatchResolver,
+  scopeTypeQueryResolver,
+  scopeTypeResolver
+} from './scope-type.resolvers'
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const scopeTypeValidator = getValidator(scopeTypeSchema, dataValidator)
+const scopeTypeDataValidator = getValidator(scopeTypeDataSchema, dataValidator)
+const scopeTypePatchValidator = getValidator(scopeTypePatchSchema, dataValidator)
+const scopeTypeQueryValidator = getValidator(scopeTypeQuerySchema, queryValidator)
+
 export default {
+  around: {
+    all: [schemaHooks.resolveExternal(scopeTypeExternalResolver), schemaHooks.resolveResult(scopeTypeResolver)]
+  },
+
   before: {
-    all: [],
+    all: [() => schemaHooks.validateQuery(scopeTypeQueryValidator), schemaHooks.resolveQuery(scopeTypeQueryResolver)],
     find: [],
     get: [],
-    create: [disallow('external')],
+    create: [
+      disallow('external'),
+      () => schemaHooks.validateData(scopeTypeDataValidator),
+      schemaHooks.resolveData(scopeTypeDataResolver)
+    ],
     update: [disallow()],
-    patch: [disallow()],
+    patch: [
+      disallow(),
+      () => schemaHooks.validateData(scopeTypePatchValidator),
+      schemaHooks.resolveData(scopeTypePatchResolver)
+    ],
     remove: [disallow('external')]
   },
 

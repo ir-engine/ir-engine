@@ -29,16 +29,14 @@
     "emitDecoratorMetadata": true,
     "declaration": true,
     "outDir": "./lib",
-    "types": ["vite/client"]
+    "types": ["vite/client", "mocha"]
   },
   "exclude": [
-    // ignore all packages in monorepo
-    "../../packages/**/src/**",
     "./node_modules/**",
   ],
   "include": [
-    // allow everything in this package
-    "./**/**/*",
+    "../../__global.d.ts",
+    "../server-core/src/",
     "./src/**/*.ts",
     "./src/**/*.tsx"
   ]

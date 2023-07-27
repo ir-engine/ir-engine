@@ -32,25 +32,22 @@ import {
 } from '@etherealengine/client-core/src/common/services/LocationInstanceConnectionService'
 import {
   MediaInstanceConnectionService,
+  MediaInstanceState,
   useMediaInstance
 } from '@etherealengine/client-core/src/common/services/MediaInstanceConnectionService'
-import { ChatAction, ChatService, ChatState } from '@etherealengine/client-core/src/social/services/ChatService'
+import { ChannelService, ChannelState } from '@etherealengine/client-core/src/social/services/ChannelService'
 import { LocationState } from '@etherealengine/client-core/src/social/services/LocationService'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
-import { PresentationSystemGroup } from '@etherealengine/engine/src/ecs/functions/EngineFunctions'
-import { useSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
-import { dispatchAction, getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
+import { getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
 
 import { Groups } from '@mui/icons-material'
 
 import { FriendService } from '../social/services/FriendService'
-import { PartyService, PartyState, PartySystem } from '../social/services/PartyService'
 import FriendsMenu from '../user/components/UserMenu/menus/FriendsMenu'
-import PartyMenu from '../user/components/UserMenu/menus/PartyMenu'
+import MessagesMenu from '../user/components/UserMenu/menus/MessagesMenu'
 import { PopupMenuState } from '../user/components/UserMenu/PopupMenuService'
-import { AuthState } from '../user/services/AuthService'
 
 export const WorldInstanceProvisioning = () => {
   const locationState = useHookstate(getMutableState(LocationState))
@@ -60,6 +57,8 @@ export const WorldInstanceProvisioning = () => {
   const worldNetwork = Engine.instance.worldNetwork
   const currentLocationInstanceConnection = useWorldInstance()
   const networkConfigState = useHookstate(getMutableState(NetworkState).config)
+
+  ChannelService.useAPIListeners()
 
   const locationInstance = useHookstate(getMutableState(LocationInstanceState))
   const instance = useWorldInstance()
@@ -141,31 +140,38 @@ export const WorldInstanceProvisioning = () => {
 }
 
 export const MediaInstanceProvisioning = () => {
-  const chatState = useHookstate(getMutableState(ChatState))
-
-  const worldNetworkHostId = Engine.instance.worldNetwork?.hostId
+  const channelState = useHookstate(getMutableState(ChannelState))
 
   const mediaNetworkHostId = Engine.instance.mediaNetwork?.hostId
+  const worldNetworkHostId = Engine.instance.worldNetwork?.hostId
   const currentChannelInstanceConnection = useMediaInstance()
+  const currentWorldInstanceConnection = useWorldInstance()
+  const joiningNewMediaChannel = useHookstate(getMutableState(MediaInstanceState).joiningNewMediaChannel)
 
   MediaInstanceConnectionService.useAPIListeners()
-  ChatService.useAPIListeners()
 
   // Once we have the world server, provision the media server
   useEffect(() => {
-    if (chatState.instanceChannelFetched.value) {
-      const channels = chatState.channels.channels.value
-      const instanceChannel = Object.values(channels).find((channel) => channel.instanceId === worldNetworkHostId)
-      if (!currentChannelInstanceConnection?.provisioned.value)
-        MediaInstanceConnectionService.provisionServer(instanceChannel?.id!, true)
+    if (channelState.channels.channels?.value.length) {
+      const currentChannel =
+        channelState.targetChannelId.value === ''
+          ? channelState.channels.channels.value.find((channel) => channel.instanceId === worldNetworkHostId)?.id
+          : channelState.targetChannelId.value
+      if (!currentChannelInstanceConnection?.provisioned.value && currentChannel)
+        MediaInstanceConnectionService.provisionServer(currentChannel, true)
     }
-  }, [chatState.instanceChannelFetched])
+  }, [
+    channelState.channels.channels?.length,
+    joiningNewMediaChannel,
+    currentWorldInstanceConnection?.connected,
+    channelState.targetChannelId
+  ])
 
   // Once the media server is provisioned, connect to it
   useEffect(() => {
     if (
       mediaNetworkHostId &&
-      currentChannelInstanceConnection?.get({ noproxy: true }) &&
+      currentChannelInstanceConnection?.value &&
       currentChannelInstanceConnection.provisioned.value &&
       currentChannelInstanceConnection.readyToConnect.value &&
       !currentChannelInstanceConnection.connecting.value &&
@@ -173,7 +179,7 @@ export const MediaInstanceProvisioning = () => {
     ) {
       MediaInstanceConnectionService.connectToServer(
         mediaNetworkHostId,
-        currentChannelInstanceConnection.channelId.value
+        currentChannelInstanceConnection.channelId.value!
       )
     }
   }, [
@@ -187,76 +193,30 @@ export const MediaInstanceProvisioning = () => {
 }
 
 export const SocialMenus = {
-  Party: 'Party',
-  Friends: 'Friends'
+  Friends: 'Friends',
+  Messages: 'Messages'
 }
 
-export const PartyInstanceProvisioning = () => {
-  const authState = useHookstate(getMutableState(AuthState))
-  const selfUser = authState.user
-  const chatState = useHookstate(getMutableState(ChatState))
-  const partyState = useHookstate(getMutableState(PartyState))
-
-  useSystem(PartySystem, { before: PresentationSystemGroup })
-
-  const currentChannelInstanceConnection = useMediaInstance()
+export const FriendMenus = () => {
+  FriendService.useAPIListeners()
 
   useEffect(() => {
     const menuState = getMutableState(PopupMenuState)
     menuState.menus.merge({
-      [SocialMenus.Party]: PartyMenu,
-      [SocialMenus.Friends]: FriendsMenu
+      [SocialMenus.Friends]: FriendsMenu,
+      [SocialMenus.Messages]: MessagesMenu
     })
     menuState.hotbar.merge({
       [SocialMenus.Friends]: Groups
     })
 
     return () => {
-      menuState.menus[SocialMenus.Party].set(none)
       menuState.menus[SocialMenus.Friends].set(none)
+      menuState.menus[SocialMenus.Messages].set(none)
 
       menuState.hotbar[SocialMenus.Friends].set(none)
     }
   }, [])
-
-  FriendService.useAPIListeners()
-  PartyService.useAPIListeners()
-
-  // Once we have the world server, provision the party server
-  useEffect(() => {
-    if (selfUser?.partyId?.value && chatState.channels.channels?.get({ noproxy: true })) {
-      const partyChannel = Object.values(chatState.channels.channels.get({ noproxy: true })).find(
-        (channel) => channel.channelType === 'party' && channel.partyId === selfUser.partyId.value
-      )
-      const partyUser =
-        partyState.party?.partyUsers
-          ?.get({ noproxy: true })
-          ?.find((partyUser) => partyUser.userId === selfUser.id.value) || null
-      if (
-        chatState.partyChannelFetched?.value &&
-        partyChannel &&
-        currentChannelInstanceConnection?.channelId.value !== partyChannel.id &&
-        partyUser
-      )
-        MediaInstanceConnectionService.provisionServer(partyChannel?.id!, false)
-      else if (!chatState.partyChannelFetched.value && !chatState.partyChannelFetching.value)
-        ChatService.getPartyChannel()
-    }
-  }, [
-    selfUser?.partyId?.value,
-    partyState.party?.id,
-    chatState.channels.channels?.get({ noproxy: true }),
-    chatState.partyChannelFetching?.value,
-    chatState.partyChannelFetched?.value
-  ])
-
-  useEffect(() => {
-    if (selfUser.partyId.value) dispatchAction(ChatAction.refetchPartyChannelAction({}))
-  }, [selfUser.partyId.value])
-
-  useEffect(() => {
-    if (partyState.updateNeeded.value) PartyService.getParty()
-  }, [partyState.updateNeeded.value])
 
   return null
 }
@@ -268,7 +228,7 @@ export const InstanceProvisioning = () => {
     <>
       {networkConfigState.world.value && <WorldInstanceProvisioning />}
       {networkConfigState.media.value && <MediaInstanceProvisioning />}
-      {networkConfigState.friends.value && <PartyInstanceProvisioning />}
+      {networkConfigState.friends.value && <FriendMenus />}
     </>
   )
 }

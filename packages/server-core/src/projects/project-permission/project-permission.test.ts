@@ -31,8 +31,8 @@ import path from 'path'
 import { ProjectPermissionInterface } from '@etherealengine/common/src/interfaces/ProjectPermissionInterface'
 import { UserInterface } from '@etherealengine/common/src/interfaces/User'
 import { destroyEngine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { avatarPath } from '@etherealengine/engine/src/schemas/user/avatar.schema'
 
+import { UserApiKeyType, userApiKeyPath } from '@etherealengine/engine/src/schemas/user/user-api-key.schema'
 import { Application } from '../../../declarations'
 import { createFeathersKoaApp } from '../../createApp'
 import { deleteFolderRecursive } from '../../util/fsHelperFunctions'
@@ -67,52 +67,47 @@ describe('project-permission.test', () => {
     app = createFeathersKoaApp()
     await app.setup()
     await cleanup(app)
-    const avatarName = 'CyberbotGreen'
-
-    const avatar = await app.service(avatarPath).create({
-      name: avatarName
-    })
 
     user1 = (await app.service('user').create({
       name: `Test #${Math.random()}`,
-      avatarId: avatar.id,
       isGuest: false
     })) as UserInterface
     user2 = (await app.service('user').create({
       name: `Test #${Math.random()}`,
-      avatarId: avatar.id,
       isGuest: false
     })) as UserInterface
     user3 = (await app.service('user').create({
       name: `Test #${Math.random()}`,
-      avatarId: avatar.id,
       isGuest: false
     })) as UserInterface
     user4 = (await app.service('user').create({
       name: `Test #${Math.random()}`,
-      avatarId: avatar.id,
       isGuest: false
     })) as UserInterface
-    user1.apiKey = await app.service('user-api-key').Model.findOne({
-      where: {
+    const user1ApiKeys = (await app.service(userApiKeyPath).find({
+      query: {
         userId: user1.id
       }
-    })
-    user2.apiKey = await app.service('user-api-key').Model.findOne({
-      where: {
+    })) as Paginated<UserApiKeyType>
+    user1.apiKey = user1ApiKeys.data.length > 0 ? user1ApiKeys.data[0] : user1.apiKey
+    const user2ApiKeys = (await app.service(userApiKeyPath).find({
+      query: {
         userId: user2.id
       }
-    })
-    user3.apiKey = await app.service('user-api-key').Model.findOne({
-      where: {
+    })) as Paginated<UserApiKeyType>
+    user2.apiKey = user2ApiKeys.data.length > 0 ? user2ApiKeys.data[0] : user2.apiKey
+    const user3ApiKeys = (await app.service(userApiKeyPath).find({
+      query: {
         userId: user3.id
       }
-    })
-    user4.apiKey = await app.service('user-api-key').Model.findOne({
-      where: {
+    })) as Paginated<UserApiKeyType>
+    user3.apiKey = user3ApiKeys.data.length > 0 ? user3ApiKeys.data[0] : user3.apiKey
+    const user4ApiKeys = (await app.service(userApiKeyPath).find({
+      query: {
         userId: user4.id
       }
-    })
+    })) as Paginated<UserApiKeyType>
+    user4.apiKey = user4ApiKeys.data.length > 0 ? user4ApiKeys.data[0] : user4.apiKey
     await app.service('scope').create({
       type: 'editor:write',
       userId: user1.id

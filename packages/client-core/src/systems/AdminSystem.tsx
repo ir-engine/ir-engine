@@ -31,16 +31,12 @@ import {
   AdminChargebeeReceptors,
   AdminChargebeeSettingActions
 } from '../admin/services/Setting/ChargebeeSettingService'
-import { EmailSettingActions, EmailSettingReceptors } from '../admin/services/Setting/EmailSettingService'
 
-const fetchedEmailQueue = defineActionQueue(EmailSettingActions.fetchedEmail.matches)
-const emailSettingPatchedQueue = defineActionQueue(EmailSettingActions.emailSettingPatched.matches)
+// import { ClientSettingActions, ClientSettingReceptors } from '../admin/services/Setting/ClientSettingService'
 const activeRoutesRetrievedQueue = defineActionQueue(AdminActiveRouteActions.activeRoutesRetrieved.matches)
 const chargebeeSettingRetrievedQueue = defineActionQueue(AdminChargebeeSettingActions.chargebeeSettingRetrieved.matches)
 
 const execute = () => {
-  for (const action of fetchedEmailQueue()) EmailSettingReceptors.fetchedEmailReceptor(action)
-  for (const action of emailSettingPatchedQueue()) EmailSettingReceptors.emailSettingPatchedReceptor(action)
   for (const action of activeRoutesRetrievedQueue()) AdminActiveRouteReceptors.activeRoutesRetrievedReceptor(action)
   for (const action of chargebeeSettingRetrievedQueue())
     AdminChargebeeReceptors.chargebeeSettingRetrievedReceptor(action)

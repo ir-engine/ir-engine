@@ -29,10 +29,25 @@ import { iff, isProvider } from 'feathers-hooks-common'
 import { UserInterface } from '@etherealengine/common/src/interfaces/User'
 import addAssociations from '@etherealengine/server-core/src/hooks/add-associations'
 
+import { locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
+import logger from '../../ServerLogger'
 import addScopeToUser from '../../hooks/add-scope-to-user'
 import authenticate from '../../hooks/authenticate'
 import verifyScope from '../../hooks/verify-scope'
-import logger from '../../ServerLogger'
+
+const addInstanceAttendanceLocation = () => {
+  return async (context: HookContext): Promise<HookContext> => {
+    const { result } = context
+
+    for (const attendance of result.instanceAttendance || []) {
+      if (attendance.instance && attendance.instance.locationId) {
+        attendance.instance.location = await context.app.service(locationPath).get(attendance.instance.locationId)
+      }
+    }
+
+    return context
+  }
+}
 
 const restrictUserPatch = (context: HookContext) => {
   if (context.params.isInternal) return context
@@ -298,7 +313,8 @@ export default {
             model: 'location-admin'
           },
           {
-            model: 'location-ban'
+            model: 'location-ban',
+            as: 'locationBans'
           },
           {
             model: 'user-settings'
@@ -313,21 +329,18 @@ export default {
             include: [
               {
                 model: 'instance',
-                as: 'instance',
-                include: [
-                  {
-                    model: 'location',
-                    as: 'location'
-                  }
-                ]
+                as: 'instance'
+                // include: [
+                //   {
+                //     model: 'location',
+                //     as: 'location'
+                //   }
+                // ]
               }
             ]
           },
           {
             model: 'scope'
-          },
-          {
-            model: 'party'
           },
           {
             model: 'avatar'
@@ -351,7 +364,8 @@ export default {
             model: 'location-admin'
           },
           {
-            model: 'location-ban'
+            model: 'location-ban',
+            as: 'locationBans'
           },
           {
             model: 'user-settings'
@@ -360,15 +374,12 @@ export default {
             model: 'scope'
           },
           {
-            model: 'party'
-          },
-          {
             model: 'avatar'
           }
         ]
       }),
       iff(
-        (context: HookContext) => context.params.user.id === context.arguments[0],
+        (context: HookContext) => context.params.user?.id === context.arguments[0],
         addAssociations({
           models: [
             {
@@ -379,25 +390,18 @@ export default {
               include: [
                 {
                   model: 'instance',
-                  as: 'instance',
-                  include: [
-                    {
-                      model: 'location',
-                      as: 'location'
-                    }
-                  ]
+                  as: 'instance'
+                  // include: [
+                  //   {
+                  //     model: 'location',
+                  //     as: 'location'
+                  //   }
+                  // ]
                 }
               ]
             }
           ]
         })
-      ),
-      iff(
-        (context: HookContext) => context.params.user.id !== context.arguments[0],
-        (context: HookContext) => {
-          if (!context.params.sequelize.attributes) context.params.sequelize.attributes = {}
-          context.params.sequelize.attributes.exclude = ['partyId']
-        }
       )
     ],
     create: [iff(isProvider('external'), verifyScope('admin', 'admin') as any, verifyScope('user', 'write') as any)],
@@ -419,7 +423,8 @@ export default {
             model: 'location-admin'
           },
           {
-            model: 'location-ban'
+            model: 'location-ban',
+            as: 'locationBans'
           },
           {
             model: 'user-settings'
@@ -439,8 +444,16 @@ export default {
 
   after: {
     all: [],
-    find: [parseAllUserSettings(), addAvatarResources()],
-    get: [parseUserSettings(), addAvatarResources()],
+    find: [
+      parseAllUserSettings(),
+      addAvatarResources(),
+      addInstanceAttendanceLocation() //TODO: Remove addInstanceAttendanceLocation after feathers 5 migration
+    ],
+    get: [
+      parseUserSettings(),
+      addAvatarResources(),
+      addInstanceAttendanceLocation() //TODO: Remove addInstanceAttendanceLocation after feathers 5 migration
+    ],
     create: [parseUserSettings(), addAvatarResources()],
     update: [parseUserSettings(), addAvatarResources()],
     patch: [parseUserSettings(), addAvatarResources()],

@@ -23,12 +23,29 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { getValidator } from '@feathersjs/typebox'
 import { disallow, iff, isProvider } from 'feathers-hooks-common'
 
+import {
+  locationAdminDataSchema,
+  locationAdminPatchSchema,
+  locationAdminQuerySchema,
+  locationAdminSchema
+} from '@etherealengine/engine/src/schemas/social/location-admin.schema'
 import attachOwnerIdInQuery from '@etherealengine/server-core/src/hooks/set-loggedin-user-in-query'
+import { dataValidator, queryValidator } from '@etherealengine/server-core/validators'
 
 import authenticate from '../../hooks/authenticate'
 import verifyScope from '../../hooks/verify-scope'
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const locationAdminValidator = getValidator(locationAdminSchema, dataValidator)
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const locationAdminDataValidator = getValidator(locationAdminDataSchema, dataValidator)
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const locationAdminPatchValidator = getValidator(locationAdminPatchSchema, dataValidator)
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const locationAdminQueryValidator = getValidator(locationAdminQuerySchema, queryValidator)
 
 export default {
   before: {

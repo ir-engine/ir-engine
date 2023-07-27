@@ -23,11 +23,28 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { getValidator } from '@feathersjs/typebox'
 import { disallow, iff, isProvider } from 'feathers-hooks-common'
 
+import {
+  locationAuthorizedUserDataSchema,
+  locationAuthorizedUserPatchSchema,
+  locationAuthorizedUserQuerySchema,
+  locationAuthorizedUserSchema
+} from '@etherealengine/engine/src/schemas/social/location-authorized-user.schema'
 import attachOwnerIdInQuery from '@etherealengine/server-core/src/hooks/set-loggedin-user-in-query'
+import { dataValidator, queryValidator } from '@etherealengine/server-core/validators'
 
 import authenticate from '../../hooks/authenticate'
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const locationAuthorizedUserValidator = getValidator(locationAuthorizedUserSchema, dataValidator)
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const locationAuthorizedUserDataValidator = getValidator(locationAuthorizedUserDataSchema, dataValidator)
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const locationAuthorizedUserPatchValidator = getValidator(locationAuthorizedUserPatchSchema, dataValidator)
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const locationAuthorizedUserQueryValidator = getValidator(locationAuthorizedUserQuerySchema, queryValidator)
 
 export default {
   before: {

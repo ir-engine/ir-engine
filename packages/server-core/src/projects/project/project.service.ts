@@ -281,8 +281,7 @@ export default (app: Application): void => {
     before: {
       patch: [
         authenticate(),
-        iff(isProvider('external'), verifyScope('editor', 'write') as any),
-        projectPermissionAuthenticate('write') as any
+        iff(isProvider('external'), verifyScope('editor', 'write') as any, projectPermissionAuthenticate('write'))
       ]
     }
   })

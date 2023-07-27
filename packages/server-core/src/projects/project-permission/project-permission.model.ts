@@ -27,6 +27,7 @@ import { DataTypes, Model, Sequelize } from 'sequelize'
 
 import { ProjectPermissionInterface } from '@etherealengine/common/src/dbmodels/ProjectPermission'
 
+import { ProjectPermissionTypeData } from '@etherealengine/engine/src/schemas/projects/project-permission-type.schema'
 import { Application } from '../../../declarations'
 
 export default (app: Application) => {
@@ -57,8 +58,36 @@ export default (app: Application) => {
       allowNull: false,
       onDelete: 'cascade'
     })
-    ;(ProjectPermission as any).belongsTo(models.project_permission_type, { foreignKey: 'type' })
+    ;(ProjectPermission as any).belongsTo(createProjectPermissionTypeModel(app), { foreignKey: 'type' })
   }
 
   return ProjectPermission
+}
+
+export const createProjectPermissionTypeModel = (app: Application) => {
+  const sequelizeClient: Sequelize = app.get('sequelizeClient')
+  const ProjectPermissionType = sequelizeClient.define<Model<ProjectPermissionTypeData>>(
+    'project-permission-type',
+    {
+      type: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        primaryKey: true,
+        unique: true
+      }
+    },
+    {
+      hooks: {
+        beforeCount(options: any): void {
+          options.raw = true
+        }
+      },
+      timestamps: false
+    }
+  )
+  ;(ProjectPermissionType as any).associate = (models: any): void => {
+    ;(ProjectPermissionType as any).hasMany(models.project_permission, { foreignKey: 'type' })
+  }
+
+  return ProjectPermissionType
 }

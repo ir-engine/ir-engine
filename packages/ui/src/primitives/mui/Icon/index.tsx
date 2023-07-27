@@ -42,6 +42,8 @@ import {
   BlurOff,
   CachedOutlined,
   CalendarViewDay,
+  Call,
+  CallEnd,
   CameraAlt,
   Cancel,
   CancelOutlined,
@@ -70,9 +72,9 @@ import {
   ErrorOutline,
   ExpandMore,
   Face,
+  FaceRetouchingOff,
   Facebook,
   FacebookOutlined,
-  FaceRetouchingOff,
   FileCopy,
   FileUpload,
   FilterList,
@@ -97,8 +99,8 @@ import {
   KeyboardDoubleArrowUp,
   Launch,
   Link,
-  LinkedIn,
   LinkOff,
+  LinkedIn,
   List,
   ListAlt,
   LocationOn,
@@ -379,6 +381,10 @@ const Icon = ({ type, ...props }: SvgIconProps & { type: string }) => {
       return <Google {...props} />
     case 'GridOn':
       return <GridOn {...props} />
+    case 'Call':
+      return <Call {...props} />
+    case 'CallEnd':
+      return <CallEnd {...props} />
     case 'HighlightOff':
       return <HighlightOff {...props} />
     case 'KeyboardDoubleArrowDown':

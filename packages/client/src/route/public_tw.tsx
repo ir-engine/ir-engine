@@ -36,7 +36,7 @@ import ErrorBoundary from '@etherealengine/client-core/src/common/components/Err
 import { ProjectServiceReceptor } from '@etherealengine/client-core/src/common/services/ProjectService'
 import { useCustomRoutes } from '@etherealengine/client-core/src/common/services/RouterService'
 import { LocationServiceReceptor } from '@etherealengine/client-core/src/social/services/LocationService'
-import { AuthService, AuthServiceReceptor } from '@etherealengine/client-core/src/user/services/AuthService'
+import { AuthService } from '@etherealengine/client-core/src/user/services/AuthService'
 import { addActionReceptor, getMutableState, removeActionReceptor, useHookstate } from '@etherealengine/hyperflux'
 import LoadingCircle from '@etherealengine/ui/src/primitives/tailwind/LoadingCircle'
 
@@ -61,7 +61,6 @@ function PublicRouter() {
   const [routesReady, setRoutesReady] = useState(false)
 
   useEffect(() => {
-    addActionReceptor(AuthServiceReceptor)
     addActionReceptor(LocationServiceReceptor)
     addActionReceptor(ProjectServiceReceptor)
 
@@ -75,7 +74,6 @@ function PublicRouter() {
     }
 
     return () => {
-      removeActionReceptor(AuthServiceReceptor)
       removeActionReceptor(LocationServiceReceptor)
       removeActionReceptor(ProjectServiceReceptor)
     }
