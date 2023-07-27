@@ -1,27 +1,53 @@
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
 import { useEffect } from 'react'
 import {
+  BufferAttribute,
   BufferGeometry,
   CompressedTexture,
   DoubleSide,
+  InterleavedBufferAttribute,
+  LinearMipmapLinearFilter,
   Mesh,
   MeshBasicMaterial,
   PlaneGeometry,
   SphereGeometry,
+  SRGBColorSpace,
+  Texture,
   Vector2
 } from 'three'
-import { LinearMipmapLinearFilter, sRGBEncoding, Texture } from 'three'
 
-import { useHookstate } from '@xrengine/hyperflux'
+import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
+import { StaticResourceInterface } from '@etherealengine/common/src/interfaces/StaticResourceInterface'
+import { useHookstate } from '@etherealengine/hyperflux'
 
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { AssetClass } from '../../assets/enum/AssetClass'
-import {
-  defineComponent,
-  hasComponent,
-  useComponent,
-  useOptionalComponent
-} from '../../ecs/functions/ComponentFunctions'
-import { EntityReactorProps } from '../../ecs/functions/EntityFunctions'
+import { defineComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
+import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { ImageAlphaMode, ImageAlphaModeType, ImageProjection, ImageProjectionType } from '../classes/ImageUtils'
 import { addObjectToGroup, removeObjectFromGroup } from '../components/GroupComponent'
@@ -32,12 +58,22 @@ export const SPHERE_GEO = new SphereGeometry(1, 64, 32)
 export const PLANE_GEO_FLIPPED = flipNormals(new PlaneGeometry(1, 1, 1, 1))
 export const SPHERE_GEO_FLIPPED = flipNormals(new SphereGeometry(1, 64, 32))
 
+export type ImageResource = {
+  source?: string
+  ktx2StaticResource?: StaticResourceInterface
+  pngStaticResource?: StaticResourceInterface
+  jpegStaticResource?: StaticResourceInterface
+  gifStaticResource?: StaticResourceInterface
+  id?: EntityUUID
+}
+
 export const ImageComponent = defineComponent({
-  name: 'XRE_image',
+  name: 'EE_image',
+  jsonID: 'image',
 
   onInit: (entity) => {
     return {
-      source: '',
+      source: '__$project$__/default-project/assets/sample_etc1s.ktx2',
       alphaMode: ImageAlphaMode.Opaque as ImageAlphaModeType,
       alphaCutoff: 0.5,
       projection: ImageProjection.Flat as ImageProjectionType,
@@ -60,9 +96,6 @@ export const ImageComponent = defineComponent({
   onSet: (entity, component, json) => {
     if (!json) return
     // backwards compatability
-    if (typeof json['imageSource'] === 'string' && json['imageSource'] !== component.source.value)
-      component.source.set(json['imageSource'])
-    //
     if (typeof json.source === 'string' && json.source !== component.source.value) component.source.set(json.source)
     if (typeof json.alphaMode === 'string' && json.alphaMode !== component.alphaMode.value)
       component.alphaMode.set(json.alphaMode)
@@ -78,7 +111,7 @@ export const ImageComponent = defineComponent({
     component.mesh.value.removeFromParent()
   },
 
-  errors: ['MISSING_TEXTURE_SOURCE', 'UNSUPPORTED_ASSET_CLASS', 'LOADING_ERROR'],
+  errors: ['MISSING_TEXTURE_SOURCE', 'UNSUPPORTED_ASSET_CLASS', 'LOADING_ERROR', 'INVALID_URL'],
 
   reactor: ImageReactor
 })
@@ -105,7 +138,7 @@ export function resizeImageMesh(mesh: Mesh<any, MeshBasicMaterial>) {
 }
 
 function flipNormals<G extends BufferGeometry>(geometry: G) {
-  const uvs = geometry.attributes.uv.array
+  const uvs = (geometry.attributes.uv as BufferAttribute | InterleavedBufferAttribute).array
   for (let i = 1; i < uvs.length; i += 2) {
     // @ts-ignore
     uvs[i] = 1 - uvs[i]
@@ -113,29 +146,23 @@ function flipNormals<G extends BufferGeometry>(geometry: G) {
   return geometry
 }
 
-export const SCENE_COMPONENT_IMAGE = 'image'
-
-export function ImageReactor({ root }: EntityReactorProps) {
-  const entity = root.entity
-  if (!hasComponent(entity, ImageComponent)) throw root.stop()
-
+export function ImageReactor() {
+  const entity = useEntityContext()
   const image = useComponent(entity, ImageComponent)
   const texture = useHookstate(null as Texture | null)
 
   useEffect(
     function updateTextureSource() {
-      const source = image.source.value
-
-      if (!source) {
+      if (!image.source.value) {
         return addError(entity, ImageComponent, `MISSING_TEXTURE_SOURCE`)
       }
 
-      const assetType = AssetLoader.getAssetClass(source)
+      const assetType = AssetLoader.getAssetClass(image.source.value)
       if (assetType !== AssetClass.Image) {
         return addError(entity, ImageComponent, `UNSUPPORTED_ASSET_CLASS`)
       }
 
-      AssetLoader.loadAsync(source)
+      AssetLoader.loadAsync(image.source.value)
         .then((_texture) => {
           texture.set(_texture)
         })
@@ -157,7 +184,7 @@ export function ImageReactor({ root }: EntityReactorProps) {
 
       clearErrors(entity, ImageComponent)
 
-      texture.value.encoding = sRGBEncoding
+      texture.value.colorSpace = SRGBColorSpace
       texture.value.minFilter = LinearMipmapLinearFilter
 
       image.mesh.material.map.ornull?.value.dispose()

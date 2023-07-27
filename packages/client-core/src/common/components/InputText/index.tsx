@@ -1,13 +1,40 @@
-import React, { useEffect, useRef, useState } from 'react'
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
+import React, { RefObject, useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import IconButton from '@xrengine/client-core/src/common/components/IconButton'
-import capitalizeFirstLetter from '@xrengine/common/src/utils/capitalizeFirstLetter'
+import capitalizeFirstLetter from '@etherealengine/common/src/utils/capitalizeFirstLetter'
+import { useHookstate } from '@etherealengine/hyperflux'
+import Box from '@etherealengine/ui/src/primitives/mui/Box'
+import FormControl from '@etherealengine/ui/src/primitives/mui/FormControl'
+import FormHelperText from '@etherealengine/ui/src/primitives/mui/FormHelperText'
+import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
+import InputLabel from '@etherealengine/ui/src/primitives/mui/InputLabel'
+import OutlinedInput from '@etherealengine/ui/src/primitives/mui/OutlinedInput'
 
-import { InputLabel, OutlinedInput } from '@mui/material'
-import Box from '@mui/material/Box'
-import FormControl from '@mui/material/FormControl'
-import FormHelperText from '@mui/material/FormHelperText'
 import { SxProps, Theme } from '@mui/material/styles'
 
 import commonStyles from '../common.module.scss'
@@ -48,7 +75,7 @@ const InputText = ({
   endIconTitle,
   error,
   id,
-  inputRef,
+  inputRef = useRef(),
   label,
   name,
   placeholder,
@@ -69,22 +96,15 @@ const InputText = ({
   placeholder = placeholder ? placeholder : `${t('common:components.enter')} ${label}`
   placeholder = disabled ? undefined : placeholder
 
-  const [cursor, setCursor] = useState(null)
-  const ref = useRef(null)
+  const cursor = useHookstate(null)
 
   useEffect(() => {
-    if (type !== 'number') return
-    let input
-    for (const child of (ref.current as any)?.children) {
-      if (child.tagName === 'INPUT') {
-        input = child
-      }
-    }
-    if (input) input.setSelectionRange(cursor, cursor)
-  }, [ref, cursor, value])
+    if (type !== 'number' && (inputRef as RefObject<any>)?.current && cursor.value)
+      (inputRef as RefObject<any>).current.setSelectionRange(cursor.value, cursor.value)
+  }, [inputRef, cursor.value, value])
 
   const handleChange = (e) => {
-    setCursor(e.target.selectionStart)
+    cursor.set(e.target.selectionStart)
     onChange && onChange(e)
   }
 
@@ -102,7 +122,6 @@ const InputText = ({
           <InputLabel sx={{ zIndex: 999 }}>{capitalizeFirstLetter(label)}</InputLabel>
 
           <OutlinedInput
-            ref={ref}
             disabled={disabled}
             error={!!error}
             fullWidth

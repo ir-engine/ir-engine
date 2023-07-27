@@ -1,42 +1,57 @@
-import type { Application as ExpressFeathers } from '@feathersjs/express'
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
+// For more information about this file see https://dove.feathersjs.com/guides/cli/typescript.html
+import { HookContext as FeathersHookContext } from '@feathersjs/feathers'
+import type { Application as KoaFeathers } from '@feathersjs/koa'
+import { ServiceSwaggerOptions } from 'feathers-swagger'
 import Primus from 'primus'
 
 import '@feathersjs/transport-commons'
 
-import * as k8s from '@kubernetes/client-node'
+import { ServiceTypes } from '@etherealengine/common/declarations'
 
-import { ServiceTypes } from '@xrengine/common/declarations'
-
-import { SocketWebRTCServerNetwork } from '../instanceserver/src/SocketWebRTCServerNetwork'
-
-export const ServerMode = {
-  API: 'API' as const,
-  Instance: 'Instance' as const,
-  Task: 'Task' as const
+export type PrimusType = Primus & {
+  forEach(cb: (spark: Primus.Spark, id: string, connections: { [id: string]: Primus.Spark }) => boolean | void): Primus
+  use(name: string, fn: (req: any, res: any, next: any) => void, level?: number): Primus
 }
 
-export type ServerTypeMode = typeof ServerMode[keyof typeof ServerMode]
-
-export type Application = ExpressFeathers<ServiceTypes> & {
-  // Common
-  k8AgonesClient: k8s.CustomObjectsApi
-  k8DefaultClient: k8s.CoreV1Api
-  k8AppsClient: k8s.AppsV1Api
-  k8BatchClient: k8s.BatchV1Api
-  agonesSDK: any
+export type Application = KoaFeathers<ServiceTypes> & {
   sync: any
-  primus: Primus
-  network: SocketWebRTCServerNetwork
-  seed: () => Application // function
-  serverMode: ServerTypeMode
-
-  // Instanceserver
-  instance: any // todo: make type 'Instance'
-  isSubdomainNumber: string
-  isChannelInstance: boolean
-  instanceServer: any
+  primus: PrimusType
   isSetup: Promise<boolean>
-  restart: () => void
-
-  // API Server
 }
+
+/**
+ * Ref: https://feathersjs-ecosystem.github.io/feathers-swagger/#/?id=configure-the-documentation-for-a-feathers-service
+ */
+declare module '@feathersjs/feathers' {
+  interface ServiceOptions {
+    docs?: ServiceSwaggerOptions
+  }
+}
+
+// The context for hook functions - can be typed with a service class
+export type HookContext<S = any> = FeathersHookContext<Application, S>

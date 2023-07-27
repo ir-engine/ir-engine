@@ -1,75 +1,80 @@
-import { createState, useHookstate } from '@hookstate/core'
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { SendInvite } from '@xrengine/common/src/interfaces/Invite'
-import { UserId } from '@xrengine/common/src/interfaces/UserId'
-import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
-import { WorldState } from '@xrengine/engine/src/networking/interfaces/WorldState'
-import { createXRUI } from '@xrengine/engine/src/xrui/functions/createXRUI'
-import { useXRUIState } from '@xrengine/engine/src/xrui/functions/useXRUIState'
-import { dispatchAction, getState } from '@xrengine/hyperflux'
+import { UserId } from '@etherealengine/common/src/interfaces/UserId'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { removeComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { VisibleComponent } from '@etherealengine/engine/src/scene/components/VisibleComponent'
+import { XRUI, createXRUI } from '@etherealengine/engine/src/xrui/functions/createXRUI'
+import { defineState, dispatchAction, getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
-import { FriendService, useFriendState } from '../../../social/services/FriendService'
-import { InviteService } from '../../../social/services/InviteService'
-import { PartyService, usePartyState } from '../../../social/services/PartyService'
+import { FriendService, FriendState } from '../../../social/services/FriendService'
 import { PopupMenuActions } from '../../../user/components/UserMenu/PopupMenuService'
-import { getAvatarURLForUser, Views } from '../../../user/components/UserMenu/util'
-import { useAuthState } from '../../../user/services/AuthService'
-import { useNetworkUserState } from '../../../user/services/NetworkUserService'
+import { getUserAvatarThumbnail } from '../../../user/functions/useUserAvatarThumbnail'
+import { AuthState } from '../../../user/services/AuthService'
+import { AvatarMenus } from '../../AvatarUISystem'
 import XRTextButton from '../../components/XRTextButton'
 import styleString from './index.scss?inline'
 
-export function createAvatarContextMenuView() {
-  return createXRUI(
-    AvatarContextMenu,
-    createState({
-      id: '' as UserId | ''
-    })
-  )
-}
+export const AvatarUIContextMenuState = defineState({
+  name: 'AvatarUISystem',
+  initial: () => {
+    const ui = createXRUI(AvatarContextMenu) as XRUI<null>
+    removeComponent(ui.entity, VisibleComponent)
+    return {
+      ui,
+      id: null! as string | UserId
+    }
+  }
+})
 
-interface UserMenuState {
-  id: UserId
+export const AvatarUIContextMenuService = {
+  setId: (id: UserId) => {
+    const avatarUIContextMenuState = getMutableState(AvatarUIContextMenuState)
+    avatarUIContextMenuState.id.set(id)
+  }
 }
 
 const AvatarContextMenu = () => {
-  const detailState = useXRUIState<UserMenuState>()
-  const engineState = useEngineState()
-  const userState = useNetworkUserState()
-  const partyState = usePartyState()
-  const friendState = useFriendState()
-
-  const authState = useAuthState()
+  const detailState = useHookstate(getMutableState(AvatarUIContextMenuState))
+  const friendState = useHookstate(getMutableState(FriendState))
+  const authState = useHookstate(getMutableState(AuthState))
   const selfId = authState.user.id?.value ?? ''
 
-  const user = userState.layerUsers.find((user) => user.id.value === detailState.id.value)
+  const peers = (Engine.instance.worldNetworkState.peers?.get({ noproxy: true }) || []).values()
+  const user = peers ? Array.from(peers).find((peer) => peer.userId === detailState.id.value) || undefined : undefined
   const { t } = useTranslation()
 
-  const userAvatarDetails = useHookstate(getState(WorldState).userAvatarDetails)
-  const partyOwner = partyState.party?.partyUsers?.value
-    ? partyState.party.partyUsers.value.find((partyUser) => partyUser.isOwner)
-    : null
-
-  const isFriend = friendState.relationships.friend.value.find((item) => item.id === user?.id.value)
-  const isRequested = friendState.relationships.requested.value.find((item) => item.id === user?.id.value)
-  const isPending = friendState.relationships.pending.value.find((item) => item.id === user?.id.value)
-  const isBlocked = friendState.relationships.blocked.value.find((item) => item.id === user?.id.value)
-  const isBlocking = friendState.relationships.blocking.value.find((item) => item.id === user?.id.value)
-
-  const inviteToParty = () => {
-    if (authState.user?.partyId?.value && user?.id?.value) {
-      const partyId = authState.user?.partyId?.value ?? ''
-      const userId = user.id?.value
-      const sendData = {
-        inviteType: 'party',
-        inviteeId: userId,
-        targetObjectId: partyId,
-        token: null
-      } as SendInvite
-      InviteService.sendInvite(sendData)
-    }
-  }
+  const isFriend = friendState.relationships.friend.value.find((item) => item.id === user?.userId)
+  const isRequested = friendState.relationships.requested.value.find((item) => item.id === user?.userId)
+  const isPending = friendState.relationships.pending.value.find((item) => item.id === user?.userId)
+  const isBlocked = friendState.relationships.blocked.value.find((item) => item.id === user?.userId)
+  const isBlocking = friendState.relationships.blocking.value.find((item) => item.id === user?.userId)
 
   const handleMute = () => {
     console.log('Mute pressed')
@@ -77,57 +82,47 @@ const AvatarContextMenu = () => {
 
   useEffect(() => {
     if (detailState.id.value !== '') {
-      const tappedUser = userState.layerUsers.find((user) => user.id.value === detailState.id.value)
-      dispatchAction(PopupMenuActions.showPopupMenu({ id: Views.AvatarContext, params: { user: tappedUser?.value } }))
+      const tappedUser = Array.from(
+        (Engine.instance.worldNetworkState.peers?.get({ noproxy: true }) || []).values()
+      ).find((peer) => peer.userId === detailState.id.value)
+      dispatchAction(PopupMenuActions.showPopupMenu({ id: AvatarMenus.AvatarContext, params: { user: tappedUser } }))
     }
   }, [detailState.id])
 
   return (
     <>
       <style>{styleString}</style>
-      {user?.id.value && (
+      {user?.userId && (
         <div className="rootContainer">
-          <img
-            className="ownerImage"
-            src={getAvatarURLForUser(userAvatarDetails, user?.id?.value)}
-            alt=""
-            crossOrigin="anonymous"
-          />
+          <img className="ownerImage" src={getUserAvatarThumbnail(user.userId)} alt="" crossOrigin="anonymous" />
           <div className="buttonContainer">
             <section className="buttonSection">
-              {partyState?.party?.id?.value != null &&
-                partyOwner?.userId != null &&
-                partyOwner.userId === authState.user?.id?.value &&
-                user.partyId.value !== partyState.party?.id?.value && (
-                  <XRTextButton onClick={inviteToParty}>{t('user:personMenu.inviteToParty')}</XRTextButton>
-                )}
-
               {!isFriend && !isRequested && !isPending && !isBlocked && !isBlocking && (
-                <XRTextButton onClick={() => FriendService.requestFriend(selfId, user?.id.value)}>
+                <XRTextButton onClick={() => FriendService.requestFriend(selfId, user?.userId)}>
                   {t('user:personMenu.addAsFriend')}
                 </XRTextButton>
               )}
 
               {isFriend && !isRequested && !isPending && !isBlocked && !isBlocking && (
-                <XRTextButton onClick={() => FriendService.unfriend(selfId, user?.id.value)}>
+                <XRTextButton onClick={() => FriendService.unfriend(selfId, user?.userId)}>
                   {t('user:personMenu.unFriend')}
                 </XRTextButton>
               )}
 
               {isPending && (
                 <>
-                  <XRTextButton onClick={() => FriendService.acceptFriend(selfId, user?.id.value)}>
+                  <XRTextButton onClick={() => FriendService.acceptFriend(selfId, user?.userId)}>
                     {t('user:personMenu.acceptRequest')}
                   </XRTextButton>
 
-                  <XRTextButton onClick={() => FriendService.declineFriend(selfId, user?.id.value)}>
+                  <XRTextButton onClick={() => FriendService.declineFriend(selfId, user?.userId)}>
                     {t('user:personMenu.declineRequest')}
                   </XRTextButton>
                 </>
               )}
 
               {isRequested && (
-                <XRTextButton onClick={() => FriendService.unfriend(selfId, user?.id.value)}>
+                <XRTextButton onClick={() => FriendService.unfriend(selfId, user?.userId)}>
                   {t('user:personMenu.cancelRequest')}
                 </XRTextButton>
               )}
@@ -135,13 +130,13 @@ const AvatarContextMenu = () => {
               <XRTextButton onClick={handleMute}>{t('user:personMenu.mute')}</XRTextButton>
 
               {isFriend && !isBlocked && !isBlocking && (
-                <XRTextButton onClick={() => FriendService.blockUser(selfId, user?.id.value)}>
+                <XRTextButton onClick={() => FriendService.blockUser(selfId, user?.userId)}>
                   {t('user:personMenu.block')}
                 </XRTextButton>
               )}
 
               {isBlocking && (
-                <XRTextButton onClick={() => FriendService.unblockUser(selfId, user?.id.value)}>
+                <XRTextButton onClick={() => FriendService.unblockUser(selfId, user?.userId)}>
                   {t('user:personMenu.unblock')}
                 </XRTextButton>
               )}

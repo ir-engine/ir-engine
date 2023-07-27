@@ -70,7 +70,7 @@
 .btnContainer {
   display: flex;
   width: 100%;
-  justify-content: end;
+  justify-content: flex-end;
   padding: 10px 10px 0;
 
   .newBtn {
@@ -202,4 +202,9 @@
   position: absolute;
   background: #00000080;
   z-index: 1000;
+}
+
+.horizontalCenter {
+  margin: 0 auto;
+  display: block;
 }

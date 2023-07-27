@@ -1,3 +1,28 @@
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
 import {
   Box3,
   DirectionalLight,
@@ -13,7 +38,6 @@ import {
   Vector3
 } from 'three'
 
-import { OBCType } from '../../common/constants/OBCTypes'
 import { addOBCPlugin, removeOBCPlugin } from '../../common/functions/OnBeforeCompilePlugin'
 import Frustum from './Frustum'
 import Shader from './Shader'
@@ -35,10 +59,10 @@ export const CSMModes = {
 type CSMParams = {
   camera: PerspectiveCamera
   parent: Object3D
-  light: DirectionalLight
+  light?: DirectionalLight
   cascades?: number
   maxFar?: number
-  mode?: typeof CSMModes[keyof typeof CSMModes]
+  mode?: (typeof CSMModes)[keyof typeof CSMModes]
   shadowMapSize?: number
   shadowBias?: number
   lightDirection?: Vector3
@@ -54,7 +78,7 @@ export class CSM {
   parent: Object3D
   cascades: number
   maxFar: number
-  mode: typeof CSMModes[keyof typeof CSMModes]
+  mode: (typeof CSMModes)[keyof typeof CSMModes]
   shadowMapSize: number
   shadowBias: number
   lightDirection: Vector3
@@ -67,10 +91,11 @@ export class CSM {
   mainFrustum: Frustum
   frustums: Frustum[]
   breaks: number[]
-  sourceLight: DirectionalLight
+  sourceLight?: DirectionalLight
   lights: DirectionalLight[]
   lightSourcesCount: number
   shaders: Map<Material, ShaderType> = new Map()
+  needsUpdate: boolean = false
 
   constructor(data: CSMParams) {
     this.camera = data.camera
@@ -98,7 +123,7 @@ export class CSM {
     this.injectInclude()
   }
 
-  changeLights(light: DirectionalLight): void {
+  changeLights(light?: DirectionalLight): void {
     if (light === this.sourceLight) return
     this.remove()
     this.createLights(light)
@@ -126,13 +151,14 @@ export class CSM {
   createLights(light?: DirectionalLight): void {
     if (light) {
       this.sourceLight = light
+      this.shadowBias = light.shadow.bias
       for (let i = 0; i < this.cascades; i++) {
         const lightClone = light.clone()
         lightClone.castShadow = true
         lightClone.visible = true
         lightClone.matrixAutoUpdate = true
         lightClone.matrixWorldAutoUpdate = true
-        this.parent.add(lightClone, lightClone.target)
+        this.parent.add(lightClone)
         this.lights.push(lightClone)
         lightClone.name = 'CSM_' + light.name
         lightClone.target.name = 'CSM_' + light.target.name
@@ -153,7 +179,7 @@ export class CSM {
       light.shadow.camera.far = this.lightFar
       light.shadow.bias = this.shadowBias
 
-      this.parent.add(light, light.target)
+      this.parent.add(light)
       this.lights.push(light)
       light.name = 'CSM_' + light.name
       light.target.name = 'CSM_' + light.target.name
@@ -261,6 +287,16 @@ export class CSM {
   }
 
   update(): void {
+    if (this.needsUpdate) {
+      for (const light of this.lights) {
+        this.updateFrustums()
+        light.shadow.map?.dispose()
+        light.shadow.map = null as any
+        light.shadow.camera.updateProjectionMatrix()
+        light.shadow.needsUpdate = true
+      }
+      this.needsUpdate = false
+    }
     const camera = this.camera
     const frustums = this.frustums
     for (let i = 0; i < frustums.length; i++) {
@@ -290,13 +326,14 @@ export class CSM {
 
       light.position.copy(_center)
       light.target.position.copy(_center).add(this.lightDirection)
+      light.target.updateMatrixWorld(true)
     }
     this.parent.updateMatrixWorld(true)
   }
 
   injectInclude(): void {
-    ShaderChunk.lights_fragment_begin = Shader.lights_fragment_begin
-    ShaderChunk.lights_pars_begin = Shader.lights_pars_begin
+    ShaderChunk.lights_fragment_begin = Shader.lights_fragment_begin(this)
+    ShaderChunk.lights_pars_begin = Shader.lights_pars_begin()
   }
 
   setupMaterial(mesh: Mesh): void {
@@ -312,8 +349,10 @@ export class CSM {
     const breaksVec2 = []
     const shaders = this.shaders
 
+    shaders.delete(material)
+
     material.userData.CSMPlugin = {
-      id: OBCType.CSM,
+      id: 'CSM',
       compile: (shader: ShaderType) => {
         if (shaders.has(material)) return
         const far = Math.min(this.camera.far, this.maxFar)
@@ -324,12 +363,11 @@ export class CSM {
         shader.uniforms.shadowFar = { value: far }
 
         shaders.set(material, shader)
+        this.needsUpdate = true
       }
     }
 
     addOBCPlugin(material, material.userData.CSMPlugin)
-
-    shaders.delete(material)
   }
 
   updateUniforms(): void {
@@ -399,5 +437,6 @@ export class CSM {
       material.needsUpdate = true
     })
     this.shaders.clear()
+    this.remove()
   }
 }

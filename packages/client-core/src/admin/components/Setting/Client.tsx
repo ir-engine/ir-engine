@@ -1,102 +1,130 @@
-import React, { useEffect, useState } from 'react'
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
+import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import InputSwitch from '@xrengine/client-core/src/common/components/InputSwitch'
-import InputText from '@xrengine/client-core/src/common/components/InputText'
+import InputSwitch from '@etherealengine/client-core/src/common/components/InputSwitch'
+import InputText from '@etherealengine/client-core/src/common/components/InputText'
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import Box from '@etherealengine/ui/src/primitives/mui/Box'
+import Button from '@etherealengine/ui/src/primitives/mui/Button'
+import Grid from '@etherealengine/ui/src/primitives/mui/Grid'
+import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
+import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
+import Tooltip from '@etherealengine/ui/src/primitives/mui/Tooltip'
+import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 
-import AddIcon from '@mui/icons-material/Add'
-import DeleteIcon from '@mui/icons-material/Delete'
-import HelpIcon from '@mui/icons-material/Help'
-import { Box, Button, Grid, IconButton, Typography } from '@mui/material'
-import Tooltip from '@mui/material/Tooltip'
-
-import { useAuthState } from '../../../user/services/AuthService'
-import { ClientSettingService, useClientSettingState } from '../../services/Setting/ClientSettingService'
+import { AuthState } from '../../../user/services/AuthService'
+import { AdminClientSettingsState, ClientSettingService } from '../../services/Setting/ClientSettingService'
 import styles from '../../styles/settings.module.scss'
 
 const Client = () => {
   const { t } = useTranslation()
 
-  const authState = useAuthState()
-  const user = authState.user
+  const user = useHookstate(getMutableState(AuthState).user)
 
-  const clientSettingState = useClientSettingState()
-  const [clientSetting] = clientSettingState?.client?.value || {}
+  const clientSettingState = useHookstate(getMutableState(AdminClientSettingsState))
+  const [clientSetting] = clientSettingState?.client?.get({ noproxy: true }) || []
   const id = clientSetting?.id
-  const [logo, setLogo] = useState(clientSetting?.logo)
-  const [title, setTitle] = useState(clientSetting?.title)
-  const [shortTitle, setShortTitle] = useState(clientSetting?.shortTitle)
-  const [startPath, setStartPath] = useState(clientSetting?.startPath || '/')
-  const [appTitle, setAppTitle] = useState(clientSetting?.appTitle)
-  const [appSubtitle, setAppSubtitle] = useState(clientSetting?.appSubtitle)
-  const [appDescription, setAppDescription] = useState(clientSetting?.appDescription)
-  const [appBackground, setAppBackground] = useState(clientSetting?.appBackground)
-  const [appSocialLinks, setAppSocialLinks] = useState(clientSetting?.appSocialLinks || [])
-  const [icon192px, setIcon192px] = useState(clientSetting?.icon192px)
-  const [icon512px, setIcon512px] = useState(clientSetting?.icon512px)
-  const [favicon16px, setFavicon16px] = useState(clientSetting?.favicon16px)
-  const [favicon32px, setFavicon32px] = useState(clientSetting?.favicon32px)
-  const [key8thWall, setKey8thWall] = useState(clientSetting?.key8thWall)
-  const [siteDescription, setSiteDescription] = useState(clientSetting?.siteDescription)
-  const [homepageLinkButtonEnabled, setHomepageLinkButtonEnabled] = useState(
-    clientSetting?.homepageLinkButtonEnabled as boolean
-  )
-  const [homepageLinkButtonRedirect, setHomepageLinkButtonRedirect] = useState(
-    clientSetting?.homepageLinkButtonRedirect
-  )
-  const [homepageLinkButtonText, setHomepageLinkButtonText] = useState(clientSetting?.homepageLinkButtonText)
+  const logo = useHookstate(clientSetting?.logo)
+  const title = useHookstate(clientSetting?.title)
+  const shortTitle = useHookstate(clientSetting?.shortTitle)
+  const startPath = useHookstate(clientSetting?.startPath || '/')
+  const appTitle = useHookstate(clientSetting?.appTitle)
+  const appSubtitle = useHookstate(clientSetting?.appSubtitle)
+  const appDescription = useHookstate(clientSetting?.appDescription)
+  const appBackground = useHookstate(clientSetting?.appBackground)
+  const appSocialLinks = useHookstate(JSON.parse(JSON.stringify(clientSetting?.appSocialLinks)) || [])
+  const appleTouchIcon = useHookstate(clientSetting?.appleTouchIcon)
+  const icon192px = useHookstate(clientSetting?.icon192px)
+  const icon512px = useHookstate(clientSetting?.icon512px)
+  const favicon16px = useHookstate(clientSetting?.favicon16px)
+  const favicon32px = useHookstate(clientSetting?.favicon32px)
+  const webmanifestLink = useHookstate(clientSetting?.webmanifestLink)
+  const swScriptLink = useHookstate(clientSetting?.swScriptLink)
+  const key8thWall = useHookstate(clientSetting?.key8thWall)
+  const siteDescription = useHookstate(clientSetting?.siteDescription)
+  const homepageLinkButtonEnabled = useHookstate(clientSetting?.homepageLinkButtonEnabled)
+  const homepageLinkButtonRedirect = useHookstate(clientSetting?.homepageLinkButtonRedirect)
+  const homepageLinkButtonText = useHookstate(clientSetting?.homepageLinkButtonText)
 
   useEffect(() => {
     if (user?.id?.value != null && clientSettingState?.updateNeeded?.value === true) {
       ClientSettingService.fetchClientSettings()
     }
-  }, [authState?.user?.id?.value, clientSettingState?.updateNeeded?.value])
+  }, [user?.id?.value, clientSettingState?.updateNeeded?.value])
 
   useEffect(() => {
     if (clientSetting) {
-      setLogo(clientSetting?.logo)
-      setTitle(clientSetting?.title)
-      setShortTitle(clientSetting?.shortTitle)
-      setStartPath(clientSetting?.startPath || '/')
-      setAppTitle(clientSetting?.appTitle)
-      setAppSubtitle(clientSetting?.appSubtitle)
-      setAppDescription(clientSetting?.appDescription)
-      setAppBackground(clientSetting?.appBackground)
-      setAppSocialLinks(clientSetting?.appSocialLinks || [])
-      setIcon192px(clientSetting?.icon192px)
-      setIcon512px(clientSetting?.icon512px)
-      setFavicon16px(clientSetting?.favicon16px)
-      setFavicon32px(clientSetting?.favicon32px)
-      setSiteDescription(clientSetting?.siteDescription)
-      setKey8thWall(clientSetting?.key8thWall)
-      setHomepageLinkButtonEnabled(clientSetting?.homepageLinkButtonEnabled)
-      setHomepageLinkButtonRedirect(clientSetting?.homepageLinkButtonRedirect)
-      setHomepageLinkButtonText(clientSetting?.homepageLinkButtonText)
+      logo.set(clientSetting?.logo)
+      title.set(clientSetting?.title)
+      shortTitle.set(clientSetting?.shortTitle)
+      startPath.set(clientSetting?.startPath || '/')
+      appTitle.set(clientSetting?.appTitle)
+      appSubtitle.set(clientSetting?.appSubtitle)
+      appDescription.set(clientSetting?.appDescription)
+      appBackground.set(clientSetting?.appBackground)
+      appSocialLinks.set(JSON.parse(JSON.stringify(clientSetting?.appSocialLinks)) || [])
+      appleTouchIcon.set(clientSetting?.appleTouchIcon)
+      icon192px.set(clientSetting?.icon192px)
+      icon512px.set(clientSetting?.icon512px)
+      webmanifestLink.set(clientSetting?.webmanifestLink)
+      swScriptLink.set(clientSetting?.swScriptLink)
+      favicon16px.set(clientSetting?.favicon16px)
+      favicon32px.set(clientSetting?.favicon32px)
+      siteDescription.set(clientSetting?.siteDescription)
+      key8thWall.set(clientSetting?.key8thWall)
+      homepageLinkButtonEnabled.set(clientSetting?.homepageLinkButtonEnabled)
+      homepageLinkButtonRedirect.set(clientSetting?.homepageLinkButtonRedirect)
+      homepageLinkButtonText.set(clientSetting?.homepageLinkButtonText)
     }
   }, [clientSettingState?.updateNeeded?.value])
 
   const handleUpdateSocialLinks = (index, value, type) => {
-    const tempAppSocialLinks = JSON.parse(JSON.stringify(appSocialLinks))
+    const tempAppSocialLinks = JSON.parse(JSON.stringify(appSocialLinks.value))
 
     tempAppSocialLinks[index][type] = value
 
-    setAppSocialLinks(tempAppSocialLinks)
+    appSocialLinks.set(tempAppSocialLinks)
   }
 
   const handleAddSocialLinks = () => {
-    const tempAppSocialLinks = JSON.parse(JSON.stringify(appSocialLinks))
+    const tempAppSocialLinks = JSON.parse(JSON.stringify(appSocialLinks.value))
 
     tempAppSocialLinks.push({ icon: '', link: '' })
 
-    setAppSocialLinks(tempAppSocialLinks)
+    appSocialLinks.set(tempAppSocialLinks)
   }
 
   const handleRemoveSocialLinks = (index) => {
-    const tempAppSocialLinks = JSON.parse(JSON.stringify(appSocialLinks))
+    const tempAppSocialLinks = JSON.parse(JSON.stringify(appSocialLinks.value))
 
     tempAppSocialLinks.splice(index, 1)
 
-    setAppSocialLinks(tempAppSocialLinks)
+    appSocialLinks.set(tempAppSocialLinks)
   }
 
   const handleSubmit = (event) => {
@@ -104,48 +132,54 @@ const Client = () => {
 
     ClientSettingService.patchClientSetting(
       {
-        logo: logo,
-        title: title,
-        shortTitle: shortTitle,
-        startPath: startPath,
-        icon192px: icon192px,
-        icon512px: icon512px,
-        favicon16px: favicon16px,
-        favicon32px: favicon32px,
-        siteDescription: siteDescription,
-        appBackground: appBackground,
-        appTitle: appTitle,
-        appSubtitle: appSubtitle,
-        appDescription: appDescription,
-        appSocialLinks: JSON.stringify(appSocialLinks),
-        themeSettings: JSON.stringify(clientSetting?.themeSettings),
-        themeModes: JSON.stringify(clientSetting?.themeModes),
-        key8thWall: key8thWall,
-        homepageLinkButtonEnabled: homepageLinkButtonEnabled,
-        homepageLinkButtonRedirect: homepageLinkButtonRedirect,
-        homepageLinkButtonText: homepageLinkButtonText
+        logo: logo.value,
+        title: title.value,
+        shortTitle: shortTitle.value,
+        startPath: startPath.value,
+        appleTouchIcon: appleTouchIcon.value,
+        icon192px: icon192px.value,
+        icon512px: icon512px.value,
+        favicon16px: favicon16px.value,
+        favicon32px: favicon32px.value,
+        webmanifestLink: webmanifestLink.value,
+        swScriptLink: swScriptLink.value,
+        siteDescription: siteDescription.value,
+        appBackground: appBackground.value,
+        appTitle: appTitle.value,
+        appSubtitle: appSubtitle.value,
+        appDescription: appDescription.value,
+        appSocialLinks: appSocialLinks.value,
+        themeSettings: clientSetting?.themeSettings,
+        themeModes: clientSetting?.themeModes,
+        key8thWall: key8thWall.value,
+        homepageLinkButtonEnabled: homepageLinkButtonEnabled.value,
+        homepageLinkButtonRedirect: homepageLinkButtonRedirect.value,
+        homepageLinkButtonText: homepageLinkButtonText.value
       },
       id
     )
   }
 
   const handleCancel = () => {
-    setLogo(clientSetting?.logo)
-    setTitle(clientSetting?.title)
-    setAppTitle(clientSetting?.appTitle)
-    setAppSubtitle(clientSetting?.appSubtitle)
-    setAppDescription(clientSetting?.appDescription)
-    setAppBackground(clientSetting?.appBackground)
-    setAppSocialLinks(clientSetting?.appSocialLinks)
-    setIcon192px(clientSetting?.icon192px)
-    setIcon512px(clientSetting?.icon512px)
-    setFavicon16px(clientSetting?.favicon16px)
-    setFavicon32px(clientSetting?.favicon32px)
-    setSiteDescription(clientSetting?.siteDescription)
-    setKey8thWall(clientSetting?.key8thWall)
-    setHomepageLinkButtonEnabled(clientSetting?.homepageLinkButtonEnabled)
-    setHomepageLinkButtonRedirect(clientSetting?.homepageLinkButtonRedirect)
-    setHomepageLinkButtonText(clientSetting?.homepageLinkButtonText)
+    logo.set(clientSetting?.logo)
+    title.set(clientSetting?.title)
+    appTitle.set(clientSetting?.appTitle)
+    appSubtitle.set(clientSetting?.appSubtitle)
+    appDescription.set(clientSetting?.appDescription)
+    appBackground.set(clientSetting?.appBackground)
+    appSocialLinks.set(clientSetting?.appSocialLinks)
+    appleTouchIcon.set(clientSetting?.appleTouchIcon)
+    icon192px.set(clientSetting?.icon192px)
+    icon512px.set(clientSetting?.icon512px)
+    favicon16px.set(clientSetting?.favicon16px)
+    favicon32px.set(clientSetting?.favicon32px)
+    webmanifestLink.set(clientSetting?.webmanifestLink)
+    swScriptLink.set(clientSetting?.swScriptLink)
+    siteDescription.set(clientSetting?.siteDescription)
+    key8thWall.set(clientSetting?.key8thWall)
+    homepageLinkButtonEnabled.set(clientSetting?.homepageLinkButtonEnabled)
+    homepageLinkButtonRedirect.set(clientSetting?.homepageLinkButtonRedirect)
+    homepageLinkButtonText.set(clientSetting?.homepageLinkButtonText)
   }
 
   return (
@@ -158,44 +192,44 @@ const Client = () => {
           <InputText
             name="appTitle"
             label={t('admin:components.setting.appTitle')}
-            value={appTitle || ''}
-            onChange={(e) => setAppTitle(e.target.value)}
+            value={appTitle.value || ''}
+            onChange={(e) => appTitle.set(e.target.value)}
           />
 
           <InputText
             name="appSubtitle"
             label={t('admin:components.setting.appSubtitle')}
-            value={appSubtitle || ''}
-            onChange={(e) => setAppSubtitle(e.target.value)}
+            value={appSubtitle.value || ''}
+            onChange={(e) => appSubtitle.set(e.target.value)}
           />
 
           <InputText
             name="appDescription"
             label={t('admin:components.setting.appDescription')}
-            value={appDescription || ''}
-            onChange={(e) => setAppDescription(e.target.value)}
+            value={appDescription.value || ''}
+            onChange={(e) => appDescription.set(e.target.value)}
           />
 
           <InputText
             name="appBackground"
             label={t('admin:components.setting.appBackground')}
-            value={appBackground || ''}
-            onChange={(e) => setAppBackground(e.target.value)}
+            value={appBackground.value || ''}
+            onChange={(e) => appBackground.set(e.target.value)}
           />
 
           <InputSwitch
             name="homepageLinkButtonEnabled"
             label={t('admin:components.setting.homepageLinkButtonEnabled')}
-            checked={homepageLinkButtonEnabled}
-            onChange={(e) => setHomepageLinkButtonEnabled(e.target.checked)}
+            checked={homepageLinkButtonEnabled.value}
+            onChange={(e) => homepageLinkButtonEnabled.set(e.target.checked)}
           />
 
           {homepageLinkButtonEnabled && (
             <InputText
               name="description"
               label={t('admin:components.setting.homepageLinkButtonRedirect')}
-              value={homepageLinkButtonRedirect || ''}
-              onChange={(e) => setHomepageLinkButtonRedirect(e.target.value)}
+              value={homepageLinkButtonRedirect.value || ''}
+              onChange={(e) => homepageLinkButtonRedirect.set(e.target.value)}
             />
           )}
 
@@ -203,15 +237,15 @@ const Client = () => {
             <InputText
               name="description"
               label={t('admin:components.setting.homepageLinkButtonText')}
-              value={homepageLinkButtonText || ''}
-              onChange={(e) => setHomepageLinkButtonText(e.target.value)}
+              value={homepageLinkButtonText.value || ''}
+              onChange={(e) => homepageLinkButtonText.set(e.target.value)}
             />
           )}
 
           <Typography className={styles.settingsSubHeading}>{t('admin:components.setting.appSocialLinks')}</Typography>
 
-          {appSocialLinks?.length > 0 &&
-            appSocialLinks?.map((socialLink, index) => (
+          {appSocialLinks.value?.length > 0 &&
+            appSocialLinks.value?.map((socialLink, index) => (
               <Box key={index} sx={{ display: 'flex', flexDirection: 'row', alignItems: 'flex-start', gap: 1 }}>
                 <InputText
                   sx={{ flexGrow: 1 }}
@@ -233,32 +267,31 @@ const Client = () => {
                   title={t('admin:components.common.delete')}
                   className={styles.iconButton}
                   onClick={() => handleRemoveSocialLinks(index)}
-                >
-                  <DeleteIcon />
-                </IconButton>
+                  icon={<Icon type="Delete" />}
+                />
               </Box>
             ))}
           <Button variant="contained" onClick={handleAddSocialLinks}>
-            <AddIcon /> {t('admin:components.setting.addSocialLink')}
+            <Icon type="Add" /> {t('admin:components.setting.addSocialLink')}
           </Button>
         </Grid>
         <Grid item xs={12} sm={6}>
           <InputText
             name="title"
             label={t('admin:components.setting.title')}
-            value={title || ''}
-            onChange={(e) => setTitle(e.target.value)}
+            value={title.value || ''}
+            onChange={(e) => title.set(e.target.value)}
           />
 
           <div className={styles.tooltipRow}>
             <InputText
               name="shortTitle"
               label={t('admin:components.setting.shortTitle')}
-              value={shortTitle || ''}
-              onChange={(e) => setShortTitle(e.target.value)}
+              value={shortTitle.value || ''}
+              onChange={(e) => shortTitle.set(e.target.value)}
             />
             <Tooltip title={t('admin:components.setting.shortTitleTooltip')} arrow>
-              <HelpIcon />
+              <Icon type="Help" />
             </Tooltip>
           </div>
 
@@ -266,54 +299,75 @@ const Client = () => {
             <InputText
               name="startPath"
               label={t('admin:components.setting.startPath')}
-              value={startPath || '/'}
-              onChange={(e) => setStartPath(e.target.value)}
+              value={startPath.value || '/'}
+              onChange={(e) => startPath.set(e.target.value)}
             />
             <Tooltip title={t('admin:components.setting.startPathTooltip')} arrow>
-              <HelpIcon />
+              <Icon type="Help" />
             </Tooltip>
           </div>
 
           <InputText
             name="description"
             label={t('admin:components.setting.description')}
-            value={siteDescription || ''}
-            onChange={(e) => setSiteDescription(e.target.value)}
+            value={siteDescription.value || ''}
+            onChange={(e) => siteDescription.set(e.target.value)}
           />
 
           <InputText
             name="logo"
             label={t('admin:components.setting.logo')}
-            value={logo || ''}
-            onChange={(e) => setLogo(e.target.value)}
+            value={logo.value || ''}
+            onChange={(e) => logo.set(e.target.value)}
+          />
+
+          <InputText
+            name="appleTouchIcon"
+            label={t('admin:components.setting.appleTouchIcon')}
+            value={appleTouchIcon.value || ''}
+            onChange={(e) => appleTouchIcon.set(e.target.value)}
           />
 
           <InputText
             name="icon192px"
             label={t('admin:components.setting.icon192px')}
-            value={icon192px || ''}
-            onChange={(e) => setIcon192px(e.target.value)}
+            value={icon192px.value || ''}
+            onChange={(e) => icon192px.set(e.target.value)}
           />
 
           <InputText
             name="icon512px"
             label={t('admin:components.setting.icon512px')}
-            value={icon512px || ''}
-            onChange={(e) => setIcon512px(e.target.value)}
+            value={icon512px.value || ''}
+            onChange={(e) => icon512px.set(e.target.value)}
           />
 
           <InputText
             name="favIcon16px"
             label={t('admin:components.setting.favIcon16px')}
-            value={favicon16px || ''}
-            onChange={(e) => setFavicon16px(e.target.value)}
+            value={favicon16px.value || ''}
+            onChange={(e) => favicon16px.set(e.target.value)}
           />
 
           <InputText
             name="favIcon32px"
             label={t('admin:components.setting.favIcon32px')}
-            value={favicon32px || ''}
-            onChange={(e) => setFavicon32px(e.target.value)}
+            value={favicon32px.value || ''}
+            onChange={(e) => favicon32px.set(e.target.value)}
+          />
+
+          <InputText
+            name="webmanifestLink"
+            label={t('admin:components.setting.webmanifestLink')}
+            value={webmanifestLink.value || ''}
+            onChange={(e) => webmanifestLink.set(e.target.value)}
+          />
+
+          <InputText
+            name="swScriptLink"
+            label={t('admin:components.setting.swScriptLink')}
+            value={swScriptLink.value || ''}
+            onChange={(e) => swScriptLink.set(e.target.value)}
           />
 
           <InputText name="url" label={t('admin:components.setting.url')} value={clientSetting?.url || ''} disabled />
@@ -328,8 +382,8 @@ const Client = () => {
           <InputText
             name="key8thWall"
             label={t('admin:components.setting.key8thWall')}
-            value={key8thWall || ''}
-            onChange={(e) => setKey8thWall(e.target.value)}
+            value={key8thWall.value || ''}
+            onChange={(e) => key8thWall.set(e.target.value)}
           />
         </Grid>
       </Grid>

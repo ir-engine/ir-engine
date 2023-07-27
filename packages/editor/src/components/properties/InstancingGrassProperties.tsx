@@ -1,68 +1,86 @@
-import React, { Fragment, useState } from 'react'
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
+import React, { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
-import styled from 'styled-components'
-import { Texture } from 'three'
 
-import { GrassProperties } from '@xrengine/engine/src/scene/components/InstancingComponent'
-
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
-import { Box, Collapse, IconButton, IconButtonProps } from '@mui/material'
+import { GrassProperties, TextureRef } from '@etherealengine/engine/src/scene/components/InstancingComponent'
+import { State } from '@etherealengine/hyperflux'
 
 import ColorInput from '../inputs/ColorInput'
-import ImageInput from '../inputs/ImageInput'
 import { ImagePreviewInputGroup } from '../inputs/ImagePreviewInput'
 import InputGroup from '../inputs/InputGroup'
 import NumericInputGroup from '../inputs/NumericInputGroup'
 import RandomizedPropertyInputGroup from '../inputs/RandomizedPropertyInput'
 import CollapsibleBlock from '../layout/CollapsibleBlock'
-import ExpandMore from '../layout/ExpandMore'
 
-export default function InstancingGrassProperties({ value, onChange, ...rest }) {
+export default function InstancingGrassProperties({
+  state,
+  onChange,
+  ...rest
+}: {
+  state: State<GrassProperties>
+  onChange: (value: GrassProperties) => void
+}) {
+  const value = state.value
   const props = value as GrassProperties
 
   const { t } = useTranslation()
 
-  const texPath = (tex) => {
-    if ((tex as Texture).isTexture) return tex.source.data?.src ?? ''
-    if (typeof tex === 'string') return tex
-    console.error('unknown texture type for', tex)
+  const texPath = (tex: TextureRef) => {
+    if (tex.texture?.isTexture) return tex.texture.source.data?.src ?? ''
+    return tex.src ?? ''
   }
 
-  const [grass, setGrass] = useState(texPath(props.grassTexture))
-  const [alpha, setAlpha] = useState(texPath(props.alphaMap))
-
   function onChangeGrass(val) {
-    setGrass(val)
-    props.grassTexture = val
-    onChange(props)
+    state.grassTexture.src.set(val)
   }
 
   function onChangeAlpha(val) {
-    setAlpha(val)
-    props.alphaMap = val
-    onChange(props)
+    state.alphaMap.src.set(val)
   }
 
-  function onChangeProp(prop) {
+  const onChangeProp = useCallback((prop) => {
     return (_value) => {
-      props[prop] = _value
-      onChange(props)
+      state[prop].set(_value)
     }
-  }
+  }, [])
 
   return (
-    <CollapsibleBlock label={t('editor:properties.instancing.grass.properties')}>
+    <CollapsibleBlock label={t('editor:properties.instancing.grass.properties')} {...rest}>
       <RandomizedPropertyInputGroup
         name="Blade Height"
         label={t('editor:properties.instancing.grass.bladeHeight')}
         onChange={onChangeProp('bladeHeight')}
-        value={props.bladeHeight}
+        state={state.bladeHeight}
       />
       <RandomizedPropertyInputGroup
         name="Blade Width"
         label={t('editor:properties.instancing.grass.bladeWidth')}
         onChange={onChangeProp('bladeWidth')}
-        value={props.bladeWidth}
+        state={state.bladeWidth}
       />
       <NumericInputGroup
         name="Joints"
@@ -79,13 +97,13 @@ export default function InstancingGrassProperties({ value, onChange, ...rest }) 
         name="Alpha Map"
         label={t('editor:properties.instancing.grass.alphaMap')}
         onChange={onChangeAlpha}
-        value={alpha}
+        value={props.alphaMap.src}
       />
       <ImagePreviewInputGroup
         name="Grass Texture"
         label={t('editor:properties.instancing.grass.texture')}
         onChange={onChangeGrass}
-        value={grass}
+        value={props.grassTexture.src}
       />
       <NumericInputGroup
         name="ambientStrength"

@@ -1,12 +1,37 @@
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
 import React, { useEffect, useState } from 'react'
 
-import capitalizeFirstLetter from '@xrengine/common/src/utils/capitalizeFirstLetter'
+import capitalizeFirstLetter from '@etherealengine/common/src/utils/capitalizeFirstLetter'
+import FormControl from '@etherealengine/ui/src/primitives/mui/FormControl'
+import FormHelperText from '@etherealengine/ui/src/primitives/mui/FormHelperText'
+import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
+import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
 
-import { useAutocomplete } from '@mui/base/AutocompleteUnstyled'
-import Cross from '@mui/icons-material/Cancel'
-import FormControl from '@mui/material/FormControl'
-import FormHelperText from '@mui/material/FormHelperText'
-import IconButton from '@mui/material/IconButton'
+import { useAutocomplete } from '@mui/material'
 
 import { InputMenuItem } from '../InputSelect'
 import styles from './index.module.scss'
@@ -47,7 +72,7 @@ const AutoComplete = ({ data, label, disabled, error, onChange, value = '', free
       onInputChange: handleInputChange,
       getOptionLabel: (option) => option.label || '',
       blurOnSelect: true,
-      onChange: (event: React.ChangeEvent<{}>, value: any, reason: string) => {
+      onChange: (event: React.ChangeEvent, value: any, reason: string) => {
         if (value?.value != null) {
           setLocalValue(value.value)
           ;(getInputProps() as any).ref.current.value = value.value
@@ -85,9 +110,11 @@ const AutoComplete = ({ data, label, disabled, error, onChange, value = '', free
                 if (event?.target?.value?.length === 0) handleClear()
               }}
             />
-            <IconButton className={`.MuiAutocomplete-endAdornment ${styles.clearButton}`} onClick={() => handleClear()}>
-              <Cross />
-            </IconButton>
+            <IconButton
+              className={`.MuiAutocomplete-endAdornment ${styles.clearButton}`}
+              onClick={() => handleClear()}
+              icon={<Icon type="Cancel" />}
+            />
           </div>
         </div>
         {groupedOptions.length > 0 && (

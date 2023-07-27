@@ -1,13 +1,38 @@
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
+import { debounce } from 'lodash'
 import { BlendFunction } from 'postprocessing'
 import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Color } from 'three'
 
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { configureEffectComposer } from '@xrengine/engine/src/renderer/functions/configureEffectComposer'
-import { getPostProcessingSceneMetadataState } from '@xrengine/engine/src/renderer/WebGLRendererSystem'
-import { Effects } from '@xrengine/engine/src/scene/constants/PostProcessing'
-import { useHookstate } from '@xrengine/hyperflux'
+import { useComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { configureEffectComposer } from '@etherealengine/engine/src/renderer/functions/configureEffectComposer'
+import { PostProcessingComponent } from '@etherealengine/engine/src/scene/components/PostProcessingComponent'
+import { Effects } from '@etherealengine/engine/src/scene/constants/PostProcessing'
 
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown'
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp'
@@ -21,8 +46,8 @@ import CompoundNumericInput from '../inputs/CompoundNumericInput'
 import InputGroup from '../inputs/InputGroup'
 import SelectInput from '../inputs/SelectInput'
 import styles from '../styles.module.scss'
-import NodeEditor from './NodeEditor'
 import PropertyGroup from './PropertyGroup'
+import { EditorComponentType } from './Util'
 
 enum PropertyTypes {
   BlendFunction,
@@ -37,29 +62,9 @@ enum PropertyTypes {
 
 type EffectPropertyDetail = { propertyType: PropertyTypes; name: string; min?: number; max?: number; step?: number }
 type EffectPropertiesType = { [key: string]: EffectPropertyDetail }
-type EffectOptionsType = { [key in Effects]: EffectPropertiesType }
+type EffectOptionsType = { [key in keyof typeof Effects]: EffectPropertiesType }
 
 const EffectsOptions: EffectOptionsType = {
-  // FXAAEffect: {
-  //   blendFunction: { propertyType: PropertyTypes.BlendFunction, name: 'Blend Function' }
-  // },
-  SMAAEffect: {
-    blendFunction: { propertyType: PropertyTypes.BlendFunction, name: 'Blend Function' },
-    preset: { propertyType: PropertyTypes.SMAAPreset, name: 'Preset' },
-    edgeDetectionMode: { propertyType: PropertyTypes.EdgeDetectionMode, name: 'Edge Detection Mode' },
-    predicationMode: { propertyType: PropertyTypes.PredicationMode, name: 'Predication Mode' }
-  },
-  OutlineEffect: {
-    blendFunction: { propertyType: PropertyTypes.BlendFunction, name: 'Blend Function' },
-    edgeStrength: { propertyType: PropertyTypes.Number, name: 'Edge Strength', min: -1, max: 1, step: 0.01 },
-    pulseSpeed: { propertyType: PropertyTypes.Number, name: 'Pulse Speed', min: -1, max: 1, step: 0.01 },
-    visibleEdgeColor: { propertyType: PropertyTypes.Color, name: 'Visible Edge Color' },
-    hiddenEdgeColor: { propertyType: PropertyTypes.Color, name: 'Hidden Edge Color' },
-    resolutionScale: { propertyType: PropertyTypes.Number, name: 'Resolution Scale', min: -1, max: 1, step: 0.01 },
-    kernelSize: { propertyType: PropertyTypes.KernelSize, name: 'Kernel Size' },
-    blur: { propertyType: PropertyTypes.Boolean, name: 'Blur' },
-    xRay: { propertyType: PropertyTypes.Boolean, name: 'XRay' }
-  },
   SSAOEffect: {
     blendFunction: { propertyType: PropertyTypes.BlendFunction, name: 'Blend Function' },
     distanceScaling: { propertyType: PropertyTypes.Boolean, name: 'Distance Scaling' },
@@ -79,40 +84,32 @@ const EffectsOptions: EffectOptionsType = {
     fade: { propertyType: PropertyTypes.Number, name: 'Fade', min: -1, max: 1, step: 0.01 }
   },
   SSREffect: {
-    intensity: { propertyType: PropertyTypes.Number, name: 'Intensity', min: 0, max: 3, step: 0.01 },
-    exponent: { propertyType: PropertyTypes.Number, name: 'Exponent', min: 0.125, max: 8, step: 0.125 },
-    distance: { propertyType: PropertyTypes.Number, name: 'Distance', min: 0.001, max: 10, step: 0.1 },
-    fade: { propertyType: PropertyTypes.Number, name: 'Fade', min: 0.01, max: 20, step: 0.01 },
-    roughnessFade: { propertyType: PropertyTypes.Number, name: 'Roughness Fade', min: 0, max: 1, step: 0.01 },
-    thickness: { propertyType: PropertyTypes.Number, name: 'Thickness', min: 0, max: 10, step: 0.01 },
-    ior: { propertyType: PropertyTypes.Number, name: 'ior', min: 1, max: 2.33333, step: 0.01 },
+    distance: { propertyType: PropertyTypes.Number, name: 'Distance', min: 0.001, max: 10, step: 0.01 },
+    thickness: { propertyType: PropertyTypes.Number, name: 'Thickness', min: 0, max: 5, step: 0.01 },
+    autoThickness: { propertyType: PropertyTypes.Boolean, name: 'Auto Thickness' },
     maxRoughness: { propertyType: PropertyTypes.Number, name: 'Max Roughness', min: 0, max: 1, step: 0.01 },
-    maxDepthDifference: {
-      propertyType: PropertyTypes.Number,
-      name: 'Max Depth Difference',
-      min: 0,
-      max: 100,
-      step: 0.1
-    },
     blend: { propertyType: PropertyTypes.Number, name: 'Blend', min: 0, max: 1, step: 0.001 },
-    correction: { propertyType: PropertyTypes.Number, name: 'Correction', min: 0, max: 1, step: 0.0001 },
-    correctionRadius: { propertyType: PropertyTypes.Number, name: 'Correction Radius', min: 1, max: 4, step: 1 },
-    blur: { propertyType: PropertyTypes.Number, name: 'Blur', min: 0, max: 1, step: 0.01 },
-    blurKernel: { propertyType: PropertyTypes.Number, name: 'Blur Kernel', min: 0, max: 5, step: 1 },
-    blurSharpness: { propertyType: PropertyTypes.Number, name: 'Blur Sharpness', min: 0, max: 100, step: 1 },
-    jitter: { propertyType: PropertyTypes.Number, name: 'Jitter', min: 0, max: 4, step: 0.01 },
-    jitterRoughness: { propertyType: PropertyTypes.Number, name: 'Jitter Roughness', min: 0, max: 4, step: 0.01 },
-    steps: { propertyType: PropertyTypes.Number, name: 'Steps', min: 1, max: 256, step: 1 },
-    refineSteps: { propertyType: PropertyTypes.Number, name: 'Refine Steps', min: 0, max: 16, step: 1 },
-    missedRays: { propertyType: PropertyTypes.Boolean, name: 'Missed Rays' },
-    resolutionScale: { propertyType: PropertyTypes.Number, name: 'Resolution Scale', min: 0.125, max: 1, step: 0.125 },
-    velocityResolutionScale: {
+    denoiseIterations: { propertyType: PropertyTypes.Number, name: 'Denoise Iterations', min: 0, max: 5, step: 1 },
+    denoiseKernel: { propertyType: PropertyTypes.Number, name: 'Denoise Kernel', min: 1, max: 5, step: 1 },
+    denoiseDiffuse: { propertyType: PropertyTypes.Number, name: 'Denoise Diffuse', min: 0, max: 50, step: 0.01 },
+    denoiseSpecular: { propertyType: PropertyTypes.Number, name: 'Denoise Specular', min: 0, max: 50, step: 0.01 },
+    depthPhi: { propertyType: PropertyTypes.Number, name: 'Depth Phi', min: 0, max: 15, step: 0.001 },
+    normalPhi: { propertyType: PropertyTypes.Number, name: 'Normal Phi', min: 0, max: 50, step: 0.001 },
+    roughnessPhi: { propertyType: PropertyTypes.Number, name: 'Roughness Phi', min: 0, max: 100, step: 0.001 },
+    envBlur: { propertyType: PropertyTypes.Number, name: 'Environment Blur', min: 0, max: 1, step: 0.01 },
+    importanceSampling: { propertyType: PropertyTypes.Boolean, name: 'Importance Sampling' },
+    directLightMultiplier: {
       propertyType: PropertyTypes.Number,
-      name: 'Velocity Resolution Scale',
-      min: 0.125,
-      max: 1,
-      step: 0.125
-    }
+      name: 'Direct Light Multiplier',
+      min: 0.001,
+      max: 10,
+      step: 0.01
+    },
+    steps: { propertyType: PropertyTypes.Number, name: 'Steps', min: 0, max: 256, step: 1 },
+    refineSteps: { propertyType: PropertyTypes.Number, name: 'Refine Steps', min: 0, max: 16, step: 1 },
+    spp: { propertyType: PropertyTypes.Number, name: 'SPP', min: 1, max: 32, step: 1 },
+    resolutionScale: { propertyType: PropertyTypes.Number, name: 'Resolution Scale', min: 0.25, max: 1, step: 0.25 },
+    missedRays: { propertyType: PropertyTypes.Boolean, name: 'Missed Rays' }
   },
   DepthOfFieldEffect: {
     blendFunction: { propertyType: PropertyTypes.BlendFunction, name: 'Blend Function' },
@@ -123,7 +120,7 @@ const EffectsOptions: EffectOptionsType = {
   BloomEffect: {
     blendFunction: { propertyType: PropertyTypes.BlendFunction, name: 'Blend Function' },
     kernelSize: { propertyType: PropertyTypes.KernelSize, name: 'Kernel Size' },
-    intensity: { propertyType: PropertyTypes.Number, name: 'Intensity', min: -1, max: 1, step: 0.01 },
+    intensity: { propertyType: PropertyTypes.Number, name: 'Intensity', min: -1, max: 1000, step: 0.01 },
     luminanceSmoothing: {
       propertyType: PropertyTypes.Number,
       name: 'Luminance Smoothing',
@@ -153,7 +150,50 @@ const EffectsOptions: EffectOptionsType = {
   ColorDepthEffect: {
     bits: { propertyType: PropertyTypes.Number, name: 'Bits', min: -1, max: 1, step: 0.01 }
   },
-  LinearTosRGBEffect: {}
+  LinearTosRGBEffect: {},
+  SSGIEffect: {
+    distance: { propertyType: PropertyTypes.Number, name: 'Distance', min: 0.001, max: 10, step: 0.01 },
+    thickness: { propertyType: PropertyTypes.Number, name: 'Thickness', min: 0, max: 5, step: 0.01 },
+    autoThickness: { propertyType: PropertyTypes.Boolean, name: 'Auto Thickness' },
+    maxRoughness: { propertyType: PropertyTypes.Number, name: 'Max Roughness', min: 0, max: 1, step: 0.01 },
+    blend: { propertyType: PropertyTypes.Number, name: 'Blend', min: 0, max: 1, step: 0.001 },
+    denoiseIterations: { propertyType: PropertyTypes.Number, name: 'Denoise Iterations', min: 0, max: 5, step: 1 },
+    denoiseKernel: { propertyType: PropertyTypes.Number, name: 'Denoise Kernel', min: 1, max: 5, step: 1 },
+    denoiseDiffuse: { propertyType: PropertyTypes.Number, name: 'Denoise Diffuse', min: 0, max: 50, step: 0.01 },
+    denoiseSpecular: { propertyType: PropertyTypes.Number, name: 'Denoise Specular', min: 0, max: 50, step: 0.01 },
+    depthPhi: { propertyType: PropertyTypes.Number, name: 'Depth Phi', min: 0, max: 15, step: 0.001 },
+    normalPhi: { propertyType: PropertyTypes.Number, name: 'Normal Phi', min: 0, max: 50, step: 0.001 },
+    roughnessPhi: { propertyType: PropertyTypes.Number, name: 'Roughness Phi', min: 0, max: 100, step: 0.001 },
+    envBlur: { propertyType: PropertyTypes.Number, name: 'Environment Blur', min: 0, max: 1, step: 0.01 },
+    importanceSampling: { propertyType: PropertyTypes.Boolean, name: 'Importance Sampling' },
+    directLightMultiplier: {
+      propertyType: PropertyTypes.Number,
+      name: 'Direct Light Multiplier',
+      min: 0.001,
+      max: 10,
+      step: 0.01
+    },
+    steps: { propertyType: PropertyTypes.Number, name: 'Steps', min: 0, max: 256, step: 1 },
+    refineSteps: { propertyType: PropertyTypes.Number, name: 'Refine Steps', min: 0, max: 16, step: 1 },
+    spp: { propertyType: PropertyTypes.Number, name: 'SPP', min: 1, max: 32, step: 1 },
+    resolutionScale: { propertyType: PropertyTypes.Number, name: 'Resolution Scale', min: 0.25, max: 1, step: 0.25 },
+    missedRays: { propertyType: PropertyTypes.Boolean, name: 'Missed Rays' }
+  },
+  TRAAEffect: {
+    blend: { propertyType: PropertyTypes.Number, name: 'Blend', min: 0, max: 1, step: 0.001 },
+    constantBlend: { propertyType: PropertyTypes.Boolean, name: 'Constant Blend' },
+    dilation: { propertyType: PropertyTypes.Boolean, name: 'Dilation' },
+    blockySampling: { propertyType: PropertyTypes.Boolean, name: 'Blocky Sampling' },
+    logTransform: { propertyType: PropertyTypes.Boolean, name: 'Log Transform' },
+    depthDistance: { propertyType: PropertyTypes.Number, name: 'Depth Distance', min: 0.01, max: 100, step: 0.01 },
+    worldDistance: { propertyType: PropertyTypes.Number, name: 'World Distance', min: 0.01, max: 100, step: 0.01 },
+    neighborhoodClamping: { propertyType: PropertyTypes.Boolean, name: 'Neighborhood Clamping' }
+  },
+  MotionBlurEffect: {
+    intensity: { propertyType: PropertyTypes.Number, name: 'Intensity', min: 0, max: 10, step: 0.01 },
+    jitter: { propertyType: PropertyTypes.Number, name: 'Jitter', min: 0, max: 10, step: 0.01 },
+    samples: { propertyType: PropertyTypes.Number, name: 'Samples', min: 1, max: 64, step: 1 }
+  }
 }
 
 const BlendFunctionSelect = Object.entries(BlendFunction).map(([label, value]) => {
@@ -188,12 +228,15 @@ const PredicationMode = [
   { label: 'CUSTOM', value: 2 }
 ]
 
-export const PostProcessingSettingsEditor = () => {
+const debouncedConfigureEffectComposer = debounce(() => {
+  configureEffectComposer()
+}, 200)
+
+export const PostProcessingSettingsEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
 
   const [openSettings, setOpenSettings] = useState(false)
-  const postprocessing = useHookstate(getPostProcessingSceneMetadataState(Engine.instance.currentWorld))
-  if (!postprocessing.value) return null
+  const postprocessing = useComponent(props.entity, PostProcessingComponent)
 
   const getPropertyValue = (keys: string[]): any => {
     if (keys.length < 1) return null
@@ -209,11 +252,12 @@ export const PostProcessingSettingsEditor = () => {
     return value
   }
 
+  // trigger re-render - @todo find out why just setting the value doesn't trigger the reactor
+  // action: debounced the set property value
+
   const setPropertyValue = (prop, val) => {
     prop.set(val)
-
-    // trigger re-render - @todo find out why just setting the value doesnt trigger the reactor
-    configureEffectComposer()
+    debouncedConfigureEffectComposer()
   }
 
   const renderProperty = (propertyDetail: EffectPropertyDetail, propertyPath: string[], index: number) => {
@@ -319,13 +363,13 @@ export const PostProcessingSettingsEditor = () => {
     )
   }
 
-  const renderEffectsTypes = (effectName: Effects) => {
+  const renderEffectsTypes = (effectName: keyof typeof Effects) => {
     const effect = EffectsOptions[effectName]
     return Object.keys(effect).map((prop, index) => renderProperty(effect[prop], [effectName, prop], index))
   }
 
   const renderEffects = () => {
-    const items = Object.keys(EffectsOptions).map((effect: Effects) => {
+    const items = Object.keys(EffectsOptions).map((effect: keyof typeof Effects) => {
       return (
         <div key={effect}>
           <Checkbox
@@ -334,7 +378,7 @@ export const PostProcessingSettingsEditor = () => {
             checked={postprocessing.effects[effect]?.isActive?.value}
           />
           <span style={{ color: 'var(--textColor)' }}>{effect}</span>
-          {postprocessing.effects[effect].isActive.value && <div>{renderEffectsTypes(effect)}</div>}
+          {postprocessing.effects[effect]?.isActive?.value && <div>{renderEffectsTypes(effect)}</div>}
         </div>
       )
     })

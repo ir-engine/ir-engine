@@ -1,10 +1,39 @@
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
+import { getState } from '@etherealengine/hyperflux'
+
 import { Engine } from '../../ecs/classes/Engine'
-import { World } from '../../ecs/classes/World'
-import { defineQuery, removeQuery } from '../../ecs/functions/ComponentFunctions'
+import { EngineState } from '../../ecs/classes/EngineState'
+import { defineQuery } from '../../ecs/functions/ComponentFunctions'
+import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { TransformComponent } from '../../transform/components/TransformComponent'
-import { NetworkObjectAuthorityTag } from '../components/NetworkObjectComponent'
-import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
+import { Network } from '../classes/Network'
+import { NetworkObjectAuthorityTag, NetworkObjectComponent } from '../components/NetworkObjectComponent'
 import { createDataWriter } from '../serialization/DataWriter'
+import { ecsDataChannelType } from './IncomingNetworkSystem'
 
 /***********
  * QUERIES *
@@ -17,34 +46,31 @@ const authoritativeNetworkTransformsQuery = defineQuery([
   TransformComponent
 ])
 
-const serializeAndSend = (world: World, serialize: ReturnType<typeof createDataWriter>) => {
-  const ents = Engine.instance.isEditor ? networkTransformsQuery(world) : authoritativeNetworkTransformsQuery(world)
+const serializeAndSend = (serialize: ReturnType<typeof createDataWriter>) => {
+  const ents = getState(EngineState).isEditor ? networkTransformsQuery() : authoritativeNetworkTransformsQuery()
   if (ents.length > 0) {
     const userID = Engine.instance.userId
-    const peerID = Engine.instance.currentWorld.worldNetwork.peerID
-    const data = serialize(world, world.worldNetwork, userID, peerID, ents)
+    const network = Engine.instance.worldNetwork as Network
+    const peerID = Engine.instance.peerID
+    const data = serialize(network, userID, peerID, ents)
 
     // todo: insert historian logic here
 
     if (data.byteLength > 0) {
       // side effect - network IO
       // delay until end of frame
-      Promise.resolve().then(() => world.worldNetwork.sendData(data))
+      Promise.resolve().then(() => network.transport.bufferToPeer(ecsDataChannelType, network.hostPeerID, data))
     }
   }
 }
 
-export default async function OutgoingNetworkSystem(world: World) {
-  const serialize = createDataWriter()
+const serialize = createDataWriter()
 
-  const execute = () => {
-    world.worldNetwork && serializeAndSend(world, serialize)
-  }
-
-  const cleanup = async () => {
-    removeQuery(world, networkTransformsQuery)
-    removeQuery(world, authoritativeNetworkTransformsQuery)
-  }
-
-  return { execute, cleanup }
+const execute = () => {
+  Engine.instance.worldNetwork && serializeAndSend(serialize)
 }
+
+export const OutgoingNetworkSystem = defineSystem({
+  uuid: 'ee.engine.OutgoingNetworkSystem',
+  execute
+})

@@ -1,12 +1,36 @@
-import { Paginated } from '@feathersjs/feathers'
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
 import assert from 'assert'
 import fs from 'fs'
 import path from 'path/posix'
 
-import { StaticResourceInterface } from '@xrengine/common/src/interfaces/StaticResourceInterface'
+import { destroyEngine } from '@etherealengine/engine/src/ecs/classes/Engine'
 
 import { Application } from '../../../declarations'
-import { createFeathersExpressApp } from '../../createApp'
+import { createFeathersKoaApp } from '../../createApp'
 import LocalStorage from '../storageprovider/local.storage'
 import { getStorageProvider } from '../storageprovider/storageprovider'
 import { projectsRootFolder } from './file-browser.class'
@@ -19,7 +43,7 @@ let STORAGE_ROOT = ''
 describe('file browser service', () => {
   let app: Application
   before(async () => {
-    app = createFeathersExpressApp()
+    app = createFeathersKoaApp()
     await app.setup()
 
     STORAGE_ROOT = (getStorageProvider() as LocalStorage).PATH_PREFIX
@@ -30,6 +54,9 @@ describe('file browser service', () => {
 
     fs.mkdirSync(PROJECT_PATH)
     fs.mkdirSync(STORAGE_PATH)
+  })
+  after(() => {
+    return destroyEngine()
   })
 
   it('should register the service', async () => {
@@ -306,9 +333,8 @@ describe('file browser service', () => {
 
       await app.service('static-resource').create(
         {
-          name: 'Hello world',
           mimeType: 'txt',
-          url: fileStoragePath,
+          hash: 'abcd',
           key: filePath
         },
         {
@@ -320,12 +346,12 @@ describe('file browser service', () => {
 
       result.forEach((r) => assert(r === true))
 
-      const staticResource = (await app.service('static-resource').find({
+      const staticResource = await app.service('static-resource').find({
         query: {
           key: filePath,
           $limit: 1
         }
-      })) as Paginated<StaticResourceInterface>
+      })
 
       assert(!fs.existsSync(filePath))
       assert(!fs.existsSync(fileStoragePath))

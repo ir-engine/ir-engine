@@ -1,40 +1,62 @@
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
 import React, { memo, useCallback, useEffect } from 'react'
-import { useTranslation } from 'react-i18next'
 import AutoSizer from 'react-virtualized-auto-sizer'
 import { areEqual, FixedSizeList } from 'react-window'
 import { MeshBasicMaterial } from 'three'
 
-import exportMaterialsGLTF from '@xrengine/engine/src/assets/functions/exportMaterialsGLTF'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { SourceType } from '@xrengine/engine/src/renderer/materials/components/MaterialSource'
-import { LibraryEntryType } from '@xrengine/engine/src/renderer/materials/constants/LibraryEntry'
+import exportMaterialsGLTF from '@etherealengine/engine/src/assets/functions/exportMaterialsGLTF'
+import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
+import { SourceType } from '@etherealengine/engine/src/renderer/materials/components/MaterialSource'
+import { LibraryEntryType } from '@etherealengine/engine/src/renderer/materials/constants/LibraryEntry'
 import {
   entryId,
-  hashMaterialSource,
   materialFromId,
   registerMaterial
-} from '@xrengine/engine/src/renderer/materials/functions/MaterialLibraryFunctions'
-import { useMaterialLibrary } from '@xrengine/engine/src/renderer/materials/MaterialLibrary'
-import { createActionQueue, getState, removeActionQueue, useState } from '@xrengine/hyperflux'
+} from '@etherealengine/engine/src/renderer/materials/functions/MaterialLibraryFunctions'
+import { MaterialLibraryState } from '@etherealengine/engine/src/renderer/materials/MaterialLibrary'
+import { getMutableState, getState, useHookstate, useState } from '@etherealengine/hyperflux'
 
-import { Divider, Grid, Stack } from '@mui/material'
+import { Stack } from '@mui/material'
 
 import { uploadProjectFiles } from '../../functions/assetFunctions'
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
-import { useEditorState } from '../../services/EditorServices'
-import { useSelectionState } from '../../services/SelectionServices'
-import { HeirarchyTreeCollapsedNodeType } from '../hierarchy/HeirarchyTreeWalker'
+import { EditorState } from '../../services/EditorServices'
+import { SelectionState } from '../../services/SelectionServices'
 import styles from '../hierarchy/styles.module.scss'
 import { Button } from '../inputs/Button'
 import MaterialLibraryEntry, { MaterialLibraryEntryType } from './MaterialLibraryEntry'
 
 export default function MaterialLibraryPanel() {
-  const { t } = useTranslation()
-  const editorState = useEditorState()
-  const selectionState = useSelectionState()
-  const materialLibrary = useMaterialLibrary()
+  const editorState = useHookstate(getMutableState(EditorState))
+  const selectionState = useHookstate(getMutableState(SelectionState))
+  const materialLibrary = useHookstate(getMutableState(MaterialLibraryState))
   const MemoMatLibEntry = memo(MaterialLibraryEntry, areEqual)
   const nodeChanges = useState(0)
+  const publicPath = getState(EngineState).publicPath
 
   const createSrcs = useCallback(() => Object.values(materialLibrary.sources.value), [materialLibrary.sources])
   const srcs = useState(createSrcs())
@@ -154,7 +176,7 @@ export default function MaterialLibraryPanel() {
                   )
                   .map((selected) => materialFromId(selected.value as string))
                 const libraryName = 'material-test.gltf'
-                const path = `${Engine.instance.publicPath}/projects/${projectName}/assets/${libraryName}`
+                const path = `${publicPath}/projects/${projectName}/assets/${libraryName}`
                 const gltf = (await exportMaterialsGLTF(materials, {
                   binary: false,
                   path

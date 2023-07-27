@@ -1,19 +1,51 @@
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
 import { Params } from '@feathersjs/feathers'
+import Multer from '@koa/multer'
 
-import { SceneData } from '@xrengine/common/src/interfaces/SceneInterface'
+import { SceneData } from '@etherealengine/common/src/interfaces/SceneInterface'
+import { getState } from '@etherealengine/hyperflux'
 
-import { Application, ServerMode } from '../../../declarations'
+import { Application } from '../../../declarations'
 import { getStorageProvider } from '../../media/storageprovider/storageprovider'
+import { UploadParams } from '../../media/upload-asset/upload-asset.service'
 import { getActiveInstancesForScene } from '../../networking/instance/instance.service'
 import logger from '../../ServerLogger'
-import { getAllPortals, getEnvMapBake, getPortal } from './scene-helper'
+import { ServerMode, ServerState } from '../../ServerState'
+import { getAllPortals, getPortal } from './scene-helper'
 import { getSceneData, Scene } from './scene.class'
 import projectDocs from './scene.docs'
 import hooks from './scene.hooks'
 
-declare module '@xrengine/common/declarations' {
+declare module '@etherealengine/common/declarations' {
   interface ServiceTypes {
     scene: Scene
+    'scene/upload': {
+      create: ReturnType<typeof uploadScene>
+    }
   }
   interface ServiceTypes {
     portal: {
@@ -27,6 +59,24 @@ declare module '@xrengine/common/declarations' {
       find: ReturnType<typeof getAllScenes>
     }
   }
+}
+
+export const uploadScene = (app: Application) => async (data: any, params: UploadParams) => {
+  if (typeof data === 'string') data = JSON.parse(data)
+  if (typeof data.sceneData === 'string') data.sceneData = JSON.parse(data.sceneData)
+
+  const thumbnailBuffer = params.files.length > 0 ? (params.files[0].buffer as Buffer) : undefined
+
+  const { projectName, sceneName, sceneData, storageProviderName } = data
+
+  const result = await app
+    .service('scene')
+    .update(projectName, { sceneName, sceneData, storageProviderName, thumbnailBuffer })
+
+  // Clear params otherwise all the files and auth details send back to client as response
+  for (const prop of Object.getOwnPropertyNames(params)) delete params[prop]
+
+  return result
 }
 
 export interface SceneParams extends Params {
@@ -95,14 +145,45 @@ export const getAllScenes = (app: Application) => {
   }
 }
 
+const multipartMiddleware = Multer({ limits: { fieldSize: Infinity, files: 1 } })
+
 export default (app: Application) => {
   /**
    * Initialize our service with any options it requires and docs
    */
   const event = new Scene(app)
   event.docs = projectDocs
-
   app.use('scene', event)
+  app.use(
+    'scene/upload',
+    {
+      create: uploadScene(app)
+    },
+    {
+      koa: {
+        before: [
+          multipartMiddleware.any(),
+          async (ctx, next) => {
+            console.log('trying to upload scene')
+            const files = ctx.request.files
+            if (ctx?.feathers && ctx.method !== 'GET') {
+              ;(ctx as any).feathers.files = (ctx as any).request.files.media
+                ? (ctx as any).request.files.media
+                : ctx.request.files
+            }
+            if (Object.keys(files as any).length > 1) {
+              ctx.status = 400
+              ctx.body = 'Only one scene is allowed'
+              return
+            }
+            await next()
+            console.log('uploaded scene')
+            return ctx.body
+          }
+        ]
+      }
+    }
+  )
 
   app.use('scene-data', {
     get: getScenesForProject(app),
@@ -113,16 +194,16 @@ export default (app: Application) => {
     get: getPortal(app),
     find: getAllPortals(app)
   })
-  app.use('/cubemap/:entityId', getEnvMapBake(app))
 
   /**
    * Get our initialized service so that we can register hooks
    */
+
   const service = app.service('scene')
 
   service.hooks(hooks)
 
-  if (app.serverMode === ServerMode.API)
+  if (getState(ServerState).serverMode === ServerMode.API)
     service.publish('updated', async (data, context) => {
       const instances = await getActiveInstancesForScene(app)({ query: { sceneId: data.sceneId } })
       const users = (

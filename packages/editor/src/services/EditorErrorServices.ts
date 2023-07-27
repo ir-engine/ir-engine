@@ -1,38 +1,31 @@
-import { useState } from '@hookstate/core'
+/*
+CPAL-1.0 License
 
-import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
-import { defineAction, defineState, getState } from '@xrengine/hyperflux'
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
 
-type EditorErrorServiceStateType = {
-  error: any
-}
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
 
-const EditorErrorState = defineState({
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
+import { defineState } from '@etherealengine/hyperflux'
+
+export const EditorErrorState = defineState({
   name: 'EditorErrorState',
-  initial: () =>
-    ({
-      error: null
-    } as EditorErrorServiceStateType)
+  initial: { error: null as string | null }
 })
-
-export const EditorErrorServiceReceptor = (action): any => {
-  const s = getState(EditorErrorState)
-  matches(action).when(EditorErrorAction.throwError.matches, (action) => {
-    return s.merge({ error: action.error })
-  })
-}
-
-export const accessEditorErrorState = () => getState(EditorErrorState)
-
-export const useEditorErrorState = () => useState(accessEditorErrorState())
-
-//Service
-export const EditorErrorService = {}
-
-//Action
-export class EditorErrorAction {
-  static throwError = defineAction({
-    type: 'xre.editor.EditorError.ERROR_THROWN' as const,
-    error: matches.object as Validator<unknown, Error>
-  })
-}

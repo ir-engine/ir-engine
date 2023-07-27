@@ -1,22 +1,59 @@
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
 import { ColliderDesc, RigidBodyDesc } from '@dimforge/rapier3d-compat'
 import { useEffect } from 'react'
 import { Color, Mesh, MeshLambertMaterial, PlaneGeometry, ShadowMaterial } from 'three'
 
+import { getState } from '@etherealengine/hyperflux'
+
 import { matches } from '../../common/functions/MatchesUtils'
-import { Engine } from '../../ecs/classes/Engine'
-import { defineComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
+import { EngineState } from '../../ecs/classes/EngineState'
+import {
+  defineComponent,
+  hasComponent,
+  removeComponent,
+  setComponent,
+  useComponent
+} from '../../ecs/functions/ComponentFunctions'
+import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { Physics } from '../../physics/classes/Physics'
 import { CollisionGroups } from '../../physics/enums/CollisionGroups'
 import { getInteractionGroups } from '../../physics/functions/getInteractionGroups'
+import { PhysicsState } from '../../physics/state/PhysicsState'
 import { ObjectLayers } from '../constants/ObjectLayers'
-import { generateMeshBVH } from '../functions/bvhWorkerPool'
 import { enableObjectLayer } from '../functions/setObjectLayers'
 import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
+import { SceneAssetPendingTagComponent } from './SceneAssetPendingTagComponent'
+import { SceneObjectComponent } from './SceneObjectComponent'
 
 export const GroundPlaneComponent = defineComponent({
   name: 'GroundPlaneComponent',
+  jsonID: 'ground-plane',
 
-  onInit(entity, world) {
+  onInit(entity) {
     return {
       color: new Color(),
       visible: true,
@@ -31,17 +68,23 @@ export const GroundPlaneComponent = defineComponent({
       component.color.value.set(json.color)
     if (matches.boolean.test(json.visible)) component.visible.set(json.visible)
     if (matches.object.test(json.mesh)) component.mesh.set(json.mesh as any)
+
+    /**
+     * Add SceneAssetPendingTagComponent to tell scene loading system we should wait for this asset to load
+     */
+    if (!getState(EngineState).sceneLoaded && hasComponent(entity, SceneObjectComponent))
+      setComponent(entity, SceneAssetPendingTagComponent)
   },
 
   toJSON(entity, component) {
     return {
-      color: component.color.value.getHex(),
+      color: component.color.value,
       visible: component.visible.value
     }
   },
 
-  reactor: function ({ root }) {
-    const entity = root.entity
+  reactor: function () {
+    const entity = useEntityContext()
 
     const component = useComponent(entity, GroundPlaneComponent)
 
@@ -57,7 +100,6 @@ export const GroundPlaneComponent = defineComponent({
       mesh.name = 'GroundPlaneMesh'
       mesh.material.polygonOffset = true
       mesh.material.polygonOffsetUnits = -0.01
-      mesh.traverse(generateMeshBVH)
 
       enableObjectLayer(mesh, ObjectLayers.Camera, true)
       addObjectToGroup(entity, mesh)
@@ -68,10 +110,13 @@ export const GroundPlaneComponent = defineComponent({
         getInteractionGroups(CollisionGroups.Ground, CollisionGroups.Default | CollisionGroups.Avatars)
       )
 
-      Physics.createRigidBody(entity, Engine.instance.currentWorld.physicsWorld, rigidBodyDesc, [colliderDesc])
+      const physicsWorld = getState(PhysicsState).physicsWorld
+      Physics.createRigidBody(entity, physicsWorld, rigidBodyDesc, [colliderDesc])
+
+      if (hasComponent(entity, SceneAssetPendingTagComponent)) removeComponent(entity, SceneAssetPendingTagComponent)
 
       return () => {
-        Physics.removeRigidBody(entity, Engine.instance.currentWorld.physicsWorld)
+        Physics.removeRigidBody(entity, physicsWorld)
         removeObjectFromGroup(entity, component.mesh.value)
       }
     }, [])
@@ -83,5 +128,3 @@ export const GroundPlaneComponent = defineComponent({
     return null
   }
 })
-
-export const SCENE_COMPONENT_GROUND_PLANE = 'ground-plane'

@@ -1,16 +1,29 @@
-import { sample } from 'lodash'
-import {
-  BufferAttribute,
-  BuiltinShaderAttributeName,
-  Color,
-  Material,
-  Mesh,
-  MeshBasicMaterial,
-  MeshStandardMaterial,
-  Object3D,
-  Texture,
-  Vector2
-} from 'three'
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
+import { BufferAttribute, Color, Material, Mesh, Object3D, Texture } from 'three'
 
 import createReadableTexture from '../../../assets/functions/createReadableTexture'
 import { Engine } from '../../../ecs/classes/Engine'
@@ -20,11 +33,11 @@ export default async function bakeToVertices<T extends Material>(
   material: T,
   colors: (keyof T)[],
   maps: { field: keyof T; attribName: string }[],
-  root: Object3D = Engine.instance.currentWorld.scene,
-  nuPrototype: string = 'MeshMatcapMaterial'
+  root: Object3D | null = Engine.instance.scene,
+  nuPrototype = 'MeshMatcapMaterial'
 ) {
   const pending = new Array<Promise<void>>()
-  root.traverse((mesh: Mesh) => {
+  root?.traverse((mesh: Mesh) => {
     //for each vertex in each mesh with material assigned:
     const materials = Array.isArray(mesh.material) ? mesh.material : [mesh.material]
     if (!materials.includes(material)) return //skip meshes without selected material
@@ -34,27 +47,29 @@ export default async function bakeToVertices<T extends Material>(
         .map((map) => {
           const texture = material[map.field] as Texture
           const canvas = document.createElement('canvas')
-          const uv = mesh.geometry.getAttribute(map.attribName)
-          return new Promise<Color[]>(async (resolve) => {
-            const image = (
-              (await createReadableTexture(texture, { keepTransform: true, flipX: false, flipY: true })) as Texture
-            ).image as HTMLImageElement
-            canvas.width = image.width
-            canvas.height = image.height
-            const ctx = canvas.getContext('2d')!
-            ctx.drawImage(image, 0, 0)
-            const result = new Array<Color>()
-            for (let i = 0; i < uv.count; i++) {
-              const sampleUv = [uv.getX(i), uv.getY(i)]
-              const x = sampleUv[0] * canvas.width
-              const y = (1 - sampleUv[1]) * canvas.height
-              const pixelData = Float32Array.from(ctx.getImageData(x, y, 1, 1).data).map((x) => x / 255)
-              const pixelColor = new Color(...pixelData)
-              result.push(pixelColor)
-            }
-            canvas.remove()
-            ;(material as any)[map.field] = null
-            resolve(result)
+          const uv = mesh.geometry.getAttribute(map.attribName) as BufferAttribute
+          return new Promise<Color[]>((resolve) => {
+            createReadableTexture(texture, { keepTransform: true, flipX: false, flipY: true }).then(
+              (_texture: Texture) => {
+                const image = _texture.image
+                canvas.width = image.width
+                canvas.height = image.height
+                const ctx = canvas.getContext('2d')!
+                ctx.drawImage(image, 0, 0)
+                const result = new Array<Color>()
+                for (let i = 0; i < uv.count; i++) {
+                  const sampleUv = [uv.getX(i), uv.getY(i)]
+                  const x = sampleUv[0] * canvas.width
+                  const y = (1 - sampleUv[1]) * canvas.height
+                  const pixelData = Float32Array.from(ctx.getImageData(x, y, 1, 1).data).map((x) => x / 255)
+                  const pixelColor = new Color(...pixelData)
+                  result.push(pixelColor)
+                }
+                canvas.remove()
+                ;(material as any)[map.field] = null
+                resolve(result)
+              }
+            )
           })
         }),
       ...colors

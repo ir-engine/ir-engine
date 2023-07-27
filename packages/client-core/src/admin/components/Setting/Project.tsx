@@ -1,15 +1,43 @@
-import React, { useEffect, useState } from 'react'
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
+import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import InputSelect, { InputMenuItem } from '@xrengine/client-core/src/common/components/InputSelect'
-import InputText from '@xrengine/client-core/src/common/components/InputText'
-import { loadConfigForProject } from '@xrengine/projects/loadConfigForProject'
+import InputSelect, { InputMenuItem } from '@etherealengine/client-core/src/common/components/InputSelect'
+import InputText from '@etherealengine/client-core/src/common/components/InputText'
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { loadConfigForProject } from '@etherealengine/projects/loadConfigForProject'
+import Box from '@etherealengine/ui/src/primitives/mui/Box'
+import Button from '@etherealengine/ui/src/primitives/mui/Button'
+import Grid from '@etherealengine/ui/src/primitives/mui/Grid'
+import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 
-import { Box, Button, Grid, Typography } from '@mui/material'
-
-import { ProjectService, useProjectState } from '../../../common/services/ProjectService'
-import { useAuthState } from '../../../user/services/AuthService'
-import { ProjectSettingService, useProjectSettingState } from '../../services/Setting/ProjectSettingService'
+import { ProjectService, ProjectState } from '../../../common/services/ProjectService'
+import { AuthState } from '../../../user/services/AuthService'
+import { AdminProjectSettingsState, ProjectSettingService } from '../../services/Setting/ProjectSettingService'
 import styles from '../../styles/settings.module.scss'
 
 interface ProjectSetting {
@@ -19,15 +47,16 @@ interface ProjectSetting {
 
 const Project = () => {
   const { t } = useTranslation()
-  const authState = useAuthState()
-  const user = authState.user
-  const projectState = useProjectState()
+  const user = useHookstate(getMutableState(AuthState).user)
+  const projectState = useHookstate(getMutableState(ProjectState))
   const projects = projectState.projects
-  const projectSettingState = useProjectSettingState()
+  const projectSettingState = useHookstate(getMutableState(AdminProjectSettingsState))
   const projectSetting = projectSettingState.projectSetting
 
-  const [settings, setSettings] = useState<Array<ProjectSetting> | []>([])
-  const [selectedProject, setSelectedProject] = useState(projects.value.length > 0 ? projects.value[0].id : '')
+  const settings = useHookstate<Array<ProjectSetting> | []>([])
+  const selectedProject = useHookstate(
+    projects.get({ noproxy: true }).length > 0 ? projects.get({ noproxy: true })[0].id : ''
+  )
 
   ProjectService.useAPIListeners()
 
@@ -36,14 +65,14 @@ const Project = () => {
   }, [])
 
   useEffect(() => {
-    if (selectedProject) {
+    if (selectedProject.value) {
       resetSettingsFromSchema()
     }
-  }, [selectedProject])
+  }, [selectedProject.value])
 
   useEffect(() => {
     if (projectSetting.value && projectSetting.value?.length > 0) {
-      let tempSettings = JSON.parse(JSON.stringify(settings))
+      let tempSettings = JSON.parse(JSON.stringify(settings.value))
 
       for (let [index, setting] of tempSettings.entries()) {
         const savedSetting = projectSetting.value.filter((item) => item.key === setting.key)
@@ -52,12 +81,12 @@ const Project = () => {
         }
       }
 
-      setSettings(tempSettings)
+      settings.set(tempSettings)
     }
   }, [projectSetting])
 
   const resetSettingsFromSchema = async () => {
-    const projectName = projects.value.filter((proj) => proj.id === selectedProject)
+    const projectName = projects.value.filter((proj) => proj.id === selectedProject.value)
     const projectConfig = projectName?.length > 0 && (await loadConfigForProject(projectName[0].name))
 
     if (projectConfig && projectConfig?.settings) {
@@ -67,28 +96,28 @@ const Project = () => {
         tempSetting.push({ key: setting.key, value: '' })
       }
 
-      setSettings(tempSetting)
-      ProjectSettingService.fetchProjectSetting(selectedProject)
+      settings.set(tempSetting)
+      ProjectSettingService.fetchProjectSetting(selectedProject.value)
     } else {
-      setSettings([])
+      settings.set([])
     }
   }
 
   useEffect(() => {
-    if (user?.id?.value != null && selectedProject) {
+    if (user?.id?.value != null && selectedProject.value) {
     }
-  }, [authState?.user?.id?.value, selectedProject])
+  }, [user?.id?.value, selectedProject.value])
 
   const handleProjectChange = (e) => {
     const { value } = e.target
-    setSelectedProject(value)
+    selectedProject.set(value)
   }
 
   const handleValueChange = (index, e) => {
-    const tempSetting = JSON.parse(JSON.stringify(settings))
+    const tempSetting = JSON.parse(JSON.stringify(settings.value))
 
     tempSetting[index].value = e.target.value
-    setSettings(tempSetting)
+    settings.set(tempSetting)
   }
 
   const handleCancel = () => {
@@ -96,7 +125,7 @@ const Project = () => {
   }
 
   const handleSubmit = () => {
-    ProjectSettingService.updateProjectSetting(selectedProject, settings)
+    ProjectSettingService.updateProjectSetting(selectedProject.value, settings.value)
   }
 
   const projectsMenu: InputMenuItem[] = projects.value.map((el) => {
@@ -117,7 +146,7 @@ const Project = () => {
             <InputSelect
               name="selectProject"
               label={t('admin:components.setting.project')}
-              value={selectedProject}
+              value={selectedProject.value}
               menu={projectsMenu}
               onChange={handleProjectChange}
             />
@@ -125,7 +154,7 @@ const Project = () => {
 
           <Grid item container xs={12}>
             {settings?.length > 0 ? (
-              settings.map((setting, index) => (
+              settings.value.map((setting, index) => (
                 <Grid item container key={index} spacing={1} xs={12}>
                   <Grid item xs={6}>
                     <InputText name="key" label="Key Name" value={setting.key || ''} disabled />
@@ -147,7 +176,7 @@ const Project = () => {
             )}
           </Grid>
         </Grid>
-        {settings?.length > 0 && (
+        {settings?.value?.length > 0 && (
           <Grid item container xs={12}>
             <Button sx={{ maxWidth: '100%' }} variant="outlined" onClick={handleCancel}>
               {t('admin:components.common.cancel')}

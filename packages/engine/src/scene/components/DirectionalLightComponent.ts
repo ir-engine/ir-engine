@@ -1,15 +1,36 @@
-import { useEffect } from 'react'
-import { Color, DirectionalLight, IcosahedronGeometry, Mesh, MeshBasicMaterial, Object3D, Vector2 } from 'three'
+/*
+CPAL-1.0 License
 
-import { getState, none, useHookstate } from '@xrengine/hyperflux'
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
+import { useEffect } from 'react'
+import { Color, DirectionalLight } from 'three'
+
+import { getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
 
 import { matches } from '../../common/functions/MatchesUtils'
-import {
-  createMappedComponent,
-  defineComponent,
-  hasComponent,
-  useComponent
-} from '../../ecs/functions/ComponentFunctions'
+import { defineComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
+import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { RendererState } from '../../renderer/RendererState'
 import EditorDirectionalLightHelper from '../classes/EditorDirectionalLightHelper'
 import { ObjectLayers } from '../constants/ObjectLayers'
@@ -18,8 +39,9 @@ import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
 
 export const DirectionalLightComponent = defineComponent({
   name: 'DirectionalLightComponent',
+  jsonID: 'directional-light',
 
-  onInit: (entity, world) => {
+  onInit: (entity) => {
     const light = new DirectionalLight()
     light.target.position.set(0, 0, 1)
     light.target.name = 'light-target'
@@ -30,7 +52,6 @@ export const DirectionalLightComponent = defineComponent({
       color: new Color(),
       intensity: 1,
       castShadow: false,
-      shadowMapResolution: 512,
       shadowBias: -0.00001,
       shadowRadius: 1,
       cameraFar: 2000,
@@ -42,26 +63,33 @@ export const DirectionalLightComponent = defineComponent({
   onSet: (entity, component, json) => {
     if (!json) return
     if (matches.object.test(json.color) && json.color.isColor) component.color.set(json.color)
-    if (matches.string.test(json.color)) component.color.value.set(json.color)
+    if (matches.string.test(json.color) || matches.number.test(json.color)) component.color.value.set(json.color)
     if (matches.number.test(json.intensity)) component.intensity.set(json.intensity)
     if (matches.number.test(json.cameraFar)) component.cameraFar.set(json.cameraFar)
     if (matches.boolean.test(json.castShadow)) component.castShadow.set(json.castShadow)
     /** backwards compat */
-    if (matches.array.test(json.shadowMapResolution))
-      component.shadowMapResolution.set((json.shadowMapResolution as any)[0])
-    if (matches.number.test(json.shadowMapResolution)) component.shadowMapResolution.set(json.shadowMapResolution)
     if (matches.number.test(json.shadowBias)) component.shadowBias.set(json.shadowBias)
     if (matches.number.test(json.shadowRadius)) component.shadowRadius.set(json.shadowRadius)
     if (matches.number.test(json.useInCSM)) component.useInCSM.set(json.useInCSM)
+
+    /**
+     * we need to put this here in case the CSM needs to grab the values, which can sometimes happen before the component reactor hooks
+     * @todo find a better way of doing this
+     */
+    component.light.value.color.set(component.color.value)
+    component.light.value.intensity = component.intensity.value
+    component.light.value.castShadow = component.castShadow.value
+    component.light.value.shadow.camera.far = component.cameraFar.value
+    component.light.value.shadow.bias = component.shadowBias.value
+    component.light.value.shadow.radius = component.shadowRadius.value
   },
 
   toJSON: (entity, component) => {
     return {
-      color: component.color.value.getHex(),
+      color: component.color.value,
       intensity: component.intensity.value,
       cameraFar: component.cameraFar.value,
       castShadow: component.castShadow.value,
-      shadowMapResolution: component.shadowMapResolution.value,
       shadowBias: component.shadowBias.value,
       shadowRadius: component.shadowRadius.value,
       useInCSM: component.useInCSM.value
@@ -73,11 +101,11 @@ export const DirectionalLightComponent = defineComponent({
     if (component.helper.value) removeObjectFromGroup(entity, component.helper.value)
   },
 
-  reactor: function ({ root }) {
-    if (!hasComponent(root.entity, DirectionalLightComponent)) throw root.stop()
-
-    const debugEnabled = useHookstate(getState(RendererState).nodeHelperVisibility)
-    const light = useComponent(root.entity, DirectionalLightComponent)
+  reactor: function () {
+    const entity = useEntityContext()
+    const renderState = useHookstate(getMutableState(RendererState))
+    const debugEnabled = renderState.nodeHelperVisibility
+    const light = useComponent(entity, DirectionalLightComponent)
 
     useEffect(() => {
       light.light.value.color.set(light.color.value)
@@ -104,19 +132,22 @@ export const DirectionalLightComponent = defineComponent({
     }, [light.shadowRadius])
 
     useEffect(() => {
-      if (light.light.value.shadow.mapSize.x !== light.shadowMapResolution.value) {
-        light.light.value.shadow.mapSize.set(light.shadowMapResolution.value, light.shadowMapResolution.value)
+      if (light.light.value.shadow.mapSize.x !== renderState.shadowMapResolution.value) {
+        light.light.value.shadow.mapSize.set(
+          renderState.shadowMapResolution.value,
+          renderState.shadowMapResolution.value
+        )
         light.light.value.shadow.map?.dispose()
         light.light.value.shadow.map = null as any
         light.light.value.shadow.camera.updateProjectionMatrix()
         light.light.value.shadow.needsUpdate = true
       }
-    }, [light.shadowMapResolution])
+    }, [renderState.shadowMapResolution])
 
     useEffect(() => {
       if (debugEnabled.value && !light.helper.value) {
         const helper = new EditorDirectionalLightHelper(light.light.value)
-        helper.name = `directional-light-helper-${root.entity}`
+        helper.name = `directional-light-helper-${entity}`
 
         // const cameraHelper = new CameraHelper(light.shadow.camera)
         // cameraHelper.visible = false
@@ -124,12 +155,12 @@ export const DirectionalLightComponent = defineComponent({
 
         setObjectLayers(helper, ObjectLayers.NodeHelper)
 
-        addObjectToGroup(root.entity, helper)
+        addObjectToGroup(entity, helper)
         light.helper.set(helper)
       }
 
       if (!debugEnabled.value && light.helper.value) {
-        removeObjectFromGroup(root.entity, light.helper.value)
+        removeObjectFromGroup(entity, light.helper.value)
         light.helper.set(none)
       }
     }, [debugEnabled])
@@ -137,5 +168,3 @@ export const DirectionalLightComponent = defineComponent({
     return null
   }
 })
-
-export const SCENE_COMPONENT_DIRECTIONAL_LIGHT = 'directional-light'

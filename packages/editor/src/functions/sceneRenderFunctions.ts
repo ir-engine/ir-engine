@@ -1,22 +1,29 @@
-import { Group, Object3D, Scene, Vector3, WebGLInfo } from 'three'
+/*
+CPAL-1.0 License
 
-import { SceneData } from '@xrengine/common/src/interfaces/SceneInterface'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { EngineActions } from '@xrengine/engine/src/ecs/classes/EngineState'
-import { addComponent, getComponent, removeComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { removeEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
-import { emptyEntityTree } from '@xrengine/engine/src/ecs/functions/EntityTree'
-import { matchActionOnce } from '@xrengine/engine/src/networking/functions/matchActionOnce'
-import InfiniteGridHelper from '@xrengine/engine/src/scene/classes/InfiniteGridHelper'
-import TransformGizmo from '@xrengine/engine/src/scene/classes/TransformGizmo'
-import { ObjectLayers } from '@xrengine/engine/src/scene/constants/ObjectLayers'
-import { updateSceneFromJSON } from '@xrengine/engine/src/scene/systems/SceneLoadingSystem'
-import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
-import { dispatchAction } from '@xrengine/hyperflux'
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
 
-import { EditorCameraComponent } from '../classes/EditorCameraComponent'
-import { EditorHistoryAction } from '../services/EditorHistory'
-import { EditorAction } from '../services/EditorServices'
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
+import { Group, Object3D, Scene } from 'three'
 
 export type DefaultExportOptionsType = {
   shouldCombineMeshes: boolean
@@ -26,77 +33,6 @@ export type DefaultExportOptionsType = {
 export const DefaultExportOptions: DefaultExportOptionsType = {
   shouldCombineMeshes: true,
   shouldRemoveUnusedObjects: true
-}
-
-type SceneStateType = {
-  isInitialized: boolean
-  transformGizmo: TransformGizmo
-  onUpdateStats?: (info: WebGLInfo) => void
-}
-
-export const SceneState: SceneStateType = {
-  isInitialized: false,
-  transformGizmo: null!
-}
-
-export async function initializeScene(sceneData: SceneData): Promise<Error[] | void> {
-  SceneState.isInitialized = false
-
-  const world = Engine.instance.currentWorld
-
-  if (!world.scene) world.scene = new Scene()
-
-  // getting scene data
-  await updateSceneFromJSON(sceneData)
-  await new Promise((resolve) => matchActionOnce(EngineActions.sceneLoaded.matches, resolve))
-
-  dispatchAction(EditorHistoryAction.clearHistory({}))
-
-  const camera = world.camera
-  const transform = getComponent(world.cameraEntity, TransformComponent)
-  camera.position.set(0, 5, 10)
-  camera.lookAt(new Vector3())
-  transform.position.copy(camera.position)
-  transform.rotation.copy(camera.quaternion)
-  world.dirtyTransforms[world.cameraEntity] = true
-
-  world.camera.layers.enable(ObjectLayers.Scene)
-  world.camera.layers.enable(ObjectLayers.NodeHelper)
-  world.camera.layers.enable(ObjectLayers.Gizmos)
-
-  removeComponent(world.cameraEntity, EditorCameraComponent)
-  addComponent(world.cameraEntity, EditorCameraComponent, {
-    center: new Vector3(),
-    zoomDelta: 0,
-    isOrbiting: false,
-    isPanning: false,
-    cursorDeltaX: 0,
-    cursorDeltaY: 0,
-    focusedObjects: []
-  })
-
-  // Require when changing scene
-  if (!world.scene.children.includes(InfiniteGridHelper.instance)) {
-    InfiniteGridHelper.instance = new InfiniteGridHelper()
-    world.scene.add(InfiniteGridHelper.instance)
-  }
-
-  SceneState.isInitialized = true
-
-  return []
-}
-
-/**
- * Function initializeRenderer used to render canvas.
- *
- * @param  {any} canvas [ contains canvas data ]
- */
-export async function initializeRenderer(): Promise<void> {
-  try {
-    dispatchAction(EditorAction.rendererInitialized({ initialized: true }))
-  } catch (error) {
-    console.error(error)
-  }
 }
 
 function removeUnusedObjects(object3d: Object3D) {
@@ -152,11 +88,11 @@ export async function exportScene(options = {} as DefaultExportOptionsType) {
 
   executeCommand({ type: EditorCommands.REPLACE_SELECTION, affectedNodes: [] })
 
-  if ((Engine.instance.currentWorld.scene as any).entity == undefined) {
-    ;(Engine.instance.currentWorld.scene as any).entity = Engine.instance.currentWorld.entityTree.rootNode.entity
+  if ((Engine.instance.scene as any).entity == undefined) {
+    ;(Engine.instance.scene as any).entity = getState(SceneState).sceneEntity
   }
 
-  const clonedScene = serializeForGLTFExport(Engine.instance.currentWorld.scene)
+  const clonedScene = serializeForGLTFExport(Engine.instance.scene)
 
   if (shouldCombineMeshes) await MeshCombinationGroup.combineMeshes(clonedScene)
   if (shouldRemoveUnusedObjects) removeUnusedObjects(clonedScene)
@@ -203,33 +139,3 @@ export async function exportScene(options = {} as DefaultExportOptionsType) {
     throw new RethrownError('Error creating glb blob', error)
   }
 }*/
-
-export function disposeScene() {
-  if (Engine.instance.currentWorld.scene) {
-    // Empty existing scene
-    Engine.instance.currentWorld.scene.traverse((child: any) => {
-      if (child.geometry) child.geometry.dispose()
-
-      if (child.material) {
-        if (child.material.length) {
-          for (let i = 0; i < child.material.length; ++i) {
-            child.material[i].dispose()
-          }
-        } else {
-          child.material.dispose()
-        }
-      }
-    })
-
-    //clear ecs
-    const eTree = Engine.instance.currentWorld.entityTree
-    for (const entity of Array.from(eTree.entityNodeMap.keys())) {
-      removeEntity(entity, true)
-    }
-    emptyEntityTree(eTree)
-    eTree.entityNodeMap.clear()
-    Engine.instance.currentWorld.scene.clear()
-  }
-
-  SceneState.isInitialized = false
-}

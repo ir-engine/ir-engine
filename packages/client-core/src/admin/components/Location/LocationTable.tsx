@@ -1,17 +1,43 @@
-import React, { ReactElement, useEffect, useState } from 'react'
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
+import React, { ReactElement, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import ConfirmDialog from '@xrengine/client-core/src/common/components/ConfirmDialog'
-import { Location } from '@xrengine/common/src/interfaces/Location'
+import ConfirmDialog from '@etherealengine/client-core/src/common/components/ConfirmDialog'
+import { LocationType } from '@etherealengine/engine/src/schemas/social/location.schema'
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import Avatar from '@etherealengine/ui/src/primitives/mui/Avatar'
+import Box from '@etherealengine/ui/src/primitives/mui/Box'
+import Button from '@etherealengine/ui/src/primitives/mui/Button'
+import Chip from '@etherealengine/ui/src/primitives/mui/Chip'
 
-import Avatar from '@mui/material/Avatar'
-import Box from '@mui/material/Box'
-import Chip from '@mui/material/Chip'
-
-import { useAuthState } from '../../../user/services/AuthService'
+import { AuthState } from '../../../user/services/AuthService'
 import TableComponent from '../../common/Table'
 import { locationColumns } from '../../common/variables/location'
-import { AdminLocationService, LOCATION_PAGE_LIMIT, useAdminLocationState } from '../../services/LocationService'
+import { AdminLocationService, AdminLocationState, LOCATION_PAGE_LIMIT } from '../../services/LocationService'
 import styles from '../../styles/admin.module.scss'
 import LocationDrawer, { LocationDrawerMode } from './LocationDrawer'
 
@@ -20,19 +46,20 @@ interface Props {
   search: string
 }
 
+const transformLink = (link: string) => link.toLowerCase().replace(' ', '-')
+
 const LocationTable = ({ className, search }: Props) => {
-  const [page, setPage] = useState(0)
-  const [rowsPerPage, setRowsPerPage] = useState(LOCATION_PAGE_LIMIT)
-  const [openConfirm, setOpenConfirm] = useState(false)
-  const [locationId, setLocationId] = useState('')
-  const [locationName, setLocationName] = useState('')
-  const [fieldOrder, setFieldOrder] = useState('asc')
-  const [sortField, setSortField] = useState('name')
-  const [openLocationDrawer, setOpenLocationDrawer] = useState(false)
-  const [locationAdmin, setLocationAdmin] = useState<Location>()
-  const authState = useAuthState()
-  const user = authState.user
-  const adminLocationState = useAdminLocationState()
+  const page = useHookstate(0)
+  const rowsPerPage = useHookstate(LOCATION_PAGE_LIMIT)
+  const openConfirm = useHookstate(false)
+  const locationId = useHookstate('')
+  const locationName = useHookstate('')
+  const fieldOrder = useHookstate('asc')
+  const sortField = useHookstate('name')
+  const openLocationDrawer = useHookstate(false)
+  const locationAdmin = useHookstate<LocationType | undefined>(undefined)
+  const user = useHookstate(getMutableState(AuthState).user)
+  const adminLocationState = useHookstate(getMutableState(AdminLocationState))
   const adminLocations = adminLocationState.locations
   const adminLocationCount = adminLocationState.total
 
@@ -40,86 +67,86 @@ const LocationTable = ({ className, search }: Props) => {
   const { t } = useTranslation()
 
   useEffect(() => {
-    AdminLocationService.fetchAdminLocations(search, 0, sortField, fieldOrder)
+    AdminLocationService.fetchAdminLocations(search, 0, sortField.value, fieldOrder.value)
   }, [search, user?.id?.value, adminLocationState.updateNeeded.value])
 
   const handlePageChange = (event: unknown, newPage: number) => {
     //const incDec = page < newPage ? 'increment' : 'decrement'
-    AdminLocationService.fetchAdminLocations(search, newPage, sortField, fieldOrder)
-    setPage(newPage)
+    AdminLocationService.fetchAdminLocations(search, newPage, sortField.value, fieldOrder.value)
+    page.set(newPage)
   }
 
   useEffect(() => {
     if (adminLocationState.fetched.value) {
-      AdminLocationService.fetchAdminLocations(search, page, sortField, fieldOrder)
+      AdminLocationService.fetchAdminLocations(search, page.value, sortField.value, fieldOrder.value)
     }
-  }, [fieldOrder])
+  }, [fieldOrder.value])
 
   const submitRemoveLocation = async () => {
-    await AdminLocationService.removeLocation(locationId)
-    setOpenConfirm(false)
+    await AdminLocationService.removeLocation(locationId.value)
+    openConfirm.set(false)
   }
 
   const handleRowsPerPageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setRowsPerPage(+event.target.value)
-    setPage(0)
+    rowsPerPage.set(+event.target.value)
+    page.set(0)
   }
 
   const handleOpenLocationDrawer =
-    (open: boolean, location: Location) => (event: React.KeyboardEvent | React.MouseEvent) => {
+    (open: boolean, location: LocationType) => (event: React.KeyboardEvent | React.MouseEvent) => {
+      event.preventDefault()
       if (
         event.type === 'keydown' &&
         ((event as React.KeyboardEvent).key === 'Tab' || (event as React.KeyboardEvent).key === 'Shift')
       ) {
         return
       }
-      setLocationAdmin(location)
-      setOpenLocationDrawer(open)
+      locationAdmin.set(location)
+      openLocationDrawer.set(open)
     }
 
   const createData = (
-    el: Location,
+    el: LocationType,
     id: string,
     name: string,
     sceneId: string,
     maxUsersPerInstance: string,
     scene: string,
-    type: string,
+    locationType: string,
     tags: any,
     videoEnabled: ReactElement<any, any>
   ) => {
     return {
       el,
       id,
-      name,
-      sceneId,
+      name: <a href={`/location/${transformLink(name)}`}>{name}</a>,
+      sceneId: <a href={`/studio/${sceneId}`}>{sceneId}</a>,
       maxUsersPerInstance,
       scene,
-      type,
+      locationType,
       tags,
       videoEnabled,
       action: (
         <>
-          <a href="#" className={styles.actionStyle} onClick={handleOpenLocationDrawer(true, el)}>
+          <Button className={styles.actionStyle} onClick={handleOpenLocationDrawer(true, el)}>
             <span className={styles.spanWhite}>{t('admin:components.common.view')}</span>
-          </a>
-          <a
-            href="#"
+          </Button>
+          <Button
             className={styles.actionStyle}
             onClick={() => {
-              setLocationId(id)
-              setLocationName(name)
-              setOpenConfirm(true)
+              locationId.set(id)
+              locationName.set(name)
+              openConfirm.set(true)
             }}
           >
             <span className={styles.spanDange}>{t('admin:components.common.delete')}</span>
-          </a>
+          </Button>
         </>
       )
     }
   }
 
-  const rows = adminLocations.value.map((el) => {
+  const rows = adminLocations.get({ noproxy: true }).map((el) => {
     return createData(
       el,
       el.id,
@@ -128,7 +155,7 @@ const LocationTable = ({ className, search }: Props) => {
       el.maxUsersPerInstance.toString(),
       el.slugifiedName,
       //@ts-ignore
-      el.location_setting?.locationType,
+      el.locationSetting?.locationType,
       <div>
         {el.isFeatured && (
           <Chip
@@ -148,7 +175,7 @@ const LocationTable = ({ className, search }: Props) => {
       </div>,
       <div>
         {/**@ts-ignore*/}
-        {el.location_setting?.videoEnabled ? t('admin:components.common.yes') : t('admin:components.common.no')}
+        {el.locationSetting?.videoEnabled ? t('admin:components.common.yes') : t('admin:components.common.no')}
       </div>
     )
   })
@@ -157,28 +184,28 @@ const LocationTable = ({ className, search }: Props) => {
     <Box className={className}>
       <TableComponent
         allowSort={false}
-        fieldOrder={fieldOrder}
-        setSortField={setSortField}
-        setFieldOrder={setFieldOrder}
+        fieldOrder={fieldOrder.value}
+        setSortField={sortField.set}
+        setFieldOrder={fieldOrder.set}
         rows={rows}
         column={locationColumns}
-        page={page}
-        rowsPerPage={rowsPerPage}
+        page={page.value}
+        rowsPerPage={rowsPerPage.value}
         count={adminLocationCount.value}
         handlePageChange={handlePageChange}
         handleRowsPerPageChange={handleRowsPerPageChange}
       />
       <ConfirmDialog
-        open={openConfirm}
-        description={`${t('admin:components.location.confirmLocationDelete')} '${locationName}'?`}
-        onClose={() => setOpenConfirm(false)}
+        open={openConfirm.value}
+        description={`${t('admin:components.location.confirmLocationDelete')} '${locationName.value}'?`}
+        onClose={() => openConfirm.set(false)}
         onSubmit={submitRemoveLocation}
       />
       <LocationDrawer
-        open={openLocationDrawer}
+        open={openLocationDrawer.value}
         mode={LocationDrawerMode.ViewEdit}
-        selectedLocation={locationAdmin}
-        onClose={() => setOpenLocationDrawer(false)}
+        selectedLocation={locationAdmin.value}
+        onClose={() => openLocationDrawer.set(false)}
       />
     </Box>
   )

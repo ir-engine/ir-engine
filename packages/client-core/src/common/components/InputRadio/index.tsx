@@ -1,14 +1,39 @@
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
 import React from 'react'
 
-import { InputMenuItem } from '@xrengine/client-core/src/common/components/InputSelect'
+import { InputMenuItem } from '@etherealengine/client-core/src/common/components/InputSelect'
+import Box from '@etherealengine/ui/src/primitives/mui/Box'
+import FormControl from '@etherealengine/ui/src/primitives/mui/FormControl'
+import FormControlLabel from '@etherealengine/ui/src/primitives/mui/FormControlLabel'
+import FormHelperText from '@etherealengine/ui/src/primitives/mui/FormHelperText'
+import FormLabel from '@etherealengine/ui/src/primitives/mui/FormLabel'
+import Radio from '@etherealengine/ui/src/primitives/mui/Radio'
+import RadioGroup from '@etherealengine/ui/src/primitives/mui/RadioGroup'
 
-import Box from '@mui/material/Box'
-import FormControl from '@mui/material/FormControl'
-import FormControlLabel from '@mui/material/FormControlLabel'
-import FormHelperText from '@mui/material/FormHelperText'
-import FormLabel from '@mui/material/FormLabel'
-import Radio from '@mui/material/Radio'
-import RadioGroup from '@mui/material/RadioGroup'
 import { SxProps, Theme } from '@mui/material/styles'
 
 import { handleSoundEffect } from '../../utils'
@@ -47,15 +72,14 @@ const InputRadio = ({ className, disabled, error, id, label, name, options, sx, 
           onChange={onChange}
         >
           {options.map((el, index) => (
-            <>
+            <div key={index}>
               <FormControlLabel
-                key={index}
                 value={el.value}
                 control={<Radio onPointerUp={handleSoundEffect} onPointerEnter={handleSoundEffect} />}
                 label={el.label}
               />
               {el.overflowContent}
-            </>
+            </div>
           ))}
         </RadioGroup>
       </FormControl>

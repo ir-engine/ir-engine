@@ -1,3 +1,28 @@
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
 import RAPIER, {
   ActiveCollisionTypes,
   ActiveEvents,
@@ -14,12 +39,23 @@ import RAPIER, {
   TempContactForceEvent,
   World
 } from '@dimforge/rapier3d-compat'
-import { Line, Mesh, OrthographicCamera, PerspectiveCamera, Quaternion, Vector2, Vector3 } from 'three'
+import {
+  BufferAttribute,
+  Matrix4,
+  Mesh,
+  OrthographicCamera,
+  PerspectiveCamera,
+  Quaternion,
+  Vector2,
+  Vector3
+} from 'three'
+
+import { getState } from '@etherealengine/hyperflux'
 
 import { cleanupAllMeshData } from '../../assets/classes/AssetLoader'
 import { V_000 } from '../../common/constants/MathConstants'
-import { Engine } from '../../ecs/classes/Engine'
-import { Entity } from '../../ecs/classes/Entity'
+import { EngineState } from '../../ecs/classes/EngineState'
+import { Entity, UndefinedEntity } from '../../ecs/classes/Entity'
 import {
   addComponent,
   getComponent,
@@ -28,14 +64,14 @@ import {
   removeComponent
 } from '../../ecs/functions/ComponentFunctions'
 import { GroupComponent } from '../../scene/components/GroupComponent'
-import { NameComponent } from '../../scene/components/NameComponent'
+import { UUIDComponent } from '../../scene/components/UUIDComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { CollisionComponent } from '../components/CollisionComponent'
 import {
-  getTagComponentForRigidBody,
   RigidBodyComponent,
   RigidBodyKinematicPositionBasedTagComponent,
-  RigidBodyKinematicVelocityBasedTagComponent
+  RigidBodyKinematicVelocityBasedTagComponent,
+  getTagComponentForRigidBody
 } from '../components/RigidBodyComponent'
 import { CollisionGroups, DefaultCollisionMask } from '../enums/CollisionGroups'
 import { getInteractionGroups } from '../functions/getInteractionGroups'
@@ -44,7 +80,6 @@ import { ColliderDescOptions, CollisionEvents, RaycastHit, SceneQueryType } from
 export type PhysicsWorld = World
 
 function load() {
-  // eslint-disable-next-line import/no-named-as-default-member
   return RAPIER.init()
 }
 
@@ -135,7 +170,8 @@ function applyDescToCollider(
 function createColliderDesc(
   mesh: Mesh,
   colliderDescOptions: ColliderDescOptions,
-  isRoot = false
+  rootObject = mesh,
+  overrideShapeType = false
 ): ColliderDesc | undefined {
   // @todo - check this works in all scenes
   // if (!colliderDescOptions.shapeType && mesh.geometry.type === 'BoxGeometry')
@@ -147,7 +183,7 @@ function createColliderDesc(
   // if (!colliderDescOptions.shapeType && mesh.geometry.type === 'CylinderGeometry')
   //   colliderDescOptions.shapeType = ShapeType.Cylinder
 
-  if (typeof colliderDescOptions.shapeType === 'undefined') return
+  if (!overrideShapeType && typeof colliderDescOptions.shapeType === 'undefined') return
 
   let shapeType =
     typeof colliderDescOptions.shapeType === 'string'
@@ -203,8 +239,8 @@ function createColliderDesc(
       if (!mesh.geometry)
         return console.warn('[Physics]: Tried to load convex mesh but did not find a geometry', mesh) as any
       try {
-        const _buff = mesh.geometry.clone().scale(Math.abs(scale.x), Math.abs(scale.y), Math.abs(scale.z))
-        const vertices = new Float32Array(_buff.attributes.position.array)
+        const _buff = mesh.geometry.clone().scale(scale.x, scale.y, scale.z)
+        const vertices = new Float32Array((_buff.attributes.position as BufferAttribute).array)
         const indices = new Uint32Array(_buff.index!.array)
         colliderDesc = ColliderDesc.convexMesh(vertices, indices) as ColliderDesc
       } catch (e) {
@@ -219,7 +255,7 @@ function createColliderDesc(
         return console.warn('[Physics]: Tried to load tri mesh but did not find a geometry', mesh) as any
       try {
         const _buff = mesh.geometry.clone().scale(Math.abs(scale.x), Math.abs(scale.y), Math.abs(scale.z))
-        const vertices = new Float32Array(_buff.attributes.position.array)
+        const vertices = new Float32Array((_buff.attributes.position as BufferAttribute).array)
         const indices = new Uint32Array(_buff.index!.array)
         colliderDesc = ColliderDesc.trimesh(vertices, indices)
       } catch (e) {
@@ -234,17 +270,33 @@ function createColliderDesc(
       return
   }
 
+  const positionRelativeToRoot = new Vector3()
+  const quaternionRelativeToRoot = new Quaternion()
+  const scaleRelativeToRoot = new Vector3()
+
+  // get matrix relative to root
+  if (rootObject !== mesh) {
+    const matrixRelativeToRoot = new Matrix4().copy(mesh.matrixWorld)
+    matrixRelativeToRoot.premultiply(rootObject.matrixWorld.clone().invert())
+    matrixRelativeToRoot.decompose(positionRelativeToRoot, quaternionRelativeToRoot, new Vector3())
+  }
+
   applyDescToCollider(
     colliderDesc,
     colliderDescOptions,
-    isRoot ? undefined : mesh.position,
-    isRoot ? undefined : mesh.quaternion
+    positionRelativeToRoot.multiply(rootObject.scale),
+    quaternionRelativeToRoot
   )
 
   return colliderDesc
 }
 
-function createRigidBodyForGroup(entity: Entity, world: World, colliderDescOptions: ColliderDescOptions): RigidBody {
+function createRigidBodyForGroup(
+  entity: Entity,
+  world: World,
+  colliderDescOptions: ColliderDescOptions,
+  overrideShapeType = false
+): RigidBody {
   const group = getComponent(entity, GroupComponent) as any as Mesh[]
   if (!group) return undefined!
 
@@ -255,18 +307,21 @@ function createRigidBodyForGroup(entity: Entity, world: World, colliderDescOptio
   for (const obj of group) {
     obj.updateMatrixWorld(true)
     obj.traverse((mesh: Mesh) => {
-      if (!mesh.userData || mesh.userData.type === 'glb') return //console.error(mesh)
-      if (!mesh.isMesh && !mesh.userData.type) return //console.error(mesh)
+      if (
+        (!overrideShapeType && (!mesh.userData || mesh.userData.type === 'glb')) ||
+        (!mesh.isMesh && !mesh.userData.type)
+      )
+        return
 
       // backwards support for deprecated `type` property
       if (mesh.userData.type && mesh.userData.type !== ('glb' as any)) mesh.userData.shapeType = mesh.userData.type
 
-      // todo: our mesh collider userdata should probably be namespaced, e.g., mesh['XRE_collider'] or something
+      // todo: our mesh collider userdata should probably be namespaced, e.g., mesh['EE_collider'] or something
       const args = { ...colliderDescOptions, ...mesh.userData } as ColliderDescOptions
-      const colliderDesc = createColliderDesc(mesh, args, obj === mesh)
+      const colliderDesc = createColliderDesc(mesh, args, obj, overrideShapeType)
 
       if (colliderDesc) {
-        if (typeof args.removeMesh === 'undefined' || args.removeMesh === true) meshesToRemove.push(mesh)
+        ;(typeof args.removeMesh === 'undefined' || args.removeMesh === true) && meshesToRemove.push(mesh)
         colliderDescs.push(colliderDesc)
       }
     })
@@ -299,12 +354,10 @@ function createRigidBodyForGroup(entity: Entity, world: World, colliderDescOptio
 
   const body = createRigidBody(entity, world, rigidBodyDesc, colliderDescs)
 
-  if (!Engine.instance.isEditor)
+  if (!getState(EngineState).isEditor)
     for (const mesh of meshesToRemove) {
       mesh.removeFromParent()
-      mesh.traverse((obj: Mesh<any, any>) =>
-        cleanupAllMeshData(obj, { uuid: Engine.instance.currentWorld.entityTree.entityNodeMap.get(entity)?.uuid })
-      )
+      mesh.traverse((obj: Mesh<any, any>) => cleanupAllMeshData(obj, { uuid: getComponent(entity, UUIDComponent) }))
     }
 
   return body
@@ -378,7 +431,7 @@ function castRay(world: World, raycastQuery: RaycastArgs, filterPredicate?: (col
   const flags = raycastQuery.flags
 
   const hits = [] as RaycastHit[]
-  let hitWithNormal = world.castRayAndGetNormal(
+  const hitWithNormal = world.castRayAndGetNormal(
     ray,
     maxToi,
     solid,
@@ -389,12 +442,14 @@ function castRay(world: World, raycastQuery: RaycastArgs, filterPredicate?: (col
     filterPredicate
   )
   if (hitWithNormal != null) {
+    const body = hitWithNormal.collider.parent() as RigidBody
     hits.push({
       collider: hitWithNormal.collider,
       distance: hitWithNormal.toi,
       position: ray.pointAt(hitWithNormal.toi),
       normal: hitWithNormal.normal,
-      body: hitWithNormal.collider.parent() as RigidBody
+      body,
+      entity: (body.userData as any)['entity']
     })
   }
 
@@ -437,7 +492,7 @@ function castShape(world: World, shapecastQuery: ShapecastArgs) {
   const collider = shapecastQuery.collider
 
   shapecastQuery.hits = []
-  let hitWithNormal = world.castShape(
+  const hitWithNormal = world.castShape(
     collider.translation(),
     collider.rotation(),
     shapecastQuery.direction,
@@ -452,7 +507,8 @@ function castShape(world: World, shapecastQuery: ShapecastArgs) {
       position: hitWithNormal.witness1,
       normal: hitWithNormal.normal1,
       collider: hitWithNormal.collider,
-      body: hitWithNormal.collider.parent() as RigidBody
+      body: hitWithNormal.collider.parent() as RigidBody,
+      entity: (hitWithNormal.collider.parent()?.userData as any)['entity'] ?? UndefinedEntity
     })
   }
 }

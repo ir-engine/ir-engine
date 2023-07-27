@@ -1,50 +1,67 @@
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
 import { Object3D } from 'three'
 
-import { API } from '@xrengine/client-core/src/API'
-import { FileBrowserService } from '@xrengine/client-core/src/common/services/FileBrowserService'
+import { API } from '@etherealengine/client-core/src/API'
+import { FileBrowserService } from '@etherealengine/client-core/src/common/services/FileBrowserService'
 import {
   CancelableUploadPromiseArrayReturnType,
   CancelableUploadPromiseReturnType,
   uploadToFeathersService
-} from '@xrengine/client-core/src/util/upload'
-import { processFileName } from '@xrengine/common/src/utils/processFileName'
-import { modelResourcesPath, pathResolver } from '@xrengine/engine/src/assets/functions/pathResolver'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
+} from '@etherealengine/client-core/src/util/upload'
+import { processFileName } from '@etherealengine/common/src/utils/processFileName'
+import { modelResourcesPath } from '@etherealengine/engine/src/assets/functions/pathResolver'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
+import { getComponent, hasComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { EntityTreeComponent } from '@etherealengine/engine/src/ecs/functions/EntityTree'
 import {
-  addComponent,
-  ComponentType,
-  getComponent,
-  hasComponent,
-  removeComponent
-} from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { EntityTreeNode } from '@xrengine/engine/src/ecs/functions/EntityTree'
-import {
-  addObjectToGroup,
   GroupComponent,
   Object3DWithEntity,
+  addObjectToGroup,
   removeObjectFromGroup
-} from '@xrengine/engine/src/scene/components/GroupComponent'
-import { PrefabComponent } from '@xrengine/engine/src/scene/components/PrefabComponent'
-import { sceneToGLTF } from '@xrengine/engine/src/scene/functions/GLTFConversion'
+} from '@etherealengine/engine/src/scene/components/GroupComponent'
+import { PrefabComponent } from '@etherealengine/engine/src/scene/components/PrefabComponent'
+import { sceneToGLTF } from '@etherealengine/engine/src/scene/functions/GLTFConversion'
+import { getState } from '@etherealengine/hyperflux'
 
-import { accessEditorState } from '../services/EditorServices'
+import { EditorState } from '../services/EditorServices'
 
-export const exportPrefab = async (node: EntityTreeNode) => {
-  const asset = getComponent(node.entity, PrefabComponent)
-  const projectName = accessEditorState().projectName.value!
+export const exportPrefab = async (entity: Entity) => {
+  const node = getComponent(entity, EntityTreeComponent)
+  const asset = getComponent(entity, PrefabComponent)
+  const projectName = getState(EditorState).projectName ?? ''
   if (!(node.children && node.children.length > 0)) {
     console.warn('Exporting empty asset')
   }
-  const eNodeMap = Engine.instance.currentWorld.entityTree.entityNodeMap
   const dudObjs = new Array<Object3DWithEntity>()
   const obj3ds = new Array<Object3DWithEntity>()
-  const frontier = new Array<EntityTreeNode>(
-    ...node.children.filter((child) => eNodeMap.has(child)).map((child) => eNodeMap.get(child)!)
-  )
+  const frontier = new Array<Entity>(...node.children.filter((child) => hasComponent(child, EntityTreeComponent)))
   do {
-    const prefabNode = frontier.pop()!
-    const entity = prefabNode.entity
+    const entity = frontier.pop()! as Entity
     if (getComponent(entity, GroupComponent)?.length) {
       const childObjs = getComponent(entity, GroupComponent).filter((obj) => !obj.type.includes('Helper'))
       obj3ds.push(...childObjs)
@@ -55,9 +72,8 @@ export const exportPrefab = async (node: EntityTreeNode) => {
       dudObjs.push(dudObj)
       obj3ds.push(dudObj)
     }
-    const nodeChildren = prefabNode.children
-      .filter((child) => !!child && eNodeMap.has(child))
-      .map((child) => eNodeMap.get(child)!)
+    const prefabNode = getComponent(entity, EntityTreeComponent)
+    const nodeChildren = prefabNode.children.filter((child) => !!child && hasComponent(child, EntityTreeComponent))
     frontier.push(...nodeChildren)
   } while (frontier.length > 0)
 
@@ -108,7 +124,7 @@ export const uploadProjectAssetsFromUpload = async (projectName: string, entries
  * https://developer.mozilla.org/en-US/docs/Web/API/DataTransferItem/webkitGetAsEntry
  * @param item
  */
-const processEntry = async (
+export const processEntry = async (
   item,
   projectName: string,
   directory: string,
@@ -116,7 +132,7 @@ const processEntry = async (
   onProgress
 ) => {
   if (item.isDirectory) {
-    let directoryReader = item.createReader()
+    const directoryReader = item.createReader()
     const entries = await getEntries(directoryReader)
     for (let index = 0; index < entries.length; index++) {
       await processEntry(entries[index], projectName, item.fullPath, promises, onProgress)
@@ -139,7 +155,7 @@ const processEntry = async (
  * @param fileEntry
  * @returns
  */
-const getFile = async (fileEntry: FileSystemFileEntry): Promise<File> => {
+export const getFile = async (fileEntry: FileSystemFileEntry): Promise<File> => {
   try {
     return await new Promise((resolve, reject) => fileEntry.file(resolve, reject))
   } catch (err) {
@@ -160,8 +176,8 @@ export const getEntries = async (directoryReader: FileSystemDirectoryReader): Pr
 export const extractZip = async (path: string): Promise<any> => {
   try {
     const parms = { path: path }
-    await API.instance.client.service('asset-library').create(parms)
+    await Engine.instance.api.service('asset-library').create(parms)
   } catch (err) {
-    throw err
+    console.error('error extracting zip: ', err)
   }
 }

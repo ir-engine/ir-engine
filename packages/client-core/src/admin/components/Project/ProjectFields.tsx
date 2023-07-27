@@ -1,36 +1,56 @@
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
 import classNames from 'classnames'
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import Autocomplete from '@xrengine/client-core/src/common/components/AutoCompleteSingle'
-import InputRadio from '@xrengine/client-core/src/common/components/InputRadio'
-import InputSelect, { InputMenuItem } from '@xrengine/client-core/src/common/components/InputSelect'
-import InputSwitch from '@xrengine/client-core/src/common/components/InputSwitch'
-import InputText from '@xrengine/client-core/src/common/components/InputText'
-import LoadingView from '@xrengine/client-core/src/common/components/LoadingView'
-import { ProjectBranchInterface } from '@xrengine/common/src/interfaces/ProjectBranchInterface'
-import { ProjectCommitInterface } from '@xrengine/common/src/interfaces/ProjectCommitInterface'
+import Autocomplete from '@etherealengine/client-core/src/common/components/AutoCompleteSingle'
+import InputRadio from '@etherealengine/client-core/src/common/components/InputRadio'
+import InputSelect, { InputMenuItem } from '@etherealengine/client-core/src/common/components/InputSelect'
+import InputSwitch from '@etherealengine/client-core/src/common/components/InputSwitch'
+import InputText from '@etherealengine/client-core/src/common/components/InputText'
+import LoadingView from '@etherealengine/client-core/src/common/components/LoadingView'
+import { ProjectBranchInterface } from '@etherealengine/common/src/interfaces/ProjectBranchInterface'
+import { ProjectCommitInterface } from '@etherealengine/common/src/interfaces/ProjectCommitInterface'
 import {
   DefaultUpdateSchedule,
   ProjectInterface,
   ProjectUpdateType
-} from '@xrengine/common/src/interfaces/ProjectInterface'
-
-import { Difference } from '@mui/icons-material'
-import Cancel from '@mui/icons-material/Cancel'
-import CheckCircle from '@mui/icons-material/CheckCircle'
-import HelpIcon from '@mui/icons-material/Help'
-import WarningAmberIcon from '@mui/icons-material/WarningAmber'
-import Box from '@mui/material/Box'
-import Container from '@mui/material/Container'
-import DialogTitle from '@mui/material/DialogTitle'
-import IconButton from '@mui/material/IconButton'
-import TextField from '@mui/material/TextField'
-import Tooltip from '@mui/material/Tooltip'
+} from '@etherealengine/common/src/interfaces/ProjectInterface'
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import Box from '@etherealengine/ui/src/primitives/mui/Box'
+import Container from '@etherealengine/ui/src/primitives/mui/Container'
+import DialogTitle from '@etherealengine/ui/src/primitives/mui/DialogTitle'
+import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
+import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
+import Tooltip from '@etherealengine/ui/src/primitives/mui/Tooltip'
 
 import { ProjectService } from '../../../common/services/ProjectService'
-import { useAuthState } from '../../../user/services/AuthService'
-import { ProjectUpdateService, useProjectUpdateState } from '../../services/ProjectUpdateService'
+import { AuthState } from '../../../user/services/AuthService'
+import { ProjectUpdateService, ProjectUpdateState } from '../../services/ProjectUpdateService'
 import styles from '../../styles/admin.module.scss'
 
 interface Props {
@@ -61,9 +81,9 @@ const ProjectFields = ({ inputProject, existingProject = false, changeDestinatio
     ProjectUpdateService.initializeProjectUpdate(project)
   }, [])
 
-  const projectUpdateStatus = useProjectUpdateState()[project.name]
+  const projectUpdateStatus = useHookstate(getMutableState(ProjectUpdateState)[project.name])
 
-  const selfUser = useAuthState().user
+  const selfUser = useHookstate(getMutableState(AuthState).user)
 
   const matchingCommit = projectUpdateStatus?.value?.commitData?.find(
     (commit: ProjectCommitInterface) => commit.commitSHA === projectUpdateStatus.value.selectedSHA
@@ -111,8 +131,8 @@ const ProjectFields = ({ inputProject, existingProject = false, changeDestinatio
   }
 
   const copyDestination = async () => {
-    handleChangeSource({ target: { value: projectUpdateStatus.destinationURL.value } })
-    handleChangeSourceRepo({ target: { value: projectUpdateStatus.destinationURL.value } })
+    handleChangeSource({ target: { value: projectUpdateStatus.value.destinationURL } })
+    handleChangeSourceRepo({ target: { value: projectUpdateStatus.value.destinationURL } })
   }
 
   const handleChangeDestinationRepo = async (e) => {
@@ -245,7 +265,7 @@ const ProjectFields = ({ inputProject, existingProject = false, changeDestinatio
   })
 
   const commitMenu: InputMenuItem[] = projectUpdateStatus?.value?.commitData.map((el: ProjectCommitInterface) => {
-    let label = `Commit ${el.commitSHA.slice(0, 8)}`
+    let label = `Commit ${el.commitSHA?.slice(0, 8)}`
     if (el.projectVersion) label += ` -- Project Ver. ${el.projectVersion}`
     if (el.engineVersion) label += ` -- Engine Ver. ${el.engineVersion}`
     if (el.datetime) {
@@ -419,9 +439,11 @@ const ProjectFields = ({ inputProject, existingProject = false, changeDestinatio
                     onBlur={handleChangeSourceRepo}
                   />
                   <Tooltip title="Copy From Destination">
-                    <IconButton className={styles.gradientButton} onClick={copyDestination}>
-                      <Difference />
-                    </IconButton>
+                    <IconButton
+                      className={styles.gradientButton}
+                      onClick={copyDestination}
+                      icon={<Icon type="Difference" />}
+                    />
                   </Tooltip>
                 </div>
               ) : (
@@ -462,9 +484,9 @@ const ProjectFields = ({ inputProject, existingProject = false, changeDestinatio
           {!processing &&
             !projectUpdateStatus.value?.commitsProcessing &&
             projectUpdateStatus.value?.sourceProjectName.length > 0 && (
-              <div className={styles.projectVersion}>{`${t('admin:components.project.sourceProjectName')}: ${
-                projectUpdateStatus.value?.sourceProjectName
-              }`}</div>
+              <div className={styles.projectVersion}>{`${t(
+                'admin:components.project.sourceProjectName'
+              )}: ${projectUpdateStatus.value?.sourceProjectName}`}</div>
             )}
 
           {projectUpdateStatus.value?.branchProcessing && (
@@ -501,7 +523,7 @@ const ProjectFields = ({ inputProject, existingProject = false, changeDestinatio
             projectUpdateStatus.value?.commitData.length > 0 &&
             !matchesEngineVersion && (
               <div className={styles.projectMismatchWarning}>
-                <WarningAmberIcon />
+                <Icon type="WarningAmber" />
                 {t('admin:components.project.mismatchedProjectWarning')}
               </div>
             )}
@@ -517,8 +539,8 @@ const ProjectFields = ({ inputProject, existingProject = false, changeDestinatio
               [styles.invalid]: !projectUpdateStatus.value?.destinationValid
             })}
           >
-            {projectUpdateStatus.value?.destinationValid && <CheckCircle />}
-            {!projectUpdateStatus.value?.destinationValid && <Cancel />}
+            {projectUpdateStatus.value?.destinationValid && <Icon type="CheckCircle" />}
+            {!projectUpdateStatus.value?.destinationValid && <Icon type="Cancel" />}
             {t('admin:components.project.destinationURLValid')}
           </div>
 
@@ -530,8 +552,8 @@ const ProjectFields = ({ inputProject, existingProject = false, changeDestinatio
                 [styles.invalid]: !projectUpdateStatus.value?.sourceValid
               })}
             >
-              {projectUpdateStatus.value?.sourceValid && <CheckCircle />}
-              {!projectUpdateStatus.value?.sourceValid && <Cancel />}
+              {projectUpdateStatus.value?.sourceValid && <Icon type="CheckCircle" />}
+              {!projectUpdateStatus.value?.sourceValid && <Icon type="Cancel" />}
               {t('admin:components.project.sourceURLValid')}
             </div>
           )}
@@ -544,8 +566,8 @@ const ProjectFields = ({ inputProject, existingProject = false, changeDestinatio
                 [styles.invalid]: !projectUpdateStatus.value?.sourceProjectMatchesDestination
               })}
             >
-              {projectUpdateStatus.value?.sourceProjectMatchesDestination && <CheckCircle />}
-              {!projectUpdateStatus.value?.sourceProjectMatchesDestination && <Cancel />}
+              {projectUpdateStatus.value?.sourceProjectMatchesDestination && <Icon type="CheckCircle" />}
+              {!projectUpdateStatus.value?.sourceProjectMatchesDestination && <Icon type="Cancel" />}
               {t('admin:components.project.sourceMatchesDestination')}
             </div>
           )}
@@ -583,7 +605,7 @@ const ProjectFields = ({ inputProject, existingProject = false, changeDestinatio
                       <Box sx={{ display: 'flex', alignItems: 'center' }}>
                         {t('admin:components.project.prod')}
                         <Tooltip title={t('admin:components.project.prodTooltip')} arrow>
-                          <HelpIcon sx={{ fontSize: '20px', marginLeft: '5px', marginRight: '15px' }} />
+                          <Icon type="Help" sx={{ fontSize: '20px', marginLeft: '5px', marginRight: '15px' }} />
                         </Tooltip>
                       </Box>
                     )
@@ -594,7 +616,7 @@ const ProjectFields = ({ inputProject, existingProject = false, changeDestinatio
                       <Box sx={{ display: 'flex', alignItems: 'center' }}>
                         {t('admin:components.project.dev')}
                         <Tooltip title={t('admin:components.project.devTooltip')} arrow>
-                          <HelpIcon sx={{ fontSize: '20px', marginLeft: '5px', marginRight: '15px' }} />
+                          <Icon type="Help" sx={{ fontSize: '20px', marginLeft: '5px', marginRight: '15px' }} />
                         </Tooltip>
                       </Box>
                     )

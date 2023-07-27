@@ -1,20 +1,42 @@
-import type VolumetricPlayer from '@xrfoundation/volumetric/player'
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
 import { Box3, Material, Mesh, Object3D } from 'three'
 
-import { createWorkerFromCrossOriginURL } from '@xrengine/common/src/utils/createWorkerFromCrossOriginURL'
-import { AvatarDissolveComponent } from '@xrengine/engine/src/avatar/components/AvatarDissolveComponent'
-import { AvatarEffectComponent, MaterialMap } from '@xrengine/engine/src/avatar/components/AvatarEffectComponent'
-import { DissolveEffect } from '@xrengine/engine/src/avatar/DissolveEffect'
-import { getState } from '@xrengine/hyperflux'
+import { createWorkerFromCrossOriginURL } from '@etherealengine/common/src/utils/createWorkerFromCrossOriginURL'
+import { AvatarDissolveComponent } from '@etherealengine/engine/src/avatar/components/AvatarDissolveComponent'
+import { AvatarEffectComponent, MaterialMap } from '@etherealengine/engine/src/avatar/components/AvatarEffectComponent'
+import { DissolveEffect } from '@etherealengine/engine/src/avatar/DissolveEffect'
+import type VolumetricPlayer from '@etherealengine/volumetric/player'
 
-import { isClient } from '../../../common/functions/isClient'
+import { isClient } from '../../../common/functions/getEnvironment'
 import { iOS } from '../../../common/functions/isMobile'
-import { EngineState } from '../../../ecs/classes/EngineState'
 import { Entity } from '../../../ecs/classes/Entity'
 import {
   addComponent,
   getComponent,
-  getComponentState,
   getOptionalComponent,
   hasComponent,
   removeComponent
@@ -23,15 +45,15 @@ import { createEntity, entityExists } from '../../../ecs/functions/EntityFunctio
 import { EngineRenderer } from '../../../renderer/WebGLRendererSystem'
 import { TransformComponent } from '../../../transform/components/TransformComponent'
 import { addObjectToGroup } from '../../components/GroupComponent'
-import { MediaComponent, MediaElementComponent } from '../../components/MediaComponent'
+import { MediaElementComponent } from '../../components/MediaComponent'
 import { VolumetricComponent } from '../../components/VolumetricComponent'
 import { PlayMode } from '../../constants/PlayMode'
 
-let VolumetricPlayerPromise = null! as Promise<typeof import('@xrfoundation/volumetric/player').default>
+let VolumetricPlayerPromise = null! as Promise<typeof import('@etherealengine/volumetric/player').default>
 
 if (isClient) {
   // todo: add top-level await here to ensure it's loaded when component is created
-  VolumetricPlayerPromise = import('@xrfoundation/volumetric/player').then((module) => module.default)
+  VolumetricPlayerPromise = import('@etherealengine/volumetric/player').then((module) => module.default)
 }
 
 const Volumetric = new WeakMap<
@@ -54,12 +76,11 @@ export const enterVolumetric = async (entity: Entity) => {
   if (!mediaElement) return
   if (!volumetricComponent) return
 
-  if (mediaElement.element instanceof HTMLVideoElement == false) {
+  if (!(mediaElement.element instanceof HTMLVideoElement)) {
     throw new Error('expected video media')
   }
 
   const worker = createWorkerFromCrossOriginURL(VolumetricPlayer.defaultWorkerURL)
-
   const player = new VolumetricPlayer({
     renderer: EngineRenderer.instance.renderer,
     video: mediaElement.element as HTMLVideoElement,
@@ -125,8 +146,6 @@ export const updateVolumetric = async (entity: Entity) => {
       } else {
         volumetric.loadingEffectActive = false
         endLoadingEffect(volumetric.entity, player.mesh)
-        const media = getComponentState(entity, MediaComponent)
-        if (media.autoplay.value && getState(EngineState).userHasInteracted.value) media.paused.set(false)
       }
     }
   }
@@ -182,7 +201,7 @@ const setupLoadingEffect = (entity: Entity, obj: Object3D) => {
         id: object.uuid,
         material: material
       })
-      object.material = DissolveEffect.getDissolveTexture(object as any)
+      object.material = DissolveEffect.createDissolveMaterial(object as any)
     }
   })
   if (hasComponent(entity, AvatarEffectComponent)) removeComponent(entity, AvatarEffectComponent)

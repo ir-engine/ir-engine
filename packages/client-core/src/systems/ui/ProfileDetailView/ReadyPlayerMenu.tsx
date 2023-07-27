@@ -1,23 +1,43 @@
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
 import { createState } from '@hookstate/core'
 import React, { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { PerspectiveCamera, Scene, WebGLRenderer } from 'three'
 
-import config from '@xrengine/common/src/config'
-import { THUMBNAIL_HEIGHT, THUMBNAIL_WIDTH } from '@xrengine/common/src/constants/AvatarConstants'
-import multiLogger from '@xrengine/common/src/logger'
-import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
-import { AvatarRigComponent } from '@xrengine/engine/src/avatar/components/AvatarAnimationComponent'
-import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
-import { getOptionalComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { createEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
-import { getOrbitControls } from '@xrengine/engine/src/input/functions/loadOrbitControl'
-import { createXRUI } from '@xrengine/engine/src/xrui/functions/createXRUI'
-import { WidgetAppService } from '@xrengine/engine/src/xrui/WidgetAppService'
-import { WidgetName } from '@xrengine/engine/src/xrui/Widgets'
-
-import { ArrowBack, Check } from '@mui/icons-material'
-import CircularProgress from '@mui/material/CircularProgress'
+import config from '@etherealengine/common/src/config'
+import { THUMBNAIL_HEIGHT, THUMBNAIL_WIDTH } from '@etherealengine/common/src/constants/AvatarConstants'
+import multiLogger from '@etherealengine/common/src/logger'
+import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoader'
+import { AvatarRigComponent } from '@etherealengine/engine/src/avatar/components/AvatarAnimationComponent'
+import { getOptionalComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { createXRUI } from '@etherealengine/engine/src/xrui/functions/createXRUI'
+import { WidgetAppService } from '@etherealengine/engine/src/xrui/WidgetAppService'
+import { WidgetName } from '@etherealengine/engine/src/xrui/Widgets'
+import CircularProgress from '@etherealengine/ui/src/primitives/mui/CircularProgress'
+import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 
 import { loadAvatarForPreview, resetAnimationLogic, validate } from '../../../user/components/Panel3D/helperFunctions'
 import { useRender3DPanelSystem } from '../../../user/components/Panel3D/useRender3DPanelSystem'
@@ -37,7 +57,7 @@ function createReadyPlayerMenuState() {
 
 const ReadyPlayerMenu = () => {
   const { t } = useTranslation()
-  const [selectedFile, setSelectedFile] = useState<Blob>()
+  const [selectedBlob, setSelectedBlob] = useState<Blob>()
   const [avatarName, setAvatarName] = useState('')
   const [avatarUrl, setAvatarUrl] = useState('')
   const [hover, setHover] = useState(false)
@@ -82,7 +102,7 @@ const ReadyPlayerMenu = () => {
           })
           fetch(url)
             .then((res) => res.blob())
-            .then((data) => setSelectedFile(data))
+            .then((data) => setSelectedBlob(data))
             .catch((err) => {
               setError(err.message)
               logger.error(err)
@@ -108,7 +128,7 @@ const ReadyPlayerMenu = () => {
   }
 
   const uploadAvatar = () => {
-    if (error || selectedFile === undefined) {
+    if (error || selectedBlob === undefined) {
       return
     }
 
@@ -119,9 +139,15 @@ const ReadyPlayerMenu = () => {
     newContext?.drawImage(renderer.value.domElement, 0, 0)
 
     const thumbnailName = avatarUrl.substring(0, avatarUrl.lastIndexOf('.')) + '.png'
+    const modelName = avatarUrl.substring(0, avatarUrl.lastIndexOf('.')) + '.glb'
 
     canvas.toBlob(async (blob) => {
-      await AvatarService.createAvatar(selectedFile, new File([blob!], thumbnailName), avatarName, false)
+      await AvatarService.createAvatar(
+        new File([selectedBlob!], modelName),
+        new File([blob!], thumbnailName),
+        avatarName,
+        false
+      )
       WidgetAppService.setWidgetVisibility(WidgetName.PROFILE, true)
     })
   }
@@ -131,9 +157,9 @@ const ReadyPlayerMenu = () => {
       <style>{styleString}</style>
       <div
         className="ReadyPlayerPanel"
-        style={{ width: selectedFile ? '400px' : '600px', padding: selectedFile ? '15px' : '0' }}
+        style={{ width: selectedBlob ? '400px' : '600px', padding: selectedBlob ? '15px' : '0' }}
       >
-        {selectedFile && (
+        {selectedBlob && (
           <section className="controlContainer">
             <div className="actionBlock">
               <button
@@ -148,7 +174,7 @@ const ReadyPlayerMenu = () => {
                 xr-layer="true"
                 onClick={openProfileMenu}
               >
-                <ArrowBack />
+                <Icon type="ArrowBack" />
               </button>
             </div>
           </section>
@@ -167,7 +193,7 @@ const ReadyPlayerMenu = () => {
             borderRadius: '8px'
           }}
         ></div>
-        {selectedFile && (
+        {selectedBlob && (
           <button
             onMouseEnter={() => setHover(true)}
             onMouseLeave={() => setHover(false)}
@@ -186,7 +212,7 @@ const ReadyPlayerMenu = () => {
             xr-layer="true"
             onClick={closeMenu}
           >
-            <Check />
+            <Icon type="Check" />
           </button>
         )}
         {showLoading && <CircularProgress style={{ position: 'absolute', top: '50%', left: '46%' }} />}

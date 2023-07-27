@@ -1,27 +1,53 @@
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
+import { useHookstate } from '@hookstate/core'
 import { QRCodeSVG } from 'qrcode.react'
 import React, { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import Button from '@xrengine/client-core/src/common/components/Button'
-import IconButton from '@xrengine/client-core/src/common/components/IconButton'
-import { OculusIcon } from '@xrengine/client-core/src/common/components/Icons/OculusIcon'
-import InputCheck from '@xrengine/client-core/src/common/components/InputCheck'
-import InputText from '@xrengine/client-core/src/common/components/InputText'
-import Menu from '@xrengine/client-core/src/common/components/Menu'
-import { NotificationService } from '@xrengine/client-core/src/common/services/NotificationService'
-import { SendInvite } from '@xrengine/common/src/interfaces/Invite'
-import multiLogger from '@xrengine/common/src/logger'
-import { isShareAvailable } from '@xrengine/engine/src/common/functions/DetectFeatures'
-import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
+import Button from '@etherealengine/client-core/src/common/components/Button'
+import { OculusIcon } from '@etherealengine/client-core/src/common/components/Icons/OculusIcon'
+import InputCheck from '@etherealengine/client-core/src/common/components/InputCheck'
+import InputText from '@etherealengine/client-core/src/common/components/InputText'
+import Menu from '@etherealengine/client-core/src/common/components/Menu'
+import { NotificationService } from '@etherealengine/client-core/src/common/services/NotificationService'
+import { EMAIL_REGEX, PHONE_REGEX } from '@etherealengine/common/src/constants/IdConstants'
+import { SendInvite } from '@etherealengine/common/src/interfaces/Invite'
+import multiLogger from '@etherealengine/common/src/logger'
+import { isShareAvailable } from '@etherealengine/engine/src/common/functions/DetectFeatures'
+import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
+import { getMutableState } from '@etherealengine/hyperflux'
+import Box from '@etherealengine/ui/src/primitives/mui/Box'
+import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
+import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
 
-import { FileCopy, IosShare, Send } from '@mui/icons-material'
-import ContentCopyIcon from '@mui/icons-material/ContentCopy'
-import Box from '@mui/material/Box'
-
-import { emailRegex, InviteService, phoneRegex } from '../../../../social/services/InviteService'
-import { useAuthState } from '../../../services/AuthService'
+import { InviteService } from '../../../../social/services/InviteService'
+import { AuthState } from '../../../services/AuthService'
 import styles from '../index.module.scss'
-import { Views } from '../util'
+import { PopupMenuServices } from '../PopupMenuService'
 
 const logger = multiLogger.child({ component: 'client-core:ShareMenu' })
 
@@ -30,8 +56,8 @@ export const useShareMenuHooks = ({ refLink }) => {
   const [token, setToken] = React.useState('')
   const [isSpectatorMode, setSpectatorMode] = useState<boolean>(false)
   const [shareLink, setShareLink] = useState('')
-  const engineState = useEngineState()
-  const selfUser = useAuthState().user
+  const engineState = useHookstate(getMutableState(EngineState))
+  const selfUser = useHookstate(getMutableState(AuthState)).user
 
   const copyLinkToClipboard = () => {
     navigator.clipboard.writeText(refLink.current.value)
@@ -55,8 +81,8 @@ export const useShareMenuHooks = ({ refLink }) => {
   }
 
   const packageInvite = async (): Promise<void> => {
-    const isEmail = emailRegex.test(token)
-    const isPhone = phoneRegex.test(token)
+    const isEmail = EMAIL_REGEX.test(token)
+    const isPhone = PHONE_REGEX.test(token)
     const location = new URL(window.location as any)
     let params = new URLSearchParams(location.search)
     const sendData = {
@@ -127,14 +153,10 @@ export const useShareMenuHooks = ({ refLink }) => {
   }
 }
 
-interface Props {
-  changeActiveMenu: (str: string) => void
-}
-
-const ShareMenu = ({ changeActiveMenu }: Props): JSX.Element => {
+const ShareMenu = (): JSX.Element => {
   const { t } = useTranslation()
   const refLink = useRef() as React.MutableRefObject<HTMLInputElement>
-  const engineState = useEngineState()
+  const engineState = useHookstate(getMutableState(EngineState))
   const {
     copyLinkToClipboard,
     shareOnApps,
@@ -161,7 +183,7 @@ const ShareMenu = ({ changeActiveMenu }: Props): JSX.Element => {
     <Menu
       open
       title={engineState.shareTitle.value ? engineState.shareTitle.value : t('user:usermenu.share.title')}
-      onClose={() => changeActiveMenu(Views.Closed)}
+      onClose={() => PopupMenuServices.showPopupMenu()}
     >
       <Box className={styles.menuContent}>
         <Box className={styles.shareQuest}>
@@ -174,7 +196,7 @@ const ShareMenu = ({ changeActiveMenu }: Props): JSX.Element => {
             {t('user:usermenu.share.shareQuest')}
           </Button>
           <IconButton
-            icon={<FileCopy sx={{ width: '18px' }} />}
+            icon={<Icon type="FileCopy" sx={{ width: '18px' }} />}
             sizePx={35}
             onClick={() => copyToClipboard(questShareLink.toString())}
           />
@@ -193,7 +215,7 @@ const ShareMenu = ({ changeActiveMenu }: Props): JSX.Element => {
         )}
 
         <InputText
-          endIcon={<ContentCopyIcon />}
+          endIcon={<Icon type="ContentCopy" />}
           inputRef={refLink}
           label={t('user:usermenu.share.shareDirect')}
           sx={{ mt: 2, mb: 3 }}
@@ -202,7 +224,7 @@ const ShareMenu = ({ changeActiveMenu }: Props): JSX.Element => {
         />
 
         <InputText
-          endIcon={<Send />}
+          endIcon={<Icon type="Send" />}
           label={t('user:usermenu.share.shareInvite')}
           placeholder={t('user:usermenu.share.ph-phoneEmail')}
           value={token}
@@ -211,19 +233,10 @@ const ShareMenu = ({ changeActiveMenu }: Props): JSX.Element => {
         />
 
         {isShareAvailable && (
-          <Button fullWidth type="solidRounded" endIcon={<IosShare />} onClick={shareOnApps}>
+          <Button fullWidth type="solidRounded" endIcon={<Icon type="IosShare" />} onClick={shareOnApps}>
             {t('user:usermenu.share.lbl-share')}
           </Button>
         )}
-
-        <Box display="flex" columnGap={2} alignItems="center">
-          <Button fullWidth type="gradientRounded" onClick={() => changeActiveMenu(Views.Party)}>
-            {t('user:usermenu.share.party')}
-          </Button>
-          <Button fullWidth type="gradientRounded" onClick={() => changeActiveMenu(Views.Friends)}>
-            {t('user:usermenu.share.friends')}
-          </Button>
-        </Box>
       </Box>
     </Menu>
   )

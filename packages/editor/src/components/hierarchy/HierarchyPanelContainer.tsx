@@ -1,3 +1,28 @@
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
 import React, { memo, useCallback, useContext, useEffect, useState } from 'react'
 import { useDrop } from 'react-dnd'
 import Hotkeys from 'react-hot-keys'
@@ -6,29 +31,39 @@ import AutoSizer from 'react-virtualized-auto-sizer'
 import { areEqual, FixedSizeList } from 'react-window'
 import { Object3D } from 'three'
 
-import { AllFileTypes } from '@xrengine/engine/src/assets/constants/fileTypes'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { getComponent, getOptionalComponent, hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { getEntityNodeArrayFromEntities, traverseEntityNode } from '@xrengine/engine/src/ecs/functions/EntityTree'
-import { GroupComponent } from '@xrengine/engine/src/scene/components/GroupComponent'
-import { ModelComponent } from '@xrengine/engine/src/scene/components/ModelComponent'
-import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
-import { dispatchAction } from '@xrengine/hyperflux'
+import { AllFileTypes } from '@etherealengine/engine/src/assets/constants/fileTypes'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
+import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
+import {
+  getComponent,
+  getOptionalComponent,
+  hasComponent
+} from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import {
+  EntityTreeComponent,
+  getEntityNodeArrayFromEntities,
+  traverseEntityNode
+} from '@etherealengine/engine/src/ecs/functions/EntityTree'
+import { GroupComponent } from '@etherealengine/engine/src/scene/components/GroupComponent'
+import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
+import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
+import { dispatchAction, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
 import { Checkbox } from '@mui/material'
 import MenuItem from '@mui/material/MenuItem'
 import { PopoverPosition } from '@mui/material/Popover'
 
-import { EditorCameraComponent } from '../../classes/EditorCameraComponent'
+import { EditorCameraState } from '../../classes/EditorCameraState'
 import { ItemTypes, SupportedFileTypes } from '../../constants/AssetTypes'
 import { addMediaNode } from '../../functions/addMediaNode'
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
 import { isAncestor } from '../../functions/getDetachedObjectsRoots'
 import { cmdOrCtrlString } from '../../functions/utils'
-import { EditorAction, useEditorState } from '../../services/EditorServices'
-import { accessSelectionState, useSelectionState } from '../../services/SelectionServices'
+import { EditorAction, EditorState } from '../../services/EditorServices'
+import { SelectionState } from '../../services/SelectionServices'
 import useUpload from '../assets/useUpload'
-import { addPrefabElement } from '../element/ElementList'
+import { addSceneComponentElement } from '../element/ElementList'
 import { ContextMenu } from '../layout/ContextMenu'
 import { updateProperties } from '../properties/Util'
 import { AppContext } from '../Search/context'
@@ -78,13 +113,13 @@ function getModelNodesFromTreeWalker(
 ): HeirarchyTreeNodeType[] {
   const outputNodes = [] as HeirarchyTreeNodeType[]
   const selected = new Set(
-    accessSelectionState().value.selectedEntities.filter((ent) => typeof ent === 'string') as string[]
+    getState(SelectionState).selectedEntities.filter((ent) => typeof ent === 'string') as string[]
   )
   for (const node of inputNodes) {
     outputNodes.push(node)
-    const isCollapsed = collapsedNodes[node.entityNode.entity]
-    if (showObject3Ds && hasComponent(node.entityNode.entity, ModelComponent)) {
-      const group = getOptionalComponent(node.entityNode.entity, GroupComponent)
+    const isCollapsed = collapsedNodes[node.entityNode]
+    if (showObject3Ds && hasComponent(node.entityNode as Entity, ModelComponent)) {
+      const group = getOptionalComponent(node.entityNode as Entity, GroupComponent)
       if (!group?.length) continue
       node.isLeaf = false
       if (isCollapsed) continue
@@ -127,15 +162,15 @@ export default function HierarchyPanel({
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null)
   const open = Boolean(anchorEl)
   const onUpload = useUpload(uploadOptions)
-  const selectionState = useSelectionState()
+  const selectionState = useHookstate(getMutableState(SelectionState))
   const [renamingNode, setRenamingNode] = useState<RenameNodeData | null>(null)
   const [collapsedNodes, setCollapsedNodes] = useState<HeirarchyTreeCollapsedNodeType>({})
   const [nodes, setNodes] = useState<HeirarchyTreeNodeType[]>([])
   const nodeSearch: HeirarchyTreeNodeType[] = []
   const [selectedNode, _setSelectedNode] = useState<HeirarchyTreeNodeType | null>(null)
-  const editorState = useEditorState()
+  const editorState = useHookstate(getMutableState(EditorState))
   const { searchHierarchy } = useContext(AppContext)
-  const showObject3DInHierarchy = useEditorState().showObject3DInHierarchy
+  const showObject3DInHierarchy = editorState.showObject3DInHierarchy
 
   const MemoTreeNode = memo(
     (props: HierarchyTreeNodeProps) => <HierarchyTreeNode {...props} onContextMenu={onContextMenu} />,
@@ -146,33 +181,25 @@ export default function HierarchyPanel({
     const condition = new RegExp(searchHierarchy.toLowerCase())
     nodes.forEach((node) => {
       if (
-        (node.entityNode && condition.test(getComponent(node.entityNode.entity, NameComponent)?.toLowerCase() ?? '')) ||
+        (node.entityNode &&
+          condition.test(getComponent(node.entityNode as Entity, NameComponent)?.toLowerCase() ?? '')) ||
         (node.obj3d && condition.test(node.obj3d.name?.toLowerCase() ?? ''))
       )
         nodeSearch.push(node)
     })
   }
 
-  const updateNodeHierarchy = useCallback(
-    (world = Engine.instance.currentWorld) => {
-      if (!world.entityTree) return
-      setNodes(
-        getModelNodesFromTreeWalker(
-          Array.from(
-            heirarchyTreeWalker(
-              world.entityTree.rootNode,
-              selectionState.selectedEntities.value,
-              collapsedNodes,
-              world.entityTree
-            )
-          ),
-          collapsedNodes,
-          showObject3DInHierarchy.value
-        )
+  const updateNodeHierarchy = useCallback(() => {
+    setNodes(
+      getModelNodesFromTreeWalker(
+        Array.from(
+          heirarchyTreeWalker(getState(SceneState).sceneEntity, selectionState.selectedEntities.value, collapsedNodes)
+        ),
+        collapsedNodes,
+        showObject3DInHierarchy.value
       )
-    },
-    [collapsedNodes]
-  )
+    )
+  }, [collapsedNodes])
 
   useEffect(updateNodeHierarchy, [collapsedNodes])
   useEffect(updateNodeHierarchy, [
@@ -187,7 +214,7 @@ export default function HierarchyPanel({
   const expandNode = useCallback(
     (node: HeirarchyTreeNodeType) => {
       if (node.obj3d) return // todo
-      setCollapsedNodes({ ...collapsedNodes, [node.entityNode.entity]: false })
+      setCollapsedNodes({ ...collapsedNodes, [node.entityNode]: false })
     },
     [collapsedNodes]
   )
@@ -195,7 +222,7 @@ export default function HierarchyPanel({
   const collapseNode = useCallback(
     (node: HeirarchyTreeNodeType) => {
       if (node.obj3d) return // todo
-      setCollapsedNodes({ ...collapsedNodes, [node.entityNode.entity]: true })
+      setCollapsedNodes({ ...collapsedNodes, [node.entityNode]: true })
     },
     [collapsedNodes]
   )
@@ -205,7 +232,7 @@ export default function HierarchyPanel({
       handleClose()
 
       if (node.obj3d) return // todo
-      traverseEntityNode(node.entityNode, (child) => (collapsedNodes[child.entity] = false))
+      traverseEntityNode(node.entityNode as Entity, (child) => (collapsedNodes[child] = false))
       setCollapsedNodes({ ...collapsedNodes })
     },
     [collapsedNodes]
@@ -216,7 +243,7 @@ export default function HierarchyPanel({
       handleClose()
 
       if (node.obj3d) return // todo
-      traverseEntityNode(node.entityNode, (child) => (collapsedNodes[child.entity] = true))
+      traverseEntityNode(node.entityNode as Entity, (child) => (collapsedNodes[child] = true))
       setCollapsedNodes({ ...collapsedNodes })
     },
     [collapsedNodes]
@@ -268,16 +295,16 @@ export default function HierarchyPanel({
   const onClick = useCallback((e: MouseEvent, node: HeirarchyTreeNodeType) => {
     if (node.obj3d) return // todo
     if (e.detail === 2) {
-      const cameraComponent = getComponent(Engine.instance.currentWorld.cameraEntity, EditorCameraComponent)
-      cameraComponent.focusedObjects = [node.entityNode]
-      cameraComponent.refocus = true
+      const editorCameraState = getMutableState(EditorCameraState)
+      editorCameraState.focusedObjects.set([node.entityNode])
+      editorCameraState.refocus.set(true)
     }
   }, [])
 
   const onToggle = useCallback(
     (_, node: HeirarchyTreeNodeType) => {
       if (node.obj3d) return // todo
-      if (collapsedNodes[node.entityNode.entity]) expandNode(node)
+      if (collapsedNodes[node.entityNode as Entity]) expandNode(node)
       else collapseNode(node)
     },
     [collapsedNodes, expandNode, collapseNode]
@@ -286,6 +313,7 @@ export default function HierarchyPanel({
   const onKeyDown = useCallback(
     (e: KeyboardEvent, node: HeirarchyTreeNodeType) => {
       const nodeIndex = nodes.indexOf(node)
+      const entityTree = getComponent(node.entityNode as Entity, EntityTreeComponent)
 
       switch (e.key) {
         case 'ArrowDown':
@@ -317,7 +345,7 @@ export default function HierarchyPanel({
           break
 
         case 'ArrowLeft':
-          if (node.entityNode && (!node.entityNode.children || node.entityNode.children.length === 0)) return
+          if (entityTree && (!entityTree.children || entityTree.children.length === 0)) return
           if (node.obj3d && (!node.obj3d.children || node.obj3d.children.length === 0)) return
 
           if (e.shiftKey) collapseChildren(node)
@@ -325,7 +353,7 @@ export default function HierarchyPanel({
           break
 
         case 'ArrowRight':
-          if (node.entityNode && (!node.entityNode.children || node.entityNode.children.length === 0)) return
+          if (entityTree && (!entityTree.children || entityTree.children.length === 0)) return
           if (node.obj3d && (!node.obj3d.children || node.obj3d.children.length === 0)) return
 
           if (e.shiftKey) expandChildren(node)
@@ -385,7 +413,7 @@ export default function HierarchyPanel({
     handleClose()
 
     if (node.entityNode) {
-      const entity = node.entityNode.entity
+      const entity = node.entityNode as Entity
       setRenamingNode({ entity, name: getComponent(entity, NameComponent) })
     } else {
       // todo
@@ -393,14 +421,14 @@ export default function HierarchyPanel({
   }, [])
 
   const onChangeName = useCallback(
-    (node: HeirarchyTreeNodeType, name: string) => setRenamingNode({ entity: node.entityNode.entity, name }),
+    (node: HeirarchyTreeNodeType, name: string) => setRenamingNode({ entity: node.entityNode as Entity, name }),
     []
   )
 
   const onRenameSubmit = useCallback((node: HeirarchyTreeNodeType, name: string) => {
     if (name) {
       if (!node.obj3d) updateProperties(NameComponent, name, [node.entityNode])
-      const groups = getOptionalComponent(node.entityNode.entity, GroupComponent)
+      const groups = getOptionalComponent(node.entityNode as Entity, GroupComponent)
       if (groups) for (const obj of groups) if (obj) obj.name = name
     }
 
@@ -433,54 +461,51 @@ export default function HierarchyPanel({
       }
 
       if (item.type === ItemTypes.Prefab) {
-        addPrefabElement(item)
+        addSceneComponentElement(item) // TODO: need to test this
         return
       }
 
-      EditorControlFunctions.reparentObject([item.value], [Engine.instance.currentWorld.entityTree.rootNode])
+      EditorControlFunctions.reparentObject(Array.isArray(item.value) ? item.value : [item.value])
     },
     canDrop(item: any, monitor) {
       if (!monitor.isOver({ shallow: true })) return false
 
       // check if item is of node type
       if (item.type === ItemTypes.Node) {
-        const world = Engine.instance.currentWorld
+        const sceneEntity = getState(SceneState).sceneEntity
         return !(item.multiple
-          ? item.value.some((otherObject) => isAncestor(otherObject, world.entityTree.rootNode))
-          : isAncestor(item.value, world.entityTree.rootNode))
+          ? item.value.some((otherObject) => isAncestor(otherObject, sceneEntity))
+          : isAncestor(item.value, sceneEntity))
       }
 
       return true
     }
   })
 
-  const HierarchyList = //useCallback(
-    ({ height, width }) => (
-      <FixedSizeList
-        height={height}
-        width={width}
-        itemSize={32}
-        itemCount={nodeSearch?.length > 0 ? nodeSearch.length : nodes.length}
-        itemData={{
-          renamingNode,
-          nodes: nodeSearch?.length > 0 ? nodeSearch : nodes,
-          onKeyDown,
-          onChangeName,
-          onRenameSubmit,
-          onMouseDown,
-          onClick,
-          onToggle,
-          onUpload
-        }}
-        itemKey={getNodeKey}
-        outerRef={treeContainerDropTarget}
-        innerElementType="ul"
-      >
-        {MemoTreeNode}
-      </FixedSizeList>
-    ) //,
-  //[editorState.advancedMode, editorState.projectLoaded, collapsedNodes, showObject3DInHierarchy, selectedNode, updateNodeHierarchy]
-  //)
+  const HierarchyList = ({ height, width }) => (
+    <FixedSizeList
+      height={height}
+      width={width}
+      itemSize={32}
+      itemCount={nodeSearch?.length > 0 ? nodeSearch.length : nodes.length}
+      itemData={{
+        renamingNode,
+        nodes: nodeSearch?.length > 0 ? nodeSearch : nodes,
+        onKeyDown,
+        onChangeName,
+        onRenameSubmit,
+        onMouseDown,
+        onClick,
+        onToggle,
+        onUpload
+      }}
+      itemKey={getNodeKey}
+      outerRef={treeContainerDropTarget}
+      innerElementType="ul"
+    >
+      {MemoTreeNode}
+    </FixedSizeList>
+  )
 
   return (
     <>
@@ -502,7 +527,7 @@ export default function HierarchyPanel({
           )}
           <Search elementsName="hierarchy" handleInputChange={setSearchHierarchy} />
         </div>
-        {Engine.instance.currentWorld.scene && (
+        {Engine.instance.scene && (
           <div style={{ height: '100%' }}>
             <AutoSizer onResize={HierarchyList}>{HierarchyList}</AutoSizer>
           </div>

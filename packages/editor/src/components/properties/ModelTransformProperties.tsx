@@ -1,34 +1,65 @@
-import React, { useCallback } from 'react'
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
+import React, { useCallback, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import styled from 'styled-components'
 import { DoubleSide, Mesh, MeshStandardMaterial } from 'three'
 
-import { API } from '@xrengine/client-core/src/API'
-import { FileBrowserService } from '@xrengine/client-core/src/common/services/FileBrowserService'
-import { ModelTransformParameters } from '@xrengine/engine/src/assets/classes/ModelTransform'
-import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
-import { ComponentType, getComponentState, hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { MaterialSource, SourceType } from '@xrengine/engine/src/renderer/materials/components/MaterialSource'
-import MeshBasicMaterial from '@xrengine/engine/src/renderer/materials/constants/material-prototypes/MeshBasicMaterial.mat'
-import bakeToVertices from '@xrengine/engine/src/renderer/materials/functions/bakeToVertices'
-import { materialsFromSource } from '@xrengine/engine/src/renderer/materials/functions/MaterialLibraryFunctions'
-import { ModelComponent } from '@xrengine/engine/src/scene/components/ModelComponent'
-import { useHookstate } from '@xrengine/hyperflux'
-import { State } from '@xrengine/hyperflux/functions/StateFunctions'
+import { FileBrowserService } from '@etherealengine/client-core/src/common/services/FileBrowserService'
+import {
+  DefaultModelTransformParameters,
+  ModelTransformParameters
+} from '@etherealengine/engine/src/assets/classes/ModelTransform'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
+import {
+  ComponentType,
+  getMutableComponent,
+  hasComponent
+} from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { MaterialSource, SourceType } from '@etherealengine/engine/src/renderer/materials/components/MaterialSource'
+import MeshBasicMaterial from '@etherealengine/engine/src/renderer/materials/constants/material-prototypes/MeshBasicMaterial.mat'
+import bakeToVertices from '@etherealengine/engine/src/renderer/materials/functions/bakeToVertices'
+import { materialsFromSource } from '@etherealengine/engine/src/renderer/materials/functions/MaterialLibraryFunctions'
+import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
+import { getModelResources } from '@etherealengine/engine/src/scene/functions/loaders/ModelFunctions'
+import { useHookstate } from '@etherealengine/hyperflux'
+import { getMutableState, State } from '@etherealengine/hyperflux/functions/StateFunctions'
 
 import { ToggleButton } from '@mui/material'
 
 import exportGLTF from '../../functions/exportGLTF'
-import { accessSelectionState } from '../../services/SelectionServices'
+import { SelectionState } from '../../services/SelectionServices'
 import BooleanInput from '../inputs/BooleanInput'
 import { Button } from '../inputs/Button'
 import InputGroup from '../inputs/InputGroup'
-import NumericInputGroup from '../inputs/NumericInputGroup'
-import ParameterInput from '../inputs/ParameterInput'
-import SelectInput from '../inputs/SelectInput'
 import StringInput from '../inputs/StringInput'
 import TexturePreviewInput from '../inputs/TexturePreviewInput'
 import CollapsibleBlock from '../layout/CollapsibleBlock'
+import GLTFTransformProperties from './GLTFTransformProperties'
 import LightmapBakerProperties from './LightmapBakerProperties'
 
 const TransformContainer = (styled as any).div`
@@ -38,12 +69,6 @@ const TransformContainer = (styled as any).div`
   margin-bottom: 4em;
   background-color: var(--background2);
   overflow: scroll;
-`
-
-const ElementsContainer = (styled as any).div`
-  margin: 16px;
-  padding: 8px;
-  color: var(--textColor);
 `
 
 const FilterToggle = styled(ToggleButton)`
@@ -96,51 +121,13 @@ export default function ModelTransformProperties({
   onChangeModel: any
 }) {
   const { t } = useTranslation()
-  const selectionState = accessSelectionState()
+  const selectionState = useHookstate(getMutableState(SelectionState))
   const transforming = useHookstate<boolean>(false)
   const transformHistory = useHookstate<string[]>([])
+
   const transformParms = useHookstate<ModelTransformParameters>({
-    modelFormat: 'glb',
-    dedup: true,
-    prune: true,
-    dracoCompression: {
-      enabled: true,
-      options: {
-        method: 'sequential',
-        encodeSpeed: 0,
-        decodeSpeed: 0,
-        quantizePosition: 14,
-        quantizeNormal: 8,
-        quantizeColor: 8,
-        quantizeTexcoord: 12,
-        quantizeGeneric: 16,
-        quantizationVolume: 'mesh'
-      }
-    },
-    gltfPack: {
-      enabled: false,
-      options: {
-        meshopt: true,
-        basisU: true,
-        instancing: false,
-        mergeNodes: true,
-        mergeMaterials: true
-      }
-    },
-    meshQuantization: {
-      enabled: true,
-      options: {
-        quantizePosition: 14,
-        quantizeNormal: 8,
-        quantizeTexcoord: 8,
-        quantizeColor: 8,
-        quantizeWeight: 8,
-        quantizeGeneric: 8,
-        normalizeWeights: false
-      }
-    },
-    textureFormat: 'ktx2',
-    maxTextureSize: 1024
+    ...DefaultModelTransformParameters,
+    modelFormat: modelState.src.value.endsWith('.gltf') ? 'gltf' : 'glb'
   })
 
   const vertexBakeOptions = useHookstate({
@@ -169,10 +156,7 @@ export default function ModelTransformProperties({
             MeshBasicMaterial.prototypeId
           )
         ) ?? []
-      ) /*
-    if ([AssetClass.Image, AssetClass.Video].includes(AssetLoader.getAssetClass(vertexBakeOptions.matcapPath.value))) {
-      batchSetMaterialProperty(src, 'matcap', await AssetLoader.loadAsync(vertexBakeOptions.matcapPath.value))
-    }*/
+      )
     },
     [vertexBakeOptions]
   )
@@ -196,25 +180,16 @@ export default function ModelTransformProperties({
     [attribToDelete]
   )
 
-  const onChangeTransformParm = useCallback(
-    (state: State<any>, k: keyof typeof state.value) => {
-      return (val) => {
-        state[k].set(val)
-      }
-    },
-    [transformParms]
-  )
-
   const onTransformModel = useCallback(
     (modelState: State<ComponentType<typeof ModelComponent>>) => async () => {
       transforming.set(true)
       const modelSrc = modelState.src.value
-      const nuPath = await API.instance.client.service('model-transform').create({
-        path: modelSrc,
+      const nuPath = await Engine.instance.api.service('model-transform').create({
+        src: modelSrc,
         transformParameters: transformParms.value
       })
       transformHistory.set([modelSrc, ...transformHistory.value])
-      const [_, directoryToRefresh, fileName] = /.*\/(projects\/.*)\/([\w\d\s\-_\.]*)$/.exec(nuPath)!
+      const [_, directoryToRefresh, fileName] = /.*\/(projects\/.*)\/([\w\d\s\-_.]*)$/.exec(nuPath)!
       await FileBrowserService.fetchFiles(directoryToRefresh)
       onChangeModel(nuPath)
       transforming.set(false)
@@ -223,7 +198,7 @@ export default function ModelTransformProperties({
   )
 
   const onUndoTransform = useCallback(async () => {
-    const prev = transformHistory[0]
+    const prev = transformHistory.value[0]
     onChangeModel(prev)
     transformHistory.set(transformHistory.value.slice(1))
   }, [transforming])
@@ -235,7 +210,7 @@ export default function ModelTransformProperties({
       .map((entity: Entity) => entity)
     for (const entity of selectedModelEntities) {
       console.log('at entity ' + entity)
-      const modelComponent = getComponentState(entity, ModelComponent)
+      const modelComponent = getMutableComponent(entity, ModelComponent)
       console.log('processing model from src ' + modelComponent.src.value)
       //bake lightmaps to vertices
       console.log('baking vertices...')
@@ -258,8 +233,8 @@ export default function ModelTransformProperties({
       console.log('saved baked model')
       //perform gltf transform
       console.log('transforming model at ' + bakedPath + '...')
-      const transformedPath = await API.instance.client.service('model-transform').create({
-        path: bakedPath,
+      const transformedPath = await Engine.instance.api.service('model-transform').create({
+        src: bakedPath,
         transformParameters: transformParms.value
       })
       console.log('transformed model into ' + transformedPath)
@@ -267,93 +242,22 @@ export default function ModelTransformProperties({
     }
   }, [selectionState.selectedEntities])
 
+  useEffect(() => {
+    transformParms.resources.set(getModelResources(modelState.value))
+  }, [modelState.scene])
+
   return (
     <CollapsibleBlock label="Model Transform Properties">
       <TransformContainer>
         <LightmapBakerProperties modelState={modelState} />
-        <CollapsibleBlock label="glTF-Transform">
-          <ElementsContainer>
-            <InputGroup name="Model Format" label={t('editor:properties.model.transform.modelFormat')}>
-              <SelectInput
-                value={transformParms.modelFormat.value}
-                onChange={onChangeTransformParm(transformParms, 'modelFormat')}
-                options={[
-                  { label: 'glB', value: 'glb' },
-                  { label: 'glTF', value: 'gltf' }
-                ]}
-              />
-            </InputGroup>
-            <InputGroup name="Remove Duplicates" label={t('editor:properties.model.transform.removeDuplicates')}>
-              <BooleanInput
-                value={transformParms.dedup.value}
-                onChange={onChangeTransformParm(transformParms, 'dedup')}
-              />
-            </InputGroup>
-            <InputGroup name="Prune Unused" label={t('editor:properties.model.transform.pruneUnused')}>
-              <BooleanInput
-                value={transformParms.prune.value}
-                onChange={onChangeTransformParm(transformParms, 'prune')}
-              />
-            </InputGroup>
-            <InputGroup name="Use Mesh Quantization" label={t('editor:properties.model.transform.useQuantization')}>
-              <BooleanInput
-                value={transformParms.meshQuantization.enabled.value}
-                onChange={onChangeTransformParm(transformParms.meshQuantization, 'enabled')}
-              />
-              <ParameterInput
-                entity={`${modelState.src.value}-mesh-quantization`}
-                values={transformParms.meshQuantization.options.value}
-                onChange={onChangeTransformParm.bind({}, transformParms.meshQuantization.options)}
-              />
-            </InputGroup>
-            <InputGroup name="Use DRACO Compression" label={t('editor:properties.model.transform.useDraco')}>
-              <BooleanInput
-                value={transformParms.dracoCompression.enabled.value}
-                onChange={onChangeTransformParm(transformParms.dracoCompression, 'enabled')}
-              />
-              <ParameterInput
-                entity={`${modelState.src.value}-draco-compression`}
-                values={transformParms.dracoCompression.options.value}
-                onChange={onChangeTransformParm.bind({}, transformParms.dracoCompression.options)}
-              />
-            </InputGroup>
-            <InputGroup name="Use GLTFPack" label={t('editor:properties.model.transform.useGLTFPack')}>
-              <BooleanInput
-                value={transformParms.gltfPack.enabled.value}
-                onChange={onChangeTransformParm(transformParms.dracoCompression, 'enabled')}
-              />
-              <ParameterInput
-                entity={`${modelState.src.value}-gltfpack`}
-                values={transformParms.gltfPack.options.value}
-                onChange={onChangeTransformParm.bind({}, transformParms.gltfPack.options)}
-              />
-            </InputGroup>
-            <InputGroup name="Texture Format" label={t('editor:properties.model.transform.textureFormat')}>
-              <SelectInput
-                value={transformParms.textureFormat.value}
-                onChange={onChangeTransformParm(transformParms, 'textureFormat')}
-                options={[
-                  { label: 'Default', value: 'default' },
-                  { label: 'JPG', value: 'jpg' },
-                  { label: 'KTX2', value: 'ktx2' },
-                  { label: 'PNG', value: 'png' },
-                  { label: 'WebP', value: 'webp' }
-                ]}
-              />
-            </InputGroup>
-            <NumericInputGroup
-              name="Max Texture Size"
-              label={t('editor:properties.model.transform.maxTextureSize')}
-              value={transformParms.maxTextureSize.value}
-              onChange={onChangeTransformParm(transformParms, 'maxTextureSize')}
-              max={4096}
-              min={64}
-            />
-            {!transforming.value && <OptimizeButton onClick={onTransformModel(modelState)}>Optimize</OptimizeButton>}
-            {transforming.value && <p>Transforming...</p>}
-            {transformHistory.length > 0 && <Button onClick={onUndoTransform}>Undo</Button>}
-          </ElementsContainer>
-        </CollapsibleBlock>
+        <GLTFTransformProperties
+          transformParms={transformParms}
+          onChange={(transformParms: ModelTransformParameters) => {}}
+        />
+        {!transforming.value && <OptimizeButton onClick={onTransformModel(modelState)}>Optimize</OptimizeButton>}
+        {transforming.value && <p>Transforming...</p>}
+        {transformHistory.length > 0 && <Button onClick={onUndoTransform}>Undo</Button>}
+
         <CollapsibleBlock label="Delete Attribute">
           <InputGroup name="Attribute" label="Attribute">
             <StringInput value={attribToDelete.value} onChange={attribToDelete.set} />

@@ -1,82 +1,99 @@
-import { useHookstate } from '@hookstate/core'
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
 // import * as polyfill from 'credential-handler-polyfill'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useLocation } from 'react-router-dom'
 
-import Avatar from '@xrengine/client-core/src/common/components/Avatar'
-import Button from '@xrengine/client-core/src/common/components/Button'
-import commonStyles from '@xrengine/client-core/src/common/components/common.module.scss'
-import ConfirmDialog from '@xrengine/client-core/src/common/components/ConfirmDialog'
-import IconButton from '@xrengine/client-core/src/common/components/IconButton'
-import { DiscordIcon } from '@xrengine/client-core/src/common/components/Icons/DiscordIcon'
-import { FacebookIcon } from '@xrengine/client-core/src/common/components/Icons/FacebookIcon'
-import { GoogleIcon } from '@xrengine/client-core/src/common/components/Icons/GoogleIcon'
-import { LinkedInIcon } from '@xrengine/client-core/src/common/components/Icons/LinkedInIcon'
-import { TwitterIcon } from '@xrengine/client-core/src/common/components/Icons/TwitterIcon'
-import InputText from '@xrengine/client-core/src/common/components/InputText'
-import Menu from '@xrengine/client-core/src/common/components/Menu'
-import Text from '@xrengine/client-core/src/common/components/Text'
-import { validateEmail, validatePhoneNumber } from '@xrengine/common/src/config'
-// import { requestVcForEvent, vpRequestQuery } from '@xrengine/common/src/credentials/credentials'
-import multiLogger from '@xrengine/common/src/logger'
-import { WorldState } from '@xrengine/engine/src/networking/interfaces/WorldState'
-import { getState } from '@xrengine/hyperflux'
+import Avatar from '@etherealengine/client-core/src/common/components/Avatar'
+import Button from '@etherealengine/client-core/src/common/components/Button'
+import commonStyles from '@etherealengine/client-core/src/common/components/common.module.scss'
+import ConfirmDialog from '@etherealengine/client-core/src/common/components/ConfirmDialog'
+import { DiscordIcon } from '@etherealengine/client-core/src/common/components/Icons/DiscordIcon'
+import { FacebookIcon } from '@etherealengine/client-core/src/common/components/Icons/FacebookIcon'
+import { GoogleIcon } from '@etherealengine/client-core/src/common/components/Icons/GoogleIcon'
+import { LinkedInIcon } from '@etherealengine/client-core/src/common/components/Icons/LinkedInIcon'
+import { TwitterIcon } from '@etherealengine/client-core/src/common/components/Icons/TwitterIcon'
+import InputText from '@etherealengine/client-core/src/common/components/InputText'
+import Menu from '@etherealengine/client-core/src/common/components/Menu'
+import Text from '@etherealengine/client-core/src/common/components/Text'
+import { validateEmail, validatePhoneNumber } from '@etherealengine/common/src/config'
+import multiLogger from '@etherealengine/common/src/logger'
+import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import Box from '@etherealengine/ui/src/primitives/mui/Box'
+import CircularProgress from '@etherealengine/ui/src/primitives/mui/CircularProgress'
+import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
+import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
 
-import CheckIcon from '@mui/icons-material/Check'
-import ContentCopyIcon from '@mui/icons-material/ContentCopy'
-import GitHubIcon from '@mui/icons-material/GitHub'
-import RefreshIcon from '@mui/icons-material/Refresh'
-import SendIcon from '@mui/icons-material/Send'
-import SettingsIcon from '@mui/icons-material/Settings'
-import Box from '@mui/material/Box'
-import CircularProgress from '@mui/material/CircularProgress'
-
-import { useAuthSettingState } from '../../../../admin/services/Setting/AuthSettingService'
+import { AuthSettingsState } from '../../../../admin/services/Setting/AuthSettingService'
 import { initialAuthState, initialOAuthConnectedState } from '../../../../common/initialAuthState'
 import { NotificationService } from '../../../../common/services/NotificationService'
-import { AuthService, useAuthState } from '../../../services/AuthService'
+import { useUserAvatarThumbnail } from '../../../functions/useUserAvatarThumbnail'
+import { AuthService, AuthState } from '../../../services/AuthService'
+import { UserMenus } from '../../../UserUISystem'
 import styles from '../index.module.scss'
-import { getAvatarURLForUser, Views } from '../util'
+import { PopupMenuServices } from '../PopupMenuService'
 
 const logger = multiLogger.child({ component: 'client-core:ProfileMenu' })
 
 interface Props {
   className?: string
   hideLogin?: boolean
-  allowAvatarChange?: boolean
   isPopover?: boolean
-  changeActiveMenu?: (type: string | null) => void
   onClose?: () => void
 }
 
-const ProfileMenu = ({ hideLogin, allowAvatarChange, isPopover, changeActiveMenu, onClose }: Props): JSX.Element => {
+const ProfileMenu = ({ hideLogin, onClose, isPopover }: Props): JSX.Element => {
   const { t } = useTranslation()
   const location = useLocation()
 
-  const selfUser = useAuthState().user
-  console.log('USER:', selfUser)
+  const selfUser = useHookstate(getMutableState(AuthState).user)
 
-  const [username, setUsername] = useState(selfUser?.name.value)
-  const [emailPhone, setEmailPhone] = useState('')
-  const [error, setError] = useState(false)
-  const [errorUsername, setErrorUsername] = useState('')
-  const [showUserId, setShowUserId] = useState(false)
-  const [showApiKey, setShowApiKey] = useState(false)
-  const [showDeleteAccount, setShowDeleteAccount] = useState(false)
-  const [oauthConnectedState, setOauthConnectedState] = useState(initialOAuthConnectedState)
-  const [authState, setAuthState] = useState(initialAuthState)
+  const username = useHookstate(selfUser?.name.value)
+  const emailPhone = useHookstate('')
+  const error = useHookstate(false)
+  const errorUsername = useHookstate('')
+  const showUserId = useHookstate(false)
+  const showApiKey = useHookstate(false)
+  const showDeleteAccount = useHookstate(false)
+  const oauthConnectedState = useHookstate(Object.assign({}, initialOAuthConnectedState))
+  const authState = useHookstate(initialAuthState)
 
-  const authSettingState = useAuthSettingState()
+  const engineInitialized = useHookstate(getMutableState(EngineState).isEngineInitialized)
+  const authSettingState = useHookstate(getMutableState(AuthSettingsState))
   const [authSetting] = authSettingState?.authSettings?.value || []
-  const loading = useAuthState().isProcessing.value
+  const loading = useHookstate(getMutableState(AuthState).isProcessing)
   const userId = selfUser.id.value
   const apiKey = selfUser.apiKey?.token?.value
   const isGuest = selfUser.isGuest.value
 
   const hasAdminAccess =
     selfUser?.id?.value?.length > 0 && selfUser?.scopes?.value?.find((scope) => scope.type === 'admin:admin')
-  const userAvatarDetails = useHookstate(getState(WorldState).userAvatarDetails)
+  const avatarThumbnail = useUserAvatarThumbnail(userId)
 
   useEffect(() => {
     if (authSetting) {
@@ -86,26 +103,20 @@ const ProfileMenu = ({ hideLogin, allowAvatarChange, isPopover, changeActiveMenu
           temp[strategyName] = strategy
         })
       })
-      setAuthState(temp)
+      authState.set(temp)
     }
   }, [authSettingState?.updateNeeded?.value])
 
   let type = ''
   const addMoreSocial =
-    (authState?.discord && !oauthConnectedState.discord) ||
-    (authState.facebook && !oauthConnectedState.facebook) ||
-    (authState.github && !oauthConnectedState.github) ||
-    (authState.google && !oauthConnectedState.google) ||
-    (authState.linkedin && !oauthConnectedState.linkedin) ||
-    (authState.twitter && !oauthConnectedState.twitter)
+    (authState?.value?.discord && !oauthConnectedState.discord.value) ||
+    (authState?.value?.facebook && !oauthConnectedState.facebook.value) ||
+    (authState?.value?.github && !oauthConnectedState.github.value) ||
+    (authState?.value?.google && !oauthConnectedState.google.value) ||
+    (authState?.value?.linkedin && !oauthConnectedState.linkedin.value) ||
+    (authState?.value?.twitter && !oauthConnectedState.twitter.value)
 
-  const removeSocial =
-    (authState?.discord && oauthConnectedState.discord) ||
-    (authState.facebook && oauthConnectedState.facebook) ||
-    (authState.github && oauthConnectedState.github) ||
-    (authState.google && oauthConnectedState.google) ||
-    (authState.linkedin && oauthConnectedState.linkedin) ||
-    (authState.twitter && oauthConnectedState.twitter)
+  const removeSocial = Object.values(oauthConnectedState.value).filter((value) => value).length >= 1
 
   // const loadCredentialHandler = async () => {
   //   try {
@@ -123,43 +134,31 @@ const ProfileMenu = ({ hideLogin, allowAvatarChange, isPopover, changeActiveMenu
   // }, []) // Only run once
 
   useEffect(() => {
-    selfUser && setUsername(selfUser.name.value)
+    selfUser && username.set(selfUser.name.value)
   }, [selfUser.name.value])
 
   useEffect(() => {
-    setOauthConnectedState(initialOAuthConnectedState)
-    if (selfUser.identityProviders.value)
-      for (let ip of selfUser.identityProviders.value) {
+    oauthConnectedState.set(Object.assign({}, initialOAuthConnectedState))
+    if (selfUser.identityProviders.get({ noproxy: true }))
+      for (let ip of selfUser.identityProviders.get({ noproxy: true })!) {
         switch (ip.type) {
           case 'discord':
-            setOauthConnectedState((oauthConnectedState) => {
-              return { ...oauthConnectedState, discord: true }
-            })
+            oauthConnectedState.merge({ discord: true })
             break
           case 'facebook':
-            setOauthConnectedState((oauthConnectedState) => {
-              return { ...oauthConnectedState, facebook: true }
-            })
+            oauthConnectedState.merge({ facebook: true })
             break
           case 'linkedin':
-            setOauthConnectedState((oauthConnectedState) => {
-              return { ...oauthConnectedState, linkedin: true }
-            })
+            oauthConnectedState.merge({ linkedin: true })
             break
           case 'google':
-            setOauthConnectedState((oauthConnectedState) => {
-              return { ...oauthConnectedState, google: true }
-            })
+            oauthConnectedState.merge({ google: true })
             break
           case 'twitter':
-            setOauthConnectedState((oauthConnectedState) => {
-              return { ...oauthConnectedState, twitter: true }
-            })
+            oauthConnectedState.merge({ twitter: true })
             break
           case 'github':
-            setOauthConnectedState((oauthConnectedState) => {
-              return { ...oauthConnectedState, github: true }
-            })
+            oauthConnectedState.merge({ github: true })
             break
         }
       }
@@ -171,39 +170,39 @@ const ProfileMenu = ({ hideLogin, allowAvatarChange, isPopover, changeActiveMenu
   }
 
   const handleUsernameChange = (e) => {
-    setUsername(e.target.value)
-    if (!e.target.value) setErrorUsername(t('user:usermenu.profile.usernameError'))
-    else setErrorUsername('')
+    username.set(e.target.value)
+    if (!e.target.value) errorUsername.set(t('user:usermenu.profile.usernameError'))
+    else errorUsername.set('')
   }
 
   const handleUpdateUsername = () => {
-    const name = username.trim()
+    const name = username.value.trim()
     if (!name) return
     if (selfUser.name.value.trim() !== name) {
       // @ts-ignore
       AuthService.updateUsername(userId, name)
     }
   }
-  const handleInputChange = (e) => setEmailPhone(e.target.value)
+  const handleInputChange = (e) => emailPhone.set(e.target.value)
 
   const validate = () => {
-    if (emailPhone === '') return false
-    if (validateEmail(emailPhone.trim()) && authState?.emailMagicLink) type = 'email'
-    else if (validatePhoneNumber(emailPhone.trim()) && authState.smsMagicLink) type = 'sms'
+    if (emailPhone.value === '') return false
+    if (validateEmail(emailPhone.value.trim()) && authState?.value?.emailMagicLink) type = 'email'
+    else if (validatePhoneNumber(emailPhone.value.trim()) && authState?.value?.smsMagicLink) type = 'sms'
     else {
-      setError(true)
+      error.set(true)
       return false
     }
 
-    setError(false)
+    error.set(false)
     return true
   }
 
   const handleGuestSubmit = (e: any): any => {
     e.preventDefault()
     if (!validate()) return
-    if (type === 'email') AuthService.createMagicLink(emailPhone, authState, 'email')
-    else if (type === 'sms') AuthService.createMagicLink(emailPhone, authState, 'sms')
+    if (type === 'email') AuthService.createMagicLink(emailPhone.value, authState?.value, 'email')
+    else if (type === 'sms') AuthService.createMagicLink(emailPhone.value, authState?.value, 'sms')
     return
   }
 
@@ -216,12 +215,13 @@ const ProfileMenu = ({ hideLogin, allowAvatarChange, isPopover, changeActiveMenu
   }
 
   const handleLogout = async () => {
-    if (changeActiveMenu) changeActiveMenu(Views.Closed)
-    else if (onClose) onClose()
-    setShowUserId(false)
-    setShowApiKey(false)
+    PopupMenuServices.showPopupMenu(UserMenus.Profile)
+    if (onClose) onClose()
+    showUserId.set(false)
+    showApiKey.set(false)
     await AuthService.logoutUser()
     // window.location.reload()
+    oauthConnectedState.set(Object.assign({}, initialOAuthConnectedState))
   }
 
   /**
@@ -305,11 +305,11 @@ const ProfileMenu = ({ hideLogin, allowAvatarChange, isPopover, changeActiveMenu
   }
 
   const getConnectText = () => {
-    if (authState?.emailMagicLink && authState?.smsMagicLink) {
+    if (authState?.value?.emailMagicLink && authState?.value?.smsMagicLink) {
       return t('user:usermenu.profile.connectPhoneEmail')
-    } else if (authState?.emailMagicLink && !authState?.smsMagicLink) {
+    } else if (authState?.value?.emailMagicLink && !authState?.value?.smsMagicLink) {
       return t('user:usermenu.profile.connectEmail')
-    } else if (!authState?.emailMagicLink && authState?.smsMagicLink) {
+    } else if (!authState?.value?.emailMagicLink && authState?.value?.smsMagicLink) {
       return t('user:usermenu.profile.connectPhone')
     } else {
       return ''
@@ -317,11 +317,11 @@ const ProfileMenu = ({ hideLogin, allowAvatarChange, isPopover, changeActiveMenu
   }
 
   const getErrorText = () => {
-    if (authState?.emailMagicLink && authState?.smsMagicLink) {
+    if (authState?.value?.emailMagicLink && authState?.value?.smsMagicLink) {
       return t('user:usermenu.profile.phoneEmailError')
-    } else if (authState?.emailMagicLink && !authState?.smsMagicLink) {
+    } else if (authState?.value?.emailMagicLink && !authState?.value?.smsMagicLink) {
       return t('user:usermenu.profile.emailError')
-    } else if (!authState?.emailMagicLink && authState?.smsMagicLink) {
+    } else if (!authState?.value?.emailMagicLink && authState?.value?.smsMagicLink) {
       return t('user:usermenu.profile.phoneError')
     } else {
       return ''
@@ -329,11 +329,11 @@ const ProfileMenu = ({ hideLogin, allowAvatarChange, isPopover, changeActiveMenu
   }
 
   const getConnectPlaceholder = () => {
-    if (authState?.emailMagicLink && authState?.smsMagicLink) {
+    if (authState?.value?.emailMagicLink && authState?.value?.smsMagicLink) {
       return t('user:usermenu.profile.ph-phoneEmail')
-    } else if (authState?.emailMagicLink && !authState?.smsMagicLink) {
+    } else if (authState?.value?.emailMagicLink && !authState?.value?.smsMagicLink) {
       return t('user:usermenu.profile.ph-email')
-    } else if (!authState?.emailMagicLink && authState?.smsMagicLink) {
+    } else if (!authState?.value?.emailMagicLink && authState?.value?.smsMagicLink) {
       return t('user:usermenu.profile.ph-phone')
     } else {
       return ''
@@ -343,23 +343,23 @@ const ProfileMenu = ({ hideLogin, allowAvatarChange, isPopover, changeActiveMenu
   const enableWalletLogin = false // authState?.didWallet
 
   const enableSocial =
-    authState?.discord ||
-    authState?.facebook ||
-    authState?.github ||
-    authState?.google ||
-    authState?.linkedin ||
-    authState?.twitter
+    authState?.value?.discord ||
+    authState?.value?.facebook ||
+    authState?.value?.github ||
+    authState?.value?.google ||
+    authState?.value?.linkedin ||
+    authState?.value?.twitter
 
-  const enableConnect = authState?.emailMagicLink || authState?.smsMagicLink
+  const enableConnect = authState?.value?.emailMagicLink || authState?.value?.smsMagicLink
 
   return (
-    <Menu open isPopover={isPopover} onClose={() => changeActiveMenu && changeActiveMenu(Views.Closed)}>
+    <Menu open isPopover={isPopover} onClose={() => PopupMenuServices.showPopupMenu()}>
       <Box className={styles.menuContent}>
         <Box className={styles.profileContainer}>
           <Avatar
-            imageSrc={getAvatarURLForUser(userAvatarDetails, userId)}
-            showChangeButton={allowAvatarChange && changeActiveMenu ? true : false}
-            onChange={() => changeActiveMenu && changeActiveMenu(Views.AvatarSelect)}
+            imageSrc={avatarThumbnail}
+            showChangeButton={!!engineInitialized.value}
+            onChange={() => PopupMenuServices.showPopupMenu(UserMenus.AvatarSelect)}
           />
 
           <Box className={styles.profileDetails}>
@@ -374,13 +374,13 @@ const ProfileMenu = ({ hideLogin, allowAvatarChange, isPopover, changeActiveMenu
               </Text>
             )}
 
-            <Text id="show-user-id" mt={1} variant="body2" onClick={() => setShowUserId(!showUserId)}>
-              {showUserId ? t('user:usermenu.profile.hideUserId') : t('user:usermenu.profile.showUserId')}
+            <Text id="show-user-id" mt={1} variant="body2" onClick={() => showUserId.set(!showUserId.value)}>
+              {showUserId.value ? t('user:usermenu.profile.hideUserId') : t('user:usermenu.profile.showUserId')}
             </Text>
 
             {selfUser?.apiKey?.id && (
-              <Text variant="body2" mt={1} onClick={() => setShowApiKey(!showApiKey)}>
-                {showApiKey ? t('user:usermenu.profile.hideApiKey') : t('user:usermenu.profile.showApiKey')}
+              <Text variant="body2" mt={1} onClick={() => showApiKey.set(!showApiKey.value)}>
+                {showApiKey.value ? t('user:usermenu.profile.hideApiKey') : t('user:usermenu.profile.showApiKey')}
               </Text>
             )}
 
@@ -391,12 +391,13 @@ const ProfileMenu = ({ hideLogin, allowAvatarChange, isPopover, changeActiveMenu
             )}
           </Box>
 
-          {changeActiveMenu && (
+          {!isPopover && (
             <IconButton
               background="var(--textColor)"
               sizePx={80}
               icon={
-                <SettingsIcon
+                <Icon
+                  type="Settings"
                   sx={{
                     display: 'block',
                     width: '100%',
@@ -406,7 +407,7 @@ const ProfileMenu = ({ hideLogin, allowAvatarChange, isPopover, changeActiveMenu
                   }}
                 />
               }
-              onClick={() => changeActiveMenu(Views.Settings)}
+              onClick={() => PopupMenuServices.showPopupMenu(UserMenus.Settings)}
             />
           )}
         </Box>
@@ -414,10 +415,10 @@ const ProfileMenu = ({ hideLogin, allowAvatarChange, isPopover, changeActiveMenu
         <InputText
           name="username"
           label={t('user:usermenu.profile.lbl-username')}
-          value={username || ''}
-          error={errorUsername}
+          value={username.value || ''}
+          error={errorUsername.value}
           sx={{ mt: 4 }}
-          endIcon={<CheckIcon />}
+          endIcon={<Icon type="Check" />}
           onEndIconClick={updateUserName}
           onChange={handleUsernameChange}
           onKeyDown={(e) => {
@@ -425,13 +426,13 @@ const ProfileMenu = ({ hideLogin, allowAvatarChange, isPopover, changeActiveMenu
           }}
         />
 
-        {showUserId && (
+        {showUserId.value && (
           <InputText
             id="user-id"
             label={t('user:usermenu.profile.userIcon.userId')}
             value={userId}
             sx={{ mt: 2 }}
-            endIcon={<ContentCopyIcon />}
+            endIcon={<Icon type="ContentCopy" />}
             onEndIconClick={() => {
               navigator.clipboard.writeText(userId)
               NotificationService.dispatchNotify(t('user:usermenu.profile.userIdCopied'), {
@@ -441,13 +442,13 @@ const ProfileMenu = ({ hideLogin, allowAvatarChange, isPopover, changeActiveMenu
           />
         )}
 
-        {showApiKey && (
+        {showApiKey.value && (
           <InputText
             label={t('user:usermenu.profile.apiKey')}
             value={apiKey}
             sx={{ mt: 2 }}
-            endIcon={<ContentCopyIcon />}
-            startIcon={<RefreshIcon />}
+            endIcon={<Icon type="ContentCopy" />}
+            startIcon={<Icon type="Refresh" />}
             startIconTitle={t('user:usermenu.profile.refreshApiKey')}
             onStartIconClick={refreshApiKey}
             onEndIconClick={() => {
@@ -467,9 +468,9 @@ const ProfileMenu = ({ hideLogin, allowAvatarChange, isPopover, changeActiveMenu
                   label={getConnectText()}
                   value={apiKey}
                   placeholder={getConnectPlaceholder()}
-                  error={error ? getErrorText() : undefined}
+                  error={error.value ? getErrorText() : undefined}
                   sx={{ mt: 2 }}
-                  endIcon={<SendIcon />}
+                  endIcon={<Icon type="Send" />}
                   onEndIconClick={handleGuestSubmit}
                   onBlur={validate}
                   onChange={handleInputChange}
@@ -478,7 +479,7 @@ const ProfileMenu = ({ hideLogin, allowAvatarChange, isPopover, changeActiveMenu
                   }}
                 />
 
-                {loading && (
+                {loading.value && (
                   <Box display="flex" justifyContent="center">
                     <CircularProgress size={30} />
                   </Box>
@@ -521,102 +522,104 @@ const ProfileMenu = ({ hideLogin, allowAvatarChange, isPopover, changeActiveMenu
                 )}
 
                 <div className={styles.socialContainer}>
-                  {authState?.discord && !oauthConnectedState.discord && (
+                  {authState?.value?.discord && !oauthConnectedState.discord.value && (
                     <IconButton
                       id="discord"
                       icon={<DiscordIcon viewBox="0 0 40 40" />}
                       onClick={handleOAuthServiceClick}
                     />
                   )}
-                  {authState?.google && !oauthConnectedState.google && (
+                  {authState?.value?.google && !oauthConnectedState.google.value && (
                     <IconButton
                       id="google"
                       icon={<GoogleIcon viewBox="0 0 40 40" />}
                       onClick={handleOAuthServiceClick}
                     />
                   )}
-                  {authState?.facebook && !oauthConnectedState.facebook && (
+                  {authState?.value?.facebook && !oauthConnectedState.facebook.value && (
                     <IconButton
                       id="facebook"
-                      icon={<FacebookIcon viewBox="0 0 40 40" />}
+                      icon={<FacebookIcon width="40" height="40" viewBox="0 0 40 40" />}
                       onClick={handleOAuthServiceClick}
                     />
                   )}
-                  {authState?.linkedin && !oauthConnectedState.linkedin && (
+                  {authState?.value?.linkedin && !oauthConnectedState.linkedin.value && (
                     <IconButton
                       id="linkedin"
                       icon={<LinkedInIcon viewBox="0 0 40 40" />}
                       onClick={handleOAuthServiceClick}
                     />
                   )}
-                  {authState?.twitter && !oauthConnectedState.twitter && (
+                  {authState?.value?.twitter && !oauthConnectedState.twitter.value && (
                     <IconButton
                       id="twitter"
-                      icon={<TwitterIcon viewBox="0 0 40 40" />}
+                      icon={<TwitterIcon width="40" height="40" viewBox="0 0 40 40" />}
                       onClick={handleOAuthServiceClick}
                     />
                   )}
-                  {authState?.github && !oauthConnectedState.github && (
-                    <IconButton id="github" icon={<GitHubIcon />} onClick={handleOAuthServiceClick} />
+                  {authState?.value?.github && !oauthConnectedState.github.value && (
+                    <IconButton id="github" icon={<Icon type="GitHub" />} onClick={handleOAuthServiceClick} />
                   )}
                 </div>
 
                 {!selfUser?.isGuest.value && removeSocial && (
-                  <Text align="center" variant="body2" mb={1} mt={2}>
-                    {t('user:usermenu.profile.removeSocial')}
-                  </Text>
-                )}
+                  <>
+                    <Text align="center" variant="body2" mb={1} mt={2}>
+                      {t('user:usermenu.profile.removeSocial')}
+                    </Text>
 
-                <div className={styles.socialContainer}>
-                  {authState?.discord && oauthConnectedState.discord && (
-                    <IconButton
-                      id="discord"
-                      icon={<DiscordIcon viewBox="0 0 40 40" />}
-                      onClick={handleRemoveOAuthServiceClick}
-                    />
-                  )}
-                  {authState?.google && oauthConnectedState.google && (
-                    <IconButton
-                      id="google"
-                      icon={<GoogleIcon viewBox="0 0 40 40" />}
-                      onClick={handleRemoveOAuthServiceClick}
-                    />
-                  )}
-                  {authState?.facebook && oauthConnectedState.facebook && (
-                    <IconButton
-                      id="facebook"
-                      icon={<FacebookIcon viewBox="0 0 40 40" />}
-                      onClick={handleRemoveOAuthServiceClick}
-                    />
-                  )}
-                  {authState?.linkedin && oauthConnectedState.linkedin && (
-                    <IconButton
-                      id="linkedin"
-                      icon={<LinkedInIcon viewBox="0 0 40 40" />}
-                      onClick={handleRemoveOAuthServiceClick}
-                    />
-                  )}
-                  {authState?.twitter && oauthConnectedState.twitter && (
-                    <IconButton
-                      id="twitter"
-                      icon={<TwitterIcon viewBox="0 0 40 40" />}
-                      onClick={handleRemoveOAuthServiceClick}
-                    />
-                  )}
-                  {authState?.github && oauthConnectedState.github && (
-                    <IconButton id="github" icon={<GitHubIcon />} onClick={handleRemoveOAuthServiceClick} />
-                  )}
-                </div>
+                    <div className={styles.socialContainer}>
+                      {authState?.discord.value && oauthConnectedState.discord.value && (
+                        <IconButton
+                          id="discord"
+                          icon={<DiscordIcon viewBox="0 0 40 40" />}
+                          onClick={handleRemoveOAuthServiceClick}
+                        />
+                      )}
+                      {authState?.google.value && oauthConnectedState.google.value && (
+                        <IconButton
+                          id="google"
+                          icon={<GoogleIcon viewBox="0 0 40 40" />}
+                          onClick={handleRemoveOAuthServiceClick}
+                        />
+                      )}
+                      {authState?.facebook.value && oauthConnectedState.facebook.value && (
+                        <IconButton
+                          id="facebook"
+                          icon={<Icon type="Facebook" viewBox="0 0 40 40" />}
+                          onClick={handleRemoveOAuthServiceClick}
+                        />
+                      )}
+                      {authState?.linkedin.value && oauthConnectedState.linkedin.value && (
+                        <IconButton
+                          id="linkedin"
+                          icon={<LinkedInIcon viewBox="0 0 40 40" />}
+                          onClick={handleRemoveOAuthServiceClick}
+                        />
+                      )}
+                      {authState?.twitter.value && oauthConnectedState.twitter.value && (
+                        <IconButton
+                          id="twitter"
+                          icon={<Icon type="Twitter" viewBox="0 0 40 40" />}
+                          onClick={handleRemoveOAuthServiceClick}
+                        />
+                      )}
+                      {authState?.github.value && oauthConnectedState.github.value && (
+                        <IconButton id="github" icon={<Icon type="GitHub" />} onClick={handleRemoveOAuthServiceClick} />
+                      )}
+                    </div>
+                  </>
+                )}
               </>
             )}
 
             {!isGuest && (
-              <Text id="delete-account" mb={1} variant="body2" onClick={() => setShowDeleteAccount(true)}>
+              <Text id="delete-account" mb={1} variant="body2" onClick={() => showDeleteAccount.set(true)}>
                 {t('user:usermenu.profile.delete.deleteAccount')}
               </Text>
             )}
 
-            {showDeleteAccount && (
+            {showDeleteAccount.value && (
               <ConfirmDialog
                 open
                 description={
@@ -628,11 +631,11 @@ const ProfileMenu = ({ hideLogin, allowAvatarChange, isPopover, changeActiveMenu
                   </>
                 }
                 submitButtonText={t('user:usermenu.profile.delete.finalDeleteConfirm')}
-                onClose={() => setShowDeleteAccount(false)}
+                onClose={() => showDeleteAccount.set(false)}
                 onSubmit={() => {
                   AuthService.removeUser(userId)
                   AuthService.logoutUser()
-                  setShowDeleteAccount(false)
+                  showDeleteAccount.set(false)
                 }}
               />
             )}

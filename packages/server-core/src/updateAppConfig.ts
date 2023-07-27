@@ -1,57 +1,103 @@
-import dotenv from 'dotenv'
-import { DataTypes, Sequelize } from 'sequelize'
+/*
+CPAL-1.0 License
 
-import appConfig from './appconfig'
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
+import dotenv from 'dotenv'
+import knex from 'knex'
+
+import { AwsSettingDatabaseType, awsSettingPath } from '@etherealengine/engine/src/schemas/setting/aws-setting.schema'
+import {
+  ChargebeeSettingType,
+  chargebeeSettingPath
+} from '@etherealengine/engine/src/schemas/setting/chargebee-setting.schema'
+import {
+  ClientSettingDatabaseType,
+  clientSettingPath
+} from '@etherealengine/engine/src/schemas/setting/client-setting.schema'
+import { CoilSettingType, coilSettingPath } from '@etherealengine/engine/src/schemas/setting/coil-setting.schema'
+import {
+  EmailSettingDatabaseType,
+  emailSettingPath
+} from '@etherealengine/engine/src/schemas/setting/email-setting.schema'
+import {
+  InstanceServerSettingType,
+  instanceServerSettingPath
+} from '@etherealengine/engine/src/schemas/setting/instance-server-setting.schema'
+import { RedisSettingType, redisSettingPath } from '@etherealengine/engine/src/schemas/setting/redis-setting.schema'
+import {
+  ServerSettingDatabaseType,
+  serverSettingPath
+} from '@etherealengine/engine/src/schemas/setting/server-setting.schema'
+import {
+  TaskServerSettingType,
+  taskServerSettingPath
+} from '@etherealengine/engine/src/schemas/setting/task-server-setting.schema'
+import {
+  AuthenticationSettingDatabaseType,
+  authenticationSettingPath
+} from './../../engine/src/schemas/setting/authentication-setting.schema'
+
 import logger from './ServerLogger'
+import appConfig from './appconfig'
+import { authenticationDbToSchema } from './setting/authentication-setting/authentication-setting.resolvers'
+import { awsDbToSchema } from './setting/aws-setting/aws-setting.resolvers'
+import { clientDbToSchema } from './setting/client-setting/client-setting.resolvers'
+import { emailDbToSchema } from './setting/email-setting/email-setting.resolvers'
+import { serverDbToSchema } from './setting/server-setting/server-setting.resolvers'
 
 dotenv.config()
 const db = {
-  username: process.env.MYSQL_USER ?? 'server',
+  user: process.env.MYSQL_USER ?? 'server',
   password: process.env.MYSQL_PASSWORD ?? 'password',
-  database: process.env.MYSQL_DATABASE ?? 'xrengine',
+  database: process.env.MYSQL_DATABASE ?? 'etherealengine',
   host: process.env.MYSQL_HOST ?? '127.0.0.1',
-  port: process.env.MYSQL_PORT ?? 3306,
-  dialect: 'mysql',
-  url: ''
+  port: process.env.MYSQL_PORT ?? 3306
 }
 const nonFeathersStrategies = ['emailMagicLink', 'smsMagicLink']
 
-db.url = process.env.MYSQL_URL ?? `mysql://${db.username}:${db.password}@${db.host}:${db.port}/${db.database}`
-
 export const updateAppConfig = async (): Promise<void> => {
   if (appConfig.db.forceRefresh || !appConfig.kubernetes.enabled) return
-  const sequelizeClient = new Sequelize({
-    ...(db as any),
-    define: {
-      freezeTableName: true
-    },
-    logging: false
-  }) as any
-  await sequelizeClient.sync()
+
+  const knexClient = knex({
+    client: 'mysql',
+    connection: {
+      ...db,
+      port: parseInt(db.port.toString()),
+      charset: 'utf8mb4'
+    }
+  })
 
   const promises: any[] = []
 
-  const taskServerSetting = sequelizeClient.define('taskServerSetting', {
-    port: {
-      type: DataTypes.STRING,
-      allowNull: true
-    },
-    processInterval: {
-      type: DataTypes.STRING,
-      allowNull: true
-    }
-  })
-  const taskServerSettingPromise = taskServerSetting
-    .findAll()
+  const taskServerSettingPromise = knexClient
+    .select()
+    .from<TaskServerSettingType>(taskServerSettingPath)
     .then(([dbTaskServer]) => {
-      const dbTaskServerConfig = dbTaskServer && {
-        port: dbTaskServer.port,
-        processInterval: dbTaskServer.processInterval
-      }
-      if (dbTaskServerConfig) {
+      if (dbTaskServer) {
         appConfig.taskserver = {
           ...appConfig.taskserver,
-          ...dbTaskServerConfig
+          ...dbTaskServer
         }
       }
     })
@@ -60,147 +106,37 @@ export const updateAppConfig = async (): Promise<void> => {
     })
   promises.push(taskServerSettingPromise)
 
-  const authenticationSetting = sequelizeClient.define('authentication', {
-    service: {
-      type: DataTypes.STRING,
-      allowNull: true
-    },
-    entity: {
-      type: DataTypes.STRING,
-      allowNull: true
-    },
-    secret: {
-      type: DataTypes.STRING,
-      allowNull: true
-    },
-    authStrategies: {
-      type: DataTypes.JSON,
-      allowNull: true
-    },
-    local: {
-      type: DataTypes.JSON,
-      allowNull: true
-    },
-    jwtOptions: {
-      type: DataTypes.JSON,
-      allowNull: true
-    },
-    bearerToken: {
-      type: DataTypes.JSON,
-      allowNull: true
-    },
-    callback: {
-      type: DataTypes.JSON,
-      allowNull: true
-    },
-    oauth: {
-      type: DataTypes.JSON,
-      allowNull: true
-    }
-  })
-  const authenticationSettingPromise = authenticationSetting
-    .findAll()
+  const authenticationSettingPromise = knexClient
+    .select()
+    .from<AuthenticationSettingDatabaseType>(authenticationSettingPath)
     .then(([dbAuthentication]) => {
-      let oauth = JSON.parse(dbAuthentication.oauth)
-      let authStrategies = JSON.parse(dbAuthentication.authStrategies)
-      let local = JSON.parse(dbAuthentication.local)
-      let jwtOptions = JSON.parse(dbAuthentication.jwtOptions)
-      let bearerToken = JSON.parse(dbAuthentication.bearerToken)
-      let callback = JSON.parse(dbAuthentication.callback)
-
-      if (typeof oauth === 'string') oauth = JSON.parse(oauth)
-      if (typeof authStrategies === 'string') authStrategies = JSON.parse(authStrategies)
-      if (typeof local === 'string') local = JSON.parse(local)
-      if (typeof jwtOptions === 'string') jwtOptions = JSON.parse(jwtOptions)
-      if (typeof bearerToken === 'string') bearerToken = JSON.parse(bearerToken)
-      if (typeof callback === 'string') callback = JSON.parse(callback)
-
-      const dbAuthenticationConfig = dbAuthentication && {
-        service: dbAuthentication.service,
-        entity: dbAuthentication.entity,
-        secret: dbAuthentication.secret,
-        authStrategies: authStrategies,
-        local: local,
-        jwtOptions: jwtOptions,
-        bearerToken: bearerToken,
-        callback: callback,
-        oauth: {
-          ...oauth
-        }
-      }
+      const dbAuthenticationConfig = authenticationDbToSchema(dbAuthentication)
       if (dbAuthenticationConfig) {
-        if (oauth.defaults) dbAuthenticationConfig.oauth.defaults = JSON.parse(oauth.defaults)
-        if (oauth.discord) dbAuthenticationConfig.oauth.discord = JSON.parse(oauth.discord)
-        if (oauth.facebook) dbAuthenticationConfig.oauth.facebook = JSON.parse(oauth.facebook)
-        if (oauth.github) dbAuthenticationConfig.oauth.github = JSON.parse(oauth.github)
-        if (oauth.google) dbAuthenticationConfig.oauth.google = JSON.parse(oauth.google)
-        if (oauth.linkedin) dbAuthenticationConfig.oauth.linkedin = JSON.parse(oauth.linkedin)
-        if (oauth.twitter) dbAuthenticationConfig.oauth.twitter = JSON.parse(oauth.twitter)
-        const authStrategies = ['jwt', 'local']
+        const authStrategies = ['jwt']
         for (let authStrategy of dbAuthenticationConfig.authStrategies) {
           const keys = Object.keys(authStrategy)
           for (let key of keys)
             if (nonFeathersStrategies.indexOf(key) < 0 && authStrategies.indexOf(key) < 0) authStrategies.push(key)
         }
-        dbAuthenticationConfig.authStrategies = authStrategies
+        delete (dbAuthenticationConfig as any).authStrategies
+
         appConfig.authentication = {
           ...appConfig.authentication,
-          ...dbAuthenticationConfig
+          ...(dbAuthenticationConfig as any),
+          authStrategies: authStrategies
         }
       }
     })
     .catch((e) => {
-      logger.error(e, `[updateAppConfig]: Failed to read authenticationSetting: ${e.message}`)
+      logger.error(e, `[updateAppConfig]: Failed to read ${authenticationSettingPath}: ${e.message}`)
     })
   promises.push(authenticationSettingPromise)
 
-  const awsSetting = sequelizeClient.define('Aws', {
-    keys: {
-      type: DataTypes.JSON,
-      allowNull: true
-    },
-    route53: {
-      type: DataTypes.JSON,
-      allowNull: true
-    },
-    s3: {
-      type: DataTypes.JSON,
-      allowNull: true
-    },
-    cloudfront: {
-      type: DataTypes.JSON,
-      allowNull: true
-    },
-    sms: {
-      type: DataTypes.JSON,
-      allowNull: true
-    }
-  })
-  const promisePromise = awsSetting
-    .findAll()
+  const awsSettingPromise = knexClient
+    .select()
+    .from<AwsSettingDatabaseType>(awsSettingPath)
     .then(([dbAws]) => {
-      let keys = JSON.parse(dbAws.keys)
-      let route53 = JSON.parse(dbAws.route53)
-      let s3 = JSON.parse(dbAws.s3)
-      let cloudfront = JSON.parse(dbAws.cloudfront)
-      let sms = JSON.parse(dbAws.sms)
-
-      if (typeof keys === 'string') keys = JSON.parse(keys)
-      if (typeof route53 === 'string') route53 = JSON.parse(route53)
-      if (typeof s3 === 'string') s3 = JSON.parse(s3)
-      if (typeof cloudfront === 'string') cloudfront = JSON.parse(cloudfront)
-      if (typeof sms === 'string') sms = JSON.parse(sms)
-
-      const dbAwsConfig = dbAws && {
-        keys: keys,
-        route53: {
-          ...route53,
-          keys: JSON.parse(route53.keys)
-        },
-        s3: s3,
-        cloudfront: cloudfront,
-        sms: sms
-      }
+      const dbAwsConfig = awsDbToSchema(dbAws)
       if (dbAwsConfig) {
         appConfig.aws = {
           ...appConfig.aws,
@@ -209,31 +145,18 @@ export const updateAppConfig = async (): Promise<void> => {
       }
     })
     .catch((e) => {
-      logger.error(e, `[updateAppConfig]: Failed to read awsSetting: ${e.message}`)
+      logger.error(e, `[updateAppConfig]: Failed to read ${awsSettingPath}: ${e.message}`)
     })
-  promises.push(promisePromise)
+  promises.push(awsSettingPromise)
 
-  const chargebeeSetting = sequelizeClient.define('chargebeeSetting', {
-    url: {
-      type: DataTypes.STRING,
-      allowNull: true
-    },
-    apiKey: {
-      type: DataTypes.STRING,
-      allowNull: true
-    }
-  })
-  const chargebeeSettingPromise = chargebeeSetting
-    .findAll()
+  const chargebeeSettingPromise = knexClient
+    .select()
+    .from<ChargebeeSettingType>(chargebeeSettingPath)
     .then(([dbChargebee]) => {
-      const dbChargebeeConfig = dbChargebee && {
-        url: dbChargebee.url,
-        apiKey: dbChargebee.apiKey
-      }
-      if (dbChargebeeConfig) {
+      if (dbChargebee) {
         appConfig.chargebee = {
           ...appConfig.chargebee,
-          ...dbChargebeeConfig
+          ...dbChargebee
         }
       }
     })
@@ -242,31 +165,14 @@ export const updateAppConfig = async (): Promise<void> => {
     })
   promises.push(chargebeeSettingPromise)
 
-  const coilSetting = sequelizeClient.define('coilSetting', {
-    paymentPointer: {
-      type: DataTypes.STRING,
-      allowNull: true
-    },
-    clientId: {
-      type: DataTypes.STRING,
-      allowNull: true
-    },
-    clientSecret: {
-      type: DataTypes.STRING,
-      allowNull: true
-    }
-  })
-  const coilSettingPromise = coilSetting
-    .findAll()
+  const coilSettingPromise = knexClient
+    .select()
+    .from<CoilSettingType>(coilSettingPath)
     .then(([dbCoil]) => {
-      const dbCoilConfig = dbCoil && {
-        url: dbCoil.url,
-        apiKey: dbCoil.apiKey
-      }
-      if (dbCoilConfig) {
+      if (dbCoil) {
         appConfig.coil = {
           ...appConfig.coil,
-          ...dbCoilConfig
+          ...dbCoil
         }
       }
     })
@@ -275,58 +181,11 @@ export const updateAppConfig = async (): Promise<void> => {
     })
   promises.push(coilSettingPromise)
 
-  const clientSetting = sequelizeClient.define('clientSetting', {
-    logo: {
-      type: DataTypes.STRING,
-      allowNull: true
-    },
-    title: {
-      type: DataTypes.STRING,
-      allowNull: true
-    },
-    url: {
-      type: DataTypes.STRING,
-      allowNull: true
-    },
-    releaseName: {
-      type: DataTypes.STRING,
-      allowNull: true
-    },
-    siteDescription: {
-      type: DataTypes.STRING,
-      allowNull: true
-    },
-    favicon32px: {
-      type: DataTypes.STRING,
-      allowNull: true
-    },
-    favicon16px: {
-      type: DataTypes.STRING,
-      allowNull: true
-    },
-    icon192px: {
-      type: DataTypes.STRING,
-      allowNull: true
-    },
-    icon512px: {
-      type: DataTypes.STRING,
-      allowNull: true
-    }
-  })
-  const clientSettingPromise = clientSetting
-    .findAll()
+  const clientSettingPromise = knexClient
+    .select()
+    .from<ClientSettingDatabaseType>(clientSettingPath)
     .then(([dbClient]) => {
-      const dbClientConfig = dbClient && {
-        logo: dbClient.logo,
-        title: dbClient.title,
-        url: dbClient.url,
-        releaseName: dbClient.releaseName,
-        siteDescription: dbClient.siteDescription,
-        favicon32px: dbClient.favicon32px,
-        favicon16px: dbClient.favicon16px,
-        icon192px: dbClient.icon192px,
-        icon512px: dbClient.icon512px
-      }
+      const dbClientConfig = clientDbToSchema(dbClient)
       if (dbClientConfig) {
         appConfig.client = {
           ...appConfig.client,
@@ -339,41 +198,11 @@ export const updateAppConfig = async (): Promise<void> => {
     })
   promises.push(clientSettingPromise)
 
-  const emailSetting = sequelizeClient.define('emailSetting', {
-    smtp: {
-      type: DataTypes.JSON,
-      allowNull: true
-    },
-    from: {
-      type: DataTypes.STRING,
-      allowNull: true
-    },
-    subject: {
-      type: DataTypes.JSON,
-      allowNull: true
-    },
-    smsNameCharacterLimit: {
-      type: DataTypes.INTEGER
-    }
-  })
-  const emailSettingPromise = emailSetting
-    .findAll()
+  const emailSettingPromise = knexClient
+    .select()
+    .from<EmailSettingDatabaseType>(emailSettingPath)
     .then(([dbEmail]) => {
-      let smtp = JSON.parse(dbEmail.smtp)
-      let subject = JSON.parse(dbEmail.subject)
-
-      if (typeof smtp === 'string') smtp = JSON.parse(smtp)
-      if (typeof subject === 'string') subject = JSON.parse(subject)
-
-      const dbEmailConfig = dbEmail && {
-        from: dbEmail.from,
-        smsNameCharacterLimit: dbEmail.smsNameCharacterLimit,
-        smtp: {
-          ...smtp,
-          auth: JSON.parse(smtp.auth)
-        },
-        subject: subject
-      }
+      const dbEmailConfig = emailDbToSchema(dbEmail)
       if (dbEmailConfig) {
         appConfig.email = {
           ...appConfig.email,
@@ -386,71 +215,14 @@ export const updateAppConfig = async (): Promise<void> => {
     })
   promises.push(emailSettingPromise)
 
-  const instanceServerSetting = sequelizeClient.define('instanceServerSetting', {
-    clientHost: {
-      type: DataTypes.STRING,
-      allowNull: true
-    },
-    rtc_start_port: {
-      type: DataTypes.INTEGER,
-      allowNull: true
-    },
-    rtc_end_port: {
-      type: DataTypes.INTEGER,
-      allowNull: true
-    },
-    rtc_port_block_size: {
-      type: DataTypes.INTEGER,
-      allowNull: true
-    },
-    identifierDigits: {
-      type: DataTypes.INTEGER,
-      allowNull: true
-    },
-    local: {
-      type: DataTypes.BOOLEAN,
-      allowNull: true
-    },
-    domain: {
-      type: DataTypes.STRING,
-      allowNull: true
-    },
-    releaseName: {
-      type: DataTypes.STRING,
-      allowNull: true
-    },
-    port: {
-      type: DataTypes.STRING,
-      allowNull: true
-    },
-    mode: {
-      type: DataTypes.STRING,
-      allowNull: true
-    },
-    locationName: {
-      type: DataTypes.STRING
-    }
-  })
-  const instanceServerSettingPromise = instanceServerSetting
-    .findAll()
+  const instanceServerSettingPromise = knexClient
+    .select()
+    .from<InstanceServerSettingType>(instanceServerSettingPath)
     .then(([dbInstanceServer]) => {
-      const dbInstanceServerConfig = dbInstanceServer && {
-        clientHost: dbInstanceServer.clientHost,
-        rtc_start_port: dbInstanceServer.rtc_start_port,
-        rtc_end_port: dbInstanceServer.rtc_end_port,
-        rtc_port_block_size: dbInstanceServer.rtc_port_block_size,
-        identifierDigits: dbInstanceServer.identifierDigits,
-        local: dbInstanceServer.local,
-        domain: dbInstanceServer.domain,
-        releaseName: dbInstanceServer.releaseName,
-        port: dbInstanceServer.port,
-        mode: dbInstanceServer.mode,
-        locationName: dbInstanceServer.locationName
-      }
-      if (dbInstanceServerConfig) {
+      if (dbInstanceServer) {
         appConfig.instanceserver = {
           ...appConfig.instanceserver,
-          ...dbInstanceServerConfig
+          ...dbInstanceServer
         }
       }
     })
@@ -459,26 +231,9 @@ export const updateAppConfig = async (): Promise<void> => {
     })
   promises.push(instanceServerSettingPromise)
 
-  const redisSetting = sequelizeClient.define('redisSetting', {
-    enabled: {
-      type: DataTypes.BOOLEAN,
-      allowNull: true
-    },
-    address: {
-      type: DataTypes.STRING,
-      allowNull: true
-    },
-    port: {
-      type: DataTypes.STRING,
-      allowNull: true
-    },
-    password: {
-      type: DataTypes.STRING,
-      allowNull: true
-    }
-  })
-  const redisSettingPromise = redisSetting
-    .findAll()
+  const redisSettingPromise = knexClient
+    .select()
+    .from<RedisSettingType>(redisSettingPath)
     .then(([dbRedis]) => {
       const dbRedisConfig = dbRedis && {
         enabled: dbRedis.enabled,
@@ -498,120 +253,22 @@ export const updateAppConfig = async (): Promise<void> => {
     })
   promises.push(redisSettingPromise)
 
-  const serverSetting = sequelizeClient.define('serverSetting', {
-    hostname: {
-      type: DataTypes.STRING,
-      allowNull: true
-    },
-    mode: {
-      type: DataTypes.STRING,
-      allowNull: true
-    },
-    port: {
-      type: DataTypes.STRING,
-      allowNull: true
-    },
-    clientHost: {
-      type: DataTypes.STRING,
-      allowNull: true
-    },
-    rootDir: {
-      type: DataTypes.STRING,
-      allowNull: true
-    },
-    publicDir: {
-      type: DataTypes.STRING,
-      allowNull: true
-    },
-    nodeModulesDir: {
-      type: DataTypes.STRING,
-      allowNull: true
-    },
-    localStorageProvider: {
-      type: DataTypes.STRING,
-      allowNull: true
-    },
-    performDryRun: {
-      type: DataTypes.BOOLEAN,
-      allowNull: true
-    },
-    storageProvider: {
-      type: DataTypes.STRING,
-      allowNull: true
-    },
-    gaTrackingId: {
-      type: DataTypes.STRING,
-      allowNull: true
-    },
-    hub: {
-      type: DataTypes.JSON,
-      allowNull: true
-    },
-    url: {
-      type: DataTypes.STRING,
-      allowNull: true
-    },
-    certPath: {
-      type: DataTypes.STRING,
-      allowNull: true
-    },
-    keyPath: {
-      type: DataTypes.STRING,
-      allowNull: true
-    },
-    gitPem: {
-      type: DataTypes.STRING(2048),
-      allowNull: true
-    },
-    local: {
-      type: DataTypes.BOOLEAN,
-      allowNull: true
-    },
-    releaseName: {
-      type: DataTypes.STRING,
-      allowNull: true
-    },
-    instanceserverUnreachableTimeoutSeconds: {
-      type: DataTypes.INTEGER,
-      defaultValue: 2
-    }
-  })
-  const serverSettingPromise = serverSetting
-    .findAll()
+  const serverSettingPromise = knexClient
+    .select()
+    .from<ServerSettingDatabaseType>(serverSettingPath)
     .then(([dbServer]) => {
-      let hub = JSON.parse(dbServer.hub)
-
-      if (typeof hub === 'string') hub = JSON.parse(hub)
-
-      const dbServerConfig = dbServer && {
-        hostname: dbServer.hostname,
-        mode: dbServer.mode,
-        port: dbServer.port,
-        clientHost: dbServer.clientHost,
-        rootDir: dbServer.rootDir,
-        publicDir: dbServer.publicDir,
-        nodeModulesDir: dbServer.nodeModulesDir,
-        localStorageProvider: dbServer.localStorageProvider,
-        performDryRun: dbServer.performDryRun,
-        storageProvider: dbServer.storageProvider,
-        gaTrackingId: dbServer.gaTrackingId,
-        url: dbServer.url,
-        certPath: dbServer.certPath,
-        keyPath: dbServer.keyPath,
-        gitPem: dbServer.gitPem,
-        local: dbServer.local,
-        releaseName: dbServer.releaseName,
-        instanceserverUnreachableTimeoutSeconds: dbServer.instanceserverUnreachableTimeoutSeconds,
-        hub: hub
-      }
-      appConfig.server = {
-        ...appConfig.server,
-        ...dbServerConfig
+      const dbServerConfig = serverDbToSchema(dbServer)
+      if (dbServerConfig) {
+        appConfig.server = {
+          ...appConfig.server,
+          ...dbServerConfig
+        }
       }
     })
     .catch((e) => {
       logger.error(e, `[updateAppConfig]: Failed to read serverSetting: ${e.message}`)
     })
   promises.push(serverSettingPromise)
+
   await Promise.all(promises)
 }

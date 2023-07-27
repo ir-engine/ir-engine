@@ -1,9 +1,33 @@
-import React, { JSXElementConstructor, useEffect } from 'react'
+/*
+CPAL-1.0 License
 
-import { any } from '@xrengine/engine/src/common/functions/MatchesUtils'
-import { State, useHookstate } from '@xrengine/hyperflux'
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
 
-import { Grid, Stack } from '@mui/material'
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
+import React, { useEffect } from 'react'
+
+import { State, useHookstate } from '@etherealengine/hyperflux'
+
+import { Grid } from '@mui/material'
 
 import { Button } from '../inputs/Button'
 import Well from './Well'
@@ -69,7 +93,9 @@ export default function PaginatedList<T>({
           <Grid item xs={1}>
             <Button
               onClick={() =>
-                currentPage.set(Math.min(Math.floor(list.length / countPerPage), Math.max(0, currentPage.value + 1)))
+                currentPage.set(
+                  Math.min(Math.floor((list.length - 1) / countPerPage), Math.max(0, currentPage.value + 1))
+                )
               }
               style={{ width: 'auto' }}
             >
@@ -78,8 +104,8 @@ export default function PaginatedList<T>({
           </Grid>
         </Grid>
       </Well>
-      {(pageView.value[0] === pageView.value[1] ? list : list.slice(...pageView.value)).map((index) => {
-        return element(index)
+      {(pageView.value[0] === pageView.value[1] ? list : list.slice(...pageView.value)).map((index, _index) => {
+        return <div key={`${_index}`}>{element(index)}</div>
       })}
     </>
   )

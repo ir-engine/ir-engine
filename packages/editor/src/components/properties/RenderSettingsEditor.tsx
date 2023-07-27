@@ -1,3 +1,28 @@
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 import {
@@ -11,20 +36,18 @@ import {
   ReinhardToneMapping,
   ShadowMapType,
   ToneMapping,
-  Vector3,
   VSMShadowMap
 } from 'three'
 
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { getRendererSceneMetadataState } from '@xrengine/engine/src/renderer/WebGLRendererSystem'
-import { getState, useHookstate } from '@xrengine/hyperflux'
+import { useComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { RenderSettingsComponent } from '@etherealengine/engine/src/scene/components/RenderSettingsComponent'
 
 import BooleanInput from '../inputs/BooleanInput'
 import CompoundNumericInput from '../inputs/CompoundNumericInput'
 import InputGroup from '../inputs/InputGroup'
 import SelectInput from '../inputs/SelectInput'
-import Vector3Input from '../inputs/Vector3Input'
 import PropertyGroup from './PropertyGroup'
+import { EditorComponentType } from './Util'
 
 /**
  * ToneMappingOptions array containing tone mapping type options.
@@ -82,36 +105,21 @@ const ShadowTypeOptions = [
   }
 ]
 
-export const RenderSettingsEditor = () => {
+export const RenderSettingsEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
-  const rendererState = useHookstate(getRendererSceneMetadataState(Engine.instance.currentWorld))
-  const renderer = rendererState.get({ noproxy: true })
+  const rendererSettingsState = useComponent(props.entity, RenderSettingsComponent)
 
   return (
     <PropertyGroup
       name={t('editor:properties.renderSettings.name')}
       description={t('editor:properties.renderSettings.description')}
     >
-      {/* <InputGroup
-        name="LODs"
-        label={t('editor:properties.renderSettings.lbl-lods')}
-        info={t('editor:properties.renderSettings.info-lods')}
-      >
-        <Vector3Input
-          hideLabels
-          value={new Vector3(renderer.LODs['0'], renderer.LODs['1'], renderer.LODs['2'])}
-          smallStep={0.01}
-          mediumStep={0.1}
-          largeStep={1}
-          onChange={(val) => rendererState.LODs.set({ '0': val.x, '1': val.y, '2': val.z })}
-        />
-      </InputGroup> */}
       <InputGroup
         name="Use Cascading Shadow Maps"
         label={t('editor:properties.renderSettings.lbl-csm')}
         info={t('editor:properties.renderSettings.info-csm')}
       >
-        <BooleanInput value={renderer.csm} onChange={(val) => rendererState.csm.set(val)} />
+        <BooleanInput value={rendererSettingsState.csm.value} onChange={(val) => rendererSettingsState.csm.set(val)} />
       </InputGroup>
       <InputGroup
         name="Tone Mapping"
@@ -120,8 +128,8 @@ export const RenderSettingsEditor = () => {
       >
         <SelectInput
           options={ToneMappingOptions}
-          value={renderer.toneMapping}
-          onChange={(val: ToneMapping) => rendererState.toneMapping.set(val)}
+          value={rendererSettingsState.toneMapping.value}
+          onChange={(val: ToneMapping) => rendererSettingsState.toneMapping.set(val)}
         />
       </InputGroup>
       <InputGroup
@@ -133,8 +141,8 @@ export const RenderSettingsEditor = () => {
           min={0}
           max={10}
           step={0.1}
-          value={renderer.toneMappingExposure}
-          onChange={(val) => rendererState.toneMappingExposure.set(val)}
+          value={rendererSettingsState.toneMappingExposure.value}
+          onChange={(val) => rendererSettingsState.toneMappingExposure.set(val)}
         />
       </InputGroup>
       <InputGroup
@@ -144,8 +152,8 @@ export const RenderSettingsEditor = () => {
       >
         <SelectInput
           options={ShadowTypeOptions}
-          value={renderer.shadowMapType ?? -1}
-          onChange={(val: ShadowMapType) => rendererState.shadowMapType.set(val)}
+          value={rendererSettingsState.shadowMapType.value ?? -1}
+          onChange={(val: ShadowMapType) => rendererSettingsState.shadowMapType.set(val)}
         />
       </InputGroup>
     </PropertyGroup>

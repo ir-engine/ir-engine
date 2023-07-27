@@ -1,22 +1,40 @@
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
 import { useEffect } from 'react'
 
-import config from '@xrengine/common/src/config'
-import { dispatchAction, getState, startReactor } from '@xrengine/hyperflux'
+import config from '@etherealengine/common/src/config'
+import { dispatchAction, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
+import { CameraComponent } from '../../camera/components/CameraComponent'
 import { isMobile } from '../../common/functions/isMobile'
 import { Engine } from '../../ecs/classes/Engine'
-import { World } from '../../ecs/classes/World'
-import { defineQuery, removeQuery, useQuery } from '../../ecs/functions/ComponentFunctions'
-import { SkyboxComponent } from '../../scene/components/SkyboxComponent'
-import { updateSkybox } from '../../scene/functions/loaders/SkyboxFunctions'
+import { defineQuery, getComponent, useQuery } from '../../ecs/functions/ComponentFunctions'
+import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { PersistentAnchorComponent } from '../XRAnchorComponents'
-import {
-  endXRSession,
-  getReferenceSpaces,
-  requestXRSession,
-  setupARSession,
-  setupXRSession
-} from '../XRSessionFunctions'
+import { endXRSession, getReferenceSpaces, requestXRSession } from '../XRSessionFunctions'
 import { ReferenceSpace, XRAction, XRState } from '../XRState'
 import { XR8Pipeline } from './XR8Pipeline'
 import { XR8Type } from './XR8Types'
@@ -79,7 +97,7 @@ export let XR8: XR8Type
 export let XRExtras
 // export let VpsCoachingOverlay
 
-const initialize8thwallDevice = async (existingCanvas: HTMLCanvasElement | null, world: World) => {
+const initialize8thwallDevice = async (existingCanvas: HTMLCanvasElement | null) => {
   if (existingCanvas) {
     const engineContainer = document.getElementById('engine-container')!
     engineContainer.appendChild(existingCanvas)
@@ -134,7 +152,7 @@ const initialize8thwallDevice = async (existingCanvas: HTMLCanvasElement | null,
     if (enableVps) permissions.push(requiredPermissions.DEVICE_GPS)
 
     XR8.addCameraPipelineModule({
-      name: 'XRE_camera_persmissions',
+      name: 'EE_camera_persmissions',
       onCameraStatusChange: (args) => {
         const { status, reason } = args
         console.log(`[XR8] Camera Status Change: ${status}`)
@@ -152,7 +170,7 @@ const initialize8thwallDevice = async (existingCanvas: HTMLCanvasElement | null,
       requiredPermissions: () => permissions
     })
 
-    XR8.addCameraPipelineModule(XR8Pipeline(world, cameraCanvas))
+    XR8.addCameraPipelineModule(XR8Pipeline(cameraCanvas))
 
     // if (enableVps) {
     //   VpsCoachingOverlay.configure({
@@ -164,222 +182,209 @@ const initialize8thwallDevice = async (existingCanvas: HTMLCanvasElement | null,
   })
 }
 
-const skyboxQuery = defineQuery([SkyboxComponent])
 const vpsQuery = defineQuery([PersistentAnchorComponent])
 
-export default async function XR8System(world: World) {
-  let _8thwallScripts = null as XR8Assets | null
+let _8thwallScripts = null as XR8Assets | null
+
+let cameraCanvas: HTMLCanvasElement | null = null
+
+const originalRequestXRSessionImplementation = requestXRSession.implementation
+const originalEndXRSessionImplementation = endXRSession.implementation
+
+const inputSources = [] as XRInputSource[]
+const viewerInputSource = {
+  handedness: 'none',
+  targetRayMode: 'screen',
+  get targetRaySpace() {
+    const camera = getComponent(Engine.instance.cameraEntity, CameraComponent)
+    return new XRSpace(camera.position, camera.quaternion) as any
+  },
+  gamepad: {
+    axes: [0, 0],
+    buttons: {} as any,
+    connected: false,
+    hapticActuators: [],
+    id: '',
+    index: 0,
+    mapping: '',
+    timestamp: Date.now() - performance.timeOrigin
+  },
+  profiles: [] as string[]
+} as XRInputSource
+
+/**
+ * touch events used to mimic viewer input source
+ * - for some reason, pointer events are intermittent
+ * */
+const onTouchStart = (ev) => {
+  ;(viewerInputSource.gamepad!.axes as number[]) = [
+    (ev.touches[0].screenX / window.innerWidth) * 2 - 1,
+    (ev.touches[0].screenY / window.innerHeight) * -2 + 1
+  ]
   const xrState = getState(XRState)
+  xrState.session!.dispatchEvent({
+    type: 'inputsourceschange',
+    added: [viewerInputSource],
+    removed: []
+  } as any)
+  inputSources.push(viewerInputSource)
+}
 
-  const using8thWall = isMobile && (!navigator.xr || !(await navigator.xr.isSessionSupported('immersive-ar')))
+const onTouchMove = (ev: TouchEvent) => {
+  ;(viewerInputSource.gamepad!.axes as number[]) = [
+    (ev.touches[0].screenX / window.innerWidth) * 2 - 1,
+    (ev.touches[0].screenY / window.innerHeight) * -2 + 1
+  ]
+}
 
-  let cameraCanvas: HTMLCanvasElement | null = null
+const onTouchEnd = (ev) => {
+  const xrState = getState(XRState)
+  xrState.session!.dispatchEvent({
+    type: 'inputsourceschange',
+    removed: [viewerInputSource],
+    added: []
+  } as any)
+  inputSources.splice(inputSources.indexOf(viewerInputSource), 1)
+}
 
-  let originalRequestXRSessionImplementation = requestXRSession.implementation
-  let originalEndXRSessionImplementation = endXRSession.implementation
+const originalXRRigidTransform = XRRigidTransform
 
-  const inputSources = [] as XRInputSource[]
-  const viewerInputSource = {
-    handedness: 'none',
-    targetRayMode: 'screen',
-    get targetRaySpace() {
-      return new XRSpace(
-        Engine.instance.currentWorld.camera.position,
-        Engine.instance.currentWorld.camera.quaternion
-      ) as any
-    },
-    gamepad: {
-      axes: [0, 0],
-      buttons: {} as any,
-      connected: false,
-      hapticActuators: [],
-      id: '',
-      index: 0,
-      mapping: '',
-      timestamp: Date.now() - performance.timeOrigin
-    },
-    profiles: [] as string[]
-  } as XRInputSource
+const overrideXRSessionFunctions = () => {
+  if (requestXRSession.implementation !== originalRequestXRSessionImplementation) return
 
-  /**
-   * touch events used to mimic viewer input source
-   * - for some reason, pointer events are intermittent
-   * */
-  const onTouchStart = (ev) => {
-    ;(viewerInputSource.gamepad!.axes as number[]) = [
-      (ev.touches[0].screenX / window.innerWidth) * 2 - 1,
-      (ev.touches[0].screenY / window.innerHeight) * -2 + 1
-    ]
-    xrState.session.value!.dispatchEvent({
-      type: 'inputsourceschange',
-      added: [viewerInputSource],
-      removed: []
-    } as any)
-    inputSources.push(viewerInputSource)
-  }
+  const xrState = getMutableState(XRState)
+  xrState.supportedSessionModes['immersive-ar'].set(true)
 
-  const onTouchMove = (ev: TouchEvent) => {
-    ;(viewerInputSource.gamepad!.axes as number[]) = [
-      (ev.touches[0].screenX / window.innerWidth) * 2 - 1,
-      (ev.touches[0].screenY / window.innerHeight) * -2 + 1
-    ]
-  }
+  requestXRSession.implementation = async (action) => {
+    if (xrState.requestingSession.value) return
 
-  const onTouchEnd = (ev) => {
-    xrState.session.value!.dispatchEvent({
-      type: 'inputsourceschange',
-      removed: [viewerInputSource],
-      added: []
-    } as any)
-    inputSources.splice(inputSources.indexOf(viewerInputSource), 1)
-  }
+    xrState.is8thWallActive.set(true)
+    xrState.requestingSession.set(true)
 
-  const originalXRRigidTransform = XRRigidTransform
-
-  const overrideXRSessionFunctions = () => {
-    if (requestXRSession.implementation !== originalRequestXRSessionImplementation) return
-
-    xrState.supportedSessionModes['immersive-ar'].set(true)
-
-    requestXRSession.implementation = async (action) => {
-      if (xrState.requestingSession.value) return
-
-      xrState.is8thWallActive.set(true)
-      xrState.requestingSession.set(true)
-
-      const world = Engine.instance.currentWorld
-      try {
-        /** Initialize 8th wall if not previously initialized */
-        if (!_8thwallScripts) _8thwallScripts = await initialize8thwall()
-        cameraCanvas = await initialize8thwallDevice(cameraCanvas, world)
-      } catch (e) {
-        xrState.requestingSession.set(false)
-        console.error(e)
-        return
-      }
-
-      // bind public constructors to global object
-      ;(globalThis as any).XRRigidTransform = XRRigidTransform
-
-      const xrSession = new XRSessionProxy(inputSources) as any as XRSession
-
-      xrState.session.set(xrSession)
-      xrState.sessionActive.set(true)
-      xrState.sessionMode.set('immersive-ar')
-      world.scene.background = null
-
-      getReferenceSpaces(xrSession)
-
-      document.body.addEventListener('touchstart', onTouchStart)
-      document.body.addEventListener('touchmove', onTouchMove)
-      document.body.addEventListener('touchend', onTouchEnd)
-
+    try {
+      /** Initialize 8th wall if not previously initialized */
+      if (!_8thwallScripts) _8thwallScripts = await initialize8thwall()
+      cameraCanvas = await initialize8thwallDevice(cameraCanvas)
+    } catch (e) {
       xrState.requestingSession.set(false)
-      dispatchAction(XRAction.sessionChanged({ active: true }))
-    }
-
-    endXRSession.implementation = async () => {
-      XR8.stop()
-      xrState.sessionActive.set(false)
-      xrState.sessionMode.set('none')
-      xrState.is8thWallActive.set(false)
-      xrState.session.set(null)
-
-      ReferenceSpace.origin = null
-      ReferenceSpace.localFloor = null
-      ReferenceSpace.viewer = null
-      ;(globalThis as any).XRRigidTransform = originalXRRigidTransform
-
-      const engineContainer = document.getElementById('engine-container')!
-      engineContainer.removeChild(cameraCanvas!)
-
-      document.body.removeEventListener('touchstart', onTouchStart)
-      document.body.removeEventListener('touchmove', onTouchMove)
-      document.body.removeEventListener('touchend', onTouchEnd)
-
-      const skybox = skyboxQuery()[0]
-      if (skybox) updateSkybox(skybox)
-      dispatchAction(XRAction.sessionChanged({ active: false }))
-    }
-  }
-
-  /** When VPS support is no longer needed, or this system is no longer required, revert xr session implementations */
-  const revertXRSessionFunctions = () => {
-    if (requestXRSession.implementation === originalRequestXRSessionImplementation) return
-
-    requestXRSession.implementation = originalRequestXRSessionImplementation
-    endXRSession.implementation = originalEndXRSessionImplementation
-
-    /** revert overridden ar support to whatever it actually is */
-    navigator.xr
-      ?.isSessionSupported('immersive-ar')
-      .then((supported) => xrState.supportedSessionModes['immersive-ar'].set(supported))
-  }
-
-  /**
-   * Scenes that specify that they have VPS should override using webxr to use 8thwall.
-   * - this will not cover the problem of going through a portal to a scene that has VPS,
-   *     or exiting one that does to one that does not. This requires exiting the immersive
-   *     session, changing the overrides, and entering the session again
-   */
-  const vpsReactor = startReactor(function XR8VPSReactor() {
-    const hasPersistentAnchor = useQuery([PersistentAnchorComponent]).length
-
-    useEffect(() => {
-      /** data oriented approach to overriding functions, check if it's already changed, and abort if as such */
-      if (hasPersistentAnchor || using8thWall) {
-        overrideXRSessionFunctions()
-      } else {
-        revertXRSessionFunctions()
-      }
-    }, [hasPersistentAnchor])
-
-    return null
-  })
-
-  let lastSeenBackground = world.scene.background
-
-  const execute = () => {
-    if (!XR8) return
-
-    /**
-     * Update the background to be invisble if the AR session is active,
-     * as well as updating the camera transform from the 8thwall camera
-     */
-    const sessionActive = xrState.sessionActive.value
-    const xr8scene = XR8.Threejs.xrScene()
-    if (sessionActive && xr8scene) {
-      if (world.scene.background) lastSeenBackground = world.scene.background
-      world.scene.background = null
-      const { camera } = xr8scene
-      /** update the camera in world space as updateXRInput will update it to local space */
-      world.camera.position.copy(camera.position)
-      world.camera.quaternion.copy(camera.quaternion).normalize()
-      /** 8thwall always expects the camera to be unscaled */
-      world.camera.scale.set(1, 1, 1)
-    } else {
-      if (!world.scene.background && lastSeenBackground) world.scene.background = lastSeenBackground
-      lastSeenBackground = null
+      console.error(e)
       return
     }
 
-    Engine.instance.xrFrame = new XRFrameProxy() as any as XRFrame
+    // bind public constructors to global object
+    ;(globalThis as any).XRRigidTransform = XRRigidTransform
+
+    const xrSession = new XRSessionProxy(inputSources) as any as XRSession
+
+    xrState.session.set(xrSession)
+    xrState.sessionActive.set(true)
+    xrState.sessionMode.set('immersive-ar')
+
+    getReferenceSpaces(xrSession)
+
+    document.body.addEventListener('touchstart', onTouchStart)
+    document.body.addEventListener('touchmove', onTouchMove)
+    document.body.addEventListener('touchend', onTouchEnd)
+
+    xrState.requestingSession.set(false)
+    dispatchAction(XRAction.sessionChanged({ active: true }))
   }
 
-  const cleanup = async () => {
-    if (_8thwallScripts) {
-      _8thwallScripts.xr8Script.remove()
-      _8thwallScripts.xrExtrasScript.remove()
-      // _8thwallScripts.xrCoachingOverlayScript.remove()
-    }
-    if (cameraCanvas) cameraCanvas.remove()
-    revertXRSessionFunctions()
-    vpsReactor.stop()
-    removeQuery(world, vpsQuery)
-  }
+  endXRSession.implementation = async () => {
+    XR8.stop()
+    const xrState = getMutableState(XRState)
+    xrState.sessionActive.set(false)
+    xrState.sessionMode.set('none')
+    xrState.is8thWallActive.set(false)
+    xrState.session.set(null)
 
-  return {
-    execute,
-    cleanup
+    ReferenceSpace.origin = null
+    ReferenceSpace.localFloor = null
+    ReferenceSpace.viewer = null
+    ;(globalThis as any).XRRigidTransform = originalXRRigidTransform
+
+    const engineContainer = document.getElementById('engine-container')!
+    engineContainer.removeChild(cameraCanvas!)
+
+    document.body.removeEventListener('touchstart', onTouchStart)
+    document.body.removeEventListener('touchmove', onTouchMove)
+    document.body.removeEventListener('touchend', onTouchEnd)
+
+    dispatchAction(XRAction.sessionChanged({ active: false }))
   }
 }
+
+/** When VPS support is no longer needed, or this system is no longer required, revert xr session implementations */
+const revertXRSessionFunctions = () => {
+  if (requestXRSession.implementation === originalRequestXRSessionImplementation) return
+
+  requestXRSession.implementation = originalRequestXRSessionImplementation
+  endXRSession.implementation = originalEndXRSessionImplementation
+
+  /** revert overridden ar support to whatever it actually is */
+  navigator.xr
+    ?.isSessionSupported('immersive-ar')
+    .then((supported) => getMutableState(XRState).supportedSessionModes['immersive-ar'].set(supported))
+}
+
+/**
+ * Scenes that specify that they have VPS should override using webxr to use 8thwall.
+ * - this will not cover the problem of going through a portal to a scene that has VPS,
+ *     or exiting one that does to one that does not. This requires exiting the immersive
+ *     session, changing the overrides, and entering the session again
+ */
+
+const execute = () => {
+  if (!XR8) return
+
+  const xrState = getState(XRState)
+
+  /** Update the camera transform from the 8thwall camera */
+  const sessionActive = xrState.sessionActive
+  const xr8scene = XR8.Threejs.xrScene()
+  if (sessionActive && xr8scene) {
+    const { camera } = xr8scene
+    const engineCamera = getComponent(Engine.instance.cameraEntity, CameraComponent)
+    /** update the camera in world space as updateXRInput will update it to local space */
+    engineCamera.position.copy(camera.position)
+    engineCamera.quaternion.copy(camera.quaternion).normalize()
+    /** 8thwall always expects the camera to be unscaled */
+    engineCamera.scale.set(1, 1, 1)
+  }
+
+  Engine.instance.xrFrame = new XRFrameProxy() as any as XRFrame
+}
+
+const reactor = () => {
+  const hasPersistentAnchor = useQuery([PersistentAnchorComponent]).length
+  const arSupported = useHookstate(getMutableState(XRState).supportedSessionModes['immersive-ar'])
+  const using8thWall = isMobile && (!navigator.xr || !arSupported.value)
+
+  useEffect(() => {
+    /** data oriented approach to overriding functions, check if it's already changed, and abort if as such */
+    if (hasPersistentAnchor || using8thWall) {
+      overrideXRSessionFunctions()
+    } else {
+      revertXRSessionFunctions()
+    }
+  }, [hasPersistentAnchor, arSupported])
+
+  useEffect(() => {
+    return () => {
+      if (_8thwallScripts) {
+        _8thwallScripts.xr8Script.remove()
+        _8thwallScripts.xrExtrasScript.remove()
+        // _8thwallScripts.xrCoachingOverlayScript.remove()
+      }
+      if (cameraCanvas) cameraCanvas.remove()
+      revertXRSessionFunctions()
+    }
+  }, [])
+  return null
+}
+
+export const XR8System = defineSystem({
+  uuid: 'ee.engine.XR8System',
+  execute,
+  reactor
+})

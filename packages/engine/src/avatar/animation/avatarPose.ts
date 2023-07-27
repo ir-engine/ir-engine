@@ -1,4 +1,39 @@
-import { Bone, Matrix3, Matrix4, Quaternion, SkinnedMesh, Vector3, Vector4 } from 'three'
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
+import {
+  Bone,
+  BufferAttribute,
+  InterleavedBufferAttribute,
+  Matrix3,
+  Matrix4,
+  Quaternion,
+  SkinnedMesh,
+  Vector3,
+  Vector4
+} from 'three'
 
 import { BoneStructure } from '../AvatarBoneMatching'
 
@@ -41,7 +76,13 @@ const quat2 = new Quaternion()
  * @param targetBone target bone to derive angle from
  * @param {1 | -1} side 1 is left, -1 is right
  */
-const conformArmToTpose = (coformingBoneReference: Bone, conformingBone: Bone, targetBone: Bone, side: 1 | -1) => {
+const conformArmToTpose = (
+  coformingBoneReference: Bone | undefined,
+  conformingBone: Bone | undefined,
+  targetBone: Bone | undefined,
+  side: 1 | -1
+) => {
+  if (!coformingBoneReference || !conformingBone || !targetBone) return
   conformingBone.getWorldPosition(vec1)
   targetBone.getWorldPosition(vec2)
   vec2.sub(vec1).normalize()
@@ -69,8 +110,56 @@ export function makeTPose(rig: BoneStructure) {
   conformArmToTpose(rig.LeftShoulder, rig.LeftArm, rig.LeftForeArm, 1)
   conformArmToTpose(rig.LeftArm, rig.LeftForeArm, rig.LeftHand, 1)
 
+  conformArmToTpose(rig.LeftHand, rig.LeftHandThumb1, rig.LeftHandThumb2, 1)
+  conformArmToTpose(rig.LeftHandThumb1, rig.LeftHandThumb2, rig.LeftHandThumb3, 1)
+  conformArmToTpose(rig.LeftHandThumb2, rig.LeftHandThumb3, rig.LeftHandThumb4, 1)
+
+  conformArmToTpose(rig.LeftHand, rig.LeftHandIndex1, rig.LeftHandIndex2, 1)
+  conformArmToTpose(rig.LeftHandIndex1, rig.LeftHandIndex2, rig.LeftHandIndex3, 1)
+  conformArmToTpose(rig.LeftHandIndex2, rig.LeftHandIndex3, rig.LeftHandIndex4, 1)
+  conformArmToTpose(rig.LeftHandIndex3, rig.LeftHandIndex4, rig.LeftHandIndex5, 1)
+
+  conformArmToTpose(rig.LeftHand, rig.LeftHandMiddle1, rig.LeftHandMiddle2, 1)
+  conformArmToTpose(rig.LeftHandMiddle1, rig.LeftHandMiddle2, rig.LeftHandMiddle3, 1)
+  conformArmToTpose(rig.LeftHandMiddle2, rig.LeftHandMiddle3, rig.LeftHandMiddle4, 1)
+  conformArmToTpose(rig.LeftHandMiddle3, rig.LeftHandMiddle4, rig.LeftHandMiddle5, 1)
+
+  conformArmToTpose(rig.LeftHand, rig.LeftHandRing1, rig.LeftHandRing2, 1)
+  conformArmToTpose(rig.LeftHandRing1, rig.LeftHandRing2, rig.LeftHandRing3, 1)
+  conformArmToTpose(rig.LeftHandRing2, rig.LeftHandRing3, rig.LeftHandRing4, 1)
+  conformArmToTpose(rig.LeftHandRing3, rig.LeftHandRing4, rig.LeftHandRing5, 1)
+
+  conformArmToTpose(rig.LeftHand, rig.LeftHandPinky1, rig.LeftHandPinky2, 1)
+  conformArmToTpose(rig.LeftHandPinky1, rig.LeftHandPinky2, rig.LeftHandPinky3, 1)
+  conformArmToTpose(rig.LeftHandPinky2, rig.LeftHandPinky3, rig.LeftHandPinky4, 1)
+  conformArmToTpose(rig.LeftHandPinky3, rig.LeftHandPinky4, rig.LeftHandPinky5, 1)
+
   conformArmToTpose(rig.RightShoulder, rig.RightArm, rig.RightForeArm, -1)
   conformArmToTpose(rig.RightArm, rig.RightForeArm, rig.RightHand, -1)
+
+  conformArmToTpose(rig.RightHand, rig.RightHandThumb1, rig.RightHandThumb2, -1)
+  conformArmToTpose(rig.RightHandThumb1, rig.RightHandThumb2, rig.RightHandThumb3, -1)
+  conformArmToTpose(rig.RightHandThumb2, rig.RightHandThumb3, rig.RightHandThumb4, -1)
+
+  conformArmToTpose(rig.RightHand, rig.RightHandIndex1, rig.RightHandIndex2, -1)
+  conformArmToTpose(rig.RightHandIndex1, rig.RightHandIndex2, rig.RightHandIndex3, -1)
+  conformArmToTpose(rig.RightHandIndex2, rig.RightHandIndex3, rig.RightHandIndex4, -1)
+  conformArmToTpose(rig.RightHandIndex3, rig.RightHandIndex4, rig.RightHandIndex5, -1)
+
+  conformArmToTpose(rig.RightHand, rig.RightHandMiddle1, rig.RightHandMiddle2, -1)
+  conformArmToTpose(rig.RightHandMiddle1, rig.RightHandMiddle2, rig.RightHandMiddle3, -1)
+  conformArmToTpose(rig.RightHandMiddle2, rig.RightHandMiddle3, rig.RightHandMiddle4, -1)
+  conformArmToTpose(rig.RightHandMiddle3, rig.RightHandMiddle4, rig.RightHandMiddle5, -1)
+
+  conformArmToTpose(rig.RightHand, rig.RightHandRing1, rig.RightHandRing2, -1)
+  conformArmToTpose(rig.RightHandRing1, rig.RightHandRing2, rig.RightHandRing3, -1)
+  conformArmToTpose(rig.RightHandRing2, rig.RightHandRing3, rig.RightHandRing4, -1)
+  conformArmToTpose(rig.RightHandRing3, rig.RightHandRing4, rig.RightHandRing5, -1)
+
+  conformArmToTpose(rig.RightHand, rig.RightHandPinky1, rig.RightHandPinky2, -1)
+  conformArmToTpose(rig.RightHandPinky1, rig.RightHandPinky2, rig.RightHandPinky3, -1)
+  conformArmToTpose(rig.RightHandPinky2, rig.RightHandPinky3, rig.RightHandPinky4, -1)
+  conformArmToTpose(rig.RightHandPinky3, rig.RightHandPinky4, rig.RightHandPinky5, -1)
 }
 
 /**
@@ -79,8 +168,8 @@ export function makeTPose(rig: BoneStructure) {
  */
 export function applySkeletonPose(mesh: SkinnedMesh) {
   const target = new Vector3()
-  const posAttr = mesh.geometry.attributes.position
-  const normalAttr = mesh.geometry.attributes.normal
+  const posAttr = mesh.geometry.attributes.position as BufferAttribute | InterleavedBufferAttribute
+  const normalAttr = mesh.geometry.attributes.normal as BufferAttribute | InterleavedBufferAttribute
   const { bones } = mesh.skeleton
 
   bones.forEach((bone) => {
@@ -89,7 +178,7 @@ export function applySkeletonPose(mesh: SkinnedMesh) {
 
   for (let i = 0; i < posAttr.count; i++) {
     target.fromBufferAttribute(posAttr, i)
-    mesh.boneTransform(i, target)
+    mesh.applyBoneTransform(i, target)
     posAttr.setXYZ(i, target.x, target.y, target.z)
 
     target.fromBufferAttribute(normalAttr, i)
@@ -110,7 +199,7 @@ export function boneNormalTransform(mesh: SkinnedMesh, index: number, target: Ve
   skinIndex.fromBufferAttribute(geometry.attributes.skinIndex as any, index)
   skinWeight.fromBufferAttribute(geometry.attributes.skinWeight as any, index)
   baseNormal
-    .fromBufferAttribute(geometry.attributes.normal, index)
+    .fromBufferAttribute(geometry.attributes.normal as BufferAttribute | InterleavedBufferAttribute, index)
     .applyNormalMatrix(matrix3.getNormalMatrix(mesh.bindMatrix))
 
   target.set(0, 0, 0)

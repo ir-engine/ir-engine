@@ -1,11 +1,38 @@
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
 import { Forbidden } from '@feathersjs/errors'
 import { NullableId, Params } from '@feathersjs/feathers'
 import { Paginated } from '@feathersjs/feathers/lib'
 import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
 import { Op } from 'sequelize'
 
-import { CreateEditUser, UserInterface, UserScope } from '@xrengine/common/src/interfaces/User'
+import { CreateEditUser, UserInterface, UserScope } from '@etherealengine/common/src/interfaces/User'
+import { ScopeTypeType } from '@etherealengine/engine/src/schemas/scope/scope-type.schema'
 
+import { userApiKeyPath } from '@etherealengine/engine/src/schemas/user/user-api-key.schema'
 import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
 import getFreeInviteCode from '../../util/get-free-invite-code'
@@ -17,7 +44,7 @@ export interface UserParams extends Params {
   sequelize?: any
 }
 
-export const afterCreate = async (app: Application, result: UserInterface, scopes?: UserScope[]) => {
+export const afterCreate = async (app: Application, result: UserInterface, scopes?: UserScope[] | ScopeTypeType[]) => {
   await app.service('user-settings').create({
     userId: result.id
   })
@@ -33,8 +60,9 @@ export const afterCreate = async (app: Application, result: UserInterface, scope
   }
 
   if (Array.isArray(result)) result = result[0]
+  console.log(result)
   if (!result?.isGuest)
-    await app.service('user-api-key').create({
+    await app.service(userApiKeyPath).create({
       userId: result.id
     })
   if (!result?.isGuest && result?.inviteCode == null) {
@@ -88,16 +116,7 @@ export class User extends Service<UserInterface> {
 
     const loggedInUser = params!.user as any
 
-    if (action === 'layer-users') {
-      delete params.query.action
-      params.query.instanceId = params.query.instanceId || loggedInUser.instanceId || 'intentionalBadId'
-      return super.find(params)
-    } else if (action === 'channel-users') {
-      delete params.query.action
-      params.query.channelInstanceId =
-        params.query.channelInstanceId || loggedInUser.channelInstanceId || 'intentionalBadId'
-      return super.find(params)
-    } else if (action === 'admin') {
+    if (action === 'admin') {
       delete params.query.action
       delete params.query.search
       if (!params.isInternal && !loggedInUser.scopes.find((scope) => scope.type === 'admin:admin'))
@@ -160,7 +179,7 @@ export class User extends Service<UserInterface> {
       return super.find(params)
     } else {
       if (
-        loggedInUser.scopes &&
+        loggedInUser?.scopes &&
         !(
           loggedInUser?.scopes.find((scope) => scope.type === 'admin:admin') &&
           loggedInUser?.scopes.find((scope) => scope.type === 'user:read')
@@ -178,6 +197,7 @@ export class User extends Service<UserInterface> {
     try {
       await afterCreate(this.app, result, data.scopes)
     } catch (err) {
+      console.error(err)
       logger.error(err, `USER AFTER CREATE ERROR: ${err.message}`)
       return null!
     }
@@ -191,12 +211,14 @@ export class User extends Service<UserInterface> {
   }
 
   async remove(id: NullableId, params?: Params) {
-    const userId = id
-    await this.app.service('user-api-key').remove(null, {
-      query: {
-        userId: userId
-      }
-    })
+    if (id) {
+      await this.app.service(userApiKeyPath).remove(null, {
+        query: {
+          userId: id.toString()
+        }
+      })
+    }
+
     return super.remove(id, params)
   }
 }

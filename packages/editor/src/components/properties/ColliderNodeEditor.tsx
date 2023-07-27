@@ -1,13 +1,49 @@
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
 import { RigidBodyType, ShapeType } from '@dimforge/rapier3d-compat'
-import React, { useEffect, useState } from 'react'
+import React, { useCallback, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { camelCaseToSpacedString } from '@xrengine/common/src/utils/camelCaseToSpacedString'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { ComponentType, defineQuery, getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { CallbackComponent } from '@xrengine/engine/src/scene/components/CallbackComponent'
-import { ColliderComponent, supportedColliderShapes } from '@xrengine/engine/src/scene/components/ColliderComponent'
-import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
+import { camelCaseToSpacedString } from '@etherealengine/common/src/utils/camelCaseToSpacedString'
+import {
+  ComponentType,
+  defineQuery,
+  getComponent,
+  hasComponent,
+  useComponent
+} from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { EntityTreeComponent } from '@etherealengine/engine/src/ecs/functions/EntityTree'
+import { CallbackComponent } from '@etherealengine/engine/src/scene/components/CallbackComponent'
+import {
+  ColliderComponent,
+  supportedColliderShapes
+} from '@etherealengine/engine/src/scene/components/ColliderComponent'
+import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
+import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
+import { useState } from '@etherealengine/hyperflux'
 
 import PanToolIcon from '@mui/icons-material/PanTool'
 
@@ -43,9 +79,9 @@ const callbackQuery = defineQuery([CallbackComponent])
 
 export const ColliderNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
-  const [options, setOptions] = useState<OptionsType>([{ label: 'Self', value: 'Self', callbacks: [] }])
+  const targets = useState<OptionsType>([{ label: 'Self', value: 'Self', callbacks: [] }])
 
-  const colliderComponent = getComponent(props.node.entity, ColliderComponent)
+  const colliderComponent = useComponent(props.entity, ColliderComponent)
 
   useEffect(() => {
     const options = [] as OptionsType
@@ -54,32 +90,34 @@ export const ColliderNodeEditor: EditorComponentType = (props) => {
       value: 'Self',
       callbacks: []
     })
-    const eNodeMap = Engine.instance.currentWorld.entityTree.entityNodeMap
     for (const entity of callbackQuery()) {
-      if (entity === props.node.entity || !eNodeMap.has(entity)) continue
+      if (entity === props.entity || !hasComponent(entity, EntityTreeComponent)) continue
       const callbacks = getComponent(entity, CallbackComponent)
       options.push({
         label: getComponent(entity, NameComponent),
-        value: eNodeMap.get(entity)!.uuid,
+        value: getComponent(entity, UUIDComponent),
         callbacks: Object.keys(callbacks).map((cb) => {
           return { label: cb, value: cb }
         })
       })
     }
-    setOptions(options)
+    targets.set(options)
   }, [])
 
-  const updateIsTrigger = (val) => {
-    const props = { isTrigger: val } as Partial<ComponentType<typeof ColliderComponent>>
-    if (val) {
-      props.target = colliderComponent.target ?? 'Self'
-      props.onEnter = colliderComponent.onEnter ?? ''
-      props.onExit = colliderComponent.onExit ?? ''
-    }
-    updateProperties(ColliderComponent, props)
-  }
+  const updateIsTrigger = useCallback(
+    (val) => {
+      const props = { isTrigger: val } as Partial<ComponentType<typeof ColliderComponent>>
+      if (val) {
+        props.target = colliderComponent.target.value ?? 'Self'
+        props.onEnter = colliderComponent.onEnter.value ?? ''
+        props.onExit = colliderComponent.onExit.value ?? ''
+      }
+      updateProperties(ColliderComponent, props)
+    },
+    [props.entity]
+  )
 
-  const triggerProps = () => {
+  const triggerProps = useCallback(() => {
     //function to handle the changes in target
     const onChangeTarget = (target) => {
       updateProperties(ColliderComponent, {
@@ -89,31 +127,31 @@ export const ColliderNodeEditor: EditorComponentType = (props) => {
       })
     }
 
-    const targetOption = options.find((o) => o.value === colliderComponent.target)
+    const targetOption = targets.value.find((o) => o.value === colliderComponent.target.value)
     const target = targetOption ? targetOption.value : 'Self'
 
     return (
       <>
         <InputGroup name="Target" label={t('editor:properties.triggereVolume.lbl-target')}>
           <SelectInput
-            key={props.node.entity}
-            value={colliderComponent.target ?? 'Self'}
+            key={props.entity}
+            value={colliderComponent.target.value ?? 'Self'}
             onChange={onChangeTarget}
-            options={options}
+            options={targets.value}
             disabled={props.multiEdit}
           />
         </InputGroup>
         <InputGroup name="On Enter" label={t('editor:properties.triggereVolume.lbl-onenter')}>
           {targetOption?.callbacks.length == 0 ? (
             <StringInput
-              value={colliderComponent.onEnter!}
+              value={colliderComponent.onEnter.value!}
               onChange={updateProperty(ColliderComponent, 'onEnter')}
               disabled={props.multiEdit || !target}
             />
           ) : (
             <SelectInput
-              key={props.node.entity}
-              value={colliderComponent.onEnter!}
+              key={props.entity}
+              value={colliderComponent.onEnter.value!}
               onChange={updateProperty(ColliderComponent, 'onEnter') as any}
               options={targetOption?.callbacks ? targetOption.callbacks : []}
               disabled={props.multiEdit || !target}
@@ -124,14 +162,14 @@ export const ColliderNodeEditor: EditorComponentType = (props) => {
         <InputGroup name="On Exit" label={t('editor:properties.triggereVolume.lbl-onexit')}>
           {targetOption?.callbacks.length == 0 ? (
             <StringInput
-              value={colliderComponent.onExit!}
+              value={colliderComponent.onExit.value!}
               onChange={updateProperty(ColliderComponent, 'onExit')}
               disabled={props.multiEdit || !target}
             />
           ) : (
             <SelectInput
-              key={props.node.entity}
-              value={colliderComponent.onExit!}
+              key={props.entity}
+              value={colliderComponent.onExit.value!}
               onChange={updateProperty(ColliderComponent, 'onExit') as any}
               options={targetOption?.callbacks ? targetOption.callbacks : []}
               disabled={props.multiEdit || !target}
@@ -140,28 +178,28 @@ export const ColliderNodeEditor: EditorComponentType = (props) => {
         </InputGroup>
       </>
     )
-  }
+  }, [props.entity])
 
   return (
     <NodeEditor {...props} description={t('editor:properties.collider.description')}>
       <InputGroup name="Type" label={t('editor:properties.collider.lbl-type')}>
         <SelectInput
           options={bodyTypeOptions}
-          value={colliderComponent.bodyType}
+          value={colliderComponent.bodyType.value}
           onChange={updateProperty(ColliderComponent, 'bodyType')}
         />
       </InputGroup>
       <InputGroup name="Shape" label={t('editor:properties.collider.lbl-shape')}>
         <SelectInput
           options={shapeTypeOptions}
-          value={colliderComponent.shapeType}
+          value={colliderComponent.shapeType.value}
           onChange={updateProperty(ColliderComponent, 'shapeType')}
         />
       </InputGroup>
       <InputGroup name="Trigger" label={t('editor:properties.collider.lbl-isTrigger')}>
-        <BooleanInput value={colliderComponent.isTrigger} onChange={updateIsTrigger} />
+        <BooleanInput value={colliderComponent.isTrigger.value} onChange={updateIsTrigger} />
       </InputGroup>
-      {colliderComponent.isTrigger && triggerProps()}
+      {colliderComponent.isTrigger.value && triggerProps()}
     </NodeEditor>
   )
 }

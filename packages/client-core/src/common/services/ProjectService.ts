@@ -1,12 +1,38 @@
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
 import { useEffect } from 'react'
 
-import { BuilderInfo } from '@xrengine/common/src/interfaces/BuilderInfo'
-import { BuilderTag } from '@xrengine/common/src/interfaces/BuilderTags'
-import { ProjectInterface, ProjectUpdateType } from '@xrengine/common/src/interfaces/ProjectInterface'
-import { UpdateProjectInterface } from '@xrengine/common/src/interfaces/UpdateProjectInterface'
-import multiLogger from '@xrengine/common/src/logger'
-import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
-import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
+import { BuilderInfo } from '@etherealengine/common/src/interfaces/BuilderInfo'
+import { BuilderTag } from '@etherealengine/common/src/interfaces/BuilderTags'
+import { ProjectInterface, ProjectUpdateType } from '@etherealengine/common/src/interfaces/ProjectInterface'
+import { UpdateProjectInterface } from '@etherealengine/common/src/interfaces/UpdateProjectInterface'
+import multiLogger from '@etherealengine/common/src/logger'
+import { Validator, matches } from '@etherealengine/engine/src/common/functions/MatchesUtils'
+import { githubRepoAccessRefreshPath } from '@etherealengine/engine/src/schemas/user/github-repo-access-refresh.schema'
+import { defineAction, defineState, dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 
 import { API } from '../../API'
 import { NotificationService } from './NotificationService'
@@ -32,7 +58,7 @@ export const ProjectState = defineState({
 })
 
 export const ProjectServiceReceptor = (action) => {
-  const s = getState(ProjectState)
+  const s = getMutableState(ProjectState)
   matches(action)
     .when(ProjectAction.projectsFetched.matches, (action) => {
       s.projects.set(action.projectResult)
@@ -56,10 +82,6 @@ export const ProjectServiceReceptor = (action) => {
       return s.merge({ refreshingGithubRepoAccess: action.refreshing })
     })
 }
-
-export const accessProjectState = () => getState(ProjectState)
-
-export const useProjectState = () => useState(accessProjectState())
 
 //Service
 export const ProjectService = {
@@ -308,7 +330,7 @@ export const ProjectService = {
   refreshGithubRepoAccess: async () => {
     try {
       dispatchAction(ProjectAction.setGithubRepoAccessRefreshing({ refreshing: true }))
-      await API.instance.client.service('github-repo-access-refresh').find()
+      await API.instance.client.service(githubRepoAccessRefreshPath).find()
       dispatchAction(ProjectAction.setGithubRepoAccessRefreshing({ refreshing: false }))
       await ProjectService.fetchProjects()
     } catch (err) {
@@ -321,47 +343,47 @@ export const ProjectService = {
 //Action
 export class ProjectAction {
   static projectsFetched = defineAction({
-    type: 'xre.client.Project.PROJECTS_RETRIEVED' as const,
+    type: 'ee.client.Project.PROJECTS_RETRIEVED' as const,
     projectResult: matches.array as Validator<unknown, ProjectInterface[]>
   })
 
   static reloadStatusFetched = defineAction({
-    type: 'xre.client.Project.RELOAD_STATUS_RETRIEVED' as const,
+    type: 'ee.client.Project.RELOAD_STATUS_RETRIEVED' as const,
     status: matches.boolean
   })
 
   static postProject = defineAction({
-    type: 'xre.client.Project.PROJECT_POSTED' as const
+    type: 'ee.client.Project.PROJECT_POSTED' as const
   })
 
   static createdProject = defineAction({
-    type: 'xre.client.Project.PROJECT_CREATED' as const
+    type: 'ee.client.Project.PROJECT_CREATED' as const
   })
 
   static patchedProject = defineAction({
-    type: 'xre.client.Project.PROJECT_PATCHED' as const,
+    type: 'ee.client.Project.PROJECT_PATCHED' as const,
     project: matches.object as Validator<unknown, ProjectInterface>
   })
 
   static builderTagsFetched = defineAction({
-    type: 'xre.client.Project.BUILDER_TAGS_RETRIEVED' as const,
+    type: 'ee.client.Project.BUILDER_TAGS_RETRIEVED' as const,
     builderTags: matches.array as Validator<unknown, BuilderTag[]>
   })
 
   static builderInfoFetched = defineAction({
-    type: 'xre.client.project.BUILDER_INFO_FETCHED' as const,
+    type: 'ee.client.project.BUILDER_INFO_FETCHED' as const,
     builderInfo: matches.object as Validator<unknown, BuilderInfo>
   })
 
   static setGithubRepoAccessRefreshing = defineAction({
-    type: 'xre.client.project.SET_ACCESS_REFRESHING' as const,
+    type: 'ee.client.project.SET_ACCESS_REFRESHING' as const,
     refreshing: matches.boolean
   })
 
   // TODO #7254
   // buildProgress: (message: string) => {
   //   return {
-  //     type: 'xre.client.Project.PROJECT_BUILDER_UPDATE' as const,
+  //     type: 'ee.client.Project.PROJECT_BUILDER_UPDATE' as const,
   //     message
   //   }
   // }

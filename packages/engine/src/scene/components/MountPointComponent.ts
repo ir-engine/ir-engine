@@ -1,10 +1,36 @@
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
 import { useEffect } from 'react'
 import { ArrowHelper, Vector3 } from 'three'
 
-import { getState, none, useHookstate } from '@xrengine/hyperflux'
+import { getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
 
 import { matches } from '../../common/functions/MatchesUtils'
-import { defineComponent, hasComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
+import { defineComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
+import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { RendererState } from '../../renderer/RendererState'
 import { ObjectLayers } from '../constants/ObjectLayers'
 import { setObjectLayers } from '../functions/setObjectLayers'
@@ -14,10 +40,11 @@ export const MountPoint = {
   seat: 'seat' as const
 }
 
-export type MountPointTypes = typeof MountPoint[keyof typeof MountPoint]
+export type MountPointTypes = (typeof MountPoint)[keyof typeof MountPoint]
 
 export const MountPointComponent = defineComponent({
   name: 'MountPointComponent',
+  jsonID: 'mount-point',
 
   onInit: (entity) => {
     return {
@@ -41,25 +68,24 @@ export const MountPointComponent = defineComponent({
     if (component.helper.value) removeObjectFromGroup(entity, component.helper.value)
   },
 
-  reactor: function ({ root }) {
-    if (!hasComponent(root.entity, MountPointComponent)) throw root.stop()
-
-    const debugEnabled = useHookstate(getState(RendererState).nodeHelperVisibility)
-    const mountPoint = useComponent(root.entity, MountPointComponent)
+  reactor: function () {
+    const entity = useEntityContext()
+    const debugEnabled = useHookstate(getMutableState(RendererState).nodeHelperVisibility)
+    const mountPoint = useComponent(entity, MountPointComponent)
 
     useEffect(() => {
       if (debugEnabled.value && !mountPoint.helper.value) {
         const helper = new ArrowHelper(new Vector3(0, 0, 1), new Vector3(0, 0, 0), 0.5, 0xffffff)
-        helper.name = `mount-point-helper-${root.entity}`
+        helper.name = `mount-point-helper-${entity}`
 
         setObjectLayers(helper, ObjectLayers.NodeHelper)
-        addObjectToGroup(root.entity, helper)
+        addObjectToGroup(entity, helper)
 
         mountPoint.helper.set(helper)
       }
 
       if (!debugEnabled.value && mountPoint.helper.value) {
-        removeObjectFromGroup(root.entity, mountPoint.helper.value)
+        removeObjectFromGroup(entity, mountPoint.helper.value)
         mountPoint.helper.set(none)
       }
     }, [debugEnabled])
@@ -67,5 +93,3 @@ export const MountPointComponent = defineComponent({
     return null
   }
 })
-
-export const SCENE_COMPONENT_MOUNT_POINT = 'mount-point'

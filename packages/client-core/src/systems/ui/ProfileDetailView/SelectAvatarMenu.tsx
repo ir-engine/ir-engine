@@ -1,19 +1,43 @@
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
 import { createState, useHookstate } from '@hookstate/core'
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { AvatarInterface } from '@xrengine/common/src/interfaces/AvatarInterface'
-import { AvatarEffectComponent } from '@xrengine/engine/src/avatar/components/AvatarEffectComponent'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { createXRUI } from '@xrengine/engine/src/xrui/functions/createXRUI'
-import { WidgetAppService } from '@xrengine/engine/src/xrui/WidgetAppService'
-import { WidgetName } from '@xrengine/engine/src/xrui/Widgets'
-import { getState } from '@xrengine/hyperflux'
+import { AvatarEffectComponent } from '@etherealengine/engine/src/avatar/components/AvatarEffectComponent'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { hasComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { AvatarType } from '@etherealengine/engine/src/schemas/user/avatar.schema'
+import { createXRUI } from '@etherealengine/engine/src/xrui/functions/createXRUI'
+import { WidgetAppService } from '@etherealengine/engine/src/xrui/WidgetAppService'
+import { WidgetName } from '@etherealengine/engine/src/xrui/Widgets'
+import { getMutableState } from '@etherealengine/hyperflux'
+import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 
-import { ArrowBack, ArrowBackIos, ArrowForwardIos, Check, PersonAdd } from '@mui/icons-material'
-
-import { useAuthState } from '../../../user/services/AuthService'
+import { AuthState } from '../../../user/services/AuthService'
 import { AvatarService, AvatarState } from '../../../user/services/AvatarService'
 import XRIconButton from '../../components/XRIconButton'
 import styleString from './index.scss?inline'
@@ -32,13 +56,13 @@ const SelectAvatarMenu = () => {
   const MAX_AVATARS_PER_PAGE = window.innerWidth <= 1024 ? 9 : 12
   const MIN_AVATARS_PER_PAGE = 6
   const getAvatarPerPage = () => (window.innerWidth > 768 ? MAX_AVATARS_PER_PAGE : MIN_AVATARS_PER_PAGE)
-  const authState = useAuthState()
+  const authState = useHookstate(getMutableState(AuthState))
   const avatarId = authState.user?.avatarId?.value
-  const avatarState = useHookstate(getState(AvatarState))
+  const avatarState = useHookstate(getMutableState(AvatarState))
 
   const [page, setPage] = useState(0)
   const [imgPerPage, setImgPerPage] = useState(Math.min(getAvatarPerPage(), avatarState.total.value))
-  const [selectedAvatar, setSelectedAvatar] = useState<any>('')
+  const [selectedAvatar, setSelectedAvatar] = useState<AvatarType | undefined>(undefined)
 
   useEffect(() => {
     AvatarService.fetchAvatarList()
@@ -51,10 +75,9 @@ const SelectAvatarMenu = () => {
     }
   }, [avatarState.total])
 
-  const setAvatar = (avatarId: string, avatarURL: string, thumbnailURL: string) => {
-    if (hasComponent(Engine.instance.currentWorld.localClientEntity, AvatarEffectComponent)) return
-    if (authState.user?.value)
-      AvatarService.updateUserAvatarId(authState.user.id.value!, avatarId, avatarURL, thumbnailURL)
+  const setAvatar = (avatarId: string) => {
+    if (hasComponent(Engine.instance.localClientEntity, AvatarEffectComponent)) return
+    if (authState.user?.value) AvatarService.updateUserAvatarId(authState.user.id.value!, avatarId)
   }
 
   const loadNextAvatars = () => {
@@ -70,18 +93,14 @@ const SelectAvatarMenu = () => {
   }
 
   const confirmAvatar = () => {
-    if (selectedAvatar && avatarId != selectedAvatar?.avatar?.name) {
-      setAvatar(
-        selectedAvatar?.id || '',
-        selectedAvatar?.modelResource?.url || '',
-        selectedAvatar?.thumbnailResource?.url || ''
-      )
+    if (selectedAvatar && avatarId != selectedAvatar?.name) {
+      setAvatar(selectedAvatar?.id || '')
       WidgetAppService.setWidgetVisibility(WidgetName.PROFILE, false)
     }
-    setSelectedAvatar('')
+    setSelectedAvatar(undefined)
   }
 
-  const selectAvatar = (avatarResources: AvatarInterface) => {
+  const selectAvatar = (avatarResources: AvatarType) => {
     setSelectedAvatar(avatarResources)
   }
 
@@ -106,7 +125,7 @@ const SelectAvatarMenu = () => {
           key={avatar.id}
           xr-layer="true"
           onClick={() => selectAvatar(avatar)}
-          className={`paperAvatar ${avatar.name == selectedAvatar?.avatar?.name ? 'selectedAvatar' : ''}
+          className={`paperAvatar ${avatar.name == selectedAvatar?.name ? 'selectedAvatar' : ''}
               ${avatar.name == avatarId ? 'activeAvatar' : ''}`}
           style={{
             pointerEvents: avatar.name == avatarId ? 'none' : 'auto',
@@ -135,7 +154,7 @@ const SelectAvatarMenu = () => {
             className="iconBlock"
             variant="iconOnly"
             onClick={openProfileMenu}
-            content={<ArrowBack />}
+            content={<Icon type="ArrowBack" />}
           />
           <h2>{t('user:avatar.titleUploadAvatar')}</h2>
         </div>
@@ -149,14 +168,14 @@ const SelectAvatarMenu = () => {
             xr-layer="true"
             onClick={loadPreviousAvatars}
             disabled={page === 0}
-            content={<ArrowBackIos className="size" />}
+            content={<Icon type="ArrowBackIos" className="size" />}
           />
           <div className="innerMenuContainer">
             <XRIconButton
               xr-layer="true"
               backgroundColor="#f87678"
               onClick={() => {
-                setSelectedAvatar('')
+                setSelectedAvatar(undefined)
               }}
               disabled={!selectedAvatar}
               content={<span style={{ fontSize: '15px', fontWeight: 'bold' }}>X</span>}
@@ -165,21 +184,21 @@ const SelectAvatarMenu = () => {
               xr-layer="true"
               backgroundColor="#23af3a"
               onClick={confirmAvatar}
-              disabled={selectedAvatar?.avatar?.name == avatarId}
-              content={<Check />}
+              disabled={selectedAvatar?.name == avatarId}
+              content={<Icon type="Check" />}
             />
             <XRIconButton
               xr-layer="true"
               backgroundColor="rgb(255 255 255 / 70%)"
               onClick={openAvatarSelectMenu}
-              content={<PersonAdd className="size" />}
+              content={<Icon type="PersonAdd" className="size" />}
             />
           </div>
           <XRIconButton
             xr-layer="true"
             onClick={loadNextAvatars}
             disabled={(page + 1) * imgPerPage >= avatarState.total.value}
-            content={<ArrowForwardIos className="size" />}
+            content={<Icon type="ArrowForwardIos" className="size" />}
           />
         </div>
       </div>

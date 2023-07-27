@@ -1,23 +1,51 @@
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
 import { Paginated } from '@feathersjs/feathers'
 
-import { Location } from '@xrengine/common/src/interfaces/Location'
-import { LocationType } from '@xrengine/common/src/interfaces/LocationType'
-import multiLogger from '@xrengine/common/src/logger'
-import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
-import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
+import multiLogger from '@etherealengine/common/src/logger'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { locationTypePath, LocationTypeType } from '@etherealengine/engine/src/schemas/social/location-type.schema'
+import {
+  LocationData,
+  LocationPatch,
+  locationPath,
+  LocationType
+} from '@etherealengine/engine/src/schemas/social/location.schema'
+import { defineState, getMutableState } from '@etherealengine/hyperflux'
 
-import { API } from '../../API'
 import { NotificationService } from '../../common/services/NotificationService'
 
 const logger = multiLogger.child({ component: 'client-core:LocationService' })
 
-//State
 export const LOCATION_PAGE_LIMIT = 100
 
-const AdminLocationState = defineState({
+export const AdminLocationState = defineState({
   name: 'AdminLocationState',
   initial: () => ({
-    locations: [] as Array<Location>,
+    locations: [] as Array<LocationType>,
     skip: 0,
     limit: LOCATION_PAGE_LIMIT,
     total: 0,
@@ -26,102 +54,53 @@ const AdminLocationState = defineState({
     updateNeeded: true,
     created: false,
     lastFetched: Date.now(),
-    locationTypes: [] as Array<LocationType>
+    locationTypes: [] as Array<LocationTypeType>
   })
 })
 
-export const locationsRetrievedReceptor = (action: typeof AdminLocationActions.locationsRetrieved.matches._TYPE) => {
-  const state = getState(AdminLocationState)
-  return state.merge({
-    locations: action.locations.data,
-    skip: action.locations.skip,
-    limit: action.locations.limit,
-    total: action.locations.total,
-    retrieving: false,
-    fetched: true,
-    updateNeeded: false,
-    lastFetched: Date.now()
-  })
-}
-
-export const locationCreatedReceptor = (action: typeof AdminLocationActions.locationCreated.matches._TYPE) => {
-  const state = getState(AdminLocationState)
-  return state.merge({ updateNeeded: true, created: true })
-}
-
-export const locationPatchedReceptor = (action: typeof AdminLocationActions.locationPatched.matches._TYPE) => {
-  const state = getState(AdminLocationState)
-  return state.merge({ updateNeeded: true })
-}
-
-export const locationRemovedReceptor = (action: typeof AdminLocationActions.locationRemoved.matches._TYPE) => {
-  const state = getState(AdminLocationState)
-  return state.merge({ updateNeeded: true })
-}
-
-export const locationTypesRetrievedReceptor = (
-  action: typeof AdminLocationActions.locationTypesRetrieved.matches._TYPE
-) => {
-  const state = getState(AdminLocationState)
-  return state.merge({ locationTypes: action.locationTypes.data, updateNeeded: false })
-}
-
-export const AdminLocationReceptors = {
-  locationsRetrievedReceptor,
-  locationCreatedReceptor,
-  locationPatchedReceptor,
-  locationRemovedReceptor,
-  locationTypesRetrievedReceptor
-}
-
-export const accessAdminLocationState = () => getState(AdminLocationState)
-
-export const useAdminLocationState = () => useState(accessAdminLocationState())
-
-//Service
 export const AdminLocationService = {
   fetchLocationTypes: async () => {
-    const locationTypes = (await API.instance.client.service('location-type').find()) as Paginated<LocationType>
-    dispatchAction(AdminLocationActions.locationTypesRetrieved({ locationTypes }))
+    const locationType = await Engine.instance.api.service(locationTypePath).find()
+    getMutableState(AdminLocationState).merge({ locationTypes: locationType.data })
   },
-  patchLocation: async (id: string, location: any) => {
+  patchLocation: async (id: string, location: LocationPatch) => {
     try {
-      const result = await API.instance.client.service('location').patch(id, location)
-      dispatchAction(AdminLocationActions.locationPatched({ location: result }))
+      await Engine.instance.api.service(locationPath).patch(id, location)
+      getMutableState(AdminLocationState).merge({ updateNeeded: true })
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
   },
   removeLocation: async (id: string) => {
-    const result = await API.instance.client.service('location').remove(id)
-    dispatchAction(AdminLocationActions.locationRemoved({ location: result }))
+    await Engine.instance.api.service(locationPath).remove(id)
+    getMutableState(AdminLocationState).merge({ updateNeeded: true })
   },
-  createLocation: async (location: any) => {
+  createLocation: async (location: LocationData) => {
     try {
-      const result = await API.instance.client.service('location').create(location)
-      dispatchAction(AdminLocationActions.locationCreated({ location: result }))
+      await Engine.instance.api.service(locationPath).create(location)
+      getMutableState(AdminLocationState).merge({ updateNeeded: true, created: true })
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
   },
   fetchAdminLocations: async (
-    value: string | null = null,
-    skip = accessAdminLocationState().skip.value,
+    value = '',
+    skip = getMutableState(AdminLocationState).skip.value,
     sortField = 'name',
     orderBy = 'asc'
   ) => {
     try {
-      let sortData = {}
+      const sortData = {}
       if (sortField.length > 0) {
         if (sortField === 'tags') {
-          sortData['isFeatured'] = orderBy === 'desc' ? 0 : 1
-          sortData['isLobby'] = orderBy === 'desc' ? 0 : 1
+          sortData['isFeatured'] = orderBy === 'desc' ? -1 : 1
+          sortData['isLobby'] = orderBy === 'desc' ? -1 : 1
         } else {
-          sortData[sortField] = orderBy === 'desc' ? 0 : 1
+          sortData[sortField] = orderBy === 'desc' ? -1 : 1
         }
       }
 
-      const locations = (await API.instance.client.service('location').find({
+      const locations = (await Engine.instance.api.service(locationPath).find({
         query: {
           $sort: {
             ...sortData
@@ -131,79 +110,37 @@ export const AdminLocationService = {
           adminnedLocations: true,
           search: value
         }
-      })) as Paginated<Location>
+      })) as Paginated<LocationType>
 
-      locations.data.forEach((locationData) => {
-        if (locationData.location_setting) locationData.locationSetting = locationData.location_setting
+      getMutableState(AdminLocationState).merge({
+        locations: locations.data,
+        skip: locations.skip,
+        limit: locations.limit,
+        total: locations.total,
+        retrieving: false,
+        fetched: true,
+        updateNeeded: false,
+        lastFetched: Date.now()
       })
-      dispatchAction(AdminLocationActions.locationsRetrieved({ locations }))
     } catch (error) {
       logger.error(error)
     }
   },
   searchAdminLocations: async (value, orderBy = 'asc') => {
     try {
-      const locations = (await API.instance.client.service('location').find({
+      const locations = (await Engine.instance.api.service(locationPath).find({
         query: {
           search: value,
           $sort: {
-            name: orderBy === 'desc' ? 0 : 1
+            name: orderBy === 'desc' ? -1 : 1
           },
-          $skip: accessAdminLocationState().skip.value,
-          $limit: accessAdminLocationState().limit.value,
+          $skip: getMutableState(AdminLocationState).skip.value,
+          $limit: getMutableState(AdminLocationState).limit.value,
           adminnedLocations: true
         }
-      })) as Paginated<Location>
-      locations.data.forEach((locationData) => {
-        if (locationData.location_setting) locationData.locationSetting = locationData.location_setting
-      })
+      })) as Paginated<LocationType>
     } catch (error) {
       logger.error(error)
     }
   }
-}
-
-//Action
-export class AdminLocationActions {
-  static locationsRetrieved = defineAction({
-    type: 'xre.client.AdminLocation.ADMIN_LOCATIONS_RETRIEVED' as const,
-    locations: matches.object as Validator<unknown, Paginated<Location>>
-  })
-
-  // static locationRetrieved = defineAction({
-  //   type: 'xre.client.AdminLocation.ADMIN_LOCATION_RETRIEVED' as const,
-  //   location: matches.object as Validator<unknown, Location>
-  // })
-
-  static locationCreated = defineAction({
-    type: 'xre.client.AdminLocation.ADMIN_LOCATION_CREATED' as const,
-    location: matches.object as Validator<unknown, Location>
-  })
-
-  static locationPatched = defineAction({
-    type: 'xre.client.AdminLocation.ADMIN_LOCATION_PATCHED' as const,
-    location: matches.object as Validator<unknown, Location>
-  })
-
-  static locationRemoved = defineAction({
-    type: 'xre.client.AdminLocation.ADMIN_LOCATION_REMOVED' as const,
-    location: matches.object as Validator<unknown, Location>
-  })
-
-  // static locationBanCreated = defineAction({
-  //   type: 'xre.client.AdminLocation.ADMIN_LOCATION_BAN_CREATED' as const
-  // })
-
-  // static fetchingCurrentLocation = defineAction({
-  //   type: 'xre.client.AdminLocation.ADMIN_FETCH_CURRENT_LOCATION' as const
-  // })
-
-  // static locationNotFound = defineAction({
-  //   type: 'xre.client.AdminLocation.ADMIN_LOCATION_NOT_FOUND' as const
-  // })
-
-  static locationTypesRetrieved = defineAction({
-    type: 'xre.client.AdminLocation.ADMIN_LOCATION_TYPES_RETRIEVED' as const,
-    locationTypes: matches.object as Validator<unknown, Paginated<LocationType>>
-  })
 }

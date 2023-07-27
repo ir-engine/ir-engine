@@ -1,24 +1,37 @@
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
 import classNames from 'classnames'
 import React from 'react'
+import { useTranslation } from 'react-i18next'
 
-import { getAvatarURLForUser } from '@xrengine/client-core/src/user/components/UserMenu/util'
-import { PeerID } from '@xrengine/common/src/interfaces/PeerID'
-
-import {
-  Mic,
-  MicOff,
-  RecordVoiceOver,
-  Videocam,
-  VideocamOff,
-  VoiceOverOff,
-  VolumeDown,
-  VolumeMute,
-  VolumeOff,
-  VolumeUp
-} from '@mui/icons-material'
-import IconButton from '@mui/material/IconButton'
-import Slider from '@mui/material/Slider'
-import Tooltip from '@mui/material/Tooltip'
+import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
+import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
+import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
+import Slider from '@etherealengine/ui/src/primitives/mui/Slider'
+import Tooltip from '@etherealengine/ui/src/primitives/mui/Tooltip'
 
 import { useUserMediaWindowHook } from '../UserMediaWindow'
 import styles from './index.module.scss'
@@ -28,27 +41,25 @@ interface Props {
   type: 'cam' | 'screen'
 }
 
+const { t } = useTranslation()
+
 const ConferenceModeParticipant = ({ peerID, type }: Props): JSX.Element => {
   const {
-    user,
     volume,
     isScreen,
     username,
     selfUser,
-    audioRef,
-    videoRef,
     isSelf,
     videoStream,
     audioStream,
     enableGlobalMute,
-    userAvatarDetails,
+    avatarThumbnail,
     videoStreamPaused,
     audioStreamPaused,
     videoProducerPaused,
     audioProducerPaused,
     videoProducerGlobalMute,
     audioProducerGlobalMute,
-    t,
     toggleAudio,
     toggleVideo,
     adjustVolume,
@@ -74,25 +85,23 @@ const ConferenceModeParticipant = ({ peerID, type }: Props): JSX.Element => {
         })}
       >
         {(videoStream == null || videoStreamPaused || videoProducerPaused || videoProducerGlobalMute) && (
-          <img
-            src={getAvatarURLForUser(userAvatarDetails, isSelf ? selfUser?.id : user?.id)}
-            alt=""
-            crossOrigin="anonymous"
-            draggable={false}
-          />
+          <img src={avatarThumbnail} alt="" crossOrigin="anonymous" draggable={false} />
         )}
-        <video key={peerID + '_cam'} ref={videoRef} draggable={false} />
+        <span key={peerID + '-video-container'} id={peerID + '-video-container'} />
       </div>
-      <audio key={peerID + '_audio'} ref={audioRef} />
+      <span key={peerID + '-audio-container'} id={peerID + '-audio-container'} />
       <div className={styles['user-controls']}>
         <div className={styles['username']}>{username}</div>
         <div className={styles['controls']}>
           <div className={styles['mute-controls']}>
             {videoStream && !videoProducerPaused ? (
               <Tooltip title={!videoProducerPaused && !videoStreamPaused ? 'Pause Video' : 'Resume Video'}>
-                <IconButton size="small" className={styles['icon-button']} onClick={toggleVideo}>
-                  {videoStreamPaused ? <VideocamOff /> : <Videocam />}
-                </IconButton>
+                <IconButton
+                  size="small"
+                  className={styles['icon-button']}
+                  onClick={toggleVideo}
+                  icon={<Icon type={videoStreamPaused ? 'VideocamOff' : 'Videocam'} />}
+                />
               </Tooltip>
             ) : null}
             {enableGlobalMute && !isSelf && audioStream && (
@@ -103,9 +112,12 @@ const ConferenceModeParticipant = ({ peerID, type }: Props): JSX.Element => {
                     : (t('user:person.unmuteForEveryone') as string)
                 }
               >
-                <IconButton size="small" className={styles['icon-button']} onClick={toggleGlobalMute}>
-                  {audioProducerGlobalMute ? <VoiceOverOff /> : <RecordVoiceOver />}
-                </IconButton>
+                <IconButton
+                  size="small"
+                  className={styles['icon-button']}
+                  onClick={toggleGlobalMute}
+                  icon={<Icon type={audioProducerGlobalMute ? 'VoiceOverOff' : 'RecordVoiceOver'} />}
+                />
               </Tooltip>
             )}
             {audioStream && !audioProducerPaused ? (
@@ -120,20 +132,29 @@ const ConferenceModeParticipant = ({ peerID, type }: Props): JSX.Element => {
                     : t('user:person.unmuteThisPerson')) as string
                 }
               >
-                <IconButton size="small" className={styles['icon-button']} onClick={toggleAudio}>
-                  {isSelf ? audioStreamPaused ? <MicOff /> : <Mic /> : audioStreamPaused ? <VolumeOff /> : <VolumeUp />}
-                </IconButton>
+                <IconButton
+                  size="small"
+                  className={styles['icon-button']}
+                  onClick={toggleAudio}
+                  icon={
+                    <Icon
+                      type={
+                        isSelf ? (audioStreamPaused ? 'MicOff' : 'Mic') : audioStreamPaused ? 'VolumeOff' : 'VolumeUp'
+                      }
+                    />
+                  }
+                />
               </Tooltip>
             ) : null}
           </div>
           {audioProducerGlobalMute && <div className={styles['global-mute']}>Muted by Admin</div>}
           {audioStream && !audioProducerPaused && !audioProducerGlobalMute && (
             <div className={styles['audio-slider']}>
-              {volume === 0 && <VolumeMute />}
-              {volume > 0 && volume < 0.7 && <VolumeDown />}
-              {volume >= 0.7 && <VolumeUp />}
+              {volume === 0 && <Icon type="VolumeMute" />}
+              {volume > 0 && volume < 0.7 && <Icon type="VolumeDown" />}
+              {volume >= 0.7 && <Icon type="VolumeUp" />}
               <Slider value={volume} onChange={adjustVolume} aria-labelledby="continuous-slider" />
-              <VolumeUp />
+              <Icon type="VolumeUp" />
             </div>
           )}
         </div>

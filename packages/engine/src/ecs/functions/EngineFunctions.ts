@@ -1,86 +1,60 @@
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
 /** Functions to provide engine level functionalities. */
 import { Object3D } from 'three'
 
-import { dispatchAction } from '@xrengine/hyperflux'
+import logger from '@etherealengine/common/src/logger'
+import { dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
 
-import { disposeDracoLoaderWorkers } from '../../assets/classes/AssetLoader'
-import disposeScene from '../../renderer/functions/disposeScene'
-import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
+import { nowMilliseconds } from '../../common/functions/nowMilliseconds'
+import { IncomingActionSystem } from '../../networking/systems/IncomingActionSystem'
+import { OutgoingActionSystem } from '../../networking/systems/OutgoingActionSystem'
 import { SceneObjectComponent } from '../../scene/components/SceneObjectComponent'
+import { TransformSystem } from '../../transform/systems/TransformSystem'
 import { Engine } from '../classes/Engine'
-import { EngineActions } from '../classes/EngineState'
+import { EngineActions, EngineState } from '../classes/EngineState'
 import { Entity } from '../classes/Entity'
-import { World } from '../classes/World'
-import { EntityTreeNode, removeEntityNodeFromParent, traverseEntityNode } from '../functions/EntityTree'
-import { defineQuery } from './ComponentFunctions'
+import { SceneState } from '../classes/Scene'
+import { removeEntityNodeRecursively } from '../functions/EntityTree'
+import { EntityRemovedComponent, defineQuery } from './ComponentFunctions'
 import { removeEntity } from './EntityFunctions'
-import { unloadAllSystems } from './SystemFunctions'
-
-/** Reset the engine and remove everything from memory. */
-export function dispose() {
-  Engine.instance.engineTimer?.clear()
-  Engine.instance.engineTimer = null!
-  console.log('RESETTING ENGINE')
-  dispatchAction(EngineActions.sceneUnloaded({}))
-
-  disposeDracoLoaderWorkers()
-
-  // clear all entities components
-  // await new Promise<void>((resolve) => {
-  //   Engine.instance.currentWorld.entities.forEach((entity) => {
-  //     removeAllComponents(entity)
-  //   })
-  //   setTimeout(() => {
-  //     executeSystemBeforeReset() // for systems to handle components deletion
-  //     resolve()
-  //   }, 500)
-  // })
-
-  // await new Promise<void>((resolve) => {
-  //   // delete all entities
-  //   removeAllEntities()
-  //   setTimeout(() => {
-  //     executeSystemBeforeReset() // for systems to handle components deletion
-  //     resolve()
-  //   }, 500)
-  // })
-
-  // if (Engine.instance.currentWorld.entities.length) {
-  //   console.log('Engine.instance.currentWorld.entities.length', Engine.instance.currentWorld.entities.length)
-  //   throw new Error('Engine.instance.currentWorld.entities cleanup not complete')
-  // }
-
-  // delete all what is left on scene
-  if (Engine.instance.currentWorld.scene) {
-    disposeScene(Engine.instance.currentWorld.scene)
-    Engine.instance.currentWorld.scene = null!
-  }
-
-  if (EngineRenderer.instance.renderer) {
-    EngineRenderer.instance.renderer.clear(true, true, true)
-    EngineRenderer.instance.renderer.dispose()
-    EngineRenderer.instance.renderer = null!
-  }
-
-  dispatchAction(EngineActions.initializeEngine({ initialised: false }))
-}
+import { executeFixedPipeline } from './FixedPipelineSystem'
+import { SystemDefinitions, defineSystem, disableAllSystems, enableSystems, executeSystem } from './SystemFunctions'
 
 const sceneQuery = defineQuery([SceneObjectComponent])
 
-export const unloadScene = async (world: World) => {
+export const unloadScene = async () => {
   const entitiesToRemove = [] as Entity[]
-  const entityNodesToRemove = [] as EntityTreeNode[]
   const sceneObjectsToRemove = [] as Object3D[]
 
   for (const entity of sceneQuery()) entitiesToRemove.push(entity)
 
-  traverseEntityNode(world.entityTree.rootNode, (node) => {
-    entityNodesToRemove.push(node)
-  })
+  removeEntityNodeRecursively(getState(SceneState).sceneEntity)
 
-  entityNodesToRemove.forEach((node) => removeEntityNodeFromParent(node, world.entityTree))
-
-  Engine.instance.currentWorld.scene.traverse((o: any) => {
+  Engine.instance.scene.traverse((o: any) => {
     if (!o.entity) return
     if (!entitiesToRemove.includes(o.entity)) return
 
@@ -101,9 +75,122 @@ export const unloadScene = async (world: World) => {
     sceneObjectsToRemove.push(o)
   })
 
-  for (const o of sceneObjectsToRemove) Engine.instance.currentWorld.scene.remove(o)
+  for (const o of sceneObjectsToRemove) Engine.instance.scene.remove(o)
   for (const entity of entitiesToRemove) removeEntity(entity, true)
 
-  await unloadAllSystems(world, true)
+  await disableAllSystems()
   dispatchAction(EngineActions.sceneUnloaded({}))
+}
+
+export const InputSystemGroup = defineSystem({
+  uuid: 'ee.engine.input-group'
+})
+
+/** Run inside of fixed pipeline */
+export const SimulationSystemGroup = defineSystem({
+  uuid: 'ee.engine.simulation-group',
+  preSystems: [IncomingActionSystem],
+  postSystems: [OutgoingActionSystem]
+})
+
+export const AnimationSystemGroup = defineSystem({
+  uuid: 'ee.engine.animation-group'
+})
+
+export const PresentationSystemGroup = defineSystem({
+  uuid: 'ee.engine.presentation-group'
+})
+
+/**
+ * 1. input group
+ * 2. fixed pipeline (simulation group)
+ * 3. animation group
+ * 4. transform system
+ * 5. presentation group
+ */
+export const RootSystemGroup = defineSystem({
+  uuid: 'ee.engine.root-group',
+  preSystems: [InputSystemGroup],
+  execute: executeFixedPipeline,
+  subSystems: [AnimationSystemGroup, TransformSystem],
+  postSystems: [PresentationSystemGroup]
+})
+
+export const startCoreSystems = () => {
+  enableSystems([
+    RootSystemGroup,
+    IncomingActionSystem,
+    OutgoingActionSystem,
+    InputSystemGroup,
+    SimulationSystemGroup,
+    AnimationSystemGroup,
+    TransformSystem,
+    PresentationSystemGroup
+  ])
+}
+
+export const getDAG = (systemUUID = RootSystemGroup, depth = 0) => {
+  const system = SystemDefinitions.get(systemUUID)
+  if (!system) return
+
+  for (const preSystem of system.preSystems) {
+    getDAG(preSystem, depth + 1)
+  }
+
+  if (systemUUID === RootSystemGroup) getDAG(SimulationSystemGroup, depth + 1)
+
+  console.log('-'.repeat(depth), system.uuid.split('.').pop(), Engine.instance.activeSystems.has(system.uuid))
+
+  for (const subSystem of system.subSystems) {
+    getDAG(subSystem, depth + 1)
+  }
+
+  for (const postSystem of system.postSystems) {
+    getDAG(postSystem, depth + 1)
+  }
+}
+
+globalThis.getDAG = getDAG
+
+const TimerConfig = {
+  MAX_DELTA_SECONDS: 1 / 10
+}
+
+const entityRemovedQuery = defineQuery([EntityRemovedComponent])
+
+/**
+ * Execute systems on this world
+ *
+ * @param elapsedTime the current frame time in milliseconds (DOMHighResTimeStamp) relative to performance.timeOrigin
+ */
+export const executeSystems = (elapsedTime: number) => {
+  const engineState = getMutableState(EngineState)
+  engineState.frameTime.set(performance.timeOrigin + elapsedTime)
+
+  const start = nowMilliseconds()
+  const incomingActions = [...Engine.instance.store.actions.incoming]
+
+  const elapsedSeconds = elapsedTime / 1000
+  engineState.deltaSeconds.set(
+    Math.max(0.001, Math.min(TimerConfig.MAX_DELTA_SECONDS, elapsedSeconds - engineState.elapsedSeconds.value))
+  )
+  engineState.elapsedSeconds.set(elapsedSeconds)
+
+  executeSystem(RootSystemGroup)
+
+  for (const entity of entityRemovedQuery()) removeEntity(entity as Entity, true)
+
+  for (const { query, result } of Engine.instance.reactiveQueryStates) {
+    const entitiesAdded = query.enter().length
+    const entitiesRemoved = query.exit().length
+    if (entitiesAdded || entitiesRemoved) {
+      result.set(query())
+    }
+  }
+
+  const end = nowMilliseconds()
+  const duration = end - start
+  if (duration > 150) {
+    logger.warn(`Long frame execution detected. Duration: ${duration}. \n Incoming actions: %o`, incomingActions)
+  }
 }

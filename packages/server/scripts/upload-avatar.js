@@ -1,8 +1,35 @@
+
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
+
 /* eslint-disable @typescript-eslint/no-var-requires */
 const dotenv = require('dotenv');
 const fs = require('fs');
 const Sequelize = require('sequelize');
-const aws = require('aws-sdk');
+const { S3Client } = require('@aws-sdk/client-s3');
 const { nanoid } = require('nanoid');
 
 // TODO: check for existing avatar on S3
@@ -10,16 +37,18 @@ const { nanoid } = require('nanoid');
 dotenv.config({ path: process.cwd() + '/../../.env.local' });
 const forceS3Upload = process.argv.includes('--force-s3-upload');
 
-const s3 = new aws.S3({
+const s3 = new S3Client({
+    credentials: {
     accessKeyId: process.env.STORAGE_AWS_ACCESS_KEY_ID,
     secretAccessKey: process.env.STORAGE_AWS_ACCESS_KEY_SECRET,
+    },
     region: process.env.STORAGE_S3_REGION
 });
 
 const db = {
     username: process.env.MYSQL_USER || 'server',
     password: process.env.MYSQL_PASSWORD || 'password',
-    database: process.env.MYSQL_DATABASE || 'xrengine',
+    database: process.env.MYSQL_DATABASE || 'etherealengine',
     host: process.env.MYSQL_HOST || '127.0.0.1',
     port: process.env.MYSQL_PORT || 3306,
     dialect: 'mysql',
@@ -57,7 +86,6 @@ const staticResource = sequelizeClient.define('static_resource', {
         unique: true,
     },
     key: Sequelize.DataTypes.STRING,
-    staticResourceType: Sequelize.DataTypes.STRING,
     userId: Sequelize.DataTypes.CHAR,
     createdAt: Sequelize.DataTypes.DATE,
     updatedAt: Sequelize.DataTypes.DATE,
@@ -112,19 +140,18 @@ const uploadFile = (Key, Body) => {
     });
 };
 
-const saveToDB = async (name, extension, staticResourceType) => {
+const saveToDB = async (name, extension) => {
     return staticResource.create({
         sid: nanoid(8),
         name,
         url: 'https://s3.amazonaws.com/' + BUCKET + '/' + AVATAR_FOLDER + '/' + name + extension,
         key: AVATAR_FOLDER + '/' + name + extension,
         createdAt: Date.now(),
-        updatedAt: Date.now(),
-        staticResourceType,
+        updatedAt: Date.now()
     });
 };
 
-const processFile = async (fileName, extension, dirPath, staticResourceType) => {
+const processFile = async (fileName, extension, dirPath) => {
     if (!onlyDBUpdate) {
         const location = dirPath + fileName + extension;
         console.log('File Location => ', location);
@@ -134,7 +161,7 @@ const processFile = async (fileName, extension, dirPath, staticResourceType) => 
     }
 
     console.log('Saving to DB');
-    await saveToDB(fileName, extension, staticResourceType);
+    await saveToDB(fileName, extension);
     console.log('Saved To DB');
 };
 
@@ -143,10 +170,7 @@ new Promise(async (resolve, reject) => {
         console.log('Removing old DB entries.');
         await staticResource.destroy({
             where: {
-                userId: null,
-                staticResourceType: {
-                    [Sequelize.Op.in] : [AVATAR_RESOURCE_TYPE, THUMBNAIL_RESOURCE_TYPE],
-                },
+                userId: null
             }
         });
 

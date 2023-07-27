@@ -1,21 +1,43 @@
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
 import Hls from 'hls.js'
 import { startTransition, useEffect } from 'react'
 import { DoubleSide, Mesh, MeshBasicMaterial, PlaneGeometry } from 'three'
 
-import { getState, none, useHookstate } from '@xrengine/hyperflux'
+import { getMutableState, getState, none, useHookstate } from '@etherealengine/hyperflux'
 
 import { AssetLoader } from '../../assets/classes/AssetLoader'
-import { removePannerNode } from '../../audio/systems/PositionalAudioSystem'
-import { deepEqual } from '../../common/functions/deepEqual'
-import { isClient } from '../../common/functions/isClient'
-import { Engine } from '../../ecs/classes/Engine'
-import { EngineState, getEngineState } from '../../ecs/classes/EngineState'
+import { AudioState } from '../../audio/AudioState'
+import { removePannerNode } from '../../audio/PositionalAudioFunctions'
+import { isClient } from '../../common/functions/getEnvironment'
 import { Entity } from '../../ecs/classes/Entity'
 import {
   ComponentType,
   defineComponent,
-  getComponent,
-  getComponentState,
+  getMutableComponent,
   getOptionalComponent,
   hasComponent,
   removeComponent,
@@ -23,7 +45,7 @@ import {
   useComponent,
   useOptionalComponent
 } from '../../ecs/functions/ComponentFunctions'
-import { EntityReactorProps } from '../../ecs/functions/EntityFunctions'
+import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { RendererState } from '../../renderer/RendererState'
 import { ObjectLayers } from '../constants/ObjectLayers'
 import { PlayMode } from '../constants/PlayMode'
@@ -48,10 +70,11 @@ export const createAudioNodeGroup = (
   source: MediaElementAudioSourceNode | MediaStreamAudioSourceNode,
   mixbus: GainNode
 ) => {
-  const gain = Engine.instance.audioContext.createGain()
+  const audioContext = getState(AudioState).audioContext
+  const gain = audioContext.createGain()
   source.connect(gain)
   gain.connect(mixbus)
-  const panner = Engine.instance.audioContext.createPanner()
+  const panner = audioContext.createPanner()
   const group = { source, gain, mixbus, panner } as AudioNodeGroup
   AudioNodeGroups.set(el, group)
   return group
@@ -97,13 +120,24 @@ export const MediaElementComponent = defineComponent({
 })
 
 export const MediaComponent = defineComponent({
-  name: 'XRE_media',
+  name: 'EE_media',
+  jsonID: 'media',
 
   onInit: (entity) => {
     return {
       controls: false,
       synchronize: true,
-      autoplay: true,
+      paths: [] as string[],
+      paused: true,
+      volume: 1,
+      resources: [] as string[],
+      playMode: PlayMode.loop as PlayMode,
+      isMusic: false,
+      // runtime props
+      waiting: false,
+      track: 0,
+      trackDurations: [] as number[],
+      helper: null as Mesh<PlaneGeometry, MeshBasicMaterial> | null
       /**
        * TODO: refactor this into a ScheduleComponent for invoking callbacks at scheduled times
        * The auto start time for the playlist, in Unix/Epoch time (milliseconds).
@@ -111,17 +145,7 @@ export const MediaComponent = defineComponent({
        * If this value is non-negative and in the past, playback as soon as possible.
        * If this value is in the future, begin playback at the appointed time.
        */
-      // autoStartTime: -1,
-      paths: [] as string[],
-      playMode: PlayMode.loop as PlayMode,
-      isMusic: false,
-      volume: 1,
-      // runtime props
-      paused: true,
-      playing: false,
-      track: 0,
-      trackDurations: [] as number[],
-      helper: null as Mesh<PlaneGeometry, MeshBasicMaterial> | null
+      // autoStartTime: -1
     }
   },
 
@@ -132,8 +156,9 @@ export const MediaComponent = defineComponent({
   toJSON: (entity, component) => {
     return {
       controls: component.controls.value,
-      autoplay: component.autoplay.value,
+      paused: component.paused.value,
       paths: component.paths.value,
+      resources: component.resources.value,
       volume: component.volume.value,
       synchronize: component.synchronize.value,
       playMode: component.playMode.value,
@@ -147,14 +172,18 @@ export const MediaComponent = defineComponent({
       if (typeof json.paths === 'object') {
         // backwards-compat: update uvol paths to point to the video files
         const paths = json.paths.map((path) => path.replace('.drcs', '.mp4').replace('.uvol', '.mp4'))
-        if (!deepEqual(component.paths.value, json.paths)) component.paths.set(paths)
+        component.resources.set(paths)
+      }
+      if (typeof json.resources === 'object') {
+        if (typeof json.resources[0] === 'string') {
+          component.resources.set(json.resources)
+        } else {
+          component.resources.set(json.resources.map((resource: any) => resource.path))
+        }
       }
 
       if (typeof json.controls === 'boolean' && json.controls !== component.controls.value)
         component.controls.set(json.controls)
-
-      if (typeof json.autoplay === 'boolean' && json.autoplay !== component.autoplay.value)
-        component.autoplay.set(json.autoplay)
 
       // backwars-compat: convert from number enums to strings
       if (
@@ -183,23 +212,26 @@ export const MediaComponent = defineComponent({
 
       if (typeof json.isMusic === 'boolean' && component.isMusic.value !== json.isMusic)
         component.isMusic.set(json.isMusic)
-    })
 
-    return component
+      // @ts-ignore deprecated autoplay field
+      if (typeof json.autoplay === 'boolean') component.paused.set(!json.autoplay)
+      if (typeof json.paused === 'boolean') component.paused.set(json.paused)
+    })
   },
 
   reactor: MediaReactor,
 
-  errors: ['LOADING_ERROR', 'UNSUPPORTED_ASSET_CLASS']
+  errors: ['LOADING_ERROR', 'UNSUPPORTED_ASSET_CLASS', 'INVALID_URL']
 })
 
-export function MediaReactor({ root }: EntityReactorProps) {
-  const entity = root.entity
-  if (!hasComponent(entity, MediaComponent)) throw root.stop()
-
+export function MediaReactor() {
+  const entity = useEntityContext()
   const media = useComponent(entity, MediaComponent)
   const mediaElement = useOptionalComponent(entity, MediaElementComponent)
-  const userHasInteracted = useHookstate(getState(EngineState).userHasInteracted)
+  const audioContext = getState(AudioState).audioContext
+  const gainNodeMixBuses = getState(AudioState).gainNodeMixBuses
+
+  if (!isClient) return null
 
   useEffect(
     function updatePlay() {
@@ -207,7 +239,12 @@ export function MediaReactor({ root }: EntityReactorProps) {
       if (media.paused.value) {
         mediaElement.element.value.pause()
       } else {
-        mediaElement.element.value.play()
+        const promise = mediaElement.element.value.play()
+        if (promise) {
+          promise.catch((error) => {
+            console.error(error)
+          })
+        }
       }
     },
     [media.paused, mediaElement]
@@ -217,7 +254,7 @@ export function MediaReactor({ root }: EntityReactorProps) {
     function updateTrackMetadata() {
       clearErrors(entity, MediaComponent)
 
-      const paths = media.paths.value
+      const paths = media.resources.value
 
       for (const path of paths) {
         const assetClass = AssetLoader.getAssetClass(path).toLowerCase()
@@ -239,9 +276,6 @@ export function MediaReactor({ root }: EntityReactorProps) {
         tempElement.src = path
       }
 
-      // handle autoplay
-      if (media.autoplay.value && userHasInteracted.value) media.paused.set(false)
-
       return () => {
         for (const { tempElement, listener } of metadataListeners) {
           tempElement.removeEventListener('loadedmetadata', listener)
@@ -250,14 +284,7 @@ export function MediaReactor({ root }: EntityReactorProps) {
         }
       }
     },
-    [media.paths]
-  )
-
-  useEffect(
-    function updatePausedUponInteract() {
-      if (userHasInteracted.value && media.autoplay.value) media.paused.set(false)
-    },
-    [userHasInteracted]
+    [media.resources]
   )
 
   useEffect(
@@ -265,7 +292,7 @@ export function MediaReactor({ root }: EntityReactorProps) {
       if (!isClient) return
 
       const track = media.track.value
-      const path = media.paths[track].value
+      const path = media.resources[track].value
       if (!path) {
         if (hasComponent(entity, MediaElementComponent)) removeComponent(entity, MediaElementComponent)
         return
@@ -284,7 +311,7 @@ export function MediaReactor({ root }: EntityReactorProps) {
         setComponent(entity, MediaElementComponent, {
           element: document.createElement(assetClass) as HTMLMediaElement
         })
-        const mediaElementState = getComponentState(entity, MediaElementComponent)
+        const mediaElementState = getMutableComponent(entity, MediaElementComponent)
 
         const element = mediaElementState.element.value
 
@@ -298,16 +325,18 @@ export function MediaReactor({ root }: EntityReactorProps) {
         element.addEventListener(
           'playing',
           () => {
-            media.playing.set(true), clearErrors(entity, MediaElementComponent)
+            media.waiting.set(false)
+            clearErrors(entity, MediaElementComponent)
           },
           { signal }
         )
-        element.addEventListener('waiting', () => media.playing.set(false), { signal })
+        element.addEventListener('waiting', () => media.waiting.set(true), { signal })
         element.addEventListener(
           'error',
           (err) => {
             addError(entity, MediaElementComponent, 'MEDIA_ERROR', err.message)
-            if (media.playing.value) media.track.set(getNextTrack(media.value))
+            if (!media.paused.value) media.track.set(getNextTrack(media.value))
+            media.waiting.set(false)
           },
           { signal }
         )
@@ -317,21 +346,22 @@ export function MediaReactor({ root }: EntityReactorProps) {
           () => {
             if (media.playMode.value === PlayMode.single) return
             media.track.set(getNextTrack(media.value))
+            media.waiting.set(false)
           },
           { signal }
         )
 
         const audioNodes = createAudioNodeGroup(
           element,
-          Engine.instance.audioContext.createMediaElementSource(element),
-          media.isMusic.value ? Engine.instance.gainNodeMixBuses.music : Engine.instance.gainNodeMixBuses.soundEffects
+          audioContext.createMediaElementSource(element),
+          media.isMusic.value ? gainNodeMixBuses.music : gainNodeMixBuses.soundEffects
         )
 
-        audioNodes.gain.gain.setTargetAtTime(media.volume.value, Engine.instance.audioContext.currentTime, 0.1)
+        audioNodes.gain.gain.setTargetAtTime(media.volume.value, audioContext.currentTime, 0.1)
       }
 
       setComponent(entity, MediaElementComponent)
-      const mediaElementState = getComponentState(entity, MediaElementComponent)
+      const mediaElementState = getMutableComponent(entity, MediaElementComponent)
 
       mediaElementState.hls.value?.destroy()
       mediaElementState.hls.set(undefined)
@@ -343,7 +373,7 @@ export function MediaReactor({ root }: EntityReactorProps) {
         mediaElementState.element.src.set(path)
       }
     },
-    [media.paths, media.track]
+    [media.resources, media.track]
   )
 
   useEffect(
@@ -353,7 +383,7 @@ export function MediaReactor({ root }: EntityReactorProps) {
       if (!element) return
       const audioNodes = AudioNodeGroups.get(element)
       if (audioNodes) {
-        audioNodes.gain.gain.setTargetAtTime(volume, Engine.instance.audioContext.currentTime, 0.1)
+        audioNodes.gain.gain.setTargetAtTime(volume, audioContext.currentTime, 0.1)
       }
     },
     [media.volume]
@@ -366,39 +396,35 @@ export function MediaReactor({ root }: EntityReactorProps) {
       const audioNodes = AudioNodeGroups.get(element)
       if (audioNodes) {
         audioNodes.gain.disconnect(audioNodes.mixbus)
-        audioNodes.mixbus = media.isMusic.value
-          ? Engine.instance.gainNodeMixBuses.music
-          : Engine.instance.gainNodeMixBuses.soundEffects
+        audioNodes.mixbus = media.isMusic.value ? gainNodeMixBuses.music : gainNodeMixBuses.soundEffects
         audioNodes.gain.connect(audioNodes.mixbus)
       }
     },
     [mediaElement, media.isMusic]
   )
 
-  const debugEnabled = useHookstate(getState(RendererState).nodeHelperVisibility)
+  const debugEnabled = useHookstate(getMutableState(RendererState).nodeHelperVisibility)
 
   useEffect(() => {
     if (debugEnabled.value && !media.helper.value) {
       const helper = new Mesh(new PlaneGeometry(), new MeshBasicMaterial({ transparent: true, side: DoubleSide }))
-      helper.name = `audio-helper-${root.entity}`
+      helper.name = `audio-helper-${entity}`
       AssetLoader.loadAsync(AUDIO_TEXTURE_PATH).then((AUDIO_HELPER_TEXTURE) => {
         helper.material.map = AUDIO_HELPER_TEXTURE
       })
       setObjectLayers(helper, ObjectLayers.NodeHelper)
-      addObjectToGroup(root.entity, helper)
+      addObjectToGroup(entity, helper)
       media.helper.set(helper)
     }
 
     if (!debugEnabled.value && media.helper.value) {
-      removeObjectFromGroup(root.entity, media.helper.value)
+      removeObjectFromGroup(entity, media.helper.value)
       media.helper.set(none)
     }
   }, [debugEnabled])
 
   return null
 }
-
-export const SCENE_COMPONENT_MEDIA = 'media'
 
 export const setupHLS = (entity: Entity, url: string): Hls => {
   const hls = new Hls()
@@ -437,7 +463,7 @@ export const setupHLS = (entity: Entity, url: string): Hls => {
 
 export function getNextTrack(media: ComponentType<typeof MediaComponent>) {
   const currentTrack = media.track
-  const numTracks = media.paths.length
+  const numTracks = media.resources.length
   let nextTrack = 0
 
   if (media.playMode == PlayMode.random) {

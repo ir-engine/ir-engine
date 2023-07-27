@@ -1,3 +1,28 @@
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
 import {
   ActiveCollisionTypes,
   ActiveEvents,
@@ -8,8 +33,9 @@ import {
 import assert from 'assert'
 import { BoxGeometry, Mesh, MeshBasicMaterial, Vector3 } from 'three'
 
+import { getMutableState, getState } from '@etherealengine/hyperflux'
 import { ObjectDirection } from '../../common/constants/Axis3D'
-import { Engine } from '../../ecs/classes/Engine'
+import { destroyEngine } from '../../ecs/classes/Engine'
 import { addComponent, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { createEngine } from '../../initializeEngine'
@@ -17,14 +43,15 @@ import { addObjectToGroup } from '../../scene/components/GroupComponent'
 import { setTransformComponent } from '../../transform/components/TransformComponent'
 import { CollisionComponent } from '../components/CollisionComponent'
 import {
-  getTagComponentForRigidBody,
   RigidBodyComponent,
   RigidBodyDynamicTagComponent,
-  RigidBodyFixedTagComponent
+  RigidBodyFixedTagComponent,
+  getTagComponentForRigidBody
 } from '../components/RigidBodyComponent'
 import { CollisionGroups, DefaultCollisionMask } from '../enums/CollisionGroups'
 import { getInteractionGroups } from '../functions/getInteractionGroups'
 import { boxDynamicConfig } from '../functions/physicsObjectDebugFunctions'
+import { PhysicsState } from '../state/PhysicsState'
 import { CollisionEvents, SceneQueryType } from '../types/PhysicsTypes'
 import { Physics } from './Physics'
 
@@ -32,8 +59,13 @@ describe('Physics', () => {
   beforeEach(async () => {
     createEngine()
     await Physics.load()
-    Engine.instance.currentWorld.physicsWorld = Physics.createWorld()
-    Engine.instance.currentWorld.physicsWorld.timestep = 1 / 60
+    const physicsWorld = Physics.createWorld()
+    getMutableState(PhysicsState).physicsWorld.set(physicsWorld)
+    physicsWorld.timestep = 1 / 60
+  })
+
+  afterEach(() => {
+    return destroyEngine()
   })
 
   it('should create rapier world & event queue', async () => {
@@ -44,10 +76,9 @@ describe('Physics', () => {
   })
 
   it('should create & remove rigidBody', async () => {
-    const world = Engine.instance.currentWorld
-    const physicsWorld = world.physicsWorld
+    const physicsWorld = getState(PhysicsState).physicsWorld
 
-    const entity = createEntity(world)
+    const entity = createEntity()
     setTransformComponent(entity)
 
     const rigidBodyDesc = RigidBodyDesc.dynamic()
@@ -69,9 +100,8 @@ describe('Physics', () => {
   })
 
   it('component type should match rigid body type', async () => {
-    const world = Engine.instance.currentWorld
-    const physicsWorld = world.physicsWorld
-    const entity = createEntity(world)
+    const physicsWorld = getState(PhysicsState).physicsWorld
+    const entity = createEntity()
 
     setTransformComponent(entity)
 
@@ -90,6 +120,7 @@ describe('Physics', () => {
     const mesh = new Mesh(geometry, material)
     mesh.translateX(10)
     mesh.rotateX(3.1415918)
+    mesh.updateMatrixWorld(true)
 
     const collisionGroup = 0x0001
     const collisionMask = 0x0003
@@ -99,7 +130,41 @@ describe('Physics', () => {
 
     const boxColliderDesc = Physics.createColliderDesc(mesh, boxDynamicConfig)!
     const interactionGroups = getInteractionGroups(collisionGroup, collisionMask)
-    console.log({ boxColliderDesc })
+
+    assert.deepEqual(boxColliderDesc.shape.type, boxDynamicConfig.shapeType)
+    assert.deepEqual(boxColliderDesc.collisionGroups, interactionGroups)
+    assert.deepEqual(boxColliderDesc.isSensor, boxDynamicConfig.isTrigger)
+    assert.deepEqual(boxColliderDesc.friction, boxDynamicConfig.friction)
+    assert.deepEqual(boxColliderDesc.restitution, boxDynamicConfig.restitution)
+    assert.deepEqual(boxColliderDesc.activeEvents, ActiveEvents.COLLISION_EVENTS)
+    assert.deepEqual(boxColliderDesc.activeCollisionTypes, ActiveCollisionTypes.ALL)
+    assert.deepEqual(boxColliderDesc.translation.x, 0)
+    assert.deepEqual(boxColliderDesc.translation.y, 0)
+    assert.deepEqual(boxColliderDesc.translation.z, 0)
+    assert.deepEqual(boxColliderDesc.rotation.x, 0)
+    assert.deepEqual(boxColliderDesc.rotation.y, 0)
+    assert.deepEqual(boxColliderDesc.rotation.z, 0)
+    assert.deepEqual(boxColliderDesc.rotation.w, 1)
+  })
+
+  it('should create collider desc from input config data in nested mesh', async () => {
+    const geometry = new BoxGeometry(1, 1, 1)
+    const material = new MeshBasicMaterial()
+    const root = new Mesh(geometry, material)
+    const mesh = new Mesh(geometry, material)
+    root.add(mesh)
+    mesh.position.set(1, 2, 3)
+    mesh.rotateX(3.1415918)
+    mesh.updateMatrixWorld(true)
+
+    const collisionGroup = 0x0001
+    const collisionMask = 0x0003
+    boxDynamicConfig.collisionLayer = collisionGroup
+    boxDynamicConfig.collisionMask = collisionMask
+    boxDynamicConfig.isTrigger = true
+
+    const boxColliderDesc = Physics.createColliderDesc(mesh, boxDynamicConfig, root)!
+    const interactionGroups = getInteractionGroups(collisionGroup, collisionMask)
 
     assert.deepEqual(boxColliderDesc.shape.type, boxDynamicConfig.shapeType)
     assert.deepEqual(boxColliderDesc.collisionGroups, interactionGroups)
@@ -118,10 +183,9 @@ describe('Physics', () => {
   })
 
   it('should create rigid body from input mesh & config data', async () => {
-    const world = Engine.instance.currentWorld
-    const physicsWorld = world.physicsWorld
+    const physicsWorld = getState(PhysicsState).physicsWorld
 
-    const entity = createEntity(world)
+    const entity = createEntity()
     setTransformComponent(entity)
 
     const geometry = new BoxGeometry(1, 1, 1)
@@ -154,10 +218,9 @@ describe('Physics', () => {
   })
 
   it('should change rigidBody type', async () => {
-    const world = Engine.instance.currentWorld
-    const physicsWorld = world.physicsWorld
+    const physicsWorld = getState(PhysicsState).physicsWorld
 
-    const entity = createEntity(world)
+    const entity = createEntity()
     setTransformComponent(entity)
 
     const rigidBodyDesc = RigidBodyDesc.dynamic()
@@ -184,10 +247,9 @@ describe('Physics', () => {
   })
 
   it('should cast ray and hit rigidbody', async () => {
-    const world = Engine.instance.currentWorld
-    const physicsWorld = world.physicsWorld
+    const physicsWorld = getState(PhysicsState).physicsWorld
 
-    const entity = createEntity(world)
+    const entity = createEntity()
 
     const rigidBodyDesc = RigidBodyDesc.dynamic().setTranslation(10, 0, 0)
     const colliderDesc = ColliderDesc.cylinder(5, 5).setCollisionGroups(
@@ -214,14 +276,13 @@ describe('Physics', () => {
   })
 
   it('should generate a collision event', async () => {
-    const world = Engine.instance.currentWorld
-    const physicsWorld = world.physicsWorld
+    const physicsWorld = getState(PhysicsState).physicsWorld
 
-    const entity1 = createEntity(world)
-    const entity2 = createEntity(world)
+    const entity1 = createEntity()
+    const entity2 = createEntity()
 
-    addComponent(entity1, CollisionComponent, new Map())
-    addComponent(entity2, CollisionComponent, new Map())
+    addComponent(entity1, CollisionComponent)
+    addComponent(entity2, CollisionComponent)
 
     setTransformComponent(entity1)
     setTransformComponent(entity2)
@@ -272,14 +333,13 @@ describe('Physics', () => {
   })
 
   it('should generate a trigger event', async () => {
-    const world = Engine.instance.currentWorld
-    const physicsWorld = world.physicsWorld
+    const physicsWorld = getState(PhysicsState).physicsWorld
 
-    const entity1 = createEntity(world)
-    const entity2 = createEntity(world)
+    const entity1 = createEntity()
+    const entity2 = createEntity()
 
-    addComponent(entity1, CollisionComponent, new Map())
-    addComponent(entity2, CollisionComponent, new Map())
+    addComponent(entity1, CollisionComponent)
+    addComponent(entity2, CollisionComponent)
 
     setTransformComponent(entity1)
     setTransformComponent(entity2)

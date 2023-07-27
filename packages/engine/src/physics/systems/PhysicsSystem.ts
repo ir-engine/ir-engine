@@ -1,36 +1,43 @@
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
 import { Not } from 'bitecs'
 import { useEffect } from 'react'
 import { Quaternion, Vector3 } from 'three'
 
-import { smootheLerpAlpha } from '@xrengine/common/src/utils/smootheLerpAlpha'
-import { createActionQueue, getState, removeActionQueue } from '@xrengine/hyperflux'
+import { smootheLerpAlpha } from '@etherealengine/common/src/utils/smootheLerpAlpha'
+import { getMutableState, getState, none } from '@etherealengine/hyperflux'
 
-import { Engine } from '../../ecs/classes/Engine'
-import { EngineActions, EngineState } from '../../ecs/classes/EngineState'
+import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
-import { World } from '../../ecs/classes/World'
-import {
-  defineQuery,
-  getComponent,
-  hasComponent,
-  removeQuery,
-  useComponent,
-  useOptionalComponent
-} from '../../ecs/functions/ComponentFunctions'
-import { startQueryReactor } from '../../ecs/functions/SystemFunctions'
-import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
-import {
-  ColliderComponent,
-  SCENE_COMPONENT_COLLIDER,
-  SCENE_COMPONENT_COLLIDER_DEFAULT_VALUES
-} from '../../scene/components/ColliderComponent'
-import { GLTFLoadedComponent } from '../../scene/components/GLTFLoadedComponent'
-import { SCENE_COMPONENT_VISIBLE } from '../../scene/components/VisibleComponent'
-import {
-  SCENE_COMPONENT_TRANSFORM,
-  SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES,
-  TransformComponent
-} from '../../transform/components/TransformComponent'
+import { defineQuery, getComponent } from '../../ecs/functions/ComponentFunctions'
+import { defineSystem } from '../../ecs/functions/SystemFunctions'
+import { NetworkState } from '../../networking/NetworkState'
+import { TriggerSystem } from '../../scene/systems/TriggerSystem'
+import { TransformComponent } from '../../transform/components/TransformComponent'
+import { PhysicsSerialization } from '../PhysicsSerialization'
 import { Physics } from '../classes/Physics'
 import { CollisionComponent } from '../components/CollisionComponent'
 import {
@@ -39,6 +46,7 @@ import {
   RigidBodyKinematicPositionBasedTagComponent,
   RigidBodyKinematicVelocityBasedTagComponent
 } from '../components/RigidBodyComponent'
+import { PhysicsState } from '../state/PhysicsState'
 import { ColliderHitEvent, CollisionEvents } from '../types/PhysicsTypes'
 
 export function teleportObject(entity: Entity, position: Vector3, rotation: Quaternion) {
@@ -56,19 +64,6 @@ export function teleportObject(entity: Entity, position: Vector3, rotation: Quat
     rigidbody.body.setLinvel({ x: 0, y: 0, z: 0 }, true)
     rigidbody.body.setAngvel({ x: 0, y: 0, z: 0 }, true)
   }
-}
-
-// Receptor
-export function teleportObjectReceptor(
-  action: ReturnType<typeof WorldNetworkAction.teleportObject>,
-  world = Engine.instance.currentWorld
-) {
-  const entity = world.getNetworkObject(action.object.ownerId, action.object.networkId)!
-  teleportObject(entity, action.position, action.rotation)
-}
-
-export const PhysicsPrefabs = {
-  collider: 'collider' as const
 }
 
 export function smoothPositionBasedKinematicBody(entity: Entity, dt: number, substep: number) {
@@ -116,147 +111,152 @@ export function smoothVelocityBasedKinematicBody(entity: Entity, dt: number, sub
   rigidbodyComponent.body.setNextKinematicRotation(rigidbodyComponent.rotation)
 }
 
-export default async function PhysicsSystem(world: World) {
-  world.sceneComponentRegistry.set(ColliderComponent.name, SCENE_COMPONENT_COLLIDER)
-  world.sceneLoadingRegistry.set(SCENE_COMPONENT_COLLIDER, {
-    defaultData: {}
-  })
+const allRigidBodyQuery = defineQuery([RigidBodyComponent, Not(RigidBodyFixedTagComponent)])
+const collisionQuery = defineQuery([CollisionComponent])
 
-  world.scenePrefabRegistry.set(PhysicsPrefabs.collider, [
-    { name: SCENE_COMPONENT_TRANSFORM, props: SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES },
-    { name: SCENE_COMPONENT_VISIBLE, props: true },
-    { name: SCENE_COMPONENT_COLLIDER, props: SCENE_COMPONENT_COLLIDER_DEFAULT_VALUES }
-  ])
+const kinematicPositionBodyQuery = defineQuery([
+  RigidBodyComponent,
+  RigidBodyKinematicPositionBasedTagComponent,
+  TransformComponent
+])
+const kinematicVelocityBodyQuery = defineQuery([
+  RigidBodyComponent,
+  RigidBodyKinematicVelocityBasedTagComponent,
+  TransformComponent
+])
+
+let drainCollisions: ReturnType<typeof Physics.drainCollisionEventQueue>
+let drainContacts: ReturnType<typeof Physics.drainContactEventQueue>
+
+const execute = () => {
+  const { physicsWorld, physicsCollisionEventQueue } = getState(PhysicsState)
+  if (!physicsWorld) return
+  if (!getState(EngineState).sceneLoaded) return
+
+  const allRigidBodies = allRigidBodyQuery()
+
+  for (const entity of allRigidBodies) {
+    const rigidBody = getComponent(entity, RigidBodyComponent)
+    const body = rigidBody.body
+    const translation = body.translation() as Vector3
+    const rotation = body.rotation() as Quaternion
+    RigidBodyComponent.previousPosition.x[entity] = translation.x
+    RigidBodyComponent.previousPosition.y[entity] = translation.y
+    RigidBodyComponent.previousPosition.z[entity] = translation.z
+    RigidBodyComponent.previousRotation.x[entity] = rotation.x
+    RigidBodyComponent.previousRotation.y[entity] = rotation.y
+    RigidBodyComponent.previousRotation.z[entity] = rotation.z
+    RigidBodyComponent.previousRotation.w[entity] = rotation.w
+  }
+
+  const existingColliderHits = [] as Array<{ entity: Entity; collisionEntity: Entity; hit: ColliderHitEvent }>
+
+  for (const collisionEntity of collisionQuery()) {
+    const collisionComponent = getComponent(collisionEntity, CollisionComponent)
+    for (const [entity, hit] of collisionComponent) {
+      if (hit.type !== CollisionEvents.COLLISION_PERSIST && hit.type !== CollisionEvents.TRIGGER_PERSIST) {
+        existingColliderHits.push({ entity, collisionEntity, hit })
+      }
+    }
+  }
 
   const engineState = getState(EngineState)
 
-  const allRigidBodyQuery = defineQuery([RigidBodyComponent, Not(RigidBodyFixedTagComponent)])
-  const collisionQuery = defineQuery([CollisionComponent])
+  // step physics world
+  const substeps = engineState.physicsSubsteps
+  const timestep = engineState.simulationTimestep / 1000 / substeps
+  physicsWorld.timestep = timestep
+  // const smoothnessMultiplier = 50
+  // const smoothAlpha = smoothnessMultiplier * timestep
+  const kinematicPositionEntities = kinematicPositionBodyQuery()
+  const kinematicVelocityEntities = kinematicVelocityBodyQuery()
+  for (let i = 0; i < substeps; i++) {
+    // smooth kinematic pose changes
+    const substep = (i + 1) / substeps
+    for (const entity of kinematicPositionEntities) smoothPositionBasedKinematicBody(entity, timestep, substep)
+    for (const entity of kinematicVelocityEntities) smoothVelocityBasedKinematicBody(entity, timestep, substep)
+    physicsWorld.step(physicsCollisionEventQueue)
+    physicsCollisionEventQueue.drainCollisionEvents(drainCollisions)
+    physicsCollisionEventQueue.drainContactForceEvents(drainContacts)
+  }
 
-  const kinematicPositionBodyQuery = defineQuery([
-    RigidBodyComponent,
-    RigidBodyKinematicPositionBasedTagComponent,
-    TransformComponent
-  ])
-  const kinematicVelocityBodyQuery = defineQuery([
-    RigidBodyComponent,
-    RigidBodyKinematicVelocityBasedTagComponent,
-    TransformComponent
-  ])
-
-  const teleportObjectQueue = createActionQueue(WorldNetworkAction.teleportObject.matches)
-  const modifyPropertyActionQueue = createActionQueue(EngineActions.sceneObjectUpdate.matches)
-
-  await Physics.load()
-  world.physicsWorld = Physics.createWorld()
-  world.physicsCollisionEventQueue = Physics.createCollisionEventQueue()
-  const drainCollisions = Physics.drainCollisionEventQueue(world.physicsWorld)
-  const drainContacts = Physics.drainContactEventQueue(world.physicsWorld)
-
-  const execute = () => {
-    for (const action of teleportObjectQueue()) teleportObjectReceptor(action)
-
-    const allRigidBodies = allRigidBodyQuery()
-
-    for (const entity of allRigidBodies) {
-      const rigidBody = getComponent(entity, RigidBodyComponent)
-      const body = rigidBody.body
-      const translation = body.translation() as Vector3
-      const rotation = body.rotation() as Quaternion
-      RigidBodyComponent.previousPosition.x[entity] = translation.x
-      RigidBodyComponent.previousPosition.y[entity] = translation.y
-      RigidBodyComponent.previousPosition.z[entity] = translation.z
-      RigidBodyComponent.previousRotation.x[entity] = rotation.x
-      RigidBodyComponent.previousRotation.y[entity] = rotation.y
-      RigidBodyComponent.previousRotation.z[entity] = rotation.z
-      RigidBodyComponent.previousRotation.w[entity] = rotation.w
+  /** process collisions */
+  for (const { entity, collisionEntity, hit } of existingColliderHits) {
+    const collisionComponent = getComponent(collisionEntity, CollisionComponent)
+    if (!collisionComponent) continue
+    const newHit = collisionComponent.get(entity)!
+    if (!newHit) continue
+    if (hit.type === CollisionEvents.COLLISION_START && newHit.type === CollisionEvents.COLLISION_START) {
+      newHit.type = CollisionEvents.COLLISION_PERSIST
     }
-
-    const existingColliderHits = [] as Array<{ entity: Entity; collisionEntity: Entity; hit: ColliderHitEvent }>
-
-    for (const collisionEntity of collisionQuery()) {
-      const collisionComponent = getComponent(collisionEntity, CollisionComponent)
-      for (const [entity, hit] of collisionComponent) {
-        if (hit.type !== CollisionEvents.COLLISION_PERSIST && hit.type !== CollisionEvents.TRIGGER_PERSIST) {
-          existingColliderHits.push({ entity, collisionEntity, hit })
-        }
-      }
+    if (hit.type === CollisionEvents.TRIGGER_START && newHit.type === CollisionEvents.TRIGGER_START) {
+      newHit.type = CollisionEvents.TRIGGER_PERSIST
     }
-
-    // step physics world
-    const substeps = engineState.physicsSubsteps.value
-    const timestep = engineState.fixedDeltaSeconds.value / substeps
-    world.physicsWorld.timestep = timestep
-    // const smoothnessMultiplier = 50
-    // const smoothAlpha = smoothnessMultiplier * timestep
-    const kinematicPositionEntities = kinematicPositionBodyQuery()
-    const kinematicVelocityEntities = kinematicVelocityBodyQuery()
-    for (let i = 0; i < substeps; i++) {
-      // smooth kinematic pose changes
-      const substep = (i + 1) / substeps
-      for (const entity of kinematicPositionEntities) smoothPositionBasedKinematicBody(entity, timestep, substep)
-      for (const entity of kinematicVelocityEntities) smoothVelocityBasedKinematicBody(entity, timestep, substep)
-      world.physicsWorld.step(world.physicsCollisionEventQueue)
-      world.physicsCollisionEventQueue.drainCollisionEvents(drainCollisions)
-      world.physicsCollisionEventQueue.drainContactForceEvents(drainContacts)
+    if (hit.type === CollisionEvents.COLLISION_END && newHit.type === CollisionEvents.COLLISION_END) {
+      collisionComponent.delete(entity)
     }
-
-    /** process collisions */
-    for (const { entity, collisionEntity, hit } of existingColliderHits) {
-      const collisionComponent = getComponent(collisionEntity, CollisionComponent)
-      if (!collisionComponent) continue
-      const newHit = collisionComponent.get(entity)!
-      if (!newHit) continue
-      if (hit.type === CollisionEvents.COLLISION_START && newHit.type === CollisionEvents.COLLISION_START) {
-        newHit.type = CollisionEvents.COLLISION_PERSIST
-      }
-      if (hit.type === CollisionEvents.TRIGGER_START && newHit.type === CollisionEvents.TRIGGER_START) {
-        newHit.type = CollisionEvents.TRIGGER_PERSIST
-      }
-      if (hit.type === CollisionEvents.COLLISION_END && newHit.type === CollisionEvents.COLLISION_END) {
-        collisionComponent.delete(entity)
-      }
-      if (hit.type === CollisionEvents.TRIGGER_END && newHit.type === CollisionEvents.TRIGGER_END) {
-        collisionComponent.delete(entity)
-      }
-    }
-
-    for (const entity of allRigidBodies) {
-      const rigidBody = getComponent(entity, RigidBodyComponent)
-      const body = rigidBody.body
-      const translation = body.translation() as Vector3
-      const rotation = body.rotation() as Quaternion
-      const linvel = body.linvel() as Vector3
-      const angvel = body.angvel() as Vector3
-      RigidBodyComponent.position.x[entity] = translation.x
-      RigidBodyComponent.position.y[entity] = translation.y
-      RigidBodyComponent.position.z[entity] = translation.z
-      RigidBodyComponent.rotation.x[entity] = rotation.x
-      RigidBodyComponent.rotation.y[entity] = rotation.y
-      RigidBodyComponent.rotation.z[entity] = rotation.z
-      RigidBodyComponent.rotation.w[entity] = rotation.w
-      RigidBodyComponent.linearVelocity.x[entity] = linvel.x
-      RigidBodyComponent.linearVelocity.y[entity] = linvel.y
-      RigidBodyComponent.linearVelocity.z[entity] = linvel.z
-      RigidBodyComponent.angularVelocity.x[entity] = angvel.x
-      RigidBodyComponent.angularVelocity.y[entity] = angvel.y
-      RigidBodyComponent.angularVelocity.z[entity] = angvel.z
+    if (hit.type === CollisionEvents.TRIGGER_END && newHit.type === CollisionEvents.TRIGGER_END) {
+      collisionComponent.delete(entity)
     }
   }
 
-  const cleanup = async () => {
-    world.sceneComponentRegistry.delete(ColliderComponent.name)
-    world.sceneLoadingRegistry.delete(SCENE_COMPONENT_COLLIDER)
-    world.scenePrefabRegistry.delete(PhysicsPrefabs.collider)
-
-    removeQuery(world, allRigidBodyQuery)
-    removeQuery(world, collisionQuery)
-
-    removeActionQueue(teleportObjectQueue)
-    removeActionQueue(modifyPropertyActionQueue)
-
-    world.physicsWorld.free()
+  for (const entity of allRigidBodies) {
+    const rigidBody = getComponent(entity, RigidBodyComponent)
+    const body = rigidBody.body
+    const translation = body.translation() as Vector3
+    const rotation = body.rotation() as Quaternion
+    const linvel = body.linvel() as Vector3
+    const angvel = body.angvel() as Vector3
+    RigidBodyComponent.position.x[entity] = translation.x
+    RigidBodyComponent.position.y[entity] = translation.y
+    RigidBodyComponent.position.z[entity] = translation.z
+    RigidBodyComponent.rotation.x[entity] = rotation.x
+    RigidBodyComponent.rotation.y[entity] = rotation.y
+    RigidBodyComponent.rotation.z[entity] = rotation.z
+    RigidBodyComponent.rotation.w[entity] = rotation.w
+    RigidBodyComponent.linearVelocity.x[entity] = linvel.x
+    RigidBodyComponent.linearVelocity.y[entity] = linvel.y
+    RigidBodyComponent.linearVelocity.z[entity] = linvel.z
+    RigidBodyComponent.angularVelocity.x[entity] = angvel.x
+    RigidBodyComponent.angularVelocity.y[entity] = angvel.y
+    RigidBodyComponent.angularVelocity.z[entity] = angvel.z
   }
-
-  return { execute, cleanup }
 }
+
+const reactor = () => {
+  useEffect(() => {
+    const networkState = getMutableState(NetworkState)
+    const physicsState = getMutableState(PhysicsState)
+
+    networkState.networkSchema[PhysicsSerialization.ID].set({
+      read: PhysicsSerialization.readRigidBody,
+      write: PhysicsSerialization.writeRigidBody
+    })
+
+    Physics.load().then(() => {
+      const physicsWorld = Physics.createWorld()
+      physicsState.physicsWorld.set(physicsWorld)
+      physicsState.physicsCollisionEventQueue.set(Physics.createCollisionEventQueue())
+      drainCollisions = Physics.drainCollisionEventQueue(physicsWorld)
+      drainContacts = Physics.drainContactEventQueue(physicsWorld)
+    })
+
+    return () => {
+      const physicsWorld = getMutableState(PhysicsState).physicsWorld
+      physicsWorld.value.free()
+      physicsWorld.set(null!)
+      drainCollisions = null!
+      drainContacts = null!
+
+      networkState.networkSchema[PhysicsSerialization.ID].set(none)
+    }
+  }, [])
+  return null
+}
+
+export const PhysicsSystem = defineSystem({
+  uuid: 'ee.engine.PhysicsSystem',
+  execute,
+  reactor,
+  subSystems: [TriggerSystem]
+})

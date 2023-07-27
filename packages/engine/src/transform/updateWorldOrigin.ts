@@ -1,4 +1,29 @@
-import { getState } from '@xrengine/hyperflux'
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
+import { getMutableState } from '@etherealengine/hyperflux'
 
 import { Engine } from '../ecs/classes/Engine'
 import { getComponent } from '../ecs/functions/ComponentFunctions'
@@ -8,11 +33,11 @@ import { computeTransformMatrix } from './systems/TransformSystem'
 
 // TODO: only update the world origin in one place; move logic for moving based on viewer hit into the function above
 export const updateWorldOriginFromScenePlacement = () => {
-  const xrState = getState(XRState)
+  const xrState = getMutableState(XRState)
   const scenePosition = xrState.scenePosition.value
   const sceneRotation = xrState.sceneRotation.value
   const sceneScale = xrState.sceneScale.value
-  const originTransform = getComponent(Engine.instance.currentWorld.originEntity, TransformComponent)
+  const originTransform = getComponent(Engine.instance.originEntity, TransformComponent)
   originTransform.position.copy(scenePosition)
   originTransform.rotation.copy(sceneRotation)
   originTransform.scale.setScalar(sceneScale || 1)
@@ -29,17 +54,15 @@ export const updateWorldOriginFromScenePlacement = () => {
 
 export const updateWorldOrigin = () => {
   if (ReferenceSpace.localFloor) {
-    const world = Engine.instance.currentWorld
-    const originTransform = getComponent(world.originEntity, TransformComponent)
+    const originTransform = getComponent(Engine.instance.originEntity, TransformComponent)
     const xrRigidTransform = new XRRigidTransform(originTransform.position, originTransform.rotation)
     ReferenceSpace.origin = ReferenceSpace.localFloor.getOffsetReferenceSpace(xrRigidTransform.inverse)
   }
 }
 
 export const computeAndUpdateWorldOrigin = () => {
-  const world = Engine.instance.currentWorld
-  computeTransformMatrix(world.originEntity, world)
-  world.dirtyTransforms[world.originEntity] = false
+  computeTransformMatrix(Engine.instance.originEntity)
+  TransformComponent.dirtyTransforms[Engine.instance.originEntity] = false
   updateWorldOrigin()
 }
 
@@ -48,7 +71,7 @@ export const updateEyeHeight = () => {
   if (!xrFrame) return
   const viewerPose = xrFrame.getViewerPose(ReferenceSpace.localFloor!)
   if (viewerPose) {
-    const xrState = getState(XRState)
+    const xrState = getMutableState(XRState)
     xrState.userEyeLevel.set(viewerPose.transform.position.y)
   }
 }

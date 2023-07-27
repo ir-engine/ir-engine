@@ -1,4 +1,4 @@
-@import "@xrengine/client-core/src/styles/imports.module.scss";
+@import "@etherealengine/client-core/src/styles/imports.module.scss";
 
 .credential-mediator {
   pointer-events: auto;
@@ -457,9 +457,16 @@ body {
   }
 }
 
-[class*="MuiModal-root"],
+[class*="MuiModal-root"] {
+  pointer-events: all;
+}
+
+[class*="MuiMenu-root"] {
+  pointer-events: all;
+}
+
 [class*="MuiPopper-root"] {
-  pointer-events: auto;
+  pointer-events: all;
 }
 
 vite-error-overlay {

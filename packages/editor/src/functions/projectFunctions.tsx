@@ -1,15 +1,36 @@
-import { API } from '@xrengine/client-core/src/API'
-import { MultiError } from '@xrengine/client-core/src/util/errors'
-import { ProjectInterface } from '@xrengine/common/src/interfaces/ProjectInterface'
-import { SceneData } from '@xrengine/common/src/interfaces/SceneInterface'
-import { dispatchAction } from '@xrengine/hyperflux'
+/*
+CPAL-1.0 License
 
-import { copy, paste } from '../functions/copyPaste'
-import { EditorErrorAction } from '../services/EditorErrorServices'
-import { EditorAction } from '../services/EditorServices'
-import { SelectionAction } from '../services/SelectionServices'
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
+import { API } from '@etherealengine/client-core/src/API'
+import { ProjectInterface } from '@etherealengine/common/src/interfaces/ProjectInterface'
+import { SceneData } from '@etherealengine/common/src/interfaces/SceneInterface'
+import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
+import { dispatchAction, getMutableState } from '@etherealengine/hyperflux'
+
+import { EditorHistoryAction } from '../services/EditorHistory'
 import { EditorControlFunctions } from './EditorControlFunctions'
-import { initializeScene } from './sceneRenderFunctions'
 
 /**
  * Gets a list of projects installed
@@ -32,29 +53,7 @@ export const getProjects = async (): Promise<ProjectInterface[]> => {
 export async function loadProjectScene(projectData: SceneData) {
   EditorControlFunctions.replaceSelection([])
 
-  disposeProject()
+  dispatchAction(EditorHistoryAction.clearHistory({}))
 
-  const errors = await initializeScene(projectData)
-
-  dispatchAction(EditorAction.projectLoaded({ loaded: true }))
-  dispatchAction(SelectionAction.changedSceneGraph({}))
-
-  if (errors && errors.length > 0) {
-    const error = new MultiError('Errors loading project', errors)
-    dispatchAction(EditorErrorAction.throwError({ error }))
-    throw error
-  }
-
-  window.addEventListener('copy', copy)
-  window.addEventListener('paste', paste)
-}
-
-/**
- * Disposes project data
- */
-export function disposeProject() {
-  dispatchAction(EditorAction.projectLoaded({ loaded: false }))
-
-  window.addEventListener('copy', copy)
-  window.addEventListener('paste', paste)
+  getMutableState(SceneState).sceneData.set(projectData)
 }

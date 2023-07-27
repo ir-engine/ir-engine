@@ -1,7 +1,33 @@
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
 import { Hook, HookContext, Paginated } from '@feathersjs/feathers'
 
-import { Instance } from '@xrengine/common/src/interfaces/Instance'
-import { Location as LocationType } from '@xrengine/common/src/interfaces/Location'
+import { Instance } from '@etherealengine/common/src/interfaces/Instance'
+import { matchInstancePath } from '@etherealengine/engine/src/schemas/matchmaking/match-instance.schema'
+import { locationPath, LocationType } from '@etherealengine/engine/src/schemas/social/location.schema'
 
 import { Application } from '../../declarations'
 import { getFreeInstanceserver } from '../networking/instance-provision/instance-provision.class'
@@ -12,7 +38,7 @@ export default (): Hook => {
     const { app, result } = context
     const matchInstanceId = result?.id
     const connection = result?.connection
-    const gameMode = result?.gamemode
+    const gameMode = result?.gameMode
 
     if (!connection) {
       // assignment is not found yet
@@ -24,7 +50,7 @@ export default (): Hook => {
     }
 
     const locationName = 'game-' + gameMode
-    const location = (await app.service('location').find({
+    const location = (await app.service(locationPath).find({
       query: {
         name: locationName
       }
@@ -60,11 +86,11 @@ export default (): Hook => {
       }
 
       // matchInstanceId
-      await app.service('match-instance').patch(matchInstanceId, {
-        instanceserver: instanceId
+      await app.service(matchInstancePath).patch(matchInstanceId, {
+        instanceServer: instanceId
       })
 
-      context.result.instanceserver = instanceId
+      context.result.instanceServer = instanceId
     } catch (e) {
       logger.error(e, `Matchmaking instance create error: ${e.message || e.errors[0].message}`)
       // TODO: check error? skip?

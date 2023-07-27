@@ -1,70 +1,63 @@
-import { t } from 'i18next'
+/*
+CPAL-1.0 License
 
-import { resolveUser } from '@xrengine/common/src/interfaces/User'
-import { UserId } from '@xrengine/common/src/interfaces/UserId'
-import multiLogger from '@xrengine/common/src/logger'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { WorldState } from '@xrengine/engine/src/networking/interfaces/WorldState'
-import { dispatchAction, getState } from '@xrengine/hyperflux'
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
+import { resolveUser } from '@etherealengine/common/src/interfaces/User'
+import { UserId } from '@etherealengine/common/src/interfaces/UserId'
+import multiLogger from '@etherealengine/common/src/logger'
+import { WorldState } from '@etherealengine/engine/src/networking/interfaces/WorldState'
+import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
+import { dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
 
 import { LocationInstanceConnectionAction } from '../../common/services/LocationInstanceConnectionService'
-import { NotificationService } from '../../common/services/NotificationService'
-import { accessAuthState, AuthAction } from '../services/AuthService'
-import { accessNetworkUserState, NetworkUserAction } from '../services/NetworkUserService'
+import { AuthState } from '../services/AuthService'
 
 const logger = multiLogger.child({ component: 'client-core:userPatched' })
 
 export const userPatched = (params) => {
   logger.info('USER PATCHED %o', params)
 
-  const selfUser = accessAuthState().user
-  const userState = accessNetworkUserState()
-  const patchedUser = resolveUser(params.userRelationship)
+  const selfUser = getMutableState(AuthState).user
+  const patchedUser = resolveUser(params || selfUser.get({ noproxy: true }))
+  const worldHostID = getState(NetworkState).hostIds.world
 
   logger.info('Resolved patched user %o', patchedUser)
 
-  const worldState = getState(WorldState)
+  const worldState = getMutableState(WorldState)
   worldState.userNames[patchedUser.id].set(patchedUser.name)
 
   if (selfUser.id.value === patchedUser.id) {
-    if (selfUser.instanceId.value !== patchedUser.instanceId)
-      dispatchAction(NetworkUserAction.clearLayerUsersAction({}))
-    if (selfUser.channelInstanceId.value !== patchedUser.channelInstanceId)
-      dispatchAction(NetworkUserAction.clearChannelLayerUsersAction({}))
-    dispatchAction(AuthAction.userUpdatedAction({ user: patchedUser }))
-    // if (user.partyId) {
-    //   setRelationship('party', user.partyId);
-    // }
-    if (patchedUser.instanceId !== selfUser.instanceId.value) {
-      if (
-        Engine.instance.currentWorld.hostIds.world.value &&
-        patchedUser.instanceId &&
-        Engine.instance.currentWorld.hostIds.world.value !== patchedUser.instanceId
-      ) {
-        dispatchAction(
-          LocationInstanceConnectionAction.changeActiveConnectionHostId({
-            currentInstanceId: Engine.instance.currentWorld.hostIds.world.value,
-            newInstanceId: patchedUser.instanceId as UserId
-          })
-        )
-      }
+    getMutableState(AuthState).merge({ user: patchedUser })
+    const currentInstanceId = patchedUser.instanceAttendance?.find((attendance) => !attendance.isChannel)
+      ?.instanceId as UserId
+    if (worldHostID && currentInstanceId && worldHostID !== currentInstanceId) {
+      dispatchAction(
+        LocationInstanceConnectionAction.changeActiveConnectionHostId({
+          currentInstanceId: worldHostID,
+          newInstanceId: currentInstanceId
+        })
+      )
     }
-  } else {
-    const isLayerUser = userState.layerUsers.value.find((item) => item.id === patchedUser.id)
-
-    if (patchedUser.channelInstanceId != null && patchedUser.channelInstanceId === selfUser.channelInstanceId.value)
-      dispatchAction(NetworkUserAction.addedChannelLayerUserAction({ user: patchedUser }))
-    if (!isLayerUser && patchedUser.instanceId === selfUser.instanceId.value) {
-      dispatchAction(NetworkUserAction.addedLayerUserAction({ user: patchedUser }))
-      !Engine.instance.isEditor &&
-        NotificationService.dispatchNotify(`${patchedUser.name} ${t('common:toast.joined')}`, { variant: 'default' })
-    }
-    if (isLayerUser && patchedUser.instanceId !== selfUser.instanceId.value) {
-      dispatchAction(NetworkUserAction.removedLayerUserAction({ user: patchedUser }))
-      !Engine.instance.isEditor &&
-        NotificationService.dispatchNotify(`${patchedUser.name} ${t('common:toast.left')}`, { variant: 'default' })
-    }
-    if (patchedUser.channelInstanceId !== selfUser.channelInstanceId.value)
-      dispatchAction(NetworkUserAction.removedChannelLayerUserAction({ user: patchedUser }))
   }
 }

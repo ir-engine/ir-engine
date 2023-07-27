@@ -1,14 +1,34 @@
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
 import AbortController from 'abort-controller'
 import axios from 'axios'
 import fetch from 'node-fetch'
 
-import {
-  isOpenAPIError,
-  isOpenMatchTicketAssignmentResponse,
-  OpenMatchTicket,
-  OpenMatchTicketAssignment,
-  OpenMatchTicketAssignmentResponse
-} from './interfaces'
+import { MatchTicketAssignmentType } from './match-ticket-assignment.schema'
+import { MatchTicketType } from './match-ticket.schema'
 
 export const FRONTEND_SERVICE_URL = process.env.FRONTEND_SERVICE_URL || 'http://localhost:51504/v1/frontendservice'
 const axiosInstance = axios.create({
@@ -16,7 +36,6 @@ const axiosInstance = axios.create({
 })
 
 /**
- * @throws OpenAPIErrorResponse
  * @param response
  */
 function checkForApiErrorResponse(response: unknown): unknown {
@@ -24,16 +43,16 @@ function checkForApiErrorResponse(response: unknown): unknown {
     return response
   }
 
-  if (isOpenAPIError(response)) {
+  if ((response as any).code) {
     throw response
-  }
-  if (isOpenAPIError((response as any).error)) {
+  } else if ((response as any).error) {
     throw (response as any).error
   }
+
   return response
 }
 
-function createTicket(gameMode: string, attributes?: Record<string, string>): Promise<OpenMatchTicket> {
+function createTicket(gameMode: string, attributes?: Record<string, string>): Promise<MatchTicketType> {
   const searchFields: any = {
     tags: [gameMode],
     doubleArgs: {
@@ -58,7 +77,7 @@ function createTicket(gameMode: string, attributes?: Record<string, string>): Pr
     })
     .then((r) => r.data)
     .then(checkForApiErrorResponse)
-    .then((response) => response as OpenMatchTicket)
+    .then((response) => response as MatchTicketType)
 }
 
 function readStreamFirstData(stream: NodeJS.ReadableStream) {
@@ -72,7 +91,7 @@ function readStreamFirstData(stream: NodeJS.ReadableStream) {
 }
 
 // TicketAssignmentsResponse
-async function getTicketsAssignment(ticketId: string, timeout = 300): Promise<OpenMatchTicketAssignment> {
+async function getTicketsAssignment(ticketId: string, timeout = 300): Promise<MatchTicketAssignmentType> {
   const controller = new AbortController()
   const timeoutId = setTimeout(() => {
     controller.abort()
@@ -97,22 +116,17 @@ async function getTicketsAssignment(ticketId: string, timeout = 300): Promise<Op
     clearTimeout(timeoutId)
   }
   checkForApiErrorResponse(data)
-  if (!isOpenMatchTicketAssignmentResponse(data)) {
-    console.error('Invalid result:')
-    console.log(data)
-    throw new Error('Invalid result from tickets/assignments service')
-  }
 
-  return (data as OpenMatchTicketAssignmentResponse).result.assignment
+  return data.result.assignment
 }
 
-function getTicket(ticketId: string): Promise<OpenMatchTicket | void> {
+function getTicket(ticketId: string): Promise<MatchTicketType | void> {
   return axiosInstance
     .get(`/tickets/${ticketId}`)
     .then((r) => r.data)
     .then(checkForApiErrorResponse)
     .then((result) => {
-      return result as OpenMatchTicket
+      return result as MatchTicketType
     })
     .catch((e) => {
       if (axios.isAxiosError(e)) {

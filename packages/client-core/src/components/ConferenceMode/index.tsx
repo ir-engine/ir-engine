@@ -1,51 +1,72 @@
-import { useState } from '@hookstate/core'
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
 import classNames from 'classnames'
 import React from 'react'
 
-import { useMediaInstanceConnectionState } from '@xrengine/client-core/src/common/services/MediaInstanceConnectionService'
-import { useMediaStreamState } from '@xrengine/client-core/src/media/services/MediaStreamService'
-import { accessAuthState } from '@xrengine/client-core/src/user/services/AuthService'
-import { useNetworkUserState } from '@xrengine/client-core/src/user/services/NetworkUserService'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { MediaInstanceState } from '@etherealengine/client-core/src/common/services/MediaInstanceConnectionService'
+import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { screenshareVideoDataChannelType } from '@etherealengine/engine/src/networking/NetworkState'
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
+import { MediaStreamState } from '../../transports/MediaStreams'
 import ConferenceModeParticipant from './ConferenceModeParticipant'
 import styles from './index.module.scss'
 
 const ConferenceMode = (): JSX.Element => {
-  const mediaState = useMediaStreamState()
-  const nearbyLayerUsers = mediaState.nearbyLayerUsers
-  const selfUserId = useState(accessAuthState().user.id)
-  const userState = useNetworkUserState()
-  const channelConnectionState = useMediaInstanceConnectionState()
-  const network = Engine.instance.currentWorld.mediaNetwork
+  const authState = useHookstate(getMutableState(AuthState))
+  const channelConnectionState = useHookstate(getMutableState(MediaInstanceState))
+  const network = Engine.instance.mediaNetwork
   const currentChannelInstanceConnection = network && channelConnectionState.instances[network.hostId].ornull
   const displayedUsers =
     network?.hostId && currentChannelInstanceConnection
-      ? currentChannelInstanceConnection.channelType?.value === 'party'
-        ? userState.layerUsers?.value.filter((user) => {
-            return (
-              user.id !== selfUserId.value &&
-              user.channelInstanceId != null &&
-              user.channelInstanceId === network?.hostId
-            )
-          }) || []
-        : currentChannelInstanceConnection.channelType?.value === 'instance'
-        ? userState.layerUsers.value.filter((user) => nearbyLayerUsers.value.includes(user.id))
-        : []
+      ? Array.from(network.peers.values()).filter(
+          (peer) => peer.peerID !== 'server' && peer.userId !== authState.user.id.value
+        ) || []
       : []
 
-  const consumers = mediaState.consumers.value
-  const screenShareConsumers = consumers?.filter((consumer) => consumer.appData.mediaTag === 'screen-video') || []
+  const consumers = network.consumers
+  const screenShareConsumers =
+    consumers?.filter((consumer) => consumer.appData.mediaTag === screenshareVideoDataChannelType) || []
+
+  const mediaStreamState = useHookstate(getMutableState(MediaStreamState))
+  const isScreenVideoEnabled =
+    mediaStreamState.screenVideoProducer.value != null && !mediaStreamState.screenShareVideoPaused.value
+  const isScreenAudioEnabled =
+    mediaStreamState.screenShareAudioPaused.value != null && !mediaStreamState.screenShareAudioPaused.value
 
   let totalScreens = 1
 
-  if (mediaState.isScreenAudioEnabled.value || mediaState.isScreenVideoEnabled.value) {
+  if (isScreenVideoEnabled || isScreenAudioEnabled) {
     totalScreens += 1
   }
 
   for (let user of displayedUsers) {
     totalScreens += 1
-    const peerID = Array.from(network.peers.values()).find((peer) => peer.userId === user.id)?.peerID
+    const peerID = Array.from(network.peers.values()).find((peer) => peer.userId === user.userId)?.peerID
     if (screenShareConsumers.find((consumer) => consumer.appData.peerID === peerID)) {
       totalScreens += 1
     }
@@ -60,13 +81,17 @@ const ConferenceMode = (): JSX.Element => {
         [styles['multi-grid']]: totalScreens === 3 || totalScreens > 4
       })}
     >
-      {(mediaState.isScreenAudioEnabled.value || mediaState.isScreenVideoEnabled.value) && (
-        <ConferenceModeParticipant type={'screen'} peerID={network.peerID} key={'screen_' + network.peerID} />
+      {(isScreenVideoEnabled || isScreenAudioEnabled) && (
+        <ConferenceModeParticipant
+          type={'screen'}
+          peerID={Engine.instance.peerID}
+          key={'screen_' + Engine.instance.peerID}
+        />
       )}
-      <ConferenceModeParticipant type={'cam'} peerID={network.peerID} key={'cam_' + network.peerID} />
+      <ConferenceModeParticipant type={'cam'} peerID={Engine.instance.peerID} key={'cam_' + Engine.instance.peerID} />
       {consumers.map((consumer) => {
         const peerID = consumer.appData.peerID
-        const type = consumer.appData.mediaTag === 'screen-video' ? 'screen' : 'cam'
+        const type = consumer.appData.mediaTag === screenshareVideoDataChannelType ? 'screen' : 'cam'
         return <ConferenceModeParticipant type={type} peerID={peerID} key={type + '_' + peerID} />
       })}
     </div>

@@ -1,9 +1,36 @@
-import { EventDispatcher, Matrix4, PerspectiveCamera, Quaternion, Vector3 } from 'three'
+/*
+CPAL-1.0 License
 
-import { getState } from '@xrengine/hyperflux'
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
 
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
+import { EventDispatcher, Matrix4, Quaternion, Vector3 } from 'three'
+
+import { getState } from '@etherealengine/hyperflux'
+
+import { CameraComponent } from '../../camera/components/CameraComponent'
 import { V_111 } from '../../common/constants/MathConstants'
 import { Engine } from '../../ecs/classes/Engine'
+import { getComponent } from '../../ecs/functions/ComponentFunctions'
 import { XRState } from '../XRState'
 import { XR8 } from './XR8'
 
@@ -21,7 +48,7 @@ export class XRView {
 
   constructor(transform: XRRigidTransform) {
     this.transform = transform
-    const camera = Engine.instance.currentWorld.camera as PerspectiveCamera
+    const camera = getComponent(Engine.instance.cameraEntity, CameraComponent)
     this.projectionMatrix = camera.projectionMatrix.toArray()
   }
 }
@@ -176,7 +203,7 @@ export class XRFrameProxy {
   }
 
   get session() {
-    return getState(XRState).session.value
+    return getState(XRState).session
   }
 
   getPose(space: XRSpace, baseSpace: XRSpace) {
@@ -186,8 +213,7 @@ export class XRFrameProxy {
   }
 
   getViewerPose(space: XRReferenceSpace) {
-    return new XRViewerPose(
-      new XRRigidTransform(Engine.instance.currentWorld.camera.position, Engine.instance.currentWorld.camera.quaternion)
-    )
+    const camera = getComponent(Engine.instance.cameraEntity, CameraComponent)
+    return new XRViewerPose(new XRRigidTransform(camera.position, camera.quaternion))
   }
 }

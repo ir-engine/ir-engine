@@ -1,12 +1,38 @@
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
+import { useHookstate } from '@hookstate/core'
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useLocation, withRouter } from 'react-router-dom'
+import { useLocation } from 'react-router-dom'
 
-import Button from '@mui/material/Button'
-import Container from '@mui/material/Container'
+import { getMutableState } from '@etherealengine/hyperflux'
+import Button from '@etherealengine/ui/src/primitives/mui/Button'
+import Container from '@etherealengine/ui/src/primitives/mui/Container'
 
-import { AuthService } from '../../services/AuthService'
-import { useAuthState } from '../../services/AuthService'
+import { AuthService, AuthState } from '../../services/AuthService'
 import styles from './styles.module.scss'
 
 const FacebookCallbackComponent = (props): JSX.Element => {
@@ -24,7 +50,7 @@ const FacebookCallbackComponent = (props): JSX.Element => {
 
     if (!error) {
       if (type === 'connection') {
-        const user = useAuthState().user
+        const user = useHookstate(getMutableState(AuthState)).user
         AuthService.refreshConnections(user.id.value!)
       } else {
         let redirectSuccess = `${path}`
@@ -53,4 +79,4 @@ const FacebookCallbackComponent = (props): JSX.Element => {
   )
 }
 
-export const FacebookCallback = withRouter(FacebookCallbackComponent) as any
+export const FacebookCallback = FacebookCallbackComponent as any

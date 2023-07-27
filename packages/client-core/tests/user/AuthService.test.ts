@@ -1,9 +1,33 @@
-import assert from 'assert'
+/*
+CPAL-1.0 License
 
-// import { accessAuthState, AuthAction, avatarFetchedReceptor } from '../../src/user/services/AuthService' // make browser globals defined
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
 
-// import { createEngine, setupEngineActionSystems } from '@xrengine/engine/src/initializeEngine'
-// import { Downgraded } from '@xrengine/hyperflux/functions/StateFunctions'
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
+// import { AuthState, AuthAction, avatarFetchedReceptor } from '../../src/user/services/AuthService' // make browser globals defined
+
+// import { createEngine } from '@etherealengine/engine/src/initializeEngine'
+// import { getMutableState } from '@etherealengine/hyperflux
+// import { Downgraded } from '@etherealengine/hyperflux/functions/StateFunctions'
 
 // ;(globalThis as any).document = {}
 // ;(globalThis as any).navigator = {}
@@ -12,18 +36,16 @@ import assert from 'assert'
 describe('Auth Service', () => {
   // beforeEach(() => {
   //   createEngine()
-  //   setupEngineActionSystems()
   // })
   // describe('Auth Receptors', () => {
   //   it('avatarFetchedReceptor', () => {
   //     // mock
-  //     const mockAuthState = accessAuthState()
+  //     const mockAuthState = getMutableState(AuthState)
   //     const mockData = {
   //       id: 'c7456310-48d5-11ec-8706-c7fb367d91f0',
-  //       key: 'avatars/public/CyberbotGreen.glb',
+  //       key: 'avatars/assets/CyberbotGreen.glb',
   //       name: 'CyberbotGreen',
-  //       url: 'https://host.name/avatars/public/CyberbotGreen.glb',
-  //       staticResourceType: 'avatar',
+  //       url: 'https://host.name/avatars/assets/CyberbotGreen.glb',
   //       userId: null
   //     } as any
   //     const mockAction = AuthAction.updateAvatarListAction({ avatarList: [mockData] })

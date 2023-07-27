@@ -1,57 +1,45 @@
-import { NullableId, Paginated, Params } from '@feathersjs/feathers'
-import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
+/*
+CPAL-1.0 License
 
-import { AdminAwsSetting as AdminAwsSettingInterface } from '@xrengine/common/src/interfaces/AdminAwsSetting'
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
 
-import { Application } from '../../../declarations'
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
 
-export type AdminAwsSettingDataType = AdminAwsSettingInterface
+The Original Code is Ethereal Engine.
 
-export class Aws<T = AdminAwsSettingDataType> extends Service<T> {
-  app: Application
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
 
-  constructor(options: Partial<SequelizeServiceOptions>, app: Application) {
-    super(options)
-    this.app = app
-  }
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
 
-  async find(): Promise<T[] | Paginated<T>> {
-    const awsSetting = (await super.find()) as any
-    const data = awsSetting.data.map((el) => {
-      let keys = JSON.parse(el.keys)
-      let route53 = JSON.parse(el.route53)
-      let s3 = JSON.parse(el.s3)
-      let cloudfront = JSON.parse(el.cloudfront)
-      let sms = JSON.parse(el.sms)
+import type { Params } from '@feathersjs/feathers'
+import type { KnexAdapterParams } from '@feathersjs/knex'
+import { KnexService } from '@feathersjs/knex'
 
-      if (typeof keys === 'string') keys = JSON.parse(keys)
-      if (typeof route53 === 'string') route53 = JSON.parse(route53)
-      if (typeof s3 === 'string') s3 = JSON.parse(s3)
-      if (typeof cloudfront === 'string') cloudfront = JSON.parse(cloudfront)
-      if (typeof sms === 'string') sms = JSON.parse(sms)
+import {
+  AwsSettingData,
+  AwsSettingPatch,
+  AwsSettingQuery,
+  AwsSettingType
+} from '@etherealengine/engine/src/schemas/setting/aws-setting.schema'
 
-      return {
-        ...el,
-        keys: keys,
-        route53: {
-          ...route53,
-          keys: JSON.parse(route53.keys)
-        },
-        s3: s3,
-        cloudfront: cloudfront,
-        sms: sms
-      }
-    })
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+export interface AwsSettingParams extends KnexAdapterParams<AwsSettingQuery> {}
 
-    return {
-      total: awsSetting.total,
-      limit: awsSetting.limit,
-      skip: awsSetting.skip,
-      data
-    }
-  }
-
-  patch(id: NullableId, data: any, params?: Params): Promise<T | T[]> {
-    return super.patch(id, data)
-  }
-}
+export class AwsSettingService<T = AwsSettingType, ServiceParams extends Params = AwsSettingParams> extends KnexService<
+  AwsSettingType,
+  AwsSettingData,
+  AwsSettingParams,
+  AwsSettingPatch
+> {}

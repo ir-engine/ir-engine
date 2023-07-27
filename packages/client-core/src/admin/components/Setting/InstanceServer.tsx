@@ -1,30 +1,59 @@
-import React, { useEffect, useState } from 'react'
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
+import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import InputSwitch from '@xrengine/client-core/src/common/components/InputSwitch'
-import InputText from '@xrengine/client-core/src/common/components/InputText'
+import InputSwitch from '@etherealengine/client-core/src/common/components/InputSwitch'
+import InputText from '@etherealengine/client-core/src/common/components/InputText'
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import Box from '@etherealengine/ui/src/primitives/mui/Box'
+import Grid from '@etherealengine/ui/src/primitives/mui/Grid'
+import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 
-import { Box, Grid, Typography } from '@mui/material'
-
-import { useAuthState } from '../../../user/services/AuthService'
-import { InstanceServerSettingService } from '../../services/Setting/InstanceServerSettingService'
-import { useInstanceServerSettingState } from '../../services/Setting/InstanceServerSettingService'
+import { AuthState } from '../../../user/services/AuthService'
+import {
+  AdminInstanceServerSettingsState,
+  InstanceServerSettingService
+} from '../../services/Setting/InstanceServerSettingService'
 import styles from '../../styles/settings.module.scss'
 
 const InstanceServer = () => {
   const { t } = useTranslation()
-  const instanceServerSettingState = useInstanceServerSettingState()
-  const instanceServerSettings = instanceServerSettingState?.instanceserver?.value || []
-  const authState = useAuthState()
-  const user = authState.user
+  const instanceServerSettingState = useHookstate(getMutableState(AdminInstanceServerSettingsState))
+  const instanceServerSettings = instanceServerSettingState?.instanceServer?.get({ noproxy: true }) || []
 
-  const [local, setLocal] = useState(true)
+  const user = useHookstate(getMutableState(AuthState).user)
+
+  const local = useHookstate(true)
 
   useEffect(() => {
     if (user?.id?.value != null && instanceServerSettingState?.updateNeeded?.value === true) {
       InstanceServerSettingService.fetchedInstanceServerSettings()
     }
-  }, [authState?.user?.id?.value, instanceServerSettingState?.updateNeeded?.value])
+  }, [user?.id?.value, instanceServerSettingState?.updateNeeded?.value])
 
   return (
     <Box>
@@ -42,23 +71,23 @@ const InstanceServer = () => {
             />
 
             <InputText
-              name="rtc_start_port"
+              name="rtcStartPort"
               label={t('admin:components.setting.rtcStartPort')}
-              value={el?.rtc_start_port || ''}
+              value={el?.rtcStartPort || ''}
               disabled
             />
 
             <InputText
-              name="rtc_end_port"
+              name="rtcEndPort"
               label={t('admin:components.setting.rtcEndPort')}
-              value={el?.rtc_end_port || ''}
+              value={el?.rtcEndPort || ''}
               disabled
             />
 
             <InputText
-              name="rtc_port_block_size"
+              name="rtcPortBlockSize"
               label={t('admin:components.setting.rtcPortBlockSize')}
-              value={el?.rtc_port_block_size || ''}
+              value={el?.rtcPortBlockSize || ''}
               disabled
             />
 
@@ -94,9 +123,9 @@ const InstanceServer = () => {
             <InputSwitch
               name="local"
               label={t('admin:components.setting.local')}
-              checked={local}
+              checked={local.value}
               disabled
-              onChange={(event) => setLocal(event.target.checked)}
+              onChange={(event) => local.set(event.target.checked)}
             />
           </Grid>
         </Grid>

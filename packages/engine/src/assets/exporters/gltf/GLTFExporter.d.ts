@@ -1,3 +1,30 @@
+
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
+
 //https://github.com/DefinitelyTyped/DefinitelyTyped/blob/5b452194a34f86bb35532340ec19582a88337de2/types/three/examples/jsm/exporters/GLTFExporter.d.ts
 import { Object3D, AnimationClip, Texture, Material, Mesh, Camera, BufferAttribute, BufferGeometry, Scene } from 'three'
 
@@ -48,6 +75,10 @@ export interface GLTFExporterOptions {
     includeCustomExtensions?: boolean;
 
     path?: string;
+
+    resourceURI?: string;
+
+    flipY?: boolean;
 }
 
 export class GLTFExporter {
@@ -101,18 +132,20 @@ export class GLTFWriter {
         trs?: boolean,
         binary?: boolean,
         embedImages?: boolean,
+        flipY?: boolean,
         path?: string,
         onlyVisible?: boolean,
         animations?: AnimationClip[],
         includeCustomExtensions?: boolean,
         truncateDrawRange?: boolean,
         maxTextureSize?: number,
+        resourceURI?: string
 
     }
     pending: Promise<any>[]
     extensionsUsed : {[key:string] : any}
 
-    applyTextureTransform(mapDef: Object, texture: Texture)
+    applyTextureTransform(mapDef: object, texture: Texture)
 
     processTexture(map: Texture): number
 
@@ -150,8 +183,6 @@ export class GLTFWriter {
 
     processSampler(map: Texture): number
 
-    processTexture(map: Texture): number
-
     setPlugins(plugins: GLTFExporterPlugin[]): void;
 
     /**
@@ -169,7 +200,7 @@ export class GLTFWriter {
 }
 
 export interface GLTFExporterPlugin {
-    writeImage?: (image: Image, imageDef: { [key: string]: any }) => void;
+    writeImage?: (image: HTMLImageElement, imageDef: { [key: string]: any }) => void;
     writeTexture?: (map: Texture, textureDef: { [key: string]: any }) => void;
     writeMaterial?: (material: Material, materialDef: { [key: string]: any }) => void;
     writeMesh?: (mesh: Mesh, meshDef: { [key: string]: any }) => void;

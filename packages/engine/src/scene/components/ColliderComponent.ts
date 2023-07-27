@@ -1,27 +1,63 @@
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
 import { ColliderDesc, RigidBodyDesc, RigidBodyType, ShapeType } from '@dimforge/rapier3d-compat'
 import { useEffect } from 'react'
 import { Quaternion, Vector3 } from 'three'
 
-import { Engine } from '../../ecs/classes/Engine'
+import { getState } from '@etherealengine/hyperflux'
+
+import { EngineState } from '../../ecs/classes/EngineState'
 import {
   defineComponent,
   getComponent,
   getOptionalComponent,
   hasComponent,
+  removeComponent,
+  setComponent,
+  useComponent,
   useOptionalComponent
 } from '../../ecs/functions/ComponentFunctions'
+import { useEntityContext } from '../../ecs/functions/EntityFunctions'
+import { InputComponent } from '../../input/components/InputComponent'
 import { Physics } from '../../physics/classes/Physics'
 import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
 import { CollisionGroups, DefaultCollisionMask } from '../../physics/enums/CollisionGroups'
+import { PhysicsState } from '../../physics/state/PhysicsState'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { computeTransformMatrix, updateGroupChildren } from '../../transform/systems/TransformSystem'
 import { GLTFLoadedComponent } from './GLTFLoadedComponent'
 import { GroupComponent } from './GroupComponent'
+import { SceneAssetPendingTagComponent } from './SceneAssetPendingTagComponent'
+import { SceneObjectComponent } from './SceneObjectComponent'
 
 export const ColliderComponent = defineComponent({
   name: 'ColliderComponent',
+  jsonID: 'collider',
 
-  onInit(entity, world) {
+  onInit(entity) {
     return {
       bodyType: RigidBodyType.Fixed,
       shapeType: ShapeType.Cuboid,
@@ -33,7 +69,7 @@ export const ColliderComponent = defineComponent({
       removeMesh: false,
       collisionLayer: CollisionGroups.Default,
       collisionMask: DefaultCollisionMask,
-      restitution: 1,
+      restitution: 0.5,
       /**
        * The function to call on the CallbackComponent of the targetEntity when the trigger volume is entered.
        */
@@ -58,14 +94,24 @@ export const ColliderComponent = defineComponent({
 
     if (typeof json.bodyType === 'number') component.bodyType.set(json.bodyType)
     if (typeof json.shapeType === 'number') component.shapeType.set(json.shapeType)
-    if (typeof json.isTrigger === 'boolean') component.isTrigger.set(json.isTrigger)
-    if (typeof json.removeMesh === 'boolean') component.removeMesh.set(json.removeMesh)
+    if (typeof json.isTrigger === 'boolean' || typeof json.isTrigger === 'number')
+      component.isTrigger.set(Boolean(json.isTrigger))
+    if (typeof json.removeMesh === 'boolean' || typeof json.removeMesh === 'number')
+      component.removeMesh.set(Boolean(json.removeMesh))
     if (typeof json.collisionLayer === 'number') component.collisionLayer.set(json.collisionLayer)
     if (typeof json.collisionMask === 'number') component.collisionMask.set(json.collisionMask)
     if (typeof json.restitution === 'number') component.restitution.set(json.restitution)
     if (typeof json.onEnter === 'string') component.onEnter.set(json.onEnter)
     if (typeof json.onExit === 'string') component.onExit.set(json.onExit)
     if (typeof json.target === 'string') component.target.set(json.target)
+
+    /**
+     * Add SceneAssetPendingTagComponent to tell scene loading system we should wait for this asset to load
+     */
+    if (!getState(EngineState).sceneLoaded && hasComponent(entity, SceneObjectComponent))
+      setComponent(entity, SceneAssetPendingTagComponent)
+
+    setComponent(entity, InputComponent)
   },
 
   onRemove(entity, component) {},
@@ -99,39 +145,44 @@ export const ColliderComponent = defineComponent({
     return response
   },
 
-  reactor: function ({ root }) {
-    const world = Engine.instance.currentWorld
-    const entity = root.entity
+  reactor: function () {
+    const entity = useEntityContext()
 
+    const transformComponent = useComponent(entity, TransformComponent)
+    const colliderComponent = useComponent(entity, ColliderComponent)
     const isLoadedFromGLTF = useOptionalComponent(entity, GLTFLoadedComponent)
-    const transformComponent = useOptionalComponent(entity, TransformComponent)
-    const colliderComponent = useOptionalComponent(entity, ColliderComponent)
     const groupComponent = useOptionalComponent(entity, GroupComponent)
 
     useEffect(() => {
-      if (!colliderComponent?.value || !transformComponent?.value) return
+      const isMeshCollider = [ShapeType.TriMesh, ShapeType.ConvexPolyhedron].includes(colliderComponent.shapeType.value)
+      const physicsWorld = getState(PhysicsState).physicsWorld
 
-      if (!!isLoadedFromGLTF?.value) {
+      if (isLoadedFromGLTF?.value || isMeshCollider) {
         const colliderComponent = getComponent(entity, ColliderComponent)
 
         if (hasComponent(entity, RigidBodyComponent)) {
-          Physics.removeRigidBody(entity, Engine.instance.currentWorld.physicsWorld)
+          Physics.removeRigidBody(entity, physicsWorld)
         }
 
-        computeTransformMatrix(entity, Engine.instance.currentWorld)
+        computeTransformMatrix(entity)
         if (hasComponent(entity, GroupComponent)) {
           updateGroupChildren(entity)
         }
 
-        Physics.createRigidBodyForGroup(entity, Engine.instance.currentWorld.physicsWorld, {
-          bodyType: colliderComponent.bodyType,
-          shapeType: colliderComponent.shapeType,
-          isTrigger: colliderComponent.isTrigger,
-          removeMesh: colliderComponent.removeMesh,
-          collisionLayer: colliderComponent.collisionLayer,
-          collisionMask: colliderComponent.collisionMask,
-          restitution: colliderComponent.restitution
-        })
+        Physics.createRigidBodyForGroup(
+          entity,
+          physicsWorld,
+          {
+            bodyType: colliderComponent.bodyType,
+            shapeType: colliderComponent.shapeType,
+            isTrigger: colliderComponent.isTrigger,
+            removeMesh: colliderComponent.removeMesh,
+            collisionLayer: colliderComponent.collisionLayer,
+            collisionMask: colliderComponent.collisionMask,
+            restitution: colliderComponent.restitution
+          },
+          isMeshCollider
+        )
       } else {
         const rigidbodyTypeChanged =
           !hasComponent(entity, RigidBodyComponent) ||
@@ -164,7 +215,7 @@ export const ColliderComponent = defineComponent({
                 bodyDesc = RigidBodyDesc.fixed()
                 break
             }
-            Physics.createRigidBody(entity, world.physicsWorld, bodyDesc, [])
+            Physics.createRigidBody(entity, physicsWorld, bodyDesc, [])
           }
         }
 
@@ -173,7 +224,7 @@ export const ColliderComponent = defineComponent({
         /**
          * This component only supports one collider, always at index 0
          */
-        Physics.removeCollidersFromRigidBody(entity, world.physicsWorld)
+        Physics.removeCollidersFromRigidBody(entity, physicsWorld)
         const colliderDesc = createColliderDescFromScale(
           colliderComponent.shapeType.value,
           transformComponent.scale.value
@@ -194,12 +245,14 @@ export const ColliderComponent = defineComponent({
           new Vector3(),
           new Quaternion()
         )
-        world.physicsWorld.createCollider(colliderDesc, rigidbody.body)
+        physicsWorld.createCollider(colliderDesc, rigidbody.body)
 
         rigidbody.body.setTranslation(transformComponent.position.value, true)
         rigidbody.body.setRotation(transformComponent.rotation.value, true)
         rigidbody.scale.copy(transformComponent.scale.value)
       }
+
+      if (hasComponent(entity, SceneAssetPendingTagComponent)) removeComponent(entity, SceneAssetPendingTagComponent)
     }, [isLoadedFromGLTF, transformComponent, colliderComponent, groupComponent?.length])
 
     return null
@@ -209,7 +262,13 @@ export const ColliderComponent = defineComponent({
 /**
  * A lot of rapier's colliders don't make sense in this context, so create a list of simple primitives to allow
  */
-export const supportedColliderShapes = [ShapeType.Cuboid, ShapeType.Ball, ShapeType.Capsule, ShapeType.Cylinder]
+export const supportedColliderShapes = [
+  ShapeType.Cuboid,
+  ShapeType.Ball,
+  ShapeType.Capsule,
+  ShapeType.Cylinder,
+  ShapeType.TriMesh
+]
 
 export const createColliderDescFromScale = (shapeType: ShapeType, scale: Vector3) => {
   switch (shapeType as ShapeType) {
@@ -223,15 +282,4 @@ export const createColliderDescFromScale = (shapeType: ShapeType, scale: Vector3
     case ShapeType.Cylinder:
       return ColliderDesc.cylinder(Math.abs(scale.y), Math.abs(scale.x))
   }
-}
-
-export const SCENE_COMPONENT_COLLIDER = 'collider'
-export const SCENE_COMPONENT_COLLIDER_DEFAULT_VALUES = {
-  bodyType: RigidBodyType.Fixed,
-  shapeType: ShapeType.Cuboid,
-  isTrigger: false,
-  removeMesh: false,
-  restitution: 0.5,
-  collisionLayer: CollisionGroups.Default,
-  collisionMask: DefaultCollisionMask
 }

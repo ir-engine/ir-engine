@@ -1,51 +1,58 @@
-import { getState } from '@xrengine/hyperflux'
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
+import { getMutableState } from '@etherealengine/hyperflux'
 
 import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity, UndefinedEntity } from '../../ecs/classes/Entity'
-import {
-  ComponentType,
-  createMappedComponent,
-  getComponent,
-  getOptionalComponent,
-  setComponent
-} from '../../ecs/functions/ComponentFunctions'
+import { defineComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
 
-class ComputedTransform {
-  _referenceEntity = UndefinedEntity
+export const ComputedTransformComponent = defineComponent({
+  name: 'ComputedTransformComponent',
 
-  // Our ECS debugger/inspector crashes when it encounters enumerable functions,
-  // so we have to make sure this function is not an instance property
-  #computeFunction = (entity: Entity, referenceEntity: Entity) => {}
+  onInit(entity) {
+    return {
+      referenceEntity: UndefinedEntity,
+      computeFunction: (entity: Entity, referenceEntity: Entity) => {}
+    }
+  },
 
-  get referenceEntity() {
-    return this._referenceEntity
+  onSet(entity, component, json) {
+    if (!json) return
+
+    if (typeof json.referenceEntity === 'number') component.referenceEntity.set(json.referenceEntity)
+    if (typeof json.computeFunction === 'function') component.merge({ computeFunction: json.computeFunction })
+
+    getMutableState(EngineState).transformsNeedSorting.set(true)
   }
-
-  set referenceEntity(v) {
-    if (this._referenceEntity === v) return
-    this._referenceEntity = v
-    getState(EngineState).transformsNeedSorting.set(true)
-  }
-
-  get computeFunction() {
-    return this.#computeFunction
-  }
-
-  set computeFunction(v) {
-    this.#computeFunction = v
-  }
-}
-
-export const ComputedTransformComponent = createMappedComponent<ComputedTransform>('ComputedTransformComponent')
+})
 
 export function setComputedTransformComponent(
   entity: Entity,
   referenceEntity: Entity,
   computeFunction: (entity: Entity, referenceEntity: Entity) => void
 ) {
-  setComponent(entity, ComputedTransformComponent, new ComputedTransform())
-  const computed = getComponent(entity, ComputedTransformComponent)
-  computed.referenceEntity = referenceEntity
-  computed.computeFunction = computeFunction
-  return computed
+  setComponent(entity, ComputedTransformComponent, { referenceEntity, computeFunction })
 }

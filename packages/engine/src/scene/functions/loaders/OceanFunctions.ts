@@ -1,33 +1,33 @@
-import { Color, Vector2 } from 'three'
+/*
+CPAL-1.0 License
 
-import {
-  ComponentDeserializeFunction,
-  ComponentSerializeFunction,
-  ComponentUpdateFunction
-} from '../../../common/constants/PrefabFunctionType'
-import { EngineState } from '../../../ecs/classes/EngineState'
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
+import { ComponentUpdateFunction } from '../../../common/constants/PrefabFunctionType'
 import { Entity } from '../../../ecs/classes/Entity'
-import { addComponent, getComponent, setComponent } from '../../../ecs/functions/ComponentFunctions'
-import { Ocean } from '../../classes/Ocean'
-import { setCallback } from '../../components/CallbackComponent'
-import { addObjectToGroup } from '../../components/GroupComponent'
-import {
-  OceanComponent,
-  OceanComponentType,
-  SCENE_COMPONENT_OCEAN_DEFAULT_VALUES
-} from '../../components/OceanComponent'
-import { UpdatableCallback } from '../../components/UpdatableComponent'
+import { getComponent } from '../../../ecs/functions/ComponentFunctions'
+import { OceanComponent } from '../../components/OceanComponent'
 import { addError, removeError } from '../ErrorFunctions'
-
-export const deserializeOcean: ComponentDeserializeFunction = (entity: Entity, data: OceanComponentType) => {
-  const props = parseOceanProperties(data)
-  setComponent(entity, OceanComponent, props)
-  const ocean = new Ocean(entity)
-  addObjectToGroup(entity, ocean)
-  setCallback(entity, UpdatableCallback, (dt: number) => {
-    ocean.update(dt)
-  })
-}
 
 export const updateOcean: ComponentUpdateFunction = (entity: Entity) => {
   const obj3d = getComponent(entity, OceanComponent).ocean!
@@ -81,73 +81,4 @@ export const updateOcean: ComponentUpdateFunction = (entity: Entity) => {
   obj3d.foamSpeed = component.foamSpeed
   obj3d.foamTiling = component.foamTiling
   obj3d.foamColor = component.foamColor
-}
-
-export const serializeOcean: ComponentSerializeFunction = (entity) => {
-  const component = getComponent(entity, OceanComponent) as OceanComponentType
-  return {
-    normalMap: component.normalMap,
-    distortionMap: component.distortionMap,
-    envMap: component.envMap,
-    color: component.color.getHex(),
-    opacityRange: component.opacityRange,
-    opacityFadeDistance: component.opacityFadeDistance,
-    shallowToDeepDistance: component.shallowToDeepDistance,
-    shallowWaterColor: component.shallowWaterColor.getHex(),
-    waveScale: component.waveScale,
-    waveSpeed: component.waveSpeed,
-    waveTiling: component.waveTiling,
-    waveDistortionTiling: component.waveDistortionTiling,
-    waveDistortionSpeed: component.waveDistortionSpeed,
-    shininess: component.shininess,
-    reflectivity: component.reflectivity,
-    bigWaveHeight: component.bigWaveHeight,
-    bigWaveTiling: component.bigWaveTiling,
-    bigWaveSpeed: component.bigWaveSpeed,
-    foamSpeed: component.foamSpeed,
-    foamTiling: component.foamTiling,
-    foamColor: component.foamColor.getHex()
-  }
-}
-
-const parseOceanProperties = (props): OceanComponentType => {
-  const result = {
-    normalMap: props.normalMap ?? SCENE_COMPONENT_OCEAN_DEFAULT_VALUES.normalMap,
-    distortionMap: props.distortionMap ?? SCENE_COMPONENT_OCEAN_DEFAULT_VALUES.distortionMap,
-    envMap: props.envMap ?? SCENE_COMPONENT_OCEAN_DEFAULT_VALUES.envMap,
-    color: new Color(props.color ?? SCENE_COMPONENT_OCEAN_DEFAULT_VALUES.color),
-    opacityFadeDistance: props.opacityFadeDistance ?? SCENE_COMPONENT_OCEAN_DEFAULT_VALUES.opacityFadeDistance,
-    shallowToDeepDistance: props.shallowToDeepDistance ?? SCENE_COMPONENT_OCEAN_DEFAULT_VALUES.shallowToDeepDistance,
-    shallowWaterColor: new Color(props.shallowWaterColor ?? SCENE_COMPONENT_OCEAN_DEFAULT_VALUES.shallowWaterColor),
-    waveTiling: props.waveTiling ?? SCENE_COMPONENT_OCEAN_DEFAULT_VALUES.waveTiling,
-    waveDistortionTiling: props.waveDistortionTiling ?? SCENE_COMPONENT_OCEAN_DEFAULT_VALUES.waveDistortionTiling,
-    shininess: props.shininess ?? SCENE_COMPONENT_OCEAN_DEFAULT_VALUES.shininess,
-    reflectivity: props.reflectivity ?? SCENE_COMPONENT_OCEAN_DEFAULT_VALUES.reflectivity,
-    bigWaveHeight: props.bigWaveHeight ?? SCENE_COMPONENT_OCEAN_DEFAULT_VALUES.bigWaveHeight,
-    foamTiling: props.foamTiling ?? SCENE_COMPONENT_OCEAN_DEFAULT_VALUES.foamTiling,
-    foamColor: new Color(props.foamColor ?? SCENE_COMPONENT_OCEAN_DEFAULT_VALUES.foamColor)
-  } as OceanComponentType
-
-  let tempV2 = props.opacityRange ?? SCENE_COMPONENT_OCEAN_DEFAULT_VALUES.opacityRange
-  result.opacityRange = new Vector2(tempV2.x, tempV2.y)
-
-  tempV2 = props.waveScale ?? SCENE_COMPONENT_OCEAN_DEFAULT_VALUES.waveScale
-  result.waveScale = new Vector2(tempV2.x, tempV2.y)
-
-  tempV2 = props.waveSpeed ?? SCENE_COMPONENT_OCEAN_DEFAULT_VALUES.waveSpeed
-  result.waveSpeed = new Vector2(tempV2.x, tempV2.y)
-
-  tempV2 = props.waveDistortionSpeed ?? SCENE_COMPONENT_OCEAN_DEFAULT_VALUES.waveDistortionSpeed
-  result.waveDistortionSpeed = new Vector2(tempV2.x, tempV2.y)
-
-  tempV2 = props.bigWaveTiling ?? SCENE_COMPONENT_OCEAN_DEFAULT_VALUES.bigWaveTiling
-  result.bigWaveTiling = new Vector2(tempV2.x, tempV2.y)
-
-  tempV2 = props.bigWaveSpeed ?? SCENE_COMPONENT_OCEAN_DEFAULT_VALUES.bigWaveSpeed
-  result.bigWaveSpeed = new Vector2(tempV2.x, tempV2.y)
-
-  tempV2 = props.foamSpeed ?? SCENE_COMPONENT_OCEAN_DEFAULT_VALUES.foamSpeed
-  result.foamSpeed = new Vector2(tempV2.x, tempV2.y)
-
-  return result
 }

@@ -1,14 +1,43 @@
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
+import { koa } from '@feathersjs/koa'
+import packageRoot from 'app-root-path'
 import fs from 'fs'
 import https from 'https'
-import path from 'path'
+import favicon from 'koa-favicon'
+import sendFile from 'koa-send'
+import serve from 'koa-static'
+import { join } from 'path'
 import psList from 'ps-list'
-import favicon from 'serve-favicon'
 
-import { ServerMode } from '@xrengine/server-core/declarations'
-import config from '@xrengine/server-core/src/appconfig'
-import { createFeathersExpressApp } from '@xrengine/server-core/src/createApp'
-import { StartCorsServer } from '@xrengine/server-core/src/createCorsServer'
-import multiLogger from '@xrengine/server-core/src/ServerLogger'
+import config from '@etherealengine/server-core/src/appconfig'
+import { createFeathersKoaApp } from '@etherealengine/server-core/src/createApp'
+import { StartCorsServer } from '@etherealengine/server-core/src/createCorsServer'
+import multiLogger from '@etherealengine/server-core/src/ServerLogger'
+import { ServerMode } from '@etherealengine/server-core/src/ServerState'
 
 import channels from './channels'
 
@@ -19,12 +48,12 @@ process.on('unhandledRejection', (error, promise) => {
 })
 
 export const start = async (): Promise<void> => {
-  const app = createFeathersExpressApp(ServerMode.API)
+  const app = createFeathersKoaApp(ServerMode.API)
 
-  app.use(favicon(path.join(config.server.publicDir, 'favicon.ico')))
+  app.use(favicon(join(config.server.publicDir, 'favicon.ico')))
   app.configure(channels)
 
-  if (!config.kubernetes.enabled && !config.db.forceRefresh) {
+  if (!config.kubernetes.enabled && !config.db.forceRefresh && !config.testEnabled) {
     app.isSetup.then(() => {
       app.service('project')._fetchDevLocalProjects()
     })
@@ -47,7 +76,7 @@ export const start = async (): Promise<void> => {
       // Check for child process with mac OSX
       // exec("docker ps | grep mariadb", (err, stdout, stderr) => {
       //   if(!stdout.includes("mariadb")){
-      //     throw new Error('\x1b[33mError: DB proccess is not running or Docker is not running!. If you are in local development, please run xrengine/scripts/start-db.sh and restart server\x1b[0m');
+      //     throw new Error('\x1b[33mError: DB proccess is not running or Docker is not running!. If you are in local development, please run etherealengine/scripts/start-db.sh and restart server\x1b[0m');
       //   }
       // });
     }
@@ -69,22 +98,22 @@ export const start = async (): Promise<void> => {
   } else {
     logger.info("Starting server with NO HTTPS, if you meant to use HTTPS try 'sudo bash generate-certs'")
   }
-  const port = config.server.port
+  const port = Number(config.server.port)
 
   // http redirects for development
   if (useSSL) {
-    app.use((req, res, next) => {
-      if (req.secure) {
+    app.use(async (ctx, next) => {
+      if (ctx.secure) {
         // request was via https, so do no special handling
-        next()
+        await next()
       } else {
         // request was via http, so redirect to https
-        res.redirect('https://' + req.headers.host + req.url)
+        ctx.redirect('https://' + ctx.headers.host + ctx.url)
       }
     })
   }
 
-  const server = useSSL ? https.createServer(certOptions as any, app as any).listen(port) : await app.listen(port)
+  const server = useSSL ? https.createServer(certOptions as any, app.callback()).listen(port) : await app.listen(port)
 
   if (useSSL) {
     app.setup(server)
@@ -99,5 +128,42 @@ export const start = async (): Promise<void> => {
 
   if (!config.kubernetes.enabled) {
     StartCorsServer(useSSL, certOptions)
+  }
+
+  if (
+    process.env.SERVE_CLIENT_FROM_API &&
+    !process.env.SERVE_CLIENT_FROM_STORAGE_PROVIDER &&
+    process.env.SERVE_CLIENT_FROM_STORAGE_PROVIDER !== 'true'
+  ) {
+    const clientApp = koa()
+    clientApp.use(
+      serve(join(packageRoot.path, 'packages', 'client', 'dist'), {
+        brotli: true,
+        setHeaders: (ctx) => {
+          ctx.setHeader('Origin-Agent-Cluster', '?1')
+        }
+      })
+    )
+    clientApp.use(async (ctx) => {
+      await sendFile(ctx, join('dist', 'index.html'), {
+        root: join(packageRoot.path, 'packages', 'client')
+      })
+    })
+    clientApp.listen = function () {
+      let server
+      const HTTPS = process.env.VITE_LOCAL_BUILD ?? false
+      if (HTTPS) {
+        const key = fs.readFileSync(join(packageRoot.path, 'certs/key.pem'))
+        const cert = fs.readFileSync(join(packageRoot.path, 'certs/cert.pem'))
+        server = https.createServer({ key: key, cert: cert }, this.callback())
+      } else {
+        const http = require('http')
+        server = http.createServer(this.callback())
+      }
+      return server.listen.apply(server, arguments)
+    }
+
+    const PORT = parseInt(config.client.port) || 3000
+    clientApp.listen(PORT, () => console.log(`Client listening on port: ${PORT}`))
   }
 }

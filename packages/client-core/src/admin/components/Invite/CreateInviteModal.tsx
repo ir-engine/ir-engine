@@ -1,34 +1,60 @@
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
 import classNames from 'classnames'
-import React, { useEffect, useState } from 'react'
+import dayjs, { Dayjs } from 'dayjs'
+import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import InputSelect, { InputMenuItem } from '@xrengine/client-core/src/common/components/InputSelect'
-import InputText from '@xrengine/client-core/src/common/components/InputText'
-import { SendInvite } from '@xrengine/common/src/interfaces/Invite'
+import InputSelect, { InputMenuItem } from '@etherealengine/client-core/src/common/components/InputSelect'
+import InputText from '@etherealengine/client-core/src/common/components/InputText'
+import { EMAIL_REGEX, PHONE_REGEX } from '@etherealengine/common/src/constants/IdConstants'
+import { SendInvite } from '@etherealengine/common/src/interfaces/Invite'
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import Button from '@etherealengine/ui/src/primitives/mui/Button'
+import Checkbox from '@etherealengine/ui/src/primitives/mui/Checkbox'
+import Container from '@etherealengine/ui/src/primitives/mui/Container'
+import DialogTitle from '@etherealengine/ui/src/primitives/mui/DialogTitle'
+import FormControlLabel from '@etherealengine/ui/src/primitives/mui/FormControlLabel'
+import FormGroup from '@etherealengine/ui/src/primitives/mui/FormGroup'
+import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
+import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
+import Tab from '@etherealengine/ui/src/primitives/mui/Tab'
+import Tabs from '@etherealengine/ui/src/primitives/mui/Tabs'
 
-import HighlightOffIcon from '@mui/icons-material/HighlightOff'
-import Button from '@mui/material/Button'
-import Checkbox from '@mui/material/Checkbox'
-import Container from '@mui/material/Container'
-import DialogTitle from '@mui/material/DialogTitle'
-import FormControlLabel from '@mui/material/FormControlLabel'
-import FormGroup from '@mui/material/FormGroup'
-import IconButton from '@mui/material/IconButton'
-import Tab from '@mui/material/Tab'
-import Tabs from '@mui/material/Tabs'
-import TextField from '@mui/material/TextField'
-import { AdapterMoment } from '@mui/x-date-pickers/AdapterMoment'
-import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker'
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
+import { DateTimePicker, LocalizationProvider } from '@mui/x-date-pickers'
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 
 import { NotificationService } from '../../../common/services/NotificationService'
-import { emailRegex, InviteService, phoneRegex } from '../../../social/services/InviteService'
+import { InviteService } from '../../../social/services/InviteService'
 import DrawerView from '../../common/DrawerView'
-import { AdminInstanceService, useAdminInstanceState } from '../../services/InstanceService'
+import { AdminInstanceService, AdminInstanceState } from '../../services/InstanceService'
 import { AdminInviteService } from '../../services/InviteService'
-import { AdminLocationService, useAdminLocationState } from '../../services/LocationService'
-import { AdminSceneService, useAdminSceneState } from '../../services/SceneService'
-import { AdminUserService, useUserState } from '../../services/UserService'
+import { AdminLocationService, AdminLocationState } from '../../services/LocationService'
+import { AdminSceneService, AdminSceneState } from '../../services/SceneService'
+import { AdminUserService, AdminUserState } from '../../services/UserService'
 import styles from '../../styles/admin.module.scss'
 
 interface Props {
@@ -41,29 +67,28 @@ const INVITE_TYPE_TAB_MAP = {
   1: 'location',
   2: 'instance',
   3: 'friend',
-  4: 'group',
-  5: 'party'
+  4: 'channel'
 }
 
 const CreateInviteModal = ({ open, onClose }: Props) => {
-  const [inviteTypeTab, setInviteTypeTab] = useState(0)
-  const [textValue, setTextValue] = useState('')
-  const [makeAdmin, setMakeAdmin] = useState(false)
-  const [oneTimeUse, setOneTimeUse] = useState(true)
-  const [locationId, setLocationId] = useState('')
-  const [instanceId, setInstanceId] = useState('')
-  const [userInviteCode, setUserInviteCode] = useState('')
-  const [spawnPointUUID, setSpawnPointUUID] = useState('')
-  const [setSpawn, setSetSpawn] = useState(false)
-  const [spawnTypeTab, setSpawnTypeTab] = useState(0)
-  const [timed, setTimed] = useState(false)
-  const [startTime, setStartTime] = useState<Date | null>(null)
-  const [endTime, setEndTime] = useState<Date | null>(null)
+  const inviteTypeTab = useHookstate(0)
+  const textValue = useHookstate('')
+  const makeAdmin = useHookstate(false)
+  const oneTimeUse = useHookstate(true)
+  const locationId = useHookstate('')
+  const instanceId = useHookstate('')
+  const userInviteCode = useHookstate('')
+  const spawnPointUUID = useHookstate('')
+  const setSpawn = useHookstate(false)
+  const spawnTypeTab = useHookstate(0)
+  const timed = useHookstate(false)
+  const startTime = useHookstate<Dayjs>(dayjs(null))
+  const endTime = useHookstate<Dayjs>(dayjs(null))
   const { t } = useTranslation()
-  const adminLocationState = useAdminLocationState()
-  const adminInstanceState = useAdminInstanceState()
-  const adminUserState = useUserState()
-  const adminSceneState = useAdminSceneState()
+  const adminLocationState = useHookstate(getMutableState(AdminLocationState))
+  const adminInstanceState = useHookstate(getMutableState(AdminInstanceState))
+  const adminUserState = useHookstate(getMutableState(AdminUserState))
+  const adminSceneState = useHookstate(getMutableState(AdminSceneState))
   const adminLocations = adminLocationState.locations
   const adminInstances = adminInstanceState.instances
   const adminUsers = adminUserState.users
@@ -81,11 +106,11 @@ const CreateInviteModal = ({ open, onClose }: Props) => {
   }, [])
 
   const handleChangeInviteTypeTab = (event: React.SyntheticEvent, newValue: number) => {
-    setInviteTypeTab(newValue)
+    inviteTypeTab.set(newValue)
   }
 
   const handleTextChange = (event: React.SyntheticEvent) => {
-    setTextValue((event.target as HTMLInputElement).value)
+    textValue.set((event.target as HTMLInputElement).value)
   }
 
   const locationMenu: InputMenuItem[] = adminLocations.map((el) => {
@@ -125,11 +150,11 @@ const CreateInviteModal = ({ open, onClose }: Props) => {
   })
 
   const handleChangeSpawnTypeTab = (event: React.SyntheticEvent, newValue: number) => {
-    setSpawnTypeTab(newValue)
+    spawnTypeTab.set(newValue)
   }
 
   const handleLocationChange = (e) => {
-    setLocationId(e.target.value)
+    locationId.set(e.target.value)
     const location = adminLocations.find((location) => location.id.value === e.target.value)
     if (location && location.sceneId.value) {
       const sceneName = location.sceneId.value.split('/')
@@ -138,7 +163,7 @@ const CreateInviteModal = ({ open, onClose }: Props) => {
   }
 
   const handleInstanceChange = (e) => {
-    setInstanceId(e.target.value)
+    instanceId.set(e.target.value)
     const instance = adminInstances.find((instance) => instance.id.value === e.target.value)
     if (instance) {
       const location = adminLocations.find((location) => location.id.value === instance.locationId.value)
@@ -150,55 +175,55 @@ const CreateInviteModal = ({ open, onClose }: Props) => {
   }
 
   const handleUserChange = (e) => {
-    setUserInviteCode(e.target.value)
+    userInviteCode.set(e.target.value)
   }
 
   const handleSpawnPointChange = (e) => {
-    setSpawnPointUUID(e.target.value)
+    spawnPointUUID.set(e.target.value)
   }
 
   const submitInvites = async (event: React.SyntheticEvent) => {
-    const targets = textValue.split(',')
+    const targets = textValue.value.split(',')
     targets.map(async (target) => {
       try {
-        const inviteType = INVITE_TYPE_TAB_MAP[inviteTypeTab]
-        const isPhone = phoneRegex.test(target)
-        const isEmail = emailRegex.test(target)
+        const inviteType = INVITE_TYPE_TAB_MAP[inviteTypeTab.value]
+        const isPhone = PHONE_REGEX.test(target)
+        const isEmail = EMAIL_REGEX.test(target)
         const sendData = {
           inviteType: inviteType,
           token: target.length === 8 ? null : target,
           inviteCode: target.length === 8 ? target : null,
           identityProviderType: isEmail ? 'email' : isPhone ? 'sms' : null,
-          targetObjectId: instanceId || locationId || null,
-          makeAdmin: makeAdmin,
-          deleteOnUse: oneTimeUse
+          targetObjectId: instanceId.value || locationId.value || null,
+          makeAdmin: makeAdmin.value,
+          deleteOnUse: oneTimeUse.value
         } as SendInvite
-        if (setSpawn && spawnTypeTab === 0 && userInviteCode) {
+        if (setSpawn.value && spawnTypeTab.value === 0 && userInviteCode.value) {
           sendData.spawnType = 'inviteCode'
-          sendData.spawnDetails = { inviteCode: userInviteCode }
-        } else if (setSpawn && spawnTypeTab === 1 && spawnPointUUID) {
+          sendData.spawnDetails = { inviteCode: userInviteCode.value }
+        } else if (setSpawn.value && spawnTypeTab.value === 1 && spawnPointUUID.value) {
           sendData.spawnType = 'spawnPoint'
-          sendData.spawnDetails = { spawnPoint: spawnPointUUID }
+          sendData.spawnDetails = { spawnPoint: spawnPointUUID.value }
         }
-        sendData.timed = timed && (startTime != null || endTime != null)
+        sendData.timed = timed.value && (startTime.value != null || endTime.value != null)
         if (sendData.timed) {
-          sendData.startTime = startTime
-          sendData.endTime = endTime
+          sendData.startTime = startTime.value?.toDate()
+          sendData.endTime = endTime.value?.toDate()
         }
         await InviteService.sendInvite(sendData)
-        setInstanceId('')
-        setLocationId('')
-        setTextValue('')
-        setMakeAdmin(false)
-        setOneTimeUse(true)
-        setUserInviteCode('')
-        setSetSpawn(false)
-        setSpawnPointUUID('')
-        setSpawnTypeTab(0)
-        setInviteTypeTab(0)
-        setTimed(false)
-        setStartTime(null)
-        setEndTime(null)
+        instanceId.set('')
+        locationId.set('')
+        textValue.set('')
+        makeAdmin.set(false)
+        oneTimeUse.set(true)
+        userInviteCode.set('')
+        setSpawn.set(false)
+        spawnPointUUID.set('')
+        spawnTypeTab.set(0)
+        inviteTypeTab.set(0)
+        timed.set(false)
+        startTime.set(dayjs(null))
+        endTime.set(dayjs(null))
         return
       } catch (err) {
         NotificationService.dispatchNotify(err.message, { variant: 'error' })
@@ -210,9 +235,9 @@ const CreateInviteModal = ({ open, onClose }: Props) => {
 
   const disableSendButton = (): boolean => {
     return (
-      textValue.length === 0 ||
-      (inviteTypeTab === 1 && locationId.length === 0) ||
-      (inviteTypeTab === 2 && instanceId.length === 0)
+      textValue.value.length === 0 ||
+      (inviteTypeTab.value === 1 && locationId.value.length === 0) ||
+      (inviteTypeTab.value === 2 && instanceId.value.length === 0)
     )
   }
 
@@ -222,23 +247,23 @@ const CreateInviteModal = ({ open, onClose }: Props) => {
         <DialogTitle className={styles.textAlign}>{t('admin:components.invite.create')}</DialogTitle>
         <FormGroup>
           <Tabs
-            value={inviteTypeTab}
+            value={inviteTypeTab.value}
             className={styles.marginBottom10px}
             onChange={handleChangeInviteTypeTab}
             aria-label="Invite Type"
             classes={{ root: styles.tabRoot, indicator: styles.selected }}
           >
             <Tab
-              className={inviteTypeTab === 0 ? styles.selectedTab : styles.unselectedTab}
+              className={inviteTypeTab.value === 0 ? styles.selectedTab : styles.unselectedTab}
               label={INVITE_TYPE_TAB_MAP[0].replace('-', ' ')}
               classes={{ root: styles.tabRoot }}
             />
             <Tab
-              className={inviteTypeTab === 1 ? styles.selectedTab : styles.unselectedTab}
+              className={inviteTypeTab.value === 1 ? styles.selectedTab : styles.unselectedTab}
               label={INVITE_TYPE_TAB_MAP[1].replace('-', ' ')}
             />
             <Tab
-              className={inviteTypeTab === 2 ? styles.selectedTab : styles.unselectedTab}
+              className={inviteTypeTab.value === 2 ? styles.selectedTab : styles.unselectedTab}
               label={INVITE_TYPE_TAB_MAP[2].replace('-', ' ')}
             />
           </Tabs>
@@ -247,16 +272,16 @@ const CreateInviteModal = ({ open, onClose }: Props) => {
               name="urlSelect"
               label={t('admin:components.invite.targetLabel')}
               placeholder={t('admin:components.invite.target')}
-              value={textValue}
+              value={textValue.value}
               onChange={handleTextChange}
             />
           </div>
           <FormControlLabel
             control={
               <Checkbox
-                checked={oneTimeUse}
+                checked={oneTimeUse.value}
                 onChange={() => {
-                  setOneTimeUse(!oneTimeUse)
+                  oneTimeUse.set(!oneTimeUse.value)
                 }}
               />
             }
@@ -265,68 +290,60 @@ const CreateInviteModal = ({ open, onClose }: Props) => {
           <FormControlLabel
             control={
               <Checkbox
-                checked={timed}
+                checked={timed.value}
                 onChange={() => {
-                  setTimed(!timed)
+                  timed.set(!timed.value)
                 }}
               />
             }
             label="Timed invite"
           />
-          {timed && (
+          {timed.value && (
             <div className={styles.datePickerContainer}>
-              <LocalizationProvider dateAdapter={AdapterMoment}>
+              <LocalizationProvider dateAdapter={AdapterDayjs}>
                 <div className={styles.pickerControls}>
                   <DateTimePicker
                     label="Start Time"
-                    value={startTime}
-                    onChange={(e) => setStartTime(e)}
-                    renderInput={(params) => <TextField className={styles.dateTimePickerDialog} {...params} />}
+                    value={startTime.value}
+                    onChange={(e) => startTime.set(dayjs(e))}
                   />
                   <IconButton
                     color="primary"
                     size="small"
                     className={styles.clearTime}
-                    onClick={() => setStartTime(null)}
-                  >
-                    <HighlightOffIcon />
-                  </IconButton>
+                    onClick={() => startTime.set(dayjs(null))}
+                    icon={<Icon type="HighlightOff" />}
+                  />
                 </div>
                 <div className={styles.pickerControls}>
-                  <DateTimePicker
-                    label="End Time"
-                    value={endTime}
-                    onChange={(e) => setEndTime(e)}
-                    renderInput={(params) => <TextField className={styles.dateTimePickerDialog} {...params} />}
-                  />
+                  <DateTimePicker label="End Time" value={endTime.value} onChange={(e) => endTime.set(dayjs(e))} />
                   <IconButton
                     color="primary"
                     size="small"
                     className={styles.clearTime}
-                    onClick={() => setEndTime(null)}
-                  >
-                    <HighlightOffIcon />
-                  </IconButton>
+                    onClick={() => endTime.set(dayjs(null))}
+                    icon={<Icon type="HighlightOff" />}
+                  />
                 </div>
               </LocalizationProvider>
             </div>
           )}
-          {inviteTypeTab === 0 && (
+          {inviteTypeTab.value === 0 && (
             <FormControlLabel
               control={
                 <Checkbox
-                  checked={makeAdmin}
+                  checked={makeAdmin.value}
                   onChange={() => {
-                    setMakeAdmin(!makeAdmin)
+                    makeAdmin.set(!makeAdmin.value)
                   }}
                 />
               }
               label="Make user admin"
             />
           )}
-          {(inviteTypeTab === 1 || inviteTypeTab === 2) && (
+          {(inviteTypeTab.value === 1 || inviteTypeTab.value === 2) && (
             <div className={styles.marginBottom10px}>
-              {inviteTypeTab === 1 && (
+              {inviteTypeTab.value === 1 && (
                 <InputSelect
                   name="location"
                   className={classNames({
@@ -334,13 +351,13 @@ const CreateInviteModal = ({ open, onClose }: Props) => {
                     [styles.inputField]: true
                   })}
                   label={t('admin:components.invite.location')}
-                  value={locationId}
+                  value={locationId.value}
                   menu={locationMenu}
                   disabled={false}
                   onChange={handleLocationChange}
                 />
               )}
-              {inviteTypeTab === 2 && (
+              {inviteTypeTab.value === 2 && (
                 <InputSelect
                   name="instance"
                   className={classNames({
@@ -348,45 +365,45 @@ const CreateInviteModal = ({ open, onClose }: Props) => {
                     [styles.inputField]: true
                   })}
                   label={t('admin:components.invite.instance')}
-                  value={instanceId}
+                  value={instanceId.value}
                   menu={instanceMenu}
                   disabled={false}
                   onChange={handleInstanceChange}
                 />
               )}
-              {((inviteTypeTab === 1 && locationId) || (inviteTypeTab === 2 && instanceId)) && (
+              {((inviteTypeTab.value === 1 && locationId.value) || (inviteTypeTab.value === 2 && instanceId.value)) && (
                 <FormControlLabel
                   control={
                     <Checkbox
-                      checked={setSpawn}
+                      checked={setSpawn.value}
                       onChange={() => {
-                        setSetSpawn(!setSpawn)
+                        setSpawn.set(!setSpawn.value)
                       }}
                     />
                   }
                   label="Spawn at position"
                 />
               )}
-              {setSpawn && (
+              {setSpawn.value && (
                 <Tabs
-                  value={spawnTypeTab}
+                  value={spawnTypeTab.value}
                   className={styles.marginBottom10px}
                   onChange={handleChangeSpawnTypeTab}
                   aria-label="Spawn position"
                   classes={{ root: styles.tabRoot, indicator: styles.selected }}
                 >
                   <Tab
-                    className={spawnTypeTab === 0 ? styles.selectedTab : styles.unselectedTab}
+                    className={spawnTypeTab.value === 0 ? styles.selectedTab : styles.unselectedTab}
                     label="User position"
                     classes={{ root: styles.tabRoot }}
                   />
                   <Tab
-                    className={spawnTypeTab === 1 ? styles.selectedTab : styles.unselectedTab}
+                    className={spawnTypeTab.value === 1 ? styles.selectedTab : styles.unselectedTab}
                     label={'Spawn Point'}
                   />
                 </Tabs>
               )}
-              {setSpawn && spawnTypeTab === 0 && (
+              {setSpawn.value && spawnTypeTab.value === 0 && (
                 <InputSelect
                   name="user"
                   className={classNames({
@@ -394,13 +411,13 @@ const CreateInviteModal = ({ open, onClose }: Props) => {
                     [styles.inputField]: true
                   })}
                   label={t('admin:components.invite.user')}
-                  value={userInviteCode}
+                  value={userInviteCode.value}
                   menu={userMenu}
                   disabled={false}
                   onChange={handleUserChange}
                 />
               )}
-              {setSpawn && spawnTypeTab === 1 && (
+              {setSpawn.value && spawnTypeTab.value === 1 && (
                 <InputSelect
                   name="spawnPoint"
                   className={classNames({
@@ -408,7 +425,7 @@ const CreateInviteModal = ({ open, onClose }: Props) => {
                     [styles.inputField]: true
                   })}
                   label={t('admin:components.invite.spawnPoint')}
-                  value={spawnPointUUID}
+                  value={spawnPointUUID.value}
                   menu={spawnPointMenu}
                   disabled={false}
                   onChange={handleSpawnPointChange}

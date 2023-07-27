@@ -1,31 +1,55 @@
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
 import { Paginated } from '@feathersjs/feathers'
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { Location, LocationSeed } from '@xrengine/common/src/interfaces/Location'
-
-import AddIcon from '@mui/icons-material/Add'
-import SearchIcon from '@mui/icons-material/Search'
-import Button from '@mui/material/Button'
-import InputAdornment from '@mui/material/InputAdornment'
-import Table from '@mui/material/Table'
-import TableBody from '@mui/material/TableBody'
-import TableCell from '@mui/material/TableCell'
-import TableHead from '@mui/material/TableHead'
-import TablePagination from '@mui/material/TablePagination'
-import TableRow from '@mui/material/TableRow'
-import TextField from '@mui/material/TextField'
-import Typography from '@mui/material/Typography'
+import { locationPath, LocationType } from '@etherealengine/engine/src/schemas/social/location.schema'
+import Button from '@etherealengine/ui/src/primitives/mui/Button'
+import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
+import InputAdornment from '@etherealengine/ui/src/primitives/mui/InputAdornment'
+import Table from '@etherealengine/ui/src/primitives/mui/Table'
+import TableBody from '@etherealengine/ui/src/primitives/mui/TableBody'
+import TableCell from '@etherealengine/ui/src/primitives/mui/TableCell'
+import TableHead from '@etherealengine/ui/src/primitives/mui/TableHead'
+import TablePagination from '@etherealengine/ui/src/primitives/mui/TablePagination'
+import TableRow from '@etherealengine/ui/src/primitives/mui/TableRow'
+import TextField from '@etherealengine/ui/src/primitives/mui/TextField'
+import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 
 import { API } from '../../../../API'
+import { LocationSeed } from '../../../../social/services/LocationService'
 import styles from '../index.module.scss'
 
 interface Props {
-  changeActiveLocation: (location: Location) => void
+  changeActiveLocation: (location: LocationType) => void
 }
 const LocationMenu = (props: Props) => {
   const [page, setPage] = useState(0)
-  const [locationDetails, setLocationsDetails] = useState<Paginated<Location>>(null!)
+  const [locationDetails, setLocationsDetails] = useState<Paginated<LocationType>>(null!)
   const ROWS_PER_PAGE = 10
   const { t } = useTranslation()
   const tableHeaders = [
@@ -45,7 +69,7 @@ const LocationMenu = (props: Props) => {
 
   const fetchLocations = (page: number, rows: number, search?: string) => {
     API.instance.client
-      .service('location')
+      .service(locationPath)
       .find({
         query: {
           $limit: rows,
@@ -54,7 +78,7 @@ const LocationMenu = (props: Props) => {
           search
         }
       })
-      .then((res: Paginated<Location>) => {
+      .then((res: Paginated<LocationType>) => {
         setLocationsDetails(res)
       })
   }
@@ -97,13 +121,13 @@ const LocationMenu = (props: Props) => {
                 InputProps={{
                   endAdornment: (
                     <InputAdornment position="end">
-                      <SearchIcon />
+                      <Icon type="Search" />
                     </InputAdornment>
                   )
                 }}
               />
               <Button className={styles.newLocation} onClick={() => props.changeActiveLocation(LocationSeed)}>
-                <AddIcon />
+                <Icon type="Add" />
                 {t('user:usermenu.locationTable.lbl-new')}
               </Button>
             </section>

@@ -1,10 +1,40 @@
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
 import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { validatePath } from '@xrengine/common/src/utils/validatePath'
-import { useComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { SystemUpdateType } from '@xrengine/engine/src/ecs/functions/SystemUpdateType'
-import { SystemComponent } from '@xrengine/engine/src/scene/components/SystemComponent'
+import { validatePath } from '@etherealengine/common/src/utils/validatePath'
+import { useComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import {
+  AnimationSystemGroup,
+  InputSystemGroup,
+  PresentationSystemGroup,
+  SimulationSystemGroup
+} from '@etherealengine/engine/src/ecs/functions/EngineFunctions'
+import { SystemComponent } from '@etherealengine/engine/src/scene/components/SystemComponent'
 
 import ExtensionIcon from '@mui/icons-material/Extension'
 
@@ -16,49 +46,40 @@ import StringInput from '../inputs/StringInput'
 import NodeEditor from './NodeEditor'
 import { EditorComponentType, updateProperties, updateProperty } from './Util'
 
-/**
- * Define properties for Script component.
- *
- * @type {Object}
- */
-
-const systemUpdateTypes = [
+const systemGroups = [
   {
-    label: 'None',
-    value: 'None'
+    label: 'Input',
+    value: InputSystemGroup
   },
   {
-    label: 'Update',
-    value: SystemUpdateType.UPDATE
+    label: 'Simulation',
+    value: SimulationSystemGroup
   },
   {
-    label: 'Fixed Early',
-    value: SystemUpdateType.FIXED_EARLY
+    label: 'Animation',
+    value: AnimationSystemGroup
   },
   {
-    label: 'Fixed',
-    value: SystemUpdateType.FIXED
-  },
-  {
-    label: 'Fixed Late',
-    value: SystemUpdateType.FIXED_LATE
-  },
-  {
-    label: 'Pre Render',
-    value: SystemUpdateType.PRE_RENDER
-  },
-  {
-    label: 'Post Render',
-    value: SystemUpdateType.POST_RENDER
+    label: 'Presentation',
+    value: PresentationSystemGroup
   }
 ]
 
-/**
- * For Scripts
- *
- * @param       {Object} props
- * @constructor
- */
+const insertTypes = [
+  {
+    label: 'Before',
+    value: 'before'
+  },
+  {
+    label: 'With',
+    value: 'with'
+  },
+  {
+    label: 'After',
+    value: 'after'
+  }
+]
+
 export const SystemNodeEditor: EditorComponentType = (props) => {
   const [isPathValid, setPathValid] = useState(true)
   const { t } = useTranslation()
@@ -73,7 +94,7 @@ export const SystemNodeEditor: EditorComponentType = (props) => {
     }
   }
 
-  const systemComponent = useComponent(props.node.entity, SystemComponent).value
+  const systemComponent = useComponent(props.entity, SystemComponent).value
 
   return (
     <NodeEditor
@@ -85,12 +106,20 @@ export const SystemNodeEditor: EditorComponentType = (props) => {
         <ScriptInput value={systemComponent.filePath} onChange={onChangePath} />
         {!isPathValid && <div>{t('editor:properties.systemnode.error-url')}</div>}
       </InputGroup>
-      <InputGroup name="systemUpdateType" label={t('editor:properties.systemnode.lbl-systemUpdateType')}>
+      <InputGroup name="insertUUID" label={t('editor:properties.systemnode.lbl-insertUUID')}>
         <SelectInput
-          key={props.node.entity}
-          options={systemUpdateTypes}
-          onChange={updateProperty(SystemComponent, 'systemUpdateType')}
-          value={systemComponent.systemUpdateType}
+          key={props.entity}
+          options={systemGroups}
+          onChange={updateProperty(SystemComponent, 'insertUUID')}
+          value={systemComponent.insertUUID}
+        />
+      </InputGroup>
+      <InputGroup name="insertOrder" label={t('editor:properties.systemnode.lbl-insertOrder')}>
+        <SelectInput
+          key={props.entity}
+          options={insertTypes}
+          onChange={updateProperty(SystemComponent, 'insertOrder')}
+          value={systemComponent.insertOrder}
         />
       </InputGroup>
       <InputGroup name="enableClient" label={t('editor:properties.systemnode.lbl-enableClient')}>
@@ -100,7 +129,7 @@ export const SystemNodeEditor: EditorComponentType = (props) => {
         <BooleanInput onChange={updateProperty(SystemComponent, 'enableServer')} value={systemComponent.enableServer} />
       </InputGroup>
       <InputGroup name="args" label={t('editor:properties.systemnode.lbl-args')}>
-        <StringInput onChange={updateProperty(SystemComponent, 'args')} value={systemComponent.args} />
+        <StringInput onChange={updateProperty(SystemComponent, 'args')} value={systemComponent.args as any} />
       </InputGroup>
     </NodeEditor>
   )

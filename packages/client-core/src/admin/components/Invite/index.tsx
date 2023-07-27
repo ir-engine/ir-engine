@@ -1,19 +1,44 @@
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
 import { ConfirmProvider } from 'material-ui-confirm'
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import ConfirmDialog from '@xrengine/client-core/src/common/components/ConfirmDialog'
+import ConfirmDialog from '@etherealengine/client-core/src/common/components/ConfirmDialog'
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import Box from '@etherealengine/ui/src/primitives/mui/Box'
+import Button from '@etherealengine/ui/src/primitives/mui/Button'
+import Grid from '@etherealengine/ui/src/primitives/mui/Grid'
+import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
+import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
 
-import DeleteIcon from '@mui/icons-material/Delete'
-import Box from '@mui/material/Box'
-import Button from '@mui/material/Button'
-import Grid from '@mui/material/Grid'
-import IconButton from '@mui/material/IconButton'
-
-import { useAuthState } from '../../../user/services/AuthService'
+import { AuthState } from '../../../user/services/AuthService'
 import Search from '../../common/Search'
-import { AdminInviteService, useAdminInviteState } from '../../services/InviteService'
-import { AdminUserService, useUserState } from '../../services/UserService'
+import { AdminInviteService } from '../../services/InviteService'
+import { AdminUserService, AdminUserState } from '../../services/UserService'
 import styles from '../../styles/admin.module.scss'
 import AdminInvites from './AdminInvites'
 import CreateInviteModal from './CreateInviteModal'
@@ -58,8 +83,9 @@ const InvitesConsole = () => {
   const handeCloseInviteModal = () => setCreateInviteModalOpen(false)
   const handleCloseDeleteMultiInviteModal = () => setDeleteMultiInviteModalOpen(false)
 
-  const adminUserState = useUserState()
-  const user = useAuthState().user
+  const adminUserState = useHookstate(getMutableState(AdminUserState))
+  const authState = useHookstate(getMutableState(AuthState))
+  const user = authState.user
   const { t } = useTranslation()
 
   const confirmMultiInviteDelete = () => {
@@ -87,7 +113,7 @@ const InvitesConsole = () => {
       AdminUserService.fetchUsersAsAdmin()
     }
     setRefetch(false)
-  }, [useAuthState(), adminUserState.updateNeeded.value, refetch])
+  }, [authState.value, adminUserState.updateNeeded.value, refetch])
 
   const handleSearchChange = (e: any) => {
     setSearch(e.target.value)
@@ -120,9 +146,8 @@ const InvitesConsole = () => {
                   size="small"
                   title={t('admin:components.invite.deleteSelected')}
                   onClick={() => setDeleteMultiInviteModalOpen(true)}
-                >
-                  <DeleteIcon color="info" fontSize="large" />
-                </IconButton>
+                  icon={<Icon type="Delete" color="info" fontSize="large" />}
+                />
               )}
             </Box>
           </Grid>

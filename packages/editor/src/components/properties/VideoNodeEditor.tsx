@@ -1,18 +1,37 @@
-import { useState } from '@hookstate/core'
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { EntityUUID } from '@xrengine/common/src/interfaces/EntityUUID'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import {
-  defineQuery,
-  getComponent,
-  useComponent,
-  useQuery
-} from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { MediaComponent } from '@xrengine/engine/src/scene/components/MediaComponent'
-import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
-import { VideoComponent } from '@xrengine/engine/src/scene/components/VideoComponent'
+import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
+import { getComponent, useComponent, useQuery } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { MediaComponent } from '@etherealengine/engine/src/scene/components/MediaComponent'
+import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
+import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
+import { VideoComponent } from '@etherealengine/engine/src/scene/components/VideoComponent'
 
 import VideocamIcon from '@mui/icons-material/Videocam'
 
@@ -38,14 +57,12 @@ const fitOptions = [
 export const VideoNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
 
-  const video = useComponent(props.node.entity, VideoComponent)
+  const video = useComponent(props.entity, VideoComponent)
 
   const mediaEntities = useQuery([MediaComponent])
 
-  const entityTree = Engine.instance.currentWorld.entityTree
-
   const mediaOptions = mediaEntities.map((entity) => {
-    return { label: getComponent(entity, NameComponent), value: entityTree.entityNodeMap.get(entity)!.uuid }
+    return { label: getComponent(entity, NameComponent), value: getComponent(entity, UUIDComponent) }
   })
   mediaOptions.unshift({ label: 'Self', value: '' as EntityUUID })
 

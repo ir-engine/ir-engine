@@ -1,14 +1,37 @@
-import { getContentType } from '@xrengine/common/src/utils/getContentType'
-import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
-import { MediaPrefabs } from '@xrengine/engine/src/audio/systems/MediaSystem'
-import { createEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
-import { EntityTreeNode } from '@xrengine/engine/src/ecs/functions/EntityTree'
-import { createEntityNode } from '@xrengine/engine/src/ecs/functions/EntityTree'
-import { ImageComponent } from '@xrengine/engine/src/scene/components/ImageComponent'
-import { MediaComponent } from '@xrengine/engine/src/scene/components/MediaComponent'
-import { ModelComponent } from '@xrengine/engine/src/scene/components/ModelComponent'
-import { PrefabComponent } from '@xrengine/engine/src/scene/components/PrefabComponent'
-import { ScenePrefabs } from '@xrengine/engine/src/scene/systems/SceneObjectUpdateSystem'
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
+import { getContentType } from '@etherealengine/common/src/utils/getContentType'
+import { PositionalAudioComponent } from '@etherealengine/engine/src/audio/components/PositionalAudioComponent'
+import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
+import { ImageComponent } from '@etherealengine/engine/src/scene/components/ImageComponent'
+import { MediaComponent } from '@etherealengine/engine/src/scene/components/MediaComponent'
+import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
+import { PrefabComponent } from '@etherealengine/engine/src/scene/components/PrefabComponent'
+import { VideoComponent } from '@etherealengine/engine/src/scene/components/VideoComponent'
+import { VolumetricComponent } from '@etherealengine/engine/src/scene/components/VolumetricComponent'
 
 import { updateProperties } from '../components/properties/Util'
 import { EditorControlFunctions } from './EditorControlFunctions'
@@ -20,42 +43,39 @@ import { EditorControlFunctions } from './EditorControlFunctions'
  * @param before Newly created node will be set before this node in parent's children array
  * @returns Newly created media node
  */
-export async function addMediaNode(
-  url: string,
-  parent?: EntityTreeNode,
-  before?: EntityTreeNode
-): Promise<EntityTreeNode> {
-  let contentType = (await getContentType(url)) || ''
+export async function addMediaNode(url: string, parent?: Entity | null, before?: Entity | null) {
+  const contentType = (await getContentType(url)) || ''
   const { hostname } = new URL(url)
 
-  let node = createEntityNode(createEntity())
-  let prefabType = ''
+  let componentName: string | null = null
   let updateFunc = null! as Function
 
+  let node: Entity | null = null
+
   if (contentType.startsWith('prefab/')) {
-    prefabType = ScenePrefabs.prefab
-    updateFunc = () => updateProperties(PrefabComponent, { src: url }, [node])
+    componentName = PrefabComponent.name
+    updateFunc = () => updateProperties(PrefabComponent, { src: url }, [node!])
   } else if (contentType.startsWith('model/')) {
-    prefabType = ScenePrefabs.model
-    updateFunc = () => updateProperties(ModelComponent, { src: url }, [node])
+    componentName = ModelComponent.name
+    updateFunc = () => updateProperties(ModelComponent, { src: url }, [node!])
   } else if (contentType.startsWith('video/') || hostname.includes('twitch.tv') || hostname.includes('youtube.com')) {
-    prefabType = MediaPrefabs.video
-    updateFunc = () => updateProperties(MediaComponent, { paths: [url] }, [node])
+    componentName = VideoComponent.name
+    updateFunc = () => updateProperties(MediaComponent, { paths: [url] }, [node!])
   } else if (contentType.startsWith('image/')) {
-    prefabType = ScenePrefabs.image
-    updateFunc = () => updateProperties(ImageComponent, { source: url }, [node])
+    componentName = ImageComponent.name
+    updateFunc = () => updateProperties(ImageComponent, { source: url }, [node!])
   } else if (contentType.startsWith('audio/')) {
-    prefabType = MediaPrefabs.audio
-    updateFunc = () => updateProperties(MediaComponent, { paths: [url] }, [node])
+    componentName = PositionalAudioComponent.name
+    updateFunc = () => updateProperties(MediaComponent, { paths: [url] }, [node!])
   } else if (url.includes('.uvol')) {
-    prefabType = MediaPrefabs.volumetric
-    updateFunc = () => updateProperties(MediaComponent, { paths: [url] }, [node])
+    componentName = VolumetricComponent.name
+    updateFunc = () => updateProperties(MediaComponent, { paths: [url] }, [node!])
   }
 
-  if (prefabType) {
-    EditorControlFunctions.addObject([node], parent ? [parent] : [], before ? [before] : [], [prefabType], [], true)
+  if (componentName) {
+    node = EditorControlFunctions.createObjectFromSceneElement(componentName, parent, before)
 
-    updateFunc()
+    if (node) updateFunc()
   }
 
   return node

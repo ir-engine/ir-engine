@@ -1,86 +1,168 @@
-import { useHookstate, useState } from '@hookstate/core'
-import React, { Fragment } from 'react'
+/*
+CPAL-1.0 License
 
-import { useMediaInstanceConnectionState } from '@xrengine/client-core/src/common/services/MediaInstanceConnectionService'
-import { useMediaStreamState } from '@xrengine/client-core/src/media/services/MediaStreamService'
-import { accessAuthState } from '@xrengine/client-core/src/user/services/AuthService'
-import { useNetworkUserState } from '@xrengine/client-core/src/user/services/NetworkUserService'
-import { MediaTagType } from '@xrengine/common/src/interfaces/MediaStreamConstants'
-import { PeerID } from '@xrengine/common/src/interfaces/PeerID'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
 
-import { ConsumerExtension, SocketWebRTCClientNetwork } from '../../transports/SocketWebRTCClientNetwork'
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
+import { useHookstate } from '@hookstate/core'
+import React from 'react'
+
+import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
+import { UserId } from '@etherealengine/common/src/interfaces/UserId'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { getMutableState } from '@etherealengine/hyperflux'
+
+import { useMediaInstance } from '../../common/services/MediaInstanceConnectionService'
+import { PeerMediaChannelState, PeerMediaStreamInterface } from '../../transports/PeerMediaChannelState'
+import { AuthState } from '../../user/services/AuthService'
 import { useShelfStyles } from '../Shelves/useShelfStyles'
-import UserMediaWindow from '../UserMediaWindow'
+import { UserMediaWindow, UserMediaWindowWidget } from '../UserMediaWindow'
 import styles from './index.module.scss'
 
-export const filterWindows = (network: SocketWebRTCClientNetwork, consumers: ConsumerExtension[]) => {
-  const mediaState = useMediaStreamState()
-  const nearbyLayerUsers = mediaState.nearbyLayerUsers
-  const selfUserId = useState(accessAuthState().user.id)
-  const userState = useNetworkUserState()
-  const channelConnectionState = useMediaInstanceConnectionState()
-  const currentChannelInstanceConnection = network && channelConnectionState.instances[network.hostId].ornull
+type WindowType = { peerID: PeerID; type: 'cam' | 'screen' }
 
-  const displayedUsers = (
-    network?.hostId && currentChannelInstanceConnection
-      ? currentChannelInstanceConnection.channelType?.value === 'party'
-        ? userState.channelLayerUsers?.value.filter((user) => {
-            return (
-              user.id !== selfUserId.value &&
-              user.channelInstanceId != null &&
-              user.channelInstanceId === network?.hostId
-            )
-          }) || []
-        : currentChannelInstanceConnection.channelType?.value === 'instance'
-        ? userState.layerUsers.value.filter((user) => nearbyLayerUsers.value.includes(user.id))
-        : []
-      : []
-  ).map((user) => user.id)
+const sortScreensBeforeCameras = (a: WindowType, b: WindowType) => {
+  if (a.type === 'screen' && b.type === 'cam') return -1
+  if (a.type === 'cam' && b.type === 'screen') return 1
+  return 0
+}
 
-  const windows = [] as Array<{ peerID: PeerID; mediaTag?: MediaTagType }>
+export const useMediaWindows = () => {
+  const peerMediaChannelState = useHookstate(getMutableState(PeerMediaChannelState))
+  const mediaNetworkInstanceState = useMediaInstance()
+  const mediaNetwork = Engine.instance.mediaNetwork
+  const selfUser = useHookstate(getMutableState(AuthState).user)
+  const mediaNetworkConnected = mediaNetwork && mediaNetworkInstanceState?.connected?.value
 
-  // filter out pairs of cam video & cam audio
-  consumers.forEach((consumer) => {
-    const isUnique = !windows.find(
-      (u) =>
-        consumer.appData.peerID === u.peerID &&
-        ((consumer.appData.mediaTag === 'cam-video' && u.mediaTag === 'cam-audio') ||
-          (consumer.appData.mediaTag === 'cam-audio' && u.mediaTag === 'cam-video'))
-    )
-    if (isUnique && displayedUsers.includes(network.peers.get(consumer.appData.peerID)?.userId!))
-      windows.push({ peerID: consumer.appData.peerID, mediaTag: consumer.appData.mediaTag })
-  })
+  const consumers = Object.entries(peerMediaChannelState.get({ noproxy: true })) as [
+    PeerID,
+    { cam: PeerMediaStreamInterface; screen: PeerMediaStreamInterface }
+  ][]
 
-  // include a peer for each user without any consumers
-  if (network)
-    displayedUsers.forEach((userId) => {
-      const peerID = Array.from(network.peers.values()).find((peer) => peer.userId === userId)?.peerID
-      if (peerID && !windows.find((window) => window.peerID === peerID)) windows.push({ peerID })
-    })
+  const selfPeerID = Engine.instance.peerID
+  const selfUserID = Engine.instance.userId
+
+  const camActive = (cam: PeerMediaStreamInterface) =>
+    (cam.videoStream && !cam.videoProducerPaused && !cam.videoStreamPaused) ||
+    (cam.audioStream && !cam.audioProducerPaused && !cam.audioStreamPaused)
+
+  const userPeers: Array<[UserId, PeerID[]]> = mediaNetworkConnected
+    ? Array.from(mediaNetwork.users.entries())
+    : [[selfUserID, [selfPeerID]]]
+
+  // reduce all userPeers to an array 'windows' of { peerID, type } objects, displaying screens first, then cams. if a user has no cameras, only include one peerID for that user
+  const windows = userPeers
+    .reduce((acc, [userID, peerIDs]) => {
+      const isSelfWindows = userID === selfUser.id.value
+      const userCams = consumers
+        .filter(([peerID, { cam, screen }]) => peerIDs.includes(peerID) && cam && camActive(cam))
+        .map(([peerID]) => {
+          return { peerID, type: 'cam' as const }
+        })
+
+      const userScreens = consumers
+        .filter(([peerID, { cam, screen }]) => peerIDs.includes(peerID) && screen?.videoStream)
+        .map(([peerID]) => {
+          return { peerID, type: 'screen' as const }
+        })
+
+      const userWindows = [...userScreens, ...userCams]
+      if (userWindows.length) {
+        if (isSelfWindows) acc.unshift(...userWindows)
+        else acc.push(...userWindows)
+      } else {
+        if (isSelfWindows) acc.unshift({ peerID: peerIDs[0], type: 'cam' })
+        else acc.push({ peerID: peerIDs[0], type: 'cam' })
+      }
+      return acc
+    }, [] as WindowType[])
+    .sort(sortScreensBeforeCameras)
+    .filter(({ peerID }) => peerMediaChannelState[peerID].value)
 
   return windows
 }
 
 export const UserMediaWindows = () => {
-  const mediaState = useMediaStreamState()
-  const network = Engine.instance.currentWorld.mediaNetwork as SocketWebRTCClientNetwork
-
-  const consumers = filterWindows(network, mediaState.consumers.get({ noproxy: true }))
-
   const { topShelfStyle } = useShelfStyles()
+
+  const windows = useMediaWindows()
 
   return (
     <div className={`${styles.userMediaWindowsContainer} ${topShelfStyle}`}>
       <div className={styles.userMediaWindows}>
-        {(mediaState.isScreenAudioEnabled.value || mediaState.isScreenVideoEnabled.value) && (
-          <UserMediaWindow type={'screen'} peerID={network?.peerID} key={'screen_' + network?.peerID} />
-        )}
-        <UserMediaWindow type={'cam'} peerID={network?.peerID} key={'cam_' + network?.peerID} />
-        {consumers.map(({ peerID, mediaTag }) => {
-          const type = mediaTag === 'screen-video' ? 'screen' : 'cam'
-          return <UserMediaWindow type={type} peerID={peerID} key={type + '_' + peerID} />
-        })}
+        {windows.map(({ peerID, type }) => (
+          <UserMediaWindow type={type} peerID={peerID} key={type + '-' + peerID} />
+        ))}
+      </div>
+    </div>
+  )
+}
+
+export const UserMediaWindowsWidget = () => {
+  const peerMediaChannelState = useHookstate(getMutableState(PeerMediaChannelState))
+
+  const consumers = Object.entries(peerMediaChannelState.get({ noproxy: true })) as [
+    PeerID,
+    { cam: PeerMediaStreamInterface; screen: PeerMediaStreamInterface }
+  ][]
+
+  const windows = [] as { peerID: PeerID; type: 'cam' | 'screen' }[]
+
+  const screens = consumers
+    .filter(([peerID, { cam, screen }]) => screen?.videoStream)
+    .map(([peerID]) => {
+      return { peerID, type: 'screen' as 'screen' }
+    })
+
+  const cams = consumers
+    .filter(
+      ([peerID, { cam, screen }]) =>
+        cam &&
+        ((cam.videoStream && !cam.videoProducerPaused && !cam.videoStreamPaused) ||
+          (cam.audioStream && !cam.audioProducerPaused && !cam.audioStreamPaused))
+    )
+    .map(([peerID]) => {
+      return { peerID, type: 'cam' as 'cam' }
+    })
+
+  windows.push(...screens, ...cams)
+
+  const selfPeerID = Engine.instance.peerID
+  const selfUserID = Engine.instance.userId
+  const mediaNetwork = Engine.instance.mediaNetwork
+
+  // if window doesnt exist for self, add it
+  if (!mediaNetwork || !windows.find(({ peerID }) => mediaNetwork.peers.get(peerID)?.userId === selfUserID)) {
+    windows.unshift({ peerID: selfPeerID, type: 'cam' })
+  }
+
+  return (
+    <div className={`${styles.userMediaWindowsContainer}`}>
+      <div className={styles.userMediaWindows}>
+        {windows
+          .filter(({ peerID }) => peerMediaChannelState[peerID].value)
+          .map(({ peerID, type }) => (
+            <UserMediaWindowWidget type={type} peerID={peerID} key={type + '-' + peerID} />
+          ))}
       </div>
     </div>
   )

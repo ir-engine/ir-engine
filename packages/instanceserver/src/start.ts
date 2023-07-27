@@ -1,25 +1,46 @@
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
 import AgonesSDK from '@google-cloud/agones-sdk'
 import fs from 'fs'
 import https from 'https'
 import psList from 'ps-list'
 
-import { pipe } from '@xrengine/common/src/utils/pipe'
-
-import '@xrengine/engine/src/patchEngineNode'
-
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { EngineActions, getEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
-import { matchActionOnce } from '@xrengine/engine/src/networking/functions/matchActionOnce'
-import { Application, ServerMode } from '@xrengine/server-core/declarations'
-import config from '@xrengine/server-core/src/appconfig'
+import { pipe } from '@etherealengine/common/src/utils/pipe'
+import { getMutableState } from '@etherealengine/hyperflux'
+import { Application } from '@etherealengine/server-core/declarations'
+import config from '@etherealengine/server-core/src/appconfig'
 import {
   configureK8s,
   configureOpenAPI,
   configurePrimus,
   configureRedis,
-  createFeathersExpressApp
-} from '@xrengine/server-core/src/createApp'
-import multiLogger from '@xrengine/server-core/src/ServerLogger'
+  createFeathersKoaApp
+} from '@etherealengine/server-core/src/createApp'
+import multiLogger from '@etherealengine/server-core/src/ServerLogger'
+import { ServerMode, ServerState } from '@etherealengine/server-core/src/ServerState'
 
 import channels from './channels'
 import { setupSocketFunctions } from './SocketFunctions'
@@ -47,7 +68,8 @@ export const instanceServerPipe = pipe(configureOpenAPI(), configurePrimus(true)
 ) => Application
 
 export const start = async (): Promise<Application> => {
-  const app = createFeathersExpressApp(ServerMode.Instance, instanceServerPipe)
+  const app = createFeathersKoaApp(ServerMode.Instance, instanceServerPipe)
+  const serverState = getMutableState(ServerState)
 
   const agonesSDK = new AgonesSDK()
 
@@ -55,27 +77,21 @@ export const start = async (): Promise<Application> => {
   agonesSDK.ready().catch((err) => {
     logger.error(err)
     throw new Error(
-      '\x1b[33mError: Agones is not running!. If you are in local development, please run xrengine/scripts/sh start-agones.sh and restart server\x1b[0m'
+      '\x1b[33mError: Agones is not running!. If you are in local development, please run etherealengine/scripts/sh start-agones.sh and restart server\x1b[0m'
     )
   })
-  app.agonesSDK = agonesSDK
-  setInterval(() => agonesSDK.health(), 1000)
+  serverState.agonesSDK.set(agonesSDK)
+
+  setInterval(
+    () =>
+      agonesSDK.health((err) => {
+        logger.error('Agones health check error:')
+        logger.error(err)
+      }),
+    1000
+  )
 
   app.configure(channels)
-
-  /**
-   * When using local dev, to properly test multiple worlds for portals we
-   * need to programatically shut down and restart the instanceserver process.
-   */
-  if (!config.kubernetes.enabled) {
-    app.restart = () => {
-      require('child_process').spawn('npm', ['run', 'dev'], {
-        cwd: process.cwd(),
-        stdio: 'inherit'
-      })
-      process.exit(0)
-    }
-  }
 
   const key = process.platform === 'win32' ? 'name' : 'cmd'
   if (!config.kubernetes.enabled) {
@@ -95,7 +111,7 @@ export const start = async (): Promise<Application> => {
       // exec('docker ps | grep mariadb', (err, stdout, stderr) => {
       //   if (!stdout.includes('mariadb')) {
       //     throw new Error(
-      //       '\x1b[33mError: DB proccess is not running or Docker is not running!. If you are in local development, please run xrengine/scripts/start-db.sh and restart server\x1b[0m'
+      //       '\x1b[33mError: DB proccess is not running or Docker is not running!. If you are in local development, please run etherealengine/scripts/start-db.sh and restart server\x1b[0m'
       //     )
       //   }
       // })
@@ -111,7 +127,7 @@ export const start = async (): Promise<Application> => {
     key: useSSL ? fs.readFileSync(certKeyPath) : null,
     cert: useSSL ? fs.readFileSync(certPath) : null
   } as any
-  const port = config.instanceserver.port
+  const port = Number(config.instanceserver.port)
   if (useSSL) {
     logger.info(`Starting instanceserver with HTTPS on port ${port}.`)
   } else {
@@ -122,13 +138,13 @@ export const start = async (): Promise<Application> => {
 
   // http redirects for development
   if (useSSL) {
-    app.use((req, res, next) => {
-      if (req.secure) {
+    app.use(async (ctx, next) => {
+      if (ctx.secure) {
         // request was via https, so do no special handling
-        next()
+        await next()
       } else {
         // request was via http, so redirect to https
-        res.redirect('https://' + req.headers.host + req.url)
+        ctx.redirect('https://' + ctx.headers.host + ctx.url)
       }
     })
   }
@@ -137,7 +153,7 @@ export const start = async (): Promise<Application> => {
   //   ? https.createServer(certOptions, app as any).listen(port)
   //   : app.listen(port);
 
-  const server = useSSL ? https.createServer(certOptions, app as any).listen(port) : await app.listen(port)
+  const server = useSSL ? https.createServer(certOptions, app.callback()).listen(port) : await app.listen(port)
 
   if (useSSL) {
     app.setup(server)

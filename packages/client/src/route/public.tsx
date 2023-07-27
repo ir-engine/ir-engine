@@ -1,67 +1,64 @@
-import React, { Suspense, useEffect, useState } from 'react'
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
+import React, { lazy, Suspense, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Route, Switch, useHistory, useLocation } from 'react-router-dom'
+import { useLocation } from 'react-router-dom'
 
 import {
   AuthSettingsService,
-  AuthSettingsServiceReceptor,
-  useAuthSettingState
-} from '@xrengine/client-core/src/admin/services/Setting/AuthSettingService'
-import {
-  ClientSettingService,
-  ClientSettingsServiceReceptor,
-  useClientSettingState
-} from '@xrengine/client-core/src/admin/services/Setting/ClientSettingService'
-import ErrorBoundary from '@xrengine/client-core/src/common/components/ErrorBoundary'
-import { AppLoadingServiceReceptor } from '@xrengine/client-core/src/common/services/AppLoadingService'
-import { AppServiceReceptor } from '@xrengine/client-core/src/common/services/AppService'
-import { DialogServiceReceptor } from '@xrengine/client-core/src/common/services/DialogService'
-import { MediaInstanceConnectionServiceReceptor } from '@xrengine/client-core/src/common/services/MediaInstanceConnectionService'
-import { ProjectServiceReceptor } from '@xrengine/client-core/src/common/services/ProjectService'
-import { RouterServiceReceptor, RouterState, useRouter } from '@xrengine/client-core/src/common/services/RouterService'
-import { LoadingCircle } from '@xrengine/client-core/src/components/LoadingCircle'
-import { FriendServiceReceptor } from '@xrengine/client-core/src/social/services/FriendService'
-import { InviteService, InviteServiceReceptor } from '@xrengine/client-core/src/social/services/InviteService'
-import { LocationServiceReceptor } from '@xrengine/client-core/src/social/services/LocationService'
-import { AuthService, AuthServiceReceptor } from '@xrengine/client-core/src/user/services/AuthService'
-import { AvatarServiceReceptor } from '@xrengine/client-core/src/user/services/AvatarService'
-import { addActionReceptor, getState, removeActionReceptor, useHookstate } from '@xrengine/hyperflux'
+  AuthSettingsState
+} from '@etherealengine/client-core/src/admin/services/Setting/AuthSettingService'
+import { AdminClientSettingsState } from '@etherealengine/client-core/src/admin/services/Setting/ClientSettingService'
+import ErrorBoundary from '@etherealengine/client-core/src/common/components/ErrorBoundary'
+import { ProjectServiceReceptor } from '@etherealengine/client-core/src/common/services/ProjectService'
+import { RouterServiceReceptor, useCustomRoutes } from '@etherealengine/client-core/src/common/services/RouterService'
+import { LoadingCircle } from '@etherealengine/client-core/src/components/LoadingCircle'
+import { LocationServiceReceptor } from '@etherealengine/client-core/src/social/services/LocationService'
+import { AuthService } from '@etherealengine/client-core/src/user/services/AuthService'
+import { addActionReceptor, getMutableState, removeActionReceptor, useHookstate } from '@etherealengine/hyperflux'
 
-import $404 from '../pages/404'
-import $503 from '../pages/503'
-import { CustomRoute, getCustomRoutes } from './getCustomRoutes'
+const $index = lazy(() => import('@etherealengine/client/src/pages'))
+const $offline = lazy(() => import('@etherealengine/client/src/pages/offline/offline'))
+const $admin = lazy(() => import('@etherealengine/client-core/src/admin/adminRoutes'))
+const $studio = lazy(() => import('@etherealengine/client/src/pages/editor/editor'))
+const $location = lazy(() => import('@etherealengine/client/src/pages/location/location'))
 
-const $admin = React.lazy(() => import('@xrengine/client-core/src/admin/adminRoutes'))
-const $auth = React.lazy(() => import('@xrengine/client/src/pages/auth/authRoutes'))
-const $offline = React.lazy(() => import('@xrengine/client/src/pages/offline/offline'))
-
-function RouterComp() {
-  const [customRoutes, setCustomRoutes] = useState(null as any as CustomRoute[])
-  const clientSettingsState = useClientSettingState()
-  const authSettingsState = useAuthSettingState()
+/** @deprecated see https://github.com/EtherealEngine/etherealengine/issues/6485 */
+function RouterComp({ route }: { route: string }) {
+  const customRoutes = useCustomRoutes()
+  const clientSettingsState = useHookstate(getMutableState(AdminClientSettingsState))
+  const authSettingsState = useHookstate(getMutableState(AuthSettingsState))
   const location = useLocation()
-  const history = useHistory()
-  const [routesReady, setRoutesReady] = useState(false)
-  const routerState = useHookstate(getState(RouterState))
-  const route = useRouter()
+  const routesReady = useHookstate(false)
   const { t } = useTranslation()
-
-  InviteService.useAPIListeners()
 
   useEffect(() => {
     addActionReceptor(RouterServiceReceptor)
-    addActionReceptor(ClientSettingsServiceReceptor)
-    addActionReceptor(AuthSettingsServiceReceptor)
-    addActionReceptor(AuthServiceReceptor)
-    addActionReceptor(AvatarServiceReceptor)
-    addActionReceptor(InviteServiceReceptor)
     addActionReceptor(LocationServiceReceptor)
-    addActionReceptor(DialogServiceReceptor)
-    addActionReceptor(AppLoadingServiceReceptor)
-    addActionReceptor(AppServiceReceptor)
     addActionReceptor(ProjectServiceReceptor)
-    addActionReceptor(MediaInstanceConnectionServiceReceptor)
-    addActionReceptor(FriendServiceReceptor)
 
     // Oauth callbacks may be running when a guest identity-provider has been deleted.
     // This would normally cause doLoginAuto to make a guest user, which we do not want.
@@ -71,65 +68,48 @@ function RouterComp() {
       AuthService.doLoginAuto()
       AuthSettingsService.fetchAuthSetting()
     }
-    getCustomRoutes().then((routes) => {
-      setCustomRoutes(routes)
-    })
-
     return () => {
       removeActionReceptor(RouterServiceReceptor)
-      removeActionReceptor(ClientSettingsServiceReceptor)
-      removeActionReceptor(AuthSettingsServiceReceptor)
-      removeActionReceptor(AuthServiceReceptor)
-      removeActionReceptor(AvatarServiceReceptor)
-      removeActionReceptor(InviteServiceReceptor)
       removeActionReceptor(LocationServiceReceptor)
-      removeActionReceptor(DialogServiceReceptor)
-      removeActionReceptor(AppServiceReceptor)
-      removeActionReceptor(AppLoadingServiceReceptor)
       removeActionReceptor(ProjectServiceReceptor)
-      removeActionReceptor(MediaInstanceConnectionServiceReceptor)
-      removeActionReceptor(FriendServiceReceptor)
     }
   }, [])
 
   useEffect(() => {
-    if (location.pathname !== routerState.pathname.value) {
-      route(location.pathname)
-    }
-  }, [location.pathname])
-
-  useEffect(() => {
-    if (location.pathname !== routerState.pathname.value) {
-      history.push(routerState.pathname.value)
-    }
-  }, [routerState.pathname])
-
-  useEffect(() => {
     // For the same reason as above, we will not need to load the client and auth settings for these routes
-    if (/auth\/oauth/.test(location.pathname) && customRoutes) return setRoutesReady(true)
+    if (/auth\/oauth/.test(location.pathname) && customRoutes) return routesReady.set(true)
     if (clientSettingsState.client.value.length && authSettingsState.authSettings.value.length && customRoutes)
-      return setRoutesReady(true)
+      return routesReady.set(true)
   }, [clientSettingsState.client.length, authSettingsState.authSettings.length, customRoutes])
 
-  if (!routesReady) {
+  if (!routesReady.value) {
     return <LoadingCircle message={t('common:loader.loadingRoutes')} />
+  }
+
+  let RouteElement
+
+  switch (route) {
+    case 'index':
+      RouteElement = $index
+      break
+    case 'offline':
+      RouteElement = $offline
+      break
+    case 'studio':
+      RouteElement = $studio
+      break
+    case 'admin':
+      RouteElement = $admin
+      break
+    case 'location':
+      RouteElement = $location
+      break
   }
 
   return (
     <ErrorBoundary>
       <Suspense fallback={<LoadingCircle message={t('common:loader.loadingRoute')} />}>
-        <Switch>
-          {customRoutes.map((route, i) => (
-            <Route key={`custom-route-${i}`} path={route.route} component={route.component} {...route.props} />
-          ))}
-          <Route key={'offline'} path={'/offline'} component={$offline} />
-          {/* default to allowing admin access regardless */}
-          <Route key={'default-admin'} path={'/admin'} component={$admin} />
-          <Route key={'default-auth'} path={'/auth'} component={$auth} />
-          {/* if no index page has been provided, indicate this as obviously as possible */}
-          <Route key={'/503'} path={'/'} component={$503} exact />
-          <Route key={'404'} path="*" component={$404} />
-        </Switch>
+        <RouteElement />
       </Suspense>
     </ErrorBoundary>
   )

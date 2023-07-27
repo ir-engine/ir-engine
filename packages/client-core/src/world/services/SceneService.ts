@@ -1,78 +1,63 @@
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
 import { useEffect } from 'react'
 
-import { SceneData } from '@xrengine/common/src/interfaces/SceneInterface'
-import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
-import { updateSceneFromJSON } from '@xrengine/engine/src/scene/systems/SceneLoadingSystem'
-import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
+import { getMutableState } from '@etherealengine/hyperflux'
 
-import { API } from '../../API'
-import { accessLocationState } from '../../social/services/LocationService'
-
-export const SceneState = defineState({
-  name: 'SceneState',
-  initial: () => ({
-    currentScene: null as SceneData | null
-  })
-})
-
-export const SceneServiceReceptor = (action) => {
-  const s = getState(SceneState)
-  matches(action)
-    .when(SceneActions.currentSceneChanged.matches, (action) => {
-      return s.merge({
-        currentScene: action.sceneData
-      })
-    })
-    .when(SceneActions.unloadCurrentScene.matches, (action) => {
-      return s.merge({
-        currentScene: null
-      })
-    })
-}
-
-export const accessSceneState = () => getState(SceneState)
-
-export const useSceneState = () => useState(accessSceneState())
+import { LocationState } from '../../social/services/LocationService'
 
 export const SceneService = {
   fetchCurrentScene: async (projectName: string, sceneName: string) => {
-    const sceneData = await API.instance.client.service('scene').get({ projectName, sceneName, metadataOnly: null }, {})
-    dispatchAction(SceneActions.currentSceneChanged({ sceneData: sceneData.data }))
+    const sceneData = await Engine.instance.api.service('scene').get({ projectName, sceneName, metadataOnly: null }, {})
+    getMutableState(SceneState).sceneData.set(sceneData.data)
     return sceneData
   },
 
   useAPIListeners: () => {
     useEffect(() => {
       const sceneUpdatedListener = async () => {
-        const locationState = accessLocationState()
+        const locationState = getMutableState(LocationState)
         const [projectName, sceneName] = locationState.currentLocation.location.sceneId.value.split('/')
-        const sceneData = await API.instance.client
+        const sceneData = await Engine.instance.api
           .service('scene')
           .get({ projectName, sceneName, metadataOnly: null }, {})
-        updateSceneFromJSON(sceneData.data)
-        ;(getState(SceneState).currentScene as any).scene.set(sceneData.data.scene)
+        getMutableState(SceneState).sceneData.set(sceneData.data)
       }
       // for testing
       // window.addEventListener('keydown', (ev) => {
       //   if (ev.code === 'KeyN') sceneUpdatedListener()
       // })
 
-      API.instance.client.service('scene').on('updated', sceneUpdatedListener)
+      Engine.instance.api.service('scene').on('updated', sceneUpdatedListener)
 
       return () => {
-        API.instance.client.service('scene').off('updated', sceneUpdatedListener)
+        Engine.instance.api.service('scene').off('updated', sceneUpdatedListener)
       }
     }, [])
   }
-}
-
-export class SceneActions {
-  static currentSceneChanged = defineAction({
-    type: 'xre.client.Scene.CURRENT_SCENE_CHANGED',
-    sceneData: matches.object as Validator<unknown, SceneData>
-  })
-
-  static unloadCurrentScene = defineAction({
-    type: 'xre.client.Scene.UNLOAD_CURRENT_SCENE'
-  })
 }

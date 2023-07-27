@@ -1,8 +1,34 @@
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
 import { Paginated, Params } from '@feathersjs/feathers'
 import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
 import Sequelize, { Op } from 'sequelize'
 
-import { Instance as InstanceInterface } from '@xrengine/common/src/interfaces/Instance'
+import { Instance as InstanceInterface } from '@etherealengine/common/src/interfaces/Instance'
+import { locationPath, LocationType } from '@etherealengine/engine/src/schemas/social/location.schema'
 
 import { Application } from '../../../declarations'
 
@@ -49,7 +75,7 @@ export class Instance<T = InstanceDataType> extends Service<T> {
       if (!isNaN(search)) {
         ip = search ? { ipAddress: { [Op.like]: `%${search}%` } } : {}
       } else {
-        name = search ? { name: { [Op.like]: `%${search}%` } } : {}
+        name = search ? { name: { $like: `%${search}%` } } : {}
       }
       const order: any[] = []
       if (sort != null)
@@ -60,23 +86,54 @@ export class Instance<T = InstanceDataType> extends Service<T> {
             order.push([name, sort[name] === 0 ? 'DESC' : 'ASC'])
           }
         })
-      const foundLocation = await this.app.service('instance').Model.findAndCountAll({
+
+      const foundLocations = search
+        ? ((await this.app.service(locationPath).find({
+            query: { name: { $like: `%${search}%` } },
+            paginate: false
+          })) as any as LocationType[])
+        : []
+
+      const foundInstances = await this.app.service('instance').Model.findAndCountAll({
         offset: skip,
         limit: limit,
-        include: {
-          model: this.app.service('location').Model,
-          required: true,
-          where: { ...name }
-        },
         nest: false,
-        where: { ended: false, ...ip }
+        where: {
+          ended: false,
+          [Op.or]: [
+            {
+              ipAddress: {
+                [Op.like]: `%${search}%`
+              }
+            },
+            {
+              locationId: {
+                [Op.in]: foundLocations.map((item) => item.id)
+              }
+            }
+          ]
+        }
       })
+
+      // TODO: Move following to instance.resolvers once instance service is migrated to feathers 5.
+      const locations = (await this.app.service(locationPath).find({
+        query: {
+          id: {
+            $in: foundInstances.rows.map((instance) => instance.locationId)
+          }
+        },
+        paginate: false
+      })) as any as LocationType[]
+
+      for (const instance of foundInstances.rows) {
+        instance.location = locations.find((location) => location.id === instance.locationId)
+      }
 
       return {
         skip: skip,
         limit: limit,
-        total: foundLocation.count,
-        data: foundLocation.rows
+        total: foundInstances.count,
+        data: foundInstances.rows
       }
     } else {
       return super.find(params)

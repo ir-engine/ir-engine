@@ -1,24 +1,50 @@
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
+import { useHookstate } from '@hookstate/core'
 import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import InputText from '@xrengine/client-core/src/common/components/InputText'
-import { ProjectInterface } from '@xrengine/common/src/interfaces/ProjectInterface'
-import { ProjectPermissionInterface } from '@xrengine/common/src/interfaces/ProjectPermissionInterface'
-
-import HighlightOffIcon from '@mui/icons-material/HighlightOff'
-import Button from '@mui/material/Button'
-import Container from '@mui/material/Container'
-import DialogActions from '@mui/material/DialogActions'
-import DialogTitle from '@mui/material/DialogTitle'
-import IconButton from '@mui/material/IconButton'
-import List from '@mui/material/List'
-import ListItem from '@mui/material/ListItem'
-import ListItemText from '@mui/material/ListItemText'
-import Switch from '@mui/material/Switch'
+import InputText from '@etherealengine/client-core/src/common/components/InputText'
+import { ProjectInterface } from '@etherealengine/common/src/interfaces/ProjectInterface'
+import { ProjectPermissionInterface } from '@etherealengine/common/src/interfaces/ProjectPermissionInterface'
+import { getMutableState } from '@etherealengine/hyperflux'
+import Button from '@etherealengine/ui/src/primitives/mui/Button'
+import Container from '@etherealengine/ui/src/primitives/mui/Container'
+import DialogActions from '@etherealengine/ui/src/primitives/mui/DialogActions'
+import DialogTitle from '@etherealengine/ui/src/primitives/mui/DialogTitle'
+import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
+import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
+import List from '@etherealengine/ui/src/primitives/mui/List'
+import ListItem from '@etherealengine/ui/src/primitives/mui/ListItem'
+import ListItemText from '@etherealengine/ui/src/primitives/mui/ListItemText'
+import Switch from '@etherealengine/ui/src/primitives/mui/Switch'
 
 import { NotificationService } from '../../../common/services/NotificationService'
 import { ProjectService } from '../../../common/services/ProjectService'
-import { useAuthState } from '../../../user/services/AuthService'
+import { AuthState } from '../../../user/services/AuthService'
 import DrawerView from '../../common/DrawerView'
 import styles from '../../styles/admin.module.scss'
 
@@ -32,8 +58,7 @@ const UserPermissionDrawer = ({ open, project, onClose }: Props) => {
   const { t } = useTranslation()
   const [userInviteCode, setUserInviteCode] = useState('')
   const [error, setError] = useState('')
-
-  const selfUser = useAuthState().user
+  const selfUser = useHookstate(getMutableState(AuthState)).user
   const selfUserPermission =
     project?.project_permissions?.find((permission) => permission.userId === selfUser.id.value)?.type === 'owner' ||
     selfUser.scopes?.value?.find((scope) => scope.type === 'admin:admin')
@@ -141,11 +166,10 @@ const UserPermissionDrawer = ({ open, project, onClose }: Props) => {
                 {selfUserPermission === 'owner' && selfUser.id.value !== permission.userId && (
                   <IconButton
                     className={styles.iconButton}
-                    aria-label="Remove Access"
+                    title="Remove Access"
                     onClick={() => handleRemovePermission(permission.id)}
-                  >
-                    <HighlightOffIcon />
-                  </IconButton>
+                    icon={<Icon type="HighlightOff" />}
+                  />
                 )}
               </ListItem>
             ))}

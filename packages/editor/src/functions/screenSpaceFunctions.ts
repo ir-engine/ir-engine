@@ -1,10 +1,35 @@
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
 import { Intersection, Object3D, Raycaster, Vector2, Vector3 } from 'three'
 
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { EngineRenderer } from '@xrengine/engine/src/renderer/WebGLRendererSystem'
-import { SnapMode } from '@xrengine/engine/src/scene/constants/transformConstants'
+import { EngineRenderer } from '@etherealengine/engine/src/renderer/WebGLRendererSystem'
+import { SnapMode } from '@etherealengine/engine/src/scene/constants/transformConstants'
+import { getState } from '@etherealengine/hyperflux'
 
-import { accessEditorHelperState } from '../services/EditorHelperState'
+import { EditorHelperState } from '../services/EditorHelperState'
 import { EditorControlFunctions } from './EditorControlFunctions'
 import { getIntersectingNodeOnScreen } from './getIntersectingNode'
 
@@ -20,7 +45,7 @@ export const getScreenSpacePosition = (() => {
 
   return (screenSpacePosition: Vector2, target = new Vector3()): Vector3 => {
     raycastTargets.length = 0
-    const editorHelperState = accessEditorHelperState()
+    const editorHelperState = getState(EditorHelperState)
     const closestTarget = getIntersectingNodeOnScreen(raycaster, screenSpacePosition, raycastTargets)
 
     if (closestTarget && closestTarget.distance < 1000) {
@@ -29,8 +54,8 @@ export const getScreenSpacePosition = (() => {
       raycaster.ray.at(20, target)
     }
 
-    if (editorHelperState.snapMode.value === SnapMode.Grid) {
-      const translationSnap = editorHelperState.translationSnap.value
+    if (editorHelperState.snapMode === SnapMode.Grid) {
+      const translationSnap = editorHelperState.translationSnap
 
       target.set(
         Math.round(target.x / translationSnap) * translationSnap,
@@ -80,6 +105,6 @@ export function getCursorSpawnPosition(mousePos: Vector2, target = new Vector3()
 export function reparentToSceneAtCursorPosition(objects, mousePos) {
   const newPosition = new Vector3()
   getCursorSpawnPosition(mousePos, newPosition)
-  EditorControlFunctions.reparentObject(objects, [Engine.instance.currentWorld.entityTree.rootNode])
+  EditorControlFunctions.reparentObject(objects)
   EditorControlFunctions.positionObject(objects, [newPosition])
 }

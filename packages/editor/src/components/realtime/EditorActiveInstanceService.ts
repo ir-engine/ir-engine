@@ -1,14 +1,35 @@
-import { useEffect } from 'react'
+/*
+CPAL-1.0 License
 
-import { API } from '@xrengine/client-core/src/API'
-import { LocationInstanceConnectionAction } from '@xrengine/client-core/src/common/services/LocationInstanceConnectionService'
-import { accessAuthState } from '@xrengine/client-core/src/user/services/AuthService'
-import { UserId } from '@xrengine/common/src/interfaces/UserId'
-import logger from '@xrengine/common/src/logger'
-import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
-import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
 
-import { accessEditorState } from '../../services/EditorServices'
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
+import { LocationInstanceConnectionAction } from '@etherealengine/client-core/src/common/services/LocationInstanceConnectionService'
+import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
+import { UserId } from '@etherealengine/common/src/interfaces/UserId'
+import logger from '@etherealengine/common/src/logger'
+import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { defineAction, defineState, dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
 
 export type ActiveInstance = {
   id: string
@@ -17,7 +38,7 @@ export type ActiveInstance = {
   // todo: assignedAt so we can sort by most recent?
 }
 
-const EditorActiveInstanceState = defineState({
+export const EditorActiveInstanceState = defineState({
   name: 'EditorActiveInstanceState',
   initial: () => ({
     activeInstances: [] as ActiveInstance[],
@@ -26,7 +47,7 @@ const EditorActiveInstanceState = defineState({
 })
 
 export const EditorActiveInstanceServiceReceptor = (action): any => {
-  const state = getState(EditorActiveInstanceState)
+  const state = getMutableState(EditorActiveInstanceState)
   matches(action)
     .when(EditorActiveInstanceAction.fetchingActiveInstances.matches, (action) => {
       return state.merge({ fetching: true })
@@ -36,16 +57,12 @@ export const EditorActiveInstanceServiceReceptor = (action): any => {
     })
 }
 
-export const accessEditorActiveInstanceState = () => getState(EditorActiveInstanceState)
-
-export const useEditorActiveInstanceState = () => useState(accessEditorActiveInstanceState())
-
 //Service
 export const EditorActiveInstanceService = {
   provisionServer: async (locationId: string, instanceId: string, sceneId: string) => {
     logger.info({ locationId, instanceId, sceneId }, 'Provision World Server Editor')
-    const token = accessAuthState().authUser.accessToken.value
-    const provisionResult = await API.instance.client.service('instance-provision').find({
+    const token = getState(AuthState).authUser.accessToken
+    const provisionResult = await Engine.instance.api.service('instance-provision').find({
       query: {
         locationId: locationId,
         instanceId: instanceId,
@@ -68,36 +85,21 @@ export const EditorActiveInstanceService = {
   },
   getActiveInstances: async (sceneId: string) => {
     dispatchAction(EditorActiveInstanceAction.fetchingActiveInstances({}))
-    const activeInstances = await API.instance.client.service('instances-active').find({
+    const activeInstances = await Engine.instance.api.service('instances-active').find({
       query: { sceneId }
     })
     dispatchAction(EditorActiveInstanceAction.fetchedActiveInstances({ activeInstances }))
-  },
-  useAPIListeners: () => {
-    useEffect(() => {
-      const editorState = accessEditorState()
-      const sceneId = `${editorState.projectName.value}/${editorState.sceneName.value}`
-      EditorActiveInstanceService.getActiveInstances(sceneId)
-      const timer = setInterval(() => {
-        const editorState = accessEditorState()
-        const sceneId = `${editorState.projectName.value}/${editorState.sceneName.value}`
-        EditorActiveInstanceService.getActiveInstances(sceneId)
-      }, 5000)
-      return () => {
-        clearTimeout(timer)
-      }
-    }, [])
   }
 }
 
 //Action
 export class EditorActiveInstanceAction {
   static fetchingActiveInstances = defineAction({
-    type: 'xre.editor.EditorActiveInstance.FETCHING_ACTIVE_INSTANCES' as const
+    type: 'ee.editor.EditorActiveInstance.FETCHING_ACTIVE_INSTANCES' as const
   })
 
   static fetchedActiveInstances = defineAction({
-    type: 'xre.editor.EditorActiveInstance.FETCHED_ACTIVE_INSTANCES' as const,
+    type: 'ee.editor.EditorActiveInstance.FETCHED_ACTIVE_INSTANCES' as const,
     activeInstances: matches.array as Validator<unknown, ActiveInstance[]>
   })
 }

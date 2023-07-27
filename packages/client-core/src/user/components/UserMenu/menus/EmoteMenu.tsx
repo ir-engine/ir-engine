@@ -1,24 +1,47 @@
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
 import React, { useEffect, useState } from 'react'
 
-import { AudioEffectPlayer } from '@xrengine/engine/src/audio/systems/MediaSystem'
-import { changeAvatarAnimationState } from '@xrengine/engine/src/avatar/animation/AvatarAnimationGraph'
-import { AvatarStates } from '@xrengine/engine/src/avatar/animation/Util'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { AudioEffectPlayer } from '@etherealengine/engine/src/audio/systems/MediaSystem'
+import { changeAvatarAnimationState } from '@etherealengine/engine/src/avatar/animation/AvatarAnimationGraph'
+import { AvatarStates } from '@etherealengine/engine/src/avatar/animation/Util'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import Button from '@etherealengine/ui/src/primitives/mui/Button'
+import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 
-import { NavigateBefore, NavigateNext } from '@mui/icons-material'
-import Button from '@mui/material/Button'
 import ClickAwayListener from '@mui/material/ClickAwayListener'
 
-import { Views } from '../util'
+import { PopupMenuServices } from '../PopupMenuService'
 import styles from './EmoteMenu.module.scss'
 
 const MAX_EMOTE_PER_PAGE = 6
 const MIN_EMOTE_PER_PAGE = 5
 const getEmotePerPage = () => (window.innerWidth > 768 ? MAX_EMOTE_PER_PAGE : MIN_EMOTE_PER_PAGE)
 
-type EmoteMenuHooksProps = { changeActiveMenu: (menu: any) => {} }
-
-export const useEmoteMenuHooks = ({ changeActiveMenu }: EmoteMenuHooksProps) => {
+export const useEmoteMenuHooks = () => {
   const [page, setPage] = useState(0)
   const [imgPerPage, setImgPerPage] = useState(getEmotePerPage())
 
@@ -112,7 +135,7 @@ export const useEmoteMenuHooks = ({ changeActiveMenu }: EmoteMenuHooksProps) => 
 
   const closeMenu = (e) => {
     e.preventDefault()
-    changeActiveMenu(Views.Closed)
+    PopupMenuServices.showPopupMenu()
   }
 
   const calculateOtherValues = (): void => {
@@ -123,10 +146,10 @@ export const useEmoteMenuHooks = ({ changeActiveMenu }: EmoteMenuHooksProps) => 
   }
 
   const runAnimation = (stateName: string) => {
-    const entity = Engine.instance.currentWorld.localClientEntity
+    const entity = Engine.instance.localClientEntity
     changeAvatarAnimationState(entity, stateName)
     // close Menu after playing animation
-    changeActiveMenu(Views.Closed)
+    PopupMenuServices.showPopupMenu()
   }
 
   const renderEmoteList = () => {
@@ -191,9 +214,8 @@ export const useEmoteMenuHooks = ({ changeActiveMenu }: EmoteMenuHooksProps) => 
     loadNextEmotes
   }
 }
-type Props = { changeActiveMenu: (menu: any) => {} }
 
-const EmoteMenu = ({ changeActiveMenu }: Props): JSX.Element => {
+const EmoteMenu = (): JSX.Element => {
   const {
     closeMenu,
     menuRadius,
@@ -205,9 +227,7 @@ const EmoteMenu = ({ changeActiveMenu }: Props): JSX.Element => {
     imgPerPage,
     items,
     loadNextEmotes
-  } = useEmoteMenuHooks({
-    changeActiveMenu
-  })
+  } = useEmoteMenuHooks()
 
   return (
     <section className={styles.emoteMenu}>
@@ -228,7 +248,7 @@ const EmoteMenu = ({ changeActiveMenu }: Props): JSX.Element => {
               onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
               onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
             >
-              <NavigateBefore />
+              <Icon type="NavigateBefore" />
             </button>
           </div>
           <div
@@ -248,7 +268,7 @@ const EmoteMenu = ({ changeActiveMenu }: Props): JSX.Element => {
               onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
               onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
             >
-              <NavigateNext />
+              <Icon type="NavigateNext" />
             </button>
           </div>
         </div>

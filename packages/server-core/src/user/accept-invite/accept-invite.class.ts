@@ -1,5 +1,32 @@
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
 import { BadRequest } from '@feathersjs/errors'
 import { Id, NullableId, Params, ServiceMethods } from '@feathersjs/feathers'
+
+import { locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
 
 import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
@@ -10,7 +37,6 @@ interface Data {}
 interface ServiceOptions {}
 
 interface AcceptInviteParams extends Params {
-  skipAuth?: boolean
   preventUserRelationshipRemoval?: boolean
 }
 
@@ -51,7 +77,7 @@ export class AcceptInvite implements ServiceMethods<Data> {
 
   async get(id: Id, params?: AcceptInviteParams): Promise<Data> {
     let inviteeIdentityProvider
-    let returned = {} as any
+    const returned = {} as any
     if (!params) params = {}
     if (params.query?.t) {
       params.query.passcode = params.query.t
@@ -208,98 +234,26 @@ export class AcceptInvite implements ServiceMethods<Data> {
             },
             params
           )
-      } else if (invite.inviteType === 'group') {
-        const group = await this.app.service('group').Model.findOne({ where: { id: invite.targetObjectId } })
+      } else if (invite.inviteType === 'channel') {
+        const channel = await this.app.service('channel').Model.findOne({ where: { id: invite.targetObjectId } })
 
-        if (group == null) {
+        if (channel == null) {
           await this.app.service('invite').remove(invite.id)
-          throw new BadRequest('Invalid group ID')
+          throw new BadRequest('Invalid channel ID')
         }
 
-        const { query, ...paramsCopy } = params
-
-        const existingGroupUser = (await this.app.service('group-user').find({
+        const existingChannelUser = (await this.app.service('channel-user').find({
           query: {
             userId: inviteeIdentityProvider.userId,
-            groupId: invite.targetObjectId
+            channelId: invite.targetObjectId
           }
         })) as any
 
-        if (existingGroupUser.total === 0) {
-          paramsCopy.skipAuth = true
-          await this.app.service('group-user').create(
-            {
-              userId: inviteeIdentityProvider.userId,
-              groupId: invite.targetObjectId,
-              groupUserRank: 'owner'
-            },
-            paramsCopy
-          )
-        }
-      } else if (invite.inviteType === 'party') {
-        const party = await this.app.service('party').Model.findOne({ where: { id: invite.targetObjectId } })
-
-        if (party == null) {
-          await this.app.service('invite').remove(invite.id)
-          return new BadRequest('Invalid party ID')
-        }
-
-        const patchUser: any = { partyId: invite.targetObjectId }
-        await this.app.service('user').patch(inviteeIdentityProvider.userId, {
-          ...patchUser
-        })
-
-        const { query, ...paramsCopy } = params
-
-        const existingPartyUser = await this.app.service('party-user').Model.count({
-          where: {
+        if (existingChannelUser.total === 0) {
+          await this.app.service('channel-user').create({
             userId: inviteeIdentityProvider.userId,
-            partyId: invite.targetObjectId,
-            isOwner: false
-          }
-        })
-
-        if (existingPartyUser === 0) {
-          paramsCopy.skipAuth = true
-          await this.app.service('party-user').create(
-            {
-              userId: inviteeIdentityProvider.userId,
-              partyId: invite.targetObjectId,
-              isOwner: false
-            },
-            paramsCopy
-          )
-        }
-
-        const ownerResult = await this.app.service('party-user').find({
-          query: {
-            partyId: invite.targetObjectId,
-            isOwner: true
-          },
-          sequelize: {
-            include: [
-              {
-                model: this.app.service('user').Model
-              }
-            ]
-          }
-        })
-
-        const owner = ownerResult.data[0]
-
-        if (owner && owner.user?.instanceId) {
-          const instance = await this.app.service('instance').get(owner.user.instanceId, {
-            sequelize: {
-              include: [
-                {
-                  model: this.app.service('location').Model
-                }
-              ]
-            }
+            channelId: invite.targetObjectId
           })
-          returned.locationName = instance.location.slugifiedName
-          returned.instanceId = owner.user.instanceId
-          returned.inviteCode = owner.user.inviteCode
         }
       }
 
@@ -314,13 +268,13 @@ export class AcceptInvite implements ServiceMethods<Data> {
         let instance =
           invite.inviteType === 'instance' ? await this.app.service('instance').get(invite.targetObjectId) : null
         const locationId = instance ? instance.locationId : invite.targetObjectId
-        const location = await this.app.service('location').get(locationId)
+        const location = await this.app.service(locationPath).get(locationId)
         returned.locationName = location.slugifiedName
         if (instance) returned.instanceId = instance.id
 
-        if (location.location_setting?.locationType === 'private') {
+        if (location.locationSetting?.locationType === 'private') {
           const userId = inviteeIdentityProvider.userId
-          if (!location.location_authorized_users?.find((authUser) => authUser.userId === userId))
+          if (!location.locationAuthorizedUsers.find((authUser) => authUser.userId === userId))
             await this.app.service('location-authorized-user').create({
               locationId: location.id,
               userId: userId

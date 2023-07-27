@@ -1,23 +1,55 @@
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
+import { ECRClient } from '@aws-sdk/client-ecr'
+import { DescribeImagesCommand, ECRPUBLICClient } from '@aws-sdk/client-ecr-public'
+import * as k8s from '@kubernetes/client-node'
 import appRootPath from 'app-root-path'
-import AWS from 'aws-sdk'
-import axios from 'axios'
+import { exec } from 'child_process'
 import { compareVersions } from 'compare-versions'
-import _ from 'lodash'
+import fetch from 'node-fetch'
 import path from 'path'
 import semver from 'semver'
 import Sequelize, { Op } from 'sequelize'
+import { promisify } from 'util'
 
-import { BuilderTag } from '@xrengine/common/src/interfaces/BuilderTags'
-import { ProjectCommitInterface } from '@xrengine/common/src/interfaces/ProjectCommitInterface'
-import { ProjectInterface, ProjectPackageJsonType } from '@xrengine/common/src/interfaces/ProjectInterface'
-import { ProjectConfigInterface, ProjectEventHooks } from '@xrengine/projects/ProjectConfigInterface'
+import { BuilderTag } from '@etherealengine/common/src/interfaces/BuilderTags'
+import { ProjectCommitInterface } from '@etherealengine/common/src/interfaces/ProjectCommitInterface'
+import { ProjectInterface, ProjectPackageJsonType } from '@etherealengine/common/src/interfaces/ProjectInterface'
+import { helmSettingPath } from '@etherealengine/engine/src/schemas/setting/helm-setting.schema'
+import { getState } from '@etherealengine/hyperflux'
+import { ProjectConfigInterface, ProjectEventHooks } from '@etherealengine/projects/ProjectConfigInterface'
 
 import { Application } from '../../../declarations'
 import config from '../../appconfig'
 import { getPodsData } from '../../cluster/server-info/server-info-helper'
 import { getStorageProvider } from '../../media/storageprovider/storageprovider'
 import logger from '../../ServerLogger'
-import { getOctokitForChecking, getUserOrgs, getUserRepos } from './github-helper'
+import { ServerState } from '../../ServerState'
+import { BUILDER_CHART_REGEX } from '../../setting/helm-setting/helm-setting'
+import { getOctokitForChecking, getUserRepos } from './github-helper'
 import { ProjectParams } from './project.class'
 
 export const dockerHubRegex = /^[\w\d\s\-_]+\/[\w\d\s\-_]+:([\w\d\s\-_.]+)$/
@@ -28,6 +60,8 @@ export const privateECRTagRegex = /^[a-zA-Z0-9]+.dkr.ecr.([\w\d\s\-_]+).amazonaw
 
 const BRANCH_PER_PAGE = 100
 const COMMIT_PER_PAGE = 10
+
+const execAsync = promisify(exec)
 
 interface GitHubFile {
   status: number
@@ -71,64 +105,37 @@ export const updateBuilder = async (
     await Promise.all(data.projectsToUpdate.map((project) => app.service('project').update(project, null, params)))
   }
 
-  // trigger k8s to re-run the builder service
-  if (app.k8AppsClient) {
-    try {
-      logger.info('Attempting to update builder tag')
-      const builderRepo = process.env.BUILDER_REPOSITORY
-      const updateBuilderTagResponse = await app.k8AppsClient.patchNamespacedDeployment(
-        `${config.server.releaseName}-builder-xrengine-builder`,
-        'default',
-        {
-          spec: {
-            template: {
-              metadata: {
-                annotations: {
-                  'kubectl.kubernetes.io/restartedAt': new Date().toISOString()
-                }
-              },
-              spec: {
-                containers: [
-                  {
-                    name: 'xrengine-builder',
-                    image: `${builderRepo}:${tag}`
-                  }
-                ]
-              }
-            }
-          }
-        },
-        undefined,
-        undefined,
-        undefined,
-        undefined,
-        {
-          headers: {
-            'Content-Type': 'application/strategic-merge-patch+json'
-          }
-        }
+  const helmSettingsResult = await app.service(helmSettingPath).find()
+  const helmSettings = helmSettingsResult.total > 0 ? helmSettingsResult.data[0] : null
+  const builderDeploymentName = `${config.server.releaseName}-builder`
+
+  if (helmSettings && helmSettings.builder && helmSettings.builder.length > 0)
+    await execAsync(
+      `helm upgrade --reuse-values --version ${helmSettings.builder} --set builder.image.tag=${tag} ${builderDeploymentName} etherealengine/etherealengine-builder`
+    )
+  else {
+    const { stdout } = await execAsync(`helm history ${builderDeploymentName} | grep deployed`)
+    const builderChartVersion = BUILDER_CHART_REGEX.exec(stdout)
+    if (builderChartVersion)
+      await execAsync(
+        `helm upgrade --reuse-values --version ${builderChartVersion} --set builder.image.tag=${tag} ${builderDeploymentName} etherealengine/etherealengine-builder`
       )
-      logger.info(updateBuilderTagResponse, 'updateBuilderTagResponse')
-      return updateBuilderTagResponse
-    } catch (e) {
-      logger.error(e)
-      return e
-    }
   }
 }
 
 export const checkBuilderService = async (app: Application): Promise<boolean> => {
   let isRebuilding = true
+  const k8DefaultClient = getState(ServerState).k8DefaultClient
 
   // check k8s to find the status of builder service
-  if (app.k8DefaultClient && config.server.releaseName !== 'local') {
+  if (k8DefaultClient && config.server.releaseName !== 'local') {
     try {
       logger.info('Attempting to check k8s rebuild status')
 
       const builderLabelSelector = `app.kubernetes.io/instance=${config.server.releaseName}-builder`
-      const containerName = 'xrengine-builder'
+      const containerName = 'etherealengine-builder'
 
-      const builderPods = await app.k8DefaultClient.listNamespacedPod(
+      const builderPods = await k8DefaultClient.listNamespacedPod(
         'default',
         undefined,
         false,
@@ -141,7 +148,7 @@ export const checkBuilderService = async (app: Application): Promise<boolean> =>
       if (runningBuilderPods.length > 0) {
         const podName = runningBuilderPods[0].metadata?.name
 
-        const builderLogs = await app.k8DefaultClient.readNamespacedPodLog(
+        const builderLogs = await k8DefaultClient.readNamespacedPodLog(
           podName!,
           'default',
           containerName,
@@ -191,9 +198,9 @@ export const onProjectEvent = async (
   }
 }
 
-export const getProjectConfig = async (projectName: string): Promise<ProjectConfigInterface> => {
+export const getProjectConfig = (projectName: string): ProjectConfigInterface => {
   try {
-    return (await import(`@xrengine/projects/projects/${projectName}/xrengine.config.ts`)).default
+    return require(path.resolve(projectsRootFolder, projectName, 'xrengine.config.ts')).default
   } catch (e) {
     logger.error(
       e,
@@ -435,26 +442,33 @@ export const checkDestination = async (app: Application, url: string, params?: P
 
   try {
     const [authUser, repos] = await Promise.all([octoKit.rest.users.getAuthenticated(), getUserRepos(token)])
-    const repoAccessible =
-      owner === authUser.data.login ||
-      repos.find(
-        (repo) =>
-          repo.html_url.toLowerCase() === url.toLowerCase() ||
-          repo.ssh_url.toLowerCase() === url.toLowerCase() ||
-          repo.ssh_url.toLowerCase() === `${url.toLowerCase()}.git`
-      )
+    const matchingRepo = repos.find(
+      (repo) =>
+        repo.html_url.toLowerCase() === url.toLowerCase() ||
+        `${repo.html_url.toLowerCase()}.git` === url.toLowerCase() ||
+        repo.ssh_url.toLowerCase() === url.toLowerCase() ||
+        `${repo.ssh_url.toLowerCase()}.git` === url.toLowerCase()
+    )
+    if (!matchingRepo)
+      return {
+        error: 'invalidDestinationURL',
+        text: 'The destination URL is not valid, or you do not have access to it'
+      }
+    const repoAccessible = owner === authUser.data.login || matchingRepo
+
     if (!repoAccessible) {
-      returned.error = 'userNotAuthorizedForRepo'
+      returned.error = 'invalidDestinationURL'
       returned.text = `You do not appear to have access to this repository. If this seems wrong, click the button 
       "Refresh GitHub Repo Access" and try again. If you are only in the organization that owns this repo, make sure that the
       organization has installed the OAuth app associated with this installation, and that your personal GitHub account
       has granted access to the organization: https://docs.github.com/en/account-and-profile/setting-up-and-managing-your-personal-account-on-github/managing-your-membership-in-organizations/requesting-organization-approval-for-oauth-apps`
     }
-    const repoResponse = await octoKit.rest.repos.get({ owner, repo })
-    if (!repoResponse)
+    returned.destinationValid =
+      matchingRepo.permissions?.push || matchingRepo.permissions?.admin || matchingRepo.permissions?.maintain || false
+    if (!returned.destinationValid)
       return {
-        error: 'invalidDestinationURL',
-        text: 'The destination URL is not valid, or you do not have access to it'
+        error: 'invalidPermission',
+        text: 'You do not have personal push, maintain, or admin access to this repo.'
       }
     let destinationPackage
     try {
@@ -463,18 +477,9 @@ export const checkDestination = async (app: Application, url: string, params?: P
       logger.error('destination package fetch error', err)
       if (err.status !== 404) throw err
     }
-    returned.destinationValid =
-      repoResponse.data?.permissions?.push ||
-      repoResponse.data?.permissions?.admin ||
-      repoResponse.data?.permissions?.maintain ||
-      false
     if (destinationPackage)
       returned.projectName = JSON.parse(Buffer.from(destinationPackage.data.content, 'base64').toString()).name
     else returned.repoEmpty = true
-    if (!returned.destinationValid) {
-      returned.error = 'invalidPermission'
-      returned.text = 'You do not have personal push, maintain, or admin access to this repo.'
-    }
 
     if (inputProjectURL?.length > 0) {
       const projectOctokitResponse = await getOctokitForChecking(app, inputProjectURL, params!)
@@ -664,18 +669,20 @@ export const findBuilderTags = async (): Promise<Array<BuilderTag>> => {
   const publicECRExec = publicECRRepoRegex.exec(builderRepo)
   const privateECRExec = privateECRRepoRegex.exec(builderRepo)
   if (publicECRExec) {
-    const ecr = new AWS.ECRPUBLIC({
-      accessKeyId: process.env.AWS_ACCESS_KEY as string,
-      secretAccessKey: process.env.AWS_SECRET as string,
+    const ecr = new ECRPUBLICClient({
+      credentials: {
+        accessKeyId: config.aws.eks.accessKeyId,
+        secretAccessKey: config.aws.eks.secretAccessKey
+      },
       region: 'us-east-1'
     })
-    const result = await ecr
-      .describeImages({
-        repositoryName: publicECRExec[1]
-      })
-      .promise()
-    if (!result || !result.imageDetails) return []
-    return result.imageDetails
+    const command = {
+      repositoryName: publicECRExec[1]
+    }
+    const result = new DescribeImagesCommand(command)
+    const response = await ecr.send(result)
+    if (!response || !response.imageDetails) return []
+    return response.imageDetails
       .filter(
         (imageDetails) => imageDetails.imageTags && imageDetails.imageTags.length > 0 && imageDetails.imagePushedAt
       )
@@ -691,18 +698,20 @@ export const findBuilderTags = async (): Promise<Array<BuilderTag>> => {
         }
       })
   } else if (privateECRExec) {
-    const ecr = new AWS.ECR({
-      accessKeyId: process.env.AWS_ACCESS_KEY as string,
-      secretAccessKey: process.env.AWS_SECRET as string,
+    const ecr = new ECRClient({
+      credentials: {
+        accessKeyId: config.aws.eks.accessKeyId,
+        secretAccessKey: config.aws.eks.secretAccessKey
+      },
       region: privateECRExec[1]
     })
-    const result = await ecr
-      .describeImages({
-        repositoryName: privateECRExec[2]
-      })
-      .promise()
-    if (!result || !result.imageDetails) return []
-    return result.imageDetails
+    const command = {
+      repositoryName: privateECRExec[2]
+    }
+    const result = new DescribeImagesCommand(command)
+    const response = await ecr.send(result)
+    if (!response || !response.imageDetails) return []
+    return response.imageDetails
       .filter(
         (imageDetails) => imageDetails.imageTags && imageDetails.imageTags.length > 0 && imageDetails.imagePushedAt
       )
@@ -719,13 +728,15 @@ export const findBuilderTags = async (): Promise<Array<BuilderTag>> => {
       })
   } else {
     const repoSplit = builderRepo.split('/')
-    const registry = repoSplit.length === 1 ? 'lagunalabs' : repoSplit[0]
-    const repo = repoSplit.length === 1 ? (repoSplit[0].length === 0 ? 'xrengine-builder' : repoSplit[0]) : repoSplit[1]
+    const registry = repoSplit.length === 1 ? 'etherealengine' : repoSplit[0]
+    const repo =
+      repoSplit.length === 1 ? (repoSplit[0].length === 0 ? 'etherealengine-builder' : repoSplit[0]) : repoSplit[1]
     try {
-      const result = await axios.get(
+      const result = await fetch(
         `https://registry.hub.docker.com/v2/repositories/${registry}/${repo}/tags?page_size=100`
       )
-      return result.data.results.map((imageDetails) => {
+      const body = JSON.parse(Buffer.from(await result.arrayBuffer()).toString())
+      return body.results.map((imageDetails) => {
         const tag = imageDetails.name
         const tagSplit = tag.split('_')
         return {
@@ -819,13 +830,21 @@ export const getCronJobBody = (project: ProjectInterface, image: string): object
               }
             },
             spec: {
-              serviceAccountName: `${process.env.RELEASE_NAME}-xrengine-api`,
+              serviceAccountName: `${process.env.RELEASE_NAME}-etherealengine-api`,
               containers: [
                 {
                   name: `${process.env.RELEASE_NAME}-${project.name}-auto-update`,
                   image,
                   imagePullPolicy: 'IfNotPresent',
-                  command: ['npm', 'run', 'updateProject', '--', '--projectName', `${project.name}`],
+                  command: [
+                    'npx',
+                    'cross-env',
+                    'ts-node',
+                    '--swc',
+                    'scripts/update-project.ts',
+                    '--projectName',
+                    `${project.name}`
+                  ],
                   env: Object.entries(process.env).map(([key, value]) => {
                     return { name: key, value: value }
                   })
@@ -854,11 +873,13 @@ export const createOrUpdateProjectUpdateJob = async (app: Application, projectNa
     app
   )
 
-  const image = apiPods.pods[0].containers.find((container) => container.name === 'xrengine')!.image
+  const image = apiPods.pods[0].containers.find((container) => container.name === 'etherealengine')!.image
 
-  if (app.k8BatchClient) {
+  const k8BatchClient = getState(ServerState).k8BatchClient
+
+  if (k8BatchClient) {
     try {
-      await app.k8BatchClient.patchNamespacedCronJob(
+      await k8BatchClient.patchNamespacedCronJob(
         `${process.env.RELEASE_NAME}-${projectName}-auto-update`,
         'default',
         getCronJobBody(project, image),
@@ -866,26 +887,25 @@ export const createOrUpdateProjectUpdateJob = async (app: Application, projectNa
         undefined,
         undefined,
         undefined,
+        undefined,
         {
           headers: {
-            'content-type': 'application/merge-patch+json'
+            'content-type': k8s.PatchUtils.PATCH_FORMAT_JSON_MERGE_PATCH
           }
         }
       )
     } catch (err) {
       logger.error('Could not find cronjob %o', err)
-      await app.k8BatchClient.createNamespacedCronJob('default', getCronJobBody(project, image))
+      await k8BatchClient.createNamespacedCronJob('default', getCronJobBody(project, image))
     }
   }
 }
 
 export const removeProjectUpdateJob = async (app: Application, projectName: string): Promise<void> => {
   try {
-    if (app.k8BatchClient)
-      await app.k8BatchClient.deleteNamespacedCronJob(
-        `${process.env.RELEASE_NAME}-${projectName}-auto-update`,
-        'default'
-      )
+    const k8BatchClient = getState(ServerState).k8BatchClient
+    if (k8BatchClient)
+      await k8BatchClient.deleteNamespacedCronJob(`${process.env.RELEASE_NAME}-${projectName}-auto-update`, 'default')
   } catch (err) {
     logger.error('Failed to remove project update cronjob %o', err)
   }

@@ -1,50 +1,74 @@
-import React, { useEffect, useState } from 'react'
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
+import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import ConfirmDialog from '@xrengine/client-core/src/common/components/ConfirmDialog'
-import { AdminBot, BotCommands, CreateBotCammand } from '@xrengine/common/src/interfaces/AdminBot'
-
-import { Edit } from '@mui/icons-material'
-import DeleteIcon from '@mui/icons-material/Delete'
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
-import Accordion from '@mui/material/Accordion'
-import AccordionDetails from '@mui/material/AccordionDetails'
-import AccordionSummary from '@mui/material/AccordionSummary'
-import Grid from '@mui/material/Grid'
-import IconButton from '@mui/material/IconButton'
-import Typography from '@mui/material/Typography'
+import ConfirmDialog from '@etherealengine/client-core/src/common/components/ConfirmDialog'
+import { AdminBot } from '@etherealengine/common/src/interfaces/AdminBot'
+import { BotCommandData } from '@etherealengine/engine/src/schemas/bot/bot-command.schema'
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import Accordion from '@etherealengine/ui/src/primitives/mui/Accordion'
+import AccordionDetails from '@etherealengine/ui/src/primitives/mui/AccordionDetails'
+import AccordionSummary from '@etherealengine/ui/src/primitives/mui/AccordionSummary'
+import Grid from '@etherealengine/ui/src/primitives/mui/Grid'
+import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
+import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
+import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 
 import { NotificationService } from '../../../common/services/NotificationService'
-import { useAuthState } from '../../../user/services/AuthService'
+import { AuthState } from '../../../user/services/AuthService'
 import AddCommand from '../../common/AddCommand'
-import { AdminBotCommandService, useAdminBotCommandState } from '../../services/BotsCommand'
-import { AdminBotService, useAdminBotState } from '../../services/BotsService'
+import { AdminBotCommandService, AdminBotsCommandState } from '../../services/BotsCommand'
+import { AdminBotService, AdminBotState } from '../../services/BotsService'
 import styles from '../../styles/admin.module.scss'
 import UpdateBot from './UpdateBot'
 
 const DisplayBots = () => {
-  const [expanded, setExpanded] = useState<string | false>('panel0')
-  const [command, setCommand] = useState<BotCommands>({
+  const expanded = useHookstate<string | false>('panel0')
+  const command = useHookstate<BotCommandData>({
     name: '',
     description: ''
   })
-  const [openUpdateBot, setOpenUpdateBot] = useState(false)
-  const [openConfirm, setOpenConfirm] = useState(false)
-  const [bot, setBot] = useState<AdminBot>()
-  const [botName, setBotName] = useState('')
-  const [botId, setBotId] = useState('')
+  const openUpdateBot = useHookstate(false)
+  const openConfirm = useHookstate(false)
+  const bot = useHookstate<AdminBot | undefined>(undefined)
+  const botName = useHookstate('')
+  const botId = useHookstate('')
 
   const handleChangeCommand = (e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
     const { name, value } = e.target
-    setCommand({ ...command, [name]: value })
+    command.merge({ [name]: value })
   }
 
   const handleChange = (panel: string) => (event: React.ChangeEvent<{}>, isExpanded: boolean) => {
-    setExpanded(isExpanded ? panel : false)
+    expanded.set(isExpanded ? panel : false)
   }
-  const botAdmin = useAdminBotState()
-  const botCommand = useAdminBotCommandState()
-  const user = useAuthState().user
+  const botAdmin = useHookstate(getMutableState(AdminBotState))
+  const botCommand = useHookstate(getMutableState(AdminBotsCommandState))
+  const user = useHookstate(getMutableState(AuthState).user)
   const botAdminData = botAdmin.bots
   const { t } = useTranslation()
 
@@ -54,27 +78,27 @@ const DisplayBots = () => {
     }
   }, [botAdmin.updateNeeded.value, user?.id?.value])
 
-  const handleOpenUpdateBot = (bot) => {
-    setBot(bot)
-    setOpenUpdateBot(true)
+  const handleOpenUpdateBot = (inputBot) => {
+    bot.set(inputBot)
+    openUpdateBot.set(true)
   }
 
   const submitCommandBot = (id: string) => {
-    const data: CreateBotCammand = {
-      name: command.name,
-      description: command.description,
+    const data: BotCommandData = {
+      name: command.name.value,
+      description: command.description.value,
       botId: id
     }
-    AdminBotCommandService.createBotCammand(data)
-    setCommand({
+    AdminBotCommandService.createBotCommand(data)
+    command.set({
       name: '',
       description: ''
     })
   }
 
   const submitRemoveBot = async () => {
-    await AdminBotService.removeBots(botId)
-    setOpenConfirm(false)
+    await AdminBotService.removeBots(botId.value)
+    openConfirm.set(false)
   }
 
   const botRefresh = async () => {
@@ -87,7 +111,7 @@ const DisplayBots = () => {
   }
 
   const addCommand = (id) => {
-    if (command.name) {
+    if (command.name.value) {
       submitCommandBot(id)
       botRefresh()
     } else {
@@ -97,16 +121,20 @@ const DisplayBots = () => {
 
   return (
     <div className={styles.botRootRight}>
-      {botAdminData.value.map((bot, index) => {
+      {botAdminData.get({ noproxy: true }).map((bot, index) => {
         return (
-          <Accordion expanded={expanded === `panel${index}`} onChange={handleChange(`panel${index}`)} key={bot.id}>
+          <Accordion
+            expanded={expanded.value === `panel${index}`}
+            onChange={handleChange(`panel${index}`)}
+            key={bot.id}
+          >
             <AccordionSummary
-              expandIcon={<ExpandMoreIcon />}
+              expandIcon={<Icon type="ExpandMore" />}
               aria-controls={`panel${index}bh-content`}
               id={`panel${index}bh-header`}
               className={styles.summary}
             >
-              <Typography className={styles.heading}>{bot.name}</Typography>
+              <Typography className={styles.heading}>{bot?.name}</Typography>
               <Typography className={styles.secondaryHeading}>{bot?.description}</Typography>
             </AccordionSummary>
             <AccordionDetails className={styles.botDetails}>
@@ -134,19 +162,20 @@ const DisplayBots = () => {
                   </Grid>
                   <Grid item xs={4} style={{ display: 'flex' }}>
                     <div style={{ marginLeft: 'auto' }}>
-                      <IconButton onClick={() => handleOpenUpdateBot(bot)} size="large">
-                        <Edit style={{ color: 'var(--iconButtonColor)' }} />
-                      </IconButton>
+                      <IconButton
+                        onClick={() => handleOpenUpdateBot(bot)}
+                        size="large"
+                        icon={<Icon type="Edit" style={{ color: 'var(--iconButtonColor)' }} />}
+                      />
                       <IconButton
                         onClick={() => {
-                          setBotId(bot.id)
-                          setBotName(bot.name)
-                          setOpenConfirm(true)
+                          botId.set(bot.id)
+                          botName.set(bot.name)
+                          openConfirm.set(true)
                         }}
                         size="large"
-                      >
-                        <DeleteIcon style={{ color: 'var(--iconButtonColor)' }} />
-                      </IconButton>
+                        icon={<Icon type="Delete" style={{ color: 'var(--iconButtonColor)' }} />}
+                      />
                     </div>
                   </Grid>
                 </Grid>
@@ -160,7 +189,7 @@ const DisplayBots = () => {
                 </Typography>
 
                 <AddCommand
-                  command={command}
+                  command={command.value}
                   handleChangeCommand={handleChangeCommand}
                   addCommandData={() => addCommand(bot.id)}
                   commandData={bot.botCommands ?? []}
@@ -172,12 +201,12 @@ const DisplayBots = () => {
         )
       })}
 
-      <UpdateBot open={openUpdateBot} onClose={() => setOpenUpdateBot(false)} bot={bot} />
+      <UpdateBot open={openUpdateBot.value} onClose={() => openUpdateBot.set(false)} bot={bot.value} />
 
       <ConfirmDialog
-        open={openConfirm}
-        description={`${t('admin:components.bot.confirmBotDelete')} '${botName}'?`}
-        onClose={() => setOpenConfirm(false)}
+        open={openConfirm.value}
+        description={`${t('admin:components.bot.confirmBotDelete')} '${botName.value}'?`}
+        onClose={() => openConfirm.set(false)}
         onSubmit={submitRemoveBot}
       />
     </div>

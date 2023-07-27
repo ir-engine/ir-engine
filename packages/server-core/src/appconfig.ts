@@ -1,49 +1,76 @@
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
 import appRootPath from 'app-root-path'
-import * as chargebeeInst from 'chargebee'
+import chargebeeInst from 'chargebee'
 import dotenv from 'dotenv-flow'
 import path from 'path'
 import url from 'url'
 
 import multiLogger from './ServerLogger'
 
-const { register } = require('trace-unhandled')
-register()
-
 const logger = multiLogger.child({ component: 'server-core:config' })
 
 const kubernetesEnabled = process.env.KUBERNETES === 'true'
 const testEnabled = process.env.TEST === 'true'
 
-// ensure process fails properly
-process.on('exit', async (code) => {
-  const message = `Server EXIT(${code}).`
-  if (code === 0) {
-    logger.info(message)
-  } else {
-    logger.fatal(message)
-  }
-})
+if (!testEnabled) {
+  const { register } = require('trace-unhandled')
+  register()
 
-process.on('SIGTERM', async (err) => {
-  logger.warn(err, 'Server SIGTERM.')
-  process.exit(1)
-})
-process.on('SIGINT', () => {
-  logger.warn('RECEIVED SIGINT.')
-  process.exit(1)
-})
+  // ensure process fails properly
+  process.on('exit', async (code) => {
+    const message = `Server EXIT(${code}).`
+    if (code === 0) {
+      logger.info(message)
+    } else {
+      logger.fatal(message)
+    }
+  })
 
-// emitted when an uncaught JavaScript exception bubbles
-process.on('uncaughtException', (err) => {
-  logger.fatal(err, 'UNCAUGHT EXCEPTION.')
-  process.exit(1)
-})
+  process.on('SIGTERM', async (err) => {
+    logger.warn(err, 'Server SIGTERM.')
+    process.exit(1)
+  })
+  process.on('SIGINT', () => {
+    logger.warn('RECEIVED SIGINT.')
+    process.exit(1)
+  })
 
-//emitted whenever a Promise is rejected and no error handler is attached to it
-process.on('unhandledRejection', (reason, p) => {
-  logger.fatal({ reason, promise: p }, 'UNHANDLED PROMISE REJECTION.')
-  process.exit(1)
-})
+  // emitted when an uncaught JavaScript exception bubbles
+  process.on('uncaughtException', (err) => {
+    logger.fatal(err, 'UNCAUGHT EXCEPTION.')
+    process.exit(1)
+  })
+
+  //emitted whenever a Promise is rejected and no error handler is attached to it
+  process.on('unhandledRejection', (reason, p) => {
+    logger.fatal({ reason, promise: p }, 'UNHANDLED PROMISE REJECTION.')
+    process.exit(1)
+  })
+}
 
 if (process.env.APP_ENV === 'development' || process.env.LOCAL === 'true') {
   // Avoids DEPTH_ZERO_SELF_SIGNED_CERT error for self-signed certs - needed for local storage provider
@@ -110,6 +137,9 @@ const server = {
   localStorageProviderPort: process.env.LOCAL_STORAGE_PROVIDER_PORT!,
   corsServerPort: process.env.CORS_SERVER_PORT!,
   storageProvider: process.env.STORAGE_PROVIDER!,
+  storageProviderExternalEndpoint: process.env.STORAGE_PROVIDER_EXTERNAL_ENDPOINT!,
+  cloneProjectStaticResources:
+    typeof process.env.CLONE_STATIC_RESOURCES === 'undefined' ? true : process.env.CLONE_STATIC_RESOURCES === 'true',
   gaTrackingId: process.env.GOOGLE_ANALYTICS_TRACKING_ID!,
   hub: {
     endpoint: process.env.HUB_ENDPOINT!
@@ -139,13 +169,8 @@ const client = {
   logo: process.env.APP_LOGO!,
   title: process.env.APP_TITLE!,
   get dist() {
-    if (process.env.SERVE_CLIENT_FROM_STORAGE_PROVIDER === 'true') {
-      if (process.env.STORAGE_PROVIDER === 'aws' && process.env.STORAGE_CLOUDFRONT_DOMAIN) {
-        return `https://${process.env.STORAGE_CLOUDFRONT_DOMAIN}/client/`
-      } else if (process.env.STORAGE_PROVIDER === 'local') {
-        return `https://${process.env.LOCAL_STORAGE_PROVIDER}/client/`
-      }
-    }
+    if (process.env.SERVE_CLIENT_FROM_STORAGE_PROVIDER === 'true' && process.env.STORAGE_PROVIDER === 'local')
+      return `https://${process.env.LOCAL_STORAGE_PROVIDER}/client/`
     return client.url
   },
   url:
@@ -153,16 +178,16 @@ const client = {
     (process.env.VITE_LOCAL_BUILD
       ? 'http://' + process.env.APP_HOST + ':' + process.env.APP_PORT
       : 'https://' + process.env.APP_HOST + ':' + process.env.APP_PORT),
+  port: process.env.APP_PORT || '3000',
   releaseName: process.env.RELEASE_NAME || 'local'
 }
 
 // TODO: rename to 'instanceserver'
 const instanceserver = {
   clientHost: process.env.APP_HOST!,
-  hostname: process.env.INSTANCESERVER_HOST,
-  rtc_start_port: parseInt(process.env.RTC_START_PORT!),
-  rtc_end_port: parseInt(process.env.RTC_END_PORT!),
-  rtc_port_block_size: parseInt(process.env.RTC_PORT_BLOCK_SIZE!),
+  rtcStartPrt: parseInt(process.env.RTC_START_PORT!),
+  rtcEndPort: parseInt(process.env.RTC_END_PORT!),
+  rtcPortBlockSize: parseInt(process.env.RTC_PORT_BLOCK_SIZE!),
   identifierDigits: 5,
   local: process.env.LOCAL === 'true',
   domain: process.env.INSTANCESERVER_DOMAIN || 'instanceserver.etherealengine.com',
@@ -202,8 +227,7 @@ const email = {
     instance: 'Location invitation',
     login: 'Login link',
     friend: 'Friend request',
-    group: 'Group invitation',
-    party: 'Party invitation'
+    channel: 'Channel invitation'
   },
   smsNameCharacterLimit: 20
 }
@@ -215,11 +239,7 @@ const authentication = {
   service: 'identity-provider',
   entity: 'identity-provider',
   secret: process.env.AUTH_SECRET!,
-  authStrategies: ['jwt', 'local', 'discord', 'facebook', 'github', 'google', 'linkedin', 'twitter', 'didWallet'],
-  local: {
-    usernameField: 'email',
-    passwordField: 'password'
-  },
+  authStrategies: ['jwt', 'discord', 'facebook', 'github', 'google', 'linkedin', 'twitter', 'didWallet'],
   jwtOptions: {
     expiresIn: '30 days'
   },
@@ -256,7 +276,6 @@ const authentication = {
       secret: process.env.FACEBOOK_CLIENT_SECRET!
     },
     github: {
-      appid: process.env.GITHUB_APP_ID!,
       key: process.env.GITHUB_CLIENT_ID!,
       secret: process.env.GITHUB_CLIENT_SECRET!,
       scope: ['repo', 'user']
@@ -282,10 +301,6 @@ const authentication = {
  * AWS
  */
 const aws = {
-  keys: {
-    accessKeyId: process.env.STORAGE_AWS_ACCESS_KEY_ID!,
-    secretAccessKey: process.env.STORAGE_AWS_ACCESS_KEY_SECRET!
-  },
   route53: {
     hostedZoneId: process.env.ROUTE53_HOSTED_ZONE_ID!,
     keys: {
@@ -294,7 +309,8 @@ const aws = {
     }
   },
   s3: {
-    baseUrl: 'https://s3.amazonaws.com',
+    accessKeyId: process.env.STORAGE_AWS_ACCESS_KEY_ID!,
+    secretAccessKey: process.env.STORAGE_AWS_ACCESS_KEY_SECRET!,
     endpoint: process.env.STORAGE_S3_ENDPOINT!,
     staticResourceBucket: process.env.STORAGE_S3_STATIC_RESOURCE_BUCKET!,
     region: process.env.STORAGE_S3_REGION!,
@@ -302,9 +318,13 @@ const aws = {
     s3DevMode: process.env.STORAGE_S3_DEV_MODE!
   },
   cloudfront: {
-    domain: process.env.STORAGE_CLOUDFRONT_DOMAIN!,
+    domain: process.env.SERVE_CLIENT_FROM_STORAGE_PROVIDER ? server.clientHost : process.env.STORAGE_CLOUDFRONT_DOMAIN!,
     distributionId: process.env.STORAGE_CLOUDFRONT_DISTRIBUTION_ID!,
     region: process.env.STORAGE_CLOUDFRONT_REGION || process.env.STORAGE_S3_REGION
+  },
+  eks: {
+    accessKeyId: process.env.EKS_AWS_ACCESS_KEY!,
+    secretAccessKey: process.env.EKS_AWS_SECRET!
   },
   sms: {
     accessKeyId: process.env.AWS_SMS_ACCESS_KEY_ID!,

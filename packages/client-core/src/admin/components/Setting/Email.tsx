@@ -1,53 +1,80 @@
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
 import { Icon } from '@iconify/react'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import InputSwitch from '@xrengine/client-core/src/common/components/InputSwitch'
-import InputText from '@xrengine/client-core/src/common/components/InputText'
+import InputSwitch from '@etherealengine/client-core/src/common/components/InputSwitch'
+import InputText from '@etherealengine/client-core/src/common/components/InputText'
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import Box from '@etherealengine/ui/src/primitives/mui/Box'
+import Button from '@etherealengine/ui/src/primitives/mui/Button'
+import Grid from '@etherealengine/ui/src/primitives/mui/Grid'
+import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
+import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 
-import { Box, Button, Grid, Typography } from '@mui/material'
-import IconButton from '@mui/material/IconButton'
-
-import { useAuthState } from '../../../user/services/AuthService'
-import { EmailSettingService, useEmailSettingState } from '../../services/Setting/EmailSettingService'
+import { AuthState } from '../../../user/services/AuthService'
+import { AdminEmailSettingsState, EmailSettingService } from '../../services/Setting/EmailSettingService'
 import styles from '../../styles/settings.module.scss'
 
 const Email = () => {
   const { t } = useTranslation()
-  const emailSettingState = useEmailSettingState()
-  const [emailSetting] = emailSettingState?.email?.value || []
+  const emailSettingState = useHookstate(getMutableState(AdminEmailSettingsState))
+  const [emailSetting] = emailSettingState?.email?.get({ noproxy: true }) || []
   const id = emailSetting?.id
+  const showPassword = useHookstate(false)
+  const smsNameCharacterLimit = useHookstate(emailSetting?.smsNameCharacterLimit)
+  const smtp = useHookstate(emailSetting?.smtp)
+  const auth = useHookstate(emailSetting?.smtp?.auth)
+  const from = useHookstate(emailSetting?.from)
+  const subject = useHookstate(emailSetting?.subject)
 
-  const [showPassword, setShowPassword] = useState(false)
-  const [smtp, setSmtp] = useState(emailSetting?.smtp)
-  const [auth, setAuth] = useState(emailSetting?.smtp?.auth)
-  const [from, setFrom] = useState(emailSetting?.from)
-  const [subject, setSubject] = useState(emailSetting?.subject)
-
-  const authState = useAuthState()
-  const user = authState.user
+  const user = useHookstate(getMutableState(AuthState).user)
 
   const handleSmtpSecure = (event) => {
-    setSmtp({ ...smtp, secure: event.target.checked })
+    smtp.set({ ...JSON.parse(JSON.stringify(smtp.value)), secure: event.target.checked })
   }
 
   const handleUpdateSmtp = (event, type) => {
-    setSmtp({
-      ...smtp,
+    smtp.set({
+      ...JSON.parse(JSON.stringify(smtp.value)),
       [type]: event.target.value
     })
   }
 
   const handleUpdateAuth = (event, type) => {
-    setAuth({
-      ...auth,
+    auth.set({
+      ...JSON.parse(JSON.stringify(auth.value)),
       [type]: event.target.value
     })
   }
 
   const handleUpdateSubject = (event, type) => {
-    setSubject({
-      ...subject,
+    subject.set({
+      ...JSON.parse(JSON.stringify(subject.value)),
       [type]: event.target.value
     })
   }
@@ -56,18 +83,18 @@ const Email = () => {
     if (user?.id?.value != null && emailSettingState?.updateNeeded?.value === true) {
       EmailSettingService.fetchedEmailSettings()
     }
-  }, [authState?.user?.id?.value, emailSettingState?.updateNeeded?.value])
+  }, [user?.id?.value, emailSettingState?.updateNeeded?.value])
 
   useEffect(() => {
     if (emailSetting) {
-      let tempSmtp = JSON.parse(JSON.stringify(emailSetting?.smtp))
-      let tempAuth = JSON.parse(JSON.stringify(emailSetting?.smtp?.auth))
-      let tempSubject = JSON.parse(JSON.stringify(emailSetting?.subject))
+      const tempSmtp = emailSetting?.smtp
+      const tempAuth = emailSetting?.smtp?.auth
+      const tempSubject = emailSetting?.subject
 
-      setSmtp(tempSmtp)
-      setAuth(tempAuth)
-      setSubject(tempSubject)
-      setFrom(emailSetting?.from)
+      smtp.set(tempSmtp)
+      auth.set(tempAuth)
+      subject.set(tempSubject)
+      from.set(emailSetting?.from)
     }
   }, [emailSettingState?.updateNeeded?.value])
 
@@ -76,23 +103,24 @@ const Email = () => {
 
     EmailSettingService.patchEmailSetting(
       {
-        smtp: JSON.stringify({ ...smtp, auth: JSON.stringify(auth) }),
-        from: from,
-        subject: JSON.stringify(subject)
+        smtp: { ...smtp.value, auth: auth.value },
+        from: from.value,
+        subject: subject.value
       },
       id
     )
   }
 
   const handleCancel = () => {
-    let tempSmtp = JSON.parse(JSON.stringify(emailSetting?.smtp))
-    let tempAuth = JSON.parse(JSON.stringify(emailSetting?.smtp?.auth))
-    let tempSubject = JSON.parse(JSON.stringify(emailSetting?.subject))
+    const tempSmtp = emailSetting?.smtp
+    const tempAuth = emailSetting?.smtp?.auth
+    const tempSubject = emailSetting?.subject
 
-    setSmtp(tempSmtp)
-    setAuth(tempAuth)
-    setSubject(tempSubject)
-    setFrom(emailSetting?.from)
+    smtp.set(tempSmtp)
+    auth.set(tempAuth)
+    subject.set(tempSubject)
+    from.set(emailSetting?.from)
+    smsNameCharacterLimit.set(emailSetting?.smsNameCharacterLimit)
   }
 
   return (
@@ -107,21 +135,21 @@ const Email = () => {
           <InputText
             name="host"
             label={t('admin:components.setting.host')}
-            value={smtp?.host || ''}
+            value={smtp?.value?.host || ''}
             onChange={(e) => handleUpdateSmtp(e, 'host')}
           />
 
           <InputText
             name="port"
             label={t('admin:components.setting.port')}
-            value={smtp?.port || ''}
+            value={smtp?.value?.port || ''}
             onChange={(e) => handleUpdateSmtp(e, 'port')}
           />
 
           <InputSwitch
             name="email"
             label={t('admin:components.setting.secure')}
-            checked={smtp?.secure || false}
+            checked={smtp?.value?.secure || false}
             onChange={handleSmtpSecure}
           />
 
@@ -130,19 +158,25 @@ const Email = () => {
           <InputText
             name="user"
             label={t('admin:components.setting.userName')}
-            value={auth?.user || ''}
+            value={auth?.value?.user || ''}
             onChange={(e) => handleUpdateAuth(e, 'user')}
           />
 
           <InputText
             name="pass"
             label={t('admin:components.setting.password')}
-            value={auth?.pass || ''}
-            type={showPassword ? 'text' : 'password'}
+            value={auth?.value?.pass || ''}
+            type={showPassword.value ? 'text' : 'password'}
             endAdornment={
-              <IconButton onClick={() => setShowPassword(!showPassword)}>
-                <Icon icon={showPassword ? 'ic:baseline-visibility' : 'ic:baseline-visibility-off'} color="orange" />
-              </IconButton>
+              <IconButton
+                onClick={() => showPassword.set(!showPassword.value)}
+                icon={
+                  <Icon
+                    icon={showPassword.value ? 'ic:baseline-visibility' : 'ic:baseline-visibility-off'}
+                    color="orange"
+                  />
+                }
+              />
             }
             onChange={(e) => handleUpdateAuth(e, 'pass')}
           />
@@ -153,8 +187,8 @@ const Email = () => {
           <InputText
             name="from"
             label={t('admin:components.setting.from')}
-            value={from || ''}
-            onChange={(e) => setFrom(e.target.value)}
+            value={from?.value || ''}
+            onChange={(e) => from.set(e.target.value)}
           />
 
           <Typography className={styles.settingsSubHeading}>{t('admin:components.setting.subject')}</Typography>
@@ -162,35 +196,28 @@ const Email = () => {
           <InputText
             name="login"
             label={t('admin:components.setting.login')}
-            value={subject?.login || ''}
+            value={subject?.value?.login || ''}
             onChange={(e) => handleUpdateSubject(e, 'login')}
           />
 
           <InputText
             name="friend"
             label={t('admin:components.setting.friend')}
-            value={subject?.friend || ''}
+            value={subject?.value?.friend || ''}
             onChange={(e) => handleUpdateSubject(e, 'friend')}
           />
 
           <InputText
-            name="group"
-            label={t('admin:components.setting.group')}
-            value={subject?.group || ''}
-            onChange={(e) => handleUpdateSubject(e, 'group')}
-          />
-
-          <InputText
-            name="party"
-            label={t('admin:components.setting.party')}
-            value={subject?.party || ''}
-            onChange={(e) => handleUpdateSubject(e, 'party')}
+            name="channel"
+            label={t('admin:components.setting.channel')}
+            value={subject?.value?.channel || ''}
+            onChange={(e) => handleUpdateSubject(e, 'channel')}
           />
 
           <InputText
             name="smsNameCharacterLimit"
             label={t('admin:components.setting.smsNameCharLimit')}
-            value={emailSetting?.smsNameCharacterLimit}
+            value={smsNameCharacterLimit?.value}
             disabled
           />
         </Grid>

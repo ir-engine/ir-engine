@@ -1,6 +1,7 @@
-# syntax = docker/dockerfile:1.2
-# not slim because we need github depedencies
-FROM root-builder as builder
+ARG ECR_URL
+ARG REPO_NAME
+ARG STAGE
+FROM ${ECR_URL}/${REPO_NAME}-root:latest_${STAGE} as builder
 
 # Create app directory
 WORKDIR /app
@@ -9,7 +10,7 @@ WORKDIR /app
 COPY packages/server/package.json ./packages/server/
 
 ARG NODE_ENV
-RUN npm install --loglevel notice --legacy-peer-deps
+RUN npm install --loglevel notice --legacy-peer-deps --production
 
 COPY . .
 
@@ -24,5 +25,7 @@ RUN apt-get -y install git-lfs
 WORKDIR /app
 
 COPY --from=builder /app ./
+
+RUN bash ./scripts/setup_helm.sh
 
 CMD ["scripts/start-server.sh"]

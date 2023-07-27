@@ -1,3 +1,28 @@
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
 import { useHookstate } from '@hookstate/core'
 import React, { useState } from 'react'
 import styled from 'styled-components'
@@ -55,9 +80,8 @@ interface Vector3InputProp {
   largeStep?: number
   value: Vector3
   hideLabels?: boolean
-  onChange: Function
-  style?: React.CSSProperties
-  onRelease?: Function
+  onChange: (v: Vector3) => void
+  onRelease?: (v: Vector3) => void
 }
 
 export const Vector3Input = ({
@@ -74,7 +98,8 @@ export const Vector3Input = ({
 }: Vector3InputProp) => {
   const id = uniqueId++
   const [uniformEnabled, setUniformEnabled] = useState(uniformScaling)
-  const newValue = useHookstate(new Vector3())
+  const newValue = useHookstate(new Vector3(0, 0, 0))
+  newValue.value.set(0, 0, 0)
 
   const onToggleUniform = () => {
     setUniformEnabled(!uniformEnabled)
@@ -82,7 +107,7 @@ export const Vector3Input = ({
 
   const processChange = (field, fieldValue) => {
     if (uniformEnabled) {
-      newValue.set(new Vector3(fieldValue, fieldValue, fieldValue))
+      newValue.value.set(fieldValue, fieldValue, fieldValue)
     } else {
       const x = value ? value.x : 0
       const y = value ? value.y : 0
@@ -125,6 +150,7 @@ export const Vector3Input = ({
         {...rest}
         value={vx}
         onChange={onChangeX}
+        onCommit={onRelease}
         prefix={
           hideLabels ? null : (
             <Vector3Scrubber {...rest} tag="div" value={vx} onChange={onChangeX} onPointerUp={onRelease} axis="x">
@@ -137,6 +163,7 @@ export const Vector3Input = ({
         {...rest}
         value={vy}
         onChange={onChangeY}
+        onCommit={onRelease}
         prefix={
           hideLabels ? null : (
             <Vector3Scrubber {...rest} tag="div" value={vy} onChange={onChangeY} onPointerUp={onRelease} axis="y">
@@ -149,6 +176,7 @@ export const Vector3Input = ({
         {...rest}
         value={vz}
         onChange={onChangeZ}
+        onCommit={onRelease}
         prefix={
           hideLabels ? null : (
             <Vector3Scrubber {...rest} tag="div" value={vz} onChange={onChangeZ} onPointerUp={onRelease} axis="z">

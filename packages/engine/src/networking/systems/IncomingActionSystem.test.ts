@@ -1,16 +1,43 @@
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
 import assert, { strictEqual } from 'assert'
 import matches from 'ts-matches'
 
-import { UserId } from '@xrengine/common/src/interfaces/UserId'
-import { getState } from '@xrengine/hyperflux'
+import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
+import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 import {
   ActionRecipients,
   addActionReceptor,
-  applyIncomingActions
-} from '@xrengine/hyperflux/functions/ActionFunctions'
+  applyIncomingActions,
+  getMutableState,
+  getState
+} from '@etherealengine/hyperflux'
 
 import { createMockNetwork } from '../../../tests/util/createMockNetwork'
-import { Engine } from '../../ecs/classes/Engine'
+import { destroyEngine, Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
 import { createEngine } from '../../initializeEngine'
 import { NetworkTopics } from '../classes/Network'
@@ -21,18 +48,20 @@ describe('IncomingActionSystem Unit Tests', async () => {
     createEngine()
     // this is hacky but works and preserves the logic
     Engine.instance.store.getDispatchTime = () => {
-      return Engine.instance.currentWorld.fixedTick
+      return getState(EngineState).simulationTime
     }
     createMockNetwork()
   })
 
+  afterEach(() => {
+    return destroyEngine()
+  })
+
   describe('applyIncomingActions', () => {
     it('should delay incoming action from the future', () => {
-      const world = Engine.instance.currentWorld
-
       // fixed tick in past
-      const engineState = getState(EngineState)
-      engineState.fixedTick.set(0)
+      const engineState = getMutableState(EngineState)
+      engineState.simulationTime.set(0)
 
       /* mock */
       const action = WorldNetworkAction.spawnObject({
@@ -40,13 +69,14 @@ describe('IncomingActionSystem Unit Tests', async () => {
         prefab: '',
         // incoming action from future
         $time: 2,
-        $to: '0' as ActionRecipients
+        $to: '0' as ActionRecipients,
+        entityUUID: '0' as EntityUUID
       })
       action.$topic = NetworkTopics.world
 
       Engine.instance.store.actions.incoming.push(action)
 
-      const recepted: typeof action[] = []
+      const recepted: (typeof action)[] = []
       addActionReceptor((a) => matches(a).when(WorldNetworkAction.spawnObject.matches, (a) => recepted.push(a)))
 
       /* run */
@@ -56,7 +86,7 @@ describe('IncomingActionSystem Unit Tests', async () => {
       strictEqual(recepted.length, 0)
 
       // fixed tick update
-      engineState.fixedTick.set(2)
+      engineState.simulationTime.set(2)
       applyIncomingActions()
 
       /* assert */
@@ -64,21 +94,20 @@ describe('IncomingActionSystem Unit Tests', async () => {
     })
 
     it('should immediately apply incoming action from the past or present', () => {
-      const world = Engine.instance.currentWorld
-
       /* mock */
       const action = WorldNetworkAction.spawnObject({
         $from: '0' as UserId,
         prefab: '',
         // incoming action from past
         $time: -1,
-        $to: '0' as ActionRecipients
+        $to: '0' as ActionRecipients,
+        entityUUID: '0' as EntityUUID
       })
       action.$topic = NetworkTopics.world
 
       Engine.instance.store.actions.incoming.push(action)
 
-      const recepted: typeof action[] = []
+      const recepted: (typeof action)[] = []
       addActionReceptor((a) => matches(a).when(WorldNetworkAction.spawnObject.matches, (a) => recepted.push(a)))
 
       /* run */
@@ -91,8 +120,6 @@ describe('IncomingActionSystem Unit Tests', async () => {
 
   describe('applyAndArchiveIncomingAction', () => {
     it('should cache actions where $cache = true', () => {
-      const world = Engine.instance.currentWorld
-
       /* mock */
       const action = WorldNetworkAction.spawnObject({
         $from: '0' as UserId,
@@ -100,13 +127,14 @@ describe('IncomingActionSystem Unit Tests', async () => {
         // incoming action from past
         $time: 0,
         $to: '0' as ActionRecipients,
-        $cache: true
+        $cache: true,
+        entityUUID: '0' as EntityUUID
       })
       action.$topic = NetworkTopics.world
 
       Engine.instance.store.actions.incoming.push(action)
 
-      const recepted: typeof action[] = []
+      const recepted: (typeof action)[] = []
       addActionReceptor((a) => matches(a).when(WorldNetworkAction.spawnObject.matches, (a) => recepted.push(a)))
 
       /* run */

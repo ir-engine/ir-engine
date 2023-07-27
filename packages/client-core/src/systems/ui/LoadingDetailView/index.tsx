@@ -1,85 +1,70 @@
-import { createState, State, useHookstate } from '@hookstate/core'
-import getImagePalette from 'image-palette-core'
-import React, { useEffect, useState } from 'react'
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
+import { createState, useHookstate } from '@hookstate/core'
+import React from 'react'
 import { useTranslation } from 'react-i18next'
-import { Color } from 'three'
 
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
-import { EngineRenderer } from '@xrengine/engine/src/renderer/WebGLRendererSystem'
-import { XRState } from '@xrengine/engine/src/xr/XRState'
-import { createTransitionState } from '@xrengine/engine/src/xrui/functions/createTransitionState'
-import { createXRUI, XRUI } from '@xrengine/engine/src/xrui/functions/createXRUI'
-import { useXRUIState } from '@xrengine/engine/src/xrui/functions/useXRUIState'
+import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
+import { createXRUI } from '@etherealengine/engine/src/xrui/functions/createXRUI'
+import { useXRUIState } from '@etherealengine/engine/src/xrui/functions/useXRUIState'
+import { getMutableState } from '@etherealengine/hyperflux'
 
-import { AppLoadingStates, useLoadingState } from '../../../common/services/AppLoadingService'
-import { useSceneState } from '../../../world/services/SceneService'
-import { LoadingSystemState } from '../../state/LoadingState'
 import ProgressBar from './SimpleProgressBar'
 import LoadingDetailViewStyle from './style'
 
 interface LoadingUIState {
   imageWidth: number
   imageHeight: number
+  colors: {
+    main: string
+    background: string
+    alternate: string
+  }
 }
 
-export function createLoaderDetailView(transition: ReturnType<typeof createTransitionState>) {
-  const xrui = createXRUI(function Loading() {
-    return <LoadingDetailView transition={transition} />
-  }, createState({ imageWidth: 1, imageHeight: 1 }))
+export function createLoaderDetailView() {
+  const xrui = createXRUI(
+    function Loading() {
+      return <LoadingDetailView />
+    },
+    createState({
+      colors: {
+        main: '',
+        background: '',
+        alternate: ''
+      }
+    })
+  )
   return xrui
 }
 
-const col = new Color()
-
-function setDefaultPalette(colors) {
-  colors.main.set('black')
-  colors.background.set('white')
-  colors.alternate.set('black')
-}
-
-const LoadingDetailView = (props: { transition: ReturnType<typeof createTransitionState> }) => {
+const LoadingDetailView = () => {
   const uiState = useXRUIState<LoadingUIState>()
-  const sceneState = useSceneState()
-  const engineState = useEngineState()
+  const engineState = useHookstate(getMutableState(EngineState))
   const { t } = useTranslation()
-  const colors = useHookstate({
-    main: '',
-    background: '',
-    alternate: ''
-  })
-
-  useEffect(() => {
-    const thumbnailUrl = sceneState.currentScene.ornull?.thumbnailUrl.value
-    const img = new Image()
-
-    if (thumbnailUrl) {
-      colors.main.set('')
-      colors.background.set('')
-      colors.alternate.set('')
-      img.crossOrigin = 'anonymous'
-      img.onload = function () {
-        uiState.imageWidth.set(img.naturalWidth)
-        uiState.imageHeight.set(img.naturalHeight)
-        const palette = getImagePalette(img)
-        if (palette) {
-          colors.main.set(palette.color)
-          colors.background.set(palette.backgroundColor)
-          col.set(colors.background.value)
-          colors.alternate.set(palette.alternativeColor)
-        } else {
-          setDefaultPalette(colors)
-        }
-      }
-      img.src = thumbnailUrl
-    } else {
-      setDefaultPalette(colors)
-    }
-
-    return () => {
-      img.onload = null
-    }
-  }, [sceneState.currentScene.ornull?.thumbnailUrl])
 
   const sceneLoaded = engineState.sceneLoaded.value
   const joinedWorld = engineState.joinedWorld.value
@@ -91,7 +76,7 @@ const LoadingDetailView = (props: { transition: ReturnType<typeof createTransiti
 
   return (
     <>
-      <LoadingDetailViewStyle col={col} colors={colors} />
+      <LoadingDetailViewStyle />
       <div id="loading-container" xr-layer="true">
         {/* <div id="thumbnail">
           <img xr-layer="true" xr-pixel-ratio="1" src={thumbnailUrl} crossOrigin="anonymous" />
@@ -100,14 +85,14 @@ const LoadingDetailView = (props: { transition: ReturnType<typeof createTransiti
           <div id="loading-text" xr-layer="true" xr-pixel-ratio="3">
             {t('common:loader.loading')}
           </div>
-          <div id="progress-text" xr-layer="true" xr-pixel-ratio="3">
-            {engineState.loadingProgress.value}%
+          <div id="progress-text" xr-layer="true" xr-pixel-ratio="2" xr-prerasterized="0-9">
+            {`${engineState.loadingProgress.value}%`}
           </div>
-          <div id="progress-container" xr-layer="true">
+          <div id="progress-container" xr-layer="true" xr-scalable="true" xr-apply-dom-layout="once">
             <ProgressBar
-              bgColor={colors.alternate.value}
-              completed={engineState.loadingProgress.value}
-              height="1px"
+              bgColor={'#ffffff'}
+              completed={100}
+              height="2px"
               baseBgColor="#000000"
               isLabelVisible={false}
             />

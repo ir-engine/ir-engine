@@ -1,44 +1,65 @@
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import Avatar from '@xrengine/client-core/src/common/components/Avatar'
-import AvatarPreview from '@xrengine/client-core/src/common/components/AvatarPreview'
-import Button from '@xrengine/client-core/src/common/components/Button'
-import IconButton from '@xrengine/client-core/src/common/components/IconButton'
-import InputText from '@xrengine/client-core/src/common/components/InputText'
-import Menu from '@xrengine/client-core/src/common/components/Menu'
-import Text from '@xrengine/client-core/src/common/components/Text'
-import { AvatarEffectComponent } from '@xrengine/engine/src/avatar/components/AvatarEffectComponent'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import Avatar from '@etherealengine/client-core/src/common/components/Avatar'
+import AvatarPreview from '@etherealengine/client-core/src/common/components/AvatarPreview'
+import Button from '@etherealengine/client-core/src/common/components/Button'
+import InputText from '@etherealengine/client-core/src/common/components/InputText'
+import Menu from '@etherealengine/client-core/src/common/components/Menu'
+import Text from '@etherealengine/client-core/src/common/components/Text'
+import { AvatarEffectComponent } from '@etherealengine/engine/src/avatar/components/AvatarEffectComponent'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { hasComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import Box from '@etherealengine/ui/src/primitives/mui/Box'
+import Grid from '@etherealengine/ui/src/primitives/mui/Grid'
+import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
+import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
 
-import CheckIcon from '@mui/icons-material/Check'
-import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown'
-import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp'
-import PersonAddIcon from '@mui/icons-material/PersonAdd'
-import Box from '@mui/material/Box'
-import Grid from '@mui/material/Grid'
-
-import { useAuthState } from '../../../services/AuthService'
-import { AvatarService, useAvatarService } from '../../../services/AvatarService'
+import { AuthState } from '../../../services/AuthService'
+import { AvatarService, AvatarState } from '../../../services/AvatarService'
+import { UserMenus } from '../../../UserUISystem'
 import styles from '../index.module.scss'
-import { Views } from '../util'
+import { PopupMenuServices } from '../PopupMenuService'
 
-interface Props {
-  changeActiveMenu: Function
-}
-
-const AvatarMenu = ({ changeActiveMenu }: Props) => {
+const AvatarMenu = () => {
   const { t } = useTranslation()
-  const authState = useAuthState()
+  const authState = useHookstate(getMutableState(AuthState))
   const userId = authState.user?.id?.value
   const userAvatarId = authState.user?.avatarId?.value
 
-  const [page, setPage] = useState(0)
-  const [selectedAvatarId, setSelectedAvatarId] = useState<string | undefined>(userAvatarId)
-
-  const avatarState = useAvatarService()
+  const avatarState = useHookstate(getMutableState(AvatarState))
   const { avatarList, search } = avatarState.value
+
+  const [page, setPage] = useState(0)
+  const [localSearchString, setLocalSearchString] = useState(search)
+  const [selectedAvatarId, setSelectedAvatarId] = useState<string | undefined>(userAvatarId)
+  const [searchTimeout, setSearchTimeout] = useState<NodeJS.Timeout | null>(null)
 
   const selectedAvatar = avatarList.find((item) => item.id === selectedAvatarId)
 
@@ -46,17 +67,17 @@ const AvatarMenu = ({ changeActiveMenu }: Props) => {
     AvatarService.fetchAvatarList()
   }, [])
 
-  const setAvatar = (avatarId: string, avatarURL: string, thumbnailURL: string) => {
-    if (hasComponent(Engine.instance.currentWorld.localClientEntity, AvatarEffectComponent)) return
+  const setAvatar = (avatarId: string) => {
+    if (hasComponent(Engine.instance.localClientEntity, AvatarEffectComponent)) return
     if (authState.user?.value) {
-      AvatarService.updateUserAvatarId(authState.user.id.value!, avatarId, avatarURL, thumbnailURL)
+      AvatarService.updateUserAvatarId(authState.user.id.value!, avatarId)
     }
   }
 
   const handleConfirmAvatar = () => {
     if (selectedAvatarId && selectedAvatar && userAvatarId !== selectedAvatarId) {
-      setAvatar(selectedAvatarId, selectedAvatar.modelResource?.url || '', selectedAvatar.thumbnailResource?.url || '')
-      changeActiveMenu(Views.Closed)
+      setAvatar(selectedAvatarId)
+      PopupMenuServices.showPopupMenu()
     }
     setSelectedAvatarId(undefined)
   }
@@ -75,6 +96,20 @@ const AvatarMenu = ({ changeActiveMenu }: Props) => {
     AvatarService.fetchAvatarList(search, 'decrement')
   }
 
+  const handleSearch = async (searchString: string) => {
+    setLocalSearchString(searchString)
+
+    if (searchTimeout) {
+      clearTimeout(searchTimeout)
+    }
+
+    const timeout = setTimeout(() => {
+      AvatarService.fetchAvatarList(searchString)
+    }, 1000)
+
+    setSearchTimeout(timeout)
+  }
+
   return (
     <Menu
       open
@@ -83,7 +118,7 @@ const AvatarMenu = ({ changeActiveMenu }: Props) => {
         <Box display="flex" width="100%">
           <Button
             disabled={!selectedAvatar || selectedAvatar.id === userAvatarId}
-            startIcon={<CheckIcon />}
+            startIcon={<Icon type="Check" />}
             size="medium"
             type="gradientRounded"
             title={t('user:avatar.confirm')}
@@ -94,8 +129,8 @@ const AvatarMenu = ({ changeActiveMenu }: Props) => {
         </Box>
       }
       title={t('user:avatar.titleSelectAvatar')}
-      onBack={() => changeActiveMenu(Views.Profile)}
-      onClose={() => changeActiveMenu(Views.Closed)}
+      onBack={() => PopupMenuServices.showPopupMenu(UserMenus.Profile)}
+      onClose={() => PopupMenuServices.showPopupMenu()}
     >
       <Box className={styles.menuContent}>
         <Grid container spacing={2}>
@@ -106,12 +141,16 @@ const AvatarMenu = ({ changeActiveMenu }: Props) => {
           <Grid item md={6} sx={{ width: '100%' }}>
             <InputText
               placeholder={t('user:avatar.searchAvatar')}
-              value={search}
+              value={localSearchString}
               sx={{ mt: 1 }}
-              onChange={(e) => AvatarService.fetchAvatarList(e.target.value)}
+              onChange={(e) => handleSearch(e.target.value)}
             />
 
-            <IconButton icon={<KeyboardArrowUpIcon />} sx={{ display: 'none' }} onClick={handlePreviousAvatars} />
+            <IconButton
+              icon={<Icon type="KeyboardArrowUp" />}
+              sx={{ display: 'none' }}
+              onClick={handlePreviousAvatars}
+            />
 
             <Grid container sx={{ height: '275px', gap: 1.5, overflowX: 'hidden', overflowY: 'auto' }}>
               {avatarList.map((avatar) => (
@@ -123,7 +162,7 @@ const AvatarMenu = ({ changeActiveMenu }: Props) => {
                     showChangeButton={userId && avatar.userId === userId}
                     type="rectangle"
                     onClick={() => setSelectedAvatarId(avatar.id)}
-                    onChange={() => changeActiveMenu(Views.AvatarModify, { selectedAvatar: avatar })}
+                    onChange={() => PopupMenuServices.showPopupMenu(UserMenus.AvatarModify, { selectedAvatar: avatar })}
                   />
                 </Grid>
               ))}
@@ -136,15 +175,19 @@ const AvatarMenu = ({ changeActiveMenu }: Props) => {
             </Grid>
 
             <Box>
-              <IconButton icon={<KeyboardArrowDownIcon />} sx={{ display: 'none' }} onClick={handleNextAvatars} />
+              <IconButton
+                icon={<Icon type="KeyboardArrowDown" />}
+                sx={{ display: 'none' }}
+                onClick={handleNextAvatars}
+              />
             </Box>
             <Button
               fullWidth
-              startIcon={<PersonAddIcon />}
+              startIcon={<Icon type="PersonAdd" />}
               title={t('user:avatar.createAvatar')}
               type="gradientRounded"
               sx={{ mb: 0 }}
-              onClick={() => changeActiveMenu(Views.AvatarModify)}
+              onClick={() => PopupMenuServices.showPopupMenu(UserMenus.AvatarModify)}
             >
               {t('user:avatar.createAvatar')}
             </Button>

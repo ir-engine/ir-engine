@@ -1,13 +1,41 @@
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
 import { State } from '@hookstate/core'
-import type { WebContainer3D } from '@xrfoundation/xrui'
 import React from 'react'
 import { createRoot } from 'react-dom/client'
 import { Group } from 'three'
 
-import { isNode } from '../../common/functions/getEnvironment'
+import { WebContainer3D } from '@etherealengine/xrui/core/three/WebContainer3D'
+import { WebLayerManager } from '@etherealengine/xrui/core/three/WebLayerManager'
+
+import { isClient } from '../../common/functions/getEnvironment'
 import { Entity } from '../../ecs/classes/Entity'
-import { addComponent, getComponent, getComponentState, setComponent } from '../../ecs/functions/ComponentFunctions'
+import { addComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
+import { InputComponent } from '../../input/components/InputComponent'
 import { addObjectToGroup } from '../../scene/components/GroupComponent'
 import { VisibleComponent } from '../../scene/components/VisibleComponent'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
@@ -17,14 +45,8 @@ import { setTransformComponent } from '../../transform/components/TransformCompo
 import { XRUIComponent } from '../components/XRUIComponent'
 import { XRUIStateContext } from '../XRUIStateContext'
 
-let Ethereal: typeof import('@xrfoundation/xrui')
-
-export async function loadXRUIDeps() {
-  Ethereal = await import('@xrfoundation/xrui')
-}
-
 export function createXRUI<S extends State<any> | null>(UIFunc: React.FC, state = null as S): XRUI<S> {
-  if (isNode) throw new Error('XRUI is not supported in nodejs')
+  if (!isClient) throw new Error('XRUI is not supported in nodejs')
 
   const entity = createEntity()
 
@@ -40,7 +62,7 @@ export function createXRUI<S extends State<any> | null>(UIFunc: React.FC, state 
     </XRUIStateContext.Provider>
   )
 
-  const container = new Ethereal.WebContainer3D(containerElement, { manager: Ethereal.WebLayerManager.instance })
+  const container = new WebContainer3D(containerElement, { manager: WebLayerManager.instance })
 
   container.raycaster.layers.enableAll()
 
@@ -53,6 +75,7 @@ export function createXRUI<S extends State<any> | null>(UIFunc: React.FC, state 
   setComponent(entity, DistanceFromCameraComponent)
   addComponent(entity, XRUIComponent, container)
   addComponent(entity, VisibleComponent, true)
+  setComponent(entity, InputComponent)
 
   return { entity, state, container }
 }

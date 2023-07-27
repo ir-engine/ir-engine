@@ -1,23 +1,44 @@
-import { useEffect } from 'react'
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
 import matches, { Validator } from 'ts-matches'
 
-import { EntityUUID } from '@xrengine/common/src/interfaces/EntityUUID'
-import { EntityJson } from '@xrengine/common/src/interfaces/SceneInterface'
-import logger from '@xrengine/common/src/logger'
+import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
+import { EntityJson } from '@etherealengine/common/src/interfaces/SceneInterface'
 import {
   defineComponent,
+  getComponent,
   hasComponent,
-  removeComponent,
-  useOptionalComponent
-} from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+  removeComponent
+} from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 
-import { Engine } from '../../ecs/classes/Engine'
-import { Entity } from '../../ecs/classes/Entity'
-import { EntityReactorProps, removeEntity } from '../../ecs/functions/EntityFunctions'
-import { getEntityTreeNodeByUUID, iterateEntityNode, removeEntityNodeFromParent } from '../../ecs/functions/EntityTree'
+import { EntityTreeComponent, removeEntityNodeRecursively } from '../../ecs/functions/EntityTree'
 import { serializeEntity } from '../functions/serializeWorld'
 import { updateSceneEntity } from '../systems/SceneLoadingSystem'
 import { CallbackComponent, setCallback } from './CallbackComponent'
+import { UUIDComponent } from './UUIDComponent'
 
 export type LoadVolumeTarget = {
   uuid: EntityUUID
@@ -31,14 +52,13 @@ export type LoadVolumeComponentType = {
 
 export const LoadVolumeComponent = defineComponent({
   name: 'EE_load_volume',
-  onInit: (entity) => ({ targets: {} } as LoadVolumeComponentType),
+  jsonID: 'load-volume',
+  onInit: (entity) => ({ targets: {} }) as LoadVolumeComponentType,
   toJSON: (entity, component) => {
     return component.value
   },
   onSet: (entity, component, json) => {
     if (!json) return
-    const world = Engine.instance.currentWorld
-    const nodeMap = world.entityTree.entityNodeMap
 
     if ((matches.object as Validator<unknown, Record<EntityUUID, LoadVolumeTarget>>).test(json.targets)) {
       component.targets.set(json.targets)
@@ -61,21 +81,17 @@ export const LoadVolumeComponent = defineComponent({
     function doUnload() {
       Object.values(component.targets.value).map(({ uuid, loaded, entityJson: oldEJson }) => {
         if (!loaded) return
-        let targetEntity: Entity
-        let clearChildren = () => removeEntity(targetEntity)
-
-        const targetNode = getEntityTreeNodeByUUID(uuid)!
-        const parentNode = nodeMap.get(targetNode.parentEntity!)!
-        targetEntity = targetNode.entity
-        clearChildren = () =>
-          iterateEntityNode(targetNode, (node) => {
-            node.children.filter((entity) => !nodeMap.has(entity)).map((entity) => removeEntity(entity))
-            removeEntityNodeFromParent(node)
-            removeEntity(node.entity)
-          })
+        const targetEntity = UUIDComponent.entitiesByUUID[uuid]
+        const parent = getComponent(targetEntity, EntityTreeComponent)
+        const parentNode = parent.parentEntity!
+        const clearChildren = () => removeEntityNodeRecursively(targetEntity)
         const componentJson = serializeEntity(targetEntity)
         clearChildren()
-        const entityJson: EntityJson = { name: uuid, parent: parentNode.uuid, components: componentJson }
+        const entityJson: EntityJson = {
+          name: uuid,
+          parent: getComponent(parentNode, UUIDComponent),
+          components: componentJson
+        }
         component.targets[uuid].set({ uuid, loaded: false, entityJson })
       })
     }
@@ -88,5 +104,3 @@ export const LoadVolumeComponent = defineComponent({
     setCallback(entity, 'doUnload', doUnload)
   }
 })
-
-export const SCENE_COMPONENT_LOAD_VOLUME = 'load-volume'

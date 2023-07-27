@@ -1,17 +1,35 @@
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
 import React from 'react'
 import { useTranslation } from 'react-i18next'
-import { Color } from 'three'
 
-import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
-import {
-  ComponentType,
-  getComponent,
-  hasComponent,
-  useComponent
-} from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { ErrorComponent, getEntityErrors } from '@xrengine/engine/src/scene/components/ErrorComponent'
-import { SkyboxComponent } from '@xrengine/engine/src/scene/components/SkyboxComponent'
-import { SkyTypeEnum } from '@xrengine/engine/src/scene/constants/SkyTypeEnum'
+import { useComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { getEntityErrors } from '@etherealengine/engine/src/scene/components/ErrorComponent'
+import { SkyboxComponent } from '@etherealengine/engine/src/scene/components/SkyboxComponent'
+import { SkyTypeEnum } from '@etherealengine/engine/src/scene/constants/SkyTypeEnum'
 
 import CloudIcon from '@mui/icons-material/Cloud'
 
@@ -60,7 +78,7 @@ const SkyOption = [
  */
 export const SkyboxNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
-  const entity = props.node.entity
+  const entity = props.entity
   const hasError = getEntityErrors(entity, SkyboxComponent)
   const skyboxComponent = useComponent(entity, SkyboxComponent)
 
@@ -198,7 +216,7 @@ export const SkyboxNodeEditor: EditorComponentType = (props) => {
     >
       <InputGroup name="Sky Type" label={t('editor:properties.skybox.lbl-skyType')}>
         <SelectInput
-          key={props.node.entity}
+          key={props.entity}
           options={SkyOption}
           value={skyboxComponent.backgroundType.value}
           onChange={updateProperty(SkyboxComponent, 'backgroundType')}

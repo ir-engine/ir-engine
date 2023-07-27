@@ -1,89 +1,88 @@
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
 import assert from 'assert'
+import { afterEach } from 'mocha'
 
-import { defineState, getState } from '@xrengine/hyperflux'
+import { defineState, getMutableState } from '@etherealengine/hyperflux'
 
-import { createEngine, setupEngineActionSystems } from '../../initializeEngine'
-import { Engine } from '../classes/Engine'
-import { World } from '../classes/World'
-import { initSystems } from './SystemFunctions'
-import { SystemUpdateType } from './SystemUpdateType'
+import { createEngine } from '../../initializeEngine'
+import { destroyEngine } from '../classes/Engine'
+import { EngineState } from '../classes/EngineState'
+import { executeSystems, SimulationSystemGroup } from './EngineFunctions'
+import { defineSystem, startSystem } from './SystemFunctions'
 
 const MockState = defineState({
   name: 'MockState',
   initial: { count: 0 }
 })
 
-const MocksystemLoader = async () => {
-  return {
-    default: async (world: World) => {
-      return {
-        execute: () => {
-          getState(MockState).count.set((c) => c + 1)
-        },
-        cleanup: async () => {}
-      }
-    }
-  }
+const execute = () => {
+  getMutableState(MockState).count.set((c) => c + 1)
 }
 
+const MockSystem = defineSystem({
+  uuid: 'test.MockSystem',
+  execute
+})
+
 describe('FixedPipelineSystem', () => {
-  it.skip('can run multiple fixed ticks to catch up to elapsed time', async () => {
+  beforeEach(() => {
     createEngine()
-    setupEngineActionSystems()
-    const world = Engine.instance.currentWorld
+  })
+  afterEach(() => {
+    return destroyEngine()
+  })
 
-    const injectedSystems = [
-      {
-        uuid: 'Mock',
-        systemLoader: () => MocksystemLoader(),
-        type: SystemUpdateType.FIXED
-      }
-    ]
-    await initSystems(world, injectedSystems)
+  it('can run multiple simultion ticks to catch up to elapsed time', async () => {
+    startSystem(MockSystem, { with: SimulationSystemGroup })
 
-    const mockState = getState(MockState)
-
-    assert.equal(world.elapsedSeconds, 0)
-    assert.equal(world.fixedElapsedSeconds, 0)
-    assert.equal(world.fixedTick, 0)
+    const mockState = getMutableState(MockState)
     assert.equal(mockState.count.value, 0)
 
     const ticks = 3
-    const deltaSeconds = ticks / 60
-    world.execute(world.startTime + 1000 * deltaSeconds)
-    assert.equal(world.elapsedSeconds, deltaSeconds)
-    assert.equal(world.fixedElapsedSeconds, deltaSeconds)
-    assert.equal(world.fixedTick, ticks)
+    const simulationDelay = (ticks * 1001) / 60
+    const engineState = getMutableState(EngineState)
+    engineState.simulationTime.set(performance.timeOrigin - simulationDelay)
+    executeSystems(0)
     assert.equal(mockState.count.value, ticks)
   })
 
-  it('can skip fixed ticks to catch up to elapsed time', async () => {
-    createEngine()
-    setupEngineActionSystems()
-    const world = Engine.instance.currentWorld
+  it('can skip simulation ticks to catch up to elapsed time', async () => {
+    startSystem(MockSystem, { with: SimulationSystemGroup })
 
-    const injectedSystems = [
-      {
-        uuid: 'Mock',
-        systemLoader: () => MocksystemLoader(),
-        type: SystemUpdateType.FIXED
-      }
-    ]
-    await initSystems(world, injectedSystems)
+    const mockState = getMutableState(MockState)
+    const engineState = getMutableState(EngineState)
 
-    const mockState = getState(MockState)
-
-    world.startTime = 0
-    assert.equal(world.elapsedSeconds, 0)
-    assert.equal(world.fixedElapsedSeconds, 0)
-    assert.equal(world.fixedTick, 0)
     assert.equal(mockState.count.value, 0)
 
-    const deltaSeconds = 1000
-    world.execute(1000 * deltaSeconds)
-    assert.equal(world.elapsedSeconds, deltaSeconds)
-    assert.equal(world.fixedElapsedSeconds, deltaSeconds)
-    assert.equal(world.fixedTick, 60000)
-    assert((mockState.count.value * 1) / 60 < 5)
+    const simulationDelay = 1000 * 60 // 1 minute should be too much to catch up to wihtout skipping
+    engineState.simulationTime.set(performance.timeOrigin - simulationDelay)
+    executeSystems(0)
+
+    assert(performance.timeOrigin - engineState.simulationTime.value < engineState.simulationTimestep.value)
+    assert.equal(mockState.count.value, 1)
   })
 })

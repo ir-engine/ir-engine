@@ -1,40 +1,61 @@
-import React, { Fragment, useState } from 'react'
-import { useTranslation } from 'react-i18next'
-import { Mesh, Object3D, Scene, Texture } from 'three'
+/*
+CPAL-1.0 License
 
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
+import React, { useCallback } from 'react'
+import { useTranslation } from 'react-i18next'
+import { Scene } from 'three'
+
 import {
-  addComponent,
   getComponent,
-  getComponentState,
-  getOrAddComponent,
+  getMutableComponent,
   hasComponent,
   useComponent
-} from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { iterateEntityNode } from '@xrengine/engine/src/ecs/functions/EntityTree'
+} from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import {
   InstancingComponent,
-  InstancingStagingComponent,
-  InstancingUnstagingComponent,
-  NodeProperties,
   SampleMode,
   ScatterMode,
   ScatterProperties,
   ScatterState,
+  SourceProperties,
+  TextureRef,
   VertexProperties
-} from '@xrengine/engine/src/scene/components/InstancingComponent'
-import { ModelComponent } from '@xrengine/engine/src/scene/components/ModelComponent'
-import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
+} from '@etherealengine/engine/src/scene/components/InstancingComponent'
+import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
+import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
+import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
 import {
   GRASS_PROPERTIES_DEFAULT_VALUES,
   MESH_PROPERTIES_DEFAULT_VALUES
-} from '@xrengine/engine/src/scene/functions/loaders/InstancingFunctions'
-import getFirstMesh from '@xrengine/engine/src/scene/util/getFirstMesh'
+} from '@etherealengine/engine/src/scene/functions/loaders/InstancingFunctions'
+import getFirstMesh from '@etherealengine/engine/src/scene/util/getFirstMesh'
+import { State, useState } from '@etherealengine/hyperflux'
 
 import AcUnitIcon from '@mui/icons-material/AcUnit'
 
 import { PropertiesPanelButton } from '../inputs/Button'
-import { ImagePreviewInputGroup } from '../inputs/ImagePreviewInput'
 import InputGroup from '../inputs/InputGroup'
 import NumericInputGroup from '../inputs/NumericInputGroup'
 import SelectInput from '../inputs/SelectInput'
@@ -43,44 +64,53 @@ import CollapsibleBlock from '../layout/CollapsibleBlock'
 import InstancingGrassProperties from './InstancingGrassProperties'
 import InstancingMeshProperties from './InstancingMeshProperties'
 import NodeEditor from './NodeEditor'
-import { EditorComponentType, traverseScene, updateProperty } from './Util'
+import { EditorComponentType, traverseScene } from './Util'
 
 export const InstancingNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
-  const entity = props.node.entity
-  const node = props.node
-  const scatter = getComponent(entity, InstancingComponent)
-  const sampleProps = scatter.sampleProperties as ScatterProperties & VertexProperties & NodeProperties
-  function updateSampleProp(prop: keyof (ScatterProperties & VertexProperties & NodeProperties)) {
-    return (val) => {
-      sampleProps[prop as any] = val
-      updateProperty(InstancingComponent, 'sampleProperties')(sampleProps)
-    }
-  }
+  const entityState = useState(props.entity)
+  const entity = entityState.value
+  const scatterState = useComponent(entity, InstancingComponent)
+  const scatter = scatterState.value
+  const sampleProps = scatter.sampleProperties as ScatterProperties & VertexProperties
+  const updateProperty = useCallback(
+    function (_, prop: keyof typeof scatter) {
+      const state = scatterState[prop]
+      return (val) => {
+        state.set(val)
+      }
+    },
+    [entityState]
+  )
+  const updateSampleProp = useCallback(
+    function (prop: keyof (ScatterProperties & VertexProperties)) {
+      const updateSampleProps = updateProperty(InstancingComponent, 'sampleProperties')
+      return (val) => {
+        const sampleProps = { ...scatter.sampleProperties }
+        sampleProps[prop] = val
+        updateSampleProps(sampleProps)
+      }
+    },
+    [entityState]
+  )
 
-  const [state, setState] = useState<ScatterState>(scatter.state)
-
-  const texPath = (tex) => {
-    if ((tex as Texture).isTexture) return tex.source.data?.src ?? ''
-    if (typeof tex === 'string') return tex
-    console.error('unknown texture type for', tex)
-  }
+  const texPath = (tex: TextureRef) => tex.src
 
   const height = texPath(sampleProps.heightMap)
   const density = texPath(sampleProps.densityMap)
 
-  const initialSurfaces = () => {
-    const surfaces: any[] = traverseScene(
+  function initialSurfaces(): { label: string; value: string }[] {
+    const surfaces = traverseScene(
       (eNode) => {
         return {
-          label: getComponent(eNode.entity, NameComponent) ?? '',
-          value: eNode.uuid
+          label: getComponent(eNode, NameComponent) ?? '',
+          value: getComponent(eNode, UUIDComponent)
         }
       },
       (eNode) => {
-        if (eNode === node) return false
-        if (hasComponent(eNode.entity, ModelComponent)) {
-          const obj3d = getComponentState(eNode.entity, ModelComponent).scene.value as Scene | undefined
+        if (eNode === entity) return false
+        if (hasComponent(eNode, ModelComponent)) {
+          const obj3d = getMutableComponent(eNode, ModelComponent).scene.value as Scene | undefined
           if (!obj3d) return false
           const mesh = getFirstMesh(obj3d)
           return !!mesh && mesh.geometry.hasAttribute('uv') && mesh.geometry.hasAttribute('normal')
@@ -91,46 +121,15 @@ export const InstancingNodeEditor: EditorComponentType = (props) => {
     return surfaces
   }
 
-  let surfaces = initialSurfaces()
+  const surfaces = useState(initialSurfaces())
 
-  const obj3ds = traverseScene(
-    (node) => {
-      return {
-        label: getComponent(node.entity, NameComponent),
-        value: node.uuid
-      }
-    },
-    (node) => hasComponent(node.entity, ModelComponent)
-  )
-
-  const onUnstage = async () => {
-    if (!hasComponent(entity, InstancingUnstagingComponent)) {
-      addComponent(entity, InstancingUnstagingComponent, {})
-    }
-    while (scatter.state !== ScatterState.UNSTAGED) {
-      await new Promise((resolve) => setTimeout(resolve, Engine.instance.currentWorld.deltaSeconds * 1000))
-    }
-    setState(ScatterState.UNSTAGED)
-  }
-
-  const onStage = async () => {
-    if (!hasComponent(entity, InstancingStagingComponent)) {
-      addComponent(entity, InstancingStagingComponent, {})
-    }
-    while (scatter.state !== ScatterState.STAGED) {
-      await new Promise((resolve) => setTimeout(resolve, Engine.instance.currentWorld.deltaSeconds * 1000))
-    }
-    setState(ScatterState.STAGED)
-  }
-
-  const onReload = async () => {
-    await onUnstage()
-    await onStage()
+  const onRestage = () => {
+    scatterState.state.set(ScatterState.UNSTAGING)
   }
 
   const onChangeMode = (mode) => {
     if (scatter.mode === mode) return
-    const scene = getComponentState(entity, ModelComponent).scene! as any
+    const scene = getMutableComponent(entity, ModelComponent).scene! as any
     if (!scene.value) return
     const uData = JSON.parse(JSON.stringify(scene.userData.value))
     uData[scatter.mode] = scatter.sourceProperties
@@ -148,8 +147,8 @@ export const InstancingNodeEditor: EditorComponentType = (props) => {
       }
     }
     scene.userData.set(uData)
-    updateProperty(InstancingComponent, 'sourceProperties')(srcProperties)
-    updateProperty(InstancingComponent, 'mode')(mode)
+    scatterState.sourceProperties.set(srcProperties)
+    scatterState.mode.set(mode)
   }
 
   return (
@@ -172,11 +171,9 @@ export const InstancingNodeEditor: EditorComponentType = (props) => {
         <InputGroup name="Target Surface" label={t('editor:properties:instancing.lbl-surface')}>
           <SelectInput
             placeholder={t('editor:properties.instancing.placeholder-surface')}
-            value={scatter.surface}
+            value={scatterState.surface.value}
             onChange={updateProperty(InstancingComponent, 'surface')}
-            options={surfaces}
-            creatable={false}
-            isSearchable={true}
+            options={surfaces.value}
           />
         </InputGroup>
         <InputGroup name="Instancing Mode" label={t('editor:properties:instancing.lbl-mode')}>
@@ -202,7 +199,7 @@ export const InstancingNodeEditor: EditorComponentType = (props) => {
         </InputGroup>
         <CollapsibleBlock label={t('editor:properties.instancing.sampling.properties')}>
           {[SampleMode.SCATTER, SampleMode.VERTICES].includes(scatter.sampling) && (
-            <Fragment>
+            <>
               <TexturePreviewInputGroup
                 name="Height Map"
                 label={t('editor:properties.instancing.sampling.heightMap')}
@@ -237,45 +234,26 @@ export const InstancingNodeEditor: EditorComponentType = (props) => {
                 mediumStep={0.025}
                 largeStep={0.1}
               />
-            </Fragment>
-          )}
-          {scatter.sampling === SampleMode.NODES && (
-            <Fragment>
-              <InputGroup name="Root" label={t('editor:properties.instancing.sampling.root')}>
-                <SelectInput
-                  value={sampleProps.root}
-                  onChange={updateSampleProp('root')}
-                  options={obj3ds}
-                  isSearchable={true}
-                  creatable={false}
-                />
-              </InputGroup>
-            </Fragment>
+            </>
           )}
         </CollapsibleBlock>
         {scatter.mode === ScatterMode.GRASS && (
           <InstancingGrassProperties
-            value={scatter.sourceProperties}
+            state={scatterState.sourceProperties as State<SourceProperties>}
             onChange={updateProperty(InstancingComponent, 'sourceProperties')}
           />
         )}
         {scatter.mode === ScatterMode.MESH && (
           <InstancingMeshProperties
-            value={scatter.sourceProperties}
+            state={scatterState.sourceProperties as State<SourceProperties>}
             onChange={updateProperty(InstancingComponent, 'sourceProperties')}
           />
         )}
       </span>
-      {state === ScatterState.UNSTAGED && (
-        <PropertiesPanelButton onClick={onStage}>{t('editor:properties:instancing.lbl-load')}</PropertiesPanelButton>
-      )}
-      {state === ScatterState.STAGING && <p>{t('Loading...')}</p>}
-      {state === ScatterState.STAGED && (
+      {scatter.state === ScatterState.STAGING && <p>{t('Loading...')}</p>}
+      {scatter.state === ScatterState.STAGED && (
         <InputGroup name={t('editor:properties:instancing.lbl-options')}>
-          <PropertiesPanelButton onClick={onUnstage}>
-            {t('editor:properties:instancing.lbl-unload')}
-          </PropertiesPanelButton>
-          <PropertiesPanelButton onClick={onReload}>
+          <PropertiesPanelButton onClick={onRestage}>
             {t('editor:properties:instancing.lbl-reload')}
           </PropertiesPanelButton>
         </InputGroup>

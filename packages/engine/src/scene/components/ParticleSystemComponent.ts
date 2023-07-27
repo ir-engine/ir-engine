@@ -1,15 +1,50 @@
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
 import { useEffect } from 'react'
-import { AdditiveBlending, BufferGeometry, Texture } from 'three'
+import {
+  AdditiveBlending,
+  Blending,
+  BufferGeometry,
+  Material,
+  MeshBasicMaterial,
+  Object3D,
+  Texture,
+  Vector2,
+  Vector3
+} from 'three'
 import { Behavior, BehaviorFromJSON, ParticleSystem, ParticleSystemJSONParameters, RenderMode } from 'three.quarks'
 import matches from 'ts-matches'
 
-import { NO_PROXY, none } from '@xrengine/hyperflux'
+import { NO_PROXY, none } from '@etherealengine/hyperflux'
 
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { AssetClass } from '../../assets/enum/AssetClass'
 import { GLTF } from '../../assets/loaders/gltf/GLTFLoader'
-import { defineComponent, hasComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
-import { EntityReactorProps } from '../../ecs/functions/EntityFunctions'
+import { defineComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
+import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { getBatchRenderer } from '../systems/ParticleSystemSystem'
 import getFirstMesh from '../util/getFirstMesh'
 import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
@@ -120,17 +155,19 @@ export type IntervalValueJSON = {
   b: number
 }
 
+export type BezierFunctionJSON = {
+  function: {
+    p0: number
+    p1: number
+    p2: number
+    p3: number
+  }
+  start: number
+}
+
 export type PiecewiseBezierValueJSON = {
   type: 'PiecewiseBezier'
-  functions: {
-    function: {
-      p0: number
-      p1: number
-      p2: number
-      p3: number
-    }
-    start: number
-  }[]
+  functions: BezierFunctionJSON[]
 }
 
 export type ValueGeneratorJSON = ConstantValueJSON | IntervalValueJSON | PiecewiseBezierValueJSON
@@ -193,12 +230,14 @@ export type RandomColorJSON = {
   b: ColorJSON
 }
 
+export type ColorGradientFunctionJSON = {
+  function: ColorRangeJSON
+  start: number
+}
+
 export type ColorGradientJSON = {
   type: 'Gradient'
-  functions: {
-    function: ColorGeneratorJSON
-    start: number
-  }[]
+  functions: ColorGradientFunctionJSON[]
 }
 
 export type ColorGeneratorJSON = ConstantColorJSON | ColorRangeJSON | RandomColorJSON | ColorGradientJSON
@@ -220,7 +259,16 @@ export const ColorGeneratorJSONDefaults: Record<string, ColorGeneratorJSON> = {
   },
   Gradient: {
     type: 'Gradient',
-    functions: []
+    functions: [
+      {
+        function: {
+          type: 'ColorRange',
+          a: { r: 1, g: 1, b: 1, a: 1 },
+          b: { r: 1, g: 1, b: 1, a: 1 }
+        },
+        start: 0
+      }
+    ]
   }
 }
 
@@ -251,6 +299,34 @@ export type RandomQuatGeneratorJSON = {
 
 export type RotationGeneratorJSON = AxisAngleGeneratorJSON | EulerGeneratorJSON | RandomQuatGeneratorJSON
 
+export const RotationGeneratorJSONDefaults: Record<string, RotationGeneratorJSON> = {
+  AxisAngle: {
+    type: 'AxisAngle',
+    axis: [0, 1, 0],
+    angle: {
+      type: 'ConstantValue',
+      value: 0
+    }
+  },
+  Euler: {
+    type: 'Euler',
+    angleX: {
+      type: 'ConstantValue',
+      value: 0
+    },
+    angleY: {
+      type: 'ConstantValue',
+      value: 0
+    },
+    angleZ: {
+      type: 'ConstantValue',
+      value: 0
+    }
+  },
+  RandomQuat: {
+    type: 'RandomQuat'
+  }
+}
 /*
 /ROTATION GENERATOR TYPES
 */
@@ -258,6 +334,36 @@ export type RotationGeneratorJSON = AxisAngleGeneratorJSON | EulerGeneratorJSON 
 /*
 BEHAVIOR TYPES
 */
+
+//  SEQUENCER
+export type TextureSequencerJSON = {
+  scaleX: number
+  scaleY: number
+  position: Vector3
+  locations: Vector2[]
+  src: string
+  threshold: number
+}
+
+export type SequencerJSON = TextureSequencerJSON
+
+export type ApplySequencesJSON = {
+  type: 'ApplySequences'
+  delay: number
+  sequencers: {
+    range: IntervalValueJSON
+    sequencer: SequencerJSON
+  }[]
+}
+
+export type BurstParametersJSON = {
+  time: number
+  count: number
+  cycle: number
+  interval: number
+  probability: number
+}
+//  /SEQUENCER
 
 export type ApplyForceBehaviorJSON = {
   type: 'ApplyForce'
@@ -362,8 +468,23 @@ export type BehaviorJSON =
   | WidthOverLengthBehaviorJSON
   | ChangeEmitDirectionBehaviorJSON
   | EmitSubParticleSystemBehaviorJSON
+  | ApplySequencesJSON
+
+/*
+  SYSTEM TYPES
+*/
+
+export type RendererSettingsJSON = {
+  startLength: ValueGeneratorJSON
+  followLocalOrigin: boolean
+}
 
 export const BehaviorJSONDefaults: { [type: string]: BehaviorJSON } = {
+  ApplySequences: {
+    type: 'ApplySequences',
+    delay: 0,
+    sequencers: []
+  },
   ApplyForce: {
     type: 'ApplyForce',
     direction: [0, 1, 0],
@@ -485,14 +606,24 @@ export const BehaviorJSONDefaults: { [type: string]: BehaviorJSON } = {
 /BEHAVIOR TYPES
 */
 
-export type ExpandedSystemJSON = ParticleSystemJSONParameters & {
-  instancingGeometry?: string
+export type ExtraSystemJSON = {
+  instancingGeometry: string
   startColor: ColorGeneratorJSON
   startRotation: ValueGeneratorJSON
   startSize: ValueGeneratorJSON
   startSpeed: ValueGeneratorJSON
   startLife: ValueGeneratorJSON
   behaviors: BehaviorJSON[]
+  emissionBursts: BurstParametersJSON[]
+  rendererEmitterSettings?: RendererSettingsJSON
+}
+
+export type ExpandedSystemJSON = ParticleSystemJSONParameters & ExtraSystemJSON
+
+export type ParticleSystemMetadata = {
+  geometries: { [key: string]: BufferGeometry }
+  materials: { [key: string]: Material }
+  textures: { [key: string]: Texture }
 }
 
 export type ParticleSystemComponentType = {
@@ -533,6 +664,7 @@ export const ParticleSystemJSONParametersValidator = matches.shape({
     })
     .optional(),
   renderMode: matches.natural,
+  speedFactor: matches.number,
   texture: matches.string,
   instancingGeometry: matches.object.optional(),
   startTileIndex: matches.natural,
@@ -547,6 +679,8 @@ export const DEFAULT_PARTICLE_SYSTEM_PARAMETERS: ExpandedSystemJSON = {
   version: '1.0',
   autoDestroy: false,
   looping: true,
+  prewarm: false,
+  material: '',
   duration: 5,
   shape: { type: 'point' },
   startLife: {
@@ -584,13 +718,19 @@ export const DEFAULT_PARTICLE_SYSTEM_PARAMETERS: ExpandedSystemJSON = {
   emissionBursts: [],
   onlyUsedByOther: false,
   rendererEmitterSettings: {
-    startLength: undefined,
-    followLocalOrigin: undefined
+    startLength: {
+      type: 'ConstantValue',
+      value: 1
+    },
+    followLocalOrigin: true
   },
   renderMode: RenderMode.BillBoard,
   texture: '/static/editor/dot.png',
-  instancingGeometry: undefined,
-  startTileIndex: 0,
+  instancingGeometry: '',
+  startTileIndex: {
+    type: 'ConstantValue',
+    value: 0
+  },
   uTileCount: 1,
   vTileCount: 1,
   blending: AdditiveBlending,
@@ -598,10 +738,9 @@ export const DEFAULT_PARTICLE_SYSTEM_PARAMETERS: ExpandedSystemJSON = {
   worldSpace: true
 }
 
-export const SCENE_COMPONENT_PARTICLE_SYSTEM = 'particle-system'
-
 export const ParticleSystemComponent = defineComponent({
   name: 'EE_ParticleSystem',
+  jsonID: 'particle-system',
   onInit: (entity) => {
     return {
       systemParameters: DEFAULT_PARTICLE_SYSTEM_PARAMETERS,
@@ -623,37 +762,34 @@ export const ParticleSystemComponent = defineComponent({
   },
   onRemove: (entity, component) => {
     if (component.system.value) {
-      removeObjectFromGroup(entity, component.system.value.emitter)
+      removeObjectFromGroup(entity, component.system.value.emitter as unknown as Object3D)
       component.system.get(NO_PROXY)?.dispose()
       component.system.set(none)
     }
     component.behaviors.set(none)
   },
   toJSON: (entity, component) => ({
-    systemParameters: component.systemParameters.value,
-    behaviorParameters: component.behaviorParameters.value
+    systemParameters: JSON.parse(JSON.stringify(component.systemParameters.value)),
+    behaviorParameters: JSON.parse(JSON.stringify(component.behaviorParameters.value))
   }),
-  reactor: function ({ root }: EntityReactorProps) {
-    const entity = root.entity
-    if (!hasComponent(entity, ParticleSystemComponent)) throw root.stop()
+  reactor: function () {
+    const entity = useEntityContext()
     const componentState = useComponent(entity, ParticleSystemComponent)
     const component = componentState.value
     const batchRenderer = getBatchRenderer()!
+
     useEffect(() => {
-      if (component.system && component.system!.emitter.userData['_refresh'] === component._refresh) return
       if (component.system) {
-        removeObjectFromGroup(entity, component.system.emitter)
+        const emitterAsObj3D = component.system.emitter as unknown as Object3D
+        if (emitterAsObj3D.userData['_refresh'] === component._refresh) return
+        removeObjectFromGroup(entity, emitterAsObj3D)
         component.system.dispose()
         componentState.system.set(none)
       }
-      function initParticleSystem(
-        systemParameters: ParticleSystemJSONParameters,
-        dependencies: {
-          textures: { [key: string]: Texture }
-          geometries: { [key: string]: BufferGeometry }
-        }
-      ) {
-        const nuSystem = ParticleSystem.fromJSON(systemParameters, dependencies, {}, batchRenderer)
+
+      function initParticleSystem(systemParameters: ParticleSystemJSONParameters, metadata: ParticleSystemMetadata) {
+        const nuSystem = ParticleSystem.fromJSON(systemParameters, metadata, {})
+        batchRenderer.addSystem(nuSystem)
         componentState.behaviors.set(
           component.behaviorParameters.map((behaviorJSON) => {
             const behavior = BehaviorFromJSON(behaviorJSON, nuSystem)
@@ -661,8 +797,10 @@ export const ParticleSystemComponent = defineComponent({
             return behavior
           })
         )
-        nuSystem.emitter.userData['_refresh'] = component._refresh
-        addObjectToGroup(entity, nuSystem.emitter)
+
+        const emitterAsObj3D = nuSystem.emitter as unknown as Object3D
+        emitterAsObj3D.userData['_refresh'] = component._refresh
+        addObjectToGroup(entity, emitterAsObj3D)
         componentState.system.set(nuSystem)
       }
 
@@ -679,12 +817,18 @@ export const ParticleSystemComponent = defineComponent({
         AssetLoader.getAssetClass(component.systemParameters.texture) === AssetClass.Image
 
       const loadDependencies: Promise<any>[] = []
-      const metadata: {
-        textures: { [key: string]: Texture }
-        geometries: { [key: string]: BufferGeometry }
-      } = { textures: {}, geometries: {} }
+      const metadata: ParticleSystemMetadata = { textures: {}, geometries: {}, materials: {} }
 
-      const processedParms = JSON.parse(JSON.stringify(component.systemParameters))
+      //add dud material
+      componentState.systemParameters.material.set('dud')
+      const dudMaterial = new MeshBasicMaterial({
+        color: 0xffffff,
+        transparent: component.systemParameters.transparent ?? true,
+        blending: component.systemParameters.blending as Blending
+      })
+      metadata.materials['dud'] = dudMaterial
+
+      const processedParms = JSON.parse(JSON.stringify(component.systemParameters)) as ExpandedSystemJSON
 
       function loadGeoDependency(src: string) {
         return new Promise((resolve) => {
@@ -701,7 +845,7 @@ export const ParticleSystemComponent = defineComponent({
           new Promise((resolve) => {
             AssetLoader.load(component.systemParameters.shape.mesh!, {}, ({ scene }: GLTF) => {
               const mesh = getFirstMesh(scene)
-              !!mesh && (processedParms.shape.mesh = mesh)
+              mesh && (metadata.geometries[component.systemParameters.shape.mesh!] = mesh.geometry)
               resolve(null)
             })
           })
@@ -712,8 +856,9 @@ export const ParticleSystemComponent = defineComponent({
       doLoadTexture &&
         loadDependencies.push(
           new Promise((resolve) => {
-            AssetLoader.load(component.systemParameters.texture, {}, (texture) => {
-              metadata.textures[component.systemParameters.texture] = texture
+            AssetLoader.load(component.systemParameters.texture!, {}, (texture: Texture) => {
+              metadata.textures[component.systemParameters.texture!] = texture
+              dudMaterial.map = texture
               resolve(null)
             })
           })

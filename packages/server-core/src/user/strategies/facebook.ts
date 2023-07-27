@@ -1,10 +1,36 @@
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
 import { AuthenticationRequest } from '@feathersjs/authentication'
 import { Paginated, Params } from '@feathersjs/feathers'
 import { random } from 'lodash'
 
-import { AvatarInterface } from '@xrengine/common/src/interfaces/AvatarInterface'
-import { UserInterface } from '@xrengine/common/src/interfaces/User'
+import { UserInterface } from '@etherealengine/common/src/interfaces/User'
+import { avatarPath, AvatarType } from '@etherealengine/engine/src/schemas/user/avatar.schema'
 
+import { userApiKeyPath, UserApiKeyType } from '@etherealengine/engine/src/schemas/user/user-api-key.schema'
 import { Application } from '../../../declarations'
 import config from '../../appconfig'
 import getFreeInviteCode from '../../util/get-free-invite-code'
@@ -41,7 +67,7 @@ export class FacebookStrategy extends CustomOAuthStrategy {
       {}
     )
     if (!entity.userId) {
-      const avatars = (await this.app.service('avatar').find({ isInternal: true })) as Paginated<AvatarInterface>
+      const avatars = (await this.app.service(avatarPath).find({ isInternal: true })) as Paginated<AvatarType>
       const code = await getFreeInviteCode(this.app)
       const newUser = (await this.app.service('user').create({
         isGuest: false,
@@ -60,13 +86,13 @@ export class FacebookStrategy extends CustomOAuthStrategy {
       await this.app.service('user').patch(entity.userId, {
         isGuest: false
       })
-    const apiKey = await this.app.service('user-api-key').find({
+    const apiKey = (await this.app.service(userApiKeyPath).find({
       query: {
         userId: entity.userId
       }
-    })
-    if ((apiKey as any).total === 0)
-      await this.app.service('user-api-key').create({
+    })) as Paginated<UserApiKeyType>
+    if (apiKey.total === 0)
+      await this.app.service(userApiKeyPath).create({
         userId: entity.userId
       })
     if (entity.type !== 'guest' && identityProvider.type === 'guest') {

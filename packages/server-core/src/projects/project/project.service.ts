@@ -1,12 +1,38 @@
-import { Id, Params } from '@feathersjs/feathers'
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
+import { Id } from '@feathersjs/feathers'
 import appRootPath from 'app-root-path'
 import { iff, isProvider } from 'feathers-hooks-common'
 import fs from 'fs'
 import _ from 'lodash'
 import path from 'path'
 
-import { UserInterface } from '@xrengine/common/src/dbmodels/UserInterface'
-import logger from '@xrengine/common/src/logger'
+import { UserInterface } from '@etherealengine/common/src/dbmodels/UserInterface'
+import logger from '@etherealengine/common/src/logger'
+import { getState } from '@etherealengine/hyperflux'
 
 import { Application } from '../../../declarations'
 import config from '../../appconfig'
@@ -14,6 +40,7 @@ import authenticate from '../../hooks/authenticate'
 import projectPermissionAuthenticate from '../../hooks/project-permission-authenticate'
 import verifyScope from '../../hooks/verify-scope'
 import { getStorageProvider } from '../../media/storageprovider/storageprovider'
+import { ServerState } from '../../ServerState'
 import { UserParams } from '../../user/user/user.class'
 import { pushProjectToGithub } from './github-helper'
 import {
@@ -21,20 +48,22 @@ import {
   checkDestination,
   checkProjectDestinationMatch,
   checkUnfetchedSourceCommit,
+  dockerHubRegex,
   findBuilderTags,
   getBranches,
   getEnginePackageJson,
   getProjectCommits,
+  privateECRTagRegex,
+  publicECRTagRegex,
   updateBuilder
 } from './project-helper'
-import { dockerHubRegex, privateECRTagRegex, publicECRTagRegex } from './project-helper'
 import { Project, ProjectParams, ProjectParamsClient } from './project.class'
 import projectDocs from './project.docs'
 import hooks from './project.hooks'
 import createModel from './project.model'
 
 const projectsRootFolder = path.join(appRootPath.path, 'packages/projects/projects/')
-declare module '@xrengine/common/declarations' {
+declare module '@etherealengine/common/declarations' {
   interface ServiceTypes {
     projects: {
       find: () => ReturnType<typeof getProjectsList>
@@ -145,8 +174,11 @@ export const builderInfoGet = (app: Application) => async () => {
     engineVersion: getEnginePackageJson().version || '',
     engineCommit: ''
   }
-  if (app.k8DefaultClient) {
-    const builderDeployment = await app.k8AppsClient.listNamespacedDeployment(
+
+  const k8AppsClient = getState(ServerState).k8AppsClient
+
+  if (k8AppsClient) {
+    const builderDeployment = await k8AppsClient.listNamespacedDeployment(
       'default',
       'false',
       false,
@@ -155,7 +187,7 @@ export const builderInfoGet = (app: Application) => async () => {
       `app.kubernetes.io/instance=${config.server.releaseName}-builder`
     )
     const builderContainer = builderDeployment?.body?.items[0]?.spec?.template?.spec?.containers?.find(
-      (container) => container.name === 'xrengine-builder'
+      (container) => container.name === 'etherealengine-builder'
     )
     if (builderContainer) {
       const image = builderContainer.image
@@ -249,8 +281,7 @@ export default (app: Application): void => {
     before: {
       patch: [
         authenticate(),
-        iff(isProvider('external'), verifyScope('editor', 'write') as any),
-        projectPermissionAuthenticate('write') as any
+        iff(isProvider('external'), verifyScope('editor', 'write') as any, projectPermissionAuthenticate('write'))
       ]
     }
   })

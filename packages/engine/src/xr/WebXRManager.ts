@@ -1,24 +1,48 @@
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
 import {
-  ArrayCamera,
   DepthFormat,
   DepthStencilFormat,
   DepthTexture,
-  PerspectiveCamera,
   RGBAFormat,
+  TextureDataType,
   UnsignedByteType,
   UnsignedInt248Type,
   UnsignedIntType,
-  Vector3,
   Vector4,
   WebGLMultiviewRenderTarget,
-  WebGLRenderer,
   WebGLRenderTarget,
   WebGLRenderTargetOptions
 } from 'three'
 
-import { defineState, getState } from '@xrengine/hyperflux'
+import { defineState, getMutableState, getState } from '@etherealengine/hyperflux'
 
+import { CameraComponent } from '../camera/components/CameraComponent'
 import { Engine } from '../ecs/classes/Engine'
+import { getComponent } from '../ecs/functions/ComponentFunctions'
 import { EngineRenderer } from '../renderer/WebGLRendererSystem'
 import { XRState } from './XRState'
 
@@ -56,6 +80,10 @@ declare global {
   interface XRSession {
     interactionMode: 'screen-space' | 'world-space'
   }
+
+  interface XRProjectionLayer {
+    quality: 'default' | 'text-optimized' | 'graphics-optimized'
+  }
 }
 
 export const XRRendererState = defineState({
@@ -72,7 +100,7 @@ export const XRRendererState = defineState({
 
 export function createWebXRManager() {
   const xrState = getState(XRState)
-  const xrRendererState = getState(XRRendererState)
+  const xrRendererState = getMutableState(XRRendererState)
 
   const scope = function () {}
 
@@ -84,7 +112,7 @@ export function createWebXRManager() {
   scope.isMultiview = false
 
   function onSessionEnd() {
-    xrState.session.value!.removeEventListener('end', onSessionEnd)
+    xrState.session!.removeEventListener('end', onSessionEnd)
 
     // restore framebuffer/rendering state
 
@@ -103,7 +131,7 @@ export function createWebXRManager() {
 
   /** this is needed by WebGLBackground */
   scope.getSession = function () {
-    return xrState.session.value
+    return xrState.session
   }
 
   scope.setSession = async function (session: XRSession, framebufferScaleFactor = 1) {
@@ -112,6 +140,13 @@ export function createWebXRManager() {
       xrRendererState.initialRenderTarget.set(renderer.getRenderTarget())
 
       session.addEventListener('end', onSessionEnd)
+
+      // wrap in try catch to avoid errors when calling updateTargetFrameRate on unsupported devices
+      try {
+        if ('updateTargetFrameRate' in session) session.updateTargetFrameRate(72)
+      } catch (e) {
+        console.warn(e)
+      }
 
       const gl = renderer.getContext() as WebGLRenderingContext
       const attributes = gl.getContextAttributes()!
@@ -138,12 +173,12 @@ export function createWebXRManager() {
         newRenderTarget = new WebGLRenderTarget(glBaseLayer.framebufferWidth, glBaseLayer.framebufferHeight, {
           format: RGBAFormat,
           type: UnsignedByteType,
-          encoding: renderer.outputEncoding,
+          colorSpace: renderer.outputColorSpace,
           stencilBuffer: attributes.stencil
         })
       } else {
         let depthFormat: number | undefined
-        let depthType: number | undefined
+        let depthType: TextureDataType | undefined
         let glDepthFormat: number | undefined
 
         if (attributes.depth) {
@@ -161,12 +196,14 @@ export function createWebXRManager() {
           depthFormat: glDepthFormat,
           scaleFactor: framebufferScaleFactor,
           textureType: (scope.isMultiview ? 'texture-array' : 'texture') as XRTextureType
+          // quality: "graphics-optimized" /** @todo - this does not work yet, must be set directly on the layer */
         }
 
         const glBinding = new XRWebGLBinding(session, gl)
         xrRendererState.glBinding.set(glBinding)
 
         const glProjLayer = glBinding.createProjectionLayer(projectionlayerInit)
+        glProjLayer.quality = 'graphics-optimized'
         xrRendererState.glProjLayer.set(glProjLayer)
 
         session.updateRenderState({ layers: [glProjLayer] })
@@ -188,7 +225,7 @@ export function createWebXRManager() {
             depthFormat
           ),
           stencilBuffer: attributes.stencil,
-          encoding: renderer.outputEncoding,
+          colorSpace: renderer.outputColorSpace,
           samples: attributes.antialias ? 4 : 0
         }
 
@@ -213,7 +250,8 @@ export function createWebXRManager() {
       xrRendererState.newRenderTarget.set(newRenderTarget)
 
       // Set foveation to maximum.
-      scope.setFoveation(1.0)
+      // scope.setFoveation(1.0)
+      scope.setFoveation(0)
 
       animation.setContext(session)
       renderer.animation.stop()
@@ -223,10 +261,16 @@ export function createWebXRManager() {
     }
   }
 
+  scope.getEnvironmentBlendMode = function () {
+    if (xrState.session !== null) {
+      return xrState.session.environmentBlendMode
+    }
+  }
+
   scope.updateCamera = function () {}
 
   scope.getCamera = function () {
-    return Engine.instance.currentWorld.camera
+    return getComponent(Engine.instance.cameraEntity, CameraComponent)
   }
 
   scope.getFoveation = function () {
@@ -287,9 +331,8 @@ function createWebGLAnimation() {
   let requestId = null
 
   function onAnimationFrame(time, frame) {
-    animationLoop!(time, frame)
-
     requestId = context.requestAnimationFrame(onAnimationFrame)
+    animationLoop!(time, frame)
   }
 
   return {

@@ -1,22 +1,46 @@
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
 import TimeAgo from 'javascript-time-ago'
 import en from 'javascript-time-ago/locale/en'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import ConfirmDialog from '@xrengine/client-core/src/common/components/ConfirmDialog'
-import InputSelect, { InputMenuItem } from '@xrengine/client-core/src/common/components/InputSelect'
-import config from '@xrengine/common/src/config'
-import { ServerPodInfo } from '@xrengine/common/src/interfaces/ServerInfo'
-import multiLogger from '@xrengine/common/src/logger'
-
-import SyncIcon from '@mui/icons-material/Sync'
-import Box from '@mui/material/Box'
-import CircularProgress from '@mui/material/CircularProgress'
-import IconButton from '@mui/material/IconButton'
+import ConfirmDialog from '@etherealengine/client-core/src/common/components/ConfirmDialog'
+import InputSelect, { InputMenuItem } from '@etherealengine/client-core/src/common/components/InputSelect'
+import { ServerPodInfo } from '@etherealengine/common/src/interfaces/ServerInfo'
+import multiLogger from '@etherealengine/common/src/logger'
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import Box from '@etherealengine/ui/src/primitives/mui/Box'
+import CircularProgress from '@etherealengine/ui/src/primitives/mui/CircularProgress'
+import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
+import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
 
 import TableComponent from '../../common/Table'
 import { ServerColumn, ServerPodData } from '../../common/variables/server'
-import { ServerInfoService, useServerInfoState } from '../../services/ServerInfoService'
+import { AdminServerInfoState, ServerInfoService } from '../../services/ServerInfoService'
 import { ServerLogsService } from '../../services/ServerLogsService'
 import styles from '../../styles/admin.module.scss'
 
@@ -32,26 +56,29 @@ interface Props {
 
 const ServerTable = ({ selectedCard }: Props) => {
   const { t } = useTranslation()
-  const [openConfirm, setOpenConfirm] = useState(false)
-  const [autoRefresh, setAutoRefresh] = useState('60')
-  const [intervalTimer, setIntervalTimer] = useState<NodeJS.Timer>()
-  const [selectedPod, setSelectedPod] = useState<ServerPodInfo | null>(null)
-  const serverInfo = useServerInfoState()
+  const openConfirm = useHookstate(false)
+  const autoRefresh = useHookstate('60')
+  const intervalTimer = useHookstate<NodeJS.Timer | undefined>(undefined)
+  const selectedPod = useHookstate<ServerPodInfo | null>(null)
+  const serverInfo = useHookstate(getMutableState(AdminServerInfoState))
 
   useEffect(() => {
-    if (autoRefresh !== '0') {
-      const interval = setInterval(() => {
-        handleRefreshServerInfo()
-      }, parseInt(autoRefresh) * 1000)
-      setIntervalTimer(interval)
+    if (autoRefresh.value !== '0') {
+      const interval = setInterval(
+        () => {
+          handleRefreshServerInfo()
+        },
+        parseInt(autoRefresh.value) * 1000
+      )
+      intervalTimer.set(interval)
       return () => {
         if (interval) clearInterval(interval) // This represents the unmount function, in which you need to clear your interval to prevent memory leaks.
       }
-    } else if (intervalTimer) {
-      clearInterval(intervalTimer)
-      setIntervalTimer(undefined)
+    } else if (intervalTimer.value) {
+      clearInterval(intervalTimer.value)
+      intervalTimer.set(undefined)
     }
-  }, [autoRefresh])
+  }, [autoRefresh.value])
 
   const createData = (el: ServerPodInfo): ServerPodData => {
     return {
@@ -64,7 +91,6 @@ const ServerTable = ({ selectedCard }: Props) => {
       restarts: el.containers.map((item) => item.restarts).join(', '),
       instanceId: el.instanceId ? (
         <a
-          href="#"
           className={styles.actionStyle}
           onClick={() =>
             window.open(
@@ -100,18 +126,16 @@ const ServerTable = ({ selectedCard }: Props) => {
       action: (
         <div style={{ float: 'right' }}>
           <a
-            href="#"
             className={styles.actionStyle}
             onClick={() => ServerLogsService.fetchServerLogs(el.name, el.containers[el.containers.length - 1].name)}
           >
             <span className={styles.spanWhite}>{t('admin:components.server.logs')}</span>
           </a>
           <a
-            href="#"
             className={styles.actionStyle}
             onClick={() => {
-              setSelectedPod(el)
-              setOpenConfirm(true)
+              selectedPod.set(el)
+              openConfirm.set(true)
             }}
           >
             <span className={styles.spanDange}>{t('admin:components.common.delete')}</span>
@@ -129,16 +153,16 @@ const ServerTable = ({ selectedCard }: Props) => {
   const handleAutoRefreshServerInfoChange = (e) => {
     const { value } = e.target
 
-    setAutoRefresh(value)
+    autoRefresh.set(value)
   }
 
   const handleRemovePod = async () => {
-    if (!selectedPod) {
+    if (!selectedPod.value) {
       return
     }
 
-    await ServerInfoService.removePod(selectedPod.name)
-    setOpenConfirm(false)
+    await ServerInfoService.removePod(selectedPod.value.name)
+    openConfirm.set(false)
   }
 
   const autoRefreshMenu: InputMenuItem[] = [
@@ -187,9 +211,8 @@ const ServerTable = ({ selectedCard }: Props) => {
               className={styles.iconButton}
               sx={{ marginRight: 1.5 }}
               onClick={handleRefreshServerInfo}
-            >
-              <SyncIcon />
-            </IconButton>
+              icon={<Icon type="Sync" />}
+            />
           )}
 
           {serverInfo.value.retrieving && <CircularProgress size={24} sx={{ marginRight: 1.5 }} />}
@@ -197,7 +220,7 @@ const ServerTable = ({ selectedCard }: Props) => {
           <InputSelect
             name="autoRefresh"
             label={t('admin:components.server.autoRefresh')}
-            value={autoRefresh}
+            value={autoRefresh.value}
             menu={autoRefreshMenu}
             sx={{ marginBottom: 0, flex: 1 }}
             onChange={handleAutoRefreshServerInfoChange}
@@ -208,7 +231,8 @@ const ServerTable = ({ selectedCard }: Props) => {
     }
   ]
 
-  const rows = serverInfo.value.servers
+  const rows = serverInfo.servers
+    .get({ noproxy: true })
     .find((item) => item.id === selectedCard)!
     .pods.map((el) => {
       return createData(el)
@@ -228,9 +252,9 @@ const ServerTable = ({ selectedCard }: Props) => {
       />
 
       <ConfirmDialog
-        open={openConfirm}
-        description={`${t('admin:components.server.confirmPodDelete')} '${selectedPod?.name}'?`}
-        onClose={() => setOpenConfirm(false)}
+        open={openConfirm.value}
+        description={`${t('admin:components.server.confirmPodDelete')} '${selectedPod?.value?.name}'?`}
+        onClose={() => openConfirm.set(false)}
         onSubmit={handleRemovePod}
       />
     </>

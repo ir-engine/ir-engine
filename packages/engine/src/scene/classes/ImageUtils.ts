@@ -1,3 +1,28 @@
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
 import {
   BackSide,
   ClampToEdgeWrapping,
@@ -10,7 +35,6 @@ import {
   MeshBasicMaterial,
   OrthographicCamera,
   PlaneGeometry,
-  PMREMGenerator,
   RawShaderMaterial,
   RGBAFormat,
   Scene,
@@ -21,6 +45,9 @@ import {
   WebGLRenderTarget
 } from 'three'
 import { WebGLRenderer } from 'three/src/renderers/WebGLRenderer'
+
+import { defineState, getState } from '@etherealengine/hyperflux'
+import { KTX2EncodeOptions, KTX2Encoder } from '@etherealengine/xrui/core/textures/KTX2Encoder'
 
 export const ImageProjection = {
   Flat: 'Flat',
@@ -108,6 +135,75 @@ export const downloadImage = (imageData: ImageData, imageName = 'Image', width: 
   }, 'image/png')
 }
 
+/** Used in editor */
+export const ScreenshotSettings = defineState({
+  name: 'ScreenshotSettings',
+  initial: {
+    ktx2: {
+      srgb: false,
+      uastc: true,
+      uastcZstandard: true,
+      qualityLevel: 256,
+      compressionLevel: 3
+    } as KTX2EncodeOptions
+  }
+})
+
+const ktx2write = new KTX2Encoder()
+
+export const convertCubemapToKTX2 = async (
+  renderer: WebGLRenderer,
+  source: CubeTexture,
+  width: number,
+  height: number,
+  returnAsBlob: boolean
+) => {
+  const scene = new Scene()
+  const material = new RawShaderMaterial({
+    uniforms: {
+      map: new Uniform(new CubeTexture())
+    },
+    vertexShader: vertexShader,
+    fragmentShader: fragmentShader,
+    side: DoubleSide,
+    transparent: true
+  })
+  const quad = new Mesh(new PlaneGeometry(1, 1), material)
+  scene.add(quad)
+  const camera = new OrthographicCamera(1 / -2, 1 / 2, 1 / 2, 1 / -2, -10000, 10000)
+
+  quad.scale.set(width, height, 1)
+  camera.left = width / 2
+  camera.right = width / -2
+  camera.top = height / -2
+  camera.bottom = height / 2
+  camera.updateProjectionMatrix()
+  const renderTarget = new WebGLRenderTarget(width, height, {
+    minFilter: LinearFilter,
+    magFilter: LinearFilter,
+    wrapS: ClampToEdgeWrapping,
+    wrapT: ClampToEdgeWrapping,
+    format: RGBAFormat,
+    type: UnsignedByteType
+  })
+
+  renderer.setRenderTarget(renderTarget)
+  quad.material.uniforms.map.value = source
+  renderer.render(scene, camera)
+  const pixels = new Uint8Array(4 * width * height)
+  renderer.readRenderTargetPixels(renderTarget, 0, 0, width, height, pixels)
+  const imageData = new ImageData(new Uint8ClampedArray(pixels), width, height)
+  renderer.setRenderTarget(null) // pass `null` to set canvas as render target
+
+  const ktx2texture = (await ktx2write.encode(imageData, getState(ScreenshotSettings).ktx2)) as ArrayBuffer
+
+  if (returnAsBlob) {
+    return new Blob([ktx2texture])
+  }
+
+  return ktx2texture
+}
+
 //convert Cubemap To Equirectangular map
 export const convertCubemapToEquiImageData = (
   renderer: WebGLRenderer,
@@ -161,6 +257,14 @@ export const convertCubemapToEquiImageData = (
     ctx.putImageData(imageData, 0, 0)
     return new Promise<Blob | null>((resolve) => canvas.toBlob(resolve))
   }
+
+  /* const writer = new GLTFWriter()
+  writer.processSampler(source)
+
+  const g = new GLTF
+  writer.write(new Object3D())
+*/
+
   return imageData
 }
 

@@ -1,27 +1,57 @@
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
 import { QueryFilterFlags } from '@dimforge/rapier3d-compat'
 import { Euler, Matrix4, Quaternion, Vector3 } from 'three'
 
-import { smootheLerpAlpha } from '@xrengine/common/src/utils/smootheLerpAlpha'
-import { getState } from '@xrengine/hyperflux'
+import { smootheLerpAlpha } from '@etherealengine/common/src/utils/smootheLerpAlpha'
+import { getState } from '@etherealengine/hyperflux'
 
+import { CameraComponent } from '../../camera/components/CameraComponent'
 import { ObjectDirection } from '../../common/constants/Axis3D'
 import { V_000, V_010 } from '../../common/constants/MathConstants'
 import checkPositionIsValid from '../../common/functions/checkPositionIsValid'
 import { Engine } from '../../ecs/classes/Engine'
+import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
-import { getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
+import { ComponentType, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
+import { EntityNetworkState } from '../../networking/state/EntityNetworkState'
 import { Physics } from '../../physics/classes/Physics'
 import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
 import { CollisionGroups } from '../../physics/enums/CollisionGroups'
+import { PhysicsState } from '../../physics/state/PhysicsState'
 import { SceneQueryType } from '../../physics/types/PhysicsTypes'
+import { UUIDComponent } from '../../scene/components/UUIDComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { computeAndUpdateWorldOrigin, updateWorldOrigin } from '../../transform/updateWorldOrigin'
-import { getCameraMode, hasMovementControls, ReferenceSpace, XRState } from '../../xr/XRState'
+import { XRState, getCameraMode, hasMovementControls } from '../../xr/XRState'
 import { AvatarComponent } from '../components/AvatarComponent'
 import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
 import { AvatarHeadDecapComponent } from '../components/AvatarIKComponents'
-import { SpawnPoseComponent } from '../components/SpawnPoseComponent'
 import { AvatarMovementSettingsState } from '../state/AvatarMovementSettingsState'
+import { AutopilotMarker, clearWalkPoint, scaleFluctuate } from './autopilotFunctions'
 
 const avatarGroundRaycastDistanceIncrease = 0.5
 const avatarGroundRaycastDistanceOffset = 1
@@ -47,8 +77,7 @@ const finalAvatarMovement = new Vector3()
 const avatarHeadPosition = new Vector3()
 
 export function updateLocalAvatarPosition(additionalMovement?: Vector3) {
-  const world = Engine.instance.currentWorld
-  const entity = world.localClientEntity
+  const entity = Engine.instance.localClientEntity
   const xrFrame = Engine.instance.xrFrame
 
   if (!entity || (!xrFrame && !additionalMovement)) return
@@ -57,13 +86,13 @@ export function updateLocalAvatarPosition(additionalMovement?: Vector3) {
   const rigidbody = getComponent(entity, RigidBodyComponent)
   const controller = getComponent(entity, AvatarControllerComponent)
   const avatarHeight = getComponent(entity, AvatarComponent)?.avatarHeight ?? 1.6
-  const originTransform = getComponent(world.originEntity, TransformComponent)
+  const originTransform = getComponent(Engine.instance.originEntity, TransformComponent)
 
   desiredMovement.copy(V_000)
 
   const attached = getCameraMode() === 'attached'
   if (attached) {
-    const viewerPose = xrState.viewerPose.value
+    const viewerPose = xrState.viewerPose
     /** move head position forward a bit to not be inside the avatar's body */
     avatarHeadPosition
       .set(0, avatarHeight * 0.95, 0.15)
@@ -110,14 +139,14 @@ export function updateLocalAvatarPosition(additionalMovement?: Vector3) {
   avatarGroundRaycast.origin.copy(rigidbody.targetKinematicPosition)
   avatarGroundRaycast.groups = avatarCollisionGroups
   avatarGroundRaycast.origin.y += avatarGroundRaycastDistanceOffset
-  const groundHits = Physics.castRay(world.physicsWorld, avatarGroundRaycast)
+  const groundHits = Physics.castRay(getState(PhysicsState).physicsWorld, avatarGroundRaycast)
   controller.isInAir = true
 
   if (groundHits.length) {
     const hit = groundHits[0]
     const controllerOffset = controller.controller.offset()
     // controller.isInAir = !grounded
-    controller.isInAir = hit.distance > 1 + controllerOffset * 1.5
+    controller.isInAir = hit.distance > 1 + controllerOffset * 10
     if (!controller.isInAir) rigidbody.targetKinematicPosition.y = hit.position.y + controllerOffset
     if (hit.distance <= avatarGroundRaycastAcceptableDistance) {
       if (attached) originTransform.position.y = hit.position.y
@@ -131,8 +160,7 @@ export function updateLocalAvatarPosition(additionalMovement?: Vector3) {
 }
 
 export const updateReferenceSpaceFromAvatarMovement = (movement: Vector3) => {
-  const world = Engine.instance.currentWorld
-  const originTransform = getComponent(world.originEntity, TransformComponent)
+  const originTransform = getComponent(Engine.instance.originEntity, TransformComponent)
   originTransform.position.add(movement)
   computeAndUpdateWorldOrigin()
   updateLocalAvatarPositionAttachedMode()
@@ -141,24 +169,70 @@ export const updateReferenceSpaceFromAvatarMovement = (movement: Vector3) => {
 const _additionalMovement = new Vector3()
 
 /**
+ * Avatar movement via click/pointer position
+ */
+
+const minimumDistanceSquared = 0.5 * 0.5
+const walkPoint = new Vector3()
+
+const currentDirection = new Vector3()
+export const applyAutopilotInput = (entity: Entity) => {
+  const deltaSeconds = getState(EngineState).simulationTimestep / 1000
+
+  const markerState = getState(AutopilotMarker)
+
+  const controller = getComponent(entity, AvatarControllerComponent)
+
+  if (!controller || !markerState.walkTarget) return
+
+  if (controller.gamepadLocalInput.lengthSq() > 0 || controller.isJumping || controller.isInAir) {
+    clearWalkPoint()
+    currentDirection.set(0, 0, 0)
+    return
+  }
+
+  scaleFluctuate()
+
+  const avatarPos = getComponent(entity, TransformComponent).position
+  walkPoint.copy(markerState.walkTarget)
+  const moveDirection = walkPoint.sub(avatarPos)
+  const distanceSquared = moveDirection.lengthSq()
+  const avatarMovementSettings = getState(AvatarMovementSettingsState)
+  const legSpeed = controller.isWalking ? avatarMovementSettings.walkSpeed : avatarMovementSettings.runSpeed
+  const yDirectionMultiplier = 1.25
+  moveDirection
+    .normalize()
+    .multiplyScalar(deltaSeconds * legSpeed)
+    .setY(moveDirection.y * yDirectionMultiplier)
+
+  const lerpSpeed = 10
+  currentDirection.lerp(moveDirection, deltaSeconds * lerpSpeed)
+
+  if (distanceSquared > minimumDistanceSquared) updateLocalAvatarPosition(currentDirection)
+  else {
+    clearWalkPoint()
+    currentDirection.set(0, 0, 0)
+  }
+}
+
+/**
  * Avatar movement via gamepad
  */
+
 export const applyGamepadInput = (entity: Entity) => {
   if (!entity) return
 
-  const world = Engine.instance.currentWorld
-  const camera = world.camera
-  const deltaSeconds = world.fixedDeltaSeconds
+  const camera = getComponent(Engine.instance.cameraEntity, CameraComponent)
+  const deltaSeconds = getState(EngineState).simulationTimestep / 1000
   const controller = getComponent(entity, AvatarControllerComponent)
 
-  const avatarMovementSettings = getState(AvatarMovementSettingsState).value
+  const avatarMovementSettings = getState(AvatarMovementSettingsState)
   const legSpeed = controller.isWalking ? avatarMovementSettings.walkSpeed : avatarMovementSettings.runSpeed
   camera.getWorldDirection(cameraDirection).setY(0).normalize()
   forwardOrientation.setFromUnitVectors(ObjectDirection.Forward, cameraDirection)
 
   targetWorldMovement
     .copy(controller.gamepadLocalInput)
-    .normalize()
     .multiplyScalar(legSpeed * deltaSeconds)
     .applyQuaternion(forwardOrientation)
 
@@ -166,11 +240,28 @@ export const applyGamepadInput = (entity: Entity) => {
   controller.gamepadWorldMovement.lerp(targetWorldMovement, 5 * deltaSeconds)
 
   // set vertical velocity on ground
+  applyVerticalVelocity(controller, avatarMovementSettings)
+
+  // apply gamepad movement and gravity
+  if (controller.movementEnabled) controller.verticalVelocity -= 9.81 * deltaSeconds
+  const verticalMovement = controller.verticalVelocity * deltaSeconds
+  _additionalMovement.set(
+    controller.gamepadWorldMovement.x,
+    controller.isInAir || verticalMovement > 0 ? verticalMovement : 0,
+    controller.gamepadWorldMovement.z
+  )
+
+  updateLocalAvatarPosition(_additionalMovement)
+}
+
+const applyVerticalVelocity = (
+  controller: ComponentType<typeof AvatarControllerComponent>,
+  avatarMovementSettings: typeof AvatarMovementSettingsState._TYPE
+) => {
   if (!controller.isInAir) {
     controller.verticalVelocity = 0
     if (controller.gamepadJumpActive) {
       if (!controller.isJumping) {
-        console.log('jump')
         // Formula: takeoffVelocity = sqrt(2 * jumpHeight * gravity)
         controller.verticalVelocity = Math.sqrt(2 * avatarMovementSettings.jumpHeight * 9.81)
         controller.isJumping = true
@@ -181,16 +272,6 @@ export const applyGamepadInput = (entity: Entity) => {
   } else {
     controller.isJumping = false
   }
-
-  // apply gamepad movement and gravity
-  if (controller.movementEnabled) controller.verticalVelocity -= 9.81 * deltaSeconds
-  const verticalMovement = controller.verticalVelocity * deltaSeconds
-  _additionalMovement.set(
-    controller.gamepadWorldMovement.x,
-    (controller.isInAir || verticalMovement) > 0 ? verticalMovement : 0,
-    controller.gamepadWorldMovement.z
-  )
-  updateLocalAvatarPosition(_additionalMovement)
 }
 
 const _mat4 = new Matrix4()
@@ -233,9 +314,8 @@ export const translateAndRotateAvatar = (entity: Entity, translation: Vector3, r
   rigidBody.targetKinematicRotation.multiply(rotation)
 
   if (getCameraMode() === 'attached') {
-    const world = Engine.instance.currentWorld
     const avatarTransform = getComponent(entity, TransformComponent)
-    const originTransform = getComponent(world.originEntity, TransformComponent)
+    const originTransform = getComponent(Engine.instance.originEntity, TransformComponent)
 
     originRelativeToAvatarMatrix.multiplyMatrices(avatarTransform.matrixInverse, originTransform.matrix)
     desiredAvatarMatrix.compose(
@@ -252,7 +332,7 @@ export const translateAndRotateAvatar = (entity: Entity, translation: Vector3, r
 }
 
 export const updateLocalAvatarPositionAttachedMode = () => {
-  const entity = Engine.instance.currentWorld.localClientEntity
+  const entity = Engine.instance.localClientEntity
   const rigidbody = getComponent(entity, RigidBodyComponent)
   const transform = getComponent(entity, TransformComponent)
 
@@ -270,14 +350,14 @@ const avatarRotationAroundY = new Euler()
 const avatarRotation = new Quaternion()
 
 const _updateLocalAvatarRotationAttachedMode = () => {
-  const entity = Engine.instance.currentWorld.localClientEntity
+  const entity = Engine.instance.localClientEntity
   const rigidbody = getComponent(entity, RigidBodyComponent)
   const transform = getComponent(entity, TransformComponent)
-  const viewerPose = getState(XRState).viewerPose.value
+  const viewerPose = getState(XRState).viewerPose
 
   if (!viewerPose) return
 
-  const originTransform = getComponent(Engine.instance.currentWorld.originEntity, TransformComponent)
+  const originTransform = getComponent(Engine.instance.originEntity, TransformComponent)
   const viewerOrientation = viewerPose.transform.orientation
   viewerQuat
     .set(viewerOrientation.x, viewerOrientation.y, viewerOrientation.z, viewerOrientation.w)
@@ -295,12 +375,11 @@ const _updateLocalAvatarRotationAttachedMode = () => {
 }
 
 export const updateLocalAvatarRotation = () => {
-  const world = Engine.instance.currentWorld
-  const entity = world.localClientEntity
+  const entity = Engine.instance.localClientEntity
   if (getCameraMode() === 'attached') {
     _updateLocalAvatarRotationAttachedMode()
   } else {
-    const alpha = smootheLerpAlpha(3, world.deltaSeconds)
+    const alpha = smootheLerpAlpha(3, Engine.instance.deltaSeconds)
     if (hasComponent(entity, AvatarHeadDecapComponent)) {
       _slerpBodyTowardsCameraDirection(entity, alpha)
     } else {
@@ -314,7 +393,7 @@ export const updateLocalAvatarRotation = () => {
  * @param entity
  * @param newPosition
  */
-export const teleportAvatar = (entity: Entity, targetPosition: Vector3): void => {
+export const teleportAvatar = (entity: Entity, targetPosition: Vector3, force = false): void => {
   if (!hasComponent(entity, AvatarComponent)) {
     console.warn('Teleport avatar called on non-avatar entity')
     return
@@ -324,17 +403,14 @@ export const teleportAvatar = (entity: Entity, targetPosition: Vector3): void =>
   raycastOrigin.y += 0.1
   const { raycastHit } = checkPositionIsValid(raycastOrigin, false)
 
-  if (raycastHit) {
+  if (raycastHit || force) {
     const transform = getComponent(entity, TransformComponent)
     const rigidbody = getComponent(entity, RigidBodyComponent)
-    const newPosition = raycastHit.position as Vector3
+    const newPosition = raycastHit ? (raycastHit.position as Vector3) : targetPosition
     rigidbody.targetKinematicPosition.copy(newPosition)
     rigidbody.position.copy(newPosition)
     const attached = getCameraMode() === 'attached'
-    if (attached)
-      updateReferenceSpaceFromAvatarMovement(
-        new Vector3().subVectors(raycastHit.position as Vector3, transform.position)
-      )
+    if (attached) updateReferenceSpaceFromAvatarMovement(new Vector3().subVectors(newPosition, transform.position))
   } else {
     console.log('invalid position', targetPosition, raycastHit)
   }
@@ -350,7 +426,7 @@ const _slerpBodyTowardsCameraDirection = (entity: Entity, alpha: number) => {
   const rigidbody = getComponent(entity, RigidBodyComponent)
   if (!rigidbody) return
 
-  const cameraRotation = getComponent(Engine.instance.currentWorld.cameraEntity, TransformComponent).rotation
+  const cameraRotation = getComponent(Engine.instance.cameraEntity, TransformComponent).rotation
   const direction = _cameraDirection.set(0, 0, 1).applyQuaternion(cameraRotation).setComponent(1, 0)
   targetOrientation.setFromRotationMatrix(_mat.lookAt(V_000, direction, V_010))
   rigidbody.targetKinematicRotation.slerp(targetOrientation, alpha)
@@ -366,7 +442,9 @@ const _slerpBodyTowardsVelocity = (entity: Entity, alpha: number) => {
 
   let prevVector = prevVectors.get(entity)!
   if (!prevVector) {
-    prevVector = new Vector3(0, 0, 1).applyQuaternion(getComponent(entity, SpawnPoseComponent).rotation)
+    prevVector = new Vector3(0, 0, 1).applyQuaternion(
+      getState(EntityNetworkState)[getComponent(entity, UUIDComponent)].spawnRotation
+    )
     prevVectors.set(entity, prevVector)
   }
 

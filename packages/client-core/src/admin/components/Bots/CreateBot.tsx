@@ -1,58 +1,81 @@
-import React, { useEffect, useState } from 'react'
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
+import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { v4 as uuidv4 } from 'uuid'
 
-import InputSelect, { InputMenuItem } from '@xrengine/client-core/src/common/components/InputSelect'
-import InputText from '@xrengine/client-core/src/common/components/InputText'
-import { BotCommands, CreateBotAsAdmin } from '@xrengine/common/src/interfaces/AdminBot'
-import { Instance } from '@xrengine/common/src/interfaces/Instance'
-import capitalizeFirstLetter from '@xrengine/common/src/utils/capitalizeFirstLetter'
-
-import { Autorenew, Face, Save } from '@mui/icons-material'
-import Button from '@mui/material/Button'
-import Card from '@mui/material/Card'
-import CardContent from '@mui/material/CardContent'
-import IconButton from '@mui/material/IconButton'
-import Paper from '@mui/material/Paper'
-import Typography from '@mui/material/Typography'
+import InputSelect, { InputMenuItem } from '@etherealengine/client-core/src/common/components/InputSelect'
+import InputText from '@etherealengine/client-core/src/common/components/InputText'
+import { CreateBotAsAdmin } from '@etherealengine/common/src/interfaces/AdminBot'
+import { Instance } from '@etherealengine/common/src/interfaces/Instance'
+import capitalizeFirstLetter from '@etherealengine/common/src/utils/capitalizeFirstLetter'
+import { BotCommandData } from '@etherealengine/engine/src/schemas/bot/bot-command.schema'
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import Button from '@etherealengine/ui/src/primitives/mui/Button'
+import Card from '@etherealengine/ui/src/primitives/mui/Card'
+import CardContent from '@etherealengine/ui/src/primitives/mui/CardContent'
+import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
+import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
+import Paper from '@etherealengine/ui/src/primitives/mui/Paper'
+import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 
 import { NotificationService } from '../../../common/services/NotificationService'
-import { useAuthState } from '../../../user/services/AuthService'
+import { AuthState } from '../../../user/services/AuthService'
 import AddCommand from '../../common/AddCommand'
 import { validateForm } from '../../common/validation/formValidation'
 import { AdminBotService } from '../../services/BotsService'
-import { AdminInstanceService, useAdminInstanceState } from '../../services/InstanceService'
-import { AdminLocationService, useAdminLocationState } from '../../services/LocationService'
+import { AdminInstanceService, AdminInstanceState } from '../../services/InstanceService'
+import { AdminLocationService, AdminLocationState } from '../../services/LocationService'
 import styles from '../../styles/admin.module.scss'
 
 const CreateBot = () => {
-  const [command, setCommand] = useState<BotCommands>({
+  const command = useHookstate<BotCommandData>({
     id: '',
     name: '',
     description: ''
   })
-  const [commandData, setCommandData] = useState<BotCommands[]>([])
+  const commandData = useHookstate<BotCommandData[]>([])
 
-  const [formErrors, setFormErrors] = useState({
+  const formErrors = useHookstate({
     name: '',
     description: '',
     location: ''
   })
-  const [currentInstance, setCurrentIntance] = useState<Instance[]>([])
-  const [state, setState] = useState({
+  const currentInstance = useHookstate<Instance[]>([])
+  const state = useHookstate({
     name: '',
     description: '',
     instance: '',
     location: ''
   })
-  const adminInstanceState = useAdminInstanceState()
-  const authState = useAuthState()
-  const user = authState.user
-  const adminInstances = adminInstanceState
-  const instanceData = adminInstances.instances
-  const adminLocationState = useAdminLocationState()
-  const adminLocation = adminLocationState
-  const locationData = adminLocation.locations
+  const adminInstanceState = useHookstate(getMutableState(AdminInstanceState))
+  const user = useHookstate(getMutableState(AuthState).user)
+  const instanceData = adminInstanceState.instances
+  const adminLocationState = useHookstate(getMutableState(AdminLocationState))
+  const locationData = adminLocationState.locations
   const { t } = useTranslation()
 
   useEffect(() => {
@@ -69,61 +92,58 @@ const CreateBot = () => {
 
   const handleChangeCommand = (e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
     const { name, value } = e.target
-    setCommand({ ...command, id: uuidv4(), [name]: value })
+    command.merge({ id: uuidv4(), [name]: value })
   }
 
-  const addCommandData = (command) => {
-    if (command.name) {
-      const found = commandData.find((el) => el.name === command.name)
+  const addCommandData = (addCommand: BotCommandData) => {
+    if (addCommand.name) {
+      const found = commandData.get({ noproxy: true }).find((el) => el.name === addCommand.name)
       if (found) {
         NotificationService.dispatchNotify(t('admin:components.bot.uniqueCommand'), { variant: 'error' })
       } else {
-        setCommandData([...commandData, command])
-        setCommand({ id: '', name: '', description: '' })
+        commandData.merge([JSON.parse(JSON.stringify(addCommand))])
+        command.set({ id: '', name: '', description: '' })
       }
     } else {
       NotificationService.dispatchNotify(t('admin:components.bot.commandRequired'), { variant: 'error' })
     }
   }
 
-  const data: Instance[] = instanceData.value.map((element) => {
+  const data: Instance[] = instanceData.get({ noproxy: true }).map((element) => {
     return element
   })
 
   useEffect(() => {
-    const instanceFilter = data.filter((el) => el.locationId === state.location)
+    const instanceFilter = data.filter((el) => el.locationId === state.location.value)
     if (instanceFilter.length > 0) {
-      setState({ ...state, instance: '' })
-      setCurrentIntance(instanceFilter)
+      state.merge({ instance: '' })
+      currentInstance.set(instanceFilter)
     } else {
-      setCurrentIntance([])
+      currentInstance.set([])
     }
-  }, [state.location, adminInstanceState.instances.value.length])
+  }, [state.location.value, adminInstanceState.instances.value.length])
 
   const handleSubmit = () => {
     const data: CreateBotAsAdmin = {
-      name: state.name,
-      instanceId: state.instance || null,
+      name: state.name.value,
+      instanceId: state.instance.value || null,
       userId: user.id.value,
-      command: commandData,
-      description: state.description,
-      locationId: state.location
+      command: commandData.get({ noproxy: true }),
+      description: state.description.value,
+      locationId: state.location.value
     }
 
-    let tempErrors = {
-      ...formErrors,
-      name: state.name ? '' : t('admin:components.bot.nameCantEmpty'),
-      description: state.description ? '' : t('admin:components.bot.descriptionCantEmpty'),
-      location: state.location ? '' : t('admin:components.bot.locationCantEmpty')
-    }
+    formErrors.merge({
+      name: state.name.value ? '' : t('admin:components.bot.nameCantEmpty'),
+      description: state.description.value ? '' : t('admin:components.bot.descriptionCantEmpty'),
+      location: state.location.value ? '' : t('admin:components.bot.locationCantEmpty')
+    })
 
-    setFormErrors(tempErrors)
-
-    if (validateForm(state, tempErrors)) {
+    if (validateForm(state.value, formErrors.value)) {
       AdminBotService.createBotAsAdmin(data)
-      setState({ name: '', description: '', instance: '', location: '' })
-      setCommandData([])
-      setCurrentIntance([])
+      state.set({ name: '', description: '', instance: '', location: '' })
+      commandData.set([])
+      currentInstance.set([])
     } else {
       NotificationService.dispatchNotify(t('admin:components.common.fillRequiredFields'), { variant: 'error' })
     }
@@ -138,27 +158,25 @@ const CreateBot = () => {
   }
 
   const removeCommand = (id: string) => {
-    const data = commandData.filter((el) => el.id !== id)
-    setCommandData(data)
+    const data = commandData.get({ noproxy: true }).filter((el) => el.id !== id)
+    commandData.set(data)
   }
 
   const handleInputChange = (e) => {
     const { name, value } = e.target
 
-    let temp = { ...formErrors }
-    temp[name] = value.length < 2 ? `${capitalizeFirstLetter(name)} is required` : ''
-    setFormErrors(temp)
-    setState({ ...state, [name]: value })
+    formErrors.merge({ [name]: value.length < 2 ? `${capitalizeFirstLetter(name)} is required` : '' })
+    state.merge({ [name]: value })
   }
 
-  const locationMenu: InputMenuItem[] = locationData.value.map((el) => {
+  const locationMenu: InputMenuItem[] = locationData.get({ noproxy: true }).map((el) => {
     return {
       value: el.id,
       label: el.name
     }
   })
 
-  const instanceMenu: InputMenuItem[] = currentInstance.map((el) => {
+  const instanceMenu: InputMenuItem[] = currentInstance.get({ noproxy: true }).map((el) => {
     return {
       value: el.id,
       label: el.ipAddress
@@ -168,13 +186,15 @@ const CreateBot = () => {
   return (
     <Card className={styles.botRootLeft}>
       <Paper className={styles.botHeader} style={{ display: 'flex' }}>
-        <Typography className={styles.botTitle}>
-          <Face />
-          <div className={styles.smFont}>{t('admin:components.bot.createNewBot')}</div>
-        </Typography>
+        <div className={styles.botTitle}>
+          <Typography className={styles.smFont}>
+            <Icon type="Face" />
+            {t('admin:components.bot.createNewBot')}
+          </Typography>
+        </div>
 
         <Button variant="contained" disableElevation type="submit" className={styles.botSaveBtn} onClick={handleSubmit}>
-          <Save className={styles.saveBtnIcon} /> {t('social:save')}
+          <Icon type="Save" className={styles.saveBtnIcon} /> {t('social:save')}
         </Button>
       </Paper>
       <CardContent>
@@ -186,51 +206,53 @@ const CreateBot = () => {
             name="name"
             label={t('admin:components.bot.name')}
             onChange={handleInputChange}
-            value={state.name}
-            error={formErrors.name}
+            value={state.name.value}
+            error={formErrors.name.value}
           />
 
           <InputText
             name="description"
             label={t('admin:components.bot.description')}
-            value={state.description}
-            error={formErrors.description}
+            value={state.description.value}
+            error={formErrors.description.value}
             onChange={handleInputChange}
           />
 
           <InputSelect
             name="location"
             label={t('admin:components.bot.location')}
-            value={state.location}
-            error={formErrors.location}
+            value={state.location.value}
+            error={formErrors.location.value}
             menu={locationMenu}
             onChange={handleInputChange}
             endControl={
-              <IconButton onClick={fetchAdminLocations}>
-                <Autorenew style={{ color: 'var(--iconButtonColor)' }} />
-              </IconButton>
+              <IconButton
+                onClick={fetchAdminLocations}
+                icon={<Icon type="Autorenew" style={{ color: 'var(--iconButtonColor)' }} />}
+              />
             }
           />
 
           <InputSelect
             name="instance"
             label={t('admin:components.bot.instance')}
-            value={state.instance}
-            error={formErrors.location}
+            value={state.instance.value}
+            error={formErrors.location.value}
             menu={instanceMenu}
             onChange={handleInputChange}
             endControl={
-              <IconButton onClick={fetchAdminInstances}>
-                <Autorenew style={{ color: 'var(--iconButtonColor)' }} />
-              </IconButton>
+              <IconButton
+                onClick={fetchAdminInstances}
+                icon={<Icon type="Autorenew" style={{ color: 'var(--iconButtonColor)' }} />}
+              />
             }
           />
 
           <AddCommand
-            command={command}
+            command={command.value}
             handleChangeCommand={handleChangeCommand}
             addCommandData={addCommandData}
-            commandData={commandData}
+            commandData={commandData.get({ noproxy: true })}
             removeCommand={removeCommand}
           />
         </form>

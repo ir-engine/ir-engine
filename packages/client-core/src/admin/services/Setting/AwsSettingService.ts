@@ -1,16 +1,44 @@
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
 import { Paginated } from '@feathersjs/feathers'
 
-import { AdminAwsSetting, PatchAwsSetting } from '@xrengine/common/src/interfaces/AdminAwsSetting'
-import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
-import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import {
+  AwsSettingPatch,
+  awsSettingPath,
+  AwsSettingType
+} from '@etherealengine/engine/src/schemas/setting/aws-setting.schema'
+import { defineState, getMutableState } from '@etherealengine/hyperflux'
 
-import { API } from '../../../API'
 import { NotificationService } from '../../../common/services/NotificationService'
 
-const AdminAwsSettingState = defineState({
+export const AdminAwsSettingState = defineState({
   name: 'AdminAwsSettingState',
   initial: () => ({
-    awsSettings: [] as Array<AdminAwsSetting>,
+    awsSettings: [] as Array<AwsSettingType>,
     skip: 0,
     limit: 100,
     total: 0,
@@ -18,50 +46,21 @@ const AdminAwsSettingState = defineState({
   })
 })
 
-const awsSettingRetrievedReceptor = (action: typeof AdminAwsSettingActions.awsSettingRetrieved.matches._TYPE) => {
-  const state = getState(AdminAwsSettingState)
-  return state.merge({ awsSettings: action.awsSettings.data, updateNeeded: false })
-}
-
-const awsSettingPatchedReceptor = (action: typeof AdminAwsSettingActions.awsSettingPatched.matches._TYPE) => {
-  const state = getState(AdminAwsSettingState)
-  return state.updateNeeded.set(true)
-}
-
-export const AwsSettingReceptors = {
-  awsSettingRetrievedReceptor,
-  awsSettingPatchedReceptor
-}
-
-export const accessAdminAwsSettingState = () => getState(AdminAwsSettingState)
-
-export const useAdminAwsSettingState = () => useState(accessAdminAwsSettingState())
-
 export const AwsSettingService = {
   fetchAwsSetting: async () => {
     try {
-      const awsSettings = (await API.instance.client.service('aws-setting').find()) as Paginated<AdminAwsSetting>
-      dispatchAction(AdminAwsSettingActions.awsSettingRetrieved({ awsSettings }))
+      const awsSettings = (await Engine.instance.api.service(awsSettingPath).find()) as Paginated<AwsSettingType>
+      getMutableState(AdminAwsSettingState).merge({ awsSettings: awsSettings.data, updateNeeded: false })
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
   },
-  patchAwsSetting: async (data: PatchAwsSetting, id: string) => {
+  patchAwsSetting: async (data: AwsSettingPatch, id: string) => {
     try {
-      await API.instance.client.service('aws-setting').patch(id, data)
-      dispatchAction(AdminAwsSettingActions.awsSettingPatched({}))
+      await Engine.instance.api.service(awsSettingPath).patch(id, data)
+      getMutableState(AdminAwsSettingState).merge({ updateNeeded: true })
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
   }
-}
-
-export class AdminAwsSettingActions {
-  static awsSettingRetrieved = defineAction({
-    type: 'xre.client.AdminAwsSetting.ADMIN_AWS_SETTING_FETCHED' as const,
-    awsSettings: matches.object as Validator<unknown, Paginated<AdminAwsSetting>>
-  })
-  static awsSettingPatched = defineAction({
-    type: 'xre.client.AdminAwsSetting.ADMIN_AWS_SETTING_PATCHED' as const
-  })
 }

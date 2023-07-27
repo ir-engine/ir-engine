@@ -1,5 +1,31 @@
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
 import potpack, { PotpackBox } from 'potpack'
 import * as THREE from 'three'
+import { BufferAttribute, InterleavedBufferAttribute } from 'three'
 
 const tmpOrigin = new THREE.Vector3()
 const tmpU = new THREE.Vector3()
@@ -45,11 +71,11 @@ function findVertex(
 }
 
 function convertGeometryToIndexed(buffer: THREE.BufferGeometry) {
-  const posArray = buffer.attributes.position.array
+  const posArray = (buffer.attributes.position as BufferAttribute | InterleavedBufferAttribute).array
   const posVertexCount = Math.floor(posArray.length / 3)
   const faceCount = Math.floor(posVertexCount / 3)
 
-  const normalArray = buffer.attributes.normal.array
+  const normalArray = (buffer.attributes.normal as BufferAttribute | InterleavedBufferAttribute).array
 
   // fill out a group index lookup to keep faces separate by material
   const origGroups = buffer.groups || []
@@ -167,8 +193,8 @@ export function computeAutoUV2Layout(
     const indexArray = indexAttr.array
     const faceCount = Math.floor(indexArray.length / 3)
 
-    const posArray = buffer.attributes.position.array
-    const normalArray = buffer.attributes.normal.array
+    const posArray = (buffer.attributes.position as BufferAttribute | InterleavedBufferAttribute).array
+    const normalArray = (buffer.attributes.normal as BufferAttribute | InterleavedBufferAttribute).array
 
     const vertexBoxMap: (AutoUVBox | undefined)[] = new Array(posArray.length / 3)
 

@@ -1,27 +1,43 @@
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
 import React, { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import ConfirmDialog from '@xrengine/client-core/src/common/components/ConfirmDialog'
-import { ProjectInterface } from '@xrengine/common/src/interfaces/ProjectInterface'
-import multiLogger from '@xrengine/common/src/logger'
-
-import Cross from '@mui/icons-material/Cancel'
-import CleaningServicesIcon from '@mui/icons-material/CleaningServices'
-import ContentCopyIcon from '@mui/icons-material/ContentCopy'
-import Download from '@mui/icons-material/Download'
-import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline'
-import Group from '@mui/icons-material/Group'
-import LinkIcon from '@mui/icons-material/Link'
-import LinkOffIcon from '@mui/icons-material/LinkOff'
-import Upload from '@mui/icons-material/Upload'
-import VisibilityIcon from '@mui/icons-material/Visibility'
-import Box from '@mui/material/Box'
-import IconButton from '@mui/material/IconButton'
-import Tooltip from '@mui/material/Tooltip'
+import ConfirmDialog from '@etherealengine/client-core/src/common/components/ConfirmDialog'
+import { ProjectInterface } from '@etherealengine/common/src/interfaces/ProjectInterface'
+import multiLogger from '@etherealengine/common/src/logger'
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import Box from '@etherealengine/ui/src/primitives/mui/Box'
+import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
+import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
+import Tooltip from '@etherealengine/ui/src/primitives/mui/Tooltip'
 
 import { NotificationService } from '../../../common/services/NotificationService'
-import { PROJECT_PAGE_LIMIT, ProjectService, useProjectState } from '../../../common/services/ProjectService'
-import { useAuthState } from '../../../user/services/AuthService'
+import { PROJECT_PAGE_LIMIT, ProjectService, ProjectState } from '../../../common/services/ProjectService'
+import { AuthState } from '../../../user/services/AuthService'
 import TableComponent from '../../common/Table'
 import { projectsColumns } from '../../common/variables/projects'
 import styles from '../../styles/admin.module.scss'
@@ -61,10 +77,10 @@ const ProjectTable = ({ className }: Props) => {
   const [rowsPerPage, setRowsPerPage] = useState(PROJECT_PAGE_LIMIT)
   const [changeDestination, setChangeDestination] = useState(false)
 
-  const adminProjectState = useProjectState()
-  const adminProjects = adminProjectState.projects
+  const projectState = useHookstate(getMutableState(ProjectState))
+  const adminProjects = projectState.projects
   const adminProjectCount = adminProjects.value.length
-  const authState = useAuthState()
+  const authState = useHookstate(getMutableState(AuthState))
   const user = authState.user
 
   const projectRef = useRef(project)
@@ -77,13 +93,13 @@ const ProjectTable = ({ className }: Props) => {
   ProjectService.useAPIListeners()
 
   useEffect(() => {
-    if (project) setProject(adminProjects.value.find((proj) => proj.name === project.name)!)
+    if (project) setProject(adminProjects.get({ noproxy: true }).find((proj) => proj.name === project.name)!)
   }, [adminProjects])
 
   const handleRemoveProject = async () => {
     try {
       if (projectRef.current) {
-        const projectToRemove = adminProjects.value.find((p) => p.name === projectRef.current?.name)!
+        const projectToRemove = adminProjects.get({ noproxy: true }).find((p) => p.name === projectRef.current?.name)!
         if (projectToRemove) {
           await ProjectService.removeProject(projectToRemove.id)
           handleCloseConfirmation()
@@ -216,10 +232,12 @@ const ProjectTable = ({ className }: Props) => {
       el,
       name: (
         <Box sx={{ display: 'flex', alignItems: 'center' }}>
-          <span className={`${el.needsRebuild ? styles.orangeColor : ''}`}>{name}</span>
+          <a href={`/studio/${name}`} className={`${el.needsRebuild ? styles.orangeColor : ''}`}>
+            {name}
+          </a>
           {el.needsRebuild && (
             <Tooltip title={t('admin:components.project.outdatedBuild')} arrow>
-              <ErrorOutlineIcon sx={{ marginLeft: 1 }} className={styles.orangeColor} />
+              <Icon type="ErrorOutline" sx={{ marginLeft: 1 }} className={styles.orangeColor} />
             </Tooltip>
           )}
         </Box>
@@ -233,7 +251,7 @@ const ProjectTable = ({ className }: Props) => {
         <Box sx={{ display: 'flex', alignItems: 'center' }}>
           <div className={styles.commitContents}>
             {commitSHA?.substring(0, 8)}
-            {commitSHA ? <ContentCopyIcon onClick={() => copyShaToClipboard(commitSHA)} /> : '-'}
+            {commitSHA ? <Icon type="ContentCopy" onClick={() => copyShaToClipboard(commitSHA)} /> : '-'}
           </div>
         </Box>
       ),
@@ -260,17 +278,12 @@ const ProjectTable = ({ className }: Props) => {
               name="update"
               disabled={el.repositoryPath === null}
               onClick={() => handleOpenProjectDrawer(el)}
-            >
-              <Download />
-            </IconButton>
+              icon={<Icon type="Refresh" />}
+            />
           )}
           {isAdmin && name === 'default-project' && (
             <Tooltip title={t('admin:components.project.defaultProjectUpdateTooltip')} arrow>
-              <span>
-                <IconButton className={styles.iconButton} name="update" disabled={true}>
-                  <Download />
-                </IconButton>
-              </span>
+              <IconButton className={styles.iconButton} name="update" disabled={true} icon={<Icon type="Refresh" />} />
             </Tooltip>
           )}
         </>
@@ -283,9 +296,8 @@ const ProjectTable = ({ className }: Props) => {
               name="update"
               disabled={!el.hasWriteAccess || !el.repositoryPath}
               onClick={() => openPushConfirmation(el)}
-            >
-              <Upload />
-            </IconButton>
+              icon={<Icon type="Upload" />}
+            />
           )}
         </>
       ),
@@ -296,10 +308,8 @@ const ProjectTable = ({ className }: Props) => {
             name="update"
             disabled={name === 'default-project'}
             onClick={() => handleOpenProjectDrawer(el, true)}
-          >
-            {!el.repositoryPath && <LinkOffIcon />}
-            {el.repositoryPath && <LinkIcon />}
-          </IconButton>
+            icon={<Icon type={!el.repositoryPath ? 'LinkOff' : 'Link'} />}
+          />
         </>
       ),
       projectPermissions: (
@@ -309,36 +319,44 @@ const ProjectTable = ({ className }: Props) => {
               className={styles.iconButton}
               name="editProjectPermissions"
               onClick={() => handleOpenUserPermissionDrawer(el)}
-            >
-              <Group />
-            </IconButton>
+              icon={<Icon type="Group" />}
+            />
           )}
         </>
       ),
       invalidate: (
         <>
           {isAdmin && (
-            <IconButton className={styles.iconButton} name="invalidate" onClick={() => openInvalidateConfirmation(el)}>
-              <CleaningServicesIcon />
-            </IconButton>
+            <IconButton
+              className={styles.iconButton}
+              name="invalidate"
+              onClick={() => openInvalidateConfirmation(el)}
+              icon={<Icon type="CleaningServices" />}
+            />
           )}
         </>
       ),
       view: (
         <>
           {isAdmin && (
-            <IconButton className={styles.iconButton} name="view" onClick={() => openViewProject(el)}>
-              <VisibilityIcon />
-            </IconButton>
+            <IconButton
+              className={styles.iconButton}
+              name="view"
+              onClick={() => openViewProject(el)}
+              icon={<Icon type="Visibility" />}
+            />
           )}
         </>
       ),
       action: (
         <>
           {isAdmin && (
-            <IconButton className={styles.iconButton} name="remove" onClick={() => openRemoveConfirmation(el)}>
-              <Cross />
-            </IconButton>
+            <IconButton
+              className={styles.iconButton}
+              name="remove"
+              onClick={() => openRemoveConfirmation(el)}
+              icon={<Icon type="Cancel" />}
+            />
           )}
         </>
       )

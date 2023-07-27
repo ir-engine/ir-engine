@@ -1,18 +1,46 @@
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
+import { useHookstate } from '@hookstate/core'
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import styled from 'styled-components'
+import { Object3D } from 'three'
 
-import { useForceUpdate } from '@xrengine/common/src/utils/useForceUpdate'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
-import { getAllComponents } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { EntityTreeNode, getEntityTreeNodeByUUID } from '@xrengine/engine/src/ecs/functions/EntityTree'
-import { MaterialComponentType } from '@xrengine/engine/src/renderer/materials/components/MaterialComponent'
-import { getMaterialLibrary } from '@xrengine/engine/src/renderer/materials/MaterialLibrary'
+import { useForceUpdate } from '@etherealengine/common/src/utils/useForceUpdate'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
+import { getAllComponents } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { MaterialComponentType } from '@etherealengine/engine/src/renderer/materials/components/MaterialComponent'
+import { MaterialLibraryState } from '@etherealengine/engine/src/renderer/materials/MaterialLibrary'
+import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
+import { getMutableState, getState } from '@etherealengine/hyperflux'
 
-import { EntityNodeEditor } from '../../functions/PrefabEditors'
-import { useEditorState } from '../../services/EditorServices'
-import { useSelectionState } from '../../services/SelectionServices'
+import { EntityNodeEditor } from '../../functions/ComponentEditors'
+import { EditorState } from '../../services/EditorServices'
+import { SelectionState } from '../../services/SelectionServices'
 import MaterialEditor from '../materials/MaterialEditor'
 import { CoreNodeEditor } from './CoreNodeEditor'
 import Object3DNodeEditor from './Object3DNodeEditor'
@@ -47,8 +75,8 @@ const NoNodeSelectedMessage = styled.div`
  * @extends Component
  */
 export const PropertiesPanelContainer = () => {
-  const selectionState = useSelectionState()
-  const editorState = useEditorState()
+  const selectionState = useHookstate(getMutableState(SelectionState))
+  const editorState = useHookstate(getMutableState(EditorState))
   const selectedEntities = selectionState.selectedEntities.value
   const { t } = useTranslation()
 
@@ -58,35 +86,35 @@ export const PropertiesPanelContainer = () => {
   useEffect(() => {
     forceUpdate()
   }, [selectionState.objectChangeCounter])
-  const materialLibrary = getMaterialLibrary()
+  const materialLibrary = getState(MaterialLibraryState)
   //rendering editor views for customization of element properties
   let content
-  const world = Engine.instance.currentWorld
   const lockedNode = editorState.lockPropertiesPanel.value
   const multiEdit = selectedEntities.length > 1
   let nodeEntity = lockedNode
-    ? getEntityTreeNodeByUUID(lockedNode)?.entity ?? lockedNode
+    ? UUIDComponent.entitiesByUUID[lockedNode] ?? lockedNode
     : selectedEntities[selectedEntities.length - 1]
   const isMaterial =
     typeof nodeEntity === 'string' &&
-    (!!materialLibrary.materials[nodeEntity].value ||
-      Object.values(materialLibrary.materials.value)
+    (!!materialLibrary.materials[nodeEntity] ||
+      Object.values(materialLibrary.materials)
         .map(({ material }) => material.uuid)
         .includes(nodeEntity))
   const isObject3D = typeof nodeEntity === 'string' && !isMaterial
   const node = isMaterial
-    ? materialLibrary.materials[nodeEntity as string].value ??
-      Object.values(materialLibrary.materials.value).find(({ material }) => material.uuid === nodeEntity)
+    ? materialLibrary.materials[nodeEntity as string] ??
+      Object.values(materialLibrary.materials).find(({ material }) => material.uuid === nodeEntity)
     : isObject3D
-    ? world.scene.getObjectByProperty('uuid', nodeEntity as string)
-    : world.entityTree.entityNodeMap.get(nodeEntity as Entity)
+    ? Engine.instance.scene.getObjectByProperty('uuid', nodeEntity as string)
+    : nodeEntity
 
   if (!nodeEntity || !node) {
     content = <NoNodeSelectedMessage>{t('editor:properties.noNodeSelected')}</NoNodeSelectedMessage>
   } else if (isObject3D) {
     content = (
       <StyledNodeEditor>
-        <Object3DNodeEditor multiEdit={multiEdit} node={node as EntityTreeNode} />
+        {/* @todo these types are incorrect */}
+        <Object3DNodeEditor multiEdit={multiEdit} obj3d={node as Object3D} />
       </StyledNodeEditor>
     )
   } else if (isMaterial) {
@@ -101,19 +129,14 @@ export const PropertiesPanelContainer = () => {
 
     content = (
       <StyledNodeEditor>
-        <CoreNodeEditor node={node as EntityTreeNode} />
+        <CoreNodeEditor entity={node as Entity} key={node as Entity} />
         {components.map((c, i) => {
           const Editor = EntityNodeEditor.get(c)!
           // nodeEntity is used as key here to signal to React when the entity has changed,
           // and to prevent state from being recycled between editor instances, which
           // can cause hookstate to throw errors.
           return (
-            <Editor
-              key={`${nodeEntity}-${Editor.name}`}
-              multiEdit={multiEdit}
-              node={node as EntityTreeNode}
-              component={c}
-            />
+            <Editor key={`${nodeEntity}-${Editor.name}`} multiEdit={multiEdit} entity={node as Entity} component={c} />
           )
         })}
       </StyledNodeEditor>

@@ -1,114 +1,45 @@
-import { World } from '../../ecs/classes/World'
-import { defineQuery, getComponent, removeQuery } from '../../ecs/functions/ComponentFunctions'
-import {
-  SCENE_COMPONENT_TRANSFORM,
-  SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES,
-  TransformComponent
-} from '../../transform/components/TransformComponent'
-import { AmbientLightComponent, SCENE_COMPONENT_AMBIENT_LIGHT } from '../components/AmbientLightComponent'
-import { DirectionalLightComponent, SCENE_COMPONENT_DIRECTIONAL_LIGHT } from '../components/DirectionalLightComponent'
-import { HemisphereLightComponent, SCENE_COMPONENT_HEMISPHERE_LIGHT } from '../components/HemisphereLightComponent'
-import { PointLightComponent, SCENE_COMPONENT_POINT_LIGHT } from '../components/PointLightComponent'
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
+import { defineQuery, getComponent } from '../../ecs/functions/ComponentFunctions'
+import { defineSystem } from '../../ecs/functions/SystemFunctions'
+import { TransformComponent } from '../../transform/components/TransformComponent'
+import { DirectionalLightComponent } from '../components/DirectionalLightComponent'
 import { SelectTagComponent } from '../components/SelectTagComponent'
-import { SCENE_COMPONENT_SPOT_LIGHT, SpotLightComponent } from '../components/SpotLightComponent'
-import { SCENE_COMPONENT_VISIBLE } from '../components/VisibleComponent'
 
-export const LightPrefabs = {
-  directionalLight: 'Directional Light' as const,
-  hemisphereLight: 'Hemisphere Light' as const,
-  ambientLight: 'Ambient Light' as const,
-  pointLight: 'Point Light' as const,
-  spotLight: 'Spot Light' as const
+const directionalLightSelectQuery = defineQuery([TransformComponent, DirectionalLightComponent, SelectTagComponent])
+
+const execute = () => {
+  for (const entity of directionalLightSelectQuery()) {
+    const helper = getComponent(entity, DirectionalLightComponent)?.helper
+    if (helper) helper.update()
+    // light.cameraHelper.update()
+  }
 }
 
-export default async function LightSystem(world: World) {
-  world.sceneComponentRegistry.set(DirectionalLightComponent.name, SCENE_COMPONENT_DIRECTIONAL_LIGHT)
-  world.sceneLoadingRegistry.set(SCENE_COMPONENT_DIRECTIONAL_LIGHT, {
-    defaultData: {}
-  })
-
-  world.sceneComponentRegistry.set(HemisphereLightComponent.name, SCENE_COMPONENT_HEMISPHERE_LIGHT)
-  world.sceneLoadingRegistry.set(SCENE_COMPONENT_HEMISPHERE_LIGHT, {
-    defaultData: {}
-  })
-
-  world.sceneComponentRegistry.set(AmbientLightComponent.name, SCENE_COMPONENT_AMBIENT_LIGHT)
-  world.sceneLoadingRegistry.set(SCENE_COMPONENT_AMBIENT_LIGHT, {
-    defaultData: {}
-  })
-
-  world.sceneComponentRegistry.set(PointLightComponent.name, SCENE_COMPONENT_POINT_LIGHT)
-  world.sceneLoadingRegistry.set(SCENE_COMPONENT_POINT_LIGHT, {
-    defaultData: {}
-  })
-
-  world.sceneComponentRegistry.set(SpotLightComponent.name, SCENE_COMPONENT_SPOT_LIGHT)
-  world.sceneLoadingRegistry.set(SCENE_COMPONENT_SPOT_LIGHT, {
-    defaultData: {}
-  })
-
-  world.scenePrefabRegistry.set(LightPrefabs.directionalLight, [
-    { name: SCENE_COMPONENT_VISIBLE, props: true },
-    { name: SCENE_COMPONENT_TRANSFORM, props: SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES },
-    { name: SCENE_COMPONENT_DIRECTIONAL_LIGHT, props: {} }
-  ])
-
-  world.scenePrefabRegistry.set(LightPrefabs.hemisphereLight, [
-    { name: SCENE_COMPONENT_VISIBLE, props: true },
-    { name: SCENE_COMPONENT_HEMISPHERE_LIGHT, props: {} }
-  ])
-
-  world.scenePrefabRegistry.set(LightPrefabs.ambientLight, [
-    { name: SCENE_COMPONENT_VISIBLE, props: true },
-    { name: SCENE_COMPONENT_AMBIENT_LIGHT, props: {} }
-  ])
-
-  world.scenePrefabRegistry.set(LightPrefabs.pointLight, [
-    { name: SCENE_COMPONENT_TRANSFORM, props: SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES },
-    { name: SCENE_COMPONENT_VISIBLE, props: true },
-    { name: SCENE_COMPONENT_POINT_LIGHT, props: {} }
-  ])
-
-  world.scenePrefabRegistry.set(LightPrefabs.spotLight, [
-    { name: SCENE_COMPONENT_TRANSFORM, props: SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES },
-    { name: SCENE_COMPONENT_VISIBLE, props: true },
-    { name: SCENE_COMPONENT_SPOT_LIGHT, props: {} }
-  ])
-
-  const directionalLightSelectQuery = defineQuery([TransformComponent, DirectionalLightComponent, SelectTagComponent])
-
-  const execute = () => {
-    for (const entity of directionalLightSelectQuery()) {
-      const helper = getComponent(entity, DirectionalLightComponent)?.helper
-      if (helper) helper.update()
-      // light.cameraHelper.update()
-    }
-  }
-
-  const cleanup = async () => {
-    world.sceneComponentRegistry.delete(DirectionalLightComponent.name)
-    world.sceneLoadingRegistry.delete(SCENE_COMPONENT_DIRECTIONAL_LIGHT)
-
-    world.sceneComponentRegistry.delete(HemisphereLightComponent.name)
-    world.sceneLoadingRegistry.delete(SCENE_COMPONENT_HEMISPHERE_LIGHT)
-
-    world.sceneComponentRegistry.delete(AmbientLightComponent.name)
-    world.sceneLoadingRegistry.delete(SCENE_COMPONENT_AMBIENT_LIGHT)
-
-    world.sceneComponentRegistry.delete(PointLightComponent.name)
-    world.sceneLoadingRegistry.delete(SCENE_COMPONENT_POINT_LIGHT)
-
-    world.sceneComponentRegistry.delete(SpotLightComponent.name)
-    world.sceneLoadingRegistry.delete(SCENE_COMPONENT_SPOT_LIGHT)
-
-    world.scenePrefabRegistry.delete(LightPrefabs.directionalLight)
-    world.scenePrefabRegistry.delete(LightPrefabs.hemisphereLight)
-    world.scenePrefabRegistry.delete(LightPrefabs.ambientLight)
-    world.scenePrefabRegistry.delete(LightPrefabs.pointLight)
-    world.scenePrefabRegistry.delete(LightPrefabs.spotLight)
-
-    removeQuery(world, directionalLightSelectQuery)
-  }
-
-  return { execute, cleanup }
-}
+export const LightSystem = defineSystem({
+  uuid: 'ee.engine.LightSystem',
+  execute
+})

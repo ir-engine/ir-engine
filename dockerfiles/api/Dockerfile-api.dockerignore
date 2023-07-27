@@ -19,9 +19,9 @@ packages/client
 packages/client-core
 packages/editor
 packages/instanceserver
-packages/ops
 packages/taskserver
 packages/test
+packages/ui
 
 
 kubernetes/**

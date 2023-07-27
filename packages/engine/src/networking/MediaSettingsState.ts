@@ -1,46 +1,40 @@
-import { matches } from '@xrengine/engine/src/common/functions/MatchesUtils'
-import { defineAction, defineState, getState, syncStateWithLocalStorage } from '@xrengine/hyperflux'
+/*
+CPAL-1.0 License
 
-import { AudioState, getPositionalMedia } from '../audio/AudioState'
-import { getMediaSceneMetadataState } from '../audio/systems/MediaSystem'
-import { Engine } from '../ecs/classes/Engine'
-import { XRState } from '../xr/XRState'
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
 
-/**
- * All values ranged from 0 to 1
- */
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
+import { defineState } from '@etherealengine/hyperflux'
+
 export const MediaSettingsState = defineState({
   name: 'MediaSettingsState',
-  initial: () => ({
-    /** @todo implement UI setting for changing immersiveMediaMode */
-    immersiveMediaMode: 'auto' as 'auto' | 'on' | 'off'
-  }),
-  onCreate: () => {
-    syncStateWithLocalStorage(MediaSettingsState, ['immersiveMediaMode'])
+  initial: {
+    immersiveMedia: false,
+    refDistance: 20,
+    rolloffFactor: 1,
+    maxDistance: 10000,
+    distanceModel: 'linear' as DistanceModelType,
+    coneInnerAngle: 360,
+    coneOuterAngle: 0,
+    coneOuterGain: 0
   }
 })
-
-export function MediaSettingReceptor(action) {
-  const s = getState(MediaSettingsState)
-  matches(action).when(MediaSettingAction.setImmersiveMediaMode.matches, (action) => {
-    s.merge({ immersiveMediaMode: action.mode as 'auto' | 'on' | 'off' })
-  })
-}
-
-export class MediaSettingAction {
-  static setImmersiveMediaMode = defineAction({
-    type: 'xre.media.MediaSetting.IMMERSIVE_MEDIA_MODE' as const,
-    mode: matches.string
-  })
-}
-
-export const shouldUseImmersiveMedia = () => {
-  const xrSessionActive = getState(XRState).sessionActive.value
-  const audioState = getState(AudioState)
-  const mediaState = getMediaSceneMetadataState(Engine.instance.currentWorld)
-  const mediaSettingState = getState(MediaSettingsState)
-  const immersiveMedia =
-    mediaSettingState.immersiveMediaMode.value === 'on' ||
-    (mediaSettingState.immersiveMediaMode.value === 'auto' && mediaState.immersiveMedia.value)
-  return immersiveMedia || getPositionalMedia() || xrSessionActive
-}

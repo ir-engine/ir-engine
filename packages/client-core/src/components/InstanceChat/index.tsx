@@ -1,38 +1,56 @@
-import { useHookstate } from '@hookstate/core'
-import React, { Fragment, useEffect, useRef, useState, useTransition } from 'react'
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
+import React, { Fragment, useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import {
-  useLocationInstanceConnectionState,
-  useWorldInstance
-} from '@xrengine/client-core/src/common/services/LocationInstanceConnectionService'
-import { ChatService, ChatServiceReceptor, useChatState } from '@xrengine/client-core/src/social/services/ChatService'
-import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
-import multiLogger from '@xrengine/common/src/logger'
-import { AudioEffectPlayer } from '@xrengine/engine/src/audio/systems/MediaSystem'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { EngineState, useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
-import { WorldNetworkAction } from '@xrengine/engine/src/networking/functions/WorldNetworkAction'
-import { WorldState } from '@xrengine/engine/src/networking/interfaces/WorldState'
-import { addActionReceptor, dispatchAction, removeActionReceptor } from '@xrengine/hyperflux'
-import { getState } from '@xrengine/hyperflux'
+import { useWorldInstance } from '@etherealengine/client-core/src/common/services/LocationInstanceConnectionService'
+import { ChannelService, ChannelState } from '@etherealengine/client-core/src/social/services/ChannelService'
+import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
+import { AudioEffectPlayer } from '@etherealengine/engine/src/audio/systems/MediaSystem'
+import { useFind, useMutation } from '@etherealengine/engine/src/common/functions/FeathersHooks'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
+import { WorldState } from '@etherealengine/engine/src/networking/interfaces/WorldState'
+import { dispatchAction, getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import Avatar from '@etherealengine/ui/src/primitives/mui/Avatar'
+import Badge from '@etherealengine/ui/src/primitives/mui/Badge'
+import Card from '@etherealengine/ui/src/primitives/mui/Card'
+import CardContent from '@etherealengine/ui/src/primitives/mui/CardContent'
+import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
+import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
+import TextField from '@etherealengine/ui/src/primitives/mui/TextField'
 
-import { Close as CloseIcon, Message as MessageIcon, Send } from '@mui/icons-material'
-import { IconButton } from '@mui/material'
-import Avatar from '@mui/material/Avatar'
-import Badge from '@mui/material/Badge'
-import Card from '@mui/material/Card'
-import CardContent from '@mui/material/CardContent'
+import { Close as CloseIcon, Message as MessageIcon } from '@mui/icons-material'
 import Fab from '@mui/material/Fab'
-import TextField from '@mui/material/TextField'
 
 import { AppAction } from '../../common/services/AppService'
-import { getAvatarURLForUser } from '../../user/components/UserMenu/util'
+import { AvatarUIActions, AvatarUIState } from '../../systems/state/AvatarUIState'
+import { getUserAvatarThumbnail } from '../../user/functions/useUserAvatarThumbnail'
 import { useShelfStyles } from '../Shelves/useShelfStyles'
-import defaultStyles from './index.module.scss'
-import styles from './index.module.scss'
-
-const logger = multiLogger.child({ component: 'client-core:chat' })
+import { default as defaultStyles, default as styles } from './index.module.scss'
 
 interface ChatHooksProps {
   chatWindowOpen: boolean
@@ -42,64 +60,60 @@ interface ChatHooksProps {
 
 export const useChatHooks = ({ chatWindowOpen, setUnreadMessages, messageRefInput }: ChatHooksProps) => {
   /**
-   * Provisioning logic
-   */
-  const currentInstanceConnection = useWorldInstance()
-
-  useEffect(() => {
-    if (Engine.instance.currentWorld.worldNetwork?.hostId && currentInstanceConnection?.connected?.value) {
-      ChatService.getInstanceChannel()
-    }
-  }, [currentInstanceConnection?.connected])
-
-  /**
    * Message display logic
    */
 
-  const chatState = useChatState()
-  const channels = chatState.channels.channels
-  const activeChannel = Object.values(channels).find((channel) => channel.channelType.value === 'instance')
+  const targetChannelId = useHookstate(getMutableState(ChannelState).targetChannelId)
+
+  const messages = useFind('message', {
+    query: {
+      channelId: targetChannelId.value
+    }
+  })
+  const mutateMessage = useMutation('message')
 
   useEffect(() => {
-    if (activeChannel?.messages?.length && !chatWindowOpen) setUnreadMessages(true)
-  }, [activeChannel?.messages])
+    if (messages.data?.length && !chatWindowOpen) setUnreadMessages(true)
+  }, [messages.data, chatWindowOpen])
 
   /**
    * Message composition logic
    */
 
-  const [composingMessage, setComposingMessage] = useState('')
-  const [cursorPosition, setCursorPosition] = useState(0)
-  const user = useAuthState().user
-  const usersTyping = useEngineState().usersTyping[user?.id.value].value
-  const [isMultiline, setIsMultiline] = useState(false)
+  const composingMessage = useHookstate('')
+  const cursorPosition = useHookstate(0)
+  const user = useHookstate(getMutableState(AuthState).user)
+  const usersTyping = useHookstate(getMutableState(AvatarUIState)).usersTyping[user?.id.value].value
+  const isMultiline = useHookstate(false)
 
   useEffect(() => {
-    if (isMultiline) {
-      ;(messageRefInput.current as HTMLInputElement).selectionStart = cursorPosition + 1
+    if (isMultiline.value) {
+      ;(messageRefInput.current as HTMLInputElement).selectionStart = cursorPosition.value + 1
     }
-  }, [isMultiline])
+  }, [isMultiline.value])
 
   useEffect(() => {
-    if (!composingMessage || !usersTyping) return
+    if (!composingMessage.value || !usersTyping) return
     const delayDebounce = setTimeout(() => {
       dispatchAction(
-        WorldNetworkAction.setUserTyping({
+        AvatarUIActions.setUserTyping({
           typing: false
         })
       )
     }, 3000)
 
     return () => clearTimeout(delayDebounce)
-  }, [composingMessage])
+  }, [composingMessage.value])
 
   const handleComposingMessageChange = (event: any): void => {
     if (event.key === 'Enter' && event.shiftKey) {
       event.preventDefault()
       const selectionStart = (event.target as HTMLInputElement).selectionStart
 
-      setComposingMessage(
-        composingMessage.substring(0, selectionStart || 0) + '\n' + composingMessage.substring(selectionStart || 0)
+      composingMessage.set(
+        composingMessage.value.substring(0, selectionStart || 0) +
+          '\n' +
+          composingMessage.value.substring(selectionStart || 0)
       )
       return
     } else if (event.key === 'Enter' && !event.shiftKey) {
@@ -109,54 +123,54 @@ export const useChatHooks = ({ chatWindowOpen, setUnreadMessages, messageRefInpu
     }
 
     const message = event.target.value
-    if (message.length > composingMessage.length) {
+    if (message.length > composingMessage.value.length) {
       if (!usersTyping) {
         dispatchAction(
-          WorldNetworkAction.setUserTyping({
+          AvatarUIActions.setUserTyping({
             typing: true
           })
         )
       }
     }
-    if (message.length == 0 || message.length < composingMessage.length) {
+    if (message.length == 0 || message.length < composingMessage.value.length) {
       if (usersTyping) {
         dispatchAction(
-          WorldNetworkAction.setUserTyping({
+          AvatarUIActions.setUserTyping({
             typing: false
           })
         )
       }
     }
 
-    setComposingMessage(message)
+    composingMessage.set(message)
   }
 
   const packageMessage = (): void => {
-    if (composingMessage?.length && user.instanceId.value) {
+    const instanceId = Engine.instance.worldNetwork.hostId
+    if (composingMessage?.value?.length && instanceId) {
       if (usersTyping) {
         dispatchAction(
-          WorldNetworkAction.setUserTyping({
+          AvatarUIActions.setUserTyping({
             typing: false
           })
         )
       }
 
-      ChatService.createMessage({
-        targetObjectId: user.instanceId.value,
-        targetObjectType: 'instance',
-        text: composingMessage
+      mutateMessage.create({
+        text: composingMessage.value,
+        channelId: targetChannelId.value
       })
-      setComposingMessage('')
+      composingMessage.set('')
     }
 
-    setCursorPosition(0)
+    cursorPosition.set(0)
   }
 
   /**
    * Chat panel dimensions
    */
 
-  const [dimensions, setDimensions] = useState({
+  const dimensions = useHookstate({
     height: window.innerHeight,
     width: window.innerWidth
   })
@@ -169,18 +183,18 @@ export const useChatHooks = ({ chatWindowOpen, setUnreadMessages, messageRefInpu
   }, [])
 
   const handleWindowResize = () => {
-    setDimensions({
+    dimensions.set({
       height: window.innerHeight,
       width: window.innerWidth
     })
   }
 
   return {
-    dimensions,
-    activeChannel,
+    dimensions: dimensions.get({ noproxy: true }),
     handleComposingMessageChange,
     packageMessage,
-    composingMessage
+    composingMessage: composingMessage.value,
+    messages
   }
 }
 
@@ -197,37 +211,27 @@ export const InstanceChat = ({
   CloseButton = CloseIcon,
   newMessageLabel = 'World Chat...'
 }: InstanceChatProps): any => {
-  const [chatWindowOpen, setChatWindowOpen] = useState(false)
-  const [unreadMessages, setUnreadMessages] = useState(false)
-  const [messageContainerVisible, setMessageContainerVisible] = useState(false)
+  const chatWindowOpen = useHookstate(false)
+  const unreadMessages = useHookstate(false)
+  const messageContainerVisible = useHookstate(false)
   const messageRefInput = useRef<HTMLInputElement>()
 
-  const { activeChannel, handleComposingMessageChange, packageMessage, composingMessage } = useChatHooks({
-    chatWindowOpen,
-    setUnreadMessages,
+  const { handleComposingMessageChange, packageMessage, composingMessage, messages } = useChatHooks({
+    chatWindowOpen: chatWindowOpen.value,
+    setUnreadMessages: unreadMessages.set,
     messageRefInput: messageRefInput as any
   })
 
-  const sortedMessages = activeChannel?.messages?.get({ noproxy: true })?.length
-    ? [...activeChannel.messages.get({ noproxy: true })].sort(
-        (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
-      )
+  const sortedMessages = messages.data
+    ? messages.data.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime())
     : []
 
-  const user = useAuthState().user
+  const user = useHookstate(getMutableState(AuthState).user)
 
-  const [isInitRender, setIsInitRender] = useState<Boolean>()
+  const isInitRender = useHookstate<Boolean>(false)
 
   const isMobile = /Mobi/i.test(window.navigator.userAgent)
-  const chatState = useChatState()
-
-  ChatService.useAPIListeners()
-  useEffect(() => {
-    addActionReceptor(ChatServiceReceptor)
-    return () => {
-      removeActionReceptor(ChatServiceReceptor)
-    }
-  }, [])
+  const chatState = useHookstate(getMutableState(ChannelState))
 
   /**
    * Audio effect
@@ -238,7 +242,7 @@ export const InstanceChat = ({
     AudioEffectPlayer.instance.play(
       message.isNotification ? AudioEffectPlayer.SOUNDS.notification : AudioEffectPlayer.SOUNDS.message
     )
-  }, [chatState.messageCreated])
+  }, [chatState.messageCreated.value])
 
   const messageRef = useRef<any>()
 
@@ -248,7 +252,7 @@ export const InstanceChat = ({
       sortedMessages[sortedMessages.length - 1]?.senderId !== user?.id.value &&
       chatState.messageCreated.value
     ) {
-      setUnreadMessages(true)
+      unreadMessages.set(true)
     }
 
     const messageRefCurrentRenderedInterval = setInterval(() => {
@@ -257,7 +261,7 @@ export const InstanceChat = ({
         clearInterval(messageRefCurrentRenderedInterval)
       }
     }, 500)
-  }, [chatState.messageCreated])
+  }, [chatState.messageCreated.value])
 
   const hideOtherMenus = () => {
     dispatchAction(AppAction.showTopShelf({ show: false }))
@@ -266,39 +270,41 @@ export const InstanceChat = ({
   }
 
   const toggleChatWindow = () => {
-    if (!chatWindowOpen && isMobile) hideOtherMenus()
-    if (!chatWindowOpen) {
-      setMessageContainerVisible(false)
+    if (!chatWindowOpen.value && isMobile) hideOtherMenus()
+    if (!chatWindowOpen.value) {
+      messageContainerVisible.set(false)
       const messageRefCurrentRenderedInterval = setInterval(() => {
         if (messageRef.current && messageRef.current.scrollHeight > 0) {
           messageRef.current.scrollTop = messageRef.current.scrollHeight
-          setMessageContainerVisible(true)
+          messageContainerVisible.set(true)
           clearInterval(messageRefCurrentRenderedInterval)
         }
       }, 500)
     }
-    setChatWindowOpen(!chatWindowOpen)
-    chatWindowOpen && setUnreadMessages(false)
-    setIsInitRender(false)
+    chatWindowOpen.set(!chatWindowOpen.value)
+    chatWindowOpen.value && unreadMessages.set(false)
+    isInitRender.set(false)
   }
 
-  const userAvatarDetails = useHookstate(getState(WorldState).userAvatarDetails)
+  const userAvatarDetails = useHookstate(getMutableState(WorldState).userAvatarDetails)
 
   return (
     <>
       <div
         onClick={() => {
-          setChatWindowOpen(false)
-          setUnreadMessages(false)
+          chatWindowOpen.set(false)
+          unreadMessages.set(false)
           dispatchAction(AppAction.showTouchPad({ show: true }))
         }}
-        className={styles.backdrop + ' ' + (!chatWindowOpen ? styles.hideBackDrop : '')}
+        className={styles.backdrop + ' ' + (!chatWindowOpen.value ? styles.hideBackDrop : '')}
       ></div>
-      <div className={styles['instance-chat-container'] + ' ' + (chatWindowOpen ? styles.open : '')}>
-        {chatWindowOpen && (
+      <div className={styles['instance-chat-container'] + ' ' + (chatWindowOpen.value ? styles.open : '')}>
+        {chatWindowOpen.value && (
           <div
             ref={messageRef}
-            className={styles['instance-chat-msg-container'] + ' ' + (!messageContainerVisible ? styles.hidden : '')}
+            className={
+              styles['instance-chat-msg-container'] + ' ' + (!messageContainerVisible.value ? styles.hidden : '')
+            }
           >
             <div className={styles.scrollFix} />
             {sortedMessages &&
@@ -332,24 +338,15 @@ export const InstanceChat = ({
                             <p className={styles.text}>{message.text}</p>
                           </div>
                           {index !== 0 && messages[index - 1] && messages[index - 1].isNotification ? (
-                            <Avatar
-                              src={getAvatarURLForUser(userAvatarDetails, message.senderId)}
-                              className={styles.avatar}
-                            />
+                            <Avatar src={getUserAvatarThumbnail(message.senderId)} className={styles.avatar} />
                           ) : (
                             messages[index - 1] &&
                             message.senderId !== messages[index - 1].senderId && (
-                              <Avatar
-                                src={getAvatarURLForUser(userAvatarDetails, message.senderId)}
-                                className={styles.avatar}
-                              />
+                              <Avatar src={getUserAvatarThumbnail(message.senderId)} className={styles.avatar} />
                             )
                           )}
                           {index === 0 && (
-                            <Avatar
-                              src={getAvatarURLForUser(userAvatarDetails, message.senderId)}
-                              className={styles.avatar}
-                            />
+                            <Avatar src={getUserAvatarThumbnail(message.senderId)} className={styles.avatar} />
                           )}
                         </div>
                       </div>
@@ -360,7 +357,7 @@ export const InstanceChat = ({
           </div>
         )}
         <div className={`${styles['bottom-box']}`}>
-          <div className={`${styles['chat-input']} ${chatWindowOpen ? '' : styles.invisible} `}>
+          <div className={`${styles['chat-input']} ${chatWindowOpen.value ? '' : styles.invisible} `}>
             <Card className={styles['chat-view']} style={{ boxShadow: 'none' }}>
               <CardContent className={styles['chat-box']} style={{ boxShadow: 'none' }}>
                 <TextField
@@ -390,9 +387,8 @@ export const InstanceChat = ({
                         onClick={packageMessage}
                         className={styles.sendButton}
                         focusRipple={false}
-                      >
-                        <Send fontSize="small" />
-                      </IconButton>
+                        icon={<Icon type="Send" fontSize="small" />}
+                      />
                     )
                   }}
                 />
@@ -401,19 +397,19 @@ export const InstanceChat = ({
           </div>
           <div
             className={`${styles.iconCallChat} ${
-              isInitRender
+              isInitRender.value
                 ? styles.animateBottom
-                : !chatWindowOpen
+                : !chatWindowOpen.value
                 ? isMobile
                   ? styles.animateTop
                   : styles.animateLeft
                 : ''
-            } ${!chatWindowOpen ? '' : styles.chatOpen}`}
+            } ${!chatWindowOpen.value ? '' : styles.chatOpen}`}
           >
             <Badge
               color="primary"
               variant="dot"
-              invisible={!unreadMessages}
+              invisible={!unreadMessages.value}
               anchorOrigin={{ vertical: 'top', horizontal: 'left' }}
             >
               <Fab
@@ -424,12 +420,11 @@ export const InstanceChat = ({
                 onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
                 onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
               >
-                {!chatWindowOpen ? (
+                {!chatWindowOpen.value ? (
                   <MessageButton />
                 ) : (
                   <CloseButton
                     onClick={() => {
-                      toggleChatWindow()
                       dispatchAction(AppAction.showTouchPad({ show: true }))
                     }}
                   />
@@ -444,12 +439,26 @@ export const InstanceChat = ({
 }
 
 export const InstanceChatWrapper = () => {
-  const engineState = useHookstate(getState(EngineState))
+  const engineState = useHookstate(getMutableState(EngineState))
   const { t } = useTranslation()
   const { bottomShelfStyle } = useShelfStyles()
+
+  const targetChannelId = useHookstate(getMutableState(ChannelState).targetChannelId)
+
+  /**
+   * Provisioning logic
+   */
+  const currentInstanceConnection = useWorldInstance()
+
+  useEffect(() => {
+    if (Engine.instance.worldNetwork?.hostId && currentInstanceConnection?.connected?.value) {
+      ChannelService.getInstanceChannel()
+    }
+  }, [currentInstanceConnection?.connected])
+
   return (
     <>
-      {engineState.connectedWorld.value ? (
+      {engineState.connectedWorld.value && targetChannelId.value ? (
         <div className={`${bottomShelfStyle} ${styles.chatRoot}`}>
           <InstanceChat />
         </div>

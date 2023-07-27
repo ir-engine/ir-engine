@@ -1,10 +1,9 @@
 name: branch-build
 on:
+  pull_request:
+    branches: [dev]
   push:
-    branches-ignore:
-      - dev
-      - master
-      - 'version-increment-*'
+    branches: [dev]
 jobs:
   secrets-gate:
     runs-on: ubuntu-latest
@@ -15,13 +14,13 @@ jobs:
         id: check-secrets
         run: |
           if [ ${{ secrets.BRANCH_BUILD_ENABLED }} == 'true' ]; then
-            echo "::set-output name=ok::enabled"
+            echo "ok=enabled" >> $GITHUB_OUTPUT
           fi
   compile-codebase:
-    needs:
-      - secrets-gate
-    if: ${{ needs.secrets-gate.outputs.ok == 'enabled' }}
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
     steps:
       - uses: actions/checkout@v3
       - name: Use Node.js
@@ -29,7 +28,7 @@ jobs:
         with:
           node-version: 18.x
       - name: restore lerna
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: |
             node_modules
@@ -37,15 +36,15 @@ jobs:
             package-lock.json
           key: ${{ runner.os }}-branch-build-${{ hashFiles('**/package.json') }}
       - run: cp .env.local.default .env.local
+      - name: Config npm registry token
+        run: npm config set '//npm.pkg.github.com/:_authToken' "${NPM_TOKEN}"
+        env:
+          NPM_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - run: npm install --production=false --loglevel notice --legacy-peer-deps
       - run: npm run lint
-      - run: npm run check-errors
-        timeout-minutes: 20
       - run: npm run dev-docker
       - run: npm run dev-reinit
-      - run: npm run test 
-        env:
-          STORAGE_AWS_ACCESS_KEY_ID: ${{secrets.STORAGE_AWS_ACCESS_KEY_ID}}
-          STORAGE_AWS_ACCESS_KEY_SECRET: ${{secrets.STORAGE_AWS_ACCESS_KEY_SECRET}}
-          STORAGE_S3_TEST_RESOURCE_BUCKET: ${{secrets.STORAGE_S3_TEST_RESOURCE_BUCKET}}
+      - run: npm run check-errors
+        timeout-minutes: 20
       - run: npm run build-client
+      - run: npm run test

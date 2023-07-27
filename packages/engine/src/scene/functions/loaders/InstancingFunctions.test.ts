@@ -1,88 +1,106 @@
-import assert from 'assert'
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
 import { afterEach, beforeEach, describe } from 'mocha'
 import { createSandbox, SinonSandbox } from 'sinon'
 import { Color } from 'three'
 
-import { Engine } from '../../../ecs/classes/Engine'
+import { getMutableState } from '@etherealengine/hyperflux'
+
+import { destroyEngine, Engine } from '../../../ecs/classes/Engine'
+import { EngineState } from '../../../ecs/classes/EngineState'
 import { Entity } from '../../../ecs/classes/Entity'
-import { World } from '../../../ecs/classes/World'
-import { getComponent, hasComponent } from '../../../ecs/functions/ComponentFunctions'
+import { SimulationSystemGroup } from '../../../ecs/functions/EngineFunctions'
 import { createEntity } from '../../../ecs/functions/EntityFunctions'
-import { EntityTreeNode } from '../../../ecs/functions/EntityTree'
-import { createEntityNode } from '../../../ecs/functions/EntityTree'
-import { initSystems } from '../../../ecs/functions/SystemFunctions'
-import { SystemUpdateType } from '../../../ecs/functions/SystemUpdateType'
-import { createEngine, setupEngineActionSystems } from '../../../initializeEngine'
+import { defineSystem, startSystem, SystemDefinitions, SystemUUID } from '../../../ecs/functions/SystemFunctions'
+import { createEngine } from '../../../initializeEngine'
 import {
   GrassProperties,
-  InstancingComponent,
   SampleMode,
   ScatterMode,
   ScatterProperties,
   ScatterState
 } from '../../components/InstancingComponent'
-import {
-  deserializeInstancing,
-  GRASS_PROPERTIES_DEFAULT_VALUES,
-  SCATTER_PROPERTIES_DEFAULT_VALUES
-} from './InstancingFunctions'
+import { GRASS_PROPERTIES_DEFAULT_VALUES, SCATTER_PROPERTIES_DEFAULT_VALUES } from './InstancingFunctions'
 
 describe('InstancingFunctions', async () => {
   let entity: Entity
-  let node: EntityTreeNode
-  let world: World
   let sandbox: SinonSandbox
   let nextFixedStep: Promise<void>
   const initEntity = () => {
     entity = createEntity()
-    node = createEntityNode(entity)
-    world = Engine.instance.currentWorld
   }
   beforeEach(async () => {
     sandbox = createSandbox()
     createEngine()
-    setupEngineActionSystems()
     initEntity()
     Engine.instance.engineTimer.start()
 
-    Engine.instance.publicPath = ''
+    getMutableState(EngineState).publicPath.set('')
     await Promise.all([])
 
-    await initSystems(world, [
-      {
-        uuid: 'Instance',
-        type: SystemUpdateType.FIXED_LATE,
-        systemLoader: () =>
-          Promise.resolve({
-            default: async () => {
-              let resolve: () => void
-              nextFixedStep = new Promise<void>((r) => (resolve = r))
-              return {
-                execute: () => {
-                  resolve()
-                  nextFixedStep = new Promise<void>((r) => (resolve = r))
-                },
-                cleanup: async () => {}
-              }
-            }
-          })
+    let resolve: () => void
+    nextFixedStep = new Promise<void>((r) => (resolve = r))
+
+    SystemDefinitions.delete('test.system' as SystemUUID)
+    const system = defineSystem({
+      uuid: 'test.system',
+      execute: () => {
+        resolve()
+        nextFixedStep = new Promise<void>((r) => (resolve = r))
       }
-    ])
+    })
+    startSystem(system, { after: SimulationSystemGroup })
   })
   afterEach(async () => {
     sandbox.restore()
+    return destroyEngine()
   })
 
   const scatterProps: ScatterProperties = {
     ...SCATTER_PROPERTIES_DEFAULT_VALUES,
-    densityMap: '',
-    heightMap: ''
+    densityMap: {
+      src: '',
+      texture: null
+    },
+    heightMap: {
+      src: '',
+      texture: null
+    }
   }
 
   const grassProps: GrassProperties = {
     ...GRASS_PROPERTIES_DEFAULT_VALUES,
-    grassTexture: '',
-    alphaMap: '',
+    grassTexture: {
+      src: '',
+      texture: null
+    },
+    alphaMap: {
+      src: '',
+      texture: null
+    },
     sunColor: new Color(1, 1, 1)
   }
 
@@ -96,21 +114,7 @@ describe('InstancingFunctions', async () => {
     sourceProperties: grassProps
   }
 
-  describe('deserializeInstancing', () => {
-    it('Correctly deserializes empty component', async () => {
-      deserializeInstancing(entity, emptyInstancingCmp)
-      assert(hasComponent(entity, InstancingComponent))
-      const instancing = getComponent(entity, InstancingComponent)
-      assert.deepEqual(instancing.count, 0)
-      assert.deepEqual(instancing.mode, ScatterMode.GRASS)
-      Object.entries(scatterProps).map(([k, v]) => {
-        assert.equal(instancing.sampleProperties[k], v)
-      })
-      Object.entries(grassProps).map(([k, v]) => {
-        assert.equal((instancing.sourceProperties as GrassProperties)[k], v)
-      })
-    })
-  })
+  describe('deserializeInstancing', () => {})
 
   describe('stageInstancing', () => {})
 

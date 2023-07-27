@@ -1,31 +1,57 @@
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
 import { Icon } from '@iconify/react'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import InputSwitch from '@xrengine/client-core/src/common/components/InputSwitch'
-import InputText from '@xrengine/client-core/src/common/components/InputText'
-import { useHookstate } from '@xrengine/hyperflux'
+import InputSwitch from '@etherealengine/client-core/src/common/components/InputSwitch'
+import InputText from '@etherealengine/client-core/src/common/components/InputText'
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import Box from '@etherealengine/ui/src/primitives/mui/Box'
+import Button from '@etherealengine/ui/src/primitives/mui/Button'
+import Grid from '@etherealengine/ui/src/primitives/mui/Grid'
+import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 
-import { Box, Button, Grid, Typography } from '@mui/material'
-
-import { useAuthState } from '../../../user/services/AuthService'
-import { ServerSettingService, useServerSettingState } from '../../services/Setting/ServerSettingService'
+import { AuthState } from '../../../user/services/AuthService'
+import { AdminServerSettingsState, ServerSettingService } from '../../services/Setting/ServerSettingService'
 import styles from '../../styles/settings.module.scss'
 
 const Server = () => {
   const { t } = useTranslation()
 
-  const authState = useAuthState()
-  const user = authState.user
-  const serverSettingState = useServerSettingState()
-  const [serverSetting] = serverSettingState?.server?.value || []
+  const user = useHookstate(getMutableState(AuthState).user)
+  const serverSettingState = useHookstate(getMutableState(AdminServerSettingsState))
+  const [serverSetting] = serverSettingState?.server?.get({ noproxy: true }) || []
   const id = serverSetting?.id
 
   const gaTrackingId = useHookstate(serverSetting?.gaTrackingId)
   const githubWebhookSecret = useHookstate(serverSetting?.githubWebhookSecret)
   const instanceserverUnreachableTimeoutSeconds = useHookstate(serverSetting?.instanceserverUnreachableTimeoutSeconds)
-  const [dryRun, setDryRun] = useState(true)
-  const [local, setLocal] = useState(true)
+  const dryRun = useHookstate(true)
+  const local = useHookstate(true)
 
   useEffect(() => {
     if (serverSetting) {
@@ -55,7 +81,7 @@ const Server = () => {
     if (user?.id?.value != null && serverSettingState?.updateNeeded?.value === true) {
       ServerSettingService.fetchServerSettings()
     }
-  }, [authState?.user?.id?.value, serverSettingState?.updateNeeded?.value])
+  }, [user?.id?.value, serverSettingState?.updateNeeded?.value])
 
   return (
     <Box>
@@ -123,9 +149,9 @@ const Server = () => {
           <InputSwitch
             name="performDryRun"
             label={t('admin:components.setting.performDryRun')}
-            checked={dryRun}
+            checked={dryRun.value}
             disabled
-            onChange={(event) => setDryRun(event.target.checked)}
+            onChange={(event) => dryRun.set(event.target.checked)}
           />
         </Grid>
         <Grid item xs={12} sm={6}>
@@ -148,15 +174,6 @@ const Server = () => {
             name="hub"
             label={t('admin:components.setting.hub')}
             value={serverSetting?.hub?.endpoint || ''}
-            disabled
-          />
-
-          <InputText name="paginateDefault" label={t('admin:components.setting.paginateDefault')} value="10" disabled />
-
-          <InputText
-            name="paginateMax"
-            label={t('admin:components.setting.paginateMax')}
-            value={serverSetting?.paginate || ''}
             disabled
           />
 
@@ -193,16 +210,16 @@ const Server = () => {
           <InputText
             name="releaseName"
             label={t('admin:components.setting.instanceserverUnreachableTimeoutSeconds')}
-            value={instanceserverUnreachableTimeoutSeconds.value}
+            value={instanceserverUnreachableTimeoutSeconds?.value || ''}
             onChange={(e) => instanceserverUnreachableTimeoutSeconds.set(e.target.value)}
           />
 
           <InputSwitch
             name="local"
             label={t('admin:components.setting.local')}
-            checked={local}
+            checked={local.value}
             disabled
-            onChange={(event) => setLocal(event.target.checked)}
+            onChange={(event) => local.set(event.target.checked)}
           />
         </Grid>
       </Grid>

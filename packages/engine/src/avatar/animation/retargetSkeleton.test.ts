@@ -1,7 +1,32 @@
-import assert from 'assert'
-import { Bone, Group, Matrix4, Quaternion, Vector3 } from 'three'
+/*
+CPAL-1.0 License
 
-import { quaternionEqualsEpsilon, quatNearEqual } from '../../../tests/util/MathTestUtils'
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
+import assert from 'assert'
+import { Bone, Group, Matrix4, Quaternion, SkinnedMesh, Vector3 } from 'three'
+
+import { quatNearEqual } from '../../../tests/util/MathTestUtils'
 import avatarBoneMatching from '../AvatarBoneMatching'
 import { makeDefaultSkinnedMesh, makeSkinnedMeshFromBoneData } from '../functions/avatarFunctions'
 import { retargetSkeleton } from './retargetSkeleton'
@@ -28,8 +53,8 @@ const QUAT_EPSILON = 1e-14
 
 describe('retargetSkeleton', () => {
   it('Check retargetSkeleton Rotations', () => {
-    const defaultSkeleton = makeDefaultSkinnedMesh().skeleton
-    const targetMesh = makeSkinnedMeshFromBoneData(targetSkeletonData)
+    const defaultSkeleton = (makeDefaultSkinnedMesh().children[0] as SkinnedMesh).skeleton
+    const targetMesh = makeSkinnedMeshFromBoneData(targetSkeletonData).children[0] as SkinnedMesh
     const targetSkeleton = targetMesh.skeleton
     const parent = new Group()
     parent.add(targetMesh)
@@ -58,8 +83,8 @@ describe('retargetSkeleton', () => {
   })
 
   it('Check retargetSkeleton Positions', () => {
-    const defaultSkeleton = makeDefaultSkinnedMesh().skeleton
-    const targetMesh = makeSkinnedMeshFromBoneData(targetSkeletonData)
+    const defaultSkeleton = (makeDefaultSkinnedMesh().children[0] as SkinnedMesh).skeleton
+    const targetMesh = makeSkinnedMeshFromBoneData(targetSkeletonData).children[0] as SkinnedMesh
     const targetSkeleton = targetMesh.skeleton
     const parent = new Group()
     parent.add(targetMesh)
@@ -69,7 +94,8 @@ describe('retargetSkeleton', () => {
     const rig = avatarBoneMatching(parent)
     retargetSkeleton(targetSkeleton, defaultSkeleton)
 
-    const targetSkeletonUnmodified = makeSkinnedMeshFromBoneData(targetSkeletonData).skeleton
+    const targetSkeletonUnmodified = (makeSkinnedMeshFromBoneData(targetSkeletonData).children[0] as SkinnedMesh)
+      .skeleton
 
     // Check for same bone world positions with original target skeleton
     rig.Hips.traverse((bone: Bone) => {

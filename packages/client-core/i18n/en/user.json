@@ -3,6 +3,7 @@
     "delete": "Delete",
     "edit": "Edit",
     "save": "Save",
+    "saving": "Saving",
     "upload": "Upload",
     "discardChanges": "Discard Changes",
     "confirmDiscardChange": "Changes you made may not be saved."
@@ -12,13 +13,6 @@
       "header": "Confirmation Email",
       "resendEmail": "Please check your email to verify your account. If you didn't get an email, please click {{here}} to resend the verification email.",
       "haveAnAccount": "Have an account?"
-    },
-    "forgotPassword": {
-      "header": "Forgot Password",
-      "enterEmail": "Please enter your registered email address and we'll send you a password reset link.",
-      "lbl-email": "Email Address",
-      "lbl-submit": "Send Link",
-      "emailSent": "Reset Password Email was sent. Please check your email."
     },
     "login": {
       "email": "Email | SMS",
@@ -41,18 +35,6 @@
       "success-msg": "Login Magic Link was sent. Please check your Email or SMS.",
       "sms-sent-msg": "Login Magic Link was sent. Please check your SMS."
     },
-    "passwordLogin": {
-      "header": "Sign In",
-      "lbl-email": "Email Address",
-      "lbl-password": "Password",
-      "lbl-rememberMe": "Remember me",
-      "lbl-signin": "Sign In",
-      "forgotPassword": "Forgot password?",
-      "signup": "Don't have an account? Sign Up",
-      "lbl-login": "Log In",
-      "ph-password": "Password",
-      "ph-email": "Email"
-    },
     "social": {
       "gitHub": "Login with GitHub",
       "google": "Login with Google",
@@ -70,16 +52,6 @@
       "ph-password": "Password",
       "ph-confirmPassword": "Password Confirm",
       "ph-email": "Email"
-    },
-    "resetPassword": {
-      "header": "Reset Password",
-      "description": "Please enter your password for your email address",
-      "lbl-submit": "Reset Password",
-      "lbl-password": "Password",
-      "lbl-confirmPassword": "Password Confirm",
-      "passwordNotMatch": "Passwords Don't Match",
-      "nowLoginYourAccount": "You can now log into the your account",
-      "yourPasswordResetSuccess": "Your password was successfully reset!"
     },
     "verifyEmail": {
       "header": "Verify Email",
@@ -199,10 +171,6 @@
       "xrusersetting": "XR",
       "other-audio-setting": "Other Audio Settings",
       "use-positional-media": "Spatial User Audio and Video Above Avatar",
-      "rotation": "Rotation",
-      "rotation-smooth-speed": "Rotation Smooth Speed",
-      "rotation-angle": "Rotation Angle",
-      "moving": "Moving",
       "user-avatar": "Avatar",
       "invert-rotation": "Invert Gamepads",
       "show-avatar": "Show Avatar",
@@ -297,26 +265,6 @@
     },
     "magikLink": {
       "wait": "Please wait a moment while processing..."
-    },
-    "dashboard": {
-      "header": "Dashboard",
-      "dashboard": "Dashboard",
-      "users": "Users",
-      "feeds": "Feeds",
-      "instance": "Instance",
-      "locations": "Locations",
-      "invites": "Invites",
-      "sessions": "Sessions",
-      "groups": "Groups",
-      "parties": "Parties",
-      "chats": "Chats",
-      "content": "Content Packs",
-      "projects": "Projects",
-      "scenes": "Scenes",
-      "avatars": "Avatars",
-      "benchmarking": "Benchmarking",
-      "bots": "Bots",
-      "server": "Server"
     }
   },
   "oauth": {
@@ -348,7 +296,8 @@
     "benchmarking": "Benchmarking",
     "bots": "Bots",
     "setting": "Settings",
-    "server": "Server"
+    "server": "Server",
+    "recordings": "Recordings"
   },
   "resource": {
     "createResource": "Create Resource"
@@ -434,9 +383,11 @@
   "friends": {
     "find": "Find",
     "friends": "Friends",
+    "messages": "Messages",
     "blocked": "Blocked",
     "message": "Message",
     "profile": "Profile",
+    "call": "Call",
     "accept": "Accept",
     "decline": "Decline",
     "unblock": "Unblock",

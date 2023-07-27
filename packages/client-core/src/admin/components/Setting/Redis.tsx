@@ -1,30 +1,55 @@
-import React, { useEffect, useState } from 'react'
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
+import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import InputSwitch from '@xrengine/client-core/src/common/components/InputSwitch'
-import InputText from '@xrengine/client-core/src/common/components/InputText'
+import InputSwitch from '@etherealengine/client-core/src/common/components/InputSwitch'
+import InputText from '@etherealengine/client-core/src/common/components/InputText'
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import Box from '@etherealengine/ui/src/primitives/mui/Box'
+import Grid from '@etherealengine/ui/src/primitives/mui/Grid'
+import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 
-import { Box, Grid, Typography } from '@mui/material'
-
-import { useAuthState } from '../../../user/services/AuthService'
-import { useAdminRedisSettingState } from '../../services/Setting/AdminRedisSettingService'
-import { AdminRedisSettingService } from '../../services/Setting/AdminRedisSettingService'
+import { AuthState } from '../../../user/services/AuthService'
+import { AdminRedisSettingsState, RedisSettingService } from '../../services/Setting/RedisSettingService'
 import styles from '../../styles/settings.module.scss'
 
 const Redis = () => {
   const { t } = useTranslation()
-  const redisSettingState = useAdminRedisSettingState()
-  const [redisSetting] = redisSettingState?.redisSettings?.value || []
-  const authState = useAuthState()
-  const user = authState.user
+  const redisSettingState = useHookstate(getMutableState(AdminRedisSettingsState))
+  const [redisSetting] = redisSettingState?.redisSettings?.get({ noproxy: true }) || []
+  const user = useHookstate(getMutableState(AuthState).user)
 
-  const [enabled, setEnabled] = useState(true)
+  const enabled = useHookstate(true)
 
   useEffect(() => {
     if (user?.id?.value != null && redisSettingState?.updateNeeded?.value) {
-      AdminRedisSettingService.fetchRedisSetting()
+      RedisSettingService.fetchRedisSetting()
     }
-  }, [authState?.user?.id?.value, redisSettingState?.updateNeeded?.value])
+  }, [user?.id?.value, redisSettingState?.updateNeeded?.value])
 
   return (
     <Box>
@@ -35,9 +60,9 @@ const Redis = () => {
         name="enabled"
         sx={{ mb: 2 }}
         label={t('admin:components.setting.enabled')}
-        checked={enabled}
+        checked={enabled.value}
         disabled
-        onChange={(event) => setEnabled(event.target.checked)}
+        onChange={(event) => enabled.set(event.target.checked)}
       />
       <Grid container spacing={3}>
         <Grid item xs={6} sm={6}>

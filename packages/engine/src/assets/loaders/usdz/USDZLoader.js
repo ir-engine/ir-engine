@@ -1,3 +1,30 @@
+
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
+
 import {
 	BufferAttribute,
 	BufferGeometry,
@@ -6,19 +33,22 @@ import {
 	Group,
 	InstancedMesh,
 	Loader,
+	Material,
 	Matrix4,
 	Mesh,
 	MeshStandardMaterial,
 	MirroredRepeatWrapping,
 	Quaternion,
 	RepeatWrapping,
-	sRGBEncoding,
+	SRGBColorSpace,
 	Texture,
 	TextureLoader,
 	Vector3,
 } from 'three';
 
 import * as fflate from 'fflate';
+
+import { flipBufferGeometryNormals } from '@etherealengine/engine/src/assets/functions/flipBufferGeometryNormals';
 
 class USDAParser {
 
@@ -196,6 +226,7 @@ class USDZLoader extends Loader {
 		const parser = new USDAParser();
 		const pending = []
 		const textureCache = {}
+		const materialCache = {}
 		function parseAssets( zip ) {
 
 			const data = {};
@@ -263,7 +294,8 @@ class USDZLoader extends Loader {
 
 		// Parse file
 
-		const text = fflate.strFromU8( file );
+		let text = fflate.strFromU8( file );
+
 		const root = parser.parse( text );
 		const plugins = this.plugins
 		// Build scene
@@ -381,6 +413,9 @@ class USDZLoader extends Loader {
 
 			let geometry = new BufferGeometry();
 			let indices = []
+			function parseArray( text) {
+				return JSON.parse( text.replaceAll(/[()]*/g,'').replaceAll(/nan|inf/g, '0.0'))
+			}
 			if ( 'int[] faceVertexIndices' in data && typeof data['int[] faceVertexIndices'] === 'string' ) {
 
 				indices = JSON.parse( data[ 'int[] faceVertexIndices' ] )
@@ -390,7 +425,7 @@ class USDZLoader extends Loader {
 
 			if ( 'point3f[] points' in data && typeof data['point3f[] points'] === 'string') {
 
-				const positions = JSON.parse( data[ 'point3f[] points' ].replace( /[()]*/g, '' ) );
+				const positions = parseArray(data[ 'point3f[] points' ])
                 const positionArr = new Float32Array( positions )
 				const attribute = new BufferAttribute(positionArr , 3 );
 				geometry.setAttribute( 'position', attribute );
@@ -401,7 +436,7 @@ class USDZLoader extends Loader {
 			&& typeof data['normal3f[] normals'] === 'string'
 			&& data['normal3f[] normals'] !== "None" ) {
 
-				const normals = JSON.parse( data[ 'normal3f[] normals' ].replace( /[()]*/g, '' ) );
+				const normals = parseArray(data[ 'normal3f[] normals' ])
 				const attribute = new BufferAttribute( new Float32Array( normals ), 3 );
 				geometry.setAttribute( 'normal', attribute );
 
@@ -426,7 +461,7 @@ class USDZLoader extends Loader {
 			&& typeof data['texCoord2f[] primvars:st'] === 'string'
 			&& data['texCoord2f[] primvars:st'] !== 'None') {
 
-				let uvs = JSON.parse( data[ 'texCoord2f[] primvars:st' ].replace( /[()]*/g, '' ) );
+				let uvs = parseArray(data[ 'texCoord2f[] primvars:st' ])
 				const attribute = new BufferAttribute( new Float32Array( uvs ), 2 );
 
 				geometry.setAttribute( 'uv', attribute );
@@ -439,7 +474,7 @@ class USDZLoader extends Loader {
 			for(const plugin of geoPlugins) {
 				geometry = plugin.buildGeometry(geometry, data)
 			}
-
+			flipBufferGeometryNormals(geometry)
 			return geometry;
 
 		}
@@ -489,36 +524,39 @@ class USDZLoader extends Loader {
 			}
 
 		}
-
+		let materialIndex = 0
 		function buildMaterial( data ) {
             const scopes = Object.keys(data).filter(key => registryRegex.test(key))
             if (scopes.length > 0) return buildMaterial(data[scopes[0]])
-			const material = new MeshStandardMaterial();
-			material.side = THREE.DoubleSide
+			let material = new MeshStandardMaterial();
+			
 			if ( data !== undefined ) {
                 const surfaceRegexp = /def Shader "(PreviewSurface|surfaceShader|Principled_BSDF|[^"]+_preview)"/
-				if ( Object.keys(data).some(key => surfaceRegexp.test(key)) ) {
-                    const key = Object.keys(data).find(key => surfaceRegexp.test(key))
-					const surface = data[key];
+				const key = Object.keys(data).find(key => surfaceRegexp.test(key))
+								if ( key !== undefined ) {
+										if (materialCache[key]) return materialCache[key]
+										const matName = surfaceRegexp.exec(key)?.[1] || `material-${materialIndex++}`
+										material.name = matName
+										const surface = data[key];
                     const acceptedColorTypes = ['color3f', 'float3']
                     for (const colorType of acceptedColorTypes) {
-                        if ( `${colorType} inputs:diffuseColor.connect` in surface ) {
+											if ( `${colorType} inputs:diffuseColor.connect` in surface ) {
 
-                            const path = surface[ `${colorType} inputs:diffuseColor.connect` ];
-                            const sampler = findTexture( root, /(\w+).output/.exec( path )[ 1 ] );
-    
-                            material.map = buildTexture( sampler );
-                            material.map.encoding = sRGBEncoding;
-    
-                        } else if ( `${colorType} inputs:diffuseColor` in surface ) {
-    
-                            const color = surface[ `${colorType} inputs:diffuseColor` ].replace( /[()]*/g, '' );
-                            material.color.fromArray( JSON.parse( '[' + color + ']' ) );
-    
-                        }
+													const path = surface[ `${colorType} inputs:diffuseColor.connect` ];
+													const sampler = findTexture( root, /(\w+).output/.exec( path )[ 1 ] );
+	
+													material.map = buildTexture( sampler );
+													material.map.colorSpace = SRGBColorSpace;
+	
+											} 
+											if ( `${colorType} inputs:diffuseColor` in surface ) {
+	
+													const color = surface[ `${colorType} inputs:diffuseColor` ].replace( /[()]*/g, '' );
+													material.color.fromArray( JSON.parse( '[' + color + ']' ) );
+	
+											}
                     }
 					
-
 										if ( 'normal3f inputs:normal.connect' in surface ) {
 
 											const path = surface[ 'normal3f inputs:normal.connect' ];
@@ -534,9 +572,57 @@ class USDZLoader extends Loader {
 
 										}
 
+										if ( 'float inputs:roughness.connect' in surface ) {
+
+											const path = surface[ 'float inputs:roughness.connect' ]
+											const sampler = findTexture( root, /(\w+).output/.exec( path )[ 1 ] )
+
+											material.roughnessMap = buildTexture( sampler )
+
+										}
+
 										if ( 'float inputs:metallic' in surface ) {
 
 											material.metalness = parseFloat( surface[ 'float inputs:metallic' ] );
+
+										}
+
+										if ( 'float inputs:metallic.connect' in surface ) {
+
+											const path = surface[ 'float inputs:metallic.connect' ]
+											const sampler = findTexture( root, /(\w+).output/.exec( path )[ 1 ] )
+
+											material.metalnessMap = buildTexture( sampler )
+
+										}
+
+										if ( 'float inputs:opacity' in surface ) {
+
+											material.opacity = parseFloat( surface[ 'float inputs:opacity' ] );
+											material.opacity < 1 && ( material.transparent = true );
+										}
+
+										if ( 'float inputs:opacity.connect' in surface ) {
+
+											const path = surface[ 'float inputs:opacity.connect' ]
+											const sampler = findTexture( root, /(\w+).output/.exec( path )[ 1 ] )
+
+											material.alphaMap = buildTexture( sampler )
+
+										}
+
+										for ( const colorType of acceptedColorTypes ) {
+
+											if (`${colorType} inputs:emissiveColor` in surface) {
+												const color = surface[`${colorType} inputs:emissiveColor`].replace(/[()]*/g, '');
+												material.emissive.fromArray(JSON.parse('[' + color + ']'));
+											}
+
+											if (`${colorType} inputs:emissiveColor.connect` in surface) {
+												const path = surface[`${colorType} inputs:emissiveColor.connect`];
+												const sampler = findTexture(root, /(\w+).output/.exec(path)[1]);
+												material.emissiveMap = buildTexture(sampler);
+											}
 
 										}
 
@@ -547,7 +633,7 @@ class USDZLoader extends Loader {
 					const sampler = data[ 'def Shader "diffuseColor_texture"' ];
 
 					material.map = buildTexture( sampler );
-					material.map.encoding = sRGBEncoding;
+					material.map.colorSpace = SRGBColorSpace;
 
 				}
 
@@ -558,11 +644,9 @@ class USDZLoader extends Loader {
 					material.normalMap = buildTexture( sampler );
 
 				}
-
+				materialCache[key] = material
 			}
-
 			return material;
-
 		}
 
 		function findTexture( data, id ) {
@@ -601,6 +685,7 @@ class USDZLoader extends Loader {
 				}
 				const loader = new TextureLoader()
 				const texture = new Texture()
+				texture.name = path
 				if ( textureCache[ path ]) {
 					pending.push(new Promise(resolve => textureCache[ path ].then((_texture) => {
 						if (!texture) resolve()
@@ -673,8 +758,12 @@ class USDZLoader extends Loader {
 					? Object.entries(nameContext['rel prototypes'])
 					: [[0, /[\s<>,]*(.*?)[\s<>,]*$/.exec(nameContext['rel prototypes'])[1]]]
 				for ( const [i, prototypePath] of prototypePaths ) {
-					const baseMesh = buildMesh(findMeshGeometry(findContext(prototypePath)))
+					console.log("prototypepath:", prototypePath)
+					const geo = findMeshGeometry(findContext(prototypePath))
+					const baseMesh = geo ? buildMesh(geo) : new Mesh()
+					baseMesh.name = /\/([^/]*)$/.exec(prototypePath)?.[1] || `baseMesh-${i}`
 					baseMesh.geometry.scale( 1, 1, 1 )
+					baseMesh.geometry.computeBoundingBox()
 					instanceTable[i] = {
 						matrices: [],
 						baseMesh
@@ -738,6 +827,7 @@ class USDZLoader extends Loader {
 
 				const instancedMeshes = Object.entries(instanceTable).map(([index, { matrices, baseMesh }]) => {
 					const instancedMesh = new InstancedMesh(baseMesh.geometry, baseMesh.material, matrices.length)
+					instancedMesh.name = `${index}-${baseMesh.name}-instanced`
 					instancedMesh.instanceMatrix.set(matrices.flatMap(mat => mat.toArray()))
 					return instancedMesh
 				})
@@ -757,6 +847,7 @@ class USDZLoader extends Loader {
         const frontier = Object.keys(root).map(field => ["", root, field])
 		while (frontier.length > 0) {
             const [path, context, name] = frontier.pop()
+						console.log("path", path, "context", context, "name", name)
             const nameContext = context[name]
             if ( registryRegex.test( name ) ) {
                 const domain = registryRegex.exec( name )[1]

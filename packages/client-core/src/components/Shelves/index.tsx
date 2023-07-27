@@ -1,18 +1,54 @@
-import React from 'react'
+/*
+CPAL-1.0 License
 
-import { AudioEffectPlayer } from '@xrengine/engine/src/audio/systems/MediaSystem'
-import { dispatchAction, getState, useHookstate } from '@xrengine/hyperflux'
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
 
-import KeyboardDoubleArrowDownIcon from '@mui/icons-material/KeyboardDoubleArrowDown'
-import KeyboardDoubleArrowUpIcon from '@mui/icons-material/KeyboardDoubleArrowUp'
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
 
-import { AppAction, AppState } from '../../common/services/AppService'
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
+import React, { useEffect } from 'react'
+
+import { AudioEffectPlayer } from '@etherealengine/engine/src/audio/systems/MediaSystem'
+import {
+  addActionReceptor,
+  dispatchAction,
+  getMutableState,
+  removeActionReceptor,
+  useHookstate
+} from '@etherealengine/hyperflux'
+import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
+
+import { AppAction, AppServiceReceptor, AppState } from '../../common/services/AppService'
 import styles from './index.module.scss'
 
 export const Shelves = () => {
-  const appState = useHookstate(getState(AppState))
+  const appState = useHookstate(getMutableState(AppState))
   const showTopShelf = appState.showTopShelf.value
   const showBottomShelf = appState.showBottomShelf.value
+
+  useEffect(() => {
+    addActionReceptor(AppServiceReceptor)
+    return () => {
+      removeActionReceptor(AppServiceReceptor)
+    }
+  }, [])
 
   const handleShowMediaIcons = () => {
     dispatchAction(AppAction.showTopShelf({ show: !appState.showTopShelf.value }))
@@ -21,9 +57,6 @@ export const Shelves = () => {
   const handleShowBottomIcons = () => {
     dispatchAction(AppAction.showBottomShelf({ show: !appState.showBottomShelf.value }))
   }
-
-  const MediaIconHider = showTopShelf ? KeyboardDoubleArrowUpIcon : KeyboardDoubleArrowDownIcon
-  const BottomIconHider = showBottomShelf ? KeyboardDoubleArrowDownIcon : KeyboardDoubleArrowUpIcon
 
   return (
     <div style={{ pointerEvents: 'auto' }}>
@@ -36,7 +69,7 @@ export const Shelves = () => {
         onPointerDown={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
         onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
       >
-        <MediaIconHider />
+        <Icon type={showTopShelf ? 'KeyboardDoubleArrowUp' : 'KeyboardDoubleArrowDown'} />
       </button>
       <button
         type="button"
@@ -47,7 +80,7 @@ export const Shelves = () => {
         onPointerDown={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
         onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
       >
-        <BottomIconHider />
+        <Icon type={showBottomShelf ? 'KeyboardDoubleArrowDown' : 'KeyboardDoubleArrowUp'} />
       </button>
     </div>
   )

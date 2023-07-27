@@ -1,24 +1,50 @@
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
 import type { FaceDetection, FaceExpressions } from '@vladmandic/face-api'
 import * as Comlink from 'comlink'
 
-import { isDev } from '@xrengine/common/src/config'
-import { createWorkerFromCrossOriginURL } from '@xrengine/common/src/utils/createWorkerFromCrossOriginURL'
-import { AvatarRigComponent } from '@xrengine/engine/src/avatar/components/AvatarAnimationComponent'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
-import { World } from '@xrengine/engine/src/ecs/classes/World'
+import { isDev } from '@etherealengine/common/src/config'
+import { createWorkerFromCrossOriginURL } from '@etherealengine/common/src/utils/createWorkerFromCrossOriginURL'
+import { AvatarRigComponent } from '@etherealengine/engine/src/avatar/components/AvatarAnimationComponent'
+import { AvatarNetworkAction } from '@etherealengine/engine/src/avatar/state/AvatarNetworkState'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
 import {
   defineQuery,
   getComponent,
   hasComponent,
   setComponent
-} from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { WebcamInputComponent } from '@xrengine/engine/src/input/components/WebcamInputComponent'
-import { WorldNetworkAction } from '@xrengine/engine/src/networking/functions/WorldNetworkAction'
-import { GroupComponent } from '@xrengine/engine/src/scene/components/GroupComponent'
-import { createActionQueue } from '@xrengine/hyperflux'
+} from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
+import { WebcamInputComponent } from '@etherealengine/engine/src/input/components/WebcamInputComponent'
+import { GroupComponent } from '@etherealengine/engine/src/scene/components/GroupComponent'
+import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
+import { defineActionQueue, getMutableState } from '@etherealengine/hyperflux'
 
-import { MediaStreams } from '../../transports/MediaStreams'
+import { MediaStreamState } from '../../transports/MediaStreams'
 
 const FACE_EXPRESSION_THRESHOLD = 0.1
 const PUCKER_EXPRESSION_THRESHOLD = 0.8
@@ -79,15 +105,15 @@ export const startFaceTracking = async () => {
     faceTrackingTimers.push(interval)
   })
 
-  faceVideo.srcObject = MediaStreams.instance.videoStream
+  faceVideo.srcObject = getMutableState(MediaStreamState).videoStream.value
   faceVideo.muted = true
   faceVideo.play()
 }
 
 export async function faceToInput(detection: { detection: FaceDetection; expressions: FaceExpressions }) {
-  if (!hasComponent(Engine.instance.currentWorld.localClientEntity, WebcamInputComponent)) return
+  if (!hasComponent(Engine.instance.localClientEntity, WebcamInputComponent)) return
 
-  const entity = Engine.instance.currentWorld.localClientEntity
+  const entity = Engine.instance.localClientEntity
 
   if (detection !== undefined && detection.expressions !== undefined) {
     for (const expression in detection.expressions) {
@@ -128,7 +154,7 @@ export const startLipsyncTracking = () => {
   userSpeechAnalyzer.smoothingTimeConstant = 0.5
   userSpeechAnalyzer.fftSize = FFT_SIZE
 
-  const inputStream = audioContext.createMediaStreamSource(MediaStreams.instance.audioStream)
+  const inputStream = audioContext.createMediaStreamSource(getMutableState(MediaStreamState).audioStream.value!)
   inputStream.connect(userSpeechAnalyzer)
 
   const audioProcessor = audioContext.createScriptProcessor(FFT_SIZE * 2, 1, 1)
@@ -136,7 +162,7 @@ export const startLipsyncTracking = () => {
   audioProcessor.connect(audioContext.destination)
 
   audioProcessor.onaudioprocess = () => {
-    if (!lipsyncTracking || !hasComponent(Engine.instance.currentWorld.localClientEntity, WebcamInputComponent)) return
+    if (!lipsyncTracking || !hasComponent(Engine.instance.localClientEntity, WebcamInputComponent)) return
     // bincount returns array which is half the FFT_SIZE
     spectrum = new Float32Array(userSpeechAnalyzer.frequencyBinCount)
     // Populate frequency data for computing frequency intensities
@@ -174,7 +200,7 @@ export const startLipsyncTracking = () => {
     const widen = 3 * Math.max(EnergyBinMasc[3], EnergyBinFem[3])
     const open = 0.8 * (Math.max(EnergyBinMasc[1], EnergyBinFem[1]) - Math.max(EnergyBinMasc[3], EnergyBinFem[3]))
 
-    const entity = Engine.instance.currentWorld.localClientEntity
+    const entity = Engine.instance.localClientEntity
 
     if (pucker > PUCKER_EXPRESSION_THRESHOLD && pucker >= WebcamInputComponent.expressionValue[entity]) {
       const inputIndex = expressionByIndex.findIndex((exp) => exp === 'pucker')!
@@ -252,21 +278,19 @@ const setAvatarExpression = (entity: Entity): void => {
     }
   }
 }
+const webcamQuery = defineQuery([GroupComponent, AvatarRigComponent, WebcamInputComponent])
+const avatarSpawnQueue = defineActionQueue(AvatarNetworkAction.spawn.matches)
 
-export default async function WebcamInputSystem(world: World) {
-  const webcamQuery = defineQuery([GroupComponent, AvatarRigComponent, WebcamInputComponent])
-
-  const avatarSpawnQueue = createActionQueue(WorldNetworkAction.spawnAvatar.matches)
-
-  const execute = () => {
-    for (const action of avatarSpawnQueue()) {
-      const entity = world.getUserAvatarEntity(action.$from)
-      setComponent(entity, WebcamInputComponent)
-    }
-    for (const entity of webcamQuery()) setAvatarExpression(entity)
+const execute = () => {
+  for (const action of avatarSpawnQueue()) {
+    const entity = UUIDComponent.entitiesByUUID[action.entityUUID]
+    setComponent(entity, WebcamInputComponent)
   }
-
-  const cleanup = async () => {}
-
-  return { execute, cleanup }
+  for (const entity of webcamQuery()) setAvatarExpression(entity)
 }
+
+/** @todo - this system currently is not used and has been replaced by the /capture route */
+export const WebcamInputSystem = defineSystem({
+  uuid: 'ee.client.WebcamInputSystem',
+  execute
+})

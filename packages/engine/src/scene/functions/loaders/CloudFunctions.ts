@@ -1,24 +1,34 @@
-import { Color, Vector2, Vector3 } from 'three'
+/*
+CPAL-1.0 License
 
-import {
-  ComponentDeserializeFunction,
-  ComponentSerializeFunction,
-  ComponentUpdateFunction
-} from '../../../common/constants/PrefabFunctionType'
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
+import { ComponentUpdateFunction } from '../../../common/constants/PrefabFunctionType'
 import { Entity } from '../../../ecs/classes/Entity'
-import { getComponent, setComponent } from '../../../ecs/functions/ComponentFunctions'
+import { getComponent } from '../../../ecs/functions/ComponentFunctions'
 import { Clouds } from '../../classes/Clouds'
-import {
-  CloudComponent,
-  CloudComponentType,
-  SCENE_COMPONENT_CLOUD_DEFAULT_VALUES
-} from '../../components/CloudComponent'
+import { CloudComponent } from '../../components/CloudComponent'
 import { addObjectToGroup } from '../../components/GroupComponent'
-
-export const deserializeCloud: ComponentDeserializeFunction = (entity: Entity, data: CloudComponentType) => {
-  const props = parseCloudProperties(data)
-  setComponent(entity, CloudComponent, props)
-}
 
 export const updateCloud: ComponentUpdateFunction = (entity: Entity) => {
   const component = getComponent(entity, CloudComponent)
@@ -36,45 +46,4 @@ export const updateCloud: ComponentUpdateFunction = (entity: Entity) => {
   clouds.fogRange = component.fogRange
   clouds.fogColor = component.fogColor
   clouds.update()
-}
-
-export const serializeCloud: ComponentSerializeFunction = (entity) => {
-  const component = getComponent(entity, CloudComponent)
-  return {
-    texture: component.texture,
-    worldScale: component.worldScale,
-    dimensions: component.dimensions,
-    noiseZoom: component.noiseZoom,
-    noiseOffset: component.noiseOffset,
-    spriteScaleRange: component.spriteScaleRange,
-    fogColor: component.fogColor?.getHex(),
-    fogRange: component.fogRange
-  }
-}
-
-export const parseCloudProperties = (props: any): CloudComponentType => {
-  const result = {
-    texture: props.texture ?? SCENE_COMPONENT_CLOUD_DEFAULT_VALUES.texture,
-    fogColor: new Color(props.fogColor ?? SCENE_COMPONENT_CLOUD_DEFAULT_VALUES.fogColor)
-  } as CloudComponentType
-
-  let tempV3 = props.worldScale ?? SCENE_COMPONENT_CLOUD_DEFAULT_VALUES.worldScale
-  result.worldScale = new Vector3(tempV3.x, tempV3.y, tempV3.z)
-
-  tempV3 = props.dimensions ?? SCENE_COMPONENT_CLOUD_DEFAULT_VALUES.dimensions
-  result.dimensions = new Vector3(tempV3.x, tempV3.y, tempV3.z)
-
-  tempV3 = props.noiseZoom ?? SCENE_COMPONENT_CLOUD_DEFAULT_VALUES.noiseZoom
-  result.noiseZoom = new Vector3(tempV3.x, tempV3.y, tempV3.z)
-
-  tempV3 = props.noiseOffset ?? SCENE_COMPONENT_CLOUD_DEFAULT_VALUES.noiseOffset
-  result.noiseOffset = new Vector3(tempV3.x, tempV3.y, tempV3.z)
-
-  let tempV2 = props.spriteScaleRange ?? SCENE_COMPONENT_CLOUD_DEFAULT_VALUES.spriteScaleRange
-  result.spriteScaleRange = new Vector2(tempV2.x, tempV2.y)
-
-  tempV2 = props.fogRange ?? SCENE_COMPONENT_CLOUD_DEFAULT_VALUES.fogRange
-  result.fogRange = new Vector2(tempV2.x, tempV2.y)
-
-  return result
 }

@@ -1,10 +1,35 @@
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
 import {
   Box3,
   DirectionalLight,
   HemisphereLight,
   PerspectiveCamera,
   Scene,
-  sRGBEncoding,
+  SRGBColorSpace,
   Vector3,
   WebGLRenderer
 } from 'three'
@@ -13,9 +38,9 @@ import {
   MAX_ALLOWED_TRIANGLES,
   THUMBNAIL_HEIGHT,
   THUMBNAIL_WIDTH
-} from '@xrengine/common/src/constants/AvatarConstants'
-import { createGLTFLoader } from '@xrengine/engine/src/assets/functions/createGLTFLoader'
-import { loadDRACODecoder } from '@xrengine/engine/src/assets/loaders/gltf/NodeDracoLoader'
+} from '@etherealengine/common/src/constants/AvatarConstants'
+import { createGLTFLoader } from '@etherealengine/engine/src/assets/functions/createGLTFLoader'
+import { loadDRACODecoderNode } from '@etherealengine/engine/src/assets/loaders/gltf/NodeDracoLoader'
 
 import logger from '../../ServerLogger'
 
@@ -69,14 +94,14 @@ const createThreeScene = () => {
   renderer.setClearColor(0xffffff, 1)
   renderer.setPixelRatio(1)
   renderer.setSize(THUMBNAIL_WIDTH, THUMBNAIL_HEIGHT, false)
-  renderer.outputEncoding = sRGBEncoding
+  renderer.outputColorSpace = SRGBColorSpace
 
   loader = createGLTFLoader(true)
 }
 
 export const generateAvatarThumbnail = async (avatarModel: Buffer): Promise<Buffer> => {
   if (!renderer) createThreeScene()
-  await loadDRACODecoder()
+  await loadDRACODecoderNode()
   const model: any = await new Promise((resolve, reject) =>
     loader.parse(toArrayBuffer(avatarModel), '', resolve, reject)
   )

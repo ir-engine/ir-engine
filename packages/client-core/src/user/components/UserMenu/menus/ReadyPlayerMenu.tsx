@@ -1,27 +1,48 @@
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import AvatarPreview from '@xrengine/client-core/src/common/components/AvatarPreview'
-import IconButton from '@xrengine/client-core/src/common/components/IconButton'
-import InputText from '@xrengine/client-core/src/common/components/InputText'
-import LoadingView from '@xrengine/client-core/src/common/components/LoadingView'
-import Menu from '@xrengine/client-core/src/common/components/Menu'
-import { getCanvasBlob } from '@xrengine/client-core/src/common/utils'
-import config from '@xrengine/common/src/config'
-import { THUMBNAIL_HEIGHT, THUMBNAIL_WIDTH } from '@xrengine/common/src/constants/AvatarConstants'
-import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
-
-import CheckIcon from '@mui/icons-material/Check'
-import Box from '@mui/material/Box'
+import AvatarPreview from '@etherealengine/client-core/src/common/components/AvatarPreview'
+import InputText from '@etherealengine/client-core/src/common/components/InputText'
+import LoadingView from '@etherealengine/client-core/src/common/components/LoadingView'
+import Menu from '@etherealengine/client-core/src/common/components/Menu'
+import { getCanvasBlob } from '@etherealengine/client-core/src/common/utils'
+import config from '@etherealengine/common/src/config'
+import { THUMBNAIL_HEIGHT, THUMBNAIL_WIDTH } from '@etherealengine/common/src/constants/AvatarConstants'
+import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoader'
+import Box from '@etherealengine/ui/src/primitives/mui/Box'
+import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
+import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
 
 import { AVATAR_ID_REGEX, generateAvatarId } from '../../../../util/avatarIdFunctions'
 import { AvatarService } from '../../../services/AvatarService'
+import { UserMenus } from '../../../UserUISystem'
 import styles from '../index.module.scss'
-import { Views } from '../util'
-
-interface Props {
-  changeActiveMenu: Function
-}
+import { PopupMenuServices } from '../PopupMenuService'
 
 enum LoadingState {
   None,
@@ -31,9 +52,9 @@ enum LoadingState {
   Uploading
 }
 
-const ReadyPlayerMenu = ({ changeActiveMenu }: Props) => {
+const ReadyPlayerMenu = () => {
   const { t } = useTranslation()
-  const [selectedFile, setSelectedFile] = useState<Blob>()
+  const [selectedBlob, setSelectedBlob] = useState<Blob>()
   const [avatarName, setAvatarName] = useState('')
   const [avatarUrl, setAvatarUrl] = useState('')
   const [loading, setLoading] = useState(LoadingState.LoadingRPM)
@@ -64,7 +85,7 @@ const ReadyPlayerMenu = ({ changeActiveMenu }: Props) => {
 
           setLoading(LoadingState.LoadingPreview)
           setAvatarUrl(url)
-          setSelectedFile(data)
+          setSelectedBlob(data)
         }
       } catch (error) {
         console.error(error)
@@ -82,7 +103,7 @@ const ReadyPlayerMenu = ({ changeActiveMenu }: Props) => {
   }
 
   const uploadAvatar = async () => {
-    if (error || selectedFile === undefined) {
+    if (error || selectedBlob === undefined) {
       return
     }
     setLoading(LoadingState.Uploading)
@@ -97,16 +118,22 @@ const ReadyPlayerMenu = ({ changeActiveMenu }: Props) => {
     newContext?.drawImage(avatarCanvas, 0, 0)
 
     const thumbnailName = avatarUrl.substring(0, avatarUrl.lastIndexOf('.')) + '.png'
+    const modelName = avatarUrl.substring(0, avatarUrl.lastIndexOf('.')) + '.glb'
 
     const blob = await getCanvasBlob(canvas)
 
-    await AvatarService.createAvatar(selectedFile, new File([blob!], thumbnailName), avatarName, false)
+    await AvatarService.createAvatar(
+      new File([selectedBlob!], modelName),
+      new File([blob!], thumbnailName),
+      avatarName,
+      false
+    )
 
     setLoading(LoadingState.None)
-    changeActiveMenu(Views.Closed)
+    PopupMenuServices.showPopupMenu()
   }
 
-  const avatarPreviewLoaded = loading === LoadingState.None && selectedFile
+  const avatarPreviewLoaded = loading === LoadingState.None && selectedBlob
 
   return (
     <Menu
@@ -114,8 +141,8 @@ const ReadyPlayerMenu = ({ changeActiveMenu }: Props) => {
       maxWidth={loading === LoadingState.LoadingRPM ? 'sm' : 'xs'}
       showBackButton={avatarPreviewLoaded ? true : false}
       title={avatarPreviewLoaded ? t('user:avatar.titleSelectThumbnail') : undefined}
-      onBack={() => changeActiveMenu(Views.Profile)}
-      onClose={() => changeActiveMenu(Views.Closed)}
+      onBack={() => PopupMenuServices.showPopupMenu(UserMenus.Profile)}
+      onClose={() => PopupMenuServices.showPopupMenu()}
     >
       <Box
         className={styles.menuContent}
@@ -174,7 +201,7 @@ const ReadyPlayerMenu = ({ changeActiveMenu }: Props) => {
 
         {avatarPreviewLoaded && (
           <Box display="flex" justifyContent="center" width="100%" margin="10px 0">
-            <IconButton icon={<CheckIcon />} type="gradient" onClick={uploadAvatar} />
+            <IconButton icon={<Icon type="Check" />} type="gradient" onClick={uploadAvatar} />
           </Box>
         )}
       </Box>

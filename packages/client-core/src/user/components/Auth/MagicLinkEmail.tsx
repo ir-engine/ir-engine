@@ -1,21 +1,45 @@
-import React, { useEffect, useState } from 'react'
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
+import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router-dom'
 
-import config from '@xrengine/common/src/config'
+import config from '@etherealengine/common/src/config'
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import Button from '@etherealengine/ui/src/primitives/mui/Button'
+import Checkbox from '@etherealengine/ui/src/primitives/mui/Checkbox'
+import Container from '@etherealengine/ui/src/primitives/mui/Container'
+import FormControlLabel from '@etherealengine/ui/src/primitives/mui/FormControlLabel'
+import Grid from '@etherealengine/ui/src/primitives/mui/Grid'
+import TextField from '@etherealengine/ui/src/primitives/mui/TextField'
+import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 
-import Button from '@mui/material/Button'
-import Checkbox from '@mui/material/Checkbox'
-import Container from '@mui/material/Container'
-import FormControlLabel from '@mui/material/FormControlLabel'
-import Grid from '@mui/material/Grid'
-import TextField from '@mui/material/TextField'
-import Typography from '@mui/material/Typography'
-
-import { useAuthSettingState } from '../../../admin/services/Setting/AuthSettingService'
+import { AuthSettingsState } from '../../../admin/services/Setting/AuthSettingService'
 import { initialAuthState } from '../../../common/initialAuthState'
-import { AuthService } from '../../services/AuthService'
-import { useAuthState } from '../../services/AuthService'
+import { AuthService, AuthState } from '../../services/AuthService'
 import styles from './index.module.scss'
 
 interface Props {
@@ -34,12 +58,12 @@ const defaultState = {
 const termsOfService = config.client.tosAddress ?? '/terms-of-service'
 
 const MagicLinkEmail = ({ type, isAddConnection }: Props): JSX.Element => {
-  const auth = useAuthState()
-  const [state, setState] = useState(defaultState)
+  const auth = useHookstate(getMutableState(AuthState))
+  const state = useHookstate(defaultState)
   const { t } = useTranslation()
-  const authSettingState = useAuthSettingState()
+  const authSettingState = useHookstate(getMutableState(AuthSettingsState))
   const [authSetting] = authSettingState?.authSettings?.value || []
-  const [authState, setAuthState] = useState(initialAuthState)
+  const authState = useHookstate(initialAuthState)
 
   useEffect(() => {
     if (authSetting) {
@@ -49,32 +73,32 @@ const MagicLinkEmail = ({ type, isAddConnection }: Props): JSX.Element => {
           temp[strategyName] = strategy
         })
       })
-      setAuthState(temp)
+      authState.set(temp)
     }
   }, [authSettingState?.updateNeeded?.value])
 
   const handleInput = (e: any): void => {
-    setState({ ...state, [e.target.name]: e.target.value })
+    state.set({ ...state.value, [e.target.name]: e.target.value })
   }
 
   const handleCheck = (e: any): void => {
-    setState({ ...state, [e.target.name]: e.target.checked })
+    state.set({ ...state.value, [e.target.name]: e.target.checked })
   }
 
   const handleSubmit = (e: any): void => {
     e.preventDefault()
     if (!isAddConnection) {
-      AuthService.createMagicLink(state.emailPhone, authState)
-      setState({ ...state, isSubmitted: true })
+      AuthService.createMagicLink(state.emailPhone.value, authState.value)
+      state.set({ ...state.value, isSubmitted: true })
       return
     }
 
     const user = auth.user
     const userId = user ? user.id.value : ''
     if (type === 'email') {
-      AuthService.addConnectionByEmail(state.emailPhone, userId as string)
+      AuthService.addConnectionByEmail(state.emailPhone.value, userId as string)
     } else {
-      AuthService.addConnectionBySms(state.emailPhone, userId as string)
+      AuthService.addConnectionBySms(state.emailPhone.value, userId as string)
     }
   }
   let descr = ''
@@ -96,10 +120,10 @@ const MagicLinkEmail = ({ type, isAddConnection }: Props): JSX.Element => {
       return
     }
     // Auth config is using Sms and Email, so handle both
-    if (authState?.emailMagicLink && authState?.smsMagicLink && !type) {
+    if (authState?.value?.emailMagicLink && authState?.value?.smsMagicLink && !type) {
       descr = t('user:auth.magiklink.descriptionEmailSMS')
       label = t('user:auth.magiklink.lbl-emailPhone')
-    } else if (authState?.smsMagicLink) {
+    } else if (authState?.value?.smsMagicLink) {
       descr = t('user:auth.magiklink.descriptionSMSUS')
       label = t('user:auth.magiklink.lbl-phone')
     } else {
@@ -107,7 +131,7 @@ const MagicLinkEmail = ({ type, isAddConnection }: Props): JSX.Element => {
       label = t('user:auth.magiklink.lbl-email')
     }
 
-    setState({ ...state, label: label, descr: descr })
+    state.set({ ...state.value, label: label, descr: descr })
   }, [])
 
   return (
@@ -118,7 +142,7 @@ const MagicLinkEmail = ({ type, isAddConnection }: Props): JSX.Element => {
         </Typography>
 
         <Typography variant="body2" color="textSecondary" align="center">
-          {state.descr}
+          {state.descr.value}
         </Typography>
 
         <form className={styles.form} noValidate onSubmit={(e) => handleSubmit(e)}>
@@ -130,7 +154,7 @@ const MagicLinkEmail = ({ type, isAddConnection }: Props): JSX.Element => {
                 required
                 fullWidth
                 id="emailPhone"
-                label={state.label}
+                label={state.label.value}
                 name="emailPhone"
                 // autoComplete="email"
                 autoFocus
@@ -162,7 +186,7 @@ const MagicLinkEmail = ({ type, isAddConnection }: Props): JSX.Element => {
                 variant="contained"
                 color="primary"
                 className={styles.submit}
-                disabled={!state.isAgreedTermsOfService}
+                disabled={!state.isAgreedTermsOfService.value}
               >
                 {t('user:auth.magiklink.lbl-submit')}
               </Button>

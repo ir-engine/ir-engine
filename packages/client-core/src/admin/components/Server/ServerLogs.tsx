@@ -1,19 +1,42 @@
-import React, { useEffect, useRef, useState } from 'react'
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
+import React, { useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import InputSelect, { InputMenuItem } from '@xrengine/client-core/src/common/components/InputSelect'
-import LoadingView from '@xrengine/client-core/src/common/components/LoadingView'
-import multiLogger from '@xrengine/common/src/logger'
+import InputSelect, { InputMenuItem } from '@etherealengine/client-core/src/common/components/InputSelect'
+import LoadingView from '@etherealengine/client-core/src/common/components/LoadingView'
+import multiLogger from '@etherealengine/common/src/logger'
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import Box from '@etherealengine/ui/src/primitives/mui/Box'
+import CircularProgress from '@etherealengine/ui/src/primitives/mui/CircularProgress'
+import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
+import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
 
-import CloseIcon from '@mui/icons-material/Close'
-import DownloadIcon from '@mui/icons-material/Download'
-import SyncIcon from '@mui/icons-material/Sync'
-import Box from '@mui/material/Box'
-import CircularProgress from '@mui/material/CircularProgress'
-import IconButton from '@mui/material/IconButton'
-
-import { useServerInfoState } from '../../services/ServerInfoService'
-import { ServerLogsService, useServerLogsState } from '../../services/ServerLogsService'
+import { AdminServerInfoState } from '../../services/ServerInfoService'
+import { AdminServerLogsState, ServerLogsService } from '../../services/ServerLogsService'
 import styles from '../../styles/admin.module.scss'
 
 const logger = multiLogger.child({ component: 'client-core:ServerLogs' })
@@ -21,10 +44,10 @@ const logger = multiLogger.child({ component: 'client-core:ServerLogs' })
 const ServerLogs = () => {
   const { t } = useTranslation()
   const logsEndRef = useRef(null)
-  const [autoRefresh, setAutoRefresh] = useState('60')
-  const [intervalTimer, setIntervalTimer] = useState<NodeJS.Timer>()
-  const serverInfo = useServerInfoState()
-  const serverLogs = useServerLogsState()
+  const autoRefresh = useHookstate('60')
+  const intervalTimer = useHookstate<NodeJS.Timer | undefined>(undefined)
+  const serverInfo = useHookstate(getMutableState(AdminServerInfoState))
+  const serverLogs = useHookstate(getMutableState(AdminServerLogsState))
 
   const scrollLogsToBottom = () => {
     ;(logsEndRef.current as any)?.scrollIntoView({ behavior: 'smooth' })
@@ -36,19 +59,22 @@ const ServerLogs = () => {
   }, [serverLogs.logs.value])
 
   useEffect(() => {
-    if (autoRefresh !== '0') {
-      const interval = setInterval(() => {
-        handleRefreshServerLogs()
-      }, parseInt(autoRefresh) * 1000)
-      setIntervalTimer(interval)
+    if (autoRefresh.value !== '0') {
+      const interval = setInterval(
+        () => {
+          handleRefreshServerLogs()
+        },
+        parseInt(autoRefresh.value) * 1000
+      )
+      intervalTimer.set(interval)
       return () => {
         if (interval) clearInterval(interval) // This represents the unmount function, in which you need to clear your interval to prevent memory leaks.
       }
-    } else if (intervalTimer) {
-      clearInterval(intervalTimer)
-      setIntervalTimer(undefined)
+    } else if (intervalTimer.value) {
+      clearInterval(intervalTimer.value)
+      intervalTimer.set(undefined)
     }
-  }, [autoRefresh])
+  }, [autoRefresh.value])
 
   const handleRefreshServerLogs = () => {
     logger.info('Refreshing server logs.')
@@ -58,7 +84,7 @@ const ServerLogs = () => {
   const handleAutoRefreshServerLogsChange = (e) => {
     const { value } = e.target
 
-    setAutoRefresh(value)
+    autoRefresh.set(value)
   }
 
   const handleCloseServerLogs = () => {
@@ -76,7 +102,8 @@ const ServerLogs = () => {
     ServerLogsService.fetchServerLogs(serverLogs.podName.value!, value)
   }
 
-  const containers = serverInfo.servers.value
+  const containers = serverInfo.servers
+    .get({ noproxy: true })
     .find((item) => item.id === 'all')
     ?.pods.find((item) => item.name === serverLogs.podName.value!)
   const containersMenu = containers?.containers.map((item) => {
@@ -145,9 +172,8 @@ const ServerLogs = () => {
           title={t('admin:components.server.download')}
           className={styles.iconButton}
           onClick={handleDownloadServerLogs}
-        >
-          <DownloadIcon />
-        </IconButton>
+          icon={<Icon type="Download" />}
+        />
 
         {serverLogs.value.retrieving === false && (
           <IconButton
@@ -155,9 +181,8 @@ const ServerLogs = () => {
             className={styles.iconButton}
             sx={{ marginRight: 1.5 }}
             onClick={handleRefreshServerLogs}
-          >
-            <SyncIcon />
-          </IconButton>
+            icon={<Icon type="Sync" />}
+          />
         )}
 
         {serverLogs.value.retrieving && <CircularProgress size={24} sx={{ marginRight: 1.5 }} />}
@@ -165,7 +190,7 @@ const ServerLogs = () => {
         <InputSelect
           name="autoRefresh"
           label={t('admin:components.server.autoRefresh')}
-          value={autoRefresh}
+          value={autoRefresh.value}
           menu={autoRefreshMenu}
           sx={{ marginBottom: 0, width: '160px', marginRight: 1.5 }}
           onChange={handleAutoRefreshServerLogsChange}
@@ -175,9 +200,8 @@ const ServerLogs = () => {
           title={t('admin:components.common.close')}
           className={styles.iconButton}
           onClick={handleCloseServerLogs}
-        >
-          <CloseIcon />
-        </IconButton>
+          icon={<Icon type="Close" />}
+        />
       </Box>
       <Box sx={{ overflow: 'auto' }}>
         <pre style={{ fontSize: '14px' }}>{serverLogs.value.logs}</pre>

@@ -1,16 +1,42 @@
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
 import { BadRequest } from '@feathersjs/errors'
 import { Params } from '@feathersjs/feathers'
 import { Paginated } from '@feathersjs/feathers/lib'
 
-import { ClientSetting } from '@xrengine/common/src/interfaces/ClientSetting'
-import { OEmbed } from '@xrengine/common/src/interfaces/OEmbed'
-import { ServerSetting } from '@xrengine/common/src/interfaces/ServerSetting'
+import { OEmbed } from '@etherealengine/common/src/interfaces/OEmbed'
+import { routePath } from '@etherealengine/engine/src/schemas/route/route.schema'
+import { clientSettingPath, ClientSettingType } from '@etherealengine/engine/src/schemas/setting/client-setting.schema'
+import { serverSettingPath, ServerSettingType } from '@etherealengine/engine/src/schemas/setting/server-setting.schema'
 
 import { Application } from '../../../declarations'
 import { getProjectConfig, onProjectEvent } from '../../projects/project/project-helper'
 import hooks from './oembed.hooks'
 
-declare module '@xrengine/common/declarations' {
+declare module '@etherealengine/common/declarations' {
   interface ServiceTypes {
     oembed: any
   }
@@ -23,8 +49,8 @@ export default (app: Application): void => {
       if (!queryURL) return new BadRequest('Must provide a valid URL for OEmbed')
 
       const url = new URL(queryURL)
-      const serverSettingsResult = (await app.service('server-setting').find()) as Paginated<ServerSetting>
-      const clientSettingsResult = (await app.service('client-setting').find()) as Paginated<ClientSetting>
+      const serverSettingsResult = (await app.service(serverSettingPath).find()) as Paginated<ServerSettingType>
+      const clientSettingsResult = (await app.service(clientSettingPath).find()) as Paginated<ClientSettingType>
 
       if (serverSettingsResult.total > 0 && clientSettingsResult.total > 0) {
         const serverSettings = serverSettingsResult.data[0]
@@ -48,11 +74,11 @@ export default (app: Application): void => {
           query_url: queryURL
         } as OEmbed
 
-        const activeRoutes = await app.service('route').find()
-        const uniqueProjects = [...new Set<string>(activeRoutes.data.map((item) => item.project))]
+        const activeRoutes = await app.service(routePath).find({ paginate: false })
+        const uniqueProjects = [...new Set<string>(activeRoutes.map((item) => item.project))]
 
         for (const projectName of uniqueProjects) {
-          const projectConfig = await getProjectConfig(projectName)
+          const projectConfig = getProjectConfig(projectName)
           if (projectConfig?.onEvent) {
             const oEmbedResponse: OEmbed | null = await onProjectEvent(
               app,

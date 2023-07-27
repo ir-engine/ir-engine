@@ -1,4 +1,4 @@
-@import "@xrengine/client-core/src/styles/imports.module.scss";
+@import "@etherealengine/client-core/src/styles/imports.module.scss";
 
 .openModalBtn {
   height: 50px;
@@ -267,9 +267,11 @@
 }
 
 .actionStyle {
+  width: auto;
   text-decoration: none;
   color: #000;
   margin-right: 10px;
+  cursor: pointer;
 }
 
 .textLink {
@@ -504,7 +506,7 @@
 
   /**
   * This below style is added to fix background issues with chrome autofill.
-  * https://github.com/XRFoundation/XREngine/pull/6448#pullrequestreview-1018811200
+  * https://github.com/etherealengine/etherealengine/pull/6448#pullrequestreview-1018811200
   * https://stackoverflow.com/a/14205976/2077741
   */
   input:-webkit-autofill,
@@ -801,5 +803,18 @@
       overflow-y: auto;
       white-space: pre-line;
     }
+  }
+}
+
+.helmSubheader {
+  color: var(--textColor);
+  text-align: center;
+  margin-bottom: 10px;
+  font-weight: 300;
+  font-size: 18px;
+  display: flex;
+
+  a {
+    margin-left: 2px;
   }
 }

@@ -1,8 +1,33 @@
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
 import { Paginated } from '@feathersjs/feathers/lib'
 
-import { FileContentType } from '@xrengine/common/src/interfaces/FileContentType'
-import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
-import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
+import { FileContentType } from '@etherealengine/common/src/interfaces/FileContentType'
+import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
+import { defineAction, defineState, dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 
 import { API } from '../../API'
 
@@ -23,7 +48,7 @@ export const FileBrowserState = defineState({
 })
 
 export const FileBrowserServiceReceptor = (action) => {
-  const s = getState(FileBrowserState)
+  const s = getMutableState(FileBrowserState)
   matches(action)
     .when(FileBrowserAction.filesFetched.matches, (action) => {
       return s.merge({
@@ -49,27 +74,23 @@ export const FileBrowserServiceReceptor = (action) => {
     })
 }
 
-export const accessFileBrowserState = () => getState(FileBrowserState)
-
-export const useFileBrowserState = () => useState(accessFileBrowserState())
-
 export class FileBrowserAction {
   static filesFetching = defineAction({
-    type: 'xre.client.FileBrowser.FILES_FETCHING' as const
+    type: 'ee.client.FileBrowser.FILES_FETCHING' as const
   })
 
   static filesFetched = defineAction({
-    type: 'xre.client.FileBrowser.FILES_FETCHED' as const,
+    type: 'ee.client.FileBrowser.FILES_FETCHED' as const,
     files: matches.object as Validator<unknown, Paginated<FileContentType>>
   })
 
   static filesDeleted = defineAction({
-    type: 'xre.client.FileBrowser.FILES_DELETED' as const,
+    type: 'ee.client.FileBrowser.FILES_DELETED' as const,
     contentPath: matches.any
   })
 
   static setUpdateNeeded = defineAction({
-    type: 'xre.editor.FileBrowser.SET_UPDATE_NEEDED' as const,
+    type: 'ee.editor.FileBrowser.SET_UPDATE_NEEDED' as const,
     updateNeeded: matches.boolean
   })
 }
@@ -92,9 +113,6 @@ export const FileBrowserService = {
       .service('file-browser')
       .get(directory, params)) as Paginated<FileContentType>
     dispatchAction(FileBrowserAction.filesFetched({ files }))
-  },
-  putContent: async (fileName: string, path: string, body: Buffer, contentType: string) => {
-    return API.instance.client.service('file-browser').patch(null, { fileName, path, body, contentType })
   },
   moveContent: async (oldName: string, newName: string, oldPath: string, newPath: string, isCopy = false) => {
     return API.instance.client.service('file-browser').update(null, { oldName, newName, oldPath, newPath, isCopy })

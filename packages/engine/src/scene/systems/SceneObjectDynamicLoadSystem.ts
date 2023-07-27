@@ -1,81 +1,105 @@
-import { getState } from '@xrengine/hyperflux'
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
+import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
+import { EntityJson, SceneData } from '@etherealengine/common/src/interfaces/SceneInterface'
+import { getState } from '@etherealengine/hyperflux'
 
 import { isMobile } from '../../common/functions/isMobile'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
-import { World } from '../../ecs/classes/World'
-import { defineQuery, getComponent, getOptionalComponent, removeQuery } from '../../ecs/functions/ComponentFunctions'
-import { getEntityTreeNodeByUUID, removeEntityNode, removeEntityNodeRecursively } from '../../ecs/functions/EntityTree'
+import { SceneState } from '../../ecs/classes/Scene'
+import { getComponent, getOptionalComponent } from '../../ecs/functions/ComponentFunctions'
+import { removeEntityNodeRecursively } from '../../ecs/functions/EntityTree'
+import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { TransformComponent } from '../../transform/components/TransformComponent'
-import {
-  SCENE_COMPONENT_DYNAMIC_LOAD,
-  SCENE_COMPONENT_DYNAMIC_LOAD_DEFAULT_VALUES,
-  SceneDynamicLoadTagComponent
-} from '../components/SceneDynamicLoadTagComponent'
-import { updateSceneEntitiesFromJSON } from '../systems/SceneLoadingSystem'
+import { SceneDynamicLoadTagComponent } from '../components/SceneDynamicLoadTagComponent'
+import { UUIDComponent } from '../components/UUIDComponent'
+import { updateSceneEntitiesFromJSON, updateSceneEntity } from '../systems/SceneLoadingSystem'
 
-export default async function SceneObjectDynamicLoadSystem(world: World) {
-  world.sceneComponentRegistry.set(SceneDynamicLoadTagComponent.name, SCENE_COMPONENT_DYNAMIC_LOAD)
-  world.sceneLoadingRegistry.set(SCENE_COMPONENT_DYNAMIC_LOAD, {
-    defaultData: SCENE_COMPONENT_DYNAMIC_LOAD_DEFAULT_VALUES
-  })
+let accumulator = 0
 
-  if (Engine.instance.isEditor)
-    return {
-      execute: () => {},
-      cleanup: async () => {
-        world.sceneComponentRegistry.delete(SceneDynamicLoadTagComponent.name)
-        world.sceneLoadingRegistry.delete(SCENE_COMPONENT_DYNAMIC_LOAD)
-      }
-    }
+const distanceMultiplier = isMobile ? 0.5 : 1
 
-  const sceneObjectQuery = defineQuery([TransformComponent, SceneDynamicLoadTagComponent])
+const execute = () => {
+  const engineState = getState(EngineState)
+  if (engineState.isEditor) return
 
-  let accumulator = 0
+  accumulator += engineState.deltaSeconds
 
-  const distanceMultiplier = isMobile ? 0.5 : 1
+  if (accumulator < 0.1) {
+    return
+  }
 
-  const execute = () => {
-    accumulator += world.deltaSeconds
+  accumulator = 0
 
-    if (accumulator > 0.1) {
-      accumulator = 0
+  const avatarPosition = getOptionalComponent(Engine.instance.localClientEntity, TransformComponent)?.position
+  if (!avatarPosition) return
 
-      const avatarPosition = getOptionalComponent(world.localClientEntity, TransformComponent)?.position
-      if (!avatarPosition) return
+  const sceneData = getState(SceneState).sceneData as SceneData
+  const dynamicEntities = Object.entries(sceneData.scene.entities).filter(([uuid, entityJson]) =>
+    entityJson.components.find((comp) => comp.name === SceneDynamicLoadTagComponent.jsonID)
+  )
 
-      for (const entity of sceneObjectQuery()) {
-        const position = getComponent(entity, TransformComponent).position
-        const dynamicLoadComponent = getComponent(entity, SceneDynamicLoadTagComponent)
-        const distanceToAvatar = position.distanceToSquared(avatarPosition)
-        const loadDistance = dynamicLoadComponent.distance * dynamicLoadComponent.distance * distanceMultiplier
-        const entityNode = world.entityTree.entityNodeMap.get(entity)!
+  const loadedDynamicEntities = dynamicEntities.filter(([uuid, entityJson]) => UUIDComponent.entitiesByUUID[uuid])
+  const unloadedDynamicEntities = dynamicEntities.filter(([uuid, entityJson]) => !UUIDComponent.entitiesByUUID[uuid])
 
-        /** Load unloaded entities */
-        if (!dynamicLoadComponent.loaded && distanceToAvatar < loadDistance) {
-          // check if entities already loaded
-          updateSceneEntitiesFromJSON(entityNode.uuid!, world)
-          dynamicLoadComponent.loaded = true
-        }
+  for (const [uuid, entityJson] of unloadedDynamicEntities as [EntityUUID, EntityJson][]) {
+    // todo - figure out how to include parent transforms in this calculation
+    const transformComponent = entityJson.components.find((comp) => comp.name === TransformComponent.jsonID)!.props
 
-        /** Unloaded loaded entities */
-        if (dynamicLoadComponent.loaded && distanceToAvatar > loadDistance) {
-          // unload all children
-          const nodes = getEntityTreeNodeByUUID(entityNode.uuid!)?.children.map(
-            (entity) => world.entityTree.entityNodeMap.get(entity)!
-          )!
-          for (const node of nodes) removeEntityNodeRecursively(node, true, world.entityTree)
-          dynamicLoadComponent.loaded = false
-        }
-      }
+    const dynamicComponent = entityJson.components.find((comp) => comp.name === SceneDynamicLoadTagComponent.jsonID)
+      ?.props
+
+    const distanceToAvatar = avatarPosition.distanceToSquared(transformComponent.position)
+    const loadDistance = dynamicComponent.distance * dynamicComponent.distance * distanceMultiplier
+
+    /** Load unloaded entities */
+    if (distanceToAvatar < loadDistance) {
+      updateSceneEntity(uuid, entityJson)
+      updateSceneEntitiesFromJSON(uuid)
     }
   }
 
-  const cleanup = async () => {
-    world.sceneComponentRegistry.delete(SceneDynamicLoadTagComponent.name)
-    world.sceneLoadingRegistry.delete(SCENE_COMPONENT_DYNAMIC_LOAD)
-    removeQuery(world, sceneObjectQuery)
-  }
+  for (const [uuid, entityJson] of loadedDynamicEntities) {
+    const entity = UUIDComponent.entitiesByUUID[uuid]
 
-  return { execute, cleanup }
+    const transformComponent = getComponent(entity, TransformComponent)
+
+    const dynamicComponent = getComponent(entity, SceneDynamicLoadTagComponent)
+    const distanceToAvatar = avatarPosition.distanceToSquared(transformComponent.position)
+    const loadDistance = dynamicComponent.distance * dynamicComponent.distance * distanceMultiplier
+
+    /** Unload loaded entities */
+    if (distanceToAvatar > loadDistance) {
+      removeEntityNodeRecursively(entity)
+    }
+  }
 }
+
+export const SceneObjectDynamicLoadSystem = defineSystem({
+  uuid: 'ee.engine.scene.SceneObjectDynamicLoadSystem',
+  execute
+})

@@ -1,42 +1,59 @@
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
 import { MathUtils } from 'three'
 
-import { EntityUUID } from '@xrengine/common/src/interfaces/EntityUUID'
-import { ComponentJson, EntityJson, SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
-import { getState } from '@xrengine/hyperflux'
+import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
+import { ComponentJson, EntityJson } from '@etherealengine/common/src/interfaces/SceneInterface'
+import { getState } from '@etherealengine/hyperflux'
 
-import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
+import { SceneState } from '../../ecs/classes/Scene'
 import {
   getAllComponents,
   getComponent,
   getOptionalComponent,
-  getOptionalComponentState,
   hasComponent,
-  serializeComponent,
-  useComponent
+  serializeComponent
 } from '../../ecs/functions/ComponentFunctions'
-import { EntityTreeNode } from '../../ecs/functions/EntityTree'
-import { iterateEntityNode } from '../../ecs/functions/EntityTree'
-import { getSceneMetadataChanges } from '../../ecs/functions/getSceneMetadataChanges'
+import { EntityTreeComponent, iterateEntityNode } from '../../ecs/functions/EntityTree'
 import { GLTFLoadedComponent } from '../components/GLTFLoadedComponent'
 import { NameComponent } from '../components/NameComponent'
 import { LoadState, PrefabComponent } from '../components/PrefabComponent'
+import { UUIDComponent } from '../components/UUIDComponent'
 
-export const serializeEntity = (entity: Entity, world = Engine.instance.currentWorld) => {
+export const serializeEntity = (entity: Entity) => {
   const ignoreComponents = getOptionalComponent(entity, GLTFLoadedComponent)
 
   const jsonComponents = [] as ComponentJson[]
   const components = getAllComponents(entity)
 
   for (const component of components) {
-    const sceneComponentID = world.sceneComponentRegistry.get(component.name)!
-    if (
-      sceneComponentID &&
-      !ignoreComponents?.includes(component.name) &&
-      world.sceneLoadingRegistry.has(sceneComponentID)
-    ) {
-      const serialize = world.sceneLoadingRegistry.get(sceneComponentID)?.serialize
-      const data = serialize ? serialize(entity) : serializeComponent(entity, component)
+    const sceneComponentID = component.jsonID
+    if (sceneComponentID && !ignoreComponents?.includes(component.name)) {
+      const data = serializeComponent(entity, component)
       if (data) {
         jsonComponents.push({
           name: sceneComponentID,
@@ -48,61 +65,52 @@ export const serializeEntity = (entity: Entity, world = Engine.instance.currentW
   return jsonComponents
 }
 
-export const serializeWorld = (
-  entityTreeNode?: EntityTreeNode,
-  generateNewUUID = false,
-  world = Engine.instance.currentWorld
-) => {
-  const entityUuid = {}
+export const serializeWorld = (rootEntity?: Entity, generateNewUUID = false) => {
   const sceneJson = {
     version: 0,
-    metadata: getSceneMetadataChanges(Engine.instance.currentWorld),
     entities: {},
     root: null! as EntityUUID
   }
 
-  const traverseNode = entityTreeNode ?? world.entityTree.rootNode
-  const loadedAssets = new Set<EntityTreeNode>()
+  const sceneEntity = getState(SceneState).sceneEntity
+
+  const traverseNode = rootEntity ?? sceneEntity
+  const loadedAssets = new Set<Entity>()
   iterateEntityNode(
     traverseNode,
-    (node, index) => {
-      const ignoreComponents = getOptionalComponent(node.entity, GLTFLoadedComponent)
+    (entity, index) => {
+      const ignoreComponents = getOptionalComponent(entity, GLTFLoadedComponent)
 
       if (ignoreComponents?.includes('entity')) return
 
-      if (generateNewUUID) node.uuid = MathUtils.generateUUID() as EntityUUID
-      const entityJson = (sceneJson.entities[node.uuid] = { components: [] as ComponentJson[] } as EntityJson)
+      const uuid = generateNewUUID ? (MathUtils.generateUUID() as EntityUUID) : getComponent(entity, UUIDComponent)
+      const entityJson = (sceneJson.entities[uuid] = { components: [] as ComponentJson[] } as EntityJson)
 
-      if (node.parentEntity) {
-        entityJson.parent = node.parentEntity as any
+      const entityTree = getComponent(entity, EntityTreeComponent)
+
+      if (entity !== sceneEntity) {
+        entityJson.parent = getComponent(entityTree.parentEntity!, UUIDComponent)
         entityJson.index = index
       }
 
-      if (node === entityTreeNode || !node.parentEntity) {
-        sceneJson.root = node.uuid
+      if (entity === rootEntity || !entityTree.parentEntity) {
+        sceneJson.root = uuid
       }
 
-      entityUuid[node.entity] = node.uuid
-      entityJson.name = getComponent(node.entity, NameComponent)
+      entityJson.name = getComponent(entity, NameComponent)
 
-      entityJson.components = serializeEntity(node.entity, world)
+      entityJson.components = serializeEntity(entity)
 
-      if (hasComponent(node.entity, PrefabComponent)) {
-        const asset = getComponent(node.entity, PrefabComponent)
+      if (hasComponent(entity, PrefabComponent)) {
+        const asset = getComponent(entity, PrefabComponent)
         if (asset.loaded === LoadState.LOADED) {
           asset.roots.map((root) => loadedAssets.add(root))
         }
       }
     },
     (node) => !loadedAssets.has(node),
-    world.entityTree,
     true
   )
-
-  Object.keys(sceneJson.entities).forEach((key) => {
-    const entity = sceneJson.entities[key]
-    if (entity.parent) entity.parent = entityUuid[entity.parent]
-  })
 
   return sceneJson
 }

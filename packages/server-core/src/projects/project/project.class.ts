@@ -1,3 +1,28 @@
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
 import { BadRequest, Forbidden } from '@feathersjs/errors'
 import { Id, Params } from '@feathersjs/feathers'
 import appRootPath from 'app-root-path'
@@ -6,15 +31,23 @@ import fs from 'fs'
 import path from 'path'
 import Sequelize, { Op } from 'sequelize'
 
-import { GITHUB_URL_REGEX, PUBLIC_SIGNED_REGEX } from '@xrengine/common/src/constants/GitHubConstants'
+import { GITHUB_URL_REGEX, PUBLIC_SIGNED_REGEX } from '@etherealengine/common/src/constants/GitHubConstants'
 import {
   DefaultUpdateSchedule,
   ProjectInterface,
   ProjectUpdateType
-} from '@xrengine/common/src/interfaces/ProjectInterface'
-import { UserInterface } from '@xrengine/common/src/interfaces/User'
-import { processFileName } from '@xrengine/common/src/utils/processFileName'
-import templateProjectJson from '@xrengine/projects/template-project/package.json'
+} from '@etherealengine/common/src/interfaces/ProjectInterface'
+import { UserInterface } from '@etherealengine/common/src/interfaces/User'
+import { processFileName } from '@etherealengine/common/src/utils/processFileName'
+import { routePath } from '@etherealengine/engine/src/schemas/route/route.schema'
+import { locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
+import { avatarPath, AvatarType } from '@etherealengine/engine/src/schemas/user/avatar.schema'
+import {
+  githubRepoAccessPath,
+  GithubRepoAccessType
+} from '@etherealengine/engine/src/schemas/user/github-repo-access.schema'
+import { getState } from '@etherealengine/hyperflux'
+import templateProjectJson from '@etherealengine/projects/template-project/package.json'
 
 import { Application } from '../../../declarations'
 import config from '../../appconfig'
@@ -23,19 +56,19 @@ import { getCachedURL } from '../../media/storageprovider/getCachedURL'
 import { getStorageProvider } from '../../media/storageprovider/storageprovider'
 import { getFileKeysRecursive } from '../../media/storageprovider/storageProviderUtils'
 import logger from '../../ServerLogger'
+import { ServerState } from '../../ServerState'
 import { UserParams } from '../../user/user/user.class'
 import { cleanString } from '../../util/cleanString'
 import { getContentType } from '../../util/fileUtils'
 import { copyFolderRecursiveSync, deleteFolderRecursive, getFilesRecursive } from '../../util/fsHelperFunctions'
 import { getGitConfigData, getGitHeadData, getGitOrigHeadData } from '../../util/getGitData'
 import { useGit } from '../../util/gitHelperFunctions'
+import { uploadSceneToStaticResources } from '../scene/scene-helper'
 import {
   checkAppOrgStatus,
   checkUserOrgWriteStatus,
   checkUserRepoWriteStatus,
-  getAuthenticatedRepo,
-  getRepo,
-  getUserRepos
+  getAuthenticatedRepo
 } from './github-helper'
 import {
   createOrUpdateProjectUpdateJob,
@@ -111,17 +144,23 @@ export const deleteProjectFilesInStorageProvider = async (projectName: string, s
       ])
     }
   } catch (e) {
-    logger.info('[ERROR deleteProjectFilesInStorageProvider]:', e)
+    logger.error(e, '[ERROR deleteProjectFilesInStorageProvider]:')
   }
 }
 
 /**
  * Updates the local storage provider with the project's current files
+ * @param app Application object
  * @param projectName
  * @param storageProviderName
  * @param remove
  */
-export const uploadLocalProjectToProvider = async (projectName, remove = true, storageProviderName?: string) => {
+export const uploadLocalProjectToProvider = async (
+  app: Application,
+  projectName,
+  remove = true,
+  storageProviderName?: string
+) => {
   const storageProvider = getStorageProvider(storageProviderName)
   const cacheDomain = getCacheDomain(storageProvider, true)
 
@@ -134,30 +173,26 @@ export const uploadLocalProjectToProvider = async (projectName, remove = true, s
   // upload new files to storage provider
   const projectPath = path.resolve(projectsRootFolder, projectName)
   const files = getFilesRecursive(projectPath)
-  const results = await Promise.all(
-    files
-      .filter((file) => !file.includes(`projects/${projectName}/.git/`))
-      .map((file: string) => {
-        return new Promise(async (resolve) => {
-          try {
-            const fileResult = fs.readFileSync(file)
-            const filePathRelative = processFileName(file.slice(projectPath.length))
-            await storageProvider.putObject(
-              {
-                Body: fileResult,
-                ContentType: getContentType(file),
-                Key: `projects/${projectName}${filePathRelative}`
-              },
-              { isDirectory: false }
-            )
-            resolve(getCachedURL(`projects/${projectName}${filePathRelative}`, cacheDomain))
-          } catch (e) {
-            logger.error(e)
-            resolve(null)
-          }
-        })
-      })
-  )
+  const filtered = files.filter((file) => !file.includes(`projects/${projectName}/.git/`))
+  const results = [] as (string | null)[]
+  for (let file of filtered) {
+    try {
+      const fileResult = await uploadSceneToStaticResources(app, projectName, file, storageProviderName)
+      const filePathRelative = processFileName(file.slice(projectPath.length))
+      await storageProvider.putObject(
+        {
+          Body: fileResult,
+          ContentType: getContentType(file),
+          Key: `projects/${projectName}${filePathRelative}`
+        },
+        { isDirectory: false }
+      )
+      results.push(getCachedURL(`projects/${projectName}${filePathRelative}`, cacheDomain))
+    } catch (e) {
+      logger.error(e)
+      results.push(null)
+    }
+  }
   logger.info(`uploadLocalProjectToProvider for project "${projectName}" ended at "${new Date()}".`)
   return results.filter((success) => !!success) as string[]
 }
@@ -198,7 +233,7 @@ export class Project extends Service {
     await Promise.all(
       projects.map(async ({ name }) => {
         if (!fs.existsSync(path.join(projectsRootFolder, name, 'xrengine.config.ts'))) return
-        const config = await getProjectConfig(name)
+        const config = getProjectConfig(name)
         if (config?.onEvent) return onProjectEvent(this.app, name, config.onEvent, 'onLoad')
       })
     )
@@ -206,7 +241,7 @@ export class Project extends Service {
 
   async _seedProject(projectName: string): Promise<any> {
     logger.warn('[Projects]: Found new locally installed project: ' + projectName)
-    const projectConfig = (await getProjectConfig(projectName)) ?? {}
+    const projectConfig = getProjectConfig(projectName) ?? {}
 
     const gitData = getGitProjectData(projectName)
     const { commitSHA, commitDate } = await this._getCommitSHADate(projectName)
@@ -267,7 +302,7 @@ export class Project extends Service {
         }
       )
 
-      promises.push(uploadLocalProjectToProvider(projectName))
+      promises.push(uploadLocalProjectToProvider(this.app, projectName))
     }
 
     await Promise.all(promises)
@@ -309,7 +344,7 @@ export class Project extends Service {
     packageData.etherealEngine.version = getEnginePackageJson().version
     fs.writeFileSync(path.resolve(projectLocalDirectory, 'package.json'), JSON.stringify(packageData, null, 2))
 
-    await uploadLocalProjectToProvider(projectName, false)
+    await uploadLocalProjectToProvider(this.app, projectName, false)
 
     return super.create(
       {
@@ -349,7 +384,7 @@ export class Project extends Service {
   ) {
     if (data.sourceURL === 'default-project') {
       copyDefaultProject()
-      await uploadLocalProjectToProvider('default-project')
+      await uploadLocalProjectToProvider(this.app, 'default-project')
       return
     }
 
@@ -405,9 +440,9 @@ export class Project extends Service {
       throw err
     }
 
-    await uploadLocalProjectToProvider(projectName)
+    await uploadLocalProjectToProvider(this.app, projectName)
 
-    const projectConfig = (await getProjectConfig(projectName)) ?? {}
+    const projectConfig = getProjectConfig(projectName) ?? {}
 
     // when we have successfully re-installed the project, remove the database entry if it already exists
     const existingProjectResult = await this.Model.findOne({
@@ -471,6 +506,7 @@ export class Project extends Service {
       let repoPath = await getAuthenticatedRepo(githubIdentityProvider.oauthToken, data.destinationURL)
       if (!repoPath) repoPath = data.destinationURL //public repo
       await git.addRemote('destination', repoPath)
+      await git.raw(['lfs', 'fetch', '--all'])
       await git.push('destination', branchName, ['-f', '--tags'])
       const { commitSHA, commitDate } = await this._getCommitSHADate(projectName)
       await super.patch(returned.id, {
@@ -488,9 +524,11 @@ export class Project extends Service {
       )
     }
 
-    if (this.app.k8BatchClient && (data.updateType === 'tag' || data.updateType === 'commit')) {
+    const k8BatchClient = getState(ServerState).k8BatchClient
+
+    if (k8BatchClient && (data.updateType === 'tag' || data.updateType === 'commit')) {
       await createOrUpdateProjectUpdateJob(this.app, projectName)
-    } else if (this.app.k8BatchClient && (data.updateType === 'none' || data.updateType == null))
+    } else if (k8BatchClient && (data.updateType === 'none' || data.updateType == null))
       await removeProjectUpdateJob(this.app, projectName)
 
     return returned
@@ -534,7 +572,7 @@ export class Project extends Service {
     if (!id) return
     const { name } = await super.get(id, params)
 
-    const projectConfig = await getProjectConfig(name)
+    const projectConfig = getProjectConfig(name)
 
     // run project uninstall script
     if (projectConfig?.onEvent) {
@@ -548,50 +586,55 @@ export class Project extends Service {
     logger.info(`[Projects]: removing project id "${id}", name: "${name}".`)
     await deleteProjectFilesInStorageProvider(name)
 
-    const locationItems = await (this.app.service('location') as any).Model.findAll({
-      where: {
+    await this.app.service(locationPath).remove(null, {
+      query: {
         sceneId: {
-          [Op.like]: `${name}/%`
+          $like: `${name}/%`
         }
       }
     })
-    locationItems.length &&
-      locationItems.forEach(async (location) => {
-        await this.app.service('location').remove(location.dataValues.id)
-      })
 
-    const whereClause = {
-      [Op.and]: [
-        {
-          project: name
-        },
-        {
-          project: {
-            [Op.ne]: null
+    await this.app.service(routePath).remove(null, {
+      query: {
+        $and: [{ project: { $ne: null } }, { project: name }]
+      }
+    })
+
+    const avatarItems = (await this.app.service(avatarPath).find({
+      query: {
+        $and: [
+          {
+            project: name
+          },
+          {
+            project: {
+              $ne: null
+            }
           }
-        }
-      ]
-    }
+        ]
+      },
+      paginate: false
+    })) as AvatarType[]
 
-    const routeItems = await (this.app.service('route') as any).Model.findAll({
-      where: whereClause
-    })
-    routeItems.length &&
-      routeItems.forEach(async (route) => {
-        await this.app.service('route').remove(route.dataValues.id)
-      })
-
-    const avatarItems = await (this.app.service('avatar') as any).Model.findAll({
-      where: whereClause
-    })
     await Promise.all(
       avatarItems.map(async (avatar) => {
-        await this.app.service('avatar').remove(avatar.dataValues.id)
+        await this.app.service(avatarPath).remove(avatar.id)
       })
     )
 
     const staticResourceItems = await (this.app.service('static-resource') as any).Model.findAll({
-      where: whereClause
+      where: {
+        [Op.and]: [
+          {
+            project: name
+          },
+          {
+            project: {
+              [Op.ne]: null
+            }
+          }
+        ]
+      }
     })
     staticResourceItems.length &&
       staticResourceItems.forEach(async (staticResource) => {
@@ -640,16 +683,16 @@ export class Project extends Service {
         include: [{ model: this.app.service('project').Model }],
         paginate: false
       })) as any
-      let allowedProjects = await projectPermissions.map((permission) => permission.project)
+      const allowedProjects = await projectPermissions.map((permission) => permission.project)
       const repoAccess = githubIdentityProvider
-        ? await this.app.service('github-repo-access').Model.findAll({
-            paginate: false,
-            where: {
+        ? ((await this.app.service(githubRepoAccessPath).find({
+            query: {
               identityProviderId: githubIdentityProvider.id
-            }
-          })
+            },
+            paginate: false
+          })) as any as GithubRepoAccessType[])
         : []
-      const repoPaths = repoAccess.map((item) => item.repo.toLowerCase())
+      const pushRepoPaths = repoAccess.filter((repo) => repo.hasWriteAccess).map((item) => item.repo.toLowerCase())
       let allowedProjectGithubRepos = allowedProjects.filter((project) => project.repositoryPath != null)
       allowedProjectGithubRepos = await Promise.all(
         allowedProjectGithubRepos.map(async (project) => {
@@ -661,27 +704,30 @@ export class Project extends Service {
         })
       )
       const pushableAllowedProjects = allowedProjectGithubRepos.filter(
-        (project) => repoPaths.indexOf(project.repositoryPath.toLowerCase().replace(/.git$/, '')) > -1
+        (project) => pushRepoPaths.indexOf(project.repositoryPath.toLowerCase().replace(/.git$/, '')) > -1
       )
       projectPushIds = projectPushIds.concat(pushableAllowedProjects.map((project) => project.id))
 
       if (githubIdentityProvider) {
-        repoAccess.forEach((item, index) => {
-          const url = item.repo.toLowerCase()
-          repoAccess[index] = url
-          repoAccess.push(`${url}.git`)
-          const regexExec = GITHUB_URL_REGEX.exec(url)
-          if (regexExec) {
-            const split = regexExec[2].split('/')
-            repoAccess.push(`git@github.com:${split[0]}/${split[1]}`)
-            repoAccess.push(`git@github.com:${split[0]}/${split[1]}.git`)
+        const repositoryPaths: string[] = []
+        repoAccess.forEach((item) => {
+          if (item.hasWriteAccess) {
+            const url = item.repo.toLowerCase()
+            repositoryPaths.push(url)
+            repositoryPaths.push(`${url}.git`)
+            const regexExec = GITHUB_URL_REGEX.exec(url)
+            if (regexExec) {
+              const split = regexExec[2].split('/')
+              repositoryPaths.push(`git@github.com:${split[0]}/${split[1]}`)
+              repositoryPaths.push(`git@github.com:${split[0]}/${split[1]}.git`)
+            }
           }
         })
 
         const matchingAllowedRepos = await this.app.service('project').Model.findAll({
           where: {
             repositoryPath: {
-              [Op.in]: repoAccess
+              [Op.in]: repositoryPaths
             }
           }
         })
@@ -707,7 +753,6 @@ export class Project extends Service {
         $select: params?.query?.$select || [
           'id',
           'name',
-          'thumbnail',
           'repositoryPath',
           'needsRebuild',
           'sourceRepo',
@@ -727,6 +772,8 @@ export class Project extends Service {
         : (item as ProjectInterface)
       try {
         const packageJson = getProjectPackageJson(values.name)
+        const config = getProjectConfig(values.name)
+        values.thumbnail = config.thumbnail!
         values.version = packageJson.version
         values.engineVersion = packageJson.etherealEngine?.version
         values.description = packageJson.description

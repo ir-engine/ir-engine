@@ -1,6 +1,31 @@
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
 import { Color, Material, Mesh, Texture } from 'three'
 
-import { dispatchAction, getState, none } from '@xrengine/hyperflux'
+import { getMutableState, getState, none } from '@etherealengine/hyperflux'
 
 import { stringHash } from '../../../common/functions/MathFunctions'
 import { Engine } from '../../../ecs/classes/Engine'
@@ -8,7 +33,7 @@ import { MaterialComponentType } from '../components/MaterialComponent'
 import { MaterialPrototypeComponentType } from '../components/MaterialPrototypeComponent'
 import { MaterialSource, MaterialSourceComponentType } from '../components/MaterialSource'
 import { LibraryEntryType } from '../constants/LibraryEntry'
-import { getMaterialLibrary, MaterialLibraryActions } from '../MaterialLibrary'
+import { MaterialLibraryState } from '../MaterialLibrary'
 
 export function MaterialNotFoundError(message) {
   this.name = 'MaterialNotFound'
@@ -41,7 +66,7 @@ export function formatMaterialArgs(args, defaultArgs: any = undefined) {
         }
         const tex = v as Texture
         if (tex?.isTexture) {
-          if (tex.source.data != undefined) {
+          if (tex.source.data !== undefined) {
             return [k, v]
           }
           return [k, undefined]
@@ -54,20 +79,20 @@ export function formatMaterialArgs(args, defaultArgs: any = undefined) {
 }
 
 export function materialFromId(matId: string): MaterialComponentType {
-  const materialLibrary = getMaterialLibrary()
-  const material = materialLibrary.materials[matId].get({ noproxy: true })
+  const materialLibrary = getState(MaterialLibraryState)
+  const material = materialLibrary.materials[matId]
   if (!material) throw new MaterialNotFoundError('could not find Material with ID ' + matId)
   return material
 }
 
 export function prototypeFromId(protoId: string): MaterialPrototypeComponentType {
-  const materialLibrary = getMaterialLibrary()
-  const prototype = materialLibrary.prototypes[protoId].get({ noproxy: true })
+  const materialLibrary = getState(MaterialLibraryState)
+  const prototype = materialLibrary.prototypes[protoId]
   if (!prototype) throw new Error('could not find Material Prototype for ID ' + protoId)
   return prototype
 }
 
-export function materialIdToDefaultArgs(matId: string): Object {
+export function materialIdToDefaultArgs(matId: string): object {
   const material = materialFromId(matId)
   const prototype = prototypeFromId(material.prototype)
   return injectDefaults(prototype.arguments, material.parameters)
@@ -105,7 +130,7 @@ export function materialIdToPrototype(matId: string): MaterialPrototypeComponent
   return prototypeFromId(materialFromId(matId).prototype)
 }
 
-export function materialToDefaultArgs(material: Material): Object {
+export function materialToDefaultArgs(material: Material): object {
   return materialIdToDefaultArgs(material.uuid)
 }
 
@@ -114,7 +139,7 @@ export function hashMaterialSource(src: MaterialSource): string {
 }
 
 export function addMaterialSource(src: MaterialSource): boolean {
-  const materialLibrary = getMaterialLibrary()
+  const materialLibrary = getMutableState(MaterialLibraryState)
   const srcId = hashMaterialSource(src)
   if (!materialLibrary.sources[srcId].value) {
     materialLibrary.sources[srcId].set({ src, entries: [] })
@@ -122,13 +147,13 @@ export function addMaterialSource(src: MaterialSource): boolean {
   } else return false
 }
 
-export function getSourceMaterials(src: MaterialSource): string[] | undefined {
-  const materialLibrary = getMaterialLibrary()
-  return materialLibrary.sources[hashMaterialSource(src)].value?.entries
+export function getSourceItems(src: MaterialSource): string[] | undefined {
+  const materialLibrary = getState(MaterialLibraryState)
+  return materialLibrary.sources[hashMaterialSource(src)]?.entries
 }
 
 export function removeMaterialSource(src: MaterialSource): boolean {
-  const materialLibrary = getMaterialLibrary()
+  const materialLibrary = getMutableState(MaterialLibraryState)
   const srcId = hashMaterialSource(src)
   if (materialLibrary.sources[srcId].value) {
     const srcComp = materialLibrary.sources[srcId].value
@@ -140,7 +165,6 @@ export function removeMaterialSource(src: MaterialSource): boolean {
       toDelete.material.dispose()
       materialLibrary.materials[matId].set(none)
     })
-    dispatchAction(MaterialLibraryActions.RemoveSource({ src: srcComp.src }))
     materialLibrary.sources[srcId].set(none)
 
     return true
@@ -148,10 +172,10 @@ export function removeMaterialSource(src: MaterialSource): boolean {
 }
 
 export function registerMaterial(material: Material, src: MaterialSource, params?: { [_: string]: any }) {
-  const materialLibrary = getMaterialLibrary()
+  const materialLibrary = getMutableState(MaterialLibraryState)
   const prototype = prototypeFromId(material.userData.type ?? material.type)
   addMaterialSource(src)
-  const srcMats = getSourceMaterials(src)!
+  const srcMats = getSourceItems(src)!
   !srcMats.includes(material.uuid) &&
     materialLibrary.sources[hashMaterialSource(src)].entries.set([
       ...materialLibrary.sources[hashMaterialSource(src)].entries.value,
@@ -162,13 +186,15 @@ export function registerMaterial(material: Material, src: MaterialSource, params
   materialLibrary.materials[material.uuid].set({
     material,
     parameters,
+    plugins: [],
     prototype: prototype.prototypeId,
     src
   })
+  return materialLibrary.materials[material.uuid]
 }
 
 export function unregisterMaterial(material: Material) {
-  const materialLibrary = getMaterialLibrary()
+  const materialLibrary = getMutableState(MaterialLibraryState)
   try {
     const matEntry = materialFromId(material.uuid)
     materialLibrary.materials[material.uuid].set(none)
@@ -184,8 +210,8 @@ export function unregisterMaterial(material: Material) {
 }
 
 export function registerMaterialPrototype(prototype: MaterialPrototypeComponentType) {
-  const materialLibrary = getMaterialLibrary()
-  if (!!materialLibrary.prototypes[prototype.prototypeId].value) {
+  const materialLibrary = getMutableState(MaterialLibraryState)
+  if (materialLibrary.prototypes[prototype.prototypeId].value) {
     console.warn(
       'overwriting existing material prototype!\nnew:',
       prototype.prototypeId,
@@ -197,7 +223,7 @@ export function registerMaterialPrototype(prototype: MaterialPrototypeComponentT
 }
 
 export function materialsFromSource(src: MaterialSource) {
-  return getSourceMaterials(src)?.map(materialFromId)
+  return getSourceItems(src)?.map(materialFromId)
 }
 
 export function changeMaterialPrototype(material: Material, protoId: string) {
@@ -215,7 +241,7 @@ export function changeMaterialPrototype(material: Material, protoId: string) {
   )
   const fullParms = { ...extractDefaults(prototype.arguments), ...commonParms }
   const nuMat = factory(fullParms)
-  Engine.instance.currentWorld.scene.traverse((mesh: Mesh) => {
+  Engine.instance.scene.traverse((mesh: Mesh) => {
     if (!mesh?.isMesh) return
     if (Array.isArray(mesh.material)) {
       mesh.material.map((meshMat, i) => {
@@ -239,6 +265,7 @@ export function changeMaterialPrototype(material: Material, protoId: string) {
     ...nuMat.userData,
     ...Object.fromEntries(Object.entries(material.userData).filter(([k, v]) => k !== 'type'))
   }
+  materialEntry.plugins.map((pluginId: string) => {})
   registerMaterial(nuMat, materialEntry.src)
   return nuMat
 }

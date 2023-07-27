@@ -1,64 +1,62 @@
-import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
-import { none } from '@xrengine/hyperflux/functions/StateFunctions'
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
+import {
+  defineAction,
+  defineActionQueue,
+  defineState,
+  dispatchAction,
+  getMutableState
+} from '@etherealengine/hyperflux'
+import { none } from '@etherealengine/hyperflux/functions/StateFunctions'
 
 import { matches, Validator } from '../common/functions/MatchesUtils'
-import { Engine } from '../ecs/classes/Engine'
+import { defineSystem } from '../ecs/functions/SystemFunctions'
+import { Widget } from './Widgets'
 
-type WidgetState = Record<string, { enabled: boolean; visible: boolean }>
+type WidgetMutableState = Record<string, { enabled: boolean; visible: boolean }>
+
+/** @todo refactor this and WidgetAppState into WidgetState */
+export const RegisteredWidgets = new Map<string, Widget>()
 
 export const WidgetAppState = defineState({
   name: 'WidgetAppState',
   initial: () => ({
     widgetsMenuOpen: false,
-    widgets: {} as WidgetState,
+    widgets: {} as WidgetMutableState,
     handedness: 'left' as 'left' | 'right'
   })
 })
 
-export const WidgetAppServiceReceptor = (action) => {
-  const s = getState(WidgetAppState)
-  matches(action)
-    .when(WidgetAppActions.showWidgetMenu.matches, (action) => {
-      s.widgetsMenuOpen.set(action.shown)
-      if (action.handedness) s.handedness.set(action.handedness)
-    })
-    .when(WidgetAppActions.registerWidget.matches, (action) => {
-      s.widgets.merge({
-        [action.id]: {
-          enabled: true,
-          visible: false
-        }
-      })
-    })
-    .when(WidgetAppActions.unregisterWidget.matches, (action) => {
-      if (s.widgets[action.id].visible) {
-        s.widgetsMenuOpen.set(true)
-      }
-      s.widgets[action.id].set(none)
-    })
-    .when(WidgetAppActions.enableWidget.matches, (action) => {
-      s.widgets[action.id].merge({
-        enabled: action.enabled
-      })
-    })
-    .when(WidgetAppActions.showWidget.matches, (action) => {
-      // if opening or closing a widget, close or open the main menu
-      if (action.handedness) s.handedness.set(action.handedness)
-      if (action.shown) s.widgetsMenuOpen.set(false)
-      if (action.openWidgetMenu && !action.shown) s.widgetsMenuOpen.set(true)
-      s.widgets[action.id].merge({
-        visible: action.shown
-      })
-    })
-}
-
 export const WidgetAppService = {
   setWidgetVisibility: (widgetName: string, visibility: boolean) => {
-    const widgetState = getState(WidgetAppState)
-    const widgets = Object.entries(widgetState.widgets.value).map(([id, widgetState]) => ({
+    const widgetMutableState = getMutableState(WidgetAppState)
+    const widgets = Object.entries(widgetMutableState.widgets.value).map(([id, widgetMutableState]) => ({
       id,
-      ...widgetState,
-      ...Engine.instance.currentWorld.widgets.get(id)!
+      ...widgetMutableState,
+      ...RegisteredWidgets.get(id)!
     }))
 
     const currentWidget = widgets.find((w) => w.label === widgetName)
@@ -105,3 +103,55 @@ export class WidgetAppActions {
     handedness: matches.string.optional() as Validator<unknown, 'left' | 'right' | undefined>
   })
 }
+
+const showWidgetMenuActionQueue = defineActionQueue(WidgetAppActions.showWidgetMenu.matches)
+const registerWidgetActionQueue = defineActionQueue(WidgetAppActions.registerWidget.matches)
+const unregisterWidgetActionQueue = defineActionQueue(WidgetAppActions.unregisterWidget.matches)
+const enableWidgetActionQueue = defineActionQueue(WidgetAppActions.enableWidget.matches)
+const showWidgetActionQueue = defineActionQueue(WidgetAppActions.showWidget.matches)
+
+export const execute = () => {
+  const s = getMutableState(WidgetAppState)
+
+  for (const action of showWidgetMenuActionQueue()) {
+    s.widgetsMenuOpen.set(action.shown)
+    if (action.handedness) s.handedness.set(action.handedness)
+  }
+
+  for (const action of registerWidgetActionQueue()) {
+    s.widgets.merge({
+      [action.id]: {
+        enabled: true,
+        visible: false
+      }
+    })
+  }
+
+  for (const action of unregisterWidgetActionQueue()) {
+    if (s.widgets[action.id].visible) {
+      s.widgetsMenuOpen.set(true)
+    }
+    s.widgets[action.id].set(none)
+  }
+
+  for (const action of enableWidgetActionQueue()) {
+    s.widgets[action.id].merge({
+      enabled: action.enabled
+    })
+  }
+
+  for (const action of showWidgetActionQueue()) {
+    // if opening or closing a widget, close or open the main menu
+    if (action.handedness) s.handedness.set(action.handedness)
+    if (action.shown) s.widgetsMenuOpen.set(false)
+    if (action.openWidgetMenu && !action.shown) s.widgetsMenuOpen.set(true)
+    s.widgets[action.id].merge({
+      visible: action.shown
+    })
+  }
+}
+
+export const WidgetAppServiceReceptorSystem = defineSystem({
+  uuid: 'ee.engine.widgets.WidgetAppServiceReceptorSystem',
+  execute
+})

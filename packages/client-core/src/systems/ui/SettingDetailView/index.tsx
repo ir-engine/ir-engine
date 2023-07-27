@@ -1,33 +1,55 @@
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
 import { createState } from '@hookstate/core'
-import React, { useEffect, useLayoutEffect, useRef, useState } from 'react'
+import React, { useEffect, useLayoutEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { UserSetting } from '@xrengine/common/src/interfaces/User'
-import { AudioSettingAction, useAudioState } from '@xrengine/engine/src/audio/AudioState'
-import { AvatarComponent } from '@xrengine/engine/src/avatar/components/AvatarComponent'
+import { AudioSettingAction, AudioState } from '@etherealengine/engine/src/audio/AudioState'
+import { AvatarComponent } from '@etherealengine/engine/src/avatar/components/AvatarComponent'
 import {
   AvatarAxesControlScheme,
   AvatarControllerType,
   AvatarInputSettingsAction,
   AvatarInputSettingsState
-} from '@xrengine/engine/src/avatar/state/AvatarInputSettingsState'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { RendererState } from '@xrengine/engine/src/renderer/RendererState'
-import { XRState } from '@xrengine/engine/src/xr/XRState'
-import { createXRUI } from '@xrengine/engine/src/xrui/functions/createXRUI'
-import { dispatchAction, getState, useHookstate } from '@xrengine/hyperflux'
+} from '@etherealengine/engine/src/avatar/state/AvatarInputSettingsState'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { getComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { RendererState } from '@etherealengine/engine/src/renderer/RendererState'
+import { XRState } from '@etherealengine/engine/src/xr/XRState'
+import { createXRUI } from '@etherealengine/engine/src/xrui/functions/createXRUI'
+import { dispatchAction, getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 
-import { BlurLinear, Mic, VolumeUp } from '@mui/icons-material'
-import SurroundSoundIcon from '@mui/icons-material/SurroundSound'
-
-import { AuthService, useAuthState } from '../../../user/services/AuthService'
 import XRCheckboxButton from '../../components/XRCheckboxButton'
 import XRSelectDropdown from '../../components/XRSelectDropdown'
 import XRSlider from '../../components/XRSlider'
 import XRToggleButton from '../../components/XRToggleButton'
 import styleString from './index.scss?inline'
 
+/** @deprecated */
 export function createSettingDetailView() {
   return createXRUI(SettingDetailView, createSettingDetailState())
 }
@@ -35,32 +57,27 @@ export function createSettingDetailView() {
 function createSettingDetailState() {
   return createState({})
 }
-
+/** @deprecated */
 // TODO: update this to newest settings implementation
 const SettingDetailView = () => {
   const { t } = useTranslation()
-  const rendererState = useHookstate(getState(RendererState))
-  const audioState = useAudioState()
-  const xrSessionActive = useHookstate(getState(XRState).sessionActive)
-  const avatarInputState = useHookstate(getState(AvatarInputSettingsState))
+  const rendererState = useHookstate(getMutableState(RendererState))
+  const audioState = useHookstate(getMutableState(AudioState))
+  const xrSessionActive = useHookstate(getMutableState(XRState).sessionActive)
+  const avatarInputState = useHookstate(getMutableState(AvatarInputSettingsState))
   const leftAxesControlScheme = avatarInputState.leftAxesControlScheme.value
   const rightAxesControlScheme = avatarInputState.rightAxesControlScheme.value
   const invertRotationAndMoveSticks = avatarInputState.invertRotationAndMoveSticks.value
   const showAvatar = avatarInputState.showAvatar.value
-  const authState = useAuthState()
-  const selfUser = authState.user
   const firstRender = useRef(true)
-  const [showDetails, setShowDetails] = useState(false)
-  const [showAudioDetails, setShowAudioDetails] = useState(false)
-  const [userSettings, setUserSetting] = useState<UserSetting>(selfUser?.user_setting.value!)
+  const showAudioDetails = useHookstate(false)
 
   const controllerTypes = Object.values(AvatarControllerType).filter((value) => typeof value === 'string')
   const handOptions = ['left', 'right'] as const
   const controlSchemes = Object.values(AvatarAxesControlScheme).filter((value) => typeof value === 'string')
 
   useEffect(() => {
-    const world = Engine.instance.currentWorld
-    const entity = world.localClientEntity
+    const entity = Engine.instance.localClientEntity
     const avatar = getComponent(entity, AvatarComponent)
     if (!avatar) return
     if (showAvatar) {
@@ -80,12 +97,6 @@ const SettingDetailView = () => {
     /** @todo - switch handedness */
   }, [avatarInputState.invertRotationAndMoveSticks])
 
-  const setUserSettings = (newSetting: any): void => {
-    const setting = { ...userSettings, ...newSetting }
-    setUserSetting(setting)
-    AuthService.updateUserSettings(selfUser.user_setting.value?.id, setting)
-  }
-
   const handleChangeInvertRotationAndMoveSticks = (event: React.ChangeEvent<HTMLInputElement>) => {
     dispatchAction(
       AvatarInputSettingsAction.setInvertRotationAndMoveSticks({
@@ -102,12 +113,8 @@ const SettingDetailView = () => {
     dispatchAction(AvatarInputSettingsAction.setControlType(value as any))
   }
 
-  const toggleShowDetails = () => {
-    setShowDetails(!showDetails)
-  }
-
   const toggleShowOtherAudioSettings = () => {
-    setShowAudioDetails(!showAudioDetails)
+    showAudioDetails.set(!showAudioDetails.value)
   }
 
   const handleQualityLevelChange = (value) => {
@@ -137,7 +144,7 @@ const SettingDetailView = () => {
           <section className="audioSection">
             <h4 className="title">{t('user:usermenu.setting.audio')}</h4>
             <div className="sectionRow">
-              <VolumeUp />
+              <Icon type="VolumeUp" />
               <XRSlider
                 labelContent={t('user:usermenu.setting.lbl-volume')}
                 min="0"
@@ -150,7 +157,7 @@ const SettingDetailView = () => {
               />
             </div>
             <div className="sectionRow">
-              <Mic />
+              <Icon type="Mic" />
               <XRSlider
                 labelContent={t('user:usermenu.setting.lbl-microphone')}
                 min="0"
@@ -165,13 +172,13 @@ const SettingDetailView = () => {
             <div className="sectionRow justifySpaceBetween" onClick={toggleShowOtherAudioSettings}>
               <h4 className="title">{t('user:usermenu.setting.other-audio-setting')}</h4>
               <div xr-layer="true" className="showHideButton">
-                {showAudioDetails ? 'hide details' : 'show details'}
+                {showAudioDetails.value ? 'hide details' : 'show details'}
               </div>
             </div>
-            {showAudioDetails && (
+            {showAudioDetails.value && (
               <>
                 <div className="sectionRow">
-                  <SurroundSoundIcon />
+                  <Icon type="SurroundSound" />
                   <XRCheckboxButton
                     labelContent={t('user:usermenu.setting.use-positional-media')}
                     checked={audioState.positionalMedia.value}
@@ -181,7 +188,7 @@ const SettingDetailView = () => {
                   />
                 </div>
                 <div className="sectionRow">
-                  <VolumeUp />
+                  <Icon type="VolumeUp" />
                   <XRSlider
                     labelContent={t('user:usermenu.setting.lbl-media-instance')}
                     min="0"
@@ -194,7 +201,7 @@ const SettingDetailView = () => {
                   />
                 </div>
                 <div className="sectionRow">
-                  <VolumeUp />
+                  <Icon type="VolumeUp" />
                   <XRSlider
                     labelContent={t('user:usermenu.setting.lbl-notification')}
                     min="0"
@@ -207,7 +214,7 @@ const SettingDetailView = () => {
                   />
                 </div>
                 <div className="sectionRow">
-                  <VolumeUp />
+                  <Icon type="VolumeUp" />
                   <XRSlider
                     labelContent={t('user:usermenu.setting.lbl-sound-effect')}
                     min="0"
@@ -220,7 +227,7 @@ const SettingDetailView = () => {
                   />
                 </div>
                 <div className="sectionRow">
-                  <VolumeUp />
+                  <Icon type="VolumeUp" />
                   <XRSlider
                     labelContent={t('user:usermenu.setting.lbl-background-music-volume')}
                     min="0"
@@ -242,7 +249,7 @@ const SettingDetailView = () => {
           <section className="graphicsSection">
             <h4 className="title">{t('user:usermenu.setting.graphics')}</h4>
             <div className="sectionRow">
-              <BlurLinear />
+              <Icon type="BlurLinear" />
               <XRSlider
                 labelContent={t('user:usermenu.setting.lbl-resolution')}
                 min="1"
@@ -296,30 +303,7 @@ const SettingDetailView = () => {
                     onChange={handleChangeInvertRotationAndMoveSticks}
                   />
                 </div>
-                <div className="showHideButton" onClick={toggleShowDetails}>
-                  {showDetails ? 'hide details' : 'show details'}
-                </div>
               </div>
-              {showDetails && (
-                <table>
-                  <thead>
-                    <tr>
-                      <th>{t('user:usermenu.setting.rotation')}</th>
-                      <th>{t('user:usermenu.setting.rotation-angle')}</th>
-                      <th align="right">{t('user:usermenu.setting.rotation-smooth-speed')}</th>
-                      <th align="right">{t('user:usermenu.setting.moving')}</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <td align="center">{avatarInputState.rotation.value}</td>
-                      <td align="center">{avatarInputState.rotationAngle.value}</td>
-                      <td align="center">{avatarInputState.rotationSmoothSpeed.value}</td>
-                      <td align="center">{avatarInputState.moving.value}</td>
-                    </tr>
-                  </tbody>
-                </table>
-              )}
             </section>
             <section className="settingView">
               <div className="controlsContainer">

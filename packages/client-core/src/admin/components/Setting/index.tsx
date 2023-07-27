@@ -1,24 +1,44 @@
-import { Icon } from '@iconify/react'
-import React, { Fragment, useEffect, useRef, useState } from 'react'
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
+import { Icon as Iconify } from '@iconify/react'
+import React, { Fragment, useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import CloseIcon from '@mui/icons-material/Close'
-import CodeIcon from '@mui/icons-material/Code'
-import FormatColorFillIcon from '@mui/icons-material/FormatColorFill'
-import HubIcon from '@mui/icons-material/Hub'
-import ListAltIcon from '@mui/icons-material/ListAlt'
-import LockIcon from '@mui/icons-material/Lock'
-import MailOutlineIcon from '@mui/icons-material/MailOutline'
-import MenuIcon from '@mui/icons-material/Menu'
-import ViewCompactIcon from '@mui/icons-material/ViewCompact'
-import { Grid, IconButton, Typography } from '@mui/material'
-import Avatar from '@mui/material/Avatar'
-import Button from '@mui/material/Button'
-import Divider from '@mui/material/Divider'
-import List from '@mui/material/List'
-import ListItem from '@mui/material/ListItem'
-import ListItemAvatar from '@mui/material/ListItemAvatar'
-import ListItemText from '@mui/material/ListItemText'
+import { useHookstate } from '@etherealengine/hyperflux'
+import Avatar from '@etherealengine/ui/src/primitives/mui/Avatar'
+import Button from '@etherealengine/ui/src/primitives/mui/Button'
+import Divider from '@etherealengine/ui/src/primitives/mui/Divider'
+import Grid from '@etherealengine/ui/src/primitives/mui/Grid'
+import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
+import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
+import List from '@etherealengine/ui/src/primitives/mui/List'
+import ListItem from '@etherealengine/ui/src/primitives/mui/ListItem'
+import ListItemAvatar from '@etherealengine/ui/src/primitives/mui/ListItemAvatar'
+import ListItemText from '@etherealengine/ui/src/primitives/mui/ListItemText'
+import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 
 import styles from '../../styles/settings.module.scss'
 import Authentication from './Authentication'
@@ -28,6 +48,7 @@ import Client from './Client'
 import ClientTheme from './ClientTheme'
 import Coil from './Coil'
 import Email from './Email'
+import Helm from './Helm'
 import InstanceServer from './InstanceServer'
 import Project from './Project'
 import Redis from './Redis'
@@ -38,73 +59,79 @@ const settingItems = [
   {
     name: 'project',
     title: 'Project',
-    icon: <CodeIcon sx={{ color: 'orange' }} />,
+    icon: <Icon type="Code" sx={{ color: 'orange' }} />,
     content: <Project />
   },
   {
     name: 'server',
     title: 'Server',
-    icon: <Icon icon="carbon:bare-metal-server" color="orange" />,
+    icon: <Iconify icon="carbon:bare-metal-server" color="orange" />,
     content: <Server />
+  },
+  {
+    name: 'helm',
+    title: 'Helm Charts',
+    icon: <Icon type="Poll" sx={{ color: 'orange' }} />,
+    content: <Helm />
   },
   {
     name: 'client',
     title: 'Client',
-    icon: <ViewCompactIcon sx={{ color: 'orange' }} />,
+    icon: <Icon type="ViewCompact" sx={{ color: 'orange' }} />,
     content: <Client />
   },
   {
     name: 'clientTheme',
     title: 'Client Theme',
-    icon: <FormatColorFillIcon sx={{ color: 'orange' }} />,
+    icon: <Icon type="FormatColorFill" sx={{ color: 'orange' }} />,
     content: <ClientTheme />
   },
   {
     name: 'instanceServer',
     title: 'Instance Server',
-    icon: <HubIcon sx={{ color: 'orange' }} />,
+    icon: <Icon type="Hub" sx={{ color: 'orange' }} />,
     content: <InstanceServer />
   },
   {
     name: 'taskServer',
     title: 'Task Server',
-    icon: <ListAltIcon sx={{ color: 'orange' }} />,
+    icon: <Icon type="ListAlt" sx={{ color: 'orange' }} />,
     content: <TaskServer />
   },
   {
     name: 'email',
     title: 'Email',
-    icon: <MailOutlineIcon sx={{ color: 'orange' }} />,
+    icon: <Icon type="MailOutline" sx={{ color: 'orange' }} />,
     content: <Email />
   },
   {
     name: 'authentication',
     title: 'Authentication',
-    icon: <LockIcon sx={{ color: 'orange' }} />,
+    icon: <Icon type="Lock" sx={{ color: 'orange' }} />,
     content: <Authentication />
   },
   {
     name: 'aws',
-    title: 'Aws',
-    icon: <Icon icon="logos:aws" />,
+    title: 'AWS',
+    icon: <Iconify icon="logos:aws" />,
     content: <Aws />
   },
   {
     name: 'chargebee',
     title: 'Chargebee',
-    icon: <Icon icon="logos:chargebee-icon" />,
+    icon: <Iconify icon="logos:chargebee-icon" />,
     content: <ChargeBee />
   },
   {
     name: 'redis',
     title: 'Redis',
-    icon: <Icon icon="logos:redis" />,
+    icon: <Iconify icon="logos:redis" />,
     content: <Redis />
   },
   {
     name: 'coil',
     title: 'Coil',
-    icon: <Icon icon="simple-icons:coil" color="orange" />,
+    icon: <Iconify icon="simple-icons:coil" color="orange" />,
     content: <Coil />
   }
 ]
@@ -138,30 +165,38 @@ const Sidebar = ({ selected, onChange }: SidebarProps) => {
 
 const Setting = () => {
   const rootRef = useRef<any>()
-  const [selectedItem, setSelectedItem] = useState('project')
-  const [menuVisible, setMenuVisible] = useState(false)
+  const selectedItem = useHookstate('project')
+  const menuVisible = useHookstate(false)
   const { t } = useTranslation()
 
-  const settingItem = settingItems.find((item) => item.name === selectedItem)
+  const settingItem = settingItems.find((item) => item.name === selectedItem.value)
 
   useEffect(() => {
     rootRef?.current?.scrollIntoView()
-  }, [menuVisible])
+  }, [menuVisible.value])
+
+  useEffect(() => {
+    const hash = window.location.hash.replace('#', '')
+    const settingsItemsNames = settingItems.map((item) => item.name)
+    if (settingsItemsNames.indexOf(hash) >= 0) selectedItem.set(hash)
+  }, [])
 
   return (
     <div ref={rootRef}>
       <div className={styles.invisible}>
-        <Button size="small" onClick={() => setMenuVisible(!menuVisible)} className={styles.menuBtn}>
-          <MenuIcon />
-        </Button>
-        {menuVisible && (
+        {!menuVisible.value && (
+          <Button size="small" onClick={() => menuVisible.set(true)} className={styles.menuBtn}>
+            <Icon type="Menu" />
+          </Button>
+        )}
+        {menuVisible.value && (
           <div className={styles.hoverSettings}>
             <Grid display="flex" flexDirection="row" alignItems="center" marginBottom="10px">
               <Typography variant="h6" className={styles.settingsHeading}>
                 {t('admin:components.setting.settings')}
               </Typography>
               <IconButton
-                onClick={() => setMenuVisible(!menuVisible)}
+                onClick={() => menuVisible.set(false)}
                 style={{
                   color: 'orange',
                   fontSize: '3rem',
@@ -169,14 +204,14 @@ const Setting = () => {
                   position: 'absolute',
                   right: '10px'
                 }}
-              >
-                <CloseIcon />
-              </IconButton>
+                icon={<Icon type="Close" />}
+              />
             </Grid>
             <Sidebar
-              selected={selectedItem}
+              selected={selectedItem.value}
               onChange={(name) => {
-                setSelectedItem(name)
+                window.location.hash = `#${name}`
+                selectedItem.set(name)
               }}
             />
           </div>
@@ -188,9 +223,10 @@ const Setting = () => {
             {t('admin:components.setting.settings')}
           </Typography>
           <Sidebar
-            selected={selectedItem}
+            selected={selectedItem.value}
             onChange={(name) => {
-              setSelectedItem(name)
+              window.location.hash = `#${name}`
+              selectedItem.set(name)
             }}
           />
         </Grid>

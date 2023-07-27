@@ -1,13 +1,40 @@
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
 import { Paginated } from '@feathersjs/feathers'
 import appRootPath from 'app-root-path'
 import assert from 'assert'
 import path from 'path'
 
-import { ProjectPermissionInterface } from '@xrengine/common/src/interfaces/ProjectPermissionInterface'
-import { UserInterface } from '@xrengine/common/src/interfaces/User'
+import { ProjectPermissionInterface } from '@etherealengine/common/src/interfaces/ProjectPermissionInterface'
+import { UserInterface } from '@etherealengine/common/src/interfaces/User'
+import { destroyEngine } from '@etherealengine/engine/src/ecs/classes/Engine'
 
+import { UserApiKeyType, userApiKeyPath } from '@etherealengine/engine/src/schemas/user/user-api-key.schema'
 import { Application } from '../../../declarations'
-import { createFeathersExpressApp } from '../../createApp'
+import { createFeathersKoaApp } from '../../createApp'
 import { deleteFolderRecursive } from '../../util/fsHelperFunctions'
 
 const newProjectName1 = 'ProjectTest_test_project_name_1'
@@ -22,7 +49,7 @@ const cleanup = async (app: Application) => {
 
 /**
  * @todo
- * - refactor storage provider to be create as part of createFeathersExpressApp() to eliminate global scope
+ * - refactor storage provider to be create as part of createFeathersKoaApp() to eliminate global scope
  * - use this to force a local storage provider and test specific files in the upload folder
  * - add tests for all combinations of state for projects
  *
@@ -37,55 +64,50 @@ describe('project-permission.test', () => {
   let user4: UserInterface
   let project1, project1Permission1, project1Permission2, project1Permission4
   before(async () => {
-    app = createFeathersExpressApp()
+    app = createFeathersKoaApp()
     await app.setup()
     await cleanup(app)
-    const avatarName = 'CyberbotGreen'
-
-    const avatar = await app.service('avatar').create({
-      name: avatarName
-    })
 
     user1 = (await app.service('user').create({
       name: `Test #${Math.random()}`,
-      avatarId: avatar.id,
       isGuest: false
     })) as UserInterface
     user2 = (await app.service('user').create({
       name: `Test #${Math.random()}`,
-      avatarId: avatar.id,
       isGuest: false
     })) as UserInterface
     user3 = (await app.service('user').create({
       name: `Test #${Math.random()}`,
-      avatarId: avatar.id,
       isGuest: false
     })) as UserInterface
     user4 = (await app.service('user').create({
       name: `Test #${Math.random()}`,
-      avatarId: avatar.id,
       isGuest: false
     })) as UserInterface
-    user1.apiKey = await app.service('user-api-key').Model.findOne({
-      where: {
+    const user1ApiKeys = (await app.service(userApiKeyPath).find({
+      query: {
         userId: user1.id
       }
-    })
-    user2.apiKey = await app.service('user-api-key').Model.findOne({
-      where: {
+    })) as Paginated<UserApiKeyType>
+    user1.apiKey = user1ApiKeys.data.length > 0 ? user1ApiKeys.data[0] : user1.apiKey
+    const user2ApiKeys = (await app.service(userApiKeyPath).find({
+      query: {
         userId: user2.id
       }
-    })
-    user3.apiKey = await app.service('user-api-key').Model.findOne({
-      where: {
+    })) as Paginated<UserApiKeyType>
+    user2.apiKey = user2ApiKeys.data.length > 0 ? user2ApiKeys.data[0] : user2.apiKey
+    const user3ApiKeys = (await app.service(userApiKeyPath).find({
+      query: {
         userId: user3.id
       }
-    })
-    user4.apiKey = await app.service('user-api-key').Model.findOne({
-      where: {
+    })) as Paginated<UserApiKeyType>
+    user3.apiKey = user3ApiKeys.data.length > 0 ? user3ApiKeys.data[0] : user3.apiKey
+    const user4ApiKeys = (await app.service(userApiKeyPath).find({
+      query: {
         userId: user4.id
       }
-    })
+    })) as Paginated<UserApiKeyType>
+    user4.apiKey = user4ApiKeys.data.length > 0 ? user4ApiKeys.data[0] : user4.apiKey
     await app.service('scope').create({
       type: 'editor:write',
       userId: user1.id
@@ -106,6 +128,9 @@ describe('project-permission.test', () => {
       type: 'admin:admin',
       userId: user4.id
     })
+  })
+  after(() => {
+    return destroyEngine()
   })
 
   describe("'project-permission' service'", () => {

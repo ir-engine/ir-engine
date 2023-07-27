@@ -2,6 +2,9 @@
 set -e
 set -x
 
+TAG=$1
+CLEAN=$2
+
 if [ -z "$REGISTRY_HOST" ]
 then
   REGISTRY_HOST=localhost
@@ -39,21 +42,21 @@ fi
 
 if [ -z "$MYSQL_DATABASE" ]
 then
-  MYSQL_DATABASE=xrengine
+  MYSQL_DATABASE=etherealengine
 else
   MYSQL_DATABASE=$MYSQL_DATABASE
 fi
 
 if [ -z "$VITE_APP_HOST" ]
 then
-  VITE_APP_HOST=local.etherealengine.com
+  VITE_APP_HOST=local.etherealengine.org
 else
   VITE_APP_HOST=$VITE_APP_HOST
 fi
 
 if [ -z "$VITE_SERVER_HOST" ]
 then
-  VITE_SERVER_HOST=api-local.etherealengine.com
+  VITE_SERVER_HOST=api-local.etherealengine.org
 else
   VITE_SERVER_HOST=$VITE_SERVER_HOST
 fi
@@ -74,7 +77,7 @@ fi
 
 if [ -z "$VITE_INSTANCESERVER_HOST" ]
 then
-  VITE_INSTANCESERVER_HOST=instanceserver-local.etherealengine.com
+  VITE_INSTANCESERVER_HOST=instanceserver-local.etherealengine.org
 else
   VITE_INSTANCESERVER_HOST=$VITE_INSTANCESERVER_HOST
 fi
@@ -100,17 +103,32 @@ else
   NODE_ENV=$NODE_ENV
 fi
 
-docker start xrengine_minikube_db
+docker start etherealengine_minikube_db
 
 mkdir -p ./project-package-jsons/projects/default-project
 cp packages/projects/default-project/package.json ./project-package-jsons/projects/default-project
 find packages/projects/projects/ -name package.json -exec bash -c 'mkdir -p ./project-package-jsons/$(dirname $1) && cp $1 ./project-package-jsons/$(dirname $1)' - '{}' \;
 
-DOCKER_BUILDKIT=1 docker build -t $REGISTRY_HOST:32000/root-builder -f dockerfiles/package-root/Dockerfile-root .
+if [ "$CLEAN" ]
+then
+  echo "Cleaning docker"
 
-docker push $REGISTRY_HOST:32000/root-builder
+  docker system prune --force
+fi
 
-DOCKER_BUILDKIT=1 docker build --network=host -t $REGISTRY_HOST:32000/xrengine \
+if [ -z "$TAG" ]
+then
+  TAG="latest"
+fi
+
+echo "Tag is: $TAG"
+
+# DOCKER_BUILDKIT=1 docker build -t $REGISTRY_HOST:32000/root-builder -f dockerfiles/package-root/Dockerfile-root .
+
+# docker tag $REGISTRY_HOST:32000/root-builder $REGISTRY_HOST:32000/root-builder:$TAG
+# docker push $REGISTRY_HOST:32000/root-builder:$TAG
+
+DOCKER_BUILDKIT=1 docker build --network=host -t $REGISTRY_HOST:32000/etherealengine \
   --build-arg NODE_ENV=$NODE_ENV \
   --build-arg MYSQL_HOST=$MYSQL_HOST \
   --build-arg MYSQL_PORT=$MYSQL_PORT \
@@ -127,8 +145,10 @@ DOCKER_BUILDKIT=1 docker build --network=host -t $REGISTRY_HOST:32000/xrengine \
   --build-arg VITE_8TH_WALL=$VITE_8TH_WALL \
   --build-arg VITE_LOGIN_WITH_WALLET=$VITE_LOGIN_WITH_WALLET .
 
-docker push $REGISTRY_HOST:32000/xrengine
+docker tag $REGISTRY_HOST:32000/etherealengine $REGISTRY_HOST:32000/etherealengine:$TAG
+docker push $REGISTRY_HOST:32000/etherealengine:$TAG
 
-#DOCKER_BUILDKIT=1 docker build -t $REGISTRY_HOST:32000/xrengine-testbot -f ./dockerfiles/testbot/Dockerfile-testbot .
+# DOCKER_BUILDKIT=1 docker build -t $REGISTRY_HOST:32000/etherealengine-testbot -f ./dockerfiles/testbot/Dockerfile-testbot .
 
-# docker push $REGISTRY_HOST:32000/xrengine-testbot
+# docker tag $REGISTRY_HOST:32000/etherealengine-testbot $REGISTRY_HOST:32000/etherealengine-testbot:$TAG
+# docker push $REGISTRY_HOST:32000/etherealengine-testbot:$TAG

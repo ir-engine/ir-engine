@@ -1,4 +1,31 @@
-import { FileContentType } from '@xrengine/common/src/interfaces/FileContentType'
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
+import { PassThrough } from 'stream'
+
+import { FileContentType } from '@etherealengine/common/src/interfaces/FileContentType'
 
 /**
  * Put object parameters interface for adding to storage.
@@ -30,6 +57,10 @@ export interface StorageObjectInterface {
   ContentEncoding?: string
 
   Metadata?: object
+}
+
+export interface StorageObjectPutInterface extends Omit<StorageObjectInterface, 'Body'> {
+  Body: Buffer | PassThrough
 }
 
 /**
@@ -124,27 +155,38 @@ export interface BlobStore {
  * Storage provide interface to provide template for storage handling capabilities.
  */
 export interface StorageProviderInterface {
+  provider?: any
   /**
    * Domain address of cache.
    */
   cacheDomain: string
 
   /**
-   * Invalidate items in the storage.
+   * Invalidate items in the storage provider.
    * @param invalidationItems List of keys.
    */
   createInvalidation(invalidationItems: string[]): Promise<any>
 
+  associateWithFunction(functionARN: string): Promise<any>
+
+  createFunction(functionName: string, routes: string[]): Promise<any>
+
+  listFunctions(marker: string | null, functions: any[]): Promise<any>
+
+  publishFunction(functionName: string): Promise<any>
+
+  updateFunction(functionName: string, routes: string[]): Promise<any>
+
   /**
-   * Delete resources in the storage.
+   * Delete resources in the storage provider.
    * @param keys List of keys.
    */
   deleteResources(keys: string[]): Promise<any>
 
   /**
-   * Check if an object exists in the storage.
-   * @param fileName Name of file in the storage.
-   * @param directoryPath Directory of file in the storage.
+   * Check if an object exists in the storage provider.
+   * @param fileName Name of file in the storage provider.
+   * @param directoryPath Directory of file in the storage provider.
    * @returns {Promise<boolean>}
    */
   doesExist(fileName: string, directoryPath: string): Promise<boolean>
@@ -223,5 +265,5 @@ export interface StorageProviderInterface {
    * @param object Storage object to be added.
    * @param params Parameters of the add request.
    */
-  putObject(object: StorageObjectInterface, params?: PutObjectParams): Promise<any>
+  putObject(object: StorageObjectPutInterface, params?: PutObjectParams): Promise<any>
 }

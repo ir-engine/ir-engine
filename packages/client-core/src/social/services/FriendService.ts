@@ -1,20 +1,45 @@
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
 import i18n from 'i18next'
 import { useEffect } from 'react'
 
-import { Relationship } from '@xrengine/common/src/interfaces/Relationship'
-import { UserInterface } from '@xrengine/common/src/interfaces/User'
-import multiLogger from '@xrengine/common/src/logger'
-import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
-import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
+import { Relationship } from '@etherealengine/common/src/interfaces/Relationship'
+import { UserInterface } from '@etherealengine/common/src/interfaces/User'
+import multiLogger from '@etherealengine/common/src/logger'
+import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { defineAction, defineState, dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
 
-import { API } from '../../API'
 import { NotificationService } from '../../common/services/NotificationService'
-import { accessAuthState } from '../../user/services/AuthService'
+import { AuthState } from '../../user/services/AuthService'
 
 const logger = multiLogger.child({ component: 'client-core:FriendService' })
 
 //State
-const FriendState = defineState({
+export const FriendState = defineState({
   name: 'FriendState',
   initial: () => ({
     relationships: {
@@ -30,7 +55,7 @@ const FriendState = defineState({
 })
 
 export const FriendServiceReceptor = (action) => {
-  const s = getState(FriendState)
+  const s = getMutableState(FriendState)
   matches(action)
     .when(FriendAction.fetchingFriendsAction.matches, () => {
       return s.isFetching.set(true)
@@ -49,17 +74,13 @@ export const FriendServiceReceptor = (action) => {
     })
 }
 
-export const accessFriendState = () => getState(FriendState)
-
-export const useFriendState = () => useState(accessFriendState())
-
 //Service
 export const FriendService = {
   getUserRelationship: async (userId: string) => {
     try {
       dispatchAction(FriendAction.fetchingFriendsAction({}))
 
-      const relationships: Relationship = await API.instance.client.service('user-relationship').find({
+      const relationships: Relationship = await Engine.instance.api.service('user-relationship').find({
         query: {
           userId
         }
@@ -74,7 +95,7 @@ export const FriendService = {
   },
   acceptFriend: async (userId: string, relatedUserId: string) => {
     try {
-      await API.instance.client.service('user-relationship').patch(relatedUserId, {
+      await Engine.instance.api.service('user-relationship').patch(relatedUserId, {
         userRelationshipType: 'friend'
       })
 
@@ -98,54 +119,38 @@ export const FriendService = {
   useAPIListeners: () => {
     useEffect(() => {
       const userRelationshipCreatedListener = (params) => {
-        const userRelationship = params.userRelationship
-        const selfUser = accessAuthState().user
+        const selfUser = getState(AuthState).user
+        if (params.userRelationshipType === 'requested' && selfUser.id === params.relatedUserId)
+          NotificationService.dispatchNotify(`${params.user.name} ${i18n.t('user:friends.requestReceived')}`, {
+            variant: 'success'
+          })
 
-        if (
-          userRelationship.userRelationshipType === 'requested' &&
-          selfUser.id.value === userRelationship.relatedUserId
-        ) {
-          NotificationService.dispatchNotify(
-            `${userRelationship.user.name} ${i18n.t('user:friends.requestReceived')}`,
-            {
-              variant: 'success'
-            }
-          )
-        }
-
-        FriendService.getUserRelationship(selfUser.id.value)
+        FriendService.getUserRelationship(selfUser.id)
       }
       const userRelationshipPatchedListener = (params) => {
-        const userRelationship = params.userRelationship
-        const selfUser = accessAuthState().user
+        const selfUser = getState(AuthState).user
 
-        if (
-          userRelationship.userRelationshipType === 'friend' &&
-          selfUser.id.value === userRelationship.relatedUserId
-        ) {
-          NotificationService.dispatchNotify(
-            `${userRelationship.user.name} ${i18n.t('user:friends.requestAccepted')}`,
-            {
-              variant: 'success'
-            }
-          )
+        if (params.userRelationshipType === 'friend' && selfUser.id === params.relatedUserId) {
+          NotificationService.dispatchNotify(`${params.user.name} ${i18n.t('user:friends.requestAccepted')}`, {
+            variant: 'success'
+          })
         }
 
-        FriendService.getUserRelationship(selfUser.id.value)
+        FriendService.getUserRelationship(selfUser.id)
       }
       const userRelationshipRemovedListener = () => {
-        const selfUser = accessAuthState().user
-        FriendService.getUserRelationship(selfUser.id.value)
+        const selfUser = getState(AuthState).user
+        FriendService.getUserRelationship(selfUser.id)
       }
 
-      API.instance.client.service('user-relationship').on('created', userRelationshipCreatedListener)
-      API.instance.client.service('user-relationship').on('patched', userRelationshipPatchedListener)
-      API.instance.client.service('user-relationship').on('removed', userRelationshipRemovedListener)
+      Engine.instance.api.service('user-relationship').on('created', userRelationshipCreatedListener)
+      Engine.instance.api.service('user-relationship').on('patched', userRelationshipPatchedListener)
+      Engine.instance.api.service('user-relationship').on('removed', userRelationshipRemovedListener)
 
       return () => {
-        API.instance.client.service('user-relationship').off('created', userRelationshipCreatedListener)
-        API.instance.client.service('user-relationship').off('patched', userRelationshipPatchedListener)
-        API.instance.client.service('user-relationship').off('removed', userRelationshipRemovedListener)
+        Engine.instance.api.service('user-relationship').off('created', userRelationshipCreatedListener)
+        Engine.instance.api.service('user-relationship').off('patched', userRelationshipPatchedListener)
+        Engine.instance.api.service('user-relationship').off('removed', userRelationshipRemovedListener)
       }
     }, [])
   }
@@ -153,7 +158,7 @@ export const FriendService = {
 
 async function createRelation(userId: string, relatedUserId: string, type: 'requested' | 'blocking') {
   try {
-    await API.instance.client.service('user-relationship').create({
+    await Engine.instance.api.service('user-relationship').create({
       relatedUserId,
       userRelationshipType: type
     })
@@ -166,7 +171,7 @@ async function createRelation(userId: string, relatedUserId: string, type: 'requ
 
 async function removeRelation(userId: string, relatedUserId: string) {
   try {
-    await API.instance.client.service('user-relationship').remove(relatedUserId)
+    await Engine.instance.api.service('user-relationship').remove(relatedUserId)
 
     FriendService.getUserRelationship(userId)
   } catch (err) {
@@ -177,11 +182,11 @@ async function removeRelation(userId: string, relatedUserId: string) {
 //Action
 export class FriendAction {
   static fetchingFriendsAction = defineAction({
-    type: 'xre.client.Friend.FETCHING_FRIENDS' as const
+    type: 'ee.client.Friend.FETCHING_FRIENDS' as const
   })
 
   static loadedFriendsAction = defineAction({
-    type: 'xre.client.Friend.LOADED_FRIENDS' as const,
+    type: 'ee.client.Friend.LOADED_FRIENDS' as const,
     relationships: matches.object as Validator<unknown, Relationship>
   })
 }

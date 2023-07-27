@@ -1,92 +1,134 @@
-import React, { useLayoutEffect, useRef, useState } from 'react'
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
+import React, { useLayoutEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import Button from '@xrengine/client-core/src/common/components/Button'
-import InputCheck from '@xrengine/client-core/src/common/components/InputCheck'
-import InputSelect, { InputMenuItem } from '@xrengine/client-core/src/common/components/InputSelect'
-import InputSlider from '@xrengine/client-core/src/common/components/InputSlider'
-import InputSwitch from '@xrengine/client-core/src/common/components/InputSwitch'
-import Menu from '@xrengine/client-core/src/common/components/Menu'
-import Tabs from '@xrengine/client-core/src/common/components/Tabs'
-import Text from '@xrengine/client-core/src/common/components/Text'
-import { AuthService, useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
-import { defaultThemeModes, defaultThemeSettings } from '@xrengine/common/src/constants/DefaultThemeSettings'
-import capitalizeFirstLetter from '@xrengine/common/src/utils/capitalizeFirstLetter'
-import { AudioSettingAction, useAudioState } from '@xrengine/engine/src/audio/AudioState'
+import InputCheck from '@etherealengine/client-core/src/common/components/InputCheck'
+import InputSelect, { InputMenuItem } from '@etherealengine/client-core/src/common/components/InputSelect'
+import InputSlider from '@etherealengine/client-core/src/common/components/InputSlider'
+import Menu from '@etherealengine/client-core/src/common/components/Menu'
+import Tabs from '@etherealengine/client-core/src/common/components/Tabs'
+import Text from '@etherealengine/client-core/src/common/components/Text'
+import { AuthService, AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
+import { defaultThemeModes, defaultThemeSettings } from '@etherealengine/common/src/constants/DefaultThemeSettings'
+import capitalizeFirstLetter from '@etherealengine/common/src/utils/capitalizeFirstLetter'
+import InputGroup from '@etherealengine/editor/src/components/inputs/InputGroup'
+import SelectInput from '@etherealengine/editor/src/components/inputs/SelectInput'
+import { AudioSettingAction, AudioState } from '@etherealengine/engine/src/audio/AudioState'
 import {
   AvatarAxesControlScheme,
   AvatarInputSettingsAction,
   AvatarInputSettingsState
-} from '@xrengine/engine/src/avatar/state/AvatarInputSettingsState'
-import { isMobile } from '@xrengine/engine/src/common/functions/isMobile'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { RendererState } from '@xrengine/engine/src/renderer/RendererState'
-import { getPostProcessingSceneMetadataState } from '@xrengine/engine/src/renderer/WebGLRendererSystem'
-import { XRState } from '@xrengine/engine/src/xr/XRState'
-import { dispatchAction, getState, useHookstate } from '@xrengine/hyperflux'
+} from '@etherealengine/engine/src/avatar/state/AvatarInputSettingsState'
+import { isMobile } from '@etherealengine/engine/src/common/functions/isMobile'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
+import { RendererState } from '@etherealengine/engine/src/renderer/RendererState'
+import { XRState } from '@etherealengine/engine/src/xr/XRState'
+import { dispatchAction, getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import Box from '@etherealengine/ui/src/primitives/mui/Box'
+import Grid from '@etherealengine/ui/src/primitives/mui/Grid'
+import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 
-import { BlurLinear, Mic, MicOff, VolumeOff, VolumeUp } from '@mui/icons-material'
-import SurroundSoundIcon from '@mui/icons-material/SurroundSound'
-import Box from '@mui/material/Box'
-import Collapse from '@mui/material/Collapse'
-import Grid from '@mui/material/Grid'
-
-import { useClientSettingState } from '../../../../admin/services/Setting/ClientSettingService'
+import { AdminClientSettingsState } from '../../../../admin/services/Setting/ClientSettingService'
 import { userHasAccess } from '../../../userHasAccess'
+import { UserMenus } from '../../../UserUISystem'
 import styles from '../index.module.scss'
-import { Views } from '../util'
+import { PopupMenuServices } from '../PopupMenuService'
+
+export const ShadowMapResolutionOptions = [
+  {
+    label: '256px',
+    value: 256
+  },
+  {
+    label: '512px',
+    value: 512
+  },
+  {
+    label: '1024px',
+    value: 1024
+  },
+  {
+    label: '2048px',
+    value: 2048
+  },
+  {
+    label: '4096px (not recommended)',
+    value: 4096
+  }
+]
 
 const chromeDesktop = !isMobile && /chrome/i.test(navigator.userAgent)
 
-interface Props {
+type Props = {
   isPopover?: boolean
-  changeActiveMenu?: (type: string | null) => void
 }
 
-const SettingMenu = ({ changeActiveMenu, isPopover }: Props): JSX.Element => {
+const SettingMenu = ({ isPopover }: Props): JSX.Element => {
   const { t } = useTranslation()
-  const rendererState = useHookstate(getState(RendererState))
-  const audioState = useAudioState()
-  const avatarInputState = useHookstate(getState(AvatarInputSettingsState))
-  const selfUser = useAuthState().user
+  const rendererState = useHookstate(getMutableState(RendererState))
+  const audioState = useHookstate(getMutableState(AudioState))
+  const avatarInputState = useHookstate(getMutableState(AvatarInputSettingsState))
+  const selfUser = useHookstate(getMutableState(AuthState).user)
   const leftAxesControlScheme = avatarInputState.leftAxesControlScheme.value
   const rightAxesControlScheme = avatarInputState.rightAxesControlScheme.value
   const preferredHand = avatarInputState.preferredHand.value
   const invertRotationAndMoveSticks = avatarInputState.invertRotationAndMoveSticks.value
   const firstRender = useRef(true)
-  const xrSupportedModes = useHookstate(getState(XRState).supportedSessionModes)
+  const xrSupportedModes = useHookstate(getMutableState(XRState).supportedSessionModes)
   const xrSupported = xrSupportedModes['immersive-ar'].value || xrSupportedModes['immersive-vr'].value
   const windowsPerformanceHelp = navigator.platform?.startsWith('Win')
   const controlSchemes = Object.entries(AvatarAxesControlScheme)
   const handOptions = ['left', 'right']
-  const [openOtherAudioSettings, setOpenOtherAudioSettings] = useState(false)
-  const [selectedTab, setSelectedTab] = React.useState('general')
-  const postprocessingSettings = useHookstate(getPostProcessingSceneMetadataState(Engine.instance.currentWorld).enabled)
+  const selectedTab = useHookstate('general')
+  const engineState = useHookstate(getMutableState(EngineState))
 
-  const clientSettingState = useClientSettingState()
+  const clientSettingState = useHookstate(getMutableState(AdminClientSettingsState))
   const [clientSetting] = clientSettingState?.client?.value || []
   const userSettings = selfUser.user_setting.value
-
-  const world = Engine.instance.currentWorld
 
   const hasAdminAccess =
     selfUser?.id?.value?.length > 0 && selfUser?.scopes?.value?.find((scope) => scope.type === 'admin:admin')
   const hasEditorAccess = userHasAccess('editor:write')
-  const themeModes = { ...defaultThemeModes, ...userSettings?.themeModes }
   const themeSettings = { ...defaultThemeSettings, ...clientSetting.themeSettings }
+  const themeModes = {
+    client: userSettings?.themeModes?.client ?? defaultThemeModes.client,
+    studio: userSettings?.themeModes?.studio ?? defaultThemeModes.studio,
+    admin: userSettings?.themeModes?.admin ?? defaultThemeModes.admin
+  }
 
-  const showWorldSettings = world.localClientEntity || Engine.instance.isEditor
+  const showWorldSettings = Engine.instance.localClientEntity || engineState.value
 
-  /**
-   * Note: If you're editing this function, be sure to make the same changes to
-   * the XRUI version over at packages/client-core/src/systems/ui/ProfileDetailView/index.tsx
-   * @param event
-   */
   const handleChangeUserThemeMode = (event) => {
+    if (!userSettings) return
     const { name, value } = event.target
 
-    const settings = { ...userSettings, themeModes: { ...themeModes, [name]: value } }
-    userSettings && AuthService.updateUserSettings(userSettings.id as string, settings)
+    const settings = { themeModes: { ...themeModes, [name]: value } }
+    AuthService.updateUserSettings(userSettings.id as string, settings)
   }
 
   const handleChangeInvertRotationAndMoveSticks = () => {
@@ -106,7 +148,7 @@ const SettingMenu = ({ changeActiveMenu, isPopover }: Props): JSX.Element => {
   }, [avatarInputState.invertRotationAndMoveSticks])
 
   const handleTabChange = (newValue: string) => {
-    setSelectedTab(newValue)
+    selectedTab.set(newValue)
   }
 
   const settingTabs = [{ value: 'general', label: t('user:usermenu.setting.general') }]
@@ -120,7 +162,7 @@ const SettingMenu = ({ changeActiveMenu, isPopover }: Props): JSX.Element => {
   const accessibleThemeModes = Object.keys(themeModes).filter((mode) => {
     if (mode === 'admin' && !hasAdminAccess) {
       return false
-    } else if (mode === 'editor' && !hasEditorAccess) {
+    } else if (mode === 'studio' && !hasEditorAccess) {
       return false
     }
     return true
@@ -171,12 +213,12 @@ const SettingMenu = ({ changeActiveMenu, isPopover }: Props): JSX.Element => {
       open
       showBackButton
       isPopover={isPopover}
-      header={<Tabs value={selectedTab} items={settingTabs} onChange={handleTabChange} />}
-      onBack={() => changeActiveMenu && changeActiveMenu(Views.Profile)}
-      onClose={() => changeActiveMenu && changeActiveMenu(Views.Closed)}
+      header={<Tabs value={selectedTab.value} items={settingTabs} onChange={handleTabChange} />}
+      onBack={() => PopupMenuServices.showPopupMenu(UserMenus.Profile)}
+      onClose={() => PopupMenuServices.showPopupMenu()}
     >
       <Box className={styles.menuContent}>
-        {selectedTab === 'general' && selfUser && (
+        {selectedTab.value === 'general' && selfUser && (
           <>
             <Text align="center" variant="body1" mb={2} mt={1}>
               {t('user:usermenu.setting.themes')}
@@ -316,7 +358,7 @@ const SettingMenu = ({ changeActiveMenu, isPopover }: Props): JSX.Element => {
           </>
         )}
 
-        {selectedTab === 'audio' && (
+        {selectedTab.value === 'audio' && (
           <>
             {chromeDesktop && (
               <Text align="center" variant="caption" mb={2.5}>
@@ -330,7 +372,7 @@ const SettingMenu = ({ changeActiveMenu, isPopover }: Props): JSX.Element => {
 
             <InputCheck
               type="wide"
-              icon={<SurroundSoundIcon />}
+              icon={<Icon type="SurroundSound" />}
               label={t('user:usermenu.setting.use-positional-media')}
               checked={audioState.positionalMedia.value}
               onChange={(value: boolean) => {
@@ -339,7 +381,7 @@ const SettingMenu = ({ changeActiveMenu, isPopover }: Props): JSX.Element => {
             />
 
             <InputSlider
-              icon={audioState.masterVolume.value == 0 ? <VolumeOff /> : <VolumeUp />}
+              icon={<Icon type={audioState.masterVolume.value == 0 ? 'VolumeOff' : 'VolumeUp'} />}
               label={t('user:usermenu.setting.lbl-volume')}
               max={1}
               min={0}
@@ -351,7 +393,7 @@ const SettingMenu = ({ changeActiveMenu, isPopover }: Props): JSX.Element => {
             />
 
             <InputSlider
-              icon={audioState.microphoneGain.value == 0 ? <MicOff /> : <Mic />}
+              icon={<Icon type={audioState.microphoneGain.value == 0 ? 'MicOff' : 'Mic'} />}
               label={t('user:usermenu.setting.lbl-microphone')}
               max={1}
               min={0}
@@ -375,7 +417,7 @@ const SettingMenu = ({ changeActiveMenu, isPopover }: Props): JSX.Element => {
               <> */}
 
             <InputSlider
-              icon={audioState.mediaStreamVolume.value == 0 ? <VolumeOff /> : <VolumeUp />}
+              icon={<Icon type={audioState.mediaStreamVolume.value == 0 ? 'VolumeOff' : 'VolumeUp'} />}
               label={t('user:usermenu.setting.lbl-media-instance')}
               max={1}
               min={0}
@@ -387,7 +429,7 @@ const SettingMenu = ({ changeActiveMenu, isPopover }: Props): JSX.Element => {
             />
 
             <InputSlider
-              icon={audioState.notificationVolume.value == 0 ? <VolumeOff /> : <VolumeUp />}
+              icon={<Icon type={audioState.notificationVolume.value == 0 ? 'VolumeOff' : 'VolumeUp'} />}
               label={t('user:usermenu.setting.lbl-notification')}
               max={1}
               min={0}
@@ -399,7 +441,7 @@ const SettingMenu = ({ changeActiveMenu, isPopover }: Props): JSX.Element => {
             />
 
             <InputSlider
-              icon={audioState.soundEffectsVolume.value == 0 ? <VolumeOff /> : <VolumeUp />}
+              icon={<Icon type={audioState.soundEffectsVolume.value == 0 ? 'VolumeOff' : 'VolumeUp'} />}
               label={t('user:usermenu.setting.lbl-sound-effect')}
               max={1}
               min={0}
@@ -411,7 +453,7 @@ const SettingMenu = ({ changeActiveMenu, isPopover }: Props): JSX.Element => {
             />
 
             <InputSlider
-              icon={audioState.backgroundMusicVolume.value == 0 ? <VolumeOff /> : <VolumeUp />}
+              icon={<Icon type={audioState.backgroundMusicVolume.value == 0 ? 'VolumeOff' : 'VolumeUp'} />}
               label={t('user:usermenu.setting.lbl-background-music-volume')}
               max={1}
               min={0}
@@ -427,10 +469,10 @@ const SettingMenu = ({ changeActiveMenu, isPopover }: Props): JSX.Element => {
         )}
 
         {/* Graphics Settings */}
-        {selectedTab === 'graphics' && (
+        {selectedTab.value === 'graphics' && (
           <>
             <InputSlider
-              icon={<BlurLinear sx={{ ml: '-3px' }} />}
+              icon={<Icon type="BlurLinear" sx={{ ml: '-3px' }} />}
               label={t('user:usermenu.setting.lbl-resolution')}
               max={5}
               min={1}
@@ -440,12 +482,22 @@ const SettingMenu = ({ changeActiveMenu, isPopover }: Props): JSX.Element => {
               onChange={handleQualityLevelChange}
             />
 
+            <InputGroup
+              name="Shadow Map Resolution"
+              label={t('editor:properties.directionalLight.lbl-shadowmapResolution')}
+            >
+              <SelectInput
+                options={ShadowMapResolutionOptions}
+                value={rendererState.shadowMapResolution.value}
+                onChange={(resolution: number) => rendererState.shadowMapResolution.set(resolution)}
+              />
+            </InputGroup>
+
             <Grid container spacing={{ xs: 0, sm: 2 }}>
               <Grid item xs={12} sm={4}>
                 <InputCheck
                   label={t('user:usermenu.setting.lbl-pp')}
-                  checked={postprocessingSettings.value && rendererState.usePostProcessing.value}
-                  disabled={!postprocessingSettings.value}
+                  checked={rendererState.usePostProcessing.value}
                   onChange={handlePostProcessingCheckbox}
                 />
               </Grid>

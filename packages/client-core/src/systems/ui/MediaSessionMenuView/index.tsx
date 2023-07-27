@@ -1,50 +1,48 @@
-import { createState } from '@hookstate/core'
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { Channel } from '@xrengine/common/src/interfaces/Channel'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { createXRUI } from '@xrengine/engine/src/xrui/functions/createXRUI'
-import { WidgetAppService } from '@xrengine/engine/src/xrui/WidgetAppService'
-import { WidgetName } from '@xrengine/engine/src/xrui/Widgets'
+import { createXRUI } from '@etherealengine/engine/src/xrui/functions/createXRUI'
+import { WidgetAppService } from '@etherealengine/engine/src/xrui/WidgetAppService'
+import { WidgetName } from '@etherealengine/engine/src/xrui/Widgets'
+import { createState, getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 
+import { MediaStreamState } from '../../../transports/MediaStreams'
 import {
-  Chat,
-  Face,
-  FaceRetouchingOff,
-  Mic,
-  MicOff,
-  ScreenShare,
-  StopScreenShare,
-  Videocam,
-  VideocamOff
-} from '@mui/icons-material'
-
-import { MediaInstanceConnectionService } from '../../../common/services/MediaInstanceConnectionService'
-import { MediaStreamService, useMediaStreamState } from '../../../media/services/MediaStreamService'
-import {
-  startFaceTracking,
-  startLipsyncTracking,
-  stopFaceTracking,
-  stopLipsyncTracking
-} from '../../../media/webcam/WebcamInput'
-import { useChatState } from '../../../social/services/ChatService'
-import { MediaStreams } from '../../../transports/MediaStreams'
-import {
-  configureMediaTransports,
-  createCamAudioProducer,
-  createCamVideoProducer,
-  endVideoChat,
-  leaveNetwork,
-  pauseProducer,
-  resumeProducer,
-  startScreenshare,
-  stopScreenshare
+  toggleFaceTracking,
+  toggleMicrophonePaused,
+  toggleScreenshare,
+  toggleWebcamPaused
 } from '../../../transports/SocketWebRTCClientFunctions'
-import { SocketWebRTCClientNetwork } from '../../../transports/SocketWebRTCClientNetwork'
 import XRTextButton from '../../components/XRTextButton'
 import styleString from './index.scss?inline'
 
+/** @deprecated */
 export function createMediaSessionMenuView() {
   return createXRUI(MediaSessionMenuView, createMediaSessionMenuState())
 }
@@ -52,124 +50,44 @@ export function createMediaSessionMenuView() {
 function createMediaSessionMenuState() {
   return createState({})
 }
-
+/** @deprecated */
 const MediaSessionMenuView = () => {
   const { t } = useTranslation()
-  const chatState = useChatState()
-  const mediastream = useMediaStreamState()
 
-  const isFaceTrackingEnabled = mediastream.isFaceTrackingEnabled
-  const isCamVideoEnabled = mediastream.isCamVideoEnabled
-  const isCamAudioEnabled = mediastream.isCamAudioEnabled
-  const isScreenVideoEnabled = mediastream.isScreenVideoEnabled
-
-  const channelState = chatState.channels
-  const channels = channelState.channels.value as Channel[]
-
-  const channelEntries = Object.values(channels).filter((channel) => !!channel) as any
-  const instanceChannel = channelEntries.find(
-    (entry) => entry.instanceId === Engine.instance.currentWorld.worldNetwork?.hostId
-  )
-
-  const checkEndVideoChat = async () => {
-    const mediaNetwork = Engine.instance.currentWorld.mediaNetwork as SocketWebRTCClientNetwork
-    if (
-      (MediaStreams.instance.audioPaused || MediaStreams.instance.camAudioProducer == null) &&
-      (MediaStreams.instance.videoPaused || MediaStreams.instance.camVideoProducer == null) &&
-      instanceChannel.channelType !== 'instance'
-    ) {
-      await endVideoChat(mediaNetwork, {})
-      if (!mediaNetwork.primus?.disconnect) {
-        await leaveNetwork(mediaNetwork, false)
-        await MediaInstanceConnectionService.provisionServer(instanceChannel.id)
-      }
-    }
-  }
-
-  const handleToggleAudio = async () => {
-    const mediaNetwork = Engine.instance.currentWorld.mediaNetwork as SocketWebRTCClientNetwork
-    if (await configureMediaTransports(mediaNetwork, ['audio'])) {
-      if (MediaStreams.instance.camAudioProducer == null) await createCamAudioProducer(mediaNetwork)
-      else {
-        const audioPaused = MediaStreams.instance.toggleAudioPaused()
-        if (audioPaused) await pauseProducer(mediaNetwork, MediaStreams.instance.camAudioProducer)
-        else await resumeProducer(mediaNetwork, MediaStreams.instance.camAudioProducer)
-        checkEndVideoChat()
-      }
-      MediaStreamService.updateCamAudioState()
-    }
-  }
-
-  const handleToggleFaceTracking = async () => {
-    if (isFaceTrackingEnabled.value) {
-      MediaStreams.instance.setFaceTracking(false)
-      stopFaceTracking()
-      stopLipsyncTracking()
-      MediaStreamService.updateFaceTrackingState()
-    } else {
-      const mediaNetwork = Engine.instance.currentWorld.mediaNetwork as SocketWebRTCClientNetwork
-      if (await configureMediaTransports(mediaNetwork, ['video', 'audio'])) {
-        MediaStreams.instance.setFaceTracking(true)
-        startFaceTracking()
-        startLipsyncTracking()
-        MediaStreamService.updateFaceTrackingState()
-      }
-    }
-  }
-
-  const handleToggleVideo = async () => {
-    const mediaNetwork = Engine.instance.currentWorld.mediaNetwork as SocketWebRTCClientNetwork
-    if (await configureMediaTransports(mediaNetwork, ['video'])) {
-      if (MediaStreams.instance.camVideoProducer == null) await createCamVideoProducer(mediaNetwork)
-      else {
-        const videoPaused = MediaStreams.instance.toggleVideoPaused()
-        if (videoPaused) await pauseProducer(mediaNetwork, MediaStreams.instance.camVideoProducer)
-        else await resumeProducer(mediaNetwork, MediaStreams.instance.camVideoProducer)
-        checkEndVideoChat()
-      }
-
-      MediaStreamService.updateCamVideoState()
-    }
-  }
-
-  const handleToggleScreenShare = async () => {
-    const mediaNetwork = Engine.instance.currentWorld.mediaNetwork as SocketWebRTCClientNetwork
-    if (!MediaStreams.instance.screenVideoProducer) await startScreenshare(mediaNetwork)
-    else await stopScreenshare(mediaNetwork)
-  }
+  const mediaStreamState = useHookstate(getMutableState(MediaStreamState))
+  const isMotionCaptureEnabled = mediaStreamState.faceTracking.value
+  const isCamVideoEnabled = mediaStreamState.camVideoProducer.value != null && !mediaStreamState.videoPaused.value
+  const isCamAudioEnabled = mediaStreamState.camAudioProducer.value != null && !mediaStreamState.audioPaused.value
+  const isScreenVideoEnabled =
+    mediaStreamState.screenVideoProducer.value != null && !mediaStreamState.screenShareVideoPaused.value
 
   const handleOpenChatMenuWidget = () => {
     WidgetAppService.setWidgetVisibility(WidgetName.CHAT, true)
   }
-
-  const MicIcon = isCamAudioEnabled.value ? Mic : MicOff
-  const VideocamIcon = isCamVideoEnabled.value ? Videocam : VideocamOff
-  const FaceTrackingIcon = isFaceTrackingEnabled.value ? Face : FaceRetouchingOff
-  const ScreenShareIcon = isScreenVideoEnabled.value ? ScreenShare : StopScreenShare
 
   return (
     <>
       <style>{styleString}</style>
       <div className="container" xr-layer="true">
         <h3 className="heading">{t('user:usermenu.mediaSession.containerHeading')}</h3>
-        <XRTextButton onClick={handleToggleAudio}>
-          <MicIcon />
+        <XRTextButton onClick={toggleMicrophonePaused}>
+          <Icon type={isCamAudioEnabled ? 'Mic' : 'MicOff'} />
           {t('user:usermenu.mediaSession.btn-audio')}
         </XRTextButton>
-        <XRTextButton onClick={handleToggleVideo}>
-          <VideocamIcon />
+        <XRTextButton onClick={toggleWebcamPaused}>
+          <Icon type={isCamVideoEnabled ? 'Videocam' : 'VideocamOff'} />
           {t('user:usermenu.mediaSession.btn-video')}
         </XRTextButton>
-        <XRTextButton onClick={handleToggleFaceTracking}>
-          <FaceTrackingIcon />
+        <XRTextButton onClick={toggleFaceTracking}>
+          <Icon type={isMotionCaptureEnabled ? 'Face' : 'FaceRetouchingOff'} />
           {t('user:usermenu.mediaSession.btn-faceTracking')}
         </XRTextButton>
-        <XRTextButton onClick={handleToggleScreenShare}>
-          <ScreenShareIcon />
+        <XRTextButton onClick={toggleScreenshare}>
+          <Icon type={isScreenVideoEnabled ? 'ScreenShare' : 'StopScreenShare'} />
           {t('user:usermenu.mediaSession.btn-screenShare')}
         </XRTextButton>
         <XRTextButton onClick={handleOpenChatMenuWidget}>
-          <Chat />
+          <Icon type="Chat" />
           {t('user:usermenu.mediaSession.btn-chat')}
         </XRTextButton>
       </div>

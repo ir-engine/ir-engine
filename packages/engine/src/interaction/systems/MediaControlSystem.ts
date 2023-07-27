@@ -1,9 +1,36 @@
-import { WebLayer3D } from '@xrfoundation/xrui'
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
+import { getState } from '@etherealengine/hyperflux'
+import { WebLayer3D } from '@etherealengine/xrui'
 
 import { Engine } from '../../ecs/classes/Engine'
+import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
-import { World } from '../../ecs/classes/World'
-import { defineQuery, getComponent, getOptionalComponent, removeQuery } from '../../ecs/functions/ComponentFunctions'
+import { defineQuery, getComponent, getOptionalComponent } from '../../ecs/functions/ComponentFunctions'
+import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { GroupComponent } from '../../scene/components/GroupComponent'
 import { MediaComponent } from '../../scene/components/MediaComponent'
 import { XRUIComponent } from '../../xrui/components/XRUIComponent'
@@ -13,19 +40,19 @@ import { addInteractableUI } from './InteractiveSystem'
 
 export const MediaFadeTransitions = new Map<Entity, ReturnType<typeof createTransitionState>>()
 
-const onUpdate = (world: World) => (entity: Entity, mediaControls: ReturnType<typeof createMediaControlsUI>) => {
+const onUpdate = (entity: Entity, mediaControls: ReturnType<typeof createMediaControlsUI>) => {
   const xrui = getComponent(mediaControls.entity, XRUIComponent)
   const transition = MediaFadeTransitions.get(entity)!
   const buttonLayer = xrui.rootLayer.querySelector('button')
   const group = getOptionalComponent(entity, GroupComponent)
-  const intersectObjects = group ? world.pointerScreenRaycaster.intersectObjects(group, true) : []
+  const intersectObjects = group ? Engine.instance.pointerScreenRaycaster.intersectObjects(group, true) : []
   if (intersectObjects.length) {
     transition.setState('IN')
   }
   if (!intersectObjects.length) {
     transition.setState('OUT')
   }
-  transition.update(world.deltaSeconds, (opacity) => {
+  transition.update(Engine.instance.deltaSeconds, (opacity) => {
     buttonLayer?.scale.setScalar(0.9 + 0.1 * opacity * opacity)
     xrui.rootLayer.traverseLayersPreOrder((layer: WebLayer3D) => {
       const mat = layer.contentMesh.material as THREE.MeshBasicMaterial
@@ -34,31 +61,25 @@ const onUpdate = (world: World) => (entity: Entity, mediaControls: ReturnType<ty
   })
 }
 
-export default async function MediaControlSystem(world: World) {
-  /** @todo, remove this when we have better system pipeline injection */
-  if (Engine.instance.isEditor) return { execute: () => {}, cleanup: async () => {} }
+const mediaQuery = defineQuery([MediaComponent])
 
-  const mediaQuery = defineQuery([MediaComponent])
+const execute = () => {
+  if (getState(EngineState).isEditor) return
 
-  const update = onUpdate(world)
-
-  const execute = () => {
-    for (const entity of mediaQuery.enter(world)) {
-      if (!getComponent(entity, MediaComponent).controls) continue
-      addInteractableUI(entity, createMediaControlsUI(entity), update)
-      const transition = createTransitionState(0.25)
-      transition.setState('OUT')
-      MediaFadeTransitions.set(entity, transition)
-    }
-
-    for (const entity of mediaQuery.exit(world)) {
-      if (MediaFadeTransitions.has(entity)) MediaFadeTransitions.delete(entity)
-    }
+  for (const entity of mediaQuery.enter()) {
+    if (!getComponent(entity, MediaComponent).controls) continue
+    addInteractableUI(entity, createMediaControlsUI(entity), onUpdate)
+    const transition = createTransitionState(0.25)
+    transition.setState('OUT')
+    MediaFadeTransitions.set(entity, transition)
   }
 
-  const cleanup = async () => {
-    removeQuery(world, mediaQuery)
+  for (const entity of mediaQuery.exit()) {
+    if (MediaFadeTransitions.has(entity)) MediaFadeTransitions.delete(entity)
   }
-
-  return { execute, cleanup }
 }
+
+export const MediaControlSystem = defineSystem({
+  uuid: 'ee.engine.MediaControlSystem',
+  execute
+})

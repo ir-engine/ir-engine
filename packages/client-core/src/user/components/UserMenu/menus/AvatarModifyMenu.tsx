@@ -1,16 +1,39 @@
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
 import React, { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import Avatar from '@xrengine/client-core/src/common/components/Avatar'
-import AvatarPreview from '@xrengine/client-core/src/common/components/AvatarPreview'
-import Button from '@xrengine/client-core/src/common/components/Button'
-import ConfirmDialog from '@xrengine/client-core/src/common/components/ConfirmDialog'
-import IconButton from '@xrengine/client-core/src/common/components/IconButton'
-import InputFile from '@xrengine/client-core/src/common/components/InputFile'
-import InputText from '@xrengine/client-core/src/common/components/InputText'
-import Menu from '@xrengine/client-core/src/common/components/Menu'
-import { isValidHttpUrl } from '@xrengine/client-core/src/common/utils'
-import { getCanvasBlob } from '@xrengine/client-core/src/common/utils'
+import Avatar from '@etherealengine/client-core/src/common/components/Avatar'
+import AvatarPreview from '@etherealengine/client-core/src/common/components/AvatarPreview'
+import Button from '@etherealengine/client-core/src/common/components/Button'
+import ConfirmDialog from '@etherealengine/client-core/src/common/components/ConfirmDialog'
+import InputFile from '@etherealengine/client-core/src/common/components/InputFile'
+import InputText from '@etherealengine/client-core/src/common/components/InputText'
+import Menu from '@etherealengine/client-core/src/common/components/Menu'
+import { getCanvasBlob, isValidHttpUrl } from '@etherealengine/client-core/src/common/utils'
 import {
   AVATAR_FILE_ALLOWED_EXTENSIONS,
   MAX_AVATAR_FILE_SIZE,
@@ -20,24 +43,22 @@ import {
   THUMBNAIL_FILE_ALLOWED_EXTENSIONS,
   THUMBNAIL_HEIGHT,
   THUMBNAIL_WIDTH
-} from '@xrengine/common/src/constants/AvatarConstants'
-import { AvatarInterface } from '@xrengine/common/src/interfaces/AvatarInterface'
-import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
-
-import CheckIcon from '@mui/icons-material/Check'
-import ClearIcon from '@mui/icons-material/Clear'
-import FileUploadIcon from '@mui/icons-material/FileUpload'
-import PortraitIcon from '@mui/icons-material/Portrait'
-import Box from '@mui/material/Box'
-import Grid from '@mui/material/Grid'
+} from '@etherealengine/common/src/constants/AvatarConstants'
+import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoader'
+import { AvatarType } from '@etherealengine/engine/src/schemas/user/avatar.schema'
+import Box from '@etherealengine/ui/src/primitives/mui/Box'
+import CircularProgress from '@etherealengine/ui/src/primitives/mui/CircularProgress'
+import Grid from '@etherealengine/ui/src/primitives/mui/Grid'
+import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
+import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
 
 import { AvatarService } from '../../../services/AvatarService'
+import { UserMenus } from '../../../UserUISystem'
 import styles from '../index.module.scss'
-import { Views } from '../util'
+import { PopupMenuServices } from '../PopupMenuService'
 
 interface Props {
-  changeActiveMenu: Function
-  selectedAvatar?: AvatarInterface
+  selectedAvatar?: AvatarType
 }
 
 const defaultState = {
@@ -53,12 +74,13 @@ const defaultState = {
   }
 }
 
-const AvatarModifyMenu = ({ selectedAvatar, changeActiveMenu }: Props) => {
+const AvatarModifyMenu = ({ selectedAvatar }: Props) => {
   const { t } = useTranslation()
   const [state, setState] = useState({ ...defaultState })
   const [avatarSrc, setAvatarSrc] = useState('')
   const [showConfirmThumbnail, setShowConfirmThumbnail] = useState(false)
   const [showConfirmChanges, setShowConfirmChanges] = useState(false)
+  const [isSaving, setIsSaving] = useState(false)
   const avatarRef = useRef<HTMLInputElement | null>(null)
   const thumbnailRef = useRef<HTMLInputElement | null>(null)
 
@@ -71,14 +93,13 @@ const AvatarModifyMenu = ({ selectedAvatar, changeActiveMenu }: Props) => {
 
   let hasPendingChanges = state.name && avatarSrc && thumbnailSrc ? true : false
   if (selectedAvatar) {
-    hasPendingChanges =
+    hasPendingChanges = !!(
       selectedAvatar.name !== state.name ||
       state.avatarFile ||
       state.thumbnailFile ||
       selectedAvatar.modelResource?.url !== state.avatarUrl ||
       selectedAvatar.thumbnailResource?.url !== state.thumbnailUrl
-        ? true
-        : false
+    )
   }
 
   useEffect(() => {
@@ -239,45 +260,53 @@ const AvatarModifyMenu = ({ selectedAvatar, changeActiveMenu }: Props) => {
   }
 
   const handleSave = async () => {
-    let avatarBlob: Blob | undefined = undefined
-    let thumbnailBlob: Blob | undefined = undefined
+    setIsSaving(true)
 
-    if (state.avatarFile) {
-      avatarBlob = state.avatarFile
-    } else if (state.avatarUrl) {
-      const avatarData = await fetch(state.avatarUrl)
-      avatarBlob = await avatarData.blob()
+    try {
+      let avatarFile: File | undefined = undefined
+      let thumbnailFile: File | undefined = undefined
+
+      if (state.avatarFile) {
+        avatarFile = state.avatarFile
+      } else if (state.avatarUrl) {
+        const avatarData = await fetch(state.avatarUrl)
+        avatarFile = new File([await avatarData.blob()], state.avatarUrl)
+      }
+
+      if (state.thumbnailFile) {
+        thumbnailFile = state.thumbnailFile
+      } else if (state.thumbnailUrl) {
+        const thumbnailData = await fetch(state.thumbnailUrl)
+        thumbnailFile = new File([await thumbnailData.blob()], state.thumbnailUrl)
+      }
+
+      if (selectedAvatar) {
+        await AvatarService.patchAvatar(
+          selectedAvatar,
+          state.name,
+          selectedAvatar.modelResource?.url !== state.avatarUrl ||
+            selectedAvatar.thumbnailResource?.url !== state.thumbnailUrl,
+          avatarFile,
+          thumbnailFile
+        )
+        PopupMenuServices.showPopupMenu(UserMenus.AvatarSelect)
+      } else if (avatarFile && thumbnailFile) {
+        await AvatarService.createAvatar(avatarFile, thumbnailFile, state.name, false)
+
+        PopupMenuServices.showPopupMenu()
+      }
+    } catch (err) {
+      console.error(err)
     }
 
-    if (state.thumbnailFile) {
-      thumbnailBlob = state.thumbnailFile
-    } else if (state.thumbnailUrl) {
-      const thumbnailData = await fetch(state.thumbnailUrl)
-      thumbnailBlob = await thumbnailData.blob()
-    }
-
-    if (selectedAvatar) {
-      await AvatarService.patchAvatar(
-        selectedAvatar,
-        state.name,
-        selectedAvatar.modelResource?.url !== state.avatarUrl ||
-          selectedAvatar.thumbnailResource?.url !== state.thumbnailUrl,
-        avatarBlob,
-        thumbnailBlob
-      )
-      changeActiveMenu(Views.AvatarSelect)
-    } else if (avatarBlob && thumbnailBlob) {
-      await AvatarService.createAvatar(avatarBlob, thumbnailBlob, state.name, false)
-
-      changeActiveMenu(Views.Closed)
-    }
+    setIsSaving(false)
   }
 
   const handleBack = () => {
     if (hasPendingChanges) {
       setShowConfirmChanges(true)
     } else {
-      changeActiveMenu(Views.AvatarSelect)
+      PopupMenuServices.showPopupMenu(UserMenus.AvatarSelect)
     }
   }
 
@@ -288,20 +317,22 @@ const AvatarModifyMenu = ({ selectedAvatar, changeActiveMenu }: Props) => {
       actions={
         <Box display="flex" width="100%">
           <Button
-            disabled={!hasPendingChanges || hasErrors}
-            startIcon={<CheckIcon />}
+            disabled={!hasPendingChanges || hasErrors || isSaving}
+            startIcon={
+              isSaving ? <CircularProgress size={24} sx={{ color: 'var(--textColor)' }} /> : <Icon type="Check" />
+            }
             size="medium"
             type="gradientRounded"
-            title={t('user:common.save')}
+            title={isSaving ? t('user:common.saving') : t('user:common.save')}
             onClick={handleSave}
           >
-            {t('user:common.save')}
+            {isSaving ? t('user:common.saving') : t('user:common.save')}
           </Button>
         </Box>
       }
       title={selectedAvatar ? t('user:avatar.titleEditAvatar') : t('user:avatar.createAvatar')}
       onBack={handleBack}
-      onClose={() => changeActiveMenu(Views.Closed)}
+      onClose={() => PopupMenuServices.showPopupMenu()}
     >
       <Box className={styles.menuContent}>
         <Grid container spacing={2}>
@@ -315,7 +346,12 @@ const AvatarModifyMenu = ({ selectedAvatar, changeActiveMenu }: Props) => {
           </Grid>
 
           <Grid item md={5} sx={{ width: '100%' }}>
-            <Button fullWidth type="gradientRounded" sx={{ mt: 1 }} onClick={() => changeActiveMenu(Views.ReadyPlayer)}>
+            <Button
+              fullWidth
+              type="gradientRounded"
+              sx={{ mt: 1 }}
+              onClick={() => PopupMenuServices.showPopupMenu(UserMenus.ReadyPlayer)}
+            >
               {t('user:usermenu.profile.useReadyPlayerMe')}
             </Button>
 
@@ -335,10 +371,10 @@ const AvatarModifyMenu = ({ selectedAvatar, changeActiveMenu }: Props) => {
               value={state.avatarUrl}
               error={state.formErrors.avatar}
               sx={{ mt: 2 }}
-              endIcon={state.avatarFile ? <ClearIcon /> : undefined}
+              endIcon={state.avatarFile ? <Icon type="Clear" /> : undefined}
               endControl={
                 <IconButton
-                  icon={<FileUploadIcon />}
+                  icon={<Icon type="FileUpload" />}
                   title={t('admin:components.avatar.selectAvatar')}
                   type="gradient"
                   sx={{ ml: 1 }}
@@ -366,10 +402,10 @@ const AvatarModifyMenu = ({ selectedAvatar, changeActiveMenu }: Props) => {
               value={state.thumbnailUrl}
               error={state.formErrors.thumbnail}
               sx={{ mt: 2, mb: 1 }}
-              endIcon={state.thumbnailFile ? <ClearIcon /> : undefined}
+              endIcon={state.thumbnailFile ? <Icon type="Clear" /> : undefined}
               endControl={
                 <IconButton
-                  icon={<FileUploadIcon />}
+                  icon={<Icon type="FileUpload" />}
                   title={t('admin:components.avatar.selectThumbnail')}
                   type="gradient"
                   sx={{ ml: 1 }}
@@ -395,7 +431,7 @@ const AvatarModifyMenu = ({ selectedAvatar, changeActiveMenu }: Props) => {
             <Button
               disabled={!state.avatarUrl}
               fullWidth
-              startIcon={<PortraitIcon />}
+              startIcon={<Icon type="Portrait" />}
               sx={{ mb: 0, mt: 0 }}
               type="gradientRounded"
               onClick={handleGenerateThumbnail}
@@ -418,7 +454,7 @@ const AvatarModifyMenu = ({ selectedAvatar, changeActiveMenu }: Props) => {
                 description={t('user:common.confirmDiscardChange')}
                 submitButtonText={t('user:common.discardChanges')}
                 onClose={() => setShowConfirmChanges(false)}
-                onSubmit={() => changeActiveMenu(Views.AvatarSelect)}
+                onSubmit={() => PopupMenuServices.showPopupMenu(UserMenus.AvatarSelect)}
               />
             )}
           </Grid>

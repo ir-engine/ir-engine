@@ -1,25 +1,50 @@
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
 import { clamp } from 'lodash'
-import { useEffect } from 'react'
 import { Vector2 } from 'three'
 
-import { getState, startReactor, useHookstate } from '@xrengine/hyperflux'
+import { getState } from '@etherealengine/hyperflux'
 
 import { AvatarControllerComponent } from '../../avatar/components/AvatarControllerComponent'
 import { switchCameraMode } from '../../avatar/functions/switchCameraMode'
+import { AvatarInputSettingsState } from '../../avatar/state/AvatarInputSettingsState'
+import { getThumbstickOrThumbpadAxes } from '../../avatar/systems/AvatarInputSystem'
 import { throttle } from '../../common/functions/FunctionHelpers'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
-import { World } from '../../ecs/classes/World'
 import {
-  addComponent,
   ComponentType,
   defineQuery,
   getComponent,
   getOptionalComponent,
-  removeQuery
+  setComponent
 } from '../../ecs/functions/ComponentFunctions'
+import { defineSystem } from '../../ecs/functions/SystemFunctions'
+import { InputSourceComponent } from '../../input/components/InputSourceComponent'
 import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
-import { getCameraMode } from '../../xr/XRState'
 import { CameraSettings } from '../CameraState'
 import { FollowCameraComponent } from '../components/FollowCameraComponent'
 import { TargetCameraRotationComponent } from '../components/TargetCameraRotationComponent'
@@ -30,7 +55,7 @@ export const setTargetCameraRotation = (entity: Entity, phi: number, theta: numb
     | ComponentType<typeof TargetCameraRotationComponent>
     | undefined
   if (!cameraRotationTransition) {
-    addComponent(entity, TargetCameraRotationComponent, {
+    setComponent(entity, TargetCameraRotationComponent, {
       phi: phi,
       phiVelocity: { value: 0 },
       theta: theta,
@@ -99,110 +124,126 @@ export const handleCameraZoom = (cameraEntity: Entity, value: number): void => {
   followComponent.zoomLevel = nextZoomLevel
 }
 
-export default async function CameraInputSystem(world: World) {
+const avatarControllerQuery = defineQuery([LocalInputTagComponent, AvatarControllerComponent])
+
+const onKeyV = () => {
+  for (const entity of avatarControllerQuery()) {
+    const avatarController = getComponent(entity, AvatarControllerComponent)
+    const cameraEntity = avatarController.cameraEntity
+    const followComponent = getOptionalComponent(cameraEntity, FollowCameraComponent)
+    if (followComponent)
+      switch (followComponent.mode) {
+        case CameraMode.FirstPerson:
+          switchCameraMode(entity, { cameraMode: CameraMode.ShoulderCam })
+          break
+        case CameraMode.ShoulderCam:
+          switchCameraMode(entity, { cameraMode: CameraMode.ThirdPerson })
+          followComponent.distance = followComponent.minDistance + 1
+          break
+        case CameraMode.ThirdPerson:
+          switchCameraMode(entity, { cameraMode: CameraMode.TopDown })
+          break
+        case CameraMode.TopDown:
+          switchCameraMode(entity, { cameraMode: CameraMode.FirstPerson })
+          break
+        default:
+          break
+      }
+  }
+}
+
+const onKeyF = () => {
+  for (const entity of avatarControllerQuery()) {
+    const avatarController = getComponent(entity, AvatarControllerComponent)
+    const cameraEntity = avatarController.cameraEntity
+    const followComponent = getOptionalComponent(cameraEntity, FollowCameraComponent)
+    if (followComponent && followComponent.mode !== CameraMode.FirstPerson) {
+      followComponent.locked = !followComponent.locked
+    }
+  }
+}
+
+const onKeyC = () => {
+  for (const entity of avatarControllerQuery()) {
+    const avatarController = getComponent(entity, AvatarControllerComponent)
+    const cameraEntity = avatarController.cameraEntity
+    const followComponent = getOptionalComponent(cameraEntity, FollowCameraComponent)
+    if (followComponent) followComponent.shoulderSide = !followComponent.shoulderSide
+  }
+}
+
+const lastLookDelta = new Vector2()
+let lastMouseMoved = false
+
+const throttleHandleCameraZoom = throttle(handleCameraZoom, 30, { leading: true, trailing: false })
+
+const execute = () => {
+  if (Engine.instance.xrFrame) return
+
+  const { localClientEntity, deltaSeconds } = Engine.instance
+  if (!localClientEntity) return
+
   const cameraSettings = getState(CameraSettings)
 
-  const inputQuery = defineQuery([LocalInputTagComponent, AvatarControllerComponent])
+  const avatarControllerEntities = avatarControllerQuery()
 
-  const onKeyV = () => {
-    for (const entity of inputQuery()) {
-      const avatarController = getComponent(entity, AvatarControllerComponent)
-      const cameraEntity = avatarController.cameraEntity
-      const followComponent = getOptionalComponent(cameraEntity, FollowCameraComponent)
-      if (followComponent)
-        switch (followComponent.mode) {
-          case CameraMode.FirstPerson:
-            switchCameraMode(entity, { cameraMode: CameraMode.ShoulderCam })
-            break
-          case CameraMode.ShoulderCam:
-            switchCameraMode(entity, { cameraMode: CameraMode.ThirdPerson })
-            followComponent.distance = followComponent.minDistance + 1
-            break
-          case CameraMode.ThirdPerson:
-            switchCameraMode(entity, { cameraMode: CameraMode.TopDown })
-            break
-          case CameraMode.TopDown:
-            switchCameraMode(entity, { cameraMode: CameraMode.FirstPerson })
-            break
-          default:
-            break
-        }
-    }
-  }
+  const nonCapturedInputSource = InputSourceComponent.nonCapturedInputSourceQuery()[0]
+  if (!nonCapturedInputSource) return
 
-  const onKeyF = () => {
-    for (const entity of inputQuery()) {
-      const avatarController = getComponent(entity, AvatarControllerComponent)
-      const cameraEntity = avatarController.cameraEntity
-      const followComponent = getOptionalComponent(cameraEntity, FollowCameraComponent)
-      if (followComponent && followComponent.mode !== CameraMode.FirstPerson) {
-        followComponent.locked = !followComponent.locked
-      }
-    }
-  }
+  const avatarInputSettings = getState(AvatarInputSettingsState)
 
-  const onKeyC = () => {
-    for (const entity of inputQuery()) {
-      const avatarController = getComponent(entity, AvatarControllerComponent)
-      const cameraEntity = avatarController.cameraEntity
-      const followComponent = getOptionalComponent(cameraEntity, FollowCameraComponent)
-      if (followComponent) followComponent.shoulderSide = !followComponent.shoulderSide
-    }
-  }
+  const inputSource = getComponent(nonCapturedInputSource, InputSourceComponent)
 
-  const lastLookDelta = new Vector2()
-  let lastMouseMoved = false
+  const keys = inputSource.buttons
 
-  const throttleHandleCameraZoom = throttle(handleCameraZoom, 30, { leading: true, trailing: false })
+  if (keys.KeyV?.down) onKeyV()
+  if (keys.KeyF?.down) onKeyF()
+  if (keys.KeyC?.down) onKeyC()
 
-  const execute = () => {
-    if (Engine.instance.xrFrame) return
+  const mouseMoved = Engine.instance.pointerState.movement.lengthSq() > 0 && keys.PrimaryClick?.pressed
 
-    const { localClientEntity, deltaSeconds } = world
-    if (!localClientEntity) return
+  for (const entity of avatarControllerEntities) {
+    const avatarController = getComponent(entity, AvatarControllerComponent)
+    const cameraEntity = avatarController.cameraEntity
+    const target =
+      getOptionalComponent(cameraEntity, TargetCameraRotationComponent) ??
+      getOptionalComponent(cameraEntity, FollowCameraComponent)
+    if (!target) continue
 
-    const keys = world.buttons
-    if (keys.KeyV?.down) onKeyV()
-    if (keys.KeyF?.down) onKeyF()
-    if (keys.KeyC?.down) onKeyC()
+    if (!lastMouseMoved && mouseMoved)
+      lastLookDelta.set(Engine.instance.pointerState.position.x, Engine.instance.pointerState.position.y)
 
-    const inputEntities = inputQuery()
-    const mouseMoved = world.pointerState.movement.lengthSq() > 0 && keys.PrimaryClick?.pressed
-
-    for (const entity of inputEntities) {
-      const avatarController = getComponent(entity, AvatarControllerComponent)
-      const cameraEntity = avatarController.cameraEntity
-      const target =
-        getOptionalComponent(cameraEntity, TargetCameraRotationComponent) ??
-        getOptionalComponent(cameraEntity, FollowCameraComponent)
-      if (!target) continue
-
-      if (!lastMouseMoved && mouseMoved) lastLookDelta.set(world.pointerState.position.x, world.pointerState.position.y)
-
-      const keyDelta = (keys.ArrowLeft ? 1 : 0) + (keys.ArrowRight ? -1 : 0)
-      target.theta += 100 * deltaSeconds * keyDelta
-      setTargetCameraRotation(cameraEntity, target.phi, target.theta)
-
-      if (mouseMoved) {
-        setTargetCameraRotation(
-          cameraEntity,
-          target.phi - (world.pointerState.position.y - lastLookDelta.y) * cameraSettings.cameraRotationSpeed.value,
-          target.theta - (world.pointerState.position.x - lastLookDelta.x) * cameraSettings.cameraRotationSpeed.value,
-          0.1
-        )
-      }
-
-      throttleHandleCameraZoom(cameraEntity, world.pointerState.scroll.y)
+    if (
+      (inputSource.source.gamepad?.mapping === 'standard' || inputSource.source.gamepad?.mapping === '') &&
+      inputSource.source.handedness === 'none'
+    ) {
+      const [x, z] = getThumbstickOrThumbpadAxes(inputSource.source, avatarInputSettings.preferredHand)
+      target.theta -= x * 2
+      target.phi += z * 2
     }
 
-    lastLookDelta.set(world.pointerState.position.x, world.pointerState.position.y)
+    const keyDelta = (keys.ArrowLeft ? 1 : 0) + (keys.ArrowRight ? -1 : 0)
+    target.theta += 100 * deltaSeconds * keyDelta
+    setTargetCameraRotation(cameraEntity, target.phi, target.theta)
 
-    lastMouseMoved = !!mouseMoved
+    if (mouseMoved) {
+      setTargetCameraRotation(
+        cameraEntity,
+        target.phi - (Engine.instance.pointerState.position.y - lastLookDelta.y) * cameraSettings.cameraRotationSpeed,
+        target.theta - (Engine.instance.pointerState.position.x - lastLookDelta.x) * cameraSettings.cameraRotationSpeed,
+        0.1
+      )
+    }
+
+    throttleHandleCameraZoom(cameraEntity, Engine.instance.pointerState.scroll.y)
   }
 
-  const cleanup = async () => {
-    removeQuery(world, inputQuery)
-  }
+  lastLookDelta.set(Engine.instance.pointerState.position.x, Engine.instance.pointerState.position.y)
 
-  return { execute, cleanup }
+  lastMouseMoved = !!mouseMoved
 }
+
+export const CameraInputSystem = defineSystem({
+  uuid: 'ee.engine.CameraInputSystem',
+  execute
+})

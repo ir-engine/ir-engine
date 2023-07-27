@@ -1,32 +1,52 @@
-import { World } from '@xrengine/engine/src/ecs/classes/World'
-import { removeComponent, setComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { VisibleComponent } from '@xrengine/engine/src/scene/components/VisibleComponent'
-import { ReferenceSpace, XRAction, XRState } from '@xrengine/engine/src/xr/XRState'
-import { XRUIInteractableComponent } from '@xrengine/engine/src/xrui/components/XRUIComponent'
-import { createXRUI } from '@xrengine/engine/src/xrui/functions/createXRUI'
-import { WidgetAppActions, WidgetAppState } from '@xrengine/engine/src/xrui/WidgetAppService'
-import { Widget, Widgets } from '@xrengine/engine/src/xrui/Widgets'
-import { createActionQueue, dispatchAction, getState, removeActionQueue } from '@xrengine/hyperflux'
+/*
+CPAL-1.0 License
 
-import AnchorIcon from '@mui/icons-material/Anchor'
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
+import { removeComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { VisibleComponent } from '@etherealengine/engine/src/scene/components/VisibleComponent'
+import { ReferenceSpace, XRAction, XRState } from '@etherealengine/engine/src/xr/XRState'
+import { createXRUI } from '@etherealengine/engine/src/xrui/functions/createXRUI'
+import { WidgetAppActions, WidgetAppState } from '@etherealengine/engine/src/xrui/WidgetAppService'
+import { Widget, Widgets } from '@etherealengine/engine/src/xrui/Widgets'
+import { defineActionQueue, dispatchAction, getMutableState, removeActionQueue } from '@etherealengine/hyperflux'
 
 import { AnchorWidgetUI } from './ui/AnchorWidgetUI'
 
-export function createAnchorWidget(world: World) {
+export function createAnchorWidget() {
   const ui = createXRUI(AnchorWidgetUI)
   removeComponent(ui.entity, VisibleComponent)
-  setComponent(ui.entity, XRUIInteractableComponent)
-  const xrState = getState(XRState)
-  // const avatarInputSettings = getState(AvatarInputSettingsState)
+  const xrState = getMutableState(XRState)
+  // const avatarInputSettings = getMutableState(AvatarInputSettingsState)
 
-  const widgetState = getState(WidgetAppState)
+  const widgetMutableState = getMutableState(WidgetAppState)
 
-  const xrSessionQueue = createActionQueue(XRAction.sessionChanged.matches)
+  const xrSessionQueue = defineActionQueue(XRAction.sessionChanged.matches)
 
   const widget: Widget = {
     ui,
     label: 'World Anchor',
-    icon: AnchorIcon,
+    icon: 'Anchor',
     onOpen: () => {
       const xrSession = xrState.session.value
       if (!xrSession || !ReferenceSpace.viewer) return
@@ -35,12 +55,12 @@ export function createAnchorWidget(world: World) {
     system: () => {
       for (const action of xrSessionQueue()) {
         const widgetEnabled = xrState.sessionMode.value === 'immersive-ar'
-        if (widgetState.widgets[id].enabled.value !== widgetEnabled)
+        if (widgetMutableState.widgets[id].enabled.value !== widgetEnabled)
           dispatchAction(WidgetAppActions.enableWidget({ id, enabled: widgetEnabled }))
       }
       if (!xrState.scenePlacementMode.value) return
       // const flipped = avatarInputSettings.preferredHand.value === 'left'
-      // const buttonInput = flipped ? world.buttons.ButtonX?.down : world.buttons.ButtonA?.down
+      // const buttonInput = flipped ? Engine.instance.buttons.ButtonX?.down : Engine.instance.buttons.ButtonA?.down
       // if (buttonInput) {
       //   createAnchor().then((anchor: XRAnchor) => {
       //     setComponent(entity, XRAnchorComponent, { anchor })
@@ -53,7 +73,7 @@ export function createAnchorWidget(world: World) {
     }
   }
 
-  const id = Widgets.registerWidget(world, ui.entity, widget)
+  const id = Widgets.registerWidget(ui.entity, widget)
   /** @todo better API to disable */
   dispatchAction(WidgetAppActions.enableWidget({ id, enabled: false }))
 }

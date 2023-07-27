@@ -1,38 +1,66 @@
-import React, { useEffect, useState } from 'react'
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
+import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import FilterListIcon from '@mui/icons-material/FilterList'
-import { Checkbox, FormControlLabel, Typography } from '@mui/material'
-import Box from '@mui/material/Box'
-import Button from '@mui/material/Button'
-import Grid from '@mui/material/Grid'
-import IconButton from '@mui/material/IconButton'
-import Popover from '@mui/material/Popover'
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import Box from '@etherealengine/ui/src/primitives/mui/Box'
+import Button from '@etherealengine/ui/src/primitives/mui/Button'
+import Checkbox from '@etherealengine/ui/src/primitives/mui/Checkbox'
+import FormControlLabel from '@etherealengine/ui/src/primitives/mui/FormControlLabel'
+import Grid from '@etherealengine/ui/src/primitives/mui/Grid'
+import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
+import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
+import Popover from '@etherealengine/ui/src/primitives/mui/Popover'
+import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 
 import Search from '../../common/Search'
-import { ResourceService, useAdminResourceState } from '../../services/ResourceService'
+import { AdminResourceState, ResourceService } from '../../services/ResourceService'
 import styles from '../../styles/admin.module.scss'
 import ResourceDrawer, { ResourceDrawerMode } from './ResourceDrawer'
 import ResourceTable from './ResourceTable'
 
 const Resources = () => {
   const { t } = useTranslation()
-  const [search, setSearch] = useState('')
-  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null)
-  const [openResourceDrawer, setOpenResourceDrawer] = useState(false)
+  const search = useHookstate('')
+  const anchorEl = useHookstate<null | HTMLElement>(null)
+  const openResourceDrawer = useHookstate(false)
   const openMenu = Boolean(anchorEl)
-  const adminResourceState = useAdminResourceState()
+  const adminResourceState = useHookstate(getMutableState(AdminResourceState))
 
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
-    setAnchorEl(event.currentTarget)
+    anchorEl.set(event.currentTarget)
   }
 
   const handleClose = () => {
-    setAnchorEl(null)
+    anchorEl.set(null)
   }
 
   const handleChange = (e: any) => {
-    setSearch(e.target.value)
+    search.set(e.target.value)
   }
 
   const resetFilter = () => {
@@ -55,7 +83,7 @@ const Resources = () => {
               className={styles.openModalBtn}
               type="submit"
               variant="contained"
-              onClick={() => setOpenResourceDrawer(true)}
+              onClick={() => openResourceDrawer.set(true)}
             >
               {t('user:resource.createResource')}
             </Button>
@@ -67,46 +95,41 @@ const Resources = () => {
               aria-controls={openMenu ? 'resources-menu' : undefined}
               aria-haspopup="true"
               aria-expanded={openMenu ? 'true' : undefined}
-            >
-              <FilterListIcon color="info" fontSize="large" />
-            </IconButton>
+              icon={<Icon type="FilterList" color="info" fontSize="large" />}
+            />
           </Box>
         </Grid>
       </Grid>
 
-      <ResourceTable className={styles.rootTableWithSearch} search={search} />
+      <ResourceTable className={styles.rootTableWithSearch} search={search.value} />
 
-      {openResourceDrawer && (
-        <ResourceDrawer open mode={ResourceDrawerMode.Create} onClose={() => setOpenResourceDrawer(false)} />
+      {openResourceDrawer.value && (
+        <ResourceDrawer open mode={ResourceDrawerMode.Create} onClose={() => openResourceDrawer.set(false)} />
       )}
 
-      <Popover
-        classes={{ paper: styles.popover }}
-        open={openMenu}
-        anchorEl={anchorEl}
-        onClose={handleClose}
-        anchorOrigin={{
-          vertical: 'bottom',
-          horizontal: 'right'
-        }}
-        transformOrigin={{ horizontal: 'right', vertical: 'top' }}
-      >
-        <CheckBoxList
-          title={t('admin:components.resources.mimeType')}
-          items={adminResourceState.filters.value?.mimeTypes}
-          selected={adminResourceState.selectedMimeTypes.value}
-          setSelected={ResourceService.setSelectedMimeTypes}
-        />
-        <CheckBoxList
-          title={t('admin:components.resources.resourceType')}
-          items={adminResourceState.filters.value?.staticResourceTypes}
-          selected={adminResourceState.selectedResourceTypes.value}
-          setSelected={ResourceService.setSelectedResourceTypes}
-        />
-        <Button className={styles.gradientButton} sx={{ width: '100%' }} onClick={resetFilter}>
-          {t('admin:components.common.reset')}
-        </Button>
-      </Popover>
+      {anchorEl.value && (
+        <Popover
+          classes={{ paper: styles.popover }}
+          open={openMenu}
+          anchorEl={anchorEl.value}
+          onClose={handleClose}
+          anchorOrigin={{
+            vertical: 'bottom',
+            horizontal: 'right'
+          }}
+          transformOrigin={{ horizontal: 'right', vertical: 'top' }}
+        >
+          <CheckBoxList
+            title={t('admin:components.resources.mimeType')}
+            items={adminResourceState.filters.value?.mimeTypes}
+            selected={adminResourceState.selectedMimeTypes.value}
+            setSelected={ResourceService.setSelectedMimeTypes}
+          />
+          <Button className={styles.gradientButton} sx={{ width: '100%' }} onClick={resetFilter}>
+            {t('admin:components.common.reset')}
+          </Button>
+        </Popover>
+      )}
     </div>
   )
 }
@@ -141,7 +164,7 @@ const CheckBoxList = ({ title, items, selected, setSelected }) => {
                     className={styles.checkbox}
                     classes={{ checked: styles.checkedCheckbox }}
                     color="primary"
-                    checked={selected.includes(item) ? true : false}
+                    checked={!!selected.includes(item)}
                   />
                 }
                 label={item ?? t('admin:components.common.none')}

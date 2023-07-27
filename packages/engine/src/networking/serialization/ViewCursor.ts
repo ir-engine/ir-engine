@@ -1,6 +1,30 @@
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
 import { TypedArray } from 'bitecs'
 
-import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
 
@@ -44,13 +68,20 @@ export const writeProp = (v: ViewCursor, prop: TypedArray, entity: Entity) => {
   return v
 }
 
-export const writePropIfChanged = (v: ViewCursor, prop: TypedArray, entity: Entity) => {
+/**
+ * Writes property to view cursor if it has changed
+ * @param v - view cursor
+ * @param prop - property to write
+ * @param entity - entity to write property for
+ * @param ignoredChanged - if true, will write prop even if it hasn't changed
+ * @returns true if property was written, false otherwise
+ */
+export const writePropIfChanged = (v: ViewCursor, prop: TypedArray, entity: Entity, ignoredChanged: boolean) => {
   const { shadowMap } = v
 
   const shadow = shadowMap.get(prop)! || (shadowMap.set(prop, prop.slice().fill(0)) && shadowMap.get(prop))!
 
-  // TODO: we should be handling the fixedDelta check more explicitly, passing down through all the functions
-  const changed = shadow[entity] !== prop[entity] || Engine.instance.currentWorld.fixedTick % 60 === 0
+  const changed = shadow[entity] !== prop[entity] || ignoredChanged
 
   shadow[entity] = prop[entity]
 

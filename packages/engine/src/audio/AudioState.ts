@@ -1,7 +1,38 @@
-import { matches } from '@xrengine/engine/src/common/functions/MatchesUtils'
-import { defineAction, defineState, getState, syncStateWithLocalStorage, useState } from '@xrengine/hyperflux'
+/*
+CPAL-1.0 License
 
-import { Engine } from '../ecs/classes/Engine'
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
+import { matches } from '@etherealengine/engine/src/common/functions/MatchesUtils'
+import {
+  defineAction,
+  defineState,
+  getMutableState,
+  getState,
+  syncStateWithLocalStorage
+} from '@etherealengine/hyperflux'
+
+import { MediaSettingsState } from '../networking/MediaSettingsState'
 
 /**
  * All values ranged from 0 to 1
@@ -9,14 +40,22 @@ import { Engine } from '../ecs/classes/Engine'
 export const AudioState = defineState({
   name: 'AudioState',
   initial: () => ({
+    audioContext: null! as AudioContext,
+    cameraGainNode: null! as GainNode,
+    gainNodeMixBuses: {
+      mediaStreams: null! as GainNode,
+      notifications: null! as GainNode,
+      music: null! as GainNode,
+      soundEffects: null! as GainNode
+    },
     masterVolume: 0.5,
     microphoneGain: 0.5,
     positionalMedia: false,
     usePositionalMedia: 'auto' as 'auto' | 'off' | 'on',
-    mediaStreamVolume: 0.5,
-    notificationVolume: 0.5,
-    soundEffectsVolume: 0.2,
-    backgroundMusicVolume: 0.2
+    mediaStreamVolume: 1,
+    notificationVolume: 1,
+    soundEffectsVolume: 1,
+    backgroundMusicVolume: 0.5
   }),
   onCreate: () => {
     syncStateWithLocalStorage(AudioState, [
@@ -28,56 +67,42 @@ export const AudioState = defineState({
       'soundEffectsVolume',
       'backgroundMusicVolume'
     ])
+    //FIXME do this more gracefully than a hard setTimeout
+    setTimeout(() => {
+      getMutableState(MediaSettingsState).immersiveMedia.set(getState(AudioState).positionalMedia)
+    }, 1000)
   }
 })
 
-export const accessAudioState = () => getState(AudioState)
-export const useAudioState = () => useState(accessAudioState())
-
 export function AudioSettingReceptor(action) {
-  const s = getState(AudioState)
+  const s = getMutableState(AudioState)
   matches(action)
     .when(AudioSettingAction.setMasterVolume.matches, (action) => {
       s.masterVolume.set(action.value)
-      Engine.instance.cameraGainNode.gain.setTargetAtTime(action.value, Engine.instance.audioContext.currentTime, 0.01)
+      s.cameraGainNode.value.gain.setTargetAtTime(action.value, s.audioContext.value.currentTime, 0.01)
     })
     .when(AudioSettingAction.setMicrophoneVolume.matches, (action) => {
       s.microphoneGain.set(action.value)
     })
     .when(AudioSettingAction.setUsePositionalMedia.matches, (action) => {
       s.positionalMedia.set(action.value)
+      getMutableState(MediaSettingsState).immersiveMedia.set(action.value)
     })
     .when(AudioSettingAction.setMediaStreamVolume.matches, (action) => {
       s.mediaStreamVolume.set(action.value)
-      Engine.instance.gainNodeMixBuses.mediaStreams.gain.setTargetAtTime(
-        action.value,
-        Engine.instance.audioContext.currentTime,
-        0.01
-      )
+      s.gainNodeMixBuses.value.mediaStreams.gain.setTargetAtTime(action.value, s.audioContext.value.currentTime, 0.01)
     })
     .when(AudioSettingAction.setNotificationVolume.matches, (action) => {
       s.notificationVolume.set(action.value)
-      Engine.instance.gainNodeMixBuses.notifications.gain.setTargetAtTime(
-        action.value,
-        Engine.instance.audioContext.currentTime,
-        0.01
-      )
+      s.gainNodeMixBuses.value.notifications.gain.setTargetAtTime(action.value, s.audioContext.value.currentTime, 0.01)
     })
     .when(AudioSettingAction.setSoundEffectsVolume.matches, (action) => {
       s.soundEffectsVolume.set(action.value)
-      Engine.instance.gainNodeMixBuses.soundEffects.gain.setTargetAtTime(
-        action.value,
-        Engine.instance.audioContext.currentTime,
-        0.01
-      )
+      s.gainNodeMixBuses.value.soundEffects.gain.setTargetAtTime(action.value, s.audioContext.value.currentTime, 0.01)
     })
     .when(AudioSettingAction.setMusicVolume.matches, (action) => {
       s.backgroundMusicVolume.set(action.value)
-      Engine.instance.gainNodeMixBuses.music.gain.setTargetAtTime(
-        action.value,
-        Engine.instance.audioContext.currentTime,
-        0.01
-      )
+      s.gainNodeMixBuses.value.music.gain.setTargetAtTime(action.value, s.audioContext.value.currentTime, 0.01)
     })
 }
 
@@ -114,7 +139,5 @@ export class AudioSettingAction {
 
 export const getPositionalMedia = () => {
   const audioState = getState(AudioState)
-  return audioState.usePositionalMedia.value === 'auto'
-    ? audioState.positionalMedia.value
-    : audioState.usePositionalMedia.value === 'on'
+  return audioState.usePositionalMedia === 'auto' ? audioState.positionalMedia : audioState.usePositionalMedia === 'on'
 }

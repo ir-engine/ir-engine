@@ -26,14 +26,14 @@
     "emitDecoratorMetadata": true,
     "declaration": true,
     "outDir": "./lib",
-    "types": ["vite/client", "mocha"]
+    "types": ["vite/client", "mocha", "node"]
   },
   "exclude": [
     "../projects/projects/**",
     "**/node_modules/**"
   ],
   "include": [
-    "../server-core/src/",
+    "../../__global.d.ts",
     "./**/*.ts",
     "./**/*.tsx"
   ]

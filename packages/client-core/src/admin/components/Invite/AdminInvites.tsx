@@ -1,15 +1,40 @@
-import React, { useEffect, useRef, useState } from 'react'
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
+import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import ConfirmDialog from '@xrengine/client-core/src/common/components/ConfirmDialog'
-import { InviteInterface } from '@xrengine/common/src/interfaces/Invite'
-
-import Checkbox from '@mui/material/Checkbox'
+import ConfirmDialog from '@etherealengine/client-core/src/common/components/ConfirmDialog'
+import { InviteInterface } from '@etherealengine/common/src/interfaces/Invite'
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import Checkbox from '@etherealengine/ui/src/primitives/mui/Checkbox'
 
 import { INVITE_PAGE_LIMIT } from '../../../social/services/InviteService'
 import TableComponent from '../../common/Table'
 import { InviteColumn, inviteColumns } from '../../common/variables/invite'
-import { AdminInviteService, useAdminInviteState } from '../../services/InviteService'
+import { AdminInviteService, AdminInviteState } from '../../services/InviteService'
 import styles from '../../styles/admin.module.scss'
 import UpdateInviteModal from './UpdateInviteModal'
 
@@ -31,45 +56,37 @@ const defaultInvite = {
 }
 
 const AdminInvites = ({ search, selectedInviteIds, setSelectedInviteIds }: Props) => {
-  const [page, setPage] = useState(0)
-  const [openConfirm, setOpenConfirm] = useState(false)
-  const [inviteId, setInviteId] = useState('')
-  const [selectedInvite, _setSelectedInvite] = useState(defaultInvite)
-  const [rowsPerPage, setRowsPerPage] = useState(INVITE_PAGE_LIMIT)
-  const inviteState = useAdminInviteState()
-  const [fieldOrder, setFieldOrder] = useState('asc')
-  const [sortField, setSortField] = useState('id')
+  const page = useHookstate(0)
+  const openConfirm = useHookstate(false)
+  const inviteId = useHookstate('')
+  const selectedInvite = useHookstate(defaultInvite)
+  const rowsPerPage = useHookstate(INVITE_PAGE_LIMIT)
+  const fieldOrder = useHookstate('asc')
+  const sortField = useHookstate('id')
+  const updateModalOpen = useHookstate(false)
+  const inviteState = useHookstate(getMutableState(AdminInviteState))
   const { t } = useTranslation()
-  const invites = inviteState.invites
+  const invites = inviteState.invites.get({ noproxy: true })
   const inviteCount = inviteState.total.value
-  const [updateModalOpen, setUpdateModalOpen] = useState(false)
-
-  const selectedInviteRef = useRef(selectedInvite)
-
-  const setSelectedInvite = (invite) => {
-    selectedInviteRef.current = invite
-    _setSelectedInvite(invite)
-  }
 
   const deleteInvite = () => {
-    AdminInviteService.removeInvite(inviteId)
-    setOpenConfirm(false)
+    AdminInviteService.removeInvite(inviteId.value)
+    openConfirm.set(false)
   }
 
   const handlePageChange = (event: React.MouseEvent<HTMLButtonElement> | null, newPage: number) => {
-    const incDec = page < newPage ? 'increment' : 'decrement'
-    AdminInviteService.fetchAdminInvites(incDec, search, sortField, fieldOrder)
-    setPage(newPage)
+    AdminInviteService.fetchAdminInvites(search, newPage, sortField.value, fieldOrder.value)
+    page.set(newPage)
   }
 
   useEffect(() => {
     if (inviteState.updateNeeded.value === true)
-      AdminInviteService.fetchAdminInvites(undefined, search, sortField, fieldOrder)
-  }, [search, inviteState.updateNeeded.value, sortField, fieldOrder])
+      AdminInviteService.fetchAdminInvites(search, page.value, sortField.value, fieldOrder.value)
+  }, [search, inviteState.updateNeeded.value, page.value, sortField.value, fieldOrder.value])
 
   const handleRowsPerPageChange = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    setRowsPerPage(parseInt(event.target.value, 10))
-    setPage(0)
+    rowsPerPage.set(parseInt(event.target.value, 10))
+    page.set(0)
   }
 
   const toggleSelection = (id: string) => {
@@ -107,21 +124,19 @@ const AdminInvites = ({ search, selectedInviteIds, setSelectedInviteIds }: Props
       action: (
         <>
           <a
-            href="#"
             className={styles.actionStyle}
             onClick={() => {
-              setSelectedInvite({ ...invite })
-              setUpdateModalOpen(true)
+              selectedInvite.set(invite)
+              updateModalOpen.set(true)
             }}
           >
             <span className={styles.spanDange}>{t('admin:components.common.update')}</span>
           </a>
           <a
-            href="#"
             className={styles.actionStyle}
             onClick={() => {
-              setInviteId(invite.id)
-              setOpenConfirm(true)
+              inviteId.set(invite.id)
+              openConfirm.set(true)
             }}
           >
             <span className={styles.spanDange}>{t('admin:components.common.delete')}</span>
@@ -131,10 +146,10 @@ const AdminInvites = ({ search, selectedInviteIds, setSelectedInviteIds }: Props
     }
   }
 
-  const rows = invites.value.map((el) => createData(el))
+  const rows = invites.map((el) => createData(el))
 
   let allSelected: boolean | undefined = undefined
-  if (invites.value.length === selectedInviteIds.size) {
+  if (invites.length === selectedInviteIds.size) {
     allSelected = true
   } else if (selectedInviteIds.size === 0) {
     allSelected = false
@@ -151,7 +166,7 @@ const AdminInvites = ({ search, selectedInviteIds, setSelectedInviteIds }: Props
           onChange={(_event, checked) => {
             if (checked || allSelected === undefined) {
               const set = new Set<string>()
-              invites.value.map((item) => set.add(item.id))
+              invites.map((item) => set.add(item.id))
               setSelectedInviteIds(set)
             } else {
               setSelectedInviteIds(new Set<string>())
@@ -168,30 +183,30 @@ const AdminInvites = ({ search, selectedInviteIds, setSelectedInviteIds }: Props
     <React.Fragment>
       <TableComponent
         allowSort={false}
-        fieldOrder={fieldOrder}
+        fieldOrder={fieldOrder.value}
         fieldOrderBy="id"
-        setSortField={setSortField}
-        setFieldOrder={setFieldOrder}
+        setSortField={sortField.set}
+        setFieldOrder={fieldOrder.set}
         rows={rows}
         column={columns}
-        page={page}
-        rowsPerPage={rowsPerPage}
+        page={page.value}
+        rowsPerPage={rowsPerPage.value}
         count={inviteCount}
         handlePageChange={handlePageChange}
         handleRowsPerPageChange={handleRowsPerPageChange}
       />
       <UpdateInviteModal
-        open={updateModalOpen}
+        open={updateModalOpen.value}
         onClose={() => {
-          setUpdateModalOpen(false)
-          setSelectedInvite(defaultInvite)
+          updateModalOpen.set(false)
+          selectedInvite.set(defaultInvite)
         }}
-        invite={selectedInviteRef.current}
+        invite={selectedInvite.get({ noproxy: true })}
       />
       <ConfirmDialog
-        open={openConfirm}
-        description={`${t('admin:components.invite.confirmInviteDelete')} '${inviteId}'?`}
-        onClose={() => setOpenConfirm(false)}
+        open={openConfirm.value}
+        description={`${t('admin:components.invite.confirmInviteDelete')} '${inviteId.set}'?`}
+        onClose={() => openConfirm.set(false)}
         onSubmit={deleteInvite}
       />
     </React.Fragment>

@@ -1,9 +1,36 @@
-import React, { useEffect, useState } from 'react'
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
+import React from 'react'
 import { useTranslation } from 'react-i18next'
+
+import { RenderInfoState } from '@etherealengine/engine/src/renderer/RenderInfoSystem'
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
 import SsidChartIcon from '@mui/icons-material/SsidChart'
 
-import { SceneState } from '../../../functions/sceneRenderFunctions'
 import { InfoTooltip } from '../../layout/Tooltip'
 import styles from '../styles.module.scss'
 
@@ -13,31 +40,14 @@ import styles from '../styles.module.scss'
  * @constructor
  */
 const StatsTool = () => {
-  const [info, setInfo] = useState<any>({})
-  const [isVisible, setVisible] = useState(false)
+  const renderInfoState = useHookstate(getMutableState(RenderInfoState))
+  const info = renderInfoState.info.value
+  const isVisible = renderInfoState.visible.value
+
   const { t } = useTranslation()
 
-  useEffect(() => {
-    SceneState.onUpdateStats = (info) => {
-      setInfo({
-        geometries: info.memory.geometries,
-        textures: info.memory.textures,
-        fps: (info.render as any).fps,
-        frameTime: (info.render as any).frameTime,
-        calls: info.render.calls,
-        triangles: info.render.triangles,
-        points: info.render.points,
-        lines: info.render.lines
-      })
-    }
-
-    return () => {
-      SceneState.onUpdateStats = undefined
-    }
-  }, [])
-
   const toggleStats = () => {
-    setVisible(!isVisible)
+    renderInfoState.visible.set(!isVisible)
   }
 
   /**
@@ -61,10 +71,10 @@ const StatsTool = () => {
                 {t('editor:viewport.state.memory')}
                 <ul>
                   <li>
-                    {t('editor:viewport.state.geometries')}: {(info as any).geometries}
+                    {t('editor:viewport.state.geometries')}: {info.geometries}
                   </li>
                   <li>
-                    {t('editor:viewport.state.textures')}: {(info as any).textures}
+                    {t('editor:viewport.state.textures')}: {info.textures}
                   </li>
                 </ul>
               </li>
@@ -72,22 +82,22 @@ const StatsTool = () => {
                 {t('editor:viewport.state.render')}:
                 <ul>
                   <li>
-                    {t('editor:viewport.state.FPS')}: {Math.round((info as any).fps)}
+                    {t('editor:viewport.state.FPS')}: {Math.round(info.fps)}
                   </li>
                   <li>
-                    {t('editor:viewport.state.frameTime')}: {Math.round((info as any).frameTime)}ms
+                    {t('editor:viewport.state.frameTime')}: {Math.round(info.frameTime)}ms
                   </li>
                   <li>
-                    {t('editor:viewport.state.calls')}: {(info as any).calls}
+                    {t('editor:viewport.state.calls')}: {info.calls}
                   </li>
                   <li>
-                    {t('editor:viewport.state.triangles')}: {(info as any).triangles}
+                    {t('editor:viewport.state.triangles')}: {info.triangles}
                   </li>
                   <li>
-                    {t('editor:viewport.state.points')}: {(info as any).points}
+                    {t('editor:viewport.state.points')}: {info.points}
                   </li>
                   <li>
-                    {t('editor:viewport.state.lines')}: {(info as any).lines}
+                    {t('editor:viewport.state.lines')}: {info.lines}
                   </li>
                 </ul>
               </li>

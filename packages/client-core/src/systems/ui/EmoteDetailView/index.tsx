@@ -1,17 +1,42 @@
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
 import { createState } from '@hookstate/core'
 import React, { useEffect, useState } from 'react'
 
-import { changeAvatarAnimationState } from '@xrengine/engine/src/avatar/animation/AvatarAnimationGraph'
-import { AvatarStates } from '@xrengine/engine/src/avatar/animation/Util'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { createXRUI } from '@xrengine/engine/src/xrui/functions/createXRUI'
-
-import { ArrowBackIos, ArrowForwardIos } from '@mui/icons-material'
-import { Button } from '@mui/material'
+import { changeAvatarAnimationState } from '@etherealengine/engine/src/avatar/animation/AvatarAnimationGraph'
+import { AvatarStates } from '@etherealengine/engine/src/avatar/animation/Util'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { createXRUI } from '@etherealengine/engine/src/xrui/functions/createXRUI'
+import Button from '@etherealengine/ui/src/primitives/mui/Button'
+import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 
 import XRIconButton from '../../components/XRIconButton'
 import styleString from './index.scss?inline'
 
+/** @deprecated */
 export function createEmoteDetailView() {
   return createXRUI(EmoteDetailView, createEmoteDetailState())
 }
@@ -19,7 +44,7 @@ export function createEmoteDetailView() {
 function createEmoteDetailState() {
   return createState({})
 }
-
+/** @deprecated */
 const EmoteDetailView = () => {
   const [page, setPage] = useState(0)
 
@@ -117,7 +142,7 @@ const EmoteDetailView = () => {
   }
 
   const runAnimation = (stateName: string) => {
-    const entity = Engine.instance.currentWorld.localClientEntity
+    const entity = Engine.instance.localClientEntity
     changeAvatarAnimationState(entity, stateName)
   }
 
@@ -180,7 +205,7 @@ const EmoteDetailView = () => {
               disabled={page === 0}
               size="medium"
               variant="iconOnly"
-              content={<ArrowBackIos />}
+              content={<Icon type="ArrowBackIos" />}
             />
           </div>
           <div
@@ -199,7 +224,7 @@ const EmoteDetailView = () => {
               disabled={(page + 1) * imgPerPage >= items.length}
               size="medium"
               variant="iconOnly"
-              content={<ArrowForwardIos />}
+              content={<Icon type="ArrowForwardIos" />}
             />
           </div>
         </div>

@@ -1,7 +1,34 @@
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
 import { NullableId, Paginated, Params } from '@feathersjs/feathers'
 import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
 
-import { AdminBot, CreateBotAsAdmin } from '@xrengine/common/src/interfaces/AdminBot'
+import { AdminBot, CreateBotAsAdmin } from '@etherealengine/common/src/interfaces/AdminBot'
+import { BotCommandType, botCommandPath } from '@etherealengine/engine/src/schemas/bot/bot-command.schema'
+import { LocationType, locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
 
 import { Application } from '../../../declarations'
 import { createBotCommands } from './bot.functions'
@@ -18,20 +45,44 @@ export class Bot extends Service {
   }
 
   async find(params?: Params): Promise<Paginated<AdminBotDataType>> {
+    const data: AdminBotDataType[] = []
+
     const bots = await this.app.service('bot').Model.findAll({
       include: [
-        {
-          model: this.app.service('bot-command').Model
-        },
-        {
-          model: this.app.service('location').Model
-        },
         {
           model: this.app.service('instance').Model
         }
       ]
     })
-    return { data: bots } as Paginated<AdminBotDataType>
+
+    // TODO: Move following to bot.resolvers once bot service is migrated to feathers 5.
+    const locations = (await this.app.service(locationPath).find({
+      query: {
+        id: {
+          $in: bots.map((bot) => bot.locationId)
+        }
+      },
+      paginate: false
+    })) as any as LocationType[]
+
+    const botCommands = (await this.app.service(botCommandPath).find({
+      query: {
+        botId: {
+          $in: bots.map((bot) => bot.id)
+        }
+      },
+      paginate: false
+    })) as any as BotCommandType[]
+
+    for (const bot of bots) {
+      data.push({
+        ...bot.dataValues,
+        location: locations.find((location) => location.id === bot.locationId),
+        botCommands: botCommands.filter((botCommand) => botCommand.botId === bot.id)
+      })
+    }
+
+    return { data } as Paginated<AdminBotDataType>
   }
 
   async create(data: CreateBotAsAdmin): Promise<AdminBotDataType> {

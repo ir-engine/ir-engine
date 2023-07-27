@@ -1,24 +1,44 @@
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
 import { Color, MathUtils, Object3D } from 'three'
 
-import config from '@xrengine/common/src/config'
-import { EntityUUID } from '@xrengine/common/src/interfaces/EntityUUID'
-import { ComponentJson, EntityJson, SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
-import { World } from '@xrengine/engine/src/ecs/classes/World'
+import config from '@etherealengine/common/src/config'
+import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
+import { ComponentJson, EntityJson, SceneJson } from '@etherealengine/common/src/interfaces/SceneInterface'
+import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
 import {
   getAllComponents,
   getComponent,
-  getComponentState,
   serializeComponent
-} from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { getState } from '@xrengine/hyperflux'
+} from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 
-import { iterateEntityNode } from '../../ecs/functions/EntityTree'
-import { getSceneMetadataChanges } from '../../ecs/functions/getSceneMetadataChanges'
+import { EntityTreeComponent } from '../../ecs/functions/EntityTree'
 import { Object3DWithEntity } from '../components/GroupComponent'
 import { NameComponent } from '../components/NameComponent'
-import { PrefabComponentType } from '../components/PrefabComponent'
+import { UUIDComponent } from '../components/UUIDComponent'
 
 export const nodeToEntityJson = (node: any): EntityJson => {
   const parentId = node.extras?.parent ? { parent: node.extras.parent } : {}
@@ -41,8 +61,7 @@ export const gltfToSceneJson = (gltf: any): SceneJson => {
   const result: SceneJson = {
     entities: {},
     root: rootUuid,
-    version: 2.0,
-    metadata: getSceneMetadataChanges(Engine.instance.currentWorld)
+    version: 2.0
   }
   result.entities[rootUuid] = nodeToEntityJson(rootGL)
   const lookupNode = (idx) => gltf.nodes[idx]
@@ -73,9 +92,7 @@ export interface GLTFExtension {
   writeNode?(node, nodeDef)
 }
 
-const serializeECS = (roots: Object3DWithEntity[], world: World = Engine.instance.currentWorld) => {
-  const eTree = world.entityTree
-  const nodeMap = eTree.entityNodeMap
+const serializeECS = (roots: Object3DWithEntity[]) => {
   let rootEntities = new Array()
   const idxTable = new Map<Entity, number>()
   const extensionSet = new Set<string>()
@@ -96,13 +113,13 @@ const serializeECS = (roots: Object3DWithEntity[], world: World = Engine.instanc
       const nodeBase = {
         name: srcObj.name,
         extensions: srcObj.userData.gltfExtensions,
-        extras: { uuid: nodeMap.get(srcObj.entity)?.uuid }
+        extras: { uuid: getComponent(srcObj.entity, UUIDComponent) }
       }
       for (const [name] of Object.entries(nodeBase.extensions)) {
         extensionSet.add(name)
       }
       delete srcObj.userData.gltfExtensions
-      const children = nodeMap.get(srcObj.entity)?.children
+      const children = getComponent(srcObj.entity, EntityTreeComponent)?.children
 
       if (children) {
         haveChildren.push(nodeBase)
@@ -126,9 +143,7 @@ const serializeECS = (roots: Object3DWithEntity[], world: World = Engine.instanc
 }
 
 export const sceneToGLTF = (roots: Object3DWithEntity[]) => {
-  const eNodeMap = Engine.instance.currentWorld.entityTree.entityNodeMap
   for (const root of roots) {
-    const node = eNodeMap.get(root.entity)!
     root.traverse((node: Object3DWithEntity) => {
       if (node.entity) {
         prepareObjectForGLTFExport(node)
@@ -192,7 +207,7 @@ const addComponentDataToGLTFExtension = (obj3d: Object3D, data: ComponentJson) =
   obj3d.userData.gltfExtensions[data.name] = componentProps
 }
 
-export const prepareObjectForGLTFExport = (obj3d: Object3DWithEntity, world = Engine.instance.currentWorld) => {
+export const prepareObjectForGLTFExport = (obj3d: Object3DWithEntity) => {
   const name = getComponent(obj3d.entity, NameComponent)
   if (name) obj3d.name = name
 
@@ -201,18 +216,14 @@ export const prepareObjectForGLTFExport = (obj3d: Object3DWithEntity, world = En
   const components = getAllComponents(entity)
 
   for (const component of components) {
-    const sceneComponentID = world.sceneComponentRegistry.get(component.name)!
+    const sceneComponentID = component.jsonID
     if (sceneComponentID) {
-      const loadingRegister = world.sceneLoadingRegistry.get(sceneComponentID)
-      if (loadingRegister) {
-        const serialize = world.sceneLoadingRegistry.get(sceneComponentID)?.serialize
-        const data = serialize ? serialize(entity) : serializeComponent(entity, component)
-        if (data)
-          addComponentDataToGLTFExtension(obj3d, {
-            name: sceneComponentID,
-            props: Object.assign({}, data)
-          })
-      }
+      const data = serializeComponent(entity, component)
+      if (data)
+        addComponentDataToGLTFExtension(obj3d, {
+          name: sceneComponentID,
+          props: Object.assign({}, data)
+        })
     }
   }
 }

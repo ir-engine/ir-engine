@@ -1,12 +1,37 @@
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
 import { Forbidden } from '@feathersjs/errors'
 import { Paginated, Query } from '@feathersjs/feathers'
 import crypto from 'crypto'
 import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
 import Sequelize, { Op } from 'sequelize'
 
-import { IdentityProviderInterface } from '@xrengine/common/src/dbmodels/IdentityProvider'
-import { Invite as InviteType } from '@xrengine/common/src/interfaces/Invite'
-import { UserInterface } from '@xrengine/common/src/interfaces/User'
+import { IdentityProviderInterface } from '@etherealengine/common/src/dbmodels/IdentityProvider'
+import { Invite as InviteType } from '@etherealengine/common/src/interfaces/Invite'
+import { UserInterface } from '@etherealengine/common/src/interfaces/User'
 
 import { Application } from '../../../declarations'
 import { sendInvite } from '../../hooks/send-invite'
@@ -94,12 +119,12 @@ export const inviteReceived = async (inviteService: Invite, query) => {
 
   await Promise.all(
     result.data.map(async (invite) => {
-      if (invite.inviteType === 'group' && invite.targetObjectId) {
+      if (invite.inviteType === 'channel' && invite.targetObjectId) {
         try {
-          const group = await inviteService.app.service('group').get(invite.targetObjectId)
-          invite.groupName = group.name
+          const channel = await inviteService.app.service('channel').get(invite.targetObjectId)
+          invite.channelName = channel.name
         } catch (err) {
-          invite.groupName = '<A deleted group>'
+          invite.channelName = '<A deleted channel>'
         }
       }
     })
@@ -135,12 +160,12 @@ export const inviteSent = async (inviteService: Invite, query: Query) => {
 
   await Promise.all(
     result.data.map(async (invite) => {
-      if (invite.inviteType === 'group' && invite.targetObjectId) {
+      if (invite.inviteType === 'channel' && invite.targetObjectId) {
         try {
-          const group = await inviteService.app.service('group').get(invite.targetObjectId)
-          invite.groupName = group.name
+          const channel = await inviteService.app.service('channel').get(invite.targetObjectId)
+          invite.channelName = channel.name
         } catch (err) {
-          invite.groupName = '<A deleted group>'
+          invite.channelName = '<A deleted channel>'
         }
       }
     })
@@ -182,13 +207,13 @@ export const inviteAll = async (inviteService: Invite, query: Query, user: UserI
 
   await Promise.all(
     result.data.map(async (invite) => {
-      if (invite.inviteType === 'group' && invite.targetObjectId) {
+      if (invite.inviteType === 'channel' && invite.targetObjectId) {
         try {
-          const group = await inviteService.app.service('group').get(invite.targetObjectId)
-          if (!group) throw new Error()
-          invite.groupName = group.name
+          const channel = await inviteService.app.service('channel').get(invite.targetObjectId)
+          if (!channel) throw new Error()
+          invite.channelName = channel.name
         } catch (err) {
-          invite.groupName = '<A deleted group>'
+          invite.channelName = '<A deleted channel>'
         }
       }
     })

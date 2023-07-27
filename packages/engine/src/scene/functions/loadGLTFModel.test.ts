@@ -1,20 +1,48 @@
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
 import assert from 'assert'
 import { Group, Layers, Mesh, Scene } from 'three'
 
+import { getState } from '@etherealengine/hyperflux'
+
 import { createMockNetwork } from '../../../tests/util/createMockNetwork'
-import { Engine } from '../../ecs/classes/Engine'
+import { destroyEngine } from '../../ecs/classes/Engine'
+import { SceneState } from '../../ecs/classes/Scene'
 import {
   addComponent,
-  createMappedComponent,
+  defineComponent,
   defineQuery,
   getComponent,
-  getComponentState
+  getMutableComponent
 } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
-import { addEntityNodeChild, createEntityNode } from '../../ecs/functions/EntityTree'
+import { addEntityNodeChild } from '../../ecs/functions/EntityTree'
 import { createEngine } from '../../initializeEngine'
-import { TransformComponent } from '../../transform/components/TransformComponent'
-import { addObjectToGroup, GroupComponent } from '../components/GroupComponent'
+import { TransformComponent, setLocalTransformComponent } from '../../transform/components/TransformComponent'
+import { GroupComponent, addObjectToGroup } from '../components/GroupComponent'
 import { ModelComponent } from '../components/ModelComponent'
 import { NameComponent } from '../components/NameComponent'
 import { ObjectLayers } from '../constants/ObjectLayers'
@@ -26,15 +54,31 @@ describe('loadGLTFModel', () => {
     createMockNetwork()
   })
 
+  afterEach(() => {
+    return destroyEngine()
+  })
+
   // TODO: - this needs to be broken down and more comprehensive
   it('loadGLTFModel', async () => {
-    const world = Engine.instance.currentWorld
+    const sceneEntity = getState(SceneState).sceneEntity
 
     const mockComponentData = { src: '' } as any
-    const CustomComponent = createMappedComponent<{ value: number }>('CustomComponent')
+    const CustomComponent = defineComponent({
+      name: 'CustomComponent',
+      onInit(entity) {
+        return {
+          val: 0
+        }
+      },
+      onSet(entity, component, json) {
+        if (!json) return
+        if (typeof json.val === 'number') component.val.set(json.val)
+      }
+    })
 
     const entity = createEntity()
-    addEntityNodeChild(createEntityNode(entity), world.entityTree.rootNode)
+    addEntityNodeChild(entity, sceneEntity)
+    setLocalTransformComponent(entity, sceneEntity)
     addComponent(entity, ModelComponent, {
       ...mockComponentData
     })
@@ -44,9 +88,9 @@ describe('loadGLTFModel', () => {
     mesh.userData = {
       'xrengine.entity': entityName,
       // 'xrengine.spawn-point': '',
-      'xrengine.CustomComponent.value': number
+      'xrengine.CustomComponent.val': number
     }
-    const modelComponent = getComponentState(entity, ModelComponent)
+    const modelComponent = getMutableComponent(entity, ModelComponent)
     modelComponent.scene.set(mesh)
     addObjectToGroup(entity, mesh)
     const modelQuery = defineQuery([TransformComponent, GroupComponent])
@@ -62,14 +106,14 @@ describe('loadGLTFModel', () => {
     const expectedLayer = new Layers()
     expectedLayer.set(ObjectLayers.Scene)
 
-    const [mockModelEntity] = modelQuery(world)
-    const [mockSpawnPointEntity] = childQuery(world)
+    const [mockModelEntity] = modelQuery()
+    const [mockSpawnPointEntity] = childQuery()
 
     assert.equal(typeof mockModelEntity, 'number')
     assert(getComponent(mockModelEntity, GroupComponent)[0].layers.test(expectedLayer))
 
     // assert(hasComponent(mockSpawnPointEntity, SpawnPointComponent))
-    assert.equal(getComponent(mockSpawnPointEntity, CustomComponent).value, number)
+    assert.equal(getComponent(mockSpawnPointEntity, CustomComponent).val, number)
     assert.equal(getComponent(mockSpawnPointEntity, NameComponent), entityName)
     assert(getComponent(mockSpawnPointEntity, GroupComponent)[0].layers.test(expectedLayer))
   })

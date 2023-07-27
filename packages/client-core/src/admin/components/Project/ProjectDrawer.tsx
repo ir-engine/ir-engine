@@ -1,21 +1,46 @@
-import React, { useEffect, useState } from 'react'
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
+import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import LoadingView from '@xrengine/client-core/src/common/components/LoadingView'
+import LoadingView from '@etherealengine/client-core/src/common/components/LoadingView'
 import {
   DefaultUpdateSchedule,
   ProjectInterface,
   ProjectUpdateType
-} from '@xrengine/common/src/interfaces/ProjectInterface'
-
-import Button from '@mui/material/Button'
-import Container from '@mui/material/Container'
-import DialogActions from '@mui/material/DialogActions'
+} from '@etherealengine/common/src/interfaces/ProjectInterface'
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import Button from '@etherealengine/ui/src/primitives/mui/Button'
+import Container from '@etherealengine/ui/src/primitives/mui/Container'
+import DialogActions from '@etherealengine/ui/src/primitives/mui/DialogActions'
 
 import { NotificationService } from '../../../common/services/NotificationService'
 import { ProjectService } from '../../../common/services/ProjectService'
 import DrawerView from '../../common/DrawerView'
-import { ProjectUpdateService, useProjectUpdateState } from '../../services/ProjectUpdateService'
+import { ProjectUpdateService, ProjectUpdateState } from '../../services/ProjectUpdateService'
 import styles from '../../styles/admin.module.scss'
 import ProjectFields from './ProjectFields'
 
@@ -29,7 +54,7 @@ interface Props {
 
 const ProjectDrawer = ({ open, inputProject, existingProject = false, onClose, changeDestination = false }: Props) => {
   const { t } = useTranslation()
-  const [processing, setProcessing] = useState(false)
+  const processing = useHookstate(false)
 
   const project =
     existingProject && inputProject
@@ -46,7 +71,7 @@ const ProjectDrawer = ({ open, inputProject, existingProject = false, onClose, c
           commitDate: new Date()
         }
 
-  const projectUpdateStatus = useProjectUpdateState()[project.name].value
+  const projectUpdateStatus = useHookstate(getMutableState(ProjectUpdateState)[project.name]).value
 
   const handleSubmit = async () => {
     try {
@@ -54,7 +79,7 @@ const ProjectDrawer = ({ open, inputProject, existingProject = false, onClose, c
         if (inputProject) await ProjectService.setRepositoryPath(inputProject.id, projectUpdateStatus.destinationURL)
         handleClose()
       } else if (projectUpdateStatus.sourceURL) {
-        setProcessing(true)
+        processing.set(true)
         await ProjectService.uploadProject(
           projectUpdateStatus.sourceURL,
           projectUpdateStatus.destinationURL,
@@ -65,11 +90,11 @@ const ProjectDrawer = ({ open, inputProject, existingProject = false, onClose, c
           projectUpdateStatus.updateType,
           projectUpdateStatus.updateSchedule
         )
-        setProcessing(false)
+        processing.set(false)
         handleClose()
       }
     } catch (err) {
-      setProcessing(false)
+      processing.set(false)
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
   }
@@ -80,10 +105,10 @@ const ProjectDrawer = ({ open, inputProject, existingProject = false, onClose, c
   }
 
   useEffect(() => {
-    if (open && inputProject) {
+    if (open && inputProject && projectUpdateStatus?.triggerSetDestination?.length === 0) {
       ProjectUpdateService.setTriggerSetDestination(project, inputProject.repositoryPath)
     }
-  }, [open])
+  }, [open, projectUpdateStatus?.triggerSetDestination])
 
   return (
     <DrawerView open={open} onClose={handleClose}>
@@ -91,7 +116,7 @@ const ProjectDrawer = ({ open, inputProject, existingProject = false, onClose, c
         inputProject={inputProject}
         existingProject={existingProject}
         changeDestination={changeDestination}
-        processing={processing}
+        processing={processing.value}
       />
 
       <Container maxWidth="sm" className={styles.mt10}>
@@ -100,7 +125,7 @@ const ProjectDrawer = ({ open, inputProject, existingProject = false, onClose, c
             <Button className={styles.outlinedButton} onClick={handleClose}>
               {t('admin:components.common.cancel')}
             </Button>
-            {!processing && (
+            {!processing.value && (
               <Button
                 className={styles.gradientButton}
                 disabled={projectUpdateStatus ? projectUpdateStatus.submitDisabled : true}
@@ -110,7 +135,7 @@ const ProjectDrawer = ({ open, inputProject, existingProject = false, onClose, c
               </Button>
             )}
 
-            {processing && (
+            {processing.value && (
               <LoadingView title={t('admin:components.project.processing')} variant="body1" fullHeight={false} />
             )}
           </>

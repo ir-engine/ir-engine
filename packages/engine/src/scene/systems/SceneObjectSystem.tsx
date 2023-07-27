@@ -1,70 +1,74 @@
-import { useEffect } from 'react'
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
+import React, { useEffect } from 'react'
 import {
-  Color,
   Material,
   Mesh,
-  MeshBasicMaterial,
   MeshLambertMaterial,
   MeshPhongMaterial,
   MeshPhysicalMaterial,
   MeshStandardMaterial
 } from 'three'
 
-import { getState, useHookstate } from '@xrengine/hyperflux'
+import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
-import { loadDRACODecoder } from '../../assets/loaders/gltf/NodeDracoLoader'
-import { isNode } from '../../common/functions/getEnvironment'
-import { isClient } from '../../common/functions/isClient'
+import { createGLTFLoader } from '../../assets/functions/createGLTFLoader'
+import { isClient } from '../../common/functions/getEnvironment'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
-import { World } from '../../ecs/classes/World'
-import {
-  defineQuery,
-  getComponent,
-  hasComponent,
-  removeQuery,
-  useOptionalComponent
-} from '../../ecs/functions/ComponentFunctions'
+import { defineQuery, getComponent, hasComponent, useOptionalComponent } from '../../ecs/functions/ComponentFunctions'
+import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { registerMaterial, unregisterMaterial } from '../../renderer/materials/functions/MaterialLibraryFunctions'
 import { RendererState } from '../../renderer/RendererState'
-import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { DistanceFromCameraComponent, FrustumCullCameraComponent } from '../../transform/components/DistanceComponents'
-import { isHeadset } from '../../xr/XRState'
+import { isMobileXRHeadset } from '../../xr/XRState'
 import { CallbackComponent } from '../components/CallbackComponent'
-import { GroupComponent, Object3DWithEntity, startGroupQueryReactor } from '../components/GroupComponent'
+import { GroupComponent, GroupQueryReactor, Object3DWithEntity } from '../components/GroupComponent'
 import { ShadowComponent } from '../components/ShadowComponent'
 import { UpdatableCallback, UpdatableComponent } from '../components/UpdatableComponent'
 import { VisibleComponent } from '../components/VisibleComponent'
-import FogSystem from './FogSystem'
-import ShadowSystem from './ShadowSystem'
+import { EnvironmentSystem } from './EnvironmentSystem'
+import { FogSystem } from './FogSystem'
+import { ShadowSystem } from './ShadowSystem'
 
 export const ExpensiveMaterials = new Set([MeshPhongMaterial, MeshStandardMaterial, MeshPhysicalMaterial])
 
-/** @todo reimplement BPCEM */
-const applyBPCEM = (material) => {
-  // SceneOptions needs to be replaced with a proper state
-  // if (!material.userData.hasBoxProjectionApplied && SceneOptions.instance.boxProjection) {
-  //   addOBCPlugin(
-  //     material,
-  //     beforeMaterialCompile(
-  //       SceneOptions.instance.bpcemOptions.bakeScale,
-  //       SceneOptions.instance.bpcemOptions.bakePositionOffset
-  //     )
-  //   )
-  //   material.userData.hasBoxProjectionApplied = true
-  // }
-}
-
 export function setupObject(obj: Object3DWithEntity, force = false) {
-  const _isHeadset = isHeadset()
-
   const mesh = obj as any as Mesh<any, any>
+  /** @todo do we still need this? */
+  //Lambert shader needs an empty normal map to prevent shader errors
+  // const res = 8
+  // const normalTexture = new DataTexture(getRGBArray(new Color(0.5, 0.5, 1)), res, res, RGBAFormat)
+  // normalTexture.needsUpdate = true
   mesh.traverse((child: Mesh<any, any>) => {
     if (child.material) {
       if (!child.userData) child.userData = {}
-      const shouldMakeSimple = (force || _isHeadset) && ExpensiveMaterials.has(child.material.constructor)
-      if (!force && !_isHeadset && child.userData.lastMaterial) {
+      const shouldMakeSimple = (force || isMobileXRHeadset) && ExpensiveMaterials.has(child.material.constructor)
+      if (!force && !isMobileXRHeadset && child.userData.lastMaterial) {
         child.material = child.userData.lastMaterial
         delete child.userData.lastMaterial
       } else if (shouldMakeSimple && !child.userData.lastMaterial) {
@@ -72,104 +76,100 @@ export function setupObject(obj: Object3DWithEntity, force = false) {
         const onlyEmmisive = prevMaterial.emissiveMap && !prevMaterial.map
         const prevMatEntry = unregisterMaterial(prevMaterial)
         const nuMaterial = new MeshLambertMaterial().copy(prevMaterial)
-        child.material = nuMaterial
-        child.material.color = onlyEmmisive ? new Color('white') : prevMaterial.color
-        child.material.map = prevMaterial.map ?? prevMaterial.emissiveMap
 
-        // todo: find out why leaving the envMap makes basic & lambert materials transparent here
-        child.material.envMap = null
+        nuMaterial.normalMap = nuMaterial.normalMap //?? normalTexture
+        nuMaterial.specularMap = prevMaterial.roughnessMap ?? prevMaterial.specularIntensityMap
+
+        if (onlyEmmisive) nuMaterial.emissiveMap = prevMaterial.emissiveMap
+        else nuMaterial.map = prevMaterial.map
+
+        nuMaterial.reflectivity = prevMaterial.metalness
+        nuMaterial.envMap = prevMaterial.envMap
+        nuMaterial.vertexColors = prevMaterial.vertexColors
+
+        child.material = nuMaterial
         child.userData.lastMaterial = prevMaterial
         prevMatEntry && registerMaterial(nuMaterial, prevMatEntry.src)
       }
-      child.material.dithering = true
+      // normalTexture.dispose()
     }
   })
 }
 
-export default async function SceneObjectSystem(world: World) {
-  if (isNode) {
-    await loadDRACODecoder()
-  }
+const groupQuery = defineQuery([GroupComponent])
+const updatableQuery = defineQuery([GroupComponent, UpdatableComponent, CallbackComponent])
 
-  const groupQuery = defineQuery([GroupComponent])
-  const updatableQuery = defineQuery([GroupComponent, UpdatableComponent, CallbackComponent])
+function SceneObjectReactor(props: { entity: Entity; obj: Object3DWithEntity }) {
+  const { entity, obj } = props
 
-  function GroupChildReactor(props: { entity: Entity; obj: Object3DWithEntity }) {
-    const { entity, obj } = props
+  const shadowComponent = useOptionalComponent(entity, ShadowComponent)
+  const renderState = getMutableState(RendererState)
+  const forceBasicMaterials = useHookstate(renderState.forceBasicMaterials)
+  const csm = useHookstate(renderState.csm)
 
-    const shadowComponent = useOptionalComponent(entity, ShadowComponent)
-    const forceBasicMaterials = useHookstate(getState(RendererState).forceBasicMaterials)
-
-    useEffect(() => {
-      return () => {
-        const layers = Object.values(Engine.instance.currentWorld.objectLayerList)
-        for (const layer of layers) {
-          if (layer.has(obj)) layer.delete(obj)
-        }
+  useEffect(() => {
+    return () => {
+      const layers = Object.values(Engine.instance.objectLayerList)
+      for (const layer of layers) {
+        if (layer.has(obj)) layer.delete(obj)
       }
-    }, [])
-
-    useEffect(() => {
-      setupObject(obj, forceBasicMaterials.value)
-    }, [forceBasicMaterials])
-
-    useEffect(() => {
-      const shadow = shadowComponent?.value
-      obj.traverse((child: Mesh<any, Material>) => {
-        if (!child.isMesh) return
-        child.castShadow = !!shadow?.cast
-        child.receiveShadow = !!shadow?.receive
-        if (child.material && child.receiveShadow) {
-          /** @todo store this somewhere such that if the CSM is destroyed and recreated it can set up the materials automatically */
-          EngineRenderer.instance.csm?.setupMaterial(child)
-        }
-      })
-    }, [shadowComponent])
-
-    return null
-  }
-
-  /**
-   * Group Reactor - responds to any changes in the
-   */
-  const groupReactor = startGroupQueryReactor(GroupChildReactor)
-
-  const minimumFrustumCullDistanceSqr = 5 * 5 // 5 units
-
-  const execute = () => {
-    const delta = getState(EngineState).deltaSeconds.value
-    for (const entity of updatableQuery()) {
-      const callbacks = getComponent(entity, CallbackComponent)
-      callbacks.get(UpdatableCallback)?.(delta)
     }
+  }, [])
 
-    for (const entity of groupQuery()) {
-      const group = getComponent(entity, GroupComponent)
-      /**
-       * do frustum culling here, but only if the object is more than 5 units away
-       */
-      const visible =
-        hasComponent(entity, VisibleComponent) &&
-        !(
-          FrustumCullCameraComponent.isCulled[entity] &&
-          DistanceFromCameraComponent.squaredDistance[entity] > minimumFrustumCullDistanceSqr
-        )
-      for (const obj of group) obj.visible = visible
-    }
+  useEffect(() => {
+    setupObject(obj, forceBasicMaterials.value)
+  }, [forceBasicMaterials])
+
+  useEffect(() => {
+    const shadow = shadowComponent?.value
+    const csm = getState(RendererState).csm
+    obj.traverse((child: Mesh<any, Material>) => {
+      if (!child.isMesh) return
+      child.castShadow = !!shadow?.cast
+      child.receiveShadow = !!shadow?.receive
+      if (child.material && child.receiveShadow && csm) {
+        csm.setupMaterial(child)
+      }
+    })
+  }, [shadowComponent?.cast, shadowComponent?.receive, csm])
+
+  return null
+}
+
+const minimumFrustumCullDistanceSqr = 5 * 5 // 5 units
+
+const execute = () => {
+  const delta = getState(EngineState).deltaSeconds
+  for (const entity of updatableQuery()) {
+    const callbacks = getComponent(entity, CallbackComponent)
+    callbacks.get(UpdatableCallback)?.(delta)
   }
 
-  const cleanup = async () => {
-    removeQuery(world, groupQuery)
-    removeQuery(world, updatableQuery)
-    groupReactor.stop()
-  }
-
-  const subsystems = [() => Promise.resolve({ default: FogSystem })]
-  if (isClient) subsystems.push(() => Promise.resolve({ default: ShadowSystem }))
-
-  return {
-    execute,
-    cleanup,
-    subsystems
+  for (const entity of groupQuery()) {
+    const group = getComponent(entity, GroupComponent)
+    /**
+     * do frustum culling here, but only if the object is more than 5 units away
+     */
+    const visible =
+      hasComponent(entity, VisibleComponent) &&
+      !(
+        FrustumCullCameraComponent.isCulled[entity] &&
+        DistanceFromCameraComponent.squaredDistance[entity] > minimumFrustumCullDistanceSqr
+      )
+    for (const obj of group) obj.visible = visible
   }
 }
+
+const reactor = () => {
+  useEffect(() => {
+    Engine.instance.gltfLoader = createGLTFLoader()
+  }, [])
+  return <GroupQueryReactor GroupChildReactor={SceneObjectReactor} />
+}
+
+export const SceneObjectSystem = defineSystem({
+  uuid: 'ee.engine.SceneObjectSystem',
+  execute,
+  reactor,
+  subSystems: isClient ? [FogSystem, EnvironmentSystem, ShadowSystem] : []
+})

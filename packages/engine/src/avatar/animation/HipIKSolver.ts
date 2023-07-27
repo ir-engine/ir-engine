@@ -1,12 +1,36 @@
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
 import { Group, Mesh, MeshBasicMaterial, Object3D, Quaternion, SphereGeometry, Vector3 } from 'three'
 
-import { V_001, V_100 } from '../../common/constants/MathConstants'
+import { V_100 } from '../../common/constants/MathConstants'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { getComponent } from '../../ecs/functions/ComponentFunctions'
 import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
 import { addObjectToGroup } from '../../scene/components/GroupComponent'
-import { TransformComponent } from '../../transform/components/TransformComponent'
 import { AvatarRigComponent } from '../components/AvatarAnimationComponent'
 import { solveTwoBoneIK } from './TwoBoneIKSolver'
 
@@ -51,14 +75,14 @@ const rightFootTargetHint = new Object3D().add(
  * @param entity
  * @param target
  */
-export function solveHipHeight(entity: Entity, target: Object3D) {
+export function solveHipHeight(entity: Entity, headPosition: Vector3) {
   const rigComponent = getComponent(entity, AvatarRigComponent)
   const body = getComponent(entity, RigidBodyComponent)
 
   if (debug && !hasAdded) {
     hasAdded = true
     addObjectToGroup(entity, group)
-    Engine.instance.currentWorld.scene.add(
+    Engine.instance.scene.add(
       leftFootTarget,
       leftFootTargetOffset,
       leftFootTargetHint,
@@ -73,7 +97,7 @@ export function solveHipHeight(entity: Entity, target: Object3D) {
   const pivotHalfLength = rigComponent.upperLegLength * 0.5
   const pivotHalfLengthSquare = pivotHalfLength * pivotHalfLength
   const minHeadHeight = pivotHalfLength + rigComponent.lowerLegLength + rigComponent.footHeight
-  const headTargetY = target.getWorldPosition(_vec3).y - body.position.y
+  const headTargetY = headPosition.y - body.position.y
   const clampedHeadTargetY =
     Math.min(Math.max(minHeadHeight, headTargetY), headToFeetLength + rigComponent.footHeight) - rigComponent.footHeight
 
@@ -85,18 +109,24 @@ export function solveHipHeight(entity: Entity, target: Object3D) {
 
   /** calculate internal angle of head to hip using cosine rule */
   const hipToheadInternalAngle = Math.acos(
-    (rigComponent.torsoLength * rigComponent.torsoLength +
-      pivotToHeadLength * pivotToHeadLength -
-      pivotHalfLengthSquare) /
-      (2 * rigComponent.torsoLength * pivotToHeadLength)
+    Math.min(
+      1,
+      (rigComponent.torsoLength * rigComponent.torsoLength +
+        pivotToHeadLength * pivotToHeadLength -
+        pivotHalfLengthSquare) /
+        (2 * rigComponent.torsoLength * pivotToHeadLength)
+    )
   )
 
   /** calculate internal angle of feet to knee using cosine rule */
   const kneeToFootInternalAngle = Math.acos(
-    (rigComponent.lowerLegLength * rigComponent.lowerLegLength +
-      pivotToFootLength * pivotToFootLength -
-      pivotHalfLengthSquare) /
-      (2 * rigComponent.lowerLegLength * pivotToFootLength)
+    Math.min(
+      1,
+      (rigComponent.lowerLegLength * rigComponent.lowerLegLength +
+        pivotToFootLength * pivotToFootLength -
+        pivotHalfLengthSquare) /
+        (2 * rigComponent.lowerLegLength * pivotToFootLength)
+    )
   )
 
   const hipToHeadAngle = degtoRad90 - hipToheadInternalAngle
@@ -170,7 +200,6 @@ export function solveHipHeight(entity: Entity, target: Object3D) {
   _vec3.applyQuaternion(body.rotation)
   leftFootTarget.position.copy(body.position) // TODO: remove this line once the idle animation is better
   leftFootTarget.position.add(_vec3)
-  leftFootTarget.updateMatrixWorld(true)
 
   /** hint is where the knees aim */
   leftFootTargetHint.position.set(kneeFlareSeparation + leftKneeFlare, footToKneeY, 0.1 + kneeX * 0.9)
@@ -179,7 +208,18 @@ export function solveHipHeight(entity: Entity, target: Object3D) {
   rig.LeftFoot.getWorldQuaternion(leftFootTarget.quaternion)
   leftFootTargetHint.updateMatrixWorld(true)
 
-  solveTwoBoneIK(rig.LeftUpLeg, rig.LeftLeg, rig.LeftFoot, leftFootTarget, leftFootTargetHint, leftFootTargetOffset)
+  solveTwoBoneIK(
+    rig.LeftUpLeg,
+    rig.LeftLeg,
+    rig.LeftFoot,
+    leftFootTarget.position,
+    leftFootTarget.quaternion,
+    null,
+    leftFootTargetHint,
+    1,
+    0,
+    1
+  )
 
   /** Right Foot */
   const rightKneeFlare = -kneeFlareSeparation - kneeX * kneeFlareMultiplier
@@ -191,7 +231,6 @@ export function solveHipHeight(entity: Entity, target: Object3D) {
   _vec3.applyQuaternion(body.rotation)
   rightFootTarget.position.copy(body.position) // TODO: remove this line once the idle animation is better
   rightFootTarget.position.add(_vec3)
-  rightFootTarget.updateMatrixWorld(true)
 
   rightFootTargetHint.position.set(kneeFlareSeparation + rightKneeFlare, footToKneeY, 0.1 + kneeX * 0.9)
   rightFootTargetHint.position.applyQuaternion(body.rotation)
@@ -203,9 +242,13 @@ export function solveHipHeight(entity: Entity, target: Object3D) {
     rig.RightUpLeg,
     rig.RightLeg,
     rig.RightFoot,
-    rightFootTarget,
+    rightFootTarget.position,
+    rightFootTarget.quaternion,
+    null,
     rightFootTargetHint,
-    rightFootTargetOffset
+    1,
+    0,
+    1
   )
 
   /** Torso */

@@ -1,18 +1,41 @@
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
 import { t } from 'i18next'
 import React from 'react'
 
-import { getCameraSceneMetadataState } from '@xrengine/engine/src/camera/systems/CameraSystem'
-import { CameraMode } from '@xrengine/engine/src/camera/types/CameraMode'
-import { ProjectionType } from '@xrengine/engine/src/camera/types/ProjectionType'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { useHookstate } from '@xrengine/hyperflux'
-
-import CameraAltIcon from '@mui/icons-material/CameraAlt'
+import { CameraMode } from '@etherealengine/engine/src/camera/types/CameraMode'
+import { ProjectionType } from '@etherealengine/engine/src/camera/types/ProjectionType'
+import { useComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { CameraSettingsComponent } from '@etherealengine/engine/src/scene/components/CameraSettingsComponent'
 
 import { InputGroup } from '../inputs/InputGroup'
 import { NumericInputGroup } from '../inputs/NumericInputGroup'
 import SelectInput from '../inputs/SelectInput'
 import PropertyGroup from './PropertyGroup'
+import { EditorComponentType } from './Util'
 
 /** Types copied from Camera Modes of engine. */
 const cameraModeSelect = [
@@ -54,10 +77,8 @@ const projectionTypeSelect = [
   }
 ]
 
-export const CameraPropertiesNodeEditor = () => {
-  const cameraSettings = useHookstate(getCameraSceneMetadataState(Engine.instance.currentWorld))
-  if (!cameraSettings.value) return null
-
+export const CameraPropertiesNodeEditor: EditorComponentType = (props) => {
+  const cameraSettings = useComponent(props.entity, CameraSettingsComponent)
   return (
     <PropertyGroup
       name={t('editor:properties.cameraSettings.name')}
@@ -173,17 +194,6 @@ export const CameraPropertiesNodeEditor = () => {
         largeStep={0.1}
         default={5}
         value={cameraSettings.maxPhi.value}
-      />
-      <NumericInputGroup
-        name="startPhi"
-        label={'Start Phi'}
-        onChange={(val) => cameraSettings.startPhi.set(val)}
-        min={0.001}
-        smallStep={0.001}
-        mediumStep={0.01}
-        largeStep={0.1}
-        default={5}
-        value={cameraSettings.startPhi.value}
       />
     </PropertyGroup>
   )

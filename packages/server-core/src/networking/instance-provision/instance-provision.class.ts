@@ -1,16 +1,46 @@
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
 import { BadRequest, NotAuthenticated } from '@feathersjs/errors'
 import { Id, NullableId, Paginated, Params, ServiceMethods } from '@feathersjs/feathers'
 import https from 'https'
+import { Knex } from 'knex'
 import _ from 'lodash'
 import fetch from 'node-fetch'
-import Sequelize, { Op } from 'sequelize'
+import { Op } from 'sequelize'
 
-import { Instance } from '@xrengine/common/src/interfaces/Instance'
-import { InstanceServerProvisionResult } from '@xrengine/common/src/interfaces/InstanceServerProvisionResult'
+import { Instance } from '@etherealengine/common/src/interfaces/Instance'
+import { InstanceServerProvisionResult } from '@etherealengine/common/src/interfaces/InstanceServerProvisionResult'
+import { locationPath, LocationType } from '@etherealengine/engine/src/schemas/social/location.schema'
+import { getState } from '@etherealengine/hyperflux'
 
+import { ChannelID } from '@etherealengine/common/src/interfaces/ChannelUser'
 import { Application } from '../../../declarations'
 import config from '../../appconfig'
 import logger from '../../ServerLogger'
+import { ServerState } from '../../ServerState'
 import getLocalServerIp from '../../util/get-local-server-ip'
 import { InstanceAuthorizedUserDataType } from '../instance-authorized-user/instance-authorized-user.class'
 
@@ -34,7 +64,7 @@ export async function getFreeInstanceserver({
   app: Application
   iteration: number
   locationId?: string
-  channelId?: string
+  channelId?: ChannelID
   roomCode?: string
   userId?: string
   createPrivateRoom?: boolean
@@ -65,7 +95,8 @@ export async function getFreeInstanceserver({
     })
   }
   logger.info('Getting free instanceserver')
-  const serverResult = await app.k8AgonesClient.listNamespacedCustomObject('agones.dev', 'v1', 'default', 'gameservers')
+  const k8AgonesClient = getState(ServerState).k8AgonesClient
+  const serverResult = await k8AgonesClient.listNamespacedCustomObject('agones.dev', 'v1', 'default', 'gameservers')
   const readyServers = _.filter((serverResult.body as any).items, (server: any) => {
     const releaseMatch = releaseRegex.exec(server.metadata.name)
     return server.status.state === 'Ready' && releaseMatch != null && releaseMatch[1] === config.server.releaseName
@@ -125,12 +156,20 @@ export async function checkForDuplicatedAssignments({
   ipAddress: string
   iteration: number
   locationId?: string
-  channelId?: string
+  channelId?: ChannelID
   roomCode?: string | undefined
   createPrivateRoom?: boolean
   userId?: string
   podName?: string
 }): Promise<InstanceServerProvisionResult> {
+  /** since in local dev we can only have one instance server of each type at a time, we must force all old instances of this type to be ended */
+  if (!config.kubernetes.enabled) {
+    const query = { ended: false } as any
+    if (locationId) query.locationId = locationId
+    if (channelId) query.channelId = channelId
+    await app.service('instance').patch(null, { ended: true }, { query })
+  }
+
   //Create an assigned instance at this IP
   const assignResult: any = await app.service('instance').create({
     ipAddress: ipAddress,
@@ -166,7 +205,7 @@ export async function checkForDuplicatedAssignments({
     let isFirstAssignment = true
     //Iterate through all of the assignments to this IP address. If this one is later than any other one,
     //then this one needs to find a different IS
-    for (let instance of duplicateIPAssignment.data) {
+    for (const instance of duplicateIPAssignment.data) {
       if (instance.id !== assignResult.id && instance.assignedAt < assignResult.assignedAt) {
         isFirstAssignment = false
         break
@@ -212,7 +251,7 @@ export async function checkForDuplicatedAssignments({
     let isFirstAssignment = true
     //Iterate through all of the assignments for this location/channel. If this one is later than any other one,
     //then this one needs to find a different IS
-    for (let instance of duplicateLocationAssignment.data) {
+    for (const instance of duplicateLocationAssignment.data) {
       if (instance.id !== assignResult.id && instance.assignedAt < assignResult.assignedAt) {
         isFirstAssignment = false
         const ipSplit = instance.ipAddress.split(':')
@@ -258,8 +297,7 @@ export async function checkForDuplicatedAssignments({
   // it assumes the pod is unresponsive. Locally, it just waits half a second and tries again - if the local
   // instanceservers are rebooting after the last person left, we just need to wait a bit for them to start.
   // In production, it attempts to delete that pod via the K8s API client and tries again.
-  let responsivenessCheck: boolean
-  responsivenessCheck = await Promise.race([
+  const responsivenessCheck = await Promise.race([
     new Promise<boolean>((resolve) => {
       setTimeout(() => {
         logger.warn(`Instanceserver at ${ipAddress} too long to respond, assuming it is unresponsive and killing`)
@@ -288,7 +326,11 @@ export async function checkForDuplicatedAssignments({
   ])
   if (!responsivenessCheck) {
     await app.service('instance').remove(assignResult.id)
-    if (config.kubernetes.enabled) app.k8DefaultClient.deleteNamespacedPod(assignResult.podName, 'default')
+    const k8DefaultClient = getState(ServerState).k8DefaultClient
+    if (config.kubernetes.enabled)
+      try {
+        k8DefaultClient.deleteNamespacedPod(assignResult.podName, 'default')
+      } catch (err) {}
     else await new Promise((resolve) => setTimeout(() => resolve(null), 500))
     return getFreeInstanceserver({
       app,
@@ -350,7 +392,7 @@ export class InstanceProvision implements ServiceMethods<any> {
   }: {
     availableLocationInstances: Instance[]
     locationId?: string
-    channelId?: string
+    channelId?: ChannelID
     roomCode?: undefined | string
     userId?: undefined | string
   }): Promise<InstanceServerProvisionResult> {
@@ -413,8 +455,9 @@ export class InstanceProvision implements ServiceMethods<any> {
    * @returns {@Boolean}
    */
 
-  async isCleanup(instance): Promise<boolean> {
-    const instanceservers = await this.app.k8AgonesClient.listNamespacedCustomObject(
+  async isCleanup(instance: Instance): Promise<boolean> {
+    const k8AgonesClient = getState(ServerState).k8AgonesClient
+    const instanceservers = await k8AgonesClient.listNamespacedCustomObject(
       'agones.dev',
       'v1',
       'default',
@@ -473,7 +516,7 @@ export class InstanceProvision implements ServiceMethods<any> {
       let userId
       const locationId = params?.query?.locationId
       const instanceId = params?.query?.instanceId
-      const channelId = params?.query?.channelId
+      const channelId = params?.query?.channelId as ChannelID | undefined
       const roomCode = params?.query?.roomCode
       const createPrivateRoom = params?.query?.createPrivateRoom
       const token = params?.query?.token
@@ -517,7 +560,7 @@ export class InstanceProvision implements ServiceMethods<any> {
         }
       } else {
         if (locationId == null) throw new BadRequest('Missing location ID')
-        const location = await this.app.service('location').get(locationId)
+        const location = await this.app.service(locationPath).get(locationId)
         if (location == null) throw new BadRequest('Invalid location ID')
 
         let instance: Instance | null = null
@@ -568,58 +611,6 @@ export class InstanceProvision implements ServiceMethods<any> {
           }
         }
         // const user = await this.app.service('user').get(userId)
-        // If the user is in a party, they should be sent to their party's server as long as they are
-        // trying to go to the scene their party is in.
-        // If the user is going to a different scene, they will be removed from the party and sent to a random instance
-        // if (user.partyId) {
-        //   const partyOwnerResult = await this.app.service('party-user').find({
-        //     query: {
-        //       partyId: user.partyId,
-        //       isOwner: true
-        //     }
-        //   });
-        //   const partyOwner = (partyOwnerResult as any).data[0];
-        //   // Only redirect non-party owners. Party owner will be provisioned below this and will pull the
-        //   // other party members with them.
-        //   if (partyOwner?.userId !== userId && partyOwner?.user.instanceId) {
-        //     const partyInstance = await this.app.service('instance').get(partyOwner.user.instanceId);
-        //     // Only provision the party's instance if the non-owner is trying to go to the party's scene.
-        //     // If they're not, they'll be removed from the party
-        //     if (partyInstance.locationId === locationId) {
-        //       if (!config.kubernetes.enabled) {
-        //         return getLocalServerIp();
-        //       }
-        //       const addressSplit = partyInstance.ipAddress.split(':');
-        //       return {
-        //         ipAddress: addressSplit[0],
-        //         port: addressSplit[1]
-        //       };
-        //     } else {
-        //       // Remove the party user for this user, as they're going to a different scene from their party.
-        //       const partyUser = await this.app.service('party-user').find({
-        //         query: {
-        //           userId: user.id,
-        //           partyId: user.partyId
-        //         }
-        //       });
-        //       const {query, ...paramsCopy} = params;
-        //       paramsCopy.query = {};
-        //       await this.app.service('party-user').remove((partyUser as any).data[0].id, paramsCopy);
-        //     }
-        //   } else if (partyOwner?.userId === userId && partyOwner?.user.instanceId) {
-        //     const partyInstance = await this.app.service('instance').get(partyOwner.user.instanceId);
-        //     if (partyInstance.locationId === locationId) {
-        //       if (!config.kubernetes.enabled) {
-        //         return getLocalServerIp();
-        //       }
-        //       const addressSplit = partyInstance.ipAddress.split(':');
-        //       return {
-        //         ipAddress: addressSplit[0],
-        //         port: addressSplit[1]
-        //       };
-        //     }
-        //   }
-        // }
         // const friendsAtLocationResult = await this.app.service('user').Model.findAndCountAll({
         //   include: [
         //     {
@@ -677,26 +668,45 @@ export class InstanceProvision implements ServiceMethods<any> {
         //     roomCode: instance.roomCode
         //   }
         // }
-        const availableLocationInstances = await this.app.service('instance').Model.findAll({
-          where: {
-            locationId: location.id,
-            ended: false
-          },
-          include: [
-            {
-              model: this.app.service('location').Model,
-              where: {
-                maxUsersPerInstance: {
-                  [Op.gt]: Sequelize.col('instance.currentUsers')
-                }
-              }
-            },
-            {
-              model: this.app.service('instance-authorized-user').Model,
-              required: false
+
+        const knexClient: Knex = this.app.get('knexClient')
+
+        const response = await knexClient
+          .from('instance')
+          .join(locationPath, 'instance.locationId', '=', `${locationPath}.id`)
+          .where('instance.locationId', '=', location.id)
+          .andWhere('instance.ended', '=', false)
+          .andWhere(`${locationPath}.maxUsersPerInstance`, '>', 'instance.currentUsers')
+          .select()
+          .options({ nestTables: true }) // https://github.com/knex/knex/issues/61#issuecomment-213949230
+
+        const availableLocationInstances = response.map((item) => item.instance)
+
+        const locations = (await this.app.service(locationPath).find({
+          query: {
+            id: {
+              $in: availableLocationInstances.map((instance) => instance.locationId)
             }
-          ]
-        })
+          },
+          paginate: false
+        })) as any as LocationType[]
+        const instanceAuthorizedUsers = (await this.app.service('instance-authorized-user').find({
+          query: {
+            instanceId: {
+              $in: availableLocationInstances.map((instance) => instance.id)
+            }
+          },
+          paginate: false
+        })) as InstanceAuthorizedUserDataType[]
+
+        for (const instance of availableLocationInstances) {
+          const location = locations.find((location) => location.id === instance.locationId)
+          instance.location = location
+
+          const authorizedUsers = instanceAuthorizedUsers.find((user) => user.instanceId === instance.id) || []
+          instance.instance_authorized_users = authorizedUsers
+        }
+
         const allowedLocationInstances = availableLocationInstances.filter(
           (instance) =>
             instance.instance_authorized_users.length === 0 ||

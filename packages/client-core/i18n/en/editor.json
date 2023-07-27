@@ -118,6 +118,18 @@
       "none": "None",
       "users": "Users",
       "user": "User"
+    },
+    "render-settings":{
+      "lbl-usePostProcessing":"Use Post Processing",
+      "info-usePostProcessing":"Enables post processing",
+      "lbl-shadowMapResolution":"Shadow Map Resolution",
+      "info-shadowMapResolution":"Set shadowmap resolution",
+      "lbl-renderMode":"Render Mode",
+      "info-renderMode":"Choose render mode"
+    },
+    "grid": {
+      "info-incrementHeight": "Increment Grid Height",
+      "info-decrementHeight": "Decrement Grid Height"
     }
   },
   "properties": {
@@ -164,8 +176,8 @@
       "pausetitle": "Pause",
       "lbl-controls": "controls",
       "info-controls": "Toggle the visibility of the media controls.",
-      "lbl-autoplay": "Auto Play",
-      "info-autoplay": "If true, the media will start playing when the scene loads",
+      "lbl-paused": "Paused",
+      "info-paused": "Indicates whether the media is currently playing or paused",
       "lbl-synchronize": "Synchronize",
       "info-synchronize": "If true, the media will be synchronized on all the connected clients.",
       "lbl-volume": "Volume",
@@ -237,6 +249,26 @@
       "description": "Link to a room or a website.",
       "lbl-url": "URL"
     },
+    "loopAnimation": {
+      "title": "Loop Animation",
+      "description": "Looped animation associated with your 3d model, loaded from a GLTF URL or file.",
+      "lbl-loopAnimation": "Loop Animation"
+    },
+    "variant": {
+      "name": "Variant",
+      "description": "Load different assets based on heuristics",
+      "device": "Device",
+      "device-mobile": "Mobile",
+      "device-desktop": "Desktop",
+      "heuristic": "Heuristic",
+      "heuristic-distance": "Distance",
+      "heuristic-sceneScale": "Scene Scale",
+      "heuristic-manual": "Manual",
+      "heuristic-device": "Device",
+      "minDistance": "Minimum Distance",
+      "maxDistance": "Maximum Distance",
+      "src": "Source"
+    },
     "map": {
       "description": "3D geospatial map of e.g. a city."
     },
@@ -258,6 +290,7 @@
       "lbl-receiveShadow": "Receive Shadow",
       "lbl-interactable": "Interactable",
       "lbl-generateBVH": "Generate BVH",
+      "lbl-avoidCameraOcclusion": "Avoid Camera Occlusion",
       "lbl-matrixAutoUpdate": "MatrixAutoUpdate",
       "lbl-name": "Name",
       "lbl-url": "Model Url",
@@ -267,10 +300,51 @@
       "lbl-interactionText": "Interaction Text",
       "lbl-interactionType": "Interaction Type",
       "transform": {
+        "compress": "Compress",
         "useDraco": "Use DRACO Mesh Compression",
         "useMeshopt": "Use Meshoptimizer",
         "useQuantization": "Use Mesh Quantization",
-        "textureFormat": "Image Format"
+        "textureFormat": "Image Format",
+        "modelFormat": "Model Format",
+        "resourceUri": "Resource URI",
+        "dst": "File Name",
+        "resampleAnimations": "Resample Animations",
+        "maxTextureSize": "Max Texture Size",
+        "flatten": "Flatten Scene Graph",
+        "join": "Join Meshes",
+        "palette": "Generate Palette Textures",
+        "flipY": "Flip Y",
+        "flipYTooltip": "If checked, the source images will be Y flipped before compression",
+        "instance": "Instance Identical Meshes",
+        "srgb": "Linear Color Space",
+        "srgbTooltip": "If checked, the provided map is assumed to be in sRGB space",
+        "textureCompressionType": "Texture Compression Type",
+        "ktx2Quality": "Compression Quality",
+        "weldVertices": "Weld Vertices",
+        "weldThreshold": "Weld Threshold",
+        "removeDuplicates": "Remove Duplicates",
+        "pruneUnused": "Prune Unused",
+        "reorder": "Reorder",
+        "resourceOverrides": "Resource Overrides",
+        "quality": "Quality",
+        "qualityTooltip": "Sets the ETC1S encoder's quality level, which controls the file size vs. quality tradeoff",
+        "mode": "Mode",
+        "modeTooltip": "If checked, the encoder will output a UASTC texture, otherwise a ETC1S texture",
+        "mipmaps": "Mipmaps",
+        "mipmapsTooltip": "If checked, the encoder will generate mipmaps",
+        "compressionLevel": "Compression Level",
+        "compressionLevelTooltip": "The compression level parameter controls the encoder perf vs. file size tradeoff for ETC1S files. It does not directly control file size vs. quality (see Quality)",
+        "uastcFlags": "UASTC Flags",
+        "uastcFlagsTooltip": "Sets the UASTC encoding performance vs. quality tradeoff, and other lesser used UASTC encoder flags. This is a combination of flags",
+        "normalMap": "Normal Map",
+        "normalMapTooltip": "Tunes several codec parameters so compression works better on normal maps",
+        "uastcZstandard": "UASTC Zstandard",
+        "uastcZstandardTooltip": "Use UASTC Zstandard supercompression"
+      },
+      "lods": {
+        "label": "Level of Detail",
+        "serialize": "Serialize",
+        "generate": "Generate LODs"
       }
     },
     "materialAssignment": {
@@ -311,7 +385,7 @@
     "image": {
       "name": "Image",
       "description": "Dynamically loads an image.",
-      "lbl-imgURL": "Image Url",
+      "lbl-imgURL": "Image URL",
       "lbl-transparency": "Transparency Mode",
       "lbl-alphaCutoff": "Alpha Cutoff",
       "lbl-projection": "Projection",
@@ -326,38 +400,35 @@
     },
     "screenshare": {
       "name": "Screenshare Target",
-      "description": "Allows this object to be a target for screeshare projection."
+      "description": "Allows this object to be a target for screen-share projection."
     },
     "name": {
       "lbl-name": "Name"
     },
-    "partileEmitter": {
+    "particle-system": {
+      "name": "Particle System",
       "description": "Particle emitter to create particles.",
-      "lbl-particleCount": "Particle Count",
-      "lbl-image": "Image",
-      "lbl-ageRandomness": "Age Randomness",
-      "lbl-lifetime": "Lifetime",
-      "lbl-lifetimeRandomness": "Lifetime Randomness",
-      "lbl-sizeCurve": "Size Curve",
-      "lbl-startPSize": "Start Particle Size",
-      "lbl-endPSize": "End Particle Size",
-      "lbl-sizeRandomness": "Size Randomness",
-      "lbl-colorCurve": "Color Curve",
-      "lbl-startColor": "Start Color",
-      "lbl-startOpacity": "Start Opacity",
-      "lbl-middleColor": "Middle Color",
-      "lbl-middleOpacity": "Middle Opacity",
-      "lbl-endColor": "End Color",
-      "lbl-endOpacity": "End Opacity",
-      "lbl-velocityCurve": "Velocity Curve",
-      "lbl-startVelocity": "Start Velocity",
-      "lbl-endVelocity": "End Velocity",
-      "lbl-angularVelocity": "Angular Velocity",
-      "info-ageRandomness": "The amount of variation between when particles are spawned.",
-      "info-lifetime": "The maximum age of a particle before it is respawned.",
-      "info-lifetimeRandomness": "The amount of variation between particle lifetimes.",
-      "info-sizeRandomness": "The amount of variation between particle starting sizes.",
-      "error-url": "Error Loading From URL"
+      "looping": "Looping",
+      "duration": "Duration",
+      "prewarm": "Prewarm",
+      "emitter-shape": "Emitter Shape",
+      "emission-bursts": "Emission Bursts",
+      "shape-mesh": "Emitter Shape Mesh",
+      "start-life": "Start Life",
+      "start-size": "Start Size",
+      "start-speed": "Start Speed",
+      "start-rotation": "Start Rotation",
+      "start-color": "Start Color",
+      "emission-over-time": "Emission Over Time",
+      "render-mode": "Render Mode",
+      "texture": "Particle Texture",
+      "u-tiles": "U Tiles",
+      "v-tiles": "V Tiles",
+      "start-tile-index": "Starting Tile Index",
+      "mesh": "Particle Mesh",
+      "blending": "Blending",
+      "transparent": "Transparent",
+      "world-space": "Use World Space"
     },
     "clouds": {
       "name": "Cloud",
@@ -505,6 +576,10 @@
       "lbl-lods": "LODs",
       "info-lods": "Sets the distances at which levels of detail change.",
       "lbl-rendererSettings": "Override Renderer Settings",
+      "lbl-usePostProcessing": "Use Post Processing",
+      "info-usePostProcessing": "Enables post processing",
+      "lbl-useShadows": "Use Shadows",
+      "info-useShadows": "Enables shadows",
       "lbl-csm": "Cascading Shadow Maps",
       "info-csm": "Enables cascading shadow maps.",
       "lbl-toneMapping": "Tone Mapping",
@@ -589,7 +664,8 @@
     "systemnode": {
       "description": "Attach script.",
       "lbl-filePath": "Url",
-      "lbl-systemUpdateType": "Injection Point",
+      "lbl-insertUUID": "Reference System",
+      "lbl-insertOrder": "Insertion Order",
       "lbl-enableClient": "Client",
       "lbl-enableServer": "Server",
       "lbl-args": "Args",
@@ -598,14 +674,16 @@
     "portal": {
       "lbl-portal": "Linked Portal",
       "lbl-redirect": "Use Page Redirect",
-      "description": "A Portat to teleport players to specified location",
+      "description": "A Portal to teleport players to specified location",
       "lbl-locationName": "Location",
       "lbl-modelUrl": "Model URL",
       "lbl-displayText": "Display Text",
       "lbl-effectType": "Loading Effect",
       "lbl-previewType": "Preview Type",
       "lbl-previewImageURL": "Preview Image URL",
-      "lbl-createPreviewImage": "Create Preview Image",
+      "lbl-savedImageURL": "Saved Image URL",
+      "lbl-previewImage": "Preview Image",
+      "lbl-saveImage": "Save Image",
       "lbl-spawnPosition": "Spawn Position",
       "lbl-spawnRotation": "Spawn Rotation",
       "lbl-triggerPosition": "Trigger Position",
@@ -670,7 +748,9 @@
       "viewAssetProperties": "View Properties",
       "refresh": "Refresh",
       "back": "Back",
-      "loadingFiles": "Loading files"
+      "loadingFiles": "Loading files",
+      "compress": "Compress",
+      "convert": "Convert"
     }
   },
   "hierarchy": {

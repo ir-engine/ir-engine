@@ -1,8 +1,33 @@
+/*
+CPAL-1.0 License
+
+The contents of this file are subject to the Common Public Attribution License
+Version 1.0. (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but Sections 14
+and 15 have been added to cover use of software over a computer network and 
+provide for limited attribution for the Original Developer. In addition, 
+Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
+specific language governing rights and limitations under the License.
+
+The Original Code is Ethereal Engine.
+
+The Original Developer is the Initial Developer. The Initial Developer of the
+Original Code is the Ethereal Engine team.
+
+All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
+Ethereal Engine. All Rights Reserved.
+*/
+
 import { Paginated } from '@feathersjs/feathers'
 
-import { InviteType } from '@xrengine/common/src/interfaces/InviteType'
-import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
-import { addActionReceptor, defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
+import { InviteType } from '@etherealengine/common/src/interfaces/InviteType'
+import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
+import { defineAction, defineState, dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 
 import { API } from '../../API'
 import { NotificationService } from '../../common/services/NotificationService'
@@ -19,7 +44,7 @@ const InviteTypeState = defineState({
 })
 
 export const InviteTypeServiceReceptor = (action) => {
-  const s = getState(InviteTypeState)
+  const s = getMutableState(InviteTypeState)
   matches(action).when(InviteTypeAction.retrievedInvitesTypes.matches, (action) => {
     return s.merge({
       invitesType: action.invitesType.data,
@@ -29,10 +54,6 @@ export const InviteTypeServiceReceptor = (action) => {
     })
   })
 }
-
-export const accessInviteTypeState = () => getState(InviteTypeState)
-
-export const useInviteTypeState = () => useState(accessInviteTypeState())
 
 //Service
 export const InviteTypeService = {
@@ -57,7 +78,7 @@ export const InviteTypeService = {
 //Action
 export class InviteTypeAction {
   static retrievedInvitesTypes = defineAction({
-    type: 'xre.client.InviteType.LOAD_INVITE_TYPE' as const,
+    type: 'ee.client.InviteType.LOAD_INVITE_TYPE' as const,
     total: matches.number,
     limit: matches.number,
     invitesType: matches.any as Validator<unknown, Paginated<InviteType>>,
@@ -65,6 +86,6 @@ export class InviteTypeAction {
   })
 
   static fetchingInvitesTypes = defineAction({
-    type: 'xre.client.InviteType.FETCHING_RECEIVED_INVITES_TYPES' as const
+    type: 'ee.client.InviteType.FETCHING_RECEIVED_INVITES_TYPES' as const
   })
 }
