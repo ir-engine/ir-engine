@@ -27,6 +27,10 @@ Ethereal Engine. All Rights Reserved.
 import type { Static } from '@feathersjs/typebox'
 import { querySyntax, Type } from '@feathersjs/typebox'
 
+export const locationBanPath = 'location-ban'
+
+export const locationBanMethods = ['find', 'create', 'patch', 'remove', 'get'] as const
+
 // Main data model schema
 export const locationBanSchema = Type.Object(
   {
@@ -38,7 +42,9 @@ export const locationBanSchema = Type.Object(
     }),
     locationId: Type.String({
       format: 'uuid'
-    })
+    }),
+    createdAt: Type.String({ format: 'date-time' }),
+    updatedAt: Type.String({ format: 'date-time' })
   },
   { $id: 'LocationBan', additionalProperties: false }
 )

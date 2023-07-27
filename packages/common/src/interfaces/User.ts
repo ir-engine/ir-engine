@@ -26,10 +26,10 @@ Ethereal Engine. All Rights Reserved.
 import { ScopeTypeData } from '@etherealengine/engine/src/schemas/scope/scope-type.schema'
 import { UserApiKeyType } from '@etherealengine/engine/src/schemas/user/user-api-key.schema'
 
+import { LocationBanType } from '@etherealengine/engine/src/schemas/social/location-ban.schema'
 import { IdentityProvider } from './IdentityProvider'
 import { InstanceAttendanceInterface } from './InstanceAttendance'
 import { LocationAdmin } from './LocationAdmin'
-import { LocationBan } from './LocationBan'
 import { StaticResourceInterface } from './StaticResourceInterface'
 import { UserId } from './UserId'
 import { RelationshipType } from './UserRelationship'
@@ -67,7 +67,7 @@ export interface UserInterface {
   /* @deprecated */
   inverseRelationType?: RelationshipType
   avatarUrl?: string
-  locationBans?: LocationBan[]
+  locationBans?: LocationBanType[]
   user_setting?: UserSetting
   inviteCode?: string
   scopes?: UserScope[]
