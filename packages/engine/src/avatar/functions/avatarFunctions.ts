@@ -73,8 +73,6 @@ export const loadAvatarModelAsset = async (avatarURL: string) => {
 
   let vrm = (model instanceof VRM ? model : model.userData.vrm ?? avatarBoneMatching(scene)) as VRM
 
-  console.log(scene)
-
   return vrm as VRM
 }
 
@@ -161,7 +159,7 @@ export const rigAvatarModel = (entity: Entity) => (model: VRM) => {
   const avatarAnimationComponent = getComponent(entity, AvatarAnimationComponent)
   removeComponent(entity, AvatarRigComponent)
 
-  const rig = model.humanoid?.humanBones
+  const rig = model.humanoid?.normalizedHumanBones
 
   const skinnedMeshes = findSkinnedMeshes(model.scene)
 

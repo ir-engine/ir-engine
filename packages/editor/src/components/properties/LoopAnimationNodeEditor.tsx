@@ -27,13 +27,14 @@ import React, { useCallback, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { LoopAnimationComponent } from '@etherealengine/engine/src/avatar/components/LoopAnimationComponent'
-import { useComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { getComponent, useComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { getCallback } from '@etherealengine/engine/src/scene/components/CallbackComponent'
 import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
 import { useState } from '@etherealengine/hyperflux'
 
 import AnimationIcon from '@mui/icons-material/Animation'
 
+import { AnimationComponent } from '@etherealengine/engine/src/avatar/components/AnimationComponent'
 import { getEntityErrors } from '@etherealengine/engine/src/scene/components/ErrorComponent'
 import InputGroup from '../inputs/InputGroup'
 import ModelInput from '../inputs/ModelInput'
@@ -58,12 +59,13 @@ export const LoopAnimationNodeEditor: EditorComponentType = (props) => {
 
   useEffect(() => {
     const obj3d = modelComponent.value.scene
-    const animations = obj3d?.animations ?? []
-    animationOptions.set([
-      { label: 'None', value: -1 },
-      ...animations.map((clip, index) => ({ label: clip.name, value: index }))
-    ])
-  }, [modelComponent.scene, loopAnimationComponent.isVRM])
+    const animations = getComponent(entity, AnimationComponent).animations
+    if (animations)
+      animationOptions.set([
+        { label: 'None', value: -1 },
+        ...animations.map((clip, index) => ({ label: clip.name, value: index }))
+      ])
+  }, [modelComponent.scene, loopAnimationComponent.vrm, loopAnimationComponent.animationPack])
 
   const onChangePlayingAnimation = (index) => {
     updateProperties(LoopAnimationComponent, {
@@ -90,7 +92,7 @@ export const LoopAnimationNodeEditor: EditorComponentType = (props) => {
           onChange={onChangePlayingAnimation}
         />
       </InputGroup>
-      {loopAnimationComponent.isVRM.value && (
+      {loopAnimationComponent.vrm.value && (
         <InputGroup name="Animation Pack" label="Animation Pack (via Mixamo Rig)">
           <ModelInput value={loopAnimationComponent.animationPack.value} onChange={updateResources} />
           {errors?.LOADING_ERROR && (

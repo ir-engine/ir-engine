@@ -139,8 +139,8 @@ const _hipRot = new Quaternion()
 const leftLegVector = new Vector3()
 const rightLegVector = new Vector3()
 
-const midAxisRestriction = new Euler(0, 0, 0) // Restrict rotation around the X-axis to 45 degrees
-const tipAxisRestriction = new Euler(0, 0, 0) // Restrict rotation around the X-axis to 45 degrees
+const midAxisRestriction = new Euler(0, 0, 0)
+const tipAxisRestriction = new Euler(0, 0, 0)
 
 interface targetTransform {
   position: Vector3
@@ -523,8 +523,9 @@ const execute = () => {
       worldSpaceTargets.rightFootTarget.rotation,
       null,
       worldSpaceTargets.rightKneeHint.position,
-      null,
-      midAxisRestriction
+      tipAxisRestriction,
+      midAxisRestriction,
+      tipAxisRestriction
     )
 
     solveTwoBoneIK(
@@ -537,9 +538,12 @@ const execute = () => {
       worldSpaceTargets.leftFootTarget.rotation,
       null,
       worldSpaceTargets.leftKneeHint.position,
-      null,
-      midAxisRestriction
+      tipAxisRestriction,
+      midAxisRestriction,
+      tipAxisRestriction
     )
+
+    rigComponent.vrm.update(getState(EngineState).deltaSeconds)
   }
 
   /**

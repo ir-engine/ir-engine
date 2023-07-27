@@ -146,7 +146,10 @@ function ModelReactor() {
               loadedAsset.scene.userData.src = model.src
               loadedAsset.scene.userData.type === 'glb' && delete loadedAsset.scene.userData.type
               console.log(loadedAsset.scene.userData.type)
-              if (loadedAsset.scene.userData.type === 'vrm') setComponent(entity, LoopAnimationComponent)
+              if (loadedAsset.scene.userData.type === 'vrm') {
+                setComponent(entity, LoopAnimationComponent)
+                getComponent(entity, LoopAnimationComponent).vrm = loadedAsset
+              }
               model.scene && removeObjectFromGroup(entity, model.scene)
               modelComponent.scene.set(loadedAsset.scene)
               if (!hasComponent(entity, SceneAssetPendingTagComponent)) return

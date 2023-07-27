@@ -27,6 +27,7 @@ import { VRMLoaderPlugin } from '@pixiv/three-vrm'
 
 import { getState } from '@etherealengine/hyperflux'
 
+import { Group } from 'three'
 import { isClient } from '../../common/functions/getEnvironment'
 import { EngineState } from '../../ecs/classes/EngineState'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
@@ -64,7 +65,7 @@ export const createGLTFLoader = (keepMaterials = false) => {
   }
   loader.register((parser) => new EEECSImporterExtension(parser))
   loader.register((parser) => new HubsComponentsExtension(parser))
-  loader.register((parser) => new VRMLoaderPlugin(parser))
+  loader.register((parser) => new VRMLoaderPlugin(parser, { helperRoot: new Group(), autoUpdateHumanBones: true }))
   loader.register((parser) => new CachedImageLoadExtension(parser))
   loader.setMeshoptDecoder(MeshoptDecoder)
 
