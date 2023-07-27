@@ -213,11 +213,10 @@ export function VolumetricReactor() {
   useEffect(() => {
     if (!volumetric.player.value) return
     if (volumetric.hasTrackStopped.value) {
-      volumetric.loadingEffectActive.set(volumetric.useLoadingEffect.value) // set to user's value
-      volumetric.loadingEffectTime.set(0)
-
       // Track is changed. Set the track path
       if (volumetric.paths[volumetric.track.value].value) {
+        volumetric.loadingEffectActive.set(volumetric.useLoadingEffect.value) // set to user's value
+        volumetric.loadingEffectTime.set(0)
         volumetric.player.value.setTrackPath(volumetric.paths[volumetric.track.value].value)
         volumetric.hasTrackStopped.set(false)
       }

@@ -120,11 +120,13 @@ const execute = () => {
       player.update()
       const height = volumetric.height
       const step = volumetric.height / 150
-      if (volumetric.loadingEffectActive) {
+      if (volumetric.loadingEffectActive && player.mesh) {
         if (volumetric.loadingEffectTime <= height) {
           player.mesh.traverse((child: any) => {
             if (child['material']) {
-              if (child.material.uniforms) child.material.uniforms.time.value = volumetric.loadingEffectTime
+              if (child.material.uniforms) {
+                child.material.uniforms.time = volumetric.loadingEffectTime
+              }
             }
           })
           volumetric.loadingEffectTime += step
