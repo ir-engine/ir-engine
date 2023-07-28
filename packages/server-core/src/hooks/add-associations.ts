@@ -28,11 +28,18 @@ import { Hook, HookContext } from '@feathersjs/feathers'
 import { Application } from '@etherealengine/server-core/declarations'
 
 import logger from '../ServerLogger'
-import { createAvatarModel, createUserApiKeyModel } from '../user/user/user.model'
+import {
+  createAvatarModel,
+  createLocationBanModel,
+  createLocationModel,
+  createUserApiKeyModel
+} from '../user/user/user.model'
 
 const getMigratedModels = (app: Application) => {
   return {
     avatar: createAvatarModel(app),
+    location: createLocationModel(app),
+    'location-ban': createLocationBanModel(app),
     'user-api-key': createUserApiKeyModel(app)
   }
 }

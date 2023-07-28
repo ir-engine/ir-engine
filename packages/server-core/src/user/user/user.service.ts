@@ -72,11 +72,6 @@ export default (app: Application): void => {
   // @ts-ignore
   service.publish('patched', async (data: UserInterface, params): Promise<any> => {
     try {
-      const groupUsers = await app.service('group-user').Model.findAll({
-        where: {
-          userId: data.id
-        }
-      })
       const userRelationships = await app.service('user-relationship').Model.findAll({
         where: {
           userRelationshipType: 'friend',
@@ -113,14 +108,6 @@ export default (app: Application): void => {
       })
       targetIds = targetIds.concat(layerUsers.map((user) => user.id))
 
-      groupUsers.forEach((groupUser) => {
-        updatePromises.push(
-          app.service('group-user').patch(groupUser.id, {
-            groupUserRank: groupUser.groupUserRank
-          })
-        )
-        targetIds.push(groupUser.userId)
-      })
       // userRelationships.forEach((userRelationship) => {
       //   updatePromises.push(
       //     app.service('user-relationship').patch(

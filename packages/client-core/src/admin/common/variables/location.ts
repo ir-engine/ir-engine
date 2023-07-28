@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 export interface LocationColumn {
-  id: 'sceneId' | 'maxUsersPerInstance' | 'scene' | 'name' | 'type' | 'tags' | 'videoEnabled' | 'action'
+  id: 'sceneId' | 'maxUsersPerInstance' | 'scene' | 'name' | 'locationType' | 'tags' | 'videoEnabled' | 'action'
   label: string
   minWidth?: number
   align?: 'right' | 'center'
@@ -44,7 +44,7 @@ export const locationColumns: LocationColumn[] = [
     align: 'center'
   },
   {
-    id: 'type',
+    id: 'locationType',
     label: 'Type',
     minWidth: 65,
     align: 'right'

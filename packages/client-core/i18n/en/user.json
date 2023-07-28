@@ -383,9 +383,11 @@
   "friends": {
     "find": "Find",
     "friends": "Friends",
+    "messages": "Messages",
     "blocked": "Blocked",
     "message": "Message",
     "profile": "Profile",
+    "call": "Call",
     "accept": "Accept",
     "decline": "Decline",
     "unblock": "Unblock",

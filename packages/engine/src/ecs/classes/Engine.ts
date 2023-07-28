@@ -103,11 +103,6 @@ export class Engine {
     return getMutableState(NetworkState).networks[getState(NetworkState).hostIds.media!]!
   }
 
-  /** @todo parties */
-  // get partyNetwork() {
-  //   return this.networks.get(NetworkTopics.localMedia)?.get(this._mediaHostId)!
-  // }
-
   gltfLoader: GLTFLoader = null!
 
   xrFrame: XRFrame | null = null
@@ -218,8 +213,12 @@ export async function destroyEngine() {
 
   if (Engine.instance.api) {
     if ((Engine.instance.api as any).server) await Engine.instance.api.teardown()
-    else if ((Engine.instance.api as any).get('sequelizeClient'))
-      await (Engine.instance.api as any).get('sequelizeClient').close()
+
+    const sequelize = (Engine.instance.api as any).get?.('sequelizeClient')
+    if (sequelize) await sequelize.close()
+
+    const knex = (Engine.instance.api as any).get?.('knexClient')
+    if (knex) await knex.destroy()
   }
 
   /** Remove all entities */

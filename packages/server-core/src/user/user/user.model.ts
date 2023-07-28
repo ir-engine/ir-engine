@@ -24,8 +24,17 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { DataTypes, Model, Sequelize } from 'sequelize'
+import { HookReturn } from 'sequelize/types/hooks'
 
-import { AvatarInterface, UserApiKeyInterface, UserInterface } from '@etherealengine/common/src/dbmodels/UserInterface'
+import {
+  AvatarInterface,
+  LocationBanInterface,
+  LocationInterface,
+  LocationSettingsInterface,
+  LocationTypeInterface,
+  UserApiKeyInterface,
+  UserInterface
+} from '@etherealengine/common/src/dbmodels/UserInterface'
 
 import { Application } from '../../../declarations'
 
@@ -74,23 +83,16 @@ export default (app: Application) => {
   ;(User as any).associate = (models: any): void => {
     ;(User as any).hasMany(models.instance_attendance, { as: 'instanceAttendance' })
     ;(User as any).hasOne(models.user_settings)
-    ;(User as any).belongsTo(models.party, { through: 'party_user' }) // user can only be part of one party at a time
     ;(User as any).belongsToMany(models.user, {
       as: 'relatedUser',
       through: models.user_relationship
     })
     ;(User as any).hasMany(models.user_relationship, { onDelete: 'cascade' })
-    ;(User as any).belongsToMany(models.group, { through: 'group_user' }) // user can join multiple orgs
-    ;(User as any).hasMany(models.group_user, { unique: false, onDelete: 'cascade' })
     ;(User as any).hasMany(models.identity_provider, { onDelete: 'cascade' })
-    // ;(User as any).hasMany(models.static_resource)
-    // (User as any).hasMany(models.subscription);
-    ;(User as any).hasMany(models.channel, { foreignKey: 'userId1', onDelete: 'cascade' })
-    ;(User as any).hasMany(models.channel, { foreignKey: 'userId2', onDelete: 'cascade' })
-    // (User as any).hasOne(models.seat, { foreignKey: 'userId' });
-    ;(User as any).belongsToMany(models.location, { through: 'location_admin' })
+    ;(User as any).hasMany(models.channel)
+    ;(User as any).belongsToMany(createLocationModel(app), { through: 'location_admin' })
     ;(User as any).hasMany(models.location_admin, { unique: false })
-    ;(User as any).hasMany(models.location_ban)
+    ;(User as any).hasMany(createLocationBanModel(app), { as: 'locationBans' })
     ;(User as any).hasMany(models.bot, { foreignKey: 'userId' })
     ;(User as any).hasMany(models.scope, { foreignKey: 'userId', onDelete: 'cascade' })
     ;(User as any).belongsToMany(models.instance, { through: 'instance_authorized_user' })
@@ -188,4 +190,178 @@ export const createAvatarModel = (app: Application) => {
   }
 
   return Avatar
+}
+
+export const createLocationModel = (app: Application) => {
+  const sequelizeClient: Sequelize = app.get('sequelizeClient')
+  const location = sequelizeClient.define<Model<LocationInterface>>(
+    'location',
+    {
+      id: {
+        type: DataTypes.UUID,
+        defaultValue: DataTypes.UUIDV1,
+        allowNull: false,
+        primaryKey: true
+      },
+      name: {
+        type: DataTypes.STRING,
+        allowNull: false
+      },
+      sceneId: {
+        type: DataTypes.STRING,
+        allowNull: true
+      },
+      slugifiedName: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        unique: true
+      },
+      isLobby: {
+        type: DataTypes.BOOLEAN,
+        allowNull: true,
+        defaultValue: false
+      },
+      isFeatured: {
+        type: DataTypes.BOOLEAN,
+        allowNull: true,
+        defaultValue: false
+      },
+      maxUsersPerInstance: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        defaultValue: 50
+      }
+    },
+    {
+      hooks: {
+        beforeCount(options: any): void {
+          options.raw = true
+        }
+      }
+    }
+  )
+
+  ;(location as any).associate = (models: any): void => {
+    ;(location as any).hasMany(models.instance)
+    ;(location as any).hasMany(models.location_admin)
+    // (location as any).belongsTo(models.scene, { foreignKey: 'sceneId' }); // scene
+    ;(location as any).belongsToMany(models.user, { through: 'location_admin' })
+    ;(location as any).hasOne(createLocationSettingsModel(app), { onDelete: 'cascade' })
+    ;(location as any).hasMany(createLocationBanModel(app), { as: 'locationBans' })
+    ;(location as any).hasMany(models.bot, { foreignKey: 'locationId' })
+    ;(location as any).hasMany(models.location_authorized_user, { onDelete: 'cascade' })
+  }
+
+  return location
+}
+
+export const createLocationSettingsModel = (app: Application) => {
+  const sequelizeClient: Sequelize = app.get('sequelizeClient')
+  const LocationSettings = sequelizeClient.define<Model<LocationSettingsInterface>>(
+    'location-setting',
+    {
+      id: {
+        type: DataTypes.UUID,
+        defaultValue: DataTypes.UUIDV1,
+        allowNull: false,
+        primaryKey: true
+      },
+      videoEnabled: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false
+      },
+      audioEnabled: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false
+      },
+      screenSharingEnabled: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false
+      },
+      faceStreamingEnabled: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false
+      }
+    },
+    {
+      hooks: {
+        beforeCount(options: any): HookReturn {
+          options.raw = true
+        }
+      }
+    }
+  )
+
+  ;(LocationSettings as any).associate = function (models: any): void {
+    ;(LocationSettings as any).belongsTo(createLocationModel(app), { required: true, allowNull: false })
+    ;(LocationSettings as any).belongsTo(createLocationTypeModel(app), {
+      foreignKey: 'locationType',
+      defaultValue: 'private'
+    })
+  }
+
+  return LocationSettings
+}
+
+export const createLocationTypeModel = (app: Application) => {
+  const sequelizeClient: Sequelize = app.get('sequelizeClient')
+  const locationType = sequelizeClient.define<Model<LocationTypeInterface>>(
+    'location-type',
+    {
+      type: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        primaryKey: true,
+        unique: true
+      }
+    },
+    {
+      hooks: {
+        beforeCount(options: any): HookReturn {
+          options.raw = true
+        },
+        beforeUpdate(instance: any, options: any): void {
+          throw new Error("Can't update a type!")
+        }
+      },
+      timestamps: false
+    }
+  )
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  ;(locationType as any).associate = (models: any): void => {
+    ;(locationType as any).hasMany(createLocationSettingsModel(app), { foreignKey: 'locationType' })
+  }
+
+  return locationType
+}
+
+export const createLocationBanModel = (app: Application) => {
+  const sequelizeClient: Sequelize = app.get('sequelizeClient')
+  const locationBan = sequelizeClient.define<Model<LocationBanInterface>>(
+    'location-ban',
+    {
+      id: {
+        type: DataTypes.UUID,
+        defaultValue: DataTypes.UUIDV1,
+        allowNull: false,
+        primaryKey: true
+      }
+    },
+    {
+      hooks: {
+        beforeCount(options: any): HookReturn {
+          options.raw = true
+        }
+      }
+    }
+  )
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  ;(locationBan as any).associate = function (models: any): void {
+    ;(locationBan as any).belongsTo(createLocationModel(app))
+    ;(locationBan as any).belongsTo(models.user)
+  }
+
+  return locationBan
 }

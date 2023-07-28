@@ -109,6 +109,7 @@ export const PositionalAudioComponent = defineComponent({
       if (
         debugEnabled.value &&
         !audio.helper.value &&
+        mediaElement &&
         mediaElement.element.value &&
         AudioNodeGroups.has(mediaElement.element.value)
       ) {

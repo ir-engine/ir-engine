@@ -51,7 +51,7 @@ export const ItemTypes = {
   ],
   Scripts: ['tsx', AssetType.TS, 'jsx', 'js', AssetType.Script],
   Videos: [AssetType.MP4, AssetType.M3U8, 'video/mp4', AssetType.MKV],
-  Volumetrics: ['drcs', 'uvol', 'manifest'],
+  Volumetrics: ['manifest'],
   Text: [AssetType.PlainText, 'txt'],
   ECS: [AssetType.XRE, 'scene.json'],
   Node: 'Node',

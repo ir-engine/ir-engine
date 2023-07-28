@@ -25,13 +25,15 @@ Ethereal Engine. All Rights Reserved.
 
 import { Params } from '@feathersjs/feathers/lib'
 
-import { LocationInterface } from '@etherealengine/common/src/dbmodels/Location'
 import { Instance as InstanceInterface } from '@etherealengine/common/src/interfaces/Instance'
+import { locationPath, LocationType } from '@etherealengine/engine/src/schemas/social/location.schema'
 
 import { Application } from '../../../declarations'
 import authenticate from '../../hooks/authenticate'
+import setLoggedInUser from '../../hooks/set-loggedin-user-in-body'
 import verifyScope from '../../hooks/verify-scope'
 import logger from '../../ServerLogger'
+import { UserParams } from '../../user/user/user.class'
 import { Instance } from './instance.class'
 import instanceDocs from './instance.docs'
 import hooks from './instance.hooks'
@@ -42,6 +44,9 @@ declare module '@etherealengine/common/declarations' {
     instance: Instance
     'instances-active': {
       find: ReturnType<typeof getActiveInstancesForScene>
+    }
+    'instance-friends': {
+      find: ReturnType<typeof getActiveInstancesForUserFriends>
     }
   }
 }
@@ -61,29 +66,30 @@ export const getActiveInstancesForScene =
     if (!sceneId) return []
 
     // get all locationIds for sceneId
-    const locations = (await app.service('location').Model.findAll({
-      where: {
+    const locations = (await app.service(locationPath).find({
+      query: {
         sceneId
-      }
-    })) as LocationInterface[]
+      },
+      paginate: false
+    })) as any as LocationType[]
 
-    if (!locations) return []
+    if (locations.length === 0) return []
 
     const instances = (
       (await Promise.all(
-        locations.map((location) => {
-          return app.service('instance').Model.findAll({
+        locations.map(async (location) => {
+          const instances = await app.service('instance').Model.findAll({
             where: {
               ended: false,
               locationId: location.id
-            },
-            include: [
-              {
-                model: app.service('location').Model,
-                where: {}
-              }
-            ]
+            }
           })
+
+          for (const instance of instances) {
+            instance.location = location
+          }
+
+          return instances
         })
       )) as InstanceInterface[]
     ).flat()
@@ -93,7 +99,7 @@ export const getActiveInstancesForScene =
       .map((instance) => {
         return {
           id: instance.id,
-          location: instance.location!.id,
+          location: (instance.location as LocationType).id,
           currentUsers: instance.currentUsers
         }
       })
@@ -101,6 +107,64 @@ export const getActiveInstancesForScene =
 
     return instancesData
   }
+
+export const getActiveInstancesForUserFriends = (app: Application) => async (data: UserParams, params) => {
+  if (!data.user) throw new Error('User not found')
+  try {
+    const instances = (await app.service('instance').Model.findAll({
+      where: {
+        ended: false
+      },
+      include: [
+        {
+          model: app.service('location').Model,
+          required: true
+        }
+      ]
+    })) as InstanceInterface[]
+
+    const filteredInstances = (
+      await Promise.all(
+        instances.map(async (instance) => {
+          const instanceAttendance = await app.service('instance-attendance').Model.findAll({
+            where: {
+              ended: false,
+              isChannel: false
+            },
+            include: [
+              {
+                model: app.service('instance').Model,
+                required: true,
+                where: {
+                  id: instance.id
+                }
+              },
+              {
+                model: app.service('user').Model,
+                required: true,
+                include: [
+                  {
+                    model: app.service('user-relationship').Model,
+                    required: true,
+                    where: {
+                      userRelationshipType: 'friend',
+                      relatedUserId: data.user!.id
+                    }
+                  }
+                ]
+              }
+            ]
+          })
+          if (instanceAttendance.length > 0) return instance
+        })
+      )
+    ).filter(Boolean)
+    return filteredInstances
+  } catch (err) {
+    console.log(err)
+    return []
+  }
+}
 
 export default (app: Application) => {
   const options = {
@@ -153,6 +217,22 @@ export default (app: Application) => {
     }
   })
 
+  service.publish('patched', async (data: InstanceInterface): Promise<any> => {
+    try {
+      /** Remove channel if instance is a world server and it has ended */
+      if (data.locationId && data.ended && !data.channelId) {
+        const channel = await app.service('channel').Model.findOne({
+          where: {
+            instanceId: data.id
+          }
+        })
+        await app.service('channel').remove(channel.id)
+      }
+    } catch (e) {
+      // fine - channel already cleaned up elsewhere
+    }
+  })
+
   app.use('instances-active', {
     find: getActiveInstancesForScene(app)
   })
@@ -160,6 +240,16 @@ export default (app: Application) => {
   app.service('instances-active').hooks({
     before: {
       find: [authenticate(), verifyScope('editor', 'write')]
+    }
+  })
+
+  app.use('instance-friends', {
+    find: getActiveInstancesForUserFriends(app)
+  })
+
+  app.service('instance-friends').hooks({
+    before: {
+      find: [authenticate(), setLoggedInUser('userId')]
     }
   })
 }

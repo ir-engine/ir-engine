@@ -23,11 +23,15 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { disallow } from 'feathers-hooks-common'
+import { disallow, iff, isProvider } from 'feathers-hooks-common'
 
 import addAssociations from '@etherealengine/server-core/src/hooks/add-associations'
+import setLoggedInUser from '@etherealengine/server-core/src/hooks/set-loggedin-user-in-body'
 
+import { Op } from 'sequelize'
+import { HookContext } from '../../../declarations'
 import authenticate from '../../hooks/authenticate'
+import { ChannelUser } from '../channel-user/channel-user.class'
 
 /**
  *  Don't remove this comment. It's needed to format import lines nicely.
@@ -51,28 +55,38 @@ export default {
           },
           {
             model: 'instance'
-          },
-          {
-            model: 'group'
-          },
-          {
-            model: 'party'
-          },
-          {
-            model: 'user',
-            as: 'user1'
-          },
-          {
-            model: 'user',
-            as: 'user2'
           }
         ]
       })
     ],
     get: [
-      disallow('external'),
+      setLoggedInUser('userId'),
+      iff(isProvider('external'), async (context: HookContext) => {
+        const channelID = context.arguments[0]
+        if (!channelID) return context
+
+        const loggedInUser = context.params!.user
+        const channelUser = (await context.app.service('channel-user').Model.findOne({
+          query: {
+            channelId: channelID,
+            userId: loggedInUser.id
+          }
+        })) as ChannelUser
+
+        if (!channelUser) throw new Error('Must be member of channel!')
+
+        return context
+      }),
       addAssociations({
         models: [
+          {
+            model: 'channel-user',
+            include: [
+              {
+                model: 'user'
+              }
+            ]
+          },
           {
             model: 'message',
             include: [
@@ -84,28 +98,42 @@ export default {
           },
           {
             model: 'instance'
-          },
-          {
-            model: 'group'
-          },
-          {
-            model: 'party'
-          },
-          {
-            model: 'user',
-            as: 'user1'
-          },
-          {
-            model: 'user',
-            as: 'user2'
           }
         ]
       })
     ],
-    create: [disallow('external')],
+    create: [
+      setLoggedInUser('userId'),
+      // ensure users are friends of the owner
+      iff(isProvider('external'), async (context: HookContext) => {
+        const data = context.data
+        const users = data.users
+
+        const loggedInUser = context.params!.user
+        const userId = loggedInUser?.id
+
+        if (!users || !userId) return context
+
+        const userRelationships = await context.app.service('user-relationship').Model.findAll({
+          where: {
+            userId: userId,
+            userRelationshipType: 'friend',
+            relatedUserId: {
+              [Op.in]: users
+            }
+          }
+        })
+
+        if (userRelationships.length !== users.length) {
+          throw new Error('Must be friends with all users to create channel!')
+        }
+
+        return context
+      })
+    ],
     update: [disallow('external')],
     patch: [disallow('external')],
-    remove: [disallow('external')]
+    remove: [setLoggedInUser('userId')]
   },
 
   after: {

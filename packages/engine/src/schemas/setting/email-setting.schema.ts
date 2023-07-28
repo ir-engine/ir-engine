@@ -38,8 +38,7 @@ export const emailSubjectSchema = Type.Object(
     instance: Type.String(),
     login: Type.String(),
     friend: Type.String(),
-    group: Type.String(),
-    party: Type.String()
+    channel: Type.String()
   },
   { $id: 'EmailSubject', additionalProperties: false }
 )

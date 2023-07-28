@@ -23,7 +23,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { ChannelType } from '@etherealengine/common/src/interfaces/Channel'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 import { defineState, getMutableState, none } from '@etherealengine/hyperflux'
@@ -48,7 +47,7 @@ export const NetworkState = defineState({
       world: false,
       /** Allow connections to a media instance server */
       media: false,
-      /** Allow connections to party media instances and friend functionality */
+      /** Allow connections to channel media instances and friend functionality */
       friends: false,
       /** Use instance IDs in url */
       instanceID: false,
@@ -80,7 +79,6 @@ export type MediaStreamAppData = {
   mediaTag: MediaTagType
   peerID: PeerID
   direction: TransportDirection
-  channelType: ChannelType
   channelId: string
   clientDirection?: 'recv' | 'send'
 }
@@ -96,7 +94,6 @@ export type PeerMediaType = {
     parameters: any
     rtcpFeedback: any[]
   }>
-  channelType: ChannelType
   channelId: string
 }
 

@@ -46,7 +46,7 @@ const sortScreensBeforeCameras = (a: WindowType, b: WindowType) => {
   return 0
 }
 
-export const UserMediaWindows = () => {
+export const useMediaWindows = () => {
   const peerMediaChannelState = useHookstate(getMutableState(PeerMediaChannelState))
   const mediaNetworkInstanceState = useMediaInstance()
   const mediaNetwork = Engine.instance.mediaNetwork
@@ -96,17 +96,22 @@ export const UserMediaWindows = () => {
       return acc
     }, [] as WindowType[])
     .sort(sortScreensBeforeCameras)
+    .filter(({ peerID }) => peerMediaChannelState[peerID].value)
 
+  return windows
+}
+
+export const UserMediaWindows = () => {
   const { topShelfStyle } = useShelfStyles()
+
+  const windows = useMediaWindows()
 
   return (
     <div className={`${styles.userMediaWindowsContainer} ${topShelfStyle}`}>
       <div className={styles.userMediaWindows}>
-        {windows
-          .filter(({ peerID }) => peerMediaChannelState[peerID].value)
-          .map(({ peerID, type }) => (
-            <UserMediaWindow type={type} peerID={peerID} key={type + '-' + peerID} />
-          ))}
+        {windows.map(({ peerID, type }) => (
+          <UserMediaWindow type={type} peerID={peerID} key={type + '-' + peerID} />
+        ))}
       </div>
     </div>
   )

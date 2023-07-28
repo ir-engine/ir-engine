@@ -35,10 +35,10 @@ export default {
     all: [authenticate()],
     find: [],
     get: [],
-    create: [verifyScope('editor', 'write'), projectPermissionAuthenticate(false)],
-    update: [iff(isProvider('external'), verifyScope('editor', 'write') as any), projectPermissionAuthenticate(false)],
-    patch: [verifyScope('editor', 'write'), projectPermissionAuthenticate(false)],
-    remove: [verifyScope('editor', 'write'), projectPermissionAuthenticate(false)]
+    create: [iff(isProvider('external'), verifyScope('editor', 'write') as any, projectPermissionAuthenticate(false))],
+    update: [iff(isProvider('external'), verifyScope('editor', 'write') as any, projectPermissionAuthenticate(false))],
+    patch: [iff(isProvider('external'), verifyScope('editor', 'write') as any, projectPermissionAuthenticate(false))],
+    remove: [iff(isProvider('external'), verifyScope('editor', 'write') as any, projectPermissionAuthenticate(false))]
   },
 
   after: {

@@ -23,8 +23,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Op } from 'sequelize'
-
 import { UserRelationshipInterface } from '@etherealengine/common/src/dbmodels/UserRelationship'
 
 import { Application } from '../../../declarations'
@@ -123,30 +121,6 @@ export default (app: Application) => {
   service.publish('removed', async (data: UserRelationshipInterface): Promise<any> => {
     try {
       console.log('relationship removed data', data)
-      const channel = await app.service('channel').Model.findOne({
-        where: {
-          [Op.or]: [
-            {
-              userId1: data.userId,
-              userId2: data.relatedUserId
-            },
-            {
-              userId2: data.userId,
-              userId1: data.relatedUserId
-            }
-          ]
-        }
-      })
-      if (channel != null) {
-        await app.service('channel').remove(channel.id)
-      }
-      if (data?.dataValues != null) {
-        data.dataValues.user = await app.service('user').get(data.userId)
-        data.dataValues.relatedUser = await app.service('user').get(data.relatedUserId)
-      } else {
-        ;(data as any).user = await app.service('user').get(data.userId)
-        ;(data as any).relatedUser = await app.service('user').get(data.relatedUserId)
-      }
       const targetIds = [data.userId, data.relatedUserId]
       // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
       return await Promise.all(
