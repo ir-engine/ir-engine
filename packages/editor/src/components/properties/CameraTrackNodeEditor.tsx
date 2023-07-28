@@ -26,8 +26,8 @@ Ethereal Engine. All Rights Reserved.
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { useComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { CameraTrackComponent } from '@xrengine/engine/src/scene/components/CameraTrackComponent'
+import { useComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { CameraTrackComponent } from '@etherealengine/engine/src/scene/components/CameraTrackComponent'
 
 import CameraswitchIcon from '@mui/icons-material/Cameraswitch'
 
@@ -56,7 +56,7 @@ export const CameraTrackNodeEditor: EditorComponentType = (props) => {
           label={`${t('editor:properties.transform.lbl-position')} ${i + 1}`}
         >
           <EulerInput
-            style={{ maxWidth: 'calc(100% - 2px)', paddingRight: `3px`, width: '100%' }}
+            //style={{ maxWidth: 'calc(100% - 2px)', paddingRight: `3px`, width: '100%' }}
             quaternion={point.quaternion}
             unit="°"
             onChange={(val) => {
