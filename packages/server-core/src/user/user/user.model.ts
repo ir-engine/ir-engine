@@ -96,7 +96,7 @@ export default (app: Application) => {
     ;(User as any).hasMany(createLocationBanModel(app), { as: 'locationBans' })
     ;(User as any).hasMany(models.bot, { foreignKey: 'userId' })
     ;(User as any).hasMany(models.scope, { foreignKey: 'userId', onDelete: 'cascade' })
-    ;(User as any).belongsToMany(models.instance, { through: 'instance_authorized_user' })
+    ;(User as any).belongsToMany(models.instance, { through: 'instance-authorized-user' })
     ;(User as any).hasMany(models.instance_authorized_user, { foreignKey: { allowNull: false } })
     ;(User as any).hasOne(createUserApiKeyModel(app))
     ;(User as any).belongsTo(createAvatarModel(app))
