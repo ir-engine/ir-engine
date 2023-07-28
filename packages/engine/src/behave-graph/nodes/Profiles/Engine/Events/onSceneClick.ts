@@ -48,7 +48,7 @@ const initialState = (): State => ({})
 export const OnSceneClick = makeEventNodeDefinition({
   typeName: 'engine/SceneClick',
   category: NodeCategory.Event,
-  label: 'On Button Press',
+  label: 'On Scene Click',
   in: {},
   out: {
     flow: 'flow',
@@ -72,7 +72,6 @@ export const OnSceneClick = makeEventNodeDefinition({
       let clickType = MouseButton.PrimaryClick
       if (event.button === 1) clickType = MouseButton.AuxiliaryClick
       else if (event.button === 2) clickType = MouseButton.SecondaryClick
-      //write('entity',)
       const hits = Physics.castRayFromCamera(
         getComponent(Engine.instance.cameraEntity, CameraComponent),
         Engine.instance.pointerState.position,
@@ -88,11 +87,12 @@ export const OnSceneClick = makeEventNodeDefinition({
       write('clickType', clickType)
       commit('flow')
     }
-    const canvas = EngineRenderer.instance.renderer.domElement
+
+    /*const canvas = EngineRenderer.instance.renderer.domElement
     canvas.addEventListener('mouseup', onSceneClick)
     canvas.addEventListener('mousedown', onSceneClick)
     canvas.addEventListener('touchstart', onSceneClick)
-    canvas.addEventListener('touchend', onSceneClick)
+    canvas.addEventListener('touchend', onSceneClick)*/
     // add event listener
     const state: State = {
       onSceneClick
@@ -104,8 +104,12 @@ export const OnSceneClick = makeEventNodeDefinition({
     Assert.mustBeTrue(onSceneClick !== undefined)
 
     if (!onSceneClick) return {}
+    const canvas = EngineRenderer.instance.renderer.domElement
 
-    //remove listener here
+    canvas.removeEventListener('mouseup', onSceneClick)
+    canvas.removeEventListener('mousedown', onSceneClick)
+    canvas.removeEventListener('touchstart', onSceneClick)
+    canvas.removeEventListener('touchend', onSceneClick)
 
     return {}
   }

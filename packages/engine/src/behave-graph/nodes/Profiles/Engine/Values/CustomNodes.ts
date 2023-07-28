@@ -23,10 +23,14 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { SceneJson } from '@etherealengine/common/src/interfaces/SceneInterface'
+import { dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 import { clamp } from 'three/src/math/MathUtils'
 import { AnimationManager } from '../../../../../avatar/AnimationManager'
 import { LoopAnimationComponent } from '../../../../../avatar/components/LoopAnimationComponent'
+import { CameraActions } from '../../../../../camera/CameraState'
 import { Entity } from '../../../../../ecs/classes/Entity'
+import { SceneState } from '../../../../../ecs/classes/Scene'
 import { setComponent } from '../../../../../ecs/functions/ComponentFunctions'
 import { getCallback } from '../../../../../scene/components/CallbackComponent'
 import { MediaComponent } from '../../../../../scene/components/MediaComponent'
@@ -189,3 +193,72 @@ export const playGltfAnimation = makeFlowNodeDefinition({
     commit('flow')
   }
 })
+
+export const fadeToBlackCamera = makeFlowNodeDefinition({
+  typeName: 'engine/cameraFadeToBlack',
+  category: NodeCategory.Action,
+  label: 'Camera fade to black',
+  in: {
+    flow: 'flow'
+  },
+  out: { flow: 'flow' },
+  initialState: undefined,
+  triggered: ({ read, commit, graph: { getDependency } }) => {
+    console.log('DEBUG Fade to black')
+    dispatchAction(CameraActions.fadeToBlack({ in: true }))
+    commit('flow')
+  }
+})
+
+export const fadeFromBlackCamera = makeFlowNodeDefinition({
+  typeName: 'engine/cameraFadeFromBlack',
+  category: NodeCategory.Action,
+  label: 'Camera fade from black',
+  in: {
+    flow: 'flow'
+  },
+  out: { flow: 'flow' },
+  initialState: undefined,
+  triggered: ({ read, commit, graph: { getDependency } }) => {
+    console.log('DEBUG Fade from black')
+    dispatchAction(CameraActions.fadeToBlack({ in: false }))
+    commit('flow')
+  }
+})
+
+const loadSceneJsonOffline = async (projectName, sceneName) => {
+  const locationName = `${projectName}/${sceneName}`
+  const sceneData = (await (await fetch(`${fileServer}/projects/${locationName}.scene.json`)).json()) as SceneJson
+  const hasKTX2 = await fetch(`${fileServer}/projects/${locationName}.thumbnail.ktx2`).then((res) => res.ok)
+  getMutableState(SceneState).sceneData.set({
+    scene: parseSceneDataCacheURLsLocal(projectName, sceneData),
+    name: sceneName,
+    thumbnailUrl: `${fileServer}/projects/${locationName}.thumbnail.${hasKTX2 ? 'ktx2' : 'jpeg'}`,
+    project: projectName
+  })
+}
+export const switchScene = makeFlowNodeDefinition({
+  typeName: 'engine/switchScene',
+  category: NodeCategory.Action,
+  label: 'Switch Scene',
+  in: {
+    flow: 'flow',
+    sceneName: 'string'
+  },
+  out: {},
+  initialState: undefined,
+  triggered: ({ read, commit, graph: { getDependency } }) => {
+    const sceneName = read('sceneName')
+    console.log('DEBUG Switch Scene to', sceneName)
+    const locationName = `${projectName}/${sceneName}`
+    const sceneData = await(await fetch(`${fileServer}/projects/${locationName}.scene.json`)).json() as SceneJson
+    const hasKTX2 = await fetch(`${fileServer}/projects/${locationName}.thumbnail.ktx2`).then((res) => res.ok)
+    getMutableState(SceneState).sceneData.set({
+      scene: parseSceneDataCacheURLsLocal(projectName, sceneData),
+      name: sceneName,
+      thumbnailUrl: `${fileServer}/projects/${locationName}.thumbnail.${hasKTX2 ? 'ktx2' : 'jpeg'}`,
+      project: projectName
+    })
+  }
+})
+//scene transition
