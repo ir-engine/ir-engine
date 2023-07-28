@@ -10,4 +10,4 @@ REGEX='etherealengine-builder-([0-9]+.[0-9]+.[0-9]+)'
 [[ $DEPLOYED =~ $REGEX ]]
 VERSION=${BASH_REMATCH[1]}
 
-helm upgrade --install --reuse-values --version $VERSION --set builder.image.tag="${EEVERSION}_${TAG}" $STAGE-builder etherealengine/etherealengine-builder
+kubectl delete job --ignore-not-found=true "${STAGE}-builder-etherealengine-builder" && helm upgrade --install --reuse-values --version $VERSION --set builder.image.tag="${EEVERSION}_${TAG}" $STAGE-builder etherealengine/etherealengine-builder
