@@ -23,6 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-export interface LocationBanInterface {
-  id: string
+export interface BuildStatus {
+  succeeded: boolean
+  failed: boolean
 }
