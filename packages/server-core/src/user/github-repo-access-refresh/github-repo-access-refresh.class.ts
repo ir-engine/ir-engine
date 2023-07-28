@@ -24,23 +24,21 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { Params } from '@feathersjs/feathers'
-import type { KnexAdapterOptions, KnexAdapterParams } from '@feathersjs/knex'
+import type { KnexAdapterOptions } from '@feathersjs/knex'
 import { KnexAdapter } from '@feathersjs/knex'
 
-import { UserInterface } from '@etherealengine/common/src/interfaces/User'
 import {
   githubRepoAccessPath,
   GithubRepoAccessType
 } from '@etherealengine/engine/src/schemas/user/github-repo-access.schema'
 
 import { Application } from '../../../declarations'
+import { RootParams } from '../../api/root-params'
 import { getUserRepos } from '../../projects/project/github-helper'
 import logger from '../../ServerLogger'
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface GithubRepoAccessRefreshParams extends KnexAdapterParams {
-  user: UserInterface
-}
+export interface GithubRepoAccessRefreshParams extends RootParams {}
 
 /**
  * A class for Github Repo Access Refresh service
@@ -60,7 +58,7 @@ export class GithubRepoAccessRefreshService<
     try {
       const githubIdentityProvider = await (this.app.service('identity-provider') as any).Model.findOne({
         where: {
-          userId: params?.user.id,
+          userId: params?.user!.id,
           type: 'github'
         }
       })

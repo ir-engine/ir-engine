@@ -24,12 +24,11 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { Id, NullableId, Params } from '@feathersjs/feathers'
-import type { KnexAdapterOptions, KnexAdapterParams } from '@feathersjs/knex'
+import type { KnexAdapterOptions } from '@feathersjs/knex'
 import { KnexAdapter } from '@feathersjs/knex'
 import { Knex } from 'knex'
 import slugify from 'slugify'
 
-import { UserInterface } from '@etherealengine/common/src/interfaces/User'
 import {
   locationSettingPath,
   LocationSettingType
@@ -48,13 +47,13 @@ import {
   locationAuthorizedUserDBPath,
   LocationAuthorizedUserType
 } from '@etherealengine/engine/src/schemas/social/location-authorized-user.schema'
+import { UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Application } from '../../../declarations'
+import { RootParams } from '../../api/root-params'
 import logger from '../../ServerLogger'
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface LocationParams extends KnexAdapterParams<LocationQuery> {
-  user?: UserInterface
-}
+export interface LocationParams extends RootParams<LocationQuery> {}
 
 /**
  * A class for Location service
@@ -142,7 +141,7 @@ export class LocationService<T = LocationType, ServiceParams extends Params = Lo
     const trx = await (this.app.get('knexClient') as Knex).transaction()
 
     try {
-      const selfUser = params?.user
+      const selfUser = params?.user!
 
       if (data.isLobby) {
         await this.makeLobby(trx, selfUser)
@@ -261,14 +260,14 @@ export class LocationService<T = LocationType, ServiceParams extends Params = Lo
         throw new Error("Lobby can't be deleted")
       }
 
-      const selfUser = params!.user as UserInterface
+      const selfUser = params!.user
       if (location.locationSetting) await this.app.service(locationSettingPath).remove(location.locationSetting.id)
 
       try {
         const locationAdminItems = await (this.app.service('location-admin') as any).Model.findAll({
           where: {
             locationId: id,
-            userId: selfUser.id ?? null
+            userId: selfUser?.id
           }
         })
 
@@ -293,7 +292,7 @@ export class LocationService<T = LocationType, ServiceParams extends Params = Lo
     return await super._remove(id, params)
   }
 
-  async makeLobby(trx: Knex.Transaction, selfUser?: UserInterface) {
+  async makeLobby(trx: Knex.Transaction, selfUser?: UserType) {
     if (!selfUser || !selfUser.scopes || !selfUser.scopes.find((scope) => scope.type === 'admin:admin')) {
       throw new Error('Only Admin can set Lobby')
     }

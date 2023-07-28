@@ -23,6 +23,15 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import {
+  userDataSchema,
+  userPatchSchema,
+  userQuerySchema,
+  userSchema
+} from '@etherealengine/engine/src/schemas/user/user.schema'
+import { dataValidator, queryValidator } from '@etherealengine/server-core/validators'
+import { getValidator } from '@feathersjs/typebox'
+
 import { HookContext } from '@feathersjs/feathers'
 import { iff, isProvider } from 'feathers-hooks-common'
 
@@ -288,6 +297,12 @@ const addAvatarResources = () => {
     return context
   }
 }
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const userValidator = getValidator(userSchema, dataValidator)
+const userDataValidator = getValidator(userDataSchema, dataValidator)
+const userPatchValidator = getValidator(userPatchSchema, dataValidator)
+const userQueryValidator = getValidator(userQuerySchema, queryValidator)
 
 /**
  * This module used to declare and identify database relation

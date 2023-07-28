@@ -35,10 +35,10 @@ import { UserInterface } from '@etherealengine/common/src/interfaces/User'
 import { avatarPath, AvatarType } from '@etherealengine/engine/src/schemas/user/avatar.schema'
 
 import { Application } from '../../../declarations'
+import { UserParams } from '../../api/root-params'
 import appConfig from '../../appconfig'
 import { scopeTypeSeed } from '../../scope/scope-type/scope-type.seed'
 import getFreeInviteCode from '../../util/get-free-invite-code'
-import { UserParams } from '../user/user.class'
 
 interface IdentityProviderParams extends UserParams {
   bot?: boolean

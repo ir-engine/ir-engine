@@ -23,21 +23,29 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
+// For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
+import { resolve } from '@feathersjs/schema'
+import { v4 } from 'uuid'
 
-import { InstanceAttendanceInterface } from '@etherealengine/common/src/interfaces/InstanceAttendance'
-import { Application } from '../../../declarations'
+import { UserQuery, UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
+import type { HookContext } from '@etherealengine/server-core/declarations'
 
-export type InstanceAttendanceDataType = InstanceAttendanceInterface
+import { getDateTimeSql } from '../../util/get-datetime-sql'
 
-/**
- * A class for Intance service
- */
-export class InstanceAttendance<T = InstanceAttendanceDataType> extends Service<T> {
-  app: Application
-  docs: any
-  constructor(options: Partial<SequelizeServiceOptions>, app: Application) {
-    super(options)
-    this.app = app
-  }
-}
+export const userResolver = resolve<UserType, HookContext>({})
+
+export const userExternalResolver = resolve<UserType, HookContext>({})
+
+export const userDataResolver = resolve<UserType, HookContext>({
+  id: async () => {
+    return v4()
+  },
+  createdAt: getDateTimeSql,
+  updatedAt: getDateTimeSql
+})
+
+export const userPatchResolver = resolve<UserType, HookContext>({
+  updatedAt: getDateTimeSql
+})
+
+export const userQueryResolver = resolve<UserQuery, HookContext>({})

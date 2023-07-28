@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { Paginated, Params } from '@feathersjs/feathers'
-import type { KnexAdapterOptions, KnexAdapterParams } from '@feathersjs/knex'
+import type { KnexAdapterOptions } from '@feathersjs/knex'
 import { KnexAdapter } from '@feathersjs/knex'
 
 import {
@@ -36,9 +36,10 @@ import {
 } from '@etherealengine/engine/src/schemas/analytics/analytics.schema'
 
 import { Application } from '../../../declarations'
+import { RootParams } from '../../api/root-params'
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface AnalyticsParams extends KnexAdapterParams<AnalyticsQuery> {}
+export interface AnalyticsParams extends RootParams<AnalyticsQuery> {}
 
 /**
  * A class for Analytics service

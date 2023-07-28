@@ -32,7 +32,7 @@ import { ProjectPermissionInterface } from '@etherealengine/common/src/interface
 
 import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
-import { UserParams } from '../../user/user/user.class'
+import { UserParams } from '../../api/root-params'
 
 export type ProjectPermissionsDataType = ProjectPermissionInterface
 

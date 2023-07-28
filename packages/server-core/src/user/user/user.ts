@@ -23,42 +23,40 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { UserType, userMethods, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import _ from 'lodash'
 import { Op } from 'sequelize'
-
-import { UserInterface } from '@etherealengine/common/src/interfaces/User'
+import logger from '../../ServerLogger'
+import config from '../../appconfig'
 
 import { Application } from '../../../declarations'
-import config from '../../appconfig'
-import logger from '../../ServerLogger'
-import { User } from './user.class'
+import { UserService } from './user.class'
 import userDocs from './user.docs'
 import hooks from './user.hooks'
-import createModel from './user.model'
 
 declare module '@etherealengine/common/declarations' {
-  /**
-   * Interface for users input
-   */
   interface ServiceTypes {
-    user: User
+    [userPath]: UserService
   }
 }
 
 export default (app: Application): void => {
   const options = {
-    Model: createModel(app),
+    name: userPath,
     paginate: app.get('paginate'),
+    Model: app.get('knexClient'),
     multi: true
   }
 
-  const event = new User(options, app)
-  event.docs = userDocs
+  app.use(userPath, new UserService(options, app), {
+    // A list of all methods this service exposes externally
+    methods: userMethods,
+    // You can add additional custom events to be sent to clients here
+    events: [],
+    docs: userDocs
+  })
 
-  app.use('user', event)
-
-  const service = app.service('user')
-
+  const service = app.service(userPath)
   service.hooks(hooks)
 
   // when seeding db, no need to patch users
@@ -68,17 +66,8 @@ export default (app: Application): void => {
    * This method find all users
    * @returns users
    */
-
-  // @ts-ignore
-  service.publish('patched', async (data: UserInterface, params): Promise<any> => {
+  service.publish('patched', async (data: UserType, context) => {
     try {
-      const userRelationships = await app.service('user-relationship').Model.findAll({
-        where: {
-          userRelationshipType: 'friend',
-          relatedUserId: data.id
-        }
-      })
-
       let targetIds = [data.id!]
       const updatePromises: any[] = []
 
@@ -108,6 +97,12 @@ export default (app: Application): void => {
       })
       targetIds = targetIds.concat(layerUsers.map((user) => user.id))
 
+      // const userRelationships = await app.service('user-relationship').Model.findAll({
+      //   where: {
+      //     userRelationshipType: 'friend',
+      //     relatedUserId: data.id
+      //   }
+      // })
       // userRelationships.forEach((userRelationship) => {
       //   updatePromises.push(
       //     app.service('user-relationship').patch(

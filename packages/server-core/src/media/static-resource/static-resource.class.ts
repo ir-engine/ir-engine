@@ -30,8 +30,8 @@ import { Op } from 'sequelize'
 import { StaticResourceInterface } from '@etherealengine/common/src/interfaces/StaticResourceInterface'
 
 import { Application } from '../../../declarations'
+import { UserParams } from '../../api/root-params'
 import verifyScope from '../../hooks/verify-scope'
-import { UserParams } from '../../user/user/user.class'
 import { NotFoundException, UnauthenticatedException } from '../../util/exceptions/exception'
 import { getStorageProvider } from '../storageprovider/storageprovider'
 

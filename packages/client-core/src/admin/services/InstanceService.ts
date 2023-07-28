@@ -131,7 +131,7 @@ export const AdminInstanceUserService = {
 
     if (!('data' in instanceAttendances) || instanceAttendances.data.length === 0) return
 
-    const userIds = instanceAttendances.data.map((d: any) => d.userId)
+    const userIds = instanceAttendances.data.map((d) => d.userId)
 
     const users = await Engine.instance.api.service('user').find({
       query: {

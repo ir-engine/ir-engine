@@ -30,9 +30,9 @@ import { Sequelize, Transaction } from 'sequelize'
 import { UserRelationshipInterface } from '@etherealengine/common/src/dbmodels/UserRelationship'
 
 import { Application } from '../../../declarations'
+import { UserParams } from '../../api/root-params'
 import config from '../../appconfig'
 import { resolveModelData } from '../../util/model-resolver'
-import { UserParams } from '../user/user.class'
 
 export type UserRelationshipDataType = UserRelationshipInterface
 /**

@@ -24,9 +24,8 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { Id, Params } from '@feathersjs/feathers'
-import { KnexAdapter, type KnexAdapterOptions, type KnexAdapterParams } from '@feathersjs/knex'
+import { KnexAdapter, type KnexAdapterOptions } from '@feathersjs/knex'
 
-import { UserInterface } from '@etherealengine/common/src/interfaces/User'
 import { staticResourcePath } from '@etherealengine/engine/src/schemas/media/static-resource.schema'
 import {
   AvatarData,
@@ -37,14 +36,12 @@ import {
 } from '@etherealengine/engine/src/schemas/user/avatar.schema'
 
 import { Application } from '../../../declarations'
-import { checkScope } from '../../hooks/verify-scope'
 import logger from '../../ServerLogger'
+import { RootParams } from '../../api/root-params'
+import { checkScope } from '../../hooks/verify-scope'
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface AvatarParams extends KnexAdapterParams<AvatarQuery> {
-  user?: UserInterface
-  isInternal?: boolean
-}
+export interface AvatarParams extends RootParams<AvatarQuery> {}
 
 /**
  * A class for Avatar service

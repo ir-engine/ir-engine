@@ -29,11 +29,11 @@ import { Instance as InstanceInterface } from '@etherealengine/common/src/interf
 import { locationPath, LocationType } from '@etherealengine/engine/src/schemas/social/location.schema'
 
 import { Application } from '../../../declarations'
+import { UserParams } from '../../api/root-params'
 import authenticate from '../../hooks/authenticate'
 import setLoggedInUser from '../../hooks/set-loggedin-user-in-body'
 import verifyScope from '../../hooks/verify-scope'
 import logger from '../../ServerLogger'
-import { UserParams } from '../../user/user/user.class'
 import { Instance } from './instance.class'
 import instanceDocs from './instance.docs'
 import hooks from './instance.hooks'

@@ -30,7 +30,7 @@ import fetch from 'node-fetch'
 import path from 'path/posix'
 
 import { Application } from '../../../declarations'
-import { UserParams } from '../../user/user/user.class'
+import { UserParams } from '../../api/root-params'
 import { getStorageProvider } from '../storageprovider/storageprovider'
 
 export const projectsRootFolder = path.join(appRootPath.path, 'packages/projects')

@@ -24,7 +24,6 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import type { Params } from '@feathersjs/feathers'
-import type { KnexAdapterParams } from '@feathersjs/knex'
 import { KnexService } from '@feathersjs/knex'
 
 import {
@@ -33,9 +32,10 @@ import {
   AwsSettingQuery,
   AwsSettingType
 } from '@etherealengine/engine/src/schemas/setting/aws-setting.schema'
+import { RootParams } from '../../api/root-params'
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface AwsSettingParams extends KnexAdapterParams<AwsSettingQuery> {}
+export interface AwsSettingParams extends RootParams<AwsSettingQuery> {}
 
 export class AwsSettingService<T = AwsSettingType, ServiceParams extends Params = AwsSettingParams> extends KnexService<
   AwsSettingType,

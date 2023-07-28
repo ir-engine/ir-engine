@@ -29,8 +29,8 @@ import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
 import { RecordingResult } from '@etherealengine/common/src/interfaces/Recording'
 
 import { Application } from '../../../declarations'
+import { UserParams } from '../../api/root-params'
 import { checkScope } from '../../hooks/verify-scope'
-import { UserParams } from '../../user/user/user.class'
 import { NotFoundException, UnauthorizedException } from '../../util/exceptions/exception'
 
 export type RecordingDataType = RecordingResult

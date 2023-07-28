@@ -34,8 +34,8 @@ import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 import { Op, Sequelize } from 'sequelize'
 import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
+import { UserParams } from '../../api/root-params'
 import { checkScope } from '../../hooks/verify-scope'
-import { UserParams } from '../../user/user/user.class'
 
 export type ChannelDataType = ChannelInterface
 

@@ -39,7 +39,6 @@ import logger from '../ServerLogger'
 import Page from '../types/PageObject'
 import { getInviteLink, sendEmail, sendSms } from '../user/auth-management/auth-management.utils'
 import { UserRelationshipDataType } from '../user/user-relationship/user-relationship.class'
-import { UserParams } from '../user/user/user.class'
 
 export type InviteDataType = InviteType
 

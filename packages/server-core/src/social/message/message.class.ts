@@ -33,7 +33,7 @@ import { UserInterface } from '@etherealengine/common/src/interfaces/User'
 import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 
 import { Application } from '../../../declarations'
-import { UserParams } from '../../user/user/user.class'
+import { UserParams } from '../../api/root-params'
 
 export interface MessageParams extends UserParams {
   'identity-provider': {

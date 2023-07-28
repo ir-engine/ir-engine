@@ -34,9 +34,9 @@ import { Invite as InviteType } from '@etherealengine/common/src/interfaces/Invi
 import { UserInterface } from '@etherealengine/common/src/interfaces/User'
 
 import { Application } from '../../../declarations'
-import { sendInvite } from '../../hooks/send-invite'
 import logger from '../../ServerLogger'
-import { UserParams } from '../../user/user/user.class'
+import { UserParams } from '../../api/root-params'
+import { sendInvite } from '../../hooks/send-invite'
 
 interface InviteRemoveParams extends UserParams {
   preventUserRelationshipRemoval?: boolean

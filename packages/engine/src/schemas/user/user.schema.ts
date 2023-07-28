@@ -93,9 +93,22 @@ export type UserPatch = Static<typeof userPatchSchema>
 export const userQueryProperties = Type.Pick(userSchema, ['id', 'name', 'isGuest', 'inviteCode', 'avatarId', 'scopes'])
 export const userQuerySchema = Type.Intersect(
   [
-    querySyntax(userQueryProperties),
+    querySyntax(userQueryProperties, {
+      id: {
+        $like: Type.String()
+      },
+      name: {
+        $like: Type.String()
+      }
+    }),
     // Add additional query properties here
-    Type.Object({}, { additionalProperties: false })
+    Type.Object(
+      {
+        action: Type.Optional(Type.String()),
+        search: Type.Optional(Type.String())
+      },
+      { additionalProperties: false }
+    )
   ],
   { additionalProperties: false }
 )

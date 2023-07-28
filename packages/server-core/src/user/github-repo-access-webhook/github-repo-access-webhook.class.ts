@@ -24,21 +24,19 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { Paginated, Params } from '@feathersjs/feathers'
-import type { KnexAdapterOptions, KnexAdapterParams } from '@feathersjs/knex'
+import type { KnexAdapterOptions } from '@feathersjs/knex'
 import { KnexAdapter } from '@feathersjs/knex'
 import crypto from 'crypto'
 
-import { UserInterface } from '@etherealengine/common/src/interfaces/User'
 import { serverSettingPath, ServerSettingType } from '@etherealengine/engine/src/schemas/setting/server-setting.schema'
 import { githubRepoAccessRefreshPath } from '@etherealengine/engine/src/schemas/user/github-repo-access-refresh.schema'
 
 import { Application } from '../../../declarations'
+import { RootParams } from '../../api/root-params'
 import { UnauthorizedException } from '../../util/exceptions/exception'
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface GithubRepoAccessWebhookParams extends KnexAdapterParams {
-  user: UserInterface
-}
+export interface GithubRepoAccessWebhookParams extends RootParams {}
 
 /**
  * A class for Github Repo Access Webhook service
