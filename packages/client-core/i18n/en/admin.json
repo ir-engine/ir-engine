@@ -81,7 +81,9 @@
       "dailyUsers": "Daily Users",
       "dailyNewUsers": "Daily New Users",
       "usersToday": "Users Today",
-      "newUsersToday": "New Users Today"
+      "newUsersToday": "New Users Today",
+      "activity": "Activity",
+      "users": "Users"
     },
     "group": {
       "createGroup": "Create Group",
