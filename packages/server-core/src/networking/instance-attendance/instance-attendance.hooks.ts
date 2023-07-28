@@ -23,10 +23,25 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import {
+  instanceAttendanceDataSchema,
+  instanceAttendancePatchSchema,
+  instanceAttendanceQuerySchema,
+  instanceAttendanceSchema
+} from '@etherealengine/engine/src/schemas/networking/instance-attendance.schema'
+import { dataValidator, queryValidator } from '@etherealengine/server-core/validators'
+import { getValidator } from '@feathersjs/typebox'
+
 import { iff, isProvider } from 'feathers-hooks-common'
 
 import authenticate from '../../hooks/authenticate'
 import verifyScope from '../../hooks/verify-scope'
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const instanceAttendanceValidator = getValidator(instanceAttendanceSchema, dataValidator)
+const instanceAttendanceDataValidator = getValidator(instanceAttendanceDataSchema, dataValidator)
+const instanceAttendancePatchValidator = getValidator(instanceAttendancePatchSchema, dataValidator)
+const instanceAttendanceQueryValidator = getValidator(instanceAttendanceQuerySchema, queryValidator)
 
 export default {
   before: {
