@@ -70,7 +70,7 @@ const updateRigRotation = (name, rotation, dampener, lerpAmount, rig) => {
   const quaternion = new Quaternion().setFromEuler(euler)
 
   // ik targets
-  if (debugSettings?.useIk) {
+  if (useIk) {
     const entityUUID = `${Engine?.instance?.userId}_mocap_${name}` as EntityUUID
     const ikTarget = UUIDComponent.entitiesByUUID[entityUUID]
     // if (ikTarget) removeEntity(ikTarget)

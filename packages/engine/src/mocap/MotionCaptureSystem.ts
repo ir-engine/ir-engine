@@ -70,7 +70,6 @@ export interface MotionCaptureStream {
   facesSolved?: TFace[] | undefined
 }
 
-let debug = false
 const debugObjs: any[] = []
 
 export const sendResults = (results: MotionCaptureStream) => {
@@ -188,8 +187,10 @@ const execute = () => {
           UpdateRawFace(face, hipsPos.clone(), avatarRig, avatarTransform)
         })
       }
+      const captureState = useHookstate(getMutableState(CaptureClientSettingsState))
+      const debugSettings = captureState?.nested('settings')?.value?.filter((s) => s?.name.toLowerCase() === 'debug')[0]
 
-      if (debug) {
+      if (debugSettings?.show3dLandmarks) {
         const d = data?.posesWorld || data?.handsWorld || []
         d.forEach((landmarks) => {
           landmarks.forEach((landmark) => {
@@ -212,9 +213,6 @@ const execute = () => {
 const reactor = () => {
   useEffect(() => {
     addDataChannelHandler(mocapDataChannelType, handleMocapData)
-    const captureState = useHookstate(getMutableState(CaptureClientSettingsState))
-    const debugSettings = captureState?.nested('settings')?.value?.filter((s) => s?.name.toLowerCase() === 'debug')[0]
-    debug = debugSettings?.show3dLandmarks || false
     return () => {
       removeDataChannelHandler(mocapDataChannelType, handleMocapData)
     }
