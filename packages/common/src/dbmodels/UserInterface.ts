@@ -72,3 +72,7 @@ export interface LocationTypeInterface {
 export interface LocationBanInterface {
   id: string
 }
+
+export interface LocationAdminInterface {
+  id: string
+}
