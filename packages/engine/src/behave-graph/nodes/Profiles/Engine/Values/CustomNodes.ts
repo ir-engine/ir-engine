@@ -23,12 +23,17 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { clamp } from 'three/src/math/MathUtils'
 import { AnimationManager } from '../../../../../avatar/AnimationManager'
 import { LoopAnimationComponent } from '../../../../../avatar/components/LoopAnimationComponent'
 import { Entity } from '../../../../../ecs/classes/Entity'
 import { setComponent } from '../../../../../ecs/functions/ComponentFunctions'
+import { getCallback } from '../../../../../scene/components/CallbackComponent'
 import { MediaComponent } from '../../../../../scene/components/MediaComponent'
+import { VideoComponent } from '../../../../../scene/components/VideoComponent'
+import { PlayMode } from '../../../../../scene/constants/PlayMode'
 import { TransformComponent } from '../../../../../transform/components/TransformComponent'
+import { ContentFitType } from '../../../../../xrui/functions/ObjectFitFunctions'
 import { NodeCategory, makeFlowNodeDefinition, makeFunctionNodeDefinition } from '../../../Nodes/NodeDefinitions'
 import { eulerToQuat } from '../../Scene/Values/Internal/Vec4'
 import { toQuat, toVector3 } from '../../Scene/buildScene'
@@ -62,14 +67,43 @@ export const playVideo = makeFlowNodeDefinition({
   in: {
     flow: 'flow',
     entity: 'entity',
-    mediaPath: 'string'
+    mediaPath: 'string',
+    paused: 'boolean',
+    volume: 'float',
+    playMode: (_, graphApi) => {
+      const choices = Object.keys(PlayMode).map((key) => ({
+        text: key,
+        value: PlayMode[key as keyof typeof PlayMode]
+      }))
+      return {
+        valueType: 'string',
+        choices: choices
+      }
+    },
+    videoFit: (_, graphApi) => {
+      const choices = [
+        { text: 'cover', value: 'cover' },
+        { text: 'contain', value: 'contain' },
+        { text: 'vertical', value: 'vertical' },
+        { text: 'horizontal', value: 'horizontal' }
+      ]
+      return {
+        valueType: 'string',
+        choices: choices
+      }
+    }
   },
   out: { flow: 'flow' },
   initialState: undefined,
   triggered: ({ read, commit, graph: { getDependency } }) => {
-    const media = read('mediaPath')
+    const media: string = read('mediaPath')
+    const paused: boolean = read('paused')
+    const volume = clamp(read('volume'), 0, 1)
+    const playMode: PlayMode = read('playMode')
+    const videoFit: ContentFitType = read('videoFit')
     const entity = Number(read('entity')) as Entity
-    setComponent(entity, MediaComponent, {}) // play
+    setComponent(entity, VideoComponent, { fit: videoFit }) // play
+    setComponent(entity, MediaComponent, { paused: paused, paths: [media], volume: volume, playMode: playMode! }) // play
     commit('flow')
   }
 })
@@ -81,14 +115,30 @@ export const playAudio = makeFlowNodeDefinition({
   in: {
     flow: 'flow',
     entity: 'entity',
-    mediaPath: 'string'
+    mediaPath: 'string',
+    paused: 'boolean',
+    isMusic: 'boolean',
+    volume: 'float',
+    playMode: (_, graphApi) => {
+      const choices = Object.keys(PlayMode).map((key) => ({
+        text: key,
+        value: PlayMode[key as keyof typeof PlayMode]
+      }))
+      return {
+        valueType: 'string',
+        choices: choices
+      }
+    }
   },
   out: { flow: 'flow' },
   initialState: undefined,
   triggered: ({ read, commit, graph: { getDependency } }) => {
-    const media = read('mediaPath')
+    const media: string = read('mediaPath')
+    const paused: boolean = read('paused')
+    const volume = clamp(read('volume'), 0, 1)
+    const playMode: PlayMode = read('playMode')
     const entity = Number(read('entity')) as Entity
-    setComponent(entity, MediaComponent, {}) // play
+    setComponent(entity, MediaComponent, { paused: paused, paths: [media], volume: volume, playMode: playMode! }) // play
     commit('flow')
   }
 })
@@ -99,17 +149,20 @@ export const getAvatarAnimations = makeFunctionNodeDefinition({
   label: 'Get Avatar Animations',
   in: {
     animationName: (_, graphApi) => {
+      const choices = Array.from(AnimationManager.instance._animations)
+        .map((clip) => clip.name)
+        .sort()
+      choices.unshift('none')
       return {
         valueType: 'string',
-        choices: Array.from(AnimationManager.instance._animations)
-          .map((clip) => clip.name)
-          .sort()
+        choices: choices
       }
     }
   },
   out: { animationName: 'string' },
   exec: ({ read, write, graph }) => {
     const animationName: string = read('animationName')
+    console.log('DEBUG animName', animationName)
     write('animationName', animationName)
   }
 })
@@ -132,7 +185,9 @@ export const playGltfAnimation = makeFlowNodeDefinition({
     const isAvatar: boolean = read('isAvatar')
     const entity = Number(read('entity')) as Entity
     const animIndex: number = animations.findIndex((clip) => clip.name === animation)
+    console.log('DEBUG anims', animations, animation, animIndex)
     setComponent(entity, LoopAnimationComponent, { activeClipIndex: animIndex, hasAvatarAnimations: isAvatar })
+    getCallback(entity, 'xre.play')!()
     commit('flow')
   }
 })

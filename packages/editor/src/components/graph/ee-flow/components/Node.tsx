@@ -53,7 +53,6 @@ export const Node: React.FC<NodeProps> = ({ id, data, spec, selected, allSpecs }
   const edges = useEdges()
   const handleChange = useChangeNodeData(id)
   const pairs = getPairs(spec.inputs, spec.outputs)
-
   const containerRowStyle: React.CSSProperties = {
     display: 'flex',
     flexDirection: 'row',

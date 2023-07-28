@@ -40,9 +40,11 @@ export const getEntity = makeFunctionNodeDefinition({
   label: 'Get entity in scene',
   in: {
     entity: (_, graphApi) => {
+      const choices = sceneQuery().map((entity) => ({ text: getComponent(entity, NameComponent), value: entity }))
+      choices.unshift({ text: 'none', value: -1 as Entity })
       return {
         valueType: 'entity',
-        choices: sceneQuery().map((entity) => ({ text: getComponent(entity, NameComponent), value: entity }))
+        choices: choices
       }
     }
   },

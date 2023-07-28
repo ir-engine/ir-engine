@@ -122,6 +122,7 @@ const InputFieldForValue = ({
           className="socket-input boolean"
           style={inputSocketStyle}
           value={inputVal}
+          checked={value}
           onChange={(e) => onChange(name, e.currentTarget.checked)}
         />
       )}
@@ -130,17 +131,14 @@ const InputFieldForValue = ({
 }
 
 const InputSocket: React.FC<InputSocketProps> = ({ connected, specJSON, ...rest }) => {
-  const { value, name, valueType, defaultValue, choices } = rest
+  const { name, valueType } = rest
   const instance = useReactFlow()
-
   const isFlowSocket = valueType === 'flow'
 
   let colorName = valueTypeColorMap[valueType]
   if (colorName === undefined) {
     colorName = 'red'
   }
-
-  const inputVal = String(value) ?? defaultValue ?? ''
 
   // @ts-ignore
   const [backgroundColor, borderColor] = colors[colorName]

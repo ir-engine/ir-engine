@@ -34,9 +34,11 @@ export const getComponentFromRegistry = makeFunctionNodeDefinition({
   label: 'Get Component',
   in: {
     component: (_, graphApi) => {
+      const choices = Array.from(ComponentMap.keys()).sort()
+      choices.unshift('none')
       return {
         valueType: 'string',
-        choices: Array.from(ComponentMap.keys()).sort()
+        choices: choices
       }
     }
   },
