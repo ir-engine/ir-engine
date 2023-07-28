@@ -34,6 +34,7 @@ import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
 
 export const SplineComponent = defineComponent({
   name: 'SplineComponent',
+  jsonID: 'spline-component',
 
   onInit: (entity) => {
     const splinePositions = [] as Vector3[]
