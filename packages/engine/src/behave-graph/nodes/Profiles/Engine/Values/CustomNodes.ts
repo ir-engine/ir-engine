@@ -23,6 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import config from '@etherealengine/common/src/config'
 import { SceneJson } from '@etherealengine/common/src/interfaces/SceneInterface'
 import { dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 import { clamp } from 'three/src/math/MathUtils'
@@ -226,7 +227,27 @@ export const fadeFromBlackCamera = makeFlowNodeDefinition({
   }
 })
 
+const fileServer = config.client.fileServer ?? `https://localhost:8642`
+const corsPath = config.client.cors.serverPort ? config.client.cors.proxyUrl : `https://localhost:3029`
+
+const parseSceneDataCacheURLsLocal = (projectName: string, sceneData: any) => {
+  for (const [key, val] of Object.entries(sceneData)) {
+    if (val && typeof val === 'object') {
+      sceneData[key] = parseSceneDataCacheURLsLocal(projectName, val)
+    }
+    if (typeof val === 'string') {
+      if (val.includes('__$project$__')) {
+        sceneData[key] = `${fileServer}/projects` + sceneData[key].replace('__$project$__', '')
+      }
+
+      if (val.startsWith('__$cors-proxy$__')) sceneData[key] = sceneData[key].replace('__$cors-proxy$__', corsPath)
+    }
+  }
+  return sceneData
+}
+
 const loadSceneJsonOffline = async (projectName, sceneName) => {
+  console.log('DEBUG switching scene')
   const locationName = `${projectName}/${sceneName}`
   const sceneData = (await (await fetch(`${fileServer}/projects/${locationName}.scene.json`)).json()) as SceneJson
   const hasKTX2 = await fetch(`${fileServer}/projects/${locationName}.thumbnail.ktx2`).then((res) => res.ok)
@@ -237,6 +258,7 @@ const loadSceneJsonOffline = async (projectName, sceneName) => {
     project: projectName
   })
 }
+
 export const switchScene = makeFlowNodeDefinition({
   typeName: 'engine/switchScene',
   category: NodeCategory.Action,
@@ -248,17 +270,13 @@ export const switchScene = makeFlowNodeDefinition({
   out: {},
   initialState: undefined,
   triggered: ({ read, commit, graph: { getDependency } }) => {
+    const projectName = getMutableState(SceneState).sceneData.value?.project
     const sceneName = read('sceneName')
     console.log('DEBUG Switch Scene to', sceneName)
-    const locationName = `${projectName}/${sceneName}`
-    const sceneData = await(await fetch(`${fileServer}/projects/${locationName}.scene.json`)).json() as SceneJson
-    const hasKTX2 = await fetch(`${fileServer}/projects/${locationName}.thumbnail.ktx2`).then((res) => res.ok)
-    getMutableState(SceneState).sceneData.set({
-      scene: parseSceneDataCacheURLsLocal(projectName, sceneData),
-      name: sceneName,
-      thumbnailUrl: `${fileServer}/projects/${locationName}.thumbnail.${hasKTX2 ? 'ktx2' : 'jpeg'}`,
-      project: projectName
+    loadSceneJsonOffline(projectName, sceneName).then(() => {
+      console.log('DEBUG switch scene')
     })
   }
 })
+
 //scene transition
