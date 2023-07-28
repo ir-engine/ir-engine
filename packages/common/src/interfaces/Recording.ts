@@ -26,14 +26,17 @@ Ethereal Engine. All Rights Reserved.
 import { DataChannelType } from './DataChannelType'
 import { PeerID } from './PeerID'
 import { RecordingID } from './RecordingID'
+import { StaticResourceInterface } from './StaticResourceInterface'
 import { UserId } from './UserId'
 
 export interface RecordingResult {
   id: RecordingID
   userId: UserId
   ended: boolean
+  createdAt: string
+  updatedAt: string
   schema: string // stringified RecordingSchema
-  resources?: Array<string> // storage provider keys
+  resources?: Array<StaticResourceInterface>
 }
 
 export interface RecordingResourceResult {

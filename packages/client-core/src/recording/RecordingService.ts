@@ -119,9 +119,9 @@ export const RecordingFunctions = {
     // const recordings = await Engine.instance?.api?.service('recording')?.find().then(res => res?.data) as RecordingResult[]
     //)?.data as RecordingResult[]
 
-    return await Engine.instance?.api
-      ?.service('recording')
-      ?.find()
+    return await Engine.instance.api
+      .service('recording')
+      .find()
       .then(
         (res) => {
           const recordingState = getMutableState(RecordingState)

@@ -45,26 +45,17 @@ export async function seed(knex: Knex): Promise<void> {
         locationType: 'public' as const,
         videoEnabled: true,
         audioEnabled: true,
-        screenSharingEnabled: false,
-        faceStreamingEnabled: false
+        screenSharingEnabled: true,
+        faceStreamingEnabled: true
       },
-      // {
-      //   id: '37ce32f0-208d-11eb-b02f-37cfdadfe58c',
-      //   locationId: '98cbcc30-fd2d-11ea-bc7c-cd4cac9a8d61',
-      //   locationType: 'public' as const,
-      //   videoEnabled: true,
-      //   audioEnabled: true,
-      //   screenSharingEnabled: false,
-      //   faceStreamingEnabled: false
-      // },
       {
         id: '37ce32f0-208d-11eb-b02f-37cfdadfe58d',
         locationId: '98cbcc30-fd2d-11ea-bc7c-cd4cac9a8d62',
         locationType: 'public' as const,
         videoEnabled: true,
         audioEnabled: true,
-        screenSharingEnabled: false,
-        faceStreamingEnabled: false
+        screenSharingEnabled: true,
+        faceStreamingEnabled: true
       },
       {
         id: '37ce32f0-208d-11eb-b02f-37cfdadfe58e',
@@ -72,8 +63,8 @@ export async function seed(knex: Knex): Promise<void> {
         locationType: 'public' as const,
         videoEnabled: true,
         audioEnabled: true,
-        screenSharingEnabled: false,
-        faceStreamingEnabled: false
+        screenSharingEnabled: true,
+        faceStreamingEnabled: true
       }
     ].map(async (item) => ({ ...item, createdAt: await getDateTimeSql(), updatedAt: await getDateTimeSql() }))
   )

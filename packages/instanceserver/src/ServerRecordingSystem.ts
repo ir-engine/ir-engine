@@ -44,11 +44,7 @@ import {
   addDataChannelHandler,
   dataChannelRegistry,
   NetworkState,
-  removeDataChannelHandler,
-  screenshareAudioDataChannelType,
-  screenshareVideoDataChannelType,
-  webcamAudioDataChannelType,
-  webcamVideoDataChannelType
+  removeDataChannelHandler
 } from '@etherealengine/engine/src/networking/NetworkState'
 import { SerializationSchema } from '@etherealengine/engine/src/networking/serialization/Utils'
 import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
@@ -62,6 +58,7 @@ import { createStaticResourceHash } from '@etherealengine/server-core/src/media/
 import { DataChannelType } from '@etherealengine/common/src/interfaces/DataChannelType'
 import { RecordingID } from '@etherealengine/common/src/interfaces/RecordingID'
 import { NetworkObjectComponent } from '@etherealengine/engine/src/networking/components/NetworkObjectComponent'
+import { getCachedURL } from '@etherealengine/server-core/src/media/storageprovider/getCachedURL'
 import { startMediaRecording } from './MediaRecordingFunctions'
 import { getServerNetwork, SocketWebRTCServerNetwork } from './SocketWebRTCServerFunctions'
 import { createOutgoingDataProducer } from './WebRTCFunctions'
@@ -112,10 +109,14 @@ export const uploadRecordingStaticResource = async (props: {
     ContentType: props.mimeType
   })
 
+  const provider = getStorageProvider()
+  const url = getCachedURL(props.key, provider.cacheDomain)
+
   const staticResource = (await app.service('static-resource').create(
     {
       hash: props.hash,
       key: props.key,
+      url,
       mimeType: props.mimeType
     },
     { isInternal: true }
@@ -128,13 +129,6 @@ export const uploadRecordingStaticResource = async (props: {
 
   return upload
 }
-
-const mediaDataChannels = [
-  webcamVideoDataChannelType,
-  webcamAudioDataChannelType,
-  screenshareVideoDataChannelType,
-  screenshareAudioDataChannelType
-]
 
 export const onStartRecording = async (action: ReturnType<typeof ECSRecordingActions.startRecording>) => {
   const app = Engine.instance.api as Application
@@ -181,9 +175,7 @@ export const onStartRecording = async (action: ReturnType<typeof ECSRecordingAct
     }
   }
 
-  console.log({ recording })
   const schema = JSON.parse(recording.schema) as RecordingSchema
-  console.log({ schema })
 
   const activeRecording = {
     userID,
@@ -274,6 +266,8 @@ export const onStopRecording = async (action: ReturnType<typeof ECSRecordingActi
   const hasScopes = await checkScope(user, app, 'recording', 'write')
   if (!hasScopes) return dispatchError('User does not have record:write scope', user.id)
 
+  app.service('recording').patch(action.recordingID, { ended: true }, { isInternal: true })
+
   const recording = await app.service('recording').get(action.recordingID)
 
   const schema = JSON.parse(recording.schema) as RecordingSchema
@@ -330,25 +324,29 @@ export const onStartPlayback = async (action: ReturnType<typeof ECSRecordingActi
 
   const storageProvider = getStorageProvider()
 
-  const entityFiles = recording.resources.filter((key) => key.includes('entities-'))
+  const entityFiles = recording.resources.filter((resource) => resource.key.includes('entities-'))
 
   const rawFiles = recording.resources.filter(
-    (key) => !key.includes('entities-') && key.substring(key.length - 3, key.length) === '.ee'
+    (resource) =>
+      !resource.key.includes('entities-') &&
+      resource.key.substring(resource.key.length - 3, resource.key.length) === '.ee'
   )
 
-  const mediaFiles = recording.resources.filter((key) => key.substring(key.length - 3, key.length) !== '.ee')
+  const mediaFiles = recording.resources.filter(
+    (resource) => resource.key.substring(resource.key.length - 3, resource.key.length) !== '.ee'
+  )
 
-  const entityChunks = (await Promise.all(entityFiles.map((key) => storageProvider.getObject(key)))).map((data) =>
-    decode(data.Body)
+  const entityChunks = (await Promise.all(entityFiles.map((resource) => storageProvider.getObject(resource.key)))).map(
+    (data) => decode(data.Body)
   )
 
   const dataChannelChunks = new Map<DataChannelType, DataChannelFrame<any>[][]>()
 
   await Promise.all(
-    rawFiles.map(async (file) => {
-      const dataChannel = file.split('/')[2].split('-')[0] as DataChannelType
+    rawFiles.map(async (resource) => {
+      const dataChannel = resource.key.split('/')[2].split('-')[0] as DataChannelType
       if (!dataChannelChunks.has(dataChannel)) dataChannelChunks.set(dataChannel, [])
-      const data = await storageProvider.getObject(file)
+      const data = await storageProvider.getObject(resource.key)
       dataChannelChunks.get(dataChannel)!.push(decode(data.Body))
     })
   )
@@ -470,8 +468,6 @@ const playbackStopped = (userId: UserId, recordingID: string) => {
 
   /** We only need to dispatch once, so do it on the world server */
   if (Engine.instance.worldNetwork) {
-    app.service('recording').patch(recordingID, { ended: true }, { isInternal: true })
-
     dispatchAction(
       ECSRecordingActions.playbackChanged({
         recordingID,

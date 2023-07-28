@@ -37,7 +37,7 @@ export function createRecordingsWidget() {
   const widget: Widget = {
     ui,
     label: 'World Anchor',
-    icon: 'Anchor'
+    icon: 'Videocam'
   }
 
   const id = Widgets.registerWidget(ui.entity, widget)
