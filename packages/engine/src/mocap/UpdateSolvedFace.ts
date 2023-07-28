@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { VRMExpressionPresetName } from '@pixiv/three-vrm'
-import { Face } from 'kalidokit/dist/kalidokit.umd.js'
+import { Face, Vector } from 'kalidokit/dist/kalidokit.umd.js'
 import { Euler } from 'three'
 import { updateRigRotation } from './UpdateRig'
 
@@ -42,7 +42,9 @@ const UpdateSolvedFace = (data, hipsPos, avatarRig, avatarTransform) => {
 
     // Simple example without winking. Interpolate based on old blendshape, then stabilize blink with `Kalidokit` helper function.
     // for VRM, 1 is closed, 0 is open.
-    data.eye.l = lerp(clamp(1 - data.eye.l, 0, 1), Blendshape.getValue(PresetName.Blink)!, 0.5)
+
+    const newLeye = new Vector().clamp(1 - data.eye.l, 0, 1)
+    data.eye.l = new Vector().lerp(newLeye, Blendshape.getValue(PresetName.Blink)!, 0.5)
     data.eye.r = lerp(clamp(1 - data.eye.r, 0, 1), Blendshape.getValue(PresetName.Blink)!, 0.5)
     data.eye = Face.stabilizeBlink(data.eye, data.head.y)
     Blendshape.setValue(PresetName.Blink, data.eye.l)

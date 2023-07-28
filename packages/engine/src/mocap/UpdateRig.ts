@@ -23,35 +23,75 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
+import { dispatchAction } from '@etherealengine/hyperflux'
 import { VRMHumanBoneName } from '@pixiv/three-vrm'
 import { Euler, Quaternion, Vector3 } from 'three'
+import { Engine } from '../ecs/classes/Engine'
+import { getComponent } from '../ecs/functions/ComponentFunctions'
+import { UUIDComponent } from '../scene/components/UUIDComponent'
+import { TransformComponent } from '../transform/components/TransformComponent'
+import { XRAction } from '../xr/XRState'
 
+const useIk = false
 const updateRigPosition = (name, position, dampener, lerpAmount, rig) => {
-  const Part = rig.vrm.humanoid!.getRawBoneNode(VRMHumanBoneName[name])
-  if (!Part) {
-    console.log(`can't position ${name}`)
-    return
-  }
   const vector = new Vector3(
     (position?.x || 0) * dampener,
     (position?.y || 0) * dampener,
     (position?.z || 0) * dampener
   )
-  Part.position.lerp(vector, lerpAmount) // interpolate
-  Part.updateMatrixWorld()
+
+  // ik targets
+  if (useIk) {
+    const entityUUID = `${Engine?.instance?.userId}_mocap_${name}` as EntityUUID
+    const ikTarget = UUIDComponent.entitiesByUUID[entityUUID]
+    // if (ikTarget) removeEntity(ikTarget)
+
+    if (!ikTarget) {
+      const h = name === 'lefthand' ? 'left' : name === 'righthand' ? 'right' : 'none'
+      dispatchAction(XRAction.spawnIKTarget({ handedness: h, entityUUID: entityUUID }))
+    }
+
+    const ik = getComponent(ikTarget, TransformComponent)
+    ik?.position?.lerp(vector.clone(), lerpAmount)
+  } else {
+    const Part = rig.vrm.humanoid!.getNormalizedBoneNode(VRMHumanBoneName[name])
+    if (!Part) {
+      console.log(`can't position ${name}`)
+      return
+    }
+    Part.position.lerp(vector, lerpAmount) // interpolate
+    Part.updateMatrixWorld()
+  }
 }
 
 const updateRigRotation = (name, rotation, dampener, lerpAmount, rig) => {
-  const Part = rig.vrm.humanoid!.getRawBoneNode(VRMHumanBoneName[name])
-  if (!Part) {
-    console.log(`can't rotate ${name}`)
-    return
-  }
-
   const euler = new Euler((rotation?.x || 0) * dampener, (rotation?.y || 0) * dampener, (rotation?.z || 0) * dampener)
   const quaternion = new Quaternion().setFromEuler(euler)
-  Part.quaternion.slerp(quaternion, lerpAmount) // interpolate
-  Part.updateMatrixWorld()
+
+  // ik targets
+  if (debugSettings?.useIk) {
+    const entityUUID = `${Engine?.instance?.userId}_mocap_${name}` as EntityUUID
+    const ikTarget = UUIDComponent.entitiesByUUID[entityUUID]
+    // if (ikTarget) removeEntity(ikTarget)
+
+    if (!ikTarget) {
+      const h = name === 'lefthand' ? 'left' : name === 'righthand' ? 'right' : 'none'
+      dispatchAction(XRAction.spawnIKTarget({ handedness: h, entityUUID: entityUUID }))
+    }
+
+    const ik = getComponent(ikTarget, TransformComponent)
+    ik?.rotation?.slerp(quaternion, lerpAmount)
+  } else {
+    const Part = rig.vrm.humanoid!.getNormalizedBoneNode(VRMHumanBoneName[name])
+    if (!Part) {
+      console.log(`can't rotate ${name}`)
+      return
+    }
+
+    Part.quaternion.slerp(quaternion, lerpAmount) // interpolate
+    Part.updateMatrixWorld()
+  }
 }
 
 export { updateRigPosition, updateRigRotation }

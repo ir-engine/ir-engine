@@ -90,6 +90,18 @@ const startPlayback = async (recordingID: string, twin = true) => {
   })
 }
 
+function throttle(func, delaySeconds) {
+  let timeout: NodeJS.Timeout | null = null
+  return (...args) => {
+    if (!timeout) {
+      func(...args)
+      timeout = setTimeout(() => {
+        timeout = null
+      }, delaySeconds * 1000)
+    }
+  }
+}
+
 const sendResults = (results: MotionCaptureStream) => {
   const network = Engine?.instance?.worldNetwork as SocketWebRTCClientNetwork
   if (!network?.sendTransport) return
@@ -111,6 +123,7 @@ const CaptureDashboard = () => {
   const trackingSettings = captureState
     ?.nested('settings')
     ?.value?.filter((s) => s?.name.toLowerCase() === 'tracking')[0]
+  const debugSettings = captureState?.nested('settings')?.value?.filter((s) => s?.name.toLowerCase() === 'debug')[0]
 
   const isDetecting = useHookstate(false)
   const [detectingStatus, setDetectingStatus] = useState('inactive')
@@ -133,6 +146,8 @@ const CaptureDashboard = () => {
   const recordingState = useHookstate(getMutableState(RecordingState))
 
   const videoActive = useHookstate(false)
+
+  const throttledSend = throttle(sendResults, 1)
 
   const resizeCanvas = () => {
     if (canvasRef.current?.width !== videoRef.current?.clientWidth) {
@@ -367,8 +382,12 @@ const CaptureDashboard = () => {
           .forEach((k) => delete finalData[k])
 
         if (Object.keys(finalData).length > 0) {
-          setDetectingStatus('active')
-          sendResults(finalData)
+          if (debugSettings?.throttleSend) {
+            setDetectingStatus('active')
+            throttledSend(finalData)
+          } else {
+            sendResults(finalData)
+          }
         }
 
         // only if drawing

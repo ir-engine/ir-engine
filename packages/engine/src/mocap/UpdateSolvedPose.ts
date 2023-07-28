@@ -23,13 +23,10 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Mesh } from 'three'
-
 import { updateRigPosition, updateRigRotation } from './UpdateRig'
 
-import { TPose } from 'kalidokit'
+import { TPose } from 'kalidokit/dist/kalidokit.umd.js'
 
-const objs = [] as Mesh[]
 const debug = true
 const dampener = 1
 

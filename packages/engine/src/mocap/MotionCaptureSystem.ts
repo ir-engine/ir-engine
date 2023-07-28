@@ -25,10 +25,10 @@ Ethereal Engine. All Rights Reserved.
 
 import { decode, encode } from 'msgpackr'
 import { useEffect } from 'react'
-import { Vector3 } from 'three'
+import { Mesh, MeshBasicMaterial, SphereGeometry, Vector3 } from 'three'
 
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
-import { getState } from '@etherealengine/hyperflux'
+import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
 import { AvatarRigComponent } from '../avatar/components/AvatarAnimationComponent'
 import { RingBuffer } from '../common/classes/RingBuffer'
@@ -46,6 +46,7 @@ import { TransformComponent } from '../transform/components/TransformComponent'
 import { Classifications, Landmark, NormalizedLandmark } from '@mediapipe/tasks-vision'
 import { TFace, THand, TPose } from 'kalidokit/dist/kalidokit.umd.js'
 
+import { CaptureClientSettingsState } from '@etherealengine/client-core/src/media/CaptureClientSettingsState'
 import UpdateRawFace from './UpdateRawFace'
 import UpdateRawHands from './UpdateRawHands'
 import UpdateRawPose from './UpdateRawPose'
@@ -68,6 +69,9 @@ export interface MotionCaptureStream {
   faces?: Classifications[] | undefined
   facesSolved?: TFace[] | undefined
 }
+
+let debug = false
+const debugObjs: any[] = []
 
 export const sendResults = (results: MotionCaptureStream) => {
   return encode({
@@ -144,7 +148,6 @@ const execute = () => {
 
       if (!avatarRig) continue
 
-      // const avatarHips = avatarRig?.vrm?.humanoid?.getRawBone('hips')?.node
       const avatarHips = avatarRig?.rig?.hips?.node
 
       const hipsPos = new Vector3()
@@ -185,6 +188,23 @@ const execute = () => {
           UpdateRawFace(face, hipsPos.clone(), avatarRig, avatarTransform)
         })
       }
+
+      if (debug) {
+        const d = data?.posesWorld || data?.handsWorld || []
+        d.forEach((landmarks) => {
+          landmarks.forEach((landmark) => {
+            const idx = debugObjs.length
+            if (debugObjs[idx] === undefined) {
+              const matOptions = {}
+              const mesh = new Mesh(new SphereGeometry(0.025), new MeshBasicMaterial(matOptions))
+              debugObjs[idx] = mesh
+              Engine?.instance?.scene?.add(mesh)
+            }
+            debugObjs[idx].position.lerp(new Vector3(landmark.x, landmark.y, landmark.z), engineState.deltaSeconds * 10)
+            debugObjs[idx].updateMatrixWorld()
+          })
+        })
+      }
     }
   }
 }
@@ -192,7 +212,9 @@ const execute = () => {
 const reactor = () => {
   useEffect(() => {
     addDataChannelHandler(mocapDataChannelType, handleMocapData)
-
+    const captureState = useHookstate(getMutableState(CaptureClientSettingsState))
+    const debugSettings = captureState?.nested('settings')?.value?.filter((s) => s?.name.toLowerCase() === 'debug')[0]
+    debug = debugSettings?.show3dLandmarks || false
     return () => {
       removeDataChannelHandler(mocapDataChannelType, handleMocapData)
     }
