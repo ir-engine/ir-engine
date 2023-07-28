@@ -30,7 +30,6 @@ import { useTranslation } from 'react-i18next'
 
 import { validateEmail, validatePhoneNumber } from '@etherealengine/common/src/config'
 import { defaultThemeModes, defaultThemeSettings } from '@etherealengine/common/src/constants/DefaultThemeSettings'
-import { WorldState } from '@etherealengine/engine/src/networking/interfaces/WorldState'
 import { createXRUI } from '@etherealengine/engine/src/xrui/functions/createXRUI'
 import { WidgetAppService } from '@etherealengine/engine/src/xrui/WidgetAppService'
 import { WidgetName } from '@etherealengine/engine/src/xrui/Widgets'
@@ -89,7 +88,6 @@ const ProfileDetailView = () => {
   const deleteControlsOpen = useHookstate(false)
   const confirmDeleteOpen = useHookstate(false)
   const oauthConnectedState = useHookstate(initialOAuthConnectedState)
-  const userAvatarDetails = useHookstate(getMutableState(WorldState).userAvatarDetails)
 
   const clientSettingState = useHookstate(getMutableState(AdminClientSettingsState))
   const [clientSetting] = clientSettingState?.client?.value || []
@@ -122,7 +120,7 @@ const ProfileDetailView = () => {
       })
       authState.set(temp)
     }
-  }, [authSettingState?.updateNeeded?.value])
+  }, [authSetting])
 
   /**
    * Note: If you're editing lines 75-191, be sure to make the same changes to

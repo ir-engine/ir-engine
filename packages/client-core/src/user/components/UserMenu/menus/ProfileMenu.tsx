@@ -105,7 +105,7 @@ const ProfileMenu = ({ hideLogin, onClose, isPopover }: Props): JSX.Element => {
       })
       authState.set(temp)
     }
-  }, [authSettingState?.updateNeeded?.value])
+  }, [authSetting])
 
   let type = ''
   const addMoreSocial =

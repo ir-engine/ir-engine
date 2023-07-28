@@ -26,11 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { Paginated } from '@feathersjs/feathers'
 
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import {
-  AuthenticationSettingPatch,
-  authenticationSettingPath,
-  AuthenticationSettingType
-} from '@etherealengine/engine/src/schemas/setting/authentication-setting.schema'
+import { AuthenticationSettingType } from '@etherealengine/engine/src/schemas/setting/authentication-setting.schema'
 import { defineState, getMutableState } from '@etherealengine/hyperflux'
 
 import { NotificationService } from '../../../common/services/NotificationService'
@@ -44,8 +40,7 @@ export const AuthSettingsState = defineState({
     limit: 100,
     total: 0,
     retrieving: false,
-    fetched: false,
-    updateNeeded: true
+    fetched: false
   })
 })
 
@@ -53,25 +48,17 @@ export const AuthSettingsService = {
   fetchAuthSetting: async () => {
     try {
       await waitForClientAuthenticated()
+
       const authSetting = (await Engine.instance.api
-        .service(authenticationSettingPath)
+        .service('authentication-setting')
         .find()) as Paginated<AuthenticationSettingType>
+
       getMutableState(AuthSettingsState).merge({
         authSettings: authSetting.data,
         skip: authSetting.skip,
         limit: authSetting.limit,
-        total: authSetting.total,
-        updateNeeded: false
+        total: authSetting.total
       })
-    } catch (err) {
-      console.error(err)
-      NotificationService.dispatchNotify(err.message, { variant: 'error' })
-    }
-  },
-  patchAuthSetting: async (data: AuthenticationSettingPatch, id: string) => {
-    try {
-      await Engine.instance.api.service(authenticationSettingPath).patch(id, data)
-      getMutableState(AuthSettingsState)
     } catch (err) {
       console.error(err)
       NotificationService.dispatchNotify(err.message, { variant: 'error' })

@@ -75,7 +75,7 @@ const MagicLinkEmail = ({ type, isAddConnection }: Props): JSX.Element => {
       })
       authState.set(temp)
     }
-  }, [authSettingState?.updateNeeded?.value])
+  }, [authSetting])
 
   const handleInput = (e: any): void => {
     state.set({ ...state.value, [e.target.name]: e.target.value })
