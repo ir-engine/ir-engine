@@ -459,7 +459,7 @@ const execute = () => {
     _hipVector.subVectors(rigComponent.ikTargetsMap.headTarget.position, rigComponent.ikTargetsMap.hipsTarget.position)
     rig.hips.node.quaternion
       .setFromUnitVectors(V_010, _hipVector)
-      .multiply(_hipRot.setFromEuler(new Euler(0, (rigComponent.vrm as any).userData ? 0 : Math.PI)))
+      .multiply(_hipRot.setFromEuler(new Euler(0, rigComponent.flipped ? Math.PI : 0)))
 
     //right now we only want hand rotation set if we are in xr
     const xrValue = xrState.sessionActive ? 1 : 0

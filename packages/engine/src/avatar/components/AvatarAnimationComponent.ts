@@ -114,6 +114,8 @@ export const AvatarRigComponent = defineComponent({
 
       armLength: 0,
 
+      flipped: false,
+
       /** Cache of the skinned meshes currently on the rig */
       skinnedMeshes: [] as SkinnedMesh[],
       /** The VRM model */
@@ -212,9 +214,14 @@ export const AvatarRigComponent = defineComponent({
 
       offset.y = rig.bindRig.rightFoot.node.getWorldPosition(foot).y * 2 * scaleMultiplier - 0.05
 
+      rig.flipped = (rig.vrm as any).userData && (rig.vrm as any).userData.flipped
+
+      const direction = rig.flipped ? -1 : 1
+
+      const hipsRotationoffset = new Quaternion().setFromEuler(new Euler(0, rig.flipped ? Math.PI : 0, 0))
+
       for (let i = 0; i < bindTracks.length; i += 3) {
         const key = bindTracks[i].name.substring(0, bindTracks[i].name.indexOf('.'))
-        const hipsRotationoffset = new Quaternion().setFromEuler(new Euler(0, Math.PI, 0))
 
         //todo: find a better way to map joints to ik targets here
         //currently hints are offset by joint forward to estimate where they should be for every rig
@@ -230,14 +237,18 @@ export const AvatarRigComponent = defineComponent({
           case 'rightElbowHint':
             bonePos.copy(
               rig.bindRig.rightLowerArm.node.matrixWorld.multiply(
-                new Matrix4().setPosition(rig.bindRig.rightLowerArm.node.getWorldDirection(new Vector3()))
+                new Matrix4()
+                  .setPosition(rig.bindRig.rightLowerArm.node.getWorldDirection(new Vector3()))
+                  .multiplyScalar(direction * -1)
               )
             )
             break
           case 'leftElbowHint':
             bonePos.copy(
               rig.bindRig.leftLowerArm.node.matrixWorld.multiply(
-                new Matrix4().setPosition(rig.bindRig.leftLowerArm.node.getWorldDirection(new Vector3()))
+                new Matrix4()
+                  .setPosition(rig.bindRig.leftLowerArm.node.getWorldDirection(new Vector3()))
+                  .multiplyScalar(direction * -1)
               )
             )
             break
@@ -245,7 +256,7 @@ export const AvatarRigComponent = defineComponent({
             bonePos.copy(
               rig.bindRig.rightLowerLeg.node.matrixWorld.multiply(
                 new Matrix4().setPosition(
-                  rig.bindRig.rightLowerLeg.node.getWorldDirection(new Vector3()).multiplyScalar(-1)
+                  rig.bindRig.rightLowerLeg.node.getWorldDirection(new Vector3()).multiplyScalar(direction)
                 )
               )
             )
@@ -254,7 +265,7 @@ export const AvatarRigComponent = defineComponent({
             bonePos.copy(
               rig.bindRig.leftLowerLeg.node.matrixWorld.multiply(
                 new Matrix4().setPosition(
-                  rig.bindRig.rightLowerLeg.node.getWorldDirection(new Vector3()).multiplyScalar(-1)
+                  rig.bindRig.rightLowerLeg.node.getWorldDirection(new Vector3()).multiplyScalar(direction)
                 )
               )
             )
@@ -266,7 +277,7 @@ export const AvatarRigComponent = defineComponent({
         }
         const pos = new Vector3()
         bonePos.decompose(pos, new Quaternion(), new Vector3())
-        if (!(rig.vrm as any).userData) pos.applyQuaternion(hipsRotationoffset)
+        pos.applyQuaternion(hipsRotationoffset)
         pos.sub(
           new Vector3(bindTracks[i].values[0], bindTracks[i].values[1], bindTracks[i].values[2]).multiplyScalar(
             scaleMultiplier

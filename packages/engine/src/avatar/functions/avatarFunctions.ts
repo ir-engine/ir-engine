@@ -74,6 +74,8 @@ export const loadAvatarModelAsset = async (avatarURL: string) => {
 
   let vrm = (model instanceof VRM ? model : model.userData.vrm ?? avatarBoneMatching(scene)) as VRM
 
+  ;(vrm as any).userData = { flipped: vrm.meta.metaVersion == '1' ? false : true } as any
+
   return vrm as VRM
 }
 
