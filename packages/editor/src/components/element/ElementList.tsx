@@ -35,6 +35,7 @@ import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
 import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
 import { Component, getComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { AmbientLightComponent } from '@etherealengine/engine/src/scene/components/AmbientLightComponent'
+import { CameraTrackComponent } from '@etherealengine/engine/src/scene/components/CameraTrackComponent'
 import { ColliderComponent } from '@etherealengine/engine/src/scene/components/ColliderComponent'
 import { DirectionalLightComponent } from '@etherealengine/engine/src/scene/components/DirectionalLightComponent'
 import { EnvMapBakeComponent } from '@etherealengine/engine/src/scene/components/EnvMapBakeComponent'
@@ -50,6 +51,7 @@ import { PrefabComponent } from '@etherealengine/engine/src/scene/components/Pre
 import { ScenePreviewCameraComponent } from '@etherealengine/engine/src/scene/components/ScenePreviewCamera'
 import { SkyboxComponent } from '@etherealengine/engine/src/scene/components/SkyboxComponent'
 import { SpawnPointComponent } from '@etherealengine/engine/src/scene/components/SpawnPointComponent'
+import { SplineComponent } from '@etherealengine/engine/src/scene/components/SplineComponent'
 import { SpotLightComponent } from '@etherealengine/engine/src/scene/components/SpotLightComponent'
 import { SystemComponent } from '@etherealengine/engine/src/scene/components/SystemComponent'
 import { VideoComponent } from '@etherealengine/engine/src/scene/components/VideoComponent'
@@ -58,6 +60,7 @@ import {
   LocalTransformComponent,
   TransformComponent
 } from '@etherealengine/engine/src/transform/components/TransformComponent'
+
 import { getState } from '@etherealengine/hyperflux'
 import MenuItem from '@etherealengine/ui/src/primitives/mui/MenuItem'
 import Tooltip from '@etherealengine/ui/src/primitives/mui/Tooltip'
@@ -99,7 +102,7 @@ export const ComponentShelfCategories: Record<string, Component[]> = {
   ],
   FX: [ParticleSystemComponent],
   Scripting: [SystemComponent],
-  Misc: [EnvMapBakeComponent, ScenePreviewCameraComponent, SkyboxComponent]
+  Misc: [EnvMapBakeComponent, ScenePreviewCameraComponent, SkyboxComponent, CameraTrackComponent, SplineComponent]
 }
 
 export const addSceneComponentElement = (
