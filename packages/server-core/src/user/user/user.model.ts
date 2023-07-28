@@ -28,6 +28,7 @@ import { HookReturn } from 'sequelize/types/hooks'
 
 import {
   AvatarInterface,
+  LocationAuthorizedUserInterface,
   LocationBanInterface,
   LocationInterface,
   LocationSettingsInterface,
@@ -249,7 +250,7 @@ export const createLocationModel = (app: Application) => {
     ;(location as any).hasOne(createLocationSettingsModel(app), { onDelete: 'cascade' })
     ;(location as any).hasMany(createLocationBanModel(app), { as: 'locationBans' })
     ;(location as any).hasMany(models.bot, { foreignKey: 'locationId' })
-    ;(location as any).hasMany(models.location_authorized_user, { onDelete: 'cascade' })
+    ;(location as any).hasMany(createLocationAuthorizedUserModel(app), { onDelete: 'cascade' })
   }
 
   return location
@@ -364,4 +365,40 @@ export const createLocationBanModel = (app: Application) => {
   }
 
   return locationBan
+}
+
+export const createLocationAuthorizedUserModel = (app: Application) => {
+  const sequelizeClient: Sequelize = app.get('sequelizeClient')
+  const locationAuthorizedUser = sequelizeClient.define<Model<LocationAuthorizedUserInterface>>(
+    'location-authorized-user',
+    {
+      id: {
+        type: DataTypes.UUID,
+        defaultValue: DataTypes.UUIDV1,
+        allowNull: false,
+        primaryKey: true
+      }
+    },
+    {
+      hooks: {
+        beforeCount(options: any): void {
+          options.raw = true
+        }
+      }
+    }
+  )
+
+  ;(locationAuthorizedUser as any).associate = (models: any): void => {
+    ;(locationAuthorizedUser as any).belongsTo(createLocationModel(app), {
+      required: true,
+      foreignKey: { allowNull: true },
+      onDelete: 'cascade'
+    })
+    ;(locationAuthorizedUser as any).belongsTo(models.user, {
+      required: true,
+      foreignKey: { allowNull: true },
+      onDelete: 'cascade'
+    })
+  }
+  return locationAuthorizedUser
 }

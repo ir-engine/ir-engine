@@ -27,8 +27,9 @@ Ethereal Engine. All Rights Reserved.
 import type { Static } from '@feathersjs/typebox'
 import { querySyntax, Type } from '@feathersjs/typebox'
 
-// TODO: This is temporary variable. It will be removed once this service is moved to feathers 5.
-export const locationAuthorizedUserDBPath = 'location_authorized_user'
+export const locationAuthorizedUserPath = 'location-authorized-user'
+
+export const locationAuthorizedUserMethods = ['find', 'create', 'patch', 'remove', 'get'] as const
 
 // Main data model schema
 export const locationAuthorizedUserSchema = Type.Object(
@@ -36,10 +37,10 @@ export const locationAuthorizedUserSchema = Type.Object(
     id: Type.String({
       format: 'uuid'
     }),
-    userId: Type.String({
+    locationId: Type.String({
       format: 'uuid'
     }),
-    locationId: Type.String({
+    userId: Type.String({
       format: 'uuid'
     }),
     createdAt: Type.String({ format: 'date-time' }),
@@ -64,8 +65,8 @@ export type LocationAuthorizedUserPatch = Static<typeof locationAuthorizedUserPa
 // Schema for allowed query properties
 export const locationAuthorizedUserQueryProperties = Type.Pick(locationAuthorizedUserSchema, [
   'id',
-  'userId',
-  'locationId'
+  'locationId',
+  'userId'
 ])
 export const locationAuthorizedUserQuerySchema = Type.Intersect(
   [

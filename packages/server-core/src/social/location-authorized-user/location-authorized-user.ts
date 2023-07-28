@@ -23,38 +23,38 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-// Initializes the `location-authorized-user` service on path `/location-authorized-user`
-import { Application } from '../../../declarations'
-import { LocationAuthorizedUser } from './location-authorized-user.class'
-import locationAuthorizedUserDocs from './location-authorized-user.docs'
-import hooks from './location-authorized-user.hooks'
-import createModel from './location-authorized-user.model'
+import {
+  locationAuthorizedUserMethods,
+  locationAuthorizedUserPath
+} from '@etherealengine/engine/src/schemas/social/location-authorized-user.schema'
 
-// Add this service to the service type index
+import { Application } from '../../../declarations'
+import { LocationAuthorizedUserService } from './location-authorized-user.class'
+import locationBanDocs from './location-authorized-user.docs'
+import hooks from './location-authorized-user.hooks'
+
 declare module '@etherealengine/common/declarations' {
   interface ServiceTypes {
-    'location-authorized-user': LocationAuthorizedUser
+    [locationAuthorizedUserPath]: LocationAuthorizedUserService
   }
 }
 
-export default (app: Application) => {
+export default (app: Application): void => {
   const options = {
-    Model: createModel(app),
+    name: locationAuthorizedUserPath,
     paginate: app.get('paginate'),
+    Model: app.get('knexClient'),
     multi: true
   }
 
-  /**
-   * Initialize our service with any options it requires and docs
-   */
-  const event = new LocationAuthorizedUser(options, app)
-  event.docs = locationAuthorizedUserDocs
-  app.use('location-authorized-user', event)
+  app.use(locationAuthorizedUserPath, new LocationAuthorizedUserService(options), {
+    // A list of all methods this service exposes externally
+    methods: locationAuthorizedUserMethods,
+    // You can add additional custom events to be sent to clients here
+    events: [],
+    docs: locationBanDocs
+  })
 
-  /**
-   * Get our initialized service so that we can register hooks
-   */
-  const service = app.service('location-authorized-user')
-
+  const service = app.service(locationAuthorizedUserPath)
   service.hooks(hooks)
 }
