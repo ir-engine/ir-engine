@@ -26,8 +26,9 @@ Ethereal Engine. All Rights Reserved.
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { getComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { getComponent, useComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { GroupComponent } from '@etherealengine/engine/src/scene/components/GroupComponent'
+import { SplineComponent } from '@etherealengine/engine/src/scene/components/SplineComponent'
 
 import ClearIcon from '@mui/icons-material/Clear'
 import TimelineIcon from '@mui/icons-material/Timeline'
@@ -47,7 +48,7 @@ import { EditorComponentType } from './Util'
 
 export const SplineNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
-  const spline = useComponent(props.node.entity, SplineComponent).spline.value
+  const spline = useComponent(props.entity, SplineComponent).spline.value
 
   const onAddNode = () => {
     const obj3d = getComponent(props.entity, GroupComponent)[0]
@@ -68,7 +69,7 @@ export const SplineNodeEditor: EditorComponentType = (props) => {
   return (
     <NodeEditor description={t('editor:properties.spline.description')} {...props}>
       <InputGroup name="Add Point">
-        <PropertiesPanelButton onClick={onAddPoint}>{t('editor:properties.spline.lbl-addNode')}</PropertiesPanelButton>
+        <PropertiesPanelButton onClick={onAddNode}>{t('editor:properties.spline.lbl-addNode')}</PropertiesPanelButton>
       </InputGroup>
       {helperObjects.map((point, i) => (
         <InputGroup
@@ -80,7 +81,7 @@ export const SplineNodeEditor: EditorComponentType = (props) => {
             <ClearIcon style={{ color: 'white' }} />
           </div>
           <Vector3Input
-            style={{ maxWidth: 'calc(100% - 2px)', paddingRight: `3px`, width: '100%' }}
+            //style={{ maxWidth: 'calc(100% - 2px)', paddingRight: `3px`, width: '100%' }}
             value={point.position}
             smallStep={0.01}
             mediumStep={0.1}
