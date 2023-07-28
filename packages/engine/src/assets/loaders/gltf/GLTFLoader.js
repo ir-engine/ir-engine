@@ -3467,7 +3467,10 @@ class GLTFParser {
 			materialParams.transparent = true;
 
 			// See: https://github.com/mrdoob/three.js/issues/17706
-			materialParams.depthWrite = false;
+			if(materialParams.depthWrite === undefined) {
+				materialParams.depthWrite = false;
+			}
+			
 
 		} else {
 
