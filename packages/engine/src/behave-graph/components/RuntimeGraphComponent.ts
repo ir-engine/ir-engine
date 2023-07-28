@@ -23,7 +23,16 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { getState } from '@etherealengine/hyperflux'
 import { defineComponent, getComponent } from '../../ecs/functions/ComponentFunctions'
+import { Engine, readGraphFromJSON } from '../nodes'
+import { DefaultLogger } from '../nodes/Profiles/Core/Abstractions/Drivers/DefaultLogger'
+import { ManualLifecycleEventEmitter } from '../nodes/Profiles/Core/Abstractions/Drivers/ManualLifecycleEventEmitter'
+import { registerCoreProfile } from '../nodes/Profiles/Core/registerCoreProfile'
+import { registerEngineProfile } from '../nodes/Profiles/Engine/registerEngineProfile'
+import { DummyScene } from '../nodes/Profiles/Scene/Abstractions/Drivers/DummyScene'
+import { registerSceneProfile } from '../nodes/Profiles/Scene/registerSceneProfile'
+import { BehaveGraphSystemState } from '../systems/BehaveGraphSystem'
 import { BehaveGraphComponent } from './BehaveGraphComponent'
 
 export const RuntimeGraphComponent = defineComponent({
@@ -31,18 +40,31 @@ export const RuntimeGraphComponent = defineComponent({
 
   onInit: (entity) => {
     const graphComponent = getComponent(entity, BehaveGraphComponent)
-    /*const registry = new Registry()
     const logger = new DefaultLogger()
     const ticker = new ManualLifecycleEventEmitter()
-    registerCoreProfile(registry, logger, ticker)
+    const scene = new DummyScene()
+    const registry = registerEngineProfile(
+      registerSceneProfile(
+        registerCoreProfile({
+          values: {},
+          nodes: {},
+          dependencies: {
+            ILogger: logger,
+            ILifecycleEventEmitter: ticker,
+            IScene: scene
+          }
+        })
+      )
+    )
     const systemState = getState(BehaveGraphSystemState)
-    systemState.domains[graphComponent.domain]?.register(registry, logger, ticker)
-    const graph = readGraphFromJSON(graphComponent.graph, registry)
-    const engine = new Engine(graph)
-    return { engine, ticker }*/
+    systemState.domains[graphComponent.domain]?.register(registry, logger, ticker, scene)
+    const graph = graphComponent.graph
+    const graphNodes = readGraphFromJSON({ graphJson: graph, registry }).nodes
+    const engine = new Engine(graphNodes)
+    return { engine, ticker }
   },
 
   onRemove: (entity, component) => {
-    //component.value.engine.dispose()
+    component.value.engine.dispose()
   }
 })

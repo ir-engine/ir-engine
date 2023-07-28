@@ -25,13 +25,17 @@ Ethereal Engine. All Rights Reserved.
 
 import { Engine } from '../../../../../ecs/classes/Engine'
 import { Entity } from '../../../../../ecs/classes/Entity.js'
-import { defineQuery, getComponent } from '../../../../../ecs/functions/ComponentFunctions.js'
+import { defineQuery, getComponent, setComponent } from '../../../../../ecs/functions/ComponentFunctions.js'
+import { removeEntity } from '../../../../../ecs/functions/EntityFunctions'
 import { NameComponent } from '../../../../../scene/components/NameComponent.js'
 import { SceneObjectComponent } from '../../../../../scene/components/SceneObjectComponent.js'
+import { TransformComponent } from '../../../../../transform/components/TransformComponent'
 import { makeInNOutFunctionDesc } from '../../../Nodes/FunctionNode.js'
-import { NodeCategory, makeFunctionNodeDefinition } from '../../../Nodes/NodeDefinitions.js'
-
-// Unreal Engine Integer Blueprints API: https://docs.unrealengine.com/4.27/en-US/BlueprintAPI/Math/Integer/
+import { NodeCategory, makeFlowNodeDefinition, makeFunctionNodeDefinition } from '../../../Nodes/NodeDefinitions.js'
+import { generateUuid } from '../../../generateUuid'
+import { eulerToQuat } from '../../Scene/Values/Internal/Vec4'
+import { toQuat, toVector3 } from '../../Scene/buildScene'
+import { addEntityToScene } from '../helper/entityHelper'
 
 const sceneQuery = defineQuery([SceneObjectComponent])
 export const getEntity = makeFunctionNodeDefinition({
@@ -66,6 +70,73 @@ export const getCameraEntity = makeFunctionNodeDefinition({
     const entity = Engine.instance.cameraEntity
     console.log('DEBUG enitity in scene', entity)
     write('entity', entity)
+  }
+})
+
+export const addEntity = makeFlowNodeDefinition({
+  typeName: 'engine/addEntity',
+  category: NodeCategory.Action,
+  label: 'Add entity',
+  in: {
+    flow: 'flow',
+    parentEntity: (_, graphApi) => {
+      const choices = sceneQuery().map((entity) => ({ text: getComponent(entity, NameComponent), value: entity }))
+      choices.unshift({ text: 'none', value: -1 as Entity })
+      return {
+        valueType: 'entity',
+        choices: choices
+      }
+    },
+    entityName: 'string'
+  },
+  out: { flow: 'flow', entity: 'entity' },
+  initialState: undefined,
+  triggered: ({ read, write, commit, graph: { getDependency } }) => {
+    let parentEntity: Entity | null = read('parentEntity')
+    parentEntity = parentEntity! < 0 ? null : parentEntity
+    const entityName: string = read('entityName') ?? `new Entity ${generateUuid()}`
+    const entity = addEntityToScene(entityName, parentEntity)
+    write('entity', entity)
+    commit('flow')
+  }
+})
+
+export const deleteEntity = makeFlowNodeDefinition({
+  typeName: 'engine/deleteEntity',
+  category: NodeCategory.Action,
+  label: 'Delete entity',
+  in: {
+    flow: 'flow',
+    entity: 'entity'
+  },
+  out: { flow: 'flow' },
+  initialState: undefined,
+  triggered: ({ read, commit, graph: { getDependency } }) => {
+    const entity: Entity = read('entity')
+    removeEntity(entity)
+    commit('flow')
+  }
+})
+
+export const teleportEntity = makeFlowNodeDefinition({
+  typeName: 'engine/teleportEntity',
+  category: NodeCategory.Action,
+  label: 'Teleport Entity',
+  in: {
+    flow: 'flow',
+    entity: 'entity',
+    targetPosition: 'vec3',
+    targetRotation: 'vec3'
+  },
+  out: { flow: 'flow' },
+  initialState: undefined,
+  triggered: ({ read, commit, graph: { getDependency } }) => {
+    const position = toVector3(read('targetPosition'))
+
+    const rotation = toQuat(eulerToQuat(read('targetRotation')))
+    const entity = Number(read('entity')) as Entity
+    setComponent(entity, TransformComponent, { position: position, rotation: rotation })
+    commit('flow')
   }
 })
 

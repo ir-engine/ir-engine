@@ -25,18 +25,14 @@ Ethereal Engine. All Rights Reserved.
 
 import { useEffect } from 'react'
 
-import {
-  defineComponent,
-  setComponent,
-  useComponent
-} from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { defineComponent, useComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { getMutableState, none, useHookstate } from '@etherealengine/hyperflux/functions/StateFunctions'
 
 import { PositionalAudioHelper } from '../../debug/PositionalAudioHelper'
 import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { RendererState } from '../../renderer/RendererState'
 import { addObjectToGroup, removeObjectFromGroup } from '../../scene/components/GroupComponent'
-import { AudioNodeGroups, MediaComponent, MediaElementComponent } from '../../scene/components/MediaComponent'
+import { AudioNodeGroups, MediaElementComponent } from '../../scene/components/MediaComponent'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
 import { setObjectLayers } from '../../scene/functions/setObjectLayers'
 
@@ -70,8 +66,6 @@ export const PositionalAudioComponent = defineComponent({
   },
 
   onSet: (entity, component, json) => {
-    setComponent(entity, MediaComponent)
-
     if (!json) return
     if (typeof json.distanceModel === 'number' && component.distanceModel.value !== json.distanceModel)
       component.distanceModel.set(json.distanceModel)

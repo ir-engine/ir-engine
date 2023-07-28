@@ -23,25 +23,30 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { ILifecycleEventEmitter, ILogger, Registry } from 'behave-graph'
 import { Validator, matches } from 'ts-matches'
 
 import { defineAction, defineActionQueue, defineState } from '@etherealengine/hyperflux'
 
 import { Entity } from '../../ecs/classes/Entity'
 import {
-  addComponent,
   defineQuery,
   getComponent,
   hasComponent,
-  removeComponent
+  removeComponent,
+  setComponent
 } from '../../ecs/functions/ComponentFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { BehaveGraphComponent, GraphDomainID } from '../components/BehaveGraphComponent'
 import { RuntimeGraphComponent } from '../components/RuntimeGraphComponent'
+import { DefaultLogger, DummyScene, IRegistry, ManualLifecycleEventEmitter } from '../nodes'
 
 export type BehaveGraphDomainType = {
-  register: (registry: Registry, logger?: ILogger, ticker?: ILifecycleEventEmitter) => void
+  register: (
+    registry?: IRegistry,
+    logger?: DefaultLogger,
+    ticker?: ManualLifecycleEventEmitter,
+    scene?: DummyScene
+  ) => void
 }
 
 export type BehaveGraphSystemStateType = {
@@ -89,7 +94,7 @@ function execute() {
     if (hasComponent(entity, RuntimeGraphComponent)) {
       removeComponent(entity, RuntimeGraphComponent)
     }
-    addComponent(entity, RuntimeGraphComponent)
+    setComponent(entity, RuntimeGraphComponent)
   }
 
   for (const action of stopQueue()) {

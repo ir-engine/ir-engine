@@ -24,9 +24,14 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { Entity } from '../../../../../ecs/classes/Entity.js'
-import { ComponentMap, getComponent } from '../../../../../ecs/functions/ComponentFunctions.js'
+import {
+  ComponentMap,
+  getComponent,
+  removeComponent,
+  setComponent
+} from '../../../../../ecs/functions/ComponentFunctions.js'
 import { makeInNOutFunctionDesc } from '../../../Nodes/FunctionNode.js'
-import { NodeCategory, makeFunctionNodeDefinition } from '../../../Nodes/NodeDefinitions.js'
+import { NodeCategory, makeFlowNodeDefinition, makeFunctionNodeDefinition } from '../../../Nodes/NodeDefinitions.js'
 
 export const getComponentFromRegistry = makeFunctionNodeDefinition({
   typeName: 'engine/getComponentfromRegistry',
@@ -51,19 +56,82 @@ export const getComponentFromRegistry = makeFunctionNodeDefinition({
 
 export const getComponentFromEntity = makeFunctionNodeDefinition({
   typeName: 'engine/getComponentfromEntity',
-  category: NodeCategory.Action,
+  category: NodeCategory.Query,
   label: 'Get Component in entity',
   in: {
     entity: 'entity',
-    component: 'string'
+    componentName: (_, graphApi) => {
+      const choices = Array.from(ComponentMap.keys()).sort()
+      choices.unshift('none')
+      return {
+        valueType: 'string',
+        choices: choices
+      }
+    }
   },
   out: { component: 'component' },
   exec: ({ read, write, graph }) => {
     const entity: Entity = read('entity')
-    const componentName: string = read('component')
+    const componentName: string = read('componentName')
     const component = ComponentMap.get(componentName)!
     const componentType = getComponent(entity, component)
     write('component', componentType)
+  }
+})
+
+export const addComponent = makeFlowNodeDefinition({
+  typeName: 'engine/addComponent',
+  category: NodeCategory.Action,
+  label: 'Add Component',
+  in: {
+    flow: 'flow',
+    entity: 'entity',
+    componentName: (_, graphApi) => {
+      const choices = Array.from(ComponentMap.keys()).sort()
+      choices.unshift('none')
+      return {
+        valueType: 'string',
+        choices: choices
+      }
+    }
+  },
+  out: { flow: 'flow', entity: 'entity' },
+  initialState: undefined,
+  triggered: ({ read, write, commit, graph: { getDependency } }) => {
+    const entity: Entity = read('entity')
+    const componentName: string = read('componentName')
+    const component = ComponentMap.get(componentName)!
+    setComponent(entity, component)
+    write('entity', entity)
+    commit('flow')
+  }
+})
+
+export const deleteComponent = makeFlowNodeDefinition({
+  typeName: 'engine/deleteComponent',
+  category: NodeCategory.Action,
+  label: 'Delete Component',
+  in: {
+    flow: 'flow',
+    entity: 'entity',
+    componentName: (_, graphApi) => {
+      const choices = Array.from(ComponentMap.keys()).sort()
+      choices.unshift('none')
+      return {
+        valueType: 'string',
+        choices: choices
+      }
+    }
+  },
+  out: { flow: 'flow', entity: 'entity' },
+  initialState: undefined,
+  triggered: ({ read, write, commit, graph: { getDependency } }) => {
+    const entity: Entity = read('entity')
+    const componentName: string = read('componentName')
+    const component = ComponentMap.get(componentName)!
+    removeComponent(entity, component)
+    write('entity', entity)
+    commit('flow')
   }
 })
 

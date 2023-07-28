@@ -23,47 +23,48 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Assert } from '../../../Diagnostics/Assert.js'
-import { makeEventNodeDefinition, NodeCategory } from '../../../Nodes/NodeDefinitions.js'
-import { ILifecycleEventEmitter } from '../Abstractions/ILifecycleEventEmitter.js'
+import { InputSourceComponent } from '../../../../../input/components/InputSourceComponent'
+import { Assert } from '../../../Diagnostics/Assert'
+import { NodeCategory, makeEventNodeDefinition } from '../../../Nodes/NodeDefinitions'
 
 type State = {
-  onStartEvent?: (() => void) | undefined
+  handleKeypadInput?: ((jsonPath: string) => void) | undefined
 }
 
-const makeInitialState = (): State => ({
-  onStartEvent: undefined
-})
+const initialState = (): State => ({})
 
-export const LifecycleOnStart = makeEventNodeDefinition({
-  typeName: 'lifecycle/onStart',
-  label: 'On Start',
+// very 3D specific.
+export const OnSceneNodeClick = makeEventNodeDefinition({
+  typeName: 'engine/buttonPress',
   category: NodeCategory.Event,
+  label: 'On Button Press',
   in: {},
   out: {
-    flow: 'flow'
+    flow: 'flow',
+    input: 'vec2'
   },
-  initialState: makeInitialState(),
-  init: ({ state, commit, graph: { getDependency } }) => {
-    Assert.mustBeTrue(state.onStartEvent === undefined)
-    const onStartEvent = () => {
+  initialState: initialState(),
+  init: ({ read, write, commit, graph }) => {
+    const handleKeypadInput = () => {
+      //write('input',)
       commit('flow')
     }
+    const nonCapturedInputSourceEntities = InputSourceComponent.nonCapturedInputSourceQuery()
 
-    const lifecycleEventEmitter = getDependency<ILifecycleEventEmitter>('ILifecycleEventEmitter')
+    // add button event listener
 
-    lifecycleEventEmitter?.startEvent.addListener(onStartEvent)
-
-    return {
-      onStartEvent
+    const state: State = {
+      handleKeypadInput
     }
+
+    return state
   },
-  dispose: ({ state: { onStartEvent }, graph: { getDependency } }) => {
-    Assert.mustBeTrue(onStartEvent !== undefined)
+  dispose: ({ state: { handleKeypadInput }, graph: { getDependency } }) => {
+    Assert.mustBeTrue(handleKeypadInput !== undefined)
 
-    const lifecycleEventEmitter = getDependency<ILifecycleEventEmitter>('ILifecycleEventEmitter')
+    if (!handleKeypadInput) return {}
 
-    if (onStartEvent) lifecycleEventEmitter?.startEvent.removeListener(onStartEvent)
+    //remove listener here
 
     return {}
   }

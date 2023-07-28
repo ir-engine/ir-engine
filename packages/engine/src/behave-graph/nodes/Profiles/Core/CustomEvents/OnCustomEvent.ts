@@ -58,17 +58,19 @@ export class OnCustomEvent extends EventNode2 {
         ...customEvent.parameters.map(
           (parameter) => new Socket(parameter.valueTypeName, parameter.name, parameter.value, parameter.label)
         )
-      ],
-      configuration
+      ]
     })
     this.customEvent = customEvent
+    graph.customEvents[configuration.customEventId] = customEvent
   }
+
   private onCustomEvent: ((parameters: { [parameter: string]: any }) => void) | undefined = undefined
 
   init(engine: Engine) {
     Assert.mustBeTrue(this.onCustomEvent === undefined)
 
     this.onCustomEvent = (parameters) => {
+      console.log('DEBUG , event recieved')
       this.customEvent.parameters.forEach((parameterSocket) => {
         if (!(parameterSocket.name in parameters)) {
           throw new Error(
@@ -79,6 +81,7 @@ export class OnCustomEvent extends EventNode2 {
       })
       engine.commitToNewFiber(this, 'flow')
     }
+
     this.customEvent.eventEmitter.addListener(this.onCustomEvent)
   }
 

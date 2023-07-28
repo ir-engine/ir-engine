@@ -28,7 +28,7 @@ import matches, { Validator } from 'ts-matches'
 import { OpaqueType } from '@etherealengine/common/src/interfaces/OpaqueType'
 import { GraphJSON } from '@etherealengine/engine/src/behave-graph/nodes'
 
-import { defineComponent, hasComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
+import { defineComponent, hasComponent, removeComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
 import DefaultGraph from '../graph/default-graph.json'
 import { RuntimeGraphComponent } from './RuntimeGraphComponent'
 
@@ -40,6 +40,7 @@ export const BehaveGraphComponent = defineComponent({
   jsonID: 'BehaveGraph',
 
   onInit: (entity) => {
+    setComponent(entity, RuntimeGraphComponent)
     return {
       domain: 'ECS' as GraphDomainID,
       graph: DefaultGraph as unknown as GraphJSON

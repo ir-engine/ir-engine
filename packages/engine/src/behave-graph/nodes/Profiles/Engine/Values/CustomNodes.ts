@@ -162,7 +162,6 @@ export const getAvatarAnimations = makeFunctionNodeDefinition({
   out: { animationName: 'string' },
   exec: ({ read, write, graph }) => {
     const animationName: string = read('animationName')
-    console.log('DEBUG animName', animationName)
     write('animationName', animationName)
   }
 })
@@ -185,7 +184,6 @@ export const playGltfAnimation = makeFlowNodeDefinition({
     const isAvatar: boolean = read('isAvatar')
     const entity = Number(read('entity')) as Entity
     const animIndex: number = animations.findIndex((clip) => clip.name === animation)
-    console.log('DEBUG anims', animations, animation, animIndex)
     setComponent(entity, LoopAnimationComponent, { activeClipIndex: animIndex, hasAvatarAnimations: isAvatar })
     getCallback(entity, 'xre.play')!()
     commit('flow')

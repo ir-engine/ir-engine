@@ -23,47 +23,47 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Assert } from '../../../Diagnostics/Assert.js'
-import { makeEventNodeDefinition, NodeCategory } from '../../../Nodes/NodeDefinitions.js'
-import { ILifecycleEventEmitter } from '../Abstractions/ILifecycleEventEmitter.js'
+import { Assert } from '../../../Diagnostics/Assert'
+import { NodeCategory, makeEventNodeDefinition } from '../../../Nodes/NodeDefinitions'
 
 type State = {
-  onStartEvent?: (() => void) | undefined
+  onSceneClick?: ((jsonPath: string) => void) | undefined
 }
 
-const makeInitialState = (): State => ({
-  onStartEvent: undefined
-})
+const initialState = (): State => ({})
 
-export const LifecycleOnStart = makeEventNodeDefinition({
-  typeName: 'lifecycle/onStart',
-  label: 'On Start',
+// very 3D specific.
+export const OnSceneNodeClick = makeEventNodeDefinition({
+  typeName: 'engine/buttonPress',
   category: NodeCategory.Event,
+  label: 'On Button Press',
   in: {},
   out: {
-    flow: 'flow'
+    flow: 'flow',
+    entity: 'entity'
   },
-  initialState: makeInitialState(),
-  init: ({ state, commit, graph: { getDependency } }) => {
-    Assert.mustBeTrue(state.onStartEvent === undefined)
-    const onStartEvent = () => {
+  initialState: initialState(),
+  init: ({ read, write, commit, graph }) => {
+    const onSceneClick = () => {
+      // when click detected, shoot raycast, and get first entity hit
+
+      //write('entity',)
       commit('flow')
     }
 
-    const lifecycleEventEmitter = getDependency<ILifecycleEventEmitter>('ILifecycleEventEmitter')
-
-    lifecycleEventEmitter?.startEvent.addListener(onStartEvent)
-
-    return {
-      onStartEvent
+    // add event listener
+    const state: State = {
+      onSceneClick
     }
+
+    return state
   },
-  dispose: ({ state: { onStartEvent }, graph: { getDependency } }) => {
-    Assert.mustBeTrue(onStartEvent !== undefined)
+  dispose: ({ state: { onSceneClick }, graph: { getDependency } }) => {
+    Assert.mustBeTrue(onSceneClick !== undefined)
 
-    const lifecycleEventEmitter = getDependency<ILifecycleEventEmitter>('ILifecycleEventEmitter')
+    if (!onSceneClick) return {}
 
-    if (onStartEvent) lifecycleEventEmitter?.startEvent.removeListener(onStartEvent)
+    //remove listener here
 
     return {}
   }

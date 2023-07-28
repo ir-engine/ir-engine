@@ -30,6 +30,8 @@ import { IRegistry } from '../../Registry.js'
 import { ValueTypeMap } from '../../Values/ValueTypeMap.js'
 import { memo } from '../../memo.js'
 import { getStringConversionsForValueType } from '../registerSerializersForValueType.js'
+import { onLoadAsset } from './Events/onLoadAsset.js'
+import { triggerLoadAsset } from './Events/triggerLoadAsset.js'
 import * as ComponentNodes from './Values/ComponentNodes.js'
 import { ComponentValue } from './Values/ComponentValue.js'
 import * as CustomNodes from './Values/CustomNodes.js'
@@ -56,7 +58,8 @@ export const getEngineNodesMap = memo<Record<string, NodeDefinition>>(() => {
     ...getNodeDescriptions(CustomNodes),
 
     // custom events
-
+    triggerLoadAsset.Description,
+    onLoadAsset.Description,
     // variables
 
     // complex logic

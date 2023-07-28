@@ -33,7 +33,7 @@ import { PrefabComponent } from '@etherealengine/engine/src/scene/components/Pre
 import { VideoComponent } from '@etherealengine/engine/src/scene/components/VideoComponent'
 import { VolumetricComponent } from '@etherealengine/engine/src/scene/components/VolumetricComponent'
 
-import { updateProperties } from '../components/properties/Util'
+import { setComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { EditorControlFunctions } from './EditorControlFunctions'
 
 /**
@@ -54,22 +54,22 @@ export async function addMediaNode(url: string, parent?: Entity | null, before?:
 
   if (contentType.startsWith('prefab/')) {
     componentName = PrefabComponent.name
-    updateFunc = () => updateProperties(PrefabComponent, { src: url }, [node!])
+    updateFunc = () => setComponent(node!, PrefabComponent, { src: url })
   } else if (contentType.startsWith('model/')) {
     componentName = ModelComponent.name
-    updateFunc = () => updateProperties(ModelComponent, { src: url }, [node!])
+    updateFunc = () => setComponent(node!, ModelComponent, { src: url })
   } else if (contentType.startsWith('video/') || hostname.includes('twitch.tv') || hostname.includes('youtube.com')) {
     componentName = VideoComponent.name
-    updateFunc = () => updateProperties(MediaComponent, { paths: [url] }, [node!])
+    updateFunc = () => setComponent(node!, MediaComponent, { paths: [url] })
   } else if (contentType.startsWith('image/')) {
     componentName = ImageComponent.name
-    updateFunc = () => updateProperties(ImageComponent, { source: url }, [node!])
+    updateFunc = () => setComponent(node!, ImageComponent, { source: url })
   } else if (contentType.startsWith('audio/')) {
     componentName = PositionalAudioComponent.name
-    updateFunc = () => updateProperties(MediaComponent, { paths: [url] }, [node!])
+    updateFunc = () => setComponent(node!, MediaComponent, { paths: [url] })
   } else if (url.includes('.uvol')) {
     componentName = VolumetricComponent.name
-    updateFunc = () => updateProperties(MediaComponent, { paths: [url] }, [node!])
+    updateFunc = () => setComponent(node!, MediaComponent, { paths: [url] })
   }
 
   if (componentName) {

@@ -48,7 +48,8 @@ export class TriggerCustomEvent extends FlowNode2 {
   private readonly customEvent: CustomEvent
 
   constructor(description: NodeDescription, graph: IGraph, configuration: NodeConfiguration) {
-    const customEvent = graph.customEvents[configuration.customEventId] || new CustomEvent('-1', 'undefined')
+    const customEvent =
+      graph.customEvents[configuration.customEventId] || new CustomEvent(configuration.customEventId, 'undefined')
     super({
       description,
       graph,
@@ -63,6 +64,7 @@ export class TriggerCustomEvent extends FlowNode2 {
     })
 
     this.customEvent = customEvent
+    graph.customEvents[configuration.customEventId] = customEvent
   }
 
   triggered(fiber: Fiber, triggeringSocketName: string) {
@@ -71,5 +73,6 @@ export class TriggerCustomEvent extends FlowNode2 {
       parameters[parameterSocket.name] = this.readInput(parameterSocket.name)
     })
     this.customEvent.eventEmitter.emit(parameters)
+    fiber.commit(this, 'flow')
   }
 }
