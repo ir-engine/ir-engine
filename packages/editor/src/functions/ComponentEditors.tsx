@@ -38,6 +38,7 @@ import { GroupComponent } from '@etherealengine/engine/src/scene/components/Grou
 import { HemisphereLightComponent } from '@etherealengine/engine/src/scene/components/HemisphereLightComponent'
 import { ImageComponent } from '@etherealengine/engine/src/scene/components/ImageComponent'
 // import { InstancingComponent } from '@etherealengine/engine/src/scene/components/InstancingComponent'
+import { CameraTrackComponent } from '@etherealengine/engine/src/scene/components/CameraTrackComponent'
 import { MediaComponent } from '@etherealengine/engine/src/scene/components/MediaComponent'
 import { MediaSettingsComponent } from '@etherealengine/engine/src/scene/components/MediaSettingsComponent'
 import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
@@ -52,6 +53,7 @@ import { ScenePreviewCameraComponent } from '@etherealengine/engine/src/scene/co
 import { SceneTagComponent } from '@etherealengine/engine/src/scene/components/SceneTagComponent'
 import { SkyboxComponent } from '@etherealengine/engine/src/scene/components/SkyboxComponent'
 import { SpawnPointComponent } from '@etherealengine/engine/src/scene/components/SpawnPointComponent'
+import { SplineComponent } from '@etherealengine/engine/src/scene/components/SplineComponent'
 import { SpotLightComponent } from '@etherealengine/engine/src/scene/components/SpotLightComponent'
 import { SystemComponent } from '@etherealengine/engine/src/scene/components/SystemComponent'
 import { VariantComponent } from '@etherealengine/engine/src/scene/components/VariantComponent'
@@ -74,6 +76,7 @@ import GroupNodeEditor from '../components/properties/GroupNodeEditor'
 import HemisphereLightNodeEditor from '../components/properties/HemisphereLightNodeEditor'
 import ImageNodeEditor from '../components/properties/ImageNodeEditor'
 // import InstancingNodeEditor from '../components/properties/InstancingNodeEditor'
+import { CameraTrackNodeEditor } from '../components/properties/CameraTrackNodeEditor'
 import LoopAnimationNodeEditor from '../components/properties/LoopAnimationNodeEditor'
 import MediaNodeEditor from '../components/properties/MediaNodeEditor'
 import { MediaSettingsEditor } from '../components/properties/MediaSettingsEditor'
@@ -91,6 +94,7 @@ import SceneNodeEditor from '../components/properties/SceneNodeEditor'
 import ScenePreviewCameraNodeEditor from '../components/properties/ScenePreviewCameraNodeEditor'
 import SkyboxNodeEditor from '../components/properties/SkyboxNodeEditor'
 import SpawnPointNodeEditor from '../components/properties/SpawnPointNodeEditor'
+import { SplineNodeEditor } from '../components/properties/SplineNodeEditor'
 import SpotLightNodeEditor from '../components/properties/SpotLightNodeEditor'
 import SystemNodeEditor from '../components/properties/SystemNodeEditor'
 import TransformPropertyGroup from '../components/properties/TransformPropertyGroup'
@@ -140,3 +144,5 @@ EntityNodeEditor.set(EnvMapBakeComponent, EnvMapBakeNodeEditor)
 // EntityNodeEditor.set(InstancingComponent, InstancingNodeEditor)
 EntityNodeEditor.set(PersistentAnchorComponent, PersistentAnchorNodeEditor)
 EntityNodeEditor.set(VariantComponent, VariantNodeEditor)
+EntityNodeEditor.set(SplineComponent, SplineNodeEditor)
+EntityNodeEditor.set(CameraTrackComponent, CameraTrackNodeEditor)
