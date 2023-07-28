@@ -31,7 +31,7 @@ import { useMediaNetwork } from '../../common/services/MediaInstanceConnectionSe
 import { RecordingFunctions, RecordingState } from '../../recording/RecordingService'
 
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
-import { PlayIcon, PlusCircleIcon, StopIcon } from '@heroicons/react/24/solid'
+import { PlayIcon, PlusCircleIcon } from '@heroicons/react/24/solid'
 
 import { RecordingResult } from '@etherealengine/common/src/interfaces/Recording'
 import { useFind, useGet } from '@etherealengine/engine/src/common/functions/FeathersHooks'
@@ -241,8 +241,44 @@ export const RecordingPeerList = () => {
   )
 }
 
-const RecordingsList = () => {
+const RecordingPlayback = () => {
   const recordingState = useHookstate(getMutableState(RecordingState))
+  const recording = useGet('recording', recordingState.playback.value!)
+
+  useEffect(() => {
+    if (!recordingState.playback.value)
+      return () => {
+        getMutableState(RecordingUIState).mode.set('recordings')
+      }
+    const playback = recordingState.playback.value
+    return () => {
+      getMutableState(RecordingUIState).mode.set('recordings')
+      ECSRecordingFunctions.stopPlayback({
+        recordingID: playback
+      })
+    }
+  }, [recordingState.playback])
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'row' }}>
+      {recording.data?.resources &&
+        recording.data.resources.map((resource) => {
+          if (!resource.key.endsWith('.webm') && !resource.key.endsWith('.mp4')) return null
+          return (
+            <video
+              key={resource.id}
+              style={{ maxWidth: '100px', width: '100px', height: 'auto' }}
+              src={resource.url}
+              autoPlay={true}
+              crossOrigin="anonymous"
+            />
+          )
+        })}
+    </div>
+  )
+}
+
+const RecordingsList = () => {
   const recording = useFind('recording')
 
   useEffect(() => {
@@ -254,12 +290,6 @@ const RecordingsList = () => {
   )
 
   const RenderRecording = (props: { recording: RecordingResult }) => {
-    const recordingData = useGet('recording', props.recording.id)
-    const video = recordingData.data?.resources
-      ? recordingData.data?.resources?.find(
-          (resource) => resource.key.endsWith('.webm') || resource.key.endsWith('.mp4')
-        )
-      : undefined
     const { recording } = props
     const time = new Date(recording.createdAt).toLocaleTimeString()
     const duration = (new Date(recording.updatedAt).getTime() - new Date(recording.createdAt).getTime()) / 1000
@@ -278,45 +308,26 @@ const RecordingsList = () => {
         </td>
         <td>
           <div key={recording.id} style={{ display: 'flex' }}>
-            {recordingState.playback.value === recording.id ? (
-              <>
-                <button
-                  onClick={() => {
-                    ECSRecordingFunctions.stopPlayback({
-                      recordingID: recording.id
-                    })
-                  }}
-                >
-                  <StopIcon
-                    style={{ display: 'block', width: '24px', height: '24px' }}
-                    className="block min-w-6 min-h-6"
-                  />
-                </button>
-                {video && (
-                  <video
-                    style={{ maxWidth: '100px', width: '100px', height: 'auto' }}
-                    src={video?.url}
-                    autoPlay={true}
-                    crossOrigin="anonymous"
-                  />
-                )}
-              </>
-            ) : (
-              <>
-                <button className="btn btn-ghost" onClick={() => startPlayback(recording.id, false)}>
-                  <PlayIcon
-                    style={{ display: 'block', width: '24px', height: '24px' }}
-                    className="block min-w-6 min-h-6"
-                  />
-                </button>
-                <button onClick={() => startPlayback(recording.id, true)}>
-                  <PlusCircleIcon
-                    style={{ display: 'block', width: '24px', height: '24px' }}
-                    className="block min-w-6 min-h-6"
-                  />
-                </button>
-              </>
-            )}
+            <button
+              className="btn btn-ghost"
+              onClick={() => {
+                startPlayback(recording.id, false)
+                getMutableState(RecordingUIState).mode.set('playback')
+              }}
+            >
+              <PlayIcon style={{ display: 'block', width: '24px', height: '24px' }} className="block min-w-6 min-h-6" />
+            </button>
+            <button
+              onClick={() => {
+                startPlayback(recording.id, true)
+                getMutableState(RecordingUIState).mode.set('playback')
+              }}
+            >
+              <PlusCircleIcon
+                style={{ display: 'block', width: '24px', height: '24px' }}
+                className="block min-w-6 min-h-6"
+              />
+            </button>
           </div>
         </td>
       </tr>
@@ -344,8 +355,16 @@ const RecordingsList = () => {
   )
 }
 
+export const RecordingUIState = defineState({
+  name: 'RecordingUIState',
+  initial: {
+    mode: 'create' as 'create' | 'recordings' | 'playback'
+  }
+})
+
 export const RecordingsWidgetUI = () => {
-  const mode = useHookstate('create' as 'create' | 'playback')
+  const recordingState = useHookstate(getMutableState(RecordingState))
+  const mode = useHookstate(getMutableState(RecordingUIState).mode)
   return (
     <>
       <div style={{ width: '100%', position: 'relative', fontFamily: 'Roboto, sans-serif' }}>
@@ -353,13 +372,17 @@ export const RecordingsWidgetUI = () => {
           <button
             className="btn btn-ghost"
             onClick={() => {
-              mode.set(mode.value === 'create' ? 'playback' : 'create')
+              mode.set(mode.value === 'create' ? 'recordings' : 'create')
             }}
           >
-            {mode.value === 'create' ? 'Playback' : 'Create'}
+            {mode.value === 'create' && 'Recordings'}
+            {mode.value === 'recordings' && 'Create'}
+            {mode.value === 'playback' && 'Stop'}
           </button>
         </div>
-        {mode.value === 'create' ? <RecordingPeerList /> : <RecordingsList />}
+        {mode.value === 'create' && <RecordingPeerList />}
+        {mode.value === 'recordings' && <RecordingsList />}
+        {mode.value === 'playback' && recordingState.playback.value && <RecordingPlayback />}
       </div>
     </>
   )
