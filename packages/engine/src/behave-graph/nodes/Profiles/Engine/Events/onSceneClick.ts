@@ -23,34 +23,76 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { getState } from '@etherealengine/hyperflux'
+import { Vector3 } from 'three'
+import { CameraComponent } from '../../../../../camera/components/CameraComponent'
+import { Engine } from '../../../../../ecs/classes/Engine'
+import { getComponent } from '../../../../../ecs/functions/ComponentFunctions'
+import { MouseButton } from '../../../../../input/state/ButtonState'
+import { Physics, RaycastArgs } from '../../../../../physics/classes/Physics'
+import { AllCollisionMask, CollisionGroups } from '../../../../../physics/enums/CollisionGroups'
+import { getInteractionGroups } from '../../../../../physics/functions/getInteractionGroups'
+import { PhysicsState } from '../../../../../physics/state/PhysicsState'
+import { SceneQueryType } from '../../../../../physics/types/PhysicsTypes'
+import { EngineRenderer } from '../../../../../renderer/WebGLRendererSystem'
 import { Assert } from '../../../Diagnostics/Assert'
 import { NodeCategory, makeEventNodeDefinition } from '../../../Nodes/NodeDefinitions'
 
 type State = {
-  onSceneClick?: ((jsonPath: string) => void) | undefined
+  onSceneClick?: ((event: MouseEvent) => void) | undefined
 }
 
 const initialState = (): State => ({})
 
 // very 3D specific.
-export const OnSceneNodeClick = makeEventNodeDefinition({
-  typeName: 'engine/buttonPress',
+export const OnSceneClick = makeEventNodeDefinition({
+  typeName: 'engine/SceneClick',
   category: NodeCategory.Event,
   label: 'On Button Press',
   in: {},
   out: {
     flow: 'flow',
-    entity: 'entity'
+    hitEntity: 'entity',
+    clickType: 'string'
   },
   initialState: initialState(),
   init: ({ read, write, commit, graph }) => {
-    const onSceneClick = () => {
-      // when click detected, shoot raycast, and get first entity hit
+    const inputRaycast = {
+      type: SceneQueryType.Closest,
+      origin: new Vector3(),
+      direction: new Vector3(),
+      maxDistance: 1000,
+      groups: getInteractionGroups(CollisionGroups.Default, AllCollisionMask),
+      excludeRigidBody: undefined //
+    } as RaycastArgs
 
+    const onSceneClick = (event: MouseEvent) => {
+      // when click detected, shoot raycast, and get first entity hit
+      const down = event.type === 'mousedown' || event.type === 'touchstart'
+      let clickType = MouseButton.PrimaryClick
+      if (event.button === 1) clickType = MouseButton.AuxiliaryClick
+      else if (event.button === 2) clickType = MouseButton.SecondaryClick
       //write('entity',)
+      const hits = Physics.castRayFromCamera(
+        getComponent(Engine.instance.cameraEntity, CameraComponent),
+        Engine.instance.pointerState.position,
+        getState(PhysicsState).physicsWorld,
+        inputRaycast
+      )
+      let hitEntity = null
+      if (hits.length) {
+        const hit = hits[0]
+        hitEntity = (hit.body?.userData as any)?.entity as Entity
+      }
+      write('hitEntity', hitEntity)
+      write('clickType', clickType)
       commit('flow')
     }
-
+    const canvas = EngineRenderer.instance.renderer.domElement
+    canvas.addEventListener('mouseup', onSceneClick)
+    canvas.addEventListener('mousedown', onSceneClick)
+    canvas.addEventListener('touchstart', onSceneClick)
+    canvas.addEventListener('touchend', onSceneClick)
     // add event listener
     const state: State = {
       onSceneClick

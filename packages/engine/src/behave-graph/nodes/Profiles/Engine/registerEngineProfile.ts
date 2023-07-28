@@ -31,6 +31,7 @@ import { ValueTypeMap } from '../../Values/ValueTypeMap.js'
 import { memo } from '../../memo.js'
 import { getStringConversionsForValueType } from '../registerSerializersForValueType.js'
 import { onLoadAsset } from './Events/onLoadAsset.js'
+import { OnSceneClick } from './Events/onSceneClick.js'
 import { triggerLoadAsset } from './Events/triggerLoadAsset.js'
 import * as ComponentNodes from './Values/ComponentNodes.js'
 import { ComponentValue } from './Values/ComponentValue.js'
@@ -60,6 +61,7 @@ export const getEngineNodesMap = memo<Record<string, NodeDefinition>>(() => {
     // custom events
     triggerLoadAsset.Description,
     onLoadAsset.Description,
+
     // variables
 
     // complex logic
@@ -67,7 +69,7 @@ export const getEngineNodesMap = memo<Record<string, NodeDefinition>>(() => {
     // actions
 
     // events
-
+    OnSceneClick,
     // time
 
     // flow control
