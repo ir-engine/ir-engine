@@ -211,11 +211,12 @@ export const AvatarRigComponent = defineComponent({
       const bindTracks = AnimationClip.findByName(getState(AnimationState).targetsAnimation!, 'BindPose').tracks
       if (!bindTracks) return
 
+      const rig = getComponent(entity, AvatarRigComponent)
+
       const avatarComponent = getComponent(entity, AvatarComponent)
       const scaleMultiplier = avatarComponent.scaleMultiplier
-      console.log(scaleMultiplier)
 
-      offset.y = rigComponent.bindRig.rightFoot.node.value.getWorldPosition(foot).y * scaleMultiplier
+      offset.y = rig.bindRig.rightFoot.node.getWorldPosition(foot).y * 2 * scaleMultiplier - 0.05
 
       for (let i = 0; i < bindTracks.length; i += 3) {
         const key = bindTracks[i].name.substring(0, bindTracks[i].name.indexOf('.'))
@@ -226,69 +227,59 @@ export const AvatarRigComponent = defineComponent({
         const bonePos = new Matrix4()
         switch (key) {
           case 'rightHandTarget':
-            bonePos.copy(rigComponent.bindRig.rightHand.value.node.matrixWorld)
-            break
           case 'leftHandTarget':
-            bonePos.copy(rigComponent.bindRig.leftHand.value.node.matrixWorld)
-            break
           case 'rightFootTarget':
-            bonePos.copy(rigComponent.bindRig.rightFoot.value.node.matrixWorld)
-            break
           case 'leftFootTarget':
-            bonePos.copy(rigComponent.bindRig.leftFoot.value.node.matrixWorld)
+          case 'headTarget':
+            bonePos.copy(rig.bindRig[key.replace('Target', '')].node.matrixWorld)
             break
           case 'rightElbowHint':
             bonePos.copy(
-              rigComponent.bindRig.rightLowerArm.value.node.matrixWorld.multiply(
-                new Matrix4().setPosition(
-                  rigComponent.bindRig.rightLowerArm.node.value.getWorldDirection(new Vector3())
-                )
+              rig.bindRig.rightLowerArm.node.matrixWorld.multiply(
+                new Matrix4().setPosition(rig.bindRig.rightLowerArm.node.getWorldDirection(new Vector3()))
               )
             )
             break
           case 'leftElbowHint':
             bonePos.copy(
-              rigComponent.bindRig.leftLowerArm.value.node.matrixWorld.multiply(
-                new Matrix4().setPosition(rigComponent.bindRig.leftLowerArm.node.value.getWorldDirection(new Vector3()))
+              rig.bindRig.leftLowerArm.node.matrixWorld.multiply(
+                new Matrix4().setPosition(rig.bindRig.leftLowerArm.node.getWorldDirection(new Vector3()))
               )
             )
             break
           case 'rightKneeHint':
             bonePos.copy(
-              rigComponent.bindRig.rightLowerLeg.value.node.matrixWorld.multiply(
+              rig.bindRig.rightLowerLeg.node.matrixWorld.multiply(
                 new Matrix4().setPosition(
-                  rigComponent.bindRig.rightLowerLeg.node.value.getWorldDirection(new Vector3()).multiplyScalar(-1)
+                  rig.bindRig.rightLowerLeg.node.getWorldDirection(new Vector3()).multiplyScalar(-1)
                 )
               )
             )
             break
           case 'leftKneeHint':
             bonePos.copy(
-              rigComponent.bindRig.leftLowerLeg.value.node.matrixWorld.multiply(
+              rig.bindRig.leftLowerLeg.node.matrixWorld.multiply(
                 new Matrix4().setPosition(
-                  rigComponent.bindRig.rightLowerLeg.node.value.getWorldDirection(new Vector3()).multiplyScalar(-1)
+                  rig.bindRig.rightLowerLeg.node.getWorldDirection(new Vector3()).multiplyScalar(-1)
                 )
               )
             )
             break
           case 'headHint':
-          case 'headTarget':
-            bonePos.copy(rigComponent.bindRig.head.value.node.matrixWorld)
-            break
+            bonePos.copy(rig.bindRig.head.node.matrixWorld)
           case 'hipsTarget':
-            bonePos.copy(rigComponent.bindRig.hips.value.node.matrixWorld)
-            break
+            bonePos.copy(rig.bindRig.hips.node.matrixWorld)
         }
         const pos = new Vector3()
         bonePos.decompose(pos, new Quaternion(), new Vector3())
-        if (!(rigComponent.vrm.value as any).userData) pos.applyQuaternion(hipsRotationoffset)
+        if (!(rig.vrm as any).userData) pos.applyQuaternion(hipsRotationoffset)
         pos.sub(
           new Vector3(bindTracks[i].values[0], bindTracks[i].values[1], bindTracks[i].values[2]).multiplyScalar(
             scaleMultiplier
           )
         )
         pos.sub(offset)
-        rigComponent.ikOffsetsMap.value.set(key, pos)
+        rig.ikOffsetsMap.set(key, pos)
       }
     }, [animComponent.animations, rigComponent.targets])
     return null

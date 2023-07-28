@@ -52,15 +52,16 @@ import { computeTransformMatrix } from '../../transform/systems/TransformSystem'
 import { XRState } from '../../xr/XRState'
 import { AnimationState } from '../AnimationManager'
 // import { retargetSkeleton, syncModelSkeletons } from '../animation/retargetSkeleton'
+import config from '@etherealengine/common/src/config'
 import avatarBoneMatching, { BoneNames, findSkinnedMeshes } from '../AvatarBoneMatching'
+import { defaultBonesData } from '../DefaultSkeletonBones'
+import { DissolveEffect } from '../DissolveEffect'
 import { AnimationComponent } from '../components/AnimationComponent'
 import { AvatarAnimationComponent, AvatarRigComponent } from '../components/AvatarAnimationComponent'
 import { AvatarComponent } from '../components/AvatarComponent'
 import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
 import { AvatarEffectComponent, MaterialMap } from '../components/AvatarEffectComponent'
 import { AvatarPendingComponent } from '../components/AvatarPendingComponent'
-import { defaultBonesData } from '../DefaultSkeletonBones'
-import { DissolveEffect } from '../DissolveEffect'
 import { resizeAvatar } from './resizeAvatar'
 
 const tempVec3ForHeight = new Vector3()
@@ -148,7 +149,10 @@ export const createIKAnimator = async (entity: Entity) => {
 export const getAnimations = async () => {
   const manager = getMutableState(AnimationState)
   if (!manager.targetsAnimation.value) {
-    const asset = await AssetLoader.loadAsync('/vrm_mocap_targets.glb')
+    const asset = await AssetLoader.loadAsync(
+      `${config.client.fileServer}/projects/default-project/assets/vrm_mocap_targets.glb`
+    )
+    console.log(asset, `${config.client.fileServer}/projects/default-project/assets/vrm_mocap_targets.glb`)
     const glb = asset as GLTF
     manager.targetsAnimation.set(glb.animations)
   }

@@ -45,6 +45,7 @@ export const getAnimationAction = (name: string, mixer: AnimationMixer, animatio
 const moveLength = new Vector3()
 let fallWeight = 0,
   runWeight = 0,
+  walkWeight = 0,
   idleWeight = 1
 
 //This is a stateless animation blend, it is not a graph
@@ -56,19 +57,28 @@ export const setAvatarLocomotionAnimation = (entity: Entity) => {
 
   const idle = getAnimationAction('Idle', animationComponent.mixer, animationComponent.animations)
   const run = getAnimationAction('Run', animationComponent.mixer, animationComponent.animations)
+  const walk = getAnimationAction('Walk', animationComponent.mixer, animationComponent.animations)
   const fall = getAnimationAction('Fall', animationComponent.mixer, animationComponent.animations)
   idle.play()
   fall.play()
   run.play()
+  walk.play()
 
   fallWeight = lerp(
     fall.getEffectiveWeight(),
     clamp(Math.abs(avatarAnimationComponent.locomotion.y), 0, 1),
     getState(EngineState).deltaSeconds * 10
   )
-  runWeight = clamp(moveLength.copy(avatarAnimationComponent.locomotion).setY(0).lengthSq() * 0.1, 0, 1) - fallWeight
-  idleWeight = clamp(1 - runWeight, 0, 1) - fallWeight
+  const magnitude = moveLength.copy(avatarAnimationComponent.locomotion).setY(0).lengthSq()
+  walkWeight = lerp(
+    walk.getEffectiveWeight(),
+    clamp(1 / (magnitude - 1.65), 0, 1) - fallWeight,
+    getState(EngineState).deltaSeconds * 4
+  )
+  runWeight = clamp(magnitude * 0.1 - walkWeight, 0, 1) - fallWeight
+  idleWeight = clamp(1 - runWeight - walkWeight, 0, 1) - fallWeight
   run.setEffectiveWeight(runWeight)
+  walk.setEffectiveWeight(walkWeight)
   fall.setEffectiveWeight(fallWeight)
   idle.setEffectiveWeight(idleWeight)
 }
