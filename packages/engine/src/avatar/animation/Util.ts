@@ -28,7 +28,6 @@ import {
   AnimationAction,
   AnimationActionLoopStyles,
   AnimationClip,
-  Bone,
   KeyframeTrack,
   Quaternion,
   SkinnedMesh,
