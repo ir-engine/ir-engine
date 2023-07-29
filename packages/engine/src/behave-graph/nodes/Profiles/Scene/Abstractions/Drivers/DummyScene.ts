@@ -25,13 +25,13 @@ Ethereal Engine. All Rights Reserved.
 
 import { BooleanValue, EventEmitter, FloatValue, IntegerValue, StringValue, ValueType } from '../../../../'
 
-import { ColorValue } from '../../Values/ColorValue.js'
-import { EulerValue } from '../../Values/EulerValue.js'
-import { QuatValue } from '../../Values/QuatValue.js'
-import { Vec2Value } from '../../Values/Vec2Value.js'
-import { Vec3Value } from '../../Values/Vec3Value.js'
-import { Vec4Value } from '../../Values/Vec4Value.js'
-import { IScene } from '../IScene.js'
+import { ColorValue } from '../../Values/ColorValue'
+import { EulerValue } from '../../Values/EulerValue'
+import { QuatValue } from '../../Values/QuatValue'
+import { Vec2Value } from '../../Values/Vec2Value'
+import { Vec3Value } from '../../Values/Vec3Value'
+import { Vec4Value } from '../../Values/Vec4Value'
+import { IScene } from '../IScene'
 
 export class DummyScene implements IScene {
   public onSceneChanged = new EventEmitter<void>()

@@ -23,8 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { makeFlowNodeDefinition, NodeCategory, SocketsList } from '../../../Nodes/NodeDefinitions.js'
-import { Variable } from '../../../Values/Variables/Variable.js'
+import { makeFlowNodeDefinition, NodeCategory, SocketsList } from '../../../Nodes/NodeDefinitions'
+import { Variable } from '../../../Values/Variables/Variable'
 
 export const VariableSet = makeFlowNodeDefinition({
   typeName: 'variable/set',

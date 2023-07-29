@@ -25,9 +25,9 @@ Ethereal Engine. All Rights Reserved.
 
 import { EPSILON, equalsTolerance, parseSafeFloats, toSafeString } from '../../../../'
 
-import { Mat3 } from './Mat3.js'
-import { Mat4 } from './Mat4.js'
-import { Vec2 } from './Vec2.js'
+import { Mat3 } from './Mat3'
+import { Mat4 } from './Mat4'
+import { Vec2 } from './Vec2'
 
 // uses OpenGL matrix layout where each column is specified subsequently in order from left to right.
 // ( x, y ) x [ 0  2 ] = ( x', y' )

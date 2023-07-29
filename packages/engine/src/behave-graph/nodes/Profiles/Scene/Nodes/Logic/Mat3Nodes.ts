@@ -46,7 +46,7 @@ import {
   mat4ToMat3,
   scale2ToMat3,
   translation2ToMat3
-} from '../../Values/Internal/Mat3.js'
+} from '../../Values/Internal/Mat3'
 
 export const Constant = makeInNOutFunctionDesc({
   name: 'math/mat3',

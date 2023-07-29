@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import React from 'react'
 import { useReactFlow } from 'reactflow'
 
-import { Modal } from './Modal.js'
+import { Modal } from './Modal'
 
 export type ClearModalProps = {
   open?: boolean

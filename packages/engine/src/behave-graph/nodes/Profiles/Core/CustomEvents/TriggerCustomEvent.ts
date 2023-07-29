@@ -23,13 +23,13 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { CustomEvent } from '../../../Events/CustomEvent.js'
-import { Fiber } from '../../../Execution/Fiber.js'
-import { IGraph } from '../../../Graphs/Graph.js'
-import { FlowNode2 } from '../../../Nodes/FlowNode.js'
-import { NodeConfiguration } from '../../../Nodes/Node.js'
-import { NodeDescription, NodeDescription2 } from '../../../Nodes/Registry/NodeDescription.js'
-import { Socket } from '../../../Sockets/Socket.js'
+import { CustomEvent } from '../../../Events/CustomEvent'
+import { Fiber } from '../../../Execution/Fiber'
+import { IGraph } from '../../../Graphs/Graph'
+import { FlowNode2 } from '../../../Nodes/FlowNode'
+import { NodeConfiguration } from '../../../Nodes/Node'
+import { NodeDescription, NodeDescription2 } from '../../../Nodes/Registry/NodeDescription'
+import { Socket } from '../../../Sockets/Socket'
 
 export class TriggerCustomEvent extends FlowNode2 {
   public static Description = new NodeDescription2({

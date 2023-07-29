@@ -27,7 +27,7 @@ import React, { PropsWithChildren } from 'react'
 
 import { NodeCategory, NodeSpecJSON } from '@etherealengine/engine/src/behave-graph/nodes'
 
-import { categoryColorMap, colors } from '../util/colors.js'
+import { categoryColorMap, colors } from '../util/colors'
 
 import './NodeContainer.css'
 

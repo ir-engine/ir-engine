@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { makeFlowNodeDefinition, NodeCategory } from '../../../../'
 
-import { IScene } from '../../Abstractions/IScene.js'
+import { IScene } from '../../Abstractions/IScene'
 
 export const SetSceneProperty = (valueTypeNames: string[]) =>
   valueTypeNames.map((valueTypeName) =>

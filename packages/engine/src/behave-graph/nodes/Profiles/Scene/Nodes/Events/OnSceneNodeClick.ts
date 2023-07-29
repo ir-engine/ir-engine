@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { Assert, makeEventNodeDefinition, NodeCategory } from '../../../../'
 
-import { IScene } from '../../Abstractions/IScene.js'
+import { IScene } from '../../Abstractions/IScene'
 
 type State = {
   jsonPath?: string | undefined

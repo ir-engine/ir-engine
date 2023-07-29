@@ -28,13 +28,13 @@ import { Background, BackgroundVariant, ReactFlow } from 'reactflow'
 
 import { GraphJSON, IRegistry } from '@etherealengine/engine/src/behave-graph/nodes'
 
-import { useBehaveGraphFlow } from '../hooks/useBehaveGraphFlow.js'
-import { useFlowHandlers } from '../hooks/useFlowHandlers.js'
-import { useGraphRunner } from '../hooks/useGraphRunner.js'
-import { useNodeSpecJson } from '../hooks/useNodeSpecJson.js'
-import CustomControls from './Controls.js'
-import { NodePicker } from './NodePicker.js'
-import { Examples } from './modals/LoadModal.js'
+import { useBehaveGraphFlow } from '../hooks/useBehaveGraphFlow'
+import { useFlowHandlers } from '../hooks/useFlowHandlers'
+import { useGraphRunner } from '../hooks/useGraphRunner'
+import { useNodeSpecJson } from '../hooks/useNodeSpecJson'
+import CustomControls from './Controls'
+import { NodePicker } from './NodePicker'
+import { Examples } from './modals/LoadModal'
 
 type FlowProps = {
   initialGraph: GraphJSON

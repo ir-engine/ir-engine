@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Metadata } from '../../Metadata.js'
+import { Metadata } from '../../Metadata'
 
 export type ValueJSON = string | boolean | number | number[]
 

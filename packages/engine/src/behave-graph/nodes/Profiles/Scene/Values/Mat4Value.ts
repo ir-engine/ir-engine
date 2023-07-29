@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { ValueType } from '../../../'
 
-import { Mat4, mat4Equals, Mat4JSON, mat4Mix, mat4Parse } from './Internal/Mat4.js'
+import { Mat4, mat4Equals, Mat4JSON, mat4Mix, mat4Parse } from './Internal/Mat4'
 
 export const Mat4Value: ValueType = {
   name: 'mat4',

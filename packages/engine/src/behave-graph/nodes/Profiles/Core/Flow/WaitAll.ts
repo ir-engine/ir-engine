@@ -23,11 +23,11 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Fiber } from '../../../Execution/Fiber.js'
-import { IGraph } from '../../../Graphs/Graph.js'
-import { FlowNode } from '../../../Nodes/FlowNode.js'
-import { NodeDescription, NodeDescription2 } from '../../../Nodes/Registry/NodeDescription.js'
-import { Socket } from '../../../Sockets/Socket.js'
+import { Fiber } from '../../../Execution/Fiber'
+import { IGraph } from '../../../Graphs/Graph'
+import { FlowNode } from '../../../Nodes/FlowNode'
+import { NodeDescription, NodeDescription2 } from '../../../Nodes/Registry/NodeDescription'
+import { Socket } from '../../../Sockets/Socket'
 
 // this is equivalent to Promise.all()
 export class WaitAll extends FlowNode {

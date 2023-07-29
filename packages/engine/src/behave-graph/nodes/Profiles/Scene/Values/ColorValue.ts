@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { ValueType } from '../../../'
 
-import { Vec3, vec3Equals, Vec3JSON, vec3Mix, vec3Parse } from './Internal/Vec3.js'
+import { Vec3, vec3Equals, Vec3JSON, vec3Mix, vec3Parse } from './Internal/Vec3'
 
 export const ColorValue: ValueType = {
   name: 'color',

@@ -23,17 +23,17 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { IGraph } from '../Graphs/Graph.js'
-import { Choices } from '../Sockets/Socket.js'
-import { AsyncNodeInstance } from './AsyncNode.js'
-import { EventNodeInstance } from './EventNode.js'
-import { FlowNodeInstance } from './FlowNode.js'
-import { FunctionNodeInstance } from './FunctionNode.js'
-import { NodeConfiguration } from './Node.js'
-import { makeCommonProps } from './nodeFactory.js'
-import { INode, NodeType } from './NodeInstance.js'
-import { NodeCategory } from './Registry/NodeCategory.js'
-import { NodeConfigurationDescription } from './Registry/NodeDescription.js'
+import { IGraph } from '../Graphs/Graph'
+import { Choices } from '../Sockets/Socket'
+import { AsyncNodeInstance } from './AsyncNode'
+import { EventNodeInstance } from './EventNode'
+import { FlowNodeInstance } from './FlowNode'
+import { FunctionNodeInstance } from './FunctionNode'
+import { NodeConfiguration } from './Node'
+import { makeCommonProps } from './nodeFactory'
+import { INode, NodeType } from './NodeInstance'
+import { NodeCategory } from './Registry/NodeCategory'
+import { NodeConfigurationDescription } from './Registry/NodeDescription'
 
 export interface SocketDefinition {
   valueType: string
@@ -255,4 +255,4 @@ export function makeEventNodeDefinition<
   }
 }
 
-export { NodeCategory } from './Registry/NodeCategory.js'
+export { NodeCategory } from './Registry/NodeCategory'

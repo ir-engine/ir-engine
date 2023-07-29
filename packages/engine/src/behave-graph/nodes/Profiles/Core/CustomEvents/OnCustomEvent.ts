@@ -23,14 +23,14 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Assert } from '../../../Diagnostics/Assert.js'
-import { CustomEvent } from '../../../Events/CustomEvent.js'
-import { Engine } from '../../../Execution/Engine.js'
-import { IGraph } from '../../../Graphs/Graph.js'
-import { EventNode2 } from '../../../Nodes/EventNode.js'
-import { NodeConfiguration } from '../../../Nodes/Node.js'
-import { NodeDescription, NodeDescription2 } from '../../../Nodes/Registry/NodeDescription.js'
-import { Socket } from '../../../Sockets/Socket.js'
+import { Assert } from '../../../Diagnostics/Assert'
+import { CustomEvent } from '../../../Events/CustomEvent'
+import { Engine } from '../../../Execution/Engine'
+import { IGraph } from '../../../Graphs/Graph'
+import { EventNode2 } from '../../../Nodes/EventNode'
+import { NodeConfiguration } from '../../../Nodes/Node'
+import { NodeDescription, NodeDescription2 } from '../../../Nodes/Registry/NodeDescription'
+import { Socket } from '../../../Sockets/Socket'
 
 export class OnCustomEvent extends EventNode2 {
   public static Description = new NodeDescription2({

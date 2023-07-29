@@ -22,8 +22,8 @@ Original Code is the Ethereal Engine team.
 All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
 Ethereal Engine. All Rights Reserved.
 */
-import { makeFlowNodeDefinition, NodeCategory } from '../../../Nodes/NodeDefinitions.js'
-import { ILogger, LogSeverity } from '../Abstractions/ILogger.js'
+import { makeFlowNodeDefinition, NodeCategory } from '../../../Nodes/NodeDefinitions'
+import { ILogger, LogSeverity } from '../Abstractions/ILogger'
 
 export const Log = makeFlowNodeDefinition({
   typeName: 'debug/log',

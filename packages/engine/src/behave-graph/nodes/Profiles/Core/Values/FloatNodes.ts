@@ -23,8 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { degreesToRadians, equalsTolerance, radiansToDegrees } from '../../../mathUtilities.js'
-import { makeInNOutFunctionDesc } from '../../../Nodes/FunctionNode.js'
+import { degreesToRadians, equalsTolerance, radiansToDegrees } from '../../../mathUtilities'
+import { makeInNOutFunctionDesc } from '../../../Nodes/FunctionNode'
 
 // Unreal Engine Blueprint Float nodes: https://docs.unrealengine.com/4.27/en-US/BlueprintAPI/Math/Float/
 

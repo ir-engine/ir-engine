@@ -23,8 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { NodeCategory } from '../../Nodes/Registry/NodeCategory.js'
-import { ValueJSON } from './GraphJSON.js'
+import { NodeCategory } from '../../Nodes/Registry/NodeCategory'
+import { ValueJSON } from './GraphJSON'
 
 export type ChoiceJSON = { text: string; value: any }[]
 

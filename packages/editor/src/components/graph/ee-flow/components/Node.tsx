@@ -28,11 +28,11 @@ import { NodeProps as FlowNodeProps, useEdges } from 'reactflow'
 
 import { NodeSpecJSON } from '@etherealengine/engine/src/behave-graph/nodes'
 
-import { useChangeNodeData } from '../hooks/useChangeNodeData.js'
-import { isHandleConnected } from '../util/isHandleConnected.js'
-import InputSocket from './InputSocket.js'
-import NodeContainer from './NodeContainer.js'
-import OutputSocket from './OutputSocket.js'
+import { useChangeNodeData } from '../hooks/useChangeNodeData'
+import { isHandleConnected } from '../util/isHandleConnected'
+import InputSocket from './InputSocket'
+import NodeContainer from './NodeContainer'
+import OutputSocket from './OutputSocket'
 
 type NodeProps = FlowNodeProps & {
   spec: NodeSpecJSON

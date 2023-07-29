@@ -23,9 +23,9 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { makeInNOutFunctionDesc } from '../Nodes/FunctionNode.js'
-import { toCamelCase } from '../toCamelCase.js'
-import { ValueTypeMap } from '../Values/ValueTypeMap.js'
+import { makeInNOutFunctionDesc } from '../Nodes/FunctionNode'
+import { toCamelCase } from '../toCamelCase'
+import { ValueTypeMap } from '../Values/ValueTypeMap'
 
 export function getStringConversionsForValueType({
   values,

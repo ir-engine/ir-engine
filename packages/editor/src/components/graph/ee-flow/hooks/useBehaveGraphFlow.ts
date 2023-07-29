@@ -28,11 +28,11 @@ import { useEdgesState, useNodesState } from 'reactflow'
 
 import { GraphJSON, NodeSpecJSON } from '@etherealengine/engine/src/behave-graph/nodes'
 
-import { behaveToFlow } from '../transformers/behaveToFlow.js'
-import { flowToBehave } from '../transformers/flowToBehave.js'
-import { autoLayout } from '../util/autoLayout.js'
-import { hasPositionMetaData } from '../util/hasPositionMetaData.js'
-import { useCustomNodeTypes } from './useCustomNodeTypes.js'
+import { behaveToFlow } from '../transformers/behaveToFlow'
+import { flowToBehave } from '../transformers/flowToBehave'
+import { autoLayout } from '../util/autoLayout'
+import { hasPositionMetaData } from '../util/hasPositionMetaData'
+import { useCustomNodeTypes } from './useCustomNodeTypes'
 
 export const fetchBehaviorGraphJson = async (url: string) =>
   // eslint-disable-next-line unicorn/no-await-expression-member

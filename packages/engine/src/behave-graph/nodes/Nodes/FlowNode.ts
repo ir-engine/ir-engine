@@ -23,14 +23,14 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Assert } from '../Diagnostics/Assert.js'
-import { Fiber } from '../Execution/Fiber.js'
-import { IGraph } from '../Graphs/Graph.js'
-import { Socket } from '../Sockets/Socket.js'
-import { Node, NodeConfiguration } from './Node.js'
-import { IFlowNodeDefinition, NodeCategory } from './NodeDefinitions.js'
-import { IFlowNode, INode, NodeType } from './NodeInstance.js'
-import { NodeDescription } from './Registry/NodeDescription.js'
+import { Assert } from '../Diagnostics/Assert'
+import { Fiber } from '../Execution/Fiber'
+import { IGraph } from '../Graphs/Graph'
+import { Socket } from '../Sockets/Socket'
+import { Node, NodeConfiguration } from './Node'
+import { IFlowNodeDefinition, NodeCategory } from './NodeDefinitions'
+import { IFlowNode, INode, NodeType } from './NodeInstance'
+import { NodeDescription } from './Registry/NodeDescription'
 
 export class FlowNode extends Node<NodeType.Flow> implements IFlowNode {
   constructor(

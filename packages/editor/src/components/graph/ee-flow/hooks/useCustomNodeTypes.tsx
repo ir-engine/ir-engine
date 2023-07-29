@@ -28,7 +28,7 @@ import { NodeTypes } from 'reactflow'
 
 import { NodeSpecJSON } from '@etherealengine/engine/src/behave-graph/nodes'
 
-import { Node } from '../components/Node.js'
+import { Node } from '../components/Node'
 
 const getCustomNodeTypes = (allSpecs: NodeSpecJSON[]) => {
   return allSpecs.reduce((nodes: NodeTypes, node) => {

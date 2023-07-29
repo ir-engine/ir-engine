@@ -28,8 +28,8 @@ import { useEdges, useNodes } from 'reactflow'
 
 import { NodeSpecJSON } from '@etherealengine/engine/src/behave-graph/nodes'
 
-import { flowToBehave } from '../../transformers/flowToBehave.js'
-import { Modal } from './Modal.js'
+import { flowToBehave } from '../../transformers/flowToBehave'
+import { Modal } from './Modal'
 
 export type SaveModalProps = {
   open?: boolean

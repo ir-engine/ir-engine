@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { EventEmitter } from '../../../Events/EventEmitter.js'
+import { EventEmitter } from '../../../Events/EventEmitter'
 
 export interface ILifecycleEventEmitter {
   startEvent: EventEmitter<void>

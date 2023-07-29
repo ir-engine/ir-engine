@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { makeFlowNodeDefinition, NodeCategory } from '../../../Nodes/NodeDefinitions.js'
+import { makeFlowNodeDefinition, NodeCategory } from '../../../Nodes/NodeDefinitions'
 
 // based on Unreal Engine Blueprint Gate node
 

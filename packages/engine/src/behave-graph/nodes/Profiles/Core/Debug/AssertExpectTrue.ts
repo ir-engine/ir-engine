@@ -23,8 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Assert } from '../../../Diagnostics/Assert.js'
-import { makeFlowNodeDefinition, NodeCategory } from '../../../Nodes/NodeDefinitions.js'
+import { Assert } from '../../../Diagnostics/Assert'
+import { makeFlowNodeDefinition, NodeCategory } from '../../../Nodes/NodeDefinitions'
 
 export const ExpectTrue = makeFlowNodeDefinition({
   typeName: 'debug/expectTrue',

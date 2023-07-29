@@ -37,7 +37,7 @@ import {
   vec2Normalize,
   vec2Subtract,
   vec2ToArray
-} from '../../Values/Internal/Vec2.js'
+} from '../../Values/Internal/Vec2'
 
 export const Constant = makeInNOutFunctionDesc({
   name: 'math/vec2',

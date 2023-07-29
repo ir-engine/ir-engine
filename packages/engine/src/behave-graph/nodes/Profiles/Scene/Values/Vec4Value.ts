@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { ValueType } from '../../../'
 
-import { Vec4, vec4Equals, Vec4JSON, vec4Mix, vec4Parse } from './Internal/Vec4.js'
+import { Vec4, vec4Equals, Vec4JSON, vec4Mix, vec4Parse } from './Internal/Vec4'
 export const Vec4Value: ValueType = {
   name: 'vec4',
   creator: () => new Vec4(),

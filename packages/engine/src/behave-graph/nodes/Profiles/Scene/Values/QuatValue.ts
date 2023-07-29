@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { ValueType } from '../../../'
 
-import { quatSlerp, Vec4, vec4Equals, Vec4JSON, vec4Parse } from './Internal/Vec4.js'
+import { quatSlerp, Vec4, vec4Equals, Vec4JSON, vec4Parse } from './Internal/Vec4'
 
 export const QuatValue: ValueType = {
   name: 'quat',

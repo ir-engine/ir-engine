@@ -23,9 +23,9 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { GraphInstance } from '../Graph.js'
-import { validateGraphAcyclic } from './validateGraphAcyclic.js'
-import { validateGraphLinks } from './validateGraphLinks.js'
+import { GraphInstance } from '../Graph'
+import { validateGraphAcyclic } from './validateGraphAcyclic'
+import { validateGraphLinks } from './validateGraphLinks'
 
 export function validateGraph(graph: GraphInstance): string[] {
   const errorList: string[] = []

@@ -25,13 +25,13 @@ Ethereal Engine. All Rights Reserved.
 
 /* eslint-disable space-in-parens */
 
-import { Assert } from '../Diagnostics/Assert.js'
-import { EventEmitter } from '../Events/EventEmitter.js'
-import { GraphNodes } from '../Graphs/Graph.js'
-import { IAsyncNode, IEventNode, INode, isAsyncNode, isEventNode } from '../Nodes/NodeInstance.js'
-import { sleep } from '../sleep.js'
-import { Fiber } from './Fiber.js'
-import { resolveSocketValue } from './resolveSocketValue.js'
+import { Assert } from '../Diagnostics/Assert'
+import { EventEmitter } from '../Events/EventEmitter'
+import { GraphNodes } from '../Graphs/Graph'
+import { IAsyncNode, IEventNode, INode, isAsyncNode, isEventNode } from '../Nodes/NodeInstance'
+import { sleep } from '../sleep'
+import { Fiber } from './Fiber'
+import { resolveSocketValue } from './resolveSocketValue'
 
 export class Engine {
   // tracking the next node+input socket to execute.

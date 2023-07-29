@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { ValueType } from '../../../'
 
-import { Vec2, Vec2JSON, vec2Mix, vec2Parse } from './Internal/Vec2.js'
+import { Vec2, Vec2JSON, vec2Mix, vec2Parse } from './Internal/Vec2'
 
 export const Vec2Value: ValueType = {
   name: 'vec2',

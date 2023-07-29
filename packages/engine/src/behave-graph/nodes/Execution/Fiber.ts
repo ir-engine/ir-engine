@@ -23,12 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Assert } from '../Diagnostics/Assert.js'
-import { GraphNodes } from '../Graphs/Graph.js'
-import { Link } from '../Nodes/Link.js'
-import { INode, isAsyncNode, isFlowNode } from '../Nodes/NodeInstance.js'
-import { Engine } from './Engine.js'
-import { resolveSocketValue } from './resolveSocketValue.js'
+import { Assert } from '../Diagnostics/Assert'
+import { GraphNodes } from '../Graphs/Graph'
+import { Link } from '../Nodes/Link'
+import { INode, isAsyncNode, isFlowNode } from '../Nodes/NodeInstance'
+import { Engine } from './Engine'
+import { resolveSocketValue } from './resolveSocketValue'
 
 export class Fiber {
   private readonly fiberCompletedListenerStack: (() => void)[] = []

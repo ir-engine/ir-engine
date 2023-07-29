@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import React from 'react'
 
-import { Modal } from './Modal.js'
+import { Modal } from './Modal'
 
 export type HelpModalProps = {
   open?: boolean

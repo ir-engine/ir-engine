@@ -23,8 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { EventEmitter } from '../../../../Events/EventEmitter.js'
-import { ILifecycleEventEmitter } from '../ILifecycleEventEmitter.js'
+import { EventEmitter } from '../../../../Events/EventEmitter'
+import { ILifecycleEventEmitter } from '../ILifecycleEventEmitter'
 
 export class ManualLifecycleEventEmitter implements ILifecycleEventEmitter {
   public readonly startEvent = new EventEmitter<void>()

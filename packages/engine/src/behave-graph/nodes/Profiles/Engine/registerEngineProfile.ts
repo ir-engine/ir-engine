@@ -24,20 +24,20 @@ Ethereal Engine. All Rights Reserved.
 */
 
 /* eslint-disable max-len */
-import { NodeDefinition } from '../../Nodes/Registry/NodeDefinitionsMap.js'
-import { getNodeDescriptions } from '../../Nodes/Registry/NodeDescription.js'
-import { IRegistry } from '../../Registry.js'
-import { ValueTypeMap } from '../../Values/ValueTypeMap.js'
-import { memo } from '../../memo.js'
-import { getStringConversionsForValueType } from '../registerSerializersForValueType.js'
-import { onLoadAsset } from './Events/onLoadAsset.js'
-import { OnSceneClick } from './Events/onSceneClick.js'
-import { triggerLoadAsset } from './Events/triggerLoadAsset.js'
-import * as ComponentNodes from './Values/ComponentNodes.js'
-import { ComponentValue } from './Values/ComponentValue.js'
-import * as CustomNodes from './Values/CustomNodes.js'
-import * as EntityNodes from './Values/EntityNodes.js'
-import { EntityValue } from './Values/EntityValue.js'
+import { NodeDefinition } from '../../Nodes/Registry/NodeDefinitionsMap'
+import { getNodeDescriptions } from '../../Nodes/Registry/NodeDescription'
+import { IRegistry } from '../../Registry'
+import { ValueTypeMap } from '../../Values/ValueTypeMap'
+import { memo } from '../../memo'
+import { getStringConversionsForValueType } from '../registerSerializersForValueType'
+import { onLoadAsset } from './Events/onLoadAsset'
+import { OnSceneClick } from './Events/onSceneClick'
+import { triggerLoadAsset } from './Events/triggerLoadAsset'
+import * as ComponentNodes from './Values/ComponentNodes'
+import { ComponentValue } from './Values/ComponentValue'
+import * as CustomNodes from './Values/CustomNodes'
+import * as EntityNodes from './Values/EntityNodes'
+import { EntityValue } from './Values/EntityValue'
 
 export const makeEngineDependencies = () => ({})
 

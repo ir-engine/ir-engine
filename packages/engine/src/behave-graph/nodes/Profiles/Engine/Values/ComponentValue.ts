@@ -23,8 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Component } from '../../../../../ecs/functions/ComponentFunctions.js'
-import { ValueType } from '../../../Values/ValueType.js'
+import { Component } from '../../../../../ecs/functions/ComponentFunctions'
+import { ValueType } from '../../../Values/ValueType'
 
 export const ComponentValue: ValueType = {
   name: 'component',

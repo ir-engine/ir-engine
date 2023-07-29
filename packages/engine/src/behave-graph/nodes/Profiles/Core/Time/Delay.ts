@@ -23,11 +23,11 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Engine } from '../../../Execution/Engine.js'
-import { IGraph } from '../../../Graphs/Graph.js'
-import { AsyncNode } from '../../../Nodes/AsyncNode.js'
-import { NodeDescription, NodeDescription2 } from '../../../Nodes/Registry/NodeDescription.js'
-import { Socket } from '../../../Sockets/Socket.js'
+import { Engine } from '../../../Execution/Engine'
+import { IGraph } from '../../../Graphs/Graph'
+import { AsyncNode } from '../../../Nodes/AsyncNode'
+import { NodeDescription, NodeDescription2 } from '../../../Nodes/Registry/NodeDescription'
+import { Socket } from '../../../Sockets/Socket'
 
 // ASYNC - asynchronous evaluation
 // also called "delay"

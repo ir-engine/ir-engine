@@ -23,16 +23,16 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { CustomEvent } from '../Events/CustomEvent.js'
-import { Logger } from '../index.js'
-import { Metadata } from '../Metadata.js'
-import { NodeConfiguration } from '../Nodes/Node.js'
-import { Dependencies } from '../Nodes/NodeDefinitions.js'
-import { INode } from '../Nodes/NodeInstance.js'
-import { IRegistry } from '../Registry.js'
-import { Socket } from '../Sockets/Socket.js'
-import { ValueTypeMap } from '../Values/ValueTypeMap.js'
-import { Variable } from '../Values/Variables/Variable.js'
+import { CustomEvent } from '../Events/CustomEvent'
+import { Logger } from '../index'
+import { Metadata } from '../Metadata'
+import { NodeConfiguration } from '../Nodes/Node'
+import { Dependencies } from '../Nodes/NodeDefinitions'
+import { INode } from '../Nodes/NodeInstance'
+import { IRegistry } from '../Registry'
+import { Socket } from '../Sockets/Socket'
+import { ValueTypeMap } from '../Values/ValueTypeMap'
+import { Variable } from '../Values/Variables/Variable'
 
 // Purpose:
 //  - stores the node graph

@@ -29,9 +29,9 @@ import { v4 as uuidv4 } from 'uuid'
 
 import { NodeSpecJSON } from '@etherealengine/engine/src/behave-graph/nodess'
 
-import { calculateNewEdge } from '../util/calculateNewEdge.js'
-import { getNodePickerFilters } from '../util/getPickerFilters.js'
-import { useBehaveGraphFlow } from './useBehaveGraphFlow.js'
+import { calculateNewEdge } from '../util/calculateNewEdge'
+import { getNodePickerFilters } from '../util/getPickerFilters'
+import { useBehaveGraphFlow } from './useBehaveGraphFlow'
 
 type BehaveGraphFlow = ReturnType<typeof useBehaveGraphFlow>
 

@@ -36,7 +36,7 @@ import {
   toCamelCase
 } from '../../../../'
 
-import { IScene } from '../../Abstractions/IScene.js'
+import { IScene } from '../../Abstractions/IScene'
 
 export class EaseSceneProperty extends AsyncNode {
   public static GetDescriptions(

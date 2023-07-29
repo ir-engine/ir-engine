@@ -23,11 +23,11 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { IGraph } from '../Graphs/Graph.js'
-import { Socket } from '../Sockets/Socket.js'
-import { INode, NodeType } from './NodeInstance.js'
-import { readInputFromSockets, writeOutputsToSocket } from './NodeSockets.js'
-import { INodeDescription } from './Registry/NodeDescription.js'
+import { IGraph } from '../Graphs/Graph'
+import { Socket } from '../Sockets/Socket'
+import { INode, NodeType } from './NodeInstance'
+import { readInputFromSockets, writeOutputsToSocket } from './NodeSockets'
+import { INodeDescription } from './Registry/NodeDescription'
 
 export type NodeConfiguration = {
   [key: string]: any

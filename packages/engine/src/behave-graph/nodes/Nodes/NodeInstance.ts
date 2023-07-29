@@ -23,13 +23,13 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Engine } from '../Execution/Engine.js'
-import { Fiber } from '../Execution/Fiber.js'
-import { IGraph } from '../Graphs/Graph.js'
-import { Socket } from '../Sockets/Socket.js'
-import { NodeConfiguration } from './Node.js'
-import { readInputFromSockets, writeOutputsToSocket } from './NodeSockets.js'
-import { INodeDescription } from './Registry/NodeDescription.js'
+import { Engine } from '../Execution/Engine'
+import { Fiber } from '../Execution/Fiber'
+import { IGraph } from '../Graphs/Graph'
+import { Socket } from '../Sockets/Socket'
+import { NodeConfiguration } from './Node'
+import { readInputFromSockets, writeOutputsToSocket } from './NodeSockets'
+import { INodeDescription } from './Registry/NodeDescription'
 
 export enum NodeType {
   Event = 'Event',

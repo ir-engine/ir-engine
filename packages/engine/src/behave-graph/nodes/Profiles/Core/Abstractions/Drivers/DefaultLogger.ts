@@ -24,8 +24,8 @@ Ethereal Engine. All Rights Reserved.
 */
 
 /* eslint-disable class-methods-use-this */
-import { Logger } from '../../../../Diagnostics/Logger.js'
-import { ILogger, LogSeverity } from '../ILogger.js'
+import { Logger } from '../../../../Diagnostics/Logger'
+import { ILogger, LogSeverity } from '../ILogger'
 
 export class DefaultLogger implements ILogger {
   log(severity: LogSeverity, text: string): void {

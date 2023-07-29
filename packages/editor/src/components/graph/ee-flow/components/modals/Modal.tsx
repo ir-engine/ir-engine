@@ -23,10 +23,9 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React from 'react'
-import { PropsWithChildren } from 'react'
+import React, { PropsWithChildren } from 'react'
 
-import { useOnPressKey } from '../../hooks/useOnPressKey.js'
+import { useOnPressKey } from '../../hooks/useOnPressKey'
 
 import './Modal.css'
 

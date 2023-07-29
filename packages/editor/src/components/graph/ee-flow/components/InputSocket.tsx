@@ -30,9 +30,9 @@ import { Connection, Handle, Position, useReactFlow } from 'reactflow'
 
 import { InputSocketSpecJSON, NodeSpecJSON } from '@etherealengine/engine/src/behave-graph/nodes'
 
-import { colors, valueTypeColorMap } from '../util/colors.js'
-import { isValidConnection } from '../util/isValidConnection.js'
-import { AutoSizeInput } from './AutoSizeInput.js'
+import { colors, valueTypeColorMap } from '../util/colors'
+import { isValidConnection } from '../util/isValidConnection'
+import { AutoSizeInput } from './AutoSizeInput'
 
 export type InputSocketProps = {
   connected: boolean

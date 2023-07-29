@@ -27,10 +27,10 @@ import { Event, Material, MeshBasicMaterial, Object3D, Quaternion, Vector3, Vect
 import { Choices, EventEmitter } from '../../'
 import { GLTF } from '../../../../assets/loaders/gltf/GLTFLoader'
 
-import { IScene } from './Abstractions/IScene.js'
-import { GLTFJson } from './GLTFJson.js'
-import { Vec3 } from './Values/Internal/Vec3.js'
-import { Vec4 } from './Values/Internal/Vec4.js'
+import { IScene } from './Abstractions/IScene'
+import { GLTFJson } from './GLTFJson'
+import { Vec3 } from './Values/Internal/Vec3'
+import { Vec4 } from './Values/Internal/Vec4'
 
 enum Resource {
   nodes = 'nodes',

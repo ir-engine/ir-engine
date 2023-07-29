@@ -23,8 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { EasingFunctions, EasingModes } from '../../../Easing.js'
-import { NodeCategory, makeFunctionNodeDefinition } from '../../../Nodes/NodeDefinitions.js'
+import { EasingFunctions, EasingModes } from '../../../Easing'
+import { NodeCategory, makeFunctionNodeDefinition } from '../../../Nodes/NodeDefinitions'
 
 export const Easing = makeFunctionNodeDefinition({
   typeName: 'math/easing',

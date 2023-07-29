@@ -23,11 +23,11 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { NodeCategory } from '../../Nodes/NodeDefinitions.js'
-import { IRegistry } from '../../Registry.js'
-import { Choices } from '../../Sockets/Socket.js'
-import { createNode, makeGraphApi } from '../Graph.js'
-import { ChoiceJSON, InputSocketSpecJSON, NodeSpecJSON, OutputSocketSpecJSON } from './NodeSpecJSON.js'
+import { NodeCategory } from '../../Nodes/NodeDefinitions'
+import { IRegistry } from '../../Registry'
+import { Choices } from '../../Sockets/Socket'
+import { createNode, makeGraphApi } from '../Graph'
+import { ChoiceJSON, InputSocketSpecJSON, NodeSpecJSON, OutputSocketSpecJSON } from './NodeSpecJSON'
 
 function toChoices(valueChoices: Choices | undefined): ChoiceJSON | undefined {
   return valueChoices?.map((choice) => {

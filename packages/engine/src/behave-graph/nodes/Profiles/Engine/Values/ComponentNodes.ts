@@ -23,15 +23,15 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Entity } from '../../../../../ecs/classes/Entity.js'
+import { Entity } from '../../../../../ecs/classes/Entity'
 import {
   ComponentMap,
   getComponent,
   removeComponent,
   setComponent
-} from '../../../../../ecs/functions/ComponentFunctions.js'
-import { makeInNOutFunctionDesc } from '../../../Nodes/FunctionNode.js'
-import { NodeCategory, makeFlowNodeDefinition, makeFunctionNodeDefinition } from '../../../Nodes/NodeDefinitions.js'
+} from '../../../../../ecs/functions/ComponentFunctions'
+import { makeInNOutFunctionDesc } from '../../../Nodes/FunctionNode'
+import { NodeCategory, makeFlowNodeDefinition, makeFunctionNodeDefinition } from '../../../Nodes/NodeDefinitions'
 
 export const getComponentFromRegistry = makeFunctionNodeDefinition({
   typeName: 'engine/getComponentfromRegistry',

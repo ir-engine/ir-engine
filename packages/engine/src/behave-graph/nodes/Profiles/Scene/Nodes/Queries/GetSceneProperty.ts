@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { makeFunctionNodeDefinition, NodeCategory } from '../../../../'
 
-import { IScene } from '../../Abstractions/IScene.js'
+import { IScene } from '../../Abstractions/IScene'
 
 export const GetSceneProperty = (valueTypeNames: string[]) =>
   valueTypeNames.map((valueTypeName) =>

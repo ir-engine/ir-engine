@@ -30,10 +30,10 @@ import { ControlButton, Controls } from 'reactflow'
 
 import { GraphJSON, NodeSpecJSON } from '@etherealengine/engine/src/behave-graph/nodes'
 
-import { ClearModal } from './modals/ClearModal.js'
-import { HelpModal } from './modals/HelpModal.js'
-import { Examples, LoadModal } from './modals/LoadModal.js'
-import { SaveModal } from './modals/SaveModal.js'
+import { ClearModal } from './modals/ClearModal'
+import { HelpModal } from './modals/HelpModal'
+import { Examples, LoadModal } from './modals/LoadModal'
+import { SaveModal } from './modals/SaveModal'
 
 export type CustomControlsProps = {
   playing: boolean

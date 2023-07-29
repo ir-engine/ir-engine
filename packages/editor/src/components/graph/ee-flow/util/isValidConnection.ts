@@ -27,8 +27,8 @@ import { Connection, ReactFlowInstance } from 'reactflow'
 
 import { NodeSpecJSON } from '@etherealengine/engine/src/behave-graph/nodess'
 
-import { getSocketsByNodeTypeAndHandleType } from './getSocketsByNodeTypeAndHandleType.js'
-import { isHandleConnected } from './isHandleConnected.js'
+import { getSocketsByNodeTypeAndHandleType } from './getSocketsByNodeTypeAndHandleType'
+import { isHandleConnected } from './isHandleConnected'
 
 export const isValidConnection = (connection: Connection, instance: ReactFlowInstance, specJSON: NodeSpecJSON[]) => {
   if (connection.source === null || connection.target === null) return false

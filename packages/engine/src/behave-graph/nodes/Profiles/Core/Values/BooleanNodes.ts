@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { makeInNOutFunctionDesc } from '../../../Nodes/FunctionNode.js'
+import { makeInNOutFunctionDesc } from '../../../Nodes/FunctionNode'
 
 export const Constant = makeInNOutFunctionDesc({
   name: 'math/boolean',

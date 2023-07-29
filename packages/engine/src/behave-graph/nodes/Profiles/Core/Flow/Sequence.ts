@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { makeFlowNodeDefinition, SocketsList } from '../../../Nodes/NodeDefinitions.js'
+import { makeFlowNodeDefinition, SocketsList } from '../../../Nodes/NodeDefinitions'
 
 // https://docs.unrealengine.com/4.27/en-US/ProgrammingAndScripting/Blueprints/UserGuide/flow/
 

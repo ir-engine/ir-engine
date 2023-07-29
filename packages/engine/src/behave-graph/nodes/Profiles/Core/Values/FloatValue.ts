@@ -23,8 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { parseSafeFloat } from '../../../parseFloats.js'
-import { ValueType } from '../../../Values/ValueType.js'
+import { parseSafeFloat } from '../../../parseFloats'
+import { ValueType } from '../../../Values/ValueType'
 
 export const FloatValue: ValueType = {
   name: 'float',

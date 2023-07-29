@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { makeInNOutFunctionDesc } from '../../../Nodes/FunctionNode.js'
+import { makeInNOutFunctionDesc } from '../../../Nodes/FunctionNode'
 
 // Unreal Engine Integer Blueprints API: https://docs.unrealengine.com/4.27/en-US/BlueprintAPI/Math/Integer/
 

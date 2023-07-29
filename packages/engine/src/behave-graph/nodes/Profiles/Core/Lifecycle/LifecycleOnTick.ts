@@ -23,9 +23,9 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Assert } from '../../../Diagnostics/Assert.js'
-import { makeEventNodeDefinition, NodeCategory } from '../../../Nodes/NodeDefinitions.js'
-import { ILifecycleEventEmitter } from '../Abstractions/ILifecycleEventEmitter.js'
+import { Assert } from '../../../Diagnostics/Assert'
+import { makeEventNodeDefinition, NodeCategory } from '../../../Nodes/NodeDefinitions'
+import { ILifecycleEventEmitter } from '../Abstractions/ILifecycleEventEmitter'
 
 type State = {
   onTickEvent?: (() => void) | undefined

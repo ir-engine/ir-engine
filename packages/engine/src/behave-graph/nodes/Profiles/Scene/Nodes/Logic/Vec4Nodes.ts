@@ -36,7 +36,7 @@ import {
   vec4Negate,
   vec4Normalize,
   vec4Subtract
-} from '../../Values/Internal/Vec4.js'
+} from '../../Values/Internal/Vec4'
 
 export const Constant = makeInNOutFunctionDesc({
   name: 'math/vec4',

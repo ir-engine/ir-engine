@@ -25,9 +25,9 @@ Ethereal Engine. All Rights Reserved.
 
 import { clamp, EPSILON, equalsTolerance, parseSafeFloats, toSafeString } from '../../../../'
 
-import { Mat3, mat4ToMat3, quatToMat3 } from './Mat3.js'
-import { Mat4 } from './Mat4.js'
-import { Vec4 } from './Vec4.js'
+import { Mat3, mat4ToMat3, quatToMat3 } from './Mat3'
+import { Mat4 } from './Mat4'
+import { Vec4 } from './Vec4'
 
 export type Vec3JSON = number[]
 

@@ -23,10 +23,10 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Assert } from '../Diagnostics/Assert.js'
-import { isFunctionNode } from '../Nodes/NodeInstance.js'
-import { Socket } from '../Sockets/Socket.js'
-import { Engine } from './Engine.js'
+import { Assert } from '../Diagnostics/Assert'
+import { isFunctionNode } from '../Nodes/NodeInstance'
+import { Socket } from '../Sockets/Socket'
+import { Engine } from './Engine'
 
 export function resolveSocketValue(engine: Engine, inputSocket: Socket): number {
   // if it has no links, leave value on input socket alone.

@@ -37,7 +37,7 @@ import {
   vec3Negate,
   vec3Normalize,
   vec3Subtract
-} from '../../Values/Internal/Vec3.js'
+} from '../../Values/Internal/Vec3'
 
 export const Constant = makeInNOutFunctionDesc({
   name: 'math/vec3',

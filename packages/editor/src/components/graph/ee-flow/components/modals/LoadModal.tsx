@@ -28,7 +28,7 @@ import { useReactFlow } from 'reactflow'
 
 import { GraphJSON } from '@etherealengine/engine/src/behave-graph/nodess'
 
-import { Modal } from './Modal.js'
+import { Modal } from './Modal'
 
 export type Examples = {
   [key: string]: GraphJSON

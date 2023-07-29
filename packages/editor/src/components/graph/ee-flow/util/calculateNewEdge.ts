@@ -28,7 +28,7 @@ import { v4 as uuidv4 } from 'uuid'
 
 import { NodeSpecJSON } from '@etherealengine/engine/src/behave-graph/nodesss'
 
-import { getSocketsByNodeTypeAndHandleType } from './getSocketsByNodeTypeAndHandleType.js'
+import { getSocketsByNodeTypeAndHandleType } from './getSocketsByNodeTypeAndHandleType'
 
 export const calculateNewEdge = (
   originNode: Node,

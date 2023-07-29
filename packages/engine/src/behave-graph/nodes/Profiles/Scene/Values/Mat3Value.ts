@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { ValueType } from '../../../'
 
-import { Mat3, mat3Equals, Mat3JSON, mat3Mix, mat3Parse } from './Internal/Mat3.js'
+import { Mat3, mat3Equals, Mat3JSON, mat3Mix, mat3Parse } from './Internal/Mat3'
 
 export const Mat3Value: ValueType = {
   name: 'mat3',
