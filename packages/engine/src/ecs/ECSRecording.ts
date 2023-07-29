@@ -32,7 +32,7 @@ import { NetworkTopics } from '../networking/classes/Network'
 import { RecordingID } from '@etherealengine/common/src/interfaces/RecordingID'
 import { Engine } from './classes/Engine'
 
-export const startRecording = (args: { recordingID: string }) => {
+export const startRecording = (args: { recordingID: RecordingID }) => {
   const { recordingID } = args
   const action = ECSRecordingActions.startRecording({
     recordingID
@@ -51,7 +51,7 @@ export const startRecording = (args: { recordingID: string }) => {
   })
 }
 
-export const stopRecording = (args: { recordingID: string }) => {
+export const stopRecording = (args: { recordingID: RecordingID }) => {
   const recording = ECSRecordingActions.stopRecording({
     recordingID: args.recordingID
   })
@@ -68,7 +68,7 @@ export const stopRecording = (args: { recordingID: string }) => {
   })
 }
 
-export const startPlayback = (args: { recordingID: string; targetUser?: UserId }) => {
+export const startPlayback = (args: { recordingID: RecordingID; targetUser?: UserId }) => {
   const { recordingID, targetUser } = args
   const action = ECSRecordingActions.startPlayback({
     recordingID,
@@ -88,7 +88,7 @@ export const startPlayback = (args: { recordingID: string; targetUser?: UserId }
   })
 }
 
-export const stopPlayback = (args: { recordingID: string }) => {
+export const stopPlayback = (args: { recordingID: RecordingID }) => {
   const { recordingID } = args
   const action = ECSRecordingActions.stopPlayback({
     recordingID
@@ -117,7 +117,7 @@ export const ECSRecordingFunctions = {
 export class ECSRecordingActions {
   static startRecording = defineAction({
     type: 'ee.core.motioncapture.START_RECORDING' as const,
-    recordingID: matches.string
+    recordingID: matches.string as Validator<unknown, RecordingID>
   })
 
   static recordingStarted = defineAction({
@@ -127,12 +127,12 @@ export class ECSRecordingActions {
 
   static stopRecording = defineAction({
     type: 'ee.core.motioncapture.STOP_RECORDING' as const,
-    recordingID: matches.string
+    recordingID: matches.string as Validator<unknown, RecordingID>
   })
 
   static startPlayback = defineAction({
     type: 'ee.core.motioncapture.PLAY_RECORDING' as const,
-    recordingID: matches.string,
+    recordingID: matches.string as Validator<unknown, RecordingID>,
     targetUser: matchesUserId.optional()
   })
 
@@ -144,7 +144,7 @@ export class ECSRecordingActions {
 
   static stopPlayback = defineAction({
     type: 'ee.core.motioncapture.STOP_PLAYBACK' as const,
-    recordingID: matches.string
+    recordingID: matches.string as Validator<unknown, RecordingID>
   })
 
   static error = defineAction({

@@ -449,7 +449,7 @@ export const onStopPlayback = async (action: ReturnType<typeof ECSRecordingActio
   playbackStopped(user.id, recording.id)
 }
 
-const playbackStopped = (userId: UserId, recordingID: string) => {
+const playbackStopped = (userId: UserId, recordingID: RecordingID) => {
   const app = Engine.instance.api as Application
 
   const activePlayback = activePlaybacks.get(recordingID)!
