@@ -52,7 +52,8 @@ export const SplineNodeEditor: EditorComponentType = (props) => {
 
   const onAddNode = () => {
     const obj3d = getComponent(props.entity, GroupComponent)[0]
-    const newSplineObject = obj3d.userData.helper.addPoint()
+    //const newSplineObject = obj3d.userData.helper.addPoint()
+    const newSplineObject = spline.addPoint()
     obj3d.add(newSplineObject)
   }
 

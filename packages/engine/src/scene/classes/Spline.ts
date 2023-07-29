@@ -23,7 +23,18 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { MeshLambertMaterial, BoxGeometry, BufferAttribute, BufferGeometry, CatmullRomCurve3, Line, LineBasicMaterial, Object3D, Vector3 } from 'three'
+import {
+  BoxGeometry,
+  BufferAttribute,
+  BufferGeometry,
+  CatmullRomCurve3,
+  Line,
+  LineBasicMaterial,
+  Mesh,
+  MeshLambertMaterial,
+  Object3D,
+  Vector3
+} from 'three'
 
 import { removeElementFromArray } from '@etherealengine/common/src/utils/removeElementFromArray'
 
@@ -114,6 +125,7 @@ export default class Spline extends Object3D {
     this._positions.push(newSplineObject.position)
 
     this.updateSplineOutline()
+    return newSplineObject // anselm
   }
 
   removeLastPoint() {
