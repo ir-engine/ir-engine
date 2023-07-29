@@ -257,8 +257,12 @@ const execute = () => {
       console.warn('Could not find entity for networkId', action.$from, action.networkId)
       continue
     }
-    setComponent(entity, NameComponent, action.$from + '_' + action.handedness)
-    setComponent(entity, AvatarIKTargetComponent, { handedness: action.handedness })
+    //hips for now, head calc to come
+    if (action.name === 'RightHand' || action.name === 'LeftHand' || action.name === 'Hips') {
+      setComponent(entity, NameComponent, action.$from + '_' + action.handedness)
+      setComponent(entity, AvatarIKTargetComponent, { handedness: action.handedness })
+    }
+
     const helper = new AxesHelper(0.5)
     setObjectLayers(helper, ObjectLayers.Gizmos)
     addObjectToGroup(entity, helper)
@@ -287,11 +291,12 @@ const execute = () => {
     if (!leftHand && ikTargetLeftHand) removeEntity(ikTargetLeftHand)
     if (!rightHand && ikTargetRightHand) removeEntity(ikTargetRightHand)
 
-    if (head && !ikTargetHead) dispatchAction(XRAction.spawnIKTarget({ handedness: 'none', entityUUID: headUUID }))
+    if (head && !ikTargetHead)
+      dispatchAction(XRAction.spawnIKTarget({ handedness: 'none', entityUUID: headUUID, name: 'Hips' }))
     if (leftHand && !ikTargetLeftHand)
-      dispatchAction(XRAction.spawnIKTarget({ handedness: 'left', entityUUID: leftHandUUID }))
+      dispatchAction(XRAction.spawnIKTarget({ handedness: 'left', entityUUID: leftHandUUID, name: 'LeftHand' }))
     if (rightHand && !ikTargetRightHand)
-      dispatchAction(XRAction.spawnIKTarget({ handedness: 'right', entityUUID: rightHandUUID }))
+      dispatchAction(XRAction.spawnIKTarget({ handedness: 'right', entityUUID: rightHandUUID, name: 'RightHand' }))
   }
 
   /**
@@ -393,10 +398,6 @@ const execute = () => {
         .add(rigComponent.ikOffsetsMap.get(key) ?? _empty)
         .applyMatrix4(transform.matrix)
 
-      if (debugEnable) {
-        const visualizerTransform = getComponent(visualizers[i], TransformComponent)
-        visualizerTransform.position.copy(worldSpaceTargets[key].position)
-      }
       i++
     }
 
@@ -425,9 +426,8 @@ const execute = () => {
           worldSpaceTargets.rightHandTarget.rotation.copy(ikTransform.rotation)
           break
         case 'none':
-          worldSpaceTargets.hipsTarget.position.copy(
-            _vector3.copy(ikTransform.position).setY(ikTransform.position.y - rigComponent.torsoLength - 0.125)
-          )
+          worldSpaceTargets.hipsTarget.position.copy(_vector3.copy(ikTransform.position))
+          console.log(ikTransform.position.x)
           //offset target forward to account for hips being behind the head
           hipsForward.applyQuaternion(rigidbodyComponent!.rotation)
           hipsForward.multiplyScalar(0.125)
@@ -442,6 +442,17 @@ const execute = () => {
             )
           )
           break
+      }
+    }
+
+    if (debugEnable) {
+      let i = 0
+      for (const [key, value] of Object.entries(rigComponent.ikTargetsMap)) {
+        //if xr is active, set select targets to xr tracking data
+        const visualizerTransform = getComponent(visualizers[i], TransformComponent)
+        visualizerTransform.position.copy(worldSpaceTargets[key].position)
+
+        i++
       }
     }
 

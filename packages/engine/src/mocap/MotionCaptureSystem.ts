@@ -146,11 +146,10 @@ const execute = () => {
 
       if (!avatarRig) continue
 
-      const avatarHips = avatarRig?.rig?.hips?.node
+      const avatarHips = avatarRig?.bindRig?.hips?.node
 
-      const hipsPos = new Vector3()
-      avatarHips?.getWorldPosition(hipsPos)
-
+      const hipsPos = avatarHips.position
+      console.log(data.handsWorld)
       // Pose
       if (data?.posesSolved) {
         data?.posesSolved.forEach((pose) => {
