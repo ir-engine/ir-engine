@@ -48,9 +48,9 @@ export const CaptureClientSettingsState = defineState({
       },
       {
         name: 'Debug',
+        tabOrder: 2,
         show3dLandmarks: true,
-        throttleSend: true,
-        tabOrder: 2
+        throttleSend: true
       }
     ]
   })

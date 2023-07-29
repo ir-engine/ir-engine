@@ -320,11 +320,11 @@ const CaptureDashboard = () => {
         }
 
         if (trackingSettings?.solveHands === true) {
-          const solves = handResults?.landmarks.map((landmarks, idx) => {
+          const solves = handResults?.worldLandmarks.map((worldLandmarks, idx) => {
             const side = handResults?.handednesses[idx][0]?.categoryName
             return {
               handedness: side,
-              handSolve: Hand?.solve(landmarks, side.toLowerCase())
+              handSolve: Hand?.solve(worldLandmarks, side.toLowerCase())
             }
           })
           return { handsSolved: solves }
@@ -347,8 +347,9 @@ const CaptureDashboard = () => {
         let finalPose = {}
         if (trackingSettings?.solvePose === true) {
           finalPose = {
-            posesSolved: poseResults?.landmarks.map((landmarks, idx) => {
-              const solve = Pose.solve(landmarks, poseResults?.worldLandmarks[idx], {
+            // hipsSolved: Pose.calcHips(poseResults?.worldLandmarks, poseResults?.landmarks),
+            posesSolved: poseResults?.worldLandmarks.map((worldLandmarks, idx) => {
+              const solve = Pose.solve(worldLandmarks, poseResults?.landmarks[idx], {
                 runtime: 'mediapipe', // `mediapipe` or `tfjs`
                 video: videoRef.current!,
                 imageSize: { height: videoRef.current!.clientHeight, width: videoRef.current!.clientWidth },

@@ -28,7 +28,7 @@ import { useEffect } from 'react'
 import { Mesh, MeshBasicMaterial, SphereGeometry, Vector3 } from 'three'
 
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
-import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
+import { getState } from '@etherealengine/hyperflux'
 
 import { AvatarRigComponent } from '../avatar/components/AvatarAnimationComponent'
 import { RingBuffer } from '../common/classes/RingBuffer'
@@ -46,7 +46,6 @@ import { TransformComponent } from '../transform/components/TransformComponent'
 import { Classifications, Landmark, NormalizedLandmark } from '@mediapipe/tasks-vision'
 import { TFace, THand, TPose } from 'kalidokit/dist/kalidokit.umd.js'
 
-import { CaptureClientSettingsState } from '@etherealengine/client-core/src/media/CaptureClientSettingsState'
 import UpdateRawFace from './UpdateRawFace'
 import UpdateRawHands from './UpdateRawHands'
 import UpdateRawPose from './UpdateRawPose'
@@ -71,7 +70,7 @@ export interface MotionCaptureStream {
 }
 
 const debugObjs: any[] = []
-
+const debug = true
 export const sendResults = (results: MotionCaptureStream) => {
   return encode({
     timestamp: Date.now(),
@@ -187,10 +186,8 @@ const execute = () => {
           UpdateRawFace(face, hipsPos.clone(), avatarRig, avatarTransform)
         })
       }
-      const captureState = useHookstate(getMutableState(CaptureClientSettingsState))
-      const debugSettings = captureState?.nested('settings')?.value?.filter((s) => s?.name.toLowerCase() === 'debug')[0]
 
-      if (debugSettings?.show3dLandmarks) {
+      if (debug) {
         const d = data?.posesWorld || data?.handsWorld || []
         d.forEach((landmarks) => {
           landmarks.forEach((landmark) => {
