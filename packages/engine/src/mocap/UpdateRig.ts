@@ -33,7 +33,7 @@ import { UUIDComponent } from '../scene/components/UUIDComponent'
 import { TransformComponent } from '../transform/components/TransformComponent'
 import { XRAction } from '../xr/XRState'
 
-const useIk = false
+const useIk = true
 const updateRigPosition = (name, position, dampener, lerpAmount, rig) => {
   const vector = new Vector3(
     (position?.x || 0) * dampener,
