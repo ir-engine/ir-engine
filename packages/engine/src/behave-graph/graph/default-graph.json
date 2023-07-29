@@ -39,7 +39,7 @@
       },
       "parameters": {
         "text": {
-          "value": "hello"
+          "value": "DEBUG hello"
         }
       }
     }

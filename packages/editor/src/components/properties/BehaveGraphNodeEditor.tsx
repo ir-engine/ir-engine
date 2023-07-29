@@ -31,6 +31,7 @@ import { useComponent } from '@etherealengine/engine/src/ecs/functions/Component
 
 import IntegrationInstructionsIcon from '@mui/icons-material/IntegrationInstructions'
 
+import BooleanInput from '../inputs/BooleanInput'
 import InputGroup from '../inputs/InputGroup'
 import NodeEditor from './NodeEditor'
 import { EditorComponentType, updateProperty } from './Util'
@@ -49,7 +50,15 @@ export const BehaveGraphNodeEditor: EditorComponentType = (props) => {
 
   return (
     <NodeEditor {...props} name={'Behave Graph Component'} description={' adds a visual script to the entity'}>
-      <InputGroup name="test" label={'just a test label'}></InputGroup>
+      <InputGroup name="Disable Graph" label="Disable Graph">
+        <BooleanInput
+          value={behaveGraphComponent.disabled.value}
+          onChange={updateProperty(BehaveGraphComponent, 'disabled')}
+        />
+      </InputGroup>
+      <InputGroup name="Play Graph" label="Play Graph">
+        <BooleanInput value={behaveGraphComponent.run.value} onChange={updateProperty(BehaveGraphComponent, 'run')} />
+      </InputGroup>
     </NodeEditor>
   )
 }

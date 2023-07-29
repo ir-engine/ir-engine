@@ -26,10 +26,10 @@ Ethereal Engine. All Rights Reserved.
 import matches, { Validator } from 'ts-matches'
 
 import { OpaqueType } from '@etherealengine/common/src/interfaces/OpaqueType'
-import { GraphJSON } from '@etherealengine/engine/src/behave-graph/nodes'
+import { GraphJSON, IRegistry } from '@etherealengine/engine/src/behave-graph/nodes'
 
 import { getState } from '@etherealengine/hyperflux'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { defineComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
 import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { useGraphRunner } from '../functions/useGraphRunner'
@@ -54,43 +54,53 @@ export const BehaveGraphComponent = defineComponent({
     return {
       domain: domain,
       graph: graph,
-      run: false
+      run: false,
+      disabled: false
     }
   },
 
   toJSON: (entity, component) => {
     return {
-      domain: component.domain.value,
-      graph: component.graph.value,
-      run: component.run.value
+      domain: component.domain,
+      graph: component.graph,
+      run: false, // we always want it to be false when saving, so scripts dont startup in the editor, we make true for runtime
+      disabled: component.disabled
     }
   },
 
   onSet: (entity, component, json) => {
     if (!json) return
-    if (typeof json.run === 'boolean' && json.run !== component.run.value) component.run.set(json.run)
+    if (typeof json.disabled === 'boolean' && json.disabled !== component.disabled)
+      component.disabled.set(json.disabled)
+    if (typeof json.run === 'boolean' && json.run !== component.run) component.run.set(json.run)
+
     const domainValidator = matches.string as Validator<unknown, GraphDomainID>
     if (domainValidator.test(json.domain)) {
-      component.domain.value !== json.domain && component.domain.set(json.domain!)
+      component.domain !== json.domain && component.domain.set(json.domain!)
     }
     const graphValidator = matches.object as Validator<unknown, GraphJSON>
     if (graphValidator.test(json.graph)) {
-      component.graph.value !== json.graph && component.graph.set(json.graph!)
+      component.graph !== json.graph && component.graph.set(json.graph!)
     }
   },
+
   // we make reactor for each component handle the engine
   reactor: () => {
     const entity = useEntityContext()
     const graphComponent = useComponent(entity, BehaveGraphComponent)
-    const graphJson = graphComponent.value.graph
-    const registry = getState(BehaveGraphSystemState).registry
-    const autoRun = graphComponent.run.value
-    const graphRunner = useGraphRunner({ graphJson, autoRun, registry })
-
+    const [graphJson, setGraphJson] = useState<GraphJSON>(graphComponent.graph.value)
+    const [registry, setRegistry] = useState<IRegistry>(getState(BehaveGraphSystemState).registry)
+    const canPlay = graphComponent.run && !graphComponent.disabled
     useEffect(() => {
-      graphComponent.run.value ? graphRunner.play() : graphRunner.pause()
-    }, [graphComponent.run])
+      if (graphComponent.disabled.value) {
+        graphRunner.pause()
+        if (graphComponent.run.value) graphComponent.run.set(false)
+      } else {
+        graphComponent.run.value ? graphRunner.play() : graphRunner.pause()
+      }
+    }, [graphComponent.run, graphComponent.disabled])
 
+    const graphRunner = useGraphRunner({ graphJson, autoRun: canPlay, registry })
     return null
   }
 })

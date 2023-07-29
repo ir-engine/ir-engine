@@ -39,7 +39,6 @@ export const useGraphRunner = ({
   registry: IRegistry
 }) => {
   const [engine, setEngine] = useState<Engine>()
-
   const [run, setRun] = useState(autoRun)
 
   const play = useCallback(() => {
@@ -56,7 +55,6 @@ export const useGraphRunner = ({
 
   useEffect(() => {
     if (!graphJson || !registry.values || !run || !registry.dependencies) return
-
     let graphNodes: GraphNodes
     try {
       graphNodes = readGraphFromJSON({
