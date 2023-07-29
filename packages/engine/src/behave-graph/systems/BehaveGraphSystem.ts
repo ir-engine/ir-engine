@@ -28,35 +28,26 @@ import { Validator, matches } from 'ts-matches'
 import { defineAction, defineActionQueue, defineState } from '@etherealengine/hyperflux'
 
 import { Entity } from '../../ecs/classes/Entity'
-import {
-  defineQuery,
-  getComponent,
-  hasComponent,
-  removeComponent,
-  setComponent
-} from '../../ecs/functions/ComponentFunctions'
+import { defineQuery, hasComponent, removeComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { BehaveGraphComponent, GraphDomainID } from '../components/BehaveGraphComponent'
 import { RuntimeGraphComponent } from '../components/RuntimeGraphComponent'
-import { DefaultLogger, DummyScene, IRegistry, ManualLifecycleEventEmitter } from '../nodes'
+import { IRegistry } from '../nodes'
 
 export type BehaveGraphDomainType = {
-  register: (
-    registry?: IRegistry,
-    logger?: DefaultLogger,
-    ticker?: ManualLifecycleEventEmitter,
-    scene?: DummyScene
-  ) => void
+  register: (registry?: IRegistry) => void
 }
 
 export type BehaveGraphSystemStateType = {
   domains: Record<GraphDomainID, BehaveGraphDomainType>
+  registry: IRegistry
 }
 
 export const BehaveGraphSystemState = defineState({
   name: 'BehaveGraphSystemState',
   initial: {
-    domains: {}
+    domains: {},
+    registry: {}
   } as BehaveGraphSystemStateType
 })
 
@@ -76,30 +67,18 @@ const runtimeQuery = defineQuery([RuntimeGraphComponent])
 
 const executeQueue = defineActionQueue(BehaveGraphActions.execute.matches)
 const stopQueue = defineActionQueue(BehaveGraphActions.stop.matches)
-function execute() {
-  for (const entity of runtimeQuery.enter()) {
-    const runtimeComponent = getComponent(entity, RuntimeGraphComponent)
-    runtimeComponent.ticker.startEvent.emit()
-    runtimeComponent.engine.executeAllSync()
-  }
-
-  for (const entity of runtimeQuery()) {
-    const runtimeComponent = getComponent(entity, RuntimeGraphComponent)
-    runtimeComponent.ticker.tickEvent.emit()
-    runtimeComponent.engine.executeAllSync()
-  }
-
+const execute = () => {
   for (const action of executeQueue()) {
     const entity = action.entity
-    if (hasComponent(entity, RuntimeGraphComponent)) {
-      removeComponent(entity, RuntimeGraphComponent)
+    if (hasComponent(entity, BehaveGraphComponent)) {
+      removeComponent(entity, BehaveGraphComponent)
     }
-    setComponent(entity, RuntimeGraphComponent)
+    setComponent(entity, BehaveGraphComponent, { run: true })
   }
 
   for (const action of stopQueue()) {
     const entity = action.entity
-    removeComponent(entity, RuntimeGraphComponent)
+    removeComponent(entity, BehaveGraphComponent)
   }
 }
 

@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { CustomEvent } from '../Events/CustomEvent'
-import { Logger } from '../index'
+import { Logger, NodeDefinition } from '../index'
 import { Metadata } from '../Metadata'
 import { NodeConfiguration } from '../Nodes/Node'
 import { Dependencies } from '../Nodes/NodeDefinitions'
@@ -67,15 +67,11 @@ export const createNode = ({
   nodeTypeName: string
   nodeConfiguration?: NodeConfiguration
 }) => {
-  let nodeDefinition = undefined
-  if (registry.nodes[nodeTypeName]) {
-    nodeDefinition = registry.nodes[nodeTypeName]
-  }
-  if (nodeDefinition === undefined) {
+  if (!(nodeTypeName in registry.nodes)) {
     Logger.verbose('known nodes: ' + Object.keys(registry.nodes).join(', '))
     throw new Error(`no registered node descriptions with the typeName ${nodeTypeName}`)
   }
-
+  const nodeDefinition: NodeDefinition = registry.nodes[nodeTypeName]
   const node = nodeDefinition.nodeFactory(graph, nodeConfiguration)
 
   node.inputs.forEach((socket: Socket) => {

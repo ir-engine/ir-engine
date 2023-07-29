@@ -23,15 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import {
-  Engine,
-  GraphJSON,
-  GraphNodes,
-  ILifecycleEventEmitter,
-  IRegistry,
-  readGraphFromJSON
-} from '@etherealengine/engine/src/behave-graph/nodes'
 import { useCallback, useEffect, useState } from 'react'
+import { Engine, GraphJSON, GraphNodes, ILifecycleEventEmitter, IRegistry, readGraphFromJSON } from '../nodes'
 
 /** Runs the behavior graph by building the execution
  * engine and triggering start on the lifecycle event emitter.
@@ -82,7 +75,7 @@ export const useGraphRunner = ({
       engine.dispose()
       setEngine(undefined)
     }
-  }, [graphJson, registry.values, registry.nodes, run, registry.dependencies])
+  }, [graphJson, registry.values, run, registry.nodes, registry.dependencies])
 
   useEffect(() => {
     if (!engine || !run) return
@@ -111,7 +104,7 @@ export const useGraphRunner = ({
         console.log('has no listener count')
       }
       onTick()
-    })()
+    })() // start up
 
     return () => {
       window.clearTimeout(timeout)

@@ -73,6 +73,8 @@ const PlayModeTool = () => {
           avatarID: avatarDetails.id,
           name: authState.user.name.value
         })
+
+      // run all behave graph logic
       dispatchAction(EditorHelperAction.changedPlayMode({ isPlayModeEnabled: true }))
     }
   }

@@ -26,30 +26,25 @@ Ethereal Engine. All Rights Reserved.
 import {
   DefaultLogger,
   DummyScene,
-  IRegistry,
   ManualLifecycleEventEmitter,
   registerCoreProfile,
   registerEngineProfile,
   registerSceneProfile
 } from '@etherealengine/engine/src/behave-graph/nodes'
-import { useMemo } from 'react'
 
 export const useRegistry = () => {
-  return useMemo<IRegistry>(
-    () =>
-      registerEngineProfile(
-        registerSceneProfile(
-          registerCoreProfile({
-            values: {},
-            nodes: {},
-            dependencies: {
-              ILogger: new DefaultLogger(),
-              ILifecycleEventEmitter: new ManualLifecycleEventEmitter(),
-              IScene: new DummyScene()
-            }
-          })
-        )
-      ),
-    []
+  const registry = registerEngineProfile(
+    registerSceneProfile(
+      registerCoreProfile({
+        values: {},
+        nodes: {},
+        dependencies: {
+          ILogger: new DefaultLogger(),
+          ILifecycleEventEmitter: new ManualLifecycleEventEmitter(),
+          IScene: new DummyScene()
+        }
+      })
+    )
   )
+  return registry
 }

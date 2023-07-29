@@ -28,9 +28,14 @@ import matches, { Validator } from 'ts-matches'
 import { OpaqueType } from '@etherealengine/common/src/interfaces/OpaqueType'
 import { GraphJSON } from '@etherealengine/engine/src/behave-graph/nodes'
 
-import { defineComponent, hasComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
+import { getState } from '@etherealengine/hyperflux'
+import { useEffect } from 'react'
+import { defineComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
+import { useEntityContext } from '../../ecs/functions/EntityFunctions'
+import { useGraphRunner } from '../functions/useGraphRunner'
+import { useRegistry } from '../functions/useRegistry'
 import DefaultGraph from '../graph/default-graph.json'
-import { RuntimeGraphComponent } from './RuntimeGraphComponent'
+import { BehaveGraphSystemState } from '../systems/BehaveGraphSystem'
 
 export type GraphDomainID = OpaqueType<'GraphDomainID'> & string
 
@@ -40,34 +45,52 @@ export const BehaveGraphComponent = defineComponent({
   jsonID: 'BehaveGraph',
 
   onInit: (entity) => {
+    const domain = 'ECS' as GraphDomainID
+    const graph = DefaultGraph as unknown as GraphJSON
+    const registry = useRegistry()
+    const systemState = getState(BehaveGraphSystemState)
+    systemState.domains[domain]?.register(registry)
+    systemState.registry = registry
     return {
-      domain: 'ECS' as GraphDomainID,
-      graph: DefaultGraph as unknown as GraphJSON
+      domain: domain,
+      graph: graph,
+      run: false
     }
   },
 
   toJSON: (entity, component) => {
     return {
       domain: component.domain.value,
-      graph: component.graph.value
+      graph: component.graph.value,
+      run: component.run.value
     }
   },
 
   onSet: (entity, component, json) => {
     if (!json) return
+    if (typeof json.run === 'boolean' && json.run !== component.run.value) component.run.set(json.run)
     const domainValidator = matches.string as Validator<unknown, GraphDomainID>
     if (domainValidator.test(json.domain)) {
-      component.domain.value !== json.domain && component.domain.set(json.domain)
+      component.domain.value !== json.domain && component.domain.set(json.domain!)
     }
     const graphValidator = matches.object as Validator<unknown, GraphJSON>
     if (graphValidator.test(json.graph)) {
-      component.graph.value !== json.graph && component.graph.set(json.graph)
+      component.graph.value !== json.graph && component.graph.set(json.graph!)
     }
   },
+  // we make reactor for each component handle the engine
+  reactor: () => {
+    const entity = useEntityContext()
+    const graphComponent = useComponent(entity, BehaveGraphComponent)
+    const graphJson = graphComponent.value.graph
+    const registry = getState(BehaveGraphSystemState).registry
+    const autoRun = graphComponent.run.value
+    const graphRunner = useGraphRunner({ graphJson, autoRun, registry })
 
-  onRemove: (entity, component) => {
-    if (hasComponent(entity, RuntimeGraphComponent)) {
-      removeComponent(entity, RuntimeGraphComponent)
-    }
+    useEffect(() => {
+      graphComponent.run.value ? graphRunner.play() : graphRunner.pause()
+    }, [graphComponent.run])
+
+    return null
   }
 })
