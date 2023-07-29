@@ -208,7 +208,7 @@ export default function GLTFTransformProperties({
           label={t('editor:properties.model.transform.maxTextureSize')}
           value={transformParms.maxTextureSize.value}
           onChange={onChangeTransformParm(transformParms.maxTextureSize)}
-          max={4096}
+          max={16384}
           min={64}
         />
         <InputGroup name="Flip Y" label={t('editor:properties.model.transform.flipY')}>

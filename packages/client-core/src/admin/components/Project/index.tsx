@@ -125,6 +125,15 @@ const Projects = () => {
             onClick={() => buildStatusDrawerOpen.set(true)}
           >
             {t('admin:components.project.buildStatus')}
+            <div
+              className={`${styles.containerCircle} ${
+                projectState.succeeded.value === true
+                  ? styles.containerGreen
+                  : projectState.failed.value === true
+                  ? styles.containerRed
+                  : styles.containerYellow
+              }`}
+            />
           </Button>
         </Grid>
       </Grid>
