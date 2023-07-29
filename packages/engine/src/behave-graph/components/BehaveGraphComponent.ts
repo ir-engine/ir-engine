@@ -61,26 +61,27 @@ export const BehaveGraphComponent = defineComponent({
 
   toJSON: (entity, component) => {
     return {
-      domain: component.domain,
-      graph: component.graph,
+      domain: component.domain.value,
+      graph: component.graph.value,
       run: false, // we always want it to be false when saving, so scripts dont startup in the editor, we make true for runtime
-      disabled: component.disabled
+      disabled: component.disabled.value
     }
   },
 
   onSet: (entity, component, json) => {
     if (!json) return
-    if (typeof json.disabled === 'boolean' && json.disabled !== component.disabled)
-      component.disabled.set(json.disabled)
-    if (typeof json.run === 'boolean' && json.run !== component.run) component.run.set(json.run)
+    console.log('DEBUG in graph on set ')
+
+    if (typeof json.disabled === 'boolean') component.disabled.set(json.disabled)
+    if (typeof json.run === 'boolean') component.run.set(json.run)
 
     const domainValidator = matches.string as Validator<unknown, GraphDomainID>
     if (domainValidator.test(json.domain)) {
-      component.domain !== json.domain && component.domain.set(json.domain!)
+      component.domain.value !== json.domain && component.domain.set(json.domain!)
     }
     const graphValidator = matches.object as Validator<unknown, GraphJSON>
     if (graphValidator.test(json.graph)) {
-      component.graph !== json.graph && component.graph.set(json.graph!)
+      component.graph.value !== json.graph && component.graph.set(json.graph!)
     }
   },
 
@@ -99,7 +100,7 @@ export const BehaveGraphComponent = defineComponent({
         graphComponent.run.value ? graphRunner.play() : graphRunner.pause()
       }
     }, [graphComponent.run, graphComponent.disabled])
-
+    console.log('DEBUG in graph reactor')
     const graphRunner = useGraphRunner({ graphJson, autoRun: canPlay, registry })
     return null
   }

@@ -31,7 +31,6 @@ import { Entity } from '../../ecs/classes/Entity'
 import { defineQuery, hasComponent, removeComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { BehaveGraphComponent, GraphDomainID } from '../components/BehaveGraphComponent'
-import { RuntimeGraphComponent } from '../components/RuntimeGraphComponent'
 import { IRegistry } from '../nodes'
 
 export type BehaveGraphDomainType = {
@@ -63,7 +62,6 @@ export const BehaveGraphActions = {
 }
 
 const graphQuery = defineQuery([BehaveGraphComponent])
-const runtimeQuery = defineQuery([RuntimeGraphComponent])
 
 const executeQueue = defineActionQueue(BehaveGraphActions.execute.matches)
 const stopQueue = defineActionQueue(BehaveGraphActions.stop.matches)
