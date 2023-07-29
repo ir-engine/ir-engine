@@ -241,6 +241,27 @@ export const RecordingPeerList = () => {
   )
 }
 
+export const RecordingTimer = () => {
+  const recordingState = useHookstate(getMutableState(RecordingState))
+  const currentTime = useHookstate(0)
+  const seconds = Math.round((currentTime.value - recordingState.startedAt.value!) / 1000)
+  const minutes = Math.floor(seconds / 60)
+  const secondsString = seconds < 10 ? `0${seconds}` : `${seconds}`
+  const minutesString = minutes < 10 ? `0${minutes}` : `${minutes}`
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      currentTime.set(Date.now())
+    }, 100)
+
+    return () => {
+      clearInterval(interval)
+    }
+  }, [])
+
+  return <div xr-layer>{`${minutesString}:${secondsString}`}</div>
+}
+
 const RecordingPlayback = () => {
   const recordingState = useHookstate(getMutableState(RecordingState))
   const recording = useGet('recording', recordingState.playback.value!)
@@ -260,20 +281,23 @@ const RecordingPlayback = () => {
   }, [recordingState.playback])
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'row' }}>
-      {recording.data?.resources &&
-        recording.data.resources.map((resource) => {
-          if (!resource.key.endsWith('.webm') && !resource.key.endsWith('.mp4')) return null
-          return (
-            <video
-              key={resource.id}
-              style={{ maxWidth: '100px', width: '100px', height: 'auto' }}
-              src={resource.url}
-              autoPlay={true}
-              crossOrigin="anonymous"
-            />
-          )
-        })}
+    <div style={{ display: 'flex', flexDirection: 'column' }}>
+      <RecordingTimer />
+      <div style={{ display: 'flex', flexDirection: 'row' }}>
+        {recording.data?.resources &&
+          recording.data.resources.map((resource) => {
+            if (!resource.key.endsWith('.webm') && !resource.key.endsWith('.mp4')) return null
+            return (
+              <video
+                key={resource.id}
+                style={{ maxWidth: '100px', width: '100px', height: 'auto' }}
+                src={resource.url}
+                autoPlay={true}
+                crossOrigin="anonymous"
+              />
+            )
+          })}
+      </div>
     </div>
   )
 }

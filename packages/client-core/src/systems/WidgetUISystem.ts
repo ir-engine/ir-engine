@@ -107,34 +107,28 @@ const WidgetUISystemState = defineState({
   }
 })
 
-// lazily create XRUI widgets to speed up initial page loading time
-let createdWidgets = false
-const showWidgetMenu = (show: boolean) => {
-  // temporarily only allow widgets on non hmd for local dev
-  if (!createdWidgets && (isMobileXRHeadset || isDev)) {
-    createdWidgets = true
-    createAnchorWidget()
-    createRecordingsWidget()
-    // createMediaWidget()
-    // createHeightAdjustmentWidget()
-    // createProfileWidget()
-    // createSettingsWidget()
-    // createSocialsMenuWidget()
-    // createLocationMenuWidget()
-    // createAdminControlsMenuWidget()
-    // createMediaSessionMenuWidget()
-    // createEmoteWidget()
-    // createChatWidget()
-    // createShareLocationWidget()
-    // createSelectAvatarWidget()
-    // createUploadAvatarWidget()
+const createWidgetMenus = () => {
+  createAnchorWidget()
+  createRecordingsWidget()
+  // createMediaWidget()
+  // createHeightAdjustmentWidget()
+  // createProfileWidget()
+  // createSettingsWidget()
+  // createSocialsMenuWidget()
+  // createLocationMenuWidget()
+  // createAdminControlsMenuWidget()
+  // createMediaSessionMenuWidget()
+  // createEmoteWidget()
+  // createChatWidget()
+  // createShareLocationWidget()
+  // createSelectAvatarWidget()
+  // createUploadAvatarWidget()
 
-    // TODO: Something in createReadyPlayerWidget is loading /location/undefined
-    // This is causing the engine to be created again, or at least to start being
-    // created again, which is not right. This will need to be fixed when this is
-    // restored.
-    // createReadyPlayerWidget()
-  }
+  // TODO: Something in createReadyPlayerWidget is loading /location/undefined
+  // This is causing the engine to be created again, or at least to start being
+  // created again, which is not right. This will need to be fixed when this is
+  // restored.
+  // createReadyPlayerWidget()
 }
 
 const toggleWidgetsMenu = (handedness: 'left' | 'right' = getState(WidgetAppState).handedness) => {
@@ -224,7 +218,6 @@ const execute = () => {
   }
 
   const widgetMenuShown = widgetState.widgetsMenuOpen
-  showWidgetMenu(widgetMenuShown)
   setVisibleComponent(widgetMenuUI.entity, widgetMenuShown)
 
   for (const [id, widget] of RegisteredWidgets) {
@@ -238,6 +231,7 @@ const execute = () => {
 
 const reactor = () => {
   useEffect(() => {
+    createWidgetMenus()
     return () => {
       const { widgetMenuUI } = getState(WidgetUISystemState)
       removeEntity(widgetMenuUI.entity)

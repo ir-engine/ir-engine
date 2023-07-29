@@ -35,6 +35,7 @@ import {
 import { defineState, getMutableState, receiveActions } from '@etherealengine/hyperflux'
 
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
+import { RecordingID } from '@etherealengine/common/src/interfaces/RecordingID'
 import { PhysicsSerialization } from '@etherealengine/engine/src/physics/PhysicsSerialization'
 import { NotificationService } from '../common/services/NotificationService'
 
@@ -43,36 +44,41 @@ export const RecordingState = defineState({
 
   initial: {
     started: false,
-    recordingID: null as string | null,
+    recordingID: null as RecordingID | null,
     recordings: [] as RecordingResult[],
-    playback: null as string | null
+    playback: null as RecordingID | null,
+    startedAt: null as number | null
   },
 
   receptors: [
     [
       ECSRecordingActions.startRecording,
-      (state, action) => {
+      (state, action: typeof ECSRecordingActions.startRecording.matches._TYPE) => {
         state.started.set(true)
+        state.startedAt.set(null)
       }
     ],
     [
       ECSRecordingActions.recordingStarted,
-      (state, action) => {
+      (state, action: typeof ECSRecordingActions.recordingStarted.matches._TYPE) => {
         state.started.set(true)
         state.recordingID.set(action.recordingID)
+        state.startedAt.set(Date.now())
       }
     ],
     [
       ECSRecordingActions.stopRecording,
-      (state, action) => {
+      (state, action: typeof ECSRecordingActions.stopRecording.matches._TYPE) => {
         state.started.set(false)
         state.recordingID.set(null)
+        state.startedAt.set(null)
       }
     ],
     [
       ECSRecordingActions.playbackChanged,
-      (state, action) => {
+      (state, action: typeof ECSRecordingActions.playbackChanged.matches._TYPE) => {
         state.playback.set(action.playing ? action.recordingID : null)
+        state.startedAt.set(action.playing ? Date.now() : null)
       }
     ]
   ]

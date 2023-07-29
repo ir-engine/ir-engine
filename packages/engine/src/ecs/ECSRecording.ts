@@ -26,9 +26,10 @@ Ethereal Engine. All Rights Reserved.
 import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 import { defineAction, dispatchAction } from '@etherealengine/hyperflux'
 
-import { matches, matchesUserId } from '../common/functions/MatchesUtils'
+import { Validator, matches, matchesUserId } from '../common/functions/MatchesUtils'
 import { NetworkTopics } from '../networking/classes/Network'
 
+import { RecordingID } from '@etherealengine/common/src/interfaces/RecordingID'
 import { Engine } from './classes/Engine'
 
 export const startRecording = (args: { recordingID: string }) => {
@@ -121,7 +122,7 @@ export class ECSRecordingActions {
 
   static recordingStarted = defineAction({
     type: 'ee.core.motioncapture.RECORDING_STARTED' as const,
-    recordingID: matches.string
+    recordingID: matches.string as Validator<unknown, RecordingID>
   })
 
   static stopRecording = defineAction({
@@ -137,7 +138,7 @@ export class ECSRecordingActions {
 
   static playbackChanged = defineAction({
     type: 'ee.core.motioncapture.PLAYBACK_CHANGED' as const,
-    recordingID: matches.string,
+    recordingID: matches.string as Validator<unknown, RecordingID>,
     playing: matches.boolean
   })
 
