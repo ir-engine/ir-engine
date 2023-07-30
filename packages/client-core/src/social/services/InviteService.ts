@@ -38,6 +38,7 @@ import { Validator, matches } from '@etherealengine/engine/src/common/functions/
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { defineAction, defineState, dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
 
+import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { NotificationService } from '../../common/services/NotificationService'
 import { AuthState } from '../../user/services/AuthService'
 
@@ -158,7 +159,7 @@ export const InviteService = {
         return
       } else {
         try {
-          const userResult = (await Engine.instance.api.service('user').find({
+          const userResult = (await Engine.instance.api.service(userPath).find({
             query: {
               action: 'invite-code-lookup',
               inviteCode: data.inviteCode

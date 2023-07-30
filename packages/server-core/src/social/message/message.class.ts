@@ -32,6 +32,7 @@ import { Message as MessageInterface } from '@etherealengine/common/src/interfac
 import { UserInterface } from '@etherealengine/common/src/interfaces/User'
 import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 
+import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Application } from '../../../declarations'
 import { UserParams } from '../../api/root-params'
 
@@ -112,7 +113,7 @@ export class Message<T = MessageDataType> extends Service<T> {
             instanceId
           })) as Channel
         }
-        const instanceUsers = await this.app.service('user').find({
+        const instanceUsers = await this.app.service(userPath).find({
           query: {
             $limit: 1000
           },

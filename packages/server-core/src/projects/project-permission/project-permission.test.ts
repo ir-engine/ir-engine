@@ -33,6 +33,7 @@ import { UserInterface } from '@etherealengine/common/src/interfaces/User'
 import { destroyEngine } from '@etherealengine/engine/src/ecs/classes/Engine'
 
 import { UserApiKeyType, userApiKeyPath } from '@etherealengine/engine/src/schemas/user/user-api-key.schema'
+import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Application } from '../../../declarations'
 import { createFeathersKoaApp } from '../../createApp'
 import { deleteFolderRecursive } from '../../util/fsHelperFunctions'
@@ -68,19 +69,19 @@ describe('project-permission.test', () => {
     await app.setup()
     await cleanup(app)
 
-    user1 = (await app.service('user').create({
+    user1 = (await app.service(userPath).create({
       name: `Test #${Math.random()}`,
       isGuest: false
     })) as UserInterface
-    user2 = (await app.service('user').create({
+    user2 = (await app.service(userPath).create({
       name: `Test #${Math.random()}`,
       isGuest: false
     })) as UserInterface
-    user3 = (await app.service('user').create({
+    user3 = (await app.service(userPath).create({
       name: `Test #${Math.random()}`,
       isGuest: false
     })) as UserInterface
-    user4 = (await app.service('user').create({
+    user4 = (await app.service(userPath).create({
       name: `Test #${Math.random()}`,
       isGuest: false
     })) as UserInterface

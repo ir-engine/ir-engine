@@ -34,6 +34,7 @@ import { IdentityProviderInterface } from '@etherealengine/common/src/dbmodels/I
 import { UserInterface } from '@etherealengine/common/src/interfaces/User'
 import { avatarPath, AvatarType } from '@etherealengine/engine/src/schemas/user/avatar.schema'
 
+import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Application } from '../../../declarations'
 import { UserParams } from '../../api/root-params'
 import appConfig from '../../appconfig'
@@ -74,7 +75,7 @@ export class IdentityProvider<T = IdentityProviderInterface> extends Service<T> 
         {}
       )
       if (authResult[appConfig.authentication.entity]?.userId) {
-        user = await this.app.service('user').get(authResult[appConfig.authentication.entity]?.userId)
+        user = await this.app.service(userPath).get(authResult[appConfig.authentication.entity]?.userId)
       }
     }
     if (
@@ -160,7 +161,7 @@ export class IdentityProvider<T = IdentityProviderInterface> extends Service<T> 
     }
 
     const sequelizeClient: Sequelize = this.app.get('sequelizeClient')
-    const userService = this.app.service('user')
+    const userService = this.app.service(userPath)
     const User = sequelizeClient.model('user')
 
     // check if there is a user with userId
@@ -188,7 +189,7 @@ export class IdentityProvider<T = IdentityProviderInterface> extends Service<T> 
 
     const code = await getFreeInviteCode(this.app)
     // if there is no user with userId, then we create a user and a identity provider.
-    const adminCount = await this.app.service('user').Model.count({
+    const adminCount = await this.app.service(userPath).Model.count({
       include: [
         {
           model: this.app.service('scope').Model,
@@ -229,7 +230,7 @@ export class IdentityProvider<T = IdentityProviderInterface> extends Service<T> 
       )
     } catch (err) {
       console.error(err)
-      await this.app.service('user').remove(userId)
+      await this.app.service(userPath).remove(userId)
       throw err
     }
     // DRC

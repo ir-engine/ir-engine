@@ -39,6 +39,7 @@ import { defineState, getMutableState, getState, syncStateWithLocalStorage } fro
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { locationBanPath } from '@etherealengine/engine/src/schemas/social/location-ban.schema'
 import { UserApiKeyType, userApiKeyPath } from '@etherealengine/engine/src/schemas/user/user-api-key.schema'
+import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { API } from '../../API'
 import { NotificationService } from '../../common/services/NotificationService'
 import { LocationState } from '../../social/services/LocationService'
@@ -100,7 +101,7 @@ export const AuthService = {
   async doLoginAuto(forceClientAuthReset?: boolean) {
     const authState = getMutableState(AuthState)
     try {
-      let accessToken = !forceClientAuthReset && authState?.authUser?.accessToken?.value
+      const accessToken = !forceClientAuthReset && authState?.authUser?.accessToken?.value
 
       if (forceClientAuthReset) {
         await API.instance.client.authentication.reset()
@@ -151,16 +152,16 @@ export const AuthService = {
   async loadUserData(userId: string) {
     try {
       const client = API.instance.client
-      const res: any = await client.service('user').get(userId)
-      if (!res.user_setting) {
+      const res = await client.service(userPath).get(userId)
+      if (!res.userSetting) {
         const settingsRes = (await client
           .service('user-settings')
           .find({ query: { userId: userId } })) as Paginated<UserSetting>
 
         if (settingsRes.total === 0) {
-          res.user_setting = await client.service('user-settings').create({ userId: userId })
+          res.userSetting = (await client.service('user-settings').create({ userId: userId })) as UserSetting
         } else {
-          res.user_setting = settingsRes.data[0]
+          res.userSetting = settingsRes.data[0]
         }
       }
       const user = resolveUser(res)
@@ -576,7 +577,7 @@ export const AuthService = {
   },
 
   async removeUser(userId: string) {
-    await Engine.instance.api.service('user').remove(userId)
+    await Engine.instance.api.service(userPath).remove(userId)
     AuthService.logoutUser()
   },
 
@@ -586,7 +587,7 @@ export const AuthService = {
   },
 
   async updateUsername(userId: string, name: string) {
-    const { name: updatedName } = await Engine.instance.api.service('user').patch(userId, { name: name })
+    const { name: updatedName } = await Engine.instance.api.service(userPath).patch(userId, { name: name })
     NotificationService.dispatchNotify(i18n.t('user:usermenu.profile.update-msg'), { variant: 'success' })
     getMutableState(AuthState).user.merge({ name: updatedName })
   },
@@ -600,16 +601,16 @@ export const AuthService = {
         const locationBan = params.locationBan
         if (selfUser.id === locationBan.userId && currentLocation.id === locationBan.locationId) {
           const userId = selfUser.id ?? ''
-          const user = resolveUser(await Engine.instance.api.service('user').get(userId))
+          const user = resolveUser(await Engine.instance.api.service(userPath).get(userId))
           getMutableState(AuthState).merge({ user })
         }
       }
 
-      Engine.instance.api.service('user').on('patched', userPatchedListener)
+      Engine.instance.api.service(userPath).on('patched', userPatchedListener)
       Engine.instance.api.service(locationBanPath).on('created', locationBanCreatedListener)
 
       return () => {
-        Engine.instance.api.service('user').off('patched', userPatchedListener)
+        Engine.instance.api.service(userPath).off('patched', userPatchedListener)
         Engine.instance.api.service(locationBanPath).off('created', locationBanCreatedListener)
       }
     }, [])

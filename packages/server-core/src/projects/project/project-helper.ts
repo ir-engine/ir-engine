@@ -42,12 +42,13 @@ import { helmSettingPath } from '@etherealengine/engine/src/schemas/setting/helm
 import { getState } from '@etherealengine/hyperflux'
 import { ProjectConfigInterface, ProjectEventHooks } from '@etherealengine/projects/ProjectConfigInterface'
 
+import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Application } from '../../../declarations'
+import logger from '../../ServerLogger'
+import { ServerState } from '../../ServerState'
 import config from '../../appconfig'
 import { getPodsData } from '../../cluster/server-info/server-info-helper'
 import { getStorageProvider } from '../../media/storageprovider/storageprovider'
-import logger from '../../ServerLogger'
-import { ServerState } from '../../ServerState'
 import { BUILDER_CHART_REGEX } from '../../setting/helm-setting/helm-setting'
 import { getOctokitForChecking, getUserRepos } from './github-helper'
 import { ProjectParams } from './project.class'
@@ -918,7 +919,7 @@ export const checkProjectAutoUpdate = async (app: Application, projectName: stri
       name: projectName
     }
   })
-  const user = await app.service('user').get(project.updateUserId)
+  const user = await app.service(userPath).get(project.updateUserId)
   if (project.updateType === 'tag') {
     const latestTaggedCommit = await getLatestProjectTaggedCommitInBranch(
       app,

@@ -30,6 +30,7 @@ import { UserInterface } from '@etherealengine/common/src/interfaces/User'
 import { destroyEngine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { avatarPath } from '@etherealengine/engine/src/schemas/user/avatar.schema'
 
+import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Application } from '../../../declarations'
 import { createFeathersKoaApp } from '../../createApp'
 
@@ -46,7 +47,7 @@ describe('user service', () => {
   })
 
   it('registered the service', async () => {
-    const service = await app.service('user')
+    const service = await app.service(userPath)
     assert.ok(service, 'Registered the service')
   })
 
@@ -59,7 +60,7 @@ describe('user service', () => {
       name: avatarName
     })
 
-    const item = (await app.service('user').create({
+    const item = (await app.service(userPath).create({
       name,
       avatarId: avatar.id,
       isGuest
@@ -81,7 +82,7 @@ describe('user service', () => {
       name: avatarName
     })
 
-    const item = (await app.service('user').create({
+    const item = (await app.service(userPath).create({
       name,
       avatarId: avatar.id,
       isGuest
@@ -96,7 +97,7 @@ describe('user service', () => {
 
   it('should find users', async () => {
     for (const user of users) {
-      const item = await app.service('user').find({
+      const item = await app.service(userPath).find({
         query: {
           id: user.id
         },
@@ -108,7 +109,7 @@ describe('user service', () => {
   })
 
   it('should find users by action invite-code-lookup', async () => {
-    const item = await app.service('user').find({
+    const item = await app.service(userPath).find({
       query: {
         action: 'invite-code-lookup'
       },
@@ -121,7 +122,7 @@ describe('user service', () => {
   it('should patch users', async () => {
     for (const user of users) {
       const newName = v1()
-      await app.service('user').patch(
+      await app.service(userPath).patch(
         user.id,
         {
           name: newName
@@ -130,7 +131,7 @@ describe('user service', () => {
           isInternal: true
         } as any
       )
-      const { name } = await app.service('user').get(user.id)
+      const { name } = await app.service(userPath).get(user.id)
       assert.equal(newName, name)
     }
   })
@@ -139,7 +140,7 @@ describe('user service', () => {
     const newName = v1()
     const user1 = users[0]
     const user2 = users[1]
-    await app.service('user').patch(
+    await app.service(userPath).patch(
       null,
       {
         name: newName
@@ -150,15 +151,15 @@ describe('user service', () => {
         }
       }
     )
-    const updatedUser1 = await app.service('user').get(user1.id)
-    const updatedUser2 = await app.service('user').get(user2.id)
+    const updatedUser1 = await app.service(userPath).get(user1.id)
+    const updatedUser2 = await app.service(userPath).get(user2.id)
     assert.equal(newName, updatedUser1.name)
     assert.notEqual(newName, updatedUser2.name)
   })
 
   it('should remove users', async () => {
     for (const user of users) {
-      const item = await app.service('user').remove(user.id)
+      const item = await app.service(userPath).remove(user.id)
       assert.ok(item, 'user item is removed')
     }
   })

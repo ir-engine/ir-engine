@@ -33,6 +33,7 @@ import { IdentityProviderInterface } from '@etherealengine/common/src/dbmodels/I
 import { Invite as InviteType } from '@etherealengine/common/src/interfaces/Invite'
 import { UserInterface } from '@etherealengine/common/src/interfaces/User'
 
+import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
 import { UserParams } from '../../api/root-params'
@@ -50,7 +51,7 @@ const afterInviteFind = async (app: Application, result: Paginated<InviteDataTyp
       result.data.map(async (item) => {
         return await new Promise(async (resolve) => {
           if (item.inviteeId != null) {
-            item.invitee = await app.service('user').get(item.inviteeId)
+            item.invitee = await app.service(userPath).get(item.inviteeId)
           } else if (item.token) {
             const identityProvider = (await app.service('identity-provider').find({
               query: {
@@ -58,10 +59,10 @@ const afterInviteFind = async (app: Application, result: Paginated<InviteDataTyp
               }
             })) as Paginated<IdentityProviderInterface>
             if (identityProvider.data.length > 0) {
-              item.invitee = await app.service('user').get(identityProvider.data[0].userId)
+              item.invitee = await app.service(userPath).get(identityProvider.data[0].userId)
             }
           }
-          item.user = await app.service('user').get(item.userId)
+          item.user = await app.service(userPath).get(item.userId)
 
           resolve(true)
         })

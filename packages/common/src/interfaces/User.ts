@@ -37,6 +37,9 @@ import { RelationshipType } from './UserRelationship'
 export interface UserSetting {
   id: string
   themeModes: Record<string, string>
+  userId: string
+  createdAt: string
+  updatedAt: string
 }
 
 export interface UserScope {

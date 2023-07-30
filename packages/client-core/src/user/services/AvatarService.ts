@@ -33,6 +33,7 @@ import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { avatarPath, AvatarType } from '@etherealengine/engine/src/schemas/user/avatar.schema'
 import { defineState, dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
 
+import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { uploadToFeathersService } from '../../util/upload'
 import { AuthState } from './AuthService'
 
@@ -142,7 +143,7 @@ export const AvatarService = {
   },
 
   async updateUserAvatarId(userId: UserId, avatarId: string) {
-    const res = await Engine.instance.api.service('user').patch(userId, { avatarId: avatarId })
+    const res = await Engine.instance.api.service(userPath).patch(userId, { avatarId: avatarId })
     getMutableState(AuthState).user.avatarId.set(res.avatarId!)
     dispatchAction(
       AvatarNetworkAction.setAvatarID({

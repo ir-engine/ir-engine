@@ -27,6 +27,7 @@ import { Id, NullableId, Params, ServiceMethods } from '@feathersjs/feathers'
 import moment from 'moment'
 
 import { UserApiKeyType, userApiKeyPath } from '@etherealengine/engine/src/schemas/user/user-api-key.schema'
+import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
 import Paginated from '../../types/PageObject'
@@ -99,7 +100,7 @@ export class Login implements ServiceMethods<Data> {
         .service('authentication')
         .createAccessToken({}, { subject: identityProvider.id.toString() })
       await this.app.service('login-token').remove(result.id)
-      await this.app.service('user').patch(identityProvider.userId, {
+      await this.app.service(userPath).patch(identityProvider.userId, {
         isGuest: false
       })
       return {

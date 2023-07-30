@@ -31,6 +31,7 @@ import { createState } from '@etherealengine/hyperflux'
 import { useEffect } from 'react'
 import { destroyEngine, Engine } from '../../ecs/classes/Engine'
 import { createEngine } from '../../initializeEngine'
+import { userPath } from '../../schemas/user/user.schema'
 import { EventDispatcher } from '../classes/EventDispatcher'
 import { useFind, useGet, useMutation } from './FeathersHooks'
 
@@ -283,7 +284,7 @@ describe('FeathersHooks', () => {
           rerender()
         })
         await act(() => {
-          Engine.instance.api.service('user').create({ name: 'Jack' })
+          Engine.instance.api.service(userPath).create({ name: 'Jack' })
         })
         await act(() => {
           rerender()
@@ -304,7 +305,7 @@ describe('FeathersHooks', () => {
           rerender()
         })
         await act(() => {
-          Engine.instance.api.service('user').create({ name: 'Jack' })
+          Engine.instance.api.service(userPath).create({ name: 'Jack' })
         })
         await act(() => {
           rerender()
@@ -322,7 +323,7 @@ describe('FeathersHooks', () => {
           rerender()
         })
         await act(() => {
-          Engine.instance.api.service('user').update('1', { name: 'Jack' } as any)
+          Engine.instance.api.service(userPath).update('1', { name: 'Jack' } as any)
         })
         await act(() => {
           rerender()
@@ -342,7 +343,7 @@ describe('FeathersHooks', () => {
           rerender()
         })
         await act(() => {
-          Engine.instance.api.service('user').update('1', { name: 'Jack' } as any)
+          Engine.instance.api.service(userPath).update('1', { name: 'Jack' } as any)
         })
         await act(() => {
           rerender()
@@ -360,7 +361,7 @@ describe('FeathersHooks', () => {
           rerender()
         })
         await act(() => {
-          Engine.instance.api.service('user').patch('1', { name: 'Jack' })
+          Engine.instance.api.service(userPath).patch('1', { name: 'Jack' })
         })
         await act(() => {
           rerender()
@@ -380,7 +381,7 @@ describe('FeathersHooks', () => {
           rerender()
         })
         await act(() => {
-          Engine.instance.api.service('user').patch('1', { name: 'Jack' })
+          Engine.instance.api.service(userPath).patch('1', { name: 'Jack' })
         })
         await act(() => {
           rerender()
@@ -398,7 +399,7 @@ describe('FeathersHooks', () => {
           rerender()
         })
         await act(() => {
-          Engine.instance.api.service('user').remove('1')
+          Engine.instance.api.service(userPath).remove('1')
         })
         await act(() => {
           rerender()
@@ -418,7 +419,7 @@ describe('FeathersHooks', () => {
           rerender()
         })
         await act(() => {
-          Engine.instance.api.service('user').remove('1')
+          Engine.instance.api.service(userPath).remove('1')
         })
         await act(() => {
           rerender()

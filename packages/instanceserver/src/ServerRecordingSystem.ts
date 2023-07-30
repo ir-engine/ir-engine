@@ -60,6 +60,7 @@ import { StorageObjectInterface } from '@etherealengine/server-core/src/media/st
 import { createStaticResourceHash } from '@etherealengine/server-core/src/media/upload-asset/upload-asset.service'
 
 import { NetworkObjectComponent } from '@etherealengine/engine/src/networking/components/NetworkObjectComponent'
+import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { startMediaRecording } from './MediaRecordingFunctions'
 import { getServerNetwork, SocketWebRTCServerNetwork } from './SocketWebRTCServerFunctions'
 import { createOutgoingDataProducer } from './WebRTCFunctions'
@@ -142,7 +143,7 @@ export const onStartRecording = async (action: ReturnType<typeof ECSRecordingAct
   const recording = await app.service('recording').get(action.recordingID)
   if (!recording) return dispatchError('Recording not found', action.$from)
 
-  const user = await app.service('user').get(recording.userId)
+  const user = await app.service(userPath).get(recording.userId)
   if (!user) return dispatchError('Invalid user', action.$from)
 
   const userID = user.id
@@ -268,7 +269,7 @@ export const onStopRecording = async (action: ReturnType<typeof ECSRecordingActi
   const activeRecording = activeRecordings.get(action.recordingID)
   if (!activeRecording) return dispatchError('Recording not found', action.$from)
 
-  const user = await app.service('user').get(activeRecording.userID)
+  const user = await app.service(userPath).get(activeRecording.userID)
 
   const hasScopes = await checkScope(user, app, 'recording', 'write')
   if (!hasScopes) return dispatchError('User does not have record:write scope', user.id)
@@ -312,7 +313,7 @@ export const onStartPlayback = async (action: ReturnType<typeof ECSRecordingActi
 
   const isClone = !action.targetUser
 
-  const user = await app.service('user').get(recording.userId)
+  const user = await app.service(userPath).get(recording.userId)
   if (!user) return dispatchError('User not found', recording.userId)
 
   if (!isClone && Array.from(activePlaybacks.values()).find((rec) => rec.userID === action.targetUser)) {
@@ -374,7 +375,7 @@ export const onStartPlayback = async (action: ReturnType<typeof ECSRecordingActi
             entityChunks[chunkIndex].entities[i] = entityID
             if (!UUIDComponent.entitiesByUUID[entityID]) {
               app
-                .service('user')
+                .service(userPath)
                 .get(uuid)
                 .then((user) => {
                   if (user && !UUIDComponent.entitiesByUUID[entityID]) {
@@ -434,7 +435,7 @@ export const onStopPlayback = async (action: ReturnType<typeof ECSRecordingActio
 
   const recording = (await app.service('recording').get(action.recordingID)) as RecordingResult
 
-  const user = await app.service('user').get(recording.userId)
+  const user = await app.service(userPath).get(recording.userId)
 
   const hasScopes = await checkScope(user, app, 'recording', 'read')
   if (!hasScopes) throw new Error('User does not have record:read scope')

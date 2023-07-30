@@ -610,8 +610,8 @@ export class InstanceProvision implements ServiceMethods<any> {
             }
           }
         }
-        // const user = await this.app.service('user').get(userId)
-        // const friendsAtLocationResult = await this.app.service('user').Model.findAndCountAll({
+        // const user = await this.app.service(userPath).get(userId)
+        // const friendsAtLocationResult = await this.app.service(userPath).Model.findAndCountAll({
         //   include: [
         //     {
         //       model: this.app.service('user-relationship').Model,

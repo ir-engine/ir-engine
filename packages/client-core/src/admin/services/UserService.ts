@@ -29,6 +29,7 @@ import { CreateEditUser, UserInterface, UserSeed } from '@etherealengine/common/
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { defineState, getMutableState } from '@etherealengine/hyperflux'
 
+import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { NotificationService } from '../../common/services/NotificationService'
 import { AuthService, AuthState } from '../../user/services/AuthService'
 
@@ -52,7 +53,7 @@ export const AdminUserState = defineState({
 export const AdminUserService = {
   fetchSingleUserAdmin: async (id: string) => {
     try {
-      const result = await Engine.instance.api.service('user').get(id)
+      const result = await Engine.instance.api.service(userPath).get(id)
       getMutableState(AdminUserState).merge({ singleUser: result, updateNeeded: false })
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
@@ -84,7 +85,7 @@ export const AdminUserService = {
         if (skipGuests) {
           ;(params.query as any).isGuest = false
         }
-        const userResult = (await Engine.instance.api.service('user').find(params)) as Paginated<UserInterface>
+        const userResult = (await Engine.instance.api.service(userPath).find(params)) as Paginated<UserInterface>
 
         getMutableState(AdminUserState).merge({
           users: userResult.data,
@@ -103,7 +104,7 @@ export const AdminUserService = {
   },
   createUser: async (user: CreateEditUser) => {
     try {
-      await Engine.instance.api.service('user').create(user)
+      await Engine.instance.api.service(userPath).create(user)
       getMutableState(AdminUserState).merge({
         updateNeeded: true
       })
@@ -113,7 +114,7 @@ export const AdminUserService = {
   },
   patchUser: async (id: string, user: CreateEditUser) => {
     try {
-      await Engine.instance.api.service('user').patch(id, user)
+      await Engine.instance.api.service(userPath).patch(id, user)
       getMutableState(AdminUserState).merge({
         updateNeeded: true
       })
@@ -123,7 +124,7 @@ export const AdminUserService = {
     }
   },
   removeUserAdmin: async (id: string) => {
-    await Engine.instance.api.service('user').remove(id)
+    await Engine.instance.api.service(userPath).remove(id)
     getMutableState(AdminUserState).merge({ updateNeeded: true })
   },
   setSkipGuests: async (skipGuests: boolean) => {

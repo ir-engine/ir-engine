@@ -31,6 +31,7 @@ import { Channel as ChannelInterface } from '@etherealengine/common/src/interfac
 import { ChannelUser } from '@etherealengine/common/src/interfaces/ChannelUser'
 import { Instance } from '@etherealengine/common/src/interfaces/Instance'
 import { UserInterface } from '@etherealengine/common/src/interfaces/User'
+import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Paginated } from '@feathersjs/feathers'
 
 describe('channel service', () => {
@@ -55,7 +56,7 @@ describe('channel service', () => {
   })
 
   it('creates and finds channel with userId', async () => {
-    const user = (await app.service('user').create({
+    const user = (await app.service(userPath).create({
       name: 'user',
       isGuest: false
     })) as UserInterface
@@ -101,7 +102,7 @@ describe('channel service', () => {
   })
 
   it('can remove and finds channel with instanceId', async () => {
-    const user = (await app.service('user').create({
+    const user = (await app.service(userPath).create({
       name: 'user'
     })) as UserInterface
 
@@ -144,7 +145,7 @@ describe('channel service', () => {
   })
 
   it('will not create a channel with both userId and instanceId', async () => {
-    const user = (await app.service('user').create({
+    const user = (await app.service(userPath).create({
       name: 'user',
       isGuest: false
     })) as UserInterface
@@ -171,7 +172,7 @@ describe('channel service', () => {
   })
 
   it('creates and finds channel with instanceId', async () => {
-    const user = (await app.service('user').create({
+    const user = (await app.service(userPath).create({
       name: 'user',
       isGuest: false
     })) as UserInterface

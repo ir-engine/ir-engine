@@ -25,6 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { analyticsPath } from '@etherealengine/engine/src/schemas/analytics/analytics.schema'
 import { locationPath, LocationType } from '@etherealengine/engine/src/schemas/social/location.schema'
+import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import config from '@etherealengine/server-core/src/appconfig'
 import multiLogger from '@etherealengine/server-core/src/ServerLogger'
 
@@ -45,7 +46,7 @@ export default (app): void => {
       },
       isInternal: true
     })
-    const instanceUsers = await app.service('user').find({
+    const instanceUsers = await app.service(userPath).find({
       query: {
         $limit: 0
       },
@@ -61,7 +62,7 @@ export default (app): void => {
       ],
       isInternal: true
     })
-    const channelUsers = await app.service('user').find({
+    const channelUsers = await app.service(userPath).find({
       query: {
         $limit: 0
       },

@@ -31,6 +31,7 @@ import crypto from 'crypto'
 import { serverSettingPath, ServerSettingType } from '@etherealengine/engine/src/schemas/setting/server-setting.schema'
 import { githubRepoAccessRefreshPath } from '@etherealengine/engine/src/schemas/user/github-repo-access-refresh.schema'
 
+import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Application } from '../../../declarations'
 import { RootParams } from '../../api/root-params'
 import { UnauthorizedException } from '../../util/exceptions/exception'
@@ -80,7 +81,7 @@ export class GithubRepoAccessWebhookService<
         }
       })
       if (!githubIdentityProvider) return ''
-      const user = await this.app.service('user').get(githubIdentityProvider.userId)
+      const user = await this.app.service(userPath).get(githubIdentityProvider.userId)
       // GitHub's API doesn't always reflect changes to user repo permissions right when a webhook is sent.
       // 10 seconds should be more than enough time for the changes to propagate.
       setTimeout(() => {

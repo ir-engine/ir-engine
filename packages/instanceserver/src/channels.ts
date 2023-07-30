@@ -55,6 +55,7 @@ import multiLogger from '@etherealengine/server-core/src/ServerLogger'
 import { ServerState } from '@etherealengine/server-core/src/ServerState'
 import getLocalServerIp from '@etherealengine/server-core/src/util/get-local-server-ip'
 
+import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { InstanceServerState } from './InstanceServerState'
 import { authorizeUserToJoinServer, setupSubdomain } from './NetworkFunctions'
 import { restartInstanceServer } from './restartInstanceServer'
@@ -318,7 +319,7 @@ const loadEngine = async (app: Application, sceneId: string) => {
       if (worldState.userNames[user.id]?.value) worldState.userNames[user.id].set(user.name)
     }
     app.service('scene').on('updated', sceneUpdatedListener)
-    app.service('user').on('patched', userUpdatedListener)
+    app.service(userPath).on('patched', userUpdatedListener)
     await sceneUpdatedListener()
 
     logger.info('Scene loaded!')
@@ -530,7 +531,7 @@ const handleUserDisconnect = async (
   // Patch the user's (channel)instanceId to null if they're leaving this instance.
   // But, don't change their (channel)instanceId if it's already something else.
   const userPatchResult = await app
-    .service('user')
+    .service(userPath)
     .patch(null, userPatch, {
       query: {
         id: user.id
@@ -710,7 +711,7 @@ const onDisconnection = (app: Application) => async (connection: PrimusConnectio
   const identityProvider = authResult['identity-provider'] as IdentityProviderInterface
   if (identityProvider != null && identityProvider.id != null) {
     const userId = identityProvider.userId
-    const user = await app.service('user').get(userId)
+    const user = await app.service(userPath).get(userId)
     const instanceId = !config.kubernetes.enabled ? connection.instanceId : instanceServerState.instance?.id
     let instance
     logger.info('On disconnect, instanceId: ' + instanceId)

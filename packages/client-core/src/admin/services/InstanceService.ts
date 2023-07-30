@@ -31,6 +31,7 @@ import { UserInterface } from '@etherealengine/common/src/interfaces/User'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { defineState, getMutableState } from '@etherealengine/hyperflux'
 
+import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { NotificationService } from '../../common/services/NotificationService'
 import { userIsAdmin } from '../../user/userHasAccess'
 
@@ -133,7 +134,7 @@ export const AdminInstanceUserService = {
 
     const userIds = instanceAttendances.data.map((d) => d.userId)
 
-    const users = await Engine.instance.api.service('user').find({
+    const users = await Engine.instance.api.service(userPath).find({
       query: {
         id: {
           $in: userIds

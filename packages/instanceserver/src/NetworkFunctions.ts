@@ -56,6 +56,7 @@ import { ServerState } from '@etherealengine/server-core/src/ServerState'
 import getLocalServerIp from '@etherealengine/server-core/src/util/get-local-server-ip'
 
 import { NetworkObjectComponent } from '@etherealengine/engine/src/networking/components/NetworkObjectComponent'
+import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { InstanceServerState } from './InstanceServerState'
 import { SocketWebRTCServerNetwork } from './SocketWebRTCServerFunctions'
 import { closeTransport } from './WebRTCFunctions'
@@ -377,12 +378,12 @@ const getUserSpawnFromInvite = async (
 ) => {
   if (inviteCode) {
     const app = Engine.instance.api as Application
-    const result = (await app.service('user').find({
+    const result = await app.service(userPath).find({
       query: {
         action: 'invite-code-lookup',
         inviteCode: inviteCode
       }
-    })) as any
+    })
 
     const users = result.data as UserInterface[]
     if (users.length > 0) {

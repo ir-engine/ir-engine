@@ -28,6 +28,7 @@ import { Id, NullableId, Params, ServiceMethods } from '@feathersjs/feathers'
 
 import { locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
 
+import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
 import Paginated from '../../types/PageObject'
@@ -144,7 +145,7 @@ export class AcceptInvite implements ServiceMethods<Data> {
           inviteeIdentityProvider = (inviteeIdentityProviderResult as any).data[0]
         }
       } else if (invite.inviteeId != null) {
-        const invitee = await this.app.service('user').get(invite.inviteeId)
+        const invitee = await this.app.service(userPath).get(invite.inviteeId)
 
         if (invitee == null || invitee.identity_providers == null || invitee.identity_providers.length === 0) {
           throw new BadRequest('Invalid invitee ID')

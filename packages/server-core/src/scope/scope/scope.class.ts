@@ -54,7 +54,7 @@ export class Scope<T = AdminScopeDataType> extends Service<T> {
           required: false
         },
         {
-          model: (this.app.service('user') as any).Model,
+          model: this.app.service('user').Model,
           required: false
         }
       ],

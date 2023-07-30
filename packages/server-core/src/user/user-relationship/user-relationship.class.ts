@@ -29,6 +29,7 @@ import { Sequelize, Transaction } from 'sequelize'
 
 import { UserRelationshipInterface } from '@etherealengine/common/src/dbmodels/UserRelationship'
 
+import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Application } from '../../../declarations'
 import { UserParams } from '../../api/root-params'
 import config from '../../appconfig'
@@ -175,7 +176,7 @@ export class UserRelationship<T = UserRelationshipDataType> extends Service<T> {
     let whereParams
 
     try {
-      await this.app.service('user').get(id)
+      await this.app.service(userPath).get(id)
       //The ID resolves to a userId, in which case patch the relation joining that user to the requesting one
       whereParams = {
         userId: params.user!.id,
@@ -237,7 +238,7 @@ export class UserRelationship<T = UserRelationshipDataType> extends Service<T> {
     const UserRelationshipModel = this.getModel(params)
 
     //If the ID provided is not a user ID, as it's expected to be, it'll throw a 404
-    await this.app.service('user').get(id)
+    await this.app.service(userPath).get(id)
 
     const relationship = await UserRelationshipModel.findOne({
       where: {

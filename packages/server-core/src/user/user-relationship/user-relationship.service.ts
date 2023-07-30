@@ -25,6 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { UserRelationshipInterface } from '@etherealengine/common/src/dbmodels/UserRelationship'
 
+import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
 import { UserRelationship } from './user-relationship.class'
@@ -66,11 +67,11 @@ export default (app: Application) => {
       })
       if (data.userRelationshipType === 'requested' && inverseRelationship != null) {
         if (data?.dataValues != null) {
-          data.dataValues.user = await app.service('user').get(data.userId)
-          data.dataValues.relatedUser = await app.service('user').get(data.relatedUserId)
+          data.dataValues.user = await app.service(userPath).get(data.userId)
+          data.dataValues.relatedUser = await app.service(userPath).get(data.relatedUserId)
         } else {
-          ;(data as any).user = await app.service('user').get(data.userId)
-          ;(data as any).relatedUser = await app.service('user').get(data.relatedUserId)
+          ;(data as any).user = await app.service(userPath).get(data.userId)
+          ;(data as any).relatedUser = await app.service(userPath).get(data.relatedUserId)
         }
 
         const targetIds = [data.userId, data.relatedUserId]
@@ -97,11 +98,11 @@ export default (app: Application) => {
       })
       if (data.userRelationshipType === 'friend' && inverseRelationship != null) {
         if (data?.dataValues != null) {
-          data.dataValues.user = await app.service('user').get(data.userId)
-          data.dataValues.relatedUser = await app.service('user').get(data.relatedUserId)
+          data.dataValues.user = await app.service(userPath).get(data.userId)
+          data.dataValues.relatedUser = await app.service(userPath).get(data.relatedUserId)
         } else {
-          ;(data as any).user = await app.service('user').get(data.userId)
-          ;(data as any).relatedUser = await app.service('user').get(data.relatedUserId)
+          ;(data as any).user = await app.service(userPath).get(data.userId)
+          ;(data as any).relatedUser = await app.service(userPath).get(data.relatedUserId)
         }
 
         const targetIds = [data.userId, data.relatedUserId]
