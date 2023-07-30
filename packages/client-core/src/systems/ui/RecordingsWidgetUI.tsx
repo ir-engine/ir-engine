@@ -40,20 +40,7 @@ import { WidgetAppService } from '@etherealengine/engine/src/xrui/WidgetAppServi
 import { startPlayback } from '@etherealengine/ui/src/pages/Capture'
 import { PeerMediaChannelState, PeerMediaStreamInterface } from '../../transports/PeerMediaChannelState'
 
-/**
- * Record
- * - For each peer
- *    - For each [Avatar, Video, Audio, Mocap]
- *      - enable / disable
- *
- * Playback
- *  - List recordings
- *    - Open recording
- *      - For each peer
- *        - For each [Avatar, Video, Audio, Mocap]
- *          - enable / disable
- */
-
+// TODO replace these templates with our generalised ones for XRUI
 const Checkbox = (props: { label: string; disabled?: boolean; checked: boolean; onChange: () => void }) => {
   return (
     <div style={{ display: 'flex', flexDirection: 'row' }} className="flex flex-row">
