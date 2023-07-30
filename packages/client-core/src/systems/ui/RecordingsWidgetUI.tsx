@@ -54,6 +54,41 @@ import { PeerMediaChannelState, PeerMediaStreamInterface } from '../../transport
  *          - enable / disable
  */
 
+const Checkbox = (props: { label: string; disabled?: boolean; checked: boolean; onChange: () => void }) => {
+  return (
+    <div style={{ display: 'flex', flexDirection: 'row' }} className="flex flex-row">
+      <input
+        type="checkbox"
+        style={{ width: '20px', height: '20px' }}
+        checked={props.checked}
+        disabled={props.disabled}
+        onChange={() => {
+          props.onChange()
+        }}
+      />
+      <label>{props.label}</label>
+    </div>
+  )
+}
+
+const Button = (props: { label: string | JSX.Element; onClick: () => void }) => {
+  return (
+    <button
+      style={{
+        padding: '6px 12px',
+        border: '0px',
+        borderRadius: '20px',
+        color: 'var(--buttonTextColor)',
+        fontSize: '14px',
+        background: 'linear-gradient(90deg, var(--buttonGradientStart), var(--buttonGradientEnd))'
+      }}
+      onClick={props.onClick}
+    >
+      {props.label}
+    </button>
+  )
+}
+
 const VideoPreview = (props: { peerID: PeerID }) => {
   const { peerID } = props
 
@@ -130,15 +165,12 @@ export const RecordingPeer = (props: { peerID: PeerID }) => {
     // TODO figure out how to detect if the various data channels are available
     const disabled = false // (option === 'Video' && !videoStreamState.value) || (option === 'Audio' && !peerMediaChannelState.audioStream.value)// || // (option === 'Mocap' && !peerMediaChannelState.mocapStream.value)
     return (
-      <div key={option} style={{ display: 'flex', flexDirection: 'row' }} className="flex flex-row">
-        <input
-          type="checkbox"
-          disabled={disabled}
-          checked={recordingSchemaState.peers.value[peerID]?.[option] ?? false}
-          onChange={() => onCheck(option)}
-        />
-        <label>{option}</label>
-      </div>
+      <Checkbox
+        label={option}
+        disabled={disabled}
+        checked={recordingSchemaState.peers.value[peerID]?.[option] ?? false}
+        onChange={() => onCheck(option)}
+      />
     )
   }
 
@@ -200,18 +232,16 @@ export const RecordingPeerList = () => {
         style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between' }}
         className="flex flex-row"
       >
-        <div>
-          <input type="checkbox" checked={recordingSchemaState.user.Avatar.value} onChange={() => onCheckAvatar()} />
-          <label>{'Avatar'}</label>
-        </div>
-        <button
-          className="btn btn-ghost"
-          onClick={() => {
-            onToggleRecording()
-          }}
-        >
-          {recordingStatus === 'inactive' ? 'Record' : recordingStatus === 'active' ? 'Recording' : 'Stop'}
-        </button>
+        <Checkbox
+          label={'Avatar'}
+          disabled={false}
+          checked={recordingSchemaState.user.Avatar.value}
+          onChange={() => onCheckAvatar()}
+        />
+        <Button
+          label={recordingStatus === 'inactive' ? 'Record' : recordingStatus === 'active' ? 'Recording' : 'Stop'}
+          onClick={() => onToggleRecording()}
+        />
       </div>
       <table style={{ display: 'table', width: '100%' }}>
         <thead>
@@ -333,26 +363,30 @@ const RecordingsList = () => {
         </td>
         <td>
           <div key={recording.id} style={{ display: 'flex' }}>
-            <button
-              className="btn btn-ghost"
+            <Button
               onClick={() => {
                 startPlayback(recording.id, false)
                 getMutableState(RecordingUIState).mode.set('playback')
               }}
-            >
-              <PlayIcon style={{ display: 'block', width: '24px', height: '24px' }} className="block min-w-6 min-h-6" />
-            </button>
-            <button
+              label={
+                <PlayIcon
+                  style={{ display: 'block', width: '24px', height: '24px' }}
+                  className="block min-w-6 min-h-6"
+                />
+              }
+            />
+            <Button
               onClick={() => {
                 startPlayback(recording.id, true)
                 getMutableState(RecordingUIState).mode.set('playback')
               }}
-            >
-              <PlusCircleIcon
-                style={{ display: 'block', width: '24px', height: '24px' }}
-                className="block min-w-6 min-h-6"
-              />
-            </button>
+              label={
+                <PlusCircleIcon
+                  style={{ display: 'block', width: '24px', height: '24px' }}
+                  className="block min-w-6 min-h-6"
+                />
+              }
+            />
           </div>
         </td>
       </tr>
@@ -403,24 +437,24 @@ export const RecordingsWidgetUI = () => {
         }}
       >
         <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', padding: '16px 12px' }}>
-          <button
-            className="btn btn-ghost"
+          <Button
             onClick={() => {
               mode.set(mode.value === 'create' ? 'recordings' : 'create')
             }}
-          >
-            {mode.value === 'create' && 'Recordings'}
-            {mode.value === 'recordings' && 'Create'}
-            {mode.value === 'playback' && 'Stop'}
-          </button>
-          <button
-            className="btn btn-ghost"
+            label={
+              <>
+                {mode.value === 'create' && 'Recordings'}
+                {mode.value === 'recordings' && 'Create'}
+                {mode.value === 'playback' && 'Stop'}
+              </>
+            }
+          />
+          <Button
             onClick={() => {
               WidgetAppService.closeWidgets()
             }}
-          >
-            Close
-          </button>
+            label={'Close'}
+          />
         </div>
         {mode.value === 'create' && <RecordingPeerList />}
         {mode.value === 'recordings' && <RecordingsList />}
