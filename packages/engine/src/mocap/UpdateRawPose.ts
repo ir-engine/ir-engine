@@ -81,7 +81,7 @@ const UpdateRawPose = (data, hipsPos, avatarRig, avatarTransform) => {
         // if (ikTarget) removeEntity(ikTarget)
 
         if (!ikTarget) {
-          const h = name === 'LeftHand' ? 'left' : name === 'RightHand' ? 'right' : 'none'
+          const h = name === 'lefthand' ? 'left' : name === 'righthand' ? 'right' : 'none'
           dispatchAction(XRAction.spawnIKTarget({ handedness: h, entityUUID: entityUUID, name: name }))
         }
 

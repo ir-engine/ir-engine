@@ -46,12 +46,11 @@ import { TransformComponent } from '../transform/components/TransformComponent'
 import { Classifications, Landmark, NormalizedLandmark } from '@mediapipe/tasks-vision'
 import { TFace, THand, TPose } from 'kalidokit/dist/kalidokit.umd.js'
 
+import mediapipePoseNames from './MediapipePoseNames'
 import UpdateRawFace from './UpdateRawFace'
 import UpdateRawHands from './UpdateRawHands'
 import UpdateRawPose from './UpdateRawPose'
 import UpdateSolvedFace from './UpdateSolvedFace'
-import UpdateSolvedHands from './UpdateSolvedHands'
-import UpdateSolvedPose from './UpdateSolvedPose'
 
 export interface SolvedHand {
   handSolve?: THand | undefined
@@ -147,11 +146,9 @@ const execute = () => {
       if (!avatarRig) continue
 
       const avatarHips = avatarRig?.bindRig?.hips?.node
-
-      const hipsPos = avatarHips.position
-      console.log(data.handsWorld)
+      const hipsPos = avatarHips.position.clone().add(avatarTransform.position)
       // Pose
-      if (data?.posesSolved) {
+      /*if (data?.posesSolved) {
         data?.posesSolved.forEach((pose) => {
           UpdateSolvedPose(pose, hipsPos.clone(), avatarRig, avatarTransform)
 
@@ -161,7 +158,12 @@ const execute = () => {
             })
           }
         })
-      } else if (data?.posesWorld) {
+      } 
+      */
+      if (data?.posesWorld) {
+        data.posesWorld.forEach((pose) => {
+          console.log(pose[mediapipePoseNames.indexOf('right ear')], pose[mediapipePoseNames.indexOf('left ear')])
+        })
         // Hands
         if (data?.handsWorld) {
           data?.handsWorld.forEach((hand) => {

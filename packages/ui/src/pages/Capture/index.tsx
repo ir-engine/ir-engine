@@ -356,7 +356,8 @@ const CaptureDashboard = () => {
                 enableLegs: true
               })
               return solve
-            })
+            }),
+            posesWorld: poseResults?.worldLandmarks
           }
         } else {
           finalPose = {

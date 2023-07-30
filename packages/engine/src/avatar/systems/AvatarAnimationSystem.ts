@@ -258,7 +258,7 @@ const execute = () => {
       continue
     }
     //hips for now, head calc to come
-    if (action.name === 'RightHand' || action.name === 'LeftHand' || action.name === 'Hips') {
+    if (action.name === 'righthand' || action.name === 'lefthand' || action.name === 'hips') {
       setComponent(entity, NameComponent, action.$from + '_' + action.handedness)
       setComponent(entity, AvatarIKTargetComponent, { handedness: action.handedness })
     }
@@ -292,11 +292,11 @@ const execute = () => {
     if (!rightHand && ikTargetRightHand) removeEntity(ikTargetRightHand)
 
     if (head && !ikTargetHead)
-      dispatchAction(XRAction.spawnIKTarget({ handedness: 'none', entityUUID: headUUID, name: 'Hips' }))
+      dispatchAction(XRAction.spawnIKTarget({ handedness: 'none', entityUUID: headUUID, name: 'hips' }))
     if (leftHand && !ikTargetLeftHand)
-      dispatchAction(XRAction.spawnIKTarget({ handedness: 'left', entityUUID: leftHandUUID, name: 'LeftHand' }))
+      dispatchAction(XRAction.spawnIKTarget({ handedness: 'left', entityUUID: leftHandUUID, name: 'lefthand' }))
     if (rightHand && !ikTargetRightHand)
-      dispatchAction(XRAction.spawnIKTarget({ handedness: 'right', entityUUID: rightHandUUID, name: 'RightHand' }))
+      dispatchAction(XRAction.spawnIKTarget({ handedness: 'right', entityUUID: rightHandUUID, name: 'righthand' }))
   }
 
   /**
