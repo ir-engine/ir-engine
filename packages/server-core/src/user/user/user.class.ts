@@ -133,13 +133,7 @@ export class UserService<T = UserType, ServiceParams extends Params = UserParams
     data.inviteCode = Math.random().toString(36).slice(2)
     const result = await super._create(data, params)
 
-    try {
-      await this._afterCreate(this.app, result)
-    } catch (err) {
-      console.error(err)
-      logger.error(err, `USER AFTER CREATE ERROR: ${err.message}`)
-      return null!
-    }
+    await this._afterCreate(this.app, result)
 
     return result
   }
@@ -165,40 +159,39 @@ export class UserService<T = UserType, ServiceParams extends Params = UserParams
   }
 
   _afterCreate = async (app: Application, result: UserType) => {
-    await app.service('user-settings').create({
-      userId: result.id
-    })
-
-    if (result.scopes && result.scopes.length > 0) {
-      const data = result.scopes.map((el) => {
-        return {
-          type: el.type,
-          userId: result.id
-        }
-      })
-      app.service('scope').create(data)
-    }
-
-    if (Array.isArray(result)) result = result[0]
-    console.log(result)
-    if (!result?.isGuest)
-      await app.service(userApiKeyPath).create({
+    try {
+      await app.service('user-settings').create({
         userId: result.id
       })
-    if (!result?.isGuest && result?.inviteCode == null) {
-      const code = await getFreeInviteCode(app)
-      await app.service('user').patch(result.id, {
-        inviteCode: code
-      })
+
+      if (result.scopes && result.scopes.length > 0) {
+        const data = result.scopes.map((el) => {
+          return {
+            type: el.type,
+            userId: result.id
+          }
+        })
+
+        await app.service('scope').create(data)
+      }
+
+      if (result && !result.isGuest) {
+        await app.service(userApiKeyPath).create({
+          userId: result.id
+        })
+      }
+
+      await this._afterPatch(app, result)
+    } catch (err) {
+      logger.error(err, `USER AFTER CREATE ERROR: ${err.message}`)
     }
   }
 
   _afterPatch = async (app: Application, result: UserType) => {
     try {
-      if (Array.isArray(result)) result = result[0]
       if (result && !result.isGuest && result.inviteCode == null) {
         const code = await getFreeInviteCode(app)
-        await app.service('user').patch(result.id!, {
+        await this._patch(result.id!, {
           inviteCode: code
         })
       }
