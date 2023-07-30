@@ -36,6 +36,7 @@ import { PlayIcon, PlusCircleIcon } from '@heroicons/react/24/solid'
 import { RecordingResult } from '@etherealengine/common/src/interfaces/Recording'
 import { useFind, useGet } from '@etherealengine/engine/src/common/functions/FeathersHooks'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { WidgetAppService } from '@etherealengine/engine/src/xrui/WidgetAppService'
 import { startPlayback } from '@etherealengine/ui/src/pages/Capture'
 import { PeerMediaChannelState, PeerMediaStreamInterface } from '../../transports/PeerMediaChannelState'
 
@@ -391,8 +392,17 @@ export const RecordingsWidgetUI = () => {
   const mode = useHookstate(getMutableState(RecordingUIState).mode)
   return (
     <>
-      <div style={{ width: '100%', position: 'relative', fontFamily: 'Roboto, sans-serif' }}>
-        <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'center' }}>
+      <div
+        style={{
+          width: '100%',
+          position: 'relative',
+          fontFamily: 'Roboto, sans-serif',
+          background: 'var(--popupBackground)',
+          borderRadius: '20px',
+          color: 'var(--textColor)'
+        }}
+      >
+        <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', padding: '16px 12px' }}>
           <button
             className="btn btn-ghost"
             onClick={() => {
@@ -402,6 +412,14 @@ export const RecordingsWidgetUI = () => {
             {mode.value === 'create' && 'Recordings'}
             {mode.value === 'recordings' && 'Create'}
             {mode.value === 'playback' && 'Stop'}
+          </button>
+          <button
+            className="btn btn-ghost"
+            onClick={() => {
+              WidgetAppService.closeWidgets()
+            }}
+          >
+            Close
           </button>
         </div>
         {mode.value === 'create' && <RecordingPeerList />}
