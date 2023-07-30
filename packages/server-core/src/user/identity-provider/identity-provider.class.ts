@@ -31,10 +31,9 @@ import { v1 as uuidv1 } from 'uuid'
 
 import { isDev } from '@etherealengine/common/src/config'
 import { IdentityProviderInterface } from '@etherealengine/common/src/dbmodels/IdentityProvider'
-import { UserInterface } from '@etherealengine/common/src/interfaces/User'
 import { avatarPath, AvatarType } from '@etherealengine/engine/src/schemas/user/avatar.schema'
 
-import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { userPath, UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Application } from '../../../declarations'
 import { UserParams } from '../../api/root-params'
 import appConfig from '../../appconfig'
@@ -264,7 +263,7 @@ export class IdentityProvider<T = IdentityProviderInterface> extends Service<T> 
   }
 
   async find(params?: UserParams): Promise<T[] | Paginated<T>> {
-    const loggedInUser = params!.user as UserInterface
+    const loggedInUser = params!.user as UserType
     if (params!.provider) params!.query!.userId = loggedInUser.id
     return super.find(params)
   }

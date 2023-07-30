@@ -29,10 +29,9 @@ import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
 import { Channel } from '@etherealengine/common/src/interfaces/Channel'
 import { ChannelID } from '@etherealengine/common/src/interfaces/ChannelUser'
 import { Message as MessageInterface } from '@etherealengine/common/src/interfaces/Message'
-import { UserInterface } from '@etherealengine/common/src/interfaces/User'
 import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 
-import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { UserType, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Application } from '../../../declarations'
 import { UserParams } from '../../api/root-params'
 
@@ -89,7 +88,7 @@ export class Message<T = MessageDataType> extends Service<T> {
   async create(data: CreateMessageDataType, params?: MessageParams): Promise<T> {
     let channel: Channel | null = null
     let userIdList: any[] = []
-    const loggedInUser = params!.user as UserInterface
+    const loggedInUser = params!.user as UserType
     const userId = loggedInUser?.id
     const givenChannelId = data.channelId
     const instanceId = data.instanceId

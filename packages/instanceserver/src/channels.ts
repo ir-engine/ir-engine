@@ -34,7 +34,6 @@ import { IdentityProviderInterface } from '@etherealengine/common/src/dbmodels/I
 import { ChannelID, ChannelUser } from '@etherealengine/common/src/interfaces/ChannelUser'
 import { Instance } from '@etherealengine/common/src/interfaces/Instance'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
-import { UserInterface, UserKick } from '@etherealengine/common/src/interfaces/User'
 import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { EngineActions, EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
@@ -55,7 +54,7 @@ import multiLogger from '@etherealengine/server-core/src/ServerLogger'
 import { ServerState } from '@etherealengine/server-core/src/ServerState'
 import getLocalServerIp from '@etherealengine/server-core/src/util/get-local-server-ip'
 
-import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { userPath, UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { InstanceServerState } from './InstanceServerState'
 import { authorizeUserToJoinServer, setupSubdomain } from './NetworkFunctions'
 import { restartInstanceServer } from './restartInstanceServer'
@@ -501,7 +500,7 @@ const shutdownServer = async (app: Application, instanceId: string) => {
 }
 
 // todo: this could be more elegant
-const getActiveUsersCount = (app: Application, userToIgnore: UserInterface) => {
+const getActiveUsersCount = (app: Application, userToIgnore: UserType) => {
   const activeClients = getServerNetwork(app).peers
   const activeUsers = [...activeClients].filter(
     ([id, client]) => client.userId !== Engine.instance.userId && client.userId !== userToIgnore.id
@@ -512,7 +511,7 @@ const getActiveUsersCount = (app: Application, userToIgnore: UserInterface) => {
 const handleUserDisconnect = async (
   app: Application,
   connection: PrimusConnectionType,
-  user: UserInterface,
+  user: UserType,
   instanceId: string
 ) => {
   const instanceServerState = getState(InstanceServerState)

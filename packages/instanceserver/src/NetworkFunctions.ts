@@ -30,7 +30,6 @@ import { Spark } from 'primus'
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { Instance } from '@etherealengine/common/src/interfaces/Instance'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
-import { UserInterface } from '@etherealengine/common/src/interfaces/User'
 import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 import { respawnAvatar } from '@etherealengine/engine/src/avatar/functions/respawnAvatar'
 import checkPositionIsValid from '@etherealengine/engine/src/common/functions/checkPositionIsValid'
@@ -56,7 +55,7 @@ import { ServerState } from '@etherealengine/server-core/src/ServerState'
 import getLocalServerIp from '@etherealengine/server-core/src/util/get-local-server-ip'
 
 import { NetworkObjectComponent } from '@etherealengine/engine/src/networking/components/NetworkObjectComponent'
-import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { userPath, UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { InstanceServerState } from './InstanceServerState'
 import { SocketWebRTCServerNetwork } from './SocketWebRTCServerFunctions'
 import { closeTransport } from './WebRTCFunctions'
@@ -296,7 +295,7 @@ export const handleConnectingPeer = async (
   network: SocketWebRTCServerNetwork,
   spark: Spark,
   peerID: PeerID,
-  user: UserInterface
+  user: UserType
 ) => {
   const userId = user.id
 
@@ -345,7 +344,7 @@ export async function handleJoinWorld(
   data: JoinWorldRequestData,
   messageId: string,
   userId: UserId,
-  user: UserInterface
+  user: UserType
 ) {
   logger.info('Connect to world from ' + userId)
 
@@ -372,7 +371,7 @@ export async function handleJoinWorld(
 
 const getUserSpawnFromInvite = async (
   network: SocketWebRTCServerNetwork,
-  user: UserInterface,
+  user: UserType,
   inviteCode: string,
   iteration = 0
 ) => {
@@ -385,7 +384,7 @@ const getUserSpawnFromInvite = async (
       }
     })
 
-    const users = result.data as UserInterface[]
+    const users = result.data as UserType[]
     if (users.length > 0) {
       const inviterUser = users[0]
       const inviterUserInstanceAttendance = inviterUser.instanceAttendance || []

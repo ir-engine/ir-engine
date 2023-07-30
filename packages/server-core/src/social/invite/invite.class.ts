@@ -31,9 +31,8 @@ import Sequelize, { Op } from 'sequelize'
 
 import { IdentityProviderInterface } from '@etherealengine/common/src/dbmodels/IdentityProvider'
 import { Invite as InviteType } from '@etherealengine/common/src/interfaces/Invite'
-import { UserInterface } from '@etherealengine/common/src/interfaces/User'
 
-import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { UserType, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
 import { UserParams } from '../../api/root-params'
@@ -174,7 +173,7 @@ export const inviteSent = async (inviteService: Invite, query: Query) => {
   return result
 }
 
-export const inviteAll = async (inviteService: Invite, query: Query, user: UserInterface) => {
+export const inviteAll = async (inviteService: Invite, query: Query, user: UserType) => {
   if ((!user || !user.scopes || !user.scopes.find((scope) => scope.type === 'admin:admin')) && !query.existenceCheck)
     throw new Forbidden('Must be admin to search invites in this way')
 
@@ -272,7 +271,7 @@ export class Invite extends Service<InviteDataType> {
     if (!id) return super.remove(id, params)
     const invite = await this.app.service('invite').get(id)
     if (invite.inviteType === 'friend' && invite.inviteeId != null && !params?.preventUserRelationshipRemoval) {
-      const selfUser = params!.user as UserInterface
+      const selfUser = params!.user as UserType
       const relatedUserId = invite.userId === selfUser.id ? invite.inviteeId : invite.userId
       await this.app.service('user-relationship').remove(relatedUserId, params)
     }

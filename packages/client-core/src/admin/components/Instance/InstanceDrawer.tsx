@@ -28,7 +28,6 @@ import { useTranslation } from 'react-i18next'
 
 import InputText from '@etherealengine/client-core/src/common/components/InputText'
 import { Instance } from '@etherealengine/common/src/interfaces/Instance'
-import { UserInterface } from '@etherealengine/common/src/interfaces/User'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import Box from '@etherealengine/ui/src/primitives/mui/Box'
 import Button from '@etherealengine/ui/src/primitives/mui/Button'
@@ -63,7 +62,7 @@ const InstanceDrawer = ({ open, selectedInstance, onClose }: Props) => {
 
   const openKickDialog = useHookstate(false)
   const kickData = useHookstate({
-    userId: '' as UserInterface['id'],
+    userId: '',
     instanceId: '',
     duration: '8'
   })
@@ -77,7 +76,7 @@ const InstanceDrawer = ({ open, selectedInstance, onClose }: Props) => {
     AdminInstanceUserService.fetchUsersInInstance(selectedInstance.id)
   }, [selectedInstance])
 
-  const createData = (id: UserInterface['id'], name: UserInterface['name']) => ({
+  const createData = (id: string, name: string) => ({
     id,
     name,
     action: (

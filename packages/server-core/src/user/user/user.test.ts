@@ -26,15 +26,14 @@ Ethereal Engine. All Rights Reserved.
 import assert from 'assert'
 import { v1 } from 'uuid'
 
-import { UserInterface } from '@etherealengine/common/src/interfaces/User'
 import { destroyEngine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { avatarPath } from '@etherealengine/engine/src/schemas/user/avatar.schema'
 
-import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { UserType, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Application } from '../../../declarations'
 import { createFeathersKoaApp } from '../../createApp'
 
-let users: any = []
+let users: UserType[] = []
 
 describe('user service', () => {
   let app: Application
@@ -64,7 +63,7 @@ describe('user service', () => {
       name,
       avatarId: avatar.id,
       isGuest
-    })) as UserInterface
+    })) as UserType
     users.push(item)
 
     assert.equal(item.name, name)
@@ -86,7 +85,7 @@ describe('user service', () => {
       name,
       avatarId: avatar.id,
       isGuest
-    })) as UserInterface
+    })) as UserType
     users.push(item)
 
     assert.equal(item.name, name)
@@ -129,7 +128,7 @@ describe('user service', () => {
         },
         {
           isInternal: true
-        } as any
+        }
       )
       const { name } = await app.service(userPath).get(user.id)
       assert.equal(newName, name)

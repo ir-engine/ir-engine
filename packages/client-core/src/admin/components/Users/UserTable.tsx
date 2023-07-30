@@ -28,12 +28,12 @@ import { useTranslation } from 'react-i18next'
 
 import ConfirmDialog from '@etherealengine/client-core/src/common/components/ConfirmDialog'
 import { IdentityProvider } from '@etherealengine/common/src/interfaces/IdentityProvider'
-import { UserInterface } from '@etherealengine/common/src/interfaces/User'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import Box from '@etherealengine/ui/src/primitives/mui/Box'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 import Tooltip from '@etherealengine/ui/src/primitives/mui/Tooltip'
 
+import { UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { DiscordIcon } from '../../../common/components/Icons/DiscordIcon'
 import { FacebookIcon } from '../../../common/components/Icons/FacebookIcon'
 import { GoogleIcon } from '../../../common/components/Icons/GoogleIcon'
@@ -56,7 +56,7 @@ const UserTable = ({ className, search }: UserProps) => {
   const fieldOrder = useHookstate('asc')
   const sortField = useHookstate('name')
   const openUserDrawer = useHookstate(false)
-  const userAdmin = useHookstate<UserInterface | null>(null)
+  const userAdmin = useHookstate<UserType | undefined>(undefined)
   const authState = useHookstate(getMutableState(AuthState))
   const user = authState.user
   const adminUserState = useHookstate(getMutableState(AdminUserState))
@@ -91,7 +91,7 @@ const UserTable = ({ className, search }: UserProps) => {
 
   const createData = (
     id: string,
-    el: UserInterface,
+    el: UserType,
     name: string,
     avatarId: string | JSX.Element,
     identityProviders: IdentityProvider[],
@@ -192,7 +192,7 @@ const UserTable = ({ className, search }: UserProps) => {
       el,
       el.name,
       el.avatarId || <span className={styles.spanNone}>{t('admin:components.common.none')}</span>,
-      el.identity_providers || [],
+      el.identityProviders || [],
       el.isGuest.toString(),
       el.inviteCode || <span className={styles.spanNone}>{t('admin:components.common.none')}</span>
     )

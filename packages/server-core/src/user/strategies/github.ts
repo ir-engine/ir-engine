@@ -27,12 +27,11 @@ import { AuthenticationRequest } from '@feathersjs/authentication'
 import { Paginated } from '@feathersjs/feathers'
 import { random } from 'lodash'
 
-import { UserInterface } from '@etherealengine/common/src/interfaces/User'
 import { avatarPath, AvatarType } from '@etherealengine/engine/src/schemas/user/avatar.schema'
 import { githubRepoAccessRefreshPath } from '@etherealengine/engine/src/schemas/user/github-repo-access-refresh.schema'
 
 import { userApiKeyPath, UserApiKeyType } from '@etherealengine/engine/src/schemas/user/user-api-key.schema'
-import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { userPath, UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Application } from '../../../declarations'
 import config from '../../appconfig'
 import getFreeInviteCode from '../../util/get-free-invite-code'
@@ -77,7 +76,7 @@ export class GithubStrategy extends CustomOAuthStrategy {
         isGuest: false,
         inviteCode: code,
         avatarId: avatars[random(avatars.total - 1)].id
-      })) as UserInterface
+      })) as UserType
       entity.userId = newUser.id
       await this.app.service('identity-provider').patch(entity.id, {
         userId: newUser.id,

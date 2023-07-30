@@ -25,11 +25,10 @@ Ethereal Engine. All Rights Reserved.
 
 import { Paginated } from '@feathersjs/feathers'
 
-import { CreateEditUser, UserInterface, UserSeed } from '@etherealengine/common/src/interfaces/User'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { defineState, getMutableState } from '@etherealengine/hyperflux'
 
-import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { UserData, UserPatch, UserType, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { NotificationService } from '../../common/services/NotificationService'
 import { AuthService, AuthState } from '../../user/services/AuthService'
 
@@ -37,8 +36,8 @@ export const USER_PAGE_LIMIT = 10
 export const AdminUserState = defineState({
   name: 'AdminUserState',
   initial: () => ({
-    users: [] as Array<UserInterface>,
-    singleUser: UserSeed as UserInterface,
+    users: [] as Array<UserType>,
+    singleUser: UserSeed as UserType,
     skip: 0,
     limit: USER_PAGE_LIMIT,
     total: 0,
@@ -85,7 +84,7 @@ export const AdminUserService = {
         if (skipGuests) {
           ;(params.query as any).isGuest = false
         }
-        const userResult = (await Engine.instance.api.service(userPath).find(params)) as Paginated<UserInterface>
+        const userResult = (await Engine.instance.api.service(userPath).find(params)) as Paginated<UserType>
 
         getMutableState(AdminUserState).merge({
           users: userResult.data,
@@ -102,7 +101,7 @@ export const AdminUserService = {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
   },
-  createUser: async (user: CreateEditUser) => {
+  createUser: async (user: UserData) => {
     try {
       await Engine.instance.api.service(userPath).create(user)
       getMutableState(AdminUserState).merge({
@@ -112,7 +111,7 @@ export const AdminUserService = {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
   },
-  patchUser: async (id: string, user: CreateEditUser) => {
+  patchUser: async (id: string, user: UserPatch) => {
     try {
       await Engine.instance.api.service(userPath).patch(id, user)
       getMutableState(AdminUserState).merge({

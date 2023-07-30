@@ -28,9 +28,9 @@ import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
 
 import { Channel as ChannelInterface } from '@etherealengine/common/src/interfaces/Channel'
 import { ChannelID, ChannelUser } from '@etherealengine/common/src/interfaces/ChannelUser'
-import { UserInterface } from '@etherealengine/common/src/interfaces/User'
 import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 
+import { UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Op, Sequelize } from 'sequelize'
 import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
@@ -128,7 +128,7 @@ export class Channel<T = ChannelDataType> extends Service<T> {
       if (!params) params = {}
       const query = params.query!
 
-      const loggedInUser = params!.user as UserInterface
+      const loggedInUser = params!.user as UserType
       const userId = loggedInUser?.id
 
       if (!userId) return []

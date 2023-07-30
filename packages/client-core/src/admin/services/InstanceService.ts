@@ -27,11 +27,10 @@ import { Paginated } from '@feathersjs/feathers'
 import { useEffect } from 'react'
 
 import { Instance } from '@etherealengine/common/src/interfaces/Instance'
-import { UserInterface } from '@etherealengine/common/src/interfaces/User'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { defineState, getMutableState } from '@etherealengine/hyperflux'
 
-import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { UserType, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { NotificationService } from '../../common/services/NotificationService'
 import { userIsAdmin } from '../../user/userHasAccess'
 
@@ -110,7 +109,7 @@ export const INSTANCE_USERS_PAGE_LIMIT = 10
 export const AdminInstanceUserState = defineState({
   name: 'AdminInstanceUserState',
   initial: () => ({
-    users: [] as Array<UserInterface>,
+    users: [] as Array<UserType>,
     skip: 0,
     limit: INSTANCE_USERS_PAGE_LIMIT,
     total: 0,
@@ -153,7 +152,7 @@ export const AdminInstanceUserService = {
       lastFetched: Date.now()
     })
   },
-  kickUser: async (kickData: { userId: UserInterface['id']; instanceId: Instance['id']; duration: string }) => {
+  kickUser: async (kickData: { userId: string; instanceId: Instance['id']; duration: string }) => {
     const duration = new Date()
     if (kickData.duration === 'INFINITY') {
       duration.setFullYear(duration.getFullYear() + 10) // ban for 10 years

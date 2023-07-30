@@ -24,6 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import {
+  UserType,
   userDataSchema,
   userPatchSchema,
   userQuerySchema,
@@ -35,7 +36,6 @@ import { getValidator } from '@feathersjs/typebox'
 import { HookContext } from '@feathersjs/feathers'
 import { iff, isProvider } from 'feathers-hooks-common'
 
-import { UserInterface } from '@etherealengine/common/src/interfaces/User'
 import addAssociations from '@etherealengine/server-core/src/hooks/add-associations'
 
 import { locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
@@ -62,7 +62,7 @@ const restrictUserPatch = (context: HookContext) => {
   if (context.params.isInternal) return context
 
   // allow admins for all patch actions
-  const loggedInUser = context.params.user as UserInterface
+  const loggedInUser = context.params.user as UserType
   if (
     loggedInUser.scopes &&
     loggedInUser.scopes.find((scope) => scope.type === 'admin:admin') &&
@@ -87,7 +87,7 @@ const restrictUserRemove = (context: HookContext) => {
   if (context.params.isInternal) return context
 
   // allow admins for all patch actions
-  const loggedInUser = context.params.user as UserInterface
+  const loggedInUser = context.params.user as UserType
   if (
     loggedInUser.scopes &&
     loggedInUser.scopes.find((scope) => scope.type === 'admin:admin') &&

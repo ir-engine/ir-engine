@@ -27,8 +27,8 @@ import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
 
 import { ChannelID, ChannelUser as ChannelUserInterface } from '@etherealengine/common/src/interfaces/ChannelUser'
 
-import { UserInterface } from '@etherealengine/common/src/interfaces/User'
 import { UserId } from '@etherealengine/common/src/interfaces/UserId'
+import { UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Paginated, Params } from '@feathersjs/feathers'
 import { Application } from '../../../declarations'
 
@@ -38,7 +38,7 @@ export type RemoveParams = Params<{
   userId: UserId
   channelId: ChannelID
 }> & {
-  user?: UserInterface // loggedInUser
+  user?: UserType // loggedInUser
   isInternal?: boolean
 }
 

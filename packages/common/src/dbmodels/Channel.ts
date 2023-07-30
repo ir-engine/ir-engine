@@ -23,7 +23,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { UserInterface } from '../interfaces/User'
 import { UserId } from '../interfaces/UserId'
 
 export interface ChannelInterface {

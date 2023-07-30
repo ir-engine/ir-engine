@@ -30,8 +30,7 @@ import { createFeathersKoaApp } from '../../createApp'
 import { Channel as ChannelInterface } from '@etherealengine/common/src/interfaces/Channel'
 import { ChannelUser } from '@etherealengine/common/src/interfaces/ChannelUser'
 import { Instance } from '@etherealengine/common/src/interfaces/Instance'
-import { UserInterface } from '@etherealengine/common/src/interfaces/User'
-import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { UserType, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Paginated } from '@feathersjs/feathers'
 
 describe('channel service', () => {
@@ -59,7 +58,7 @@ describe('channel service', () => {
     const user = (await app.service(userPath).create({
       name: 'user',
       isGuest: false
-    })) as UserInterface
+    })) as UserType
 
     const channel = await app.service('channel').create(
       {
@@ -104,7 +103,7 @@ describe('channel service', () => {
   it('can remove and finds channel with instanceId', async () => {
     const user = (await app.service(userPath).create({
       name: 'user'
-    })) as UserInterface
+    })) as UserType
 
     const instance = (await app.service('instance').create(
       {},
@@ -148,7 +147,7 @@ describe('channel service', () => {
     const user = (await app.service(userPath).create({
       name: 'user',
       isGuest: false
-    })) as UserInterface
+    })) as UserType
 
     const instance = (await app.service('instance').create(
       {},
@@ -175,7 +174,7 @@ describe('channel service', () => {
     const user = (await app.service(userPath).create({
       name: 'user',
       isGuest: false
-    })) as UserInterface
+    })) as UserType
 
     const instance = (await app.service('instance').create(
       {},

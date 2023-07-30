@@ -26,17 +26,16 @@ Ethereal Engine. All Rights Reserved.
 import { HookContext, Paginated } from '@feathersjs/feathers/lib'
 import assert from 'assert'
 
-import { UserInterface } from '@etherealengine/common/src/interfaces/User'
 import { destroyEngine } from '@etherealengine/engine/src/ecs/classes/Engine'
 
 import { userApiKeyPath, UserApiKeyType } from '@etherealengine/engine/src/schemas/user/user-api-key.schema'
-import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { userPath, UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Application } from '../../declarations'
 import { createFeathersKoaApp } from '../createApp'
 import { UnauthorizedException } from '../util/exceptions/exception'
 import verifyScope from './verify-scope'
 
-const mockUserHookContext = (user: UserInterface, app: Application) => {
+const mockUserHookContext = (user: UserType, app: Application) => {
   return {
     app,
     params: {
@@ -63,7 +62,7 @@ describe('verify-scope', () => {
     let user = (await app.service(userPath).create({
       name,
       isGuest
-    })) as UserInterface
+    })) as UserType
 
     user = await app.service(userPath).get(user.id, { user })
 
@@ -91,7 +90,7 @@ describe('verify-scope', () => {
     let user = (await app.service(userPath).create({
       name,
       isGuest
-    })) as UserInterface
+    })) as UserType
 
     await app.service('scope').create({
       type: 'location:read',
@@ -116,7 +115,7 @@ describe('verify-scope', () => {
     let user = (await app.service(userPath).create({
       name,
       isGuest
-    })) as UserInterface
+    })) as UserType
 
     await app.service('scope').create({
       type: 'location:read',
@@ -149,7 +148,7 @@ describe('verify-scope', () => {
     let user = (await app.service(userPath).create({
       name,
       isGuest
-    })) as UserInterface
+    })) as UserType
 
     await app.service('scope').create({
       type: 'location:read',

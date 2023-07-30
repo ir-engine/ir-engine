@@ -30,10 +30,10 @@ import fs from 'fs'
 import _ from 'lodash'
 import path from 'path'
 
-import { UserInterface } from '@etherealengine/common/src/dbmodels/UserInterface'
 import logger from '@etherealengine/common/src/logger'
 import { getState } from '@etherealengine/hyperflux'
 
+import { UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Application } from '../../../declarations'
 import { ServerState } from '../../ServerState'
 import { UserParams } from '../../api/root-params'
@@ -340,7 +340,7 @@ export default (app: Application): void => {
 
   service.hooks(hooks)
 
-  service.publish('patched', async (data: UserInterface): Promise<any> => {
+  service.publish('patched', async (data: UserType) => {
     try {
       let targetIds = []
       const projectOwners = await app.service('project-permission').Model.findAll({

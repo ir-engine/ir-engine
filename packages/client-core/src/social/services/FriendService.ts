@@ -27,12 +27,12 @@ import i18n from 'i18next'
 import { useEffect } from 'react'
 
 import { Relationship } from '@etherealengine/common/src/interfaces/Relationship'
-import { UserInterface } from '@etherealengine/common/src/interfaces/User'
 import multiLogger from '@etherealengine/common/src/logger'
 import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { defineAction, defineState, dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
 
+import { UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { NotificationService } from '../../common/services/NotificationService'
 import { AuthState } from '../../user/services/AuthService'
 
@@ -43,11 +43,11 @@ export const FriendState = defineState({
   name: 'FriendState',
   initial: () => ({
     relationships: {
-      blocked: [] as Array<UserInterface>,
-      blocking: [] as Array<UserInterface>,
-      friend: [] as Array<UserInterface>,
-      requested: [] as Array<UserInterface>,
-      pending: [] as Array<UserInterface>
+      blocked: [] as Array<UserType>,
+      blocking: [] as Array<UserType>,
+      friend: [] as Array<UserType>,
+      requested: [] as Array<UserType>,
+      pending: [] as Array<UserType>
     },
     isFetching: false,
     updateNeeded: true

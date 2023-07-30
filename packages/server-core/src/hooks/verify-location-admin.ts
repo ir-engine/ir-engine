@@ -27,14 +27,14 @@ import { Forbidden } from '@feathersjs/errors'
 import { HookContext, Paginated } from '@feathersjs/feathers'
 
 import { LocationAdmin } from '@etherealengine/common/src/interfaces/LocationAdmin'
-import { UserInterface } from '@etherealengine/common/src/interfaces/User'
 
+import { UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Application } from '../../declarations'
 
 export default () => {
   return async (context: HookContext<Application>) => {
     const { app, data, params } = context
-    const loggedInUser = params.user as UserInterface
+    const loggedInUser = params.user as UserType
     const locationAdmins = (await app.service('location-admin').find({
       query: {
         locationId: data.locationId,

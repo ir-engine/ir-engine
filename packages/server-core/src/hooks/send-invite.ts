@@ -30,12 +30,12 @@ import * as pug from 'pug'
 
 import { IdentityProviderInterface } from '@etherealengine/common/src/dbmodels/IdentityProvider'
 import { Invite as InviteType } from '@etherealengine/common/src/interfaces/Invite'
-import { UserInterface } from '@etherealengine/common/src/interfaces/User'
 import { locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
 
+import { UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Application } from '../../declarations'
-import config from '../appconfig'
 import logger from '../ServerLogger'
+import config from '../appconfig'
 import Page from '../types/PageObject'
 import { getInviteLink, sendEmail, sendSms } from '../user/auth-management/auth-management.utils'
 import { UserRelationshipDataType } from '../user/user-relationship/user-relationship.class'
@@ -147,7 +147,7 @@ export const sendInvite = async (app: Application, result: InviteDataType, param
     const inviteType = result.inviteType
     const targetObjectId = result.targetObjectId
 
-    const authUser = params.user as UserInterface
+    const authUser = params.user as UserType
 
     if (result.identityProviderType === 'email') {
       await generateEmail(app, result, token, inviteType, authUser.name, targetObjectId)
