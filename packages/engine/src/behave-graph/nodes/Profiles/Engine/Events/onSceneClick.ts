@@ -23,6 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { Assert, NodeCategory, makeEventNodeDefinition } from '@behave-graph/core'
 import { getState } from '@etherealengine/hyperflux'
 import { Vector3 } from 'three'
 import { CameraComponent } from '../../../../../camera/components/CameraComponent'
@@ -35,8 +36,6 @@ import { getInteractionGroups } from '../../../../../physics/functions/getIntera
 import { PhysicsState } from '../../../../../physics/state/PhysicsState'
 import { SceneQueryType } from '../../../../../physics/types/PhysicsTypes'
 import { EngineRenderer } from '../../../../../renderer/WebGLRendererSystem'
-import { Assert } from '../../../Diagnostics/Assert'
-import { NodeCategory, makeEventNodeDefinition } from '../../../Nodes/NodeDefinitions'
 
 type State = {
   onSceneClick?: ((event: MouseEvent) => void) | undefined

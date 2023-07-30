@@ -25,8 +25,8 @@ Ethereal Engine. All Rights Reserved.
 
 import matches, { Validator } from 'ts-matches'
 
+import { GraphJSON, IRegistry } from '@behave-graph/core'
 import { OpaqueType } from '@etherealengine/common/src/interfaces/OpaqueType'
-import { GraphJSON, IRegistry } from '@etherealengine/engine/src/behave-graph/nodes'
 
 import { getState } from '@etherealengine/hyperflux'
 import { useEffect, useState } from 'react'

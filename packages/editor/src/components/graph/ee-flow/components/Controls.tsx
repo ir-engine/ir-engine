@@ -28,7 +28,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import React, { useState } from 'react'
 import { ControlButton, Controls } from 'reactflow'
 
-import { GraphJSON, NodeSpecJSON } from '@etherealengine/engine/src/behave-graph/nodes'
+import { GraphJSON, NodeSpecJSON } from '@behave-graph/core'
 
 import { ClearModal } from './modals/ClearModal'
 import { HelpModal } from './modals/HelpModal'

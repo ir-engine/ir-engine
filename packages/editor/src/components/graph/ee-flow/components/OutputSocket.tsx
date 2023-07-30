@@ -28,7 +28,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import React from 'react'
 import { Connection, Handle, Position, useReactFlow } from 'reactflow'
 
-import { NodeSpecJSON, OutputSocketSpecJSON } from '@etherealengine/engine/src/behave-graph/nodes'
+import { NodeSpecJSON, OutputSocketSpecJSON } from '@behave-graph/core'
 
 import { colors, valueTypeColorMap } from '../util/colors'
 import { isValidConnection } from '../util/isValidConnection'

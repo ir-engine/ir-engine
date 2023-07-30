@@ -23,6 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { NodeCategory, makeFlowNodeDefinition, makeFunctionNodeDefinition } from '@behave-graph/core'
+import { eulerToQuat, toQuat, toVector3 } from '@behave-graph/scene'
 import config from '@etherealengine/common/src/config'
 import { SceneJson } from '@etherealengine/common/src/interfaces/SceneInterface'
 import { dispatchAction, getMutableState } from '@etherealengine/hyperflux'
@@ -39,9 +41,6 @@ import { VideoComponent } from '../../../../../scene/components/VideoComponent'
 import { PlayMode } from '../../../../../scene/constants/PlayMode'
 import { TransformComponent } from '../../../../../transform/components/TransformComponent'
 import { ContentFitType } from '../../../../../xrui/functions/ObjectFitFunctions'
-import { NodeCategory, makeFlowNodeDefinition, makeFunctionNodeDefinition } from '../../../Nodes/NodeDefinitions'
-import { eulerToQuat } from '../../Scene/Values/Internal/Vec4'
-import { toQuat, toVector3 } from '../../Scene/buildScene'
 
 export const teleportEntity = makeFlowNodeDefinition({
   typeName: 'engine/teleportEntity',

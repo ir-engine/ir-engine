@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import React, { useCallback, useEffect, useState } from 'react'
 import { useReactFlow } from 'reactflow'
 
-import { GraphJSON } from '@etherealengine/engine/src/behave-graph/nodess'
+import { GraphJSON } from '@behave-graph/core'
 
 import { Modal } from './Modal'
 

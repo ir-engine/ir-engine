@@ -23,6 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import {
+  NodeCategory,
+  makeFlowNodeDefinition,
+  makeFunctionNodeDefinition,
+  makeInNOutFunctionDesc
+} from '@behave-graph/core'
 import { Entity } from '../../../../../ecs/classes/Entity'
 import {
   ComponentMap,
@@ -30,8 +36,6 @@ import {
   removeComponent,
   setComponent
 } from '../../../../../ecs/functions/ComponentFunctions'
-import { makeInNOutFunctionDesc } from '../../../Nodes/FunctionNode'
-import { NodeCategory, makeFlowNodeDefinition, makeFunctionNodeDefinition } from '../../../Nodes/NodeDefinitions'
 
 export const getComponentFromRegistry = makeFunctionNodeDefinition({
   typeName: 'engine/getComponentfromRegistry',

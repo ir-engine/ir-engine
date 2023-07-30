@@ -27,11 +27,11 @@ import { Validator, matches } from 'ts-matches'
 
 import { defineAction, defineActionQueue, defineState } from '@etherealengine/hyperflux'
 
+import { IRegistry } from '@behave-graph/core'
 import { Entity } from '../../ecs/classes/Entity'
 import { defineQuery, hasComponent, removeComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { BehaveGraphComponent, GraphDomainID } from '../components/BehaveGraphComponent'
-import { IRegistry } from '../nodes'
 
 export type BehaveGraphDomainType = {
   register: (registry?: IRegistry) => void

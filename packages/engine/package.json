@@ -29,10 +29,12 @@
   },
   "version": "1.4.0",
   "dependencies": {
-    "@etherealengine/volumetric": "^2.0.1",
+    "@behave-graph/core": "https://gitpkg.now.sh/SYBIOTE/behave-graph/packages/core?main",
+    "@behave-graph/scene": "https://gitpkg.now.sh/SYBIOTE/behave-graph/packages/scene?main",
     "@dimforge/rapier3d-compat": "0.11.1",
     "@etherealengine/common": "^1.4.0",
     "@etherealengine/hyperflux": "^1.4.0",
+    "@etherealengine/volumetric": "^2.0.1",
     "@etherealengine/xrui": "^1.4.0",
     "@gltf-transform/core": "3.4.2",
     "@gltf-transform/extensions": "3.4.2",

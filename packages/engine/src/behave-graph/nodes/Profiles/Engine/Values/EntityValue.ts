@@ -23,8 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { ValueType } from '@behave-graph/core'
 import { Entity } from '../../../../../ecs/classes/Entity'
-import { ValueType } from '../../../Values/ValueType'
 
 export const EntityValue: ValueType = {
   name: 'entity',

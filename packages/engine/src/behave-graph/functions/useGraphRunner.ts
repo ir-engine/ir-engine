@@ -23,8 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { Engine, GraphJSON, GraphNodes, ILifecycleEventEmitter, IRegistry, readGraphFromJSON } from '@behave-graph/core'
 import { useCallback, useEffect, useState } from 'react'
-import { Engine, GraphJSON, GraphNodes, ILifecycleEventEmitter, IRegistry, readGraphFromJSON } from '../nodes'
 
 /** Runs the behavior graph by building the execution
  * engine and triggering start on the lifecycle event emitter.

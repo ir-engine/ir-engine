@@ -23,6 +23,17 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import {
+  Assert,
+  CustomEvent,
+  Engine,
+  EventNode2,
+  IGraph,
+  NodeConfiguration,
+  NodeDescription,
+  NodeDescription2,
+  Socket
+} from '@behave-graph/core'
 import { getContentType } from '@etherealengine/common/src/utils/getContentType'
 import { PositionalAudioComponent } from '../../../../../audio/components/PositionalAudioComponent'
 import { Entity } from '../../../../../ecs/classes/Entity'
@@ -33,14 +44,6 @@ import { ModelComponent } from '../../../../../scene/components/ModelComponent'
 import { PrefabComponent } from '../../../../../scene/components/PrefabComponent'
 import { VideoComponent } from '../../../../../scene/components/VideoComponent'
 import { VolumetricComponent } from '../../../../../scene/components/VolumetricComponent'
-import { Assert } from '../../../Diagnostics/Assert'
-import { CustomEvent } from '../../../Events/CustomEvent'
-import { Engine } from '../../../Execution/Engine'
-import { IGraph } from '../../../Graphs/Graph'
-import { EventNode2 } from '../../../Nodes/EventNode'
-import { NodeConfiguration } from '../../../Nodes/Node'
-import { NodeDescription, NodeDescription2 } from '../../../Nodes/Registry/NodeDescription'
-import { Socket } from '../../../Sockets/Socket'
 import { addEntityToScene } from '../helper/entityHelper'
 
 async function addMediaComponent(url: string, parent?: Entity | null, before?: Entity | null) {

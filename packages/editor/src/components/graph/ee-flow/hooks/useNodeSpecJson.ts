@@ -25,13 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { useEffect, useState } from 'react'
 
-import {
-  Dependencies,
-  NodeDefinitionsMap,
-  NodeSpecJSON,
-  ValueTypeMap,
-  writeNodeSpecsToJSON
-} from '@etherealengine/engine/src/behave-graph/nodes'
+import { Dependencies, NodeDefinitionsMap, NodeSpecJSON, ValueTypeMap, writeNodeSpecsToJSON } from '@behave-graph/core'
 
 export const useNodeSpecJson = ({
   values,

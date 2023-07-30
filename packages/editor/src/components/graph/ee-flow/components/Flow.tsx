@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import React, { useEffect, useRef } from 'react'
 import { Background, BackgroundVariant, ReactFlow } from 'reactflow'
 
-import { GraphJSON, IRegistry } from '@etherealengine/engine/src/behave-graph/nodes'
+import { GraphJSON, IRegistry } from '@behave-graph/core'
 
 import { useGraphRunner } from '@etherealengine/engine/src/behave-graph/functions/useGraphRunner.js'
 import { useBehaveGraphFlow } from '../hooks/useBehaveGraphFlow.js'

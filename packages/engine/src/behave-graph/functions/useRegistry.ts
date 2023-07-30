@@ -23,14 +23,11 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import {
-  DefaultLogger,
-  DummyScene,
-  ManualLifecycleEventEmitter,
-  registerCoreProfile,
-  registerEngineProfile,
-  registerSceneProfile
-} from '@etherealengine/engine/src/behave-graph/nodes'
+import { registerEngineProfile } from '../nodes/Profiles/Engine/registerEngineProfile'
+
+import { DefaultLogger, ManualLifecycleEventEmitter, registerCoreProfile } from '@behave-graph/core'
+
+import { DummyScene, registerSceneProfile } from '@behave-graph/scene'
 
 export const useRegistry = () => {
   const registry = registerEngineProfile(

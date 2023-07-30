@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import React, { useState } from 'react'
 import { useReactFlow, XYPosition } from 'reactflow'
 
-import { NodeSpecJSON } from '@etherealengine/engine/src/behave-graph/nodes'
+import { NodeSpecJSON } from '@behave-graph/core'
 
 import { useOnPressKey } from '../hooks/useOnPressKey.js'
 

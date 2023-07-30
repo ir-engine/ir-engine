@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { NodeSpecJSON } from '@etherealengine/engine/src/behave-graph/nodes'
+import { NodeSpecJSON } from '@behave-graph/core'
 
 export const getSocketsByNodeTypeAndHandleType = (
   nodes: NodeSpecJSON[],

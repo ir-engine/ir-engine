@@ -23,6 +23,14 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import {
+  NodeCategory,
+  makeFlowNodeDefinition,
+  makeFunctionNodeDefinition,
+  makeInNOutFunctionDesc
+} from '@behave-graph/core'
+import { eulerToQuat, toQuat, toVector3 } from '@behave-graph/scene'
+import { generateUUID } from 'three/src/math/MathUtils'
 import { Engine } from '../../../../../ecs/classes/Engine'
 import { Entity } from '../../../../../ecs/classes/Entity'
 import { defineQuery, getComponent, setComponent } from '../../../../../ecs/functions/ComponentFunctions'
@@ -30,11 +38,6 @@ import { removeEntity } from '../../../../../ecs/functions/EntityFunctions'
 import { NameComponent } from '../../../../../scene/components/NameComponent'
 import { SceneObjectComponent } from '../../../../../scene/components/SceneObjectComponent'
 import { TransformComponent } from '../../../../../transform/components/TransformComponent'
-import { makeInNOutFunctionDesc } from '../../../Nodes/FunctionNode'
-import { NodeCategory, makeFlowNodeDefinition, makeFunctionNodeDefinition } from '../../../Nodes/NodeDefinitions'
-import { generateUuid } from '../../../generateUuid'
-import { eulerToQuat } from '../../Scene/Values/Internal/Vec4'
-import { toQuat, toVector3 } from '../../Scene/buildScene'
 import { addEntityToScene } from '../helper/entityHelper'
 
 const sceneQuery = defineQuery([SceneObjectComponent])
@@ -94,7 +97,7 @@ export const addEntity = makeFlowNodeDefinition({
   triggered: ({ read, write, commit, graph: { getDependency } }) => {
     let parentEntity: Entity | null = read('parentEntity')
     parentEntity = parentEntity! < 0 ? null : parentEntity
-    const entityName: string = read('entityName') ?? `new Entity ${generateUuid()}`
+    const entityName: string = read('entityName') ?? `new Entity ${generateUUID()}`
     const entity = addEntityToScene(entityName, parentEntity)
     write('entity', entity)
     commit('flow')

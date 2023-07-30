@@ -23,9 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { Assert, NodeCategory, makeEventNodeDefinition } from '@behave-graph/core'
 import { InputSourceComponent } from '../../../../../input/components/InputSourceComponent'
-import { Assert } from '../../../Diagnostics/Assert'
-import { NodeCategory, makeEventNodeDefinition } from '../../../Nodes/NodeDefinitions'
 
 type State = {
   handleKeypadInput?: ((jsonPath: string) => void) | undefined

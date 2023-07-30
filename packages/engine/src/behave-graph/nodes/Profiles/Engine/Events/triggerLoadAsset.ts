@@ -23,13 +23,17 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { CustomEvent } from '../../../Events/CustomEvent'
-import { Fiber } from '../../../Execution/Fiber'
-import { IGraph } from '../../../Graphs/Graph'
-import { FlowNode2 } from '../../../Nodes/FlowNode'
-import { NodeConfiguration } from '../../../Nodes/Node'
-import { NodeDescription, NodeDescription2 } from '../../../Nodes/Registry/NodeDescription'
-import { Socket } from '../../../Sockets/Socket'
+import {
+  CustomEvent,
+  Fiber,
+  FlowNode2,
+  IGraph,
+  NodeConfiguration,
+  NodeDescription,
+  NodeDescription2,
+  Socket
+} from '@behave-graph/core'
+
 export class triggerLoadAsset extends FlowNode2 {
   public static Description = new NodeDescription2({
     typeName: 'engine/loadAsset',

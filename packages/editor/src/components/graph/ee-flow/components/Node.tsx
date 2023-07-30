@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import React from 'react'
 import { NodeProps as FlowNodeProps, useEdges } from 'reactflow'
 
-import { NodeSpecJSON } from '@etherealengine/engine/src/behave-graph/nodes'
+import { NodeSpecJSON } from '@behave-graph/core'
 
 import { useChangeNodeData } from '../hooks/useChangeNodeData'
 import { isHandleConnected } from '../util/isHandleConnected'

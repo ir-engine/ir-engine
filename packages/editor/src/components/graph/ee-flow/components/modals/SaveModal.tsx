@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import React, { useMemo, useRef, useState } from 'react'
 import { useEdges, useNodes } from 'reactflow'
 
-import { NodeSpecJSON } from '@etherealengine/engine/src/behave-graph/nodes'
+import { NodeSpecJSON } from '@behave-graph/core'
 
 import { flowToBehave } from '../../transformers/flowToBehave'
 import { Modal } from './Modal'
