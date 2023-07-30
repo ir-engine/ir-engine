@@ -36,22 +36,28 @@ import { Examples, LoadModal } from './modals/LoadModal'
 import { SaveModal } from './modals/SaveModal'
 
 export type CustomControlsProps = {
+  graphRef: any
   playing: boolean
   togglePlay: () => void
+  onChangeGraph: (value: GraphJSON) => void
   setBehaviorGraph: (value: GraphJSON) => void
   examples: Examples
   specJson: NodeSpecJSON[] | undefined
 }
 
 export const CustomControls: React.FC<CustomControlsProps> = ({
+  graphRef,
   playing,
   togglePlay,
+  onSaveGraph,
   setBehaviorGraph,
   examples,
   specJson
 }: {
+  graphRef: React.MutableRefObject<GraphJSON>
   playing: boolean
   togglePlay: () => void
+  onSaveGraph: (value: GraphJSON) => void
   setBehaviorGraph: (value: GraphJSON) => void
   examples: Examples
   specJson: NodeSpecJSON[] | undefined
@@ -60,7 +66,8 @@ export const CustomControls: React.FC<CustomControlsProps> = ({
   const [saveModalOpen, setSaveModalOpen] = useState(false)
   const [helpModalOpen, setHelpModalOpen] = useState(false)
   const [clearModalOpen, setClearModalOpen] = useState(false)
-
+  // load modal should have a drop area for json files
+  // save modal should provide a path or file browser to save, or just save automatically
   return (
     <>
       <Controls>
@@ -70,7 +77,13 @@ export const CustomControls: React.FC<CustomControlsProps> = ({
         <ControlButton title="Load" onClick={() => setLoadModalOpen(true)}>
           <FontAwesomeIcon icon={faUpload} />
         </ControlButton>
-        <ControlButton title="Save" onClick={() => setSaveModalOpen(true)}>
+        <ControlButton
+          title="Save"
+          onClick={() => {
+            onSaveGraph(graphRef.current)
+            setSaveModalOpen(true)
+          }}
+        >
           <FontAwesomeIcon icon={faDownload} />
         </ControlButton>
         <ControlButton title="Clear" onClick={() => setClearModalOpen(true)}>

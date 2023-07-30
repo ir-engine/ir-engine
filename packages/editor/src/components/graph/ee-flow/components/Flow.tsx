@@ -40,7 +40,7 @@ type FlowProps = {
   initialGraph: GraphJSON
   examples: Examples
   registry: IRegistry
-  onChangeGraph?: (nuGraph: GraphJSON) => void
+  onChangeGraph: (nuGraph: GraphJSON) => void
 }
 
 export const Flow: React.FC<FlowProps> = ({ initialGraph: graph, examples, registry, onChangeGraph }) => {
@@ -84,7 +84,7 @@ export const Flow: React.FC<FlowProps> = ({ initialGraph: graph, examples, regis
 
   useEffect(() => {
     return () => {
-      onChangeGraph?.(graphJsonRef.current) // save the updated graph in component
+      onChangeGraph(graphJsonRef.current) // save the updated graph in component
     }
   }, [])
 
@@ -107,8 +107,10 @@ export const Flow: React.FC<FlowProps> = ({ initialGraph: graph, examples, regis
       onPaneContextMenu={handlePaneContextMenu}
     >
       <CustomControls
+        graphRef={graphJsonRef}
         playing={playing}
         togglePlay={togglePlay}
+        onSaveGraph={onChangeGraph}
         setBehaviorGraph={setGraphJson}
         examples={examples}
         specJson={specJson}
