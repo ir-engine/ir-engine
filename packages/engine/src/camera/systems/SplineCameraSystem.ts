@@ -27,7 +27,7 @@ import { ArrowHelper, Quaternion } from 'three'
 
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 
-import { defineQuery, getComponent, getComponentState } from '../../ecs/functions/ComponentFunctions'
+import { defineQuery, getComponent, getMutableComponent } from '../../ecs/functions/ComponentFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { CameraTrackComponent } from '../../scene/components/CameraTrackComponent'
 import { SplineComponent } from '../../scene/components/SplineComponent'
@@ -39,7 +39,7 @@ const cameraTrackQuery = defineQuery([SplineComponent, CameraTrackComponent, Vis
 const execute = () => {
   const { deltaSeconds } = Engine.instance
   for (const entity of cameraTrackQuery.enter()) {
-    getComponentState(entity, CameraTrackComponent).alpha.set(0)
+    getMutableComponent(entity, CameraTrackComponent).alpha.set(0)
 
     // stuff
     const transform = getComponent(entity, TransformComponent)

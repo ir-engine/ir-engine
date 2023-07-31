@@ -125,7 +125,7 @@ export default class Spline extends Object3D {
     this._positions.push(newSplineObject.position)
 
     this.updateSplineOutline()
-    return newSplineObject // anselm
+    return newSplineObject
   }
 
   removeLastPoint() {

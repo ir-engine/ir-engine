@@ -45,7 +45,7 @@ import { EditorComponentType } from './Util'
 
 export const CameraTrackNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
-  const helper = useComponent(props.node.entity, CameraTrackComponent).helper.value
+  const helper = useComponent(props.entity, CameraTrackComponent).helper.value
 
   return (
     <NodeEditor description={t('editor:properties.spline.description')} {...props}>
