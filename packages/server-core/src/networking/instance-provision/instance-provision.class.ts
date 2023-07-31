@@ -476,20 +476,6 @@ export class InstanceProvision implements ServiceMethods<any> {
         ended: true
       }
       await this.app.service('instance').patch(instance.id, { ...patchInstance })
-      await this.app.service('instanceserver-subdomain-provision').patch(
-        null,
-        {
-          allocated: false
-        },
-        {
-          query: {
-            instanceId: null,
-            is_id: {
-              $nin: isIds
-            }
-          }
-        }
-      )
       return true
     }
 
