@@ -23,35 +23,18 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { defineState } from '@etherealengine/hyperflux'
 
-export const CaptureClientSettingsState = defineState({
-  name: 'CaptureClientSettingsState',
-  initial: () => ({
-    tab: 0,
-    settings: [
-      {
-        name: 'Display',
-        tabOrder: 0,
-        showVideo: false,
-        flipVideo: true,
-        show2dSkeleton: true
-      },
-      {
-        name: 'Tracking',
-        tabOrder: 1,
-        solvePose: true,
-        trackHands: false,
-        solveHands: false,
-        trackFace: false,
-        solveFace: false
-      },
-      {
-        name: 'Debug',
-        tabOrder: 2,
-        show3dLandmarks: true,
-        throttleSend: true
-      }
-    ]
-  })
-})
+import { RotationOrder, EulerRotation } from "../Types";
+/** Euler rotation class. */
+export default class Euler {
+    x: number;
+    y: number;
+    z: number;
+    rotationOrder?: RotationOrder;
+    constructor(a?: number | EulerRotation, b?: number, c?: number, rotationOrder?: RotationOrder);
+    /**
+     * Multiplies a number to an Euler.
+     * @param {number} a: Number to multiply
+     */
+    multiply(v: number): Euler;
+}

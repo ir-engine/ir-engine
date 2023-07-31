@@ -23,35 +23,24 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { defineState } from '@etherealengine/hyperflux'
 
-export const CaptureClientSettingsState = defineState({
-  name: 'CaptureClientSettingsState',
-  initial: () => ({
-    tab: 0,
-    settings: [
-      {
-        name: 'Display',
-        tabOrder: 0,
-        showVideo: false,
-        flipVideo: true,
-        show2dSkeleton: true
-      },
-      {
-        name: 'Tracking',
-        tabOrder: 1,
-        solvePose: true,
-        trackHands: false,
-        solveHands: false,
-        trackFace: false,
-        solveFace: false
-      },
-      {
-        name: 'Debug',
-        tabOrder: 2,
-        show3dLandmarks: true,
-        throttleSend: true
-      }
-    ]
-  })
-})
+import Vector from "../utils/vector";
+import { IHips, XYZ, TFVectorPose } from "../Types";
+/**
+ * Calculates Hip rotation and world position
+ * @param {Array} lm3d : array of 3D pose vectors from tfjs or mediapipe
+ * @param {Array} lm2d : array of 2D pose vectors from tfjs or mediapipe
+ */
+export declare const calcHips: (lm3d: TFVectorPose, lm2d: Omit<TFVectorPose, "z">) => {
+    Hips: IHips;
+    Spine: XYZ;
+};
+/**
+ * Converts normalized rotations to radians and estimates world position of hips
+ * @param {Object} hips : hip position and rotation values
+ * @param {Object} spine : spine position and rotation values
+ */
+export declare const rigHips: (hips: IHips, spine: Vector | XYZ) => {
+    Hips: IHips;
+    Spine: XYZ;
+};

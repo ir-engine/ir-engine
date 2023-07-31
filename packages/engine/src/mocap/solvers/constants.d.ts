@@ -23,35 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { defineState } from '@etherealengine/hyperflux'
 
-export const CaptureClientSettingsState = defineState({
-  name: 'CaptureClientSettingsState',
-  initial: () => ({
-    tab: 0,
-    settings: [
-      {
-        name: 'Display',
-        tabOrder: 0,
-        showVideo: false,
-        flipVideo: true,
-        show2dSkeleton: true
-      },
-      {
-        name: 'Tracking',
-        tabOrder: 1,
-        solvePose: true,
-        trackHands: false,
-        solveHands: false,
-        trackFace: false,
-        solveFace: false
-      },
-      {
-        name: 'Debug',
-        tabOrder: 2,
-        show3dLandmarks: true,
-        throttleSend: true
-      }
-    ]
-  })
-})
+export declare const RIGHT = "Right";
+export declare const LEFT = "Left";
+export declare const PI: number;
+export declare const TWO_PI: number;

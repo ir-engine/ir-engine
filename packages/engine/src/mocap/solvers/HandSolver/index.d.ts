@@ -23,35 +23,14 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { defineState } from '@etherealengine/hyperflux'
 
-export const CaptureClientSettingsState = defineState({
-  name: 'CaptureClientSettingsState',
-  initial: () => ({
-    tab: 0,
-    settings: [
-      {
-        name: 'Display',
-        tabOrder: 0,
-        showVideo: false,
-        flipVideo: true,
-        show2dSkeleton: true
-      },
-      {
-        name: 'Tracking',
-        tabOrder: 1,
-        solvePose: true,
-        trackHands: false,
-        solveHands: false,
-        trackFace: false,
-        solveFace: false
-      },
-      {
-        name: 'Debug',
-        tabOrder: 2,
-        show3dLandmarks: true,
-        throttleSend: true
-      }
-    ]
-  })
-})
+import { Results, THand, Side } from "../Types";
+/** Class representing hand solver. */
+export declare class HandSolver {
+    /**
+     * Calculates finger and wrist as euler rotations
+     * @param {Array} lm : array of 3D hand vectors from tfjs or mediapipe
+     * @param {Side} side: left or right
+     */
+    static solve(lm: Results, side?: Side): THand<typeof side> | undefined;
+}

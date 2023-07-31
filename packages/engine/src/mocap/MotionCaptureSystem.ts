@@ -43,17 +43,17 @@ import { DataChannelType, Network } from '../networking/classes/Network'
 import { NetworkObjectComponent } from '../networking/components/NetworkObjectComponent'
 import { TransformComponent } from '../transform/components/TransformComponent'
 
-import { Classifications, Landmark, NormalizedLandmark } from '@mediapipe/tasks-vision'
-import { TFace, THand, TPose } from 'kalidokit/dist/kalidokit.umd.js'
+import { Category, Classifications, Landmark, NormalizedLandmark } from '@mediapipe/tasks-vision'
+import { Side, TFace, THand, TPose } from './solvers/Types'
 
+import mediapipePoseNames from './MediapipePoseNames'
 import UpdateRawFace from './UpdateRawFace'
-import UpdateRawHands from './UpdateRawHands'
-import UpdateRawPose from './UpdateRawPose'
 import UpdateSolvedFace from './UpdateSolvedFace'
+import UpdateSolvedHands from './UpdateSolvedHands'
 
 export interface SolvedHand {
-  handSolve?: THand | undefined
-  handedness?: string | undefined
+  handSolve?: THand<Side> | undefined
+  handedness?: Category | undefined
 }
 
 export interface MotionCaptureStream {
@@ -61,14 +61,16 @@ export interface MotionCaptureStream {
   posesWorld?: Landmark[][] | undefined
   posesSolved?: TPose[] | undefined
   hands?: NormalizedLandmark[][] | undefined
+  handednesses?: Category[][] | undefined
   handsWorld?: Landmark[][] | undefined
   handsSolved?: SolvedHand[] | undefined
   faces?: Classifications[] | undefined
   facesSolved?: TFace[] | undefined
 }
 
-const debugObjs: any[] = []
-const debug = true
+const debugPoseObjs: any[] = []
+const debugHandObjs: any[] = []
+const debug = false
 export const sendResults = (results: MotionCaptureStream) => {
   return encode({
     timestamp: Date.now(),
@@ -146,10 +148,12 @@ const execute = () => {
 
       const avatarHips = avatarRig?.bindRig?.hips?.node
       const hipsPos = avatarHips.position.clone().applyMatrix4(avatarTransform.matrix)
+
       // Pose
-      /*if (data?.posesSolved) {
-        data?.posesSolved.forEach((pose) => {
-          UpdateSolvedPose(pose, hipsPos.clone(), avatarRig, avatarTransform)
+      if (data?.posesWorld) {
+        data?.posesWorld.forEach((pose) => {
+          // UpdateRawPose(pose, hipsPos.clone(), avatarRig, avatarTransform)
+          // UpdateSolvedPose(pose, hipsPos.clone(), avatarRig, avatarTransform)
 
           if (data?.handsSolved) {
             data?.handsSolved.forEach((hand) => {
@@ -157,21 +161,21 @@ const execute = () => {
             })
           }
         })
-      } 
-      */
-      if (data?.posesWorld) {
-        // Hands
-        if (data?.handsWorld) {
-          data?.handsWorld.forEach((hand) => {
-            UpdateRawHands(hand, hipsPos.clone(), avatarRig, avatarTransform)
-          })
-        }
-        if (data?.posesWorld) {
-          data?.posesWorld.forEach((pose) => {
-            UpdateRawPose(pose, hipsPos.clone(), avatarRig, avatarTransform)
-          })
-        }
       }
+
+      // if (data?.posesWorld) {
+      //   // Hands
+      //   if (data?.handsWorld) {
+      //     data?.handsWorld.forEach((hand) => {
+      //       UpdateRawHands(hand, hipsPos.clone(), avatarRig, avatarTransform)
+      //     })
+      //   }
+      //   if (data?.posesWorld) {
+      //     data?.posesWorld.forEach((pose) => {
+      //       UpdateRawPose(pose, hipsPos.clone(), avatarRig, avatarTransform)
+      //     })
+      //   }
+      // }
 
       // Face
       if (data?.facesSolved) {
@@ -185,20 +189,57 @@ const execute = () => {
       }
 
       if (debug) {
-        const d = data?.posesWorld || data?.handsWorld || []
-        d.forEach((landmarks) => {
-          landmarks.forEach((landmark) => {
-            const idx = debugObjs.length
-            if (debugObjs[idx] === undefined) {
-              const matOptions = {}
-              const mesh = new Mesh(new SphereGeometry(0.025), new MeshBasicMaterial(matOptions))
-              debugObjs[idx] = mesh
-              Engine?.instance?.scene?.add(mesh)
-            }
-            debugObjs[idx].position.lerp(new Vector3(landmark.x, landmark.y, landmark.z), engineState.deltaSeconds * 10)
-            debugObjs[idx].updateMatrixWorld()
+        if (data?.posesWorld) {
+          data?.posesWorld.forEach((landmarks, idx) => {
+            let idxP = landmarks.length * idx
+            landmarks.forEach((landmark, idx) => {
+              if (debugPoseObjs[idxP] === undefined) {
+                const matOptions = {}
+                const mesh = new Mesh(new SphereGeometry(0.025), new MeshBasicMaterial(matOptions))
+                debugPoseObjs[idxP] = mesh
+                Engine?.instance?.scene?.add(mesh)
+                idxP++
+                console.log('added debug pose obj')
+              }
+              const newPos = new Vector3(landmark.x, landmark.y, landmark.z)
+
+              debugPoseObjs[idxP]?.position.set(newPos.clone())
+              debugPoseObjs[idxP]?.updateMatrixWorld()
+            })
           })
-        })
+        }
+        if (data?.handsWorld) {
+          data?.handsWorld.forEach((landmarks, idx) => {
+            let idxH = landmarks.length * idx
+            landmarks.forEach((landmark, idx2) => {
+              if (debugHandObjs[idxH] === undefined) {
+                const matOptions = {}
+                const mesh = new Mesh(new SphereGeometry(0.025), new MeshBasicMaterial(matOptions))
+                debugHandObjs[idxH] = mesh
+                Engine?.instance?.scene?.add(mesh)
+                idxH++
+                console.log('added debug hand obj')
+              }
+              const newPos = new Vector3(landmark.x, landmark.y, landmark.z)
+              newPos.add(
+                data?.handednesses![idx][idx2]?.categoryName === 'Left'
+                  ? new Vector3(
+                      data?.posesWorld![idx][mediapipePoseNames['left wrist']]?.x,
+                      data?.posesWorld![idx][mediapipePoseNames['left wrist']]?.y + 1,
+                      data?.posesWorld![idx][mediapipePoseNames['left wrist']]?.z
+                    )
+                  : new Vector3(
+                      data?.posesWorld![idx][mediapipePoseNames['right wrist']]?.x,
+                      data?.posesWorld![idx][mediapipePoseNames['right wrist']]?.y + 1,
+                      data?.posesWorld![idx][mediapipePoseNames['right wrist']]?.z
+                    )
+              )
+              console.log('newPos', newPos)
+              debugHandObjs[idxH]?.position.set(newPos.clone())
+              debugHandObjs[idxH]?.updateMatrixWorld()
+            })
+          })
+        }
       }
     }
   }

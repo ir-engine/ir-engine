@@ -23,35 +23,37 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { defineState } from '@etherealengine/hyperflux'
 
-export const CaptureClientSettingsState = defineState({
-  name: 'CaptureClientSettingsState',
-  initial: () => ({
-    tab: 0,
-    settings: [
-      {
-        name: 'Display',
-        tabOrder: 0,
-        showVideo: false,
-        flipVideo: true,
-        show2dSkeleton: true
-      },
-      {
-        name: 'Tracking',
-        tabOrder: 1,
-        solvePose: true,
-        trackHands: false,
-        solveHands: false,
-        trackFace: false,
-        solveFace: false
-      },
-      {
-        name: 'Debug',
-        tabOrder: 2,
-        show3dLandmarks: true,
-        throttleSend: true
-      }
-    ]
-  })
-})
+import { Results } from "../Types";
+
+import Vector from "../utils/vector";
+/**
+ * Calculate stable plane (triangle) from 4 face landmarks
+ * @param {Array} lm : array of results from tfjs or mediapipe
+ */
+export declare const createEulerPlane: (lm: Results) => {
+    vector: Vector[];
+    points: Vector[];
+};
+/**
+ * Calculate roll, pitch, yaw, centerpoint, and rough dimentions of face plane
+ * @param {Array} lm : array of results from tfjs or mediapipe
+ */
+export declare const calcHead: (lm: Results) => {
+    y: number;
+    x: number;
+    z: number;
+    width: number;
+    height: number;
+    position: Vector;
+    normalized: {
+        y: number;
+        x: number;
+        z: number;
+    };
+    degrees: {
+        y: number;
+        x: number;
+        z: number;
+    };
+};

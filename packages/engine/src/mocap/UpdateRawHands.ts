@@ -23,33 +23,52 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Mesh, MeshBasicMaterial, SphereGeometry } from 'three'
-
-import { getState } from '@etherealengine/hyperflux'
-
-import { Engine } from '../ecs/classes/Engine'
-import { EngineState } from '../ecs/classes/EngineState'
-
 export const motionCaptureHeadSuffix = '_motion_capture_head'
 export const motionCaptureLeftHandSuffix = '_motion_capture_left_hand'
 export const motionCaptureRightHandSuffix = '_motion_capture_right_hand'
 
-const objs = [] as Mesh[]
-const debug = true
-
-if (debug)
-  for (let i = 0; i < 33; i++) {
-    objs.push(new Mesh(new SphereGeometry(0.05), new MeshBasicMaterial()))
-    Engine?.instance?.scene.add(objs[i])
-  }
-
 const UpdateRawHands = (data, hipsPos, avatarRig, avatarTransform) => {
-  if (data) {
+  /*if (data) {
     const engineState = getState(EngineState)
 
     const leftHand = avatarRig?.vrm?.humanoid?.getRawBone('leftHand')?.node
     const rightHand = avatarRig?.vrm?.humanoid?.getRawBone('rightHand')?.node
+
+    for (let i = 0; i < data.length - 1; i++) {
+      // fingers start at 25
+      const name = VRMHumanBoneList[i + 25].toLowerCase()
+      const hand = data[i]
+
+      const lhPos = new Vector3()
+      leftHand?.getWorldPosition(lhPos)
+      const rhPos = new Vector3()
+      rightHand?.getWorldPosition(rhPos)
+
+      const targetPos = new Vector3()
+      targetPos
+        .set(hand?.x, hand?.y, hand?.z)
+        .multiplyScalar(-1)
+        .applyQuaternion(avatarTransform.rotation)
+        .add(hipsPos.clone())
+      // .add(name.startsWith('left') ? lhPos : rhPos)
+
+      const allowedTargets = ['']
+
+      const entityUUID = `${Engine?.instance?.userId}_mocap_${name}` as EntityUUID
+      const ikTarget = UUIDComponent.entitiesByUUID[entityUUID]
+      // if (ikTarget) removeEntity(ikTarget)
+
+      if (!ikTarget) {
+        dispatchAction(XRAction.spawnIKTarget({ entityUUID: entityUUID, name }))
+      }
+
+      const ik = getComponent(ikTarget, TransformComponent)
+      // ik.position.lerp(targetPos, engineState.deltaSeconds * 10)
+
+      // ik.quaternion.copy()
+    }
   }
+  */
 }
 
 export default UpdateRawHands

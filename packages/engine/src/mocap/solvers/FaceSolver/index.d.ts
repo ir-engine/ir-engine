@@ -23,35 +23,23 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { defineState } from '@etherealengine/hyperflux'
 
-export const CaptureClientSettingsState = defineState({
-  name: 'CaptureClientSettingsState',
-  initial: () => ({
-    tab: 0,
-    settings: [
-      {
-        name: 'Display',
-        tabOrder: 0,
-        showVideo: false,
-        flipVideo: true,
-        show2dSkeleton: true
-      },
-      {
-        name: 'Tracking',
-        tabOrder: 1,
-        solvePose: true,
-        trackHands: false,
-        solveHands: false,
-        trackFace: false,
-        solveFace: false
-      },
-      {
-        name: 'Debug',
-        tabOrder: 2,
-        show3dLandmarks: true,
-        throttleSend: true
-      }
-    ]
-  })
-})
+import { Results, IFaceSolveOptions, TFace } from "../Types";
+/** Class representing face solver. */
+export declare class FaceSolver {
+    /** expose blink stabilizer as a static method */
+    static stabilizeBlink: (eye: Record<"r" | "l", number>, headY: number, { enableWink, maxRot, }?: {
+        enableWink?: boolean | undefined;
+        maxRot?: number | undefined;
+    }) => {
+        l: number;
+        r: number;
+    };
+    /**
+     * Combines head, eye, pupil, and eyebrow calcs into one method
+     * @param {Results} lm : array of results from tfjs or mediapipe
+     * @param {String} runtime: set as either "tfjs" or "mediapipe"
+     * @param {IFaceSolveOptions} options: options for face solver
+     */
+    static solve(lm: Results, { runtime, video, imageSize, smoothBlink, blinkSettings, }?: Partial<IFaceSolveOptions>): TFace | undefined;
+}
