@@ -44,6 +44,7 @@ export const instanceAttendanceSchema = Type.Object(
     userId: Type.String({
       format: 'uuid'
     }),
+    instance: Type.Any(), // TDDO: Replace any with instance schema once instance service is moved to feathers 5.
     createdAt: Type.String({ format: 'date-time' }),
     updatedAt: Type.String({ format: 'date-time' })
   },

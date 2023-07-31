@@ -112,13 +112,18 @@ export const userResolver = resolve<UserType, HookContext>({
     return scopes
   }),
   instanceAttendance: virtual(async (user, context) => {
-    const instanceAttendance = (await context.app.service(instanceAttendancePath).find({
-      query: {
-        userId: user.id
-      },
-      paginate: false
-    })) as InstanceAttendanceType[]
-    return instanceAttendance
+    if (context.params.user?.id === context.arguments[0]) {
+      const instanceAttendance = (await context.app.service(instanceAttendancePath).find({
+        query: {
+          userId: user.id,
+          ended: false
+        },
+        paginate: false
+      })) as InstanceAttendanceType[]
+      return instanceAttendance
+    }
+
+    return []
   })
 })
 
