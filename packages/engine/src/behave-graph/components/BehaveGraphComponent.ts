@@ -100,7 +100,6 @@ export const BehaveGraphComponent = defineComponent({
         graphComponent.run.value ? graphRunner.play() : graphRunner.pause()
       }
     }, [graphComponent.run, graphComponent.disabled])
-    console.log('DEBUG in graph reactor')
     const graphRunner = useGraphRunner({ graphJson, autoRun: canPlay, registry })
     return null
   }

@@ -29,7 +29,7 @@ import { defineAction, defineActionQueue, defineState } from '@etherealengine/hy
 
 import { IRegistry } from '@behave-graph/core'
 import { Entity } from '../../ecs/classes/Entity'
-import { defineQuery, hasComponent, removeComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
+import { defineQuery, hasComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { BehaveGraphComponent, GraphDomainID } from '../components/BehaveGraphComponent'
 
@@ -58,25 +58,30 @@ export const BehaveGraphActions = {
   stop: defineAction({
     type: 'BehaveGraph.STOP',
     entity: matches.number as Validator<unknown, Entity>
+  }),
+  executeAll: defineAction({
+    type: 'BehaveGraph.EXECUTEALL',
+    entity: matches.number as Validator<unknown, Entity>
+  }),
+  stopAll: defineAction({
+    type: 'BehaveGraph.STOPALL',
+    entity: matches.number as Validator<unknown, Entity>
   })
 }
 
-const graphQuery = defineQuery([BehaveGraphComponent])
+export const graphQuery = defineQuery([BehaveGraphComponent])
 
 const executeQueue = defineActionQueue(BehaveGraphActions.execute.matches)
 const stopQueue = defineActionQueue(BehaveGraphActions.stop.matches)
 const execute = () => {
   for (const action of executeQueue()) {
     const entity = action.entity
-    if (hasComponent(entity, BehaveGraphComponent)) {
-      removeComponent(entity, BehaveGraphComponent)
-    }
-    setComponent(entity, BehaveGraphComponent, { run: true })
+    if (hasComponent(entity, BehaveGraphComponent)) setComponent(entity, BehaveGraphComponent, { run: true })
   }
 
   for (const action of stopQueue()) {
     const entity = action.entity
-    removeComponent(entity, BehaveGraphComponent)
+    if (hasComponent(entity, BehaveGraphComponent)) setComponent(entity, BehaveGraphComponent, { run: false })
   }
 }
 

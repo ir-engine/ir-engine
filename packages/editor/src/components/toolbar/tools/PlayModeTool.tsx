@@ -42,6 +42,7 @@ import { dispatchAction, getMutableState, useHookstate } from '@etherealengine/h
 import PauseIcon from '@mui/icons-material/Pause'
 import PlayArrowIcon from '@mui/icons-material/PlayArrow'
 
+import { BehaveGraphActions, graphQuery } from '@etherealengine/engine/src/behave-graph/systems/BehaveGraphSystem'
 import { EditorHelperAction, EditorHelperState } from '../../../services/EditorHelperState'
 import { InfoTooltip } from '../../layout/Tooltip'
 import * as styles from '../styles.module.scss'
@@ -62,6 +63,8 @@ const PlayModeTool = () => {
       removeComponent(Engine.instance.cameraEntity, FollowCameraComponent)
       removeComponent(Engine.instance.cameraEntity, TargetCameraRotationComponent)
       dispatchAction(EditorHelperAction.changedPlayMode({ isPlayModeEnabled: false }))
+      graphQuery().forEach((entity) => dispatchAction(BehaveGraphActions.stop({ entity })))
+      // stop all behave graph logic
     } else {
       const avatarDetails = authState.user.avatar.value
 
@@ -74,8 +77,9 @@ const PlayModeTool = () => {
           name: authState.user.name.value
         })
 
-      // run all behave graph logic
       dispatchAction(EditorHelperAction.changedPlayMode({ isPlayModeEnabled: true }))
+      // run all behave graph logic
+      graphQuery().forEach((entity) => dispatchAction(BehaveGraphActions.execute({ entity })))
     }
   }
 
