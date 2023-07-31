@@ -282,13 +282,12 @@ const RestingDefault = {
     }
   }
 };
-var helpers = /* @__PURE__ */ Object.freeze({
+var helpers = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
-  [Symbol.toStringTag]: "Module",
   clamp,
   remap,
   RestingDefault
-});
+}, Symbol.toStringTag, { value: "Module" }));
 const RIGHT = "Right";
 const LEFT = "Left";
 const PI = Math.PI;
@@ -586,22 +585,22 @@ class Vector {
 }
 const calcArms = (lm) => {
   const UpperArm = {
-    r: Vector.findRotation(lm[11], lm[13]),
-    l: Vector.findRotation(lm[12], lm[14])
+    l: Vector.findRotation(lm[11], lm[13]),
+    r: Vector.findRotation(lm[12], lm[14])
   };
-  UpperArm.r.y = Vector.angleBetween3DCoords(lm[12], lm[11], lm[13]);
-  UpperArm.l.y = Vector.angleBetween3DCoords(lm[11], lm[12], lm[14]);
+  UpperArm.l.y = Vector.angleBetween3DCoords(lm[12], lm[11], lm[13]);
+  UpperArm.r.y = Vector.angleBetween3DCoords(lm[11], lm[12], lm[14]);
   const LowerArm = {
-    r: Vector.findRotation(lm[13], lm[15]),
-    l: Vector.findRotation(lm[14], lm[16])
+    l: Vector.findRotation(lm[13], lm[15]),
+    r: Vector.findRotation(lm[14], lm[16])
   };
-  LowerArm.r.y = Vector.angleBetween3DCoords(lm[11], lm[13], lm[15]);
-  LowerArm.l.y = Vector.angleBetween3DCoords(lm[12], lm[14], lm[16]);
-  LowerArm.r.z = clamp(LowerArm.r.z, -2.14, 0);
+  LowerArm.l.y = Vector.angleBetween3DCoords(lm[11], lm[13], lm[15]);
+  LowerArm.r.y = Vector.angleBetween3DCoords(lm[12], lm[14], lm[16]);
   LowerArm.l.z = clamp(LowerArm.l.z, -2.14, 0);
+  LowerArm.r.z = clamp(LowerArm.r.z, -2.14, 0);
   const Hand = {
-    r: Vector.findRotation(Vector.fromArray(lm[15]), Vector.lerp(Vector.fromArray(lm[17]), Vector.fromArray(lm[19]), 0.5)),
-    l: Vector.findRotation(Vector.fromArray(lm[16]), Vector.lerp(Vector.fromArray(lm[18]), Vector.fromArray(lm[20]), 0.5))
+    l: Vector.findRotation(Vector.fromArray(lm[15]), Vector.lerp(Vector.fromArray(lm[17]), Vector.fromArray(lm[19]), 0.5)),
+    r: Vector.findRotation(Vector.fromArray(lm[16]), Vector.lerp(Vector.fromArray(lm[18]), Vector.fromArray(lm[20]), 0.5))
   };
   const rightArmRig = rigArm(UpperArm.r, LowerArm.r, Hand.r, RIGHT);
   const leftArmRig = rigArm(UpperArm.l, LowerArm.l, Hand.l, LEFT);
@@ -835,8 +834,8 @@ class PoseSolver {
     const Arms = calcArms(lm3d);
     const Hips = calcHips(lm3d, lm2d);
     const Legs = enableLegs ? calcLegs(lm3d) : null;
-    const rightHandOffscreen = lm3d[15].y > 0.1 || ((_a = lm3d[15].visibility) != null ? _a : 0) < 0.23 || 0.995 < lm2d[15].y;
-    const leftHandOffscreen = lm3d[16].y > 0.1 || ((_b = lm3d[16].visibility) != null ? _b : 0) < 0.23 || 0.995 < lm2d[16].y;
+    const leftHandOffscreen = lm3d[15].y > 0.1 || ((_a = lm3d[15].visibility) != null ? _a : 0) < 0.23 || 0.995 < lm2d[15].y;
+    const rightHandOffscreen = lm3d[16].y > 0.1 || ((_b = lm3d[16].visibility) != null ? _b : 0) < 0.23 || 0.995 < lm2d[16].y;
     const leftFootOffscreen = lm3d[23].y > 0.1 || ((_c = lm3d[23].visibility) != null ? _c : 0) < 0.63 || Hips.Hips.position.z > -0.4;
     const rightFootOffscreen = lm3d[24].y > 0.1 || ((_d = lm3d[24].visibility) != null ? _d : 0) < 0.63 || Hips.Hips.position.z > -0.4;
     Arms.UpperArm.l = Arms.UpperArm.l.multiply(leftHandOffscreen ? 0 : 1);

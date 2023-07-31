@@ -1,29 +1,3 @@
-/*
-CPAL-1.0 License
-
-The contents of this file are subject to the Common Public Attribution License
-Version 1.0. (the "License"); you may not use this file except in compliance
-with the License. You may obtain a copy of the License at
-https://github.com/EtherealEngine/etherealengine/blob/dev/LICENSE.
-The License is based on the Mozilla Public License Version 1.1, but Sections 14
-and 15 have been added to cover use of software over a computer network and 
-provide for limited attribution for the Original Developer. In addition, 
-Exhibit A has been modified to be consistent with Exhibit B.
-
-Software distributed under the License is distributed on an "AS IS" basis,
-WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for the
-specific language governing rights and limitations under the License.
-
-The Original Code is Ethereal Engine.
-
-The Original Developer is the Initial Developer. The Initial Developer of the
-Original Code is the Ethereal Engine team.
-
-All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
-Ethereal Engine. All Rights Reserved.
-*/
-
-
 import { RestingDefault } from "../utils/helpers";
 import { calcArms } from "./calcArms";
 import { calcHips } from "./calcHips";
@@ -66,8 +40,8 @@ export class PoseSolver {
         const Hips = calcHips(lm3d, lm2d);
         const Legs = enableLegs ? calcLegs(lm3d) : null;
         //DETECT OFFSCREEN AND RESET VALUES TO DEFAULTS
-        const rightHandOffscreen = lm3d[15].y > 0.1 || ((_a = lm3d[15].visibility) !== null && _a !== void 0 ? _a : 0) < 0.23 || 0.995 < lm2d[15].y;
-        const leftHandOffscreen = lm3d[16].y > 0.1 || ((_b = lm3d[16].visibility) !== null && _b !== void 0 ? _b : 0) < 0.23 || 0.995 < lm2d[16].y;
+        const leftHandOffscreen = lm3d[15].y > 0.1 || ((_a = lm3d[15].visibility) !== null && _a !== void 0 ? _a : 0) < 0.23 || 0.995 < lm2d[15].y;
+        const rightHandOffscreen = lm3d[16].y > 0.1 || ((_b = lm3d[16].visibility) !== null && _b !== void 0 ? _b : 0) < 0.23 || 0.995 < lm2d[16].y;
         const leftFootOffscreen = lm3d[23].y > 0.1 || ((_c = lm3d[23].visibility) !== null && _c !== void 0 ? _c : 0) < 0.63 || Hips.Hips.position.z > -0.4;
         const rightFootOffscreen = lm3d[24].y > 0.1 || ((_d = lm3d[24].visibility) !== null && _d !== void 0 ? _d : 0) < 0.63 || Hips.Hips.position.z > -0.4;
         Arms.UpperArm.l = Arms.UpperArm.l.multiply(leftHandOffscreen ? 0 : 1);
