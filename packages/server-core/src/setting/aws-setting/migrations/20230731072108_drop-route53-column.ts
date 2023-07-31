@@ -32,25 +32,11 @@ import { awsSettingPath } from '@etherealengine/engine/src/schemas/setting/aws-s
  * @returns { Promise<void> }
  */
 export async function up(knex: Knex): Promise<void> {
-  const oldTableName = 'Aws'
+  const route53ColumnExists = await knex.schema.hasColumn(awsSettingPath, 'route53')
 
-  const oldNamedTableExists = await knex.schema.hasTable(oldTableName)
-  if (oldNamedTableExists) {
-    await knex.schema.renameTable(oldTableName, awsSettingPath)
-  }
-
-  const tableExists = await knex.schema.hasTable(awsSettingPath)
-
-  if (tableExists === false) {
-    await knex.schema.createTable(awsSettingPath, (table) => {
-      //@ts-ignore
-      table.uuid('id').collate('utf8mb4_bin').primary()
-      table.json('keys').nullable()
-      table.json('s3').nullable()
-      table.json('cloudfront').nullable()
-      table.json('sms').nullable()
-      table.dateTime('createdAt').notNullable()
-      table.dateTime('updatedAt').notNullable()
+  if (route53ColumnExists) {
+    await knex.schema.alterTable(awsSettingPath, async (table) => {
+      table.dropColumn('route53')
     })
   }
 }
@@ -60,9 +46,11 @@ export async function up(knex: Knex): Promise<void> {
  * @returns { Promise<void> }
  */
 export async function down(knex: Knex): Promise<void> {
-  const tableExists = await knex.schema.hasTable(awsSettingPath)
+  const route53ColumnExists = await knex.schema.hasColumn(awsSettingPath, 'route53')
 
-  if (tableExists === true) {
-    await knex.schema.dropTable(awsSettingPath)
+  if (!route53ColumnExists) {
+    await knex.schema.alterTable(awsSettingPath, async (table) => {
+      table.json('route53').nullable()
+    })
   }
 }

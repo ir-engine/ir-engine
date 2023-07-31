@@ -301,13 +301,6 @@ const authentication = {
  * AWS
  */
 const aws = {
-  route53: {
-    hostedZoneId: process.env.ROUTE53_HOSTED_ZONE_ID!,
-    keys: {
-      accessKeyId: process.env.ROUTE53_ACCESS_KEY_ID!,
-      secretAccessKey: process.env.ROUTE53_ACCESS_KEY_SECRET!
-    }
-  },
   s3: {
     accessKeyId: process.env.STORAGE_AWS_ACCESS_KEY_ID!,
     secretAccessKey: process.env.STORAGE_AWS_ACCESS_KEY_SECRET!,
