@@ -30,6 +30,7 @@ import { RecordingResult } from '@etherealengine/common/src/interfaces/Recording
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { defineState, getMutableState } from '@etherealengine/hyperflux'
 
+import { RecordingID } from '@etherealengine/common/src/interfaces/RecordingID'
 import { NotificationService } from '../../common/services/NotificationService'
 
 type RecordingResultFetch = RecordingResult & { 'user.name': string }
@@ -83,7 +84,7 @@ export const AdminRecordingService = {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
   },
-  removeRecording: async (id: string) => {
+  removeRecording: async (id: RecordingID) => {
     await Engine.instance.api.service('recording').remove(id)
     getMutableState(AdminRecordingState).merge({ updateNeeded: true })
   },
@@ -108,7 +109,7 @@ export const AdminSingleRecordingState = defineState({
 })
 
 export const AdminSingleRecordingService = {
-  fetchSingleAdminRecording: async (id: RecordingResult['id']) => {
+  fetchSingleAdminRecording: async (id: RecordingID) => {
     const recording = await Engine.instance.api.service('recording').get(id)
     getMutableState(AdminSingleRecordingState).merge({ recording })
   }
