@@ -118,7 +118,7 @@ describe('NetworkPeerFunctions', () => {
       const userId = 'user id' as UserId
       const peerID = 'peer id' as PeerID
       Engine.instance.userId = 'another user id' as UserId
-      Engine.instance.peerID = peerID
+      Engine.instance.peerID = 'another peer id' as PeerID
       const userName = 'user name'
       const userIndex = 1
       const peerIndex = 2
@@ -135,11 +135,32 @@ describe('NetworkPeerFunctions', () => {
       assert.equal(network.peerIDToPeerIndex.get(peerID), undefined)
     })
 
+    it('should not remove self peer', () => {
+      const userId = 'user id' as UserId
+      const peerID = 'peer id' as PeerID
+      Engine.instance.userId = 'another user id' as UserId
+      Engine.instance.peerID = peerID
+      const userName = 'user name'
+      const userIndex = 1
+      const peerIndex = 2
+      const network = Engine.instance.worldNetwork as Network
+
+      NetworkPeerFunctions.createPeer(network, peerID, peerIndex, userId, userIndex, userName)
+      NetworkPeerFunctions.destroyPeer(network, peerID)
+
+      assert(network.peers.get(peerID))
+
+      assert.equal(network.userIndexToUserID.get(userIndex), userId)
+      assert.equal(network.userIDToUserIndex.get(userId), userIndex)
+      assert.equal(network.peerIndexToPeerID.get(peerIndex), peerID)
+      assert.equal(network.peerIDToPeerIndex.get(peerID), peerIndex)
+    })
+
     it('should remove peer and owned network objects', () => {
       const userId = 'world' as UserId
       const peerID = 'peer id' as PeerID
       Engine.instance.userId = 'another user id' as UserId
-      Engine.instance.peerID = peerID
+      Engine.instance.peerID = 'another peer id' as PeerID
       const userName = 'user name'
       const userIndex = 1
       const peerIndex = 5
