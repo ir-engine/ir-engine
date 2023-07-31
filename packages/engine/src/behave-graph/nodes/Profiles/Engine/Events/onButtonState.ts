@@ -23,48 +23,57 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Assert, NodeCategory, makeEventNodeDefinition } from '@behave-graph/core'
+import { NodeCategory, makeEventNodeDefinition } from '@behave-graph/core'
+import { Query, defineQuery, getComponent, removeQuery } from '../../../../../ecs/functions/ComponentFunctions'
+import { InputSystemGroup } from '../../../../../ecs/functions/EngineFunctions'
+import { SystemUUID, defineSystem, disableSystem, startSystem } from '../../../../../ecs/functions/SystemFunctions'
 import { InputSourceComponent } from '../../../../../input/components/InputSourceComponent'
 
-type State = {
-  handleKeypadInput?: ((jsonPath: string) => void) | undefined
-}
+let systemCounter = 0
 
-const initialState = (): State => ({})
+const initialState = () => ({
+  query: undefined! as Query,
+  systemUUID: '' as SystemUUID
+})
 
 // very 3D specific.
 export const OnSceneNodeClick = makeEventNodeDefinition({
-  typeName: 'engine/buttonPress',
+  typeName: 'engine/buttonState',
   category: NodeCategory.Event,
-  label: 'On Button Press',
-  in: {},
+  label: 'On Button State',
+  in: {
+    button: 'string',
+    state: 'string'
+  },
   out: {
-    flow: 'flow',
-    input: 'vec2'
+    flow: 'flow'
   },
   initialState: initialState(),
   init: ({ read, write, commit, graph }) => {
-    const handleKeypadInput = () => {
-      //write('input',)
-      commit('flow')
+    const buttonKey = read<string>('button')
+    const buttonState = read<string>('state')
+
+    const query = defineQuery([InputSourceComponent])
+    const systemUUID = defineSystem({
+      uuid: 'behave-graph-onButton-' + systemCounter++,
+      execute: () => {
+        for (const eid of query()) {
+          const inputSource = getComponent(eid, InputSourceComponent)
+          if (inputSource.buttons[buttonKey]?.[buttonState]) commit('flow')
+        }
+      }
+    })
+
+    startSystem(systemUUID, { with: InputSystemGroup })
+
+    return {
+      systemUUID,
+      query
     }
-    const nonCapturedInputSourceEntities = InputSourceComponent.nonCapturedInputSourceQuery()
-
-    // add button event listener
-
-    const state: State = {
-      handleKeypadInput
-    }
-
-    return state
   },
-  dispose: ({ state: { handleKeypadInput }, graph: { getDependency } }) => {
-    Assert.mustBeTrue(handleKeypadInput !== undefined)
-
-    if (!handleKeypadInput) return {}
-
-    //remove listener here
-
-    return {}
+  dispose: ({ state, graph: { getDependency } }) => {
+    disableSystem(state.systemUUID)
+    removeQuery(state.query)
+    return initialState()
   }
 })
