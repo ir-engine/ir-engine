@@ -56,6 +56,7 @@ import { ServerState } from '@etherealengine/server-core/src/ServerState'
 import getLocalServerIp from '@etherealengine/server-core/src/util/get-local-server-ip'
 
 import { NetworkObjectComponent } from '@etherealengine/engine/src/networking/components/NetworkObjectComponent'
+import { instanceAuthorizedUserPath } from '@etherealengine/engine/src/schemas/networking/instance-authorized-user.schema'
 import { InstanceServerState } from './InstanceServerState'
 import { SocketWebRTCServerNetwork } from './SocketWebRTCServerFunctions'
 import { closeTransport } from './WebRTCFunctions'
@@ -246,14 +247,14 @@ export async function cleanupOldInstanceservers(app: Application): Promise<void>
  * @returns
  */
 export const authorizeUserToJoinServer = async (app: Application, instance: Instance, userId: UserId) => {
-  const authorizedUsers = (await app.service('instance-authorized-user').find({
+  const authorizedUsers = (await app.service(instanceAuthorizedUserPath).find({
     query: {
       instanceId: instance.id,
       $limit: 0
     }
   })) as any
   if (authorizedUsers.total > 0) {
-    const thisUserAuthorized = (await app.service('instance-authorized-user').find({
+    const thisUserAuthorized = (await app.service(instanceAuthorizedUserPath).find({
       query: {
         instanceId: instance.id,
         userId,

@@ -37,12 +37,15 @@ import { locationPath, LocationType } from '@etherealengine/engine/src/schemas/s
 import { getState } from '@etherealengine/hyperflux'
 
 import { ChannelID } from '@etherealengine/common/src/interfaces/ChannelUser'
+import {
+  instanceAuthorizedUserPath,
+  InstanceAuthorizedUserType
+} from '@etherealengine/engine/src/schemas/networking/instance-authorized-user.schema'
 import { Application } from '../../../declarations'
 import config from '../../appconfig'
 import logger from '../../ServerLogger'
 import { ServerState } from '../../ServerState'
 import getLocalServerIp from '../../util/get-local-server-ip'
-import { InstanceAuthorizedUserDataType } from '../instance-authorized-user/instance-authorized-user.class'
 
 const releaseRegex = /^([a-zA-Z0-9]+)-/
 
@@ -344,7 +347,7 @@ export async function checkForDuplicatedAssignments({
   }
 
   if (createPrivateRoom && userId)
-    await app.service('instance-authorized-user').create({
+    await app.service(instanceAuthorizedUserPath).create({
       instanceId: assignResult.id,
       userId
     })
@@ -589,14 +592,14 @@ export class InstanceProvision implements ServiceMethods<any> {
             instance.currentUsers < location.maxUsersPerInstance
           ) {
             if (roomCode && roomCode === instance.roomCode) {
-              const existingInstanceAuthorizedUser = (await this.app.service('instance-authorized-user').find({
+              const existingInstanceAuthorizedUser = (await this.app.service(instanceAuthorizedUserPath).find({
                 query: {
                   instanceId: instance.id,
                   userId
                 }
-              })) as Paginated<InstanceAuthorizedUserDataType>
+              })) as Paginated<InstanceAuthorizedUserType>
               if (existingInstanceAuthorizedUser.total === 0)
-                await this.app.service('instance-authorized-user').create({
+                await this.app.service(instanceAuthorizedUserPath).create({
                   instanceId: instance.id,
                   userId
                 })
@@ -690,14 +693,14 @@ export class InstanceProvision implements ServiceMethods<any> {
           },
           paginate: false
         })) as any as LocationType[]
-        const instanceAuthorizedUsers = (await this.app.service('instance-authorized-user').find({
+        const instanceAuthorizedUsers = (await this.app.service(instanceAuthorizedUserPath).find({
           query: {
             instanceId: {
               $in: availableLocationInstances.map((instance) => instance.id)
             }
           },
           paginate: false
-        })) as InstanceAuthorizedUserDataType[]
+        })) as any as InstanceAuthorizedUserType[]
 
         for (const instance of availableLocationInstances) {
           const location = locations.find((location) => location.id === instance.locationId)
