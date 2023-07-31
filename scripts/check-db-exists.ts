@@ -92,10 +92,16 @@ cli.main(async () => {
     console.log('Database found')
   }
 
-  if (kubernetesEnabled)
-    await sequelize.query(
-      `UPDATE \`${redisSettingPath}\` SET address='${process.env.REDIS_ADDRESS}',password='${process.env.REDIS_PASSWORD}',port='${process.env.REDIS_PORT}';`
-    )
+  if (kubernetesEnabled) {
+    const [results2] = await sequelize.query(`SHOW TABLES LIKE '${redisSettingPath}';`)
+    if (results2.length > 0)
+      await sequelize.query(
+        `UPDATE \`${redisSettingPath}\`
+           SET address='${process.env.REDIS_ADDRESS}',
+               password='${process.env.REDIS_PASSWORD}',
+               port='${process.env.REDIS_PORT}';`
+      )
+  }
 
   process.exit(0)
 })
