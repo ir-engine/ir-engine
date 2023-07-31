@@ -27,7 +27,7 @@ Ethereal Engine. All Rights Reserved.
 import type { Static } from '@feathersjs/typebox'
 import { querySyntax, Type } from '@feathersjs/typebox'
 
-export const userSettingPath = 'user-setting'
+export const userSettingPath = 'user-settings'
 
 // Main data model schema
 export const userSettingSchema = Type.Object(

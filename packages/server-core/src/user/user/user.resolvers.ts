@@ -24,15 +24,103 @@ Ethereal Engine. All Rights Reserved.
 */
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
-import { resolve } from '@feathersjs/schema'
+import { resolve, virtual } from '@feathersjs/schema'
 import { v4 } from 'uuid'
 
 import { UserQuery, UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
 import type { HookContext } from '@etherealengine/server-core/declarations'
 
+import {
+  InstanceAttendanceType,
+  instanceAttendancePath
+} from '@etherealengine/engine/src/schemas/networking/instance-attendance.schema'
+import { ScopeType, scopePath } from '@etherealengine/engine/src/schemas/scope/scope.schema'
+import { UserSettingType, userSettingPath } from '@etherealengine/engine/src/schemas/setting/user-setting.schema'
+import { LocationAdminType, locationAdminPath } from '@etherealengine/engine/src/schemas/social/location-admin.schema'
+import { LocationBanType, locationBanPath } from '@etherealengine/engine/src/schemas/social/location-ban.schema'
+import { avatarPath } from '@etherealengine/engine/src/schemas/user/avatar.schema'
+import {
+  IdentityProviderType,
+  identityProviderPath
+} from '@etherealengine/engine/src/schemas/user/identity-provider.schema'
+import { UserApiKeyType, userApiKeyPath } from '@etherealengine/engine/src/schemas/user/user-api-key.schema'
 import { getDateTimeSql } from '../../util/get-datetime-sql'
 
-export const userResolver = resolve<UserType, HookContext>({})
+export const userResolver = resolve<UserType, HookContext>({
+  avatar: virtual(async (user, context) => {
+    const avatar = await context.app.service(avatarPath).get(user.avatarId)
+    return avatar
+  }),
+  userSetting: virtual(async (user, context) => {
+    const userSetting = (await context.app.service(userSettingPath).find({
+      query: {
+        userId: user.id
+      },
+      paginate: false
+    })) as UserSettingType[]
+
+    return userSetting.length > 0 ? userSetting[0] : undefined
+  }),
+  apiKey: virtual(async (user, context) => {
+    const apiKey = (await context.app.service(userApiKeyPath).find({
+      query: {
+        userId: user.id
+      },
+      paginate: false
+    })) as UserApiKeyType[]
+
+    return apiKey.length > 0 ? apiKey[0] : undefined
+  }),
+  identityProviders: virtual(async (user, context) => {
+    //TODO: We should replace `as any as IdentityProviderType[]` with `as IdentityProviderType[]` once identity-provider service is migrated to feathers 5.
+    const identityProviders = (await context.app.service(identityProviderPath).find({
+      query: {
+        userId: user.id
+      },
+      paginate: false
+    })) as any as IdentityProviderType[]
+
+    return identityProviders
+  }),
+  locationAdmins: virtual(async (user, context) => {
+    //TODO: We should replace `as any as LocationAdminType[]` with `as LocationAdminType[]` once location-admin service is migrated to feathers 5.
+    const locationAdmins = (await context.app.service(locationAdminPath).find({
+      query: {
+        userId: user.id
+      },
+      paginate: false
+    })) as any as LocationAdminType[]
+    return locationAdmins
+  }),
+  locationBans: virtual(async (user, context) => {
+    const locationBans = (await context.app.service(locationBanPath).find({
+      query: {
+        userId: user.id
+      },
+      paginate: false
+    })) as LocationBanType[]
+    return locationBans
+  }),
+  scopes: virtual(async (user, context) => {
+    //TODO: We should replace `as any as ScopeType[]` with `as ScopeType[]` once scope service is migrated to feathers 5.
+    const scopes = (await context.app.service(scopePath).find({
+      query: {
+        userId: user.id
+      },
+      paginate: false
+    })) as any as ScopeType[]
+    return scopes
+  }),
+  instanceAttendance: virtual(async (user, context) => {
+    const instanceAttendance = (await context.app.service(instanceAttendancePath).find({
+      query: {
+        userId: user.id
+      },
+      paginate: false
+    })) as InstanceAttendanceType[]
+    return instanceAttendance
+  })
+})
 
 export const userExternalResolver = resolve<UserType, HookContext>({})
 

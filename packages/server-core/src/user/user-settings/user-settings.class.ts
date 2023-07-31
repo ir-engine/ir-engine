@@ -29,6 +29,7 @@ import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
 import { UserSetting } from '@etherealengine/common/src/interfaces/User'
 
 import { Application } from '../../../declarations'
+import { UserParams } from '../../api/root-params'
 
 export type UserSettingsDataType = UserSetting
 /**
@@ -41,7 +42,7 @@ export class UserSettings<T = UserSettingsDataType> extends Service<T> {
     super(options)
   }
 
-  async find(params?: Params): Promise<T[] | Paginated<T>> {
+  async find(params?: UserParams): Promise<T[] | Paginated<T>> {
     const userSettings = (await super.find(params)) as any
     const data = userSettings.data.map((el) => {
       let themeModes = JSON.parse(el.themeModes)

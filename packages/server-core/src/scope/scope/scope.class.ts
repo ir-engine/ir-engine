@@ -23,12 +23,13 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Paginated, Params } from '@feathersjs/feathers'
+import { Paginated } from '@feathersjs/feathers'
 import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
 
 import { AdminScope as AdminScopeInterface } from '@etherealengine/common/src/interfaces/AdminScope'
 
 import { Application } from '../../../declarations'
+import { UserParams } from '../../api/root-params'
 import { createScopeTypeModel } from './scope.model'
 
 export type AdminScopeDataType = AdminScopeInterface
@@ -42,7 +43,7 @@ export class Scope<T = AdminScopeDataType> extends Service<T> {
     this.app = app
   }
 
-  async find(params?: Params): Promise<Paginated<T>> {
+  async find(params?: UserParams): Promise<Paginated<T>> {
     const skip = params?.query?.$skip ? params.query.$skip : 0
     const limit = params?.query?.$limit ? params.query.$limit : 10
     const scope = await (this.app.service('scope') as any).Model.findAndCountAll({

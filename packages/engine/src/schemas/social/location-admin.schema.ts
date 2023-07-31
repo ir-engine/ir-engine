@@ -30,6 +30,8 @@ import { querySyntax, Type } from '@feathersjs/typebox'
 // TODO: This is temporary variable. It will be removed once this service is moved to feathers 5.
 export const locationAdminDBPath = 'location_admin'
 
+export const locationAdminPath = 'location-admin'
+
 // Main data model schema
 export const locationAdminSchema = Type.Object(
   {
