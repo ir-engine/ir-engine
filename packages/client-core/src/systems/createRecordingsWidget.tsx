@@ -23,29 +23,22 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { DataChannelType } from './DataChannelType'
-import { PeerID } from './PeerID'
-import { RecordingID } from './RecordingID'
-import { StaticResourceInterface } from './StaticResourceInterface'
-import { UserId } from './UserId'
+import { removeComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { VisibleComponent } from '@etherealengine/engine/src/scene/components/VisibleComponent'
+import { createXRUI } from '@etherealengine/engine/src/xrui/functions/createXRUI'
+import { Widget, Widgets } from '@etherealengine/engine/src/xrui/Widgets'
 
-export interface RecordingResult {
-  id: RecordingID
-  userId: UserId
-  ended: boolean
-  createdAt: string
-  updatedAt: string
-  schema: string // stringified RecordingSchema
-  resources?: Array<StaticResourceInterface>
-}
+import { RecordingsWidgetUI } from './ui/RecordingsWidgetUI'
 
-export interface RecordingResourceResult {
-  id: string
-  recordingId: RecordingID
-  staticResourceId: string
-}
+export function createRecordingsWidget() {
+  const ui = createXRUI(RecordingsWidgetUI)
+  removeComponent(ui.entity, VisibleComponent)
 
-export type RecordingSchema = {
-  user: string[]
-  peers: Record<PeerID, DataChannelType[]>
+  const widget: Widget = {
+    ui,
+    label: 'Recording',
+    icon: 'Videocam'
+  }
+
+  const id = Widgets.registerWidget(ui.entity, widget)
 }
