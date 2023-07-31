@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 /* eslint-disable @typescript-eslint/ban-ts-comment */
-import { Face, Hand, Pose } from '@etherealengine/engine/src/mocap/solvers'
+import { Face, Hand, Pose, Side } from '@etherealengine/engine/src/mocap/solvers'
 import { useHookstate } from '@hookstate/core'
 import { DrawingUtils, FaceLandmarker, FilesetResolver, HandLandmarker, PoseLandmarker } from '@mediapipe/tasks-vision'
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react'
@@ -314,7 +314,6 @@ const CaptureDashboard = () => {
         // draw
         if (displaySettings?.show2dSkeleton) {
           const landmarks = handResults?.landmarks
-          const handednesses = handResults?.handednesses
           for (const landmark of landmarks) {
             drawUtilsRef.current?.drawConnectors(landmark, HandLandmarker.HAND_CONNECTIONS)
           }
@@ -325,7 +324,7 @@ const CaptureDashboard = () => {
             const side = handResults?.handednesses[idx][0]
             return {
               handedness: side,
-              handSolve: Hand?.solve(worldLandmarks, side?.categoryName.toLowerCase())
+              handSolve: Hand?.solve(worldLandmarks, side?.categoryName as Side)
             }
           })
           return { handsSolved: solves }
@@ -376,8 +375,8 @@ const CaptureDashboard = () => {
 
         const finalData = {
           ...finalPose,
-          ...handData(),
-          ...faceData()
+          ...handData()
+          // ...faceData()
         }
 
         // Hack to remove undefined values

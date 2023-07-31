@@ -25,16 +25,14 @@ Ethereal Engine. All Rights Reserved.
 
 import { decode, encode } from 'msgpackr'
 import { useEffect } from 'react'
-import { Mesh, MeshBasicMaterial, SphereGeometry, Vector3 } from 'three'
+import { Mesh, MeshBasicMaterial, Object3D, SphereGeometry, Vector3 } from 'three'
 
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
-import { getState } from '@etherealengine/hyperflux'
 
 import { AvatarRigComponent } from '../avatar/components/AvatarAnimationComponent'
 import { RingBuffer } from '../common/classes/RingBuffer'
 
 import { Engine } from '../ecs/classes/Engine'
-import { EngineState } from '../ecs/classes/EngineState'
 import { getComponent } from '../ecs/functions/ComponentFunctions'
 
 import { defineSystem } from '../ecs/functions/SystemFunctions'
@@ -44,7 +42,7 @@ import { NetworkObjectComponent } from '../networking/components/NetworkObjectCo
 import { TransformComponent } from '../transform/components/TransformComponent'
 
 import { Category, Classifications, Landmark, NormalizedLandmark } from '@mediapipe/tasks-vision'
-import { Side, TFace, THand, TPose } from './solvers/Types'
+import { Side, TFace, THand, TPose } from './solvers'
 
 import mediapipePoseNames from './MediapipePoseNames'
 import UpdateRawFace from './UpdateRawFace'
@@ -69,8 +67,8 @@ export interface MotionCaptureStream {
   facesSolved?: TFace[] | undefined
 }
 
-const debugPoseObjs: any[] = []
-const debugHandObjs: any[] = []
+const debugPoseObjs: Object3D[] = []
+const debugHandObjs: Object3D[] = []
 const debug = false
 export const sendResults = (results: MotionCaptureStream) => {
   return encode({
@@ -119,8 +117,6 @@ const timeSeriesMocapData = new Map<PeerID, RingBuffer<MotionCaptureStream>>()
 const timeSeriesMocapLastSeen = new Map<PeerID, number>()
 
 const execute = () => {
-  const engineState = getState(EngineState)
-
   const localClientEntity = Engine.instance.localClientEntity
 
   const network = Engine.instance.worldNetwork
@@ -153,7 +149,7 @@ const execute = () => {
       // Pose
       if (data?.posesWorld) {
         data?.posesWorld.forEach((pose) => {
-          // UpdateRawPose(pose, hipsPos.clone(), avatarRig, avatarTransform)
+          UpdateRawPose(pose, hipsPos.clone(), avatarRig, avatarTransform)
           // UpdateSolvedPose(pose, hipsPos.clone(), avatarRig, avatarTransform)
 
           if (data?.handsSolved) {
@@ -162,22 +158,6 @@ const execute = () => {
             })
           }
         })
-      }
-
-      if (data?.posesWorld) {
-        // Hands
-        /*
-        if (data?.handsWorld) {
-          data?.handsWorld.forEach((hand) => {
-            UpdateRawHands(hand, hipsPos.clone(), avatarRig, avatarTransform)
-          })
-        }
-        */
-        if (data?.posesWorld) {
-          data?.posesWorld.forEach((pose) => {
-            UpdateRawPose(pose, hipsPos.clone(), avatarRig, avatarTransform)
-          })
-        }
       }
 
       // Face
@@ -195,7 +175,7 @@ const execute = () => {
         if (data?.posesWorld) {
           data?.posesWorld.forEach((landmarks, idx) => {
             let idxP = landmarks.length * idx
-            landmarks.forEach((landmark, idx) => {
+            landmarks.forEach((landmark) => {
               if (debugPoseObjs[idxP] === undefined) {
                 const matOptions = {}
                 const mesh = new Mesh(new SphereGeometry(0.025), new MeshBasicMaterial(matOptions))
@@ -206,7 +186,7 @@ const execute = () => {
               }
               const newPos = new Vector3(landmark.x, landmark.y, landmark.z)
 
-              debugPoseObjs[idxP]?.position.set(newPos.clone())
+              debugPoseObjs[idxP]?.position.copy(newPos.clone())
               debugPoseObjs[idxP]?.updateMatrixWorld()
             })
           })
@@ -238,7 +218,7 @@ const execute = () => {
                     )
               )
               console.log('newPos', newPos)
-              debugHandObjs[idxH]?.position.set(newPos.clone())
+              debugHandObjs[idxH]?.position.copy(newPos.clone())
               debugHandObjs[idxH]?.updateMatrixWorld()
             })
           })

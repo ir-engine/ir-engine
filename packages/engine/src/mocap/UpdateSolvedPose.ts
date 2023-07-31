@@ -27,9 +27,6 @@ import { updateRigPosition, updateRigRotation } from './UpdateRig'
 
 import { TPose } from './solvers'
 
-const debug = true
-const dampener = 1
-
 const UpdateSolvedPose = (data: TPose, hipsPos, avatarRig, avatarTransform) => {
   if (data) {
     console.log('updating solved pose', data)
