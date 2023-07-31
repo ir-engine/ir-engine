@@ -23,20 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Mesh, MeshBasicMaterial, SphereGeometry, Vector3 } from 'three'
+import { Mesh, MeshBasicMaterial, SphereGeometry } from 'three'
 
-import { dispatchAction, getState } from '@etherealengine/hyperflux'
+import { getState } from '@etherealengine/hyperflux'
 
-import { VRMHumanBoneList } from '@pixiv/three-vrm'
 import { Engine } from '../ecs/classes/Engine'
 import { EngineState } from '../ecs/classes/EngineState'
-
-import { UUIDComponent } from '../scene/components/UUIDComponent'
-import { XRAction } from '../xr/XRState'
-
-import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
-import { getComponent } from '../ecs/functions/ComponentFunctions'
-import { TransformComponent } from '../transform/components/TransformComponent'
 
 export const motionCaptureHeadSuffix = '_motion_capture_head'
 export const motionCaptureLeftHandSuffix = '_motion_capture_left_hand'
@@ -57,54 +49,6 @@ const UpdateRawHands = (data, hipsPos, avatarRig, avatarTransform) => {
 
     const leftHand = avatarRig?.vrm?.humanoid?.getRawBone('leftHand')?.node
     const rightHand = avatarRig?.vrm?.humanoid?.getRawBone('rightHand')?.node
-
-    for (let i = 0; i < data.length - 1; i++) {
-      // fingers start at 25
-      const name = VRMHumanBoneList[i + 25].toLowerCase()
-      const hand = data[i]
-
-      const lhPos = new Vector3()
-      leftHand?.getWorldPosition(lhPos)
-      const rhPos = new Vector3()
-      rightHand?.getWorldPosition(rhPos)
-
-      const targetPos = new Vector3()
-      targetPos
-        .set(hand?.x, hand?.y, hand?.z)
-        .multiplyScalar(-1)
-        .applyQuaternion(avatarTransform.rotation)
-        .add(hipsPos.clone())
-      // .add(name.startsWith('left') ? lhPos : rhPos)
-
-      const allowedTargets = ['']
-      if (debug) {
-        if (objs[i] === undefined) {
-          let matOptions = {}
-          if (allowedTargets.includes(name)) {
-            matOptions = { color: 0xff0000 }
-          }
-          const mesh = new Mesh(new SphereGeometry(0.05), new MeshBasicMaterial(matOptions))
-          objs[i] = mesh
-          Engine?.instance?.scene?.add(mesh)
-        }
-
-        objs[i].position.lerp(targetPos.clone(), engineState.deltaSeconds * 10)
-        objs[i].updateMatrixWorld()
-      }
-
-      const entityUUID = `${Engine?.instance?.userId}_mocap_${name}` as EntityUUID
-      const ikTarget = UUIDComponent.entitiesByUUID[entityUUID]
-      // if (ikTarget) removeEntity(ikTarget)
-
-      if (!ikTarget) {
-        dispatchAction(XRAction.spawnIKTarget({ entityUUID: entityUUID, name }))
-      }
-
-      const ik = getComponent(ikTarget, TransformComponent)
-      // ik.position.lerp(targetPos, engineState.deltaSeconds * 10)
-
-      // ik.quaternion.copy()
-    }
   }
 }
 

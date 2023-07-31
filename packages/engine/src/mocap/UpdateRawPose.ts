@@ -23,72 +23,69 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Mesh, MeshBasicMaterial, SphereGeometry, Vector3 } from 'three'
+import { Vector3 } from 'three'
 
-import { dispatchAction, getState } from '@etherealengine/hyperflux'
-
-import { VRMHumanBoneList } from '@pixiv/three-vrm'
-import { Engine } from '../ecs/classes/Engine'
-import { EngineState } from '../ecs/classes/EngineState'
-
-import { UUIDComponent } from '../scene/components/UUIDComponent'
-import { XRAction } from '../xr/XRState'
+import { dispatchAction } from '@etherealengine/hyperflux'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
+import { Landmark } from '@mediapipe/tasks-vision'
+import { Engine } from '../ecs/classes/Engine'
 import { getComponent } from '../ecs/functions/ComponentFunctions'
+import { UUIDComponent } from '../scene/components/UUIDComponent'
 import { TransformComponent } from '../transform/components/TransformComponent'
+import { XRAction } from '../xr/XRState'
 
-const objs = [] as Mesh[]
-const debug = true
+const indices = {
+  rightEar: 8,
+  leftEar: 7,
+  rightHand: 16,
+  leftHand: 15
+}
 
-const UpdateRawPose = (data, hipsPos, avatarRig, avatarTransform) => {
+const solvedPoses = {
+  head: new Vector3(),
+  leftHand: new Vector3(),
+  rightHand: new Vector3()
+}
+
+const rawPoses = {
+  leftHand: {} as Landmark,
+  rightHand: {} as Landmark
+}
+
+const UpdateRawPose = (data: Landmark[], hipsPos, avatarRig, avatarTransform) => {
   if (data) {
-    const engineState = getState(EngineState)
-    for (let i = 0; i < data.length - 1; i++) {
-      const name = VRMHumanBoneList[i].toLowerCase()
+    const rightEar = data[indices.rightEar]
+    const leftEar = data[indices.leftEar]
+    solvedPoses.head
+      .set((leftEar.x + rightEar.x) / 2, (leftEar.y + rightEar.y) / 2, (leftEar.z + rightEar.z) / 2)
+      .multiplyScalar(-1)
+      .applyQuaternion(avatarTransform.rotation)
+      .add(hipsPos)
 
-      const pose = data[i]
-      const posePos = new Vector3()
-
-      posePos
-        .set(pose?.x, pose?.y, pose?.z)
-        .multiplyScalar(-1)
-        .applyQuaternion(avatarTransform.rotation)
-
-      const allowedTargets = ['head', 'lefthand', 'righthand', 'hips', 'leftfoot', 'rightfoot']
-
-      if (debug) {
-        if (objs[i] === undefined) {
-          let matOptions = {}
-          if (allowedTargets.includes(name)) {
-            matOptions = { color: 0xff0000 }
-          }
-          const mesh = new Mesh(new SphereGeometry(i < 34 ? 0.05 : 0.025), new MeshBasicMaterial(matOptions))
-          objs[i] = mesh
-          Engine?.instance?.scene?.add(mesh)
-        }
-
-        objs[i].position.lerp(posePos.clone(), engineState.deltaSeconds * 10)
-        objs[i].updateMatrixWorld()
+    for (const key of Object.keys(solvedPoses)) {
+      switch (key) {
+        case 'rightHand':
+        case 'leftHand':
+          rawPoses[key] = data[indices[key]]
+          solvedPoses[key] = new Vector3(rawPoses[key].x, rawPoses[key].y, rawPoses[key].z)
+            .multiplyScalar(-1)
+            .add(hipsPos)
+          break
       }
 
-      if (allowedTargets.includes(name)) {
-        if (name != 'hips') posePos.add(hipsPos)
-        else posePos.add(avatarTransform.position)
+      console.log(solvedPoses[key].x, solvedPoses[key].y, solvedPoses[key].z)
 
-        const entityUUID = `${Engine?.instance?.userId}_mocap_${name}` as EntityUUID
-        const ikTarget = UUIDComponent.entitiesByUUID[entityUUID]
-        // if (ikTarget) removeEntity(ikTarget)
+      const entityUUID = `${Engine?.instance?.userId}_mocap_${key}` as EntityUUID
+      const ikTarget = UUIDComponent.entitiesByUUID[entityUUID]
+      // if (ikTarget) removeEntity(ikTarget)
 
-        if (!ikTarget) {
-          dispatchAction(XRAction.spawnIKTarget({ entityUUID: entityUUID, name: name }))
-        }
-
-        const ik = getComponent(ikTarget, TransformComponent)
-        ik?.position?.lerp(posePos.clone(), engineState.deltaSeconds * 10)
-
-        // ik.quaternion.copy()
+      if (!ikTarget) {
+        dispatchAction(XRAction.spawnIKTarget({ entityUUID: entityUUID, name: key }))
       }
+
+      const ikTransform = getComponent(ikTarget, TransformComponent)
+      ikTransform.position.copy(solvedPoses[key])
     }
   }
 }
