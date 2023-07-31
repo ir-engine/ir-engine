@@ -33,7 +33,7 @@ import { UserType, userPath } from '@etherealengine/engine/src/schemas/user/user
 import { Application } from '../../../declarations'
 import { createFeathersKoaApp } from '../../createApp'
 
-let users: UserType[] = []
+const users: UserType[] = []
 
 describe('user service', () => {
   let app: Application
@@ -62,7 +62,8 @@ describe('user service', () => {
     const item = (await app.service(userPath).create({
       name,
       avatarId: avatar.id,
-      isGuest
+      isGuest,
+      scopes: []
     })) as UserType
     users.push(item)
 
@@ -84,7 +85,8 @@ describe('user service', () => {
     const item = (await app.service(userPath).create({
       name,
       avatarId: avatar.id,
-      isGuest
+      isGuest,
+      scopes: []
     })) as UserType
     users.push(item)
 

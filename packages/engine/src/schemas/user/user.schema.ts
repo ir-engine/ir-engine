@@ -47,7 +47,7 @@ export const userSchema = Type.Object(
     }),
     name: Type.String(),
     isGuest: Type.Boolean(),
-    inviteCode: Type.String(),
+    inviteCode: Type.Optional(Type.String()),
     avatarId: Type.String({
       format: 'uuid'
     }),
