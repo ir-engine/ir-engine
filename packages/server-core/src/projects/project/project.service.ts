@@ -176,19 +176,38 @@ export const builderInfoGet = (app: Application) => async () => {
   }
 
   const k8AppsClient = getState(ServerState).k8AppsClient
+  const k8BatchClient = getState(ServerState).k8BatchClient
 
   if (k8AppsClient) {
-    const builderDeployment = await k8AppsClient.listNamespacedDeployment(
+    const builderLabelSelector = `app.kubernetes.io/instance=${config.server.releaseName}-builder`
+
+    const builderJob = await k8BatchClient.listNamespacedJob(
       'default',
-      'false',
+      undefined,
       false,
       undefined,
       undefined,
-      `app.kubernetes.io/instance=${config.server.releaseName}-builder`
+      builderLabelSelector
     )
-    const builderContainer = builderDeployment?.body?.items[0]?.spec?.template?.spec?.containers?.find(
-      (container) => container.name === 'etherealengine-builder'
-    )
+
+    let builderContainer
+    if (builderJob && builderJob.body.items.length > 0) {
+      builderContainer = builderJob?.body?.items[0]?.spec?.template?.spec?.containers?.find(
+        (container) => container.name === 'etherealengine-builder'
+      )
+    } else {
+      const builderDeployment = await k8AppsClient.listNamespacedDeployment(
+        'default',
+        'false',
+        false,
+        undefined,
+        undefined,
+        builderLabelSelector
+      )
+      builderContainer = builderDeployment?.body?.items[0]?.spec?.template?.spec?.containers?.find(
+        (container) => container.name === 'etherealengine-builder'
+      )
+    }
     if (builderContainer) {
       const image = builderContainer.image
       if (image && typeof image === 'string') {
