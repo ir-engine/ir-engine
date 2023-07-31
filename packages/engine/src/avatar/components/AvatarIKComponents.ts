@@ -72,15 +72,10 @@ export const AvatarIKTargetComponent = defineComponent({
   name: 'AvatarIKTargetComponent',
 
   onInit(entity) {
-    return {
-      handedness: 'none' as XRHandedness
-    }
+    return {}
   },
 
-  onSet(entity, component, json) {
-    if (!json) return
-    if (typeof json.handedness === 'string') component.handedness.set(json.handedness)
-  }
+  onSet(entity, component, json) {}
 })
 
 /**

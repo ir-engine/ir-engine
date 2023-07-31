@@ -257,11 +257,9 @@ const execute = () => {
       console.warn('Could not find entity for networkId', action.$from, action.networkId)
       continue
     }
-    //hips for now, head calc to come
-    if (action.name === 'righthand' || action.name === 'lefthand' || action.name === 'hips') {
-      setComponent(entity, NameComponent, action.$from + '_' + action.handedness)
-      setComponent(entity, AvatarIKTargetComponent, { handedness: action.handedness })
-    }
+
+    setComponent(entity, NameComponent, action.$from + '_' + action.name)
+    setComponent(entity, AvatarIKTargetComponent)
 
     const helper = new AxesHelper(0.5)
     setObjectLayers(helper, ObjectLayers.Gizmos)
@@ -291,12 +289,11 @@ const execute = () => {
     if (!leftHand && ikTargetLeftHand) removeEntity(ikTargetLeftHand)
     if (!rightHand && ikTargetRightHand) removeEntity(ikTargetRightHand)
 
-    if (head && !ikTargetHead)
-      dispatchAction(XRAction.spawnIKTarget({ handedness: 'none', entityUUID: headUUID, name: 'hips' }))
+    if (head && !ikTargetHead) dispatchAction(XRAction.spawnIKTarget({ entityUUID: headUUID, name: 'head' }))
     if (leftHand && !ikTargetLeftHand)
-      dispatchAction(XRAction.spawnIKTarget({ handedness: 'left', entityUUID: leftHandUUID, name: 'lefthand' }))
+      dispatchAction(XRAction.spawnIKTarget({ entityUUID: leftHandUUID, name: 'lefthand' }))
     if (rightHand && !ikTargetRightHand)
-      dispatchAction(XRAction.spawnIKTarget({ handedness: 'right', entityUUID: rightHandUUID, name: 'righthand' }))
+      dispatchAction(XRAction.spawnIKTarget({ entityUUID: rightHandUUID, name: 'righthand' }))
   }
 
   /**
@@ -412,21 +409,24 @@ const execute = () => {
       const rigidbodyComponent = getComponent(ownerEntity, RigidBodyComponent)
       const rigComponent = getComponent(ownerEntity, AvatarRigComponent)
 
-      const ikTargetComponent = getComponent(ikEntity, AvatarIKTargetComponent)
+      const ikTargetName = getComponent(ikEntity, NameComponent).split('_').pop()!
       const ikTransform = getComponent(ikEntity, TransformComponent)
       const hipsForward = new Vector3(0, 0, 1)
+      console.log(ikTargetName)
       //todo - use a map for this
-      switch (ikTargetComponent.handedness) {
-        case 'left':
+      switch (ikTargetName) {
+        case 'lefthand':
           worldSpaceTargets.leftHandTarget.position.copy(ikTransform.position)
           worldSpaceTargets.leftHandTarget.rotation.copy(ikTransform.rotation)
           break
-        case 'right':
+        case 'righthand':
           worldSpaceTargets.rightHandTarget.position.copy(ikTransform.position)
           worldSpaceTargets.rightHandTarget.rotation.copy(ikTransform.rotation)
           break
-        case 'none':
-          worldSpaceTargets.hipsTarget.position.copy(_vector3.copy(ikTransform.position))
+        case 'head':
+          worldSpaceTargets.hipsTarget.position.copy(
+            _vector3.copy(ikTransform.position).setY(ikTransform.position.y - rigComponent.torsoLength - 0.125)
+          )
           console.log(ikTransform.position.x)
           //offset target forward to account for hips being behind the head
           hipsForward.applyQuaternion(rigidbodyComponent!.rotation)

@@ -23,7 +23,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { PoseLandmarker } from '@mediapipe/tasks-vision'
 import { Mesh, MeshBasicMaterial, SphereGeometry, Vector3 } from 'three'
 
 import { dispatchAction, getState } from '@etherealengine/hyperflux'
@@ -46,7 +45,6 @@ const UpdateRawPose = (data, hipsPos, avatarRig, avatarTransform) => {
   if (data) {
     const engineState = getState(EngineState)
     for (let i = 0; i < data.length - 1; i++) {
-      const name2 = PoseLandmarker.POSE_CONNECTIONS[i]
       const name = VRMHumanBoneList[i].toLowerCase()
 
       const pose = data[i]
@@ -56,7 +54,6 @@ const UpdateRawPose = (data, hipsPos, avatarRig, avatarTransform) => {
         .set(pose?.x, pose?.y, pose?.z)
         .multiplyScalar(-1)
         .applyQuaternion(avatarTransform.rotation)
-        .add(hipsPos.clone())
 
       const allowedTargets = ['head', 'lefthand', 'righthand', 'hips', 'leftfoot', 'rightfoot']
 
@@ -76,13 +73,15 @@ const UpdateRawPose = (data, hipsPos, avatarRig, avatarTransform) => {
       }
 
       if (allowedTargets.includes(name)) {
+        if (name != 'hips') posePos.add(hipsPos)
+        else posePos.add(avatarTransform.position)
+
         const entityUUID = `${Engine?.instance?.userId}_mocap_${name}` as EntityUUID
         const ikTarget = UUIDComponent.entitiesByUUID[entityUUID]
         // if (ikTarget) removeEntity(ikTarget)
 
         if (!ikTarget) {
-          const h = name === 'lefthand' ? 'left' : name === 'righthand' ? 'right' : 'none'
-          dispatchAction(XRAction.spawnIKTarget({ handedness: h, entityUUID: entityUUID, name: name }))
+          dispatchAction(XRAction.spawnIKTarget({ entityUUID: entityUUID, name: name }))
         }
 
         const ik = getComponent(ikTarget, TransformComponent)

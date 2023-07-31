@@ -111,7 +111,6 @@ export class XRAction {
   static spawnIKTarget = defineAction({
     ...WorldNetworkAction.spawnObject.actionShape,
     prefab: 'ik-target',
-    handedness: matches.literals('left', 'right', 'none'),
     name: matches.string,
     $cache: {
       removePrevious: true

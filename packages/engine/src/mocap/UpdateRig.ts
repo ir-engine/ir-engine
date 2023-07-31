@@ -48,9 +48,7 @@ const updateRigPosition = (name, position, dampener, lerpAmount, rig) => {
     // if (ikTarget) removeEntity(ikTarget)
 
     if (!ikTarget) {
-      console.log(entityUUID)
-      const h = name === 'LeftHand' ? 'left' : name === 'RightHand' ? 'right' : 'none'
-      dispatchAction(XRAction.spawnIKTarget({ handedness: h, entityUUID: entityUUID, name }))
+      dispatchAction(XRAction.spawnIKTarget({ entityUUID: entityUUID, name }))
     }
 
     const ik = getComponent(ikTarget, TransformComponent)
@@ -77,8 +75,7 @@ const updateRigRotation = (name, rotation, dampener, lerpAmount, rig) => {
     // if (ikTarget) removeEntity(ikTarget)
 
     if (!ikTarget) {
-      const h = name === 'LeftHand' ? 'left' : name === 'RightHand' ? 'right' : 'none'
-      dispatchAction(XRAction.spawnIKTarget({ handedness: h, entityUUID: entityUUID, name }))
+      dispatchAction(XRAction.spawnIKTarget({ entityUUID: entityUUID, name }))
     }
 
     const ik = getComponent(ikTarget, TransformComponent)
