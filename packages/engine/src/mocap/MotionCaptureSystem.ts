@@ -62,18 +62,17 @@ export interface NormalizedLandmark {
 export const sendResults = (landmarks: NormalizedLandmark[]) => {
   return encode({
     timestamp: Date.now(),
-    peerIndex: Engine.instance.worldNetwork.peerIDToPeerIndex.get(Engine.instance.peerID)!,
+    peerID: Engine.instance.peerID,
     landmarks
   })
 }
 
 export const receiveResults = (results: ArrayBuffer) => {
-  const { timestamp, peerIndex, landmarks } = decode(new Uint8Array(results)) as {
+  const { timestamp, peerID, landmarks } = decode(new Uint8Array(results)) as {
     timestamp: number
-    peerIndex: number
+    peerID: PeerID
     landmarks: NormalizedLandmark[]
   }
-  const peerID = Engine.instance.worldNetwork.peerIndexToPeerID.get(peerIndex)
   return { timestamp, peerID, landmarks }
 }
 

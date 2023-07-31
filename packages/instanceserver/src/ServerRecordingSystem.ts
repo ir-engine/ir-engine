@@ -58,6 +58,7 @@ import { createStaticResourceHash } from '@etherealengine/server-core/src/media/
 import { DataChannelType } from '@etherealengine/common/src/interfaces/DataChannelType'
 import { RecordingID } from '@etherealengine/common/src/interfaces/RecordingID'
 import { NetworkObjectComponent } from '@etherealengine/engine/src/networking/components/NetworkObjectComponent'
+import { NetworkPeerFunctions } from '@etherealengine/engine/src/networking/functions/NetworkPeerFunctions'
 import { getCachedURL } from '@etherealengine/server-core/src/media/storageprovider/getCachedURL'
 import { startMediaRecording } from './MediaRecordingFunctions'
 import { getServerNetwork, SocketWebRTCServerNetwork } from './SocketWebRTCServerFunctions'
@@ -76,6 +77,7 @@ interface ActivePlayback {
   userID: UserId
   deserializer?: ECSDeserializer
   entitiesSpawned: (EntityUUID | UserId)[]
+  peerIDs?: PeerID[]
   mediaPlayback?: any // todo
 }
 
@@ -397,19 +399,35 @@ export const onStartPlayback = async (action: ReturnType<typeof ECSRecordingActi
       } else {
         for (const [dataChannel, chunks] of dataChannelChunks) {
           const chunk = chunks[chunkIndex]
-          setDataChannelChunkToReplay(recording.userId, dataChannel, chunk)
+          setDataChannelChunkToReplay(activePlayback.userID, dataChannel, chunk)
           createOutgoingDataProducer(network, dataChannel)
         }
       }
     },
     onEnd: () => {
-      playbackStopped(recording.userId, recording.id)
+      playbackStopped(activePlayback.userID, recording.id)
     }
   })
 
   // todo
   activePlayback.deserializer.active = true
   activePlayback.entitiesSpawned = entitiesSpawned
+
+  const peerIDs = Object.keys(schema.peers) as PeerID[]
+  activePlayback.peerIDs = []
+  const playbackUserID = isClone ? ((activePlayback.userID + '_' + recording.id) as UserId) : activePlayback.userID
+  for (const peerID of peerIDs) {
+    if (network.peers.has(peerID)) continue
+    activePlayback.peerIDs.push(peerID)
+    NetworkPeerFunctions.createPeer(
+      network,
+      peerID,
+      network.peerIndexCount++,
+      playbackUserID,
+      network.userIndexCount++,
+      playbackUserID
+    )
+  }
 
   activePlaybacks.set(action.recordingID, activePlayback)
 
@@ -463,6 +481,14 @@ const playbackStopped = (userId: UserId, recordingID: RecordingID) => {
   }
 
   removeDataChannelToReplay(userId)
+
+  const network = getServerNetwork(app) as SocketWebRTCServerNetwork
+
+  if (activePlayback.peerIDs) {
+    for (const peerID of activePlayback.peerIDs) {
+      NetworkPeerFunctions.destroyPeer(network, peerID)
+    }
+  }
 
   activePlaybacks.delete(recordingID)
 
