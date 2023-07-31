@@ -86,6 +86,12 @@ export async function down(knex: Knex): Promise<void> {
   const tableExists = await knex.schema.hasTable(locationSettingPath)
 
   if (tableExists === true) {
-    await knex.schema.dropTable(locationSettingPath)
+    const trx = await knex.transaction()
+
+    await trx.raw('SET FOREIGN_KEY_CHECKS=0')
+    await trx.schema.dropTable(locationSettingPath)
+    await trx.raw('SET FOREIGN_KEY_CHECKS=1')
+
+    await trx.commit()
   }
 }
