@@ -78,24 +78,25 @@ export async function seed(knex: Knex): Promise<void> {
     ].map(async (item) => ({ ...item, createdAt: await getDateTimeSql(), updatedAt: await getDateTimeSql() }))
   )
 
-  if (forceRefresh || testEnabled) {
-    // Deletes ALL existing entries
-    await knex(locationSettingPath).del()
+  try {
+    await knex.raw('SET FOREIGN_KEY_CHECKS=0')
 
-    try {
-      await knex.raw('SET FOREIGN_KEY_CHECKS=0')
+    if (forceRefresh || testEnabled) {
+      // Deletes ALL existing entries
+      await knex(locationSettingPath).del()
+
       // Inserts seed entries
       await knex(locationSettingPath).insert(seedData)
-    } finally {
-      await knex.raw('SET FOREIGN_KEY_CHECKS=1')
-    }
-  } else {
-    const existingData = await knex(locationSettingPath).count({ count: '*' })
+    } else {
+      const existingData = await knex(locationSettingPath).count({ count: '*' })
 
-    if (existingData.length === 0 || existingData[0].count === 0) {
-      for (const item of seedData) {
-        await knex(locationSettingPath).insert(item)
+      if (existingData.length === 0 || existingData[0].count === 0) {
+        for (const item of seedData) {
+          await knex(locationSettingPath).insert(item)
+        }
       }
     }
+  } finally {
+    await knex.raw('SET FOREIGN_KEY_CHECKS=1')
   }
 }
