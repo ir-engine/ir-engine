@@ -23,9 +23,14 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { locationBanMethods, locationBanPath } from '@etherealengine/engine/src/schemas/social/location-ban.schema'
+import {
+  LocationBanType,
+  locationBanMethods,
+  locationBanPath
+} from '@etherealengine/engine/src/schemas/social/location-ban.schema'
 
 import { Application } from '../../../declarations'
+import logger from '../../ServerLogger'
 import { LocationBanService } from './location-ban.class'
 import locationBanDocs from './location-ban.docs'
 import hooks from './location-ban.hooks'
@@ -54,4 +59,12 @@ export default (app: Application): void => {
 
   const service = app.service(locationBanPath)
   service.hooks(hooks)
+
+  service.publish('created', async (data: LocationBanType, params) => {
+    try {
+      return Promise.all([app.channel(`userIds/${data.userId}`).send({ locationBan: data })])
+    } catch (err) {
+      logger.error(err)
+    }
+  })
 }
