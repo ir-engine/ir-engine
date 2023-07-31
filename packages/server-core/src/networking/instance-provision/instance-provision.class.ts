@@ -444,10 +444,10 @@ export class InstanceProvision implements ServiceMethods<any> {
   }
 
   /**
-   * A method that attempts to clean up a instanceserver that no longer exists
+   * A method that attempts to clean up an instanceserver that no longer exists
    * Currently-running instanceserver are fetched via Agones client and their IP addresses
    * compared against that of the instance in question. If there's no match, then the instance
-   * record is out-of date, it should be set to 'ended', and its subdomain provision should be freed.
+   * record is out-of date, it should be set to 'ended'.
    * Returns false if the IS still exists and no cleanup was done, true if the IS does not exist and
    * a cleanup was performed.
    *
