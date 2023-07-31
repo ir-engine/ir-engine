@@ -48,6 +48,7 @@ import { Side, TFace, THand, TPose } from './solvers/Types'
 
 import mediapipePoseNames from './MediapipePoseNames'
 import UpdateRawFace from './UpdateRawFace'
+import UpdateRawPose from './UpdateRawPose'
 import UpdateSolvedFace from './UpdateSolvedFace'
 import UpdateSolvedHands from './UpdateSolvedHands'
 
@@ -163,19 +164,21 @@ const execute = () => {
         })
       }
 
-      // if (data?.posesWorld) {
-      //   // Hands
-      //   if (data?.handsWorld) {
-      //     data?.handsWorld.forEach((hand) => {
-      //       UpdateRawHands(hand, hipsPos.clone(), avatarRig, avatarTransform)
-      //     })
-      //   }
-      //   if (data?.posesWorld) {
-      //     data?.posesWorld.forEach((pose) => {
-      //       UpdateRawPose(pose, hipsPos.clone(), avatarRig, avatarTransform)
-      //     })
-      //   }
-      // }
+      if (data?.posesWorld) {
+        // Hands
+        /*
+        if (data?.handsWorld) {
+          data?.handsWorld.forEach((hand) => {
+            UpdateRawHands(hand, hipsPos.clone(), avatarRig, avatarTransform)
+          })
+        }
+        */
+        if (data?.posesWorld) {
+          data?.posesWorld.forEach((pose) => {
+            UpdateRawPose(pose, hipsPos.clone(), avatarRig, avatarTransform)
+          })
+        }
+      }
 
       // Face
       if (data?.facesSolved) {
