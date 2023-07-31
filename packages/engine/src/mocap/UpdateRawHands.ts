@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Mesh, MeshBasicMaterial, SphereGeometry, Vector3 } from 'three'
+import { Vector3 } from 'three'
 
 import { dispatchAction, getState } from '@etherealengine/hyperflux'
 
@@ -41,15 +41,6 @@ import { TransformComponent } from '../transform/components/TransformComponent'
 export const motionCaptureHeadSuffix = '_motion_capture_head'
 export const motionCaptureLeftHandSuffix = '_motion_capture_left_hand'
 export const motionCaptureRightHandSuffix = '_motion_capture_right_hand'
-
-const objs = [] as Mesh[]
-const debug = true
-
-if (debug)
-  for (let i = 0; i < 33; i++) {
-    objs.push(new Mesh(new SphereGeometry(0.05), new MeshBasicMaterial()))
-    Engine?.instance?.scene.add(objs[i])
-  }
 
 const UpdateRawHands = (data, hipsPos, avatarRig, avatarTransform) => {
   if (data) {
@@ -77,20 +68,6 @@ const UpdateRawHands = (data, hipsPos, avatarRig, avatarTransform) => {
       // .add(name.startsWith('left') ? lhPos : rhPos)
 
       const allowedTargets = ['']
-      if (debug) {
-        if (objs[i] === undefined) {
-          let matOptions = {}
-          if (allowedTargets.includes(name)) {
-            matOptions = { color: 0xff0000 }
-          }
-          const mesh = new Mesh(new SphereGeometry(0.05), new MeshBasicMaterial(matOptions))
-          objs[i] = mesh
-          Engine?.instance?.scene?.add(mesh)
-        }
-
-        objs[i].position.lerp(targetPos.clone(), engineState.deltaSeconds * 10)
-        objs[i].updateMatrixWorld()
-      }
 
       const entityUUID = `${Engine?.instance?.userId}_mocap_${name}` as EntityUUID
       const ikTarget = UUIDComponent.entitiesByUUID[entityUUID]

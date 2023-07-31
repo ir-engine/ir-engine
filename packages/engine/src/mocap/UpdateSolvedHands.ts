@@ -23,42 +23,121 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { VRMHumanBoneName } from '@pixiv/three-vrm'
-import { Mesh, MeshBasicMaterial, SphereGeometry } from 'three'
-import { Engine } from '../ecs/classes/Engine'
+import { getState } from '@etherealengine/hyperflux'
+import { EngineState } from '../ecs/classes/EngineState'
 import { SolvedHand } from './MotionCaptureSystem'
 import { updateRigRotation } from './UpdateRig'
 
-const objs = [] as Mesh[]
-const debug = true
-
-if (debug)
-  for (let i = 0; i < 33; i++) {
-    objs.push(new Mesh(new SphereGeometry(0.05), new MeshBasicMaterial()))
-    Engine?.instance?.scene.add(objs[i])
-  }
-
 const UpdateSolvedHands = (hand: SolvedHand, poseData, avatarRig, avatarTransform) => {
-  // console.log('updating solved hand', hand)
-  VRMHumanBoneName
+  const engineState = getState(EngineState)
   const { handSolve, handedness } = hand
   const data = handSolve
   if (data) {
-    updateRigRotation(`${handedness}RingProximal`, data![`${handedness}RingProximal`], 1, 0.3, avatarRig)
-    updateRigRotation(`${handedness}RingIntermediate`, data![`${handedness}RingIntermediate`], 1, 0.3, avatarRig)
-    updateRigRotation(`${handedness}RingDistal`, data![`${handedness}RingDistal`], 1, 0.3, avatarRig)
-    updateRigRotation(`${handedness}IndexProximal`, data![`${handedness}IndexProximal`], 1, 0.3, avatarRig)
-    updateRigRotation(`${handedness}IndexIntermediate`, data![`${handedness}IndexIntermediate`], 1, 0.3, avatarRig)
-    updateRigRotation(`${handedness}IndexDistal`, data![`${handedness}IndexDistal`], 1, 0.3, avatarRig)
-    updateRigRotation(`${handedness}MiddleProximal`, data![`${handedness}MiddleProximal`], 1, 0.3, avatarRig)
-    updateRigRotation(`${handedness}MiddleIntermediate`, data![`${handedness}MiddleIntermediate`], 1, 0.3, avatarRig)
-    updateRigRotation(`${handedness}MiddleDistal`, data![`${handedness}MiddleDistal`], 1, 0.3, avatarRig)
-    updateRigRotation(`${handedness}ThumbProximal`, data![`${handedness}ThumbProximal`], 1, 0.3, avatarRig)
-    updateRigRotation(`${handedness}ThumbIntermediate`, data![`${handedness}ThumbIntermediate`], 1, 0.3, avatarRig)
-    updateRigRotation(`${handedness}ThumbDistal`, data![`${handedness}ThumbDistal`], 1, 0.3, avatarRig)
-    updateRigRotation(`${handedness}LittleProximal`, data![`${handedness}LittleProximal`], 1, 0.3, avatarRig)
-    updateRigRotation(`${handedness}LittleIntermediate`, data![`${handedness}LittleIntermediate`], 1, 0.3, avatarRig)
-    updateRigRotation(`${handedness}LittleDistal`, data![`${handedness}LittleDistal`], 1, 0.3, avatarRig)
+    updateRigRotation(
+      `${handedness?.categoryName}RingProximal`,
+      data![`${handedness?.categoryName}RingProximal`],
+      engineState.deltaSeconds * 10,
+      0,
+      avatarRig
+    )
+    updateRigRotation(
+      `${handedness?.categoryName}RingIntermediate`,
+      data![`${handedness?.categoryName}RingIntermediate`],
+      engineState.deltaSeconds * 10,
+      0,
+      avatarRig
+    )
+    updateRigRotation(
+      `${handedness?.categoryName}RingDistal`,
+      data![`${handedness?.categoryName}RingDistal`],
+      engineState.deltaSeconds * 10,
+      0,
+      avatarRig
+    )
+    updateRigRotation(
+      `${handedness?.categoryName}IndexProximal`,
+      data![`${handedness?.categoryName}IndexProximal`],
+      engineState.deltaSeconds * 10,
+      0,
+      avatarRig
+    )
+    updateRigRotation(
+      `${handedness?.categoryName}IndexIntermediate`,
+      data![`${handedness?.categoryName}IndexIntermediate`],
+      engineState.deltaSeconds * 10,
+      0,
+      avatarRig
+    )
+    updateRigRotation(
+      `${handedness?.categoryName}IndexDistal`,
+      data![`${handedness?.categoryName}IndexDistal`],
+      engineState.deltaSeconds * 10,
+      0,
+      avatarRig
+    )
+    updateRigRotation(
+      `${handedness?.categoryName}MiddleProximal`,
+      data![`${handedness?.categoryName}MiddleProximal`],
+      engineState.deltaSeconds * 10,
+      0,
+      avatarRig
+    )
+    updateRigRotation(
+      `${handedness?.categoryName}MiddleIntermediate`,
+      data![`${handedness?.categoryName}MiddleIntermediate`],
+      engineState.deltaSeconds * 10,
+      0,
+      avatarRig
+    )
+    updateRigRotation(
+      `${handedness?.categoryName}MiddleDistal`,
+      data![`${handedness?.categoryName}MiddleDistal`],
+      engineState.deltaSeconds * 10,
+      0,
+      avatarRig
+    )
+    updateRigRotation(
+      `${handedness?.categoryName}ThumbProximal`,
+      data![`${handedness?.categoryName}ThumbProximal`],
+      engineState.deltaSeconds * 10,
+      0,
+      avatarRig
+    )
+    updateRigRotation(
+      `${handedness?.categoryName}ThumbIntermediate`,
+      data![`${handedness?.categoryName}ThumbIntermediate`],
+      engineState.deltaSeconds * 10,
+      0,
+      avatarRig
+    )
+    updateRigRotation(
+      `${handedness?.categoryName}ThumbDistal`,
+      data![`${handedness?.categoryName}ThumbDistal`],
+      engineState.deltaSeconds * 10,
+      0,
+      avatarRig
+    )
+    updateRigRotation(
+      `${handedness?.categoryName}LittleProximal`,
+      data![`${handedness?.categoryName}LittleProximal`],
+      engineState.deltaSeconds * 10,
+      0,
+      avatarRig
+    )
+    updateRigRotation(
+      `${handedness?.categoryName}LittleIntermediate`,
+      data![`${handedness?.categoryName}LittleIntermediate`],
+      engineState.deltaSeconds * 10,
+      0,
+      avatarRig
+    )
+    updateRigRotation(
+      `${handedness?.categoryName}LittleDistal`,
+      data![`${handedness?.categoryName}LittleDistal`],
+      engineState.deltaSeconds * 10,
+      0,
+      avatarRig
+    )
   }
 }
 export default UpdateSolvedHands

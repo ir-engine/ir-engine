@@ -24,9 +24,9 @@ Ethereal Engine. All Rights Reserved.
 */
 
 /* eslint-disable @typescript-eslint/ban-ts-comment */
+import { Face, Hand, Pose } from '@etherealengine/engine/src/mocap/solvers'
 import { useHookstate } from '@hookstate/core'
 import { DrawingUtils, FaceLandmarker, FilesetResolver, HandLandmarker, PoseLandmarker } from '@mediapipe/tasks-vision'
-import { Face, Hand, Pose } from 'kalidokit/dist/kalidokit.umd.js'
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { twMerge } from 'tailwind-merge'
 
@@ -314,6 +314,7 @@ const CaptureDashboard = () => {
         // draw
         if (displaySettings?.show2dSkeleton) {
           const landmarks = handResults?.landmarks
+          const handednesses = handResults?.handednesses
           for (const landmark of landmarks) {
             drawUtilsRef.current?.drawConnectors(landmark, HandLandmarker.HAND_CONNECTIONS)
           }
@@ -321,10 +322,10 @@ const CaptureDashboard = () => {
 
         if (trackingSettings?.solveHands === true) {
           const solves = handResults?.worldLandmarks.map((worldLandmarks, idx) => {
-            const side = handResults?.handednesses[idx][0]?.categoryName
+            const side = handResults?.handednesses[idx][0]
             return {
               handedness: side,
-              handSolve: Hand?.solve(worldLandmarks, side.toLowerCase())
+              handSolve: Hand?.solve(worldLandmarks, side?.categoryName.toLowerCase())
             }
           })
           return { handsSolved: solves }
@@ -332,6 +333,7 @@ const CaptureDashboard = () => {
           if (handResults?.landmarks) {
             return {
               hands: handResults?.landmarks,
+              handednesses: handResults?.handednesses,
               handsWorld: handResults?.worldLandmarks
             }
           }

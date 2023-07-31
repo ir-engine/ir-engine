@@ -412,7 +412,7 @@ const execute = () => {
       const ikTargetName = getComponent(ikEntity, NameComponent).split('_').pop()!
       const ikTransform = getComponent(ikEntity, TransformComponent)
       const hipsForward = new Vector3(0, 0, 1)
-      console.log(ikTargetName)
+      // console.log(ikTargetName)
       //todo - use a map for this
       switch (ikTargetName) {
         case 'lefthand':
@@ -427,7 +427,7 @@ const execute = () => {
           worldSpaceTargets.hipsTarget.position.copy(
             _vector3.copy(ikTransform.position).setY(ikTransform.position.y - rigComponent.torsoLength - 0.125)
           )
-          console.log(ikTransform.position.x)
+          // console.log(ikTransform.position.x)
           //offset target forward to account for hips being behind the head
           hipsForward.applyQuaternion(rigidbodyComponent!.rotation)
           hipsForward.multiplyScalar(0.125)

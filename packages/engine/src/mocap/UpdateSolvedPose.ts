@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { updateRigPosition, updateRigRotation } from './UpdateRig'
 
-import { TPose } from 'kalidokit/dist/kalidokit.umd.js'
+import { TPose } from './solvers'
 
 const debug = true
 const dampener = 1

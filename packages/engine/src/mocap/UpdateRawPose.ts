@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Mesh, MeshBasicMaterial, SphereGeometry, Vector3 } from 'three'
+import { Vector3 } from 'three'
 
 import { dispatchAction, getState } from '@etherealengine/hyperflux'
 
@@ -37,9 +37,6 @@ import { XRAction } from '../xr/XRState'
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { getComponent } from '../ecs/functions/ComponentFunctions'
 import { TransformComponent } from '../transform/components/TransformComponent'
-
-const objs = [] as Mesh[]
-const debug = true
 
 const UpdateRawPose = (data, hipsPos, avatarRig, avatarTransform) => {
   if (data) {
@@ -56,21 +53,6 @@ const UpdateRawPose = (data, hipsPos, avatarRig, avatarTransform) => {
         .applyQuaternion(avatarTransform.rotation)
 
       const allowedTargets = ['head', 'lefthand', 'righthand', 'hips', 'leftfoot', 'rightfoot']
-
-      if (debug) {
-        if (objs[i] === undefined) {
-          let matOptions = {}
-          if (allowedTargets.includes(name)) {
-            matOptions = { color: 0xff0000 }
-          }
-          const mesh = new Mesh(new SphereGeometry(i < 34 ? 0.05 : 0.025), new MeshBasicMaterial(matOptions))
-          objs[i] = mesh
-          Engine?.instance?.scene?.add(mesh)
-        }
-
-        objs[i].position.lerp(posePos.clone(), engineState.deltaSeconds * 10)
-        objs[i].updateMatrixWorld()
-      }
 
       if (allowedTargets.includes(name)) {
         if (name != 'hips') posePos.add(hipsPos)
