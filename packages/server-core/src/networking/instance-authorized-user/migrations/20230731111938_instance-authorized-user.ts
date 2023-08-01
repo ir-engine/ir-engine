@@ -45,14 +45,19 @@ export async function up(knex: Knex): Promise<void> {
       //@ts-ignore
       table.uuid('id').collate('utf8mb4_bin').primary()
       //@ts-ignore
-      table.uuid('userId').collate('utf8mb4_bin').notNullable().unique().index()
+      table.uuid('userId').collate('utf8mb4_bin').notNullable()
       //@ts-ignore
-      table.uuid('instanceId').collate('utf8mb4_bin').notNullable().unique().index()
+      table.uuid('instanceId').collate('utf8mb4_bin').notNullable().index()
       table.dateTime('createdAt').notNullable()
       table.dateTime('updatedAt').notNullable()
 
       table.foreign('userId').references('id').inTable('user').onDelete('CASCADE').onUpdate('CASCADE')
       table.foreign('instanceId').references('id').inTable('instance').onDelete('CASCADE').onUpdate('CASCADE')
+
+      // Setting unique constraint for userId and instanceId combination
+      table.unique(['userId', 'instanceId'], {
+        indexName: 'instance_authorized_user_instanceId_userId_unique'
+      })
     })
   }
 }
