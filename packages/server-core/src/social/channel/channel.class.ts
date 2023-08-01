@@ -226,7 +226,7 @@ export class Channel<T = ChannelDataType> extends Service<T> {
         // })
       }
 
-      const allChannels = await this.app.service('channel').Model.findAll({
+      let allChannels = await this.app.service('channel').Model.findAll({
         where: {
           [Op.or]: [
             {
@@ -239,23 +239,12 @@ export class Channel<T = ChannelDataType> extends Service<T> {
         },
         include: [
           {
-            model: this.app.service('channel-user').Model,
-            include: [
-              {
-                model: this.app.service('user').Model
-              }
-            ]
+            model: this.app.service('channel-user').Model
           },
           {
             model: this.app.service('message').Model,
             limit: 20,
-            order: [['createdAt', 'DESC']],
-            include: [
-              {
-                model: this.app.service('user').Model,
-                as: 'sender'
-              }
-            ]
+            order: [['createdAt', 'DESC']]
           },
           {
             model: this.app.service('instance').Model
@@ -265,9 +254,25 @@ export class Channel<T = ChannelDataType> extends Service<T> {
 
       /** @todo figure out how to do this as part of the query */
 
-      return allChannels.filter((channel) => {
+      allChannels = allChannels.filter((channel) => {
         return channel.channel_users.find((channelUser) => channelUser.userId === userId)
       })
+
+      for (const channel of allChannels) {
+        // TODO: Populating ChannelUser's sender property here manually. Once channel-user service is moved to feathers 5. This should be part of its resolver.
+        if (channel.dataValues.channel_users && channel.dataValues.channel_users.length > 0) {
+          for (const channelUser of channel.dataValues.channel_users) {
+            channelUser.user = await this.app.service(userPath)._get(channelUser.userId)
+          }
+        }
+
+        // TODO: Populating Message's sender property here manually. Once message service is moved to feathers 5. This should be part of its resolver.
+        if (channel.dataValues.message && !channel.dataValues.message.sender) {
+          channel.dataValues.message.sender = await this.app.service(userPath)._get(channel.dataValues.message.senderId)
+        }
+      }
+
+      return allChannels
     } catch (err) {
       logger.error(err, `Channel find failed: ${err.message}`)
       throw err
