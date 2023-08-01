@@ -28,7 +28,7 @@ import { eulerToQuat, toQuat, toVector3 } from '@behave-graph/scene'
 import config from '@etherealengine/common/src/config'
 import { SceneJson } from '@etherealengine/common/src/interfaces/SceneInterface'
 import { dispatchAction, getMutableState } from '@etherealengine/hyperflux'
-import { clamp } from 'three/src/math/MathUtils'
+import { MathUtils } from 'three'
 import { AnimationManager } from '../../../../../avatar/AnimationManager'
 import { LoopAnimationComponent } from '../../../../../avatar/components/LoopAnimationComponent'
 import { CameraActions } from '../../../../../camera/CameraState'
@@ -102,7 +102,7 @@ export const playVideo = makeFlowNodeDefinition({
   triggered: ({ read, commit, graph: { getDependency } }) => {
     const media: string = read('mediaPath')
     const paused: boolean = read('paused')
-    const volume = clamp(read('volume'), 0, 1)
+    const volume = MathUtils.clamp(read('volume'), 0, 1)
     const playMode: PlayMode = read('playMode')
     const videoFit: ContentFitType = read('videoFit')
     const entity = Number(read('entity')) as Entity

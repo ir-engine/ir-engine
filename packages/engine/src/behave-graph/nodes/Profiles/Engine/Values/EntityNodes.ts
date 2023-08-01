@@ -30,7 +30,7 @@ import {
   makeInNOutFunctionDesc
 } from '@behave-graph/core'
 import { eulerToQuat, toQuat, toVector3 } from '@behave-graph/scene'
-import { generateUUID } from 'three/src/math/MathUtils'
+import { MathUtils } from 'three'
 import { Engine } from '../../../../../ecs/classes/Engine'
 import { Entity } from '../../../../../ecs/classes/Entity'
 import { defineQuery, getComponent, setComponent } from '../../../../../ecs/functions/ComponentFunctions'
@@ -97,7 +97,7 @@ export const addEntity = makeFlowNodeDefinition({
   triggered: ({ read, write, commit, graph: { getDependency } }) => {
     let parentEntity: Entity | null = read('parentEntity')
     parentEntity = parentEntity! < 0 ? null : parentEntity
-    const entityName: string = read('entityName') ?? `new Entity ${generateUUID()}`
+    const entityName: string = read('entityName') ?? `new Entity ${MathUtils.generateUUID()}`
     const entity = addEntityToScene(entityName, parentEntity)
     write('entity', entity)
     commit('flow')
