@@ -57,8 +57,7 @@ export const AvatarAnimationComponent = defineComponent({
       animationGraph: {
         states: {},
         transitionRules: {},
-        currentState: null!,
-        stateChanged: null!
+        currentState: null!
       },
       /** ratio between original and target skeleton's root.position.y */
       rootYRatio: 1,

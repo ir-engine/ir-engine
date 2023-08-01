@@ -72,8 +72,7 @@ export const resetAnimationLogic = (entity: Entity) => {
     animationGraph: {
       states: {},
       transitionRules: {},
-      currentState: null!,
-      stateChanged: null!
+      currentState: null!
     },
     rootYRatio: 1,
     locomotion: new Vector3()
