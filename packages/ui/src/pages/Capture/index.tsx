@@ -36,17 +36,18 @@ import { CaptureClientSettingsState } from '@etherealengine/client-core/src/medi
 import { RecordingFunctions, RecordingState } from '@etherealengine/client-core/src/recording/RecordingService'
 import { MediaStreamService, MediaStreamState } from '@etherealengine/client-core/src/transports/MediaStreams'
 import {
-  closeDataProducer,
   SocketWebRTCClientNetwork,
+  closeDataProducer,
   toggleWebcamPaused
 } from '@etherealengine/client-core/src/transports/SocketWebRTCClientFunctions'
+import { RecordingID } from '@etherealengine/common/src/interfaces/RecordingID'
 import { useVideoFrameCallback } from '@etherealengine/common/src/utils/useVideoFrameCallback'
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { ECSRecordingFunctions } from '@etherealengine/engine/src/ecs/ECSRecording'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import {
-  mocapDataChannelType,
   MotionCaptureFunctions,
-  MotionCaptureStream
+  MotionCaptureStream,
+  mocapDataChannelType
 } from '@etherealengine/engine/src/mocap/MotionCaptureSystem'
 import { getMutableState, getState } from '@etherealengine/hyperflux'
 import Drawer from '@etherealengine/ui/src/components/tailwind/Drawer'
@@ -79,9 +80,9 @@ const startDataProducer = async () => {
  * Start playback of a recording
  * - If we are streaming data, close the data producer
  */
-const startPlayback = async (recordingID: string, twin = true) => {
-  const network = Engine?.instance?.worldNetwork as SocketWebRTCClientNetwork
-  if (getState(RecordingState)?.playback && network?.dataProducers?.has(mocapDataChannelType)) {
+export const startPlayback = async (recordingID: RecordingID, twin = true) => {
+  const network = Engine.instance.worldNetwork as SocketWebRTCClientNetwork
+  if (getState(RecordingState).playback && network.dataProducers.has(mocapDataChannelType)) {
     await closeDataProducer(network, mocapDataChannelType)
   }
   ECSRecordingFunctions.startPlayback({
@@ -415,7 +416,10 @@ const CaptureDashboard = () => {
       })
       RecordingFunctions.getRecordings()
     } else if (!recordingState.started.value) {
-      RecordingFunctions.startRecording().then((recordingID) => {
+      RecordingFunctions.startRecording({
+        user: { Avatar: true },
+        peers: { [Engine.instance.peerID]: { Audio: true, Video: true, Mocap: true } }
+      }).then((recordingID) => {
         if (recordingID) ECSRecordingFunctions.startRecording({ recordingID })
       })
     }

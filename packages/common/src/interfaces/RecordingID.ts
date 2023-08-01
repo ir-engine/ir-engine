@@ -23,20 +23,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
+import { OpaqueType } from './OpaqueType'
 
-import { InstanceserverSubdomainProvisionInterface } from '@etherealengine/common/src/dbmodels/InstanceserverSubdomainProvision'
-
-import { Application } from '../../../declarations'
-
-export type InstanceserverSubdomainProvisionDataType = InstanceserverSubdomainProvisionInterface
-
-/**
- * A class for instance server domain provision  service
- */
-export class InstanceserverSubdomainProvision<T = InstanceserverSubdomainProvisionDataType> extends Service<T> {
-  public docs: any
-  constructor(options: Partial<SequelizeServiceOptions>, app: Application) {
-    super(options)
-  }
-}
+export type RecordingID = OpaqueType<'RecordingID'> & string

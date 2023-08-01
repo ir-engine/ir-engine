@@ -49,12 +49,7 @@ import multiLogger from '@etherealengine/common/src/logger'
 import { getSearchParamFromURL } from '@etherealengine/common/src/utils/getSearchParamFromURL'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { EngineActions, EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
-import {
-  createNetwork,
-  DataChannelType,
-  NetworkTopics,
-  TransportInterface
-} from '@etherealengine/engine/src/networking/classes/Network'
+import { createNetwork, NetworkTopics, TransportInterface } from '@etherealengine/engine/src/networking/classes/Network'
 import { PUBLIC_STUN_SERVERS } from '@etherealengine/engine/src/networking/constants/STUNServers'
 import {
   CAM_VIDEO_SIMULCAST_CODEC_OPTIONS,
@@ -83,6 +78,7 @@ import {
 import { dispatchAction, getMutableState, getState, none, removeActionsForTopic } from '@etherealengine/hyperflux'
 import { Action, Topic } from '@etherealengine/hyperflux/functions/ActionFunctions'
 
+import { DataChannelType } from '@etherealengine/common/src/interfaces/DataChannelType'
 import {
   LocationInstanceConnectionAction,
   LocationInstanceConnectionService,

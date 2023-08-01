@@ -23,39 +23,22 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { disallow, iff, isProvider } from 'feathers-hooks-common'
+import { removeComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { VisibleComponent } from '@etherealengine/engine/src/scene/components/VisibleComponent'
+import { createXRUI } from '@etherealengine/engine/src/xrui/functions/createXRUI'
+import { Widget, Widgets } from '@etherealengine/engine/src/xrui/Widgets'
 
-import authenticate from '../../hooks/authenticate'
-import verifyScope from '../../hooks/verify-scope'
+import { RecordingsWidgetUI } from './ui/RecordingsWidgetUI'
 
-export default {
-  before: {
-    all: [authenticate(), iff(isProvider('external'), verifyScope('admin', 'admin') as any)],
-    find: [],
-    get: [],
-    create: [],
-    update: [],
-    patch: [],
-    remove: [disallow()]
-  },
+export function createRecordingsWidget() {
+  const ui = createXRUI(RecordingsWidgetUI)
+  removeComponent(ui.entity, VisibleComponent)
 
-  after: {
-    all: [],
-    find: [],
-    get: [],
-    create: [],
-    update: [],
-    patch: [],
-    remove: []
-  },
-
-  error: {
-    all: [],
-    find: [],
-    get: [],
-    create: [],
-    update: [],
-    patch: [],
-    remove: []
+  const widget: Widget = {
+    ui,
+    label: 'Recording',
+    icon: 'Videocam'
   }
-} as any
+
+  const id = Widgets.registerWidget(ui.entity, widget)
+}

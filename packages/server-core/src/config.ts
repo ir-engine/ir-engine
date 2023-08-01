@@ -191,12 +191,7 @@ export const localConfig = {
 
     recording: {
       // the internal IP of the local machine, not the public one - overridden upon instance server startup
-      ip: null! as string,
-      // FFmpeg's sdpdemux only supports RTCP = RTP + 1
-      audioPort: 5004,
-      audioPortRtcp: 5005,
-      videoPort: 5006,
-      videoPortRtcp: 5007
+      ip: null! as string
     }
   }
 }

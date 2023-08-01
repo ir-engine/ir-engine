@@ -29,6 +29,7 @@ import { Mesh, MeshBasicMaterial, Object3D, SphereGeometry, Vector3 } from 'thre
 
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 
+import { DataChannelType } from '@etherealengine/common/src/interfaces/DataChannelType'
 import { AvatarRigComponent } from '../avatar/components/AvatarAnimationComponent'
 import { RingBuffer } from '../common/classes/RingBuffer'
 
@@ -37,7 +38,7 @@ import { getComponent } from '../ecs/functions/ComponentFunctions'
 
 import { defineSystem } from '../ecs/functions/SystemFunctions'
 import { addDataChannelHandler, removeDataChannelHandler } from '../networking/NetworkState'
-import { DataChannelType, Network } from '../networking/classes/Network'
+import { Network } from '../networking/classes/Network'
 import { NetworkObjectComponent } from '../networking/components/NetworkObjectComponent'
 import { TransformComponent } from '../transform/components/TransformComponent'
 
@@ -73,18 +74,17 @@ const debug = false
 export const sendResults = (results: MotionCaptureStream) => {
   return encode({
     timestamp: Date.now(),
-    peerIndex: Engine.instance.worldNetwork.peerIDToPeerIndex.get(Engine.instance.peerID)!,
+    peerID: Engine.instance.peerID,
     results
   })
 }
 
 export const receiveResults = (buff: ArrayBuffer) => {
-  const { timestamp, peerIndex, results } = decode(new Uint8Array(buff)) as {
+  const { timestamp, peerID, results } = decode(new Uint8Array(buff)) as {
     timestamp: number
-    peerIndex: number
+    peerID: PeerID
     results: MotionCaptureStream
   }
-  const peerID = Engine.instance.worldNetwork.peerIndexToPeerID.get(peerIndex)
   // console.log('received mocap data', peerID, results)
   return { timestamp, peerID, results }
 }
