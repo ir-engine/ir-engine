@@ -32,7 +32,7 @@ const mediapipeHandNames = [
   'THUMB_TIP',
   'INDEX_FINGER_MCP',
   'INDEX_FINGER_PIP',
-  'INDEX FINGER DIP',
+  'INDEX_FINGER_DIP',
   'INDEX_FINGER_TIP',
   'MIDDLE_FINGER_MCP',
   'MIDDLE_FINGER_PIP',
@@ -42,7 +42,7 @@ const mediapipeHandNames = [
   'RING_FINGER_PIP',
   'RING_FINGER_DIP',
   'RING_FINGER_TIP',
-  'PINKY MCP',
+  'PINKY_MCP',
   'PINKY_PIP',
   'PINKY_DIP',
   'PINKY_TIP'

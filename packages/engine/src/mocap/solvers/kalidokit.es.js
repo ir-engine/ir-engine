@@ -585,22 +585,22 @@ class Vector {
 }
 const calcArms = (lm) => {
   const UpperArm = {
-    l: Vector.findRotation(lm[11], lm[13]),
-    r: Vector.findRotation(lm[12], lm[14])
+    l: Vector.findRotation(lm[MediapipePoseNames.indexOf('left shoulder')], lm[MediapipePoseNames.indexOf('left elbow')]),
+    r: Vector.findRotation(lm[MediapipePoseNames.indexOf('right shoulder')], lm[MediapipePoseNames.indexOf('right elbow')])
   };
-  UpperArm.l.y = Vector.angleBetween3DCoords(lm[12], lm[11], lm[13]);
-  UpperArm.r.y = Vector.angleBetween3DCoords(lm[11], lm[12], lm[14]);
+  UpperArm.l.y = Vector.angleBetween3DCoords(lm[MediapipePoseNames.indexOf('right shoulder')], lm[MediapipePoseNames.indexOf('left shoulder')], lm[MediapipePoseNames.indexOf('left elbow')]);
+  UpperArm.r.y = Vector.angleBetween3DCoords(lm[MediapipePoseNames.indexOf('left shoulder')], lm[MediapipePoseNames.indexOf('right shoulder')], lm[MediapipePoseNames.indexOf('right elbow')]);
   const LowerArm = {
-    l: Vector.findRotation(lm[13], lm[15]),
-    r: Vector.findRotation(lm[14], lm[16])
+    l: Vector.findRotation(lm[MediapipePoseNames.indexOf('left elbow')], lm[MediapipePoseNames.indexOf('left wrist')]),
+    r: Vector.findRotation(lm[MediapipePoseNames.indexOf('right elbow')], lm[MediapipePoseNames.indexOf('right wrist')])
   };
-  LowerArm.l.y = Vector.angleBetween3DCoords(lm[11], lm[13], lm[15]);
-  LowerArm.r.y = Vector.angleBetween3DCoords(lm[12], lm[14], lm[16]);
+  LowerArm.l.y = Vector.angleBetween3DCoords(lm[MediapipePoseNames.indexOf('left shoulder')], lm[MediapipePoseNames.indexOf('left elbow')], lm[MediapipePoseNames.indexOf('left wrist')]);
+  LowerArm.r.y = Vector.angleBetween3DCoords(lm[MediapipePoseNames.indexOf('right shoulder')], lm[MediapipePoseNames.indexOf('right elbow')], lm[MediapipePoseNames.indexOf('right wrist')]);
   LowerArm.l.z = clamp(LowerArm.l.z, -2.14, 0);
   LowerArm.r.z = clamp(LowerArm.r.z, -2.14, 0);
   const Hand = {
-    l: Vector.findRotation(Vector.fromArray(lm[15]), Vector.lerp(Vector.fromArray(lm[17]), Vector.fromArray(lm[19]), 0.5)),
-    r: Vector.findRotation(Vector.fromArray(lm[16]), Vector.lerp(Vector.fromArray(lm[18]), Vector.fromArray(lm[20]), 0.5))
+    l: Vector.findRotation(Vector.fromArray(lm[MediapipePoseNames.indexOf('left wrist')]), Vector.lerp(Vector.fromArray(lm[17]), Vector.fromArray(lm[19]), 0.5)),
+    r: Vector.findRotation(Vector.fromArray(lm[MediapipePoseNames.indexOf('right wrist')]), Vector.lerp(Vector.fromArray(lm[18]), Vector.fromArray(lm[20]), 0.5))
   };
   const rightArmRig = rigArm(UpperArm.r, LowerArm.r, Hand.r, RIGHT);
   const leftArmRig = rigArm(UpperArm.l, LowerArm.l, Hand.l, LEFT);
@@ -645,10 +645,10 @@ const rigArm = (UpperArm, LowerArm, Hand, side = RIGHT) => {
   };
 };
 const calcHips = (lm3d, lm2d) => {
-  const hipLeft2d = Vector.fromArray(lm2d[23]);
-  const hipRight2d = Vector.fromArray(lm2d[24]);
-  const shoulderLeft2d = Vector.fromArray(lm2d[11]);
-  const shoulderRight2d = Vector.fromArray(lm2d[12]);
+  const hipLeft2d = Vector.fromArray(lm2d[MediapipePoseNames.indexOf('left hip')]);
+  const hipRight2d = Vector.fromArray(lm2d[MediapipePoseNames.indexOf('right hip')]);
+  const shoulderLeft2d = Vector.fromArray(lm2d[MediapipePoseNames.indexOf('left shoulder')]);
+  const shoulderRight2d = Vector.fromArray(lm2d[MediapipePoseNames.indexOf('right shoulder')]);
   const hipCenter2d = hipLeft2d.lerp(hipRight2d, 1);
   const shoulderCenter2d = shoulderLeft2d.lerp(shoulderRight2d, 1);
   const spineLength = hipCenter2d.distance(shoulderCenter2d);
@@ -665,7 +665,7 @@ const calcHips = (lm3d, lm2d) => {
     z: hips.position.z * Math.pow(hips.position.z * -2, 2)
   };
   hips.worldPosition.x *= hips.worldPosition.z;
-  hips.rotation = Vector.rollPitchYaw(lm3d[23], lm3d[24]);
+  hips.rotation = Vector.rollPitchYaw(lm3d[MediapipePoseNames.indexOf('left hip')], lm3d[MediapipePoseNames.indexOf('right hip')]);
   if (hips.rotation.y > 0.5) {
     hips.rotation.y -= 2;
   }
@@ -679,7 +679,7 @@ const calcHips = (lm3d, lm2d) => {
   const turnAroundAmountHips = remap(Math.abs(hips.rotation.y), 0.2, 0.4);
   hips.rotation.z *= 1 - turnAroundAmountHips;
   hips.rotation.x = 0;
-  const spine = Vector.rollPitchYaw(lm3d[11], lm3d[12]);
+  const spine = Vector.rollPitchYaw(lm3d[MediapipePoseNames.indexOf('left shoulder')], lm3d[MediapipePoseNames.indexOf('right shoulder')]);
   if (spine.y > 0.5) {
     spine.y -= 2;
   }
@@ -734,19 +734,19 @@ const offsets = {
   }
 };
 const calcLegs = (lm) => {
-  const rightUpperLegSphericalCoords = Vector.getSphericalCoords(lm[23], lm[25], { x: "y", y: "z", z: "x" });
-  const leftUpperLegSphericalCoords = Vector.getSphericalCoords(lm[24], lm[26], { x: "y", y: "z", z: "x" });
-  const rightLowerLegSphericalCoords = Vector.getRelativeSphericalCoords(lm[23], lm[25], lm[27], {
+  const rightUpperLegSphericalCoords = Vector.getSphericalCoords(lm[MediapipePoseNames.indexOf('left hip')], lm[25], { x: "y", y: "z", z: "x" });
+  const leftUpperLegSphericalCoords = Vector.getSphericalCoords(lm[MediapipePoseNames.indexOf('right hip')], lm[26], { x: "y", y: "z", z: "x" });
+  const rightLowerLegSphericalCoords = Vector.getRelativeSphericalCoords(lm[MediapipePoseNames.indexOf('left hip')], lm[25], lm[27], {
     x: "y",
     y: "z",
     z: "x"
   });
-  const leftLowerLegSphericalCoords = Vector.getRelativeSphericalCoords(lm[24], lm[26], lm[28], {
+  const leftLowerLegSphericalCoords = Vector.getRelativeSphericalCoords(lm[MediapipePoseNames.indexOf('right hip')], lm[26], lm[28], {
     x: "y",
     y: "z",
     z: "x"
   });
-  const hipRotation = Vector.findRotation(lm[23], lm[24]);
+  const hipRotation = Vector.findRotation(lm[MediapipePoseNames.indexOf('left hip')], lm[MediapipePoseNames.indexOf('right hip')]);
   const UpperLeg = {
     r: new Vector({
       x: rightUpperLegSphericalCoords.theta,
@@ -834,10 +834,10 @@ class PoseSolver {
     const Arms = calcArms(lm3d);
     const Hips = calcHips(lm3d, lm2d);
     const Legs = enableLegs ? calcLegs(lm3d) : null;
-    const leftHandOffscreen = lm3d[15].y > 0.1 || ((_a = lm3d[15].visibility) != null ? _a : 0) < 0.23 || 0.995 < lm2d[15].y;
-    const rightHandOffscreen = lm3d[16].y > 0.1 || ((_b = lm3d[16].visibility) != null ? _b : 0) < 0.23 || 0.995 < lm2d[16].y;
-    const leftFootOffscreen = lm3d[23].y > 0.1 || ((_c = lm3d[23].visibility) != null ? _c : 0) < 0.63 || Hips.Hips.position.z > -0.4;
-    const rightFootOffscreen = lm3d[24].y > 0.1 || ((_d = lm3d[24].visibility) != null ? _d : 0) < 0.63 || Hips.Hips.position.z > -0.4;
+    const leftHandOffscreen = lm3d[MediapipePoseNames.indexOf('left wrist')].y > 0.1 || ((_a = lm3d[MediapipePoseNames.indexOf('left wrist')].visibility) != null ? _a : 0) < 0.23 || 0.995 < lm2d[MediapipePoseNames.indexOf('left wrist')].y;
+    const rightHandOffscreen = lm3d[MediapipePoseNames.indexOf('right wrist')].y > 0.1 || ((_b = lm3d[MediapipePoseNames.indexOf('right wrist')].visibility) != null ? _b : 0) < 0.23 || 0.995 < lm2d[MediapipePoseNames.indexOf('right wrist')].y;
+    const leftFootOffscreen = lm3d[MediapipePoseNames.indexOf('left hip')].y > 0.1 || ((_c = lm3d[MediapipePoseNames.indexOf('left hip')].visibility) != null ? _c : 0) < 0.63 || Hips.Hips.position.z > -0.4;
+    const rightFootOffscreen = lm3d[MediapipePoseNames.indexOf('right hip')].y > 0.1 || ((_d = lm3d[MediapipePoseNames.indexOf('right hip')].visibility) != null ? _d : 0) < 0.63 || Hips.Hips.position.z > -0.4;
     Arms.UpperArm.l = Arms.UpperArm.l.multiply(leftHandOffscreen ? 0 : 1);
     Arms.UpperArm.l.z = leftHandOffscreen ? RestingDefault.Pose.LeftUpperArm.z : Arms.UpperArm.l.z;
     Arms.UpperArm.r = Arms.UpperArm.r.multiply(rightHandOffscreen ? 0 : 1);
@@ -887,15 +887,15 @@ class HandSolver {
     handRotation.y -= side === LEFT ? 0.4 : 0.4;
     let hand = {};
     hand[side + "Wrist"] = { x: handRotation.x, y: handRotation.y, z: handRotation.z };
-    hand[side + "RingProximal"] = { x: 0, y: 0, z: Vector.angleBetween3DCoords(lm[0], lm[13], lm[14]) };
-    hand[side + "RingIntermediate"] = { x: 0, y: 0, z: Vector.angleBetween3DCoords(lm[13], lm[14], lm[15]) };
-    hand[side + "RingDistal"] = { x: 0, y: 0, z: Vector.angleBetween3DCoords(lm[14], lm[15], lm[16]) };
+    hand[side + "RingProximal"] = { x: 0, y: 0, z: Vector.angleBetween3DCoords(lm[0], lm[MediapipePoseNames.indexOf('left elbow')], lm[MediapipePoseNames.indexOf('right elbow')]) };
+    hand[side + "RingIntermediate"] = { x: 0, y: 0, z: Vector.angleBetween3DCoords(lm[MediapipePoseNames.indexOf('left elbow')], lm[MediapipePoseNames.indexOf('right elbow')], lm[MediapipePoseNames.indexOf('left wrist')]) };
+    hand[side + "RingDistal"] = { x: 0, y: 0, z: Vector.angleBetween3DCoords(lm[MediapipePoseNames.indexOf('right elbow')], lm[MediapipePoseNames.indexOf('left wrist')], lm[MediapipePoseNames.indexOf('right wrist')]) };
     hand[side + "IndexProximal"] = { x: 0, y: 0, z: Vector.angleBetween3DCoords(lm[0], lm[5], lm[6]) };
     hand[side + "IndexIntermediate"] = { x: 0, y: 0, z: Vector.angleBetween3DCoords(lm[5], lm[6], lm[7]) };
     hand[side + "IndexDistal"] = { x: 0, y: 0, z: Vector.angleBetween3DCoords(lm[6], lm[7], lm[8]) };
     hand[side + "MiddleProximal"] = { x: 0, y: 0, z: Vector.angleBetween3DCoords(lm[0], lm[9], lm[10]) };
-    hand[side + "MiddleIntermediate"] = { x: 0, y: 0, z: Vector.angleBetween3DCoords(lm[9], lm[10], lm[11]) };
-    hand[side + "MiddleDistal"] = { x: 0, y: 0, z: Vector.angleBetween3DCoords(lm[10], lm[11], lm[12]) };
+    hand[side + "MiddleIntermediate"] = { x: 0, y: 0, z: Vector.angleBetween3DCoords(lm[9], lm[10], lm[MediapipePoseNames.indexOf('left shoulder')]) };
+    hand[side + "MiddleDistal"] = { x: 0, y: 0, z: Vector.angleBetween3DCoords(lm[10], lm[MediapipePoseNames.indexOf('left shoulder')], lm[MediapipePoseNames.indexOf('right shoulder')]) };
     hand[side + "ThumbProximal"] = { x: 0, y: 0, z: Vector.angleBetween3DCoords(lm[0], lm[1], lm[2]) };
     hand[side + "ThumbIntermediate"] = { x: 0, y: 0, z: Vector.angleBetween3DCoords(lm[1], lm[2], lm[3]) };
     hand[side + "ThumbDistal"] = { x: 0, y: 0, z: Vector.angleBetween3DCoords(lm[2], lm[3], lm[4]) };
@@ -1117,8 +1117,8 @@ const calcMouth = (lm) => {
   const eyeOuterCornerR = new Vector(lm[263]);
   const eyeInnerDistance = eyeInnerCornerL.distance(eyeInnerCornerR);
   const eyeOuterDistance = eyeOuterCornerL.distance(eyeOuterCornerR);
-  const upperInnerLip = new Vector(lm[13]);
-  const lowerInnerLip = new Vector(lm[14]);
+  const upperInnerLip = new Vector(lm[MediapipePoseNames.indexOf('left elbow')]);
+  const lowerInnerLip = new Vector(lm[MediapipePoseNames.indexOf('right elbow')]);
   const mouthCornerLeft = new Vector(lm[61]);
   const mouthCornerRight = new Vector(lm[291]);
   const mouthOpen = upperInnerLip.distance(lowerInnerLip);

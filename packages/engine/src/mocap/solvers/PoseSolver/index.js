@@ -66,10 +66,10 @@ export class PoseSolver {
         const Hips = calcHips(lm3d, lm2d);
         const Legs = enableLegs ? calcLegs(lm3d) : null;
         //DETECT OFFSCREEN AND RESET VALUES TO DEFAULTS
-        const leftHandOffscreen = lm3d[15].y > 0.1 || ((_a = lm3d[15].visibility) !== null && _a !== void 0 ? _a : 0) < 0.23 || 0.995 < lm2d[15].y;
-        const rightHandOffscreen = lm3d[16].y > 0.1 || ((_b = lm3d[16].visibility) !== null && _b !== void 0 ? _b : 0) < 0.23 || 0.995 < lm2d[16].y;
-        const leftFootOffscreen = lm3d[23].y > 0.1 || ((_c = lm3d[23].visibility) !== null && _c !== void 0 ? _c : 0) < 0.63 || Hips.Hips.position.z > -0.4;
-        const rightFootOffscreen = lm3d[24].y > 0.1 || ((_d = lm3d[24].visibility) !== null && _d !== void 0 ? _d : 0) < 0.63 || Hips.Hips.position.z > -0.4;
+        const leftHandOffscreen = lm3d[MediapipePoseNames.indexOf('left wrist')].y > 0.1 || ((_a = lm3d[MediapipePoseNames.indexOf('left wrist')].visibility) !== null && _a !== void 0 ? _a : 0) < 0.23 || 0.995 < lm2d[MediapipePoseNames.indexOf('left wrist')].y;
+        const rightHandOffscreen = lm3d[MediapipePoseNames.indexOf('right wrist')].y > 0.1 || ((_b = lm3d[MediapipePoseNames.indexOf('right wrist')].visibility) !== null && _b !== void 0 ? _b : 0) < 0.23 || 0.995 < lm2d[MediapipePoseNames.indexOf('right wrist')].y;
+        const leftFootOffscreen = lm3d[MediapipePoseNames.indexOf('left hip')].y > 0.1 || ((_c = lm3d[MediapipePoseNames.indexOf('left hip')].visibility) !== null && _c !== void 0 ? _c : 0) < 0.63 || Hips.Hips.position.z > -0.4;
+        const rightFootOffscreen = lm3d[MediapipePoseNames.indexOf('right hip')].y > 0.1 || ((_d = lm3d[MediapipePoseNames.indexOf('right hip')].visibility) !== null && _d !== void 0 ? _d : 0) < 0.63 || Hips.Hips.position.z > -0.4;
         Arms.UpperArm.l = Arms.UpperArm.l.multiply(leftHandOffscreen ? 0 : 1);
         Arms.UpperArm.l.z = leftHandOffscreen ? RestingDefault.Pose.LeftUpperArm.z : Arms.UpperArm.l.z;
         Arms.UpperArm.r = Arms.UpperArm.r.multiply(rightHandOffscreen ? 0 : 1);

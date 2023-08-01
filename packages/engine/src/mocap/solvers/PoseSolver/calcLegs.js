@@ -34,24 +34,27 @@ export const offsets = {
         z: 0.1,
     },
 };
+
+import MediapipePoseNames from './../../MediapipePoseNames'
+
 /**
  * Calculates leg rotation angles
  * @param {Results} lm : array of 3D pose vectors from tfjs or mediapipe
  */
 export const calcLegs = (lm) => {
-    const rightUpperLegSphericalCoords = Vector.getSphericalCoords(lm[23], lm[25], { x: "y", y: "z", z: "x" });
-    const leftUpperLegSphericalCoords = Vector.getSphericalCoords(lm[24], lm[26], { x: "y", y: "z", z: "x" });
-    const rightLowerLegSphericalCoords = Vector.getRelativeSphericalCoords(lm[23], lm[25], lm[27], {
+    const rightUpperLegSphericalCoords = Vector.getSphericalCoords(lm[MediapipePoseNames.indexOf('left hip')], lm[MediapipePoseNames.indexOf('left knee')], { x: "y", y: "z", z: "x" });
+    const leftUpperLegSphericalCoords = Vector.getSphericalCoords(lm[MediapipePoseNames.indexOf('right hip')], lm[MediapipePoseNames.indexOf('right knee')], { x: "y", y: "z", z: "x" });
+    const rightLowerLegSphericalCoords = Vector.getRelativeSphericalCoords(lm[MediapipePoseNames.indexOf('left hip')], lm[MediapipePoseNames.indexOf('left knee')], lm[MediapipePoseNames.indexOf('left ankle')], {
         x: "y",
         y: "z",
         z: "x",
     });
-    const leftLowerLegSphericalCoords = Vector.getRelativeSphericalCoords(lm[24], lm[26], lm[28], {
+    const leftLowerLegSphericalCoords = Vector.getRelativeSphericalCoords(lm[MediapipePoseNames.indexOf('right hip')], lm[MediapipePoseNames.indexOf('right knee')], lm[MediapipePoseNames.indexOf('right ankle')], {
         x: "y",
         y: "z",
         z: "x",
     });
-    const hipRotation = Vector.findRotation(lm[23], lm[24]);
+    const hipRotation = Vector.findRotation(lm[MediapipePoseNames.indexOf('left hip')], lm[MediapipePoseNames.indexOf('right hip')]);
     const UpperLeg = {
         r: new Vector({
             x: rightUpperLegSphericalCoords.theta,

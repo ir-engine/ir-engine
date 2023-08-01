@@ -25,6 +25,8 @@ Ethereal Engine. All Rights Reserved.
 
 
 import { TFVectorPose, IPoseSolveOptions, TPose } from "../Types";
+import MediapipePoseNames from './../../MediapipePoseNames'
+
 /** Class representing pose solver. */
 export declare class PoseSolver {
     /** expose arm rotation calculator as a static method */

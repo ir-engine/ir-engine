@@ -23,35 +23,57 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { Vector3 } from 'three'
 import { updateRigPosition, updateRigRotation } from './UpdateRig'
 
-import { TPose } from './solvers'
+import { TFVectorPose } from './solvers'
+import { calcHead } from './solvers/FaceSolver/calcHead'
+import { calcArms } from './solvers/PoseSolver/calcArms'
+import { calcHips } from './solvers/PoseSolver/calcHips'
+import { calcLegs } from './solvers/PoseSolver/calcLegs'
 
-const UpdateSolvedPose = (data: TPose, hipsPos, avatarRig, avatarTransform) => {
-  if (data) {
-    console.log('updating solved pose', data)
-    // const engineState = getState(EngineState)
-    // const lerpAmount = engineState.deltaSeconds * 10
+const UpdateSolvedPose = (rawPose, pose, avatarRig, avatarTransform) => {
+  if (rawPose) {
+    // const poseData = PoseSolver.solve(rawPose, pose)
+    // console.log(poseData)
+    const headCalc = calcHead(pose)
 
-    updateRigRotation('Hips', data!.Hips.rotation, 1, 0.7, avatarRig)
-    updateRigPosition('Hips', data!.Hips.position, 1, 0.07, avatarRig)
+    updateRigPosition('Head', headCalc?.position, 1, 0.7, avatarRig)
+    updateRigRotation('Neck', headCalc?.degrees, 1, 0.7, avatarRig)
 
-    updateRigRotation('Chest', data!.Spine, 0.25, 0.3, avatarRig)
+    const hipsCalc = calcHips(rawPose, pose)
+    const world = hipsCalc?.Hips?.worldPosition || new Vector3(0, 0, 0)
+    const hipsPos = {
+      x: -world?.x, // Reverse direction
+      y: world?.y + 1, // Add a bit of height
+      z: -world?.z // Reverse direction
+    }
+    updateRigPosition('Hips', hipsPos, 1, 0.07, avatarRig)
 
-    updateRigPosition('Spine', data!.Spine, 0.45, 0.3, avatarRig)
+    updateRigRotation('Hips', hipsCalc!.Hips.rotation, 1, 0.7, avatarRig)
 
-    updateRigRotation('RightUpperArm', data!.RightUpperArm, 1, 0.3, avatarRig)
-    updateRigRotation('RightLowerArm', data!.RightLowerArm, 1, 0.3, avatarRig)
-    updateRigRotation('LeftUpperArm', data!.LeftUpperArm, 1, 0.3, avatarRig)
-    updateRigRotation('LeftLowerArm', data!.LeftLowerArm, 1, 0.3, avatarRig)
+    updateRigRotation('Chest', hipsCalc!.Spine, 0.25, 0.3, avatarRig)
 
-    updateRigRotation('LeftUpperLeg', data!.LeftUpperLeg, 1, 0.3, avatarRig)
-    updateRigRotation('LeftLowerLeg', data!.LeftLowerLeg, 1, 0.3, avatarRig)
-    updateRigRotation('RightUpperLeg', data!.RightUpperLeg, 1, 0.3, avatarRig)
-    updateRigRotation('RightLowerLeg', data!.RightLowerLeg, 1, 0.3, avatarRig)
+    updateRigPosition('Spine', hipsCalc!.Spine, 0.45, 0.3, avatarRig)
 
-    updateRigPosition('LeftHand', data!.LeftHand, 1, 0.3, avatarRig)
-    updateRigPosition('RightHand', data!.RightHand, 1, 0.3, avatarRig)
+    const arms = calcArms(rawPose as TFVectorPose)
+    updateRigRotation('RightUpperArm', arms!.UpperArm.r, 1, 0.3, avatarRig)
+
+    updateRigRotation('RightLowerArm', arms!.LowerArm.r, 1, 0.3, avatarRig)
+
+    updateRigRotation('LeftUpperArm', arms!.UpperArm.l, 1, 0.3, avatarRig)
+
+    updateRigRotation('LeftLowerArm', arms!.LowerArm.l, 1, 0.3, avatarRig)
+
+    updateRigPosition('LeftHand', arms?.Hand?.l, 1, 0.3, avatarRig)
+    updateRigPosition('RightHand', arms?.Hand?.r, 1, 0.3, avatarRig)
+
+    const legs = calcLegs(rawPose as TFVectorPose)
+    updateRigRotation('LeftUpperLeg', legs!.UpperLeg?.l, 1, 0.3, avatarRig)
+    updateRigRotation('LeftLowerLeg', legs!.LowerLeg?.l, 1, 0.3, avatarRig)
+
+    updateRigRotation('RightUpperLeg', legs!.UpperLeg?.r, 1, 0.3, avatarRig)
+    updateRigRotation('RightLowerLeg', legs!.LowerLeg?.r, 1, 0.3, avatarRig)
   }
 }
 

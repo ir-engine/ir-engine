@@ -24,7 +24,6 @@ Ethereal Engine. All Rights Reserved.
 */
 
 /* eslint-disable @typescript-eslint/ban-ts-comment */
-import { Face, Hand, Pose, Side } from '@etherealengine/engine/src/mocap/solvers'
 import { useHookstate } from '@hookstate/core'
 import { DrawingUtils, FaceLandmarker, FilesetResolver, HandLandmarker, PoseLandmarker } from '@mediapipe/tasks-vision'
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react'
@@ -282,27 +281,12 @@ const CaptureDashboard = () => {
       if (trackingSettings?.trackFace === true && faceDetector?.value) {
         const faceResults = faceDetector?.value?.detectForVideo(videoRef.current!, videoTime * 1000)
 
-        if (trackingSettings?.solveFace === true) {
-          const solves = faceResults.faceLandmarks.map((landmarks) => {
-            return Face?.solve(landmarks || [], {
-              runtime: 'mediapipe', // `mediapipe` or `tfjs`
-              video: videoRef.current!,
-              imageSize: { height: videoRef.current!.clientHeight, width: videoRef.current!.clientWidth }
-              // smoothBlink: false, // smooth left and right eye blink delays
-              // blinkSettings: [0.25, 0.75], // adjust upper and lower bound blink sensitivity
-            })
-          })
+        if (faceResults?.faceBlendshapes) {
           return {
-            facesSolved: solves
+            faces: faceResults?.faceBlendshapes
           }
-        } else {
-          if (faceResults?.faceBlendshapes) {
-            return {
-              faces: faceResults?.faceBlendshapes
-            }
-          }
-          return {}
         }
+        return {}
       } else {
         return {}
       }
@@ -320,25 +304,14 @@ const CaptureDashboard = () => {
           }
         }
 
-        if (trackingSettings?.solveHands === true) {
-          const solves = handResults?.worldLandmarks.map((worldLandmarks, idx) => {
-            const side = handResults?.handednesses[idx][0]
-            return {
-              handedness: side,
-              handSolve: Hand?.solve(worldLandmarks, side?.categoryName as Side)
-            }
-          })
-          return { handsSolved: solves }
-        } else {
-          if (handResults?.landmarks) {
-            return {
-              hands: handResults?.landmarks,
-              handednesses: handResults?.handednesses,
-              handsWorld: handResults?.worldLandmarks
-            }
+        if (handResults?.landmarks) {
+          return {
+            hands: handResults?.landmarks,
+            handednesses: handResults?.handednesses,
+            handsWorld: handResults?.worldLandmarks
           }
-          return {}
         }
+        return {}
       } else {
         return {}
       }
@@ -346,26 +319,9 @@ const CaptureDashboard = () => {
 
     if (poseDetector?.value) {
       poseDetector?.value?.detectForVideo(videoRef.current!, videoTime * 1000, (poseResults) => {
-        let finalPose = {}
-        if (trackingSettings?.solvePose === true) {
-          finalPose = {
-            // hipsSolved: Pose.calcHips(poseResults?.worldLandmarks, poseResults?.landmarks),
-            posesSolved: poseResults?.worldLandmarks.map((worldLandmarks, idx) => {
-              const solve = Pose.solve(worldLandmarks, poseResults?.landmarks[idx], {
-                runtime: 'mediapipe', // `mediapipe` or `tfjs`
-                video: videoRef.current!,
-                imageSize: { height: videoRef.current!.clientHeight, width: videoRef.current!.clientWidth },
-                enableLegs: true
-              })
-              return solve
-            }),
-            posesWorld: poseResults?.worldLandmarks
-          }
-        } else {
-          finalPose = {
-            poses: poseResults?.landmarks,
-            posesWorld: poseResults?.worldLandmarks
-          }
+        const finalPose = {
+          poses: poseResults?.landmarks,
+          posesWorld: poseResults?.worldLandmarks
         }
 
         // only if drawing

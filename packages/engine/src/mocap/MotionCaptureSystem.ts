@@ -43,34 +43,36 @@ import { NetworkObjectComponent } from '../networking/components/NetworkObjectCo
 import { TransformComponent } from '../transform/components/TransformComponent'
 
 import { Category, Classifications, Landmark, NormalizedLandmark } from '@mediapipe/tasks-vision'
-import { Side, TFace, THand, TPose } from './solvers'
+import { Side, THand } from './solvers'
 
 import mediapipePoseNames from './MediapipePoseNames'
 import UpdateRawFace from './UpdateRawFace'
 import UpdateRawPose from './UpdateRawPose'
 import UpdateSolvedFace from './UpdateSolvedFace'
-import UpdateSolvedHands from './UpdateSolvedHands'
+
+import UpdateSolvedPose from './UpdateSolvedPose'
+
+import UpdateRawHand from './UpdateRawHand'
+import UpdateSolvedHand from './UpdateSolvedHand'
 
 export interface SolvedHand {
   handSolve?: THand<Side> | undefined
-  handedness?: Category | undefined
+  handedness?: Category
 }
 
 export interface MotionCaptureStream {
-  poses?: NormalizedLandmark[][] | undefined
-  posesWorld?: Landmark[][] | undefined
-  posesSolved?: TPose[] | undefined
+  poses?: NormalizedLandmark[][]
+  posesWorld?: Landmark[][]
   hands?: NormalizedLandmark[][] | undefined
   handednesses?: Category[][] | undefined
   handsWorld?: Landmark[][] | undefined
-  handsSolved?: SolvedHand[] | undefined
   faces?: Classifications[] | undefined
-  facesSolved?: TFace[] | undefined
 }
 
 const debugPoseObjs: Object3D[] = []
 const debugHandObjs: Object3D[] = []
 const debug = false
+const useSolvers = true
 export const sendResults = (results: MotionCaptureStream) => {
   return encode({
     timestamp: Date.now(),
@@ -147,28 +149,55 @@ const execute = () => {
       const hipsPos = avatarHips.position.clone().applyMatrix4(avatarTransform.matrix)
 
       // Pose
-      if (data?.posesWorld) {
-        data?.posesWorld.forEach((pose) => {
-          UpdateRawPose(pose, hipsPos.clone(), avatarRig, avatarTransform)
-          // UpdateSolvedPose(pose, hipsPos.clone(), avatarRig, avatarTransform)
+      if (useSolvers !== true) {
+        if (data.poses && data?.posesWorld) {
+          data?.posesWorld.forEach((pose, idx) => {
+            UpdateRawPose(pose, hipsPos.clone(), avatarRig, avatarTransform)
+          })
+        }
+      } else {
+        if (data.poses && data?.posesWorld) {
+          const twoDPoses = data?.poses
+          data?.posesWorld.forEach((pose, idx) => {
+            const twoDPose = twoDPoses[idx]
+            UpdateSolvedPose(pose, twoDPose, avatarRig, avatarTransform)
+          })
+        }
+      }
 
-          if (data?.handsSolved) {
-            data?.handsSolved.forEach((hand) => {
-              UpdateSolvedHands(hand, pose, avatarRig, avatarTransform)
+      if (useSolvers !== true) {
+        if (data?.handsWorld && data?.handednesses) {
+          const handednesses = data?.handednesses
+          data?.handsWorld.forEach((hand, idx) => {
+            handednesses.forEach((handedness, idx) => {
+              UpdateSolvedHand(hand, handedness, avatarRig, avatarTransform)
             })
-          }
-        })
+          })
+        }
+      } else {
+        if (data?.handsWorld && data?.handednesses) {
+          const handednesses = data?.handednesses
+          data?.handsWorld.forEach((hand, idx) => {
+            handednesses.forEach((handedness, idx) => {
+              UpdateRawHand(hand, handedness, hipsPos.clone(), avatarRig, avatarTransform)
+            })
+          })
+        }
       }
 
       // Face
-      if (data?.facesSolved) {
-        data?.facesSolved.forEach((face) => {
-          UpdateSolvedFace(face, hipsPos.clone(), avatarRig, avatarTransform)
-        })
+      if (useSolvers !== true) {
+        if (data?.faces) {
+          data?.faces.forEach((face) => {
+            UpdateRawFace(face, hipsPos.clone(), avatarRig, avatarTransform)
+          })
+        }
       } else if (data?.faces) {
-        data?.faces.forEach((face) => {
-          UpdateRawFace(face, hipsPos.clone(), avatarRig, avatarTransform)
-        })
+        if (data?.faces) {
+          data?.faces.forEach((face) => {
+            UpdateSolvedFace(face, hipsPos.clone(), avatarRig, avatarTransform)
+          })
+        }
       }
 
       if (debug) {

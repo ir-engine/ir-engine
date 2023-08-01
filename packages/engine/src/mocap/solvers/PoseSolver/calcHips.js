@@ -27,6 +27,9 @@ Ethereal Engine. All Rights Reserved.
 import Vector from "../utils/vector";
 import { clamp, remap } from "../utils/helpers";
 import { PI } from "./../constants";
+
+import MediapipePoseNames from './../../MediapipePoseNames'
+
 /**
  * Calculates Hip rotation and world position
  * @param {Array} lm3d : array of 3D pose vectors from tfjs or mediapipe
@@ -34,10 +37,10 @@ import { PI } from "./../constants";
  */
 export const calcHips = (lm3d, lm2d) => {
     //Find 2D normalized Hip and Shoulder Joint Positions/Distances
-    const hipLeft2d = Vector.fromArray(lm2d[23]);
-    const hipRight2d = Vector.fromArray(lm2d[24]);
-    const shoulderLeft2d = Vector.fromArray(lm2d[11]);
-    const shoulderRight2d = Vector.fromArray(lm2d[12]);
+    const hipLeft2d = Vector.fromArray(lm2d[MediapipePoseNames.indexOf('left hip')]);
+    const hipRight2d = Vector.fromArray(lm2d[MediapipePoseNames.indexOf('right hip')]);
+    const shoulderLeft2d = Vector.fromArray(lm2d[MediapipePoseNames.indexOf('left shoulder')]);
+    const shoulderRight2d = Vector.fromArray(lm2d[MediapipePoseNames.indexOf('right shoulder')]);
     const hipCenter2d = hipLeft2d.lerp(hipRight2d, 0.5);
     const shoulderCenter2d = shoulderLeft2d.lerp(shoulderRight2d, 0.5);
     const spineLength = hipCenter2d.distance(shoulderCenter2d);
@@ -54,7 +57,7 @@ export const calcHips = (lm3d, lm2d) => {
         z: hips.position.z * Math.pow(hips.position.z * -2, 2),
     };
     hips.worldPosition.x *= hips.worldPosition.z;
-    hips.rotation = Vector.rollPitchYaw(lm3d[23], lm3d[24]);
+    hips.rotation = Vector.rollPitchYaw(lm3d[MediapipePoseNames.indexOf('left hip')], lm3d[MediapipePoseNames.indexOf('right hip')]);
     //fix -PI, PI jumping
     if (hips.rotation.y > 0.5) {
         hips.rotation.y -= 2;
@@ -70,7 +73,7 @@ export const calcHips = (lm3d, lm2d) => {
     const turnAroundAmountHips = remap(Math.abs(hips.rotation.y), 0.2, 0.4);
     hips.rotation.z *= 1 - turnAroundAmountHips;
     hips.rotation.x = 0; //temp fix for inaccurate X axis
-    const spine = Vector.rollPitchYaw(lm3d[11], lm3d[12]);
+    const spine = Vector.rollPitchYaw(lm3d[MediapipePoseNames.indexOf('left shoulder')], lm3d[MediapipePoseNames.indexOf('right shoulder')]);
     //fix -PI, PI jumping
     if (spine.y > 0.5) {
         spine.y -= 2;
