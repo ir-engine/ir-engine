@@ -145,8 +145,10 @@ function format(data) {
 
 function merge() {
   const a = {}
-  for (var i = arguments.length; i >= 0; --i) {
+  for (let i = arguments.length; i >= 0; --i) {
+    // eslint-disable-next-line prefer-rest-params
     Object.keys(arguments[i] || {}).forEach((k) => {
+      // eslint-disable-next-line prefer-rest-params
       a[k] = arguments[i][k]
     })
   }

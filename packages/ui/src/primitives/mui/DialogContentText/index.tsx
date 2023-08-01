@@ -27,7 +27,7 @@ import React from 'react'
 
 import { DialogContentTextProps, DialogContentText as MuiDialogContentText } from '@mui/material'
 
-const DialogContentText = ({ children, ...props }: DialogContentTextProps & {}) => (
+const DialogContentText = ({ children, ...props }: DialogContentTextProps & any) => (
   <MuiDialogContentText {...props}>{children}</MuiDialogContentText>
 )
 

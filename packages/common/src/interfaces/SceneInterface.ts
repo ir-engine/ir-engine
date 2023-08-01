@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { EntityUUID } from './EntityUUID'
 
-export interface ComponentJson<T extends any = any> {
+export interface ComponentJson<T = any> {
   name: string
   props?: Partial<T> | T
 }

@@ -62,9 +62,9 @@ export function solveTwoBoneIK(
   targetRotation: Quaternion, // world space
   rotationOffset: Quaternion | null = null,
   hint: Object3D | null = null, // todo: in local space, should be in world space, convert to matrix or dual quat
-  targetPosWeight: number = 1,
-  targetRotWeight: number = 1,
-  hintWeight: number = 1
+  targetPosWeight = 1,
+  targetRotWeight = 1,
+  hintWeight = 1
 ) {
   targetPos.copy(targetPosition)
   targetRot.copy(targetRotation)
