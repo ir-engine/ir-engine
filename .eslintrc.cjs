@@ -3,7 +3,7 @@ module.exports = {
   parser: '@typescript-eslint/parser',
   plugins: ['@typescript-eslint'],
   root: true,
-  ignorePatterns: ['packages/server/upload', 'packages/server/upload_test', '**/*.js'],
+  ignorePatterns: ['packages/server/upload', 'packages/server/upload_test', '**/*.js', 'packages/projects/projects/**'],
   rules: {
     '@typescript-eslint/no-empty-function': 'off',
     '@typescript-eslint/no-non-null-assertion': 'off',
