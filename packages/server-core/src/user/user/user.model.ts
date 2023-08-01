@@ -38,6 +38,7 @@ import {
 } from '@etherealengine/common/src/dbmodels/UserInterface'
 
 import { Application } from '../../../declarations'
+import { createInstanceAuthorizedUserModel } from '../../networking/instance/instance.model'
 
 /**
  * This model contain users information
@@ -97,7 +98,7 @@ export default (app: Application) => {
     ;(User as any).hasMany(models.bot, { foreignKey: 'userId' })
     ;(User as any).hasMany(models.scope, { foreignKey: 'userId', onDelete: 'cascade' })
     ;(User as any).belongsToMany(models.instance, { through: 'instance-authorized-user' })
-    ;(User as any).hasMany(models.instance_authorized_user, { foreignKey: { allowNull: false } })
+    ;(User as any).hasMany(createInstanceAuthorizedUserModel(app), { foreignKey: { allowNull: false } })
     ;(User as any).hasOne(createUserApiKeyModel(app))
     ;(User as any).belongsTo(createAvatarModel(app))
     ;(User as any).hasMany(models.user_kick, { onDelete: 'cascade' })

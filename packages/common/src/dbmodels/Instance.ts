@@ -48,3 +48,7 @@ interface LocationInterface {
   isFeatured: boolean
   maxUsersPerInstance: number
 }
+
+export interface InstanceAuthorizedUserInterface {
+  id: string
+}

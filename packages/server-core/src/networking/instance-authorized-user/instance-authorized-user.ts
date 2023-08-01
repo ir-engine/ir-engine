@@ -23,36 +23,38 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { DataTypes, Model, Sequelize } from 'sequelize'
-
-import { InstanceAuthorizedUserInterface } from '@etherealengine/common/src/dbmodels/InstanceAuthorizedUser'
+import {
+  instanceAuthorizedUserMethods,
+  instanceAuthorizedUserPath
+} from '@etherealengine/engine/src/schemas/networking/instance-authorized-user.schema'
 
 import { Application } from '../../../declarations'
+import { InstanceAuthorizedUserService } from './instance-authorized-user.class'
+import instanceAuthorizedUserDocs from './instance-authorized-user.docs'
+import hooks from './instance-authorized-user.hooks'
 
-export default (app: Application) => {
-  const sequelizeClient: Sequelize = app.get('sequelizeClient')
-  const instanceAuthorizedUser = sequelizeClient.define<Model<InstanceAuthorizedUserInterface>>(
-    'instance_authorized_user',
-    {
-      id: {
-        type: DataTypes.UUID,
-        defaultValue: DataTypes.UUIDV1,
-        allowNull: false,
-        primaryKey: true
-      }
-    },
-    {
-      hooks: {
-        beforeCount(options: any): void {
-          options.raw = true
-        }
-      }
-    }
-  )
-
-  ;(instanceAuthorizedUser as any).associate = (models: any): void => {
-    ;(instanceAuthorizedUser as any).belongsTo(models.instance, { required: true, foreignKey: { allowNull: true } })
-    ;(instanceAuthorizedUser as any).belongsTo(models.user, { required: true, foreignKey: { allowNull: true } })
+declare module '@etherealengine/common/declarations' {
+  interface ServiceTypes {
+    [instanceAuthorizedUserPath]: InstanceAuthorizedUserService
   }
-  return instanceAuthorizedUser
+}
+
+export default (app: Application): void => {
+  const options = {
+    name: instanceAuthorizedUserPath,
+    paginate: app.get('paginate'),
+    Model: app.get('knexClient'),
+    multi: true
+  }
+
+  app.use(instanceAuthorizedUserPath, new InstanceAuthorizedUserService(options), {
+    // A list of all methods this service exposes externally
+    methods: instanceAuthorizedUserMethods,
+    // You can add additional custom events to be sent to clients here
+    events: [],
+    docs: instanceAuthorizedUserDocs
+  })
+
+  const service = app.service(instanceAuthorizedUserPath)
+  service.hooks(hooks)
 }
