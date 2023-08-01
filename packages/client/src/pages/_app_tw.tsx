@@ -32,7 +32,7 @@ import {
   AdminClientSettingsState,
   ClientSettingService
 } from '@etherealengine/client-core/src/admin/services/Setting/ClientSettingService'
-import { AdminCoilSettingService } from '@etherealengine/client-core/src/admin/services/Setting/CoilSettingService'
+
 import { API } from '@etherealengine/client-core/src/API'
 import { initGA, logPageView } from '@etherealengine/client-core/src/common/analytics'
 import {
@@ -119,10 +119,6 @@ const AppPage = () => {
   useEffect(() => {
     Engine.instance.userId = selfUser.id.value
   }, [selfUser.id])
-
-  useEffect(() => {
-    authState.isLoggedIn.value && AdminCoilSettingService.fetchCoil()
-  }, [authState.isLoggedIn])
 
   useEffect(() => {
     if (clientSettingState?.updateNeeded?.value) ClientSettingService.fetchClientSettings()

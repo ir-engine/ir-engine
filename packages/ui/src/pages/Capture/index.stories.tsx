@@ -31,7 +31,6 @@ import React, { useEffect, useRef, useState } from 'react'
 
 // import { useLocation, useNavigate } from 'react-router-dom'
 
-import { AdminCoilSettingService } from '@etherealengine/client-core/src/admin/services/Setting/CoilSettingService'
 import {
   NotificationAction,
   NotificationActions
@@ -152,10 +151,6 @@ const decorators = [
     useEffect(() => {
       Engine.instance.userId = selfUser.id.value
     }, [selfUser.id])
-
-    useEffect(() => {
-      authState.isLoggedIn.value && AdminCoilSettingService.fetchCoil()
-    }, [authState.isLoggedIn])
 
     useEffect(() => {
       addActionReceptor(LocationServiceReceptor)
