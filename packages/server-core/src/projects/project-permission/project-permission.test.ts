@@ -44,7 +44,9 @@ const cleanup = async (app: Application) => {
   deleteFolderRecursive(project1Dir)
   try {
     await app.service('project').Model.destroy({ where: { name: newProjectName1 } })
-  } catch (e) {}
+  } catch (e) {
+    //
+  }
 }
 
 /**
@@ -254,17 +256,13 @@ describe('project-permission.test', () => {
 
         assert.rejects(
           async () => {
-            try {
-              const res = await app.service('project-permission').create(
-                {
-                  projectId: project1.id,
-                  userId: user3.id
-                },
-                params
-              )
-            } catch (err) {
-              throw err
-            }
+            const res = await app.service('project-permission').create(
+              {
+                projectId: project1.id,
+                userId: user3.id
+              },
+              params
+            )
           },
           { message: 'You are not an owner of this project' }
         )

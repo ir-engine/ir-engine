@@ -68,8 +68,8 @@ type ScrubberProp = {
   convertFrom?: any
   convertTo?: any
   value?: any
-  onChange: Function
-  onCommit?: Function
+  onChange: (value: any) => void
+  onCommit?: (value: any) => void
 }
 
 const Scrubber = ({

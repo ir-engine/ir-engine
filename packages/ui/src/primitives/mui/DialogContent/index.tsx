@@ -30,7 +30,7 @@ import TextField from '@etherealengine/ui/src/primitives/mui/TextField'
 
 import { DialogContentProps, DialogContent as MuiDialogContent } from '@mui/material'
 
-const DialogContent = ({ children, ...props }: DialogContentProps & {}) => (
+const DialogContent = ({ children, ...props }: DialogContentProps & any) => (
   <MuiDialogContent {...props}>{children}</MuiDialogContent>
 )
 

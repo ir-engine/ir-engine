@@ -44,8 +44,8 @@ export interface NetworkPeer {
   lastSeenTs?: any
   joinTs?: any
   media?: Record<MediaTagType, PeerMediaType>
-  consumerLayers?: {}
-  stats?: {}
+  consumerLayers?: any
+  stats?: any
   sendTransport?: any
   recvTransport?: any
   outgoingDataConsumers?: Map<DataChannelType, any> // Key of internal producer id => id of data producer

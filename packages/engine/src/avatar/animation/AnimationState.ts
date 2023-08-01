@@ -48,7 +48,7 @@ const getMutableStateHandlers = () => {
   }
 }
 
-export function fadeOutAnimationStateActions(state?: AnimationState, duration: number = 0.1) {
+export function fadeOutAnimationStateActions(state?: AnimationState, duration = 0.1) {
   if (!state) return
   const actions = getAnimationStateActions(state)
   actions.forEach((action) => action.fadeOut(duration))

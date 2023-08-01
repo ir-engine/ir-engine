@@ -47,7 +47,7 @@ import {
 export class IPFSStorage implements StorageProviderInterface {
   private _client: IPFSHTTPClient
   private _blobStore: IPFSBlobStore
-  private _pathPrefix: string = '/'
+  private _pathPrefix = '/'
   private _apiDomain: string
 
   /**
@@ -442,7 +442,7 @@ class IPFSBlobStore implements BlobStore {
   /**
    * Path for the IPFS blob store.
    */
-  path: string = '/'
+  path = '/'
   /**
    * Cache for the IPFS blob store.
    */
@@ -465,6 +465,7 @@ class IPFSBlobStore implements BlobStore {
     if (typeof options === 'string') options = { key: options }
     if (options['name']) options.key = options['name']
     if (typeof options['flush'] === 'boolean' && options['flush'] === false) {
+      //
     } else {
       options['flush'] = true
     }

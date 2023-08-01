@@ -129,7 +129,7 @@ export const SystemNodeEditor: EditorComponentType = (props) => {
         <BooleanInput onChange={updateProperty(SystemComponent, 'enableServer')} value={systemComponent.enableServer} />
       </InputGroup>
       <InputGroup name="args" label={t('editor:properties.systemnode.lbl-args')}>
-        <StringInput onChange={updateProperty(SystemComponent, 'args')} value={systemComponent.args as any} />
+        <StringInput onChange={updateProperty(SystemComponent, 'args') as any} value={systemComponent.args as any} />
       </InputGroup>
     </NodeEditor>
   )

@@ -330,7 +330,9 @@ export async function checkForDuplicatedAssignments({
     if (config.kubernetes.enabled)
       try {
         k8DefaultClient.deleteNamespacedPod(assignResult.podName, 'default')
-      } catch (err) {}
+      } catch (err) {
+        //
+      }
     else await new Promise((resolve) => setTimeout(() => resolve(null), 500))
     return getFreeInstanceserver({
       app,

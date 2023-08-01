@@ -54,7 +54,7 @@ import { default as defaultStyles, default as styles } from './index.module.scss
 
 interface ChatHooksProps {
   chatWindowOpen: boolean
-  setUnreadMessages: Function
+  setUnreadMessages: React.Dispatch<React.SetStateAction<boolean>>
   messageRefInput: React.MutableRefObject<HTMLInputElement>
 }
 
@@ -228,7 +228,7 @@ export const InstanceChat = ({
 
   const user = useHookstate(getMutableState(AuthState).user)
 
-  const isInitRender = useHookstate<Boolean>(false)
+  const isInitRender = useHookstate<boolean>(false)
 
   const isMobile = /Mobi/i.test(window.navigator.userAgent)
   const chatState = useHookstate(getMutableState(ChannelState))

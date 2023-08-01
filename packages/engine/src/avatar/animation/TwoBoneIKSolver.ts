@@ -73,9 +73,9 @@ export function solveTwoBoneIK(
   rootAxisRestriction: Euler | null = null,
   midAxisRestriction: Euler | null = null,
   tipAxisRestriction: Euler | null = null,
-  targetPosWeight: number = 1,
-  targetRotWeight: number = 0,
-  hintWeight: number = 1
+  targetPosWeight = 1,
+  targetRotWeight = 0,
+  hintWeight = 1
 ) {
   if (rootAxisRestriction) {
     root.quaternion.setFromEuler(rootAxisRestriction)
@@ -109,10 +109,10 @@ export function solveTwoBoneIK(
 
   // Apply twist restriction
 
-  let abLength = ab.length()
-  let bcLength = bc.length()
-  let acLength = ac.length()
-  let atLength = at.length()
+  const abLength = ab.length()
+  const bcLength = bc.length()
+  const acLength = ac.length()
+  const atLength = at.length()
 
   const oldAngle = triangleAngle(acLength, abLength, bcLength)
   const newAngle = triangleAngle(atLength, abLength, bcLength)
