@@ -96,10 +96,11 @@ export const OnButtonState = makeEventNodeDefinition({
       execute: () => {
         for (const eid of query()) {
           const inputSource = getComponent(eid, InputSourceComponent)
-          if (inputSource.buttons[buttonKey]?.[buttonState]) {
-            write('value', inputSource.buttons[buttonKey].value)
+          const button = inputSource.buttons[buttonKey]
+          if (button?.[buttonState]) {
             commit('flow')
           }
+          write('value', button?.value ?? 0)
         }
       }
     })

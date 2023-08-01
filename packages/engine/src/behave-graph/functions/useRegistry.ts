@@ -27,7 +27,8 @@ import { registerEngineProfile } from '../nodes/Profiles/Engine/registerEnginePr
 
 import { DefaultLogger, ManualLifecycleEventEmitter, registerCoreProfile } from '@behave-graph/core'
 
-import { DummyScene, registerSceneProfile } from '@behave-graph/scene'
+import { registerSceneProfile } from '@behave-graph/scene'
+import { EEScene } from '../nodes/Profiles/Engine/Abstractions/Drivers/eeScene'
 
 export const useRegistry = () => {
   const registry = registerEngineProfile(
@@ -38,7 +39,7 @@ export const useRegistry = () => {
         dependencies: {
           ILogger: new DefaultLogger(),
           ILifecycleEventEmitter: new ManualLifecycleEventEmitter(),
-          IScene: new DummyScene()
+          IScene: new EEScene()
         }
       })
     )

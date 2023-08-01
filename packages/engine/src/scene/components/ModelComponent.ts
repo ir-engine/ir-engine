@@ -125,7 +125,6 @@ function ModelReactor() {
           }
         }
       if (!model.src) return
-
       const uuid = getComponent(entity, UUIDComponent)
       const fileExtension = model.src.split('.').pop()?.toLowerCase()
       switch (fileExtension) {

@@ -24,7 +24,6 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { NodeCategory, makeFlowNodeDefinition, makeFunctionNodeDefinition } from '@behave-graph/core'
-import { eulerToQuat, toQuat, toVector3 } from '@behave-graph/scene'
 import config from '@etherealengine/common/src/config'
 import { SceneJson } from '@etherealengine/common/src/interfaces/SceneInterface'
 import { dispatchAction, getMutableState } from '@etherealengine/hyperflux'
@@ -39,30 +38,7 @@ import { getCallback } from '../../../../../scene/components/CallbackComponent'
 import { MediaComponent } from '../../../../../scene/components/MediaComponent'
 import { VideoComponent } from '../../../../../scene/components/VideoComponent'
 import { PlayMode } from '../../../../../scene/constants/PlayMode'
-import { TransformComponent } from '../../../../../transform/components/TransformComponent'
 import { ContentFitType } from '../../../../../xrui/functions/ObjectFitFunctions'
-
-export const teleportEntity = makeFlowNodeDefinition({
-  typeName: 'engine/teleportEntity',
-  category: NodeCategory.Action,
-  label: 'Teleport Entity',
-  in: {
-    flow: 'flow',
-    entity: 'entity',
-    targetPosition: 'vec3',
-    targetRotation: 'vec3'
-  },
-  out: { flow: 'flow' },
-  initialState: undefined,
-  triggered: ({ read, commit, graph: { getDependency } }) => {
-    const position = toVector3(read('targetPosition'))
-
-    const rotation = toQuat(eulerToQuat(read('targetRotation')))
-    const entity = Number(read('entity')) as Entity
-    setComponent(entity, TransformComponent, { position: position, rotation: rotation })
-    commit('flow')
-  }
-})
 
 export const playVideo = makeFlowNodeDefinition({
   typeName: 'engine/playVideo',
@@ -153,7 +129,12 @@ export const getAvatarAnimations = makeFunctionNodeDefinition({
   label: 'Get Avatar Animations',
   in: {
     animationName: (_, graphApi) => {
-      const choices = Array.from(AnimationManager.instance._animations)
+      const getAnims = async () => {
+        return await AnimationManager.instance.loadDefaultAnimations()
+      }
+      const animations = AnimationManager.instance?._animations ?? getAnims()
+
+      const choices = Array.from(animations)
         .map((clip) => clip.name)
         .sort()
       choices.unshift('none')
@@ -189,7 +170,8 @@ export const playGltfAnimation = makeFlowNodeDefinition({
     const entity = Number(read('entity')) as Entity
     const animIndex: number = animations.findIndex((clip) => clip.name === animation)
     setComponent(entity, LoopAnimationComponent, { activeClipIndex: animIndex, hasAvatarAnimations: isAvatar })
-    getCallback(entity, 'xre.play')!()
+    const play = getCallback(entity, 'xre.play')
+    play!()
     commit('flow')
   }
 })

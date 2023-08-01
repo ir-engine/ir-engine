@@ -32,6 +32,7 @@ import {
   getStringConversionsForValueType,
   memo
 } from '@behave-graph/core'
+import { GetSceneProperty, SetSceneProperty } from '@behave-graph/scene'
 import { OnButtonState } from './Events/onButtonState'
 import { onLoadAsset } from './Events/onLoadAsset'
 import { triggerLoadAsset } from './Events/triggerLoadAsset'
@@ -55,6 +56,9 @@ function getEngineStringConversions(values: ValueTypeMap): NodeDefinition[] {
 }
 
 export const getEngineNodesMap = memo<Record<string, NodeDefinition>>(() => {
+  const engineValueTypeNames = Object.keys({
+    ...getEngineValuesMap()
+  })
   const nodeDefinitions = [
     ...getNodeDescriptions(EntityNodes),
     ...getNodeDescriptions(ComponentNodes),
@@ -74,7 +78,8 @@ export const getEngineNodesMap = memo<Record<string, NodeDefinition>>(() => {
     OnButtonState, // click included
     // async
     //switchScene.Description,
-
+    ...SetSceneProperty(engineValueTypeNames),
+    ...GetSceneProperty(engineValueTypeNames),
     // flow control
 
     ...getEngineStringConversions(getEngineValuesMap())

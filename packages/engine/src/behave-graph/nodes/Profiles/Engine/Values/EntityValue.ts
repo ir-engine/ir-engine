@@ -30,7 +30,10 @@ export const EntityValue: ValueType = {
   name: 'entity',
   creator: () => 0,
   deserialize: (value: Entity): Entity => value,
-  serialize: (value: Entity) => value.toString(), // prefer string to ensure full range is covered
+  serialize: (value: Entity) => value.toString(),
   equals: (a: Entity, b: Entity) => a === b,
-  clone: (value: Entity) => value
+  clone: (value: Entity) => value,
+  lerp: function (start: any, end: any, t: number) {
+    throw new Error('Function not implemented.')
+  }
 }

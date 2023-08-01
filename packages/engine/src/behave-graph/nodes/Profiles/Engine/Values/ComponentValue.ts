@@ -29,8 +29,11 @@ import { Component } from '../../../../../ecs/functions/ComponentFunctions'
 export const ComponentValue: ValueType = {
   name: 'component',
   creator: () => null,
-  deserialize: (value: string) => JSON.parse(value), // parse dict
-  serialize: (value: Component) => JSON.stringify(value), //stringify the dict
+  deserialize: (value: string) => JSON.parse(value),
+  serialize: (value: Component) => JSON.stringify(value),
   equals: (a: Component, b: Component) => a === b,
-  clone: (value: Component) => value
+  clone: (value: Component) => value,
+  lerp: function (start: any, end: any, t: number) {
+    throw new Error('Function not implemented.')
+  }
 }

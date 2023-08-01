@@ -59,7 +59,7 @@ const BehaveFlow = () => {
               registry={registry}
               onChangeGraph={(newGraph) => {
                 if (!graphState.graph) return
-                graphState.graph.set(newGraph)
+                graphState.graph.set(JSON.parse(JSON.stringify(newGraph)))
               }}
             />
           )}
