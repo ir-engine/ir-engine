@@ -130,6 +130,7 @@ function ModelReactor() {
         case 'glb':
         case 'gltf':
         case 'fbx':
+        case 'vrm':
         case 'usdz':
           AssetLoader.load(
             model.src,
@@ -143,7 +144,6 @@ function ModelReactor() {
               removeError(entity, ModelComponent, 'LOADING_ERROR')
               loadedAsset.scene.userData.src = model.src
               loadedAsset.scene.userData.type === 'glb' && delete loadedAsset.scene.userData.type
-              console.log(loadedAsset.scene.userData.type)
               if (loadedAsset.scene.userData.type === 'vrm') {
                 setComponent(entity, LoopAnimationComponent)
                 getComponent(entity, LoopAnimationComponent).vrm = loadedAsset
@@ -175,7 +175,7 @@ function ModelReactor() {
 
   // update scene
   useEffect(() => {
-    const scene = modelComponent.scene.get({ noproxy: true })
+    const scene = getComponent(entity, ModelComponent).scene
 
     if (!scene) return
     addObjectToGroup(entity, scene)

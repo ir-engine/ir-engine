@@ -67,7 +67,7 @@ export function retargetMixamoAnimation(clip: AnimationClip, mixamoRig: Object3D
     const mixamoRigNode = mixamoRig.getObjectByName(mixamoRigName)!
 
     if (vrmNodeName != null) {
-      console.log(vrmNodeName)
+      // console.log(vrmNodeName)
 
       const propertyName = trackSplitted[1]
 

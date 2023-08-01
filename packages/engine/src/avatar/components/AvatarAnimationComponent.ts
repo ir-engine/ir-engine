@@ -213,6 +213,7 @@ export const AvatarRigComponent = defineComponent({
       if (!bindTracks) return
 
       const rig = getComponent(entity, AvatarRigComponent)
+      if (!rig.rig.hips?.node) return
 
       const avatarComponent = getComponent(entity, AvatarComponent)
       const scaleMultiplier = avatarComponent.scaleMultiplier

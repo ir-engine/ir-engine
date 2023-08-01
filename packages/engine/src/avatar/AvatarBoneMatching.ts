@@ -649,7 +649,7 @@ export default function avatarBoneMatching(model: Object3D): VRM {
 
   model.traverse((target) => {
     const bone = mixamoVRMRigMap[(isReadyPlayerMe ? 'mixamorig' : '') + target.name] as string
-    console.log(target.name.concat(isReadyPlayerMe ? 'mixamorig' : ''))
+    // console.log(target.name.concat(isReadyPlayerMe ? 'mixamorig' : ''))
 
     if (bone) {
       //if hips bone does not have mixamo prefix, remove it from the current bone
@@ -666,7 +666,7 @@ export default function avatarBoneMatching(model: Object3D): VRM {
   //quick dirty tag to disable flipping on mixamo rigs
   ;(vrm as any).userData = { flipped: false } as any
 
-  console.log(vrm)
+  // console.log(vrm)
   return vrm
 }
 

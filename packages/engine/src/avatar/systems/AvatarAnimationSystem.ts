@@ -69,7 +69,7 @@ import {
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { updateGroupChildren } from '../../transform/systems/TransformSystem'
 import { setTrackingSpace } from '../../xr/XRScaleAdjustmentFunctions'
-import { XRAction, XRState, getCameraMode, isMobileXRHeadset } from '../../xr/XRState'
+import { XRAction, XRState, getCameraMode } from '../../xr/XRState'
 import { AnimationState } from '.././AnimationManager'
 import { solveTwoBoneIK } from '.././animation/TwoBoneIKSolver'
 import { AnimationComponent } from '.././components/AnimationComponent'
@@ -88,7 +88,7 @@ import { AvatarComponent } from '../components/AvatarComponent'
 export const AvatarAnimationState = defineState({
   name: 'AvatarAnimationState',
   initial: () => {
-    const accumulationBudget = isMobileXRHeadset ? 3 : 6
+    const accumulationBudget = 100 //isMobileXRHeadset ? 3 : 6
 
     const priorityQueue = createPriorityQueue({
       accumulationBudget
@@ -380,7 +380,8 @@ const execute = () => {
     const animationState = getState(AnimationState)
     const avatarComponent = getComponent(entity, AvatarComponent)
 
-    if (!animationState.targetsAnimation) return
+    if (!animationState.targetsAnimation) continue
+    if (!rig.hips?.node) continue
 
     //calculate world positions
 

@@ -59,6 +59,7 @@ export const setAvatarLocomotionAnimation = (entity: Entity) => {
   const run = getAnimationAction('Run', animationComponent.mixer, animationComponent.animations)
   const walk = getAnimationAction('Walk', animationComponent.mixer, animationComponent.animations)
   const fall = getAnimationAction('Fall', animationComponent.mixer, animationComponent.animations)
+  if (!idle || !run || !walk || !fall) return
   idle.play()
   fall.play()
   run.play()

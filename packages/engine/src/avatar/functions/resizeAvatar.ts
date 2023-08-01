@@ -50,6 +50,7 @@ export const resizeAvatar = (entity: Entity, height: number, center: Vector3) =>
   avatar.avatarHalfHeight = avatar.avatarHeight / 2
   const animationsRigHeight = 1.56
   avatar.scaleMultiplier = height / animationsRigHeight
+  if (!rig.hips?.node) return console.warn('No hips node found on rig', entity)
   rig.hips.node.updateWorldMatrix(true, true)
   rigComponent.torsoLength = rig.head.node.getWorldPosition(vec3).y - rig.hips.node.getWorldPosition(vec3).y
   rigComponent.upperLegLength = rig.hips.node.getWorldPosition(vec3).y - rig.leftUpperLeg.node.getWorldPosition(vec3).y

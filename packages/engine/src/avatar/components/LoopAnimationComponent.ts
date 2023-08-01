@@ -131,7 +131,6 @@ export const LoopAnimationComponent = defineComponent({
       if (!loopAnimationComponent || !loopAnimationComponent.animationPack.value) return
       AssetLoader.loadAsync(loopAnimationComponent?.animationPack.value).then((model) => {
         const animations = model.scene.animations
-        console.log(model)
         loopAnimationComponent.animationPackScene.set(model.scene)
         animationComponent.animations = animations
         playAnimationClip(animationComponent, loopComponent)
@@ -169,7 +168,6 @@ export const playAnimationClip = (
   animationComponent: ComponentType<typeof AnimationComponent>,
   loopAnimationComponent: ComponentType<typeof LoopAnimationComponent>
 ) => {
-  console.log(animationComponent)
   if (loopAnimationComponent.action) loopAnimationComponent.action.stop()
   if (
     loopAnimationComponent.activeClipIndex >= 0 &&
