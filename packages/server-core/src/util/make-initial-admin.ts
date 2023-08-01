@@ -25,21 +25,20 @@ Ethereal Engine. All Rights Reserved.
 
 import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 
+import { scopePath } from '@etherealengine/engine/src/schemas/scope/scope.schema'
 import { Application } from '../../declarations'
 import { scopeTypeSeed } from '../scope/scope-type/scope-type.seed'
 
 export default async (app: Application, userId: UserId) => {
-  const adminCount = await app.service('user').Model.count({
-    include: [
-      {
-        model: app.service('scope').Model,
-        where: {
-          type: 'admin:admin'
-        }
-      }
-    ]
+  const adminCount = await app.service(scopePath).find({
+    query: {
+      $select: ['id'],
+      type: 'admin:admin'
+    },
+    paginate: false
   })
-  if (adminCount === 0) {
+
+  if (adminCount.data.length === 0) {
     const data = scopeTypeSeed.map(({ type }) => {
       return { userId, type }
     })

@@ -171,7 +171,7 @@ export class AcceptInvite implements ServiceMethods<Data> {
       }
 
       if (invite.inviteType === 'friend') {
-        const inviter = await this.app.service('user').Model.findOne({ where: { id: invite.userId } })
+        const inviter = await this.app.service(userPath)._get(invite.userId)
 
         if (inviter == null) {
           await this.app.service('invite').remove(invite.id)

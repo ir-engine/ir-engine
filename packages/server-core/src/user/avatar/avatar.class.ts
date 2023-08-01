@@ -35,6 +35,7 @@ import {
   AvatarType
 } from '@etherealengine/engine/src/schemas/user/avatar.schema'
 
+import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
 import { RootParams } from '../../api/root-params'
@@ -152,12 +153,13 @@ export class AvatarService<T = AvatarType, ServiceParams extends Params = Avatar
     //avatars to use
     if (id && avatars.length > 0) {
       const randomReplacementAvatar = avatars[Math.floor(Math.random() * avatars.length)]
-      await this.app.service('user').Model.update(
+      await this.app.service(userPath)._patch(
+        null,
         {
           avatarId: randomReplacementAvatar.id
         },
         {
-          where: {
+          query: {
             avatarId: id
           }
         }
