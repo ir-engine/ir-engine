@@ -23,57 +23,99 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { NodeCategory, makeEventNodeDefinition } from '@behave-graph/core'
+import { Choices, NodeCategory, makeEventNodeDefinition } from '@behave-graph/core'
 import { Query, defineQuery, getComponent, removeQuery } from '../../../../../ecs/functions/ComponentFunctions'
 import { InputSystemGroup } from '../../../../../ecs/functions/EngineFunctions'
 import { SystemUUID, defineSystem, disableSystem, startSystem } from '../../../../../ecs/functions/SystemFunctions'
 import { InputSourceComponent } from '../../../../../input/components/InputSourceComponent'
+import {
+  ButtonState,
+  KeyboardButton,
+  MouseButton,
+  StandardGamepadButton,
+  XRStandardGamepadButton
+} from '../../../../../input/state/ButtonState'
 
 let systemCounter = 0
 
-const initialState = () => ({
-  query: undefined! as Query,
+type State = {
+  query: Query
+  systemUUID: SystemUUID
+}
+const initialState = (): State => ({
+  query: undefined!,
   systemUUID: '' as SystemUUID
 })
 
 // very 3D specific.
-export const OnSceneNodeClick = makeEventNodeDefinition({
-  typeName: 'engine/buttonState',
+export const OnButtonState = makeEventNodeDefinition({
+  typeName: 'engine/onButtonState',
   category: NodeCategory.Event,
   label: 'On Button State',
   in: {
-    button: 'string',
-    state: 'string'
+    button: (_, graphApi) => {
+      const choices: Choices = [
+        ...Object.keys(KeyboardButton)
+          .sort()
+          .map((value) => ({ text: `keyboard/${value}`, value })),
+        ...Object.keys(MouseButton)
+          .sort()
+          .map((value) => ({ text: `mouse/${value}`, value })),
+        ...Object.keys(StandardGamepadButton)
+          .sort()
+          .map((value) => ({ text: `gamepad/${value}`, value })),
+        ...Object.keys(XRStandardGamepadButton)
+          .sort()
+          .map((value) => ({ text: `xr-gamepad/${value}`, value }))
+      ]
+
+      return {
+        valueType: 'string',
+        choices: choices
+      }
+    },
+    buttonState: (_, graphApi) => {
+      const choices = ['down', 'pressed', 'touched', 'up'] as Array<keyof ButtonState>
+      return {
+        valueType: 'string',
+        choices: choices
+      }
+    }
   },
   out: {
-    flow: 'flow'
+    flow: 'flow',
+    value: 'float'
   },
   initialState: initialState(),
   init: ({ read, write, commit, graph }) => {
     const buttonKey = read<string>('button')
-    const buttonState = read<string>('state')
-
+    const buttonState = read<string>('buttonState')
     const query = defineQuery([InputSourceComponent])
     const systemUUID = defineSystem({
       uuid: 'behave-graph-onButton-' + systemCounter++,
       execute: () => {
         for (const eid of query()) {
           const inputSource = getComponent(eid, InputSourceComponent)
-          if (inputSource.buttons[buttonKey]?.[buttonState]) commit('flow')
+          if (inputSource.buttons[buttonKey]?.[buttonState]) {
+            write('value', inputSource.buttons[buttonKey].value)
+            commit('flow')
+          }
         }
       }
     })
 
     startSystem(systemUUID, { with: InputSystemGroup })
 
-    return {
-      systemUUID,
-      query
+    const state: State = {
+      query,
+      systemUUID
     }
+
+    return state
   },
-  dispose: ({ state, graph: { getDependency } }) => {
-    disableSystem(state.systemUUID)
-    removeQuery(state.query)
+  dispose: ({ state: { query, systemUUID }, graph: { getDependency } }) => {
+    disableSystem(systemUUID)
+    removeQuery(query)
     return initialState()
   }
 })

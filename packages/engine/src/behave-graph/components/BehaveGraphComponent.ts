@@ -70,7 +70,6 @@ export const BehaveGraphComponent = defineComponent({
 
   onSet: (entity, component, json) => {
     if (!json) return
-    console.log('DEBUG in graph on set ')
 
     if (typeof json.disabled === 'boolean') component.disabled.set(json.disabled)
     if (typeof json.run === 'boolean') component.run.set(json.run)

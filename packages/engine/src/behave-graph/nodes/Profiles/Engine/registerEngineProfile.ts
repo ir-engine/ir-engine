@@ -32,8 +32,8 @@ import {
   getStringConversionsForValueType,
   memo
 } from '@behave-graph/core'
+import { OnButtonState } from './Events/onButtonState'
 import { onLoadAsset } from './Events/onLoadAsset'
-import { OnSceneClick } from './Events/onSceneClick'
 import { triggerLoadAsset } from './Events/triggerLoadAsset'
 import * as ComponentNodes from './Values/ComponentNodes'
 import { ComponentValue } from './Values/ComponentValue'
@@ -71,7 +71,7 @@ export const getEngineNodesMap = memo<Record<string, NodeDefinition>>(() => {
     // actions
 
     // events
-    OnSceneClick,
+    OnButtonState, // click included
     // async
     //switchScene.Description,
 
