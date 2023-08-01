@@ -741,8 +741,7 @@ export class Project extends Service {
       if (!params.sequelize) params.sequelize = { raw: false }
       if (!params.sequelize.include) params.sequelize.include = []
       params.sequelize.include.push({
-        model: this.app.service('project-permission').Model,
-        include: [this.app.service('user').Model]
+        model: this.app.service('project-permission').Model
       })
     }
     params = {
@@ -766,10 +765,11 @@ export class Project extends Service {
     }
 
     const data: ProjectInterface[] = ((await super.find(params)) as any).data
-    data.forEach((item) => {
+    for (const item of data) {
       const values = (item as any).dataValues
         ? ((item as any).dataValues as ProjectInterface)
         : (item as ProjectInterface)
+
       try {
         const packageJson = getProjectPackageJson(values.name)
         const config = getProjectConfig(values.name)
@@ -779,7 +779,7 @@ export class Project extends Service {
         values.description = packageJson.description
         values.hasWriteAccess = projectPushIds.indexOf(item.id) > -1
       } catch (err) {}
-    })
+    }
 
     return {
       data,

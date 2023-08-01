@@ -32,14 +32,12 @@ import { defineState, getMutableState } from '@etherealengine/hyperflux'
 
 import { NotificationService } from '../../common/services/NotificationService'
 
-type RecordingResultFetch = RecordingResult & { 'user.name': string }
-
 export const RECORDING_PAGE_LIMIT = 10
 
 export const AdminRecordingState = defineState({
   name: 'AdminRecordingState',
   initial: () => ({
-    recordings: [] as Array<RecordingResultFetch>,
+    recordings: [] as Array<RecordingResult>,
     skip: 0,
     limit: RECORDING_PAGE_LIMIT,
     total: 0,
@@ -67,7 +65,7 @@ export const AdminRecordingService = {
           $limit,
           action: 'admin'
         }
-      })) as Paginated<RecordingResultFetch>
+      })) as Paginated<RecordingResult>
 
       getMutableState(AdminRecordingState).merge({
         recordings: recordings.data,

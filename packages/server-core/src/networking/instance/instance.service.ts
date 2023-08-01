@@ -28,6 +28,8 @@ import { Params } from '@feathersjs/feathers/lib'
 import { Instance as InstanceInterface } from '@etherealengine/common/src/interfaces/Instance'
 import { locationPath, LocationType } from '@etherealengine/engine/src/schemas/social/location.schema'
 
+import { AdminScope } from '@etherealengine/common/src/interfaces/AdminScope'
+import { scopePath } from '@etherealengine/engine/src/schemas/scope/scope.schema'
 import { Application } from '../../../declarations'
 import { UserParams } from '../../api/root-params'
 import authenticate from '../../hooks/authenticate'
@@ -192,17 +194,15 @@ export default (app: Application) => {
    */
   service.publish('removed', async (data): Promise<any> => {
     try {
-      const admins = await app.service('user').Model.findAll({
-        include: [
-          {
-            model: app.service('scope').Model,
-            where: {
-              type: 'admin:admin'
-            }
-          }
-        ]
-      })
-      const targetIds = admins.map((admin) => admin.id)
+      //TODO: We should replace `as any as AdminScope[]` with `as AdminScope[]` once scope service is migrated to feathers 5.
+      const adminScopes = (await app.service(scopePath).find({
+        query: {
+          type: 'admin:admin'
+        },
+        paginate: false
+      })) as any as AdminScope[]
+
+      const targetIds = adminScopes.map((admin) => admin.userId)
       // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
       return await Promise.all(
         targetIds.map((userId: string) => {

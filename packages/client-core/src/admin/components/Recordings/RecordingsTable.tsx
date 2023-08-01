@@ -105,7 +105,7 @@ const RecordingsTable = () => {
   })
 
   const rows = adminRecordingsState.recordings.value.map((val) =>
-    createData(val, val.id, val['user.name'], val.ended, val.schema)
+    createData(val, val.id, val.userName || '', val.ended, val.schema)
   )
 
   return (

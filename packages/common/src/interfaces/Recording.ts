@@ -30,6 +30,7 @@ export interface RecordingResult {
   userId: UserId
   ended: boolean
   schema: string
+  userName?: string
   resources?: Array<string> // storage provider keys
 }
 

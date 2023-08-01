@@ -33,6 +33,8 @@ import path from 'path'
 import logger from '@etherealengine/common/src/logger'
 import { getState } from '@etherealengine/hyperflux'
 
+import { AdminScope } from '@etherealengine/common/src/interfaces/AdminScope'
+import { scopePath } from '@etherealengine/engine/src/schemas/scope/scope.schema'
 import { UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Application } from '../../../declarations'
 import { ServerState } from '../../ServerState'
@@ -361,24 +363,23 @@ export default (app: Application): void => {
 
   service.publish('patched', async (data: UserType) => {
     try {
-      let targetIds = []
+      let targetIds: string[] = []
       const projectOwners = await app.service('project-permission').Model.findAll({
         where: {
           projectId: data.id
         }
       })
       targetIds = targetIds.concat(projectOwners.map((permission) => permission.userId))
-      const admins = await app.service('user').Model.findAll({
-        include: [
-          {
-            model: app.service('scope').Model,
-            where: {
-              type: 'admin:admin'
-            }
-          }
-        ]
-      })
-      targetIds = targetIds.concat(admins.map((admin) => admin.id))
+
+      //TODO: We should replace `as any as AdminScope[]` with `as AdminScope[]` once scope service is migrated to feathers 5.
+      const adminScopes = (await app.service(scopePath).find({
+        query: {
+          type: 'admin:admin'
+        },
+        paginate: false
+      })) as any as AdminScope[]
+
+      targetIds = targetIds.concat(adminScopes.map((admin) => admin.userId!))
       targetIds = _.uniq(targetIds)
       return Promise.all(
         targetIds.map((userId: string) => {

@@ -23,11 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Paginated } from '@feathersjs/feathers/lib'
+import { Paginated } from '@feathersjs/feathers'
 import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
 
 import { RecordingResult } from '@etherealengine/common/src/interfaces/Recording'
 
+import { UserType, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Application } from '../../../declarations'
 import { UserParams } from '../../api/root-params'
 import { checkScope } from '../../hooks/verify-scope'
@@ -64,23 +65,39 @@ export class Recording<T = RecordingDataType> extends Service<T> {
     return result as T
   }
 
-  async find(params?: UserParams): Promise<Paginated<T>> {
+  async find(params?: UserParams) {
     if (params && params.user && params.query) {
       const admin = await checkScope(params.user, this.app, 'admin', 'admin')
       if (admin && params.query.action === 'admin') {
         delete params.query.action
         // show admin page results only if user is admin and query.action explicitly is admin (indicates admin panel)
-        params.sequelize = {
-          include: [{ model: this.app.service('user').Model, attributes: ['name'], as: 'user' }]
+        const recordings = (await super.find({ ...params })) as Paginated<RecordingDataType>
+
+        // TODO: Move this to resolvers as recordings service is moved to feathers 5
+        const recordingUsers = this.app.service(userPath)._find({
+          query: {
+            id: {
+              $in: recordings.data.map((item) => item.userId)
+            }
+          },
+          paginated: false
+        } as any) as any as UserType[]
+
+        for (const recording of recordings.data) {
+          const user = recordingUsers.find((item) => item.id === recording.userId)
+          recording.userName = user ? user.name : ''
         }
-        return super.find({ ...params }) as Promise<Paginated<T>>
+
+        // TODO: Remove as any once this file is migrated to feathers 5.
+        return recordings as any
       }
     }
-    return super.find({
+
+    return await super.find({
       query: {
         userId: params?.user!.id
       }
-    }) as Promise<Paginated<T>>
+    })
   }
 
   async create(data?: any, params?: any): Promise<T | T[]> {

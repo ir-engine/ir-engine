@@ -29,14 +29,18 @@ import Multer from '@koa/multer'
 import { SceneData } from '@etherealengine/common/src/interfaces/SceneInterface'
 import { getState } from '@etherealengine/hyperflux'
 
+import {
+  InstanceAttendanceType,
+  instanceAttendancePath
+} from '@etherealengine/engine/src/schemas/networking/instance-attendance.schema'
 import { Application } from '../../../declarations'
+import logger from '../../ServerLogger'
+import { ServerMode, ServerState } from '../../ServerState'
 import { getStorageProvider } from '../../media/storageprovider/storageprovider'
 import { UploadParams } from '../../media/upload-asset/upload-asset.service'
 import { getActiveInstancesForScene } from '../../networking/instance/instance.service'
-import logger from '../../ServerLogger'
-import { ServerMode, ServerState } from '../../ServerState'
 import { getAllPortals, getPortal } from './scene-helper'
-import { getSceneData, Scene } from './scene.class'
+import { Scene, getSceneData } from './scene.class'
 import projectDocs from './scene.docs'
 import hooks from './scene.hooks'
 
@@ -206,21 +210,20 @@ export default (app: Application) => {
   if (getState(ServerState).serverMode === ServerMode.API)
     service.publish('updated', async (data, context) => {
       const instances = await getActiveInstancesForScene(app)({ query: { sceneId: data.sceneId } })
-      const users = (
-        await Promise.all(
-          instances.map((instance) =>
-            app.service('user').Model.findAll({
-              where: {
-                instanceId: instance.id
-              }
-            })
-          )
-        )
-      ).flat()
-      const targetIds = users.map((user) => user.id)
+
+      const instanceAttendances = (await app.service(instanceAttendancePath)._find({
+        query: {
+          instanceId: {
+            $in: instances.map((item) => item.id)
+          },
+          ended: false
+        },
+        paginate: false
+      })) as InstanceAttendanceType[]
+
       return Promise.all(
-        targetIds.map((userId: string) => {
-          return app.channel(`userIds/${userId}`).send({})
+        instanceAttendances.map((instanceAttendances) => {
+          return app.channel(`userIds/${instanceAttendances.userId}`).send({})
         })
       )
     })
