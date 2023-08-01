@@ -11,9 +11,9 @@ fi
 
 if [ -z "$SERVER_PORT" ]
 then
-  SERVER_HOST=3030
+  SERVER_PORT=3030
 else
-  SERVER_HOST=$SERVER_HOST
+  SERVER_PORT=$SERVER_PRT
 fi
 
 if [ -z "$MYSQL_HOST" ]
