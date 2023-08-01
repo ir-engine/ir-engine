@@ -173,7 +173,7 @@ export const AvatarRigComponent = defineComponent({
     const rigComponent = getMutableComponent(entity, AvatarRigComponent)
 
     useEffect(() => {
-      if (debugEnabled.value && !anim.helper.value && !pending?.value) {
+      if (debugEnabled.value && !anim.helper.value && !pending?.value && anim.value.rig?.hips?.node) {
         const helper = new SkeletonHelper(anim.value.rig.hips.node.parent!)
         helper.frustumCulled = false
         helper.name = `skeleton-helper-${entity}`

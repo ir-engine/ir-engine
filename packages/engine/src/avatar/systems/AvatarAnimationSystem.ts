@@ -405,7 +405,7 @@ const execute = () => {
       if (ikEntities.length <= 1) continue
       const networkObject = getComponent(ikEntity, NetworkObjectComponent)
       const ownerEntity = NetworkObjectComponent.getUserAvatarEntity(networkObject.ownerId)
-      if (ownerEntity != entity) continue
+      if (ownerEntity !== entity) continue
 
       const rigidbodyComponent = getComponent(ownerEntity, RigidBodyComponent)
       const rigComponent = getComponent(ownerEntity, AvatarRigComponent)
@@ -413,6 +413,7 @@ const execute = () => {
       const ikTargetName = getComponent(ikEntity, NameComponent).split('_').pop()!
       const ikTransform = getComponent(ikEntity, TransformComponent)
       const hipsForward = new Vector3(0, 0, 1)
+
       //todo - use a map for this
       switch (ikTargetName) {
         case 'leftHand':
