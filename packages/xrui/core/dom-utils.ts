@@ -327,7 +327,7 @@ export function parseCSSTransform(
 
   if (transform.indexOf('matrix(') == 0) {
     out.identity()
-    var mat = transform
+    const mat = transform
       .substring(7, transform.length - 1)
       .split(', ')
       .map(parseFloat)
@@ -338,7 +338,7 @@ export function parseCSSTransform(
     out.elements[12] = mat[4]
     out.elements[13] = mat[5]
   } else if (transform.indexOf('matrix3d(') == 0) {
-    var mat = transform
+    const mat = transform
       .substring(9, transform.length - 1)
       .split(', ')
       .map(parseFloat)
@@ -353,14 +353,14 @@ export function parseCSSTransform(
   out.elements[12] *= pixelSize
   out.elements[13] *= pixelSize * -1
 
-  var origin = transformOrigin.split(' ').map(parseFloat)
+  const origin = transformOrigin.split(' ').map(parseFloat)
 
-  var ox = (origin[0] - width / 2) * pixelSize
-  var oy = (origin[1] - height / 2) * pixelSize * -1
-  var oz = origin[2] || 0
+  const ox = (origin[0] - width / 2) * pixelSize
+  const oy = (origin[1] - height / 2) * pixelSize * -1
+  const oz = origin[2] || 0
 
-  var T1 = scratchMat1.identity().makeTranslation(-ox, -oy, -oz)
-  var T2 = scratchMat2.identity().makeTranslation(ox, oy, oz)
+  const T1 = scratchMat1.identity().makeTranslation(-ox, -oy, -oz)
+  const T2 = scratchMat2.identity().makeTranslation(ox, oy, oz)
 
   for (const e of out.elements) {
     if (isNaN(e)) return null

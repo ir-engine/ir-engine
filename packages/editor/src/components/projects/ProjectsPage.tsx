@@ -349,6 +349,7 @@ const ProjectsPage = () => {
     query.set(e.target.value)
 
     if (filter.value.installed) {
+      // todo
     }
     if (filter.value.official) fetchOfficialProjects(e.target.value)
     if (filter.value.community) fetchCommunityProjects(e.target.value)

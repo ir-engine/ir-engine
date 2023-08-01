@@ -71,7 +71,7 @@ export class Water extends Mesh {
   }
 
   addRandomDrops(renderer) {
-    for (var i = 0; i < 5; i++) {
+    for (let i = 0; i < 5; i++) {
       this.waveSimulator.addDrop(renderer, Math.random() * 2 - 1, Math.random() * 2 - 1, 0.03, i & 1 ? 0.02 : -0.02)
     }
     this.firstRun = false

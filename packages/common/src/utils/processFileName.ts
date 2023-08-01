@@ -39,7 +39,9 @@ export const processFileName = (fileName: string): string => {
       nameSplit.push(extension.toLowerCase())
       name = nameSplit.join('.')
     }
-  } catch {}
+  } catch (e) {
+    return name
+  }
 
   return name
 }

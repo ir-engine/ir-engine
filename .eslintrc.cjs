@@ -15,7 +15,8 @@ module.exports = {
     'no-async-promise-executor': 'off',
     'no-useless-escape': 'off',
     '@typescript-eslint/no-extra-semi': 'off', // 'error' this currently conflicts with prettier,
-    '@typescript-eslint/no-unused-vars': 'off'
+    '@typescript-eslint/no-unused-vars': 'off',
+    "no-fallthrough": "off",
   },
   env: {
     browser: true,

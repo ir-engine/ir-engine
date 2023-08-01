@@ -244,6 +244,7 @@ export const defaultBonesData = [
   {
     name: 'RightHandRing2',
     parentIndex: 35,
+    // eslint-disable-next-line @typescript-eslint/no-loss-of-precision
     position: [5.960464477539062e-7, 0.03154020756483078, 4.991888999938965e-7],
     quaternion: [0, 0, -3.552713678800501e-15, 1]
   },
@@ -286,6 +287,7 @@ export const defaultBonesData = [
   {
     name: 'RightHandIndex3',
     parentIndex: 42,
+    // eslint-disable-next-line @typescript-eslint/no-loss-of-precision
     position: [-5.960464477539062e-7, 0.028830699622631073, 3.8743019104003906e-7],
     quaternion: [0, 0, -3.552713678800501e-15, 1]
   },
@@ -328,6 +330,7 @@ export const defaultBonesData = [
   {
     name: 'LeftToeBase',
     parentIndex: 49,
+    // eslint-disable-next-line @typescript-eslint/no-loss-of-precision
     position: [-2.9802322387695312e-8, 0.10710558295249939, 0.08728671818971634],
     quaternion: [0, 3.552714525833448e-15, 6.162975822039155e-33, 1]
   },

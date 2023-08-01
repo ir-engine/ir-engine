@@ -76,10 +76,10 @@ if (process.env.APP_ENV === 'development' || process.env.LOCAL === 'true') {
   // Avoids DEPTH_ZERO_SELF_SIGNED_CERT error for self-signed certs - needed for local storage provider
   process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'
 
-  var fs = require('fs')
+  const fs = require('fs')
   if (!fs.existsSync(appRootPath.path + '/.env') && !fs.existsSync(appRootPath.path + '/.env.local')) {
-    var fromEnvPath = appRootPath.path + '/.env.local.default'
-    var toEnvPath = appRootPath.path + '/.env.local'
+    const fromEnvPath = appRootPath.path + '/.env.local.default'
+    const toEnvPath = appRootPath.path + '/.env.local'
     fs.copyFileSync(fromEnvPath, toEnvPath, fs.constants.COPYFILE_EXCL)
   }
 }
