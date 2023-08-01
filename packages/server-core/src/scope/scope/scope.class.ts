@@ -28,6 +28,7 @@ import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
 
 import { AdminScope as AdminScopeInterface } from '@etherealengine/common/src/interfaces/AdminScope'
 
+import { UserType, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Application } from '../../../declarations'
 import { UserParams } from '../../api/root-params'
 import { createScopeTypeModel } from './scope.model'
@@ -46,27 +47,36 @@ export class Scope<T = AdminScopeDataType> extends Service<T> {
   async find(params?: UserParams): Promise<Paginated<T>> {
     const skip = params?.query?.$skip ? params.query.$skip : 0
     const limit = params?.query?.$limit ? params.query.$limit : 10
-    const scope = await (this.app.service('scope') as any).Model.findAndCountAll({
+
+    const scopes = await (this.app.service('scope') as any).Model.findAndCountAll({
       offset: skip,
       limit: limit,
       include: [
         {
           model: createScopeTypeModel(this.app),
           required: false
-        },
-        {
-          model: this.app.service('user').Model,
-          required: false
         }
       ],
       raw: true,
       nest: true
     })
+
+    const users = this.app.service(userPath)._find({
+      query: {
+        id: scopes.rows.map((item) => item.userId)
+      },
+      paginate: false
+    }) as any as UserType[]
+
+    for (const scope of scopes) {
+      scope.user = users.find((item) => item.id === scope.userId)
+    }
+
     return {
       skip: skip,
       limit: limit,
-      total: scope.count,
-      data: scope.rows
+      total: scopes.count,
+      data: scopes.rows
     }
   }
 

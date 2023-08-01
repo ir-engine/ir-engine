@@ -30,7 +30,7 @@ import { Channel as ChannelInterface } from '@etherealengine/common/src/interfac
 import { ChannelID, ChannelUser } from '@etherealengine/common/src/interfaces/ChannelUser'
 import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 
-import { UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { UserType, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Op, Sequelize } from 'sequelize'
 import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
@@ -205,16 +205,19 @@ export class Channel<T = ChannelDataType> extends Service<T> {
             {
               model: this.app.service('message').Model,
               limit: 20,
-              order: [['createdAt', 'DESC']],
-              include: [
-                {
-                  model: this.app.service('user').Model,
-                  as: 'sender'
-                }
-              ]
+              order: [['createdAt', 'DESC']]
             }
           ]
         })
+
+        // TODO: Populating Message's sender property here manually. Once message service is moved to feathers 5. This should be part of its resolver.
+        for (const channel of channels) {
+          if (channel.dataValues.message && !channel.dataValues.message.sender) {
+            channel.dataValues.message.sender = await this.app
+              .service(userPath)
+              ._get(channel.dataValues.message.senderId)
+          }
+        }
 
         return channels
 

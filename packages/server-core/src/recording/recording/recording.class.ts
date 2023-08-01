@@ -80,8 +80,8 @@ export class Recording<T = RecordingDataType> extends Service<T> {
               $in: recordings.data.map((item) => item.userId)
             }
           },
-          paginated: false
-        } as any) as any as UserType[]
+          paginate: false
+        }) as any as UserType[]
 
         for (const recording of recordings.data) {
           const user = recordingUsers.find((item) => item.id === recording.userId)
