@@ -28,14 +28,13 @@ import { useTranslation } from 'react-i18next'
 
 import InputText from '@etherealengine/client-core/src/common/components/InputText'
 import { AwsCloudFrontType, AwsSmsType } from '@etherealengine/engine/src/schemas/setting/aws-setting.schema'
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { useHookstate } from '@etherealengine/hyperflux'
 import Box from '@etherealengine/ui/src/primitives/mui/Box'
 import Button from '@etherealengine/ui/src/primitives/mui/Button'
 import Grid from '@etherealengine/ui/src/primitives/mui/Grid'
 import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 
-import { AuthState } from '../../../user/services/AuthService'
-import { AdminAwsSettingState, AwsSettingService } from '../../services/Setting/AwsSettingService'
+import { useFind, useMutation } from '@etherealengine/engine/src/common/functions/FeathersHooks'
 import styles from '../../styles/settings.module.scss'
 
 const SMS_PROPERTIES = {
@@ -54,32 +53,34 @@ const CLOUDFRONT_PROPERTIES = {
 
 const Aws = () => {
   const { t } = useTranslation()
-  const awsSettingState = useHookstate(getMutableState(AdminAwsSettingState))
-  const [awsSetting] = awsSettingState?.awsSettings?.get({ noproxy: true }) || []
-  const id = awsSetting?.id
-  const user = useHookstate(getMutableState(AuthState).user)
 
-  const sms = useHookstate(awsSetting?.sms)
-  const cloudfront = useHookstate(awsSetting?.cloudfront)
+  const patchAwsSettings = useMutation('aws-setting').patch
+  const adminAwsSettingsData = useFind('aws-setting').data.at(0)
+
+  const id = adminAwsSettingsData?.id
+  const sms = useHookstate(adminAwsSettingsData?.sms)
+  const cloudfront = useHookstate(adminAwsSettingsData?.cloudfront)
 
   useEffect(() => {
-    if (awsSetting) {
-      const tempSms = JSON.parse(JSON.stringify(awsSetting?.sms)) as AwsSmsType
-      const tempCloudfront = JSON.parse(JSON.stringify(awsSetting?.cloudfront)) as AwsCloudFrontType
-      sms.set(tempSms)
-      cloudfront.set(tempCloudfront)
+    if (!adminAwsSettingsData) {
+      return
     }
-  }, [awsSettingState?.updateNeeded?.value])
+    const tempSms = JSON.parse(JSON.stringify(adminAwsSettingsData.sms)) as AwsSmsType
+    const tempCloudfront = JSON.parse(JSON.stringify(adminAwsSettingsData.cloudfront)) as AwsCloudFrontType
+    sms.set(tempSms)
+    cloudfront.set(tempCloudfront)
+  }, [adminAwsSettingsData])
 
   const handleSubmit = (event) => {
     event.preventDefault()
+    if (!id) return
 
-    AwsSettingService.patchAwsSetting({ sms: sms.value, cloudfront: cloudfront.value }, id)
+    patchAwsSettings(id, { sms: sms.value, cloudfront: cloudfront.value })
   }
 
   const handleCancel = () => {
-    const tempSms = JSON.parse(JSON.stringify(awsSetting?.sms)) as AwsSmsType
-    const tempCloudfront = JSON.parse(JSON.stringify(awsSetting?.cloudfront)) as AwsCloudFrontType
+    const tempSms = JSON.parse(JSON.stringify(adminAwsSettingsData?.sms)) as AwsSmsType
+    const tempCloudfront = JSON.parse(JSON.stringify(adminAwsSettingsData?.cloudfront)) as AwsCloudFrontType
     sms.set(tempSms)
     cloudfront.set(tempCloudfront)
   }
@@ -98,12 +99,6 @@ const Aws = () => {
     })
   }
 
-  useEffect(() => {
-    if (user?.id?.value != null && awsSettingState?.updateNeeded?.value) {
-      AwsSettingService.fetchAwsSetting()
-    }
-  }, [user?.id?.value, awsSettingState?.updateNeeded?.value])
-
   return (
     <Box>
       <Typography component="h1" className={styles.settingsHeading}>
@@ -116,14 +111,14 @@ const Aws = () => {
           <InputText
             name="accessKeyId"
             label={t('admin:components.setting.accessKeyId')}
-            value={awsSetting?.eks?.accessKeyId || ''}
+            value={adminAwsSettingsData?.eks?.accessKeyId || ''}
             disabled
           />
 
           <InputText
             name="secretAccessKey"
             label={t('admin:components.setting.secretAccessKey')}
-            value={awsSetting?.eks?.secretAccessKey || ''}
+            value={adminAwsSettingsData?.eks?.secretAccessKey || ''}
             disabled
           />
 
@@ -132,49 +127,49 @@ const Aws = () => {
           <InputText
             name="accessKeyId"
             label={t('admin:components.setting.accessKeyId')}
-            value={awsSetting?.s3?.accessKeyId || ''}
+            value={adminAwsSettingsData?.s3?.accessKeyId || ''}
             disabled
           />
 
           <InputText
             name="secretAccessKey"
             label={t('admin:components.setting.secretAccessKey')}
-            value={awsSetting?.s3?.secretAccessKey || ''}
+            value={adminAwsSettingsData?.s3?.secretAccessKey || ''}
             disabled
           />
 
           <InputText
             name="endpoint"
             label={t('admin:components.setting.endpoint')}
-            value={awsSetting?.s3?.endpoint || ''}
+            value={adminAwsSettingsData?.s3?.endpoint || ''}
             disabled
           />
 
           <InputText
             name="staticResourceBucket"
             label={t('admin:components.setting.staticResourceBucket')}
-            value={awsSetting?.s3?.staticResourceBucket || ''}
+            value={adminAwsSettingsData?.s3?.staticResourceBucket || ''}
             disabled
           />
 
           <InputText
             name="region"
             label={t('admin:components.setting.region')}
-            value={awsSetting?.s3?.region || ''}
+            value={adminAwsSettingsData?.s3?.region || ''}
             disabled
           />
 
           <InputText
             name="avatarDir"
             label={t('admin:components.setting.avatarDir')}
-            value={awsSetting?.s3?.avatarDir || ''}
+            value={adminAwsSettingsData?.s3?.avatarDir || ''}
             disabled
           />
 
           <InputText
             name="s3DevMode"
             label={t('admin:components.setting.s3DevMode')}
-            value={awsSetting?.s3?.s3DevMode || ''}
+            value={adminAwsSettingsData?.s3?.s3DevMode || ''}
             disabled
           />
 
@@ -183,21 +178,21 @@ const Aws = () => {
           <InputText
             name="hostedZoneId"
             label={t('admin:components.setting.hostedZoneId')}
-            value={awsSetting?.route53?.hostedZoneId || ''}
+            value={adminAwsSettingsData?.route53?.hostedZoneId || ''}
             disabled
           />
 
           <InputText
             name="accessKeyId"
             label={t('admin:components.setting.keys')}
-            value={awsSetting?.route53?.keys?.accessKeyId || ''}
+            value={adminAwsSettingsData?.route53?.keys?.accessKeyId || ''}
             disabled
           />
 
           <InputText
             name="secretAccessKey"
             label={t('admin:components.setting.secretAccessKey')}
-            value={awsSetting?.route53?.keys?.secretAccessKey || ''}
+            value={adminAwsSettingsData?.route53?.keys?.secretAccessKey || ''}
             disabled
           />
         </Grid>
