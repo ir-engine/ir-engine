@@ -59,7 +59,7 @@ import {
   WidgetAppServiceReceptorSystem,
   WidgetAppState
 } from '@etherealengine/engine/src/xrui/WidgetAppService'
-import { defineActionQueue, defineState, dispatchAction, getState, removeActionQueue } from '@etherealengine/hyperflux'
+import { defineActionQueue, defineState, dispatchAction, getState } from '@etherealengine/hyperflux'
 
 import { createAnchorWidget } from './createAnchorWidget'
 // import { createHeightAdjustmentWidget } from './createHeightAdjustmentWidget'
@@ -75,6 +75,7 @@ import { createAnchorWidget } from './createAnchorWidget'
 // import { createShareLocationWidget } from './createShareLocationWidget'
 // import { createSocialsMenuWidget } from './createSocialsMenuWidget'
 // import { createUploadAvatarWidget } from './createUploadAvatarWidget'
+import { createRecordingsWidget } from './createRecordingsWidget'
 import { createWidgetButtonsView } from './ui/WidgetMenuView'
 
 const widgetLeftMenuGripOffset = new Vector3(0.08, 0, -0.05)
@@ -106,36 +107,31 @@ const WidgetUISystemState = defineState({
   }
 })
 
-// lazily create XRUI widgets to speed up initial page loading time
-let createdWidgets = false
-const showWidgetMenu = (show: boolean) => {
-  // temporarily only allow widgets on non hmd for local dev
-  if (!createdWidgets && (isMobileXRHeadset || isDev)) {
-    createdWidgets = true
-    createAnchorWidget()
-    // createMediaWidget()
-    // createHeightAdjustmentWidget()
-    // createProfileWidget()
-    // createSettingsWidget()
-    // createSocialsMenuWidget()
-    // createLocationMenuWidget()
-    // createAdminControlsMenuWidget()
-    // createMediaSessionMenuWidget()
-    // createEmoteWidget()
-    // createChatWidget()
-    // createShareLocationWidget()
-    // createSelectAvatarWidget()
-    // createUploadAvatarWidget()
+const createWidgetMenus = () => {
+  createAnchorWidget()
+  createRecordingsWidget()
+  // createMediaWidget()
+  // createHeightAdjustmentWidget()
+  // createProfileWidget()
+  // createSettingsWidget()
+  // createSocialsMenuWidget()
+  // createLocationMenuWidget()
+  // createAdminControlsMenuWidget()
+  // createMediaSessionMenuWidget()
+  // createEmoteWidget()
+  // createChatWidget()
+  // createShareLocationWidget()
+  // createSelectAvatarWidget()
+  // createUploadAvatarWidget()
 
-    // TODO: Something in createReadyPlayerWidget is loading /location/undefined
-    // This is causing the engine to be created again, or at least to start being
-    // created again, which is not right. This will need to be fixed when this is
-    // restored.
-    // createReadyPlayerWidget()
-  }
+  // TODO: Something in createReadyPlayerWidget is loading /location/undefined
+  // This is causing the engine to be created again, or at least to start being
+  // created again, which is not right. This will need to be fixed when this is
+  // restored.
+  // createReadyPlayerWidget()
 }
 
-const toggleWidgetsMenu = (handedness?: 'left' | 'right') => {
+const toggleWidgetsMenu = (handedness: 'left' | 'right' = getState(WidgetAppState).handedness) => {
   const widgetState = getState(WidgetAppState)
   const state = widgetState.widgets
   const openWidget = Object.entries(state).find(([id, widget]) => widget.visible)
@@ -222,7 +218,6 @@ const execute = () => {
   }
 
   const widgetMenuShown = widgetState.widgetsMenuOpen
-  showWidgetMenu(widgetMenuShown)
   setVisibleComponent(widgetMenuUI.entity, widgetMenuShown)
 
   for (const [id, widget] of RegisteredWidgets) {
@@ -236,9 +231,9 @@ const execute = () => {
 
 const reactor = () => {
   useEffect(() => {
+    createWidgetMenus()
     return () => {
       const { widgetMenuUI } = getState(WidgetUISystemState)
-      removeActionQueue(showWidgetQueue)
       removeEntity(widgetMenuUI.entity)
     }
   }, [])

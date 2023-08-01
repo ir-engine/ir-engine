@@ -96,7 +96,7 @@ describe('PrefabComponentFunctions', async () => {
         result[k] = v
         return result
       })
-      .reduce((a: Object, b: Object) => {
+      .reduce((a: object, b: object) => {
         return { ...a, ...b }
       })
   }

@@ -38,13 +38,6 @@ export async function seed(knex: Knex): Promise<void> {
   const seedData: AwsSettingDatabaseType[] = await Promise.all(
     [
       {
-        route53: JSON.stringify({
-          hostedZoneId: process.env.ROUTE53_HOSTED_ZONE_ID,
-          keys: {
-            accessKeyId: process.env.ROUTE53_ACCESS_KEY_ID,
-            secretAccessKey: process.env.ROUTE53_ACCESS_KEY_SECRET
-          }
-        }),
         s3: JSON.stringify({
           accessKeyId: process.env.STORAGE_AWS_ACCESS_KEY_ID,
           secretAccessKey: process.env.STORAGE_AWS_ACCESS_KEY_SECRET,

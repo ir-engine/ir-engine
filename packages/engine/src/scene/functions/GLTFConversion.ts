@@ -93,16 +93,15 @@ export interface GLTFExtension {
 }
 
 const serializeECS = (roots: Object3DWithEntity[]) => {
-  let rootEntities = new Array()
   const idxTable = new Map<Entity, number>()
   const extensionSet = new Set<string>()
   const frontier: Object3DWithEntity[] = []
-  const haveChildren = new Array()
+  const haveChildren = [] as any[]
   const result = {
     asset: { version: '2.0', generator: 'Ethereal Engine glTF Scene Conversion' },
-    scenes: [{ nodes: new Array() }],
+    scenes: [{ nodes: [] as any[] }],
     scene: 0,
-    nodes: new Array(),
+    nodes: [] as any[],
     extensionsUsed: new Array<string>()
   }
 

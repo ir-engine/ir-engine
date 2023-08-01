@@ -32,8 +32,6 @@ import { WebLayerManager } from './WebLayerManager'
 
 type Intersection = THREE.Intersection & { groupOrder: number }
 
-export type WebLayerHit = ReturnType<typeof WebContainer3D.prototype.hitTest> & {}
-
 const scratchVector = new Vector3()
 const scratchVector2 = new Vector3()
 const scratchBounds2 = new Bounds()

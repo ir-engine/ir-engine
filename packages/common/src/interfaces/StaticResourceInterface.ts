@@ -41,5 +41,3 @@ export interface StaticResourceInterface {
   createdAt: string
   updatedAt: string
 }
-
-export interface StaticResourceCreateInterface {}

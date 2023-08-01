@@ -75,7 +75,7 @@ const BooleanCheck = styled(CheckIcon)`
 
 interface BooleanInputProp {
   value: boolean
-  onChange: Function
+  onChange: (value: boolean) => void
   disabled?: boolean
 }
 

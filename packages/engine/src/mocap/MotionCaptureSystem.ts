@@ -32,6 +32,7 @@ import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { dispatchAction, getState } from '@etherealengine/hyperflux'
 
+import { DataChannelType } from '@etherealengine/common/src/interfaces/DataChannelType'
 import { AvatarRigComponent } from '../avatar/components/AvatarAnimationComponent'
 import { RingBuffer } from '../common/classes/RingBuffer'
 import { isClient } from '../common/functions/getEnvironment'
@@ -41,7 +42,7 @@ import { getComponent } from '../ecs/functions/ComponentFunctions'
 import { removeEntity } from '../ecs/functions/EntityFunctions'
 import { defineSystem } from '../ecs/functions/SystemFunctions'
 import { addDataChannelHandler, removeDataChannelHandler } from '../networking/NetworkState'
-import { DataChannelType, Network } from '../networking/classes/Network'
+import { Network } from '../networking/classes/Network'
 import { NetworkObjectComponent } from '../networking/components/NetworkObjectComponent'
 import { UUIDComponent } from '../scene/components/UUIDComponent'
 import { TransformComponent } from '../transform/components/TransformComponent'
@@ -61,18 +62,17 @@ export interface NormalizedLandmark {
 export const sendResults = (landmarks: NormalizedLandmark[]) => {
   return encode({
     timestamp: Date.now(),
-    peerIndex: Engine.instance.worldNetwork.peerIDToPeerIndex.get(Engine.instance.peerID)!,
+    peerID: Engine.instance.peerID,
     landmarks
   })
 }
 
 export const receiveResults = (results: ArrayBuffer) => {
-  const { timestamp, peerIndex, landmarks } = decode(new Uint8Array(results)) as {
+  const { timestamp, peerID, landmarks } = decode(new Uint8Array(results)) as {
     timestamp: number
-    peerIndex: number
+    peerID: PeerID
     landmarks: NormalizedLandmark[]
   }
-  const peerID = Engine.instance.worldNetwork.peerIndexToPeerID.get(peerIndex)
   return { timestamp, peerID, landmarks }
 }
 
