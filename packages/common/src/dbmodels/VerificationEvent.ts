@@ -24,8 +24,8 @@ Ethereal Engine. All Rights Reserved.
 */
 
 export interface VerificationEventInterface {
-  id: String
-  userId: String
+  id: string
+  userId: string
   expiresAt: Date
-  log: String // verification result log (fine-grained results, like "expired" / "revoked"
+  log: string // verification result log (fine-grained results, like "expired" / "revoked"
 }

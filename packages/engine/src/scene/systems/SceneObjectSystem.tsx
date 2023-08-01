@@ -77,7 +77,7 @@ export function setupObject(obj: Object3DWithEntity, force = false) {
         const prevMatEntry = unregisterMaterial(prevMaterial)
         const nuMaterial = new MeshLambertMaterial().copy(prevMaterial)
 
-        nuMaterial.normalMap = nuMaterial.normalMap //?? normalTexture
+        // nuMaterial.normalMap = nuMaterial.normalMap ?? normalTexture
         nuMaterial.specularMap = prevMaterial.roughnessMap ?? prevMaterial.specularIntensityMap
 
         if (onlyEmmisive) nuMaterial.emissiveMap = prevMaterial.emissiveMap

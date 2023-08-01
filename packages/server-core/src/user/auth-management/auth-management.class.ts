@@ -28,8 +28,10 @@ import { Id, NullableId, Params, ServiceMethods } from '@feathersjs/feathers'
 import { Application } from '../../../declarations'
 import Paginated from '../../types/PageObject'
 
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
 interface Data {}
 
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
 interface ServiceOptions {}
 
 /**

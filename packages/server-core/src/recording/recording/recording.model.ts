@@ -44,7 +44,7 @@ export default (app: Application) => {
       defaultValue: false
     },
     schema: {
-      type: DataTypes.STRING,
+      type: DataTypes.TEXT, // TODO replace with JSON
       allowNull: false
     }
   })

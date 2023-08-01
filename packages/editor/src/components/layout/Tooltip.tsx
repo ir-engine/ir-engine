@@ -28,7 +28,7 @@ import React from 'react'
 import { createStyles, Tooltip, TooltipProps } from '@mui/material'
 import makeStyles from '@mui/styles/makeStyles'
 
-const useStyles = makeStyles<any, {}, any>((theme: any) => {
+const useStyles = makeStyles<any, any, any>((theme: any) => {
   return createStyles({
     tooltip: {
       background: theme.panel
@@ -46,7 +46,7 @@ const useStyles = makeStyles<any, {}, any>((theme: any) => {
 export function InfoTooltip(props: TooltipProps) {
   if (!props.title) return <>{props.children}</>
 
-  const styles = useStyles()
+  const styles = useStyles({})
 
   return (
     <Tooltip {...props} classes={{ tooltip: styles.tooltip }} arrow disableInteractive>

@@ -45,26 +45,17 @@ export async function seed(knex: Knex): Promise<void> {
         locationType: 'public' as const,
         videoEnabled: true,
         audioEnabled: true,
-        screenSharingEnabled: false,
-        faceStreamingEnabled: false
+        screenSharingEnabled: true,
+        faceStreamingEnabled: true
       },
-      // {
-      //   id: '37ce32f0-208d-11eb-b02f-37cfdadfe58c',
-      //   locationId: '98cbcc30-fd2d-11ea-bc7c-cd4cac9a8d61',
-      //   locationType: 'public' as const,
-      //   videoEnabled: true,
-      //   audioEnabled: true,
-      //   screenSharingEnabled: false,
-      //   faceStreamingEnabled: false
-      // },
       {
         id: '37ce32f0-208d-11eb-b02f-37cfdadfe58d',
         locationId: '98cbcc30-fd2d-11ea-bc7c-cd4cac9a8d62',
         locationType: 'public' as const,
         videoEnabled: true,
         audioEnabled: true,
-        screenSharingEnabled: false,
-        faceStreamingEnabled: false
+        screenSharingEnabled: true,
+        faceStreamingEnabled: true
       },
       {
         id: '37ce32f0-208d-11eb-b02f-37cfdadfe58e',
@@ -72,31 +63,34 @@ export async function seed(knex: Knex): Promise<void> {
         locationType: 'public' as const,
         videoEnabled: true,
         audioEnabled: true,
-        screenSharingEnabled: false,
-        faceStreamingEnabled: false
+        screenSharingEnabled: true,
+        faceStreamingEnabled: true
       }
     ].map(async (item) => ({ ...item, createdAt: await getDateTimeSql(), updatedAt: await getDateTimeSql() }))
   )
 
-  try {
-    await knex.raw('SET FOREIGN_KEY_CHECKS=0')
+  // Added transaction here in order to ensure both below queries run on same pool.
+  // https://github.com/knex/knex/issues/218#issuecomment-56686210
+  const trx = await knex.transaction()
 
-    if (forceRefresh || testEnabled) {
-      // Deletes ALL existing entries
-      await knex(locationSettingPath).del()
+  await trx.raw('SET FOREIGN_KEY_CHECKS=0')
 
-      // Inserts seed entries
-      await knex(locationSettingPath).insert(seedData)
-    } else {
-      const existingData = await knex(locationSettingPath).count({ count: '*' })
+  if (forceRefresh || testEnabled) {
+    // Deletes ALL existing entries
+    await trx(locationSettingPath).del()
 
-      if (existingData.length === 0 || existingData[0].count === 0) {
-        for (const item of seedData) {
-          await knex(locationSettingPath).insert(item)
-        }
+    // Inserts seed entries
+    await trx(locationSettingPath).insert(seedData)
+  } else {
+    const existingData = await trx(locationSettingPath).count({ count: '*' })
+
+    if (existingData.length === 0 || existingData[0].count === 0) {
+      for (const item of seedData) {
+        await trx(locationSettingPath).insert(item)
       }
     }
-  } finally {
-    await knex.raw('SET FOREIGN_KEY_CHECKS=1')
   }
+  await trx.raw('SET FOREIGN_KEY_CHECKS=1')
+
+  await trx.commit()
 }

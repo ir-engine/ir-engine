@@ -40,8 +40,8 @@ export const AdminHelmSettingsState = defineState({
   name: 'AdminHelmSettingsState',
   initial: () => ({
     helmSettings: [] as Array<HelmSettingType>,
-    mainVersions: [] as Array<String>,
-    builderVersions: [] as Array<String>,
+    mainVersions: [] as Array<string>,
+    builderVersions: [] as Array<string>,
     skip: 0,
     limit: 100,
     total: 0,

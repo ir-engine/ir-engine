@@ -23,20 +23,22 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
+import { removeComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { VisibleComponent } from '@etherealengine/engine/src/scene/components/VisibleComponent'
+import { createXRUI } from '@etherealengine/engine/src/xrui/functions/createXRUI'
+import { Widget, Widgets } from '@etherealengine/engine/src/xrui/Widgets'
 
-import { InstanceserverSubdomainProvisionInterface } from '@etherealengine/common/src/dbmodels/InstanceserverSubdomainProvision'
+import { RecordingsWidgetUI } from './ui/RecordingsWidgetUI'
 
-import { Application } from '../../../declarations'
+export function createRecordingsWidget() {
+  const ui = createXRUI(RecordingsWidgetUI)
+  removeComponent(ui.entity, VisibleComponent)
 
-export type InstanceserverSubdomainProvisionDataType = InstanceserverSubdomainProvisionInterface
-
-/**
- * A class for instance server domain provision  service
- */
-export class InstanceserverSubdomainProvision<T = InstanceserverSubdomainProvisionDataType> extends Service<T> {
-  public docs: any
-  constructor(options: Partial<SequelizeServiceOptions>, app: Application) {
-    super(options)
+  const widget: Widget = {
+    ui,
+    label: 'Recording',
+    icon: 'Videocam'
   }
+
+  const id = Widgets.registerWidget(ui.entity, widget)
 }

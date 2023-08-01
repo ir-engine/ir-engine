@@ -310,7 +310,7 @@ export const writeMetadata = (v: ViewCursor, network: Network, userId: UserId, p
   writeFloat64(v, getState(EngineState).simulationTime)
 }
 
-export const createDataWriter = (size: number = 100000) => {
+export const createDataWriter = (size = 100000) => {
   const view = createViewCursor(new ArrayBuffer(size))
 
   return (network: Network, userId: UserId, peerID: PeerID, entities: Entity[]) => {

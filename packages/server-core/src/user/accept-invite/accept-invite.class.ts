@@ -32,8 +32,10 @@ import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
 import Paginated from '../../types/PageObject'
 
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
 interface Data {}
 
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
 interface ServiceOptions {}
 
 interface AcceptInviteParams extends Params {
@@ -92,7 +94,9 @@ export class AcceptInvite implements ServiceMethods<Data> {
             id: id
           }
         })
-      } catch (err) {}
+      } catch (err) {
+        //
+      }
 
       if (invite == null) {
         logger.info('INVALID INVITE ID')

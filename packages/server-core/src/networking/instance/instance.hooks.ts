@@ -25,32 +25,14 @@ Ethereal Engine. All Rights Reserved.
 
 import { iff, isProvider } from 'feathers-hooks-common'
 
-import addAssociations from '@etherealengine/server-core/src/hooks/add-associations'
-
 import authenticate from '../../hooks/authenticate'
 import verifyScope from '../../hooks/verify-scope'
 
 export default {
   before: {
     all: [authenticate()],
-    find: [
-      addAssociations({
-        models: [
-          {
-            model: 'instanceserver-subdomain-provision'
-          }
-        ]
-      })
-    ],
-    get: [
-      addAssociations({
-        models: [
-          {
-            model: 'instanceserver-subdomain-provision'
-          }
-        ]
-      })
-    ],
+    find: [],
+    get: [],
     create: [iff(isProvider('external'), verifyScope('admin', 'admin') as any)],
     update: [iff(isProvider('external'), verifyScope('admin', 'admin') as any)],
     patch: [iff(isProvider('external'), verifyScope('admin', 'admin') as any)],

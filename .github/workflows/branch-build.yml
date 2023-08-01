@@ -46,5 +46,7 @@ jobs:
       - run: npm run dev-reinit
       - run: npm run check-errors
         timeout-minutes: 20
+      - run: npm run check-eslint
+        timeout-minutes: 20
       - run: npm run build-client
       - run: npm run test
