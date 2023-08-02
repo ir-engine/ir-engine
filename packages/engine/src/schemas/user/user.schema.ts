@@ -24,8 +24,10 @@ Ethereal Engine. All Rights Reserved.
 */
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
+import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 import type { Static } from '@feathersjs/typebox'
 import { querySyntax, Type } from '@feathersjs/typebox'
+import { TypedString } from '../../common/types/TypeboxUtils'
 import { instanceAttendanceSchema } from '../networking/instance-attendance.schema'
 import { scopeSchema } from '../scope/scope.schema'
 import { userSettingSchema } from '../setting/user-setting.schema'
@@ -42,7 +44,7 @@ export const userMethods = ['get', 'find', 'create', 'patch', 'remove'] as const
 // Main data model schema
 export const userSchema = Type.Object(
   {
-    id: Type.String({
+    id: TypedString<UserId, 'uuid'>({
       format: 'uuid'
     }),
     name: Type.String(),

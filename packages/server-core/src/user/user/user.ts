@@ -81,7 +81,7 @@ export default (app: Application): void => {
 
       const knexClient: Knex = app.get('knexClient')
 
-      const response = await knexClient
+      const layerUsers = await knexClient
         .from(userPath)
         .join(instanceAttendancePath, `${instanceAttendancePath}.userId`, '=', `${userPath}.id`)
         .whereIn(
@@ -92,7 +92,7 @@ export default (app: Application): void => {
         .select()
         .options({ nestTables: true })
 
-      targetIds = targetIds.concat(response.map((item) => item.user.id))
+      targetIds = targetIds.concat(layerUsers.map((item) => item.user.id))
 
       // const userRelationships = await app.service('user-relationship').Model.findAll({
       //   where: {

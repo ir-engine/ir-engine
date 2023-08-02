@@ -23,8 +23,16 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-// TODO: Move this to user.schema.ts file after feathers 5 migration.
+import { Kind, StringFormatOption, StringOptions, TSchema, Type } from '@feathersjs/typebox'
 
-import { OpaqueType } from './OpaqueType'
+export interface TTypedString<T extends string, Format extends string = string> extends TSchema, StringOptions<Format> {
+  [Kind]: 'String'
+  static: T
+  type: T
+}
 
-export type UserId = OpaqueType<'userId'> & string
+export const TypedString = <T extends string, Format extends string = string>(
+  options?: StringOptions<StringFormatOption | Format>
+) => {
+  return Type.String(options) as TTypedString<T, Format>
+}
