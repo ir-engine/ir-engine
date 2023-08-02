@@ -29,6 +29,7 @@ import { KnexAdapter } from '@feathersjs/knex'
 
 import { UserData, UserPatch, UserQuery, UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
 
+import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 import { userApiKeyPath } from '@etherealengine/engine/src/schemas/user/user-api-key.schema'
 import { Forbidden } from '@feathersjs/errors'
 import { Op } from 'sequelize'
@@ -150,7 +151,7 @@ export class UserService<T = UserType, ServiceParams extends Params = UserParams
     if (id) {
       await this.app.service(userApiKeyPath).remove(null, {
         query: {
-          userId: id.toString()
+          userId: id as UserId
         }
       })
     }

@@ -23,6 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+// TODO: Move it to channel schema once moved to feathers 5 and all dependencies on common packages are removed.
+
 import { OpaqueType } from '../interfaces/OpaqueType'
 
 export type ChannelID = OpaqueType<'ChannelID'> & string

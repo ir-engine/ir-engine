@@ -31,7 +31,9 @@ import { Channel } from '@etherealengine/engine/src/schemas/interfaces/Channel'
 import { Message as MessageInterface } from '@etherealengine/engine/src/schemas/interfaces/Message'
 
 import { ChannelID } from '@etherealengine/common/src/dbmodels/Channel'
+import { instanceAttendancePath } from '@etherealengine/engine/src/schemas/networking/instance-attendance.schema'
 import { UserType, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { Knex } from 'knex'
 import { Application } from '../../../declarations'
 import { UserParams } from '../../api/root-params'
 
@@ -122,25 +124,18 @@ export class Message<T = MessageDataType> extends Service<T> {
             instanceId
           })) as Channel
         }
-        const instanceUsers = await this.app.service(userPath).find({
-          query: {
-            $limit: 1000
-          },
-          sequelize: {
-            include: [
-              {
-                model: this.app.service('instance-attendance').Model,
-                as: 'instanceAttendance',
-                where: {
-                  instanceId
-                }
-              }
-            ]
-          }
-        })
-        userIdList = (instanceUsers as any).data.map((instanceUser) => {
-          return instanceUser.id
-        })
+
+        const knexClient: Knex = this.app.get('knexClient')
+
+        const instanceUsers = await knexClient
+          .from(userPath)
+          .join(instanceAttendancePath, `${instanceAttendancePath}.userId`, `${userPath}.id`)
+          .where(`${instanceAttendancePath}.instanceId`, instanceId)
+          .limit(1000)
+          .select()
+          .options({ nestTables: true })
+
+        userIdList = instanceUsers.map((instanceUser) => instanceUser.user.id)
       }
     }
     if (!channel) throw new BadRequest('Could not find or create channel')

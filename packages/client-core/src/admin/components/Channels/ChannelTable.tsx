@@ -31,7 +31,7 @@ import { Channel } from '@etherealengine/engine/src/schemas/interfaces/Channel'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import Box from '@etherealengine/ui/src/primitives/mui/Box'
 
-import { ChannelID } from '@etherealengine/engine/src/schemas/interfaces/ChannelUser'
+import { ChannelID } from '@etherealengine/common/src/dbmodels/Channel'
 import { AuthState } from '../../../user/services/AuthService'
 import TableComponent from '../../common/Table'
 import { channelColumns, ChannelData, ChannelPropsTable } from '../../common/variables/channel'
