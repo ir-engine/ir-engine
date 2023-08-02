@@ -23,19 +23,21 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
+import type { Params } from '@feathersjs/feathers'
+import type { KnexAdapterParams } from '@feathersjs/knex'
+import { KnexService } from '@feathersjs/knex'
 
-import { RecordingResourceResult } from '@etherealengine/common/src/interfaces/Recording'
+import {
+  RecordingResourceData,
+  RecordingResourcePatch,
+  RecordingResourceQuery,
+  RecordingResourceType
+} from '@etherealengine/engine/src/schemas/recording/recording-resource.schema'
 
-import { Application } from '../../../declarations'
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+export interface RecordingResourceParams extends KnexAdapterParams<RecordingResourceQuery> {}
 
-export type RecordingResourceDataType = RecordingResourceResult
-
-export class RecordingResource<T = RecordingResourceDataType> extends Service<T> {
-  app: Application
-  docs: any
-  constructor(options: Partial<SequelizeServiceOptions>, app: Application) {
-    super(options)
-    this.app = app
-  }
-}
+export class RecordingResourceService<
+  T = RecordingResourceType,
+  ServiceParams extends Params = RecordingResourceParams
+> extends KnexService<RecordingResourceType, RecordingResourceData, RecordingResourceParams, RecordingResourcePatch> {}

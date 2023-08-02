@@ -28,11 +28,13 @@ import {
   recordingResourcePath
 } from '@etherealengine/engine/src/schemas/recording/recording-resource.schema'
 import { Application } from '../../../declarations'
+import { RecordingResourceService } from './recording-resource.class'
 import recordingResourceDocs from './recording-resource.docs'
+import hooks from './recording-resource.hooks'
 
 declare module '@etherealengine/common/declarations' {
   interface ServiceTypes {
-    [recordingResourcePath]: CoilSettingService
+    [recordingResourcePath]: RecordingResourceService
   }
 }
 
@@ -44,7 +46,7 @@ export default (app: Application): void => {
     multi: true
   }
 
-  app.use(recordingResourcePath, new CoilSettingService(options), {
+  app.use(recordingResourcePath, new RecordingResourceService(options), {
     // A list of all methods this service exposes externally
     methods: recordingResourceMethods,
     // You can add additional custom events to be sent to clients here

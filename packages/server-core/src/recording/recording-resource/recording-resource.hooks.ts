@@ -22,7 +22,8 @@ Original Code is the Ethereal Engine team.
 All portions of the code written by the Ethereal Engine team are Copyright © 2021-2023 
 Ethereal Engine. All Rights Reserved.
 */
-import { getValidator, hooks as schemaHooks } from '@feathersjs/schema'
+import { hooks as schemaHooks } from '@feathersjs/schema'
+import { getValidator } from '@feathersjs/typebox'
 import { iff, isProvider } from 'feathers-hooks-common'
 
 import {
@@ -31,7 +32,7 @@ import {
   recordingResourceQuerySchema,
   recordingResourceSchema
 } from '@etherealengine/engine/src/schemas/recording/recording-resource.schema'
-import { dataValidator, queryValidator } from '../../../validators'
+import { dataValidator, queryValidator } from '@etherealengine/server-core/validators'
 import authenticate from '../../hooks/authenticate'
 import verifyScope from '../../hooks/verify-scope'
 
