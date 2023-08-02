@@ -35,6 +35,8 @@ import {
   AnalyticsType
 } from '@etherealengine/engine/src/schemas/analytics/analytics.schema'
 
+import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { Knex } from 'knex'
 import { Application } from '../../../declarations'
 import { RootParams } from '../../api/root-params'
 
@@ -96,10 +98,10 @@ export class AnalyticsService<T = AnalyticsType, ServiceParams extends Params = 
       }
       const currentDate = new Date()
       for (let i = 0; i < limit; i++) {
-        const newUsers = await this.app
-          .service(analyticsPath)
-          .Model.count('id AS count')
-          .table('user')
+        const knexClient: Knex = this.app.get('knexClient')
+        const newUsers = await knexClient
+          .count('id AS count')
+          .table(userPath)
           .where('createdAt', '>', new Date(new Date().setDate(currentDate.getDate() - (i + 1))).toISOString())
           .andWhere('createdAt', '<=', new Date(new Date().setDate(currentDate.getDate() - i)).toISOString())
           .first()
