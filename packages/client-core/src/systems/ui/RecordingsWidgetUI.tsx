@@ -31,7 +31,7 @@ import { useMediaNetwork } from '../../common/services/MediaInstanceConnectionSe
 import { RecordingFunctions, RecordingState } from '../../recording/RecordingService'
 
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
-import { PlusCircleIcon } from '@heroicons/react/24/solid'
+import { PlayIcon, PlusCircleIcon } from '@heroicons/react/24/solid'
 
 import { RecordingResult } from '@etherealengine/common/src/interfaces/Recording'
 import { useFind, useGet } from '@etherealengine/engine/src/common/functions/FeathersHooks'
@@ -350,7 +350,7 @@ const RecordingsList = () => {
         </td>
         <td>
           <div key={recording.id} style={{ display: 'flex' }}>
-            {/* <Button
+            <Button
               onClick={() => {
                 startPlayback(recording.id, false)
                 getMutableState(RecordingUIState).mode.set('playback')
@@ -361,7 +361,7 @@ const RecordingsList = () => {
                   className="block min-w-6 min-h-6"
                 />
               }
-            /> */}
+            />
             <Button
               onClick={() => {
                 startPlayback(recording.id, true)
