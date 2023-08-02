@@ -114,7 +114,7 @@ const handleMocapData = (
   timeSeriesMocapData.get(peerID)!.add(results)
 }
 
-const timeSeriesMocapData = new Map<PeerID, RingBuffer<MotionCaptureStream>>()
+export const timeSeriesMocapData = new Map<PeerID, RingBuffer<MotionCaptureStream>>()
 const timeSeriesMocapLastSeen = new Map<PeerID, number>()
 
 const execute = () => {

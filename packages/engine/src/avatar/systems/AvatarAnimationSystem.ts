@@ -37,6 +37,7 @@ import {
   useHookstate
 } from '@etherealengine/hyperflux'
 
+import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { V_010 } from '../../common/constants/MathConstants'
 import { lerp } from '../../common/functions/MathLerpFunctions'
 import { createPriorityQueue } from '../../ecs/PriorityQueue'
@@ -47,6 +48,7 @@ import { defineQuery, getComponent, getOptionalComponent, setComponent } from '.
 import { createEntity, removeEntity } from '../../ecs/functions/EntityFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { InputSourceComponent } from '../../input/components/InputSourceComponent'
+import { timeSeriesMocapData } from '../../mocap/MotionCaptureSystem'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
 import { Physics, RaycastArgs } from '../../physics/classes/Physics'
 import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
@@ -344,6 +346,23 @@ const execute = () => {
   footRaycastTimer += deltaSeconds
 
   for (const entity of avatarAnimationEntities) {
+    const rigComponent = getComponent(entity, AvatarRigComponent)
+    const rig = rigComponent.rig
+
+    // temp for mocap
+    const networkObject = getComponent(entity, NetworkObjectComponent)
+    const network = Engine.instance.worldNetwork
+    if (network) {
+      const isPeerForEntity = Array.from(timeSeriesMocapData.keys()).find(
+        (peerID: PeerID) => network.peers.get(peerID)?.userId === networkObject.ownerId
+      )
+      if (isPeerForEntity) {
+        // just animate and exit
+        rigComponent.vrm.update(getState(EngineState).deltaSeconds)
+        continue
+      }
+    }
+
     /**
      * Apply motion to velocity controlled animations
      */
@@ -375,8 +394,6 @@ const execute = () => {
      * Apply IK
      */
 
-    const rigComponent = getComponent(entity, AvatarRigComponent)
-    const rig = rigComponent.rig
     const animationState = getState(AnimationState)
     const avatarComponent = getComponent(entity, AvatarComponent)
 
