@@ -428,26 +428,32 @@ const execute = () => {
             worldSpaceTargets.hipsTarget.position.copy(
               _vector3.copy(ikTransform.position).setY(ikTransform.position.y - rigComponent.torsoLength - 0.125)
             )
+
+            //offset target forward to account for hips being behind the head
+            hipsForward.applyQuaternion(rigidbodyComponent!.rotation)
+            hipsForward.multiplyScalar(0.125)
+            worldSpaceTargets.hipsTarget.position.sub(hipsForward)
+
+            //calculate head look direction and apply to head bone
+            //look direction should be set outside of the xr switch
+            rig.head.node.quaternion.copy(
+              _quat.multiplyQuaternions(
+                rig.spine.node.getWorldQuaternion(new Quaternion()).invert(),
+                ikTransform.rotation
+              )
+            )
           } else {
             worldSpaceTargets.headTarget.position.copy(ikTransform.position)
           }
-
-          //offset target forward to account for hips being behind the head
-          hipsForward.applyQuaternion(rigidbodyComponent!.rotation)
-          hipsForward.multiplyScalar(0.125)
-          worldSpaceTargets.hipsTarget.position.sub(hipsForward)
-
-          //calculate head look direction and apply to head bone
-          //look direction should be set outside of the xr switch
-          rig.head.node.quaternion.copy(
-            _quat.multiplyQuaternions(
-              rig.spine.node.getWorldQuaternion(new Quaternion()).invert(),
-              ikTransform.rotation
-            )
-          )
           break
         case 'hips':
           worldSpaceTargets.hipsTarget.position.copy(ikTransform.position)
+          break
+        case 'leftAnkle':
+          //worldSpaceTargets.leftFootTarget.position.copy(ikTransform.position)
+          break
+        case 'rightAnkle':
+          //worldSpaceTargets.rightFootTarget.position.copy(ikTransform.position)
           break
       }
     }

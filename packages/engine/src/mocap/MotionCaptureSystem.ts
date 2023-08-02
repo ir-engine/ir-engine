@@ -71,7 +71,7 @@ export interface MotionCaptureStream {
 const debugPoseObjs: Object3D[] = []
 const debugHandObjs: Object3D[] = []
 const debug = true
-const useSolvers = true
+const useSolvers = false
 
 export const sendResults = (results: MotionCaptureStream) => {
   return encode({
@@ -146,15 +146,16 @@ const execute = () => {
       if (!avatarRig) continue
 
       const avatarHips = avatarRig?.bindRig?.hips?.node
-      const hipsPos = avatarHips.position.clone().applyMatrix4(avatarTransform.matrix)
+      const bindHipsPos = avatarHips.position.clone().applyMatrix4(avatarTransform.matrix)
+      const hipsPos = avatarRig.rig.hips.node.position.clone().applyMatrix4(avatarTransform.matrix)
 
       // Pose
-      if (useSolvers !== true) {
+      if (!useSolvers) {
         if (data.poses && data.posesWorld) {
           const twoDPoses = data.poses
           data.posesWorld.forEach((pose, idx) => {
             const twoDPose = twoDPoses[idx]
-            UpdateRawPose(pose, twoDPose, hipsPos.clone(), avatarRig, avatarTransform)
+            UpdateRawPose(pose, twoDPose, bindHipsPos, avatarRig, avatarTransform)
           })
         }
       } else {
@@ -167,7 +168,7 @@ const execute = () => {
         }
       }
 
-      if (useSolvers !== true) {
+      if (!useSolvers) {
         if (data.handsWorld && data.handednesses) {
           const handednesses = data.handednesses
           data.handsWorld.forEach((hand, idx) => {
@@ -188,7 +189,7 @@ const execute = () => {
       }
 
       // Face
-      if (useSolvers !== true) {
+      if (!useSolvers) {
         if (data.faces) {
           data.faces.forEach((face) => {
             UpdateRawFace(face, hipsPos.clone(), avatarRig, avatarTransform)

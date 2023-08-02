@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { dispatchAction } from '@etherealengine/hyperflux'
-import { Vector3 } from 'three'
+import { Euler, Quaternion, Vector3 } from 'three'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { Landmark } from '@mediapipe/tasks-vision'
@@ -40,15 +40,17 @@ const indices = {
   leftEar: 7,
   rightHand: 16,
   leftHand: 15,
-  rightHip: 24,
-  leftHip: 23
+  rightAnkle: 28,
+  leftAnkle: 27
 }
 
 const solvedPoses = {
   head: new Vector3(),
   hips: new Vector3(),
   leftHand: new Vector3(),
-  rightHand: new Vector3()
+  rightHand: new Vector3(),
+  leftAnkle: new Vector3(),
+  rightAnkle: new Vector3()
 }
 
 const rawPoses = {
@@ -56,32 +58,50 @@ const rawPoses = {
   rightHand: {} as Landmark
 }
 
-const UpdateRawPose = (data: Landmark[], pose, hipsPos, avatarRig, avatarTransform) => {
+const rotationOffset = new Quaternion().setFromEuler(new Euler(0, Math.PI, 0))
+
+const UpdateRawPose = (data, pose, bindHips, avatarRig, avatarTransform) => {
   if (data) {
     const rightEar = data[indices.rightEar]
     const leftEar = data[indices.leftEar]
 
     const hipsCalc = calcHips(data, pose)
 
-    solvedPoses.hips
-      .set(hipsCalc.Hips.position.x, hipsCalc.Hips.position.y, hipsCalc.Hips.position.z)
-      .multiplyScalar(-1)
-      .add(hipsPos)
+    const world = (hipsCalc.Hips.worldPosition as Vector3) || new Vector3(0, 0, 0)
+
+    solvedPoses.hips.copy(world).multiplyScalar(-1).applyQuaternion(avatarTransform.rotation).add(bindHips)
 
     solvedPoses.head
       .set((leftEar.x + rightEar.x) / 2, (leftEar.y + rightEar.y) / 2, (leftEar.z + rightEar.z) / 2)
       .multiplyScalar(-1)
       .applyQuaternion(avatarTransform.rotation)
-      .add(hipsPos)
+      .add(bindHips)
 
     for (const key of Object.keys(solvedPoses)) {
       switch (key) {
         case 'rightHand':
         case 'leftHand':
+        case 'leftAnkle':
+        case 'rightAnkle':
+          /*
+          var _a
+          const offscreen =
+          data[indices[key]].y > 0.1 ||
+          ((_a = data[indices[key]].visibility) !== null && _a !== void 0 ? _a : 0) < 0.23 ||
+          0.995 < pose[indices[key]].y
+
+          console.log(offscreen, key)
+        */
+
           rawPoses[key] = data[indices[key]]
           solvedPoses[key] = new Vector3(rawPoses[key].x, rawPoses[key].y, rawPoses[key].z)
             .multiplyScalar(-1)
-            .add(hipsPos)
+            .applyQuaternion(rotationOffset)
+            .applyQuaternion(avatarTransform.rotation)
+            .add(world)
+            .add(bindHips)
+            .sub(new Vector3(0, 0, 0.5))
+
           break
       }
 
@@ -92,8 +112,6 @@ const UpdateRawPose = (data: Landmark[], pose, hipsPos, avatarRig, avatarTransfo
       if (!ikTarget) {
         dispatchAction(XRAction.spawnIKTarget({ entityUUID: entityUUID, name: key }))
       }
-
-      if (key == 'hips') console.log(solvedPoses[key])
 
       const ikTransform = getComponent(ikTarget, TransformComponent)
       ikTransform.position.copy(solvedPoses[key])
