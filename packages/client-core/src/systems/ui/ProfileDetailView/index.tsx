@@ -81,7 +81,7 @@ const ProfileDetailView = () => {
   const [authSetting] = authSettingState?.authSettings?.value || []
   const authState = useHookstate(initialAuthState)
   const loading = extAuthState.isProcessing.value
-  const userSettings = selfUser.user_setting.value
+  const userSettings = selfUser.userSetting.value
   const userId = selfUser.id.value
   const apiKey = selfUser.apiKey?.token?.value
   const isGuest = selfUser.isGuest.value

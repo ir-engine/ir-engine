@@ -385,7 +385,7 @@ export const onStartPlayback = async (action: ReturnType<typeof ECSRecordingActi
                     dispatchAction(
                       AvatarNetworkAction.setAvatarID({
                         // $from: entityID,
-                        avatarID: user.avatar.id,
+                        avatarID: user.avatar.id!,
                         entityUUID: entityID
                       })
                     )

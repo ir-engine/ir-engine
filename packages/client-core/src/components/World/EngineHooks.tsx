@@ -133,7 +133,7 @@ export const useLocationSpawnAvatar = (spectate = false) => {
     if (avatarDetails.modelResource?.url)
       spawnLocalAvatarInWorld({
         avatarSpawnPose,
-        avatarID: user.avatar.id.value,
+        avatarID: user.avatar.id.value!,
         name: user.name.value
       })
     else fetchMissingAvatar(user, avatarSpawnPose)

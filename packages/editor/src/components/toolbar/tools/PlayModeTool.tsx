@@ -70,7 +70,7 @@ const PlayModeTool = () => {
       if (avatarDetails)
         spawnLocalAvatarInWorld({
           avatarSpawnPose,
-          avatarID: avatarDetails.id,
+          avatarID: avatarDetails.id!,
           name: authState.user.name.value
         })
       dispatchAction(EditorHelperAction.changedPlayMode({ isPlayModeEnabled: true }))
