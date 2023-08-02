@@ -25,6 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { LocationData, LocationType } from '@etherealengine/engine/src/schemas/social/location.schema'
 import { ChannelID } from '../dbmodels/Channel'
+import { UserId } from './UserId'
 
 export interface Instance {
   id: string
@@ -56,7 +57,7 @@ export const InstanceSeed: Instance = {
       {
         id: '',
         locationId: '',
-        userId: '',
+        userId: '' as UserId,
         createdAt: '',
         updatedAt: ''
       }

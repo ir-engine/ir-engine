@@ -50,7 +50,7 @@ import {
 } from './user.resolvers'
 
 const addInstanceAttendanceLocation = () => {
-  // TODO: Remove this once instance service is moved to feathers 5.
+  // TODO: Remove this once instance-attendance & instance service is moved to feathers 5.
   return async (context: HookContext): Promise<HookContext> => {
     const { result } = context
 

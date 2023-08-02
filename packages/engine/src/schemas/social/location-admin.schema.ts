@@ -24,8 +24,10 @@ Ethereal Engine. All Rights Reserved.
 */
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
+import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 import type { Static } from '@feathersjs/typebox'
 import { querySyntax, Type } from '@feathersjs/typebox'
+import { TypedString } from '../../common/types/TypeboxUtils'
 
 // TODO: This is temporary variable. It will be removed once this service is moved to feathers 5.
 export const locationAdminDBPath = 'location_admin'
@@ -38,7 +40,7 @@ export const locationAdminSchema = Type.Object(
     id: Type.String({
       format: 'uuid'
     }),
-    userId: Type.String({
+    userId: TypedString<UserId, 'uuid'>({
       format: 'uuid'
     }),
     locationId: Type.String({
