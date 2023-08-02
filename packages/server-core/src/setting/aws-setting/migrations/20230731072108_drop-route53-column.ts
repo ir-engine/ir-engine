@@ -23,16 +23,34 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Sequelize } from 'sequelize/types'
+import type { Knex } from 'knex'
 
-import { Models } from '@etherealengine/common/declarations'
+import { awsSettingPath } from '@etherealengine/engine/src/schemas/setting/aws-setting.schema'
 
-import { Application } from '../../declarations'
+/**
+ * @param { import("knex").Knex } knex
+ * @returns { Promise<void> }
+ */
+export async function up(knex: Knex): Promise<void> {
+  const route53ColumnExists = await knex.schema.hasColumn(awsSettingPath, 'route53')
 
-export const useSequelizeClient = (app: Application): Sequelize => {
-  return app.get('sequelizeClient')
+  if (route53ColumnExists) {
+    await knex.schema.alterTable(awsSettingPath, async (table) => {
+      table.dropColumn('route53')
+    })
+  }
 }
 
-export const useSequelizeModels = (app: Application): Models => {
-  return app.get('sequelizeClient').models
+/**
+ * @param { import("knex").Knex } knex
+ * @returns { Promise<void> }
+ */
+export async function down(knex: Knex): Promise<void> {
+  const route53ColumnExists = await knex.schema.hasColumn(awsSettingPath, 'route53')
+
+  if (!route53ColumnExists) {
+    await knex.schema.alterTable(awsSettingPath, async (table) => {
+      table.json('route53').nullable()
+    })
+  }
 }

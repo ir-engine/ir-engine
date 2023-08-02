@@ -23,38 +23,38 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-// Initializes the `instanceserver-subdomain-provision` service on path `/instanceserver-subdomain-provision`
-import { Application } from '../../../declarations'
-import { InstanceserverSubdomainProvision } from './instanceserver-subdomain-provision.class'
-import instanceServerSubdomainProvisionDocs from './instanceserver-subdomain-provision.docs'
-import hooks from './instanceserver-subdomain-provision.hooks'
-import createModel from './instanceserver-subdomain-provision.model'
+import {
+  locationAuthorizedUserMethods,
+  locationAuthorizedUserPath
+} from '@etherealengine/engine/src/schemas/social/location-authorized-user.schema'
 
-// Add this service to the service type index
+import { Application } from '../../../declarations'
+import { LocationAuthorizedUserService } from './location-authorized-user.class'
+import locationBanDocs from './location-authorized-user.docs'
+import hooks from './location-authorized-user.hooks'
+
 declare module '@etherealengine/common/declarations' {
   interface ServiceTypes {
-    'instanceserver-subdomain-provision': InstanceserverSubdomainProvision
+    [locationAuthorizedUserPath]: LocationAuthorizedUserService
   }
 }
 
-export default (app: Application) => {
+export default (app: Application): void => {
   const options = {
-    Model: createModel(app),
+    name: locationAuthorizedUserPath,
     paginate: app.get('paginate'),
+    Model: app.get('knexClient'),
     multi: true
   }
 
-  /**
-   * Initialize our service with any options it requires and docs
-   */
-  const event = new InstanceserverSubdomainProvision(options, app)
-  event.docs = instanceServerSubdomainProvisionDocs
-  app.use('instanceserver-subdomain-provision', event)
+  app.use(locationAuthorizedUserPath, new LocationAuthorizedUserService(options), {
+    // A list of all methods this service exposes externally
+    methods: locationAuthorizedUserMethods,
+    // You can add additional custom events to be sent to clients here
+    events: [],
+    docs: locationBanDocs
+  })
 
-  /**
-   * Get our initialized service so that we can register hooks
-   */
-  const service = app.service('instanceserver-subdomain-provision')
-
+  const service = app.service(locationAuthorizedUserPath)
   service.hooks(hooks)
 }

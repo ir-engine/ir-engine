@@ -28,13 +28,14 @@ import { Consumer, DataProducer, Producer, TransportInternal, WebRtcTransport } 
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { createNetwork, DataChannelType } from '@etherealengine/engine/src/networking/classes/Network'
+import { createNetwork } from '@etherealengine/engine/src/networking/classes/Network'
 import { MediaStreamAppData } from '@etherealengine/engine/src/networking/NetworkState'
 import { getState } from '@etherealengine/hyperflux'
 import { Topic } from '@etherealengine/hyperflux/functions/ActionFunctions'
 import { Application } from '@etherealengine/server-core/declarations'
 import multiLogger from '@etherealengine/server-core/src/ServerLogger'
 
+import { DataChannelType } from '@etherealengine/common/src/interfaces/DataChannelType'
 import { InstanceServerState } from './InstanceServerState'
 import { startWebRTC } from './WebRTCFunctions'
 

@@ -37,12 +37,15 @@ import { locationPath, LocationType } from '@etherealengine/engine/src/schemas/s
 import { getState } from '@etherealengine/hyperflux'
 
 import { ChannelID } from '@etherealengine/common/src/interfaces/ChannelUser'
+import {
+  instanceAuthorizedUserPath,
+  InstanceAuthorizedUserType
+} from '@etherealengine/engine/src/schemas/networking/instance-authorized-user.schema'
 import { Application } from '../../../declarations'
 import config from '../../appconfig'
 import logger from '../../ServerLogger'
 import { ServerState } from '../../ServerState'
 import getLocalServerIp from '../../util/get-local-server-ip'
-import { InstanceAuthorizedUserDataType } from '../instance-authorized-user/instance-authorized-user.class'
 
 const releaseRegex = /^([a-zA-Z0-9]+)-/
 
@@ -330,7 +333,9 @@ export async function checkForDuplicatedAssignments({
     if (config.kubernetes.enabled)
       try {
         k8DefaultClient.deleteNamespacedPod(assignResult.podName, 'default')
-      } catch (err) {}
+      } catch (err) {
+        //
+      }
     else await new Promise((resolve) => setTimeout(() => resolve(null), 500))
     return getFreeInstanceserver({
       app,
@@ -344,7 +349,7 @@ export async function checkForDuplicatedAssignments({
   }
 
   if (createPrivateRoom && userId)
-    await app.service('instance-authorized-user').create({
+    await app.service(instanceAuthorizedUserPath).create({
       instanceId: assignResult.id,
       userId
     })
@@ -444,10 +449,10 @@ export class InstanceProvision implements ServiceMethods<any> {
   }
 
   /**
-   * A method that attempts to clean up a instanceserver that no longer exists
+   * A method that attempts to clean up an instanceserver that no longer exists
    * Currently-running instanceserver are fetched via Agones client and their IP addresses
    * compared against that of the instance in question. If there's no match, then the instance
-   * record is out-of date, it should be set to 'ended', and its subdomain provision should be freed.
+   * record is out-of date, it should be set to 'ended'.
    * Returns false if the IS still exists and no cleanup was done, true if the IS does not exist and
    * a cleanup was performed.
    *
@@ -476,20 +481,6 @@ export class InstanceProvision implements ServiceMethods<any> {
         ended: true
       }
       await this.app.service('instance').patch(instance.id, { ...patchInstance })
-      await this.app.service('instanceserver-subdomain-provision').patch(
-        null,
-        {
-          allocated: false
-        },
-        {
-          query: {
-            instanceId: null,
-            is_id: {
-              $nin: isIds
-            }
-          }
-        }
-      )
       return true
     }
 
@@ -589,14 +580,14 @@ export class InstanceProvision implements ServiceMethods<any> {
             instance.currentUsers < location.maxUsersPerInstance
           ) {
             if (roomCode && roomCode === instance.roomCode) {
-              const existingInstanceAuthorizedUser = (await this.app.service('instance-authorized-user').find({
+              const existingInstanceAuthorizedUser = (await this.app.service(instanceAuthorizedUserPath).find({
                 query: {
                   instanceId: instance.id,
                   userId
                 }
-              })) as Paginated<InstanceAuthorizedUserDataType>
+              })) as Paginated<InstanceAuthorizedUserType>
               if (existingInstanceAuthorizedUser.total === 0)
-                await this.app.service('instance-authorized-user').create({
+                await this.app.service(instanceAuthorizedUserPath).create({
                   instanceId: instance.id,
                   userId
                 })
@@ -690,14 +681,14 @@ export class InstanceProvision implements ServiceMethods<any> {
           },
           paginate: false
         })) as any as LocationType[]
-        const instanceAuthorizedUsers = (await this.app.service('instance-authorized-user').find({
+        const instanceAuthorizedUsers = (await this.app.service(instanceAuthorizedUserPath).find({
           query: {
             instanceId: {
               $in: availableLocationInstances.map((instance) => instance.id)
             }
           },
           paginate: false
-        })) as InstanceAuthorizedUserDataType[]
+        })) as any as InstanceAuthorizedUserType[]
 
         for (const instance of availableLocationInstances) {
           const location = locations.find((location) => location.id === instance.locationId)

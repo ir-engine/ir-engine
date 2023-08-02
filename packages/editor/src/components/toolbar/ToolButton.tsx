@@ -52,7 +52,7 @@ const Icon = (styled as any).div`
 interface ToolButtonProp {
   id: string | number
   icon?: any
-  onClick: Function
+  onClick: (ev: any) => void
   isSelected?: boolean
   tooltip?: string
 }

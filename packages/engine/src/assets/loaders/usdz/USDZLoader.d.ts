@@ -28,14 +28,14 @@ Ethereal Engine. All Rights Reserved.
 import { BufferGeometry, Group, Loader, Material } from "three";
 
 export class USDAParser {
-    parse(text: string): Object
+    parse(text: string): object
 }
 
 export class USDZLoader extends Loader {
     register(plugin: USDZLoaderPlugin): void
     unregister(plugin: USDZLoaderPlugin): void
     load(url: string, onLoad: (result) => void, onProgress: (progress) => void, onError: (error) => void): void
-    parse(buffer: string, onLoad: (result) => void): Object
+    parse(buffer: string, onLoad: (result) => void): object
 }
 
 export interface USDZLoaderPlugin {

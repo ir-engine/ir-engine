@@ -51,7 +51,7 @@ export interface UserKick {
   instanceId: string
 }
 
-export interface CreateUserKick extends Omit<UserKick, 'id'> {}
+export type CreateUserKick = Omit<UserKick, 'id'>
 
 export interface UserInterface {
   id: UserId

@@ -23,8 +23,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-export interface InstanceAuthorizedUser {
-  id: string
-  userId: string
-  instanceId: string
-}
+import { OpaqueType } from './OpaqueType'
+
+export type DataChannelType = OpaqueType<'DataChannelType'> & string

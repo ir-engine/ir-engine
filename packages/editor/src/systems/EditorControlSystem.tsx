@@ -146,7 +146,7 @@ let prevRotationAngle = 0
 
 let selectedEntities: (Entity | string)[]
 let selectedParentEntities: (Entity | string)[]
-let selectionCounter: number = 0
+let selectionCounter = 0
 // let gizmoObj: TransformGizmo
 let transformMode: TransformModeType
 let transformPivot: TransformPivotType
@@ -299,7 +299,7 @@ const findIntersectObjects = (object: Object3D, excludeObjects?: Object3D[], exc
   }
 }
 
-const getRaycastPosition = (coords: Vector2, target: Vector3, snapAmount: number = 0): void => {
+const getRaycastPosition = (coords: Vector2, target: Vector3, snapAmount = 0): void => {
   raycaster.setFromCamera(coords, getComponent(Engine.instance.cameraEntity, CameraComponent))
   raycasterResults.length = 0
   raycastIgnoreLayers.set(1)

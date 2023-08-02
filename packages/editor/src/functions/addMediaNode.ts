@@ -48,7 +48,7 @@ export async function addMediaNode(url: string, parent?: Entity | null, before?:
   const { hostname } = new URL(url)
 
   let componentName: string | null = null
-  let updateFunc = null! as Function
+  let updateFunc = null! as () => void
 
   let node: Entity | null = null
 

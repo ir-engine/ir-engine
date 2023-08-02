@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { OpaqueType } from '@etherealengine/common/src/interfaces/OpaqueType'
+import { DataChannelType } from '@etherealengine/common/src/interfaces/DataChannelType'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 import { addOutgoingTopicIfNecessary, Topic } from '@etherealengine/hyperflux/functions/ActionFunctions'
@@ -48,7 +48,6 @@ export interface TransportInterface {
   bufferToAll: (dataChannelType: DataChannelType, ata: any) => void
 }
 
-export type DataChannelType = OpaqueType<'DataChannelType'> & string
 export interface JitterBufferEntry {
   simulationTime: number
   read: () => void

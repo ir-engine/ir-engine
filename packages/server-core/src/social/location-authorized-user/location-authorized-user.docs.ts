@@ -23,33 +23,24 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-/**
- * An object for swagger documentation configuration
- */
-export default {
-  definitions: {
-    'location-authorized-user': {
-      type: 'object',
-      properties: {
-        id: {
-          type: 'string',
-          required: true
-        },
-        locationId: {
-          type: 'string',
-          required: true
-        },
-        userId: {
-          type: 'string',
-          required: true
-        }
-      }
-    }
+import { createSwaggerServiceOptions } from 'feathers-swagger'
+
+import {
+  locationAuthorizedUserDataSchema,
+  locationAuthorizedUserPatchSchema,
+  locationAuthorizedUserQuerySchema,
+  locationAuthorizedUserSchema
+} from '@etherealengine/engine/src/schemas/social/location-authorized-user.schema'
+
+export default createSwaggerServiceOptions({
+  schemas: {
+    locationAuthorizedUserDataSchema,
+    locationAuthorizedUserPatchSchema,
+    locationAuthorizedUserQuerySchema,
+    locationAuthorizedUserSchema
   },
-  securities: ['create', 'update', 'patch', 'remove'],
-  operations: {
-    find: {
-      security: [{ bearer: [] }]
-    }
+  docs: {
+    description: 'Location authorized user service description',
+    securities: ['all']
   }
-}
+})

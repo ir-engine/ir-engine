@@ -32,8 +32,10 @@ import logger from '../../ServerLogger'
 import Paginated from '../../types/PageObject'
 import makeInitialAdmin from '../../util/make-initial-admin'
 
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
 interface Data {}
 
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
 interface ServiceOptions {}
 /**
  * A class for Login service
