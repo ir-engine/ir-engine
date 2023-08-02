@@ -26,8 +26,7 @@ Ethereal Engine. All Rights Reserved.
 // Initializes the `invite` service on path `/invite`
 import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
-import { InviteDataType } from './invite.class'
-import { Invite } from './invite.class'
+import { Invite, InviteDataType } from './invite.class'
 import inviteDocs from './invite.docs'
 import hooks from './invite.hooks'
 import createModel from './invite.model'

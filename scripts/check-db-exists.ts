@@ -79,20 +79,29 @@ cli.main(async () => {
     await Promise.race([
       initPromise,
       new Promise<void>((resolve) => {
-        setTimeout(() => {
-          console.log('WARNING: Initialisation too long to launch!')
-          resolve()
-        }, 5 * 60 * 1000) // timeout after 5 minutes - it needs to be this long as the default project is uploaded to the storage provider in this time
+        setTimeout(
+          () => {
+            console.log('WARNING: Initialisation too long to launch!')
+            resolve()
+          },
+          5 * 60 * 1000
+        ) // timeout after 5 minutes - it needs to be this long as the default project is uploaded to the storage provider in this time
       })
     ])
   } else {
     console.log('Database found')
   }
 
-  if (kubernetesEnabled)
-    await sequelize.query(
-      `UPDATE \`${redisSettingPath}\` SET address='${process.env.REDIS_ADDRESS}',password='${process.env.REDIS_PASSWORD}',port='${process.env.REDIS_PORT}';`
-    )
+  if (kubernetesEnabled) {
+    const [results2] = await sequelize.query(`SHOW TABLES LIKE '${redisSettingPath}';`)
+    if (results2.length > 0)
+      await sequelize.query(
+        `UPDATE \`${redisSettingPath}\`
+           SET address='${process.env.REDIS_ADDRESS}',
+               password='${process.env.REDIS_PASSWORD}',
+               port='${process.env.REDIS_PORT}';`
+      )
+  }
 
   process.exit(0)
 })

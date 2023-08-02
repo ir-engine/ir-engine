@@ -27,9 +27,10 @@ import React, { Fragment, useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { useWorldInstance } from '@etherealengine/client-core/src/common/services/LocationInstanceConnectionService'
-import { ChatService, ChatState } from '@etherealengine/client-core/src/social/services/ChatService'
+import { ChannelService, ChannelState } from '@etherealengine/client-core/src/social/services/ChannelService'
 import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
 import { AudioEffectPlayer } from '@etherealengine/engine/src/audio/systems/MediaSystem'
+import { useFind, useMutation } from '@etherealengine/engine/src/common/functions/FeathersHooks'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { WorldState } from '@etherealengine/engine/src/networking/interfaces/WorldState'
@@ -49,38 +50,31 @@ import { AppAction } from '../../common/services/AppService'
 import { AvatarUIActions, AvatarUIState } from '../../systems/state/AvatarUIState'
 import { getUserAvatarThumbnail } from '../../user/functions/useUserAvatarThumbnail'
 import { useShelfStyles } from '../Shelves/useShelfStyles'
-import defaultStyles from './index.module.scss'
-import styles from './index.module.scss'
+import { default as defaultStyles, default as styles } from './index.module.scss'
 
 interface ChatHooksProps {
   chatWindowOpen: boolean
-  setUnreadMessages: Function
+  setUnreadMessages: React.Dispatch<React.SetStateAction<boolean>>
   messageRefInput: React.MutableRefObject<HTMLInputElement>
 }
 
 export const useChatHooks = ({ chatWindowOpen, setUnreadMessages, messageRefInput }: ChatHooksProps) => {
   /**
-   * Provisioning logic
-   */
-  const currentInstanceConnection = useWorldInstance()
-
-  useEffect(() => {
-    if (Engine.instance.worldNetwork?.hostId && currentInstanceConnection?.connected?.value) {
-      ChatService.getInstanceChannel()
-    }
-  }, [currentInstanceConnection?.connected])
-
-  /**
    * Message display logic
    */
 
-  const chatState = useHookstate(getMutableState(ChatState))
-  const channels = chatState.channels.channels
-  const activeChannel = Object.values(channels).find((channel) => channel.channelType.value === 'instance')
+  const targetChannelId = useHookstate(getMutableState(ChannelState).targetChannelId)
+
+  const messages = useFind('message', {
+    query: {
+      channelId: targetChannelId.value
+    }
+  })
+  const mutateMessage = useMutation('message')
 
   useEffect(() => {
-    if (activeChannel?.messages?.length && !chatWindowOpen) setUnreadMessages(true)
-  }, [activeChannel?.messages])
+    if (messages.data?.length && !chatWindowOpen) setUnreadMessages(true)
+  }, [messages.data, chatWindowOpen])
 
   /**
    * Message composition logic
@@ -162,10 +156,9 @@ export const useChatHooks = ({ chatWindowOpen, setUnreadMessages, messageRefInpu
         )
       }
 
-      ChatService.createMessage({
-        targetObjectId: instanceId,
-        targetObjectType: 'instance',
-        text: composingMessage.value
+      mutateMessage.create({
+        text: composingMessage.value,
+        channelId: targetChannelId.value
       })
       composingMessage.set('')
     }
@@ -198,10 +191,10 @@ export const useChatHooks = ({ chatWindowOpen, setUnreadMessages, messageRefInpu
 
   return {
     dimensions: dimensions.get({ noproxy: true }),
-    activeChannel,
     handleComposingMessageChange,
     packageMessage,
-    composingMessage: composingMessage.value
+    composingMessage: composingMessage.value,
+    messages
   }
 }
 
@@ -223,24 +216,22 @@ export const InstanceChat = ({
   const messageContainerVisible = useHookstate(false)
   const messageRefInput = useRef<HTMLInputElement>()
 
-  const { activeChannel, handleComposingMessageChange, packageMessage, composingMessage } = useChatHooks({
+  const { handleComposingMessageChange, packageMessage, composingMessage, messages } = useChatHooks({
     chatWindowOpen: chatWindowOpen.value,
     setUnreadMessages: unreadMessages.set,
     messageRefInput: messageRefInput as any
   })
 
-  const sortedMessages = activeChannel?.messages?.get({ noproxy: true })?.length
-    ? [...activeChannel.messages.get({ noproxy: true })].sort(
-        (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
-      )
+  const sortedMessages = messages.data
+    ? messages.data.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime())
     : []
 
   const user = useHookstate(getMutableState(AuthState).user)
 
-  const isInitRender = useHookstate<Boolean>(false)
+  const isInitRender = useHookstate<boolean>(false)
 
   const isMobile = /Mobi/i.test(window.navigator.userAgent)
-  const chatState = useHookstate(getMutableState(ChatState))
+  const chatState = useHookstate(getMutableState(ChannelState))
 
   /**
    * Audio effect
@@ -451,9 +442,23 @@ export const InstanceChatWrapper = () => {
   const engineState = useHookstate(getMutableState(EngineState))
   const { t } = useTranslation()
   const { bottomShelfStyle } = useShelfStyles()
+
+  const targetChannelId = useHookstate(getMutableState(ChannelState).targetChannelId)
+
+  /**
+   * Provisioning logic
+   */
+  const currentInstanceConnection = useWorldInstance()
+
+  useEffect(() => {
+    if (Engine.instance.worldNetwork?.hostId && currentInstanceConnection?.connected?.value) {
+      ChannelService.getInstanceChannel()
+    }
+  }, [currentInstanceConnection?.connected])
+
   return (
     <>
-      {engineState.connectedWorld.value ? (
+      {engineState.connectedWorld.value && targetChannelId.value ? (
         <div className={`${bottomShelfStyle} ${styles.chatRoot}`}>
           <InstanceChat />
         </div>

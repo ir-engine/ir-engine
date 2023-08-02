@@ -31,7 +31,7 @@ export interface ArrayInputGroupProp {
   isStringInput?: boolean
   label?: any
   values: string[]
-  onChange?: Function
+  onChange?: (values: string[]) => void
   acceptFileTypes?: any
   itemType?: any
 }
@@ -42,7 +42,8 @@ export interface ArrayInputGroupState {
 }
 
 const onChangeSize = (textSize: string, values: string[], onChange?: Function) => {
-  const valuesCopy = [...values] as string[]
+  // copy the array to prevent https://hookstate.js.org/docs/exceptions/#hookstate-202
+  let valuesCopy = [...values] as string[]
   let preCount = valuesCopy.length
   const count = parseInt(textSize)
   if (isNaN(count) || preCount === count) return
@@ -57,6 +58,7 @@ const onChangeSize = (textSize: string, values: string[], onChange?: Function) =
 }
 
 const onChangeText = (text: string, index: number, values: string[], onChange?: Function) => {
+  // copy the array to prevent https://hookstate.js.org/docs/exceptions/#hookstate-202
   const valuesCopy = [...values]
   valuesCopy[index] = text
   onChange?.(valuesCopy)

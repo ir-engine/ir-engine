@@ -23,13 +23,13 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React, { ReactNode } from 'react'
+import React from 'react'
 
 import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 
 import { Popover as MuiPopover, PopoverProps } from '@mui/material'
 
-const Popover = ({ children, ...props }: PopoverProps & {}) => <MuiPopover {...props}>{children}</MuiPopover>
+const Popover = ({ children, ...props }: PopoverProps & any) => <MuiPopover {...props}>{children}</MuiPopover>
 
 Popover.displayName = 'Popover'
 

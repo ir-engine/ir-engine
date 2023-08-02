@@ -23,21 +23,18 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Color, Material, Mesh, Texture } from 'three'
+import { Color, Material } from 'three'
 
 import { getState } from '@etherealengine/hyperflux'
 
 import {
   materialIdToDefaultArgs,
-  materialIdToFactory,
   protoIdToFactory,
   prototypeFromId
 } from '../../../../renderer/materials/functions/MaterialLibraryFunctions'
-import { applyMaterialPlugin } from '../../../../renderer/materials/functions/MaterialPluginFunctions'
 import { MaterialLibraryState } from '../../../../renderer/materials/MaterialLibrary'
-import iterateObject3D from '../../../../scene/util/iterateObject3D'
 import { EEMaterialExtensionType } from '../../../exporters/gltf/extensions/EEMaterialExporterExtension'
-import { GLTF, GLTFLoaderPlugin, GLTFParser } from '../GLTFLoader'
+import { GLTFLoaderPlugin } from '../GLTFLoader'
 import { ImporterExtension } from './ImporterExtension'
 
 export class EEMaterialImporterExtension extends ImporterExtension implements GLTFLoaderPlugin {

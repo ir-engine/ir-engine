@@ -24,8 +24,8 @@ Ethereal Engine. All Rights Reserved.
 */
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
-import { querySyntax, Type } from '@feathersjs/typebox'
 import type { Static } from '@feathersjs/typebox'
+import { querySyntax, Type } from '@feathersjs/typebox'
 
 export const emailSettingPath = 'email-setting'
 
@@ -38,8 +38,7 @@ export const emailSubjectSchema = Type.Object(
     instance: Type.String(),
     login: Type.String(),
     friend: Type.String(),
-    group: Type.String(),
-    party: Type.String()
+    channel: Type.String()
   },
   { $id: 'EmailSubject', additionalProperties: false }
 )

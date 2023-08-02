@@ -27,9 +27,10 @@ import { AuthenticationRequest } from '@feathersjs/authentication'
 import { Paginated, Params } from '@feathersjs/feathers'
 import { random } from 'lodash'
 
-import { AvatarInterface } from '@etherealengine/common/src/interfaces/AvatarInterface'
 import { UserInterface } from '@etherealengine/common/src/interfaces/User'
+import { avatarPath, AvatarType } from '@etherealengine/engine/src/schemas/user/avatar.schema'
 
+import { userApiKeyPath, UserApiKeyType } from '@etherealengine/engine/src/schemas/user/user-api-key.schema'
 import { Application } from '../../../declarations'
 import config from '../../appconfig'
 import getFreeInviteCode from '../../util/get-free-invite-code'
@@ -66,7 +67,7 @@ export class FacebookStrategy extends CustomOAuthStrategy {
       {}
     )
     if (!entity.userId) {
-      const avatars = (await this.app.service('avatar').find({ isInternal: true })) as Paginated<AvatarInterface>
+      const avatars = (await this.app.service(avatarPath).find({ isInternal: true })) as Paginated<AvatarType>
       const code = await getFreeInviteCode(this.app)
       const newUser = (await this.app.service('user').create({
         isGuest: false,
@@ -85,13 +86,13 @@ export class FacebookStrategy extends CustomOAuthStrategy {
       await this.app.service('user').patch(entity.userId, {
         isGuest: false
       })
-    const apiKey = await this.app.service('user-api-key').find({
+    const apiKey = (await this.app.service(userApiKeyPath).find({
       query: {
         userId: entity.userId
       }
-    })
-    if ((apiKey as any).total === 0)
-      await this.app.service('user-api-key').create({
+    })) as Paginated<UserApiKeyType>
+    if (apiKey.total === 0)
+      await this.app.service(userApiKeyPath).create({
         userId: entity.userId
       })
     if (entity.type !== 'guest' && identityProvider.type === 'guest') {

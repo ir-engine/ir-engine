@@ -39,9 +39,9 @@ import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
 import { getComponent, hasComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { EntityTreeComponent } from '@etherealengine/engine/src/ecs/functions/EntityTree'
 import {
-  addObjectToGroup,
   GroupComponent,
   Object3DWithEntity,
+  addObjectToGroup,
   removeObjectFromGroup
 } from '@etherealengine/engine/src/scene/components/GroupComponent'
 import { PrefabComponent } from '@etherealengine/engine/src/scene/components/PrefabComponent'

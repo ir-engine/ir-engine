@@ -28,7 +28,7 @@ Ethereal Engine. All Rights Reserved.
  */
 export class EventDispatcher {
   /** Map to store listeners by event names. */
-  _listeners: {}
+  _listeners: any
 
   constructor() {
     this._listeners = {}
@@ -41,7 +41,7 @@ export class EventDispatcher {
     })
   }
 
-  once(eventName: string | number, listener: Function, ...args: any): void {
+  once(eventName: string | number, listener: any, ...args: any): void {
     const onEvent = (ev) => {
       this.removeEventListener(eventName, onEvent)
       listener(ev)
@@ -54,8 +54,7 @@ export class EventDispatcher {
    * @param eventName Name of the event to listen.
    * @param listener Callback to trigger when the event is fired.
    */
-  addEventListener(eventName: string | number, listener: Function, ...args: any): void {
-    console.log(this)
+  addEventListener(eventName: string | number, listener: any, ...args: any): void {
     const listeners = this._listeners
     if (listeners[eventName] === undefined) {
       listeners[eventName] = []
@@ -71,7 +70,7 @@ export class EventDispatcher {
    * @param eventName Name of the event to check.
    * @param listener Callback for the specified event.
    */
-  hasEventListener(eventName: string | number, listener: Function, ...args: any): boolean {
+  hasEventListener(eventName: string | number, listener: any, ...args: any): boolean {
     return this._listeners[eventName] !== undefined && this._listeners[eventName].indexOf(listener) !== -1
   }
 
@@ -80,7 +79,7 @@ export class EventDispatcher {
    * @param eventName Name of the event to remove.
    * @param listener Callback for the specified event.
    */
-  removeEventListener(eventName: string | number, listener: Function, ...args: any): void {
+  removeEventListener(eventName: string | number, listener: any, ...args: any): void {
     const listenerArray = this._listeners[eventName]
     if (listenerArray !== undefined) {
       const index = listenerArray.indexOf(listener)

@@ -23,16 +23,14 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { AdminScopeType } from './AdminScopeType'
-import { AvatarInterface } from './AvatarInterface'
+import { ScopeTypeData } from '@etherealengine/engine/src/schemas/scope/scope-type.schema'
+import { UserApiKeyType } from '@etherealengine/engine/src/schemas/user/user-api-key.schema'
+
+import { LocationBanType } from '@etherealengine/engine/src/schemas/social/location-ban.schema'
 import { IdentityProvider } from './IdentityProvider'
-import { Instance } from './Instance'
 import { InstanceAttendanceInterface } from './InstanceAttendance'
 import { LocationAdmin } from './LocationAdmin'
-import { LocationBan } from './LocationBan'
-import { Party } from './Party'
 import { StaticResourceInterface } from './StaticResourceInterface'
-import { UserApiKey } from './UserApiKey'
 import { UserId } from './UserId'
 import { RelationshipType } from './UserRelationship'
 
@@ -53,7 +51,7 @@ export interface UserKick {
   instanceId: string
 }
 
-export interface CreateUserKick extends Omit<UserKick, 'id'> {}
+export type CreateUserKick = Omit<UserKick, 'id'>
 
 export interface UserInterface {
   id: UserId
@@ -64,16 +62,16 @@ export interface UserInterface {
   identity_providers?: IdentityProvider[]
   identityProviders?: IdentityProvider[]
   locationAdmins?: LocationAdmin[]
+  /* @deprecated */
   relationType?: RelationshipType
+  /* @deprecated */
   inverseRelationType?: RelationshipType
   avatarUrl?: string
-  partyId?: string
-  party?: Party
-  locationBans?: LocationBan[]
+  locationBans?: LocationBanType[]
   user_setting?: UserSetting
   inviteCode?: string
   scopes?: UserScope[]
-  apiKey: UserApiKey
+  apiKey: UserApiKeyType
   static_resources?: StaticResourceInterface
   instanceAttendance?: InstanceAttendanceInterface[]
 }
@@ -95,7 +93,9 @@ export const UserSeed: UserInterface = {
   apiKey: {
     id: '',
     token: '',
-    userId: '' as UserId
+    userId: '' as UserId,
+    createdAt: '',
+    updatedAt: ''
   },
   identityProviders: [],
   locationAdmins: []
@@ -106,7 +106,20 @@ export interface CreateEditUser {
   avatarId?: string
   inviteCode?: string
   isGuest?: boolean
-  scopes?: UserScope[] | AdminScopeType[]
+  scopes?: UserScope[] | ScopeTypeData[]
+}
+
+type AvatarInterface = {
+  id: string
+  name: string
+  isPublic: boolean
+  userId: string
+  modelResourceId: string
+  thumbnailResourceId: string
+  identifierName: string
+  modelResource?: StaticResourceInterface
+  thumbnailResource?: StaticResourceInterface
+  project?: string
 }
 
 export function resolveUser(user: any): UserInterface {
@@ -123,16 +136,16 @@ export function resolveUser(user: any): UserInterface {
       locationAdmins: user.location_admins
     }
   }
-  if (user?.location_bans && user.location_bans.length > 0) {
+  if (user?.locationBans && user.locationBans.length > 0) {
     returned = {
       ...returned,
-      locationBans: user.location_bans
+      locationBans: user.locationBans
     }
   }
-  if (user?.user_api_key && user.user_api_key.id) {
+  if (user['user-api-key'] && user['user-api-key'].id) {
     returned = {
       ...returned,
-      apiKey: user.user_api_key
+      apiKey: user['user-api-key']
     }
   }
 

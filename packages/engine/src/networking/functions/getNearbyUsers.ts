@@ -28,7 +28,6 @@ import { Not } from 'bitecs'
 import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
-import { Engine } from '../../ecs/classes/Engine'
 import { defineQuery, getComponent } from '../../ecs/functions/ComponentFunctions'
 import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
@@ -45,8 +44,8 @@ const remoteAvatars = defineQuery([
   Not(LocalInputTagComponent)
 ])
 
-export function getNearbyUsers(userId: UserId, nonPartyUserIds: UserId[]): Array<UserId> {
-  const userAvatarEntity = Engine.instance.getUserAvatarEntity(userId)
+export function getNearbyUsers(userId: UserId, nonChannelUserIds: UserId[]): Array<UserId> {
+  const userAvatarEntity = NetworkObjectComponent.getUserAvatarEntity(userId)
   if (!userAvatarEntity) return []
   const userPosition = getComponent(userAvatarEntity, TransformComponent).position
   if (!userPosition) return []
@@ -61,7 +60,7 @@ export function getNearbyUsers(userId: UserId, nonPartyUserIds: UserId[]): Array
     })
   }
   return userDistances
-    .filter((u) => nonPartyUserIds.indexOf(u.id) > -1)
+    .filter((u) => nonChannelUserIds.indexOf(u.id) > -1)
     .sort(compareDistance)
     .map((u) => u.id)
 }

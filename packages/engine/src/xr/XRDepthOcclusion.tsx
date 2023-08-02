@@ -28,8 +28,7 @@ Ethereal Engine. All Rights Reserved.
  */
 
 import { Not } from 'bitecs'
-import { useEffect } from 'react'
-import React from 'react'
+import React, { useEffect } from 'react'
 import { Material, Matrix4, Mesh, Shader, ShaderMaterial, ShadowMaterial, Vector2 } from 'three'
 
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'

@@ -24,7 +24,6 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import assert from 'assert'
-import * as bitecs from 'bitecs'
 
 import { getState } from '@etherealengine/hyperflux'
 

@@ -25,23 +25,18 @@ Ethereal Engine. All Rights Reserved.
 
 import { t } from 'i18next'
 import React, { lazy, Suspense, useEffect, useState } from 'react'
-import { useTranslation } from 'react-i18next'
 import { Route, Routes, useLocation } from 'react-router-dom'
 
 import {
   AuthSettingsService,
-  AuthSettingsServiceReceptor,
   AuthSettingsState
 } from '@etherealengine/client-core/src/admin/services/Setting/AuthSettingService'
-import {
-  AdminClientSettingsState,
-  ClientSettingsServiceReceptor
-} from '@etherealengine/client-core/src/admin/services/Setting/ClientSettingService'
+import { AdminClientSettingsState } from '@etherealengine/client-core/src/admin/services/Setting/ClientSettingService'
 import ErrorBoundary from '@etherealengine/client-core/src/common/components/ErrorBoundary'
 import { ProjectServiceReceptor } from '@etherealengine/client-core/src/common/services/ProjectService'
 import { useCustomRoutes } from '@etherealengine/client-core/src/common/services/RouterService'
 import { LocationServiceReceptor } from '@etherealengine/client-core/src/social/services/LocationService'
-import { AuthService, AuthServiceReceptor } from '@etherealengine/client-core/src/user/services/AuthService'
+import { AuthService } from '@etherealengine/client-core/src/user/services/AuthService'
 import { addActionReceptor, getMutableState, removeActionReceptor, useHookstate } from '@etherealengine/hyperflux'
 import LoadingCircle from '@etherealengine/ui/src/primitives/tailwind/LoadingCircle'
 
@@ -66,9 +61,6 @@ function PublicRouter() {
   const [routesReady, setRoutesReady] = useState(false)
 
   useEffect(() => {
-    addActionReceptor(ClientSettingsServiceReceptor)
-    addActionReceptor(AuthSettingsServiceReceptor)
-    addActionReceptor(AuthServiceReceptor)
     addActionReceptor(LocationServiceReceptor)
     addActionReceptor(ProjectServiceReceptor)
 
@@ -82,9 +74,6 @@ function PublicRouter() {
     }
 
     return () => {
-      removeActionReceptor(ClientSettingsServiceReceptor)
-      removeActionReceptor(AuthSettingsServiceReceptor)
-      removeActionReceptor(AuthServiceReceptor)
       removeActionReceptor(LocationServiceReceptor)
       removeActionReceptor(ProjectServiceReceptor)
     }

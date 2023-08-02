@@ -177,29 +177,6 @@ const Aws = () => {
             value={awsSetting?.s3?.s3DevMode || ''}
             disabled
           />
-
-          <Typography className={styles.settingsSubHeading}>{t('admin:components.setting.route53')}</Typography>
-
-          <InputText
-            name="hostedZoneId"
-            label={t('admin:components.setting.hostedZoneId')}
-            value={awsSetting?.route53?.hostedZoneId || ''}
-            disabled
-          />
-
-          <InputText
-            name="accessKeyId"
-            label={t('admin:components.setting.keys')}
-            value={awsSetting?.route53?.keys?.accessKeyId || ''}
-            disabled
-          />
-
-          <InputText
-            name="secretAccessKey"
-            label={t('admin:components.setting.secretAccessKey')}
-            value={awsSetting?.route53?.keys?.secretAccessKey || ''}
-            disabled
-          />
         </Grid>
         <Grid item xs={12} sm={6} md={6}>
           <Typography className={styles.settingsSubHeading}>{t('admin:components.setting.cloudFront')}</Typography>

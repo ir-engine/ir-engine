@@ -24,9 +24,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+process.env.APP_ENV = 'test'
+process.env.NODE_ENV = 'test'
+process.env.NODE_TLS_REJECT_UNAUTHORIZED='0'
 
-process.env.TEST = 'true'
-process.env.APP_ENV = 'development'
-process.env.TS_NODE_FILES = true
-process.env.TS_NODE_PROJECT = 'tsconfig.json'
-process.env.TS_NODE_COMPILER_OPTIONS = '{\"module\": \"commonjs\" }'
+require("ts-node").register({
+  project: './tsconfig.json',
+  files: true,
+  swc: true
+})

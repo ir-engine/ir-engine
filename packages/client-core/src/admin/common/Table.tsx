@@ -39,6 +39,8 @@ import { visuallyHidden } from '@mui/utils'
 
 import styles from '../styles/table.module.scss'
 
+type Order = 'asc' | 'desc'
+
 interface Props {
   rows: any
   column: any
@@ -49,11 +51,10 @@ interface Props {
   fieldOrderBy?: string
   allowSort?: boolean
   setSortField?: (fueld: string) => void
-  setFieldOrder?: (order: string) => void
+  setFieldOrder?: (order: Order) => void
   handlePageChange: (e: unknown, newPage: number) => void
   handleRowsPerPageChange: (e: React.ChangeEvent<HTMLInputElement>) => void
 }
-type Order = 'asc' | 'desc'
 
 interface Data {
   calories: number

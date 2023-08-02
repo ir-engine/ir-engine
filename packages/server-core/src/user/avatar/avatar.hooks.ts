@@ -23,21 +23,55 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { hooks as schemaHooks } from '@feathersjs/schema'
+import { getValidator } from '@feathersjs/typebox'
 import { disallow, iff, isProvider } from 'feathers-hooks-common'
 
-import addAssociations from '../../hooks/add-associations'
+import {
+  avatarDataSchema,
+  avatarPatchSchema,
+  avatarQuerySchema,
+  avatarSchema
+} from '@etherealengine/engine/src/schemas/user/avatar.schema'
+import { dataValidator, queryValidator } from '@etherealengine/server-core/validators'
+
 import authenticate from '../../hooks/authenticate'
 import verifyScope from '../../hooks/verify-scope'
+import {
+  avatarDataResolver,
+  avatarExternalResolver,
+  avatarPatchResolver,
+  avatarQueryResolver,
+  avatarResolver
+} from './avatar.resolvers'
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const avatarValidator = getValidator(avatarSchema, dataValidator)
+const avatarDataValidator = getValidator(avatarDataSchema, dataValidator)
+const avatarPatchValidator = getValidator(avatarPatchSchema, dataValidator)
+const avatarQueryValidator = getValidator(avatarQuerySchema, queryValidator)
 
 export default {
+  around: {
+    all: [schemaHooks.resolveExternal(avatarExternalResolver), schemaHooks.resolveResult(avatarResolver)]
+  },
+
   before: {
-    all: [authenticate()],
+    all: [
+      authenticate(),
+      () => schemaHooks.validateQuery(avatarQueryValidator),
+      schemaHooks.resolveQuery(avatarQueryResolver)
+    ],
     find: [],
     get: [],
-    create: [],
+    create: [() => schemaHooks.validateData(avatarDataValidator), schemaHooks.resolveData(avatarDataResolver)],
     update: [disallow()],
-    patch: [],
-    remove: [iff(isProvider('external'), verifyScope('admin', 'admin') as any)]
+    patch: [
+      iff(isProvider('external'), verifyScope('admin', 'admin')),
+      () => schemaHooks.validateData(avatarPatchValidator),
+      schemaHooks.resolveData(avatarPatchResolver)
+    ],
+    remove: [iff(isProvider('external'), verifyScope('admin', 'admin'))]
   },
   after: {
     all: [],

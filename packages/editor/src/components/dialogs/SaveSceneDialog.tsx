@@ -32,7 +32,6 @@ import Box from '@mui/material/Box'
 
 import { EditorHelperAction, EditorHelperState } from '../../services/EditorHelperState'
 import BooleanInput from '../inputs/BooleanInput'
-import { InfoTooltip } from '../layout/Tooltip'
 import Dialog from './Dialog'
 
 /**

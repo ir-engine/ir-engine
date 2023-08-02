@@ -26,8 +26,8 @@ Ethereal Engine. All Rights Reserved.
 import { Hook, HookContext, Paginated } from '@feathersjs/feathers'
 
 import { Instance } from '@etherealengine/common/src/interfaces/Instance'
-import { Location as LocationType } from '@etherealengine/common/src/interfaces/Location'
 import { matchInstancePath } from '@etherealengine/engine/src/schemas/matchmaking/match-instance.schema'
+import { locationPath, LocationType } from '@etherealengine/engine/src/schemas/social/location.schema'
 
 import { Application } from '../../declarations'
 import { getFreeInstanceserver } from '../networking/instance-provision/instance-provision.class'
@@ -50,7 +50,7 @@ export default (): Hook => {
     }
 
     const locationName = 'game-' + gameMode
-    const location = (await app.service('location').find({
+    const location = (await app.service(locationPath).find({
       query: {
         name: locationName
       }

@@ -50,6 +50,7 @@ import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { State } from '@etherealengine/hyperflux'
 
 import { AssetLoader } from '../../../assets/classes/AssetLoader'
+import { CameraComponent } from '../../../camera/components/CameraComponent'
 import { Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
 import {
@@ -67,12 +68,12 @@ import {
   MeshProperties,
   SampleMode,
   SampleProperties,
-  sampleVar,
   ScatterMode,
   ScatterProperties,
   ScatterState,
   TextureRef,
-  VertexProperties
+  VertexProperties,
+  sampleVar
 } from '../../components/InstancingComponent'
 import { UpdatableCallback, UpdatableComponent } from '../../components/UpdatableComponent'
 import getFirstMesh from '../../util/getFirstMesh'
@@ -641,7 +642,7 @@ export async function stageInstancing(entity: Entity) {
           vHeight: { value: grassProps.bladeHeight.mu + grassProps.bladeHeight.sigma },
           alphaMap: { value: grassProps.alphaMap.texture },
           sunDirection: { value: new Vector3(-0.35, 0, 0) },
-          cameraPosition: { value: Engine.instance.camera.position },
+          cameraPosition: { value: getComponent(Engine.instance.cameraEntity, CameraComponent).position },
           ambientStrength: { value: grassProps.ambientStrength },
           diffuseStrength: { value: grassProps.diffuseStrength },
           sunColor: { value: grassProps.sunColor }
@@ -693,6 +694,7 @@ export async function stageInstancing(entity: Entity) {
         emissiveMap: iMat.emissiveMap
       })
       result = new InstancedMesh(instancedGeometry, resultMat, numInstances)
+      ;(result as InstancedMesh).frustumCulled = false
       ;(result as InstancedMesh).instanceMatrix.set(transforms)
       ;(result as InstancedMesh).instanceMatrix.needsUpdate = true
       break

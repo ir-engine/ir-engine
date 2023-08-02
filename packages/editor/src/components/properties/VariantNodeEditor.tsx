@@ -27,8 +27,7 @@ import React, { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
-import { getComponent, useComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
-import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
+import { useComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { VariantComponent, VariantLevel } from '@etherealengine/engine/src/scene/components/VariantComponent'
 import { State } from '@etherealengine/hyperflux'
 

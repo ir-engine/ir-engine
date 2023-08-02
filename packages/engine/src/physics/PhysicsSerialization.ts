@@ -27,7 +27,7 @@ import { Entity } from '../ecs/classes/Entity'
 import { getComponent, hasComponent } from '../ecs/functions/ComponentFunctions'
 import { checkBitflag, readVector3, readVector4 } from '../networking/serialization/DataReader'
 import { writeVector3, writeVector4 } from '../networking/serialization/DataWriter'
-import { readUint8, rewindViewCursor, spaceUint8, ViewCursor } from '../networking/serialization/ViewCursor'
+import { ViewCursor, readUint8, rewindViewCursor, spaceUint8 } from '../networking/serialization/ViewCursor'
 import { RigidBodyComponent, RigidBodyDynamicTagComponent } from './components/RigidBodyComponent'
 
 export const readBodyPosition = readVector3(RigidBodyComponent.position)

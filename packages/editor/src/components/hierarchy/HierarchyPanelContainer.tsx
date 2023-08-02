@@ -63,7 +63,7 @@ import { cmdOrCtrlString } from '../../functions/utils'
 import { EditorAction, EditorState } from '../../services/EditorServices'
 import { SelectionState } from '../../services/SelectionServices'
 import useUpload from '../assets/useUpload'
-import { addPrefabElement } from '../element/ElementList'
+import { addSceneComponentElement } from '../element/ElementList'
 import { ContextMenu } from '../layout/ContextMenu'
 import { updateProperties } from '../properties/Util'
 import { AppContext } from '../Search/context'
@@ -99,7 +99,7 @@ function getNodeKey(index: number, data: HierarchyTreeNodeData) {
   return index //data.nodes[index].entityNode ? data.nodes[index].entityNode.entity : data.nodes[index].toString()
 }
 
-function traverseWithDepth(obj3d: Object3D, depth: number, cb: Function) {
+function traverseWithDepth(obj3d: Object3D, depth: number, cb: (obj: Object3D, depth: number) => void) {
   cb(obj3d, depth)
   for (const obj of obj3d.children) {
     traverseWithDepth(obj, depth + 1, cb)
@@ -119,7 +119,7 @@ function getModelNodesFromTreeWalker(
     outputNodes.push(node)
     const isCollapsed = collapsedNodes[node.entityNode]
     if (showObject3Ds && hasComponent(node.entityNode as Entity, ModelComponent)) {
-      const group = getOptionalComponent(node.entityNode as Entity, GroupComponent)
+      const group = getOptionalComponent(node.entityNode as Entity, GroupComponent) as Object3D[]
       if (!group?.length) continue
       node.isLeaf = false
       if (isCollapsed) continue
@@ -316,7 +316,7 @@ export default function HierarchyPanel({
       const entityTree = getComponent(node.entityNode as Entity, EntityTreeComponent)
 
       switch (e.key) {
-        case 'ArrowDown':
+        case 'ArrowDown': {
           e.preventDefault()
 
           const nextNode = nodeIndex !== -1 && nodes[nodeIndex + 1]
@@ -329,8 +329,9 @@ export default function HierarchyPanel({
           const nextNodeEl = document.getElementById(getNodeElId(nextNode))
           if (nextNodeEl) nextNodeEl.focus()
           break
+        }
 
-        case 'ArrowUp':
+        case 'ArrowUp': {
           e.preventDefault()
 
           const prevNode = nodeIndex !== -1 && nodes[nodeIndex - 1]
@@ -343,6 +344,7 @@ export default function HierarchyPanel({
           const prevNodeEl = document.getElementById(getNodeElId(prevNode))
           if (prevNodeEl) prevNodeEl.focus()
           break
+        }
 
         case 'ArrowLeft':
           if (entityTree && (!entityTree.children || entityTree.children.length === 0)) return
@@ -461,7 +463,7 @@ export default function HierarchyPanel({
       }
 
       if (item.type === ItemTypes.Prefab) {
-        addPrefabElement(item)
+        addSceneComponentElement(item) // TODO: need to test this
         return
       }
 
@@ -553,7 +555,7 @@ export default function HierarchyPanel({
           onKeyUp={(_, e) => {
             e.preventDefault()
             e.stopPropagation()
-            selectedNode && onGroupNodes(selectedNode!!)
+            selectedNode && onGroupNodes(selectedNode!)
           }}
         >
           <MenuItem onClick={() => onGroupNodes(contextSelectedItem!)}>

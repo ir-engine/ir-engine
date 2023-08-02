@@ -24,14 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
-import {
-  defineAction,
-  defineState,
-  dispatchAction,
-  getMutableState,
-  syncStateWithLocalStorage,
-  useState
-} from '@etherealengine/hyperflux'
+import { defineAction, defineState, getMutableState, syncStateWithLocalStorage } from '@etherealengine/hyperflux'
 
 export const AvatarAxesControlScheme = {
   Move: 'AvatarControlScheme_Move' as const,

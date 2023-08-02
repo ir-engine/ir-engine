@@ -33,8 +33,7 @@ import Box from '@etherealengine/ui/src/primitives/mui/Box'
 import Container from '@etherealengine/ui/src/primitives/mui/Container'
 import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 
-import { AuthService } from '../../services/AuthService'
-import { AuthState } from '../../services/AuthService'
+import { AuthService, AuthState } from '../../services/AuthService'
 import { VerifyEmail } from '../Auth/VerifyEmail'
 
 interface Props {

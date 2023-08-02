@@ -35,15 +35,15 @@ import {
   matchesVector3,
   matchesWithDefault
 } from '../../common/functions/MatchesUtils'
-import { Engine } from '../../ecs/classes/Engine'
 import { NetworkTopics } from '../classes/Network'
+import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
 
 export class WorldNetworkAction {
   static spawnObject = defineAction({
     type: 'ee.engine.world.SPAWN_OBJECT',
     prefab: matches.string,
     entityUUID: matchesEntityUUID,
-    networkId: matchesWithDefault(matchesNetworkId, () => Engine.instance.createNetworkId()),
+    networkId: matchesWithDefault(matchesNetworkId, () => NetworkObjectComponent.createNetworkId()),
     position: matchesVector3.optional(),
     rotation: matchesQuaternion.optional(),
     $cache: true,
@@ -59,18 +59,6 @@ export class WorldNetworkAction {
   static destroyObject = defineAction({
     type: 'ee.engine.world.DESTROY_OBJECT',
     entityUUID: matchesEntityUUID,
-    $cache: true,
-    $topic: NetworkTopics.world
-  })
-
-  static setEquippedObject = defineAction({
-    type: 'ee.engine.world.SET_EQUIPPED_OBJECT',
-    object: matches.shape({
-      ownerId: matchesUserId,
-      networkId: matchesNetworkId
-    }),
-    equip: matches.boolean,
-    attachmentPoint: matches.literals('left', 'right', 'none').optional(),
     $cache: true,
     $topic: NetworkTopics.world
   })

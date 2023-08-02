@@ -23,18 +23,14 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { cloneDeep } from 'lodash'
+import { cloneDeep, startCase } from 'lodash'
 import { useEffect } from 'react'
-import React from 'react'
 import { MathUtils } from 'three'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { ComponentJson, EntityJson, SceneData, SceneJson } from '@etherealengine/common/src/interfaces/SceneInterface'
 import logger from '@etherealengine/common/src/logger'
-import {
-  LocalTransformComponent,
-  setLocalTransformComponent
-} from '@etherealengine/engine/src/transform/components/TransformComponent'
+import { setLocalTransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
 import {
   addActionReceptor,
   dispatchAction,
@@ -43,7 +39,7 @@ import {
   removeActionReceptor,
   useHookstate
 } from '@etherealengine/hyperflux'
-import { getSystemsFromSceneData, SystemImportType } from '@etherealengine/projects/loadSystemInjection'
+import { SystemImportType, getSystemsFromSceneData } from '@etherealengine/projects/loadSystemInjection'
 
 import {
   AppLoadingAction,
@@ -57,7 +53,7 @@ import { Entity } from '../../ecs/classes/Entity'
 import { SceneState } from '../../ecs/classes/Scene'
 import {
   ComponentJSONIDMap,
-  ComponentType,
+  ComponentMap,
   defineQuery,
   getAllComponents,
   getComponent,
@@ -69,13 +65,12 @@ import {
 } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
 import {
-  addEntityNodeChild,
   EntityTreeComponent,
+  addEntityNodeChild,
   getAllEntitiesInTree,
-  removeEntityNode,
   removeEntityNodeRecursively
 } from '../../ecs/functions/EntityTree'
-import { defineSystem, disableSystems, startSystem, SystemDefinitions } from '../../ecs/functions/SystemFunctions'
+import { SystemDefinitions, defineSystem, disableSystems, startSystem } from '../../ecs/functions/SystemFunctions'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { FogSettingsComponent } from '../components/FogSettingsComponent'
 import { GLTFLoadedComponent } from '../components/GLTFLoadedComponent'
@@ -91,23 +86,19 @@ import { UUIDComponent } from '../components/UUIDComponent'
 import { VisibleComponent } from '../components/VisibleComponent'
 import { getUniqueName } from '../functions/getUniqueName'
 
-const toCapitalCase = (str: string) =>
-  str
-    .split(' ')
-    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
-    .join(' ')
-
-export const createNewEditorNode = (entityNode: Entity, prefabType: string): void => {
-  const components = Engine.instance.scenePrefabRegistry.get(prefabType)
-  if (!components) return console.warn(`[createNewEditorNode]: ${prefabType} is not a prefab`)
-
-  const name = getUniqueName(entityNode, `New ${toCapitalCase(prefabType)}`)
+export const createNewEditorNode = (entityNode: Entity, componentName: string): void => {
+  const components = [
+    { name: ComponentMap.get(componentName)!.jsonID! },
+    { name: ComponentMap.get(VisibleComponent.name)!.jsonID! },
+    { name: ComponentMap.get(TransformComponent.name)!.jsonID! }
+  ]
+  const name = getUniqueName(entityNode, `New ${startCase(components[0].name.toLowerCase())}`)
 
   addEntityNodeChild(entityNode, getState(SceneState).sceneEntity)
   // Clone the defualt values so that it will not be bound to newly created node
   deserializeSceneEntity(entityNode, {
     name,
-    type: prefabType.toLowerCase().replace(/\s/, '_'),
+    type: componentName.toLowerCase().replace(/\s/, '_'),
     components: cloneDeep(components)
   })
 }
@@ -128,7 +119,7 @@ export const splitLazyLoadedSceneEntities = (json: SceneJson) => {
 
 const iterateReplaceID = (data: any, idMap: Map<string, string>) => {
   const frontier = [data]
-  const changes: { obj: Object; property: string; nu: string }[] = []
+  const changes: { obj: object; property: string; nu: string }[] = []
   while (frontier.length > 0) {
     const item = frontier.pop()
     Object.entries(item).forEach(([key, val]) => {
@@ -182,7 +173,7 @@ export const loadECSData = async (sceneData: SceneJson, assetRoot?: Entity): Pro
     const data = iterateReplaceID(_data, idMap)
     deserializeSceneEntity(entityMap[uuid], data)
   })
-  const result = new Array()
+  const result = [] as Entity[]
   entities.forEach(([_uuid, data]) => {
     let uuid = _uuid
     if (idMap.has(uuid)) {

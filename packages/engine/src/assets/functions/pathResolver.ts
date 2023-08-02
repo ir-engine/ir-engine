@@ -23,10 +23,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { filter } from 'lodash'
-
-import { Engine } from '../../ecs/classes/Engine'
-
 export function pathResolver() {
   //const hostPath = getState(EngineState).publicPath.replace(/:\d{4}$/, '')
   //const cacheRe = new RegExp(`([^\\\/]+\/projects)\/([^\/]+)\/(.*$)`)

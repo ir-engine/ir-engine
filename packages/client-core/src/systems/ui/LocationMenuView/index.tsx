@@ -31,11 +31,11 @@ import { VrIcon } from '@etherealengine/client-core/src/common/components/Icons/
 import { respawnAvatar } from '@etherealengine/engine/src/avatar/functions/respawnAvatar'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { requestXRSession } from '@etherealengine/engine/src/xr/XRSessionFunctions'
-import { XRAction, XRState } from '@etherealengine/engine/src/xr/XRState'
+import { XRState } from '@etherealengine/engine/src/xr/XRState'
 import { createXRUI } from '@etherealengine/engine/src/xrui/functions/createXRUI'
 import { WidgetAppService } from '@etherealengine/engine/src/xrui/WidgetAppService'
 import { WidgetName } from '@etherealengine/engine/src/xrui/Widgets'
-import { dispatchAction, getMutableState } from '@etherealengine/hyperflux'
+import { getMutableState } from '@etherealengine/hyperflux'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 
 import { AuthState } from '../../../user/services/AuthService'

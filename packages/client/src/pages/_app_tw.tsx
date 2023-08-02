@@ -24,6 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 // import * as chapiWalletPolyfill from 'credential-handler-polyfill'
+
 import { SnackbarProvider } from 'notistack'
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 
@@ -51,11 +52,11 @@ import EngineTW from '../engine_tw'
 import PublicRouter from '../route/public_tw'
 import { ThemeContextProvider } from '../themes/themeContext'
 
+import 'daisyui/dist/full.css'
 import 'tailwindcss/tailwind.css'
 import '../themes/base.css'
 import '../themes/components.css'
 import '../themes/utilities.css'
-import 'daisyui/dist/full.css'
 
 const AppPage = () => {
   const notistackRef = useRef<SnackbarProvider>()

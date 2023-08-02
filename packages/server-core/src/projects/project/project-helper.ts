@@ -29,7 +29,6 @@ import * as k8s from '@kubernetes/client-node'
 import appRootPath from 'app-root-path'
 import { exec } from 'child_process'
 import { compareVersions } from 'compare-versions'
-import _ from 'lodash'
 import fetch from 'node-fetch'
 import path from 'path'
 import semver from 'semver'
@@ -49,7 +48,7 @@ import { getPodsData } from '../../cluster/server-info/server-info-helper'
 import { getStorageProvider } from '../../media/storageprovider/storageprovider'
 import logger from '../../ServerLogger'
 import { ServerState } from '../../ServerState'
-import { BUILDER_CHART_REGEX, MAIN_CHART_REGEX } from '../../setting/helm-setting/helm-setting'
+import { BUILDER_CHART_REGEX } from '../../setting/helm-setting/helm-setting'
 import { getOctokitForChecking, getUserRepos } from './github-helper'
 import { ProjectParams } from './project.class'
 
@@ -109,34 +108,14 @@ export const updateBuilder = async (
   const helmSettingsResult = await app.service(helmSettingPath).find()
   const helmSettings = helmSettingsResult.total > 0 ? helmSettingsResult.data[0] : null
   const builderDeploymentName = `${config.server.releaseName}-builder`
+  const k8sAppsClient = getState(ServerState).k8AppsClient
+  const k8BatchClient = getState(ServerState).k8BatchClient
 
-  if (helmSettings && helmSettings.builder && helmSettings.builder.length > 0)
-    await execAsync(
-      `helm upgrade --reuse-values --version ${helmSettings.builder} --set builder.image.tag=${tag} ${builderDeploymentName} etherealengine/etherealengine-builder`
-    )
-  else {
-    const { stdout } = await execAsync(`helm history ${builderDeploymentName} | grep deployed`)
-    const builderChartVersion = BUILDER_CHART_REGEX.exec(stdout)
-    if (builderChartVersion)
-      await execAsync(
-        `helm upgrade --reuse-values --version ${builderChartVersion} --set builder.image.tag=${tag} ${builderDeploymentName} etherealengine/etherealengine-builder`
-      )
-  }
-}
-
-export const checkBuilderService = async (app: Application): Promise<boolean> => {
-  let isRebuilding = true
-  const k8DefaultClient = getState(ServerState).k8DefaultClient
-
-  // check k8s to find the status of builder service
-  if (k8DefaultClient && config.server.releaseName !== 'local') {
+  if (k8BatchClient && config.server.releaseName !== 'local') {
     try {
-      logger.info('Attempting to check k8s rebuild status')
-
       const builderLabelSelector = `app.kubernetes.io/instance=${config.server.releaseName}-builder`
-      const containerName = 'etherealengine-builder'
 
-      const builderPods = await k8DefaultClient.listNamespacedPod(
+      const builderJob = await k8BatchClient.listNamespacedJob(
         'default',
         undefined,
         false,
@@ -144,41 +123,128 @@ export const checkBuilderService = async (app: Application): Promise<boolean> =>
         undefined,
         builderLabelSelector
       )
-      const runningBuilderPods = builderPods.body.items.filter((item) => item.status && item.status.phase === 'Running')
 
-      if (runningBuilderPods.length > 0) {
-        const podName = runningBuilderPods[0].metadata?.name
-
-        const builderLogs = await k8DefaultClient.readNamespacedPodLog(
-          podName!,
+      if (builderJob && builderJob.body.items.length > 0) {
+        const jobName = builderJob.body.items[0].metadata!.name
+        if (helmSettings && helmSettings.builder && helmSettings.builder.length > 0)
+          await execAsync(
+            `kubectl delete job --ignore-not-found=true ${jobName} && helm upgrade --reuse-values --version ${helmSettings.builder} --set builder.image.tag=${tag} ${builderDeploymentName} etherealengine/etherealengine-builder`
+          )
+        else {
+          const { stdout } = await execAsync(`helm history ${builderDeploymentName} | grep deployed`)
+          const builderChartVersion = BUILDER_CHART_REGEX.exec(stdout)
+          if (builderChartVersion)
+            await execAsync(
+              `kubectl delete job --ignore-not-found=true ${jobName} && helm upgrade --reuse-values --version ${builderChartVersion} --set builder.image.tag=${tag} ${builderDeploymentName} etherealengine/etherealengine-builder`
+            )
+        }
+      } else {
+        const builderDeployments = await k8sAppsClient.listNamespacedDeployment(
           'default',
-          containerName,
           undefined,
           false,
           undefined,
           undefined,
+          builderLabelSelector
+        )
+        const deploymentName = builderDeployments.body.items[0].metadata!.name
+        if (helmSettings && helmSettings.builder && helmSettings.builder.length > 0)
+          await execAsync(
+            `kubectl delete deployment --ignore-not-found=true ${deploymentName} && helm upgrade --reuse-values --version ${helmSettings.builder} --set builder.image.tag=${tag} ${builderDeploymentName} etherealengine/etherealengine-builder`
+          )
+        else {
+          const { stdout } = await execAsync(`helm history ${builderDeploymentName} | grep deployed`)
+          const builderChartVersion = BUILDER_CHART_REGEX.exec(stdout)
+          if (builderChartVersion)
+            await execAsync(
+              `kubectl delete deployment --ignore-not-found=true ${deploymentName} && helm upgrade --reuse-values --version ${builderChartVersion} --set builder.image.tag=${tag} ${builderDeploymentName} etherealengine/etherealengine-builder`
+            )
+        }
+      }
+    } catch (err) {
+      logger.error(err)
+      throw err
+    }
+  }
+}
+
+export const checkBuilderService = async (app: Application): Promise<{ failed: boolean; succeeded: boolean }> => {
+  let jobStatus = {
+    failed: false,
+    succeeded: false
+  }
+  const k8DefaultClient = getState(ServerState).k8DefaultClient
+  const k8BatchClient = getState(ServerState).k8BatchClient
+
+  // check k8s to find the status of builder service
+  if (k8DefaultClient && k8BatchClient && config.server.releaseName !== 'local') {
+    try {
+      logger.info('Attempting to check k8s build status')
+
+      const builderLabelSelector = `app.kubernetes.io/instance=${config.server.releaseName}-builder`
+
+      const builderJob = await k8BatchClient.listNamespacedJob(
+        'default',
+        undefined,
+        false,
+        undefined,
+        undefined,
+        builderLabelSelector
+      )
+
+      if (builderJob && builderJob.body.items.length > 0) {
+        const succeeded = builderJob.body.items.filter((item) => item.status && item.status.succeeded === 1)
+        const failed = builderJob.body.items.filter((item) => item.status && item.status.failed === 1)
+        jobStatus.succeeded = succeeded.length > 0
+        jobStatus.failed = failed.length > 0
+
+        return jobStatus
+      } else {
+        const containerName = 'etherealengine-builder'
+
+        const builderPods = await k8DefaultClient.listNamespacedPod(
+          'default',
+          undefined,
+          false,
           undefined,
           undefined,
-          undefined,
-          undefined,
-          undefined
+          builderLabelSelector
         )
 
-        const isCompleted = builderLogs.body.includes('sleep infinity')
-        if (isCompleted) {
-          logger.info(podName, 'podName')
-          isRebuilding = false
+        const runningBuilderPods = builderPods.body.items.filter(
+          (item) => item.status && item.status.phase === 'Running'
+        )
+
+        if (runningBuilderPods.length > 0) {
+          const podName = runningBuilderPods[0].metadata?.name
+
+          const builderLogs = await k8DefaultClient.readNamespacedPodLog(
+            podName!,
+            'default',
+            containerName,
+            undefined,
+            false,
+            undefined,
+            undefined,
+            undefined,
+            undefined,
+            undefined,
+            undefined,
+            undefined
+          )
+
+          jobStatus.succeeded = builderLogs.body.includes('sleep infinity')
+
+          return jobStatus
         }
       }
     } catch (e) {
       logger.error(e)
       return e
     }
-  } else {
-    isRebuilding = false
   }
 
-  return isRebuilding
+  return jobStatus
 }
 
 const projectsRootFolder = path.join(appRootPath.path, 'packages/projects/projects/')

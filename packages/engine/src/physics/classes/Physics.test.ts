@@ -33,8 +33,9 @@ import {
 import assert from 'assert'
 import { BoxGeometry, Mesh, MeshBasicMaterial, Vector3 } from 'three'
 
+import { getMutableState, getState } from '@etherealengine/hyperflux'
 import { ObjectDirection } from '../../common/constants/Axis3D'
-import { destroyEngine, Engine } from '../../ecs/classes/Engine'
+import { destroyEngine } from '../../ecs/classes/Engine'
 import { addComponent, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { createEngine } from '../../initializeEngine'
@@ -42,14 +43,15 @@ import { addObjectToGroup } from '../../scene/components/GroupComponent'
 import { setTransformComponent } from '../../transform/components/TransformComponent'
 import { CollisionComponent } from '../components/CollisionComponent'
 import {
-  getTagComponentForRigidBody,
   RigidBodyComponent,
   RigidBodyDynamicTagComponent,
-  RigidBodyFixedTagComponent
+  RigidBodyFixedTagComponent,
+  getTagComponentForRigidBody
 } from '../components/RigidBodyComponent'
 import { CollisionGroups, DefaultCollisionMask } from '../enums/CollisionGroups'
 import { getInteractionGroups } from '../functions/getInteractionGroups'
 import { boxDynamicConfig } from '../functions/physicsObjectDebugFunctions'
+import { PhysicsState } from '../state/PhysicsState'
 import { CollisionEvents, SceneQueryType } from '../types/PhysicsTypes'
 import { Physics } from './Physics'
 
@@ -57,8 +59,9 @@ describe('Physics', () => {
   beforeEach(async () => {
     createEngine()
     await Physics.load()
-    Engine.instance.physicsWorld = Physics.createWorld()
-    Engine.instance.physicsWorld.timestep = 1 / 60
+    const physicsWorld = Physics.createWorld()
+    getMutableState(PhysicsState).physicsWorld.set(physicsWorld)
+    physicsWorld.timestep = 1 / 60
   })
 
   afterEach(() => {
@@ -73,7 +76,7 @@ describe('Physics', () => {
   })
 
   it('should create & remove rigidBody', async () => {
-    const physicsWorld = Engine.instance.physicsWorld
+    const physicsWorld = getState(PhysicsState).physicsWorld
 
     const entity = createEntity()
     setTransformComponent(entity)
@@ -97,7 +100,7 @@ describe('Physics', () => {
   })
 
   it('component type should match rigid body type', async () => {
-    const physicsWorld = Engine.instance.physicsWorld
+    const physicsWorld = getState(PhysicsState).physicsWorld
     const entity = createEntity()
 
     setTransformComponent(entity)
@@ -180,7 +183,7 @@ describe('Physics', () => {
   })
 
   it('should create rigid body from input mesh & config data', async () => {
-    const physicsWorld = Engine.instance.physicsWorld
+    const physicsWorld = getState(PhysicsState).physicsWorld
 
     const entity = createEntity()
     setTransformComponent(entity)
@@ -215,7 +218,7 @@ describe('Physics', () => {
   })
 
   it('should change rigidBody type', async () => {
-    const physicsWorld = Engine.instance.physicsWorld
+    const physicsWorld = getState(PhysicsState).physicsWorld
 
     const entity = createEntity()
     setTransformComponent(entity)
@@ -244,7 +247,7 @@ describe('Physics', () => {
   })
 
   it('should cast ray and hit rigidbody', async () => {
-    const physicsWorld = Engine.instance.physicsWorld
+    const physicsWorld = getState(PhysicsState).physicsWorld
 
     const entity = createEntity()
 
@@ -273,7 +276,7 @@ describe('Physics', () => {
   })
 
   it('should generate a collision event', async () => {
-    const physicsWorld = Engine.instance.physicsWorld
+    const physicsWorld = getState(PhysicsState).physicsWorld
 
     const entity1 = createEntity()
     const entity2 = createEntity()
@@ -330,7 +333,7 @@ describe('Physics', () => {
   })
 
   it('should generate a trigger event', async () => {
-    const physicsWorld = Engine.instance.physicsWorld
+    const physicsWorld = getState(PhysicsState).physicsWorld
 
     const entity1 = createEntity()
     const entity2 = createEntity()

@@ -106,6 +106,7 @@ function sortPluginsByPriority(a: PluginType, b: PluginType): number {
 const onBeforeCompile = {
   get: function (this: CustomMaterial) {
     if (!this._onBeforeCompile.toString) {
+      // eslint-disable-next-line @typescript-eslint/no-this-alias
       const self = this
 
       this._onBeforeCompile.toString = function () {

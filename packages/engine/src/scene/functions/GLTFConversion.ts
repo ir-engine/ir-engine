@@ -28,17 +28,14 @@ import { Color, MathUtils, Object3D } from 'three'
 import config from '@etherealengine/common/src/config'
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { ComponentJson, EntityJson, SceneJson } from '@etherealengine/common/src/interfaces/SceneInterface'
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
 import {
   getAllComponents,
   getComponent,
-  getMutableComponent,
   serializeComponent
 } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
-import { getMutableState } from '@etherealengine/hyperflux'
 
-import { EntityTreeComponent, iterateEntityNode } from '../../ecs/functions/EntityTree'
+import { EntityTreeComponent } from '../../ecs/functions/EntityTree'
 import { Object3DWithEntity } from '../components/GroupComponent'
 import { NameComponent } from '../components/NameComponent'
 import { UUIDComponent } from '../components/UUIDComponent'
@@ -96,16 +93,15 @@ export interface GLTFExtension {
 }
 
 const serializeECS = (roots: Object3DWithEntity[]) => {
-  let rootEntities = new Array()
   const idxTable = new Map<Entity, number>()
   const extensionSet = new Set<string>()
   const frontier: Object3DWithEntity[] = []
-  const haveChildren = new Array()
+  const haveChildren = [] as any[]
   const result = {
     asset: { version: '2.0', generator: 'Ethereal Engine glTF Scene Conversion' },
-    scenes: [{ nodes: new Array() }],
+    scenes: [{ nodes: [] as any[] }],
     scene: 0,
-    nodes: new Array(),
+    nodes: [] as any[],
     extensionsUsed: new Array<string>()
   }
 

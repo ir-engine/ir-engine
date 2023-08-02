@@ -30,7 +30,6 @@ import { DoubleSide, Mesh, MeshStandardMaterial } from 'three'
 import { FileBrowserService } from '@etherealengine/client-core/src/common/services/FileBrowserService'
 import {
   DefaultModelTransformParameters,
-  ImageTransformParameters,
   ModelTransformParameters
 } from '@etherealengine/engine/src/assets/classes/ModelTransform'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
@@ -47,23 +46,16 @@ import { materialsFromSource } from '@etherealengine/engine/src/renderer/materia
 import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
 import { getModelResources } from '@etherealengine/engine/src/scene/functions/loaders/ModelFunctions'
 import { useHookstate } from '@etherealengine/hyperflux'
-import { getMutableState, NO_PROXY, State } from '@etherealengine/hyperflux/functions/StateFunctions'
-
-import { ToggleButton } from '@mui/material'
+import { getMutableState, State } from '@etherealengine/hyperflux/functions/StateFunctions'
 
 import exportGLTF from '../../functions/exportGLTF'
 import { SelectionState } from '../../services/SelectionServices'
 import BooleanInput from '../inputs/BooleanInput'
 import { Button } from '../inputs/Button'
 import InputGroup from '../inputs/InputGroup'
-import NumericInput from '../inputs/NumericInput'
-import NumericInputGroup from '../inputs/NumericInputGroup'
-import ParameterInput from '../inputs/ParameterInput'
-import SelectInput from '../inputs/SelectInput'
 import StringInput from '../inputs/StringInput'
 import TexturePreviewInput from '../inputs/TexturePreviewInput'
 import CollapsibleBlock from '../layout/CollapsibleBlock'
-import PaginatedList from '../layout/PaginatedList'
 import GLTFTransformProperties from './GLTFTransformProperties'
 import LightmapBakerProperties from './LightmapBakerProperties'
 

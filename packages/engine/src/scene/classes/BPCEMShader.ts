@@ -23,9 +23,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { OBCType } from '../../common/constants/OBCTypes'
-import { PluginType } from '../../common/functions/OnBeforeCompilePlugin'
-
 //Shader injection for parallax corrected cubemaps
 export const worldposReplace = `
 			#define BOX_PROJECTED_ENV_MAP

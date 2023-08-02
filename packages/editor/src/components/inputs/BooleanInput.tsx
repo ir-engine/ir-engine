@@ -29,15 +29,13 @@ import './BooleanInput.css'
 
 import CheckIcon from '@mui/icons-material/Check'
 
-import Input from './Input'
-
 // kept to show style inheritance
 
 let uniqueId = 0
 
 interface BooleanInputProp {
   value: boolean
-  onChange: Function
+  onChange: (value: boolean) => void
   disabled?: boolean
 }
 

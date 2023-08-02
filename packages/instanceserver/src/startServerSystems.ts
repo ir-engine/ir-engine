@@ -23,19 +23,15 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import {
-  AvatarAnimationSystemGroup,
-  AvatarSimulationSystemGroup
-} from '@etherealengine/engine/src/avatar/AvatarSystemGroups'
+import { AvatarSimulationSystemGroup } from '@etherealengine/engine/src/avatar/AvatarSystemGroups'
 import { ECSSerializerSystem } from '@etherealengine/engine/src/ecs/ECSSerializerSystem'
 import {
-  AnimationSystemGroup,
   InputSystemGroup,
   PresentationSystemGroup,
   SimulationSystemGroup
 } from '@etherealengine/engine/src/ecs/functions/EngineFunctions'
 import { startSystems } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
-import { EquippableSystem } from '@etherealengine/engine/src/interaction/systems/EquippableSystem'
+import { GrabbableSystem } from '@etherealengine/engine/src/interaction/systems/GrabbableSystem'
 import { InteractiveSystem } from '@etherealengine/engine/src/interaction/systems/InteractiveSystem'
 import { MotionCaptureSystem } from '@etherealengine/engine/src/mocap/MotionCaptureSystem'
 import { EntityNetworkStateSystem } from '@etherealengine/engine/src/networking/state/EntityNetworkState'
@@ -67,7 +63,7 @@ export const startWorldServerSystems = () => {
       IncomingNetworkSystem,
       EntityNetworkStateSystem,
       ServerHostNetworkSystem,
-      EquippableSystem,
+      GrabbableSystem,
       AvatarSimulationSystemGroup
     ],
     {

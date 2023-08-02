@@ -23,9 +23,9 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { CompressedTexture, LinearEncoding, LuminanceFormat, RGBAFormat, sRGBEncoding, Texture } from 'three'
+import { CompressedTexture } from 'three'
 
 import { useRouter } from '@etherealengine/client-core/src/common/services/RouterService'
 import { SceneData } from '@etherealengine/common/src/interfaces/SceneInterface'
@@ -36,8 +36,7 @@ import { EngineActions } from '@etherealengine/engine/src/ecs/classes/EngineStat
 import { dispatchAction, getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
 import { MoreVert } from '@mui/icons-material'
-import { ClickAwayListener } from '@mui/material'
-import { IconButton, InputBase, Menu, MenuItem, Paper } from '@mui/material'
+import { ClickAwayListener, IconButton, InputBase, Menu, MenuItem, Paper } from '@mui/material'
 
 import { deleteScene, getScenes, renameScene } from '../../functions/sceneFunctions'
 import { EditorAction, EditorState } from '../../services/EditorServices'

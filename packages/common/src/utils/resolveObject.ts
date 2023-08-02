@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import type { Function, Object, String } from 'ts-toolbelt'
 
-export type Paths<S extends unknown> = S extends object
+export type Paths<S> = S extends object
   ? {
       [K in keyof S]: K extends string ? [K, ...Paths<S[K]>] : never
     }[keyof S]

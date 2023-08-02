@@ -24,60 +24,62 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import appRootPath from 'app-root-path'
-import * as chargebeeInst from 'chargebee'
+import chargebeeInst from 'chargebee'
 import dotenv from 'dotenv-flow'
 import path from 'path'
 import url from 'url'
 
 import multiLogger from './ServerLogger'
 
-const { register } = require('trace-unhandled')
-register()
-
 const logger = multiLogger.child({ component: 'server-core:config' })
 
 const kubernetesEnabled = process.env.KUBERNETES === 'true'
 const testEnabled = process.env.TEST === 'true'
 
-// ensure process fails properly
-process.on('exit', async (code) => {
-  const message = `Server EXIT(${code}).`
-  if (code === 0) {
-    logger.info(message)
-  } else {
-    logger.fatal(message)
-  }
-})
+if (!testEnabled) {
+  const { register } = require('trace-unhandled')
+  register()
 
-process.on('SIGTERM', async (err) => {
-  logger.warn(err, 'Server SIGTERM.')
-  process.exit(1)
-})
-process.on('SIGINT', () => {
-  logger.warn('RECEIVED SIGINT.')
-  process.exit(1)
-})
+  // ensure process fails properly
+  process.on('exit', async (code) => {
+    const message = `Server EXIT(${code}).`
+    if (code === 0) {
+      logger.info(message)
+    } else {
+      logger.fatal(message)
+    }
+  })
 
-// emitted when an uncaught JavaScript exception bubbles
-process.on('uncaughtException', (err) => {
-  logger.fatal(err, 'UNCAUGHT EXCEPTION.')
-  process.exit(1)
-})
+  process.on('SIGTERM', async (err) => {
+    logger.warn(err, 'Server SIGTERM.')
+    process.exit(1)
+  })
+  process.on('SIGINT', () => {
+    logger.warn('RECEIVED SIGINT.')
+    process.exit(1)
+  })
 
-//emitted whenever a Promise is rejected and no error handler is attached to it
-process.on('unhandledRejection', (reason, p) => {
-  logger.fatal({ reason, promise: p }, 'UNHANDLED PROMISE REJECTION.')
-  process.exit(1)
-})
+  // emitted when an uncaught JavaScript exception bubbles
+  process.on('uncaughtException', (err) => {
+    logger.fatal(err, 'UNCAUGHT EXCEPTION.')
+    process.exit(1)
+  })
+
+  //emitted whenever a Promise is rejected and no error handler is attached to it
+  process.on('unhandledRejection', (reason, p) => {
+    logger.fatal({ reason, promise: p }, 'UNHANDLED PROMISE REJECTION.')
+    process.exit(1)
+  })
+}
 
 if (process.env.APP_ENV === 'development' || process.env.LOCAL === 'true') {
   // Avoids DEPTH_ZERO_SELF_SIGNED_CERT error for self-signed certs - needed for local storage provider
   process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'
 
-  var fs = require('fs')
+  const fs = require('fs')
   if (!fs.existsSync(appRootPath.path + '/.env') && !fs.existsSync(appRootPath.path + '/.env.local')) {
-    var fromEnvPath = appRootPath.path + '/.env.local.default'
-    var toEnvPath = appRootPath.path + '/.env.local'
+    const fromEnvPath = appRootPath.path + '/.env.local.default'
+    const toEnvPath = appRootPath.path + '/.env.local'
     fs.copyFileSync(fromEnvPath, toEnvPath, fs.constants.COPYFILE_EXCL)
   }
 }
@@ -225,8 +227,7 @@ const email = {
     instance: 'Location invitation',
     login: 'Login link',
     friend: 'Friend request',
-    group: 'Group invitation',
-    party: 'Party invitation'
+    channel: 'Channel invitation'
   },
   smsNameCharacterLimit: 20
 }
@@ -275,7 +276,6 @@ const authentication = {
       secret: process.env.FACEBOOK_CLIENT_SECRET!
     },
     github: {
-      appid: process.env.GITHUB_APP_ID!,
       key: process.env.GITHUB_CLIENT_ID!,
       secret: process.env.GITHUB_CLIENT_SECRET!,
       scope: ['repo', 'user']
@@ -301,13 +301,6 @@ const authentication = {
  * AWS
  */
 const aws = {
-  route53: {
-    hostedZoneId: process.env.ROUTE53_HOSTED_ZONE_ID!,
-    keys: {
-      accessKeyId: process.env.ROUTE53_ACCESS_KEY_ID!,
-      secretAccessKey: process.env.ROUTE53_ACCESS_KEY_SECRET!
-    }
-  },
   s3: {
     accessKeyId: process.env.STORAGE_AWS_ACCESS_KEY_ID!,
     secretAccessKey: process.env.STORAGE_AWS_ACCESS_KEY_SECRET!,

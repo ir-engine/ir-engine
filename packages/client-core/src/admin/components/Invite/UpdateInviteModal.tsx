@@ -43,11 +43,9 @@ import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
 import Tab from '@etherealengine/ui/src/primitives/mui/Tab'
 import Tabs from '@etherealengine/ui/src/primitives/mui/Tabs'
-import TextField from '@etherealengine/ui/src/primitives/mui/TextField'
 
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
-import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker'
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
+import { DateTimePicker, LocalizationProvider } from '@mui/x-date-pickers'
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
 
 import { NotificationService } from '../../../common/services/NotificationService'
 import DrawerView from '../../common/DrawerView'
@@ -69,8 +67,7 @@ const INVITE_TYPE_TAB_MAP = {
   1: 'location',
   2: 'instance',
   3: 'friend',
-  4: 'group',
-  5: 'party'
+  4: 'channel'
 }
 
 const UpdateInviteModal = ({ open, onClose, invite }: Props) => {
@@ -354,7 +351,7 @@ const UpdateInviteModal = ({ open, onClose, invite }: Props) => {
           />
           {timed.value && (
             <div className={styles.datePickerContainer}>
-              <LocalizationProvider dateAdapter={AdapterDayjs}>
+              <LocalizationProvider dateAdapter={AdapterDateFns}>
                 <div className={styles.pickerControls}>
                   <DateTimePicker
                     label="Start Time"

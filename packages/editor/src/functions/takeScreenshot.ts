@@ -24,13 +24,12 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import {
-  _SRGBFormat,
   Camera,
   ClampToEdgeWrapping,
   LinearFilter,
   PerspectiveCamera,
   RGBAFormat,
-  sRGBEncoding,
+  SRGBColorSpace,
   UnsignedByteType,
   Vector2,
   WebGLRenderTarget
@@ -47,12 +46,13 @@ import { addObjectToGroup } from '@etherealengine/engine/src/scene/components/Gr
 import { ScenePreviewCameraComponent } from '@etherealengine/engine/src/scene/components/ScenePreviewCamera'
 import { ObjectLayers } from '@etherealengine/engine/src/scene/constants/ObjectLayers'
 import {
-  setTransformComponent,
-  TransformComponent
+  TransformComponent,
+  setTransformComponent
 } from '@etherealengine/engine/src/transform/components/TransformComponent'
 import { getState } from '@etherealengine/hyperflux'
 import { KTX2Encoder } from '@etherealengine/xrui/core/textures/KTX2Encoder'
 
+import { CameraComponent } from '@etherealengine/engine/src/camera/components/CameraComponent'
 import { EditorState } from '../services/EditorServices'
 import { getCanvasBlob } from './thumbnails'
 
@@ -114,13 +114,13 @@ export async function previewScreenshot(
 
   let blob: Blob | null = null
   const renderer = EngineRenderer.instance.renderer
-  renderer.outputEncoding = sRGBEncoding
+  renderer.outputColorSpace = SRGBColorSpace
   const renderTarget = new WebGLRenderTarget(width, height, {
     minFilter: LinearFilter,
     magFilter: LinearFilter,
     wrapS: ClampToEdgeWrapping,
     wrapT: ClampToEdgeWrapping,
-    encoding: sRGBEncoding,
+    colorSpace: SRGBColorSpace,
     format: RGBAFormat,
     type: UnsignedByteType
   })
@@ -232,13 +232,13 @@ export async function takeScreenshot(
     // todo - support post processing
     // EngineRenderer.instance.effectComposer.setMainCamera(scenePreviewCamera as Camera)
     // const renderer = EngineRenderer.instance.effectComposer.getRenderer()
-    renderer.outputEncoding = sRGBEncoding
+    renderer.outputColorSpace = SRGBColorSpace
     const renderTarget = new WebGLRenderTarget(width, height, {
       minFilter: LinearFilter,
       magFilter: LinearFilter,
       wrapS: ClampToEdgeWrapping,
       wrapT: ClampToEdgeWrapping,
-      encoding: sRGBEncoding,
+      colorSpace: SRGBColorSpace,
       format: RGBAFormat,
       type: UnsignedByteType
     })
@@ -267,7 +267,7 @@ export async function takeScreenshot(
   }
 
   // restore
-  EngineRenderer.instance.effectComposer.setMainCamera(Engine.instance.camera)
+  EngineRenderer.instance.effectComposer.setMainCamera(getComponent(Engine.instance.cameraEntity, CameraComponent))
   EngineRenderer.instance.effectComposer.setSize(originalSize.width, originalSize.height, false)
   EngineRenderer.instance.renderer.setPixelRatio(pixelRatio)
 
@@ -280,22 +280,24 @@ export async function takeScreenshot(
 
 /** @todo make size, compression & format configurable */
 export const downloadScreenshot = () => {
-  takeScreenshot(1920 * 4, 1080 * 4, 'png', Engine.instance.camera).then((blob) => {
-    if (!blob) return
+  takeScreenshot(1920 * 4, 1080 * 4, 'png', getComponent(Engine.instance.cameraEntity, CameraComponent)).then(
+    (blob) => {
+      if (!blob) return
 
-    const blobUrl = URL.createObjectURL(blob)
+      const blobUrl = URL.createObjectURL(blob)
 
-    const link = document.createElement('a')
+      const link = document.createElement('a')
 
-    const editorState = getState(EditorState)
+      const editorState = getState(EditorState)
 
-    link.href = blobUrl
-    link.download = editorState.projectName + '_' + editorState.sceneName + '_thumbnail.png'
+      link.href = blobUrl
+      link.download = editorState.projectName + '_' + editorState.sceneName + '_thumbnail.png'
 
-    document.body.appendChild(link)
+      document.body.appendChild(link)
 
-    link.click()
+      link.click()
 
-    document.body.removeChild(link)
-  })
+      document.body.removeChild(link)
+    }
+  )
 }

@@ -60,12 +60,12 @@ const Account = () => {
   const state = useHookstate(initialAuthState)
   const holdAuth = useHookstate(initialAuthState)
   const keySecret = useHookstate({
-    discord: authSetting?.oauth.discord,
-    github: authSetting?.oauth.github,
-    google: authSetting?.oauth.google,
-    twitter: authSetting?.oauth.twitter,
-    linkedin: authSetting?.oauth.linkedin,
-    facebook: authSetting?.oauth.facebook
+    discord: authSetting?.oauth?.discord,
+    github: authSetting?.oauth?.github,
+    google: authSetting?.oauth?.google,
+    twitter: authSetting?.oauth?.twitter,
+    linkedin: authSetting?.oauth?.linkedin,
+    facebook: authSetting?.oauth?.facebook
   })
   const showPassword = useHookstate({
     discord: {
@@ -77,7 +77,6 @@ const Account = () => {
       secret: false
     },
     github: {
-      appid: false,
       key: false,
       secret: false
     },
@@ -127,12 +126,12 @@ const Account = () => {
 
       let tempKeySecret = JSON.parse(
         JSON.stringify({
-          discord: authSetting?.oauth.discord,
-          github: authSetting?.oauth.github,
-          google: authSetting?.oauth.google,
-          twitter: authSetting?.oauth.twitter,
-          linkedin: authSetting?.oauth.linkedin,
-          facebook: authSetting?.oauth.facebook
+          discord: authSetting?.oauth?.discord,
+          github: authSetting?.oauth?.github,
+          google: authSetting?.oauth?.google,
+          twitter: authSetting?.oauth?.twitter,
+          linkedin: authSetting?.oauth?.linkedin,
+          facebook: authSetting?.oauth?.facebook
         })
       )
       keySecret.set(tempKeySecret)
@@ -148,10 +147,10 @@ const Account = () => {
     const oauth = { ...authSetting.oauth, ...keySecret.value }
 
     for (let key of Object.keys(oauth)) {
-      oauth[key] = JSON.stringify(oauth[key])
+      oauth[key] = JSON.parse(JSON.stringify(oauth[key]))
     }
 
-    AuthSettingsService.patchAuthSetting({ authStrategies: JSON.stringify(auth), oauth: JSON.stringify(oauth) }, id)
+    AuthSettingsService.patchAuthSetting({ authStrategies: auth, oauth: oauth }, id)
     NotificationService.dispatchNotify(t('admin:components.setting.authSettingsRefreshNotification'), {
       variant: 'warning'
     })
@@ -167,26 +166,16 @@ const Account = () => {
 
     let tempKeySecret = JSON.parse(
       JSON.stringify({
-        discord: authSetting?.oauth.discord,
-        github: authSetting?.oauth.github,
-        google: authSetting?.oauth.google,
-        twitter: authSetting?.oauth.twitter,
-        linkedin: authSetting?.oauth.linkedin,
-        facebook: authSetting?.oauth.facebook
+        discord: authSetting?.oauth?.discord,
+        github: authSetting?.oauth?.github,
+        google: authSetting?.oauth?.google,
+        twitter: authSetting?.oauth?.twitter,
+        linkedin: authSetting?.oauth?.linkedin,
+        facebook: authSetting?.oauth?.facebook
       })
     )
     keySecret.set(tempKeySecret)
     state.set(temp)
-  }
-
-  const handleOnChangeAppId = (event, type) => {
-    keySecret.set({
-      ...JSON.parse(JSON.stringify(keySecret.value)),
-      [type]: {
-        ...JSON.parse(JSON.stringify(keySecret[type].value)),
-        appid: event.target.value
-      }
-    })
   }
 
   const handleOnChangeKey = (event, type) => {
@@ -412,25 +401,6 @@ const Account = () => {
           {holdAuth?.github?.value && (
             <>
               <Typography className={styles.settingsSubHeading}>{t('admin:components.setting.github')}</Typography>
-
-              <InputText
-                name="appid"
-                label={t('admin:components.setting.appId')}
-                value={keySecret?.value?.github?.appid || ''}
-                type={showPassword.value.github.appid ? 'text' : 'password'}
-                endAdornment={
-                  <IconButton
-                    onClick={() => handleShowPassword('github-appid')}
-                    icon={
-                      <Icon
-                        icon={showPassword.value.github.appid ? 'ic:baseline-visibility' : 'ic:baseline-visibility-off'}
-                        color="orange"
-                      />
-                    }
-                  />
-                }
-                onChange={(e) => handleOnChangeAppId(e, OAUTH_TYPES.GITHUB)}
-              />
 
               <InputText
                 name="key"

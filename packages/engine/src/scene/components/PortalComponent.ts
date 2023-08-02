@@ -30,7 +30,6 @@ import {
   ConeGeometry,
   CylinderGeometry,
   Euler,
-  FrontSide,
   Material,
   Mesh,
   MeshBasicMaterial,
@@ -185,7 +184,7 @@ export const PortalComponent = defineComponent({
       }
 
       if (!portalComponent.mesh.value && portalComponent.previewType.value === PortalPreviewTypeSpherical) {
-        const portalMesh = new Mesh(new SphereGeometry(1.5, 32, 32), new MeshBasicMaterial({ side: FrontSide }))
+        const portalMesh = new Mesh(new SphereGeometry(1.5, 32, 32), new MeshBasicMaterial({ side: BackSide }))
         portalComponent.mesh.set(portalMesh)
         addObjectToGroup(entity, portalMesh)
         return () => {
@@ -233,7 +232,6 @@ export const PortalComponent = defineComponent({
               const mesh = portalComponent.mesh.value
               if (mesh) {
                 AssetLoader.loadAsync(portalDetails.previewImageURL).then((texture: Texture) => {
-                  console.log(texture, mesh, entityExists(entity))
                   if (!mesh || !entityExists(entity)) return
                   mesh.material.map = texture
                   texture.needsUpdate = true

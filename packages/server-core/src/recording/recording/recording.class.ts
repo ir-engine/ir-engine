@@ -31,8 +31,7 @@ import { RecordingResult } from '@etherealengine/common/src/interfaces/Recording
 import { Application } from '../../../declarations'
 import { checkScope } from '../../hooks/verify-scope'
 import { UserParams } from '../../user/user/user.class'
-import { UnauthorizedException } from '../../util/exceptions/exception'
-import { NotFoundException } from '../../util/exceptions/exception'
+import { NotFoundException, UnauthorizedException } from '../../util/exceptions/exception'
 
 export type RecordingDataType = RecordingResult
 
@@ -53,14 +52,14 @@ export class Recording<T = RecordingDataType> extends Service<T> {
       include: [
         {
           model: this.app.service('static-resource').Model,
-          attributes: ['id', 'key']
+          attributes: ['id', 'key', 'url']
         }
       ]
     })
 
     const result = (await super.get(id)) as RecordingDataType
 
-    result.resources = resources.rows.map((resource) => resource.static_resource.key)
+    result.resources = resources.rows.map((resource) => resource.static_resource)
 
     return result as T
   }

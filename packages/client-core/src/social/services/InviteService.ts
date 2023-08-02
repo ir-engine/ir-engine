@@ -34,14 +34,12 @@ import {
 } from '@etherealengine/common/src/constants/IdConstants'
 import { Invite, SendInvite } from '@etherealengine/common/src/interfaces/Invite'
 import { UserInterface } from '@etherealengine/common/src/interfaces/User'
-import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
+import { Validator, matches } from '@etherealengine/engine/src/common/functions/MatchesUtils'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { defineAction, defineState, dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
 
-import { MediaInstanceConnectionAction } from '../../common/services/MediaInstanceConnectionService'
 import { NotificationService } from '../../common/services/NotificationService'
 import { AuthState } from '../../user/services/AuthService'
-import { PartyService } from './PartyService'
 
 //State
 export const INVITE_PAGE_LIMIT = 100
@@ -321,15 +319,11 @@ export const InviteService = {
   },
   acceptInvite: async (invite: Invite) => {
     try {
-      if (invite.inviteType === 'party') {
-        dispatchAction(MediaInstanceConnectionAction.joiningNonInstanceMediaChannel({}))
-      }
       await Engine.instance.api.service('a-i').get(invite.id, {
         query: {
           passcode: invite.passcode
         }
       })
-      if (invite.inviteType === 'party') await PartyService.leaveNetwork(false)
       dispatchAction(InviteAction.acceptedInvite({}))
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })

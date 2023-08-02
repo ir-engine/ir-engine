@@ -23,11 +23,10 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { BufferGeometry, DoubleSide, Mesh, MeshStandardMaterial, sRGBEncoding, Vector4, VideoTexture } from 'three'
+import { BufferGeometry, DoubleSide, Mesh, MeshStandardMaterial, SRGBColorSpace, Vector4, VideoTexture } from 'three'
 
 import { OBCType } from '../../common/constants/OBCTypes'
 import { addOBCPlugin } from '../../common/functions/OnBeforeCompilePlugin'
-import { Engine } from '../../ecs/classes/Engine'
 import { defineQuery, getComponent } from '../../ecs/functions/ComponentFunctions'
 import { GroupComponent } from '../components/GroupComponent'
 import { ScreenshareTargetComponent } from '../components/ScreenshareTargetComponent'
@@ -53,7 +52,7 @@ export const applyVideoToTexture = (
 
   if (!obj.material.map || overwrite) obj.material.map = new VideoTexture(video)
 
-  obj.material.map.encoding = sRGBEncoding
+  obj.material.map.colorSpace = SRGBColorSpace
 
   const imageAspect = video.videoWidth / video.videoHeight
   const screenAspect = getAspectRatioFromBufferGeometry(obj)

@@ -26,13 +26,16 @@ Ethereal Engine. All Rights Reserved.
 import { Id, NullableId, Params, ServiceMethods } from '@feathersjs/feathers'
 import moment from 'moment'
 
+import { UserApiKeyType, userApiKeyPath } from '@etherealengine/engine/src/schemas/user/user-api-key.schema'
 import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
 import Paginated from '../../types/PageObject'
 import makeInitialAdmin from '../../util/make-initial-admin'
 
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
 interface Data {}
 
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
 interface ServiceOptions {}
 /**
  * A class for Login service
@@ -85,13 +88,13 @@ export class Login implements ServiceMethods<Data> {
       }
       const identityProvider = await this.app.service('identity-provider').get(result.identityProviderId)
       await makeInitialAdmin(this.app, identityProvider.userId)
-      const apiKey = await this.app.service('user-api-key').find({
+      const apiKey = (await this.app.service(userApiKeyPath).find({
         query: {
           userId: identityProvider.userId
         }
-      })
-      if ((apiKey as any).total === 0)
-        await this.app.service('user-api-key').create({
+      })) as Paginated<UserApiKeyType>
+      if (apiKey.total === 0)
+        await this.app.service(userApiKeyPath).create({
           userId: identityProvider.userId
         })
       const token = await this.app

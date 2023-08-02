@@ -26,23 +26,15 @@ Ethereal Engine. All Rights Reserved.
 import { Not } from 'bitecs'
 import { Vector3 } from 'three'
 
-import { defineState, getState } from '@etherealengine/hyperflux'
+import { defineState } from '@etherealengine/hyperflux'
 import { WebLayer3D } from '@etherealengine/xrui'
 
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { getAvatarBoneWorldPosition } from '../../avatar/functions/avatarFunctions'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
-import {
-  addComponent,
-  defineQuery,
-  getComponent,
-  hasComponent,
-  removeComponent,
-  setComponent
-} from '../../ecs/functions/ComponentFunctions'
+import { defineQuery, getComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
-import { HighlightComponent } from '../../renderer/components/HighlightComponent'
 import {
   DistanceFromCameraComponent,
   setDistanceFromCameraComponent,

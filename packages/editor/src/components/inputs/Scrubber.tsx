@@ -72,8 +72,8 @@ type ScrubberProps = {
   convertFrom?: any
   convertTo?: any
   value?: any
-  onChange: Function
-  onCommit?: Function
+  onChange: (value: any) => void
+  onCommit?: (value: any) => void
 }
 
 export const Scrubber = React.forwardRef(

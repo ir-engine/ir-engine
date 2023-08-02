@@ -33,7 +33,7 @@ import { WebLayerManager } from '@etherealengine/xrui/core/three/WebLayerManager
 
 import { isClient } from '../../common/functions/getEnvironment'
 import { Entity } from '../../ecs/classes/Entity'
-import { addComponent, getComponent, getMutableComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
+import { addComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { InputComponent } from '../../input/components/InputComponent'
 import { addObjectToGroup } from '../../scene/components/GroupComponent'

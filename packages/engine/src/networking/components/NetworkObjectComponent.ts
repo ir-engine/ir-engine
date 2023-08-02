@@ -23,22 +23,36 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Types } from 'bitecs'
+import * as bitecs from 'bitecs'
 import { useEffect } from 'react'
 
 import { NetworkId } from '@etherealengine/common/src/interfaces/NetworkId'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 
+import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { Engine } from '../../ecs/classes/Engine'
-import { defineComponent, removeComponent, setComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
+import { Entity, UndefinedEntity } from '../../ecs/classes/Entity'
+import {
+  Component,
+  defineComponent,
+  defineQuery,
+  getComponent,
+  hasComponent,
+  removeComponent,
+  setComponent,
+  useComponent
+} from '../../ecs/functions/ComponentFunctions'
 import { useEntityContext } from '../../ecs/functions/EntityFunctions'
+
+/** ID of last network created. */
+let availableNetworkId = 0 as NetworkId
 
 export const NetworkObjectComponent = defineComponent({
   name: 'NetworkObjectComponent',
 
   schema: {
-    networkId: Types.ui32
+    networkId: bitecs.Types.ui32
   },
 
   onInit: (entity) => {
@@ -85,8 +99,76 @@ export const NetworkObjectComponent = defineComponent({
     }, [networkObject.ownerId])
 
     return null
+  },
+
+  /**
+   * Get the network objects owned by a given user
+   * @param ownerId
+   */
+  getOwnedNetworkObjects(ownerId: UserId) {
+    return networkObjectQuery().filter((eid) => getComponent(eid, NetworkObjectComponent).ownerId === ownerId)
+  },
+
+  /**
+   * Get a network object by owner and NetworkId
+   * @returns
+   */
+  getNetworkObject(ownerId: UserId, networkId: NetworkId): Entity {
+    return (
+      networkObjectQuery().find((eid) => {
+        const networkObject = getComponent(eid, NetworkObjectComponent)
+        return networkObject.networkId === networkId && networkObject.ownerId === ownerId
+      }) || UndefinedEntity
+    )
+  },
+
+  /**
+   * Get the user avatar entity (the network object w/ an Avatar component)
+   * @param userId
+   * @returns
+   */
+  getUserAvatarEntity(userId: UserId) {
+    return NetworkObjectComponent.getOwnedNetworkObjectsWithComponent(userId, AvatarComponent).find((eid) => {
+      return getComponent(eid, AvatarComponent).primary
+    })!
+  },
+
+  /**
+   * Get the user entity that has a specific component
+   * @param userId
+   * @param component
+   * @returns
+   */
+  getOwnedNetworkObjectWithComponent<T, S extends bitecs.ISchema>(userId: UserId, component: Component<T, S>) {
+    return (
+      NetworkObjectComponent.getOwnedNetworkObjects(userId).find((eid) => {
+        return hasComponent(eid, component)
+      }) || UndefinedEntity
+    )
+  },
+
+  /**
+   * Get the user entity that has a specific component
+   * @param userId
+   * @param component
+   * @returns
+   */
+  getOwnedNetworkObjectsWithComponent<T, S extends bitecs.ISchema>(userId: UserId, component: Component<T, S>) {
+    return NetworkObjectComponent.getOwnedNetworkObjects(userId).filter((eid) => {
+      return hasComponent(eid, component)
+    })
+  },
+
+  /** Get next network id. */
+  createNetworkId(): NetworkId {
+    return ++availableNetworkId as NetworkId
   }
 })
+
+/**
+ * Network object query
+ */
+const networkObjectQuery = defineQuery([NetworkObjectComponent])
 
 /**
  * Authority is peer-specific.

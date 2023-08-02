@@ -30,9 +30,9 @@ import ReactFlow, {
   BackgroundVariant,
   Connection,
   OnConnectStartParams,
+  XYPosition,
   useEdgesState,
-  useNodesState,
-  XYPosition
+  useNodesState
 } from 'reactflow'
 import { v4 as uuidv4 } from 'uuid'
 

@@ -26,8 +26,8 @@ Ethereal Engine. All Rights Reserved.
 import { API } from '../src/API'
 
 type MockFeathers = {
-  on: (type: string, cb: () => {}) => void
-  off: (type: string, cb: () => {}) => void
+  on: (type: string, cb: () => void) => void
+  off: (type: string, cb: () => void) => void
   find: (type: string) => Promise<void>
   get: (type: string) => Promise<void>
   create: (type: string) => Promise<void>

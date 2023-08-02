@@ -39,13 +39,14 @@ import { getEntityNodeArrayFromEntities } from '@etherealengine/engine/src/ecs/f
 import { SceneDynamicLoadTagComponent } from '@etherealengine/engine/src/scene/components/SceneDynamicLoadTagComponent'
 import { TransformGizmoComponent } from '@etherealengine/engine/src/scene/components/TransformGizmo'
 import { TransformSpace } from '@etherealengine/engine/src/scene/constants/transformConstants'
-import { LocalTransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
-import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
+import {
+  LocalTransformComponent,
+  TransformComponent
+} from '@etherealengine/engine/src/transform/components/TransformComponent'
 import { dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
 import { EditorHistoryAction } from '../../services/EditorHistory'
-import { EditorAction } from '../../services/EditorServices'
 import { SelectionState } from '../../services/SelectionServices'
 import BooleanInput from '../inputs/BooleanInput'
 import CompoundNumericInput from '../inputs/CompoundNumericInput'
@@ -68,7 +69,6 @@ export const TransformPropertyGroup: EditorComponentType = (props) => {
   const localTransformComponent = useOptionalComponent(props.entity, LocalTransformComponent)
 
   const onRelease = () => {
-    dispatchAction(EditorAction.sceneModified({ modified: true }))
     dispatchAction(EditorHistoryAction.createSnapshot({}))
   }
 
@@ -127,7 +127,7 @@ export const TransformPropertyGroup: EditorComponentType = (props) => {
           />
         )}
       </InputGroup>
-      <InputGroup name="Position" label={t('editor:properties.transform.lbl-postition')}>
+      <InputGroup name="Position" label={t('editor:properties.transform.lbl-position')}>
         <Vector3Input
           value={transform.position.value}
           smallStep={0.01}

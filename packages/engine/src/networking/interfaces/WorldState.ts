@@ -23,11 +23,10 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import matches from 'ts-matches'
-
-import { AvatarInterface } from '@etherealengine/common/src/interfaces/AvatarInterface'
 import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 import { defineState } from '@etherealengine/hyperflux'
+
+import { AvatarType } from '../../schemas/user/avatar.schema'
 
 export const WorldState = defineState({
   name: 'WorldState',
@@ -35,6 +34,6 @@ export const WorldState = defineState({
     /** a history of user names - does not get cleaned up upon a user leaving the world */
     userNames: {} as Record<UserId, string>,
     /** @deprecated */
-    userAvatarDetails: {} as Record<UserId, AvatarInterface>
+    userAvatarDetails: {} as Record<UserId, AvatarType>
   })
 })

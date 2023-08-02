@@ -28,7 +28,6 @@ import React from 'react'
 
 import CircularProgress from '@mui/material/CircularProgress'
 
-import ProgressBar from '../inputs/ProgressBar'
 import Dialog from './Dialog'
 
 const progressContainerStyles = {

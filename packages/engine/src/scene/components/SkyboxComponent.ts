@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { useEffect } from 'react'
-import { Color, CubeTexture, sRGBEncoding } from 'three'
+import { Color, CubeTexture, SRGBColorSpace, Texture } from 'three'
 
 import { config } from '@etherealengine/common/src/config'
 import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
@@ -94,7 +94,7 @@ export const SkyboxComponent = defineComponent({
     useEffect(() => {
       if (skyboxState.backgroundType.value !== SkyTypeEnum.cubemap) return
       const onLoad = (texture: CubeTexture) => {
-        texture.encoding = sRGBEncoding
+        texture.colorSpace = SRGBColorSpace
         background.set(getPmremGenerator().fromCubemap(texture).texture)
         removeError(entity, SkyboxComponent, 'FILE_ERROR')
       }
@@ -117,8 +117,8 @@ export const SkyboxComponent = defineComponent({
       AssetLoader.load(
         skyboxState.equirectangularPath.value,
         {},
-        (texture) => {
-          texture.encoding = sRGBEncoding
+        (texture: Texture) => {
+          texture.colorSpace = SRGBColorSpace
           background.set(getPmremGenerator().fromEquirectangular(texture).texture)
           removeError(entity, SkyboxComponent, 'FILE_ERROR')
         },

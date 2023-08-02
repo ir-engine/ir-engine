@@ -66,7 +66,7 @@ export interface InstanceData {
   el: Instance
   id: string
   ipAddress: string
-  currentUsers: Number
+  currentUsers: number
   locationId: string
   channelId: string
   podName: string

@@ -126,6 +126,10 @@
       "info-shadowMapResolution":"Set shadowmap resolution",
       "lbl-renderMode":"Render Mode",
       "info-renderMode":"Choose render mode"
+    },
+    "grid": {
+      "info-incrementHeight": "Increment Grid Height",
+      "info-decrementHeight": "Decrement Grid Height"
     }
   },
   "properties": {
@@ -625,7 +629,7 @@
     },
     "transform": {
       "title": "Transform",
-      "lbl-postition": "Position",
+      "lbl-position": "Position",
       "lbl-rotation": "Rotation",
       "lbl-scale": "Scale"
     },

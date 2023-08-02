@@ -31,12 +31,16 @@ interface Option {
 }
 
 export class ServerLoop {
-  _update: Function
+  _update: (delta: number) => void
   _lastFrameTime: number
   _running: boolean
   _step: number
   _deltas: Array<number>
-  constructor(update = () => {}, public _times: number = 10, public _option?: Option) {
+  constructor(
+    update = () => {},
+    public _times: number = 10,
+    public _option?: Option
+  ) {
     this._update = update
     this._running = false
     this._step = 1000 / this._times
@@ -73,6 +77,7 @@ export class ServerLoop {
     const _interval = Math.max(Math.floor(this._step - 1), 16)
     const jitterThreshold = 3 // ms
     const maxDeltaLength = Math.ceil(((1 / this._step) * 1000) / 2) + 1
+    // eslint-disable-next-line @typescript-eslint/no-this-alias
     const _this = this // changes to _this will also happen on this
 
     let _target = this._time()

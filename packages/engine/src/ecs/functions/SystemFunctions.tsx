@@ -29,12 +29,12 @@ import React, { Component, ErrorInfo, FC, memo, Suspense, useEffect, useMemo } f
 
 import { OpaqueType } from '@etherealengine/common/src/interfaces/OpaqueType'
 import multiLogger from '@etherealengine/common/src/logger'
-import { getState, ReactorRoot, startReactor } from '@etherealengine/hyperflux'
+import { getState, startReactor } from '@etherealengine/hyperflux'
 
 import { nowMilliseconds } from '../../common/functions/nowMilliseconds'
 import { Engine } from '../classes/Engine'
 import { EngineState } from '../classes/EngineState'
-import { Entity, UndefinedEntity } from '../classes/Entity'
+import { Entity } from '../classes/Entity'
 import { QueryComponents, useQuery } from './ComponentFunctions'
 import { EntityContext } from './EntityFunctions'
 

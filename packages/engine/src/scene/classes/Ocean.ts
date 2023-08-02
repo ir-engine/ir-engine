@@ -26,20 +26,17 @@ Ethereal Engine. All Rights Reserved.
 import {
   AddOperation,
   Color,
-  DepthFormat,
   DepthTexture,
   EquirectangularReflectionMapping,
   Mesh,
   MeshPhongMaterial,
   NearestFilter,
-  Object3D,
   PerspectiveCamera,
   PlaneGeometry,
   RepeatWrapping,
-  RGBAFormat,
   Scene,
   ShaderChunk,
-  sRGBEncoding,
+  SRGBColorSpace,
   Texture,
   UnsignedShortType,
   Vector2,
@@ -385,9 +382,9 @@ export class Ocean extends Mesh<PlaneGeometry, MeshPhongMaterial> {
     this._envMap = path
 
     AssetLoader.loadAsync(path)
-      .then((texture) => {
+      .then((texture: Texture) => {
         texture.mapping = EquirectangularReflectionMapping
-        texture.encoding = sRGBEncoding
+        texture.colorSpace = SRGBColorSpace
         this._material.envMap = texture
         removeError(this.entity, OceanComponent, 'ENVIRONMENT_MAP_ERROR')
       })

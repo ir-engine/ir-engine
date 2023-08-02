@@ -23,8 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { ReactElement, useEffect } from 'react'
-import React from 'react'
+import React, { ReactElement, useEffect } from 'react'
 
 import { getMutableState, useState } from '@etherealengine/hyperflux'
 
@@ -49,12 +48,6 @@ function MaterialReactor({ materialId }: { materialId: string }) {
 function PluginReactor({ pluginId }: { pluginId: string }) {
   const materialLibrary = useState(getMutableState(MaterialLibraryState))
   const component = materialLibrary.plugins[pluginId]
-  useEffect(() => {
-    component.instances.value.forEach((material) => {
-      material.needsUpdate = true
-    })
-  }, [component.parameters])
-
   return null
 }
 

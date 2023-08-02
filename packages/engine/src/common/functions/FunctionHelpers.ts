@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-this-alias */
 /*
 CPAL-1.0 License
 
@@ -45,6 +46,7 @@ export function throttle<T>(func: T, wait: number, options: { leading?: boolean;
     if (!previous && options.leading === false) previous = _now
     const remaining = wait - (_now - previous)
     context = this
+    // eslint-disable-next-line prefer-rest-params
     _args = arguments
     if (remaining <= 0 || remaining > wait) {
       if (timeout) {

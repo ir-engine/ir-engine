@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { createState, useHookstate } from '@hookstate/core'
-import React, { Fragment, useRef, useState } from 'react'
+import React, { Fragment, useState } from 'react'
 
 import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
 import { WorldState } from '@etherealengine/engine/src/networking/interfaces/WorldState'
@@ -50,16 +50,14 @@ function createChatDetailState() {
 const ChatDetailView = () => {
   const [unreadMessages, setUnreadMessages] = useState(false)
 
-  const { activeChannel, handleComposingMessageChange, packageMessage, composingMessage } = useChatHooks({
+  const { messages, handleComposingMessageChange, packageMessage, composingMessage } = useChatHooks({
     chatWindowOpen: true,
     setUnreadMessages,
     messageRefInput: null!
   })
 
-  const sortedMessages = activeChannel?.messages?.get({ noproxy: true })?.length
-    ? [...activeChannel.messages.get({ noproxy: true })].sort(
-        (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
-      )
+  const sortedMessages = messages.data
+    ? messages.data.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime())
     : []
 
   const user = useHookstate(getMutableState(AuthState)).user

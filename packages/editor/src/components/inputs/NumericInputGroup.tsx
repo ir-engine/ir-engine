@@ -28,7 +28,7 @@ import React from 'react'
 import Grid from '@mui/material/Grid'
 
 import { InfoTooltip } from '../layout/Tooltip'
-import { InputGroupContainer, InputGroupContent, InputGroupInfo } from './InputGroup'
+import { InputGroupContainer, InputGroupContent } from './InputGroup'
 import NumericInput from './NumericInput'
 import Scrubber from './Scrubber'
 

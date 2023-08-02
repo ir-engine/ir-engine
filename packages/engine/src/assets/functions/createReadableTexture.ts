@@ -26,13 +26,12 @@ Ethereal Engine. All Rights Reserved.
 import {
   Camera,
   CubeTexture,
-  LinearEncoding,
+  LinearSRGBColorSpace,
   Mesh,
   PerspectiveCamera,
   PlaneGeometry,
   Scene,
   ShaderMaterial,
-  sRGBEncoding,
   Texture,
   Uniform,
   Vector4,
@@ -123,6 +122,7 @@ function blitTexture(map: Texture, options?: BlitTextureOptions | undefined) {
   if ((map as CubeTexture).isCubeTexture) {
     blit = new Texture(map.source.data[0])
   }
+  map.colorSpace = LinearSRGBColorSpace
   const temporaryRenderer = getTemporaryRenderer()
   const temporaryScene = getTemporaryScene()
   if (options?.keepTransform) {
@@ -205,6 +205,6 @@ export default async function createReadableTexture(
   }
   finalTexture.wrapS = map.wrapS
   finalTexture.wrapT = map.wrapT
-  finalTexture.encoding = map.encoding
+  finalTexture.colorSpace = map.colorSpace
   return finalTexture
 }

@@ -27,12 +27,8 @@ import { CubeTexture, Material, Texture } from 'three'
 
 import { getState } from '@etherealengine/hyperflux'
 
-import {
-  extractDefaults,
-  materialToDefaultArgs
-} from '../../../../renderer/materials/functions/MaterialLibraryFunctions'
+import { materialToDefaultArgs } from '../../../../renderer/materials/functions/MaterialLibraryFunctions'
 import { MaterialLibraryState } from '../../../../renderer/materials/MaterialLibrary'
-import createReadableTexture from '../../../functions/createReadableTexture'
 import { GLTFWriter } from '../GLTFExporter'
 import { ExporterExtension } from './ExporterExtension'
 

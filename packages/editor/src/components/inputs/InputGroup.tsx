@@ -35,7 +35,7 @@ import { InfoTooltip } from '../layout/Tooltip'
 
 import './InputGroup.css'
 
-const useStyles = makeStyles<any, {}, any>((theme: any) => {
+const useStyles = makeStyles<any, any, any>((theme: any) => {
   return createStyles({
     info: {
       color: 'var(--textColor)',
@@ -124,7 +124,7 @@ export type InputGroupProps = React.PropsWithChildren<
  * @param       {string} label
  * @constructor
  */
-export const InputGroup = ({ name, children, disabled, info, label, ...rest }: InputGroupProps) => {
+export function InputGroup({ name, children, disabled, info, label, ...rest }: InputGroupProps) {
   const styles = useStyles()
 
   return (

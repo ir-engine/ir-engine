@@ -25,7 +25,6 @@ Ethereal Engine. All Rights Reserved.
 
 import { Intersection, Object3D, Raycaster, Vector2, Vector3 } from 'three'
 
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { EngineRenderer } from '@etherealengine/engine/src/renderer/WebGLRendererSystem'
 import { SnapMode } from '@etherealengine/engine/src/scene/constants/transformConstants'
 import { getState } from '@etherealengine/hyperflux'

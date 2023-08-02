@@ -49,6 +49,8 @@
     "@tailwindcss/typography": "^0.5.9",
     "autoprefixer": "^10.4.14",
     "daisyui": "^2.51.5",
+    "re-resizable": "^6.9.9",
+    "react-icons": "^4.10.1",
     "tailwind-merge": "^1.10.0",
     "tailwindcss": "^3.3.2",
     "typescript": "5.0.2"
@@ -81,7 +83,7 @@
     "@types/react": "18.0.28",
     "@types/react-router-dom": "5.3.3",
     "@types/styled-components": "5.1.26",
-    "@types/three": "0.149.0",
+    "@types/three": "0.153.0",
     "babel-jest": "^29.4.1",
     "babel-loader": "^8.3.0",
     "crypto-browserify": "^3.12.0",

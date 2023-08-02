@@ -42,11 +42,11 @@ import {
   THUMBNAIL_HEIGHT,
   THUMBNAIL_WIDTH
 } from '@etherealengine/common/src/constants/AvatarConstants'
-import { AvatarInterface } from '@etherealengine/common/src/interfaces/AvatarInterface'
 import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoader'
 import { AvatarRigComponent } from '@etherealengine/engine/src/avatar/components/AvatarAnimationComponent'
 import { getOptionalComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
-import { dispatchAction, getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { AvatarType } from '@etherealengine/engine/src/schemas/user/avatar.schema'
+import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import Box from '@etherealengine/ui/src/primitives/mui/Box'
 import Button from '@etherealengine/ui/src/primitives/mui/Button'
 import Container from '@etherealengine/ui/src/primitives/mui/Container'
@@ -64,7 +64,7 @@ import { useRender3DPanelSystem } from '../../../user/components/Panel3D/useRend
 import { AuthState } from '../../../user/services/AuthService'
 import { AvatarService } from '../../../user/services/AvatarService'
 import DrawerView from '../../common/DrawerView'
-import { AdminAvatarActions, AdminAvatarState } from '../../services/AvatarService'
+import { AdminAvatarState } from '../../services/AvatarService'
 import styles from '../../styles/admin.module.scss'
 
 export enum AvatarDrawerMode {
@@ -81,7 +81,7 @@ enum ConfirmState {
 interface Props {
   open: boolean
   mode: AvatarDrawerMode
-  selectedAvatar?: AvatarInterface
+  selectedAvatar?: AvatarType
   onClose: () => void
 }
 
@@ -317,7 +317,7 @@ const AvatarDrawerContent = ({ open, mode, selectedAvatar, onClose }: Props) => 
       if (selectedAvatar?.id) {
         await AvatarService.patchAvatar(selectedAvatar, state.name.value, true, avatarFile, thumbnailFile)
       } else await AvatarService.createAvatar(avatarFile, thumbnailFile, state.name.value, true)
-      dispatchAction(AdminAvatarActions.avatarUpdated({}))
+      getMutableState(AdminAvatarState).merge({ updateNeeded: true })
 
       onClose()
     }

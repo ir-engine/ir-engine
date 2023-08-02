@@ -25,10 +25,9 @@ Ethereal Engine. All Rights Reserved.
 
 import React, { ReactElement, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Link } from 'react-router-dom'
 
 import ConfirmDialog from '@etherealengine/client-core/src/common/components/ConfirmDialog'
-import { Location } from '@etherealengine/common/src/interfaces/Location'
+import { LocationType } from '@etherealengine/engine/src/schemas/social/location.schema'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import Avatar from '@etherealengine/ui/src/primitives/mui/Avatar'
 import Box from '@etherealengine/ui/src/primitives/mui/Box'
@@ -58,7 +57,7 @@ const LocationTable = ({ className, search }: Props) => {
   const fieldOrder = useHookstate('asc')
   const sortField = useHookstate('name')
   const openLocationDrawer = useHookstate(false)
-  const locationAdmin = useHookstate<Location | undefined>(undefined)
+  const locationAdmin = useHookstate<LocationType | undefined>(undefined)
   const user = useHookstate(getMutableState(AuthState).user)
   const adminLocationState = useHookstate(getMutableState(AdminLocationState))
   const adminLocations = adminLocationState.locations
@@ -94,7 +93,7 @@ const LocationTable = ({ className, search }: Props) => {
   }
 
   const handleOpenLocationDrawer =
-    (open: boolean, location: Location) => (event: React.KeyboardEvent | React.MouseEvent) => {
+    (open: boolean, location: LocationType) => (event: React.KeyboardEvent | React.MouseEvent) => {
       event.preventDefault()
       if (
         event.type === 'keydown' &&
@@ -107,13 +106,13 @@ const LocationTable = ({ className, search }: Props) => {
     }
 
   const createData = (
-    el: Location,
+    el: LocationType,
     id: string,
     name: string,
     sceneId: string,
     maxUsersPerInstance: string,
     scene: string,
-    type: string,
+    locationType: string,
     tags: any,
     videoEnabled: ReactElement<any, any>
   ) => {
@@ -124,7 +123,7 @@ const LocationTable = ({ className, search }: Props) => {
       sceneId: <a href={`/studio/${sceneId}`}>{sceneId}</a>,
       maxUsersPerInstance,
       scene,
-      type,
+      locationType,
       tags,
       videoEnabled,
       action: (
@@ -156,7 +155,7 @@ const LocationTable = ({ className, search }: Props) => {
       el.maxUsersPerInstance.toString(),
       el.slugifiedName,
       //@ts-ignore
-      el.location_setting?.locationType,
+      el.locationSetting?.locationType,
       <div>
         {el.isFeatured && (
           <Chip
@@ -176,7 +175,7 @@ const LocationTable = ({ className, search }: Props) => {
       </div>,
       <div>
         {/**@ts-ignore*/}
-        {el.location_setting?.videoEnabled ? t('admin:components.common.yes') : t('admin:components.common.no')}
+        {el.locationSetting?.videoEnabled ? t('admin:components.common.yes') : t('admin:components.common.no')}
       </div>
     )
   })

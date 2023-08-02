@@ -29,8 +29,8 @@ import { useTranslation } from 'react-i18next'
 import AutoComplete, { AutoCompleteData } from '@etherealengine/client-core/src/common/components/AutoComplete'
 import InputSelect, { InputMenuItem } from '@etherealengine/client-core/src/common/components/InputSelect'
 import InputText from '@etherealengine/client-core/src/common/components/InputText'
-import { AdminScopeType } from '@etherealengine/common/src/interfaces/AdminScopeType'
 import { CreateEditUser, UserInterface } from '@etherealengine/common/src/interfaces/User'
+import { ScopeTypeData } from '@etherealengine/engine/src/schemas/scope/scope-type.schema'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import Button from '@etherealengine/ui/src/primitives/mui/Button'
 import Checkbox from '@etherealengine/ui/src/primitives/mui/Checkbox'
@@ -44,10 +44,8 @@ import Tooltip from '@etherealengine/ui/src/primitives/mui/Tooltip'
 import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 
 import { DiscordIcon } from '../../../common/components/Icons/DiscordIcon'
-import { FacebookIcon } from '../../../common/components/Icons/FacebookIcon'
 import { GoogleIcon } from '../../../common/components/Icons/GoogleIcon'
 import { LinkedInIcon } from '../../../common/components/Icons/LinkedInIcon'
-import { TwitterIcon } from '../../../common/components/Icons/TwitterIcon'
 import { NotificationService } from '../../../common/services/NotificationService'
 import { AuthState } from '../../../user/services/AuthService'
 import DrawerView from '../../common/DrawerView'
@@ -74,7 +72,7 @@ const defaultState = {
   name: '',
   avatar: '',
   isGuest: true,
-  scopes: [] as Array<AdminScopeType>,
+  scopes: [] as Array<ScopeTypeData>,
   formErrors: {
     name: '',
     avatar: '',

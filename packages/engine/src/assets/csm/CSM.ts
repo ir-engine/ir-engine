@@ -38,7 +38,6 @@ import {
   Vector3
 } from 'three'
 
-import { OBCType } from '../../common/constants/OBCTypes'
 import { addOBCPlugin, removeOBCPlugin } from '../../common/functions/OnBeforeCompilePlugin'
 import Frustum from './Frustum'
 import Shader from './Shader'
@@ -96,7 +95,7 @@ export class CSM {
   lights: DirectionalLight[]
   lightSourcesCount: number
   shaders: Map<Material, ShaderType> = new Map()
-  needsUpdate: boolean = false
+  needsUpdate = false
 
   constructor(data: CSMParams) {
     this.camera = data.camera
