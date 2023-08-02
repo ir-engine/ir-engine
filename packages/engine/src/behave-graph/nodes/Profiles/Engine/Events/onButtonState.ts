@@ -49,7 +49,6 @@ const initialState = (): State => ({
 
 // very 3D specific.
 const buttonStates = ['down', 'pressed', 'touched', 'up'] as Array<keyof ButtonState>
-const query = defineQuery([InputSourceComponent])
 export const OnButtonState = makeEventNodeDefinition({
   typeName: 'engine/onButtonState',
   category: NodeCategory.Event,
@@ -87,6 +86,7 @@ export const OnButtonState = makeEventNodeDefinition({
   initialState: initialState(),
   init: ({ read, write, commit, graph }) => {
     const buttonKey = read<string>('button')
+    const query = defineQuery([InputSourceComponent])
     const systemUUID = defineSystem({
       uuid: 'behave-graph-onButton-' + systemCounter++,
       execute: () => {
@@ -94,7 +94,7 @@ export const OnButtonState = makeEventNodeDefinition({
           const inputSource = getComponent(eid, InputSourceComponent)
           const button = inputSource.buttons[buttonKey]
           buttonStates.forEach((state) => {
-            if (button?.[state]) {
+            if (button?.[state] === true) {
               const outputSocket = `${state.charAt(0).toUpperCase()}${state.slice(1)}`
               commit(outputSocket as any)
             }

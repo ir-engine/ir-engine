@@ -33,6 +33,7 @@ import {
   memo
 } from '@behave-graph/core'
 import { GetSceneProperty, SetSceneProperty } from '@behave-graph/scene'
+import { Sequence } from './Events/Sequence'
 import { OnButtonState } from './Events/onButtonState'
 import { onLoadAsset } from './Events/onLoadAsset'
 import { triggerLoadAsset } from './Events/triggerLoadAsset'
@@ -76,6 +77,7 @@ export const getEngineNodesMap = memo<Record<string, NodeDefinition>>(() => {
 
     // events
     OnButtonState, // click included
+    Sequence,
     // async
     //switchScene.Description,
     ...SetSceneProperty(engineValueTypeNames),
