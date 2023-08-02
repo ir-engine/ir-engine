@@ -414,7 +414,6 @@ const execute = () => {
       const ikTransform = getComponent(ikEntity, TransformComponent)
       const hipsForward = new Vector3(0, 0, 1)
 
-      //todo - use a map for this
       switch (ikTargetName) {
         case 'leftHand':
           worldSpaceTargets.leftHandTarget.position.copy(ikTransform.position)
@@ -425,9 +424,14 @@ const execute = () => {
           worldSpaceTargets.rightHandTarget.rotation.copy(ikTransform.rotation)
           break
         case 'head':
-          worldSpaceTargets.hipsTarget.position.copy(
-            _vector3.copy(ikTransform.position).setY(ikTransform.position.y - rigComponent.torsoLength - 0.125)
-          )
+          if (xrState.sessionActive) {
+            worldSpaceTargets.hipsTarget.position.copy(
+              _vector3.copy(ikTransform.position).setY(ikTransform.position.y - rigComponent.torsoLength - 0.125)
+            )
+          } else {
+            worldSpaceTargets.headTarget.position.copy(ikTransform.position)
+          }
+
           //offset target forward to account for hips being behind the head
           hipsForward.applyQuaternion(rigidbodyComponent!.rotation)
           hipsForward.multiplyScalar(0.125)
@@ -441,6 +445,9 @@ const execute = () => {
               ikTransform.rotation
             )
           )
+          break
+        case 'hips':
+          worldSpaceTargets.hipsTarget.position.copy(ikTransform.position)
           break
       }
     }
