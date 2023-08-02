@@ -24,18 +24,27 @@ Ethereal Engine. All Rights Reserved.
 */
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
-import { resolve } from '@feathersjs/schema'
+import { resolve, virtual } from '@feathersjs/schema'
 import { v4 } from 'uuid'
 
 import type { HookContext } from '@etherealengine/server-core/declarations'
 
+import { StaticResourceType, staticResourcePath } from '@etherealengine/engine/src/schemas/media/static-resource.schema'
 import {
   RecordingResourceQuery,
   RecordingResourceType
 } from '@etherealengine/engine/src/schemas/recording/recording-resource.schema'
 import { getDateTimeSql } from '../../util/get-datetime-sql'
 
-export const recordingResourceResolver = resolve<RecordingResourceType, HookContext>({})
+export const recordingResourceResolver = resolve<RecordingResourceType, HookContext>({
+  staticResource: virtual(async (recordingResource, context) => {
+    //TODO: We should replace `as any as StaticResourceType` with `as StaticResourceType` once static-resource service is migrated to feathers 5.
+    const staticResource = (await context.app
+      .service(staticResourcePath)
+      .get(recordingResource.staticResourceId)) as any as StaticResourceType
+    return staticResource
+  })
+})
 
 export const recordingResourceExternalResolver = resolve<RecordingResourceType, HookContext>({})
 
