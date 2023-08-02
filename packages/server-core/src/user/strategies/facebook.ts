@@ -70,9 +70,11 @@ export class FacebookStrategy extends CustomOAuthStrategy {
       const avatars = (await this.app.service(avatarPath).find({ isInternal: true })) as Paginated<AvatarType>
       const code = await getFreeInviteCode(this.app)
       const newUser = (await this.app.service(userPath).create({
+        name: '',
         isGuest: false,
         inviteCode: code,
-        avatarId: avatars[random(avatars.total - 1)].id
+        avatarId: avatars[random(avatars.total - 1)].id,
+        scopes: []
       })) as UserType
       entity.userId = newUser.id
       await this.app.service('identity-provider').patch(entity.id, {

@@ -28,9 +28,9 @@ import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
 
 import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 import { Channel } from '@etherealengine/engine/src/schemas/interfaces/Channel'
-import { ChannelID } from '@etherealengine/engine/src/schemas/interfaces/ChannelUser'
 import { Message as MessageInterface } from '@etherealengine/engine/src/schemas/interfaces/Message'
 
+import { ChannelID } from '@etherealengine/common/src/dbmodels/Channel'
 import { UserType, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Application } from '../../../declarations'
 import { UserParams } from '../../api/root-params'

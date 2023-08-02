@@ -33,6 +33,8 @@ import { isDev } from '@etherealengine/common/src/config'
 import { IdentityProviderInterface } from '@etherealengine/common/src/dbmodels/IdentityProvider'
 import { avatarPath, AvatarType } from '@etherealengine/engine/src/schemas/user/avatar.schema'
 
+import { AdminScope } from '@etherealengine/engine/src/schemas/interfaces/AdminScope'
+import { scopePath } from '@etherealengine/engine/src/schemas/scope/scope.schema'
 import { userPath, UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Application } from '../../../declarations'
 import { UserParams } from '../../api/root-params'
@@ -190,23 +192,19 @@ export class IdentityProvider<T = IdentityProviderInterface> extends Service<T> 
 
     const code = await getFreeInviteCode(this.app)
     // if there is no user with userId, then we create a user and a identity provider.
-    const adminCount = await this.app.service(userPath).Model.count({
-      include: [
-        {
-          model: this.app.service('scope').Model,
-          where: {
-            type: 'admin:admin'
-          }
-        }
-      ]
-    })
+    const adminCount = (await this.app.service(scopePath)._find({
+      query: {
+        type: 'admin:admin'
+      }
+    })) as Paginated<AdminScope>
+
     const avatars = (await this.app
       .service(avatarPath)
       .find({ isInternal: true, query: { $limit: 1000 } })) as Paginated<AvatarType>
 
     let isGuest = type === 'guest'
 
-    if (adminCount === 0) {
+    if (adminCount.data.length === 0) {
       // in dev mode make the first guest an admin
       // otherwise make the first logged in user an admin
       if (isDev || !isGuest) {

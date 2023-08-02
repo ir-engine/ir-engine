@@ -133,6 +133,9 @@ export const userDataResolver = resolve<UserType, HookContext>({
   id: async () => {
     return v4()
   },
+  name: async (name) => {
+    return name || 'Guest #' + Math.floor(Math.random() * (999 - 100 + 1) + 100)
+  },
   createdAt: getDateTimeSql,
   updatedAt: getDateTimeSql
 })

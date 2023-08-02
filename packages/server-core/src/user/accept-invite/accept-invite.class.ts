@@ -152,11 +152,11 @@ export class AcceptInvite implements ServiceMethods<Data> {
       } else if (invite.inviteeId != null) {
         const invitee = await this.app.service(userPath).get(invite.inviteeId)
 
-        if (invitee == null || invitee.identity_providers == null || invitee.identity_providers.length === 0) {
+        if (invitee == null || invitee.identityProviders == null || invitee.identityProviders.length === 0) {
           throw new BadRequest('Invalid invitee ID')
         }
 
-        inviteeIdentityProvider = invitee.identity_providers[0]
+        inviteeIdentityProvider = invitee.identityProviders[0]
       }
 
       if (params['identity-provider'] == null) params['identity-provider'] = inviteeIdentityProvider
