@@ -65,7 +65,7 @@ export class Recording<T = RecordingDataType> extends Service<T> {
     return result as T
   }
 
-  async find(params?: UserParams) {
+  async find(params?: UserParams): Promise<Paginated<T>> {
     if (params && params.user && params.query) {
       const admin = await checkScope(params.user, this.app, 'admin', 'admin')
       if (admin && params.query.action === 'admin') {
@@ -93,11 +93,11 @@ export class Recording<T = RecordingDataType> extends Service<T> {
       }
     }
 
-    return await super.find({
+    return (await super.find({
       query: {
         userId: params?.user!.id
       }
-    })
+    })) as Paginated<T>
   }
 
   async create(data?: any, params?: any): Promise<T | T[]> {
