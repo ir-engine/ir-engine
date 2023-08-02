@@ -46,13 +46,12 @@ import { Category, Classifications, Landmark, NormalizedLandmark } from '@mediap
 import { Side, THand } from './solvers'
 
 import UpdateRawFace from './UpdateRawFace'
-import UpdateRawPose from './UpdateRawPose'
-import UpdateSolvedFace from './UpdateSolvedFace'
-
-import UpdateSolvedPose from './UpdateSolvedPose'
-
 import UpdateRawHand from './UpdateRawHand'
+import UpdateRawPose from './UpdateRawPose'
+
+import UpdateSolvedFace from './UpdateSolvedFace'
 import UpdateSolvedHand from './UpdateSolvedHand'
+import UpdateSolvedPose from './UpdateSolvedPose'
 
 export interface SolvedHand {
   handSolve?: THand<Side> | undefined
@@ -70,7 +69,7 @@ export interface MotionCaptureStream {
 
 const debugPoseObjs: Object3D[] = []
 const debugHandObjs: Object3D[] = []
-const debug = true
+const debug = false
 const useSolvers = true
 
 export const sendResults = (results: MotionCaptureStream) => {
@@ -157,6 +156,19 @@ const execute = () => {
             UpdateRawPose(pose, twoDPose, hipsPos.clone(), avatarRig, avatarTransform)
           })
         }
+        if (data?.handsWorld && data?.handednesses) {
+          const handednesses = data?.handednesses
+          data?.handsWorld.forEach((hand, idx) => {
+            handednesses.forEach((handedness, idx) => {
+              UpdateRawHand(hand, handedness, hipsPos.clone(), avatarRig, avatarTransform)
+            })
+          })
+        }
+        if (data?.faces) {
+          data?.faces.forEach((face) => {
+            UpdateRawFace(face, hipsPos.clone(), avatarRig, avatarTransform)
+          })
+        }
       } else {
         if (data.poses && data.posesWorld) {
           const twoDPoses = data.poses
@@ -165,38 +177,16 @@ const execute = () => {
             UpdateSolvedPose(pose, twoDPose, avatarRig, avatarTransform)
           })
         }
-      }
-
-      if (useSolvers !== true) {
-        if (data.handsWorld && data.handednesses) {
-          const handednesses = data.handednesses
-          data.handsWorld.forEach((hand, idx) => {
+        if (data?.handsWorld && data?.handednesses) {
+          const handednesses = data?.handednesses
+          data?.handsWorld.forEach((hand, idx) => {
             handednesses.forEach((handedness, idx) => {
               UpdateSolvedHand(hand, handedness, avatarRig, avatarTransform)
             })
           })
         }
-      } else {
-        if (data.handsWorld && data.handednesses) {
-          const handednesses = data.handednesses
-          data.handsWorld.forEach((hand, idx) => {
-            handednesses.forEach((handedness, idx) => {
-              UpdateRawHand(hand, handedness, hipsPos.clone(), avatarRig, avatarTransform)
-            })
-          })
-        }
-      }
-
-      // Face
-      if (useSolvers !== true) {
-        if (data.faces) {
-          data.faces.forEach((face) => {
-            UpdateRawFace(face, hipsPos.clone(), avatarRig, avatarTransform)
-          })
-        }
-      } else if (data.faces) {
-        if (data.faces) {
-          data.faces.forEach((face) => {
+        if (data?.faces) {
+          data?.faces.forEach((face) => {
             UpdateSolvedFace(face, hipsPos.clone(), avatarRig, avatarTransform)
           })
         }

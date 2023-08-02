@@ -45,8 +45,8 @@ export class HandSolver {
         }
         const palm = [
             new Vector(lm[MediapipeHandNames.indexOf('WRIST')]),
-            new Vector(lm[side === RIGHT ? 17 : 5]),
-            new Vector(lm[side === RIGHT ? 5 : 17]),
+            new Vector(lm[side === RIGHT ? MediapipeHandNames.indexOf('PINKY_MCP') : MediapipeHandNames.indexOf('INDEX_FINGER_MCP')]),
+            new Vector(lm[side === RIGHT ? MediapipeHandNames.indexOf('INDEX_FINGER_MCP') : MediapipeHandNames.indexOf('PINKY_MCP')]),
         ];
         const handRotation = Vector.rollPitchYaw(palm[MediapipeHandNames.indexOf('WRIST')], palm[MediapipeHandNames.indexOf('THUMB_CMC')], palm[MediapipeHandNames.indexOf('THUMB_MCP')]);
         handRotation.y = handRotation.z;
@@ -79,11 +79,11 @@ export class HandSolver {
  */
 const rigFingers = (hand, side = RIGHT) => {
     // Invert modifier based on left vs right side
-    const invert = side === RIGHT ? 1 : -1;
+    const invert = side === LEFT ? 1 : -1;
     const digits = ["Ring", "Index", "Little", "Thumb", "Middle"];
     const segments = ["Proximal", "Intermediate", "Distal"];
     hand[side + "Wrist"].x = clamp(hand[side + "Wrist"].x * 2 * invert, -0.3, 0.3); // twist
-    hand[side + "Wrist"].y = clamp(hand[side + "Wrist"].y * 2.3, side === RIGHT ? -1.2 : -0.6, side === RIGHT ? 0.6 : 1.6);
+    hand[side + "Wrist"].y = clamp(hand[side + "Wrist"].y * 2.3, side === LEFT ? -1.2 : -0.6, side === LEFT ? 0.6 : 1.6);
     hand[side + "Wrist"].z = hand[side + "Wrist"].z * -2.3 * invert; //left right
     digits.forEach((e) => {
         segments.forEach((j) => {
@@ -102,9 +102,9 @@ const rigFingers = (hand, side = RIGHT) => {
                 };
                 const newThumb = { x: 0, y: 0, z: 0 };
                 if (j === "Proximal") {
-                    newThumb.z = clamp(startPos.z + trackedFinger.z * -PI * dampener.z * invert, side === RIGHT ? -0.6 : -0.3, side === RIGHT ? 0.3 : 0.6);
+                    newThumb.z = clamp(startPos.z + trackedFinger.z * -PI * dampener.z * invert, side === LEFT ? -0.6 : -0.3, side === LEFT ? 0.3 : 0.6);
                     newThumb.x = clamp(startPos.x + trackedFinger.z * -PI * dampener.x, -0.6, 0.3);
-                    newThumb.y = clamp(startPos.y + trackedFinger.z * -PI * dampener.y * invert, side === RIGHT ? -1 : -0.3, side === RIGHT ? 0.3 : 1);
+                    newThumb.y = clamp(startPos.y + trackedFinger.z * -PI * dampener.y * invert, side === LEFT ? -1 : -0.3, side === LEFT ? 0.3 : 1);
                 }
                 else {
                     newThumb.z = clamp(startPos.z + trackedFinger.z * -PI * dampener.z * invert, -2, 2);
@@ -117,7 +117,7 @@ const rigFingers = (hand, side = RIGHT) => {
             }
             else {
                 //will document human limits later
-                trackedFinger.z = clamp(trackedFinger.z * -PI * invert, side === RIGHT ? -PI : 0, side === RIGHT ? 0 : PI);
+                trackedFinger.z = clamp(trackedFinger.z * -PI * invert, side === LEFT ? -PI : 0, side === LEFT ? 0 : PI);
             }
         });
     });
