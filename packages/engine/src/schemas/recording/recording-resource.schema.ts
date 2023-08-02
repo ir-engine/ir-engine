@@ -37,9 +37,12 @@ export const recordingResourceSchema = Type.Object(
     id: Type.String({
       format: 'uuid'
     }),
-    paymentPointer: Type.String(),
-    clientId: Type.String(),
-    clientSecret: Type.String(),
+    recordingId: Type.String({
+      format: 'uuid'
+    }),
+    staticResourceId: Type.String({
+      format: 'uuid'
+    }),
     createdAt: Type.String({ format: 'date-time' }),
     updatedAt: Type.String({ format: 'date-time' })
   },
@@ -48,13 +51,9 @@ export const recordingResourceSchema = Type.Object(
 export type RecordingResourceType = Static<typeof recordingResourceSchema>
 
 // Schema for creating new entries
-export const recordingResourceDataSchema = Type.Pick(
-  recordingResourceSchema,
-  ['paymentPointer', 'clientId', 'clientSecret'],
-  {
-    $id: 'RecordingResourceData'
-  }
-)
+export const recordingResourceDataSchema = Type.Pick(recordingResourceSchema, ['recordingId', 'staticResourceId'], {
+  $id: 'RecordingResourceData'
+})
 export type RecordingResourceData = Static<typeof recordingResourceDataSchema>
 
 // Schema for updating existing entries
@@ -66,9 +65,8 @@ export type RecordingResourcePatch = Static<typeof recordingResourcePatchSchema>
 // Schema for allowed query properties
 export const recordingResourceQueryProperties = Type.Pick(recordingResourceSchema, [
   'id',
-  'paymentPointer',
-  'clientId',
-  'clientSecret'
+  'recordingId',
+  'staticResourceId'
 ])
 export const recordingResourceQuerySchema = Type.Intersect(
   [
