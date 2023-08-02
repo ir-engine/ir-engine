@@ -28,12 +28,13 @@ import config from '@etherealengine/common/src/config'
 import { SceneJson } from '@etherealengine/common/src/interfaces/SceneInterface'
 import { dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 import { MathUtils } from 'three'
+import { PositionalAudioComponent } from '../../../../../audio/components/PositionalAudioComponent'
 import { AnimationManager } from '../../../../../avatar/AnimationManager'
 import { LoopAnimationComponent } from '../../../../../avatar/components/LoopAnimationComponent'
 import { CameraActions } from '../../../../../camera/CameraState'
 import { Entity } from '../../../../../ecs/classes/Entity'
 import { SceneState } from '../../../../../ecs/classes/Scene'
-import { setComponent } from '../../../../../ecs/functions/ComponentFunctions'
+import { getComponent, hasComponent, setComponent } from '../../../../../ecs/functions/ComponentFunctions'
 import { getCallback } from '../../../../../scene/components/CallbackComponent'
 import { MediaComponent } from '../../../../../scene/components/MediaComponent'
 import { VideoComponent } from '../../../../../scene/components/VideoComponent'
@@ -76,14 +77,23 @@ export const playVideo = makeFlowNodeDefinition({
   out: { flow: 'flow' },
   initialState: undefined,
   triggered: ({ read, commit, graph: { getDependency } }) => {
-    const media: string = read('mediaPath')
-    const paused: boolean = read('paused')
-    const volume = MathUtils.clamp(read('volume'), 0, 1)
-    const playMode: PlayMode = read('playMode')
-    const videoFit: ContentFitType = read('videoFit')
     const entity = Number(read('entity')) as Entity
+    let resources, volume
+    if (hasComponent(entity, MediaComponent)) {
+      const component = getComponent(entity, MediaComponent)
+      resources = component.resources.length > 0 ? component.resources : []
+      volume = component.volume
+    }
+    setComponent(entity, PositionalAudioComponent)
+    const media = read<string>('mediaPath')
+    resources = media ? [media, ...resources] : resources
+    const paused = read<boolean>('paused')
+    volume = MathUtils.clamp(read('volume') ?? volume, 0, 1)
+    const videoFit: ContentFitType = read('videoFit')
+    const playMode = read<PlayMode>('playMode')
+
     setComponent(entity, VideoComponent, { fit: videoFit }) // play
-    setComponent(entity, MediaComponent, { paused: paused, paths: [media], volume: volume, playMode: playMode! }) // play
+    setComponent(entity, MediaComponent, { paused: paused, resources: resources, volume: volume, playMode: playMode! }) // play
     commit('flow')
   }
 })
@@ -113,12 +123,21 @@ export const playAudio = makeFlowNodeDefinition({
   out: { flow: 'flow' },
   initialState: undefined,
   triggered: ({ read, commit, graph: { getDependency } }) => {
-    const media: string = read('mediaPath')
-    const paused: boolean = read('paused')
-    const volume = clamp(read('volume'), 0, 1)
-    const playMode: PlayMode = read('playMode')
     const entity = Number(read('entity')) as Entity
-    setComponent(entity, MediaComponent, { paused: paused, paths: [media], volume: volume, playMode: playMode! }) // play
+    let resources, volume
+    if (hasComponent(entity, MediaComponent)) {
+      const component = getComponent(entity, MediaComponent)
+      resources = component.resources.length > 0 ? component.resources : []
+      volume = component.volume
+    }
+    setComponent(entity, PositionalAudioComponent)
+    const media = read<string>('mediaPath')
+    resources = media ? [media, ...resources] : resources
+    const paused = read<boolean>('paused')
+    volume = MathUtils.clamp(read('volume') ?? volume, 0, 1)
+    const playMode = read<PlayMode>('playMode')
+    setComponent(entity, MediaComponent, { paused: paused, resources: resources, volume: volume, playMode: playMode! }) // play
+    const component = getComponent(entity, MediaComponent)
     commit('flow')
   }
 })
@@ -164,10 +183,10 @@ export const playGltfAnimation = makeFlowNodeDefinition({
   out: { flow: 'flow' },
   initialState: undefined,
   triggered: ({ read, commit, graph: { getDependency } }) => {
+    const entity = read<Entity>('entity')
     const animation: string = read('animationName')
     const animations = AnimationManager.instance._animations
     const isAvatar: boolean = read('isAvatar')
-    const entity = Number(read('entity')) as Entity
     const animIndex: number = animations.findIndex((clip) => clip.name === animation)
     setComponent(entity, LoopAnimationComponent, { activeClipIndex: animIndex, hasAvatarAnimations: isAvatar })
     const play = getCallback(entity, 'xre.play')

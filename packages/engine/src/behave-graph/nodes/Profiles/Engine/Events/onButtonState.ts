@@ -48,6 +48,8 @@ const initialState = (): State => ({
 })
 
 // very 3D specific.
+const buttonStates = ['down', 'pressed', 'touched', 'up'] as Array<keyof ButtonState>
+const query = defineQuery([InputSourceComponent])
 export const OnButtonState = makeEventNodeDefinition({
   typeName: 'engine/onButtonState',
   category: NodeCategory.Event,
@@ -68,14 +70,7 @@ export const OnButtonState = makeEventNodeDefinition({
           .sort()
           .map((value) => ({ text: `xr-gamepad/${value}`, value }))
       ]
-
-      return {
-        valueType: 'string',
-        choices: choices
-      }
-    },
-    buttonState: (_, graphApi) => {
-      const choices = ['down', 'pressed', 'touched', 'up'] as Array<keyof ButtonState>
+      choices.unshift({ text: 'none', value: null })
       return {
         valueType: 'string',
         choices: choices
@@ -83,23 +78,27 @@ export const OnButtonState = makeEventNodeDefinition({
     }
   },
   out: {
-    flow: 'flow',
+    ...buttonStates.reduce(
+      (acc, element) => ({ ...acc, [`${element.charAt(0).toUpperCase()}${element.slice(1)}`]: 'flow' }),
+      {}
+    ),
     value: 'float'
   },
   initialState: initialState(),
   init: ({ read, write, commit, graph }) => {
     const buttonKey = read<string>('button')
-    const buttonState = read<string>('buttonState')
-    const query = defineQuery([InputSourceComponent])
     const systemUUID = defineSystem({
       uuid: 'behave-graph-onButton-' + systemCounter++,
       execute: () => {
         for (const eid of query()) {
           const inputSource = getComponent(eid, InputSourceComponent)
           const button = inputSource.buttons[buttonKey]
-          if (button?.[buttonState]) {
-            commit('flow')
-          }
+          buttonStates.forEach((state) => {
+            if (button?.[state]) {
+              const outputSocket = `${state.charAt(0).toUpperCase()}${state.slice(1)}`
+              commit(outputSocket as any)
+            }
+          })
           write('value', button?.value ?? 0)
         }
       }
