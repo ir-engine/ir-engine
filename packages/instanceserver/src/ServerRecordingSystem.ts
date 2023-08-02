@@ -47,7 +47,6 @@ import {
   removeDataChannelHandler
 } from '@etherealengine/engine/src/networking/NetworkState'
 import { SerializationSchema } from '@etherealengine/engine/src/networking/serialization/Utils'
-import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
 import { defineActionQueue, dispatchAction, getState } from '@etherealengine/hyperflux'
 import { Application } from '@etherealengine/server-core/declarations'
 import { checkScope } from '@etherealengine/server-core/src/hooks/verify-scope'
@@ -59,6 +58,8 @@ import { DataChannelType } from '@etherealengine/common/src/interfaces/DataChann
 import { RecordingID } from '@etherealengine/common/src/interfaces/RecordingID'
 import { NetworkObjectComponent } from '@etherealengine/engine/src/networking/components/NetworkObjectComponent'
 import { NetworkPeerFunctions } from '@etherealengine/engine/src/networking/functions/NetworkPeerFunctions'
+import { updatePeers } from '@etherealengine/engine/src/networking/systems/OutgoingActionSystem'
+import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
 import { getCachedURL } from '@etherealengine/server-core/src/media/storageprovider/getCachedURL'
 import { startMediaRecording } from './MediaRecordingFunctions'
 import { getServerNetwork, SocketWebRTCServerNetwork } from './SocketWebRTCServerFunctions'
@@ -363,46 +364,61 @@ export const onStartPlayback = async (action: ReturnType<typeof ECSRecordingActi
       .map((component) => getState(NetworkState).networkSchema[component] as SerializationSchema)
       .filter(Boolean),
     onChunkStarted: (chunkIndex) => {
-      if (isClone) {
-        if (entityChunks[chunkIndex] && Engine.instance.worldNetwork)
-          for (let i = 0; i < entityChunks[chunkIndex].entities.length; i++) {
-            const uuid = entityChunks[chunkIndex].entities[i]
-            // override entity ID such that it is actually unique, by appendig the recording id
-            const entityID = (uuid + '_' + recording.id) as EntityUUID
-            entityChunks[chunkIndex].entities[i] = entityID
-            if (!UUIDComponent.entitiesByUUID[entityID]) {
-              app
-                .service('user')
-                .get(uuid)
-                .then((user) => {
-                  if (user && !UUIDComponent.entitiesByUUID[entityID]) {
-                    dispatchAction(
-                      AvatarNetworkAction.spawn({
-                        entityUUID: entityID
-                      })
-                    )
-                    dispatchAction(
-                      AvatarNetworkAction.setAvatarID({
-                        // $from: entityID,
-                        avatarID: user.avatar.id,
-                        entityUUID: entityID
-                      })
-                    )
-                    entitiesSpawned.push(entityID)
-                  }
-                })
-                .catch((e) => {
-                  // console.log('not a user', e)
-                })
-            }
-          }
-      } else {
-        for (const [dataChannel, chunks] of dataChannelChunks) {
-          const chunk = chunks[chunkIndex]
-          setDataChannelChunkToReplay(activePlayback.userID, dataChannel, chunk)
-          createOutgoingDataProducer(network, dataChannel)
+      if (entityChunks[chunkIndex] && Engine.instance.worldNetwork)
+        for (let i = 0; i < entityChunks[chunkIndex].entities.length; i++) {
+          const uuid = entityChunks[chunkIndex].entities[i]
+          // override entity ID such that it is actually unique, by appendig the recording id
+          const entityID = isClone ? ((uuid + '_' + recording.id) as EntityUUID) : uuid
+          entityChunks[chunkIndex].entities[i] = entityID
+          app
+            .service('user')
+            .get(uuid)
+            .then((user) => {
+              const peerIDs = Object.keys(schema.peers) as PeerID[]
+
+              // todo, this is a hack
+              for (const peerID of peerIDs) {
+                if (network.peers.has(peerID)) continue
+                activePlayback.peerIDs!.push(peerID)
+                console.log('creating peer', peerID, entityID)
+                NetworkPeerFunctions.createPeer(
+                  network,
+                  peerID,
+                  network.peerIndexCount++,
+                  entityID,
+                  network.userIndexCount++,
+                  user.name + ' (Playback)'
+                )
+                updatePeers(network)
+              }
+
+              for (const [dataChannel, chunks] of Array.from(dataChannelChunks.entries())) {
+                const chunk = chunks[chunkIndex]
+                setDataChannelChunkToReplay(entityID, dataChannel, chunk)
+                createOutgoingDataProducer(network, dataChannel)
+              }
+
+              if (!UUIDComponent.entitiesByUUID[entityID]) {
+                dispatchAction(
+                  AvatarNetworkAction.spawn({
+                    $from: entityID,
+                    entityUUID: entityID
+                  })
+                )
+                dispatchAction(
+                  AvatarNetworkAction.setAvatarID({
+                    $from: entityID,
+                    avatarID: user.avatar.id,
+                    entityUUID: entityID
+                  })
+                )
+                entitiesSpawned.push(entityID)
+              }
+            })
+            .catch((e) => {
+              // console.log('not a user', e)
+            })
         }
-      }
     },
     onEnd: () => {
       playbackStopped(activePlayback.userID, recording.id)
@@ -413,21 +429,7 @@ export const onStartPlayback = async (action: ReturnType<typeof ECSRecordingActi
   activePlayback.deserializer.active = true
   activePlayback.entitiesSpawned = entitiesSpawned
 
-  const peerIDs = Object.keys(schema.peers) as PeerID[]
   activePlayback.peerIDs = []
-  const playbackUserID = isClone ? ((activePlayback.userID + '_' + recording.id) as UserId) : activePlayback.userID
-  for (const peerID of peerIDs) {
-    if (network.peers.has(peerID)) continue
-    activePlayback.peerIDs.push(peerID)
-    NetworkPeerFunctions.createPeer(
-      network,
-      peerID,
-      network.peerIndexCount++,
-      playbackUserID,
-      network.userIndexCount++,
-      playbackUserID
-    )
-  }
 
   activePlaybacks.set(action.recordingID, activePlayback)
 
@@ -490,6 +492,7 @@ const playbackStopped = (userId: UserId, recordingID: RecordingID) => {
     }
   }
 
+  updatePeers(network)
   activePlaybacks.delete(recordingID)
 
   /** We only need to dispatch once, so do it on the world server */
@@ -547,11 +550,12 @@ const execute = () => {
   const app = Engine.instance.api as Application
   const network = getServerNetwork(app)
 
-  for (const [userId, userMap] of dataChannelToReplay) {
+  for (const [userId, userMap] of Array.from(dataChannelToReplay.entries())) {
     if (network.users.has(userId))
       for (const [dataChannel, chunk] of userMap) {
         for (const frame of chunk.frames) {
           if (frame.timecode > Date.now() - chunk.startTime) {
+            console.log(frame.data)
             network.transport.bufferToAll(dataChannel, encode(frame.data))
             // for (const peerID of network.users.get(userId)!) {
             //   network.transport.bufferToPeer(dataChannel, peerID, encode(frame.data))
