@@ -28,6 +28,7 @@ import { DataTypes, Model, Sequelize } from 'sequelize'
 import { InstanceAttendanceInterface } from '@etherealengine/common/src/dbmodels/InstanceAttendance'
 
 import { Application } from '../../../declarations'
+import { createUserModel } from '../../all.model'
 
 export default (app: Application) => {
   const sequelizeClient: Sequelize = app.get('sequelizeClient')
@@ -62,7 +63,7 @@ export default (app: Application) => {
 
   ;(instanceAttendance as any).associate = (models: any): void => {
     ;(instanceAttendance as any).belongsTo(models.instance)
-    ;(instanceAttendance as any).belongsTo(models.user)
+    ;(instanceAttendance as any).belongsTo(createUserModel(app))
   }
   return instanceAttendance
 }
