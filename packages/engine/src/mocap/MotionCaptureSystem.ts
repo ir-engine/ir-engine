@@ -151,8 +151,10 @@ const execute = () => {
       // Pose
       if (useSolvers !== true) {
         if (data.poses && data.posesWorld) {
+          const twoDPoses = data.poses
           data.posesWorld.forEach((pose, idx) => {
-            UpdateRawPose(pose, hipsPos.clone(), avatarRig, avatarTransform)
+            const twoDPose = twoDPoses[idx]
+            UpdateRawPose(pose, twoDPose, hipsPos.clone(), avatarRig, avatarTransform)
           })
         }
       } else {

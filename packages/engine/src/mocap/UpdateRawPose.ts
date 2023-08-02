@@ -33,6 +33,7 @@ import { getComponent } from '../ecs/functions/ComponentFunctions'
 import { UUIDComponent } from '../scene/components/UUIDComponent'
 import { TransformComponent } from '../transform/components/TransformComponent'
 import { XRAction } from '../xr/XRState'
+import { calcHips } from './solvers/PoseSolver/calcHips'
 
 const indices = {
   rightEar: 8,
@@ -55,22 +56,20 @@ const rawPoses = {
   rightHand: {} as Landmark
 }
 
-const UpdateRawPose = (data: Landmark[], hipsPos, avatarRig, avatarTransform) => {
+const UpdateRawPose = (data: Landmark[], pose, hipsPos, avatarRig, avatarTransform) => {
   if (data) {
     const rightEar = data[indices.rightEar]
     const leftEar = data[indices.leftEar]
 
-    const rightHip = data[indices.rightHip]
-    const leftHip = data[indices.leftHip]
+    const hipsCalc = calcHips(data, pose)
+
+    solvedPoses.hips
+      .set(hipsCalc.Hips.position.x, hipsCalc.Hips.position.y, hipsCalc.Hips.position.z)
+      .multiplyScalar(-1)
+      .add(hipsPos)
 
     solvedPoses.head
       .set((leftEar.x + rightEar.x) / 2, (leftEar.y + rightEar.y) / 2, (leftEar.z + rightEar.z) / 2)
-      .multiplyScalar(-1)
-      .applyQuaternion(avatarTransform.rotation)
-      .add(hipsPos)
-
-    solvedPoses.hips
-      .set((leftHip.x + rightHip.x) / 2, (leftHip.y + rightHip.y) / 2, (leftHip.z + rightHip.z) / 2)
       .multiplyScalar(-1)
       .applyQuaternion(avatarTransform.rotation)
       .add(hipsPos)
