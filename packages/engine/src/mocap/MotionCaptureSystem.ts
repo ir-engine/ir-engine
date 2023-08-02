@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { decode, encode } from 'msgpackr'
 import { useEffect } from 'react'
-import { Mesh, MeshBasicMaterial, Object3D, SphereGeometry, Vector3 } from 'three'
+import { Mesh, MeshBasicMaterial, Object3D, SphereGeometry } from 'three'
 
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 
@@ -45,7 +45,6 @@ import { TransformComponent } from '../transform/components/TransformComponent'
 import { Category, Classifications, Landmark, NormalizedLandmark } from '@mediapipe/tasks-vision'
 import { Side, THand } from './solvers'
 
-import mediapipePoseNames from './MediapipePoseNames'
 import UpdateRawFace from './UpdateRawFace'
 import UpdateRawPose from './UpdateRawPose'
 import UpdateSolvedFace from './UpdateSolvedFace'
@@ -71,8 +70,9 @@ export interface MotionCaptureStream {
 
 const debugPoseObjs: Object3D[] = []
 const debugHandObjs: Object3D[] = []
-const debug = false
+const debug = true
 const useSolvers = true
+
 export const sendResults = (results: MotionCaptureStream) => {
   return encode({
     timestamp: Date.now(),
@@ -150,15 +150,15 @@ const execute = () => {
 
       // Pose
       if (useSolvers !== true) {
-        if (data.poses && data?.posesWorld) {
-          data?.posesWorld.forEach((pose, idx) => {
+        if (data.poses && data.posesWorld) {
+          data.posesWorld.forEach((pose, idx) => {
             UpdateRawPose(pose, hipsPos.clone(), avatarRig, avatarTransform)
           })
         }
       } else {
-        if (data.poses && data?.posesWorld) {
-          const twoDPoses = data?.poses
-          data?.posesWorld.forEach((pose, idx) => {
+        if (data.poses && data.posesWorld) {
+          const twoDPoses = data.poses
+          data.posesWorld.forEach((pose, idx) => {
             const twoDPose = twoDPoses[idx]
             UpdateSolvedPose(pose, twoDPose, avatarRig, avatarTransform)
           })
@@ -166,18 +166,18 @@ const execute = () => {
       }
 
       if (useSolvers !== true) {
-        if (data?.handsWorld && data?.handednesses) {
-          const handednesses = data?.handednesses
-          data?.handsWorld.forEach((hand, idx) => {
+        if (data.handsWorld && data.handednesses) {
+          const handednesses = data.handednesses
+          data.handsWorld.forEach((hand, idx) => {
             handednesses.forEach((handedness, idx) => {
               UpdateSolvedHand(hand, handedness, avatarRig, avatarTransform)
             })
           })
         }
       } else {
-        if (data?.handsWorld && data?.handednesses) {
-          const handednesses = data?.handednesses
-          data?.handsWorld.forEach((hand, idx) => {
+        if (data.handsWorld && data.handednesses) {
+          const handednesses = data.handednesses
+          data.handsWorld.forEach((hand, idx) => {
             handednesses.forEach((handedness, idx) => {
               UpdateRawHand(hand, handedness, hipsPos.clone(), avatarRig, avatarTransform)
             })
@@ -187,71 +187,67 @@ const execute = () => {
 
       // Face
       if (useSolvers !== true) {
-        if (data?.faces) {
-          data?.faces.forEach((face) => {
+        if (data.faces) {
+          data.faces.forEach((face) => {
             UpdateRawFace(face, hipsPos.clone(), avatarRig, avatarTransform)
           })
         }
-      } else if (data?.faces) {
-        if (data?.faces) {
-          data?.faces.forEach((face) => {
+      } else if (data.faces) {
+        if (data.faces) {
+          data.faces.forEach((face) => {
             UpdateSolvedFace(face, hipsPos.clone(), avatarRig, avatarTransform)
           })
         }
       }
 
       if (debug) {
-        if (data?.posesWorld) {
-          data?.posesWorld.forEach((landmarks, idx) => {
-            let idxP = landmarks.length * idx
-            landmarks.forEach((landmark) => {
-              if (debugPoseObjs[idxP] === undefined) {
-                const matOptions = {}
-                const mesh = new Mesh(new SphereGeometry(0.025), new MeshBasicMaterial(matOptions))
-                debugPoseObjs[idxP] = mesh
-                Engine?.instance?.scene?.add(mesh)
-                idxP++
-                console.log('added debug pose obj')
+        if (data.posesWorld) {
+          data.posesWorld.forEach((landmarks, idx) => {
+            const idxP = landmarks.length * idx
+            landmarks.forEach((landmark, i) => {
+              const index = idxP + i
+              if (index >= debugPoseObjs.length) {
+                const mesh = new Mesh(new SphereGeometry(0.025), new MeshBasicMaterial({ color: 'pink' }))
+                debugPoseObjs.push(mesh)
+                Engine.instance.scene.add(mesh)
               }
-              const newPos = new Vector3(landmark.x, landmark.y, landmark.z)
-
-              debugPoseObjs[idxP]?.position.copy(newPos.clone())
-              debugPoseObjs[idxP]?.updateMatrixWorld()
+              debugPoseObjs[index].position.set(landmark.x, landmark.y, landmark.z).add(hipsPos)
+              debugPoseObjs[index].updateMatrixWorld()
             })
           })
         }
-        if (data?.handsWorld) {
-          data?.handsWorld.forEach((landmarks, idx) => {
-            let idxH = landmarks.length * idx
-            landmarks.forEach((landmark, idx2) => {
-              if (debugHandObjs[idxH] === undefined) {
-                const matOptions = {}
-                const mesh = new Mesh(new SphereGeometry(0.025), new MeshBasicMaterial(matOptions))
-                debugHandObjs[idxH] = mesh
-                Engine?.instance?.scene?.add(mesh)
-                idxH++
-                console.log('added debug hand obj')
-              }
-              const newPos = new Vector3(landmark.x, landmark.y, landmark.z)
-              newPos.add(
-                data?.handednesses![idx][idx2]?.categoryName === 'Left'
-                  ? new Vector3(
-                      data?.posesWorld![idx][mediapipePoseNames['left wrist']]?.x,
-                      data?.posesWorld![idx][mediapipePoseNames['left wrist']]?.y + 1,
-                      data?.posesWorld![idx][mediapipePoseNames['left wrist']]?.z
-                    )
-                  : new Vector3(
-                      data?.posesWorld![idx][mediapipePoseNames['right wrist']]?.x,
-                      data?.posesWorld![idx][mediapipePoseNames['right wrist']]?.y + 1,
-                      data?.posesWorld![idx][mediapipePoseNames['right wrist']]?.z
-                    )
-              )
-              console.log('newPos', newPos)
-              debugHandObjs[idxH]?.position.copy(newPos.clone())
-              debugHandObjs[idxH]?.updateMatrixWorld()
-            })
-          })
-        }
+        // if (data.handsWorld) {
+        //   data.handsWorld.forEach((landmarks, idx) => {
+        //     let idxH = landmarks.length * idx
+        //     landmarks.forEach((landmark, idx2) => {
+        //       if (debugHandObjs[idxH] === undefined) {
+        //         const matOptions = {}
+        //         const mesh = new Mesh(new SphereGeometry(0.025), new MeshBasicMaterial(matOptions))
+        //         debugHandObjs[idxH] = mesh
+        //         Engine?.instance?.scene?.add(mesh)
+        //         idxH++
+        //         console.log('added debug hand obj')
+        //       }
+        //       const newPos = new Vector3(landmark.x, landmark.y, landmark.z)
+        //       newPos.add(
+        //         data.handednesses![idx][idx2]?.categoryName === 'Left'
+        //           ? new Vector3(
+        //               data.posesWorld![idx][mediapipePoseNames['left wrist']]?.x,
+        //               data.posesWorld![idx][mediapipePoseNames['left wrist']]?.y + 1,
+        //               data.posesWorld![idx][mediapipePoseNames['left wrist']]?.z
+        //             )
+        //           : new Vector3(
+        //               data.posesWorld![idx][mediapipePoseNames['right wrist']]?.x,
+        //               data.posesWorld![idx][mediapipePoseNames['right wrist']]?.y + 1,
+        //               data.posesWorld![idx][mediapipePoseNames['right wrist']]?.z
+        //             )
+        //       )
+        //       console.log('newPos', newPos)
+        //       debugHandObjs[idxH]?.position.copy(newPos.clone())
+        //       debugHandObjs[idxH]?.updateMatrixWorld()
+        //     })
+        //   })
+        // }
       }
     }
   }

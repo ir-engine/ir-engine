@@ -38,22 +38,22 @@ import MediapipePoseNames from './../../MediapipePoseNames'
 export const calcArms = (lm) => {
     //Pure Rotation Calculations
     const UpperArm = {
-        l: Vector.findRotation(lm[MediapipePoseNames.indexOf('left shoulder')], lm[MediapipePoseNames.indexOf('left elbow')]),
-        r: Vector.findRotation(lm[MediapipePoseNames.indexOf('right shoulder')], lm[MediapipePoseNames.indexOf('right elbow')]),
+        r: Vector.findRotation(lm[MediapipePoseNames.indexOf('left shoulder')], lm[MediapipePoseNames.indexOf('left elbow')]),
+        l: Vector.findRotation(lm[MediapipePoseNames.indexOf('right shoulder')], lm[MediapipePoseNames.indexOf('right elbow')]),
     };
-    UpperArm.l.y = Vector.angleBetween3DCoords(lm[MediapipePoseNames.indexOf('right shoulder')], lm[MediapipePoseNames.indexOf('left shoulder')], lm[MediapipePoseNames.indexOf('left elbow')]);
-    UpperArm.r.y = Vector.angleBetween3DCoords(lm[MediapipePoseNames.indexOf('left shoulder')], lm[MediapipePoseNames.indexOf('right shoulder')], lm[MediapipePoseNames.indexOf('right elbow')]);
+    UpperArm.r.y = Vector.angleBetween3DCoords(lm[MediapipePoseNames.indexOf('right shoulder')], lm[MediapipePoseNames.indexOf('left shoulder')], lm[MediapipePoseNames.indexOf('left elbow')]);
+    UpperArm.l.y = Vector.angleBetween3DCoords(lm[MediapipePoseNames.indexOf('left shoulder')], lm[MediapipePoseNames.indexOf('right shoulder')], lm[MediapipePoseNames.indexOf('right elbow')]);
     const LowerArm = {
-        l: Vector.findRotation(lm[MediapipePoseNames.indexOf('left elbow')], lm[MediapipePoseNames.indexOf('left wrist')]),
-        r: Vector.findRotation(lm[MediapipePoseNames.indexOf('right elbow')], lm[MediapipePoseNames.indexOf('right wrist')]),
+        r: Vector.findRotation(lm[MediapipePoseNames.indexOf('left elbow')], lm[MediapipePoseNames.indexOf('left wrist')]),
+        l: Vector.findRotation(lm[MediapipePoseNames.indexOf('right elbow')], lm[MediapipePoseNames.indexOf('right wrist')]),
     };
-    LowerArm.l.y = Vector.angleBetween3DCoords(lm[MediapipePoseNames.indexOf('left shoulder')], lm[MediapipePoseNames.indexOf('left elbow')], lm[MediapipePoseNames.indexOf('left wrist')]);
-    LowerArm.r.y = Vector.angleBetween3DCoords(lm[MediapipePoseNames.indexOf('right shoulder')], lm[MediapipePoseNames.indexOf('right elbow')], lm[MediapipePoseNames.indexOf('right wrist')]);
-    LowerArm.l.z = clamp(LowerArm.l.z, -2.14, 0);
+    LowerArm.r.y = Vector.angleBetween3DCoords(lm[MediapipePoseNames.indexOf('left shoulder')], lm[MediapipePoseNames.indexOf('left elbow')], lm[MediapipePoseNames.indexOf('left wrist')]);
+    LowerArm.l.y = Vector.angleBetween3DCoords(lm[MediapipePoseNames.indexOf('right shoulder')], lm[MediapipePoseNames.indexOf('right elbow')], lm[MediapipePoseNames.indexOf('right wrist')]);
     LowerArm.r.z = clamp(LowerArm.r.z, -2.14, 0);
+    LowerArm.l.z = clamp(LowerArm.l.z, -2.14, 0);
     const Hand = {
-        l: Vector.findRotation(Vector.fromArray(lm[MediapipePoseNames.indexOf('left wrist')]), Vector.lerp(Vector.fromArray(lm[MediapipePoseNames.indexOf('left pinky')]), Vector.fromArray(lm[MediapipePoseNames.indexOf('left index')]), 0.5)),
-        r: Vector.findRotation(Vector.fromArray(lm[MediapipePoseNames.indexOf('right wrist')]), Vector.lerp(Vector.fromArray(lm[MediapipePoseNames.indexOf('right pinky')]), Vector.fromArray(lm[MediapipePoseNames.indexOf('right index')]), 0.5)),
+        r: Vector.findRotation(Vector.fromArray(lm[MediapipePoseNames.indexOf('left wrist')]), Vector.lerp(Vector.fromArray(lm[MediapipePoseNames.indexOf('left pinky')]), Vector.fromArray(lm[MediapipePoseNames.indexOf('left index')]), 0.5)),
+        l: Vector.findRotation(Vector.fromArray(lm[MediapipePoseNames.indexOf('right wrist')]), Vector.lerp(Vector.fromArray(lm[MediapipePoseNames.indexOf('right pinky')]), Vector.fromArray(lm[MediapipePoseNames.indexOf('right index')]), 0.5)),
     };
     //Modify Rotations slightly for more natural movement
     const rightArmRig = rigArm(UpperArm.r, LowerArm.r, Hand.r, RIGHT);

@@ -74,9 +74,7 @@ const UpdateRawPose = (data: Landmark[], hipsPos, avatarRig, avatarTransform) =>
           break
       }
 
-      console.log(solvedPoses[key].x, solvedPoses[key].y, solvedPoses[key].z)
-
-      const entityUUID = `${Engine?.instance?.userId}_mocap_${key}` as EntityUUID
+      const entityUUID = `${Engine.instance.userId}_mocap_${key}` as EntityUUID
       const ikTarget = UUIDComponent.entitiesByUUID[entityUUID]
       // if (ikTarget) removeEntity(ikTarget)
 

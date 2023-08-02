@@ -38,11 +38,11 @@ const UpdateSolvedPose = (rawPose, pose, avatarRig, avatarTransform) => {
     // console.log(poseData)
     const headCalc = calcHead(pose)
 
-    updateRigPosition('Head', headCalc?.position, 1, 0.7, avatarRig)
-    updateRigRotation('Neck', headCalc?.degrees, 1, 0.7, avatarRig)
+    updateRigPosition('Head', headCalc.position, 1, 0.7, avatarRig)
+    updateRigRotation('Neck', headCalc.degrees, 1, 0.7, avatarRig)
 
     const hipsCalc = calcHips(rawPose, pose)
-    const world = hipsCalc?.Hips?.worldPosition || new Vector3(0, 0, 0)
+    const world = hipsCalc.Hips?.worldPosition || new Vector3(0, 0, 0)
     const hipsPos = {
       x: -world?.x, // Reverse direction
       y: world?.y + 1, // Add a bit of height
@@ -50,30 +50,30 @@ const UpdateSolvedPose = (rawPose, pose, avatarRig, avatarTransform) => {
     }
     updateRigPosition('Hips', hipsPos, 1, 0.07, avatarRig)
 
-    updateRigRotation('Hips', hipsCalc!.Hips.rotation, 1, 0.7, avatarRig)
+    updateRigRotation('Hips', hipsCalc.Hips.rotation, 1, 0.7, avatarRig)
 
-    updateRigRotation('Chest', hipsCalc!.Spine, 0.25, 0.3, avatarRig)
+    updateRigRotation('Chest', hipsCalc.Spine, 0.25, 0.3, avatarRig)
 
-    updateRigPosition('Spine', hipsCalc!.Spine, 0.45, 0.3, avatarRig)
+    updateRigPosition('Spine', hipsCalc.Spine, 0.45, 0.3, avatarRig)
 
     const arms = calcArms(rawPose as TFVectorPose)
-    updateRigRotation('RightUpperArm', arms!.UpperArm.r, 1, 0.3, avatarRig)
+    updateRigRotation('RightUpperArm', arms.UpperArm.r, 1, 0.3, avatarRig)
 
-    updateRigRotation('RightLowerArm', arms!.LowerArm.r, 1, 0.3, avatarRig)
+    updateRigRotation('RightLowerArm', arms.LowerArm.r, 1, 0.3, avatarRig)
 
-    updateRigRotation('LeftUpperArm', arms!.UpperArm.l, 1, 0.3, avatarRig)
+    updateRigRotation('LeftUpperArm', arms.UpperArm.l, 1, 0.3, avatarRig)
 
-    updateRigRotation('LeftLowerArm', arms!.LowerArm.l, 1, 0.3, avatarRig)
+    updateRigRotation('LeftLowerArm', arms.LowerArm.l, 1, 0.3, avatarRig)
 
-    updateRigPosition('LeftHand', arms?.Hand?.l, 1, 0.3, avatarRig)
-    updateRigPosition('RightHand', arms?.Hand?.r, 1, 0.3, avatarRig)
+    updateRigPosition('LeftHand', arms.Hand.l, 1, 0.3, avatarRig)
+    updateRigPosition('RightHand', arms.Hand.r, 1, 0.3, avatarRig)
 
     const legs = calcLegs(rawPose as TFVectorPose)
-    updateRigRotation('LeftUpperLeg', legs!.UpperLeg?.l, 1, 0.3, avatarRig)
-    updateRigRotation('LeftLowerLeg', legs!.LowerLeg?.l, 1, 0.3, avatarRig)
+    updateRigRotation('LeftUpperLeg', legs.UpperLeg.l, 1, 0.3, avatarRig)
+    updateRigRotation('LeftLowerLeg', legs.LowerLeg.l, 1, 0.3, avatarRig)
 
-    updateRigRotation('RightUpperLeg', legs!.UpperLeg?.r, 1, 0.3, avatarRig)
-    updateRigRotation('RightLowerLeg', legs!.LowerLeg?.r, 1, 0.3, avatarRig)
+    updateRigRotation('RightUpperLeg', legs.UpperLeg.r, 1, 0.3, avatarRig)
+    updateRigRotation('RightLowerLeg', legs.LowerLeg.r, 1, 0.3, avatarRig)
   }
 }
 
