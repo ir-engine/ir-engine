@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import InstanceAttendance from './instance-attendance/instance-attendance'
-import InstanceAuthorizedUser from './instance-authorized-user/instance-authorized-user.service'
+import InstanceAuthorizedUser from './instance-authorized-user/instance-authorized-user'
 import InstanceProvision from './instance-provision/instance-provision.service'
 import Instance from './instance/instance.service'
 import InstanceServerLoad from './instanceserver-load/instanceserver-load.service'

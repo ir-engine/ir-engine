@@ -79,3 +79,6 @@ export interface InstanceAttendanceInterface {
   isChannel: boolean
   ended: boolean
 }
+export interface LocationAuthorizedUserInterface {
+  id: string
+}

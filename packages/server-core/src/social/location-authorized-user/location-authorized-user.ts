@@ -23,45 +23,38 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { DataTypes, Model, Sequelize } from 'sequelize'
-
-import { LocationAuthorizedUserInterface } from '@etherealengine/common/src/dbmodels/LocationAuthorizedUser'
+import {
+  locationAuthorizedUserMethods,
+  locationAuthorizedUserPath
+} from '@etherealengine/engine/src/schemas/social/location-authorized-user.schema'
 
 import { Application } from '../../../declarations'
-import { createLocationModel } from '../../user/user/user.model'
+import { LocationAuthorizedUserService } from './location-authorized-user.class'
+import locationBanDocs from './location-authorized-user.docs'
+import hooks from './location-authorized-user.hooks'
 
-export default (app: Application) => {
-  const sequelizeClient: Sequelize = app.get('sequelizeClient')
-  const locationAuthorizedUser = sequelizeClient.define<Model<LocationAuthorizedUserInterface>>(
-    'location_authorized_user',
-    {
-      id: {
-        type: DataTypes.UUID,
-        defaultValue: DataTypes.UUIDV1,
-        allowNull: false,
-        primaryKey: true
-      }
-    },
-    {
-      hooks: {
-        beforeCount(options: any): void {
-          options.raw = true
-        }
-      }
-    }
-  )
-
-  ;(locationAuthorizedUser as any).associate = (models: any): void => {
-    ;(locationAuthorizedUser as any).belongsTo(createLocationModel(app), {
-      required: true,
-      foreignKey: { allowNull: true },
-      onDelete: 'cascade'
-    })
-    ;(locationAuthorizedUser as any).belongsTo(models.user, {
-      required: true,
-      foreignKey: { allowNull: true },
-      onDelete: 'cascade'
-    })
+declare module '@etherealengine/common/declarations' {
+  interface ServiceTypes {
+    [locationAuthorizedUserPath]: LocationAuthorizedUserService
   }
-  return locationAuthorizedUser
+}
+
+export default (app: Application): void => {
+  const options = {
+    name: locationAuthorizedUserPath,
+    paginate: app.get('paginate'),
+    Model: app.get('knexClient'),
+    multi: true
+  }
+
+  app.use(locationAuthorizedUserPath, new LocationAuthorizedUserService(options), {
+    // A list of all methods this service exposes externally
+    methods: locationAuthorizedUserMethods,
+    // You can add additional custom events to be sent to clients here
+    events: [],
+    docs: locationBanDocs
+  })
+
+  const service = app.service(locationAuthorizedUserPath)
+  service.hooks(hooks)
 }
