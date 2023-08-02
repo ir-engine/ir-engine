@@ -23,23 +23,23 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { resolveUser } from '@etherealengine/common/src/interfaces/User'
 import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 import multiLogger from '@etherealengine/common/src/logger'
 import { WorldState } from '@etherealengine/engine/src/networking/interfaces/WorldState'
 import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
 import { dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
 
+import { UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { LocationInstanceConnectionAction } from '../../common/services/LocationInstanceConnectionService'
 import { AuthState } from '../services/AuthService'
 
 const logger = multiLogger.child({ component: 'client-core:userPatched' })
 
-export const userPatched = (params) => {
-  logger.info('USER PATCHED %o', params)
+export const userPatched = (user: UserType) => {
+  logger.info('USER PATCHED %o', user)
 
   const selfUser = getMutableState(AuthState).user
-  const patchedUser = resolveUser(params || selfUser.get({ noproxy: true }))
+  const patchedUser = user || selfUser.get({ noproxy: true })
   const worldHostID = getState(NetworkState).hostIds.world
 
   logger.info('Resolved patched user %o', patchedUser)

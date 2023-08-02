@@ -33,13 +33,17 @@ import { scopeSchema } from '../scope/scope.schema'
 import { userSettingSchema } from '../setting/user-setting.schema'
 import { locationAdminSchema } from '../social/location-admin.schema'
 import { locationBanSchema } from '../social/location-ban.schema'
-import { avatarSchema } from './avatar.schema'
+import { avatarDataSchema } from './avatar.schema'
 import { identityProviderSchema } from './identity-provider.schema'
 import { userApiKeySchema } from './user-api-key.schema'
 
 export const userPath = 'user'
 
 export const userMethods = ['get', 'find', 'create', 'patch', 'remove'] as const
+
+export const userScopeSchema = Type.Pick(scopeSchema, ['type'], {
+  $id: 'UserScope'
+})
 
 // Main data model schema
 export const userSchema = Type.Object(
@@ -53,13 +57,13 @@ export const userSchema = Type.Object(
     avatarId: Type.String({
       format: 'uuid'
     }),
-    avatar: Type.Ref(avatarSchema),
+    avatar: Type.Ref(avatarDataSchema),
     userSetting: Type.Ref(userSettingSchema),
     apiKey: Type.Ref(userApiKeySchema),
     identityProviders: Type.Array(Type.Ref(identityProviderSchema)),
     locationAdmins: Type.Array(Type.Ref(locationAdminSchema)),
     locationBans: Type.Array(Type.Ref(locationBanSchema)),
-    scopes: Type.Array(Type.Ref(scopeSchema)),
+    scopes: Type.Array(Type.Ref(userScopeSchema)),
     instanceAttendance: Type.Array(Type.Ref(instanceAttendanceSchema)),
     createdAt: Type.String({ format: 'date-time' }),
     updatedAt: Type.String({ format: 'date-time' })

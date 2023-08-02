@@ -28,11 +28,51 @@ import { Paginated } from '@feathersjs/feathers'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { defineState, getMutableState } from '@etherealengine/hyperflux'
 
+import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 import { UserData, UserPatch, UserType, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { UserParams } from '@etherealengine/server-core/src/user/user/user.class'
 import { NotificationService } from '../../common/services/NotificationService'
 import { AuthService, AuthState } from '../../user/services/AuthService'
 
 export const USER_PAGE_LIMIT = 10
+
+export const UserSeed: UserType = {
+  id: '' as UserId,
+  name: '',
+  isGuest: true,
+  avatarId: '',
+  avatar: {
+    id: '',
+    name: '',
+    isPublic: true,
+    userId: '' as UserId,
+    modelResourceId: '',
+    thumbnailResourceId: '',
+    identifierName: '',
+    project: '',
+    createdAt: '',
+    updatedAt: ''
+  },
+  apiKey: {
+    id: '',
+    token: '',
+    userId: '' as UserId,
+    createdAt: '',
+    updatedAt: ''
+  },
+  userSetting: {
+    id: '',
+    themeModes: {}
+  },
+  scopes: [],
+  identityProviders: [],
+  locationAdmins: [],
+  locationBans: [],
+  instanceAttendance: [],
+  createdAt: '',
+  updatedAt: ''
+}
+
 export const AdminUserState = defineState({
   name: 'AdminUserState',
   initial: () => ({
@@ -58,7 +98,7 @@ export const AdminUserService = {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
   },
-  fetchUsersAsAdmin: async (value: string | null = null, skip = 0, sortField = 'name', orderBy = 'asc') => {
+  fetchUsersAsAdmin: async (value: string | undefined = undefined, skip = 0, sortField = 'name', orderBy = 'asc') => {
     const userState = getMutableState(AdminUserState)
     const user = getMutableState(AuthState).user
     const skipGuests = userState.skipGuests.value
@@ -67,10 +107,10 @@ export const AdminUserService = {
         let sortData = {}
 
         if (sortField.length > 0) {
-          sortData[sortField] = orderBy === 'desc' ? 0 : 1
+          sortData[sortField] = orderBy === 'desc' ? -1 : 1
         }
 
-        const params = {
+        const params: UserParams = {
           query: {
             $sort: {
               ...sortData
@@ -111,7 +151,7 @@ export const AdminUserService = {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
   },
-  patchUser: async (id: string, user: UserPatch) => {
+  patchUser: async (id: UserId, user: UserPatch) => {
     try {
       await Engine.instance.api.service(userPath).patch(id, user)
       getMutableState(AdminUserState).merge({

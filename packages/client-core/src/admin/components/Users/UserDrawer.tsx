@@ -42,7 +42,7 @@ import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 import Tooltip from '@etherealengine/ui/src/primitives/mui/Tooltip'
 import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 
-import { UserPatch, UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { UserData, UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { DiscordIcon } from '../../../common/components/Icons/DiscordIcon'
 import { GoogleIcon } from '../../../common/components/Icons/GoogleIcon'
 import { LinkedInIcon } from '../../../common/components/Icons/LinkedInIcon'
@@ -105,15 +105,15 @@ const UserDrawer = ({ open, mode, selectedUser, onClose }: Props) => {
     }
   })
 
-  const nonGuestLinkedIP = selectedUser?.identity_providers?.filter((ip) => ip.type !== 'guest')
-  const discordIp = selectedUser?.identity_providers?.find((ip) => ip.type === 'discord')
-  const googleIp = selectedUser?.identity_providers?.find((ip) => ip.type === 'google')
-  const facebookIp = selectedUser?.identity_providers?.find((ip) => ip.type === 'facebook')
-  const twitterIp = selectedUser?.identity_providers?.find((ip) => ip.type === 'twitter')
-  const linkedinIp = selectedUser?.identity_providers?.find((ip) => ip.type === 'linkedin')
-  const githubIp = selectedUser?.identity_providers?.find((ip) => ip.type === 'github')
-  const emailIp = selectedUser?.identity_providers?.find((ip) => ip.type === 'email')
-  const smsIp = selectedUser?.identity_providers?.find((ip) => ip.type === 'sms')
+  const nonGuestLinkedIP = selectedUser?.identityProviders?.filter((ip) => ip.type !== 'guest')
+  const discordIp = selectedUser?.identityProviders?.find((ip) => ip.type === 'discord')
+  const googleIp = selectedUser?.identityProviders?.find((ip) => ip.type === 'google')
+  const facebookIp = selectedUser?.identityProviders?.find((ip) => ip.type === 'facebook')
+  const twitterIp = selectedUser?.identityProviders?.find((ip) => ip.type === 'twitter')
+  const linkedinIp = selectedUser?.identityProviders?.find((ip) => ip.type === 'linkedin')
+  const githubIp = selectedUser?.identityProviders?.find((ip) => ip.type === 'github')
+  const emailIp = selectedUser?.identityProviders?.find((ip) => ip.type === 'email')
+  const smsIp = selectedUser?.identityProviders?.find((ip) => ip.type === 'sms')
 
   if (selectedUser) {
     for (const scope of selectedUser.scopes || []) {
@@ -193,7 +193,7 @@ const UserDrawer = ({ open, mode, selectedUser, onClose }: Props) => {
   }
 
   const handleSubmit = async () => {
-    const data: UserPatch = {
+    const data: UserData = {
       name: state.name.value,
       avatarId: state.avatar.value,
       isGuest: state.isGuest.value,

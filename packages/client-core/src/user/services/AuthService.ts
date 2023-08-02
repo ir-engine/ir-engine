@@ -31,7 +31,6 @@ import { v1 } from 'uuid'
 import config, { validateEmail, validatePhoneNumber } from '@etherealengine/common/src/config'
 import { AuthUserSeed, resolveAuthUser } from '@etherealengine/common/src/interfaces/AuthUser'
 import { IdentityProvider } from '@etherealengine/common/src/interfaces/IdentityProvider'
-import { UserSeed, resolveUser, resolveWalletUser } from '@etherealengine/common/src/interfaces/User'
 import { UserSetting } from '@etherealengine/common/src/interfaces/UserSetting'
 import multiLogger from '@etherealengine/common/src/logger'
 import { AuthStrategiesType } from '@etherealengine/engine/src/schemas/setting/authentication-setting.schema'
@@ -41,14 +40,26 @@ import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { locationBanPath } from '@etherealengine/engine/src/schemas/social/location-ban.schema'
 import { UserApiKeyType, userApiKeyPath } from '@etherealengine/engine/src/schemas/user/user-api-key.schema'
-import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { UserType, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { API } from '../../API'
+import { UserSeed } from '../../admin/services/UserService'
 import { NotificationService } from '../../common/services/NotificationService'
 import { LocationState } from '../../social/services/LocationService'
 import { userPatched } from '../functions/userPatched'
 
 export const logger = multiLogger.child({ component: 'client-core:AuthService' })
 export const TIMEOUT_INTERVAL = 50 // ms per interval of waiting for authToken to be updated
+
+const resolveWalletUser = (credentials: any): UserType => {
+  return {
+    ...UserSeed,
+    name: credentials.user.displayName,
+    isGuest: true,
+    avatarId: credentials.user.id,
+    // avatarUrl: credentials.user.icon,
+    apiKey: credentials.user.apiKey || { id: '', token: '', userId: '' as UserId }
+  }
+}
 
 export const AuthState = defineState({
   name: 'AuthState',
@@ -154,19 +165,18 @@ export const AuthService = {
   async loadUserData(userId: UserId) {
     try {
       const client = API.instance.client
-      const res = await client.service(userPath).get(userId)
-      if (!res.userSetting) {
+      const user = await client.service(userPath).get(userId)
+      if (!user.userSetting) {
         const settingsRes = (await client
           .service('user-settings')
           .find({ query: { userId: userId } })) as Paginated<UserSetting>
 
         if (settingsRes.total === 0) {
-          res.userSetting = (await client.service('user-settings').create({ userId: userId })) as UserSetting
+          user.userSetting = (await client.service('user-settings').create({ userId: userId })) as UserSetting
         } else {
-          res.userSetting = settingsRes.data[0]
+          user.userSetting = settingsRes.data[0]
         }
       }
-      const user = resolveUser(res)
       getMutableState(AuthState).merge({ isLoggedIn: true, user })
     } catch (err) {
       NotificationService.dispatchNotify(i18n.t('common:error.loading-error'), { variant: 'error' })
@@ -575,7 +585,7 @@ export const AuthService = {
 
   async updateUserSettings(id: any, data: any) {
     const response = (await Engine.instance.api.service('user-settings').patch(id, data)) as UserSetting
-    getMutableState(AuthState).user.user_setting.merge(response)
+    getMutableState(AuthState).user.userSetting.merge(response)
   },
 
   async removeUser(userId: UserId) {
@@ -596,14 +606,14 @@ export const AuthService = {
 
   useAPIListeners: () => {
     useEffect(() => {
-      const userPatchedListener = (params) => userPatched(params)
+      const userPatchedListener = (user: UserType) => userPatched(user)
       const locationBanCreatedListener = async (params) => {
         const selfUser = getState(AuthState).user
         const currentLocation = getState(LocationState).currentLocation.location
         const locationBan = params.locationBan
         if (selfUser.id === locationBan.userId && currentLocation.id === locationBan.locationId) {
           const userId = selfUser.id ?? ''
-          const user = resolveUser(await Engine.instance.api.service(userPath).get(userId))
+          const user = await Engine.instance.api.service(userPath).get(userId)
           getMutableState(AuthState).merge({ user })
         }
       }

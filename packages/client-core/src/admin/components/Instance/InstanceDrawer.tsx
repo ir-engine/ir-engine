@@ -35,6 +35,7 @@ import Container from '@etherealengine/ui/src/primitives/mui/Container'
 import DialogTitle from '@etherealengine/ui/src/primitives/mui/DialogTitle'
 import Grid from '@etherealengine/ui/src/primitives/mui/Grid'
 
+import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 import ConfirmDialog from '../../../common/components/ConfirmDialog'
 import DrawerView from '../../common/DrawerView'
 import TableComponent from '../../common/Table'
@@ -62,7 +63,7 @@ const InstanceDrawer = ({ open, selectedInstance, onClose }: Props) => {
 
   const openKickDialog = useHookstate(false)
   const kickData = useHookstate({
-    userId: '',
+    userId: '' as UserId,
     instanceId: '',
     duration: '8'
   })
@@ -76,7 +77,7 @@ const InstanceDrawer = ({ open, selectedInstance, onClose }: Props) => {
     AdminInstanceUserService.fetchUsersInInstance(selectedInstance.id)
   }, [selectedInstance])
 
-  const createData = (id: string, name: string) => ({
+  const createData = (id: UserId, name: string) => ({
     id,
     name,
     action: (

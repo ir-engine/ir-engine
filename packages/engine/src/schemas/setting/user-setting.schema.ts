@@ -24,10 +24,8 @@ Ethereal Engine. All Rights Reserved.
 */
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
-import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 import type { Static } from '@feathersjs/typebox'
 import { querySyntax, Type } from '@feathersjs/typebox'
-import { TypedString } from '../../common/types/TypeboxUtils'
 
 export const userSettingPath = 'user-settings'
 
@@ -37,12 +35,12 @@ export const userSettingSchema = Type.Object(
     id: Type.String({
       format: 'uuid'
     }),
-    themeModes: Type.Record(Type.String(), Type.String()),
-    userId: TypedString<UserId, 'uuid'>({
-      format: 'uuid'
-    }),
-    createdAt: Type.String({ format: 'date-time' }),
-    updatedAt: Type.String({ format: 'date-time' })
+    themeModes: Type.Record(Type.String(), Type.String())
+    // userId: TypedString<UserId, 'uuid'>({
+    //   format: 'uuid'
+    // })
+    // createdAt: Type.String({ format: 'date-time' }),
+    // updatedAt: Type.String({ format: 'date-time' })
   },
   { $id: 'UserSetting', additionalProperties: false }
 )
@@ -53,9 +51,12 @@ export type UserSettingDatabaseType = Omit<UserSettingType, 'themeModes'> & {
 }
 
 // Schema for creating new entries
-export const userSettingDataSchema = Type.Pick(userSettingSchema, ['themeModes', 'userId'], {
+export const userSettingDataSchema = Type.Pick(userSettingSchema, ['themeModes'], {
   $id: 'UserSettingData'
 })
+// export const userSettingDataSchema = Type.Pick(userSettingSchema, ['themeModes', 'userId'], {
+//   $id: 'UserSettingData'
+// })
 export type UserSettingData = Static<typeof userSettingDataSchema>
 
 // Schema for updating existing entries
@@ -66,9 +67,9 @@ export type UserSettingPatch = Static<typeof userSettingPatchSchema>
 
 // Schema for allowed query properties
 export const userSettingQueryProperties = Type.Pick(userSettingSchema, [
-  'id',
+  'id'
   // 'themeModes', Commented out because: https://discord.com/channels/509848480760725514/1093914405546229840/1095101536121667694
-  'userId'
+  // 'userId'
 ])
 export const userSettingQuerySchema = Type.Intersect(
   [
