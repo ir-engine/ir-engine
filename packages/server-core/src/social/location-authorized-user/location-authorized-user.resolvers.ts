@@ -23,26 +23,32 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import type { Params } from '@feathersjs/feathers'
-import type { KnexAdapterParams } from '@feathersjs/knex'
-import { KnexService } from '@feathersjs/knex'
+// For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
+import { resolve } from '@feathersjs/schema'
+import { v4 } from 'uuid'
 
 import {
-  InstanceAuthorizedUserData,
-  InstanceAuthorizedUserPatch,
-  InstanceAuthorizedUserQuery,
-  InstanceAuthorizedUserType
-} from '@etherealengine/engine/src/schemas/networking/instance-authorized-user.schema'
+  LocationAuthorizedUserQuery,
+  LocationAuthorizedUserType
+} from '@etherealengine/engine/src/schemas/social/location-authorized-user.schema'
+import type { HookContext } from '@etherealengine/server-core/declarations'
 
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface InstanceAuthorizedUserParams extends KnexAdapterParams<InstanceAuthorizedUserQuery> {}
+import { getDateTimeSql } from '../../util/get-datetime-sql'
 
-export class InstanceAuthorizedUserService<
-  T = InstanceAuthorizedUserType,
-  ServiceParams extends Params = InstanceAuthorizedUserParams
-> extends KnexService<
-  InstanceAuthorizedUserType,
-  InstanceAuthorizedUserData,
-  InstanceAuthorizedUserParams,
-  InstanceAuthorizedUserPatch
-> {}
+export const locationAuthorizedUserResolver = resolve<LocationAuthorizedUserType, HookContext>({})
+
+export const locationAuthorizedUserExternalResolver = resolve<LocationAuthorizedUserType, HookContext>({})
+
+export const locationAuthorizedUserDataResolver = resolve<LocationAuthorizedUserType, HookContext>({
+  id: async () => {
+    return v4()
+  },
+  createdAt: getDateTimeSql,
+  updatedAt: getDateTimeSql
+})
+
+export const locationAuthorizedUserPatchResolver = resolve<LocationAuthorizedUserType, HookContext>({
+  updatedAt: getDateTimeSql
+})
+
+export const locationAuthorizedUserQueryResolver = resolve<LocationAuthorizedUserQuery, HookContext>({})
