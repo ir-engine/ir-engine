@@ -37,7 +37,6 @@ import {
   useHookstate
 } from '@etherealengine/hyperflux'
 
-import { V_010 } from '../../common/constants/MathConstants'
 import { lerp } from '../../common/functions/MathLerpFunctions'
 import { createPriorityQueue } from '../../ecs/PriorityQueue'
 import { Engine } from '../../ecs/classes/Engine'
@@ -71,7 +70,6 @@ import { updateGroupChildren } from '../../transform/systems/TransformSystem'
 import { setTrackingSpace } from '../../xr/XRScaleAdjustmentFunctions'
 import { XRAction, XRState, getCameraMode } from '../../xr/XRState'
 import { AnimationState } from '.././AnimationManager'
-import { solveTwoBoneIK } from '.././animation/TwoBoneIKSolver'
 import { AnimationComponent } from '.././components/AnimationComponent'
 import { AvatarAnimationComponent, AvatarRigComponent } from '.././components/AvatarAnimationComponent'
 import {
@@ -463,103 +461,103 @@ const execute = () => {
       }
     }
 
-    const leftLegLength =
-      leftLegVector
-        .subVectors(worldSpaceTargets.hipsTarget.position, worldSpaceTargets.leftFootTarget.position)
-        .length() + rigComponent.footHeight
-    const rightLegLength =
-      rightLegVector
-        .subVectors(worldSpaceTargets.hipsTarget.position, worldSpaceTargets.rightFootTarget.position)
-        .length() + rigComponent.footHeight
+    // const leftLegLength =
+    //   leftLegVector
+    //     .subVectors(worldSpaceTargets.hipsTarget.position, worldSpaceTargets.leftFootTarget.position)
+    //     .length() + rigComponent.footHeight
+    // const rightLegLength =
+    //   rightLegVector
+    //     .subVectors(worldSpaceTargets.hipsTarget.position, worldSpaceTargets.rightFootTarget.position)
+    //     .length() + rigComponent.footHeight
 
-    //calculate hips to head
-    rig.hips.node.position.copy(worldSpaceTargets.hipsTarget.position.applyMatrix4(transform.matrixInverse))
-    _hipVector.subVectors(rigComponent.ikTargetsMap.headTarget.position, rigComponent.ikTargetsMap.hipsTarget.position)
-    rig.hips.node.quaternion
-      .setFromUnitVectors(V_010, _hipVector)
-      .multiply(_hipRot.setFromEuler(new Euler(0, rigComponent.flipped ? Math.PI : 0)))
+    // //calculate hips to head
+    // rig.hips.node.position.copy(worldSpaceTargets.hipsTarget.position.applyMatrix4(transform.matrixInverse))
+    // _hipVector.subVectors(rigComponent.ikTargetsMap.headTarget.position, rigComponent.ikTargetsMap.hipsTarget.position)
+    // rig.hips.node.quaternion
+    //   .setFromUnitVectors(V_010, _hipVector)
+    //   .multiply(_hipRot.setFromEuler(new Euler(0, rigComponent.flipped ? Math.PI : 0)))
 
     //right now we only want hand rotation set if we are in xr
     const xrValue = xrState.sessionActive ? 1 : 0
 
-    solveTwoBoneIK(
-      rig.rightUpperArm.node,
-      rig.rightLowerArm.node,
-      rig.rightHand.node,
-      worldSpaceTargets.rightHandTarget.position,
-      worldSpaceTargets.rightHandTarget.rotation,
-      null,
-      worldSpaceTargets.rightElbowHint.position,
-      tipAxisRestriction,
-      midAxisRestriction,
-      null,
-      1,
-      xrValue
-    )
+    // solveTwoBoneIK(
+    //   rig.rightUpperArm.node,
+    //   rig.rightLowerArm.node,
+    //   rig.rightHand.node,
+    //   worldSpaceTargets.rightHandTarget.position,
+    //   worldSpaceTargets.rightHandTarget.rotation,
+    //   null,
+    //   worldSpaceTargets.rightElbowHint.position,
+    //   tipAxisRestriction,
+    //   midAxisRestriction,
+    //   null,
+    //   1,
+    //   xrValue
+    // )
 
-    solveTwoBoneIK(
-      rig.leftUpperArm.node,
-      rig.leftLowerArm.node,
-      rig.leftHand.node,
-      worldSpaceTargets.leftHandTarget.position,
-      worldSpaceTargets.leftHandTarget.rotation,
-      null,
-      worldSpaceTargets.leftElbowHint.position,
-      tipAxisRestriction,
-      midAxisRestriction,
-      null,
-      1,
-      xrValue
-    )
+    // solveTwoBoneIK(
+    //   rig.leftUpperArm.node,
+    //   rig.leftLowerArm.node,
+    //   rig.leftHand.node,
+    //   worldSpaceTargets.leftHandTarget.position,
+    //   worldSpaceTargets.leftHandTarget.rotation,
+    //   null,
+    //   worldSpaceTargets.leftElbowHint.position,
+    //   tipAxisRestriction,
+    //   midAxisRestriction,
+    //   null,
+    //   1,
+    //   xrValue
+    // )
 
-    setFootTarget(
-      transform.position,
-      worldSpaceTargets.rightFootTarget,
-      rightLegLength,
-      footRaycastTimer >= footRaycastInterval,
-      0
-    )
-    setFootTarget(
-      transform.position,
-      worldSpaceTargets.leftFootTarget,
-      leftLegLength,
-      footRaycastTimer >= footRaycastInterval,
-      1
-    )
+    // setFootTarget(
+    //   transform.position,
+    //   worldSpaceTargets.rightFootTarget,
+    //   rightLegLength,
+    //   footRaycastTimer >= footRaycastInterval,
+    //   0
+    // )
+    // setFootTarget(
+    //   transform.position,
+    //   worldSpaceTargets.leftFootTarget,
+    //   leftLegLength,
+    //   footRaycastTimer >= footRaycastInterval,
+    //   1
+    // )
 
-    if (footRaycastTimer >= footRaycastInterval) {
-      footRaycastTimer = 0
-    }
+    // if (footRaycastTimer >= footRaycastInterval) {
+    //   footRaycastTimer = 0
+    // }
 
-    solveTwoBoneIK(
-      rig.rightUpperLeg.node,
-      rig.rightLowerLeg.node,
-      rig.rightFoot.node,
-      worldSpaceTargets.rightFootTarget.position.setY(
-        worldSpaceTargets.rightFootTarget.position.y + rigComponent.footHeight
-      ),
-      worldSpaceTargets.rightFootTarget.rotation,
-      null,
-      worldSpaceTargets.rightKneeHint.position,
-      tipAxisRestriction,
-      midAxisRestriction,
-      tipAxisRestriction
-    )
+    // solveTwoBoneIK(
+    //   rig.rightUpperLeg.node,
+    //   rig.rightLowerLeg.node,
+    //   rig.rightFoot.node,
+    //   worldSpaceTargets.rightFootTarget.position.setY(
+    //     worldSpaceTargets.rightFootTarget.position.y + rigComponent.footHeight
+    //   ),
+    //   worldSpaceTargets.rightFootTarget.rotation,
+    //   null,
+    //   worldSpaceTargets.rightKneeHint.position,
+    //   tipAxisRestriction,
+    //   midAxisRestriction,
+    //   tipAxisRestriction
+    // )
 
-    solveTwoBoneIK(
-      rig.leftUpperLeg.node,
-      rig.leftLowerLeg.node,
-      rig.leftFoot.node,
-      worldSpaceTargets.leftFootTarget.position.setY(
-        worldSpaceTargets.leftFootTarget.position.y + rigComponent.footHeight
-      ),
-      worldSpaceTargets.leftFootTarget.rotation,
-      null,
-      worldSpaceTargets.leftKneeHint.position,
-      tipAxisRestriction,
-      midAxisRestriction,
-      tipAxisRestriction
-    )
+    // solveTwoBoneIK(
+    //   rig.leftUpperLeg.node,
+    //   rig.leftLowerLeg.node,
+    //   rig.leftFoot.node,
+    //   worldSpaceTargets.leftFootTarget.position.setY(
+    //     worldSpaceTargets.leftFootTarget.position.y + rigComponent.footHeight
+    //   ),
+    //   worldSpaceTargets.leftFootTarget.rotation,
+    //   null,
+    //   worldSpaceTargets.leftKneeHint.position,
+    //   tipAxisRestriction,
+    //   midAxisRestriction,
+    //   tipAxisRestriction
+    // )
 
     rigComponent.vrm.update(getState(EngineState).deltaSeconds)
   }

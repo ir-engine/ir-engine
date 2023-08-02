@@ -209,11 +209,11 @@ const execute = () => {
             landmarks.forEach((landmark, i) => {
               const index = idxP + i
               if (index >= debugPoseObjs.length) {
-                const mesh = new Mesh(new SphereGeometry(0.025), new MeshBasicMaterial({ color: 'pink' }))
+                const mesh = new Mesh(new SphereGeometry(0.025), new MeshBasicMaterial({ color: 'red' }))
                 debugPoseObjs.push(mesh)
                 Engine.instance.scene.add(mesh)
               }
-              debugPoseObjs[index].position.set(landmark.x, landmark.y, landmark.z).add(hipsPos)
+              debugPoseObjs[index].position.set(landmark.x, -landmark.y + 1, landmark.z) //.add(hipsPos)
               debugPoseObjs[index].updateMatrixWorld()
             })
           })
