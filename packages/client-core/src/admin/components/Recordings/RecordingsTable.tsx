@@ -33,6 +33,7 @@ import Box from '@etherealengine/ui/src/primitives/mui/Box'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
 
+import { RecordingID } from '@etherealengine/common/src/interfaces/RecordingID'
 import ConfirmDialog from '../../../common/components/ConfirmDialog'
 import TableComponent from '../../common/Table'
 import { recordingColumns } from '../../common/variables/recording'
@@ -46,7 +47,7 @@ const RecordingsTable = () => {
   const fieldOrder = useHookstate('asc')
   const sortField = useHookstate('createdAt')
   const openConfirm = useHookstate(false)
-  const currentRecordingId = useHookstate<string | null>(null)
+  const currentRecordingId = useHookstate<RecordingID | null>(null)
   const recordingResourcesDrawerOpen = useHookstate<boolean>(false)
   const { t } = useTranslation()
 
@@ -74,7 +75,7 @@ const RecordingsTable = () => {
     }
   }
 
-  const createData = (el: RecordingResult, id: string, user: string, ended: boolean, schema: string) => ({
+  const createData = (el: RecordingResult, id: RecordingID, user: string, ended: boolean, schema: string) => ({
     el,
     id,
     user,

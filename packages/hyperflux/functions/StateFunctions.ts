@@ -73,7 +73,7 @@ export function registerState<S>(StateDefinition: StateDefinition<S>) {
 
   const initial =
     typeof StateDefinition.initial === 'function'
-      ? (StateDefinition.initial as Function)()
+      ? (StateDefinition.initial as any)()
       : JSON.parse(JSON.stringify(StateDefinition.initial))
   HyperFlux.store.valueMap[StateDefinition.name] = initial
   HyperFlux.store.stateMap[StateDefinition.name] = createState(initial)

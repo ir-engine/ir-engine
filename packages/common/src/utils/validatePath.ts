@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 export const validatePath = (url: string) => {
-  var xhr = new XMLHttpRequest()
+  const xhr = new XMLHttpRequest()
   xhr.open('HEAD', url, false)
   xhr.send()
 

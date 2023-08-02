@@ -23,39 +23,32 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { disallow, iff, isProvider } from 'feathers-hooks-common'
+// For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
+import { resolve } from '@feathersjs/schema'
+import { v4 } from 'uuid'
 
-import authenticate from '../../hooks/authenticate'
-import verifyScope from '../../hooks/verify-scope'
+import {
+  LocationAuthorizedUserQuery,
+  LocationAuthorizedUserType
+} from '@etherealengine/engine/src/schemas/social/location-authorized-user.schema'
+import type { HookContext } from '@etherealengine/server-core/declarations'
 
-export default {
-  before: {
-    all: [authenticate(), iff(isProvider('external'), verifyScope('admin', 'admin') as any)],
-    find: [],
-    get: [],
-    create: [],
-    update: [],
-    patch: [],
-    remove: [disallow()]
+import { getDateTimeSql } from '../../util/get-datetime-sql'
+
+export const locationAuthorizedUserResolver = resolve<LocationAuthorizedUserType, HookContext>({})
+
+export const locationAuthorizedUserExternalResolver = resolve<LocationAuthorizedUserType, HookContext>({})
+
+export const locationAuthorizedUserDataResolver = resolve<LocationAuthorizedUserType, HookContext>({
+  id: async () => {
+    return v4()
   },
+  createdAt: getDateTimeSql,
+  updatedAt: getDateTimeSql
+})
 
-  after: {
-    all: [],
-    find: [],
-    get: [],
-    create: [],
-    update: [],
-    patch: [],
-    remove: []
-  },
+export const locationAuthorizedUserPatchResolver = resolve<LocationAuthorizedUserType, HookContext>({
+  updatedAt: getDateTimeSql
+})
 
-  error: {
-    all: [],
-    find: [],
-    get: [],
-    create: [],
-    update: [],
-    patch: [],
-    remove: []
-  }
-} as any
+export const locationAuthorizedUserQueryResolver = resolve<LocationAuthorizedUserQuery, HookContext>({})

@@ -23,19 +23,30 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { DataChannelType } from './DataChannelType'
+import { PeerID } from './PeerID'
+import { RecordingID } from './RecordingID'
+import { StaticResourceInterface } from './StaticResourceInterface'
 import { UserId } from './UserId'
 
 export interface RecordingResult {
-  id: string
+  id: RecordingID
   userId: UserId
   ended: boolean
-  schema: string
+  createdAt: string
+  updatedAt: string
+  schema: string // stringified RecordingSchema
   userName?: string
-  resources?: Array<string> // storage provider keys
+  resources?: Array<StaticResourceInterface>
 }
 
 export interface RecordingResourceResult {
   id: string
-  recordingId: string
+  recordingId: RecordingID
   staticResourceId: string
+}
+
+export type RecordingSchema = {
+  user: string[]
+  peers: Record<PeerID, DataChannelType[]>
 }

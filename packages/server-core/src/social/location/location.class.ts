@@ -44,7 +44,7 @@ import {
 
 import { locationAdminDBPath, LocationAdminType } from '@etherealengine/engine/src/schemas/social/location-admin.schema'
 import {
-  locationAuthorizedUserDBPath,
+  locationAuthorizedUserPath,
   LocationAuthorizedUserType
 } from '@etherealengine/engine/src/schemas/social/location-authorized-user.schema'
 import { UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
@@ -167,7 +167,7 @@ export class LocationService<T = LocationType, ServiceParams extends Params = Lo
           locationId: (data as LocationType).id
         })
 
-        await trx.from<LocationAuthorizedUserType>(locationAuthorizedUserDBPath).insert({
+        await trx.from<LocationAuthorizedUserType>(locationAuthorizedUserPath).insert({
           ...(data as LocationType).locationAdmin,
           userId: selfUser?.id,
           locationId: (data as LocationType).id

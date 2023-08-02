@@ -23,9 +23,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-export interface InstanceserverSubdomainProvisionInterface {
-  id: number
-  is_id: string
-  is_number: string
-  allocated: boolean
-}
+import { OpaqueType } from './OpaqueType'
+
+export type RecordingID = OpaqueType<'RecordingID'> & string

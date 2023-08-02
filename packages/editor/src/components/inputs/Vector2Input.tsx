@@ -37,7 +37,7 @@ let uniqueId = 0
 
 interface Vector2InputProp {
   value?: any
-  onChange?: Function
+  onChange?: (value: Vector2) => void
   uniformScaling?: boolean
   hideLabels?: boolean
 }

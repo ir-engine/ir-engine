@@ -103,9 +103,6 @@ declare module '@etherealengine/common/declarations' {
       get: ReturnType<typeof projectUnfetchedCommitGet>
     }
   }
-  interface Models {
-    project: ReturnType<typeof createModel>
-  }
 }
 
 /**

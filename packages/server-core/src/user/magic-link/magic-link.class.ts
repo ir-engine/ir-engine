@@ -36,8 +36,10 @@ import Paginated from '../../types/PageObject'
 import { getLink, sendEmail, sendSms } from '../auth-management/auth-management.utils'
 import { IdentityProvider } from '../identity-provider/identity-provider.class'
 
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
 interface Data {}
 
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
 interface ServiceOptions {}
 
 const emailAccountTemplatesPath = path.join(appRootPath.path, 'packages', 'server-core', 'email-templates', 'account')

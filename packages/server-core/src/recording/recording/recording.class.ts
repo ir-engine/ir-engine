@@ -53,14 +53,14 @@ export class Recording<T = RecordingDataType> extends Service<T> {
       include: [
         {
           model: this.app.service('static-resource').Model,
-          attributes: ['id', 'key']
+          attributes: ['id', 'key', 'url']
         }
       ]
     })
 
     const result = (await super.get(id)) as RecordingDataType
 
-    result.resources = resources.rows.map((resource) => resource.static_resource.key)
+    result.resources = resources.rows.map((resource) => resource.static_resource)
 
     return result as T
   }

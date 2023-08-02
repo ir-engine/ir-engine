@@ -106,7 +106,9 @@ export default (app: Application): void => {
                     if (value.unique)
                       try {
                         await sequelize.getQueryInterface().removeIndex(model, value.fieldName)
-                      } catch (err) {}
+                      } catch (err) {
+                        //
+                      }
                     await sequelize.getQueryInterface().changeColumn(model, value.fieldName, value)
                   }
                 } catch (err) {

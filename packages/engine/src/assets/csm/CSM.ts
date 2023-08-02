@@ -95,7 +95,7 @@ export class CSM {
   lights: DirectionalLight[]
   lightSourcesCount: number
   shaders: Map<Material, ShaderType> = new Map()
-  needsUpdate: boolean = false
+  needsUpdate = false
 
   constructor(data: CSMParams) {
     this.camera = data.camera
