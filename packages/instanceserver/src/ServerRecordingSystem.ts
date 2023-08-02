@@ -136,8 +136,6 @@ export const uploadRecordingStaticResource = async (props: {
 export const onStartRecording = async (action: ReturnType<typeof ECSRecordingActions.startRecording>) => {
   const app = Engine.instance.api as Application
 
-  console.log('onStartRecording', action)
-
   const recording = await app.service('recording').get(action.recordingID)
   if (!recording) return dispatchError('Recording not found', action.$from)
 
@@ -380,7 +378,6 @@ export const onStartPlayback = async (action: ReturnType<typeof ECSRecordingActi
               for (const peerID of peerIDs) {
                 if (network.peers.has(peerID)) continue
                 activePlayback.peerIDs!.push(peerID)
-                console.log('creating peer', peerID, entityID)
                 NetworkPeerFunctions.createPeer(
                   network,
                   peerID,
@@ -555,7 +552,6 @@ const execute = () => {
       for (const [dataChannel, chunk] of userMap) {
         for (const frame of chunk.frames) {
           if (frame.timecode > Date.now() - chunk.startTime) {
-            console.log(frame.data)
             network.transport.bufferToAll(dataChannel, encode(frame.data))
             // for (const peerID of network.users.get(userId)!) {
             //   network.transport.bufferToPeer(dataChannel, peerID, encode(frame.data))
