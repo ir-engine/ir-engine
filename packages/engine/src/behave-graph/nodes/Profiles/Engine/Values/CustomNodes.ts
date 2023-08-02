@@ -176,34 +176,18 @@ export const playGltfAnimation = makeFlowNodeDefinition({
   }
 })
 
-export const fadeToBlackCamera = makeFlowNodeDefinition({
-  typeName: 'engine/cameraFadeToBlack',
+export const fadeCamera = makeFlowNodeDefinition({
+  typeName: 'engine/cameraFade',
   category: NodeCategory.Action,
-  label: 'Camera fade to black',
+  label: 'Camera fade',
   in: {
-    flow: 'flow'
+    flow: 'flow',
+    toBlack: 'boolean'
   },
   out: { flow: 'flow' },
   initialState: undefined,
   triggered: ({ read, commit, graph: { getDependency } }) => {
-    console.log('DEBUG Fade to black')
-    dispatchAction(CameraActions.fadeToBlack({ in: true }))
-    commit('flow')
-  }
-})
-
-export const fadeFromBlackCamera = makeFlowNodeDefinition({
-  typeName: 'engine/cameraFadeFromBlack',
-  category: NodeCategory.Action,
-  label: 'Camera fade from black',
-  in: {
-    flow: 'flow'
-  },
-  out: { flow: 'flow' },
-  initialState: undefined,
-  triggered: ({ read, commit, graph: { getDependency } }) => {
-    console.log('DEBUG Fade from black')
-    dispatchAction(CameraActions.fadeToBlack({ in: false }))
+    dispatchAction(CameraActions.fadeToBlack({ in: read('toBlack') }))
     commit('flow')
   }
 })
