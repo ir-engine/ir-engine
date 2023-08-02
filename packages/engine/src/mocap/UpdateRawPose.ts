@@ -23,9 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Vector3 } from 'three'
-
 import { dispatchAction } from '@etherealengine/hyperflux'
+import { Vector3 } from 'three'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { Landmark } from '@mediapipe/tasks-vision'
@@ -39,11 +38,14 @@ const indices = {
   rightEar: 8,
   leftEar: 7,
   rightHand: 16,
-  leftHand: 15
+  leftHand: 15,
+  rightHip: 24,
+  leftHip: 23
 }
 
 const solvedPoses = {
   head: new Vector3(),
+  hips: new Vector3(),
   leftHand: new Vector3(),
   rightHand: new Vector3()
 }
@@ -57,8 +59,18 @@ const UpdateRawPose = (data: Landmark[], hipsPos, avatarRig, avatarTransform) =>
   if (data) {
     const rightEar = data[indices.rightEar]
     const leftEar = data[indices.leftEar]
+
+    const rightHip = data[indices.rightHip]
+    const leftHip = data[indices.leftHip]
+
     solvedPoses.head
       .set((leftEar.x + rightEar.x) / 2, (leftEar.y + rightEar.y) / 2, (leftEar.z + rightEar.z) / 2)
+      .multiplyScalar(-1)
+      .applyQuaternion(avatarTransform.rotation)
+      .add(hipsPos)
+
+    solvedPoses.hips
+      .set((leftHip.x + rightHip.x) / 2, (leftHip.y + rightHip.y) / 2, (leftHip.z + rightHip.z) / 2)
       .multiplyScalar(-1)
       .applyQuaternion(avatarTransform.rotation)
       .add(hipsPos)
@@ -74,13 +86,15 @@ const UpdateRawPose = (data: Landmark[], hipsPos, avatarRig, avatarTransform) =>
           break
       }
 
-      const entityUUID = `${Engine.instance.userId}_mocap_${key}` as EntityUUID
+      const entityUUID = `${Engine?.instance?.userId}_mocap_${key}` as EntityUUID
       const ikTarget = UUIDComponent.entitiesByUUID[entityUUID]
       // if (ikTarget) removeEntity(ikTarget)
 
       if (!ikTarget) {
         dispatchAction(XRAction.spawnIKTarget({ entityUUID: entityUUID, name: key }))
       }
+
+      if (key == 'hips') console.log(solvedPoses[key])
 
       const ikTransform = getComponent(ikTarget, TransformComponent)
       ikTransform.position.copy(solvedPoses[key])
