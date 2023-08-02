@@ -32,6 +32,7 @@ import { Message as MessageInterface } from '@etherealengine/common/src/interfac
 import { UserInterface } from '@etherealengine/common/src/interfaces/User'
 import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 
+import { instanceAttendancePath } from '@etherealengine/engine/src/schemas/networking/instance-attendance.schema'
 import { Application } from '../../../declarations'
 import { UserParams } from '../../user/user/user.class'
 
@@ -119,7 +120,7 @@ export class Message<T = MessageDataType> extends Service<T> {
           sequelize: {
             include: [
               {
-                model: this.app.service('instance-attendance').Model,
+                model: this.app.service(instanceAttendancePath).Model,
                 as: 'instanceAttendance',
                 where: {
                   instanceId

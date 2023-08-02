@@ -24,6 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { analyticsPath } from '@etherealengine/engine/src/schemas/analytics/analytics.schema'
+import { instanceAttendancePath } from '@etherealengine/engine/src/schemas/networking/instance-attendance.schema'
 import { locationPath, LocationType } from '@etherealengine/engine/src/schemas/social/location.schema'
 import config from '@etherealengine/server-core/src/appconfig'
 import multiLogger from '@etherealengine/server-core/src/ServerLogger'
@@ -51,7 +52,7 @@ export default (app): void => {
       },
       include: [
         {
-          model: app.service('instance-attendance').Model,
+          model: app.service(instanceAttendancePath).Model,
           as: 'instanceAttendance',
           where: {
             ended: false,
@@ -67,7 +68,7 @@ export default (app): void => {
       },
       include: [
         {
-          model: app.service('instance-attendance').Model,
+          model: app.service(instanceAttendancePath).Model,
           as: 'instanceAttendance',
           where: {
             ended: false,

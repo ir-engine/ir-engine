@@ -28,6 +28,7 @@ import { HookReturn } from 'sequelize/types/hooks'
 
 import {
   AvatarInterface,
+  InstanceAttendanceInterface,
   LocationBanInterface,
   LocationInterface,
   LocationSettingsInterface,
@@ -81,7 +82,7 @@ export default (app: Application) => {
   )
 
   ;(User as any).associate = (models: any): void => {
-    ;(User as any).hasMany(models.instance_attendance, { as: 'instanceAttendance' })
+    ;(User as any).hasMany(createInstanceAttendanceModel(app), { as: 'instanceAttendance' })
     ;(User as any).hasOne(models.user_settings)
     ;(User as any).belongsToMany(models.user, {
       as: 'relatedUser',
@@ -364,4 +365,42 @@ export const createLocationBanModel = (app: Application) => {
   }
 
   return locationBan
+}
+
+export const createInstanceAttendanceModel = (app: Application) => {
+  const sequelizeClient: Sequelize = app.get('sequelizeClient')
+  const instanceAttendance = sequelizeClient.define<Model<InstanceAttendanceInterface>>(
+    'instance-attendance',
+    {
+      id: {
+        type: DataTypes.UUID,
+        defaultValue: DataTypes.UUIDV1,
+        allowNull: false,
+        primaryKey: true
+      },
+      sceneId: {
+        type: DataTypes.STRING
+      },
+      isChannel: {
+        type: DataTypes.BOOLEAN
+      },
+      ended: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false
+      }
+    },
+    {
+      hooks: {
+        beforeCount(options: any): void {
+          options.raw = true
+        }
+      }
+    }
+  )
+
+  ;(instanceAttendance as any).associate = (models: any): void => {
+    ;(instanceAttendance as any).belongsTo(models.instance)
+    ;(instanceAttendance as any).belongsTo(models.user)
+  }
+  return instanceAttendance
 }

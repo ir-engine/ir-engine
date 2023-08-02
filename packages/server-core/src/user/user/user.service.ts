@@ -28,6 +28,10 @@ import { Op } from 'sequelize'
 
 import { UserInterface } from '@etherealengine/common/src/interfaces/User'
 
+import {
+  instanceAttendancePath,
+  InstanceAttendanceType
+} from '@etherealengine/engine/src/schemas/networking/instance-attendance.schema'
 import { Application } from '../../../declarations'
 import config from '../../appconfig'
 import logger from '../../ServerLogger'
@@ -82,16 +86,16 @@ export default (app: Application): void => {
       let targetIds = [data.id!]
       const updatePromises: any[] = []
 
-      const instances = await app.service('instance-attendance').Model.findAll({
-        where: {
+      const instances = (await app.service(instanceAttendancePath).find({
+        query: {
           userId: data.id,
-          ended: 0
+          ended: false
         }
-      })
+      })) as any as InstanceAttendanceType[]
       const layerUsers = await app.service('user').Model.findAll({
         include: [
           {
-            model: app.service('instance-attendance').Model,
+            model: app.service(instanceAttendancePath).Model,
             as: 'instanceAttendance',
             where: {
               instanceId: {

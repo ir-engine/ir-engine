@@ -23,24 +23,36 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { createSwaggerServiceOptions } from 'feathers-swagger'
+// For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
+import { resolve } from '@feathersjs/schema'
+import { v4 } from 'uuid'
 
 import {
-  instanceAttendanceDataSchema,
-  instanceAttendancePatchSchema,
-  instanceAttendanceQuerySchema,
-  instanceAttendanceSchema
+  InstanceAttendanceQuery,
+  InstanceAttendanceType
 } from '@etherealengine/engine/src/schemas/networking/instance-attendance.schema'
+import type { HookContext } from '@etherealengine/server-core/declarations'
 
-export default createSwaggerServiceOptions({
-  schemas: {
-    instanceAttendanceDataSchema,
-    instanceAttendancePatchSchema,
-    instanceAttendanceQuerySchema,
-    instanceAttendanceSchema
+import { getDateTimeSql } from '../../util/get-datetime-sql'
+
+export const instanceAttendanceResolver = resolve<InstanceAttendanceType, HookContext>({})
+
+export const instanceAttendanceExternalResolver = resolve<InstanceAttendanceType, HookContext>({})
+
+export const instanceAttendanceDataResolver = resolve<InstanceAttendanceType, HookContext>({
+  id: async () => {
+    return v4()
   },
-  docs: {
-    description: 'Instance attendance service description',
-    securities: ['all']
-  }
+  createdAt: getDateTimeSql,
+  updatedAt: getDateTimeSql
 })
+
+export const instanceAttendancePatchResolver = resolve<InstanceAttendanceType, HookContext>({
+  id: async () => {
+    return v4()
+  },
+  createdAt: getDateTimeSql,
+  updatedAt: getDateTimeSql
+})
+
+export const instanceAttendanceQueryResolver = resolve<InstanceAttendanceQuery, HookContext>({})

@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import InstanceAttendance from './instance-attendance/instance-attendance.service'
+import InstanceAttendance from './instance-attendance/instance-attendance'
 import InstanceAuthorizedUser from './instance-authorized-user/instance-authorized-user.service'
 import InstanceProvision from './instance-provision/instance-provision.service'
 import Instance from './instance/instance.service'

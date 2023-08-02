@@ -24,11 +24,10 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { ScopeTypeData } from '@etherealengine/engine/src/schemas/scope/scope-type.schema'
-import { UserApiKeyType } from '@etherealengine/engine/src/schemas/user/user-api-key.schema'
-
 import { LocationBanType } from '@etherealengine/engine/src/schemas/social/location-ban.schema'
+import { UserApiKeyType } from '@etherealengine/engine/src/schemas/user/user-api-key.schema'
+import { InstanceAttendanceType } from './../../../engine/src/schemas/networking/instance-attendance.schema'
 import { IdentityProvider } from './IdentityProvider'
-import { InstanceAttendanceInterface } from './InstanceAttendance'
 import { LocationAdmin } from './LocationAdmin'
 import { StaticResourceInterface } from './StaticResourceInterface'
 import { UserId } from './UserId'
@@ -73,7 +72,7 @@ export interface UserInterface {
   scopes?: UserScope[]
   apiKey: UserApiKeyType
   static_resources?: StaticResourceInterface
-  instanceAttendance?: InstanceAttendanceInterface[]
+  instanceAttendance?: InstanceAttendanceType[]
 }
 
 export const UserSeed: UserInterface = {

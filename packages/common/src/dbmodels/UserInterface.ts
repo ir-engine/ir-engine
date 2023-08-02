@@ -72,3 +72,10 @@ export interface LocationTypeInterface {
 export interface LocationBanInterface {
   id: string
 }
+
+export interface InstanceAttendanceInterface {
+  id: string
+  sceneId: string
+  isChannel: boolean
+  ended: boolean
+}

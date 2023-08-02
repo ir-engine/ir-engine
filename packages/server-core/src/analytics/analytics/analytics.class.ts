@@ -71,7 +71,7 @@ export class AnalyticsService<T = AnalyticsType, ServiceParams extends Params = 
         const instanceAttendance = await this.app
           .service(analyticsPath)
           .Model.countDistinct('userId AS count')
-          .table('instance_attendance')
+          .table('instance-attendance')
           .where('createdAt', '>', new Date(new Date().setDate(currentDate.getDate() - (i + 1))).toISOString())
           .andWhere('createdAt', '<=', new Date(new Date().setDate(currentDate.getDate() - i)).toISOString())
           .first()
