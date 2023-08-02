@@ -127,10 +127,10 @@ export const getActiveInstancesForUserFriends = (app: Application) => async (dat
           const instanceAttendance = await knexClient
             .from(instanceAttendancePath)
             .join('instance', `${instanceAttendancePath}.instanceId`, '=', `${'instance'}.id`)
-            .join('user', 'instance-attendance.userId', '=', `${'user'}.id`)
+            .join('user', `${instanceAttendancePath}.userId`, '=', `${'user'}.id`)
             .join(`user-relationship`, `${'user'}.id`, '=', `${`user-relationship`}.userId`)
-            .where('instance-attendance.ended', '=', false)
-            .andWhere('instance-attendance.isChannel', '=', false)
+            .where(`${instanceAttendancePath}.ended`, '=', false)
+            .andWhere(`${instanceAttendancePath}.isChannel`, '=', false)
             .andWhere(`${'instance'}.id`, '=', instance.id)
             .andWhere(`${`user_relationship`}.userRelationshipType`, '=', 'friend')
             .andWhere('user_relationship.relatedUserId', '=', data.user!.id)

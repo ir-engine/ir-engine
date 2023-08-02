@@ -86,11 +86,12 @@ export default (app: Application): void => {
       let targetIds = [data.id!]
       const updatePromises: any[] = []
 
-      const instances = (await app.service(instanceAttendancePath).find({
+      const instances = (await app.service(instanceAttendancePath)._find({
         query: {
           userId: data.id,
           ended: false
-        }
+        },
+        paginate: false
       })) as any as InstanceAttendanceType[]
 
       const knexClient: Knex = app.get('knexClient')
@@ -105,22 +106,8 @@ export default (app: Application): void => {
         .whereNot('user.id', data.id)
         .select()
         .options({ nestTables: true })
-      targetIds = targetIds.concat(layerUsers.map((user) => user.id))
 
-      // userRelationships.forEach((userRelationship) => {
-      //   updatePromises.push(
-      //     app.service('user-relationship').patch(
-      //       userRelationship.id,
-      //       {
-      //         userRelationshipType: userRelationship.userRelationshipType,
-      //         userId: userRelationship.userId
-      //       },
-      //       params
-      //     )
-      //   )
-      //   targetIds.push(userRelationship.userId)
-      //   targetIds.push(userRelationship.relatedUserId)
-      // })
+      targetIds = targetIds.concat(layerUsers.map((user) => user.user.id))
 
       await Promise.all(updatePromises)
       targetIds = _.uniq(targetIds)
