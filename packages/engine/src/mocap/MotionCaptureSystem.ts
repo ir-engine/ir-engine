@@ -118,8 +118,6 @@ const timeSeriesMocapData = new Map<PeerID, RingBuffer<MotionCaptureStream>>()
 const timeSeriesMocapLastSeen = new Map<PeerID, number>()
 
 const execute = () => {
-  const localClientEntity = Engine.instance.localClientEntity
-
   const network = Engine.instance.worldNetwork
 
   for (const [peerID, mocapData] of timeSeriesMocapData) {
@@ -133,7 +131,7 @@ const execute = () => {
     const userID = network.peers.get(peerID)!.userId
     const entity = NetworkObjectComponent.getUserAvatarEntity(userID)
 
-    if (entity && entity === localClientEntity) {
+    if (entity) {
       const data = mocapData.popLast()
       if (!data) continue
       // console.log('received mocap data', peerID, data)
