@@ -23,8 +23,10 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { UserId } from './UserId'
+
 export interface LocationAdmin {
   id: number
   locationId: string
-  userId: string
+  userId: UserId
 }

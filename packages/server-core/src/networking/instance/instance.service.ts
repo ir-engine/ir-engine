@@ -28,6 +28,7 @@ import { Params } from '@feathersjs/feathers/lib'
 import { Instance as InstanceInterface } from '@etherealengine/common/src/interfaces/Instance'
 import { locationPath, LocationType } from '@etherealengine/engine/src/schemas/social/location.schema'
 
+import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 import { AdminScope } from '@etherealengine/engine/src/schemas/interfaces/AdminScope'
 import { scopePath } from '@etherealengine/engine/src/schemas/scope/scope.schema'
 import { Application } from '../../../declarations'
@@ -221,11 +222,11 @@ export default (app: Application) => {
       const targetIds = adminScopes.map((admin) => admin.userId)
       // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
       return await Promise.all(
-        targetIds.map((userId: string) => {
-          return app.channel(`userIds/${userId}`).send({
+        targetIds.map((userId: UserId) =>
+          app.channel(`userIds/${userId}`).send({
             instance: data
           })
-        })
+        )
       )
     } catch (err) {
       logger.error(err)

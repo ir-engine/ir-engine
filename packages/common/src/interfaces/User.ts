@@ -75,7 +75,7 @@ export const UserSeed: UserInterface = {
     id: '',
     name: '',
     isPublic: true,
-    userId: '',
+    userId: '' as UserId,
     modelResourceId: '',
     thumbnailResourceId: '',
     identifierName: ''
@@ -103,7 +103,7 @@ type AvatarInterface = {
   id: string
   name: string
   isPublic: boolean
-  userId: string
+  userId: UserId
   modelResourceId: string
   thumbnailResourceId: string
   identifierName: string
@@ -154,7 +154,7 @@ export function resolveWalletUser(credentials: any): UserInterface {
       id: '',
       name: '',
       isPublic: true,
-      userId: '',
+      userId: '' as UserId,
       modelResourceId: '',
       thumbnailResourceId: '',
       identifierName: ''

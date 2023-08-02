@@ -26,12 +26,13 @@ Ethereal Engine. All Rights Reserved.
 import i18n from 'i18next'
 import { useEffect } from 'react'
 
-import { Relationship } from '@etherealengine/common/src/interfaces/Relationship'
 import multiLogger from '@etherealengine/common/src/logger'
 import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { Relationship } from '@etherealengine/engine/src/schemas/interfaces/Relationship'
 import { defineAction, defineState, dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
 
+import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 import { UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { NotificationService } from '../../common/services/NotificationService'
 import { AuthState } from '../../user/services/AuthService'
@@ -76,7 +77,7 @@ export const FriendServiceReceptor = (action) => {
 
 //Service
 export const FriendService = {
-  getUserRelationship: async (userId: string) => {
+  getUserRelationship: async (userId: UserId) => {
     try {
       dispatchAction(FriendAction.fetchingFriendsAction({}))
 
@@ -90,10 +91,10 @@ export const FriendService = {
       logger.error(err)
     }
   },
-  requestFriend: (userId: string, relatedUserId: string) => {
+  requestFriend: (userId: UserId, relatedUserId: string) => {
     return createRelation(userId, relatedUserId, 'requested')
   },
-  acceptFriend: async (userId: string, relatedUserId: string) => {
+  acceptFriend: async (userId: UserId, relatedUserId: string) => {
     try {
       await Engine.instance.api.service('user-relationship').patch(relatedUserId, {
         userRelationshipType: 'friend'
@@ -104,16 +105,16 @@ export const FriendService = {
       logger.error(err)
     }
   },
-  declineFriend: (userId: string, relatedUserId: string) => {
+  declineFriend: (userId: UserId, relatedUserId: string) => {
     return removeRelation(userId, relatedUserId)
   },
-  unfriend: (userId: string, relatedUserId: string) => {
+  unfriend: (userId: UserId, relatedUserId: string) => {
     return removeRelation(userId, relatedUserId)
   },
-  blockUser: async (userId: string, relatedUserId: string) => {
+  blockUser: async (userId: UserId, relatedUserId: string) => {
     return createRelation(userId, relatedUserId, 'blocking')
   },
-  unblockUser: (userId: string, relatedUserId: string) => {
+  unblockUser: (userId: UserId, relatedUserId: string) => {
     return removeRelation(userId, relatedUserId)
   },
   useAPIListeners: () => {
@@ -156,7 +157,7 @@ export const FriendService = {
   }
 }
 
-async function createRelation(userId: string, relatedUserId: string, type: 'requested' | 'blocking') {
+async function createRelation(userId: UserId, relatedUserId: string, type: 'requested' | 'blocking') {
   try {
     await Engine.instance.api.service('user-relationship').create({
       relatedUserId,
@@ -169,7 +170,7 @@ async function createRelation(userId: string, relatedUserId: string, type: 'requ
   }
 }
 
-async function removeRelation(userId: string, relatedUserId: string) {
+async function removeRelation(userId: UserId, relatedUserId: string) {
   try {
     await Engine.instance.api.service('user-relationship').remove(relatedUserId)
 

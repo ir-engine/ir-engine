@@ -25,6 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { UserRelationshipInterface } from '@etherealengine/common/src/dbmodels/UserRelationship'
 
+import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
@@ -76,11 +77,7 @@ export default (app: Application) => {
 
         const targetIds = [data.userId, data.relatedUserId]
         // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-        return await Promise.all(
-          targetIds.map((userId: string) => {
-            return app.channel(`userIds/${userId}`).send(data)
-          })
-        )
+        return await Promise.all(targetIds.map((userId: UserId) => app.channel(`userIds/${userId}`).send(data)))
       }
     } catch (err) {
       logger.error(err)
@@ -107,11 +104,7 @@ export default (app: Application) => {
 
         const targetIds = [data.userId, data.relatedUserId]
         // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-        return await Promise.all(
-          targetIds.map((userId: string) => {
-            return app.channel(`userIds/${userId}`).send(data)
-          })
-        )
+        return await Promise.all(targetIds.map((userId: UserId) => app.channel(`userIds/${userId}`).send(data)))
       }
     } catch (err) {
       logger.error(err)
@@ -124,11 +117,7 @@ export default (app: Application) => {
       console.log('relationship removed data', data)
       const targetIds = [data.userId, data.relatedUserId]
       // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-      return await Promise.all(
-        targetIds.map((userId: string) => {
-          return app.channel(`userIds/${userId}`).send(data)
-        })
-      )
+      return await Promise.all(targetIds.map((userId: UserId) => app.channel(`userIds/${userId}`).send(data)))
     } catch (err) {
       logger.error(err)
       throw err

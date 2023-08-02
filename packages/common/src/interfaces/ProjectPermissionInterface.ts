@@ -24,11 +24,12 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { UserInterface } from '../dbmodels/UserInterface'
+import { UserId } from './UserId'
 
 export interface ProjectPermissionInterface {
   id: string
   projectId: string
-  userId: string
+  userId: UserId
   type: string
   user: UserInterface
 }

@@ -23,6 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { UserId } from './UserId'
+
 export interface VideoCreationForm {
   name: string
   description: string
@@ -44,7 +46,7 @@ export interface VideoCreatedResponse {
   url: string
   description: string
   metadata: object
-  userId: string
+  userId: UserId
   mimeType: string
 }
 
@@ -54,7 +56,7 @@ export interface VideoUpdatedResponse {
   url: string
   description: string
   metadata: object
-  userId: string
+  userId: UserId
   mimeType: string
 }
 
@@ -64,6 +66,6 @@ export interface VideoDeletedResponse {
   url: string
   description: string
   metadata: object
-  userId: string
+  userId: UserId
   mimeType: string
 }

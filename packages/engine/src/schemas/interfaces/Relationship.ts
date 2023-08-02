@@ -25,11 +25,12 @@ Ethereal Engine. All Rights Reserved.
 
 // TODO: Once moved to feathers 5. Remove this interfaces folder
 
+import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 import { UserType } from '../user/user.schema'
 
 /* @deprecated */
 export interface Relationship {
-  userId: string
+  userId: UserId
   friend: UserType[]
   requested: UserType[]
   pending: UserType[]

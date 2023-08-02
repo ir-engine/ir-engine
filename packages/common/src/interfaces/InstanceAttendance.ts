@@ -23,11 +23,13 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { UserId } from './UserId'
+
 export interface InstanceAttendanceInterface {
   id: string
   sceneId: string
   isChannel: boolean
   ended: boolean
   instanceId: string
-  userId: string
+  userId: UserId
 }

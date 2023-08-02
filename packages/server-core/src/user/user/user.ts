@@ -28,6 +28,7 @@ import _ from 'lodash'
 import logger from '../../ServerLogger'
 import config from '../../appconfig'
 
+import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 import { instanceAttendancePath } from '@etherealengine/engine/src/schemas/networking/instance-attendance.schema'
 import { Knex } from 'knex'
 import { Application } from '../../../declarations'
@@ -117,11 +118,7 @@ export default (app: Application): void => {
 
       await Promise.all(updatePromises)
       targetIds = _.uniq(targetIds)
-      return Promise.all(
-        targetIds.map((userId: string) => {
-          return app.channel(`userIds/${userId}`).send(data)
-        })
-      )
+      return Promise.all(targetIds.map((userId: UserId) => app.channel(`userIds/${userId}`).send(data)))
     } catch (err) {
       logger.error(err)
       throw err

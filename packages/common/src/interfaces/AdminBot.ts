@@ -23,6 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 import { BotCommandData } from '@etherealengine/engine/src/schemas/bot/bot-command.schema'
+import { UserId } from './UserId'
 
 export interface AdminBot {
   id: string
@@ -30,7 +31,7 @@ export interface AdminBot {
   description: string
   createdAt: string
   updatedAt: string
-  userId: string
+  userId: UserId
   instanceId: string
   locationId: string
   botCommands?: BotCommandData[]
@@ -65,7 +66,7 @@ export interface Instance {
 export interface CreateBotAsAdmin {
   name: string
   instanceId?: string | null
-  userId?: string
+  userId?: UserId
   command?: BotCommandData[]
   description: string
   locationId: string

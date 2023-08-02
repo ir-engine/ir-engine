@@ -37,6 +37,7 @@ import { locationPath, LocationType } from '@etherealengine/engine/src/schemas/s
 import { getState } from '@etherealengine/hyperflux'
 
 import { ChannelID } from '@etherealengine/common/src/dbmodels/Channel'
+import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 import {
   instanceAuthorizedUserPath,
   InstanceAuthorizedUserType
@@ -69,7 +70,7 @@ export async function getFreeInstanceserver({
   locationId?: string
   channelId?: ChannelID
   roomCode?: string
-  userId?: string
+  userId?: UserId
   createPrivateRoom?: boolean
 }): Promise<InstanceServerProvisionResult> {
   await app.service('instance').Model.destroy({
@@ -162,7 +163,7 @@ export async function checkForDuplicatedAssignments({
   channelId?: ChannelID
   roomCode?: string | undefined
   createPrivateRoom?: boolean
-  userId?: string
+  userId?: UserId
   podName?: string
 }): Promise<InstanceServerProvisionResult> {
   /** since in local dev we can only have one instance server of each type at a time, we must force all old instances of this type to be ended */
@@ -399,7 +400,7 @@ export class InstanceProvision implements ServiceMethods<any> {
     locationId?: string
     channelId?: ChannelID
     roomCode?: undefined | string
-    userId?: undefined | string
+    userId?: UserId
   }): Promise<InstanceServerProvisionResult> {
     await this.app.service('instance').Model.destroy({
       where: {

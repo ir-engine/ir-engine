@@ -29,10 +29,11 @@ import { v1 } from 'uuid'
 import { IdentityProviderInterface } from '@etherealengine/common/src/dbmodels/IdentityProvider'
 import { destroyEngine } from '@etherealengine/engine/src/ecs/classes/Engine'
 
+import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 import { Application } from '../../../declarations'
 import { createFeathersKoaApp } from '../../createApp'
 
-let userId: string
+let userId: UserId
 
 describe('identity-provider service', () => {
   let app: Application

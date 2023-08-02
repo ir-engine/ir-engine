@@ -24,6 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 // Initializes the `invite` service on path `/invite`
+import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
 import { Invite, InviteDataType } from './invite.class'
@@ -82,11 +83,7 @@ export default (app: Application) => {
         }
       }
       // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-      return Promise.all(
-        targetIds.map((userId: string) => {
-          return app.channel(`userIds/${userId}`).send(data)
-        })
-      )
+      return Promise.all(targetIds.map((userId: UserId) => app.channel(`userIds/${userId}`).send(data)))
     } catch (err) {
       logger.error(err)
       throw err
@@ -117,11 +114,7 @@ export default (app: Application) => {
         }
       }
       // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-      return Promise.all(
-        targetIds.map((userId: string) => {
-          return app.channel(`userIds/${userId}`).send(data)
-        })
-      )
+      return Promise.all(targetIds.map((userId: UserId) => app.channel(`userIds/${userId}`).send(data)))
     } catch (err) {
       logger.error(err)
       throw err

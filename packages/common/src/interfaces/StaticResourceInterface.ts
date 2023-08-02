@@ -23,13 +23,15 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { UserId } from './UserId'
+
 export interface StaticResourceInterface {
   id: string
   sid: string
   key: string
   metadata: object
   mimeType: string
-  userId: string
+  userId: UserId
   hash?: string
   project?: string
   driver?: string

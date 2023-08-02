@@ -23,6 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { UserId } from './UserId'
+
 export interface UserAvatar {
   avatar?: AvatarItem
   userThumbnail?: UserThumbnail
@@ -34,7 +36,7 @@ interface AvatarItem {
   key?: string
   name?: string
   url?: string
-  userId?: string
+  userId?: UserId
 }
 
 interface UserThumbnail {
@@ -42,5 +44,5 @@ interface UserThumbnail {
   key?: string
   name?: string
   url?: string
-  userId?: string
+  userId?: UserId
 }

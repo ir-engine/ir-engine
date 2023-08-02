@@ -30,6 +30,7 @@ import { Instance } from '@etherealengine/common/src/interfaces/Instance'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { defineState, getMutableState } from '@etherealengine/hyperflux'
 
+import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 import { UserType, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { NotificationService } from '../../common/services/NotificationService'
 import { userIsAdmin } from '../../user/userHasAccess'
@@ -152,7 +153,7 @@ export const AdminInstanceUserService = {
       lastFetched: Date.now()
     })
   },
-  kickUser: async (kickData: { userId: string; instanceId: Instance['id']; duration: string }) => {
+  kickUser: async (kickData: { userId: UserId; instanceId: Instance['id']; duration: string }) => {
     const duration = new Date()
     if (kickData.duration === 'INFINITY') {
       duration.setFullYear(duration.getFullYear() + 10) // ban for 10 years

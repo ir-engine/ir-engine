@@ -37,6 +37,7 @@ import multiLogger from '@etherealengine/common/src/logger'
 import { AuthStrategiesType } from '@etherealengine/engine/src/schemas/setting/authentication-setting.schema'
 import { defineState, getMutableState, getState, syncStateWithLocalStorage } from '@etherealengine/hyperflux'
 
+import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { locationBanPath } from '@etherealengine/engine/src/schemas/social/location-ban.schema'
 import { UserApiKeyType, userApiKeyPath } from '@etherealengine/engine/src/schemas/user/user-api-key.schema'
@@ -150,7 +151,7 @@ export const AuthService = {
     }
   },
 
-  async loadUserData(userId: string) {
+  async loadUserData(userId: UserId) {
     try {
       const client = API.instance.client
       const res = await client.service(userPath).get(userId)
@@ -483,7 +484,7 @@ export const AuthService = {
     }
   },
 
-  async addConnectionByPassword(form: EmailLoginForm, userId: string) {
+  async addConnectionByPassword(form: EmailLoginForm, userId: UserId) {
     const authState = getMutableState(AuthState)
     authState.merge({ isProcessing: true, error: '' })
 
@@ -503,7 +504,7 @@ export const AuthService = {
     }
   },
 
-  async addConnectionByEmail(email: string, userId: string) {
+  async addConnectionByEmail(email: string, userId: UserId) {
     const authState = getMutableState(AuthState)
     authState.merge({ isProcessing: true, error: '' })
     try {
@@ -523,7 +524,7 @@ export const AuthService = {
     }
   },
 
-  async addConnectionBySms(phone: string, userId: string) {
+  async addConnectionBySms(phone: string, userId: UserId) {
     const authState = getMutableState(AuthState)
     authState.merge({ isProcessing: true, error: '' })
 
@@ -551,12 +552,12 @@ export const AuthService = {
 
   async addConnectionByOauth(
     oauth: 'facebook' | 'google' | 'github' | 'linkedin' | 'twitter' | 'discord',
-    userId: string
+    userId: UserId
   ) {
     window.open(`https://${config.client.serverHost}/auth/oauth/${oauth}?userId=${userId}`, '_blank')
   },
 
-  async removeConnection(identityProviderId: number, userId: string) {
+  async removeConnection(identityProviderId: number, userId: UserId) {
     getMutableState(AuthState).merge({ isProcessing: true, error: '' })
     try {
       await Engine.instance.api.service('identity-provider').remove(identityProviderId)
@@ -568,7 +569,7 @@ export const AuthService = {
     }
   },
 
-  refreshConnections(userId: string) {
+  refreshConnections(userId: UserId) {
     AuthService.loadUserData(userId)
   },
 
@@ -577,7 +578,7 @@ export const AuthService = {
     getMutableState(AuthState).user.user_setting.merge(response)
   },
 
-  async removeUser(userId: string) {
+  async removeUser(userId: UserId) {
     await Engine.instance.api.service(userPath).remove(userId)
     AuthService.logoutUser()
   },
@@ -587,7 +588,7 @@ export const AuthService = {
     getMutableState(AuthState).user.merge({ apiKey })
   },
 
-  async updateUsername(userId: string, name: string) {
+  async updateUsername(userId: UserId, name: string) {
     const { name: updatedName } = await Engine.instance.api.service(userPath).patch(userId, { name: name })
     NotificationService.dispatchNotify(i18n.t('user:usermenu.profile.update-msg'), { variant: 'success' })
     getMutableState(AuthState).user.merge({ name: updatedName })
