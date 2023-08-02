@@ -35,6 +35,7 @@ import {
   AnalyticsType
 } from '@etherealengine/engine/src/schemas/analytics/analytics.schema'
 
+import { instanceAttendancePath } from '@etherealengine/engine/src/schemas/networking/instance-attendance.schema'
 import { Application } from '../../../declarations'
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
@@ -71,7 +72,7 @@ export class AnalyticsService<T = AnalyticsType, ServiceParams extends Params = 
         const instanceAttendance = await this.app
           .service(analyticsPath)
           .Model.countDistinct('userId AS count')
-          .table('instance-attendance')
+          .table(instanceAttendancePath)
           .where('createdAt', '>', new Date(new Date().setDate(currentDate.getDate() - (i + 1))).toISOString())
           .andWhere('createdAt', '<=', new Date(new Date().setDate(currentDate.getDate() - i)).toISOString())
           .first()

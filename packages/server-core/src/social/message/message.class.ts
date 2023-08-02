@@ -33,6 +33,7 @@ import { UserInterface } from '@etherealengine/common/src/interfaces/User'
 import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 
 import { instanceAttendancePath } from '@etherealengine/engine/src/schemas/networking/instance-attendance.schema'
+import { Knex } from 'knex'
 import { Application } from '../../../declarations'
 import { UserParams } from '../../user/user/user.class'
 
@@ -113,24 +114,18 @@ export class Message<T = MessageDataType> extends Service<T> {
             instanceId
           })) as Channel
         }
-        const instanceUsers = await this.app.service('user').find({
-          query: {
-            $limit: 1000
-          },
-          sequelize: {
-            include: [
-              {
-                model: this.app.service(instanceAttendancePath).Model,
-                as: 'instanceAttendance',
-                where: {
-                  instanceId
-                }
-              }
-            ]
-          }
-        })
-        userIdList = (instanceUsers as any).data.map((instanceUser) => {
-          return instanceUser.id
+
+        const knexClient: Knex = this.app.get('knexClient')
+
+        const instanceUsers = await knexClient
+          .from('user')
+          .join(instanceAttendancePath, `${instanceAttendancePath}.userId`, 'user.id')
+          .where(`${instanceAttendancePath}.instanceId`, instanceId)
+          .limit(1000)
+          .select()
+          .options({ nestTables: true })
+        userIdList = instanceUsers.map((instanceUser) => {
+          return instanceUser.user.id
         })
       }
     }
