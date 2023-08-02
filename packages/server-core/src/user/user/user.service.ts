@@ -24,7 +24,6 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import _ from 'lodash'
-import { Op } from 'sequelize'
 
 import { UserInterface } from '@etherealengine/common/src/interfaces/User'
 
@@ -32,6 +31,7 @@ import {
   instanceAttendancePath,
   InstanceAttendanceType
 } from '@etherealengine/engine/src/schemas/networking/instance-attendance.schema'
+import { Knex } from 'knex'
 import { Application } from '../../../declarations'
 import config from '../../appconfig'
 import logger from '../../ServerLogger'
@@ -92,24 +92,19 @@ export default (app: Application): void => {
           ended: false
         }
       })) as any as InstanceAttendanceType[]
-      const layerUsers = await app.service('user').Model.findAll({
-        include: [
-          {
-            model: app.service(instanceAttendancePath).Model,
-            as: 'instanceAttendance',
-            where: {
-              instanceId: {
-                [Op.in]: instances.map((instance) => instance.instanceId)
-              }
-            }
-          }
-        ],
-        where: {
-          id: {
-            [Op.ne]: data.id
-          }
-        }
-      })
+
+      const knexClient: Knex = app.get('knexClient')
+
+      const layerUsers = await knexClient
+        .from('user')
+        .join(instanceAttendancePath, `${instanceAttendancePath}.userId`, '=', 'user.id')
+        .whereIn(
+          `${instanceAttendancePath}.instanceId`,
+          instances.map((instance) => instance.instanceId)
+        )
+        .whereNot('user.id', data.id)
+        .select()
+        .options({ nestTables: true })
       targetIds = targetIds.concat(layerUsers.map((user) => user.id))
 
       // userRelationships.forEach((userRelationship) => {
