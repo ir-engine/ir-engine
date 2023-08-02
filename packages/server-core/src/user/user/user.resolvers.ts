@@ -30,6 +30,7 @@ import { v4 } from 'uuid'
 import { UserQuery, UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
 import type { HookContext } from '@etherealengine/server-core/declarations'
 
+import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 import {
   InstanceAttendanceType,
   instanceAttendancePath
@@ -131,7 +132,7 @@ export const userExternalResolver = resolve<UserType, HookContext>({})
 
 export const userDataResolver = resolve<UserType, HookContext>({
   id: async () => {
-    return v4()
+    return v4() as UserId
   },
   name: async (name) => {
     return name || 'Guest #' + Math.floor(Math.random() * (999 - 100 + 1) + 100)
