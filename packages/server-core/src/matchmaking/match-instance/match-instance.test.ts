@@ -118,7 +118,10 @@ describe.skip('matchmaking match-instance service', () => {
       for (let i = 0; i < ticketsNumber; i++) {
         const userPromise = app.service(userPath).create({
           name: 'Test #' + Math.random(),
-          isGuest: true
+          isGuest: true,
+          avatarId: '',
+          inviteCode: '',
+          scopes: []
         })
         usersPromises.push(userPromise)
 

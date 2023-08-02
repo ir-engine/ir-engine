@@ -23,20 +23,23 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
-import { AdapterQuery } from '@feathersjs/adapter-commons'
-import { Params } from '@feathersjs/feathers'
-import { KnexAdapterParams } from '@feathersjs/knex'
+import { ChannelID } from '@etherealengine/common/src/dbmodels/Channel'
+import { UserId } from '@etherealengine/common/src/interfaces/UserId'
+import { UserType } from '../user/user.schema'
 
-export interface RootParams<Q = AdapterQuery> extends KnexAdapterParams<Q> {
-  user?: UserType
-  isInternal?: boolean
+interface ChannelInterface {
+  id: string
+  name: string
+  users: UserType[]
+  userIds: UserId[]
+  instanceId: string
 }
 
-/* @deprecated */
-export interface UserParams extends Params {
+export type ChannelUser = {
+  id: string
+  isOwner: boolean
+  userId: UserId
   user?: UserType
-  paginate?: false
-  isInternal?: boolean
-  sequelize?: any
+  channelId: ChannelID
+  channel?: ChannelInterface
 }

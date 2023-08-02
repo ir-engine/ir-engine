@@ -28,7 +28,7 @@ import { Params } from '@feathersjs/feathers/lib'
 import { Instance as InstanceInterface } from '@etherealengine/common/src/interfaces/Instance'
 import { locationPath, LocationType } from '@etherealengine/engine/src/schemas/social/location.schema'
 
-import { AdminScope } from '@etherealengine/common/src/interfaces/AdminScope'
+import { AdminScope } from '@etherealengine/engine/src/schemas/interfaces/AdminScope'
 import { scopePath } from '@etherealengine/engine/src/schemas/scope/scope.schema'
 import { Application } from '../../../declarations'
 import { UserParams } from '../../api/root-params'

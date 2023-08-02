@@ -42,7 +42,7 @@ import {
   useState
 } from '@etherealengine/hyperflux'
 
-import { ChannelID } from '@etherealengine/common/src/interfaces/ChannelUser'
+import { ChannelID } from '@etherealengine/engine/src/schemas/interfaces/ChannelUser'
 import { LocationState } from '../../social/services/LocationService'
 import {
   connectToNetwork,

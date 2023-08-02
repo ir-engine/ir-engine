@@ -23,16 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { ScopeTypeType } from '@etherealengine/engine/src/schemas/scope/scope-type.schema'
-
-import { UserInterface } from './User'
-
-export interface AdminScope {
+export interface UserSetting {
   id: string
-  createdAt: string
-  updatedAt: string
-  userId?: string
-  type: string
-  scopeType?: ScopeTypeType
-  user?: UserInterface
+  themeModes: Record<string, string>
 }

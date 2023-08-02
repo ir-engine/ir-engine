@@ -23,17 +23,16 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { ChannelID } from './ChannelUser'
-import { UserInterface } from './User'
-import { UserId } from './UserId'
+// TODO: Once moved to feathers 5. Remove this interfaces folder
 
-export type Message = {
-  id: string
-  senderId: UserId
-  channelId: ChannelID
-  text: string
-  isNotification: boolean
-  createdAt: string
-  updatedAt: string
-  sender: UserInterface
+import { UserType } from '../user/user.schema'
+
+/* @deprecated */
+export interface Relationship {
+  userId: string
+  friend: UserType[]
+  requested: UserType[]
+  pending: UserType[]
+  blocking: UserType[]
+  blocked: UserType[]
 }

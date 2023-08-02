@@ -23,12 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { UserId } from '../interfaces/UserId'
+import { OpaqueType } from '../interfaces/OpaqueType'
+
+export type ChannelID = OpaqueType<'ChannelID'> & string
 
 export interface ChannelInterface {
   id: string
   name: string
-  users: UserInterface[]
-  userIds: UserId[]
   instanceId: string
 }

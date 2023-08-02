@@ -23,18 +23,15 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { ChannelInterface } from '../dbmodels/Channel'
-import { OpaqueType } from './OpaqueType'
-import { UserInterface } from './User'
-import { UserId } from './UserId'
+import { ScopeTypeType } from '@etherealengine/engine/src/schemas/scope/scope-type.schema'
+import { UserType } from '../user/user.schema'
 
-export type ChannelID = OpaqueType<'ChannelID'> & string
-
-export type ChannelUser = {
+export interface AdminScope {
   id: string
-  isOwner: boolean
-  userId: UserId
-  user?: UserInterface
-  channelId: ChannelID
-  channel?: ChannelInterface
+  createdAt: string
+  updatedAt: string
+  userId?: string
+  type: string
+  scopeType?: ScopeTypeType
+  user?: UserType
 }

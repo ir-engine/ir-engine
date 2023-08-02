@@ -43,7 +43,6 @@ import {
 import os from 'os'
 import { Spark } from 'primus'
 
-import { ChannelID } from '@etherealengine/common/src/interfaces/ChannelUser'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { MessageTypes } from '@etherealengine/engine/src/networking/enums/MessageTypes'
 import {
@@ -51,6 +50,7 @@ import {
   MediaStreamAppData,
   MediaTagType
 } from '@etherealengine/engine/src/networking/NetworkState'
+import { ChannelID } from '@etherealengine/engine/src/schemas/interfaces/ChannelUser'
 import { getState } from '@etherealengine/hyperflux'
 import config from '@etherealengine/server-core/src/appconfig'
 import { localConfig, sctpParameters } from '@etherealengine/server-core/src/config'

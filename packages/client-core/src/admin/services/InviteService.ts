@@ -25,8 +25,8 @@ Ethereal Engine. All Rights Reserved.
 
 import { Paginated } from '@feathersjs/feathers'
 
-import { Invite as InviteInterface } from '@etherealengine/common/src/interfaces/Invite'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { Invite as InviteInterface } from '@etherealengine/engine/src/schemas/interfaces/Invite'
 import { defineState, getMutableState } from '@etherealengine/hyperflux'
 
 import { NotificationService } from '../../common/services/NotificationService'

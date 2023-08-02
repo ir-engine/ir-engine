@@ -27,8 +27,8 @@ import assert from 'assert'
 import { Application } from '../../../declarations'
 import { createFeathersKoaApp } from '../../createApp'
 
-import { ChannelUser } from '@etherealengine/common/src/interfaces/ChannelUser'
 import { Instance } from '@etherealengine/common/src/interfaces/Instance'
+import { ChannelUser } from '@etherealengine/engine/src/schemas/interfaces/ChannelUser'
 import { UserType, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Paginated } from '@feathersjs/feathers'
 
@@ -50,7 +50,11 @@ describe('channel-user service', () => {
 
   it('will remove user from channel if they are the owner', async () => {
     const user = (await app.service(userPath).create({
-      name: 'user'
+      name: 'user',
+      isGuest: true,
+      avatarId: '',
+      inviteCode: '',
+      scopes: []
     })) as UserType
 
     const channel = await app.service('channel').create({}, { user })
@@ -89,11 +93,19 @@ describe('channel-user service', () => {
 
   it('will not remove user if they are not the owner', async () => {
     const user = (await app.service(userPath).create({
-      name: 'user'
+      name: 'user',
+      isGuest: true,
+      avatarId: '',
+      inviteCode: '',
+      scopes: []
     })) as UserType
 
     const user2 = (await app.service(userPath).create({
-      name: 'user2'
+      name: 'user2',
+      isGuest: true,
+      avatarId: '',
+      inviteCode: '',
+      scopes: []
     })) as UserType
 
     const instance = (await app.service('instance').create(
@@ -159,7 +171,11 @@ describe('channel-user service', () => {
 
   it('user can not add themselves to a channel', async () => {
     const user = (await app.service(userPath).create({
-      name: 'user'
+      name: 'user',
+      isGuest: true,
+      avatarId: '',
+      inviteCode: '',
+      scopes: []
     })) as UserType
 
     const channel = await app.service('channel').create({})

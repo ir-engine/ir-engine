@@ -33,7 +33,7 @@ import path from 'path'
 import logger from '@etherealengine/common/src/logger'
 import { getState } from '@etherealengine/hyperflux'
 
-import { AdminScope } from '@etherealengine/common/src/interfaces/AdminScope'
+import { AdminScope } from '@etherealengine/engine/src/schemas/interfaces/AdminScope'
 import { scopePath } from '@etherealengine/engine/src/schemas/scope/scope.schema'
 import { UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Application } from '../../../declarations'

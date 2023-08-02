@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import React, { useEffect } from 'react'
 
-import { ChannelID } from '@etherealengine/common/src/interfaces/ChannelUser'
+import { ChannelID } from '@etherealengine/engine/src/schemas/interfaces/ChannelUser'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import UserIcon from './assets/user.svg'
 

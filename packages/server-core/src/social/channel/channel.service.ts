@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import '@feathersjs/transport-commons'
 
-import { Channel as Channelinterface } from '@etherealengine/common/src/interfaces/Channel'
+import { Channel as Channelinterface } from '@etherealengine/engine/src/schemas/interfaces/Channel'
 
 import { Application } from '../../../declarations'
 import { Channel } from './channel.class'

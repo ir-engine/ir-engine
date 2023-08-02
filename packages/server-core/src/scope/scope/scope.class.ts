@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { Paginated } from '@feathersjs/feathers'
 import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
 
-import { AdminScope as AdminScopeInterface } from '@etherealengine/common/src/interfaces/AdminScope'
+import { AdminScope as AdminScopeInterface } from '@etherealengine/engine/src/schemas/interfaces/AdminScope'
 
 import { UserType, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Application } from '../../../declarations'

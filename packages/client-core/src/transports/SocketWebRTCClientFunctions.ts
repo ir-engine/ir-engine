@@ -42,14 +42,25 @@ import { v4 as uuidv4 } from 'uuid'
 
 import config from '@etherealengine/common/src/config'
 import { AuthTask } from '@etherealengine/common/src/interfaces/AuthTask'
-import { Channel } from '@etherealengine/common/src/interfaces/Channel'
 import { PeerID, PeersUpdateType } from '@etherealengine/common/src/interfaces/PeerID'
 import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 import multiLogger from '@etherealengine/common/src/logger'
 import { getSearchParamFromURL } from '@etherealengine/common/src/utils/getSearchParamFromURL'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { EngineActions, EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
-import { createNetwork, NetworkTopics, TransportInterface } from '@etherealengine/engine/src/networking/classes/Network'
+import {
+  MediaStreamAppData,
+  MediaTagType,
+  NetworkState,
+  dataChannelRegistry,
+  removeNetwork,
+  screenshareAudioDataChannelType,
+  screenshareVideoDataChannelType,
+  updateNetwork,
+  webcamAudioDataChannelType,
+  webcamVideoDataChannelType
+} from '@etherealengine/engine/src/networking/NetworkState'
+import { NetworkTopics, TransportInterface, createNetwork } from '@etherealengine/engine/src/networking/classes/Network'
 import { PUBLIC_STUN_SERVERS } from '@etherealengine/engine/src/networking/constants/STUNServers'
 import {
   CAM_VIDEO_SIMULCAST_CODEC_OPTIONS,
@@ -63,18 +74,7 @@ import {
   JoinWorldRequestData,
   receiveJoinWorld
 } from '@etherealengine/engine/src/networking/functions/receiveJoinWorld'
-import {
-  dataChannelRegistry,
-  MediaStreamAppData,
-  MediaTagType,
-  NetworkState,
-  removeNetwork,
-  screenshareAudioDataChannelType,
-  screenshareVideoDataChannelType,
-  updateNetwork,
-  webcamAudioDataChannelType,
-  webcamVideoDataChannelType
-} from '@etherealengine/engine/src/networking/NetworkState'
+import { Channel } from '@etherealengine/engine/src/schemas/interfaces/Channel'
 import { dispatchAction, getMutableState, getState, none, removeActionsForTopic } from '@etherealengine/hyperflux'
 import { Action, Topic } from '@etherealengine/hyperflux/functions/ActionFunctions'
 
@@ -100,8 +100,8 @@ import { ChannelState } from '../social/services/ChannelService'
 import { LocationState } from '../social/services/LocationService'
 import { AuthState } from '../user/services/AuthService'
 import { updateNearbyAvatars } from './FilteredUsersSystem'
-import { MediaStreamService as _MediaStreamService, MediaStreamState } from './MediaStreams'
-import { clearPeerMediaChannels, PeerMediaChannelState } from './PeerMediaChannelState'
+import { MediaStreamState, MediaStreamService as _MediaStreamService } from './MediaStreams'
+import { PeerMediaChannelState, clearPeerMediaChannels } from './PeerMediaChannelState'
 
 const logger = multiLogger.child({ component: 'client-core:SocketWebRTCClientFunctions' })
 

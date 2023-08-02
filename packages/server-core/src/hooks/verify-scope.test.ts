@@ -61,7 +61,10 @@ describe('verify-scope', () => {
 
     let user = (await app.service(userPath).create({
       name,
-      isGuest
+      isGuest,
+      avatarId: '',
+      inviteCode: '',
+      scopes: []
     })) as UserType
 
     user = await app.service(userPath).get(user.id, { user })
@@ -89,7 +92,10 @@ describe('verify-scope', () => {
 
     let user = (await app.service(userPath).create({
       name,
-      isGuest
+      isGuest,
+      avatarId: '',
+      inviteCode: '',
+      scopes: []
     })) as UserType
 
     await app.service('scope').create({
@@ -114,7 +120,10 @@ describe('verify-scope', () => {
 
     let user = (await app.service(userPath).create({
       name,
-      isGuest
+      isGuest,
+      avatarId: '',
+      inviteCode: '',
+      scopes: []
     })) as UserType
 
     await app.service('scope').create({
@@ -147,7 +156,10 @@ describe('verify-scope', () => {
 
     let user = (await app.service(userPath).create({
       name,
-      isGuest
+      isGuest,
+      avatarId: '',
+      inviteCode: '',
+      scopes: []
     })) as UserType
 
     await app.service('scope').create({

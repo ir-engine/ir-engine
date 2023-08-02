@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Message as MessageInterface } from '@etherealengine/common/src/interfaces/Message'
+import { Message as MessageInterface } from '@etherealengine/engine/src/schemas/interfaces/Message'
 
 import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Application } from '../../../declarations'

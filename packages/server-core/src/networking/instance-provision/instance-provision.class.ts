@@ -36,7 +36,7 @@ import { InstanceServerProvisionResult } from '@etherealengine/common/src/interf
 import { locationPath, LocationType } from '@etherealengine/engine/src/schemas/social/location.schema'
 import { getState } from '@etherealengine/hyperflux'
 
-import { ChannelID } from '@etherealengine/common/src/interfaces/ChannelUser'
+import { ChannelID } from '@etherealengine/engine/src/schemas/interfaces/ChannelUser'
 import {
   instanceAuthorizedUserPath,
   InstanceAuthorizedUserType

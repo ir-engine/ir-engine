@@ -23,17 +23,17 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { UserInterface } from './User'
+import { UserType } from '../user/user.schema'
 
 export type Invite = {
   id: string
   inviteType: string
   channelName?: string
-  invitee?: UserInterface
+  invitee?: UserType
   inviteeId?: string
   token?: string
   targetObjectId?: string
-  user?: UserInterface
+  user?: UserType
   userId: string
   passcode: string
   identityProviderType?: string
@@ -74,7 +74,7 @@ export interface InviteInterface {
   token?: string
   passcode: string
   inviteeId?: string
-  invitee?: UserInterface
+  invitee?: UserType
   identityProviderType?: string
   targetObjectId?: string
   makeAdmin: boolean

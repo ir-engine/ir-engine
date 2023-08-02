@@ -23,11 +23,22 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Invite } from './Invite'
+import { ChannelID } from '@etherealengine/common/src/dbmodels/Channel'
+import { ChannelUser } from './ChannelUser'
 
-export type InviteResult = {
-  data: Invite[]
-  total: number
-  limit: number
-  skip: number
+export type Channel = {
+  id: ChannelID
+  name: string
+  instanceId: string | null
+  createdAt: string
+  updatedAt: string
+  updateNeeded: boolean
+  limit: 5
+  skip: 0
+  total: 0
+  channel_users: ChannelUser[]
+}
+
+export interface PatchChannel {
+  name: string
 }

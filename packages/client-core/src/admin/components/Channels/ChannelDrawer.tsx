@@ -28,7 +28,7 @@ import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import InputText from '@etherealengine/client-core/src/common/components/InputText'
-import { Channel } from '@etherealengine/common/src/interfaces/Channel'
+import { Channel } from '@etherealengine/engine/src/schemas/interfaces/Channel'
 import { getMutableState } from '@etherealengine/hyperflux'
 import Button from '@etherealengine/ui/src/primitives/mui/Button'
 import Container from '@etherealengine/ui/src/primitives/mui/Container'

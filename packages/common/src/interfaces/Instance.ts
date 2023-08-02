@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { LocationData, LocationType } from '@etherealengine/engine/src/schemas/social/location.schema'
-import { ChannelID } from './ChannelUser'
+import { ChannelID } from '../dbmodels/Channel'
 
 export interface Instance {
   id: string

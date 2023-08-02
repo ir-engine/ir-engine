@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { DataTypes, Model, Sequelize } from 'sequelize'
 
-import { UserSetting } from '@etherealengine/common/src/interfaces/User'
+import { UserSetting } from '@etherealengine/common/src/dbmodels/UserSetting'
 
 import { Application } from '../../../declarations'
 

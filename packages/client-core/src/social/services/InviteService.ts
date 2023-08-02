@@ -32,9 +32,9 @@ import {
   PHONE_REGEX,
   USER_ID_REGEX
 } from '@etherealengine/common/src/constants/IdConstants'
-import { Invite, SendInvite } from '@etherealengine/common/src/interfaces/Invite'
 import { Validator, matches } from '@etherealengine/engine/src/common/functions/MatchesUtils'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { Invite, SendInvite } from '@etherealengine/engine/src/schemas/interfaces/Invite'
 import { defineAction, defineState, dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
 
 import { UserType, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'

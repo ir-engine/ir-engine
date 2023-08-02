@@ -26,20 +26,20 @@ Ethereal Engine. All Rights Reserved.
 import * as k8s from '@kubernetes/client-node'
 import { Op } from 'sequelize'
 
-import { Channel } from '@etherealengine/common/src/interfaces/Channel'
 import { Instance } from '@etherealengine/common/src/interfaces/Instance'
 import {
   ServerContainerInfo,
   ServerInfoInterface,
   ServerPodInfo
 } from '@etherealengine/common/src/interfaces/ServerInfo'
-import { locationPath, LocationType } from '@etherealengine/engine/src/schemas/social/location.schema'
+import { LocationType, locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
 import { getState } from '@etherealengine/hyperflux'
 
+import { Channel } from '@etherealengine/engine/src/schemas/interfaces/Channel'
 import { Application } from '../../../declarations'
-import config from '../../appconfig'
 import logger from '../../ServerLogger'
 import { ServerState } from '../../ServerState'
+import config from '../../appconfig'
 
 export const getServerInfo = async (app: Application): Promise<ServerInfoInterface[]> => {
   const serverInfo: ServerInfoInterface[] = []

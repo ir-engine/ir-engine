@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { Id, NullableId, Paginated, Params } from '@feathersjs/feathers'
 import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
 
-import { UserSetting } from '@etherealengine/common/src/interfaces/User'
+import { UserSetting } from '@etherealengine/common/src/interfaces/UserSetting'
 
 import { Application } from '../../../declarations'
 import { UserParams } from '../../api/root-params'

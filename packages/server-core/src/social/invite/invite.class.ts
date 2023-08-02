@@ -30,7 +30,7 @@ import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
 import Sequelize, { Op } from 'sequelize'
 
 import { IdentityProviderInterface } from '@etherealengine/common/src/dbmodels/IdentityProvider'
-import { Invite as InviteType } from '@etherealengine/common/src/interfaces/Invite'
+import { Invite as InviteType } from '@etherealengine/engine/src/schemas/interfaces/Invite'
 
 import { UserType, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Application } from '../../../declarations'

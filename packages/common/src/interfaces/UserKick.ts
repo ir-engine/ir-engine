@@ -23,13 +23,13 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { UserInterface } from './User'
+import { UserId } from './UserId'
 
-export interface Relationship {
-  userId: string
-  friend: UserInterface[]
-  requested: UserInterface[]
-  pending: UserInterface[]
-  blocking: UserInterface[]
-  blocked: UserInterface[]
+export interface UserKick {
+  id: string
+  duration: Date
+  userId: UserId
+  instanceId: string
 }
+
+export type CreateUserKick = Omit<UserKick, 'id'>

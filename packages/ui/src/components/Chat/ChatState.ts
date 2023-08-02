@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { ChannelID } from '@etherealengine/common/src/interfaces/ChannelUser'
+import { ChannelID } from '@etherealengine/engine/src/schemas/interfaces/ChannelUser'
 import { defineState } from '@etherealengine/hyperflux'
 
 export const ChatState = defineState({

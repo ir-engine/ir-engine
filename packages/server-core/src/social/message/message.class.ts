@@ -26,10 +26,10 @@ Ethereal Engine. All Rights Reserved.
 import { BadRequest } from '@feathersjs/errors'
 import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
 
-import { Channel } from '@etherealengine/common/src/interfaces/Channel'
-import { ChannelID } from '@etherealengine/common/src/interfaces/ChannelUser'
-import { Message as MessageInterface } from '@etherealengine/common/src/interfaces/Message'
 import { UserId } from '@etherealengine/common/src/interfaces/UserId'
+import { Channel } from '@etherealengine/engine/src/schemas/interfaces/Channel'
+import { ChannelID } from '@etherealengine/engine/src/schemas/interfaces/ChannelUser'
+import { Message as MessageInterface } from '@etherealengine/engine/src/schemas/interfaces/Message'
 
 import { UserType, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Application } from '../../../declarations'

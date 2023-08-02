@@ -27,11 +27,11 @@ import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import ConfirmDialog from '@etherealengine/client-core/src/common/components/ConfirmDialog'
-import { Channel } from '@etherealengine/common/src/interfaces/Channel'
+import { Channel } from '@etherealengine/engine/src/schemas/interfaces/Channel'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import Box from '@etherealengine/ui/src/primitives/mui/Box'
 
-import { ChannelID } from '@etherealengine/common/src/interfaces/ChannelUser'
+import { ChannelID } from '@etherealengine/engine/src/schemas/interfaces/ChannelUser'
 import { AuthState } from '../../../user/services/AuthService'
 import TableComponent from '../../common/Table'
 import { channelColumns, ChannelData, ChannelPropsTable } from '../../common/variables/channel'
