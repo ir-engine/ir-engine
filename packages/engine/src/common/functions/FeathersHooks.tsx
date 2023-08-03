@@ -136,7 +136,7 @@ export const useQuery = <S extends keyof ServiceTypes, M extends Methods>(servic
       })
       fetch()
     }
-  }, [serviceName, method, args])
+  }, [serviceName, method, ...args])
 
   const query = state[serviceName]?.[queryId]
   const queryObj = state.get(NO_PROXY)[serviceName]?.[queryId]
@@ -271,8 +271,6 @@ export function hashObject(obj) {
   return hash
 }
 
-const refCounting = {} as Record<keyof ServiceTypes, number> // <serviceName, <id, refCount>>
-
 /**
  * An internal hook that will listen to realtime updates to a service
  * and update the cache as changes happen.
@@ -281,24 +279,16 @@ export function useRealtime(serviceName: keyof ServiceTypes, refetch: () => void
   useEffect(() => {
     const service = Engine.instance.api.service(serviceName)
 
-    refCounting[serviceName] = refCounting[serviceName] || 0
-
-    refCounting[serviceName] += 1
-    if (refCounting[serviceName] === 1) {
-      service.on('created', refetch)
-      service.on('updated', refetch)
-      service.on('patched', refetch)
-      service.on('removed', refetch)
-    }
+    service.on('created', refetch)
+    service.on('updated', refetch)
+    service.on('patched', refetch)
+    service.on('removed', refetch)
 
     return () => {
-      refCounting[serviceName] -= 1
-      if (refCounting[serviceName] === 0) {
-        service.off('created', refetch)
-        service.off('updated', refetch)
-        service.off('patched', refetch)
-        service.off('removed', refetch)
-      }
+      service.off('created', refetch)
+      service.off('updated', refetch)
+      service.off('patched', refetch)
+      service.off('removed', refetch)
     }
   }, [serviceName])
 }
