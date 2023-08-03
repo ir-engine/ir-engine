@@ -28,6 +28,7 @@ import { HookReturn } from 'sequelize/types/hooks'
 
 import {
   AvatarInterface,
+  LocationAdminInterface,
   LocationAuthorizedUserInterface,
   LocationBanInterface,
   LocationInterface,
@@ -92,8 +93,8 @@ export default (app: Application) => {
     ;(User as any).hasMany(models.user_relationship, { onDelete: 'cascade' })
     ;(User as any).hasMany(models.identity_provider, { onDelete: 'cascade' })
     ;(User as any).hasMany(models.channel)
-    ;(User as any).belongsToMany(createLocationModel(app), { through: 'location_admin' })
-    ;(User as any).hasMany(models.location_admin, { unique: false })
+    ;(User as any).belongsToMany(createLocationModel(app), { through: 'location-admin' })
+    ;(User as any).hasMany(createLocationAdminModel(app), { unique: false })
     ;(User as any).hasMany(createLocationBanModel(app), { as: 'locationBans' })
     ;(User as any).hasMany(models.bot, { foreignKey: 'userId' })
     ;(User as any).hasMany(models.scope, { foreignKey: 'userId', onDelete: 'cascade' })
@@ -245,9 +246,9 @@ export const createLocationModel = (app: Application) => {
 
   ;(location as any).associate = (models: any): void => {
     ;(location as any).hasMany(models.instance)
-    ;(location as any).hasMany(models.location_admin)
+    ;(location as any).hasMany(createLocationAdminModel(app))
     // (location as any).belongsTo(models.scene, { foreignKey: 'sceneId' }); // scene
-    ;(location as any).belongsToMany(models.user, { through: 'location_admin' })
+    ;(location as any).belongsToMany(models.user, { through: 'location-admin' })
     ;(location as any).hasOne(createLocationSettingsModel(app), { onDelete: 'cascade' })
     ;(location as any).hasMany(createLocationBanModel(app), { as: 'locationBans' })
     ;(location as any).hasMany(models.bot, { foreignKey: 'locationId' })
@@ -402,4 +403,33 @@ export const createLocationAuthorizedUserModel = (app: Application) => {
     })
   }
   return locationAuthorizedUser
+}
+
+export const createLocationAdminModel = (app: Application) => {
+  const sequelizeClient: Sequelize = app.get('sequelizeClient')
+  const locationAdmin = sequelizeClient.define<Model<LocationAdminInterface>>(
+    'location-admin',
+    {
+      id: {
+        type: DataTypes.UUID,
+        defaultValue: DataTypes.UUIDV1,
+        allowNull: false,
+        primaryKey: true
+      }
+    },
+    {
+      hooks: {
+        beforeCount(options: any): HookReturn {
+          options.raw = true
+        }
+      }
+    }
+  )
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  ;(locationAdmin as any).associate = function (models: any): void {
+    ;(locationAdmin as any).belongsTo(createLocationModel(app), { required: true, allowNull: false })
+    ;(locationAdmin as any).belongsTo(models.user, { required: true, allowNull: false })
+  }
+
+  return locationAdmin
 }

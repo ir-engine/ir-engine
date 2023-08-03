@@ -23,6 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { hooks as schemaHooks } from '@feathersjs/schema'
 import { getValidator } from '@feathersjs/typebox'
 import { disallow, iff, isProvider } from 'feathers-hooks-common'
 
@@ -37,25 +38,45 @@ import { dataValidator, queryValidator } from '@etherealengine/server-core/valid
 
 import authenticate from '../../hooks/authenticate'
 import verifyScope from '../../hooks/verify-scope'
+import {
+  locationAdminDataResolver,
+  locationAdminExternalResolver,
+  locationAdminPatchResolver,
+  locationAdminQueryResolver,
+  locationAdminResolver
+} from './location-admin.resolvers'
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const locationAdminValidator = getValidator(locationAdminSchema, dataValidator)
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const locationAdminDataValidator = getValidator(locationAdminDataSchema, dataValidator)
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const locationAdminPatchValidator = getValidator(locationAdminPatchSchema, dataValidator)
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const locationAdminQueryValidator = getValidator(locationAdminQuerySchema, queryValidator)
 
 export default {
+  around: {
+    all: [schemaHooks.resolveExternal(locationAdminExternalResolver), schemaHooks.resolveResult(locationAdminResolver)]
+  },
+
   before: {
-    all: [authenticate()],
-    find: [iff(isProvider('external'), attachOwnerIdInQuery('userId') as any)],
+    all: [
+      authenticate(),
+      () => schemaHooks.validateQuery(locationAdminQueryValidator),
+      schemaHooks.resolveQuery(locationAdminQueryResolver)
+    ],
+    find: [iff(isProvider('external'), attachOwnerIdInQuery('userId'))],
     get: [disallow('external')],
-    create: [iff(isProvider('external'), verifyScope('admin', 'admin') as any)],
-    update: [iff(isProvider('external'), verifyScope('admin', 'admin') as any)],
-    patch: [iff(isProvider('external'), verifyScope('admin', 'admin') as any)],
-    remove: [iff(isProvider('external'), verifyScope('admin', 'admin') as any)]
+    create: [
+      iff(isProvider('external'), verifyScope('admin', 'admin')),
+      () => schemaHooks.validateData(locationAdminDataValidator),
+      schemaHooks.resolveData(locationAdminDataResolver)
+    ],
+    update: [iff(isProvider('external'), verifyScope('admin', 'admin'))],
+    patch: [
+      iff(isProvider('external'), verifyScope('admin', 'admin')),
+      () => schemaHooks.validateData(locationAdminPatchValidator),
+      schemaHooks.resolveData(locationAdminPatchResolver)
+    ],
+    remove: [iff(isProvider('external'), verifyScope('admin', 'admin'))]
   },
 
   after: {
