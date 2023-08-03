@@ -63,7 +63,7 @@ export const BehaveGraphComponent = defineComponent({
   toJSON: (entity, component) => {
     return {
       domain: component.domain.value,
-      graph: cleanStorageProviderURLs(component.graph.value),
+      graph: cleanStorageProviderURLs(component.graph.get({ noproxy: true })),
       run: false, // we always want it to be false when saving, so scripts dont startup in the editor, we make true for runtime
       disabled: component.disabled.value
     }
