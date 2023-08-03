@@ -83,11 +83,24 @@ function PostProcessingComponentReactor(): ReactElement {
 
 const PostProcessingEffectReactor = React.memo((props: { effect: EffectPropsSchemaType; name: string }) => {
   const { effect, name } = props
-
-  useEffect(() => {
-    if (effect !== getState(PostProcessingSettingsState).effects[name])
-      getMutableState(PostProcessingSettingsState).effects[name].merge(JSON.parse(JSON.stringify(effect)))
-  }, [effect])
-
-  return <></>
+  return (
+    <>
+      {Object.entries(effect).map(([key, value], index) => {
+        return <PostProcessingEffectPropertyReactor effect={effect} name={name} key={key} value={value} />
+      })}
+    </>
+  )
 })
+
+const PostProcessingEffectPropertyReactor = React.memo(
+  (props: { effect: EffectPropsSchemaType; name: string; key: string; value: any }) => {
+    const { effect, name, key, value } = props
+
+    useEffect(() => {
+      console.log('effect', effect, name, key, value)
+      getMutableState(PostProcessingSettingsState).effects[name][key].set(value)
+    }, [value])
+
+    return null
+  }
+)

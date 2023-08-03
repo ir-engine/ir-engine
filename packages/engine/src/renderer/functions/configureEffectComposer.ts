@@ -120,6 +120,8 @@ export const configureEffectComposer = (
 
     if (!EffectClass) continue
 
+    console.log('EffectClass', EffectClass, effect, key)
+
     if (key === Effects.SSAOEffect) {
       const eff = new EffectClass(camera, normalPass.texture, {
         ...effect,
