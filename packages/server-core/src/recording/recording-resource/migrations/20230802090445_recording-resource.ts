@@ -23,43 +23,49 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { recordingResourcePath } from '@etherealengine/engine/src/schemas/recording/recording-resource.schema'
 import type { Knex } from 'knex'
-
-import { instanceAuthorizedUserPath } from '@etherealengine/engine/src/schemas/networking/instance-authorized-user.schema'
 
 /**
  * @param { import("knex").Knex } knex
  * @returns { Promise<void> }
  */
 export async function up(knex: Knex): Promise<void> {
-  const oldTableName = 'instance_authorized_user'
+  const oldTableName = 'recording_resource'
 
   const oldNamedTableExists = await knex.schema.hasTable(oldTableName)
-  const tableExists = await knex.schema.hasTable(instanceAuthorizedUserPath)
+  const tableExists = await knex.schema.hasTable(recordingResourcePath)
+
   if (oldNamedTableExists) {
     // In case sequelize creates the new table before we migrate the old table
-    if (tableExists) await knex.schema.dropTable(instanceAuthorizedUserPath)
-    await knex.schema.renameTable(oldTableName, instanceAuthorizedUserPath)
+    if (tableExists) await knex.schema.dropTable(recordingResourcePath)
+    await knex.schema.renameTable(oldTableName, recordingResourcePath)
   }
 
   if (!tableExists && !oldNamedTableExists) {
-    await knex.schema.createTable(instanceAuthorizedUserPath, (table) => {
+    await knex.schema.createTable(recordingResourcePath, (table) => {
       //@ts-ignore
       table.uuid('id').collate('utf8mb4_bin').primary()
       //@ts-ignore
-      table.uuid('userId').collate('utf8mb4_bin').notNullable()
+      table.uuid('recordingId').collate('utf8mb4_bin').nullable()
       //@ts-ignore
-      table.uuid('instanceId').collate('utf8mb4_bin').notNullable().index()
+      table.uuid('staticResourceId').collate('utf8mb4_bin').nullable().index()
       table.dateTime('createdAt').notNullable()
       table.dateTime('updatedAt').notNullable()
 
-      table.foreign('userId').references('id').inTable('user').onDelete('CASCADE').onUpdate('CASCADE')
-      table.foreign('instanceId').references('id').inTable('instance').onDelete('CASCADE').onUpdate('CASCADE')
-
-      // Setting unique constraint for userId and instanceId combination
-      table.unique(['userId', 'instanceId'], {
-        indexName: 'instance_authorized_user_instanceId_userId_unique'
+      // Foreign keys
+      table.unique(['recordingId', 'staticResourceId'], {
+        indexName: 'recording_resource_recordingId_staticResourceId_unique'
       })
+
+      table.foreign('recordingId').references('id').inTable('recording').onDelete('CASCADE').onUpdate('CASCADE')
+
+      table
+        .foreign('staticResourceId')
+        .references('id')
+        .inTable('static_resource')
+        .onDelete('CASCADE')
+        .onUpdate('CASCADE')
     })
   }
 }
@@ -69,9 +75,9 @@ export async function up(knex: Knex): Promise<void> {
  * @returns { Promise<void> }
  */
 export async function down(knex: Knex): Promise<void> {
-  const tableExists = await knex.schema.hasTable(instanceAuthorizedUserPath)
+  const tableExists = await knex.schema.hasTable(recordingResourcePath)
 
   if (tableExists === true) {
-    await knex.schema.dropTable(instanceAuthorizedUserPath)
+    await knex.schema.dropTable(recordingResourcePath)
   }
 }

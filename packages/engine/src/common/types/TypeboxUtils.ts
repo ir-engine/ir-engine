@@ -23,26 +23,16 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { DataTypes, Model, Sequelize } from 'sequelize'
+import { Kind, StringFormatOption, StringOptions, TSchema, Type } from '@feathersjs/typebox'
 
-import { RecordingResourceInterface } from '@etherealengine/common/src/dbmodels/Recording'
+export interface TTypedString<T extends string, Format extends string = string> extends TSchema, StringOptions<Format> {
+  [Kind]: 'String'
+  static: T
+  type: T
+}
 
-import { Application } from '../../../declarations'
-
-export default (app: Application) => {
-  const sequelizeClient: Sequelize = app.get('sequelizeClient')
-  const RecordingResource = sequelizeClient.define<Model<RecordingResourceInterface>>('recording_resource', {
-    id: {
-      type: DataTypes.UUID,
-      defaultValue: DataTypes.UUIDV1,
-      allowNull: false,
-      primaryKey: true
-    }
-  })
-
-  ;(RecordingResource as any).associate = (models: any): void => {
-    ;(RecordingResource as any).belongsTo(models.recording, { required: true, allowNull: false })
-    ;(RecordingResource as any).belongsTo(models.static_resource, { required: true, allowNull: false })
-  }
-  return RecordingResource
+export const TypedString = <T extends string, Format extends string = string>(
+  options?: StringOptions<StringFormatOption | Format>
+) => {
+  return Type.String(options) as TTypedString<T, Format>
 }
