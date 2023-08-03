@@ -47,6 +47,7 @@ import { VolumetricComponent } from '../../../../../scene/components/VolumetricC
 import { addEntityToScene } from '../helper/entityHelper'
 
 async function addMediaComponent(url: string, parent?: Entity | null, before?: Entity | null) {
+  console.log(url)
   const contentType = (await getContentType(url)) || ''
   const { hostname } = new URL(url)
 

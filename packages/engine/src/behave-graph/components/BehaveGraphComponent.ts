@@ -30,6 +30,7 @@ import { OpaqueType } from '@etherealengine/common/src/interfaces/OpaqueType'
 
 import { getState } from '@etherealengine/hyperflux'
 import { useEffect, useState } from 'react'
+import { cleanStorageProviderURLs, parseStorageProviderURLs } from '../../common/functions/parseSceneJSON'
 import { defineComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
 import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { useGraphRunner } from '../functions/useGraphRunner'
@@ -46,7 +47,7 @@ export const BehaveGraphComponent = defineComponent({
 
   onInit: (entity) => {
     const domain = 'ECS' as GraphDomainID
-    const graph = DefaultGraph as unknown as GraphJSON
+    const graph = parseStorageProviderURLs(DefaultGraph) as unknown as GraphJSON
     const registry = useRegistry()
     const systemState = getState(BehaveGraphSystemState)
     systemState.domains[domain]?.register(registry)
@@ -62,7 +63,7 @@ export const BehaveGraphComponent = defineComponent({
   toJSON: (entity, component) => {
     return {
       domain: component.domain.value,
-      graph: component.graph.value,
+      graph: cleanStorageProviderURLs(component.graph.value),
       run: false, // we always want it to be false when saving, so scripts dont startup in the editor, we make true for runtime
       disabled: component.disabled.value
     }
@@ -80,7 +81,7 @@ export const BehaveGraphComponent = defineComponent({
     }
     const graphValidator = matches.object as Validator<unknown, GraphJSON>
     if (graphValidator.test(json.graph)) {
-      component.graph.value !== json.graph && component.graph.set(json.graph!)
+      component.graph.set(parseStorageProviderURLs(json.graph)!)
     }
   },
 
