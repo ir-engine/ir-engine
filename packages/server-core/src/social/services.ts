@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import ChannelUser from './channel-user/channel-user.service'
 import Channel from './channel/channel.service'
-import InviteType from './invite-type/invite-type.service'
+import InviteType from './invite-type/invite-type'
 import Invite from './invite/invite.service'
 import LocationAdmin from './location-admin/location-admin.service'
 import LocationAuthorizedUser from './location-authorized-user/location-authorized-user'

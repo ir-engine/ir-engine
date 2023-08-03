@@ -23,16 +23,52 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { hooks as schemaHooks } from '@feathersjs/schema'
+import { getValidator } from '@feathersjs/typebox'
 import { disallow } from 'feathers-hooks-common'
 
+import {
+  inviteTypeDataSchema,
+  inviteTypePatchSchema,
+  inviteTypeQuerySchema,
+  inviteTypeSchema
+} from '@etherealengine/engine/src/schemas/social/invite-type.schema'
+import { dataValidator, queryValidator } from '@etherealengine/server-core/validators'
+
+import {
+  inviteTypeDataResolver,
+  inviteTypeExternalResolver,
+  inviteTypePatchResolver,
+  inviteTypeQueryResolver,
+  inviteTypeResolver
+} from './invite-type.resolvers'
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const inviteTypeValidator = getValidator(inviteTypeSchema, dataValidator)
+const inviteTypeDataValidator = getValidator(inviteTypeDataSchema, dataValidator)
+const inviteTypePatchValidator = getValidator(inviteTypePatchSchema, dataValidator)
+const inviteTypeQueryValidator = getValidator(inviteTypeQuerySchema, queryValidator)
+
 export default {
+  around: {
+    all: [schemaHooks.resolveExternal(inviteTypeExternalResolver), schemaHooks.resolveResult(inviteTypeResolver)]
+  },
+
   before: {
-    all: [],
+    all: [() => schemaHooks.validateQuery(inviteTypeQueryValidator), schemaHooks.resolveQuery(inviteTypeQueryResolver)],
     find: [],
     get: [],
-    create: [disallow('external')],
+    create: [
+      disallow('external'),
+      () => schemaHooks.validateData(inviteTypeDataValidator),
+      schemaHooks.resolveData(inviteTypeDataResolver)
+    ],
     update: [disallow()],
-    patch: [disallow()],
+    patch: [
+      disallow(),
+      () => schemaHooks.validateData(inviteTypePatchValidator),
+      schemaHooks.resolveData(inviteTypePatchResolver)
+    ],
     remove: [disallow('external')]
   },
 
