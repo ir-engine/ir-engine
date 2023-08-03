@@ -74,17 +74,6 @@ export const userSchema = Type.Object(
 )
 export type UserType = Static<typeof userSchema>
 
-export type UserDatabaseType = Omit<
-  UserType,
-  | 'avatar'
-  | 'userSetting'
-  | 'apiKey'
-  | 'identityProviders'
-  | 'locationAdmins'
-  | 'locationBans'
-  | 'scopes'
-  | 'instanceAttendance'
->
 // Schema for creating new entries
 export const userDataSchema = Type.Pick(userSchema, ['name', 'isGuest', 'inviteCode', 'avatarId', 'scopes'], {
   $id: 'UserData'
@@ -98,7 +87,14 @@ export const userPatchSchema = Type.Partial(userSchema, {
 export type UserPatch = Static<typeof userPatchSchema>
 
 // Schema for allowed query properties
-export const userQueryProperties = Type.Pick(userSchema, ['id', 'name', 'isGuest', 'inviteCode', 'avatarId', 'scopes'])
+export const userQueryProperties = Type.Pick(userSchema, [
+  'id',
+  'name',
+  'isGuest',
+  'inviteCode',
+  'avatarId'
+  // 'scopes'   Commented out because: https://discord.com/channels/509848480760725514/1093914405546229840/1095101536121667694
+])
 export const userQuerySchema = Type.Intersect(
   [
     querySyntax(userQueryProperties, {

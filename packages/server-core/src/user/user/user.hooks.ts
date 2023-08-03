@@ -28,7 +28,8 @@ import {
   userDataSchema,
   userPatchSchema,
   userQuerySchema,
-  userSchema
+  userSchema,
+  userScopeSchema
 } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { dataValidator, queryValidator } from '@etherealengine/server-core/validators'
 import { hooks as schemaHooks } from '@feathersjs/schema'
@@ -145,6 +146,8 @@ const parseUserSettings = () => {
   }
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const userScopeValidator = getValidator(userScopeSchema, dataValidator)
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const userValidator = getValidator(userSchema, dataValidator)
 const userDataValidator = getValidator(userDataSchema, dataValidator)
