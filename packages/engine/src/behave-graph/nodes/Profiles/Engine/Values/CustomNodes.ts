@@ -140,6 +140,49 @@ export const playAudio = makeFlowNodeDefinition({
   }
 })
 
+export const makeRaycast = makeFlowNodeDefinition({
+  typeName: 'engine/playAudio',
+  category: NodeCategory.Action,
+  label: 'Play audio',
+  in: {
+    flow: 'flow',
+    entity: 'entity',
+    mediaPath: 'string',
+    paused: 'boolean',
+    isMusic: 'boolean',
+    volume: 'float',
+    playMode: (_, graphApi) => {
+      const choices = Object.keys(PlayMode).map((key) => ({
+        text: key,
+        value: PlayMode[key as keyof typeof PlayMode]
+      }))
+      return {
+        valueType: 'string',
+        choices: choices
+      }
+    }
+  },
+  out: { flow: 'flow' },
+  initialState: undefined,
+  triggered: ({ read, commit, graph: { getDependency } }) => {
+    const entity = Number(read('entity')) as Entity
+    let resources, volume
+    if (hasComponent(entity, MediaComponent)) {
+      const component = getComponent(entity, MediaComponent)
+      resources = component.resources.length > 0 ? component.resources : []
+      volume = component.volume
+    }
+    setComponent(entity, PositionalAudioComponent)
+    const media = read<string>('mediaPath')
+    resources = media ? [media, ...resources] : resources
+    const paused = read<boolean>('paused')
+    volume = MathUtils.clamp(read('volume') ?? volume, 0, 1)
+    const playMode = read<PlayMode>('playMode')
+    setComponent(entity, MediaComponent, { paused: paused, resources: resources, volume: volume, playMode: playMode! }) // play
+    const component = getComponent(entity, MediaComponent)
+    commit('flow')
+  }
+})
 export const getAvatarAnimations = makeFunctionNodeDefinition({
   typeName: 'engine/getAvatarAnimations',
   category: NodeCategory.Query,

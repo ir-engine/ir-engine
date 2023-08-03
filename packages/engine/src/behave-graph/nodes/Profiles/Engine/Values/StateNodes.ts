@@ -48,10 +48,12 @@ export const getPropertyFromState = makeFunctionNodeDefinition({
     const path = propertyPath.split('.')
     let value = Engine.instance.store.valueMap
     for (const key of path) {
-      if (value[key]) {
-        value = value[key]
+      if (!(key in value)) {
+        break
       }
+      value = value[key]
     }
+
     write('value', value)
   }
 })
