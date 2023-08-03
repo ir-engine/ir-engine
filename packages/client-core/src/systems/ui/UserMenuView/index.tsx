@@ -35,7 +35,7 @@ import { defineState, dispatchAction, getMutableState, useHookstate } from '@eth
 
 import { FriendService, FriendState } from '../../../social/services/FriendService'
 import { PopupMenuActions } from '../../../user/components/UserMenu/PopupMenuService'
-import { getUserAvatarThumbnail } from '../../../user/functions/useUserAvatarThumbnail'
+import { useUserAvatarThumbnail } from '../../../user/functions/useUserAvatarThumbnail'
 import { AuthState } from '../../../user/services/AuthService'
 import { AvatarMenus } from '../../AvatarUISystem'
 import XRTextButton from '../../components/XRTextButton'
@@ -89,12 +89,14 @@ const AvatarContextMenu = () => {
     }
   }, [detailState.id])
 
+  const userThumbnail = useUserAvatarThumbnail(user?.userId)
+
   return (
     <>
       <style>{styleString}</style>
       {user?.userId && (
         <div className="rootContainer">
-          <img className="ownerImage" src={getUserAvatarThumbnail(user.userId)} alt="" crossOrigin="anonymous" />
+          <img className="ownerImage" src={userThumbnail} alt="" crossOrigin="anonymous" />
           <div className="buttonContainer">
             <section className="buttonSection">
               {!isFriend && !isRequested && !isPending && !isBlocked && !isBlocking && (
