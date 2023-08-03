@@ -84,6 +84,9 @@ export type ExtractedImageTransformParameters = {
   textureFormat: 'default' | 'jpg' | 'ktx2' | 'png' | 'webp'
   textureCompressionType: 'etc1' | 'uastc'
   textureCompressionQuality: number
+  uastcLevel: number
+  compLevel: number
+  maxCodebooks: boolean
 }
 
 export type GeometryTransformParameters = ResourceParameters<{
@@ -171,6 +174,9 @@ export const DefaultModelTransformParameters: ModelTransformParameters = {
   },
   textureFormat: 'ktx2',
   textureCompressionType: 'etc1',
+  uastcLevel: 4,
+  compLevel: 4,
+  maxCodebooks: true,
   flipY: false,
   linear: true,
   textureCompressionQuality: 128,
