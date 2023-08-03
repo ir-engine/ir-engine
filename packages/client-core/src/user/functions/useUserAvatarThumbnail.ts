@@ -27,11 +27,11 @@ import { useEffect } from 'react'
 
 import { config } from '@etherealengine/common/src/config'
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
-import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 import { AvatarState } from '@etherealengine/engine/src/avatar/state/AvatarNetworkState'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { WorldState } from '@etherealengine/engine/src/networking/interfaces/WorldState'
 import { avatarPath } from '@etherealengine/engine/src/schemas/user/avatar.schema'
+import { UserId } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
 import { AuthState } from '../services/AuthService'

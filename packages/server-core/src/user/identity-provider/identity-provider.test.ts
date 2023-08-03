@@ -29,7 +29,7 @@ import { v1 } from 'uuid'
 import { IdentityProviderInterface } from '@etherealengine/common/src/dbmodels/IdentityProvider'
 import { destroyEngine } from '@etherealengine/engine/src/ecs/classes/Engine'
 
-import { UserId } from '@etherealengine/common/src/interfaces/UserId'
+import { UserId } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Application } from '../../../declarations'
 import { createFeathersKoaApp } from '../../createApp'
 

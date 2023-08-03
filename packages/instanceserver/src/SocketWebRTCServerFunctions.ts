@@ -26,10 +26,10 @@ Ethereal Engine. All Rights Reserved.
 import { Consumer, DataProducer, Producer, TransportInternal, WebRtcTransport } from 'mediasoup/node/lib/types'
 
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
-import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { createNetwork } from '@etherealengine/engine/src/networking/classes/Network'
 import { MediaStreamAppData } from '@etherealengine/engine/src/networking/NetworkState'
+import { createNetwork } from '@etherealengine/engine/src/networking/classes/Network'
+import { UserId } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { getState } from '@etherealengine/hyperflux'
 import { Topic } from '@etherealengine/hyperflux/functions/ActionFunctions'
 import { Application } from '@etherealengine/server-core/declarations'

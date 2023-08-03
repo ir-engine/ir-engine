@@ -27,9 +27,8 @@ import { Id, NullableId, Params } from '@feathersjs/feathers'
 import type { KnexAdapterOptions } from '@feathersjs/knex'
 import { KnexAdapter } from '@feathersjs/knex'
 
-import { UserData, UserPatch, UserQuery, UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { UserData, UserId, UserPatch, UserQuery, UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
 
-import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 import { userApiKeyPath } from '@etherealengine/engine/src/schemas/user/user-api-key.schema'
 import { Forbidden } from '@feathersjs/errors'
 import { Op } from 'sequelize'

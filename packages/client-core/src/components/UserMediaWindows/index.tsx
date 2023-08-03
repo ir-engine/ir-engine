@@ -27,8 +27,8 @@ import { useHookstate } from '@hookstate/core'
 import React from 'react'
 
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
-import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { UserId } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { getMutableState } from '@etherealengine/hyperflux'
 
 import { useMediaInstance } from '../../common/services/MediaInstanceConnectionService'

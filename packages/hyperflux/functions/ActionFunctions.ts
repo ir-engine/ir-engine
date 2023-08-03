@@ -28,9 +28,9 @@ import { matches, Parser, Validator } from 'ts-matches'
 
 import { OpaqueType } from '@etherealengine/common/src/interfaces/OpaqueType'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
-import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 import multiLogger from '@etherealengine/common/src/logger'
 import { deepEqual } from '@etherealengine/engine/src/common/functions/deepEqual'
+import { UserId } from '@etherealengine/engine/src/schemas/user/user.schema'
 
 import { HyperFlux } from './StoreFunctions'
 

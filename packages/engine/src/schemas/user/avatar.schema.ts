@@ -27,7 +27,7 @@ Ethereal Engine. All Rights Reserved.
 import type { Static } from '@feathersjs/typebox'
 import { querySyntax, Type } from '@feathersjs/typebox'
 
-import { UserId } from '@etherealengine/common/src/interfaces/UserId'
+import { UserId } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { TypedString } from '../../common/types/TypeboxUtils'
 import { staticResourceSchema } from '../media/static-resource.schema'
 

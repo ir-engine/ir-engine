@@ -29,8 +29,8 @@ import { IoMdAddCircle } from 'react-icons/io'
 import { ChannelService } from '@etherealengine/client-core/src/social/services/ChannelService'
 import { FriendService, FriendState } from '@etherealengine/client-core/src/social/services/FriendService'
 import { useUserAvatarThumbnail } from '@etherealengine/client-core/src/user/functions/useUserAvatarThumbnail'
-import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { UserId } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { NO_PROXY, getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
 export const DrawerCreateChannel = () => {

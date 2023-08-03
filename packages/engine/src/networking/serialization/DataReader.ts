@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { TypedArray } from 'bitecs'
 
 import { NetworkId } from '@etherealengine/common/src/interfaces/NetworkId'
-import { UserId } from '@etherealengine/common/src/interfaces/UserId'
+import { UserId } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { getState } from '@etherealengine/hyperflux'
 
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'

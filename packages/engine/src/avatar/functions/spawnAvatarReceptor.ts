@@ -27,7 +27,7 @@ import { Collider, ColliderDesc, RigidBody, RigidBodyDesc } from '@dimforge/rapi
 import { AnimationClip, AnimationMixer, Object3D, Vector3 } from 'three'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
-import { UserId } from '@etherealengine/common/src/interfaces/UserId'
+import { UserId } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { getState } from '@etherealengine/hyperflux'
 
 import { setTargetCameraRotation } from '../../camera/systems/CameraInputSystem'

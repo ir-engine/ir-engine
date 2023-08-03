@@ -27,7 +27,7 @@ import '@feathersjs/transport-commons'
 
 import { Channel as Channelinterface } from '@etherealengine/engine/src/schemas/interfaces/Channel'
 
-import { UserId } from '@etherealengine/common/src/interfaces/UserId'
+import { UserId } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Application } from '../../../declarations'
 import { Channel } from './channel.class'
 import channelDocs from './channel.docs'

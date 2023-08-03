@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 // Initializes the `invite` service on path `/invite`
-import { UserId } from '@etherealengine/common/src/interfaces/UserId'
+import { UserId } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
 import { Invite, InviteDataType } from './invite.class'

@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { DataChannelType } from '@etherealengine/common/src/interfaces/DataChannelType'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
-import { UserId } from '@etherealengine/common/src/interfaces/UserId'
+import { UserId } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { addOutgoingTopicIfNecessary, Topic } from '@etherealengine/hyperflux/functions/ActionFunctions'
 
 import { RingBuffer } from '../../common/classes/RingBuffer'

@@ -37,7 +37,7 @@ import Grid from '@etherealengine/ui/src/primitives/mui/Grid'
 import TextField from '@etherealengine/ui/src/primitives/mui/TextField'
 import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 
-import { UserId } from '@etherealengine/common/src/interfaces/UserId'
+import { UserId } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { AuthSettingsState } from '../../../admin/services/Setting/AuthSettingService'
 import { initialAuthState } from '../../../common/initialAuthState'
 import { AuthService, AuthState } from '../../services/AuthService'

@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { useEffect } from 'react'
 import { BoxGeometry, BoxHelper, Mesh, Scene } from 'three'
 
-import { UserId } from '@etherealengine/common/src/interfaces/UserId'
+import { UserId } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
 
 import { AssetLoader } from '../../assets/classes/AssetLoader'

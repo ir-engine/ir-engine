@@ -25,8 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { Message as MessageInterface } from '@etherealengine/engine/src/schemas/interfaces/Message'
 
-import { UserId } from '@etherealengine/common/src/interfaces/UserId'
-import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { UserId, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Application } from '../../../declarations'
 import { Message } from './message.class'
 import messageDocs from './message.docs'

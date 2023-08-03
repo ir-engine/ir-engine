@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { Not } from 'bitecs'
 
-import { UserId } from '@etherealengine/common/src/interfaces/UserId'
+import { UserId } from '@etherealengine/engine/src/schemas/user/user.schema'
 
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { defineQuery, getComponent } from '../../ecs/functions/ComponentFunctions'

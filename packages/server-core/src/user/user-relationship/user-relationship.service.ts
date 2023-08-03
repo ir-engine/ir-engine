@@ -25,8 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { UserRelationshipInterface } from '@etherealengine/common/src/dbmodels/UserRelationship'
 
-import { UserId } from '@etherealengine/common/src/interfaces/UserId'
-import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { UserId, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
 import { UserRelationship } from './user-relationship.class'

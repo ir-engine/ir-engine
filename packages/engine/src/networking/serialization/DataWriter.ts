@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { NetworkId } from '@etherealengine/common/src/interfaces/NetworkId'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
-import { UserId } from '@etherealengine/common/src/interfaces/UserId'
+import { UserId } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { getState } from '@etherealengine/hyperflux'
 
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'

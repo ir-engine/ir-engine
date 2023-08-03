@@ -31,7 +31,7 @@ import { InviteInterface } from '@etherealengine/engine/src/schemas/interfaces/I
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import Checkbox from '@etherealengine/ui/src/primitives/mui/Checkbox'
 
-import { UserId } from '@etherealengine/common/src/interfaces/UserId'
+import { UserId } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { INVITE_PAGE_LIMIT } from '../../../social/services/InviteService'
 import TableComponent from '../../common/Table'
 import { InviteColumn, inviteColumns } from '../../common/variables/invite'

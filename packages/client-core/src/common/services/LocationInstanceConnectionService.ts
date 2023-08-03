@@ -28,12 +28,12 @@ import { none, State } from '@hookstate/core'
 import { useEffect } from 'react'
 
 import { Instance } from '@etherealengine/common/src/interfaces/Instance'
-import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 import logger from '@etherealengine/common/src/logger'
 import { matches, matchesUserId, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { NetworkTopics } from '@etherealengine/engine/src/networking/classes/Network'
 import { addNetwork, NetworkState, updateNetworkID } from '@etherealengine/engine/src/networking/NetworkState'
+import { UserId } from '@etherealengine/engine/src/schemas/user/user.schema'
 import {
   defineAction,
   defineState,

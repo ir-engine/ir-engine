@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
-import { UserId } from '@etherealengine/common/src/interfaces/UserId'
+import { UserId } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { defineState, getMutableState, none } from '@etherealengine/hyperflux'
 
 import { DataChannelType } from '@etherealengine/common/src/interfaces/DataChannelType'

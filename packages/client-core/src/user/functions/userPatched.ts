@@ -23,13 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 import multiLogger from '@etherealengine/common/src/logger'
 import { WorldState } from '@etherealengine/engine/src/networking/interfaces/WorldState'
 import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
 import { dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
 
-import { UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { UserId, UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { LocationInstanceConnectionAction } from '../../common/services/LocationInstanceConnectionService'
 import { AuthState } from '../services/AuthService'
 

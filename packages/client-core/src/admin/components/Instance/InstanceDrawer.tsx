@@ -35,7 +35,7 @@ import Container from '@etherealengine/ui/src/primitives/mui/Container'
 import DialogTitle from '@etherealengine/ui/src/primitives/mui/DialogTitle'
 import Grid from '@etherealengine/ui/src/primitives/mui/Grid'
 
-import { UserId } from '@etherealengine/common/src/interfaces/UserId'
+import { UserId } from '@etherealengine/engine/src/schemas/user/user.schema'
 import ConfirmDialog from '../../../common/components/ConfirmDialog'
 import DrawerView from '../../common/DrawerView'
 import TableComponent from '../../common/Table'

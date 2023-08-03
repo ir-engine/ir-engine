@@ -32,8 +32,7 @@ import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { Relationship } from '@etherealengine/engine/src/schemas/interfaces/Relationship'
 import { defineAction, defineState, dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
 
-import { UserId } from '@etherealengine/common/src/interfaces/UserId'
-import { UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { UserId, UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { NotificationService } from '../../common/services/NotificationService'
 import { AuthState } from '../../user/services/AuthService'
 

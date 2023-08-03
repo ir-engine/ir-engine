@@ -26,12 +26,11 @@ Ethereal Engine. All Rights Reserved.
 import { Paginated } from '@feathersjs/feathers'
 import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
 
-import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 import { Channel as ChannelInterface } from '@etherealengine/engine/src/schemas/interfaces/Channel'
 import { ChannelUser } from '@etherealengine/engine/src/schemas/interfaces/ChannelUser'
 
 import { ChannelID } from '@etherealengine/common/src/dbmodels/Channel'
-import { UserType, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { UserId, UserType, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Op, Sequelize } from 'sequelize'
 import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'

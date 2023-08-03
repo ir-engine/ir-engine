@@ -27,10 +27,9 @@ Ethereal Engine. All Rights Reserved.
 import { resolve, virtual } from '@feathersjs/schema'
 import { v4 } from 'uuid'
 
-import { UserQuery, UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { UserId, UserQuery, UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
 import type { HookContext } from '@etherealengine/server-core/declarations'
 
-import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 import {
   InstanceAttendanceType,
   instanceAttendancePath

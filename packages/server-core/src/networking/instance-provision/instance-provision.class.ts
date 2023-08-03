@@ -37,11 +37,11 @@ import { locationPath, LocationType } from '@etherealengine/engine/src/schemas/s
 import { getState } from '@etherealengine/hyperflux'
 
 import { ChannelID } from '@etherealengine/common/src/dbmodels/Channel'
-import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 import {
   instanceAuthorizedUserPath,
   InstanceAuthorizedUserType
 } from '@etherealengine/engine/src/schemas/networking/instance-authorized-user.schema'
+import { UserId } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Application } from '../../../declarations'
 import config from '../../appconfig'
 import logger from '../../ServerLogger'

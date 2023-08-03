@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 import { BotCommandData } from '@etherealengine/engine/src/schemas/bot/bot-command.schema'
-import { UserId } from './UserId'
+import { UserId } from '@etherealengine/engine/src/schemas/user/user.schema'
 
 export interface AdminBot {
   id: string

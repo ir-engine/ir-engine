@@ -43,7 +43,6 @@ import { v4 as uuidv4 } from 'uuid'
 import config from '@etherealengine/common/src/config'
 import { AuthTask } from '@etherealengine/common/src/interfaces/AuthTask'
 import { PeerID, PeersUpdateType } from '@etherealengine/common/src/interfaces/PeerID'
-import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 import multiLogger from '@etherealengine/common/src/logger'
 import { getSearchParamFromURL } from '@etherealengine/common/src/utils/getSearchParamFromURL'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
@@ -75,6 +74,7 @@ import {
   receiveJoinWorld
 } from '@etherealengine/engine/src/networking/functions/receiveJoinWorld'
 import { Channel } from '@etherealengine/engine/src/schemas/interfaces/Channel'
+import { UserId } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { dispatchAction, getMutableState, getState, none, removeActionsForTopic } from '@etherealengine/hyperflux'
 import { Action, Topic } from '@etherealengine/hyperflux/functions/ActionFunctions'
 

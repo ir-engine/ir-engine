@@ -26,10 +26,10 @@ Ethereal Engine. All Rights Reserved.
 import { none } from '@hookstate/core'
 import { useEffect } from 'react'
 
-import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { Channel } from '@etherealengine/engine/src/schemas/interfaces/Channel'
 import { ChannelUser } from '@etherealengine/engine/src/schemas/interfaces/ChannelUser'
+import { UserId } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { defineState, getMutableState } from '@etherealengine/hyperflux'
 
 import { ChannelID } from '@etherealengine/common/src/dbmodels/Channel'

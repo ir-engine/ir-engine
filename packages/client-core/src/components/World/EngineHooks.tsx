@@ -30,7 +30,6 @@ import { useParams } from 'react-router-dom'
 import { LocationService } from '@etherealengine/client-core/src/social/services/LocationService'
 import { leaveNetwork } from '@etherealengine/client-core/src/transports/SocketWebRTCClientFunctions'
 import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
-import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 import multiLogger from '@etherealengine/common/src/logger'
 import { getSearchParamFromURL } from '@etherealengine/common/src/utils/getSearchParamFromURL'
 import { getRandomSpawnPoint, getSpawnPoint } from '@etherealengine/engine/src/avatar/functions/getSpawnPoint'
@@ -43,16 +42,17 @@ import {
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { EngineActions, EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { addComponent, getComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
-import { createNetwork, Network, NetworkTopics } from '@etherealengine/engine/src/networking/classes/Network'
+import { NetworkState, addNetwork } from '@etherealengine/engine/src/networking/NetworkState'
+import { Network, NetworkTopics, createNetwork } from '@etherealengine/engine/src/networking/classes/Network'
 import { NetworkPeerFunctions } from '@etherealengine/engine/src/networking/functions/NetworkPeerFunctions'
 import {
   receiveJoinWorld,
   spawnLocalAvatarInWorld
 } from '@etherealengine/engine/src/networking/functions/receiveJoinWorld'
-import { addNetwork, NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
 import { PortalComponent, PortalEffects } from '@etherealengine/engine/src/scene/components/PortalComponent'
 import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
 import { setAvatarToLocationTeleportingState } from '@etherealengine/engine/src/scene/functions/loaders/PortalFunctions'
+import { UserId } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { addOutgoingTopicIfNecessary, dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 import { loadEngineInjection } from '@etherealengine/projects/loadEngineInjection'
 

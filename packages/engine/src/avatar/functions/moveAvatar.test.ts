@@ -28,7 +28,7 @@ import { Quaternion, Vector3 } from 'three'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
-import { UserId } from '@etherealengine/common/src/interfaces/UserId'
+import { UserId } from '@etherealengine/engine/src/schemas/user/user.schema'
 import {
   applyIncomingActions,
   dispatchAction,

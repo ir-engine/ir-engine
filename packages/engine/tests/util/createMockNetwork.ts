@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { UserId } from '@etherealengine/common/src/interfaces/UserId'
+import { UserId } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { getMutableState } from '@etherealengine/hyperflux'
 
 import { createNetwork, NetworkTopics } from '../../src/networking/classes/Network'

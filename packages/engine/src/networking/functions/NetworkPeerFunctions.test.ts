@@ -28,7 +28,7 @@ import assert from 'assert'
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { NetworkId } from '@etherealengine/common/src/interfaces/NetworkId'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
-import { UserId } from '@etherealengine/common/src/interfaces/UserId'
+import { UserId } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { applyIncomingActions, getMutableState, receiveActions } from '@etherealengine/hyperflux'
 
 import { createMockNetwork } from '../../../tests/util/createMockNetwork'

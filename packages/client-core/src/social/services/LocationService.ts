@@ -30,8 +30,8 @@ import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { locationPath, LocationType } from '@etherealengine/engine/src/schemas/social/location.schema'
 import { defineAction, defineState, dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 
-import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 import { locationBanPath } from '@etherealengine/engine/src/schemas/social/location-ban.schema'
+import { UserId } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { API } from '../../API'
 import { NotificationService } from '../../common/services/NotificationService'
 

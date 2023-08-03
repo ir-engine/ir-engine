@@ -28,8 +28,8 @@ import React from 'react'
 import { createRoot } from 'react-dom/client'
 import { act } from 'react-dom/test-utils'
 
-import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 import { createEngine } from '@etherealengine/engine/src/initializeEngine'
+import { UserId } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { getMutableState } from '@etherealengine/hyperflux'
 
 import { InstanceChat } from '.'

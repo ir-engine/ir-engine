@@ -27,7 +27,7 @@ import assert, { strictEqual } from 'assert'
 import matches from 'ts-matches'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
-import { UserId } from '@etherealengine/common/src/interfaces/UserId'
+import { UserId } from '@etherealengine/engine/src/schemas/user/user.schema'
 import {
   ActionRecipients,
   addActionReceptor,

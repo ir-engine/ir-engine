@@ -23,12 +23,11 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { UserType, userMethods, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { UserId, UserType, userMethods, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import _ from 'lodash'
 import logger from '../../ServerLogger'
 import config from '../../appconfig'
 
-import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 import { instanceAttendancePath } from '@etherealengine/engine/src/schemas/networking/instance-attendance.schema'
 import { Knex } from 'knex'
 import { Application } from '../../../declarations'

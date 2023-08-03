@@ -27,7 +27,7 @@ import { Spark } from 'primus'
 
 import { NetworkId } from '@etherealengine/common/src/interfaces/NetworkId'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
-import { UserId } from '@etherealengine/common/src/interfaces/UserId'
+import { UserId } from '@etherealengine/engine/src/schemas/user/user.schema'
 
 import { DataChannelType } from '@etherealengine/common/src/interfaces/DataChannelType'
 import { MediaTagType, PeerMediaType } from '../NetworkState'

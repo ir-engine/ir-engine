@@ -23,11 +23,11 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import { MessageTypes } from '@etherealengine/engine/src/networking/enums/MessageTypes'
 import { getNearbyUsers } from '@etherealengine/engine/src/networking/functions/getNearbyUsers'
+import { UserId } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { defineState, getMutableState, getState } from '@etherealengine/hyperflux'
 
 import { MediaInstanceState } from '../common/services/MediaInstanceConnectionService'

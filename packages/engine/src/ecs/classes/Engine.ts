@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import type { UserId } from '@etherealengine/common/src/interfaces/UserId'
+import type { UserId } from '@etherealengine/engine/src/schemas/user/user.schema'
 import * as Hyperflux from '@etherealengine/hyperflux'
 import { createHyperStore, getMutableState, getState, ReactorRoot, State } from '@etherealengine/hyperflux'
 import { HyperStore } from '@etherealengine/hyperflux/functions/StoreFunctions'

@@ -30,8 +30,7 @@ import { Instance } from '@etherealengine/common/src/interfaces/Instance'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { defineState, getMutableState } from '@etherealengine/hyperflux'
 
-import { UserId } from '@etherealengine/common/src/interfaces/UserId'
-import { UserType, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { UserId, UserType, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { NotificationService } from '../../common/services/NotificationService'
 import { userIsAdmin } from '../../user/userHasAccess'
 

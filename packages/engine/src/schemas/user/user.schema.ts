@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
-import { UserId } from '@etherealengine/common/src/interfaces/UserId'
+import { OpaqueType } from '@etherealengine/common/src/interfaces/OpaqueType'
 import type { Static } from '@feathersjs/typebox'
 import { querySyntax, Type } from '@feathersjs/typebox'
 import { TypedString } from '../../common/types/TypeboxUtils'
@@ -44,6 +44,8 @@ export const userMethods = ['get', 'find', 'create', 'patch', 'remove'] as const
 export const userScopeSchema = Type.Pick(scopeSchema, ['type'], {
   $id: 'UserScope'
 })
+
+export type UserId = OpaqueType<'userId'> & string
 
 // Main data model schema
 export const userSchema = Type.Object(

@@ -25,14 +25,13 @@ Ethereal Engine. All Rights Reserved.
 
 import { AuthError } from '@etherealengine/common/src/enums/AuthError'
 import { AuthTask } from '@etherealengine/common/src/interfaces/AuthTask'
-import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { MessageTypes } from '@etherealengine/engine/src/networking/enums/MessageTypes'
 import { getState } from '@etherealengine/hyperflux'
 import { Application } from '@etherealengine/server-core/declarations'
 import multiLogger from '@etherealengine/server-core/src/ServerLogger'
 
-import { UserType, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { UserId, UserType, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { InstanceServerState } from './InstanceServerState'
 import {
   authorizeUserToJoinServer,

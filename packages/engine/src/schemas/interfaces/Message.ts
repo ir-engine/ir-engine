@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { ChannelID } from '@etherealengine/common/src/dbmodels/Channel'
-import { UserId } from '@etherealengine/common/src/interfaces/UserId'
+import { UserId } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { UserType } from '../user/user.schema'
 
 export type Message = {

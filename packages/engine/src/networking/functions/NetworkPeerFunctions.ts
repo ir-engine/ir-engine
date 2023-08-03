@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { Validator } from 'ts-matches'
 
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
-import { UserId } from '@etherealengine/common/src/interfaces/UserId'
+import { UserId } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 import { Action, ResolvedActionType } from '@etherealengine/hyperflux/functions/ActionFunctions'
 
