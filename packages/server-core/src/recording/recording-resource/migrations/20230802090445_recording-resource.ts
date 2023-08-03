@@ -42,7 +42,7 @@ export async function up(knex: Knex): Promise<void> {
     await knex.schema.renameTable(oldTableName, recordingResourcePath)
   }
 
-  if (tableExists === false) {
+  if (!tableExists && !oldNamedTableExists) {
     await knex.schema.createTable(recordingResourcePath, (table) => {
       //@ts-ignore
       table.uuid('id').collate('utf8mb4_bin').primary()
