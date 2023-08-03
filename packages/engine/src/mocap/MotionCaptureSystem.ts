@@ -70,7 +70,7 @@ export interface MotionCaptureStream {
 const debugPoseObjs: Object3D[] = []
 const debugHandObjs: Object3D[] = []
 const debug = false
-const useSolvers = false
+const useSolvers = true
 
 export const sendResults = (results: MotionCaptureStream) => {
   return encode({
