@@ -31,7 +31,7 @@ import { Channel as ChannelInterface } from '@etherealengine/engine/src/schemas/
 
 import { Instance } from '@etherealengine/common/src/interfaces/Instance'
 import { ChannelUser } from '@etherealengine/engine/src/schemas/interfaces/ChannelUser'
-import { UserType, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Paginated } from '@feathersjs/feathers'
 
 describe('channel service', () => {
@@ -56,13 +56,13 @@ describe('channel service', () => {
   })
 
   it('creates and finds channel with userId', async () => {
-    const user = (await app.service(userPath).create({
+    const user = await app.service(userPath).create({
       name: 'user',
       isGuest: false,
       avatarId: '',
       inviteCode: '',
       scopes: []
-    })) as UserType
+    })
 
     const channel = await app.service('channel').create(
       {
@@ -105,13 +105,13 @@ describe('channel service', () => {
   })
 
   it('can remove and finds channel with instanceId', async () => {
-    const user = (await app.service(userPath).create({
+    const user = await app.service(userPath).create({
       name: 'user',
       isGuest: false,
       avatarId: '',
       inviteCode: '',
       scopes: []
-    })) as UserType
+    })
 
     const instance = (await app.service('instance').create(
       {},
@@ -152,13 +152,13 @@ describe('channel service', () => {
   })
 
   it('will not create a channel with both userId and instanceId', async () => {
-    const user = (await app.service(userPath).create({
+    const user = await app.service(userPath).create({
       name: 'user',
       isGuest: false,
       avatarId: '',
       inviteCode: '',
       scopes: []
-    })) as UserType
+    })
 
     const instance = (await app.service('instance').create(
       {},
@@ -182,13 +182,13 @@ describe('channel service', () => {
   })
 
   it('creates and finds channel with instanceId', async () => {
-    const user = (await app.service(userPath).create({
+    const user = await app.service(userPath).create({
       name: 'user',
       isGuest: false,
       avatarId: '',
       inviteCode: '',
       scopes: []
-    })) as UserType
+    })
 
     const instance = (await app.service('instance').create(
       {},

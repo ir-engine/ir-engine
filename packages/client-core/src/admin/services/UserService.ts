@@ -76,7 +76,7 @@ export const AdminUserState = defineState({
   name: 'AdminUserState',
   initial: () => ({
     users: [] as Array<UserType>,
-    singleUser: UserSeed as UserType,
+    singleUser: UserSeed,
     skip: 0,
     limit: USER_PAGE_LIMIT,
     total: 0,

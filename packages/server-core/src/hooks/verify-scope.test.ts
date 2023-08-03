@@ -59,13 +59,13 @@ describe('verify-scope', () => {
     const name = `Test #${Math.random()}`
     const isGuest = true
 
-    let user = (await app.service(userPath).create({
+    let user = await app.service(userPath).create({
       name,
       isGuest,
       avatarId: '',
       inviteCode: '',
       scopes: []
-    })) as UserType
+    })
 
     user = await app.service(userPath).get(user.id, { user })
 
@@ -90,13 +90,13 @@ describe('verify-scope', () => {
     const name = `Test #${Math.random()}`
     const isGuest = true
 
-    let user = (await app.service(userPath).create({
+    let user = await app.service(userPath).create({
       name,
       isGuest,
       avatarId: '',
       inviteCode: '',
       scopes: []
-    })) as UserType
+    })
 
     await app.service('scope').create({
       type: 'location:read',
@@ -118,13 +118,13 @@ describe('verify-scope', () => {
     const name = `Test #${Math.random()}`
     const isGuest = false
 
-    let user = (await app.service(userPath).create({
+    let user = await app.service(userPath).create({
       name,
       isGuest,
       avatarId: '',
       inviteCode: '',
       scopes: []
-    })) as UserType
+    })
 
     await app.service('scope').create({
       type: 'location:read',
@@ -154,13 +154,13 @@ describe('verify-scope', () => {
     const name = `Test #${Math.random()}`
     const isGuest = false
 
-    let user = (await app.service(userPath).create({
+    let user = await app.service(userPath).create({
       name,
       isGuest,
       avatarId: '',
       inviteCode: '',
       scopes: []
-    })) as UserType
+    })
 
     await app.service('scope').create({
       type: 'location:read',

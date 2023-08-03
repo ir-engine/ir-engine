@@ -30,7 +30,7 @@ import { random } from 'lodash'
 import { avatarPath, AvatarType } from '@etherealengine/engine/src/schemas/user/avatar.schema'
 
 import { userApiKeyPath, UserApiKeyType } from '@etherealengine/engine/src/schemas/user/user-api-key.schema'
-import { userPath, UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Application } from '../../../declarations'
 import config from '../../appconfig'
 import getFreeInviteCode from '../../util/get-free-invite-code'
@@ -69,13 +69,13 @@ export class LinkedInStrategy extends CustomOAuthStrategy {
     if (!entity.userId) {
       const avatars = (await this.app.service(avatarPath).find({ isInternal: true })) as Paginated<AvatarType>
       const code = await getFreeInviteCode(this.app)
-      const newUser = (await this.app.service(userPath).create({
+      const newUser = await this.app.service(userPath).create({
         name: '',
         isGuest: false,
         inviteCode: code,
         avatarId: avatars[random(avatars.total - 1)].id,
         scopes: []
-      })) as UserType
+      })
       entity.userId = newUser.id
       await this.app.service('identity-provider').patch(entity.id, {
         userId: newUser.id

@@ -286,7 +286,7 @@ const getUserSpawnFromInvite = async (
       }
     })
 
-    const users = result.data as UserType[]
+    const users = result.data
     if (users.length > 0) {
       const inviterUser = users[0]
       const inviterUserInstanceAttendance = inviterUser.instanceAttendance || []

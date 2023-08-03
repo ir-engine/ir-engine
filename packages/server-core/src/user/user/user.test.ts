@@ -59,12 +59,12 @@ describe('user service', () => {
       name: avatarName
     })
 
-    const item = (await app.service(userPath).create({
+    const item = await app.service(userPath).create({
       name,
       avatarId: avatar.id,
       isGuest,
       scopes: []
-    })) as UserType
+    })
     users.push(item)
 
     assert.equal(item.name, name)
@@ -82,12 +82,12 @@ describe('user service', () => {
       name: avatarName
     })
 
-    const item = (await app.service(userPath).create({
+    const item = await app.service(userPath).create({
       name,
       avatarId: avatar.id,
       isGuest,
       scopes: []
-    })) as UserType
+    })
     users.push(item)
 
     assert.equal(item.name, name)
