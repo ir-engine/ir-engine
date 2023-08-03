@@ -31,6 +31,7 @@ import {
 } from '@behave-graph/core'
 import { Entity } from '../../../../../ecs/classes/Entity'
 import {
+  Component,
   ComponentMap,
   getComponent,
   removeComponent,
@@ -74,11 +75,12 @@ export const getComponentFromEntity = makeFunctionNodeDefinition({
     }
   },
   out: { component: 'component' },
-  exec: ({ read, write, graph }) => {
+  exec: ({ read, write, graph, configuration }) => {
     const entity: Entity = read('entity')
     const componentName: string = read('componentName')
     const component = ComponentMap.get(componentName)!
     const componentType = getComponent(entity, component)
+    configuration['entity'] = entity
     write('component', componentType)
   }
 })
@@ -140,17 +142,17 @@ export const deleteComponent = makeFlowNodeDefinition({
 })
 
 export const Constant = makeInNOutFunctionDesc({
-  name: 'engine/entity',
-  label: 'Entity',
-  in: ['entity'],
-  out: 'entity',
-  exec: (a: Entity) => a
+  name: 'engine/component',
+  label: 'Component',
+  in: ['component'],
+  out: 'component',
+  exec: (a: Component) => a
 })
 
 export const Equal = makeInNOutFunctionDesc({
-  name: 'engine/equal/entity',
-  label: 'Entity =',
-  in: ['entity', 'entity'],
+  name: 'engine/equal/component',
+  label: 'Component =',
+  in: ['component', 'component'],
   out: 'boolean',
-  exec: (a: Entity, b: Entity) => a === b
+  exec: (a: Component, b: Component) => a === b
 })

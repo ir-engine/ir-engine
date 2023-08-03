@@ -26,10 +26,12 @@ Ethereal Engine. All Rights Reserved.
 import { BooleanValue, EventEmitter, FloatValue, IntegerValue, StringValue, ValueType } from '@behave-graph/core'
 
 import { ColorValue, EulerValue, IScene, QuatValue, Vec2Value, Vec3Value, Vec4Value } from '@behave-graph/scene'
+import { Engine } from '../../../../../../ecs/classes/Engine'
 
 export class EEScene implements IScene {
   public onSceneChanged = new EventEmitter<void>()
   private sceneVariables = {}
+  private statePropertiesPaths = {}
   private valueRegistry: Record<string, ValueType>
 
   constructor() {
@@ -47,6 +49,13 @@ export class EEScene implements IScene {
         QuatValue
       ].map((valueType) => [valueType.name, valueType])
     )
+    Object.entries(Engine.instance.store.valueMap).forEach((stateType) => {
+      const properties = {}
+      Object.keys(stateType[1]).forEach((property) => {
+        properties[property] = property
+      })
+      this.statePropertiesPaths[stateType[0]] = properties
+    })
     // pull in value type nodes
   }
 
@@ -87,6 +96,27 @@ export class EEScene implements IScene {
     return []
   }
 
+  getStateProperties(stateType?: string) {
+    const rootState = stateType ? this.statePropertiesPaths[stateType] : this.statePropertiesPaths
+    const paths: string[] = []
+    const stack: { node: any; path: string }[] = [{ node: rootState, path: '' }]
+
+    while (stack.length > 0) {
+      const { node, path } = stack.pop()!
+      for (const key in node) {
+        if (Object.prototype.hasOwnProperty.call(node, key)) {
+          const newPath = path ? `${path}.${key}` : key
+          if (typeof node[key] === 'object') {
+            stack.push({ node: node[key], path: newPath })
+          } else {
+            paths.push(newPath)
+          }
+        }
+      }
+    }
+
+    return paths
+  }
   getProperties() {
     const paths: string[] = []
     const stack: { node: any; path: string }[] = [{ node: this.sceneVariables, path: '' }]

@@ -42,11 +42,13 @@ import { ComponentValue } from './Values/ComponentValue'
 import * as CustomNodes from './Values/CustomNodes'
 import * as EntityNodes from './Values/EntityNodes'
 import { EntityValue } from './Values/EntityValue'
+import * as StateNodes from './Values/StateNodes'
+import { StateValue } from './Values/StateValue'
 
 export const makeEngineDependencies = () => ({})
 
 export const getEngineValuesMap = memo<ValueTypeMap>(() => {
-  const valueTypes = [EntityValue, ComponentValue]
+  const valueTypes = [EntityValue, ComponentValue, StateValue]
   return Object.fromEntries(valueTypes.map((valueType) => [valueType.name, valueType]))
 })
 
@@ -64,6 +66,7 @@ export const getEngineNodesMap = memo<Record<string, NodeDefinition>>(() => {
     ...getNodeDescriptions(EntityNodes),
     ...getNodeDescriptions(ComponentNodes),
     ...getNodeDescriptions(CustomNodes),
+    ...getNodeDescriptions(StateNodes),
 
     // custom events
     triggerLoadAsset.Description,
