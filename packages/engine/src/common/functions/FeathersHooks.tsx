@@ -98,6 +98,7 @@ export const useQuery = <S extends keyof ServiceTypes, M extends Methods>(servic
   })}` as QueryHash
 
   const fetch = () => {
+    if (method === 'get' && !args[0]) return
     state[serviceName][queryId].merge({
       status: 'pending',
       error: ''
@@ -122,6 +123,7 @@ export const useQuery = <S extends keyof ServiceTypes, M extends Methods>(servic
   useRealtime(serviceName, fetch)
 
   useEffect(() => {
+    if (method === 'get' && !args[0]) return
     if (!state.get(NO_PROXY)[serviceName]) state[serviceName].set({})
     if (!state.get(NO_PROXY)[serviceName][queryId]) {
       state[serviceName].merge({
@@ -138,7 +140,7 @@ export const useQuery = <S extends keyof ServiceTypes, M extends Methods>(servic
 
   const query = state[serviceName]?.[queryId]
   const queryObj = state.get(NO_PROXY)[serviceName]?.[queryId]
-  const data = queryObj?.response as Awaited<ReturnType<ServiceTypes[S][M]>>
+  const data = queryObj?.response as Awaited<ReturnType<ServiceTypes[S][M]>> | undefined
   const error = queryObj?.error
   const status = queryObj?.status
 
@@ -153,7 +155,7 @@ export const useQuery = <S extends keyof ServiceTypes, M extends Methods>(servic
   )
 }
 
-export const useGet = <S extends keyof ServiceTypes>(serviceName: S, id: string, params: Params = {}) => {
+export const useGet = <S extends keyof ServiceTypes>(serviceName: S, id: string | undefined, params: Params = {}) => {
   return useQuery(serviceName, 'get', id, params)
 }
 
