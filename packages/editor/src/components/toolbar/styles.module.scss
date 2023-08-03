@@ -88,7 +88,6 @@
 
   input {
     border-width: 0;
-    border-radius: 4px;
     background: var(--inputBackground);
 
     & + * {
@@ -99,7 +98,8 @@
   button {
     border: none;
     border-radius: 4px;
-    margin: 0 4px;
+
+    // margin: 0 4px;
 
     &:hover {
       background: var(--iconButtonHoverColor);
