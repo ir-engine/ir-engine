@@ -34,10 +34,10 @@ import defaultSceneSeed from '@etherealengine/projects/default-project/default.s
 
 import { parseStorageProviderURLs } from '@etherealengine/engine/src/common/functions/parseSceneJSON'
 import { Application } from '../../../declarations'
+import logger from '../../ServerLogger'
 import { getCacheDomain } from '../../media/storageprovider/getCacheDomain'
 import { getCachedURL } from '../../media/storageprovider/getCachedURL'
 import { getStorageProvider } from '../../media/storageprovider/storageprovider'
-import logger from '../../ServerLogger'
 import { cleanString } from '../../util/cleanString'
 import { downloadAssetsFromScene } from './scene-helper'
 const NEW_SCENE_NAME = 'New-Scene'
