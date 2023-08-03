@@ -23,31 +23,34 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-// Initializes the `instance-provision` service on path `/instance-provision`
+import { recordingMethods, recordingPath } from '@etherealengine/engine/src/schemas/recording/recording.schema'
 import { Application } from '../../../declarations'
-import { Recording } from './recording.class'
+import { RecordingService } from './recording.class'
 import recordingDocs from './recording.docs'
 import hooks from './recording.hooks'
-import createModel from './recording.model'
 
-// Add this service to the service type index
 declare module '@etherealengine/common/declarations' {
   interface ServiceTypes {
-    recording: Recording
+    [recordingPath]: RecordingService
   }
 }
 
-export default (app: Application) => {
+export default (app: Application): void => {
   const options = {
-    Model: createModel(app),
+    name: recordingPath,
     paginate: app.get('paginate'),
+    Model: app.get('knexClient'),
     multi: true
   }
 
-  const event = new Recording(options, app)
-  event.docs = recordingDocs
-  app.use('recording', event)
+  app.use(recordingPath, new RecordingService(options), {
+    // A list of all methods this service exposes externally
+    methods: recordingMethods,
+    // You can add additional custom events to be sent to clients here
+    events: [],
+    docs: recordingDocs
+  })
 
-  const service = app.service('recording')
+  const service = app.service(recordingPath)
   service.hooks(hooks)
 }
