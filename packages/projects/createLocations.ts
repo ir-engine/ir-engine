@@ -56,6 +56,7 @@ export const createLocations = async (app: Application, projectName: string) => 
           locationType: 'public',
           audioEnabled: true,
           videoEnabled: true,
+          screenSharingEnabled: true,
           faceStreamingEnabled: true
         } as LocationSettingType
         const location = {

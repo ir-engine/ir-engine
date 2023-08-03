@@ -39,7 +39,7 @@ declare module '*.frag'
 declare module '*.vert'
 
 declare interface Element {
-  setAttribute(qualifiedName: string, value: Object): void
+  setAttribute(qualifiedName: string, value: object): void
 }
 
 declare type CbFunction = (this: { el: HTMLElement; [key: string]: any }) => void
@@ -60,6 +60,6 @@ declare module '*.vert!text' {
 }
 
 declare module '*!text' {
-  var _: string
+  const _: string
   export default _
 }

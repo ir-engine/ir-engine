@@ -29,8 +29,10 @@ import { Application } from '../../../declarations'
 import Paginated from '../../types/PageObject'
 import { sendSmsWithAWS } from './awssns'
 
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
 interface Data {}
 
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
 interface ServiceOptions {}
 
 /**

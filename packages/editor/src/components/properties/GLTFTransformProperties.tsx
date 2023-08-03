@@ -208,7 +208,7 @@ export default function GLTFTransformProperties({
           label={t('editor:properties.model.transform.maxTextureSize')}
           value={transformParms.maxTextureSize.value}
           onChange={onChangeTransformParm(transformParms.maxTextureSize)}
-          max={4096}
+          max={16384}
           min={64}
         />
         <InputGroup name="Flip Y" label={t('editor:properties.model.transform.flipY')}>
@@ -243,6 +243,42 @@ export default function GLTFTransformProperties({
               mediumStep={1}
               largeStep={2}
             />
+            {transformParms.textureCompressionType.value === 'uastc' && (
+              <>
+                <InputGroup name="UASTC Level" label={t('editor:properties.model.transform.uastcLevel')}>
+                  <NumericInput
+                    value={transformParms.uastcLevel.value}
+                    onChange={onChangeTransformParm(transformParms.uastcLevel)}
+                    max={4}
+                    min={0}
+                    smallStep={1}
+                    mediumStep={1}
+                    largeStep={1}
+                  />
+                </InputGroup>
+              </>
+            )}
+            {transformParms.textureCompressionType.value === 'etc1' && (
+              <>
+                <NumericInputGroup
+                  name="Compression Level"
+                  label={t('editor:properties.model.transform.etc1Level')}
+                  value={transformParms.compLevel.value}
+                  onChange={onChangeTransformParm(transformParms.compLevel)}
+                  min={1}
+                  max={5}
+                  smallStep={1}
+                  mediumStep={1}
+                  largeStep={1}
+                />
+                <InputGroup name="Max Codebooks" label={t('editor:properties.model.transform.maxCodebooks')}>
+                  <BooleanInput
+                    value={transformParms.maxCodebooks.value}
+                    onChange={onChangeTransformParm(transformParms.maxCodebooks)}
+                  />
+                </InputGroup>
+              </>
+            )}
           </>
         )}
         <CollapsibleBlock label={t('editor:properties.model.transform.resourceOverrides')}>

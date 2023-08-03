@@ -91,7 +91,7 @@ export function FileBrowserInput({
       <ControlledStringInput
         ref={dropRef}
         value={value}
-        onChange={(value, e) => onChange?.(value, {}, e)}
+        onChange={(value, e) => onChange?.(value, e)}
         error={isOver && !canDrop}
         canDrop={isOver && canDrop}
         {...rest}

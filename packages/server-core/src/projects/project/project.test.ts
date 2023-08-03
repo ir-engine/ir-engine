@@ -42,7 +42,9 @@ const cleanup = async (app: Application) => {
   deleteFolderRecursive(projectDir)
   try {
     await app.service('project').Model.destroy({ where: { name: newProjectName } })
-  } catch (e) {}
+  } catch (e) {
+    //
+  }
 }
 
 /**

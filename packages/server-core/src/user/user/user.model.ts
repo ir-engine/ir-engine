@@ -28,6 +28,8 @@ import { HookReturn } from 'sequelize/types/hooks'
 
 import {
   AvatarInterface,
+  LocationAuthorizedUserInterface,
+  LocationBanInterface,
   LocationInterface,
   LocationSettingsInterface,
   LocationTypeInterface,
@@ -36,6 +38,7 @@ import {
 } from '@etherealengine/common/src/dbmodels/UserInterface'
 
 import { Application } from '../../../declarations'
+import { createInstanceAuthorizedUserModel } from '../../networking/instance/instance.model'
 
 /**
  * This model contain users information
@@ -91,11 +94,11 @@ export default (app: Application) => {
     ;(User as any).hasMany(models.channel)
     ;(User as any).belongsToMany(createLocationModel(app), { through: 'location_admin' })
     ;(User as any).hasMany(models.location_admin, { unique: false })
-    ;(User as any).hasMany(models.location_ban, { as: 'locationBans' })
+    ;(User as any).hasMany(createLocationBanModel(app), { as: 'locationBans' })
     ;(User as any).hasMany(models.bot, { foreignKey: 'userId' })
     ;(User as any).hasMany(models.scope, { foreignKey: 'userId', onDelete: 'cascade' })
-    ;(User as any).belongsToMany(models.instance, { through: 'instance_authorized_user' })
-    ;(User as any).hasMany(models.instance_authorized_user, { foreignKey: { allowNull: false } })
+    ;(User as any).belongsToMany(models.instance, { through: 'instance-authorized-user' })
+    ;(User as any).hasMany(createInstanceAuthorizedUserModel(app), { foreignKey: { allowNull: false } })
     ;(User as any).hasOne(createUserApiKeyModel(app))
     ;(User as any).belongsTo(createAvatarModel(app))
     ;(User as any).hasMany(models.user_kick, { onDelete: 'cascade' })
@@ -246,9 +249,9 @@ export const createLocationModel = (app: Application) => {
     // (location as any).belongsTo(models.scene, { foreignKey: 'sceneId' }); // scene
     ;(location as any).belongsToMany(models.user, { through: 'location_admin' })
     ;(location as any).hasOne(createLocationSettingsModel(app), { onDelete: 'cascade' })
-    ;(location as any).hasMany(models.location_ban, { as: 'locationBans' })
+    ;(location as any).hasMany(createLocationBanModel(app), { as: 'locationBans' })
     ;(location as any).hasMany(models.bot, { foreignKey: 'locationId' })
-    ;(location as any).hasMany(models.location_authorized_user, { onDelete: 'cascade' })
+    ;(location as any).hasMany(createLocationAuthorizedUserModel(app), { onDelete: 'cascade' })
   }
 
   return location
@@ -333,4 +336,70 @@ export const createLocationTypeModel = (app: Application) => {
   }
 
   return locationType
+}
+
+export const createLocationBanModel = (app: Application) => {
+  const sequelizeClient: Sequelize = app.get('sequelizeClient')
+  const locationBan = sequelizeClient.define<Model<LocationBanInterface>>(
+    'location-ban',
+    {
+      id: {
+        type: DataTypes.UUID,
+        defaultValue: DataTypes.UUIDV1,
+        allowNull: false,
+        primaryKey: true
+      }
+    },
+    {
+      hooks: {
+        beforeCount(options: any): HookReturn {
+          options.raw = true
+        }
+      }
+    }
+  )
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  ;(locationBan as any).associate = function (models: any): void {
+    ;(locationBan as any).belongsTo(createLocationModel(app))
+    ;(locationBan as any).belongsTo(models.user)
+  }
+
+  return locationBan
+}
+
+export const createLocationAuthorizedUserModel = (app: Application) => {
+  const sequelizeClient: Sequelize = app.get('sequelizeClient')
+  const locationAuthorizedUser = sequelizeClient.define<Model<LocationAuthorizedUserInterface>>(
+    'location-authorized-user',
+    {
+      id: {
+        type: DataTypes.UUID,
+        defaultValue: DataTypes.UUIDV1,
+        allowNull: false,
+        primaryKey: true
+      }
+    },
+    {
+      hooks: {
+        beforeCount(options: any): void {
+          options.raw = true
+        }
+      }
+    }
+  )
+
+  ;(locationAuthorizedUser as any).associate = (models: any): void => {
+    ;(locationAuthorizedUser as any).belongsTo(createLocationModel(app), {
+      required: true,
+      foreignKey: { allowNull: true },
+      onDelete: 'cascade'
+    })
+    ;(locationAuthorizedUser as any).belongsTo(models.user, {
+      required: true,
+      foreignKey: { allowNull: true },
+      onDelete: 'cascade'
+    })
+  }
+  return locationAuthorizedUser
 }

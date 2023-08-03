@@ -265,7 +265,6 @@
       "accessKeyId": "Access Key ID",
       "secretAccessKey": "Secret Access Key",
       "eks": "EKS",
-      "route53": "Route53",
       "hostedZoneId": "Hosted Zone ID",
       "s3": "S3",
       "endpoint": "Endpoint",
@@ -356,7 +355,7 @@
       "homepageLinkButtonEnabled": "Show link button on homepage",
       "homepageLinkButtonRedirect": "URL of homepage link button",
       "homepageLinkButtonText": "Text of homepage link button",
-      "taskServer" : {
+      "taskServer": {
         "taskServer": "Task Server",
         "port": "Port",
         "processInterval": "Process Interval"

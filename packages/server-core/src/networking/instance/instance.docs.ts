@@ -50,9 +50,6 @@ export default {
         userId: {
           type: 'string'
         },
-        instanceserver_subdomain_provision: {
-          type: 'string'
-        },
         bot: {
           type: 'string'
         }

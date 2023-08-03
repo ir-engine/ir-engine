@@ -68,3 +68,11 @@ export interface LocationSettingsInterface {
 export interface LocationTypeInterface {
   type: string
 }
+
+export interface LocationBanInterface {
+  id: string
+}
+
+export interface LocationAuthorizedUserInterface {
+  id: string
+}

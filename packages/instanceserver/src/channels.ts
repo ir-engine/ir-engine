@@ -56,7 +56,7 @@ import { ServerState } from '@etherealengine/server-core/src/ServerState'
 import getLocalServerIp from '@etherealengine/server-core/src/util/get-local-server-ip'
 
 import { InstanceServerState } from './InstanceServerState'
-import { authorizeUserToJoinServer, setupSubdomain } from './NetworkFunctions'
+import { authorizeUserToJoinServer, setupIPs } from './NetworkFunctions'
 import { restartInstanceServer } from './restartInstanceServer'
 import { getServerNetwork, initializeNetwork } from './SocketWebRTCServerFunctions'
 import { startMediaServerSystems, startWorldServerSystems } from './startServerSystems'
@@ -115,21 +115,6 @@ const createNewInstance = async (app: Application, newInstance: InstanceMetadata
   const instanceServerState = getMutableState(InstanceServerState)
   await serverState.agonesSDK.allocate()
   instanceServerState.instance.set(instanceResult)
-
-  if (instanceServerState.isSubdomainNumber.value != null) {
-    const gsSubProvision = (await app.service('instanceserver-subdomain-provision').find({
-      query: {
-        is_number: instanceServerState.isSubdomainNumber.value
-      }
-    })) as any
-
-    if (gsSubProvision.total > 0) {
-      const provision = gsSubProvision.data[0]
-      await app.service('instanceserver-subdomain-provision').patch(provision.id, {
-        instanceId: instanceResult.id
-      } as any)
-    }
-  }
 }
 
 /**
@@ -159,21 +144,6 @@ const assignExistingInstance = async (
     assigned: false,
     assignedAt: null!
   })
-
-  if (instanceServerState.isSubdomainNumber.value != null) {
-    const gsSubProvision = (await app.service('instanceserver-subdomain-provision').find({
-      query: {
-        is_number: instanceServerState.isSubdomainNumber.value
-      }
-    })) as any
-
-    if (gsSubProvision.total > 0) {
-      const provision = gsSubProvision.data[0]
-      await app.service('instanceserver-subdomain-provision').patch(provision.id, {
-        instanceId: existingInstance.id
-      } as any)
-    }
-  }
 }
 
 /**
@@ -266,7 +236,7 @@ const loadEngine = async (app: Application, sceneId: string) => {
   Engine.instance.peerID = uuidv4() as PeerID
   const topic = instanceServerState.isMediaInstance ? NetworkTopics.media : NetworkTopics.world
 
-  await setupSubdomain()
+  await setupIPs()
   const network = await initializeNetwork(app, hostId, topic)
 
   addNetwork(network)
@@ -463,23 +433,13 @@ const shutdownServer = async (app: Application, instanceId: string) => {
     if (instanceServer.instance.locationId) {
       const channel = await app.service('channel').Model.findOne({
         where: {
-          instance: instanceServer.instance.id
+          instanceId: instanceServer.instance.id
         }
       })
       await app.service('channel').remove(channel.id)
     }
   } catch (err) {
     logger.error(err)
-  }
-  if (instanceServer.isSubdomainNumber != null) {
-    const gsSubdomainProvision = (await app.service('instanceserver-subdomain-provision').find({
-      query: {
-        is_number: instanceServer.isSubdomainNumber
-      }
-    })) as any
-    await app.service('instanceserver-subdomain-provision').patch(gsSubdomainProvision.data[0].id, {
-      allocated: false
-    })
   }
 
   // already shut down

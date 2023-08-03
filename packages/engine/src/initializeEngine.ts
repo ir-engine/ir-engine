@@ -55,7 +55,6 @@ export const createEngine = () => {
   }
   Engine.instance = new Engine()
 
-  Engine.instance = Engine.instance
   bitecs.createWorld(Engine.instance)
 
   Engine.instance.scene.matrixAutoUpdate = false

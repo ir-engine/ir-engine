@@ -65,7 +65,7 @@ const DisplayBots = () => {
     command.merge({ [name]: value })
   }
 
-  const handleChange = (panel: string) => (event: React.ChangeEvent<{}>, isExpanded: boolean) => {
+  const handleChange = (panel: string) => (event: React.ChangeEvent<any>, isExpanded: boolean) => {
     expanded.set(isExpanded ? panel : false)
   }
   const botAdmin = useHookstate(getMutableState(AdminBotState))

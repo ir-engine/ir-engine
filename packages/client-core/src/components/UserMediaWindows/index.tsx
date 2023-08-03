@@ -130,7 +130,7 @@ export const UserMediaWindowsWidget = () => {
   const screens = consumers
     .filter(([peerID, { cam, screen }]) => screen?.videoStream)
     .map(([peerID]) => {
-      return { peerID, type: 'screen' as 'screen' }
+      return { peerID, type: 'screen' as const }
     })
 
   const cams = consumers
@@ -141,7 +141,7 @@ export const UserMediaWindowsWidget = () => {
           (cam.audioStream && !cam.audioProducerPaused && !cam.audioStreamPaused))
     )
     .map(([peerID]) => {
-      return { peerID, type: 'cam' as 'cam' }
+      return { peerID, type: 'cam' as const }
     })
 
   windows.push(...screens, ...cams)

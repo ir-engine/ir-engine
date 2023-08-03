@@ -42,7 +42,7 @@ export const ImageFileTypes = [
 //array containing model file type.
 export const ModelFileTypes = ['.glb', '.gltf', 'model/gltf-binary', 'model/gltf-embedded', '.fbx', '.usdz']
 //array containing volumetric file type.
-export const VolumetricFileTypes = ['.drcs', '.uvol', '.manifest', '.mp4']
+export const VolumetricFileTypes = ['.manifest']
 //array containing custom script type.
 export const CustomScriptFileTypes = ['.tsx', '.ts', '.js', '.jsx']
 //array contains arrays of all files types.

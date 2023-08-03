@@ -167,7 +167,9 @@ export class IdentityProvider<T = IdentityProviderInterface> extends Service<T> 
     let foundUser
     try {
       foundUser = await userService.get(userId)
-    } catch (err) {}
+    } catch (err) {
+      //
+    }
 
     if (foundUser != null) {
       // if there is the user with userId, then we add the identity provider to the user

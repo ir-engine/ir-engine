@@ -83,7 +83,7 @@ export const getIntersectingNodeOnScreen = (
   target: Intersection<Object3D>[] = [],
   camera: Camera = getComponent(Engine.instance.cameraEntity, CameraComponent),
   object?: Object3D,
-  recursive: boolean = true
+  recursive = true
 ): RaycastIntersectionNode | undefined => {
   raycaster.setFromCamera(coord, camera)
   raycaster.layers.enable(ObjectLayers.NodeHelper)

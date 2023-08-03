@@ -90,8 +90,8 @@ const ColorInputPopover = (styled as any).div`
 
 interface ColorInputProp {
   value: Color
-  onChange: Function
-  onSelect?: Function
+  onChange: (color: Color) => void
+  onSelect?: (color: Color) => void
   disabled?: boolean
   isValueAsInteger?: boolean
 }
@@ -100,7 +100,7 @@ interface ColorInputProp {
  * ColorInput used to render the view of component.
  *
  * @param       {object | number} value
- * @param       {Function} onChange
+ * @param       {function} onChange
  * @param       {boolean} disabled
  * @param       {any} rest
  * @constructor

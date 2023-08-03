@@ -23,24 +23,24 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-/**
- * An object for swagger documentation configuration
- */
-export default {
-  definitions: {
-    'location-ban': {
-      type: 'object',
-      properties: {}
-    },
-    'location-ban_list': {
-      type: 'array',
-      items: { $ref: '#/definitions/location-ban' }
-    }
+import { createSwaggerServiceOptions } from 'feathers-swagger'
+
+import {
+  locationBanDataSchema,
+  locationBanPatchSchema,
+  locationBanQuerySchema,
+  locationBanSchema
+} from '@etherealengine/engine/src/schemas/social/location-ban.schema'
+
+export default createSwaggerServiceOptions({
+  schemas: {
+    locationBanDataSchema,
+    locationBanPatchSchema,
+    locationBanQuerySchema,
+    locationBanSchema
   },
-  securities: ['create', 'update', 'patch', 'remove'],
-  operations: {
-    find: {
-      security: [{ bearer: [] }]
-    }
+  docs: {
+    description: 'Location ban service description',
+    securities: ['all']
   }
-}
+})

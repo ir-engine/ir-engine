@@ -114,13 +114,7 @@ export const getActiveInstancesForUserFriends = (app: Application) => async (dat
     const instances = (await app.service('instance').Model.findAll({
       where: {
         ended: false
-      },
-      include: [
-        {
-          model: app.service('location').Model,
-          required: true
-        }
-      ]
+      }
     })) as InstanceInterface[]
 
     const filteredInstances = (
@@ -159,6 +153,28 @@ export const getActiveInstancesForUserFriends = (app: Application) => async (dat
         })
       )
     ).filter(Boolean)
+
+    // TODO: Populating location property here manually. Once instance service is moved to feathers 5. This should be part of its resolver.
+
+    const locationIds = filteredInstances
+      .map((instance) => (instance?.locationId ? instance.locationId : undefined))
+      .filter((instance) => instance !== undefined) as string[]
+
+    const locations = (await app.service(locationPath)._find({
+      query: {
+        id: {
+          $in: locationIds
+        }
+      },
+      paginate: false
+    })) as LocationType[]
+
+    for (const instance of filteredInstances) {
+      if (instance && instance.locationId) {
+        instance.location = locations.find((item) => item.id === instance.locationId)!
+      }
+    }
+
     return filteredInstances
   } catch (err) {
     console.log(err)
@@ -223,7 +239,7 @@ export default (app: Application) => {
       if (data.locationId && data.ended && !data.channelId) {
         const channel = await app.service('channel').Model.findOne({
           where: {
-            instance: data.id
+            instanceId: data.id
           }
         })
         await app.service('channel').remove(channel.id)

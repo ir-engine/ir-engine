@@ -107,10 +107,11 @@ const Project = () => {
     }
   }
 
-  useEffect(() => {
-    if (user?.id?.value != null && selectedProject.value) {
-    }
-  }, [user?.id?.value, selectedProject.value])
+  // useEffect(() => {
+  //   if (user?.id?.value != null && selectedProject.value) {
+  //     ProjectSettingService.fetchProjectSetting(selectedProject.value)
+  //   }
+  // }, [user?.id?.value, selectedProject.value])
 
   const handleProjectChange = (e) => {
     const { value } = e.target

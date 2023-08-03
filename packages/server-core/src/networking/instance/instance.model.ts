@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { DataTypes, Model, Sequelize } from 'sequelize'
 
-import { InstanceInterface } from '@etherealengine/common/src/dbmodels/Instance'
+import { InstanceAuthorizedUserInterface, InstanceInterface } from '@etherealengine/common/src/dbmodels/Instance'
 
 import { Application } from '../../../declarations'
 import { createLocationModel } from '../../user/user/user.model'
@@ -81,11 +81,38 @@ export default (app: Application) => {
 
   ;(instance as any).associate = (models: any): void => {
     ;(instance as any).belongsTo(createLocationModel(app), { foreignKey: { allowNull: true } })
-    ;(instance as any).hasOne(models.instanceserver_subdomain_provision, { foreignKey: { allowNull: true } })
     ;(instance as any).hasMany(models.bot, { foreignKey: { allowNull: true } })
-    ;(instance as any).belongsToMany(models.user, { through: 'instance_authorized_user' })
-    ;(instance as any).hasMany(models.instance_authorized_user, { foreignKey: { allowNull: false } })
+    ;(instance as any).belongsToMany(models.user, { through: 'instance-authorized-user' })
+    ;(instance as any).hasMany(createInstanceAuthorizedUserModel(app), { foreignKey: { allowNull: false } })
     ;(instance as any).hasMany(models.user_kick, { onDelete: 'cascade' })
   }
   return instance
+}
+
+export const createInstanceAuthorizedUserModel = (app: Application) => {
+  const sequelizeClient: Sequelize = app.get('sequelizeClient')
+  const instanceAuthorizedUser = sequelizeClient.define<Model<InstanceAuthorizedUserInterface>>(
+    'instance-authorized-user',
+    {
+      id: {
+        type: DataTypes.UUID,
+        defaultValue: DataTypes.UUIDV1,
+        allowNull: false,
+        primaryKey: true
+      }
+    },
+    {
+      hooks: {
+        beforeCount(options: any): void {
+          options.raw = true
+        }
+      }
+    }
+  )
+
+  ;(instanceAuthorizedUser as any).associate = (models: any): void => {
+    ;(instanceAuthorizedUser as any).belongsTo(models.instance, { required: true, foreignKey: { allowNull: true } })
+    ;(instanceAuthorizedUser as any).belongsTo(models.user, { required: true, foreignKey: { allowNull: true } })
+  }
+  return instanceAuthorizedUser
 }
