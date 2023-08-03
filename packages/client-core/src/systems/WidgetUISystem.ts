@@ -63,18 +63,7 @@ import { defineActionQueue, defineState, dispatchAction, getState } from '@ether
 
 import { createAnchorWidget } from './createAnchorWidget'
 // import { createHeightAdjustmentWidget } from './createHeightAdjustmentWidget'
-// import { createAdminControlsMenuWidget } from './createAdminControlsMenuWidget'
-// import { createChatWidget } from './createChatWidget'
-// import { createEmoteWidget } from './createEmoteWidget'
-// import { createLocationMenuWidget } from './createLocationMenuWidget'
-// import { createMediaSessionMenuWidget } from './createMediaSessionMenuWidget'
-// import { createProfileWidget } from './createProfileWidget'
-// import { createReadyPlayerWidget } from './createReadyPlayerWidget'
-// import { createSelectAvatarWidget } from './createSelectAvatarWidget'
-// import { createSettingsWidget } from './createSettingsWidget'
-// import { createShareLocationWidget } from './createShareLocationWidget'
-// import { createSocialsMenuWidget } from './createSocialsMenuWidget'
-// import { createUploadAvatarWidget } from './createUploadAvatarWidget'
+// import { createMediaWidget } from './createMediaWidget'
 import { createRecordingsWidget } from './createRecordingsWidget'
 import { createWidgetButtonsView } from './ui/WidgetMenuView'
 
@@ -110,25 +99,8 @@ const WidgetUISystemState = defineState({
 const createWidgetMenus = () => {
   createAnchorWidget()
   createRecordingsWidget()
-  // createMediaWidget()
-  // createHeightAdjustmentWidget()
-  // createProfileWidget()
-  // createSettingsWidget()
-  // createSocialsMenuWidget()
-  // createLocationMenuWidget()
-  // createAdminControlsMenuWidget()
-  // createMediaSessionMenuWidget()
-  // createEmoteWidget()
-  // createChatWidget()
-  // createShareLocationWidget()
-  // createSelectAvatarWidget()
-  // createUploadAvatarWidget()
-
-  // TODO: Something in createReadyPlayerWidget is loading /location/undefined
-  // This is causing the engine to be created again, or at least to start being
-  // created again, which is not right. This will need to be fixed when this is
-  // restored.
-  // createReadyPlayerWidget()
+  // createHeightAdjustmentWidget
+  // createMediaWidget
 }
 
 const toggleWidgetsMenu = (handedness: 'left' | 'right' = getState(WidgetAppState).handedness) => {
