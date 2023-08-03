@@ -27,7 +27,9 @@ import { Id, Params, ServiceMethods } from '@feathersjs/feathers'
 
 import { Application } from '../../../declarations'
 
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
 interface Data {}
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
 interface ServiceOptions {}
 
 export class ProjectSetting implements ServiceMethods<Data> {

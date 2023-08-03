@@ -119,7 +119,7 @@ export const splitLazyLoadedSceneEntities = (json: SceneJson) => {
 
 const iterateReplaceID = (data: any, idMap: Map<string, string>) => {
   const frontier = [data]
-  const changes: { obj: Object; property: string; nu: string }[] = []
+  const changes: { obj: object; property: string; nu: string }[] = []
   while (frontier.length > 0) {
     const item = frontier.pop()
     Object.entries(item).forEach(([key, val]) => {
@@ -173,7 +173,7 @@ export const loadECSData = async (sceneData: SceneJson, assetRoot?: Entity): Pro
     const data = iterateReplaceID(_data, idMap)
     deserializeSceneEntity(entityMap[uuid], data)
   })
-  const result = new Array()
+  const result = [] as Entity[]
   entities.forEach(([_uuid, data]) => {
     let uuid = _uuid
     if (idMap.has(uuid)) {

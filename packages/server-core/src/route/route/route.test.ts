@@ -42,7 +42,9 @@ const cleanup = async (app: Application, projectName: string) => {
   deleteFolderRecursive(projectDir)
   try {
     await app.service('project').Model.destroy({ where: { name: projectName } })
-  } catch (e) {}
+  } catch (e) {
+    //
+  }
 }
 
 const updateXREngineConfigForTest = (projectName: string, customRoute: string) => {

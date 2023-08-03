@@ -31,7 +31,6 @@ import path from 'path'
 import { ProjectPermissionInterface } from '@etherealengine/common/src/interfaces/ProjectPermissionInterface'
 import { UserInterface } from '@etherealengine/common/src/interfaces/User'
 import { destroyEngine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { avatarPath } from '@etherealengine/engine/src/schemas/user/avatar.schema'
 
 import { UserApiKeyType, userApiKeyPath } from '@etherealengine/engine/src/schemas/user/user-api-key.schema'
 import { Application } from '../../../declarations'
@@ -45,7 +44,9 @@ const cleanup = async (app: Application) => {
   deleteFolderRecursive(project1Dir)
   try {
     await app.service('project').Model.destroy({ where: { name: newProjectName1 } })
-  } catch (e) {}
+  } catch (e) {
+    //
+  }
 }
 
 /**
@@ -68,30 +69,21 @@ describe('project-permission.test', () => {
     app = createFeathersKoaApp()
     await app.setup()
     await cleanup(app)
-    const avatarName = 'CyberbotGreen'
-
-    const avatar = await app.service(avatarPath).create({
-      name: avatarName
-    })
 
     user1 = (await app.service('user').create({
       name: `Test #${Math.random()}`,
-      avatarId: avatar.id,
       isGuest: false
     })) as UserInterface
     user2 = (await app.service('user').create({
       name: `Test #${Math.random()}`,
-      avatarId: avatar.id,
       isGuest: false
     })) as UserInterface
     user3 = (await app.service('user').create({
       name: `Test #${Math.random()}`,
-      avatarId: avatar.id,
       isGuest: false
     })) as UserInterface
     user4 = (await app.service('user').create({
       name: `Test #${Math.random()}`,
-      avatarId: avatar.id,
       isGuest: false
     })) as UserInterface
     const user1ApiKeys = (await app.service(userApiKeyPath).find({
@@ -264,17 +256,13 @@ describe('project-permission.test', () => {
 
         assert.rejects(
           async () => {
-            try {
-              const res = await app.service('project-permission').create(
-                {
-                  projectId: project1.id,
-                  userId: user3.id
-                },
-                params
-              )
-            } catch (err) {
-              throw err
-            }
+            const res = await app.service('project-permission').create(
+              {
+                projectId: project1.id,
+                userId: user3.id
+              },
+              params
+            )
           },
           { message: 'You are not an owner of this project' }
         )

@@ -34,7 +34,7 @@ import makeStyles from '@mui/styles/makeStyles'
 
 import { InfoTooltip } from '../layout/Tooltip'
 
-const useStyles = makeStyles<any, {}, any>((theme: any) => {
+const useStyles = makeStyles<any, any, any>((theme: any) => {
   return createStyles({
     info: {
       color: 'var(--textColor)',
@@ -195,7 +195,7 @@ export type InputGroupProps = React.PropsWithChildren<
  * @constructor
  */
 export function InputGroup({ name, children, disabled, info, label, ...rest }: InputGroupProps) {
-  const styles = useStyles()
+  const styles = useStyles({})
 
   return (
     <InputGroupContainer disabled={disabled} {...rest}>

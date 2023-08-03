@@ -23,20 +23,61 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { hooks as schemaHooks } from '@feathersjs/schema'
+import { getValidator } from '@feathersjs/typebox'
 import { disallow, iff, isProvider } from 'feathers-hooks-common'
 
+import {
+  locationAuthorizedUserDataSchema,
+  locationAuthorizedUserPatchSchema,
+  locationAuthorizedUserQuerySchema,
+  locationAuthorizedUserSchema
+} from '@etherealengine/engine/src/schemas/social/location-authorized-user.schema'
 import attachOwnerIdInQuery from '@etherealengine/server-core/src/hooks/set-loggedin-user-in-query'
+import { dataValidator, queryValidator } from '@etherealengine/server-core/validators'
 
 import authenticate from '../../hooks/authenticate'
+import {
+  locationAuthorizedUserDataResolver,
+  locationAuthorizedUserExternalResolver,
+  locationAuthorizedUserPatchResolver,
+  locationAuthorizedUserQueryResolver,
+  locationAuthorizedUserResolver
+} from './location-authorized-user.resolvers'
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const locationAuthorizedUserValidator = getValidator(locationAuthorizedUserSchema, dataValidator)
+const locationAuthorizedUserDataValidator = getValidator(locationAuthorizedUserDataSchema, dataValidator)
+const locationAuthorizedUserPatchValidator = getValidator(locationAuthorizedUserPatchSchema, dataValidator)
+const locationAuthorizedUserQueryValidator = getValidator(locationAuthorizedUserQuerySchema, queryValidator)
 
 export default {
+  around: {
+    all: [
+      schemaHooks.resolveExternal(locationAuthorizedUserExternalResolver),
+      schemaHooks.resolveResult(locationAuthorizedUserResolver)
+    ]
+  },
+
   before: {
-    all: [authenticate()],
-    find: [iff(isProvider('external'), attachOwnerIdInQuery('userId') as any)],
-    get: [iff(isProvider('external'), attachOwnerIdInQuery('userId') as any)],
-    create: [disallow('external')],
+    all: [
+      authenticate(),
+      () => schemaHooks.validateQuery(locationAuthorizedUserQueryValidator),
+      schemaHooks.resolveQuery(locationAuthorizedUserQueryResolver)
+    ],
+    find: [iff(isProvider('external'), attachOwnerIdInQuery('userId'))],
+    get: [iff(isProvider('external'), attachOwnerIdInQuery('userId'))],
+    create: [
+      disallow('external'),
+      () => schemaHooks.validateData(locationAuthorizedUserDataValidator),
+      schemaHooks.resolveData(locationAuthorizedUserDataResolver)
+    ],
     update: [disallow('external')],
-    patch: [disallow('external')],
+    patch: [
+      disallow('external'),
+      () => schemaHooks.validateData(locationAuthorizedUserPatchValidator),
+      schemaHooks.resolveData(locationAuthorizedUserPatchResolver)
+    ],
     remove: [disallow('external')]
   },
 

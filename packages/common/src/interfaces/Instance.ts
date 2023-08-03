@@ -23,21 +23,23 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Location } from './Location'
+import { LocationData, LocationType } from '@etherealengine/engine/src/schemas/social/location.schema'
+import { ChannelID } from './ChannelUser'
 
 export interface Instance {
   id: string
   roomCode: string
   currentUsers: number
   ipAddress: string
-  locationId: string
-  location: Location
-  channelId: string
+  // World servers have locationIds
+  locationId?: string
+  location: LocationData | LocationType
+  // Media serves have channelIds
+  channelId?: ChannelID
   podName?: string
   ended?: boolean
   assigned?: boolean
   assignedAt?: Date
-  instanceserver_subdomain_provision?: InstanceServerSubdomainProvision
 }
 
 export const InstanceSeed: Instance = {
@@ -46,12 +48,19 @@ export const InstanceSeed: Instance = {
   ipAddress: '',
   currentUsers: 0,
   location: {
-    id: '',
     name: '',
     slugifiedName: '',
     maxUsersPerInstance: 10,
     sceneId: '',
-    locationSettingsId: '',
+    locationAuthorizedUsers: [
+      {
+        id: '',
+        locationId: '',
+        userId: '',
+        createdAt: '',
+        updatedAt: ''
+      }
+    ],
     locationSetting: {
       id: '',
       locationId: '',
@@ -59,21 +68,16 @@ export const InstanceSeed: Instance = {
       audioEnabled: false,
       screenSharingEnabled: false,
       faceStreamingEnabled: false,
-      videoEnabled: false
+      videoEnabled: false,
+      createdAt: '',
+      updatedAt: ''
     },
     isLobby: false,
     isFeatured: false
   },
   podName: '',
   locationId: '',
-  channelId: ''
-}
-
-export interface InstanceServerSubdomainProvision {
-  id: number
-  is_id: string
-  is_number: string
-  allocated: boolean
+  channelId: '' as ChannelID
 }
 
 export interface InstanceServerPatch {

@@ -46,3 +46,33 @@ export interface AvatarInterface {
   userId: string
   project?: string
 }
+
+export interface LocationInterface {
+  id: string
+  name: string
+  sceneId: string
+  slugifiedName: string
+  isLobby: boolean
+  isFeatured: boolean
+  maxUsersPerInstance: number
+}
+
+export interface LocationSettingsInterface {
+  id: string
+  videoEnabled: boolean
+  audioEnabled: boolean
+  screenSharingEnabled: boolean
+  faceStreamingEnabled: boolean
+}
+
+export interface LocationTypeInterface {
+  type: string
+}
+
+export interface LocationBanInterface {
+  id: string
+}
+
+export interface LocationAuthorizedUserInterface {
+  id: string
+}

@@ -48,10 +48,10 @@ export const FilteredUsersService = {
     const peers = Engine.instance.worldNetworkState.peers
       ? Array.from(Engine.instance.worldNetworkState.peers?.get({ noproxy: true }).values())
       : []
-    const nonPartyUserIds = peers
+    const worldUserIds = peers
       ? peers.filter((peer) => peer.peerID !== 'server' && peer.userId !== selfUserId).map((peer) => peer.userId)
       : []
-    const nearbyUsers = getNearbyUsers(Engine.instance.userId, nonPartyUserIds)
+    const nearbyUsers = getNearbyUsers(Engine.instance.userId, worldUserIds)
     mediaState.nearbyLayerUsers.set(nearbyUsers)
   }
 }
@@ -72,7 +72,6 @@ export const updateNearbyAvatars = () => {
 
   promisedRequest(network, MessageTypes.WebRTCRequestCurrentProducers.toString(), {
     userIds: nearbyUserIds,
-    channelType: currentChannelInstanceConnection.channelType,
     channelId: currentChannelInstanceConnection.channelId
   })
 

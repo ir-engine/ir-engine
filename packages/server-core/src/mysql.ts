@@ -58,6 +58,20 @@ export default (app: Application): void => {
       }
     })
 
+    const oldTeardown = app.teardown
+
+    app.teardown = async function (...args) {
+      try {
+        await db.destroy()
+        console.log('Sequelize connection closed')
+      } catch (err) {
+        logger.error('Sequelize teardown error')
+        logger.error(err)
+        throw err
+      }
+      return oldTeardown.apply(this, args)
+    }
+
     app.set('knexClient', db)
   } catch (err) {
     logger.error('Error in server-core mysql.ts')

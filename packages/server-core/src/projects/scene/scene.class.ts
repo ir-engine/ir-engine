@@ -156,6 +156,7 @@ export class Scene implements ServiceMethods<any> {
     let newSceneName = NEW_SCENE_NAME
     let counter = 1
 
+    // eslint-disable-next-line no-constant-condition
     while (true) {
       if (counter > 1) newSceneName = NEW_SCENE_NAME + '-' + counter
       if (!(await storageProvider.doesExist(`${newSceneName}.scene.json`, projectPath))) break

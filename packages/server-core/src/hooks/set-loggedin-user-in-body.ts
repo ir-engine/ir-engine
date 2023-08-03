@@ -30,8 +30,9 @@ import { UserInterface } from '@etherealengine/common/src/interfaces/User'
 // This will attach the owner ID in the contact while creating/updating list item
 export default (propertyName: string) => {
   return (context: HookContext): HookContext => {
-    // console.log('\n\n\n', context)
     // Getting logged in user and attaching owner of user
+    if (!context.params.user) return context
+
     const loggedInUser = context.params.user as UserInterface
     if (Array.isArray(context.data)) {
       context.data = context.data.map((item) => {

@@ -27,11 +27,7 @@ import { AnimationAction, Vector2, Vector3 } from 'three'
 
 export type AnimationStateTransitionRule = () => boolean
 
-export function booleanTransitionRule(
-  object: any,
-  property: string,
-  negate: boolean = false
-): AnimationStateTransitionRule {
+export function booleanTransitionRule(object: any, property: string, negate = false): AnimationStateTransitionRule {
   if (negate) return () => !object[property]
   return () => object[property]
 }
@@ -39,7 +35,7 @@ export function booleanTransitionRule(
 export function animationTimeTransitionRule(
   action: AnimationAction,
   threshold: number,
-  lowerThan: boolean = false
+  lowerThan = false
 ): AnimationStateTransitionRule {
   if (lowerThan) return () => action.time / action.getClip().duration <= threshold
   return () => action.time / action.getClip().duration >= threshold
@@ -48,8 +44,8 @@ export function animationTimeTransitionRule(
 export function vectorLengthTransitionRule(
   value: Vector3 | Vector2,
   threshold: number,
-  lowerThan: boolean = false,
-  exact: boolean = false
+  lowerThan = false,
+  exact = false
 ): AnimationStateTransitionRule {
   if (exact) {
     if (lowerThan) return () => value.length() <= threshold
@@ -88,8 +84,8 @@ export function compositeTransitionRule(
 export function thresholdTransitionRule(
   object: object,
   property: string,
-  threshold: number = 0,
-  largerThan: boolean = false
+  threshold = 0,
+  largerThan = false
 ): AnimationStateTransitionRule {
   if (largerThan) return () => object[property] > threshold
   return () => object[property] < threshold

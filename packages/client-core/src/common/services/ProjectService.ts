@@ -27,10 +27,11 @@ import { useEffect } from 'react'
 
 import { BuilderInfo } from '@etherealengine/common/src/interfaces/BuilderInfo'
 import { BuilderTag } from '@etherealengine/common/src/interfaces/BuilderTags'
+import { BuildStatus } from '@etherealengine/common/src/interfaces/BuildStatus'
 import { ProjectInterface, ProjectUpdateType } from '@etherealengine/common/src/interfaces/ProjectInterface'
 import { UpdateProjectInterface } from '@etherealengine/common/src/interfaces/UpdateProjectInterface'
 import multiLogger from '@etherealengine/common/src/logger'
-import { Validator, matches } from '@etherealengine/engine/src/common/functions/MatchesUtils'
+import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
 import { githubRepoAccessRefreshPath } from '@etherealengine/engine/src/schemas/user/github-repo-access-refresh.schema'
 import { defineAction, defineState, dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 
@@ -48,6 +49,8 @@ export const ProjectState = defineState({
     projects: [] as Array<ProjectInterface>,
     updateNeeded: true,
     rebuilding: true,
+    succeeded: false,
+    failed: false,
     builderTags: [] as Array<BuilderTag>,
     builderInfo: {
       engineVersion: '',
@@ -66,7 +69,9 @@ export const ProjectServiceReceptor = (action) => {
     })
     .when(ProjectAction.reloadStatusFetched.matches, (action) => {
       return s.merge({
-        rebuilding: action.status
+        failed: action.status.failed,
+        rebuilding: !action.status.failed && !action.status.succeeded,
+        succeeded: action.status.succeeded
       })
     })
     .when(ProjectAction.patchedProject.matches, (action) => {
@@ -349,7 +354,7 @@ export class ProjectAction {
 
   static reloadStatusFetched = defineAction({
     type: 'ee.client.Project.RELOAD_STATUS_RETRIEVED' as const,
-    status: matches.boolean
+    status: matches.object as Validator<unknown, BuildStatus>
   })
 
   static postProject = defineAction({

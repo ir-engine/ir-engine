@@ -26,11 +26,10 @@ Ethereal Engine. All Rights Reserved.
 import { ScopeTypeData } from '@etherealengine/engine/src/schemas/scope/scope-type.schema'
 import { UserApiKeyType } from '@etherealengine/engine/src/schemas/user/user-api-key.schema'
 
+import { LocationBanType } from '@etherealengine/engine/src/schemas/social/location-ban.schema'
 import { IdentityProvider } from './IdentityProvider'
 import { InstanceAttendanceInterface } from './InstanceAttendance'
 import { LocationAdmin } from './LocationAdmin'
-import { LocationBan } from './LocationBan'
-import { Party } from './Party'
 import { StaticResourceInterface } from './StaticResourceInterface'
 import { UserId } from './UserId'
 import { RelationshipType } from './UserRelationship'
@@ -52,7 +51,7 @@ export interface UserKick {
   instanceId: string
 }
 
-export interface CreateUserKick extends Omit<UserKick, 'id'> {}
+export type CreateUserKick = Omit<UserKick, 'id'>
 
 export interface UserInterface {
   id: UserId
@@ -63,12 +62,12 @@ export interface UserInterface {
   identity_providers?: IdentityProvider[]
   identityProviders?: IdentityProvider[]
   locationAdmins?: LocationAdmin[]
+  /* @deprecated */
   relationType?: RelationshipType
+  /* @deprecated */
   inverseRelationType?: RelationshipType
   avatarUrl?: string
-  partyId?: string
-  party?: Party
-  locationBans?: LocationBan[]
+  locationBans?: LocationBanType[]
   user_setting?: UserSetting
   inviteCode?: string
   scopes?: UserScope[]
@@ -137,10 +136,10 @@ export function resolveUser(user: any): UserInterface {
       locationAdmins: user.location_admins
     }
   }
-  if (user?.location_bans && user.location_bans.length > 0) {
+  if (user?.locationBans && user.locationBans.length > 0) {
     returned = {
       ...returned,
-      locationBans: user.location_bans
+      locationBans: user.locationBans
     }
   }
   if (user['user-api-key'] && user['user-api-key'].id) {

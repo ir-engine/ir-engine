@@ -25,12 +25,5 @@ Ethereal Engine. All Rights Reserved.
 
 export const inviteTypeSeed = {
   path: 'invite-type',
-  templates: [
-    { type: 'friend' },
-    { type: 'group' },
-    { type: 'party' },
-    { type: 'location' },
-    { type: 'instance' },
-    { type: 'new-user' }
-  ]
+  templates: [{ type: 'friend' }, { type: 'channel' }, { type: 'location' }, { type: 'instance' }, { type: 'new-user' }]
 }

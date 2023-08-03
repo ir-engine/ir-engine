@@ -30,8 +30,6 @@ import { v4 } from 'uuid'
 import {
   AwsCloudFrontType,
   AwsEksType,
-  AwsKeysType,
-  AwsRoute53Type,
   AwsS3Type,
   AwsSettingDatabaseType,
   AwsSettingQuery,
@@ -51,19 +49,6 @@ export const awsDbToSchema = (rawData: AwsSettingDatabaseType): AwsSettingType =
   // was serialized multiple times, therefore we need to parse it twice.
   if (typeof eks === 'string') {
     eks = JSON.parse(eks)
-  }
-
-  let route53 = JSON.parse(rawData.route53) as AwsRoute53Type
-
-  // Usually above JSON.parse should be enough. But since our pre-feathers 5 data
-  // was serialized multiple times, therefore we need to parse it twice.
-  if (typeof route53 === 'string') {
-    route53 = JSON.parse(route53)
-
-    // We need to deserialized nested objects of pre-feathers 5 data.
-    if (typeof route53.keys === 'string') {
-      route53.keys = JSON.parse(route53.keys) as AwsKeysType
-    }
   }
 
   let s3 = JSON.parse(rawData.s3) as AwsS3Type
@@ -93,7 +78,6 @@ export const awsDbToSchema = (rawData: AwsSettingDatabaseType): AwsSettingType =
   return {
     ...rawData,
     eks,
-    route53,
     s3,
     cloudfront,
     sms
@@ -124,7 +108,6 @@ export const awsSettingDataResolver = resolve<AwsSettingDatabaseType, HookContex
       return {
         ...rawData,
         keys: JSON.stringify(rawData.keys),
-        route53: JSON.stringify(rawData.route53),
         s3: JSON.stringify(rawData.s3),
         cloudfront: JSON.stringify(rawData.cloudfront),
         sms: JSON.stringify(rawData.sms)
@@ -143,7 +126,6 @@ export const awsSettingPatchResolver = resolve<AwsSettingType, HookContext>(
       return {
         ...rawData,
         keys: JSON.stringify(rawData.keys),
-        route53: JSON.stringify(rawData.route53),
         s3: JSON.stringify(rawData.s3),
         cloudfront: JSON.stringify(rawData.cloudfront),
         sms: JSON.stringify(rawData.sms)
