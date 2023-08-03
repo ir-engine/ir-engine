@@ -36,6 +36,7 @@ import {
 } from '@etherealengine/engine/src/schemas/analytics/analytics.schema'
 
 import { instanceAttendancePath } from '@etherealengine/engine/src/schemas/networking/instance-attendance.schema'
+import { Knex } from 'knex'
 import { Application } from '../../../declarations'
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
@@ -69,9 +70,10 @@ export class AnalyticsService<T = AnalyticsType, ServiceParams extends Params = 
       }
       const currentDate = new Date()
       for (let i = 0; i < limit; i++) {
-        const instanceAttendance = await this.app
-          .service(analyticsPath)
-          .Model.countDistinct('userId AS count')
+        const knexClient: Knex = this.app.get('knexClient')
+
+        const instanceAttendance = await knexClient
+          .countDistinct('userId AS count')
           .table(instanceAttendancePath)
           .where('createdAt', '>', new Date(new Date().setDate(currentDate.getDate() - (i + 1))).toISOString())
           .andWhere('createdAt', '<=', new Date(new Date().setDate(currentDate.getDate() - i)).toISOString())

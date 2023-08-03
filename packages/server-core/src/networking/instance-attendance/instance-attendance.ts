@@ -39,7 +39,7 @@ declare module '@etherealengine/common/declarations' {
   }
 }
 
-export default (app: Application): void => {
+export default (app: Application) => {
   const options = {
     name: instanceAttendancePath,
     paginate: app.get('paginate'),

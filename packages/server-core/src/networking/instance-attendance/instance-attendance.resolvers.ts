@@ -48,10 +48,6 @@ export const instanceAttendanceDataResolver = resolve<InstanceAttendanceType, Ho
 })
 
 export const instanceAttendancePatchResolver = resolve<InstanceAttendanceType, HookContext>({
-  id: async () => {
-    return v4()
-  },
-  createdAt: getDateTimeSql,
   updatedAt: getDateTimeSql
 })
 
