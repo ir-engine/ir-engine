@@ -28,6 +28,7 @@ import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
 
 import { RecordingResult } from '@etherealengine/common/src/interfaces/Recording'
 
+import { RecordingID } from '@etherealengine/common/src/interfaces/RecordingID'
 import { recordingResourcePath } from '@etherealengine/engine/src/schemas/recording/recording-resource.schema'
 import { Application } from '../../../declarations'
 import { checkScope } from '../../hooks/verify-scope'
@@ -44,7 +45,7 @@ export class Recording<T = RecordingDataType> extends Service<T> {
     this.app = app
   }
 
-  async get(id: string, params?: any): Promise<T> {
+  async get(id: RecordingID, params?: any): Promise<T> {
     // get resources with associated URLs
     // TODO: move resources population to resolvers once this service is migrated to feathers 5
     const resources = await this.app.service(recordingResourcePath).find({
