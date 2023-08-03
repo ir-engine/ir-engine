@@ -23,6 +23,16 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { OpaqueType } from './OpaqueType'
+import { Kind, StringFormatOption, StringOptions, TSchema, Type } from '@feathersjs/typebox'
 
-export type RecordingID = OpaqueType<'RecordingID'> & string
+export interface TTypedString<T extends string, Format extends string = string> extends TSchema, StringOptions<Format> {
+  [Kind]: 'String'
+  static: T
+  type: T
+}
+
+export const TypedString = <T extends string, Format extends string = string>(
+  options?: StringOptions<StringFormatOption | Format>
+) => {
+  return Type.String(options) as TTypedString<T, Format>
+}
