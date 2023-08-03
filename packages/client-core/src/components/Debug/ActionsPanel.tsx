@@ -33,20 +33,32 @@ import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
 import styles from './styles.module.scss'
 
+function arrayToObject(actions: { type: string }[]) {
+  const namedActions = {} as Record<string, unknown[]>
+  actions.forEach((action) => {
+    if (action.type in namedActions) {
+      namedActions[action.type].push(action)
+    } else {
+      namedActions[action.type] = [action]
+    }
+  })
+  return namedActions
+}
+
 function ActionsPanel() {
   const { t } = useTranslation()
 
-  useHookstate(getMutableState(EngineState)).simulationTime.value
+  useHookstate(getMutableState(EngineState)).simulationTime.value // re-render the actions data with each simulationTime change
 
   return (
     <>
       <div className={styles.jsonPanel}>
         <h1>{t('common:debug.actionsHistory')}</h1>
-        <JSONTree data={Engine.instance.store.actions.history} shouldExpandNodeInitially={() => false} />
+        <JSONTree data={arrayToObject(Engine.instance.store.actions.history)} shouldExpandNodeInitially={() => false} />
       </div>
       <div className={styles.jsonPanel}>
         <h1>{t('common:debug.actionsCached')}</h1>
-        <JSONTree data={Engine.instance.store.actions.cached} shouldExpandNodeInitially={() => false} />
+        <JSONTree data={arrayToObject(Engine.instance.store.actions.cached)} shouldExpandNodeInitially={() => false} />
       </div>
     </>
   )
