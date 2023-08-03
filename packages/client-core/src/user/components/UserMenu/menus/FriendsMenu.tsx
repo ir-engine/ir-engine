@@ -50,7 +50,7 @@ import { ChannelService, ChannelState } from '../../../../social/services/Channe
 import { FriendService, FriendState } from '../../../../social/services/FriendService'
 import { AvatarMenus } from '../../../../systems/AvatarUISystem'
 import { AvatarUIContextMenuService } from '../../../../systems/ui/UserMenuView'
-import { getUserAvatarThumbnail } from '../../../functions/useUserAvatarThumbnail'
+import { useUserAvatarThumbnail } from '../../../functions/useUserAvatarThumbnail'
 import { AuthState } from '../../../services/AuthService'
 import { UserMenus } from '../../../UserUISystem'
 import styles from '../index.module.scss'
@@ -184,6 +184,75 @@ const FriendsMenu = ({ defaultSelectedTab }: Props): JSX.Element => {
     { value: 'blocked', label: t('user:friends.blocked') }
   ]
 
+  const Friend = (props: { user: DisplayedUserInterface }) => {
+    const { user } = props
+    const thumbnail = useUserAvatarThumbnail(user.id as UserId)
+    return (
+      <Box key={user.id} display="flex" alignItems="center" m={2} gap={1.5}>
+        <Avatar alt={user.name} imageSrc={thumbnail} size={50} />
+
+        <Text flex={1}>{user.name}</Text>
+
+        {user.relationType === 'friend' && (
+          <IconButton
+            icon={<Icon type="Message" sx={{ height: 30, width: 30 }} />}
+            title={t('user:friends.message')}
+            onClick={() => handleOpenChat(user.id)}
+          />
+        )}
+
+        {user.relationType === 'pending' && (
+          <>
+            <Chip className={commonStyles.chip} label={t('user:friends.pending')} size="small" variant="outlined" />
+
+            <IconButton
+              icon={<Icon type="Check" sx={{ height: 30, width: 30 }} />}
+              title={t('user:friends.accept')}
+              onClick={() => FriendService.acceptFriend(userId, user.id)}
+            />
+
+            <IconButton
+              icon={<Icon type="Close" sx={{ height: 30, width: 30 }} />}
+              title={t('user:friends.decline')}
+              onClick={() => FriendService.declineFriend(userId, user.id)}
+            />
+          </>
+        )}
+
+        {user.relationType === 'requested' && (
+          <Chip className={commonStyles.chip} label={t('user:friends.requested')} size="small" variant="outlined" />
+        )}
+
+        {user.relationType === 'blocking' && (
+          <IconButton
+            icon={<Icon type="HowToReg" sx={{ height: 30, width: 30 }} />}
+            title={t('user:friends.unblock')}
+            onClick={() => FriendService.unblockUser(userId, user.id)}
+          />
+        )}
+
+        {selectedTab.value === 'messages' ? (
+          <IconButton
+            icon={
+              <Icon
+                type={channelState.targetChannelId.value === user.id ? 'CallEnd' : 'Call'}
+                sx={{ height: 30, width: 30 }}
+              />
+            }
+            title={t('user:friends.call')}
+            onClick={() => startMediaCall(user.id as ChannelID)}
+          />
+        ) : (
+          <IconButton
+            icon={<Icon type="AccountCircle" sx={{ height: 30, width: 30 }} />}
+            title={t('user:friends.profile')}
+            onClick={() => handleProfile(user)}
+          />
+        )}
+      </Box>
+    )
+  }
+
   return (
     <Menu
       open
@@ -192,81 +261,7 @@ const FriendsMenu = ({ defaultSelectedTab }: Props): JSX.Element => {
       onClose={() => PopupMenuServices.showPopupMenu()}
     >
       <Box className={styles.menuContent}>
-        {displayList.length > 0 &&
-          displayList.map((value) => (
-            <Box key={value.id} display="flex" alignItems="center" m={2} gap={1.5}>
-              <Avatar alt={value.name} imageSrc={getUserAvatarThumbnail(value.id as UserId)} size={50} />
-
-              <Text flex={1}>{value.name}</Text>
-
-              {value.relationType === 'friend' && (
-                <IconButton
-                  icon={<Icon type="Message" sx={{ height: 30, width: 30 }} />}
-                  title={t('user:friends.message')}
-                  onClick={() => handleOpenChat(value.id)}
-                />
-              )}
-
-              {value.relationType === 'pending' && (
-                <>
-                  <Chip
-                    className={commonStyles.chip}
-                    label={t('user:friends.pending')}
-                    size="small"
-                    variant="outlined"
-                  />
-
-                  <IconButton
-                    icon={<Icon type="Check" sx={{ height: 30, width: 30 }} />}
-                    title={t('user:friends.accept')}
-                    onClick={() => FriendService.acceptFriend(userId, value.id)}
-                  />
-
-                  <IconButton
-                    icon={<Icon type="Close" sx={{ height: 30, width: 30 }} />}
-                    title={t('user:friends.decline')}
-                    onClick={() => FriendService.declineFriend(userId, value.id)}
-                  />
-                </>
-              )}
-
-              {value.relationType === 'requested' && (
-                <Chip
-                  className={commonStyles.chip}
-                  label={t('user:friends.requested')}
-                  size="small"
-                  variant="outlined"
-                />
-              )}
-
-              {value.relationType === 'blocking' && (
-                <IconButton
-                  icon={<Icon type="HowToReg" sx={{ height: 30, width: 30 }} />}
-                  title={t('user:friends.unblock')}
-                  onClick={() => FriendService.unblockUser(userId, value.id)}
-                />
-              )}
-
-              {selectedTab.value === 'messages' ? (
-                <IconButton
-                  icon={
-                    <Icon
-                      type={channelState.targetChannelId.value === value.id ? 'CallEnd' : 'Call'}
-                      sx={{ height: 30, width: 30 }}
-                    />
-                  }
-                  title={t('user:friends.call')}
-                  onClick={() => startMediaCall(value.id as ChannelID)}
-                />
-              ) : (
-                <IconButton
-                  icon={<Icon type="AccountCircle" sx={{ height: 30, width: 30 }} />}
-                  title={t('user:friends.profile')}
-                  onClick={() => handleProfile(value)}
-                />
-              )}
-            </Box>
-          ))}
+        {displayList.length > 0 && displayList.map((value) => <Friend user={value} />)}
         {displayList.length === 0 && (
           <Text align="center" mt={4} variant="body2">
             {t('user:friends.noUsers')}
