@@ -29,7 +29,6 @@ import { useTranslation } from 'react-i18next'
 import { Color } from 'three'
 
 import { useComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
-import { configureEffectComposer } from '@etherealengine/engine/src/renderer/functions/configureEffectComposer'
 import { PostProcessingComponent } from '@etherealengine/engine/src/scene/components/PostProcessingComponent'
 import { Effects } from '@etherealengine/engine/src/scene/constants/PostProcessing'
 
@@ -39,8 +38,6 @@ import Checkbox from '@mui/material/Checkbox'
 import Collapse from '@mui/material/Collapse'
 import IconButton from '@mui/material/IconButton'
 
-import { EngineRenderer, PostProcessingSettingsState } from '@etherealengine/engine/src/renderer/WebGLRendererSystem'
-import { getMutableState } from '@etherealengine/hyperflux'
 import BooleanInput from '../inputs/BooleanInput'
 import ColorInput from '../inputs/ColorInput'
 import CompoundNumericInput from '../inputs/CompoundNumericInput'
@@ -241,20 +238,10 @@ export const PostProcessingSettingsEditor: EditorComponentType = (props) => {
     property: string,
     index: number
   ) => {
-    // trigger re-render - @todo find out why just setting the value doesn't trigger the reactor
-    // action: debounced the set property value
-
     const effectSettingState = postprocessing.effects[effectName][property]
 
     const setPropertyValue = (val) => {
       effectSettingState.set(val)
-      // todo figure out why the component reactor doesnt work
-      getMutableState(PostProcessingSettingsState).effects[effectName][property].set(val)
-      const effect = EngineRenderer.instance.effectComposer[effectName]
-      console.log(effect, property, val)
-      if (effect && property in effect) {
-        effect[property] = val
-      }
     }
 
     let renderVal = <></>
@@ -364,9 +351,6 @@ export const PostProcessingSettingsEditor: EditorComponentType = (props) => {
             classes={{ checked: styles.checkbox }}
             onChange={(e) => {
               postprocessing.effects[effect].isActive.set(e.target.checked)
-              // todo figure out why the component reactor doesnt work
-              getMutableState(PostProcessingSettingsState).effects[effect].isActive.set(e.target.checked)
-              configureEffectComposer()
             }}
             checked={postprocessing.effects[effect]?.isActive?.value}
           />
@@ -388,8 +372,6 @@ export const PostProcessingSettingsEditor: EditorComponentType = (props) => {
           value={postprocessing.enabled.value}
           onChange={(val) => {
             postprocessing.enabled.set(val)
-            // todo figure out why the component reactor doesnt work
-            getMutableState(PostProcessingSettingsState).enabled.set(val)
           }}
         />
       </InputGroup>

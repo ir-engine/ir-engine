@@ -29,8 +29,9 @@ import { getMutableState, getState } from '@etherealengine/hyperflux'
 
 import { defineComponent, getComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
 import { useEntityContext } from '../../ecs/functions/EntityFunctions'
-import { PostProcessingSettingsState } from '../../renderer/WebGLRendererSystem'
-import { EffectPropsSchema, EffectPropsSchemaType } from '../constants/PostProcessing'
+import { EngineRenderer, PostProcessingSettingsState } from '../../renderer/WebGLRendererSystem'
+import { configureEffectComposer } from '../../renderer/functions/configureEffectComposer'
+import { EffectPropsSchema } from '../constants/PostProcessing'
 
 export const PostProcessingComponent = defineComponent({
   name: 'PostProcessingComponent',
@@ -74,33 +75,44 @@ function PostProcessingComponentReactor(): ReactElement {
 
   return (
     <>
-      {Object.entries(getComponent(entity, PostProcessingComponent).effects).map(([name, effect], index) => {
-        return <PostProcessingEffectReactor effect={effect} name={name} key={index} />
-      })}
+      {Object.entries(getComponent(entity, PostProcessingComponent).effects)
+        .map(([name, effect]) =>
+          Object.entries(effect).map(([key, value]) => (
+            <PostProcessingEffectPropertyReactor
+              effectState={component.effects[name]}
+              effectName={name}
+              property={key}
+              key={name + key}
+              value={value}
+            />
+          ))
+        )
+        .flat()}
     </>
   )
 }
 
-const PostProcessingEffectReactor = React.memo((props: { effect: EffectPropsSchemaType; name: string }) => {
-  const { effect, name } = props
-  return (
-    <>
-      {Object.entries(effect).map(([key, value], index) => {
-        return <PostProcessingEffectPropertyReactor effect={effect} name={name} key={key} value={value} />
-      })}
-    </>
-  )
-})
+const PostProcessingEffectPropertyReactor = (props: {
+  effectName: string
+  effectState
+  property: string
+  value: any
+}) => {
+  const { effectName, effectState, property, value } = props
 
-const PostProcessingEffectPropertyReactor = React.memo(
-  (props: { effect: EffectPropsSchemaType; name: string; key: string; value: any }) => {
-    const { effect, name, key, value } = props
+  useEffect(() => {
+    // escape if undefined, as state is not yet initialized or schema is invalid
+    if (typeof getState(PostProcessingSettingsState).effects[effectName]?.[property] === 'undefined') return
 
-    useEffect(() => {
-      console.log('effect', effect, name, key, value)
-      getMutableState(PostProcessingSettingsState).effects[name][key].set(value)
-    }, [value])
+    getMutableState(PostProcessingSettingsState).effects[effectName][property].set(value)
+    const effect = EngineRenderer.instance.effectComposer[effectName]
+    if (effect && property in effect) {
+      effect[property] = value
+    }
+    if (property === 'isActive') {
+      configureEffectComposer()
+    }
+  }, [value, effectState[property]])
 
-    return null
-  }
-)
+  return null
+}
