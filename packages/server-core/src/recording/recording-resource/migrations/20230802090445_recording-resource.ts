@@ -34,11 +34,13 @@ export async function up(knex: Knex): Promise<void> {
   const oldTableName = 'recording_resource'
 
   const oldNamedTableExists = await knex.schema.hasTable(oldTableName)
+  const tableExists = await knex.schema.hasTable(recordingResourcePath)
+
   if (oldNamedTableExists) {
+    // In case sequelize creates the new table before we migrate the old table
+    if (tableExists) await knex.schema.dropTable(recordingResourcePath)
     await knex.schema.renameTable(oldTableName, recordingResourcePath)
   }
-
-  const tableExists = await knex.schema.hasTable(recordingResourcePath)
 
   if (tableExists === false) {
     await knex.schema.createTable(recordingResourcePath, (table) => {
