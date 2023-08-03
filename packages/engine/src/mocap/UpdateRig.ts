@@ -34,46 +34,19 @@ const updateRigPosition = (name, position, dampener, lerpAmount, rig) => {
     (position?.z || 0) * dampener
   )
 
-  // ik targets
-  // if (useIk) {
-  //   const entityUUID = `${Engine?.instance?.userId}_mocap_${name}` as EntityUUID
-  //   const ikTarget = UUIDComponent.entitiesByUUID[entityUUID]
-  //   // if (ikTarget) removeEntity(ikTarget)
-
-  //   if (!ikTarget) {
-  //     dispatchAction(XRAction.spawnIKTarget({ entityUUID: entityUUID, name }))
-  //   }
-
-  //   const ik = getComponent(ikTarget, TransformComponent)
-  //   ik?.position?.lerp(vector.clone(), lerpAmount)
-  // } else {
   const Part = rig.vrm.humanoid!.getNormalizedBoneNode(VRMHumanBoneName[name])
   if (!Part) {
     console.log(`can't position ${name}`)
     return
   }
   Part.position.lerp(vector, lerpAmount) // interpolate
-  Part.updateMatrixWorld()
-  // }
 }
 
 const updateRigRotation = (name, rotation, dampener, lerpAmount, rig) => {
-  // const euler = new Euler((rotation?.x || 0) * dampener, (rotation?.y || 0) * dampener, (rotation?.z || 0) * dampener)
-  const quaternion = new Quaternion().setFromEuler(new Euler(rotation?.x, rotation?.y, rotation?.z))
+  const quaternion = new Quaternion().setFromEuler(
+    new Euler((rotation?.x || 0) * dampener, (rotation?.y || 0) * dampener, (rotation?.z || 0) * dampener)
+  )
 
-  // ik targets
-  // if (useIk) {
-  //   const entityUUID = `${Engine?.instance?.userId}_mocap_${name}` as EntityUUID
-  //   const ikTarget = UUIDComponent.entitiesByUUID[entityUUID]
-  //   // if (ikTarget) removeEntity(ikTarget)
-
-  //   if (!ikTarget) {
-  //     dispatchAction(XRAction.spawnIKTarget({ entityUUID: entityUUID, name }))
-  //   }
-
-  //   const ik = getComponent(ikTarget, TransformComponent)
-  //   ik?.rotation?.slerp(quaternion, lerpAmount)
-  // } else {
   const Part = rig.vrm.humanoid!.getNormalizedBoneNode(VRMHumanBoneName[name])
   if (!Part) {
     console.log(`can't rotate ${name} - ${VRMHumanBoneName[name]}`)
@@ -81,8 +54,6 @@ const updateRigRotation = (name, rotation, dampener, lerpAmount, rig) => {
   }
 
   Part.quaternion.slerp(quaternion.clone(), lerpAmount) // interpolate
-  Part.updateMatrixWorld()
-  // }
 }
 
 export { updateRigPosition, updateRigRotation }

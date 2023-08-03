@@ -35,10 +35,12 @@ export async function up(knex: Knex): Promise<void> {
   const oldTableName = 'instance_authorized_user'
 
   const oldNamedTableExists = await knex.schema.hasTable(oldTableName)
+  const tableExists = await knex.schema.hasTable(instanceAuthorizedUserPath)
   if (oldNamedTableExists) {
+    // In case sequelize creates the new table before we migrate the old table
+    if (tableExists) await knex.schema.dropTable(instanceAuthorizedUserPath)
     await knex.schema.renameTable(oldTableName, instanceAuthorizedUserPath)
   }
-  const tableExists = await knex.schema.hasTable(instanceAuthorizedUserPath)
 
   if (tableExists === false) {
     await knex.schema.createTable(instanceAuthorizedUserPath, (table) => {

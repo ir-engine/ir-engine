@@ -46,13 +46,12 @@ import { Category, Classifications, Landmark, NormalizedLandmark } from '@mediap
 import { Side, THand } from './solvers'
 
 import UpdateRawFace from './UpdateRawFace'
-import UpdateRawPose from './UpdateRawPose'
-import UpdateSolvedFace from './UpdateSolvedFace'
-
-import UpdateSolvedPose from './UpdateSolvedPose'
-
 import UpdateRawHand from './UpdateRawHand'
+import UpdateRawPose from './UpdateRawPose'
+
+import UpdateSolvedFace from './UpdateSolvedFace'
 import UpdateSolvedHand from './UpdateSolvedHand'
+import UpdateSolvedPose from './UpdateSolvedPose'
 
 export interface SolvedHand {
   handSolve?: THand<Side> | undefined
@@ -70,7 +69,7 @@ export interface MotionCaptureStream {
 
 const debugPoseObjs: Object3D[] = []
 const debugHandObjs: Object3D[] = []
-const debug = true
+const debug = false
 const useSolvers = false
 
 export const sendResults = (results: MotionCaptureStream) => {
@@ -115,12 +114,10 @@ const handleMocapData = (
   timeSeriesMocapData.get(peerID)!.add(results)
 }
 
-const timeSeriesMocapData = new Map<PeerID, RingBuffer<MotionCaptureStream>>()
+export const timeSeriesMocapData = new Map<PeerID, RingBuffer<MotionCaptureStream>>()
 const timeSeriesMocapLastSeen = new Map<PeerID, number>()
 
 const execute = () => {
-  const localClientEntity = Engine.instance.localClientEntity
-
   const network = Engine.instance.worldNetwork
 
   for (const [peerID, mocapData] of timeSeriesMocapData) {
@@ -134,7 +131,7 @@ const execute = () => {
     const userID = network.peers.get(peerID)!.userId
     const entity = NetworkObjectComponent.getUserAvatarEntity(userID)
 
-    if (entity && entity === localClientEntity) {
+    if (entity) {
       const data = mocapData.popLast()
       if (!data) continue
       // console.log('received mocap data', peerID, data)
@@ -158,6 +155,19 @@ const execute = () => {
             UpdateRawPose(pose, twoDPose, bindHipsPos, avatarRig, avatarTransform)
           })
         }
+        if (data?.handsWorld && data?.handednesses) {
+          const handednesses = data?.handednesses
+          data?.handsWorld.forEach((hand, idx) => {
+            handednesses.forEach((handedness, idx) => {
+              UpdateRawHand(hand, handedness, hipsPos.clone(), avatarRig, avatarTransform)
+            })
+          })
+        }
+        if (data?.faces) {
+          data?.faces.forEach((face) => {
+            UpdateRawFace(face, hipsPos.clone(), avatarRig, avatarTransform)
+          })
+        }
       } else {
         if (data.poses && data.posesWorld) {
           const twoDPoses = data.poses
@@ -166,38 +176,16 @@ const execute = () => {
             UpdateSolvedPose(pose, twoDPose, avatarRig, avatarTransform)
           })
         }
-      }
-
-      if (!useSolvers) {
-        if (data.handsWorld && data.handednesses) {
-          const handednesses = data.handednesses
-          data.handsWorld.forEach((hand, idx) => {
+        if (data?.handsWorld && data?.handednesses) {
+          const handednesses = data?.handednesses
+          data?.handsWorld.forEach((hand, idx) => {
             handednesses.forEach((handedness, idx) => {
               UpdateSolvedHand(hand, handedness, avatarRig, avatarTransform)
             })
           })
         }
-      } else {
-        if (data.handsWorld && data.handednesses) {
-          const handednesses = data.handednesses
-          data.handsWorld.forEach((hand, idx) => {
-            handednesses.forEach((handedness, idx) => {
-              UpdateRawHand(hand, handedness, hipsPos.clone(), avatarRig, avatarTransform)
-            })
-          })
-        }
-      }
-
-      // Face
-      if (!useSolvers) {
-        if (data.faces) {
-          data.faces.forEach((face) => {
-            UpdateRawFace(face, hipsPos.clone(), avatarRig, avatarTransform)
-          })
-        }
-      } else if (data.faces) {
-        if (data.faces) {
-          data.faces.forEach((face) => {
+        if (data?.faces) {
+          data?.faces.forEach((face) => {
             UpdateSolvedFace(face, hipsPos.clone(), avatarRig, avatarTransform)
           })
         }
@@ -210,11 +198,11 @@ const execute = () => {
             landmarks.forEach((landmark, i) => {
               const index = idxP + i
               if (index >= debugPoseObjs.length) {
-                const mesh = new Mesh(new SphereGeometry(0.025), new MeshBasicMaterial({ color: 'pink' }))
+                const mesh = new Mesh(new SphereGeometry(0.025), new MeshBasicMaterial({ color: 'red' }))
                 debugPoseObjs.push(mesh)
                 Engine.instance.scene.add(mesh)
               }
-              debugPoseObjs[index].position.set(landmark.x, landmark.y, landmark.z).add(hipsPos)
+              debugPoseObjs[index].position.set(landmark.x, -landmark.y + 1, landmark.z) //.add(hipsPos)
               debugPoseObjs[index].updateMatrixWorld()
             })
           })

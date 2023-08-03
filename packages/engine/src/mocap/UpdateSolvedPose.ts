@@ -26,7 +26,8 @@ Ethereal Engine. All Rights Reserved.
 import { Vector3 } from 'three'
 import { updateRigPosition, updateRigRotation } from './UpdateRig'
 
-import { TFVectorPose } from './solvers'
+import MediapipePoseNames from './MediapipePoseNames'
+import { TFVectorPose, Vector } from './solvers'
 import { calcHead } from './solvers/FaceSolver/calcHead'
 import { calcArms } from './solvers/PoseSolver/calcArms'
 import { calcHips } from './solvers/PoseSolver/calcHips'
@@ -42,11 +43,20 @@ const UpdateSolvedPose = (rawPose, pose, avatarRig, avatarTransform) => {
     updateRigRotation('Neck', headCalc.degrees, 1, 0.7, avatarRig)
 
     const hipsCalc = calcHips(rawPose, pose)
-    const world = hipsCalc.Hips?.worldPosition || new Vector3(0, 0, 0)
+    const arms = calcArms(rawPose as TFVectorPose)
+    const legs = calcLegs(rawPose as TFVectorPose)
+
+    const leftFoot = Vector.fromArray(rawPose[MediapipePoseNames.indexOf('left heel')])
+    const rightFoot = Vector.fromArray(rawPose[MediapipePoseNames.indexOf('right heel')])
+    // console.log(leftFoot.y, rightFoot.y)
+    // foot y is how far below the hip center the foot is, with positive being downwards
+    const lowerFoot = Math.min(leftFoot.y, rightFoot.y)
+
+    const world = hipsCalc.Hips.worldPosition! as Vector3
     const hipsPos = {
-      x: -world?.x, // Reverse direction
-      y: world?.y + 1, // Add a bit of height
-      z: -world?.z // Reverse direction
+      x: -world?.x,
+      y: lowerFoot,
+      z: -world?.z
     }
     updateRigPosition('Hips', hipsPos, 1, 0.07, avatarRig)
 
@@ -56,7 +66,6 @@ const UpdateSolvedPose = (rawPose, pose, avatarRig, avatarTransform) => {
 
     updateRigPosition('Spine', hipsCalc.Spine, 0.45, 0.3, avatarRig)
 
-    const arms = calcArms(rawPose as TFVectorPose)
     updateRigRotation('RightUpperArm', arms.UpperArm.r, 1, 0.3, avatarRig)
 
     updateRigRotation('RightLowerArm', arms.LowerArm.r, 1, 0.3, avatarRig)
@@ -68,7 +77,6 @@ const UpdateSolvedPose = (rawPose, pose, avatarRig, avatarTransform) => {
     updateRigPosition('LeftHand', arms.Hand.l, 1, 0.3, avatarRig)
     updateRigPosition('RightHand', arms.Hand.r, 1, 0.3, avatarRig)
 
-    const legs = calcLegs(rawPose as TFVectorPose)
     updateRigRotation('LeftUpperLeg', legs.UpperLeg.l, 1, 0.3, avatarRig)
     updateRigRotation('LeftLowerLeg', legs.LowerLeg.l, 1, 0.3, avatarRig)
 

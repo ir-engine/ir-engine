@@ -27,18 +27,21 @@ import { updateRigRotation } from './UpdateRig'
 
 import mediapipeHandNames from './MediapipeHandNames'
 import { HandSolver } from './solvers/HandSolver'
+import { LEFT, RIGHT } from './solvers/constants'
 
 const UpdateSolvedHands = (rawHand, handednesses, avatarRig, avatarTransform) => {
   if (rawHand) {
     console.log('UpdateSolvedHands', rawHand, handednesses)
-    const handedness = handednesses[0]
-    const hand = HandSolver.solve(rawHand, handedness?.categoryName)
+
+    const handedness = handednesses[0]?.categoryName
+    const side = handedness === 'Left' ? LEFT : RIGHT
+    const hand = HandSolver.solve(rawHand, side)
     if (hand !== undefined) {
       updateRigRotation(
-        `${handedness?.categoryName}Hand`,
+        `${side === 'Right' ? 'Left' : 'Right'}Hand`,
         {
-          x: hand[handedness?.categoryName + 'Wrist']?.x,
-          y: hand[handedness.categoryName + 'Wrist']?.y,
+          x: hand[handedness + 'Wrist']?.x,
+          y: hand[handedness + 'Wrist']?.y,
           z: rawHand[mediapipeHandNames.indexOf(`WRIST`)]?.z
         },
         1,
@@ -46,106 +49,106 @@ const UpdateSolvedHands = (rawHand, handednesses, avatarRig, avatarTransform) =>
         avatarRig
       )
       updateRigRotation(
-        `${handedness?.categoryName}RingProximal`,
-        hand[handedness?.categoryName + 'RingProximal'],
+        `${side === 'Right' ? 'Left' : 'Right'}RingProximal`,
+        hand[handedness + 'RingProximal'],
         1,
         0.3,
         avatarRig
       )
       updateRigRotation(
-        `${handedness?.categoryName}RingIntermediate`,
-        hand[handedness?.categoryName + 'RingIntermediate'],
+        `${side === 'Right' ? 'Left' : 'Right'}RingIntermediate`,
+        hand[handedness + 'RingIntermediate'],
         1,
         0.3,
         avatarRig
       )
       updateRigRotation(
-        `${handedness?.categoryName}RingDistal`,
-        hand[handedness?.categoryName + 'RingDistal'],
+        `${side === 'Right' ? 'Left' : 'Right'}RingDistal`,
+        hand[handedness + 'RingDistal'],
         1,
         0.3,
         avatarRig
       )
       updateRigRotation(
-        `${handedness?.categoryName}IndexProximal`,
-        hand[handedness?.categoryName + 'IndexProximal'],
+        `${side === 'Right' ? 'Left' : 'Right'}IndexProximal`,
+        hand[handedness + 'IndexProximal'],
         1,
         0.3,
         avatarRig
       )
       updateRigRotation(
-        `${handedness?.categoryName}IndexIntermediate`,
-        hand[handedness?.categoryName + 'IndexIntermediate'],
+        `${side === 'Right' ? 'Left' : 'Right'}IndexIntermediate`,
+        hand[handedness + 'IndexIntermediate'],
         1,
         0.3,
         avatarRig
       )
       updateRigRotation(
-        `${handedness?.categoryName}IndexDistal`,
-        hand[handedness?.categoryName + 'IndexDistal'],
+        `${side === 'Right' ? 'Left' : 'Right'}IndexDistal`,
+        hand[handedness + 'IndexDistal'],
         1,
         0.3,
         avatarRig
       )
       updateRigRotation(
-        `${handedness?.categoryName}MiddleProximal`,
-        hand[handedness?.categoryName + 'MiddleProximal'],
+        `${side === 'Right' ? 'Left' : 'Right'}MiddleProximal`,
+        hand[handedness + 'MiddleProximal'],
         1,
         0.3,
         avatarRig
       )
       updateRigRotation(
-        `${handedness?.categoryName}MiddleIntermediate`,
-        hand[handedness?.categoryName + 'MiddleIntermediate'],
+        `${side === 'Right' ? 'Left' : 'Right'}MiddleIntermediate`,
+        hand[handedness + 'MiddleIntermediate'],
         1,
         0.3,
         avatarRig
       )
       updateRigRotation(
-        `${handedness?.categoryName}MiddleDistal`,
-        hand[handedness?.categoryName + 'MiddleDistal'],
+        `${side === 'Right' ? 'Left' : 'Right'}MiddleDistal`,
+        hand[handedness + 'MiddleDistal'],
         1,
         0.3,
         avatarRig
       )
       updateRigRotation(
-        `${handedness?.categoryName}ThumbProximal`,
-        hand[handedness?.categoryName + 'ThumbProximal'],
+        `${side === 'Right' ? 'Left' : 'Right'}ThumbProximal`,
+        hand[handedness + 'ThumbProximal'],
         1,
         0.3,
         avatarRig
       )
       updateRigRotation(
-        `${handedness?.categoryName}ThumbIntermediate`,
-        hand[handedness?.categoryName + 'ThumbIntermediate'],
+        `${side === 'Right' ? 'Left' : 'Right'}ThumbIntermediate`,
+        hand[handedness + 'ThumbIntermediate'],
         1,
         0.3,
         avatarRig
       )
       updateRigRotation(
-        `${handedness?.categoryName}ThumbDistal`,
-        hand[handedness?.categoryName + 'ThumbDistal'],
+        `${side === 'Right' ? 'Left' : 'Right'}ThumbDistal`,
+        hand[handedness + 'ThumbDistal'],
         1,
         0.3,
         avatarRig
       )
       updateRigRotation(
-        `${handedness?.categoryName}LittleProximal`,
-        hand[handedness?.categoryName + 'LittleProximal'],
+        `${side === 'Right' ? 'Left' : 'Right'}LittleProximal`,
+        hand[handedness + 'LittleProximal'],
         1,
         0.3,
         avatarRig
       )
       updateRigRotation(
-        `${handedness?.categoryName}LittleIntermediate`,
-        hand[handedness?.categoryName + 'LittleIntermediate'],
+        `${side === 'Right' ? 'Left' : 'Right'}LittleIntermediate`,
+        hand[handedness + 'LittleIntermediate'],
         1,
         0.3,
         avatarRig
       )
       updateRigRotation(
-        `${handedness?.categoryName}LittleDistal`,
-        hand[handedness?.categoryName + 'LittleDistal'],
+        `${side === 'Right' ? 'Left' : 'Right'}LittleDistal`,
+        hand[handedness + 'LittleDistal'],
         1,
         0.3,
         avatarRig

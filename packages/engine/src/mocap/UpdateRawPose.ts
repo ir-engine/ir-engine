@@ -67,7 +67,7 @@ const UpdateRawPose = (data, pose, bindHips, avatarRig, avatarTransform) => {
 
     const hipsCalc = calcHips(data, pose)
 
-    const world = (hipsCalc.Hips.worldPosition as Vector3) || new Vector3(0, 0, 0)
+    const world = (hipsCalc.Hips.position as Vector3) || new Vector3(0, 0, 0)
 
     solvedPoses.hips.copy(world).multiplyScalar(-1).applyQuaternion(avatarTransform.rotation).add(bindHips)
 

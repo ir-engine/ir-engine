@@ -44,17 +44,18 @@ export const calcHips = (lm3d, lm2d) => {
     const hipCenter2d = hipLeft2d.lerp(hipRight2d, 0.5);
     const shoulderCenter2d = shoulderLeft2d.lerp(shoulderRight2d, 0.5);
     const spineLength = hipCenter2d.distance(shoulderCenter2d);
+
     const hips = {
         position: {
             x: clamp(hipCenter2d.x - 0.4, -1, 1),
             y: 0,
-            z: clamp(spineLength - 1, -2, 0),
+            z: 0//clamp(spineLength - 1, -2, 0),
         },
     };
     hips.worldPosition = {
         x: hips.position.x,
-        y: 0,
-        z: hips.position.z * Math.pow(hips.position.z * -2, 2),
+        y: hips.position.y,
+        z: hips.position.z// * Math.pow(hips.position.z * -2, 2),
     };
     hips.worldPosition.x *= hips.worldPosition.z;
     hips.rotation = Vector.rollPitchYaw(lm3d[MediapipePoseNames.indexOf('left hip')], lm3d[MediapipePoseNames.indexOf('right hip')]);

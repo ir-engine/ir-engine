@@ -40,7 +40,7 @@ export const CaptureClientSettingsState = defineState({
       {
         name: 'Tracking',
         tabOrder: 1,
-        trackHands: false,
+        trackHands: true,
         trackFace: false
       },
       {
