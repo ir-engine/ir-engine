@@ -43,13 +43,13 @@ import { RootSystemGroup, SimulationSystemGroup } from '@etherealengine/engine/s
 import { entityExists } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
 import { EntityTreeComponent } from '@etherealengine/engine/src/ecs/functions/EntityTree'
 import { System, SystemDefinitions, SystemUUID } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
-import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
 import { RendererState } from '@etherealengine/engine/src/renderer/RendererState'
 import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
 import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { NO_PROXY, getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 
+import ActionsPanel from './ActionsPanel'
 import { StatsPanel } from './StatsPanel'
 import styles from './styles.module.scss'
 
@@ -105,17 +105,17 @@ const convertSystemTypeToDesiredType = (system: System): DesiredType => {
   return desired
 }
 
-export const Debug = ({ showingStateRef }) => {
-  useHookstate(getMutableState(EngineState).frameTime).value
+export const Debug = ({ showingStateRef }: { showingStateRef: React.MutableRefObject<boolean> }) => {
   const rendererState = useHookstate(getMutableState(RendererState))
   const engineState = useHookstate(getMutableState(EngineState))
+
+  engineState.frameTime.value // make Engine.instance data reactive in the render tree
+
   const { t } = useTranslation()
   const hasActiveControlledAvatar =
     Engine.instance.localClientEntity &&
     engineState.joinedWorld.value &&
     hasComponent(Engine.instance.localClientEntity, AvatarControllerComponent)
-
-  const networks = getMutableState(NetworkState).networks
 
   const onClickRespawn = (): void => {
     Engine.instance.localClientEntity && respawnAvatar(Engine.instance.localClientEntity)
@@ -208,6 +208,7 @@ export const Debug = ({ showingStateRef }) => {
 
   namedEntities.set(renderAllEntities())
   entityTree.set(renderEntityTreeRoots())
+
   return (
     <div className={styles.debugContainer} style={{ pointerEvents: 'all' }}>
       <div className={styles.debugOptionContainer}>
@@ -255,9 +256,9 @@ export const Debug = ({ showingStateRef }) => {
         </div>
       </div>
       <StatsPanel show={showingStateRef.current} />
+      <ActionsPanel />
       <div className={styles.jsonPanel}>
-        <h1>{t('common:debug.entities')}</h1>
-        <JSONTree data={namedEntities.get({ noproxy: true })} />
+        <JSONTree data={namedEntities.get(NO_PROXY)} />
       </div>
       <div className={styles.jsonPanel}>
         <h1>{t('common:debug.entityTree')}</h1>
@@ -273,7 +274,7 @@ export const Debug = ({ showingStateRef }) => {
         <h1>{t('common:debug.state')}</h1>
         <JSONTree
           data={Engine.instance.store.stateMap}
-          postprocessValue={(v: any) => (v?.value && v?.get({ noproxy: true })) ?? v}
+          postprocessValue={(v: any) => (v?.value && v?.get(NO_PROXY)) ?? v}
         />
       </div>
       <div className={styles.jsonPanel}>
