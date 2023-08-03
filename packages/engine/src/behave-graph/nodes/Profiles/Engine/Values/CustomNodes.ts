@@ -24,16 +24,14 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { NodeCategory, makeFlowNodeDefinition, makeFunctionNodeDefinition } from '@behave-graph/core'
-import config from '@etherealengine/common/src/config'
-import { SceneJson } from '@etherealengine/common/src/interfaces/SceneInterface'
-import { dispatchAction, getMutableState } from '@etherealengine/hyperflux'
+import { dispatchAction } from '@etherealengine/hyperflux'
 import { MathUtils } from 'three'
 import { PositionalAudioComponent } from '../../../../../audio/components/PositionalAudioComponent'
 import { AnimationManager } from '../../../../../avatar/AnimationManager'
 import { LoopAnimationComponent } from '../../../../../avatar/components/LoopAnimationComponent'
 import { CameraActions } from '../../../../../camera/CameraState'
 import { Entity } from '../../../../../ecs/classes/Entity'
-import { SceneState } from '../../../../../ecs/classes/Scene'
+import { SceneServices } from '../../../../../ecs/classes/Scene'
 import { getComponent, hasComponent, setComponent } from '../../../../../ecs/functions/ComponentFunctions'
 import { getCallback } from '../../../../../scene/components/CallbackComponent'
 import { MediaComponent } from '../../../../../scene/components/MediaComponent'
@@ -211,55 +209,21 @@ export const fadeCamera = makeFlowNodeDefinition({
   }
 })
 
-const fileServer = config.client.fileServer ?? `https://localhost:8642`
-const corsPath = config.client.cors.serverPort ? config.client.cors.proxyUrl : `https://localhost:3029`
-
-const parseSceneDataCacheURLsLocal = (projectName: string, sceneData: any) => {
-  for (const [key, val] of Object.entries(sceneData)) {
-    if (val && typeof val === 'object') {
-      sceneData[key] = parseSceneDataCacheURLsLocal(projectName, val)
-    }
-    if (typeof val === 'string') {
-      if (val.includes('__$project$__')) {
-        sceneData[key] = `${fileServer}/projects` + sceneData[key].replace('__$project$__', '')
-      }
-
-      if (val.startsWith('__$cors-proxy$__')) sceneData[key] = sceneData[key].replace('__$cors-proxy$__', corsPath)
-    }
-  }
-  return sceneData
-}
-
-const loadSceneJsonOffline = async (projectName, sceneName) => {
-  console.log('DEBUG switching scene')
-  const locationName = `${projectName}/${sceneName}`
-  const sceneData = (await (await fetch(`${fileServer}/projects/${locationName}.scene.json`)).json()) as SceneJson
-  const hasKTX2 = await fetch(`${fileServer}/projects/${locationName}.thumbnail.ktx2`).then((res) => res.ok)
-  getMutableState(SceneState).sceneData.set({
-    scene: parseSceneDataCacheURLsLocal(projectName, sceneData),
-    name: sceneName,
-    thumbnailUrl: `${fileServer}/projects/${locationName}.thumbnail.${hasKTX2 ? 'ktx2' : 'jpeg'}`,
-    project: projectName
-  })
-}
-
 export const switchScene = makeFlowNodeDefinition({
   typeName: 'engine/switchScene',
   category: NodeCategory.Action,
   label: 'Switch Scene',
   in: {
     flow: 'flow',
+    projectName: 'string',
     sceneName: 'string'
   },
   out: {},
   initialState: undefined,
   triggered: ({ read, commit, graph: { getDependency } }) => {
-    const projectName = getMutableState(SceneState).sceneData.value?.project
-    const sceneName = read('sceneName')
-    console.log('DEBUG Switch Scene to', sceneName)
-    loadSceneJsonOffline(projectName, sceneName).then(() => {
-      console.log('DEBUG switch scene')
-    })
+    const projectName = read<string>('projectName')
+    const sceneName = read<string>('sceneName')
+    SceneServices.fetchCurrentScene(projectName, sceneName)
   }
 })
 
