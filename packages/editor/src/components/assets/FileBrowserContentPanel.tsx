@@ -312,7 +312,6 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
 
   const deleteContent = async (): Promise<void> => {
     if (isLoading.value) return
-    console.log('debug1', contentToDeletePath.value)
     isLoading.set(true)
     openConfirm.set(false)
     await FileBrowserService.deleteContent(contentToDeletePath.value)
@@ -364,7 +363,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
     }
 
     return (
-      <>
+      <Breadcrumbs maxItems={3} classes={{ separator: styles.separator, li: styles.breadcrumb }} separator="›">
         {selectedDirectory.value
           .slice(1, -1)
           .split('/')
@@ -385,7 +384,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
               </Link>
             )
           )}
-      </>
+      </Breadcrumbs>
     )
   }
 
@@ -457,9 +456,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
           onClick={onBackDirectory}
           id="backDir"
         />
-        <Breadcrumbs maxItems={3} classes={{ separator: styles.separator, li: styles.breadcrumb }} separator="›">
-          <BreadcrumbItems />
-        </Breadcrumbs>
+        <BreadcrumbItems />
         <span>
           <ToolButton
             tooltip={t('editor:layout.filebrowser.refresh')}
