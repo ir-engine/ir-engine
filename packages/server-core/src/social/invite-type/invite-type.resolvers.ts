@@ -23,39 +23,18 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-// Initializes the `invite-type` service on path `/invite-type`
-import { Application } from '../../../declarations'
-import { InviteType } from './invite-type.class'
-import inviteTypeDocs from './invite-type.docs'
-import hooks from './invite-type.hooks'
-import createModel from './invite-type.model'
+// For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
+import { resolve } from '@feathersjs/schema'
 
-// Add this service to the service type index
-declare module '@etherealengine/common/declarations' {
-  interface ServiceTypes {
-    'invite-type': InviteType
-  }
-}
+import { InviteTypeQuery, InviteTypeType } from '@etherealengine/engine/src/schemas/social/invite-type.schema'
+import type { HookContext } from '@etherealengine/server-core/declarations'
 
-export default (app: Application) => {
-  const options = {
-    Model: createModel(app),
-    paginate: app.get('paginate'),
-    multi: true
-  }
+export const inviteTypeResolver = resolve<InviteTypeType, HookContext>({})
 
-  /**
-   * Initialize our service with any options it requires and docs
-   */
+export const inviteTypeExternalResolver = resolve<InviteTypeType, HookContext>({})
 
-  const event = new InviteType(options, app)
-  event.docs = inviteTypeDocs
-  app.use('invite-type', event)
+export const inviteTypeDataResolver = resolve<InviteTypeType, HookContext>({})
 
-  /**
-   * Get our initialized service so that we can register hooks
-   */
-  const service = app.service('invite-type')
+export const inviteTypePatchResolver = resolve<InviteTypeType, HookContext>({})
 
-  service.hooks(hooks)
-}
+export const inviteTypeQueryResolver = resolve<InviteTypeQuery, HookContext>({})

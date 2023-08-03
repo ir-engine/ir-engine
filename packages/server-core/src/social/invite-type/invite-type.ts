@@ -23,45 +23,36 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-// See http://docs.sequelizejs.com/en/latest/docs/models-definition/
-// for more of what you can do here.
-import { DataTypes, Model, Sequelize } from 'sequelize'
-
-import { InviteTypeInterface } from '@etherealengine/common/src/dbmodels/InviteType'
+import { inviteTypeMethods, inviteTypePath } from '@etherealengine/engine/src/schemas/social/invite-type.schema'
 
 import { Application } from '../../../declarations'
+import { InviteTypeService } from './invite-type.class'
+import inviteTypeDocs from './invite-type.docs'
+import hooks from './invite-type.hooks'
 
-export default (app: Application) => {
-  const sequelizeClient: Sequelize = app.get('sequelizeClient')
-  const inviteType = sequelizeClient.define<Model<InviteTypeInterface>>(
-    'invite_type',
-    {
-      type: {
-        type: DataTypes.STRING,
-        allowNull: false,
-        primaryKey: true,
-        unique: true
-      }
-    },
-    {
-      hooks: {
-        beforeCount(options: any): void {
-          options.raw = true
-        },
-        beforeUpdate(instance: any, options: any): void {
-          throw new Error("Can't update a type!")
-        }
-      },
-      timestamps: false
-    }
-  )
+declare module '@etherealengine/common/declarations' {
+  interface ServiceTypes {
+    [inviteTypePath]: InviteTypeService
+  }
+}
 
-  // eslint-disable-next-line no-unused-vars
-  ;(inviteType as any).associate = (models: any): void => {
-    // Define associations here
-    // See http://docs.sequelizejs.com/en/latest/docs/associations/
-    ;(inviteType as any).hasMany(models.invite, { foreignKey: 'inviteType' })
+export default (app: Application): void => {
+  const options = {
+    id: 'type',
+    name: inviteTypePath,
+    paginate: app.get('paginate'),
+    Model: app.get('knexClient'),
+    multi: true
   }
 
-  return inviteType
+  app.use(inviteTypePath, new InviteTypeService(options), {
+    // A list of all methods this service exposes externally
+    methods: inviteTypeMethods,
+    // You can add additional custom events to be sent to clients here
+    events: [],
+    docs: inviteTypeDocs
+  })
+
+  const service = app.service(inviteTypePath)
+  service.hooks(hooks)
 }

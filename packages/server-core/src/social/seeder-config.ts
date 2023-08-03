@@ -24,13 +24,10 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { KnexSeed } from '@etherealengine/common/src/interfaces/KnexSeed'
-import { ServicesSeedConfig } from '@etherealengine/common/src/interfaces/ServicesSeedConfig'
 
-import { inviteTypeSeed } from './invite-type/invite-type.seed'
+import * as inviteTypeSeed from './invite-type/invite-type.seed'
 import * as locationSettingSeed from './location-setting/location-setting.seed'
 import * as locationTypeSeed from './location-type/location-type.seed'
 import * as locationSeed from './location/location.seed'
 
-export const socialSequelizeSeeds: Array<ServicesSeedConfig> = [inviteTypeSeed]
-
-export const socialSeeds: Array<KnexSeed> = [locationTypeSeed, locationSettingSeed, locationSeed]
+export const socialSeeds: Array<KnexSeed> = [locationTypeSeed, locationSettingSeed, locationSeed, inviteTypeSeed]
