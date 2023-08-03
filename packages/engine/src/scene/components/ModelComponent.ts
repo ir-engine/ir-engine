@@ -109,6 +109,10 @@ function ModelReactor() {
   const model = modelComponent.value
   const source = model.src
 
+  useEffect(() => {
+    !hasComponent(entity, LoopAnimationComponent) && setComponent(entity, LoopAnimationComponent, {})
+  }, [])
+
   // update src
   useEffect(() => {
     if (source === model.scene?.userData?.src) return

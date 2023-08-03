@@ -27,54 +27,53 @@ Ethereal Engine. All Rights Reserved.
 import type { Static } from '@feathersjs/typebox'
 import { querySyntax, Type } from '@feathersjs/typebox'
 
-export const locationAuthorizedUserPath = 'location-authorized-user'
+export const instanceAuthorizedUserPath = 'instance-authorized-user'
 
-export const locationAuthorizedUserMethods = ['find', 'create', 'patch', 'remove', 'get'] as const
+export const instanceAuthorizedUserMethods = ['find', 'get', 'create', 'patch', 'remove'] as const
 
 // Main data model schema
-export const locationAuthorizedUserSchema = Type.Object(
+export const instanceAuthorizedUserSchema = Type.Object(
   {
     id: Type.String({
-      format: 'uuid'
-    }),
-    locationId: Type.String({
       format: 'uuid'
     }),
     userId: Type.String({
       format: 'uuid'
     }),
+    instanceId: Type.String({
+      format: 'uuid'
+    }),
     createdAt: Type.String({ format: 'date-time' }),
     updatedAt: Type.String({ format: 'date-time' })
   },
-  { $id: 'LocationAuthorizedUser', additionalProperties: false }
+  { $id: 'InstanceAuthorizedUser', additionalProperties: false }
 )
-export type LocationAuthorizedUserType = Static<typeof locationAuthorizedUserSchema>
+export type InstanceAuthorizedUserType = Static<typeof instanceAuthorizedUserSchema>
 
 // Schema for creating new entries
-export const locationAuthorizedUserDataSchema = Type.Pick(locationAuthorizedUserSchema, ['userId', 'locationId'], {
-  $id: 'LocationAuthorizedUserData'
+export const instanceAuthorizedUserDataSchema = Type.Pick(instanceAuthorizedUserSchema, ['userId', 'instanceId'], {
+  $id: 'InstanceAuthorizedUserData'
 })
-export type LocationAuthorizedUserData = Static<typeof locationAuthorizedUserDataSchema>
+export type InstanceAuthorizedUserData = Static<typeof instanceAuthorizedUserDataSchema>
 
 // Schema for updating existing entries
-export const locationAuthorizedUserPatchSchema = Type.Partial(locationAuthorizedUserSchema, {
-  $id: 'LocationAuthorizedUserPatch'
+export const instanceAuthorizedUserPatchSchema = Type.Partial(instanceAuthorizedUserSchema, {
+  $id: 'InstanceAuthorizedUserPatch'
 })
-export type LocationAuthorizedUserPatch = Static<typeof locationAuthorizedUserPatchSchema>
+export type InstanceAuthorizedUserPatch = Static<typeof instanceAuthorizedUserPatchSchema>
 
 // Schema for allowed query properties
-export const locationAuthorizedUserQueryProperties = Type.Pick(locationAuthorizedUserSchema, [
+export const instanceAuthorizedUserQueryProperties = Type.Pick(instanceAuthorizedUserSchema, [
   'id',
-  'locationId',
-  'userId'
+  'userId',
+  'instanceId'
 ])
-export const locationAuthorizedUserQuerySchema = Type.Intersect(
+export const instanceAuthorizedUserQuerySchema = Type.Intersect(
   [
-    querySyntax(locationAuthorizedUserQueryProperties),
+    querySyntax(instanceAuthorizedUserQueryProperties),
     // Add additional query properties here
     Type.Object({}, { additionalProperties: false })
   ],
   { additionalProperties: false }
 )
-
-export type LocationAuthorizedUserQuery = Static<typeof locationAuthorizedUserQuerySchema>
+export type InstanceAuthorizedUserQuery = Static<typeof instanceAuthorizedUserQuerySchema>

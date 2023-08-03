@@ -28,6 +28,7 @@ import { Id, NullableId, Params, ServiceMethods } from '@feathersjs/feathers'
 
 import { locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
 
+import { locationAuthorizedUserPath } from '@etherealengine/engine/src/schemas/social/location-authorized-user.schema'
 import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
 import Paginated from '../../types/PageObject'
@@ -279,7 +280,7 @@ export class AcceptInvite implements ServiceMethods<Data> {
         if (location.locationSetting?.locationType === 'private') {
           const userId = inviteeIdentityProvider.userId
           if (!location.locationAuthorizedUsers.find((authUser) => authUser.userId === userId))
-            await this.app.service('location-authorized-user').create({
+            await this.app.service(locationAuthorizedUserPath).create({
               locationId: location.id,
               userId: userId
             })

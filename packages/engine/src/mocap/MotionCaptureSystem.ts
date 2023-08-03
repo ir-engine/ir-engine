@@ -119,9 +119,6 @@ const rightHandPos = new Vector3()
 
 const execute = () => {
   const engineState = getState(EngineState)
-
-  const localClientEntity = Engine.instance.localClientEntity
-
   const network = Engine.instance.worldNetwork
 
   for (const [peerID, mocapData] of timeSeriesMocapData) {
@@ -134,7 +131,7 @@ const execute = () => {
   const userPeers = network?.users?.get(Engine.instance.userId)
 
   // Stop mocap by removing entities if data doesnt exist
-  if (isClient && (!localClientEntity || !userPeers?.find((peerID) => timeSeriesMocapData.has(peerID)))) {
+  if (isClient && !userPeers?.find((peerID) => timeSeriesMocapData.has(peerID))) {
     const headUUID = (Engine.instance.userId + motionCaptureHeadSuffix) as EntityUUID
     const leftHandUUID = (Engine.instance.userId + motionCaptureLeftHandSuffix) as EntityUUID
     const rightHandUUID = (Engine.instance.userId + motionCaptureRightHandSuffix) as EntityUUID
@@ -152,7 +149,7 @@ const execute = () => {
     const userID = network.peers.get(peerID)!.userId
     const entity = NetworkObjectComponent.getUserAvatarEntity(userID)
 
-    if (entity && entity === localClientEntity) {
+    if (entity) {
       const data = mocapData.popLast()
       if (!data) continue
 
