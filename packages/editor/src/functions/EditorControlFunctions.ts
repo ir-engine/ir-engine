@@ -81,11 +81,6 @@ import { filterParentEntities } from './filterParentEntities'
 import { getDetachedObjectsRoots } from './getDetachedObjectsRoots'
 import { getSpaceMatrix } from './getSpaceMatrix'
 
-/**
- *
- * @param nodes
- * @param component
- */
 const addOrRemoveComponent = <C extends Component<any, any>>(
   nodes: EntityOrObjectUUID[],
   component: C,
@@ -108,9 +103,6 @@ const addOrRemoveComponent = <C extends Component<any, any>>(
 
 /**
  * Updates each property specified in 'properties' on the component for each of the specified entity nodes
- * @param nodes
- * @param properties
- * @param component
  */
 const modifyProperty = <C extends Component<any, any>>(
   nodes: EntityOrObjectUUID[],
@@ -502,8 +494,8 @@ const scaleObject = (
 
 const reparentObject = (
   nodes: EntityOrObjectUUID[],
-  parent = getState(SceneState).sceneEntity,
   before?: Entity | null,
+  parent = getState(SceneState).sceneEntity,
   updateSelection = true
 ) => {
   cancelGrabOrPlacement()
@@ -512,8 +504,8 @@ const reparentObject = (
     const node = nodes[i]
     if (typeof node !== 'string') {
       if (node === parent) continue
-      const entityTreeComponent = getComponent(node, EntityTreeComponent)
-      const index = before ? entityTreeComponent.children.indexOf(before as Entity) : undefined
+      const parentEntityTreeComponent = getComponent(parent, EntityTreeComponent)
+      const index = before ? parentEntityTreeComponent.children.indexOf(before as Entity) : undefined
       reparentEntityNode(node, parent as Entity, index)
       reparentObject3D(node, parent as Entity, before as Entity)
     } else {
@@ -546,18 +538,13 @@ const groupObjects = (
 
   const groupNode = EditorControlFunctions.createObjectFromSceneElement(GroupComponent.name, null, null, false)
 
-  EditorControlFunctions.reparentObject(nodes, groupNode, null, false)
+  EditorControlFunctions.reparentObject(nodes, null, groupNode, false)
 
   if (updateSelection) {
     EditorControlFunctions.replaceSelection([groupNode])
   }
 }
 
-/**
- *
- * @param nodes
- * @returns
- */
 const removeObject = (nodes: EntityOrObjectUUID[]) => {
   cancelGrabOrPlacement()
 
@@ -581,11 +568,7 @@ const removeObject = (nodes: EntityOrObjectUUID[]) => {
   dispatchAction(SelectionAction.updateSelection({ selectedEntities: [] }))
   dispatchAction(EditorHistoryAction.createSnapshot({ selectedEntities: [] }))
 }
-/**
- *
- * @param nodes
- * @returns
- */
+
 const replaceSelection = (nodes: EntityOrObjectUUID[]) => {
   const current = getMutableState(SelectionState).selectedEntities.value
 
@@ -604,11 +587,6 @@ const replaceSelection = (nodes: EntityOrObjectUUID[]) => {
   dispatchAction(EditorHistoryAction.createSnapshot({ selectedEntities: nodes }))
 }
 
-/**
- *
- * @param nodes
- * @returns
- */
 const toggleSelection = (nodes: EntityOrObjectUUID[]) => {
   const selectedEntities = getMutableState(SelectionState).selectedEntities.value.slice(0)
 
