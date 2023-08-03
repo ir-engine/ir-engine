@@ -66,6 +66,12 @@ const parseModuleName = (moduleName: string) => {
   if (moduleName.includes('react-dom')) {
     return `vendor_react-dom_${moduleName.toString().split('react-dom/')[1].split('/')[0].toString()}`
   }
+
+  // chunk react-icons
+  if (moduleName.includes('react-icons')) {
+    return `vendor_react-icons_${moduleName.toString().split('react-icons/')[1].split('/')[0].toString()}`
+  }
+
   // chunk react-color
   if (moduleName.includes('react-color')) {
     return `vendor_react-color_${moduleName.toString().split('react-color/')[1].split('/')[0].toString()}`
