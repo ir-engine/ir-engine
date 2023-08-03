@@ -27,12 +27,12 @@ import React, { Fragment, useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { useWorldInstance } from '@etherealengine/client-core/src/common/services/LocationInstanceConnectionService'
-import { ChatService, ChatState } from '@etherealengine/client-core/src/social/services/ChatService'
+import { ChannelService, ChannelState } from '@etherealengine/client-core/src/social/services/ChannelService'
 import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
 import { AudioEffectPlayer } from '@etherealengine/engine/src/audio/systems/MediaSystem'
+import { useFind, useMutation } from '@etherealengine/engine/src/common/functions/FeathersHooks'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
-import { WorldState } from '@etherealengine/engine/src/networking/interfaces/WorldState'
 import { dispatchAction, getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import Avatar from '@etherealengine/ui/src/primitives/mui/Avatar'
 import Badge from '@etherealengine/ui/src/primitives/mui/Badge'
@@ -47,39 +47,33 @@ import Fab from '@mui/material/Fab'
 
 import { AppAction } from '../../common/services/AppService'
 import { AvatarUIActions, AvatarUIState } from '../../systems/state/AvatarUIState'
-import { getUserAvatarThumbnail } from '../../user/functions/useUserAvatarThumbnail'
+import { useUserAvatarThumbnail } from '../../user/functions/useUserAvatarThumbnail'
 import { useShelfStyles } from '../Shelves/useShelfStyles'
 import { default as defaultStyles, default as styles } from './index.module.scss'
 
 interface ChatHooksProps {
   chatWindowOpen: boolean
-  setUnreadMessages: Function
+  setUnreadMessages: React.Dispatch<React.SetStateAction<boolean>>
   messageRefInput: React.MutableRefObject<HTMLInputElement>
 }
 
 export const useChatHooks = ({ chatWindowOpen, setUnreadMessages, messageRefInput }: ChatHooksProps) => {
   /**
-   * Provisioning logic
-   */
-  const currentInstanceConnection = useWorldInstance()
-
-  useEffect(() => {
-    if (Engine.instance.worldNetwork?.hostId && currentInstanceConnection?.connected?.value) {
-      ChatService.getInstanceChannel()
-    }
-  }, [currentInstanceConnection?.connected])
-
-  /**
    * Message display logic
    */
 
-  const chatState = useHookstate(getMutableState(ChatState))
-  const channels = chatState.channels.channels
-  const activeChannel = Object.values(channels).find((channel) => channel.channelType.value === 'instance')
+  const targetChannelId = useHookstate(getMutableState(ChannelState).targetChannelId)
+
+  const messages = useFind('message', {
+    query: {
+      channelId: targetChannelId.value
+    }
+  })
+  const mutateMessage = useMutation('message')
 
   useEffect(() => {
-    if (activeChannel?.messages?.length && !chatWindowOpen) setUnreadMessages(true)
-  }, [activeChannel?.messages])
+    if (messages.data?.length && !chatWindowOpen) setUnreadMessages(true)
+  }, [messages.data, chatWindowOpen])
 
   /**
    * Message composition logic
@@ -161,10 +155,9 @@ export const useChatHooks = ({ chatWindowOpen, setUnreadMessages, messageRefInpu
         )
       }
 
-      ChatService.createMessage({
-        targetObjectId: instanceId,
-        targetObjectType: 'instance',
-        text: composingMessage.value
+      mutateMessage.create({
+        text: composingMessage.value,
+        channelId: targetChannelId.value
       })
       composingMessage.set('')
     }
@@ -197,10 +190,10 @@ export const useChatHooks = ({ chatWindowOpen, setUnreadMessages, messageRefInpu
 
   return {
     dimensions: dimensions.get({ noproxy: true }),
-    activeChannel,
     handleComposingMessageChange,
     packageMessage,
-    composingMessage: composingMessage.value
+    composingMessage: composingMessage.value,
+    messages
   }
 }
 
@@ -222,24 +215,22 @@ export const InstanceChat = ({
   const messageContainerVisible = useHookstate(false)
   const messageRefInput = useRef<HTMLInputElement>()
 
-  const { activeChannel, handleComposingMessageChange, packageMessage, composingMessage } = useChatHooks({
+  const { handleComposingMessageChange, packageMessage, composingMessage, messages } = useChatHooks({
     chatWindowOpen: chatWindowOpen.value,
     setUnreadMessages: unreadMessages.set,
     messageRefInput: messageRefInput as any
   })
 
-  const sortedMessages = activeChannel?.messages?.get({ noproxy: true })?.length
-    ? [...activeChannel.messages.get({ noproxy: true })].sort(
-        (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
-      )
+  const sortedMessages = messages.data
+    ? messages.data.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime())
     : []
 
   const user = useHookstate(getMutableState(AuthState).user)
 
-  const isInitRender = useHookstate<Boolean>(false)
+  const isInitRender = useHookstate<boolean>(false)
 
   const isMobile = /Mobi/i.test(window.navigator.userAgent)
-  const chatState = useHookstate(getMutableState(ChatState))
+  const chatState = useHookstate(getMutableState(ChannelState))
 
   /**
    * Audio effect
@@ -294,7 +285,56 @@ export const InstanceChat = ({
     isInitRender.set(false)
   }
 
-  const userAvatarDetails = useHookstate(getMutableState(WorldState).userAvatarDetails)
+  const Message = (props: { message; index }) => {
+    const { message, index } = props
+
+    const userThumbnail = useUserAvatarThumbnail(message.senderId)
+
+    return (
+      <Fragment key={message.id}>
+        {message.isNotification ? (
+          <div key={message.id} className={`${styles.selfEnd} ${styles.noMargin}`}>
+            <div className={styles.dFlex}>
+              <div className={`${styles.msgNotification} ${styles.mx2}`}>
+                <p className={styles.shadowText}>{message.text}</p>
+              </div>
+            </div>
+          </div>
+        ) : (
+          <div key={message.id} className={`${styles.dFlex} ${styles.flexColumn} ${styles.mgSmall}`}>
+            <div className={`${styles.selfEnd} ${styles.noMargin}`}>
+              <div
+                className={`${message.senderId !== user?.id.value ? styles.msgReplyContainer : styles.msgOwner} ${
+                  styles.msgContainer
+                } ${styles.dFlex}`}
+              >
+                <div className={styles.msgWrapper}>
+                  {messages[index - 1] && messages[index - 1].isNotification ? (
+                    <h3 className={styles.sender}>{message.sender.name}</h3>
+                  ) : (
+                    messages[index - 1] &&
+                    message.senderId !== messages[index - 1].senderId && (
+                      <h3 className={styles.sender}>{message.sender.name}</h3>
+                    )
+                  )}
+                  <p className={styles.text}>{message.text}</p>
+                </div>
+                {index !== 0 && messages[index - 1] && messages[index - 1].isNotification ? (
+                  <Avatar src={userThumbnail} className={styles.avatar} />
+                ) : (
+                  messages[index - 1] &&
+                  message.senderId !== messages[index - 1].senderId && (
+                    <Avatar src={userThumbnail} className={styles.avatar} />
+                  )
+                )}
+                {index === 0 && <Avatar src={userThumbnail} className={styles.avatar} />}
+              </div>
+            </div>
+          </div>
+        )}
+      </Fragment>
+    )
+  }
 
   return (
     <>
@@ -315,53 +355,9 @@ export const InstanceChat = ({
             }
           >
             <div className={styles.scrollFix} />
-            {sortedMessages &&
-              sortedMessages.map((message, index, messages) => (
-                <Fragment key={message.id}>
-                  {message.isNotification ? (
-                    <div key={message.id} className={`${styles.selfEnd} ${styles.noMargin}`}>
-                      <div className={styles.dFlex}>
-                        <div className={`${styles.msgNotification} ${styles.mx2}`}>
-                          <p className={styles.shadowText}>{message.text}</p>
-                        </div>
-                      </div>
-                    </div>
-                  ) : (
-                    <div key={message.id} className={`${styles.dFlex} ${styles.flexColumn} ${styles.mgSmall}`}>
-                      <div className={`${styles.selfEnd} ${styles.noMargin}`}>
-                        <div
-                          className={`${
-                            message.senderId !== user?.id.value ? styles.msgReplyContainer : styles.msgOwner
-                          } ${styles.msgContainer} ${styles.dFlex}`}
-                        >
-                          <div className={styles.msgWrapper}>
-                            {messages[index - 1] && messages[index - 1].isNotification ? (
-                              <h3 className={styles.sender}>{message.sender.name}</h3>
-                            ) : (
-                              messages[index - 1] &&
-                              message.senderId !== messages[index - 1].senderId && (
-                                <h3 className={styles.sender}>{message.sender.name}</h3>
-                              )
-                            )}
-                            <p className={styles.text}>{message.text}</p>
-                          </div>
-                          {index !== 0 && messages[index - 1] && messages[index - 1].isNotification ? (
-                            <Avatar src={getUserAvatarThumbnail(message.senderId)} className={styles.avatar} />
-                          ) : (
-                            messages[index - 1] &&
-                            message.senderId !== messages[index - 1].senderId && (
-                              <Avatar src={getUserAvatarThumbnail(message.senderId)} className={styles.avatar} />
-                            )
-                          )}
-                          {index === 0 && (
-                            <Avatar src={getUserAvatarThumbnail(message.senderId)} className={styles.avatar} />
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  )}
-                </Fragment>
-              ))}
+            {sortedMessages?.map((message, index, messages) => (
+              <Message message={message} index={index} key={message.id} />
+            ))}
           </div>
         )}
         <div className={`${styles['bottom-box']}`}>
@@ -450,9 +446,23 @@ export const InstanceChatWrapper = () => {
   const engineState = useHookstate(getMutableState(EngineState))
   const { t } = useTranslation()
   const { bottomShelfStyle } = useShelfStyles()
+
+  const targetChannelId = useHookstate(getMutableState(ChannelState).targetChannelId)
+
+  /**
+   * Provisioning logic
+   */
+  const currentInstanceConnection = useWorldInstance()
+
+  useEffect(() => {
+    if (Engine.instance.worldNetwork?.hostId && currentInstanceConnection?.connected?.value) {
+      ChannelService.getInstanceChannel()
+    }
+  }, [currentInstanceConnection?.connected])
+
   return (
     <>
-      {engineState.connectedWorld.value ? (
+      {engineState.connectedWorld.value && targetChannelId.value ? (
         <div className={`${bottomShelfStyle} ${styles.chatRoot}`}>
           <InstanceChat />
         </div>

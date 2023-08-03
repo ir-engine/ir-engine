@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { BadRequest, Forbidden } from '@feathersjs/errors'
-import { Id, Paginated, Params } from '@feathersjs/feathers'
+import { Id, Params } from '@feathersjs/feathers'
 import appRootPath from 'app-root-path'
 import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
 import fs from 'fs'
@@ -39,7 +39,8 @@ import {
 } from '@etherealengine/common/src/interfaces/ProjectInterface'
 import { UserInterface } from '@etherealengine/common/src/interfaces/User'
 import { processFileName } from '@etherealengine/common/src/utils/processFileName'
-import { routePath, RouteType } from '@etherealengine/engine/src/schemas/route/route.schema'
+import { routePath } from '@etherealengine/engine/src/schemas/route/route.schema'
+import { locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
 import { avatarPath, AvatarType } from '@etherealengine/engine/src/schemas/user/avatar.schema'
 import {
   githubRepoAccessPath,
@@ -216,7 +217,9 @@ export class Project extends Service {
       commitSHA = await git.revparse(['HEAD'])
       const commit = await git.log(['-1'])
       commitDate = commit?.latest?.date ? new Date(commit.latest.date) : new Date()
-    } catch (err) {}
+    } catch (err) {
+      //
+    }
     return {
       commitSHA,
       commitDate
@@ -431,7 +434,9 @@ export class Project extends Service {
       if (branchExists.length === 0 || data.reset) {
         try {
           await git.deleteLocalBranch(branchName)
-        } catch (err) {}
+        } catch (err) {
+          //
+        }
         await git.checkoutLocalBranch(branchName)
       } else await git.checkout(branchName)
     } catch (err) {
@@ -585,29 +590,19 @@ export class Project extends Service {
     logger.info(`[Projects]: removing project id "${id}", name: "${name}".`)
     await deleteProjectFilesInStorageProvider(name)
 
-    const locationItems = await (this.app.service('location') as any).Model.findAll({
-      where: {
+    await this.app.service(locationPath).remove(null, {
+      query: {
         sceneId: {
-          [Op.like]: `${name}/%`
+          $like: `${name}/%`
         }
       }
     })
-    locationItems.length &&
-      locationItems.forEach(async (location) => {
-        await this.app.service('location').remove(location.dataValues.id)
-      })
 
-    const routeItems = (await this.app.service(routePath).find({
+    await this.app.service(routePath).remove(null, {
       query: {
         $and: [{ project: { $ne: null } }, { project: name }]
-      },
-      paginate: false
-    })) as any as RouteType[]
-
-    routeItems.length &&
-      routeItems.forEach(async (route) => {
-        await this.app.service(routePath).remove(route.id)
-      })
+      }
+    })
 
     const avatarItems = (await this.app.service(avatarPath).find({
       query: {
@@ -621,11 +616,12 @@ export class Project extends Service {
             }
           }
         ]
-      }
-    })) as Paginated<AvatarType>
+      },
+      paginate: false
+    })) as AvatarType[]
 
     await Promise.all(
-      avatarItems.data.map(async (avatar) => {
+      avatarItems.map(async (avatar) => {
         await this.app.service(avatarPath).remove(avatar.id)
       })
     )
@@ -786,7 +782,9 @@ export class Project extends Service {
         values.engineVersion = packageJson.etherealEngine?.version
         values.description = packageJson.description
         values.hasWriteAccess = projectPushIds.indexOf(item.id) > -1
-      } catch (err) {}
+      } catch (err) {
+        //
+      }
     })
 
     return {

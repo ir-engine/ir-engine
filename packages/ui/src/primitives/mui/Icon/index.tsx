@@ -42,6 +42,8 @@ import {
   BlurOff,
   CachedOutlined,
   CalendarViewDay,
+  Call,
+  CallEnd,
   CameraAlt,
   Cancel,
   CancelOutlined,
@@ -70,9 +72,9 @@ import {
   ErrorOutline,
   ExpandMore,
   Face,
+  FaceRetouchingOff,
   Facebook,
   FacebookOutlined,
-  FaceRetouchingOff,
   FileCopy,
   FileUpload,
   FilterList,
@@ -97,8 +99,8 @@ import {
   KeyboardDoubleArrowUp,
   Launch,
   Link,
-  LinkedIn,
   LinkOff,
+  LinkedIn,
   List,
   ListAlt,
   LocationOn,
@@ -137,6 +139,7 @@ import {
   Shuffle,
   SportsScore,
   SquareFoot,
+  StopCircle,
   StopScreenShare,
   Storage,
   SupervisorAccount,
@@ -183,6 +186,8 @@ const Icon = ({ type, ...props }: SvgIconProps & { type: string }) => {
       return <Download {...props} />
     case 'CameraAlt':
       return <CameraAlt {...props} />
+    case 'StopCircle':
+      return <StopCircle {...props} />
     case 'ChevronLeft':
       return <ChevronLeft {...props} />
     case 'ChevronRight':
@@ -379,6 +384,10 @@ const Icon = ({ type, ...props }: SvgIconProps & { type: string }) => {
       return <Google {...props} />
     case 'GridOn':
       return <GridOn {...props} />
+    case 'Call':
+      return <Call {...props} />
+    case 'CallEnd':
+      return <CallEnd {...props} />
     case 'HighlightOff':
       return <HighlightOff {...props} />
     case 'KeyboardDoubleArrowDown':

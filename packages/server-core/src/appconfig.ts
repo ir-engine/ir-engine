@@ -76,10 +76,10 @@ if (process.env.APP_ENV === 'development' || process.env.LOCAL === 'true') {
   // Avoids DEPTH_ZERO_SELF_SIGNED_CERT error for self-signed certs - needed for local storage provider
   process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'
 
-  var fs = require('fs')
+  const fs = require('fs')
   if (!fs.existsSync(appRootPath.path + '/.env') && !fs.existsSync(appRootPath.path + '/.env.local')) {
-    var fromEnvPath = appRootPath.path + '/.env.local.default'
-    var toEnvPath = appRootPath.path + '/.env.local'
+    const fromEnvPath = appRootPath.path + '/.env.local.default'
+    const toEnvPath = appRootPath.path + '/.env.local'
     fs.copyFileSync(fromEnvPath, toEnvPath, fs.constants.COPYFILE_EXCL)
   }
 }
@@ -227,8 +227,7 @@ const email = {
     instance: 'Location invitation',
     login: 'Login link',
     friend: 'Friend request',
-    group: 'Group invitation',
-    party: 'Party invitation'
+    channel: 'Channel invitation'
   },
   smsNameCharacterLimit: 20
 }
@@ -302,13 +301,6 @@ const authentication = {
  * AWS
  */
 const aws = {
-  route53: {
-    hostedZoneId: process.env.ROUTE53_HOSTED_ZONE_ID!,
-    keys: {
-      accessKeyId: process.env.ROUTE53_ACCESS_KEY_ID!,
-      secretAccessKey: process.env.ROUTE53_ACCESS_KEY_SECRET!
-    }
-  },
   s3: {
     accessKeyId: process.env.STORAGE_AWS_ACCESS_KEY_ID!,
     secretAccessKey: process.env.STORAGE_AWS_ACCESS_KEY_SECRET!,

@@ -23,16 +23,55 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { hooks as schemaHooks } from '@feathersjs/schema'
+import { getValidator } from '@feathersjs/typebox'
 import { disallow } from 'feathers-hooks-common'
 
+import {
+  locationTypeDataSchema,
+  locationTypePatchSchema,
+  locationTypeQuerySchema,
+  locationTypeSchema
+} from '@etherealengine/engine/src/schemas/social/location-type.schema'
+import { dataValidator, queryValidator } from '@etherealengine/server-core/validators'
+
+import {
+  locationTypeDataResolver,
+  locationTypeExternalResolver,
+  locationTypePatchResolver,
+  locationTypeQueryResolver,
+  locationTypeResolver
+} from './location-type.resolvers'
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const locationTypeValidator = getValidator(locationTypeSchema, dataValidator)
+const locationTypeDataValidator = getValidator(locationTypeDataSchema, dataValidator)
+const locationTypePatchValidator = getValidator(locationTypePatchSchema, dataValidator)
+const locationTypeQueryValidator = getValidator(locationTypeQuerySchema, queryValidator)
+
 export default {
+  around: {
+    all: [schemaHooks.resolveExternal(locationTypeExternalResolver), schemaHooks.resolveResult(locationTypeResolver)]
+  },
+
   before: {
-    all: [],
+    all: [
+      () => schemaHooks.validateQuery(locationTypeQueryValidator),
+      schemaHooks.resolveQuery(locationTypeQueryResolver)
+    ],
     find: [],
     get: [],
-    create: [disallow('external')],
+    create: [
+      disallow('external'),
+      () => schemaHooks.validateData(locationTypeDataValidator),
+      schemaHooks.resolveData(locationTypeDataResolver)
+    ],
     update: [disallow()],
-    patch: [disallow()],
+    patch: [
+      disallow(),
+      () => schemaHooks.validateData(locationTypePatchValidator),
+      schemaHooks.resolveData(locationTypePatchResolver)
+    ],
     remove: [disallow('external')]
   },
 

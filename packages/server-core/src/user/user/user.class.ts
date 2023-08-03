@@ -29,8 +29,8 @@ import { Paginated } from '@feathersjs/feathers/lib'
 import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
 import { Op } from 'sequelize'
 
-import { AdminScopeType } from '@etherealengine/common/src/interfaces/AdminScopeType'
 import { CreateEditUser, UserInterface, UserScope } from '@etherealengine/common/src/interfaces/User'
+import { ScopeTypeType } from '@etherealengine/engine/src/schemas/scope/scope-type.schema'
 
 import { userApiKeyPath } from '@etherealengine/engine/src/schemas/user/user-api-key.schema'
 import { Application } from '../../../declarations'
@@ -44,7 +44,7 @@ export interface UserParams extends Params {
   sequelize?: any
 }
 
-export const afterCreate = async (app: Application, result: UserInterface, scopes?: UserScope[] | AdminScopeType[]) => {
+export const afterCreate = async (app: Application, result: UserInterface, scopes?: UserScope[] | ScopeTypeType[]) => {
   await app.service('user-settings').create({
     userId: result.id
   })
@@ -60,6 +60,7 @@ export const afterCreate = async (app: Application, result: UserInterface, scope
   }
 
   if (Array.isArray(result)) result = result[0]
+  console.log(result)
   if (!result?.isGuest)
     await app.service(userApiKeyPath).create({
       userId: result.id
@@ -178,7 +179,7 @@ export class User extends Service<UserInterface> {
       return super.find(params)
     } else {
       if (
-        loggedInUser.scopes &&
+        loggedInUser?.scopes &&
         !(
           loggedInUser?.scopes.find((scope) => scope.type === 'admin:admin') &&
           loggedInUser?.scopes.find((scope) => scope.type === 'user:read')
@@ -196,6 +197,7 @@ export class User extends Service<UserInterface> {
     try {
       await afterCreate(this.app, result, data.scopes)
     } catch (err) {
+      console.error(err)
       logger.error(err, `USER AFTER CREATE ERROR: ${err.message}`)
       return null!
     }

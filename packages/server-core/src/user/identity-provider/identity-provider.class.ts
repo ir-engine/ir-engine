@@ -167,7 +167,9 @@ export class IdentityProvider<T = IdentityProviderInterface> extends Service<T> 
     let foundUser
     try {
       foundUser = await userService.get(userId)
-    } catch (err) {}
+    } catch (err) {
+      //
+    }
 
     if (foundUser != null) {
       // if there is the user with userId, then we add the identity provider to the user
@@ -250,7 +252,7 @@ export class IdentityProvider<T = IdentityProviderInterface> extends Service<T> 
         .createAccessToken({}, { subject: result.id.toString() })
     } else if (isDev && type === 'admin') {
       // in dev mode, add all scopes to the first user made an admin
-      const data = scopeTypeSeed.templates.map(({ type }) => {
+      const data = scopeTypeSeed.map(({ type }) => {
         return { userId, type }
       })
       await this.app.service('scope').create(data)

@@ -29,7 +29,7 @@ import { NetworkId } from '@etherealengine/common/src/interfaces/NetworkId'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 
-import { DataChannelType } from '../classes/Network'
+import { DataChannelType } from '@etherealengine/common/src/interfaces/DataChannelType'
 import { MediaTagType, PeerMediaType } from '../NetworkState'
 
 export interface NetworkPeer {
@@ -44,18 +44,11 @@ export interface NetworkPeer {
   lastSeenTs?: any
   joinTs?: any
   media?: Record<MediaTagType, PeerMediaType>
-  consumerLayers?: {}
-  stats?: {}
-  instanceSendTransport?: any
-  instanceRecvTransport?: any
-  channelSendTransport?: any
-  channelRecvTransport?: any
+  consumerLayers?: any
+  stats?: any
+  sendTransport?: any
+  recvTransport?: any
   outgoingDataConsumers?: Map<DataChannelType, any> // Key of internal producer id => id of data producer
   incomingDataConsumers?: Map<DataChannelType, any> // Key of internal producer id => id of data producer
   dataProducers?: Map<string, any> // Keyof internal producer id => label of data channel
-}
-
-export interface UserClient {
-  userId: UserId
-  name: string
 }

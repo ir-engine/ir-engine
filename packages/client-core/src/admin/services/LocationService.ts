@@ -25,10 +25,15 @@ Ethereal Engine. All Rights Reserved.
 
 import { Paginated } from '@feathersjs/feathers'
 
-import { Location } from '@etherealengine/common/src/interfaces/Location'
-import { LocationType } from '@etherealengine/common/src/interfaces/LocationType'
 import multiLogger from '@etherealengine/common/src/logger'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { locationTypePath, LocationTypeType } from '@etherealengine/engine/src/schemas/social/location-type.schema'
+import {
+  LocationData,
+  LocationPatch,
+  locationPath,
+  LocationType
+} from '@etherealengine/engine/src/schemas/social/location.schema'
 import { defineState, getMutableState } from '@etherealengine/hyperflux'
 
 import { NotificationService } from '../../common/services/NotificationService'
@@ -40,7 +45,7 @@ export const LOCATION_PAGE_LIMIT = 100
 export const AdminLocationState = defineState({
   name: 'AdminLocationState',
   initial: () => ({
-    locations: [] as Array<Location>,
+    locations: [] as Array<LocationType>,
     skip: 0,
     limit: LOCATION_PAGE_LIMIT,
     total: 0,
@@ -49,53 +54,53 @@ export const AdminLocationState = defineState({
     updateNeeded: true,
     created: false,
     lastFetched: Date.now(),
-    locationTypes: [] as Array<LocationType>
+    locationTypes: [] as Array<LocationTypeType>
   })
 })
 
 export const AdminLocationService = {
   fetchLocationTypes: async () => {
-    await Engine.instance.api.service('location-type').find()
-    getMutableState(AdminLocationState).merge({ updateNeeded: true })
+    const locationType = await Engine.instance.api.service(locationTypePath).find()
+    getMutableState(AdminLocationState).merge({ locationTypes: locationType.data })
   },
-  patchLocation: async (id: string, location: any) => {
+  patchLocation: async (id: string, location: LocationPatch) => {
     try {
-      await Engine.instance.api.service('location').patch(id, location)
+      await Engine.instance.api.service(locationPath).patch(id, location)
       getMutableState(AdminLocationState).merge({ updateNeeded: true })
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
   },
   removeLocation: async (id: string) => {
-    await Engine.instance.api.service('location').remove(id)
+    await Engine.instance.api.service(locationPath).remove(id)
     getMutableState(AdminLocationState).merge({ updateNeeded: true })
   },
-  createLocation: async (location: any) => {
+  createLocation: async (location: LocationData) => {
     try {
-      await Engine.instance.api.service('location').create(location)
+      await Engine.instance.api.service(locationPath).create(location)
       getMutableState(AdminLocationState).merge({ updateNeeded: true, created: true })
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
   },
   fetchAdminLocations: async (
-    value: string | null = null,
+    value = '',
     skip = getMutableState(AdminLocationState).skip.value,
     sortField = 'name',
     orderBy = 'asc'
   ) => {
     try {
-      let sortData = {}
+      const sortData = {}
       if (sortField.length > 0) {
         if (sortField === 'tags') {
-          sortData['isFeatured'] = orderBy === 'desc' ? 0 : 1
-          sortData['isLobby'] = orderBy === 'desc' ? 0 : 1
+          sortData['isFeatured'] = orderBy === 'desc' ? -1 : 1
+          sortData['isLobby'] = orderBy === 'desc' ? -1 : 1
         } else {
-          sortData[sortField] = orderBy === 'desc' ? 0 : 1
+          sortData[sortField] = orderBy === 'desc' ? -1 : 1
         }
       }
 
-      const locations = (await Engine.instance.api.service('location').find({
+      const locations = (await Engine.instance.api.service(locationPath).find({
         query: {
           $sort: {
             ...sortData
@@ -105,11 +110,8 @@ export const AdminLocationService = {
           adminnedLocations: true,
           search: value
         }
-      })) as Paginated<Location>
+      })) as Paginated<LocationType>
 
-      locations.data.forEach((locationData) => {
-        if (locationData.location_setting) locationData.locationSetting = locationData.location_setting
-      })
       getMutableState(AdminLocationState).merge({
         locations: locations.data,
         skip: locations.skip,
@@ -126,20 +128,17 @@ export const AdminLocationService = {
   },
   searchAdminLocations: async (value, orderBy = 'asc') => {
     try {
-      const locations = (await Engine.instance.api.service('location').find({
+      const locations = (await Engine.instance.api.service(locationPath).find({
         query: {
           search: value,
           $sort: {
-            name: orderBy === 'desc' ? 0 : 1
+            name: orderBy === 'desc' ? -1 : 1
           },
           $skip: getMutableState(AdminLocationState).skip.value,
           $limit: getMutableState(AdminLocationState).limit.value,
           adminnedLocations: true
         }
-      })) as Paginated<Location>
-      locations.data.forEach((locationData) => {
-        if (locationData.location_setting) locationData.locationSetting = locationData.location_setting
-      })
+      })) as Paginated<LocationType>
     } catch (error) {
       logger.error(error)
     }

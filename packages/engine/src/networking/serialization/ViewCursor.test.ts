@@ -68,8 +68,10 @@ describe('ViewCursor read/write', () => {
   describe('ViewCursor', () => {
     it('should createViewCursor', () => {
       const view = createViewCursor()
+      // eslint-disable-next-line no-prototype-builtins
       assert(view.hasOwnProperty('cursor'))
       strictEqual(view.cursor, 0)
+      // eslint-disable-next-line no-prototype-builtins
       assert(view.hasOwnProperty('shadowMap'))
       assert(view.shadowMap instanceof Map)
     })

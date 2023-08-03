@@ -70,7 +70,6 @@ export default (app: Application) => {
         locationId: data.locationId,
         sceneId: data.sceneId,
         channelId: data.channelId,
-        channelType: data.channelType,
         instanceId: data.instanceId
       })
     } catch (err) {

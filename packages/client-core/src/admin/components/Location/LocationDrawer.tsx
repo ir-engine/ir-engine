@@ -29,7 +29,7 @@ import { useTranslation } from 'react-i18next'
 import InputSelect, { InputMenuItem } from '@etherealengine/client-core/src/common/components/InputSelect'
 import InputSwitch from '@etherealengine/client-core/src/common/components/InputSwitch'
 import InputText from '@etherealengine/client-core/src/common/components/InputText'
-import { LocationFetched } from '@etherealengine/common/src/interfaces/Location'
+import { LocationData, LocationType } from '@etherealengine/engine/src/schemas/social/location.schema'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import Button from '@etherealengine/ui/src/primitives/mui/Button'
 import Container from '@etherealengine/ui/src/primitives/mui/Container'
@@ -53,7 +53,7 @@ export enum LocationDrawerMode {
 interface Props {
   open: boolean
   mode: LocationDrawerMode
-  selectedLocation?: LocationFetched
+  selectedLocation?: LocationType
   onClose: () => void
 }
 
@@ -118,11 +118,11 @@ const LocationDrawer = ({ open, mode, selectedLocation, onClose }: Props) => {
         name: selectedLocation.name,
         maxUsers: selectedLocation.maxUsersPerInstance,
         scene: selectedLocation.sceneId,
-        type: selectedLocation.location_setting?.locationType,
-        videoEnabled: selectedLocation.location_setting?.videoEnabled,
-        audioEnabled: selectedLocation.location_setting?.audioEnabled,
-        screenSharingEnabled: selectedLocation.location_setting?.screenSharingEnabled,
-        faceStreamingEnabled: selectedLocation.location_setting?.faceStreamingEnabled,
+        type: selectedLocation.locationSetting?.locationType,
+        videoEnabled: selectedLocation.locationSetting?.videoEnabled,
+        audioEnabled: selectedLocation.locationSetting?.audioEnabled,
+        screenSharingEnabled: selectedLocation.locationSetting?.screenSharingEnabled,
+        faceStreamingEnabled: selectedLocation.locationSetting?.faceStreamingEnabled,
         isLobby: selectedLocation.isLobby,
         isFeatured: selectedLocation.isFeatured
       })
@@ -165,16 +165,21 @@ const LocationDrawer = ({ open, mode, selectedLocation, onClose }: Props) => {
   }
 
   const handleSubmit = () => {
-    const data = {
+    const data: LocationData = {
       name: state.name.value,
+      slugifiedName: '',
       sceneId: state.scene.value,
       maxUsersPerInstance: state.maxUsers.value,
-      location_settings: {
-        locationType: state.type.value,
+      locationSetting: {
+        id: '',
+        locationId: '',
+        locationType: state.type.value as 'private' | 'public' | 'showroom',
         audioEnabled: state.audioEnabled.value,
         screenSharingEnabled: state.screenSharingEnabled.value,
         faceStreamingEnabled: state.faceStreamingEnabled.value,
-        videoEnabled: state.videoEnabled.value
+        videoEnabled: state.videoEnabled.value,
+        createdAt: '',
+        updatedAt: ''
       },
       isLobby: state.isLobby.value,
       isFeatured: state.isFeatured.value

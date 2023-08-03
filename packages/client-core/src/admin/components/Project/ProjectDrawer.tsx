@@ -105,10 +105,10 @@ const ProjectDrawer = ({ open, inputProject, existingProject = false, onClose, c
   }
 
   useEffect(() => {
-    if (open && inputProject) {
+    if (open && inputProject && projectUpdateStatus?.triggerSetDestination?.length === 0) {
       ProjectUpdateService.setTriggerSetDestination(project, inputProject.repositoryPath)
     }
-  }, [open])
+  }, [open, projectUpdateStatus?.triggerSetDestination])
 
   return (
     <DrawerView open={open} onClose={handleClose}>
