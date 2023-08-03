@@ -24,8 +24,10 @@ Ethereal Engine. All Rights Reserved.
 */
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
+import { RecordingID } from '@etherealengine/common/src/interfaces/RecordingID'
 import type { Static } from '@feathersjs/typebox'
 import { querySyntax, Type } from '@feathersjs/typebox'
+import { TypedString } from '../../common/types/TypeboxUtils'
 import { staticResourceSchema } from '../media/static-resource.schema'
 
 export const recordingResourcePath = 'recording-resource'
@@ -38,7 +40,7 @@ export const recordingResourceSchema = Type.Object(
     id: Type.String({
       format: 'uuid'
     }),
-    recordingId: Type.String({
+    recordingId: TypedString<RecordingID, 'uuid'>({
       format: 'uuid'
     }),
     staticResourceId: Type.String({
