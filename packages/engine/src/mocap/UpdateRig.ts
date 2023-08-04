@@ -44,8 +44,15 @@ const updateRigPosition = (name, position, dampener, lerpAmount, rig) => {
 
 const updateRigRotation = (name, rotation, dampener, lerpAmount, rig) => {
   const quaternion = new Quaternion().setFromEuler(
-    new Euler((rotation?.x || 0) * dampener, (rotation?.y || 0) * dampener, (rotation?.z || 0) * dampener)
+    new Euler(
+      (rotation?.x || 0) * dampener,
+      (rotation?.y || 0) * dampener,
+      (rotation?.z || 0) * dampener,
+      rotation?.rotationOrder || 'XYZ'
+    )
   )
+
+  console.log(rotation)
 
   const Part = rig.vrm.humanoid!.getNormalizedBoneNode(VRMHumanBoneName[name])
   if (!Part) {

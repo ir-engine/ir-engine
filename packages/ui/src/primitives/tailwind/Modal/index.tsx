@@ -56,10 +56,10 @@ const Modal = (props: ModalProps): JSX.Element => {
 
   return (
     <dialog id={id} className={twMerge('modal w-full h-full', className)}>
-      <form method="dialog" className="modal-box w-full">
+      <form method="dialog" className="modal-box w-full h-full">
         <div className="w-full h-full grid columns-1">
           <div className="grow w-full">{children}</div>
-          <div className="flex-none w-full mt-[50%]">
+          <div className="fixed w-full bottom-10">
             <button className="btn float-right">Close</button>
           </div>
         </div>

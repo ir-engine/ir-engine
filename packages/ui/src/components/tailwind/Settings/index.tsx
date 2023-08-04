@@ -70,29 +70,59 @@ const CaptureSettings = ({ className }: SettingsProps) => {
               <ul className="list-none p-0 m-0 w-full">
                 {Object.keys(state).map((key, idx) => {
                   if (key === 'name' || key === 'tabOrder') return
-                  return (
-                    <li key={`${key}_${idx}`} className="cursor-pointer label">
-                      <span className="label-text">{key}</span>
-                      <input
-                        onChange={() => {
-                          captureState.set((nodes) => {
-                            const newState = (nodes || [])
-                              .filter(({ name }) => name !== state.name)
-                              .concat([{ ...state, name: state.name, [key]: !state[key] }])
-                              ?.sort((a, b) => {
-                                if (a.tabOrder < b.tabOrder) return -1
-                                if (a.tabOrder > b.tabOrder) return 1
-                                return 0
+                  switch (typeof state[key]) {
+                    case 'number':
+                      return (
+                        <li key={`${key}_${idx}`} className="cursor-pointer label">
+                          <span className="label-text">{key}</span>
+                          <input
+                            onChange={() => {
+                              captureState.set((nodes) => {
+                                const newState = (nodes || [])
+                                  .filter(({ name }) => name !== state.name)
+                                  .concat([{ ...state, name: state.name, [key]: !state[key] }])
+                                  ?.sort((a, b) => {
+                                    if (a.tabOrder < b.tabOrder) return -1
+                                    if (a.tabOrder > b.tabOrder) return 1
+                                    return 0
+                                  })
+                                return newState
                               })
-                            return newState
-                          })
-                        }}
-                        type="checkbox"
-                        className="toggle toggle-primary"
-                        {...(state[key] === true ? { defaultChecked: true } : {})}
-                      />
-                    </li>
-                  )
+                            }}
+                            min={0}
+                            max={100}
+                            type="range"
+                            value={Math.floor(state[key] * 100)}
+                            className="range range-primary"
+                          />
+                        </li>
+                      )
+                    case 'boolean':
+                    default:
+                      return (
+                        <li key={`${key}_${idx}`} className="cursor-pointer label">
+                          <span className="label-text">{key}</span>
+                          <input
+                            onChange={() => {
+                              captureState.set((nodes) => {
+                                const newState = (nodes || [])
+                                  .filter(({ name }) => name !== state.name)
+                                  .concat([{ ...state, name: state.name, [key]: !state[key] }])
+                                  ?.sort((a, b) => {
+                                    if (a.tabOrder < b.tabOrder) return -1
+                                    if (a.tabOrder > b.tabOrder) return 1
+                                    return 0
+                                  })
+                                return newState
+                              })
+                            }}
+                            type="checkbox"
+                            className="toggle toggle-primary"
+                            {...(state[key] === true ? { defaultChecked: true } : {})}
+                          />
+                        </li>
+                      )
+                  }
                 })}
               </ul>
             </div>
