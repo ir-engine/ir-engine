@@ -59,11 +59,11 @@ export const LoopAnimationNodeEditor: EditorComponentType = (props) => {
 
   useEffect(() => {
     const obj3d = modelComponent.value.scene
-    const animations = getComponent(entity, AnimationComponent).animations
-    if (animations)
+    const animationComponent = getComponent(entity, AnimationComponent)
+    if (animationComponent && animationComponent.animations)
       animationOptions.set([
         { label: 'None', value: -1 },
-        ...animations.map((clip, index) => ({ label: clip.name, value: index }))
+        ...animationComponent.animations.map((clip, index) => ({ label: clip.name, value: index }))
       ])
   }, [modelComponent.scene, loopAnimationComponent.vrm, loopAnimationComponent.animationPack])
 

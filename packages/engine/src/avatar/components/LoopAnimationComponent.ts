@@ -123,39 +123,17 @@ export const LoopAnimationComponent = defineComponent({
     useEffect(() => {
       if (!modelComponent?.scene?.value) return
 
-      const scene = modelComponent.scene.value
-
       const loopComponent = getComponent(entity, LoopAnimationComponent)
       const animationComponent = getComponent(entity, AnimationComponent)
 
       if (!loopAnimationComponent || !loopAnimationComponent.animationPack.value) return
       AssetLoader.loadAsync(loopAnimationComponent?.animationPack.value).then((model) => {
-        const animations = model.scene.animations
+        const animations = model.userData ? model.animations : model.scene.animations
+        console.log(model)
         loopAnimationComponent.animationPackScene.set(model.scene)
         animationComponent.animations = animations
         playAnimationClip(animationComponent, loopComponent)
       })
-
-      //      const changedToAvatarAnimation =
-      //        loopComponent.hasAvatarAnimations && animationComponent.animations !== AnimationManager.instance._animations
-
-      /*      if (changedToAvatarAnimation) {
-        if (!hasComponent(entity, AvatarAnimationComponent)) {
-          setComponent(entity, AvatarAnimationComponent, {
-            animationGraph: {
-              states: {},
-              transitionRules: {},
-              currentState: null!,
-              stateChanged: null!
-            },
-            rootYRatio: 1,
-            locomotion: new Vector3()
-          })
-          const setupLoopableAvatarModel = setupAvatarModel(entity)
-          setupLoopableAvatarModel(scene)
-        }
-      }
-*/
 
       if (!loopComponent.action?.paused) playAnimationClip(animationComponent, loopComponent)
     }, [animComponent?.animations, loopAnimationComponent?.vrm, loopAnimationComponent?.animationPack])
@@ -181,7 +159,7 @@ export const playAnimationClip = (
     loopAnimationComponent.action = animationComponent.mixer
       .clipAction(
         loopAnimationComponent.vrm
-          ? retargetMixamoAnimation(clip, loopAnimationComponent.animationPackScene!, loopAnimationComponent.vrm)
+          ? retargetMixamoAnimation(clip, loopAnimationComponent.animationPackScene!, loopAnimationComponent.vrm, 'glb')
           : clip
       )
       .play()
