@@ -23,39 +23,29 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-// Initializes the `invite-type` service on path `/invite-type`
-import { Application } from '../../../declarations'
-import { InviteType } from './invite-type.class'
-import inviteTypeDocs from './invite-type.docs'
-import hooks from './invite-type.hooks'
-import createModel from './invite-type.model'
+// For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
+import { resolve } from '@feathersjs/schema'
+import { v4 } from 'uuid'
 
-// Add this service to the service type index
-declare module '@etherealengine/common/declarations' {
-  interface ServiceTypes {
-    'invite-type': InviteType
-  }
-}
+import { LocationAdminQuery, LocationAdminType } from '@etherealengine/engine/src/schemas/social/location-admin.schema'
+import type { HookContext } from '@etherealengine/server-core/declarations'
 
-export default (app: Application) => {
-  const options = {
-    Model: createModel(app),
-    paginate: app.get('paginate'),
-    multi: true
-  }
+import { getDateTimeSql } from '../../util/get-datetime-sql'
 
-  /**
-   * Initialize our service with any options it requires and docs
-   */
+export const locationAdminResolver = resolve<LocationAdminType, HookContext>({})
 
-  const event = new InviteType(options, app)
-  event.docs = inviteTypeDocs
-  app.use('invite-type', event)
+export const locationAdminExternalResolver = resolve<LocationAdminType, HookContext>({})
 
-  /**
-   * Get our initialized service so that we can register hooks
-   */
-  const service = app.service('invite-type')
+export const locationAdminDataResolver = resolve<LocationAdminType, HookContext>({
+  id: async () => {
+    return v4()
+  },
+  createdAt: getDateTimeSql,
+  updatedAt: getDateTimeSql
+})
 
-  service.hooks(hooks)
-}
+export const locationAdminPatchResolver = resolve<LocationAdminType, HookContext>({
+  updatedAt: getDateTimeSql
+})
+
+export const locationAdminQueryResolver = resolve<LocationAdminQuery, HookContext>({})

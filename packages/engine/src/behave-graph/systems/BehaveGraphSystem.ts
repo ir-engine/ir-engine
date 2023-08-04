@@ -25,10 +25,13 @@ Ethereal Engine. All Rights Reserved.
 
 import { Validator, matches } from 'ts-matches'
 
-import { defineAction, defineActionQueue, defineState } from '@etherealengine/hyperflux'
+import { defineAction, defineActionQueue, defineState, getState } from '@etherealengine/hyperflux'
 
 import { IRegistry } from '@behave-graph/core'
+import { useEffect } from 'react'
+import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
+import { SceneState } from '../../ecs/classes/Scene'
 import { defineQuery, hasComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { BehaveGraphComponent, GraphDomainID } from '../components/BehaveGraphComponent'
@@ -85,7 +88,23 @@ const execute = () => {
   }
 }
 
+const reactor = () => {
+  const engineState = getState(EngineState)
+  const sceneState = getState(SceneState)
+
+  useEffect(() => {
+    console.log('DEBUG running reactor')
+    for (const entity of defineQuery([BehaveGraphComponent])()) {
+      setComponent(entity, BehaveGraphComponent, { run: true })
+    }
+  }, [engineState.sceneLoaded, engineState.joinedWorld, sceneState.sceneEntity, sceneState.sceneData])
+  // run scripts when loaded a scene, joined a world, scene entity changed, scene data changed
+
+  return null
+}
+
 export const BehaveGraphSystem = defineSystem({
   uuid: 'ee.engine.BehaveGraphSystem',
-  execute
+  execute,
+  reactor
 })

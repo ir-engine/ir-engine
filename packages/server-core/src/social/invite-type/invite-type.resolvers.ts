@@ -23,26 +23,18 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { DataTypes, Model, Sequelize } from 'sequelize'
+// For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
+import { resolve } from '@feathersjs/schema'
 
-import { RecordingResourceInterface } from '@etherealengine/common/src/dbmodels/Recording'
+import { InviteTypeQuery, InviteTypeType } from '@etherealengine/engine/src/schemas/social/invite-type.schema'
+import type { HookContext } from '@etherealengine/server-core/declarations'
 
-import { Application } from '../../../declarations'
+export const inviteTypeResolver = resolve<InviteTypeType, HookContext>({})
 
-export default (app: Application) => {
-  const sequelizeClient: Sequelize = app.get('sequelizeClient')
-  const RecordingResource = sequelizeClient.define<Model<RecordingResourceInterface>>('recording_resource', {
-    id: {
-      type: DataTypes.UUID,
-      defaultValue: DataTypes.UUIDV1,
-      allowNull: false,
-      primaryKey: true
-    }
-  })
+export const inviteTypeExternalResolver = resolve<InviteTypeType, HookContext>({})
 
-  ;(RecordingResource as any).associate = (models: any): void => {
-    ;(RecordingResource as any).belongsTo(models.recording, { required: true, allowNull: false })
-    ;(RecordingResource as any).belongsTo(models.static_resource, { required: true, allowNull: false })
-  }
-  return RecordingResource
-}
+export const inviteTypeDataResolver = resolve<InviteTypeType, HookContext>({})
+
+export const inviteTypePatchResolver = resolve<InviteTypeType, HookContext>({})
+
+export const inviteTypeQueryResolver = resolve<InviteTypeQuery, HookContext>({})

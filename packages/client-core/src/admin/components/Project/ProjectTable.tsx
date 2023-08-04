@@ -38,6 +38,7 @@ import Tooltip from '@etherealengine/ui/src/primitives/mui/Tooltip'
 import { NotificationService } from '../../../common/services/NotificationService'
 import { PROJECT_PAGE_LIMIT, ProjectService, ProjectState } from '../../../common/services/ProjectService'
 import { AuthState } from '../../../user/services/AuthService'
+import { userIsAdmin } from '../../../user/userHasAccess'
 import TableComponent from '../../common/Table'
 import { projectsColumns } from '../../common/variables/projects'
 import styles from '../../styles/admin.module.scss'
@@ -294,7 +295,7 @@ const ProjectTable = ({ className }: Props) => {
             <IconButton
               className={styles.iconButton}
               name="update"
-              disabled={!el.hasWriteAccess || !el.repositoryPath}
+              disabled={(!el.hasWriteAccess && !userIsAdmin()) || !el.repositoryPath}
               onClick={() => openPushConfirmation(el)}
               icon={<Icon type="Upload" />}
             />

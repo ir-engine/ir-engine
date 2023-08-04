@@ -28,7 +28,3 @@ export interface RecordingInterface {
   ended: boolean
   schema: Array<string>
 }
-
-export interface RecordingResourceInterface {
-  id: string
-}

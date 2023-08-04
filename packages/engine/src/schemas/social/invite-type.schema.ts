@@ -27,50 +27,39 @@ Ethereal Engine. All Rights Reserved.
 import type { Static } from '@feathersjs/typebox'
 import { querySyntax, Type } from '@feathersjs/typebox'
 
-export const locationAdminPath = 'location-admin'
+export const inviteTypePath = 'invite-type'
 
-export const locationAdminMethods = ['find', 'create', 'patch', 'remove', 'get'] as const
+export const inviteTypeMethods = ['find', 'get', 'create', 'patch', 'remove'] as const
 
 // Main data model schema
-export const locationAdminSchema = Type.Object(
+export const inviteTypeSchema = Type.Object(
   {
-    id: Type.String({
-      format: 'uuid'
-    }),
-    userId: Type.String({
-      format: 'uuid'
-    }),
-    locationId: Type.String({
-      format: 'uuid'
-    }),
-    createdAt: Type.String({ format: 'date-time' }),
-    updatedAt: Type.String({ format: 'date-time' })
+    type: Type.String()
   },
-  { $id: 'LocationAdmin', additionalProperties: false }
+  { $id: 'InviteType', additionalProperties: false }
 )
-export type LocationAdminType = Static<typeof locationAdminSchema>
+export type InviteTypeType = Static<typeof inviteTypeSchema>
 
 // Schema for creating new entries
-export const locationAdminDataSchema = Type.Pick(locationAdminSchema, ['userId', 'locationId'], {
-  $id: 'LocationAdminData'
+export const inviteTypeDataSchema = Type.Pick(inviteTypeSchema, ['type'], {
+  $id: 'InviteTypeData'
 })
-export type LocationAdminData = Static<typeof locationAdminDataSchema>
+export type InviteTypeData = Static<typeof inviteTypeDataSchema>
 
 // Schema for updating existing entries
-export const locationAdminPatchSchema = Type.Partial(locationAdminSchema, {
-  $id: 'LocationAdminPatch'
+export const inviteTypePatchSchema = Type.Partial(inviteTypeSchema, {
+  $id: 'InviteTypePatch'
 })
-export type LocationAdminPatch = Static<typeof locationAdminPatchSchema>
+export type InviteTypePatch = Static<typeof inviteTypePatchSchema>
 
 // Schema for allowed query properties
-export const locationAdminQueryProperties = Type.Pick(locationAdminSchema, ['id', 'userId', 'locationId'])
-export const locationAdminQuerySchema = Type.Intersect(
+export const inviteTypeQueryProperties = Type.Pick(inviteTypeSchema, ['type'])
+export const inviteTypeQuerySchema = Type.Intersect(
   [
-    querySyntax(locationAdminQueryProperties),
+    querySyntax(inviteTypeQueryProperties),
     // Add additional query properties here
     Type.Object({}, { additionalProperties: false })
   ],
   { additionalProperties: false }
 )
-
-export type LocationAdminQuery = Static<typeof locationAdminQuerySchema>
+export type InviteTypeQuery = Static<typeof inviteTypeQuerySchema>

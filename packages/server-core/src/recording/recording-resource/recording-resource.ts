@@ -23,31 +23,37 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-// Initializes the `instance-provision` service on path `/instance-provision`
+import {
+  recordingResourceMethods,
+  recordingResourcePath
+} from '@etherealengine/engine/src/schemas/recording/recording-resource.schema'
 import { Application } from '../../../declarations'
-import { RecordingResource } from './recording-resource.class'
-import recordingDocs from './recording-resource.docs'
+import { RecordingResourceService } from './recording-resource.class'
+import recordingResourceDocs from './recording-resource.docs'
 import hooks from './recording-resource.hooks'
-import createModel from './recording-resource.model'
 
-// Add this service to the service type index
 declare module '@etherealengine/common/declarations' {
   interface ServiceTypes {
-    'recording-resource': RecordingResource
+    [recordingResourcePath]: RecordingResourceService
   }
 }
 
-export default (app: Application) => {
+export default (app: Application): void => {
   const options = {
-    Model: createModel(app),
+    name: recordingResourcePath,
     paginate: app.get('paginate'),
+    Model: app.get('knexClient'),
     multi: true
   }
 
-  const event = new RecordingResource(options, app)
-  event.docs = recordingDocs
-  app.use('recording-resource', event)
+  app.use(recordingResourcePath, new RecordingResourceService(options), {
+    // A list of all methods this service exposes externally
+    methods: recordingResourceMethods,
+    // You can add additional custom events to be sent to clients here
+    events: [],
+    docs: recordingResourceDocs
+  })
 
-  const service = app.service('recording-resource')
+  const service = app.service(recordingResourcePath)
   service.hooks(hooks)
 }

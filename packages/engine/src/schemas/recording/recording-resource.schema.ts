@@ -24,53 +24,60 @@ Ethereal Engine. All Rights Reserved.
 */
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
+import { RecordingID } from '@etherealengine/common/src/interfaces/RecordingID'
 import type { Static } from '@feathersjs/typebox'
 import { querySyntax, Type } from '@feathersjs/typebox'
+import { TypedString } from '../../common/types/TypeboxUtils'
+import { staticResourceSchema } from '../media/static-resource.schema'
 
-export const locationAdminPath = 'location-admin'
+export const recordingResourcePath = 'recording-resource'
 
-export const locationAdminMethods = ['find', 'create', 'patch', 'remove', 'get'] as const
+export const recordingResourceMethods = ['find', 'get', 'create', 'patch', 'remove'] as const
 
 // Main data model schema
-export const locationAdminSchema = Type.Object(
+export const recordingResourceSchema = Type.Object(
   {
     id: Type.String({
       format: 'uuid'
     }),
-    userId: Type.String({
+    recordingId: TypedString<RecordingID, 'uuid'>({
       format: 'uuid'
     }),
-    locationId: Type.String({
+    staticResourceId: Type.String({
       format: 'uuid'
     }),
+    staticResource: Type.Ref(staticResourceSchema),
     createdAt: Type.String({ format: 'date-time' }),
     updatedAt: Type.String({ format: 'date-time' })
   },
-  { $id: 'LocationAdmin', additionalProperties: false }
+  { $id: 'RecordingResource', additionalProperties: false }
 )
-export type LocationAdminType = Static<typeof locationAdminSchema>
+export type RecordingResourceType = Static<typeof recordingResourceSchema>
 
 // Schema for creating new entries
-export const locationAdminDataSchema = Type.Pick(locationAdminSchema, ['userId', 'locationId'], {
-  $id: 'LocationAdminData'
+export const recordingResourceDataSchema = Type.Pick(recordingResourceSchema, ['recordingId', 'staticResourceId'], {
+  $id: 'RecordingResourceData'
 })
-export type LocationAdminData = Static<typeof locationAdminDataSchema>
+export type RecordingResourceData = Static<typeof recordingResourceDataSchema>
 
 // Schema for updating existing entries
-export const locationAdminPatchSchema = Type.Partial(locationAdminSchema, {
-  $id: 'LocationAdminPatch'
+export const recordingResourcePatchSchema = Type.Partial(recordingResourceSchema, {
+  $id: 'RecordingResourcePatch'
 })
-export type LocationAdminPatch = Static<typeof locationAdminPatchSchema>
+export type RecordingResourcePatch = Static<typeof recordingResourcePatchSchema>
 
 // Schema for allowed query properties
-export const locationAdminQueryProperties = Type.Pick(locationAdminSchema, ['id', 'userId', 'locationId'])
-export const locationAdminQuerySchema = Type.Intersect(
+export const recordingResourceQueryProperties = Type.Pick(recordingResourceSchema, [
+  'id',
+  'recordingId',
+  'staticResourceId'
+])
+export const recordingResourceQuerySchema = Type.Intersect(
   [
-    querySyntax(locationAdminQueryProperties),
+    querySyntax(recordingResourceQueryProperties),
     // Add additional query properties here
     Type.Object({}, { additionalProperties: false })
   ],
   { additionalProperties: false }
 )
-
-export type LocationAdminQuery = Static<typeof locationAdminQuerySchema>
+export type RecordingResourceQuery = Static<typeof recordingResourceQuerySchema>
