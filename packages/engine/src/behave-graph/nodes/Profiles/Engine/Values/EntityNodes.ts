@@ -65,7 +65,7 @@ export const getEntity = makeFunctionNodeDefinition({
 export const getLocalClientEntity = makeFunctionNodeDefinition({
   typeName: 'engine/entity/getLocalClientEntity',
   category: NodeCategory.Query,
-  label: 'Get camera entity',
+  label: 'Get local client entity',
   in: {},
   out: { entity: 'entity' },
   exec: ({ write, graph }) => {
@@ -89,7 +89,7 @@ export const getCameraEntity = makeFunctionNodeDefinition({
 export const getEntityTransform = makeFunctionNodeDefinition({
   typeName: 'engine/entity/getComponentfromEntity',
   category: NodeCategory.Query,
-  label: 'Get Component in entity',
+  label: 'Get entity transform',
   in: {
     entity: 'entity',
     componentName: (_, graphApi) => {
@@ -160,7 +160,7 @@ export const deleteEntity = makeFlowNodeDefinition({
 export const setEntityTransform = makeFlowNodeDefinition({
   typeName: 'engine/entity/setEntityTransform',
   category: NodeCategory.Action,
-  label: 'Teleport Entity',
+  label: 'Set entity transform',
   in: {
     flow: 'flow',
     entity: 'entity',
