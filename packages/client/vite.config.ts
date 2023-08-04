@@ -32,6 +32,7 @@ import path from 'path'
 import { UserConfig, defineConfig } from 'vite'
 import viteCompression from 'vite-plugin-compression'
 import { ViteEjsPlugin } from 'vite-plugin-ejs'
+import { nodePolyfills } from 'vite-plugin-node-polyfills'
 import OptimizationPersist from 'vite-plugin-optimize-persist'
 import PkgConfig from 'vite-plugin-package-config'
 
@@ -66,6 +67,12 @@ const parseModuleName = (moduleName: string) => {
   if (moduleName.includes('react-dom')) {
     return `vendor_react-dom_${moduleName.toString().split('react-dom/')[1].split('/')[0].toString()}`
   }
+
+  // chunk react-icons
+  if (moduleName.includes('react-icons')) {
+    return `vendor_react-icons_${moduleName.toString().split('react-icons/')[1].split('/')[0].toString()}`
+  }
+
   // chunk react-color
   if (moduleName.includes('react-color')) {
     return `vendor_react-color_${moduleName.toString().split('react-color/')[1].split('/')[0].toString()}`
@@ -283,6 +290,7 @@ export default defineConfig(async () => {
     plugins: [
       PkgConfig(), // must be in front of optimizationPersist
       OptimizationPersist(),
+      nodePolyfills(),
       mediapipe_workaround(),
       process.env.VITE_PWA_ENABLED === 'true' ? PWA(clientSetting) : undefined,
       ViteEjsPlugin({

@@ -25,7 +25,6 @@ Ethereal Engine. All Rights Reserved.
 
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 import { useHookstate } from '@hookstate/core'
-import { DrawingUtils, FaceLandmarker, FilesetResolver, HandLandmarker, PoseLandmarker } from '@mediapipe/tasks-vision'
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { twMerge } from 'tailwind-merge'
 
@@ -43,18 +42,24 @@ import { RecordingID } from '@etherealengine/common/src/interfaces/RecordingID'
 import { useVideoFrameCallback } from '@etherealengine/common/src/utils/useVideoFrameCallback'
 import { ECSRecordingFunctions } from '@etherealengine/engine/src/ecs/ECSRecording'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+
 import {
   MotionCaptureFunctions,
   MotionCaptureStream,
   mocapDataChannelType
 } from '@etherealengine/engine/src/mocap/MotionCaptureSystem'
+
 import { getMutableState, getState } from '@etherealengine/hyperflux'
+
 import Drawer from '@etherealengine/ui/src/components/tailwind/Drawer'
 import Header from '@etherealengine/ui/src/components/tailwind/Header'
 import RecordingsList from '@etherealengine/ui/src/components/tailwind/RecordingList'
 import Toolbar from '@etherealengine/ui/src/components/tailwind/Toolbar'
 import Canvas from '@etherealengine/ui/src/primitives/tailwind/Canvas'
 import Video from '@etherealengine/ui/src/primitives/tailwind/Video'
+
+import { drawConnectors, drawLandmarks } from '@mediapipe/drawing_utils'
+import { FACEMESH_TESSELATION, HAND_CONNECTIONS, Holistic, Options, POSE_CONNECTIONS } from '@mediapipe/holistic'
 
 let creatingProducer = false
 const startDataProducer = async () => {
@@ -90,6 +95,7 @@ export const startPlayback = async (recordingID: RecordingID, twin = true) => {
   })
 }
 
+// set in debugsettings
 function throttle(func, delaySeconds) {
   let timeout: NodeJS.Timeout | null = null
   return (...args) => {
@@ -111,7 +117,7 @@ const sendResults = (results: MotionCaptureStream) => {
     return
   }
   if (!dataProducer?.closed && dataProducer?.readyState === 'open') {
-    console.log('sending results', results)
+    // console.log('sending results', results)
     const data = MotionCaptureFunctions.sendResults(results)
     dataProducer?.send(data)
   }
@@ -119,25 +125,21 @@ const sendResults = (results: MotionCaptureStream) => {
 
 const CaptureDashboard = () => {
   const captureState = useHookstate(getMutableState(CaptureClientSettingsState))
-  const displaySettings = captureState?.nested('settings')?.value?.filter((s) => s?.name.toLowerCase() === 'display')[0]
-  const trackingSettings = captureState
-    ?.nested('settings')
-    ?.value?.filter((s) => s?.name.toLowerCase() === 'tracking')[0]
-  const debugSettings = captureState?.nested('settings')?.value?.filter((s) => s?.name.toLowerCase() === 'debug')[0]
+  const captureSettings = captureState?.nested('settings')?.value
+  const displaySettings = captureSettings.filter((s) => s?.name.toLowerCase() === 'display')[0]
+  const trackingSettings = captureSettings.filter((s) => s?.name.toLowerCase() === 'tracking')[0]
+  const debugSettings = captureSettings.filter((s) => s?.name.toLowerCase() === 'debug')[0]
 
   const isDetecting = useHookstate(false)
   const [detectingStatus, setDetectingStatus] = useState('inactive')
 
-  const poseDetector = useHookstate(null as null | PoseLandmarker)
-  const handDetector = useHookstate(null as null | HandLandmarker)
-  const faceDetector = useHookstate(null as null | FaceLandmarker)
+  const holisticDetector = useHookstate(null as null | Holistic)
 
   const processingFrame = useHookstate(false)
 
   const videoRef = useRef<HTMLVideoElement>()
   const canvasRef = useRef<HTMLCanvasElement>()
   const canvasCtxRef = useRef<CanvasRenderingContext2D>()
-  const drawUtilsRef = useRef<DrawingUtils>()
 
   const videoStream = useHookstate(getMutableState(MediaStreamState).videoStream)
 
@@ -185,87 +187,126 @@ const CaptureDashboard = () => {
     videoRef.current!.srcObject = videoStream.value
     videoRef.current!.onplay = () => videoActive.set(true)
     videoRef.current!.onpause = () => videoActive.set(false)
-    drawUtilsRef.current = new DrawingUtils(canvasRef.current!.getContext('2d')!)
     resizeCanvas()
   }, [videoStream])
 
   useEffect(() => {
     if (!isDetecting?.value) return
 
-    if (!poseDetector.value) {
-      const loadWASM = async () => {
-        const vision = await FilesetResolver.forVisionTasks('https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision/wasm')
-        createDetectors(vision)
-      }
-      const createDetectors = async (vision) => {
+    if (!holisticDetector.value) {
+      if (Holistic !== undefined) {
         setDetectingStatus('loading')
-
-        const poseLandmarker = await PoseLandmarker.createFromOptions(vision, {
-          baseOptions: {
-            modelAssetPath:
-              'https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_lite/float16/1/pose_landmarker_lite.task',
-            delegate: 'GPU'
-          },
-          runningMode: 'VIDEO',
-          numPoses: 1,
-          minPoseDetectionConfidence: 0.25,
-          minPosePresenceConfidence: 0.25,
-          minTrackingConfidence: 0.25,
-          outputSegmentationMasks: false
+        const holistic = new Holistic({
+          locateFile: (file) => {
+            return `https://cdn.jsdelivr.net/npm/@mediapipe/holistic/${file}`
+          }
         })
-        poseDetector.set(poseLandmarker)
-
-        if (trackingSettings?.trackHands === true) {
-          const handLandmarker = await HandLandmarker.createFromOptions(vision, {
-            baseOptions: {
-              modelAssetPath:
-                'https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task'
-            },
-            runningMode: 'VIDEO',
-            numHands: 2
-            // minHandDetectionConfidence: 0.5,
-            // minHandPresenceConfidence: 0.5,
-            // minTrackingConfidence: 0.5,
-          })
-          handDetector.set(handLandmarker)
-        }
-        if (trackingSettings?.trackFace === true) {
-          const faceLandmarker = await FaceLandmarker.createFromOptions(vision, {
-            baseOptions: {
-              modelAssetPath:
-                'https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task'
-            },
-            runningMode: 'VIDEO',
-            // numFaces: 1,
-            // minFaceDetectionConfidence: 0.5,
-            // minFacePresenceConfidence: 0.5,
-            // minTrackingConfidence: 0.5,
-
-            outputFaceBlendshapes: true
-            // outputFacialTransformationMatrixes: true
-          })
-          faceDetector.set(faceLandmarker)
-        }
+        holistic.setOptions({
+          enableFaceGeometry: trackingSettings?.enableFaceGeometry,
+          selfieMode: trackingSettings?.selfieMode,
+          modelComplexity: trackingSettings?.modelComplexity,
+          smoothLandmarks: trackingSettings?.smoothLandmarks,
+          enableSegmentation: trackingSettings?.enableSegmentation,
+          smoothSegmentation: trackingSettings?.smoothSegmentation,
+          refineFaceLandmarks: trackingSettings?.refineFaceLandmarks,
+          minDetectionConfidence: trackingSettings?.minDetectionConfidence,
+          minTrackingConfidence: trackingSettings?.minTrackingConfidence
+        } as Options)
+        holisticDetector.set(holistic)
       }
-      loadWASM()
     }
 
     processingFrame.set(false)
 
+    if (holisticDetector.value) {
+      holisticDetector.value.onResults((results: MotionCaptureStream) => {
+        if (Object.keys(results).length === 0) return
+        if (detectingStatus !== 'active') setDetectingStatus('active')
+
+        const { poseLandmarks, faceLandmarks, leftHandLandmarks, rightHandLandmarks } = results
+
+        if (debugSettings?.throttleSend) {
+          throttledSend(results)
+        } else {
+          sendResults(results)
+        }
+
+        processingFrame.set(false)
+
+        if (displaySettings?.show2dSkeleton) {
+          if (!canvasCtxRef.current || !canvasRef.current || !poseLandmarks) return
+
+          //draw!!!
+          canvasCtxRef.current.save()
+          canvasCtxRef.current.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height)
+          canvasCtxRef.current.globalCompositeOperation = 'source-over'
+
+          // Pose Connections
+          drawConnectors(canvasCtxRef.current, poseLandmarks, POSE_CONNECTIONS, {
+            color: '#fff',
+            lineWidth: 4
+          })
+          // Pose Landmarks
+          drawLandmarks(canvasCtxRef.current, poseLandmarks, {
+            color: '#fff',
+            lineWidth: 2
+          })
+
+          // Left Hand Connections
+          drawConnectors(
+            canvasCtxRef.current,
+            leftHandLandmarks !== undefined ? leftHandLandmarks : [],
+            HAND_CONNECTIONS,
+            {
+              color: '#fff',
+              lineWidth: 4
+            }
+          )
+
+          // Left Hand Landmarks
+          drawLandmarks(canvasCtxRef.current, leftHandLandmarks !== undefined ? leftHandLandmarks : [], {
+            color: '#fff',
+            lineWidth: 1
+          })
+
+          // Right Hand Connections
+          drawConnectors(
+            canvasCtxRef.current,
+            rightHandLandmarks !== undefined ? rightHandLandmarks : [],
+            HAND_CONNECTIONS,
+            {
+              color: '#fff',
+              lineWidth: 2
+            }
+          )
+
+          // Right Hand Landmarks
+          drawLandmarks(canvasCtxRef.current, rightHandLandmarks !== undefined ? rightHandLandmarks : [], {
+            color: '#fff',
+            lineWidth: 1
+          })
+
+          // Face Connections
+          drawConnectors(canvasCtxRef.current, faceLandmarks, FACEMESH_TESSELATION, {
+            color: '#fff',
+            lineWidth: 1
+          })
+          // Face Landmarks
+          // drawLandmarks(canvasCtxRef.current, faceLandmarks, {
+          //   color: '#fff',
+          //   lineWidth: 1
+          // })
+          canvasCtxRef.current.restore()
+        }
+      })
+    }
+
     return () => {
       setDetectingStatus('inactive')
-      if (poseDetector.value) {
-        poseDetector.value.close()
+      if (holisticDetector.value) {
+        holisticDetector.value.close()
       }
-      poseDetector.set(null)
-      if (handDetector.value) {
-        handDetector.value.close()
-      }
-      handDetector.set(null)
-      if (faceDetector.value) {
-        faceDetector.value.close()
-      }
-      faceDetector.set(null)
+      holisticDetector.set(null)
     }
   }, [isDetecting])
 
@@ -275,91 +316,10 @@ const CaptureDashboard = () => {
 
     if (processingFrame.value) return
 
-    if (detectingStatus !== 'inactive') setDetectingStatus('inactive')
-
-    const faceData = () => {
-      if (trackingSettings?.trackFace === true && faceDetector?.value) {
-        const faceResults = faceDetector?.value?.detectForVideo(videoRef.current!, videoTime * 1000)
-
-        if (faceResults?.faceBlendshapes) {
-          return {
-            faces: faceResults?.faceBlendshapes
-          }
-        }
-        return {}
-      } else {
-        return {}
-      }
-    }
-
-    const handData = () => {
-      if (trackingSettings?.trackHands === true && handDetector?.value) {
-        const handResults = handDetector?.value?.detectForVideo(videoRef.current!, videoTime * 1000)
-
-        // draw
-        if (displaySettings?.show2dSkeleton) {
-          const landmarks = handResults?.landmarks
-          for (const landmark of landmarks) {
-            drawUtilsRef.current?.drawConnectors(landmark, HandLandmarker.HAND_CONNECTIONS)
-          }
-        }
-
-        if (handResults?.landmarks) {
-          return {
-            hands: handResults?.landmarks,
-            handednesses: handResults?.handednesses,
-            handsWorld: handResults?.worldLandmarks
-          }
-        }
-        return {}
-      } else {
-        return {}
-      }
-    }
-
-    if (poseDetector?.value) {
-      poseDetector?.value?.detectForVideo(videoRef.current!, videoTime * 1000, (poseResults) => {
-        const finalPose = {
-          poses: poseResults?.landmarks,
-          posesWorld: poseResults?.worldLandmarks
-        }
-
-        // only if drawing
-        if (displaySettings?.show2dSkeleton) {
-          canvasCtxRef?.current?.save()
-          canvasCtxRef?.current?.clearRect(0, 0, canvasRef.current!.width, canvasRef.current!.height)
-        }
-
-        const finalData = {
-          ...finalPose,
-          ...handData()
-          // ...faceData()
-        }
-
-        // Hack to remove undefined values
-        Object.keys(finalData)
-          .filter((k) => finalData[k] === undefined)
-          .forEach((k) => delete finalData[k])
-
-        if (Object.keys(finalData).length > 0) {
-          if (debugSettings?.throttleSend) {
-            setDetectingStatus('active')
-            throttledSend(finalData)
-          } else {
-            sendResults(finalData)
-          }
-        }
-
-        // only if drawing
-        if (displaySettings?.show2dSkeleton) {
-          // draw pose
-          const landmarks = poseResults?.landmarks
-          for (const landmark of landmarks) {
-            drawUtilsRef.current?.drawConnectors(landmark, PoseLandmarker.POSE_CONNECTIONS)
-          }
-
-          canvasCtxRef.current?.restore()
-        }
+    if (holisticDetector.value) {
+      processingFrame.set(true)
+      holisticDetector.value?.send({ image: videoRef.current! }).finally(() => {
+        processingFrame.set(false)
       })
     }
   })

@@ -27,7 +27,7 @@ import { dispatchAction } from '@etherealengine/hyperflux'
 import { Euler, Quaternion, Vector3 } from 'three'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
-import { Landmark } from '@mediapipe/tasks-vision'
+
 import { Engine } from '../ecs/classes/Engine'
 import { getComponent } from '../ecs/functions/ComponentFunctions'
 import { UUIDComponent } from '../scene/components/UUIDComponent'
@@ -35,13 +35,16 @@ import { TransformComponent } from '../transform/components/TransformComponent'
 import { XRAction } from '../xr/XRState'
 import { calcHips } from './solvers/PoseSolver/calcHips'
 
+import { Landmark } from '@mediapipe/holistic'
+import mediapipePoseNames from './MediapipePoseNames'
+
 const indices = {
-  rightEar: 8,
-  leftEar: 7,
-  rightHand: 16,
-  leftHand: 15,
-  rightAnkle: 28,
-  leftAnkle: 27
+  rightEar: mediapipePoseNames.indexOf('right_ear'),
+  leftEar: mediapipePoseNames.indexOf('left_ear'),
+  rightHand: mediapipePoseNames.indexOf('right_wrist'),
+  leftHand: mediapipePoseNames.indexOf('left_wrist'),
+  rightAnkle: mediapipePoseNames.indexOf('right_ankle'),
+  leftAnkle: mediapipePoseNames.indexOf('left_ankle')
 }
 
 const solvedPoses = {
@@ -60,8 +63,9 @@ const rawPoses = {
 
 const rotationOffset = new Quaternion().setFromEuler(new Euler(0, Math.PI, 0))
 
-const UpdateRawPose = (data, pose, bindHips, avatarRig, avatarTransform) => {
-  if (data) {
+const UpdateRawPose = (data: Landmark[], pose: Landmark[], bindHips, avatarRig, avatarTransform) => {
+  if (data && pose) {
+    console.log('data', data, pose)
     const rightEar = data[indices.rightEar]
     const leftEar = data[indices.leftEar]
 
@@ -94,6 +98,7 @@ const UpdateRawPose = (data, pose, bindHips, avatarRig, avatarTransform) => {
         */
 
           rawPoses[key] = data[indices[key]]
+          console.log(data[indices[key]])
           solvedPoses[key] = new Vector3(rawPoses[key].x, rawPoses[key].y, rawPoses[key].z)
             .multiplyScalar(-1)
             .applyQuaternion(rotationOffset)

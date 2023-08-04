@@ -28,7 +28,6 @@ import { updateRigPosition, updateRigRotation } from './UpdateRig'
 
 import MediapipePoseNames from './MediapipePoseNames'
 import { TFVectorPose, Vector } from './solvers'
-import { calcHead } from './solvers/FaceSolver/calcHead'
 import { calcArms } from './solvers/PoseSolver/calcArms'
 import { calcHips } from './solvers/PoseSolver/calcHips'
 import { calcLegs } from './solvers/PoseSolver/calcLegs'
@@ -37,10 +36,6 @@ const UpdateSolvedPose = (rawPose, pose, avatarRig, avatarTransform) => {
   if (rawPose) {
     // const poseData = PoseSolver.solve(rawPose, pose)
     // console.log(poseData)
-    const headCalc = calcHead(pose)
-
-    updateRigPosition('Head', headCalc.position, 1, 0.7, avatarRig)
-    updateRigRotation('Neck', headCalc.degrees, 1, 0.7, avatarRig)
 
     const hipsCalc = calcHips(rawPose, pose)
     const arms = calcArms(rawPose as TFVectorPose)
@@ -54,10 +49,27 @@ const UpdateSolvedPose = (rawPose, pose, avatarRig, avatarTransform) => {
 
     const world = hipsCalc.Hips.worldPosition! as Vector3
     const hipsPos = {
-      x: -world?.x,
+      x: world?.x,
       y: lowerFoot,
-      z: -world?.z
+      z: world?.z
     }
+
+    // const Head = avatarRig.vrm.humanoid!.getNormalizedBoneNode(VRMHumanBoneName['Head'])
+
+    // const lookTarget = new Vector3(
+    //   (rawPose[MediapipePoseNames.indexOf('left ear')].x + rawPose[MediapipePoseNames.indexOf('right ear')].x) / 2,
+    //   (rawPose[MediapipePoseNames.indexOf('left ear')].y + rawPose[MediapipePoseNames.indexOf('right ear')].y) / 2,
+    //   (rawPose[MediapipePoseNames.indexOf('left ear')].z + rawPose[MediapipePoseNames.indexOf('right ear')].z) / 2
+    // )
+
+    // avatarRig.humanoid.lookTarget.lerp(lookTarget, 0.1)
+    //   .multiplyScalar(-1)
+    //   .applyQuaternion(avatarTransform.rotation)
+    //   .add(new Vector3(hipsPos.x, hipsPos.y, hipsPos.z))
+
+    // updateRigPosition('Head', headPos, 1, 0.7, avatarRig)
+    // updateRigRotation('Head', headCalc, 1, 0.7, avatarRig)
+
     updateRigPosition('Hips', hipsPos, 1, 0.07, avatarRig)
 
     updateRigRotation('Hips', hipsCalc.Hips.rotation, 1, 0.7, avatarRig)

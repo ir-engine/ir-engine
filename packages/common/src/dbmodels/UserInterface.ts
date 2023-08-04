@@ -76,3 +76,7 @@ export interface LocationBanInterface {
 export interface LocationAuthorizedUserInterface {
   id: string
 }
+
+export interface LocationAdminInterface {
+  id: string
+}

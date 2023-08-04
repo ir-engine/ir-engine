@@ -27,6 +27,8 @@ import { AnimationClip } from 'three'
 
 import { defineState } from '@etherealengine/hyperflux'
 
+import { config } from '@etherealengine/common/src/config'
+
 //Create all IK targets as object 3ds, stored in
 //a named struct and in an object 3d hierarchy
 //the former allows easy accessability while the
@@ -51,40 +53,38 @@ export class AnimationManager {
   //   return animation ? animation.duration : 0
   // }
 
-  // async loadDefaultAnimations(
-  //   path: string = `${config.client.fileServer}/projects/default-project/assets/Animations.glb`
-  // ) {
-  //   if (this._animations) {
-  //     return this._animations
-  //   }
+  async loadDefaultAnimations(path = `${config.client.fileServer}/projects/default-project/assets/Animations.glb`) {
+    if (this._animations) {
+      return this._animations
+    }
 
-  //   const gltf = (await AssetLoader.loadAsync(path)) as GLTF
+    // const gltf = (await AssetLoader.loadAsync(path)) as GLTF
 
-  //   const defaultRig = makeDefaultSkinnedMesh()
-  //   const rig = avatarBoneMatching(defaultRig)
-  //   const rootBone = rig.Hips
-  //   rootBone.updateWorldMatrix(true, true)
-  //   const skinnedMeshes = findSkinnedMeshes(defaultRig)
-  //   makeTPose(rig)
-  //   rootBone.updateWorldMatrix(true, true)
-  //   skinnedMeshes.forEach((mesh) => mesh.skeleton.calculateInverses())
-  //   skinnedMeshes.forEach((mesh) => mesh.skeleton.computeBoneTexture())
+    // const defaultRig = makeDefaultSkinnedMesh()
+    // const rig = avatarBoneMatching(defaultRig)
+    // const rootBone = rig.Hips
+    // rootBone.updateWorldMatrix(true, true)
+    // const skinnedMeshes = findSkinnedMeshes(defaultRig)
+    // makeTPose(rig)
+    // rootBone.updateWorldMatrix(true, true)
+    // skinnedMeshes.forEach((mesh) => mesh.skeleton.calculateInverses())
+    // skinnedMeshes.forEach((mesh) => mesh.skeleton.computeBoneTexture())
 
-  //   this._defaultSkinnedMesh = defaultRig.children[0] as SkinnedMesh
+    // this._defaultSkinnedMesh = defaultRig.children[0] as SkinnedMesh
 
-  //   this._defaultRootBone = findRootBone(this._defaultSkinnedMesh)!
-  //   this._rootAnimationData = {}
-  //   this._animations = gltf.animations
-  //   this._animations?.forEach((clip) => {
-  //     // TODO: make list of morph targets names
-  //     clip.tracks = clip.tracks.filter((track) => !track.name.match(/^CC_Base_/))
+    // this._defaultRootBone = findRootBone(this._defaultSkinnedMesh)!
+    // this._rootAnimationData = {}
+    // this._animations = gltf.animations
+    // this._animations?.forEach((clip) => {
+    //   // TODO: make list of morph targets names
+    //   clip.tracks = clip.tracks.filter((track) => !track.name.match(/^CC_Base_/))
 
-  //     const rootData = processRootAnimation(clip, this._defaultRootBone)
+    //   const rootData = processRootAnimation(clip, this._defaultRootBone)
 
-  //     if (rootData) {
-  //       this._rootAnimationData[clip.name] = rootData
-  //     }
-  //   })
-  //   return this._animations
-  // }
+    //   if (rootData) {
+    //     this._rootAnimationData[clip.name] = rootData
+    //   }
+    // })
+    return this._animations
+  }
 }

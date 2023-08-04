@@ -636,11 +636,6 @@ const EditorContainer = () => {
                   id: 'materialLibraryPanel',
                   title: <MaterialLibraryPanelTitle />,
                   content: <MaterialLibraryPanel />
-                },
-                {
-                  id: 'graphPanel',
-                  title: <GraphPanelTitle />,
-                  content: <GraphPanel />
                 }
               ]
             },
@@ -650,6 +645,11 @@ const EditorContainer = () => {
                   id: 'propertiesPanel',
                   title: <PropertiesPanelTitle />,
                   content: <PropertiesPanelContainer />
+                },
+                {
+                  id: 'graphPanel',
+                  title: <GraphPanelTitle />,
+                  content: <GraphPanel />
                 }
               ]
             }

@@ -76,6 +76,8 @@ export const ModelComponent = defineComponent({
   },
 
   onSet: (entity, component, json) => {
+    setComponent(entity, LoopAnimationComponent)
+
     if (!json) return
     if (typeof json.src === 'string' && json.src !== component.src.value) component.src.set(json.src)
     if (typeof json.generateBVH === 'boolean' && json.generateBVH !== component.generateBVH.value)
@@ -127,7 +129,6 @@ function ModelReactor() {
           }
         }
       if (!model.src) return
-
       const uuid = getComponent(entity, UUIDComponent)
       const fileExtension = model.src.split('.').pop()?.toLowerCase()
       switch (fileExtension) {
