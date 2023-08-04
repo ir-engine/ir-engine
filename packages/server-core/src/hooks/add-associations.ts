@@ -30,6 +30,7 @@ import { Application } from '@etherealengine/server-core/declarations'
 import logger from '../ServerLogger'
 import {
   createAvatarModel,
+  createLocationAdminModel,
   createLocationBanModel,
   createLocationModel,
   createUserApiKeyModel
@@ -40,6 +41,7 @@ const getMigratedModels = (app: Application) => {
     avatar: createAvatarModel(app),
     location: createLocationModel(app),
     'location-ban': createLocationBanModel(app),
+    'location-admin': createLocationAdminModel(app),
     'user-api-key': createUserApiKeyModel(app)
   }
 }

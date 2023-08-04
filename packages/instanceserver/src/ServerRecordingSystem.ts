@@ -60,6 +60,7 @@ import { NetworkObjectComponent } from '@etherealengine/engine/src/networking/co
 import { NetworkPeerFunctions } from '@etherealengine/engine/src/networking/functions/NetworkPeerFunctions'
 import { updatePeers } from '@etherealengine/engine/src/networking/systems/OutgoingActionSystem'
 import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
+import { recordingResourcePath } from '@etherealengine/engine/src/schemas/recording/recording-resource.schema'
 import { getCachedURL } from '@etherealengine/server-core/src/media/storageprovider/getCachedURL'
 import { startMediaRecording } from './MediaRecordingFunctions'
 import { getServerNetwork, SocketWebRTCServerNetwork } from './SocketWebRTCServerFunctions'
@@ -125,7 +126,7 @@ export const uploadRecordingStaticResource = async (props: {
     { isInternal: true }
   )) as StaticResourceInterface
 
-  await app.service('recording-resource').create({
+  await app.service(recordingResourcePath).create({
     staticResourceId: staticResource.id,
     recordingId: props.recordingID
   })

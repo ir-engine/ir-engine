@@ -32,10 +32,9 @@ import { SceneJson } from '@etherealengine/common/src/interfaces/SceneInterface'
 import { Application } from '../../../declarations'
 import config from '../../appconfig'
 import { addAssetFromProject } from '../../media/static-resource/static-resource-helper'
-import { getCacheDomain } from '../../media/storageprovider/getCacheDomain'
-import { getStorageProvider } from '../../media/storageprovider/storageprovider'
 // import { addVolumetricAssetFromProject } from '../../media/volumetric/volumetric-upload.helper'
-import { cleanSceneDataCacheURLs, parseScenePortals } from './scene-parser'
+import { cleanStorageProviderURLs } from '@etherealengine/engine/src/common/functions/parseSceneJSON'
+import { parseScenePortals } from './scene-parser'
 import { SceneParams } from './scene.service'
 
 const FILE_NAME_REGEX = /(\w+\.\w+)$/
@@ -89,24 +88,16 @@ export const getEnvMapBakeById = async (app, entityId: string) => {
   // })
 }
 
-export const uploadSceneToStaticResources = async (
-  app: Application,
-  projectName: string,
-  file: string,
-  storageProviderName?: string
-) => {
+export const uploadSceneToStaticResources = async (app: Application, projectName: string, file: string) => {
   const fileResult = fs.readFileSync(file)
 
   // todo - how do we handle updating projects on local dev?
   if (!config.kubernetes.enabled) return fileResult
 
-  const storageProvider = getStorageProvider(storageProviderName)
-  const cacheDomain = getCacheDomain(storageProvider, true)
-
   if (/.scene.json$/.test(file)) {
     const sceneData = JSON.parse(fileResult.toString())
     const convertedSceneData = await downloadAssetsFromScene(app, projectName, sceneData)
-    cleanSceneDataCacheURLs(convertedSceneData, cacheDomain)
+    cleanStorageProviderURLs(convertedSceneData)
     const newFile = Buffer.from(JSON.stringify(convertedSceneData, null, 2))
     fs.writeFileSync(file, newFile)
     return newFile

@@ -1,0 +1,50 @@
+.node-picker-container{
+  position: absolute;
+  z-index: 10;
+  font-size: small;
+  color: #fff;
+  background-color: #333;
+  border-style: round;
+  border-color: #888;
+}
+
+.node-picker::-webkit-scrollbar {
+  width: 2px;
+}
+
+.node-picker ::-webkit-scrollbar-track {
+  background-color: #888888;
+}
+
+.node-picker ::-webkit-scrollbar-thumb {
+  background-color: #777777;
+}
+
+
+.node-picker-header {
+  background-color: #a0aec0; 
+  padding: 0.5rem 0.25rem; 
+}
+
+
+.node-picker-search input {
+  background-color: #4a5568; 
+  color: #fff;
+  width: 100%; 
+  padding: 0.25rem 0.5rem; 
+}
+
+.node-picker-input:disabled {
+  background-color: #4a5568; 
+}
+
+.node-picker-list {
+  max-height: 12rem; 
+  overflow-y: scroll;
+}
+
+.node-picker-item {
+  padding: 0.25rem 0.5rem; 
+  border-bottom: 1px solid #4a5568; 
+  cursor: pointer;
+}
