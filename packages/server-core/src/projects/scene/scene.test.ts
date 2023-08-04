@@ -31,11 +31,11 @@ import path from 'path'
 import { destroyEngine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import defaultSceneSeed from '@etherealengine/projects/default-project/default.scene.json'
 
+import { parseStorageProviderURLs } from '@etherealengine/engine/src/common/functions/parseSceneJSON'
 import { Application } from '../../../declarations'
 import { createFeathersKoaApp } from '../../createApp'
 import { getStorageProvider } from '../../media/storageprovider/storageprovider'
 import { deleteFolderRecursive } from '../../util/fsHelperFunctions'
-import { parseSceneDataCacheURLs } from './scene-parser'
 
 const defaultProjectName = 'default-project'
 const defaultSceneName = 'default'
@@ -56,10 +56,7 @@ describe('scene.test', () => {
     app = createFeathersKoaApp()
     await app.setup()
     const storageProvider = getStorageProvider()
-    parsedData = Object.assign(
-      {},
-      parseSceneDataCacheURLs(_.cloneDeep(defaultSceneSeed) as any, storageProvider.cacheDomain)
-    )
+    parsedData = Object.assign({}, parseStorageProviderURLs(_.cloneDeep(defaultSceneSeed)))
   })
   after(() => {
     return destroyEngine()
@@ -164,10 +161,7 @@ describe('scene.test', () => {
         // For some reason, parsedData was reverting to un-replaced URLs.
         // This just
         const storageProvider = getStorageProvider()
-        parsedData = Object.assign(
-          {},
-          parseSceneDataCacheURLs(_.cloneDeep(defaultSceneSeed) as any, storageProvider.cacheDomain)
-        )
+        parsedData = Object.assign({}, parseStorageProviderURLs(_.cloneDeep(defaultSceneSeed)))
 
         assert.strictEqual(data.name, newSceneName)
         assert.deepStrictEqual(data.scene, parsedData)

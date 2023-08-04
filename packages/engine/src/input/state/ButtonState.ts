@@ -37,7 +37,7 @@ export type ButtonState = {
 /**
  * Mouse buttons
  */
-export const enum MouseButton {
+export enum MouseButton {
   'PrimaryClick' = 'PrimaryClick',
   'AuxiliaryClick' = 'AuxiliaryClick',
   'SecondaryClick' = 'SecondaryClick'
@@ -47,7 +47,7 @@ export const enum MouseButton {
  * Keyboard button codes
  * https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/code/code_values
  */
-export const enum KeyboardButton {
+export enum KeyboardButton {
   'Backspace' = 'Backspace', // 8 backspace
   'Tab' = 'Tab', // 9 tab
   'Enter' = 'Enter', // 13 enter
@@ -163,7 +163,7 @@ export const enum KeyboardButton {
  * Standard gampepad button mapping
  * https://www.w3.org/TR/gamepad/#dfn-standard-gamepad
  */
-export const enum StandardGamepadButton {
+export enum StandardGamepadButton {
   'ButtonA' = 0, // X
   'ButtonB' = 1, // Circle
   'ButtonX' = 2, // Square
@@ -187,7 +187,7 @@ export const enum StandardGamepadButton {
  * XR standard gamepad button mapping
  * https://www.w3.org/TR/webxr-gamepads-module-1/#xr-standard-gamepad-mapping
  */
-export const enum XRStandardGamepadButton {
+export enum XRStandardGamepadButton {
   'Trigger' = 0,
   'Squeeze' = 1,
   'Pad' = 2,

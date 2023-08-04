@@ -23,35 +23,30 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { ILifecycleEventEmitter, ILogger, Registry } from 'behave-graph'
 import { Validator, matches } from 'ts-matches'
 
 import { defineAction, defineActionQueue, defineState } from '@etherealengine/hyperflux'
 
+import { IRegistry } from '@behave-graph/core'
 import { Entity } from '../../ecs/classes/Entity'
-import {
-  addComponent,
-  defineQuery,
-  getComponent,
-  hasComponent,
-  removeComponent
-} from '../../ecs/functions/ComponentFunctions'
+import { defineQuery, hasComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { BehaveGraphComponent, GraphDomainID } from '../components/BehaveGraphComponent'
-import { RuntimeGraphComponent } from '../components/RuntimeGraphComponent'
 
 export type BehaveGraphDomainType = {
-  register: (registry: Registry, logger?: ILogger, ticker?: ILifecycleEventEmitter) => void
+  register: (registry?: IRegistry) => void
 }
 
 export type BehaveGraphSystemStateType = {
   domains: Record<GraphDomainID, BehaveGraphDomainType>
+  registry: IRegistry
 }
 
 export const BehaveGraphSystemState = defineState({
   name: 'BehaveGraphSystemState',
   initial: {
-    domains: {}
+    domains: {},
+    registry: {}
   } as BehaveGraphSystemStateType
 })
 
@@ -63,38 +58,30 @@ export const BehaveGraphActions = {
   stop: defineAction({
     type: 'BehaveGraph.STOP',
     entity: matches.number as Validator<unknown, Entity>
+  }),
+  executeAll: defineAction({
+    type: 'BehaveGraph.EXECUTEALL',
+    entity: matches.number as Validator<unknown, Entity>
+  }),
+  stopAll: defineAction({
+    type: 'BehaveGraph.STOPALL',
+    entity: matches.number as Validator<unknown, Entity>
   })
 }
 
-const graphQuery = defineQuery([BehaveGraphComponent])
-const runtimeQuery = defineQuery([RuntimeGraphComponent])
+export const graphQuery = defineQuery([BehaveGraphComponent])
 
 const executeQueue = defineActionQueue(BehaveGraphActions.execute.matches)
 const stopQueue = defineActionQueue(BehaveGraphActions.stop.matches)
-function execute() {
-  for (const entity of runtimeQuery.enter()) {
-    const runtimeComponent = getComponent(entity, RuntimeGraphComponent)
-    runtimeComponent.ticker.startEvent.emit()
-    runtimeComponent.engine.executeAllSync()
-  }
-
-  for (const entity of runtimeQuery()) {
-    const runtimeComponent = getComponent(entity, RuntimeGraphComponent)
-    runtimeComponent.ticker.tickEvent.emit()
-    runtimeComponent.engine.executeAllSync()
-  }
-
+const execute = () => {
   for (const action of executeQueue()) {
     const entity = action.entity
-    if (hasComponent(entity, RuntimeGraphComponent)) {
-      removeComponent(entity, RuntimeGraphComponent)
-    }
-    addComponent(entity, RuntimeGraphComponent)
+    if (hasComponent(entity, BehaveGraphComponent)) setComponent(entity, BehaveGraphComponent, { run: true })
   }
 
   for (const action of stopQueue()) {
     const entity = action.entity
-    removeComponent(entity, RuntimeGraphComponent)
+    if (hasComponent(entity, BehaveGraphComponent)) setComponent(entity, BehaveGraphComponent, { run: false })
   }
 }
 
