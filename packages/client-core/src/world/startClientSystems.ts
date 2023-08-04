@@ -31,6 +31,7 @@ import {
   AvatarSimulationSystemGroup
 } from '@etherealengine/engine/src/avatar/AvatarSystemGroups'
 import { AnimationSystem } from '@etherealengine/engine/src/avatar/systems/AnimationSystem'
+import { BehaveGraphSystem } from '@etherealengine/engine/src/behave-graph/systems/BehaveGraphSystem'
 import { CameraInputSystem } from '@etherealengine/engine/src/camera/systems/CameraInputSystem'
 import { CameraSystem } from '@etherealengine/engine/src/camera/systems/CameraSystem'
 import { DebugRendererSystem } from '@etherealengine/engine/src/debug/systems/DebugRendererSystem'
@@ -63,9 +64,12 @@ import { XRUISystem } from '@etherealengine/engine/src/xrui/systems/XRUISystem'
 
 export const startClientSystems = () => {
   /** Input */
-  startSystems([XRSystem, MotionCaptureSystem, ClientInputSystem, AvatarInputSystemGroup, CameraInputSystem], {
-    with: InputSystemGroup
-  })
+  startSystems(
+    [XRSystem, MotionCaptureSystem, ClientInputSystem, AvatarInputSystemGroup, CameraInputSystem, BehaveGraphSystem],
+    {
+      with: InputSystemGroup
+    }
+  )
 
   /** Fixed */
   startSystems([IncomingNetworkSystem, EntityNetworkStateSystem, GrabbableSystem, AvatarSimulationSystemGroup], {

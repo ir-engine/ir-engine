@@ -82,3 +82,7 @@ export interface InstanceAttendanceInterface {
 export interface LocationAuthorizedUserInterface {
   id: string
 }
+
+export interface LocationAdminInterface {
+  id: string
+}

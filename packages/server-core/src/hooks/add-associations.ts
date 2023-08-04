@@ -31,6 +31,7 @@ import logger from '../ServerLogger'
 import {
   createAvatarModel,
   createInstanceAttendanceModel,
+  createLocationAdminModel,
   createLocationBanModel,
   createLocationModel,
   createUserApiKeyModel
@@ -42,7 +43,8 @@ const getMigratedModels = (app: Application) => {
     location: createLocationModel(app),
     'location-ban': createLocationBanModel(app),
     'user-api-key': createUserApiKeyModel(app),
-    'instance-attendance': createInstanceAttendanceModel(app)
+    'instance-attendance': createInstanceAttendanceModel(app),
+    'location-admin': createLocationAdminModel(app)
   }
 }
 
