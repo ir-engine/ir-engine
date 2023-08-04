@@ -23,29 +23,40 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Paginated } from '@feathersjs/feathers/lib'
-import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
+import type { PaginationOptions, Params } from '@feathersjs/feathers'
+import type { KnexAdapterOptions, KnexAdapterParams } from '@feathersjs/knex'
+import { KnexService } from '@feathersjs/knex'
+import { UserParams } from '../../user/user/user.class'
 
-import { RecordingResult } from '@etherealengine/common/src/interfaces/Recording'
-
-import { RecordingID } from '@etherealengine/common/src/interfaces/RecordingID'
 import { recordingResourcePath } from '@etherealengine/engine/src/schemas/recording/recording-resource.schema'
+import {
+  RecordingData,
+  RecordingID,
+  RecordingPatch,
+  RecordingQuery,
+  RecordingType
+} from '@etherealengine/engine/src/schemas/recording/recording.schema'
 import { Application } from '../../../declarations'
 import { checkScope } from '../../hooks/verify-scope'
-import { UserParams } from '../../user/user/user.class'
 import { NotFoundException, UnauthorizedException } from '../../util/exceptions/exception'
 
-export type RecordingDataType = RecordingResult
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+export interface RecordingParams extends KnexAdapterParams<RecordingQuery> {}
 
-export class Recording<T = RecordingDataType> extends Service<T> {
+export class RecordingService<T = RecordingType, ServiceParams extends Params = RecordingParams> extends KnexService<
+  RecordingType,
+  RecordingData,
+  RecordingParams,
+  RecordingPatch
+> {
   app: Application
-  docs: any
-  constructor(options: Partial<SequelizeServiceOptions>, app: Application) {
+
+  constructor(options: KnexAdapterOptions, app: Application) {
     super(options)
     this.app = app
   }
 
-  async get(id: RecordingID, params?: any): Promise<T> {
+  async get(id: RecordingID, params?: RecordingParams): Promise<T> {
     // get resources with associated URLs
     // TODO: move resources population to resolvers once this service is migrated to feathers 5
     const resources = await this.app.service(recordingResourcePath).find({
@@ -55,14 +66,18 @@ export class Recording<T = RecordingDataType> extends Service<T> {
       paginate: false
     })
 
-    const result = (await super.get(id)) as RecordingDataType
+    const result = await super._get(id, params)
 
     result.resources = resources.map((resource) => resource.staticResource)
 
     return result as T
   }
 
-  async find(params?: UserParams): Promise<Paginated<T>> {
+  async find(
+    params?: UserParams & {
+      paginate?: PaginationOptions | false
+    }
+  ) {
     if (params && params.user && params.query) {
       const admin = await checkScope(params.user, this.app, 'admin', 'admin')
       if (admin && params.query.action === 'admin') {
@@ -71,32 +86,36 @@ export class Recording<T = RecordingDataType> extends Service<T> {
         params.sequelize = {
           include: [{ model: this.app.service('user').Model, attributes: ['name'], as: 'user' }]
         }
-        return super.find({ ...params }) as Promise<Paginated<T>>
+        return super._find({ ...params })
       }
     }
-    return super.find({
+
+    params!.query = {
+      ...params!.query,
       query: {
         userId: params?.user!.id
       }
-    }) as Promise<Paginated<T>>
+    }
+
+    return super._find(params)
   }
 
-  async create(data?: any, params?: any): Promise<T | T[]> {
-    return super.create({
+  async create(data?: any, params?: any) {
+    return super._create({
       ...data,
       userId: params.user.id
     })
   }
 
-  async remove(id: RecordingResult['id'], params?: UserParams) {
+  async remove(id: RecordingID, params?: UserParams) {
     if (params && params.user && params.query) {
       const admin = await checkScope(params.user, this.app, 'admin', 'admin')
       if (admin) {
-        const recording = super.get(id)
+        const recording = super._get(id)
         if (!recording) {
           throw new NotFoundException('Unable to find recording with this id')
         }
-        return super.remove(id)
+        return super._remove(id)
       }
     }
     throw new UnauthorizedException('This action can only be performed by admins')
