@@ -265,26 +265,12 @@ export class LocationService<T = LocationType, ServiceParams extends Params = Lo
       if (location.locationSetting) await this.app.service(locationSettingPath).remove(location.locationSetting.id)
 
       try {
-        const locationAdminItems = await (this.app.service(locationAdminPath) as any).Model.findAll({
-          where: {
-            locationId: id,
+        await this.app.service(locationAdminPath).remove(null, {
+          query: {
+            locationId: id.toString(),
             userId: selfUser.id ?? null
           }
         })
-
-        locationAdminItems.length &&
-          locationAdminItems.forEach(async (route) => {
-            await this.app.service(locationAdminPath).remove(route.dataValues.id)
-          })
-
-        // TODO: Remove above remove code and use following when moved to feathers 5.
-
-        // await this.app.service(locationAdminPath).remove(null, {
-        //   query: {
-        //     locationId: id,
-        //     userId: selfUser.id ?? null
-        //   }
-        // })
       } catch (err) {
         logger.error(err, `Could not remove location-admin: ${err.message}`)
       }
