@@ -54,12 +54,7 @@ export default () => {
           token: token
         }
       })) as Paginated<UserApiKeyType>
-      if (key.data.length > 0)
-        user = await context.app.service(userPath).find({
-          query: {
-            id: key.data[0].userId
-          }
-        })
+      if (key.data.length > 0) user = await context.app.service(userPath).get(key.data[0].userId)
     }
     if (user) {
       context.params.user = user
@@ -68,11 +63,7 @@ export default () => {
     context = await authenticate('jwt')(context as any)
     // if (!context.params[config.authentication.entity]?.userId) throw new BadRequest('Must authenticate with valid JWT or login token')
     if (context.params[config.authentication.entity]?.userId)
-      context.params.user = await context.app.service(userPath).find({
-        query: {
-          id: context.params[config.authentication.entity].userId
-        }
-      })
+      context.params.user = await context.app.service(userPath).get(context.params[config.authentication.entity].userId)
     return context
   }
 }
