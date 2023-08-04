@@ -28,6 +28,7 @@ import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router-dom'
 
 import config from '@etherealengine/common/src/config'
+import { useFind } from '@etherealengine/engine/src/common/functions/FeathersHooks'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import Button from '@etherealengine/ui/src/primitives/mui/Button'
 import Checkbox from '@etherealengine/ui/src/primitives/mui/Checkbox'
@@ -37,7 +38,6 @@ import Grid from '@etherealengine/ui/src/primitives/mui/Grid'
 import TextField from '@etherealengine/ui/src/primitives/mui/TextField'
 import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 
-import { AuthSettingsState } from '../../../admin/services/Setting/AuthSettingService'
 import { initialAuthState } from '../../../common/initialAuthState'
 import { AuthService, AuthState } from '../../services/AuthService'
 import styles from './index.module.scss'
@@ -61,8 +61,7 @@ const MagicLinkEmail = ({ type, isAddConnection }: Props): JSX.Element => {
   const auth = useHookstate(getMutableState(AuthState))
   const state = useHookstate(defaultState)
   const { t } = useTranslation()
-  const authSettingState = useHookstate(getMutableState(AuthSettingsState))
-  const [authSetting] = authSettingState?.authSettings?.value || []
+  const authSetting = useFind('authentication-setting').data.at(0)
   const authState = useHookstate(initialAuthState)
 
   useEffect(() => {

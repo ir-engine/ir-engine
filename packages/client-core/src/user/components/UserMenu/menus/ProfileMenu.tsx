@@ -41,7 +41,7 @@ import InputText from '@etherealengine/client-core/src/common/components/InputTe
 import Menu from '@etherealengine/client-core/src/common/components/Menu'
 import Text from '@etherealengine/client-core/src/common/components/Text'
 import { validateEmail, validatePhoneNumber } from '@etherealengine/common/src/config'
-import multiLogger from '@etherealengine/common/src/logger'
+import { useFind } from '@etherealengine/engine/src/common/functions/FeathersHooks'
 import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import Box from '@etherealengine/ui/src/primitives/mui/Box'
@@ -49,7 +49,6 @@ import CircularProgress from '@etherealengine/ui/src/primitives/mui/CircularProg
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
 
-import { AuthSettingsState } from '../../../../admin/services/Setting/AuthSettingService'
 import { initialAuthState, initialOAuthConnectedState } from '../../../../common/initialAuthState'
 import { NotificationService } from '../../../../common/services/NotificationService'
 import { useUserAvatarThumbnail } from '../../../functions/useUserAvatarThumbnail'
@@ -57,8 +56,6 @@ import { AuthService, AuthState } from '../../../services/AuthService'
 import { UserMenus } from '../../../UserUISystem'
 import styles from '../index.module.scss'
 import { PopupMenuServices } from '../PopupMenuService'
-
-const logger = multiLogger.child({ component: 'client-core:ProfileMenu' })
 
 interface Props {
   className?: string
@@ -84,8 +81,7 @@ const ProfileMenu = ({ hideLogin, onClose, isPopover }: Props): JSX.Element => {
   const authState = useHookstate(initialAuthState)
 
   const engineInitialized = useHookstate(getMutableState(EngineState).isEngineInitialized)
-  const authSettingState = useHookstate(getMutableState(AuthSettingsState))
-  const [authSetting] = authSettingState?.authSettings?.value || []
+  const authSetting = useFind('authentication-setting').data.at(0)
   const loading = useHookstate(getMutableState(AuthState).isProcessing)
   const userId = selfUser.id.value
   const apiKey = selfUser.apiKey?.token?.value

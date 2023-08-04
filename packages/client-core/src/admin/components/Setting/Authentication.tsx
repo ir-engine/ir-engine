@@ -29,17 +29,18 @@ import { useTranslation } from 'react-i18next'
 
 import InputSwitch from '@etherealengine/client-core/src/common/components/InputSwitch'
 import InputText from '@etherealengine/client-core/src/common/components/InputText'
-import { NO_PROXY, getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { useHookstate } from '@etherealengine/hyperflux'
 import Box from '@etherealengine/ui/src/primitives/mui/Box'
 import Button from '@etherealengine/ui/src/primitives/mui/Button'
 import Grid from '@etherealengine/ui/src/primitives/mui/Grid'
 import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
 import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 
-import { useMutation } from '@etherealengine/engine/src/common/functions/FeathersHooks'
+import { useFind, useMutation } from '@etherealengine/engine/src/common/functions/FeathersHooks'
+import { AuthenticationSettingType } from '@etherealengine/engine/src/schemas/setting/authentication-setting.schema'
 import { initialAuthState } from '../../../common/initialAuthState'
 import { NotificationService } from '../../../common/services/NotificationService'
-import { AuthSettingsService, AuthSettingsState } from '../../services/Setting/AuthSettingService'
+import { AuthSettingsService } from '../../services/Setting/AuthSettingService'
 import styles from '../../styles/settings.module.scss'
 
 const OAUTH_TYPES = {
@@ -54,8 +55,7 @@ const OAUTH_TYPES = {
 const Account = () => {
   const { t } = useTranslation()
 
-  const authSettingState = useHookstate(getMutableState(AuthSettingsState))
-  const [authSetting] = authSettingState?.authSettings?.get(NO_PROXY) || []
+  const authSetting = useFind('authentication-setting').data.at(0) as AuthenticationSettingType
   const id = authSetting?.id
   const state = useHookstate(initialAuthState)
   const holdAuth = useHookstate(initialAuthState)

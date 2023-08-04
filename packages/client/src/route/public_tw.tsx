@@ -27,16 +27,14 @@ import { t } from 'i18next'
 import React, { lazy, Suspense, useEffect, useState } from 'react'
 import { Route, Routes, useLocation } from 'react-router-dom'
 
-import {
-  AuthSettingsService,
-  AuthSettingsState
-} from '@etherealengine/client-core/src/admin/services/Setting/AuthSettingService'
 import { AdminClientSettingsState } from '@etherealengine/client-core/src/admin/services/Setting/ClientSettingService'
 import ErrorBoundary from '@etherealengine/client-core/src/common/components/ErrorBoundary'
 import { ProjectServiceReceptor } from '@etherealengine/client-core/src/common/services/ProjectService'
 import { useCustomRoutes } from '@etherealengine/client-core/src/common/services/RouterService'
 import { LocationServiceReceptor } from '@etherealengine/client-core/src/social/services/LocationService'
 import { AuthService } from '@etherealengine/client-core/src/user/services/AuthService'
+import waitForClientAuthenticated from '@etherealengine/client-core/src/util/wait-for-client-authenticated'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { addActionReceptor, getMutableState, removeActionReceptor, useHookstate } from '@etherealengine/hyperflux'
 import LoadingCircle from '@etherealengine/ui/src/primitives/tailwind/LoadingCircle'
 
@@ -56,7 +54,7 @@ const CenteredLoadingCircle = () => {
 function PublicRouter() {
   const customRoutes = useCustomRoutes()
   const clientSettingsState = useHookstate(getMutableState(AdminClientSettingsState))
-  const authSettingsState = useHookstate(getMutableState(AuthSettingsState))
+  const authSettingsState = useHookstate([] as any[])
   const location = useLocation()
   const [routesReady, setRoutesReady] = useState(false)
 
@@ -70,7 +68,10 @@ function PublicRouter() {
     // The client and auth settigns will not be needed on these routes
     if (!/auth\/oauth/.test(location.pathname)) {
       AuthService.doLoginAuto()
-      AuthSettingsService.fetchAuthSetting()
+      waitForClientAuthenticated().then(async () => {
+        const authenticationSettingsResponse = await Engine.instance.api.service('authentication-setting').find()
+        authSettingsState.set(authenticationSettingsResponse.data)
+      })
     }
 
     return () => {
@@ -82,9 +83,9 @@ function PublicRouter() {
   useEffect(() => {
     // For the same reason as above, we will not need to load the client and auth settings for these routes
     if (/auth\/oauth/.test(location.pathname) && customRoutes) return setRoutesReady(true)
-    if (clientSettingsState.client.value.length && authSettingsState.authSettings.value.length && customRoutes)
+    if (clientSettingsState.client.value.length && authSettingsState.value.length && customRoutes)
       return setRoutesReady(true)
-  }, [clientSettingsState.client.length, authSettingsState.authSettings.length, customRoutes])
+  }, [clientSettingsState.client.length, authSettingsState.value.length, customRoutes])
 
   if (!routesReady) {
     return <CenteredLoadingCircle />
