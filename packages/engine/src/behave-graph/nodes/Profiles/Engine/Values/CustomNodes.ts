@@ -40,7 +40,7 @@ import { PlayMode } from '../../../../../scene/constants/PlayMode'
 import { ContentFitType } from '../../../../../xrui/functions/ObjectFitFunctions'
 
 export const playVideo = makeFlowNodeDefinition({
-  typeName: 'engine/playVideo',
+  typeName: 'engine/media/playVideo',
   category: NodeCategory.Action,
   label: 'Play video',
   in: {
@@ -97,7 +97,7 @@ export const playVideo = makeFlowNodeDefinition({
 })
 
 export const playAudio = makeFlowNodeDefinition({
-  typeName: 'engine/playAudio',
+  typeName: 'engine/media/playAudio',
   category: NodeCategory.Action,
   label: 'Play audio',
   in: {
@@ -140,6 +140,7 @@ export const playAudio = makeFlowNodeDefinition({
   }
 })
 
+/*
 export const makeRaycast = makeFlowNodeDefinition({
   typeName: 'engine/playAudio',
   category: NodeCategory.Action,
@@ -182,9 +183,10 @@ export const makeRaycast = makeFlowNodeDefinition({
     const component = getComponent(entity, MediaComponent)
     commit('flow')
   }
-})
+})*/
+
 export const getAvatarAnimations = makeFunctionNodeDefinition({
-  typeName: 'engine/getAvatarAnimations',
+  typeName: 'engine/media/getAvatarAnimations',
   category: NodeCategory.Query,
   label: 'Get Avatar Animations',
   in: {
@@ -212,7 +214,7 @@ export const getAvatarAnimations = makeFunctionNodeDefinition({
 })
 
 export const playGltfAnimation = makeFlowNodeDefinition({
-  typeName: 'engine/playGltfAnimation',
+  typeName: 'engine/media/playGltfAnimation',
   category: NodeCategory.Action,
   label: 'Play gltf animation',
   in: {
@@ -237,7 +239,7 @@ export const playGltfAnimation = makeFlowNodeDefinition({
 })
 
 export const fadeCamera = makeFlowNodeDefinition({
-  typeName: 'engine/cameraFade',
+  typeName: 'engine/camera/cameraFade',
   category: NodeCategory.Action,
   label: 'Camera fade',
   in: {
