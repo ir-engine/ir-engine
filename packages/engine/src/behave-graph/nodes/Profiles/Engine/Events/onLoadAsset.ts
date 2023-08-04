@@ -52,7 +52,7 @@ async function addMediaComponent(url: string, parent?: Entity | null, before?: E
   const { hostname } = new URL(url)
 
   let componentName: string | null = null
-  let updateFunc = null! as Function
+  let updateFunc = null! as any
 
   let node: Entity | null = null
 

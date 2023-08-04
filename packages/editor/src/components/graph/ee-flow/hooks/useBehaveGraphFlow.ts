@@ -34,9 +34,7 @@ import { autoLayout } from '../util/autoLayout'
 import { hasPositionMetaData } from '../util/hasPositionMetaData'
 import { useCustomNodeTypes } from './useCustomNodeTypes'
 
-export const fetchBehaviorGraphJson = async (url: string) =>
-  // eslint-disable-next-line unicorn/no-await-expression-member
-  (await (await fetch(url)).json()) as GraphJSON
+export const fetchBehaviorGraphJson = async (url: string) => (await (await fetch(url)).json()) as GraphJSON
 
 /**
  * Hook that returns the nodes and edges for react-flow, and the graphJson for the behave-graph.

@@ -39,7 +39,7 @@ export type CustomControlsProps = {
   graphRef: any
   playing: boolean
   togglePlay: () => void
-  onChangeGraph: (value: GraphJSON) => void
+  onSaveGraph: (value: GraphJSON) => void
   setBehaviorGraph: (value: GraphJSON) => void
   examples: Examples
   specJson: NodeSpecJSON[] | undefined
