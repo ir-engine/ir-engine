@@ -249,7 +249,7 @@ const CaptureDashboard = () => {
           // Pose Landmarks
           drawLandmarks(canvasCtxRef.current, poseLandmarks, {
             color: '#fff',
-            lineWidth: 2
+            radius: 2
           })
 
           // Left Hand Connections
@@ -266,7 +266,7 @@ const CaptureDashboard = () => {
           // Left Hand Landmarks
           drawLandmarks(canvasCtxRef.current, leftHandLandmarks !== undefined ? leftHandLandmarks : [], {
             color: '#fff',
-            lineWidth: 1
+            radius: 2
           })
 
           // Right Hand Connections
@@ -276,14 +276,14 @@ const CaptureDashboard = () => {
             HAND_CONNECTIONS,
             {
               color: '#fff',
-              lineWidth: 2
+              lineWidth: 4
             }
           )
 
           // Right Hand Landmarks
           drawLandmarks(canvasCtxRef.current, rightHandLandmarks !== undefined ? rightHandLandmarks : [], {
             color: '#fff',
-            lineWidth: 1
+            radius: 2
           })
 
           // Face Connections

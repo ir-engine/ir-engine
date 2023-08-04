@@ -29,11 +29,8 @@ import mediapipeHandNames from './MediapipeHandNames'
 import { HandSolver } from './solvers/HandSolver'
 import { LEFT, RIGHT } from './solvers/constants'
 
-const UpdateSolvedHands = (rawHand, handednesses, avatarRig, avatarTransform) => {
+const UpdateSolvedHand = (rawHand, handedness, avatarRig, avatarTransform) => {
   if (rawHand) {
-    console.log('UpdateSolvedHands', rawHand, handednesses)
-
-    const handedness = handednesses[0]?.categoryName
     const side = handedness === 'Left' ? LEFT : RIGHT
     const hand = HandSolver.solve(rawHand, side)
     if (hand !== undefined) {
@@ -157,4 +154,4 @@ const UpdateSolvedHands = (rawHand, handednesses, avatarRig, avatarTransform) =>
   }
 }
 
-export default UpdateSolvedHands
+export default UpdateSolvedHand

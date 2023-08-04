@@ -23,48 +23,56 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { VRMExpressionPresetName } from '@pixiv/three-vrm'
 import { Euler } from 'three'
+
+import { VRMExpressionPresetName } from '@pixiv/three-vrm'
+
+import { Face } from './solvers'
+import { FaceSolver } from './solvers/FaceSolver'
+
 import { updateRigRotation } from './UpdateRig'
 
 const oldLookTarget = new Euler()
-const UpdateSolvedFace = (data, hipsPos, avatarRig, avatarTransform) => {
-  // if (!vrm) {
-  //   return;
-  // }
+const UpdateSolvedFace = (data, avatarRig, avatarTransform) => {
   if (data) {
-    updateRigRotation('Neck', data.head, 0.7, 0.3, avatarRig)
+    const faceData = FaceSolver.solve(data)
+    if (faceData) {
+      updateRigRotation('Neck', faceData?.head, 0.7, 0.3, avatarRig)
 
-    // Blendshapes and Preset Name Schema
-    const Blendshape = avatarRig?.vrm?.expressionManager!
-    const PresetName = VRMExpressionPresetName
+      // Blendshapes and Preset Name Schema
+      const Blendshape = avatarRig.vrm.blendShapeProxy
+      const PresetName = VRMExpressionPresetName
+      if (!Blendshape) return
 
-    // Simple example without winking. Interpolate based on old blendshape, then stabilize blink with `Kalidokit` helper function.
-    // for VRM, 1 is closed, 0 is open.
+      // Simple example without winking. Interpolate based on old blendshape, then stabilize blink with `Kalidokit` helper function.
+      // for VRM, 1 is closed, 0 is open.
+      if (faceData.eye) {
+        faceData.eye.l = lerp(clamp(1 - faceData.eye.l, 0, 1), Blendshape.getValue(PresetName.Blink), 0.5)
+        faceData.eye.r = lerp(clamp(1 - faceData.eye.r, 0, 1), Blendshape.getValue(PresetName.Blink), 0.5)
+        faceData.eye = Face.stabilizeBlink(faceData.eye, faceData.head.y)
+        Blendshape.setValue(PresetName.Blink, faceData.eye.l)
+      }
 
-    // const newLeye = new Vector().clamp(1 - data.eye.l, 0, 1)
-    // data.eye.l = new Vector().lerp(newLeye, Blendshape.getValue(PresetName.Blink)!, 0.5)
-    // data.eye.r = lerp(clamp(1 - data.eye.r, 0, 1), Blendshape.getValue(PresetName.Blink)!, 0.5)
-    // data.eye = Face.stabilizeBlink(data.eye, data.head.y)
-    // Blendshape.setValue(PresetName.Blink, data.eye.l)
+      // Interpolate and set mouth blendshapes
+      Blendshape.setValue(PresetName.Ih, lerp(faceData.mouth.shape.I, Blendshape.getValue(PresetName.Ih), 0.5))
+      Blendshape.setValue(PresetName.Aa, lerp(faceData.mouth.shape.A, Blendshape.getValue(PresetName.Aa), 0.5))
+      Blendshape.setValue(PresetName.Ee, lerp(faceData.mouth.shape.E, Blendshape.getValue(PresetName.Ee), 0.5))
+      Blendshape.setValue(PresetName.Oh, lerp(faceData.mouth.shape.O, Blendshape.getValue(PresetName.Oh), 0.5))
+      Blendshape.setValue(PresetName.Ou, lerp(faceData.mouth.shape.U, Blendshape.getValue(PresetName.Ou), 0.5))
 
-    // Interpolate and set mouth blendshapes
-    Blendshape.setValue(PresetName.Ih, lerp(data.mouth.shape.I, Blendshape.getValue(PresetName.Ih)!, 0.5) as number)
-    Blendshape.setValue(PresetName.Aa, lerp(data.mouth.shape.A, Blendshape.getValue(PresetName.Aa)!, 0.5) as number)
-    Blendshape.setValue(PresetName.Ee, lerp(data.mouth.shape.E, Blendshape.getValue(PresetName.Ee)!, 0.5) as number)
-    Blendshape.setValue(PresetName.Ou, lerp(data.mouth.shape.O, Blendshape.getValue(PresetName.Ou)!, 0.5) as number)
-    Blendshape.setValue(PresetName.Oh, lerp(data.mouth.shape.U, Blendshape.getValue(PresetName.Oh)!, 0.5) as number)
-
-    //PUPILS
-    //interpolate pupil and keep a copy of the value
-    const lookTarget = new Euler(
-      lerp(oldLookTarget.x, data.pupil.y, 0.4),
-      lerp(oldLookTarget.y, data.pupil.x, 0.4),
-      0,
-      'XYZ'
-    )
-    oldLookTarget.copy(lookTarget)
-    avatarRig?.vrm?.lookAt!.applier!.lookAt(lookTarget)
+      // PUPILS
+      // interpolate pupil and keep a copy of the value
+      if (faceData.pupil) {
+        const lookTarget = new Euler(
+          lerp(oldLookTarget.x, faceData.pupil.y, 0.4),
+          lerp(oldLookTarget.y, faceData.pupil.x, 0.4),
+          0,
+          'XYZ'
+        )
+        oldLookTarget.copy(lookTarget)
+        avatarRig.vrm.lookAt?.applyer?.lookAt(lookTarget)
+      }
+    }
   }
 }
 
