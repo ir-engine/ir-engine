@@ -28,7 +28,7 @@ import { UserApiKeyType } from '@etherealengine/engine/src/schemas/user/user-api
 
 import { LocationAdminType } from '@etherealengine/engine/src/schemas/social/location-admin.schema'
 import { LocationBanType } from '@etherealengine/engine/src/schemas/social/location-ban.schema'
-import { IdentityProvider } from './IdentityProvider'
+import { IdentityProviderType } from '@etherealengine/engine/src/schemas/user/identity.provider.schema'
 import { InstanceAttendanceInterface } from './InstanceAttendance'
 import { StaticResourceInterface } from './StaticResourceInterface'
 import { UserId } from './UserId'
@@ -59,8 +59,8 @@ export interface UserInterface {
   isGuest: boolean
   avatarId: string
   avatar: AvatarInterface
-  identity_providers?: IdentityProvider[]
-  identityProviders?: IdentityProvider[]
+  identity_providers?: IdentityProviderType[]
+  identityProviders?: IdentityProviderType[]
   locationAdmins?: LocationAdminType[]
   /* @deprecated */
   relationType?: RelationshipType
