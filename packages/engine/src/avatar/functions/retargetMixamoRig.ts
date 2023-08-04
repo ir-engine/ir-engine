@@ -60,10 +60,6 @@ export function retargetMixamoAnimation(clip: AnimationClip, mixamoRig: Object3D
   const vrmHipsHeight = Math.abs(vrmHipsY - vrmRootY)
   const hipsPositionScale = vrmHipsHeight / motionHipsHeight
 
-  mixamoRig.traverse((node) => {
-    node.quaternion.identity()
-  })
-
   clip.tracks.forEach((track) => {
     // Convert each tracks for VRM use, and push to `tracks`
     const trackSplitted = track.name.split('.')
