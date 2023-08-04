@@ -23,24 +23,24 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-/**
- * An object for swagger documentation configuration
- */
-export default {
-  definitions: {
-    'location-admin': {
-      type: 'object',
-      properties: {}
-    },
-    'location-admin_list': {
-      type: 'array',
-      items: { $ref: '#/definitions/location-admin' }
-    }
+import { createSwaggerServiceOptions } from 'feathers-swagger'
+
+import {
+  locationAdminDataSchema,
+  locationAdminPatchSchema,
+  locationAdminQuerySchema,
+  locationAdminSchema
+} from '@etherealengine/engine/src/schemas/social/location-admin.schema'
+
+export default createSwaggerServiceOptions({
+  schemas: {
+    locationAdminDataSchema,
+    locationAdminPatchSchema,
+    locationAdminQuerySchema,
+    locationAdminSchema
   },
-  securities: ['create', 'update', 'patch', 'remove'],
-  operations: {
-    find: {
-      security: [{ bearer: [] }]
-    }
+  docs: {
+    description: 'Location admin service description',
+    securities: ['all']
   }
-}
+})

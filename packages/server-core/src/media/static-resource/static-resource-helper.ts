@@ -232,7 +232,7 @@ export const getAudioStats = async (input: Buffer | string, mimeType: string) =>
       })
     ).stdout
   }
-  let mp3Duration: number = 0
+  let mp3Duration = 0
   const duration = /duration=(\d+)/.exec(out)
   const channels = /channels=(\d+)/.exec(out)
   const bitrate = /bit_rate=(\d+)/.exec(out)

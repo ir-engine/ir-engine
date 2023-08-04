@@ -40,7 +40,6 @@ export interface Instance {
   ended?: boolean
   assigned?: boolean
   assignedAt?: Date
-  instanceserver_subdomain_provision?: InstanceServerSubdomainProvision
 }
 
 export const InstanceSeed: Instance = {
@@ -79,13 +78,6 @@ export const InstanceSeed: Instance = {
   podName: '',
   locationId: '',
   channelId: '' as ChannelID
-}
-
-export interface InstanceServerSubdomainProvision {
-  id: number
-  is_id: string
-  is_number: string
-  allocated: boolean
 }
 
 export interface InstanceServerPatch {

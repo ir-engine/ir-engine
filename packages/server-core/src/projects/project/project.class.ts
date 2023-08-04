@@ -177,7 +177,7 @@ export const uploadLocalProjectToProvider = async (
   const results = [] as (string | null)[]
   for (let file of filtered) {
     try {
-      const fileResult = await uploadSceneToStaticResources(app, projectName, file, storageProviderName)
+      const fileResult = await uploadSceneToStaticResources(app, projectName, file)
       const filePathRelative = processFileName(file.slice(projectPath.length))
       await storageProvider.putObject(
         {
@@ -217,7 +217,9 @@ export class Project extends Service {
       commitSHA = await git.revparse(['HEAD'])
       const commit = await git.log(['-1'])
       commitDate = commit?.latest?.date ? new Date(commit.latest.date) : new Date()
-    } catch (err) {}
+    } catch (err) {
+      //
+    }
     return {
       commitSHA,
       commitDate
@@ -432,7 +434,9 @@ export class Project extends Service {
       if (branchExists.length === 0 || data.reset) {
         try {
           await git.deleteLocalBranch(branchName)
-        } catch (err) {}
+        } catch (err) {
+          //
+        }
         await git.checkoutLocalBranch(branchName)
       } else await git.checkout(branchName)
     } catch (err) {
@@ -778,7 +782,9 @@ export class Project extends Service {
         values.engineVersion = packageJson.etherealEngine?.version
         values.description = packageJson.description
         values.hasWriteAccess = projectPushIds.indexOf(item.id) > -1
-      } catch (err) {}
+      } catch (err) {
+        //
+      }
     })
 
     return {

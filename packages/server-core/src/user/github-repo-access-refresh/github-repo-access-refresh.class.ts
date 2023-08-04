@@ -46,7 +46,7 @@ export interface GithubRepoAccessRefreshParams extends KnexAdapterParams {
  * A class for Github Repo Access Refresh service
  */
 export class GithubRepoAccessRefreshService<
-  T = {},
+  T = any,
   ServiceParams extends Params = GithubRepoAccessRefreshParams
 > extends KnexAdapter<T, T, GithubRepoAccessRefreshParams, T> {
   app: Application

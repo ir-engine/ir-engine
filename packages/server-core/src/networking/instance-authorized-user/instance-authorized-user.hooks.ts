@@ -23,16 +23,57 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { hooks as schemaHooks } from '@feathersjs/schema'
+import { getValidator } from '@feathersjs/typebox'
 import { disallow } from 'feathers-hooks-common'
 
+import {
+  instanceAuthorizedUserDataSchema,
+  instanceAuthorizedUserPatchSchema,
+  instanceAuthorizedUserQuerySchema,
+  instanceAuthorizedUserSchema
+} from '@etherealengine/engine/src/schemas/networking/instance-authorized-user.schema'
+import { dataValidator, queryValidator } from '@etherealengine/server-core/validators'
+
+import {
+  instanceAuthorizedUserDataResolver,
+  instanceAuthorizedUserExternalResolver,
+  instanceAuthorizedUserPatchResolver,
+  instanceAuthorizedUserQueryResolver,
+  instanceAuthorizedUserResolver
+} from './instance-authorized-user.resolvers'
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const instanceAuthorizedUserValidator = getValidator(instanceAuthorizedUserSchema, dataValidator)
+const instanceAuthorizedUserDataValidator = getValidator(instanceAuthorizedUserDataSchema, dataValidator)
+const instanceAuthorizedUserPatchValidator = getValidator(instanceAuthorizedUserPatchSchema, dataValidator)
+const instanceAuthorizedUserQueryValidator = getValidator(instanceAuthorizedUserQuerySchema, queryValidator)
+
 export default {
+  around: {
+    all: [
+      schemaHooks.resolveExternal(instanceAuthorizedUserExternalResolver),
+      schemaHooks.resolveResult(instanceAuthorizedUserResolver)
+    ]
+  },
+
   before: {
-    all: [disallow('external')],
+    all: [
+      disallow('external'),
+      () => schemaHooks.validateQuery(instanceAuthorizedUserQueryValidator),
+      schemaHooks.resolveQuery(instanceAuthorizedUserQueryResolver)
+    ],
     find: [],
     get: [],
-    create: [],
+    create: [
+      () => schemaHooks.validateData(instanceAuthorizedUserDataValidator),
+      schemaHooks.resolveData(instanceAuthorizedUserDataResolver)
+    ],
     update: [],
-    patch: [],
+    patch: [
+      () => schemaHooks.validateData(instanceAuthorizedUserPatchValidator),
+      schemaHooks.resolveData(instanceAuthorizedUserPatchResolver)
+    ],
     remove: []
   },
 

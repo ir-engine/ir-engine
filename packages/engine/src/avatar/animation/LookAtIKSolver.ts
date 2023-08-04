@@ -52,7 +52,7 @@ export function getForwardVector(matrix: Matrix4, outVec: Vector3): Vector3 {
  * @param rotationClamp Maximum angle between bone's parent forward and direction vectors, setting it to zero will ignore the limit
  * @returns
  */
-export function solveLookIK(bone: Bone, forward: Vector3, rotationClamp: number = 0.785398) {
+export function solveLookIK(bone: Bone, forward: Vector3, rotationClamp = 0.785398) {
   if (!bone || !bone.parent) return
 
   Object3DUtils.getWorldQuaternion(bone.parent, toLocalQuat) // can this be replaces with a matrix rotation?

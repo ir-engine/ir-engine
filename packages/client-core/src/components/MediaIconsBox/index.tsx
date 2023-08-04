@@ -45,12 +45,20 @@ import { dispatchAction, getMutableState, useHookstate } from '@etherealengine/h
 import CircularProgress from '@etherealengine/ui/src/primitives/mui/CircularProgress'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 
+import { ECSRecordingFunctions } from '@etherealengine/engine/src/ecs/ECSRecording'
+import { RegisteredWidgets, WidgetAppActions } from '@etherealengine/engine/src/xrui/WidgetAppService'
 import { VrIcon } from '../../common/components/Icons/VrIcon'
+import { RecordingState } from '../../recording/RecordingService'
+import { RecordingTimer, RecordingUIState } from '../../systems/ui/RecordingsWidgetUI'
 import { MediaStreamService, MediaStreamState } from '../../transports/MediaStreams'
+import { useUserHasAccessHook } from '../../user/userHasAccess'
 import { useShelfStyles } from '../Shelves/useShelfStyles'
 import styles from './index.module.scss'
 
 export const MediaIconsBox = () => {
+  const recordScopes = useUserHasAccessHook('record')
+  const recordingState = useHookstate(getMutableState(RecordingState))
+
   const location = useLocation()
   const hasAudioDevice = useHookstate(false)
   const hasVideoDevice = useHookstate(false)
@@ -91,6 +99,30 @@ export const MediaIconsBox = () => {
       })
       .catch((err) => logger.error(err, 'Could not get media devices.'))
   }, [])
+
+  const toggleRecording = () => {
+    const activeRecording = recordingState.recordingID.value
+    if (activeRecording) {
+      getMutableState(RecordingUIState).mode.set('recordings')
+      ECSRecordingFunctions.stopRecording({
+        recordingID: activeRecording
+      })
+    }
+    const activePlayback = recordingState.playback.value
+    if (activePlayback) {
+      getMutableState(RecordingUIState).mode.set('recordings')
+      ECSRecordingFunctions.stopPlayback({
+        recordingID: activePlayback
+      })
+    }
+    if (!activeRecording && !activePlayback) {
+      getMutableState(RecordingUIState).mode.set('create')
+    }
+    const recordingWidget = Array.from(RegisteredWidgets.entries()).find(
+      ([_, widget]) => widget.label === 'Recording' // todo - don't hard code this
+    )!
+    dispatchAction(WidgetAppActions.showWidget({ id: recordingWidget[0], shown: true }))
+  }
 
   const xrSessionActive = xrState.sessionActive.value
   const handleExitSpectatorClick = () => dispatchAction(EngineActions.exitSpectate({}))
@@ -216,6 +248,28 @@ export const MediaIconsBox = () => {
         >
           Exit Spectate
         </button>
+      )}
+      {recordScopes && (
+        <>
+          {recordingState.playback.value || recordingState.recordingID.value ? (
+            <button
+              type="button"
+              id="Record"
+              style={{ color: 'red' }}
+              className={styles.iconContainer}
+              onClick={toggleRecording}
+            >
+              <Icon type="StopCircle" />
+              <div style={{ position: 'absolute', marginTop: '80px' }}>
+                <RecordingTimer />
+              </div>
+            </button>
+          ) : (
+            <button type="button" id="Record" className={styles.iconContainer} onClick={toggleRecording}>
+              <Icon type="CameraAlt" />
+            </button>
+          )}
+        </>
       )}
     </section>
   )

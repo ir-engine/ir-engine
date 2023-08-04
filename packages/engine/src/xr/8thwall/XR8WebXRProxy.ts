@@ -102,7 +102,7 @@ export class XRReferenceSpace extends XRSpace {
 
   private _listeners = {}
 
-  addEventListener(eventName: string | number, listener: Function) {
+  addEventListener(eventName: string | number, listener: any) {
     const listeners = this._listeners
     if (listeners[eventName] === undefined) {
       listeners[eventName] = []
@@ -113,7 +113,7 @@ export class XRReferenceSpace extends XRSpace {
     }
   }
 
-  removeEventListener(eventName: string | number, listener: Function): void {
+  removeEventListener(eventName: string | number, listener: any): void {
     const listenerArray = this._listeners[eventName]
     if (listenerArray !== undefined) {
       const index = listenerArray.indexOf(listener)

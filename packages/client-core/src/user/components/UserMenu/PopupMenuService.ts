@@ -36,7 +36,7 @@ export const PopupMenuState = defineState({
   })
 })
 
-type UserMenuPanelType = (...props: any & { setActiveMenu: (menu: string) => {} }) => JSX.Element
+type UserMenuPanelType = (...props: any & { setActiveMenu: (menu: string) => void }) => JSX.Element
 
 export const PopupMenuServiceReceptor = (action) => {
   const s = getMutableState(PopupMenuState)

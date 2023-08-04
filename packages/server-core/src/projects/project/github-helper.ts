@@ -64,7 +64,7 @@ export const getAuthenticatedRepo = async (token: string, repositoryPath: string
 
 export const getUser = async (token: string) => {
   const octoKit = new Octokit({ auth: token })
-  return octoKit.rest.users.getAuthenticated()
+  return octoKit.rest.users.getAuthenticated() as any
 }
 
 export const getInstallationOctokit = async (repo) => {
@@ -252,7 +252,7 @@ const uploadToRepo = async (
   filePaths: string[],
   org: string,
   repo: string,
-  branch: string = `master`,
+  branch = `master`,
   project: ProjectInterface,
   app: Application
 ) => {
@@ -314,7 +314,7 @@ const uploadToRepo = async (
     })
   }
 }
-export const getCurrentCommit = async (octo: Octokit, org: string, repo: string, branch: string = 'master') => {
+export const getCurrentCommit = async (octo: Octokit, org: string, repo: string, branch = 'master') => {
   try {
     await octo.repos.getBranch({ owner: org, repo, branch })
   } catch (err) {
@@ -467,7 +467,7 @@ const createNewCommit = async (
     })
   ).data
 
-const setBranchToCommit = (octo: Octokit, org: string, repo: string, branch: string = `master`, commitSha: string) =>
+const setBranchToCommit = (octo: Octokit, org: string, repo: string, branch = `master`, commitSha: string) =>
   octo.git.updateRef({
     owner: org,
     repo,

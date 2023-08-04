@@ -51,6 +51,19 @@ export const WidgetAppState = defineState({
 })
 
 export const WidgetAppService = {
+  closeWidgets: () => {
+    const widgetMutableState = getMutableState(WidgetAppState)
+    const widgets = Object.entries(widgetMutableState.widgets.value).map(([id, widgetMutableState]) => ({
+      id,
+      ...widgetMutableState,
+      ...RegisteredWidgets.get(id)!
+    }))
+    for (let widget of widgets) {
+      if (widget.visible) {
+        dispatchAction(WidgetAppActions.showWidget({ id: widget.id, shown: false }))
+      }
+    }
+  },
   setWidgetVisibility: (widgetName: string, visibility: boolean) => {
     const widgetMutableState = getMutableState(WidgetAppState)
     const widgets = Object.entries(widgetMutableState.widgets.value).map(([id, widgetMutableState]) => ({

@@ -44,7 +44,7 @@ export interface GithubRepoAccessWebhookParams extends KnexAdapterParams {
  * A class for Github Repo Access Webhook service
  */
 export class GithubRepoAccessWebhookService<
-  T = {},
+  T = any,
   ServiceParams extends Params = GithubRepoAccessWebhookParams
 > extends KnexAdapter<T, T, GithubRepoAccessWebhookParams, T> {
   app: Application

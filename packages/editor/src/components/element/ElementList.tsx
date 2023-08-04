@@ -69,6 +69,7 @@ import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 import { GroupAddOutlined as PlaceHolderIcon } from '@mui/icons-material'
 import { IconButton, PopoverPosition } from '@mui/material'
 
+import { BehaveGraphComponent } from '@etherealengine/engine/src/behave-graph/components/BehaveGraphComponent'
 import { ItemTypes } from '../../constants/AssetTypes'
 import { EntityNodeEditor } from '../../functions/ComponentEditors'
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
@@ -101,7 +102,7 @@ export const ComponentShelfCategories: Record<string, Component[]> = {
     HemisphereLightComponent
   ],
   FX: [ParticleSystemComponent],
-  Scripting: [SystemComponent],
+  Scripting: [SystemComponent, BehaveGraphComponent],
   Misc: [EnvMapBakeComponent, ScenePreviewCameraComponent, SkyboxComponent, SplineTrackComponent, SplineComponent]
 }
 

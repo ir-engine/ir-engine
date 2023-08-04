@@ -23,15 +23,20 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { RecordingResult } from '@etherealengine/common/src/interfaces/Recording'
+import { RecordingResult, RecordingSchema } from '@etherealengine/common/src/interfaces/Recording'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { ECSRecordingActions } from '@etherealengine/engine/src/ecs/ECSRecording'
 import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import { mocapDataChannelType } from '@etherealengine/engine/src/mocap/MotionCaptureSystem'
-import { webcamVideoDataChannelType } from '@etherealengine/engine/src/networking/NetworkState'
-import { PhysicsSerialization } from '@etherealengine/engine/src/physics/PhysicsSerialization'
-import { defineState, getMutableState, getState, receiveActions } from '@etherealengine/hyperflux'
+import {
+  webcamAudioDataChannelType,
+  webcamVideoDataChannelType
+} from '@etherealengine/engine/src/networking/NetworkState'
+import { defineState, getMutableState, receiveActions } from '@etherealengine/hyperflux'
 
+import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
+import { RecordingID } from '@etherealengine/common/src/interfaces/RecordingID'
+import { PhysicsSerialization } from '@etherealengine/engine/src/physics/PhysicsSerialization'
 import { NotificationService } from '../common/services/NotificationService'
 
 export const RecordingState = defineState({
@@ -39,60 +44,74 @@ export const RecordingState = defineState({
 
   initial: {
     started: false,
-    recordingID: null as string | null,
-    config: {
-      mocap: true,
-      video: true,
-      pose: true
-    },
+    recordingID: null as RecordingID | null,
     recordings: [] as RecordingResult[],
-    playback: null as string | null
+    playback: null as RecordingID | null,
+    startedAt: null as number | null
   },
 
   receptors: [
     [
       ECSRecordingActions.startRecording,
-      (state, action) => {
+      (state, action: typeof ECSRecordingActions.startRecording.matches._TYPE) => {
         state.started.set(true)
+        state.startedAt.set(null)
       }
     ],
     [
       ECSRecordingActions.recordingStarted,
-      (state, action) => {
+      (state, action: typeof ECSRecordingActions.recordingStarted.matches._TYPE) => {
         state.started.set(true)
         state.recordingID.set(action.recordingID)
+        state.startedAt.set(Date.now())
       }
     ],
     [
       ECSRecordingActions.stopRecording,
-      (state, action) => {
+      (state, action: typeof ECSRecordingActions.stopRecording.matches._TYPE) => {
         state.started.set(false)
         state.recordingID.set(null)
+        state.startedAt.set(null)
       }
     ],
     [
       ECSRecordingActions.playbackChanged,
-      (state, action) => {
+      (state, action: typeof ECSRecordingActions.playbackChanged.matches._TYPE) => {
         state.playback.set(action.playing ? action.recordingID : null)
+        state.startedAt.set(action.playing ? Date.now() : null)
       }
     ]
   ]
 })
 
+export type RecordingConfigSchema = {
+  user: {
+    Avatar: boolean
+  }
+  peers: Record<PeerID, { Audio: boolean; Video: boolean; Mocap: boolean }>
+}
+
 export const RecordingFunctions = {
-  startRecording: async () => {
+  startRecording: async (peerSchema: RecordingConfigSchema) => {
     try {
-      const state = getState(RecordingState)
-      const schema = [] as string[]
-      if (state.config.pose) {
-        schema.push(PhysicsSerialization.ID)
-      }
-      if (state.config.mocap) {
-        schema.push(mocapDataChannelType)
-      }
-      if (state.config.video) {
-        schema.push(webcamVideoDataChannelType)
-      }
+      const userSchema = [] as string[]
+      if (peerSchema.user.Avatar) userSchema.push(PhysicsSerialization.ID)
+
+      const schema = {
+        user: userSchema,
+        peers: {}
+      } as RecordingSchema
+
+      if (peerSchema.user.Avatar) schema
+
+      Object.entries(peerSchema.peers).forEach(([peerID, value]) => {
+        const peerSchema = [] as string[]
+        if (value.Mocap) peerSchema.push(mocapDataChannelType)
+        if (value.Video) peerSchema.push(webcamVideoDataChannelType)
+        if (value.Audio) peerSchema.push(webcamAudioDataChannelType)
+        if (peerSchema.length) schema.peers[peerID] = peerSchema
+      })
+
       const recording = (await Engine.instance.api.service('recording').create({
         schema: JSON.stringify(schema)
       })) as RecordingResult
@@ -106,9 +125,9 @@ export const RecordingFunctions = {
     // const recordings = await Engine.instance?.api?.service('recording')?.find().then(res => res?.data) as RecordingResult[]
     //)?.data as RecordingResult[]
 
-    return await Engine.instance?.api
-      ?.service('recording')
-      ?.find()
+    return await Engine.instance.api
+      .service('recording')
+      .find()
       .then(
         (res) => {
           const recordingState = getMutableState(RecordingState)

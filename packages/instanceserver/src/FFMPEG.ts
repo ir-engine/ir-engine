@@ -25,11 +25,46 @@ Ethereal Engine. All Rights Reserved.
 
 import Process from 'child_process'
 import ffmpeg from 'ffmpeg-static'
-import Stream from 'stream'
+import Stream, { Readable } from 'stream'
 
 import serverLogger from '@etherealengine/server-core/src/ServerLogger'
 
 const logger = serverLogger.child({ module: 'instanceserver:FFMPEG' })
+
+function convertStringToStream(stringToConvert: string) {
+  const stream = new Readable()
+  stream._read = () => {}
+  stream.push(stringToConvert)
+  stream.push(null)
+  return stream
+}
+
+const createVP8sdp = (audioPort: number, audioPortRtcp: number, videoPort: number, videoPortRtcp: number) => `v=0
+o=- 0 0 IN IP4 127.0.0.1
+s=-
+c=IN IP4 127.0.0.1
+t=0 0
+m=audio ${audioPort} RTP/AVPF 111
+a=rtcp:${audioPortRtcp}
+a=rtpmap:111 opus/48000/2
+a=fmtp:111 minptime=10;useinbandfec=1
+m=video ${videoPort} RTP/AVPF 96
+a=rtcp:${videoPortRtcp}
+a=rtpmap:96 VP8/90000`
+
+const createH264sdp = (audioPort: number, audioPortRtcp: number, videoPort: number, videoPortRtcp: number) => `v=0
+o=- 0 0 IN IP4 127.0.0.1
+s=-
+c=IN IP4 127.0.0.1
+t=0 0
+m=audio ${audioPort} RTP/AVPF 111
+a=rtcp:${audioPortRtcp}
+a=rtpmap:111 opus/48000/2
+a=fmtp:111 minptime=10;useinbandfec=1
+m=video ${videoPort} RTP/AVPF 125
+a=rtcp:${videoPortRtcp}
+a=rtpmap:125 H264/90000
+a=fmtp:125 level-asymmetry-allowed=1;packetization-mode=1;profile-level-id=42e01f`
 
 /**
  * @todo
@@ -51,7 +86,13 @@ const logger = serverLogger.child({ module: 'instanceserver:FFMPEG' })
  * @param useH264
  * @returns
  */
-export const startFFMPEG = async (useAudio: boolean, useVideo: boolean, onExit: () => void, useH264: boolean) => {
+export const startFFMPEG = async (
+  useAudio: boolean,
+  useVideo: boolean,
+  onExit: () => void,
+  useH264: boolean,
+  startPort: number
+) => {
   // require on demand as not to unnecessary slow down instance server
   if (!ffmpeg) throw new Error('FFmpeg not found')
 
@@ -80,8 +121,9 @@ export const startFFMPEG = async (useAudio: boolean, useVideo: boolean, onExit: 
 
   /** Init codec & args */
 
-  let cmdInputPath = `${__dirname}/recording/input-vp8.sdp`
-  let cmdOutputPath = `${__dirname}/recording/output-ffmpeg-vp8.webm`
+  let cmdInput = undefined as string | undefined
+  // output path is unused
+  // let cmdOutputPath = ''`${__dirname}/recording/output-ffmpeg-vp8.webm`
   let cmdCodec = ''
   let cmdFormat = '-f webm -flags +global_header'
 
@@ -92,8 +134,8 @@ export const startFFMPEG = async (useAudio: boolean, useVideo: boolean, onExit: 
     cmdCodec += ' -map 0:v:0 -c:v copy'
 
     if (useH264) {
-      cmdInputPath = `${__dirname}/recording/input-h264.sdp`
-      cmdOutputPath = `${__dirname}/recording/output-ffmpeg-h264.mp4`
+      cmdInput = createH264sdp(startPort, startPort + 1, startPort + 2, startPort + 3)
+      // cmdOutputPath = `${__dirname}/recording/output-ffmpeg-h264.mp4`
 
       // "-strict experimental" is required to allow storing
       // OPUS audio into MP4 container
@@ -101,14 +143,19 @@ export const startFFMPEG = async (useAudio: boolean, useVideo: boolean, onExit: 
     }
   }
 
+  if (!cmdInput) {
+    cmdInput = createVP8sdp(startPort, startPort + 1, startPort + 2, startPort + 3)
+  }
+
   // Run process
   const cmdArgStr = [
     '-nostdin',
-    '-protocol_whitelist file,rtp,udp',
+    '-protocol_whitelist pipe,file,rtp,udp',
     '-analyzeduration 10M',
     '-probesize 10M',
     '-fflags +genpts',
-    `-i ${cmdInputPath}`,
+    // convert input command to a base64 data url
+    `-i pipe:0`,
     cmdCodec,
     cmdFormat,
     `-y pipe:1`
@@ -121,6 +168,7 @@ export const startFFMPEG = async (useAudio: boolean, useVideo: boolean, onExit: 
   const childProcess = Process.spawn(ffmpeg, cmdArgStr.split(/\s+/))
 
   childProcess.on('error', (err) => {
+    console.error(err)
     logger.error('Recording process error:', err)
   })
 
@@ -139,6 +187,10 @@ export const startFFMPEG = async (useAudio: boolean, useVideo: boolean, onExit: 
       logger.warn("Recording process didn't exit cleanly, output file might be corrupt")
     }
   })
+
+  const sdpStream = convertStringToStream(cmdInput)
+  sdpStream.resume()
+  sdpStream.pipe(childProcess.stdin)
 
   const stop = () => {
     childProcess.kill('SIGINT')
