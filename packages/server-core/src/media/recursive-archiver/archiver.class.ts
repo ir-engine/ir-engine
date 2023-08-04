@@ -30,6 +30,7 @@ import fetch from 'node-fetch'
 import path from 'path/posix'
 
 import { Application } from '../../../declarations'
+import logger from '../../ServerLogger'
 import { UserParams } from '../../user/user/user.class'
 import { getStorageProvider } from '../storageprovider/storageprovider'
 
@@ -62,6 +63,8 @@ export class Archiver implements Partial<ServiceMethods<any>> {
 
     const storageProvider = getStorageProvider(storageProviderName)
 
+    logger.info(`Archiving ${directory} using ${storageProviderName}`)
+
     let result = await storageProvider.listFolderContent(directory)
 
     const zip = new JSZip()
@@ -81,6 +84,8 @@ export class Archiver implements Partial<ServiceMethods<any>> {
         return Promise.reject(new Error(r.statusText))
       })
 
+      logger.info(`Added ${result[i].key} to archive`)
+
       const dir = result[i].key.substring(result[i].key.indexOf('/') + 1)
       zip.file(dir, blobPromise)
     }
@@ -94,6 +99,8 @@ export class Archiver implements Partial<ServiceMethods<any>> {
       Body: Buffer.from(await generated.arrayBuffer()),
       ContentType: 'archive/zip'
     })
+
+    logger.info(`Archived ${directory} to ${zipOutputDirectory}`)
 
     return zipOutputDirectory
   }
