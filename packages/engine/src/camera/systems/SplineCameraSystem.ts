@@ -23,37 +23,50 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { ArrowHelper, Quaternion } from 'three'
+// @todo delete this whole file
+
+import { Quaternion } from 'three'
 
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 
-import { defineQuery, getComponent, getMutableComponent } from '../../ecs/functions/ComponentFunctions'
+import {
+  defineQuery,
+  getComponent,
+  getMutableComponent,
+  getOptionalComponent
+} from '../../ecs/functions/ComponentFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { CameraTrackComponent } from '../../scene/components/CameraTrackComponent'
 import { SplineComponent } from '../../scene/components/SplineComponent'
 import { VisibleComponent } from '../../scene/components/VisibleComponent'
-import { LocalTransformComponent, TransformComponent } from '../../transform/components/TransformComponent'
+import { TransformComponent } from '../../transform/components/TransformComponent'
 
-const cameraTrackQuery = defineQuery([SplineComponent, CameraTrackComponent, VisibleComponent])
+const query = defineQuery([SplineComponent, CameraTrackComponent, VisibleComponent])
 
 const execute = () => {
   const { deltaSeconds } = Engine.instance
-  for (const entity of cameraTrackQuery.enter()) {
+
+  for (const entity of query.enter()) {
     getMutableComponent(entity, CameraTrackComponent).alpha.set(0)
+  }
 
-    // stuff
+  /* why add helpers?
+  for (const entity of query.enter()) {
+
     const transform = getComponent(entity, TransformComponent)
-    const cameraTrack = getComponent(entity, CameraTrackComponent)
-    const spline = getComponent(entity, SplineComponent)
+    const splineComponent = getOptionalComponent(entity, SplineComponent)
+    if(!splineComponent) return
 
-    for (let i = 0; i < spline.splineDivisions.length - 1; i++) {
-      const division = spline.splineDivisions[i]
-      const number = i / ((spline.splineDivisions.length - 1) / (spline.splinePositions.length - 1))
+    console.log("SplineCameraHelper: remaking arrows")
+
+    for (let i = 0; i < splineComponent.splineDivisions.length - 1; i++) {
+      const division = splineComponent.splineDivisions[i]
+      const number = i / ((splineComponent.splineDivisions.length - 1) / (spline.splinePositions.length - 1))
       const pointNumber = Math.floor(number)
       console.log(number, pointNumber)
 
-      const currentRotation = cameraTrack.pointRotations[pointNumber] //.clone().multiply(rotneg90x)
-      const nextRotation = cameraTrack.pointRotations[pointNumber + 1] //.clone().multiply(rotneg90x)
+      const currentRotation = splineComponent.splineRotations[pointNumber] //.clone().multiply(rotneg90x)
+      const nextRotation = splineComponent.splineRotations[pointNumber + 1] //.clone().multiply(rotneg90x)
 
       const helper = new ArrowHelper()
 
@@ -64,32 +77,48 @@ const execute = () => {
       Engine.instance.scene.add(helper)
     }
   }
+  */
 
-  for (const entity of cameraTrackQuery()) {
-    const cameraTransform = getComponent(Engine.instance.cameraEntity, LocalTransformComponent)
+  for (const entity of query()) {
+    const cameraTransform = getComponent(Engine.instance.cameraEntity, TransformComponent)
     const transform = getComponent(entity, TransformComponent)
-    const cameraTrack = getComponent(entity, CameraTrackComponent)
-    const spline = getComponent(entity, SplineComponent)
+    const cameraTrackComponent = getComponent(entity, CameraTrackComponent)
+    const splineComponent = getOptionalComponent(entity, SplineComponent)
+    if (!splineComponent) return
+    const spline = splineComponent.spline
 
-    cameraTrack.alpha += deltaSeconds * 0.1
-    if (cameraTrack.alpha > spline.splinePositions.length - 1) cameraTrack.alpha = 0
+    cameraTrackComponent.alpha += deltaSeconds * 0.1 // @todo improve
+    const alphaIndex = Math.floor(cameraTrackComponent.alpha)
 
-    const currentPointNumber = Math.floor(cameraTrack.alpha)
-    const nextPointNumber = currentPointNumber + 1
-
-    const currentPosition = spline.splinePositions[currentPointNumber]
-    const nextPosition = spline.splinePositions[nextPointNumber]
-
-    const currentRotation = cameraTrack.pointRotations[currentPointNumber]
-    const nextRotation = cameraTrack.pointRotations[nextPointNumber]
+    /*
+    if (alphaIndex >= splineComponent.splinePositions.length-1) {
+      cameraTrackComponent.alpha = 0
+      // @todo rather than simply starting over and hiccuping a frame could smoothly reset using modulo
+      return
+    }
+    const currentPosition = splineComponent.splinePositions[alphaIndex]
+    const nextPosition = splineComponent.splinePositions[alphaIndex+1]
+    const currentRotation = cameraTrackComponent.pointRotations[alphaIndex]
+    const nextRotation = cameraTrackComponent.pointRotations[alphaIndex+1]
+*/
+    // test - the SplineComponent and CameraTrackComponent don't actually use or set the facade copies of the position and orientation
+    // @todo expose the private state
+    if (alphaIndex >= spline._splineHelperObjects.length - 1) {
+      cameraTrackComponent.alpha = 0
+      return
+    }
+    const currentPosition = spline._splineHelperObjects[alphaIndex].position
+    const nextPosition = spline._splineHelperObjects[alphaIndex + 1].position
+    const currentRotation = spline._splineHelperObjects[alphaIndex].rotation
+    const nextRotation = spline._splineHelperObjects[alphaIndex + 1].rotation
 
     /** @todo replace naive lerp with a spline division based calculation */
 
     cameraTransform.position
-      .lerpVectors(currentPosition, nextPosition, cameraTrack.alpha - currentPointNumber)
+      .lerpVectors(currentPosition, nextPosition, cameraTrackComponent.alpha - alphaIndex)
       .add(transform.position).y -= 1
 
-    const l = new Quaternion().slerpQuaternions(currentRotation, nextRotation, cameraTrack.alpha - currentPointNumber)
+    const l = new Quaternion().slerpQuaternions(currentRotation, nextRotation, cameraTrackComponent.alpha - alphaIndex)
 
     cameraTransform.rotation.copy(l) //.multiply(transform.rotation)
   }

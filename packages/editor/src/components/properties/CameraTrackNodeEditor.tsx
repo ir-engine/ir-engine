@@ -37,7 +37,7 @@ import NodeEditor from './NodeEditor'
 import { EditorComponentType } from './Util'
 
 /**
- * SplineNodeEditor used to create and customize splines in the scene.
+ * CameraTrackNodeEditor adds rotation editing to splines.
  *
  * @param       {Object} props
  * @constructor

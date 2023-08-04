@@ -26,11 +26,12 @@ Ethereal Engine. All Rights Reserved.
 import assert from 'assert'
 import { Vector3 } from 'three'
 
-import { Engine } from '../../../ecs/classes/Engine'
+import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
+import { getState } from '@etherealengine/hyperflux'
 import { Entity } from '../../../ecs/classes/Entity'
 import { getComponent, getComponentState, setComponent } from '../../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../../ecs/functions/EntityFunctions'
-import { addEntityNodeChild, createEntityNode } from '../../../ecs/functions/EntityTree'
+import { addEntityNodeChild } from '../../../ecs/functions/EntityTree'
 import { createEngine } from '../../../initializeEngine'
 import { SplineComponent } from '../../components/SplineComponent'
 
@@ -40,9 +41,7 @@ describe('SplineFunctions', () => {
   beforeEach(() => {
     createEngine()
     entity = createEntity()
-    const node = createEntityNode(entity)
-    const world = Engine.instance.currentWorld
-    addEntityNodeChild(node, world.entityTree.rootNode)
+    addEntityNodeChild(entity, getState(SceneState).sceneEntity)
   })
 
   const sceneComponentData = {

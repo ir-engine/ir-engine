@@ -23,30 +23,18 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { useEffect } from 'react'
-import { ArrowHelper, Group, Quaternion } from 'three'
-
-import { matches } from '../../common/functions/MatchesUtils'
-import { defineComponent, useComponent, useOptionalComponent } from '../../ecs/functions/ComponentFunctions'
+import { defineComponent, useOptionalComponent } from '../../ecs/functions/ComponentFunctions'
 import { useEntityContext } from '../../ecs/functions/EntityFunctions'
-import { ObjectLayers } from '../constants/ObjectLayers'
-import { setObjectLayers } from '../functions/setObjectLayers'
-import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
 import { SplineComponent } from './SplineComponent'
+//import { EditorHelperState } from '@etherealengine/editor/src/services/EditorHelperState'
 
 export const CameraTrackComponent = defineComponent({
   name: 'CameraTrackComponent',
   jsonID: 'camera-track',
 
   onInit: (entity) => {
-    const helper = new Group()
-    helper.name = `camera-track-helper-${entity}`
-    setObjectLayers(helper, ObjectLayers.NodeHelper)
-    addObjectToGroup(entity, helper)
     return {
-      pointRotations: [] as Quaternion[],
-      helper,
-      /** alpha defines how far along the spline the camera is at the current frame */
+      /** alpha defines how far along the spline the camera is at the current frame -> the value ranges from 0 to the number of points */
       alpha: 0,
       /** velocity defines in units per second how fast the camera moves */
       /** @todo */
@@ -57,48 +45,52 @@ export const CameraTrackComponent = defineComponent({
 
   onSet: (entity, component, json) => {
     if (!json) return
-
-    if (matches.array.test(json.pointRotations))
-      component.pointRotations.set(json.pointRotations.map((quat) => new Quaternion().copy(quat)))
   },
 
   toJSON: (entity, component) => {
-    return {
-      pointRotations: component.helper.value.children.map((obj) => obj.quaternion)
-    }
+    return {}
   },
 
-  onRemove: (entity, component) => {
-    removeObjectFromGroup(entity, component.helper.value)
-  },
+  onRemove: (entity, component) => {},
 
   reactor: function (props) {
     const entity = useEntityContext()
+    const splineComponent = useOptionalComponent(entity, SplineComponent)?.value
 
-    const cameraTrack = useComponent(entity, CameraTrackComponent)
-    const spline = useOptionalComponent(entity, SplineComponent)
+    /*
+    useExecute(() => {
 
-    useEffect(() => {
-      if (!spline) return
-      const currentPoints = cameraTrack.helper.value.children.length
-      const newPoints = spline.splinePositions.value.length
+      // @todo fix
+      // const editorHelperState = getState(EditorHelperState)
+      // if( editorHelperState.isPlayModeEnabled ) return;
 
-      for (let i = currentPoints; i < newPoints; i++) {
-        const helper = new ArrowHelper()
-        cameraTrack.helper.value.add(helper)
+      const cameraTrackComponent = getComponent(entity, CameraTrackComponent)
+
+      const transform = getComponent(entity, TransformComponent)
+    
+      cameraTrackComponent.alpha += deltaSeconds * 0.1 // @todo improve
+      const alphaIndex = Math.floor(cameraTrackComponent.alpha)
+    
+      // test - the SplineComponent and CameraTrackComponent don't actually use or set the facade copies of the position and orientation
+      // @todo expose the private state
+      if( alphaIndex >= spline._splineHelperObjects.length-1) {
+        cameraTrackComponent.alpha = 0
+        return
       }
-
-      for (let i = currentPoints; i > newPoints; i--) {
-        cameraTrack.helper.value.children[i].removeFromParent()
-      }
-
-      for (let i = 0; i < cameraTrack.helper.value.children.length; i++) {
-        const child = cameraTrack.helper.value.children[i]
-        child.position.copy(spline.splinePositions.value[i])
-        child.quaternion.copy(cameraTrack.pointRotations.value[i])
-        child.updateMatrixWorld(true)
-      }
-    }, [spline?.splinePositions])
+      const currentPosition = spline._splineHelperObjects[alphaIndex].position
+      const nextPosition = spline._splineHelperObjects[alphaIndex+1].position
+      const currentRotation = spline._splineHelperObjects[alphaIndex].rotation
+      const nextRotation = spline._splineHelperObjects[alphaIndex+1].rotation
+    
+      // @todo replace naive lerp with a spline division based calculation 
+    
+      cameraTransform.position.lerpVectors(currentPosition, nextPosition, cameraTrackComponent.alpha - alphaIndex).add(transform.position).y -= 1
+      const l = new Quaternion().slerpQuaternions(currentRotation, nextRotation, cameraTrackComponent.alpha - alphaIndex)
+      cameraTransform.rotation.copy(l) //.multiply(transform.rotation)
+  
+      // do useful things
+    }, { with:PresentationSystemGroup } )
+    */
 
     return null
   }

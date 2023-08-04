@@ -33,7 +33,6 @@ import {
 import { AnimationSystem } from '@etherealengine/engine/src/avatar/systems/AnimationSystem'
 import { CameraInputSystem } from '@etherealengine/engine/src/camera/systems/CameraInputSystem'
 import { CameraSystem } from '@etherealengine/engine/src/camera/systems/CameraSystem'
-import { SplineCameraSystem } from '@etherealengine/engine/src/camera/systems/SplineCameraSystem'
 import { DebugRendererSystem } from '@etherealengine/engine/src/debug/systems/DebugRendererSystem'
 import { ECSSerializerSystem } from '@etherealengine/engine/src/ecs/ECSSerializerSystem'
 import {
@@ -78,14 +77,7 @@ export const startClientSystems = () => {
 
   /** Avatar / Animation */
   startSystems(
-    [
-      ReferenceSpaceTransformSystem,
-      XRAnchorSystem,
-      AnimationSystem,
-      CameraSystem,
-      SplineCameraSystem,
-      AvatarAnimationSystemGroup
-    ],
+    [ReferenceSpaceTransformSystem, XRAnchorSystem, AnimationSystem, CameraSystem, AvatarAnimationSystemGroup],
     {
       with: AnimationSystemGroup
     }
