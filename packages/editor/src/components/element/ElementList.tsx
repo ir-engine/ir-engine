@@ -35,7 +35,6 @@ import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
 import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
 import { Component, getComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { AmbientLightComponent } from '@etherealengine/engine/src/scene/components/AmbientLightComponent'
-import { CameraTrackComponent } from '@etherealengine/engine/src/scene/components/CameraTrackComponent'
 import { ColliderComponent } from '@etherealengine/engine/src/scene/components/ColliderComponent'
 import { DirectionalLightComponent } from '@etherealengine/engine/src/scene/components/DirectionalLightComponent'
 import { EnvMapBakeComponent } from '@etherealengine/engine/src/scene/components/EnvMapBakeComponent'
@@ -52,6 +51,7 @@ import { ScenePreviewCameraComponent } from '@etherealengine/engine/src/scene/co
 import { SkyboxComponent } from '@etherealengine/engine/src/scene/components/SkyboxComponent'
 import { SpawnPointComponent } from '@etherealengine/engine/src/scene/components/SpawnPointComponent'
 import { SplineComponent } from '@etherealengine/engine/src/scene/components/SplineComponent'
+import { SplineTrackComponent } from '@etherealengine/engine/src/scene/components/SplineTrackComponent'
 import { SpotLightComponent } from '@etherealengine/engine/src/scene/components/SpotLightComponent'
 import { SystemComponent } from '@etherealengine/engine/src/scene/components/SystemComponent'
 import { VideoComponent } from '@etherealengine/engine/src/scene/components/VideoComponent'
@@ -102,7 +102,7 @@ export const ComponentShelfCategories: Record<string, Component[]> = {
   ],
   FX: [ParticleSystemComponent],
   Scripting: [SystemComponent],
-  Misc: [EnvMapBakeComponent, ScenePreviewCameraComponent, SkyboxComponent, CameraTrackComponent, SplineComponent]
+  Misc: [EnvMapBakeComponent, ScenePreviewCameraComponent, SkyboxComponent, SplineTrackComponent, SplineComponent]
 }
 
 export const addSceneComponentElement = (

@@ -53,6 +53,7 @@ import { SceneTagComponent } from '@etherealengine/engine/src/scene/components/S
 import { SkyboxComponent } from '@etherealengine/engine/src/scene/components/SkyboxComponent'
 import { SpawnPointComponent } from '@etherealengine/engine/src/scene/components/SpawnPointComponent'
 import { SplineComponent } from '@etherealengine/engine/src/scene/components/SplineComponent'
+import { SplineTrackComponent } from '@etherealengine/engine/src/scene/components/SplineTrackComponent'
 import { SpotLightComponent } from '@etherealengine/engine/src/scene/components/SpotLightComponent'
 import { SystemComponent } from '@etherealengine/engine/src/scene/components/SystemComponent'
 import { VariantComponent } from '@etherealengine/engine/src/scene/components/VariantComponent'
@@ -93,6 +94,7 @@ import ScenePreviewCameraNodeEditor from '../components/properties/ScenePreviewC
 import SkyboxNodeEditor from '../components/properties/SkyboxNodeEditor'
 import SpawnPointNodeEditor from '../components/properties/SpawnPointNodeEditor'
 import { SplineNodeEditor } from '../components/properties/SplineNodeEditor'
+import { SplineTrackNodeEditor } from '../components/properties/SplineTrackNodeEditor'
 import SpotLightNodeEditor from '../components/properties/SpotLightNodeEditor'
 import SystemNodeEditor from '../components/properties/SystemNodeEditor'
 import TransformPropertyGroup from '../components/properties/TransformPropertyGroup'
@@ -142,3 +144,4 @@ EntityNodeEditor.set(EnvMapBakeComponent, EnvMapBakeNodeEditor)
 EntityNodeEditor.set(PersistentAnchorComponent, PersistentAnchorNodeEditor)
 EntityNodeEditor.set(VariantComponent, VariantNodeEditor)
 EntityNodeEditor.set(SplineComponent, SplineNodeEditor)
+EntityNodeEditor.set(SplineTrackComponent, SplineTrackNodeEditor)

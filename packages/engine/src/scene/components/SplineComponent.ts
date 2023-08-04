@@ -40,11 +40,7 @@ import {
 } from 'three'
 
 import { matches } from '../../common/functions/MatchesUtils'
-import { defineComponent, getOptionalComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
-import { PresentationSystemGroup } from '../../ecs/functions/EngineFunctions'
-import { useEntityContext } from '../../ecs/functions/EntityFunctions'
-import { useExecute } from '../../ecs/functions/SystemFunctions'
-import { TransformComponent } from '../../transform/components/TransformComponent'
+import { defineComponent } from '../../ecs/functions/ComponentFunctions'
 import { ObjectLayers } from '../constants/ObjectLayers'
 import { setObjectLayers } from '../functions/setObjectLayers'
 import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
@@ -69,14 +65,14 @@ class SplineElement {
   }
 }
 
-// @todo debugging -> for now i pulled the elements out of hookstate scope - later revert to be reactive
-
 const ARC_SEGMENTS = 200
 const _point = new Vector3()
 const helperGeometry = new BoxGeometry(0.1, 0.1, 0.1)
 const helperMaterial = new MeshLambertMaterial({ color: 'white' })
 const lineGeometry = new BufferGeometry()
 lineGeometry.setAttribute('position', new BufferAttribute(new Float32Array(ARC_SEGMENTS * 3), 3))
+
+// @todo debugging -> for now i pulled the elements out of hookstate scope - later move at least the array of elements back into SplineComponent
 
 class SplineWrapper extends Group {
   elements: SplineElement[] = []
@@ -94,7 +90,7 @@ class SplineWrapper extends Group {
     this.elements.push(elem)
   }
 
-  removeSplineElement() {
+  removeSplineElement(elem) {
     const elements = this.elements
     for (let i = 0; i < elements.length; i++) {
       if (elements[i].id == elem.id) {
@@ -197,34 +193,6 @@ class SplineWrapper extends Group {
       }
     })
   }
-
-  // test code
-  alpha = 0.0
-  testing(entity) {
-    console.log('.... ' + this.alpha)
-
-    const transform = getOptionalComponent(entity, TransformComponent)
-    if (!transform) return
-
-    this.alpha += 0.01 // deltaSeconds * 0.1
-    const alpha = this.alpha
-    const index = Math.floor(alpha)
-    if (index > this.elements.length - 2) {
-      this.alpha = 0
-      return
-    }
-    const p1 = this.elements[index].position
-    const p2 = this.elements[index + 1].position
-    const q1 = this.elements[index].quaternion
-    const q2 = this.elements[index + 1].quaternion
-
-    // @todo replace naive lerp with a spline division based calculation
-    transform.position.lerpVectors(p1, p2, alpha - index) //.add(transform.position).y -= 1
-    transform.rotation.copy(new Quaternion().slerpQuaternions(q1, q2, alpha - index))
-    //cameraTransform.rotation.copy(l) //.multiply(transform.rotation)
-
-    console.log('....... ' + this.alpha)
-  }
 }
 
 export const SplineComponent = defineComponent({
@@ -233,7 +201,7 @@ export const SplineComponent = defineComponent({
 
   onInit: (entity) => {
     const wrapper = new SplineWrapper(`spline-line-${entity}`)
-    addObjectToGroup(entity, wrapper)
+    addObjectToGroup(entity, wrapper) // hack test
     setObjectLayers(wrapper, ObjectLayers.NodeHelper)
     return {
       wrapper: wrapper
@@ -280,131 +248,5 @@ export const SplineComponent = defineComponent({
   removeSplineElement: (entity, component, elem) => {
     component.value.wrapper.removeSplineElement(elem)
     component.value.wrapper.update()
-  },
-
-  reactor: function (props) {
-    const entity = useEntityContext()
-    const component = useComponent(entity, SplineComponent)
-    //const component = useOptionalComponent(entity, SplineComponent)?.value
-
-    useExecute(
-      () => {
-        component.value.wrapper.testing(entity)
-      },
-      { with: PresentationSystemGroup }
-    )
-
-    // @todo turn reactivity back on by merging wrapper back into this component
-    //useEffect(()=>{
-    //  component.value.wrapper.update()
-    //}, [component.wrapper.elements])
-
-    return null
   }
 })
-
-/*
-
-// this is a pattern to use jsx to keep the spline positions synced with arrows
-// but let's push these arrow things down into the spline itcomponent - why mirror it here?
-
-{
-  reactor: function (props) {
-    return (
-      <>
-        {component.splinePositions.map((point,i) => (
-          <ArrowHelperReactor key={i} arrowsRef={arrowsRef} point={point} />
-        ))}
-      </>
-    )
-
-    return null
-  }
-}
-
-function ArrowHelperReactor(arrowsRef,point) {
-  useEffect( () => {
-    const arrow = new ArrowHelper()
-    arrowsRef.value.add(arrow)
-    return () => {
-      arrowsRef.children.remove(arrow)
-    }
-  })
-}
-
-*/
-
-/*
-
-  reactor: function (props) {
-
-    // this was an idea for late creation of other components to reduce startup costs... not used atm
-    // it turns out to be a hassle to get at state easily
-    const splineRef = useHookstate(()=>{
-      const spline = new Spline()
-      spline.name = `spline-helper-${entity}`
-      setObjectLayers(spline, ObjectLayers.NodeHelper)
-      addObjectToGroup(entity, spline)
-      return spline
-    })
-
-    // this wasn't actually that useful as a pattern, it should be buried inside of the rendering logic not up here
-    const arrowsRef = useHookstate(()=>{
-      const arrows = new Group()
-      arrows.name = `spline-arrows-${entity}`
-      setObjectLayers(arrows, ObjectLayers.NodeHelper)
-      addObjectToGroup(entity, arrows)
-      return arrows
-    })
-
-    // this was another thought about late construction
-    useEffect(()=>{
-
-      // another approach for late building 
-      const spline = new Spline()
-      splineComponent.spline.set(spline)
-      spline.name = `spline-helper-${entity}`
-      setObjectLayers(spline, ObjectLayers.NodeHelper)
-      addObjectToGroup(entity, spline)
-
-      // there's probably no point in having these up at this level at all
-      const arrows = new Group()
-      splineComponent.arrows.set(arrows)
-      arrows.name = `spline-arrows-${entity}`
-      setObjectLayers(arrows, ObjectLayers.NodeHelper)
-      addObjectToGroup(entity, arrows)
-
-      // destroy things when done...
-      return () => {
-        splineComponent.spline.set(null)
-        splineComponent.arrows.set(null)
-        removeObjectFromGroup(entity, arrows )
-        removeObjectFromGroup(entity, spline )
-      }
-    },[])
-
-    return null
-  }
-
-*/
-
-/*
-
-    // there was a concept of arrow helpers... removed for now
-
-    useEffect(() => {
-      const arrows = splineComponent.arrows.value!
-      while(arrows.children.length<splineComponent.splinePositions.value.length) {
-        arrows.add(new ArrowHelper)
-      }
-      while(arrows.children.length>splineComponent.splinePositions.value.length) {
-        arrows.children[arrows.children.length-1].removeFromParent()
-      }
-      for (let i = 0; i < arrows.children.length; i++) {
-        const child = arrows.children[i]
-        child.position.copy(splineComponent.splinePositions.value[i])
-        child.quaternion.copy(splineComponent.splineRotations.value[i])
-        child.updateMatrixWorld(true)
-      }
-    }, [splineComponent.splinePositions, splineComponent.splineRotations])
-    */

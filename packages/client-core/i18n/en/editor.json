@@ -658,8 +658,14 @@
       "lbl-useLoadingEffect": "Use Loading Effect"
     },
     "spline": {
-      "description": "Dynamically create and customize curves.",
-      "lbl-addNode": "Add node to curve."
+      "name": "Spline",
+      "description": "Create and customize curves.",
+      "lbl-addNode": "Add node to curve"
+    },
+    "splinetrack": {
+      "name": "SplineTrack",
+      "description": "Have an entity follow a Spline",
+      "lbl-speed": "Adjust overall speed"
     },
     "systemnode": {
       "description": "Attach script.",
