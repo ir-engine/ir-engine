@@ -19,6 +19,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
+import { DataChannelType } from '@etherealengine/common/src/interfaces/DataChannelType'
 import { OpaqueType } from '@etherealengine/common/src/interfaces/OpaqueType'
 import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 import type { Static } from '@feathersjs/typebox'
@@ -31,6 +32,15 @@ export const recordingMethods = ['find', 'get', 'create', 'patch', 'remove'] as 
 
 export type RecordingID = OpaqueType<'RecordingID'> & string
 
+export const recordingSchemaType = Type.Object(
+  {
+    user: Type.Array(Type.String()),
+    peers: Type.Record(Type.String(), Type.Array(TypedString<DataChannelType>()))
+  },
+  { $id: 'RecordingSchema', additionalProperties: false }
+)
+export type AwsKeysType = Static<typeof recordingSchemaType>
+
 // Main data model schema
 export const recordingSchema = Type.Object(
   {
@@ -38,7 +48,7 @@ export const recordingSchema = Type.Object(
       format: 'uuid'
     }),
     ended: Type.Boolean(),
-    schema: Type.String(),
+    schema: Type.Ref(recordingSchemaType),
     userId: TypedString<UserId, 'uuid'>({
       format: 'uuid'
     }),
@@ -49,6 +59,10 @@ export const recordingSchema = Type.Object(
   { $id: 'Recording', additionalProperties: false }
 )
 export type RecordingType = Static<typeof recordingSchema>
+
+export type AwsSettingDatabaseType = Omit<RecordingType, 'schema'> & {
+  schema: string
+}
 
 // Schema for creating new entries
 export const recordingDataSchema = Type.Pick(recordingSchema, ['userId', 'ended', 'schema'], {
