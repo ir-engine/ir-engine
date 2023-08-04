@@ -177,7 +177,7 @@ export const uploadLocalProjectToProvider = async (
   const results = [] as (string | null)[]
   for (let file of filtered) {
     try {
-      const fileResult = await uploadSceneToStaticResources(app, projectName, file, storageProviderName)
+      const fileResult = await uploadSceneToStaticResources(app, projectName, file)
       const filePathRelative = processFileName(file.slice(projectPath.length))
       await storageProvider.putObject(
         {
