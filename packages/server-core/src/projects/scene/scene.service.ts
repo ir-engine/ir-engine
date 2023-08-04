@@ -222,8 +222,8 @@ export default (app: Application) => {
       })) as InstanceAttendanceType[]
 
       return Promise.all(
-        instanceAttendances.map((instanceAttendances) => {
-          return app.channel(`userIds/${instanceAttendances.userId}`).send({})
+        instanceAttendances.map((instanceAttendance) => {
+          return app.channel(`userIds/${instanceAttendance.userId}`).send({})
         })
       )
     })

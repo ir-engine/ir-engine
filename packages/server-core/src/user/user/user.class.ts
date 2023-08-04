@@ -131,7 +131,15 @@ export class UserService<T = UserType, ServiceParams extends Params = UserParams
 
   async create(data: UserData, params?: UserParams) {
     data.inviteCode = Math.random().toString(36).slice(2)
-    const result = await super._create(data, params)
+
+    const dataWithoutExtras = { ...data } as any
+
+    delete dataWithoutExtras.scopes
+    if (!dataWithoutExtras.avatarId) delete dataWithoutExtras.avatarId
+
+    const result = await super._create(dataWithoutExtras, params)
+
+    result.scopes = [...data.scopes]
 
     await this._afterCreate(this.app, result)
 

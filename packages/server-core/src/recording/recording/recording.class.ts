@@ -74,14 +74,14 @@ export class Recording<T = RecordingDataType> extends Service<T> {
         const recordings = (await super.find({ ...params })) as Paginated<RecordingDataType>
 
         // TODO: Move this to resolvers as recordings service is moved to feathers 5
-        const recordingUsers = this.app.service(userPath)._find({
+        const recordingUsers = (await this.app.service(userPath)._find({
           query: {
             id: {
               $in: recordings.data.map((item) => item.userId)
             }
           },
           paginate: false
-        }) as any as UserType[]
+        })) as any as UserType[]
 
         for (const recording of recordings.data) {
           const user = recordingUsers.find((item) => item.id === recording.userId)

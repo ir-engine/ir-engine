@@ -28,10 +28,10 @@ import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
 
 import { AdminScope as AdminScopeInterface } from '@etherealengine/engine/src/schemas/interfaces/AdminScope'
 
+import { ScopeTypeType, scopeTypePath } from '@etherealengine/engine/src/schemas/scope/scope-type.schema'
 import { UserType, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Application } from '../../../declarations'
 import { UserParams } from '../../api/root-params'
-import { createScopeTypeModel } from './scope.model'
 
 export type AdminScopeDataType = AdminScopeInterface
 
@@ -48,36 +48,34 @@ export class Scope<T = AdminScopeDataType> extends Service<T> {
     const skip = params?.query?.$skip ? params.query.$skip : 0
     const limit = params?.query?.$limit ? params.query.$limit : 10
 
-    const scopes = await (this.app.service('scope') as any).Model.findAndCountAll({
-      offset: skip,
-      limit: limit,
-      include: [
-        {
-          model: createScopeTypeModel(this.app),
-          required: false
-        }
-      ],
-      raw: true,
-      nest: true
-    })
+    const scopes = (await super.find(params)) as any
 
-    const users = this.app.service(userPath)._find({
+    const data = scopes.data ?? scopes
+    // TODO: Move following to scope resolver's
+    const scopeTypes = (await this.app.service(scopeTypePath)._find({
       query: {
-        id: scopes.rows.map((item) => item.userId)
+        type: {
+          $in: data.map((item) => item.type)
+        }
       },
       paginate: false
-    }) as any as UserType[]
+    })) as any as ScopeTypeType[]
+
+    const users = (await this.app.service(userPath)._find({
+      query: {
+        id: {
+          $in: data.map((item) => item.userId)
+        }
+      },
+      paginate: false
+    })) as any as UserType[]
 
     for (const scope of scopes) {
       scope.user = users.find((item) => item.id === scope.userId)
+      scope.scopeType = scopeTypes.find((item) => item.type === scope.type)
     }
 
-    return {
-      skip: skip,
-      limit: limit,
-      total: scopes.count,
-      data: scopes.rows
-    }
+    return scopes
   }
 
   async create(data): Promise<T | T[]> {

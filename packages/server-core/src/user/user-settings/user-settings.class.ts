@@ -43,8 +43,18 @@ export class UserSettings<T = UserSettingsDataType> extends Service<T> {
   }
 
   async find(params?: UserParams): Promise<T[] | Paginated<T>> {
+    // TODO: Remove as any from following in feathers 5
     const userSettings = (await super.find(params)) as any
-    const data = userSettings.data.map((el) => {
+
+    // TODO: Remove all of the following code to resolver
+    const results = {
+      total: userSettings.total ?? userSettings.length,
+      limit: userSettings.limit ?? 0,
+      skip: userSettings.skip ?? 0,
+      data: userSettings.data ?? userSettings
+    }
+
+    results.data = results.data.map((el) => {
       let themeModes = JSON.parse(el.themeModes)
 
       if (typeof themeModes === 'string') themeModes = JSON.parse(themeModes)
@@ -55,12 +65,7 @@ export class UserSettings<T = UserSettingsDataType> extends Service<T> {
       }
     })
 
-    return {
-      total: userSettings.total,
-      limit: userSettings.limit,
-      skip: userSettings.skip,
-      data
-    }
+    return results
   }
 
   async get(id: Id, params?: Params): Promise<T> {

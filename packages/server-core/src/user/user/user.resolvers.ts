@@ -48,8 +48,10 @@ import { getDateTimeSql } from '../../util/get-datetime-sql'
 
 export const userResolver = resolve<UserType, HookContext>({
   avatar: virtual(async (user, context) => {
-    const avatar = await context.app.service(avatarPath).get(user.avatarId)
-    return avatar
+    if (user.avatarId) {
+      const avatar = await context.app.service(avatarPath).get(user.avatarId)
+      return avatar
+    }
   }),
   userSetting: virtual(async (user, context) => {
     const userSetting = (await context.app.service(userSettingPath).find({
