@@ -150,15 +150,15 @@ export const createIKAnimator = async (entity: Entity) => {
 
 export const getAnimations = async () => {
   const manager = getMutableState(AnimationState)
-  if (!manager.targetsAnimation.value) {
+  if (!manager.ikTargetsAnimations.value) {
     const asset = await AssetLoader.loadAsync(
       `${config.client.fileServer}/projects/default-project/assets/vrm_mocap_targets.glb`
     )
     console.log(asset, `${config.client.fileServer}/projects/default-project/assets/vrm_mocap_targets.glb`)
     const glb = asset as GLTF
-    manager.targetsAnimation.set(glb.animations)
+    manager.ikTargetsAnimations.set(glb.animations)
   }
-  return manager.targetsAnimation.value!
+  return manager.ikTargetsAnimations.value!
 }
 
 export const rigAvatarModel = (entity: Entity) => (model: VRM) => {

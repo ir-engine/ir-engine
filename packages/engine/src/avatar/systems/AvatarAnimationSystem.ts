@@ -397,7 +397,7 @@ const execute = () => {
     const animationState = getState(AnimationState)
     const avatarComponent = getComponent(entity, AvatarComponent)
 
-    if (!animationState.targetsAnimation) continue
+    if (!animationState.ikTargetsAnimations) continue
     if (!rig.hips?.node) continue
 
     //calculate world positions

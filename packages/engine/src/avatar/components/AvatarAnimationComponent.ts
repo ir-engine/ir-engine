@@ -209,7 +209,7 @@ export const AvatarRigComponent = defineComponent({
     //Calculate ik target offsets for retargeting
     useEffect(() => {
       if (!animComponent.animations.value.length || !rigComponent.targets.children.length) return
-      const bindTracks = AnimationClip.findByName(getState(AnimationState).targetsAnimation!, 'BindPose').tracks
+      const bindTracks = AnimationClip.findByName(getState(AnimationState).ikTargetsAnimations!, 'BindPose').tracks
       if (!bindTracks) return
 
       const rig = getComponent(entity, AvatarRigComponent)

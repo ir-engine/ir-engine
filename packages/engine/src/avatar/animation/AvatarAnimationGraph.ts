@@ -38,7 +38,7 @@ import { AvatarAnimationComponent } from '../components/AvatarAnimationComponent
 
 export const getAnimationAction = (name: string, mixer: AnimationMixer, animations?: AnimationClip[]) => {
   const manager = getState(AnimationState)
-  const clip = AnimationClip.findByName(animations ?? manager.targetsAnimation!, name)
+  const clip = AnimationClip.findByName(animations ?? manager.ikTargetsAnimations!, name)
   return mixer.clipAction(clip)
 }
 
@@ -51,7 +51,7 @@ let fallWeight = 0,
 //This is a stateless animation blend, it is not a graph
 //To do: make a stateful blend tree
 export const setAvatarLocomotionAnimation = (entity: Entity) => {
-  if (!getState(AnimationState).targetsAnimation) return
+  if (!getState(AnimationState).ikTargetsAnimations) return
   const animationComponent = getComponent(entity, AnimationComponent)
   const avatarAnimationComponent = getComponent(entity, AvatarAnimationComponent)
 

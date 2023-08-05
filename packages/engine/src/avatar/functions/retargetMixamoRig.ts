@@ -53,7 +53,7 @@ export function retargetMixamoAnimation(clip: AnimationClip, mixamoRig: Object3D
   // Adjust with reference to hips height.
   // Additional logic present to handle transform differences between FBX and GLB
   const hips = mixamoRig.getObjectByName('mixamorigHips')
-  console.log(hips)
+
   const motionHipsHeight = hips!.position.y
   const vrmHipsY = vrm.humanoid.getNormalizedBoneNode('hips')!.getWorldPosition(_vec3).y
   const vrmRootY = vrm.scene.getWorldPosition(_vec3).y
@@ -73,16 +73,9 @@ export function retargetMixamoAnimation(clip: AnimationClip, mixamoRig: Object3D
     if (vrmNodeName != null) {
       const propertyName = trackSplitted[1]
 
-      console.log(mixamoRigNode.parent!.matrixWorld.elements)
-      console.log(mixamoRigNode.matrixWorld.elements)
-
       // Store rotations of rest-pose.
       mixamoRigNode.getWorldQuaternion(restRotationInverse).invert()
       mixamoRigNode.parent!.getWorldQuaternion(parentRestWorldRotation)
-
-      console.log(restRotationInverse.x, restRotationInverse.y, restRotationInverse.z, restRotationInverse.w)
-
-      console.log(mixamoRigNode.name, vrmBoneName)
 
       if (track instanceof QuaternionKeyframeTrack) {
         // Retarget rotation of mixamoRig to NormalizedBone.

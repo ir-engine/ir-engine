@@ -36,10 +36,12 @@ import { config } from '@etherealengine/common/src/config'
 export const AnimationState = defineState({
   name: 'animationManager',
   initial: () => ({
-    targetsAnimation: undefined as AnimationClip[] | undefined
+    ikTargetsAnimations: undefined as AnimationClip[] | undefined,
+    fkAnimations: undefined as AnimationClip[] | undefined
   })
 })
 
+/** @deprecated replaced by AnimationState */
 export class AnimationManager {
   static instance: AnimationManager = new AnimationManager()
 
