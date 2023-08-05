@@ -149,7 +149,11 @@ export class UserService<T = UserType, ServiceParams extends Params = UserParams
   }
 
   async patch(id: NullableId, data: UserPatch, params?: UserParams) {
-    const result = (await super._patch(id, data, params)) as UserType
+    const dataWithoutExtras = { ...data } as any
+
+    delete dataWithoutExtras.scopes
+
+    const result = (await super._patch(id, dataWithoutExtras, params)) as UserType
 
     await this._afterPatch(this.app, result)
 

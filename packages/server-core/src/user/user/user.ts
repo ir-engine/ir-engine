@@ -28,7 +28,7 @@ import _ from 'lodash'
 import logger from '../../ServerLogger'
 import config from '../../appconfig'
 
-import { instanceAttendancePath } from '@etherealengine/engine/src/schemas/networking/instance-attendance.schema'
+import { instanceAttendanceDBPath } from '@etherealengine/engine/src/schemas/networking/instance-attendance.schema'
 import { Knex } from 'knex'
 import { Application } from '../../../declarations'
 import { UserService } from './user.class'
@@ -83,9 +83,9 @@ export default (app: Application): void => {
 
       const layerUsers = await knexClient
         .from(userPath)
-        .join(instanceAttendancePath, `${instanceAttendancePath}.userId`, '=', `${userPath}.id`)
+        .join(instanceAttendanceDBPath, `${instanceAttendanceDBPath}.userId`, '=', `${userPath}.id`)
         .whereIn(
-          `${instanceAttendancePath}.instanceId`,
+          `${instanceAttendanceDBPath}.instanceId`,
           instances.map((instance) => instance.instanceId)
         )
         .whereNot(`${userPath}.id`, data.id)

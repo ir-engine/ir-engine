@@ -30,6 +30,7 @@ import { querySyntax, Type } from '@feathersjs/typebox'
 import { TypedString } from '../../common/types/TypeboxUtils'
 
 export const instanceAttendancePath = 'instance-attendance'
+export const instanceAttendanceDBPath = 'instance_attendance'
 
 // Main data model schema
 export const instanceAttendanceSchema = Type.Object(

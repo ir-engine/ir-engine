@@ -25,16 +25,16 @@ Ethereal Engine. All Rights Reserved.
 
 import { iff, isProvider } from 'feathers-hooks-common'
 
-import { UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { UserType, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { HookContext } from '@feathersjs/feathers'
 import authenticate from '../../hooks/authenticate'
 import verifyScope from '../../hooks/verify-scope'
 
 // TODO: Populating Message's sender property here manually. Once message service is moved to feathers 5. This should be part of its resolver.
 const populateUser = async (context: HookContext) => {
-  const { dispatch } = context
+  const { result } = context
 
-  const data = dispatch.data ? dispatch.data : dispatch
+  const data = result.data ? result.data : result
 
   //@ts-ignore
   const users = (await context.app.service(userPath)._find({
