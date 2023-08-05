@@ -59,35 +59,6 @@ export class Message<T = MessageDataType> extends Service<T> {
     this.app = app
   }
 
-  async find(params?: MessageParams): Promise<T[]> {
-    const data = await this.Model.findAll({
-      where: {
-        channelID: params?.query?.channelId
-      },
-      skip: params?.query?.skip ?? 0,
-      limit: params?.query?.limit ?? 100,
-      order: params?.query?.order ?? [['createdAt', 'ASC']]
-    })
-
-    // TODO: Populating Message's sender property here manually. Once message service is moved to feathers 5. This should be part of its resolver.
-    const users = (await this.app.service(userPath)._find({
-      query: {
-        id: {
-          $in: data.map((item) => item.dataValues.senderId)
-        }
-      },
-      paginate: false
-    })) as any as UserType[]
-
-    for (const message of data) {
-      if (message.dataValues.senderId && !message.dataValues.sender) {
-        message.dataValues.sender = users.find((user) => user.id === message.dataValues.senderId)
-      }
-    }
-
-    return data as T[]
-  }
-
   /**
    * A function which is used to create a message
    *

@@ -29,36 +29,39 @@ import inviteRemoveAuthenticate from '@etherealengine/server-core/src/hooks/invi
 import attachOwnerIdInBody from '@etherealengine/server-core/src/hooks/set-loggedin-user-in-body'
 import attachOwnerIdInQuery from '@etherealengine/server-core/src/hooks/set-loggedin-user-in-query'
 
-import addAssociations from '../../hooks/add-associations'
+import { UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { HookContext } from '@feathersjs/feathers'
 import authenticate from '../../hooks/authenticate'
 import verifyScope from '../../hooks/verify-scope'
+
+// TODO: Populating Message's sender property here manually. Once message service is moved to feathers 5. This should be part of its resolver.
+const populateUser = async (context: HookContext) => {
+  const { dispatch } = context
+
+  const data = dispatch.data ? dispatch.data : dispatch
+
+  //@ts-ignore
+  const users = (await context.app.service(userPath)._find({
+    query: {
+      id: {
+        $in: data.map((item) => item.dataValues.senderId)
+      }
+    },
+    paginate: false
+  })) as any as UserType[]
+
+  for (const message of data) {
+    if (message.dataValues.senderId && !message.dataValues.sender) {
+      message.dataValues.sender = users.find((user) => user.id === message.dataValues.senderId)
+    }
+  }
+}
 
 export default {
   before: {
     all: [],
-    find: [
-      authenticate(),
-      attachOwnerIdInQuery('userId'),
-      addAssociations({
-        models: [
-          {
-            model: 'user',
-            as: 'user'
-          }
-        ]
-      })
-    ],
-    get: [
-      iff(isProvider('external'), authenticate() as any, attachOwnerIdInQuery('userId') as any),
-      addAssociations({
-        models: [
-          {
-            model: 'user',
-            as: 'user'
-          }
-        ]
-      })
-    ],
+    find: [authenticate(), attachOwnerIdInQuery('userId')],
+    get: [iff(isProvider('external'), authenticate() as any, attachOwnerIdInQuery('userId') as any)],
     create: [authenticate(), attachOwnerIdInBody('userId')],
     update: [iff(isProvider('external'), authenticate() as any, verifyScope('admin', 'admin') as any)],
     patch: [iff(isProvider('external'), authenticate() as any, verifyScope('admin', 'admin') as any)],
@@ -67,8 +70,8 @@ export default {
 
   after: {
     all: [],
-    find: [],
-    get: [],
+    find: [populateUser],
+    get: [populateUser],
     create: [],
     update: [],
     patch: [],

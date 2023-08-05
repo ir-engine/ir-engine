@@ -53,6 +53,26 @@ export class Channel<T = ChannelDataType> extends Service<T> {
     this.app = app
   }
 
+  async get(id: ChannelID, params?: UserParams) {
+    const channel = (await super.get(id, params)) as ChannelDataType
+
+    // TODO: Populating ChannelUser's sender property here manually. Once channel-user service is moved to feathers 5. This should be part of its resolver.
+    if (channel.channel_users && channel.channel_users.length > 0) {
+      for (const channelUser of channel.channel_users) {
+        channelUser.user = await this.app.service(userPath)._get(channelUser.userId)
+      }
+    }
+
+    // TODO: Populating Message's sender property here manually. Once message service is moved to feathers 5. This should be part of its resolver.
+    for (const message of channel.messages) {
+      if (message && !message.sender) {
+        message.sender = await this.app.service(userPath)._get(message.senderId)
+      }
+    }
+
+    return channel as T
+  }
+
   // @ts-ignore
   async create(data: ChannelCreateType, params?: UserParams) {
     const users = data.users
@@ -212,10 +232,10 @@ export class Channel<T = ChannelDataType> extends Service<T> {
 
         // TODO: Populating Message's sender property here manually. Once message service is moved to feathers 5. This should be part of its resolver.
         for (const channel of channels) {
-          if (channel.dataValues.message && !channel.dataValues.message.sender) {
-            channel.dataValues.message.sender = await this.app
-              .service(userPath)
-              ._get(channel.dataValues.message.senderId)
+          for (const message of channel.dataValues.messages) {
+            if (message && !message.sender) {
+              message.sender = await this.app.service(userPath)._get(message.senderId)
+            }
           }
         }
 

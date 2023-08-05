@@ -23,71 +23,56 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import addAssociations from '@etherealengine/server-core/src/hooks/add-associations'
 import channelPermissionAuthenticate from '@etherealengine/server-core/src/hooks/channel-permission-authenticate'
 import messagePermissionAuthenticate from '@etherealengine/server-core/src/hooks/message-permission-authenticate'
 
+import { UserType, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { HookContext } from '@feathersjs/feathers'
 import authenticate from '../../hooks/authenticate'
+
+// TODO: Populating Message's sender property here manually. Once message service is moved to feathers 5. This should be part of its resolver.
+const populateSender = async (context: HookContext) => {
+  const { dispatch } = context
+
+  const data = dispatch.data ? dispatch.data : dispatch
+
+  //@ts-ignore
+  const users = (await context.app.service(userPath)._find({
+    query: {
+      id: {
+        $in: data.map((item) => item.dataValues.senderId)
+      }
+    },
+    paginate: false
+  })) as any as UserType[]
+
+  for (const message of data) {
+    if (message.dataValues.senderId && !message.dataValues.sender) {
+      message.dataValues.sender = users.find((user) => user.id === message.dataValues.senderId)
+    }
+  }
+}
 
 // Don't remove this comment. It's needed to format import lines nicely.
 
 export default {
   before: {
     all: [authenticate()],
-    find: [
-      channelPermissionAuthenticate(),
-      addAssociations({
-        models: [
-          {
-            model: 'user',
-            as: 'sender'
-          }
-        ]
-      })
-    ],
-    get: [
-      addAssociations({
-        models: [
-          {
-            model: 'user',
-            as: 'sender'
-          }
-        ]
-      })
-    ],
+    find: [channelPermissionAuthenticate()],
+    get: [],
     create: [], // TODO: disallow if message empty
-    update: [
-      messagePermissionAuthenticate(),
-      addAssociations({
-        models: [
-          {
-            model: 'user',
-            as: 'sender'
-          }
-        ]
-      })
-    ],
-    patch: [
-      messagePermissionAuthenticate(),
-      addAssociations({
-        models: [
-          {
-            model: 'user',
-            as: 'sender'
-          }
-        ]
-      })
-    ],
+    update: [messagePermissionAuthenticate()],
+    patch: [messagePermissionAuthenticate()],
     remove: [messagePermissionAuthenticate()]
   },
 
   after: {
     all: [],
-    find: [],
-    get: [],
+    find: [populateSender],
+    get: [populateSender],
     create: [],
-    update: [],
-    patch: [],
+    update: [populateSender],
+    patch: [populateSender],
     remove: []
   },
 

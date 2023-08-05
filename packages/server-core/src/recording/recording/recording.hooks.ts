@@ -25,42 +25,40 @@ Ethereal Engine. All Rights Reserved.
 
 import { iff, isProvider } from 'feathers-hooks-common'
 
-import addAssociations from '../../hooks/add-associations'
+import { UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { HookContext } from '@feathersjs/feathers'
 import authenticate from '../../hooks/authenticate'
 import verifyScope from '../../hooks/verify-scope'
+
+// TODO: Populating Message's sender property here manually. Once message service is moved to feathers 5. This should be part of its resolver.
+const populateUser = async (context: HookContext) => {
+  const { dispatch } = context
+
+  const data = dispatch.data ? dispatch.data : dispatch
+
+  //@ts-ignore
+  const users = (await context.app.service(userPath)._find({
+    query: {
+      id: {
+        $in: data.map((item) => item.dataValues.senderId)
+      }
+    },
+    paginate: false
+  })) as any as UserType[]
+
+  for (const message of data) {
+    if (message.dataValues.senderId && !message.dataValues.sender) {
+      message.dataValues.sender = users.find((user) => user.id === message.dataValues.senderId)
+    }
+  }
+}
 
 export default {
   before: {
     all: [authenticate()],
-    find: [
-      iff(
-        isProvider('external'),
-        verifyScope('recording', 'read'),
-        addAssociations({
-          models: [
-            {
-              model: 'user',
-              as: 'user'
-            }
-          ]
-        }) as any
-      )
-    ],
+    find: [iff(isProvider('external'), verifyScope('recording', 'read'))],
     get: [iff(isProvider('external'), verifyScope('recording', 'read') as any)],
-    create: [
-      iff(
-        isProvider('external'),
-        verifyScope('recording', 'write'),
-        addAssociations({
-          models: [
-            {
-              model: 'user',
-              as: 'user'
-            }
-          ]
-        }) as any
-      )
-    ],
+    create: [iff(isProvider('external'), verifyScope('recording', 'write'))],
     update: [iff(isProvider('external'), verifyScope('recording', 'write') as any)],
     patch: [iff(isProvider('external'), verifyScope('recording', 'write') as any)],
     remove: [iff(isProvider('external'), verifyScope('recording', 'write') as any)]
@@ -68,9 +66,9 @@ export default {
 
   after: {
     all: [],
-    find: [],
+    find: [populateUser],
     get: [],
-    create: [],
+    create: [populateUser],
     update: [],
     patch: [],
     remove: []
