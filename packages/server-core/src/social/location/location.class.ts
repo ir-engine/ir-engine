@@ -264,10 +264,17 @@ export class LocationService<T = LocationType, ServiceParams extends Params = Lo
       if (location.locationSetting) await this.app.service(locationSettingPath).remove(location.locationSetting.id)
 
       try {
+        // const admins = await this.app.service(locationAdminPath)._find(null, {
+        //   query: {
+        //     locationId: id,
+        //     userId: selfUser?.id ?? null
+        //   }
+        // })
+
         await this.app.service(locationAdminPath).remove(null, {
           query: {
-            locationId: id,
-            userId: selfUser?.id ?? null
+            locationId: id.toString(),
+            userId: selfUser?.id
           }
         })
       } catch (err) {

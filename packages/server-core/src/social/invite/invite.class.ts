@@ -32,6 +32,7 @@ import Sequelize, { Op } from 'sequelize'
 import { IdentityProviderInterface } from '@etherealengine/common/src/dbmodels/IdentityProvider'
 import { Invite as InviteType } from '@etherealengine/engine/src/schemas/interfaces/Invite'
 
+import { ChannelID } from '@etherealengine/common/src/dbmodels/Channel'
 import { UserType, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
@@ -121,7 +122,7 @@ export const inviteReceived = async (inviteService: Invite, query) => {
     result.data.map(async (invite) => {
       if (invite.inviteType === 'channel' && invite.targetObjectId) {
         try {
-          const channel = await inviteService.app.service('channel').get(invite.targetObjectId)
+          const channel = await inviteService.app.service('channel').get(invite.targetObjectId as ChannelID)
           invite.channelName = channel.name
         } catch (err) {
           invite.channelName = '<A deleted channel>'
@@ -162,7 +163,7 @@ export const inviteSent = async (inviteService: Invite, query: Query) => {
     result.data.map(async (invite) => {
       if (invite.inviteType === 'channel' && invite.targetObjectId) {
         try {
-          const channel = await inviteService.app.service('channel').get(invite.targetObjectId)
+          const channel = await inviteService.app.service('channel').get(invite.targetObjectId as ChannelID)
           invite.channelName = channel.name
         } catch (err) {
           invite.channelName = '<A deleted channel>'
@@ -209,7 +210,7 @@ export const inviteAll = async (inviteService: Invite, query: Query, user: UserT
     result.data.map(async (invite) => {
       if (invite.inviteType === 'channel' && invite.targetObjectId) {
         try {
-          const channel = await inviteService.app.service('channel').get(invite.targetObjectId)
+          const channel = await inviteService.app.service('channel').get(invite.targetObjectId as ChannelID)
           if (!channel) throw new Error()
           invite.channelName = channel.name
         } catch (err) {

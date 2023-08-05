@@ -32,6 +32,7 @@ import { IdentityProviderInterface } from '@etherealengine/common/src/dbmodels/I
 import { Invite as InviteType } from '@etherealengine/engine/src/schemas/interfaces/Invite'
 import { locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
 
+import { ChannelID } from '@etherealengine/common/src/dbmodels/Channel'
 import { UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Application } from '../../declarations'
 import logger from '../ServerLogger'
@@ -59,7 +60,7 @@ async function generateEmail(
   const templatePath = path.join(emailAccountTemplatesPath, `magiclink-email-invite-${inviteType}.pug`)
 
   if (inviteType === 'channel') {
-    const channel = await app.service('channel').get(targetObjectId!)
+    const channel = await app.service('channel').get(targetObjectId! as ChannelID)
     channelName = channel.name
   }
 
@@ -104,7 +105,7 @@ async function generateSMS(
   let channelName, locationName
   const hashLink = getInviteLink(inviteType, result.id, result.passcode)
   if (inviteType === 'channel') {
-    const channel = await app.service('channel').get(targetObjectId!)
+    const channel = await app.service('channel').get(targetObjectId! as ChannelID)
     channelName = channel.name
   }
 
