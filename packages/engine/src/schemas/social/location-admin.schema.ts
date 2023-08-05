@@ -33,8 +33,6 @@ export const locationAdminPath = 'location-admin'
 
 export const locationAdminMethods = ['find', 'create', 'patch', 'remove', 'get'] as const
 
-export const locationAdminPath = 'location-admin'
-
 // Main data model schema
 export const locationAdminSchema = Type.Object(
   {
