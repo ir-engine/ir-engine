@@ -27,73 +27,66 @@ import { Vector3 } from 'three'
 import { updateRigPosition, updateRigRotation } from './UpdateRig'
 
 import MediapipePoseNames from './MediapipePoseNames'
-import { TFVectorPose, Vector } from './solvers'
-import { calcArms } from './solvers/PoseSolver/calcArms'
-import { calcHips } from './solvers/PoseSolver/calcHips'
-import { calcLegs } from './solvers/PoseSolver/calcLegs'
+import { TPose, Vector } from './solvers'
 
-const UpdateSolvedPose = (rawPose, pose, avatarRig, avatarTransform) => {
+import { PoseSolver } from './solvers/PoseSolver'
+
+const UpdateSolvedPose = (rawPose, pose, hipsPos, avatarRig, avatarTransform) => {
   if (rawPose) {
-    // const poseData = PoseSolver.solve(rawPose, pose)
-    // console.log(poseData)
+    const poseData = PoseSolver.solve(rawPose, pose) as TPose
 
-    const hipsCalc = calcHips(rawPose, pose)
-    const arms = calcArms(rawPose as TFVectorPose)
-    const legs = calcLegs(rawPose as TFVectorPose)
+    const {
+      RightUpperArm,
+      RightLowerArm,
+      LeftUpperArm,
+      LeftLowerArm,
+      RightHand,
+      LeftHand,
+      RightUpperLeg,
+      RightLowerLeg,
+      LeftUpperLeg,
+      LeftLowerLeg,
+      Hips,
+      Spine
+    } = poseData
 
-    const leftFoot = Vector.fromArray(rawPose[MediapipePoseNames.indexOf('left heel')])
-    const rightFoot = Vector.fromArray(rawPose[MediapipePoseNames.indexOf('right heel')])
-    // console.log(leftFoot.y, rightFoot.y)
+    const leftFoot = Vector.fromArray(rawPose[MediapipePoseNames.indexOf('left_heel')])
+    const rightFoot = Vector.fromArray(rawPose[MediapipePoseNames.indexOf('right_heel')])
+
     // foot y is how far below the hip center the foot is, with positive being downwards
     const lowerFoot = Math.min(leftFoot.y, rightFoot.y)
 
-    const world = hipsCalc.Hips.worldPosition! as Vector3
+    const world = Hips.worldPosition! as Vector3
     const hipsPos = {
       x: world?.x,
       y: lowerFoot,
       z: world?.z
     }
 
-    // const Head = avatarRig.vrm.humanoid!.getNormalizedBoneNode(VRMHumanBoneName['Head'])
-
-    // const lookTarget = new Vector3(
-    //   (rawPose[MediapipePoseNames.indexOf('left ear')].x + rawPose[MediapipePoseNames.indexOf('right ear')].x) / 2,
-    //   (rawPose[MediapipePoseNames.indexOf('left ear')].y + rawPose[MediapipePoseNames.indexOf('right ear')].y) / 2,
-    //   (rawPose[MediapipePoseNames.indexOf('left ear')].z + rawPose[MediapipePoseNames.indexOf('right ear')].z) / 2
-    // )
-
-    // avatarRig.humanoid.lookTarget.lerp(lookTarget, 0.1)
-    //   .multiplyScalar(-1)
-    //   .applyQuaternion(avatarTransform.rotation)
-    //   .add(new Vector3(hipsPos.x, hipsPos.y, hipsPos.z))
-
-    // updateRigPosition('Head', headPos, 1, 0.7, avatarRig)
-    // updateRigRotation('Head', headCalc, 1, 0.7, avatarRig)
-
     updateRigPosition('Hips', hipsPos, 1, 0.07, avatarRig)
 
-    updateRigRotation('Hips', hipsCalc.Hips.rotation, 1, 0.7, avatarRig)
+    updateRigRotation('Hips', Hips.rotation, 1, 0.7, avatarRig)
 
-    updateRigRotation('Chest', hipsCalc.Spine, 0.25, 0.3, avatarRig)
+    updateRigRotation('Chest', Spine, 0.25, 0.3, avatarRig)
 
-    updateRigPosition('Spine', hipsCalc.Spine, 0.45, 0.3, avatarRig)
+    updateRigPosition('Spine', Spine, 0.45, 0.3, avatarRig)
 
-    updateRigRotation('RightUpperArm', arms.UpperArm.r, 1, 0.3, avatarRig)
+    updateRigRotation('RightUpperArm', RightUpperArm, 1, 0.3, avatarRig)
 
-    updateRigRotation('RightLowerArm', arms.LowerArm.r, 1, 0.3, avatarRig)
+    updateRigRotation('RightLowerArm', RightLowerArm, 1, 0.3, avatarRig)
 
-    updateRigRotation('LeftUpperArm', arms.UpperArm.l, 1, 0.3, avatarRig)
+    updateRigRotation('LeftUpperArm', LeftUpperArm, 1, 0.3, avatarRig)
 
-    updateRigRotation('LeftLowerArm', arms.LowerArm.l, 1, 0.3, avatarRig)
+    updateRigRotation('LeftLowerArm', LeftLowerArm, 1, 0.3, avatarRig)
 
-    updateRigPosition('LeftHand', arms.Hand.l, 1, 0.3, avatarRig)
-    updateRigPosition('RightHand', arms.Hand.r, 1, 0.3, avatarRig)
+    updateRigPosition('LeftHand', LeftHand, 1, 0.3, avatarRig)
+    updateRigPosition('RightHand', RightHand, 1, 0.3, avatarRig)
 
-    updateRigRotation('LeftUpperLeg', legs.UpperLeg.l, 1, 0.3, avatarRig)
-    updateRigRotation('LeftLowerLeg', legs.LowerLeg.l, 1, 0.3, avatarRig)
+    updateRigRotation('LeftUpperLeg', LeftUpperLeg, 1, 0.3, avatarRig)
+    updateRigRotation('LeftLowerLeg', LeftLowerLeg, 1, 0.3, avatarRig)
 
-    updateRigRotation('RightUpperLeg', legs.UpperLeg.r, 1, 0.3, avatarRig)
-    updateRigRotation('RightLowerLeg', legs.LowerLeg.r, 1, 0.3, avatarRig)
+    updateRigRotation('RightUpperLeg', RightUpperLeg, 1, 0.3, avatarRig)
+    updateRigRotation('RightLowerLeg', RightLowerLeg, 1, 0.3, avatarRig)
   }
 }
 

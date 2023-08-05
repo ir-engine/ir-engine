@@ -47,13 +47,13 @@ export const calcHips = (lm3d: TFVectorPose, lm2d: Omit<TFVectorPose, 'z'>) => {
     position: {
       x: clamp(hipCenter2d.x - 0.4, -1, 1), //subtract .4 to bring closer to 0,0 center
       y: 0,
-      z: clamp(spineLength - 1, -2, 0)
+      z: 0 //clamp(spineLength - 1, -2, 0)
     }
   }
   hips.worldPosition = {
     x: hips.position.x,
-    y: 0,
-    z: hips.position.z * Math.pow(hips.position.z * -2, 2)
+    y: hips.position.y,
+    z: hips.position.z // * Math.pow(hips.position.z * -2, 2),
   }
   hips.worldPosition.x *= hips.worldPosition.z
 

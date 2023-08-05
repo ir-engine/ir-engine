@@ -65,7 +65,6 @@ const rotationOffset = new Quaternion().setFromEuler(new Euler(0, Math.PI, 0))
 
 const UpdateRawPose = (data: Landmark[], pose: Landmark[], bindHips, avatarRig, avatarTransform) => {
   if (data && pose) {
-    console.log('data', data, pose)
     const rightEar = data[indices.rightEar]
     const leftEar = data[indices.leftEar]
 
