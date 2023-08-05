@@ -214,16 +214,17 @@ export class IdentityProvider<T = IdentityProviderInterface> extends Service<T> 
 
     let result
     try {
+      await this.app.service(userPath).create({
+        id: userId,
+        isGuest,
+        inviteCode: type === 'guest' ? '' : code,
+        avatarId: avatars.data[random(avatars.data.length - 1)].id
+      })
       result = await super.create(
         {
           ...data,
           ...identityProvider,
-          user: {
-            id: userId,
-            isGuest,
-            inviteCode: type === 'guest' ? null : code,
-            avatarId: avatars.data[random(avatars.data.length - 1)].id
-          }
+          userId
         },
         params
       )

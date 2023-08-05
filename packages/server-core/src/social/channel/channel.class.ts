@@ -65,7 +65,7 @@ export class Channel<T = ChannelDataType> extends Service<T> {
 
     // TODO: Populating Message's sender property here manually. Once message service is moved to feathers 5. This should be part of its resolver.
     for (const message of channel.messages) {
-      if (message && !message.sender) {
+      if (message && message.senderId && !message.sender) {
         message.sender = await this.app.service(userPath)._get(message.senderId)
       }
     }
@@ -233,7 +233,7 @@ export class Channel<T = ChannelDataType> extends Service<T> {
         // TODO: Populating Message's sender property here manually. Once message service is moved to feathers 5. This should be part of its resolver.
         for (const channel of channels) {
           for (const message of channel.dataValues.messages) {
-            if (message && !message.sender) {
+            if (message && message.senderId && !message.sender) {
               message.sender = await this.app.service(userPath)._get(message.senderId)
             }
           }
@@ -287,7 +287,7 @@ export class Channel<T = ChannelDataType> extends Service<T> {
         }
 
         // TODO: Populating Message's sender property here manually. Once message service is moved to feathers 5. This should be part of its resolver.
-        if (channel.dataValues.message && !channel.dataValues.message.sender) {
+        if (channel.dataValues.message && channel.dataValues.message.senderId && !channel.dataValues.message.sender) {
           channel.dataValues.message.sender = await this.app.service(userPath)._get(channel.dataValues.message.senderId)
         }
       }

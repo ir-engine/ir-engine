@@ -132,8 +132,8 @@ export const userResolver = resolve<UserType, HookContext>({
 export const userExternalResolver = resolve<UserType, HookContext>({})
 
 export const userDataResolver = resolve<UserType, HookContext>({
-  id: async () => {
-    return v4() as UserId
+  id: async (id) => {
+    return id || (v4() as UserId)
   },
   name: async (name) => {
     return name || 'Guest #' + Math.floor(Math.random() * (999 - 100 + 1) + 100)

@@ -130,7 +130,9 @@ export class UserService<T = UserType, ServiceParams extends Params = UserParams
   }
 
   async create(data: UserData, params?: UserParams) {
-    data.inviteCode = Math.random().toString(36).slice(2)
+    if (!data.inviteCode) {
+      data.inviteCode = Math.random().toString(36).slice(2)
+    }
 
     const dataWithoutExtras = { ...data } as any
 
@@ -139,7 +141,7 @@ export class UserService<T = UserType, ServiceParams extends Params = UserParams
 
     const result = await super._create(dataWithoutExtras, params)
 
-    result.scopes = [...data.scopes]
+    if (data.scopes) result.scopes = [...data.scopes]
 
     await this._afterCreate(this.app, result)
 

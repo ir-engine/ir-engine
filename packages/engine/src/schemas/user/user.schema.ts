@@ -75,7 +75,7 @@ export const userSchema = Type.Object(
 export type UserType = Static<typeof userSchema>
 
 // Schema for creating new entries
-export const userDataSchema = Type.Pick(userSchema, ['name', 'isGuest', 'inviteCode', 'avatarId', 'scopes'], {
+export const userDataSchema = Type.Partial(userSchema, {
   $id: 'UserData'
 })
 export type UserData = Static<typeof userDataSchema>
