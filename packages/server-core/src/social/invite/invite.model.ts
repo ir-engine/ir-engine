@@ -27,7 +27,7 @@ Ethereal Engine. All Rights Reserved.
 // for more of what you can do here.
 import { DataTypes, Model, Sequelize } from 'sequelize'
 
-import { InviteInterface } from '@etherealengine/common/src/dbmodels/Invite'
+import { InviteInterface, InviteTypeInterface } from '@etherealengine/common/src/dbmodels/Invite'
 
 import { Application } from '../../../declarations'
 import { createUserModel } from '../../all.model'
@@ -94,10 +94,45 @@ export default (app: Application) => {
   ;(invite as any).associate = (models: any): void => {
     ;(invite as any).belongsTo(createUserModel(app), { as: 'user' })
     ;(invite as any).belongsTo(createUserModel(app), { as: 'invitee' })
-    ;(invite as any).belongsTo(models.invite_type, { foreignKey: 'inviteType', required: true })
+    ;(invite as any).belongsTo(createInviteTypeModel(app), { foreignKey: 'inviteType', required: true })
     // Define associations here
     // See http://docs.sequelizejs.com/en/latest/docs/associations/
   }
 
   return invite
+}
+
+export const createInviteTypeModel = (app: Application) => {
+  const sequelizeClient: Sequelize = app.get('sequelizeClient')
+  const inviteType = sequelizeClient.define<Model<InviteTypeInterface>>(
+    'invite-type',
+    {
+      type: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        primaryKey: true,
+        unique: true
+      }
+    },
+    {
+      hooks: {
+        beforeCount(options: any): void {
+          options.raw = true
+        },
+        beforeUpdate(instance: any, options: any): void {
+          throw new Error("Can't update a type!")
+        }
+      },
+      timestamps: false
+    }
+  )
+
+  // eslint-disable-next-line no-unused-vars
+  ;(inviteType as any).associate = (models: any): void => {
+    // Define associations here
+    // See http://docs.sequelizejs.com/en/latest/docs/associations/
+    ;(inviteType as any).hasMany(models.invite, { foreignKey: 'inviteType' })
+  }
+
+  return inviteType
 }

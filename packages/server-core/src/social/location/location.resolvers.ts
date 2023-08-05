@@ -28,7 +28,7 @@ Ethereal Engine. All Rights Reserved.
 import { resolve, virtual } from '@feathersjs/schema'
 import { v4 } from 'uuid'
 
-import { LocationAdminType } from '@etherealengine/engine/src/schemas/social/location-admin.schema'
+import { LocationAdminType, locationAdminPath } from '@etherealengine/engine/src/schemas/social/location-admin.schema'
 import { locationSettingPath } from '@etherealengine/engine/src/schemas/social/location-setting.schema'
 import { LocationQuery, LocationType } from '@etherealengine/engine/src/schemas/social/location.schema'
 import type { HookContext } from '@etherealengine/server-core/declarations'
@@ -60,7 +60,7 @@ export const locationResolver = resolve<LocationType, HookContext>({
       (!loggedInUser.scopes || !loggedInUser.scopes.find((scope) => scope.type === 'admin:admin'))
     ) {
       //TODO: We should replace `as any as LocationAdminType[]` with `as LocationAdminType[]` once location-admin service is migrated to feathers 5.
-      const locationAdmin = (await context.app.service('location-admin').find({
+      const locationAdmin = (await context.app.service(locationAdminPath).find({
         query: {
           locationId: location.id,
           userId: loggedInUser.id

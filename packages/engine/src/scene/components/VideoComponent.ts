@@ -33,6 +33,7 @@ import { Entity } from '../../ecs/classes/Entity'
 import {
   defineComponent,
   getComponent,
+  setComponent,
   useComponent,
   useOptionalComponent
 } from '../../ecs/functions/ComponentFunctions'
@@ -44,7 +45,7 @@ import { addError, clearErrors } from '../functions/ErrorFunctions'
 import { ObjectFitFunctions } from './../../xrui/functions/ObjectFitFunctions'
 import { addObjectToGroup, removeObjectFromGroup } from './../components/GroupComponent'
 import { resizeImageMesh } from './../components/ImageComponent'
-import { MediaElementComponent } from './../components/MediaComponent'
+import { MediaComponent, MediaElementComponent } from './../components/MediaComponent'
 import { UUIDComponent } from './../components/UUIDComponent'
 import { PLANE_GEO } from './ImageComponent'
 
@@ -104,6 +105,7 @@ export const VideoComponent = defineComponent({
   },
 
   onSet: (entity, component, json) => {
+    setComponent(entity, MediaComponent)
     if (!json) return
     if (typeof json.mediaUUID === 'string') component.mediaUUID.set(json.mediaUUID)
     if (typeof json.side === 'number') component.side.set(json.side)

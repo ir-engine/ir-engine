@@ -42,7 +42,7 @@ export async function up(knex: Knex): Promise<void> {
     await knex.schema.renameTable(oldTableName, instanceAuthorizedUserPath)
   }
 
-  if (tableExists === false) {
+  if (!tableExists && !oldNamedTableExists) {
     // Added transaction here in order to ensure both below queries run on same pool.
     // https://github.com/knex/knex/issues/218#issuecomment-56686210
     const trx = await knex.transaction()

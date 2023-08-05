@@ -29,8 +29,9 @@ import type { Static } from '@feathersjs/typebox'
 import { querySyntax, Type } from '@feathersjs/typebox'
 import { TypedString } from '../../common/types/TypeboxUtils'
 
-// TODO: This is temporary variable. It will be removed once this service is moved to feathers 5.
-export const locationAdminDBPath = 'location_admin'
+export const locationAdminPath = 'location-admin'
+
+export const locationAdminMethods = ['find', 'create', 'patch', 'remove', 'get'] as const
 
 export const locationAdminPath = 'location-admin'
 

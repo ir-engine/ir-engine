@@ -129,14 +129,14 @@ export const updateBuilder = async (
         const jobName = builderJob.body.items[0].metadata!.name
         if (helmSettings && helmSettings.builder && helmSettings.builder.length > 0)
           await execAsync(
-            `kubectl delete job --ignore-not-found=true ${jobName} && helm upgrade --reuse-values --version ${helmSettings.builder} --set builder.image.tag=${tag} ${builderDeploymentName} etherealengine/etherealengine-builder`
+            `kubectl delete job --ignore-not-found=true ${jobName} && helm repo update && helm upgrade --reuse-values --version ${helmSettings.builder} --set builder.image.tag=${tag} ${builderDeploymentName} etherealengine/etherealengine-builder`
           )
         else {
           const { stdout } = await execAsync(`helm history ${builderDeploymentName} | grep deployed`)
           const builderChartVersion = BUILDER_CHART_REGEX.exec(stdout)
           if (builderChartVersion)
             await execAsync(
-              `kubectl delete job --ignore-not-found=true ${jobName} && helm upgrade --reuse-values --version ${builderChartVersion} --set builder.image.tag=${tag} ${builderDeploymentName} etherealengine/etherealengine-builder`
+              `kubectl delete job --ignore-not-found=true ${jobName} && helm repo update && helm upgrade --reuse-values --version ${builderChartVersion} --set builder.image.tag=${tag} ${builderDeploymentName} etherealengine/etherealengine-builder`
             )
         }
       } else {
@@ -151,14 +151,14 @@ export const updateBuilder = async (
         const deploymentName = builderDeployments.body.items[0].metadata!.name
         if (helmSettings && helmSettings.builder && helmSettings.builder.length > 0)
           await execAsync(
-            `kubectl delete deployment --ignore-not-found=true ${deploymentName} && helm upgrade --reuse-values --version ${helmSettings.builder} --set builder.image.tag=${tag} ${builderDeploymentName} etherealengine/etherealengine-builder`
+            `kubectl delete deployment --ignore-not-found=true ${deploymentName} && helm repo update && helm upgrade --reuse-values --version ${helmSettings.builder} --set builder.image.tag=${tag} ${builderDeploymentName} etherealengine/etherealengine-builder`
           )
         else {
           const { stdout } = await execAsync(`helm history ${builderDeploymentName} | grep deployed`)
           const builderChartVersion = BUILDER_CHART_REGEX.exec(stdout)
           if (builderChartVersion)
             await execAsync(
-              `kubectl delete deployment --ignore-not-found=true ${deploymentName} && helm upgrade --reuse-values --version ${builderChartVersion} --set builder.image.tag=${tag} ${builderDeploymentName} etherealengine/etherealengine-builder`
+              `kubectl delete deployment --ignore-not-found=true ${deploymentName} && helm repo update && helm upgrade --reuse-values --version ${builderChartVersion} --set builder.image.tag=${tag} ${builderDeploymentName} etherealengine/etherealengine-builder`
             )
         }
       }

@@ -40,12 +40,6 @@ export interface RecordingResult {
   resources?: Array<StaticResourceInterface>
 }
 
-export interface RecordingResourceResult {
-  id: string
-  recordingId: RecordingID
-  staticResourceId: string
-}
-
 export type RecordingSchema = {
   user: string[]
   peers: Record<PeerID, DataChannelType[]>

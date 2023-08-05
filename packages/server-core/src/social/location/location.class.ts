@@ -42,7 +42,7 @@ import {
   LocationType
 } from '@etherealengine/engine/src/schemas/social/location.schema'
 
-import { locationAdminDBPath, LocationAdminType } from '@etherealengine/engine/src/schemas/social/location-admin.schema'
+import { locationAdminPath, LocationAdminType } from '@etherealengine/engine/src/schemas/social/location-admin.schema'
 import {
   locationAuthorizedUserPath,
   LocationAuthorizedUserType
@@ -161,7 +161,7 @@ export class LocationService<T = LocationType, ServiceParams extends Params = Lo
       })
 
       if ((data as LocationType).locationAdmin) {
-        await trx.from<LocationAdminType>(locationAdminDBPath).insert({
+        await trx.from<LocationAdminType>(locationAdminPath).insert({
           ...(data as LocationType).locationAdmin,
           userId: selfUser?.id,
           locationId: (data as LocationType).id
@@ -264,26 +264,12 @@ export class LocationService<T = LocationType, ServiceParams extends Params = Lo
       if (location.locationSetting) await this.app.service(locationSettingPath).remove(location.locationSetting.id)
 
       try {
-        const locationAdminItems = await (this.app.service('location-admin') as any).Model.findAll({
-          where: {
+        await this.app.service(locationAdminPath).remove(null, {
+          query: {
             locationId: id,
-            userId: selfUser?.id
+            userId: selfUser?.id ?? null
           }
         })
-
-        locationAdminItems.length &&
-          locationAdminItems.forEach(async (route) => {
-            await this.app.service('location-admin').remove(route.dataValues.id)
-          })
-
-        // TODO: Remove above remove code and use following when moved to feathers 5.
-
-        // await this.app.service('location-admin').remove(null, {
-        //   query: {
-        //     locationId: id,
-        //     userId: selfUser.id ?? null
-        //   }
-        // })
       } catch (err) {
         logger.error(err, `Could not remove location-admin: ${err.message}`)
       }
