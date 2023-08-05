@@ -213,10 +213,10 @@ export const getAvatarAnimations = makeFunctionNodeDefinition({
   }
 })
 
-export const playGltfAnimation = makeFlowNodeDefinition({
-  typeName: 'engine/media/playGltfAnimation',
+export const playAnimation = makeFlowNodeDefinition({
+  typeName: 'engine/media/playAnimation',
   category: NodeCategory.Action,
-  label: 'Play gltf animation',
+  label: 'Play animation',
   in: {
     flow: 'flow',
     entity: 'entity',
