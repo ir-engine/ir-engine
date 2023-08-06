@@ -28,7 +28,7 @@ import fs from 'fs'
 import path from 'path'
 
 import { InstalledRoutesInterface } from '@etherealengine/common/src/interfaces/Route'
-import { routeMethods, routePath } from '@etherealengine/engine/src/schemas/route/route.schema'
+import { routeMethods, routePath, RouteType } from '@etherealengine/engine/src/schemas/route/route.schema'
 import { ProjectConfigInterface } from '@etherealengine/projects/ProjectConfigInterface'
 
 import { Application } from '../../../declarations'
@@ -87,9 +87,9 @@ export const getInstalledRoutes = () => {
 
 export const activateRoute = (routeService: RouteService) => {
   return async (data: { project: string; route: string; activate: boolean }, params: Params = {}) => {
-    const activatedRoutes = await routeService.find({
+    const activatedRoutes = (await routeService.find({
       paginate: false
-    })
+    })) as RouteType[]
     const installedRoutes = (await getInstalledRoutes()()).data
     if (data.activate) {
       const routeToActivate = installedRoutes.find((r) => r.project === data.project && r.routes.includes(data.route))
@@ -123,7 +123,7 @@ export default (app: Application): void => {
     multi: true
   }
 
-  app.use(routePath, new RouteService(options), {
+  app.use(routePath, new RouteService(options, app), {
     // A list of all methods this service exposes externally
     methods: routeMethods,
     // You can add additional custom events to be sent to clients here

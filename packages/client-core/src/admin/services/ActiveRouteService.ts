@@ -24,10 +24,11 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { routePath, RouteType } from '@etherealengine/engine/src/schemas/route/route.schema'
 import { defineAction, defineState, dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 
-import { API } from '../../API'
+import { Paginated } from '@feathersjs/feathers'
 import { NotificationService } from '../../common/services/NotificationService'
 import { AuthState } from '../../user/services/AuthService'
 
@@ -63,7 +64,7 @@ export const AdminActiveRouteService = {
     const user = getMutableState(AuthState).user
     try {
       if (user.scopes?.value?.find((scope) => scope.type === 'admin:admin')) {
-        await API.instance.client.service('route-activate').create({ project, route, activate })
+        await Engine.instance.api.service('route-activate').create({ project, route, activate })
         AdminActiveRouteService.fetchActiveRoutes()
       }
     } catch (err) {
@@ -74,11 +75,11 @@ export const AdminActiveRouteService = {
     const user = getMutableState(AuthState).user
     try {
       if (user.scopes?.value?.find((scope) => scope.type === 'admin:admin')) {
-        const routes = await API.instance.client.service(routePath).find({
+        const routes = (await Engine.instance.api.service(routePath).find({
           query: {
             $limit: ROUTE_PAGE_LIMIT
           }
-        })
+        })) as Paginated<RouteType>
         dispatchAction(AdminActiveRouteActions.activeRoutesRetrieved({ data: routes.data }))
       }
     } catch (err) {
