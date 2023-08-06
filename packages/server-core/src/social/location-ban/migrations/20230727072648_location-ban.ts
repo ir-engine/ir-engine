@@ -26,7 +26,6 @@ Ethereal Engine. All Rights Reserved.
 import type { Knex } from 'knex'
 
 import { locationBanPath } from '@etherealengine/engine/src/schemas/social/location-ban.schema'
-import {recordingResourcePath} from "@etherealengine/engine/src/schemas/recording/recording-resource.schema";
 
 /**
  * @param { import("knex").Knex } knex
@@ -38,7 +37,7 @@ export async function up(knex: Knex): Promise<void> {
   let tableExists = await knex.schema.hasTable(locationBanPath)
   const oldNamedTableExists = await knex.schema.hasTable(oldTableName)
   if (oldNamedTableExists) {
-    if (tableExists) await knex.schema.dropTable(recordingResourcePath)
+    if (tableExists) await knex.schema.dropTable(locationBanPath)
     await knex.schema.renameTable(oldTableName, locationBanPath)
   }
 
