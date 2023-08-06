@@ -129,7 +129,9 @@ export const userResolver = resolve<UserType, HookContext>({
   })
 })
 
-export const userExternalResolver = resolve<UserType, HookContext>({})
+export const userExternalResolver = resolve<UserType, HookContext>({
+  isGuest: async (value, user) => !!user.isGuest // https://stackoverflow.com/a/56523892/2077741
+})
 
 export const userDataResolver = resolve<UserType, HookContext>({
   id: async (id) => {
