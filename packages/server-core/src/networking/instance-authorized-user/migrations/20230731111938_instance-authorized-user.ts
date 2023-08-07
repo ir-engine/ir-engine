@@ -44,18 +44,13 @@ export async function up(knex: Knex): Promise<void> {
 
   tableExists = await knex.schema.hasTable(instanceAuthorizedUserPath)
 
-  if (tableExists) {
-    const hasIdColum = await knex.schema.hasColumn(instanceAuthorizedUserPath, 'id')
-    const hasInstanceIdColumn = await knex.schema.hasColumn(instanceAuthorizedUserPath, 'instanceId')
-    const hasUserIdColumn = await knex.schema.hasColumn(instanceAuthorizedUserPath, 'userId')
-    if (!(hasInstanceIdColumn && hasIdColum && hasUserIdColumn)) {
-      await knex.schema.dropTable(instanceAuthorizedUserPath)
-      tableExists = false
-    }
-  }
+  if (tableExists === false) {
+    // Added transaction here in order to ensure both below queries run on same pool.
+    // https://github.com/knex/knex/issues/218#issuecomment-56686210
+    const trx = await knex.transaction()
+    await trx.raw('SET FOREIGN_KEY_CHECKS=0')
 
-  if (!tableExists && !oldNamedTableExists) {
-    await knex.schema.createTable(instanceAuthorizedUserPath, (table) => {
+    await trx.schema.createTable(instanceAuthorizedUserPath, (table) => {
       //@ts-ignore
       table.uuid('id').collate('utf8mb4_bin').primary()
       //@ts-ignore
@@ -73,6 +68,9 @@ export async function up(knex: Knex): Promise<void> {
         indexName: 'instance_authorized_user_instanceId_userId_unique'
       })
     })
+
+    await trx.raw('SET FOREIGN_KEY_CHECKS=1')
+    await trx.commit()
   }
 }
 
