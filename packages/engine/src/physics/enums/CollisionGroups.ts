@@ -34,3 +34,6 @@ export enum CollisionGroups {
 export const DefaultCollisionMask = CollisionGroups.Default | CollisionGroups.Avatars | CollisionGroups.Ground
 
 export const AvatarCollisionMask = CollisionGroups.Default | CollisionGroups.Ground | CollisionGroups.Trigger
+
+export const AllCollisionMask =
+  CollisionGroups.Default | CollisionGroups.Avatars | CollisionGroups.Ground | CollisionGroups.Trigger

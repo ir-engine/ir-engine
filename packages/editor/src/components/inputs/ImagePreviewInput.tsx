@@ -49,6 +49,7 @@ export default function ImagePreviewInput({ value, onChange, ...rest }: StringIn
         <ImageInput value={value} onChange={onChange} />
         <img
           src={value}
+          crossOrigin="anonymous"
           style={{
             maxWidth: '128px',
             maxHeight: '128px',

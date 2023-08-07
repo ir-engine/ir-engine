@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React, { useEffect, useRef } from 'react'
+import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import ConfirmDialog from '@etherealengine/client-core/src/common/components/ConfirmDialog'
@@ -75,15 +75,14 @@ const AdminInvites = ({ search, selectedInviteIds, setSelectedInviteIds }: Props
   }
 
   const handlePageChange = (event: React.MouseEvent<HTMLButtonElement> | null, newPage: number) => {
-    const incDec = page.value < newPage ? 'increment' : 'decrement'
-    AdminInviteService.fetchAdminInvites(incDec, search, sortField.value, fieldOrder.value)
+    AdminInviteService.fetchAdminInvites(search, newPage, sortField.value, fieldOrder.value)
     page.set(newPage)
   }
 
   useEffect(() => {
     if (inviteState.updateNeeded.value === true)
-      AdminInviteService.fetchAdminInvites(undefined, search, sortField.value, fieldOrder.value)
-  }, [search, inviteState.updateNeeded.value, sortField.value, fieldOrder.value])
+      AdminInviteService.fetchAdminInvites(search, page.value, sortField.value, fieldOrder.value)
+  }, [search, inviteState.updateNeeded.value, page.value, sortField.value, fieldOrder.value])
 
   const handleRowsPerPageChange = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     rowsPerPage.set(parseInt(event.target.value, 10))
@@ -125,7 +124,6 @@ const AdminInvites = ({ search, selectedInviteIds, setSelectedInviteIds }: Props
       action: (
         <>
           <a
-            href="#"
             className={styles.actionStyle}
             onClick={() => {
               selectedInvite.set(invite)
@@ -135,7 +133,6 @@ const AdminInvites = ({ search, selectedInviteIds, setSelectedInviteIds }: Props
             <span className={styles.spanDange}>{t('admin:components.common.update')}</span>
           </a>
           <a
-            href="#"
             className={styles.actionStyle}
             onClick={() => {
               inviteId.set(invite.id)

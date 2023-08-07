@@ -47,7 +47,7 @@ import {
 export class IPFSStorage implements StorageProviderInterface {
   private _client: IPFSHTTPClient
   private _blobStore: IPFSBlobStore
-  private _pathPrefix: string = '/'
+  private _pathPrefix = '/'
   private _apiDomain: string
 
   /**
@@ -231,7 +231,27 @@ export class IPFSStorage implements StorageProviderInterface {
    * @param invalidationItems List of keys.
    */
   async createInvalidation() {
-    Promise.resolve()
+    return Promise.resolve()
+  }
+
+  async associateWithFunction() {
+    return Promise.resolve()
+  }
+
+  async createFunction() {
+    return Promise.resolve()
+  }
+
+  async listFunctions() {
+    return Promise.resolve()
+  }
+
+  async publishFunction() {
+    return Promise.resolve()
+  }
+
+  async updateFunction() {
+    return Promise.resolve()
   }
 
   /**
@@ -422,7 +442,7 @@ class IPFSBlobStore implements BlobStore {
   /**
    * Path for the IPFS blob store.
    */
-  path: string = '/'
+  path = '/'
   /**
    * Cache for the IPFS blob store.
    */
@@ -445,6 +465,7 @@ class IPFSBlobStore implements BlobStore {
     if (typeof options === 'string') options = { key: options }
     if (options['name']) options.key = options['name']
     if (typeof options['flush'] === 'boolean' && options['flush'] === false) {
+      //
     } else {
       options['flush'] = true
     }

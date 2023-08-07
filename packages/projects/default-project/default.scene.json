@@ -12,7 +12,7 @@
           "props": {
             "position": {
               "x": 0,
-              "y": 1.6,
+              "y": 0,
               "z": 0
             },
             "rotation": {
@@ -75,8 +75,8 @@
           "props": {
             "position": {
               "x": 0,
-              "y": 0,
-              "z": 0
+              "y": 2.5,
+              "z": 5
             },
             "rotation": {
               "x": 0,

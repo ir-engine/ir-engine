@@ -23,12 +23,14 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { UserId } from './UserId'
+
 export type RelationshipType = 'friend' | 'requested' | 'pending' | 'blocked' | 'blocking'
 export type UserRelationship = {
   id: string
   createdAt: string
   updatedAt: string
-  userId: string
+  userId: UserId
   userRelationshipType: RelationshipType
-  relatedUserId: string
+  relatedUserId: UserId
 }

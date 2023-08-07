@@ -38,6 +38,7 @@ import { EngineActions, EngineState } from '@etherealengine/engine/src/ecs/class
 import { InputSystemGroup, PresentationSystemGroup } from '@etherealengine/engine/src/ecs/functions/EngineFunctions'
 import { startSystem, startSystems } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import { MotionCaptureSystem } from '@etherealengine/engine/src/mocap/MotionCaptureSystem'
+import { NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
 import { dispatchAction, getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import { loadEngineInjection } from '@etherealengine/projects/loadEngineInjection'
 import CaptureUI from '@etherealengine/ui/src/pages/Capture'
@@ -72,6 +73,14 @@ export const CaptureLocation = () => {
   useEffect(() => {
     dispatchAction(LocationAction.setLocationName({ locationName }))
     initializeEngineForRecorder()
+
+    getMutableState(NetworkState).config.set({
+      world: true,
+      media: true,
+      friends: false,
+      instanceID: true,
+      roomID: false
+    })
   }, [])
 
   const engineState = useHookstate(getMutableState(EngineState))

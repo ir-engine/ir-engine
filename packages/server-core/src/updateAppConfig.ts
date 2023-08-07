@@ -25,38 +25,42 @@ Ethereal Engine. All Rights Reserved.
 
 import dotenv from 'dotenv'
 import knex from 'knex'
-import { DataTypes, Sequelize } from 'sequelize'
 
 import { AwsSettingDatabaseType, awsSettingPath } from '@etherealengine/engine/src/schemas/setting/aws-setting.schema'
 import {
-  chargebeeSettingPath,
-  ChargebeeSettingType
+  ChargebeeSettingType,
+  chargebeeSettingPath
 } from '@etherealengine/engine/src/schemas/setting/chargebee-setting.schema'
 import {
   ClientSettingDatabaseType,
   clientSettingPath
 } from '@etherealengine/engine/src/schemas/setting/client-setting.schema'
-import { coilSettingPath, CoilSettingType } from '@etherealengine/engine/src/schemas/setting/coil-setting.schema'
+import { CoilSettingType, coilSettingPath } from '@etherealengine/engine/src/schemas/setting/coil-setting.schema'
 import {
   EmailSettingDatabaseType,
   emailSettingPath
 } from '@etherealengine/engine/src/schemas/setting/email-setting.schema'
 import {
-  instanceServerSettingPath,
-  InstanceServerSettingType
+  InstanceServerSettingType,
+  instanceServerSettingPath
 } from '@etherealengine/engine/src/schemas/setting/instance-server-setting.schema'
-import { redisSettingPath, RedisSettingType } from '@etherealengine/engine/src/schemas/setting/redis-setting.schema'
+import { RedisSettingType, redisSettingPath } from '@etherealengine/engine/src/schemas/setting/redis-setting.schema'
 import {
   ServerSettingDatabaseType,
   serverSettingPath
 } from '@etherealengine/engine/src/schemas/setting/server-setting.schema'
 import {
-  taskServerSettingPath,
-  TaskServerSettingType
+  TaskServerSettingType,
+  taskServerSettingPath
 } from '@etherealengine/engine/src/schemas/setting/task-server-setting.schema'
+import {
+  AuthenticationSettingDatabaseType,
+  authenticationSettingPath
+} from './../../engine/src/schemas/setting/authentication-setting.schema'
 
-import appConfig from './appconfig'
 import logger from './ServerLogger'
+import appConfig from './appconfig'
+import { authenticationDbToSchema } from './setting/authentication-setting/authentication-setting.resolvers'
 import { awsDbToSchema } from './setting/aws-setting/aws-setting.resolvers'
 import { clientDbToSchema } from './setting/client-setting/client-setting.resolvers'
 import { emailDbToSchema } from './setting/email-setting/email-setting.resolvers'
@@ -64,17 +68,13 @@ import { serverDbToSchema } from './setting/server-setting/server-setting.resolv
 
 dotenv.config()
 const db = {
-  username: process.env.MYSQL_USER ?? 'server',
+  user: process.env.MYSQL_USER ?? 'server',
   password: process.env.MYSQL_PASSWORD ?? 'password',
   database: process.env.MYSQL_DATABASE ?? 'etherealengine',
   host: process.env.MYSQL_HOST ?? '127.0.0.1',
-  port: process.env.MYSQL_PORT ?? 3306,
-  dialect: 'mysql',
-  url: ''
+  port: process.env.MYSQL_PORT ?? 3306
 }
 const nonFeathersStrategies = ['emailMagicLink', 'smsMagicLink']
-
-db.url = process.env.MYSQL_URL ?? `mysql://${db.username}:${db.password}@${db.host}:${db.port}/${db.database}`
 
 export const updateAppConfig = async (): Promise<void> => {
   if (appConfig.db.forceRefresh || !appConfig.kubernetes.enabled) return
@@ -82,22 +82,11 @@ export const updateAppConfig = async (): Promise<void> => {
   const knexClient = knex({
     client: 'mysql',
     connection: {
-      user: db.username,
-      password: db.password,
-      host: db.host,
+      ...db,
       port: parseInt(db.port.toString()),
-      database: db.database,
       charset: 'utf8mb4'
     }
   })
-  const sequelizeClient = new Sequelize({
-    ...(db as any),
-    define: {
-      freezeTableName: true
-    },
-    logging: false
-  }) as any
-  await sequelizeClient.sync()
 
   const promises: any[] = []
 
@@ -117,90 +106,29 @@ export const updateAppConfig = async (): Promise<void> => {
     })
   promises.push(taskServerSettingPromise)
 
-  const authenticationSetting = sequelizeClient.define('authentication', {
-    service: {
-      type: DataTypes.STRING,
-      allowNull: true
-    },
-    entity: {
-      type: DataTypes.STRING,
-      allowNull: true
-    },
-    secret: {
-      type: DataTypes.STRING,
-      allowNull: true
-    },
-    authStrategies: {
-      type: DataTypes.JSON,
-      allowNull: true
-    },
-    jwtOptions: {
-      type: DataTypes.JSON,
-      allowNull: true
-    },
-    bearerToken: {
-      type: DataTypes.JSON,
-      allowNull: true
-    },
-    callback: {
-      type: DataTypes.JSON,
-      allowNull: true
-    },
-    oauth: {
-      type: DataTypes.JSON,
-      allowNull: true
-    }
-  })
-  const authenticationSettingPromise = authenticationSetting
-    .findAll()
+  const authenticationSettingPromise = knexClient
+    .select()
+    .from<AuthenticationSettingDatabaseType>(authenticationSettingPath)
     .then(([dbAuthentication]) => {
-      let oauth = JSON.parse(dbAuthentication.oauth)
-      let authStrategies = JSON.parse(dbAuthentication.authStrategies)
-      let jwtOptions = JSON.parse(dbAuthentication.jwtOptions)
-      let bearerToken = JSON.parse(dbAuthentication.bearerToken)
-      let callback = JSON.parse(dbAuthentication.callback)
-
-      if (typeof oauth === 'string') oauth = JSON.parse(oauth)
-      if (typeof authStrategies === 'string') authStrategies = JSON.parse(authStrategies)
-      if (typeof jwtOptions === 'string') jwtOptions = JSON.parse(jwtOptions)
-      if (typeof bearerToken === 'string') bearerToken = JSON.parse(bearerToken)
-      if (typeof callback === 'string') callback = JSON.parse(callback)
-
-      const dbAuthenticationConfig = dbAuthentication && {
-        service: dbAuthentication.service,
-        entity: dbAuthentication.entity,
-        secret: dbAuthentication.secret,
-        authStrategies: authStrategies,
-        jwtOptions: jwtOptions,
-        bearerToken: bearerToken,
-        callback: callback,
-        oauth: {
-          ...oauth
-        }
-      }
+      const dbAuthenticationConfig = authenticationDbToSchema(dbAuthentication)
       if (dbAuthenticationConfig) {
-        if (oauth.defaults) dbAuthenticationConfig.oauth.defaults = JSON.parse(oauth.defaults)
-        if (oauth.discord) dbAuthenticationConfig.oauth.discord = JSON.parse(oauth.discord)
-        if (oauth.facebook) dbAuthenticationConfig.oauth.facebook = JSON.parse(oauth.facebook)
-        if (oauth.github) dbAuthenticationConfig.oauth.github = JSON.parse(oauth.github)
-        if (oauth.google) dbAuthenticationConfig.oauth.google = JSON.parse(oauth.google)
-        if (oauth.linkedin) dbAuthenticationConfig.oauth.linkedin = JSON.parse(oauth.linkedin)
-        if (oauth.twitter) dbAuthenticationConfig.oauth.twitter = JSON.parse(oauth.twitter)
         const authStrategies = ['jwt']
         for (let authStrategy of dbAuthenticationConfig.authStrategies) {
           const keys = Object.keys(authStrategy)
           for (let key of keys)
             if (nonFeathersStrategies.indexOf(key) < 0 && authStrategies.indexOf(key) < 0) authStrategies.push(key)
         }
-        dbAuthenticationConfig.authStrategies = authStrategies
+        delete (dbAuthenticationConfig as any).authStrategies
+
         appConfig.authentication = {
           ...appConfig.authentication,
-          ...dbAuthenticationConfig
+          ...(dbAuthenticationConfig as any),
+          authStrategies: authStrategies
         }
       }
     })
     .catch((e) => {
-      logger.error(e, `[updateAppConfig]: Failed to read authenticationSetting: ${e.message}`)
+      logger.error(e, `[updateAppConfig]: Failed to read ${authenticationSettingPath}: ${e.message}`)
     })
   promises.push(authenticationSettingPromise)
 

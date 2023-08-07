@@ -16,6 +16,12 @@
     opacity: 0.8;
   }
 
+  & > .containerCircle {
+    margin-right: 0 !important;
+    margin-left: 5px;
+    margin-top: -2px;
+  }
+
   @media (max-width: 900px) {
     font-size: 0.7rem;
   }
@@ -271,6 +277,7 @@
   text-decoration: none;
   color: #000;
   margin-right: 10px;
+  cursor: pointer;
 }
 
 .textLink {
@@ -660,6 +667,10 @@
   background-color: red;
 }
 
+.containerYellow {
+  background-color: yellow;
+}
+
 .projectMismatchWarning,
 .projectUpdateWarning {
   color: var(--amber);
@@ -802,5 +813,18 @@
       overflow-y: auto;
       white-space: pre-line;
     }
+  }
+}
+
+.helmSubheader {
+  color: var(--textColor);
+  text-align: center;
+  margin-bottom: 10px;
+  font-weight: 300;
+  font-size: 18px;
+  display: flex;
+
+  a {
+    margin-left: 2px;
   }
 }

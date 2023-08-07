@@ -39,9 +39,9 @@ import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
 import { getComponent, hasComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { EntityTreeComponent } from '@etherealengine/engine/src/ecs/functions/EntityTree'
 import {
-  addObjectToGroup,
   GroupComponent,
   Object3DWithEntity,
+  addObjectToGroup,
   removeObjectFromGroup
 } from '@etherealengine/engine/src/scene/components/GroupComponent'
 import { PrefabComponent } from '@etherealengine/engine/src/scene/components/PrefabComponent'
@@ -104,7 +104,7 @@ export const uploadProjectFiles = (projectName: string, files: File[], isAsset =
 export async function clearModelResources(projectName: string, modelName: string) {
   const resourcePath = `projects/${projectName}/assets/${modelResourcesPath(modelName)}`
   const { type: pathType } = await API.instance.client.service('file-browser').find({ query: { key: resourcePath } })
-  pathType !== 'UNDEFINED' && (await FileBrowserService.deleteContent(resourcePath, ''))
+  pathType !== 'UNDEFINED' && (await FileBrowserService.deleteContent(resourcePath))
 }
 
 export const uploadProjectAssetsFromUpload = async (projectName: string, entries: FileSystemEntry[], onProgress?) => {

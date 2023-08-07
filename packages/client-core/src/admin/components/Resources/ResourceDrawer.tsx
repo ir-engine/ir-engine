@@ -28,10 +28,10 @@ import { useTranslation } from 'react-i18next'
 
 import InputFile from '@etherealengine/client-core/src/common/components/InputFile'
 import InputRadio from '@etherealengine/client-core/src/common/components/InputRadio'
-import InputSelect, { InputMenuItem } from '@etherealengine/client-core/src/common/components/InputSelect'
 import InputText from '@etherealengine/client-core/src/common/components/InputText'
 import { MAX_AVATAR_FILE_SIZE, MIN_AVATAR_FILE_SIZE } from '@etherealengine/common/src/constants/AvatarConstants'
 import { StaticResourceInterface } from '@etherealengine/common/src/interfaces/StaticResourceInterface'
+import { AdminAssetUploadArgumentsType } from '@etherealengine/common/src/interfaces/UploadAssetInterface'
 import {
   AssetSelectionChangePropsType,
   AssetsPreviewPanel
@@ -69,13 +69,13 @@ const defaultState = {
   key: '',
   name: '',
   mimeType: '',
-  staticResourceType: '',
+  project: '',
   source: 'file',
   resourceUrl: '',
   resourceFile: undefined as File | undefined,
   formErrors: {
     name: '',
-    staticResourceType: '',
+    project: '',
     resourceUrl: '',
     resourceFile: ''
   }
@@ -93,14 +93,6 @@ const ResourceDrawerContent = ({ mode, selectedResource, onClose }: Props) => {
   const hasWriteAccess = user.scopes && user.scopes.find((item) => item.type === 'static_resource:write')
   const viewMode = mode === ResourceDrawerMode.ViewEdit && !editMode.value
 
-  const resourceTypesMenu: InputMenuItem[] =
-    adminResourceState.value.filters?.allStaticResourceTypes.map((el) => {
-      return {
-        value: el,
-        label: el
-      }
-    }) || []
-
   useEffect(() => {
     loadSelectedResource()
   }, [selectedResource])
@@ -114,7 +106,7 @@ const ResourceDrawerContent = ({ mode, selectedResource, onClose }: Props) => {
       state.merge({
         key: selectedResource.key || '',
         mimeType: selectedResource.mimeType || '',
-        staticResourceType: selectedResource.staticResourceType || '',
+        project: selectedResource.project || '',
         source: 'url',
         resourceUrl: selectedResource.url || '',
         resourceFile: undefined
@@ -207,11 +199,6 @@ const ResourceDrawerContent = ({ mode, selectedResource, onClose }: Props) => {
       case 'name':
         state.formErrors.merge({ name: value.length < 2 ? t('admin:components.resources.nameRequired') : '' })
         break
-      case 'staticResourceType':
-        state.formErrors.merge({
-          staticResourceType: value.length < 2 ? t('admin:components.resources.resourceTypeRequired') : ''
-        })
-        break
       case 'resourceUrl': {
         state.formErrors.merge({
           resourceUrl: !isValidHttpUrl(value) ? t('admin:components.resources.resourceUrlInvalid') : ''
@@ -226,6 +213,8 @@ const ResourceDrawerContent = ({ mode, selectedResource, onClose }: Props) => {
   }
 
   const handleSubmit = async () => {
+    if (!selectedResource) return
+
     let resourceFile: File | undefined = undefined
 
     state.formErrors.merge({
@@ -235,7 +224,6 @@ const ResourceDrawerContent = ({ mode, selectedResource, onClose }: Props) => {
             ? ''
             : t('admin:components.resources.nameCantEmpty')
           : '',
-      staticResourceType: state.staticResourceType.value ? '' : t('admin:components.resources.resourceTypeCantEmpty'),
       resourceUrl:
         state.source.value === 'url' && state.resourceUrl.value
           ? ''
@@ -252,9 +240,6 @@ const ResourceDrawerContent = ({ mode, selectedResource, onClose }: Props) => {
     ) {
       NotificationService.dispatchNotify(t('admin:components.common.fixErrorFields'), { variant: 'error' })
       return
-    } else if (state.formErrors.name.value || state.formErrors.staticResourceType.value) {
-      NotificationService.dispatchNotify(t('admin:components.common.fillRequiredFields'), { variant: 'error' })
-      return
     } else if (state.source.value === 'file' && state.resourceFile.value) {
       resourceFile = state.resourceFile.value
     } else if (state.source.value === 'url' && state.resourceUrl.value) {
@@ -265,10 +250,10 @@ const ResourceDrawerContent = ({ mode, selectedResource, onClose }: Props) => {
     }
 
     const data = {
-      id: selectedResource ? selectedResource.id : '',
-      key: mode === ResourceDrawerMode.Create ? state.value : state.key.value,
-      staticResourceType: state.staticResourceType.value
-    }
+      id: selectedResource.id,
+      path: mode === ResourceDrawerMode.Create ? state.value : state.key.value,
+      project: state.project.value
+    } as AdminAssetUploadArgumentsType
 
     if (resourceFile) {
       ResourceService.createOrUpdateResource(data, resourceFile)
@@ -312,12 +297,10 @@ const ResourceDrawerContent = ({ mode, selectedResource, onClose }: Props) => {
         disabled
       />
 
-      <InputSelect
-        name="staticResourceType"
-        label={t('admin:components.resources.resourceType')}
-        value={state.staticResourceType.value}
-        error={state.formErrors.staticResourceType.value}
-        menu={resourceTypesMenu}
+      <InputText
+        name="project"
+        label={t('admin:components.resources.project')}
+        value={state.project.value}
         disabled={viewMode}
         onChange={handleChange}
       />

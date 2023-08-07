@@ -39,16 +39,16 @@ import {
 } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { addEntityNodeChild } from '../../ecs/functions/EntityTree'
-import { setLocalTransformComponent, TransformComponent } from '../../transform/components/TransformComponent'
+import { TransformComponent, setLocalTransformComponent } from '../../transform/components/TransformComponent'
 import { computeLocalTransformMatrix, computeTransformMatrix } from '../../transform/systems/TransformSystem'
 import { GLTFLoadedComponent } from '../components/GLTFLoadedComponent'
-import { addObjectToGroup, GroupComponent } from '../components/GroupComponent'
+import { GroupComponent, addObjectToGroup } from '../components/GroupComponent'
 import { ModelComponent } from '../components/ModelComponent'
 import { NameComponent } from '../components/NameComponent'
 import { SceneObjectComponent } from '../components/SceneObjectComponent'
 import { ObjectLayers } from '../constants/ObjectLayers'
 import { deserializeComponent } from '../systems/SceneLoadingSystem'
-import { setObjectLayers } from './setObjectLayers'
+import { enableObjectLayer } from './setObjectLayers'
 
 export const parseECSData = (entity: Entity, data: [string, any][]): void => {
   const components: { [key: string]: any } = {}
@@ -122,7 +122,7 @@ export const parseObjectComponentsFromGLTF = (entity: Entity, object3d?: Object3
   for (const mesh of meshesToProcess) {
     const e = createEntity()
 
-    addEntityNodeChild(e, entity, mesh.uuid as EntityUUID)
+    addEntityNodeChild(e, entity, undefined, mesh.uuid as EntityUUID)
 
     if (hasComponent(entity, SceneObjectComponent)) setComponent(e, SceneObjectComponent)
 
@@ -153,7 +153,7 @@ export const parseGLTFModel = (entity: Entity) => {
   // always parse components first
   parseObjectComponentsFromGLTF(entity, scene)
 
-  setObjectLayers(scene, ObjectLayers.Scene)
+  enableObjectLayer(scene, ObjectLayers.Scene, true)
 
   // if the model has animations, we may have custom logic to initiate it. editor animations are loaded from `loop-animation` below
   if (scene.animations?.length) {

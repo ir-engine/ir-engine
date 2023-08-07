@@ -31,6 +31,7 @@ module.exports = {
   mode: 'jit',
   content: [
     './src/**/*.{js,jsx,ts,tsx}',
+    '../ui/src/**/*.{js,jsx,ts,tsx}',
     './public/index.html'
   ],
   darkMode: "class",

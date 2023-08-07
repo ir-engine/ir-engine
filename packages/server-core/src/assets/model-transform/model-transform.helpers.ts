@@ -25,7 +25,6 @@ Ethereal Engine. All Rights Reserved.
 
 import { Application } from '@feathersjs/koa/lib'
 import {
-  Accessor,
   BufferUtils,
   Document,
   Format,
@@ -191,13 +190,16 @@ const myInstance = async (document: Document) => {
   const meshes = root.listMeshes()
   console.log('meshes:', meshes)
   const nodes = root.listNodes().filter((node) => node.getMesh())
-  const table = nodes.reduce((_table, node) => {
-    const mesh = node.getMesh()
-    const idx = meshes.findIndex((mesh2) => mesh?.equals(mesh2))
-    _table[idx] = _table[idx] ?? []
-    _table[idx].push(node)
-    return _table
-  }, {} as Record<number, any[]>)
+  const table = nodes.reduce(
+    (_table, node) => {
+      const mesh = node.getMesh()
+      const idx = meshes.findIndex((mesh2) => mesh?.equals(mesh2))
+      _table[idx] = _table[idx] ?? []
+      _table[idx].push(node)
+      return _table
+    },
+    {} as Record<number, any[]>
+  )
   console.log('table:', table)
   const modifiedNodes = new Set<Node>()
   Object.entries(table)
@@ -503,7 +505,7 @@ export async function transformModel(app: Application, args: ModelTransformArgum
         const img = await sharp(oldPath)
         const metadata = await img.metadata()
         let resizedDimension = 2
-        while (resizedDimension * 2 < Math.min(mergedParms.maxTextureSize, Math.min(metadata.width, metadata.height))) {
+        while (resizedDimension * 2 < Math.min(mergedParms.maxTextureSize, Math.max(metadata.width, metadata.height))) {
           resizedDimension *= 2
         }
         //resize the image to be no larger than the max texture size
@@ -524,6 +526,12 @@ export async function transformModel(app: Application, args: ModelTransformArgum
         document.createExtension(KHRTextureBasisu).setRequired(true)
         const basisArgs = `-ktx2 ${resizedPath} -q ${mergedParms.textureCompressionQuality} ${
           mergedParms.textureCompressionType === 'uastc' ? '-uastc' : ''
+        } ${mergedParms.textureCompressionType === 'uastc' ? '-uastc_level ' + mergedParms.uastcLevel : ''} ${
+          mergedParms.textureCompressionType === 'etc1' ? '-comp_level ' + mergedParms.compLevel : ''
+        } ${
+          mergedParms.textureCompressionType === 'etc1' && mergedParms.maxCodebooks
+            ? '-max_endpoints 16128 -max_selectors 16128'
+            : ''
         } ${mergedParms.linear ? '-linear' : ''} ${mergedParms.flipY ? '-y_flip' : ''}`
           .split(/\s+/)
           .filter((x) => !!x)

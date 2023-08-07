@@ -31,7 +31,6 @@ import {
   AssetsPreviewPanel
 } from '@etherealengine/editor/src/components/assets/AssetsPreviewPanel'
 import FileBrowserContentPanel from '@etherealengine/editor/src/components/assets/FileBrowserContentPanel'
-import { DndWrapper } from '@etherealengine/editor/src/components/dnd/DndWrapper'
 import { DockContainer } from '@etherealengine/editor/src/components/EditorContainer'
 
 import DrawerView from '../../common/DrawerView'
@@ -83,15 +82,13 @@ const ViewProjectFiles = ({ name, open, onClose }: Props) => {
   return (
     <div id="project-container">
       <DrawerView open={open} onClose={onClose}>
-        <DndWrapper id="project-container">
-          <DockContainer dividerAlpha={0.3}>
-            <DockLayout
-              defaultLayout={defaultLayout}
-              style={{ pointerEvents: 'none', position: 'absolute', left: 0, top: 70, right: 5, bottom: 5 }}
-              onLayoutChange={onLayoutChangedCallback}
-            />
-          </DockContainer>
-        </DndWrapper>
+        <DockContainer dividerAlpha={0.3}>
+          <DockLayout
+            defaultLayout={defaultLayout}
+            style={{ pointerEvents: 'none', position: 'absolute', left: 0, top: 70, right: 5, bottom: 5 }}
+            onLayoutChange={onLayoutChangedCallback}
+          />
+        </DockContainer>
       </DrawerView>
     </div>
   )

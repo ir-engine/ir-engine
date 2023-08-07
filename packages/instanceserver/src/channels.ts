@@ -31,6 +31,7 @@ import { decode } from 'jsonwebtoken'
 import { v4 as uuidv4 } from 'uuid'
 
 import { IdentityProviderInterface } from '@etherealengine/common/src/dbmodels/IdentityProvider'
+import { ChannelID, ChannelUser } from '@etherealengine/common/src/interfaces/ChannelUser'
 import { Instance } from '@etherealengine/common/src/interfaces/Instance'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { UserInterface, UserKick } from '@etherealengine/common/src/interfaces/User'
@@ -44,6 +45,7 @@ import { NetworkPeerFunctions } from '@etherealengine/engine/src/networking/func
 import { WorldState } from '@etherealengine/engine/src/networking/interfaces/WorldState'
 import { addNetwork, NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
 import { updatePeers } from '@etherealengine/engine/src/networking/systems/OutgoingActionSystem'
+import { locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
 import { dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
 import { loadEngineInjection } from '@etherealengine/projects/loadEngineInjection'
 import { Application } from '@etherealengine/server-core/declarations'
@@ -54,10 +56,10 @@ import { ServerState } from '@etherealengine/server-core/src/ServerState'
 import getLocalServerIp from '@etherealengine/server-core/src/util/get-local-server-ip'
 
 import { InstanceServerState } from './InstanceServerState'
-import { startMediaServerSystems, startWorldServerSystems } from './InstanceServerSystems'
-import { authorizeUserToJoinServer, setupSubdomain } from './NetworkFunctions'
+import { authorizeUserToJoinServer, setupIPs } from './NetworkFunctions'
 import { restartInstanceServer } from './restartInstanceServer'
 import { getServerNetwork, initializeNetwork } from './SocketWebRTCServerFunctions'
+import { startMediaServerSystems, startWorldServerSystems } from './startServerSystems'
 
 const logger = multiLogger.child({ component: 'instanceserver:channels' })
 
@@ -106,7 +108,6 @@ const createNewInstance = async (app: Application, newInstance: InstanceMetadata
   const instanceResult = (await app.service('instance').create(newInstance)) as Instance
   if (!channelId) {
     await app.service('channel').create({
-      channelType: 'instance',
       instanceId: instanceResult.id
     })
   }
@@ -114,21 +115,6 @@ const createNewInstance = async (app: Application, newInstance: InstanceMetadata
   const instanceServerState = getMutableState(InstanceServerState)
   await serverState.agonesSDK.allocate()
   instanceServerState.instance.set(instanceResult)
-
-  if (instanceServerState.isSubdomainNumber.value != null) {
-    const gsSubProvision = (await app.service('instanceserver-subdomain-provision').find({
-      query: {
-        is_number: instanceServerState.isSubdomainNumber.value
-      }
-    })) as any
-
-    if (gsSubProvision.total > 0) {
-      const provision = gsSubProvision.data[0]
-      await app.service('instanceserver-subdomain-provision').patch(provision.id, {
-        instanceId: instanceResult.id
-      } as any)
-    }
-  }
 }
 
 /**
@@ -142,7 +128,7 @@ const createNewInstance = async (app: Application, newInstance: InstanceMetadata
 const assignExistingInstance = async (
   app: Application,
   existingInstance: Instance,
-  channelId: string,
+  channelId: ChannelID,
   locationId: string
 ) => {
   const serverState = getState(ServerState)
@@ -158,21 +144,6 @@ const assignExistingInstance = async (
     assigned: false,
     assignedAt: null!
   })
-
-  if (instanceServerState.isSubdomainNumber.value != null) {
-    const gsSubProvision = (await app.service('instanceserver-subdomain-provision').find({
-      query: {
-        is_number: instanceServerState.isSubdomainNumber.value
-      }
-    })) as any
-
-    if (gsSubProvision.total > 0) {
-      const provision = gsSubProvision.data[0]
-      await app.service('instanceserver-subdomain-provision').patch(provision.id, {
-        instanceId: existingInstance.id
-      } as any)
-    }
-  }
 }
 
 /**
@@ -190,7 +161,7 @@ const initializeInstance = async (
   app: Application,
   status: InstanceserverStatus,
   locationId: string,
-  channelId: string,
+  channelId: ChannelID,
   userId?: UserId
 ) => {
   logger.info('Initializing new instance')
@@ -235,13 +206,11 @@ const initializeInstance = async (
     if (locationId) {
       const existingChannel = await app.service('channel').Model.findOne({
         where: {
-          channelType: 'instance',
           instanceId: instance.id
         }
       })
       if (!existingChannel) {
         await app.service('channel').create({
-          channelType: 'instance',
           instanceId: instance.id
         })
       }
@@ -267,7 +236,7 @@ const loadEngine = async (app: Application, sceneId: string) => {
   Engine.instance.peerID = uuidv4() as PeerID
   const topic = instanceServerState.isMediaInstance ? NetworkTopics.media : NetworkTopics.world
 
-  await setupSubdomain()
+  await setupIPs()
   const network = await initializeNetwork(app, hostId, topic)
 
   addNetwork(network)
@@ -339,6 +308,29 @@ const loadEngine = async (app: Application, sceneId: string) => {
 const handleUserAttendance = async (app: Application, userId: UserId) => {
   const instanceServerState = getState(InstanceServerState)
 
+  const channel = await app.service('channel').Model.findOne({
+    where: {
+      instanceId: instanceServerState.instance.id
+    }
+  })
+
+  /** Only a world server gets assigned a channel, since it has chat. A media server uses a channel but does not have one itself */
+  if (channel) {
+    const existingChannelUser = (await app.service('channel-user').find({
+      query: {
+        channelId: channel.id,
+        userId: userId
+      }
+    })) as Paginated<ChannelUser>
+
+    if (!existingChannelUser.total) {
+      await app.service('channel-user').create({
+        channelId: channel.id,
+        userId: userId
+      })
+    }
+  }
+
   await app.service('instance-attendance').patch(
     null,
     {
@@ -359,7 +351,7 @@ const handleUserAttendance = async (app: Application, userId: UserId) => {
     userId: userId
   }
   if (!instanceServerState.isMediaInstance) {
-    const location = await app.service('location').get(instanceServerState.instance.locationId)
+    const location = await app.service(locationPath).get(instanceServerState.instance.locationId!)
     ;(newInstanceAttendance as any).sceneId = location.sceneId
   }
   await app.service('instance-attendance').create(newInstanceAttendance)
@@ -381,7 +373,7 @@ const createOrUpdateInstance = async (
   app: Application,
   status: InstanceserverStatus,
   locationId: string,
-  channelId: string,
+  channelId: ChannelID,
   sceneId: string,
   userId?: UserId
 ) => {
@@ -430,24 +422,28 @@ const shutdownServer = async (app: Application, instanceId: string) => {
   const instanceServer = getState(InstanceServerState)
   const serverState = getState(ServerState)
 
+  // already shut down
+  if (!instanceServer.instance) return
+
   logger.info('Deleting instance ' + instanceId)
   try {
     await app.service('instance').patch(instanceId, {
       ended: true
     })
+    if (instanceServer.instance.locationId) {
+      const channel = await app.service('channel').Model.findOne({
+        where: {
+          instanceId: instanceServer.instance.id
+        }
+      })
+      await app.service('channel').remove(channel.id)
+    }
   } catch (err) {
     logger.error(err)
   }
-  if (instanceServer.isSubdomainNumber != null) {
-    const gsSubdomainProvision = (await app.service('instanceserver-subdomain-provision').find({
-      query: {
-        is_number: instanceServer.isSubdomainNumber
-      }
-    })) as any
-    await app.service('instanceserver-subdomain-provision').patch(gsSubdomainProvision.data[0].id, {
-      allocated: false
-    })
-  }
+
+  // already shut down
+  if (!instanceServer.instance) return
   ;(instanceServer.instance as Instance).ended = true
   if (config.kubernetes.enabled) {
     const instanceServerState = getMutableState(InstanceServerState)
@@ -491,27 +487,6 @@ const handleUserDisconnect = async (
 
   const userPatch = {} as any
 
-  if (user?.partyId && instanceServerState.isMediaInstance) {
-    const partyChannel = await app.service('channel').Model.findOne({
-      where: {
-        partyId: user.partyId
-      }
-    })
-    if (partyChannel?.id === instanceServerState.instance.channelId) {
-      userPatch.partyId = null
-      const partyUser = await app.service('party-user').find({
-        query: {
-          userId: user.id,
-          partyId: user.partyId
-        }
-      })
-      if (partyUser.total > 0) {
-        try {
-          await app.service('party-user').remove(partyUser.data[0].id)
-        } catch (err) {}
-      }
-    }
-  }
   // Patch the user's (channel)instanceId to null if they're leaving this instance.
   // But, don't change their (channel)instanceId if it's already something else.
   const userPatchResult = await app
@@ -553,7 +528,7 @@ const handleUserDisconnect = async (
   }
 }
 
-const handlePartyUserRemoved = (app: Application) => async (params) => {
+const handleChannelUserRemoved = (app: Application) => async (params) => {
   const instanceServerState = getState(InstanceServerState)
   if (!instanceServerState.isMediaInstance) return
   const instance = instanceServerState.instance
@@ -563,7 +538,7 @@ const handlePartyUserRemoved = (app: Application) => async (params) => {
       id: instance.channelId
     }
   })
-  if (channel.channelType !== 'party') return
+  if (!channel) return
   const network = getServerNetwork(app)
   const matchingPeer = Array.from(network.peers.values()).find((peer) => peer.userId === params.userId)
   if (matchingPeer) {
@@ -587,7 +562,7 @@ const onConnection = (app: Application) => async (connection: PrimusConnectionTy
 
   const userId = identityProvider.userId
   let locationId = connection.socketQuery.locationId!
-  let channelId = connection.socketQuery.channelId!
+  let channelId = connection.socketQuery.channelId! as ChannelID
   let roomCode = connection.socketQuery.roomCode!
 
   if (locationId === '') {
@@ -631,6 +606,9 @@ const onConnection = (app: Application) => async (connection: PrimusConnectionTy
     await app.service('instance').patch(instanceServerState.instance.id, {
       ended: true
     })
+    if (instanceServerState.instance.channelId) {
+      await app.service('channel').remove(instanceServerState.instance.channelId)
+    }
     restartInstanceServer()
     return
   }
@@ -651,7 +629,7 @@ const onConnection = (app: Application) => async (connection: PrimusConnectionTy
       return logger.warn('got a connection to the wrong room code', instanceServerState.instance.roomCode, roomCode)
   }
 
-  const sceneId = locationId ? (await app.service('location').get(locationId)).sceneId : ''
+  const sceneId = locationId ? (await app.service(locationPath).get(locationId)).sceneId : ''
 
   /**
    * Now that we have verified the connecting user and that they are connecting to the correct instance, load the instance
@@ -767,7 +745,7 @@ export default (app: Application): void => {
 
   logger.info('registered kickCreatedListener')
 
-  app.service('party-user').on('removed', handlePartyUserRemoved(app))
+  app.service('channel-user').on('removed', handleChannelUserRemoved(app))
 
   app.on('connection', onConnection(app))
   app.on('disconnect', onDisconnection(app))

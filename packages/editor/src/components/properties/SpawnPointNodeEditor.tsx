@@ -26,14 +26,13 @@ Ethereal Engine. All Rights Reserved.
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { getComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { useComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { SpawnPointComponent } from '@etherealengine/engine/src/scene/components/SpawnPointComponent'
 
 import StreetviewIcon from '@mui/icons-material/Streetview'
 
-import ArrayInputGroup from '../inputs/ArrayInputGroup'
 import NodeEditor from './NodeEditor'
-import { EditorComponentType, updateProperty } from './Util'
+import { EditorComponentType } from './Util'
 
 /**
  * SpawnPointNodeEditor component used to provide the editor view to customize Spawn Point properties.
@@ -43,21 +42,21 @@ import { EditorComponentType, updateProperty } from './Util'
 export const SpawnPointNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
 
-  const spawnComponent = getComponent(props.entity, SpawnPointComponent)
-  // initializing iconComponent icon name
+  const spawnComponent = useComponent(props.entity, SpawnPointComponent)
+
   return (
     <NodeEditor
       {...props}
       name={t('editor:properties.spawnPoint.name')}
       description={t('editor:properties.spawnPoint.description')}
     >
-      <ArrayInputGroup
+      {/* <ArrayInputGroup
         name="Users"
         prefix="User"
         values={spawnComponent.permissionedUsers}
         onChange={updateProperty(SpawnPointComponent, 'permissionedUsers')}
         label={t('editor:properties.spawnPoint.users')}
-      ></ArrayInputGroup>
+      ></ArrayInputGroup> */}
     </NodeEditor>
   )
 }

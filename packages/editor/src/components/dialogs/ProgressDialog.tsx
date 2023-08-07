@@ -29,7 +29,6 @@ import styled from 'styled-components'
 
 import CircularProgress from '@mui/material/CircularProgress'
 
-import ProgressBar from '../inputs/ProgressBar'
 import Dialog from './Dialog'
 
 /**

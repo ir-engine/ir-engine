@@ -29,7 +29,7 @@ import { Color, ConeGeometry, DoubleSide, Mesh, MeshBasicMaterial, Object3D, Spo
 import { getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
 
 import { matches } from '../../common/functions/MatchesUtils'
-import { defineComponent, hasComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
+import { defineComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
 import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { RendererState } from '../../renderer/RendererState'
 import { isMobileXRHeadset } from '../../xr/XRState'
@@ -55,7 +55,6 @@ export const SpotLightComponent = defineComponent({
       angle: Math.PI / 3,
       penumbra: 1,
       castShadow: false,
-      shadowMapResolution: 256,
       shadowBias: 0.00001,
       shadowRadius: 1,
       light,
@@ -76,9 +75,6 @@ export const SpotLightComponent = defineComponent({
     if (matches.number.test(json.penumbra)) component.angle.set(json.penumbra)
     if (matches.boolean.test(json.castShadow)) component.castShadow.set(json.castShadow)
     /** backwards compat */
-    if (matches.array.test(json.shadowMapResolution))
-      component.shadowMapResolution.set((json.shadowMapResolution as any)[0])
-    if (matches.number.test(json.shadowMapResolution)) component.shadowMapResolution.set(json.shadowMapResolution)
     if (matches.number.test(json.shadowBias)) component.shadowBias.set(json.shadowBias)
     if (matches.number.test(json.shadowRadius)) component.shadowRadius.set(json.shadowRadius)
   },
@@ -92,7 +88,6 @@ export const SpotLightComponent = defineComponent({
       angle: component.angle.value,
       penumbra: component.penumbra.value,
       castShadow: component.castShadow.value,
-      shadowMapResolution: component.shadowMapResolution.value,
       shadowBias: component.shadowBias.value,
       shadowRadius: component.shadowRadius.value
     }
@@ -105,7 +100,8 @@ export const SpotLightComponent = defineComponent({
 
   reactor: function () {
     const entity = useEntityContext()
-    const debugEnabled = useHookstate(getMutableState(RendererState).nodeHelperVisibility)
+    const renderState = useHookstate(getMutableState(RendererState))
+    const debugEnabled = renderState.nodeHelperVisibility
     const light = useComponent(entity, SpotLightComponent)
 
     useEffect(() => {
@@ -147,14 +143,17 @@ export const SpotLightComponent = defineComponent({
     }, [light.castShadow])
 
     useEffect(() => {
-      if (light.light.value.shadow.mapSize.x !== light.shadowMapResolution.value) {
-        light.light.value.shadow.mapSize.set(light.shadowMapResolution.value, light.shadowMapResolution.value)
+      if (light.light.value.shadow.mapSize.x !== renderState.shadowMapResolution.value) {
+        light.light.value.shadow.mapSize.set(
+          renderState.shadowMapResolution.value,
+          renderState.shadowMapResolution.value
+        )
         light.light.value.shadow.map?.dispose()
         light.light.value.shadow.map = null as any
         light.light.value.shadow.camera.updateProjectionMatrix()
         light.light.value.shadow.needsUpdate = true
       }
-    }, [light.shadowMapResolution])
+    }, [renderState.shadowMapResolution])
 
     useEffect(() => {
       if (debugEnabled.value && !light.helper.value) {

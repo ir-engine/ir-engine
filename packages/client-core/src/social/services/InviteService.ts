@@ -26,22 +26,20 @@ Ethereal Engine. All Rights Reserved.
 import { Paginated } from '@feathersjs/feathers'
 import { useEffect } from 'react'
 
+import {
+  EMAIL_REGEX,
+  INVITE_CODE_REGEX,
+  PHONE_REGEX,
+  USER_ID_REGEX
+} from '@etherealengine/common/src/constants/IdConstants'
 import { Invite, SendInvite } from '@etherealengine/common/src/interfaces/Invite'
 import { UserInterface } from '@etherealengine/common/src/interfaces/User'
-import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
+import { Validator, matches } from '@etherealengine/engine/src/common/functions/MatchesUtils'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { defineAction, defineState, dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
 
-import { MediaInstanceConnectionAction } from '../../common/services/MediaInstanceConnectionService'
 import { NotificationService } from '../../common/services/NotificationService'
 import { AuthState } from '../../user/services/AuthService'
-import { PartyService } from './PartyService'
-
-export const emailRegex =
-  /[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/
-export const phoneRegex = /^[0-9]{10}$/
-export const userIdRegex = /^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$/
-export const inviteCodeRegex = /^[0-9a-fA-F]{8}$/
 
 //State
 export const INVITE_PAGE_LIMIT = 100
@@ -136,14 +134,14 @@ export const InviteServiceReceptor = (action) => {
 export const InviteService = {
   sendInvite: async (data: SendInvite) => {
     if (data.identityProviderType === 'email') {
-      if (!data.token || !emailRegex.test(data.token)) {
+      if (!data.token || !EMAIL_REGEX.test(data.token)) {
         NotificationService.dispatchNotify(`Invalid email address: ${data.token}`, { variant: 'error' })
         return
       }
     }
 
     if (data.identityProviderType === 'sms') {
-      if (!data.token || !phoneRegex.test(data.token)) {
+      if (!data.token || !PHONE_REGEX.test(data.token)) {
         NotificationService.dispatchNotify(`Invalid 10-digit US phone number: ${data.token}`, { variant: 'error' })
         return
       }
@@ -155,7 +153,7 @@ export const InviteService = {
     }
 
     if (data.inviteCode != null) {
-      if (!inviteCodeRegex.test(data.inviteCode)) {
+      if (!INVITE_CODE_REGEX.test(data.inviteCode)) {
         NotificationService.dispatchNotify(`Invalid Invite Code: ${data.inviteCode}`, { variant: 'error' })
         return
       } else {
@@ -179,7 +177,7 @@ export const InviteService = {
     }
 
     if (data.inviteeId != null) {
-      if (!userIdRegex.test(data.inviteeId)) {
+      if (!USER_ID_REGEX.test(data.inviteeId)) {
         NotificationService.dispatchNotify('Invalid user ID', { variant: 'error' })
         return
       }
@@ -321,15 +319,11 @@ export const InviteService = {
   },
   acceptInvite: async (invite: Invite) => {
     try {
-      if (invite.inviteType === 'party') {
-        dispatchAction(MediaInstanceConnectionAction.joiningNonInstanceMediaChannel({}))
-      }
       await Engine.instance.api.service('a-i').get(invite.id, {
         query: {
           passcode: invite.passcode
         }
       })
-      if (invite.inviteType === 'party') await PartyService.leaveNetwork(false)
       dispatchAction(InviteAction.acceptedInvite({}))
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })

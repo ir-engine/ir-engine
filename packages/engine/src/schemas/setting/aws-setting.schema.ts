@@ -23,9 +23,9 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-// // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
-import { querySyntax, Type } from '@feathersjs/typebox'
+// For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
 import type { Static } from '@feathersjs/typebox'
+import { querySyntax, Type } from '@feathersjs/typebox'
 
 export const awsSettingPath = 'aws-setting'
 
@@ -40,22 +40,24 @@ export const awsKeysSchema = Type.Object(
 )
 export type AwsKeysType = Static<typeof awsKeysSchema>
 
-export const awsRoute53Schema = Type.Object(
+export const awsEksSchema = Type.Object(
   {
-    hostedZoneId: Type.String(),
-    keys: Type.Ref(awsKeysSchema)
+    accessKeyId: Type.String(),
+    secretAccessKey: Type.String()
   },
-  { $id: 'AwsRoute53', additionalProperties: false }
+  { $id: 'AwsEks', additionalProperties: false }
 )
-export type AwsRoute53Type = Static<typeof awsRoute53Schema>
+export type AwsEksType = Static<typeof awsEksSchema>
 
 export const awsS3Schema = Type.Object(
   {
+    accessKeyId: Type.String(),
     endpoint: Type.String(),
     staticResourceBucket: Type.String(),
     region: Type.String(),
     avatarDir: Type.String(),
-    s3DevMode: Type.String()
+    s3DevMode: Type.String(),
+    secretAccessKey: Type.String()
   },
   { $id: 'AwsS3', additionalProperties: false }
 )
@@ -89,8 +91,7 @@ export const awsSettingSchema = Type.Object(
     id: Type.String({
       format: 'uuid'
     }),
-    keys: Type.Ref(awsKeysSchema),
-    route53: Type.Ref(awsRoute53Schema),
+    eks: Type.Ref(awsEksSchema),
     s3: Type.Ref(awsS3Schema),
     cloudfront: Type.Ref(awsCloudFrontSchema),
     sms: Type.Ref(awsSmsSchema),
@@ -101,16 +102,15 @@ export const awsSettingSchema = Type.Object(
 )
 export type AwsSettingType = Static<typeof awsSettingSchema>
 
-export type AwsSettingDatabaseType = Omit<AwsSettingType, 'keys' | 'route53' | 's3' | 'cloudfront' | 'sms'> & {
-  keys: string
-  route53: string
+export type AwsSettingDatabaseType = Omit<AwsSettingType, 'eks' | 's3' | 'cloudfront' | 'sms'> & {
+  eks: string
   s3: string
   cloudfront: string
   sms: string
 }
 
 // Schema for creating new entries
-export const awsSettingDataSchema = Type.Pick(awsSettingSchema, ['keys', 'route53', 's3', 'cloudfront', 'sms'], {
+export const awsSettingDataSchema = Type.Pick(awsSettingSchema, ['eks', 's3', 'cloudfront', 'sms'], {
   $id: 'AwsSettingData'
 })
 export type AwsSettingData = Static<typeof awsSettingDataSchema>
@@ -125,7 +125,6 @@ export type AwsSettingPatch = Static<typeof awsSettingPatchSchema>
 export const awsSettingQueryProperties = Type.Pick(awsSettingSchema, [
   'id'
   // 'keys', Commented out because: https://discord.com/channels/509848480760725514/1093914405546229840/1095101536121667694
-  // 'route53',
   // 's3',
   // 'cloudfront',
   // 'sms'

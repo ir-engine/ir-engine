@@ -23,8 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { DeleteObjectCommand, ListObjectsV2Command } from '@aws-sdk/client-s3'
-import { CreateBucketCommand, HeadBucketCommand } from '@aws-sdk/client-s3'
+import { CreateBucketCommand, DeleteObjectCommand, HeadBucketCommand, ListObjectsV2Command } from '@aws-sdk/client-s3'
 import appRootPath from 'app-root-path'
 import fs from 'fs'
 import path from 'path'
@@ -51,16 +50,16 @@ const localStorageBeforeTest = (
   return new Promise<void>((resolve) => {
     StartTestFileServer()
 
-    const dir = path.join(appRootPath.path, `packages/server/upload`, testFolderName)
+    const dir = path.join(appRootPath.path, `packages/server/upload_test`, testFolderName)
     if (fs.existsSync(dir)) fs.rmSync(dir, { recursive: true })
-    fs.mkdirSync(path.join(appRootPath.path, `packages/server/upload`, folderKeyTemp), { recursive: true })
-    fs.mkdirSync(path.join(appRootPath.path, `packages/server/upload`, folderKeyTemp2), { recursive: true })
+    fs.mkdirSync(path.join(appRootPath.path, `packages/server/upload_test`, folderKeyTemp), { recursive: true })
+    fs.mkdirSync(path.join(appRootPath.path, `packages/server/upload_test`, folderKeyTemp2), { recursive: true })
     resolve()
   })
 }
 const localStorageAfterTest = (provider, testFolderName): Promise<any> => {
   return new Promise<void>((resolve) => {
-    const dir = path.join(appRootPath.path, `packages/server/upload`, testFolderName)
+    const dir = path.join(appRootPath.path, `packages/server/upload_test`, testFolderName)
     fs.rmSync(dir, { recursive: true })
     resolve()
   })

@@ -24,7 +24,6 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import appRootPath from 'app-root-path'
-import { spawn } from 'child_process'
 import fs from 'fs'
 import path from 'path'
 

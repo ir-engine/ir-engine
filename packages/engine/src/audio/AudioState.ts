@@ -29,11 +29,9 @@ import {
   defineState,
   getMutableState,
   getState,
-  syncStateWithLocalStorage,
-  useState
+  syncStateWithLocalStorage
 } from '@etherealengine/hyperflux'
 
-import { Engine } from '../ecs/classes/Engine'
 import { MediaSettingsState } from '../networking/MediaSettingsState'
 
 /**

@@ -37,21 +37,21 @@ import {
   createViewCursor,
   readFloat32,
   readProp,
-  readUint8,
   readUint16,
   readUint32,
+  readUint8,
   sliceViewCursor,
-  spaceUint8,
   spaceUint16,
   spaceUint32,
+  spaceUint8,
   writeEntityId,
   writeFloat32,
   writeNetworkId,
   writeProp,
   writePropIfChanged,
-  writeUint8,
   writeUint16,
-  writeUint32
+  writeUint32,
+  writeUint8
 } from './ViewCursor'
 
 describe('ViewCursor read/write', () => {
@@ -68,8 +68,10 @@ describe('ViewCursor read/write', () => {
   describe('ViewCursor', () => {
     it('should createViewCursor', () => {
       const view = createViewCursor()
+      // eslint-disable-next-line no-prototype-builtins
       assert(view.hasOwnProperty('cursor'))
       strictEqual(view.cursor, 0)
+      // eslint-disable-next-line no-prototype-builtins
       assert(view.hasOwnProperty('shadowMap'))
       assert(view.shadowMap instanceof Map)
     })

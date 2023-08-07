@@ -23,10 +23,8 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
-import { defineAction, defineState, dispatchAction, getMutableState } from '@etherealengine/hyperflux'
-
-import { API } from '../../../API'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { defineState, getMutableState } from '@etherealengine/hyperflux'
 
 export const PROJECT_PAGE_LIMIT = 100
 
@@ -42,41 +40,23 @@ export const AdminProjectSettingsState = defineState({
   })
 })
 
-const projectSettingFetchedReceptor = (
-  action: typeof AdminProjectSettingsActions.projectSettingFetched.matches._TYPE
-) => {
-  const state = getMutableState(AdminProjectSettingsState)
-  return state.merge({
-    projectSetting: action.projectSettings
-  })
-}
-
-export const ProjectSettingReceptors = {
-  projectSettingFetchedReceptor
-}
-
 export const ProjectSettingService = {
   fetchProjectSetting: async (projectId: string) => {
-    const projectSettings = await API.instance.client.service('project-setting').find({
+    const projectSetting = await Engine.instance.api.service('project-setting').find({
       query: {
         $limit: 1,
         id: projectId,
         $select: ['settings']
       }
     })
-    dispatchAction(AdminProjectSettingsActions.projectSettingFetched({ projectSettings }))
+    getMutableState(AdminProjectSettingsState).merge({
+      projectSetting
+    })
   },
 
   // restricted to admin scope
   updateProjectSetting: async (projectId: string, data: ProjectSettingValue[]) => {
-    await API.instance.client.service('project-setting').patch(projectId, { settings: JSON.stringify(data) })
+    await Engine.instance.api.service('project-setting').patch(projectId, { settings: JSON.stringify(data) })
     ProjectSettingService.fetchProjectSetting(projectId)
   }
-}
-
-export class AdminProjectSettingsActions {
-  static projectSettingFetched = defineAction({
-    type: 'ee.client.AdminProjectSettings.PROJECT_SETTING_FETCHED' as const,
-    projectSettings: matches.array as Validator<unknown, ProjectSettingValue[]>
-  })
 }

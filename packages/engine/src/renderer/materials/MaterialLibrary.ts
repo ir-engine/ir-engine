@@ -23,15 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Material } from 'three'
-import matches, { Validator } from 'ts-matches'
-
-import { defineAction, defineState, getMutableState, getState, StateDefinition } from '@etherealengine/hyperflux'
+import { defineState, getMutableState, getState, StateDefinition } from '@etherealengine/hyperflux'
 
 import { MaterialComponentType } from './components/MaterialComponent'
 import { MaterialPluginType } from './components/MaterialPluginComponent'
 import { MaterialPrototypeComponentType } from './components/MaterialPrototypeComponent'
-import { MaterialSource, MaterialSourceComponentType } from './components/MaterialSource'
+import { MaterialSourceComponentType } from './components/MaterialSource'
 import MeshBasicMaterial from './constants/material-prototypes/MeshBasicMaterial.mat'
 import MeshLambertMaterial from './constants/material-prototypes/MeshLambertMaterial.mat'
 import MeshMatcapMaterial from './constants/material-prototypes/MeshMatcapMaterial.mat'
@@ -42,7 +39,6 @@ import MeshToonMaterial from './constants/material-prototypes/MeshToonMaterial.m
 import { ShaderMaterial } from './constants/material-prototypes/ShaderMaterial.mat'
 import { ShadowMaterial } from './constants/material-prototypes/ShadowMaterial.mat'
 import { NoiseOffsetPlugin } from './constants/plugins/NoiseOffsetPlugin'
-import { VegetationPlugin } from './constants/plugins/VegetationPlugin'
 import { registerMaterialPrototype } from './functions/MaterialLibraryFunctions'
 import { registerMaterialPlugin } from './functions/MaterialPluginFunctions'
 
@@ -82,7 +78,7 @@ export function initializeMaterialLibrary() {
     ].map(registerMaterialPrototype)
 
     //load default plugins from source
-    ;[NoiseOffsetPlugin, VegetationPlugin].map(registerMaterialPlugin)
+    ;[NoiseOffsetPlugin].map(registerMaterialPlugin)
     getMutableState(MaterialLibraryState).initialized.set(true)
   }
 }

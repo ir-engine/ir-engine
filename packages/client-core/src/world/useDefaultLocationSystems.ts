@@ -25,12 +25,12 @@ Ethereal Engine. All Rights Reserved.
 
 import { useEffect } from 'react'
 
-import { InputSystemGroup, PresentationSystemGroup } from '@etherealengine/engine/src/ecs/functions/EngineFunctions'
+import { PresentationSystemGroup } from '@etherealengine/engine/src/ecs/functions/EngineFunctions'
 import { startSystems } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import { TransformSystem } from '@etherealengine/engine/src/transform/systems/TransformSystem'
 
-import { WebcamInputSystem } from '../media/webcam/WebcamInput'
 import { ClientNetworkingSystem } from '../networking/ClientNetworkingSystem'
+import { RecordingServiceSystem } from '../recording/RecordingService'
 import { AvatarUISystem } from '../systems/AvatarUISystem'
 import { LoadingUISystem } from '../systems/LoadingUISystem'
 import { WarningUISystem } from '../systems/WarningUISystem'
@@ -40,11 +40,9 @@ import { UserUISystem } from '../user/UserUISystem'
 
 export const useDefaultLocationSystems = (online: boolean) => {
   useEffect(() => {
-    startSystems([WebcamInputSystem], { with: InputSystemGroup })
-
     startSystems([LoadingUISystem, AvatarUISystem, WidgetUISystem], { before: TransformSystem })
 
-    const postPresentationSystems = [UserUISystem, FilteredUsersSystem, WarningUISystem]
+    const postPresentationSystems = [UserUISystem, FilteredUsersSystem, WarningUISystem, RecordingServiceSystem]
 
     if (online) postPresentationSystems.push(ClientNetworkingSystem)
 

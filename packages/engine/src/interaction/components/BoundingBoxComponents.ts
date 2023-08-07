@@ -24,20 +24,12 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { useEffect } from 'react'
-import { Box3, Box3Helper } from 'three'
+import { Box3, Box3Helper, Group } from 'three'
 
 import { getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
 
 import { matches } from '../../common/functions/MatchesUtils'
-import { Entity } from '../../ecs/classes/Entity'
-import {
-  defineComponent,
-  getComponent,
-  hasComponent,
-  setComponent,
-  useComponent,
-  useOptionalComponent
-} from '../../ecs/functions/ComponentFunctions'
+import { defineComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
 import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { RendererState } from '../../renderer/RendererState'
 import { addObjectToGroup, removeObjectFromGroup } from '../../scene/components/GroupComponent'
@@ -73,8 +65,11 @@ export const BoundingBoxComponent = defineComponent({
       if (debugEnabled.value && !boundingBox.helper.value) {
         const helper = new Box3Helper(boundingBox.box.value)
         helper.name = `bounding-box-helper-${entity}`
+        // we need an intermediary group because otherwise the helper's updateMatrixWorld() modifies the enities transform
+        const helperGroup = new Group()
+        helperGroup.add(helper)
         setObjectLayers(helper, ObjectLayers.NodeHelper)
-        addObjectToGroup(entity, helper)
+        addObjectToGroup(entity, helperGroup)
         boundingBox.helper.set(helper)
       }
 

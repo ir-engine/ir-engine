@@ -23,9 +23,9 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-// // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
-import { querySyntax, Type } from '@feathersjs/typebox'
+// For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
 import type { Static } from '@feathersjs/typebox'
+import { querySyntax, Type } from '@feathersjs/typebox'
 
 export const emailSettingPath = 'email-setting'
 
@@ -38,8 +38,7 @@ export const emailSubjectSchema = Type.Object(
     instance: Type.String(),
     login: Type.String(),
     friend: Type.String(),
-    group: Type.String(),
-    party: Type.String()
+    channel: Type.String()
   },
   { $id: 'EmailSubject', additionalProperties: false }
 )
@@ -57,7 +56,7 @@ export type EmailAuthType = Static<typeof emailAuthSchema>
 export const emailSmtpSchema = Type.Object(
   {
     host: Type.String(),
-    port: Type.String(),
+    port: Type.Number(),
     secure: Type.Boolean(),
     auth: Type.Ref(emailAuthSchema)
   },

@@ -29,10 +29,10 @@ import { CameraHelper, PerspectiveCamera } from 'three'
 import { getMutableState, none, useHookstate } from '@etherealengine/hyperflux'
 
 import { Engine } from '../../ecs/classes/Engine'
-import { defineComponent, getComponent, hasComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
+import { defineComponent, getComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
 import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { RendererState } from '../../renderer/RendererState'
-import { LocalTransformComponent, TransformComponent } from '../../transform/components/TransformComponent'
+import { TransformComponent } from '../../transform/components/TransformComponent'
 import { ObjectLayers } from '../constants/ObjectLayers'
 import { setObjectLayers } from '../functions/setObjectLayers'
 import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
@@ -44,14 +44,17 @@ export const ScenePreviewCameraComponent = defineComponent({
   onInit: (entity) => {
     const camera = new PerspectiveCamera(80, 16 / 9, 0.2, 8000)
     addObjectToGroup(entity, camera)
-    const transform = getComponent(entity, TransformComponent)
-    const cameraTransform = getComponent(Engine.instance.cameraEntity, TransformComponent)
-    cameraTransform.position.copy(transform.position)
-    cameraTransform.rotation.copy(transform.rotation)
     return {
       camera,
       helper: null as CameraHelper | null
     }
+  },
+
+  onSet: (entity, component) => {
+    const transform = getComponent(entity, TransformComponent)
+    const cameraTransform = getComponent(Engine.instance.cameraEntity, TransformComponent)
+    cameraTransform.position.copy(transform.position)
+    cameraTransform.rotation.copy(transform.rotation)
   },
 
   onRemove: (entity, component) => {

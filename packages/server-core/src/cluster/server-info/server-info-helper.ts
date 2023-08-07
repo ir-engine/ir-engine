@@ -33,6 +33,7 @@ import {
   ServerInfoInterface,
   ServerPodInfo
 } from '@etherealengine/common/src/interfaces/ServerInfo'
+import { locationPath, LocationType } from '@etherealengine/engine/src/schemas/social/location.schema'
 import { getState } from '@etherealengine/hyperflux'
 
 import { Application } from '../../../declarations'
@@ -41,7 +42,7 @@ import logger from '../../ServerLogger'
 import { ServerState } from '../../ServerState'
 
 export const getServerInfo = async (app: Application): Promise<ServerInfoInterface[]> => {
-  let serverInfo: ServerInfoInterface[] = []
+  const serverInfo: ServerInfoInterface[] = []
 
   const k8DefaultClient = getState(ServerState).k8DefaultClient
 
@@ -235,17 +236,25 @@ const populateInstanceServerType = async (app: Application, items: ServerPodInfo
   const instances = (await app.service('instance').Model.findAll({
     where: {
       ended: false
-    },
-    include: [
-      {
-        model: app.service('location').Model,
-        required: false
-      }
-    ]
+    }
   })) as Instance[]
 
   if (instances.length === 0) {
     return
+  }
+
+  // TODO: Move following to instance.resolvers once instance service is migrated to feathers 5.
+  const locations = (await app.service(locationPath).find({
+    query: {
+      id: {
+        $in: instances.map((instance) => instance.locationId!)
+      }
+    },
+    paginate: false
+  })) as any as LocationType[]
+
+  for (const instance of instances) {
+    instance.location = locations.find((location) => location.id === instance.locationId)!
   }
 
   const channelInstances = instances.filter((item) => item.channelId)
@@ -263,21 +272,30 @@ const populateInstanceServerType = async (app: Application, items: ServerPodInfo
 
   for (const item of items) {
     const instanceExists = instances.find((instance) => instance.podName === item.name)
-
     item.instanceId = instanceExists ? instanceExists.id : ''
     item.currentUsers = instanceExists ? instanceExists.currentUsers : 0
-
-    if (instanceExists && instanceExists.locationId) {
+    if (!instanceExists) {
+      item.type = 'Unassigned'
+      continue
+    }
+    if (!instanceExists.locationId && !instanceExists.channelId) {
+      item.type = 'Unassigned'
+      continue
+    }
+    if (instanceExists.locationId) {
       item.type = `World (${instanceExists.location.name})`
       item.locationSlug = instanceExists.location.slugifiedName
-    } else if (instanceExists && instanceExists.channelId) {
+    } else if (instanceExists.channelId) {
       item.type = 'Media'
       const channelExists = channels.find((channel) => channel.instanceId === instanceExists.id)
-      if (channelExists && channelExists.channelType) {
-        item.type = `Media (${channelExists.channelType})`
+      if (!channelExists) {
+        continue
       }
-    } else {
-      item.type = 'Unassigned'
+      if (instanceExists.locationId) {
+        item.type = `Media (${instanceExists.location.name} - ${instanceExists.id})`
+      } else {
+        item.type = `Channel (${instanceExists.id})`
+      }
     }
   }
 }

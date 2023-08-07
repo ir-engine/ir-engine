@@ -23,8 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { useEffect } from 'react'
-import React from 'react'
+import React, { useEffect } from 'react'
 import { Material, Mesh } from 'three'
 
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'

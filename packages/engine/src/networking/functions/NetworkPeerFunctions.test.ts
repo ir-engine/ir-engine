@@ -25,29 +25,30 @@ Ethereal Engine. All Rights Reserved.
 
 import assert from 'assert'
 
+import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { NetworkId } from '@etherealengine/common/src/interfaces/NetworkId'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { UserId } from '@etherealengine/common/src/interfaces/UserId'
-import { applyIncomingActions, clearOutgoingActions, getMutableState } from '@etherealengine/hyperflux'
+import { applyIncomingActions, getMutableState, receiveActions } from '@etherealengine/hyperflux'
 
 import { createMockNetwork } from '../../../tests/util/createMockNetwork'
 import { destroyEngine, Engine } from '../../ecs/classes/Engine'
-import { addComponent } from '../../ecs/functions/ComponentFunctions'
-import { executeSystems, RootSystemGroup, SimulationSystemGroup } from '../../ecs/functions/EngineFunctions'
+import { setComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
-import { startSystem, startSystems, SystemDefinitions } from '../../ecs/functions/SystemFunctions'
 import { createEngine } from '../../initializeEngine'
+import { UUIDComponent } from '../../scene/components/UUIDComponent'
 import { Network } from '../classes/Network'
 import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
 import { WorldState } from '../interfaces/WorldState'
 import { NetworkState } from '../NetworkState'
-import { WorldNetworkActionSystem } from '../systems/WorldNetworkActionSystem'
+import { EntityNetworkState } from '../state/EntityNetworkState'
 import { NetworkPeerFunctions } from './NetworkPeerFunctions'
 
 describe('NetworkPeerFunctions', () => {
   beforeEach(() => {
     createEngine()
     createMockNetwork()
+    Engine.instance.store.defaultDispatchDelay = () => 0
   })
 
   afterEach(() => {
@@ -117,7 +118,7 @@ describe('NetworkPeerFunctions', () => {
       const userId = 'user id' as UserId
       const peerID = 'peer id' as PeerID
       Engine.instance.userId = 'another user id' as UserId
-      Engine.instance.peerID = peerID
+      Engine.instance.peerID = 'another peer id' as PeerID
       const userName = 'user name'
       const userIndex = 1
       const peerIndex = 2
@@ -134,11 +135,32 @@ describe('NetworkPeerFunctions', () => {
       assert.equal(network.peerIDToPeerIndex.get(peerID), undefined)
     })
 
+    it('should not remove self peer', () => {
+      const userId = 'user id' as UserId
+      const peerID = 'peer id' as PeerID
+      Engine.instance.userId = 'another user id' as UserId
+      Engine.instance.peerID = peerID
+      const userName = 'user name'
+      const userIndex = 1
+      const peerIndex = 2
+      const network = Engine.instance.worldNetwork as Network
+
+      NetworkPeerFunctions.createPeer(network, peerID, peerIndex, userId, userIndex, userName)
+      NetworkPeerFunctions.destroyPeer(network, peerID)
+
+      assert(network.peers.get(peerID))
+
+      assert.equal(network.userIndexToUserID.get(userIndex), userId)
+      assert.equal(network.userIDToUserIndex.get(userId), userIndex)
+      assert.equal(network.peerIndexToPeerID.get(peerIndex), peerID)
+      assert.equal(network.peerIDToPeerIndex.get(peerID), peerIndex)
+    })
+
     it('should remove peer and owned network objects', () => {
       const userId = 'world' as UserId
       const peerID = 'peer id' as PeerID
       Engine.instance.userId = 'another user id' as UserId
-      Engine.instance.peerID = peerID
+      Engine.instance.peerID = 'another peer id' as PeerID
       const userName = 'user name'
       const userIndex = 1
       const peerIndex = 5
@@ -150,20 +172,21 @@ describe('NetworkPeerFunctions', () => {
       const networkId = 2 as NetworkId
 
       const entity = createEntity()
-      addComponent(entity, NetworkObjectComponent, {
+      setComponent(entity, NetworkObjectComponent, {
         ownerId: userId,
         authorityPeerID: peerID,
         networkId
       })
+      setComponent(entity, UUIDComponent, 'entity_uuid' as EntityUUID)
 
       // process remove actions and execute entity removal
       Engine.instance.store.defaultDispatchDelay = () => 0
       NetworkPeerFunctions.destroyPeer(network, peerID)
 
       applyIncomingActions()
-      SystemDefinitions.get(WorldNetworkActionSystem)!.execute()
+      receiveActions(EntityNetworkState)
 
-      assert(!Engine.instance.getNetworkObject(userId, networkId))
+      assert(!NetworkObjectComponent.getNetworkObject(userId, networkId))
     })
   })
 })

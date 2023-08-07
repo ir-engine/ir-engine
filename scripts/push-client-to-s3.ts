@@ -41,8 +41,6 @@ import { getFilesRecursive } from '@etherealengine/server-core/src/util/fsHelper
 
 cli.enable('status')
 
-const options = cli.parse({})
-
 cli.main(async () => {
   try {
     await createDefaultStorageProvider()
@@ -50,7 +48,7 @@ cli.main(async () => {
     const clientPath = path.resolve(appRootPath.path, `packages/client/dist`)
     const files = getFilesRecursive(clientPath)
     let filesToPruneResponse = await storageProvider.getObject('client/S3FilesToRemove.json')
-    const filesToPush = []
+    const filesToPush: string[] = []
     await Promise.all(
       files.map((file) => {
         return new Promise(async (resolve) => {
@@ -58,11 +56,11 @@ cli.main(async () => {
             const fileResult = fs.readFileSync(file)
             let filePathRelative = processFileName(file.slice(clientPath.length))
             let contentType = getContentType(file)
-            const putData = {
+            const putData: any = {
               Body: fileResult,
               ContentType: contentType,
               Key: `client${filePathRelative}`
-            }
+            } as any
             if (/.br$/.exec(filePathRelative)) {
               filePathRelative = filePathRelative.replace(/.br$/, '')
               putData.ContentType = getContentType(filePathRelative)
@@ -71,7 +69,7 @@ cli.main(async () => {
             }
             await storageProvider.putObject(putData, { isDirectory: false })
             filesToPush.push(`client${filePathRelative}`)
-            resolve()
+            resolve(null)
           } catch (e) {
             logger.error(e)
             resolve(null)
@@ -88,6 +86,7 @@ cli.main(async () => {
       Key: 'client/S3FilesToRemove.json'
     }
     await storageProvider.putObject(putData, { isDirectory: false })
+    await storageProvider.createInvalidation(['client/*'])
     console.log('Pushed filtered list of files to remove to S3')
     process.exit(0)
   } catch (err) {

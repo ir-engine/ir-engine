@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { t } from 'i18next'
-import { AnimationMixer, Box3, Camera, Mesh, Object3D, Scene, Vector3, WebGLRenderer } from 'three'
+import { AnimationMixer, Box3, Camera, Object3D, Scene, Vector3, WebGLRenderer } from 'three'
 
 import { MAX_ALLOWED_TRIANGLES } from '@etherealengine/common/src/constants/AvatarConstants'
 import { AnimationComponent } from '@etherealengine/engine/src/avatar/components/AnimationComponent'
@@ -92,5 +92,17 @@ export const loadAvatarForPreview = async (entity: Entity, avatarURL: string) =>
   })
   parent.removeFromParent()
   // animateModel(entity)
+  return parent
+}
+
+export const loadModelForPreview = async (entity: Entity, avatarURL: string) => {
+  const parent = await loadAvatarModelAsset(avatarURL)
+  if (!parent) return
+  removeGroupComponent(entity)
+  addObjectToGroup(entity, parent)
+  parent.traverse((obj: Object3D) => {
+    obj.layers.set(ObjectLayers.Panel)
+  })
+  parent.removeFromParent()
   return parent
 }

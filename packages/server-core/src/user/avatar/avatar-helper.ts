@@ -23,34 +23,21 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { Paginated } from '@feathersjs/feathers'
+import appRootPath from 'app-root-path'
 import fs from 'fs'
 import path from 'path'
 
 import { CommonKnownContentTypes } from '@etherealengine/common/src/utils/CommonKnownContentTypes'
+import { avatarPath, AvatarType } from '@etherealengine/engine/src/schemas/user/avatar.schema'
 
 import { Application } from '../../../declarations'
+import { isAssetFromProject } from '../../media/static-resource/static-resource-helper'
 import { getStorageProvider } from '../../media/storageprovider/storageprovider'
-import { addGenericAssetToS3AndStaticResources } from '../../media/upload-asset/upload-asset.service'
-import { getProjectPackageJson } from '../../projects/project/project-helper'
+import { addAssetAsStaticResource } from '../../media/upload-asset/upload-asset.service'
 import logger from '../../ServerLogger'
 import { getContentType } from '../../util/fileUtils'
 import { UserParams } from '../user/user.class'
-
-export type AvatarCreateArguments = {
-  modelResourceId?: string
-  thumbnailResourceId?: string
-  identifierName?: string
-  name: string
-  isPublic?: boolean
-  project?: string
-}
-
-export type AvatarPatchArguments = {
-  modelResourceId?: string
-  thumbnailResourceId?: string
-  identifierName?: string
-  name?: string
-}
 
 export type AvatarUploadArguments = {
   avatar: Buffer
@@ -60,11 +47,12 @@ export type AvatarUploadArguments = {
   avatarFileType?: string
   avatarId?: string
   project?: string
+  path?: string
 }
 
 // todo: move this somewhere else
 const supportedAvatars = ['glb', 'gltf', 'vrm', 'fbx']
-const PROJECT_NAME_REGEX = /projects\/([a-zA-Z0-9-_.]+)\/public\/avatars$/
+const projectsPath = path.join(appRootPath.path, '/packages/projects/projects/')
 
 /**
  * @todo - reference dependency files in static resources?
@@ -72,12 +60,7 @@ const PROJECT_NAME_REGEX = /projects\/([a-zA-Z0-9-_.]+)\/public\/avatars$/
  * @param avatarsFolder
  */
 export const installAvatarsFromProject = async (app: Application, avatarsFolder: string) => {
-  const promises: Promise<any>[] = []
-  const projectNameExec = PROJECT_NAME_REGEX.exec(avatarsFolder)
-  let projectJSON
-  if (projectNameExec) projectJSON = getProjectPackageJson(projectNameExec[1])
-  let projectName
-  if (projectJSON) projectName = projectJSON.name
+  const projectName = avatarsFolder.replace(projectsPath, '').split('/')[0]!
 
   // get all avatars files in the folder
   const avatarsToInstall = fs
@@ -99,14 +82,15 @@ export const installAvatarsFromProject = async (app: Application, avatarsFolder:
         thumbnail,
         avatarName,
         avatarFileType,
-        dependencies
+        dependencies,
+        avatarsFolder: avatarsFolder.replace(path.join(appRootPath.path, 'packages/projects'), '')
       }
     })
 
   const provider = getStorageProvider()
 
-  const uploadDependencies = (filePaths: string[]) =>
-    Promise.all([
+  const uploadDependencies = (filePaths: string[]) => {
+    return Promise.all([
       provider.createInvalidation(filePaths),
       ...filePaths.map((filePath) => {
         const key = `static-resources/avatar/public${filePath.replace(avatarsFolder, '')}`
@@ -124,44 +108,55 @@ export const installAvatarsFromProject = async (app: Application, avatarsFolder:
         )
       })
     ])
+  }
 
+  /**
+   * @todo
+   * - check if avatar already exists by getting avatar with same key & hash in static resources
+   * -
+   */
   await Promise.all(
     avatarsToInstall.map(async (avatar) => {
       try {
-        const existingAvatar = await app.service('avatar').Model.findOne({
-          where: {
+        const existingAvatar = (await app.service(avatarPath).find({
+          query: {
             name: avatar.avatarName,
             isPublic: true,
-            project: projectName || null
+            $or: [
+              {
+                project: projectName
+              },
+              {
+                project: ''
+              }
+            ]
           }
-        })
-        let selectedAvatar
-        if (!existingAvatar) {
-          selectedAvatar = await app.service('avatar').create({
+        })) as Paginated<AvatarType>
+        console.log({ existingAvatar })
+
+        let selectedAvatar: AvatarType
+        if (existingAvatar && existingAvatar.data.length > 0) {
+          // todo - clean up old avatar files
+          selectedAvatar = existingAvatar.data[0]
+        } else {
+          selectedAvatar = await app.service(avatarPath).create({
             name: avatar.avatarName,
             isPublic: true,
-            project: projectName || null
+            project: projectName || undefined
           })
-        } else {
-          // todo - clean up old avatar files
-          selectedAvatar = existingAvatar
         }
 
         await uploadDependencies(avatar.dependencies)
 
-        const [modelResource, thumbnailResource] = await uploadAvatarStaticResource(app, {
+        await uploadAvatarStaticResource(app, {
           avatar: avatar.avatar,
           thumbnail: avatar.thumbnail,
           avatarName: avatar.avatarName,
           isPublic: true,
           avatarFileType: avatar.avatarFileType,
           avatarId: selectedAvatar.id,
-          project: projectName
-        })
-
-        await app.service('avatar').patch(selectedAvatar.id, {
-          modelResourceId: modelResource.id,
-          thumbnailResourceId: thumbnailResource.id
+          project: projectName,
+          path: avatar.avatarsFolder
         })
       } catch (err) {
         logger.error(err)
@@ -175,62 +170,58 @@ export const uploadAvatarStaticResource = async (
   data: AvatarUploadArguments,
   params?: UserParams
 ) => {
+  console.log('uploadAvatarStaticResource', data)
   const name = data.avatarName ? data.avatarName : 'Avatar-' + Math.round(Math.random() * 100000)
 
-  const key = `static-resources/avatar/${data.isPublic ? 'public' : params?.user!.id}/`
+  const staticResourceKey = `static-resources/avatar/${data.isPublic ? 'public' : params?.user!.id}/`
+  const isFromProject = !!data.project && !!data.path && isAssetFromProject(data.path, data.project)
+  const path = isFromProject ? data.path! : staticResourceKey
 
   // const thumbnail = await generateAvatarThumbnail(data.avatar as Buffer)
   // if (!thumbnail) throw new Error('Thumbnail generation failed - check the model')
 
-  const modelPromise = addGenericAssetToS3AndStaticResources(
-    app,
-    [
+  const [modelResource, thumbnailResource] = await Promise.all([
+    addAssetAsStaticResource(
+      app,
       {
         buffer: data.avatar,
         originalname: `${name}.${data.avatarFileType ?? 'glb'}`,
         mimetype: CommonKnownContentTypes[data.avatarFileType ?? 'glb'],
         size: data.avatar.byteLength
+      },
+      {
+        userId: params?.user!.id,
+        path,
+        project: data.project
       }
-    ],
-    CommonKnownContentTypes.glb,
-    {
-      userId: params?.user!.id,
-      key,
-      staticResourceType: 'avatar',
-      project: data.project
-    }
-  )
-
-  const thumbnailPromise = addGenericAssetToS3AndStaticResources(
-    app,
-    [
+    ),
+    addAssetAsStaticResource(
+      app,
       {
         buffer: data.thumbnail,
         originalname: `${name}.png`,
         mimetype: CommonKnownContentTypes.png,
         size: data.thumbnail.byteLength
+      },
+      {
+        userId: params?.user!.id,
+        path,
+        project: data.project
       }
-    ],
-    CommonKnownContentTypes.png,
-    {
-      userId: params?.user!.id,
-      key,
-      staticResourceType: 'user-thumbnail',
-      project: data.project
-    }
-  )
-
-  const [modelResource, thumbnailResource] = await Promise.all([modelPromise, thumbnailPromise])
+    )
+  ])
 
   logger.info('Successfully uploaded avatar %o %o', modelResource, thumbnailResource)
 
   if (data.avatarId) {
     try {
-      await app.service('avatar').patch(data.avatarId, {
+      await app.service(avatarPath).patch(data.avatarId, {
         modelResourceId: modelResource.id,
         thumbnailResourceId: thumbnailResource.id
       })
-    } catch (err) {}
+    } catch (err) {
+      console.log(err)
+    }
   }
 
   return [modelResource, thumbnailResource]

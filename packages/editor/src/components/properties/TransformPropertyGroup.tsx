@@ -25,10 +25,11 @@ Ethereal Engine. All Rights Reserved.
 
 import React from 'react'
 import { useTranslation } from 'react-i18next'
-import { Euler } from 'three'
+import { Euler, Vector3 } from 'three'
 
 import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
 import {
+  defineQuery,
   getComponent,
   hasComponent,
   useComponent,
@@ -36,14 +37,16 @@ import {
 } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { getEntityNodeArrayFromEntities } from '@etherealengine/engine/src/ecs/functions/EntityTree'
 import { SceneDynamicLoadTagComponent } from '@etherealengine/engine/src/scene/components/SceneDynamicLoadTagComponent'
+import { TransformGizmoComponent } from '@etherealengine/engine/src/scene/components/TransformGizmo'
 import { TransformSpace } from '@etherealengine/engine/src/scene/constants/transformConstants'
-import { LocalTransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
-import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
+import {
+  LocalTransformComponent,
+  TransformComponent
+} from '@etherealengine/engine/src/transform/components/TransformComponent'
 import { dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
 import { EditorHistoryAction } from '../../services/EditorHistory'
-import { EditorAction } from '../../services/EditorServices'
 import { SelectionState } from '../../services/SelectionServices'
 import BooleanInput from '../inputs/BooleanInput'
 import CompoundNumericInput from '../inputs/CompoundNumericInput'
@@ -66,7 +69,6 @@ export const TransformPropertyGroup: EditorComponentType = (props) => {
   const localTransformComponent = useOptionalComponent(props.entity, LocalTransformComponent)
 
   const onRelease = () => {
-    dispatchAction(EditorAction.sceneModified({ modified: true }))
     dispatchAction(EditorHistoryAction.createSnapshot({}))
   }
 
@@ -78,15 +80,27 @@ export const TransformPropertyGroup: EditorComponentType = (props) => {
   }
 
   //function to handle the position properties
-  const onChangePosition = (value) => {
+  const onChangePosition = (value: Vector3) => {
     const nodes = getEntityNodeArrayFromEntities(getMutableState(SelectionState).selectedEntities.value)
     EditorControlFunctions.positionObject(nodes, [value])
+
+    const gizmoQuery = defineQuery([TransformGizmoComponent])
+    for (const entity of gizmoQuery()) {
+      const gizmoTransform = getComponent(entity, TransformComponent)
+      gizmoTransform.position.set(value.x, value.y, value.z)
+    }
   }
 
   //function to handle changes rotation properties
   const onChangeRotation = (value: Euler) => {
     const nodes = getEntityNodeArrayFromEntities(getMutableState(SelectionState).selectedEntities.value)
     EditorControlFunctions.rotateObject(nodes, [value])
+
+    const gizmoQuery = defineQuery([TransformGizmoComponent])
+    for (const entity of gizmoQuery()) {
+      const gizmoTransform = getComponent(entity, TransformComponent)
+      gizmoTransform.rotation.setFromEuler(value, true)
+    }
   }
 
   //function to handle changes in scale properties
@@ -113,7 +127,7 @@ export const TransformPropertyGroup: EditorComponentType = (props) => {
           />
         )}
       </InputGroup>
-      <InputGroup name="Position" label={t('editor:properties.transform.lbl-postition')}>
+      <InputGroup name="Position" label={t('editor:properties.transform.lbl-position')}>
         <Vector3Input
           value={transform.position.value}
           smallStep={0.01}

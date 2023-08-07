@@ -38,26 +38,23 @@ export async function seed(knex: Knex): Promise<void> {
   const seedData: AwsSettingDatabaseType[] = await Promise.all(
     [
       {
-        keys: JSON.stringify({
-          accessKeyId: process.env.STORAGE_AWS_ACCESS_KEY_ID,
-          secretAccessKey: process.env.STORAGE_AWS_ACCESS_KEY_SECRET
-        }),
-        route53: JSON.stringify({
-          hostedZoneId: process.env.ROUTE53_HOSTED_ZONE_ID,
-          keys: {
-            accessKeyId: process.env.ROUTE53_ACCESS_KEY_ID,
-            secretAccessKey: process.env.ROUTE53_ACCESS_KEY_SECRET
-          }
-        }),
         s3: JSON.stringify({
+          accessKeyId: process.env.STORAGE_AWS_ACCESS_KEY_ID,
+          secretAccessKey: process.env.STORAGE_AWS_ACCESS_KEY_SECRET,
           endpoint: process.env.STORAGE_S3_ENDPOINT,
           staticResourceBucket: process.env.STORAGE_S3_STATIC_RESOURCE_BUCKET,
           region: process.env.STORAGE_S3_REGION,
           avatarDir: process.env.STORAGE_S3_AVATAR_DIRECTORY,
           s3DevMode: process.env.STORAGE_S3_DEV_MODE
         }),
+        eks: JSON.stringify({
+          accessKeyId: process.env.EKS_AWS_ACCESS_KEY_ID,
+          secretAccessKey: process.env.EKS_AWS_ACCESS_KEY_SECRET
+        }),
         cloudfront: JSON.stringify({
-          domain: process.env.STORAGE_CLOUDFRONT_DOMAIN,
+          domain: process.env.SERVE_CLIENT_FROM_STORAGE_PROVIDER
+            ? process.env.APP_HOST
+            : process.env.STORAGE_CLOUDFRONT_DOMAIN!,
           distributionId: process.env.STORAGE_CLOUDFRONT_DISTRIBUTION_ID,
           region: process.env.STORAGE_CLOUDFRONT_REGION || process.env.STORAGE_S3_REGION
         }),

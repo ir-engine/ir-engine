@@ -39,7 +39,13 @@ import {
 } from '@etherealengine/common/src/interfaces/ProjectInterface'
 import { UserInterface } from '@etherealengine/common/src/interfaces/User'
 import { processFileName } from '@etherealengine/common/src/utils/processFileName'
-import { routePath, RouteType } from '@etherealengine/engine/src/schemas/route/route.schema'
+import { routePath } from '@etherealengine/engine/src/schemas/route/route.schema'
+import { locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
+import { avatarPath, AvatarType } from '@etherealengine/engine/src/schemas/user/avatar.schema'
+import {
+  githubRepoAccessPath,
+  GithubRepoAccessType
+} from '@etherealengine/engine/src/schemas/user/github-repo-access.schema'
 import { getState } from '@etherealengine/hyperflux'
 import templateProjectJson from '@etherealengine/projects/template-project/package.json'
 
@@ -57,7 +63,7 @@ import { getContentType } from '../../util/fileUtils'
 import { copyFolderRecursiveSync, deleteFolderRecursive, getFilesRecursive } from '../../util/fsHelperFunctions'
 import { getGitConfigData, getGitHeadData, getGitOrigHeadData } from '../../util/getGitData'
 import { useGit } from '../../util/gitHelperFunctions'
-import { convertStaticResource } from '../scene/scene-helper'
+import { uploadSceneToStaticResources } from '../scene/scene-helper'
 import {
   checkAppOrgStatus,
   checkUserOrgWriteStatus,
@@ -167,34 +173,26 @@ export const uploadLocalProjectToProvider = async (
   // upload new files to storage provider
   const projectPath = path.resolve(projectsRootFolder, projectName)
   const files = getFilesRecursive(projectPath)
-  const results = await Promise.all(
-    files
-      .filter((file) => !file.includes(`projects/${projectName}/.git/`))
-      .map((file: string) => {
-        return new Promise(async (resolve) => {
-          try {
-            const fileResult = fs.readFileSync(file)
-            if (/.scene.json$/.test(file)) {
-              const sceneParsed = JSON.parse(fileResult.toString())
-              const converted = convertStaticResource(app, sceneParsed)
-            }
-            const filePathRelative = processFileName(file.slice(projectPath.length))
-            await storageProvider.putObject(
-              {
-                Body: fileResult,
-                ContentType: getContentType(file),
-                Key: `projects/${projectName}${filePathRelative}`
-              },
-              { isDirectory: false }
-            )
-            resolve(getCachedURL(`projects/${projectName}${filePathRelative}`, cacheDomain))
-          } catch (e) {
-            logger.error(e)
-            resolve(null)
-          }
-        })
-      })
-  )
+  const filtered = files.filter((file) => !file.includes(`projects/${projectName}/.git/`))
+  const results = [] as (string | null)[]
+  for (let file of filtered) {
+    try {
+      const fileResult = await uploadSceneToStaticResources(app, projectName, file)
+      const filePathRelative = processFileName(file.slice(projectPath.length))
+      await storageProvider.putObject(
+        {
+          Body: fileResult,
+          ContentType: getContentType(file),
+          Key: `projects/${projectName}${filePathRelative}`
+        },
+        { isDirectory: false }
+      )
+      results.push(getCachedURL(`projects/${projectName}${filePathRelative}`, cacheDomain))
+    } catch (e) {
+      logger.error(e)
+      results.push(null)
+    }
+  }
   logger.info(`uploadLocalProjectToProvider for project "${projectName}" ended at "${new Date()}".`)
   return results.filter((success) => !!success) as string[]
 }
@@ -219,7 +217,9 @@ export class Project extends Service {
       commitSHA = await git.revparse(['HEAD'])
       const commit = await git.log(['-1'])
       commitDate = commit?.latest?.date ? new Date(commit.latest.date) : new Date()
-    } catch (err) {}
+    } catch (err) {
+      //
+    }
     return {
       commitSHA,
       commitDate
@@ -434,7 +434,9 @@ export class Project extends Service {
       if (branchExists.length === 0 || data.reset) {
         try {
           await git.deleteLocalBranch(branchName)
-        } catch (err) {}
+        } catch (err) {
+          //
+        }
         await git.checkoutLocalBranch(branchName)
       } else await git.checkout(branchName)
     } catch (err) {
@@ -588,54 +590,55 @@ export class Project extends Service {
     logger.info(`[Projects]: removing project id "${id}", name: "${name}".`)
     await deleteProjectFilesInStorageProvider(name)
 
-    const locationItems = await (this.app.service('location') as any).Model.findAll({
-      where: {
+    await this.app.service(locationPath).remove(null, {
+      query: {
         sceneId: {
-          [Op.like]: `${name}/%`
+          $like: `${name}/%`
         }
       }
     })
-    locationItems.length &&
-      locationItems.forEach(async (location) => {
-        await this.app.service('location').remove(location.dataValues.id)
-      })
 
-    const whereClause = {
-      [Op.and]: [
-        {
-          project: name
-        },
-        {
-          project: {
-            [Op.ne]: null
-          }
-        }
-      ]
-    }
-
-    const routeItems = (await this.app.service(routePath).find({
+    await this.app.service(routePath).remove(null, {
       query: {
         $and: [{ project: { $ne: null } }, { project: name }]
+      }
+    })
+
+    const avatarItems = (await this.app.service(avatarPath).find({
+      query: {
+        $and: [
+          {
+            project: name
+          },
+          {
+            project: {
+              $ne: null
+            }
+          }
+        ]
       },
       paginate: false
-    })) as any as RouteType[]
+    })) as AvatarType[]
 
-    routeItems.length &&
-      routeItems.forEach(async (route) => {
-        await this.app.service(routePath).remove(route.id)
-      })
-
-    const avatarItems = await (this.app.service('avatar') as any).Model.findAll({
-      where: whereClause
-    })
     await Promise.all(
       avatarItems.map(async (avatar) => {
-        await this.app.service('avatar').remove(avatar.dataValues.id)
+        await this.app.service(avatarPath).remove(avatar.id)
       })
     )
 
     const staticResourceItems = await (this.app.service('static-resource') as any).Model.findAll({
-      where: whereClause
+      where: {
+        [Op.and]: [
+          {
+            project: name
+          },
+          {
+            project: {
+              [Op.ne]: null
+            }
+          }
+        ]
+      }
     })
     staticResourceItems.length &&
       staticResourceItems.forEach(async (staticResource) => {
@@ -684,14 +687,14 @@ export class Project extends Service {
         include: [{ model: this.app.service('project').Model }],
         paginate: false
       })) as any
-      let allowedProjects = await projectPermissions.map((permission) => permission.project)
+      const allowedProjects = await projectPermissions.map((permission) => permission.project)
       const repoAccess = githubIdentityProvider
-        ? await this.app.service('github-repo-access').Model.findAll({
-            paginate: false,
-            where: {
+        ? ((await this.app.service(githubRepoAccessPath).find({
+            query: {
               identityProviderId: githubIdentityProvider.id
-            }
-          })
+            },
+            paginate: false
+          })) as any as GithubRepoAccessType[])
         : []
       const pushRepoPaths = repoAccess.filter((repo) => repo.hasWriteAccess).map((item) => item.repo.toLowerCase())
       let allowedProjectGithubRepos = allowedProjects.filter((project) => project.repositoryPath != null)
@@ -710,24 +713,25 @@ export class Project extends Service {
       projectPushIds = projectPushIds.concat(pushableAllowedProjects.map((project) => project.id))
 
       if (githubIdentityProvider) {
-        repoAccess.forEach((item, index) => {
+        const repositoryPaths: string[] = []
+        repoAccess.forEach((item) => {
           if (item.hasWriteAccess) {
             const url = item.repo.toLowerCase()
-            repoAccess[index] = url
-            repoAccess.push(`${url}.git`)
+            repositoryPaths.push(url)
+            repositoryPaths.push(`${url}.git`)
             const regexExec = GITHUB_URL_REGEX.exec(url)
             if (regexExec) {
               const split = regexExec[2].split('/')
-              repoAccess.push(`git@github.com:${split[0]}/${split[1]}`)
-              repoAccess.push(`git@github.com:${split[0]}/${split[1]}.git`)
+              repositoryPaths.push(`git@github.com:${split[0]}/${split[1]}`)
+              repositoryPaths.push(`git@github.com:${split[0]}/${split[1]}.git`)
             }
-          } else repoAccess.splice(index)
+          }
         })
 
         const matchingAllowedRepos = await this.app.service('project').Model.findAll({
           where: {
             repositoryPath: {
-              [Op.in]: repoAccess
+              [Op.in]: repositoryPaths
             }
           }
         })
@@ -778,7 +782,9 @@ export class Project extends Service {
         values.engineVersion = packageJson.etherealEngine?.version
         values.description = packageJson.description
         values.hasWriteAccess = projectPushIds.indexOf(item.id) > -1
-      } catch (err) {}
+      } catch (err) {
+        //
+      }
     })
 
     return {

@@ -68,7 +68,7 @@ const RouteTable = ({ className }: Props) => {
   const handlePageChange = (event: unknown, newPage: number) => {
     const incDec = page.value < newPage ? 'increment' : 'decrement'
     AdminActiveRouteService.fetchActiveRoutes(incDec)
-    RouteService.fetchInstalledRoutes(incDec)
+    RouteService.fetchInstalledRoutes(newPage)
     page.set(newPage)
   }
 

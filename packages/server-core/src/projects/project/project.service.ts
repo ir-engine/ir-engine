@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Id, Params } from '@feathersjs/feathers'
+import { Id } from '@feathersjs/feathers'
 import appRootPath from 'app-root-path'
 import { iff, isProvider } from 'feathers-hooks-common'
 import fs from 'fs'
@@ -48,13 +48,15 @@ import {
   checkDestination,
   checkProjectDestinationMatch,
   checkUnfetchedSourceCommit,
+  dockerHubRegex,
   findBuilderTags,
   getBranches,
   getEnginePackageJson,
   getProjectCommits,
+  privateECRTagRegex,
+  publicECRTagRegex,
   updateBuilder
 } from './project-helper'
-import { dockerHubRegex, privateECRTagRegex, publicECRTagRegex } from './project-helper'
 import { Project, ProjectParams, ProjectParamsClient } from './project.class'
 import projectDocs from './project.docs'
 import hooks from './project.hooks'
@@ -98,9 +100,6 @@ declare module '@etherealengine/common/declarations' {
     'project-check-unfetched-commit': {
       get: ReturnType<typeof projectUnfetchedCommitGet>
     }
-  }
-  interface Models {
-    project: ReturnType<typeof createModel>
   }
 }
 
@@ -174,19 +173,38 @@ export const builderInfoGet = (app: Application) => async () => {
   }
 
   const k8AppsClient = getState(ServerState).k8AppsClient
+  const k8BatchClient = getState(ServerState).k8BatchClient
 
   if (k8AppsClient) {
-    const builderDeployment = await k8AppsClient.listNamespacedDeployment(
+    const builderLabelSelector = `app.kubernetes.io/instance=${config.server.releaseName}-builder`
+
+    const builderJob = await k8BatchClient.listNamespacedJob(
       'default',
-      'false',
+      undefined,
       false,
       undefined,
       undefined,
-      `app.kubernetes.io/instance=${config.server.releaseName}-builder`
+      builderLabelSelector
     )
-    const builderContainer = builderDeployment?.body?.items[0]?.spec?.template?.spec?.containers?.find(
-      (container) => container.name === 'etherealengine-builder'
-    )
+
+    let builderContainer
+    if (builderJob && builderJob.body.items.length > 0) {
+      builderContainer = builderJob?.body?.items[0]?.spec?.template?.spec?.containers?.find(
+        (container) => container.name === 'etherealengine-builder'
+      )
+    } else {
+      const builderDeployment = await k8AppsClient.listNamespacedDeployment(
+        'default',
+        'false',
+        false,
+        undefined,
+        undefined,
+        builderLabelSelector
+      )
+      builderContainer = builderDeployment?.body?.items[0]?.spec?.template?.spec?.containers?.find(
+        (container) => container.name === 'etherealengine-builder'
+      )
+    }
     if (builderContainer) {
       const image = builderContainer.image
       if (image && typeof image === 'string') {
@@ -279,8 +297,7 @@ export default (app: Application): void => {
     before: {
       patch: [
         authenticate(),
-        iff(isProvider('external'), verifyScope('editor', 'write') as any),
-        projectPermissionAuthenticate('write') as any
+        iff(isProvider('external'), verifyScope('editor', 'write') as any, projectPermissionAuthenticate('write'))
       ]
     }
   })

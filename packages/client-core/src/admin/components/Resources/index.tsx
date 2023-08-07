@@ -125,12 +125,6 @@ const Resources = () => {
             selected={adminResourceState.selectedMimeTypes.value}
             setSelected={ResourceService.setSelectedMimeTypes}
           />
-          <CheckBoxList
-            title={t('admin:components.resources.resourceType')}
-            items={adminResourceState.filters.value?.staticResourceTypes}
-            selected={adminResourceState.selectedResourceTypes.value}
-            setSelected={ResourceService.setSelectedResourceTypes}
-          />
           <Button className={styles.gradientButton} sx={{ width: '100%' }} onClick={resetFilter}>
             {t('admin:components.common.reset')}
           </Button>

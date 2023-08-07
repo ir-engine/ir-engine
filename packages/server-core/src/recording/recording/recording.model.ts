@@ -27,6 +27,7 @@ import { DataTypes, Model, Sequelize } from 'sequelize'
 
 import { RecordingInterface } from '@etherealengine/common/src/dbmodels/Recording'
 
+import { recordingResourcePath } from '@etherealengine/engine/src/schemas/recording/recording-resource.schema'
 import { Application } from '../../../declarations'
 
 export default (app: Application) => {
@@ -44,7 +45,7 @@ export default (app: Application) => {
       defaultValue: false
     },
     schema: {
-      type: DataTypes.STRING,
+      type: DataTypes.TEXT, // TODO replace with JSON
       allowNull: false
     }
   })
@@ -56,7 +57,7 @@ export default (app: Application) => {
       allowNull: false,
       onDelete: 'cascade'
     })
-    ;(Recording as any).belongsToMany(models.static_resource, { through: 'recording_resource' })
+    ;(Recording as any).belongsToMany(models.static_resource, { through: recordingResourcePath })
   }
   return Recording
 }

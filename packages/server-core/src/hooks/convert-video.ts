@@ -59,7 +59,7 @@ export {}
 // const dashManifestName = 'manifest.mpd';
 // const createStaticResourceHook = createStaticResource();
 //
-// const s3 = new AWS.S3({ ...config.aws.keys });
+// const s3 = new AWS.S3({ ...config.aws.s3 });
 //
 // const s3BlobStore = new S3BlobStore({
 //   client: s3,

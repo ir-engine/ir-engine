@@ -26,16 +26,20 @@ Ethereal Engine. All Rights Reserved.
 import { BadRequest } from '@feathersjs/errors'
 import { Id, NullableId, Params, ServiceMethods } from '@feathersjs/feathers'
 
+import { locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
+
+import { locationAuthorizedUserPath } from '@etherealengine/engine/src/schemas/social/location-authorized-user.schema'
 import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
 import Paginated from '../../types/PageObject'
 
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
 interface Data {}
 
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
 interface ServiceOptions {}
 
 interface AcceptInviteParams extends Params {
-  skipAuth?: boolean
   preventUserRelationshipRemoval?: boolean
 }
 
@@ -91,7 +95,9 @@ export class AcceptInvite implements ServiceMethods<Data> {
             id: id
           }
         })
-      } catch (err) {}
+      } catch (err) {
+        //
+      }
 
       if (invite == null) {
         logger.info('INVALID INVITE ID')
@@ -233,111 +239,26 @@ export class AcceptInvite implements ServiceMethods<Data> {
             },
             params
           )
-      } else if (invite.inviteType === 'group') {
-        const group = await this.app.service('group').Model.findOne({ where: { id: invite.targetObjectId } })
+      } else if (invite.inviteType === 'channel') {
+        const channel = await this.app.service('channel').Model.findOne({ where: { id: invite.targetObjectId } })
 
-        if (group == null) {
+        if (channel == null) {
           await this.app.service('invite').remove(invite.id)
-          throw new BadRequest('Invalid group ID')
+          throw new BadRequest('Invalid channel ID')
         }
 
-        const { query, ...paramsCopy } = params
-
-        const existingGroupUser = (await this.app.service('group-user').find({
+        const existingChannelUser = (await this.app.service('channel-user').find({
           query: {
             userId: inviteeIdentityProvider.userId,
-            groupId: invite.targetObjectId
+            channelId: invite.targetObjectId
           }
         })) as any
 
-        if (existingGroupUser.total === 0) {
-          paramsCopy.skipAuth = true
-          await this.app.service('group-user').create(
-            {
-              userId: inviteeIdentityProvider.userId,
-              groupId: invite.targetObjectId,
-              groupUserRank: 'owner'
-            },
-            paramsCopy
-          )
-        }
-      } else if (invite.inviteType === 'party') {
-        const party = await this.app.service('party').Model.findOne({ where: { id: invite.targetObjectId } })
-
-        if (party == null) {
-          await this.app.service('invite').remove(invite.id)
-          return new BadRequest('Invalid party ID')
-        }
-
-        const patchUser: any = { partyId: invite.targetObjectId }
-        await this.app.service('user').patch(inviteeIdentityProvider.userId, {
-          ...patchUser
-        })
-
-        const { query, ...paramsCopy } = params
-
-        const existingPartyUser = await this.app.service('party-user').Model.count({
-          where: {
+        if (existingChannelUser.total === 0) {
+          await this.app.service('channel-user').create({
             userId: inviteeIdentityProvider.userId,
-            partyId: invite.targetObjectId,
-            isOwner: false
-          }
-        })
-
-        if (existingPartyUser === 0) {
-          paramsCopy.skipAuth = true
-          await this.app.service('party-user').create(
-            {
-              userId: inviteeIdentityProvider.userId,
-              partyId: invite.targetObjectId,
-              isOwner: false
-            },
-            paramsCopy
-          )
-        }
-
-        const ownerResult = await this.app.service('party-user').find({
-          query: {
-            partyId: invite.targetObjectId,
-            isOwner: true
-          },
-          sequelize: {
-            include: [
-              {
-                model: this.app.service('user').Model,
-                include: [
-                  {
-                    model: this.app.service('instance-attendance').Model,
-                    as: 'instanceAttendance',
-                    where: {
-                      isChannel: false,
-                      ended: false
-                    },
-                    required: false,
-                    include: [
-                      {
-                        model: this.app.service('instance').Model,
-                        include: [
-                          {
-                            model: this.app.service('location').Model
-                          }
-                        ]
-                      }
-                    ]
-                  }
-                ]
-              }
-            ]
-          }
-        })
-
-        const owner = ownerResult.data[0]
-        const ownerInstanceAttendance = owner?.user?.instanceAttendance
-
-        if (ownerInstanceAttendance && ownerInstanceAttendance[0]) {
-          returned.locationName = ownerInstanceAttendance[0].instance.location.slugifiedName
-          returned.instanceId = ownerInstanceAttendance[0].instanceId
-          returned.inviteCode = owner.user.inviteCode
+            channelId: invite.targetObjectId
+          })
         }
       }
 
@@ -352,14 +273,14 @@ export class AcceptInvite implements ServiceMethods<Data> {
         let instance =
           invite.inviteType === 'instance' ? await this.app.service('instance').get(invite.targetObjectId) : null
         const locationId = instance ? instance.locationId : invite.targetObjectId
-        const location = await this.app.service('location').get(locationId)
+        const location = await this.app.service(locationPath).get(locationId)
         returned.locationName = location.slugifiedName
         if (instance) returned.instanceId = instance.id
 
-        if (location.location_setting?.locationType === 'private') {
+        if (location.locationSetting?.locationType === 'private') {
           const userId = inviteeIdentityProvider.userId
-          if (!location.location_authorized_users?.find((authUser) => authUser.userId === userId))
-            await this.app.service('location-authorized-user').create({
+          if (!location.locationAuthorizedUsers.find((authUser) => authUser.userId === userId))
+            await this.app.service(locationAuthorizedUserPath).create({
               locationId: location.id,
               userId: userId
             })

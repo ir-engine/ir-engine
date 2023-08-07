@@ -29,25 +29,27 @@ import { Euler, Matrix4, Quaternion, Vector3 } from 'three'
 import { smootheLerpAlpha } from '@etherealengine/common/src/utils/smootheLerpAlpha'
 import { getState } from '@etherealengine/hyperflux'
 
+import { CameraComponent } from '../../camera/components/CameraComponent'
 import { ObjectDirection } from '../../common/constants/Axis3D'
 import { V_000, V_010 } from '../../common/constants/MathConstants'
 import checkPositionIsValid from '../../common/functions/checkPositionIsValid'
-import { lerp } from '../../common/functions/MathLerpFunctions'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import { ComponentType, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
+import { EntityNetworkState } from '../../networking/state/EntityNetworkState'
 import { Physics } from '../../physics/classes/Physics'
 import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
 import { CollisionGroups } from '../../physics/enums/CollisionGroups'
+import { PhysicsState } from '../../physics/state/PhysicsState'
 import { SceneQueryType } from '../../physics/types/PhysicsTypes'
+import { UUIDComponent } from '../../scene/components/UUIDComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { computeAndUpdateWorldOrigin, updateWorldOrigin } from '../../transform/updateWorldOrigin'
-import { getCameraMode, hasMovementControls, ReferenceSpace, XRState } from '../../xr/XRState'
+import { XRState, getCameraMode, hasMovementControls } from '../../xr/XRState'
 import { AvatarComponent } from '../components/AvatarComponent'
 import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
 import { AvatarHeadDecapComponent } from '../components/AvatarIKComponents'
-import { SpawnPoseComponent } from '../components/SpawnPoseComponent'
 import { AvatarMovementSettingsState } from '../state/AvatarMovementSettingsState'
 import { AutopilotMarker, clearWalkPoint, scaleFluctuate } from './autopilotFunctions'
 
@@ -137,7 +139,7 @@ export function updateLocalAvatarPosition(additionalMovement?: Vector3) {
   avatarGroundRaycast.origin.copy(rigidbody.targetKinematicPosition)
   avatarGroundRaycast.groups = avatarCollisionGroups
   avatarGroundRaycast.origin.y += avatarGroundRaycastDistanceOffset
-  const groundHits = Physics.castRay(Engine.instance.physicsWorld, avatarGroundRaycast)
+  const groundHits = Physics.castRay(getState(PhysicsState).physicsWorld, avatarGroundRaycast)
   controller.isInAir = true
 
   if (groundHits.length) {
@@ -220,7 +222,7 @@ export const applyAutopilotInput = (entity: Entity) => {
 export const applyGamepadInput = (entity: Entity) => {
   if (!entity) return
 
-  const camera = Engine.instance.camera
+  const camera = getComponent(Engine.instance.cameraEntity, CameraComponent)
   const deltaSeconds = getState(EngineState).simulationTimestep / 1000
   const controller = getComponent(entity, AvatarControllerComponent)
 
@@ -231,7 +233,6 @@ export const applyGamepadInput = (entity: Entity) => {
 
   targetWorldMovement
     .copy(controller.gamepadLocalInput)
-    .normalize()
     .multiplyScalar(legSpeed * deltaSeconds)
     .applyQuaternion(forwardOrientation)
 
@@ -441,7 +442,9 @@ const _slerpBodyTowardsVelocity = (entity: Entity, alpha: number) => {
 
   let prevVector = prevVectors.get(entity)!
   if (!prevVector) {
-    prevVector = new Vector3(0, 0, 1).applyQuaternion(getComponent(entity, SpawnPoseComponent).rotation)
+    prevVector = new Vector3(0, 0, 1).applyQuaternion(
+      getState(EntityNetworkState)[getComponent(entity, UUIDComponent)].spawnRotation
+    )
     prevVectors.set(entity, prevVector)
   }
 

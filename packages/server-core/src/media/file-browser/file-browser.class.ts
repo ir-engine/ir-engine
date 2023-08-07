@@ -30,7 +30,6 @@ import fs from 'fs'
 import path from 'path/posix'
 
 import { FileContentType } from '@etherealengine/common/src/interfaces/FileContentType'
-import { StaticResourceInterface } from '@etherealengine/common/src/interfaces/StaticResourceInterface'
 import { processFileName } from '@etherealengine/common/src/utils/processFileName'
 
 import { Application } from '../../../declarations'
@@ -253,12 +252,12 @@ export class FileBrowserService implements ServiceMethods<any> {
       fs.unlinkSync(filePath)
     }
 
-    const staticResource = (await this.app.service('static-resource').find({
+    const staticResource = await this.app.service('static-resource').find({
       query: {
         key: key,
         $limit: 1
       }
-    })) as Paginated<StaticResourceInterface>
+    })
     staticResource?.data?.length > 0 && (await this.app.service('static-resource').remove(staticResource?.data[0]?.id))
 
     return result

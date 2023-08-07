@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import React from 'react'
 
 import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
-import { getRandomSpawnPoint } from '@etherealengine/engine/src/avatar/AvatarSpawnSystem'
+import { getRandomSpawnPoint } from '@etherealengine/engine/src/avatar/functions/getSpawnPoint'
 import { FollowCameraComponent } from '@etherealengine/engine/src/camera/components/FollowCameraComponent'
 import { TargetCameraRotationComponent } from '@etherealengine/engine/src/camera/components/TargetCameraRotationComponent'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
@@ -34,12 +34,15 @@ import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { getComponent, removeComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { removeEntity } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
 import { spawnLocalAvatarInWorld } from '@etherealengine/engine/src/networking/functions/receiveJoinWorld'
+import { WorldNetworkAction } from '@etherealengine/engine/src/networking/functions/WorldNetworkAction'
+import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
 import { ComputedTransformComponent } from '@etherealengine/engine/src/transform/components/ComputedTransformComponent'
-import { dispatchAction, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
+import { dispatchAction, getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
 import PauseIcon from '@mui/icons-material/Pause'
 import PlayArrowIcon from '@mui/icons-material/PlayArrow'
 
+import { BehaveGraphActions, graphQuery } from '@etherealengine/engine/src/behave-graph/systems/BehaveGraphSystem'
 import { EditorHelperAction, EditorHelperState } from '../../../services/EditorHelperState'
 import { InfoTooltip } from '../../layout/Tooltip'
 import * as styles from '../styles.module.scss'
@@ -51,28 +54,32 @@ const PlayModeTool = () => {
 
   const onTogglePlayMode = () => {
     if (Engine.instance.localClientEntity) {
-      removeEntity(Engine.instance.localClientEntity)
+      dispatchAction(
+        WorldNetworkAction.destroyObject({ entityUUID: getComponent(Engine.instance.localClientEntity, UUIDComponent) })
+      )
       const cameraComputed = getComponent(Engine.instance.cameraEntity, ComputedTransformComponent)
       removeEntity(cameraComputed.referenceEntity)
       removeComponent(Engine.instance.cameraEntity, ComputedTransformComponent)
       removeComponent(Engine.instance.cameraEntity, FollowCameraComponent)
       removeComponent(Engine.instance.cameraEntity, TargetCameraRotationComponent)
       dispatchAction(EditorHelperAction.changedPlayMode({ isPlayModeEnabled: false }))
+      graphQuery().forEach((entity) => dispatchAction(BehaveGraphActions.stop({ entity })))
+      // stop all behave graph logic
     } else {
       const avatarDetails = authState.user.avatar.value
 
       const avatarSpawnPose = getRandomSpawnPoint(Engine.instance.userId)
 
-      if (avatarDetails.modelResource?.url)
+      if (avatarDetails)
         spawnLocalAvatarInWorld({
           avatarSpawnPose,
-          avatarDetail: {
-            avatarURL: avatarDetails.modelResource?.url!,
-            thumbnailURL: avatarDetails.thumbnailResource?.url!
-          },
+          avatarID: avatarDetails.id,
           name: authState.user.name.value
         })
+
       dispatchAction(EditorHelperAction.changedPlayMode({ isPlayModeEnabled: true }))
+      // run all behave graph logic
+      graphQuery().forEach((entity) => dispatchAction(BehaveGraphActions.execute({ entity })))
     }
   }
 

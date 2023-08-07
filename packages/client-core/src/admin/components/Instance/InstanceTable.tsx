@@ -28,7 +28,7 @@ import { useTranslation } from 'react-i18next'
 
 import ConfirmDialog from '@etherealengine/client-core/src/common/components/ConfirmDialog'
 import { Instance } from '@etherealengine/common/src/interfaces/Instance'
-import { Location } from '@etherealengine/common/src/interfaces/Location'
+import { LocationType } from '@etherealengine/engine/src/schemas/social/location.schema'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import Box from '@etherealengine/ui/src/primitives/mui/Box'
 import Button from '@etherealengine/ui/src/primitives/mui/Button'
@@ -58,7 +58,7 @@ const InstanceTable = ({ className, search }: Props) => {
   const openConfirm = useHookstate(false)
   const instanceId = useHookstate('')
   const instanceName = useHookstate('')
-  const fieldOrder = useHookstate('asc')
+  const fieldOrder = useHookstate<'asc' | 'desc'>('asc')
   const sortField = useHookstate('createdAt')
   const instanceAdmin = useHookstate<Instance | undefined>(undefined)
   const openInstanceDrawer = useHookstate(false)
@@ -131,10 +131,10 @@ const InstanceTable = ({ className, search }: Props) => {
     el: Instance,
     id: string,
     ipAddress: string,
-    currentUsers: Number,
+    currentUsers: number,
     channelId: string,
     podName: string,
-    locationId?: Location
+    locationId?: LocationType
   ): InstanceData => {
     return {
       el,
@@ -165,7 +165,15 @@ const InstanceTable = ({ className, search }: Props) => {
   }
 
   const rows = adminInstances.instances.value.map((el: Instance) =>
-    createData({ ...el }, el.id, el.ipAddress, el.currentUsers, el.channelId || '', el.podName || '', el.location)
+    createData(
+      { ...el },
+      el.id,
+      el.ipAddress,
+      el.currentUsers,
+      el.channelId || '',
+      el.podName || '',
+      el.location as LocationType
+    )
   )
 
   return (

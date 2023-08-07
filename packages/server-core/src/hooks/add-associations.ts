@@ -28,6 +28,23 @@ import { Hook, HookContext } from '@feathersjs/feathers'
 import { Application } from '@etherealengine/server-core/declarations'
 
 import logger from '../ServerLogger'
+import {
+  createAvatarModel,
+  createLocationAdminModel,
+  createLocationBanModel,
+  createLocationModel,
+  createUserApiKeyModel
+} from '../user/user/user.model'
+
+const getMigratedModels = (app: Application) => {
+  return {
+    avatar: createAvatarModel(app),
+    location: createLocationModel(app),
+    'location-ban': createLocationBanModel(app),
+    'location-admin': createLocationAdminModel(app),
+    'user-api-key': createUserApiKeyModel(app)
+  }
+}
 
 function processInclude(context: HookContext, includeCollection?: ModelType[]) {
   if (!includeCollection) {
@@ -44,7 +61,7 @@ function processInclude(context: HookContext, includeCollection?: ModelType[]) {
 type ModelType = {
   model: string
   include?: ModelType[]
-  where?: Object
+  where?: any
   required?: boolean
   as?: string
 }
@@ -56,13 +73,19 @@ type ModelAssociationsType = {
 export default (options: ModelAssociationsType): Hook => {
   return (context: HookContext<Application>): HookContext => {
     if (!context.params) context.params = {}
+
     try {
       const sequelize = context.params.sequelize || {}
       const include: ModelType[] = sequelize.include || []
       sequelize.include = include.concat(
         options.models.map((model: ModelType) => {
           const newModel = { ...model, ...processInclude(context, model.include) } as ModelType
-          newModel.model = context.app.services[model.model].Model
+          if (context.app.services[model.model].Model.name !== 'knex') {
+            newModel.model = context.app.services[model.model].Model
+          } else {
+            const migratedModels = getMigratedModels(context.app)
+            newModel.model = migratedModels[model.model]
+          }
           return newModel
         })
       )

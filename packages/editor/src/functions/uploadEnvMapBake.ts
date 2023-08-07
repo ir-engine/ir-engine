@@ -23,21 +23,18 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Mesh, MeshBasicMaterial, Scene, Vector3 } from 'three'
+import { Vector3 } from 'three'
 
-import { addOBCPlugin, removeOBCPlugin } from '@etherealengine/engine/src/common/functions/OnBeforeCompilePlugin'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
 import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
 import {
-  addComponent,
   defineQuery,
   getComponent,
   hasComponent,
   setComponent
 } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { EngineRenderer } from '@etherealengine/engine/src/renderer/WebGLRendererSystem'
-import { beforeMaterialCompile } from '@etherealengine/engine/src/scene/classes/BPCEMShader'
 import CubemapCapturer from '@etherealengine/engine/src/scene/classes/CubemapCapturer'
 import {
   convertCubemapToEquiImageData,
@@ -93,30 +90,12 @@ export const uploadBPCEMBakeToServer = async (entity: Entity) => {
   const bakeComponent = getComponent(entity, EnvMapBakeComponent)
   const position = getScenePositionForBake(isSceneEntity ? null : entity)
 
-  // inject bpcem logic into material
-  Engine.instance.scene.traverse((child: Mesh<any, MeshBasicMaterial>) => {
-    if (!child.material || child.type == 'VFXBatch') return
-    child.material.userData.BPCEMPlugin = beforeMaterialCompile(
-      bakeComponent.bakeScale,
-      bakeComponent.bakePositionOffset
-    )
-    addOBCPlugin(child.material, child.material.userData.BPCEMPlugin)
-  })
-
   const cubemapCapturer = new CubemapCapturer(
     EngineRenderer.instance.renderer,
     Engine.instance.scene,
     bakeComponent.resolution
   )
   const renderTarget = cubemapCapturer.update(position)
-
-  // remove injected bpcem logic from material
-  Engine.instance.scene.traverse((child: Mesh<any, MeshBasicMaterial>) => {
-    if (typeof child.material?.userData?.BPCEMPlugin === 'function') {
-      removeOBCPlugin(child.material, child.material.userData.BPCEMPlugin)
-      delete child.material.userData.BPCEMPlugin
-    }
-  })
 
   if (isSceneEntity) Engine.instance.scene.environment = renderTarget.texture
 
@@ -138,29 +117,50 @@ export const uploadBPCEMBakeToServer = async (entity: Entity) => {
 
   const url = (await uploadProjectFiles(projectName, [new File([blob], filename)]).promises[0])[0]
 
-  bakeComponent.envMapOrigin = url
+  setComponent(entity, EnvMapBakeComponent, { envMapOrigin: url })
 
   return url
 }
 
 const resolution = 1024
 
+const previewCubemapCapturer = new CubemapCapturer(
+  EngineRenderer.instance.renderer,
+  Engine.instance.scene,
+  resolution / 8
+)
 /**
- * Generates and uploads a cubemap at a specific position in the world.
+ * Generates a low res cubemap at a specific position in the world for preview.
  *
- * @param entity
+ * @param position
  * @returns
  */
+export const getPreviewBakeTexture = async (position: Vector3) => {
+  const renderTarget = previewCubemapCapturer.update(position)
+  const imageBlob = (await convertCubemapToEquiImageData(
+    EngineRenderer.instance.renderer,
+    renderTarget.texture,
+    resolution / 4,
+    resolution / 4,
+    true
+  )) as Blob
+  return imageBlob
+}
 
-export const uploadCubemapBakeToServer = async (name: string, position: Vector3) => {
-  const cubemapCapturer = new CubemapCapturer(EngineRenderer.instance.renderer, Engine.instance.scene, resolution)
-  const renderTarget = cubemapCapturer.update(position)
-
+/**
+ * Generates and iploads a high res cubemap at a specific position in the world for saving and export.
+ *
+ * @param position
+ * @returns
+ */
+const saveCubemapCapturer = new CubemapCapturer(EngineRenderer.instance.renderer, Engine.instance.scene, resolution)
+export const uploadCubemapBakeToServer = async (name: string, position: Vector3, res: number = resolution) => {
+  const renderTarget = saveCubemapCapturer.update(position)
   const blob = (await convertCubemapToKTX2(
     EngineRenderer.instance.renderer,
     renderTarget.texture,
-    resolution,
-    resolution,
+    res,
+    res,
     true
   )) as Blob
 
@@ -170,8 +170,8 @@ export const uploadCubemapBakeToServer = async (name: string, position: Vector3)
   const sceneName = editorState.sceneName!
   const projectName = editorState.projectName!
   const filename = `${sceneName}-${name.replace(' ', '-')}.ktx2`
-
-  const url = (await uploadProjectFiles(projectName, [new File([blob], filename)])[0])[0]
+  const urlList = await uploadProjectFiles(projectName, [new File([blob], filename)]).promises[0]
+  const url = urlList[0]
 
   return url
 }

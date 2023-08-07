@@ -24,9 +24,9 @@ Ethereal Engine. All Rights Reserved.
 */
 
 // https://github.com/mozilla/hubs/blob/27eb7f3d9eba3b938f1ca47ed5b161547b6fb3f2/src/components/gltf-model-plus.js
-import { Material, MeshBasicMaterial, MeshStandardMaterial, RepeatWrapping, Texture } from 'three'
+import { MeshBasicMaterial, MeshStandardMaterial, RepeatWrapping, Texture } from 'three'
 
-import { GLTFLoaderPlugin, GLTFParser } from '../GLTFLoader'
+import { GLTFLoaderPlugin } from '../GLTFLoader'
 import { ImporterExtension } from './ImporterExtension'
 
 export type MOZ_lightmap = {
@@ -61,7 +61,7 @@ export class HubsLightMapExtension extends ImporterExtension implements GLTFLoad
     return Promise.all(pending).then((results) => {
       const material: MeshStandardMaterial | MeshBasicMaterial = results[0]
       const lightMap: Texture = (results[1] as Texture).clone()
-
+      lightMap.channel = 1
       const transform = extensionDef.extensions ? extensionDef.extensions['KHR_texture_transform'] : undefined
       if (transform !== undefined) {
         lightMap.wrapS = RepeatWrapping

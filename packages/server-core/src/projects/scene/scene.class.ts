@@ -32,15 +32,17 @@ import { isDev } from '@etherealengine/common/src/config'
 import { SceneData, SceneJson } from '@etherealengine/common/src/interfaces/SceneInterface'
 import defaultSceneSeed from '@etherealengine/projects/default-project/default.scene.json'
 
+import {
+  cleanStorageProviderURLs,
+  parseStorageProviderURLs
+} from '@etherealengine/engine/src/common/functions/parseSceneJSON'
 import { Application } from '../../../declarations'
+import logger from '../../ServerLogger'
 import { getCacheDomain } from '../../media/storageprovider/getCacheDomain'
 import { getCachedURL } from '../../media/storageprovider/getCachedURL'
 import { getStorageProvider } from '../../media/storageprovider/storageprovider'
-import logger from '../../ServerLogger'
 import { cleanString } from '../../util/cleanString'
-import { convertStaticResource } from './scene-helper'
-import { cleanSceneDataCacheURLs, parseSceneDataCacheURLs } from './scene-parser'
-
+import { downloadAssetsFromScene } from './scene-helper'
 const NEW_SCENE_NAME = 'New-Scene'
 
 const sceneAssetFiles = ['.scene.json', '.thumbnail.ktx2', '.envmap.ktx2']
@@ -75,7 +77,7 @@ export const getSceneData = async (
     name: sceneName,
     project: projectName,
     thumbnailUrl: thumbnailUrl,
-    scene: metadataOnly ? undefined! : parseSceneDataCacheURLs(JSON.parse(sceneResult.Body.toString()), cacheDomain)
+    scene: metadataOnly ? undefined! : parseStorageProviderURLs(JSON.parse(sceneResult.Body.toString()))
   }
 
   return sceneData
@@ -156,6 +158,7 @@ export class Scene implements ServiceMethods<any> {
     let newSceneName = NEW_SCENE_NAME
     let counter = 1
 
+    // eslint-disable-next-line no-constant-condition
     while (true) {
       if (counter > 1) newSceneName = NEW_SCENE_NAME + '-' + counter
       if (!(await storageProvider.doesExist(`${newSceneName}.scene.json`, projectPath))) break
@@ -250,18 +253,13 @@ export class Scene implements ServiceMethods<any> {
       const project = await this.app.service('project').get(projectName, params)
       if (!project.data) throw new Error(`No project named ${projectName} exists`)
 
-      await convertStaticResource(this.app, sceneData)
+      await downloadAssetsFromScene(this.app, projectName, sceneData)
 
       const newSceneJsonPath = `projects/${projectName}/${sceneName}.scene.json`
       await storageProvider.putObject({
         Key: newSceneJsonPath,
         Body: Buffer.from(
-          JSON.stringify(
-            cleanSceneDataCacheURLs(
-              sceneData ?? (defaultSceneSeed as unknown as SceneJson),
-              storageProvider.cacheDomain
-            )
-          )
+          JSON.stringify(cleanStorageProviderURLs(sceneData ?? (defaultSceneSeed as unknown as SceneJson)))
         ),
         ContentType: 'application/json'
       })
@@ -292,14 +290,7 @@ export class Scene implements ServiceMethods<any> {
 
         fs.writeFileSync(
           path.resolve(newSceneJsonPathLocal),
-          JSON.stringify(
-            cleanSceneDataCacheURLs(
-              sceneData ?? (defaultSceneSeed as unknown as SceneJson),
-              storageProvider.cacheDomain
-            ),
-            null,
-            2
-          )
+          JSON.stringify(cleanStorageProviderURLs(sceneData ?? (defaultSceneSeed as unknown as SceneJson)), null, 2)
         )
 
         if (thumbnailBuffer && Buffer.isBuffer(thumbnailBuffer)) {

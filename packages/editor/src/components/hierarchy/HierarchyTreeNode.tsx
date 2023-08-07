@@ -51,12 +51,12 @@ import ArrowRightIcon from '@mui/icons-material/ArrowRight'
 
 import { ItemTypes, SupportedFileTypes } from '../../constants/AssetTypes'
 import { addMediaNode } from '../../functions/addMediaNode'
+import { EntityNodeEditor } from '../../functions/ComponentEditors'
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
 import { isAncestor } from '../../functions/getDetachedObjectsRoots'
-import { EntityNodeEditor } from '../../functions/PrefabEditors'
 import { SelectionState } from '../../services/SelectionServices'
 import useUpload from '../assets/useUpload'
-import { addPrefabElement } from '../element/ElementList'
+import { addSceneComponentElement } from '../element/ElementList'
 import { HeirarchyTreeNodeType } from './HeirarchyTreeWalker'
 import NodeIssuesIcon from './NodeIssuesIcon'
 import styles from './styles.module.scss'
@@ -164,7 +164,6 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
   const dropItem = (node: HeirarchyTreeNodeType, place: 'On' | 'Before' | 'After') => {
     const isObj3D = !node.entityNode && node.obj3d
     if (isObj3D) return
-    const obj3d = node.obj3d!
     let parentNode: Entity | null = null
     let beforeNode: Entity | null = null
 
@@ -210,17 +209,17 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
         }
 
         if (item.type === ItemTypes.Prefab) {
-          addPrefabElement(item, parentNode, beforeNode!)
+          const createdEntity = addSceneComponentElement(item, parentNode, beforeNode!)
+          EditorControlFunctions.reparentObject([createdEntity], beforeNode, parentNode)
           return
         }
       }
-      if (parentNode) {
-        EditorControlFunctions.reparentObject(
-          Array.isArray(item.value) ? item.value : [item.value],
-          parentNode,
-          beforeNode
-        )
-      }
+
+      EditorControlFunctions.reparentObject(
+        Array.isArray(item.value) ? item.value : [item.value],
+        beforeNode,
+        parentNode === null ? undefined : parentNode
+      )
     }
   }
 
@@ -291,7 +290,6 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
     preview(getEmptyImage(), { captureDraggingState: true })
   }, [preview])
 
-  const collectNodeMenuProps = useCallback(() => node, [node])
   const editors =
     typeof node.entityNode === 'number' && entityExists(node.entityNode as Entity)
       ? getAllComponents(node.entityNode as Entity)

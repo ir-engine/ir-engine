@@ -118,6 +118,18 @@
       "none": "None",
       "users": "Users",
       "user": "User"
+    },
+    "render-settings":{
+      "lbl-usePostProcessing":"Use Post Processing",
+      "info-usePostProcessing":"Enables post processing",
+      "lbl-shadowMapResolution":"Shadow Map Resolution",
+      "info-shadowMapResolution":"Set shadowmap resolution",
+      "lbl-renderMode":"Render Mode",
+      "info-renderMode":"Choose render mode"
+    },
+    "grid": {
+      "info-incrementHeight": "Increment Grid Height",
+      "info-decrementHeight": "Decrement Grid Height"
     }
   },
   "properties": {
@@ -237,7 +249,14 @@
       "description": "Link to a room or a website.",
       "lbl-url": "URL"
     },
-    "lod": {
+    "loopAnimation": {
+      "title": "Loop Animation",
+      "description": "Looped animation associated with your 3d model, loaded from a GLTF URL or file.",
+      "lbl-loopAnimation": "Loop Animation"
+    },
+    "variant": {
+      "name": "Variant",
+      "description": "Load different assets based on heuristics",
       "device": "Device",
       "device-mobile": "Mobile",
       "device-desktop": "Desktop",
@@ -246,7 +265,8 @@
       "heuristic-sceneScale": "Scene Scale",
       "heuristic-manual": "Manual",
       "heuristic-device": "Device",
-      "distance": "Distance",
+      "minDistance": "Minimum Distance",
+      "maxDistance": "Maximum Distance",
       "src": "Source"
     },
     "map": {
@@ -280,6 +300,7 @@
       "lbl-interactionText": "Interaction Text",
       "lbl-interactionType": "Interaction Type",
       "transform": {
+        "compress": "Compress",
         "useDraco": "Use DRACO Mesh Compression",
         "useMeshopt": "Use Meshoptimizer",
         "useQuantization": "Use Mesh Quantization",
@@ -293,8 +314,10 @@
         "join": "Join Meshes",
         "palette": "Generate Palette Textures",
         "flipY": "Flip Y",
+        "flipYTooltip": "If checked, the source images will be Y flipped before compression",
         "instance": "Instance Identical Meshes",
-        "linear": "Linear Color Space",
+        "srgb": "Linear Color Space",
+        "srgbTooltip": "If checked, the provided map is assumed to be in sRGB space",
         "textureCompressionType": "Texture Compression Type",
         "ktx2Quality": "Compression Quality",
         "weldVertices": "Weld Vertices",
@@ -302,7 +325,21 @@
         "removeDuplicates": "Remove Duplicates",
         "pruneUnused": "Prune Unused",
         "reorder": "Reorder",
-        "resourceOverrides": "Resource Overrides"
+        "resourceOverrides": "Resource Overrides",
+        "quality": "Quality",
+        "qualityTooltip": "Sets the ETC1S encoder's quality level, which controls the file size vs. quality tradeoff",
+        "mode": "Mode",
+        "modeTooltip": "If checked, the encoder will output a UASTC texture, otherwise a ETC1S texture",
+        "mipmaps": "Mipmaps",
+        "mipmapsTooltip": "If checked, the encoder will generate mipmaps",
+        "compressionLevel": "Compression Level",
+        "compressionLevelTooltip": "The compression level parameter controls the encoder perf vs. file size tradeoff for ETC1S files. It does not directly control file size vs. quality (see Quality)",
+        "uastcFlags": "UASTC Flags",
+        "uastcFlagsTooltip": "Sets the UASTC encoding performance vs. quality tradeoff, and other lesser used UASTC encoder flags. This is a combination of flags",
+        "normalMap": "Normal Map",
+        "normalMapTooltip": "Tunes several codec parameters so compression works better on normal maps",
+        "uastcZstandard": "UASTC Zstandard",
+        "uastcZstandardTooltip": "Use UASTC Zstandard supercompression"
       },
       "lods": {
         "label": "Level of Detail",
@@ -348,7 +385,7 @@
     "image": {
       "name": "Image",
       "description": "Dynamically loads an image.",
-      "lbl-imgURL": "Image Url",
+      "lbl-imgURL": "Image URL",
       "lbl-transparency": "Transparency Mode",
       "lbl-alphaCutoff": "Alpha Cutoff",
       "lbl-projection": "Projection",
@@ -363,7 +400,7 @@
     },
     "screenshare": {
       "name": "Screenshare Target",
-      "description": "Allows this object to be a target for screeshare projection."
+      "description": "Allows this object to be a target for screen-share projection."
     },
     "name": {
       "lbl-name": "Name"
@@ -539,6 +576,10 @@
       "lbl-lods": "LODs",
       "info-lods": "Sets the distances at which levels of detail change.",
       "lbl-rendererSettings": "Override Renderer Settings",
+      "lbl-usePostProcessing": "Use Post Processing",
+      "info-usePostProcessing": "Enables post processing",
+      "lbl-useShadows": "Use Shadows",
+      "info-useShadows": "Enables shadows",
       "lbl-csm": "Cascading Shadow Maps",
       "info-csm": "Enables cascading shadow maps.",
       "lbl-toneMapping": "Tone Mapping",
@@ -588,7 +629,7 @@
     },
     "transform": {
       "title": "Transform",
-      "lbl-postition": "Position",
+      "lbl-position": "Position",
       "lbl-rotation": "Rotation",
       "lbl-scale": "Scale"
     },
@@ -633,14 +674,16 @@
     "portal": {
       "lbl-portal": "Linked Portal",
       "lbl-redirect": "Use Page Redirect",
-      "description": "A Portat to teleport players to specified location",
+      "description": "A Portal to teleport players to specified location",
       "lbl-locationName": "Location",
       "lbl-modelUrl": "Model URL",
       "lbl-displayText": "Display Text",
       "lbl-effectType": "Loading Effect",
       "lbl-previewType": "Preview Type",
       "lbl-previewImageURL": "Preview Image URL",
-      "lbl-createPreviewImage": "Create Preview Image",
+      "lbl-savedImageURL": "Saved Image URL",
+      "lbl-previewImage": "Preview Image",
+      "lbl-saveImage": "Save Image",
       "lbl-spawnPosition": "Spawn Position",
       "lbl-spawnRotation": "Spawn Rotation",
       "lbl-triggerPosition": "Trigger Position",
@@ -707,7 +750,14 @@
       "back": "Back",
       "loadingFiles": "Loading files",
       "compress": "Compress",
-      "convert": "Convert"
+      "convert": "Convert",
+      "downloadProject": "Download Project",
+      "fileProperties": {
+        "name": "Name:",
+        "type": "Type:",
+        "size": "Size:",
+        "url": "URL:"
+      }
     }
   },
   "hierarchy": {
@@ -790,7 +840,7 @@
       "msg": "You can file a <1>GitHub Issue</1> or e-mail us for support at <3>{{mail}}</3>",
       "discord": "You can also find us on <1>Discord</1>"
     },
-    "confirmContentDelete": "Do you want to delete this",
+    "confirmContentDelete": "Do you want to delete",
     "file": "file",
     "folder": "folder"
   },

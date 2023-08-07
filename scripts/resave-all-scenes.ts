@@ -43,6 +43,7 @@ import {
 import { EntityTreeComponent } from '@etherealengine/engine/src/ecs/functions/EntityTree'
 import { createEngine } from '@etherealengine/engine/src/initializeEngine'
 import { Physics } from '@etherealengine/engine/src/physics/classes/Physics'
+import { PhysicsState } from '@etherealengine/engine/src/physics/state/PhysicsState'
 import { FogSettingsComponent } from '@etherealengine/engine/src/scene/components/FogSettingsComponent'
 import { MediaSettingsComponent } from '@etherealengine/engine/src/scene/components/MediaSettingsComponent'
 import { PostProcessingComponent } from '@etherealengine/engine/src/scene/components/PostProcessingComponent'
@@ -54,12 +55,15 @@ import {
   updateSceneEntity
 } from '@etherealengine/engine/src/scene/systems/SceneLoadingSystem'
 import { getMutableState, getState } from '@etherealengine/hyperflux'
+import { loadEngineInjection } from '@etherealengine/projects/loadEngineInjection'
 
 require('fix-esm').register()
 
 /**
  * USAGE: `npx ts-node --swc scripts/resave-all-scenes.ts --write`
  */
+
+// @TODO - this does not support most of our projects, so should not be used for production
 
 createDOM()
 // import client systems so we know we have all components registered
@@ -104,7 +108,9 @@ const resaveAllProjects = async () => {
     cli.info(`Project: ${projectname}, Scene: ${sceneName}`)
 
     createEngine()
-    Engine.instance.physicsWorld = Physics.createWorld()
+    getMutableState(PhysicsState).physicsWorld.set(Physics.createWorld())
+    await loadEngineInjection(projects)
+
     getMutableState(EngineState).isEditor.set(true)
 
     // read scene file
@@ -145,10 +151,10 @@ const resaveAllProjects = async () => {
     // log each component diff
     const changes = JSON.parse(JSON.stringify(diff(sceneJson, newScene))) as SceneJson
     console.log('changes to', scene)
-
-    for (const entity of Object.values(changes.entities)) {
-      console.log(entity.components)
-    }
+    if (changes.entities)
+      for (const entity of Object.values(changes.entities)) {
+        console.log(...Object.values(entity.components).map((val) => JSON.stringify(val, null, 2)))
+      }
 
     // save file
     if (options.write) fs.writeFileSync(scene, JSON.stringify(newScene, null, 2))

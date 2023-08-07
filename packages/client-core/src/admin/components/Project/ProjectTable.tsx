@@ -23,13 +23,10 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import _ from 'lodash'
 import React, { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { saveAs } from 'save-as'
 
 import ConfirmDialog from '@etherealengine/client-core/src/common/components/ConfirmDialog'
-import config from '@etherealengine/common/src/config'
 import { ProjectInterface } from '@etherealengine/common/src/interfaces/ProjectInterface'
 import multiLogger from '@etherealengine/common/src/logger'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
@@ -38,10 +35,10 @@ import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
 import Tooltip from '@etherealengine/ui/src/primitives/mui/Tooltip'
 
-import { API } from '../../../API'
 import { NotificationService } from '../../../common/services/NotificationService'
 import { PROJECT_PAGE_LIMIT, ProjectService, ProjectState } from '../../../common/services/ProjectService'
 import { AuthState } from '../../../user/services/AuthService'
+import { userIsAdmin } from '../../../user/userHasAccess'
 import TableComponent from '../../common/Table'
 import { projectsColumns } from '../../common/variables/projects'
 import styles from '../../styles/admin.module.scss'
@@ -155,15 +152,6 @@ const ProjectTable = ({ className }: Props) => {
       description: `${t('admin:components.project.confirmPushProjectToGithub')}? ${row.name} - ${row.repositoryPath}`,
       onSubmit: handlePushProjectToGithub
     })
-  }
-
-  const DownloadProject = async (row: ProjectInterface) => {
-    setProject(row)
-    const url = `/projects/${row.name}`
-
-    const data = await API.instance.client.service('archiver').get(url)
-    const blob = await (await fetch(`${config.client.fileServer}/${data}`)).blob()
-    saveAs(blob, row.name + '.zip')
   }
 
   const openInvalidateConfirmation = (row) => {
@@ -307,22 +295,9 @@ const ProjectTable = ({ className }: Props) => {
             <IconButton
               className={styles.iconButton}
               name="update"
-              disabled={!el.hasWriteAccess || !el.repositoryPath}
+              disabled={(!el.hasWriteAccess && !userIsAdmin()) || !el.repositoryPath}
               onClick={() => openPushConfirmation(el)}
               icon={<Icon type="Upload" />}
-            />
-          )}
-        </>
-      ),
-      download: (
-        <>
-          {isAdmin && (
-            <IconButton
-              className={styles.iconButton}
-              name="download"
-              disabled={!el.repositoryPath}
-              onClick={() => DownloadProject(el)}
-              icon={<Icon type="Download" />}
             />
           )}
         </>

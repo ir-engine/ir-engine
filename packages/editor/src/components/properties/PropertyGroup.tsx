@@ -93,10 +93,11 @@ interface Props {
   description?: string
   onClose?: () => void
   children?: React.ReactNode
+  rest?: Record<string, unknown>
 }
 
 // function to create property group view
-const PropertyGroup = ({ name, description, children, onClose, ...rest }: Props) => {
+const PropertyGroup = ({ name, description, children, onClose, rest }: Props) => {
   return (
     <StyledPropertyGroup {...rest}>
       <PropertyGroupHeader>

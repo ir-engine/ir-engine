@@ -34,7 +34,6 @@ import commonStyles from '@etherealengine/client-core/src/common/components/comm
 import ConfirmDialog from '@etherealengine/client-core/src/common/components/ConfirmDialog'
 import { DiscordIcon } from '@etherealengine/client-core/src/common/components/Icons/DiscordIcon'
 import { FacebookIcon } from '@etherealengine/client-core/src/common/components/Icons/FacebookIcon'
-import { GithubIcon } from '@etherealengine/client-core/src/common/components/Icons/GithubIcon'
 import { GoogleIcon } from '@etherealengine/client-core/src/common/components/Icons/GoogleIcon'
 import { LinkedInIcon } from '@etherealengine/client-core/src/common/components/Icons/LinkedInIcon'
 import { TwitterIcon } from '@etherealengine/client-core/src/common/components/Icons/TwitterIcon'
@@ -44,7 +43,6 @@ import Text from '@etherealengine/client-core/src/common/components/Text'
 import { validateEmail, validatePhoneNumber } from '@etherealengine/common/src/config'
 import multiLogger from '@etherealengine/common/src/logger'
 import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
-import { WorldState } from '@etherealengine/engine/src/networking/interfaces/WorldState'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import Box from '@etherealengine/ui/src/primitives/mui/Box'
 import CircularProgress from '@etherealengine/ui/src/primitives/mui/CircularProgress'
@@ -54,11 +52,11 @@ import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
 import { AuthSettingsState } from '../../../../admin/services/Setting/AuthSettingService'
 import { initialAuthState, initialOAuthConnectedState } from '../../../../common/initialAuthState'
 import { NotificationService } from '../../../../common/services/NotificationService'
+import { useUserAvatarThumbnail } from '../../../functions/useUserAvatarThumbnail'
 import { AuthService, AuthState } from '../../../services/AuthService'
 import { UserMenus } from '../../../UserUISystem'
 import styles from '../index.module.scss'
 import { PopupMenuServices } from '../PopupMenuService'
-import { getAvatarURLForUser } from '../util'
 
 const logger = multiLogger.child({ component: 'client-core:ProfileMenu' })
 
@@ -95,7 +93,7 @@ const ProfileMenu = ({ hideLogin, onClose, isPopover }: Props): JSX.Element => {
 
   const hasAdminAccess =
     selfUser?.id?.value?.length > 0 && selfUser?.scopes?.value?.find((scope) => scope.type === 'admin:admin')
-  const userAvatarDetails = useHookstate(getMutableState(WorldState).userAvatarDetails)
+  const avatarThumbnail = useUserAvatarThumbnail(userId)
 
   useEffect(() => {
     if (authSetting) {
@@ -359,7 +357,7 @@ const ProfileMenu = ({ hideLogin, onClose, isPopover }: Props): JSX.Element => {
       <Box className={styles.menuContent}>
         <Box className={styles.profileContainer}>
           <Avatar
-            imageSrc={getAvatarURLForUser(userAvatarDetails, userId)}
+            imageSrc={avatarThumbnail}
             showChangeButton={!!engineInitialized.value}
             onChange={() => PopupMenuServices.showPopupMenu(UserMenus.AvatarSelect)}
           />

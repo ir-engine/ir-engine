@@ -23,14 +23,13 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-// // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
+// For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
 import { resolve } from '@feathersjs/schema'
 import { v4 } from 'uuid'
 
 import {
   AwsCloudFrontType,
-  AwsKeysType,
-  AwsRoute53Type,
+  AwsEksType,
   AwsS3Type,
   AwsSettingDatabaseType,
   AwsSettingQuery,
@@ -43,26 +42,13 @@ import { getDateTimeSql } from '../../util/get-datetime-sql'
 
 export const awsSettingResolver = resolve<AwsSettingType, HookContext>({})
 
-export const awsDbToSchema = async (rawData: AwsSettingDatabaseType): Promise<AwsSettingType> => {
-  let keys = JSON.parse(rawData.keys) as AwsKeysType
+export const awsDbToSchema = (rawData: AwsSettingDatabaseType): AwsSettingType => {
+  let eks = JSON.parse(rawData.eks || '{}') as AwsEksType
 
   // Usually above JSON.parse should be enough. But since our pre-feathers 5 data
   // was serialized multiple times, therefore we need to parse it twice.
-  if (typeof keys === 'string') {
-    keys = JSON.parse(keys)
-  }
-
-  let route53 = JSON.parse(rawData.route53) as AwsRoute53Type
-
-  // Usually above JSON.parse should be enough. But since our pre-feathers 5 data
-  // was serialized multiple times, therefore we need to parse it twice.
-  if (typeof route53 === 'string') {
-    route53 = JSON.parse(route53)
-
-    // We need to deserialized nested objects of pre-feathers 5 data.
-    if (typeof route53.keys === 'string') {
-      route53.keys = JSON.parse(route53.keys) as AwsKeysType
-    }
+  if (typeof eks === 'string') {
+    eks = JSON.parse(eks)
   }
 
   let s3 = JSON.parse(rawData.s3) as AwsS3Type
@@ -91,8 +77,7 @@ export const awsDbToSchema = async (rawData: AwsSettingDatabaseType): Promise<Aw
 
   return {
     ...rawData,
-    keys,
-    route53,
+    eks,
     s3,
     cloudfront,
     sms
@@ -123,7 +108,6 @@ export const awsSettingDataResolver = resolve<AwsSettingDatabaseType, HookContex
       return {
         ...rawData,
         keys: JSON.stringify(rawData.keys),
-        route53: JSON.stringify(rawData.route53),
         s3: JSON.stringify(rawData.s3),
         cloudfront: JSON.stringify(rawData.cloudfront),
         sms: JSON.stringify(rawData.sms)
@@ -142,7 +126,6 @@ export const awsSettingPatchResolver = resolve<AwsSettingType, HookContext>(
       return {
         ...rawData,
         keys: JSON.stringify(rawData.keys),
-        route53: JSON.stringify(rawData.route53),
         s3: JSON.stringify(rawData.s3),
         cloudfront: JSON.stringify(rawData.cloudfront),
         sms: JSON.stringify(rawData.sms)

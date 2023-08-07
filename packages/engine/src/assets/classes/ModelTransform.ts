@@ -23,8 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { DracoOptions, JoinOptions, PaletteOptions, QuantizeOptions } from '@gltf-transform/functions'
-import { BufferGeometry, Material, Texture } from 'three'
+import { DracoOptions, JoinOptions, PaletteOptions } from '@gltf-transform/functions'
 
 import { OpaqueType } from '@etherealengine/common/src/interfaces/OpaqueType'
 
@@ -85,6 +84,9 @@ export type ExtractedImageTransformParameters = {
   textureFormat: 'default' | 'jpg' | 'ktx2' | 'png' | 'webp'
   textureCompressionType: 'etc1' | 'uastc'
   textureCompressionQuality: number
+  uastcLevel: number
+  compLevel: number
+  maxCodebooks: boolean
 }
 
 export type GeometryTransformParameters = ResourceParameters<{
@@ -172,6 +174,9 @@ export const DefaultModelTransformParameters: ModelTransformParameters = {
   },
   textureFormat: 'ktx2',
   textureCompressionType: 'etc1',
+  uastcLevel: 4,
+  compLevel: 4,
+  maxCodebooks: true,
   flipY: false,
   linear: true,
   textureCompressionQuality: 128,

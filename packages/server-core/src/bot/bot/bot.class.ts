@@ -27,6 +27,8 @@ import { NullableId, Paginated, Params } from '@feathersjs/feathers'
 import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
 
 import { AdminBot, CreateBotAsAdmin } from '@etherealengine/common/src/interfaces/AdminBot'
+import { BotCommandType, botCommandPath } from '@etherealengine/engine/src/schemas/bot/bot-command.schema'
+import { LocationType, locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
 
 import { Application } from '../../../declarations'
 import { createBotCommands } from './bot.functions'
@@ -43,20 +45,44 @@ export class Bot extends Service {
   }
 
   async find(params?: Params): Promise<Paginated<AdminBotDataType>> {
+    const data: AdminBotDataType[] = []
+
     const bots = await this.app.service('bot').Model.findAll({
       include: [
-        {
-          model: this.app.service('bot-command').Model
-        },
-        {
-          model: this.app.service('location').Model
-        },
         {
           model: this.app.service('instance').Model
         }
       ]
     })
-    return { data: bots } as Paginated<AdminBotDataType>
+
+    // TODO: Move following to bot.resolvers once bot service is migrated to feathers 5.
+    const locations = (await this.app.service(locationPath).find({
+      query: {
+        id: {
+          $in: bots.map((bot) => bot.locationId)
+        }
+      },
+      paginate: false
+    })) as any as LocationType[]
+
+    const botCommands = (await this.app.service(botCommandPath).find({
+      query: {
+        botId: {
+          $in: bots.map((bot) => bot.id)
+        }
+      },
+      paginate: false
+    })) as any as BotCommandType[]
+
+    for (const bot of bots) {
+      data.push({
+        ...bot.dataValues,
+        location: locations.find((location) => location.id === bot.locationId),
+        botCommands: botCommands.filter((botCommand) => botCommand.botId === bot.id)
+      })
+    }
+
+    return { data } as Paginated<AdminBotDataType>
   }
 
   async create(data: CreateBotAsAdmin): Promise<AdminBotDataType> {

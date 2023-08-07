@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React, { ReactNode } from 'react'
+import React from 'react'
 
 import {
   Accessibility,
@@ -42,6 +42,8 @@ import {
   BlurOff,
   CachedOutlined,
   CalendarViewDay,
+  Call,
+  CallEnd,
   CameraAlt,
   Cancel,
   CancelOutlined,
@@ -70,9 +72,9 @@ import {
   ErrorOutline,
   ExpandMore,
   Face,
+  FaceRetouchingOff,
   Facebook,
   FacebookOutlined,
-  FaceRetouchingOff,
   FileCopy,
   FileUpload,
   FilterList,
@@ -97,8 +99,8 @@ import {
   KeyboardDoubleArrowUp,
   Launch,
   Link,
-  LinkedIn,
   LinkOff,
+  LinkedIn,
   List,
   ListAlt,
   LocationOn,
@@ -121,6 +123,7 @@ import {
   PersonAdd,
   PersonOff,
   Phone,
+  Poll,
   Portrait,
   QrCode2,
   RecordVoiceOver,
@@ -131,12 +134,12 @@ import {
   ScreenshotMonitor,
   Search,
   SelectAll,
-  SelfImprovement,
   Send,
   Settings,
   Shuffle,
   SportsScore,
   SquareFoot,
+  StopCircle,
   StopScreenShare,
   Storage,
   SupervisorAccount,
@@ -183,6 +186,8 @@ const Icon = ({ type, ...props }: SvgIconProps & { type: string }) => {
       return <Download {...props} />
     case 'CameraAlt':
       return <CameraAlt {...props} />
+    case 'StopCircle':
+      return <StopCircle {...props} />
     case 'ChevronLeft':
       return <ChevronLeft {...props} />
     case 'ChevronRight':
@@ -379,6 +384,10 @@ const Icon = ({ type, ...props }: SvgIconProps & { type: string }) => {
       return <Google {...props} />
     case 'GridOn':
       return <GridOn {...props} />
+    case 'Call':
+      return <Call {...props} />
+    case 'CallEnd':
+      return <CallEnd {...props} />
     case 'HighlightOff':
       return <HighlightOff {...props} />
     case 'KeyboardDoubleArrowDown':
@@ -443,6 +452,8 @@ const Icon = ({ type, ...props }: SvgIconProps & { type: string }) => {
       return <Phone {...props} />
     case 'FlipCameraAndroid':
       return <FlipCameraAndroid {...props} />
+    case 'Poll':
+      return <Poll {...props} />
   }
 }
 

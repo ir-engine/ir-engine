@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { spawn } from 'child_process'
 import { Sequelize } from 'sequelize'
 
-import config, { isDev } from '@etherealengine/common/src/config'
+import { isDev } from '@etherealengine/common/src/config'
 import appConfig from '@etherealengine/server-core/src/appconfig'
 
 import { Application } from '../declarations'
@@ -50,6 +50,7 @@ export default (app: Application): void => {
       }
     })
     const oldSetup = app.setup
+    const oldTeardown = app.teardown
 
     app.set('sequelizeClient', sequelize)
 
@@ -59,6 +60,19 @@ export default (app: Application): void => {
       promiseReject = reject
     })
 
+    app.teardown = async function (...args) {
+      try {
+        await sequelize.close()
+        console.log('Sequelize connection closed')
+      } catch (err) {
+        logger.error('Sequelize teardown error')
+        logger.error(err)
+        promiseReject()
+        throw err
+      }
+      return oldTeardown.apply(this, args)
+    }
+
     app.setup = async function (...args) {
       try {
         await sequelize.query('SET FOREIGN_KEY_CHECKS = 0')
@@ -67,6 +81,7 @@ export default (app: Application): void => {
           `select table_schema as etherealengine,count(*) as tables from information_schema.tables where table_type = \'BASE TABLE\' and table_schema not in (\'information_schema\', \'sys\', \'performance_schema\', \'mysql\') group by table_schema order by table_schema;`
         )
         const prepareDb = process.env.PREPARE_DATABASE === 'true' || (isDev && tableCount[0] && !tableCount[0][0])
+
         // Sync to the database
         for (const model of Object.keys(sequelize.models)) {
           const sequelizeModel = sequelize.models[model]
@@ -92,7 +107,9 @@ export default (app: Application): void => {
                     if (value.unique)
                       try {
                         await sequelize.getQueryInterface().removeIndex(model, value.fieldName)
-                      } catch (err) {}
+                      } catch (err) {
+                        //
+                      }
                     await sequelize.getQueryInterface().changeColumn(model, value.fieldName, value)
                   }
                 } catch (err) {
@@ -126,10 +143,13 @@ export default (app: Application): void => {
           await Promise.race([
             initPromise,
             new Promise<void>((resolve) => {
-              setTimeout(() => {
-                console.log('WARNING: Knex migrations took too long to run!')
-                resolve()
-              }, 2 * 60 * 1000) // timeout after 2 minutes
+              setTimeout(
+                () => {
+                  console.log('WARNING: Knex migrations took too long to run!')
+                  resolve()
+                },
+                2 * 60 * 1000
+              ) // timeout after 2 minutes
             })
           ])
         }

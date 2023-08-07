@@ -23,12 +23,14 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { BotCommands, CreateBotCammand } from '@etherealengine/common/src/interfaces/AdminBot'
 import multiLogger from '@etherealengine/common/src/logger'
-import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
-import { defineAction, defineState, dispatchAction, getMutableState } from '@etherealengine/hyperflux'
-
-import { API } from '../../API'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import {
+  BotCommandData,
+  botCommandPath,
+  BotCommandType
+} from '@etherealengine/engine/src/schemas/bot/bot-command.schema'
+import { defineState, getMutableState } from '@etherealengine/hyperflux'
 
 const logger = multiLogger.child({ component: 'client-core:BotsCommand' })
 
@@ -38,7 +40,7 @@ export const BOTS_PAGE_LIMIT = 100
 export const AdminBotsCommandState = defineState({
   name: 'AdminBotsCommandState',
   initial: () => ({
-    botCommand: [] as BotCommands[],
+    botCommand: [] as Array<BotCommandType>,
     skip: 0,
     limit: BOTS_PAGE_LIMIT,
     total: 0,
@@ -49,47 +51,21 @@ export const AdminBotsCommandState = defineState({
   })
 })
 
-const botCommandCreatedReceptor = (action: typeof AdminBotCommandActions.botCommandCreated.matches._TYPE) => {
-  const state = getMutableState(AdminBotsCommandState)
-  return state.merge({ updateNeeded: true })
-}
-const botCommandRemovedReceptor = (action: typeof AdminBotCommandActions.botCommandRemoved.matches._TYPE) => {
-  const state = getMutableState(AdminBotsCommandState)
-  return state.merge({ updateNeeded: true })
-}
-
-export const AdminBotsCommandReceptors = {
-  botCommandCreatedReceptor,
-  botCommandRemovedReceptor
-}
-
-//Service
 export const AdminBotCommandService = {
-  createBotCammand: async (data: CreateBotCammand) => {
+  createBotCommand: async (data: BotCommandData) => {
     try {
-      const botCommand = (await API.instance.client.service('bot-command').create(data)) as BotCommands
-      dispatchAction(AdminBotCommandActions.botCommandCreated({ botCommand }))
+      await Engine.instance.api.service(botCommandPath).create(data)
+      getMutableState(AdminBotsCommandState).merge({ updateNeeded: true })
     } catch (error) {
       logger.error(error)
     }
   },
   removeBotsCommand: async (id: string) => {
     try {
-      const result = (await API.instance.client.service('bot-command').remove(id)) as BotCommands
-      dispatchAction(AdminBotCommandActions.botCommandRemoved({ botCommand: result }))
+      await Engine.instance.api.service(botCommandPath).remove(id)
+      getMutableState(AdminBotsCommandState).merge({ updateNeeded: true })
     } catch (error) {
       logger.error(error)
     }
   }
-}
-//Action
-export class AdminBotCommandActions {
-  static botCommandCreated = defineAction({
-    type: 'ee.client.AdminBotCommand.BOT_COMMAND_ADMIN_CREATE' as const,
-    botCommand: matches.object as Validator<unknown, BotCommands>
-  })
-  static botCommandRemoved = defineAction({
-    type: 'ee.client.AdminBotCommand.BOT_COMMAND_ADMIN_REMOVE' as const,
-    botCommand: matches.object as Validator<unknown, BotCommands>
-  })
 }

@@ -29,6 +29,7 @@ import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
 import { AdminScope as AdminScopeInterface } from '@etherealengine/common/src/interfaces/AdminScope'
 
 import { Application } from '../../../declarations'
+import { createScopeTypeModel } from './scope.model'
 
 export type AdminScopeDataType = AdminScopeInterface
 
@@ -49,15 +50,11 @@ export class Scope<T = AdminScopeDataType> extends Service<T> {
       limit: limit,
       include: [
         {
-          model: (this.app.service('scope-type') as any).Model,
+          model: createScopeTypeModel(this.app),
           required: false
         },
         {
           model: (this.app.service('user') as any).Model,
-          required: false
-        },
-        {
-          model: (this.app.service('group') as any).Model,
           required: false
         }
       ],
@@ -74,13 +71,7 @@ export class Scope<T = AdminScopeDataType> extends Service<T> {
 
   async create(data): Promise<T | T[]> {
     const isArray = Array.isArray(data)
-    const whereParams = isArray
-      ? data[0].groupId
-        ? { groupId: data[0].groupId }
-        : { userId: data[0].userId }
-      : data.groupId
-      ? { groupId: data.groupId }
-      : { userId: data.userId }
+    const whereParams = isArray ? { userId: data[0].userId } : { userId: data.userId }
 
     const oldScopes = await super.Model.findAll({
       where: whereParams

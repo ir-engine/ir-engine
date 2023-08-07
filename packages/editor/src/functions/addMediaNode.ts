@@ -24,15 +24,16 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { getContentType } from '@etherealengine/common/src/utils/getContentType'
-import { MediaPrefabs } from '@etherealengine/engine/src/audio/systems/MediaSystem'
+import { PositionalAudioComponent } from '@etherealengine/engine/src/audio/components/PositionalAudioComponent'
 import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
 import { ImageComponent } from '@etherealengine/engine/src/scene/components/ImageComponent'
 import { MediaComponent } from '@etherealengine/engine/src/scene/components/MediaComponent'
 import { ModelComponent } from '@etherealengine/engine/src/scene/components/ModelComponent'
 import { PrefabComponent } from '@etherealengine/engine/src/scene/components/PrefabComponent'
-import { ScenePrefabs } from '@etherealengine/engine/src/scene/systems/SceneObjectUpdateSystem'
+import { VideoComponent } from '@etherealengine/engine/src/scene/components/VideoComponent'
+import { VolumetricComponent } from '@etherealengine/engine/src/scene/components/VolumetricComponent'
 
-import { updateProperties } from '../components/properties/Util'
+import { setComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { EditorControlFunctions } from './EditorControlFunctions'
 
 /**
@@ -46,33 +47,33 @@ export async function addMediaNode(url: string, parent?: Entity | null, before?:
   const contentType = (await getContentType(url)) || ''
   const { hostname } = new URL(url)
 
-  let prefabType = ''
-  let updateFunc = null! as Function
+  let componentName: string | null = null
+  let updateFunc = null! as () => void
 
   let node: Entity | null = null
 
   if (contentType.startsWith('prefab/')) {
-    prefabType = ScenePrefabs.prefab
-    updateFunc = () => updateProperties(PrefabComponent, { src: url }, [node!])
+    componentName = PrefabComponent.name
+    updateFunc = () => setComponent(node!, PrefabComponent, { src: url })
   } else if (contentType.startsWith('model/')) {
-    prefabType = ScenePrefabs.model
-    updateFunc = () => updateProperties(ModelComponent, { src: url }, [node!])
+    componentName = ModelComponent.name
+    updateFunc = () => setComponent(node!, ModelComponent, { src: url })
   } else if (contentType.startsWith('video/') || hostname.includes('twitch.tv') || hostname.includes('youtube.com')) {
-    prefabType = MediaPrefabs.video
-    updateFunc = () => updateProperties(MediaComponent, { paths: [url] }, [node!])
+    componentName = VideoComponent.name
+    updateFunc = () => setComponent(node!, MediaComponent, { paths: [url] })
   } else if (contentType.startsWith('image/')) {
-    prefabType = ScenePrefabs.image
-    updateFunc = () => updateProperties(ImageComponent, { source: url }, [node!])
+    componentName = ImageComponent.name
+    updateFunc = () => setComponent(node!, ImageComponent, { source: url })
   } else if (contentType.startsWith('audio/')) {
-    prefabType = MediaPrefabs.audio
-    updateFunc = () => updateProperties(MediaComponent, { paths: [url] }, [node!])
+    componentName = PositionalAudioComponent.name
+    updateFunc = () => setComponent(node!, MediaComponent, { paths: [url] })
   } else if (url.includes('.uvol')) {
-    prefabType = MediaPrefabs.volumetric
-    updateFunc = () => updateProperties(MediaComponent, { paths: [url] }, [node!])
+    componentName = VolumetricComponent.name
+    updateFunc = () => setComponent(node!, MediaComponent, { paths: [url] })
   }
 
-  if (prefabType) {
-    node = EditorControlFunctions.createObjectFromPrefab(prefabType, parent, before!)
+  if (componentName) {
+    node = EditorControlFunctions.createObjectFromSceneElement(componentName, parent, before)
 
     if (node) updateFunc()
   }

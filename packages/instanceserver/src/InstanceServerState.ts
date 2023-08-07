@@ -39,7 +39,6 @@ export const InstanceServerState = defineState({
   name: 'InstanceServerState',
   initial: {
     instance: null! as Instance, // todo: make type 'Instance'
-    isSubdomainNumber: null as string | null,
     isMediaInstance: false,
     instanceServer: null! as AgonesGameServer
   }

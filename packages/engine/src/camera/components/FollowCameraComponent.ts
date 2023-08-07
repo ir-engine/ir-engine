@@ -98,7 +98,7 @@ export const FollowCameraComponent = defineComponent({
       minDistance: cameraSettings.minCameraDistance,
       maxDistance: cameraSettings.maxCameraDistance,
       theta: 180,
-      phi: cameraSettings.startPhi,
+      phi: 10,
       minPhi: cameraSettings.minPhi,
       maxPhi: cameraSettings.maxPhi,
       shoulderSide: true,

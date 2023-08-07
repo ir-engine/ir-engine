@@ -31,8 +31,7 @@ import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import Button from '@etherealengine/ui/src/primitives/mui/Button'
 import Container from '@etherealengine/ui/src/primitives/mui/Container'
 
-import { AuthService } from '../../services/AuthService'
-import { AuthState } from '../../services/AuthService'
+import { AuthService, AuthState } from '../../services/AuthService'
 import styles from './styles.module.scss'
 
 const TwitterCallbackComponent = (props): JSX.Element => {

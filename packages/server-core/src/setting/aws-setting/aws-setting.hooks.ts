@@ -29,8 +29,8 @@ import { iff, isProvider } from 'feathers-hooks-common'
 
 import {
   awsCloudFrontSchema,
+  awsEksSchema,
   awsKeysSchema,
-  awsRoute53Schema,
   awsS3Schema,
   awsSettingDataSchema,
   awsSettingPatchSchema,
@@ -53,7 +53,7 @@ import {
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const awsKeysValidator = getValidator(awsKeysSchema, dataValidator)
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-const awsRoute53Validator = getValidator(awsRoute53Schema, dataValidator)
+const awsEksValidator = getValidator(awsEksSchema, dataValidator)
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const awsS3Validator = getValidator(awsS3Schema, dataValidator)
 // eslint-disable-next-line @typescript-eslint/no-unused-vars

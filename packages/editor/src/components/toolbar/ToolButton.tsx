@@ -52,20 +52,11 @@ const Icon = (styled as any).div`
 interface ToolButtonProp {
   id: string | number
   icon?: any
-  onClick: Function
+  onClick: (ev: any) => void
   isSelected?: boolean
   tooltip?: string
 }
 
-/**
- *
- * @param {any} id
- * @param {any} icon
- * @param {any} onClick
- * @param {any} isSelected
- * @param {any} tooltip
- * @returns
- */
 export function ToolButton({ id, icon, onClick, isSelected, tooltip }: ToolButtonProp) {
   return (
     <InfoTooltip title={tooltip!} placement="bottom">

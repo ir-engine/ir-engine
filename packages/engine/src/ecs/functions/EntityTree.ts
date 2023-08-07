@@ -29,7 +29,7 @@ import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { EntityJson } from '@etherealengine/common/src/interfaces/SceneInterface'
 import { dispatchAction, getMutableState, getState, hookstate, NO_PROXY, none } from '@etherealengine/hyperflux'
 
-import { matchesEntity, matchesEntityUUID } from '../../common/functions/MatchesUtils'
+import { matchesEntityUUID } from '../../common/functions/MatchesUtils'
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
 import { NameComponent } from '../../scene/components/NameComponent'
 import { SceneTagComponent } from '../../scene/components/SceneTagComponent'
@@ -45,7 +45,7 @@ import {
 import { computeTransformMatrix } from '../../transform/systems/TransformSystem'
 import { Engine } from '../classes/Engine'
 import { EngineState } from '../classes/EngineState'
-import { Entity, UndefinedEntity } from '../classes/Entity'
+import { Entity } from '../classes/Entity'
 import { SceneState } from '../classes/Scene'
 import {
   defineComponent,
@@ -103,15 +103,26 @@ export const EntityTreeComponent = defineComponent({
     if (component.parentEntity.value) {
       const parent = getOptionalComponentState(component.parentEntity.value, EntityTreeComponent)
 
-      // If a new parentEntity, add this entity to its children
-      if (parent && !parent?.children.value.includes(entity)) {
-        if (typeof json.childIndex !== 'undefined')
-          parent.children.set([
-            ...parent.children.value.slice(0, json.childIndex),
-            entity,
-            ...parent.children.value.slice(json.childIndex)
+      if (parent) {
+        const prevChildIndex = parent?.children.value.indexOf(entity)
+        const isDifferentIndex = typeof json.childIndex === 'number' ? prevChildIndex !== json.childIndex : false
+
+        if (isDifferentIndex && prevChildIndex !== -1) {
+          parent.children.set((prevChildren) => [
+            ...prevChildren.slice(0, prevChildIndex),
+            ...prevChildren.slice(prevChildIndex + 1)
           ])
-        else parent.children.set([...parent.children.value, entity])
+        }
+
+        if (isDifferentIndex || prevChildIndex === -1) {
+          if (typeof json.childIndex !== 'undefined')
+            parent.children.set((prevChildren) => [
+              ...prevChildren.slice(0, json.childIndex),
+              entity,
+              ...prevChildren.slice(json.childIndex)
+            ])
+          else parent.children.set([...parent.children.value, entity])
+        }
       }
     }
 
@@ -140,8 +151,6 @@ export const EntityTreeComponent = defineComponent({
     } else {
       EntityTreeComponent.roots[entity].set(none)
     }
-
-    removeComponent(entity, UUIDComponent)
   },
 
   roots: hookstate({} as Record<Entity, true>)
@@ -190,17 +199,20 @@ export function removeFromEntityTree(rootEntity: Entity): void {
 }
 
 /**
- * Adds entity node as a child of passed node
- * @param parent Node in which child node will be added
- * @param node Child node to be added
- * @param index Index at which child node will be added
+ * Adds `entity` as a child of `parentEntity`
+ * @param entity Child node to be added
+ * @param parentEntity Node in which child node will be added
+ * @param childIndex Index at which child node will be added
  */
-export function addEntityNodeChild(entity: Entity, parentEntity: Entity, uuid?: EntityUUID): void {
+export function addEntityNodeChild(entity: Entity, parentEntity: Entity, childIndex?: number, uuid?: EntityUUID): void {
+  const entityTreeComponent = getComponent(entity, EntityTreeComponent)
   if (
     !hasComponent(entity, EntityTreeComponent) ||
-    parentEntity !== getComponent(entity, EntityTreeComponent).parentEntity
+    parentEntity !== entityTreeComponent.parentEntity ||
+    (typeof childIndex !== 'undefined' &&
+      childIndex !== findIndexOfEntityNode(getComponent(parentEntity, EntityTreeComponent).children, entity))
   ) {
-    setComponent(entity, EntityTreeComponent, { parentEntity })
+    setComponent(entity, EntityTreeComponent, { parentEntity, childIndex })
     setComponent(entity, UUIDComponent, uuid || (MathUtils.generateUUID() as EntityUUID))
   }
 
@@ -219,8 +231,9 @@ export function addEntityNodeChild(entity: Entity, parentEntity: Entity, uuid?: 
   if (Engine.instance.worldNetwork?.isHosting) {
     const uuid = getComponent(entity, UUIDComponent)
     dispatchAction(
-      WorldNetworkAction.registerSceneObject({
-        objectUuid: uuid
+      WorldNetworkAction.spawnObject({
+        entityUUID: uuid,
+        prefab: ''
       })
     )
   }
@@ -272,10 +285,8 @@ export function removeEntityNode(entity: Entity, serialize = false) {
  * @param index Index at which passed node will be set as child in parent node's children arrays
  */
 export function reparentEntityNode(entity: Entity, parentEntity: Entity | null, index?: number): void {
-  const entityTreeNode = getComponent(entity, EntityTreeComponent)
-  if (entityTreeNode.parentEntity === parentEntity) return
-  if (parentEntity) addEntityNodeChild(entity, parentEntity)
-  else setComponent(entity, EntityTreeComponent, { parentEntity: null })
+  if (parentEntity) addEntityNodeChild(entity, parentEntity, index)
+  else setComponent(entity, EntityTreeComponent, { parentEntity: null, childIndex: index })
 }
 
 /**
@@ -321,8 +332,10 @@ export function traverseEntityNodeChildFirst(
 
   if (!entityTreeNode) return
 
-  for (let i = 0; i < entityTreeNode.children.length; i++) {
-    const child = entityTreeNode.children[i]
+  const children = [...entityTreeNode.children]
+
+  for (let i = 0; i < children.length; i++) {
+    const child = children[i]
     traverseEntityNodeChildFirst(child, cb, i)
   }
 

@@ -29,12 +29,12 @@ import React, { Component, ErrorInfo, FC, memo, Suspense, useEffect, useMemo } f
 
 import { OpaqueType } from '@etherealengine/common/src/interfaces/OpaqueType'
 import multiLogger from '@etherealengine/common/src/logger'
-import { getState, ReactorRoot, startReactor } from '@etherealengine/hyperflux'
+import { getState, startReactor } from '@etherealengine/hyperflux'
 
 import { nowMilliseconds } from '../../common/functions/nowMilliseconds'
 import { Engine } from '../classes/Engine'
 import { EngineState } from '../classes/EngineState'
-import { Entity, UndefinedEntity } from '../classes/Entity'
+import { Entity } from '../classes/Entity'
 import { QueryComponents, useQuery } from './ComponentFunctions'
 import { EntityContext } from './EntityFunctions'
 
@@ -43,9 +43,10 @@ const logger = multiLogger.child({ component: 'engine:ecs:SystemFunctions' })
 export type SystemUUID = OpaqueType<'SystemUUID'> & string
 export interface System {
   uuid: SystemUUID
-  execute: () => void // runs after preSystems, and before subSystems
   reactor: FC
   preSystems: SystemUUID[]
+  /** runs after preSystems, and before subSystems */
+  execute: () => void
   subSystems: SystemUUID[]
   postSystems: SystemUUID[]
   sceneSystem?: boolean

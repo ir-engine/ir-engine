@@ -208,17 +208,10 @@ const Email = () => {
           />
 
           <InputText
-            name="group"
-            label={t('admin:components.setting.group')}
-            value={subject?.value?.group || ''}
-            onChange={(e) => handleUpdateSubject(e, 'group')}
-          />
-
-          <InputText
-            name="party"
-            label={t('admin:components.setting.party')}
-            value={subject?.value?.party || ''}
-            onChange={(e) => handleUpdateSubject(e, 'party')}
+            name="channel"
+            label={t('admin:components.setting.channel')}
+            value={subject?.value?.channel || ''}
+            onChange={(e) => handleUpdateSubject(e, 'channel')}
           />
 
           <InputText

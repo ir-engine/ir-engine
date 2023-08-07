@@ -23,14 +23,10 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { useEffect } from 'react'
-import React from 'react'
+import React, { useEffect } from 'react'
 import {
-  Color,
-  DoubleSide,
   Material,
   Mesh,
-  MeshBasicMaterial,
   MeshLambertMaterial,
   MeshPhongMaterial,
   MeshPhysicalMaterial,
@@ -40,23 +36,14 @@ import {
 import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 
 import { createGLTFLoader } from '../../assets/functions/createGLTFLoader'
-import { loadDRACODecoderNode } from '../../assets/loaders/gltf/NodeDracoLoader'
 import { isClient } from '../../common/functions/getEnvironment'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
-import {
-  defineQuery,
-  getComponent,
-  hasComponent,
-  removeQuery,
-  useOptionalComponent
-} from '../../ecs/functions/ComponentFunctions'
+import { defineQuery, getComponent, hasComponent, useOptionalComponent } from '../../ecs/functions/ComponentFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
-import { updateShadowMap } from '../../renderer/functions/RenderSettingsFunction'
 import { registerMaterial, unregisterMaterial } from '../../renderer/materials/functions/MaterialLibraryFunctions'
 import { RendererState } from '../../renderer/RendererState'
-import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { DistanceFromCameraComponent, FrustumCullCameraComponent } from '../../transform/components/DistanceComponents'
 import { isMobileXRHeadset } from '../../xr/XRState'
 import { CallbackComponent } from '../components/CallbackComponent'
@@ -70,23 +57,13 @@ import { ShadowSystem } from './ShadowSystem'
 
 export const ExpensiveMaterials = new Set([MeshPhongMaterial, MeshStandardMaterial, MeshPhysicalMaterial])
 
-/** @todo reimplement BPCEM */
-const applyBPCEM = (material) => {
-  // SceneOptions needs to be replaced with a proper state
-  // if (!material.userData.hasBoxProjectionApplied && SceneOptions.instance.boxProjection) {
-  //   addOBCPlugin(
-  //     material,
-  //     beforeMaterialCompile(
-  //       SceneOptions.instance.bpcemOptions.bakeScale,
-  //       SceneOptions.instance.bpcemOptions.bakePositionOffset
-  //     )
-  //   )
-  //   material.userData.hasBoxProjectionApplied = true
-  // }
-}
-
 export function setupObject(obj: Object3DWithEntity, force = false) {
   const mesh = obj as any as Mesh<any, any>
+  /** @todo do we still need this? */
+  //Lambert shader needs an empty normal map to prevent shader errors
+  // const res = 8
+  // const normalTexture = new DataTexture(getRGBArray(new Color(0.5, 0.5, 1)), res, res, RGBAFormat)
+  // normalTexture.needsUpdate = true
   mesh.traverse((child: Mesh<any, any>) => {
     if (child.material) {
       if (!child.userData) child.userData = {}
@@ -99,16 +76,22 @@ export function setupObject(obj: Object3DWithEntity, force = false) {
         const onlyEmmisive = prevMaterial.emissiveMap && !prevMaterial.map
         const prevMatEntry = unregisterMaterial(prevMaterial)
         const nuMaterial = new MeshLambertMaterial().copy(prevMaterial)
-        child.material = nuMaterial
-        child.material.color = onlyEmmisive ? new Color('white') : prevMaterial.color
-        child.material.map = prevMaterial.map ?? prevMaterial.emissiveMap
 
-        // todo: find out why leaving the envMap makes basic & lambert materials transparent here
-        child.material.envMap = null
+        // nuMaterial.normalMap = nuMaterial.normalMap ?? normalTexture
+        nuMaterial.specularMap = prevMaterial.roughnessMap ?? prevMaterial.specularIntensityMap
+
+        if (onlyEmmisive) nuMaterial.emissiveMap = prevMaterial.emissiveMap
+        else nuMaterial.map = prevMaterial.map
+
+        nuMaterial.reflectivity = prevMaterial.metalness
+        nuMaterial.envMap = prevMaterial.envMap
+        nuMaterial.vertexColors = prevMaterial.vertexColors
+
+        child.material = nuMaterial
         child.userData.lastMaterial = prevMaterial
         prevMatEntry && registerMaterial(nuMaterial, prevMatEntry.src)
       }
-      child.material.dithering = true
+      // normalTexture.dispose()
     }
   })
 }

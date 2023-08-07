@@ -24,19 +24,8 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import getImagePalette from 'image-palette-core'
-import { useEffect } from 'react'
-import React from 'react'
-import {
-  Color,
-  CompressedTexture,
-  DoubleSide,
-  Mesh,
-  MeshBasicMaterial,
-  SphereGeometry,
-  Texture,
-  Vector2,
-  Vector3
-} from 'three'
+import React, { useEffect } from 'react'
+import { Color, CompressedTexture, DoubleSide, Mesh, MeshBasicMaterial, SphereGeometry, Texture, Vector2 } from 'three'
 
 import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoader'
 import createReadableTexture from '@etherealengine/engine/src/assets/functions/createReadableTexture'
@@ -49,7 +38,6 @@ import {
   getComponent,
   removeComponent
 } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
-import { removeEntity } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
 import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import { EngineRenderer } from '@etherealengine/engine/src/renderer/WebGLRendererSystem'
 import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
@@ -66,7 +54,10 @@ import { ObjectFitFunctions } from '@etherealengine/engine/src/xrui/functions/Ob
 import { defineActionQueue, defineState, getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
 import type { WebLayer3D } from '@etherealengine/xrui'
 
-import { getAppTheme } from '../common/services/AppThemeState'
+import { CameraComponent } from '@etherealengine/engine/src/camera/components/CameraComponent'
+import { AdminClientSettingsState } from '../admin/services/Setting/ClientSettingService'
+import { AppThemeState, getAppTheme } from '../common/services/AppThemeState'
+import { AuthState } from '../user/services/AuthService'
 import { LoadingSystemState } from './state/LoadingState'
 import { createLoaderDetailView } from './ui/LoadingDetailView'
 
@@ -87,9 +78,10 @@ const LoadingUISystemState = defineState({
     )
 
     // flip inside out
-    mesh.scale.set(-1, 1, 1)
+    mesh.scale.set(-1, 1, -1)
+
     mesh.renderOrder = 1
-    Engine.instance.camera.add(mesh)
+    Engine.instance.scene.add(mesh)
     setObjectLayers(mesh, ObjectLayers.UI)
 
     return {
@@ -253,16 +245,16 @@ const execute = () => {
     })
   }
 
-  mesh.quaternion.copy(Engine.instance.camera.quaternion).invert()
+  mesh.position.copy(getComponent(Engine.instance.cameraEntity, CameraComponent).position)
+  mesh.updateMatrixWorld(true)
 
   // add a slow rotation to animate on desktop, otherwise just keep it static for VR
   // if (!getState(EngineState).joinedWorld) {
-  //   Engine.instance.camera.rotateY(world.delta * 0.35)
+  //   getComponent(Engine.instance.cameraEntity, CameraComponent).rotateY(world.delta * 0.35)
   // } else {
   //   // todo: figure out how to make this work properly for VR #7256
   // }
 
-  defaultColor.set(getAppTheme()!.textColor)
   mainThemeColor.set(ui.state.colors.alternate.value)
 
   transition.update(engineState.deltaSeconds, (opacity) => {
@@ -286,6 +278,17 @@ const execute = () => {
 }
 
 const reactor = () => {
+  const themeState = useHookstate(getMutableState(AppThemeState))
+  const themeModes = useHookstate(getMutableState(AuthState).user?.user_setting?.ornull?.themeModes)
+  const clientSettings = useHookstate(
+    getMutableState(AdminClientSettingsState)?.client?.[0]?.themeSettings?.clientSettings
+  )
+
+  useEffect(() => {
+    const theme = getAppTheme()
+    if (theme) defaultColor.set(theme!.textColor)
+  }, [themeState, themeModes, clientSettings])
+
   useEffect(() => {
     // return () => {
     //   const { ui, mesh } = getState(LoadingUISystemState)

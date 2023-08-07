@@ -27,7 +27,7 @@ Ethereal Engine. All Rights Reserved.
 import appRootPath from 'app-root-path'
 import cli from 'cli'
 import dotenv from 'dotenv-flow'
-import Sequelize, { DataTypes, Op } from 'sequelize'
+import Sequelize, { DataTypes } from 'sequelize'
 
 import { createFeathersKoaApp } from '@etherealengine/server-core/src/createApp'
 import { ServerMode } from '@etherealengine/server-core/src/ServerState'
@@ -87,9 +87,6 @@ cli.main(async () => {
       mimeType: {
         type: DataTypes.STRING,
         allowNull: true
-      },
-      staticResourceType: {
-        type: DataTypes.STRING
       },
       metadata: {
         type: DataTypes.JSON,

@@ -25,81 +25,86 @@ Ethereal Engine. All Rights Reserved.
 
 import { Downgraded } from '@hookstate/core'
 import React, { useEffect, useRef } from 'react'
+import { useDrop } from 'react-dnd'
 import { useTranslation } from 'react-i18next'
+import { saveAs } from 'save-as'
 
 import ConfirmDialog from '@etherealengine/client-core/src/common/components/ConfirmDialog'
 import LoadingView from '@etherealengine/client-core/src/common/components/LoadingView'
 import {
   FileBrowserService,
-  FileBrowserServiceReceptor,
   FileBrowserState,
   FILES_PAGE_LIMIT
 } from '@etherealengine/client-core/src/common/services/FileBrowserService'
+import { NotificationService } from '@etherealengine/client-core/src/common/services/NotificationService'
 import { uploadToFeathersService } from '@etherealengine/client-core/src/util/upload'
+import config from '@etherealengine/common/src/config'
 import { processFileName } from '@etherealengine/common/src/utils/processFileName'
-import { KTX2EncodeArguments } from '@etherealengine/engine/src/assets/constants/CompressionParms'
-import { KTX2EncodeDefaultArguments } from '@etherealengine/engine/src/assets/constants/CompressionParms'
+import { DndWrapper } from '@etherealengine/editor/src/components/dnd/DndWrapper'
 import {
   ImageConvertDefaultParms,
   ImageConvertParms
 } from '@etherealengine/engine/src/assets/constants/ImageConvertParms'
-import { MediaPrefabs } from '@etherealengine/engine/src/audio/systems/MediaSystem'
-import { ScenePrefabs } from '@etherealengine/engine/src/scene/systems/SceneObjectUpdateSystem'
 import { getMutableState, useHookstate, useState } from '@etherealengine/hyperflux'
-import { addActionReceptor, removeActionReceptor } from '@etherealengine/hyperflux'
 
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import AutorenewIcon from '@mui/icons-material/Autorenew'
-import Breadcrumbs from '@mui/material/Breadcrumbs'
-import Dialog from '@mui/material/Dialog'
-import DialogTitle from '@mui/material/DialogTitle'
-import Grid from '@mui/material/Grid'
-import Link from '@mui/material/Link'
-import MenuItem from '@mui/material/MenuItem'
-import { PopoverPosition } from '@mui/material/Popover'
-import TablePagination from '@mui/material/TablePagination'
-import Typography from '@mui/material/Typography'
+import DownloadIcon from '@mui/icons-material/Download'
+import PhotoSizeSelectActualIcon from '@mui/icons-material/PhotoSizeSelectActual'
+import VideocamIcon from '@mui/icons-material/Videocam'
+import ViewInArIcon from '@mui/icons-material/ViewInAr'
+import VolumeUpIcon from '@mui/icons-material/VolumeUp'
 
-import { prefabIcons } from '../../functions/PrefabEditors'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import Dialog from '@etherealengine/ui/src/primitives/mui/Dialog'
+import DialogTitle from '@etherealengine/ui/src/primitives/mui/DialogTitle'
+import Grid from '@etherealengine/ui/src/primitives/mui/Grid'
+import MenuItem from '@etherealengine/ui/src/primitives/mui/MenuItem'
+import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
+
+import { Breadcrumbs, Link, PopoverPosition, TablePagination } from '@mui/material'
+
+import { SupportedFileTypes } from '../../constants/AssetTypes'
 import { unique } from '../../functions/utils'
 import { ContextMenu } from '../layout/ContextMenu'
 import { ToolButton } from '../toolbar/ToolButton'
+import { AssetSelectionChangePropsType } from './AssetsPreviewPanel'
 import CompressionPanel from './CompressionPanel'
 import { FileBrowserItem } from './FileBrowserGrid'
 import { FileDataType } from './FileDataType'
 import ImageConvertPanel from './ImageConvertPanel'
 import styles from './styles.module.scss'
 
-export const PrefabFileType = {
-  gltf: ScenePrefabs.model,
-  'gltf-binary': ScenePrefabs.model,
-  glb: ScenePrefabs.model,
-  usdz: ScenePrefabs.model,
-  fbx: ScenePrefabs.model,
-  png: ScenePrefabs.image,
-  jpeg: ScenePrefabs.image,
-  jpg: ScenePrefabs.image,
-  m3u8: MediaPrefabs.video,
-  mp4: MediaPrefabs.video,
-  mpeg: MediaPrefabs.audio,
-  mp3: MediaPrefabs.audio,
-  'model/gltf-binary': ScenePrefabs.model,
-  'model/gltf': ScenePrefabs.model,
-  'model/glb': ScenePrefabs.model,
-  'model/usdz': ScenePrefabs.model,
-  'model/fbx': ScenePrefabs.model,
-  'image/png': ScenePrefabs.image,
-  'image/jpeg': ScenePrefabs.image,
-  'image/jpg': ScenePrefabs.image,
+export const FileIconType = {
+  gltf: ViewInArIcon,
+  'gltf-binary': ViewInArIcon,
+  glb: ViewInArIcon,
+  usdz: ViewInArIcon,
+  fbx: ViewInArIcon,
+  png: PhotoSizeSelectActualIcon,
+  jpeg: PhotoSizeSelectActualIcon,
+  jpg: PhotoSizeSelectActualIcon,
+  m3u8: VideocamIcon,
+  mp4: VideocamIcon,
+  mpeg: VolumeUpIcon,
+  mp3: VolumeUpIcon,
+  'model/gltf-binary': ViewInArIcon,
+  'model/gltf': ViewInArIcon,
+  'model/glb': ViewInArIcon,
+  'model/usdz': ViewInArIcon,
+  'model/fbx': ViewInArIcon,
+  'image/png': PhotoSizeSelectActualIcon,
+  'image/jpeg': PhotoSizeSelectActualIcon,
+  'image/jpg': PhotoSizeSelectActualIcon,
   'application/pdf': null,
-  'application/vnd.apple.mpegurl': MediaPrefabs.video,
-  'video/mp4': MediaPrefabs.video,
-  'audio/mpeg': MediaPrefabs.audio,
-  'audio/mp3': MediaPrefabs.audio
+  'application/vnd.apple.mpegurl': VideocamIcon,
+  'video/mp4': VideocamIcon,
+  'audio/mpeg': VolumeUpIcon,
+  'audio/mp3': VolumeUpIcon
 }
 
 type FileBrowserContentPanelProps = {
-  onSelectionChanged: (AssetSelectionChangePropsType) => void
+  onSelectionChanged: (assetSelectionChange: AssetSelectionChangePropsType) => void
   disableDnD?: boolean
   selectedFile?: string
   folderName?: string
@@ -117,7 +122,6 @@ export type FileType = {
   key: string
   name: string
   path: string
-  prefabType: string
   size: string
   type: string
   url: string
@@ -129,60 +133,34 @@ export function isFileDataType(value: any): value is FileDataType {
 
 /**
  * FileBrowserPanel used to render view for AssetsPanel.
- * @constructor
  */
 const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) => {
   const { t } = useTranslation()
+
   const anchorEl = useHookstate<null | HTMLElement>(null)
   const anchorPosition = useHookstate<undefined | PopoverPosition>(undefined)
+
   const open = Boolean(anchorEl.value)
   const isLoading = useState(true)
   const selectedDirectory = useState(
     `/${props.folderName || 'projects'}/${props.selectedFile ? props.selectedFile + '/' : ''}`
   )
-  const fileState = useHookstate(getMutableState(FileBrowserState))
-  const filesValue = fileState.files.attach(Downgraded).value
-  const { skip, total, retrieving } = fileState.value
   const fileProperties = useState<any>(null)
+
   const openProperties = useState(false)
   const openCompress = useState(false)
   const openConvert = useState(false)
-  const compressProperties = useState<KTX2EncodeArguments>(KTX2EncodeDefaultArguments)
   const convertProperties = useState<ImageConvertParms>(ImageConvertDefaultParms)
+
   const openConfirm = useState(false)
   const contentToDeletePath = useState('')
-  const contentToDeleteType = useState('')
+
+  const fileState = useHookstate(getMutableState(FileBrowserState))
+  const filesValue = fileState.files.attach(Downgraded).value
+  const { skip, total, retrieving } = fileState.value
 
   const page = skip / FILES_PAGE_LIMIT
-
-  const breadcrumbs = selectedDirectory.value
-    .slice(1, -1)
-    .split('/')
-    .map((file, index, arr) => {
-      if (arr.length - 1 == index) {
-        return (
-          <Typography key={file} style={{ fontSize: '0.9rem' }}>
-            {file}
-          </Typography>
-        )
-      } else {
-        return (
-          <Link
-            underline="hover"
-            key={file}
-            color="#5d646c"
-            style={{ fontSize: '0.9rem' }}
-            href="#"
-            onClick={() => handleClick(file)}
-          >
-            {file}
-          </Link>
-        )
-      }
-    })
-
   const files = fileState.files.value.map((file) => {
-    const prefabType = PrefabFileType[file.type]
     const isFolder = file.type === 'folder'
     const fullName = isFolder ? file.name : file.name + '.' + file.type
 
@@ -191,25 +169,23 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
       path: isFolder ? file.key.split(file.name)[0] : file.key.split(fullName)[0],
       fullName,
       isFolder,
-      prefabType,
-      Icon: prefabIcons[prefabType]
+      Icon: FileIconType[file.type]
     }
   })
 
   useEffect(() => {
-    addActionReceptor(FileBrowserServiceReceptor)
-    return () => {
-      removeActionReceptor(FileBrowserServiceReceptor)
+    if (filesValue) {
+      isLoading.set(false)
     }
-  }, [])
-
-  useEffect(() => {
-    isLoading.set(false)
   }, [filesValue])
 
   useEffect(() => {
-    FileBrowserService.fetchFiles(selectedDirectory.value)
+    refreshDirectory()
   }, [selectedDirectory.value])
+
+  const refreshDirectory = async () => {
+    await FileBrowserService.fetchFiles(selectedDirectory.value, page)
+  }
 
   const onSelect = (params: FileDataType) => {
     if (params.type !== 'folder') {
@@ -248,7 +224,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
     handleClose()
 
     await FileBrowserService.addNewFolder(`${selectedDirectory.value}New_Folder`)
-    await FileBrowserService.fetchFiles(selectedDirectory.value)
+    await refreshDirectory()
   }
 
   const dropItemsOnPanel = async (data: FileDataType | DnDFileType, dropOn?: FileDataType) => {
@@ -264,8 +240,8 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
     } else {
       await Promise.all(
         data.files.map(async (file) => {
-          // If file is directory then it's type is going to be empty string
           if (!file.type) {
+            // file is directory
             await FileBrowserService.addNewFolder(`${path}${file.name}`)
           } else {
             const name = processFileName(file.name)
@@ -279,11 +255,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
       )
     }
 
-    await onRefreshDirectory()
-  }
-
-  const onRefreshDirectory = async () => {
-    await FileBrowserService.fetchFiles(selectedDirectory.value, page)
+    await refreshDirectory()
   }
 
   const onBackDirectory = () => {
@@ -307,28 +279,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
     if (isLoading.value) return
     isLoading.set(true)
     await FileBrowserService.moveContent(oldName, newName, oldPath, newPath, isCopy)
-    await onRefreshDirectory()
-  }
-
-  const handleConfirmDelete = (contentPath: string, type: string) => {
-    contentToDeletePath.set(contentPath)
-    contentToDeleteType.set(type)
-    openConfirm.set(true)
-  }
-
-  const handleConfirmClose = () => {
-    contentToDeletePath.set('')
-    contentToDeleteType.set('')
-    openConfirm.set(false)
-  }
-
-  const deleteContent = async (): Promise<void> => {
-    if (isLoading.value) return
-    isLoading.set(true)
-    openConfirm.set(false)
-    await FileBrowserService.deleteContent(contentToDeletePath, contentToDeleteType)
-    props.onSelectionChanged({ resourceUrl: '', name: '', contentType: '' })
-    await onRefreshDirectory()
+    await refreshDirectory()
   }
 
   const pasteContent = async () => {
@@ -344,70 +295,114 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
       selectedDirectory.value,
       currentContentRef.current.isCopy
     )
-
-    await onRefreshDirectory()
+    await refreshDirectory()
   }
 
-  const currentContent = null! as { item: FileDataType; isCopy: boolean }
-  const currentContentRef = useRef(currentContent)
+  const handleConfirmDelete = (contentPath: string, type: string) => {
+    contentToDeletePath.set(contentPath)
 
-  const headGrid = {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    gap: '20px'
+    openConfirm.set(true)
   }
 
-  function handleClick(targetFolder: string) {
-    const pattern = /([^/]+)/g
-    const result = selectedDirectory.value.match(pattern)
-    if (!result) return
-    let newPath = '/'
-    for (const folder of result) {
-      if (folder != targetFolder) {
-        newPath += folder + '/'
-      } else {
-        newPath += folder + '/'
-        break
-      }
+  const handleConfirmClose = () => {
+    contentToDeletePath.set('')
+
+    openConfirm.set(false)
+  }
+
+  const deleteContent = async (): Promise<void> => {
+    if (isLoading.value) return
+    isLoading.set(true)
+    openConfirm.set(false)
+    await FileBrowserService.deleteContent(contentToDeletePath.value)
+    props.onSelectionChanged({ resourceUrl: '', name: '', contentType: '' })
+    await refreshDirectory()
+  }
+
+  const currentContentRef = useRef(null! as { item: FileDataType; isCopy: boolean })
+
+  const showDownloadButton =
+    selectedDirectory.value.slice(1).startsWith('projects/') &&
+    !['projects', 'projects/'].includes(selectedDirectory.value.slice(1))
+
+  const handleDownloadProject = async () => {
+    const url = selectedDirectory.value
+    const data = await Engine.instance.api
+      .service('archiver')
+      .get(url)
+      .catch((err: Error) => {
+        NotificationService.dispatchNotify(err.message, { variant: 'warning' })
+        return null
+      })
+    if (!data) return
+    const blob = await (await fetch(`${config.client.fileServer}/${data}`)).blob()
+
+    let fileName: string
+    if (selectedDirectory.value[selectedDirectory.value.length - 1] === '/') {
+      fileName = selectedDirectory.value.split('/').at(-2) as string
+    } else {
+      fileName = selectedDirectory.value.split('/').at(-1) as string
     }
-    selectedDirectory.set(newPath)
+
+    saveAs(blob, fileName + '.zip')
   }
 
-  return (
-    <div className={styles.fileBrowserRoot}>
-      <div style={headGrid}>
-        <ToolButton
-          tooltip={t('editor:layout.filebrowser.back')}
-          icon={ArrowBackIcon}
-          onClick={onBackDirectory}
-          id="backDir"
-        />
-        <Breadcrumbs
-          maxItems={3}
-          classes={{ separator: styles.separator, li: styles.breadcrumb }}
-          separator="›"
-          aria-label="breadcrumb"
-        >
-          {breadcrumbs}
-        </Breadcrumbs>
-        <ToolButton
-          tooltip={t('editor:layout.filebrowser.refresh')}
-          icon={AutorenewIcon}
-          onClick={onRefreshDirectory}
-          id="refreshDir"
-        />
-      </div>
+  const BreadcrumbItems = () => {
+    const handleBreadcrumbDirectoryClick = (targetFolder: string) => {
+      const pattern = /([^/]+)/g
+      const result = selectedDirectory.value.match(pattern)
+      if (!result) return
+      let newPath = '/'
+      for (const folder of result) {
+        newPath += folder + '/'
+        if (folder === targetFolder) {
+          break
+        }
+      }
+      selectedDirectory.set(newPath)
+    }
 
-      {retrieving && (
-        <LoadingView
-          className={styles.filesLoading}
-          title={t('editor:layout.filebrowser.loadingFiles')}
-          variant="body2"
-        />
-      )}
+    return (
+      <Breadcrumbs maxItems={3} classes={{ separator: styles.separator, li: styles.breadcrumb }} separator="›">
+        {selectedDirectory.value
+          .slice(1, -1)
+          .split('/')
+          .map((file, index, arr) =>
+            arr.length - 1 == index ? (
+              <Typography key={file} style={{ fontSize: '0.9rem' }}>
+                {file}
+              </Typography>
+            ) : (
+              <Link
+                underline="hover"
+                key={file}
+                color="#5d646c"
+                style={{ fontSize: '0.9rem' }}
+                onClick={() => handleBreadcrumbDirectoryClick(file)}
+              >
+                {file}
+              </Link>
+            )
+          )}
+      </Breadcrumbs>
+    )
+  }
 
-      <div onContextMenu={handleContextMenu} id="file-browser-panel" className={styles.panelContainer}>
+  const DropArea = () => {
+    const [{ isFileDropOver }, fileDropRef] = useDrop({
+      accept: [...SupportedFileTypes],
+      drop: (dropItem) => dropItemsOnPanel(dropItem as any),
+      collect: (monitor) => ({ isFileDropOver: monitor.isOver() })
+    })
+
+    return (
+      <div
+        ref={fileDropRef}
+        onContextMenu={handleContextMenu}
+        id="file-browser-panel"
+        className={styles.panelContainer}
+        style={{ border: isFileDropOver ? '3px solid #ccc' : '' }}
+      >
         <div className={styles.contentContainer}>
           {unique(files, (file) => file.key).map((file, i) => (
             <FileBrowserItem
@@ -424,6 +419,8 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
               setOpenCompress={openCompress.set}
               setOpenConvert={openConvert.set}
               dropItemsOnPanel={dropItemsOnPanel}
+              isFilesLoading={isLoading}
+              refreshDirectory={refreshDirectory}
             />
           ))}
 
@@ -440,10 +437,61 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
           )}
         </div>
       </div>
+    )
+  }
+
+  return (
+    <div className={styles.fileBrowserRoot}>
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          gap: '20px'
+        }}
+      >
+        <ToolButton
+          tooltip={t('editor:layout.filebrowser.back')}
+          icon={ArrowBackIcon}
+          onClick={onBackDirectory}
+          id="backDir"
+        />
+        <BreadcrumbItems />
+        <span>
+          <ToolButton
+            tooltip={t('editor:layout.filebrowser.refresh')}
+            icon={AutorenewIcon}
+            onClick={refreshDirectory}
+            id="refreshDir"
+          />
+          {showDownloadButton && (
+            <ToolButton
+              tooltip={t('editor:layout.filebrowser.downloadProject')}
+              onClick={handleDownloadProject}
+              icon={DownloadIcon}
+              id="downloadProject"
+            />
+          )}
+        </span>
+      </div>
+
+      {retrieving && (
+        <LoadingView
+          className={styles.filesLoading}
+          title={t('editor:layout.filebrowser.loadingFiles')}
+          variant="body2"
+        />
+      )}
+
+      <DndWrapper id="file-browser-panel">
+        <DropArea />
+      </DndWrapper>
 
       <ContextMenu open={open} anchorEl={anchorEl.value} anchorPosition={anchorPosition.value} onClose={handleClose}>
         <MenuItem onClick={createNewFolder}>{t('editor:layout.filebrowser.addNewFolder')}</MenuItem>
-        <MenuItem onClick={pasteContent}>{t('editor:layout.filebrowser.pasteAsset')}</MenuItem>
+        <MenuItem disabled={!currentContentRef.current} onClick={pasteContent}>
+          {t('editor:layout.filebrowser.pasteAsset')}
+        </MenuItem>
       </ContextMenu>
 
       {openConvert.value && fileProperties.value && (
@@ -451,7 +499,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
           openConvert={openConvert}
           fileProperties={fileProperties}
           convertProperties={convertProperties}
-          onRefreshDirectory={onRefreshDirectory}
+          onRefreshDirectory={refreshDirectory}
         />
       )}
 
@@ -459,8 +507,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
         <CompressionPanel
           openCompress={openCompress}
           fileProperties={fileProperties as any}
-          compressProperties={compressProperties}
-          onRefreshDirectory={onRefreshDirectory}
+          onRefreshDirectory={refreshDirectory}
         />
       )}
 
@@ -468,19 +515,25 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
         <Dialog
           open={openProperties.value}
           onClose={() => openProperties.set(false)}
-          aria-labelledby="alert-dialog-title"
-          aria-describedby="alert-dialog-description"
           classes={{ paper: styles.paperDialog }}
         >
-          <DialogTitle style={{ padding: '0', textTransform: 'capitalize' }} id="alert-dialog-title">
+          <DialogTitle style={{ padding: '0', textTransform: 'capitalize' }}>
             {`${fileProperties.value?.name} ${fileProperties.value?.type == 'folder' ? 'folder' : 'file'} Properties`}
           </DialogTitle>
           <Grid container spacing={3} style={{ width: '100%', margin: '0' }}>
             <Grid item xs={4} style={{ paddingLeft: '10px', paddingTop: '10px', width: '100%' }}>
-              <Typography className={styles.primatyText}>Name:</Typography>
-              <Typography className={styles.primatyText}>Type:</Typography>
-              <Typography className={styles.primatyText}>Size:</Typography>
-              <Typography className={styles.primatyText}>URL:</Typography>
+              <Typography className={styles.primatyText}>
+                {t('editor:layout.filebrowser.fileProperties.name')}
+              </Typography>
+              <Typography className={styles.primatyText}>
+                {t('editor:layout.filebrowser.fileProperties.type')}
+              </Typography>
+              <Typography className={styles.primatyText}>
+                {t('editor:layout.filebrowser.fileProperties.size')}
+              </Typography>
+              <Typography className={styles.primatyText}>
+                {t('editor:layout.filebrowser.fileProperties.url')}
+              </Typography>
             </Grid>
             <Grid item xs={8} style={{ paddingLeft: '10px', paddingTop: '10px', width: '100%' }}>
               <Typography className={styles.secondaryText}>{fileProperties.value?.name}</Typography>
@@ -493,9 +546,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
       )}
       <ConfirmDialog
         open={openConfirm.value}
-        description={`${t('editor:dialog.confirmContentDelete')} ${
-          contentToDeleteType.value == 'folder' ? t('editor:dialog.folder') : t('editor:dialog.file')
-        }?`}
+        description={`${t('editor:dialog.confirmContentDelete')} ${contentToDeletePath.value.split('/').at(-1)} ?`}
         onClose={handleConfirmClose}
         onSubmit={deleteContent}
       />

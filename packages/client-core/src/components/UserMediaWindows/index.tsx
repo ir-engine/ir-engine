@@ -33,6 +33,7 @@ import { getMutableState } from '@etherealengine/hyperflux'
 
 import { useMediaInstance } from '../../common/services/MediaInstanceConnectionService'
 import { PeerMediaChannelState, PeerMediaStreamInterface } from '../../transports/PeerMediaChannelState'
+import { AuthState } from '../../user/services/AuthService'
 import { useShelfStyles } from '../Shelves/useShelfStyles'
 import { UserMediaWindow, UserMediaWindowWidget } from '../UserMediaWindow'
 import styles from './index.module.scss'
@@ -45,10 +46,11 @@ const sortScreensBeforeCameras = (a: WindowType, b: WindowType) => {
   return 0
 }
 
-export const UserMediaWindows = () => {
+export const useMediaWindows = () => {
   const peerMediaChannelState = useHookstate(getMutableState(PeerMediaChannelState))
   const mediaNetworkInstanceState = useMediaInstance()
   const mediaNetwork = Engine.instance.mediaNetwork
+  const selfUser = useHookstate(getMutableState(AuthState).user)
   const mediaNetworkConnected = mediaNetwork && mediaNetworkInstanceState?.connected?.value
 
   const consumers = Object.entries(peerMediaChannelState.get({ noproxy: true })) as [
@@ -70,6 +72,7 @@ export const UserMediaWindows = () => {
   // reduce all userPeers to an array 'windows' of { peerID, type } objects, displaying screens first, then cams. if a user has no cameras, only include one peerID for that user
   const windows = userPeers
     .reduce((acc, [userID, peerIDs]) => {
+      const isSelfWindows = userID === selfUser.id.value
       const userCams = consumers
         .filter(([peerID, { cam, screen }]) => peerIDs.includes(peerID) && cam && camActive(cam))
         .map(([peerID]) => {
@@ -84,24 +87,31 @@ export const UserMediaWindows = () => {
 
       const userWindows = [...userScreens, ...userCams]
       if (userWindows.length) {
-        acc.push(...userWindows)
+        if (isSelfWindows) acc.unshift(...userWindows)
+        else acc.push(...userWindows)
       } else {
-        acc.push({ peerID: peerIDs[0], type: 'cam' })
+        if (isSelfWindows) acc.unshift({ peerID: peerIDs[0], type: 'cam' })
+        else acc.push({ peerID: peerIDs[0], type: 'cam' })
       }
       return acc
     }, [] as WindowType[])
     .sort(sortScreensBeforeCameras)
+    .filter(({ peerID }) => peerMediaChannelState[peerID].value)
 
+  return windows
+}
+
+export const UserMediaWindows = () => {
   const { topShelfStyle } = useShelfStyles()
+
+  const windows = useMediaWindows()
 
   return (
     <div className={`${styles.userMediaWindowsContainer} ${topShelfStyle}`}>
       <div className={styles.userMediaWindows}>
-        {windows
-          .filter(({ peerID }) => peerMediaChannelState[peerID].value)
-          .map(({ peerID, type }) => (
-            <UserMediaWindow type={type} peerID={peerID} key={type + '-' + peerID} />
-          ))}
+        {windows.map(({ peerID, type }) => (
+          <UserMediaWindow type={type} peerID={peerID} key={type + '-' + peerID} />
+        ))}
       </div>
     </div>
   )
@@ -120,7 +130,7 @@ export const UserMediaWindowsWidget = () => {
   const screens = consumers
     .filter(([peerID, { cam, screen }]) => screen?.videoStream)
     .map(([peerID]) => {
-      return { peerID, type: 'screen' as 'screen' }
+      return { peerID, type: 'screen' as const }
     })
 
   const cams = consumers
@@ -131,7 +141,7 @@ export const UserMediaWindowsWidget = () => {
           (cam.audioStream && !cam.audioProducerPaused && !cam.audioStreamPaused))
     )
     .map(([peerID]) => {
-      return { peerID, type: 'cam' as 'cam' }
+      return { peerID, type: 'cam' as const }
     })
 
   windows.push(...screens, ...cams)

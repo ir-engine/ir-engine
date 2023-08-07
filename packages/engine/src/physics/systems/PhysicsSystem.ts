@@ -28,19 +28,16 @@ import { useEffect } from 'react'
 import { Quaternion, Vector3 } from 'three'
 
 import { smootheLerpAlpha } from '@etherealengine/common/src/utils/smootheLerpAlpha'
-import { defineActionQueue, getMutableState, getState, none } from '@etherealengine/hyperflux'
+import { getMutableState, getState, none } from '@etherealengine/hyperflux'
 
-import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import { defineQuery, getComponent } from '../../ecs/functions/ComponentFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
-import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
 import { NetworkState } from '../../networking/NetworkState'
-import { ColliderComponent } from '../../scene/components/ColliderComponent'
-import { VisibleComponent } from '../../scene/components/VisibleComponent'
 import { TriggerSystem } from '../../scene/systems/TriggerSystem'
 import { TransformComponent } from '../../transform/components/TransformComponent'
+import { PhysicsSerialization } from '../PhysicsSerialization'
 import { Physics } from '../classes/Physics'
 import { CollisionComponent } from '../components/CollisionComponent'
 import {
@@ -49,7 +46,7 @@ import {
   RigidBodyKinematicPositionBasedTagComponent,
   RigidBodyKinematicVelocityBasedTagComponent
 } from '../components/RigidBodyComponent'
-import { PhysicsSerialization } from '../PhysicsSerialization'
+import { PhysicsState } from '../state/PhysicsState'
 import { ColliderHitEvent, CollisionEvents } from '../types/PhysicsTypes'
 
 export function teleportObject(entity: Entity, position: Vector3, rotation: Quaternion) {
@@ -67,16 +64,6 @@ export function teleportObject(entity: Entity, position: Vector3, rotation: Quat
     rigidbody.body.setLinvel({ x: 0, y: 0, z: 0 }, true)
     rigidbody.body.setAngvel({ x: 0, y: 0, z: 0 }, true)
   }
-}
-
-// Receptor
-export function teleportObjectReceptor(action: ReturnType<typeof WorldNetworkAction.teleportObject>) {
-  const entity = Engine.instance.getNetworkObject(action.object.ownerId, action.object.networkId)!
-  teleportObject(entity, action.position, action.rotation)
-}
-
-export const PhysicsPrefabs = {
-  collider: 'collider' as const
 }
 
 export function smoothPositionBasedKinematicBody(entity: Entity, dt: number, substep: number) {
@@ -138,15 +125,13 @@ const kinematicVelocityBodyQuery = defineQuery([
   TransformComponent
 ])
 
-const teleportObjectQueue = defineActionQueue(WorldNetworkAction.teleportObject.matches)
-
 let drainCollisions: ReturnType<typeof Physics.drainCollisionEventQueue>
 let drainContacts: ReturnType<typeof Physics.drainContactEventQueue>
 
 const execute = () => {
-  if (!Engine.instance.physicsWorld) return
-
-  for (const action of teleportObjectQueue()) teleportObjectReceptor(action)
+  const { physicsWorld, physicsCollisionEventQueue } = getState(PhysicsState)
+  if (!physicsWorld) return
+  if (!getState(EngineState).sceneLoaded) return
 
   const allRigidBodies = allRigidBodyQuery()
 
@@ -180,7 +165,7 @@ const execute = () => {
   // step physics world
   const substeps = engineState.physicsSubsteps
   const timestep = engineState.simulationTimestep / 1000 / substeps
-  Engine.instance.physicsWorld.timestep = timestep
+  physicsWorld.timestep = timestep
   // const smoothnessMultiplier = 50
   // const smoothAlpha = smoothnessMultiplier * timestep
   const kinematicPositionEntities = kinematicPositionBodyQuery()
@@ -190,9 +175,9 @@ const execute = () => {
     const substep = (i + 1) / substeps
     for (const entity of kinematicPositionEntities) smoothPositionBasedKinematicBody(entity, timestep, substep)
     for (const entity of kinematicVelocityEntities) smoothVelocityBasedKinematicBody(entity, timestep, substep)
-    Engine.instance.physicsWorld.step(Engine.instance.physicsCollisionEventQueue)
-    Engine.instance.physicsCollisionEventQueue.drainCollisionEvents(drainCollisions)
-    Engine.instance.physicsCollisionEventQueue.drainContactForceEvents(drainContacts)
+    physicsWorld.step(physicsCollisionEventQueue)
+    physicsCollisionEventQueue.drainCollisionEvents(drainCollisions)
+    physicsCollisionEventQueue.drainContactForceEvents(drainContacts)
   }
 
   /** process collisions */
@@ -240,12 +225,8 @@ const execute = () => {
 
 const reactor = () => {
   useEffect(() => {
-    Engine.instance.scenePrefabRegistry.set(PhysicsPrefabs.collider, [
-      { name: TransformComponent.jsonID },
-      { name: VisibleComponent.jsonID },
-      { name: ColliderComponent.jsonID }
-    ])
     const networkState = getMutableState(NetworkState)
+    const physicsState = getMutableState(PhysicsState)
 
     networkState.networkSchema[PhysicsSerialization.ID].set({
       read: PhysicsSerialization.readRigidBody,
@@ -253,17 +234,17 @@ const reactor = () => {
     })
 
     Physics.load().then(() => {
-      Engine.instance.physicsWorld = Physics.createWorld()
-      Engine.instance.physicsCollisionEventQueue = Physics.createCollisionEventQueue()
-      drainCollisions = Physics.drainCollisionEventQueue(Engine.instance.physicsWorld)
-      drainContacts = Physics.drainContactEventQueue(Engine.instance.physicsWorld)
+      const physicsWorld = Physics.createWorld()
+      physicsState.physicsWorld.set(physicsWorld)
+      physicsState.physicsCollisionEventQueue.set(Physics.createCollisionEventQueue())
+      drainCollisions = Physics.drainCollisionEventQueue(physicsWorld)
+      drainContacts = Physics.drainContactEventQueue(physicsWorld)
     })
 
     return () => {
-      Engine.instance.scenePrefabRegistry.delete(PhysicsPrefabs.collider)
-
-      Engine.instance.physicsWorld.free()
-      Engine.instance.physicsWorld = null!
+      const physicsWorld = getMutableState(PhysicsState).physicsWorld
+      physicsWorld.value.free()
+      physicsWorld.set(null!)
       drainCollisions = null!
       drainContacts = null!
 

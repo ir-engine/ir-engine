@@ -42,7 +42,7 @@
       "linkButton": "Link",
       "changeLinkButton": "Change Link",
       "unLinkButton": "Unlink",
-      "userInviteCode": "User's Invite Code",
+      "userInviteCode": "User's Invite Code or User ID",
       "editProjectPermissions": "Manage User Permissions on Project",
       "addUser": "Add User",
       "permissions": "Project Permissions"

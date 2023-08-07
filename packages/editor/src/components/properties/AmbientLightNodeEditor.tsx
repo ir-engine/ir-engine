@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { getComponent, useComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { useComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { AmbientLightComponent } from '@etherealengine/engine/src/scene/components/AmbientLightComponent'
 
 import Brightness7Icon from '@mui/icons-material/Brightness7'
@@ -47,7 +47,7 @@ import { EditorComponentType, updateProperty } from './Util'
 export const AmbientLightNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
 
-  const lightComponent = useComponent(props.entity, AmbientLightComponent).value
+  const lightComponent = useComponent(props.entity, AmbientLightComponent)
 
   return (
     <NodeEditor
@@ -56,7 +56,7 @@ export const AmbientLightNodeEditor: EditorComponentType = (props) => {
       description={t('editor:properties.ambientLight.description')}
     >
       <InputGroup name="Color" label={t('editor:properties.ambientLight.lbl-color')}>
-        <ColorInput value={lightComponent.color} onChange={updateProperty(AmbientLightComponent, 'color')} />
+        <ColorInput value={lightComponent.color.value} onChange={updateProperty(AmbientLightComponent, 'color')} />
       </InputGroup>
       <NumericInputGroup
         name="Intensity"
@@ -65,7 +65,7 @@ export const AmbientLightNodeEditor: EditorComponentType = (props) => {
         smallStep={0.001}
         mediumStep={0.01}
         largeStep={0.1}
-        value={lightComponent.intensity}
+        value={lightComponent.intensity.value}
         onChange={updateProperty(AmbientLightComponent, 'intensity')}
         unit="cd"
       />

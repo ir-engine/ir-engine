@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { getEntityComponents } from 'bitecs'
 import React, { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import JSONTree from 'react-json-tree'
+import { JSONTree } from 'react-json-tree'
 
 import { AvatarControllerComponent } from '@etherealengine/engine/src/avatar/components/AvatarControllerComponent'
 import { respawnAvatar } from '@etherealengine/engine/src/avatar/functions/respawnAvatar'
@@ -72,25 +72,34 @@ const convertSystemTypeToDesiredType = (system: System): DesiredType => {
     enabled: Engine.instance.activeSystems.has(system.uuid)
   }
   if (preSystems.length > 0) {
-    desired.preSystems = preSystems.reduce((acc, uuid) => {
-      acc[uuid] = convertSystemTypeToDesiredType(SystemDefinitions.get(uuid)!)
-      return acc
-    }, {} as Record<SystemUUID, DesiredType>)
+    desired.preSystems = preSystems.reduce(
+      (acc, uuid) => {
+        acc[uuid] = convertSystemTypeToDesiredType(SystemDefinitions.get(uuid)!)
+        return acc
+      },
+      {} as Record<SystemUUID, DesiredType>
+    )
   }
   if (system.uuid === RootSystemGroup) {
     desired.simulation = convertSystemTypeToDesiredType(SystemDefinitions.get(SimulationSystemGroup)!)
   }
   if (subSystems.length > 0) {
-    desired.subSystems = subSystems.reduce((acc, uuid) => {
-      acc[uuid] = convertSystemTypeToDesiredType(SystemDefinitions.get(uuid)!)
-      return acc
-    }, {} as Record<SystemUUID, DesiredType>)
+    desired.subSystems = subSystems.reduce(
+      (acc, uuid) => {
+        acc[uuid] = convertSystemTypeToDesiredType(SystemDefinitions.get(uuid)!)
+        return acc
+      },
+      {} as Record<SystemUUID, DesiredType>
+    )
   }
   if (postSystems.length > 0) {
-    desired.postSystems = postSystems.reduce((acc, uuid) => {
-      acc[uuid] = convertSystemTypeToDesiredType(SystemDefinitions.get(uuid)!)
-      return acc
-    }, {} as Record<SystemUUID, DesiredType>)
+    desired.postSystems = postSystems.reduce(
+      (acc, uuid) => {
+        acc[uuid] = convertSystemTypeToDesiredType(SystemDefinitions.get(uuid)!)
+        return acc
+      },
+      {} as Record<SystemUUID, DesiredType>
+    )
   }
   if (system.uuid === RootSystemGroup) delete desired.enabled
   return desired
@@ -200,7 +209,7 @@ export const Debug = ({ showingStateRef }) => {
   namedEntities.set(renderAllEntities())
   entityTree.set(renderEntityTreeRoots())
   return (
-    <div className={styles.debugContainer}>
+    <div className={styles.debugContainer} style={{ pointerEvents: 'all' }}>
       <div className={styles.debugOptionContainer}>
         <h1>{t('common:debug.debugOptions')}</h1>
         <div className={styles.optionBlock}>
@@ -254,8 +263,8 @@ export const Debug = ({ showingStateRef }) => {
         <h1>{t('common:debug.entityTree')}</h1>
         <JSONTree
           data={entityTree.value}
-          postprocessValue={(v) => v?.value ?? v}
-          shouldExpandNode={(keyPath, data, level) =>
+          postprocessValue={(v: any) => v?.value ?? v}
+          shouldExpandNodeInitially={(keyPath, data: any, level) =>
             !!data.components && !!data.children && typeof data.entity === 'number'
           }
         />
@@ -264,7 +273,7 @@ export const Debug = ({ showingStateRef }) => {
         <h1>{t('common:debug.state')}</h1>
         <JSONTree
           data={Engine.instance.store.stateMap}
-          postprocessValue={(v) => (v?.value && v?.get({ noproxy: true })) ?? v}
+          postprocessValue={(v: any) => (v?.value && v?.get({ noproxy: true })) ?? v}
         />
       </div>
       <div className={styles.jsonPanel}>
@@ -285,7 +294,7 @@ export const Debug = ({ showingStateRef }) => {
               <>
                 <input
                   type="checkbox"
-                  checked={value}
+                  checked={value ? true : false}
                   onChange={() => {
                     if (Engine.instance.activeSystems.has(system.uuid)) {
                       Engine.instance.activeSystems.delete(system.uuid)
@@ -297,7 +306,7 @@ export const Debug = ({ showingStateRef }) => {
               </>
             )
           }}
-          shouldExpandNode={() => true}
+          shouldExpandNodeInitially={() => true}
         />
       </div>
     </div>

@@ -23,15 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { StaticResourceVariantInterface } from '../dbmodels/StaticResourceVariant'
-
 export interface StaticResourceInterface {
   id: string
   sid: string
   key: string
   metadata: object
   mimeType: string
-  staticResourceType: string
   userId: string
   hash?: string
   project?: string
@@ -40,7 +37,7 @@ export interface StaticResourceInterface {
   licensing?: string
   tags?: string[]
   url: string
-  variants: StaticResourceVariantInterface[]
+  stats?: Record<string, any>
+  createdAt: string
+  updatedAt: string
 }
-
-export interface StaticResourceCreateInterface {}

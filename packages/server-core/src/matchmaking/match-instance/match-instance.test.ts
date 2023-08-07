@@ -28,6 +28,7 @@ import nock from 'nock'
 
 import { destroyEngine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { matchInstancePath } from '@etherealengine/engine/src/schemas/matchmaking/match-instance.schema'
+import { locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
 import { FRONTEND_SERVICE_URL } from '@etherealengine/matchmaking/src/functions'
 import { matchTicketAssignmentPath } from '@etherealengine/matchmaking/src/match-ticket-assignment.schema'
 import { matchTicketPath, MatchTicketType } from '@etherealengine/matchmaking/src/match-ticket.schema'
@@ -54,7 +55,7 @@ describe.skip('matchmaking match-instance service', () => {
   const gameMode = 'test-private-test'
   const tier = 'bronze'
 
-  const commonLocationSettings = {
+  const commonlocationSetting = {
     locationType: 'public',
     videoEnabled: false,
     audioEnabled: false
@@ -87,19 +88,19 @@ describe.skip('matchmaking match-instance service', () => {
         return { id: 'tst' + Math.random().toString() }
       })
 
-    await app.service('location').Model.destroy({
-      where: {
+    await app.service(locationPath).remove(null, {
+      query: {
         slugifiedName: `game-${gameMode}`
       }
     })
 
-    location = await app.service('location').create(
+    location = await app.service(locationPath).create(
       {
         name: `game-${gameMode}`,
         slugifiedName: `game-${gameMode}`,
         maxUsersPerInstance: 30,
         sceneId: `test/game-${gameMode}`,
-        location_settings: commonLocationSettings as any,
+        locationSetting: commonlocationSetting,
         isLobby: false,
         isFeatured: false
       } as any,
@@ -163,7 +164,7 @@ describe.skip('matchmaking match-instance service', () => {
     })
     users.length = 0
 
-    cleanupPromises.push(app.service('location').remove(location.id, {}))
+    cleanupPromises.push(app.service(locationPath).remove(location.id, {}))
 
     await Promise.all(cleanupPromises)
     return destroyEngine()

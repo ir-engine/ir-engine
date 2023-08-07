@@ -33,7 +33,7 @@ import { Entity } from '../../ecs/classes/Entity'
 import {
   defineComponent,
   getComponent,
-  hasComponent,
+  setComponent,
   useComponent,
   useOptionalComponent
 } from '../../ecs/functions/ComponentFunctions'
@@ -45,7 +45,7 @@ import { addError, clearErrors } from '../functions/ErrorFunctions'
 import { ObjectFitFunctions } from './../../xrui/functions/ObjectFitFunctions'
 import { addObjectToGroup, removeObjectFromGroup } from './../components/GroupComponent'
 import { resizeImageMesh } from './../components/ImageComponent'
-import { MediaElementComponent } from './../components/MediaComponent'
+import { MediaComponent, MediaElementComponent } from './../components/MediaComponent'
 import { UUIDComponent } from './../components/UUIDComponent'
 import { PLANE_GEO } from './ImageComponent'
 
@@ -105,6 +105,7 @@ export const VideoComponent = defineComponent({
   },
 
   onSet: (entity, component, json) => {
+    setComponent(entity, MediaComponent)
     if (!json) return
     if (typeof json.mediaUUID === 'string') component.mediaUUID.set(json.mediaUUID)
     if (typeof json.side === 'number') component.side.set(json.side)
@@ -169,7 +170,7 @@ function VideoReactor() {
       material.map.image = mediaElement.element.value as HTMLVideoElement
     } else {
       if (sourceMaterial.map) {
-        material.map = sourceMaterial.map
+        video.videoMesh.value.material = sourceMaterial
       } else {
         material.map = new VideoTexturePriorityQueue(mediaElement.element.value as HTMLVideoElement)
         VideoComponent.uniqueVideoEntities.push(mediaEntity)

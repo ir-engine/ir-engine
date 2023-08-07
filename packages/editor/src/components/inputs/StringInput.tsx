@@ -36,21 +36,21 @@ const StyledStringInput = (styled as any)(Input)`
 export interface StringInputProps {
   id?: string
   value?: string
-  onChange?: Function
+  onChange?: (value: string, e?: any) => void
   required?: boolean
   pattern?: string
   title?: string
   error?: boolean
   canDrop?: boolean
-  onFocus?: Function
-  onBlur?: Function
-  onKeyUp?: Function
+  onFocus?: () => void
+  onBlur?: () => void
+  onKeyUp?: (e: KeyboardEvent) => void
   type?: string
   placeholder?: string
   disabled?: boolean
 }
 
-const StringInput = React.forwardRef<{}, StringInputProps>(({ onChange, ...rest }, ref) => (
+const StringInput = React.forwardRef<any, StringInputProps>(({ onChange, ...rest }, ref) => (
   <StyledStringInput onChange={(e) => onChange?.(e.target.value, e)} {...rest} ref={ref} />
 ))
 
@@ -70,7 +70,7 @@ const DropContainer = (styled as any).div`
   width: 100%;
 `
 
-export const ControlledStringInput = React.forwardRef<{}, StringInputProps>((values, ref) => {
+export const ControlledStringInput = React.forwardRef<any, StringInputProps>((values, ref) => {
   const { onChange, value, ...rest } = values
   const inputRef = useRef<HTMLInputElement>()
 
@@ -87,7 +87,7 @@ export const ControlledStringInput = React.forwardRef<{}, StringInputProps>((val
   }, [value])
 
   const onBlur = useCallback(() => {
-    onChange?.(tempValue)
+    onChange?.(tempValue!)
   }, [onChange, tempValue])
 
   const onChangeValue = useCallback(

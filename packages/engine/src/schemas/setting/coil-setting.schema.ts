@@ -23,9 +23,9 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-// // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
-import { querySyntax, Type } from '@feathersjs/typebox'
+// For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
 import type { Static } from '@feathersjs/typebox'
+import { querySyntax, Type } from '@feathersjs/typebox'
 
 export const coilSettingPath = 'coil-setting'
 

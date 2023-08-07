@@ -86,11 +86,10 @@ const ResourceTable = ({ className, search }: Props) => {
       id: el.id,
       key: el.key,
       mimeType: el.mimeType,
-      staticResourceType: el.staticResourceType,
+      project: el.project,
       action: (
         <>
           <a
-            href="#"
             className={styles.actionStyle}
             onClick={() => {
               resourceData.set(el)
@@ -100,7 +99,6 @@ const ResourceTable = ({ className, search }: Props) => {
             <span className={styles.spanWhite}>{t('admin:components.common.view')}</span>
           </a>
           <a
-            href="#"
             className={styles.actionStyle}
             onClick={() => {
               resourceId.set(el.id)

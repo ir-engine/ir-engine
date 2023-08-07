@@ -27,15 +27,13 @@ import { Paginated } from '@feathersjs/feathers'
 
 import { AdminBot, CreateBotAsAdmin } from '@etherealengine/common/src/interfaces/AdminBot'
 import multiLogger from '@etherealengine/common/src/logger'
-import { matches, Validator } from '@etherealengine/engine/src/common/functions/MatchesUtils'
-import { defineAction, defineState, dispatchAction, getMutableState } from '@etherealengine/hyperflux'
+import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { defineState, getMutableState } from '@etherealengine/hyperflux'
 
-import { API } from '../../API'
-import { AuthState } from '../../user/services/AuthService'
+import { userIsAdmin } from '../../user/userHasAccess'
 
 const logger = multiLogger.child({ component: 'client-core:BotsService' })
 
-//State
 export const BOTS_PAGE_LIMIT = 100
 
 export const AdminBotState = defineState({
@@ -52,56 +50,21 @@ export const AdminBotState = defineState({
   })
 })
 
-const fetchedBotReceptor = (action: typeof AdminBotsActions.fetchedBot.matches._TYPE) => {
-  const state = getMutableState(AdminBotState)
-  return state.merge({
-    bots: action.bots.data,
-    retrieving: false,
-    fetched: true,
-    updateNeeded: false,
-    lastFetched: Date.now()
-  })
-}
-
-const botCreatedReceptor = (action: typeof AdminBotsActions.botCreated.matches._TYPE) => {
-  const state = getMutableState(AdminBotState)
-  return state.merge({ updateNeeded: true })
-}
-
-const botPatchedReceptor = (action: typeof AdminBotsActions.botPatched.matches._TYPE) => {
-  const state = getMutableState(AdminBotState)
-  return state.merge({ updateNeeded: true })
-}
-
-const botRemovedReceptor = (action: typeof AdminBotsActions.botRemoved.matches._TYPE) => {
-  const state = getMutableState(AdminBotState)
-  return state.merge({ updateNeeded: true })
-}
-
-export const AdminBotServiceReceptors = {
-  fetchedBotReceptor,
-  botCreatedReceptor,
-  botPatchedReceptor,
-  botRemovedReceptor
-}
-
-//Service
 export const AdminBotService = {
   createBotAsAdmin: async (data: CreateBotAsAdmin) => {
     try {
-      const bot = await API.instance.client.service('bot').create(data)
-      dispatchAction(AdminBotsActions.botCreated({ bot }))
+      await Engine.instance.api.service('bot').create(data)
+      getMutableState(AdminBotState).merge({ updateNeeded: true })
     } catch (error) {
       logger.error(error)
     }
   },
   fetchBotAsAdmin: async (incDec?: 'increment' | 'decrement') => {
     try {
-      const user = getMutableState(AuthState).user
       const skip = getMutableState(AdminBotState).skip.value
       const limit = getMutableState(AdminBotState).limit.value
-      if (user.scopes?.value?.find((scope) => scope.type === 'admin:admin')) {
-        const bots = (await API.instance.client.service('bot').find({
+      if (userIsAdmin()) {
+        const bots = (await Engine.instance.api.service('bot').find({
           query: {
             $sort: {
               name: 1
@@ -111,7 +74,13 @@ export const AdminBotService = {
             action: 'admin'
           }
         })) as Paginated<AdminBot>
-        dispatchAction(AdminBotsActions.fetchedBot({ bots }))
+        getMutableState(AdminBotState).merge({
+          bots: bots.data,
+          retrieving: false,
+          fetched: true,
+          updateNeeded: false,
+          lastFetched: Date.now()
+        })
       }
     } catch (error) {
       logger.error(error)
@@ -119,37 +88,18 @@ export const AdminBotService = {
   },
   removeBots: async (id: string) => {
     try {
-      const bot = (await API.instance.client.service('bot').remove(id)) as AdminBot
-      dispatchAction(AdminBotsActions.botRemoved({ bot }))
+      await Engine.instance.api.service('bot').remove(id)
+      getMutableState(AdminBotState).merge({ updateNeeded: true })
     } catch (error) {
       logger.error(error)
     }
   },
   updateBotAsAdmin: async (id: string, bot: CreateBotAsAdmin) => {
     try {
-      const result = (await API.instance.client.service('bot').patch(id, bot)) as AdminBot
-      dispatchAction(AdminBotsActions.botPatched({ bot: result }))
+      await Engine.instance.api.service('bot').patch(id, bot)
+      getMutableState(AdminBotState).merge({ updateNeeded: true })
     } catch (error) {
       logger.error(error)
     }
   }
-}
-//Action
-export class AdminBotsActions {
-  static fetchedBot = defineAction({
-    type: 'ee.client.AdminBots.BOT_ADMIN_DISPLAY' as const,
-    bots: matches.object as Validator<unknown, Paginated<AdminBot>>
-  })
-  static botCreated = defineAction({
-    type: 'ee.client.AdminBots.BOT_ADMIN_CREATE' as const,
-    bot: matches.object as Validator<unknown, AdminBot>
-  })
-  static botRemoved = defineAction({
-    type: 'ee.client.AdminBots.BOT_ADMIN_REMOVE' as const,
-    bot: matches.object as Validator<unknown, AdminBot>
-  })
-  static botPatched = defineAction({
-    type: 'ee.client.AdminBots.BOT_ADMIN_UPDATE' as const,
-    bot: matches.object as Validator<unknown, AdminBot>
-  })
 }

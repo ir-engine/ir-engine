@@ -27,9 +27,10 @@ import { Types } from 'bitecs'
 import { Euler, Matrix4, Quaternion, Vector3 } from 'three'
 
 import { DeepReadonly } from '@etherealengine/common/src/DeepReadonly'
+import { getMutableState } from '@etherealengine/hyperflux'
 
 import { proxifyQuaternionWithDirty, proxifyVector3WithDirty } from '../../common/proxies/createThreejsProxy'
-import { Engine } from '../../ecs/classes/Engine'
+import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity, UndefinedEntity } from '../../ecs/classes/Entity'
 import {
   defineComponent,
@@ -58,6 +59,8 @@ export const TransformSchema = {
   rotation: QuaternionSchema,
   scale: Vector3Schema
 }
+
+const matrix = new Matrix4()
 
 export const TransformComponent = defineComponent({
   name: 'TransformComponent',
@@ -102,11 +105,17 @@ export const TransformComponent = defineComponent({
     if (rotation) component.rotation.value.copy(rotation)
     if (json.scale) component.scale.value.copy(json.scale)
 
+    component.matrix.value.compose(component.position.value, component.rotation.value, component.scale.value)
+    component.matrixInverse.value.copy(component.matrix.value).invert()
+
     const localTransform = getOptionalComponent(entity, LocalTransformComponent)
     if (localTransform) {
-      localTransform.position.copy(component.position.value)
-      localTransform.rotation.copy(component.rotation.value)
-      localTransform.scale.copy(component.scale.value)
+      const parentEntity = localTransform.parentEntity
+      const parentTransform = getOptionalComponent(parentEntity, TransformComponent)
+      if (parentTransform) {
+        const localMatrix = matrix.copy(component.matrix.value).premultiply(parentTransform.matrixInverse)
+        localMatrix.decompose(localTransform.position, localTransform.rotation, localTransform.scale)
+      }
     }
   },
 
@@ -154,6 +163,8 @@ export const LocalTransformComponent = defineComponent({
 
     if (entity === parentEntity!) throw new Error('Tried to parent entity to self - this is not allowed')
     if (!hasComponent(entity, TransformComponent)) setComponent(entity, TransformComponent)
+
+    getMutableState(EngineState).transformsNeedSorting.set(true)
 
     component.parentEntity.set(parentEntity)
 

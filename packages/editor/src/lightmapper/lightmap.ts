@@ -23,12 +23,11 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Mesh, MeshStandardMaterial, Object3D, Scene, WebGLRenderer } from 'three'
+import { Mesh, MeshStandardMaterial, Object3D, WebGLRenderer } from 'three'
 
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import iterateObject3D from '@etherealengine/engine/src/scene/util/iterateObject3D'
 
-import { isAncestor } from '../functions/getDetachedObjectsRoots'
 import { runBakingPasses } from './bake'
 import { withLightScene } from './lightScene'
 import { initializeWorkbench, LIGHTMAP_READONLY_FLAG, WorkbenchSettings } from './workbench'

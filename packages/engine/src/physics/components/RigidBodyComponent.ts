@@ -26,10 +26,11 @@ Ethereal Engine. All Rights Reserved.
 import { RigidBody, RigidBodyType } from '@dimforge/rapier3d-compat'
 import { Types } from 'bitecs'
 
+import { getState } from '@etherealengine/hyperflux'
 import { proxifyQuaternion, proxifyVector3 } from '../../common/proxies/createThreejsProxy'
-import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { defineComponent, getComponent, removeComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
+import { PhysicsState } from '../state/PhysicsState'
 
 const { f64 } = Types
 const Vector3Schema = { x: f64, y: f64, z: f64 }
@@ -73,7 +74,7 @@ export const RigidBodyComponent = defineComponent({
   },
 
   onRemove: (entity, component) => {
-    const world = Engine.instance.physicsWorld
+    const world = getState(PhysicsState).physicsWorld
     const rigidBody = component.body.value
     if (rigidBody) {
       const RigidBodyTypeTagComponent = getTagComponentForRigidBody(rigidBody.bodyType())

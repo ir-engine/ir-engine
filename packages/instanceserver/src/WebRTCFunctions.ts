@@ -23,6 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import detect from 'detect-port'
 import { createWorker } from 'mediasoup'
 import {
   DataConsumer,
@@ -42,8 +43,8 @@ import {
 import os from 'os'
 import { Spark } from 'primus'
 
+import { ChannelID } from '@etherealengine/common/src/interfaces/ChannelUser'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
-import { DataChannelType } from '@etherealengine/engine/src/networking/classes/Network'
 import { MessageTypes } from '@etherealengine/engine/src/networking/enums/MessageTypes'
 import {
   dataChannelRegistry,
@@ -57,6 +58,7 @@ import multiLogger from '@etherealengine/server-core/src/ServerLogger'
 import { ServerState } from '@etherealengine/server-core/src/ServerState'
 import { WebRtcTransportParams } from '@etherealengine/server-core/src/types/WebRtcTransportParams'
 
+import { DataChannelType } from '@etherealengine/common/src/interfaces/DataChannelType'
 import { InstanceServerState } from './InstanceServerState'
 import { getUserIdFromPeerID } from './NetworkFunctions'
 import {
@@ -68,12 +70,23 @@ import {
 
 const logger = multiLogger.child({ component: 'instanceserver:webrtc' })
 
+const portsInUse: number[] = []
+
+const getNewOffset = async (ipAddress, startPort, i, offset) => {
+  const inUse = await detect(startPort + i + offset, ipAddress)
+  if (inUse !== startPort + i + offset || portsInUse.indexOf(startPort + i + offset) >= 0)
+    return getNewOffset(ipAddress, startPort, i, offset + 1)
+  else return offset
+}
+
 export async function startWebRTC() {
   logger.info('Starting WebRTC Server.')
   // Initialize roomstate
   const cores = os.cpus()
-  const routers = { instance: [] } as { instance: Router[]; [channelTypeAndChannelID: string]: Router[] }
+  const routers = { instance: [] } as { instance: Router[]; [channelID: ChannelID]: Router[] }
   const workers = [] as Worker[]
+  //This is used in case ports in the range to use are in use by something else
+  let offset = 0
   for (let i = 0; i < cores.length; i++) {
     const newWorker = await createWorker({
       logLevel: 'debug',
@@ -85,7 +98,14 @@ export async function startWebRTC() {
     })
 
     const webRtcServerOptions = JSON.parse(JSON.stringify(localConfig.mediasoup.webRtcServerOptions))
-    for (const listenInfo of webRtcServerOptions.listenInfos) listenInfo.port += i
+    offset = await getNewOffset(
+      webRtcServerOptions.listenInfos[0].ipAddress,
+      webRtcServerOptions.listenInfos[0].port,
+      i,
+      offset
+    )
+    for (const listenInfo of webRtcServerOptions.listenInfos) listenInfo.port += i + offset
+    portsInUse.push(webRtcServerOptions.listenInfos[0].port)
     newWorker.appData.webRtcServer = await newWorker.createWebRtcServer(webRtcServerOptions)
 
     newWorker.on('died', (err) => {
@@ -142,7 +162,6 @@ export const createOutgoingDataProducer = async (network: SocketWebRTCServerNetw
  * @param spark
  * @param selfPeerID
  * @param userIds
- * @param channelType
  * @param channelId
  */
 export const sendCurrentProducers = async (
@@ -150,8 +169,7 @@ export const sendCurrentProducers = async (
   spark: Spark,
   selfPeerID: PeerID,
   userIds: string[],
-  channelType: string,
-  channelId?: string
+  channelId?: ChannelID
 ): Promise<void> => {
   for (const [peerID, client] of network.peers) {
     if (
@@ -163,7 +181,7 @@ export const sendCurrentProducers = async (
       continue
 
     for (const [dataChannel, peerMedia] of Object.entries(client.media)) {
-      if (peerMedia.channelType !== channelType || peerMedia.channelId !== channelId || peerMedia.paused) continue
+      if (peerMedia.channelId !== channelId || peerMedia.paused) continue
       // logger.info(`Sending producer ${peerMedia.producerId} to peer "${peerID}".`)
       spark.write({
         type: MessageTypes.WebRTCCreateProducer.toString(),
@@ -171,7 +189,6 @@ export const sendCurrentProducers = async (
           peerID,
           mediaTag: dataChannel,
           producerId: peerMedia.producerId,
-          channelType,
           channelId
         }
       })
@@ -206,7 +223,7 @@ export const handleWebRtcConsumeData = async (
     return logger.info('Data consumer already exists for label: ' + label)
   }
 
-  const newTransport = peer.instanceRecvTransport as Transport
+  const newTransport = peer.recvTransport as Transport
   if (!newTransport) {
     return spark.write({ type: MessageTypes.WebRTCConsumeData.toString(), data: { error: 'transport did not exist' } })
   }
@@ -338,26 +355,24 @@ export async function closeConsumer(network: SocketWebRTCServerNetwork, consumer
 
 export async function createWebRtcTransport(
   network: SocketWebRTCServerNetwork,
-  { peerID, direction, sctpCapabilities, channelType, channelId }: WebRtcTransportParams
+  { peerID, direction, sctpCapabilities, channelId }: WebRtcTransportParams
 ): Promise<WebRtcTransport> {
   const { listenIps, initialAvailableOutgoingBitrate } = localConfig.mediasoup.webRtcTransport
   const mediaCodecs = localConfig.mediasoup.router.mediaCodecs as RtpCodecCapability[]
-  if (channelType !== 'instance') {
-    if (!network.routers[`${channelType}:${channelId}`]) {
-      network.routers[`${channelType}:${channelId}`] = [] as any
+  if (channelId) {
+    if (!network.routers[channelId]) {
+      network.routers[channelId] = [] as any
       await Promise.all(
         network.workers.map(async (worker) => {
           const newRouter = await worker.createRouter({ mediaCodecs, appData: { worker } })
-          network.routers[`${channelType}:${channelId}`].push(newRouter)
+          network.routers[channelId].push(newRouter)
           return Promise.resolve()
         })
       )
     }
-    logger.info(`Worker created router for channel ${channelType}:${channelId}`)
+    logger.info(`Worker created router for channel ${channelId}`)
   }
-
-  const routerList =
-    channelType === 'instance' && !channelId ? network.routers.instance : network.routers[`${channelType}:${channelId}`]
+  const routerList = channelId ? network.routers[channelId] : network.routers.instance
 
   const dumps: any = await Promise.all(routerList.map(async (item) => await item.dump()))
   const sortedDumps = dumps.sort((a, b) => a.transportIds.length - b.transportIds.length)
@@ -376,7 +391,7 @@ export async function createWebRtcTransport(
     enableSctp: true,
     numSctpStreams: sctpCapabilities.numStreams,
     initialAvailableOutgoingBitrate: initialAvailableOutgoingBitrate,
-    appData: { peerID, channelType, channelId, clientDirection: direction }
+    appData: { peerID, channelId, clientDirection: direction }
   })
 }
 
@@ -414,22 +429,16 @@ export async function handleWebRtcTransportCreate(
   messageId: string
 ): Promise<any> {
   try {
-    const { direction, sctpCapabilities, channelType, channelId } = Object.assign(data)
+    const { direction, sctpCapabilities, channelId } = Object.assign(data)
 
     const existingTransports = network.mediasoupTransports.filter(
-      (t) =>
-        t.appData.peerID === peerID &&
-        t.appData.direction === direction &&
-        (channelType === 'instance'
-          ? t.appData.channelType === 'instance'
-          : t.appData.channelType === channelType && t.appData.channelId === channelId)
+      (t) => t.appData.peerID === peerID && t.appData.direction === direction && t.appData.channelId === channelId
     )
     await Promise.all(existingTransports.map((t) => closeTransport(network, t)))
     const newTransport: WebRtcTransport = await createWebRtcTransport(network, {
       peerID: peerID,
       direction,
       sctpCapabilities,
-      channelType,
       channelId
     })
 
@@ -446,17 +455,9 @@ export async function handleWebRtcTransportCreate(
 
     // Distinguish between send and create transport of each client w.r.t producer and consumer (data or mediastream)
     if (direction === 'recv') {
-      if (channelType === 'instance' && network.peers.has(peerID)) {
-        network.peers.get(peerID)!.instanceRecvTransport = newTransport
-      } else if (channelType !== 'instance' && channelId) {
-        network.peers.get(peerID)!.channelRecvTransport = newTransport
-      }
+      if (network.peers.has(peerID)) network.peers.get(peerID)!.recvTransport = newTransport
     } else if (direction === 'send') {
-      if (channelType === 'instance' && network.peers.has(peerID)) {
-        network.peers.get(peerID)!.instanceSendTransport = newTransport
-      } else if (channelType !== 'instance' && channelId && network.peers.has(peerID)) {
-        network.peers.get(peerID)!.channelSendTransport = newTransport
-      }
+      if (network.peers.has(peerID)) network.peers.get(peerID)!.sendTransport = newTransport
     }
 
     const { id, iceParameters, iceCandidates, dtlsParameters } = newTransport
@@ -496,7 +497,7 @@ export async function handleWebRtcTransportCreate(
     newTransport.observer.on('dtlsstatechange', (dtlsState) => {
       if (dtlsState === 'closed') closeTransport(network, newTransport as unknown as WebRTCTransportExtension)
     })
-    // newTransport.observer.on('newproducer', sendNewProducer(network, spark, peerID, channelType, channelId) as any)
+    // newTransport.observer.on('newproducer', sendNewProducer(network, spark, peerID, channelId) as any)
     spark.write({
       type: MessageTypes.WebRTCTransportCreate.toString(),
       data: { transportOptions: clientTransportOptions },
@@ -522,7 +523,6 @@ export async function handleWebRtcProduceData(
   messageId?: string
 ): Promise<any> {
   try {
-    console.log('webRTCProduceData')
     const userId = getUserIdFromPeerID(network, peerID)
     if (!userId) {
       logger.info('userId could not be found for sparkID ' + peerID)
@@ -748,7 +748,7 @@ export async function handleWebRtcSendTrack(
       appData: newProducerAppData
     })) as unknown as ProducerExtension
 
-    const routers = network.routers[`${appData.channelType}:${appData.channelId}`]
+    const routers = network.routers[appData.channelId]
     const currentRouter = routers.find((router) => router.id === transport?.internal.routerId)!
 
     await Promise.all(
@@ -776,7 +776,6 @@ export async function handleWebRtcSendTrack(
         producerId: producer.id,
         globalMute: false,
         encodings: rtpParameters.encodings as any,
-        channelType: appData.channelType,
         channelId: appData.channelId
       }
     }
@@ -788,7 +787,6 @@ export async function handleWebRtcSendTrack(
             peerID,
             mediaTag: appData.mediaTag,
             producerId: producer.id,
-            channelType: appData.channelType,
             channelId: appData.channelId
           }
         })
@@ -809,8 +807,7 @@ type HandleWebRtcReceiveTrackData = {
   mediaPeerId: PeerID
   mediaTag: MediaTagType
   rtpCapabilities: any
-  channelType: string
-  channelId: string
+  channelId: ChannelID
 }
 
 export async function handleWebRtcReceiveTrack(
@@ -820,29 +817,20 @@ export async function handleWebRtcReceiveTrack(
   data: HandleWebRtcReceiveTrackData,
   messageId: string
 ): Promise<any> {
-  const { mediaPeerId, mediaTag, rtpCapabilities, channelType, channelId } = data
+  const { mediaPeerId, mediaTag, rtpCapabilities, channelId } = data
   const producer = network.producers.find(
-    (p) =>
-      p.appData.mediaTag === mediaTag &&
-      p.appData.peerID === mediaPeerId &&
-      (channelType === 'instance'
-        ? p.appData.channelType === channelType
-        : p.appData.channelType === channelType && p.appData.channelId === channelId)
+    (p) => p.appData.mediaTag === mediaTag && p.appData.peerID === mediaPeerId && p.appData.channelId === channelId
   )
 
   const transport = Object.values(network.mediasoupTransports).find(
     (t) =>
       t.appData.peerID === peerID &&
       t.appData.clientDirection === 'recv' &&
-      (channelType === 'instance'
-        ? t.appData.channelType === channelType
-        : t.appData.channelType === channelType && t.appData.channelId === channelId) &&
+      t.appData.channelId === channelId &&
       !t.closed
   )!
   // @todo: the 'any' cast here is because WebRtcTransport.internal is protected - we should see if this is the proper accessor
-  const router = network.routers[`${channelType}:${channelId}`].find(
-    (router) => router.id === transport?.internal.routerId
-  )
+  const router = network.routers[channelId].find((router) => router.id === transport?.internal.routerId)
   if (!producer || !router || !router.canConsume({ producerId: producer.id, rtpCapabilities })) {
     const msg = `Client cannot consume ${mediaPeerId}:${mediaTag}, ${producer?.id}`
     logger.error(`recv-track: ${peerID} ${msg}`)
@@ -855,7 +843,7 @@ export async function handleWebRtcReceiveTrack(
         producerId: producer.id,
         rtpCapabilities,
         paused: true, // see note above about always starting paused
-        appData: { peerID, mediaPeerId, mediaTag, channelType: channelType, channelId: channelId }
+        appData: { peerID, mediaPeerId, mediaTag, channelId }
       })) as unknown as ConsumerExtension
 
       // we need both 'transportclose' and 'producerclose' event handlers,
@@ -974,9 +962,24 @@ export async function handleWebRtcConsumerSetLayers(
 ): Promise<any> {
   const { consumerId, spatialLayer } = data
   const consumer = network.consumers.find((c) => c.id === consumerId)!
+  if (!consumer)
+    return spark.write({
+      type: MessageTypes.WebRTCConsumerSetLayers.toString(),
+      data: { layersSet: false },
+      id: messageId
+    })
   logger.info('consumer-set-layers: %o, %o', spatialLayer, consumer.appData)
-  await consumer.setPreferredLayers({ spatialLayer })
-  spark.write({ type: MessageTypes.WebRTCConsumerSetLayers.toString(), data: { layersSet: true }, id: messageId })
+  try {
+    await consumer.setPreferredLayers({ spatialLayer })
+    spark.write({ type: MessageTypes.WebRTCConsumerSetLayers.toString(), data: { layersSet: true }, id: messageId })
+  } catch (err) {
+    logger.warn(err)
+    return spark.write({
+      type: MessageTypes.WebRTCConsumerSetLayers.toString(),
+      data: { layersSet: false },
+      id: messageId
+    })
+  }
 }
 
 export async function handleWebRtcResumeProducer(
@@ -1047,8 +1050,8 @@ export async function handleWebRtcRequestCurrentProducers(
   data,
   messageId: string
 ): Promise<any> {
-  const { userIds, channelType, channelId } = data
-  await sendCurrentProducers(network, spark, peerID, userIds || [], channelType, channelId)
+  const { userIds, channelId } = data
+  await sendCurrentProducers(network, spark, peerID, userIds || [], channelId)
   spark.write({ type: MessageTypes.WebRTCRequestCurrentProducers.toString(), data: { requested: true }, id: messageId })
 }
 
@@ -1059,16 +1062,17 @@ export async function handleWebRtcInitializeRouter(
   data,
   messageId: string
 ): Promise<any> {
-  const { channelType, channelId } = data
-  if (!(channelType === 'instance' && !channelId)) {
+  const { channelId } = data
+  // @todo replace with if (isChannel)
+  if (channelId) {
     const mediaCodecs = localConfig.mediasoup.router.mediaCodecs as RtpCodecCapability[]
-    if (!network.routers[`${channelType}:${channelId}`]) {
+    if (!network.routers[channelId]) {
       logger.info(`Making new routers for channelId "${channelId}".`)
-      network.routers[`${channelType}:${channelId}`] = []
+      network.routers[channelId] = []
       await Promise.all(
         network.workers.map(async (worker) => {
           const newRouter = await worker.createRouter({ mediaCodecs, appData: { worker } })
-          network.routers[`${channelType}:${channelId}`].push(newRouter)
+          network.routers[channelId].push(newRouter)
         })
       )
     }

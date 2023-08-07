@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React, { ReactNode } from 'react'
+import React from 'react'
 
 import { FormGroupProps, FormGroup as MuiFormGroup } from '@mui/material'
 

@@ -64,9 +64,12 @@ const ServerTable = ({ selectedCard }: Props) => {
 
   useEffect(() => {
     if (autoRefresh.value !== '0') {
-      const interval = setInterval(() => {
-        handleRefreshServerInfo()
-      }, parseInt(autoRefresh.value) * 1000)
+      const interval = setInterval(
+        () => {
+          handleRefreshServerInfo()
+        },
+        parseInt(autoRefresh.value) * 1000
+      )
       intervalTimer.set(interval)
       return () => {
         if (interval) clearInterval(interval) // This represents the unmount function, in which you need to clear your interval to prevent memory leaks.
@@ -88,7 +91,6 @@ const ServerTable = ({ selectedCard }: Props) => {
       restarts: el.containers.map((item) => item.restarts).join(', '),
       instanceId: el.instanceId ? (
         <a
-          href="#"
           className={styles.actionStyle}
           onClick={() =>
             window.open(
@@ -124,14 +126,12 @@ const ServerTable = ({ selectedCard }: Props) => {
       action: (
         <div style={{ float: 'right' }}>
           <a
-            href="#"
             className={styles.actionStyle}
             onClick={() => ServerLogsService.fetchServerLogs(el.name, el.containers[el.containers.length - 1].name)}
           >
             <span className={styles.spanWhite}>{t('admin:components.server.logs')}</span>
           </a>
           <a
-            href="#"
             className={styles.actionStyle}
             onClick={() => {
               selectedPod.set(el)

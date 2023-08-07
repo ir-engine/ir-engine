@@ -31,14 +31,11 @@ import { AdminClientSettingsState } from '@etherealengine/client-core/src/admin/
 import styles from '@etherealengine/client-core/src/admin/styles/admin.module.scss'
 import MetaTags from '@etherealengine/client-core/src/common/components/MetaTags'
 import { NotificationService } from '@etherealengine/client-core/src/common/services/NotificationService'
-import { UserMenu } from '@etherealengine/client-core/src/user/components/UserMenu'
 import ProfileMenu from '@etherealengine/client-core/src/user/components/UserMenu/menus/ProfileMenu'
-import SettingMenu from '@etherealengine/client-core/src/user/components/UserMenu/menus/SettingMenu'
 import {
   PopupMenuServiceReceptor,
   PopupMenuState
 } from '@etherealengine/client-core/src/user/components/UserMenu/PopupMenuService'
-import { AvatarServiceReceptor } from '@etherealengine/client-core/src/user/services/AvatarService'
 import { UserMenus } from '@etherealengine/client-core/src/user/UserUISystem'
 import config from '@etherealengine/common/src/config'
 import { addActionReceptor, getMutableState, removeActionReceptor, useHookstate } from '@etherealengine/hyperflux'
@@ -59,10 +56,8 @@ export const HomePage = (): any => {
 
     openMenu.set(UserMenus.Profile)
 
-    addActionReceptor(AvatarServiceReceptor)
     addActionReceptor(PopupMenuServiceReceptor)
     return () => {
-      removeActionReceptor(AvatarServiceReceptor)
       removeActionReceptor(PopupMenuServiceReceptor)
     }
   }, [])
@@ -107,7 +102,7 @@ export const HomePage = (): any => {
                 <span>{clientSetting.appDescription}</span>
               </Trans>
             )}
-            {clientSetting.homepageLinkButtonEnabled && (
+            {Boolean(clientSetting.homepageLinkButtonEnabled) && (
               <Button
                 className={styles.gradientButton + ' ' + styles.forceVaporwave}
                 autoFocus

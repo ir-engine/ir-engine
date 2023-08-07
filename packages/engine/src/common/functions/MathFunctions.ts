@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Euler, EulerOrder, Quaternion, Vector3 } from 'three'
+import { Quaternion, Vector3 } from 'three'
 
 export const Deg2Rad = (Math.PI * 2) / 360
 export const Rad2Deg = 1 / Deg2Rad
@@ -96,7 +96,7 @@ const RND_BASIS = 0x100000000
  * @param seed Seed
  * @returns Function to generate pseudo random numbers.
  */
-export function createPseudoRandom(seed: number): Function {
+export function createPseudoRandom(seed: number) {
   let _seed = seed || Math.random() * RND_BASIS
 
   return () => {
@@ -286,7 +286,7 @@ export function SeedRandom(seed) {
 }
 
 export function stringHash(str: string) {
-  var hash = 0,
+  let hash = 0,
     i,
     chr
   if (str.length === 0) return hash

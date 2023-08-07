@@ -34,7 +34,7 @@ import {
   NormalBlending,
   SubtractiveBlending
 } from 'three'
-import { BurstParameters, RenderMode } from 'three.quarks/dist/three.quarks'
+import { BurstParameters, RenderMode } from 'three.quarks'
 
 import { useComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import {

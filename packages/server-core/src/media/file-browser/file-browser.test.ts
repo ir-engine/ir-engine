@@ -23,12 +23,10 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Paginated } from '@feathersjs/feathers'
 import assert from 'assert'
 import fs from 'fs'
 import path from 'path/posix'
 
-import { StaticResourceInterface } from '@etherealengine/common/src/interfaces/StaticResourceInterface'
 import { destroyEngine } from '@etherealengine/engine/src/ecs/classes/Engine'
 
 import { Application } from '../../../declarations'
@@ -348,12 +346,12 @@ describe('file browser service', () => {
 
       result.forEach((r) => assert(r === true))
 
-      const staticResource = (await app.service('static-resource').find({
+      const staticResource = await app.service('static-resource').find({
         query: {
           key: filePath,
           $limit: 1
         }
-      })) as Paginated<StaticResourceInterface>
+      })
 
       assert(!fs.existsSync(filePath))
       assert(!fs.existsSync(fileStoragePath))

@@ -23,21 +23,17 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { command } from 'cli'
 import { Euler, Material, MathUtils, Matrix4, Mesh, Quaternion, Vector3 } from 'three'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
-import { EntityJson, SceneJson } from '@etherealengine/common/src/interfaces/SceneInterface'
 import logger from '@etherealengine/common/src/logger'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { EngineActions } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { Entity } from '@etherealengine/engine/src/ecs/classes/Entity'
 import { SceneState } from '@etherealengine/engine/src/ecs/classes/Scene'
 import {
-  addComponent,
   Component,
   getComponent,
-  getMutableComponent,
   getOptionalComponent,
   hasComponent,
   removeComponent,
@@ -45,12 +41,11 @@ import {
   setComponent,
   updateComponent
 } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
-import { createEntity, removeEntity } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
+import { createEntity } from '@etherealengine/engine/src/ecs/functions/EntityFunctions'
 import {
   addEntityNodeChild,
   EntityOrObjectUUID,
   EntityTreeComponent,
-  getAllEntitiesInTree,
   getEntityNodeArrayFromEntities,
   removeEntityNodeRecursively,
   reparentEntityNode,
@@ -58,45 +53,34 @@ import {
 } from '@etherealengine/engine/src/ecs/functions/EntityTree'
 import { materialFromId } from '@etherealengine/engine/src/renderer/materials/functions/MaterialLibraryFunctions'
 import { MaterialLibraryState } from '@etherealengine/engine/src/renderer/materials/MaterialLibrary'
-import { ColliderComponent } from '@etherealengine/engine/src/scene/components/ColliderComponent'
-import { GLTFLoadedComponent } from '@etherealengine/engine/src/scene/components/GLTFLoadedComponent'
-import { GroupComponent, Object3DWithEntity } from '@etherealengine/engine/src/scene/components/GroupComponent'
-import { NameComponent } from '@etherealengine/engine/src/scene/components/NameComponent'
+import { GroupComponent } from '@etherealengine/engine/src/scene/components/GroupComponent'
+import { SceneObjectComponent } from '@etherealengine/engine/src/scene/components/SceneObjectComponent'
 import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
 import { TransformSpace } from '@etherealengine/engine/src/scene/constants/transformConstants'
-import { getUniqueName } from '@etherealengine/engine/src/scene/functions/getUniqueName'
 import { reparentObject3D } from '@etherealengine/engine/src/scene/functions/ReparentFunction'
-import { serializeEntity, serializeWorld } from '@etherealengine/engine/src/scene/functions/serializeWorld'
+import { serializeWorld } from '@etherealengine/engine/src/scene/functions/serializeWorld'
 import {
   createNewEditorNode,
   deserializeSceneEntity
 } from '@etherealengine/engine/src/scene/systems/SceneLoadingSystem'
-import { ScenePrefabs } from '@etherealengine/engine/src/scene/systems/SceneObjectUpdateSystem'
 import obj3dFromUuid from '@etherealengine/engine/src/scene/util/obj3dFromUuid'
 import {
   LocalTransformComponent,
-  TransformComponent,
-  TransformComponentType
+  TransformComponent
 } from '@etherealengine/engine/src/transform/components/TransformComponent'
 import {
   computeLocalTransformMatrix,
   computeTransformMatrix
 } from '@etherealengine/engine/src/transform/systems/TransformSystem'
-import { dispatchAction, getMutableState, getState, useState } from '@etherealengine/hyperflux'
+import { dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
 
 import { EditorHistoryAction } from '../services/EditorHistory'
-import { EditorAction } from '../services/EditorServices'
 import { SelectionAction, SelectionState } from '../services/SelectionServices'
 import { cancelGrabOrPlacement } from './cancelGrabOrPlacement'
 import { filterParentEntities } from './filterParentEntities'
 import { getDetachedObjectsRoots } from './getDetachedObjectsRoots'
 import { getSpaceMatrix } from './getSpaceMatrix'
 
-/**
- *
- * @param nodes
- * @param component
- */
 const addOrRemoveComponent = <C extends Component<any, any>>(
   nodes: EntityOrObjectUUID[],
   component: C,
@@ -113,16 +97,12 @@ const addOrRemoveComponent = <C extends Component<any, any>>(
 
   /** @todo remove when all scene components migrated to reactor pattern #6892 */
   dispatchAction(EngineActions.sceneObjectUpdate({ entities: nodes as Entity[] }))
-  dispatchAction(EditorAction.sceneModified({ modified: true }))
   dispatchAction(SelectionAction.changedSceneGraph({}))
   dispatchAction(EditorHistoryAction.createSnapshot({}))
 }
 
 /**
  * Updates each property specified in 'properties' on the component for each of the specified entity nodes
- * @param nodes
- * @param properties
- * @param component
  */
 const modifyProperty = <C extends Component<any, any>>(
   nodes: EntityOrObjectUUID[],
@@ -143,7 +123,6 @@ const modifyProperty = <C extends Component<any, any>>(
       entities: nodes.filter((node) => typeof node !== 'string') as Entity[]
     })
   )
-  dispatchAction(EditorAction.sceneModified({ modified: true }))
   dispatchAction(SelectionAction.changedSceneGraph({}))
   dispatchAction(EditorHistoryAction.createSnapshot({}))
 }
@@ -211,8 +190,8 @@ const modifyMaterial = (nodes: string[], materialId: string, properties: { [_: s
    */
 }
 
-const createObjectFromPrefab = (
-  prefab: string,
+const createObjectFromSceneElement = (
+  componentName: string,
   parentEntity = getState(SceneState).sceneEntity as Entity | null,
   beforeEntity = null as Entity | null,
   updateSelection = true
@@ -230,13 +209,12 @@ const createObjectFromPrefab = (
   setComponent(newEntity, EntityTreeComponent, { parentEntity, childIndex })
   setComponent(newEntity, UUIDComponent, MathUtils.generateUUID() as EntityUUID)
 
-  createNewEditorNode(newEntity, prefab)
+  createNewEditorNode(newEntity, componentName)
 
   if (updateSelection) {
     EditorControlFunctions.replaceSelection([newEntity])
   }
 
-  dispatchAction(EditorAction.sceneModified({ modified: true }))
   dispatchAction(SelectionAction.changedSceneGraph({}))
   dispatchAction(EditorHistoryAction.createSnapshot({}))
 
@@ -285,12 +263,17 @@ const duplicateObject = (nodes: EntityOrObjectUUID[]) => {
 
       traverseEntityNode(object, (entity) => {
         const node = getComponent(entity, EntityTreeComponent)
+        if (!node.parentEntity) return
         const nodeUUID = getComponent(entity, UUIDComponent)
         if (!data.entities[nodeUUID]) return
         const newEntity = createEntity()
+        const parentEntity = (copyMap[node.parentEntity] as Entity) ?? node.parentEntity
+        setComponent(newEntity, SceneObjectComponent)
         setComponent(newEntity, EntityTreeComponent, {
-          parentEntity: (node.parentEntity && (copyMap[node.parentEntity] as Entity)) ?? node.parentEntity
+          parentEntity,
+          uuid: MathUtils.generateUUID() as EntityUUID
         })
+        addEntityNodeChild(newEntity, parentEntity)
         deserializeSceneEntity(newEntity, data.entities[nodeUUID])
         copyMap[entity] = newEntity
       })
@@ -310,7 +293,6 @@ const duplicateObject = (nodes: EntityOrObjectUUID[]) => {
 
   EditorControlFunctions.replaceSelection(Object.values(copyMap))
 
-  dispatchAction(EditorAction.sceneModified({ modified: true }))
   dispatchAction(SelectionAction.changedSceneGraph({}))
   dispatchAction(EditorHistoryAction.createSnapshot({}))
 }
@@ -512,8 +494,8 @@ const scaleObject = (
 
 const reparentObject = (
   nodes: EntityOrObjectUUID[],
-  parent = getState(SceneState).sceneEntity,
   before?: Entity | null,
+  parent = getState(SceneState).sceneEntity,
   updateSelection = true
 ) => {
   cancelGrabOrPlacement()
@@ -522,8 +504,8 @@ const reparentObject = (
     const node = nodes[i]
     if (typeof node !== 'string') {
       if (node === parent) continue
-      const entityTreeComponent = getComponent(node, EntityTreeComponent)
-      const index = before ? entityTreeComponent.children.indexOf(before as Entity) : undefined
+      const parentEntityTreeComponent = getComponent(parent, EntityTreeComponent)
+      const index = before ? parentEntityTreeComponent.children.indexOf(before as Entity) : undefined
       reparentEntityNode(node, parent as Entity, index)
       reparentObject3D(node, parent as Entity, before as Entity)
     } else {
@@ -541,7 +523,6 @@ const reparentObject = (
     EditorControlFunctions.replaceSelection(nodes)
   }
 
-  dispatchAction(EditorAction.sceneModified({ modified: true }))
   dispatchAction(SelectionAction.changedSceneGraph({}))
   dispatchAction(EditorHistoryAction.createSnapshot({}))
 }
@@ -555,20 +536,15 @@ const groupObjects = (
 ) => {
   cancelGrabOrPlacement()
 
-  const groupNode = EditorControlFunctions.createObjectFromPrefab(ScenePrefabs.group, null, null, false)
+  const groupNode = EditorControlFunctions.createObjectFromSceneElement(GroupComponent.name, null, null, false)
 
-  EditorControlFunctions.reparentObject(nodes, groupNode, null, false)
+  EditorControlFunctions.reparentObject(nodes, null, groupNode, false)
 
   if (updateSelection) {
     EditorControlFunctions.replaceSelection([groupNode])
   }
 }
 
-/**
- *
- * @param nodes
- * @returns
- */
 const removeObject = (nodes: EntityOrObjectUUID[]) => {
   cancelGrabOrPlacement()
 
@@ -592,11 +568,7 @@ const removeObject = (nodes: EntityOrObjectUUID[]) => {
   dispatchAction(SelectionAction.updateSelection({ selectedEntities: [] }))
   dispatchAction(EditorHistoryAction.createSnapshot({ selectedEntities: [] }))
 }
-/**
- *
- * @param nodes
- * @returns
- */
+
 const replaceSelection = (nodes: EntityOrObjectUUID[]) => {
   const current = getMutableState(SelectionState).selectedEntities.value
 
@@ -615,11 +587,6 @@ const replaceSelection = (nodes: EntityOrObjectUUID[]) => {
   dispatchAction(EditorHistoryAction.createSnapshot({ selectedEntities: nodes }))
 }
 
-/**
- *
- * @param nodes
- * @returns
- */
 const toggleSelection = (nodes: EntityOrObjectUUID[]) => {
   const selectedEntities = getMutableState(SelectionState).selectedEntities.value.slice(0)
 
@@ -655,7 +622,7 @@ export const EditorControlFunctions = {
   modifyProperty,
   modifyObject3d,
   modifyMaterial,
-  createObjectFromPrefab,
+  createObjectFromSceneElement,
   duplicateObject,
   positionObject,
   rotateObject,

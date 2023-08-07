@@ -23,26 +23,17 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { range } from 'lodash'
 import React from 'react'
 
-import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
-import { Button } from '@etherealengine/editor/src/components/inputs/Button'
-import InputGroup from '@etherealengine/editor/src/components/inputs/InputGroup'
-import { SceneObjectInput } from '@etherealengine/editor/src/components/inputs/SceneObjectInput'
-import PaginatedList from '@etherealengine/editor/src/components/layout/PaginatedList'
-import Well from '@etherealengine/editor/src/components/layout/Well'
-import NodeEditor from '@etherealengine/editor/src/components/properties/NodeEditor'
-import { EditorComponentType, updateProperty } from '@etherealengine/editor/src/components/properties/Util'
-import { getComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
-import { LoadVolumeComponent, LoadVolumeTarget } from '@etherealengine/engine/src/scene/components/LoadVolumeComponent'
+import { EditorComponentType } from '@etherealengine/editor/src/components/properties/Util'
+import { useComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
+import { LoadVolumeComponent } from '@etherealengine/engine/src/scene/components/LoadVolumeComponent'
 
 import CloudSyncIcon from '@mui/icons-material/CloudSync'
-import { Grid } from '@mui/material'
 
 const LoadVolumeNodeEditor: EditorComponentType = (props) => {
-  const loadVolumeComponent = getComponent(props.entity, LoadVolumeComponent)
-  const targets = loadVolumeComponent.targets
+  const loadVolumeComponent = useComponent(props.entity, LoadVolumeComponent)
+  const targets = loadVolumeComponent.targets.value
   /*function onEditTargets(index) {
     return (value) => {
       const nuTargets = [...targets.values()].map(({ uuid, entityJson, loaded }, i) => {

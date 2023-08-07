@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import React, { Fragment } from 'react'
-import { LinearEncoding, sRGBEncoding, Texture, TextureEncoding, Vector2 } from 'three'
+import { ColorSpace, LinearSRGBColorSpace, SRGBColorSpace, Texture, Vector2 } from 'three'
 
 import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoader'
 import { ImageFileTypes, VideoFileTypes } from '@etherealengine/engine/src/assets/constants/fileTypes'
@@ -128,13 +128,13 @@ export default function TexturePreviewInput({
           <>
             <InputGroup name="Encoding" label="Encoding">
               <SelectInput
-                value={texture.encoding}
+                value={texture.colorSpace}
                 options={[
-                  { label: 'Linear', value: LinearEncoding },
-                  { label: 'sRGB', value: sRGBEncoding }
+                  { label: 'Linear', value: LinearSRGBColorSpace },
+                  { label: 'sRGB', value: SRGBColorSpace }
                 ]}
-                onChange={(value: TextureEncoding) => {
-                  texture.encoding = value
+                onChange={(value: ColorSpace) => {
+                  texture.colorSpace = value
                   texture.needsUpdate = true
                 }}
               />

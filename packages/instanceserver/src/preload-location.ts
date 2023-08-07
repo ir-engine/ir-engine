@@ -35,7 +35,7 @@ export {}
 export default async function (locationName, app: Application) {
   await app.isSetup
   let service, serviceId
-  const locationResult = await app.service('location').find({
+  const locationResult = await app.service(locationPath).find({
     query: {
       slugifiedName: locationName
     }
@@ -87,20 +87,6 @@ export default async function (locationName, app: Application) {
   const instanceResult = await app.service('instance').create(newInstance)
   app.instance = instanceResult
 
-  if (app.isSubdomainNumber != null) {
-    const gsSubProvision = (await app.service('instanceserver-subdomain-provision').find({
-      query: {
-        is_number: app.isSubdomainNumber
-      }
-    })) as any
-
-    if (gsSubProvision.total > 0) {
-      const provision = gsSubProvision.data[0]
-      await app.service('instanceserver-subdomain-provision').patch(provision.id, {
-        instanceId: instanceResult.id
-      })
-    }
-  }
   console.log('Pre-loaded location', location.id)
 }
 */

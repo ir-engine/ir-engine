@@ -35,10 +35,6 @@ export default {
         userId: {
           type: 'string',
           description: ''
-        },
-        groupId: {
-          type: 'string',
-          description: ''
         }
       }
     },
