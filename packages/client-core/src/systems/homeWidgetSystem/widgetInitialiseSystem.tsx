@@ -23,22 +23,15 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { t } from 'i18next'
-import React, { Suspense } from 'react'
-import { Route, Routes } from 'react-router-dom'
+import { useEffect } from 'react'
 
-import { LoadingCircle } from '@etherealengine/client-core/src/components/LoadingCircle'
+import { startSystems } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
+import { TransformSystem } from '@etherealengine/engine/src/transform/systems/TransformSystem'
 
-import Home from './home'
+import { WidgetUISystem } from '@etherealengine/client-core/src/systems/WidgetUISystem'
 
-const HomeRoutes = () => {
-  return (
-    <Suspense fallback={<LoadingCircle message={t('common:loader.loadingLocation')} />}>
-      <Routes>
-        <Route path=":locationName" element={<Home />} />
-      </Routes>
-    </Suspense>
-  )
+export const widgetInitialiseSystem = () => {
+  useEffect(() => {
+    startSystems([WidgetUISystem], { before: TransformSystem })
+  }, [])
 }
-
-export default HomeRoutes
