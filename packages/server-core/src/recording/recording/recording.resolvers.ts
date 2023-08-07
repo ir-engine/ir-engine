@@ -29,11 +29,7 @@ import { v4 } from 'uuid'
 
 import type { HookContext } from '@etherealengine/server-core/declarations'
 
-import { StaticResourceType, staticResourcePath } from '@etherealengine/engine/src/schemas/media/static-resource.schema'
-import {
-  RecordingResourceType,
-  recordingResourcePath
-} from '@etherealengine/engine/src/schemas/recording/recording-resource.schema'
+import { recordingResourcePath } from '@etherealengine/engine/src/schemas/recording/recording-resource.schema'
 import {
   RecordingDatabaseType,
   RecordingID,
@@ -61,23 +57,14 @@ export const recordingDbToSchema = (rawData: RecordingDatabaseType): RecordingTy
 
 export const recordingResolver = resolve<RecordingType, HookContext>({
   resources: virtual(async (recording, context) => {
-    const recordingResource = (await context.app.service(recordingResourcePath).find({
+    const recordingResources = await context.app.service(recordingResourcePath).find({
       query: {
         recordingId: recording.id
       },
       paginate: false
-    })) as RecordingResourceType[]
+    })
 
-    //TODO: We should replace `as any as StaticResourceType` with `as StaticResourceType` once static-resource service is migrated to feathers 5.
-    const staticResource = [] as StaticResourceType[]
-
-    for (const resource of recordingResource) {
-      const staticResourceResult = (await context.app
-        .service(staticResourcePath)
-        .get(resource.staticResourceId)) as any as StaticResourceType
-
-      staticResource.push(staticResourceResult)
-    }
+    const staticResource = recordingResources.map((resource) => resource.staticResource)
 
     return staticResource
   })

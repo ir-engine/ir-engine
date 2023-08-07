@@ -40,7 +40,7 @@ export const recordingResourceSchema = Type.Object(
     id: Type.String({
       format: 'uuid'
     }),
-    recordingId: TypedString<RecordingID, 'uuid'>({
+    recordingId: TypedString<RecordingID>({
       format: 'uuid'
     }),
     staticResourceId: Type.String({

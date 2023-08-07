@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import type { PaginationOptions, Params } from '@feathersjs/feathers'
 import type { KnexAdapterOptions, KnexAdapterParams } from '@feathersjs/knex'
-import { KnexService } from '@feathersjs/knex'
+import { KnexAdapter } from '@feathersjs/knex'
 import { UserParams } from '../../user/user/user.class'
 
 import { recordingResourcePath } from '@etherealengine/engine/src/schemas/recording/recording-resource.schema'
@@ -43,7 +43,7 @@ import { NotFoundException, UnauthorizedException } from '../../util/exceptions/
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface RecordingParams extends KnexAdapterParams<RecordingQuery> {}
 
-export class RecordingService<T = RecordingType, ServiceParams extends Params = RecordingParams> extends KnexService<
+export class RecordingService<T = RecordingType, ServiceParams extends Params = RecordingParams> extends KnexAdapter<
   RecordingType,
   RecordingData,
   RecordingParams,
@@ -103,7 +103,7 @@ export class RecordingService<T = RecordingType, ServiceParams extends Params = 
   async create(data?: any, params?: any) {
     return super._create({
       ...data,
-      userId: params.user.id
+      userId: params
     })
   }
 

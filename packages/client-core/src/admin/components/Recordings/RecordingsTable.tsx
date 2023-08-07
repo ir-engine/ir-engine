@@ -33,7 +33,7 @@ import Box from '@etherealengine/ui/src/primitives/mui/Box'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
 
-import { RecordingID } from '@etherealengine/common/src/interfaces/RecordingID'
+import { RecordingID } from '@etherealengine/engine/src/schemas/recording/recording.schema'
 import ConfirmDialog from '../../../common/components/ConfirmDialog'
 import TableComponent from '../../common/Table'
 import { recordingColumns } from '../../common/variables/recording'

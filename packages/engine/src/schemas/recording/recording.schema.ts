@@ -21,10 +21,11 @@ Ethereal Engine. All Rights Reserved.
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
 import { DataChannelType } from '@etherealengine/common/src/interfaces/DataChannelType'
 import { OpaqueType } from '@etherealengine/common/src/interfaces/OpaqueType'
+import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 import type { Static } from '@feathersjs/typebox'
 import { querySyntax, Type } from '@feathersjs/typebox'
-import { TypedString } from '../../common/types/TypeboxUtils'
+import { TypedRecord, TypedString } from '../../common/types/TypeboxUtils'
 import { staticResourceDataSchema } from '../media/static-resource.schema'
 
 export const recordingPath = 'recording'
@@ -36,7 +37,7 @@ export type RecordingID = OpaqueType<'RecordingID'> & string
 export const recordingSchemaType = Type.Object(
   {
     user: Type.Array(Type.String()),
-    peers: Type.Record(Type.String(), Type.Array(TypedString<DataChannelType>()))
+    peers: TypedRecord(TypedString<PeerID>({ format: 'uuid' }), Type.Array(TypedString<DataChannelType>()))
   },
   { $id: 'RecordingSchema', additionalProperties: false }
 )
@@ -45,12 +46,12 @@ export type RecordingSchemaType = Static<typeof recordingSchemaType>
 // Main data model schema
 export const recordingSchema = Type.Object(
   {
-    id: TypedString<RecordingID, 'uuid'>({
+    id: TypedString<RecordingID>({
       format: 'uuid'
     }),
     ended: Type.Boolean(),
     schema: Type.Ref(recordingSchemaType),
-    userId: TypedString<UserId, 'uuid'>({
+    userId: TypedString<UserId>({
       format: 'uuid'
     }),
     resources: Type.Array(Type.Ref(staticResourceDataSchema)),
