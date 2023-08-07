@@ -31,6 +31,7 @@ import { UserInterface } from '@etherealengine/common/src/interfaces/User'
 import { avatarPath, AvatarType } from '@etherealengine/engine/src/schemas/user/avatar.schema'
 import { githubRepoAccessRefreshPath } from '@etherealengine/engine/src/schemas/user/github-repo-access-refresh.schema'
 
+import { identityProviderPath } from '@etherealengine/engine/src/schemas/user/identity.provider.schema'
 import { userApiKeyPath, UserApiKeyType } from '@etherealengine/engine/src/schemas/user/user-api-key.schema'
 import { Application } from '../../../declarations'
 import config from '../../appconfig'
@@ -78,16 +79,16 @@ export class GithubStrategy extends CustomOAuthStrategy {
         avatarId: avatars[random(avatars.total - 1)].id
       })) as UserInterface
       entity.userId = newUser.id
-      await this.app.service('identity-provider').patch(entity.id, {
+      await this.app.service(identityProviderPath)._patch(entity.id, {
         userId: newUser.id,
         oauthToken: params.access_token
       })
     } else {
-      await this.app.service('identity-provider').patch(entity.id, {
+      await this.app.service(identityProviderPath)._patch(entity.id, {
         oauthToken: params.access_token
       })
     }
-    const identityProvider = authResult['identity-provider']
+    const identityProvider = authResult[identityProviderPath]
     const user = await this.app.service('user').get(entity.userId)
     await makeInitialAdmin(this.app, user.id)
     if (user.isGuest)
@@ -104,7 +105,7 @@ export class GithubStrategy extends CustomOAuthStrategy {
         userId: entity.userId
       })
     if (entity.type !== 'guest' && identityProvider.type === 'guest') {
-      await this.app.service('identity-provider').remove(identityProvider.id)
+      await this.app.service(identityProviderPath)._remove(identityProvider.id)
       await this.app.service('user').remove(identityProvider.userId)
       await this.app.service(githubRepoAccessRefreshPath).find(Object.assign({}, params, { user }))
       return super.updateEntity(entity, profile, params)
@@ -114,7 +115,7 @@ export class GithubStrategy extends CustomOAuthStrategy {
       profile.userId = user.id
       profile.oauthToken = params.access_token
       const newIP = await super.createEntity(profile, params)
-      if (entity.type === 'guest') await this.app.service('identity-provider').remove(entity.id)
+      if (entity.type === 'guest') await this.app.service(identityProviderPath)._remove(entity.id)
       await this.app.service(githubRepoAccessRefreshPath).find(Object.assign({}, params, { user }))
       return newIP
     } else if (existingEntity.userId === identityProvider.userId) {

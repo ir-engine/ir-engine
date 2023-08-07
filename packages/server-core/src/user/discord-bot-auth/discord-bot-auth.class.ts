@@ -30,6 +30,8 @@ import fetch from 'node-fetch'
 
 import { IdentityProviderInterface } from '@etherealengine/common/src/dbmodels/IdentityProvider'
 
+import { UserId } from '@etherealengine/common/src/interfaces/UserId'
+import { identityProviderPath } from '@etherealengine/engine/src/schemas/user/identity.provider.schema'
 import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
 
@@ -54,7 +56,7 @@ export class DicscordBotAuth<T = any> implements Partial<ServiceMethods<T>> {
       const resData = JSON.parse(Buffer.from(await authResponse.arrayBuffer()).toString())
       if (!resData?.bot) throw new Error('The authenticated Discord user is not a bot')
       const token = `discord:::${resData.id}`
-      const ipResult = (await this.app.service('identity-provider').find({
+      const ipResult = (await this.app.service(identityProviderPath).find({
         query: {
           token: token,
           type: 'discord'
@@ -63,10 +65,11 @@ export class DicscordBotAuth<T = any> implements Partial<ServiceMethods<T>> {
       if (ipResult.total > 0) {
         return this.app.service('user').get(ipResult.data[0].userId)
       } else {
-        const ipCreation = await this.app.service('identity-provider').create(
+        const ipCreation = await this.app.service(identityProviderPath).create(
           {
             token: token,
-            type: 'discord'
+            type: 'discord',
+            userId: '' as UserId
           },
           {
             bot: true

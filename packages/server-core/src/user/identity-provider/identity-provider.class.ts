@@ -23,54 +23,62 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Paginated } from '@feathersjs/feathers'
-import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
-import { random } from 'lodash'
-import { Sequelize } from 'sequelize'
-import { v1 as uuidv1 } from 'uuid'
+import type { Params } from '@feathersjs/feathers'
+import type { KnexAdapterOptions } from '@feathersjs/knex'
+import { KnexAdapter } from '@feathersjs/knex'
 
-import { isDev } from '@etherealengine/common/src/config'
-import { IdentityProviderInterface } from '@etherealengine/common/src/dbmodels/IdentityProvider'
 import { UserInterface } from '@etherealengine/common/src/interfaces/User'
-import { avatarPath, AvatarType } from '@etherealengine/engine/src/schemas/user/avatar.schema'
+import {
+  IdentityProviderData,
+  IdentityProviderPatch,
+  IdentityProviderQuery,
+  IdentityProviderType
+} from '@etherealengine/engine/src/schemas/user/identity.provider.schema'
 
 import { Application } from '../../../declarations'
+
+import { Paginated } from '@feathersjs/feathers'
+import { random } from 'lodash'
+
+import { isDev } from '@etherealengine/common/src/config'
+import { avatarPath, AvatarType } from '@etherealengine/engine/src/schemas/user/avatar.schema'
+
+import { Knex } from 'knex'
+import { RootParams } from '../../api/root-params'
 import appConfig from '../../appconfig'
 import { scopeTypeSeed } from '../../scope/scope-type/scope-type.seed'
 import getFreeInviteCode from '../../util/get-free-invite-code'
 import { UserParams } from '../user/user.class'
 
-interface IdentityProviderParams extends UserParams {
-  bot?: boolean
+export interface IdentityProviderParams extends RootParams<IdentityProviderQuery> {
+  user?: UserInterface
+  authentication?: any
 }
 
 /**
- * A class for identity-provider service
+ * A class for IdentityProvider service
  */
-export class IdentityProvider<T = IdentityProviderInterface> extends Service<T> {
-  public app: Application
-  public docs: any
 
-  constructor(options: Partial<SequelizeServiceOptions>, app: Application) {
+export class IdentityProviderService<
+  T = IdentityProviderType,
+  ServiceParams extends Params = IdentityProviderParams
+> extends KnexAdapter<IdentityProviderType, IdentityProviderData, IdentityProviderParams, IdentityProviderPatch> {
+  app: Application
+
+  constructor(options: KnexAdapterOptions, app: Application) {
     super(options)
     this.app = app
   }
 
-  /**
-   * A method used to create accessToken
-   *
-   * @param data which contains token and type
-   * @param params
-   * @returns accessToken
-   */
-  async create(data: any, params: IdentityProviderParams = {}): Promise<T & { accessToken?: string }> {
-    let { token, type, password } = data
+  async create(data: IdentityProviderData, params?: IdentityProviderParams) {
+    if (!params) params = {}
+    let { token, type } = data
     let user
     let authResult
 
-    if (params.authentication) {
+    if (params?.authentication) {
       authResult = await (this.app.service('authentication') as any).strategies.jwt.authenticate(
-        { accessToken: params.authentication.accessToken },
+        { accessToken: params?.authentication.accessToken },
         {}
       )
       if (authResult[appConfig.authentication.entity]?.userId) {
@@ -79,7 +87,7 @@ export class IdentityProvider<T = IdentityProviderInterface> extends Service<T> 
     }
     if (
       (!user || !user.scopes || !user.scopes.find((scope) => scope.type === 'admin:admin')) &&
-      params.provider &&
+      params?.provider &&
       type !== 'password' &&
       type !== 'email' &&
       type !== 'sms'
@@ -104,7 +112,6 @@ export class IdentityProvider<T = IdentityProviderInterface> extends Service<T> 
       case 'password':
         identityProvider = {
           token,
-          password,
           type
         }
         break
@@ -154,14 +161,9 @@ export class IdentityProvider<T = IdentityProviderInterface> extends Service<T> 
         break
     }
 
-    // if userId is not defined, then generate userId
-    if (!userId) {
-      userId = uuidv1()
-    }
-
-    const sequelizeClient: Sequelize = this.app.get('sequelizeClient')
+    const knexClient: Knex = this.app.get('knexClient')
     const userService = this.app.service('user')
-    const User = sequelizeClient.model('user')
+    const User = knexClient.from('user')
 
     // check if there is a user with userId
     let foundUser
@@ -173,19 +175,14 @@ export class IdentityProvider<T = IdentityProviderInterface> extends Service<T> 
 
     if (foundUser != null) {
       // if there is the user with userId, then we add the identity provider to the user
-      return (await super.create(
+      return await super._create(
         {
           ...data,
           ...identityProvider,
           userId
         },
         params
-      )) as T & { accessToken?: string }
-    }
-
-    // create with user association
-    params.sequelize = {
-      include: [User]
+      )
     }
 
     const code = await getFreeInviteCode(this.app)
@@ -216,7 +213,7 @@ export class IdentityProvider<T = IdentityProviderInterface> extends Service<T> 
 
     let result
     try {
-      result = await super.create(
+      result = await super._create(
         {
           ...data,
           ...identityProvider,
@@ -264,9 +261,9 @@ export class IdentityProvider<T = IdentityProviderInterface> extends Service<T> 
     return result
   }
 
-  async find(params?: UserParams): Promise<T[] | Paginated<T>> {
+  async find(params?: UserParams) {
     const loggedInUser = params!.user as UserInterface
     if (params!.provider) params!.query!.userId = loggedInUser.id
-    return super.find(params)
+    return super._find(params)
   }
 }

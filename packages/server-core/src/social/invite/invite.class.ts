@@ -29,13 +29,16 @@ import crypto from 'crypto'
 import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
 import Sequelize, { Op } from 'sequelize'
 
-import { IdentityProviderInterface } from '@etherealengine/common/src/dbmodels/IdentityProvider'
 import { Invite as InviteType } from '@etherealengine/common/src/interfaces/Invite'
 import { UserInterface } from '@etherealengine/common/src/interfaces/User'
 
+import {
+  IdentityProviderType,
+  identityProviderPath
+} from '@etherealengine/engine/src/schemas/user/identity.provider.schema'
 import { Application } from '../../../declarations'
-import { sendInvite } from '../../hooks/send-invite'
 import logger from '../../ServerLogger'
+import { sendInvite } from '../../hooks/send-invite'
 import { UserParams } from '../../user/user/user.class'
 
 interface InviteRemoveParams extends UserParams {
@@ -52,11 +55,11 @@ const afterInviteFind = async (app: Application, result: Paginated<InviteDataTyp
           if (item.inviteeId != null) {
             item.invitee = await app.service('user').get(item.inviteeId)
           } else if (item.token) {
-            const identityProvider = (await app.service('identity-provider').find({
+            const identityProvider = (await app.service(identityProviderPath).find({
               query: {
                 token: item.token
               }
-            })) as Paginated<IdentityProviderInterface>
+            })) as Paginated<IdentityProviderType>
             if (identityProvider.data.length > 0) {
               item.invitee = await app.service('user').get(identityProvider.data[0].userId)
             }
@@ -74,7 +77,7 @@ const afterInviteFind = async (app: Application, result: Paginated<InviteDataTyp
 }
 
 export const inviteReceived = async (inviteService: Invite, query) => {
-  const identityProviders = await inviteService.app.service('identity-provider').find({
+  const identityProviders = await inviteService.app.service(identityProviderPath).find({
     query: {
       userId: query.userId
     }

@@ -23,14 +23,37 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { MethodNotAllowed, NotFound } from '@feathersjs/errors'
-import { HookContext } from '@feathersjs/feathers'
+import { hooks as schemaHooks } from '@feathersjs/schema'
+import { getValidator } from '@feathersjs/typebox'
 import { iff, isProvider } from 'feathers-hooks-common'
 
-import { IdentityProviderInterface } from '@etherealengine/common/src/dbmodels/IdentityProvider'
+import {
+  IdentityProviderType,
+  identityProviderDataSchema,
+  identityProviderPatchSchema,
+  identityProviderQuerySchema,
+  identityProviderSchema
+} from '@etherealengine/engine/src/schemas/user/identity.provider.schema'
+import { dataValidator, queryValidator } from '@etherealengine/server-core/validators'
+import { MethodNotAllowed, NotFound } from '@feathersjs/errors'
+import { HookContext } from '@feathersjs/feathers'
 
 import authenticate from '../../hooks/authenticate'
 import accountService from '../auth-management/auth-management.notifier'
+
+import {
+  identityProviderDataResolver,
+  identityProviderExternalResolver,
+  identityProviderPatchResolver,
+  identityProviderQueryResolver,
+  identityProviderResolver
+} from './identity-provider.resolvers'
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const identityProviderValidator = getValidator(identityProviderSchema, dataValidator)
+const identityProviderDataValidator = getValidator(identityProviderDataSchema, dataValidator)
+const identityProviderPatchValidator = getValidator(identityProviderPatchSchema, dataValidator)
+const identityProviderQueryValidator = getValidator(identityProviderQuerySchema, queryValidator)
 
 const isPasswordAccountType = () => {
   return (context: HookContext): boolean => {
@@ -80,7 +103,7 @@ const checkOnlyIdentityProvider = () => {
 
     const thisIdentityProvider = (await (context.app.service('identity-provider') as any).Model.findByPk(
       context.id
-    )) as IdentityProviderInterface
+    )) as IdentityProviderType
 
     // we only want to disallow removing the last identity provider if it is not a guest
     // since the guest user will be destroyed once they log in
@@ -98,13 +121,31 @@ const checkOnlyIdentityProvider = () => {
 }
 
 export default {
+  around: {
+    all: [
+      schemaHooks.resolveExternal(identityProviderExternalResolver),
+      schemaHooks.resolveResult(identityProviderResolver)
+    ]
+  },
+
   before: {
     all: [],
-    find: [iff(isProvider('external'), authenticate() as any)],
+    find: [
+      iff(isProvider('external'), authenticate() as any),
+      () => schemaHooks.validateQuery(identityProviderQueryValidator),
+      schemaHooks.resolveQuery(identityProviderQueryResolver)
+    ],
     get: [iff(isProvider('external'), authenticate() as any, checkIdentityProvider())],
-    create: [],
+    create: [
+      () => schemaHooks.validateData(identityProviderDataValidator),
+      schemaHooks.resolveData(identityProviderDataResolver)
+    ],
     update: [iff(isProvider('external'), authenticate() as any, checkIdentityProvider())],
-    patch: [iff(isProvider('external'), authenticate() as any, checkIdentityProvider())],
+    patch: [
+      iff(isProvider('external'), authenticate() as any, checkIdentityProvider()),
+      () => schemaHooks.validateData(identityProviderPatchValidator),
+      schemaHooks.resolveData(identityProviderPatchResolver)
+    ],
     remove: [iff(isProvider('external'), authenticate() as any, checkIdentityProvider()), checkOnlyIdentityProvider()]
   },
   after: {

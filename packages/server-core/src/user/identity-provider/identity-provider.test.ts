@@ -26,9 +26,13 @@ Ethereal Engine. All Rights Reserved.
 import assert from 'assert'
 import { v1 } from 'uuid'
 
-import { IdentityProviderInterface } from '@etherealengine/common/src/dbmodels/IdentityProvider'
 import { destroyEngine } from '@etherealengine/engine/src/ecs/classes/Engine'
 
+import { UserId } from '@etherealengine/common/src/interfaces/UserId'
+import {
+  IdentityProviderType,
+  identityProviderPath
+} from '@etherealengine/engine/src/schemas/user/identity.provider.schema'
 import { Application } from '../../../declarations'
 import { createFeathersKoaApp } from '../../createApp'
 
@@ -36,7 +40,7 @@ let userId: string
 
 describe('identity-provider service', () => {
   let app: Application
-  let providers: IdentityProviderInterface[] = []
+  let providers: IdentityProviderType[] = []
 
   before(async () => {
     app = createFeathersKoaApp()
@@ -48,7 +52,7 @@ describe('identity-provider service', () => {
   })
 
   it('registered the service', async () => {
-    const service = await app.service('identity-provider')
+    const service = await app.service(identityProviderPath)
     assert.ok(service, 'Registered the service')
   })
 
@@ -56,10 +60,11 @@ describe('identity-provider service', () => {
     const type = 'guest'
     const token = v1()
 
-    const item = await app.service('identity-provider').create(
+    const item = await app.service(identityProviderPath).create(
       {
         type,
-        token
+        token,
+        userId: '' as UserId
       },
       {}
     )
@@ -77,11 +82,11 @@ describe('identity-provider service', () => {
     const type = 'email'
     const token = `${v1()}@etherealengine.io`
 
-    const item = await app.service('identity-provider').create(
+    const item = await app.service(identityProviderPath).create(
       {
         type,
         token,
-        userId
+        userId: '' as UserId
       },
       {}
     )
@@ -96,14 +101,12 @@ describe('identity-provider service', () => {
   it('should create an identity provider for password', async () => {
     const type = 'password'
     const token = `${v1()}@etherealengine.io`
-    const password = 'test@123'
 
-    const item = await app.service('identity-provider').create(
+    const item = await app.service(identityProviderPath).create(
       {
         type,
         token,
-        password,
-        userId
+        userId: '' as UserId
       },
       {}
     )
@@ -116,7 +119,7 @@ describe('identity-provider service', () => {
   })
 
   it('should find identity providers', async () => {
-    const item = await app.service('identity-provider').find({
+    const item = await app.service(identityProviderPath).find({
       query: {
         userId
       }
@@ -127,9 +130,9 @@ describe('identity-provider service', () => {
   })
 
   it('should remove an identity provider by id', async () => {
-    await app.service('identity-provider').remove(providers[0].id)
+    await app.service(identityProviderPath)._remove(providers[0].id)
 
-    const item = await app.service('identity-provider').find({
+    const item = await app.service(identityProviderPath).find({
       query: {
         id: providers[0].id
       }
@@ -141,9 +144,9 @@ describe('identity-provider service', () => {
   it('should not be able to remove identity providers by user id', async () => {
     assert.rejects(
       () =>
-        app.service('identity-provider').remove(null, {
+        app.service(identityProviderPath)._remove(null, {
           query: {
-            userId
+            userId: '' as UserId
           }
         }),
       {
@@ -156,30 +159,32 @@ describe('identity-provider service', () => {
     const type = 'guest'
     const token = v1()
 
-    const item = await app.service('identity-provider').create(
+    const item = await app.service(identityProviderPath).create(
       {
         type,
-        token
+        token,
+        userId: '' as UserId
       },
       {}
     )
 
-    assert.ok(() => app.service('identity-provider').remove(item.id))
+    assert.ok(() => app.service(identityProviderPath)._remove(item.id))
   })
 
   it('should not be able to remove the only identity provider as a user', async () => {
     const type = 'user'
     const token = v1()
 
-    const item = await app.service('identity-provider').create(
+    const item = await app.service(identityProviderPath).create(
       {
         type,
-        token
+        token,
+        userId: '' as UserId
       },
       {}
     )
 
-    assert.rejects(() => app.service('identity-provider').remove(item.id), {
+    assert.rejects(() => app.service(identityProviderPath)._remove(item.id), {
       name: 'MethodNotAllowed'
     })
   })

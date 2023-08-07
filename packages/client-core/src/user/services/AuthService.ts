@@ -30,14 +30,18 @@ import { v1 } from 'uuid'
 
 import config, { validateEmail, validatePhoneNumber } from '@etherealengine/common/src/config'
 import { AuthUserSeed, resolveAuthUser } from '@etherealengine/common/src/interfaces/AuthUser'
-import { IdentityProvider } from '@etherealengine/common/src/interfaces/IdentityProvider'
 import { UserSeed, UserSetting, resolveUser, resolveWalletUser } from '@etherealengine/common/src/interfaces/User'
 import multiLogger from '@etherealengine/common/src/logger'
 import { AuthStrategiesType } from '@etherealengine/engine/src/schemas/setting/authentication-setting.schema'
 import { defineState, getMutableState, getState, syncStateWithLocalStorage } from '@etherealengine/hyperflux'
 
+import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { locationBanPath } from '@etherealengine/engine/src/schemas/social/location-ban.schema'
+import {
+  IdentityProviderType,
+  identityProviderPath
+} from '@etherealengine/engine/src/schemas/user/identity.provider.schema'
 import { UserApiKeyType, userApiKeyPath } from '@etherealengine/engine/src/schemas/user/user-api-key.schema'
 import { API } from '../../API'
 import { NotificationService } from '../../common/services/NotificationService'
@@ -86,9 +90,10 @@ async function _resetToGuestToken(options = { reset: true }) {
   if (options.reset) {
     await API.instance.client.authentication.reset()
   }
-  const newProvider = await Engine.instance.api.service('identity-provider').create({
+  const newProvider = await Engine.instance.api.service(identityProviderPath).create({
     type: 'guest',
-    token: v1()
+    token: v1(),
+    userId: '' as UserId
   })
   const accessToken = newProvider.accessToken!
   console.log(`Created new guest accessToken: ${accessToken}`)
@@ -283,7 +288,7 @@ export const AuthService = {
   },
 
   async removeUserOAuth(service: string) {
-    const ipResult = (await Engine.instance.api.service('identity-provider').find()) as any
+    const ipResult = (await Engine.instance.api.service(identityProviderPath).find()) as any
     const ipToRemove = ipResult.data.find((ip) => ip.type === service)
     if (ipToRemove) {
       if (ipResult.total === 1) {
@@ -300,7 +305,7 @@ export const AuthService = {
           await API.instance.client.authentication.setAccessToken(newToken as string)
           const res = await API.instance.client.reAuthenticate(true)
           const authUser = resolveAuthUser(res)
-          await Engine.instance.api.service('identity-provider').remove(ipToRemove.id)
+          await Engine.instance.api.service(identityProviderPath)._remove(ipToRemove.id)
           const authState = getMutableState(AuthState)
           authState.merge({ authUser })
           await AuthService.loadUserData(authUser.identityProvider.userId)
@@ -378,10 +383,10 @@ export const AuthService = {
     const authState = getMutableState(AuthState)
     authState.merge({ isProcessing: true, error: '' })
     try {
-      const identityProvider: any = await Engine.instance.api.service('identity-provider').create({
+      const identityProvider: any = await Engine.instance.api.service(identityProviderPath).create({
         token: form.email,
-        password: form.password,
-        type: 'password'
+        type: 'password',
+        userId: '' as UserId
       })
       authState.authUser.merge({ identityProvider })
       window.location.href = '/auth/confirm'
@@ -486,11 +491,10 @@ export const AuthService = {
     authState.merge({ isProcessing: true, error: '' })
 
     try {
-      const identityProvider = await Engine.instance.api.service('identity-provider').create({
+      const identityProvider = await Engine.instance.api.service(identityProviderPath).create({
         token: form.email,
-        password: form.password,
         type: 'password',
-        userId
+        userId: '' as UserId
       })
       return AuthService.loadUserData(identityProvider.userId)
     } catch (err) {
@@ -509,7 +513,7 @@ export const AuthService = {
         email,
         type: 'email',
         userId
-      })) as IdentityProvider
+      })) as IdentityProviderType
       if (identityProvider.userId) {
         NotificationService.dispatchNotify(i18n.t('user:auth.magiklink.email-sent-msg'), { variant: 'success' })
         return AuthService.loadUserData(identityProvider.userId)
@@ -535,7 +539,7 @@ export const AuthService = {
         mobile: sendPhone,
         type: 'sms',
         userId
-      })) as IdentityProvider
+      })) as IdentityProviderType
       if (identityProvider.userId) {
         NotificationService.dispatchNotify(i18n.t('user:auth.magiklink.sms-sent-msg'), { variant: 'error' })
         return AuthService.loadUserData(identityProvider.userId)
@@ -557,7 +561,7 @@ export const AuthService = {
   async removeConnection(identityProviderId: number, userId: string) {
     getMutableState(AuthState).merge({ isProcessing: true, error: '' })
     try {
-      await Engine.instance.api.service('identity-provider').remove(identityProviderId)
+      await Engine.instance.api.service(identityProviderPath)._remove(identityProviderId)
       return AuthService.loadUserData(userId)
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })

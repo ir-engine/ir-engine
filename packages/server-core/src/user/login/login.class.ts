@@ -26,6 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { Id, NullableId, Params, ServiceMethods } from '@feathersjs/feathers'
 import moment from 'moment'
 
+import { identityProviderPath } from '@etherealengine/engine/src/schemas/user/identity.provider.schema'
 import { UserApiKeyType, userApiKeyPath } from '@etherealengine/engine/src/schemas/user/user-api-key.schema'
 import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
@@ -86,7 +87,7 @@ export class Login implements ServiceMethods<Data> {
         logger.info('Login Token has expired')
         return { error: 'Login link has expired' }
       }
-      const identityProvider = await this.app.service('identity-provider').get(result.identityProviderId)
+      const identityProvider = await this.app.service(identityProviderPath)._get(result.identityProviderId)
       await makeInitialAdmin(this.app, identityProvider.userId)
       const apiKey = (await this.app.service(userApiKeyPath).find({
         query: {

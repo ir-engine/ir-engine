@@ -46,7 +46,7 @@ describe('invite service', () => {
   //   const token = `${v1()}@etherealengine.io`
   //   const password = 'test@123'
   //
-  //   user = await app.service('identity-provider').create(
+  //   user = await app.service(identityProviderPath).create(
   //     {
   //       type,
   //       token,
@@ -58,7 +58,7 @@ describe('invite service', () => {
   //
   // after(async () => {
   //   // Remove test user
-  //   await app.service('identity-provider').remove(null, {
+  //   await app.service(identityProviderPath).remove(null, {
   //     query: {
   //       userId: user.userId
   //     }

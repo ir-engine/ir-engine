@@ -23,24 +23,36 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { createSwaggerServiceOptions } from 'feathers-swagger'
+// For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
+import { resolve } from '@feathersjs/schema'
+import { v4 } from 'uuid'
 
 import {
-  identityProviderDataSchema,
-  identityProviderPatchSchema,
-  identityProviderQuerySchema,
-  identityProviderSchema
+  IdentityProviderQuery,
+  IdentityProviderType
 } from '@etherealengine/engine/src/schemas/user/identity.provider.schema'
+import type { HookContext } from '@etherealengine/server-core/declarations'
 
-export default createSwaggerServiceOptions({
-  schemas: {
-    identityProviderDataSchema,
-    identityProviderPatchSchema,
-    identityProviderQuerySchema,
-    identityProviderSchema
+import { UserId } from '@etherealengine/common/src/interfaces/UserId'
+import { getDateTimeSql } from '../../util/get-datetime-sql'
+
+export const identityProviderResolver = resolve<IdentityProviderType, HookContext>({})
+
+export const identityProviderExternalResolver = resolve<IdentityProviderType, HookContext>({})
+
+export const identityProviderDataResolver = resolve<IdentityProviderType, HookContext>({
+  id: async () => {
+    return v4()
   },
-  docs: {
-    description: 'Identity provider service description',
-    securities: ['all']
-  }
+  userId: async (userId) => {
+    return userId || (v4() as UserId)
+  },
+  createdAt: getDateTimeSql,
+  updatedAt: getDateTimeSql
 })
+
+export const identityProviderPatchResolver = resolve<IdentityProviderType, HookContext>({
+  updatedAt: getDateTimeSql
+})
+
+export const identityProviderQueryResolver = resolve<IdentityProviderQuery, HookContext>({})

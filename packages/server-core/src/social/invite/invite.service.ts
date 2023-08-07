@@ -24,6 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 // Initializes the `invite` service on path `/invite`
+import { identityProviderPath } from '@etherealengine/engine/src/schemas/user/identity.provider.schema'
 import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
 import { Invite, InviteDataType } from './invite.class'
@@ -71,7 +72,7 @@ export default (app: Application) => {
       if (data.inviteeId) {
         targetIds.push(data.inviteeId)
       } else {
-        const inviteeIdentityProviderResult = await app.service('identity-provider').find({
+        const inviteeIdentityProviderResult = await app.service(identityProviderPath).find({
           query: {
             type: data.identityProviderType,
             token: data.token
@@ -106,7 +107,7 @@ export default (app: Application) => {
       if (data.inviteeId) {
         targetIds.push(data.inviteeId)
       } else {
-        const inviteeIdentityProviderResult = await app.service('identity-provider').find({
+        const inviteeIdentityProviderResult = await app.service(identityProviderPath).find({
           query: {
             type: data.identityProviderType,
             token: data.token

@@ -29,6 +29,7 @@ import { Id, NullableId, Params, ServiceMethods } from '@feathersjs/feathers'
 import { locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
 
 import { locationAuthorizedUserPath } from '@etherealengine/engine/src/schemas/social/location-authorized-user.schema'
+import { identityProviderPath } from '@etherealengine/engine/src/schemas/user/identity.provider.schema'
 import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
 import Paginated from '../../types/PageObject'
@@ -130,7 +131,7 @@ export class AcceptInvite implements ServiceMethods<Data> {
       }
 
       if (invite.identityProviderType != null) {
-        const inviteeIdentityProviderResult = await this.app.service('identity-provider').find({
+        const inviteeIdentityProviderResult = await this.app.service(identityProviderPath).find({
           query: {
             type: invite.identityProviderType,
             token: invite.token
@@ -138,10 +139,11 @@ export class AcceptInvite implements ServiceMethods<Data> {
         })
 
         if ((inviteeIdentityProviderResult as any).total === 0) {
-          inviteeIdentityProvider = await this.app.service('identity-provider').create(
+          inviteeIdentityProvider = await this.app.service(identityProviderPath).create(
             {
               type: invite.identityProviderType,
-              token: invite.token
+              token: invite.token,
+              userId: invite.userId
             },
             params
           )

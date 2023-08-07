@@ -31,7 +31,7 @@ import { TypedString } from '../../common/types/TypeboxUtils'
 
 export const identityProviderPath = 'identity-provider'
 
-export const identityProviderMethods = ['find', 'get', 'create', 'patch', 'remove'] as const
+export const identityProviderMethods = ['find', 'create'] as const
 
 // Main data model schema
 export const identityProviderSchema = Type.Object(
@@ -42,8 +42,8 @@ export const identityProviderSchema = Type.Object(
     token: Type.String({
       format: 'uuid'
     }),
-    accountIdentifier: Type.String(),
-    oauthToken: Type.String(),
+    accountIdentifier: Type.Optional(Type.String()),
+    oauthToken: Type.Optional(Type.String()),
     type: Type.String(),
     userId: TypedString<UserId, 'uuid'>({
       format: 'uuid'

@@ -23,24 +23,20 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { createSwaggerServiceOptions } from 'feathers-swagger'
+import { UserInterface } from '@etherealengine/common/src/interfaces/User'
+import { AdapterQuery } from '@feathersjs/adapter-commons'
+import { Params } from '@feathersjs/feathers'
+import { KnexAdapterParams } from '@feathersjs/knex'
 
-import {
-  identityProviderDataSchema,
-  identityProviderPatchSchema,
-  identityProviderQuerySchema,
-  identityProviderSchema
-} from '@etherealengine/engine/src/schemas/user/identity.provider.schema'
+export interface RootParams<Q = AdapterQuery> extends KnexAdapterParams<Q> {
+  user?: UserInterface
+  isInternal?: boolean
+}
 
-export default createSwaggerServiceOptions({
-  schemas: {
-    identityProviderDataSchema,
-    identityProviderPatchSchema,
-    identityProviderQuerySchema,
-    identityProviderSchema
-  },
-  docs: {
-    description: 'Identity provider service description',
-    securities: ['all']
-  }
-})
+/* @deprecated */
+export interface UserParams extends Params {
+  user?: UserInterface
+  paginate?: false
+  isInternal?: boolean
+  sequelize?: any
+}
