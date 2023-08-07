@@ -32,7 +32,9 @@ import { Op } from 'sequelize'
 import { CreateEditUser, UserInterface, UserScope } from '@etherealengine/common/src/interfaces/User'
 import { ScopeTypeType } from '@etherealengine/engine/src/schemas/scope/scope-type.schema'
 
+import { identityProviderPath } from '@etherealengine/engine/src/schemas/user/identity.provider.schema'
 import { userApiKeyPath } from '@etherealengine/engine/src/schemas/user/user-api-key.schema'
+import { Knex } from 'knex'
 import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
 import getFreeInviteCode from '../../util/get-free-invite-code'
@@ -139,14 +141,12 @@ export class User extends Service<UserInterface> {
         },
         raw: true
       })
-      const searchedIdentityProviders = await this.app.service('identity-provider').Model.findAll({
-        where: {
-          accountIdentifier: {
-            [Op.like]: `%${search}%`
-          }
-        },
-        raw: true
-      })
+
+      const knexClient: Knex = this.app.get('knexClient')
+      const searchedIdentityProviders = await knexClient
+        .from(identityProviderPath)
+        .where('accountIdentifier', 'like', `%${search}%`)
+        .select()
 
       if (search) {
         const userIds = searchedUser.map((user) => user.id)

@@ -28,6 +28,7 @@ import { HookReturn } from 'sequelize/types/hooks'
 
 import {
   AvatarInterface,
+  IdentityProviderInterface,
   LocationAdminInterface,
   LocationAuthorizedUserInterface,
   LocationBanInterface,
@@ -91,7 +92,7 @@ export default (app: Application) => {
       through: models.user_relationship
     })
     ;(User as any).hasMany(models.user_relationship, { onDelete: 'cascade' })
-    ;(User as any).hasMany(models.identity_provider, { onDelete: 'cascade' })
+    ;(User as any).hasMany(createIdentityProviderModel(app), { onDelete: 'cascade' })
     ;(User as any).hasMany(models.channel)
     ;(User as any).belongsToMany(createLocationModel(app), { through: 'location-admin' })
     ;(User as any).hasMany(createLocationAdminModel(app), { unique: false })
@@ -432,4 +433,62 @@ export const createLocationAdminModel = (app: Application) => {
   }
 
   return locationAdmin
+}
+
+export const createIdentityProviderModel = (app: Application) => {
+  const sequelizeClient: Sequelize = app.get('sequelizeClient')
+  const identityProvider = sequelizeClient.define<Model<IdentityProviderInterface>>(
+    'identity-provider',
+    {
+      id: {
+        type: DataTypes.UUID,
+        defaultValue: DataTypes.UUIDV1,
+        allowNull: false,
+        primaryKey: true
+      },
+      token: { type: DataTypes.STRING, unique: true },
+      accountIdentifier: { type: DataTypes.STRING },
+      password: { type: DataTypes.STRING },
+      isVerified: { type: DataTypes.BOOLEAN },
+      verifyToken: { type: DataTypes.STRING },
+      verifyShortToken: { type: DataTypes.STRING },
+      verifyExpires: { type: DataTypes.DATE },
+      verifyChanges: { type: DataTypes.JSON },
+      resetToken: { type: DataTypes.STRING },
+      resetExpires: { type: DataTypes.DATE },
+      oauthToken: { type: DataTypes.STRING },
+      type: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        values: ['email', 'sms', 'password', 'discord', 'github', 'google', 'facebook', 'twitter', 'linkedin', 'auth0']
+      }
+    } as any as IdentityProviderInterface,
+    {
+      hooks: {
+        beforeCount(options: any): void {
+          options.raw = true
+        }
+      },
+      indexes: [
+        {
+          fields: ['id']
+        },
+        {
+          unique: true,
+          fields: ['userId', 'token']
+        },
+        {
+          unique: true,
+          fields: ['userId', 'type']
+        }
+      ]
+    }
+  )
+
+  ;(identityProvider as any).associate = (models: any): void => {
+    ;(identityProvider as any).belongsTo(models.user, { required: true, onDelete: 'cascade' })
+    ;(identityProvider as any).hasMany(models.login_token)
+  }
+
+  return identityProvider
 }

@@ -27,13 +27,13 @@ import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import ConfirmDialog from '@etherealengine/client-core/src/common/components/ConfirmDialog'
-import { IdentityProvider } from '@etherealengine/common/src/interfaces/IdentityProvider'
 import { UserInterface } from '@etherealengine/common/src/interfaces/User'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import Box from '@etherealengine/ui/src/primitives/mui/Box'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 import Tooltip from '@etherealengine/ui/src/primitives/mui/Tooltip'
 
+import { IdentityProviderType } from '@etherealengine/engine/src/schemas/user/identity.provider.schema'
 import { DiscordIcon } from '../../../common/components/Icons/DiscordIcon'
 import { FacebookIcon } from '../../../common/components/Icons/FacebookIcon'
 import { GoogleIcon } from '../../../common/components/Icons/GoogleIcon'
@@ -94,7 +94,7 @@ const UserTable = ({ className, search }: UserProps) => {
     el: UserInterface,
     name: string,
     avatarId: string | JSX.Element,
-    identityProviders: IdentityProvider[],
+    identityProviders: IdentityProviderType[],
     isGuest: string,
     inviteCode: string | JSX.Element
   ): UserData => {

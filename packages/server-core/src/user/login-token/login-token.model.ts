@@ -30,6 +30,7 @@ import { DataTypes, Model, Sequelize } from 'sequelize'
 import { LoginTokenInterface } from '@etherealengine/common/src/dbmodels/LoginToken'
 
 import { Application } from '../../../declarations'
+import { createIdentityProviderModel } from '../user/user.model'
 
 export default (app: Application) => {
   const sequelizeClient: Sequelize = app.get('sequelizeClient')
@@ -62,7 +63,7 @@ export default (app: Application) => {
   ;(loginToken as any).associate = (models: any): void => {
     // Define associations here
     // See http://docs.sequelizejs.com/en/latest/docs/associations/
-    ;(loginToken as any).belongsTo(models.identity_provider)
+    ;(loginToken as any).belongsTo(createIdentityProviderModel(app))
   }
 
   return loginToken

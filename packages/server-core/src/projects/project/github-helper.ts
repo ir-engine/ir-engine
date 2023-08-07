@@ -39,11 +39,13 @@ import {
   VolumetricFileTypes
 } from '@etherealengine/engine/src/assets/constants/fileTypes'
 
+import { identityProviderPath } from '@etherealengine/engine/src/schemas/user/identity.provider.schema'
+import { Knex } from 'knex'
 import { Application } from '../../../declarations'
-import config from '../../appconfig'
-import { getStorageProvider } from '../../media/storageprovider/storageprovider'
-import { getFileKeysRecursive } from '../../media/storageprovider/storageProviderUtils'
 import logger from '../../ServerLogger'
+import config from '../../appconfig'
+import { getFileKeysRecursive } from '../../media/storageprovider/storageProviderUtils'
+import { getStorageProvider } from '../../media/storageprovider/storageprovider'
 import { deleteFolderRecursive, writeFileSyncRecursive } from '../../util/fsHelperFunctions'
 import { useGit } from '../../util/gitHelperFunctions'
 import { ProjectParams } from './project.class'
@@ -191,12 +193,17 @@ export const pushProjectToGithub = async (
       })
     )
     const repoPath = project.repositoryPath.toLowerCase()
-    const githubIdentityProvider = await app.service('identity-provider').Model.findOne({
-      where: {
+
+    const knexClient: Knex = app.get('knexClient')
+
+    const githubIdentityProvider = await knexClient
+      .from(identityProviderPath)
+      .where({
         userId: user.id,
         type: 'github'
-      }
-    })
+      })
+      .first()
+
     const githubPathRegexExec = GITHUB_URL_REGEX.exec(repoPath)
     if (!githubPathRegexExec) throw new BadRequest('Invalid Github URL')
     const split = githubPathRegexExec[2].split('/')
@@ -376,12 +383,16 @@ export const getGithubOwnerRepo = (url: string) => {
 
 export const getOctokitForChecking = async (app: Application, url: string, params: ProjectParams) => {
   url = url.toLowerCase()
-  const githubIdentityProvider = await app.service('identity-provider').Model.findOne({
-    where: {
+
+  const knexClient: Knex = app.get('knexClient')
+  const githubIdentityProvider = await knexClient
+    .from(identityProviderPath)
+    .where({
       userId: params!.user.id,
       type: 'github'
-    }
-  })
+    })
+    .first()
+
   if (!githubIdentityProvider) throw new Forbidden('You must have a connected GitHub account to access public repos')
   const { owner, repo } = getGithubOwnerRepo(url)
   const octoKit = new Octokit({ auth: githubIdentityProvider.oauthToken })

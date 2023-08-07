@@ -32,6 +32,8 @@ import { UserInterface } from '@etherealengine/common/src/interfaces/User'
 import { serverSettingPath, ServerSettingType } from '@etherealengine/engine/src/schemas/setting/server-setting.schema'
 import { githubRepoAccessRefreshPath } from '@etherealengine/engine/src/schemas/user/github-repo-access-refresh.schema'
 
+import { identityProviderPath } from '@etherealengine/engine/src/schemas/user/identity.provider.schema'
+import { Knex } from 'knex'
 import { Application } from '../../../declarations'
 import { UnauthorizedException } from '../../util/exceptions/exception'
 
@@ -75,12 +77,16 @@ export class GithubRepoAccessWebhookService<
         ? blocked_user.login
         : null
       if (!ghUser) return ''
-      const githubIdentityProvider = await this.app.service('identity-provider').Model.findOne({
-        where: {
+
+      const knexClient: Knex = this.app.get('knexClient')
+      const githubIdentityProvider = await knexClient
+        .from(identityProviderPath)
+        .where({
           type: 'github',
           accountIdentifier: ghUser
-        }
-      })
+        })
+        .first()
+
       if (!githubIdentityProvider) return ''
       const user = await this.app.service('user').get(githubIdentityProvider.userId)
       // GitHub's API doesn't always reflect changes to user repo permissions right when a webhook is sent.

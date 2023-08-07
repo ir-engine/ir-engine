@@ -195,12 +195,6 @@ export const AuthService = {
       })
       const authUser = resolveAuthUser(authenticationResult)
 
-      if (!authUser.identityProvider?.isVerified) {
-        await API.instance.client.logout()
-        authState.authUser.merge({ identityProvider: authUser.identityProvider })
-        window.location.href = '/auth/confirm'
-        return
-      }
       authState.merge({ authUser })
       await AuthService.loadUserData(authUser.identityProvider.userId)
       window.location.href = '/'
@@ -246,11 +240,12 @@ export const AuthService = {
         accessToken: '',
         authentication: { strategy: 'did-auth' },
         identityProvider: {
-          id: 0,
+          id: '',
           token: '',
           type: 'didWallet',
-          isVerified: true,
-          userId: walletUser.id
+          userId: walletUser.id,
+          createdAt: '',
+          updatedAt: ''
         }
       }
 
@@ -407,10 +402,8 @@ export const AuthService = {
         action: 'verifySignupLong',
         value: token
       })
-      authState.authUser.identityProvider.merge({ isVerified: true })
       await AuthService.loginUserByJwt(accessToken, '/', '/')
     } catch (err) {
-      authState.authUser.identityProvider.merge({ isVerified: false })
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     } finally {
       authState.merge({ isProcessing: false, error: '' })

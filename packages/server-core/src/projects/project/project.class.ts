@@ -41,22 +41,24 @@ import { UserInterface } from '@etherealengine/common/src/interfaces/User'
 import { processFileName } from '@etherealengine/common/src/utils/processFileName'
 import { routePath } from '@etherealengine/engine/src/schemas/route/route.schema'
 import { locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
-import { avatarPath, AvatarType } from '@etherealengine/engine/src/schemas/user/avatar.schema'
+import { AvatarType, avatarPath } from '@etherealengine/engine/src/schemas/user/avatar.schema'
 import {
-  githubRepoAccessPath,
-  GithubRepoAccessType
+  GithubRepoAccessType,
+  githubRepoAccessPath
 } from '@etherealengine/engine/src/schemas/user/github-repo-access.schema'
 import { getState } from '@etherealengine/hyperflux'
 import templateProjectJson from '@etherealengine/projects/template-project/package.json'
 
+import { identityProviderPath } from '@etherealengine/engine/src/schemas/user/identity.provider.schema'
+import { Knex } from 'knex'
 import { Application } from '../../../declarations'
+import logger from '../../ServerLogger'
+import { ServerState } from '../../ServerState'
 import config from '../../appconfig'
 import { getCacheDomain } from '../../media/storageprovider/getCacheDomain'
 import { getCachedURL } from '../../media/storageprovider/getCachedURL'
-import { getStorageProvider } from '../../media/storageprovider/storageprovider'
 import { getFileKeysRecursive } from '../../media/storageprovider/storageProviderUtils'
-import logger from '../../ServerLogger'
-import { ServerState } from '../../ServerState'
+import { getStorageProvider } from '../../media/storageprovider/storageprovider'
 import { UserParams } from '../../user/user/user.class'
 import { cleanString } from '../../util/cleanString'
 import { getContentType } from '../../util/fileUtils'
@@ -414,12 +416,14 @@ export class Project extends Service {
 
     const userId = params!.user?.id || project.updateUserId
 
-    const githubIdentityProvider = await this.app.service('identity-provider').Model.findOne({
-      where: {
+    const knexClient: Knex = this.app.get('knexClient')
+    const githubIdentityProvider = await knexClient
+      .from(identityProviderPath)
+      .where({
         userId: userId,
         type: 'github'
-      }
-    })
+      })
+      .first()
 
     let repoPath = await getAuthenticatedRepo(githubIdentityProvider.oauthToken, data.sourceURL)
     if (!repoPath) repoPath = data.sourceURL //public repo
@@ -542,12 +546,16 @@ export class Project extends Service {
     if (data.repositoryPath) {
       const repoPath = data.repositoryPath
       const user = params!.user!
-      const githubIdentityProvider = await this.app.service('identity-provider').Model.findOne({
-        where: {
+
+      const knexClient: Knex = this.app.get('knexClient')
+      const githubIdentityProvider = await knexClient
+        .from(identityProviderPath)
+        .where({
           userId: user.id,
           type: 'github'
-        }
-      })
+        })
+        .first()
+
       const githubPathRegexExec = GITHUB_URL_REGEX.exec(repoPath)
       if (!githubPathRegexExec) throw new BadRequest('Invalid Github URL')
       if (!githubIdentityProvider) throw new Error('Must be logged in with GitHub to link a project to a GitHub repo')
@@ -673,12 +681,15 @@ export class Project extends Service {
     if (params?.query?.allowed != null) {
       // See if the user has a GitHub identity-provider, and if they do, also determine which GitHub repos they personally
       // can push to.
-      const githubIdentityProvider = await this.app.service('identity-provider').Model.findOne({
-        where: {
+
+      const knexClient: Knex = this.app.get('knexClient')
+      const githubIdentityProvider = await knexClient
+        .from(identityProviderPath)
+        .where({
           userId: params.user!.id,
           type: 'github'
-        }
-      })
+        })
+        .first()
 
       // Get all of the projects that this user has permissions for, then calculate push status by whether the user
       // can push to it. This will make sure no one tries to push to a repo that they do not have write access to.
