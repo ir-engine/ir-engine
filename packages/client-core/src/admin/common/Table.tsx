@@ -136,7 +136,7 @@ const EnhancedTableHead = ({ order, orderBy, onRequestSort, columns }: EnhancedT
               >
                 {headCell.label}
                 {orderBy === headCell.id ? (
-                  <span style={{ border: 0, clip: 'rect(0 0 0 0)' }}>
+                  <span style={{ display: 'none', border: 0, clip: 'rect(0 0 0 0)' }}>
                     {order === 'desc' ? 'sorted descending' : 'sorted ascending'}
                   </span>
                 ) : null}
