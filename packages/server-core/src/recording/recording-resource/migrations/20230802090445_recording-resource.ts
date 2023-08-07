@@ -50,7 +50,7 @@ export async function up(knex: Knex): Promise<void> {
     const trx = await knex.transaction()
     await trx.raw('SET FOREIGN_KEY_CHECKS=0')
 
-    await knex.schema.createTable(recordingResourcePath, (table) => {
+    await trx.schema.createTable(recordingResourcePath, (table) => {
       //@ts-ignore
       table.uuid('id').collate('utf8mb4_bin').primary()
       //@ts-ignore
