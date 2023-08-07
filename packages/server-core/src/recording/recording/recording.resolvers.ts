@@ -83,9 +83,9 @@ export const recordingResolver = resolve<RecordingType, HookContext>({
   })
 })
 
-export const recordingResourceExternalResolver = resolve<RecordingType, HookContext>({})
+export const recordingExternalResolver = resolve<RecordingType, HookContext>({})
 
-export const recordingResourceDataResolver = resolve<RecordingType, HookContext>(
+export const recordingDataResolver = resolve<RecordingType, HookContext>(
   {
     id: async () => {
       return v4() as RecordingID
@@ -112,7 +112,7 @@ export const recordingResourceDataResolver = resolve<RecordingType, HookContext>
   }
 )
 
-export const recordingResourcePatchResolver = resolve<RecordingType, HookContext>(
+export const recordingPatchResolver = resolve<RecordingType, HookContext>(
   {
     updatedAt: getDateTimeSql
   },
@@ -127,4 +127,4 @@ export const recordingResourcePatchResolver = resolve<RecordingType, HookContext
   }
 )
 
-export const recordingResourceQueryResolver = resolve<RecordingQuery, HookContext>({})
+export const recordingQueryResolver = resolve<RecordingQuery, HookContext>({})
