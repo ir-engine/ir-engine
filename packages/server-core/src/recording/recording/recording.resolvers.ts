@@ -35,11 +35,29 @@ import {
   recordingResourcePath
 } from '@etherealengine/engine/src/schemas/recording/recording-resource.schema'
 import {
+  RecordingDatabaseType,
   RecordingID,
   RecordingQuery,
+  RecordingSchemaType,
   RecordingType
 } from '@etherealengine/engine/src/schemas/recording/recording.schema'
 import { getDateTimeSql } from '../../util/get-datetime-sql'
+
+export const recordingDbToSchema = (rawData: RecordingDatabaseType): RecordingType => {
+  let schema = JSON.parse(rawData.schema) as RecordingSchemaType
+
+  // Usually above JSON.parse should be enough. But since our pre-feathers 5 data
+  // was serialized multiple times, therefore we need to parse it twice.
+  if (typeof schema === 'string') {
+    schema = JSON.parse(schema)
+  }
+
+  return {
+    ...rawData,
+    resources: [],
+    schema
+  }
+}
 
 export const recordingResolver = resolve<RecordingType, HookContext>({
   resources: virtual(async (recording, context) => {
@@ -67,24 +85,46 @@ export const recordingResolver = resolve<RecordingType, HookContext>({
 
 export const recordingResourceExternalResolver = resolve<RecordingType, HookContext>({})
 
-export const recordingResourceDataResolver = resolve<RecordingType, HookContext>({
-  id: async () => {
-    return v4() as RecordingID
+export const recordingResourceDataResolver = resolve<RecordingType, HookContext>(
+  {
+    id: async () => {
+      return v4() as RecordingID
+    },
+    resources: async (value, recording) => {
+      return {
+        ...recording.resources,
+        id: v4(),
+        createdAt: await getDateTimeSql(),
+        updatedAt: await getDateTimeSql()
+      }
+    },
+    createdAt: getDateTimeSql,
+    updatedAt: getDateTimeSql
   },
-  resources: async (value, recording) => {
-    return {
-      ...recording.resources,
-      id: v4(),
-      createdAt: await getDateTimeSql(),
-      updatedAt: await getDateTimeSql()
+  {
+    // Convert the raw data into a new structure before running property resolvers
+    converter: async (rawData, context) => {
+      return {
+        ...rawData,
+        schema: JSON.stringify(rawData.schema)
+      }
     }
-  },
-  createdAt: getDateTimeSql,
-  updatedAt: getDateTimeSql
-})
+  }
+)
 
-export const recordingResourcePatchResolver = resolve<RecordingType, HookContext>({
-  updatedAt: getDateTimeSql
-})
+export const recordingResourcePatchResolver = resolve<RecordingType, HookContext>(
+  {
+    updatedAt: getDateTimeSql
+  },
+  {
+    // Convert the raw data into a new structure before running property resolvers
+    converter: async (rawData, context) => {
+      return {
+        ...rawData,
+        schema: JSON.stringify(rawData.schema)
+      }
+    }
+  }
+)
 
 export const recordingResourceQueryResolver = resolve<RecordingQuery, HookContext>({})

@@ -40,7 +40,7 @@ export const recordingSchemaType = Type.Object(
   },
   { $id: 'RecordingSchema', additionalProperties: false }
 )
-export type AwsKeysType = Static<typeof recordingSchemaType>
+export type RecordingSchemaType = Static<typeof recordingSchemaType>
 
 // Main data model schema
 export const recordingSchema = Type.Object(
@@ -62,7 +62,9 @@ export const recordingSchema = Type.Object(
 )
 export type RecordingType = Static<typeof recordingSchema>
 
-export type RecordingDatabaseType = Omit<RecordingType, 'schema' | 'resources'>
+export type RecordingDatabaseType = Omit<RecordingType, 'schema' | 'resources'> & {
+  schema: string
+}
 
 // Schema for creating new entries
 export const recordingDataSchema = Type.Pick(recordingSchema, ['userId', 'ended', 'schema'], {
