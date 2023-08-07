@@ -25,6 +25,7 @@ import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 import type { Static } from '@feathersjs/typebox'
 import { querySyntax, Type } from '@feathersjs/typebox'
 import { TypedString } from '../../common/types/TypeboxUtils'
+import { staticResourceDataSchema } from '../media/static-resource.schema'
 
 export const recordingPath = 'recording'
 
@@ -52,6 +53,7 @@ export const recordingSchema = Type.Object(
     userId: TypedString<UserId, 'uuid'>({
       format: 'uuid'
     }),
+    resources: Type.Array(Type.Ref(staticResourceDataSchema)),
 
     createdAt: Type.String({ format: 'date-time' }),
     updatedAt: Type.String({ format: 'date-time' })
@@ -60,9 +62,7 @@ export const recordingSchema = Type.Object(
 )
 export type RecordingType = Static<typeof recordingSchema>
 
-export type AwsSettingDatabaseType = Omit<RecordingType, 'schema'> & {
-  schema: string
-}
+export type RecordingDatabaseType = Omit<RecordingType, 'schema' | 'resources'>
 
 // Schema for creating new entries
 export const recordingDataSchema = Type.Pick(recordingSchema, ['userId', 'ended', 'schema'], {

@@ -56,7 +56,7 @@ export class RecordingService<T = RecordingType, ServiceParams extends Params = 
     this.app = app
   }
 
-  async get(id: RecordingID, params?: RecordingParams): Promise<T> {
+  async get(id: RecordingID, params?: RecordingParams) {
     // get resources with associated URLs
     // TODO: move resources population to resolvers once this service is migrated to feathers 5
     const resources = await this.app.service(recordingResourcePath).find({
@@ -70,7 +70,7 @@ export class RecordingService<T = RecordingType, ServiceParams extends Params = 
 
     result.resources = resources.map((resource) => resource.staticResource)
 
-    return result as T
+    return result
   }
 
   async find(

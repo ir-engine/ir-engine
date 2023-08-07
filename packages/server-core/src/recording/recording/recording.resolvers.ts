@@ -24,11 +24,16 @@ Ethereal Engine. All Rights Reserved.
 */
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
-import { resolve } from '@feathersjs/schema'
+import { resolve, virtual } from '@feathersjs/schema'
 import { v4 } from 'uuid'
 
 import type { HookContext } from '@etherealengine/server-core/declarations'
 
+import { StaticResourceType, staticResourcePath } from '@etherealengine/engine/src/schemas/media/static-resource.schema'
+import {
+  RecordingResourceType,
+  recordingResourcePath
+} from '@etherealengine/engine/src/schemas/recording/recording-resource.schema'
 import {
   RecordingID,
   RecordingQuery,
@@ -36,13 +41,43 @@ import {
 } from '@etherealengine/engine/src/schemas/recording/recording.schema'
 import { getDateTimeSql } from '../../util/get-datetime-sql'
 
-export const recordingResourceResolver = resolve<RecordingType, HookContext>({})
+export const recordingResolver = resolve<RecordingType, HookContext>({
+  resources: virtual(async (recording, context) => {
+    const recordingResource = (await context.app.service(recordingResourcePath).find({
+      query: {
+        recordingId: recording.id
+      },
+      paginate: false
+    })) as RecordingResourceType[]
+
+    //TODO: We should replace `as any as StaticResourceType` with `as StaticResourceType` once static-resource service is migrated to feathers 5.
+    const staticResource = [] as StaticResourceType[]
+
+    for (const resource of recordingResource) {
+      const staticResourceResult = (await context.app
+        .service(staticResourcePath)
+        .get(resource.staticResourceId)) as any as StaticResourceType
+
+      staticResource.push(staticResourceResult)
+    }
+
+    return staticResource
+  })
+})
 
 export const recordingResourceExternalResolver = resolve<RecordingType, HookContext>({})
 
 export const recordingResourceDataResolver = resolve<RecordingType, HookContext>({
   id: async () => {
     return v4() as RecordingID
+  },
+  resources: async (value, recording) => {
+    return {
+      ...recording.resources,
+      id: v4(),
+      createdAt: await getDateTimeSql(),
+      updatedAt: await getDateTimeSql()
+    }
   },
   createdAt: getDateTimeSql,
   updatedAt: getDateTimeSql
