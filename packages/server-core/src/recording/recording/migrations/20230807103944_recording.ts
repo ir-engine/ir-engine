@@ -43,7 +43,12 @@ export async function up(knex: Knex): Promise<void> {
   }
 
   if (!tableExists && !oldNamedTableExists) {
-    await knex.schema.createTable(recordingPath, (table) => {
+    // Added transaction here in order to ensure both below queries run on same pool.
+    // https://github.com/knex/knex/issues/218#issuecomment-56686210
+    const trx = await knex.transaction()
+    await trx.raw('SET FOREIGN_KEY_CHECKS=0')
+
+    await trx.schema.createTable(recordingPath, (table) => {
       //@ts-ignore
       table.uuid('id').collate('utf8mb4_bin').primary()
       table.boolean('ended').notNullable().defaultTo(false)
@@ -56,6 +61,10 @@ export async function up(knex: Knex): Promise<void> {
       // Foreign keys
       table.foreign('userId').references('id').inTable('user').onDelete('CASCADE').onUpdate('CASCADE')
     })
+
+    await trx.raw('SET FOREIGN_KEY_CHECKS=1')
+
+    await trx.commit()
   }
 }
 
