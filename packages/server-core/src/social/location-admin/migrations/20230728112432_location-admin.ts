@@ -34,21 +34,22 @@ import { locationAdminPath } from '@etherealengine/engine/src/schemas/social/loc
 export async function up(knex: Knex): Promise<void> {
   const oldTableName = 'location_admin'
 
-  const oldNamedTableExists = await knex.schema.hasTable(oldTableName)
-  let tableExists = await knex.schema.hasTable(locationAdminPath)
+  // Added transaction here in order to ensure both below queries run on same pool.
+  // https://github.com/knex/knex/issues/218#issuecomment-56686210
+  const trx = await knex.transaction()
+  await trx.raw('SET FOREIGN_KEY_CHECKS=0')
+
+  const oldNamedTableExists = await trx.schema.hasTable(oldTableName)
+  let tableExists = await trx.schema.hasTable(locationAdminPath)
   if (oldNamedTableExists) {
     // In case sequelize creates the new table before we migrate the old table
-    if (tableExists) await knex.schema.dropTable(locationAdminPath)
-    await knex.schema.renameTable(oldTableName, locationAdminPath)
+    if (tableExists) await trx.schema.dropTable(locationAdminPath)
+    await trx.schema.renameTable(oldTableName, locationAdminPath)
   }
 
-  tableExists = await knex.schema.hasTable(locationAdminPath)
+  tableExists = await trx.schema.hasTable(locationAdminPath)
 
   if (tableExists === false) {
-    // Added transaction here in order to ensure both below queries run on same pool.
-    // https://github.com/knex/knex/issues/218#issuecomment-56686210
-    const trx = await knex.transaction()
-    await trx.raw('SET FOREIGN_KEY_CHECKS=0')
     await trx.schema.createTable(locationAdminPath, (table) => {
       //@ts-ignore
       table.uuid('id').collate('utf8mb4_bin').primary()
@@ -62,10 +63,10 @@ export async function up(knex: Knex): Promise<void> {
       table.foreign('userId').references('id').inTable('user').onDelete('CASCADE').onUpdate('CASCADE')
       table.foreign('locationId').references('id').inTable('location').onDelete('CASCADE').onUpdate('CASCADE')
     })
-
-    await trx.raw('SET FOREIGN_KEY_CHECKS=1')
-    await trx.commit()
   }
+
+  await trx.raw('SET FOREIGN_KEY_CHECKS=1')
+  await trx.commit()
 }
 
 /**
