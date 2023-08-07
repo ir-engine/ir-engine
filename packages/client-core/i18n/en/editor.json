@@ -631,7 +631,8 @@
       "title": "Transform",
       "lbl-position": "Position",
       "lbl-rotation": "Rotation",
-      "lbl-scale": "Scale"
+      "lbl-scale": "Scale",
+      "lbl-useLocalTransform": "Use Local Transform"
     },
     "triggereVolume": {
       "description": "Sets a property on the target object on enter and leave.",

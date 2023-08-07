@@ -41,9 +41,10 @@ import { TransformGizmoComponent } from '@etherealengine/engine/src/scene/compon
 import { TransformSpace } from '@etherealengine/engine/src/scene/constants/transformConstants'
 import {
   LocalTransformComponent,
-  TransformComponent
+  TransformComponent,
+  TransformComponentType
 } from '@etherealengine/engine/src/transform/components/TransformComponent'
-import { dispatchAction, getMutableState } from '@etherealengine/hyperflux'
+import { State, dispatchAction, getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
 import { EditorControlFunctions } from '../../functions/EditorControlFunctions'
 import { EditorHistoryAction } from '../../services/EditorHistory'
@@ -58,8 +59,6 @@ import { EditorComponentType, updateProperty } from './Util'
 
 /**
  * TransformPropertyGroup component is used to render editor view to customize properties.
- *
- * @type {class component}
  */
 export const TransformPropertyGroup: EditorComponentType = (props) => {
   const { t } = useTranslation()
@@ -67,6 +66,7 @@ export const TransformPropertyGroup: EditorComponentType = (props) => {
   useOptionalComponent(props.entity, SceneDynamicLoadTagComponent)
   const transformComponent = useComponent(props.entity, TransformComponent)
   const localTransformComponent = useOptionalComponent(props.entity, LocalTransformComponent)
+  const useLocalTransformComponent = useHookstate(false)
 
   const onRelease = () => {
     dispatchAction(EditorHistoryAction.createSnapshot({}))
@@ -79,7 +79,6 @@ export const TransformPropertyGroup: EditorComponentType = (props) => {
     EditorControlFunctions.addOrRemoveComponent(nodes, SceneDynamicLoadTagComponent, value)
   }
 
-  //function to handle the position properties
   const onChangePosition = (value: Vector3) => {
     const nodes = getEntityNodeArrayFromEntities(getMutableState(SelectionState).selectedEntities.value)
     EditorControlFunctions.positionObject(nodes, [value])
@@ -91,7 +90,6 @@ export const TransformPropertyGroup: EditorComponentType = (props) => {
     }
   }
 
-  //function to handle changes rotation properties
   const onChangeRotation = (value: Euler) => {
     const nodes = getEntityNodeArrayFromEntities(getMutableState(SelectionState).selectedEntities.value)
     EditorControlFunctions.rotateObject(nodes, [value])
@@ -103,14 +101,15 @@ export const TransformPropertyGroup: EditorComponentType = (props) => {
     }
   }
 
-  //function to handle changes in scale properties
   const onChangeScale = (value) => {
     const nodes = getEntityNodeArrayFromEntities(getMutableState(SelectionState).selectedEntities.value)
     EditorControlFunctions.scaleObject(nodes, [value], TransformSpace.Local, true)
   }
 
-  //rendering editor view for Transform properties
-  const transform = localTransformComponent ?? transformComponent!
+  let transform: State<TransformComponentType> = transformComponent
+  if (useLocalTransformComponent.value) {
+    transform = localTransformComponent!
+  }
 
   return (
     <NodeEditor component={TransformComponent} {...props} name={t('editor:properties.transform.title')}>
@@ -127,6 +126,14 @@ export const TransformPropertyGroup: EditorComponentType = (props) => {
           />
         )}
       </InputGroup>
+      {localTransformComponent && (
+        <InputGroup name="Use Local Transform" label={t('editor:properties.transform.lbl-useLocalTransform')}>
+          <BooleanInput
+            value={useLocalTransformComponent.value}
+            onChange={() => useLocalTransformComponent.set((prev) => !prev)}
+          />
+        </InputGroup>
+      )}
       <InputGroup name="Position" label={t('editor:properties.transform.lbl-position')}>
         <Vector3Input
           value={transform.position.value}
