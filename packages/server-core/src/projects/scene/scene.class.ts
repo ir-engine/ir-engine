@@ -32,7 +32,10 @@ import { isDev } from '@etherealengine/common/src/config'
 import { SceneData, SceneJson } from '@etherealengine/common/src/interfaces/SceneInterface'
 import defaultSceneSeed from '@etherealengine/projects/default-project/default.scene.json'
 
-import { parseStorageProviderURLs } from '@etherealengine/engine/src/common/functions/parseSceneJSON'
+import {
+  cleanStorageProviderURLs,
+  parseStorageProviderURLs
+} from '@etherealengine/engine/src/common/functions/parseSceneJSON'
 import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
 import { getCacheDomain } from '../../media/storageprovider/getCacheDomain'
@@ -256,7 +259,7 @@ export class Scene implements ServiceMethods<any> {
       await storageProvider.putObject({
         Key: newSceneJsonPath,
         Body: Buffer.from(
-          JSON.stringify(parseStorageProviderURLs(sceneData ?? (defaultSceneSeed as unknown as SceneJson)))
+          JSON.stringify(cleanStorageProviderURLs(sceneData ?? (defaultSceneSeed as unknown as SceneJson)))
         ),
         ContentType: 'application/json'
       })
@@ -287,7 +290,7 @@ export class Scene implements ServiceMethods<any> {
 
         fs.writeFileSync(
           path.resolve(newSceneJsonPathLocal),
-          JSON.stringify(parseStorageProviderURLs(sceneData ?? (defaultSceneSeed as unknown as SceneJson)), null, 2)
+          JSON.stringify(cleanStorageProviderURLs(sceneData ?? (defaultSceneSeed as unknown as SceneJson)), null, 2)
         )
 
         if (thumbnailBuffer && Buffer.isBuffer(thumbnailBuffer)) {

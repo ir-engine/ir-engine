@@ -44,7 +44,17 @@ export async function up(knex: Knex): Promise<void> {
 
   tableExists = await knex.schema.hasTable(locationAdminPath)
 
-  if (tableExists === false) {
+  if (tableExists) {
+    const hasIdColum = await knex.schema.hasColumn(locationAdminPath, 'id')
+    const hasLocationIdColumn = await knex.schema.hasColumn(locationAdminPath, 'locationId')
+    const hasUserIdColumn = await knex.schema.hasColumn(locationAdminPath, 'userId')
+    if (!(hasLocationIdColumn && hasIdColum && hasUserIdColumn)) {
+      await knex.schema.dropTable(locationAdminPath)
+      tableExists = false
+    }
+  }
+
+  if (!tableExists && !oldNamedTableExists) {
     await knex.schema.createTable(locationAdminPath, (table) => {
       //@ts-ignore
       table.uuid('id').collate('utf8mb4_bin').primary()
