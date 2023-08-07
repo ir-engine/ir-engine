@@ -33,45 +33,47 @@ import type { Knex } from 'knex'
 export async function up(knex: Knex): Promise<void> {
   const oldTableName = 'identity_provider'
 
-  const oldNamedTableExists = await knex.schema.hasTable(oldTableName)
-  let tableExists = await knex.schema.hasTable(identityProviderPath)
+  // Added transaction here in order to ensure both below queries run on same pool.
+  // https://github.com/knex/knex/issues/218#issuecomment-56686210
+  const trx = await knex.transaction()
+  await trx.raw('SET FOREIGN_KEY_CHECKS=0')
+
+  const oldNamedTableExists = await trx.schema.hasTable(oldTableName)
+  let tableExists = await trx.schema.hasTable(identityProviderPath)
 
   if (oldNamedTableExists) {
     // In case sequelize creates the new table before we migrate the old table
-    if (tableExists) await knex.schema.dropTable(identityProviderPath)
-    await knex.schema.renameTable(oldTableName, identityProviderPath)
+    if (tableExists) await trx.schema.dropTable(identityProviderPath)
+    await trx.schema.renameTable(oldTableName, identityProviderPath)
   }
 
-  tableExists = await knex.schema.hasTable(identityProviderPath)
+  tableExists = await trx.schema.hasTable(identityProviderPath)
 
   if (tableExists === false) {
-    // Added transaction here in order to ensure both below queries run on same pool.
-    // https://github.com/knex/knex/issues/218#issuecomment-56686210
-    const trx = await knex.transaction()
-    await trx.raw('SET FOREIGN_KEY_CHECKS=0')
     await trx.schema.createTable(identityProviderPath, (table) => {
       //@ts-ignore
       table.uuid('id').collate('utf8mb4_bin').primary()
       //@ts-ignore
-      table.uuid('token', 255).collate('utf8mb4_bin').unique()
-      table.string('accountIdentifier', 255)
-      table.string('oauthToken', 255)
+      table.uuid('token', 255).collate('utf8mb4_bin').defaultTo(null)
+      table.string('accountIdentifier', 255).defaultTo(null)
+      table.string('oauthToken', 255).defaultTo(null)
       table.string('type', 255).notNullable()
       //@ts-ignore
-      table.uuid('userId').collate('utf8mb4_bin').index()
+      table.uuid('userId').collate('utf8mb4_bin').defaultTo(null).index()
       table.dateTime('createdAt').notNullable()
       table.dateTime('updatedAt').notNullable()
 
       // unique combinations
       table.unique(['userId', 'token'], { indexName: 'identity_provider_user_id_token' })
       table.unique(['userId', 'type'], { indexName: 'identity_provider_user_id_type' })
+      table.unique(['token'], { indexName: 'token' })
 
       table.foreign('userId').references('id').inTable('user').onDelete('CASCADE').onUpdate('CASCADE')
     })
-
-    await trx.raw('SET FOREIGN_KEY_CHECKS=1')
-    await trx.commit()
   }
+
+  await trx.raw('SET FOREIGN_KEY_CHECKS=1')
+  await trx.commit()
 }
 
 /**

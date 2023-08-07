@@ -38,7 +38,6 @@ import {
 import { Application } from '../../../declarations'
 
 import { Paginated } from '@feathersjs/feathers'
-import { random } from 'lodash'
 
 import { isDev } from '@etherealengine/common/src/config'
 import { avatarPath, AvatarType } from '@etherealengine/engine/src/schemas/user/avatar.schema'
@@ -216,13 +215,7 @@ export class IdentityProviderService<
       result = await super._create(
         {
           ...data,
-          ...identityProvider,
-          user: {
-            id: userId,
-            isGuest,
-            inviteCode: type === 'guest' ? null : code,
-            avatarId: avatars.data[random(avatars.data.length - 1)].id
-          }
+          ...identityProvider
         },
         params
       )
