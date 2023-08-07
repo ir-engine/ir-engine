@@ -83,8 +83,12 @@ export const Flow: React.FC<FlowProps> = ({ initialGraph: graph, examples, regis
   }, [graphJson])
 
   useEffect(() => {
+    const intervalId = setInterval(() => {
+      onChangeGraph(graphJsonRef.current) // auto save every 5 seconds
+    }, 5000)
     return () => {
-      onChangeGraph(graphJsonRef.current) // save the updated graph in component
+      onChangeGraph(graphJsonRef.current) // save the graph when we unmount
+      clearInterval(intervalId)
     }
   }, [])
 
