@@ -29,14 +29,18 @@ import React, { useEffect } from 'react'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { dataChannelRegistry, NetworkState } from '@etherealengine/engine/src/networking/NetworkState'
-import { getMutableState } from '@etherealengine/hyperflux'
+import { getMutableState, getState } from '@etherealengine/hyperflux'
 
 import { DataChannelType } from '@etherealengine/common/src/interfaces/DataChannelType'
+import { UserId } from '@etherealengine/common/src/interfaces/UserId'
+import { ProducerState } from '@etherealengine/engine/src/networking/systems/ProducerConsumerState'
 import { useWorldInstance } from '../../common/services/LocationInstanceConnectionService'
 import {
   createDataConsumer,
   createDataProducer,
-  SocketWebRTCClientNetwork
+  SocketWebRTCClientNetwork,
+  subscribeToTrack,
+  unsubscribeFromTrack
 } from '../../transports/SocketWebRTCClientFunctions'
 
 export const DataChannel = ({ dataChannelType }: { dataChannelType: DataChannelType }) => {
@@ -64,6 +68,50 @@ export const DataChannels = () => {
     <>
       {Array.from(dataChannelRegistry.keys()).map((dataChannelType) => (
         <DataChannel key={dataChannelType} dataChannelType={dataChannelType as DataChannelType} />
+      ))}
+    </>
+  )
+}
+
+export const NetworkProducer = (props: { networkID: UserId; producerID: string }) => {
+  const { networkID, producerID } = props
+
+  useEffect(() => {
+    const network = getState(NetworkState).networks[networkID] as SocketWebRTCClientNetwork
+
+    const producer = getState(ProducerState)[networkID][producerID]
+    const { peerID, mediaTag, channelID } = producer
+    console.warn('subscribing to track', peerID, mediaTag, producerID, channelID)
+
+    subscribeToTrack(network, peerID, mediaTag, producerID, channelID)
+    return () => {
+      console.warn('unsubscribing from track', peerID, mediaTag, producerID, channelID)
+      unsubscribeFromTrack(network, peerID, mediaTag)
+    }
+  }, [])
+
+  return <></>
+}
+
+export const NetworkProducers = (props: { networkID: UserId }) => {
+  const { networkID } = props
+  const producers = useHookstate(getMutableState(ProducerState)[networkID])
+
+  return (
+    <>
+      {Object.keys(producers.value).map((producerID: string) => (
+        <NetworkProducer key={producerID} producerID={producerID} networkID={networkID} />
+      ))}
+    </>
+  )
+}
+
+export const ProducerReactor = () => {
+  const networkIDs = useHookstate(getMutableState(ProducerState))
+  return (
+    <>
+      {Object.keys(networkIDs.value).map((hostId: UserId) => (
+        <NetworkProducers key={hostId} networkID={hostId} />
       ))}
     </>
   )

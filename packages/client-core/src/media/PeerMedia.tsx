@@ -305,7 +305,7 @@ export const PeerMediaChannels = () => {
   return null
 }
 
-export const PeerConsumers = () => {
+export const PeerMediaConsumers = () => {
   const mediaStreamState = useHookstate(getMutableState(MediaStreamState))
   const peerMediaChannelState = useHookstate(getMutableState(PeerMediaChannelState))
   const networkState = useHookstate(getMutableState(NetworkState))

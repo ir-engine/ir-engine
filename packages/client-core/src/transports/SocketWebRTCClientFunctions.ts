@@ -598,7 +598,7 @@ export async function onConnectToMediaInstance(network: SocketWebRTCClientNetwor
     }
   }
 
-  async function webRTCCreateProducerHandler({
+  function webRTCCreateProducerHandler({
     peerID,
     mediaTag,
     producerId,
@@ -609,25 +609,7 @@ export async function onConnectToMediaInstance(network: SocketWebRTCClientNetwor
     producerId: string
     channelId: ChannelID
   }) {
-    const selfProducerIds = [mediaStreamState.camVideoProducer.value?.id, mediaStreamState.camAudioProducer.value?.id]
-    const channelConnectionState = getState(MediaInstanceState)
-    const currentChannelInstanceConnection = channelConnectionState.instances[network.hostId]
-
-    const consumerMatch = network.consumers.find(
-      (c) => c?.appData?.peerID === peerID && c?.appData?.mediaTag === mediaTag && c?.producerId === producerId
-    )
-    if (
-      producerId != null &&
-      selfProducerIds.indexOf(producerId) < 0 &&
-      //The commented portion below was causing re-creation of consumers when the existing one was merely unable
-      //to provide data for a short time. If it's necessary for some logic to work, then it should be rewritten
-      //to do something like record when it started being muted, and only run if it's been muted for a while.
-      consumerMatch == null /*|| (consumerMatch.track?.muted && consumerMatch.track?.enabled)*/ &&
-      currentChannelInstanceConnection.channelId === channelId
-    ) {
-      // that we don't already have consumers for...
-      await subscribeToTrack(network as SocketWebRTCClientNetwork, peerID, mediaTag)
-    }
+    // subscribeToTrack(network as SocketWebRTCClientNetwork, peerID, mediaTag, producerId, channelId)
   }
 
   async function reconnectHandler() {
@@ -1225,12 +1207,36 @@ export function resetProducer(): void {
   mediaStreamState.localScreen.set(null)
 }
 
-export async function subscribeToTrack(network: SocketWebRTCClientNetwork, peerID: PeerID, mediaTag: MediaTagType) {
+export async function subscribeToTrack(
+  network: SocketWebRTCClientNetwork,
+  peerID: PeerID,
+  mediaTag: MediaTagType,
+  producerId: string,
+  channelId: ChannelID
+) {
   const primus = network.primus
   if (primus?.disconnect) return
+
+  const mediaStreamState = getState(MediaStreamState)
+
+  const selfProducerIds = [mediaStreamState.camVideoProducer?.id, mediaStreamState.camAudioProducer?.id]
   const channelConnectionState = getState(MediaInstanceState)
   const currentChannelInstanceConnection = channelConnectionState.instances[network.hostId]
-  const channelId = currentChannelInstanceConnection.channelId
+
+  const consumerMatch = network.consumers.find(
+    (c) => c?.appData?.peerID === peerID && c?.appData?.mediaTag === mediaTag && c?.producerId === producerId
+  )
+  if (
+    !producerId ||
+    selfProducerIds.includes(producerId) ||
+    //The commented portion below was causing re-creation of consumers when the existing one was merely unable
+    //to provide data for a short time. If it's necessary for some logic to work, then it should be rewritten
+    //to do something like record when it started being muted, and only run if it's been muted for a while.
+    consumerMatch /*|| !(consumerMatch.track?.muted && consumerMatch.track?.enabled)*/ ||
+    currentChannelInstanceConnection.channelId !== channelId
+  ) {
+    return //console.error('Invalid consumer', producerId, selfProducerIds, consumerMatch, currentChannelInstanceConnection.channelId === channelId)
+  }
 
   // ask the server to create a server-side consumer object and send us back the info we need to create a client-side consumer
   const consumerParameters = await promisedRequest(network, MessageTypes.WebRTCReceiveTrack.toString(), {
@@ -1265,9 +1271,14 @@ export async function subscribeToTrack(network: SocketWebRTCClientNetwork, peerI
     await closeConsumer(network, existingConsumer)
     networkState.consumers.merge([consumer])
     // okay, we're ready. let's ask the peer to send us media
-    if (!consumer.producerPaused) await resumeConsumer(network, consumer)
-    else await pauseConsumer(network, consumer)
-  } else await closeConsumer(network, consumer)
+    if (!consumer.producerPaused) {
+      await resumeConsumer(network, consumer)
+    } else {
+      await pauseConsumer(network, consumer)
+    }
+  } else {
+    await closeConsumer(network, consumer)
+  }
 }
 
 export async function unsubscribeFromTrack(network: SocketWebRTCClientNetwork, peerID: PeerID, mediaTag: any) {

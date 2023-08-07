@@ -50,7 +50,7 @@ import {
   MediaStreamAppData,
   MediaTagType
 } from '@etherealengine/engine/src/networking/NetworkState'
-import { getState } from '@etherealengine/hyperflux'
+import { dispatchAction, getState } from '@etherealengine/hyperflux'
 import config from '@etherealengine/server-core/src/appconfig'
 import { localConfig, sctpParameters } from '@etherealengine/server-core/src/config'
 import multiLogger from '@etherealengine/server-core/src/ServerLogger'
@@ -58,6 +58,7 @@ import { ServerState } from '@etherealengine/server-core/src/ServerState'
 import { WebRtcTransportParams } from '@etherealengine/server-core/src/types/WebRtcTransportParams'
 
 import { DataChannelType } from '@etherealengine/common/src/interfaces/DataChannelType'
+import { ProducerActions } from '@etherealengine/engine/src/networking/systems/ProducerConsumerState'
 import { InstanceServerState } from './InstanceServerState'
 import { getUserIdFromPeerID } from './NetworkFunctions'
 import {
@@ -181,15 +182,25 @@ export const sendCurrentProducers = async (
     for (const [dataChannel, peerMedia] of Object.entries(client.media)) {
       if (peerMedia.channelId !== channelId || peerMedia.paused) continue
       // logger.info(`Sending producer ${peerMedia.producerId} to peer "${peerID}".`)
-      spark.write({
-        type: MessageTypes.WebRTCCreateProducer.toString(),
-        data: {
+      // spark.write({
+      //   type: MessageTypes.WebRTCCreateProducer.toString(),
+      //   data: {
+      //     peerID,
+      //     mediaTag: dataChannel,
+      //     producerId: peerMedia.producerId,
+      //     channelId
+      //   }
+      // })
+
+      dispatchAction(
+        ProducerActions.createProducer({
           peerID,
-          mediaTag: dataChannel,
+          mediaTag: dataChannel as DataChannelType,
           producerId: peerMedia.producerId,
-          channelId
-        }
-      })
+          channelID: channelId,
+          $topic: network.topic
+        })
+      )
     }
   }
 }
@@ -777,19 +788,28 @@ export async function handleWebRtcSendTrack(
         channelId: appData.channelId
       }
     }
-    for (const [clientPeerID, client] of network.peers) {
-      if (clientPeerID !== peerID && client.spark) {
-        client.spark.write({
-          type: MessageTypes.WebRTCCreateProducer.toString(),
-          data: {
-            peerID,
-            mediaTag: appData.mediaTag,
-            producerId: producer.id,
-            channelId: appData.channelId
-          }
-        })
-      }
-    }
+    dispatchAction(
+      ProducerActions.createProducer({
+        peerID,
+        mediaTag: appData.mediaTag,
+        producerId: producer.id,
+        channelID: appData.channelId,
+        $topic: network.topic
+      })
+    )
+    // for (const [clientPeerID, client] of network.peers) {
+    //   if (clientPeerID !== peerID && client.spark) {
+    //     client.spark.write({
+    //       type: MessageTypes.WebRTCCreateProducer.toString(),
+    //       data: {
+    //         peerID,
+    //         mediaTag: appData.mediaTag,
+    //         producerId: producer.id,
+    //         channelId: appData.channelId
+    //       }
+    //     })
+    //   }
+    // }
     spark.write({ type: MessageTypes.WebRTCSendTrack.toString(), data: { id: producer.id }, id: messageId })
   } catch (err) {
     logger.error(err, 'Error with sendTrack.')
