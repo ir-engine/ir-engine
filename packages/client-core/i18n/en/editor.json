@@ -750,7 +750,14 @@
       "back": "Back",
       "loadingFiles": "Loading files",
       "compress": "Compress",
-      "convert": "Convert"
+      "convert": "Convert",
+      "downloadProject": "Download Project",
+      "fileProperties": {
+        "name": "Name:",
+        "type": "Type:",
+        "size": "Size:",
+        "url": "URL:"
+      }
     }
   },
   "hierarchy": {
@@ -833,7 +840,7 @@
       "msg": "You can file a <1>GitHub Issue</1> or e-mail us for support at <3>{{mail}}</3>",
       "discord": "You can also find us on <1>Discord</1>"
     },
-    "confirmContentDelete": "Do you want to delete this",
+    "confirmContentDelete": "Do you want to delete",
     "file": "file",
     "folder": "folder"
   },

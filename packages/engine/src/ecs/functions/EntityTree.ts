@@ -332,8 +332,10 @@ export function traverseEntityNodeChildFirst(
 
   if (!entityTreeNode) return
 
-  for (let i = 0; i < entityTreeNode.children.length; i++) {
-    const child = entityTreeNode.children[i]
+  const children = [...entityTreeNode.children]
+
+  for (let i = 0; i < children.length; i++) {
+    const child = children[i]
     traverseEntityNodeChildFirst(child, cb, i)
   }
 
