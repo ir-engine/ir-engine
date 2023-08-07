@@ -48,7 +48,7 @@ import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 import multiLogger from '@etherealengine/common/src/logger'
 import { getSearchParamFromURL } from '@etherealengine/common/src/utils/getSearchParamFromURL'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { EngineActions, EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
+import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { createNetwork, NetworkTopics, TransportInterface } from '@etherealengine/engine/src/networking/classes/Network'
 import { PUBLIC_STUN_SERVERS } from '@etherealengine/engine/src/networking/constants/STUNServers'
 import {
@@ -78,6 +78,7 @@ import {
 import { dispatchAction, getMutableState, getState, none, removeActionsForTopic } from '@etherealengine/hyperflux'
 import { Action, Topic } from '@etherealengine/hyperflux/functions/ActionFunctions'
 
+import { ChannelID } from '@etherealengine/common/src/interfaces/ChannelUser'
 import { DataChannelType } from '@etherealengine/common/src/interfaces/DataChannelType'
 import {
   LocationInstanceConnectionAction,
@@ -239,7 +240,7 @@ export const connectToNetwork = async (
     ipAddress: string
     port: string
     locationId?: string | null
-    channelId?: string | null
+    channelId?: ChannelID | null
     roomCode?: string | null
   }
 ) => {
@@ -255,7 +256,7 @@ export const connectToNetwork = async (
     token
   } as {
     locationId?: string
-    channelId?: string
+    channelId?: ChannelID
     roomCode?: string
     address?: string
     port?: string
@@ -526,7 +527,7 @@ export async function onConnectToWorldInstance(network: SocketWebRTCClientNetwor
 
   async function disconnectHandler() {
     dispatchAction(NetworkConnectionService.actions.worldInstanceDisconnected({}))
-    dispatchAction(EngineActions.connectToWorld({ connectedWorld: false }))
+    getMutableState(EngineState).connectedWorld.set(false)
     network.primus.removeListener('data', consumeDataAndKickHandler)
   }
 
@@ -544,7 +545,7 @@ export async function onConnectToWorldInstance(network: SocketWebRTCClientNetwor
 
   await Promise.all([initSendTransport(network), initReceiveTransport(network)])
 
-  dispatchAction(EngineActions.connectToWorld({ connectedWorld: true }))
+  getMutableState(EngineState).connectedWorld.set(true)
 
   // use sendBeacon to tell the server we're disconnecting when
   // the page unloads
@@ -606,7 +607,7 @@ export async function onConnectToMediaInstance(network: SocketWebRTCClientNetwor
     peerID: PeerID
     mediaTag: MediaTagType
     producerId: string
-    channelId: string
+    channelId: ChannelID
   }) {
     const selfProducerIds = [mediaStreamState.camVideoProducer.value?.id, mediaStreamState.camAudioProducer.value?.id]
     const channelConnectionState = getState(MediaInstanceState)
@@ -1476,7 +1477,7 @@ export async function leaveNetwork(network: SocketWebRTCClientNetwork, kicked?: 
       removeNetwork(network)
       getMutableState(NetworkState).hostIds.world.set(none)
       dispatchAction(LocationInstanceConnectionAction.disconnect({ instanceId: network.hostId }))
-      dispatchAction(EngineActions.connectToWorld({ connectedWorld: false }))
+      getMutableState(EngineState).connectedWorld.set(false)
       // if world has a media server connection
       if (Engine.instance.mediaNetwork) {
         const mediaState = getState(MediaInstanceState).instances[Engine.instance.mediaNetwork.hostId]

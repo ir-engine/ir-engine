@@ -223,7 +223,7 @@ export const useOfflineNetwork = (props?: { spectate?: boolean }) => {
   const authState = useHookstate(getMutableState(AuthState))
 
   useEffect(() => {
-    dispatchAction(EngineActions.connectToWorld({ connectedWorld: true }))
+    engineState.connectedWorld.set(true)
   }, [])
 
   /** OFFLINE */
