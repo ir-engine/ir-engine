@@ -28,7 +28,7 @@ import { useTranslation } from 'react-i18next'
 
 import ProjectDrawer from '@etherealengine/client-core/src/admin/components/Project/ProjectDrawer'
 import { ProjectService, ProjectState } from '@etherealengine/client-core/src/common/services/ProjectService'
-import { useRouter } from '@etherealengine/client-core/src/common/services/RouterService'
+import { RouterService } from '@etherealengine/client-core/src/common/services/RouterService'
 import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
 import { ProjectInterface } from '@etherealengine/common/src/interfaces/ProjectInterface'
 import multiLogger from '@etherealengine/common/src/logger'
@@ -193,7 +193,6 @@ const ProjectsPage = () => {
   const githubProvider = user.identityProviders.value?.find((ip) => ip.type === 'github')
 
   const { t } = useTranslation()
-  const route = useRouter()
 
   const fetchInstalledProjects = async () => {
     loading.set(true)
@@ -274,7 +273,7 @@ const ProjectsPage = () => {
 
     dispatchAction(EditorAction.sceneChanged({ sceneName: null }))
     dispatchAction(EditorAction.projectChanged({ projectName: project.name }))
-    route(`/studio/${project.name}`)
+    RouterService.navigate(`/studio/${project.name}`)
   }
 
   const onCreateProject = async (name) => {

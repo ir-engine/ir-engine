@@ -27,19 +27,9 @@ import i18n from 'i18next'
 import { lazy, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 
-import { matches } from '@etherealengine/engine/src/common/functions/MatchesUtils'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { routePath, RouteType } from '@etherealengine/engine/src/schemas/route/route.schema'
-import {
-  addActionReceptor,
-  defineAction,
-  defineState,
-  dispatchAction,
-  getMutableState,
-  NO_PROXY,
-  removeActionReceptor,
-  useHookstate
-} from '@etherealengine/hyperflux'
+import { defineState, getMutableState, NO_PROXY, useHookstate } from '@etherealengine/hyperflux'
 import { loadRoute } from '@etherealengine/projects/loadRoute'
 
 export const RouterState = defineState({
@@ -48,19 +38,6 @@ export const RouterState = defineState({
     pathname: location.pathname
   })
 })
-
-export const RouterServiceReceptor = (action) => {
-  const s = getMutableState(RouterState)
-  matches(action).when(RouterAction.route.matches, (action) => {
-    s.pathname.set(action.pathname)
-  })
-}
-
-export const useRouter = () => {
-  return (pathname: string) => {
-    dispatchAction(RouterAction.route({ pathname }))
-  }
-}
 
 export type CustomRoute = {
   route: string
@@ -82,14 +59,16 @@ export const getCustomRoutes = async (): Promise<CustomRoute[]> => {
   if (!Array.isArray(routes) || routes == null) {
     throw new Error(i18n.t('editor:errors.fetchingRouteError', { error: i18n.t('editor:errors.unknownError') }))
   } else {
-    for (const project of routes) {
-      const routeLazyLoad = await loadRoute(project.project, project.route)
-      if (routeLazyLoad)
-        elements.push({
-          route: project.route,
-          ...routeLazyLoad
-        })
-    }
+    await Promise.all(
+      routes.map(async (project) => {
+        const routeLazyLoad = await loadRoute(project.project, project.route)
+        if (routeLazyLoad)
+          elements.push({
+            route: project.route,
+            ...routeLazyLoad
+          })
+      })
+    )
   }
 
   return elements.filter((c) => !!c)
@@ -100,22 +79,16 @@ export const useCustomRoutes = () => {
 
   const navigate = useNavigate()
   const routerState = useHookstate(getMutableState(RouterState))
-  const route = useRouter()
 
   useEffect(() => {
     getCustomRoutes().then((routes) => {
       customRoutes.set(routes)
     })
-
-    addActionReceptor(RouterServiceReceptor)
-    return () => {
-      removeActionReceptor(RouterServiceReceptor)
-    }
   }, [])
 
   useEffect(() => {
     if (location.pathname !== routerState.pathname.value) {
-      route(location.pathname)
+      routerState.pathname.set(location.pathname)
     }
   }, [location.pathname])
 
@@ -128,9 +101,8 @@ export const useCustomRoutes = () => {
   return customRoutes.get(NO_PROXY)
 }
 
-export class RouterAction {
-  static route = defineAction({
-    type: 'ee.client.Router.ROUTE' as const,
-    pathname: matches.string
-  })
+export const RouterService = {
+  navigate: (pathname: string) => {
+    getMutableState(RouterState).pathname.set(pathname)
+  }
 }

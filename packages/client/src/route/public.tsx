@@ -25,17 +25,13 @@ Ethereal Engine. All Rights Reserved.
 
 import React, { lazy, Suspense, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useLocation } from 'react-router-dom'
 
-import { AdminClientSettingsState } from '@etherealengine/client-core/src/admin/services/Setting/ClientSettingService'
 import ErrorBoundary from '@etherealengine/client-core/src/common/components/ErrorBoundary'
 import { ProjectServiceReceptor } from '@etherealengine/client-core/src/common/services/ProjectService'
-import { RouterServiceReceptor, useCustomRoutes } from '@etherealengine/client-core/src/common/services/RouterService'
+import { useCustomRoutes } from '@etherealengine/client-core/src/common/services/RouterService'
 import { LoadingCircle } from '@etherealengine/client-core/src/components/LoadingCircle'
 import { LocationServiceReceptor } from '@etherealengine/client-core/src/social/services/LocationService'
-import { AuthService } from '@etherealengine/client-core/src/user/services/AuthService'
-import waitForClientAuthenticated from '@etherealengine/client-core/src/util/wait-for-client-authenticated'
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { AuthService, AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
 import { addActionReceptor, getMutableState, removeActionReceptor, useHookstate } from '@etherealengine/hyperflux'
 
 const $index = lazy(() => import('@etherealengine/client/src/pages'))
@@ -47,43 +43,20 @@ const $location = lazy(() => import('@etherealengine/client/src/pages/location/l
 /** @deprecated see https://github.com/EtherealEngine/etherealengine/issues/6485 */
 function RouterComp({ route }: { route: string }) {
   const customRoutes = useCustomRoutes()
-  const clientSettingsState = useHookstate(getMutableState(AdminClientSettingsState))
-  const authSettingsState = useHookstate([] as any[])
-  const location = useLocation()
-  const routesReady = useHookstate(false)
+  const isLoggedIn = useHookstate(getMutableState(AuthState).isLoggedIn)
   const { t } = useTranslation()
 
   useEffect(() => {
-    addActionReceptor(RouterServiceReceptor)
     addActionReceptor(LocationServiceReceptor)
     addActionReceptor(ProjectServiceReceptor)
-
-    // Oauth callbacks may be running when a guest identity-provider has been deleted.
-    // This would normally cause doLoginAuto to make a guest user, which we do not want.
-    // Instead, just skip it on oauth callbacks, and the callback handler will log them in.
-    // The client and auth settigns will not be needed on these routes
-    if (!/auth\/oauth/.test(location.pathname)) {
-      AuthService.doLoginAuto()
-      waitForClientAuthenticated().then(async () => {
-        const authenticationSettingsResponse = await Engine.instance.api.service('authentication-setting').find()
-        authSettingsState.set(authenticationSettingsResponse.data)
-      })
-    }
+    AuthService.doLoginAuto()
     return () => {
-      removeActionReceptor(RouterServiceReceptor)
       removeActionReceptor(LocationServiceReceptor)
       removeActionReceptor(ProjectServiceReceptor)
     }
   }, [])
 
-  useEffect(() => {
-    // For the same reason as above, we will not need to load the client and auth settings for these routes
-    if (/auth\/oauth/.test(location.pathname) && customRoutes) return routesReady.set(true)
-    if (clientSettingsState.client.value.length && authSettingsState.value.length && customRoutes)
-      return routesReady.set(true)
-  }, [clientSettingsState.client.length, authSettingsState.value.length, customRoutes])
-
-  if (!routesReady.value) {
+  if (!customRoutes.length || !isLoggedIn.value) {
     return <LoadingCircle message={t('common:loader.loadingRoutes')} />
   }
 

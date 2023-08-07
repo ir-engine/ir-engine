@@ -37,13 +37,12 @@ import { AppLoadingAction } from '@etherealengine/engine/src/common/AppLoadingSe
 import { dispatchAction, getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
 import { SceneServices } from '@etherealengine/engine/src/ecs/classes/Scene'
-import { useRouter } from '../../common/services/RouterService'
+import { RouterService } from '../../common/services/RouterService'
 import { WarningUIService } from '../../systems/WarningUISystem'
 import { loadSceneJsonOffline } from '../../world/utils'
 
 export const useLoadLocation = (props: { locationName: string }) => {
   const locationState = useHookstate(getMutableState(LocationState))
-  const router = useRouter()
 
   useEffect(() => {
     dispatchAction(LocationAction.setLocationName({ locationName: props.locationName }))
@@ -57,7 +56,7 @@ export const useLoadLocation = (props: { locationName: string }) => {
         body: `${t('common:instanceServer.cantFindLocation')} '${locationState.locationName.value}'. ${t(
           'common:instanceServer.misspelledOrNotExist'
         )}`,
-        action: () => router('/')
+        action: () => RouterService('/')
       })
     }
   }, [locationState.invalidLocation])
