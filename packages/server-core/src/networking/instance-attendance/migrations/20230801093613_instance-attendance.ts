@@ -34,18 +34,23 @@ import { instanceAttendancePath } from '@etherealengine/engine/src/schemas/netwo
 export async function up(knex: Knex): Promise<void> {
   const oldTableName = 'instance_attendance'
 
-  const oldNamedTableExists = await knex.schema.hasTable(oldTableName)
-  let tableExists = await knex.schema.hasTable(instanceAttendancePath)
+  // Added transaction here in order to ensure both below queries run on same pool.
+  // https://github.com/knex/knex/issues/218#issuecomment-56686210
+  const trx = await knex.transaction()
+  await trx.raw('SET FOREIGN_KEY_CHECKS=0')
+
+  const oldNamedTableExists = await trx.schema.hasTable(oldTableName)
+  let tableExists = await trx.schema.hasTable(instanceAttendancePath)
   if (oldNamedTableExists) {
     // In case sequelize creates the new table before we migrate the old table
-    if (tableExists) await knex.schema.dropTable(instanceAttendancePath)
-    await knex.schema.renameTable(oldTableName, instanceAttendancePath)
+    if (tableExists) await trx.schema.dropTable(instanceAttendancePath)
+    await trx.schema.renameTable(oldTableName, instanceAttendancePath)
   }
 
-  tableExists = await knex.schema.hasTable(instanceAttendancePath)
+  tableExists = await trx.schema.hasTable(instanceAttendancePath)
 
   if (!tableExists && !oldNamedTableExists) {
-    await knex.schema.createTable(instanceAttendancePath, (table) => {
+    await trx.schema.createTable(instanceAttendancePath, (table) => {
       //@ts-ignore
       table.uuid('id').collate('utf8mb4_bin').primary()
       table.string('sceneId', 255)
@@ -62,6 +67,9 @@ export async function up(knex: Knex): Promise<void> {
       table.foreign('instanceId').references('id').inTable('instance').onDelete('SET NULL').onUpdate('CASCADE')
     })
   }
+
+  await trx.raw('SET FOREIGN_KEY_CHECKS=1')
+  await trx.commit()
 }
 
 /**
