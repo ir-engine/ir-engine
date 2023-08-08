@@ -23,14 +23,12 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { debounce } from 'lodash'
 import { BlendFunction } from 'postprocessing'
 import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Color } from 'three'
 
 import { useComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
-import { configureEffectComposer } from '@etherealengine/engine/src/renderer/functions/configureEffectComposer'
 import { PostProcessingComponent } from '@etherealengine/engine/src/scene/components/PostProcessingComponent'
 import { Effects } from '@etherealengine/engine/src/scene/constants/PostProcessing'
 
@@ -120,15 +118,15 @@ const EffectsOptions: EffectOptionsType = {
   BloomEffect: {
     blendFunction: { propertyType: PropertyTypes.BlendFunction, name: 'Blend Function' },
     kernelSize: { propertyType: PropertyTypes.KernelSize, name: 'Kernel Size' },
-    intensity: { propertyType: PropertyTypes.Number, name: 'Intensity', min: -1, max: 1000, step: 0.01 },
+    intensity: { propertyType: PropertyTypes.Number, name: 'Intensity', min: 0, max: 10, step: 0.01 },
     luminanceSmoothing: {
       propertyType: PropertyTypes.Number,
       name: 'Luminance Smoothing',
-      min: -1,
+      min: 0,
       max: 1,
       step: 0.01
     },
-    luminanceThreshold: { propertyType: PropertyTypes.Number, name: 'Luminance Threshold', min: -1, max: 1, step: 0.01 }
+    luminanceThreshold: { propertyType: PropertyTypes.Number, name: 'Luminance Threshold', min: 0, max: 1, step: 0.01 }
   },
   ToneMappingEffect: {
     blendFunction: { propertyType: PropertyTypes.BlendFunction, name: 'Blend Function' },
@@ -228,39 +226,24 @@ const PredicationMode = [
   { label: 'CUSTOM', value: 2 }
 ]
 
-const debouncedConfigureEffectComposer = debounce(() => {
-  configureEffectComposer()
-}, 200)
-
 export const PostProcessingSettingsEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
 
   const [openSettings, setOpenSettings] = useState(false)
   const postprocessing = useComponent(props.entity, PostProcessingComponent)
 
-  const getPropertyValue = (keys: string[]): any => {
-    if (keys.length < 1) return null
+  const renderProperty = (
+    propertyDetail: EffectPropertyDetail,
+    effectName: keyof typeof Effects,
+    property: string,
+    index: number
+  ) => {
+    const effectSettingState = postprocessing.effects[effectName][property]
 
-    let value = postprocessing.effects
+    const setPropertyValue = (val) => {
+      effectSettingState.set(val)
+    }
 
-    keys.forEach((element) => {
-      if (value[element] != null && value[element] !== '') {
-        value = value[element]
-      }
-    })
-
-    return value
-  }
-
-  // trigger re-render - @todo find out why just setting the value doesn't trigger the reactor
-  // action: debounced the set property value
-
-  const setPropertyValue = (prop, val) => {
-    prop.set(val)
-    debouncedConfigureEffectComposer()
-  }
-
-  const renderProperty = (propertyDetail: EffectPropertyDetail, propertyPath: string[], index: number) => {
     let renderVal = <></>
 
     switch (propertyDetail.propertyType) {
@@ -270,37 +253,29 @@ export const PostProcessingSettingsEditor: EditorComponentType = (props) => {
             min={propertyDetail.min}
             max={propertyDetail.max}
             step={propertyDetail.step}
-            value={getPropertyValue(propertyPath).value}
-            onChange={(value) => setPropertyValue(getPropertyValue(propertyPath), value)}
+            value={effectSettingState.value}
+            onChange={(value) => setPropertyValue(value)}
           />
         )
         break
 
       case PropertyTypes.Boolean:
-        renderVal = (
-          <BooleanInput
-            onChange={(value) => setPropertyValue(getPropertyValue(propertyPath), value)}
-            value={getPropertyValue(propertyPath).value}
-          />
-        )
+        renderVal = <BooleanInput onChange={(value) => setPropertyValue(value)} value={effectSettingState.value} />
         break
 
       case PropertyTypes.BlendFunction:
         renderVal = (
           <SelectInput
             options={BlendFunctionSelect}
-            onChange={(value) => setPropertyValue(getPropertyValue(propertyPath), value)}
-            value={getPropertyValue(propertyPath).value}
+            onChange={(value) => setPropertyValue(value)}
+            value={effectSettingState.value}
           />
         )
         break
 
       case PropertyTypes.Color:
         renderVal = (
-          <ColorInput
-            value={new Color(getPropertyValue(propertyPath).value)}
-            onSelect={(value) => setPropertyValue(getPropertyValue(propertyPath), '#' + value)}
-          />
+          <ColorInput value={new Color(effectSettingState.value)} onSelect={(value) => setPropertyValue('#' + value)} />
         )
         break
 
@@ -308,8 +283,8 @@ export const PostProcessingSettingsEditor: EditorComponentType = (props) => {
         renderVal = (
           <SelectInput
             options={KernelSizeSelect}
-            onChange={(value) => setPropertyValue(getPropertyValue(propertyPath), value)}
-            value={getPropertyValue(propertyPath).value}
+            onChange={(value) => setPropertyValue(value)}
+            value={effectSettingState.value}
           />
         )
         break
@@ -318,8 +293,8 @@ export const PostProcessingSettingsEditor: EditorComponentType = (props) => {
         renderVal = (
           <SelectInput
             options={SMAAPreset}
-            onChange={(value) => setPropertyValue(getPropertyValue(propertyPath), value)}
-            value={getPropertyValue(propertyPath).value}
+            onChange={(value) => setPropertyValue(value)}
+            value={effectSettingState.value}
           />
         )
         break
@@ -328,8 +303,8 @@ export const PostProcessingSettingsEditor: EditorComponentType = (props) => {
         renderVal = (
           <SelectInput
             options={EdgeDetectionMode}
-            onChange={(value) => setPropertyValue(getPropertyValue(propertyPath), value)}
-            value={getPropertyValue(propertyPath).value}
+            onChange={(value) => setPropertyValue(value)}
+            value={effectSettingState.value}
           />
         )
         break
@@ -338,8 +313,8 @@ export const PostProcessingSettingsEditor: EditorComponentType = (props) => {
         renderVal = (
           <SelectInput
             options={PredicationMode}
-            onChange={(value) => setPropertyValue(getPropertyValue(propertyPath), value)}
-            value={getPropertyValue(propertyPath).value}
+            onChange={(value) => setPropertyValue(value)}
+            value={effectSettingState.value}
           />
         )
         break
@@ -365,7 +340,7 @@ export const PostProcessingSettingsEditor: EditorComponentType = (props) => {
 
   const renderEffectsTypes = (effectName: keyof typeof Effects) => {
     const effect = EffectsOptions[effectName]
-    return Object.keys(effect).map((prop, index) => renderProperty(effect[prop], [effectName, prop], index))
+    return Object.keys(effect).map((prop, index) => renderProperty(effect[prop], effectName, prop, index))
   }
 
   const renderEffects = () => {
@@ -374,7 +349,9 @@ export const PostProcessingSettingsEditor: EditorComponentType = (props) => {
         <div key={effect}>
           <Checkbox
             classes={{ checked: styles.checkbox }}
-            onChange={(e) => postprocessing.effects[effect].isActive.set(e.target.checked)}
+            onChange={(e) => {
+              postprocessing.effects[effect].isActive.set(e.target.checked)
+            }}
             checked={postprocessing.effects[effect]?.isActive?.value}
           />
           <span style={{ color: 'var(--textColor)' }}>{effect}</span>
@@ -391,20 +368,29 @@ export const PostProcessingSettingsEditor: EditorComponentType = (props) => {
       description={t('editor:properties.postprocessing.description')}
     >
       <InputGroup name="Post Processing Enabled" label={t('editor:properties.postprocessing.enabled')}>
-        <BooleanInput value={postprocessing.enabled.value} onChange={(val) => postprocessing.enabled.set(val)} />
+        <BooleanInput
+          value={postprocessing.enabled.value}
+          onChange={(val) => {
+            postprocessing.enabled.set(val)
+          }}
+        />
       </InputGroup>
-      <IconButton
-        style={{ color: 'var(--textColor)' }}
-        onClick={() => setOpenSettings(!openSettings)}
-        className={styles.collapseBtn}
-        aria-label="expand"
-        size="small"
-      >
-        {openSettings ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
-      </IconButton>
-      <Collapse in={openSettings} timeout="auto" unmountOnExit>
-        {renderEffects()}
-      </Collapse>
+      {postprocessing.enabled.value && (
+        <>
+          <IconButton
+            style={{ color: 'var(--textColor)' }}
+            onClick={() => setOpenSettings(!openSettings)}
+            className={styles.collapseBtn}
+            aria-label="expand"
+            size="small"
+          >
+            {openSettings ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
+          </IconButton>
+          <Collapse in={openSettings} timeout="auto" unmountOnExit>
+            {renderEffects()}
+          </Collapse>
+        </>
+      )}
     </PropertyGroup>
   )
 }

@@ -42,15 +42,15 @@ import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 import Tooltip from '@etherealengine/ui/src/primitives/mui/Tooltip'
 import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 
+import { useFind } from '@etherealengine/engine/src/common/functions/FeathersHooks'
 import { UserData, UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { DiscordIcon } from '../../../common/components/Icons/DiscordIcon'
 import { GoogleIcon } from '../../../common/components/Icons/GoogleIcon'
 import { LinkedInIcon } from '../../../common/components/Icons/LinkedInIcon'
 import { NotificationService } from '../../../common/services/NotificationService'
-import { AuthState } from '../../../user/services/AuthService'
+import { userHasAccess } from '../../../user/userHasAccess'
 import DrawerView from '../../common/DrawerView'
 import { validateForm } from '../../common/validation/formValidation'
-import { AdminAvatarService, AdminAvatarState } from '../../services/AvatarService'
 import { AdminScopeTypeService, AdminScopeTypeState } from '../../services/ScopeTypeService'
 import { AdminUserService } from '../../services/UserService'
 import styles from '../../styles/admin.module.scss'
@@ -85,11 +85,15 @@ const UserDrawer = ({ open, mode, selectedUser, onClose }: Props) => {
   const editMode = useHookstate(false)
   const state = useHookstate({ ...defaultState })
 
-  const user = useHookstate(getMutableState(AuthState).user)
-  const avatars = useHookstate(getMutableState(AdminAvatarState).avatars)
+  const avatars = useFind('avatar', {
+    query: {
+      admin: true
+    }
+  }).data
+
   const scopeTypes = useHookstate(getMutableState(AdminScopeTypeState).scopeTypes)
 
-  const hasWriteAccess = user.scopes.get({ noproxy: true })?.find((item) => item.type === 'user:write')
+  const hasWriteAccess = userHasAccess('user:write')
   const viewMode = mode === UserDrawerMode.ViewEdit && !editMode.value
 
   const scopeMenu: AutoCompleteData[] = scopeTypes.value.map((el) => {
@@ -98,7 +102,7 @@ const UserDrawer = ({ open, mode, selectedUser, onClose }: Props) => {
     }
   })
 
-  const avatarMenu: InputMenuItem[] = avatars.get({ noproxy: true }).map((el) => {
+  const avatarMenu: InputMenuItem[] = avatars.map((el) => {
     return {
       label: el.name,
       value: el.id
@@ -125,7 +129,7 @@ const UserDrawer = ({ open, mode, selectedUser, onClose }: Props) => {
       }
     }
 
-    const avatarExists = avatars.get({ noproxy: true }).find((item) => item.id === selectedUser.avatarId)
+    const avatarExists = avatars.find((item) => item.id === selectedUser.avatarId)
     if (!avatarExists) {
       avatarMenu.push({
         value: selectedUser.avatarId!,
@@ -135,7 +139,6 @@ const UserDrawer = ({ open, mode, selectedUser, onClose }: Props) => {
   }
 
   useEffect(() => {
-    AdminAvatarService.fetchAdminAvatars()
     AdminScopeTypeService.getScopeTypeService()
   }, [])
 

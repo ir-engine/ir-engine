@@ -58,7 +58,7 @@ import { loadEngineInjection } from '@etherealengine/projects/loadEngineInjectio
 
 import { UndefinedEntity } from '@etherealengine/engine/src/ecs/classes/Entity'
 import { NotificationService } from '../../common/services/NotificationService'
-import { useRouter } from '../../common/services/RouterService'
+import { RouterService } from '../../common/services/RouterService'
 import { LocationState } from '../../social/services/LocationService'
 import { SocketWebRTCClientNetwork } from '../../transports/SocketWebRTCClientFunctions'
 import { AvatarService } from '../../user/services/AvatarService'
@@ -141,7 +141,6 @@ export const useLocationSpawnAvatar = (spectate = false) => {
 }
 
 export const usePortalTeleport = () => {
-  const route = useRouter()
   const engineState = useHookstate(getMutableState(EngineState))
   const locationState = useHookstate(getMutableState(LocationState))
 
@@ -171,7 +170,7 @@ export const usePortalTeleport = () => {
         return
       }
 
-      route('/location/' + activePortal.location)
+      RouterService.navigate('/location/' + activePortal.location)
       LocationService.getLocationByName(activePortal.location)
 
       // shut down connection with existing world instance server

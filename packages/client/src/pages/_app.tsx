@@ -27,7 +27,6 @@ Ethereal Engine. All Rights Reserved.
 import { SnackbarProvider } from 'notistack'
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 
-import { AdminCoilSettingService } from '@etherealengine/client-core/src/admin/services/Setting/CoilSettingService'
 import { initGA, logPageView } from '@etherealengine/client-core/src/common/analytics'
 import { defaultAction } from '@etherealengine/client-core/src/common/components/NotificationActions'
 import {
@@ -117,10 +116,6 @@ const AppPage = ({ route }: { route: string }) => {
   useEffect(() => {
     Engine.instance.userId = selfUser.id.value
   }, [selfUser.id])
-
-  useEffect(() => {
-    authState.isLoggedIn.value && AdminCoilSettingService.fetchCoil()
-  }, [authState.isLoggedIn])
 
   return (
     <>

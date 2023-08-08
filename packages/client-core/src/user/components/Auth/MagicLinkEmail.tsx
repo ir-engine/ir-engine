@@ -28,6 +28,7 @@ import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router-dom'
 
 import config from '@etherealengine/common/src/config'
+import { useFind } from '@etherealengine/engine/src/common/functions/FeathersHooks'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import Button from '@etherealengine/ui/src/primitives/mui/Button'
 import Checkbox from '@etherealengine/ui/src/primitives/mui/Checkbox'
@@ -37,8 +38,8 @@ import Grid from '@etherealengine/ui/src/primitives/mui/Grid'
 import TextField from '@etherealengine/ui/src/primitives/mui/TextField'
 import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 
+import { authenticationSettingPath } from '@etherealengine/engine/src/schemas/setting/authentication-setting.schema'
 import { UserId } from '@etherealengine/engine/src/schemas/user/user.schema'
-import { AuthSettingsState } from '../../../admin/services/Setting/AuthSettingService'
 import { initialAuthState } from '../../../common/initialAuthState'
 import { AuthService, AuthState } from '../../services/AuthService'
 import styles from './index.module.scss'
@@ -62,13 +63,12 @@ const MagicLinkEmail = ({ type, isAddConnection }: Props): JSX.Element => {
   const auth = useHookstate(getMutableState(AuthState))
   const state = useHookstate(defaultState)
   const { t } = useTranslation()
-  const authSettingState = useHookstate(getMutableState(AuthSettingsState))
-  const [authSetting] = authSettingState?.authSettings?.value || []
+  const authSetting = useFind(authenticationSettingPath).data.at(0)
   const authState = useHookstate(initialAuthState)
 
   useEffect(() => {
     if (authSetting) {
-      let temp = { ...initialAuthState }
+      const temp = { ...initialAuthState }
       authSetting?.authStrategies?.forEach((el) => {
         Object.entries(el).forEach(([strategyName, strategy]) => {
           temp[strategyName] = strategy
@@ -76,7 +76,7 @@ const MagicLinkEmail = ({ type, isAddConnection }: Props): JSX.Element => {
       })
       authState.set(temp)
     }
-  }, [authSettingState?.updateNeeded?.value])
+  }, [authSetting])
 
   const handleInput = (e: any): void => {
     state.set({ ...state.value, [e.target.name]: e.target.value })
