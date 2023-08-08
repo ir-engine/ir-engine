@@ -35,7 +35,7 @@ import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { addDataChannelHandler, removeDataChannelHandler } from '../NetworkState'
 import { JitterBufferEntry, Network } from '../classes/Network'
 import { readDataPacket } from '../serialization/DataReader'
-import { ProducerConsumerStateSystem } from './ProducerConsumerState'
+import { MediaProducerConsumerStateSystem } from './MediaProducerConsumerState'
 
 const toArrayBuffer = (buf) => {
   const ab = new ArrayBuffer(buf.length)
@@ -113,5 +113,5 @@ export const IncomingNetworkSystem = defineSystem({
   uuid: 'ee.engine.IncomingNetworkSystem',
   execute,
   reactor,
-  subSystems: [ProducerConsumerStateSystem]
+  subSystems: [MediaProducerConsumerStateSystem]
 })

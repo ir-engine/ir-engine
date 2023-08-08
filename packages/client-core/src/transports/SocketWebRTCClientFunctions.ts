@@ -86,7 +86,10 @@ import {
 import { ChannelID } from '@etherealengine/common/src/interfaces/ChannelUser'
 import { DataChannelType } from '@etherealengine/common/src/interfaces/DataChannelType'
 import { matches } from '@etherealengine/engine/src/common/functions/MatchesUtils'
-import { ConsumerActions, ProducerActions } from '@etherealengine/engine/src/networking/systems/ProducerConsumerState'
+import {
+  MediaConsumerActions,
+  MediaProducerActions
+} from '@etherealengine/engine/src/networking/systems/MediaProducerConsumerState'
 import { MathUtils } from 'three'
 import {
   LocationInstanceConnectionAction,
@@ -604,7 +607,7 @@ export async function onConnectToMediaInstance(network: SocketWebRTCClientNetwor
     if (mediaStreamState.videoStream.value) {
       if (mediaStreamState.camVideoProducer.value) {
         dispatchAction(
-          ProducerActions.closeProducer({
+          MediaProducerActions.closeProducer({
             producerID: mediaStreamState.camVideoProducer.value.id,
             $topic: network.topic
           })
@@ -617,7 +620,7 @@ export async function onConnectToMediaInstance(network: SocketWebRTCClientNetwor
     if (mediaStreamState.audioStream.value) {
       if (mediaStreamState.camAudioProducer.value != null) {
         dispatchAction(
-          ProducerActions.closeProducer({
+          MediaProducerActions.closeProducer({
             producerID: mediaStreamState.camAudioProducer.value.id,
             $topic: network.topic
           })
@@ -631,7 +634,7 @@ export async function onConnectToMediaInstance(network: SocketWebRTCClientNetwor
     network.primus.removeListener('disconnection', disconnectHandler)
     if (mediaStreamState.screenVideoProducer.value) {
       dispatchAction(
-        ProducerActions.closeProducer({
+        MediaProducerActions.closeProducer({
           producerID: mediaStreamState.screenVideoProducer.value.id,
           $topic: network.topic
         })
@@ -640,7 +643,7 @@ export async function onConnectToMediaInstance(network: SocketWebRTCClientNetwor
     }
     if (mediaStreamState.screenAudioProducer.value) {
       dispatchAction(
-        ProducerActions.closeProducer({
+        MediaProducerActions.closeProducer({
           producerID: mediaStreamState.screenAudioProducer.value.id,
           $topic: network.topic
         })
@@ -712,7 +715,7 @@ export async function createDataProducer(
 export function closeDataProducer(network: SocketWebRTCClientNetwork, dataChannelType: DataChannelType) {
   const producer = network.dataProducers.get(dataChannelType)
   dispatchAction(
-    ProducerActions.closeProducer({
+    MediaProducerActions.closeProducer({
       producerID: producer.id,
       $topic: network.topic
     })
@@ -826,7 +829,7 @@ export async function createTransport(network: SocketWebRTCClientNetwork, direct
         // failure.
         const requestID = MathUtils.generateUUID()
         dispatchAction(
-          ProducerActions.requestProducer({
+          MediaProducerActions.requestProducer({
             requestID,
             transportId: transportOptions.id,
             kind,
@@ -840,16 +843,16 @@ export async function createTransport(network: SocketWebRTCClientNetwork, direct
 
         //  TODO - this is an anti pattern, how else can we resolve this? inject a system?
         try {
-          const producerPromise = await new Promise<typeof ProducerActions.producerCreated.matches._TYPE>(
+          const producerPromise = await new Promise<typeof MediaProducerActions.producerCreated.matches._TYPE>(
             (resolve, reject) => {
               const onAction = (action) => {
                 if (action.requestID !== requestID) return
                 matches(action)
-                  .when(ProducerActions.producerCreated.matches, (action) => {
+                  .when(MediaProducerActions.producerCreated.matches, (action) => {
                     removeActionReceptor(onAction)
                     resolve(action)
                   })
-                  .when(ProducerActions.requestProducerError.matches, (action) => {
+                  .when(MediaProducerActions.requestProducerError.matches, (action) => {
                     removeActionReceptor(onAction)
                     logger.error(action.error)
                     reject(new Error(action.error))
@@ -1106,7 +1109,7 @@ export async function endVideoChat(network: SocketWebRTCClientNetwork | null, op
     try {
       if (mediaStreamState.camVideoProducer.value) {
         dispatchAction(
-          ProducerActions.closeProducer({
+          MediaProducerActions.closeProducer({
             producerID: mediaStreamState.camVideoProducer.value.id,
             $topic: network.topic
           })
@@ -1116,7 +1119,7 @@ export async function endVideoChat(network: SocketWebRTCClientNetwork | null, op
 
       if (mediaStreamState.camAudioProducer.value) {
         dispatchAction(
-          ProducerActions.closeProducer({
+          MediaProducerActions.closeProducer({
             producerID: mediaStreamState.camAudioProducer.value.id,
             $topic: network.topic
           })
@@ -1127,7 +1130,7 @@ export async function endVideoChat(network: SocketWebRTCClientNetwork | null, op
 
       if (mediaStreamState.screenVideoProducer.value) {
         dispatchAction(
-          ProducerActions.closeProducer({
+          MediaProducerActions.closeProducer({
             producerID: mediaStreamState.screenVideoProducer.value.id,
             $topic: network.topic
           })
@@ -1136,7 +1139,7 @@ export async function endVideoChat(network: SocketWebRTCClientNetwork | null, op
       }
       if (mediaStreamState.screenAudioProducer.value) {
         dispatchAction(
-          ProducerActions.closeProducer({
+          MediaProducerActions.closeProducer({
             producerID: mediaStreamState.screenAudioProducer.value.id,
             $topic: network.topic
           })
@@ -1219,7 +1222,7 @@ export async function subscribeToTrack(
 
   // ask the server to create a server-side consumer object and send us back the info we need to create a client-side consumer
   dispatchAction(
-    ConsumerActions.requestConsumer({
+    MediaConsumerActions.requestConsumer({
       mediaTag,
       peerID,
       rtpCapabilities: network.mediasoupDevice.rtpCapabilities,
@@ -1232,7 +1235,7 @@ export async function subscribeToTrack(
 
 export const receiveConsumerHandler = async (
   network: SocketWebRTCClientNetwork,
-  action: typeof ConsumerActions.createConsumer.matches._TYPE
+  action: typeof MediaConsumerActions.createConsumer.matches._TYPE
 ) => {
   const { peerID, mediaTag, channelID, paused } = action
 
@@ -1278,7 +1281,7 @@ export async function unsubscribeFromTrack(network: SocketWebRTCClientNetwork, p
 
 export function pauseConsumer(network: SocketWebRTCClientNetwork, consumer: ConsumerExtension) {
   dispatchAction(
-    ConsumerActions.consumerPaused({
+    MediaConsumerActions.consumerPaused({
       consumerID: consumer.id,
       paused: true,
       $topic: network.topic,
@@ -1289,7 +1292,7 @@ export function pauseConsumer(network: SocketWebRTCClientNetwork, consumer: Cons
 
 export function resumeConsumer(network: SocketWebRTCClientNetwork, consumer: ConsumerExtension) {
   dispatchAction(
-    ConsumerActions.consumerPaused({
+    MediaConsumerActions.consumerPaused({
       consumerID: consumer.id,
       paused: false,
       $topic: network.topic,
@@ -1300,7 +1303,7 @@ export function resumeConsumer(network: SocketWebRTCClientNetwork, consumer: Con
 
 export function pauseProducer(network: SocketWebRTCClientNetwork, producer: ProducerExtension) {
   dispatchAction(
-    ProducerActions.producerPaused({
+    MediaProducerActions.producerPaused({
       producerID: producer.id,
       globalMute: false,
       paused: true,
@@ -1311,7 +1314,7 @@ export function pauseProducer(network: SocketWebRTCClientNetwork, producer: Prod
 
 export function resumeProducer(network: SocketWebRTCClientNetwork, producer: ProducerExtension) {
   dispatchAction(
-    ProducerActions.producerPaused({
+    MediaProducerActions.producerPaused({
       producerID: producer.id,
       globalMute: false,
       paused: false,
@@ -1322,7 +1325,7 @@ export function resumeProducer(network: SocketWebRTCClientNetwork, producer: Pro
 
 export function globalMuteProducer(network: SocketWebRTCClientNetwork, producer: { id: any }) {
   dispatchAction(
-    ProducerActions.producerPaused({
+    MediaProducerActions.producerPaused({
       producerID: producer.id,
       globalMute: true,
       paused: true,
@@ -1333,7 +1336,7 @@ export function globalMuteProducer(network: SocketWebRTCClientNetwork, producer:
 
 export function globalUnmuteProducer(network: SocketWebRTCClientNetwork, producer: { id: any }) {
   dispatchAction(
-    ProducerActions.producerPaused({
+    MediaProducerActions.producerPaused({
       producerID: producer.id,
       globalMute: false,
       paused: false,
@@ -1581,7 +1584,7 @@ export const stopScreenshare = async (network: SocketWebRTCClientNetwork) => {
     await mediaStreamState.screenVideoProducer.value.pause()
     mediaStreamState.screenShareVideoPaused.set(true)
     dispatchAction(
-      ProducerActions.closeProducer({
+      MediaProducerActions.closeProducer({
         producerID: mediaStreamState.screenVideoProducer.value.id,
         $topic: network.topic
       })
@@ -1592,7 +1595,7 @@ export const stopScreenshare = async (network: SocketWebRTCClientNetwork) => {
 
   if (mediaStreamState.screenAudioProducer.value) {
     dispatchAction(
-      ProducerActions.closeProducer({
+      MediaProducerActions.closeProducer({
         producerID: mediaStreamState.screenAudioProducer.value.id,
         $topic: network.topic
       })

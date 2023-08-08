@@ -31,7 +31,7 @@ import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import { addActionReceptor, defineActionQueue, getState, removeActionReceptor } from '@etherealengine/hyperflux'
 
-import { ConsumerActions } from '@etherealengine/engine/src/networking/systems/ProducerConsumerState'
+import { MediaConsumerActions } from '@etherealengine/engine/src/networking/systems/MediaProducerConsumerState'
 import {
   LocationInstanceConnectionService,
   LocationInstanceConnectionServiceReceptor
@@ -67,7 +67,7 @@ const worldInstanceReconnectedQueue = defineActionQueue(
 const mediaInstanceReconnectedQueue = defineActionQueue(
   NetworkConnectionService.actions.mediaInstanceReconnected.matches
 )
-const createConsumerQueue = defineActionQueue(ConsumerActions.createConsumer.matches)
+const createConsumerQueue = defineActionQueue(MediaConsumerActions.createConsumer.matches)
 
 const execute = () => {
   const locationState = getState(LocationState)

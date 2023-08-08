@@ -53,7 +53,10 @@ import { ServerState } from '@etherealengine/server-core/src/ServerState'
 import { WebRtcTransportParams } from '@etherealengine/server-core/src/types/WebRtcTransportParams'
 
 import { DataChannelType } from '@etherealengine/common/src/interfaces/DataChannelType'
-import { ConsumerActions, ProducerActions } from '@etherealengine/engine/src/networking/systems/ProducerConsumerState'
+import {
+  MediaConsumerActions,
+  MediaProducerActions
+} from '@etherealengine/engine/src/networking/systems/MediaProducerConsumerState'
 import { InstanceServerState } from './InstanceServerState'
 import { getUserIdFromPeerID } from './NetworkFunctions'
 import {
@@ -260,7 +263,7 @@ export async function closeTransport(
 
 export function closeProducer(network: SocketWebRTCServerNetwork, producer: ProducerExtension) {
   dispatchAction(
-    ProducerActions.closeProducer({
+    MediaProducerActions.closeProducer({
       producerID: producer.id,
       $topic: network.topic
     })
@@ -610,7 +613,7 @@ export async function handleWebRtcTransportConnect(
 
 export async function handleRequestProducer(
   network: SocketWebRTCServerNetwork,
-  action: typeof ProducerActions.requestProducer.matches._TYPE
+  action: typeof MediaProducerActions.requestProducer.matches._TYPE
 ) {
   const { $peer: peerID, transportId, rtpParameters, paused, requestID, appData, kind } = action
   const userId = getUserIdFromPeerID(network, peerID)
@@ -620,7 +623,7 @@ export async function handleRequestProducer(
   if (!transport) {
     logger.error('Invalid transport ID.')
     return dispatchAction(
-      ProducerActions.requestProducerError({
+      MediaProducerActions.requestProducerError({
         requestID,
         error: 'Invalid transport ID.',
         $topic: network.topic,
@@ -672,7 +675,7 @@ export async function handleRequestProducer(
       }
     }
     dispatchAction(
-      ProducerActions.producerCreated({
+      MediaProducerActions.producerCreated({
         requestID,
         peerID,
         mediaTag: appData.mediaTag,
@@ -684,7 +687,7 @@ export async function handleRequestProducer(
   } catch (err) {
     logger.error(err, 'Error with sendTrack.')
     dispatchAction(
-      ProducerActions.requestProducerError({
+      MediaProducerActions.requestProducerError({
         requestID,
         error: 'Error with sendTrack: ' + err,
         $topic: network.topic,
@@ -696,7 +699,7 @@ export async function handleRequestProducer(
 
 export const handleRequestConsumer = async (
   network: SocketWebRTCServerNetwork,
-  action: typeof ConsumerActions.requestConsumer.matches._TYPE
+  action: typeof MediaConsumerActions.requestConsumer.matches._TYPE
 ) => {
   const { peerID: mediaPeerId, mediaTag, rtpCapabilities, channelID } = action
   const peerID = action.$peer
@@ -759,7 +762,7 @@ export const handleRequestConsumer = async (
     })
 
     dispatchAction(
-      ConsumerActions.createConsumer({
+      MediaConsumerActions.createConsumer({
         channelID,
         consumerID: consumer.id,
         peerID: mediaPeerId,

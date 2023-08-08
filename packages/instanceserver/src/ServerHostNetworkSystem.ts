@@ -28,7 +28,10 @@ import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFun
 import { NetworkPeerFunctions } from '@etherealengine/engine/src/networking/functions/NetworkPeerFunctions'
 import { updatePeers } from '@etherealengine/engine/src/networking/systems/OutgoingActionSystem'
 
-import { ConsumerActions, ProducerActions } from '@etherealengine/engine/src/networking/systems/ProducerConsumerState'
+import {
+  MediaConsumerActions,
+  MediaProducerActions
+} from '@etherealengine/engine/src/networking/systems/MediaProducerConsumerState'
 import { defineActionQueue } from '@etherealengine/hyperflux'
 import { SocketWebRTCServerNetwork } from './SocketWebRTCServerFunctions'
 import { handleRequestConsumer, handleRequestProducer } from './WebRTCFunctions'
@@ -43,8 +46,8 @@ export async function validateNetworkObjects(network: SocketWebRTCServerNetwork)
   }
 }
 
-const requestConsumerActionQueue = defineActionQueue(ConsumerActions.requestConsumer.matches)
-const requestProducerActionQueue = defineActionQueue(ProducerActions.requestProducer.matches)
+const requestConsumerActionQueue = defineActionQueue(MediaConsumerActions.requestConsumer.matches)
+const requestProducerActionQueue = defineActionQueue(MediaProducerActions.requestProducer.matches)
 
 const execute = () => {
   const mediaNetwork = Engine.instance.mediaNetwork as SocketWebRTCServerNetwork

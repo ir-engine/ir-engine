@@ -37,7 +37,7 @@ import {
 } from '@etherealengine/engine/src/networking/NetworkState'
 import { getMutableState, getState, NO_PROXY, useHookstate } from '@etherealengine/hyperflux'
 
-import { ProducerConsumerState } from '@etherealengine/engine/src/networking/systems/ProducerConsumerState'
+import { MediaProducerConsumerState } from '@etherealengine/engine/src/networking/systems/MediaProducerConsumerState'
 import { useMediaNetwork } from '../common/services/MediaInstanceConnectionService'
 import { MediaStreamState } from '../transports/MediaStreams'
 import {
@@ -148,7 +148,7 @@ const PeerMedia = (props: {
     }
   }
 
-  const producerConsumerState = useHookstate(getMutableState(ProducerConsumerState))
+  const producerConsumerState = useHookstate(getMutableState(MediaProducerConsumerState))
   const producerNetworkState = producerConsumerState[network.hostId].producers
   const consumerNetworkState = producerConsumerState[network.hostId].consumers
 
