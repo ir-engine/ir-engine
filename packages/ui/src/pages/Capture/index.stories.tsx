@@ -68,7 +68,6 @@ import { loadEngineInjection } from '@etherealengine/projects/loadEngineInjectio
 
 import Component from './index'
 
-import { AuthSettingsService } from '@etherealengine/client-core/src/admin/services/Setting/AuthSettingService'
 import '@etherealengine/client/src/themes/base.css'
 import '@etherealengine/client/src/themes/components.css'
 import '@etherealengine/client/src/themes/utilities.css'
@@ -162,7 +161,6 @@ const decorators = [
       // The client and auth settigns will not be needed on these routes
       if (!/auth\/oauth/.test(location.pathname)) {
         AuthService.doLoginAuto()
-        AuthSettingsService.fetchAuthSetting()
       }
 
       getMutableState(NetworkState).config.set({
