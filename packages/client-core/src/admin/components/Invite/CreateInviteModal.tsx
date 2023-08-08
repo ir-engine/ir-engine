@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import classNames from 'classnames'
 import dayjs, { Dayjs } from 'dayjs'
-import React, { useEffect } from 'react'
+import React from 'react'
 import { useTranslation } from 'react-i18next'
 
 import InputSelect, { InputMenuItem } from '@etherealengine/client-core/src/common/components/InputSelect'
@@ -53,7 +53,6 @@ import { NotificationService } from '../../../common/services/NotificationServic
 import { InviteService } from '../../../social/services/InviteService'
 import DrawerView from '../../common/DrawerView'
 import { AdminSceneService, AdminSceneState } from '../../services/SceneService'
-import { AdminUserService, AdminUserState } from '../../services/UserService'
 import styles from '../../styles/admin.module.scss'
 
 interface Props {
@@ -86,21 +85,15 @@ const CreateInviteModal = ({ open, onClose }: Props) => {
   const endTime = useHookstate<Dayjs>(dayjs(null))
 
   const adminInstances = useFind('instance').data
-
-  const adminUserState = useHookstate(getMutableState(AdminUserState))
-  const adminSceneState = useHookstate(getMutableState(AdminSceneState))
+  const adminUsers = useFind('user', { query: { isGuest: false } }).data
   const adminLocations = useFind(locationPath).data
-  const adminUsers = adminUserState.users
+
+  const adminSceneState = useHookstate(getMutableState(AdminSceneState))
   const spawnPoints = adminSceneState.singleScene?.scene?.entities.value
     ? Object.entries(adminSceneState.singleScene.scene.entities.value).filter(([, value]) =>
         value.components.find((component) => component.name === 'spawn-point')
       )
     : []
-
-  useEffect(() => {
-    AdminUserService.setSkipGuests(true)
-    AdminUserService.fetchUsersAsAdmin()
-  }, [])
 
   const handleChangeInviteTypeTab = (event: React.SyntheticEvent, newValue: number) => {
     inviteTypeTab.set(newValue)
@@ -124,12 +117,10 @@ const CreateInviteModal = ({ open, onClose }: Props) => {
     }
   })
 
-  const userMenu: InputMenuItem[] = adminUsers.map((el) => {
-    return {
-      value: `${el.inviteCode.value}`,
-      label: `${el.name.value} (${el.inviteCode.value})`
-    }
-  })
+  const userMenu: InputMenuItem[] = adminUsers.map((el) => ({
+    value: `${el.inviteCode}`,
+    label: `${el.name} (${el.inviteCode})`
+  }))
 
   const spawnPointMenu: InputMenuItem[] = spawnPoints.map(([id, value]) => {
     const transform = value.components.find((component) => component.name === 'transform')

@@ -37,7 +37,6 @@ import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
 
 import { useFind } from '@etherealengine/engine/src/common/functions/FeathersHooks'
 import { useServerInfoFind } from '../../services/ServerInfoQuery'
-import { ServerLogsService } from '../../services/ServerLogsService'
 import styles from '../../styles/admin.module.scss'
 
 export type ServerLogsInputsType = { podName?: string; containerName?: string }
@@ -98,7 +97,8 @@ const ServerLogs = ({
   }
 
   const handleCloseServerLogs = () => {
-    ServerLogsService.resetServerLogs()
+    podName.set(undefined)
+    containerName.set(undefined)
   }
 
   const handleDownloadServerLogs = () => {

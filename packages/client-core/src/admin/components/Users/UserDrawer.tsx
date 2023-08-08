@@ -43,7 +43,7 @@ import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 import Tooltip from '@etherealengine/ui/src/primitives/mui/Tooltip'
 import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 
-import { useFind } from '@etherealengine/engine/src/common/functions/FeathersHooks'
+import { useFind, useMutation } from '@etherealengine/engine/src/common/functions/FeathersHooks'
 import { DiscordIcon } from '../../../common/components/Icons/DiscordIcon'
 import { GoogleIcon } from '../../../common/components/Icons/GoogleIcon'
 import { LinkedInIcon } from '../../../common/components/Icons/LinkedInIcon'
@@ -51,7 +51,6 @@ import { NotificationService } from '../../../common/services/NotificationServic
 import { userHasAccess } from '../../../user/userHasAccess'
 import DrawerView from '../../common/DrawerView'
 import { validateForm } from '../../common/validation/formValidation'
-import { AdminUserService } from '../../services/UserService'
 import styles from '../../styles/admin.module.scss'
 
 export enum UserDrawerMode {
@@ -89,8 +88,8 @@ const UserDrawer = ({ open, mode, selectedUser, onClose }: Props) => {
       admin: true
     }
   }).data
-
   const scopeTypes = useFind(scopeTypePath).data
+  const userMutation = useMutation('user')
 
   const hasWriteAccess = userHasAccess('user:write')
   const viewMode = mode === UserDrawerMode.ViewEdit && !editMode.value
@@ -196,9 +195,9 @@ const UserDrawer = ({ open, mode, selectedUser, onClose }: Props) => {
 
     if (validateForm(state.value, state.formErrors.value)) {
       if (mode === UserDrawerMode.Create) {
-        await AdminUserService.createUser(data)
+        await userMutation.create(data)
       } else if (selectedUser) {
-        AdminUserService.patchUser(selectedUser.id, data)
+        await userMutation.patch(selectedUser.id, data)
         editMode.set(false)
       }
 

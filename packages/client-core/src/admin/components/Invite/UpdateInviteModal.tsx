@@ -54,7 +54,6 @@ import { Id } from '@feathersjs/feathers'
 import { NotificationService } from '../../../common/services/NotificationService'
 import DrawerView from '../../common/DrawerView'
 import { AdminSceneService, AdminSceneState } from '../../services/SceneService'
-import { AdminUserService, AdminUserState } from '../../services/UserService'
 import styles from '../../styles/admin.module.scss'
 
 interface Props {
@@ -88,11 +87,10 @@ const UpdateInviteModal = ({ open, onClose, invite }: Props) => {
   const endTime = useHookstate<Dayjs>(dayjs(null))
 
   const adminInstances = useFind('instance').data
-
-  const adminUserState = useHookstate(getMutableState(AdminUserState))
-  const adminSceneState = useHookstate(getMutableState(AdminSceneState))
   const adminLocations = useFind(locationPath).data
-  const adminUsers = adminUserState.users
+  const adminUsers = useFind('user', { query: { isGuest: false } }).data
+
+  const adminSceneState = useHookstate(getMutableState(AdminSceneState))
   const spawnPoints = adminSceneState.singleScene?.scene?.entities.value
     ? Object.entries(adminSceneState.singleScene.scene.entities.value).filter(([, value]) =>
         value.components.find((component) => component.name === 'spawn-point')
@@ -101,8 +99,6 @@ const UpdateInviteModal = ({ open, onClose, invite }: Props) => {
   const updateInvite = useMutation('invite').update
 
   useEffect(() => {
-    AdminUserService.setSkipGuests(true)
-    AdminUserService.fetchUsersAsAdmin()
     inviteTypeTab.set(
       invite.inviteType === 'new-user'
         ? 0
@@ -114,8 +110,8 @@ const UpdateInviteModal = ({ open, onClose, invite }: Props) => {
     )
     if (invite.token) textValue.set(invite.token)
     if (invite.inviteeId) {
-      const userMatch = adminUsers.find((user) => user.id.value === invite.inviteeId)
-      if (userMatch && userMatch.inviteCode.value) textValue.set(userMatch.inviteCode.value)
+      const userMatch = adminUsers.find((user) => user.id === invite.inviteeId)
+      if (userMatch && userMatch.inviteCode) textValue.set(userMatch.inviteCode)
       else textValue.set('')
     }
     if (invite.makeAdmin) makeAdmin.set(Boolean(invite.makeAdmin))
@@ -174,8 +170,8 @@ const UpdateInviteModal = ({ open, onClose, invite }: Props) => {
 
   const userMenu: InputMenuItem[] = adminUsers.map((el) => {
     return {
-      value: `${el.inviteCode.value}`,
-      label: `${el.name.value} (${el.inviteCode.value})`
+      value: `${el.inviteCode}`,
+      label: `${el.name} (${el.inviteCode})`
     }
   })
 
