@@ -29,7 +29,7 @@ import { ReflexContainer, ReflexElement, ReflexSplitter } from 'react-reflex'
 
 import LoadingView from '@etherealengine/client-core/src/common/components/LoadingView'
 import { ServerInfoInterface } from '@etherealengine/common/src/interfaces/ServerInfo'
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { useHookstate } from '@etherealengine/hyperflux'
 import Box from '@etherealengine/ui/src/primitives/mui/Box'
 import Card from '@etherealengine/ui/src/primitives/mui/Card'
 import CardActionArea from '@etherealengine/ui/src/primitives/mui/CardActionArea'
@@ -37,22 +37,21 @@ import CardContent from '@etherealengine/ui/src/primitives/mui/CardContent'
 import Grid from '@etherealengine/ui/src/primitives/mui/Grid'
 import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 
-import { useServerInfoFind } from '../../services/ServerInfoService'
+import { useServerInfoFind } from '../../services/ServerInfoQuery'
 import styles from '../../styles/admin.module.scss'
 import ServerTable from './ServerTable'
 
 import 'react-reflex/styles.css'
 
-import { AdminServerLogsState } from '../../services/ServerLogsService'
-import ServerLogs from './ServerLogs'
+import ServerLogs, { ServerLogsInputsType } from './ServerLogs'
 
 const Server = () => {
   const { t } = useTranslation()
-  const selectedCard = useHookstate('all')
-  const serverInfo = useServerInfoFind().data
-  const serverLogs = useHookstate(getMutableState(AdminServerLogsState))
 
-  let displayLogs = serverLogs.podName.value ? true : false
+  const selectedCard = useHookstate('all')
+  const serverLogsInputs = useHookstate({ podName: undefined, containerName: undefined } as ServerLogsInputsType)
+
+  const serverInfo = useServerInfoFind().data
 
   if (!serverInfo) {
     return (
@@ -74,17 +73,19 @@ const Server = () => {
           </Grid>
         ))}
       </Grid>
-      {!displayLogs && <ServerTable selectedCard={selectedCard.value} />}
-      {displayLogs && (
+      {!serverLogsInputs.podName.value && (
+        <ServerTable selectedCard={selectedCard.value} setServerLogsInputs={serverLogsInputs.set} />
+      )}
+      {serverLogsInputs.podName.value && (
         <ReflexContainer orientation="horizontal">
           <ReflexElement flex={0.45} style={{ display: 'flex', flexDirection: 'column' }}>
-            <ServerTable selectedCard={selectedCard.value} />
+            <ServerTable selectedCard={selectedCard.value} setServerLogsInputs={serverLogsInputs.set} />
           </ReflexElement>
 
           <ReflexSplitter />
 
           <ReflexElement flex={0.55} style={{ overflow: 'hidden' }}>
-            <ServerLogs />
+            <ServerLogs podName={serverLogsInputs.podName} containerName={serverLogsInputs.containerName} />
           </ReflexElement>
         </ReflexContainer>
       )}

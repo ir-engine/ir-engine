@@ -41,9 +41,9 @@ import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
 import { useMutation } from '@etherealengine/engine/src/common/functions/FeathersHooks'
 import TableComponent from '../../common/Table'
 import { ServerColumn, ServerPodData } from '../../common/variables/server'
-import { useServerInfoFind } from '../../services/ServerInfoService'
-import { ServerLogsService } from '../../services/ServerLogsService'
+import { useServerInfoFind } from '../../services/ServerInfoQuery'
 import styles from '../../styles/admin.module.scss'
+import { ServerLogsInputsType } from './ServerLogs'
 
 const logger = multiLogger.child({ component: 'client-core:ServerTable' })
 
@@ -53,9 +53,10 @@ const timeAgo = new TimeAgo('en-US')
 
 interface Props {
   selectedCard: string
+  setServerLogsInputs: (inputs: ServerLogsInputsType) => void
 }
 
-const ServerTable = ({ selectedCard }: Props) => {
+const ServerTable = ({ selectedCard, setServerLogsInputs }: Props) => {
   const { t } = useTranslation()
   const openConfirm = useHookstate(false)
   const autoRefresh = useHookstate('60')
@@ -75,7 +76,7 @@ const ServerTable = ({ selectedCard }: Props) => {
       )
       intervalTimer.set(interval)
       return () => {
-        if (interval) clearInterval(interval) // This represents the unmount function, in which you need to clear your interval to prevent memory leaks.
+        if (interval) clearInterval(interval)
       }
     } else if (intervalTimer.value) {
       clearInterval(intervalTimer.value)
@@ -130,7 +131,7 @@ const ServerTable = ({ selectedCard }: Props) => {
         <div style={{ float: 'right' }}>
           <a
             className={styles.actionStyle}
-            onClick={() => ServerLogsService.fetchServerLogs(el.name, el.containers[el.containers.length - 1].name)}
+            onClick={() => setServerLogsInputs({ podName: el.name, containerName: el.containers.at(-1)?.name })}
           >
             <span className={styles.spanWhite}>{t('admin:components.server.logs')}</span>
           </a>
