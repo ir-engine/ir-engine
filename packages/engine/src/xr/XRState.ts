@@ -113,7 +113,7 @@ export class XRAction {
     prefab: 'ik-target',
     handedness: matches.literals('left', 'right', 'none'),
     $cache: {
-      removePrevious: true
+      removePrevious: ['prefab', 'handedness']
     },
     $topic: NetworkTopics.world
   })
