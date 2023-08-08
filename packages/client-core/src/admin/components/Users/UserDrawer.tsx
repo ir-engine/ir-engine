@@ -30,8 +30,8 @@ import AutoComplete, { AutoCompleteData } from '@etherealengine/client-core/src/
 import InputSelect, { InputMenuItem } from '@etherealengine/client-core/src/common/components/InputSelect'
 import InputText from '@etherealengine/client-core/src/common/components/InputText'
 import { CreateEditUser, UserInterface } from '@etherealengine/common/src/interfaces/User'
-import { ScopeTypeData } from '@etherealengine/engine/src/schemas/scope/scope-type.schema'
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { ScopeTypeData, scopeTypePath } from '@etherealengine/engine/src/schemas/scope/scope-type.schema'
+import { useHookstate } from '@etherealengine/hyperflux'
 import Button from '@etherealengine/ui/src/primitives/mui/Button'
 import Checkbox from '@etherealengine/ui/src/primitives/mui/Checkbox'
 import Container from '@etherealengine/ui/src/primitives/mui/Container'
@@ -51,7 +51,6 @@ import { NotificationService } from '../../../common/services/NotificationServic
 import { userHasAccess } from '../../../user/userHasAccess'
 import DrawerView from '../../common/DrawerView'
 import { validateForm } from '../../common/validation/formValidation'
-import { AdminScopeTypeService, AdminScopeTypeState } from '../../services/ScopeTypeService'
 import { AdminUserService } from '../../services/UserService'
 import styles from '../../styles/admin.module.scss'
 
@@ -91,23 +90,19 @@ const UserDrawer = ({ open, mode, selectedUser, onClose }: Props) => {
     }
   }).data
 
-  const scopeTypes = useHookstate(getMutableState(AdminScopeTypeState).scopeTypes)
+  const scopeTypes = useFind(scopeTypePath).data
 
   const hasWriteAccess = userHasAccess('user:write')
   const viewMode = mode === UserDrawerMode.ViewEdit && !editMode.value
 
-  const scopeMenu: AutoCompleteData[] = scopeTypes.value.map((el) => {
-    return {
-      type: el.type
-    }
-  })
+  const scopeMenu: AutoCompleteData[] = scopeTypes.map((el) => ({
+    type: el.type
+  }))
 
-  const avatarMenu: InputMenuItem[] = avatars.map((el) => {
-    return {
-      label: el.name,
-      value: el.id
-    }
-  })
+  const avatarMenu: InputMenuItem[] = avatars.map((el) => ({
+    label: el.name,
+    value: el.id
+  }))
 
   const nonGuestLinkedIP = selectedUser?.identity_providers?.filter((ip) => ip.type !== 'guest')
   const discordIp = selectedUser?.identity_providers?.find((ip) => ip.type === 'discord')
@@ -137,10 +132,6 @@ const UserDrawer = ({ open, mode, selectedUser, onClose }: Props) => {
       })
     }
   }
-
-  useEffect(() => {
-    AdminScopeTypeService.getScopeTypeService()
-  }, [])
 
   useEffect(() => {
     loadSelectedUser()
@@ -175,12 +166,7 @@ const UserDrawer = ({ open, mode, selectedUser, onClose }: Props) => {
     state.merge({ scopes: scope })
   }
 
-  const handleSelectAllScopes = () =>
-    handleChangeScopeType(
-      scopeTypes.value.map((el) => {
-        return { type: el.type }
-      })
-    )
+  const handleSelectAllScopes = () => handleChangeScopeType(scopeTypes.map((el) => ({ type: el.type })))
 
   const handleClearAllScopes = () => handleChangeScopeType([])
 
