@@ -201,9 +201,6 @@ type RemoveMethodParameters<S extends keyof ServiceTypes> = ServiceTypes[S]['rem
  * of calling these operations needs to be handled
  * by the caller. as you create/update/patch/remove
  * entities using this helper, the entities cache gets updated
- *
- * @param serviceName
- * @returns {create, update, patch, remove, status, data, error}
  */
 export function useMutation<S extends keyof ServiceTypes>(serviceName: S) {
   const state = useHookstate({
