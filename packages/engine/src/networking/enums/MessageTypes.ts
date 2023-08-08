@@ -42,7 +42,7 @@ export enum MessageTypes {
   WebRTCCloseConsumer = 14,
   // WebRTCPauseProducer = 15,
   // WebRTCResumeProducer = 16,
-  WebRTCCloseProducer = 17,
+  // WebRTCCloseProducer = 17,
   WebRTCMuteOtherProducer = 18,
   WebRTCUnmuteOtherProducer = 19,
   WebRTCConsumerSetLayers = 20,

@@ -73,9 +73,6 @@ const PeerMedia = (props: {
   const network = Engine.instance.mediaNetwork as SocketWebRTCClientNetwork
   const isSelf = props.peerID === Engine.instance.peerID
 
-  const producerConsumerState = useHookstate(getMutableState(ProducerConsumerState))
-  const producerNetworkState = producerConsumerState[network.hostId].producers
-
   const peerMediaChannelState = useHookstate(getMutableState(PeerMediaChannelState)[peerID][type])
 
   const { videoStream, audioStream, videoElement, audioElement } = peerMediaChannelState.value
@@ -152,6 +149,9 @@ const PeerMedia = (props: {
     }
   }
 
+  const producerConsumerState = useHookstate(getMutableState(ProducerConsumerState))
+  const producerNetworkState = producerConsumerState[network.hostId].producers
+
   useEffect(() => {
     if (!producerNetworkState?.value) return
     for (const [producerId, producer] of Object.entries(producerNetworkState.get(NO_PROXY))) {
@@ -163,11 +163,12 @@ const PeerMedia = (props: {
     }
   }, [producerNetworkState])
 
+  //  todo
   const closeProducerListener = (producerId: string) => {
     if (producerId === videoStream?.id) {
       ;(videoElement?.srcObject as MediaStream)?.getVideoTracks()[0].stop()
       if (!isScreen) mediaStreamState.videoStream.value!.getVideoTracks()[0].stop()
-      else mediaStreamState.localScreen.value!.getVideoTracks()[0].stop
+      else mediaStreamState.localScreen.value!.getVideoTracks()[0].stop()
     }
 
     if (producerId === audioStream?.id) {
@@ -245,15 +246,6 @@ const PeerMedia = (props: {
               break
             case MessageTypes.WebRTCResumeConsumer.toString():
               resumeConsumerListener(data)
-              break
-            // case MessageTypes.WebRTCPauseProducer.toString():
-            //   pauseProducerListener(data)
-            //   break
-            // case MessageTypes.WebRTCResumeProducer.toString():
-            //   resumeProducerListener(data)
-            //   break
-            case MessageTypes.WebRTCCloseProducer.toString():
-              closeProducerListener(data)
               break
           }
         }

@@ -151,11 +151,12 @@ export const ProducerConsumerState = defineState({
           globalMute: action.globalMute
         })
 
+        const peerID = state[action.$from].producers[action.producerId].peerID.value
+
         const { producerId, globalMute, paused } = action
         const network = getState(NetworkState).networks[action.$from]
         const producer = network.producers.find((p) => p.id === producerId)
         if (producer) {
-          const peerID = action.$peer
           const media = network.peers.get(peerID)?.media
           if (media && media[producer.appData.mediaTag]) {
             media[producer.appData.mediaTag].paused = paused
@@ -204,6 +205,30 @@ export const NetworkProducer = (props: { networkID: UserId; producerID: string }
   const producerState = useHookstate(getMutableState(ProducerConsumerState)[networkID].producers[producerID])
   const networkState = useHookstate(getMutableState(NetworkState).networks[networkID])
   const networkProducerState = networkState.producers.find((p) => p.value.id === producerID)
+
+  useEffect(() => {
+    return () => {
+      const network = getState(NetworkState).networks[networkID]
+      const producer = network.producers.find((p) => p.id === producerID)
+      if (!producer || producer.closed || producer._closed) return
+
+      console.log('Destroying Producer', producer)
+
+      producer.close()
+      const peerID = producerState.peerID.value
+      const media = network.peers.get(peerID)?.media
+      network.producers.splice(network.producers.indexOf(producer), 1)
+      network.consumers.splice(
+        network.consumers.findIndex(
+          (c) => c.appData.mediaTag === producer.appData.mediaTag && c.producerId === producer.id
+        ),
+        1
+      )
+      if (media && media[producer.appData.mediaTag]) {
+        delete media[producer.appData.mediaTag]
+      }
+    }
+  }, [])
 
   useEffect(() => {
     const network = getState(NetworkState).networks[networkID]
