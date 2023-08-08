@@ -46,7 +46,7 @@ import { AssetLoader } from '@etherealengine/engine/src/assets/classes/AssetLoad
 import { AvatarRigComponent } from '@etherealengine/engine/src/avatar/components/AvatarAnimationComponent'
 import { getOptionalComponent } from '@etherealengine/engine/src/ecs/functions/ComponentFunctions'
 import { AvatarType } from '@etherealengine/engine/src/schemas/user/avatar.schema'
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { useHookstate } from '@etherealengine/hyperflux'
 import Box from '@etherealengine/ui/src/primitives/mui/Box'
 import Button from '@etherealengine/ui/src/primitives/mui/Button'
 import Container from '@etherealengine/ui/src/primitives/mui/Container'
@@ -61,10 +61,9 @@ import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 import { NotificationService } from '../../../common/services/NotificationService'
 import { loadAvatarForPreview, resetAnimationLogic } from '../../../user/components/Panel3D/helperFunctions'
 import { useRender3DPanelSystem } from '../../../user/components/Panel3D/useRender3DPanelSystem'
-import { AuthState } from '../../../user/services/AuthService'
 import { AvatarService } from '../../../user/services/AvatarService'
+import { userHasAccess } from '../../../user/userHasAccess'
 import DrawerView from '../../common/DrawerView'
-import { AdminAvatarState } from '../../services/AvatarService'
 import styles from '../../styles/admin.module.scss'
 
 export enum AvatarDrawerMode {
@@ -112,10 +111,7 @@ const AvatarDrawerContent = ({ open, mode, selectedAvatar, onClose }: Props) => 
   const renderPanel = useRender3DPanelSystem(panelRef)
   const { entity, camera, scene, renderer } = renderPanel.state
 
-  const user = useHookstate(getMutableState(AuthState).user).value
-  const thumbnail = useHookstate(getMutableState(AdminAvatarState).thumbnail).value
-
-  const hasWriteAccess = user.scopes && user.scopes.find((item) => item.type === 'static_resource:write')
+  const hasWriteAccess = userHasAccess('static_resource:write')
   const viewMode = mode === AvatarDrawerMode.ViewEdit && !editMode
 
   let thumbnailSrc = ''
@@ -133,7 +129,7 @@ const AvatarDrawerContent = ({ open, mode, selectedAvatar, onClose }: Props) => 
     }
 
     initSelected()
-  }, [selectedAvatar, thumbnail?.url])
+  }, [selectedAvatar])
 
   useEffect(() => {
     updateAvatar()
@@ -191,7 +187,9 @@ const AvatarDrawerContent = ({ open, mode, selectedAvatar, onClose }: Props) => 
     if (editMode.value) {
       loadSelectedAvatar()
       editMode.set(false)
-    } else onClose()
+    } else {
+      onClose()
+    }
   }
 
   const handleChangeFile = (e) => {
@@ -200,8 +198,6 @@ const AvatarDrawerContent = ({ open, mode, selectedAvatar, onClose }: Props) => 
     if (files.length === 0) {
       return
     }
-
-    let tempErrors = { ...state.formErrors }
 
     switch (name) {
       case 'avatarFile': {
@@ -228,8 +224,6 @@ const AvatarDrawerContent = ({ open, mode, selectedAvatar, onClose }: Props) => 
         })
         break
       }
-      default:
-        break
     }
 
     state.merge({ [name]: files[0] })
@@ -237,8 +231,6 @@ const AvatarDrawerContent = ({ open, mode, selectedAvatar, onClose }: Props) => 
 
   const handleChange = (e) => {
     const { name, value } = e.target
-
-    let tempErrors = { ...state.formErrors }
 
     switch (name) {
       case 'name':
@@ -264,8 +256,6 @@ const AvatarDrawerContent = ({ open, mode, selectedAvatar, onClose }: Props) => 
         })
         break
       }
-      default:
-        break
     }
 
     state.merge({ [name]: value })
@@ -316,8 +306,9 @@ const AvatarDrawerContent = ({ open, mode, selectedAvatar, onClose }: Props) => 
     if (avatarFile && thumbnailFile) {
       if (selectedAvatar?.id) {
         await AvatarService.patchAvatar(selectedAvatar, state.name.value, true, avatarFile, thumbnailFile)
-      } else await AvatarService.createAvatar(avatarFile, thumbnailFile, state.name.value, true)
-      getMutableState(AdminAvatarState).merge({ updateNeeded: true })
+      } else {
+        await AvatarService.createAvatar(avatarFile, thumbnailFile, state.name.value, true)
+      }
 
       onClose()
     }
