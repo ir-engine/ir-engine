@@ -35,7 +35,7 @@ import CircularProgress from '@etherealengine/ui/src/primitives/mui/CircularProg
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
 
-import { AdminServerInfoState } from '../../services/ServerInfoService'
+import { useServerInfoFind } from '../../services/ServerInfoService'
 import { AdminServerLogsState, ServerLogsService } from '../../services/ServerLogsService'
 import styles from '../../styles/admin.module.scss'
 
@@ -46,7 +46,7 @@ const ServerLogs = () => {
   const logsEndRef = useRef(null)
   const autoRefresh = useHookstate('60')
   const intervalTimer = useHookstate<NodeJS.Timer | undefined>(undefined)
-  const serverInfo = useHookstate(getMutableState(AdminServerInfoState))
+  const serverInfo = useServerInfoFind().data
   const serverLogs = useHookstate(getMutableState(AdminServerLogsState))
 
   const scrollLogsToBottom = () => {
@@ -102,8 +102,7 @@ const ServerLogs = () => {
     ServerLogsService.fetchServerLogs(serverLogs.podName.value!, value)
   }
 
-  const containers = serverInfo.servers
-    .get({ noproxy: true })
+  const containers = serverInfo
     .find((item) => item.id === 'all')
     ?.pods.find((item) => item.name === serverLogs.podName.value!)
   const containersMenu = containers?.containers.map((item) => {

@@ -23,54 +23,31 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { ServerInfoInterface, ServerPodInfo } from '@etherealengine/common/src/interfaces/ServerInfo'
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { defineState, getMutableState } from '@etherealengine/hyperflux'
+import { ServerPodInfo } from '@etherealengine/common/src/interfaces/ServerInfo'
+import { useHookstate } from '@etherealengine/hyperflux'
 
-import { NotificationService } from '../../common/services/NotificationService'
+import { useFind } from '@etherealengine/engine/src/common/functions/FeathersHooks'
+import { useEffect } from 'react'
 
-export const AdminServerInfoState = defineState({
-  name: 'AdminServerInfoState',
-  initial: () => ({
-    servers: [] as Array<ServerInfoInterface>,
-    retrieving: false,
-    fetched: false,
-    updateNeeded: true
-  })
-})
+export const useServerInfoFind = () => {
+  const serverInfoQuery = useFind('server-info')
+  const serverInfo = useHookstate([] as typeof serverInfoQuery.data)
 
-export const ServerInfoService = {
-  fetchServerInfo: async () => {
-    getMutableState(AdminServerInfoState).merge({ retrieving: true })
-    try {
-      let serverInfo: ServerInfoInterface[] = await Engine.instance.api.service('server-info').find()
-      const allPods: ServerPodInfo[] = []
-      for (const item of serverInfo) {
-        allPods.push(...item.pods)
-      }
-
-      serverInfo = [
-        {
-          id: 'all',
-          label: 'All',
-          pods: allPods
-        },
-        ...serverInfo
-      ]
-
-      getMutableState(AdminServerInfoState).merge({
-        servers: serverInfo,
-        retrieving: false,
-        fetched: true,
-        updateNeeded: false
-      })
-    } catch (err) {
-      getMutableState(AdminServerInfoState).merge({ retrieving: true })
-      NotificationService.dispatchNotify(err.message, { variant: 'error' })
+  useEffect(() => {
+    const allPods: ServerPodInfo[] = []
+    for (const item of serverInfoQuery.data) {
+      allPods.push(...item.pods)
     }
-  },
-  removePod: async (podName: string) => {
-    await Engine.instance.api.service('server-info').remove(podName)
-    getMutableState(AdminServerInfoState).merge({ updateNeeded: true })
-  }
+
+    serverInfo.set([
+      {
+        id: 'all',
+        label: 'All',
+        pods: allPods
+      },
+      ...serverInfoQuery.data
+    ])
+  }, [serverInfoQuery.data])
+
+  return { data: serverInfo.value, refetch: serverInfoQuery.refetch }
 }

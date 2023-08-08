@@ -32,15 +32,16 @@ import ConfirmDialog from '@etherealengine/client-core/src/common/components/Con
 import InputSelect, { InputMenuItem } from '@etherealengine/client-core/src/common/components/InputSelect'
 import { ServerPodInfo } from '@etherealengine/common/src/interfaces/ServerInfo'
 import multiLogger from '@etherealengine/common/src/logger'
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { useHookstate } from '@etherealengine/hyperflux'
 import Box from '@etherealengine/ui/src/primitives/mui/Box'
 import CircularProgress from '@etherealengine/ui/src/primitives/mui/CircularProgress'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
 
+import { useMutation } from '@etherealengine/engine/src/common/functions/FeathersHooks'
 import TableComponent from '../../common/Table'
 import { ServerColumn, ServerPodData } from '../../common/variables/server'
-import { AdminServerInfoState, ServerInfoService } from '../../services/ServerInfoService'
+import { useServerInfoFind } from '../../services/ServerInfoService'
 import { ServerLogsService } from '../../services/ServerLogsService'
 import styles from '../../styles/admin.module.scss'
 
@@ -60,7 +61,9 @@ const ServerTable = ({ selectedCard }: Props) => {
   const autoRefresh = useHookstate('60')
   const intervalTimer = useHookstate<NodeJS.Timer | undefined>(undefined)
   const selectedPod = useHookstate<ServerPodInfo | null>(null)
-  const serverInfo = useHookstate(getMutableState(AdminServerInfoState))
+
+  const serverInfoQuery = useServerInfoFind()
+  const removeServerInfo = useMutation('server-info').remove
 
   useEffect(() => {
     if (autoRefresh.value !== '0') {
@@ -147,7 +150,6 @@ const ServerTable = ({ selectedCard }: Props) => {
 
   const handleRefreshServerInfo = () => {
     logger.info('Refreshing server info.')
-    ServerInfoService.fetchServerInfo()
   }
 
   const handleAutoRefreshServerInfoChange = (e) => {
@@ -161,7 +163,7 @@ const ServerTable = ({ selectedCard }: Props) => {
       return
     }
 
-    await ServerInfoService.removePod(selectedPod.value.name)
+    await removeServerInfo(selectedPod.value.name)
     openConfirm.set(false)
   }
 
@@ -205,7 +207,7 @@ const ServerTable = ({ selectedCard }: Props) => {
       id: 'action',
       label: (
         <Box sx={{ display: 'flex', alignItems: 'center' }}>
-          {serverInfo.value.retrieving === false && (
+          {serverInfoQuery.data && (
             <IconButton
               title={t('admin:components.common.refresh')}
               className={styles.iconButton}
@@ -215,7 +217,7 @@ const ServerTable = ({ selectedCard }: Props) => {
             />
           )}
 
-          {serverInfo.value.retrieving && <CircularProgress size={24} sx={{ marginRight: 1.5 }} />}
+          {!serverInfoQuery.data && <CircularProgress size={24} sx={{ marginRight: 1.5 }} />}
 
           <InputSelect
             name="autoRefresh"
@@ -231,8 +233,7 @@ const ServerTable = ({ selectedCard }: Props) => {
     }
   ]
 
-  const rows = serverInfo.servers
-    .get({ noproxy: true })
+  const rows = serverInfoQuery.data
     .find((item) => item.id === selectedCard)!
     .pods.map((el) => {
       return createData(el)

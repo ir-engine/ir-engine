@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React, { useEffect } from 'react'
+import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { ReflexContainer, ReflexElement, ReflexSplitter } from 'react-reflex'
 
@@ -37,7 +37,7 @@ import CardContent from '@etherealengine/ui/src/primitives/mui/CardContent'
 import Grid from '@etherealengine/ui/src/primitives/mui/Grid'
 import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 
-import { AdminServerInfoState, ServerInfoService } from '../../services/ServerInfoService'
+import { useServerInfoFind } from '../../services/ServerInfoService'
 import styles from '../../styles/admin.module.scss'
 import ServerTable from './ServerTable'
 
@@ -49,16 +49,12 @@ import ServerLogs from './ServerLogs'
 const Server = () => {
   const { t } = useTranslation()
   const selectedCard = useHookstate('all')
-  const serverInfo = useHookstate(getMutableState(AdminServerInfoState))
+  const serverInfo = useServerInfoFind().data
   const serverLogs = useHookstate(getMutableState(AdminServerLogsState))
 
   let displayLogs = serverLogs.podName.value ? true : false
 
-  useEffect(() => {
-    if (serverInfo.updateNeeded.value) ServerInfoService.fetchServerInfo()
-  }, [serverInfo.updateNeeded.value])
-
-  if (!serverInfo.value.fetched) {
+  if (!serverInfo) {
     return (
       <LoadingView title={t('admin:components.server.loading')} variant="body2" sx={{ position: 'absolute', top: 0 }} />
     )
@@ -67,7 +63,7 @@ const Server = () => {
   return (
     <Box sx={{ height: 'calc(100% - 106px)' }}>
       <Grid container spacing={1} className={styles.mb10px}>
-        {serverInfo.servers.get({ noproxy: true }).map((item, index) => (
+        {serverInfo.map((item, index) => (
           <Grid item key={item.id} xs={12} sm={6} md={2}>
             <ServerItemCard
               key={index}
