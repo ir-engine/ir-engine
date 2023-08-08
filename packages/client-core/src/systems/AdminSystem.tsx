@@ -27,19 +27,11 @@ import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFun
 import { defineActionQueue } from '@etherealengine/hyperflux'
 
 import { AdminActiveRouteActions, AdminActiveRouteReceptors } from '../admin/services/ActiveRouteService'
-import {
-  AdminChargebeeReceptors,
-  AdminChargebeeSettingActions
-} from '../admin/services/Setting/ChargebeeSettingService'
 
-// import { ClientSettingActions, ClientSettingReceptors } from '../admin/services/Setting/ClientSettingService'
 const activeRoutesRetrievedQueue = defineActionQueue(AdminActiveRouteActions.activeRoutesRetrieved.matches)
-const chargebeeSettingRetrievedQueue = defineActionQueue(AdminChargebeeSettingActions.chargebeeSettingRetrieved.matches)
 
 const execute = () => {
   for (const action of activeRoutesRetrievedQueue()) AdminActiveRouteReceptors.activeRoutesRetrievedReceptor(action)
-  for (const action of chargebeeSettingRetrievedQueue())
-    AdminChargebeeReceptors.chargebeeSettingRetrievedReceptor(action)
 }
 
 export const AdminSystem = defineSystem({
