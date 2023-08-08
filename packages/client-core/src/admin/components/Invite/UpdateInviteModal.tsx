@@ -47,14 +47,13 @@ import Tabs from '@etherealengine/ui/src/primitives/mui/Tabs'
 import { DateTimePicker, LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
 
-import { useFind } from '@etherealengine/engine/src/common/functions/FeathersHooks'
+import { useFind, useMutation } from '@etherealengine/engine/src/common/functions/FeathersHooks'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
 import { Id } from '@feathersjs/feathers'
 import { NotificationService } from '../../../common/services/NotificationService'
 import DrawerView from '../../common/DrawerView'
 import { AdminInstanceService, AdminInstanceState } from '../../services/InstanceService'
-import { AdminInviteService } from '../../services/InviteService'
 import { AdminSceneService, AdminSceneState } from '../../services/SceneService'
 import { AdminUserService, AdminUserState } from '../../services/UserService'
 import styles from '../../styles/admin.module.scss'
@@ -99,6 +98,7 @@ const UpdateInviteModal = ({ open, onClose, invite }: Props) => {
         value.components.find((component) => component.name === 'spawn-point')
       )
     : []
+  const updateInvite = useMutation('invite').update
 
   useEffect(() => {
     console.log('DEBUG : invite changed', invite)
@@ -264,7 +264,7 @@ const UpdateInviteModal = ({ open, onClose, invite }: Props) => {
         sendData.startTime = startTime.value?.toDate()
         sendData.endTime = endTime.value?.toDate()
       }
-      await AdminInviteService.updateInvite(invite.id, sendData)
+      await updateInvite(invite.id, sendData)
       instanceId.set('')
       locationId.set('')
       textValue.set('')
@@ -281,7 +281,6 @@ const UpdateInviteModal = ({ open, onClose, invite }: Props) => {
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
-    setTimeout(() => AdminInviteService.fetchAdminInvites(), 500)
     onClose()
   }
 

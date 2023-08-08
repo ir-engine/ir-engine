@@ -53,7 +53,6 @@ import { NotificationService } from '../../../common/services/NotificationServic
 import { InviteService } from '../../../social/services/InviteService'
 import DrawerView from '../../common/DrawerView'
 import { AdminInstanceService, AdminInstanceState } from '../../services/InstanceService'
-import { AdminInviteService } from '../../services/InviteService'
 import { AdminSceneService, AdminSceneState } from '../../services/SceneService'
 import { AdminUserService, AdminUserState } from '../../services/UserService'
 import styles from '../../styles/admin.module.scss'
@@ -228,7 +227,6 @@ const CreateInviteModal = ({ open, onClose }: Props) => {
         NotificationService.dispatchNotify(err.message, { variant: 'error' })
       }
     })
-    setTimeout(() => AdminInviteService.fetchAdminInvites(), 500)
     onClose()
   }
 
