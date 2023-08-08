@@ -23,55 +23,41 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React, { useEffect } from 'react'
+import React from 'react'
 import { useTranslation } from 'react-i18next'
 
-import multiLogger from '@etherealengine/common/src/logger'
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { useHookstate } from '@etherealengine/hyperflux'
 import Button from '@etherealengine/ui/src/primitives/mui/Button'
 import Grid from '@etherealengine/ui/src/primitives/mui/Grid'
 import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 
-import { AdminTestBotState, TestBotService } from '../../services/TestBotService'
+import { useGet, useMutation } from '@etherealengine/engine/src/common/functions/FeathersHooks'
 import styles from '../../styles/admin.module.scss'
 
-const logger = multiLogger.child({ component: 'client-core:bot:benchmarking' })
-
 const Benchmarking = () => {
-  const testbotState = useHookstate(getMutableState(AdminTestBotState))
-  const { bots, spawn, spawning } = testbotState.get({ noproxy: true })
   const { t } = useTranslation()
-  const REFRESH_MS = 10000
+  const spawn = useHookstate(null as any)
 
-  useEffect(() => {
-    TestBotService.fetchTestBot()
-    const interval = setInterval(() => {
-      logger.info('Refreshing bot status.')
-      TestBotService.fetchTestBot()
-    }, REFRESH_MS)
+  const bots = useGet('testbot', undefined).data
 
-    return () => clearInterval(interval) // This represents the unmount function, in which you need to clear your interval to prevent memory leaks.
-  }, [])
+  const createTestBot = useMutation('testbot').create
+  const spawnTestBot = () => {
+    createTestBot().then((data) => {
+      spawn.set(data)
+    })
+  }
 
   return (
     <div>
       <Grid container spacing={1}>
         <Grid item xs={6} sm={4}>
-          <Button
-            type="button"
-            variant="contained"
-            className={styles.openModalBtn}
-            disabled={spawning}
-            onClick={() => {
-              TestBotService.spawnTestBot()
-            }}
-          >
+          <Button type="button" variant="contained" className={styles.openModalBtn} onClick={spawnTestBot}>
             {t('admin:components.bot.spawnBot')}
           </Button>
         </Grid>
       </Grid>
 
-      {spawn && <Typography className={styles.heading}>Spawn bot status: {spawn.message}</Typography>}
+      {spawn.value && <Typography className={styles.heading}>Spawn bot status: {spawn.value.message}</Typography>}
 
       {bots && bots.length > 0 && (
         <Typography className={styles.secondaryHeading}>
