@@ -128,7 +128,7 @@ export const getActiveInstancesForUserFriends = (app: Application) => async (dat
             .from(instanceAttendancePath)
             .join('instance', `${instanceAttendancePath}.instanceId`, '=', `${'instance'}.id`)
             .join('user', `${instanceAttendancePath}.userId`, '=', `${'user'}.id`)
-            .join(`user-relationship`, `${'user'}.id`, '=', `${`user-relationship`}.userId`)
+            .join(`user_relationship`, `${'user'}.id`, '=', `${`user_relationship`}.userId`)
             .where(`${instanceAttendancePath}.ended`, '=', false)
             .andWhere(`${instanceAttendancePath}.isChannel`, '=', false)
             .andWhere(`${'instance'}.id`, '=', instance.id)
