@@ -32,23 +32,27 @@ import authenticate from '../../hooks/authenticate'
 
 // TODO: Populating Message's sender property here manually. Once message service is moved to feathers 5. This should be part of its resolver.
 const populateSender = async (context: HookContext) => {
-  const { dispatch } = context
+  const { result } = context
 
-  const data = dispatch.data ? dispatch.data : dispatch
+  const data = result.data ? result.data : result
 
-  //@ts-ignore
-  const users = (await context.app.service(userPath)._find({
-    query: {
-      id: {
-        $in: data.map((item) => item.dataValues.senderId)
+  const senderIds = data.filter((item) => item.senderId).map((item) => item.senderId)
+
+  if (senderIds.length > 0) {
+    //@ts-ignore
+    const users = (await context.app.service(userPath)._find({
+      query: {
+        id: {
+          $in: senderIds
+        }
+      },
+      paginate: false
+    })) as any as UserType[]
+
+    for (const message of data) {
+      if (message.senderId && !message.sender) {
+        message.sender = users.find((user) => user.id === message.senderId)
       }
-    },
-    paginate: false
-  })) as any as UserType[]
-
-  for (const message of data) {
-    if (message.dataValues.senderId && !message.dataValues.sender) {
-      message.dataValues.sender = users.find((user) => user.id === message.dataValues.senderId)
     }
   }
 }

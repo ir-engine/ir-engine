@@ -40,19 +40,23 @@ const populateUser = async (context: HookContext) => {
 
   const data = result.data ? result.data : result
 
-  //@ts-ignore
-  const users = (await context.app.service(userPath)._find({
-    query: {
-      id: {
-        $in: data.map((item) => item.dataValues.senderId)
-      }
-    },
-    paginate: false
-  })) as any as UserType[]
+  const senderIds = data.filter((item) => item.senderId).map((item) => item.senderId)
 
-  for (const message of data) {
-    if (message.dataValues.senderId && !message.dataValues.sender) {
-      message.dataValues.sender = users.find((user) => user.id === message.dataValues.senderId)
+  if (senderIds.length > 0) {
+    //@ts-ignore
+    const users = (await context.app.service(userPath)._find({
+      query: {
+        id: {
+          $in: senderIds
+        }
+      },
+      paginate: false
+    })) as any as UserType[]
+
+    for (const message of data) {
+      if (message.senderId && !message.sender) {
+        message.sender = users.find((user) => user.id === message.senderId)
+      }
     }
   }
 }
