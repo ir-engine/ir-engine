@@ -23,33 +23,32 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Application } from '../../../declarations'
-import { InstanceAttendance } from './instance-attendance.class'
-import instanceAttendanceDocs from './instance-attendance.docs'
-import hooks from './instance-attendance.hooks'
-import createModel from './instance-attendance.model'
+// For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
+import { resolve } from '@feathersjs/schema'
+import { v4 } from 'uuid'
 
-declare module '@etherealengine/common/declarations' {
-  interface ServiceTypes {
-    'instance-attendance': InstanceAttendance
-  }
-}
+import {
+  InstanceAttendanceQuery,
+  InstanceAttendanceType
+} from '@etherealengine/engine/src/schemas/networking/instance-attendance.schema'
+import type { HookContext } from '@etherealengine/server-core/declarations'
 
-export default (app: Application) => {
-  const options = {
-    Model: createModel(app),
-    paginate: app.get('paginate'),
-    multi: true
-  }
+import { getDateTimeSql } from '../../util/get-datetime-sql'
 
-  /**
-   * Initialize our service with any options it requires and docs
-   */
-  const event = new InstanceAttendance(options, app)
-  event.docs = instanceAttendanceDocs
-  app.use('instance-attendance', event)
+export const instanceAttendanceResolver = resolve<InstanceAttendanceType, HookContext>({})
 
-  const service = app.service('instance-attendance')
+export const instanceAttendanceExternalResolver = resolve<InstanceAttendanceType, HookContext>({})
 
-  service.hooks(hooks)
-}
+export const instanceAttendanceDataResolver = resolve<InstanceAttendanceType, HookContext>({
+  id: async () => {
+    return v4()
+  },
+  createdAt: getDateTimeSql,
+  updatedAt: getDateTimeSql
+})
+
+export const instanceAttendancePatchResolver = resolve<InstanceAttendanceType, HookContext>({
+  updatedAt: getDateTimeSql
+})
+
+export const instanceAttendanceQueryResolver = resolve<InstanceAttendanceQuery, HookContext>({})

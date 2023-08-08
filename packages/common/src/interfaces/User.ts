@@ -24,12 +24,11 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { ScopeTypeData } from '@etherealengine/engine/src/schemas/scope/scope-type.schema'
-import { UserApiKeyType } from '@etherealengine/engine/src/schemas/user/user-api-key.schema'
-
 import { LocationAdminType } from '@etherealengine/engine/src/schemas/social/location-admin.schema'
 import { LocationBanType } from '@etherealengine/engine/src/schemas/social/location-ban.schema'
 import { IdentityProviderType } from '@etherealengine/engine/src/schemas/user/identity.provider.schema'
-import { InstanceAttendanceInterface } from './InstanceAttendance'
+import { UserApiKeyType } from '@etherealengine/engine/src/schemas/user/user-api-key.schema'
+import { InstanceAttendanceType } from './../../../engine/src/schemas/networking/instance-attendance.schema'
 import { StaticResourceInterface } from './StaticResourceInterface'
 import { UserId } from './UserId'
 import { RelationshipType } from './UserRelationship'
@@ -73,7 +72,7 @@ export interface UserInterface {
   scopes?: UserScope[]
   apiKey: UserApiKeyType
   static_resources?: StaticResourceInterface
-  instanceAttendance?: InstanceAttendanceInterface[]
+  instanceAttendance?: InstanceAttendanceType[]
 }
 
 export const UserSeed: UserInterface = {
