@@ -391,199 +391,204 @@ const execute = () => {
     setAvatarLocomotionAnimation(entity)
 
     /**
-     * Apply IK
+     * Apply procedural IK based animations or FK animations depending on the animation state
      */
-
     const animationState = getState(AnimationState)
     const avatarComponent = getComponent(entity, AvatarComponent)
 
-    if (!animationState.ikTargetsAnimations) continue
-    if (!rig.hips?.node) continue
+    if (animationState.useDynamicAnimation) {
+      if (!animationState.ikTargetsAnimations) continue
+      if (!rig.hips?.node) continue
 
-    //calculate world positions
+      //calculate world positions
 
-    const transform = getComponent(entity, TransformComponent)
+      const transform = getComponent(entity, TransformComponent)
 
-    let i = 0
-    for (const [key, value] of Object.entries(rigComponent.ikTargetsMap)) {
-      //if xr is active, set select targets to xr tracking data
-      worldSpaceTargets[key].position
-        .copy(value.position)
-        .multiplyScalar(avatarComponent.scaleMultiplier)
-        .add(rigComponent.ikOffsetsMap.get(key) ?? _empty)
-        .applyMatrix4(transform.matrix)
-
-      i++
-    }
-
-    applyInputSourcePoseToIKTargets()
-
-    for (const ikEntity of ikEntities) {
-      if (ikEntities.length <= 1) continue
-      const networkObject = getComponent(ikEntity, NetworkObjectComponent)
-      const ownerEntity = NetworkObjectComponent.getUserAvatarEntity(networkObject.ownerId)
-      if (ownerEntity !== entity) continue
-
-      const rigidbodyComponent = getComponent(ownerEntity, RigidBodyComponent)
-      const rigComponent = getComponent(ownerEntity, AvatarRigComponent)
-
-      const ikTargetName = getComponent(ikEntity, NameComponent).split('_').pop()!
-      const ikTransform = getComponent(ikEntity, TransformComponent)
-      const hipsForward = new Vector3(0, 0, 1)
-
-      switch (ikTargetName) {
-        case 'leftHand':
-          worldSpaceTargets.leftHandTarget.position.copy(ikTransform.position)
-          worldSpaceTargets.leftHandTarget.rotation.copy(ikTransform.rotation)
-          break
-        case 'rightHand':
-          worldSpaceTargets.rightHandTarget.position.copy(ikTransform.position)
-          worldSpaceTargets.rightHandTarget.rotation.copy(ikTransform.rotation)
-          break
-        case 'head':
-          if (xrState.sessionActive) {
-            worldSpaceTargets.hipsTarget.position.copy(
-              _vector3.copy(ikTransform.position).setY(ikTransform.position.y - rigComponent.torsoLength - 0.125)
-            )
-
-            //offset target forward to account for hips being behind the head
-            hipsForward.applyQuaternion(rigidbodyComponent!.rotation)
-            hipsForward.multiplyScalar(0.125)
-            worldSpaceTargets.hipsTarget.position.sub(hipsForward)
-
-            //calculate head look direction and apply to head bone
-            //look direction should be set outside of the xr switch
-            rig.head.node.quaternion.copy(
-              _quat.multiplyQuaternions(
-                rig.spine.node.getWorldQuaternion(new Quaternion()).invert(),
-                ikTransform.rotation
-              )
-            )
-          } else {
-            worldSpaceTargets.headTarget.position.copy(ikTransform.position)
-          }
-          break
-        case 'hips':
-          console.log(ikTransform.position.x, ikTransform.position.y, ikTransform.position.z)
-          worldSpaceTargets.hipsTarget.position.copy(ikTransform.position)
-          break
-        case 'leftAnkle':
-          //worldSpaceTargets.leftFootTarget.position.copy(ikTransform.position)
-          break
-        case 'rightAnkle':
-          //worldSpaceTargets.rightFootTarget.position.copy(ikTransform.position)
-          break
-      }
-    }
-
-    if (debugEnable) {
       let i = 0
       for (const [key, value] of Object.entries(rigComponent.ikTargetsMap)) {
         //if xr is active, set select targets to xr tracking data
-        const visualizerTransform = getComponent(visualizers[i], TransformComponent)
-        visualizerTransform.position.copy(worldSpaceTargets[key].position)
+        worldSpaceTargets[key].position
+          .copy(value.position)
+          .multiplyScalar(avatarComponent.scaleMultiplier)
+          .add(rigComponent.ikOffsetsMap.get(key) ?? _empty)
+          .applyMatrix4(transform.matrix)
 
         i++
       }
+
+      applyInputSourcePoseToIKTargets()
+
+      for (const ikEntity of ikEntities) {
+        if (ikEntities.length <= 1) continue
+        const networkObject = getComponent(ikEntity, NetworkObjectComponent)
+        const ownerEntity = NetworkObjectComponent.getUserAvatarEntity(networkObject.ownerId)
+        if (ownerEntity !== entity) continue
+
+        const rigidbodyComponent = getComponent(ownerEntity, RigidBodyComponent)
+        const rigComponent = getComponent(ownerEntity, AvatarRigComponent)
+
+        const ikTargetName = getComponent(ikEntity, NameComponent).split('_').pop()!
+        const ikTransform = getComponent(ikEntity, TransformComponent)
+        const hipsForward = new Vector3(0, 0, 1)
+
+        switch (ikTargetName) {
+          case 'leftHand':
+            worldSpaceTargets.leftHandTarget.position.copy(ikTransform.position)
+            worldSpaceTargets.leftHandTarget.rotation.copy(ikTransform.rotation)
+            break
+          case 'rightHand':
+            worldSpaceTargets.rightHandTarget.position.copy(ikTransform.position)
+            worldSpaceTargets.rightHandTarget.rotation.copy(ikTransform.rotation)
+            break
+          case 'head':
+            if (xrState.sessionActive) {
+              worldSpaceTargets.hipsTarget.position.copy(
+                _vector3.copy(ikTransform.position).setY(ikTransform.position.y - rigComponent.torsoLength - 0.125)
+              )
+
+              //offset target forward to account for hips being behind the head
+              hipsForward.applyQuaternion(rigidbodyComponent!.rotation)
+              hipsForward.multiplyScalar(0.125)
+              worldSpaceTargets.hipsTarget.position.sub(hipsForward)
+
+              //calculate head look direction and apply to head bone
+              //look direction should be set outside of the xr switch
+              rig.head.node.quaternion.copy(
+                _quat.multiplyQuaternions(
+                  rig.spine.node.getWorldQuaternion(new Quaternion()).invert(),
+                  ikTransform.rotation
+                )
+              )
+            } else {
+              worldSpaceTargets.headTarget.position.copy(ikTransform.position)
+            }
+            break
+          case 'hips':
+            worldSpaceTargets.hipsTarget.position.copy(ikTransform.position)
+            break
+          case 'leftAnkle':
+            //worldSpaceTargets.leftFootTarget.position.copy(ikTransform.position)
+            break
+          case 'rightAnkle':
+            //worldSpaceTargets.rightFootTarget.position.copy(ikTransform.position)
+            break
+        }
+      }
+
+      if (debugEnable) {
+        let i = 0
+        for (const [key, value] of Object.entries(rigComponent.ikTargetsMap)) {
+          //if xr is active, set select targets to xr tracking data
+          const visualizerTransform = getComponent(visualizers[i], TransformComponent)
+          visualizerTransform.position.copy(worldSpaceTargets[key].position)
+
+          i++
+        }
+      }
+
+      const leftLegLength =
+        leftLegVector
+          .subVectors(worldSpaceTargets.hipsTarget.position, worldSpaceTargets.leftFootTarget.position)
+          .length() + rigComponent.footHeight
+      const rightLegLength =
+        rightLegVector
+          .subVectors(worldSpaceTargets.hipsTarget.position, worldSpaceTargets.rightFootTarget.position)
+          .length() + rigComponent.footHeight
+
+      //calculate hips to head
+      rig.hips.node.position.copy(worldSpaceTargets.hipsTarget.position.applyMatrix4(transform.matrixInverse))
+      _hipVector.subVectors(
+        rigComponent.ikTargetsMap.headTarget.position,
+        rigComponent.ikTargetsMap.hipsTarget.position
+      )
+      rig.hips.node.quaternion
+        .setFromUnitVectors(V_010, _hipVector)
+        .multiply(_hipRot.setFromEuler(new Euler(0, rigComponent.flipped ? Math.PI : 0)))
+
+      //right now we only want hand rotation set if we are in xr
+      const xrValue = xrState.sessionActive ? 1 : 0
+
+      solveTwoBoneIK(
+        rig.rightUpperArm.node,
+        rig.rightLowerArm.node,
+        rig.rightHand.node,
+        worldSpaceTargets.rightHandTarget.position,
+        worldSpaceTargets.rightHandTarget.rotation,
+        null,
+        worldSpaceTargets.rightElbowHint.position,
+        tipAxisRestriction,
+        midAxisRestriction,
+        null,
+        1,
+        xrValue
+      )
+
+      solveTwoBoneIK(
+        rig.leftUpperArm.node,
+        rig.leftLowerArm.node,
+        rig.leftHand.node,
+        worldSpaceTargets.leftHandTarget.position,
+        worldSpaceTargets.leftHandTarget.rotation,
+        null,
+        worldSpaceTargets.leftElbowHint.position,
+        tipAxisRestriction,
+        midAxisRestriction,
+        null,
+        1,
+        xrValue
+      )
+
+      setFootTarget(
+        transform.position,
+        worldSpaceTargets.rightFootTarget,
+        rightLegLength,
+        footRaycastTimer >= footRaycastInterval,
+        0
+      )
+      setFootTarget(
+        transform.position,
+        worldSpaceTargets.leftFootTarget,
+        leftLegLength,
+        footRaycastTimer >= footRaycastInterval,
+        1
+      )
+
+      if (footRaycastTimer >= footRaycastInterval) {
+        footRaycastTimer = 0
+      }
+
+      solveTwoBoneIK(
+        rig.rightUpperLeg.node,
+        rig.rightLowerLeg.node,
+        rig.rightFoot.node,
+        worldSpaceTargets.rightFootTarget.position.setY(
+          worldSpaceTargets.rightFootTarget.position.y + rigComponent.footHeight
+        ),
+        worldSpaceTargets.rightFootTarget.rotation,
+        null,
+        worldSpaceTargets.rightKneeHint.position,
+        tipAxisRestriction,
+        midAxisRestriction,
+        tipAxisRestriction
+      )
+
+      solveTwoBoneIK(
+        rig.leftUpperLeg.node,
+        rig.leftLowerLeg.node,
+        rig.leftFoot.node,
+        worldSpaceTargets.leftFootTarget.position.setY(
+          worldSpaceTargets.leftFootTarget.position.y + rigComponent.footHeight
+        ),
+        worldSpaceTargets.leftFootTarget.rotation,
+        null,
+        worldSpaceTargets.leftKneeHint.position,
+        tipAxisRestriction,
+        midAxisRestriction,
+        tipAxisRestriction
+      )
+    } else {
+      //if we're not using dynamic animations, use fk instead
     }
-
-    const leftLegLength =
-      leftLegVector
-        .subVectors(worldSpaceTargets.hipsTarget.position, worldSpaceTargets.leftFootTarget.position)
-        .length() + rigComponent.footHeight
-    const rightLegLength =
-      rightLegVector
-        .subVectors(worldSpaceTargets.hipsTarget.position, worldSpaceTargets.rightFootTarget.position)
-        .length() + rigComponent.footHeight
-
-    //calculate hips to head
-    rig.hips.node.position.copy(worldSpaceTargets.hipsTarget.position.applyMatrix4(transform.matrixInverse))
-    _hipVector.subVectors(rigComponent.ikTargetsMap.headTarget.position, rigComponent.ikTargetsMap.hipsTarget.position)
-    rig.hips.node.quaternion
-      .setFromUnitVectors(V_010, _hipVector)
-      .multiply(_hipRot.setFromEuler(new Euler(0, rigComponent.flipped ? Math.PI : 0)))
-
-    //right now we only want hand rotation set if we are in xr
-    const xrValue = xrState.sessionActive ? 1 : 0
-
-    solveTwoBoneIK(
-      rig.rightUpperArm.node,
-      rig.rightLowerArm.node,
-      rig.rightHand.node,
-      worldSpaceTargets.rightHandTarget.position,
-      worldSpaceTargets.rightHandTarget.rotation,
-      null,
-      worldSpaceTargets.rightElbowHint.position,
-      tipAxisRestriction,
-      midAxisRestriction,
-      null,
-      1,
-      xrValue
-    )
-
-    solveTwoBoneIK(
-      rig.leftUpperArm.node,
-      rig.leftLowerArm.node,
-      rig.leftHand.node,
-      worldSpaceTargets.leftHandTarget.position,
-      worldSpaceTargets.leftHandTarget.rotation,
-      null,
-      worldSpaceTargets.leftElbowHint.position,
-      tipAxisRestriction,
-      midAxisRestriction,
-      null,
-      1,
-      xrValue
-    )
-
-    setFootTarget(
-      transform.position,
-      worldSpaceTargets.rightFootTarget,
-      rightLegLength,
-      footRaycastTimer >= footRaycastInterval,
-      0
-    )
-    setFootTarget(
-      transform.position,
-      worldSpaceTargets.leftFootTarget,
-      leftLegLength,
-      footRaycastTimer >= footRaycastInterval,
-      1
-    )
-
-    if (footRaycastTimer >= footRaycastInterval) {
-      footRaycastTimer = 0
-    }
-
-    solveTwoBoneIK(
-      rig.rightUpperLeg.node,
-      rig.rightLowerLeg.node,
-      rig.rightFoot.node,
-      worldSpaceTargets.rightFootTarget.position.setY(
-        worldSpaceTargets.rightFootTarget.position.y + rigComponent.footHeight
-      ),
-      worldSpaceTargets.rightFootTarget.rotation,
-      null,
-      worldSpaceTargets.rightKneeHint.position,
-      tipAxisRestriction,
-      midAxisRestriction,
-      tipAxisRestriction
-    )
-
-    solveTwoBoneIK(
-      rig.leftUpperLeg.node,
-      rig.leftLowerLeg.node,
-      rig.leftFoot.node,
-      worldSpaceTargets.leftFootTarget.position.setY(
-        worldSpaceTargets.leftFootTarget.position.y + rigComponent.footHeight
-      ),
-      worldSpaceTargets.leftFootTarget.rotation,
-      null,
-      worldSpaceTargets.leftKneeHint.position,
-      tipAxisRestriction,
-      midAxisRestriction,
-      tipAxisRestriction
-    )
 
     rigComponent.vrm.update(getState(EngineState).deltaSeconds)
   }

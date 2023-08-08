@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { VRM, VRMHumanBoneList, VRMHumanBones } from '@pixiv/three-vrm'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { AnimationClip, Euler, Matrix4, Object3D, Quaternion, SkeletonHelper, SkinnedMesh, Vector3 } from 'three'
 
 import { getMutableState, getState, none, useHookstate } from '@etherealengine/hyperflux'
@@ -203,12 +203,18 @@ export const AvatarRigComponent = defineComponent({
     }, [anim.rig])
 
     const animComponent = useComponent(entity, AnimationComponent)
+    const animationState = useState(getState(AnimationState).useDynamicAnimation)
 
     const offset = new Vector3()
     const foot = new Vector3()
     //Calculate ik target offsets for retargeting
     useEffect(() => {
-      if (!animComponent.animations.value.length || !rigComponent.targets.children.length) return
+      if (
+        !animComponent.animations.value.length ||
+        !rigComponent.targets.children.length ||
+        !getState(AnimationState).useDynamicAnimation
+      )
+        return
       const bindTracks = AnimationClip.findByName(getState(AnimationState).ikTargetsAnimations!, 'BindPose').tracks
       if (!bindTracks) return
 
@@ -292,7 +298,7 @@ export const AvatarRigComponent = defineComponent({
         pos.sub(offset)
         rig.ikOffsetsMap.set(key, pos)
       }
-    }, [animComponent.animations, rigComponent.targets])
+    }, [animComponent.animations, rigComponent.targets, animationState])
     return null
   }
 })

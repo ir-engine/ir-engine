@@ -36,7 +36,7 @@ import {
 } from 'three'
 import { mixamoVRMRigMap } from '../AvatarBoneMatching'
 
-const offset = new Quaternion().setFromEuler(new Euler(0, 0, 0))
+const offset = new Quaternion().setFromEuler(new Euler(0, Math.PI, 0))
 
 /**
  * Retargets mixamo animation to a VRM rig,
@@ -59,6 +59,8 @@ export function retargetMixamoAnimation(clip: AnimationClip, mixamoRig: Object3D
   const vrmRootY = vrm.scene.getWorldPosition(_vec3).y
   const vrmHipsHeight = Math.abs(vrmHipsY - vrmRootY)
   const hipsPositionScale = vrmHipsHeight / motionHipsHeight
+
+  hips?.quaternion.multiply(offset)
 
   clip.tracks.forEach((track) => {
     // Convert each tracks for VRM use, and push to `tracks`
@@ -109,5 +111,5 @@ export function retargetMixamoAnimation(clip: AnimationClip, mixamoRig: Object3D
     }
   })
 
-  return new AnimationClip('vrmAnimation', clip.duration, tracks)
+  return new AnimationClip(clip.name, clip.duration, tracks)
 }

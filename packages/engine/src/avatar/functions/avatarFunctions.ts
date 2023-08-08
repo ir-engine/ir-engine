@@ -25,8 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { VRM, VRMHumanBone } from '@pixiv/three-vrm'
 import { clone, cloneDeep } from 'lodash'
-import { AnimationMixer, Bone, Box3, Group, Object3D, Skeleton, SkinnedMesh, Vector3 } from 'three'
-import { GLTF } from 'three/examples/jsm/loaders/GLTFLoader'
+import { AnimationClip, AnimationMixer, Bone, Box3, Group, Object3D, Skeleton, SkinnedMesh, Vector3 } from 'three'
 
 import { dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
 
@@ -53,6 +52,7 @@ import { XRState } from '../../xr/XRState'
 import { AnimationState } from '../AnimationManager'
 // import { retargetSkeleton, syncModelSkeletons } from '../animation/retargetSkeleton'
 import config from '@etherealengine/common/src/config'
+import { GLTF } from '../../assets/loaders/gltf/GLTFLoader'
 import avatarBoneMatching, { BoneNames, findSkinnedMeshes } from '../AvatarBoneMatching'
 import { defaultBonesData } from '../DefaultSkeletonBones'
 import { DissolveEffect } from '../DissolveEffect'
@@ -63,6 +63,7 @@ import { AvatarControllerComponent } from '../components/AvatarControllerCompone
 import { AvatarEffectComponent, MaterialMap } from '../components/AvatarEffectComponent'
 import { AvatarPendingComponent } from '../components/AvatarPendingComponent'
 import { resizeAvatar } from './resizeAvatar'
+import { retargetMixamoAnimation } from './retargetMixamoRig'
 
 const tempVec3ForHeight = new Vector3()
 const tempVec3ForCenter = new Vector3()
@@ -140,25 +141,36 @@ export const setupAvatarForUser = (entity: Entity, model: VRM) => {
 export const createIKAnimator = async (entity: Entity) => {
   const rigComponent = getComponent(entity, AvatarRigComponent)
   const animations = await getAnimations()
+  const manager = getState(AnimationState)
+  const avatar = getComponent(entity, AvatarComponent)
+
+  if (!manager.useDynamicAnimation) {
+    for (let i = 0; i < animations.length; i++) {
+      animations[i] = retargetMixamoAnimation(animations[i], manager.fkAnimations?.scene!, rigComponent.vrm, 'glb')
+      console.log(animations[i])
+    }
+  }
 
   //Using set component here allows us to react to animations
   setComponent(entity, AnimationComponent, {
     animations: clone(animations),
-    mixer: new AnimationMixer(rigComponent.targets)
+    mixer: new AnimationMixer(getState(AnimationState).useDynamicAnimation ? rigComponent.targets : avatar.model!)
   })
 }
 
 export const getAnimations = async () => {
   const manager = getMutableState(AnimationState)
-  if (!manager.ikTargetsAnimations.value) {
-    const asset = await AssetLoader.loadAsync(
-      `${config.client.fileServer}/projects/default-project/assets/vrm_mocap_targets.glb`
-    )
-    console.log(asset, `${config.client.fileServer}/projects/default-project/assets/vrm_mocap_targets.glb`)
+  if (!manager.ikTargetsAnimations.value || !manager.value) {
+    //load ik or fk depending on animation manager useDynamicAnimation value
+    const path = manager.value.useDynamicAnimation ? 'vrm_mocap_targets.glb' : 'locomotion_pack.glb'
+    const asset = await AssetLoader.loadAsync(`${config.client.fileServer}/projects/default-project/assets/${path}`)
+    console.log(`${config.client.fileServer}/projects/default-project/assets/${path}`, asset)
     const glb = asset as GLTF
-    manager.ikTargetsAnimations.set(glb.animations)
+    if (manager.value.useDynamicAnimation) manager.ikTargetsAnimations.set(glb.animations)
+    else manager.fkAnimations.set(glb)
+    return glb.animations
   }
-  return manager.ikTargetsAnimations.value!
+  return [new AnimationClip()]
 }
 
 export const rigAvatarModel = (entity: Entity) => (model: VRM) => {

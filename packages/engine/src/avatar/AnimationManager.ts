@@ -28,6 +28,7 @@ import { AnimationClip } from 'three'
 import { defineState } from '@etherealengine/hyperflux'
 
 import { config } from '@etherealengine/common/src/config'
+import { GLTF } from '../assets/loaders/gltf/GLTFLoader'
 
 //Create all IK targets as object 3ds, stored in
 //a named struct and in an object 3d hierarchy
@@ -37,7 +38,8 @@ export const AnimationState = defineState({
   name: 'animationManager',
   initial: () => ({
     ikTargetsAnimations: undefined as AnimationClip[] | undefined,
-    fkAnimations: undefined as AnimationClip[] | undefined
+    fkAnimations: undefined as GLTF | undefined,
+    useDynamicAnimation: false
   })
 })
 
