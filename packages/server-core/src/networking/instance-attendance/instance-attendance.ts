@@ -23,33 +23,38 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import {
+  instanceAttendanceMethods,
+  instanceAttendancePath
+} from '@etherealengine/engine/src/schemas/networking/instance-attendance.schema'
+
 import { Application } from '../../../declarations'
-import { InstanceAttendance } from './instance-attendance.class'
+import { InstanceAttendanceService } from './instance-attendance.class'
 import instanceAttendanceDocs from './instance-attendance.docs'
 import hooks from './instance-attendance.hooks'
-import createModel from './instance-attendance.model'
 
 declare module '@etherealengine/common/declarations' {
   interface ServiceTypes {
-    'instance-attendance': InstanceAttendance
+    [instanceAttendancePath]: InstanceAttendanceService
   }
 }
 
 export default (app: Application) => {
   const options = {
-    Model: createModel(app),
+    name: instanceAttendancePath,
     paginate: app.get('paginate'),
+    Model: app.get('knexClient'),
     multi: true
   }
 
-  /**
-   * Initialize our service with any options it requires and docs
-   */
-  const event = new InstanceAttendance(options, app)
-  event.docs = instanceAttendanceDocs
-  app.use('instance-attendance', event)
+  app.use(instanceAttendancePath, new InstanceAttendanceService(options), {
+    // A list of all methods this service exposes externally
+    methods: instanceAttendanceMethods,
+    // You can add additional custom events to be sent to clients here
+    events: [],
+    docs: instanceAttendanceDocs
+  })
 
-  const service = app.service('instance-attendance')
-
+  const service = app.service(instanceAttendancePath)
   service.hooks(hooks)
 }

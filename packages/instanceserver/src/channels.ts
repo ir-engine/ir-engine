@@ -55,6 +55,7 @@ import getLocalServerIp from '@etherealengine/server-core/src/util/get-local-ser
 
 import { ChannelID } from '@etherealengine/common/src/dbmodels/Channel'
 import { UserKick } from '@etherealengine/common/src/interfaces/UserKick'
+import { instanceAttendancePath } from '@etherealengine/engine/src/schemas/networking/instance-attendance.schema'
 import { UserId, userPath, UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { InstanceServerState } from './InstanceServerState'
 import { authorizeUserToJoinServer, setupIPs } from './NetworkFunctions'
@@ -332,7 +333,7 @@ const handleUserAttendance = async (app: Application, userId: UserId) => {
     }
   }
 
-  await app.service('instance-attendance').patch(
+  await app.service(instanceAttendancePath).patch(
     null,
     {
       ended: true
@@ -355,7 +356,7 @@ const handleUserAttendance = async (app: Application, userId: UserId) => {
     const location = await app.service(locationPath).get(instanceServerState.instance.locationId!)
     ;(newInstanceAttendance as any).sceneId = location.sceneId
   }
-  await app.service('instance-attendance').create(newInstanceAttendance)
+  await app.service(instanceAttendancePath).create(newInstanceAttendance as any)
 }
 
 let instanceStarted = false
@@ -501,7 +502,7 @@ const handleUserDisconnect = async (
       logger.warn(err, "Failed to patch user, probably because they don't have an ID yet.")
     })
   logger.info('Patched disconnecting user to %o', userPatchResult)
-  await app.service('instance-attendance').patch(
+  await app.service(instanceAttendancePath).patch(
     null,
     {
       ended: true

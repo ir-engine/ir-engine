@@ -23,13 +23,32 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { UserId } from '@etherealengine/engine/src/schemas/user/user.schema'
+// For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
+import { resolve } from '@feathersjs/schema'
+import { v4 } from 'uuid'
 
-export interface InstanceAttendanceInterface {
-  id: string
-  sceneId: string
-  isChannel: boolean
-  ended: boolean
-  instanceId: string
-  userId: UserId
-}
+import {
+  InstanceAttendanceQuery,
+  InstanceAttendanceType
+} from '@etherealengine/engine/src/schemas/networking/instance-attendance.schema'
+import type { HookContext } from '@etherealengine/server-core/declarations'
+
+import { getDateTimeSql } from '../../util/get-datetime-sql'
+
+export const instanceAttendanceResolver = resolve<InstanceAttendanceType, HookContext>({})
+
+export const instanceAttendanceExternalResolver = resolve<InstanceAttendanceType, HookContext>({})
+
+export const instanceAttendanceDataResolver = resolve<InstanceAttendanceType, HookContext>({
+  id: async () => {
+    return v4()
+  },
+  createdAt: getDateTimeSql,
+  updatedAt: getDateTimeSql
+})
+
+export const instanceAttendancePatchResolver = resolve<InstanceAttendanceType, HookContext>({
+  updatedAt: getDateTimeSql
+})
+
+export const instanceAttendanceQueryResolver = resolve<InstanceAttendanceQuery, HookContext>({})

@@ -25,12 +25,16 @@ Ethereal Engine. All Rights Reserved.
 
 import { UserId, UserType, userMethods, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import _ from 'lodash'
+
+import {
+  InstanceAttendanceType,
+  instanceAttendancePath
+} from '@etherealengine/engine/src/schemas/networking/instance-attendance.schema'
+import { Knex } from 'knex'
+import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
 import config from '../../appconfig'
 
-import { instanceAttendanceDBPath } from '@etherealengine/engine/src/schemas/networking/instance-attendance.schema'
-import { Knex } from 'knex'
-import { Application } from '../../../declarations'
 import { UserService } from './user.class'
 import userDocs from './user.docs'
 import hooks from './user.hooks'
@@ -72,20 +76,21 @@ export default (app: Application): void => {
       let targetIds = [data.id!]
       const updatePromises: any[] = []
 
-      const instances = await app.service('instance-attendance').Model.findAll({
-        where: {
+      const instances = (await app.service(instanceAttendancePath)._find({
+        query: {
           userId: data.id,
-          ended: 0
-        }
-      })
+          ended: false
+        },
+        paginate: false
+      })) as any as InstanceAttendanceType[]
 
       const knexClient: Knex = app.get('knexClient')
 
       const layerUsers = await knexClient
         .from(userPath)
-        .join(instanceAttendanceDBPath, `${instanceAttendanceDBPath}.userId`, '=', `${userPath}.id`)
+        .join(instanceAttendancePath, `${instanceAttendancePath}.userId`, '=', `${userPath}.id`)
         .whereIn(
-          `${instanceAttendanceDBPath}.instanceId`,
+          `${instanceAttendancePath}.instanceId`,
           instances.map((instance) => instance.instanceId)
         )
         .whereNot(`${userPath}.id`, data.id)
@@ -93,27 +98,6 @@ export default (app: Application): void => {
         .options({ nestTables: true })
 
       targetIds = targetIds.concat(layerUsers.map((item) => item.user.id))
-
-      // const userRelationships = await app.service('user-relationship').Model.findAll({
-      //   where: {
-      //     userRelationshipType: 'friend',
-      //     relatedUserId: data.id
-      //   }
-      // })
-      // userRelationships.forEach((userRelationship) => {
-      //   updatePromises.push(
-      //     app.service('user-relationship').patch(
-      //       userRelationship.id,
-      //       {
-      //         userRelationshipType: userRelationship.userRelationshipType,
-      //         userId: userRelationship.userId
-      //       },
-      //       params
-      //     )
-      //   )
-      //   targetIds.push(userRelationship.userId)
-      //   targetIds.push(userRelationship.relatedUserId)
-      // })
 
       await Promise.all(updatePromises)
       targetIds = _.uniq(targetIds)

@@ -30,7 +30,8 @@ import { querySyntax, Type } from '@feathersjs/typebox'
 import { TypedString } from '../../common/types/TypeboxUtils'
 
 export const instanceAttendancePath = 'instance-attendance'
-export const instanceAttendanceDBPath = 'instance_attendance'
+
+export const instanceAttendanceMethods = ['find', 'create', 'patch', 'remove', 'get'] as const
 
 // Main data model schema
 export const instanceAttendanceSchema = Type.Object(
@@ -47,7 +48,7 @@ export const instanceAttendanceSchema = Type.Object(
     userId: TypedString<UserId, 'uuid'>({
       format: 'uuid'
     }),
-    instance: Type.Any(), // TDDO: Replace any with instance schema once instance service is moved to feathers 5.
+    instance: Type.Any(), // TODO: Replace any with instance schema once instance service is moved to feathers 5.
     createdAt: Type.String({ format: 'date-time' }),
     updatedAt: Type.String({ format: 'date-time' })
   },

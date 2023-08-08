@@ -57,7 +57,6 @@ const addInstanceAttendanceLocation = () => {
 
     for (const attendance of result.instanceAttendance || []) {
       attendance.instance = await context.app.service('instance').get(attendance.instanceId)
-
       if (attendance.instance && attendance.instance.locationId) {
         attendance.instance.location = await context.app.service(locationPath).get(attendance.instance.locationId)
       }

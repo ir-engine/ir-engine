@@ -29,8 +29,10 @@ import { Instance as InstanceInterface } from '@etherealengine/common/src/interf
 import { locationPath, LocationType } from '@etherealengine/engine/src/schemas/social/location.schema'
 
 import { AdminScope } from '@etherealengine/engine/src/schemas/interfaces/AdminScope'
+import { instanceAttendancePath } from '@etherealengine/engine/src/schemas/networking/instance-attendance.schema'
 import { scopePath } from '@etherealengine/engine/src/schemas/scope/scope.schema'
 import { UserId } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { Knex } from 'knex'
 import { Application } from '../../../declarations'
 import { UserParams } from '../../api/root-params'
 import authenticate from '../../hooks/authenticate'
@@ -123,35 +125,21 @@ export const getActiveInstancesForUserFriends = (app: Application) => async (dat
     const filteredInstances = (
       await Promise.all(
         instances.map(async (instance) => {
-          const instanceAttendance = await app.service('instance-attendance').Model.findAll({
-            where: {
-              ended: false,
-              isChannel: false
-            },
-            include: [
-              {
-                model: app.service('instance').Model,
-                required: true,
-                where: {
-                  id: instance.id
-                }
-              },
-              {
-                model: app.service('user').Model,
-                required: true,
-                include: [
-                  {
-                    model: app.service('user-relationship').Model,
-                    required: true,
-                    where: {
-                      userRelationshipType: 'friend',
-                      relatedUserId: data.user!.id
-                    }
-                  }
-                ]
-              }
-            ]
-          })
+          const knexClient: Knex = app.get('knexClient')
+
+          const instanceAttendance = await knexClient
+            .from(instanceAttendancePath)
+            .join('instance', `${instanceAttendancePath}.instanceId`, '=', `${'instance'}.id`)
+            .join('user', `${instanceAttendancePath}.userId`, '=', `${'user'}.id`)
+            .join(`user_relationship`, `${'user'}.id`, '=', `${`user_relationship`}.userId`)
+            .where(`${instanceAttendancePath}.ended`, '=', false)
+            .andWhere(`${instanceAttendancePath}.isChannel`, '=', false)
+            .andWhere(`${'instance'}.id`, '=', instance.id)
+            .andWhere(`${`user_relationship`}.userRelationshipType`, '=', 'friend')
+            .andWhere('user_relationship.relatedUserId', '=', data.user!.id)
+            .select()
+            .options({ nestTables: true })
+
           if (instanceAttendance.length > 0) return instance
         })
       )

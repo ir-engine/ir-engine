@@ -30,7 +30,7 @@ import { Channel } from '@etherealengine/engine/src/schemas/interfaces/Channel'
 import { Message as MessageInterface } from '@etherealengine/engine/src/schemas/interfaces/Message'
 
 import { ChannelID } from '@etherealengine/common/src/dbmodels/Channel'
-import { instanceAttendanceDBPath } from '@etherealengine/engine/src/schemas/networking/instance-attendance.schema'
+import { instanceAttendancePath } from '@etherealengine/engine/src/schemas/networking/instance-attendance.schema'
 import { UserId, UserType, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Knex } from 'knex'
 import { Application } from '../../../declarations'
@@ -99,8 +99,8 @@ export class Message<T = MessageDataType> extends Service<T> {
 
         const instanceUsers = await knexClient
           .from(userPath)
-          .join(instanceAttendanceDBPath, `${instanceAttendanceDBPath}.userId`, `${userPath}.id`)
-          .where(`${instanceAttendanceDBPath}.instanceId`, instanceId)
+          .join(instanceAttendancePath, `${instanceAttendancePath}.userId`, `${userPath}.id`)
+          .where(`${instanceAttendancePath}.instanceId`, instanceId)
           .limit(1000)
           .select()
           .options({ nestTables: true })
