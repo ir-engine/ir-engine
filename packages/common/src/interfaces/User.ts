@@ -69,7 +69,7 @@ export interface UserInterface {
   avatarUrl?: string
   locationBans?: LocationBanType[]
   user_setting?: UserSetting
-  inviteCode?: string
+  inviteCode?: string | null
   scopes?: UserScope[]
   apiKey: UserApiKeyType
   static_resources?: StaticResourceInterface

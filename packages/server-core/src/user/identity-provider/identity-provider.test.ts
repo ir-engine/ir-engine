@@ -36,7 +36,7 @@ import {
 import { Application } from '../../../declarations'
 import { createFeathersKoaApp } from '../../createApp'
 
-let userId: string
+let userId: UserId
 
 describe('identity-provider service', () => {
   let app: Application
@@ -86,7 +86,7 @@ describe('identity-provider service', () => {
       {
         type,
         token,
-        userId: '' as UserId
+        userId
       },
       {}
     )
@@ -106,7 +106,7 @@ describe('identity-provider service', () => {
       {
         type,
         token,
-        userId: '' as UserId
+        userId
       },
       {}
     )
@@ -146,7 +146,7 @@ describe('identity-provider service', () => {
       () =>
         app.service(identityProviderPath)._remove(null, {
           query: {
-            userId: '' as UserId
+            userId
           }
         }),
       {
@@ -163,7 +163,7 @@ describe('identity-provider service', () => {
       {
         type,
         token,
-        userId: '' as UserId
+        userId
       },
       {}
     )
@@ -179,7 +179,7 @@ describe('identity-provider service', () => {
       {
         type,
         token,
-        userId: '' as UserId
+        userId
       },
       {}
     )

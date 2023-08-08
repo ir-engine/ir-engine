@@ -42,7 +42,7 @@ import { Paginated } from '@feathersjs/feathers'
 import { isDev } from '@etherealengine/common/src/config'
 import { avatarPath, AvatarType } from '@etherealengine/engine/src/schemas/user/avatar.schema'
 
-import { Knex } from 'knex'
+import { random } from 'lodash'
 import { RootParams } from '../../api/root-params'
 import appConfig from '../../appconfig'
 import { scopeTypeSeed } from '../../scope/scope-type/scope-type.seed'
@@ -160,9 +160,7 @@ export class IdentityProviderService<
         break
     }
 
-    const knexClient: Knex = this.app.get('knexClient')
     const userService = this.app.service('user')
-    const User = knexClient.from('user')
 
     // check if there is a user with userId
     let foundUser
@@ -212,10 +210,18 @@ export class IdentityProviderService<
 
     let result
     try {
+      const newUser = (await this.app.service('user')._create({
+        id: userId,
+        isGuest,
+        inviteCode: type === 'guest' ? null : code,
+        avatarId: avatars.data[random(avatars.data.length - 1)].id
+      })) as UserInterface
+
       result = await super._create(
         {
           ...data,
-          ...identityProvider
+          ...identityProvider,
+          userId: newUser.id
         },
         params
       )
