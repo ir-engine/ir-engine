@@ -24,11 +24,9 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import type { PaginationOptions, Params } from '@feathersjs/feathers'
-import type { KnexAdapterOptions, KnexAdapterParams } from '@feathersjs/knex'
+import type { KnexAdapterOptions } from '@feathersjs/knex'
 import { KnexAdapter } from '@feathersjs/knex'
-import { UserParams } from '../../user/user/user.class'
 
-import { recordingResourcePath } from '@etherealengine/engine/src/schemas/recording/recording-resource.schema'
 import {
   RecordingData,
   RecordingID,
@@ -37,11 +35,12 @@ import {
   RecordingType
 } from '@etherealengine/engine/src/schemas/recording/recording.schema'
 import { Application } from '../../../declarations'
+import { RootParams } from '../../api/root-params'
 import { checkScope } from '../../hooks/verify-scope'
 import { NotFoundException, UnauthorizedException } from '../../util/exceptions/exception'
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface RecordingParams extends KnexAdapterParams<RecordingQuery> {}
+export interface RecordingParams extends RootParams<RecordingQuery> {}
 
 export class RecordingService<T = RecordingType, ServiceParams extends Params = RecordingParams> extends KnexAdapter<
   RecordingType,
@@ -57,24 +56,11 @@ export class RecordingService<T = RecordingType, ServiceParams extends Params = 
   }
 
   async get(id: RecordingID, params?: RecordingParams) {
-    // get resources with associated URLs
-    // TODO: move resources population to resolvers once this service is migrated to feathers 5
-    const resources = await this.app.service(recordingResourcePath).find({
-      query: {
-        recordingId: id
-      },
-      paginate: false
-    })
-
-    const result = await super._get(id, params)
-
-    result.resources = resources.map((resource) => resource.staticResource)
-
-    return result
+    return await super._get(id, params)
   }
 
   async find(
-    params?: UserParams & {
+    params?: RecordingParams & {
       paginate?: PaginationOptions | false
     }
   ) {
@@ -83,31 +69,26 @@ export class RecordingService<T = RecordingType, ServiceParams extends Params = 
       if (admin && params.query.action === 'admin') {
         delete params.query.action
         // show admin page results only if user is admin and query.action explicitly is admin (indicates admin panel)
-        params.sequelize = {
-          include: [{ model: this.app.service('user').Model, attributes: ['name'], as: 'user' }]
-        }
         return super._find({ ...params })
       }
     }
 
     params!.query = {
       ...params!.query,
-      query: {
-        userId: params?.user!.id
-      }
+      userId: params!.user!.id
     }
 
     return super._find(params)
   }
 
-  async create(data?: any, params?: any) {
+  async create(data: RecordingData, params?: RecordingParams) {
     return super._create({
       ...data,
-      userId: params
+      userId: params!.user!.id
     })
   }
 
-  async remove(id: RecordingID, params?: UserParams) {
+  async remove(id: RecordingID, params?: RecordingParams) {
     if (params && params.user && params.query) {
       const admin = await checkScope(params.user, this.app, 'admin', 'admin')
       if (admin) {
@@ -119,5 +100,9 @@ export class RecordingService<T = RecordingType, ServiceParams extends Params = 
       }
     }
     throw new UnauthorizedException('This action can only be performed by admins')
+  }
+
+  async patch(id: RecordingID, data: RecordingPatch, params?: RecordingParams) {
+    return await super._patch(id, data, params)
   }
 }

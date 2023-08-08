@@ -51,6 +51,7 @@ export const recordingDbToSchema = (rawData: RecordingDatabaseType): RecordingTy
   return {
     ...rawData,
     resources: [],
+    userName: '',
     schema
   }
 }
@@ -64,26 +65,31 @@ export const recordingResolver = resolve<RecordingType, HookContext>({
       paginate: false
     })
 
-    const staticResource = recordingResources.map((resource) => resource.staticResource)
+    const recordingResource = recordingResources.map((resource) => resource.staticResource)
 
-    return staticResource
+    return recordingResource
+  }),
+  userName: virtual(async (recording, context) => {
+    const user = await context.app.service('user')._get(recording.userId)
+
+    return user.name
   })
 })
 
-export const recordingExternalResolver = resolve<RecordingType, HookContext>({})
+export const recordingExternalResolver = resolve<RecordingType, HookContext>(
+  {},
+  {
+    // Convert the raw data into a new structure before running property resolvers
+    converter: async (rawData, context) => {
+      return recordingDbToSchema(rawData)
+    }
+  }
+)
 
-export const recordingDataResolver = resolve<RecordingType, HookContext>(
+export const recordingDataResolver = resolve<RecordingDatabaseType, HookContext>(
   {
     id: async () => {
       return v4() as RecordingID
-    },
-    resources: async (value, recording) => {
-      return {
-        ...recording.resources,
-        id: v4(),
-        createdAt: await getDateTimeSql(),
-        updatedAt: await getDateTimeSql()
-      }
     },
     createdAt: getDateTimeSql,
     updatedAt: getDateTimeSql
