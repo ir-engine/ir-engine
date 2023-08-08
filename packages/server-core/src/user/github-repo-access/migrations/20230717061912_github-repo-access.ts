@@ -32,7 +32,12 @@ import { githubRepoAccessPath } from '@etherealengine/engine/src/schemas/user/gi
  * @returns { Promise<void> }
  */
 export async function up(knex: Knex): Promise<void> {
-  const tableExists = await knex.schema.hasTable(githubRepoAccessPath)
+  // Added transaction here in order to ensure both below queries run on same pool.
+  // https://github.com/knex/knex/issues/218#issuecomment-56686210
+  const trx = await knex.transaction()
+  await trx.raw('SET FOREIGN_KEY_CHECKS=0')
+
+  const tableExists = await trx.schema.hasTable(githubRepoAccessPath)
 
   if (tableExists === false) {
     await knex.schema.createTable(githubRepoAccessPath, (table) => {
@@ -53,6 +58,9 @@ export async function up(knex: Knex): Promise<void> {
         .onUpdate('CASCADE')
     })
   }
+
+  await trx.raw('SET FOREIGN_KEY_CHECKS=1')
+  await trx.commit()
 }
 
 /**
