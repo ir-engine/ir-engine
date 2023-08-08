@@ -30,7 +30,7 @@ import { staticResourceDataSchema } from '../media/static-resource.schema'
 
 export const recordingPath = 'recording'
 
-export const recordingMethods = ['find', 'get', 'create', 'patch', 'remove'] as const
+export const recordingMethods = ['get', 'find', 'create', 'patch', 'remove'] as const
 
 export type RecordingID = OpaqueType<'RecordingID'> & string
 
@@ -55,7 +55,7 @@ export const recordingSchema = Type.Object(
       format: 'uuid'
     }),
     resources: Type.Array(Type.Ref(staticResourceDataSchema)),
-
+    userName: Type.String(),
     createdAt: Type.String({ format: 'date-time' }),
     updatedAt: Type.String({ format: 'date-time' })
   },
@@ -63,14 +63,15 @@ export const recordingSchema = Type.Object(
 )
 export type RecordingType = Static<typeof recordingSchema>
 
-export type RecordingDatabaseType = Omit<RecordingType, 'schema' | 'resources'> & {
+export type RecordingDatabaseType = Omit<RecordingType, 'schema' | 'resources' | 'userName'> & {
   schema: string
 }
 
 // Schema for creating new entries
-export const recordingDataSchema = Type.Pick(recordingSchema, ['userId', 'ended', 'schema'], {
-  $id: 'RecordingData'
-})
+// export const recordingDataSchema = Type.Pick(recordingSchema, ['userId', 'ended', 'schema'], {
+//   $id: 'RecordingData'
+// })
+export const recordingDataSchema = Type.Partial(recordingSchema, { $id: 'RecordingData' })
 export type RecordingData = Static<typeof recordingDataSchema>
 
 // Schema for updating existing entries
@@ -85,7 +86,12 @@ export const recordingQuerySchema = Type.Intersect(
   [
     querySyntax(recordingQueryProperties),
     // Add additional query properties here
-    Type.Object({}, { additionalProperties: false })
+    Type.Object(
+      {
+        action: Type.Optional(Type.String())
+      },
+      { additionalProperties: false }
+    )
   ],
   { additionalProperties: false }
 )
