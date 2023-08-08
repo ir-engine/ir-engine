@@ -23,29 +23,32 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Paginated } from '@feathersjs/feathers'
+// For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
+import { resolve } from '@feathersjs/schema'
+import { v4 } from 'uuid'
 
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { coilSettingPath, CoilSettingType } from '@etherealengine/engine/src/schemas/setting/coil-setting.schema'
-import { defineState, getMutableState } from '@etherealengine/hyperflux'
+import {
+  InstanceAttendanceQuery,
+  InstanceAttendanceType
+} from '@etherealengine/engine/src/schemas/networking/instance-attendance.schema'
+import type { HookContext } from '@etherealengine/server-core/declarations'
 
-import { NotificationService } from '../../../common/services/NotificationService'
+import { getDateTimeSql } from '../../util/get-datetime-sql'
 
-export const AdminCoilSettingsState = defineState({
-  name: 'AdminCoilSettingsState',
-  initial: () => ({
-    coil: [] as Array<CoilSettingType>,
-    updateNeeded: true
-  })
+export const instanceAttendanceResolver = resolve<InstanceAttendanceType, HookContext>({})
+
+export const instanceAttendanceExternalResolver = resolve<InstanceAttendanceType, HookContext>({})
+
+export const instanceAttendanceDataResolver = resolve<InstanceAttendanceType, HookContext>({
+  id: async () => {
+    return v4()
+  },
+  createdAt: getDateTimeSql,
+  updatedAt: getDateTimeSql
 })
 
-export const AdminCoilSettingService = {
-  fetchCoil: async () => {
-    try {
-      const coilSettings = (await Engine.instance.api.service(coilSettingPath).find()) as Paginated<CoilSettingType>
-      getMutableState(AdminCoilSettingsState).merge({ coil: coilSettings.data, updateNeeded: false })
-    } catch (err) {
-      NotificationService.dispatchNotify(err.message, { variant: 'error' })
-    }
-  }
-}
+export const instanceAttendancePatchResolver = resolve<InstanceAttendanceType, HookContext>({
+  updatedAt: getDateTimeSql
+})
+
+export const instanceAttendanceQueryResolver = resolve<InstanceAttendanceQuery, HookContext>({})

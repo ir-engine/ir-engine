@@ -27,45 +27,63 @@ Ethereal Engine. All Rights Reserved.
 import type { Static } from '@feathersjs/typebox'
 import { querySyntax, Type } from '@feathersjs/typebox'
 
-export const routePath = 'route'
+export const instanceAttendancePath = 'instance-attendance'
 
-export const routeMethods = ['find', 'get', 'create', 'patch', 'remove'] as const
+export const instanceAttendanceMethods = ['find', 'create', 'patch', 'remove', 'get'] as const
 
 // Main data model schema
-export const routeSchema = Type.Object(
+export const instanceAttendanceSchema = Type.Object(
   {
     id: Type.String({
       format: 'uuid'
     }),
-    route: Type.String(),
-    project: Type.String(),
+    sceneId: Type.String(),
+    isChannel: Type.Boolean(),
+    ended: Type.Boolean(),
+    userId: Type.String({
+      format: 'uuid'
+    }),
+    instanceId: Type.String({
+      format: 'uuid'
+    }),
     createdAt: Type.String({ format: 'date-time' }),
     updatedAt: Type.String({ format: 'date-time' })
   },
-  { $id: 'Route', additionalProperties: false }
+  { $id: 'InstanceAttendance', additionalProperties: false }
 )
-export type RouteType = Static<typeof routeSchema>
+export type InstanceAttendanceType = Static<typeof instanceAttendanceSchema>
 
 // Schema for creating new entries
-export const routeDataSchema = Type.Pick(routeSchema, ['route', 'project'], {
-  $id: 'RouteData'
-})
-export type RouteData = Static<typeof routeDataSchema>
+export const instanceAttendanceDataSchema = Type.Pick(
+  instanceAttendanceSchema,
+  ['sceneId', 'isChannel', 'ended', 'userId', 'instanceId'],
+  {
+    $id: 'InstanceAttendanceData'
+  }
+)
+export type InstanceAttendanceData = Static<typeof instanceAttendanceDataSchema>
 
 // Schema for updating existing entries
-export const routePatchSchema = Type.Partial(routeSchema, {
-  $id: 'RoutePatch'
+export const instanceAttendancePatchSchema = Type.Partial(instanceAttendanceSchema, {
+  $id: 'InstanceAttendancePatch'
 })
-export type RoutePatch = Static<typeof routePatchSchema>
+export type InstanceAttendancePatch = Static<typeof instanceAttendancePatchSchema>
 
 // Schema for allowed query properties
-export const routeQueryProperties = Type.Pick(routeSchema, ['id', 'route', 'project'])
-export const routeQuerySchema = Type.Intersect(
+export const instanceAttendanceQueryProperties = Type.Pick(instanceAttendanceSchema, [
+  'id',
+  'sceneId',
+  'isChannel',
+  'ended',
+  'userId',
+  'instanceId'
+])
+export const instanceAttendanceQuerySchema = Type.Intersect(
   [
-    querySyntax(routeQueryProperties),
+    querySyntax(instanceAttendanceQueryProperties),
     // Add additional query properties here
-    Type.Object({ paginate: Type.Optional(Type.Boolean()) }, { additionalProperties: false })
+    Type.Object({}, { additionalProperties: false })
   ],
   { additionalProperties: false }
 )
-export type RouteQuery = Static<typeof routeQuerySchema>
+export type InstanceAttendanceQuery = Static<typeof instanceAttendanceQuerySchema>

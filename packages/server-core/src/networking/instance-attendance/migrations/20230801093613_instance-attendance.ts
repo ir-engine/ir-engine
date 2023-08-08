@@ -25,50 +25,51 @@ Ethereal Engine. All Rights Reserved.
 
 import type { Knex } from 'knex'
 
-import { locationAdminPath } from '@etherealengine/engine/src/schemas/social/location-admin.schema'
+import { instanceAttendancePath } from '@etherealengine/engine/src/schemas/networking/instance-attendance.schema'
 
 /**
  * @param { import("knex").Knex } knex
  * @returns { Promise<void> }
  */
 export async function up(knex: Knex): Promise<void> {
-  const oldTableName = 'location_admin'
+  const oldTableName = 'instance_attendance'
 
-  const oldNamedTableExists = await knex.schema.hasTable(oldTableName)
-  let tableExists = await knex.schema.hasTable(locationAdminPath)
+  // Added transaction here in order to ensure both below queries run on same pool.
+  // https://github.com/knex/knex/issues/218#issuecomment-56686210
+  const trx = await knex.transaction()
+  await trx.raw('SET FOREIGN_KEY_CHECKS=0')
+
+  const oldNamedTableExists = await trx.schema.hasTable(oldTableName)
+  let tableExists = await trx.schema.hasTable(instanceAttendancePath)
   if (oldNamedTableExists) {
     // In case sequelize creates the new table before we migrate the old table
-    if (tableExists) await knex.schema.dropTable(locationAdminPath)
-    await knex.schema.renameTable(oldTableName, locationAdminPath)
+    if (tableExists) await trx.schema.dropTable(instanceAttendancePath)
+    await trx.schema.renameTable(oldTableName, instanceAttendancePath)
   }
 
-  tableExists = await knex.schema.hasTable(locationAdminPath)
-
-  if (tableExists) {
-    const hasIdColum = await knex.schema.hasColumn(locationAdminPath, 'id')
-    const hasLocationIdColumn = await knex.schema.hasColumn(locationAdminPath, 'locationId')
-    const hasUserIdColumn = await knex.schema.hasColumn(locationAdminPath, 'userId')
-    if (!(hasLocationIdColumn && hasIdColum && hasUserIdColumn)) {
-      await knex.schema.dropTable(locationAdminPath)
-      tableExists = false
-    }
-  }
+  tableExists = await trx.schema.hasTable(instanceAttendancePath)
 
   if (!tableExists && !oldNamedTableExists) {
-    await knex.schema.createTable(locationAdminPath, (table) => {
+    await trx.schema.createTable(instanceAttendancePath, (table) => {
       //@ts-ignore
       table.uuid('id').collate('utf8mb4_bin').primary()
+      table.string('sceneId', 255)
+      table.boolean('isChannel').nullable()
+      table.boolean('ended').defaultTo(0)
       //@ts-ignore
-      table.uuid('userId').collate('utf8mb4_bin').nullable().index()
+      table.uuid('userId', 36).collate('utf8mb4_bin').index().nullable()
       //@ts-ignore
-      table.uuid('locationId').collate('utf8mb4_bin').nullable().index()
+      table.uuid('instanceId', 36).collate('utf8mb4_bin').index().nullable()
       table.dateTime('createdAt').notNullable()
       table.dateTime('updatedAt').notNullable()
 
-      table.foreign('userId').references('id').inTable('user').onDelete('CASCADE').onUpdate('CASCADE')
-      table.foreign('locationId').references('id').inTable('location').onDelete('CASCADE').onUpdate('CASCADE')
+      table.foreign('userId').references('id').inTable('user').onDelete('SET NULL').onUpdate('CASCADE')
+      table.foreign('instanceId').references('id').inTable('instance').onDelete('SET NULL').onUpdate('CASCADE')
     })
   }
+
+  await trx.raw('SET FOREIGN_KEY_CHECKS=1')
+  await trx.commit()
 }
 
 /**
@@ -76,9 +77,9 @@ export async function up(knex: Knex): Promise<void> {
  * @returns { Promise<void> }
  */
 export async function down(knex: Knex): Promise<void> {
-  const tableExists = await knex.schema.hasTable(locationAdminPath)
+  const tableExists = await knex.schema.hasTable(instanceAttendancePath)
 
   if (tableExists === true) {
-    await knex.schema.dropTable(locationAdminPath)
+    await knex.schema.dropTable(instanceAttendancePath)
   }
 }
