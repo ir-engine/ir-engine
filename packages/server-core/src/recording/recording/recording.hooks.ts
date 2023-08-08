@@ -31,7 +31,7 @@ import authenticate from '../../hooks/authenticate'
 import verifyScope from '../../hooks/verify-scope'
 
 // TODO: Populating Message's sender property here manually. Once message service is moved to feathers 5. This should be part of its resolver.
-const populateUser = async (context: HookContext) => {
+const populateUsers = async (context: HookContext) => {
   const { result } = context
 
   const data = result.data ? result.data : result
@@ -57,6 +57,16 @@ const populateUser = async (context: HookContext) => {
   }
 }
 
+// TODO: Populating Message's sender property here manually. Once message service is moved to feathers 5. This should be part of its resolver.
+const populateUser = async (context: HookContext) => {
+  const { result } = context
+
+  if (result.senderId && !result.sender) {
+    //@ts-ignore
+    result.sender = (await context.app.service(userPath)._get(result.senderId)) as UserType
+  }
+}
+
 export default {
   before: {
     all: [authenticate()],
@@ -70,7 +80,7 @@ export default {
 
   after: {
     all: [],
-    find: [populateUser],
+    find: [populateUsers],
     get: [],
     create: [populateUser],
     update: [],

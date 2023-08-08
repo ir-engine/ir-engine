@@ -31,7 +31,7 @@ import { HookContext } from '@feathersjs/feathers'
 import authenticate from '../../hooks/authenticate'
 
 // TODO: Populating Message's sender property here manually. Once message service is moved to feathers 5. This should be part of its resolver.
-const populateSender = async (context: HookContext) => {
+const populateUsers = async (context: HookContext) => {
   const { result } = context
 
   const data = result.data ? result.data : result
@@ -57,6 +57,16 @@ const populateSender = async (context: HookContext) => {
   }
 }
 
+// TODO: Populating Message's sender property here manually. Once message service is moved to feathers 5. This should be part of its resolver.
+const populateUser = async (context: HookContext) => {
+  const { result } = context
+
+  if (result.senderId && !result.sender) {
+    //@ts-ignore
+    result.sender = (await context.app.service(userPath)._get(result.senderId)) as UserType
+  }
+}
+
 // Don't remove this comment. It's needed to format import lines nicely.
 
 export default {
@@ -72,11 +82,11 @@ export default {
 
   after: {
     all: [],
-    find: [populateSender],
-    get: [populateSender],
+    find: [populateUsers],
+    get: [populateUser],
     create: [],
-    update: [populateSender],
-    patch: [populateSender],
+    update: [populateUser],
+    patch: [populateUser],
     remove: []
   },
 
