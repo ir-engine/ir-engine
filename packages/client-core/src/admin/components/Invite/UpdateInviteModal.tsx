@@ -53,7 +53,6 @@ import { locationPath } from '@etherealengine/engine/src/schemas/social/location
 import { Id } from '@feathersjs/feathers'
 import { NotificationService } from '../../../common/services/NotificationService'
 import DrawerView from '../../common/DrawerView'
-import { AdminInstanceService, AdminInstanceState } from '../../services/InstanceService'
 import { AdminSceneService, AdminSceneState } from '../../services/SceneService'
 import { AdminUserService, AdminUserState } from '../../services/UserService'
 import styles from '../../styles/admin.module.scss'
@@ -73,6 +72,7 @@ const INVITE_TYPE_TAB_MAP = {
 }
 
 const UpdateInviteModal = ({ open, onClose, invite }: Props) => {
+  const { t } = useTranslation()
   const inviteTypeTab = useHookstate(0)
   const textValue = useHookstate('')
   const makeAdmin = useHookstate(false)
@@ -86,12 +86,12 @@ const UpdateInviteModal = ({ open, onClose, invite }: Props) => {
   const timed = useHookstate(false)
   const startTime = useHookstate<Dayjs>(dayjs(null))
   const endTime = useHookstate<Dayjs>(dayjs(null))
-  const { t } = useTranslation()
-  const adminInstanceState = useHookstate(getMutableState(AdminInstanceState))
+
+  const adminInstances = useFind('instance').data
+
   const adminUserState = useHookstate(getMutableState(AdminUserState))
   const adminSceneState = useHookstate(getMutableState(AdminSceneState))
   const adminLocations = useFind(locationPath).data
-  const adminInstances = adminInstanceState.instances
   const adminUsers = adminUserState.users
   const spawnPoints = adminSceneState.singleScene?.scene?.entities.value
     ? Object.entries(adminSceneState.singleScene.scene.entities.value).filter(([, value]) =>
@@ -101,8 +101,6 @@ const UpdateInviteModal = ({ open, onClose, invite }: Props) => {
   const updateInvite = useMutation('invite').update
 
   useEffect(() => {
-    console.log('DEBUG : invite changed', invite)
-    AdminInstanceService.fetchAdminInstances()
     AdminUserService.setSkipGuests(true)
     AdminUserService.fetchUsersAsAdmin()
     inviteTypeTab.set(
@@ -169,8 +167,8 @@ const UpdateInviteModal = ({ open, onClose, invite }: Props) => {
 
   const instanceMenu: InputMenuItem[] = adminInstances.map((el) => {
     return {
-      value: `${el.id.value}`,
-      label: `${el.id.value} (${el.location.name.value})`
+      value: `${el.id}`,
+      label: `${el.id} (${el.location.name})`
     }
   })
 
@@ -211,10 +209,10 @@ const UpdateInviteModal = ({ open, onClose, invite }: Props) => {
 
   const handleInstanceChange = async (e) => {
     instanceId.set(e.target.value)
-    const instance = adminInstances.find((instance) => instance.id.value === e.target.value)
+    const instance = adminInstances.find((instance) => instance.id === e.target.value)
 
     if (!instance) return
-    const location = await Engine.instance.api.service('location').get(instance.locationId.value as Id)
+    const location = await Engine.instance.api.service('location').get(instance.locationId as Id)
 
     if (!location) return
     const sceneName = location.sceneId.split('/')

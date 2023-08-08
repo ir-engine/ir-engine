@@ -30,7 +30,6 @@ import Button from '@etherealengine/ui/src/primitives/mui/Button'
 import Grid from '@etherealengine/ui/src/primitives/mui/Grid'
 
 import Search from '../../common/Search'
-import { AdminInstanceService } from '../../services/InstanceService'
 import styles from '../../styles/admin.module.scss'
 import InstanceTable from './InstanceTable'
 import PatchInstanceserver from './PatchInstanceserver'
@@ -38,8 +37,6 @@ import PatchInstanceserver from './PatchInstanceserver'
 const Instance = () => {
   const search = useHookstate('')
   const patchInstanceserverOpen = useHookstate(false)
-
-  AdminInstanceService.useAPIListeners()
 
   const handleChange = (e: any) => {
     search.set(e.target.value)
