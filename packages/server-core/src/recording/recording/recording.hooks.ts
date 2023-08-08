@@ -79,7 +79,7 @@ export default {
         }) as any
       )
     ],
-    get: [iff(isProvider('external'), verifyScope('recording', 'read') as any)],
+    get: [iff(isProvider('external'), verifyScope('recording', 'read'))],
     create: [
       iff(
         isProvider('external'),
@@ -96,13 +96,13 @@ export default {
       () => schemaHooks.validateData(recordingDataValidator),
       schemaHooks.resolveData(recordingDataResolver)
     ],
-    update: [iff(isProvider('external'), verifyScope('recording', 'write') as any)],
+    update: [iff(isProvider('external'), verifyScope('recording', 'write'))],
     patch: [
-      iff(isProvider('external'), verifyScope('recording', 'write') as any),
+      iff(isProvider('external'), verifyScope('recording', 'write')),
       () => schemaHooks.validateData(recordingPatchValidator),
       schemaHooks.resolveData(recordingPatchResolver)
     ],
-    remove: [iff(isProvider('external'), verifyScope('recording', 'write') as any)]
+    remove: [iff(isProvider('external'), verifyScope('recording', 'write'))]
   },
 
   after: {
