@@ -26,13 +26,12 @@ Ethereal Engine. All Rights Reserved.
 import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
-import { MessageTypes } from '@etherealengine/engine/src/networking/enums/MessageTypes'
 import { getNearbyUsers } from '@etherealengine/engine/src/networking/functions/getNearbyUsers'
 import { defineState, getMutableState, getState } from '@etherealengine/hyperflux'
 
 import { MediaInstanceState } from '../common/services/MediaInstanceConnectionService'
 import { AuthState } from '../user/services/AuthService'
-import { closeConsumer, promisedRequest, SocketWebRTCClientNetwork } from './SocketWebRTCClientFunctions'
+import { closeConsumer, SocketWebRTCClientNetwork } from './SocketWebRTCClientFunctions'
 
 export const FilteredUsersState = defineState({
   name: 'FilteredUsersState',
@@ -69,11 +68,6 @@ export const updateNearbyAvatars = () => {
 
   const filteredUsersState = getState(FilteredUsersState)
   const nearbyUserIds = filteredUsersState.nearbyLayerUsers
-
-  promisedRequest(network, MessageTypes.WebRTCRequestCurrentProducers.toString(), {
-    userIds: nearbyUserIds,
-    channelId: currentChannelInstanceConnection.channelId
-  })
 
   if (!nearbyUserIds.length) return
 

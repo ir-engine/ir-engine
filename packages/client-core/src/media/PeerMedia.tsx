@@ -27,7 +27,6 @@ import React, { useEffect } from 'react'
 
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { MessageTypes } from '@etherealengine/engine/src/networking/enums/MessageTypes'
 import {
   MediaTagType,
   NetworkState,
@@ -151,6 +150,7 @@ const PeerMedia = (props: {
 
   const producerConsumerState = useHookstate(getMutableState(ProducerConsumerState))
   const producerNetworkState = producerConsumerState[network.hostId].producers
+  const consumerNetworkState = producerConsumerState[network.hostId].consumers
 
   useEffect(() => {
     if (!producerNetworkState?.value) return
@@ -162,6 +162,17 @@ const PeerMedia = (props: {
       }
     }
   }, [producerNetworkState])
+
+  useEffect(() => {
+    if (!consumerNetworkState?.value) return
+    for (const [consumerId, consumer] of Object.entries(consumerNetworkState.get(NO_PROXY))) {
+      if (consumer.paused) {
+        pauseConsumerListener(consumerId)
+      } else {
+        resumeConsumerListener(consumerId)
+      }
+    }
+  }, [consumerNetworkState])
 
   //  todo
   const closeProducerListener = (producerId: string) => {
@@ -232,31 +243,6 @@ const PeerMedia = (props: {
     isScreen,
     isSelf
   ])
-
-  useEffect(() => {
-    const mediaNetwork = Engine.instance.mediaNetwork as SocketWebRTCClientNetwork
-    const primus = mediaNetwork.primus
-    if (typeof primus?.on === 'function') {
-      const responseFunction = (message) => {
-        if (message) {
-          const { type, data, id } = message
-          switch (type) {
-            case MessageTypes.WebRTCPauseConsumer.toString():
-              pauseConsumerListener(data)
-              break
-            case MessageTypes.WebRTCResumeConsumer.toString():
-              resumeConsumerListener(data)
-              break
-          }
-        }
-      }
-      Object.defineProperty(responseFunction, 'name', { value: `responseFunction${peerID}`, writable: true })
-      primus.on('data', responseFunction)
-      primus.on('end', () => {
-        primus.removeListener('data', responseFunction)
-      })
-    }
-  }, [])
 
   useEffect(() => {
     if (isSelf) {

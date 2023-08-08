@@ -35,10 +35,10 @@ export enum MessageTypes {
   WebRTCTransportCreate = 7,
   WebRTCTransportConnect = 8,
   WebRTCTransportClose = 9,
-  WebRTCSendTrack = 10,
-  WebRTCReceiveTrack = 11,
-  WebRTCPauseConsumer = 12,
-  WebRTCResumeConsumer = 13,
+  // WebRTCSendTrack = 10,
+  // WebRTCReceiveTrack = 11,
+  // WebRTCPauseConsumer = 12,
+  // WebRTCResumeConsumer = 13,
   WebRTCCloseConsumer = 14,
   // WebRTCPauseProducer = 15,
   // WebRTCResumeProducer = 16,
@@ -52,7 +52,7 @@ export enum MessageTypes {
   // WebRTCCreateProducer = 24,
   Authorization = 25,
   Kick = 26,
-  WebRTCRequestCurrentProducers = 29,
+  // WebRTCRequestCurrentProducers = 29,
   InitializeRouter = 31,
   ActionData = 42
 }

@@ -31,6 +31,7 @@ import { EngineState } from '@etherealengine/engine/src/ecs/classes/EngineState'
 import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import { addActionReceptor, defineActionQueue, getState, removeActionReceptor } from '@etherealengine/hyperflux'
 
+import { ConsumerActions } from '@etherealengine/engine/src/networking/systems/ProducerConsumerState'
 import {
   LocationInstanceConnectionService,
   LocationInstanceConnectionServiceReceptor
@@ -47,7 +48,7 @@ import { ChannelState } from '../social/services/ChannelService'
 import { FriendServiceReceptor } from '../social/services/FriendService'
 import { LocationState } from '../social/services/LocationService'
 import { WarningUIService } from '../systems/WarningUISystem'
-import { SocketWebRTCClientNetwork } from '../transports/SocketWebRTCClientFunctions'
+import { SocketWebRTCClientNetwork, receiveConsumerHandler } from '../transports/SocketWebRTCClientFunctions'
 import { AuthState } from '../user/services/AuthService'
 import { InstanceProvisioning } from './NetworkInstanceProvisioning'
 
@@ -66,12 +67,16 @@ const worldInstanceReconnectedQueue = defineActionQueue(
 const mediaInstanceReconnectedQueue = defineActionQueue(
   NetworkConnectionService.actions.mediaInstanceReconnected.matches
 )
+const createConsumerQueue = defineActionQueue(ConsumerActions.createConsumer.matches)
 
 const execute = () => {
   const locationState = getState(LocationState)
   const chatState = getState(ChannelState)
   const authState = getState(AuthState)
   const engineState = getState(EngineState)
+
+  for (const action of createConsumerQueue())
+    receiveConsumerHandler(Engine.instance.mediaNetwork as SocketWebRTCClientNetwork, action)
 
   for (const action of noWorldServersAvailableQueue()) {
     const currentLocationID = locationState.currentLocation.location.id

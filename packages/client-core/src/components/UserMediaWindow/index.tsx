@@ -258,10 +258,10 @@ export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
       toggleScreenshareVideoPaused()
     } else {
       if (!videoStreamPaused) {
-        await pauseConsumer(mediaNetwork, videoStream as ConsumerExtension)
+        pauseConsumer(mediaNetwork, videoStream as ConsumerExtension)
         peerMediaChannelState.videoStreamPaused.set(true)
       } else {
-        await resumeConsumer(mediaNetwork, videoStream as ConsumerExtension)
+        resumeConsumer(mediaNetwork, videoStream as ConsumerExtension)
         peerMediaChannelState.videoStreamPaused.set(false)
       }
     }
@@ -276,10 +276,10 @@ export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
       toggleScreenshareAudioPaused()
     } else {
       if (!audioStreamPaused) {
-        await pauseConsumer(mediaNetwork, audioStream as ConsumerExtension)
+        pauseConsumer(mediaNetwork, audioStream as ConsumerExtension)
         peerMediaChannelState.audioStreamPaused.set(true)
       } else {
-        await resumeConsumer(mediaNetwork, audioStream as ConsumerExtension)
+        resumeConsumer(mediaNetwork, audioStream as ConsumerExtension)
         peerMediaChannelState.audioStreamPaused.set(false)
       }
     }
