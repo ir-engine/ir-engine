@@ -42,13 +42,14 @@ import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
 import Paper from '@etherealengine/ui/src/primitives/mui/Paper'
 import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 
+import { useFind } from '@etherealengine/engine/src/common/functions/FeathersHooks'
+import { locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
 import { NotificationService } from '../../../common/services/NotificationService'
 import { AuthState } from '../../../user/services/AuthService'
 import AddCommand from '../../common/AddCommand'
 import { validateForm } from '../../common/validation/formValidation'
 import { AdminBotService } from '../../services/BotsService'
 import { AdminInstanceService, AdminInstanceState } from '../../services/InstanceService'
-import { AdminLocationService, AdminLocationState } from '../../services/LocationService'
 import styles from '../../styles/admin.module.scss'
 
 const CreateBot = () => {
@@ -74,8 +75,8 @@ const CreateBot = () => {
   const adminInstanceState = useHookstate(getMutableState(AdminInstanceState))
   const user = useHookstate(getMutableState(AuthState).user)
   const instanceData = adminInstanceState.instances
-  const adminLocationState = useHookstate(getMutableState(AdminLocationState))
-  const locationData = adminLocationState.locations
+  const locationQuery = useFind(locationPath)
+  const locationData = locationQuery.data
   const { t } = useTranslation()
 
   useEffect(() => {
@@ -83,12 +84,6 @@ const CreateBot = () => {
       AdminInstanceService.fetchAdminInstances()
     }
   }, [user?.id?.value, adminInstanceState.updateNeeded.value])
-
-  useEffect(() => {
-    if (user?.id.value && adminLocationState.updateNeeded.value) {
-      AdminLocationService.fetchAdminLocations()
-    }
-  }, [user?.id?.value, adminLocationState.updateNeeded.value])
 
   const handleChangeCommand = (e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
     const { name, value } = e.target
@@ -153,10 +148,6 @@ const CreateBot = () => {
     AdminInstanceService.fetchAdminInstances()
   }
 
-  const fetchAdminLocations = () => {
-    AdminLocationService.fetchAdminLocations()
-  }
-
   const removeCommand = (id: string) => {
     const data = commandData.get({ noproxy: true }).filter((el) => el.id !== id)
     commandData.set(data)
@@ -169,7 +160,7 @@ const CreateBot = () => {
     state.merge({ [name]: value })
   }
 
-  const locationMenu: InputMenuItem[] = locationData.get({ noproxy: true }).map((el) => {
+  const locationMenu: InputMenuItem[] = locationData.map((el) => {
     return {
       value: el.id,
       label: el.name
@@ -227,7 +218,7 @@ const CreateBot = () => {
             onChange={handleInputChange}
             endControl={
               <IconButton
-                onClick={fetchAdminLocations}
+                onClick={locationQuery.refetch}
                 icon={<Icon type="Autorenew" style={{ color: 'var(--iconButtonColor)' }} />}
               />
             }

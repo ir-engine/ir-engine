@@ -29,19 +29,20 @@ import { useTranslation } from 'react-i18next'
 import InputSelect, { InputMenuItem } from '@etherealengine/client-core/src/common/components/InputSelect'
 import InputSwitch from '@etherealengine/client-core/src/common/components/InputSwitch'
 import InputText from '@etherealengine/client-core/src/common/components/InputText'
-import { LocationData, LocationType } from '@etherealengine/engine/src/schemas/social/location.schema'
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { LocationData, LocationType, locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
+import { NO_PROXY, getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import Button from '@etherealengine/ui/src/primitives/mui/Button'
 import Container from '@etherealengine/ui/src/primitives/mui/Container'
 import DialogActions from '@etherealengine/ui/src/primitives/mui/DialogActions'
 import DialogTitle from '@etherealengine/ui/src/primitives/mui/DialogTitle'
 import Grid from '@etherealengine/ui/src/primitives/mui/Grid'
 
+import { useFind, useMutation } from '@etherealengine/engine/src/common/functions/FeathersHooks'
+import { locationTypePath } from '@etherealengine/engine/src/schemas/social/location-type.schema'
 import { NotificationService } from '../../../common/services/NotificationService'
 import { AuthState } from '../../../user/services/AuthService'
 import DrawerView from '../../common/DrawerView'
 import { validateForm } from '../../common/validation/formValidation'
-import { AdminLocationService, AdminLocationState } from '../../services/LocationService'
 import { AdminSceneService, AdminSceneState } from '../../services/SceneService'
 import styles from '../../styles/admin.module.scss'
 
@@ -82,20 +83,22 @@ const LocationDrawer = ({ open, mode, selectedLocation, onClose }: Props) => {
   const state = useHookstate({ ...defaultState })
 
   const scenes = useHookstate(getMutableState(AdminSceneState).scenes)
-  const locationTypes = useHookstate(getMutableState(AdminLocationState).locationTypes)
+  const locationTypes = useFind(locationTypePath).data
   const user = useHookstate(getMutableState(AuthState).user)
 
-  const hasWriteAccess = user.scopes.get({ noproxy: true })?.find((item) => item?.type === 'location:write')
+  const locationMutation = useMutation(locationPath)
+
+  const hasWriteAccess = user.scopes.get(NO_PROXY)?.find((item) => item?.type === 'location:write')
   const viewMode = mode === LocationDrawerMode.ViewEdit && !editMode.value
 
-  const sceneMenu: InputMenuItem[] = scenes.get({ noproxy: true }).map((el) => {
+  const sceneMenu: InputMenuItem[] = scenes.get(NO_PROXY).map((el) => {
     return {
       value: `${el.project}/${el.name}`,
       label: `${el.name} (${el.project})`
     }
   })
 
-  const locationTypesMenu: InputMenuItem[] = locationTypes.get({ noproxy: true }).map((el) => {
+  const locationTypesMenu: InputMenuItem[] = locationTypes.map((el) => {
     return {
       value: el.type,
       label: el.type
@@ -104,7 +107,6 @@ const LocationDrawer = ({ open, mode, selectedLocation, onClose }: Props) => {
 
   useEffect(() => {
     AdminSceneService.fetchAdminScenes()
-    AdminLocationService.fetchLocationTypes()
   }, [])
 
   useEffect(() => {
@@ -194,9 +196,9 @@ const LocationDrawer = ({ open, mode, selectedLocation, onClose }: Props) => {
 
     if (validateForm(state.value, state.formErrors.value)) {
       if (mode === LocationDrawerMode.Create) {
-        AdminLocationService.createLocation(data)
+        locationMutation.create(data)
       } else if (selectedLocation) {
-        AdminLocationService.patchLocation(selectedLocation.id, data)
+        locationMutation.patch(selectedLocation.id, data)
         editMode.set(false)
       }
 

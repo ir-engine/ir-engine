@@ -40,6 +40,7 @@ const addInstanceAttendanceLocation = () => {
     const { result } = context
 
     for (const attendance of result.instanceAttendance || []) {
+      if (attendance.instanceId) attendance.instance = await context.app.service('instance').get(attendance.instanceId)
       if (attendance.instance && attendance.instance.locationId) {
         attendance.instance.location = await context.app.service(locationPath).get(attendance.instance.locationId)
       }
@@ -325,19 +326,7 @@ export default {
             where: {
               ended: false
             },
-            required: false,
-            include: [
-              {
-                model: 'instance',
-                as: 'instance'
-                // include: [
-                //   {
-                //     model: 'location',
-                //     as: 'location'
-                //   }
-                // ]
-              }
-            ]
+            required: false
           },
           {
             model: 'scope'
@@ -386,19 +375,7 @@ export default {
               model: 'instance-attendance',
               as: 'instanceAttendance',
               where: { ended: false },
-              required: false,
-              include: [
-                {
-                  model: 'instance',
-                  as: 'instance'
-                  // include: [
-                  //   {
-                  //     model: 'location',
-                  //     as: 'location'
-                  //   }
-                  // ]
-                }
-              ]
+              required: false
             }
           ]
         })

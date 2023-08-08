@@ -23,46 +23,38 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { DataTypes, Model, Sequelize } from 'sequelize'
-
-import { InstanceAttendanceInterface } from '@etherealengine/common/src/dbmodels/InstanceAttendance'
+import {
+  instanceAttendanceMethods,
+  instanceAttendancePath
+} from '@etherealengine/engine/src/schemas/networking/instance-attendance.schema'
 
 import { Application } from '../../../declarations'
+import { InstanceAttendanceService } from './instance-attendance.class'
+import instanceAttendanceDocs from './instance-attendance.docs'
+import hooks from './instance-attendance.hooks'
+
+declare module '@etherealengine/common/declarations' {
+  interface ServiceTypes {
+    [instanceAttendancePath]: InstanceAttendanceService
+  }
+}
 
 export default (app: Application) => {
-  const sequelizeClient: Sequelize = app.get('sequelizeClient')
-  const instanceAttendance = sequelizeClient.define<Model<InstanceAttendanceInterface>>(
-    'instance_attendance',
-    {
-      id: {
-        type: DataTypes.UUID,
-        defaultValue: DataTypes.UUIDV1,
-        allowNull: false,
-        primaryKey: true
-      },
-      sceneId: {
-        type: DataTypes.STRING
-      },
-      isChannel: {
-        type: DataTypes.BOOLEAN
-      },
-      ended: {
-        type: DataTypes.BOOLEAN,
-        defaultValue: false
-      }
-    },
-    {
-      hooks: {
-        beforeCount(options: any): void {
-          options.raw = true
-        }
-      }
-    }
-  )
-
-  ;(instanceAttendance as any).associate = (models: any): void => {
-    ;(instanceAttendance as any).belongsTo(models.instance)
-    ;(instanceAttendance as any).belongsTo(models.user)
+  const options = {
+    name: instanceAttendancePath,
+    paginate: app.get('paginate'),
+    Model: app.get('knexClient'),
+    multi: true
   }
-  return instanceAttendance
+
+  app.use(instanceAttendancePath, new InstanceAttendanceService(options), {
+    // A list of all methods this service exposes externally
+    methods: instanceAttendanceMethods,
+    // You can add additional custom events to be sent to clients here
+    events: [],
+    docs: instanceAttendanceDocs
+  })
+
+  const service = app.service(instanceAttendancePath)
+  service.hooks(hooks)
 }

@@ -31,6 +31,7 @@ import { UserInterface } from '@etherealengine/common/src/interfaces/User'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { defineState, getMutableState } from '@etherealengine/hyperflux'
 
+import { instanceAttendancePath } from '@etherealengine/engine/src/schemas/networking/instance-attendance.schema'
 import { NotificationService } from '../../common/services/NotificationService'
 import { userIsAdmin } from '../../user/userHasAccess'
 
@@ -123,7 +124,7 @@ export const AdminInstanceUserState = defineState({
 
 export const AdminInstanceUserService = {
   fetchUsersInInstance: async (instanceId: string) => {
-    const instanceAttendances = await Engine.instance.api.service('instance-attendance').find({
+    const instanceAttendances = await Engine.instance.api.service(instanceAttendancePath).find({
       query: {
         instanceId
       }
