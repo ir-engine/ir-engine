@@ -43,6 +43,7 @@ import Paper from '@etherealengine/ui/src/primitives/mui/Paper'
 import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 
 import { useFind } from '@etherealengine/engine/src/common/functions/FeathersHooks'
+import { locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
 import { NotificationService } from '../../../common/services/NotificationService'
 import { AuthState } from '../../../user/services/AuthService'
 import AddCommand from '../../common/AddCommand'
@@ -74,7 +75,7 @@ const CreateBot = () => {
   const adminInstanceState = useHookstate(getMutableState(AdminInstanceState))
   const user = useHookstate(getMutableState(AuthState).user)
   const instanceData = adminInstanceState.instances
-  const locationQuery = useFind('location')
+  const locationQuery = useFind(locationPath)
   const locationData = locationQuery.data
   const { t } = useTranslation()
 

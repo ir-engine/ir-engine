@@ -29,7 +29,7 @@ import { useTranslation } from 'react-i18next'
 import InputSelect, { InputMenuItem } from '@etherealengine/client-core/src/common/components/InputSelect'
 import InputSwitch from '@etherealengine/client-core/src/common/components/InputSwitch'
 import InputText from '@etherealengine/client-core/src/common/components/InputText'
-import { LocationData, LocationType } from '@etherealengine/engine/src/schemas/social/location.schema'
+import { LocationData, LocationType, locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
 import { NO_PROXY, getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import Button from '@etherealengine/ui/src/primitives/mui/Button'
 import Container from '@etherealengine/ui/src/primitives/mui/Container'
@@ -38,6 +38,7 @@ import DialogTitle from '@etherealengine/ui/src/primitives/mui/DialogTitle'
 import Grid from '@etherealengine/ui/src/primitives/mui/Grid'
 
 import { useFind, useMutation } from '@etherealengine/engine/src/common/functions/FeathersHooks'
+import { locationTypePath } from '@etherealengine/engine/src/schemas/social/location-type.schema'
 import { NotificationService } from '../../../common/services/NotificationService'
 import { AuthState } from '../../../user/services/AuthService'
 import DrawerView from '../../common/DrawerView'
@@ -82,10 +83,10 @@ const LocationDrawer = ({ open, mode, selectedLocation, onClose }: Props) => {
   const state = useHookstate({ ...defaultState })
 
   const scenes = useHookstate(getMutableState(AdminSceneState).scenes)
-  const locationTypes = useFind('location-type').data
+  const locationTypes = useFind(locationTypePath).data
   const user = useHookstate(getMutableState(AuthState).user)
 
-  const locationMutation = useMutation('location')
+  const locationMutation = useMutation(locationPath)
 
   const hasWriteAccess = user.scopes.get(NO_PROXY)?.find((item) => item?.type === 'location:write')
   const viewMode = mode === LocationDrawerMode.ViewEdit && !editMode.value

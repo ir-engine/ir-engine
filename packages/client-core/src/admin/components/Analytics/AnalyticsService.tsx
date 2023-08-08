@@ -30,6 +30,7 @@ import LoadingView from '../../../common/components/LoadingView'
 import Card from './CardNumber'
 
 import { useFind } from '@etherealengine/engine/src/common/functions/FeathersHooks'
+import { analyticsPath } from '@etherealengine/engine/src/schemas/analytics/analytics.schema'
 
 export type AnalyticsQueryTypes =
   | 'activeParties'
@@ -41,7 +42,7 @@ export type AnalyticsQueryTypes =
   | 'dailyUsers'
   | 'dailyNewUsers'
 
-export type AnalyticsQueryMap = Record<AnalyticsQueryTypes, ReturnType<typeof useFind<'analytics'>>>
+export type AnalyticsQueryMap = Record<AnalyticsQueryTypes, ReturnType<typeof useFind<typeof analyticsPath>>>
 
 const AnalyticsService = ({
   name,

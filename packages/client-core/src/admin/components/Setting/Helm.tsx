@@ -33,13 +33,14 @@ import Grid from '@etherealengine/ui/src/primitives/mui/Grid'
 import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 
 import { useFind, useMutation } from '@etherealengine/engine/src/common/functions/FeathersHooks'
+import { helmSettingPath } from '@etherealengine/engine/src/schemas/setting/helm-setting.schema'
 import InputSelect, { InputMenuItem } from '../../../common/components/InputSelect'
 import styles from '../../styles/settings.module.scss'
 
 const Helm = () => {
   const { t } = useTranslation()
 
-  const helmSetting = useFind('helm-setting').data.at(0)
+  const helmSetting = useFind(helmSettingPath).data.at(0)
   const id = helmSetting?.id
 
   const helmMainVersions = useFind('helm-main-version').data
@@ -48,7 +49,7 @@ const Helm = () => {
   const selectedMainVersion = useHookstate(helmSetting?.main)
   const selectedBuilderVersion = useHookstate(helmSetting?.builder)
 
-  const patchHelmSetting = useMutation('helm-setting').patch
+  const patchHelmSetting = useMutation(helmSettingPath).patch
 
   const handleMainVersionChange = async (e) => {
     console.log('changeMainVersion', e, e.target.value)

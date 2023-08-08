@@ -35,6 +35,7 @@ import DialogActions from '@etherealengine/ui/src/primitives/mui/DialogActions'
 import DialogTitle from '@etherealengine/ui/src/primitives/mui/DialogTitle'
 
 import { useFind } from '@etherealengine/engine/src/common/functions/FeathersHooks'
+import { locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
 import DrawerView from '../../common/DrawerView'
 import { InstanceserverService } from '../../services/InstanceserverService'
 import styles from '../../styles/admin.module.scss'
@@ -52,7 +53,7 @@ const PatchInstanceserver = ({ open, onClose }: Props) => {
   })
 
   const { t } = useTranslation()
-  const adminLocations = useFind('location').data
+  const adminLocations = useFind(locationPath).data
 
   const locationsMenu: InputMenuItem[] = adminLocations.map((el) => {
     return {

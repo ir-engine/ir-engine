@@ -40,6 +40,7 @@ import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
 
 import { useFind } from '@etherealengine/engine/src/common/functions/FeathersHooks'
+import { locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
 import { NotificationService } from '../../../common/services/NotificationService'
 import { AuthState } from '../../../user/services/AuthService'
 import { validateForm } from '../../common/validation/formValidation'
@@ -67,7 +68,7 @@ const UpdateBot = ({ open, bot, onClose }: Props) => {
   })
   const currentInstance = useHookstate<Instance[]>([])
   const adminInstanceState = useHookstate(getMutableState(AdminInstanceState))
-  const locationQuery = useFind('location')
+  const locationQuery = useFind(locationPath)
   const locationData = locationQuery.data
   const instanceData = adminInstanceState.instances
   const user = useHookstate(getMutableState(AuthState).user)

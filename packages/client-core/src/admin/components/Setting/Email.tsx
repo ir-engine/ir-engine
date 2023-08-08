@@ -37,11 +37,12 @@ import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
 import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 
 import { useFind, useMutation } from '@etherealengine/engine/src/common/functions/FeathersHooks'
+import { emailSettingPath } from '@etherealengine/engine/src/schemas/setting/email-setting.schema'
 import styles from '../../styles/settings.module.scss'
 
 const Email = () => {
   const { t } = useTranslation()
-  const emailSetting = useFind('email-setting').data.at(0)
+  const emailSetting = useFind(emailSettingPath).data.at(0)
   const id = emailSetting?.id
   const showPassword = useHookstate(false)
   const smsNameCharacterLimit = useHookstate(emailSetting?.smsNameCharacterLimit)
@@ -50,7 +51,7 @@ const Email = () => {
   const from = useHookstate(emailSetting?.from)
   const subject = useHookstate(emailSetting?.subject)
 
-  const patchEmailSetting = useMutation('email-setting').patch
+  const patchEmailSetting = useMutation(emailSettingPath).patch
 
   const handleSmtpSecure = (event) => {
     smtp.set({ ...JSON.parse(JSON.stringify(smtp.value)), secure: event.target.checked })

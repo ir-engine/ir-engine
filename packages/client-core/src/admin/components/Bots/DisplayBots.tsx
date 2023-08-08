@@ -28,7 +28,7 @@ import { useTranslation } from 'react-i18next'
 
 import ConfirmDialog from '@etherealengine/client-core/src/common/components/ConfirmDialog'
 import { AdminBot } from '@etherealengine/common/src/interfaces/AdminBot'
-import { BotCommandData } from '@etherealengine/engine/src/schemas/bot/bot-command.schema'
+import { BotCommandData, botCommandPath } from '@etherealengine/engine/src/schemas/bot/bot-command.schema'
 import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
 import Accordion from '@etherealengine/ui/src/primitives/mui/Accordion'
 import AccordionDetails from '@etherealengine/ui/src/primitives/mui/AccordionDetails'
@@ -58,7 +58,7 @@ const DisplayBots = () => {
   const botName = useHookstate('')
   const botId = useHookstate('')
 
-  const adminBotCommandMutation = useMutation('bot-command')
+  const adminBotCommandMutation = useMutation(botCommandPath)
 
   const handleChangeCommand = (e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
     const { name, value } = e.target

@@ -34,11 +34,12 @@ import Grid from '@etherealengine/ui/src/primitives/mui/Grid'
 import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 
 import { useFind } from '@etherealengine/engine/src/common/functions/FeathersHooks'
+import { instanceServerSettingPath } from '@etherealengine/engine/src/schemas/setting/instance-server-setting.schema'
 import styles from '../../styles/settings.module.scss'
 
 const InstanceServer = () => {
   const { t } = useTranslation()
-  const instanceServerSettings = useFind('instance-server-setting').data
+  const instanceServerSettings = useFind(instanceServerSettingPath).data
   const local = useHookstate(true)
 
   return (

@@ -27,7 +27,7 @@ import React, { ReactElement } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import ConfirmDialog from '@etherealengine/client-core/src/common/components/ConfirmDialog'
-import { LocationType } from '@etherealengine/engine/src/schemas/social/location.schema'
+import { LocationType, locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
 import { useHookstate } from '@etherealengine/hyperflux'
 import Avatar from '@etherealengine/ui/src/primitives/mui/Avatar'
 import Box from '@etherealengine/ui/src/primitives/mui/Box'
@@ -35,6 +35,7 @@ import Button from '@etherealengine/ui/src/primitives/mui/Button'
 import Chip from '@etherealengine/ui/src/primitives/mui/Chip'
 
 import { useFind, useMutation } from '@etherealengine/engine/src/common/functions/FeathersHooks'
+import { locationTypePath } from '@etherealengine/engine/src/schemas/social/location-type.schema'
 import TableComponent from '../../common/Table'
 import { locationColumns } from '../../common/variables/location'
 import styles from '../../styles/admin.module.scss'
@@ -62,7 +63,7 @@ const LocationTable = ({ className, search }: Props) => {
 
   const { t } = useTranslation()
 
-  const adminLocations = useFind('location', {
+  const adminLocations = useFind(locationPath, {
     query: {
       $sort: {},
       $skip: page.value * rowsPerPage.value,
@@ -72,7 +73,7 @@ const LocationTable = ({ className, search }: Props) => {
     }
   }).data
 
-  const adminLocationMutation = useMutation('location')
+  const adminLocationMutation = useMutation(locationTypePath)
 
   const handlePageChange = (event: unknown, newPage: number) => page.set(newPage)
 

@@ -42,6 +42,7 @@ import ActivityGraph from './ActivityGraph'
 import './index.scss'
 
 import { useFind } from '@etherealengine/engine/src/common/functions/FeathersHooks'
+import { analyticsPath } from '@etherealengine/engine/src/schemas/analytics/analytics.schema'
 import { useTranslation } from 'react-i18next'
 import AnalyticsService, { AnalyticsQueryMap, AnalyticsQueryTypes } from './AnalyticsService'
 import UserGraph from './UserGraph'
@@ -84,7 +85,7 @@ const Analytics = () => {
 
   const analyticsQueryMap = {} as AnalyticsQueryMap
   allAnalyticsQueries.forEach((query) => {
-    analyticsQueryMap[query] = useFind('analytics', {
+    analyticsQueryMap[query] = useFind(analyticsPath, {
       query: { type: query, $sort: { createdAt: -1 }, createdAt: { $gt: startDate.value, $lt: endDate.value } }
     })
   })

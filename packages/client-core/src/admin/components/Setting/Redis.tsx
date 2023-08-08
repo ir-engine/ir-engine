@@ -34,11 +34,12 @@ import Grid from '@etherealengine/ui/src/primitives/mui/Grid'
 import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 
 import { useFind } from '@etherealengine/engine/src/common/functions/FeathersHooks'
+import { redisSettingPath } from '@etherealengine/engine/src/schemas/setting/redis-setting.schema'
 import styles from '../../styles/settings.module.scss'
 
 const Redis = () => {
   const { t } = useTranslation()
-  const redisSetting = useFind('redis-setting').data.at(0)
+  const redisSetting = useFind(redisSettingPath).data.at(0)
   const enabled = useHookstate(true)
 
   return (

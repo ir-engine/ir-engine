@@ -48,6 +48,7 @@ import { DateTimePicker, LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 
 import { useFind } from '@etherealengine/engine/src/common/functions/FeathersHooks'
+import { locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
 import { NotificationService } from '../../../common/services/NotificationService'
 import { InviteService } from '../../../social/services/InviteService'
 import DrawerView from '../../common/DrawerView'
@@ -88,7 +89,7 @@ const CreateInviteModal = ({ open, onClose }: Props) => {
   const adminInstanceState = useHookstate(getMutableState(AdminInstanceState))
   const adminUserState = useHookstate(getMutableState(AdminUserState))
   const adminSceneState = useHookstate(getMutableState(AdminSceneState))
-  const adminLocations = useFind('location').data
+  const adminLocations = useFind(locationPath).data
   const adminInstances = adminInstanceState.instances
   const adminUsers = adminUserState.users
   const spawnPoints = adminSceneState.singleScene?.scene?.entities.value

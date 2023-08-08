@@ -37,10 +37,12 @@ import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
 import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 
 import { useFind, useMutation } from '@etherealengine/engine/src/common/functions/FeathersHooks'
-import { AuthenticationSettingType } from '@etherealengine/engine/src/schemas/setting/authentication-setting.schema'
+import {
+  AuthenticationSettingType,
+  authenticationSettingPath
+} from '@etherealengine/engine/src/schemas/setting/authentication-setting.schema'
 import { initialAuthState } from '../../../common/initialAuthState'
 import { NotificationService } from '../../../common/services/NotificationService'
-import { AuthSettingsService } from '../../services/Setting/AuthSettingService'
 import styles from '../../styles/settings.module.scss'
 
 const OAUTH_TYPES = {
@@ -55,7 +57,7 @@ const OAUTH_TYPES = {
 const Account = () => {
   const { t } = useTranslation()
 
-  const authSetting = useFind('authentication-setting').data.at(0) as AuthenticationSettingType
+  const authSetting = useFind(authenticationSettingPath).data.at(0) as AuthenticationSettingType
   const id = authSetting?.id
   const state = useHookstate(initialAuthState)
   const holdAuth = useHookstate(initialAuthState)
@@ -93,7 +95,7 @@ const Account = () => {
       secret: false
     }
   })
-  const patchAuthSettings = useMutation('authentication-setting').patch
+  const patchAuthSettings = useMutation(authenticationSettingPath).patch
 
   const handleShowPassword = (key) => {
     const [social, value] = key.split('-')
@@ -108,7 +110,7 @@ const Account = () => {
 
   useEffect(() => {
     if (authSetting) {
-      let tempAuthState = { ...initialAuthState }
+      const tempAuthState = { ...initialAuthState }
       authSetting?.authStrategies?.forEach((el) => {
         Object.entries(el).forEach(([strategyName, strategy]) => {
           tempAuthState[strategyName] = strategy
@@ -117,7 +119,7 @@ const Account = () => {
       state.set(tempAuthState)
       holdAuth.set(tempAuthState)
 
-      let tempKeySecret = JSON.parse(
+      const tempKeySecret = JSON.parse(
         JSON.stringify({
           discord: authSetting?.oauth?.discord,
           github: authSetting?.oauth?.github,
@@ -139,27 +141,25 @@ const Account = () => {
 
     const oauth = { ...authSetting.oauth, ...keySecret.value }
 
-    for (let key of Object.keys(oauth)) {
+    for (const key of Object.keys(oauth)) {
       oauth[key] = JSON.parse(JSON.stringify(oauth[key]))
     }
 
-    patchAuthSettings(id, { authStrategies: auth, oauth: oauth }).then(() => {
-      AuthSettingsService.fetchAuthSetting()
-    })
+    patchAuthSettings(id, { authStrategies: auth, oauth: oauth })
     NotificationService.dispatchNotify(t('admin:components.setting.authSettingsRefreshNotification'), {
       variant: 'warning'
     })
   }
 
   const handleCancel = () => {
-    let temp = { ...initialAuthState }
+    const temp = { ...initialAuthState }
     authSetting?.authStrategies?.forEach((el) => {
       Object.entries(el).forEach(([strategyName, strategy]) => {
         temp[strategyName] = strategy
       })
     })
 
-    let tempKeySecret = JSON.parse(
+    const tempKeySecret = JSON.parse(
       JSON.stringify({
         discord: authSetting?.oauth?.discord,
         github: authSetting?.oauth?.github,

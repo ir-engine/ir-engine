@@ -38,6 +38,7 @@ import Grid from '@etherealengine/ui/src/primitives/mui/Grid'
 import TextField from '@etherealengine/ui/src/primitives/mui/TextField'
 import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 
+import { authenticationSettingPath } from '@etherealengine/engine/src/schemas/setting/authentication-setting.schema'
 import { initialAuthState } from '../../../common/initialAuthState'
 import { AuthService, AuthState } from '../../services/AuthService'
 import styles from './index.module.scss'
@@ -61,12 +62,12 @@ const MagicLinkEmail = ({ type, isAddConnection }: Props): JSX.Element => {
   const auth = useHookstate(getMutableState(AuthState))
   const state = useHookstate(defaultState)
   const { t } = useTranslation()
-  const authSetting = useFind('authentication-setting').data.at(0)
+  const authSetting = useFind(authenticationSettingPath).data.at(0)
   const authState = useHookstate(initialAuthState)
 
   useEffect(() => {
     if (authSetting) {
-      let temp = { ...initialAuthState }
+      const temp = { ...initialAuthState }
       authSetting?.authStrategies?.forEach((el) => {
         Object.entries(el).forEach(([strategyName, strategy]) => {
           temp[strategyName] = strategy

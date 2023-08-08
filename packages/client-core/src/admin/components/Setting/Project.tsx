@@ -37,7 +37,6 @@ import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 
 import { useFind, useMutation } from '@etherealengine/engine/src/common/functions/FeathersHooks'
 import { ProjectService, ProjectState } from '../../../common/services/ProjectService'
-import { AuthState } from '../../../user/services/AuthService'
 import styles from '../../styles/settings.module.scss'
 
 interface ProjectSetting {
@@ -47,7 +46,6 @@ interface ProjectSetting {
 
 const Project = () => {
   const { t } = useTranslation()
-  const user = useHookstate(getMutableState(AuthState).user)
   const projectState = useHookstate(getMutableState(ProjectState))
   const projects = projectState.projects
 
@@ -80,8 +78,8 @@ const Project = () => {
     if (!projectSetting.length) {
       return
     }
-    let tempSettings = JSON.parse(JSON.stringify(settings.value))
-    for (let [index, setting] of tempSettings.entries()) {
+    const tempSettings = JSON.parse(JSON.stringify(settings.value))
+    for (const [index, setting] of tempSettings.entries()) {
       const savedSetting = projectSetting.filter((item) => item.key === setting.key)
       if (savedSetting.length > 0) {
         tempSettings[index].value = savedSetting[0].value
@@ -95,9 +93,9 @@ const Project = () => {
     const projectConfig = projectName?.length > 0 && (await loadConfigForProject(projectName[0].name))
 
     if (projectConfig && projectConfig?.settings) {
-      let tempSetting = [] as ProjectSetting[]
+      const tempSetting = [] as ProjectSetting[]
 
-      for (let setting of projectConfig.settings) {
+      for (const setting of projectConfig.settings) {
         tempSetting.push({ key: setting.key, value: '' })
       }
 

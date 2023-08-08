@@ -45,6 +45,7 @@ import FormControlLabel from '@etherealengine/ui/src/primitives/mui/FormControlL
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 
 import { useFind } from '@etherealengine/engine/src/common/functions/FeathersHooks'
+import { helmSettingPath } from '@etherealengine/engine/src/schemas/setting/helm-setting.schema'
 import { ProjectService, ProjectState } from '../../../common/services/ProjectService'
 import DrawerView from '../../common/DrawerView'
 import { ProjectUpdateService, ProjectUpdateState } from '../../services/ProjectUpdateService'
@@ -65,7 +66,7 @@ const UpdateDrawer = ({ open, builderTags, onClose }: Props) => {
   const projectsToUpdate = useHookstate(new Map())
   const submitDisabled = useHookstate(true)
   const processing = useHookstate(false)
-  const helmSetting = useFind('helm-setting').data.at(0)
+  const helmSetting = useFind(helmSettingPath).data.at(0)
 
   const adminProjectState = useHookstate(getMutableState(ProjectState))
   const adminProjects = adminProjectState.projects

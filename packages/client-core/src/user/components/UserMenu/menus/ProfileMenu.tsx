@@ -49,6 +49,7 @@ import CircularProgress from '@etherealengine/ui/src/primitives/mui/CircularProg
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
 
+import { authenticationSettingPath } from '@etherealengine/engine/src/schemas/setting/authentication-setting.schema'
 import { initialAuthState, initialOAuthConnectedState } from '../../../../common/initialAuthState'
 import { NotificationService } from '../../../../common/services/NotificationService'
 import { useUserAvatarThumbnail } from '../../../functions/useUserAvatarThumbnail'
@@ -81,7 +82,7 @@ const ProfileMenu = ({ hideLogin, onClose, isPopover }: Props): JSX.Element => {
   const authState = useHookstate(initialAuthState)
 
   const engineInitialized = useHookstate(getMutableState(EngineState).isEngineInitialized)
-  const authSetting = useFind('authentication-setting').data.at(0)
+  const authSetting = useFind(authenticationSettingPath).data.at(0)
   const loading = useHookstate(getMutableState(AuthState).isProcessing)
   const userId = selfUser.id.value
   const apiKey = selfUser.apiKey?.token?.value
@@ -93,7 +94,7 @@ const ProfileMenu = ({ hideLogin, onClose, isPopover }: Props): JSX.Element => {
 
   useEffect(() => {
     if (authSetting) {
-      let temp = { ...initialAuthState }
+      const temp = { ...initialAuthState }
       authSetting?.authStrategies?.forEach((el) => {
         Object.entries(el).forEach(([strategyName, strategy]) => {
           temp[strategyName] = strategy
@@ -136,7 +137,7 @@ const ProfileMenu = ({ hideLogin, onClose, isPopover }: Props): JSX.Element => {
   useEffect(() => {
     oauthConnectedState.set(Object.assign({}, initialOAuthConnectedState))
     if (selfUser.identityProviders.get({ noproxy: true }))
-      for (let ip of selfUser.identityProviders.get({ noproxy: true })!) {
+      for (const ip of selfUser.identityProviders.get({ noproxy: true })!) {
         switch (ip.type) {
           case 'discord':
             oauthConnectedState.merge({ discord: true })

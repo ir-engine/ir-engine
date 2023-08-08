@@ -36,12 +36,13 @@ import Grid from '@etherealengine/ui/src/primitives/mui/Grid'
 import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 
 import { useFind, useMutation } from '@etherealengine/engine/src/common/functions/FeathersHooks'
+import { serverSettingPath } from '@etherealengine/engine/src/schemas/setting/server-setting.schema'
 import styles from '../../styles/settings.module.scss'
 
 const Server = () => {
   const { t } = useTranslation()
 
-  const serverSetting = useFind('server-setting').data.at(0)
+  const serverSetting = useFind(serverSettingPath).data.at(0)
   const id = serverSetting?.id
 
   const gaTrackingId = useHookstate(serverSetting?.gaTrackingId)
@@ -50,7 +51,7 @@ const Server = () => {
   const dryRun = useHookstate(true)
   const local = useHookstate(true)
 
-  const patchServerSetting = useMutation('server-setting').patch
+  const patchServerSetting = useMutation(serverSettingPath).patch
 
   const handleSubmit = (event) => {
     if (!id) return
