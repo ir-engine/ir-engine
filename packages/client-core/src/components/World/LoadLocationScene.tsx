@@ -56,7 +56,7 @@ export const useLoadLocation = (props: { locationName: string }) => {
         body: `${t('common:instanceServer.cantFindLocation')} '${locationState.locationName.value}'. ${t(
           'common:instanceServer.misspelledOrNotExist'
         )}`,
-        action: () => RouterService('/')
+        action: () => RouterService.navigate('/')
       })
     }
   }, [locationState.invalidLocation])
