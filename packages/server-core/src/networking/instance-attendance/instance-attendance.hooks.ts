@@ -51,12 +51,6 @@ const instanceAttendanceDataValidator = getValidator(instanceAttendanceDataSchem
 const instanceAttendancePatchValidator = getValidator(instanceAttendancePatchSchema, dataValidator)
 const instanceAttendanceQueryValidator = getValidator(instanceAttendanceQuerySchema, queryValidator)
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const instanceAttendanceValidator = getValidator(instanceAttendanceSchema, dataValidator)
-const instanceAttendanceDataValidator = getValidator(instanceAttendanceDataSchema, dataValidator)
-const instanceAttendancePatchValidator = getValidator(instanceAttendancePatchSchema, dataValidator)
-const instanceAttendanceQueryValidator = getValidator(instanceAttendanceQuerySchema, queryValidator)
-
 export default {
   around: {
     all: [
