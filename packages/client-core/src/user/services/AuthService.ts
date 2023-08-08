@@ -100,7 +100,7 @@ export const AuthService = {
   async doLoginAuto(forceClientAuthReset?: boolean) {
     const authState = getMutableState(AuthState)
     try {
-      let accessToken = !forceClientAuthReset && authState?.authUser?.accessToken?.value
+      const accessToken = !forceClientAuthReset && authState?.authUser?.accessToken?.value
 
       if (forceClientAuthReset) {
         await API.instance.client.authentication.reset()

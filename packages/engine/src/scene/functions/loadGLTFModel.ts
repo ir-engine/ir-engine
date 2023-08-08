@@ -122,7 +122,7 @@ export const parseObjectComponentsFromGLTF = (entity: Entity, object3d?: Object3
   for (const mesh of meshesToProcess) {
     const e = createEntity()
 
-    addEntityNodeChild(e, entity, mesh.uuid as EntityUUID)
+    addEntityNodeChild(e, entity, undefined, mesh.uuid as EntityUUID)
 
     if (hasComponent(entity, SceneObjectComponent)) setComponent(e, SceneObjectComponent)
 

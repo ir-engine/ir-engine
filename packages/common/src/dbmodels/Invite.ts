@@ -37,3 +37,7 @@ export interface InviteInterface {
   startTime?: string
   endTime?: string
 }
+
+export interface InviteTypeInterface {
+  type: string
+}

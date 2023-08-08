@@ -32,7 +32,7 @@ import { useHotkeys } from 'react-hotkeys-hook'
 import { useTranslation } from 'react-i18next'
 import styled from 'styled-components'
 
-import { useRouter } from '@etherealengine/client-core/src/common/services/RouterService'
+import { RouterService } from '@etherealengine/client-core/src/common/services/RouterService'
 import { SceneJson } from '@etherealengine/common/src/interfaces/SceneInterface'
 import multiLogger from '@etherealengine/common/src/logger'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
@@ -167,7 +167,6 @@ const EditorContainer = () => {
   const { t } = useTranslation()
   const [DialogComponent, setDialogComponent] = useState<JSX.Element | null>(null)
   const [toggleRefetchScenes, setToggleRefetchScenes] = useState(false)
-  const route = useRouter()
   const dockPanelRef = useRef<DockLayout>(null)
 
   useHotkeys(`${cmdOrCtrlString}+s`, () => onSaveScene() as any)
@@ -224,7 +223,7 @@ const EditorContainer = () => {
   const reRouteToLoadScene = async (newSceneName: string) => {
     if (sceneName.value === newSceneName) return
     if (!projectName.value || !newSceneName) return
-    route(`/studio/${projectName.value}/${newSceneName}`)
+    RouterService.navigate(`/studio/${projectName.value}/${newSceneName}`)
   }
 
   const loadScene = async (sceneName: string) => {
@@ -303,7 +302,7 @@ const EditorContainer = () => {
     editorState.projectName.set(null)
     editorState.sceneName.set(null)
     getMutableState(SceneState).sceneData.set(null)
-    route('/studio')
+    RouterService.navigate('/studio')
   }
 
   const onSaveAs = async () => {
@@ -636,11 +635,6 @@ const EditorContainer = () => {
                   id: 'materialLibraryPanel',
                   title: <MaterialLibraryPanelTitle />,
                   content: <MaterialLibraryPanel />
-                },
-                {
-                  id: 'graphPanel',
-                  title: <GraphPanelTitle />,
-                  content: <GraphPanel />
                 }
               ]
             },
@@ -650,6 +644,11 @@ const EditorContainer = () => {
                   id: 'propertiesPanel',
                   title: <PropertiesPanelTitle />,
                   content: <PropertiesPanelContainer />
+                },
+                {
+                  id: 'graphPanel',
+                  title: <GraphPanelTitle />,
+                  content: <GraphPanel />
                 }
               ]
             }

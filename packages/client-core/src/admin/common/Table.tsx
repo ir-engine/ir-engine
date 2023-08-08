@@ -25,7 +25,6 @@ Ethereal Engine. All Rights Reserved.
 
 import React from 'react'
 
-import Box from '@etherealengine/ui/src/primitives/mui/Box'
 import Table from '@etherealengine/ui/src/primitives/mui/Table'
 import TableBody from '@etherealengine/ui/src/primitives/mui/TableBody'
 import TableCell from '@etherealengine/ui/src/primitives/mui/TableCell'
@@ -34,8 +33,6 @@ import TableHead from '@etherealengine/ui/src/primitives/mui/TableHead'
 import TablePagination from '@etherealengine/ui/src/primitives/mui/TablePagination'
 import TableRow from '@etherealengine/ui/src/primitives/mui/TableRow'
 import TableSortLabel from '@etherealengine/ui/src/primitives/mui/TableSortLabel'
-
-import { visuallyHidden } from '@mui/utils'
 
 import styles from '../styles/table.module.scss'
 
@@ -139,9 +136,9 @@ const EnhancedTableHead = ({ order, orderBy, onRequestSort, columns }: EnhancedT
               >
                 {headCell.label}
                 {orderBy === headCell.id ? (
-                  <Box component="span" sx={visuallyHidden}>
+                  <span style={{ display: 'none', border: 0, clip: 'rect(0 0 0 0)' }}>
                     {order === 'desc' ? 'sorted descending' : 'sorted ascending'}
-                  </Box>
+                  </span>
                 ) : null}
               </TableSortLabel>
             )}

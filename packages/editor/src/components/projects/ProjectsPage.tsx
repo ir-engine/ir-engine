@@ -28,7 +28,7 @@ import { useTranslation } from 'react-i18next'
 
 import ProjectDrawer from '@etherealengine/client-core/src/admin/components/Project/ProjectDrawer'
 import { ProjectService, ProjectState } from '@etherealengine/client-core/src/common/services/ProjectService'
-import { useRouter } from '@etherealengine/client-core/src/common/services/RouterService'
+import { RouterService } from '@etherealengine/client-core/src/common/services/RouterService'
 import { AuthState } from '@etherealengine/client-core/src/user/services/AuthService'
 import { ProjectInterface } from '@etherealengine/common/src/interfaces/ProjectInterface'
 import multiLogger from '@etherealengine/common/src/logger'
@@ -63,6 +63,7 @@ import {
   Paper
 } from '@mui/material'
 
+import { userIsAdmin } from '@etherealengine/client-core/src/user/userHasAccess'
 import { getProjects } from '../../functions/projectFunctions'
 import { EditorAction } from '../../services/EditorServices'
 import { Button, MediumButton } from '../inputs/Button'
@@ -181,6 +182,9 @@ const ProjectsPage = () => {
   const projectDrawerOpen = useHookstate(false)
   const changeDestination = useHookstate(false)
 
+  const isAdmin = userIsAdmin()
+  const hasProjectWriteAccess = activeProject.value?.hasWriteAccess || isAdmin
+
   const authState = useHookstate(getMutableState(AuthState))
   const projectState = useHookstate(getMutableState(ProjectState))
   const authUser = authState.authUser
@@ -189,7 +193,6 @@ const ProjectsPage = () => {
   const githubProvider = user.identityProviders.value?.find((ip) => ip.type === 'github')
 
   const { t } = useTranslation()
-  const route = useRouter()
 
   const fetchInstalledProjects = async () => {
     loading.set(true)
@@ -270,7 +273,7 @@ const ProjectsPage = () => {
 
     dispatchAction(EditorAction.sceneChanged({ sceneName: null }))
     dispatchAction(EditorAction.projectChanged({ projectName: project.name }))
-    route(`/studio/${project.name}`)
+    RouterService.navigate(`/studio/${project.name}`)
   }
 
   const onCreateProject = async (name) => {
@@ -574,7 +577,7 @@ const ProjectsPage = () => {
           {activeProject.value &&
             isInstalled(activeProject.value) &&
             hasRepo(activeProject.value) &&
-            activeProject.value.hasWriteAccess && (
+            hasProjectWriteAccess && (
               <MenuItem classes={{ root: styles.filterMenuItem }} onClick={() => handleOpenProjectDrawer(false)}>
                 <Download />
                 {t(`editor.projects.updateFromGithub`)}
@@ -583,7 +586,7 @@ const ProjectsPage = () => {
           {activeProject.value &&
             isInstalled(activeProject.value) &&
             !hasRepo(activeProject.value) &&
-            activeProject.value.hasWriteAccess && (
+            hasProjectWriteAccess && (
               <MenuItem classes={{ root: styles.filterMenuItem }} onClick={() => handleOpenProjectDrawer(true)}>
                 <Link />
                 {t(`editor.projects.link`)}
@@ -592,13 +595,13 @@ const ProjectsPage = () => {
           {activeProject.value &&
             isInstalled(activeProject.value) &&
             hasRepo(activeProject.value) &&
-            activeProject.value.hasWriteAccess && (
+            hasProjectWriteAccess && (
               <MenuItem classes={{ root: styles.filterMenuItem }} onClick={() => handleOpenProjectDrawer(true)}>
                 <LinkOff />
                 {t(`editor.projects.unlink`)}
               </MenuItem>
             )}
-          {activeProject.value?.hasWriteAccess && hasRepo(activeProject.value) && (
+          {hasProjectWriteAccess && hasRepo(activeProject.value) && (
             <MenuItem
               classes={{ root: styles.filterMenuItem }}
               onClick={() => activeProject?.value?.id && pushProject(activeProject.value.id)}
@@ -607,7 +610,7 @@ const ProjectsPage = () => {
               {t(`editor.projects.pushToGithub`)}
             </MenuItem>
           )}
-          {isInstalled(activeProject.value) && activeProject.value?.hasWriteAccess && (
+          {isInstalled(activeProject.value) && hasProjectWriteAccess && (
             <MenuItem classes={{ root: styles.filterMenuItem }} onClick={openDeleteConfirm}>
               {updatingProject.value ? <CircularProgress size={15} className={styles.progressbar} /> : <Delete />}
               {t(`editor.projects.uninstall`)}

@@ -45,7 +45,6 @@ import { executeFixedPipeline } from './FixedPipelineSystem'
 import { SystemDefinitions, defineSystem, disableAllSystems, enableSystems, executeSystem } from './SystemFunctions'
 
 const sceneQuery = defineQuery([SceneObjectComponent])
-
 export const unloadScene = async () => {
   const entitiesToRemove = [] as Entity[]
   const sceneObjectsToRemove = [] as Object3D[]

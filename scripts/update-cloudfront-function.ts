@@ -34,7 +34,7 @@ import { ServerMode } from '@etherealengine/server-core/src/ServerState'
 
 cli.enable('status')
 
-const PAGE_SIZE = 1
+const PAGE_SIZE = 100
 
 const getAllRoutes = async (app: Application, routes: InstalledRoutesInterface[], skip: number) => {
   const routePage = await app.service(routePath).find({
