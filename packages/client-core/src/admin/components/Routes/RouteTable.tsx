@@ -30,64 +30,48 @@ import Box from '@etherealengine/ui/src/primitives/mui/Box'
 import Checkbox from '@etherealengine/ui/src/primitives/mui/Checkbox'
 import CircularProgress from '@etherealengine/ui/src/primitives/mui/CircularProgress'
 
+import { useFind } from '@etherealengine/engine/src/common/functions/FeathersHooks'
 import { AuthState } from '../../../user/services/AuthService'
 import TableComponent from '../../common/Table'
 import { routeColumns } from '../../common/variables/route'
 import { AdminActiveRouteService, AdminActiveRouteState } from '../../services/ActiveRouteService'
-import { AdminRouteState, RouteService } from '../../services/RouteService'
 import styles from '../../styles/admin.module.scss'
 
-/**
- * Temporary
- */
 const ROUTE_PAGE_LIMIT = 1000
 
 interface Props {
   className?: string
 }
 
-/**
- *
- * @param props
- * @returns
- */
-
 const RouteTable = ({ className }: Props) => {
   const page = useHookstate(0)
   const rowsPerPage = useHookstate(ROUTE_PAGE_LIMIT)
+  const processing = useHookstate(false)
 
   const authState = useHookstate(getMutableState(AuthState))
   const user = authState.user
-  const adminRouteState = useHookstate(getMutableState(AdminRouteState))
+
+  const installedRouteData = useFind('routes-installed').data
+
   const adminActiveRouteState = useHookstate(getMutableState(AdminActiveRouteState))
   const activeRouteData = adminActiveRouteState.activeRoutes
-  const installedRouteData = adminRouteState.routes
   const adminRouteCount = adminActiveRouteState.total
-  const processing = useHookstate(false)
 
   const handlePageChange = (event: unknown, newPage: number) => {
     const incDec = page.value < newPage ? 'increment' : 'decrement'
     AdminActiveRouteService.fetchActiveRoutes(incDec)
-    RouteService.fetchInstalledRoutes(newPage)
     page.set(newPage)
   }
 
   useEffect(() => {
-    if (user?.id?.value && adminRouteState.updateNeeded.value === true) {
+    if (user?.id?.value) {
       AdminActiveRouteService.fetchActiveRoutes()
-      RouteService.fetchInstalledRoutes()
     }
-  }, [authState.user?.id?.value, adminRouteState.updateNeeded.value])
+  }, [authState.user?.id?.value])
 
   useEffect(() => {
     AdminActiveRouteService.fetchActiveRoutes()
-    RouteService.fetchInstalledRoutes()
   }, [])
-
-  useEffect(() => {
-    // console.log('setting false', activeRouteData.value)
-    // setProcessing(false)
-  }, [activeRouteData.value])
 
   const handleRowsPerPageChange = (event: ChangeEvent<HTMLInputElement>) => {
     rowsPerPage.set(+event.target.value)
@@ -100,10 +84,7 @@ const RouteTable = ({ className }: Props) => {
     }) !== -1
 
   const activateCallback = (project: string, route: string, checked: boolean) => {
-    // setProcessing(true)
-    // setTimeout(() => {
     AdminActiveRouteService.setRouteActive(project, route, checked)
-    // }, 1000)
   }
 
   const installedRoutes = installedRouteData
@@ -111,15 +92,15 @@ const RouteTable = ({ className }: Props) => {
       if (!el.routes?.length) return []
       return el.routes.map((route) => {
         return {
-          id: el.project.value + route.value,
-          project: el.project.value,
-          route: route.value,
+          id: el.project + route,
+          project: el.project,
+          route: route,
           action: (
             <Checkbox
               className={styles.checkboxContainer}
               classes={{ checked: styles.routeCheckedCheckbox }}
-              checked={isRouteActive(el.project.value, route.value)}
-              onChange={(ev, checked) => activateCallback(el.project.value, route.value, checked)}
+              checked={isRouteActive(el.project, route)}
+              onChange={(ev, checked) => activateCallback(el.project, route, checked)}
             />
           )
         }
