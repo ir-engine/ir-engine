@@ -88,12 +88,6 @@ export const Flow: React.FC<FlowProps> = ({ initialGraph: graph, examples, regis
     }
   }, [graphJson])
 
-  useEffect(() => {
-    return () => {
-      onChangeGraph(graphJson ?? graph)
-    }
-  }, [])
-
   return (
     <ReactFlow
       ref={flowRef}
