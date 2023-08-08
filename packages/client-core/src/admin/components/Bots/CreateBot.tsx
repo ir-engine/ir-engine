@@ -42,13 +42,12 @@ import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
 import Paper from '@etherealengine/ui/src/primitives/mui/Paper'
 import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 
-import { useFind } from '@etherealengine/engine/src/common/functions/FeathersHooks'
+import { useFind, useMutation } from '@etherealengine/engine/src/common/functions/FeathersHooks'
 import { locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
 import { NotificationService } from '../../../common/services/NotificationService'
 import { AuthState } from '../../../user/services/AuthService'
 import AddCommand from '../../common/AddCommand'
 import { validateForm } from '../../common/validation/formValidation'
-import { AdminBotService } from '../../services/BotsService'
 import { AdminInstanceService, AdminInstanceState } from '../../services/InstanceService'
 import styles from '../../styles/admin.module.scss'
 
@@ -78,6 +77,8 @@ const CreateBot = () => {
   const locationQuery = useFind(locationPath)
   const locationData = locationQuery.data
   const { t } = useTranslation()
+
+  const createBotData = useMutation('bot').create
 
   useEffect(() => {
     if (user?.id.value && adminInstanceState.updateNeeded.value) {
@@ -135,7 +136,7 @@ const CreateBot = () => {
     })
 
     if (validateForm(state.value, formErrors.value)) {
-      AdminBotService.createBotAsAdmin(data)
+      createBotData(data)
       state.set({ name: '', description: '', instance: '', location: '' })
       commandData.set([])
       currentInstance.set([])

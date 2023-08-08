@@ -39,12 +39,11 @@ import DialogTitle from '@etherealengine/ui/src/primitives/mui/DialogTitle'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
 
-import { useFind } from '@etherealengine/engine/src/common/functions/FeathersHooks'
+import { useFind, useMutation } from '@etherealengine/engine/src/common/functions/FeathersHooks'
 import { locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
 import { NotificationService } from '../../../common/services/NotificationService'
 import { AuthState } from '../../../user/services/AuthService'
 import { validateForm } from '../../common/validation/formValidation'
-import { AdminBotService } from '../../services/BotsService'
 import { AdminInstanceService, AdminInstanceState } from '../../services/InstanceService'
 import styles from '../../styles/admin.module.scss'
 
@@ -71,6 +70,7 @@ const UpdateBot = ({ open, bot, onClose }: Props) => {
   const locationQuery = useFind(locationPath)
   const locationData = locationQuery.data
   const instanceData = adminInstanceState.instances
+  const updateBot = useMutation('bot').update
   const user = useHookstate(getMutableState(AuthState).user)
   const { t } = useTranslation()
 
@@ -149,7 +149,7 @@ const UpdateBot = ({ open, bot, onClose }: Props) => {
     })
 
     if (validateForm(state.value, formErrors.value) && bot) {
-      AdminBotService.updateBotAsAdmin(bot.id, data)
+      updateBot(bot.id, data)
       state.set({ name: '', description: '', instance: '', location: '' })
       currentInstance.set([])
       onClose()
