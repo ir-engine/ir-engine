@@ -290,10 +290,10 @@ export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
     const mediaNetwork = Engine.instance.mediaNetwork as SocketWebRTCClientNetwork
     const audioStreamProducer = audioStream as ConsumerExtension
     if (!audioProducerGlobalMute) {
-      await globalMuteProducer(mediaNetwork, { id: audioStreamProducer.producerId })
+      globalMuteProducer(mediaNetwork, { id: audioStreamProducer.producerId })
       peerMediaChannelState.audioProducerGlobalMute.set(true)
     } else if (audioProducerGlobalMute) {
-      await globalUnmuteProducer(mediaNetwork, { id: audioStreamProducer.producerId })
+      globalUnmuteProducer(mediaNetwork, { id: audioStreamProducer.producerId })
       peerMediaChannelState.audioProducerGlobalMute.set(false)
     }
   }

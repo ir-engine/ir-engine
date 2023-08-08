@@ -33,7 +33,7 @@ import { getMutableState, getState } from '@etherealengine/hyperflux'
 
 import { DataChannelType } from '@etherealengine/common/src/interfaces/DataChannelType'
 import { UserId } from '@etherealengine/common/src/interfaces/UserId'
-import { ProducerState } from '@etherealengine/engine/src/networking/systems/ProducerConsumerState'
+import { ProducerConsumerState } from '@etherealengine/engine/src/networking/systems/ProducerConsumerState'
 import { useWorldInstance } from '../../common/services/LocationInstanceConnectionService'
 import {
   createDataConsumer,
@@ -79,7 +79,7 @@ export const NetworkProducer = (props: { networkID: UserId; producerID: string }
   useEffect(() => {
     const network = getState(NetworkState).networks[networkID] as SocketWebRTCClientNetwork
 
-    const producer = getState(ProducerState)[networkID][producerID]
+    const producer = getState(ProducerConsumerState)[networkID].producers[producerID]
     const { peerID, mediaTag, channelID } = producer
     console.warn('subscribing to track', peerID, mediaTag, producerID, channelID)
 
@@ -95,7 +95,7 @@ export const NetworkProducer = (props: { networkID: UserId; producerID: string }
 
 export const NetworkProducers = (props: { networkID: UserId }) => {
   const { networkID } = props
-  const producers = useHookstate(getMutableState(ProducerState)[networkID])
+  const producers = useHookstate(getMutableState(ProducerConsumerState)[networkID].producers)
 
   return (
     <>
@@ -107,7 +107,7 @@ export const NetworkProducers = (props: { networkID: UserId }) => {
 }
 
 export const ProducerReactor = () => {
-  const networkIDs = useHookstate(getMutableState(ProducerState))
+  const networkIDs = useHookstate(getMutableState(ProducerConsumerState))
   return (
     <>
       {Object.keys(networkIDs.value).map((hostId: UserId) => (

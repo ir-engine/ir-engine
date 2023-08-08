@@ -51,12 +51,10 @@ import {
   handleWebRtcConsumerSetLayers,
   handleWebRtcInitializeRouter,
   handleWebRtcPauseConsumer,
-  handleWebRtcPauseProducer,
   handleWebRtcProduceData,
   handleWebRtcReceiveTrack,
   handleWebRtcRequestCurrentProducers,
   handleWebRtcResumeConsumer,
-  handleWebRtcResumeProducer,
   handleWebRtcSendTrack,
   handleWebRtcTransportClose,
   handleWebRtcTransportConnect,
@@ -212,12 +210,12 @@ export const setupSocketFunctions = async (app: Application, spark: any) => {
           case MessageTypes.WebRTCConsumerSetLayers.toString():
             handleWebRtcConsumerSetLayers(network, spark, peerID, data, id)
             break
-          case MessageTypes.WebRTCResumeProducer.toString():
-            handleWebRtcResumeProducer(network, spark, peerID, data, id)
-            break
-          case MessageTypes.WebRTCPauseProducer.toString():
-            handleWebRtcPauseProducer(network, spark, peerID, data, id)
-            break
+          // case MessageTypes.WebRTCResumeProducer.toString():
+          //   handleWebRtcResumeProducer(network, spark, peerID, data, id)
+          //   break
+          // case MessageTypes.WebRTCPauseProducer.toString():
+          //   handleWebRtcPauseProducer(network, spark, peerID, data, id)
+          //   break
           case MessageTypes.WebRTCRequestCurrentProducers.toString():
             handleWebRtcRequestCurrentProducers(network, spark, peerID, data, id)
             break

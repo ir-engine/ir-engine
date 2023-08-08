@@ -80,6 +80,7 @@ import { Action, Topic } from '@etherealengine/hyperflux/functions/ActionFunctio
 
 import { ChannelID } from '@etherealengine/common/src/interfaces/ChannelUser'
 import { DataChannelType } from '@etherealengine/common/src/interfaces/DataChannelType'
+import { ProducerActions } from '@etherealengine/engine/src/networking/systems/ProducerConsumerState'
 import {
   LocationInstanceConnectionAction,
   LocationInstanceConnectionService,
@@ -598,20 +599,6 @@ export async function onConnectToMediaInstance(network: SocketWebRTCClientNetwor
     }
   }
 
-  function webRTCCreateProducerHandler({
-    peerID,
-    mediaTag,
-    producerId,
-    channelId
-  }: {
-    peerID: PeerID
-    mediaTag: MediaTagType
-    producerId: string
-    channelId: ChannelID
-  }) {
-    // subscribeToTrack(network as SocketWebRTCClientNetwork, peerID, mediaTag, producerId, channelId)
-  }
-
   async function reconnectHandler() {
     dispatchAction(NetworkConnectionService.actions.mediaInstanceReconnected({}))
     network.reconnecting = false
@@ -661,9 +648,6 @@ export async function onConnectToMediaInstance(network: SocketWebRTCClientNetwor
   async function producerConsumerHandler(message) {
     const { type, data } = message
     switch (type) {
-      case MessageTypes.WebRTCCreateProducer.toString():
-        webRTCCreateProducerHandler(data)
-        break
       case MessageTypes.WebRTCPauseConsumer.toString():
         webRTCPauseConsumerHandler(data)
         break
@@ -1028,7 +1012,7 @@ export async function createCamVideoProducer(network: SocketWebRTCClientNetwork)
       })
       if (mediaStreamState.videoPaused.value) await mediaStreamState.camVideoProducer.value!.pause()
       else if (mediaStreamState.camVideoProducer.value)
-        await resumeProducer(network, mediaStreamState.camVideoProducer.value!)
+        resumeProducer(network, mediaStreamState.camVideoProducer.value!)
     } catch (err) {
       logger.error(err, 'Error producing video')
     }
@@ -1091,7 +1075,7 @@ export async function createCamAudioProducer(network: SocketWebRTCClientNetwork)
 
       if (mediaStreamState.audioPaused.value) mediaStreamState.camAudioProducer.value!.pause()
       else if (mediaStreamState.camAudioProducer.value)
-        await resumeProducer(network, mediaStreamState.camAudioProducer.value!)
+        resumeProducer(network, mediaStreamState.camAudioProducer.value!)
     } catch (err) {
       logger.error(err, 'Error producing video')
     }
@@ -1303,35 +1287,48 @@ export async function resumeConsumer(network: SocketWebRTCClientNetwork, consume
     await consumer.resume()
 }
 
-export async function pauseProducer(network: SocketWebRTCClientNetwork, producer: ProducerExtension) {
-  await promisedRequest(network, MessageTypes.WebRTCPauseProducer.toString(), {
-    producerId: producer.id
-  })
-
-  if (producer && typeof producer.pause === 'function' && !producer.closed && !(producer as any)._closed)
-    await producer.pause()
+export function pauseProducer(network: SocketWebRTCClientNetwork, producer: ProducerExtension) {
+  dispatchAction(
+    ProducerActions.producerPaused({
+      producerId: producer.id,
+      globalMute: false,
+      paused: true,
+      $topic: network.topic
+    })
+  )
 }
 
-export async function resumeProducer(network: SocketWebRTCClientNetwork, producer: ProducerExtension) {
-  await promisedRequest(network, MessageTypes.WebRTCResumeProducer.toString(), {
-    producerId: producer.id
-  })
-
-  if (producer && typeof producer.resume === 'function' && !producer.closed && !(producer as any)._closed)
-    await producer.resume()
+export function resumeProducer(network: SocketWebRTCClientNetwork, producer: ProducerExtension) {
+  dispatchAction(
+    ProducerActions.producerPaused({
+      producerId: producer.id,
+      globalMute: false,
+      paused: false,
+      $topic: network.topic
+    })
+  )
 }
 
-export async function globalMuteProducer(network: SocketWebRTCClientNetwork, producer: { id: any }) {
-  await promisedRequest(network, MessageTypes.WebRTCPauseProducer.toString(), {
-    producerId: producer.id,
-    globalMute: true
-  })
+export function globalMuteProducer(network: SocketWebRTCClientNetwork, producer: { id: any }) {
+  dispatchAction(
+    ProducerActions.producerPaused({
+      producerId: producer.id,
+      globalMute: true,
+      paused: true,
+      $topic: network.topic
+    })
+  )
 }
 
-export async function globalUnmuteProducer(network: SocketWebRTCClientNetwork, producer: { id: any }) {
-  await promisedRequest(network, MessageTypes.WebRTCResumeProducer.toString(), {
-    producerId: producer.id
-  })
+export function globalUnmuteProducer(network: SocketWebRTCClientNetwork, producer: { id: any }) {
+  dispatchAction(
+    ProducerActions.producerPaused({
+      producerId: producer.id,
+      globalMute: false,
+      paused: false,
+      $topic: network.topic
+    })
+  )
 }
 
 export async function closeConsumer(network: SocketWebRTCClientNetwork, consumer: ConsumerExtension) {
@@ -1406,8 +1403,8 @@ export const toggleMicrophonePaused = async () => {
     if (!mediaStreamState.camAudioProducer.value) await createCamAudioProducer(mediaNetwork)
     else {
       const audioPaused = mediaStreamState.audioPaused.value
-      if (audioPaused) await resumeProducer(mediaNetwork, mediaStreamState.camAudioProducer.value!)
-      else await pauseProducer(mediaNetwork, mediaStreamState.camAudioProducer.value!)
+      if (audioPaused) resumeProducer(mediaNetwork, mediaStreamState.camAudioProducer.value!)
+      else pauseProducer(mediaNetwork, mediaStreamState.camAudioProducer.value!)
       mediaStreamState.audioPaused.set(!audioPaused)
       checkEndVideoChat()
     }
@@ -1421,8 +1418,8 @@ export const toggleWebcamPaused = async () => {
     if (!mediaStreamState.camVideoProducer.value) await createCamVideoProducer(mediaNetwork)
     else {
       const videoPaused = mediaStreamState.videoPaused.value
-      if (videoPaused) await resumeProducer(mediaNetwork, mediaStreamState.camVideoProducer.value!)
-      else await pauseProducer(mediaNetwork, mediaStreamState.camVideoProducer.value!)
+      if (videoPaused) resumeProducer(mediaNetwork, mediaStreamState.camVideoProducer.value!)
+      else pauseProducer(mediaNetwork, mediaStreamState.camVideoProducer.value!)
       mediaStreamState.videoPaused.set(!videoPaused)
     }
   }
@@ -1439,8 +1436,8 @@ export const toggleScreenshareAudioPaused = async () => {
   const mediaStreamState = getMutableState(MediaStreamState)
   const mediaNetwork = Engine.instance.mediaNetwork as SocketWebRTCClientNetwork
   const audioPaused = mediaStreamState.screenShareAudioPaused.value
-  if (audioPaused) await resumeProducer(mediaNetwork, mediaStreamState.screenAudioProducer.value!)
-  else await pauseProducer(mediaNetwork, mediaStreamState.screenAudioProducer.value!)
+  if (audioPaused) resumeProducer(mediaNetwork, mediaStreamState.screenAudioProducer.value!)
+  else pauseProducer(mediaNetwork, mediaStreamState.screenAudioProducer.value!)
   mediaStreamState.screenShareAudioPaused.set(!audioPaused)
 }
 

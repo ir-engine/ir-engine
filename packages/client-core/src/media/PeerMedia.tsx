@@ -36,8 +36,9 @@ import {
   webcamAudioDataChannelType,
   webcamVideoDataChannelType
 } from '@etherealengine/engine/src/networking/NetworkState'
-import { getMutableState, getState, useHookstate } from '@etherealengine/hyperflux'
+import { getMutableState, getState, NO_PROXY, useHookstate } from '@etherealengine/hyperflux'
 
+import { ProducerConsumerState } from '@etherealengine/engine/src/networking/systems/ProducerConsumerState'
 import { useMediaNetwork } from '../common/services/MediaInstanceConnectionService'
 import { MediaStreamState } from '../transports/MediaStreams'
 import {
@@ -72,6 +73,9 @@ const PeerMedia = (props: {
   const network = Engine.instance.mediaNetwork as SocketWebRTCClientNetwork
   const isSelf = props.peerID === Engine.instance.peerID
 
+  const producerConsumerState = useHookstate(getMutableState(ProducerConsumerState))
+  const producerNetworkState = producerConsumerState[network.hostId].producers
+
   const peerMediaChannelState = useHookstate(getMutableState(PeerMediaChannelState)[peerID][type])
 
   const { videoStream, audioStream, videoElement, audioElement } = peerMediaChannelState.value
@@ -86,7 +90,7 @@ const PeerMedia = (props: {
     else if (consumerId === audioStream?.id) peerMediaChannelState.audioStreamPaused.set(false)
   }
 
-  const pauseProducerListener = ({ producerId, globalMute }: { producerId: string; globalMute: boolean }) => {
+  const pauseProducerListener = ({ producerId, globalMute }: { producerId: string; globalMute?: boolean }) => {
     if (producerId === videoStream?.id && globalMute) {
       peerMediaChannelState.videoProducerPaused.set(true)
       peerMediaChannelState.videoProducerGlobalMute.set(true)
@@ -147,6 +151,17 @@ const PeerMedia = (props: {
       }
     }
   }
+
+  useEffect(() => {
+    if (!producerNetworkState?.value) return
+    for (const [producerId, producer] of Object.entries(producerNetworkState.get(NO_PROXY))) {
+      if (producer.paused) {
+        pauseProducerListener({ producerId, globalMute: producer.globalMute })
+      } else {
+        resumeProducerListener(producerId)
+      }
+    }
+  }, [producerNetworkState])
 
   const closeProducerListener = (producerId: string) => {
     if (producerId === videoStream?.id) {
@@ -231,12 +246,12 @@ const PeerMedia = (props: {
             case MessageTypes.WebRTCResumeConsumer.toString():
               resumeConsumerListener(data)
               break
-            case MessageTypes.WebRTCPauseProducer.toString():
-              pauseProducerListener(data)
-              break
-            case MessageTypes.WebRTCResumeProducer.toString():
-              resumeProducerListener(data)
-              break
+            // case MessageTypes.WebRTCPauseProducer.toString():
+            //   pauseProducerListener(data)
+            //   break
+            // case MessageTypes.WebRTCResumeProducer.toString():
+            //   resumeProducerListener(data)
+            //   break
             case MessageTypes.WebRTCCloseProducer.toString():
               closeProducerListener(data)
               break

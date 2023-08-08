@@ -181,17 +181,6 @@ export const sendCurrentProducers = async (
 
     for (const [dataChannel, peerMedia] of Object.entries(client.media)) {
       if (peerMedia.channelId !== channelId || peerMedia.paused) continue
-      // logger.info(`Sending producer ${peerMedia.producerId} to peer "${peerID}".`)
-      // spark.write({
-      //   type: MessageTypes.WebRTCCreateProducer.toString(),
-      //   data: {
-      //     peerID,
-      //     mediaTag: dataChannel,
-      //     producerId: peerMedia.producerId,
-      //     channelId
-      //   }
-      // })
-
       dispatchAction(
         ProducerActions.createProducer({
           peerID,
@@ -797,19 +786,6 @@ export async function handleWebRtcSendTrack(
         $topic: network.topic
       })
     )
-    // for (const [clientPeerID, client] of network.peers) {
-    //   if (clientPeerID !== peerID && client.spark) {
-    //     client.spark.write({
-    //       type: MessageTypes.WebRTCCreateProducer.toString(),
-    //       data: {
-    //         peerID,
-    //         mediaTag: appData.mediaTag,
-    //         producerId: producer.id,
-    //         channelId: appData.channelId
-    //       }
-    //     })
-    //   }
-    // }
     spark.write({ type: MessageTypes.WebRTCSendTrack.toString(), data: { id: producer.id }, id: messageId })
   } catch (err) {
     logger.error(err, 'Error with sendTrack.')
@@ -1007,27 +983,27 @@ export async function handleWebRtcResumeProducer(
   data,
   messageId: string
 ): Promise<any> {
-  const { producerId } = data
-  const producer = network.producers.find((p) => p.id === producerId)
-  logger.info('resume-producer: %o', producer?.appData)
-  if (producer) {
-    if (typeof producer.resume === 'function' && !producer.closed && !(producer as any)._closed) await producer.resume()
-    // await producer.resume();
-    if (peerID && network.peers.has(peerID)) {
-      network.peers.get(peerID)!.media![producer.appData.mediaTag as any].paused = false
-      network.peers.get(peerID)!.media![producer.appData.mediaTag as any].globalMute = false
-      // const hostClient = Array.from(network.peers.entries()).find(([, client]) => {
-      //   return client.media && client.media![producer.appData.mediaTag as any]?.producerId === producerId
-      // })!
-      // if (hostClient && hostClient[1])
-      //   hostClient[1].spark!.write({ type: MessageTypes.WebRTCResumeProducer.toString(), data: producer.id })
-    }
-    for (const [, client] of network.peers) {
-      if (client && client.spark)
-        client.spark.write({ type: MessageTypes.WebRTCResumeProducer.toString(), data: producer.id })
-    }
-  }
-  spark.write({ type: MessageTypes.WebRTCResumeProducer.toString(), data: producer.id, id: messageId })
+  // const { producerId } = data
+  // const producer = network.producers.find((p) => p.id === producerId)
+  // logger.info('resume-producer: %o', producer?.appData)
+  // if (producer) {
+  //   if (typeof producer.resume === 'function' && !producer.closed && !(producer as any)._closed) await producer.resume()
+  //   // await producer.resume();
+  //   if (peerID && network.peers.has(peerID)) {
+  //     network.peers.get(peerID)!.media![producer.appData.mediaTag as any].paused = false
+  //     network.peers.get(peerID)!.media![producer.appData.mediaTag as any].globalMute = false
+  //     // const hostClient = Array.from(network.peers.entries()).find(([, client]) => {
+  //     //   return client.media && client.media![producer.appData.mediaTag as any]?.producerId === producerId
+  //     // })!
+  //     // if (hostClient && hostClient[1])
+  //     //   hostClient[1].spark!.write({ type: MessageTypes.WebRTCResumeProducer.toString(), data: producer.id })
+  //   }
+  //   for (const [, client] of network.peers) {
+  //     if (client && client.spark)
+  //       client.spark.write({ type: MessageTypes.WebRTCResumeProducer.toString(), data: producer.id })
+  //   }
+  // }
+  // spark.write({ type: MessageTypes.WebRTCResumeProducer.toString(), data: producer.id, id: messageId })
 }
 
 export async function handleWebRtcPauseProducer(
@@ -1037,28 +1013,28 @@ export async function handleWebRtcPauseProducer(
   data,
   messageId: string
 ): Promise<any> {
-  const { producerId, globalMute } = data
-  const producer = network.producers.find((p) => p.id === producerId)
-  if (producer) {
-    if (typeof producer.pause === 'function' && !producer.closed && !(producer as any)._closed) await producer.pause()
-    if (peerID && network.peers.has(peerID) && network.peers.get(peerID)!.media![producer.appData.mediaTag as any]) {
-      network.peers.get(peerID)!.media![producer.appData.mediaTag as any].paused = true
-      network.peers.get(peerID)!.media![producer.appData.mediaTag as any].globalMute = globalMute || false
-      // const hostClient = Array.from(network.peers.entries()).find(([, client]) => {
-      //   return client.media && client.media![producer.appData.mediaTag as any]?.producerId === producerId
-      // })!
-      // if (hostClient && hostClient[1])
-      //   hostClient[1].spark!.write({ type: MessageTypes.WebRTCPauseProducer.toString(), data: {producerId: producer.id, globalMute: true }})
-    }
-    for (const [, client] of network.peers) {
-      if (client && client.spark)
-        client.spark.write({
-          type: MessageTypes.WebRTCPauseProducer.toString(),
-          data: { producerId: producer.id, globalMute: globalMute || false }
-        })
-    }
-  }
-  spark.write({ type: MessageTypes.WebRTCPauseProducer.toString(), data: { paused: true }, id: messageId })
+  // const { producerId, globalMute } = data
+  // const producer = network.producers.find((p) => p.id === producerId)
+  // if (producer) {
+  //   if (typeof producer.pause === 'function' && !producer.closed && !(producer as any)._closed) await producer.pause()
+  //   if (peerID && network.peers.has(peerID) && network.peers.get(peerID)!.media![producer.appData.mediaTag as any]) {
+  //     network.peers.get(peerID)!.media![producer.appData.mediaTag as any].paused = true
+  //     network.peers.get(peerID)!.media![producer.appData.mediaTag as any].globalMute = globalMute || false
+  //     // const hostClient = Array.from(network.peers.entries()).find(([, client]) => {
+  //     //   return client.media && client.media![producer.appData.mediaTag as any]?.producerId === producerId
+  //     // })!
+  //     // if (hostClient && hostClient[1])
+  //     //   hostClient[1].spark!.write({ type: MessageTypes.WebRTCPauseProducer.toString(), data: {producerId: producer.id, globalMute: true }})
+  //   }
+  //   for (const [, client] of network.peers) {
+  //     if (client && client.spark)
+  //       client.spark.write({
+  //         type: MessageTypes.WebRTCPauseProducer.toString(),
+  //         data: { producerId: producer.id, globalMute: globalMute || false }
+  //       })
+  //   }
+  // }
+  // spark.write({ type: MessageTypes.WebRTCPauseProducer.toString(), data: { paused: true }, id: messageId })
 }
 
 export async function handleWebRtcRequestCurrentProducers(

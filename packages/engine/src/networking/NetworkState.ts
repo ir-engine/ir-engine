@@ -86,9 +86,11 @@ export type MediaStreamAppData = {
 }
 
 export type PeerMediaType = {
+  /** @deprecated - use ProducersConsumerState instead */
   paused: boolean
-  producerId: string
+  /** @deprecated - use ProducersConsumerState instead */
   globalMute: boolean
+  producerId: string
   encodings: Array<{
     mimeType: 'video/rtx' | 'video/vp8' | 'video/h264' | 'video/vp9' | 'audio/opus' | 'audio/pcmu' | 'audio/pcma'
     payloadType: number
