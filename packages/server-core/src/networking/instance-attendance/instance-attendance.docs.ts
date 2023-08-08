@@ -23,38 +23,24 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-/**
- * An object for swagger documentation configuration
- */
+import { createSwaggerServiceOptions } from 'feathers-swagger'
 
-export default {
-  definitions: {
-    instance: {
-      type: 'object',
-      properties: {
-        sceneId: {
-          type: 'string'
-        },
-        ended: {
-          type: 'boolean'
-        },
-        instanceId: {
-          type: 'string'
-        },
-        userId: {
-          type: 'string'
-        }
-      }
-    },
-    instance_list: {
-      type: 'array',
-      items: { $ref: '#/definitions/instance-attendance' }
-    }
+import {
+  instanceAttendanceDataSchema,
+  instanceAttendancePatchSchema,
+  instanceAttendanceQuerySchema,
+  instanceAttendanceSchema
+} from '@etherealengine/engine/src/schemas/networking/instance-attendance.schema'
+
+export default createSwaggerServiceOptions({
+  schemas: {
+    instanceAttendanceDataSchema,
+    instanceAttendancePatchSchema,
+    instanceAttendanceQuerySchema,
+    instanceAttendanceSchema
   },
-  securities: ['create', 'update', 'patch', 'remove'],
-  operations: {
-    find: {
-      security: [{ bearer: [] }]
-    }
+  docs: {
+    description: 'Instance attendance service description',
+    securities: ['all']
   }
-}
+})
