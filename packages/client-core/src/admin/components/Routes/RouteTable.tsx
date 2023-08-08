@@ -23,18 +23,17 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React, { ChangeEvent, useEffect } from 'react'
+import React, { ChangeEvent } from 'react'
 
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { useHookstate } from '@etherealengine/hyperflux'
 import Box from '@etherealengine/ui/src/primitives/mui/Box'
 import Checkbox from '@etherealengine/ui/src/primitives/mui/Checkbox'
 import CircularProgress from '@etherealengine/ui/src/primitives/mui/CircularProgress'
 
-import { useFind } from '@etherealengine/engine/src/common/functions/FeathersHooks'
-import { AuthState } from '../../../user/services/AuthService'
+import { useFind, useMutation } from '@etherealengine/engine/src/common/functions/FeathersHooks'
+import { routePath } from '@etherealengine/engine/src/schemas/route/route.schema'
 import TableComponent from '../../common/Table'
 import { routeColumns } from '../../common/variables/route'
-import { AdminActiveRouteService, AdminActiveRouteState } from '../../services/ActiveRouteService'
 import styles from '../../styles/admin.module.scss'
 
 const ROUTE_PAGE_LIMIT = 1000
@@ -48,43 +47,28 @@ const RouteTable = ({ className }: Props) => {
   const rowsPerPage = useHookstate(ROUTE_PAGE_LIMIT)
   const processing = useHookstate(false)
 
-  const authState = useHookstate(getMutableState(AuthState))
-  const user = authState.user
-
   const installedRouteData = useFind('routes-installed').data
-
-  const adminActiveRouteState = useHookstate(getMutableState(AdminActiveRouteState))
-  const activeRouteData = adminActiveRouteState.activeRoutes
-  const adminRouteCount = adminActiveRouteState.total
-
-  const handlePageChange = (event: unknown, newPage: number) => {
-    const incDec = page.value < newPage ? 'increment' : 'decrement'
-    AdminActiveRouteService.fetchActiveRoutes(incDec)
-    page.set(newPage)
-  }
-
-  useEffect(() => {
-    if (user?.id?.value) {
-      AdminActiveRouteService.fetchActiveRoutes()
-    }
-  }, [authState.user?.id?.value])
-
-  useEffect(() => {
-    AdminActiveRouteService.fetchActiveRoutes()
-  }, [])
+  const routesQuery = useFind(routePath, {
+    query: { $skip: rowsPerPage.value * page.value, $limit: rowsPerPage.value }
+  })
+  const routeActivateCreate = useMutation('route-activate').create
 
   const handleRowsPerPageChange = (event: ChangeEvent<HTMLInputElement>) => {
     rowsPerPage.set(+event.target.value)
     page.set(0)
   }
 
+  const handlePageChange = (event: unknown, newPage: number) => {
+    page.set(newPage)
+  }
+
   const isRouteActive = (project: string, route: string) =>
-    activeRouteData.findIndex((a) => {
-      return a.project.value === project && a.route.value === route
+    routesQuery.data.findIndex((a) => {
+      return a.project === project && a.route === route
     }) !== -1
 
   const activateCallback = (project: string, route: string, checked: boolean) => {
-    AdminActiveRouteService.setRouteActive(project, route, checked)
+    routeActivateCreate({ project, route, activate: checked })
   }
 
   const installedRoutes = installedRouteData
@@ -116,7 +100,7 @@ const RouteTable = ({ className }: Props) => {
         column={routeColumns}
         page={page.value}
         rowsPerPage={rowsPerPage.value}
-        count={adminRouteCount.value}
+        count={routesQuery.total!}
         handlePageChange={handlePageChange}
         handleRowsPerPageChange={handleRowsPerPageChange}
       />
