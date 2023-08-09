@@ -132,7 +132,11 @@ export default (app: Application): void => {
             initProcess.once('disconnect', resolve)
             initProcess.stdout.on('data', (data) => console.log(data.toString()))
           })
-            .then(console.log)
+            .then((exitCode) => {
+              if (exitCode !== 0) {
+                throw new Error(`Knex migration exited with: ${exitCode}`)
+              }
+            })
             .catch((err) => {
               logger.error('Knex migration error')
               logger.error(err)
