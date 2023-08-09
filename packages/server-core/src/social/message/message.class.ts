@@ -31,14 +31,14 @@ import { Message as MessageInterface } from '@etherealengine/engine/src/schemas/
 
 import { ChannelID } from '@etherealengine/common/src/dbmodels/Channel'
 import { instanceAttendancePath } from '@etherealengine/engine/src/schemas/networking/instance-attendance.schema'
-import { UserId, UserType, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { UserID, UserType, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Knex } from 'knex'
 import { Application } from '../../../declarations'
 import { UserParams } from '../../api/root-params'
 
 export interface MessageParams extends UserParams {
   'identity-provider': {
-    userId: UserId
+    userId: UserID
   }
 }
 

@@ -32,7 +32,7 @@ import { SocketWebRTCServerNetwork } from './SocketWebRTCServerFunctions'
 
 export async function validateNetworkObjects(network: SocketWebRTCServerNetwork): Promise<void> {
   for (const [peerID, client] of network.peers) {
-    if (client.userId === Engine.instance.userId) continue
+    if (client.userId === Engine.instance.userID) continue
     if (Date.now() - client.lastSeenTs > 5000) {
       NetworkPeerFunctions.destroyPeer(network, peerID)
       updatePeers(network)

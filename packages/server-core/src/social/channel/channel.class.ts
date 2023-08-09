@@ -30,7 +30,7 @@ import { Channel as ChannelInterface } from '@etherealengine/engine/src/schemas/
 import { ChannelUser } from '@etherealengine/engine/src/schemas/interfaces/ChannelUser'
 
 import { ChannelID } from '@etherealengine/common/src/dbmodels/Channel'
-import { UserId, UserType, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { UserID, UserType, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Op, Sequelize } from 'sequelize'
 import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
@@ -40,8 +40,8 @@ import { checkScope } from '../../hooks/verify-scope'
 export type ChannelDataType = ChannelInterface
 
 export type ChannelCreateType = {
-  users?: UserId[]
-  userId?: UserId
+  users?: UserID[]
+  userId?: UserID
   instanceId?: string // InstanceID
 }
 

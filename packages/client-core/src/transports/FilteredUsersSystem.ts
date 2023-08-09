@@ -27,7 +27,7 @@ import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { defineSystem } from '@etherealengine/engine/src/ecs/functions/SystemFunctions'
 import { MessageTypes } from '@etherealengine/engine/src/networking/enums/MessageTypes'
 import { getNearbyUsers } from '@etherealengine/engine/src/networking/functions/getNearbyUsers'
-import { UserId } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { defineState, getMutableState, getState } from '@etherealengine/hyperflux'
 
 import { MediaInstanceState } from '../common/services/MediaInstanceConnectionService'
@@ -37,7 +37,7 @@ import { closeConsumer, promisedRequest, SocketWebRTCClientNetwork } from './Soc
 export const FilteredUsersState = defineState({
   name: 'FilteredUsersState',
   initial: () => ({
-    nearbyLayerUsers: [] as UserId[]
+    nearbyLayerUsers: [] as UserID[]
   })
 })
 
@@ -51,7 +51,7 @@ export const FilteredUsersService = {
     const worldUserIds = peers
       ? peers.filter((peer) => peer.peerID !== 'server' && peer.userId !== selfUserId).map((peer) => peer.userId)
       : []
-    const nearbyUsers = getNearbyUsers(Engine.instance.userId, worldUserIds)
+    const nearbyUsers = getNearbyUsers(Engine.instance.userID, worldUserIds)
     mediaState.nearbyLayerUsers.set(nearbyUsers)
   }
 }

@@ -55,7 +55,7 @@ import getLocalServerIp from '@etherealengine/server-core/src/util/get-local-ser
 import { DataChannelType } from '@etherealengine/common/src/interfaces/DataChannelType'
 import { NetworkObjectComponent } from '@etherealengine/engine/src/networking/components/NetworkObjectComponent'
 import { instanceAuthorizedUserPath } from '@etherealengine/engine/src/schemas/networking/instance-authorized-user.schema'
-import { UserId, userPath, UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { UserID, userPath, UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { InstanceServerState } from './InstanceServerState'
 import { SocketWebRTCServerNetwork } from './SocketWebRTCServerFunctions'
 import { closeTransport } from './WebRTCFunctions'
@@ -147,7 +147,7 @@ export async function cleanupOldInstanceservers(app: Application): Promise<void>
  * @param userId
  * @returns
  */
-export const authorizeUserToJoinServer = async (app: Application, instance: Instance, userId: UserId) => {
+export const authorizeUserToJoinServer = async (app: Application, instance: Instance, userId: UserID) => {
   const authorizedUsers = (await app.service(instanceAuthorizedUserPath).find({
     query: {
       instanceId: instance.id,
@@ -245,7 +245,7 @@ export async function handleJoinWorld(
   peerID: PeerID,
   data: JoinWorldRequestData,
   messageId: string,
-  userId: UserId,
+  userId: UserID,
   user: UserType
 ) {
   logger.info('Connect to world from ' + userId)
@@ -302,7 +302,7 @@ const getUserSpawnFromInvite = async (
           bothOnSameInstance = true
       }
       if (bothOnSameInstance) {
-        const selfAvatarEntity = NetworkObjectComponent.getUserAvatarEntity(user.id as UserId)
+        const selfAvatarEntity = NetworkObjectComponent.getUserAvatarEntity(user.id as UserID)
         if (!selfAvatarEntity) {
           if (iteration >= 100) {
             logger.warn(
@@ -313,7 +313,7 @@ const getUserSpawnFromInvite = async (
           return setTimeout(() => getUserSpawnFromInvite(network, user, inviteCode, iteration + 1), 50)
         }
         const inviterUserId = inviterUser.id
-        const inviterUserAvatarEntity = NetworkObjectComponent.getUserAvatarEntity(inviterUserId as UserId)
+        const inviterUserAvatarEntity = NetworkObjectComponent.getUserAvatarEntity(inviterUserId as UserID)
         if (!inviterUserAvatarEntity) {
           if (iteration >= 100) {
             logger.warn(
@@ -365,7 +365,7 @@ export async function handleHeartbeat(network: SocketWebRTCServerNetwork, spark:
 }
 
 export async function handleDisconnect(network: SocketWebRTCServerNetwork, spark: Spark, peerID: PeerID): Promise<any> {
-  const userId = getUserIdFromPeerID(network, peerID) as UserId
+  const userId = getUserIdFromPeerID(network, peerID) as UserID
   const disconnectedClient = network.peers.get(peerID)
   if (!disconnectedClient) return logger.warn(`Tried to handle disconnect for peer ${peerID} but was not found`)
   // On local, new connections can come in before the old sockets are disconnected.

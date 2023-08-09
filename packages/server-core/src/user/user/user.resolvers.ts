@@ -27,7 +27,7 @@ Ethereal Engine. All Rights Reserved.
 import { resolve, virtual } from '@feathersjs/schema'
 import { v4 } from 'uuid'
 
-import { UserId, UserQuery, UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { UserID, UserQuery, UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
 import type { HookContext } from '@etherealengine/server-core/declarations'
 
 import {
@@ -135,7 +135,7 @@ export const userExternalResolver = resolve<UserType, HookContext>({
 
 export const userDataResolver = resolve<UserType, HookContext>({
   id: async (id) => {
-    return id || (v4() as UserId)
+    return id || (v4() as UserID)
   },
   name: async (name) => {
     return name || 'Guest #' + Math.floor(Math.random() * (999 - 100 + 1) + 100)

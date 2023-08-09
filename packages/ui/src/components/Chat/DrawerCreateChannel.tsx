@@ -30,17 +30,17 @@ import { ChannelService } from '@etherealengine/client-core/src/social/services/
 import { FriendService, FriendState } from '@etherealengine/client-core/src/social/services/FriendService'
 import { useUserAvatarThumbnail } from '@etherealengine/client-core/src/user/functions/useUserAvatarThumbnail'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { UserId } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { NO_PROXY, getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
 export const DrawerCreateChannel = () => {
   const friendState = useHookstate(getMutableState(FriendState))
 
   useEffect(() => {
-    FriendService.getUserRelationship(Engine.instance.userId)
+    FriendService.getUserRelationship(Engine.instance.userID)
   }, [])
 
-  const selectedFriends = useHookstate<UserId[]>([])
+  const selectedFriends = useHookstate<UserID[]>([])
 
   const friends = friendState.relationships.friend.value.map((friend) => {
     return {

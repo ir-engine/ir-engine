@@ -30,7 +30,7 @@ import { Mesh, MeshNormalMaterial, Quaternion, SphereGeometry, Vector3 } from 't
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { NetworkId } from '@etherealengine/common/src/interfaces/NetworkId'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
-import { UserId } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import {
   applyIncomingActions,
   clearOutgoingActions,
@@ -77,7 +77,7 @@ describe.skip('EquippableSystem Integration Tests', () => {
     const item = createEntity()
 
     addComponent(player, NetworkObjectComponent, {
-      ownerId: Engine.instance.userId,
+      ownerId: Engine.instance.userID,
       authorityPeerID: 'peer id' as PeerID,
       networkId: 0 as NetworkId
     })
@@ -85,17 +85,17 @@ describe.skip('EquippableSystem Integration Tests', () => {
 
     dispatchAction(
       AvatarNetworkAction.spawn({
-        $from: Engine.instance.userId,
+        $from: Engine.instance.userID,
         networkId: networkObject.networkId,
         position: new Vector3(-0.48624888685311896, 0, -0.12087574159728942),
         rotation: new Quaternion(),
-        entityUUID: Engine.instance.userId as string as EntityUUID
+        entityUUID: Engine.instance.userID as string as EntityUUID
       })
     )
     applyIncomingActions()
     receiveActions(EntityNetworkState)
 
-    spawnAvatarReceptor(Engine.instance.userId as string as EntityUUID)
+    spawnAvatarReceptor(Engine.instance.userID as string as EntityUUID)
 
     addComponent(item, GrabbedComponent, {
       grabberEntity: player,
@@ -127,7 +127,7 @@ describe.skip('EquippableSystem Integration Tests', () => {
   })
 
   it('Can equip and unequip', async () => {
-    const hostUserId = 'world' as UserId & PeerID
+    const hostUserId = 'world' as UserID & PeerID
     ;(Engine.instance.worldNetwork as Network).hostId = hostUserId
     const hostIndex = 0
 
@@ -138,10 +138,10 @@ describe.skip('EquippableSystem Integration Tests', () => {
       userIndex: hostIndex
     })
 
-    const userId = 'user id' as UserId
+    const userId = 'user id' as UserID
     const userName = 'user name'
     const userIndex = 1
-    Engine.instance.userId = userId
+    Engine.instance.userID = userId
 
     const grabbableEntity = createEntity()
 

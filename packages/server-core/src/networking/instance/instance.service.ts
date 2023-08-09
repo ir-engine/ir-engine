@@ -31,7 +31,7 @@ import { locationPath, LocationType } from '@etherealengine/engine/src/schemas/s
 import { AdminScope } from '@etherealengine/engine/src/schemas/interfaces/AdminScope'
 import { instanceAttendancePath } from '@etherealengine/engine/src/schemas/networking/instance-attendance.schema'
 import { scopePath } from '@etherealengine/engine/src/schemas/scope/scope.schema'
-import { UserId } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Knex } from 'knex'
 import { Application } from '../../../declarations'
 import { UserParams } from '../../api/root-params'
@@ -210,7 +210,7 @@ export default (app: Application) => {
       const targetIds = adminScopes.map((admin) => admin.userId)
       // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
       return await Promise.all(
-        targetIds.map((userId: UserId) =>
+        targetIds.map((userId: UserID) =>
           app.channel(`userIds/${userId}`).send({
             instance: data
           })

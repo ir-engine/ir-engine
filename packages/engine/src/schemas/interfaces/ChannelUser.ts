@@ -24,21 +24,21 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { ChannelID } from '@etherealengine/common/src/dbmodels/Channel'
-import { UserId } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { UserType } from '../user/user.schema'
 
 interface ChannelInterface {
   id: string
   name: string
   users: UserType[]
-  userIds: UserId[]
+  userIds: UserID[]
   instanceId: string
 }
 
 export type ChannelUser = {
   id: string
   isOwner: boolean
-  userId: UserId
+  userId: UserID
   user?: UserType
   channelId: ChannelID
   channel?: ChannelInterface

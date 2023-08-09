@@ -24,14 +24,14 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { ScopeTypeType } from '@etherealengine/engine/src/schemas/scope/scope-type.schema'
-import { UserId } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { UserType } from '../user/user.schema'
 
 export interface AdminScope {
   id: string
   createdAt: string
   updatedAt: string
-  userId?: UserId
+  userId?: UserID
   type: string
   scopeType?: ScopeTypeType
   user?: UserType

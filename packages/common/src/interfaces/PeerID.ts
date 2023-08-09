@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { UserId } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { OpaqueType } from './OpaqueType'
 
 export type PeerID = OpaqueType<'PeerID'> & string
@@ -31,7 +31,7 @@ export type PeerID = OpaqueType<'PeerID'> & string
 export type PeersUpdateType = {
   peerID: PeerID
   peerIndex: number
-  userID: UserId
+  userID: UserID
   userIndex: number
   name: string
 }

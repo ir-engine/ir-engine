@@ -23,14 +23,14 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { UserId } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 
 import { AdminScope } from '@etherealengine/engine/src/schemas/interfaces/AdminScope'
 import { scopePath } from '@etherealengine/engine/src/schemas/scope/scope.schema'
 import { Application } from '../../declarations'
 import { scopeTypeSeed } from '../scope/scope-type/scope-type.seed'
 
-export default async (app: Application, userId: UserId) => {
+export default async (app: Application, userId: UserID) => {
   const adminCount = (await app.service(scopePath)._find({
     query: {
       $select: ['id'],

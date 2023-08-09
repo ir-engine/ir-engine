@@ -74,7 +74,7 @@ import {
   receiveJoinWorld
 } from '@etherealengine/engine/src/networking/functions/receiveJoinWorld'
 import { Channel } from '@etherealengine/engine/src/schemas/interfaces/Channel'
-import { UserId } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { dispatchAction, getMutableState, getState, none, removeActionsForTopic } from '@etherealengine/hyperflux'
 import { Action, Topic } from '@etherealengine/hyperflux/functions/ActionFunctions'
 
@@ -185,7 +185,7 @@ export const closeNetwork = async (network: SocketWebRTCClientNetwork) => {
   network.primus = null!
 }
 
-export const initializeNetwork = (hostId: UserId, topic: Topic) => {
+export const initializeNetwork = (hostId: UserID, topic: Topic) => {
   const mediasoupDevice = new mediasoupClient.Device(
     getMutableState(EngineState).isBot.value ? { handlerName: 'Chrome74' } : undefined
   )

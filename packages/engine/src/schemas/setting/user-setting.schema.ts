@@ -36,7 +36,7 @@ export const userSettingSchema = Type.Object(
       format: 'uuid'
     }),
     themeModes: Type.Record(Type.String(), Type.String())
-    // userId: TypedString<UserId, 'uuid'>({
+    // userId: TypedString<UserID, 'uuid'>({
     //   format: 'uuid'
     // })
     // createdAt: Type.String({ format: 'date-time' }),

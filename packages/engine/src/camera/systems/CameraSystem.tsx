@@ -27,7 +27,7 @@ import React, { useEffect } from 'react'
 import { MathUtils, Matrix4, PerspectiveCamera, Raycaster, Vector3 } from 'three'
 
 import { deleteSearchParams } from '@etherealengine/common/src/utils/deleteSearchParams'
-import { UserId } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { defineActionQueue, dispatchAction, getMutableState, useHookstate } from '@etherealengine/hyperflux'
 
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
@@ -288,7 +288,7 @@ const execute = () => {
 
   for (const action of spectateUserActions()) {
     const cameraEntity = Engine.instance.cameraEntity
-    if (action.user) setComponent(cameraEntity, SpectatorComponent, { userId: action.user as UserId })
+    if (action.user) setComponent(cameraEntity, SpectatorComponent, { userId: action.user as UserID })
     else
       setComponent(cameraEntity, FlyControlComponent, {
         boostSpeed: 4,

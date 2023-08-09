@@ -45,12 +45,12 @@ export const userScopeSchema = Type.Pick(scopeSchema, ['type'], {
   $id: 'UserScope'
 })
 
-export type UserId = OpaqueType<'userId'> & string
+export type UserID = OpaqueType<'UserID'> & string
 
 // Main data model schema
 export const userSchema = Type.Object(
   {
-    id: TypedString<UserId, 'uuid'>({
+    id: TypedString<UserID, 'uuid'>({
       format: 'uuid'
     }),
     name: Type.String(),

@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { UserId } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { DataChannelType } from './DataChannelType'
 import { PeerID } from './PeerID'
 import { RecordingID } from './RecordingID'
@@ -31,7 +31,7 @@ import { StaticResourceInterface } from './StaticResourceInterface'
 
 export interface RecordingResult {
   id: RecordingID
-  userId: UserId
+  userId: UserID
   ended: boolean
   createdAt: string
   updatedAt: string

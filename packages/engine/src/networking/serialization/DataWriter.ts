@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { NetworkId } from '@etherealengine/common/src/interfaces/NetworkId'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
-import { UserId } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { getState } from '@etherealengine/hyperflux'
 
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
@@ -304,7 +304,7 @@ export const writeEntities = (v: ViewCursor, network: Network, entities: Entity[
   else v.cursor = 0 // nothing written
 }
 
-export const writeMetadata = (v: ViewCursor, network: Network, userId: UserId, peerID: PeerID) => {
+export const writeMetadata = (v: ViewCursor, network: Network, userId: UserID, peerID: PeerID) => {
   writeUint32(v, network.userIDToUserIndex.get(userId)!)
   writeUint32(v, network.peerIDToPeerIndex.get(peerID)!)
   writeFloat64(v, getState(EngineState).simulationTime)
@@ -313,7 +313,7 @@ export const writeMetadata = (v: ViewCursor, network: Network, userId: UserId, p
 export const createDataWriter = (size = 100000) => {
   const view = createViewCursor(new ArrayBuffer(size))
 
-  return (network: Network, userId: UserId, peerID: PeerID, entities: Entity[]) => {
+  return (network: Network, userId: UserID, peerID: PeerID, entities: Entity[]) => {
     writeMetadata(view, network, userId, peerID)
     writeEntities(view, network, entities)
     return sliceViewCursor(view)

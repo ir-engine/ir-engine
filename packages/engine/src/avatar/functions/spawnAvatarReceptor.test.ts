@@ -28,7 +28,7 @@ import { Quaternion, Vector3 } from 'three'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
-import { UserId } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import {
   applyIncomingActions,
   dispatchAction,
@@ -63,7 +63,7 @@ describe('spawnAvatarReceptor', () => {
     await Physics.load()
     Engine.instance.store.defaultDispatchDelay = () => 0
     getMutableState(PhysicsState).physicsWorld.set(Physics.createWorld())
-    Engine.instance.userId = 'user' as UserId
+    Engine.instance.userID = 'user' as UserID
     Engine.instance.peerID = 'peerID' as PeerID
   })
 
@@ -75,19 +75,19 @@ describe('spawnAvatarReceptor', () => {
     // mock entity to apply incoming unreliable updates to
     dispatchAction(
       AvatarNetworkAction.spawn({
-        $from: Engine.instance.userId,
+        $from: Engine.instance.userID,
         position: new Vector3(),
         rotation: new Quaternion(),
-        entityUUID: Engine.instance.userId as string as EntityUUID
+        entityUUID: Engine.instance.userID as string as EntityUUID
       })
     )
 
     applyIncomingActions()
     receiveActions(EntityNetworkState)
 
-    spawnAvatarReceptor(Engine.instance.userId as string as EntityUUID)
+    spawnAvatarReceptor(Engine.instance.userID as string as EntityUUID)
 
-    const entity = NetworkObjectComponent.getUserAvatarEntity(Engine.instance.userId)
+    const entity = NetworkObjectComponent.getUserAvatarEntity(Engine.instance.userID)
 
     assert(hasComponent(entity, TransformComponent))
     assert(hasComponent(entity, AvatarComponent))

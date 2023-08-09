@@ -28,7 +28,7 @@ import { Paginated } from '@feathersjs/feathers'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { defineState, getMutableState } from '@etherealengine/hyperflux'
 
-import { UserData, UserId, UserPatch, UserType, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { UserData, UserID, UserPatch, UserType, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { UserParams } from '@etherealengine/server-core/src/user/user/user.class'
 import { NotificationService } from '../../common/services/NotificationService'
 import { AuthService, AuthState } from '../../user/services/AuthService'
@@ -36,7 +36,7 @@ import { AuthService, AuthState } from '../../user/services/AuthService'
 export const USER_PAGE_LIMIT = 10
 
 export const UserSeed: UserType = {
-  id: '' as UserId,
+  id: '' as UserID,
   name: '',
   isGuest: true,
   avatarId: '',
@@ -44,7 +44,7 @@ export const UserSeed: UserType = {
     id: '',
     name: '',
     isPublic: true,
-    userId: '' as UserId,
+    userId: '' as UserID,
     modelResourceId: '',
     thumbnailResourceId: '',
     identifierName: '',
@@ -55,7 +55,7 @@ export const UserSeed: UserType = {
   apiKey: {
     id: '',
     token: '',
-    userId: '' as UserId,
+    userId: '' as UserID,
     createdAt: '',
     updatedAt: ''
   },
@@ -150,7 +150,7 @@ export const AdminUserService = {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
   },
-  patchUser: async (id: UserId, user: UserPatch) => {
+  patchUser: async (id: UserID, user: UserPatch) => {
     try {
       await Engine.instance.api.service(userPath).patch(id, user)
       getMutableState(AdminUserState).merge({

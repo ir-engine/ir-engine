@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { UserId } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 
 export interface VideoCreationForm {
   name: string
@@ -46,7 +46,7 @@ export interface VideoCreatedResponse {
   url: string
   description: string
   metadata: object
-  userId: UserId
+  userId: UserID
   mimeType: string
 }
 
@@ -56,7 +56,7 @@ export interface VideoUpdatedResponse {
   url: string
   description: string
   metadata: object
-  userId: UserId
+  userId: UserID
   mimeType: string
 }
 
@@ -66,6 +66,6 @@ export interface VideoDeletedResponse {
   url: string
   description: string
   metadata: object
-  userId: UserId
+  userId: UserID
   mimeType: string
 }

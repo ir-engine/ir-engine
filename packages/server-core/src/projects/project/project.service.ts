@@ -35,7 +35,7 @@ import { getState } from '@etherealengine/hyperflux'
 
 import { AdminScope } from '@etherealengine/engine/src/schemas/interfaces/AdminScope'
 import { scopePath } from '@etherealengine/engine/src/schemas/scope/scope.schema'
-import { UserId, UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { UserID, UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Application } from '../../../declarations'
 import { ServerState } from '../../ServerState'
 import { UserParams } from '../../api/root-params'
@@ -378,7 +378,7 @@ export default (app: Application): void => {
 
       targetIds = targetIds.concat(adminScopes.map((admin) => admin.userId!))
       targetIds = _.uniq(targetIds)
-      return Promise.all(targetIds.map((userId: UserId) => app.channel(`userIds/${userId}`).send(data)))
+      return Promise.all(targetIds.map((userId: UserID) => app.channel(`userIds/${userId}`).send(data)))
     } catch (err) {
       logger.error(err)
       throw err

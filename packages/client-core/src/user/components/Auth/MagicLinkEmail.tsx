@@ -39,7 +39,7 @@ import TextField from '@etherealengine/ui/src/primitives/mui/TextField'
 import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 
 import { authenticationSettingPath } from '@etherealengine/engine/src/schemas/setting/authentication-setting.schema'
-import { UserId } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { initialAuthState } from '../../../common/initialAuthState'
 import { AuthService, AuthState } from '../../services/AuthService'
 import styles from './index.module.scss'
@@ -95,7 +95,7 @@ const MagicLinkEmail = ({ type, isAddConnection }: Props): JSX.Element => {
     }
 
     const user = auth.user
-    const userId = user ? user.id.value : ('' as UserId)
+    const userId = user ? user.id.value : ('' as UserID)
     if (type === 'email') {
       AuthService.addConnectionByEmail(state.emailPhone.value, userId)
     } else {

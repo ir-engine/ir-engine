@@ -27,7 +27,7 @@ Ethereal Engine. All Rights Reserved.
 import type { Static } from '@feathersjs/typebox'
 import { querySyntax, Type } from '@feathersjs/typebox'
 
-import { UserId } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { TypedString } from '../../common/types/TypeboxUtils'
 import { staticResourceSchema } from '../media/static-resource.schema'
 
@@ -50,7 +50,7 @@ export const avatarSchema = Type.Object(
       format: 'uuid'
     }),
     isPublic: Type.Boolean(),
-    userId: TypedString<UserId, 'uuid'>({
+    userId: TypedString<UserID, 'uuid'>({
       format: 'uuid'
     }),
     project: Type.String(),

@@ -68,7 +68,7 @@ const PlayModeTool = () => {
     } else {
       const avatarDetails = authState.user.avatar.value
 
-      const avatarSpawnPose = getRandomSpawnPoint(Engine.instance.userId)
+      const avatarSpawnPose = getRandomSpawnPoint(Engine.instance.userID)
 
       if (avatarDetails)
         spawnLocalAvatarInWorld({

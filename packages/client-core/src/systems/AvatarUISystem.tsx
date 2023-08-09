@@ -51,7 +51,7 @@ import { SceneQueryType } from '@etherealengine/engine/src/physics/types/Physics
 import { addObjectToGroup } from '@etherealengine/engine/src/scene/components/GroupComponent'
 import { setVisibleComponent } from '@etherealengine/engine/src/scene/components/VisibleComponent'
 import { applyVideoToTexture } from '@etherealengine/engine/src/scene/functions/applyScreenshareToTexture'
-import { UserId } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { TransformComponent } from '@etherealengine/engine/src/transform/components/TransformComponent'
 import { XRUIComponent } from '@etherealengine/engine/src/xrui/components/XRUIComponent'
 import { createTransitionState } from '@etherealengine/engine/src/xrui/functions/createTransitionState'
@@ -74,7 +74,7 @@ export const AvatarMenus = {
   AvatarContext: 'AvatarContext'
 }
 
-export const renderAvatarContextMenu = (userId: UserId, contextMenuEntity: Entity) => {
+export const renderAvatarContextMenu = (userId: UserID, contextMenuEntity: Entity) => {
   const userEntity = NetworkObjectComponent.getUserAvatarEntity(userId)
   if (!userEntity) return
 
@@ -275,7 +275,7 @@ const execute = () => {
 
   // const state = getState(AvatarUIContextMenuState)
   // if (state.id !== '') {
-  //   renderAvatarContextMenu(state.id as UserId, state.ui.entity)
+  //   renderAvatarContextMenu(state.id as UserID, state.ui.entity)
   // }
 }
 

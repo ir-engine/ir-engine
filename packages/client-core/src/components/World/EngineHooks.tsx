@@ -52,7 +52,7 @@ import {
 import { PortalComponent, PortalEffects } from '@etherealengine/engine/src/scene/components/PortalComponent'
 import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
 import { setAvatarToLocationTeleportingState } from '@etherealengine/engine/src/scene/functions/loaders/PortalFunctions'
-import { UserId } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { addOutgoingTopicIfNecessary, dispatchAction, getMutableState } from '@etherealengine/hyperflux'
 import { loadEngineInjection } from '@etherealengine/projects/loadEngineInjection'
 
@@ -102,7 +102,7 @@ export const useLocationSpawnAvatar = (spectate = false) => {
   const sceneLoaded = useHookstate(getMutableState(EngineState).sceneLoaded)
   const authState = useHookstate(getMutableState(AuthState))
 
-  const spectateParam = useParams<{ spectate: UserId }>().spectate
+  const spectateParam = useParams<{ spectate: UserID }>().spectate
 
   useEffect(() => {
     if (spectate) {
@@ -127,8 +127,8 @@ export const useLocationSpawnAvatar = (spectate = false) => {
     const spawnPoint = getSearchParamFromURL('spawnPoint')
 
     const avatarSpawnPose = spawnPoint
-      ? getSpawnPoint(spawnPoint, Engine.instance.userId)
-      : getRandomSpawnPoint(Engine.instance.userId)
+      ? getSpawnPoint(spawnPoint, Engine.instance.userID)
+      : getRandomSpawnPoint(Engine.instance.userID)
 
     if (avatarDetails.modelResource?.url)
       spawnLocalAvatarInWorld({
@@ -228,7 +228,7 @@ export const useOfflineNetwork = (props?: { spectate?: boolean }) => {
   /** OFFLINE */
   useEffect(() => {
     if (engineState.sceneLoaded.value) {
-      const userId = Engine.instance.userId
+      const userId = Engine.instance.userID
       const peerID = Engine.instance.peerID
       const userIndex = 1
       const peerIndex = 1

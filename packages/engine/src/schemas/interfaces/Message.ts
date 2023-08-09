@@ -24,12 +24,12 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { ChannelID } from '@etherealengine/common/src/dbmodels/Channel'
-import { UserId } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { UserType } from '../user/user.schema'
 
 export type Message = {
   id: string
-  senderId: UserId
+  senderId: UserID
   channelId: ChannelID
   text: string
   isNotification: boolean

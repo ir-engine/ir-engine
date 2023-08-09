@@ -56,7 +56,7 @@ import getLocalServerIp from '@etherealengine/server-core/src/util/get-local-ser
 import { ChannelID } from '@etherealengine/common/src/dbmodels/Channel'
 import { UserKick } from '@etherealengine/common/src/interfaces/UserKick'
 import { instanceAttendancePath } from '@etherealengine/engine/src/schemas/networking/instance-attendance.schema'
-import { UserId, userPath, UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { UserID, userPath, UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { InstanceServerState } from './InstanceServerState'
 import { authorizeUserToJoinServer, setupIPs } from './NetworkFunctions'
 import { restartInstanceServer } from './restartInstanceServer'
@@ -164,7 +164,7 @@ const initializeInstance = async (
   status: InstanceserverStatus,
   locationId: string,
   channelId: ChannelID,
-  userId?: UserId
+  userId?: UserID
 ) => {
   logger.info('Initializing new instance')
 
@@ -233,8 +233,8 @@ const initializeInstance = async (
 const loadEngine = async (app: Application, sceneId: string) => {
   const instanceServerState = getState(InstanceServerState)
 
-  const hostId = instanceServerState.instance.id as UserId
-  Engine.instance.userId = hostId
+  const hostId = instanceServerState.instance.id as UserID
+  Engine.instance.userID = hostId
   Engine.instance.peerID = uuidv4() as PeerID
   const topic = instanceServerState.isMediaInstance ? NetworkTopics.media : NetworkTopics.world
 
@@ -255,13 +255,13 @@ const loadEngine = async (app: Application, sceneId: string) => {
   const projects = await getProjectsList()
 
   if (instanceServerState.isMediaInstance) {
-    getMutableState(NetworkState).hostIds.media.set(hostId as UserId)
+    getMutableState(NetworkState).hostIds.media.set(hostId as UserID)
     startMediaServerSystems()
     await loadEngineInjection(projects)
     dispatchAction(EngineActions.initializeEngine({ initialised: true }))
     dispatchAction(EngineActions.sceneLoaded({}))
   } else {
-    getMutableState(NetworkState).hostIds.world.set(hostId as UserId)
+    getMutableState(NetworkState).hostIds.world.set(hostId as UserID)
 
     const [projectName, sceneName] = sceneId.split('/')
 
@@ -307,7 +307,7 @@ const loadEngine = async (app: Application, sceneId: string) => {
  * @param userId
  */
 
-const handleUserAttendance = async (app: Application, userId: UserId) => {
+const handleUserAttendance = async (app: Application, userId: UserID) => {
   const instanceServerState = getState(InstanceServerState)
 
   const channel = await app.service('channel').Model.findOne({
@@ -377,7 +377,7 @@ const createOrUpdateInstance = async (
   locationId: string,
   channelId: ChannelID,
   sceneId: string,
-  userId?: UserId
+  userId?: UserID
 ) => {
   const instanceServerState = getState(InstanceServerState)
   const serverState = getState(ServerState)
@@ -465,7 +465,7 @@ const shutdownServer = async (app: Application, instanceId: string) => {
 const getActiveUsersCount = (app: Application, userToIgnore: UserType) => {
   const activeClients = getServerNetwork(app).peers
   const activeUsers = [...activeClients].filter(
-    ([id, client]) => client.userId !== Engine.instance.userId && client.userId !== userToIgnore.id
+    ([id, client]) => client.userId !== Engine.instance.userID && client.userId !== userToIgnore.id
   )
   return activeUsers.length
 }

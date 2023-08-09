@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { UserId } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { defineAction, dispatchAction } from '@etherealengine/hyperflux'
 
 import { Validator, matches, matchesUserId } from '../common/functions/MatchesUtils'
@@ -68,7 +68,7 @@ export const stopRecording = (args: { recordingID: RecordingID }) => {
   })
 }
 
-export const startPlayback = (args: { recordingID: RecordingID; targetUser?: UserId }) => {
+export const startPlayback = (args: { recordingID: RecordingID; targetUser?: UserID }) => {
   const { recordingID, targetUser } = args
   const action = ECSRecordingActions.startPlayback({
     recordingID,

@@ -27,7 +27,7 @@ import { Collider, ColliderDesc, RigidBody, RigidBodyDesc } from '@dimforge/rapi
 import { AnimationClip, AnimationMixer, Object3D, Vector3 } from 'three'
 
 import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
-import { UserId } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { getState } from '@etherealengine/hyperflux'
 
 import { setTargetCameraRotation } from '../../camera/systems/CameraInputSystem'
@@ -68,10 +68,10 @@ export const spawnAvatarReceptor = (entityUUID: EntityUUID) => {
   if (!entity) return
 
   const ownerID = getComponent(entity, NetworkObjectComponent).ownerId
-  const primary = ownerID === (entityUUID as string as UserId)
+  const primary = ownerID === (entityUUID as string as UserID)
 
   if (primary) {
-    const existingAvatarEntity = NetworkObjectComponent.getUserAvatarEntity(entityUUID as string as UserId)
+    const existingAvatarEntity = NetworkObjectComponent.getUserAvatarEntity(entityUUID as string as UserID)
 
     // already spawned into the world on another device or tab
     if (existingAvatarEntity) return
@@ -113,7 +113,7 @@ export const spawnAvatarReceptor = (entityUUID: EntityUUID) => {
     locomotion: new Vector3()
   })
 
-  if (ownerID === Engine.instance.userId) {
+  if (ownerID === Engine.instance.userID) {
     createAvatarController(entity)
     addComponent(entity, LocalInputTagComponent, true)
   } else {

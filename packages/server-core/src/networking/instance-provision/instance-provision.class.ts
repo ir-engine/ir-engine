@@ -41,7 +41,7 @@ import {
   instanceAuthorizedUserPath,
   InstanceAuthorizedUserType
 } from '@etherealengine/engine/src/schemas/networking/instance-authorized-user.schema'
-import { UserId } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Application } from '../../../declarations'
 import config from '../../appconfig'
 import logger from '../../ServerLogger'
@@ -70,7 +70,7 @@ export async function getFreeInstanceserver({
   locationId?: string
   channelId?: ChannelID
   roomCode?: string
-  userId?: UserId
+  userId?: UserID
   createPrivateRoom?: boolean
 }): Promise<InstanceServerProvisionResult> {
   await app.service('instance').Model.destroy({
@@ -163,7 +163,7 @@ export async function checkForDuplicatedAssignments({
   channelId?: ChannelID
   roomCode?: string | undefined
   createPrivateRoom?: boolean
-  userId?: UserId
+  userId?: UserID
   podName?: string
 }): Promise<InstanceServerProvisionResult> {
   /** since in local dev we can only have one instance server of each type at a time, we must force all old instances of this type to be ended */
@@ -400,7 +400,7 @@ export class InstanceProvision implements ServiceMethods<any> {
     locationId?: string
     channelId?: ChannelID
     roomCode?: undefined | string
-    userId?: UserId
+    userId?: UserID
   }): Promise<InstanceServerProvisionResult> {
     await this.app.service('instance').Model.destroy({
       where: {

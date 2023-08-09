@@ -60,7 +60,7 @@ import { NetworkPeerFunctions } from '@etherealengine/engine/src/networking/func
 import { updatePeers } from '@etherealengine/engine/src/networking/systems/OutgoingActionSystem'
 import { UUIDComponent } from '@etherealengine/engine/src/scene/components/UUIDComponent'
 import { recordingResourcePath } from '@etherealengine/engine/src/schemas/recording/recording-resource.schema'
-import { UserId, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { UserID, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { getCachedURL } from '@etherealengine/server-core/src/media/storageprovider/getCachedURL'
 import { startMediaRecording } from './MediaRecordingFunctions'
 import { getServerNetwork, SocketWebRTCServerNetwork } from './SocketWebRTCServerFunctions'
@@ -69,16 +69,16 @@ import { createOutgoingDataProducer } from './WebRTCFunctions'
 const logger = multiLogger.child({ component: 'instanceserver:recording' })
 
 interface ActiveRecording {
-  userID: UserId
+  userID: UserID
   serializer?: ECSSerializer
   dataChannelRecorder?: any // todo
   mediaChannelRecorder?: Awaited<ReturnType<typeof startMediaRecording>>
 }
 
 interface ActivePlayback {
-  userID: UserId
+  userID: UserID
   deserializer?: ECSDeserializer
-  entitiesSpawned: (EntityUUID | UserId)[]
+  entitiesSpawned: (EntityUUID | UserID)[]
   peerIDs?: PeerID[]
   mediaPlayback?: any // todo
 }
@@ -91,7 +91,7 @@ interface DataChannelFrame<T> {
 export const activeRecordings = new Map<string, ActiveRecording>()
 export const activePlaybacks = new Map<string, ActivePlayback>()
 
-export const dispatchError = (error: string, targetUser: UserId) => {
+export const dispatchError = (error: string, targetUser: UserID) => {
   const app = Engine.instance.api as Application
   logger.error('Recording Error: ' + error)
   dispatchAction(ECSRecordingActions.error({ error, $to: targetUser, $topic: getServerNetwork(app).topic }))
@@ -355,7 +355,7 @@ export const onStartPlayback = async (action: ReturnType<typeof ECSRecordingActi
 
   const network = getServerNetwork(app) as SocketWebRTCServerNetwork
 
-  const entitiesSpawned = [] as (EntityUUID | UserId)[]
+  const entitiesSpawned = [] as (EntityUUID | UserID)[]
 
   activePlayback.deserializer = ECSSerialization.createDeserializer({
     chunks: entityChunks,
@@ -467,7 +467,7 @@ export const onStopPlayback = async (action: ReturnType<typeof ECSRecordingActio
   playbackStopped(user.id, recording.id)
 }
 
-const playbackStopped = (userId: UserId, recordingID: RecordingID) => {
+const playbackStopped = (userId: UserID, recordingID: RecordingID) => {
   const app = Engine.instance.api as Application
 
   const activePlayback = activePlaybacks.get(recordingID)!
@@ -506,12 +506,12 @@ const playbackStopped = (userId: UserId, recordingID: RecordingID) => {
 }
 
 export const dataChannelToReplay = new Map<
-  UserId,
+  UserID,
   Map<DataChannelType, { startTime: number; frames: DataChannelFrame<any>[] }>
 >()
 
 export const setDataChannelChunkToReplay = (
-  userId: UserId,
+  userId: UserID,
   dataChannel: DataChannelType,
   frames: DataChannelFrame<any>[]
 ) => {
@@ -523,7 +523,7 @@ export const setDataChannelChunkToReplay = (
   userMap.set(dataChannel, { startTime: Date.now(), frames })
 }
 
-export const removeDataChannelToReplay = (userId: UserId) => {
+export const removeDataChannelToReplay = (userId: UserID) => {
   if (!dataChannelToReplay.has(userId)) {
     return
   }

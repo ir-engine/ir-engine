@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { UserId } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { UserType } from '../user/user.schema'
 
 export type Invite = {
@@ -31,11 +31,11 @@ export type Invite = {
   inviteType: string
   channelName?: string
   invitee?: UserType
-  inviteeId?: UserId
+  inviteeId?: UserID
   token?: string
   targetObjectId?: string
   user?: UserType
-  userId: UserId
+  userId: UserID
   passcode: string
   identityProviderType?: string
   createdAt: string
@@ -74,7 +74,7 @@ export interface InviteInterface {
   inviteType: string
   token?: string
   passcode: string
-  inviteeId?: UserId
+  inviteeId?: UserID
   invitee?: UserType
   identityProviderType?: string
   targetObjectId?: string
@@ -84,7 +84,7 @@ export interface InviteInterface {
   spawnDetails?: { inviteCode?: string; spawnPoint?: string; spectate?: string } | string | null
   createdAt: string
   updatedAt: string
-  userId: UserId
+  userId: UserID
   timed?: boolean | number
   startTime?: Date | null
   endTime?: Date | null

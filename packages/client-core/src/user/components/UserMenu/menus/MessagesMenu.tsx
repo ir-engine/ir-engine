@@ -51,7 +51,7 @@ import { PopupMenuServices } from '../PopupMenuService'
 const MessagesMenu = (props: { channelID: ChannelID; name: string }): JSX.Element => {
   const { t } = useTranslation()
 
-  const userThumbnail = useUserAvatarThumbnail(Engine.instance.userId)
+  const userThumbnail = useUserAvatarThumbnail(Engine.instance.userID)
 
   const { data: messages } = useFind('message', {
     query: {
@@ -187,7 +187,7 @@ const MessagesMenu = (props: { channelID: ChannelID; name: string }): JSX.Elemen
           }}
         >
           {messages.map((message, index) => {
-            if (message.sender?.id === Engine.instance.userId) return <SelfMessage key={index} message={message} />
+            if (message.sender?.id === Engine.instance.userID) return <SelfMessage key={index} message={message} />
             else return <OtherMessage key={index} message={message} />
           })}
         </div>

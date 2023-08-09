@@ -31,7 +31,7 @@ import { matches, matchesUserId, Validator } from '@etherealengine/engine/src/co
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { NetworkTopics } from '@etherealengine/engine/src/networking/classes/Network'
 import { addNetwork, NetworkState, updateNetworkID } from '@etherealengine/engine/src/networking/NetworkState'
-import { UserId } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import {
   defineAction,
   defineState,
@@ -136,7 +136,7 @@ export const MediaInstanceConnectionServiceReceptor = (action) => {
       const networkState = getMutableState(NetworkState)
       const currentNework = getState(NetworkState).networks[action.currentInstanceId]
       updateNetworkID(currentNework as SocketWebRTCClientNetwork, action.newInstanceId)
-      networkState.hostIds.media.set(action.newInstanceId as UserId)
+      networkState.hostIds.media.set(action.newInstanceId as UserID)
       s.instances.merge({ [action.newInstanceId]: currentNetwork })
       s.instances[action.currentInstanceId].set(none)
     })
@@ -160,7 +160,7 @@ export const MediaInstanceConnectionService = {
     if (provisionResult.ipAddress && provisionResult.port) {
       dispatchAction(
         MediaInstanceConnectionAction.serverProvisioned({
-          instanceId: provisionResult.id as UserId,
+          instanceId: provisionResult.id as UserID,
           ipAddress: provisionResult.ipAddress,
           port: provisionResult.port,
           roomCode: provisionResult.roomCode,

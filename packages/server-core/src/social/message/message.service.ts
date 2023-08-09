@@ -25,7 +25,7 @@ Ethereal Engine. All Rights Reserved.
 
 import { Message as MessageInterface } from '@etherealengine/engine/src/schemas/interfaces/Message'
 
-import { UserId, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { UserID, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { Application } from '../../../declarations'
 import { Message } from './message.class'
 import messageDocs from './message.docs'
@@ -52,7 +52,7 @@ export const onCRUD =
       return channelUser.userId
     })
 
-    return Promise.all(userIds.map((userId: UserId) => app.channel(`userIds/${userId}`).send(data)))
+    return Promise.all(userIds.map((userId: UserID) => app.channel(`userIds/${userId}`).send(data)))
   }
 
 export default (app: Application) => {

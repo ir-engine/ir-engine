@@ -26,7 +26,7 @@ Ethereal Engine. All Rights Reserved.
 import { TypedArray } from 'bitecs'
 
 import { NetworkId } from '@etherealengine/common/src/interfaces/NetworkId'
-import { UserId } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { getState } from '@etherealengine/hyperflux'
 
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
@@ -209,7 +209,7 @@ export const readCompressedRotation = (vector4: Vector4SoA) => (v: ViewCursor, e
 export const readEntity = (
   v: ViewCursor,
   network: Network,
-  fromUserId: UserId,
+  fromUserId: UserID,
   serializationSchema: SerializationSchema[]
 ) => {
   const netId = readUint32(v) as NetworkId
@@ -228,7 +228,7 @@ export const readEntity = (
   }
 }
 
-export const readEntities = (v: ViewCursor, network: Network, byteLength: number, fromUserID: UserId) => {
+export const readEntities = (v: ViewCursor, network: Network, byteLength: number, fromUserID: UserID) => {
   const entitySchema = Object.values(getState(NetworkState).networkSchema)
   while (v.cursor < byteLength) {
     const count = readUint32(v)

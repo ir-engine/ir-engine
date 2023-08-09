@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { UserId } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { defineState } from '@etherealengine/hyperflux'
 
 import { AvatarType } from '../../schemas/user/avatar.schema'
@@ -32,8 +32,8 @@ export const WorldState = defineState({
   name: 'WorldState',
   initial: () => ({
     /** a history of user names - does not get cleaned up upon a user leaving the world */
-    userNames: {} as Record<UserId, string>,
+    userNames: {} as Record<UserID, string>,
     /** @deprecated */
-    userAvatarDetails: {} as Record<UserId, AvatarType>
+    userAvatarDetails: {} as Record<UserID, AvatarType>
   })
 })

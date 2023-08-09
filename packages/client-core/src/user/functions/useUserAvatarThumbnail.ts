@@ -24,13 +24,13 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { config } from '@etherealengine/common/src/config'
-import { UserId } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 
 import { useGet } from '@etherealengine/engine/src/common/functions/FeathersHooks'
 
 export const DEFAULT_PROFILE_IMG_PLACEHOLDER = `${config.client.fileServer}/projects/default-project/assets/default-silhouette.svg`
 
-export const useUserAvatarThumbnail = (userID?: UserId) => {
+export const useUserAvatarThumbnail = (userID?: UserID) => {
   const user = useGet('user', userID)
   const avatar = useGet('avatar', user.data?.avatarId)
   return avatar.data?.thumbnailResource?.url ?? DEFAULT_PROFILE_IMG_PLACEHOLDER

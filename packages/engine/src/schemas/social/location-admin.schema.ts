@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
-import { UserId } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import type { Static } from '@feathersjs/typebox'
 import { querySyntax, Type } from '@feathersjs/typebox'
 import { TypedString } from '../../common/types/TypeboxUtils'
@@ -39,7 +39,7 @@ export const locationAdminSchema = Type.Object(
     id: Type.String({
       format: 'uuid'
     }),
-    userId: TypedString<UserId, 'uuid'>({
+    userId: TypedString<UserID, 'uuid'>({
       format: 'uuid'
     }),
     locationId: Type.String({

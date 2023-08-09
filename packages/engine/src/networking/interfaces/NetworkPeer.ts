@@ -27,13 +27,13 @@ import { Spark } from 'primus'
 
 import { NetworkId } from '@etherealengine/common/src/interfaces/NetworkId'
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
-import { UserId } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 
 import { DataChannelType } from '@etherealengine/common/src/interfaces/DataChannelType'
 import { MediaTagType, PeerMediaType } from '../NetworkState'
 
 export interface NetworkPeer {
-  userId: UserId
+  userId: UserID
   userIndex: number
   spectating?: boolean
   networkId?: NetworkId // to easily retrieve the network object correspending to this client

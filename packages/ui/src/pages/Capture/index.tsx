@@ -88,7 +88,7 @@ export const startPlayback = async (recordingID: RecordingID, twin = true) => {
   }
   ECSRecordingFunctions.startPlayback({
     recordingID,
-    targetUser: twin ? undefined : Engine.instance.userId
+    targetUser: twin ? undefined : Engine.instance.userID
   })
 }
 

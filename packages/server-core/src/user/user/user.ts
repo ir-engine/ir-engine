@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { UserId, UserType, userMethods, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { UserID, UserType, userMethods, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import _ from 'lodash'
 
 import {
@@ -101,7 +101,7 @@ export default (app: Application): void => {
 
       await Promise.all(updatePromises)
       targetIds = _.uniq(targetIds)
-      return Promise.all(targetIds.map((userId: UserId) => app.channel(`userIds/${userId}`).send(data)))
+      return Promise.all(targetIds.map((userId: UserID) => app.channel(`userIds/${userId}`).send(data)))
     } catch (err) {
       logger.error(err)
       throw err

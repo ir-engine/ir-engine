@@ -27,7 +27,7 @@ import { Id, NullableId, Params } from '@feathersjs/feathers'
 import type { KnexAdapterOptions } from '@feathersjs/knex'
 import { KnexAdapter } from '@feathersjs/knex'
 
-import { UserData, UserId, UserPatch, UserQuery, UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { UserData, UserID, UserPatch, UserQuery, UserType } from '@etherealengine/engine/src/schemas/user/user.schema'
 
 import { userApiKeyPath } from '@etherealengine/engine/src/schemas/user/user-api-key.schema'
 import { Forbidden } from '@feathersjs/errors'
@@ -164,7 +164,7 @@ export class UserService<T = UserType, ServiceParams extends Params = UserParams
     if (id) {
       await this.app.service(userApiKeyPath).remove(null, {
         query: {
-          userId: id as UserId
+          userId: id as UserID
         }
       })
     }

@@ -29,7 +29,7 @@ import { useEffect } from 'react'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { Channel } from '@etherealengine/engine/src/schemas/interfaces/Channel'
 import { ChannelUser } from '@etherealengine/engine/src/schemas/interfaces/ChannelUser'
-import { UserId } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { defineState, getMutableState } from '@etherealengine/hyperflux'
 
 import { ChannelID } from '@etherealengine/common/src/dbmodels/Channel'
@@ -101,7 +101,7 @@ export const ChannelService = {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
   },
-  createChannel: async (users: UserId[]) => {
+  createChannel: async (users: UserID[]) => {
     try {
       const channel = await Engine.instance.api.service('channel').create({
         users
@@ -126,7 +126,7 @@ export const ChannelService = {
     await endVideoChat(network, {})
     await leaveNetwork(network)
   },
-  removeUserFromChannel: async (channelId: ChannelID, userId: UserId) => {
+  removeUserFromChannel: async (channelId: ChannelID, userId: UserID) => {
     try {
       await Engine.instance.api.service('channel-user').remove(null, {
         query: {
@@ -190,7 +190,7 @@ export const ChannelService = {
       const channelUserRemovedListener = (params: ChannelUser) => {
         ChannelService.getChannels()
         const channelState = getMutableState(ChannelState)
-        if (params.userId === Engine.instance.userId && params.channelId === channelState.targetChannelId.value) {
+        if (params.userId === Engine.instance.userID && params.channelId === channelState.targetChannelId.value) {
           channelState.targetChannelId.set('' as ChannelID)
           ChannelService.getInstanceChannel()
         }

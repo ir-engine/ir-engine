@@ -29,7 +29,7 @@ import { createRoot } from 'react-dom/client'
 import { act } from 'react-dom/test-utils'
 
 import { createEngine } from '@etherealengine/engine/src/initializeEngine'
-import { UserId } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { UserID } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { getMutableState } from '@etherealengine/hyperflux'
 
 import { InstanceChat } from '.'
@@ -61,7 +61,7 @@ describe('Instance Chat Component', () => {
         messages: [
           {
             id: 'message id',
-            senderId: 'senderId' as UserId,
+            senderId: 'senderId' as UserID,
             channelId: 'channelId',
             text: 'message text'
           }

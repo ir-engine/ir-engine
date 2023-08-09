@@ -39,7 +39,7 @@ import { defineState, getMutableState, getState, syncStateWithLocalStorage } fro
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { locationBanPath } from '@etherealengine/engine/src/schemas/social/location-ban.schema'
 import { UserApiKeyType, userApiKeyPath } from '@etherealengine/engine/src/schemas/user/user-api-key.schema'
-import { UserId, UserType, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
+import { UserID, UserType, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { API } from '../../API'
 import { UserSeed } from '../../admin/services/UserService'
 import { NotificationService } from '../../common/services/NotificationService'
@@ -56,7 +56,7 @@ const resolveWalletUser = (credentials: any): UserType => {
     isGuest: true,
     avatarId: credentials.user.id,
     // avatarUrl: credentials.user.icon,
-    apiKey: credentials.user.apiKey || { id: '', token: '', userId: '' as UserId }
+    apiKey: credentials.user.apiKey || { id: '', token: '', userId: '' as UserID }
   }
 }
 
@@ -161,7 +161,7 @@ export const AuthService = {
     }
   },
 
-  async loadUserData(userId: UserId) {
+  async loadUserData(userId: UserID) {
     try {
       const client = API.instance.client
       const user = await client.service(userPath).get(userId)
@@ -493,7 +493,7 @@ export const AuthService = {
     }
   },
 
-  async addConnectionByPassword(form: EmailLoginForm, userId: UserId) {
+  async addConnectionByPassword(form: EmailLoginForm, userId: UserID) {
     const authState = getMutableState(AuthState)
     authState.merge({ isProcessing: true, error: '' })
 
@@ -513,7 +513,7 @@ export const AuthService = {
     }
   },
 
-  async addConnectionByEmail(email: string, userId: UserId) {
+  async addConnectionByEmail(email: string, userId: UserID) {
     const authState = getMutableState(AuthState)
     authState.merge({ isProcessing: true, error: '' })
     try {
@@ -533,7 +533,7 @@ export const AuthService = {
     }
   },
 
-  async addConnectionBySms(phone: string, userId: UserId) {
+  async addConnectionBySms(phone: string, userId: UserID) {
     const authState = getMutableState(AuthState)
     authState.merge({ isProcessing: true, error: '' })
 
@@ -561,12 +561,12 @@ export const AuthService = {
 
   async addConnectionByOauth(
     oauth: 'facebook' | 'google' | 'github' | 'linkedin' | 'twitter' | 'discord',
-    userId: UserId
+    userId: UserID
   ) {
     window.open(`https://${config.client.serverHost}/auth/oauth/${oauth}?userId=${userId}`, '_blank')
   },
 
-  async removeConnection(identityProviderId: number, userId: UserId) {
+  async removeConnection(identityProviderId: number, userId: UserID) {
     getMutableState(AuthState).merge({ isProcessing: true, error: '' })
     try {
       await Engine.instance.api.service('identity-provider').remove(identityProviderId)
@@ -578,7 +578,7 @@ export const AuthService = {
     }
   },
 
-  refreshConnections(userId: UserId) {
+  refreshConnections(userId: UserID) {
     AuthService.loadUserData(userId)
   },
 
@@ -587,7 +587,7 @@ export const AuthService = {
     getMutableState(AuthState).user.userSetting.merge(response)
   },
 
-  async removeUser(userId: UserId) {
+  async removeUser(userId: UserID) {
     await Engine.instance.api.service(userPath).remove(userId)
     AuthService.logoutUser()
   },
@@ -597,7 +597,7 @@ export const AuthService = {
     getMutableState(AuthState).user.merge({ apiKey })
   },
 
-  async updateUsername(userId: UserId, name: string) {
+  async updateUsername(userId: UserID, name: string) {
     const { name: updatedName } = await Engine.instance.api.service(userPath).patch(userId, { name: name })
     NotificationService.dispatchNotify(i18n.t('user:usermenu.profile.update-msg'), { variant: 'success' })
     getMutableState(AuthState).user.merge({ name: updatedName })
