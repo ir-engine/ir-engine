@@ -23,38 +23,24 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { createSwaggerServiceOptions } from 'feathers-swagger'
+
 import {
-  identityProviderMethods,
-  identityProviderPath
-} from '@etherealengine/engine/src/schemas/user/identity.provider.schema'
+  generateTokenDataSchema,
+  generateTokenPatchSchema,
+  generateTokenQuerySchema,
+  generateTokenSchema
+} from '@etherealengine/engine/src/schemas/user/generate-token.schema'
 
-import { Application } from '../../../declarations'
-import { IdentityProviderService } from './identity-provider.class'
-import identityProviderDocs from './identity-provider.docs'
-import hooks from './identity-provider.hooks'
-
-declare module '@etherealengine/common/declarations' {
-  interface ServiceTypes {
-    [identityProviderPath]: IdentityProviderService
+export default createSwaggerServiceOptions({
+  schemas: {
+    generateTokenDataSchema,
+    generateTokenPatchSchema,
+    generateTokenQuerySchema,
+    generateTokenSchema
+  },
+  docs: {
+    description: 'Generate Token service description',
+    securities: ['all']
   }
-}
-
-export default (app: Application): void => {
-  const options = {
-    name: identityProviderPath,
-    paginate: app.get('paginate'),
-    Model: app.get('knexClient'),
-    multi: true
-  }
-
-  app.use(identityProviderPath, new IdentityProviderService(options, app), {
-    // A list of all methods this service exposes externally
-    methods: identityProviderMethods,
-    // You can add additional custom events to be sent to clients here
-    events: [],
-    docs: identityProviderDocs
-  })
-
-  const service = app.service(identityProviderPath)
-  service.hooks(hooks)
-}
+})

@@ -38,6 +38,7 @@ import { defineState, getMutableState, getState, syncStateWithLocalStorage } fro
 import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { locationBanPath } from '@etherealengine/engine/src/schemas/social/location-ban.schema'
+import { generateTokenPath } from '@etherealengine/engine/src/schemas/user/generate-token.schema'
 import {
   IdentityProviderType,
   identityProviderPath
@@ -292,7 +293,7 @@ export const AuthService = {
         NotificationService.dispatchNotify('You can not remove your last login method.', { variant: 'warning' })
       } else {
         const otherIp = ipResult.data.find((ip) => ip.type !== service)
-        const newToken = await Engine.instance.api.service('generate-token').create({
+        const newToken = await Engine.instance.api.service(generateTokenPath).create({
           type: otherIp?.type,
           token: otherIp?.token
         })

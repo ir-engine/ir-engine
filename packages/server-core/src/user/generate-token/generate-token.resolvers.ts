@@ -23,38 +23,18 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import {
-  identityProviderMethods,
-  identityProviderPath
-} from '@etherealengine/engine/src/schemas/user/identity.provider.schema'
+// For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
+import { resolve } from '@feathersjs/schema'
 
-import { Application } from '../../../declarations'
-import { IdentityProviderService } from './identity-provider.class'
-import identityProviderDocs from './identity-provider.docs'
-import hooks from './identity-provider.hooks'
+import { GenerateTokenQuery, GenerateTokenType } from '@etherealengine/engine/src/schemas/user/generate-token.schema'
+import type { HookContext } from '@etherealengine/server-core/declarations'
 
-declare module '@etherealengine/common/declarations' {
-  interface ServiceTypes {
-    [identityProviderPath]: IdentityProviderService
-  }
-}
+export const generateTokenResolver = resolve<GenerateTokenType, HookContext>({})
 
-export default (app: Application): void => {
-  const options = {
-    name: identityProviderPath,
-    paginate: app.get('paginate'),
-    Model: app.get('knexClient'),
-    multi: true
-  }
+export const generateTokenExternalResolver = resolve<GenerateTokenType, HookContext>({})
 
-  app.use(identityProviderPath, new IdentityProviderService(options, app), {
-    // A list of all methods this service exposes externally
-    methods: identityProviderMethods,
-    // You can add additional custom events to be sent to clients here
-    events: [],
-    docs: identityProviderDocs
-  })
+export const generateTokenDataResolver = resolve<GenerateTokenType, HookContext>({})
 
-  const service = app.service(identityProviderPath)
-  service.hooks(hooks)
-}
+export const generateTokenPatchResolver = resolve<GenerateTokenType, HookContext>({})
+
+export const generateTokenQueryResolver = resolve<GenerateTokenQuery, HookContext>({})

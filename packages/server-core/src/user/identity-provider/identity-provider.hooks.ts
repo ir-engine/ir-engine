@@ -40,7 +40,6 @@ import { MethodNotAllowed, NotFound } from '@feathersjs/errors'
 import { HookContext } from '@feathersjs/feathers'
 
 import authenticate from '../../hooks/authenticate'
-import accountService from '../auth-management/auth-management.notifier'
 
 import { Knex } from 'knex'
 import {
@@ -56,22 +55,6 @@ const identityProviderValidator = getValidator(identityProviderSchema, dataValid
 const identityProviderDataValidator = getValidator(identityProviderDataSchema, dataValidator)
 const identityProviderPatchValidator = getValidator(identityProviderPatchSchema, dataValidator)
 const identityProviderQueryValidator = getValidator(identityProviderQuerySchema, queryValidator)
-
-const isPasswordAccountType = () => {
-  return (context: HookContext): boolean => {
-    if (context.data.type === 'password') {
-      return true
-    }
-    return false
-  }
-}
-
-const sendVerifyEmail = () => {
-  return (context: any): Promise<HookContext> => {
-    accountService(context.app).notifier('resendVerifySignup', context.result)
-    return context
-  }
-}
 
 const checkIdentityProvider = (): any => {
   return async (context: HookContext): Promise<HookContext> => {

@@ -23,38 +23,34 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import {
-  identityProviderMethods,
-  identityProviderPath
-} from '@etherealengine/engine/src/schemas/user/identity.provider.schema'
-
+import { generateTokenMethods, generateTokenPath } from '@etherealengine/engine/src/schemas/user/generate-token.schema'
 import { Application } from '../../../declarations'
-import { IdentityProviderService } from './identity-provider.class'
-import identityProviderDocs from './identity-provider.docs'
-import hooks from './identity-provider.hooks'
+import { GenerateTokenService } from './generate-token.class'
+import generateTokenDocs from './generate-token.docs'
+import hooks from './generate-token.hooks'
 
 declare module '@etherealengine/common/declarations' {
   interface ServiceTypes {
-    [identityProviderPath]: IdentityProviderService
+    [generateTokenPath]: GenerateTokenService
   }
 }
 
 export default (app: Application): void => {
   const options = {
-    name: identityProviderPath,
+    name: generateTokenPath,
     paginate: app.get('paginate'),
     Model: app.get('knexClient'),
     multi: true
   }
 
-  app.use(identityProviderPath, new IdentityProviderService(options, app), {
+  app.use(generateTokenPath, new GenerateTokenService(options, app), {
     // A list of all methods this service exposes externally
-    methods: identityProviderMethods,
+    methods: generateTokenMethods,
     // You can add additional custom events to be sent to clients here
     events: [],
-    docs: identityProviderDocs
+    docs: generateTokenDocs
   })
 
-  const service = app.service(identityProviderPath)
+  const service = app.service(generateTokenPath)
   service.hooks(hooks)
 }
