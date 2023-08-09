@@ -41,13 +41,49 @@ import { locationBanPath } from '@etherealengine/engine/src/schemas/social/locat
 import { UserApiKeyType, userApiKeyPath } from '@etherealengine/engine/src/schemas/user/user-api-key.schema'
 import { UserID, UserType, userPath } from '@etherealengine/engine/src/schemas/user/user.schema'
 import { API } from '../../API'
-import { UserSeed } from '../../admin/services/UserService'
 import { NotificationService } from '../../common/services/NotificationService'
 import { LocationState } from '../../social/services/LocationService'
 import { userPatched } from '../functions/userPatched'
 
 export const logger = multiLogger.child({ component: 'client-core:AuthService' })
 export const TIMEOUT_INTERVAL = 50 // ms per interval of waiting for authToken to be updated
+
+export const UserSeed: UserType = {
+  id: '' as UserID,
+  name: '',
+  isGuest: true,
+  avatarId: '',
+  avatar: {
+    id: '',
+    name: '',
+    isPublic: true,
+    userId: '' as UserID,
+    modelResourceId: '',
+    thumbnailResourceId: '',
+    identifierName: '',
+    project: '',
+    createdAt: '',
+    updatedAt: ''
+  },
+  apiKey: {
+    id: '',
+    token: '',
+    userId: '' as UserID,
+    createdAt: '',
+    updatedAt: ''
+  },
+  userSetting: {
+    id: '',
+    themeModes: {}
+  },
+  scopes: [],
+  identityProviders: [],
+  locationAdmins: [],
+  locationBans: [],
+  instanceAttendance: [],
+  createdAt: '',
+  updatedAt: ''
+}
 
 const resolveWalletUser = (credentials: any): UserType => {
   return {
