@@ -87,7 +87,11 @@ export const SplineComponent = defineComponent({
     const entity = useEntityContext()
     const elements = useComponent(entity, SplineComponent).elements
 
+    console.log('********** reactor started ***********')
+
     useEffect(() => {
+      console.log('************* effect called ******************* ' + elements.length)
+
       if (elements.length < 3) {
         return () => {}
       }
@@ -100,7 +104,7 @@ export const SplineComponent = defineComponent({
       setObjectLayers(line, ObjectLayers.NodeHelper)
 
       let id = 0
-      for (const elem of elements) {
+      for (const elem of elements.value) {
         const gizmo = new Mesh(helperGeometry, helperMaterial)
         gizmo.castShadow = true
         gizmo.receiveShadow = true
@@ -109,13 +113,13 @@ export const SplineComponent = defineComponent({
         gizmo.updateMatrixWorld(true)
         gizmo.add(new ArrowHelper())
         line.add(gizmo)
-        gizmo.position.copy(elem.position.value)
-        gizmo.quaternion.copy(elem.quaternion.value)
+        gizmo.position.copy(elem.position)
+        gizmo.quaternion.copy(elem.quaternion)
         gizmo.updateMatrixWorld(true)
+        console.log(gizmo.position)
       }
 
-      const poses = elements.value.map((e) => e.position)
-      const curve = new CatmullRomCurve3(poses)
+      const curve = new CatmullRomCurve3(elements.value.map((e) => e.position))
       curve.curveType = 'catmullrom'
       const positions = line.geometry.attributes.position
       for (let i = 0; i < ARC_SEGMENTS; i++) {

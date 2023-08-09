@@ -50,18 +50,17 @@ import { EditorComponentType } from './Util'
 export const SplineNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
   const component = useComponent(props.entity, SplineComponent)
-  const elements = SplineComponent.elements
-  console.log('***********************')
-  console.log(elements)
-  if (!elements) {
-    return <div>something is horribly wrong</div>
-  }
+  const elements = component.elements
   return (
     <NodeEditor description={t('editor:properties.spline.description')} {...props}>
       <InputGroup name="Add Point">
         <PropertiesPanelButton
           onClick={() => {
-            elements.set(...elements, { position: new Vector3(), quaternion: new Quaternion() })
+            const elem = { position: new Vector3(), quaternion: new Quaternion() }
+            console.log('adding')
+            component.elements.merge([elem])
+            //component.elements.concat(elem)
+            //component.elements.push(elem)
           }}
         >
           {t('editor:properties.spline.lbl-addNode')}
@@ -83,20 +82,21 @@ export const SplineNodeEditor: EditorComponentType = (props) => {
           </div>
           <Vector3Input
             //style={{ maxWidth: 'calc(100% - 2px)', paddingRight: `3px`, width: '100%' }}
-            value={elem.position}
+            value={elem.position.value}
             smallStep={0.01}
             mediumStep={0.1}
             largeStep={1}
             onChange={(position) => {
-              elem.position.copy(position)
+              elem.position.set(new Vector3(position.x, position.y, position.z))
             }}
           />
           <EulerInput
             //style={{ maxWidth: 'calc(100% - 2px)', paddingRight: `3px`, width: '100%' }}
-            quaternion={elem.quaternion}
+            quaternion={elem.quaternion.value}
             unit="°"
             onChange={(euler) => {
-              elem.quaternion.copy(elem.quaternion.setFromEuler(euler))
+              const quaternion = new Quaternion().setFromEuler(euler)
+              elem.quaternion.set(quaternion)
             }}
           />
         </InputGroup>
