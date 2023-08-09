@@ -144,6 +144,8 @@ export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
   }, [videoElement, audioElement, harkListener?.value])
 
   useEffect(() => {
+    let unmounted = false
+    let newHark
     if (audioElement != null) {
       audioElement.id = `${peerID}_audio`
       audioElement.autoplay = true
@@ -158,11 +160,13 @@ export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
         const updateAudioTrackClones = audioTrackClones.get({ noproxy: true }).concat(newAudioTrack)
         audioTrackClones.set(updateAudioTrackClones)
         audioElement.srcObject = new MediaStream([newAudioTrack])
-        const newHark = hark(audioElement.srcObject, { play: false })
+        newHark = hark(audioElement.srcObject, { play: false })
         newHark.on('speaking', () => {
+          if (unmounted) return
           soundIndicatorOn.set(true)
         })
         newHark.on('stopped_speaking', () => {
+          if (unmounted) return
           soundIndicatorOn.set(false)
         })
         harkListener.set(newHark)
@@ -172,7 +176,8 @@ export const useUserMediaWindowHook = ({ peerID, type }: Props) => {
 
     return () => {
       audioTrackClones.get({ noproxy: true }).forEach((track) => track.stop())
-      if (harkListener?.value) (harkListener.value as any).stop()
+      unmounted = true
+      if (newHark) newHark.stop()
     }
   }, [audioTrackId.value])
 

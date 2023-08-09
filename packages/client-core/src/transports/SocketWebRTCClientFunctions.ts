@@ -119,7 +119,11 @@ const logger = multiLogger.child({ component: 'client-core:SocketWebRTCClientFun
 
 export type WebRTCTransportExtension = Omit<MediaSoupTransport, 'appData'> & { appData: MediaStreamAppData }
 export type ProducerExtension = Omit<Producer, 'appData'> & { appData: MediaStreamAppData }
-export type ConsumerExtension = Omit<Consumer, 'appData'> & { appData: MediaStreamAppData; producerPaused: boolean }
+export type ConsumerExtension = Omit<Consumer, 'appData'> & {
+  appData: MediaStreamAppData
+  /** @deprecated - use MediaProducerConsumerState */
+  producerPaused: boolean
+}
 
 let id = 0
 
@@ -171,20 +175,16 @@ const handleFailedConnection = (locationConnectionFailed) => {
     if (!mediaInstanceConnectionState.instances[instanceId]?.connected?.value) {
       dispatchAction(MediaInstanceConnectionAction.disconnect({ instanceId }))
       const authState = getMutableState(AuthState)
-      const selfUser = authState.user
       const chatState = getMutableState(ChannelState)
       const channelState = chatState.channels
       const channels = channelState.channels.value as Channel[]
       const channelEntries = Object.values(channels).filter((channel) => !!channel) as any
       const activeChannel = channelEntries.find((entry) => entry.id === chatState.targetChannelId.value)
-      if (activeChannel) MediaInstanceConnectionService.provisionServer(activeChannel?.id!, true)
+      if (activeChannel) MediaInstanceConnectionService.provisionServer(activeChannel?.id, true)
     }
   }
   return
 }
-
-// close() {
-// }
 
 export const closeNetwork = async (network: SocketWebRTCClientNetwork) => {
   network.recvTransport?.close()
@@ -1022,6 +1022,8 @@ export async function createCamVideoProducer(network: SocketWebRTCClientNetwork)
                 codecOptions: CAM_VIDEO_SIMULCAST_CODEC_OPTIONS,
                 appData: { mediaTag: webcamVideoDataChannelType, channelId: channelId }
               })) as any as ProducerExtension
+              const networkState = getMutableState(NetworkState).networks[network.hostId]
+              networkState.producers.merge([producer])
               mediaStreamState.camVideoProducer.set(producer)
             }
           } else {
@@ -1084,6 +1086,8 @@ export async function createCamAudioProducer(network: SocketWebRTCClientNetwork)
                 track: mediaStreamState.audioStream.value!.getAudioTracks()[0],
                 appData: { mediaTag: webcamAudioDataChannelType, channelId: channelId }
               })) as any as ProducerExtension
+              const networkState = getMutableState(NetworkState).networks[network.hostId]
+              networkState.producers.merge([producer])
               mediaStreamState.camAudioProducer.set(producer)
             }
           } else {
@@ -1235,7 +1239,7 @@ export async function subscribeToTrack(
 
 export const receiveConsumerHandler = async (
   network: SocketWebRTCClientNetwork,
-  action: typeof MediaConsumerActions.createConsumer.matches._TYPE
+  action: typeof MediaConsumerActions.consumerCreated.matches._TYPE
 ) => {
   const { peerID, mediaTag, channelID, paused } = action
 
@@ -1254,12 +1258,12 @@ export const receiveConsumerHandler = async (
     (c) => c?.appData?.peerID === peerID && c?.appData?.mediaTag === mediaTag
   )
   const networkState = getMutableState(NetworkState).networks[network.hostId]
-  if (existingConsumer == null) {
+  if (!existingConsumer) {
     networkState.consumers.merge([consumer])
     // okay, we're ready. let's ask the peer to send us media
     if (!consumer.producerPaused) resumeConsumer(network, consumer)
     else pauseConsumer(network, consumer)
-  } else if (existingConsumer?.track?.muted) {
+  } else if (existingConsumer.track?.muted) {
     await closeConsumer(network, existingConsumer)
     networkState.consumers.merge([consumer])
     // okay, we're ready. let's ask the peer to send us media
@@ -1373,27 +1377,6 @@ export async function setPreferredConsumerLayer(
   })
 }
 
-const checkEndVideoChat = async () => {
-  const mediaStreamState = getMutableState(MediaStreamState)
-  const mediaNetwork = Engine.instance.mediaNetwork as SocketWebRTCClientNetwork
-  const chatState = getMutableState(ChannelState)
-  const channelState = chatState.channels
-  const channels = channelState.channels.value
-
-  const channelEntries = Object.values(channels).filter((channel) => !!channel) as any
-  const instanceChannel = channelEntries.find((entry) => entry.instanceId === Engine.instance.worldNetwork?.hostId)
-  if (
-    (mediaStreamState.audioPaused.value || mediaStreamState.camAudioProducer.value == null) &&
-    (mediaStreamState.videoPaused.value || mediaStreamState.camVideoProducer.value == null)
-  ) {
-    await endVideoChat(mediaNetwork, {})
-    if (!mediaNetwork.primus?.disconnect) {
-      await leaveNetwork(mediaNetwork, false)
-      await MediaInstanceConnectionService.provisionServer(instanceChannel.id)
-    }
-  }
-}
-
 export const toggleFaceTracking = async () => {
   const mediaStreamState = getMutableState(MediaStreamState)
   if (mediaStreamState.faceTracking.value) {
@@ -1420,7 +1403,6 @@ export const toggleMicrophonePaused = async () => {
       if (audioPaused) resumeProducer(mediaNetwork, mediaStreamState.camAudioProducer.value!)
       else pauseProducer(mediaNetwork, mediaStreamState.camAudioProducer.value!)
       mediaStreamState.audioPaused.set(!audioPaused)
-      checkEndVideoChat()
     }
   }
 }
@@ -1553,6 +1535,9 @@ export const startScreenshare = async (network: SocketWebRTCClientNetwork) => {
     })) as any as ProducerExtension
   )
 
+  const networkState = getMutableState(NetworkState).networks[network.hostId]
+  networkState.producers.merge([mediaStreamState.screenVideoProducer.value!])
+
   console.log('screen producer', mediaStreamState.screenVideoProducer.value)
 
   // create a producer for audio, if we have it
@@ -1564,6 +1549,7 @@ export const startScreenshare = async (network: SocketWebRTCClientNetwork) => {
       })) as any as ProducerExtension
     )
     mediaStreamState.screenShareAudioPaused.set(false)
+    networkState.producers.merge([mediaStreamState.screenAudioProducer.value!])
   }
 
   // handler for screen share stopped event (triggered by the

@@ -615,6 +615,7 @@ export async function handleRequestProducer(
   network: SocketWebRTCServerNetwork,
   action: typeof MediaProducerActions.requestProducer.matches._TYPE
 ) {
+  console.log('handleRequestProducer', action)
   const { $peer: peerID, transportId, rtpParameters, paused, requestID, appData, kind } = action
   const userId = getUserIdFromPeerID(network, peerID)
 
@@ -635,7 +636,8 @@ export async function handleRequestProducer(
   try {
     const newProducerAppData = { ...appData, peerID, transportId } as MediaStreamAppData
     const existingProducer = await network.producers.find((producer) => producer.appData === newProducerAppData)
-    if (existingProducer) closeProducer(network, existingProducer)
+    console.log({ existingProducer })
+    if (existingProducer) throw new Error('Producer already exists for ' + peerID + ' ' + appData.mediaTag) //closeProducer(network, existingProducer)
     const producer = (await transport.produce({
       kind: kind as any,
       rtpParameters: rtpParameters as RtpParameters,
@@ -659,10 +661,7 @@ export async function handleRequestProducer(
 
     producer.on('transportclose', () => closeProducer(network, producer))
 
-    if (!network.producers) {
-      logger.warn('Media stream producers is undefined.')
-    }
-    network.producers?.push(producer)
+    network.producers.push(producer)
     logger.info(`New Producer: peerID "${peerID}", Media stream "${appData.mediaTag}"`)
 
     if (userId && network.peers.has(peerID)) {
@@ -762,7 +761,7 @@ export const handleRequestConsumer = async (
     })
 
     dispatchAction(
-      MediaConsumerActions.createConsumer({
+      MediaConsumerActions.consumerCreated({
         channelID,
         consumerID: consumer.id,
         peerID: mediaPeerId,

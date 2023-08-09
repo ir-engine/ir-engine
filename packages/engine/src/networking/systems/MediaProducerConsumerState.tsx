@@ -60,23 +60,19 @@ export class MediaProducerActions {
   })
 
   static producerCreated = defineAction({
-    type: 'ee.engine.network.MEDIA_PRODUCER_CREATE',
+    type: 'ee.engine.network.MEDIA_PRODUCER_CREATED',
     requestID: matches.string,
     producerID: matches.string,
     peerID: matchesPeerID,
     mediaTag: matches.string as Validator<unknown, DataChannelType>,
     channelID: matches.string as Validator<unknown, ChannelID>,
-    $cache: {
-      removePrevious: ['producerID']
-    }
+    $cache: true
   })
 
   static closeProducer = defineAction({
     type: 'ee.engine.network.MEDIA_CLOSED_PRODUCER',
     producerID: matches.string,
-    $cache: {
-      removePrevious: ['producerID']
-    }
+    $cache: true
   })
 
   static producerPaused = defineAction({
@@ -99,8 +95,8 @@ export class MediaConsumerActions {
     channelID: matches.string as Validator<unknown, ChannelID>
   })
 
-  static createConsumer = defineAction({
-    type: 'ee.engine.network.MEDIA_CREATE_CONSUMER',
+  static consumerCreated = defineAction({
+    type: 'ee.engine.network.MEDIA_CREATED_CONSUMER',
     consumerID: matches.string,
     peerID: matchesPeerID,
     mediaTag: matches.string as Validator<unknown, DataChannelType>,
@@ -207,8 +203,8 @@ export const MediaProducerConsumerState = defineState({
       }
     ],
     [
-      MediaConsumerActions.createConsumer,
-      (state, action: typeof MediaConsumerActions.createConsumer.matches._TYPE) => {
+      MediaConsumerActions.consumerCreated,
+      (state, action: typeof MediaConsumerActions.consumerCreated.matches._TYPE) => {
         if (!state.value[action.$from]) {
           state.merge({ [action.$from as UserId]: { producers: {}, consumers: {} } })
         }
@@ -262,15 +258,15 @@ export const NetworkProducer = (props: { networkID: UserId; producerID: string }
   const networkProducerState = networkState.producers.find((p) => p.value.id === producerID)
 
   useEffect(() => {
+    const peerID = producerState.peerID.value
     return () => {
       const network = getState(NetworkState).networks[networkID]
       const producer = network.producers.find((p) => p.id === producerID)
       if (!producer || producer.closed || producer._closed) return
 
-      console.log('Destroying Producer', producer)
+      console.log('Destroying Producer', producer.id)
 
       producer.close()
-      const peerID = producerState.peerID.value
       const media = network.peers.get(peerID)?.media
       network.producers.splice(network.producers.indexOf(producer), 1)
       network.consumers.splice(
@@ -326,7 +322,7 @@ export const NetworkConsumer = (props: { networkID: UserId; consumerID: string }
 
     if (consumerState.paused.value) consumer.pause()
     if (!consumerState.paused.value) consumer.resume()
-  }, [consumerState.paused, networkConsumerState])
+  }, [consumerState.paused, networkConsumerState, networkState.consumers.length])
 
   return <></>
 }

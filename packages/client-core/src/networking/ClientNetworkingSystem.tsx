@@ -67,7 +67,7 @@ const worldInstanceReconnectedQueue = defineActionQueue(
 const mediaInstanceReconnectedQueue = defineActionQueue(
   NetworkConnectionService.actions.mediaInstanceReconnected.matches
 )
-const createConsumerQueue = defineActionQueue(MediaConsumerActions.createConsumer.matches)
+const consumerCreatedQueue = defineActionQueue(MediaConsumerActions.consumerCreated.matches)
 
 const execute = () => {
   const locationState = getState(LocationState)
@@ -75,7 +75,7 @@ const execute = () => {
   const authState = getState(AuthState)
   const engineState = getState(EngineState)
 
-  for (const action of createConsumerQueue())
+  for (const action of consumerCreatedQueue())
     receiveConsumerHandler(Engine.instance.mediaNetwork as SocketWebRTCClientNetwork, action)
 
   for (const action of noWorldServersAvailableQueue()) {
