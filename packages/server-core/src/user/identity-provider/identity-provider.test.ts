@@ -80,7 +80,7 @@ describe('identity-provider service', () => {
 
   it('should create an identity provider for email', async () => {
     const type = 'email'
-    const token = `${v1()}@etherealengine.io`
+    const token = v1()
 
     const item = await app.service(identityProviderPath).create(
       {
@@ -100,7 +100,7 @@ describe('identity-provider service', () => {
 
   it('should create an identity provider for password', async () => {
     const type = 'password'
-    const token = `${v1()}@etherealengine.io`
+    const token = v1()
 
     const item = await app.service(identityProviderPath).create(
       {
