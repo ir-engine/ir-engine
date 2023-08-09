@@ -54,6 +54,8 @@ export function retargetMixamoAnimation(clip: AnimationClip, mixamoRig: Object3D
   // Additional logic present to handle transform differences between FBX and GLB
   const hips = mixamoRig.getObjectByName('mixamorigHips')
 
+  hips?.quaternion.copy(offset)
+
   const motionHipsHeight = hips!.position.y
   const vrmHipsY = vrm.humanoid.getNormalizedBoneNode('hips')!.getWorldPosition(_vec3).y
   const vrmRootY = vrm.scene.getWorldPosition(_vec3).y
@@ -97,12 +99,12 @@ export function retargetMixamoAnimation(clip: AnimationClip, mixamoRig: Object3D
           new QuaternionKeyframeTrack(
             `${vrmNodeName}.${propertyName}`,
             track.times,
-            track.values.map((v, i) => (vrm.meta?.metaVersion === '0' && i % 2 === 0 ? -v : v))
+            track.values.map((v, i) => (vrm.meta?.metaVersion === '0' && i % 2 === 0 ? v : v))
           )
         )
       } else if (track instanceof VectorKeyframeTrack) {
         const value = track.values.map(
-          (v, i) => (vrm.meta?.metaVersion === '0' && i % 3 !== 1 ? -v : v) * hipsPositionScale
+          (v, i) => (vrm.meta?.metaVersion === '0' && i % 3 !== 1 ? v : v) * hipsPositionScale
         )
         tracks.push(new VectorKeyframeTrack(`${vrmNodeName}.${propertyName}`, track.times, value))
       }
