@@ -24,30 +24,23 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { useEffect } from 'react'
-import { AxesHelper, Bone, Euler, MathUtils, Quaternion, Vector3 } from 'three'
+import { Bone, Euler, MathUtils, Quaternion, Vector3 } from 'three'
 
-import { EntityUUID } from '@etherealengine/common/src/interfaces/EntityUUID'
 import { insertionSort } from '@etherealengine/common/src/utils/insertionSort'
-import { defineActionQueue, defineState, dispatchAction, getState } from '@etherealengine/hyperflux'
+import { defineState, getState } from '@etherealengine/hyperflux'
 
 import { Axis } from '../../common/constants/Axis3D'
 import { V_000 } from '../../common/constants/MathConstants'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
-import { defineQuery, getComponent, getOptionalComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
-import { removeEntity } from '../../ecs/functions/EntityFunctions'
+import { defineQuery, getComponent, getOptionalComponent } from '../../ecs/functions/ComponentFunctions'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { createPriorityQueue } from '../../ecs/PriorityQueue'
-import { InputSourceComponent } from '../../input/components/InputSourceComponent'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
 import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
-import { addObjectToGroup, GroupComponent } from '../../scene/components/GroupComponent'
-import { NameComponent } from '../../scene/components/NameComponent'
-import { UUIDComponent } from '../../scene/components/UUIDComponent'
+import { GroupComponent } from '../../scene/components/GroupComponent'
 import { VisibleComponent } from '../../scene/components/VisibleComponent'
-import { ObjectLayers } from '../../scene/constants/ObjectLayers'
-import { setObjectLayers } from '../../scene/functions/setObjectLayers'
 import {
   compareDistanceToCamera,
   DistanceFromCameraComponent,
@@ -55,7 +48,7 @@ import {
 } from '../../transform/components/DistanceComponents'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { updateGroupChildren } from '../../transform/systems/TransformSystem'
-import { getCameraMode, isMobileXRHeadset, XRAction, XRState } from '../../xr/XRState'
+import { isMobileXRHeadset } from '../../xr/XRState'
 import { updateAnimationGraph } from '.././animation/AnimationGraph'
 import { solveHipHeight } from '.././animation/HipIKSolver'
 import { solveLookIK } from '.././animation/LookAtIKSolver'
@@ -63,12 +56,7 @@ import { solveTwoBoneIK } from '.././animation/TwoBoneIKSolver'
 import { AnimationManager } from '.././AnimationManager'
 import { AnimationComponent } from '.././components/AnimationComponent'
 import { AvatarAnimationComponent, AvatarRigComponent } from '.././components/AvatarAnimationComponent'
-import {
-  AvatarIKTargetComponent,
-  xrTargetHeadSuffix,
-  xrTargetLeftHandSuffix,
-  xrTargetRightHandSuffix
-} from '.././components/AvatarIKComponents'
+import { AvatarIKTargetComponent } from '.././components/AvatarIKComponents'
 import { LoopAnimationComponent } from '.././components/LoopAnimationComponent'
 import { applyInputSourcePoseToIKTargets } from '.././functions/applyInputSourcePoseToIKTargets'
 import { AvatarMovementSettingsState } from '.././state/AvatarMovementSettingsState'
@@ -110,12 +98,8 @@ const loopAnimationQuery = defineQuery([
   GroupComponent
 ])
 const avatarAnimationQuery = defineQuery([AnimationComponent, AvatarAnimationComponent, AvatarRigComponent])
-const ikTargetSpawnQueue = defineActionQueue(XRAction.spawnIKTarget.matches)
-const sessionChangedQueue = defineActionQueue(XRAction.sessionChanged.matches)
 
 const ikTargetQuery = defineQuery([AvatarIKTargetComponent])
-
-const inputSourceQuery = defineQuery([InputSourceComponent])
 
 const minimumFrustumCullDistanceSqr = 5 * 5 // 5 units
 
@@ -138,67 +122,8 @@ let avatarSortAccumulator = 0
 const _quat = new Quaternion()
 
 const execute = () => {
-  const xrState = getState(XRState)
   const { priorityQueue, sortedTransformEntities } = getState(AvatarAnimationState)
-  const { localClientEntity } = Engine.instance
   const { elapsedSeconds, deltaSeconds } = getState(EngineState)
-
-  for (const action of sessionChangedQueue()) {
-    if (!localClientEntity) continue
-
-    const headUUID = (Engine.instance.userId + xrTargetHeadSuffix) as EntityUUID
-    const leftHandUUID = (Engine.instance.userId + xrTargetLeftHandSuffix) as EntityUUID
-    const rightHandUUID = (Engine.instance.userId + xrTargetRightHandSuffix) as EntityUUID
-
-    const ikTargetHead = UUIDComponent.entitiesByUUID[headUUID]
-    const ikTargetLeftHand = UUIDComponent.entitiesByUUID[leftHandUUID]
-    const ikTargetRightHand = UUIDComponent.entitiesByUUID[rightHandUUID]
-
-    if (ikTargetHead) removeEntity(ikTargetHead)
-    if (ikTargetLeftHand) removeEntity(ikTargetLeftHand)
-    if (ikTargetRightHand) removeEntity(ikTargetRightHand)
-  }
-
-  for (const action of ikTargetSpawnQueue()) {
-    const entity = NetworkObjectComponent.getNetworkObject(action.$from, action.networkId)
-    if (!entity) {
-      console.warn('Could not find entity for networkId', action.$from, action.networkId)
-      continue
-    }
-    setComponent(entity, NameComponent, action.$from + '_' + action.handedness)
-    setComponent(entity, AvatarIKTargetComponent, { handedness: action.handedness })
-    const helper = new AxesHelper(0.5)
-    setObjectLayers(helper, ObjectLayers.Gizmos)
-    addObjectToGroup(entity, helper)
-    setComponent(entity, VisibleComponent)
-  }
-
-  // todo - remove ik targets when session ends
-  if (xrState.sessionActive && localClientEntity) {
-    const sources = inputSourceQuery().map((eid) => getComponent(eid, InputSourceComponent).source)
-
-    const head = getCameraMode() === 'attached'
-    const leftHand = !!sources.find((s) => s.handedness === 'left')
-    const rightHand = !!sources.find((s) => s.handedness === 'right')
-
-    const headUUID = (Engine.instance.userId + xrTargetHeadSuffix) as EntityUUID
-    const leftHandUUID = (Engine.instance.userId + xrTargetLeftHandSuffix) as EntityUUID
-    const rightHandUUID = (Engine.instance.userId + xrTargetRightHandSuffix) as EntityUUID
-
-    const ikTargetHead = UUIDComponent.entitiesByUUID[headUUID]
-    const ikTargetLeftHand = UUIDComponent.entitiesByUUID[leftHandUUID]
-    const ikTargetRightHand = UUIDComponent.entitiesByUUID[rightHandUUID]
-
-    if (!head && ikTargetHead) removeEntity(ikTargetHead)
-    if (!leftHand && ikTargetLeftHand) removeEntity(ikTargetLeftHand)
-    if (!rightHand && ikTargetRightHand) removeEntity(ikTargetRightHand)
-
-    if (head && !ikTargetHead) dispatchAction(XRAction.spawnIKTarget({ handedness: 'none', entityUUID: headUUID }))
-    if (leftHand && !ikTargetLeftHand)
-      dispatchAction(XRAction.spawnIKTarget({ handedness: 'left', entityUUID: leftHandUUID }))
-    if (rightHand && !ikTargetRightHand)
-      dispatchAction(XRAction.spawnIKTarget({ handedness: 'right', entityUUID: rightHandUUID }))
-  }
 
   /**
    * 1 - Sort & apply avatar priority queue
