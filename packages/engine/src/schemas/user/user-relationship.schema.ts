@@ -35,7 +35,7 @@ export const userRelationshipPath = 'user-relationship'
 
 export const userRelationshipMethods = ['find', 'create', 'patch', 'remove'] as const
 
-export type UserRelationshipID = OpaqueType<'RecordingID'> & string
+export type UserRelationshipID = OpaqueType<'UserRelationshipID'> & string
 
 // Main data model schema
 export const userRelationshipSchema = Type.Object(
