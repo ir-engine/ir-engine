@@ -33,19 +33,30 @@ import type { Knex } from 'knex'
 export async function up(knex: Knex): Promise<void> {
   const oldTableName = 'user_relationship_type'
 
-  const oldNamedTableExists = await knex.schema.hasTable(oldTableName)
+  // Added transaction here in order to ensure both below queries run on same pool.
+  // https://github.com/knex/knex/issues/218#issuecomment-56686210
+  const trx = await knex.transaction()
+  await trx.raw('SET FOREIGN_KEY_CHECKS=0')
+
+  const oldNamedTableExists = await trx.schema.hasTable(oldTableName)
+  let tableExists = await trx.schema.hasTable(userRelationshipTypePath)
   if (oldNamedTableExists) {
-    await knex.schema.renameTable(oldTableName, userRelationshipTypePath)
+    // In case sequelize creates the new table before we migrate the old table
+    if (tableExists) await trx.schema.dropTable(userRelationshipTypePath)
+    await trx.schema.renameTable(oldTableName, userRelationshipTypePath)
   }
 
-  const tableExists = await knex.schema.hasTable(userRelationshipTypePath)
+  tableExists = await trx.schema.hasTable(userRelationshipTypePath)
 
-  if (tableExists === false) {
-    await knex.schema.createTable(userRelationshipTypePath, (table) => {
+  if (!tableExists && !oldNamedTableExists) {
+    await trx.schema.createTable(userRelationshipTypePath, (table) => {
       //@ts-ignore
       table.string('type', 255).notNullable().unique().primary()
     })
   }
+
+  await trx.raw('SET FOREIGN_KEY_CHECKS=1')
+  await trx.commit()
 }
 
 /**
