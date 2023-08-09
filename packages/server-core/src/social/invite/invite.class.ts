@@ -82,7 +82,7 @@ export const inviteReceived = async (inviteService: Invite, query) => {
       userId: query.userId
     }
   })
-  const identityProviderTokens = (identityProviders as any).data.map((provider) => provider.token)
+  const identityProviderTokens = identityProviders.data.map((provider) => provider.token)
 
   const { $sort, search } = query
 

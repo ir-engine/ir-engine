@@ -285,7 +285,7 @@ export const AuthService = {
   },
 
   async removeUserOAuth(service: string) {
-    const ipResult = (await Engine.instance.api.service(identityProviderPath).find()) as any
+    const ipResult = await Engine.instance.api.service(identityProviderPath).find()
     const ipToRemove = ipResult.data.find((ip) => ip.type === service)
     if (ipToRemove) {
       if (ipResult.total === 1) {
@@ -293,8 +293,8 @@ export const AuthService = {
       } else {
         const otherIp = ipResult.data.find((ip) => ip.type !== service)
         const newToken = await Engine.instance.api.service('generate-token').create({
-          type: otherIp.type,
-          token: otherIp.token
+          type: otherIp?.type,
+          token: otherIp?.token
         })
 
         if (newToken) {

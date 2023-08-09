@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { BadRequest } from '@feathersjs/errors'
-import { Id, NullableId, Params, ServiceMethods } from '@feathersjs/feathers'
+import { Id, NullableId, Paginated, Params, ServiceMethods } from '@feathersjs/feathers'
 
 import { locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
 
@@ -32,7 +32,6 @@ import { locationAuthorizedUserPath } from '@etherealengine/engine/src/schemas/s
 import { identityProviderPath } from '@etherealengine/engine/src/schemas/user/identity.provider.schema'
 import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
-import Paginated from '../../types/PageObject'
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 interface Data {}
@@ -138,7 +137,7 @@ export class AcceptInvite implements ServiceMethods<Data> {
           }
         })
 
-        if ((inviteeIdentityProviderResult as any).total === 0) {
+        if (inviteeIdentityProviderResult.total === 0) {
           inviteeIdentityProvider = await this.app.service(identityProviderPath).create(
             {
               type: invite.identityProviderType,
@@ -148,7 +147,7 @@ export class AcceptInvite implements ServiceMethods<Data> {
             params
           )
         } else {
-          inviteeIdentityProvider = (inviteeIdentityProviderResult as any).data[0]
+          inviteeIdentityProvider = inviteeIdentityProviderResult.data[0]
         }
       } else if (invite.inviteeId != null) {
         const invitee = await this.app.service('user').get(invite.inviteeId)
@@ -199,7 +198,7 @@ export class AcceptInvite implements ServiceMethods<Data> {
           }
         })) as any
 
-        if ((existingRelationshipResult as any).total === 0) {
+        if (existingRelationshipResult.total === 0) {
           await this.app.service('user-relationship').create(
             {
               userRelationshipType: 'friend',

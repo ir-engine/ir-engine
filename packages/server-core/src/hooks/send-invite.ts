@@ -39,7 +39,6 @@ import {
 import { Application } from '../../declarations'
 import logger from '../ServerLogger'
 import config from '../appconfig'
-import Page from '../types/PageObject'
 import { getInviteLink, sendEmail, sendSms } from '../user/auth-management/auth-management.utils'
 import { UserRelationshipDataType } from '../user/user-relationship/user-relationship.class'
 import { UserParams } from '../user/user/user.class'
@@ -190,7 +189,7 @@ export const sendInvite = async (app: Application, result: InviteDataType, param
           userId: result.inviteeId,
           type: 'email'
         }
-      })) as Page<IdentityProviderType>
+      })) as Paginated<IdentityProviderType>
 
       if (emailIdentityProviderResult.total > 0) {
         await generateEmail(
@@ -207,7 +206,7 @@ export const sendInvite = async (app: Application, result: InviteDataType, param
             userId: result.inviteeId,
             type: 'sms'
           }
-        })) as Page<IdentityProviderType>
+        })) as Paginated<IdentityProviderType>
 
         if (SMSIdentityProviderResult.total > 0) {
           await generateSMS(

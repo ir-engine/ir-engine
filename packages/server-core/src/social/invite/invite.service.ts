@@ -78,8 +78,8 @@ export default (app: Application) => {
             token: data.token
           }
         })
-        if ((inviteeIdentityProviderResult as any).total > 0) {
-          targetIds.push((inviteeIdentityProviderResult as any).data[0].userId)
+        if (inviteeIdentityProviderResult.total > 0) {
+          targetIds.push(inviteeIdentityProviderResult.data[0].userId)
         }
       }
       // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
@@ -113,8 +113,8 @@ export default (app: Application) => {
             token: data.token
           }
         })
-        if ((inviteeIdentityProviderResult as any).total > 0) {
-          targetIds.push((inviteeIdentityProviderResult as any).data[0].userId)
+        if (inviteeIdentityProviderResult.total > 0) {
+          targetIds.push(inviteeIdentityProviderResult.data[0].userId)
         }
       }
       // eslint-disable-next-line @typescript-eslint/restrict-template-expressions

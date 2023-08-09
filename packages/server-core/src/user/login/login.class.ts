@@ -23,14 +23,13 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Id, NullableId, Params, ServiceMethods } from '@feathersjs/feathers'
+import { Id, NullableId, Paginated, Params, ServiceMethods } from '@feathersjs/feathers'
 import moment from 'moment'
 
 import { identityProviderPath } from '@etherealengine/engine/src/schemas/user/identity.provider.schema'
 import { UserApiKeyType, userApiKeyPath } from '@etherealengine/engine/src/schemas/user/user-api-key.schema'
 import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
-import Paginated from '../../types/PageObject'
 import makeInitialAdmin from '../../util/make-initial-admin'
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface

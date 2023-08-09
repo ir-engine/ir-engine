@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { BadRequest } from '@feathersjs/errors'
-import { Id, NullableId, Params, ServiceMethods } from '@feathersjs/feathers'
+import { Id, NullableId, Paginated, Params, ServiceMethods } from '@feathersjs/feathers'
 import appRootPath from 'app-root-path'
 import * as path from 'path'
 import * as pug from 'pug'
@@ -32,7 +32,6 @@ import * as pug from 'pug'
 import { identityProviderPath } from '@etherealengine/engine/src/schemas/user/identity.provider.schema'
 import { Application } from '../../../declarations'
 import config from '../../appconfig'
-import Paginated from '../../types/PageObject'
 import { getLink, sendEmail, sendSms } from '../auth-management/auth-management.utils'
 import { IdentityProviderService } from '../identity-provider/identity-provider.class'
 

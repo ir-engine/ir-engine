@@ -126,7 +126,7 @@ describe('identity-provider service', () => {
     })
 
     assert.ok(item, 'Identity provider item is found')
-    assert.equal((item as any).total, providers.length)
+    assert.equal(item.total, providers.length)
   })
 
   it('should remove an identity provider by id', async () => {
@@ -138,7 +138,7 @@ describe('identity-provider service', () => {
       }
     })
 
-    assert.equal((item as any).total, 0)
+    assert.equal(item.total, 0)
   })
 
   it('should not be able to remove identity providers by user id', async () => {

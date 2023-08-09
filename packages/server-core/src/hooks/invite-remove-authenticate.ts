@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 import { BadRequest } from '@feathersjs/errors'
-import { HookContext } from '@feathersjs/feathers'
+import { HookContext, Paginated } from '@feathersjs/feathers'
 
 import { UserInterface } from '@etherealengine/common/src/interfaces/User'
 
@@ -32,7 +32,6 @@ import {
   IdentityProviderType,
   identityProviderPath
 } from '@etherealengine/engine/src/schemas/user/identity.provider.schema'
-import Paginated from '../types/PageObject'
 
 // This will attach the owner ID in the contact while creating/updating list item
 export default () => {
