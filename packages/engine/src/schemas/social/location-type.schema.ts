@@ -29,7 +29,7 @@ import { querySyntax, Type } from '@feathersjs/typebox'
 
 export const locationTypePath = 'location-type'
 
-export const locationTypeMethods = ['find', 'get', 'create', 'patch', 'remove'] as const
+export const locationTypeMethods = ['find', 'get'] as const
 
 // Main data model schema
 export const locationTypeSchema = Type.Object(

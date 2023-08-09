@@ -29,7 +29,7 @@ import { querySyntax, Type } from '@feathersjs/typebox'
 
 export const userRelationshipTypePath = 'user-relationship-type'
 
-export const userRelationshipTypeMethods = ['find', 'get', 'create', 'patch', 'remove'] as const
+export const userRelationshipTypeMethods = ['find', 'get'] as const
 
 // Main data model schema
 export const userRelationshipTypeSchema = Type.Object(
