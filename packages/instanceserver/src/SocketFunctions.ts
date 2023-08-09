@@ -45,7 +45,6 @@ import {
 } from './NetworkFunctions'
 import { getServerNetwork } from './SocketWebRTCServerFunctions'
 import {
-  handleWebRtcCloseConsumer,
   handleWebRtcConsumeData,
   handleWebRtcConsumerSetLayers,
   handleWebRtcInitializeRouter,
@@ -182,9 +181,6 @@ export const setupSocketFunctions = async (app: Application, spark: any) => {
             break
           case MessageTypes.WebRTCTransportClose.toString():
             handleWebRtcTransportClose(network, spark, peerID, data, id)
-            break
-          case MessageTypes.WebRTCCloseConsumer.toString():
-            handleWebRtcCloseConsumer(network, spark, peerID, data, id)
             break
           case MessageTypes.WebRTCConsumerSetLayers.toString():
             handleWebRtcConsumerSetLayers(network, spark, peerID, data, id)

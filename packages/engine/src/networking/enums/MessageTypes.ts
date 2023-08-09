@@ -39,7 +39,7 @@ export enum MessageTypes {
   // WebRTCReceiveTrack = 11,
   // WebRTCPauseConsumer = 12,
   // WebRTCResumeConsumer = 13,
-  WebRTCCloseConsumer = 14,
+  // WebRTCCloseConsumer = 14,
   // WebRTCPauseProducer = 15,
   // WebRTCResumeProducer = 16,
   // WebRTCCloseProducer = 17,

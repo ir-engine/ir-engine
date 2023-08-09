@@ -174,20 +174,6 @@ const PeerMedia = (props: {
     }
   }, [consumerNetworkState])
 
-  //  todo
-  const closeProducerListener = (producerId: string) => {
-    if (producerId === videoStream?.id) {
-      ;(videoElement?.srcObject as MediaStream)?.getVideoTracks()[0].stop()
-      if (!isScreen) mediaStreamState.videoStream.value!.getVideoTracks()[0].stop()
-      else mediaStreamState.localScreen.value!.getVideoTracks()[0].stop()
-    }
-
-    if (producerId === audioStream?.id) {
-      ;(audioElement?.srcObject as MediaStream)?.getAudioTracks()[0].stop()
-      if (!isScreen) mediaStreamState.audioStream.value!.getAudioTracks()[0].stop()
-    }
-  }
-
   useEffect(() => {
     if (isSelf) {
       if (isScreen) {

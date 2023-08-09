@@ -270,20 +270,6 @@ export function closeProducer(network: SocketWebRTCServerNetwork, producer: Prod
   )
 }
 
-export async function closeConsumer(network: SocketWebRTCServerNetwork, consumer: ConsumerExtension): Promise<void> {
-  await consumer.close()
-
-  network.consumers = network.consumers.filter((c) => c.id !== consumer.id)
-
-  for (const [, client] of network.peers) {
-    if (client.spark) {
-      client.spark!.write({ type: MessageTypes.WebRTCCloseConsumer.toString(), data: consumer.id })
-    }
-  }
-
-  delete network.peers.get(consumer.appData.peerID)?.consumerLayers![consumer.id]
-}
-
 export async function createWebRtcTransport(
   network: SocketWebRTCServerNetwork,
   { peerID, direction, sctpCapabilities, channelId }: WebRtcTransportParams
@@ -736,11 +722,25 @@ export const handleRequestConsumer = async (
     // to make sure we close and clean up consumers in all circumstances
     consumer.on('transportclose', () => {
       logger.info(`Consumer's transport closed, consumer.id: "${consumer.id}".`)
-      closeConsumer(network, consumer)
+      dispatchAction(
+        MediaConsumerActions.closeConsumer({
+          consumerID: consumer.id,
+          $topic: network.topic,
+          // $to: peerID
+          $to: network.peers.get(peerID)!.userId
+        })
+      )
     })
     consumer.on('producerclose', () => {
       logger.info(`Consumer's producer closed, consumer.id: "${consumer.id}".`)
-      closeConsumer(network, consumer)
+      dispatchAction(
+        MediaConsumerActions.closeConsumer({
+          consumerID: consumer.id,
+          $topic: network.topic,
+          // $to: peerID
+          $to: network.peers.get(peerID)!.userId
+        })
+      )
     })
 
     // stick this consumer in our list of consumers to keep track of
@@ -779,22 +779,6 @@ export const handleRequestConsumer = async (
   } catch (err) {
     logger.error(err, 'Error consuming transport %o.', transport)
   }
-}
-
-export async function handleWebRtcCloseConsumer(
-  network: SocketWebRTCServerNetwork,
-  spark: Spark,
-  peerID: PeerID,
-  data,
-  messageId: string
-): Promise<any> {
-  const { consumerId } = data
-  const consumer = network.consumers.find((c) => c.id === consumerId)
-  if (consumer) {
-    await closeConsumer(network, consumer)
-  }
-  // this is to reply to the request, which needs to be resolved
-  spark.write({ type: MessageTypes.WebRTCCloseConsumer.toString(), id: messageId })
 }
 
 export async function handleWebRtcConsumerSetLayers(

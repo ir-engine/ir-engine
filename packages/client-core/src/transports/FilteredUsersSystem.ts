@@ -31,7 +31,7 @@ import { defineState, getMutableState, getState } from '@etherealengine/hyperflu
 
 import { MediaInstanceState } from '../common/services/MediaInstanceConnectionService'
 import { AuthState } from '../user/services/AuthService'
-import { closeConsumer, SocketWebRTCClientNetwork } from './SocketWebRTCClientFunctions'
+import { SocketWebRTCClientNetwork } from './SocketWebRTCClientFunctions'
 
 export const FilteredUsersState = defineState({
   name: 'FilteredUsersState',
@@ -44,9 +44,7 @@ export const FilteredUsersService = {
   updateNearbyLayerUsers: () => {
     const mediaState = getMutableState(FilteredUsersState)
     const selfUserId = getMutableState(AuthState).user.id.value
-    const peers = Engine.instance.worldNetworkState.peers
-      ? Array.from(Engine.instance.worldNetworkState.peers?.get({ noproxy: true }).values())
-      : []
+    const peers = Engine.instance.worldNetwork.peers ? Array.from(Engine.instance.worldNetwork.peers.values()) : []
     const worldUserIds = peers
       ? peers.filter((peer) => peer.peerID !== 'server' && peer.userId !== selfUserId).map((peer) => peer.userId)
       : []
@@ -71,11 +69,17 @@ export const updateNearbyAvatars = () => {
 
   if (!nearbyUserIds.length) return
 
-  for (const consumer of network.consumers) {
-    if (!nearbyUserIds.includes(network.peers.get(consumer.appData.peerID)?.userId!)) {
-      closeConsumer(network, consumer)
-    }
-  }
+  // TODO handle this better
+  // for (const consumer of network.consumers) {
+  //   if (!nearbyUserIds.includes(network.peers.get(consumer.appData.peerID)?.userId!)) {
+  //     dispatchAction(
+  //       MediaConsumerActions.closeConsumer({
+  //         consumerID: consumer.id,
+  //         $topic: network.topic
+  //       })
+  //     )
+  //   }
+  // }
 }
 
 // every 5 seconds

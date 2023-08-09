@@ -32,6 +32,7 @@ import { UserId } from '@etherealengine/common/src/interfaces/UserId'
 import {
   defineAction,
   defineState,
+  dispatchAction,
   getMutableState,
   getState,
   none,
@@ -39,6 +40,7 @@ import {
   useHookstate
 } from '@etherealengine/hyperflux'
 import { Validator, matches, matchesPeerID } from '../../common/functions/MatchesUtils'
+import { isClient } from '../../common/functions/getEnvironment'
 import { defineSystem } from '../../ecs/functions/SystemFunctions'
 import { MediaStreamAppData, NetworkState } from '../NetworkState'
 
@@ -259,6 +261,24 @@ export const NetworkProducer = (props: { networkID: UserId; producerID: string }
 
   useEffect(() => {
     const peerID = producerState.peerID.value
+    const mediaTag = producerState.mediaTag.value
+    const channelID = producerState.channelID.value
+    const network = getState(NetworkState).networks[networkID]
+
+    // todo, replace this with a better check
+    if (isClient) {
+      dispatchAction(
+        MediaConsumerActions.requestConsumer({
+          mediaTag,
+          peerID,
+          rtpCapabilities: (network as any).mediasoupDevice.rtpCapabilities,
+          channelID,
+          $topic: network.topic,
+          $to: network.hostId
+        })
+      )
+    }
+
     return () => {
       const network = getState(NetworkState).networks[networkID]
       const producer = network.producers.find((p) => p.id === producerID)
@@ -267,16 +287,32 @@ export const NetworkProducer = (props: { networkID: UserId; producerID: string }
       console.log('Destroying Producer', producer.id)
 
       producer.close()
+
+      // remove from the network state
+      networkState.producers.set((p) => {
+        const index = p.findIndex((c) => c.id === producer.id)
+        if (index > -1) {
+          p.splice(index, 1)
+        }
+        return p
+      })
+
+      // remove from the peer state
       const media = network.peers.get(peerID)?.media
-      network.producers.splice(network.producers.indexOf(producer), 1)
-      network.consumers.splice(
-        network.consumers.findIndex(
-          (c) => c.appData.mediaTag === producer.appData.mediaTag && c.producerId === producer.id
-        ),
-        1
-      )
       if (media && media[producer.appData.mediaTag]) {
         delete media[producer.appData.mediaTag]
+      }
+
+      // close the consumer
+      const consumer = network.consumers.find((c) => c.appData.peerID === peerID && c.appData.mediaTag === mediaTag)
+      // todo, replace this with a better check
+      if (consumer && isClient) {
+        dispatchAction(
+          MediaConsumerActions.closeConsumer({
+            consumerID: consumer.id,
+            $topic: network.topic
+          })
+        )
       }
     }
   }, [])
@@ -288,8 +324,8 @@ export const NetworkProducer = (props: { networkID: UserId; producerID: string }
 
     if (producer.closed || producer._closed) return
 
-    if (producerState.paused.value) producer.pause()
-    if (!producerState.paused.value) producer.resume()
+    if (producerState.paused.value && producer.pause) producer.pause()
+    if (!producerState.paused.value && producer.resume) producer.resume()
   }, [producerState.paused, networkProducerState])
 
   return <></>
@@ -309,7 +345,19 @@ export const NetworkConsumer = (props: { networkID: UserId; consumerID: string }
 
       console.log('Destroying Consumer', consumer)
 
+      // remove from the network state
+      networkState.consumers.set((p) => {
+        const index = p.findIndex((c) => c.id === consumer.id)
+        if (index > -1) {
+          p.splice(index, 1)
+        }
+        return p
+      })
+
       consumer.close()
+
+      // remove from the peer state
+      delete network.peers.get(consumer.appData.peerID)?.consumerLayers?.[consumer.id]
     }
   }, [])
 
@@ -320,8 +368,8 @@ export const NetworkConsumer = (props: { networkID: UserId; consumerID: string }
 
     if (consumer.closed || consumer._closed) return
 
-    if (consumerState.paused.value) consumer.pause()
-    if (!consumerState.paused.value) consumer.resume()
+    if (consumerState.paused.value && consumer.pause) consumer.pause()
+    if (!consumerState.paused.value && consumer.resume) consumer.resume()
   }, [consumerState.paused, networkConsumerState, networkState.consumers.length])
 
   return <></>

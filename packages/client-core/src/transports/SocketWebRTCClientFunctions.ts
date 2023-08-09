@@ -113,7 +113,7 @@ import { LocationState } from '../social/services/LocationService'
 import { AuthState } from '../user/services/AuthService'
 import { updateNearbyAvatars } from './FilteredUsersSystem'
 import { MediaStreamService as _MediaStreamService, MediaStreamState } from './MediaStreams'
-import { clearPeerMediaChannels, PeerMediaChannelState } from './PeerMediaChannelState'
+import { clearPeerMediaChannels } from './PeerMediaChannelState'
 
 const logger = multiLogger.child({ component: 'client-core:SocketWebRTCClientFunctions' })
 
@@ -569,36 +569,6 @@ export async function onConnectToWorldInstance(network: SocketWebRTCClientNetwor
 export async function onConnectToMediaInstance(network: SocketWebRTCClientNetwork) {
   const mediaStreamState = getMutableState(MediaStreamState)
 
-  async function webRTCCloseConsumerHandler(consumerId?: string) {
-    // not guaranteed to be returned, will be refactored when converted to hyperflux actions
-    if (!consumerId) return
-    const consumer = network.consumers.find((c) => c.id === consumerId) as ConsumerExtension
-    if (!consumer) return
-    const peerID = consumer?.appData?.peerID
-    const mediaTag = consumer.appData.mediaTag
-    consumer.close()
-    const networkState = getMutableState(NetworkState).networks[network.hostId]
-    // reactively splice the consumer out of the array
-    networkState.consumers.set((p) => {
-      const index = p.findIndex((c) => c.id === consumer.id)
-      if (index > -1) {
-        p.splice(index, 1)
-      }
-      return p
-    })
-    if (consumer && mediaTag && peerID) {
-      const isScreen = mediaTag === screenshareVideoDataChannelType || mediaTag === screenshareAudioDataChannelType
-      const isVideo = mediaTag === screenshareVideoDataChannelType || mediaTag === webcamVideoDataChannelType
-      const peerMediaChannel = getMutableState(PeerMediaChannelState)[peerID]
-
-      if (peerMediaChannel) {
-        const camOrScreen = peerMediaChannel[isScreen ? 'screen' : 'cam']
-        const stream = isVideo ? camOrScreen?.videoStream : camOrScreen?.audioStream
-        stream?.set(null)
-      }
-    }
-  }
-
   async function reconnectHandler() {
     dispatchAction(NetworkConnectionService.actions.mediaInstanceReconnected({}))
     network.reconnecting = false
@@ -652,26 +622,22 @@ export async function onConnectToMediaInstance(network: SocketWebRTCClientNetwor
     }
   }
 
-  async function producerConsumerHandler(message) {
-    const { type, data } = message
-    switch (type) {
-      case MessageTypes.WebRTCCloseConsumer.toString():
-        webRTCCloseConsumerHandler(data)
-        break
-    }
-  }
-
   async function disconnectHandler() {
     if (network.recvTransport && network.recvTransport?.closed !== true) await network.recvTransport?.close()
     if (network.sendTransport && network.sendTransport?.closed !== true) await network.sendTransport?.close()
-    network.consumers.forEach((consumer) => closeConsumer(network, consumer))
+    network.consumers.forEach((consumer) => {
+      dispatchAction(
+        MediaConsumerActions.closeConsumer({
+          consumerID: consumer.id,
+          $topic: network.topic
+        })
+      )
+    })
     dispatchAction(NetworkConnectionService.actions.mediaInstanceDisconnected({}))
-    network.primus?.removeListener('data', producerConsumerHandler)
   }
 
   network.primus.on('disconnection', disconnectHandler)
   network.primus.on('reconnected', reconnectHandler)
-  network.primus.on('data', producerConsumerHandler)
   network.primus.socket.addEventListener('close', disconnectHandler)
   network.primus.socket.addEventListener('open', reconnectHandler)
 
@@ -1152,11 +1118,13 @@ export async function endVideoChat(network: SocketWebRTCClientNetwork | null, op
       }
 
       if (options?.endConsumers === true) {
-        network.consumers.map(async (c) => {
-          await promisedRequest(network, MessageTypes.WebRTCCloseConsumer.toString(), {
-            consumerId: c.id
-          })
-          await c.close()
+        network.consumers.map((c) => {
+          dispatchAction(
+            MediaConsumerActions.closeConsumer({
+              consumerID: c.id,
+              $topic: network.topic
+            })
+          )
         })
       }
 
@@ -1264,7 +1232,14 @@ export const receiveConsumerHandler = async (
     if (!consumer.producerPaused) resumeConsumer(network, consumer)
     else pauseConsumer(network, consumer)
   } else if (existingConsumer.track?.muted) {
-    await closeConsumer(network, existingConsumer)
+    dispatchAction(
+      MediaConsumerActions.closeConsumer({
+        consumerID: existingConsumer.id,
+        $topic: network.topic,
+        // $to: peerID
+        $to: network.peers.get(peerID)!.userId
+      })
+    )
     networkState.consumers.merge([consumer])
     // okay, we're ready. let's ask the peer to send us media
     if (!consumer.producerPaused) {
@@ -1273,14 +1248,15 @@ export const receiveConsumerHandler = async (
       pauseConsumer(network, consumer)
     }
   } else {
-    await closeConsumer(network, consumer)
+    dispatchAction(
+      MediaConsumerActions.closeConsumer({
+        consumerID: consumer.id,
+        $topic: network.topic,
+        // $to: peerID
+        $to: network.peers.get(peerID)!.userId
+      })
+    )
   }
-}
-
-export async function unsubscribeFromTrack(network: SocketWebRTCClientNetwork, peerID: PeerID, mediaTag: any) {
-  const consumer = network.consumers.find((c) => c.appData.peerID === peerID && c.appData.mediaTag === mediaTag)
-  if (!consumer) return
-  await closeConsumer(network, consumer)
 }
 
 export function pauseConsumer(network: SocketWebRTCClientNetwork, consumer: ConsumerExtension) {
@@ -1347,23 +1323,6 @@ export function globalUnmuteProducer(network: SocketWebRTCClientNetwork, produce
       $topic: network.topic
     })
   )
-}
-
-export async function closeConsumer(network: SocketWebRTCClientNetwork, consumer: ConsumerExtension) {
-  await consumer?.close()
-
-  const networkState = getMutableState(NetworkState).networks[network.hostId]
-  // reactively splice the consumer out of the array
-  networkState.consumers.set((p) => {
-    const index = p.findIndex((c) => c.id === consumer.id)
-    if (index > -1) {
-      p.splice(index, 1)
-    }
-    return p
-  })
-  await promisedRequest(network, MessageTypes.WebRTCCloseConsumer.toString(), {
-    consumerId: consumer.id
-  })
 }
 
 export async function setPreferredConsumerLayer(

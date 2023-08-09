@@ -42,7 +42,7 @@ import {
   MediaInstanceState
 } from '../common/services/MediaInstanceConnectionService'
 import { NetworkConnectionService } from '../common/services/NetworkConnectionService'
-import { DataChannels, ProducerReactor } from '../components/World/ProducersAndConsumers'
+import { DataChannels } from '../components/World/ProducersAndConsumers'
 import { PeerMediaConsumers } from '../media/PeerMedia'
 import { ChannelState } from '../social/services/ChannelService'
 import { FriendServiceReceptor } from '../social/services/FriendService'
@@ -185,7 +185,6 @@ const reactor = () => {
   return (
     <>
       <DataChannels />
-      <ProducerReactor />
       <PeerMediaConsumers />
       <InstanceProvisioning />
     </>
