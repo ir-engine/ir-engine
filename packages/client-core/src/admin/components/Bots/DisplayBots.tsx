@@ -23,13 +23,13 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React, { useEffect } from 'react'
+import React from 'react'
 import { useTranslation } from 'react-i18next'
 
 import ConfirmDialog from '@etherealengine/client-core/src/common/components/ConfirmDialog'
 import { AdminBot } from '@etherealengine/common/src/interfaces/AdminBot'
 import { BotCommandData, botCommandPath } from '@etherealengine/engine/src/schemas/bot/bot-command.schema'
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { useHookstate } from '@etherealengine/hyperflux'
 import Accordion from '@etherealengine/ui/src/primitives/mui/Accordion'
 import AccordionDetails from '@etherealengine/ui/src/primitives/mui/AccordionDetails'
 import AccordionSummary from '@etherealengine/ui/src/primitives/mui/AccordionSummary'
@@ -38,13 +38,13 @@ import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
 import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 
-import { useMutation } from '@etherealengine/engine/src/common/functions/FeathersHooks'
+import { useFind, useMutation } from '@etherealengine/engine/src/common/functions/FeathersHooks'
 import { NotificationService } from '../../../common/services/NotificationService'
-import { AuthState } from '../../../user/services/AuthService'
 import AddCommand from '../../common/AddCommand'
-import { AdminBotService, AdminBotState } from '../../services/BotsService'
 import styles from '../../styles/admin.module.scss'
 import UpdateBot from './UpdateBot'
+
+const BOTS_PAGE_LIMIT = 100
 
 const DisplayBots = () => {
   const expanded = useHookstate<string | false>('panel0')
@@ -58,6 +58,16 @@ const DisplayBots = () => {
   const botName = useHookstate('')
   const botId = useHookstate('')
 
+  const botsQuery = useFind('bot', {
+    query: {
+      $sort: {
+        name: 1
+      },
+      $limit: BOTS_PAGE_LIMIT,
+      action: 'admin'
+    }
+  })
+  const botRemove = useMutation('bot').remove
   const adminBotCommandMutation = useMutation(botCommandPath)
 
   const handleChangeCommand = (e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
@@ -68,16 +78,7 @@ const DisplayBots = () => {
   const handleChange = (panel: string) => (event: React.ChangeEvent<any>, isExpanded: boolean) => {
     expanded.set(isExpanded ? panel : false)
   }
-  const botAdmin = useHookstate(getMutableState(AdminBotState))
-  const user = useHookstate(getMutableState(AuthState).user)
-  const botAdminData = botAdmin.bots
   const { t } = useTranslation()
-
-  useEffect(() => {
-    if (user.id.value && botAdmin.updateNeeded.value) {
-      AdminBotService.fetchBotAsAdmin()
-    }
-  }, [botAdmin.updateNeeded.value, user?.id?.value])
 
   const handleOpenUpdateBot = (inputBot) => {
     bot.set(inputBot)
@@ -85,13 +86,12 @@ const DisplayBots = () => {
   }
 
   const submitRemoveBot = async () => {
-    await AdminBotService.removeBots(botId.value)
+    await botRemove(botId.value)
     openConfirm.set(false)
   }
 
   const removeCommand = async (id) => {
-    await adminBotCommandMutation.remove(id)
-    AdminBotService.fetchBotAsAdmin()
+    await adminBotCommandMutation.remove(id).then(() => botsQuery.refetch())
   }
 
   const addCommand = (id) => {
@@ -106,7 +106,7 @@ const DisplayBots = () => {
         name: '',
         description: ''
       })
-      AdminBotService.fetchBotAsAdmin()
+      botsQuery.refetch()
     } else {
       NotificationService.dispatchNotify(t('admin:components.bot.commandRequired'), { variant: 'error' })
     }
@@ -114,7 +114,7 @@ const DisplayBots = () => {
 
   return (
     <div className={styles.botRootRight}>
-      {botAdminData.get({ noproxy: true }).map((bot, index) => {
+      {botsQuery.data.map((bot, index) => {
         return (
           <Accordion
             expanded={expanded.value === `panel${index}`}

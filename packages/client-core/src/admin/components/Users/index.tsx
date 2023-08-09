@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import Box from '@etherealengine/ui/src/primitives/mui/Box'
@@ -36,22 +36,17 @@ import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
 import Popover from '@etherealengine/ui/src/primitives/mui/Popover'
 
 import Search from '../../common/Search'
-import { AdminUserService } from '../../services/UserService'
 import styles from '../../styles/admin.module.scss'
 import UserDrawer, { UserDrawerMode } from './UserDrawer'
 import UserTable from './UserTable'
 
 const Users = () => {
+  const { t } = useTranslation()
   const [search, setSearch] = useState('')
   const [openUserDrawer, setOpenUserDrawer] = useState(false)
-  const { t } = useTranslation()
-  const [checked, setChecked] = useState(false)
+  const [skipGuests, setSkipGuests] = useState(false)
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null)
   const openMenu = Boolean(anchorEl)
-
-  useEffect(() => {
-    AdminUserService.resetFilter()
-  }, [])
 
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget)
@@ -61,23 +56,21 @@ const Users = () => {
   }
 
   const handleSkipGuests = (e: any) => {
-    setChecked(e.target.checked)
-    AdminUserService.setSkipGuests(e.target.checked)
+    setSkipGuests(e.target.checked)
   }
-  const handleChange = (e: any) => {
+  const handleSearchChange = (e: any) => {
     setSearch(e.target.value)
   }
 
   const resetFilter = () => {
-    setChecked(false)
-    AdminUserService.resetFilter()
+    setSkipGuests(false)
   }
 
   return (
     <div>
       <Grid container spacing={1} className={styles.mb10px}>
         <Grid item sm={8} xs={12}>
-          <Search text={t('admin:components.user.userSearch')} handleChange={handleChange} />
+          <Search text={t('admin:components.user.userSearch')} handleChange={handleSearchChange} />
         </Grid>
         <Grid item sm={4} xs={8}>
           <Box sx={{ display: 'flex' }}>
@@ -103,7 +96,7 @@ const Users = () => {
           </Box>
         </Grid>
       </Grid>
-      <UserTable className={styles.rootTableWithSearch} search={search} />
+      <UserTable className={styles.rootTableWithSearch} search={search} skipGuests={skipGuests} />
       <UserDrawer open={openUserDrawer} mode={UserDrawerMode.Create} onClose={() => setOpenUserDrawer(false)} />
       <Popover
         classes={{ paper: styles.popover }}
@@ -126,7 +119,7 @@ const Users = () => {
               className={styles.checkbox}
               classes={{ checked: styles.checkedCheckbox }}
               color="primary"
-              checked={checked}
+              checked={skipGuests}
             />
           }
           label={t('admin:components.user.hideGuests')}
