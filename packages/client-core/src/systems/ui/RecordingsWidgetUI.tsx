@@ -33,9 +33,9 @@ import { RecordingFunctions, RecordingState } from '../../recording/RecordingSer
 import { PeerID } from '@etherealengine/common/src/interfaces/PeerID'
 import { PlayIcon, PlusCircleIcon } from '@heroicons/react/24/solid'
 
-import { RecordingResult } from '@etherealengine/common/src/interfaces/Recording'
 import { useFind, useGet } from '@etherealengine/engine/src/common/functions/FeathersHooks'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
+import { RecordingType } from '@etherealengine/engine/src/schemas/recording/recording.schema'
 import { WidgetAppService } from '@etherealengine/engine/src/xrui/WidgetAppService'
 import { startPlayback } from '@etherealengine/ui/src/pages/Capture'
 import { PeerMediaChannelState, PeerMediaStreamInterface } from '../../transports/PeerMediaChannelState'
@@ -307,7 +307,7 @@ const RecordingPlayback = () => {
             if (!resource.key.endsWith('.webm') && !resource.key.endsWith('.mp4')) return null
             return (
               <video
-                key={resource.id}
+                key={resource.sid}
                 style={{ maxWidth: '100px', width: '100px', height: 'auto' }}
                 src={resource.url}
                 autoPlay={true}
@@ -331,7 +331,7 @@ const RecordingsList = () => {
     (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
   )
 
-  const RenderRecording = (props: { recording: RecordingResult }) => {
+  const RenderRecording = (props: { recording: RecordingType }) => {
     const { recording } = props
     const time = new Date(recording.createdAt).toLocaleTimeString()
     const duration = (new Date(recording.updatedAt).getTime() - new Date(recording.createdAt).getTime()) / 1000

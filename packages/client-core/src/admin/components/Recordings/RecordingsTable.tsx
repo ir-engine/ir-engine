@@ -27,13 +27,16 @@ import { useHookstate } from '@hookstate/core'
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { RecordingResult } from '@etherealengine/common/src/interfaces/Recording'
 import { getMutableState } from '@etherealengine/hyperflux'
 import Box from '@etherealengine/ui/src/primitives/mui/Box'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
 
-import { RecordingID } from '@etherealengine/engine/src/schemas/recording/recording.schema'
+import {
+  RecordingID,
+  RecordingSchemaType,
+  RecordingType
+} from '@etherealengine/engine/src/schemas/recording/recording.schema'
 import ConfirmDialog from '../../../common/components/ConfirmDialog'
 import TableComponent from '../../common/Table'
 import { recordingColumns } from '../../common/variables/recording'
@@ -75,7 +78,13 @@ const RecordingsTable = () => {
     }
   }
 
-  const createData = (el: RecordingResult, id: RecordingID, user: string, ended: boolean, schema: string) => ({
+  const createData = (
+    el: RecordingType,
+    id: RecordingID,
+    user: string,
+    ended: boolean,
+    schema: RecordingSchemaType
+  ) => ({
     el,
     id,
     user,
@@ -106,7 +115,7 @@ const RecordingsTable = () => {
   })
 
   const rows = adminRecordingsState.recordings.value.map((val) =>
-    createData(val, val.id, val['user.name'], val.ended, val.schema)
+    createData(val, val.id, val.userName, val.ended, val.schema)
   )
 
   return (

@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import type { PaginationOptions, Params } from '@feathersjs/feathers'
+import type { Paginated, PaginationOptions, Params } from '@feathersjs/feathers'
 import type { KnexAdapterOptions } from '@feathersjs/knex'
 import { KnexAdapter } from '@feathersjs/knex'
 
@@ -36,8 +36,7 @@ import {
 } from '@etherealengine/engine/src/schemas/recording/recording.schema'
 import { Application } from '../../../declarations'
 import { RootParams } from '../../api/root-params'
-import { checkScope } from '../../hooks/verify-scope'
-import { NotFoundException, UnauthorizedException } from '../../util/exceptions/exception'
+import { NotFoundException } from '../../util/exceptions/exception'
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface RecordingParams extends RootParams<RecordingQuery> {}
@@ -64,42 +63,24 @@ export class RecordingService<T = RecordingType, ServiceParams extends Params = 
       paginate?: PaginationOptions | false
     }
   ) {
-    if (params && params.user && params.query) {
-      const admin = await checkScope(params.user, this.app, 'admin', 'admin')
-      if (admin && params.query.action === 'admin') {
-        delete params.query.action
-        // show admin page results only if user is admin and query.action explicitly is admin (indicates admin panel)
-        return super._find({ ...params })
-      }
-    }
-
     params!.query = {
-      ...params!.query,
-      userId: params!.user!.id
+      ...params?.query,
+      userId: params?.user?.id
     }
 
-    return super._find(params)
+    return super._find(params) as Promise<Paginated<T>>
   }
 
   async create(data: RecordingData, params?: RecordingParams) {
-    return super._create({
-      ...data,
-      userId: params!.user!.id
-    })
+    return super._create(data, params)
   }
 
-  async remove(id: RecordingID, params?: RecordingParams) {
-    if (params && params.user && params.query) {
-      const admin = await checkScope(params.user, this.app, 'admin', 'admin')
-      if (admin) {
-        const recording = super._get(id)
-        if (!recording) {
-          throw new NotFoundException('Unable to find recording with this id')
-        }
-        return super._remove(id)
-      }
+  async remove(id: RecordingID) {
+    const recording = super._get(id)
+    if (!recording) {
+      throw new NotFoundException('Unable to find recording with this id')
     }
-    throw new UnauthorizedException('This action can only be performed by admins')
+    return super._remove(id)
   }
 
   async patch(id: RecordingID, data: RecordingPatch, params?: RecordingParams) {

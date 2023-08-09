@@ -35,7 +35,6 @@ import {
   recordingSchema,
   recordingSchemaType
 } from '@etherealengine/engine/src/schemas/recording/recording.schema'
-import addAssociations from '../../hooks/add-associations'
 import authenticate from '../../hooks/authenticate'
 import verifyScope from '../../hooks/verify-scope'
 import {
@@ -65,34 +64,10 @@ export default {
       () => schemaHooks.validateQuery(recordingQueryValidator),
       schemaHooks.resolveQuery(recordingQueryResolver)
     ],
-    find: [
-      iff(
-        isProvider('external'),
-        verifyScope('recording', 'read'),
-        addAssociations({
-          models: [
-            {
-              model: 'user',
-              as: 'user'
-            }
-          ]
-        }) as any
-      )
-    ],
+    find: [iff(isProvider('external'), verifyScope('recording', 'read'))],
     get: [iff(isProvider('external'), verifyScope('recording', 'read'))],
     create: [
-      iff(
-        isProvider('external'),
-        verifyScope('recording', 'write'),
-        addAssociations({
-          models: [
-            {
-              model: 'user',
-              as: 'user'
-            }
-          ]
-        }) as any
-      ),
+      iff(isProvider('external'), verifyScope('recording', 'write')),
       () => schemaHooks.validateData(recordingDataValidator),
       schemaHooks.resolveData(recordingDataResolver)
     ],
@@ -102,7 +77,7 @@ export default {
       () => schemaHooks.validateData(recordingPatchValidator),
       schemaHooks.resolveData(recordingPatchResolver)
     ],
-    remove: [iff(isProvider('external'), verifyScope('recording', 'write'))]
+    remove: [iff(isProvider('external'), verifyScope('admin', 'admin'), verifyScope('recording', 'write'))]
   },
 
   after: {

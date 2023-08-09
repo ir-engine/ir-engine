@@ -26,21 +26,22 @@ Ethereal Engine. All Rights Reserved.
 import { Paginated } from '@feathersjs/feathers'
 import { useEffect } from 'react'
 
-import { RecordingResult } from '@etherealengine/common/src/interfaces/Recording'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { defineState, getMutableState } from '@etherealengine/hyperflux'
 
-import { RecordingID } from '@etherealengine/common/src/interfaces/RecordingID'
+import {
+  RecordingID,
+  RecordingType,
+  recordingPath
+} from '@etherealengine/engine/src/schemas/recording/recording.schema'
 import { NotificationService } from '../../common/services/NotificationService'
-
-type RecordingResultFetch = RecordingResult & { 'user.name': string }
 
 export const RECORDING_PAGE_LIMIT = 10
 
 export const AdminRecordingState = defineState({
   name: 'AdminRecordingState',
   initial: () => ({
-    recordings: [] as Array<RecordingResultFetch>,
+    recordings: [] as Array<RecordingType>,
     skip: 0,
     limit: RECORDING_PAGE_LIMIT,
     total: 0,
@@ -61,14 +62,14 @@ export const AdminRecordingService = {
   ) => {
     try {
       const $sort = sortField.length > 0 ? { [sortField]: orderBy === 'desc' ? -1 : 1 } : {}
-      const recordings = (await Engine.instance.api.service('recording').find({
+      const recordings = (await Engine.instance.api.service(recordingPath).find({
         query: {
           $skip,
           $sort,
           $limit,
           action: 'admin'
         }
-      })) as Paginated<RecordingResultFetch>
+      })) as Paginated<RecordingType>
 
       getMutableState(AdminRecordingState).merge({
         recordings: recordings.data,
@@ -85,7 +86,7 @@ export const AdminRecordingService = {
     }
   },
   removeRecording: async (id: RecordingID) => {
-    await Engine.instance.api.service('recording').remove(id)
+    await Engine.instance.api.service(recordingPath).remove(id)
     getMutableState(AdminRecordingState).merge({ updateNeeded: true })
   },
   useAPIListeners: () => {
@@ -104,13 +105,13 @@ export const AdminRecordingService = {
 export const AdminSingleRecordingState = defineState({
   name: 'AdminSingleRecordingState',
   initial: () => ({
-    recording: null as RecordingResult | null
+    recording: null as RecordingType | null
   })
 })
 
 export const AdminSingleRecordingService = {
   fetchSingleAdminRecording: async (id: RecordingID) => {
-    const recording = await Engine.instance.api.service('recording').get(id)
+    const recording = await Engine.instance.api.service(recordingPath).get(id)
     getMutableState(AdminSingleRecordingState).merge({ recording })
   }
 }

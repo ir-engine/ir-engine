@@ -27,7 +27,6 @@ import { useHookstate } from '@hookstate/core'
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { RecordingResult } from '@etherealengine/common/src/interfaces/Recording'
 import {
   AssetSelectionChangePropsType,
   AssetsPreviewPanel
@@ -38,13 +37,14 @@ import Box from '@etherealengine/ui/src/primitives/mui/Box'
 import Container from '@etherealengine/ui/src/primitives/mui/Container'
 import DialogTitle from '@etherealengine/ui/src/primitives/mui/DialogTitle'
 
+import { RecordingType } from '@etherealengine/engine/src/schemas/recording/recording.schema'
 import DrawerView from '../../common/DrawerView'
 import { AdminSingleRecordingService, AdminSingleRecordingState } from '../../services/RecordingService'
 import styles from '../../styles/admin.module.scss'
 
 interface Props {
   open: boolean
-  selectedRecordingId: RecordingResult['id'] | null
+  selectedRecordingId: RecordingType['id'] | null
   onClose: () => void
 }
 
