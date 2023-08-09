@@ -37,8 +37,7 @@ import {
   LocationTypeInterface,
   UserApiKeyInterface,
   UserInterface,
-  UserRelationshipInterface,
-  UserRelationshipTypeInterface
+  UserRelationshipInterface
 } from '@etherealengine/common/src/dbmodels/UserInterface'
 
 import { Application } from '../../../declarations'
@@ -504,40 +503,8 @@ export const createUserRelationshipModel = (app: Application) => {
   ;(userRelationship as any).associate = (models: any): void => {
     ;(userRelationship as any).belongsTo(models.user, { as: 'user', constraints: false })
     ;(userRelationship as any).belongsTo(models.user, { as: 'relatedUser', constraints: false })
-    ;(userRelationship as any).belongsTo(createUserRelationshipTypeModel(app), { foreignKey: 'type' })
+    ;(userRelationship as any).belongsTo(models.user_relationship_type, { foreignKey: 'type' })
   }
 
   return userRelationship
-}
-
-const createUserRelationshipTypeModel = (app: Application) => {
-  const sequelizeClient: Sequelize = app.get('sequelizeClient')
-  const userRelationshipType = sequelizeClient.define<Model<UserRelationshipTypeInterface>>(
-    'user-relationship-type',
-    {
-      type: {
-        type: DataTypes.STRING,
-        allowNull: false,
-        primaryKey: true,
-        unique: true
-      }
-    },
-    {
-      hooks: {
-        beforeCount(options: any): void {
-          options.raw = true
-        },
-        beforeUpdate(instance: any, options: any): void {
-          throw new Error("Can't update a type!")
-        }
-      },
-      timestamps: false
-    }
-  )
-
-  ;(userRelationshipType as any).associate = (models: any): void => {
-    ;(userRelationshipType as any).hasMany(createUserRelationshipModel(app), { foreignKey: 'userRelationshipType' })
-  }
-
-  return userRelationshipType
 }
