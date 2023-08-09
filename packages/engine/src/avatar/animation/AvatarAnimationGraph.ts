@@ -63,6 +63,7 @@ export const setAvatarLocomotionAnimation = (entity: Entity) => {
   idle.play()
   run.play()
   walk.play()
+  fall.play()
 
   fallWeight = lerp(
     fall.getEffectiveWeight(),
