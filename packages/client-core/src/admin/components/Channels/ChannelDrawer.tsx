@@ -23,23 +23,21 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { useHookstate } from '@hookstate/core'
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import InputText from '@etherealengine/client-core/src/common/components/InputText'
 import { Channel } from '@etherealengine/common/src/interfaces/Channel'
-import { getMutableState } from '@etherealengine/hyperflux'
 import Button from '@etherealengine/ui/src/primitives/mui/Button'
 import Container from '@etherealengine/ui/src/primitives/mui/Container'
 import DialogActions from '@etherealengine/ui/src/primitives/mui/DialogActions'
 import DialogTitle from '@etherealengine/ui/src/primitives/mui/DialogTitle'
 
+import { useMutation } from '@etherealengine/engine/src/common/functions/FeathersHooks'
 import { NotificationService } from '../../../common/services/NotificationService'
-import { AuthState } from '../../../user/services/AuthService'
+import { userHasAccess } from '../../../user/userHasAccess'
 import DrawerView from '../../common/DrawerView'
 import { validateForm } from '../../common/validation/formValidation'
-import { AdminChannelService } from '../../services/ChannelService'
 import styles from '../../styles/admin.module.scss'
 
 export enum ChannelDrawerMode {
@@ -66,10 +64,10 @@ const ChannelDrawer = ({ open, mode, selectedChannel, onClose }: Props) => {
   const [editMode, setEditMode] = useState(false)
   const [state, setState] = useState({ ...defaultState })
 
-  const user = useHookstate(getMutableState(AuthState)).user.value
-
-  const hasWriteAccess = user.scopes && user.scopes.find((item) => item.type === 'channel:write')
+  const hasWriteAccess = userHasAccess('channel:write')
   const viewMode = mode === ChannelDrawerMode.ViewEdit && !editMode
+
+  const channelsMutation = useMutation('channel')
 
   useEffect(() => {
     loadSelectedChannel()
@@ -126,9 +124,9 @@ const ChannelDrawer = ({ open, mode, selectedChannel, onClose }: Props) => {
 
     if (validateForm(state, tempErrors)) {
       if (mode === ChannelDrawerMode.Create) {
-        await AdminChannelService.createAdminChannel(data)
+        await channelsMutation.create({})
       } else if (selectedChannel) {
-        await AdminChannelService.patchChannel(selectedChannel.id!, data)
+        await channelsMutation.patch(selectedChannel.id!, data)
         setEditMode(false)
       }
 

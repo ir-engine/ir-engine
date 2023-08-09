@@ -23,43 +23,31 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { buildStatusPath, BuildStatusType } from '@etherealengine/engine/src/schemas/cluster/build-status.schema'
-import { defineState, getMutableState } from '@etherealengine/hyperflux'
+import { ServerPodInfo } from '@etherealengine/common/src/interfaces/ServerInfo'
+import { useHookstate } from '@etherealengine/hyperflux'
 
-//State
-export const AdminBuildStatusState = defineState({
-  name: 'AdminBuildStatusState',
-  initial: () => ({
-    buildStatuses: [] as Array<BuildStatusType>,
-    skip: 0,
-    limit: 10,
-    total: 0,
-    fetched: false,
-    updateNeeded: true
-  })
-})
+import { useFind } from '@etherealengine/engine/src/common/functions/FeathersHooks'
+import { useEffect } from 'react'
 
-//Service
-export const BuildStatusService = {
-  fetchBuildStatus: async (skip = 0) => {
-    let buildStatusResult = await Engine.instance.api.service(buildStatusPath).find({
-      query: {
-        $limit: 10,
-        $skip: skip,
-        $sort: {
-          id: -1
-        }
-      }
-    })
+export const useServerInfoFind = () => {
+  const serverInfoQuery = useFind('server-info')
+  const serverInfo = useHookstate([] as typeof serverInfoQuery.data)
 
-    getMutableState(AdminBuildStatusState).merge({
-      buildStatuses: buildStatusResult.data,
-      total: buildStatusResult.total,
-      skip: buildStatusResult.total,
-      limit: buildStatusResult.limit,
-      fetched: true,
-      updateNeeded: false
-    })
-  }
+  useEffect(() => {
+    const allPods: ServerPodInfo[] = []
+    for (const item of serverInfoQuery.data) {
+      allPods.push(...item.pods)
+    }
+
+    serverInfo.set([
+      {
+        id: 'all',
+        label: 'All',
+        pods: allPods
+      },
+      ...serverInfoQuery.data
+    ])
+  }, [serverInfoQuery.data])
+
+  return { data: serverInfo.value, refetch: serverInfoQuery.refetch }
 }
