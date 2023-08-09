@@ -51,8 +51,9 @@ export class UserRelationship<T = UserRelationshipDataType> extends Service<T> {
   async find(params?: Params): Promise<any> {
     if (!params) params = {}
     const UserRelationshipModel = this.getModel(params)
-    const UserRelationshipTypeService = this.app.service(userRelationshipTypePath)
-    const userRelationshipTypes = ((await UserRelationshipTypeService.find()) as any).data
+    const userRelationshipTypes = await this.app.service(userRelationshipTypePath).find({
+      paginate: false
+    })
 
     const userId = params.query?.userId
 
