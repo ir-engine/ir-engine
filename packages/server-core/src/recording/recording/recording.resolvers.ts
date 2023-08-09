@@ -50,8 +50,6 @@ export const recordingDbToSchema = (rawData: RecordingDatabaseType): RecordingTy
 
   return {
     ...rawData,
-    resources: [],
-    userName: '',
     schema
   }
 }

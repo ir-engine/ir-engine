@@ -35,7 +35,7 @@ import { PlayIcon, PlusCircleIcon } from '@heroicons/react/24/solid'
 
 import { useFind, useGet } from '@etherealengine/engine/src/common/functions/FeathersHooks'
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
-import { RecordingType } from '@etherealengine/engine/src/schemas/recording/recording.schema'
+import { RecordingType, recordingPath } from '@etherealengine/engine/src/schemas/recording/recording.schema'
 import { WidgetAppService } from '@etherealengine/engine/src/xrui/WidgetAppService'
 import { startPlayback } from '@etherealengine/ui/src/pages/Capture'
 import { PeerMediaChannelState, PeerMediaStreamInterface } from '../../transports/PeerMediaChannelState'
@@ -282,7 +282,7 @@ export const RecordingTimer = () => {
 
 const RecordingPlayback = () => {
   const recordingState = useHookstate(getMutableState(RecordingState))
-  const recording = useGet('recording', recordingState.playback.value!)
+  const recording = useGet(recordingPath, recordingState.playback.value!)
 
   useEffect(() => {
     if (!recordingState.playback.value)
@@ -321,7 +321,7 @@ const RecordingPlayback = () => {
 }
 
 const RecordingsList = () => {
-  const recording = useFind('recording')
+  const recording = useFind(recordingPath)
 
   useEffect(() => {
     RecordingFunctions.getRecordings()

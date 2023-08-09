@@ -34,8 +34,8 @@ import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
 import { useFind, useMutation } from '@etherealengine/engine/src/common/functions/FeathersHooks'
 import {
   RecordingID,
-  RecordingSchemaType,
-  RecordingType
+  RecordingType,
+  recordingPath
 } from '@etherealengine/engine/src/schemas/recording/recording.schema'
 import ConfirmDialog from '../../../common/components/ConfirmDialog'
 import TableComponent from '../../common/Table'
@@ -63,7 +63,7 @@ const RecordingsTable = () => {
     page.set(0)
   }
 
-  const recordingsQuery = useFind('recording', {
+  const recordingsQuery = useFind(recordingPath, {
     query: {
       $sort: sortField.value ? { [sortField.value]: fieldOrder.value === 'desc' ? -1 : 1 } : {},
       $skip: page.value * rowsPerPage.value,
@@ -72,7 +72,7 @@ const RecordingsTable = () => {
     }
   })
 
-  const removeRecording = useMutation('recording').remove
+  const removeRecording = useMutation(recordingPath).remove
 
   const handleSubmitRemove = () => {
     if (!currentRecordingId.value) {
@@ -83,13 +83,7 @@ const RecordingsTable = () => {
     currentRecordingId.set(undefined)
   }
 
-  const createData = (
-    el: RecordingType,
-    id: RecordingID,
-    user: string,
-    ended: boolean,
-    schema: RecordingSchemaType
-  ) => ({
+  const createData = (el: RecordingType, id: RecordingID, user: string, ended: boolean, schema: string) => ({
     el,
     id,
     user,
@@ -119,7 +113,9 @@ const RecordingsTable = () => {
     )
   })
 
-  const rows = recordingsQuery.data.map((val) => createData(val, val.id, val.userName, val.ended, val.schema))
+  const rows = recordingsQuery.data.map((val) =>
+    createData(val, val.id, val.userName, val.ended, JSON.stringify(val.schema))
+  )
 
   return (
     <Box>

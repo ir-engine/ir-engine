@@ -63,7 +63,7 @@ export const recordingSchema = Type.Object(
 )
 export type RecordingType = Static<typeof recordingSchema>
 
-export type RecordingDatabaseType = Omit<RecordingType, 'schema' | 'resources' | 'userName'> & {
+export type RecordingDatabaseType = Omit<RecordingType, 'schema'> & {
   schema: string
 }
 

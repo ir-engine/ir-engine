@@ -36,7 +36,7 @@ import Container from '@etherealengine/ui/src/primitives/mui/Container'
 import DialogTitle from '@etherealengine/ui/src/primitives/mui/DialogTitle'
 
 import { useGet } from '@etherealengine/engine/src/common/functions/FeathersHooks'
-import { RecordingType } from '@etherealengine/engine/src/schemas/recording/recording.schema'
+import { RecordingType, recordingPath } from '@etherealengine/engine/src/schemas/recording/recording.schema'
 import DrawerView from '../../common/DrawerView'
 import styles from '../../styles/admin.module.scss'
 
@@ -51,7 +51,7 @@ const RecordingFilesDrawer = ({ open, onClose, selectedRecordingId }: Props) => 
 
   const { t } = useTranslation()
 
-  const recordingData = useGet('recording', selectedRecordingId).data
+  const recordingData = useGet(recordingPath, selectedRecordingId).data
 
   const onSelectionChanged = (props: AssetSelectionChangePropsType) => {
     ;(assetsPreviewPanelRef.current as any)?.onSelectionChanged?.(props)

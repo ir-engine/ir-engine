@@ -63,12 +63,11 @@ export class RecordingService<T = RecordingType, ServiceParams extends Params = 
       paginate?: PaginationOptions | false
     }
   ) {
-    params!.query = {
-      ...params?.query,
-      userId: params?.user?.id
-    }
-
-    return super._find(params) as Promise<Paginated<T>>
+    return super._find({
+      query: {
+        userId: params?.user?.id
+      }
+    }) as Promise<Paginated<T>>
   }
 
   async create(data: RecordingData, params?: RecordingParams) {
