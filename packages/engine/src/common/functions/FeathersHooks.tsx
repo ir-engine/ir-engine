@@ -163,9 +163,11 @@ export const useFind = <S extends keyof ServiceTypes>(serviceName: S, params: Pa
   const response = useQuery(serviceName, 'find', params)
 
   const data = response?.data ? (Array.isArray(response.data) ? response.data : response.data.data) : []
+  const total: number | undefined = response?.data && !Array.isArray(response.data) ? response.data.total : undefined
 
   return {
     ...response,
+    total,
     data: data as ArrayOrPaginatedType<(typeof response)['data']>
   }
 }

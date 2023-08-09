@@ -109,6 +109,14 @@ describe('user service', () => {
     }
   })
 
+  it('should have "total" in find method', async () => {
+    const item = await app.service('user').find({
+      isInternal: true
+    })
+
+    assert.ok('total' in item)
+  })
+
   it('should find users by action invite-code-lookup', async () => {
     const item = await app.service(userPath).find({
       query: {
