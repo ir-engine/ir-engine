@@ -85,6 +85,7 @@ describe('channel service', () => {
       }
     })) as Paginated<ChannelUser>
 
+    assert.ok('total' in channelUserByID, 'find result should contain "total"')
     assert.equal(channelUserByID.data.length, 1)
     assert.equal(channelUserByID.data[0].channelId, channel.id)
     assert.equal(channelUserByID.data[0].userId, user.id)

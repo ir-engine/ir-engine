@@ -51,7 +51,7 @@ const ChannelTable = ({ className, search }: ChannelPropsTable) => {
   const openChannelDrawer = useHookstate(false)
   const channelAdmin = useHookstate<Channel | undefined>(undefined)
 
-  const channelsData = useFind('channel', {
+  const channelsQuery = useFind('channel', {
     query: {
       $sort: sortField.value ? { [sortField.value]: fieldOrder.value === 'desc' ? 0 : 1 } : {},
       $skip: page.value * rowsPerPage.value,
@@ -59,7 +59,7 @@ const ChannelTable = ({ className, search }: ChannelPropsTable) => {
       action: 'admin',
       search: search
     }
-  }).data
+  })
   const removeChannel = useMutation('channel').remove
 
   const handlePageChange = (event: unknown, newPage: number) => {
@@ -109,7 +109,7 @@ const ChannelTable = ({ className, search }: ChannelPropsTable) => {
     page.set(0)
   }
 
-  const rows = channelsData?.map((el: Channel) => {
+  const rows = channelsQuery.data.map((el: Channel) => {
     return createData(el, el.id!, el.name)
   })
 
@@ -124,7 +124,7 @@ const ChannelTable = ({ className, search }: ChannelPropsTable) => {
         column={channelColumns}
         page={page.value}
         rowsPerPage={rowsPerPage.value}
-        count={channelsData.length}
+        count={channelsQuery.total!}
         handlePageChange={handlePageChange}
         handleRowsPerPageChange={handleRowsPerPageChange}
       />

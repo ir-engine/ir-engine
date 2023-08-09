@@ -56,6 +56,7 @@ const defaultInvite = {
 }
 
 const AdminInvites = ({ search, selectedInviteIds, setSelectedInviteIds }: Props) => {
+  const { t } = useTranslation()
   const page = useHookstate(0)
   const openConfirm = useHookstate(false)
   const inviteId = useHookstate('')
@@ -64,18 +65,17 @@ const AdminInvites = ({ search, selectedInviteIds, setSelectedInviteIds }: Props
   const fieldOrder = useHookstate('asc')
   const sortField = useHookstate('id')
   const updateModalOpen = useHookstate(false)
-  const { t } = useTranslation()
 
   const orderBy = fieldOrder.value === 'desc' ? -1 : 1
   const $sort = sortField.value ? { [sortField.value === 'type' ? 'inviteType' : sortField.value]: orderBy } : {}
-  const invites = useFind('invite', {
+  const invitesQuery = useFind('invite', {
     query: {
       search,
       $sort,
       $skip: page.value * rowsPerPage.value,
       $limit: rowsPerPage.value
     }
-  }).data
+  })
   const removeInvite = useMutation('invite').remove
 
   const deleteInvite = () => {
@@ -149,10 +149,10 @@ const AdminInvites = ({ search, selectedInviteIds, setSelectedInviteIds }: Props
     }
   }
 
-  const rows = invites.map((el) => createData(el))
+  const rows = invitesQuery.data.map((el) => createData(el))
 
   let allSelected: boolean | undefined = undefined
-  if (invites.length === selectedInviteIds.size) {
+  if (invitesQuery.data.length === selectedInviteIds.size) {
     allSelected = true
   } else if (selectedInviteIds.size === 0) {
     allSelected = false
@@ -169,7 +169,7 @@ const AdminInvites = ({ search, selectedInviteIds, setSelectedInviteIds }: Props
           onChange={(_event, checked) => {
             if (checked || allSelected === undefined) {
               const set = new Set<string>()
-              invites.map((item) => set.add(item.id))
+              invitesQuery.data.map((item) => set.add(item.id))
               setSelectedInviteIds(set)
             } else {
               setSelectedInviteIds(new Set<string>())
@@ -194,7 +194,7 @@ const AdminInvites = ({ search, selectedInviteIds, setSelectedInviteIds }: Props
         column={columns}
         page={page.value}
         rowsPerPage={rowsPerPage.value}
-        count={invites.length}
+        count={invitesQuery.total!}
         handlePageChange={handlePageChange}
         handleRowsPerPageChange={handleRowsPerPageChange}
       />

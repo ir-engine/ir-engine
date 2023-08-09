@@ -67,9 +67,9 @@ const BuildStatusDrawer = ({ open, onClose }: Props) => {
   const fieldOrder = useHookstate('desc')
   const sortField = useHookstate('id')
 
-  const buildStatuses = useFind('build-status', {
+  const buildStatusesQuery = useFind('build-status', {
     query: { $limit: rowsPerPage.value, $skip: page.value * rowsPerPage.value, $sort: { id: -1 } }
-  }).data
+  })
 
   const handleOpenLogsModal = (buildStatus: BuildStatusType) => {
     selectedStatusId.set(buildStatus.id)
@@ -144,11 +144,11 @@ const BuildStatusDrawer = ({ open, onClose }: Props) => {
     }
   }
 
-  const rows = buildStatuses.map((el) => {
+  const rows = buildStatusesQuery.data.map((el) => {
     return createData(el)
   })
 
-  const selectedStatus = buildStatuses.find((el) => el.id === selectedStatusId.value) || defaultBuildStatus
+  const selectedStatus = buildStatusesQuery.data.find((el) => el.id === selectedStatusId.value) || defaultBuildStatus
 
   const handlePageChange = (event: unknown, newPage: number) => {
     page.set(newPage)
@@ -172,7 +172,7 @@ const BuildStatusDrawer = ({ open, onClose }: Props) => {
           column={buildStatusColumns}
           page={page.value}
           rowsPerPage={rowsPerPage.value}
-          count={buildStatuses.length}
+          count={buildStatusesQuery.total!}
           handlePageChange={handlePageChange}
           handleRowsPerPageChange={handleRowsPerPageChange}
         />

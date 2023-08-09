@@ -43,6 +43,7 @@ import RecordingFilesDrawer from './RecordingsDrawer'
 const RECORDING_PAGE_LIMIT = 10
 
 const RecordingsTable = () => {
+  const { t } = useTranslation()
   const page = useHookstate(0)
   const rowsPerPage = useHookstate(RECORDING_PAGE_LIMIT)
   const fieldOrder = useHookstate('asc')
@@ -50,7 +51,6 @@ const RecordingsTable = () => {
   const openConfirm = useHookstate(false)
   const currentRecordingId = useHookstate<RecordingID | undefined>(undefined)
   const recordingResourcesDrawerOpen = useHookstate<boolean>(false)
-  const { t } = useTranslation()
 
   const handlePageChange = (_event: unknown, newPage: number) => {
     page.set(newPage)
@@ -60,14 +60,14 @@ const RecordingsTable = () => {
     page.set(0)
   }
 
-  const recordingsData = useFind('recording', {
+  const recordingsQuery = useFind('recording', {
     query: {
       $sort: sortField.value ? { [sortField.value]: fieldOrder.value === 'desc' ? -1 : 1 } : {},
       $skip: page.value * rowsPerPage.value,
       $limit: rowsPerPage.value,
       action: 'admin'
     }
-  }).data
+  })
 
   const removeRecording = useMutation('recording').remove
 
@@ -110,7 +110,7 @@ const RecordingsTable = () => {
     )
   })
 
-  const rows = recordingsData.map((val) => createData(val, val.id, val['user.name'], val.ended, val.schema))
+  const rows = recordingsQuery.data.map((val) => createData(val, val.id, val['user.name'], val.ended, val.schema))
 
   return (
     <Box>
@@ -123,7 +123,7 @@ const RecordingsTable = () => {
         column={recordingColumns}
         page={page.value}
         rowsPerPage={rowsPerPage.value}
-        count={recordingsData.length}
+        count={recordingsQuery.total!}
         handlePageChange={handlePageChange}
         handleRowsPerPageChange={handleRowsPerPageChange}
       />
