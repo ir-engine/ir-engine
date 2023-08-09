@@ -24,7 +24,7 @@ Ethereal Engine. All Rights Reserved.
 */
 
 // For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
-import { resolve } from '@feathersjs/schema'
+import { resolve, virtual } from '@feathersjs/schema'
 import { v4 } from 'uuid'
 
 import {
@@ -36,7 +36,16 @@ import type { HookContext } from '@etherealengine/server-core/declarations'
 
 import { getDateTimeSql } from '../../util/get-datetime-sql'
 
-export const userRelationshipResolver = resolve<UserRelationshipType, HookContext>({})
+export const userRelationshipResolver = resolve<UserRelationshipType, HookContext>({
+  user: virtual(async (userRelationship, context) => {
+    const user = await context.app.service('user')._get(userRelationship.userId)
+    return user
+  }),
+  relatedUser: virtual(async (userRelationship, context) => {
+    const relatedUser = await context.app.service('user')._get(userRelationship.relatedUserId)
+    return relatedUser
+  })
+})
 
 export const userRelationshipExternalResolver = resolve<UserRelationshipType, HookContext>({})
 

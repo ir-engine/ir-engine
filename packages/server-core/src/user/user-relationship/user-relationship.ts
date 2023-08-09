@@ -69,8 +69,8 @@ export default (app: Application): void => {
         }
       })
       if (data.userRelationshipType === 'requested' && inverseRelationship.data.length > 0) {
-        data.user = await app.service('user').get(data.userId)
-        data.relatedUser = await app.service('user').get(data.relatedUserId)
+        if (!data.user) data.user = await app.service('user').get(data.userId)
+        if (!data.relatedUser) data.relatedUser = await app.service('user').get(data.relatedUserId)
 
         const targetIds = [data.userId, data.relatedUserId]
         // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
@@ -95,8 +95,8 @@ export default (app: Application): void => {
         }
       })
       if (data.userRelationshipType === 'friend' && inverseRelationship.data.length > 0) {
-        data.user = await app.service('user').get(data.userId)
-        data.relatedUser = await app.service('user').get(data.relatedUserId)
+        if (!data.user) data.user = await app.service('user').get(data.userId)
+        if (!data.relatedUser) data.relatedUser = await app.service('user').get(data.relatedUserId)
 
         const targetIds = [data.userId, data.relatedUserId]
         // eslint-disable-next-line @typescript-eslint/restrict-template-expressions

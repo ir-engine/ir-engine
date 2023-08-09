@@ -49,6 +49,8 @@ export const userRelationshipSchema = Type.Object(
     relatedUserId: TypedString<UserId>({
       format: 'uuid'
     }),
+    user: Type.Any(), // TODO: Change this to userSchema once its moved to feathers 5.
+    relatedUser: Type.Any(), // TODO: Change this to userSchema once its moved to feathers 5.
     userRelationshipType: StringEnum(userRelationshipTypes),
     createdAt: Type.String({ format: 'date-time' }),
     updatedAt: Type.String({ format: 'date-time' })
