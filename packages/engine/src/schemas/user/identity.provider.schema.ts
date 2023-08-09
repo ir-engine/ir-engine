@@ -48,6 +48,7 @@ export const identityProviderSchema = Type.Object(
     userId: TypedString<UserId, 'uuid'>({
       format: 'uuid'
     }),
+    accessToken: Type.Optional(Type.String()),
     createdAt: Type.String({ format: 'date-time' }),
     updatedAt: Type.String({ format: 'date-time' })
   },

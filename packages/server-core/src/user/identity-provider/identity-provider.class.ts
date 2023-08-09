@@ -47,10 +47,8 @@ import { RootParams } from '../../api/root-params'
 import appConfig from '../../appconfig'
 import { scopeTypeSeed } from '../../scope/scope-type/scope-type.seed'
 import getFreeInviteCode from '../../util/get-free-invite-code'
-import { UserParams } from '../user/user.class'
 
 export interface IdentityProviderParams extends RootParams<IdentityProviderQuery> {
-  user?: UserInterface
   authentication?: any
 }
 
@@ -92,66 +90,77 @@ export class IdentityProviderService<
       type !== 'sms'
     )
       type = 'guest' //Non-password/magiclink create requests must always be for guests
-    let userId = data.userId || (authResult ? authResult[appConfig.authentication.entity]?.userId : null)
-    let identityProvider: any
+
+    const userId = data.userId || (authResult ? authResult[appConfig.authentication.entity]?.userId : null)
+    let identityProvider: IdentityProviderData = { ...data }
 
     switch (type) {
       case 'email':
         identityProvider = {
+          ...identityProvider,
           token,
           type
         }
         break
       case 'sms':
         identityProvider = {
+          ...identityProvider,
           token,
           type
         }
         break
       case 'password':
         identityProvider = {
+          ...identityProvider,
           token,
           type
         }
         break
       case 'github':
         identityProvider = {
+          ...identityProvider,
           token: token,
           type
         }
         break
       case 'facebook':
         identityProvider = {
+          ...identityProvider,
           token: token,
           type
         }
         break
       case 'google':
         identityProvider = {
+          ...identityProvider,
           token: token,
           type
         }
         break
       case 'twitter':
         identityProvider = {
+          ...identityProvider,
           token: token,
           type
         }
         break
       case 'linkedin':
         identityProvider = {
+          ...identityProvider,
           token: token,
           type
         }
         break
       case 'discord':
         identityProvider = {
+          ...identityProvider,
           token: token,
           type
         }
         break
       case 'guest':
         identityProvider = {
+          ...identityProvider,
           token: token,
           type: type
         }
@@ -174,7 +183,6 @@ export class IdentityProviderService<
       // if there is the user with userId, then we add the identity provider to the user
       return await super._create(
         {
-          ...data,
           ...identityProvider,
           userId
         },
@@ -198,7 +206,7 @@ export class IdentityProviderService<
       .service(avatarPath)
       .find({ isInternal: true, query: { $limit: 1000 } })) as Paginated<AvatarType>
 
-    let isGuest = type === 'guest'
+    const isGuest = type === 'guest'
 
     if (adminCount === 0) {
       // in dev mode make the first guest an admin
@@ -208,7 +216,7 @@ export class IdentityProviderService<
       }
     }
 
-    let result
+    let result: IdentityProviderType
     try {
       const newUser = (await this.app.service('user')._create({
         id: userId,
@@ -219,7 +227,6 @@ export class IdentityProviderService<
 
       result = await super._create(
         {
-          ...data,
           ...identityProvider,
           userId: newUser.id
         },
@@ -260,7 +267,7 @@ export class IdentityProviderService<
     return result
   }
 
-  async find(params?: UserParams) {
+  async find(params?: IdentityProviderParams) {
     const loggedInUser = params!.user as UserInterface
     if (params!.provider) params!.query!.userId = loggedInUser.id
     return super._find(params)
