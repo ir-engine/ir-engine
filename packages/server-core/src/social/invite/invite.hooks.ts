@@ -34,40 +34,40 @@ import { HookContext } from '@feathersjs/feathers'
 import authenticate from '../../hooks/authenticate'
 import verifyScope from '../../hooks/verify-scope'
 
-// TODO: Populating Message's sender property here manually. Once message service is moved to feathers 5. This should be part of its resolver.
+// TODO: Populating Invite's user property here manually. Once invite service is moved to feathers 5. This should be part of its resolver.
 const populateUsers = async (context: HookContext) => {
   const { result } = context
 
   const data = result.data ? result.data : result
 
-  const senderIds = data.filter((item) => item.senderId).map((item) => item.senderId)
+  const userIds = data.filter((item) => item.userId).map((item) => item.userId)
 
-  if (senderIds.length > 0) {
+  if (userIds.length > 0) {
     //@ts-ignore
     const users = (await context.app.service(userPath)._find({
       query: {
         id: {
-          $in: senderIds
+          $in: userIds
         }
       },
       paginate: false
     })) as any as UserType[]
 
-    for (const message of data) {
-      if (message.senderId && !message.sender) {
-        message.sender = users.find((user) => user.id === message.senderId)
+    for (const invite of data) {
+      if (invite.userId && !invite.user) {
+        invite.user = users.find((user) => user.id === invite.userId)
       }
     }
   }
 }
 
-// TODO: Populating Message's sender property here manually. Once message service is moved to feathers 5. This should be part of its resolver.
+// TODO: Populating Invite's user property here manually. Once invite service is moved to feathers 5. This should be part of its resolver.
 const populateUser = async (context: HookContext) => {
   const { result } = context
 
-  if (result.senderId && !result.sender) {
+  if (result.userId && !result.user) {
     //@ts-ignore
-    result.sender = (await context.app.service(userPath)._get(result.senderId)) as UserType
+    result.user = (await context.app.service(userPath)._get(result.userId)) as UserType
   }
 }
 
