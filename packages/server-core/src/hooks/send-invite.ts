@@ -23,7 +23,6 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { Paginated } from '@feathersjs/feathers'
 import appRootPath from 'app-root-path'
 import * as path from 'path'
 import * as pug from 'pug'
@@ -33,12 +32,12 @@ import { Invite as InviteType } from '@etherealengine/common/src/interfaces/Invi
 import { UserInterface } from '@etherealengine/common/src/interfaces/User'
 import { locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
 
+import { userRelationshipPath } from '@etherealengine/engine/src/schemas/user/user-relationship.schema'
 import { Application } from '../../declarations'
-import config from '../appconfig'
 import logger from '../ServerLogger'
+import config from '../appconfig'
 import Page from '../types/PageObject'
 import { getInviteLink, sendEmail, sendSms } from '../user/auth-management/auth-management.utils'
-import { UserRelationshipDataType } from '../user/user-relationship/user-relationship.class'
 import { UserParams } from '../user/user/user.class'
 
 export type InviteDataType = InviteType
@@ -156,7 +155,7 @@ export const sendInvite = async (app: Application, result: InviteDataType, param
       await generateSMS(app, result, token, inviteType, authUser.name, targetObjectId)
     } else if (result.inviteeId != null) {
       if (inviteType === 'friend') {
-        const existingRelationshipStatus = (await app.service('user-relationship').find({
+        const existingRelationshipStatus = await app.service(userRelationshipPath)._find({
           query: {
             $or: [
               {
@@ -169,9 +168,9 @@ export const sendInvite = async (app: Application, result: InviteDataType, param
             userId: result.userId,
             relatedUserId: result.inviteeId
           }
-        })) as Paginated<UserRelationshipDataType>
+        })
         if (existingRelationshipStatus.total === 0) {
-          await app.service('user-relationship').create(
+          await app.service(userRelationshipPath).create(
             {
               userRelationshipType: 'requested',
               userId: result.userId,

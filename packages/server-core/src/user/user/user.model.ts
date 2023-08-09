@@ -36,7 +36,9 @@ import {
   LocationSettingsInterface,
   LocationTypeInterface,
   UserApiKeyInterface,
-  UserInterface
+  UserInterface,
+  UserRelationshipInterface,
+  UserRelationshipTypeInterface
 } from '@etherealengine/common/src/dbmodels/UserInterface'
 
 import { Application } from '../../../declarations'
@@ -89,9 +91,9 @@ export default (app: Application) => {
     ;(User as any).hasOne(models.user_settings)
     ;(User as any).belongsToMany(models.user, {
       as: 'relatedUser',
-      through: models.user_relationship
+      through: createUserRelationshipModel(app)
     })
-    ;(User as any).hasMany(models.user_relationship, { onDelete: 'cascade' })
+    ;(User as any).hasMany(createUserRelationshipModel(app), { onDelete: 'cascade' })
     ;(User as any).hasMany(models.identity_provider, { onDelete: 'cascade' })
     ;(User as any).hasMany(models.channel)
     ;(User as any).belongsToMany(createLocationModel(app), { through: 'location-admin' })
@@ -470,4 +472,72 @@ export const createInstanceAttendanceModel = (app: Application) => {
     ;(instanceAttendance as any).belongsTo(models.user)
   }
   return instanceAttendance
+}
+
+export const createUserRelationshipModel = (app: Application) => {
+  const sequelizeClient: Sequelize = app.get('sequelizeClient')
+  const userRelationship = sequelizeClient.define<Model<UserRelationshipInterface>>(
+    'user-relationship',
+    {
+      id: {
+        type: DataTypes.UUID,
+        defaultValue: DataTypes.UUIDV1,
+        allowNull: false,
+        primaryKey: true
+      }
+    } as any,
+    {
+      hooks: {
+        beforeCount(options: any): any {
+          options.raw = true
+        }
+      },
+      indexes: [
+        {
+          unique: true,
+          fields: ['id']
+        }
+      ]
+    }
+  )
+
+  ;(userRelationship as any).associate = (models: any): void => {
+    ;(userRelationship as any).belongsTo(models.user, { as: 'user', constraints: false })
+    ;(userRelationship as any).belongsTo(models.user, { as: 'relatedUser', constraints: false })
+    ;(userRelationship as any).belongsTo(createUserRelationshipTypeModel(app), { foreignKey: 'type' })
+  }
+
+  return userRelationship
+}
+
+const createUserRelationshipTypeModel = (app: Application) => {
+  const sequelizeClient: Sequelize = app.get('sequelizeClient')
+  const userRelationshipType = sequelizeClient.define<Model<UserRelationshipTypeInterface>>(
+    'user-relationship-type',
+    {
+      type: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        primaryKey: true,
+        unique: true
+      }
+    },
+    {
+      hooks: {
+        beforeCount(options: any): void {
+          options.raw = true
+        },
+        beforeUpdate(instance: any, options: any): void {
+          throw new Error("Can't update a type!")
+        }
+      },
+      timestamps: false
+    }
+  )
+
+  ;(userRelationshipType as any).associate = (models: any): void => {
+    ;(userRelationshipType as any).hasMany(createUserRelationshipModel(app), { foreignKey: 'userRelationshipType' })
+  }
+
+  return userRelationshipType
 }

@@ -76,13 +76,6 @@ export default (app: Application): void => {
   // @ts-ignore
   service.publish('patched', async (data: UserInterface, params): Promise<any> => {
     try {
-      const userRelationships = await app.service('user-relationship').Model.findAll({
-        where: {
-          userRelationshipType: 'friend',
-          relatedUserId: data.id
-        }
-      })
-
       let targetIds = [data.id!]
       const updatePromises: any[] = []
 

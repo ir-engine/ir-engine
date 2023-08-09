@@ -29,6 +29,7 @@ import { Instance as InstanceInterface } from '@etherealengine/common/src/interf
 import { locationPath, LocationType } from '@etherealengine/engine/src/schemas/social/location.schema'
 
 import { instanceAttendancePath } from '@etherealengine/engine/src/schemas/networking/instance-attendance.schema'
+import { userRelationshipPath } from '@etherealengine/engine/src/schemas/user/user-relationship.schema'
 import { Knex } from 'knex'
 import { Application } from '../../../declarations'
 import authenticate from '../../hooks/authenticate'
@@ -128,12 +129,12 @@ export const getActiveInstancesForUserFriends = (app: Application) => async (dat
             .from(instanceAttendancePath)
             .join('instance', `${instanceAttendancePath}.instanceId`, '=', `${'instance'}.id`)
             .join('user', `${instanceAttendancePath}.userId`, '=', `${'user'}.id`)
-            .join(`user_relationship`, `${'user'}.id`, '=', `${`user_relationship`}.userId`)
+            .join(userRelationshipPath, `${'user'}.id`, '=', `${userRelationshipPath}.userId`)
             .where(`${instanceAttendancePath}.ended`, '=', false)
             .andWhere(`${instanceAttendancePath}.isChannel`, '=', false)
             .andWhere(`${'instance'}.id`, '=', instance.id)
-            .andWhere(`${`user_relationship`}.userRelationshipType`, '=', 'friend')
-            .andWhere('user_relationship.relatedUserId', '=', data.user!.id)
+            .andWhere(`${userRelationshipPath}.userRelationshipType`, '=', 'friend')
+            .andWhere(`${userRelationshipPath}.relatedUserId`, '=', data.user!.id)
             .select()
             .options({ nestTables: true })
 

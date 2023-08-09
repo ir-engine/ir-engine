@@ -23,10 +23,20 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-export interface UserRelationshipInterface {
-  id: string
-  userId: string
-  relatedUserId: string
-  userRelationshipType: 'friend' | 'requested'
-  dataValues: any
+import { UserInterface } from '@etherealengine/common/src/interfaces/User'
+import { AdapterQuery } from '@feathersjs/adapter-commons'
+import { Params } from '@feathersjs/feathers'
+import { KnexAdapterParams } from '@feathersjs/knex'
+
+export interface RootParams<Q = AdapterQuery> extends KnexAdapterParams<Q> {
+  user?: UserInterface
+  isInternal?: boolean
+}
+
+/* @deprecated */
+export interface UserParams extends Params {
+  user?: UserInterface
+  paginate?: false
+  isInternal?: boolean
+  sequelize?: any
 }

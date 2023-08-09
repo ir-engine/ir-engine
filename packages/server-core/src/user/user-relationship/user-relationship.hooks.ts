@@ -27,14 +27,56 @@ import { disallow, iff, isProvider } from 'feathers-hooks-common'
 
 import authenticate from '../../hooks/authenticate'
 
+import { hooks as schemaHooks } from '@feathersjs/schema'
+import { getValidator } from '@feathersjs/typebox'
+
+import {
+  userRelationshipDataSchema,
+  userRelationshipPatchSchema,
+  userRelationshipQuerySchema,
+  userRelationshipSchema
+} from '@etherealengine/engine/src/schemas/user/user-relationship.schema'
+import { dataValidator, queryValidator } from '@etherealengine/server-core/validators'
+
+import {
+  userRelationshipDataResolver,
+  userRelationshipExternalResolver,
+  userRelationshipPatchResolver,
+  userRelationshipQueryResolver,
+  userRelationshipResolver
+} from './user-relationship.resolvers'
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const userRelationshipValidator = getValidator(userRelationshipSchema, dataValidator)
+const userRelationshipDataValidator = getValidator(userRelationshipDataSchema, dataValidator)
+const userRelationshipPatchValidator = getValidator(userRelationshipPatchSchema, dataValidator)
+const userRelationshipQueryValidator = getValidator(userRelationshipQuerySchema, queryValidator)
+
 export default {
+  around: {
+    all: [
+      schemaHooks.resolveExternal(userRelationshipExternalResolver),
+      schemaHooks.resolveResult(userRelationshipResolver)
+    ]
+  },
+
   before: {
-    all: [iff(isProvider('external'), authenticate() as any)],
+    all: [
+      iff(isProvider('external'), authenticate() as any),
+      () => schemaHooks.validateQuery(userRelationshipQueryValidator),
+      schemaHooks.resolveQuery(userRelationshipQueryResolver)
+    ],
     find: [],
     get: [disallow()],
-    create: [],
+    create: [
+      () => schemaHooks.validateData(userRelationshipDataValidator),
+      schemaHooks.resolveData(userRelationshipDataResolver)
+    ],
     update: [],
-    patch: [],
+    patch: [
+      () => schemaHooks.validateData(userRelationshipPatchValidator),
+      schemaHooks.resolveData(userRelationshipPatchResolver)
+    ],
     remove: []
   },
 

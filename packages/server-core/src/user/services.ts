@@ -39,7 +39,7 @@ import SMS from './sms/sms.service'
 import UserApiKey from './user-api-key/user-api-key'
 import UserKick from './user-kick/user-kick.service'
 import UserRelationshipType from './user-relationship-type/user-relationship-type.service'
-import UserRelationship from './user-relationship/user-relationship.service'
+import UserRelationship from './user-relationship/user-relationship'
 import UserSettings from './user-settings/user-settings.service'
 import User from './user/user.service'
 

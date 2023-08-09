@@ -23,55 +23,54 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { UserRelationshipInterface } from '@etherealengine/common/src/dbmodels/UserRelationship'
+import {
+  UserRelationshipType,
+  userRelationshipMethods,
+  userRelationshipPath
+} from '@etherealengine/engine/src/schemas/user/user-relationship.schema'
 
 import { Application } from '../../../declarations'
 import logger from '../../ServerLogger'
-import { UserRelationship } from './user-relationship.class'
+import { UserRelationshipService } from './user-relationship.class'
 import userRelationshipDocs from './user-relationship.docs'
 import hooks from './user-relationship.hooks'
-import createModel from './user-relationship.model'
 
 declare module '@etherealengine/common/declarations' {
   interface ServiceTypes {
-    'user-relationship': UserRelationship
+    [userRelationshipPath]: UserRelationshipService
   }
 }
 
-export default (app: Application) => {
+export default (app: Application): void => {
   const options = {
-    Model: createModel(app),
+    name: userRelationshipPath,
     paginate: app.get('paginate'),
+    Model: app.get('knexClient'),
     multi: true
   }
 
-  /**
-   * Initialize our service with any options it requires and docs
-   */
-  const event = new UserRelationship(options, app)
-  event.docs = userRelationshipDocs
-  app.use('user-relationship', event)
+  app.use(userRelationshipPath, new UserRelationshipService(options, app), {
+    // A list of all methods this service exposes externally
+    methods: userRelationshipMethods,
+    // You can add additional custom events to be sent to clients here
+    events: [],
+    docs: userRelationshipDocs
+  })
 
-  const service = app.service('user-relationship')
-
+  const service = app.service(userRelationshipPath)
   service.hooks(hooks)
 
-  service.publish('created', async (data: UserRelationshipInterface): Promise<any> => {
+  service.publish('created', async (data: UserRelationshipType): Promise<any> => {
     try {
-      const inverseRelationship = await app.service('user-relationship').Model.findOne({
-        where: {
+      const inverseRelationship = await app.service(userRelationshipPath)._find({
+        query: {
           relatedUserId: data.userId,
           userId: data.relatedUserId
         }
       })
-      if (data.userRelationshipType === 'requested' && inverseRelationship != null) {
-        if (data?.dataValues != null) {
-          data.dataValues.user = await app.service('user').get(data.userId)
-          data.dataValues.relatedUser = await app.service('user').get(data.relatedUserId)
-        } else {
-          ;(data as any).user = await app.service('user').get(data.userId)
-          ;(data as any).relatedUser = await app.service('user').get(data.relatedUserId)
-        }
+      if (data.userRelationshipType === 'requested' && inverseRelationship.data.length > 0) {
+        data.user = await app.service('user').get(data.userId)
+        data.relatedUser = await app.service('user').get(data.relatedUserId)
 
         const targetIds = [data.userId, data.relatedUserId]
         // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
@@ -87,22 +86,17 @@ export default (app: Application) => {
     }
   })
 
-  service.publish('patched', async (data: UserRelationshipInterface): Promise<any> => {
+  service.publish('patched', async (data: UserRelationshipType): Promise<any> => {
     try {
-      const inverseRelationship = await app.service('user-relationship').Model.findOne({
-        where: {
+      const inverseRelationship = await app.service(userRelationshipPath)._find({
+        query: {
           relatedUserId: data.userId,
           userId: data.relatedUserId
         }
       })
-      if (data.userRelationshipType === 'friend' && inverseRelationship != null) {
-        if (data?.dataValues != null) {
-          data.dataValues.user = await app.service('user').get(data.userId)
-          data.dataValues.relatedUser = await app.service('user').get(data.relatedUserId)
-        } else {
-          ;(data as any).user = await app.service('user').get(data.userId)
-          ;(data as any).relatedUser = await app.service('user').get(data.relatedUserId)
-        }
+      if (data.userRelationshipType === 'friend' && inverseRelationship.data.length > 0) {
+        data.user = await app.service('user').get(data.userId)
+        data.relatedUser = await app.service('user').get(data.relatedUserId)
 
         const targetIds = [data.userId, data.relatedUserId]
         // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
@@ -118,7 +112,7 @@ export default (app: Application) => {
     }
   })
 
-  service.publish('removed', async (data: UserRelationshipInterface): Promise<any> => {
+  service.publish('removed', async (data: UserRelationshipType): Promise<any> => {
     try {
       console.log('relationship removed data', data)
       const targetIds = [data.userId, data.relatedUserId]

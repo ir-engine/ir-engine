@@ -23,14 +23,33 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { UserId } from './UserId'
+// For more information about this file see https://dove.feathersjs.com/guides/cli/service.schemas.html
+import { resolve } from '@feathersjs/schema'
+import { v4 } from 'uuid'
 
-export type RelationshipType = 'friend' | 'requested' | 'pending' | 'blocked' | 'blocking'
-export type UserRelationship = {
-  id: string
-  createdAt: string
-  updatedAt: string
-  userId: UserId
-  userRelationshipType: RelationshipType
-  relatedUserId: UserId
-}
+import {
+  UserRelationshipID,
+  UserRelationshipQuery,
+  UserRelationshipType
+} from '@etherealengine/engine/src/schemas/user/user-relationship.schema'
+import type { HookContext } from '@etherealengine/server-core/declarations'
+
+import { getDateTimeSql } from '../../util/get-datetime-sql'
+
+export const userRelationshipResolver = resolve<UserRelationshipType, HookContext>({})
+
+export const userRelationshipExternalResolver = resolve<UserRelationshipType, HookContext>({})
+
+export const userRelationshipDataResolver = resolve<UserRelationshipType, HookContext>({
+  id: async () => {
+    return v4() as UserRelationshipID
+  },
+  createdAt: getDateTimeSql,
+  updatedAt: getDateTimeSql
+})
+
+export const userRelationshipPatchResolver = resolve<UserRelationshipType, HookContext>({
+  updatedAt: getDateTimeSql
+})
+
+export const userRelationshipQueryResolver = resolve<UserRelationshipQuery, HookContext>({})

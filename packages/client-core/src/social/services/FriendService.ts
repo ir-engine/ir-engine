@@ -33,6 +33,7 @@ import { matches, Validator } from '@etherealengine/engine/src/common/functions/
 import { Engine } from '@etherealengine/engine/src/ecs/classes/Engine'
 import { defineAction, defineState, dispatchAction, getMutableState, getState } from '@etherealengine/hyperflux'
 
+import { userRelationshipPath } from '@etherealengine/engine/src/schemas/user/user-relationship.schema'
 import { NotificationService } from '../../common/services/NotificationService'
 import { AuthState } from '../../user/services/AuthService'
 
@@ -80,7 +81,7 @@ export const FriendService = {
     try {
       dispatchAction(FriendAction.fetchingFriendsAction({}))
 
-      const relationships: Relationship = await Engine.instance.api.service('user-relationship').find({
+      const relationships: Relationship = await Engine.instance.api.service(userRelationshipPath).find({
         query: {
           userId
         }
@@ -95,7 +96,7 @@ export const FriendService = {
   },
   acceptFriend: async (userId: string, relatedUserId: string) => {
     try {
-      await Engine.instance.api.service('user-relationship').patch(relatedUserId, {
+      await Engine.instance.api.service(userRelationshipPath).patch(relatedUserId, {
         userRelationshipType: 'friend'
       })
 
@@ -143,14 +144,14 @@ export const FriendService = {
         FriendService.getUserRelationship(selfUser.id)
       }
 
-      Engine.instance.api.service('user-relationship').on('created', userRelationshipCreatedListener)
-      Engine.instance.api.service('user-relationship').on('patched', userRelationshipPatchedListener)
-      Engine.instance.api.service('user-relationship').on('removed', userRelationshipRemovedListener)
+      Engine.instance.api.service(userRelationshipPath).on('created', userRelationshipCreatedListener)
+      Engine.instance.api.service(userRelationshipPath).on('patched', userRelationshipPatchedListener)
+      Engine.instance.api.service(userRelationshipPath).on('removed', userRelationshipRemovedListener)
 
       return () => {
-        Engine.instance.api.service('user-relationship').off('created', userRelationshipCreatedListener)
-        Engine.instance.api.service('user-relationship').off('patched', userRelationshipPatchedListener)
-        Engine.instance.api.service('user-relationship').off('removed', userRelationshipRemovedListener)
+        Engine.instance.api.service(userRelationshipPath).off('created', userRelationshipCreatedListener)
+        Engine.instance.api.service(userRelationshipPath).off('patched', userRelationshipPatchedListener)
+        Engine.instance.api.service(userRelationshipPath).off('removed', userRelationshipRemovedListener)
       }
     }, [])
   }
@@ -158,7 +159,7 @@ export const FriendService = {
 
 async function createRelation(userId: string, relatedUserId: string, type: 'requested' | 'blocking') {
   try {
-    await Engine.instance.api.service('user-relationship').create({
+    await Engine.instance.api.service(userRelationshipPath).create({
       relatedUserId,
       userRelationshipType: type
     })
@@ -171,7 +172,7 @@ async function createRelation(userId: string, relatedUserId: string, type: 'requ
 
 async function removeRelation(userId: string, relatedUserId: string) {
   try {
-    await Engine.instance.api.service('user-relationship').remove(relatedUserId)
+    await Engine.instance.api.service(userRelationshipPath).remove(relatedUserId)
 
     FriendService.getUserRelationship(userId)
   } catch (err) {

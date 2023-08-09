@@ -33,9 +33,10 @@ import { IdentityProviderInterface } from '@etherealengine/common/src/dbmodels/I
 import { Invite as InviteType } from '@etherealengine/common/src/interfaces/Invite'
 import { UserInterface } from '@etherealengine/common/src/interfaces/User'
 
+import { userRelationshipPath } from '@etherealengine/engine/src/schemas/user/user-relationship.schema'
 import { Application } from '../../../declarations'
-import { sendInvite } from '../../hooks/send-invite'
 import logger from '../../ServerLogger'
+import { sendInvite } from '../../hooks/send-invite'
 import { UserParams } from '../../user/user/user.class'
 
 interface InviteRemoveParams extends UserParams {
@@ -273,7 +274,7 @@ export class Invite extends Service<InviteDataType> {
     if (invite.inviteType === 'friend' && invite.inviteeId != null && !params?.preventUserRelationshipRemoval) {
       const selfUser = params!.user as UserInterface
       const relatedUserId = invite.userId === selfUser.id ? invite.inviteeId : invite.userId
-      await this.app.service('user-relationship').remove(relatedUserId, params)
+      await this.app.service(userRelationshipPath).remove(relatedUserId, params)
     }
     return (await super.remove(id)) as InviteDataType
   }

@@ -28,6 +28,7 @@ import { DataTypes, Model, Sequelize } from 'sequelize'
 import { UserRelationshipTypeInterface } from '@etherealengine/common/src/dbmodels/UserRelationshipType'
 
 import { Application } from '../../../declarations'
+import { createUserRelationshipModel } from '../user/user.model'
 
 export default (app: Application) => {
   const sequelizeClient: Sequelize = app.get('sequelizeClient')
@@ -55,7 +56,7 @@ export default (app: Application) => {
   )
 
   ;(userRelationshipType as any).associate = (models: any): void => {
-    ;(userRelationshipType as any).hasMany(models.user_relationship, { foreignKey: 'userRelationshipType' })
+    ;(userRelationshipType as any).hasMany(createUserRelationshipModel(app), { foreignKey: 'userRelationshipType' })
   }
 
   return userRelationshipType
