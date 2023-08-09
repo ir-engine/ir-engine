@@ -26,18 +26,18 @@ Ethereal Engine. All Rights Reserved.
 import { createSwaggerServiceOptions } from 'feathers-swagger'
 
 import {
-  inviteTypeDataSchema,
-  inviteTypePatchSchema,
-  inviteTypeQuerySchema,
-  inviteTypeSchema
-} from '@etherealengine/engine/src/schemas/social/invite-type.schema'
+  userRelationshipTypeDataSchema,
+  userRelationshipTypePatchSchema,
+  userRelationshipTypeQuerySchema,
+  userRelationshipTypeSchema
+} from '@etherealengine/engine/src/schemas/user/user-relationship-type.schema'
 
 export default createSwaggerServiceOptions({
   schemas: {
-    inviteTypeDataSchema,
-    inviteTypePatchSchema,
-    inviteTypeQuerySchema,
-    inviteTypeSchema
+    userRelationshipTypeDataSchema,
+    userRelationshipTypePatchSchema,
+    userRelationshipTypeQuerySchema,
+    userRelationshipTypeSchema
   },
   docs: {
     description: 'User relationship type service description',
