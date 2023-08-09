@@ -29,8 +29,6 @@ import {
   BufferAttribute,
   BufferGeometry,
   CatmullRomCurve3,
-  Euler,
-  Group,
   Line,
   LineBasicMaterial,
   Mesh,
@@ -39,31 +37,16 @@ import {
   Vector3
 } from 'three'
 
-import { matches } from '../../common/functions/MatchesUtils'
-import { defineComponent } from '../../ecs/functions/ComponentFunctions'
+import { useEffect } from 'react'
+
+import { defineComponent, useComponent } from '../../ecs/functions/ComponentFunctions'
+import { useEntityContext } from '../../ecs/functions/EntityFunctions'
 import { ObjectLayers } from '../constants/ObjectLayers'
 import { setObjectLayers } from '../functions/setObjectLayers'
 import { addObjectToGroup, removeObjectFromGroup } from './GroupComponent'
 
 // an idea of a bundle that packages up all the related concerns on a spline point
 // @todo there may need to be a concept of an engine mode versus editor mode where no gizmos are manufactured
-
-let id = 0
-
-class SplineElement {
-  id: number
-  position: Vector3
-  quaternion: Quaternion
-  gizmo: Mesh
-  dirty: boolean
-  constructor(elem = { position: { x: 0, y: 0, z: 0 }, quaternion: { x: 0, y: 0, z: 0, w: 1 } }) {
-    this.position = new Vector3(elem.position.x, elem.position.y, elem.position.z)
-    this.quaternion = new Quaternion(elem.quaternion.x, elem.quaternion.y, elem.quaternion.z, elem.quaternion.w)
-    id++
-    this.id = id
-    this.dirty = true
-  }
-}
 
 const ARC_SEGMENTS = 200
 const _point = new Vector3()
@@ -72,127 +55,9 @@ const helperMaterial = new MeshLambertMaterial({ color: 'white' })
 const lineGeometry = new BufferGeometry()
 lineGeometry.setAttribute('position', new BufferAttribute(new Float32Array(ARC_SEGMENTS * 3), 3))
 
-// @todo debugging -> for now i pulled the elements out of hookstate scope - later move at least the array of elements back into SplineComponent
-
-class SplineWrapper extends Group {
-  elements: SplineElement[] = []
-  curveType: 'catmullrom' | 'centripetal' | 'chordal' = 'catmullrom'
-  curve: CatmullRomCurve3 | null = null
-  line: Line | null = null
-
-  constructor(name: string) {
-    super()
-    this.name = name
-  }
-
-  addSplineElement() {
-    const elem = new SplineElement()
-    this.elements.push(elem)
-  }
-
-  removeSplineElement(elem) {
-    const elements = this.elements
-    for (let i = 0; i < elements.length; i++) {
-      if (elements[i].id == elem.id) {
-        const elem2 = elements.splice(i, 1)
-        if (elem2 && elem2.length && elem2[0].gizmo) {
-          this.remove(elem2[0].gizmo)
-        }
-      }
-    }
-  }
-
-  update() {
-    // eslint-disable-next-line @typescript-eslint/no-this-alias
-    const self = this
-
-    self.elements.forEach((elem) => {
-      if (!elem.gizmo) {
-        const gizmo = (elem.gizmo = new Mesh(helperGeometry, helperMaterial))
-        gizmo.castShadow = true
-        gizmo.receiveShadow = true
-        gizmo.layers.set(ObjectLayers.NodeHelper)
-        gizmo.name = `${this.name}-gizmos-${elem.id}}`
-        gizmo.updateMatrixWorld(true)
-        gizmo.add(new ArrowHelper())
-        self.add(gizmo)
-        elem.dirty = true
-      }
-      if (elem.dirty) {
-        elem.dirty = false
-        elem.gizmo.position.set(elem.position.x, elem.position.y, elem.position.z)
-        elem.gizmo.quaternion.copy(elem.quaternion)
-        elem.gizmo.updateMatrixWorld(true)
-      }
-    })
-
-    // don't paint a line if insufficient data
-    if (self.elements.length <= 2) {
-      if (self.line) self.line.visible = false
-      return
-    }
-
-    // assert that a line exists
-    if (!self.line) {
-      const line = new Line(lineGeometry.clone(), new LineBasicMaterial({ color: 0xff0000, opacity: 0.35 }))
-      line.castShadow = true
-      line.layers.set(ObjectLayers.NodeHelper)
-      line.name = `${this.name}-line`
-      self.add(line)
-      self.line = line
-    }
-
-    // and is visible
-    self.line.visible = true
-
-    // build curve
-    //const poses = component.wrapper.elements.map((element)=>{ new Vector3(element.position) })
-    const poses: Vector3[] = []
-    for (let i = 0; i < self.elements.length; i++) {
-      poses.push(self.elements[i].position)
-    }
-    if (!self.curve) {
-      self.curve = new CatmullRomCurve3(poses)
-      self.curve.curveType = self.curveType
-    }
-
-    // have the line follow the curve
-    const positions = self.line.geometry.attributes.position
-    for (let i = 0; i < ARC_SEGMENTS; i++) {
-      const t = i / (ARC_SEGMENTS - 1)
-      self.curve.getPoint(t, _point)
-      positions.setXYZ(i, _point.x, _point.y, _point.z)
-    }
-    positions.needsUpdate = true
-  }
-
-  flush() {
-    this.elements.forEach((elem) => {
-      if (elem.gizmo) this.remove(elem.gizmo)
-    })
-    if (this.line) {
-      this.remove(this.line)
-      this.line = null
-    }
-    this.elements = []
-  }
-
-  fromJSON(json) {
-    this.flush()
-    if (!matches.array.test(json.elems)) return
-    const data = [] as SplineElement[]
-    for (const val of json.elems) data.push(new SplineElement(val))
-    this.elements = data
-  }
-
-  toJSON() {
-    return this.elements.map((elem) => {
-      return {
-        position: { x: elem.position.x, y: elem.position.y, z: elem.position.z },
-        quaternion: { x: elem.quaternion.x, y: elem.quaternion.y, z: elem.quaternion.z, w: elem.quaternion.w }
-      }
-    })
-  }
+interface ISplineElement {
+  position: Vector3
+  quaternion: Quaternion
 }
 
 export const SplineComponent = defineComponent({
@@ -200,53 +65,76 @@ export const SplineComponent = defineComponent({
   jsonID: 'spline-component',
 
   onInit: (entity) => {
-    const wrapper = new SplineWrapper(`spline-line-${entity}`)
-    addObjectToGroup(entity, wrapper) // hack test
-    setObjectLayers(wrapper, ObjectLayers.NodeHelper)
     return {
-      wrapper: wrapper
+      elements: [] as ISplineElement[]
     }
   },
 
   onRemove: (entity, component) => {
-    removeObjectFromGroup(entity, component.value.wrapper)
+    // removeObjectFromGroup(entity, component.value.wrapper)
   },
 
   onSet: (entity, component, json) => {
     if (!json) return
-    component.value.wrapper.fromJSON(json)
+    json.elements && component.elements.set(json.elements)
   },
 
   toJSON: (entity, component) => {
-    return component.value.wrapper.toJSON()
+    return { elements: component.elements.get({ noproxy: true }) }
   },
 
-  getSplineElements: (entity, component) => {
-    return component.value.wrapper.elements
-  },
+  reactor: () => {
+    const entity = useEntityContext()
+    const elements = useComponent(entity, SplineComponent).elements
 
-  addSplineElement: (entity, component) => {
-    component.value.wrapper.addSplineElement()
-    //hookstate approach:
-    //set( ...component.value.elements, elem )
-    //component.value.elements.concat([elem])
-    component.value.wrapper.update() // @todo not reactive
-  },
+    useEffect(() => {
+      if (elements.length < 3) {
+        return () => {}
+      }
 
-  moveSplineElement: (entity, component, elem: SplineElement, position: Vector3) => {
-    elem.position.set(position.x, position.y, position.z)
-    elem.dirty = true
-    component.value.wrapper.update()
-  },
+      const line = new Line(lineGeometry.clone(), new LineBasicMaterial({ color: 0xff0000, opacity: 0.35 }))
+      line.castShadow = true
+      line.layers.set(ObjectLayers.NodeHelper)
+      line.name = `${entity}-line`
+      addObjectToGroup(entity, line)
+      setObjectLayers(line, ObjectLayers.NodeHelper)
 
-  rotateSplineElement: (entity, component, elem: SplineElement, euler: Euler) => {
-    elem.quaternion.setFromEuler(euler)
-    elem.dirty = true
-    component.value.wrapper.update()
-  },
+      let id = 0
+      for (const elem of elements) {
+        const gizmo = new Mesh(helperGeometry, helperMaterial)
+        gizmo.castShadow = true
+        gizmo.receiveShadow = true
+        gizmo.layers.set(ObjectLayers.NodeHelper)
+        gizmo.name = `${entity}-gizmos-${++id}}`
+        gizmo.updateMatrixWorld(true)
+        gizmo.add(new ArrowHelper())
+        line.add(gizmo)
+        gizmo.position.copy(elem.position.value)
+        gizmo.quaternion.copy(elem.quaternion.value)
+        gizmo.updateMatrixWorld(true)
+      }
 
-  removeSplineElement: (entity, component, elem) => {
-    component.value.wrapper.removeSplineElement(elem)
-    component.value.wrapper.update()
+      const poses = elements.value.map((e) => e.position)
+      const curve = new CatmullRomCurve3(poses)
+      curve.curveType = 'catmullrom'
+      const positions = line.geometry.attributes.position
+      for (let i = 0; i < ARC_SEGMENTS; i++) {
+        const t = i / (ARC_SEGMENTS - 1)
+        curve.getPoint(t, _point)
+        positions.setXYZ(i, _point.x, _point.y, _point.z)
+      }
+      positions.needsUpdate = true
+      line.visible = true
+
+      return () => {
+        line.children.forEach((child) => line.remove(child))
+        removeObjectFromGroup(entity, line)
+      }
+    }, [elements])
+    return null
   }
 })
+
+function SplineElementReactor() {
+  return null
+}

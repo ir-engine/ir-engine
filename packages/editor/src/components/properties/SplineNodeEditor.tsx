@@ -32,6 +32,7 @@ import { SplineComponent } from '@etherealengine/engine/src/scene/components/Spl
 import ClearIcon from '@mui/icons-material/Clear'
 import TimelineIcon from '@mui/icons-material/Timeline'
 
+import { Quaternion, Vector3 } from 'three'
 import { PropertiesPanelButton } from '../inputs/Button'
 import EulerInput from '../inputs/EulerInput'
 import InputGroup from '../inputs/InputGroup'
@@ -49,13 +50,18 @@ import { EditorComponentType } from './Util'
 export const SplineNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
   const component = useComponent(props.entity, SplineComponent)
-  const elements = SplineComponent.getSplineElements(props.entity, component)
+  const elements = SplineComponent.elements
+  console.log('***********************')
+  console.log(elements)
+  if (!elements) {
+    return <div>something is horribly wrong</div>
+  }
   return (
     <NodeEditor description={t('editor:properties.spline.description')} {...props}>
       <InputGroup name="Add Point">
         <PropertiesPanelButton
           onClick={() => {
-            SplineComponent.addSplineElement(props.entity, component)
+            elements.set(...elements, { position: new Vector3(), quaternion: new Quaternion() })
           }}
         >
           {t('editor:properties.spline.lbl-addNode')}
@@ -70,7 +76,7 @@ export const SplineNodeEditor: EditorComponentType = (props) => {
           <div
             style={{}}
             onClick={() => {
-              SplineComponent.removeSplineElement(props.entity, component, elem)
+              elements.filter((_, i) => i !== index)
             }}
           >
             <ClearIcon style={{ color: 'white' }} />
@@ -82,7 +88,7 @@ export const SplineNodeEditor: EditorComponentType = (props) => {
             mediumStep={0.1}
             largeStep={1}
             onChange={(position) => {
-              SplineComponent.moveSplineElement(props.entity, component, elem, position)
+              elem.position.copy(position)
             }}
           />
           <EulerInput
@@ -90,7 +96,7 @@ export const SplineNodeEditor: EditorComponentType = (props) => {
             quaternion={elem.quaternion}
             unit="°"
             onChange={(euler) => {
-              SplineComponent.rotateSplineElement(props.entity, component, elem, euler)
+              elem.quaternion.copy(elem.quaternion.setFromEuler(euler))
             }}
           />
         </InputGroup>

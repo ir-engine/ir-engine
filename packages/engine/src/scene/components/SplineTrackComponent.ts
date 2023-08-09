@@ -78,7 +78,7 @@ export const SplineTrackComponent = defineComponent({
         let splineComponent = getOptionalComponent(tree.parentEntity, SplineComponent)
         if (!splineComponent) splineComponent = getOptionalComponent(entity, SplineComponent)
         if (!splineComponent) return
-        const elements = splineComponent.wrapper.elements
+        const elements = splineComponent.elements
         if (elements.length < 2) return
 
         // move
