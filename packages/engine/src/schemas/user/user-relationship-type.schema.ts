@@ -31,6 +31,14 @@ export const userRelationshipTypePath = 'user-relationship-type'
 
 export const userRelationshipTypeMethods = ['find', 'get'] as const
 
+export const userRelationshipTypes = [
+  'requested', // Default state of relatedUser. Friend request send to another user
+  'pending', // Friend request pending by other user
+  'friend',
+  'blocking', // Blocking another user
+  'blocked' // Blocked by other user
+]
+
 // Main data model schema
 export const userRelationshipTypeSchema = Type.Object(
   {

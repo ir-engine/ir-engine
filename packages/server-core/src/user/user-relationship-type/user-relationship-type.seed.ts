@@ -27,6 +27,7 @@ import { Knex } from 'knex'
 
 import {
   userRelationshipTypePath,
+  userRelationshipTypes,
   UserRelationshipTypeType
 } from '@etherealengine/engine/src/schemas/user/user-relationship-type.schema'
 import appConfig from '@etherealengine/server-core/src/appconfig'
@@ -35,13 +36,7 @@ export async function seed(knex: Knex): Promise<void> {
   const { testEnabled } = appConfig
   const { forceRefresh } = appConfig.db
 
-  const seedData: UserRelationshipTypeType[] = await Promise.all([
-    { type: 'requested' }, // Default state of relatedUser. Friend request send to another user
-    { type: 'pending' }, // Friend request pending by other user
-    { type: 'friend' },
-    { type: 'blocking' }, // Blocking another user
-    { type: 'blocked' } // Blocked by other user
-  ])
+  const seedData: UserRelationshipTypeType[] = userRelationshipTypes.map((type) => ({ type }))
 
   if (forceRefresh || testEnabled) {
     // Deletes ALL existing entries
