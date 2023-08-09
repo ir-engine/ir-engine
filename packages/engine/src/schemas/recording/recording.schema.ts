@@ -68,7 +68,7 @@ export type RecordingDatabaseType = Omit<RecordingType, 'schema' | 'resources' |
 }
 
 // Schema for creating new entries
-export const recordingDataSchema = Type.Pick(recordingSchema, ['schema'], {
+export const recordingDataSchema = Type.Partial(recordingSchema, {
   $id: 'RecordingData'
 })
 export type RecordingData = Static<typeof recordingDataSchema>

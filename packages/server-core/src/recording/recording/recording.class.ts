@@ -72,7 +72,10 @@ export class RecordingService<T = RecordingType, ServiceParams extends Params = 
   }
 
   async create(data: RecordingData, params?: RecordingParams) {
-    return super._create(data, params)
+    return super._create({
+      ...data,
+      userId: params?.user?.id
+    })
   }
 
   async remove(id: RecordingID) {
