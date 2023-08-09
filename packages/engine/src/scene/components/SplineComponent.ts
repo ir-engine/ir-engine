@@ -87,11 +87,7 @@ export const SplineComponent = defineComponent({
     const entity = useEntityContext()
     const elements = useComponent(entity, SplineComponent).elements
 
-    console.log('********** reactor started ***********')
-
     useEffect(() => {
-      console.log('************* effect called ******************* ' + elements.length)
-
       if (elements.length < 3) {
         return () => {}
       }

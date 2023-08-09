@@ -57,10 +57,7 @@ export const SplineNodeEditor: EditorComponentType = (props) => {
         <PropertiesPanelButton
           onClick={() => {
             const elem = { position: new Vector3(), quaternion: new Quaternion() }
-            console.log('adding')
             component.elements.merge([elem])
-            //component.elements.concat(elem)
-            //component.elements.push(elem)
           }}
         >
           {t('editor:properties.spline.lbl-addNode')}
