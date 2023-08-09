@@ -29,6 +29,8 @@ import { HookContext } from '@feathersjs/feathers'
 import { GITHUB_URL_REGEX } from '@etherealengine/common/src/constants/GitHubConstants'
 import { UserInterface } from '@etherealengine/common/src/interfaces/User'
 
+import { identityProviderPath } from '@etherealengine/engine/src/schemas/user/identity.provider.schema'
+import { Knex } from 'knex'
 import { checkUserRepoWriteStatus } from '../projects/project/github-helper'
 
 export default (writeAccess) => {
@@ -61,12 +63,15 @@ export default (writeAccess) => {
       }
     })
     if (projectPermissionResult == null) {
-      const githubIdentityProvider = await (app.service('identity-provider') as any).Model.findOne({
-        where: {
+      const knexClient: Knex = app.get('knexClient')
+      const githubIdentityProvider = await knexClient
+        .from(identityProviderPath)
+        .where({
           userId: params.user.id,
           type: 'github'
-        }
-      })
+        })
+        .first()
+
       if (!githubIdentityProvider) throw new Forbidden('You are not authorized to access this project')
       const githubPathRegexExec = GITHUB_URL_REGEX.exec(projectRepoPath)
       if (!githubPathRegexExec) throw new BadRequest('Invalid project URL')

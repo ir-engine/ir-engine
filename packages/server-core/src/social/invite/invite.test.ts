@@ -44,13 +44,11 @@ describe('invite service', () => {
   //   // Create test user
   //   const type = 'password'
   //   const token = `${v1()}@etherealengine.io`
-  //   const password = 'test@123'
   //
   //   user = await app.service(identityProviderPath).create(
   //     {
   //       type,
-  //       token,
-  //       password
+  //       token
   //     },
   //     {}
   //   )

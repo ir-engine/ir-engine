@@ -31,6 +31,7 @@ import {
   IdentityProviderType,
   identityProviderDataSchema,
   identityProviderPatchSchema,
+  identityProviderPath,
   identityProviderQuerySchema,
   identityProviderSchema
 } from '@etherealengine/engine/src/schemas/user/identity.provider.schema'
@@ -41,6 +42,7 @@ import { HookContext } from '@feathersjs/feathers'
 import authenticate from '../../hooks/authenticate'
 import accountService from '../auth-management/auth-management.notifier'
 
+import { Knex } from 'knex'
 import {
   identityProviderDataResolver,
   identityProviderExternalResolver,
@@ -75,16 +77,17 @@ const checkIdentityProvider = (): any => {
   return async (context: HookContext): Promise<HookContext> => {
     if (context.id) {
       // If trying to CRUD a specific identity-provider, throw 404 if the user doesn't own it
-      const thisIdentityProvider = await (context.app.service('identity-provider') as any).Model.findByPk(context.id)
+      const knexClient: Knex = context.app.get('knexClient')
+      const thisIdentityProvider = await knexClient.from(identityProviderPath).where({ id: context.id }).first()
       if (
-        context.params['identity-provider'] &&
-        context.params['identity-provider'].userId !== thisIdentityProvider.userId
+        context.params[identityProviderPath] &&
+        context.params[identityProviderPath].userId !== thisIdentityProvider.userId
       )
         throw new NotFound()
     } else {
       // If trying to CRUD multiple identity-providers, e.g. patch all IP's belonging to a user, make params.query.userId
       // the ID of the calling user, so no one can alter anyone else's IPs.
-      const userId = context.params['identity-provider']?.userId
+      const userId = context.params[identityProviderPath]?.userId
       if (!userId) throw new NotFound()
       if (!context.params.query) context.params.query = {}
       context.params.query.userId = userId
@@ -100,10 +103,11 @@ const checkOnlyIdentityProvider = () => {
       // do not allow to remove identity providers in bulk
       throw new MethodNotAllowed('Cannot remove multiple providers together')
     }
-
-    const thisIdentityProvider = (await (context.app.service('identity-provider') as any).Model.findByPk(
-      context.id
-    )) as IdentityProviderType
+    const knexClient: Knex = context.app.get('knexClient')
+    const thisIdentityProvider = (await knexClient
+      .from(identityProviderPath)
+      .where({ id: context.id })
+      .first()) as IdentityProviderType
 
     // we only want to disallow removing the last identity provider if it is not a guest
     // since the guest user will be destroyed once they log in

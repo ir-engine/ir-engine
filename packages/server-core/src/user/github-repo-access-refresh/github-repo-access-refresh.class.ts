@@ -33,6 +33,8 @@ import {
   GithubRepoAccessType
 } from '@etherealengine/engine/src/schemas/user/github-repo-access.schema'
 
+import { identityProviderPath } from '@etherealengine/engine/src/schemas/user/identity.provider.schema'
+import { Knex } from 'knex'
 import { Application } from '../../../declarations'
 import { getUserRepos } from '../../projects/project/github-helper'
 import logger from '../../ServerLogger'
@@ -58,12 +60,15 @@ export class GithubRepoAccessRefreshService<
 
   async find(params?: GithubRepoAccessRefreshParams) {
     try {
-      const githubIdentityProvider = await (this.app.service('identity-provider') as any).Model.findOne({
-        where: {
+      const knexClient: Knex = this.app.get('knexClient')
+      const githubIdentityProvider = await knexClient
+        .from(identityProviderPath)
+        .where({
           userId: params?.user.id,
           type: 'github'
-        }
-      })
+        })
+        .first()
+
       if (githubIdentityProvider) {
         const existingGithubRepoAccesses = (await this.app.service(githubRepoAccessPath).find({
           query: {
