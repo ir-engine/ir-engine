@@ -23,40 +23,20 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import { DataTypes, Model, Sequelize } from 'sequelize'
+import { UserInterface } from '@etherealengine/common/src/interfaces/User'
+import { AdapterQuery } from '@feathersjs/adapter-commons'
+import { Params } from '@feathersjs/feathers'
+import { KnexAdapterParams } from '@feathersjs/knex'
 
-import { UserRelationshipTypeInterface } from '@etherealengine/common/src/dbmodels/UserRelationshipType'
+export interface RootParams<Q = AdapterQuery> extends KnexAdapterParams<Q> {
+  user?: UserInterface
+  isInternal?: boolean
+}
 
-import { Application } from '../../../declarations'
-
-export default (app: Application) => {
-  const sequelizeClient: Sequelize = app.get('sequelizeClient')
-  const userRelationshipType = sequelizeClient.define<Model<UserRelationshipTypeInterface>>(
-    'user_relationship_type',
-    {
-      type: {
-        type: DataTypes.STRING,
-        allowNull: false,
-        primaryKey: true,
-        unique: true
-      }
-    },
-    {
-      hooks: {
-        beforeCount(options: any): void {
-          options.raw = true
-        },
-        beforeUpdate(instance: any, options: any): void {
-          throw new Error("Can't update a type!")
-        }
-      },
-      timestamps: false
-    }
-  )
-
-  ;(userRelationshipType as any).associate = (models: any): void => {
-    ;(userRelationshipType as any).hasMany(models.user_relationship, { foreignKey: 'userRelationshipType' })
-  }
-
-  return userRelationshipType
+/* @deprecated */
+export interface UserParams extends Params {
+  user?: UserInterface
+  paginate?: false
+  isInternal?: boolean
+  sequelize?: any
 }

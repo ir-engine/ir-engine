@@ -23,16 +23,58 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
+import { hooks as schemaHooks } from '@feathersjs/schema'
+import { getValidator } from '@feathersjs/typebox'
+
+import {
+  userRelationshipTypeDataSchema,
+  userRelationshipTypePatchSchema,
+  userRelationshipTypeQuerySchema,
+  userRelationshipTypeSchema
+} from '@etherealengine/engine/src/schemas/user/user-relationship-type.schema'
+import { dataValidator, queryValidator } from '@etherealengine/server-core/validators'
+
 import { disallow } from 'feathers-hooks-common'
+import {
+  userRelationshipTypeDataResolver,
+  userRelationshipTypeExternalResolver,
+  userRelationshipTypePatchResolver,
+  userRelationshipTypeQueryResolver,
+  userRelationshipTypeResolver
+} from './user-relationship-type.resolvers'
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const userRelationshipTypeValidator = getValidator(userRelationshipTypeSchema, dataValidator)
+const userRelationshipTypeDataValidator = getValidator(userRelationshipTypeDataSchema, dataValidator)
+const userRelationshipTypePatchValidator = getValidator(userRelationshipTypePatchSchema, dataValidator)
+const userRelationshipTypeQueryValidator = getValidator(userRelationshipTypeQuerySchema, queryValidator)
 
 export default {
+  around: {
+    all: [
+      schemaHooks.resolveExternal(userRelationshipTypeExternalResolver),
+      schemaHooks.resolveResult(userRelationshipTypeResolver)
+    ]
+  },
+
   before: {
-    all: [],
+    all: [
+      () => schemaHooks.validateQuery(userRelationshipTypeQueryValidator),
+      schemaHooks.resolveQuery(userRelationshipTypeQueryResolver)
+    ],
     find: [],
     get: [],
-    create: [disallow('external')],
+    create: [
+      disallow('external'),
+      () => schemaHooks.validateData(userRelationshipTypeDataValidator),
+      schemaHooks.resolveData(userRelationshipTypeDataResolver)
+    ],
     update: [disallow()],
-    patch: [disallow()],
+    patch: [
+      disallow(),
+      () => schemaHooks.validateData(userRelationshipTypePatchValidator),
+      schemaHooks.resolveData(userRelationshipTypePatchResolver)
+    ],
     remove: [disallow('external')]
   },
 

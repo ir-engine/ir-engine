@@ -23,6 +23,39 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-export interface UserRelationshipTypeInterface {
-  type: string
+import { userRelationshipTypePath } from '@etherealengine/engine/src/schemas/user/user-relationship-type.schema'
+import type { Knex } from 'knex'
+
+/**
+ * @param { import("knex").Knex } knex
+ * @returns { Promise<void> }
+ */
+export async function up(knex: Knex): Promise<void> {
+  const oldTableName = 'user_relationship_type'
+
+  const oldNamedTableExists = await knex.schema.hasTable(oldTableName)
+  if (oldNamedTableExists) {
+    await knex.schema.renameTable(oldTableName, userRelationshipTypePath)
+  }
+
+  const tableExists = await knex.schema.hasTable(userRelationshipTypePath)
+
+  if (tableExists === false) {
+    await knex.schema.createTable(userRelationshipTypePath, (table) => {
+      //@ts-ignore
+      table.string('type', 255).notNullable().unique().primary()
+    })
+  }
+}
+
+/**
+ * @param { import("knex").Knex } knex
+ * @returns { Promise<void> }
+ */
+export async function down(knex: Knex): Promise<void> {
+  const tableExists = await knex.schema.hasTable(userRelationshipTypePath)
+
+  if (tableExists === true) {
+    await knex.schema.dropTable(userRelationshipTypePath)
+  }
 }
