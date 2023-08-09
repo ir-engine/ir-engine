@@ -29,6 +29,7 @@ import dotenv from 'dotenv-flow'
 import path from 'path'
 import url from 'url'
 
+import { identityProviderPath } from '@etherealengine/engine/src/schemas/user/identity.provider.schema'
 import multiLogger from './ServerLogger'
 
 const logger = multiLogger.child({ component: 'server-core:config' })
@@ -236,8 +237,8 @@ const email = {
  * Authentication
  */
 const authentication = {
-  service: 'identity-provider',
-  entity: 'identity-provider',
+  service: identityProviderPath,
+  entity: identityProviderPath,
   secret: process.env.AUTH_SECRET!,
   authStrategies: ['jwt', 'discord', 'facebook', 'github', 'google', 'linkedin', 'twitter', 'didWallet'],
   jwtOptions: {

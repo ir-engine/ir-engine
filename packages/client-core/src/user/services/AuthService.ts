@@ -43,6 +43,7 @@ import {
   identityProviderPath
 } from '@etherealengine/engine/src/schemas/user/identity.provider.schema'
 import { UserApiKeyType, userApiKeyPath } from '@etherealengine/engine/src/schemas/user/user-api-key.schema'
+import { AuthenticationResult } from '@feathersjs/authentication'
 import { API } from '../../API'
 import { NotificationService } from '../../common/services/NotificationService'
 import { LocationState } from '../../social/services/LocationService'
@@ -116,7 +117,7 @@ export const AuthService = {
         await _resetToGuestToken({ reset: false })
       }
 
-      let res
+      let res: AuthenticationResult
       try {
         res = await API.instance.client.reAuthenticate()
       } catch (err) {
@@ -130,8 +131,9 @@ export const AuthService = {
         }
       }
       if (res) {
+        const identityProvider = res[identityProviderPath] as IdentityProviderType
         // Response received form reAuthenticate(), but no `id` set.
-        if (!res['identity-provider']?.id) {
+        if (!identityProvider?.id) {
           authState.merge({ isLoggedIn: false, user: UserSeed, authUser: AuthUserSeed })
           await _resetToGuestToken()
           res = await API.instance.client.reAuthenticate()

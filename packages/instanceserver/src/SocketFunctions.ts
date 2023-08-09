@@ -33,6 +33,7 @@ import { getState } from '@etherealengine/hyperflux'
 import { Application } from '@etherealengine/server-core/declarations'
 import multiLogger from '@etherealengine/server-core/src/ServerLogger'
 
+import { identityProviderPath } from '@etherealengine/engine/src/schemas/user/identity.provider.schema'
 import { InstanceServerState } from './InstanceServerState'
 import {
   authorizeUserToJoinServer,
@@ -122,7 +123,7 @@ export const setupSocketFunctions = async (app: Application, spark: any) => {
           { accessToken: accessToken },
           {}
         )
-        userId = authResult['identity-provider'].userId as UserId
+        userId = authResult[identityProviderPath].userId as UserId
         user = await app.service('user').get(userId)
 
         if (!user) {

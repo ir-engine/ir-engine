@@ -41,6 +41,7 @@ import {
   instanceAuthorizedUserPath,
   InstanceAuthorizedUserType
 } from '@etherealengine/engine/src/schemas/networking/instance-authorized-user.schema'
+import { identityProviderPath } from '@etherealengine/engine/src/schemas/user/identity.provider.schema'
 import { Application } from '../../../declarations'
 import config from '../../appconfig'
 import logger from '../../ServerLogger'
@@ -518,7 +519,7 @@ export class InstanceProvision implements ServiceMethods<any> {
         { accessToken: token },
         {}
       )
-      const identityProvider = authResult['identity-provider']
+      const identityProvider = authResult[identityProviderPath]
       if (identityProvider != null) userId = identityProvider.userId
       else throw new BadRequest('Invalid user credentials')
 

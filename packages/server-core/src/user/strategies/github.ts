@@ -51,7 +51,7 @@ export class GithubStrategy extends CustomOAuthStrategy {
       { accessToken: params?.authentication?.accessToken },
       {}
     )
-    const identityProvider = authResult['identity-provider']
+    const identityProvider = authResult[identityProviderPath]
     const userId = identityProvider ? identityProvider.userId : params?.query ? params.query.userId : undefined
 
     return {

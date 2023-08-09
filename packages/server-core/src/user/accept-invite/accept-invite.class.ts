@@ -160,7 +160,7 @@ export class AcceptInvite implements ServiceMethods<Data> {
         inviteeIdentityProvider = invitee.identity_providers[0]
       }
 
-      if (params['identity-provider'] == null) params['identity-provider'] = inviteeIdentityProvider
+      if (params[identityProviderPath] == null) params[identityProviderPath] = inviteeIdentityProvider
 
       if (invite.makeAdmin) {
         const existingAdminScope = await this.app.service('scope').find({
@@ -269,7 +269,7 @@ export class AcceptInvite implements ServiceMethods<Data> {
 
       returned.token = await this.app
         .service('authentication')
-        .createAccessToken({}, { subject: params['identity-provider'].id.toString() })
+        .createAccessToken({}, { subject: params[identityProviderPath].id.toString() })
 
       if (invite.inviteType === 'location' || invite.inviteType === 'instance') {
         let instance =

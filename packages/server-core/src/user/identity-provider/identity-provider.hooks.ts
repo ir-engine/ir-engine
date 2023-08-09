@@ -114,7 +114,7 @@ const checkOnlyIdentityProvider = () => {
     if (thisIdentityProvider.type === 'guest') return context
 
     const providers = await context.app
-      .service('identity-provider')
+      .service(identityProviderPath)
       .find({ query: { userId: thisIdentityProvider.userId } })
 
     if (providers.total <= 1) {
