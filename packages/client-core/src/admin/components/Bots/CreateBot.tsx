@@ -42,17 +42,16 @@ import IconButton from '@etherealengine/ui/src/primitives/mui/IconButton'
 import Paper from '@etherealengine/ui/src/primitives/mui/Paper'
 import Typography from '@etherealengine/ui/src/primitives/mui/Typography'
 
-import { useFind } from '@etherealengine/engine/src/common/functions/FeathersHooks'
+import { useFind, useMutation } from '@etherealengine/engine/src/common/functions/FeathersHooks'
 import { locationPath } from '@etherealengine/engine/src/schemas/social/location.schema'
 import { NotificationService } from '../../../common/services/NotificationService'
 import { AuthState } from '../../../user/services/AuthService'
 import AddCommand from '../../common/AddCommand'
 import { validateForm } from '../../common/validation/formValidation'
-import { AdminBotService } from '../../services/BotsService'
-import { AdminInstanceService, AdminInstanceState } from '../../services/InstanceService'
 import styles from '../../styles/admin.module.scss'
 
 const CreateBot = () => {
+  const { t } = useTranslation()
   const command = useHookstate<BotCommandData>({
     id: '',
     name: '',
@@ -72,18 +71,15 @@ const CreateBot = () => {
     instance: '',
     location: ''
   })
-  const adminInstanceState = useHookstate(getMutableState(AdminInstanceState))
   const user = useHookstate(getMutableState(AuthState).user)
-  const instanceData = adminInstanceState.instances
+
+  const instanceQuery = useFind('instance')
+  const instanceData = instanceQuery.data
+
   const locationQuery = useFind(locationPath)
   const locationData = locationQuery.data
-  const { t } = useTranslation()
 
-  useEffect(() => {
-    if (user?.id.value && adminInstanceState.updateNeeded.value) {
-      AdminInstanceService.fetchAdminInstances()
-    }
-  }, [user?.id?.value, adminInstanceState.updateNeeded.value])
+  const createBotData = useMutation('bot').create
 
   const handleChangeCommand = (e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
     const { name, value } = e.target
@@ -104,7 +100,7 @@ const CreateBot = () => {
     }
   }
 
-  const data: Instance[] = instanceData.get({ noproxy: true }).map((element) => {
+  const data: Instance[] = instanceData.map((element) => {
     return element
   })
 
@@ -116,7 +112,7 @@ const CreateBot = () => {
     } else {
       currentInstance.set([])
     }
-  }, [state.location.value, adminInstanceState.instances.value.length])
+  }, [state.location.value, instanceData])
 
   const handleSubmit = () => {
     const data: CreateBotAsAdmin = {
@@ -135,17 +131,13 @@ const CreateBot = () => {
     })
 
     if (validateForm(state.value, formErrors.value)) {
-      AdminBotService.createBotAsAdmin(data)
+      createBotData(data)
       state.set({ name: '', description: '', instance: '', location: '' })
       commandData.set([])
       currentInstance.set([])
     } else {
       NotificationService.dispatchNotify(t('admin:components.common.fillRequiredFields'), { variant: 'error' })
     }
-  }
-
-  const fetchAdminInstances = () => {
-    AdminInstanceService.fetchAdminInstances()
   }
 
   const removeCommand = (id: string) => {
@@ -233,7 +225,7 @@ const CreateBot = () => {
             onChange={handleInputChange}
             endControl={
               <IconButton
-                onClick={fetchAdminInstances}
+                onClick={instanceQuery.refetch}
                 icon={<Icon type="Autorenew" style={{ color: 'var(--iconButtonColor)' }} />}
               />
             }
