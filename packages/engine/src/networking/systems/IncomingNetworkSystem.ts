@@ -111,6 +111,5 @@ const reactor = () => {
 export const IncomingNetworkSystem = defineSystem({
   uuid: 'ee.engine.IncomingNetworkSystem',
   execute,
-  reactor,
-  subSystems: []
+  reactor
 })
