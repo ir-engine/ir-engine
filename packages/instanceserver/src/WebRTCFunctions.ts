@@ -601,7 +601,6 @@ export async function handleRequestProducer(
   network: SocketWebRTCServerNetwork,
   action: typeof MediaProducerActions.requestProducer.matches._TYPE
 ) {
-  console.log('handleRequestProducer', action)
   const { $peer: peerID, transportId, rtpParameters, paused, requestID, appData, kind } = action
   const userId = getUserIdFromPeerID(network, peerID)
 
@@ -622,7 +621,6 @@ export async function handleRequestProducer(
   try {
     const newProducerAppData = { ...appData, peerID, transportId } as MediaStreamAppData
     const existingProducer = await network.producers.find((producer) => producer.appData === newProducerAppData)
-    console.log({ existingProducer })
     if (existingProducer) throw new Error('Producer already exists for ' + peerID + ' ' + appData.mediaTag) //closeProducer(network, existingProducer)
     const producer = (await transport.produce({
       kind: kind as any,

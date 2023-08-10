@@ -284,8 +284,6 @@ export const NetworkProducer = (props: { networkID: UserId; producerID: string }
       const producer = network.producers.find((p) => p.id === producerID)
       if (!producer || producer.closed || producer._closed) return
 
-      console.log('Destroying Producer', producer.id)
-
       producer.close()
 
       // remove from the network state
@@ -342,8 +340,6 @@ export const NetworkConsumer = (props: { networkID: UserId; consumerID: string }
       const network = getState(NetworkState).networks[networkID]
       const consumer = network.consumers.find((p) => p.id === consumerID)
       if (!consumer || consumer.closed || consumer._closed) return
-
-      console.log('Destroying Consumer', consumer)
 
       // remove from the network state
       networkState.consumers.set((p) => {
