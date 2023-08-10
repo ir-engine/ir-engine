@@ -27,7 +27,7 @@ import React from 'react'
 import { useTranslation } from 'react-i18next'
 
 import ConfirmDialog from '@etherealengine/client-core/src/common/components/ConfirmDialog'
-import { AvatarType } from '@etherealengine/engine/src/schemas/user/avatar.schema'
+import { AvatarType, avatarPath } from '@etherealengine/engine/src/schemas/user/avatar.schema'
 import { useHookstate } from '@etherealengine/hyperflux'
 import Box from '@etherealengine/ui/src/primitives/mui/Box'
 import Checkbox from '@etherealengine/ui/src/primitives/mui/Checkbox'
@@ -60,7 +60,7 @@ const AvatarTable = ({ className, search, selectedAvatarIds, setSelectedAvatarId
   const openAvatarDrawer = useHookstate(false)
   const avatarData = useHookstate<AvatarType | null>(null)
 
-  const adminAvatarQuery = useFind('avatar', {
+  const adminAvatarQuery = useFind(avatarPath, {
     query: {
       admin: true,
       $limit: rowsPerPage.value,

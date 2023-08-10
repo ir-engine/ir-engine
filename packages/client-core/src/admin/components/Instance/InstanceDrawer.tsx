@@ -23,28 +23,26 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React, { useEffect } from 'react'
+import React from 'react'
 import { useTranslation } from 'react-i18next'
 
 import InputText from '@etherealengine/client-core/src/common/components/InputText'
 import { Instance } from '@etherealengine/common/src/interfaces/Instance'
 import { UserInterface } from '@etherealengine/common/src/interfaces/User'
-import { getMutableState, useHookstate } from '@etherealengine/hyperflux'
+import { useHookstate } from '@etherealengine/hyperflux'
 import Box from '@etherealengine/ui/src/primitives/mui/Box'
 import Button from '@etherealengine/ui/src/primitives/mui/Button'
 import Container from '@etherealengine/ui/src/primitives/mui/Container'
 import DialogTitle from '@etherealengine/ui/src/primitives/mui/DialogTitle'
 import Grid from '@etherealengine/ui/src/primitives/mui/Grid'
 
+import { useFind, useMutation } from '@etherealengine/engine/src/common/functions/FeathersHooks'
+import { instanceAttendancePath } from '@etherealengine/engine/src/schemas/networking/instance-attendance.schema'
 import ConfirmDialog from '../../../common/components/ConfirmDialog'
+import { NotificationService } from '../../../common/services/NotificationService'
 import DrawerView from '../../common/DrawerView'
 import TableComponent from '../../common/Table'
 import { instanceUsersColumns } from '../../common/variables/instance'
-import {
-  AdminInstanceUserService,
-  AdminInstanceUserState,
-  INSTANCE_USERS_PAGE_LIMIT
-} from '../../services/InstanceService'
 import styles from '../../styles/admin.module.scss'
 
 interface Props {
@@ -55,7 +53,42 @@ interface Props {
 
 const INFINITY = 'INFINITY'
 
+const INSTANCE_USERS_PAGE_LIMIT = 10
+
+const useUsersInInstance = (instanceId: string) => {
+  const instanceAttendances = useFind(instanceAttendancePath, {
+    query: {
+      instanceId
+    }
+  })
+
+  const userIds = instanceAttendances.data.map((d: any) => d.userId)
+  return useFind('user', {
+    query: {
+      id: {
+        $in: userIds
+      }
+    }
+  })
+}
+
+const useKickUser = () => {
+  const createUserKick = useMutation('user-kick').create
+
+  return (kickData: { userId: UserInterface['id']; instanceId: Instance['id']; duration: string }) => {
+    const duration = new Date()
+    if (kickData.duration === 'INFINITY') {
+      duration.setFullYear(duration.getFullYear() + 10) // ban for 10 years
+    } else {
+      duration.setHours(duration.getHours() + parseInt(kickData.duration, 10))
+    }
+    createUserKick({ ...kickData, duration })
+    NotificationService.dispatchNotify(`user was kicked`, { variant: 'default' })
+  }
+}
+
 const InstanceDrawer = ({ open, selectedInstance, onClose }: Props) => {
+  const { t } = useTranslation()
   const page = useHookstate(0)
   const rowsPerPage = useHookstate(INSTANCE_USERS_PAGE_LIMIT)
   const fieldOrder = useHookstate('asc')
@@ -68,14 +101,8 @@ const InstanceDrawer = ({ open, selectedInstance, onClose }: Props) => {
     duration: '8'
   })
 
-  const { t } = useTranslation()
-
-  const adminInstanceUserState = useHookstate(getMutableState(AdminInstanceUserState))
-
-  useEffect(() => {
-    if (!selectedInstance) return
-    AdminInstanceUserService.fetchUsersInInstance(selectedInstance.id)
-  }, [selectedInstance])
+  const instanceUsersQuery = useUsersInInstance(selectedInstance?.id ?? '')
+  const kickUser = useKickUser()
 
   const createData = (id: UserInterface['id'], name: UserInterface['name']) => ({
     id,
@@ -108,15 +135,14 @@ const InstanceDrawer = ({ open, selectedInstance, onClose }: Props) => {
     if (!kickData.value.duration || !selectedInstance) {
       return
     }
-    await AdminInstanceUserService.kickUser({ ...kickData.value })
-    await AdminInstanceUserService.fetchUsersInInstance(selectedInstance.id)
+    await kickUser(kickData.value)
     openKickDialog.set(false)
     if (kickData.value.duration === INFINITY) {
       kickData.merge({ duration: '8' })
     }
   }
 
-  const rows = adminInstanceUserState.value.users.map((el) => createData(el.id, el.name))
+  const rows = instanceUsersQuery.data.map((el) => createData(el.id, el.name))
 
   return (
     <DrawerView open={open} onClose={onClose}>
@@ -132,7 +158,7 @@ const InstanceDrawer = ({ open, selectedInstance, onClose }: Props) => {
             column={instanceUsersColumns}
             page={page.value}
             rowsPerPage={rowsPerPage.value}
-            count={adminInstanceUserState.total.value}
+            count={instanceUsersQuery.total!}
             handlePageChange={() => {}}
             handleRowsPerPageChange={() => {}}
           />

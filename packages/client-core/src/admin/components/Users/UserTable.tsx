@@ -23,7 +23,7 @@ All portions of the code written by the Ethereal Engine team are Copyright © 20
 Ethereal Engine. All Rights Reserved.
 */
 
-import React, { useEffect } from 'react'
+import React from 'react'
 import { useTranslation } from 'react-i18next'
 
 import ConfirmDialog from '@etherealengine/client-core/src/common/components/ConfirmDialog'
@@ -34,6 +34,7 @@ import Box from '@etherealengine/ui/src/primitives/mui/Box'
 import Icon from '@etherealengine/ui/src/primitives/mui/Icon'
 import Tooltip from '@etherealengine/ui/src/primitives/mui/Tooltip'
 
+import { useFind, useMutation } from '@etherealengine/engine/src/common/functions/FeathersHooks'
 import { DiscordIcon } from '../../../common/components/Icons/DiscordIcon'
 import { FacebookIcon } from '../../../common/components/Icons/FacebookIcon'
 import { GoogleIcon } from '../../../common/components/Icons/GoogleIcon'
@@ -41,51 +42,50 @@ import { LinkedInIcon } from '../../../common/components/Icons/LinkedInIcon'
 import { TwitterIcon } from '../../../common/components/Icons/TwitterIcon'
 import { AuthState } from '../../../user/services/AuthService'
 import TableComponent from '../../common/Table'
-import { userColumns, UserData, UserProps } from '../../common/variables/user'
-import { AdminUserService, AdminUserState, USER_PAGE_LIMIT } from '../../services/UserService'
+import { UserData, UserProps, userColumns } from '../../common/variables/user'
 import styles from '../../styles/admin.module.scss'
 import UserDrawer, { UserDrawerMode } from './UserDrawer'
 
-const UserTable = ({ className, search }: UserProps) => {
+const USER_PAGE_LIMIT = 10
+
+const UserTable = ({ className, search, skipGuests }: UserProps & { skipGuests: boolean }) => {
   const { t } = useTranslation()
 
-  const rowsPerPage = useHookstate(USER_PAGE_LIMIT)
   const openConfirm = useHookstate(false)
-  const userId = useHookstate('')
   const userName = useHookstate('')
+  const userId = useHookstate('')
+
+  const page = useHookstate(0)
+  const rowsPerPage = useHookstate(USER_PAGE_LIMIT)
   const fieldOrder = useHookstate('asc')
   const sortField = useHookstate('name')
+
   const openUserDrawer = useHookstate(false)
   const userAdmin = useHookstate<UserInterface | null>(null)
   const authState = useHookstate(getMutableState(AuthState))
   const user = authState.user
-  const adminUserState = useHookstate(getMutableState(AdminUserState))
-  const skip = adminUserState.skip.value
-  const adminUsers = adminUserState.users.get({ noproxy: true })
-  const adminUserCount = adminUserState.total
 
-  const page = skip / USER_PAGE_LIMIT
-
-  useEffect(() => {
-    AdminUserService.fetchUsersAsAdmin(search, 0, sortField.value, fieldOrder.value)
-  }, [search, user?.id?.value, adminUserState.updateNeeded.value])
+  const adminUserQuery = useFind('user', {
+    query: {
+      search,
+      action: 'admin',
+      isGuest: skipGuests ? false : undefined,
+      $sort: { [sortField.value]: fieldOrder.value === 'desc' ? -1 : 1 },
+      $skip: page.value * rowsPerPage.value
+    }
+  })
+  const removeUser = useMutation('user').remove
 
   const handlePageChange = (event: unknown, newPage: number) => {
-    AdminUserService.fetchUsersAsAdmin(search, newPage, sortField.value, fieldOrder.value)
+    page.set(newPage)
   }
-
-  useEffect(() => {
-    if (adminUserState.fetched.value) {
-      AdminUserService.fetchUsersAsAdmin(search, page, sortField.value, fieldOrder.value)
-    }
-  }, [fieldOrder.value])
 
   const handleRowsPerPageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     rowsPerPage.set(parseInt(event.target.value, 10))
   }
 
   const submitDeleteUser = async () => {
-    await AdminUserService.removeUserAdmin(userId.value)
+    await removeUser(userId.value)
     openConfirm.set(false)
   }
 
@@ -186,7 +186,7 @@ const UserTable = ({ className, search }: UserProps) => {
     }
   }
 
-  const rows = adminUsers.map((el) => {
+  const rows = adminUserQuery.data.map((el) => {
     return createData(
       el.id,
       el,
@@ -207,9 +207,9 @@ const UserTable = ({ className, search }: UserProps) => {
         setFieldOrder={fieldOrder.set}
         rows={rows}
         column={userColumns}
-        page={page}
+        page={page.value}
         rowsPerPage={rowsPerPage.value}
-        count={adminUserCount.value}
+        count={adminUserQuery.total!}
         handlePageChange={handlePageChange}
         handleRowsPerPageChange={handleRowsPerPageChange}
       />
