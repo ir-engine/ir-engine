@@ -520,7 +520,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
           <DialogTitle style={{ padding: '0', textTransform: 'capitalize' }}>
             {`${fileProperties.value?.name} ${fileProperties.value?.type == 'folder' ? 'folder' : 'file'} Properties`}
           </DialogTitle>
-          <Grid container spacing={3} style={{ width: '100%', margin: '0' }}>
+          <Grid container spacing={1} style={{ width: '100%', margin: '0' }}>
             <Grid item xs={4} style={{ paddingLeft: '10px', paddingTop: '10px', width: '100%' }}>
               <Typography className={styles.primaryText}>
                 {t('editor:layout.filebrowser.fileProperties.name')}
@@ -531,7 +531,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
               <Typography className={styles.primaryText}>
                 {t('editor:layout.filebrowser.fileProperties.size')}
               </Typography>
-              <Typography className={styles.primayText}>
+              <Typography className={styles.primaryText}>
                 {t('editor:layout.filebrowser.fileProperties.url')}
               </Typography>
             </Grid>
